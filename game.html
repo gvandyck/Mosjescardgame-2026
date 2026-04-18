@@ -3,13 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MOSJES — Game Board</title>
+  <title>MOSJES - Game Board</title>
   <link rel="stylesheet" href="styles/main.css" />
   <link rel="stylesheet" href="styles/board.css" />
   <link rel="stylesheet" href="styles/cards.css" />
 </head>
-<body>
-  <p>Game board — coming in Phase 5</p>
+<body class="page page--game">
+  <div class="bg-noise" aria-hidden="true"></div>
+
+  <header class="game-topbar">
+    <h1>MOSJES Arena</h1>
+    <p id="turn-label">Loading turn...</p>
+    <button id="btn-end-turn" class="btn-primary" type="button">End Turn</button>
+  </header>
+
+  <main class="game-layout">
+    <section class="game-board" id="board-root" aria-label="Game board"></section>
+
+    <aside class="game-log-panel">
+      <h2>Battle Log</h2>
+      <div id="log-root" class="game-log"></div>
+    </aside>
+
+    <section class="game-hand-panel">
+      <h2>Your Hand</h2>
+      <div id="hand-root" class="hand-strip"></div>
+    </section>
+  </main>
+
+  <div id="modal-root" class="modal-root"></div>
+
   <script type="module" src="src/main.js"></script>
 </body>
 </html>

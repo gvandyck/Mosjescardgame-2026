@@ -7,7 +7,51 @@
 //
 // Fully implemented in Phase 5. CSS classes defined in styles/cards.css.
 
-console.log('[UI] cardRenderer.js placeholder loaded');
+console.log('[UI] cardRenderer.js loaded');
+
+export function renderCard(card, options = {}) {
+  const element = document.createElement('article');
+  const type = String(card.type || 'UNKNOWN').toUpperCase();
+  const title = String(card.name || 'Unnamed Card');
+  const desc = String(card.description || card.flavourText || '');
+
+  element.className = [
+    'card',
+    getTypeClass(type),
+    getQuestCssClass(card),
+    options.compact ? 'card--compact' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  const typeLabel = card.questType === 'PERSONAL' ? 'PERSONAL QUEST' : type.replaceAll('_', ' ');
+  const difficulty = card.difficulty ? `<span class="card__difficulty">${escapeHtml(card.difficulty)}</span>` : '';
+  const badge = card.questType === 'PERSONAL'
+    ? `<span class="card__portrait-badge">${escapeHtml(shortMosjeName(card.requiredMosjeId))}</span>`
+    : '';
+
+  element.innerHTML = `
+    ${badge}
+    <div class="card__top">
+      <span class="card__type-label">${escapeHtml(typeLabel)}</span>
+      ${difficulty}
+    </div>
+    <h3 class="card__name">${escapeHtml(title)}</h3>
+    <p class="card__desc">${escapeHtml(desc)}</p>
+    ${renderMpMeta(card)}
+  `;
+
+  return element;
+}
+
+function getTypeClass(type) {
+  if (type === 'MOSJE') return 'card--mosje';
+  if (type === 'PIECIE') return 'card--piecie';
+  if (type === 'SNELLE_PIECIE') return 'card--snelle';
+  if (type === 'PLACE') return 'card--place';
+  if (type === 'QUEST') return 'card--quest';
+  return 'card--unknown';
+}
 
 // ─────────────────────────────────────────────────────────────
 // getQuestCssClass
@@ -19,4 +63,25 @@ export function getQuestCssClass(card) {
   if (card.type !== 'QUEST') return '';
   if (card.questType === 'PERSONAL') return 'card--quest-personal';
   return 'card--quest-general';
+}
+
+function renderMpMeta(card) {
+  if (typeof card.mp === 'number' || typeof card.level === 'number') {
+    return `<div class="card__meta">MP ${Number(card.mp || 0)} • LVL ${Number(card.level || 0)}</div>`;
+  }
+  return '';
+}
+
+function shortMosjeName(requiredMosjeId) {
+  if (!requiredMosjeId) return 'PQ';
+  return requiredMosjeId.replace('mosje_', '').slice(0, 3).toUpperCase();
+}
+
+function escapeHtml(text) {
+  return String(text)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
 }

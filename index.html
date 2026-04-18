@@ -3,12 +3,44 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MOSJES — Lobby</title>
+  <title>MOSJES - Lobby</title>
   <link rel="stylesheet" href="styles/main.css" />
 </head>
-<body>
-  <h1>MOSJES</h1>
-  <p>Lobby — coming in Phase 5</p>
+<body class="page page--lobby">
+  <div class="bg-noise" aria-hidden="true"></div>
+  <main class="lobby-shell">
+    <header class="lobby-header">
+      <p class="lobby-kicker">EIGHTYTWENTY CARDGAME</p>
+      <h1>MOSJES</h1>
+      <p>Build your squad. Pick your deck. Enter the arena.</p>
+    </header>
+
+    <section class="lobby-panel">
+      <form id="lobby-form" class="lobby-form">
+        <label for="player-name">Player Name</label>
+        <input id="player-name" name="player-name" type="text" maxlength="18" placeholder="e.g. Gandoe" required />
+
+        <label for="deck-select">Starter Deck</label>
+        <select id="deck-select" name="deck-select">
+          <option value="PHYSICAL_FORCE">Physical Force</option>
+          <option value="DIGITAL_CONTROL" selected>Digital Control</option>
+          <option value="ARTISTIC_RHYTHM">Artistic Rhythm</option>
+        </select>
+
+        <fieldset class="lobby-mode">
+          <legend>Game Mode</legend>
+          <label><input type="radio" name="lobby-mode" value="create" checked /> Create Room</label>
+          <label><input type="radio" name="lobby-mode" value="join" /> Join Room</label>
+        </fieldset>
+
+        <label for="room-code">Room Code (4 digits, join only)</label>
+        <input id="room-code" name="room-code" type="text" inputmode="numeric" maxlength="4" placeholder="4827" />
+
+        <button type="submit" class="btn-primary">Enter Game Board</button>
+      </form>
+    </section>
+  </main>
+
   <script type="module" src="src/main.js"></script>
 </body>
 </html>

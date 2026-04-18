@@ -7,6 +7,83 @@
 
 /* ── Quest card types ─────────────────────── */
 
+.card {
+  min-width: 170px;
+  max-width: 200px;
+  background: linear-gradient(160deg, #171d33 0%, #0f1425 100%);
+  border: 1px solid #2f3d6d;
+  border-radius: 10px;
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+  position: relative;
+  animation: card-slide-in 180ms ease-out;
+}
+
+.card--compact {
+  min-width: 150px;
+}
+
+.card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card__type-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.5px;
+  color: #d2dcff;
+}
+
+.card__difficulty {
+  font-size: 0.72rem;
+  color: #d0dbff;
+  background: #273864;
+  border-radius: 99px;
+  padding: 2px 7px;
+}
+
+.card__name {
+  font-size: 1rem;
+  color: #f2f6ff;
+  line-height: 1.2;
+}
+
+.card__desc {
+  font-size: 0.84rem;
+  color: #b4c1e9;
+  min-height: 34px;
+}
+
+.card__meta {
+  font-size: 0.78rem;
+  color: #d8e1ff;
+  border-top: 1px solid #33457d;
+  padding-top: 6px;
+}
+
+.card__portrait-badge {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffe78a 0%, #e4b600 65%, #9d7900 100%);
+  color: #121212;
+  display: grid;
+  place-items: center;
+  font-size: 0.66rem;
+  font-weight: 800;
+}
+
+.card--mosje { border-color: var(--color-gold); box-shadow: 0 0 20px rgba(255, 215, 0, 0.12); }
+.card--piecie { border-color: var(--color-blue); box-shadow: 0 0 20px rgba(74, 158, 255, 0.1); }
+.card--snelle { border-color: var(--color-red); box-shadow: 0 0 20px rgba(255, 74, 74, 0.12); }
+.card--place { border-color: var(--color-green); box-shadow: 0 0 20px rgba(74, 255, 158, 0.11); }
+.card--quest { border-color: var(--color-purple); box-shadow: 0 0 20px rgba(196, 74, 255, 0.13); }
+
 /* GENERAL Quest — purple border */
 .card--quest-general {
   border: 2px solid var(--color-purple);
@@ -21,7 +98,18 @@
 
 /* "PERSONAL QUEST" label badge shown on Personal Quest cards */
 .card--quest-personal .card__type-label::after {
-  content: " — PERSONAL";
+  content: " • PERSONAL";
   color: var(--color-gold);
   font-size: 0.75em;
+}
+
+@keyframes card-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }

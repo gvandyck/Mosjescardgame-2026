@@ -2,4 +2,38 @@
 // Appends messages with emoji prefixes: ⚔️ attack, 🎯 quest, 💥 MP gain, etc.
 // Filled in Phase 5.
 
-console.log('[UI] logRenderer.js placeholder loaded');
+console.log('[UI] logRenderer.js loaded');
+
+const ICONS = {
+	attack: '⚔️',
+	quest: '🎯',
+	gain: '💥',
+	loss: '📉',
+	level: '⬆️',
+	win: '🏆',
+};
+
+export function createLogRenderer(container) {
+	if (!container) {
+		return {
+			add: () => {},
+			clear: () => {},
+		};
+	}
+
+	function add(type, message) {
+		const row = document.createElement('div');
+		row.className = 'log-row';
+		const icon = ICONS[type] || '•';
+		row.textContent = `${icon} ${message}`;
+		container.prepend(row);
+		console.log('[UI] Log:', type, message);
+	}
+
+	function clear() {
+		container.innerHTML = '';
+		console.log('[UI] Log cleared');
+	}
+
+	return { add, clear };
+}
