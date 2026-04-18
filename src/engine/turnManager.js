@@ -6,7 +6,6 @@ import { drawCards } from './deckEngine.js';
 import { gainMP, applyStatusEffectMP, getTotalMPForPlayer } from './mpManager.js';
 import { checkVictory } from './victoryChecker.js';
 import { getAllPlayerIds } from './gameState.js';
-import { resolveQuest } from '../abilities/questLogic.js';
 import * as placeEffects from '../abilities/placeEffects.js';
 
 console.log('[ENGINE] turnManager.js loaded');
@@ -132,11 +131,11 @@ export function endTurn(gameState) {
 // attemptGeneralQuest
 // Option A of the Quest Phase.
 // Draws the top card from sharedGeneralQuestDeck.
-// The actual dice roll and MP application happen in questLogic.js (Phase 4).
 // Returns { state, questCard } so the UI can show the quest to the player.
+// The UI will then call confirmQuestResult() to resolve it.
 // ─────────────────────────────────────────────────────────────
 export function attemptGeneralQuest(gameState) {
-  const state = JSON.parse(JSON.stringify(gameState));
+  let state = JSON.parse(JSON.stringify(gameState));
   const playerId = state.activePlayerId;
   const player = state.players[playerId];
 
@@ -155,15 +154,7 @@ export function attemptGeneralQuest(gameState) {
 
   player.hasAttemptedQuestThisTurn = true;
 
-  // Phase 4: resolve quest immediately via questLogic
-  const result = resolveQuest(state, playerId, questCard);
-  state = result.state;
-  // Move quest card to discard
-  state.sharedGeneralQuestDiscard = state.sharedGeneralQuestDiscard || [];
-  state.sharedGeneralQuestDiscard.unshift(questCard);
-  console.log(`[ENGINE] General Quest resolved: ${result.success ? 'SUCCESS' : 'FAIL'}`);
-
-  return { state, questCard, questResult: result };
+  return { state, questCard };
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -174,7 +165,7 @@ export function attemptGeneralQuest(gameState) {
 // Returns { state, questCard, eligible }
 // ─────────────────────────────────────────────────────────────
 export function attemptPersonalQuest(gameState, questCardId) {
-  const state = JSON.parse(JSON.stringify(gameState));
+  let state = JSON.parse(JSON.stringify(gameState));
   const playerId = state.activePlayerId;
   const player = state.players[playerId];
 
@@ -193,11 +184,5 @@ export function attemptPersonalQuest(gameState, questCardId) {
   player.hasAttemptedQuestThisTurn = true;
   console.log('[ENGINE] Personal Quest played from hand:', questCardId);
 
-  // Phase 4: resolve quest via questLogic
-  const result = resolveQuest(state, playerId, questCard);
-  state = result.state;
-  state.players[playerId].discard.unshift(questCard);
-  console.log(`[ENGINE] Personal Quest resolved: ${result.success ? 'SUCCESS' : 'FAIL'}`);
-
-  return { state, questCard, eligible: true, questResult: result };
+  return { state, questCard, eligible: true };
 }
