@@ -113,3 +113,43 @@
     transform: translateY(0) scale(1);
   }
 }
+
+/* ── Playable hand cards ─────────────────── */
+
+.hand-card--playable {
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.hand-card--playable:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(74, 158, 255, 0.35);
+}
+
+.hand-card__play-btn {
+  width: 100%;
+  margin-top: 6px;
+  padding: 6px 0;
+  border: none;
+  border-radius: 6px;
+  background: var(--color-blue, #4a9eff);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background 100ms ease;
+}
+
+.hand-card__play-btn:hover {
+  background: #6db8ff;
+}
+
+.card--snelle .hand-card__play-btn {
+  background: var(--color-red, #ff4a4a);
+}
+
+.card--snelle .hand-card__play-btn:hover {
+  background: #ff7070;
+}
+

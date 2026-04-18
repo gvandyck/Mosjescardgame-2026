@@ -230,6 +230,59 @@
    color: var(--color-red);
 }
 
+/* Text input modal */
+.modal-input {
+   width: 100%;
+   padding: 8px 10px;
+   background: #1b2444;
+   border: 1px solid #38549a;
+   border-radius: 8px;
+   color: #e6ebff;
+   font-size: 1rem;
+   outline: none;
+   box-sizing: border-box;
+}
+
+.modal-input:focus {
+   border-color: var(--color-blue, #5aa5ff);
+}
+
+/* Card choice list modal */
+.modal-card-list {
+   list-style: none;
+   margin: 0;
+   padding: 0;
+   display: grid;
+   gap: 6px;
+   max-height: 320px;
+   overflow-y: auto;
+}
+
+.modal-card-option {
+   width: 100%;
+   text-align: left;
+   padding: 8px 12px;
+   background: #1b2444;
+   border: 1px solid #38549a;
+   border-radius: 8px;
+   color: #e6ebff;
+   cursor: pointer;
+   display: grid;
+   gap: 3px;
+   transition: background 100ms ease, border-color 100ms ease;
+}
+
+.modal-card-option:hover {
+   background: #253369;
+   border-color: var(--color-blue, #5aa5ff);
+}
+
+.modal-card-option__desc {
+   font-size: 0.78rem;
+   color: #8fa0cc;
+   display: block;
+}
+
 @media (min-width: 768px) {
    .game-layout {
       grid-template-columns: 2fr 1fr;

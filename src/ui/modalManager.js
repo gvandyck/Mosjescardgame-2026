@@ -124,7 +124,89 @@ export function initModalManager(container) {
 		});
 	}
 
-	return { showInfo, showDiceRoll, showConfirm, close };
+	// Shows a free-text input prompt and resolves with the trimmed string.
+	// Returns an empty string if the user cancels.
+	async function showTextInput(title, placeholder = '') {
+		return new Promise(resolve => {
+			container.classList.add('modal-root--open');
+			container.innerHTML = `
+				<div class="modal-backdrop"></div>
+				<section class="modal-card" role="dialog" aria-modal="true">
+					<h3>${escapeHtml(title)}</h3>
+					<input class="modal-input" id="modal-text-input" type="text"
+						placeholder="${escapeHtml(placeholder)}" autocomplete="off" />
+					<div class="modal-actions">
+						<button class="modal-btn" id="modal-confirm">Confirm</button>
+						<button class="modal-btn modal-btn--ghost" id="modal-cancel">Cancel</button>
+					</div>
+				</section>
+			`;
+
+			const input = container.querySelector('#modal-text-input');
+			input?.focus();
+
+			container.querySelector('#modal-confirm')?.addEventListener('click', () => {
+				const value = input?.value?.trim() || '';
+				close();
+				resolve(value);
+			});
+
+			container.querySelector('#modal-cancel')?.addEventListener('click', () => {
+				close();
+				resolve('');
+			});
+
+			// Allow Enter to confirm
+			input?.addEventListener('keydown', (e) => {
+				if (e.key === 'Enter') {
+					const value = input.value.trim() || '';
+					close();
+					resolve(value);
+				}
+			});
+		});
+	}
+
+	// Shows a list of cards to pick from. Resolves with the chosen card object, or null if cancelled.
+	// cards — array of { cardId, name, description, type? }
+	async function showCardChoice(title, cards) {
+		return new Promise(resolve => {
+			container.classList.add('modal-root--open');
+
+			const optionItems = cards.map((card, i) =>
+				`<li>
+					<button class="modal-card-option" data-index="${i}" type="button">
+						<strong>${escapeHtml(card.name)}</strong>
+						${card.description ? `<span class="modal-card-option__desc">${escapeHtml(card.description)}</span>` : ''}
+					</button>
+				</li>`
+			).join('');
+
+			container.innerHTML = `
+				<div class="modal-backdrop"></div>
+				<section class="modal-card" role="dialog" aria-modal="true">
+					<h3>${escapeHtml(title)}</h3>
+					<ul class="modal-card-list">${optionItems}</ul>
+					<button class="modal-btn modal-btn--ghost" id="modal-cancel">Cancel</button>
+				</section>
+			`;
+
+			container.querySelectorAll('.modal-card-option').forEach(btn => {
+				btn.addEventListener('click', () => {
+					const index = parseInt(btn.dataset.index, 10);
+					close();
+					resolve(cards[index] ?? null);
+				});
+			});
+
+			container.querySelector('#modal-cancel')?.addEventListener('click', () => {
+				close();
+				resolve(null);
+			});
+		});
+	}
+
+	return { showInfo, showDiceRoll, showConfirm, showTextInput, showCardChoice, close };
 }
 
 function escapeHtml(text) {

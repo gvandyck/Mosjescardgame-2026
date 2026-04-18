@@ -7,6 +7,8 @@ import { gainMP, applyStatusEffectMP, getTotalMPForPlayer } from './mpManager.js
 import { checkVictory } from './victoryChecker.js';
 import { getAllPlayerIds } from './gameState.js';
 import * as placeEffects from '../abilities/placeEffects.js';
+import * as piecieEffects from '../abilities/piecieEffects.js';
+import * as snelleEffects from '../abilities/snelleEffects.js';
 
 console.log('[ENGINE] turnManager.js loaded');
 
@@ -185,4 +187,91 @@ export function attemptPersonalQuest(gameState, questCardId) {
   console.log('[ENGINE] Personal Quest played from hand:', questCardId);
 
   return { state, questCard, eligible: true };
+}
+
+// ─────────────────────────────────────────────────────────────
+// playPiecie
+// Plays a Piecie card from the active player's hand.
+// Removes the card from hand, applies its effect, moves it to discard.
+// cardRef — the hand reference object { cardId, type }
+// cardDef — full card definition from PIECIES data (has effectId, tags)
+// Returns { state, success, error? }
+// ─────────────────────────────────────────────────────────────
+export function playPiecie(gameState, playerId, cardRef, cardDef) {
+  let state = JSON.parse(JSON.stringify(gameState));
+  const player = state.players[playerId];
+  if (!player) return { state, success: false, error: 'Player not found' };
+
+  // Check The Void restriction (blocks RESTORE and FOOD Piecies)
+  if (state.activePlace === 'place_the_void') {
+    const blocked = ['RESTORE', 'FOOD'];
+    if (cardDef.tags?.some(t => blocked.includes(t))) {
+      console.log('[ENGINE] The Void blocks RESTORE/FOOD Piecies');
+      return { state, success: false, error: 'The Void blocks RESTORE and FOOD Piecies' };
+    }
+  }
+
+  // Remove from hand
+  const handIndex = player.hand.findIndex(c => c.cardId === cardRef.cardId);
+  if (handIndex === -1) return { state, success: false, error: 'Card not in hand' };
+  player.hand.splice(handIndex, 1);
+
+  // Apply the effect function
+  const effectFn = piecieEffects[cardDef.effectId];
+  if (typeof effectFn === 'function') {
+    state = effectFn(state, playerId);
+    console.log(`[ENGINE] Piecie played: ${cardDef.name} (${cardDef.effectId})`);
+  } else {
+    console.warn(`[ENGINE] No effect function found for: ${cardDef.effectId}`);
+  }
+
+  // Track play counters
+  state.players[playerId].pieciesPlayedThisTurn = (state.players[playerId].pieciesPlayedThisTurn || 0) + 1;
+  const primaryTag = cardDef.tags?.[0] || null;
+  state.players[playerId].lastCardPlayedType = primaryTag;
+
+  // Apply Momentum Factory bonus if active (first Piecie each turn gets +10 MP)
+  if (state.activePlace === 'place_momentum_factory') {
+    state = placeEffects.effect_momentum_factory(state);
+  }
+
+  // Move card to discard pile
+  state.players[playerId].discard.unshift(cardRef);
+
+  state = checkVictory(state);
+  return { state, success: true };
+}
+
+// ─────────────────────────────────────────────────────────────
+// playSnellie
+// Plays a Snelle Piecie (instant) card from the active player's hand.
+// Snelle Piecies can be played at any time, not just on your own turn.
+// cardRef — the hand reference object { cardId, type }
+// cardDef — full card definition from SNELLE_PIECIES data (has effectId)
+// Returns { state, success, error? }
+// ─────────────────────────────────────────────────────────────
+export function playSnellie(gameState, playerId, cardRef, cardDef) {
+  let state = JSON.parse(JSON.stringify(gameState));
+  const player = state.players[playerId];
+  if (!player) return { state, success: false, error: 'Player not found' };
+
+  // Remove from hand
+  const handIndex = player.hand.findIndex(c => c.cardId === cardRef.cardId);
+  if (handIndex === -1) return { state, success: false, error: 'Card not in hand' };
+  player.hand.splice(handIndex, 1);
+
+  // Apply the effect function
+  const effectFn = snelleEffects[cardDef.effectId];
+  if (typeof effectFn === 'function') {
+    state = effectFn(state, playerId);
+    console.log(`[ENGINE] Snelle Piecie played: ${cardDef.name} (${cardDef.effectId})`);
+  } else {
+    console.warn(`[ENGINE] No snelle effect function found for: ${cardDef.effectId}`);
+  }
+
+  // Move card to discard pile
+  state.players[playerId].discard.unshift(cardRef);
+
+  state = checkVictory(state);
+  return { state, success: true };
 }

@@ -6,7 +6,7 @@ import { createLogRenderer } from './ui/logRenderer.js';
 import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
 import { createInitialGameState } from './engine/gameState.js';
-import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest } from './engine/turnManager.js';
+import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, playSnellie } from './engine/turnManager.js';
 import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold } from './abilities/questLogic.js';
 import { MOSJES } from './data/mosjes.js';
 import { PIECIES } from './data/piecies.js';
@@ -219,15 +219,25 @@ function initGamePage() {
 	function renderFromState(state) {
 		const uiState = toBoardViewModel(state, 'player_1');
 		renderBoard(boardRoot, uiState);
-		renderHand(handRoot, toHandViewModel(state.players.player_1.hand));
-
-		if (turnLabel) {
-			turnLabel.textContent = `${uiState.activePlayerName} • DRAW Phase`;
-		}
 
 		const isLocalTurn = state.activePlayerId === 'player_1';
 		const alreadyAttempted = state.players.player_1.hasAttemptedQuestThisTurn;
-		const questBtnsEnabled = isLocalTurn && !alreadyAttempted && state.status !== 'FINISHED';
+		const gameOver = state.status === 'FINISHED';
+
+		// Pass onPlay callback only on local turn during active game
+		const onPlay = (isLocalTurn && !gameOver) ? handlePlayCard : null;
+		renderHand(handRoot, toHandViewModel(state.players.player_1.hand), onPlay);
+
+		const questBtnsEnabled = isLocalTurn && !alreadyAttempted && !gameOver;
+		const phaseLabel = gameOver
+			? 'Game Over'
+			: isLocalTurn
+				? (alreadyAttempted ? 'MAIN Phase' : 'MAIN / QUEST Phase')
+				: `${uiState.activePlayerName}'s Turn`;
+
+		if (turnLabel) {
+			turnLabel.textContent = `${isLocalTurn ? 'You' : uiState.activePlayerName} • ${phaseLabel}`;
+		}
 
 		const btnGeneral = document.getElementById('btn-general-quest');
 		const btnPersonal = document.getElementById('btn-personal-quest');
@@ -235,7 +245,47 @@ function initGamePage() {
 
 		if (btnGeneral) btnGeneral.disabled = !questBtnsEnabled;
 		if (btnPersonal) btnPersonal.disabled = !questBtnsEnabled;
-		if (btnEndTurn) btnEndTurn.disabled = !isLocalTurn || state.status === 'FINISHED';
+		if (btnEndTurn) btnEndTurn.disabled = !isLocalTurn || gameOver;
+	}
+
+	function handlePlayCard(cardId, cardType) {
+		if (gameState.status === 'FINISHED') return;
+
+		const cardRef = gameState.players.player_1.hand.find(c => c.cardId === cardId);
+		const cardDef = CARD_LOOKUP[cardId];
+		if (!cardRef || !cardDef) {
+			console.warn('[UI] Unknown card played:', cardId);
+			return;
+		}
+
+		if (cardType === 'PIECIE') {
+			const { state: newState, success, error } = playPiecie(gameState, 'player_1', cardRef, cardDef);
+			if (!success) {
+				modal.showInfo('Cannot Play', error || 'That card cannot be played right now.');
+				return;
+			}
+			gameState = newState;
+			log.add('gain', `Played ${cardDef.name}.`);
+			if (cardDef.description) log.add('info', cardDef.description);
+			if (gameState.status === 'FINISHED') {
+				const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
+				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
+				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+			}
+			renderFromState(gameState);
+			return;
+		}
+
+		if (cardType === 'SNELLE_PIECIE') {
+			const { state: newState, success, error } = playSnellie(gameState, 'player_1', cardRef, cardDef);
+			if (!success) {
+				modal.showInfo('Cannot Play', error || 'That card cannot be played right now.');
+				return;
+			}
+			gameState = newState;
+			log.add('gain', `Played ${cardDef.name} (instant).`);
+			renderFromState(gameState);
+		}
 	}
 }
 
@@ -302,6 +352,7 @@ function toHandViewModel(hand) {
 		}
 
 		return {
+			cardId: cardRef.cardId,
 			name: def.name,
 			type: def.type,
 			description: def.description || def.requirementDescription || def.flavourText || '',
