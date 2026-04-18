@@ -13,6 +13,9 @@ import { PIECIES } from './data/piecies.js';
 import { SNELLE_PIECIES } from './data/snellePiecies.js';
 import { PLACES } from './data/places.js';
 import { QUESTS } from './data/quests.js';
+import { createRoom, joinRoom } from './multiplayer/roomManager.js';
+import { pushState, listenToState, stopListening } from './multiplayer/syncManager.js';
+import { eventBus } from './multiplayer/eventBus.js';
 
 console.log('[UI] App bootstrapping...');
 
@@ -33,29 +36,68 @@ function initLobbyPage() {
 	const form = document.getElementById('lobby-form');
 	if (!form) return;
 
-	form.addEventListener('submit', event => {
+	form.addEventListener('submit', async event => {
 		event.preventDefault();
 		const name = String(document.getElementById('player-name')?.value || '').trim();
 		const deckId = String(document.getElementById('deck-select')?.value || 'DIGITAL_CONTROL');
 		const mode = String(document.querySelector('input[name="lobby-mode"]:checked')?.value || 'create');
-		const roomCode = String(document.getElementById('room-code')?.value || '').trim();
+		const roomCodeInput = String(document.getElementById('room-code')?.value || '').trim();
 
 		if (!name) {
 			window.alert('Please enter your player name.');
 			return;
 		}
 
-		if (mode === 'join' && roomCode.length !== 4) {
+		if (mode === 'join' && roomCodeInput.length !== 4) {
 			window.alert('Please enter a 4-digit room code to join.');
 			return;
 		}
 
-		sessionStorage.setItem(
-			'mosjes:lobby',
-			JSON.stringify({ name, deckId, mode, roomCode })
-		);
-		console.log('[UI] Lobby selection saved:', { name, deckId, mode, roomCode });
-		window.location.href = './game.html';
+		const submitBtn = form.querySelector('button[type="submit"]');
+		if (submitBtn) submitBtn.disabled = true;
+
+		if (mode === 'create') {
+			const result = await createRoom(name, deckId);
+			if (!result.success) {
+				window.alert(result.error || 'Could not create a room. Please try again.');
+				if (submitBtn) submitBtn.disabled = false;
+				return;
+			}
+			const code = result.roomCode;
+			// Show room code to player so they can share it
+			const display = document.getElementById('room-code-display');
+			const codeEl = document.getElementById('room-code-value');
+			if (display && codeEl) {
+				codeEl.textContent = code;
+				display.hidden = false;
+				form.hidden = true;
+			}
+			sessionStorage.setItem('mosjes:lobby', JSON.stringify({ name, deckId, mode: 'create', roomCode: code, playerId: 'player_1' }));
+			console.log('[UI] Room created:', code);
+			setTimeout(() => {
+				window.location.href = `./game.html?room=${encodeURIComponent(code)}&player=player_1`;
+			}, 2000);
+		} else {
+			const result = await joinRoom(roomCodeInput, name, deckId);
+			if (!result.success) {
+				window.alert(result.error || 'Could not join room. Please check the code and try again.');
+				if (submitBtn) submitBtn.disabled = false;
+				return;
+			}
+			// Store opponent (player_1) data if available from room doc
+			const opponentData = result.roomDoc?.players?.player_1 || {};
+			sessionStorage.setItem('mosjes:lobby', JSON.stringify({
+				name,
+				deckId,
+				mode: 'join',
+				roomCode: roomCodeInput,
+				playerId: 'player_2',
+				opponentName: opponentData.name || 'Opponent',
+				opponentDeckId: opponentData.deckId || 'PHYSICAL_FORCE',
+			}));
+			console.log('[UI] Joined room:', roomCodeInput);
+			window.location.href = `./game.html?room=${encodeURIComponent(roomCodeInput)}&player=player_2`;
+		}
 	});
 }
 
@@ -73,29 +115,101 @@ function initGamePage() {
 		return;
 	}
 
+	const urlParams = new URLSearchParams(window.location.search);
 	const lobbyData = readLobbyData();
 	const log = createLogRenderer(logRoot);
 	const modal = initModalManager(modalRoot);
 
+	// Determine which player this client controls
+	const localPlayerId = urlParams.get('player') || lobbyData.playerId || 'player_1';
+	const opponentId = localPlayerId === 'player_1' ? 'player_2' : 'player_1';
+	const roomCode = urlParams.get('room') || lobbyData.roomCode || 'LOCAL';
+
 	const localPlayerName = lobbyData.name || 'Player 1';
 	const localDeckId = lobbyData.deckId || 'DIGITAL_CONTROL';
-	const opponentDeckId = pickOpponentDeck(localDeckId);
+	const opponentName = lobbyData.opponentName || 'Opponent';
+	const opponentDeckId = lobbyData.opponentDeckId || pickOpponentDeck(localDeckId);
 
-	let gameState = createInitialGameState(
-		[
-			{ playerId: 'player_1', name: localPlayerName, deckId: localDeckId },
-			{ playerId: 'player_2', name: 'Opponent', deckId: opponentDeckId },
-		],
-		lobbyData.roomCode || 'LOCAL'
-	);
+	const isOnline = roomCode !== 'LOCAL';
 
-	gameState = startTurn(gameState);
-	renderFromState(gameState);
+	let gameState = null;
 
-	log.add('quest', `${localPlayerName} entered room ${gameState.roomCode}.`);
-	log.add('gain', `Turn ${gameState.turnNumber} started for ${gameState.players[gameState.activePlayerId].name}.`);
+	// ── Sync helpers ──────────────────────────────────────────────────────
+	function syncPush() {
+		if (isOnline && gameState) pushState(roomCode, gameState);
+	}
+
+	// ── Shared remote-state handler — registered after game init ─────────
+	function onRemoteState(remoteState) {
+		gameState = remoteState;
+		renderFromState(gameState);
+		const activeName = gameState.players[gameState.activePlayerId]?.name;
+		log.add('quest', `Opponent acted — now ${activeName}'s turn.`);
+		if (gameState.status === 'FINISHED') {
+			stopListening();
+			const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
+			log.add('win', `${winnerName} won by ${gameState.winReason}.`);
+			modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+		}
+	}
+
+	// ── Initialize game ──────────────────────────────────────────────────
+	function startGame(p1Name, p1Deck, p2Name, p2Deck) {
+		const players = [
+			{ playerId: 'player_1', name: p1Name, deckId: p1Deck },
+			{ playerId: 'player_2', name: p2Name, deckId: p2Deck },
+		];
+		gameState = createInitialGameState(players, roomCode);
+		gameState = startTurn(gameState);
+		renderFromState(gameState);
+		log.add('quest', `${localPlayerName} entered room ${roomCode}.`);
+		log.add('gain', `Turn ${gameState.turnNumber} started for ${gameState.players[gameState.activePlayerId].name}.`);
+		// Register ongoing remote handler for when opponent acts
+		eventBus.on('mp:remote-state', onRemoteState);
+		if (isOnline && localPlayerId === 'player_1') syncPush();
+	}
+
+	if (localPlayerId === 'player_1') {
+		if (isOnline) {
+			// Wait for player_2 to join, then start game
+			if (turnLabel) turnLabel.textContent = 'Waiting for opponent to join...';
+			log.add('quest', `Room code: ${roomCode}`);
+			listenToState(roomCode, localPlayerId);
+			eventBus.once('mp:player2-joined', p2Data => {
+				log.add('gain', `${p2Data.name} joined the room!`);
+				startGame(localPlayerName, localDeckId, p2Data.name, p2Data.deckId || pickOpponentDeck(localDeckId));
+			});
+		} else {
+			// LOCAL mode — start immediately
+			startGame(localPlayerName, localDeckId, opponentName, opponentDeckId);
+		}
+	} else {
+		// player_2: wait for player_1 to push initial state via onSnapshot
+		if (turnLabel) turnLabel.textContent = 'Connecting to game...';
+		log.add('quest', `Joining room ${roomCode} as ${localPlayerName}...`);
+		listenToState(roomCode, localPlayerId);
+		// First remote state initialises the game for player_2, then ongoing handler takes over
+		eventBus.once('mp:remote-state', initialState => {
+			gameState = initialState;
+			renderFromState(gameState);
+			log.add('gain', `Game started! Waiting for opponent's first turn.`);
+			eventBus.on('mp:remote-state', onRemoteState);
+		});
+		// For LOCAL testing as player_2, fall back to starting immediately
+		if (!isOnline) {
+			startGame(opponentName, opponentDeckId, localPlayerName, localDeckId);
+		}
+	}
+
+	// Stop Firestore listener on page unload
+	window.addEventListener('beforeunload', stopListening);
 
 	document.getElementById('btn-end-turn')?.addEventListener('click', () => {
+		if (!gameState) return;
+		if (gameState.activePlayerId !== localPlayerId) {
+			modal.showInfo('Not Your Turn', 'Wait for your opponent to end their turn.');
+			return;
+		}
 		const previousPlayerName = gameState.players[gameState.activePlayerId].name;
 		gameState = endTurn(gameState);
 		if (gameState.status !== 'FINISHED') {
@@ -103,9 +217,11 @@ function initGamePage() {
 		}
 
 		renderFromState(gameState);
+		syncPush();
 		log.add('quest', `${previousPlayerName} ended their turn.`);
 
 		if (gameState.status === 'FINISHED') {
+			stopListening();
 			const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
 			log.add('win', `${winnerName} won by ${gameState.winReason}.`);
 			modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
@@ -117,17 +233,19 @@ function initGamePage() {
 	});
 
 	document.getElementById('btn-general-quest')?.addEventListener('click', () => {
-		if (gameState.activePlayerId !== 'player_1') {
+		if (!gameState) return;
+		if (gameState.activePlayerId !== localPlayerId) {
 			modal.showInfo('Not Your Turn', 'You can only attempt quests on your own turn.');
 			return;
 		}
-		if (gameState.players.player_1.hasAttemptedQuestThisTurn) {
+		if (gameState.players[localPlayerId].hasAttemptedQuestThisTurn) {
 			modal.showInfo('Already Attempted', 'You have already attempted a quest this turn.');
 			return;
 		}
 
 		const { state: newState, questCard: questRef } = attemptGeneralQuest(gameState);
 		gameState = newState;
+
 
 		if (!questRef) {
 			log.add('quest', 'General Quest deck is empty!');
@@ -142,8 +260,8 @@ function initGamePage() {
 			return;
 		}
 
-		const activeMosje = gameState.players.player_1.activeSlots.find(s => s && !s.isDefeated);
-		if (!canAttemptGeneralQuest(questDef, gameState, 'player_1')) {
+		const activeMosje = gameState.players[localPlayerId].activeSlots.find(s => s && !s.isDefeated);
+		if (!canAttemptGeneralQuest(questDef, gameState, localPlayerId)) {
 			log.add('quest', `Cannot attempt ${questDef.name} — active Mosje has negative MP.`);
 			gameState.sharedGeneralQuestDiscard.push(questRef);
 			renderFromState(gameState);
@@ -154,15 +272,16 @@ function initGamePage() {
 		log.add('quest', `${localPlayerName} is attempting General Quest: ${questDef.name}`);
 
 		const diceBonus = gameState._snelleFlags?.questDiceBonus || 0;
-		const forceReroll = gameState._snelleFlags?.forceReroll?.['player_1'] ?? false;
+		const forceReroll = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
 		// Consume the flags before showing the modal
 		if (diceBonus) delete gameState._snelleFlags.questDiceBonus;
-		if (forceReroll) delete gameState._snelleFlags.forceReroll['player_1'];
+		if (forceReroll) delete gameState._snelleFlags.forceReroll[localPlayerId];
 
 		modal.showDiceRoll(questDef, threshold, (didSucceed) => {
-			gameState = resolveQuest(gameState, 'player_1', questDef, didSucceed);
+			gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed);
 			gameState.sharedGeneralQuestDiscard.push(questRef);
 			renderFromState(gameState);
+			syncPush();
 
 			const mpDelta = didSucceed ? questDef.successMP : questDef.failMP;
 			const sign = mpDelta >= 0 ? '+' : '';
@@ -173,16 +292,17 @@ function initGamePage() {
 	});
 
 	document.getElementById('btn-personal-quest')?.addEventListener('click', () => {
-		if (gameState.activePlayerId !== 'player_1') {
+		if (!gameState) return;
+		if (gameState.activePlayerId !== localPlayerId) {
 			modal.showInfo('Not Your Turn', 'You can only attempt quests on your own turn.');
 			return;
 		}
-		if (gameState.players.player_1.hasAttemptedQuestThisTurn) {
+		if (gameState.players[localPlayerId].hasAttemptedQuestThisTurn) {
 			modal.showInfo('Already Attempted', 'You have already attempted a quest this turn.');
 			return;
 		}
 
-		const personalQuestsInHand = gameState.players.player_1.hand.filter(
+		const personalQuestsInHand = gameState.players[localPlayerId].hand.filter(
 			c => CARD_LOOKUP[c.cardId]?.questType === 'PERSONAL'
 		);
 
@@ -195,7 +315,7 @@ function initGamePage() {
 		const handCard = personalQuestsInHand[0];
 		const questDef = CARD_LOOKUP[handCard.cardId];
 
-		if (!canAttemptPersonalQuest(questDef, gameState, 'player_1')) {
+		if (!canAttemptPersonalQuest(questDef, gameState, localPlayerId)) {
 			modal.showInfo(
 				'Required Mosje Missing',
 				`${questDef.name} requires ${questDef.requiredMosjeId} on the field.`
@@ -206,18 +326,19 @@ function initGamePage() {
 		const { state: newState, questCard: playedCard } = attemptPersonalQuest(gameState, handCard.cardId);
 		gameState = newState;
 
-		const activeMosje = gameState.players.player_1.activeSlots.find(s => s && !s.isDefeated);
+		const activeMosje = gameState.players[localPlayerId].activeSlots.find(s => s && !s.isDefeated);
 		const threshold = getQuestDiceThreshold(questDef, activeMosje);
 		log.add('quest', `${localPlayerName} is attempting Personal Quest: ${questDef.name}`);
 
 		const diceBonus2 = gameState._snelleFlags?.questDiceBonus || 0;
-		const forceReroll2 = gameState._snelleFlags?.forceReroll?.['player_1'] ?? false;
+		const forceReroll2 = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
 		if (diceBonus2) delete gameState._snelleFlags.questDiceBonus;
-		if (forceReroll2) delete gameState._snelleFlags.forceReroll['player_1'];
+		if (forceReroll2) delete gameState._snelleFlags.forceReroll[localPlayerId];
 
 		modal.showDiceRoll(questDef, threshold, (didSucceed) => {
-			gameState = resolveQuest(gameState, 'player_1', questDef, didSucceed);
+			gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed);
 			renderFromState(gameState);
+			syncPush();
 
 			const mpDelta = didSucceed ? questDef.successMP : questDef.failMP;
 			const sign = mpDelta >= 0 ? '+' : '';
@@ -228,10 +349,10 @@ function initGamePage() {
 	});
 
 	function renderFromState(state) {
-		const uiState = toBoardViewModel(state, 'player_1');
+		const uiState = toBoardViewModel(state, localPlayerId);
 
-		const isLocalTurn = state.activePlayerId === 'player_1';
-		const alreadyAttempted = state.players.player_1.hasAttemptedQuestThisTurn;
+		const isLocalTurn = state.activePlayerId === localPlayerId;
+		const alreadyAttempted = state.players[localPlayerId].hasAttemptedQuestThisTurn;
 		const gameOver = state.status === 'FINISHED';
 
 		// Regular cards only on local turn; Snelle Piecies always available
@@ -263,19 +384,21 @@ function initGamePage() {
 	}
 
 	function handleUseAbility(mosjeId) {
-		if (gameState.status === 'FINISHED') return;
+		if (!gameState || gameState.status === 'FINISHED') return;
 
-		const { state: newState, success, error } = useMosjeAbility(gameState, 'player_1', mosjeId);
+		const { state: newState, success, error } = useMosjeAbility(gameState, localPlayerId, mosjeId);
 		if (!success) {
 			modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
 			return;
 		}
 		gameState = newState;
 
-		const slot = gameState.players.player_1.activeSlots.find(s => s?.cardId === mosjeId);
+		const slot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
 		log.add('gain', `Used ability: ${slot?.name || mosjeId}.`);
+		syncPush();
 
 		if (gameState.status === 'FINISHED') {
+			stopListening();
 			const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
 			log.add('win', `${winnerName} won by ${gameState.winReason}.`);
 			modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
@@ -284,18 +407,18 @@ function initGamePage() {
 	}
 
 	async function handlePlayCard(cardId, cardType) {
-		if (gameState.status === 'FINISHED') return;
+		if (!gameState || gameState.status === 'FINISHED') return;
 
 		// Enforce turn ownership — Snelle Piecies always allowed
-		if (!canPlayerActNow(gameState, 'player_1', cardType)) {
+		if (!canPlayerActNow(gameState, localPlayerId, cardType)) {
 			modal.showInfo('Not Your Turn', 'You can only play regular cards on your own turn.');
 			return;
 		}
 
 		// Targeting cards: show selector, then dispatch with resolved targets
 		async function resolveTargetingCard(def, ref) {
-			const oppTargets = getOpponentMosjes(gameState, 'player_1');
-			const ownTargets = getPlayerMosjes(gameState, 'player_1');
+			const oppTargets = getOpponentMosjes(gameState, localPlayerId);
+			const ownTargets = getPlayerMosjes(gameState, localPlayerId);
 
 			if (oppTargets.length === 0) {
 				modal.showInfo('No Targets', 'No valid opponent targets.');
@@ -323,14 +446,16 @@ function initGamePage() {
 				affoe_gain: gainId,
 			};
 
-			const { state: newState, success, error } = playPiecie(stateWithTargets, 'player_1', ref, def);
+			const { state: newState, success, error } = playPiecie(stateWithTargets, localPlayerId, ref, def);
 			if (!success) {
 				modal.showInfo('Cannot Play', error || 'That card cannot be played right now.');
 				return;
 			}
 			gameState = newState;
 			log.add('gain', `Played ${def.name}.`);
+			syncPush();
 			if (gameState.status === 'FINISHED') {
+				stopListening();
 				const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
 				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
 				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
@@ -338,7 +463,7 @@ function initGamePage() {
 			renderFromState(gameState);
 		}
 
-		const cardRef = gameState.players.player_1.hand.find(c => c.cardId === cardId);
+		const cardRef = gameState.players[localPlayerId].hand.find(c => c.cardId === cardId);
 		const cardDef = CARD_LOOKUP[cardId];
 		if (!cardRef || !cardDef) {
 			console.warn('[UI] Unknown card played:', cardId);
@@ -351,7 +476,7 @@ function initGamePage() {
 				await resolveTargetingCard(cardDef, cardRef);
 				return;
 			}
-			const { state: newState, success, error } = playPiecie(gameState, 'player_1', cardRef, cardDef);
+			const { state: newState, success, error } = playPiecie(gameState, localPlayerId, cardRef, cardDef);
 			if (!success) {
 				modal.showInfo('Cannot Play', error || 'That card cannot be played right now.');
 				return;
@@ -359,7 +484,9 @@ function initGamePage() {
 			gameState = newState;
 			log.add('gain', `Played ${cardDef.name}.`);
 			if (cardDef.description) log.add('info', cardDef.description);
+			syncPush();
 			if (gameState.status === 'FINISHED') {
+				stopListening();
 				const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
 				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
 				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
@@ -369,13 +496,14 @@ function initGamePage() {
 		}
 
 		if (cardType === 'SNELLE_PIECIE') {
-			const { state: newState, success, error } = playSnellie(gameState, 'player_1', cardRef, cardDef);
+			const { state: newState, success, error } = playSnellie(gameState, localPlayerId, cardRef, cardDef);
 			if (!success) {
 				modal.showInfo('Cannot Play', error || 'That card cannot be played right now.');
 				return;
 			}
 			gameState = newState;
 			log.add('gain', `Played ${cardDef.name} (instant).`);
+			syncPush();
 			renderFromState(gameState);
 		}
 	}

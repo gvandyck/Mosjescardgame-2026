@@ -186,3 +186,25 @@ h1, h2, h3 { font-family: var(--font-heading); }
     font-size: 3rem;
   }
 }
+
+/* ── Room code display ──────────────────────────────────────────────────── */
+.room-code-display {
+  padding: 24px;
+  text-align: center;
+  color: var(--text-muted, #aaa);
+}
+
+.room-code-value {
+  display: block;
+  font-size: 3.5rem;
+  font-weight: 900;
+  letter-spacing: 0.25em;
+  color: var(--accent, #f0c040);
+  margin: 12px 0;
+}
+
+.room-code-hint {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  margin-top: 8px;
+}
