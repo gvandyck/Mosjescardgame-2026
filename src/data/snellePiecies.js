@@ -1,55 +1,325 @@
-// snellePiecies.js — Data definitions for all Snelle Piecie (instant) cards.
-// Unlike regular Piecies, these are played AND activated immediately — any time,
-// even during an opponent's turn. No face-down wait required.
+// snellePiecies.js — Data definitions for all Snelle Piecie instant cards.
+// Snelle Piecies are played as INTERRUPTS — from hand at any time.
 // The effectId links to a function in src/abilities/snelleEffects.js.
 
 export const SNELLE_PIECIES = [
+
+  // ─────────────────────────────────────────
+  // ORIGINAL STARTERS
+  // ─────────────────────────────────────────
+
   {
     id: "snelle_jensen",
     type: "SNELLE_PIECIE",
-    name: "Jensen",
-    mpCost: 10,
+    subtype: "INSTANT",
+    name: "Jensen!",
+    mpCost: 0,
     requirement: "any",
-    effectId: "effect_jensen",
-    // Cancel a Piecie that is targeting your Mosje.
-    description: "Cancel a Piecie that targets your Mosje.",
-    flavourText: "Niet vandaag.",
-    artPath: "assets/snelle-piecies/jensen.png"
+    effectId: "effect_snelle_jensen",
+    tags: ["RESTORE"],
+    description: "Gain 20 MP. (Free, usable any time as interrupt)",
+    flavourText: "",
+    artPath: "assets/snelle-piecies/placeholder.png",
+    rarity: "★★★☆☆",
+    isBoosterOnly: false,
+    deckLimit: null
   },
   {
     id: "snelle_emergency_healings",
     type: "SNELLE_PIECIE",
+    subtype: "INSTANT",
     name: "Emergency Healings",
-    mpCost: 10,
+    mpCost: 0,
     requirement: "any",
-    effectId: "effect_emergency_healings",
-    // Restore 25 MP instantly. Resilient ★★: 35 MP instead.
-    description: "Restore 25 MP instantly. (Resilient ★★: 35 MP)",
-    flavourText: "Op het randje — maar net niet.",
-    artPath: "assets/snelle-piecies/emergency_healings.png"
+    effectId: "effect_snelle_emergency_healings",
+    tags: ["RESTORE"],
+    description: "When active Mosje would reach 0 MP: restore to 30 MP. Play as interrupt.",
+    flavourText: "",
+    artPath: "assets/snelle-piecies/placeholder.png",
+    rarity: "★★★★☆",
+    isBoosterOnly: false,
+    deckLimit: null
   },
   {
     id: "snelle_lucky_coin",
     type: "SNELLE_PIECIE",
-    name: "Lucky Cóin",
-    mpCost: 10,
+    subtype: "INSTANT",
+    name: "Lucky Coin",
+    mpCost: 0,
     requirement: "any",
-    effectId: "effect_lucky_coin",
-    // Reroll any die. Creative ★★★: choose the result instead of rerolling.
-    description: "Reroll any die. (Creative ★★★: choose the result instead)",
-    flavourText: "Hoofd of munt — jij kiest.",
-    artPath: "assets/snelle-piecies/lucky_coin.png"
+    effectId: "effect_snelle_lucky_coin",
+    tags: ["GAMBLE"],
+    description: "Play as interrupt. Flip a coin: heads = reroll your last die; tails = nothing.",
+    flavourText: "",
+    artPath: "assets/snelle-piecies/placeholder.png",
+    rarity: "★★☆☆☆",
+    isBoosterOnly: false,
+    deckLimit: null
   },
   {
     id: "snelle_ff_haaltje_nemen",
     type: "SNELLE_PIECIE",
-    name: "FF Haaltje Nemen",
+    subtype: "INSTANT",
+    name: "Ff Haaltje Nemen",
+    mpCost: 0,
+    requirement: "any",
+    effectId: "effect_snelle_ff_haaltje_nemen",
+    tags: ["DRAW"],
+    description: "Draw 2 cards. Play as interrupt during any phase.",
+    flavourText: "",
+    artPath: "assets/snelle-piecies/placeholder.png",
+    rarity: "★★★☆☆",
+    isBoosterOnly: false,
+    deckLimit: null
+  },
+
+  // ─────────────────────────────────────────
+  // NEW INSTANT SNELLE PIECIES
+  // ─────────────────────────────────────────
+
+  {
+    id: "snelle_counter_strikka",
+    type: "SNELLE_PIECIE",
+    subtype: "INSTANT",
+    name: "Counter Strikka",
+    mpCost: 15,
+    requirement: "mental2",
+    effectId: "effect_snelle_counter_strikka",
+    tags: ["COUNTER"],
+    description: "Play after opponent activates a Piecie: negate its effect. Requires Mental ★★+.",
+    flavourText: "",
+    artPath: "assets/snelle-piecies/placeholder.png",
+    rarity: "★★★★☆",
+    isBoosterOnly: false,
+    deckLimit: null
+  },
+  {
+    id: "snelle_perfect_dodge",
+    type: "SNELLE_PIECIE",
+    subtype: "INSTANT",
+    name: "Perfect Dodge",
+    mpCost: 20,
+    requirement: "physical2",
+    effectId: "effect_snelle_perfect_dodge",
+    tags: ["DODGE"],
+    description: "Play when targeted by an ATTACK Piecie: negate it and gain 15 MP. Physical ★★+.",
+    flavourText: "",
+    artPath: "assets/snelle-piecies/placeholder.png",
+    rarity: "★★★★☆",
+    isBoosterOnly: false,
+    deckLimit: null
+  },
+  {
+    id: "snelle_jammertje_gepakt",
+    type: "SNELLE_PIECIE",
+    subtype: "INSTANT",
+    name: "Jammertje Gepakt!",
+    mpCost: 20,
+    requirement: "mental3",
+    effectId: "effect_snelle_jammertje_gepakt",
+    tags: ["COUNTER", "REVEAL"],
+    description: "Play when opponent searches their deck or hand: negate + reveal 1 random card. Mental ★★★.",
+    flavourText: "",
+    artPath: "assets/snelle-piecies/placeholder.png",
+    rarity: "★★★★☆",
+    isBoosterOnly: false,
+    deckLimit: null
+  },
+  {
+    id: "snelle_momentum_rush",
+    type: "SNELLE_PIECIE",
+    subtype: "INSTANT",
+    name: "Momentum Rush",
+    mpCost: 0,
+    requirement: "any",
+    effectId: "effect_snelle_momentum_rush",
+    tags: ["RESTORE"],
+    description: "Play at end of any turn: gain 15 MP. Free.",
+    flavourText: "",
+    artPath: "assets/snelle-piecies/placeholder.png",
+    rarity: "★★★☆☆",
+    isBoosterOnly: false,
+    deckLimit: null
+  },
+  {
+    id: "snelle_negate_elimination",
+    type: "SNELLE_PIECIE",
+    subtype: "INSTANT",
+    name: "Not Today!",
+    mpCost: 20,
+    requirement: "any",
+    effectId: "effect_snelle_negate_elimination",
+    tags: ["PROTECT", "COUNTER"],
+    description: "Play when your Mosje would be sent to Welloe pile: negate. Mosje stays at 5 MP instead.",
+    flavourText: "",
+    artPath: "assets/snelle-piecies/placeholder.png",
+    rarity: "★★★★★",
+    isBoosterOnly: false,
+    deckLimit: null
+  },
+  {
+    id: "snelle_drain_reversal",
+    type: "SNELLE_PIECIE",
+    subtype: "INSTANT",
+    name: "Drain Reversal",
+    mpCost: 15,
+    requirement: "any",
+    effectId: "effect_snelle_drain_reversal",
+    tags: ["COUNTER", "RESTORE"],
+    description: "Play when opponent drains your MP: return that amount to you and deal equal damage instead.",
+    flavourText: "",
+    artPath: "assets/snelle-piecies/placeholder.png",
+    rarity: "★★★★☆",
+    isBoosterOnly: false,
+    deckLimit: null
+  },
+  {
+    id: "snelle_the_protector",
+    type: "SNELLE_PIECIE",
+    subtype: "INSTANT",
+    name: "The Protector",
+    mpCost: 0,
+    requirement: "any",
+    effectId: "effect_snelle_the_protector",
+    tags: ["PROTECT"],
+    description: "Play when any ally Mosje would lose MP: reduce that loss by 30 this once. Free. Deck limit 1.",
+    flavourText: "",
+    artPath: "assets/snelle-piecies/placeholder.png",
+    rarity: "★★★★☆",
+    isBoosterOnly: false,
+    deckLimit: 1
+  },
+  {
+    id: "snelle_jeweetniet",
+    type: "SNELLE_PIECIE",
+    subtype: "INSTANT",
+    name: "Je Weet Niet",
     mpCost: 10,
     requirement: "any",
-    effectId: "effect_ff_haaltje_nemen",
-    // Reduce incoming MP loss by 20. Resilient ★★: reduce by 30 instead.
-    description: "Reduce incoming MP loss by 20. (Resilient ★★: by 30)",
-    flavourText: "Even een momentje.",
-    artPath: "assets/snelle-piecies/ff_haaltje_nemen.png"
-  }
+    effectId: "effect_snelle_jeweetniet",
+    tags: ["COUNTER"],
+    description: "Interrupt any opponent's Quest attempt: they must reroll the dice. No MP change.",
+    flavourText: "",
+    artPath: "assets/snelle-piecies/placeholder.png",
+    rarity: "★★★☆☆",
+    isBoosterOnly: false,
+    deckLimit: null
+  },
+  {
+    id: "snelle_bijna_welloe",
+    type: "SNELLE_PIECIE",
+    subtype: "INSTANT",
+    name: "Bijna Welloe",
+    mpCost: 0,
+    requirement: "any",
+    effectId: "effect_snelle_bijna_welloe",
+    tags: ["RESTORE"],
+    description: "Play when active Mosje has 10 MP or less: gain 20 MP. Free.",
+    flavourText: "",
+    artPath: "assets/snelle-piecies/placeholder.png",
+    rarity: "★★★☆☆",
+    isBoosterOnly: false,
+    deckLimit: null
+  },
+  {
+    id: "snelle_jantje_jantje_jantje",
+    type: "SNELLE_PIECIE",
+    subtype: "INSTANT",
+    name: "Jantje Jantje... Jantje?",
+    mpCost: 0,
+    requirement: "bankChilling",
+    effectId: "effect_snelle_jantje_jantje_jantje",
+    tags: ["STEAL"],
+    description: "Only when Bank Chilling is active: steal 30 MP from opponent. Free.",
+    flavourText: "",
+    artPath: "assets/snelle-piecies/placeholder.png",
+    rarity: "★★★★☆",
+    isBoosterOnly: false,
+    deckLimit: null
+  },
+  {
+    id: "snelle_sleutelpuntje",
+    type: "SNELLE_PIECIE",
+    subtype: "INSTANT",
+    name: "Sleutelpuntje",
+    mpCost: 5,
+    requirement: "any",
+    effectId: "effect_snelle_sleutelpuntje",
+    tags: ["QUEST-BOOST"],
+    description: "Play right before a Quest: gain +1 on the dice roll this Quest only.",
+    flavourText: "",
+    artPath: "assets/snelle-piecies/placeholder.png",
+    rarity: "★★☆☆☆",
+    isBoosterOnly: false,
+    deckLimit: null
+  },
+  {
+    id: "snelle_dubbele_temminks",
+    type: "SNELLE_PIECIE",
+    subtype: "INSTANT",
+    name: "Dubbele Temminks",
+    mpCost: 20,
+    requirement: "level1",
+    effectId: "effect_snelle_dubbele_temminks",
+    tags: ["CHAIN"],
+    description: "Play after any Piecie activates: its effect triggers a second time. Level 1+.",
+    flavourText: "",
+    artPath: "assets/snelle-piecies/placeholder.png",
+    rarity: "★★★★☆",
+    isBoosterOnly: false,
+    deckLimit: null
+  },
+  {
+    id: "snelle_gevalletje_klakkeloos",
+    type: "SNELLE_PIECIE",
+    subtype: "INSTANT",
+    name: "Gevalletje Klakkeloos",
+    mpCost: 0,
+    requirement: "any",
+    effectId: "effect_snelle_gevalletje_klakkeloos",
+    tags: ["COPY"],
+    description: "Play immediately after opponent activates a Piecie: copy its effect. Free.",
+    flavourText: "",
+    artPath: "assets/snelle-piecies/placeholder.png",
+    rarity: "★★★★☆",
+    isBoosterOnly: false,
+    deckLimit: null
+  },
+
+  // ─────────────────────────────────────────
+  // COUNTER-CHAIN SNELLE PIECIES
+  // ─────────────────────────────────────────
+
+  {
+    id: "snelle_frenssen",
+    type: "SNELLE_PIECIE",
+    subtype: "COUNTER-CHAIN",
+    name: "Frenssen!",
+    mpCost: 15,
+    requirement: "any",
+    effectId: "effect_snelle_frenssen",
+    tags: ["COUNTER-CHAIN"],
+    description: "Counter a Snelle Piecie with this card. Can itself be countered.",
+    flavourText: "",
+    artPath: "assets/snelle-piecies/placeholder.png",
+    rarity: "★★★☆☆",
+    isBoosterOnly: false,
+    deckLimit: null
+  },
+  {
+    id: "snelle_blensen",
+    type: "SNELLE_PIECIE",
+    subtype: "COUNTER-CHAIN",
+    name: "Blensen!",
+    mpCost: 50,
+    requirement: "any",
+    effectId: "effect_snelle_blensen",
+    tags: ["COUNTER-CHAIN"],
+    description: "Ultimate counter-chain card. Counters any Snelle Piecie. Free if countering a Frenssen.",
+    flavourText: "",
+    artPath: "assets/snelle-piecies/placeholder.png",
+    rarity: "★★★★★",
+    isBoosterOnly: false,
+    deckLimit: null
+  },
 ];

@@ -68,6 +68,27 @@ h1, h2, h3 { font-family: var(--font-heading); }
   filter: brightness(1.08);
 }
 
+.btn-primary:disabled,
+.btn-secondary:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  filter: none;
+}
+
+.btn-secondary {
+  border: 1px solid var(--color-gold);
+  background: transparent;
+  color: var(--color-gold);
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: rgba(255, 196, 0, 0.12);
+}
+
 /* --- Lobby --- */
 .lobby-shell {
   width: min(960px, 100% - 24px);

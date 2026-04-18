@@ -6,7 +6,8 @@ import { createLogRenderer } from './ui/logRenderer.js';
 import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
 import { createInitialGameState } from './engine/gameState.js';
-import { startTurn, endTurn } from './engine/turnManager.js';
+import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest } from './engine/turnManager.js';
+import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold } from './abilities/questLogic.js';
 import { MOSJES } from './data/mosjes.js';
 import { PIECIES } from './data/piecies.js';
 import { SNELLE_PIECIES } from './data/snellePiecies.js';
@@ -115,6 +116,106 @@ function initGamePage() {
 		log.add('gain', `Now active: ${activeName}. Turn ${gameState.turnNumber}.`);
 	});
 
+	document.getElementById('btn-general-quest')?.addEventListener('click', () => {
+		if (gameState.activePlayerId !== 'player_1') {
+			modal.showInfo('Not Your Turn', 'You can only attempt quests on your own turn.');
+			return;
+		}
+		if (gameState.players.player_1.hasAttemptedQuestThisTurn) {
+			modal.showInfo('Already Attempted', 'You have already attempted a quest this turn.');
+			return;
+		}
+
+		const { state: newState, questCard: questRef } = attemptGeneralQuest(gameState);
+		gameState = newState;
+
+		if (!questRef) {
+			log.add('quest', 'General Quest deck is empty!');
+			renderFromState(gameState);
+			return;
+		}
+
+		const questDef = CARD_LOOKUP[questRef.cardId];
+		if (!questDef) {
+			log.add('quest', `Unknown quest card: ${questRef.cardId}`);
+			renderFromState(gameState);
+			return;
+		}
+
+		const activeMosje = gameState.players.player_1.activeSlots.find(s => s && !s.isDefeated);
+		if (!canAttemptGeneralQuest(questDef, gameState, 'player_1')) {
+			log.add('quest', `Cannot attempt ${questDef.name} — active Mosje has negative MP.`);
+			gameState.sharedGeneralQuestDiscard.push(questRef);
+			renderFromState(gameState);
+			return;
+		}
+
+		const threshold = getQuestDiceThreshold(questDef, activeMosje);
+		log.add('quest', `${localPlayerName} is attempting General Quest: ${questDef.name}`);
+
+		modal.showDiceRoll(questDef, threshold, (didSucceed) => {
+			gameState = resolveQuest(gameState, 'player_1', questDef, didSucceed);
+			gameState.sharedGeneralQuestDiscard.push(questRef);
+			renderFromState(gameState);
+
+			const mpDelta = didSucceed ? questDef.successMP : questDef.failMP;
+			const sign = mpDelta >= 0 ? '+' : '';
+			log.add(didSucceed ? 'gain' : 'loss',
+				`${questDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`
+			);
+		});
+	});
+
+	document.getElementById('btn-personal-quest')?.addEventListener('click', () => {
+		if (gameState.activePlayerId !== 'player_1') {
+			modal.showInfo('Not Your Turn', 'You can only attempt quests on your own turn.');
+			return;
+		}
+		if (gameState.players.player_1.hasAttemptedQuestThisTurn) {
+			modal.showInfo('Already Attempted', 'You have already attempted a quest this turn.');
+			return;
+		}
+
+		const personalQuestsInHand = gameState.players.player_1.hand.filter(
+			c => CARD_LOOKUP[c.cardId]?.questType === 'PERSONAL'
+		);
+
+		if (personalQuestsInHand.length === 0) {
+			modal.showInfo('No Personal Quests', 'You have no Personal Quest cards in your hand.');
+			return;
+		}
+
+		// Use the first personal quest found (pick UI can be a future enhancement)
+		const handCard = personalQuestsInHand[0];
+		const questDef = CARD_LOOKUP[handCard.cardId];
+
+		if (!canAttemptPersonalQuest(questDef, gameState, 'player_1')) {
+			modal.showInfo(
+				'Required Mosje Missing',
+				`${questDef.name} requires ${questDef.requiredMosjeId} on the field.`
+			);
+			return;
+		}
+
+		const { state: newState, questCard: playedCard } = attemptPersonalQuest(gameState, handCard.cardId);
+		gameState = newState;
+
+		const activeMosje = gameState.players.player_1.activeSlots.find(s => s && !s.isDefeated);
+		const threshold = getQuestDiceThreshold(questDef, activeMosje);
+		log.add('quest', `${localPlayerName} is attempting Personal Quest: ${questDef.name}`);
+
+		modal.showDiceRoll(questDef, threshold, (didSucceed) => {
+			gameState = resolveQuest(gameState, 'player_1', questDef, didSucceed);
+			renderFromState(gameState);
+
+			const mpDelta = didSucceed ? questDef.successMP : questDef.failMP;
+			const sign = mpDelta >= 0 ? '+' : '';
+			log.add(didSucceed ? 'gain' : 'loss',
+				`${questDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`
+			);
+		});
+	});
+
 	function renderFromState(state) {
 		const uiState = toBoardViewModel(state, 'player_1');
 		renderBoard(boardRoot, uiState);
@@ -123,6 +224,18 @@ function initGamePage() {
 		if (turnLabel) {
 			turnLabel.textContent = `${uiState.activePlayerName} • DRAW Phase`;
 		}
+
+		const isLocalTurn = state.activePlayerId === 'player_1';
+		const alreadyAttempted = state.players.player_1.hasAttemptedQuestThisTurn;
+		const questBtnsEnabled = isLocalTurn && !alreadyAttempted && state.status !== 'FINISHED';
+
+		const btnGeneral = document.getElementById('btn-general-quest');
+		const btnPersonal = document.getElementById('btn-personal-quest');
+		const btnEndTurn = document.getElementById('btn-end-turn');
+
+		if (btnGeneral) btnGeneral.disabled = !questBtnsEnabled;
+		if (btnPersonal) btnPersonal.disabled = !questBtnsEnabled;
+		if (btnEndTurn) btnEndTurn.disabled = !isLocalTurn || state.status === 'FINISHED';
 	}
 }
 

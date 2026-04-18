@@ -7,6 +7,7 @@
 //
 // Fields:
 //   questType       : "GENERAL" | "PERSONAL"
+//   category        : "Physical" | "Mental" | "Social" | "Creative" | "Technical" | "Resilient" | "Mixed"
 //   requiredMosjeId : null (General) or a mosje id string (Personal)
 //   isBoosterOnly   : false = can appear in starter decks, true = booster packs only
 //   rarity          : "★★★" | "★★★★" | "★★★★★"
@@ -17,18 +18,17 @@
 export const QUESTS = [
 
   // ─────────────────────────────────────────
-  // GENERAL QUESTS — shared deck, any Mosje
+  // GENERAL QUESTS — PHYSICAL
   // ─────────────────────────────────────────
 
   {
     id: "quest_arm_wrestling",
     type: "QUEST",
     questType: "GENERAL",
+    category: "Physical",
     requiredMosjeId: null,
     name: "Arm Wrestling",
     requirementId: "quest_req_arm_wrestling",
-    // Roll a die. Target number depends on Physical trait:
-    // Physical ★ = need 5+, ★★ = need 3+, ★★★ = need 2+
     requirementDescription: "Roll: Physical ★=5+, ★★=3+, ★★★=2+",
     successMP: 40,
     failMP: -60,
@@ -37,17 +37,75 @@ export const QUESTS = [
     isBoosterOnly: false,
     rarity: "★★★",
     flavourText: "Elleboog op tafel. Druk.",
-    artPath: "assets/quests/arm_wrestling.png"
+    artPath: "assets/quests/placeholder.png"
   },
+  {
+    id: "quest_parkour_challenge",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Physical",
+    requiredMosjeId: null,
+    name: "Parkour Challenge",
+    requirementId: "quest_req_parkour_challenge",
+    requirementDescription: "Roll: Physical ★=5+, ★★=4+, ★★★=2+",
+    successMP: 50,
+    failMP: -30,
+    description: "Success: +50 MP. Failure: -30 MP.",
+    difficulty: "MEDIUM",
+    isBoosterOnly: false,
+    rarity: "★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_endurance_test",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Physical",
+    requiredMosjeId: null,
+    name: "Endurance Test",
+    requirementId: "quest_req_endurance_test",
+    requirementDescription: "Roll: Physical ★=5+, ★★=4+, ★★★=3+. Resilient ★★+: -1 to threshold",
+    successMP: 35,
+    failMP: -15,
+    description: "Success: +35 MP. Failure: -15 MP.",
+    difficulty: "LOW",
+    isBoosterOnly: false,
+    rarity: "★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_sprint_race",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Physical",
+    requiredMosjeId: null,
+    name: "Sprint Race",
+    requirementId: "quest_req_sprint_race",
+    requirementDescription: "Roll: Physical ★=6, ★★=4+, ★★★=2+",
+    successMP: 60,
+    failMP: -20,
+    description: "Success: +60 MP. Failure: -20 MP.",
+    difficulty: "HIGH",
+    isBoosterOnly: false,
+    rarity: "★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+
+  // ─────────────────────────────────────────
+  // GENERAL QUESTS — MENTAL
+  // ─────────────────────────────────────────
+
   {
     id: "quest_quick_thinking",
     type: "QUEST",
     questType: "GENERAL",
+    category: "Mental",
     requiredMosjeId: null,
     name: "Quick Thinking",
     requirementId: "quest_req_quick_thinking",
-    // Roll a die. Target number depends on Mental trait:
-    // Mental ★ = need 5+, ★★ = need 4+, ★★★ = need 3+
     requirementDescription: "Roll: Mental ★=5+, ★★=4+, ★★★=3+",
     successMP: 20,
     failMP: -20,
@@ -56,16 +114,152 @@ export const QUESTS = [
     isBoosterOnly: false,
     rarity: "★★★",
     flavourText: "Drie seconden. Eén antwoord.",
-    artPath: "assets/quests/quick_thinking.png"
+    artPath: "assets/quests/placeholder.png"
   },
+  {
+    id: "quest_strategy_puzzle",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Mental",
+    requiredMosjeId: null,
+    name: "Strategy Puzzle",
+    requirementId: "quest_req_strategy_puzzle",
+    requirementDescription: "Roll: Mental ★=5+, ★★=3+, ★★★=2+",
+    successMP: 45,
+    failMP: -25,
+    description: "Success: +45 MP. Failure: -25 MP.",
+    difficulty: "MEDIUM",
+    isBoosterOnly: false,
+    rarity: "★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_calculate_odds",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Mental",
+    requiredMosjeId: null,
+    name: "Calculate the Odds",
+    requirementId: "quest_req_calculate_odds",
+    requirementDescription: "Roll: Mental ★=6, ★★=4+, ★★★=3+. Technical ★★+: -1 to threshold",
+    successMP: 40,
+    failMP: -20,
+    description: "Success: +40 MP. Failure: -20 MP.",
+    difficulty: "MEDIUM",
+    isBoosterOnly: false,
+    rarity: "★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_master_plan",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Mental",
+    requiredMosjeId: null,
+    name: "Master Plan",
+    requirementId: "quest_req_master_plan",
+    requirementDescription: "Roll: Mental ★=6, ★★=5+, ★★★=3+",
+    successMP: 70,
+    failMP: -40,
+    description: "Success: +70 MP. Failure: -40 MP.",
+    difficulty: "HIGH",
+    isBoosterOnly: false,
+    rarity: "★★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+
+  // ─────────────────────────────────────────
+  // GENERAL QUESTS — SOCIAL
+  // ─────────────────────────────────────────
+
+  {
+    id: "quest_inspire_crowd",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Social",
+    requiredMosjeId: null,
+    name: "Inspire the Crowd",
+    requirementId: "quest_req_inspire_crowd",
+    requirementDescription: "Roll: Social ★=5+, ★★=3+, ★★★=2+",
+    successMP: 50,
+    failMP: -15,
+    description: "Success: +50 MP. Failure: -15 MP.",
+    difficulty: "MEDIUM",
+    isBoosterOnly: false,
+    rarity: "★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_form_alliance",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Social",
+    requiredMosjeId: null,
+    name: "Form an Alliance",
+    requirementId: "quest_req_form_alliance",
+    requirementDescription: "Roll: Social ★=5+, ★★=4+, ★★★=3+",
+    successMP: 40,
+    failMP: -10,
+    description: "Success: +40 MP. Failure: -10 MP.",
+    difficulty: "LOW",
+    isBoosterOnly: false,
+    rarity: "★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_negotiation",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Social",
+    requiredMosjeId: null,
+    name: "Negotiation",
+    requirementId: "quest_req_negotiation",
+    requirementDescription: "Roll: Social ★=6, ★★=4+, ★★★=2+",
+    successMP: 55,
+    failMP: -30,
+    description: "Success: +55 MP. Failure: -30 MP.",
+    difficulty: "MEDIUM",
+    isBoosterOnly: false,
+    rarity: "★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_team_building",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Social",
+    requiredMosjeId: null,
+    name: "Team Building",
+    requirementId: "quest_req_team_building",
+    requirementDescription: "Roll: Social ★=5+, ★★=3+, ★★★=2+. Bonus +15 MP if synergy Mosje active",
+    successMP: 35,
+    failMP: -10,
+    description: "Success: +35 MP (+50 with synergy). Failure: -10 MP.",
+    difficulty: "LOW",
+    isBoosterOnly: false,
+    rarity: "★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+
+  // ─────────────────────────────────────────
+  // GENERAL QUESTS — CREATIVE
+  // ─────────────────────────────────────────
+
   {
     id: "quest_artistic_expression",
     type: "QUEST",
     questType: "GENERAL",
+    category: "Creative",
     requiredMosjeId: null,
     name: "Artistic Expression",
     requirementId: "quest_req_artistic_expression",
-    // Requires Creative ★★ AND drawing 2 cards as the attempt action.
     requirementDescription: "Requires Creative ★★ + draw 2 cards",
     successMP: 40,
     failMP: -10,
@@ -74,16 +268,152 @@ export const QUESTS = [
     isBoosterOnly: false,
     rarity: "★★★",
     flavourText: "Laat je ziel zien.",
-    artPath: "assets/quests/artistic_expression.png"
+    artPath: "assets/quests/placeholder.png"
   },
+  {
+    id: "quest_improvise",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Creative",
+    requiredMosjeId: null,
+    name: "Improvise",
+    requirementId: "quest_req_improvise",
+    requirementDescription: "Roll: Creative ★=5+, ★★=3+, ★★★=2+",
+    successMP: 35,
+    failMP: -10,
+    description: "Success: +35 MP. Failure: -10 MP.",
+    difficulty: "LOW",
+    isBoosterOnly: false,
+    rarity: "★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_create_masterpiece",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Creative",
+    requiredMosjeId: null,
+    name: "Create a Masterpiece",
+    requirementId: "quest_req_create_masterpiece",
+    requirementDescription: "Roll: Creative ★=6, ★★=4+, ★★★=3+",
+    successMP: 65,
+    failMP: -20,
+    description: "Success: +65 MP. Failure: -20 MP.",
+    difficulty: "HIGH",
+    isBoosterOnly: false,
+    rarity: "★★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_lucky_break",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Creative",
+    requiredMosjeId: null,
+    name: "Lucky Break",
+    requirementId: "quest_req_lucky_break",
+    requirementDescription: "Roll 1d6: 1-2 = Fail badly, 3-4 = Partial, 5-6 = Full success",
+    successMP: 55,
+    failMP: -35,
+    description: "Roll 1-2: -35 MP. Roll 3-4: +20 MP. Roll 5-6: +55 MP.",
+    difficulty: "HIGH",
+    isBoosterOnly: false,
+    rarity: "★★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+
+  // ─────────────────────────────────────────
+  // GENERAL QUESTS — TECHNICAL
+  // ─────────────────────────────────────────
+
+  {
+    id: "quest_debug_system",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Technical",
+    requiredMosjeId: null,
+    name: "Debug the System",
+    requirementId: "quest_req_debug_system",
+    requirementDescription: "Roll: Technical ★=5+, ★★=3+, ★★★=2+",
+    successMP: 40,
+    failMP: -20,
+    description: "Success: +40 MP. Failure: -20 MP.",
+    difficulty: "MEDIUM",
+    isBoosterOnly: false,
+    rarity: "★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_hack_mainframe",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Technical",
+    requiredMosjeId: null,
+    name: "Hack the Mainframe",
+    requirementId: "quest_req_hack_mainframe",
+    requirementDescription: "Roll: Technical ★=6, ★★=4+, ★★★=3+. Hacker/FPS Mosje: -1 threshold",
+    successMP: 70,
+    failMP: -40,
+    description: "Success: +70 MP. Failure: -40 MP.",
+    difficulty: "HIGH",
+    isBoosterOnly: false,
+    rarity: "★★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_build_gadget",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Technical",
+    requiredMosjeId: null,
+    name: "Build a Gadget",
+    requirementId: "quest_req_build_gadget",
+    requirementDescription: "Roll: Technical ★=5+, ★★=3+, ★★★=2+",
+    successMP: 45,
+    failMP: -15,
+    description: "Success: +45 MP. Failure: -15 MP.",
+    difficulty: "MEDIUM",
+    isBoosterOnly: false,
+    rarity: "★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_precision_work",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Technical",
+    requiredMosjeId: null,
+    name: "Precision Work",
+    requirementId: "quest_req_precision_work",
+    requirementDescription: "Roll: Technical ★=5+, ★★=4+, ★★★=3+. Creative ★★+: -1 threshold",
+    successMP: 35,
+    failMP: -10,
+    description: "Success: +35 MP. Failure: -10 MP.",
+    difficulty: "LOW",
+    isBoosterOnly: false,
+    rarity: "★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+
+  // ─────────────────────────────────────────
+  // GENERAL QUESTS — RESILIENT
+  // ─────────────────────────────────────────
+
   {
     id: "quest_leap_of_faith",
     type: "QUEST",
     questType: "GENERAL",
+    category: "Resilient",
     requiredMosjeId: null,
     name: "Leap of Faith",
     requirementId: "quest_req_leap_of_faith",
-    // Roll 1d6. 1-3 = Fail, 4-6 = Success. No trait modifier.
     requirementDescription: "Roll 1d6: 1-3 = Fail, 4-6 = Success",
     successMP: 60,
     failMP: -20,
@@ -92,23 +422,373 @@ export const QUESTS = [
     isBoosterOnly: false,
     rarity: "★★★",
     flavourText: "Sluit je ogen. Spring.",
-    artPath: "assets/quests/leap_of_faith.png"
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_survive_storm",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Resilient",
+    requiredMosjeId: null,
+    name: "Survive the Storm",
+    requirementId: "quest_req_survive_storm",
+    requirementDescription: "Roll: Resilient ★=5+, ★★=3+, ★★★=2+",
+    successMP: 45,
+    failMP: -30,
+    description: "Success: +45 MP. Failure: -30 MP.",
+    difficulty: "MEDIUM",
+    isBoosterOnly: false,
+    rarity: "★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_endure_pain",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Resilient",
+    requiredMosjeId: null,
+    name: "Endure the Pain",
+    requirementId: "quest_req_endure_pain",
+    requirementDescription: "Auto-succeed at 20 MP or less. Otherwise roll: Resilient ★=5+, ★★=3+, ★★★=2+",
+    successMP: 40,
+    failMP: -10,
+    description: "Success: +40 MP. Failure: -10 MP.",
+    difficulty: "LOW",
+    isBoosterOnly: false,
+    rarity: "★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_never_give_up",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Resilient",
+    requiredMosjeId: null,
+    name: "Never Give Up",
+    requirementId: "quest_req_never_give_up",
+    requirementDescription: "Auto-succeed if below 30 MP. Otherwise: roll 4+",
+    successMP: 50,
+    failMP: -20,
+    description: "Success: +50 MP. Failure: -20 MP.",
+    difficulty: "MEDIUM",
+    isBoosterOnly: false,
+    rarity: "★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_tough_it_out",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Resilient",
+    requiredMosjeId: null,
+    name: "Tough it Out",
+    requirementId: "quest_req_tough_it_out",
+    requirementDescription: "Roll: Resilient ★=5+, ★★=3+, ★★★=2+",
+    successMP: 30,
+    failMP: 0,
+    description: "Success: +30 MP. Failure: 0 MP change (no penalty).",
+    difficulty: "LOW",
+    isBoosterOnly: false,
+    rarity: "★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
   },
 
   // ─────────────────────────────────────────
-  // PERSONAL QUESTS — player's hand, named Mosje only
-  // These are EXAMPLES / future booster cards.
-  // They are NOT in any starter deck.
+  // GENERAL QUESTS — MIXED/SPECIAL
+  // ─────────────────────────────────────────
+
+  {
+    id: "quest_momentum_master",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Mixed",
+    requiredMosjeId: null,
+    name: "Momentum Master",
+    requirementId: "quest_req_momentum_master",
+    requirementDescription: "Must have used 2+ Piecies this turn. Roll 3+",
+    successMP: 55,
+    failMP: -20,
+    description: "Success: +55 MP. Failure: -20 MP.",
+    difficulty: "MEDIUM",
+    isBoosterOnly: false,
+    rarity: "★★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_the_gauntlet",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Mixed",
+    requiredMosjeId: null,
+    name: "The Gauntlet",
+    requirementId: "quest_req_the_gauntlet",
+    requirementDescription: "Roll twice. Both must succeed (thresholds based on Physical and Mental traits)",
+    successMP: 80,
+    failMP: -50,
+    description: "Success: +80 MP. Failure: -50 MP.",
+    difficulty: "HIGH",
+    isBoosterOnly: false,
+    rarity: "★★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_ultimate_challenge",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Mixed",
+    requiredMosjeId: null,
+    name: "Ultimate Challenge",
+    requirementId: "quest_req_ultimate_challenge",
+    requirementDescription: "Roll 5+. Must have all 3 main traits (Physical/Mental/Creative or similar combo)",
+    successMP: 100,
+    failMP: -60,
+    description: "Success: +100 MP. Failure: -60 MP.",
+    difficulty: "HIGH",
+    isBoosterOnly: false,
+    rarity: "★★★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_speed_run",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Mixed",
+    requiredMosjeId: null,
+    name: "Speed Run",
+    requirementId: "quest_req_speed_run",
+    requirementDescription: "Roll: need 5+ base. Technical ★★★: 3+. Must be first action of turn",
+    successMP: 45,
+    failMP: -15,
+    description: "Success: +45 MP. Failure: -15 MP.",
+    difficulty: "MEDIUM",
+    isBoosterOnly: false,
+    rarity: "★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_sustained_assault",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Mixed",
+    requiredMosjeId: null,
+    name: "Sustained Assault",
+    requirementId: "quest_req_sustained_assault",
+    requirementDescription: "Must have used an ATTACK Piecie this turn. Roll: Physical ★=4+, ★★=3+, ★★★=2+",
+    successMP: 50,
+    failMP: -25,
+    description: "Success: +50 MP. Failure: -25 MP.",
+    difficulty: "MEDIUM",
+    isBoosterOnly: false,
+    rarity: "★★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_perfect_timing",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Mixed",
+    requiredMosjeId: null,
+    name: "Perfect Timing",
+    requirementId: "quest_req_perfect_timing",
+    requirementDescription: "Roll 6 (exact). Any Mosje.",
+    successMP: 90,
+    failMP: 0,
+    description: "Roll exactly 6: +90 MP. Otherwise: no penalty.",
+    difficulty: "HIGH",
+    isBoosterOnly: false,
+    rarity: "★★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_elimination_challenge",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Mixed",
+    requiredMosjeId: null,
+    name: "Elimination Challenge",
+    requirementId: "quest_req_elimination_challenge",
+    requirementDescription: "Roll 4+. On success: opponent loses 30 MP + you gain 30 MP. Failure: you lose 30 MP",
+    successMP: 30,
+    failMP: -30,
+    description: "Success: Drain opponent 30 MP, gain 30 MP. Failure: -30 MP.",
+    difficulty: "HIGH",
+    isBoosterOnly: false,
+    rarity: "★★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_chain_master",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Mixed",
+    requiredMosjeId: null,
+    name: "Chain Master",
+    requirementId: "quest_req_chain_master",
+    requirementDescription: "Must have 3+ Piecies in discard this turn. Roll 3+",
+    successMP: 65,
+    failMP: -25,
+    description: "Success: +65 MP. Failure: -25 MP.",
+    difficulty: "MEDIUM",
+    isBoosterOnly: false,
+    rarity: "★★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_synergy_mastery",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Mixed",
+    requiredMosjeId: null,
+    name: "Synergy Mastery",
+    requirementId: "quest_req_synergy_mastery",
+    requirementDescription: "Synergy Mosje on field: roll 3+. Without: roll 5+",
+    successMP: 60,
+    failMP: -20,
+    description: "Success: +60 MP. Failure: -20 MP.",
+    difficulty: "MEDIUM",
+    isBoosterOnly: false,
+    rarity: "★★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+
+  // ─────────────────────────────────────────
+  // GENERAL QUESTS — DUTCH SPECIAL
+  // ─────────────────────────────────────────
+
+  {
+    id: "quest_regelaar",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Social",
+    requiredMosjeId: null,
+    name: "De Regelaar",
+    requirementId: "quest_req_regelaar",
+    requirementDescription: "Social ★★★: auto-succeed. ★★: roll 3+. ★: roll 5+",
+    successMP: 50,
+    failMP: -25,
+    description: "Success: +50 MP. Failure: -25 MP.",
+    difficulty: "MEDIUM",
+    isBoosterOnly: false,
+    rarity: "★★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_late_night_questing",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Mixed",
+    requiredMosjeId: null,
+    name: "Late Night Questing",
+    requirementId: "quest_req_late_night_questing",
+    requirementDescription: "Roll 3+. Success draws 2 extra cards.",
+    successMP: 30,
+    failMP: -15,
+    description: "Success: +30 MP + draw 2 cards. Failure: -15 MP.",
+    difficulty: "LOW",
+    isBoosterOnly: false,
+    rarity: "★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_larry_temmen",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Resilient",
+    requiredMosjeId: null,
+    name: "Larry Temmen",
+    requirementId: "quest_req_larry_temmen",
+    requirementDescription: "Roll 1d6: 1-2 = both lose 20 MP; 3-4 = nothing; 5-6 = gain 40 MP + opponent loses 20",
+    successMP: 40,
+    failMP: -20,
+    description: "Roll 1-2: you and opponent lose 20 MP. 3-4: nothing. 5-6: gain 40 MP, opponent -20 MP.",
+    difficulty: "MEDIUM",
+    isBoosterOnly: false,
+    rarity: "★★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_geen_raad_vraag_aad",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Social",
+    requiredMosjeId: null,
+    name: "Geen raad? Vraag Aad!",
+    requirementId: "quest_req_geen_raad_vraag_aad",
+    requirementDescription: "Name a card in opponent's hand. Correct: +50 MP. Wrong: -25 MP",
+    successMP: 50,
+    failMP: -25,
+    description: "Name a card in opponent's hand. Correct: +50 MP. Wrong: -25 MP.",
+    difficulty: "MEDIUM",
+    isBoosterOnly: false,
+    rarity: "★★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_parkeren_delft",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Technical",
+    requiredMosjeId: null,
+    name: "Parkeren in Delft",
+    requirementId: "quest_req_parkeren_delft",
+    requirementDescription: "Roll 5+. Technical ★★★: 3+.",
+    successMP: 35,
+    failMP: -35,
+    description: "Success: +35 MP. Failure: -35 MP.",
+    difficulty: "MEDIUM",
+    isBoosterOnly: false,
+    rarity: "★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_shotje_obby",
+    type: "QUEST",
+    questType: "GENERAL",
+    category: "Physical",
+    requiredMosjeId: null,
+    name: "Shotje Obby",
+    requirementId: "quest_req_shotje_obby",
+    requirementDescription: "Roll 4+. At Obby #1 Place: auto-succeed.",
+    successMP: 45,
+    failMP: -20,
+    description: "Success: +45 MP. Failure: -20 MP.",
+    difficulty: "MEDIUM",
+    isBoosterOnly: false,
+    rarity: "★★★★",
+    flavourText: "",
+    artPath: "assets/quests/placeholder.png"
+  },
+
+  // ─────────────────────────────────────────
+  // PERSONAL QUESTS — named Mosje only, booster
   // ─────────────────────────────────────────
 
   {
     id: "quest_west_perfect_read",
     type: "QUEST",
     questType: "PERSONAL",
-    requiredMosjeId: "mosje_west",    // West must be on the field to attempt
+    category: "Mental",
+    requiredMosjeId: "mosje_west",
     name: "Perfect Read",
     requirementId: "quest_req_west_perfect_read",
-    // Correctly name the type of the top 3 cards of any deck.
     requirementDescription: "Correctly name the type of the top 3 cards of any deck.",
     successMP: 80,
     failMP: -30,
@@ -117,7 +797,7 @@ export const QUESTS = [
     isBoosterOnly: true,
     rarity: "★★★★",
     flavourText: "Hij wist het al voor je het zei.",
-    artPath: "assets/quests/west_perfect_read.png"
+    artPath: "assets/quests/placeholder.png"
   }
 
 ];

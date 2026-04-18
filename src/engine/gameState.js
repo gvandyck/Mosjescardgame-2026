@@ -93,9 +93,21 @@ function createPlayerState(config) {
 
     questsCompleted: 0,
     questsCompletedThisTurn: 0,
-    questPrepBonus: 0,    // added to next Quest roll by Quest Prep piecie
+    questPrepBonus: 0,       // added to next Quest roll by Quest Prep piecie
+    questBonusMP: 0,         // next successful Quest gives this bonus MP (momentum_boost etc.)
     hasAttemptedQuestThisTurn: false,
     hasRerolledDieThisTurn: false,    // DJ 80/20 free reroll tracker
+    pieciesPlayedThisTurn: 0,         // chris_ddr combo chain counter
+    lastCardPlayedType: null,         // 'PIECIE' | 'SNELLE_PIECIE' | 'QUEST' | null — for jisca
+    mpAmplifierActive: false,         // 50% bonus on next MP gain (mp_amplifier piecie)
+    chainReactionActive: false,       // free second piecie this turn
+    opponentHandPeeked: false,        // stookerino / fps_west peek flag
+    hasRerolledDieThisTurn: false,    // DJ 80/20 free reroll tracker
+    pieciesPlayedThisTurn: 0,         // chris_ddr combo chain counter
+    lastCardPlayedType: null,         // 'PIECIE' | 'SNELLE_PIECIE' | 'QUEST' | null — for jisca
+    mpAmplifierActive: false,         // 50% bonus on next MP gain (mp_amplifier piecie)
+    chainReactionActive: false,       // free second piecie this turn
+    opponentHandPeeked: false,        // stookerino / fps_west peek flag
   };
 }
 
@@ -113,12 +125,16 @@ function createMosjeSlot(mosjeData) {
   return {
     cardId: mosjeData.id,
     name: mosjeData.name,
+    immuneThisTurn: false,      // coert_kastelein: cannot lose MP this turn
+    mpLostThisTurn: 0,          // alyssa_bulldozer: tracks damage taken this turn
     traits: { ...mosjeData.traits },
     mp,
     level: 0,               // 0, 1, 2 — reach 3 to win
     isDefeated: false,
     statusEffects: [],      // e.g. [{ type: 'MP_LOSS_PER_TURN', value: 10, turnsLeft: 4 }]
     abilityUsedThisTurn: false,
+    immuneThisTurn: false,      // coert_kastelein: cannot lose MP this turn
+    mpLostThisTurn: 0,          // alyssa_bulldozer: tracks damage taken this turn
   };
 }
 

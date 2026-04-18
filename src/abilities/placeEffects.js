@@ -63,3 +63,23 @@ export function effect_bank_chilling(gameState, playerId, cardsDrawnInAction) {
 
 	return state;
 }
+
+// ─────────────────────────────────────────
+// STUBS — implement in future phases
+// ─────────────────────────────────────────
+
+export function effect_skiffa(gameState) { console.log('[STUB] skiffa'); return gameState; }
+export function effect_obby_1(gameState) { console.log('[STUB] obby_1'); return gameState; }
+export function effect_arcade(gameState) { console.log('[STUB] arcade'); return gameState; }
+export function effect_zo_is_natuur(gameState) { console.log('[STUB] zo_is_natuur'); return gameState; }
+export function effect_the_void(gameState) { console.log('[STUB] the_void'); return gameState; }
+export function effect_momentum_factory(gameState) { console.log('[STUB] momentum_factory'); return gameState; }
+export function effect_coerts_caravan(gameState) { console.log('[STUB] coerts_caravan'); return gameState; }
+export function effect_synergy_chamber(gameState) { console.log('[STUB] synergy_chamber'); return gameState; }
+export function effect_welloe_graveyard(gameState) { console.log('[STUB] welloe_graveyard'); return gameState; }
+export function effect_drain_zone(gameState) { console.log('[STUB] drain_zone'); return gameState; }
+export function effect_momentum_stabilizer(gameState) { console.log('[STUB] momentum_stabilizer'); return gameState; }
+export function effect_delluft(gameState) { console.log('[STUB] delluft'); return gameState; }
+export function effect_dierenasiel(gameState) { console.log('[STUB] dierenasiel'); return gameState; }
+export function effect_digital_gaming_stop(gameState) { console.log('[STUB] digital_gaming_stop'); return gameState; }
+

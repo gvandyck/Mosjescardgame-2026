@@ -6,6 +6,8 @@ import { drawCards } from './deckEngine.js';
 import { gainMP, applyStatusEffectMP, getTotalMPForPlayer } from './mpManager.js';
 import { checkVictory } from './victoryChecker.js';
 import { getAllPlayerIds } from './gameState.js';
+import { resolveQuest } from '../abilities/questLogic.js';
+import * as placeEffects from '../abilities/placeEffects.js';
 
 console.log('[ENGINE] turnManager.js loaded');
 
@@ -21,11 +23,21 @@ export function startTurn(gameState) {
   console.log(`[ENGINE] ── Turn ${state.turnNumber} START — Player: ${playerId} ──`);
 
   // Reset per-turn trackers for the active player
-  state.players[playerId].questsCompletedThisTurn = 0;
-  state.players[playerId].hasAttemptedQuestThisTurn = false;
-  state.players[playerId].hasRerolledDieThisTurn = false;
-  for (const slot of state.players[playerId].activeSlots) {
-    if (slot) slot.abilityUsedThisTurn = false;
+  const activePlayer = state.players[playerId];
+  activePlayer.questsCompletedThisTurn = 0;
+  activePlayer.hasAttemptedQuestThisTurn = false;
+  activePlayer.hasRerolledDieThisTurn = false;
+  activePlayer.pieciesPlayedThisTurn = 0;
+  activePlayer.lastCardPlayedType = null;
+  activePlayer.instantPiecieThisTurn = false;
+  activePlayer.chainReactionActive = false;
+  activePlayer.abilityDoubleTrigger = false;
+  for (const slot of activePlayer.activeSlots) {
+    if (slot) {
+      slot.abilityUsedThisTurn = false;
+      slot.immuneThisTurn = false;
+      slot.mpLostThisTurn = 0;
+    }
   }
 
   // Momentum Domination check happens at TURN START
@@ -76,8 +88,17 @@ export function endTurn(gameState) {
   const playerId = state.activePlayerId;
   console.log(`[ENGINE] ── Turn ${state.turnNumber} END — Player: ${playerId} ──`);
 
+  // END PHASE — fire active Place effects
+  if (state.activePlace) {
+    // place card IDs are like 'place_the_gym'; effect functions are 'effect_the_gym'
+    const effectKey = 'effect_' + state.activePlace.replace(/^place_/, '');
+    if (typeof placeEffects[effectKey] === 'function') {
+      state = placeEffects[effectKey](state, playerId);
+      console.log(`[ENGINE] Place effect fired: ${effectKey}`);
+    }
+  }
+
   // END PHASE — tick down status effects on all active Mosjes for all players
-  // Place effects (e.g. The Gym) fire here too — handled in Phase 4 placeEffects.js
   const allPlayerIds = getAllPlayerIds(state);
   for (const pid of allPlayerIds) {
     const player = state.players[pid];
@@ -132,11 +153,17 @@ export function attemptGeneralQuest(gameState) {
   const questCard = state.sharedGeneralQuestDeck.shift(); // take from top
   console.log('[ENGINE] General Quest drawn:', questCard.cardId);
 
-  // Mark as attempted — Phase 4 questLogic will set success/failure and
-  // move the card to sharedGeneralQuestDiscard
   player.hasAttemptedQuestThisTurn = true;
 
-  return { state, questCard };
+  // Phase 4: resolve quest immediately via questLogic
+  const result = resolveQuest(state, playerId, questCard);
+  state = result.state;
+  // Move quest card to discard
+  state.sharedGeneralQuestDiscard = state.sharedGeneralQuestDiscard || [];
+  state.sharedGeneralQuestDiscard.unshift(questCard);
+  console.log(`[ENGINE] General Quest resolved: ${result.success ? 'SUCCESS' : 'FAIL'}`);
+
+  return { state, questCard, questResult: result };
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -166,5 +193,11 @@ export function attemptPersonalQuest(gameState, questCardId) {
   player.hasAttemptedQuestThisTurn = true;
   console.log('[ENGINE] Personal Quest played from hand:', questCardId);
 
-  return { state, questCard, eligible: true };
+  // Phase 4: resolve quest via questLogic
+  const result = resolveQuest(state, playerId, questCard);
+  state = result.state;
+  state.players[playerId].discard.unshift(questCard);
+  console.log(`[ENGINE] Personal Quest resolved: ${result.success ? 'SUCCESS' : 'FAIL'}`);
+
+  return { state, questCard, eligible: true, questResult: result };
 }

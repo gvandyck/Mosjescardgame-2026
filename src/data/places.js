@@ -4,43 +4,269 @@
 // The effectId links to a function in src/abilities/placeEffects.js.
 
 export const PLACES = [
+
+  // ─────────────────────────────────────────
+  // ORIGINAL STARTERS
+  // ─────────────────────────────────────────
+
   {
     id: "place_the_gym",
     type: "PLACE",
     name: "The Gym",
     trigger: "END_PHASE",
-    // Fires at the end of every turn.
     effectId: "effect_the_gym",
-    // All Mosjes lose 10 MP/turn.
-    // Physical ★★ Mosjes gain 25 MP/turn instead.
-    // Physical ★★★ Mosjes gain 35 MP/turn instead.
+    tags: ["PHYSICAL"],
     description: "End Phase: All Mosjes lose 10 MP. Physical ★★ gain 25 MP instead. Physical ★★★ gain 35 MP instead.",
     flavourText: "Alleen de sterksten overleven.",
-    artPath: "assets/places/the_gym.png"
+    artPath: "assets/places/placeholder.png",
+    goodFor: ["FIGHTING"],
+    badFor: ["DIGITAL"],
+    rarity: "★★★☆☆",
+    isBoosterOnly: false
   },
   {
     id: "place_bank_chilling",
     type: "PLACE",
     name: "Bank Chilling",
     trigger: "ON_DRAW",
-    // Fires whenever a player draws cards.
     effectId: "effect_bank_chilling",
-    // Mental ★★+ Mosjes gain +15 MP whenever they draw 2+ cards in one action.
+    tags: ["MENTAL"],
     description: "On Draw: Mental ★★+ Mosjes gain +15 MP when drawing 2 or more cards in one action.",
     flavourText: "Denken terwijl je relaxt.",
-    artPath: "assets/places/bank_chilling.png"
+    artPath: "assets/places/placeholder.png",
+    goodFor: ["DIGITAL"],
+    badFor: [],
+    rarity: "★★★☆☆",
+    isBoosterOnly: false
   },
   {
     id: "place_quest_haven",
     type: "PLACE",
     name: "Quest Haven",
     trigger: "ON_QUEST",
-    // Fires whenever any player completes or attempts a Quest.
     effectId: "effect_quest_haven",
-    // All Quest MP rewards +10.
-    // Complete 2 Quests in one turn = bonus +25 MP.
+    tags: ["QUEST-BOOST"],
     description: "On Quest: All Quest rewards +10 MP. Complete 2 Quests in one turn for +25 bonus MP.",
     flavourText: "Hier worden helden geboren.",
-    artPath: "assets/places/quest_haven.png"
-  }
+    artPath: "assets/places/placeholder.png",
+    goodFor: [],
+    badFor: [],
+    rarity: "★★★☆☆",
+    isBoosterOnly: false
+  },
+
+  // ─────────────────────────────────────────
+  // NEW PLACES
+  // ─────────────────────────────────────────
+
+  {
+    id: "place_skiffa",
+    type: "PLACE",
+    name: "Skiffa",
+    trigger: "END_PHASE",
+    effectId: "effect_skiffa",
+    tags: ["SUBSTANCE"],
+    description: "End Phase: All players discard 1 card OR lose 15 MP. SUBSTANCE Mosjes immune.",
+    flavourText: "",
+    artPath: "assets/places/placeholder.png",
+    goodFor: [],
+    badFor: [],
+    rarity: "★★★★☆",
+    isBoosterOnly: false
+  },
+  {
+    id: "place_obby_1",
+    type: "PLACE",
+    name: "Obby #1",
+    trigger: "ON_QUEST",
+    effectId: "effect_obby_1",
+    tags: ["PHYSICAL", "RESILIENT"],
+    description: "On Quest: Physical/Resilient Quests give +20 MP. Failure causes -10 MP penalty.",
+    flavourText: "",
+    artPath: "assets/places/placeholder.png",
+    goodFor: ["FIGHTING"],
+    badFor: ["DIGITAL"],
+    rarity: "★★★☆☆",
+    isBoosterOnly: false
+  },
+  {
+    id: "place_arcade",
+    type: "PLACE",
+    name: "Arcade",
+    trigger: "ON_QUEST",
+    effectId: "effect_arcade",
+    tags: ["TECHNICAL", "CREATIVE"],
+    description: "On Quest: Technical/Creative Quests give +15 MP. All dice results +1.",
+    flavourText: "",
+    artPath: "assets/places/placeholder.png",
+    goodFor: ["DIGITAL", "ARTISTIC"],
+    badFor: [],
+    rarity: "★★★☆☆",
+    isBoosterOnly: false
+  },
+  {
+    id: "place_zo_is_natuur",
+    type: "PLACE",
+    name: "Zo is Natuur",
+    trigger: "END_PHASE",
+    effectId: "effect_zo_is_natuur",
+    tags: ["RESILIENT", "RESTORE"],
+    description: "End Phase: All Mosjes gain 10 MP (5 MP at Level 0). Nature restores all.",
+    flavourText: "",
+    artPath: "assets/places/placeholder.png",
+    goodFor: [],
+    badFor: [],
+    rarity: "★★★☆☆",
+    isBoosterOnly: false
+  },
+  {
+    id: "place_the_void",
+    type: "PLACE",
+    name: "The Void",
+    trigger: "END_PHASE",
+    effectId: "effect_the_void",
+    tags: ["DRAIN"],
+    description: "End Phase: All Mosjes lose 15 MP. Cannot play RESTORE or FOOD Piecies.",
+    flavourText: "",
+    artPath: "assets/places/placeholder.png",
+    goodFor: [],
+    badFor: [],
+    rarity: "★★★★☆",
+    isBoosterOnly: false
+  },
+  {
+    id: "place_momentum_factory",
+    type: "PLACE",
+    name: "Momentum Factory",
+    trigger: "ON_PIECIE_ACTIVATE",
+    effectId: "effect_momentum_factory",
+    tags: ["MP-BOOST"],
+    description: "On Piecie Activate: First Piecie each turn gives +10 bonus MP.",
+    flavourText: "",
+    artPath: "assets/places/placeholder.png",
+    goodFor: [],
+    badFor: [],
+    rarity: "★★★★☆",
+    isBoosterOnly: false
+  },
+  {
+    id: "place_coerts_caravan",
+    type: "PLACE",
+    name: "Coert's Caravan",
+    trigger: "ON_DRAW",
+    effectId: "effect_coerts_caravan",
+    tags: ["COERT", "DRAW"],
+    description: "On Draw: Coert-tagged Mosjes gain +15 MP when drawing. All Binti Piecies cost 5 less MP.",
+    flavourText: "",
+    artPath: "assets/places/placeholder.png",
+    goodFor: ["DIGITAL", "ARTISTIC"],
+    badFor: [],
+    rarity: "★★★☆☆",
+    isBoosterOnly: false
+  },
+  {
+    id: "place_synergy_chamber",
+    type: "PLACE",
+    name: "Synergy Chamber",
+    trigger: "PASSIVE",
+    effectId: "effect_synergy_chamber",
+    tags: ["SYNERGY"],
+    description: "Passive: All Mosje synergy effects trigger even without the paired Mosje on field.",
+    flavourText: "",
+    artPath: "assets/places/placeholder.png",
+    goodFor: [],
+    badFor: [],
+    rarity: "★★★★★",
+    isBoosterOnly: false
+  },
+  {
+    id: "place_welloe_graveyard",
+    type: "PLACE",
+    name: "Welloe Graveyard",
+    trigger: "ON_WELLOE",
+    effectId: "effect_welloe_graveyard",
+    tags: ["REVIVE"],
+    description: "On Mosje Welloe: that player may immediately swap in another Mosje at +20 MP.",
+    flavourText: "",
+    artPath: "assets/places/placeholder.png",
+    goodFor: [],
+    badFor: [],
+    rarity: "★★★★☆",
+    isBoosterOnly: false
+  },
+  {
+    id: "place_drain_zone",
+    type: "PLACE",
+    name: "Drain Zone",
+    trigger: "END_PHASE",
+    effectId: "effect_drain_zone",
+    tags: ["DRAIN", "ATTACK"],
+    description: "End Phase: Player with lowest MP loses another 10 MP. ATTACK Piecies deal +10 MP damage.",
+    flavourText: "",
+    artPath: "assets/places/placeholder.png",
+    goodFor: [],
+    badFor: [],
+    rarity: "★★★★☆",
+    isBoosterOnly: false
+  },
+  {
+    id: "place_momentum_stabilizer",
+    type: "PLACE",
+    name: "Momentum Stabilizer",
+    trigger: "PASSIVE",
+    effectId: "effect_momentum_stabilizer",
+    tags: ["PROTECT"],
+    description: "Passive: No Mosje can lose more than 30 MP in a single effect.",
+    flavourText: "",
+    artPath: "assets/places/placeholder.png",
+    goodFor: [],
+    badFor: [],
+    rarity: "★★★★☆",
+    isBoosterOnly: false
+  },
+  {
+    id: "place_delluft",
+    type: "PLACE",
+    name: "Delluft",
+    trigger: "END_PHASE",
+    effectId: "effect_delluft",
+    tags: ["SUBSTANCE", "DRAW"],
+    description: "End Phase: All players draw 1 card. SUBSTANCE Piecies cost 0 MP this turn.",
+    flavourText: "",
+    artPath: "assets/places/placeholder.png",
+    goodFor: [],
+    badFor: [],
+    rarity: "★★★☆☆",
+    isBoosterOnly: false
+  },
+  {
+    id: "place_dierenasiel",
+    type: "PLACE",
+    name: "Dierenasiel",
+    trigger: "PASSIVE",
+    effectId: "effect_dierenasiel",
+    tags: ["PET"],
+    description: "Passive: All PET Piecies cost 0 MP. PET protection bonuses +25%.",
+    flavourText: "",
+    artPath: "assets/places/placeholder.png",
+    goodFor: [],
+    badFor: [],
+    rarity: "★★★★☆",
+    isBoosterOnly: false
+  },
+  {
+    id: "place_digital_gaming_stop",
+    type: "PLACE",
+    name: "Digital Gaming Stop",
+    trigger: "ON_QUEST",
+    effectId: "effect_digital_gaming_stop",
+    tags: ["TECHNICAL", "DIGITAL-EQUIPMENT"],
+    description: "On Quest: Technical Quests auto-succeed for DIGITAL Mosjes. DIGITAL-EQUIPMENT Piecies give +20 MP.",
+    flavourText: "",
+    artPath: "assets/places/placeholder.png",
+    goodFor: ["DIGITAL"],
+    badFor: ["FIGHTING"],
+    rarity: "★★★★☆",
+    isBoosterOnly: false
+  },
 ];
