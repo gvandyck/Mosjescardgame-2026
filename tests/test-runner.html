@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MOSJES - Test Runner</title>
+  <link rel="stylesheet" href="test-runner.css" />
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <h1>MOSJES Test Runner</h1>
+      <p id="summary">Running tests...</p>
+      <div class="controls">
+        <button id="btn-run" type="button">Run All Tests</button>
+      </div>
+    </header>
+
+    <main id="results"></main>
+  </div>
+
+  <script type="module">
+    import { results, clearResults } from './helpers/testHelpers.js';
+    import { runMpManagerTests } from './core/test-mpManager.js';
+    import { runVictoryCheckerTests } from './core/test-victoryChecker.js';
+    import { runDeckEngineTests } from './core/test-deckEngine.js';
+    import { runTurnManagerTests } from './core/test-turnManager.js';
+
+    import { runMosjeAbilityTests } from './cards/test-mosjeAbilities.js';
+    import { runPiecieEffectsTests } from './cards/test-piecieEffects.js';
+    import { runSnelleEffectsTests } from './cards/test-snelleEffects.js';
+    import { runPlaceEffectsTests } from './cards/test-placeEffects.js';
+    import { runQuestLogicTests } from './cards/test-questLogic.js';
+
+    function runAll() {
+      clearResults();
+      document.getElementById('results').innerHTML = '';
+
+      runMpManagerTests();
+      runVictoryCheckerTests();
+      runDeckEngineTests();
+      runTurnManagerTests();
+
+      runQuestLogicTests();
+      runMosjeAbilityTests();
+      runPiecieEffectsTests();
+      runSnelleEffectsTests();
+      runPlaceEffectsTests();
+
+      renderResults();
+    }
+
+    function renderResults() {
+      const container = document.getElementById('results');
+      const passed = results.filter(r => r.passed).length;
+      const failed = results.filter(r => !r.passed).length;
+
+      const summary = document.getElementById('summary');
+      summary.textContent = `${passed} passed | ${failed} failed | ${results.length} total`;
+      summary.className = failed > 0 ? 'has-failures' : 'all-passed';
+
+      for (const r of results) {
+        const div = document.createElement('div');
+        div.className = r.passed ? 'test-pass' : 'test-fail';
+        div.innerHTML = r.passed
+          ? `PASS - ${r.name}`
+          : `FAIL - ${r.name}<div class="error-msg">${r.error}</div>`;
+        container.appendChild(div);
+      }
+    }
+
+    document.getElementById('btn-run').addEventListener('click', runAll);
+    runAll();
+  </script>
+</body>
+</html>

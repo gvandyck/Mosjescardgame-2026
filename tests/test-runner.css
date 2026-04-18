@@ -1,0 +1,116 @@
+:root {
+  --pass: #4aff9e;
+  --fail: #ff4a4a;
+  --bg: #0a0e1a;
+  --surface: #141828;
+  --text: #e8eaf0;
+  --muted: #8f96b2;
+  --accent: #4a9eff;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  background: radial-gradient(circle at top left, #18203b 0%, #0a0e1a 45%, #070910 100%);
+  color: var(--text);
+  font-family: 'Exo 2', 'Segoe UI', sans-serif;
+  padding: 16px;
+}
+
+.shell {
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+header {
+  margin-bottom: 16px;
+  padding: 16px;
+  border: 1px solid #273050;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #171d34 0%, #101425 100%);
+}
+
+h1 {
+  font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+#summary {
+  margin: 8px 0 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--surface);
+  border-left: 4px solid var(--muted);
+}
+
+#summary.all-passed {
+  border-left-color: var(--pass);
+}
+
+#summary.has-failures {
+  border-left-color: var(--fail);
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+button {
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #05080f;
+  font-weight: 700;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+button:hover {
+  filter: brightness(1.08);
+}
+
+#results {
+  display: grid;
+  gap: 8px;
+}
+
+.test-pass,
+.test-fail {
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  background: #11172a;
+}
+
+.test-pass {
+  border-left: 4px solid var(--pass);
+}
+
+.test-fail {
+  border-left: 4px solid var(--fail);
+}
+
+.error-msg {
+  margin-top: 4px;
+  color: #ff9a9a;
+  font-size: 0.85rem;
+}
+
+@media (min-width: 768px) {
+  body {
+    padding: 24px;
+  }
+
+  h1 {
+    font-size: 1.9rem;
+  }
+}
