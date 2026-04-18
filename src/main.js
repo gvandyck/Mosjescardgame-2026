@@ -5,8 +5,17 @@ import { renderBoard } from './ui/boardRenderer.js';
 import { createLogRenderer } from './ui/logRenderer.js';
 import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
+import { createInitialGameState } from './engine/gameState.js';
+import { startTurn, endTurn } from './engine/turnManager.js';
+import { MOSJES } from './data/mosjes.js';
+import { PIECIES } from './data/piecies.js';
+import { SNELLE_PIECIES } from './data/snellePiecies.js';
+import { PLACES } from './data/places.js';
+import { QUESTS } from './data/quests.js';
 
 console.log('[UI] App bootstrapping...');
+
+const CARD_LOOKUP = buildCardLookup();
 
 const path = window.location.pathname.toLowerCase();
 
@@ -67,55 +76,54 @@ function initGamePage() {
 	const log = createLogRenderer(logRoot);
 	const modal = initModalManager(modalRoot);
 
-	const uiState = {
-		activePlayerName: lobbyData.name || 'Player 1',
-		turnPhase: 'DRAW',
-		activePlaceName: 'Quest Haven',
-		players: {
-			top: {
-				name: 'Opponent',
-				mosjes: [
-					{ name: '[Jeffrey] The Strongman', type: 'MOSJE', mp: 20, level: 1 },
-					{ name: '[Michelle] Iron Tuk', type: 'MOSJE', mp: 0, level: 0 },
-				],
-			},
-			bottom: {
-				name: lobbyData.name || 'You',
-				mosjes: [
-					{ name: '[West] Sr.Tactical', type: 'MOSJE', mp: 15, level: 1 },
-					{ name: '[Coert] The Tech Savant', type: 'MOSJE', mp: 10, level: 1 },
-				],
-			},
-		},
-	};
+	const localPlayerName = lobbyData.name || 'Player 1';
+	const localDeckId = lobbyData.deckId || 'DIGITAL_CONTROL';
+	const opponentDeckId = pickOpponentDeck(localDeckId);
 
-	const handCards = [
-		{ name: 'Kannetje Melk', type: 'PIECIE', description: '+25 MP to active Mosje' },
-		{ name: 'Quest Prep', type: 'PIECIE', description: 'Your next quest roll gets +2' },
-		{ name: 'Lucky Coin', type: 'SNELLE_PIECIE', description: 'Reroll any die' },
-		{
-			name: 'Leap of Faith',
-			type: 'QUEST',
-			questType: 'GENERAL',
-			difficulty: 'MEDIUM',
-			description: 'Roll 1d6: 1-3 fail, 4-6 success',
-		},
-	];
+	let gameState = createInitialGameState(
+		[
+			{ playerId: 'player_1', name: localPlayerName, deckId: localDeckId },
+			{ playerId: 'player_2', name: 'Opponent', deckId: opponentDeckId },
+		],
+		lobbyData.roomCode || 'LOCAL'
+	);
 
-	renderBoard(boardRoot, uiState);
-	renderHand(handRoot, handCards);
+	gameState = startTurn(gameState);
+	renderFromState(gameState);
 
-	if (turnLabel) {
-		turnLabel.textContent = `${uiState.activePlayerName} • ${uiState.turnPhase} Phase`;
-	}
-
-	log.add('quest', `${uiState.activePlayerName} entered the arena.`);
-	log.add('gain', 'Board UI rendered successfully.');
+	log.add('quest', `${localPlayerName} entered room ${gameState.roomCode}.`);
+	log.add('gain', `Turn ${gameState.turnNumber} started for ${gameState.players[gameState.activePlayerId].name}.`);
 
 	document.getElementById('btn-end-turn')?.addEventListener('click', () => {
-		log.add('quest', 'Turn ended. Next player phase started.');
-		modal.showInfo('Turn Ended', 'Turn flow and state syncing hooks will be wired in Phase 7.');
+		const previousPlayerName = gameState.players[gameState.activePlayerId].name;
+		gameState = endTurn(gameState);
+		if (gameState.status !== 'FINISHED') {
+			gameState = startTurn(gameState);
+		}
+
+		renderFromState(gameState);
+		log.add('quest', `${previousPlayerName} ended their turn.`);
+
+		if (gameState.status === 'FINISHED') {
+			const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
+			log.add('win', `${winnerName} won by ${gameState.winReason}.`);
+			modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+			return;
+		}
+
+		const activeName = gameState.players[gameState.activePlayerId].name;
+		log.add('gain', `Now active: ${activeName}. Turn ${gameState.turnNumber}.`);
 	});
+
+	function renderFromState(state) {
+		const uiState = toBoardViewModel(state, 'player_1');
+		renderBoard(boardRoot, uiState);
+		renderHand(handRoot, toHandViewModel(state.players.player_1.hand));
+
+		if (turnLabel) {
+			turnLabel.textContent = `${uiState.activePlayerName} • DRAW Phase`;
+		}
+	}
 }
 
 function readLobbyData() {
@@ -126,4 +134,73 @@ function readLobbyData() {
 	} catch {
 		return {};
 	}
+}
+
+function buildCardLookup() {
+	const allCards = [...MOSJES, ...PIECIES, ...SNELLE_PIECIES, ...PLACES, ...QUESTS];
+	const map = {};
+	for (const card of allCards) map[card.id] = card;
+	return map;
+}
+
+function toBoardViewModel(gameState, localPlayerId) {
+	const localPlayer = gameState.players[localPlayerId];
+	const opponentId = Object.keys(gameState.players).find(id => id !== localPlayerId);
+	const opponent = gameState.players[opponentId];
+
+	return {
+		activePlayerName: gameState.players[gameState.activePlayerId].name,
+		turnPhase: 'DRAW',
+		activePlaceName: gameState.activePlace?.name || 'None',
+		players: {
+			top: {
+				name: opponent.name,
+				mosjes: toMosjeCards(opponent.activeSlots),
+			},
+			bottom: {
+				name: localPlayer.name,
+				mosjes: toMosjeCards(localPlayer.activeSlots),
+			},
+		},
+	};
+}
+
+function toMosjeCards(activeSlots) {
+	return activeSlots
+		.filter(slot => slot !== null)
+		.map(slot => ({
+			name: slot.name,
+			type: 'MOSJE',
+			mp: slot.mp,
+			level: slot.level,
+			description: slot.isDefeated ? 'Defeated' : 'Active on field',
+		}));
+}
+
+function toHandViewModel(hand) {
+	return hand.map(cardRef => {
+		const def = CARD_LOOKUP[cardRef.cardId];
+		if (!def) {
+			return {
+				name: cardRef.cardId,
+				type: cardRef.type || 'UNKNOWN',
+				description: 'Unknown card definition',
+			};
+		}
+
+		return {
+			name: def.name,
+			type: def.type,
+			description: def.description || def.requirementDescription || def.flavourText || '',
+			questType: def.questType,
+			requiredMosjeId: def.requiredMosjeId,
+			difficulty: def.difficulty,
+		};
+	});
+}
+
+function pickOpponentDeck(localDeckId) {
+	if (localDeckId === 'PHYSICAL_FORCE') return 'ARTISTIC_RHYTHM';
+	if (localDeckId === 'ARTISTIC_RHYTHM') return 'DIGITAL_CONTROL';
+	return 'PHYSICAL_FORCE';
 }
