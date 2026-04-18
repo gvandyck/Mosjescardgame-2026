@@ -204,6 +204,10 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
   const player = state.players[playerId];
   if (!player) return { state, success: false, error: 'Player not found' };
 
+  // Defensive normalization for synced multiplayer states
+  if (!Array.isArray(player.hand)) player.hand = [];
+  if (!Array.isArray(player.discard)) player.discard = [];
+
   // Check The Void restriction (blocks RESTORE and FOOD Piecies)
   if (state.activePlace === 'place_the_void') {
     const blocked = ['RESTORE', 'FOOD'];
@@ -285,8 +289,12 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export function playSnellie(gameState, playerId, cardRef, cardDef) {
   let state = JSON.parse(JSON.stringify(gameState));
-  const player = state.players[playerId];
+  let player = state.players[playerId];
   if (!player) return { state, success: false, error: 'Player not found' };
+
+  // Defensive normalization for synced multiplayer states
+  if (!Array.isArray(player.hand)) player.hand = [];
+  if (!Array.isArray(player.discard)) player.discard = [];
 
   // Remove from hand
   const handIndex = player.hand.findIndex(c => c.cardId === cardRef.cardId);
@@ -302,6 +310,11 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
     console.warn(`[ENGINE] No snelle effect function found for: ${cardDef.effectId}`);
   }
 
+  // Rebind player reference because effect functions return a cloned state
+  player = state.players[playerId];
+  if (!Array.isArray(player.hand)) player.hand = [];
+  if (!Array.isArray(player.discard)) player.discard = [];
+
   // Gevalletje Klakkeloos: resolve copy flag — run the copied effect immediately
   const copyFlag = state._snelleFlags?.copyLastPiecie;
   if (copyFlag?.forPlayer === playerId && copyFlag.effectId) {
@@ -314,7 +327,7 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
   }
 
   // Move card to discard pile
-  state.players[playerId].discard.unshift(cardRef);
+  player.discard.unshift(cardRef);
 
   state = checkVictory(state);
   return { state, success: true };

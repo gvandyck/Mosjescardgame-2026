@@ -19,6 +19,42 @@ export function runSnelleEffectsTests() {
     assertEqual(result.players.player_1.activeSlots[0].mp, 15);
   });
 
+  test('Snelle Jensen applies to selected own Mosje when target is provided', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          activeSlots: [
+            {
+              cardId: 'mosje_west',
+              name: '[West] Sr.Tactical',
+              traits: { mental: 3, technical: 1 },
+              mp: 15,
+              level: 1,
+              isDefeated: false,
+              statusEffects: [],
+              abilityUsedThisTurn: false,
+            },
+            {
+              cardId: 'mosje_gandoe',
+              name: '[Gandoe] Prime',
+              traits: { technical: 2 },
+              mp: 9,
+              level: 1,
+              isDefeated: false,
+              statusEffects: [],
+              abilityUsedThisTurn: false,
+            },
+          ],
+        },
+      },
+      _pendingTargets: { own_slot_index: 1 },
+    });
+
+    const result = snelleEffects.effect_snelle_jensen(state, 'player_1');
+    assertEqual(result.players.player_1.activeSlots[0].mp, 15);
+    assertEqual(result.players.player_1.activeSlots[1].mp, 29);
+  });
+
   test('Lucky Coin returns cloned state without changing MP', () => {
     assertDefined(
       snelleEffects.effect_lucky_coin,

@@ -18,6 +18,42 @@ export function runPiecieEffectsTests() {
     assertEqual(result.players.player_1.activeSlots[0].mp, 40);
   });
 
+  test('Kannetje Melk applies to selected own Mosje when target is provided', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          activeSlots: [
+            {
+              cardId: 'mosje_west',
+              name: '[West] Sr.Tactical',
+              traits: { mental: 3, technical: 1 },
+              mp: 15,
+              level: 1,
+              isDefeated: false,
+              statusEffects: [],
+              abilityUsedThisTurn: false,
+            },
+            {
+              cardId: 'mosje_gandoe',
+              name: '[Gandoe] Prime',
+              traits: { technical: 2 },
+              mp: 22,
+              level: 1,
+              isDefeated: false,
+              statusEffects: [],
+              abilityUsedThisTurn: false,
+            },
+          ],
+        },
+      },
+      _pendingTargets: { own_slot_index: 1 },
+    });
+
+    const result = piecieEffects.effect_kannetje_melk(state, 'player_1');
+    assertEqual(result.players.player_1.activeSlots[0].mp, 15);
+    assertEqual(result.players.player_1.activeSlots[1].mp, 47);
+  });
+
   test('Affoe applies opponent -15 MP and self +10 MP', () => {
     assertDefined(
       piecieEffects.effect_affoe,

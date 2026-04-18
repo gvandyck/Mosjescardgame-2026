@@ -66,7 +66,7 @@ export function runDeckEngineTests() {
     assertTrue(p1.deck.length === totalCards - 7, 'remaining deck = total - 7');
   });
 
-  test('initializeGame: no card appears in both hand and deck', () => {
+  test('initializeGame: no card instance appears in both hand and deck', () => {
     const state = createInitialGameState(
       [
         { playerId: 'player_1', name: 'Test 1', deckId: 'DIGITAL_CONTROL' },
@@ -75,9 +75,7 @@ export function runDeckEngineTests() {
       'TEST'
     );
     const p1 = state.players.player_1;
-    const handIds = p1.hand.map(c => c.cardId);
-    const deckIds = p1.deck.map(c => c.cardId);
-    const overlap = handIds.filter(id => deckIds.includes(id));
-    assertEqual(overlap.length, 0, 'no card should be in both hand and deck');
+    const overlap = p1.hand.filter(handCard => p1.deck.includes(handCard));
+    assertEqual(overlap.length, 0, 'no card instance should be in both hand and deck');
   });
 }

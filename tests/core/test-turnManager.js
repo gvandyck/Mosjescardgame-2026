@@ -5,6 +5,7 @@ import {
   endTurn,
   attemptGeneralQuest,
   attemptPersonalQuest,
+  playSnellie,
   canPlayerActNow,
 } from '../../src/engine/turnManager.js';
 
@@ -93,5 +94,27 @@ export function runTurnManagerTests() {
   test('canPlayerActNow: Place blocked out of turn', () => {
     const state = createEngineState({ activePlayerId: 'player_2' });
     assertFalse(canPlayerActNow(state, 'player_1', 'PLACE'));
+  });
+
+  test('playSnellie initializes missing discard array instead of crashing', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          hand: [{ cardId: 'snelle_jensen', type: 'SNELLE_PIECIE' }],
+          discard: undefined,
+        },
+      },
+    });
+
+    const out = playSnellie(
+      state,
+      'player_1',
+      { cardId: 'snelle_jensen', type: 'SNELLE_PIECIE' },
+      { name: 'Jensen!', effectId: 'effect_snelle_jensen' }
+    );
+
+    assertTrue(out.success);
+    assertEqual(out.state.players.player_1.discard.length, 1);
+    assertEqual(out.state.players.player_1.hand.length, 0);
   });
 }
