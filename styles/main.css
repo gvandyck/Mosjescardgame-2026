@@ -1,0 +1,38 @@
+/* ============================================
+   main.css — Global styles, fonts, CSS variables
+   Applies to every page. Mobile-first.
+   ============================================ */
+
+/* --- Fonts (loaded via Google Fonts in Phase 5) --- */
+/* @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Exo+2:wght@400;600&display=swap'); */
+
+/* --- CSS Variables (design tokens) --- */
+:root {
+  --color-bg:        #0A0E1A;
+  --color-surface:   #141828;
+  --color-gold:      #FFD700;   /* Mosje cards */
+  --color-blue:      #4A9EFF;   /* Piecie cards */
+  --color-red:       #FF4A4A;   /* Snelle Piecie / Instant */
+  --color-green:     #4AFF9E;   /* Place cards */
+  --color-purple:    #C44AFF;   /* Quest cards */
+  --color-text:      #E8EAF0;
+  --color-text-dim:  #7A7F9A;
+
+  --font-heading: 'Rajdhani', sans-serif;
+  --font-body:    'Exo 2', sans-serif;
+
+  --radius:   8px;
+  --gap:      12px;
+}
+
+/* --- Reset & Base --- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  min-height: 100vh;
+}
+
+h1, h2, h3 { font-family: var(--font-heading); }

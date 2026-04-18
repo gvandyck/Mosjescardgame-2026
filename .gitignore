@@ -1,0 +1,27 @@
+# =============================================
+# .gitignore — Tells Git which files to IGNORE.
+# These will NEVER be uploaded to GitHub.
+# =============================================
+
+# Secret Firebase config (real keys go here — never commit this!)
+firebase-config.js
+
+# macOS system files
+.DS_Store
+
+# Environment variable files
+.env
+.env.local
+
+# Log files
+*.log
+
+# VS Code local settings (optional — remove if you want to share settings)
+.vscode/settings.json
+
+# Node modules (not used in this project, but just in case)
+node_modules/
+
+# Build output folders (not used, but good practice)
+dist/
+build/
