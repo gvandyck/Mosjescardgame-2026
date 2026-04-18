@@ -1,5 +1,79 @@
 // deckEngine.js — Shuffle, draw, and discard functions.
-// Operates on card arrays — no visuals.
-// Filled in Phase 3.
+// Operates purely on card arrays — no visuals, no Firebase.
+// All functions return new arrays (they do not mutate the originals).
 
-console.log('[ENGINE] deckEngine.js placeholder loaded');
+console.log('[ENGINE] deckEngine.js loaded');
+
+// ─────────────────────────────────────────────────────────────
+// shuffleDeck
+// Returns a new array with the same cards in a random order.
+// Uses the Fisher-Yates algorithm — fair and well-tested.
+// ─────────────────────────────────────────────────────────────
+export function shuffleDeck(cards) {
+  const deck = [...cards]; // copy so we don't mutate the original
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  console.log('[ENGINE] Deck shuffled, size:', deck.length);
+  return deck;
+}
+
+// ─────────────────────────────────────────────────────────────
+// drawCards
+// Draws `count` cards from the top of a deck.
+// Returns { drawn, remaining }
+//   drawn     — array of cards taken from the top
+//   remaining — the deck with those cards removed
+//
+// If the deck runs out mid-draw, returns only what was available.
+// ─────────────────────────────────────────────────────────────
+export function drawCards(deck, count) {
+  const available = Math.min(count, deck.length);
+  if (available < count) {
+    console.log(`[ENGINE] Deck only has ${deck.length} cards — drawing ${available} instead of ${count}`);
+  }
+  const drawn = deck.slice(0, available);
+  const remaining = deck.slice(available);
+  console.log('[ENGINE] Drew', drawn.length, 'card(s). Deck remaining:', remaining.length);
+  return { drawn, remaining };
+}
+
+// ─────────────────────────────────────────────────────────────
+// discardCards
+// Moves cards from one array to the top of a discard pile.
+// Returns the new discard pile (cards added to the front = most recent on top).
+// ─────────────────────────────────────────────────────────────
+export function discardCards(discard, cards) {
+  console.log('[ENGINE] Discarding', cards.length, 'card(s)');
+  return [...cards, ...discard];
+}
+
+// ─────────────────────────────────────────────────────────────
+// removeFromHand
+// Removes a specific card from the hand by its cardId.
+// Returns { newHand, removedCard }
+// removedCard is null if the card wasn't found.
+// ─────────────────────────────────────────────────────────────
+export function removeFromHand(hand, cardId) {
+  const index = hand.findIndex(c => c.cardId === cardId);
+  if (index === -1) {
+    console.log('[ENGINE] Card not found in hand:', cardId);
+    return { newHand: hand, removedCard: null };
+  }
+  const newHand = [...hand];
+  const [removedCard] = newHand.splice(index, 1);
+  console.log('[ENGINE] Removed from hand:', cardId);
+  return { newHand, removedCard };
+}
+
+// ─────────────────────────────────────────────────────────────
+// rollDie
+// Rolls a single N-sided die (default: 6-sided).
+// Returns an integer 1 to sides.
+// ─────────────────────────────────────────────────────────────
+export function rollDie(sides = 6) {
+  const result = Math.floor(Math.random() * sides) + 1;
+  console.log(`[ENGINE] Rolled d${sides}: ${result}`);
+  return result;
+}

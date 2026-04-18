@@ -1,5 +1,78 @@
-// synergyResolver.js — Detects which Mosje synergy pairs
-// are currently active (both Mosjes on the field at the same time).
-// Filled in Phase 3.
+// synergyResolver.js — Detects which Mosje synergy pairs are currently active.
+// A synergy is active when BOTH named Mosjes are on the same player's field
+// at the same time and neither is defeated.
 
-console.log('[ENGINE] synergyResolver.js placeholder loaded');
+import { MOSJES } from '../data/mosjes.js';
+
+console.log('[ENGINE] synergyResolver.js loaded');
+
+// ─────────────────────────────────────────────────────────────
+// getActiveSynergies
+// Returns an array of active synergy objects for a player.
+// Each result: { mosjeAId, mosjeBId, synergyEffect }
+//
+// gameState — full game state
+// playerId  — the player to check synergies for
+// ─────────────────────────────────────────────────────────────
+export function getActiveSynergies(gameState, playerId) {
+  const player = gameState.players[playerId];
+  if (!player) return [];
+
+  const activeMosjeIds = player.activeSlots
+    .filter(slot => slot !== null && !slot.isDefeated)
+    .map(slot => slot.cardId);
+
+  const synergies = [];
+  const alreadyChecked = new Set();
+
+  for (const mosjeId of activeMosjeIds) {
+    const mosjeData = MOSJES.find(m => m.id === mosjeId);
+    if (!mosjeData || !mosjeData.synergyWith) continue;
+
+    for (const partnerId of mosjeData.synergyWith) {
+      // Build a sorted key so we don't add the same pair twice
+      const pairKey = [mosjeId, partnerId].sort().join('|');
+      if (alreadyChecked.has(pairKey)) continue;
+      alreadyChecked.add(pairKey);
+
+      // Synergy only triggers if the partner is also on the field
+      if (activeMosjeIds.includes(partnerId)) {
+        synergies.push({
+          mosjeAId: mosjeId,
+          mosjeBId: partnerId,
+          synergyEffect: mosjeData.synergyEffect,
+        });
+        console.log(`[ENGINE] Synergy active: ${mosjeId} + ${partnerId} — ${mosjeData.synergyEffect}`);
+      }
+    }
+  }
+
+  if (synergies.length === 0) {
+    console.log('[ENGINE] No synergies active for player:', playerId);
+  }
+
+  return synergies;
+}
+
+// ─────────────────────────────────────────────────────────────
+// hasSynergy
+// Quick check: returns true if two specific Mosjes have an
+// active synergy for the given player.
+// ─────────────────────────────────────────────────────────────
+export function hasSynergy(gameState, playerId, mosjeAId, mosjeBId) {
+  const synergies = getActiveSynergies(gameState, playerId);
+  return synergies.some(
+    s => (s.mosjeAId === mosjeAId && s.mosjeBId === mosjeBId) ||
+         (s.mosjeAId === mosjeBId && s.mosjeBId === mosjeAId)
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// hasFoodDoubleSynergy
+// Specific helper for the Binti + Coert synergy:
+// FOOD cards give double MP.
+// Called by piecieEffects.js before applying FOOD card gains.
+// ─────────────────────────────────────────────────────────────
+export function hasFoodDoubleSynergy(gameState, playerId) {
+  return hasSynergy(gameState, playerId, 'mosje_binti', 'mosje_coert_tech');
+}
