@@ -4,6 +4,8 @@
 // canAttemptPersonalQuest() is implemented here now (Phase 2 update).
 // Full requirement/reward functions are filled in Phase 4.
 
+import { rollDie } from '../engine/deckEngine.js';
+
 console.log('[ABILITY] questLogic.js loaded');
 
 function cloneState(state) {
@@ -155,49 +157,396 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed) {
 }
 
 // ─────────────────────────────────────────
-// QUEST REQUIREMENT STUB FUNCTIONS
-// All return { canAttempt: true } by default until implemented.
+// QUEST REQUIREMENT IMPLEMENTATIONS
+// All return { canAttempt: true/false, diceRoll: number?, threshold: number?, success: true/false? }
 // ─────────────────────────────────────────
 
-function _questStub(id) {
-  console.log(`[STUB] quest req: ${id}`);
-  return { canAttempt: true };
+// PHYSICAL QUESTS
+export function quest_req_arm_wrestling(questCard, mosje) {
+	const roll = rollDie();
+	const physical = mosje.traits?.physical || 0;
+	let threshold;
+	if (physical >= 3) threshold = 2;
+	else if (physical >= 2) threshold = 3;
+	else threshold = 5;
+	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
 }
 
-export function quest_req_parkour_challenge(questCard, mosje) { return _questStub('parkour_challenge'); }
-export function quest_req_endurance_test(questCard, mosje) { return _questStub('endurance_test'); }
-export function quest_req_sprint_race(questCard, mosje) { return _questStub('sprint_race'); }
-export function quest_req_strategy_puzzle(questCard, mosje) { return _questStub('strategy_puzzle'); }
-export function quest_req_calculate_odds(questCard, mosje) { return _questStub('calculate_odds'); }
-export function quest_req_master_plan(questCard, mosje) { return _questStub('master_plan'); }
-export function quest_req_inspire_crowd(questCard, mosje) { return _questStub('inspire_crowd'); }
-export function quest_req_form_alliance(questCard, mosje) { return _questStub('form_alliance'); }
-export function quest_req_negotiation(questCard, mosje) { return _questStub('negotiation'); }
-export function quest_req_team_building(questCard, mosje) { return _questStub('team_building'); }
-export function quest_req_improvise(questCard, mosje) { return _questStub('improvise'); }
-export function quest_req_create_masterpiece(questCard, mosje) { return _questStub('create_masterpiece'); }
-export function quest_req_lucky_break(questCard, mosje) { return _questStub('lucky_break'); }
-export function quest_req_debug_system(questCard, mosje) { return _questStub('debug_system'); }
-export function quest_req_hack_mainframe(questCard, mosje) { return _questStub('hack_mainframe'); }
-export function quest_req_build_gadget(questCard, mosje) { return _questStub('build_gadget'); }
-export function quest_req_precision_work(questCard, mosje) { return _questStub('precision_work'); }
-export function quest_req_survive_storm(questCard, mosje) { return _questStub('survive_storm'); }
-export function quest_req_endure_pain(questCard, mosje) { return _questStub('endure_pain'); }
-export function quest_req_never_give_up(questCard, mosje) { return _questStub('never_give_up'); }
-export function quest_req_tough_it_out(questCard, mosje) { return _questStub('tough_it_out'); }
-export function quest_req_momentum_master(questCard, mosje) { return _questStub('momentum_master'); }
-export function quest_req_the_gauntlet(questCard, mosje) { return _questStub('the_gauntlet'); }
-export function quest_req_ultimate_challenge(questCard, mosje) { return _questStub('ultimate_challenge'); }
-export function quest_req_speed_run(questCard, mosje) { return _questStub('speed_run'); }
-export function quest_req_sustained_assault(questCard, mosje) { return _questStub('sustained_assault'); }
-export function quest_req_perfect_timing(questCard, mosje) { return _questStub('perfect_timing'); }
-export function quest_req_elimination_challenge(questCard, mosje) { return _questStub('elimination_challenge'); }
-export function quest_req_chain_master(questCard, mosje) { return _questStub('chain_master'); }
-export function quest_req_synergy_mastery(questCard, mosje) { return _questStub('synergy_mastery'); }
-export function quest_req_regelaar(questCard, mosje) { return _questStub('regelaar'); }
-export function quest_req_late_night_questing(questCard, mosje) { return _questStub('late_night_questing'); }
-export function quest_req_larry_temmen(questCard, mosje) { return _questStub('larry_temmen'); }
-export function quest_req_geen_raad_vraag_aad(questCard, mosje) { return _questStub('geen_raad_vraag_aad'); }
-export function quest_req_parkeren_delft(questCard, mosje) { return _questStub('parkeren_delft'); }
-export function quest_req_shotje_obby(questCard, mosje) { return _questStub('shotje_obby'); }
+export function quest_req_parkour_challenge(questCard, mosje) {
+	const roll = rollDie();
+	const physical = mosje.traits?.physical || 0;
+	let threshold;
+	if (physical >= 3) threshold = 2;
+	else if (physical >= 2) threshold = 4;
+	else threshold = 5;
+	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+}
+
+export function quest_req_endurance_test(questCard, mosje) {
+	const roll = rollDie();
+	const physical = mosje.traits?.physical || 0;
+	const resilient = mosje.traits?.resilient || 0;
+	let threshold;
+	if (physical >= 3) threshold = 3;
+	else if (physical >= 2) threshold = 4;
+	else threshold = 5;
+	if (resilient >= 2) threshold -= 1;
+	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+}
+
+export function quest_req_sprint_race(questCard, mosje) {
+	const roll = rollDie();
+	const physical = mosje.traits?.physical || 0;
+	let threshold;
+	if (physical >= 3) threshold = 2;
+	else if (physical >= 2) threshold = 4;
+	else threshold = 6;
+	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+}
+
+// MENTAL QUESTS
+export function quest_req_quick_thinking(questCard, mosje) {
+	const roll = rollDie();
+	const mental = mosje.traits?.mental || 0;
+	let threshold;
+	if (mental >= 3) threshold = 3;
+	else if (mental >= 2) threshold = 4;
+	else threshold = 5;
+	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+}
+
+export function quest_req_strategy_puzzle(questCard, mosje) {
+	const roll = rollDie();
+	const mental = mosje.traits?.mental || 0;
+	let threshold;
+	if (mental >= 3) threshold = 2;
+	else if (mental >= 2) threshold = 3;
+	else threshold = 5;
+	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+}
+
+export function quest_req_calculate_odds(questCard, mosje) {
+	const roll = rollDie();
+	const mental = mosje.traits?.mental || 0;
+	const technical = mosje.traits?.technical || 0;
+	let threshold;
+	if (mental >= 3) threshold = 3;
+	else if (mental >= 2) threshold = 4;
+	else threshold = 6;
+	if (technical >= 2) threshold -= 1;
+	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+}
+
+export function quest_req_master_plan(questCard, mosje) {
+	const roll = rollDie();
+	const mental = mosje.traits?.mental || 0;
+	let threshold;
+	if (mental >= 3) threshold = 3;
+	else if (mental >= 2) threshold = 5;
+	else threshold = 6;
+	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+}
+
+// SOCIAL QUESTS
+export function quest_req_inspire_crowd(questCard, mosje) {
+	const roll = rollDie();
+	const social = mosje.traits?.social || 0;
+	let threshold;
+	if (social >= 3) threshold = 2;
+	else if (social >= 2) threshold = 3;
+	else threshold = 5;
+	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+}
+
+export function quest_req_form_alliance(questCard, mosje) {
+	const roll = rollDie();
+	const social = mosje.traits?.social || 0;
+	let threshold;
+	if (social >= 3) threshold = 3;
+	else if (social >= 2) threshold = 4;
+	else threshold = 5;
+	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+}
+
+export function quest_req_negotiation(questCard, mosje) {
+	const roll = rollDie();
+	const social = mosje.traits?.social || 0;
+	let threshold;
+	if (social >= 3) threshold = 2;
+	else if (social >= 2) threshold = 4;
+	else threshold = 6;
+	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+}
+
+export function quest_req_team_building(questCard, mosje) {
+	const roll = rollDie();
+	const social = mosje.traits?.social || 0;
+	let threshold;
+	if (social >= 3) threshold = 2;
+	else if (social >= 2) threshold = 3;
+	else threshold = 5;
+	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+}
+
+// CREATIVE QUESTS
+export function quest_req_artistic_expression(questCard, mosje) {
+	const creative = mosje.traits?.creative || 0;
+	// Requires Creative ★★ + draw 2 cards (checked by caller)
+	const canAttempt = creative >= 2;
+	return { canAttempt, success: canAttempt };
+}
+
+export function quest_req_improvise(questCard, mosje) {
+	const roll = rollDie();
+	const creative = mosje.traits?.creative || 0;
+	let threshold;
+	if (creative >= 3) threshold = 2;
+	else if (creative >= 2) threshold = 3;
+	else threshold = 5;
+	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+}
+
+export function quest_req_create_masterpiece(questCard, mosje) {
+	const roll = rollDie();
+	const creative = mosje.traits?.creative || 0;
+	let threshold;
+	if (creative >= 3) threshold = 3;
+	else if (creative >= 2) threshold = 4;
+	else threshold = 6;
+	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+}
+
+export function quest_req_lucky_break(questCard, mosje) {
+	const roll = rollDie();
+	// 1-2 = fail, 3-4 = partial, 5-6 = success
+	// For simplicity, 1-2 = fail, 3+ = succeed
+	return { canAttempt: true, diceRoll: roll, threshold: 3, success: roll >= 3 };
+}
+
+// TECHNICAL QUESTS
+export function quest_req_debug_system(questCard, mosje) {
+	const roll = rollDie();
+	const technical = mosje.traits?.technical || 0;
+	let threshold;
+	if (technical >= 3) threshold = 2;
+	else if (technical >= 2) threshold = 3;
+	else threshold = 5;
+	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+}
+
+export function quest_req_hack_mainframe(questCard, mosje) {
+	const roll = rollDie();
+	const technical = mosje.traits?.technical || 0;
+	let threshold;
+	if (technical >= 3) threshold = 3;
+	else if (technical >= 2) threshold = 4;
+	else threshold = 6;
+	// Hacker/FPS Mosje: -1 threshold (name-based check)
+	const isHacker = mosje.mosjeId && (mosje.mosjeId.toLowerCase().includes('hacker') || mosje.mosjeId.toLowerCase().includes('fps'));
+	if (isHacker) threshold -= 1;
+	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+}
+
+export function quest_req_build_gadget(questCard, mosje) {
+	const roll = rollDie();
+	const technical = mosje.traits?.technical || 0;
+	let threshold;
+	if (technical >= 3) threshold = 2;
+	else if (technical >= 2) threshold = 3;
+	else threshold = 5;
+	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+}
+
+export function quest_req_precision_work(questCard, mosje) {
+	const roll = rollDie();
+	const technical = mosje.traits?.technical || 0;
+	const creative = mosje.traits?.creative || 0;
+	let threshold;
+	if (technical >= 3) threshold = 3;
+	else if (technical >= 2) threshold = 4;
+	else threshold = 5;
+	if (creative >= 2) threshold -= 1;
+	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+}
+
+// RESILIENT QUESTS
+export function quest_req_leap_of_faith(questCard, mosje) {
+	const roll = rollDie();
+	// 1-3 = fail, 4-6 = success
+	return { canAttempt: true, diceRoll: roll, threshold: 4, success: roll >= 4 };
+}
+
+export function quest_req_survive_storm(questCard, mosje) {
+	const roll = rollDie();
+	const resilient = mosje.traits?.resilient || 0;
+	let threshold;
+	if (resilient >= 3) threshold = 2;
+	else if (resilient >= 2) threshold = 3;
+	else threshold = 5;
+	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+}
+
+export function quest_req_endure_pain(questCard, mosje) {
+	// Auto-succeed at 20 MP or less
+	if (mosje.mp <= 20) return { canAttempt: true, success: true, autoSuccess: true };
+	const roll = rollDie();
+	const resilient = mosje.traits?.resilient || 0;
+	let threshold;
+	if (resilient >= 3) threshold = 2;
+	else if (resilient >= 2) threshold = 3;
+	else threshold = 5;
+	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+}
+
+export function quest_req_never_give_up(questCard, mosje) {
+	// Auto-succeed if below 30 MP
+	if (mosje.mp < 30) return { canAttempt: true, success: true, autoSuccess: true };
+	const roll = rollDie();
+	// Otherwise: roll 4+
+	return { canAttempt: true, diceRoll: roll, threshold: 4, success: roll >= 4 };
+}
+
+export function quest_req_tough_it_out(questCard, mosje) {
+	const roll = rollDie();
+	const resilient = mosje.traits?.resilient || 0;
+	let threshold;
+	if (resilient >= 3) threshold = 2;
+	else if (resilient >= 2) threshold = 3;
+	else threshold = 5;
+	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+}
+
+// MIXED/SPECIAL QUESTS
+export function quest_req_momentum_master(questCard, mosje, gameState) {
+	// Must have used 2+ Piecies this turn
+	const pieciesUsed = gameState?.players[gameState.activePlayerId]?.pieciesPlayedThisTurn || 0;
+	if (pieciesUsed < 2) return { canAttempt: false };
+	const roll = rollDie();
+	return { canAttempt: true, diceRoll: roll, threshold: 3, success: roll >= 3 };
+}
+
+export function quest_req_the_gauntlet(questCard, mosje) {
+	// Roll twice. Both must succeed (Physical and Mental thresholds)
+	const roll1 = rollDie();
+	const roll2 = rollDie();
+	const physical = mosje.traits?.physical || 0;
+	const mental = mosje.traits?.mental || 0;
+	const physicalThreshold = physical >= 2 ? 3 : 5;
+	const mentalThreshold = mental >= 2 ? 3 : 5;
+	const success = roll1 >= physicalThreshold && roll2 >= mentalThreshold;
+	return { canAttempt: true, diceRoll1: roll1, threshold1: physicalThreshold, diceRoll2: roll2, threshold2: mentalThreshold, success };
+}
+
+export function quest_req_ultimate_challenge(questCard, mosje) {
+	// Roll 5+. Must have 3 main traits (Physical + Mental + Creative or similar)
+	const physical = mosje.traits?.physical || 0;
+	const mental = mosje.traits?.mental || 0;
+	const creative = mosje.traits?.creative || 0;
+	const hasThreeTraits = physical >= 1 && mental >= 1 && creative >= 1;
+	if (!hasThreeTraits) return { canAttempt: false };
+	const roll = rollDie();
+	return { canAttempt: true, diceRoll: roll, threshold: 5, success: roll >= 5 };
+}
+
+export function quest_req_speed_run(questCard, mosje, gameState, isFirstAction) {
+	// Must be first action of turn
+	if (!isFirstAction) return { canAttempt: false };
+	const roll = rollDie();
+	const technical = mosje.traits?.technical || 0;
+	const threshold = technical >= 3 ? 3 : 5;
+	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+}
+
+export function quest_req_sustained_assault(questCard, mosje, gameState) {
+	// Must have used an ATTACK Piecie this turn
+	const attackUsed = gameState?.players[gameState.activePlayerId]?.lastCardPlayedType === 'ATTACK' || false;
+	if (!attackUsed) return { canAttempt: false };
+	const roll = rollDie();
+	const physical = mosje.traits?.physical || 0;
+	let threshold;
+	if (physical >= 3) threshold = 2;
+	else if (physical >= 2) threshold = 3;
+	else threshold = 4;
+	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+}
+
+export function quest_req_perfect_timing(questCard, mosje) {
+	// Roll exactly 6 (no threshold, must be exact match)
+	const roll = rollDie();
+	return { canAttempt: true, diceRoll: roll, threshold: 6, exact: true, success: roll === 6 };
+}
+
+export function quest_req_elimination_challenge(questCard, mosje) {
+	// Roll 4+. On success: opponent loses 30 MP + you gain 30 MP
+	const roll = rollDie();
+	return { canAttempt: true, diceRoll: roll, threshold: 4, success: roll >= 4, isElimination: true };
+}
+
+export function quest_req_chain_master(questCard, mosje, gameState) {
+	// Must have 3+ Piecies in discard this turn
+	const discard = gameState?.players[gameState.activePlayerId]?.discard || [];
+	// Count Piecies played this turn (newly added to discard)
+	const pieciesInDiscard = discard.filter(c => c.type === 'PIECIE').length;
+	if (pieciesInDiscard < 3) return { canAttempt: false };
+	const roll = rollDie();
+	return { canAttempt: true, diceRoll: roll, threshold: 3, success: roll >= 3 };
+}
+
+export function quest_req_synergy_mastery(questCard, mosje, gameState) {
+	// Check if synergy Mosje is on field (simplified: just check if any Mosje has synergy trait)
+	const player = gameState?.players[gameState.activePlayerId];
+	const hasSynergyMosje = player?.activeSlots.some(slot => slot && !slot.isDefeated && (slot.traits?.synergy >= 1));
+	const threshold = hasSynergyMosje ? 3 : 5;
+	const roll = rollDie();
+	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+}
+
+// DUTCH SPECIAL QUESTS
+export function quest_req_regelaar(questCard, mosje) {
+	const social = mosje.traits?.social || 0;
+	let threshold;
+	if (social >= 3) return { canAttempt: true, success: true, autoSuccess: true }; // auto-succeed
+	else if (social >= 2) threshold = 3;
+	else threshold = 5;
+	const roll = rollDie();
+	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+}
+
+export function quest_req_late_night_questing(questCard, mosje) {
+	// Roll 3+. Success draws 2 extra cards
+	const roll = rollDie();
+	return { canAttempt: true, diceRoll: roll, threshold: 3, success: roll >= 3, drawExtra: 2 };
+}
+
+export function quest_req_larry_temmen(questCard, mosje) {
+	// Roll 1d6: 1-2 = both lose 20, 3-4 = nothing, 5-6 = gain 40 + opponent -20
+	const roll = rollDie();
+	return { canAttempt: true, diceRoll: roll, isSpecial: true, success: roll >= 5 };
+}
+
+export function quest_req_geen_raad_vraag_aad(questCard, mosje) {
+	// Name a card in opponent's hand (UI prompt required)
+	return { canAttempt: true, requiresUIPrompt: true, promptType: 'GUESS_CARD' };
+}
+
+export function quest_req_parkeren_delft(questCard, mosje) {
+	const roll = rollDie();
+	const technical = mosje.traits?.technical || 0;
+	const threshold = technical >= 3 ? 3 : 5;
+	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+}
+
+export function quest_req_shotje_obby(questCard, mosje, gameState) {
+	// Roll 4+. At Obby #1 Place: auto-succeed
+	const currentPlace = gameState?.activePlace;
+	if (currentPlace?.id === 'place_obby_1') return { canAttempt: true, success: true, autoSuccess: true };
+	const roll = rollDie();
+	return { canAttempt: true, diceRoll: roll, threshold: 4, success: roll >= 4 };
+}
+
+// PERSONAL QUESTS
+export function quest_req_west_perfect_read(questCard, mosje) {
+	// Correctly name the type of the top 3 cards of any deck (UI prompt required)
+	return { canAttempt: true, requiresUIPrompt: true, promptType: 'GUESS_CARD_TYPES', cardCount: 3 };
+}
 
