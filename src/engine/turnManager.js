@@ -213,6 +213,27 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
     }
   }
 
+  // Check reactive negation flags set by opponent's Snelle Piecies
+  const flags = state._snelleFlags || {};
+  const oppId = Object.keys(state.players).find(id => id !== playerId);
+  const isAttack = cardDef.tags?.includes('ATTACK');
+
+  // Counter Strikka: negate any Piecie
+  if (oppId && flags.negateNextPiecie?.[oppId]) {
+    delete state._snelleFlags.negateNextPiecie[oppId];
+    console.log('[ENGINE] Counter Strikka negated:', cardDef.name);
+    return { state, success: true, negated: true };
+  }
+  // Perfect Dodge: negate ATTACK Piecies + grant 15 MP
+  if (oppId && isAttack && flags.negateNextAttack?.[oppId]) {
+    delete state._snelleFlags.negateNextAttack[oppId];
+    const oppPlayer = state.players[oppId];
+    const si = oppPlayer.activeSlots.findIndex(s => s && !s.isDefeated);
+    if (si >= 0) oppPlayer.activeSlots[si].mp += 15;
+    console.log('[ENGINE] Perfect Dodge negated ATTACK + granted 15 MP to opponent');
+    return { state, success: true, negated: true };
+  }
+
   // Remove from hand
   const handIndex = player.hand.findIndex(c => c.cardId === cardRef.cardId);
   if (handIndex === -1) return { state, success: false, error: 'Card not in hand' };
@@ -222,10 +243,19 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
   const effectFn = piecieEffects[cardDef.effectId];
   if (typeof effectFn === 'function') {
     state = effectFn(state, playerId);
+    // Dubbele Temminks: double-trigger
+    if (flags.doubleNextPiecie?.[playerId]) {
+      delete state._snelleFlags.doubleNextPiecie[playerId];
+      state = effectFn(state, playerId);
+      console.log('[ENGINE] Dubbele Temminks: effect triggered twice');
+    }
     console.log(`[ENGINE] Piecie played: ${cardDef.name} (${cardDef.effectId})`);
   } else {
     console.warn(`[ENGINE] No effect function found for: ${cardDef.effectId}`);
   }
+
+  // Track last played piecie for Gevalletje Klakkeloos
+  state._lastPiecieEffect = { effectId: cardDef.effectId, byPlayer: playerId };
 
   // Track play counters
   state.players[playerId].pieciesPlayedThisTurn = (state.players[playerId].pieciesPlayedThisTurn || 0) + 1;
@@ -270,6 +300,17 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
     console.log(`[ENGINE] Snelle Piecie played: ${cardDef.name} (${cardDef.effectId})`);
   } else {
     console.warn(`[ENGINE] No snelle effect function found for: ${cardDef.effectId}`);
+  }
+
+  // Gevalletje Klakkeloos: resolve copy flag — run the copied effect immediately
+  const copyFlag = state._snelleFlags?.copyLastPiecie;
+  if (copyFlag?.forPlayer === playerId && copyFlag.effectId) {
+    const copiedFn = piecieEffects[copyFlag.effectId];
+    if (typeof copiedFn === 'function') {
+      state = copiedFn(state, playerId);
+      console.log('[ENGINE] Gevalletje Klakkeloos: copied effect', copyFlag.effectId);
+    }
+    delete state._snelleFlags.copyLastPiecie;
   }
 
   // Move card to discard pile

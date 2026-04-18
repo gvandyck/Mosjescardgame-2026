@@ -39,12 +39,19 @@ export function initModalManager(container) {
 	// questInfo — { name, requirementDescription, description, successMP, failMP }
 	// threshold — minimum die result to succeed (7 = impossible)
 	// onResolved(didSucceed) — called after the player clicks Continue
-	function showDiceRoll(questInfo, threshold, onResolved) {
+	// questInfo — { name, description, requirementDescription, successMP, failMP }
+	// threshold — minimum dice roll to succeed
+	// onResolved(didSucceed) — callback
+	// options.diceBonus — added to rolled value (Sleutelpuntje +1)
+	// options.forceReroll — if true, shows "Reroll!" button after first roll (Je Weet Niet)
+	function showDiceRoll(questInfo, threshold, onResolved, { diceBonus = 0, forceReroll = false } = {}) {
 		container.classList.add('modal-root--open');
 
 		const thresholdLabel = threshold >= 7
 			? '<span class="modal-threshold--fail">Can\'t attempt — missing required trait</span>'
 			: `${threshold}+ to succeed`;
+
+		const bonusLabel = diceBonus > 0 ? ` (+${diceBonus} bonus)` : '';
 
 		container.innerHTML = `
 			<div class="modal-backdrop"></div>
@@ -52,39 +59,45 @@ export function initModalManager(container) {
 				<h3>🎯 ${escapeHtml(questInfo.name)}</h3>
 				<p class="modal-quest-req">${escapeHtml(questInfo.requirementDescription)}</p>
 				<p>${escapeHtml(questInfo.description)}</p>
-				<p class="modal-threshold">Roll needed: ${thresholdLabel}</p>
+				<p class="modal-threshold">Roll needed: ${thresholdLabel}${escapeHtml(bonusLabel)}</p>
 				<div class="dice-display" id="dice-display" aria-live="polite">?</div>
 				<button class="modal-btn" id="modal-roll" type="button">Roll Dice 🎲</button>
 			</section>
 		`;
 
-		container.querySelector('#modal-roll')?.addEventListener('click', () => {
+		function doRoll(allowReroll) {
 			const rollBtn = container.querySelector('#modal-roll');
-			rollBtn.disabled = true;
-			rollBtn.textContent = 'Rolling...';
+			if (rollBtn) { rollBtn.disabled = true; rollBtn.textContent = 'Rolling...'; }
 			const diceEl = container.querySelector('#dice-display');
 
-			const result = Math.floor(Math.random() * 6) + 1;
+			const rawRoll = Math.floor(Math.random() * 6) + 1;
+			const result = rawRoll + diceBonus;
 			const didSucceed = result >= threshold;
 
 			let ticks = 0;
 			const interval = setInterval(() => {
-				diceEl.textContent = Math.floor(Math.random() * 6) + 1;
+				if (diceEl) diceEl.textContent = Math.floor(Math.random() * 6) + 1;
 				ticks++;
 				if (ticks >= 10) {
 					clearInterval(interval);
-					diceEl.textContent = result;
-					diceEl.className = `dice-display dice-display--${didSucceed ? 'success' : 'fail'}`;
+					if (diceEl) {
+						diceEl.textContent = result;
+						diceEl.className = `dice-display dice-display--${didSucceed ? 'success' : 'fail'}`;
+					}
 
 					const mpDelta = didSucceed ? questInfo.successMP : questInfo.failMP;
 					const sign = mpDelta >= 0 ? '+' : '';
+					const bonusTxt = diceBonus > 0 ? ` (rolled ${rawRoll}+${diceBonus})` : '';
 					const resultLabel = didSucceed
-						? `✅ Success! Rolled ${result} (needed ${threshold}+) → ${sign}${mpDelta} MP`
-						: `❌ Failed! Rolled ${result} (needed ${threshold}+) → ${sign}${mpDelta} MP`;
+						? `✅ Success! Rolled ${result}${bonusTxt} (needed ${threshold}+) → ${sign}${mpDelta} MP`
+						: `❌ Failed! Rolled ${result}${bonusTxt} (needed ${threshold}+) → ${sign}${mpDelta} MP`;
 
 					const section = container.querySelector('section');
+					// Remove any previous result
+					section.querySelectorAll('.modal-result, #modal-done, #modal-reroll').forEach(e => e.remove());
 					section.insertAdjacentHTML('beforeend', `
 						<p class="modal-result modal-result--${didSucceed ? 'success' : 'fail'}">${escapeHtml(resultLabel)}</p>
+						${allowReroll ? '<button class="modal-btn modal-btn--ghost" id="modal-reroll" type="button">🎲 Je Weet Niet — Reroll!</button>' : ''}
 						<button class="modal-btn" id="modal-done" type="button">Continue</button>
 					`);
 
@@ -92,9 +105,18 @@ export function initModalManager(container) {
 						close();
 						onResolved(didSucceed);
 					});
+
+					// forceReroll: opponent's Je Weet Niet forces one reroll
+					container.querySelector('#modal-reroll')?.addEventListener('click', () => {
+						section.querySelectorAll('.modal-result, #modal-done, #modal-reroll').forEach(e => e.remove());
+						if (rollBtn) { rollBtn.disabled = false; rollBtn.textContent = 'Roll Dice 🎲'; }
+						doRoll(false); // only one reroll allowed
+					});
 				}
 			}, 80);
-		});
+		}
+
+		container.querySelector('#modal-roll')?.addEventListener('click', () => doRoll(forceReroll));
 	}
 
 	async function showConfirm(title, message) {

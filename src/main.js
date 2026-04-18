@@ -153,6 +153,12 @@ function initGamePage() {
 		const threshold = getQuestDiceThreshold(questDef, activeMosje);
 		log.add('quest', `${localPlayerName} is attempting General Quest: ${questDef.name}`);
 
+		const diceBonus = gameState._snelleFlags?.questDiceBonus || 0;
+		const forceReroll = gameState._snelleFlags?.forceReroll?.['player_1'] ?? false;
+		// Consume the flags before showing the modal
+		if (diceBonus) delete gameState._snelleFlags.questDiceBonus;
+		if (forceReroll) delete gameState._snelleFlags.forceReroll['player_1'];
+
 		modal.showDiceRoll(questDef, threshold, (didSucceed) => {
 			gameState = resolveQuest(gameState, 'player_1', questDef, didSucceed);
 			gameState.sharedGeneralQuestDiscard.push(questRef);
@@ -163,7 +169,7 @@ function initGamePage() {
 			log.add(didSucceed ? 'gain' : 'loss',
 				`${questDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`
 			);
-		});
+		}, { diceBonus, forceReroll });
 	});
 
 	document.getElementById('btn-personal-quest')?.addEventListener('click', () => {
@@ -204,6 +210,11 @@ function initGamePage() {
 		const threshold = getQuestDiceThreshold(questDef, activeMosje);
 		log.add('quest', `${localPlayerName} is attempting Personal Quest: ${questDef.name}`);
 
+		const diceBonus2 = gameState._snelleFlags?.questDiceBonus || 0;
+		const forceReroll2 = gameState._snelleFlags?.forceReroll?.['player_1'] ?? false;
+		if (diceBonus2) delete gameState._snelleFlags.questDiceBonus;
+		if (forceReroll2) delete gameState._snelleFlags.forceReroll['player_1'];
+
 		modal.showDiceRoll(questDef, threshold, (didSucceed) => {
 			gameState = resolveQuest(gameState, 'player_1', questDef, didSucceed);
 			renderFromState(gameState);
@@ -213,7 +224,7 @@ function initGamePage() {
 			log.add(didSucceed ? 'gain' : 'loss',
 				`${questDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`
 			);
-		});
+		}, { diceBonus: diceBonus2, forceReroll: forceReroll2 });
 	});
 
 	function renderFromState(state) {

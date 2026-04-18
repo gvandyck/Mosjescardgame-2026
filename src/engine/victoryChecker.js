@@ -90,6 +90,15 @@ export function markMosjeDefeated(gameState, playerId, slotIndex) {
   const mosje = state.players[playerId].activeSlots[slotIndex];
   if (!mosje) return state;
 
+  // "Not Today!" — negate_elimination flag: stay at 5 MP instead of being sent to Welloe
+  const negateFlag = state._snelleFlags?.negateNextElimination;
+  if (negateFlag?.[playerId]) {
+    delete state._snelleFlags.negateNextElimination[playerId];
+    state.players[playerId].activeSlots[slotIndex].mp = 5;
+    console.log(`[ENGINE] Not Today! saved ${mosje.name} — restored to 5 MP`);
+    return state;
+  }
+
   console.log(`[ENGINE] ${mosje.name} has been defeated — sent to Welloe pile`);
   mosje.isDefeated = true;
   state.players[playerId].welloe.push({ ...mosje });

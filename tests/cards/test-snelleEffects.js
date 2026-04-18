@@ -1,4 +1,4 @@
-import { test, assertDefined, assertEqual, createEngineState } from '../helpers/testHelpers.js';
+import { test, assertDefined, assertEqual, assertTrue, assertFalse, createEngineState } from '../helpers/testHelpers.js';
 import * as snelleEffects from '../../src/abilities/snelleEffects.js';
 
 export function runSnelleEffectsTests() {
@@ -67,5 +67,107 @@ export function runSnelleEffectsTests() {
     assertEqual(result.players.player_1.activeSlots[0].statusEffects.length, 1);
     assertEqual(result.players.player_1.activeSlots[0].statusEffects[0].type, 'MP_LOSS_REDUCTION');
     assertEqual(result.players.player_1.activeSlots[0].statusEffects[0].value, 20);
+  });
+
+  // ── Phase 9: new Snelle effects ──────────────────────────────
+
+  test('Momentum Rush gives +15 MP', () => {
+    const state = createEngineState();
+    const result = snelleEffects.effect_snelle_momentum_rush(state, 'player_1');
+    assertEqual(result.players.player_1.activeSlots[0].mp, 30);
+  });
+
+  test('Bijna Welloe gives +20 MP when Mosje is at 10 MP or less', () => {
+    const state = createEngineState({ players: { player_1: { activeSlots: [{ cardId: 'mosje_west', name: '[West]', traits: { mental: 3, technical: 1 }, mp: 8, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false }, null] } } });
+    const result = snelleEffects.effect_snelle_bijna_welloe(state, 'player_1');
+    assertEqual(result.players.player_1.activeSlots[0].mp, 28);
+  });
+
+  test('Bijna Welloe has no effect when Mosje is above 10 MP', () => {
+    const state = createEngineState();
+    const result = snelleEffects.effect_snelle_bijna_welloe(state, 'player_1');
+    assertEqual(result.players.player_1.activeSlots[0].mp, 15);
+  });
+
+  test('Counter Strikka sets negateNextPiecie flag', () => {
+    const state = createEngineState();
+    const result = snelleEffects.effect_snelle_counter_strikka(state, 'player_1');
+    assertTrue(result._snelleFlags?.negateNextPiecie?.['player_1'] === true);
+  });
+
+  test('Perfect Dodge sets negateNextAttack flag', () => {
+    const state = createEngineState();
+    const result = snelleEffects.effect_snelle_perfect_dodge(state, 'player_1');
+    assertTrue(result._snelleFlags?.negateNextAttack?.['player_1'] === true);
+  });
+
+  test('Not Today! sets negateNextElimination flag', () => {
+    const state = createEngineState();
+    const result = snelleEffects.effect_snelle_negate_elimination(state, 'player_1');
+    assertTrue(result._snelleFlags?.negateNextElimination?.['player_1'] === true);
+  });
+
+  test('The Protector sets mpLossReduction flag to 30', () => {
+    const state = createEngineState();
+    const result = snelleEffects.effect_snelle_the_protector(state, 'player_1');
+    assertEqual(result._snelleFlags?.mpLossReduction?.['player_1'], 30);
+  });
+
+  test('Drain Reversal sets drainReversal flag', () => {
+    const state = createEngineState();
+    const result = snelleEffects.effect_snelle_drain_reversal(state, 'player_1');
+    assertTrue(result._snelleFlags?.drainReversal?.['player_1'] === true);
+  });
+
+  test('Je Weet Niet sets forceReroll flag on opponent', () => {
+    const state = createEngineState({ activePlayerId: 'player_1' });
+    const result = snelleEffects.effect_snelle_jeweetniet(state, 'player_1');
+    assertTrue(result._snelleFlags?.forceReroll?.['player_2'] === true);
+  });
+
+  test('Sleutelpuntje sets questDiceBonus to 1', () => {
+    const state = createEngineState();
+    const result = snelleEffects.effect_snelle_sleutelpuntje(state, 'player_1');
+    assertEqual(result._snelleFlags?.questDiceBonus, 1);
+  });
+
+  test('Sleutelpuntje stacks with existing bonus', () => {
+    const state = createEngineState();
+    state._snelleFlags = { questDiceBonus: 1 };
+    const result = snelleEffects.effect_snelle_sleutelpuntje(state, 'player_1');
+    assertEqual(result._snelleFlags?.questDiceBonus, 2);
+  });
+
+  test('Jantje Jantje Jantje steals 30 MP when Bank Chilling active', () => {
+    const state = createEngineState({ activePlace: { id: 'place_bank_chilling', name: 'Bank Chilling' } });
+    const result = snelleEffects.effect_snelle_jantje_jantje_jantje(state, 'player_1');
+    assertEqual(result.players.player_2.activeSlots[0].mp, 20 - 30); // Jeffrey starts at 20
+    assertEqual(result.players.player_1.activeSlots[0].mp, 15 + 30);
+  });
+
+  test('Jantje Jantje Jantje has no effect without Bank Chilling', () => {
+    const state = createEngineState();
+    const result = snelleEffects.effect_snelle_jantje_jantje_jantje(state, 'player_1');
+    assertEqual(result.players.player_2.activeSlots[0].mp, 20);
+  });
+
+  test('Dubbele Temminks sets doubleNextPiecie flag', () => {
+    const state = createEngineState();
+    const result = snelleEffects.effect_snelle_dubbele_temminks(state, 'player_1');
+    assertTrue(result._snelleFlags?.doubleNextPiecie?.['player_1'] === true);
+  });
+
+  test('Frenssen adds entry to counterChain stack', () => {
+    const state = createEngineState();
+    const result = snelleEffects.effect_snelle_frenssen(state, 'player_1');
+    assertEqual(result._snelleFlags?.counterChain?.length, 1);
+    assertEqual(result._snelleFlags.counterChain[0].card, 'frenssen');
+  });
+
+  test('Blensen adds entry to counterChain stack', () => {
+    const state = createEngineState();
+    const result = snelleEffects.effect_snelle_blensen(state, 'player_1');
+    assertEqual(result._snelleFlags?.counterChain?.length, 1);
+    assertEqual(result._snelleFlags.counterChain[0].card, 'blensen');
   });
 }

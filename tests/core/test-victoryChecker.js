@@ -1,5 +1,5 @@
-import { test, assertEqual, createEngineState } from '../helpers/testHelpers.js';
-import { checkVictory } from '../../src/engine/victoryChecker.js';
+import { test, assertEqual, assertTrue, createEngineState } from '../helpers/testHelpers.js';
+import { checkVictory, markMosjeDefeated } from '../../src/engine/victoryChecker.js';
 
 export function runVictoryCheckerTests() {
   console.log('[TEST] Running victoryChecker tests...');
@@ -94,5 +94,25 @@ export function runVictoryCheckerTests() {
 
     const result = checkVictory(state);
     assertEqual(result.winnerId, 'player_1');
+  });
+
+  // ── Not Today! (negateNextElimination) ─────────────────────
+  test('markMosjeDefeated: Not Today! saves Mosje at 5 MP', () => {
+    const state = createEngineState({
+      _snelleFlags: {
+        negateNextElimination: { player_1: true }
+      }
+    });
+    const result = markMosjeDefeated(state, 'player_1', 0);
+    assertEqual(result.players.player_1.activeSlots[0].mp, 5, 'Mosje should be at 5 MP after Not Today!');
+    assertTrue(!result.players.player_1.activeSlots[0].isDefeated, 'Mosje should NOT be marked defeated');
+    assertEqual(result.players.player_1.welloe.length, 0, 'Mosje should NOT be in Welloe pile');
+  });
+
+  test('markMosjeDefeated: without flag, Mosje is sent to Welloe pile', () => {
+    const state = createEngineState();
+    const result = markMosjeDefeated(state, 'player_1', 0);
+    assertEqual(result.players.player_1.activeSlots[0], null, 'Slot should be null after defeat');
+    assertEqual(result.players.player_1.welloe.length, 1, 'Mosje should be in Welloe pile');
   });
 }
