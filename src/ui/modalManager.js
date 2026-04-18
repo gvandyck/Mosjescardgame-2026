@@ -206,7 +206,43 @@ export function initModalManager(container) {
 		});
 	}
 
-	return { showInfo, showDiceRoll, showConfirm, showTextInput, showCardChoice, close };
+	// Shows a target selection modal for card effects that require choosing a Mosje.
+	// options — array of { id, label, mpValue, level, owner }
+	// prompt — instruction shown to the player
+	// Returns a Promise that resolves with the chosen option's id.
+	// Note: always shows even with 1 option — no auto-targeting ever.
+	async function showTargetSelector(options, prompt) {
+		return new Promise(resolve => {
+			container.classList.add('modal-root--open');
+
+			const optionItems = options.map(opt =>
+				`<button class="target-option" data-id="${escapeHtml(opt.id)}" type="button">
+					<span class="target-name">${escapeHtml(opt.label)}</span>
+					<span class="target-mp">${opt.mpValue} MP</span>
+					<span class="target-level">LV.${opt.level}</span>
+				</button>`
+			).join('');
+
+			container.innerHTML = `
+				<div class="modal-backdrop"></div>
+				<section class="modal-card" role="dialog" aria-modal="true">
+					<h3>🎯 Select Target</h3>
+					<p class="modal-quest-req">${escapeHtml(prompt)}</p>
+					<div class="target-grid">${optionItems}</div>
+				</section>
+			`;
+
+			container.querySelectorAll('.target-option').forEach(btn => {
+				btn.addEventListener('click', () => {
+					const id = btn.dataset.id;
+					close();
+					resolve(id);
+				});
+			});
+		});
+	}
+
+	return { showInfo, showDiceRoll, showConfirm, showTextInput, showCardChoice, showTargetSelector, close };
 }
 
 function escapeHtml(text) {

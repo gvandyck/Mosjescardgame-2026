@@ -278,7 +278,7 @@ export const PIECIES = [
     mpCost: 5,
     requirement: "any",
     effectId: "effect_affoe",
-    tags: ["SUBSTANCE", "ATTACK"],
+    tags: ["SUBSTANCE", "ATTACK", "TARGETING"],
     description: "Target opponent loses 15 MP. You gain 10 MP.",
     flavourText: "Niet persoonlijk.",
     artPath: "assets/piecies/placeholder.png",

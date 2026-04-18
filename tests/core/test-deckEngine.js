@@ -1,5 +1,6 @@
 import { test, assertEqual, assertTrue } from '../helpers/testHelpers.js';
 import { shuffleDeck, drawCards, discardCards } from '../../src/engine/deckEngine.js';
+import { createInitialGameState, initializeGame } from '../../src/engine/gameState.js';
 
 export function runDeckEngineTests() {
   console.log('[TEST] Running deckEngine tests...');
@@ -35,5 +36,48 @@ export function runDeckEngineTests() {
     const next = discardCards(discard, ['new_1']);
     assertEqual(next[0], 'new_1');
     assertEqual(next[1], 'old_1');
+  });
+
+  // ── initializeGame / starting hand ─────────────────────────
+  test('initializeGame: each player has exactly 7 cards in hand after init', () => {
+    const state = createInitialGameState(
+      [
+        { playerId: 'player_1', name: 'Test 1', deckId: 'DIGITAL_CONTROL' },
+        { playerId: 'player_2', name: 'Test 2', deckId: 'PHYSICAL_FORCE' },
+      ],
+      'TEST'
+    );
+    const verified = initializeGame(state);
+    assertEqual(verified.players.player_1.hand.length, 7, 'player_1 should have 7 cards');
+    assertEqual(verified.players.player_2.hand.length, 7, 'player_2 should have 7 cards');
+  });
+
+  test('initializeGame: deck has correct number of cards remaining after init', () => {
+    const state = createInitialGameState(
+      [
+        { playerId: 'player_1', name: 'Test 1', deckId: 'DIGITAL_CONTROL' },
+        { playerId: 'player_2', name: 'Test 2', deckId: 'PHYSICAL_FORCE' },
+      ],
+      'TEST'
+    );
+    const p1 = state.players.player_1;
+    const totalCards = p1.hand.length + p1.deck.length;
+    assertEqual(p1.hand.length, 7, 'starting hand must be 7');
+    assertTrue(p1.deck.length === totalCards - 7, 'remaining deck = total - 7');
+  });
+
+  test('initializeGame: no card appears in both hand and deck', () => {
+    const state = createInitialGameState(
+      [
+        { playerId: 'player_1', name: 'Test 1', deckId: 'DIGITAL_CONTROL' },
+        { playerId: 'player_2', name: 'Test 2', deckId: 'PHYSICAL_FORCE' },
+      ],
+      'TEST'
+    );
+    const p1 = state.players.player_1;
+    const handIds = p1.hand.map(c => c.cardId);
+    const deckIds = p1.deck.map(c => c.cardId);
+    const overlap = handIds.filter(id => deckIds.includes(id));
+    assertEqual(overlap.length, 0, 'no card should be in both hand and deck');
   });
 }

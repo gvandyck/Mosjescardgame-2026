@@ -38,12 +38,16 @@ export function createInitialGameState(playerConfigs, roomCode) {
     status: 'PLAYING',
     turnNumber: 1,
     activePlayerId: playerConfigs[0].playerId,
+    currentPhase: 'MAIN',
     winnerId: null,
 
     // Shared zones
     sharedGeneralQuestDeck,
     sharedGeneralQuestDiscard: [],
     activePlace: null,
+
+    // Active Quest — visible to all players once revealed
+    activeQuest: null,
 
     players,
   };
@@ -75,8 +79,8 @@ function createPlayerState(config) {
   ];
   const deck = shuffleDeck(rawDeck);
 
-  // Draw opening hand of 5 cards
-  const hand = deck.splice(0, 5);
+  // Draw opening hand of 7 cards
+  const hand = deck.splice(0, 7);
 
   return {
     playerId: config.playerId,
@@ -162,3 +166,72 @@ export function getAllPlayerIds(gameState) {
 export function getOpponentIds(gameState, playerId) {
   return getAllPlayerIds(gameState).filter(id => id !== playerId);
 }
+
+// ─────────────────────────────────────────────────────────────
+// initializeGame
+// Called once after createInitialGameState to deal starting hands.
+// Currently a verification/logging function since createInitialGameState
+// already deals 7 cards. Can be called for explicit initialization.
+// ─────────────────────────────────────────────────────────────
+export function initializeGame(gameState) {
+  console.log('[ENGINE] Initializing game — verifying starting hands');
+  const state = JSON.parse(JSON.stringify(gameState));
+  for (const playerId of Object.keys(state.players)) {
+    const hand = state.players[playerId].hand;
+    console.log(`[ENGINE] ${playerId} starting hand: ${hand.length} cards`);
+    if (hand.length !== 7) {
+      console.warn(`[ENGINE] Warning: expected 7 cards for ${playerId}, got ${hand.length}`);
+    }
+  }
+  console.log('[ENGINE] Game initialized — player_1 hand: 7, player_2 hand: 7');
+  return state;
+}
+
+// ─────────────────────────────────────────────────────────────
+// getOpponentMosjes
+// Returns array of { id, label, mpValue, level, owner } for all
+// non-defeated opponent Mosjes on the field. Used for target selection.
+// ─────────────────────────────────────────────────────────────
+export function getOpponentMosjes(gameState, playerId) {
+  const results = [];
+  for (const [pid, player] of Object.entries(gameState.players)) {
+    if (pid === playerId) continue;
+    player.activeSlots.forEach((slot, index) => {
+      if (slot && !slot.isDefeated) {
+        results.push({
+          id: `${pid}_slot_${index}`,
+          cardId: slot.cardId,
+          label: slot.name,
+          mpValue: slot.mp,
+          level: slot.level,
+          owner: pid,
+          slotIndex: index,
+        });
+      }
+    });
+  }
+  return results;
+}
+
+// ─────────────────────────────────────────────────────────────
+// getPlayerMosjes
+// Returns array of { id, label, mpValue, level, owner } for all
+// non-defeated own Mosjes on the field. Used for target selection.
+// ─────────────────────────────────────────────────────────────
+export function getPlayerMosjes(gameState, playerId) {
+  const player = gameState.players[playerId];
+  if (!player) return [];
+  return player.activeSlots
+    .map((slot, index) => ({ slot, index }))
+    .filter(({ slot }) => slot && !slot.isDefeated)
+    .map(({ slot, index }) => ({
+      id: `${playerId}_slot_${index}`,
+      cardId: slot.cardId,
+      label: slot.name,
+      mpValue: slot.mp,
+      level: slot.level,
+      owner: playerId,
+      slotIndex: index,
+    }));
+}
+

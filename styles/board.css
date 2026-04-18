@@ -322,3 +322,97 @@
       max-height: 420px;
    }
 }
+
+/* ── Active Quest Panel (Phase 8 Rule 3) ──────────────────────────── */
+.active-quest-panel {
+   background: rgba(16, 22, 48, 0.92);
+   border: 2px solid #7b4fff;
+   border-radius: 10px;
+   padding: 10px 14px;
+   margin-top: 8px;
+   color: #e6ebff;
+   display: grid;
+   gap: 4px;
+   min-width: 200px;
+}
+
+.active-quest-panel--hidden {
+   display: none;
+}
+
+.quest-badge {
+   font-size: 0.65rem;
+   font-weight: 700;
+   letter-spacing: 0.08em;
+   text-transform: uppercase;
+   color: #7b4fff;
+   background: rgba(123, 79, 255, 0.14);
+   border-radius: 4px;
+   padding: 2px 6px;
+   width: fit-content;
+}
+
+.quest-name {
+   font-size: 0.95rem;
+   font-weight: 700;
+   color: var(--color-gold, #f8d56b);
+}
+
+.quest-type {
+   font-size: 0.75rem;
+   color: #b0bcdf;
+}
+
+.quest-progress {
+   font-size: 0.85rem;
+   color: #8ef58e;
+   font-weight: 600;
+}
+
+.quest-dice {
+   font-size: 0.8rem;
+   color: #f8d56b;
+}
+
+/* ── Target Selector (Phase 8 Rule 1) ────────────────────────────── */
+.target-grid {
+   display: flex;
+   flex-direction: column;
+   gap: 8px;
+   margin: 10px 0;
+}
+
+.target-option {
+   background: #1b2444;
+   border: 1px solid #38549a;
+   border-radius: 8px;
+   color: #e6ebff;
+   cursor: pointer;
+   display: grid;
+   grid-template-columns: 1fr auto auto;
+   align-items: center;
+   gap: 10px;
+   padding: 8px 12px;
+   text-align: left;
+   transition: background 100ms ease, border-color 100ms ease;
+}
+
+.target-option:hover {
+   background: #253369;
+   border-color: var(--color-blue, #5aa5ff);
+}
+
+.target-name {
+   font-weight: 600;
+}
+
+.target-mp {
+   font-size: 0.8rem;
+   color: #8ef58e;
+   font-weight: 600;
+}
+
+.target-level {
+   font-size: 0.75rem;
+   color: #b0bcdf;
+}

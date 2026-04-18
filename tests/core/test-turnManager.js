@@ -1,10 +1,11 @@
-import { test, assertEqual, assertTrue, createEngineState } from '../helpers/testHelpers.js';
+import { test, assertEqual, assertTrue, assertFalse, createEngineState } from '../helpers/testHelpers.js';
 import {
   startTurn,
   phaseDrawCard,
   endTurn,
   attemptGeneralQuest,
   attemptPersonalQuest,
+  canPlayerActNow,
 } from '../../src/engine/turnManager.js';
 
 export function runTurnManagerTests() {
@@ -61,5 +62,36 @@ export function runTurnManagerTests() {
     const state = createEngineState();
     const result = endTurn(state);
     assertEqual(result.activePlayerId, 'player_2');
+  });
+
+  // ── canPlayerActNow ─────────────────────────────────────────
+  test('canPlayerActNow: Snelle Piecie allowed during opponent\'s turn', () => {
+    const state = createEngineState({ activePlayerId: 'player_2' });
+    assertTrue(canPlayerActNow(state, 'player_1', 'SNELLE_PIECIE'));
+  });
+
+  test('canPlayerActNow: regular Piecie blocked during opponent\'s turn', () => {
+    const state = createEngineState({ activePlayerId: 'player_2' });
+    assertFalse(canPlayerActNow(state, 'player_1', 'PIECIE'));
+  });
+
+  test('canPlayerActNow: regular Piecie allowed during own MAIN phase', () => {
+    const state = createEngineState({ activePlayerId: 'player_1', currentPhase: 'MAIN' });
+    assertTrue(canPlayerActNow(state, 'player_1', 'PIECIE'));
+  });
+
+  test('canPlayerActNow: Quest allowed during own MAIN phase', () => {
+    const state = createEngineState({ activePlayerId: 'player_1', currentPhase: 'MAIN' });
+    assertTrue(canPlayerActNow(state, 'player_1', 'QUEST'));
+  });
+
+  test('canPlayerActNow: Mosje blocked out of turn', () => {
+    const state = createEngineState({ activePlayerId: 'player_2' });
+    assertFalse(canPlayerActNow(state, 'player_1', 'MOSJE'));
+  });
+
+  test('canPlayerActNow: Place blocked out of turn', () => {
+    const state = createEngineState({ activePlayerId: 'player_2' });
+    assertFalse(canPlayerActNow(state, 'player_1', 'PLACE'));
   });
 }

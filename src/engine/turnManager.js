@@ -243,7 +243,8 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
   state = checkVictory(state);
   return { state, success: true };
 }
-
+
+
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // playSnellie
 // Plays a Snelle Piecie (instant) card from the active player's hand.
@@ -315,4 +316,33 @@ export function useMosjeAbility(gameState, playerId, mosjeId) {
 
   state = checkVictory(state);
   return { state, success: true };
+}
+
+// ─────────────────────────────────────────────────────────────
+// canPlayerActNow
+// Returns true if the player is allowed to play/activate this card type.
+// Snelle Piecies (instant cards) are ALWAYS allowed — any turn, any phase.
+// All other cards require it to be the player's own turn.
+// ─────────────────────────────────────────────────────────────
+export function canPlayerActNow(gameState, playerId, cardType) {
+  // Snelle Piecies are always allowed as interrupts
+  if (cardType === 'SNELLE_PIECIE') return true;
+
+  const isMyTurn = gameState.activePlayerId === playerId;
+
+  if (!isMyTurn) {
+    console.log(`[ENGINE] ${playerId} attempted to act out of turn — blocked`);
+    return false;
+  }
+
+  const phase = gameState.currentPhase || 'MAIN';
+
+  if (cardType === 'QUEST') {
+    if (phase !== 'QUEST' && phase !== 'MAIN') {
+      console.log(`[ENGINE] Quest can only be attempted in MAIN/QUEST phase — blocked`);
+      return false;
+    }
+  }
+
+  return true;
 }

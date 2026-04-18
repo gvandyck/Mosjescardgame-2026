@@ -176,10 +176,28 @@ export function effect_affoe(gameState, playerId) {
 	if (!player) return state;
 	const oppId = getOpponentId(state, playerId);
 	if (!oppId) return state;
-	const si = getFirstActiveSlotIndex(player);
-	const osi = getFirstActiveSlotIndex(state.players[oppId]);
+
+	// Target selection: use explicitly chosen targets if provided by UI (via _pendingTargets),
+	// otherwise fall back to first active slot (used in tests and AI turns)
+	let osi, si;
+	const targets = state._pendingTargets;
+	if (targets?.affoe_drain != null) {
+		// Targets are encoded as "playerId_slot_index"
+		const drainParts = targets.affoe_drain.split('_slot_');
+		osi = parseInt(drainParts[1], 10);
+	} else {
+		osi = getFirstActiveSlotIndex(state.players[oppId]);
+	}
+	if (targets?.affoe_gain != null) {
+		const gainParts = targets.affoe_gain.split('_slot_');
+		si = parseInt(gainParts[1], 10);
+	} else {
+		si = getFirstActiveSlotIndex(player);
+	}
+
 	if (osi >= 0) state.players[oppId].activeSlots[osi].mp -= 15;
 	if (si >= 0) applyMPGain(player, si, 10, state, playerId);
+	delete state._pendingTargets;
 	console.log('[ABILITY] Affoe: opponent -15 MP, self +10 MP');
 	return state;
 }

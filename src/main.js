@@ -5,8 +5,8 @@ import { renderBoard } from './ui/boardRenderer.js';
 import { createLogRenderer } from './ui/logRenderer.js';
 import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
-import { createInitialGameState } from './engine/gameState.js';
-import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, playSnellie, useMosjeAbility } from './engine/turnManager.js';
+import { createInitialGameState, getOpponentMosjes, getPlayerMosjes } from './engine/gameState.js';
+import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, playSnellie, useMosjeAbility, canPlayerActNow } from './engine/turnManager.js';
 import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold } from './abilities/questLogic.js';
 import { MOSJES } from './data/mosjes.js';
 import { PIECIES } from './data/piecies.js';
@@ -223,9 +223,10 @@ function initGamePage() {
 		const alreadyAttempted = state.players.player_1.hasAttemptedQuestThisTurn;
 		const gameOver = state.status === 'FINISHED';
 
-		// Pass onPlay callback only on local turn during active game
-		const onPlay = (isLocalTurn && !gameOver) ? handlePlayCard : null;
-		renderHand(handRoot, toHandViewModel(state.players.player_1.hand), onPlay);
+		// Regular cards only on local turn; Snelle Piecies always available
+		// Pass onPlay always so Snelle Piecies show their interrupt button
+		const onPlay = !gameOver ? handlePlayCard : null;
+		renderHand(handRoot, toHandViewModel(state.players.player_1.hand), onPlay, isLocalTurn);
 
 		const onUseAbility = (isLocalTurn && !gameOver) ? handleUseAbility : null;
 		renderBoard(boardRoot, uiState, onUseAbility);
@@ -271,8 +272,60 @@ function initGamePage() {
 		renderFromState(gameState);
 	}
 
-	function handlePlayCard(cardId, cardType) {
+	async function handlePlayCard(cardId, cardType) {
 		if (gameState.status === 'FINISHED') return;
+
+		// Enforce turn ownership — Snelle Piecies always allowed
+		if (!canPlayerActNow(gameState, 'player_1', cardType)) {
+			modal.showInfo('Not Your Turn', 'You can only play regular cards on your own turn.');
+			return;
+		}
+
+		// Targeting cards: show selector, then dispatch with resolved targets
+		async function resolveTargetingCard(def, ref) {
+			const oppTargets = getOpponentMosjes(gameState, 'player_1');
+			const ownTargets = getPlayerMosjes(gameState, 'player_1');
+
+			if (oppTargets.length === 0) {
+				modal.showInfo('No Targets', 'No valid opponent targets.');
+				return;
+			}
+
+			const drainId = await modal.showTargetSelector(
+				oppTargets,
+				'Choose an opponent Mosje to drain:'
+			);
+			if (!drainId) return;
+
+			let gainId = null;
+			if (ownTargets.length > 0) {
+				gainId = await modal.showTargetSelector(
+					ownTargets,
+					'Choose your Mosje to receive MP:'
+				);
+			}
+
+			// Store targets on state for the effect to read
+			const stateWithTargets = JSON.parse(JSON.stringify(gameState));
+			stateWithTargets._pendingTargets = {
+				affoe_drain: drainId,
+				affoe_gain: gainId,
+			};
+
+			const { state: newState, success, error } = playPiecie(stateWithTargets, 'player_1', ref, def);
+			if (!success) {
+				modal.showInfo('Cannot Play', error || 'That card cannot be played right now.');
+				return;
+			}
+			gameState = newState;
+			log.add('gain', `Played ${def.name}.`);
+			if (gameState.status === 'FINISHED') {
+				const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
+				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
+				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+			}
+			renderFromState(gameState);
+		}
 
 		const cardRef = gameState.players.player_1.hand.find(c => c.cardId === cardId);
 		const cardDef = CARD_LOOKUP[cardId];
@@ -282,6 +335,11 @@ function initGamePage() {
 		}
 
 		if (cardType === 'PIECIE') {
+			// Cards that require explicit target selection before dispatch
+			if (cardDef.tags?.includes('TARGETING')) {
+				await resolveTargetingCard(cardDef, cardRef);
+				return;
+			}
 			const { state: newState, success, error } = playPiecie(gameState, 'player_1', cardRef, cardDef);
 			if (!success) {
 				modal.showInfo('Cannot Play', error || 'That card cannot be played right now.');
@@ -338,6 +396,8 @@ function toBoardViewModel(gameState, localPlayerId) {
 		activePlayerName: gameState.players[gameState.activePlayerId].name,
 		turnPhase: 'DRAW',
 		activePlaceName: gameState.activePlace?.name || 'None',
+		activeQuest: gameState.activeQuest ?? null,
+		myPlayerId: localPlayerId,
 		players: {
 			top: {
 				name: opponent.name,

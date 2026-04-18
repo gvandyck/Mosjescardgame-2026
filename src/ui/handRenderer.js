@@ -7,8 +7,8 @@ import { renderCard } from './cardRenderer.js';
 console.log('[UI] handRenderer.js loaded');
 
 // onPlay(cardId, cardType) — optional callback when a playable card is clicked.
-// Pass null to render in view-only mode (opponent's turn, game over).
-export function renderHand(container, cards, onPlay = null) {
+// isLocalTurn — when false, regular cards are dimmed; Snelle Piecies stay active.
+export function renderHand(container, cards, onPlay = null, isLocalTurn = true) {
 	if (!container) return;
 	console.log('[UI] Rendering hand with', cards.length, 'cards');
 	container.innerHTML = '';
@@ -25,18 +25,39 @@ export function renderHand(container, cards, onPlay = null) {
 		const cardEl = renderCard(card, { compact: false });
 		cardEl.classList.add('hand-card');
 
-		const isPlayable = onPlay && (card.type === 'PIECIE' || card.type === 'SNELLE_PIECIE');
-		if (isPlayable) {
+		const isSnelle = card.type === 'SNELLE_PIECIE';
+		const isRegularPlayable = card.type === 'PIECIE';
+
+		// Snelle Piecies are always interactive (can be played as interrupt any turn)
+		if (isSnelle && onPlay) {
 			cardEl.classList.add('hand-card--playable');
 			const btn = document.createElement('button');
 			btn.className = 'hand-card__play-btn';
 			btn.type = 'button';
-			btn.textContent = card.type === 'SNELLE_PIECIE' ? 'Play (Instant)' : 'Play';
+			btn.textContent = 'Play (Instant)';
 			btn.addEventListener('click', (e) => {
 				e.stopPropagation();
 				onPlay(card.cardId, card.type);
 			});
 			cardEl.appendChild(btn);
+		}
+		// Regular Piecies only playable on your own turn
+		else if (isRegularPlayable && onPlay) {
+			if (isLocalTurn) {
+				cardEl.classList.add('hand-card--playable');
+				const btn = document.createElement('button');
+				btn.className = 'hand-card__play-btn';
+				btn.type = 'button';
+				btn.textContent = 'Play';
+				btn.addEventListener('click', (e) => {
+					e.stopPropagation();
+					onPlay(card.cardId, card.type);
+				});
+				cardEl.appendChild(btn);
+			} else {
+				cardEl.classList.add('hand-card--not-playable');
+				cardEl.title = 'Not your turn';
+			}
 		}
 
 		container.appendChild(cardEl);

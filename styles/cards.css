@@ -114,8 +114,15 @@
   }
 }
 
-/* ── Mosje ability button ─────────────────── */
+/* ── Not playable (opponent's turn) ─────── */
 
+.hand-card--not-playable {
+  opacity: 0.5;
+  filter: grayscale(40%);
+  cursor: default;
+}
+
+/* ── Mosje ability button ─────────────────── */
 .mosje-ability-btn {
   width: 100%;
   margin-top: 6px;
