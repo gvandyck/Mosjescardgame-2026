@@ -1,4 +1,4 @@
-// turnManager.js — Controls the 4 turn phases: DRAW → MAIN → QUEST → END
+﻿// turnManager.js â€” Controls the 4 turn phases: DRAW â†’ MAIN â†’ QUEST â†’ END
 // Coordinates which engine functions run in which order.
 // The UI calls these functions; they return the updated game state.
 
@@ -9,19 +9,21 @@ import { getAllPlayerIds } from './gameState.js';
 import * as placeEffects from '../abilities/placeEffects.js';
 import * as piecieEffects from '../abilities/piecieEffects.js';
 import * as snelleEffects from '../abilities/snelleEffects.js';
+import * as mosjeAbilities from '../abilities/mosjeAbilities.js';
+import { MOSJES } from '../data/mosjes.js';
 
 console.log('[ENGINE] turnManager.js loaded');
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // startTurn
 // Called at the beginning of a player's turn.
-// Runs: Momentum Domination check → draw 1 card → passive MP gains.
+// Runs: Momentum Domination check â†’ draw 1 card â†’ passive MP gains.
 // Returns updated gameState.
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export function startTurn(gameState) {
   let state = JSON.parse(JSON.stringify(gameState));
   const playerId = state.activePlayerId;
-  console.log(`[ENGINE] ── Turn ${state.turnNumber} START — Player: ${playerId} ──`);
+  console.log(`[ENGINE] â”€â”€ Turn ${state.turnNumber} START â€” Player: ${playerId} â”€â”€`);
 
   // Reset per-turn trackers for the active player
   const activePlayer = state.players[playerId];
@@ -47,7 +49,7 @@ export function startTurn(gameState) {
   state.momentumCheckPhase = false;
   if (state.status === 'FINISHED') return state;
 
-  // DRAW PHASE — draw 1 card
+  // DRAW PHASE â€” draw 1 card
   state = phaseDrawCard(state, playerId);
 
   // Passive turn-start MP (e.g. DJ 80/20 gains 10 MP automatically)
@@ -57,11 +59,11 @@ export function startTurn(gameState) {
   return state;
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // phaseDrawCard
 // Draws 1 card from the player's personal deck into their hand.
-// If the deck is empty, nothing happens (no penalty — may change later).
-// ─────────────────────────────────────────────────────────────
+// If the deck is empty, nothing happens (no penalty â€” may change later).
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export function phaseDrawCard(gameState, playerId, count = 1) {
   const state = JSON.parse(JSON.stringify(gameState));
   const player = state.players[playerId];
@@ -78,18 +80,18 @@ export function phaseDrawCard(gameState, playerId, count = 1) {
   return state;
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // endTurn
 // Called when the active player clicks "End Turn".
-// Runs: END phase Place effects → status effect ticks → next player.
+// Runs: END phase Place effects â†’ status effect ticks â†’ next player.
 // Returns updated gameState.
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export function endTurn(gameState) {
   let state = JSON.parse(JSON.stringify(gameState));
   const playerId = state.activePlayerId;
-  console.log(`[ENGINE] ── Turn ${state.turnNumber} END — Player: ${playerId} ──`);
+  console.log(`[ENGINE] â”€â”€ Turn ${state.turnNumber} END â€” Player: ${playerId} â”€â”€`);
 
-  // END PHASE — fire active Place effects
+  // END PHASE â€” fire active Place effects
   if (state.activePlace) {
     // place card IDs are like 'place_the_gym'; effect functions are 'effect_the_gym'
     const effectKey = 'effect_' + state.activePlace.replace(/^place_/, '');
@@ -99,7 +101,7 @@ export function endTurn(gameState) {
     }
   }
 
-  // END PHASE — tick down status effects on all active Mosjes for all players
+  // END PHASE â€” tick down status effects on all active Mosjes for all players
   const allPlayerIds = getAllPlayerIds(state);
   for (const pid of allPlayerIds) {
     const player = state.players[pid];
@@ -129,13 +131,13 @@ export function endTurn(gameState) {
   return state;
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // attemptGeneralQuest
 // Option A of the Quest Phase.
 // Draws the top card from sharedGeneralQuestDeck.
 // Returns { state, questCard } so the UI can show the quest to the player.
 // The UI will then call confirmQuestResult() to resolve it.
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export function attemptGeneralQuest(gameState) {
   let state = JSON.parse(JSON.stringify(gameState));
   const playerId = state.activePlayerId;
@@ -159,13 +161,13 @@ export function attemptGeneralQuest(gameState) {
   return { state, questCard };
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // attemptPersonalQuest
 // Option B of the Quest Phase.
 // Plays a Personal Quest card from the player's hand.
 // Requires the named Mosje to be on the field (checked by questLogic.js).
 // Returns { state, questCard, eligible }
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export function attemptPersonalQuest(gameState, questCardId) {
   let state = JSON.parse(JSON.stringify(gameState));
   const playerId = state.activePlayerId;
@@ -189,14 +191,14 @@ export function attemptPersonalQuest(gameState, questCardId) {
   return { state, questCard, eligible: true };
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // playPiecie
 // Plays a Piecie card from the active player's hand.
 // Removes the card from hand, applies its effect, moves it to discard.
-// cardRef — the hand reference object { cardId, type }
-// cardDef — full card definition from PIECIES data (has effectId, tags)
+// cardRef â€” the hand reference object { cardId, type }
+// cardDef â€” full card definition from PIECIES data (has effectId, tags)
 // Returns { state, success, error? }
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export function playPiecie(gameState, playerId, cardRef, cardDef) {
   let state = JSON.parse(JSON.stringify(gameState));
   const player = state.players[playerId];
@@ -241,15 +243,15 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
   state = checkVictory(state);
   return { state, success: true };
 }
-
-// ─────────────────────────────────────────────────────────────
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // playSnellie
 // Plays a Snelle Piecie (instant) card from the active player's hand.
 // Snelle Piecies can be played at any time, not just on your own turn.
-// cardRef — the hand reference object { cardId, type }
-// cardDef — full card definition from SNELLE_PIECIES data (has effectId)
+// cardRef â€” the hand reference object { cardId, type }
+// cardDef â€” full card definition from SNELLE_PIECIES data (has effectId)
 // Returns { state, success, error? }
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export function playSnellie(gameState, playerId, cardRef, cardDef) {
   let state = JSON.parse(JSON.stringify(gameState));
   const player = state.players[playerId];
@@ -271,6 +273,45 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
 
   // Move card to discard pile
   state.players[playerId].discard.unshift(cardRef);
+
+  state = checkVictory(state);
+  return { state, success: true };
+}
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// useMosjeAbility
+// Activates the unique ability of one of the player's Mosjes.
+// mosjeId â€” the cardId of the Mosje whose ability to activate.
+// Each Mosje can only use its ability once per turn (abilityUsedThisTurn).
+// Returns { state, success, error? }
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+export function useMosjeAbility(gameState, playerId, mosjeId) {
+  const player = gameState.players[playerId];
+  if (!player) return { state: gameState, success: false, error: 'Player not found' };
+
+  const slotIndex = player.activeSlots.findIndex(s => s && s.cardId === mosjeId && !s.isDefeated);
+  if (slotIndex < 0) return { state: gameState, success: false, error: 'Mosje not on field or is defeated' };
+
+  const slot = player.activeSlots[slotIndex];
+  if (slot.abilityUsedThisTurn) {
+    return { state: gameState, success: false, error: 'Ability already used this turn' };
+  }
+
+  const mosjeDef = MOSJES.find(m => m.id === mosjeId);
+  if (!mosjeDef?.abilityId) {
+    return { state: gameState, success: false, error: 'This Mosje has no ability' };
+  }
+
+  const fn = mosjeAbilities[mosjeDef.abilityId];
+  if (typeof fn !== 'function') {
+    return { state: gameState, success: false, error: `Ability not implemented: ${mosjeDef.abilityId}` };
+  }
+
+  // Dispatch â€” ability functions clone the state internally and return a new state
+  let state = fn(gameState, playerId);
+
+  // Mark ability as used for this turn
+  state.players[playerId].activeSlots[slotIndex].abilityUsedThisTurn = true;
 
   state = checkVictory(state);
   return { state, success: true };

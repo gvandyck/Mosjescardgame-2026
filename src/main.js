@@ -6,7 +6,7 @@ import { createLogRenderer } from './ui/logRenderer.js';
 import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
 import { createInitialGameState } from './engine/gameState.js';
-import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, playSnellie } from './engine/turnManager.js';
+import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, playSnellie, useMosjeAbility } from './engine/turnManager.js';
 import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold } from './abilities/questLogic.js';
 import { MOSJES } from './data/mosjes.js';
 import { PIECIES } from './data/piecies.js';
@@ -218,7 +218,6 @@ function initGamePage() {
 
 	function renderFromState(state) {
 		const uiState = toBoardViewModel(state, 'player_1');
-		renderBoard(boardRoot, uiState);
 
 		const isLocalTurn = state.activePlayerId === 'player_1';
 		const alreadyAttempted = state.players.player_1.hasAttemptedQuestThisTurn;
@@ -227,6 +226,9 @@ function initGamePage() {
 		// Pass onPlay callback only on local turn during active game
 		const onPlay = (isLocalTurn && !gameOver) ? handlePlayCard : null;
 		renderHand(handRoot, toHandViewModel(state.players.player_1.hand), onPlay);
+
+		const onUseAbility = (isLocalTurn && !gameOver) ? handleUseAbility : null;
+		renderBoard(boardRoot, uiState, onUseAbility);
 
 		const questBtnsEnabled = isLocalTurn && !alreadyAttempted && !gameOver;
 		const phaseLabel = gameOver
@@ -246,6 +248,27 @@ function initGamePage() {
 		if (btnGeneral) btnGeneral.disabled = !questBtnsEnabled;
 		if (btnPersonal) btnPersonal.disabled = !questBtnsEnabled;
 		if (btnEndTurn) btnEndTurn.disabled = !isLocalTurn || gameOver;
+	}
+
+	function handleUseAbility(mosjeId) {
+		if (gameState.status === 'FINISHED') return;
+
+		const { state: newState, success, error } = useMosjeAbility(gameState, 'player_1', mosjeId);
+		if (!success) {
+			modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
+			return;
+		}
+		gameState = newState;
+
+		const slot = gameState.players.player_1.activeSlots.find(s => s?.cardId === mosjeId);
+		log.add('gain', `Used ability: ${slot?.name || mosjeId}.`);
+
+		if (gameState.status === 'FINISHED') {
+			const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
+			log.add('win', `${winnerName} won by ${gameState.winReason}.`);
+			modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+		}
+		renderFromState(gameState);
 	}
 
 	function handlePlayCard(cardId, cardType) {
@@ -332,10 +355,13 @@ function toMosjeCards(activeSlots) {
 	return activeSlots
 		.filter(slot => slot !== null)
 		.map(slot => ({
+			cardId: slot.cardId,
 			name: slot.name,
 			type: 'MOSJE',
 			mp: slot.mp,
 			level: slot.level,
+			isDefeated: slot.isDefeated,
+			abilityUsedThisTurn: slot.abilityUsedThisTurn,
 			description: slot.isDefeated ? 'Defeated' : 'Active on field',
 		}));
 }

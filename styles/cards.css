@@ -114,7 +114,33 @@
   }
 }
 
-/* ── Playable hand cards ─────────────────── */
+/* ── Mosje ability button ─────────────────── */
+
+.mosje-ability-btn {
+  width: 100%;
+  margin-top: 6px;
+  padding: 5px 0;
+  border: none;
+  border-radius: 6px;
+  background: var(--color-gold, #e4b600);
+  color: #121212;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 100ms ease;
+}
+
+.mosje-ability-btn:hover:not(:disabled) {
+  background: #f5ca00;
+}
+
+.mosje-ability-btn--used,
+.mosje-ability-btn:disabled {
+  background: #2a355f;
+  color: #6a7aaa;
+  cursor: not-allowed;
+}
+
 
 .hand-card--playable {
   cursor: pointer;

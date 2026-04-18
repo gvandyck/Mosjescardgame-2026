@@ -6,7 +6,7 @@ import { renderCard } from './cardRenderer.js';
 
 console.log('[UI] boardRenderer.js loaded');
 
-export function renderBoard(container, viewModel) {
+export function renderBoard(container, viewModel, onUseAbility = null) {
 	if (!container) return;
 	console.log('[UI] Rendering board view');
 
@@ -35,7 +35,16 @@ export function renderBoard(container, viewModel) {
 	}
 
 	for (const mosje of viewModel.players.bottom.mosjes) {
-		bottomZone?.appendChild(renderCard(mosje, { compact: true }));
+		const cardEl = renderCard(mosje, { compact: true });
+		if (onUseAbility && !mosje.isDefeated && mosje.cardId) {
+			const btn = document.createElement('button');
+			btn.className = 'mosje-ability-btn' + (mosje.abilityUsedThisTurn ? ' mosje-ability-btn--used' : '');
+			btn.textContent = mosje.abilityUsedThisTurn ? '⚡ Used' : '⚡ Ability';
+			btn.disabled = mosje.abilityUsedThisTurn;
+			btn.addEventListener('click', () => onUseAbility(mosje.cardId));
+			cardEl.appendChild(btn);
+		}
+		bottomZone?.appendChild(cardEl);
 	}
 }
 
