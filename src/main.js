@@ -6,7 +6,7 @@ import { createLogRenderer } from './ui/logRenderer.js';
 import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes } from './engine/gameState.js';
-import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, playSnellie, playPlace, useMosjeAbility, canPlayerActNow } from './engine/turnManager.js';
+import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, playSnellie, playPlace, useMosjeAbility, canPlayerActNow } from './engine/turnManager.js';
 import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold } from './abilities/questLogic.js';
 import { MOSJES } from './data/mosjes.js';
 import { PIECIES } from './data/piecies.js';
@@ -114,6 +114,9 @@ function initGamePage() {
 	const turnLabel = document.getElementById('turn-label');
 	const logToggleBtn = document.getElementById('btn-toggle-log');
 	const logPopover = document.getElementById('topbar-log-popover');
+	const copyLogBtn = document.getElementById('btn-copy-log');
+	const logCopyBuffer = document.getElementById('log-copy-buffer');
+	const topbarPlaceLabel = document.getElementById('topbar-place');
 
 	if (!boardRoot || !handRoot || !logRoot || !modalRoot) {
 		console.log('[UI] Game containers missing — page not fully ready');
@@ -151,6 +154,45 @@ function initGamePage() {
 	const lobbyData = readLobbyData();
 	const log = createLogRenderer(logRoot);
 	const modal = initModalManager(modalRoot);
+	if (logCopyBuffer) log.attachBuffer(logCopyBuffer);
+
+	if (topbarPlaceLabel) {
+		topbarPlaceLabel.style.cursor = 'pointer';
+		topbarPlaceLabel.title = 'Show active Place details';
+		topbarPlaceLabel.addEventListener('click', () => {
+			if (!gameState?.activePlace) {
+				modal.showInfo('No Active Place', 'There is currently no active Place card.');
+				return;
+			}
+			const placeDef = CARD_LOOKUP[gameState.activePlace] || PLACES.find(p => p.id === gameState.activePlace);
+			if (!placeDef) {
+				modal.showInfo('Active Place', gameState.activePlace);
+				return;
+			}
+			modal.showPlaceDetailModal(placeDef);
+		});
+	}
+
+	if (copyLogBtn) {
+		copyLogBtn.addEventListener('click', async () => {
+			const plain = log.asText();
+			if (logCopyBuffer) logCopyBuffer.value = plain;
+			try {
+				if (navigator?.clipboard?.writeText) {
+					await navigator.clipboard.writeText(plain);
+					copyLogBtn.textContent = 'Copied';
+					window.setTimeout(() => { copyLogBtn.textContent = 'Copy Log'; }, 1200);
+					return;
+				}
+			} catch {
+				// Fallback to selectable textarea below.
+			}
+			if (logCopyBuffer) {
+				logCopyBuffer.focus();
+				logCopyBuffer.select();
+			}
+		});
+	}
 
 	// Determine which player this client controls
 	const localPlayerId = urlParams.get('player') || lobbyData.playerId || 'player_1';
@@ -451,7 +493,8 @@ function initGamePage() {
 		);
 
 		const onUseAbility = (isLocalTurn && !gameOver) ? handleUseAbility : null;
-		renderBoard(boardRoot, uiState, onUseAbility);
+		const onActivatePiecie = (isLocalTurn && !gameOver) ? handleActivatePiecie : null;
+		renderBoard(boardRoot, uiState, onUseAbility, null, onActivatePiecie);
 		if (state._lastPlaceEffect?.placeName) {
 			showPlaceEffectBanner(state._lastPlaceEffect.placeName, state._lastPlaceEffect.description, state._lastPlaceEffect.phase);
 			delete state._lastPlaceEffect;
@@ -469,10 +512,8 @@ function initGamePage() {
 		}
 
 		const topbarPlace = document.getElementById('topbar-place');
-		const topbarQuestFlow = document.getElementById('topbar-quest-flow');
 		const topbarPlaceTurns = document.getElementById('topbar-place-turns');
 		if (topbarPlace) topbarPlace.textContent = uiState.activePlaceName || 'None';
-		if (topbarQuestFlow) topbarQuestFlow.textContent = uiState.turnPhase || 'DRAW';
 		if (topbarPlaceTurns) {
 			const turns = Number(uiState.activePlaceTurns || 0);
 			topbarPlaceTurns.textContent = `${turns} turn${turns === 1 ? '' : 's'} active`;
@@ -511,6 +552,28 @@ function initGamePage() {
 			log.add('win', `${winnerName} won by ${gameState.winReason}.`);
 			modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
 		}
+		renderFromState(gameState);
+	}
+
+	function handleActivatePiecie(slotIndex) {
+		if (!gameState || gameState.status === 'FINISHED') return;
+		const beforeActivate = gameState;
+		const { state: newState, success, error, cardDef, negated } = activatePiecie(gameState, localPlayerId, slotIndex);
+		if (!success) {
+			modal.showInfo('Cannot Activate', error || 'That Piecie cannot be activated right now.');
+			return;
+		}
+		gameState = newState;
+
+		const activatedName = cardDef?.name || 'Piecie';
+		if (negated) {
+			log.add('loss', `Activated ${activatedName}, but it was negated.`);
+		} else {
+			log.add('gain', `Activated ${activatedName}.`);
+			if (cardDef?.description) log.add('info', cardDef.description);
+		}
+		logStateOutcome(log, beforeActivate, gameState, localPlayerId, `${activatedName} activation`);
+		syncPush();
 		renderFromState(gameState);
 	}
 
@@ -604,32 +667,16 @@ function initGamePage() {
 		}
 
 		if (cardType === 'PIECIE') {
-			// Cards that require explicit target selection before dispatch
-			if (cardDef.tags?.includes('TARGETING')) {
-				await resolveTargetingCard(cardDef, cardRef);
-				return;
-			}
-
-			let piecieStateForPlay = gameState;
-			if (cardDef.effectId === 'effect_kannetje_melk') {
-				const ownTargets = getPlayerMosjes(gameState, localPlayerId);
-				if (ownTargets.length > 1) {
-					const selectedState = await resolveOwnMosjeTarget('Choose your Mosje to receive Kannetje Melk MP:');
-					if (!selectedState) return;
-					piecieStateForPlay = selectedState;
-				}
-			}
-
 			const beforePlay = gameState;
-			const { state: newState, success, error } = playPiecie(piecieStateForPlay, localPlayerId, cardRef, cardDef);
+			const { state: newState, success, error } = playPiecie(gameState, localPlayerId, cardRef, cardDef);
 			if (!success) {
 				modal.showInfo('Cannot Play', error || 'That card cannot be played right now.');
 				return;
 			}
 			gameState = newState;
-			log.add('gain', `Played ${cardDef.name}.`);
-			if (cardDef.description) log.add('info', cardDef.description);
-			logStateOutcome(log, beforePlay, gameState, localPlayerId, `${cardDef.name} activation`);
+			log.add('gain', `Placed ${cardDef.name} face-down.`);
+			log.add('info', 'It can be activated from the field on a later turn.');
+			logStateOutcome(log, beforePlay, gameState, localPlayerId, `${cardDef.name} placement`);
 			syncPush();
 			if (gameState.status === 'FINISHED') {
 				stopListening();
@@ -783,6 +830,7 @@ function toBoardViewModel(gameState, localPlayerId) {
 	const localPlayer = gameState.players[localPlayerId];
 	const opponentId = Object.keys(gameState.players).find(id => id !== localPlayerId);
 	const opponent = gameState.players[opponentId];
+	const isLocalTurn = gameState.activePlayerId === localPlayerId;
 
 	return {
 		activePlayerName: gameState.players[gameState.activePlayerId].name,
@@ -798,12 +846,24 @@ function toBoardViewModel(gameState, localPlayerId) {
 			top: {
 				name: opponent.name,
 				mosjes: toMosjeCards(opponent.activeSlots),
-				piecies: toPiecieCards(opponent.piecieSlots),
+				piecies: toPiecieCards(opponent.piecieSlots, {
+					ownerId: opponentId,
+					localPlayerId,
+					turnNumber: gameState.turnNumber,
+					isLocalTurn,
+					viewerOwns: false,
+				}),
 			},
 			bottom: {
 				name: localPlayer.name,
 				mosjes: toMosjeCards(localPlayer.activeSlots),
-				piecies: toPiecieCards(localPlayer.piecieSlots),
+				piecies: toPiecieCards(localPlayer.piecieSlots, {
+					ownerId: localPlayerId,
+					localPlayerId,
+					turnNumber: gameState.turnNumber,
+					isLocalTurn,
+					viewerOwns: true,
+				}),
 			},
 		},
 	};
@@ -834,11 +894,39 @@ function toMosjeCards(activeSlots) {
 		}));
 }
 
-function toPiecieCards(piecieSlots) {
+function toPiecieCards(piecieSlots, options = {}) {
 	if (!Array.isArray(piecieSlots)) return [];
+	const {
+		ownerId = null,
+		localPlayerId = null,
+		turnNumber = 1,
+		isLocalTurn = false,
+		viewerOwns = false,
+	} = options;
+	const canActivateForViewer = viewerOwns && ownerId === localPlayerId && isLocalTurn;
+
 	return piecieSlots
-		.filter(slot => slot !== null)
-		.map(slot => {
+		.map((slot, slotIndex) => ({ slot, slotIndex }))
+		.filter(({ slot }) => slot !== null)
+		.map(({ slot, slotIndex }) => {
+			const isPlacedFaceDown = slot.faceDown !== false;
+			const canActivateOnTurn = Number.isFinite(slot.canActivateOnTurn)
+				? slot.canActivateOnTurn
+				: ((Number.isFinite(slot.playedOnTurn) ? slot.playedOnTurn : turnNumber) + 1);
+			const canActivateNow = canActivateForViewer && !slot.activated && turnNumber >= canActivateOnTurn;
+
+			if (!viewerOwns && isPlacedFaceDown) {
+				return {
+					cardId: slot.cardId,
+					name: 'Face-down Piecie',
+					type: 'PIECIE',
+					description: '',
+					faceDown: true,
+					slotIndex,
+					canActivate: false,
+				};
+			}
+
 			const def = CARD_LOOKUP[slot.cardId] || { id: slot.cardId, name: slot.cardId, type: 'PIECIE' };
 			return {
 				cardId: slot.cardId,
@@ -846,7 +934,9 @@ function toPiecieCards(piecieSlots) {
 				type: def.type || 'PIECIE',
 				subtype: def.subtype,
 				description: def.description || '',
-				faceDown: slot.faceDown === true,
+				faceDown: viewerOwns ? false : slot.faceDown === true,
+				slotIndex,
+				canActivate: canActivateNow,
 			};
 		});
 }

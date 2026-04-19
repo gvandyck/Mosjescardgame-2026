@@ -12,6 +12,7 @@ export function initModalManager(container) {
 			showInfo: () => {},
 			showDiceRoll: (_info, _threshold, onResolved) => onResolved(false),
 			showConfirm: async () => false,
+			showPlaceDetailModal: () => {},
 			close: () => {},
 		};
 	}
@@ -309,6 +310,36 @@ export function initModalManager(container) {
 		container.querySelector('#modal-close-mosje')?.addEventListener('click', close);
 	}
 
+	function showPlaceDetailModal(place) {
+		if (!place) return;
+		const previewEl = renderCard(place, { compact: true });
+		previewEl.classList.add('modal-place-preview-card');
+		const tags = Array.isArray(place.tags) && place.tags.length > 0 ? place.tags.join(', ') : 'None';
+		const goodFor = Array.isArray(place.goodFor) && place.goodFor.length > 0 ? place.goodFor.join(', ') : 'None';
+		const badFor = Array.isArray(place.badFor) && place.badFor.length > 0 ? place.badFor.join(', ') : 'None';
+
+		container.classList.add('modal-root--open');
+		container.innerHTML = `
+			<div class="modal-backdrop"></div>
+			<section class="modal-card modal-card--mosje-detail modal-card--place-detail" role="dialog" aria-modal="true">
+				<div class="modal-place-preview">${previewEl.outerHTML}</div>
+				<div class="modal-place-copy">
+					<h3>${escapeHtml(place.name || 'Place')}</h3>
+					<p><strong>Description:</strong> ${escapeHtml(place.description || 'No description available.')}</p>
+					<p><strong>Flavour text:</strong> ${escapeHtml(place.flavourText || 'None')}</p>
+					<p><strong>Trigger:</strong> ${escapeHtml(place.trigger || 'None')}</p>
+					<p><strong>Tags:</strong> ${escapeHtml(tags)}</p>
+					<p><strong>Good for:</strong> ${escapeHtml(goodFor)}</p>
+					<p><strong>Bad for:</strong> ${escapeHtml(badFor)}</p>
+					<p><strong>Rarity:</strong> ${escapeHtml(place.rarity || 'Unknown')}</p>
+					<button class="modal-btn" id="modal-close-place">Close</button>
+				</div>
+			</section>
+		`;
+
+		container.querySelector('#modal-close-place')?.addEventListener('click', close);
+	}
+
 	function showOpponentHandRevealModal(cardNames = []) {
 		container.classList.add('modal-root--open');
 		const rows = cardNames.length
@@ -336,6 +367,7 @@ export function initModalManager(container) {
 		showCardChoice,
 		showTargetSelector,
 		showMosjeDetailModal,
+		showPlaceDetailModal,
 		showOpponentHandRevealModal,
 		close,
 	};

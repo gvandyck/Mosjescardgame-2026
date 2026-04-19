@@ -91,7 +91,7 @@ function createPlayerState(config) {
     welloe: [],           // defeated Mosjes rest here, out of the game
 
     activeSlots,          // [mosjeSlot, mosjeSlot] — up to 2 active Mosjes
-    piecieSlots: [null, null, null, null, null],  // 5 face-down Piecie positions
+    piecieSlots: [null, null, null, null],  // 4 face-down Piecie positions
 
     questsCompleted: 0,
     questsCompletedThisTurn: 0,

@@ -19,7 +19,16 @@ export function createLogRenderer(container) {
 		return {
 			add: () => {},
 			clear: () => {},
+			asText: () => '',
+			attachBuffer: () => {},
 		};
+	}
+
+	const lines = [];
+	let mirrorBuffer = null;
+
+	function syncMirror() {
+		if (mirrorBuffer) mirrorBuffer.value = lines.join('\n');
 	}
 
 	function add(type, message) {
@@ -28,13 +37,26 @@ export function createLogRenderer(container) {
 		const icon = ICONS[type] || '•';
 		row.textContent = `${icon} ${message}`;
 		container.prepend(row);
+		lines.unshift(`${icon} ${message}`);
+		syncMirror();
 		console.log('[UI] Log:', type, message);
 	}
 
 	function clear() {
 		container.innerHTML = '';
+		lines.length = 0;
+		syncMirror();
 		console.log('[UI] Log cleared');
 	}
 
-	return { add, clear };
+	function asText() {
+		return lines.join('\n');
+	}
+
+	function attachBuffer(textareaEl) {
+		mirrorBuffer = textareaEl || null;
+		syncMirror();
+	}
+
+	return { add, clear, asText, attachBuffer };
 }

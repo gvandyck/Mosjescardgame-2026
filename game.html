@@ -17,7 +17,6 @@
     <p id="turn-label">Loading turn...</p>
     <div class="topbar-flow" id="topbar-flow">
       <div class="topbar-flow__item">Place: <strong id="topbar-place">None</strong></div>
-      <div class="topbar-flow__item">Quest Flow: <strong id="topbar-quest-flow">DRAW</strong></div>
       <div class="topbar-flow__item" id="topbar-place-turns">0 turns active</div>
     </div>
     <div class="topbar-actions">
@@ -27,8 +26,12 @@
       <button id="btn-end-turn" class="btn-primary" type="button">End Turn</button>
     </div>
     <section id="topbar-log-popover" class="topbar-log-popover" hidden>
-      <h2>Battle Log</h2>
+      <div class="topbar-log-header">
+        <h2>Battle Log</h2>
+        <button id="btn-copy-log" class="btn-secondary" type="button">Copy Log</button>
+      </div>
       <div id="log-root" class="game-log"></div>
+      <textarea id="log-copy-buffer" class="log-copy-buffer" readonly aria-label="Battle log plain text"></textarea>
     </section>
   </header>
 

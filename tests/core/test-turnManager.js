@@ -5,6 +5,8 @@ import {
   endTurn,
   attemptGeneralQuest,
   attemptPersonalQuest,
+  playPiecie,
+  activatePiecie,
   playSnellie,
   canPlayerActNow,
 } from '../../src/engine/turnManager.js';
@@ -164,5 +166,147 @@ export function runTurnManagerTests() {
     });
     assertTrue(canPlayerActNow(state, 'player_1', 'SNELLE_PIECIE'));
     assertFalse(canPlayerActNow(state, 'player_1', 'PIECIE'));
+  });
+
+  test('playPiecie places card face-down on field and does not discard immediately', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          hand: [{ cardId: 'piecie_kannetje_melk', type: 'PIECIE' }],
+        },
+      },
+    });
+
+    const out = playPiecie(
+      state,
+      'player_1',
+      { cardId: 'piecie_kannetje_melk', type: 'PIECIE' },
+      { id: 'piecie_kannetje_melk', name: 'Kannetje Melk', effectId: 'effect_kannetje_melk' }
+    );
+
+    assertTrue(out.success);
+    assertEqual(out.state.players.player_1.hand.length, 0);
+    assertEqual(out.state.players.player_1.discard.length, 0);
+    const slot = out.state.players.player_1.piecieSlots.find(s => s !== null);
+    assertTrue(!!slot);
+    assertTrue(slot.faceDown === true);
+    assertEqual(slot.canActivateOnTurn, out.state.turnNumber + 1);
+    assertEqual(out.state.players.player_1.activeSlots[0].mp, state.players.player_1.activeSlots[0].mp);
+  });
+
+  test('playPiecie blocks the 5th placement in the same turn', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          pieciesPlayedThisTurn: 4,
+          hand: [{ cardId: 'piecie_kannetje_melk', type: 'PIECIE' }],
+        },
+      },
+      activePlayerId: 'player_1',
+    });
+
+    const out = playPiecie(
+      state,
+      'player_1',
+      { cardId: 'piecie_kannetje_melk', type: 'PIECIE' },
+      { id: 'piecie_kannetje_melk', name: 'Kannetje Melk', effectId: 'effect_kannetje_melk' }
+    );
+
+    assertFalse(out.success);
+    assertEqual(out.error, 'You can place up to 4 Piecies');
+    assertEqual(out.state.players.player_1.hand.length, 1);
+  });
+
+  test('playPiecie normalizes compressed piecieSlots from legacy state', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          piecieSlots: [
+            {
+              cardId: 'piecie_gun_een_piece',
+              type: 'PIECIE',
+              faceDown: true,
+              activated: false,
+              playedOnTurn: 1,
+              canActivateOnTurn: 2,
+            },
+          ],
+          hand: [{ cardId: 'piecie_kannetje_melk', type: 'PIECIE' }],
+        },
+      },
+      activePlayerId: 'player_1',
+    });
+
+    const out = playPiecie(
+      state,
+      'player_1',
+      { cardId: 'piecie_kannetje_melk', type: 'PIECIE' },
+      { id: 'piecie_kannetje_melk', name: 'Kannetje Melk', effectId: 'effect_kannetje_melk' }
+    );
+
+    assertTrue(out.success);
+    assertEqual(out.state.players.player_1.piecieSlots.length, 4);
+    assertTrue(out.state.players.player_1.piecieSlots[0] !== null);
+    assertTrue(out.state.players.player_1.piecieSlots[1] !== null);
+  });
+
+  test('activatePiecie is blocked before the next turn', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          piecieSlots: [
+            {
+              cardId: 'piecie_kannetje_melk',
+              type: 'PIECIE',
+              faceDown: true,
+              activated: false,
+              playedOnTurn: 1,
+              canActivateOnTurn: 2,
+            },
+            null,
+            null,
+            null,
+            null,
+          ],
+        },
+      },
+      turnNumber: 1,
+      activePlayerId: 'player_1',
+    });
+
+    const out = activatePiecie(state, 'player_1', 0);
+    assertFalse(out.success);
+    assertEqual(out.error, 'This Piecie can be activated starting next turn');
+  });
+
+  test('activatePiecie resolves effect and moves card to discard', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          piecieSlots: [
+            {
+              cardId: 'piecie_kannetje_melk',
+              type: 'PIECIE',
+              faceDown: true,
+              activated: false,
+              playedOnTurn: 1,
+              canActivateOnTurn: 2,
+            },
+            null,
+            null,
+            null,
+            null,
+          ],
+        },
+      },
+      turnNumber: 2,
+      activePlayerId: 'player_1',
+    });
+
+    const out = activatePiecie(state, 'player_1', 0);
+    assertTrue(out.success);
+    assertEqual(out.state.players.player_1.piecieSlots[0], null);
+    assertEqual(out.state.players.player_1.discard[0].cardId, 'piecie_kannetje_melk');
+    assertEqual(out.state.players.player_1.pieciesActivatedThisTurn, 1);
   });
 }

@@ -1,5 +1,5 @@
 import { test, assertEqual, assertTrue, assertFalse, assertDefined, createEngineState } from '../helpers/testHelpers.js';
-import { buildActiveQuestViewModel } from '../../src/ui/boardRenderer.js';
+import { buildActiveQuestViewModel, renderBoard } from '../../src/ui/boardRenderer.js';
 
 export function runBoardRendererTests() {
   console.log('[TEST] Running boardRenderer tests...');
@@ -92,5 +92,77 @@ export function runBoardRendererTests() {
     const result = buildActiveQuestViewModel(state, 'player_1');
     assertEqual(result.questType, 'PERSONAL');
     assertEqual(result.currentMp, 22);
+  });
+
+  test('renderBoard shows opponent face-down Piecie as hidden slot', () => {
+    const container = document.createElement('div');
+    const viewModel = {
+      myPlayerId: 'player_1',
+      activePlayerId: 'player_1',
+      currentPhase: 'MAIN',
+      players: {
+        top: {
+          name: 'Opponent',
+          mosjes: [],
+          piecies: [{ cardId: 'piecie_kannetje_melk', faceDown: true }],
+        },
+        bottom: {
+          name: 'You',
+          mosjes: [],
+          piecies: [],
+        },
+      },
+      activeQuest: null,
+      gameState: createEngineState(),
+    };
+
+    renderBoard(container, viewModel, null, null, null);
+    const hiddenSlot = container.querySelector('#piecies-opponent .piecie-slot.face-down-piecie.has-card');
+    assertTrue(!!hiddenSlot, 'Expected hidden face-down piecie slot for opponent');
+  });
+
+  test('renderBoard shows Activate button for own activatable Piecie', () => {
+    const container = document.createElement('div');
+    const viewModel = {
+      myPlayerId: 'player_1',
+      activePlayerId: 'player_1',
+      currentPhase: 'MAIN',
+      players: {
+        top: {
+          name: 'Opponent',
+          mosjes: [],
+          piecies: [],
+        },
+        bottom: {
+          name: 'You',
+          mosjes: [],
+          piecies: [
+            {
+              cardId: 'piecie_kannetje_melk',
+              name: 'Kannetje Melk',
+              type: 'PIECIE',
+              description: 'Restore effect',
+              faceDown: false,
+              canActivate: true,
+              slotIndex: 0,
+            },
+          ],
+        },
+      },
+      activeQuest: null,
+      gameState: createEngineState(),
+    };
+
+    let activatedSlot = null;
+    renderBoard(container, viewModel, null, null, (slotIndex) => {
+      activatedSlot = slotIndex;
+    });
+
+    const activateBtn = container.querySelector('#piecies-player .hand-card__play-btn');
+    assertTrue(!!activateBtn, 'Expected Activate button on own activatable piecie');
+    assertEqual(activateBtn.textContent, 'Activate');
+
+    activateBtn.click();
+    assertEqual(activatedSlot, 0, 'Activate callback should receive piecie slot index');
   });
 }

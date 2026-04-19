@@ -68,9 +68,34 @@
    margin-bottom: 6px;
 }
 
+.topbar-log-header {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   gap: 8px;
+}
+
+.topbar-log-header h2 {
+   margin-bottom: 0;
+}
+
 .topbar-log-popover .game-log {
    max-height: 180px;
    overflow-y: auto;
+}
+
+.log-copy-buffer {
+   margin-top: 8px;
+   width: 100%;
+   min-height: 90px;
+   max-height: 180px;
+   background: rgba(2, 6, 15, 0.95);
+   color: #dbe7ff;
+   border: 1px solid rgba(255, 255, 255, 0.18);
+   border-radius: 8px;
+   padding: 8px;
+   font: 0.76rem/1.35 Consolas, Menlo, Monaco, monospace;
+   resize: vertical;
 }
 
 .topbar-flow {
@@ -615,6 +640,37 @@
    gap: 8px;
 }
 
+.modal-card--place-detail {
+   grid-template-columns: auto 1fr;
+}
+
+.modal-place-preview {
+   position: sticky;
+   top: 8px;
+}
+
+.modal-place-preview .card--place,
+.modal-place-preview-card {
+   width: 220px;
+   min-width: 220px;
+   max-width: 220px;
+   height: calc(220px * var(--card-height-ratio));
+}
+
+.modal-place-copy {
+   display: grid;
+   gap: 8px;
+}
+
+.modal-place-copy h3 {
+   color: var(--place-green);
+   text-shadow: 0 0 18px rgba(61, 214, 140, 0.25);
+}
+
+.modal-place-copy p {
+   line-height: 1.35;
+}
+
 @keyframes modal-in {
    from { transform: scale(0.92) translateY(12px); opacity: 0; }
    to { transform: scale(1) translateY(0); opacity: 1; }
@@ -862,6 +918,12 @@
       display: flex;
       justify-content: center;
    }
+
+   .modal-place-preview {
+      position: static;
+      display: flex;
+      justify-content: center;
+   }
 }
 
 /* ==============================================================
@@ -1069,6 +1131,15 @@
    min-width: var(--piecie-cell-w);
    max-width: var(--piecie-cell-w);
    height: var(--piecie-cell-h);
+}
+
+.board-zone__piecies .field-piecie-card:hover,
+.board-zone__piecies .field-piecie-card.card--piecie:hover,
+.board-zone__piecies .field-piecie-card.card--snelle:hover,
+.board-zone__piecies .field-piecie-card.card--snelle_piecie:hover {
+   transform: none !important;
+   box-shadow: none !important;
+   z-index: auto !important;
 }
 
 .board-zone__piecies .piecie-slot {

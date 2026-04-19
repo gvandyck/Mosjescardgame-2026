@@ -23,7 +23,7 @@ function getBoardModal() {
 	return _boardModal;
 }
 
-export function renderBoard(container, viewModel, onUseAbility = null, onReturnToHand = null) {
+export function renderBoard(container, viewModel, onUseAbility = null, onReturnToHand = null, onActivatePiecie = null) {
 	if (!container) return;
 	console.log('[UI] Rendering board view');
 
@@ -122,6 +122,17 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		}
 		const piecieEl = renderCard(piecie, { compact: true });
 		piecieEl.classList.add('field-piecie-card');
+		if (onActivatePiecie && piecie.canActivate) {
+			const btn = document.createElement('button');
+			btn.className = 'hand-card__play-btn';
+			btn.type = 'button';
+			btn.textContent = 'Activate';
+			btn.addEventListener('click', (event) => {
+				event.stopPropagation();
+				onActivatePiecie(piecie.slotIndex);
+			});
+			piecieEl.appendChild(btn);
+		}
 		bottomPiecies?.appendChild(piecieEl);
 	}
 

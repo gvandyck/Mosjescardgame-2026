@@ -11,8 +11,18 @@ import * as piecieEffects from '../abilities/piecieEffects.js';
 import * as snelleEffects from '../abilities/snelleEffects.js';
 import * as mosjeAbilities from '../abilities/mosjeAbilities.js';
 import { MOSJES } from '../data/mosjes.js';
+import { PIECIES } from '../data/piecies.js';
 
 console.log('[ENGINE] turnManager.js loaded');
+
+const PIECIE_LOOKUP = Object.fromEntries(PIECIES.map(card => [card.id, card]));
+
+function normalizePiecieSlots(player, slotCount = 4) {
+  const source = Array.isArray(player?.piecieSlots) ? player.piecieSlots : [];
+  const normalized = source.slice(0, slotCount).map(slot => (slot == null ? null : slot));
+  while (normalized.length < slotCount) normalized.push(null);
+  player.piecieSlots = normalized;
+}
 
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // startTurn
@@ -99,37 +109,6 @@ export function endTurn(gameState) {
   let state = JSON.parse(JSON.stringify(gameState));
   const playerId = state.activePlayerId;
   console.log(`[ENGINE] â”€â”€ Turn ${state.turnNumber} END â€” Player: ${playerId} â”€â”€`);
-
-  // Expire field Piecies for the ending player.
-  // Default lifecycle is 1 turn on field (current turn), but cards can opt into
-  // multiple turns by defining `fieldDurationTurns` in card data.
-  const endingPlayer = state.players[playerId];
-  if (endingPlayer) {
-    if (!Array.isArray(endingPlayer.piecieSlots)) {
-      endingPlayer.piecieSlots = [null, null, null, null, null];
-    }
-    if (!Array.isArray(endingPlayer.discard)) {
-      endingPlayer.discard = [];
-    }
-
-    endingPlayer.piecieSlots = endingPlayer.piecieSlots.map(slot => {
-      if (!slot) return null;
-
-      const remaining = Number.isFinite(slot.turnsRemaining)
-        ? Math.max(1, Math.floor(slot.turnsRemaining))
-        : 1;
-
-      if (remaining <= 1) {
-        endingPlayer.discard.unshift({ cardId: slot.cardId, type: 'PIECIE' });
-        return null;
-      }
-
-      return {
-        ...slot,
-        turnsRemaining: remaining - 1,
-      };
-    });
-  }
 
   // Returned Mosjes become replayable on the player's next turn.
   state = clearReturnedMosjesAtTurnEnd(state, playerId);
@@ -236,8 +215,7 @@ export function attemptPersonalQuest(gameState, questCardId) {
 
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // playPiecie
-// Plays a Piecie card from the active player's hand.
-// Removes the card from hand, applies its effect, moves it to discard.
+// Places a Piecie card from the active player's hand face-down on the field.
 // cardRef â€” the hand reference object { cardId, type }
 // cardDef â€” full card definition from PIECIES data (has effectId, tags)
 // Returns { state, success, error? }
@@ -251,39 +229,78 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
   if (!Array.isArray(player.hand)) player.hand = [];
   if (!Array.isArray(player.discard)) player.discard = [];
 
-  // Check The Void restriction (blocks RESTORE and FOOD Piecies)
-  if (state.activePlace === 'place_the_void') {
-    const blocked = ['RESTORE', 'FOOD'];
-    if (cardDef.tags?.some(t => blocked.includes(t))) {
-      console.log('[ENGINE] The Void blocks RESTORE/FOOD Piecies');
-      return { state, success: false, error: 'The Void blocks RESTORE and FOOD Piecies' };
-    }
-  }
-
-  // Check reactive negation flags set by opponent's Snelle Piecies
-  const flags = state._snelleFlags || {};
-  const oppId = Object.keys(state.players).find(id => id !== playerId);
-  const isAttack = cardDef.tags?.includes('ATTACK');
-
-  // Counter Strikka: negate any Piecie
-  if (oppId && flags.negateNextPiecie?.[oppId]) {
-    delete state._snelleFlags.negateNextPiecie[oppId];
-    console.log('[ENGINE] Counter Strikka negated:', cardDef.name);
-    return { state, success: true, negated: true };
-  }
-  // Perfect Dodge: negate ATTACK Piecies + grant 15 MP
-  if (oppId && isAttack && flags.negateNextAttack?.[oppId]) {
-    delete state._snelleFlags.negateNextAttack[oppId];
-    const oppPlayer = state.players[oppId];
-    const si = oppPlayer.activeSlots.findIndex(s => s && !s.isDefeated);
-    if (si >= 0) oppPlayer.activeSlots[si].mp += 15;
-    console.log('[ENGINE] Perfect Dodge negated ATTACK + granted 15 MP to opponent');
-    return { state, success: true, negated: true };
-  }
-
   // Remove from hand
   const handIndex = player.hand.findIndex(c => c.cardId === cardRef.cardId);
   if (handIndex === -1) return { state, success: false, error: 'Card not in hand' };
+
+  if ((player.pieciesPlayedThisTurn || 0) >= 4) {
+    return { state, success: false, error: 'You can place up to 4 Piecies' };
+  }
+
+  player.hand.splice(handIndex, 1);
+
+  // Place Piecie face-down on the field.
+  // It can be activated starting next turn by the owner.
+  normalizePiecieSlots(player, 4);
+  const emptySlot = player.piecieSlots.findIndex(s => s === null);
+  if (emptySlot < 0) {
+    // Restore card to hand if placement fails.
+    player.hand.splice(handIndex, 0, cardRef);
+    return { state, success: false, error: 'No empty Piecie slot available' };
+  }
+
+  player.piecieSlots[emptySlot] = {
+    cardId: cardRef.cardId,
+    type: 'PIECIE',
+    faceDown: true,
+    activated: false,
+    playedOnTurn: state.turnNumber,
+    canActivateOnTurn: state.turnNumber + 1,
+  };
+
+  state.players[playerId].pieciesPlayedThisTurn = (state.players[playerId].pieciesPlayedThisTurn || 0) + 1;
+  state.players[playerId].lastCardPlayedType = 'PIECIE';
+
+  state = checkVictory(state);
+  return { state, success: true };
+}
+
+export function activatePiecie(gameState, playerId, slotIndex) {
+  let state = JSON.parse(JSON.stringify(gameState));
+  let player = state.players[playerId];
+  if (!player) return { state, success: false, error: 'Player not found' };
+
+  if (state.activePlayerId !== playerId) {
+    return { state, success: false, error: 'You can only activate Piecies on your own turn' };
+  }
+
+  normalizePiecieSlots(player, 4);
+  if (!Array.isArray(player.discard)) {
+    player.discard = [];
+  }
+
+  const safeSlotIndex = Number(slotIndex);
+  if (!Number.isInteger(safeSlotIndex) || safeSlotIndex < 0 || safeSlotIndex >= player.piecieSlots.length) {
+    return { state, success: false, error: 'Invalid Piecie slot' };
+  }
+
+  const slot = player.piecieSlots[safeSlotIndex];
+  if (!slot) return { state, success: false, error: 'No Piecie in that slot' };
+  if (slot.activated) return { state, success: false, error: 'Piecie already activated' };
+  const slotCardId = slot.cardId;
+
+  const canActivateOnTurn = Number.isFinite(slot.canActivateOnTurn)
+    ? slot.canActivateOnTurn
+    : ((Number.isFinite(slot.playedOnTurn) ? slot.playedOnTurn : state.turnNumber) + 1);
+  if (state.turnNumber < canActivateOnTurn) {
+    return { state, success: false, error: 'This Piecie can be activated starting next turn' };
+  }
+
+  // Resolve card definition by id for activation metadata.
+  const knownCardDef = cardDefLookup(slot.cardId);
+  if (!knownCardDef) {
+    return { state, success: false, error: 'Unknown Piecie definition' };
+  }
 
   if (
     state.activePlace === 'place_coerts_caravan' &&
@@ -294,35 +311,48 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
     console.log('[PLACE] Coert\'s Caravan — free Piecie activation consumed');
   }
 
-  player.hand.splice(handIndex, 1);
-
-  // Place Piecie on field instead of immediate discard.
-  // Default: lasts until end of current turn. Optional multi-turn support via
-  // `fieldDurationTurns` in card data definitions.
-  if (!Array.isArray(player.piecieSlots)) {
-    player.piecieSlots = [null, null, null, null, null];
-  }
-  const emptySlot = player.piecieSlots.findIndex(s => s === null);
-  if (emptySlot < 0) {
-    // Restore card to hand if placement fails.
-    player.hand.splice(handIndex, 0, cardRef);
-    return { state, success: false, error: 'No empty Piecie slot available' };
+  // Check The Void restriction (blocks RESTORE and FOOD Piecies)
+  if (state.activePlace === 'place_the_void') {
+    const blocked = ['RESTORE', 'FOOD'];
+    if (knownCardDef.tags?.some(t => blocked.includes(t))) {
+      console.log('[ENGINE] The Void blocks RESTORE/FOOD Piecies');
+      return { state, success: false, error: 'The Void blocks RESTORE and FOOD Piecies' };
+    }
   }
 
-  const turnsOnField = Number.isFinite(cardDef.fieldDurationTurns)
-    ? Math.max(1, Math.floor(cardDef.fieldDurationTurns))
-    : 1;
+  // Check reactive negation flags set by opponent's Snelle Piecies
+  const flags = state._snelleFlags || {};
+  const oppId = Object.keys(state.players).find(id => id !== playerId);
+  const isAttack = knownCardDef.tags?.includes('ATTACK');
 
-  player.piecieSlots[emptySlot] = {
-    cardId: cardRef.cardId,
-    type: 'PIECIE',
-    faceDown: false,
-    turnsRemaining: turnsOnField,
-    playedOnTurn: state.turnNumber,
-  };
+  // Flip face-up when activation starts
+  slot.faceDown = false;
+  slot.activated = true;
+
+  // Counter Strikka: negate any Piecie
+  if (oppId && flags.negateNextPiecie?.[oppId]) {
+    delete state._snelleFlags.negateNextPiecie[oppId];
+    console.log('[ENGINE] Counter Strikka negated:', knownCardDef.name);
+    player.discard.unshift({ cardId: slotCardId, type: 'PIECIE' });
+    player.piecieSlots[safeSlotIndex] = null;
+    state = checkVictory(state);
+    return { state, success: true, negated: true, cardDef: knownCardDef };
+  }
+  // Perfect Dodge: negate ATTACK Piecies + grant 15 MP
+  if (oppId && isAttack && flags.negateNextAttack?.[oppId]) {
+    delete state._snelleFlags.negateNextAttack[oppId];
+    const oppPlayer = state.players[oppId];
+    const si = oppPlayer.activeSlots.findIndex(s => s && !s.isDefeated);
+    if (si >= 0) oppPlayer.activeSlots[si].mp += 15;
+    console.log('[ENGINE] Perfect Dodge negated ATTACK + granted 15 MP to opponent');
+    player.discard.unshift({ cardId: slotCardId, type: 'PIECIE' });
+    player.piecieSlots[safeSlotIndex] = null;
+    state = checkVictory(state);
+    return { state, success: true, negated: true, cardDef: knownCardDef };
+  }
 
   // Apply the effect function
-  const effectFn = piecieEffects[cardDef.effectId];
+  const effectFn = piecieEffects[knownCardDef.effectId];
   if (typeof effectFn === 'function') {
     state = effectFn(state, playerId);
     // Dubbele Temminks: double-trigger
@@ -331,16 +361,15 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
       state = effectFn(state, playerId);
       console.log('[ENGINE] Dubbele Temminks: effect triggered twice');
     }
-    console.log(`[ENGINE] Piecie played: ${cardDef.name} (${cardDef.effectId})`);
+    console.log(`[ENGINE] Piecie activated: ${knownCardDef.name} (${knownCardDef.effectId})`);
   } else {
-    console.warn(`[ENGINE] No effect function found for: ${cardDef.effectId}`);
+    console.warn(`[ENGINE] No effect function found for: ${knownCardDef.effectId}`);
   }
 
   // Track last played piecie for Gevalletje Klakkeloos
-  state._lastPiecieEffect = { effectId: cardDef.effectId, byPlayer: playerId };
+  state._lastPiecieEffect = { effectId: knownCardDef.effectId, byPlayer: playerId };
 
-  // Track play counters
-  state.players[playerId].pieciesPlayedThisTurn = (state.players[playerId].pieciesPlayedThisTurn || 0) + 1;
+  // Track activation counters
   state.players[playerId].pieciesActivatedThisTurn = (state.players[playerId].pieciesActivatedThisTurn || 0) + 1;
   const actions = Array.isArray(state.players[playerId].actionsThisTurn)
     ? state.players[playerId].actionsThisTurn
@@ -348,20 +377,29 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
   if (!actions.includes('PIECIE_ACTIVATED')) {
     state.players[playerId].actionsThisTurn = [...actions, 'PIECIE_ACTIVATED'];
   }
-  const primaryTag = cardDef.tags?.[0] || null;
+  const primaryTag = knownCardDef.tags?.[0] || null;
   state.players[playerId].lastCardPlayedType = primaryTag;
 
-  state = applyPlaceEffectsOnPiecieActivate(state, playerId, cardRef.cardId);
+  state = applyPlaceEffectsOnPiecieActivate(state, playerId, slotCardId);
 
   // Apply Momentum Factory bonus if active (first Piecie each turn gets +10 MP)
   if (state.activePlace === 'place_momentum_factory') {
     state = placeEffects.effect_momentum_factory(state);
   }
 
-  // Keep Piecie on field until end-turn cleanup.
+  // Piecie resolves and is discarded.
+  player = state.players[playerId];
+  if (!Array.isArray(player.discard)) player.discard = [];
+  normalizePiecieSlots(player, 4);
+  player.discard.unshift({ cardId: slotCardId, type: 'PIECIE' });
+  player.piecieSlots[safeSlotIndex] = null;
 
   state = checkVictory(state);
-  return { state, success: true };
+  return { state, success: true, cardDef: knownCardDef };
+}
+
+function cardDefLookup(cardId) {
+  return PIECIE_LOOKUP[cardId] || null;
 }
 
 
