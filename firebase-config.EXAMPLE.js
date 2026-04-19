@@ -15,5 +15,7 @@ export const firebaseConfig = {
   projectId:         "YOUR_PROJECT_ID",
   storageBucket:     "YOUR_PROJECT_ID.appspot.com",
   messagingSenderId: "YOUR_SENDER_ID",
-  appId:             "YOUR_APP_ID"
+  appId:             "YOUR_APP_ID",
+  // Required for Realtime Database multiplayer sync
+  databaseURL:       "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com/"
 };

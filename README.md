@@ -18,14 +18,16 @@ Built with plain HTML, CSS, and JavaScript. No frameworks, no build tools.
 ## 🔥 Firebase Setup (for multiplayer)
 
 1. Go to https://console.firebase.google.com/ and create a free project
-2. Enable **Firestore Database** (start in test mode)
+2. Enable **Realtime Database** (start in test mode) — note the database URL shown (e.g. `https://your-project-default-rtdb.firebaseio.com/`)
 3. Enable **Anonymous Authentication** under Authentication → Sign-in method
 4. Click the gear icon → Project Settings → scroll to "Your apps" → add a Web app
 5. Copy the config object Firebase shows you
 6. In this project, copy `firebase-config.EXAMPLE.js` → rename to `firebase-config.js`
-7. Paste your config values into `firebase-config.js`
+7. Paste your config values into `firebase-config.js`, including the `databaseURL` field
 
 > ⚠️ `firebase-config.js` is in `.gitignore` — it will never be committed to GitHub.
+
+> ℹ️ Multiplayer uses Firebase **Realtime Database** (not Firestore). Firestore's WebSocket transport is blocked by some ad blockers; RTDB uses a different path that works reliably.
 
 ---
 
@@ -59,7 +61,7 @@ assets/
 
 ## 🌐 Hosting
 
-Uploaded via FTP to: https://eightytwenty.nl/cardgame/
+Deployed via Firebase Hosting: https://card-game-2026.web.app
 
 ---
 
