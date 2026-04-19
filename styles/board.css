@@ -641,3 +641,137 @@
       max-height: 240px;
    }
 }
+
+/* ==============================================================
+    Skeuomorphic Layer Overrides
+    ============================================================== */
+
+/* ── INLAID FIELD ZONES ──────────────────────────────────────────── */
+.player-field,
+.opponent-field,
+.board-zone--player,
+.board-zone--opponent {
+   background:
+      repeating-linear-gradient(
+         45deg,
+         rgba(255, 255, 255, 0.008) 0px,
+         rgba(255, 255, 255, 0.008) 1px,
+         transparent 1px,
+         transparent 5px
+      ),
+      linear-gradient(180deg, #0a0e18 0%, #0c1120 100%);
+   border: 1px solid rgba(255, 255, 255, 0.04);
+   box-shadow:
+      inset 0 2px 8px rgba(0, 0, 0, 0.6),
+      inset 2px 0 6px rgba(0, 0, 0, 0.3),
+      inset -2px 0 6px rgba(0, 0, 0, 0.3),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.03),
+      0 1px 3px rgba(0, 0, 0, 0.4);
+   border-radius: 16px;
+}
+
+.player-field.is-active-turn,
+.board-zone--player {
+   border-color: rgba(232, 185, 79, 0.12);
+   box-shadow:
+      inset 0 2px 8px rgba(0, 0, 0, 0.6),
+      inset 2px 0 6px rgba(0, 0, 0, 0.3),
+      inset -2px 0 6px rgba(0, 0, 0, 0.3),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.03),
+      0 0 0 1px rgba(232, 185, 79, 0.08),
+      0 0 20px rgba(232, 185, 79, 0.04);
+}
+
+/* ── MOSJE SLOT ──────────────────────────────────────────────────── */
+.mosje-slot,
+.board-zone__slots {
+   background:
+      repeating-linear-gradient(
+         45deg,
+         rgba(0, 0, 0, 0.15) 0px,
+         rgba(0, 0, 0, 0.15) 1px,
+         transparent 1px,
+         transparent 4px
+      ),
+      rgba(0, 0, 0, 0.2);
+   border: 1px solid rgba(255, 255, 255, 0.04);
+   box-shadow:
+      inset 0 2px 6px rgba(0, 0, 0, 0.5),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.02);
+   border-radius: 10px;
+}
+
+/* ── PIECIE SLOTS ────────────────────────────────────────────────── */
+.piecie-slot {
+   background: rgba(0, 0, 0, 0.15);
+   border: 1px solid rgba(255, 255, 255, 0.03);
+   box-shadow:
+      inset 0 1px 4px rgba(0, 0, 0, 0.4),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.02);
+   border-radius: 8px;
+}
+
+/* ── SHARED CENTER ZONE ──────────────────────────────────────────── */
+#shared-zone,
+.board-zone--center {
+   background:
+      repeating-linear-gradient(
+         -45deg,
+         rgba(255, 255, 255, 0.006) 0px,
+         rgba(255, 255, 255, 0.006) 1px,
+         transparent 1px,
+         transparent 7px
+      ),
+      linear-gradient(180deg, #080c14 0%, #0a0f1c 100%);
+   box-shadow:
+      inset 0 3px 12px rgba(0, 0, 0, 0.7),
+      inset 0 -2px 8px rgba(0, 0, 0, 0.4),
+      0 2px 0 rgba(255, 255, 255, 0.02);
+   border-top: 1px solid rgba(255, 255, 255, 0.03);
+   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+/* ── GAME LOG ────────────────────────────────────────────────────── */
+#game-log,
+.game-log-panel {
+   background:
+      repeating-linear-gradient(
+         0deg,
+         rgba(255, 255, 255, 0.015) 0px,
+         rgba(255, 255, 255, 0.015) 1px,
+         transparent 1px,
+         transparent 22px
+      ),
+      linear-gradient(180deg, #07090f 0%, #080c14 100%);
+   border-left: 1px solid rgba(255, 255, 255, 0.04);
+   box-shadow:
+      inset 2px 0 8px rgba(0, 0, 0, 0.4),
+      -2px 0 10px rgba(0, 0, 0, 0.3);
+}
+
+/* ── PLACE CARD CENTERPIECE ─────────────────────────────────────── */
+.place-slot.has-place .card--place .card-face,
+.place-slot.has-place .card--place {
+   box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.95),
+      0 6px 12px rgba(0, 0, 0, 0.8),
+      0 12px 30px rgba(0, 0, 0, 0.6),
+      0 20px 60px rgba(0, 0, 0, 0.4),
+      0 0 30px rgba(61, 214, 140, 0.12);
+}
+
+.place-slot.has-place .card--place.currently-active .card-face,
+.place-slot.has-place .card--place.currently-active {
+   box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.95),
+      0 6px 12px rgba(0, 0, 0, 0.8),
+      0 12px 30px rgba(0, 0, 0, 0.6),
+      0 20px 60px rgba(0, 0, 0, 0.4),
+      0 0 40px rgba(61, 214, 140, 0.25),
+      0 0 80px rgba(61, 214, 140, 0.1),
+      inset 0 1px 0 rgba(61, 214, 140, 0.08);
+}
+
+.quest-deck-stack {
+   filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.8));
+}

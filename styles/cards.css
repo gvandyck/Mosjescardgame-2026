@@ -355,3 +355,167 @@
   cursor: zoom-in;
 }
 
+/* ==============================================================
+   Skeuomorphic Layer Overrides
+   ============================================================== */
+
+/* ── PHYSICAL CARD SHADOWS ───────────────────────────────────────── */
+.card .card-face,
+.card {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.9),
+    0 4px 8px rgba(0, 0, 0, 0.7),
+    0 8px 24px rgba(0, 0, 0, 0.5),
+    0 16px 48px rgba(0, 0, 0, 0.3);
+}
+
+/* ── CARD EDGE (thickness illusion) ──────────────────────────────── */
+.card .card-face::before,
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    inset 1px 0 0 rgba(255, 255, 255, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset -1px 0 0 rgba(0, 0, 0, 0.4),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.6);
+  z-index: 10;
+}
+
+/* Preserve holo shimmer on playable cards by moving it to ::after */
+.card.playable-now::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    120deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.04) 45%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.04) 55%,
+    transparent 70%
+  );
+  animation: holo-sweep 3s linear infinite;
+  pointer-events: none;
+}
+
+/* ── CARD HOVER — lifting off the table ──────────────────────────── */
+.card:not(.card--disabled):not(.face-down):hover {
+  transform: translateY(-10px) scale(1.05) rotate(0.5deg);
+  z-index: 50;
+}
+
+.card:not(.card--disabled):not(.face-down):hover .card-face,
+.card:not(.card--disabled):not(.face-down):hover {
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.8),
+    0 12px 20px rgba(0, 0, 0, 0.7),
+    0 20px 40px rgba(0, 0, 0, 0.5),
+    0 30px 80px rgba(0, 0, 0, 0.35),
+    var(--card-hover-glow, 0 0 30px rgba(255, 255, 255, 0.05));
+}
+
+.card--mosje:not(.card--disabled):hover { --card-hover-glow: 0 0 30px var(--mosje-glow); }
+.card--piecie:not(.card--disabled):hover { --card-hover-glow: 0 0 30px var(--piecie-glow); }
+.card--snelle_piecie:not(.card--disabled):hover,
+.card--snelle:not(.card--disabled):hover { --card-hover-glow: 0 0 30px var(--snelle-glow); }
+.card--place:not(.card--disabled):hover { --card-hover-glow: 0 0 30px var(--place-glow); }
+.card--quest:not(.card--disabled):hover { --card-hover-glow: 0 0 30px var(--quest-glow); }
+
+/* ── CARD ON THE FIELD ───────────────────────────────────────────── */
+.mosje-slot.has-card .card .card-face,
+.piecie-slot.has-card .card .card-face,
+.board-zone__slots .card {
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.95),
+    0 3px 6px rgba(0, 0, 0, 0.7),
+    0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* ── CARD STACK DEPTH ────────────────────────────────────────────── */
+.quest-deck-stack {
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.7));
+}
+
+.quest-deck-stack .deck-card {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.9),
+    0 3px 8px rgba(0, 0, 0, 0.6);
+}
+
+.quest-deck-stack .deck-card:last-child {
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.9),
+    0 6px 14px rgba(0, 0, 0, 0.6),
+    0 12px 28px rgba(0, 0, 0, 0.4);
+}
+
+/* ── FACE-DOWN PIECIE BACK ───────────────────────────────────────── */
+.face-down-piecie,
+.card.face-down .card-back {
+  background:
+    repeating-linear-gradient(
+      60deg,
+      rgba(255, 255, 255, 0.025) 0px,
+      rgba(255, 255, 255, 0.025) 1px,
+      transparent 1px,
+      transparent 8px
+    ),
+    repeating-linear-gradient(
+      -60deg,
+      rgba(255, 255, 255, 0.015) 0px,
+      rgba(255, 255, 255, 0.015) 1px,
+      transparent 1px,
+      transparent 8px
+    ),
+    linear-gradient(160deg, #111827 0%, #0d1520 50%, #0f1a28 100%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow:
+    inset 1px 0 0 rgba(255, 255, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    inset -1px 0 0 rgba(0, 0, 0, 0.4),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.6),
+    0 2px 4px rgba(0, 0, 0, 0.8),
+    0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+/* ── ACTIVE MOSJE ────────────────────────────────────────────────── */
+.card--mosje.is-active {
+  transform: translateY(-4px);
+}
+
+.card--mosje.is-active .card-face,
+.card--mosje.is-active {
+  box-shadow:
+    0 4px 8px rgba(0, 0, 0, 0.9),
+    0 8px 20px rgba(0, 0, 0, 0.6),
+    0 12px 40px rgba(0, 0, 0, 0.4),
+    0 0 20px var(--mosje-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* ── HAND CARD NATURAL ROTATION ──────────────────────────────────── */
+.hand-cards .card:nth-child(odd),
+.hand-strip .card:nth-child(odd) {
+  transform: rotate(-0.8deg);
+}
+
+.hand-cards .card:nth-child(even),
+.hand-strip .card:nth-child(even) {
+  transform: rotate(0.6deg);
+}
+
+.hand-cards .card:nth-child(3n),
+.hand-strip .card:nth-child(3n) {
+  transform: rotate(1.2deg);
+}
+
+.hand-cards .card:hover,
+.hand-strip .card:hover {
+  transform: translateY(-22px) rotate(0deg) scale(1.08) !important;
+}
+
