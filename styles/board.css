@@ -110,9 +110,12 @@
    padding-bottom: 2px;
 }
 
-.board-zone--player,
+.board-zone--player {
+   min-height: 520px;
+}
+
 .board-zone--opponent {
-   min-height: calc(var(--mosje-card-h, 340px) + 88px);
+   min-height: 330px;
 }
 
 .board-zone__slots .card--mosje {
@@ -120,6 +123,61 @@
    min-width: var(--mosje-card-w, 220px);
    max-width: var(--mosje-card-w, 220px);
    height: var(--mosje-card-h, 340px);
+}
+
+.board-zone--player .card--mosje,
+.board-zone--player .mosje-card--owned {
+   width: 240px;
+   min-width: 240px;
+   max-width: 240px;
+   height: 430px;
+}
+
+.board-zone--player .mosje-card--owned .mosje-card-inner {
+   overflow: visible;
+}
+
+.board-zone--player .mosje-card--owned .mosje-ability-section,
+.board-zone--player .mosje-card--owned .mosje-ability-text {
+   overflow: visible;
+}
+
+.board-zone--player .mosje-card--owned .mosje-flavour {
+   display: block;
+   overflow: visible;
+   -webkit-line-clamp: unset;
+   -webkit-box-orient: initial;
+}
+
+.board-zone--opponent .card--mosje,
+.board-zone--opponent .mosje-card--opponent {
+   width: 165px;
+   min-width: 165px;
+   max-width: 165px;
+   height: 255px;
+}
+
+.board-zone--opponent .mosje-card--opponent .mosje-flavour,
+.board-zone--opponent .mosje-card--opponent .synergy-effect-text,
+.board-zone--opponent .mosje-card--opponent .ability-line {
+   font-size: 0.5rem;
+}
+
+.board-zone--center {
+   display: grid;
+   grid-template-columns: 1fr 1fr;
+   align-items: stretch;
+   gap: 8px;
+}
+
+.board-zone--center .board-place,
+.board-zone--center .board-quest {
+   margin: 0;
+   padding: 7px 9px;
+}
+
+.board-zone--center #active-quest-display {
+   grid-column: 1 / -1;
 }
 
 .board-zone__slots .card {
@@ -982,6 +1040,26 @@
    .board-zone--player,
    .board-zone--opponent {
       min-height: auto;
+   }
+
+   .board-zone--center {
+      grid-template-columns: 1fr;
+   }
+
+   .board-zone--player .card--mosje,
+   .board-zone--player .mosje-card--owned {
+      width: var(--mosje-card-w, 150px);
+      min-width: var(--mosje-card-w, 150px);
+      max-width: var(--mosje-card-w, 150px);
+      height: var(--mosje-card-h, 230px);
+   }
+
+   .board-zone--opponent .card--mosje,
+   .board-zone--opponent .mosje-card--opponent {
+      width: calc(var(--mosje-card-w, 150px) * 0.9);
+      min-width: calc(var(--mosje-card-w, 150px) * 0.9);
+      max-width: calc(var(--mosje-card-w, 150px) * 0.9);
+      height: calc(var(--mosje-card-h, 230px) * 0.9);
    }
 
    .game-log-panel {

@@ -55,15 +55,19 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 	for (const mosje of viewModel.players.top.mosjes) {
 		const cardEl = renderCard(mosje, { compact: true });
 		const fullCard = getCardById(mosje.cardId) || mosje;
-		cardEl.classList.add('mosje-clickable');
+		cardEl.classList.add('mosje-clickable', 'mosje-card--opponent');
 		cardEl.addEventListener('click', () => getBoardModal().showMosjeDetailModal({ ...fullCard, ...mosje }));
 		topZone?.appendChild(cardEl);
 	}
 
 	for (const mosje of viewModel.players.bottom.mosjes) {
-		const cardEl = renderCard(mosje, { compact: true });
+		const cardEl = renderCard(mosje, {
+			compact: true,
+			gameState: viewModel.gameState || null,
+			viewingPlayerId: viewModel.myPlayerId || null,
+		});
 		const fullCard = getCardById(mosje.cardId) || mosje;
-		cardEl.classList.add('mosje-clickable');
+		cardEl.classList.add('mosje-clickable', 'mosje-card--owned');
 		cardEl.addEventListener('click', () => getBoardModal().showMosjeDetailModal({ ...fullCard, ...mosje }));
 
 		if (onUseAbility && !mosje.isDefeated && mosje.cardId) {
