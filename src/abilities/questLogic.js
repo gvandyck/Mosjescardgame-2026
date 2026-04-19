@@ -5,6 +5,8 @@
 // Full requirement/reward functions are filled in Phase 4.
 
 import { rollDie } from '../engine/deckEngine.js';
+import { gainMP, loseMP } from '../engine/mpManager.js';
+import { applyPlaceEffectsOnQuest } from '../engine/turnManager.js';
 
 console.log('[ABILITY] questLogic.js loaded');
 
@@ -19,6 +21,14 @@ function getFirstActiveMosjeSlotIndex(player) {
 function getFirstActiveMosje(player) {
   const idx = getFirstActiveMosjeSlotIndex(player);
   return idx >= 0 ? player.activeSlots[idx] : null;
+}
+
+function getActiveMosjes(player) {
+	return (player?.activeSlots || []).filter(slot => slot && !slot.isDefeated);
+}
+
+function hasActiveMosjeCard(gameState, playerId, cardId) {
+	return getActiveMosjes(gameState?.players?.[playerId]).some(m => m.cardId === cardId);
 }
 
 function applyQuestMpResult(mosje, questCard, didSucceed) {
@@ -71,7 +81,7 @@ export function canAttemptPersonalQuest(questCard, gameState, playerId) {
 
   // activeSlots contains Mosje state objects with a cardId property.
   // Defeated Mosjes do NOT count as active for Personal Quest checks.
-  const activeMosjes = player.activeSlots.filter(
+	const activeMosjes = player.activeSlots.filter(
     slot => slot !== null && !slot.isDefeated
   );
   const hasRequiredMosje = activeMosjes.some(
@@ -85,6 +95,32 @@ export function canAttemptPersonalQuest(questCard, gameState, playerId) {
     );
     return false;
   }
+
+	// Additional requirement checks for specific Personal Quests.
+	if (questCard.requirementId === 'quest_req_iron_will') {
+		const totalDamageTaken = gameState.players[playerId].totalDamageTaken || 0;
+		if (totalDamageTaken < 40) {
+			console.log('[QUEST] Iron Will blocked — not enough total damage taken:', totalDamageTaken);
+			return false;
+		}
+	}
+
+	if (questCard.requirementId === 'quest_req_perfect_sync') {
+		const hasWest = hasActiveMosjeCard(gameState, playerId, 'mosje_west');
+		const hasCoert = hasActiveMosjeCard(gameState, playerId, 'mosje_coert_tech');
+		if (!hasWest || !hasCoert) {
+			console.log('[QUEST] Perfect Sync blocked — West + Coert both required');
+			return false;
+		}
+	}
+
+	if (questCard.requirementId === 'quest_req_lucky_crescendo') {
+		const placeId = gameState?.activePlace;
+		if (placeId !== 'place_skiffa') {
+			console.log('[QUEST] Lucky Crescendo blocked — Skiffa must be active Place');
+			return false;
+		}
+	}
 
   console.log('[QUEST] Personal Quest eligible — required Mosje is on field.');
   return true;
@@ -121,6 +157,12 @@ export function getQuestDiceThreshold(questCard, activeMosje) {
       return creative >= 2 ? 4 : 7;
     }
     case 'quest_req_leap_of_faith':
+		case 'quest_req_iron_will':
+			return 4;
+		case 'quest_req_lucky_crescendo':
+			return 5;
+		case 'quest_req_perfect_sync':
+			return 1; // auto-success handled in resolveQuest
     default:
       return 4;
   }
@@ -129,8 +171,8 @@ export function getQuestDiceThreshold(questCard, activeMosje) {
 // Resolves the MP result of a quest and updates completion counters.
 // The caller provides didSucceed after rolling/checking requirements.
 export function resolveQuest(gameState, playerId, questCard, didSucceed) {
-  const state = cloneState(gameState);
-  const player = state.players[playerId];
+	let state = cloneState(gameState);
+	const player = state.players[playerId];
   if (!player) {
     console.log('[QUEST] resolveQuest: player not found:', playerId);
     return state;
@@ -142,18 +184,84 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed) {
     return state;
   }
 
-  const mosje = player.activeSlots[slotIndex];
-  applyQuestMpResult(mosje, questCard, didSucceed);
+	// Perfect Sync auto-succeeds when requirement gate passed.
+	if (questCard.requirementId === 'quest_req_perfect_sync') {
+		didSucceed = true;
+	}
+
+	// The Void nullifies direct Quest MP gain/loss; quest still resolves.
+	const baseQuestMpBlocked = state.activePlace === 'place_the_void';
+
+	if (!baseQuestMpBlocked) {
+		if (didSucceed) {
+			state = gainMP(state, playerId, slotIndex, questCard.successMP);
+		} else {
+			const failValue = Math.abs(typeof questCard.failMP === 'number' ? questCard.failMP : 0);
+			state = loseMP(state, playerId, slotIndex, failValue);
+		}
+	}
 
   if (didSucceed) {
-    player.questsCompleted += 1;
-    player.questsCompletedThisTurn += 1;
-    console.log('[QUEST] Quest success:', questCard.id, '| MP now:', mosje.mp);
+		state.players[playerId].questsCompleted += 1;
+		state.players[playerId].questsCompletedThisTurn += 1;
+
+		// Apply active Place bonuses/penalties for quest success.
+		state = applyPlaceEffectsOnQuest(state, playerId, questCard, true);
+
+		// Placeholder hook for persistent Piecies that react to quest outcomes.
+		state = applyPiecieFieldEffectsOnQuest(state, playerId, true);
+
+		// Personal quest side effects.
+		state = resolvePersonalQuestSideEffects(state, questCard, playerId);
+
+		const liveMosje = state.players[playerId].activeSlots[slotIndex];
+		console.log('[QUEST] Quest success:', questCard.id, '| MP now:', liveMosje?.mp);
   } else {
-    console.log('[QUEST] Quest failed:', questCard.id, '| MP now:', mosje.mp);
+		// Apply active Place bonuses/penalties for quest failure.
+		state = applyPlaceEffectsOnQuest(state, playerId, questCard, false);
+
+		const liveMosje = state.players[playerId].activeSlots[slotIndex];
+		console.log('[QUEST] Quest failed:', questCard.id, '| MP now:', liveMosje?.mp);
   }
 
   return state;
+}
+
+function applyPiecieFieldEffectsOnQuest(gameState, playerId, didSucceed) {
+	const state = cloneState(gameState);
+	const player = state.players[playerId];
+	if (!player) return state;
+
+	// Current engine does not store fully modeled face-up piecie state yet.
+	// Keep this hook so quest-reactive persistent Piecies can be added safely.
+	const faceUpPiecies = (player.piecieSlots || []).filter(slot => !!slot && slot.faceDown === false);
+	for (const piecie of faceUpPiecies) {
+		console.log('[QUEST] Checked active Piecie field effect:', piecie.cardId, '| success:', didSucceed);
+	}
+	return state;
+}
+
+function resolvePersonalQuestSideEffects(gameState, questCard, playerId) {
+	let state = cloneState(gameState);
+
+	if (questCard.id === 'quest_personal_perfect_sync' && state.activeQuest) {
+		state.activeQuest = { ...state.activeQuest, revealOpponentHand: true };
+		console.log('[QUEST] Perfect Sync side effect — opponent hand revealed');
+	}
+
+	if (questCard.id === 'quest_personal_lucky_crescendo') {
+		for (const [pid, player] of Object.entries(state.players)) {
+			if (pid === playerId) continue;
+			player.activeSlots.forEach((slot, slotIndex) => {
+				if (slot && !slot.isDefeated) {
+					state = loseMP(state, pid, slotIndex, 20);
+				}
+			});
+		}
+		console.log('[QUEST] Lucky Crescendo side effect — all opponents lose 20 MP');
+	}
+
+	return state;
 }
 
 // ─────────────────────────────────────────
@@ -548,5 +656,67 @@ export function quest_req_shotje_obby(questCard, mosje, gameState) {
 export function quest_req_west_perfect_read(questCard, mosje) {
 	// Correctly name the type of the top 3 cards of any deck (UI prompt required)
 	return { canAttempt: true, requiresUIPrompt: true, promptType: 'GUESS_CARD_TYPES', cardCount: 3 };
+}
+
+export function quest_req_iron_will(gameState, playerId) {
+	console.log('[QUEST] Iron Will requirement check');
+	const jeffreyActive = hasActiveMosjeCard(gameState, playerId, 'mosje_jeffrey');
+	if (!jeffreyActive) {
+		return { canAttempt: false, reason: 'Jeffrey The Strongman must be on your field.' };
+	}
+
+	const totalDamageTaken = gameState.players[playerId]?.totalDamageTaken || 0;
+	if (totalDamageTaken < 40) {
+		return {
+			canAttempt: false,
+			reason: `You need to have taken 40+ MP damage this game (currently: ${totalDamageTaken}).`,
+		};
+	}
+
+	const roll = rollDie();
+	return {
+		canAttempt: true,
+		diceRoll: roll,
+		threshold: 4,
+		success: roll >= 4,
+	};
+}
+
+export function quest_req_perfect_sync(gameState, playerId) {
+	console.log('[QUEST] Perfect Sync requirement check');
+	const westActive = hasActiveMosjeCard(gameState, playerId, 'mosje_west');
+	const coertActive = hasActiveMosjeCard(gameState, playerId, 'mosje_coert_tech');
+
+	if (!westActive) return { canAttempt: false, reason: '[West] Sr.Tactical must be on your field.' };
+	if (!coertActive) return { canAttempt: false, reason: '[Coert] The Tech Savant must be on your field.' };
+
+	return {
+		canAttempt: true,
+		success: true,
+		diceRoll: null,
+		threshold: null,
+	};
+}
+
+export function quest_req_lucky_crescendo(gameState, playerId) {
+	console.log('[QUEST] Lucky Crescendo requirement check');
+	const djActive = hasActiveMosjeCard(gameState, playerId, 'mosje_dj_8020');
+	if (!djActive) {
+		return { canAttempt: false, reason: '[DJ 80/20] The Lucky Mixer must be on your field.' };
+	}
+
+	if (gameState?.activePlace !== 'place_skiffa') {
+		return { canAttempt: false, reason: 'Skiffa must be the active Place card.' };
+	}
+
+	const roll = rollDie();
+	return {
+		canAttempt: true,
+		diceRoll: roll,
+		threshold: 5,
+		success: roll >= 5,
+		allowReroll: true,
+		rerollSource: 'mosje_dj_8020',
+	};
 }
 

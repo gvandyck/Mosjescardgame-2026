@@ -1,6 +1,8 @@
 import { test, assertEqual, assertTrue } from '../helpers/testHelpers.js';
-import { shuffleDeck, drawCards, discardCards } from '../../src/engine/deckEngine.js';
+import { shuffleDeck, drawCards, discardCards, buildDeck } from '../../src/engine/deckEngine.js';
 import { createInitialGameState, initializeGame } from '../../src/engine/gameState.js';
+import { STARTER_DECKS } from '../../src/data/starterDecks.js';
+import { QUESTS } from '../../src/data/quests.js';
 
 export function runDeckEngineTests() {
   console.log('[TEST] Running deckEngine tests...');
@@ -36,6 +38,39 @@ export function runDeckEngineTests() {
     const next = discardCards(discard, ['new_1']);
     assertEqual(next[0], 'new_1');
     assertEqual(next[1], 'old_1');
+  });
+
+  test('buildDeck blocks GENERAL quest cards from player deck', () => {
+    const deck = buildDeck({
+      piecies: [],
+      snellePiecies: [],
+      places: [],
+      quests: [
+        { id: 'quest_arm_wrestling', qty: 1 },
+        { id: 'quest_personal_iron_will', qty: 1 },
+      ],
+    });
+    const ids = deck.map(c => c.cardId);
+    assertTrue(!ids.includes('quest_arm_wrestling'));
+    assertTrue(ids.includes('quest_personal_iron_will'));
+  });
+
+  test('buildDeck logs warning when GENERAL quest is blocked', () => {
+    const originalWarn = console.warn;
+    let warningCount = 0;
+    console.warn = (...args) => {
+      if (String(args.join(' ')).includes('Blocked General Quest')) warningCount += 1;
+    };
+
+    buildDeck({
+      piecies: [],
+      snellePiecies: [],
+      places: [],
+      quests: [{ id: 'quest_arm_wrestling', qty: 1 }],
+    });
+
+    console.warn = originalWarn;
+    assertEqual(warningCount, 1);
   });
 
   // ── initializeGame / starting hand ─────────────────────────
@@ -77,5 +112,44 @@ export function runDeckEngineTests() {
     const p1 = state.players.player_1;
     const overlap = p1.hand.filter(handCard => p1.deck.includes(handCard));
     assertEqual(overlap.length, 0, 'no card instance should be in both hand and deck');
+  });
+
+  test('initializeGame: sharedGeneralQuestDeck contains GENERAL quests only', () => {
+    const state = createInitialGameState(
+      [
+        { playerId: 'player_1', name: 'Test 1', deckId: 'DIGITAL_CONTROL' },
+        { playerId: 'player_2', name: 'Test 2', deckId: 'PHYSICAL_FORCE' },
+      ],
+      'TEST'
+    );
+    const initialized = initializeGame(state, {
+      player_1: STARTER_DECKS.find(d => d.id === 'DIGITAL_CONTROL'),
+      player_2: STARTER_DECKS.find(d => d.id === 'PHYSICAL_FORCE'),
+    });
+
+    const generalIds = new Set(QUESTS.filter(q => q.questType === 'GENERAL').map(q => q.id));
+    const allGeneral = initialized.sharedGeneralQuestDeck.every(q => generalIds.has(q.cardId));
+    assertTrue(allGeneral);
+  });
+
+  test('initializeGame: player decks contain no GENERAL quest ids', () => {
+    const state = createInitialGameState(
+      [
+        { playerId: 'player_1', name: 'Test 1', deckId: 'DIGITAL_CONTROL' },
+        { playerId: 'player_2', name: 'Test 2', deckId: 'PHYSICAL_FORCE' },
+      ],
+      'TEST'
+    );
+    const initialized = initializeGame(state, {
+      player_1: STARTER_DECKS.find(d => d.id === 'DIGITAL_CONTROL'),
+      player_2: STARTER_DECKS.find(d => d.id === 'PHYSICAL_FORCE'),
+    });
+
+    const generalIds = new Set(QUESTS.filter(q => q.questType === 'GENERAL').map(q => q.id));
+    for (const player of Object.values(initialized.players)) {
+      const allCards = [...player.hand, ...player.deck];
+      const hasGeneralQuest = allCards.some(c => c.type === 'QUEST' && generalIds.has(c.cardId));
+      assertTrue(!hasGeneralQuest);
+    }
   });
 }

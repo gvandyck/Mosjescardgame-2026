@@ -117,4 +117,28 @@ export function runTurnManagerTests() {
     assertEqual(out.state.players.player_1.discard.length, 1);
     assertEqual(out.state.players.player_1.hand.length, 0);
   });
+
+  test('attemptGeneralQuest recycles shared discard when deck is empty', () => {
+    const state = createEngineState({
+      sharedGeneralQuestDeck: [],
+      sharedGeneralQuestDiscard: [
+        { cardId: 'quest_arm_wrestling', type: 'QUEST' },
+        { cardId: 'quest_quick_thinking', type: 'QUEST' },
+      ],
+    });
+
+    const out = attemptGeneralQuest(state);
+    assertTrue(!!out.questCard);
+    assertEqual(out.state.sharedGeneralQuestDiscard.length, 0);
+    assertTrue(out.state.sharedGeneralQuestDeck.length >= 1);
+  });
+
+  test('canPlayerActNow keeps Snelle playable during opponent active quest', () => {
+    const state = createEngineState({
+      activePlayerId: 'player_2',
+      activeQuest: { attacker: 'player_2' },
+    });
+    assertTrue(canPlayerActNow(state, 'player_1', 'SNELLE_PIECIE'));
+    assertFalse(canPlayerActNow(state, 'player_1', 'PIECIE'));
+  });
 }

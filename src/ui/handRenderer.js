@@ -8,10 +8,13 @@ console.log('[UI] handRenderer.js loaded');
 
 // onPlay(cardId, cardType) — optional callback when a playable card is clicked.
 // isLocalTurn — when false, regular cards are dimmed; Snelle Piecies stay active.
-export function renderHand(container, cards, onPlay = null, isLocalTurn = true) {
+export function renderHand(container, cards, onPlay = null, isLocalTurn = true, activeQuest = null, localPlayerId = null) {
 	if (!container) return;
 	console.log('[UI] Rendering hand with', cards.length, 'cards');
 	container.innerHTML = '';
+
+	const questActive = !!activeQuest;
+	const questByOpponent = questActive && activeQuest.attacker && activeQuest.attacker !== localPlayerId;
 
 	if (cards.length === 0) {
 		const empty = document.createElement('p');
@@ -31,6 +34,10 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true) 
 		// Snelle Piecies are always interactive (can be played as interrupt any turn)
 		if (isSnelle && onPlay) {
 			cardEl.classList.add('hand-card--playable');
+			if (questByOpponent) {
+				cardEl.classList.add('playable-now');
+				cardEl.title = 'Play now during opponent quest';
+			}
 			const btn = document.createElement('button');
 			btn.className = 'hand-card__play-btn';
 			btn.type = 'button';

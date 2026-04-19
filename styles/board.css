@@ -100,6 +100,8 @@
    gap: 8px;
    overflow-x: auto;
    padding-bottom: 4px;
+   position: relative;
+   z-index: 90;
 }
 
 .hand-empty {
@@ -130,13 +132,15 @@
    display: block;
    position: fixed;
    inset: 0;
-   z-index: 100;
+   z-index: 80;
+   pointer-events: none;
 }
 
 .modal-backdrop {
    position: absolute;
    inset: 0;
-   background: rgba(5, 8, 20, 0.68);
+   background: rgba(5, 8, 20, 0.48);
+   pointer-events: none;
 }
 
 .modal-card {
@@ -149,6 +153,21 @@
    padding: 14px;
    display: grid;
    gap: 8px;
+   pointer-events: all;
+}
+
+.hand-card.playable-now {
+   box-shadow: 0 0 12px 3px #ff4a4a, 0 0 4px #ff4a4a;
+   animation: snelle-pulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes snelle-pulse {
+   from {
+      box-shadow: 0 0 8px 2px #ff4a4a;
+   }
+   to {
+      box-shadow: 0 0 18px 5px #ff4a4a;
+   }
 }
 
 .modal-actions {

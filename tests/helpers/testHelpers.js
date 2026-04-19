@@ -161,6 +161,7 @@ export function createEngineState(overrides = {}) {
         piecieSlots: [null, null, null, null, null],
         questsCompleted: 0,
         questsCompletedThisTurn: 0,
+        totalDamageTaken: 0,
         questPrepBonus: 0,
         hasAttemptedQuestThisTurn: false,
         hasRerolledDieThisTurn: false
@@ -189,6 +190,7 @@ export function createEngineState(overrides = {}) {
         piecieSlots: [null, null, null, null, null],
         questsCompleted: 0,
         questsCompletedThisTurn: 0,
+        totalDamageTaken: 0,
         questPrepBonus: 0,
         hasAttemptedQuestThisTurn: false,
         hasRerolledDieThisTurn: false

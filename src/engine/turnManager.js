@@ -2,7 +2,7 @@
 // Coordinates which engine functions run in which order.
 // The UI calls these functions; they return the updated game state.
 
-import { drawCards } from './deckEngine.js';
+import { drawCards, shuffleDeck } from './deckEngine.js';
 import { gainMP, applyStatusEffectMP, getTotalMPForPlayer } from './mpManager.js';
 import { checkVictory } from './victoryChecker.js';
 import { getAllPlayerIds, setActivePlace, destroyActivePlace } from './gameState.js';
@@ -143,8 +143,14 @@ export function attemptGeneralQuest(gameState) {
   }
 
   if (state.sharedGeneralQuestDeck.length === 0) {
-    console.log('[ENGINE] General Quest deck is empty');
-    return { state, questCard: null };
+    if (state.sharedGeneralQuestDiscard.length === 0) {
+      console.log('[ENGINE] General Quest deck and discard are empty');
+      return { state, questCard: null };
+    }
+    console.log('[ENGINE] Shared Quest deck empty — recycling discard pile into deck');
+    state.sharedGeneralQuestDeck = shuffleDeck([...state.sharedGeneralQuestDiscard]);
+    state.sharedGeneralQuestDiscard = [];
+    console.log(`[ENGINE] Recycled ${state.sharedGeneralQuestDeck.length} General Quests back into deck`);
   }
 
   const questCard = state.sharedGeneralQuestDeck.shift(); // take from top

@@ -6,7 +6,7 @@ import { createLogRenderer } from './ui/logRenderer.js';
 import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes } from './engine/gameState.js';
-import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, playSnellie, playPlace, useMosjeAbility, canPlayerActNow, applyPlaceEffectsOnQuest } from './engine/turnManager.js';
+import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, playSnellie, playPlace, useMosjeAbility, canPlayerActNow } from './engine/turnManager.js';
 import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold } from './abilities/questLogic.js';
 import { MOSJES } from './data/mosjes.js';
 import { PIECIES } from './data/piecies.js';
@@ -292,7 +292,6 @@ function initGamePage() {
 
 		modal.showDiceRoll(questDef, threshold, (didSucceed) => {
 			gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed);
-			gameState = applyPlaceEffectsOnQuest(gameState, localPlayerId, questDef, didSucceed);
 			gameState.activeQuest = null;
 			gameState.sharedGeneralQuestDiscard.push(questRef);
 			renderFromState(gameState);
@@ -365,7 +364,6 @@ function initGamePage() {
 
 		modal.showDiceRoll(questDef, threshold, (didSucceed) => {
 			gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed);
-			gameState = applyPlaceEffectsOnQuest(gameState, localPlayerId, questDef, didSucceed);
 			gameState.activeQuest = null;
 			renderFromState(gameState);
 			syncPush();
@@ -388,7 +386,14 @@ function initGamePage() {
 		// Regular cards only on local turn; Snelle Piecies always available
 		// Pass onPlay always so Snelle Piecies show their interrupt button
 		const onPlay = !gameOver ? handlePlayCard : null;
-		renderHand(handRoot, toHandViewModel(state.players[localPlayerId].hand), onPlay, isLocalTurn);
+		renderHand(
+			handRoot,
+			toHandViewModel(state.players[localPlayerId].hand),
+			onPlay,
+			isLocalTurn,
+			state.activeQuest,
+			localPlayerId
+		);
 
 		const onUseAbility = (isLocalTurn && !gameOver) ? handleUseAbility : null;
 		renderBoard(boardRoot, uiState, onUseAbility);

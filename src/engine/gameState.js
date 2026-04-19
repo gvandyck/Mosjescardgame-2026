@@ -5,7 +5,7 @@
 import { MOSJES } from '../data/mosjes.js';
 import { STARTER_DECKS } from '../data/starterDecks.js';
 import { QUESTS } from '../data/quests.js';
-import { shuffleDeck } from './deckEngine.js';
+import { shuffleDeck, buildDeck } from './deckEngine.js';
 
 console.log('[ENGINE] gameState.js loaded');
 
@@ -73,14 +73,9 @@ function createPlayerState(config) {
     return createMosjeSlot(mosjeData);
   });
 
-  // Build personal draw deck from all non-Mosje cards in the deck config
-  const rawDeck = [
-    ...deckDef.piecies.map(id => ({ cardId: id, type: 'PIECIE', faceDown: false, turnsOnField: 0 })),
-    ...deckDef.snellePiecies.map(id => ({ cardId: id, type: 'SNELLE_PIECIE', faceDown: false, turnsOnField: 0 })),
-    ...deckDef.places.map(id => ({ cardId: id, type: 'PLACE', faceDown: false, turnsOnField: 0 })),
-    ...deckDef.quests.map(id => ({ cardId: id, type: 'QUEST', faceDown: false, turnsOnField: 0 })),
-  ];
-  const deck = shuffleDeck(rawDeck);
+  // Build personal draw deck from all non-Mosje cards in the deck config.
+  // Safety guard in buildDeck blocks GENERAL quests from entering player decks.
+  const deck = buildDeck(deckDef);
 
   // Draw opening hand of 7 cards
   const hand = deck.splice(0, 7);
@@ -100,6 +95,7 @@ function createPlayerState(config) {
 
     questsCompleted: 0,
     questsCompletedThisTurn: 0,
+    totalDamageTaken: 0,
     questPrepBonus: 0,       // added to next Quest roll by Quest Prep piecie
     questBonusMP: 0,         // next successful Quest gives this bonus MP (momentum_boost etc.)
     hasAttemptedQuestThisTurn: false,
@@ -176,17 +172,43 @@ export function getOpponentIds(gameState, playerId) {
 // Currently a verification/logging function since createInitialGameState
 // already deals 7 cards. Can be called for explicit initialization.
 // ─────────────────────────────────────────────────────────────
-export function initializeGame(gameState) {
-  console.log('[ENGINE] Initializing game — verifying starting hands');
+export function initializeGame(gameState, starterDeckConfigs = null) {
+  console.log('[ENGINE] Initializing game');
   const state = JSON.parse(JSON.stringify(gameState));
+
+  // Rebuild shared General Quest deck from all GENERAL quests.
+  // This keeps the center stack canonical and independent from player decks.
+  const generalQuests = QUESTS
+    .filter(q => q.questType === 'GENERAL')
+    .map(q => ({ cardId: q.id, type: 'QUEST' }));
+  state.sharedGeneralQuestDeck = shuffleDeck(generalQuests);
+  state.sharedGeneralQuestDiscard = [];
+
+  if (starterDeckConfigs) {
+    const cfgByPlayerId = Array.isArray(starterDeckConfigs)
+      ? Object.fromEntries(starterDeckConfigs.map(cfg => [cfg.playerId, cfg]))
+      : starterDeckConfigs;
+
+    for (const playerId of Object.keys(state.players)) {
+      const existing = state.players[playerId];
+      const cfg = cfgByPlayerId[playerId] || STARTER_DECKS.find(d => d.id === existing.deckId);
+      if (!cfg) continue;
+
+      const deck = buildDeck(cfg);
+      const hand = deck.splice(0, 7);
+      state.players[playerId].deck = deck;
+      state.players[playerId].hand = hand;
+    }
+  }
+
   for (const playerId of Object.keys(state.players)) {
     const hand = state.players[playerId].hand;
-    console.log(`[ENGINE] ${playerId} starting hand: ${hand.length} cards`);
+    console.log(`[ENGINE] ${playerId} hand: ${hand.length} cards | deck: ${state.players[playerId].deck.length}`);
     if (hand.length !== 7) {
       console.warn(`[ENGINE] Warning: expected 7 cards for ${playerId}, got ${hand.length}`);
     }
   }
-  console.log('[ENGINE] Game initialized — player_1 hand: 7, player_2 hand: 7');
+
   return state;
 }
 

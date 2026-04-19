@@ -2,6 +2,8 @@
 // Operates purely on card arrays — no visuals, no Firebase.
 // All functions return new arrays (they do not mutate the originals).
 
+import { getCardById } from '../data/cardIndex.js';
+
 console.log('[ENGINE] deckEngine.js loaded');
 
 // ─────────────────────────────────────────────────────────────
@@ -76,4 +78,48 @@ export function rollDie(sides = 6) {
   const result = Math.floor(Math.random() * sides) + 1;
   console.log(`[ENGINE] Rolled d${sides}: ${result}`);
   return result;
+}
+
+function expandEntries(entries = []) {
+  const expanded = [];
+  for (const entry of entries) {
+    if (typeof entry === 'string') {
+      expanded.push(entry);
+      continue;
+    }
+    if (!entry || !entry.id) continue;
+    const qty = Number.isInteger(entry.qty) ? entry.qty : 1;
+    for (let i = 0; i < qty; i++) expanded.push(entry.id);
+  }
+  return expanded;
+}
+
+// Build a player draw deck from starter deck config.
+// Includes Piecie/Snelle/Place and PERSONAL quests only.
+export function buildDeck(starterDeckConfig) {
+  const cards = [];
+
+  for (const cardId of expandEntries(starterDeckConfig?.piecies || [])) {
+    cards.push({ cardId, type: 'PIECIE', faceDown: false, turnsOnField: 0 });
+  }
+
+  for (const cardId of expandEntries(starterDeckConfig?.snellePiecies || [])) {
+    cards.push({ cardId, type: 'SNELLE_PIECIE', faceDown: false, turnsOnField: 0 });
+  }
+
+  for (const cardId of expandEntries(starterDeckConfig?.places || [])) {
+    cards.push({ cardId, type: 'PLACE', faceDown: false, turnsOnField: 0 });
+  }
+
+  for (const cardId of expandEntries(starterDeckConfig?.quests || [])) {
+    const card = getCardById(cardId);
+    if (card?.questType === 'PERSONAL') {
+      cards.push({ cardId, type: 'QUEST', faceDown: false, turnsOnField: 0 });
+    } else {
+      console.warn(`[DECK] Blocked General Quest from player deck: ${cardId}`);
+    }
+  }
+
+  console.log(`[DECK] Built player deck: ${cards.length} cards`);
+  return shuffleDeck(cards);
 }

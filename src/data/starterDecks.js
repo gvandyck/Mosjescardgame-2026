@@ -30,10 +30,7 @@ export const STARTER_DECKS = [
       "place_quest_haven"
     ],
     quests: [
-      "quest_arm_wrestling",
-      "quest_arm_wrestling",
-      "quest_leap_of_faith",
-      "quest_leap_of_faith"
+      "quest_personal_iron_will"
     ]
   },
   {
@@ -62,10 +59,7 @@ export const STARTER_DECKS = [
       "place_quest_haven"
     ],
     quests: [
-      "quest_quick_thinking",
-      "quest_quick_thinking",
-      "quest_artistic_expression",
-      "quest_leap_of_faith"
+      "quest_personal_perfect_sync"
     ]
   },
   {
@@ -94,10 +88,7 @@ export const STARTER_DECKS = [
       "place_bank_chilling"
     ],
     quests: [
-      "quest_artistic_expression",
-      "quest_artistic_expression",
-      "quest_leap_of_faith",
-      "quest_quick_thinking"
+      "quest_personal_lucky_crescendo"
     ]
   }
 ];

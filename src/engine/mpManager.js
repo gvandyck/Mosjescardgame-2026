@@ -57,6 +57,11 @@ export function loseMP(gameState, playerId, slotIndex, amount) {
   }
 
   mosje.mp -= amount;
+
+  // Track cumulative damage taken for Personal Quest requirements (Iron Will).
+  state.players[playerId].totalDamageTaken =
+    (state.players[playerId].totalDamageTaken || 0) + amount;
+
   console.log(`[ENGINE] 📉 ${mosje.name} loses ${amount} MP → now ${mosje.mp} MP`);
 
   return state;
