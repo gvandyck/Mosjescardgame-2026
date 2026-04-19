@@ -38,6 +38,7 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 
 		const isSnelle = card.type === 'SNELLE_PIECIE';
 		const isRegularPlayable = card.type === 'PIECIE';
+		const isPlace = card.type === 'PLACE';
 		const isPersonalQuest = card.type === 'QUEST' && card.questType === 'PERSONAL';
     const isReturnedMosje = card.type === 'MOSJE' && !!card.returnedThisTurn;
 
@@ -64,17 +65,19 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 			});
 			cardEl.appendChild(btn);
 		}
-		// Regular Piecies only playable on your own turn
-		else if (isRegularPlayable && onPlay) {
+		// Regular Piecies and Places are only playable on your own turn
+		else if ((isRegularPlayable || isPlace) && onPlay) {
 			if (isLocalTurn) {
 				cardEl.classList.add('hand-card--playable');
-				const hasFreeActivation = Boolean(
-					gameState?.players?.[localPlayerId]?.freePiecieActivationAvailable &&
-					gameState?.activePlace === 'place_coerts_caravan'
-				);
-				if (hasFreeActivation) {
-					cardEl.classList.add('free-activation');
-					cardEl.title = '⭐ Free activation — Coert\'s Caravan';
+				if (isRegularPlayable) {
+					const hasFreeActivation = Boolean(
+						gameState?.players?.[localPlayerId]?.freePiecieActivationAvailable &&
+						gameState?.activePlace === 'place_coerts_caravan'
+					);
+					if (hasFreeActivation) {
+						cardEl.classList.add('free-activation');
+						cardEl.title = '⭐ Free activation — Coert\'s Caravan';
+					}
 				}
 				const btn = document.createElement('button');
 				btn.className = 'hand-card__play-btn';

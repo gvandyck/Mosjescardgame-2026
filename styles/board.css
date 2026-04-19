@@ -171,16 +171,16 @@
 }
 
 .board-zone--player {
-   --mosje-slot-h: 430px;
+   --mosje-slot-h: calc(240px * var(--card-height-ratio));
    --piecie-cell-w: 108px;
-   --piecie-cell-h: 208px;
+   --piecie-cell-h: calc(var(--piecie-cell-w) * var(--card-height-ratio));
    min-height: 520px;
 }
 
 .board-zone--opponent {
-   --mosje-slot-h: 255px;
+   --mosje-slot-h: calc(165px * var(--card-height-ratio));
    --piecie-cell-w: 78px;
-   --piecie-cell-h: 122px;
+   --piecie-cell-h: calc(var(--piecie-cell-w) * var(--card-height-ratio));
    min-height: 330px;
 }
 
@@ -188,7 +188,7 @@
    width: var(--mosje-card-w, 220px);
    min-width: var(--mosje-card-w, 220px);
    max-width: var(--mosje-card-w, 220px);
-   height: var(--mosje-card-h, 340px);
+   height: calc(var(--mosje-card-w, 220px) * var(--card-height-ratio));
 }
 
 .board-zone--player .card--mosje,
@@ -196,7 +196,7 @@
    width: 240px;
    min-width: 240px;
    max-width: 240px;
-   height: 430px;
+   height: calc(240px * var(--card-height-ratio));
 }
 
 .board-zone--player .mosje-card--owned .mosje-card-inner {
@@ -221,7 +221,7 @@
    width: 165px;
    min-width: 165px;
    max-width: 165px;
-   height: 255px;
+   height: calc(165px * var(--card-height-ratio));
 }
 
 .board-zone--opponent .mosje-card--opponent .mosje-flavour,
@@ -607,7 +607,7 @@
    width: 240px;
    min-width: 240px;
    max-width: 240px;
-   height: 430px;
+   height: calc(240px * var(--card-height-ratio));
 }
 
 .modal-mosje-copy {
@@ -1036,30 +1036,19 @@
    pointer-events: auto;
 }
 
-.game-hand-panel .card--mosje {
-   width: 250px;
-   min-width: 250px;
-   max-width: 250px;
-   height: 370px;
+.game-hand-panel {
+   --hand-card-width: 200px;
+   --hand-card-height: calc(var(--hand-card-width) * var(--card-height-ratio));
 }
 
-.game-hand-panel .card--piecie,
-.game-hand-panel .card--snelle,
-.game-hand-panel .card--snelle_piecie {
-   width: 160px;
-   min-width: 160px;
-   max-width: 160px;
-   height: 232px;
-}
-
-.game-hand-panel .card--quest,
-.game-hand-panel .card--quest-general,
-.game-hand-panel .card--quest-personal,
-.game-hand-panel .card--place {
-   width: 145px;
-   min-width: 145px;
-   max-width: 145px;
-   height: 210px;
+.game-hand-panel .hand-strip .hand-card,
+.game-hand-panel .hand-cards .hand-card {
+   width: var(--hand-card-width) !important;
+   min-width: var(--hand-card-width) !important;
+   max-width: var(--hand-card-width) !important;
+   height: var(--hand-card-height) !important;
+   min-height: var(--hand-card-height) !important;
+   max-height: var(--hand-card-height) !important;
 }
 
 .board-zone__piecies {
@@ -1142,13 +1131,13 @@
 @media (max-width: 900px) {
    :root {
       --mosje-card-w: 150px;
-      --mosje-card-h: 230px;
+      --mosje-card-h: calc(var(--mosje-card-w) * var(--card-height-ratio));
       --mosje-card-w-hand: 130px;
-      --mosje-card-h-hand: 200px;
+      --mosje-card-h-hand: calc(var(--mosje-card-w-hand) * var(--card-height-ratio));
       --piecie-card-w: 100px;
-      --piecie-card-h: 148px;
+      --piecie-card-h: calc(var(--piecie-card-w) * var(--card-height-ratio));
       --piecie-card-w-hand: 96px;
-      --piecie-card-h-hand: 140px;
+      --piecie-card-h-hand: calc(var(--piecie-card-w-hand) * var(--card-height-ratio));
    }
 
    .page--game {

@@ -1,17 +1,19 @@
 /* ── CARD SIZE TOKENS ───────────────────────────────────────────── */
 :root {
+  --card-height-ratio: 1.457627;
+
   --mosje-card-w: 220px;
-  --mosje-card-h: 340px;
+  --mosje-card-h: calc(var(--mosje-card-w) * var(--card-height-ratio));
   --mosje-card-w-hand: 190px;
-  --mosje-card-h-hand: 290px;
+  --mosje-card-h-hand: calc(var(--mosje-card-w-hand) * var(--card-height-ratio));
 
   --piecie-card-w: 130px;
-  --piecie-card-h: 190px;
+  --piecie-card-h: calc(var(--piecie-card-w) * var(--card-height-ratio));
   --piecie-card-w-hand: 120px;
-  --piecie-card-h-hand: 175px;
+  --piecie-card-h-hand: calc(var(--piecie-card-w-hand) * var(--card-height-ratio));
 
   --support-card-w: 110px;
-  --support-card-h: 160px;
+  --support-card-h: calc(var(--support-card-w) * var(--card-height-ratio));
 
   --synergy-active-color: #e8c050;
   --synergy-active-glow: rgba(232, 192, 80, 0.35);
@@ -200,6 +202,10 @@
 .card--quest-personal {
   border-color: var(--personal-quest);
   box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.2), inset 0 0 25px rgba(245, 158, 11, 0.08);
+}
+
+.card--quest-personal .card__portrait-badge {
+  display: none;
 }
 
 @property --holo-angle {
@@ -712,22 +718,6 @@
 .card--snelle_piecie .card__type-label::after {
   content: '  ⚡';
   color: var(--snelle-red);
-}
-
-.card--snelle::after,
-.card--snelle_piecie::after {
-  content: 'INSTANT';
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  font-family: var(--font-display);
-  font-size: 0.56rem;
-  letter-spacing: 0.11em;
-  color: var(--snelle-red);
-  background: rgba(232, 69, 69, 0.1);
-  border: 1px solid rgba(232, 69, 69, 0.3);
-  padding: 2px 5px;
-  border-radius: 3px;
 }
 
 .mosje-ability-btn,
