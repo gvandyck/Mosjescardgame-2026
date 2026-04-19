@@ -1,5 +1,6 @@
 import { test, assertDefined, assertEqual, createEngineState } from '../helpers/testHelpers.js';
 import * as placeEffects from '../../src/abilities/placeEffects.js';
+import { setActivePlace, destroyActivePlace } from '../../src/engine/gameState.js';
 
 export function runPlaceEffectsTests() {
   console.log('[TEST] Running placeEffects tests...');
@@ -120,5 +121,143 @@ export function runPlaceEffectsTests() {
     const state = createEngineState();
     const result = placeEffects.effect_bank_chilling(state, 'player_1', 1);
     assertEqual(result.players.player_1.activeSlots[0].mp, 15);
+  });
+
+  // ─── setActivePlace / destroyActivePlace ────────────────────────────
+  test('setActivePlace stores card id on state', () => {
+    const state = createEngineState();
+    const result = setActivePlace(state, 'place_the_gym', 'player_1');
+    assertEqual(result.activePlace, 'place_the_gym');
+    assertEqual(result.activePlacePlayedBy, 'player_1');
+    assertEqual(result.activePlaceTurnsActive, 0);
+  });
+
+  test('setActivePlace moves old Place to sharedPlaceDiscard', () => {
+    let state = createEngineState({ activePlace: 'place_the_void' });
+    state = setActivePlace(state, 'place_arcade', 'player_1');
+    assertEqual(state.activePlace, 'place_arcade');
+    assertEqual(state.sharedPlaceDiscard[0].cardId, 'place_the_void');
+  });
+
+  test('destroyActivePlace clears activePlace and pushes to discard', () => {
+    let state = createEngineState({ activePlace: 'place_the_gym' });
+    state = destroyActivePlace(state);
+    assertEqual(state.activePlace, null);
+    assertEqual(state.sharedPlaceDiscard[0].cardId, 'place_the_gym');
+    assertEqual(state.activePlaceTurnsActive, 0);
+  });
+
+  test('destroyActivePlace is a no-op when no Place is active', () => {
+    const state = createEngineState();
+    const result = destroyActivePlace(state);
+    assertEqual(result.activePlace, null);
+    assertEqual(result.sharedPlaceDiscard.length, 0);
+  });
+
+  // ─── resolvePlaceEffect dispatcher ──────────────────────────────────
+  test('resolvePlaceEffect returns state unchanged when no activePlace', () => {
+    const state = createEngineState();
+    const result = placeEffects.resolvePlaceEffect(state, 'END_PHASE');
+    assertEqual(result.players.player_1.activeSlots[0].mp, 15);
+  });
+
+  test('resolvePlaceEffect ignores wrong trigger phase', () => {
+    // place_the_gym trigger is END_PHASE — should not fire on ON_QUEST
+    const state = createEngineState({ activePlace: 'place_the_gym' });
+    const result = placeEffects.resolvePlaceEffect(state, 'ON_QUEST');
+    // The Gym effect would have changed MP — if it didn't fire, MP stays at 15
+    assertEqual(result.players.player_1.activeSlots[0].mp, 15);
+  });
+
+  test('resolvePlaceEffect routes END_PHASE to effect_the_void', () => {
+    const state = createEngineState({
+      activePlace: 'place_the_void',
+      players: {
+        player_1: {
+          activeSlots: [
+            { cardId: 'mosje_west', name: '[West] Sr.Tactical', traits: { mental: 3 }, mp: 50, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
+            null,
+          ],
+        },
+        player_2: {
+          activeSlots: [
+            { cardId: 'mosje_jeffrey', name: '[Jeffrey] The Strongman', traits: { physical: 3 }, mp: 40, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
+            null,
+          ],
+        },
+      },
+    });
+    const result = placeEffects.resolvePlaceEffect(state, 'END_PHASE');
+    assertEqual(result.players.player_1.activeSlots[0].mp, 35); // 50 - 15
+    assertEqual(result.players.player_2.activeSlots[0].mp, 25); // 40 - 15
+  });
+
+  test('resolvePlaceEffect routes ON_QUEST to effect_obby_1', () => {
+    const state = createEngineState({
+      activePlace: 'place_obby_1',
+      activePlayerId: 'player_1',
+      players: {
+        player_1: {
+          activeSlots: [
+            { cardId: 'mosje_west', name: '[West] Sr.Tactical', traits: { physical: 3 }, mp: 40, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
+            null,
+          ],
+        },
+        player_2: {
+          activeSlots: [
+            { cardId: 'mosje_jeffrey', name: '[Jeffrey] The Strongman', traits: { physical: 2 }, mp: 30, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
+            null,
+          ],
+        },
+      },
+    });
+    const result = placeEffects.resolvePlaceEffect(state, 'ON_QUEST', { didSucceed: true });
+    assertEqual(result.players.player_1.activeSlots[0].mp, 60); // 40 + 20 (physical >= 2, success)
+  });
+
+  test('resolvePlaceEffect routes ON_DRAW to effect_bank_chilling', () => {
+    const state = createEngineState({
+      activePlace: 'place_bank_chilling',
+      activePlayerId: 'player_1',
+      players: {
+        player_1: {
+          activeSlots: [
+            { cardId: 'mosje_west', name: '[West] Sr.Tactical', traits: { mental: 3 }, mp: 20, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
+            null,
+          ],
+        },
+        player_2: {
+          activeSlots: [
+            { cardId: 'mosje_jeffrey', name: '[Jeffrey] The Strongman', traits: { physical: 2 }, mp: 30, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
+            null,
+          ],
+        },
+      },
+    });
+    const result = placeEffects.resolvePlaceEffect(state, 'ON_DRAW', { playerId: 'player_1', cardsDrawn: 2 });
+    assertEqual(result.players.player_1.activeSlots[0].mp, 35); // 20 + 15 (mental 3 >= 2, drew 2)
+  });
+
+  test('resolvePlaceEffect routes END_PHASE to effect_zo_is_natuur', () => {
+    const state = createEngineState({
+      activePlace: 'place_zo_is_natuur',
+      players: {
+        player_1: {
+          activeSlots: [
+            { cardId: 'mosje_west', name: '[West] Sr.Tactical', traits: { mental: 3 }, mp: 20, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
+            null,
+          ],
+        },
+        player_2: {
+          activeSlots: [
+            { cardId: 'mosje_jeffrey', name: '[Jeffrey] The Strongman', traits: { physical: 2 }, mp: 10, level: 0, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
+            null,
+          ],
+        },
+      },
+    });
+    const result = placeEffects.resolvePlaceEffect(state, 'END_PHASE');
+    assertEqual(result.players.player_1.activeSlots[0].mp, 30); // level 1 → +10
+    assertEqual(result.players.player_2.activeSlots[0].mp, 15); // level 0 → +5
   });
 }

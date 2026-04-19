@@ -38,10 +38,12 @@ export function effect_kannetje_melk(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const selected = state._pendingTargets?.own_slot_index;
+	const si = Number.isInteger(selected) ? selected : getFirstActiveSlotIndex(player);
 	if (si < 0) return state;
 	const base = hasFoodDoubleSynergy(state, playerId) ? 50 : 25;
 	applyMPGain(player, si, base, state, playerId);
+	if (state._pendingTargets) delete state._pendingTargets.own_slot_index;
 	console.log(`[ABILITY] Kannetje Melk: +${base} MP`);
 	return state;
 }

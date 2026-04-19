@@ -44,6 +44,11 @@ export function gainMP(gameState, playerId, slotIndex, amount) {
 export function loseMP(gameState, playerId, slotIndex, amount) {
   if (amount <= 0) return gameState;
 
+  // Momentum Stabilizer: cap MP loss at 30 per single effect
+  if (gameState.activePlace === 'place_momentum_stabilizer') {
+    amount = Math.min(amount, 30);
+  }
+
   const state = deepCloneState(gameState);
   const mosje = state.players[playerId].activeSlots[slotIndex];
   if (!mosje || mosje.isDefeated) {

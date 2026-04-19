@@ -133,6 +133,9 @@ export function createEngineState(overrides = {}) {
     ],
     sharedGeneralQuestDiscard: [],
     activePlace: null,
+    activePlacePlayedBy: null,
+    activePlaceTurnsActive: 0,
+    sharedPlaceDiscard: [],
     players: {
       player_1: {
         playerId: 'player_1',

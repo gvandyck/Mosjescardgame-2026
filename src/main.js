@@ -6,7 +6,7 @@ import { createLogRenderer } from './ui/logRenderer.js';
 import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes } from './engine/gameState.js';
-import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, playSnellie, useMosjeAbility, canPlayerActNow } from './engine/turnManager.js';
+import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, playSnellie, playPlace, useMosjeAbility, canPlayerActNow, applyPlaceEffectsOnQuest } from './engine/turnManager.js';
 import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold } from './abilities/questLogic.js';
 import { MOSJES } from './data/mosjes.js';
 import { PIECIES } from './data/piecies.js';
@@ -292,6 +292,7 @@ function initGamePage() {
 
 		modal.showDiceRoll(questDef, threshold, (didSucceed) => {
 			gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed);
+			gameState = applyPlaceEffectsOnQuest(gameState, localPlayerId, questDef, didSucceed);
 			gameState.activeQuest = null;
 			gameState.sharedGeneralQuestDiscard.push(questRef);
 			renderFromState(gameState);
@@ -364,6 +365,7 @@ function initGamePage() {
 
 		modal.showDiceRoll(questDef, threshold, (didSucceed) => {
 			gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed);
+			gameState = applyPlaceEffectsOnQuest(gameState, localPlayerId, questDef, didSucceed);
 			gameState.activeQuest = null;
 			renderFromState(gameState);
 			syncPush();
@@ -576,6 +578,36 @@ function initGamePage() {
 			log.add('gain', `Played ${cardDef.name} (instant).`);
 			syncPush();
 			renderFromState(gameState);
+			return;
+		}
+
+		if (cardType === 'PLACE') {
+			const currentPlaceName = gameState.activePlace
+				? (PLACES.find(p => p.id === gameState.activePlace)?.name || gameState.activePlace)
+				: null;
+			const replaceWarning = currentPlaceName ? ` This will replace "${currentPlaceName}".` : '';
+			const confirmed = await modal.showConfirm(
+				'Play Place Card',
+				`Play "${cardDef.name}" as the active Place?${replaceWarning}`
+			);
+			if (!confirmed) return;
+
+			const { state: newState, success, error } = playPlace(gameState, localPlayerId, cardRef, cardDef);
+			if (!success) {
+				modal.showInfo('Cannot Play', error || 'That card cannot be played right now.');
+				return;
+			}
+			gameState = newState;
+			log.add('gain', `Played Place: ${cardDef.name}.`);
+			if (cardDef.description) log.add('info', cardDef.description);
+			syncPush();
+			if (gameState.status === 'FINISHED') {
+				stopListening();
+				const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
+				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
+				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+			}
+			renderFromState(gameState);
 		}
 	}
 }
@@ -605,7 +637,9 @@ function toBoardViewModel(gameState, localPlayerId) {
 	return {
 		activePlayerName: gameState.players[gameState.activePlayerId].name,
 		turnPhase: 'DRAW',
-		activePlaceName: gameState.activePlace?.name || 'None',
+		activePlaceName: gameState.activePlace
+			? (PLACES.find(p => p.id === gameState.activePlace)?.name || gameState.activePlace)
+			: 'None',
 		activeQuest: gameState.activeQuest ?? null,
 		myPlayerId: localPlayerId,
 		players: {

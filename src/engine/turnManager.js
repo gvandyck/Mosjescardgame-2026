@@ -5,7 +5,7 @@
 import { drawCards } from './deckEngine.js';
 import { gainMP, applyStatusEffectMP, getTotalMPForPlayer } from './mpManager.js';
 import { checkVictory } from './victoryChecker.js';
-import { getAllPlayerIds } from './gameState.js';
+import { getAllPlayerIds, setActivePlace, destroyActivePlace } from './gameState.js';
 import * as placeEffects from '../abilities/placeEffects.js';
 import * as piecieEffects from '../abilities/piecieEffects.js';
 import * as snelleEffects from '../abilities/snelleEffects.js';
@@ -51,7 +51,8 @@ export function startTurn(gameState) {
 
   // DRAW PHASE â€” draw 1 card
   state = phaseDrawCard(state, playerId);
-
+  // ON_DRAW Place effects — fires if active Place has trigger 'ON_DRAW'
+  state = applyPlaceEffectsOnDraw(state, playerId, 1);
   // Passive turn-start MP (e.g. DJ 80/20 gains 10 MP automatically)
   // Ability functions will hook into this in Phase 4.
   console.log('[ENGINE] DRAW phase complete');
@@ -91,15 +92,8 @@ export function endTurn(gameState) {
   const playerId = state.activePlayerId;
   console.log(`[ENGINE] â”€â”€ Turn ${state.turnNumber} END â€” Player: ${playerId} â”€â”€`);
 
-  // END PHASE â€” fire active Place effects
-  if (state.activePlace) {
-    // place card IDs are like 'place_the_gym'; effect functions are 'effect_the_gym'
-    const effectKey = 'effect_' + state.activePlace.replace(/^place_/, '');
-    if (typeof placeEffects[effectKey] === 'function') {
-      state = placeEffects[effectKey](state, playerId);
-      console.log(`[ENGINE] Place effect fired: ${effectKey}`);
-    }
-  }
+  // END PHASE — fire active Place effects (END_PHASE trigger only)
+  state = applyPlaceEffectsOnEnd(state);
 
   // END PHASE â€” tick down status effects on all active Mosjes for all players
   const allPlayerIds = getAllPlayerIds(state);
@@ -399,4 +393,90 @@ export function canPlayerActNow(gameState, playerId, cardType) {
   }
 
   return true;
+}
+
+// ─────────────────────────────────────────────────────────────
+// Place trigger dispatch helpers
+// Called by startTurn / endTurn / playPiecie / quest resolution / draw.
+// Each only fires when the active Place's trigger matches.
+// ─────────────────────────────────────────────────────────────
+
+export function applyPlaceEffectsOnEnd(gameState) {
+  let state = JSON.parse(JSON.stringify(gameState));
+  if (!state.activePlace) return state;
+  state = placeEffects.resolvePlaceEffect(state, 'END_PHASE');
+  // Increment turns-active counter each end phase
+  state.activePlaceTurnsActive = (state.activePlaceTurnsActive || 0) + 1;
+  console.log(`[ENGINE] End-phase Place effect resolved (turns active: ${state.activePlaceTurnsActive})`);
+  return state;
+}
+
+export function applyPlaceEffectsOnDraw(gameState, playerId, cardsDrawn) {
+  let state = JSON.parse(JSON.stringify(gameState));
+  if (!state.activePlace) return state;
+  state = placeEffects.resolvePlaceEffect(state, 'ON_DRAW', { playerId, cardsDrawn });
+  return state;
+}
+
+export function applyPlaceEffectsOnQuest(gameState, playerId, questCard, didSucceed) {
+  let state = JSON.parse(JSON.stringify(gameState));
+  if (!state.activePlace) return state;
+  const player = state.players[playerId];
+  const slotIndex = player?.activeSlots.findIndex(s => s && !s.isDefeated) ?? -1;
+  const mosje = slotIndex >= 0 ? player.activeSlots[slotIndex] : null;
+  const questsCompletedThisTurn = player?.questsCompletedThisTurn || 0;
+  state = placeEffects.resolvePlaceEffect(state, 'ON_QUEST', {
+    playerId, questCard, didSucceed, mosje, questsCompletedThisTurn,
+  });
+  return state;
+}
+
+export function applyPlaceEffectsOnPiecieActivate(gameState, playerId, piecieCardId) {
+  let state = JSON.parse(JSON.stringify(gameState));
+  if (!state.activePlace) return state;
+  state = placeEffects.resolvePlaceEffect(state, 'ON_PIECIE_ACTIVATE', { playerId, piecieCardId });
+  return state;
+}
+
+export function applyPlaceEffectsOnWelloe(gameState, playerId, newMosjeSlotIndex) {
+  let state = JSON.parse(JSON.stringify(gameState));
+  if (!state.activePlace) return state;
+  state = placeEffects.resolvePlaceEffect(state, 'ON_WELLOE', { playerId, newMosjeSlotIndex });
+  return state;
+}
+
+// ─────────────────────────────────────────────────────────────
+// playPlace
+// Plays a Place card from the active player's hand onto the shared field.
+// Destroys any currently active Place first (moves it to sharedPlaceDiscard).
+// Applies PASSIVE effects immediately after placement.
+// cardRef — the hand reference object { cardId, type }
+// cardDef — full card definition from PLACES data (has trigger, effectId)
+// Returns { state, success, error? }
+// ─────────────────────────────────────────────────────────────
+export function playPlace(gameState, playerId, cardRef, cardDef) {
+  let state = JSON.parse(JSON.stringify(gameState));
+  const player = state.players[playerId];
+  if (!player) return { state, success: false, error: 'Player not found' };
+
+  // Defensive normalization
+  if (!Array.isArray(player.hand)) player.hand = [];
+  if (!Array.isArray(player.discard)) player.discard = [];
+
+  // Remove from hand
+  const handIndex = player.hand.findIndex(c => c.cardId === cardRef.cardId);
+  if (handIndex === -1) return { state, success: false, error: 'Card not in hand' };
+  player.hand.splice(handIndex, 1);
+
+  // setActivePlace handles destroying the old one + setting the new one
+  state = setActivePlace(state, cardRef.cardId, playerId);
+
+  // Apply PASSIVE effects immediately on placement
+  if (cardDef.trigger === 'PASSIVE') {
+    state = placeEffects.resolvePlaceEffect(state, 'PASSIVE');
+  }
+
+  console.log(`[ENGINE] Place played: ${cardDef.name} by ${playerId}`);
+  state = checkVictory(state);
+  return { state, success: true };
 }

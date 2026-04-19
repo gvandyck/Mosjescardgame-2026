@@ -44,7 +44,10 @@ export function createInitialGameState(playerConfigs, roomCode) {
     // Shared zones
     sharedGeneralQuestDeck,
     sharedGeneralQuestDiscard: [],
-    activePlace: null,
+    activePlace: null,           // string card id e.g. 'place_the_gym', or null
+    activePlacePlayedBy: null,   // playerId who played the current Place
+    activePlaceTurnsActive: 0,   // how many full end-phases have passed since Place was set
+    sharedPlaceDiscard: [],      // Place cards that have been destroyed/replaced
 
     // Active Quest — visible to all players once revealed
     activeQuest: null,
@@ -233,5 +236,44 @@ export function getPlayerMosjes(gameState, playerId) {
       owner: playerId,
       slotIndex: index,
     }));
+}
+
+// ─────────────────────────────────────────────────────────────
+// setActivePlace
+// Places a Place card onto the shared field.
+// Destroys any existing Place (moves it to sharedPlaceDiscard).
+// playedByPlayerId — the player who played this Place card.
+// Returns updated gameState.
+// ─────────────────────────────────────────────────────────────
+export function setActivePlace(gameState, cardId, playedByPlayerId) {
+  const state = JSON.parse(JSON.stringify(gameState));
+  // If a Place is already active, discard it first
+  if (state.activePlace) {
+    if (!Array.isArray(state.sharedPlaceDiscard)) state.sharedPlaceDiscard = [];
+    state.sharedPlaceDiscard.unshift({ cardId: state.activePlace, type: 'PLACE' });
+  }
+  state.activePlace = cardId;
+  state.activePlacePlayedBy = playedByPlayerId || null;
+  state.activePlaceTurnsActive = 0;
+  console.log(`[ENGINE] Place set: ${cardId} (played by ${playedByPlayerId})`);
+  return state;
+}
+
+// ─────────────────────────────────────────────────────────────
+// destroyActivePlace
+// Removes the active Place card from the field, moving it to sharedPlaceDiscard.
+// Returns updated gameState.
+// ─────────────────────────────────────────────────────────────
+export function destroyActivePlace(gameState) {
+  const state = JSON.parse(JSON.stringify(gameState));
+  if (!state.activePlace) return state;
+  if (!Array.isArray(state.sharedPlaceDiscard)) state.sharedPlaceDiscard = [];
+  state.sharedPlaceDiscard.unshift({ cardId: state.activePlace, type: 'PLACE' });
+  const removed = state.activePlace;
+  state.activePlace = null;
+  state.activePlacePlayedBy = null;
+  state.activePlaceTurnsActive = 0;
+  console.log(`[ENGINE] Place destroyed: ${removed}`);
+  return state;
 }
 

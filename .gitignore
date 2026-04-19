@@ -6,6 +6,10 @@
 # Secret Firebase config (real keys go here — never commit this!)
 firebase-config.js
 
+# Firebase local CLI state
+.firebase/
+firebase-debug.log
+
 # macOS system files
 .DS_Store
 

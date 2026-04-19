@@ -56,8 +56,12 @@ export function effect_snelle_jensen(gameState, playerId) {
 	const state = JSON.parse(JSON.stringify(gameState));
 	const player = state.players?.[playerId];
 	if (!player) return state;
-	const slotIndex = player.activeSlots.findIndex(s => s !== null && !s.isDefeated);
+	const selected = state._pendingTargets?.own_slot_index;
+	const slotIndex = Number.isInteger(selected)
+		? selected
+		: player.activeSlots.findIndex(s => s !== null && !s.isDefeated);
 	if (slotIndex >= 0) player.activeSlots[slotIndex].mp += 20;
+	if (state._pendingTargets) delete state._pendingTargets.own_slot_index;
 	console.log('[ABILITY] Jensen: +20 MP');
 	return state;
 }

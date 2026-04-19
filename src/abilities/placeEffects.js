@@ -1,6 +1,8 @@
 // placeEffects.js — Passive and active effect functions for each Place card.
 // Filled in Phase 4.
 
+import { PLACES } from '../data/places.js';
+
 console.log('[ABILITY] placeEffects.js loaded');
 
 function cloneState(state) {
@@ -345,5 +347,82 @@ export function effect_digital_gaming_stop(gameState, questCard, mosje) {
 	}
 	// Note: DIGITAL-EQUIPMENT Piecie +20 MP bonus requires validation during card play
 	return state;
+}
+
+// ─────────────────────────────────────────────────────────────
+// resolvePlaceEffect — central dispatcher
+// Fires the effect function for the current active Place, but ONLY
+// if the Place's trigger matches the given triggerPhase.
+//
+// triggerPhase — one of 'END_PHASE' | 'ON_DRAW' | 'ON_QUEST' |
+//                'PASSIVE' | 'ON_PIECIE_ACTIVATE' | 'ON_WELLOE'
+// context      — optional data for the effect (questCard, didSucceed, etc.)
+// ─────────────────────────────────────────────────────────────
+export function resolvePlaceEffect(gameState, triggerPhase, context = {}) {
+	const placeId = gameState.activePlace;
+	if (!placeId) return gameState;
+
+	const placeDef = PLACES.find(p => p.id === placeId);
+	if (!placeDef || placeDef.trigger !== triggerPhase) return gameState;
+
+	let state = gameState;
+	const { playerId, questCard, didSucceed, mosje, questsCompletedThisTurn, cardsDrawn, newMosjeSlotIndex } = context;
+
+	switch (placeId) {
+		case 'place_the_gym':
+			return effect_the_gym(state);
+
+		case 'place_quest_haven':
+			return effect_quest_haven(state, (questsCompletedThisTurn || 0) >= 2);
+
+		case 'place_bank_chilling':
+			return effect_bank_chilling(state, playerId, cardsDrawn || 0);
+
+		case 'place_skiffa':
+			return effect_skiffa(state);
+
+		case 'place_obby_1':
+			return effect_obby_1(state, questCard, didSucceed);
+
+		case 'place_arcade':
+			return effect_arcade(state, questCard, didSucceed);
+
+		case 'place_zo_is_natuur':
+			return effect_zo_is_natuur(state);
+
+		case 'place_the_void':
+			return effect_the_void(state);
+
+		case 'place_momentum_factory':
+			return effect_momentum_factory(state);
+
+		case 'place_coerts_caravan':
+			return effect_coerts_caravan(state);
+
+		case 'place_synergy_chamber':
+			return effect_synergy_chamber(state);
+
+		case 'place_welloe_graveyard':
+			return effect_welloe_graveyard(state, playerId, newMosjeSlotIndex ?? -1);
+
+		case 'place_drain_zone':
+			return effect_drain_zone(state);
+
+		case 'place_momentum_stabilizer':
+			return effect_momentum_stabilizer(state);
+
+		case 'place_delluft':
+			return effect_delluft(state);
+
+		case 'place_dierenasiel':
+			return effect_dierenasiel(state);
+
+		case 'place_digital_gaming_stop':
+			return effect_digital_gaming_stop(state, questCard, mosje);
+
+		default:
+			console.warn('[ABILITY] resolvePlaceEffect: unknown place id', placeId);
+			return state;
+	}
 }
 
