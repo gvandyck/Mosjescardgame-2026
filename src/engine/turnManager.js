@@ -100,7 +100,8 @@ export function endTurn(gameState) {
   for (const pid of allPlayerIds) {
     const player = state.players[pid];
     player.activeSlots.forEach((slot, index) => {
-      if (slot && !slot.isDefeated && slot.statusEffects.length > 0) {
+      const statusEffects = Array.isArray(slot?.statusEffects) ? slot.statusEffects : [];
+      if (slot && !slot.isDefeated && statusEffects.length > 0) {
         state = applyStatusEffectMP(state, pid, index);
       }
     });

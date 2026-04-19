@@ -305,6 +305,9 @@ function initGamePage() {
 		modal.showDiceRoll(questDef, threshold, (didSucceed) => {
 			gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed);
 			gameState.activeQuest = null;
+			if (!Array.isArray(gameState.sharedGeneralQuestDiscard)) {
+				gameState.sharedGeneralQuestDiscard = [];
+			}
 			gameState.sharedGeneralQuestDiscard.push(questRef);
 			renderFromState(gameState);
 			syncPush();
