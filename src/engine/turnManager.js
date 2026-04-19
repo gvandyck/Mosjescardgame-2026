@@ -92,6 +92,37 @@ export function endTurn(gameState) {
   const playerId = state.activePlayerId;
   console.log(`[ENGINE] â”€â”€ Turn ${state.turnNumber} END â€” Player: ${playerId} â”€â”€`);
 
+  // Expire field Piecies for the ending player.
+  // Default lifecycle is 1 turn on field (current turn), but cards can opt into
+  // multiple turns by defining `fieldDurationTurns` in card data.
+  const endingPlayer = state.players[playerId];
+  if (endingPlayer) {
+    if (!Array.isArray(endingPlayer.piecieSlots)) {
+      endingPlayer.piecieSlots = [null, null, null, null, null];
+    }
+    if (!Array.isArray(endingPlayer.discard)) {
+      endingPlayer.discard = [];
+    }
+
+    endingPlayer.piecieSlots = endingPlayer.piecieSlots.map(slot => {
+      if (!slot) return null;
+
+      const remaining = Number.isFinite(slot.turnsRemaining)
+        ? Math.max(1, Math.floor(slot.turnsRemaining))
+        : 1;
+
+      if (remaining <= 1) {
+        endingPlayer.discard.unshift({ cardId: slot.cardId, type: 'PIECIE' });
+        return null;
+      }
+
+      return {
+        ...slot,
+        turnsRemaining: remaining - 1,
+      };
+    });
+  }
+
   // Returned Mosjes become replayable on the player's next turn.
   state = clearReturnedMosjesAtTurnEnd(state, playerId);
 
@@ -247,6 +278,31 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
   if (handIndex === -1) return { state, success: false, error: 'Card not in hand' };
   player.hand.splice(handIndex, 1);
 
+  // Place Piecie on field instead of immediate discard.
+  // Default: lasts until end of current turn. Optional multi-turn support via
+  // `fieldDurationTurns` in card data definitions.
+  if (!Array.isArray(player.piecieSlots)) {
+    player.piecieSlots = [null, null, null, null, null];
+  }
+  const emptySlot = player.piecieSlots.findIndex(s => s === null);
+  if (emptySlot < 0) {
+    // Restore card to hand if placement fails.
+    player.hand.splice(handIndex, 0, cardRef);
+    return { state, success: false, error: 'No empty Piecie slot available' };
+  }
+
+  const turnsOnField = Number.isFinite(cardDef.fieldDurationTurns)
+    ? Math.max(1, Math.floor(cardDef.fieldDurationTurns))
+    : 1;
+
+  player.piecieSlots[emptySlot] = {
+    cardId: cardRef.cardId,
+    type: 'PIECIE',
+    faceDown: false,
+    turnsRemaining: turnsOnField,
+    playedOnTurn: state.turnNumber,
+  };
+
   // Apply the effect function
   const effectFn = piecieEffects[cardDef.effectId];
   if (typeof effectFn === 'function') {
@@ -275,8 +331,7 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
     state = placeEffects.effect_momentum_factory(state);
   }
 
-  // Move card to discard pile
-  state.players[playerId].discard.unshift(cardRef);
+  // Keep Piecie on field until end-turn cleanup.
 
   state = checkVictory(state);
   return { state, success: true };

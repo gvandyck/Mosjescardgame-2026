@@ -726,10 +726,12 @@ function toBoardViewModel(gameState, localPlayerId) {
 			top: {
 				name: opponent.name,
 				mosjes: toMosjeCards(opponent.activeSlots),
+				piecies: toPiecieCards(opponent.piecieSlots),
 			},
 			bottom: {
 				name: localPlayer.name,
 				mosjes: toMosjeCards(localPlayer.activeSlots),
+				piecies: toPiecieCards(localPlayer.piecieSlots),
 			},
 		},
 	};
@@ -748,6 +750,23 @@ function toMosjeCards(activeSlots) {
 			abilityUsedThisTurn: slot.abilityUsedThisTurn,
 			description: slot.isDefeated ? 'Defeated' : 'Active on field',
 		}));
+}
+
+function toPiecieCards(piecieSlots) {
+	if (!Array.isArray(piecieSlots)) return [];
+	return piecieSlots
+		.filter(slot => slot !== null)
+		.map(slot => {
+			const def = CARD_LOOKUP[slot.cardId] || { id: slot.cardId, name: slot.cardId, type: 'PIECIE' };
+			return {
+				cardId: slot.cardId,
+				name: def.name,
+				type: def.type || 'PIECIE',
+				subtype: def.subtype,
+				description: def.description || '',
+				faceDown: slot.faceDown === true,
+			};
+		});
 }
 
 function toHandViewModel(hand) {

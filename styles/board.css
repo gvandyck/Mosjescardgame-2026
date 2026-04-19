@@ -1,32 +1,43 @@
-/* ============================================
-   board.css — Game board grid layout
-   Controls how the zones (hand, mosje slots,
-   piecie zone, opponent area) are arranged.
-   Mobile-first.
-   ============================================ */
+/* ── GAME BOARD ──────────────────────────────────────────────────── */
+#game-board,
+.game-layout {
+   display: grid;
+   grid-template-rows: auto 1fr auto;
+   grid-template-areas:
+      'topbar'
+      'main'
+      'hand';
+   gap: 8px;
+   padding: 12px;
+   position: relative;
+   z-index: 1;
+}
 
 .game-topbar {
-   width: min(1280px, 100% - 20px);
-   margin: 12px auto;
-   background: rgba(20, 24, 40, 0.95);
-   border: 1px solid #2a3258;
+   grid-area: topbar;
+   width: min(1280px, calc(100% - 20px));
+   margin: 10px auto 0;
+   background: linear-gradient(140deg, rgba(12, 16, 32, 0.95), rgba(8, 12, 26, 0.95));
+   border: 1px solid var(--zone-border);
    border-radius: 12px;
    padding: 12px 16px;
    display: flex;
    align-items: center;
    gap: 12px;
    flex-wrap: wrap;
+   box-shadow: 0 14px 38px rgba(0, 0, 0, 0.35), inset 0 0 0 1px rgba(74, 158, 255, 0.05);
 }
 
 .game-topbar h1 {
-   color: var(--color-gold);
-   font-size: 1.5rem;
-   flex: 0 0 auto;
+   color: var(--mosje-gold);
+   font-size: 1.55rem;
 }
 
 .game-topbar p {
-   color: #cfdbff;
+   color: #b8c8ea;
    flex: 1 1 auto;
+   font-size: 0.95rem;
+   letter-spacing: 0.04em;
 }
 
 .topbar-actions {
@@ -36,94 +47,422 @@
 }
 
 .game-layout {
-   width: min(1280px, 100% - 20px);
-   margin: 0 auto 18px;
-   display: grid;
-   gap: 12px;
+   width: min(1280px, calc(100% - 20px));
+   margin: 0 auto 16px;
+   grid-template-columns: 1fr 220px;
+   grid-template-areas:
+      'main log'
+      'hand log';
+   align-items: start;
 }
 
-.game-board,
-.game-log-panel,
-.game-hand-panel {
-   background: rgba(19, 23, 40, 0.94);
-   border: 1px solid #27315a;
+.game-board {
+   grid-area: main;
+   background: var(--board-felt);
+   border: 1px solid var(--zone-border);
    border-radius: 12px;
    padding: 10px;
-}
-
-.game-log-panel h2,
-.game-hand-panel h2 {
-   color: #cfd9ff;
-   font-size: 1rem;
-   margin-bottom: 8px;
+   box-shadow: inset 0 0 0 1px rgba(74, 158, 255, 0.04);
 }
 
 .board-zone {
-   border: 1px solid #344070;
-   border-radius: 10px;
-   padding: 8px;
-   margin-bottom: 8px;
+   background: var(--zone-bg);
+   border: 1px solid var(--zone-border);
+   border-radius: 12px;
+   padding: 12px;
+   display: flex;
+   flex-direction: column;
+   gap: 10px;
+   position: relative;
+   overflow: hidden;
+   margin-bottom: 10px;
 }
 
 .board-zone:last-child {
    margin-bottom: 0;
 }
 
+.board-zone--player::before {
+   content: '';
+   position: absolute;
+   top: -40%;
+   left: 50%;
+   transform: translateX(-50%);
+   width: 80%;
+   height: 80%;
+   background: radial-gradient(ellipse, rgba(74, 158, 255, 0.04) 0%, transparent 70%);
+   pointer-events: none;
+}
+
 .board-zone__header {
-   font-weight: 700;
-   margin-bottom: 8px;
-   color: #f0f4ff;
+   font-family: var(--font-display);
+   font-size: 0.68rem;
+   letter-spacing: 0.2em;
+   color: #475778;
+   text-transform: uppercase;
 }
 
 .board-zone__slots {
    display: flex;
-   gap: 8px;
+   gap: 12px;
+   align-items: flex-start;
    overflow-x: auto;
-   padding-bottom: 4px;
+   padding-bottom: 2px;
+}
+
+.board-zone--player {
+   min-height: 520px;
+}
+
+.board-zone--opponent {
+   min-height: 330px;
+}
+
+.board-zone__slots .card--mosje {
+   width: var(--mosje-card-w, 220px);
+   min-width: var(--mosje-card-w, 220px);
+   max-width: var(--mosje-card-w, 220px);
+   height: var(--mosje-card-h, 340px);
+}
+
+.board-zone--player .card--mosje,
+.board-zone--player .mosje-card--owned {
+   width: 240px;
+   min-width: 240px;
+   max-width: 240px;
+   height: 430px;
+}
+
+.board-zone--player .mosje-card--owned .mosje-card-inner {
+   overflow: visible;
+}
+
+.board-zone--player .mosje-card--owned .mosje-ability-section,
+.board-zone--player .mosje-card--owned .mosje-ability-text {
+   overflow: visible;
+}
+
+.board-zone--player .mosje-card--owned .mosje-flavour {
+   display: block;
+   overflow: visible;
+   -webkit-line-clamp: unset;
+   -webkit-box-orient: initial;
+}
+
+.board-zone--opponent .card--mosje,
+.board-zone--opponent .mosje-card--opponent {
+   width: 165px;
+   min-width: 165px;
+   max-width: 165px;
+   height: 255px;
+}
+
+.board-zone--opponent .mosje-card--opponent .mosje-flavour,
+.board-zone--opponent .mosje-card--opponent .synergy-effect-text,
+.board-zone--opponent .mosje-card--opponent .ability-line {
+   font-size: 0.5rem;
+}
+
+.board-zone--center {
+   display: grid;
+   grid-template-columns: 1fr 1fr;
+   align-items: stretch;
+   gap: 8px;
+}
+
+.board-zone--center .board-place,
+.board-zone--center .board-quest {
+   margin: 0;
+   padding: 7px 9px;
+}
+
+.board-zone--center #active-quest-display {
+   grid-column: 1 / -1;
+}
+
+.board-zone__slots .card {
+   box-shadow: 0 10px 18px rgba(0, 0, 0, 0.35);
+}
+
+.board-zone__slots .card.playable-now {
+   box-shadow: 0 0 20px rgba(61, 142, 245, 0.35), 0 0 4px rgba(61, 142, 245, 0.35);
 }
 
 .board-place,
 .board-quest {
-   color: #c7d2f5;
-   padding: 6px 8px;
+   color: #b7c5e5;
+   padding: 8px 10px;
    border-radius: 8px;
-   background: #121a30;
-   margin-bottom: 6px;
+   background: rgba(255, 255, 255, 0.02);
+   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.board-quest {
-   margin-bottom: 0;
+.board-place strong {
+   color: var(--place-green);
 }
 
-.hand-strip {
+.board-quest strong {
+   color: var(--quest-purple);
+}
+
+.game-hand-panel {
+   grid-area: hand;
+   background: var(--zone-bg);
+   border: 1px solid var(--zone-border);
+   border-radius: 12px;
+   padding: 10px;
+}
+
+.game-hand-panel h2,
+.game-log-panel h2 {
+   font-size: 0.88rem;
+   letter-spacing: 0.14em;
+   color: #5f7198;
+   margin-bottom: 8px;
+}
+
+.hand-strip,
+.hand-cards {
    display: flex;
-   gap: 8px;
+   gap: 0;
+   align-items: flex-end;
+   justify-content: center;
+   padding: 10px 20px 0;
    overflow-x: auto;
-   padding-bottom: 4px;
+   scrollbar-width: none;
    position: relative;
-   z-index: 90;
+}
+
+.hand-strip .card,
+.hand-cards .card {
+   margin-left: -15px;
+   transition:
+      transform 0.2s var(--ease-snap),
+      margin 0.2s var(--ease-smooth),
+      z-index 0s;
+}
+
+.hand-strip .card:first-child,
+.hand-cards .card:first-child {
+   margin-left: 0;
+}
+
+.hand-strip:hover .card,
+.hand-cards:hover .card {
+   margin-left: 4px;
+}
+
+.hand-strip .card:hover,
+.hand-cards .card:hover {
+   transform: translateY(-20px) scale(1.08);
+   z-index: 50;
+}
+
+.hand-cards .card--mosje,
+.hand-strip .card--mosje {
+   margin-left: -24px;
+}
+
+.hand-cards .card--mosje:first-child,
+.hand-strip .card--mosje:first-child {
+   margin-left: 0;
+}
+
+.hand-cards:hover .card--mosje,
+.hand-strip:hover .card--mosje {
+   margin-left: 8px;
+}
+
+.hand-cards .card--mosje:hover,
+.hand-strip .card--mosje:hover {
+   transform: translateY(-28px) scale(1.04) !important;
 }
 
 .hand-empty {
-   color: #9cabd9;
-   font-size: 0.95rem;
-}
-
-.game-log {
-   max-height: 240px;
-   overflow-y: auto;
-   display: grid;
-   gap: 6px;
-}
-
-.log-row {
-   background: #121a30;
-   border: 1px solid #304071;
-   border-radius: 8px;
-   padding: 8px;
+   color: #55688f;
    font-size: 0.9rem;
 }
 
+.game-log-panel,
+#game-log {
+   grid-area: log;
+   background: rgba(5, 7, 15, 0.9);
+   border: 1px solid rgba(255, 255, 255, 0.04);
+   border-radius: 12px;
+   display: flex;
+   flex-direction: column;
+   min-height: 280px;
+   backdrop-filter: blur(10px);
+   overflow: hidden;
+}
+
+.game-log,
+.log-entries {
+   flex: 1;
+   overflow-y: auto;
+   padding: 8px;
+   display: flex;
+   flex-direction: column;
+   gap: 4px;
+   scrollbar-width: thin;
+   scrollbar-color: #1a2040 transparent;
+   max-height: 64vh;
+}
+
+.log-row,
+.log-entry {
+   font-size: 0.68rem;
+   color: #6a7a99;
+   padding: 6px 8px;
+   border-radius: 4px;
+   line-height: 1.4;
+   border-left: 2px solid transparent;
+   background: rgba(255, 255, 255, 0.015);
+   animation: log-appear 0.3s var(--ease-smooth);
+}
+
+.log-row.gain,
+.log-entry.gain { border-color: #10b981; color: #6ee7b7; background: rgba(16, 185, 129, 0.04); }
+.log-row.loss,
+.log-entry.loss { border-color: #ef4444; color: #fca5a5; background: rgba(239, 68, 68, 0.04); }
+.log-row.quest,
+.log-entry.quest { border-color: var(--quest-purple); color: #c084fc; background: rgba(168, 85, 247, 0.04); }
+.log-row.level,
+.log-entry.level { border-color: var(--mosje-gold); color: #fde68a; background: rgba(232, 185, 79, 0.06); }
+.log-row.system,
+.log-entry.system { border-color: #334155; color: #73829d; }
+
+@keyframes log-appear {
+   from { opacity: 0; transform: translateX(10px); }
+   to { opacity: 1; transform: translateX(0); }
+}
+
+/* ── MP BAR ──────────────────────────────────────────────────────── */
+.mp-bar-container {
+   width: 100%;
+   padding: 6px 8px;
+   background: rgba(0, 0, 0, 0.4);
+   border-radius: 6px;
+   border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.mp-bar-header {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   margin-bottom: 5px;
+}
+
+.mp-bar-mosje-name {
+   font-family: var(--font-display);
+   font-size: 0.75rem;
+   letter-spacing: 0.05em;
+   color: #e2e8f0;
+}
+
+.mp-bar-values {
+   font-family: var(--font-mono);
+   font-size: 0.7rem;
+   color: var(--mp-fill);
+}
+
+.mp-bar-level {
+   font-family: var(--font-display);
+   font-size: 0.65rem;
+   letter-spacing: 0.08em;
+   color: var(--mosje-gold);
+   background: rgba(232, 185, 79, 0.08);
+   border: 1px solid rgba(232, 185, 79, 0.2);
+   padding: 1px 6px;
+   border-radius: 3px;
+}
+
+.mp-bar-track {
+   width: 100%;
+   height: 8px;
+   background: rgba(255, 255, 255, 0.04);
+   border-radius: 4px;
+   overflow: hidden;
+   position: relative;
+}
+
+.mp-bar-fill {
+   height: 100%;
+   border-radius: 4px;
+   transition: width 0.6s var(--ease-dramatic);
+   position: relative;
+}
+
+.mp-bar-fill.mp-low { background: linear-gradient(90deg, #7f1d1d, #ef4444); }
+.mp-bar-fill.mp-mid { background: linear-gradient(90deg, #78350f, #f59e0b); }
+.mp-bar-fill.mp-high { background: linear-gradient(90deg, #064e3b, #10b981); }
+
+.mp-bar-fill::after {
+   content: '';
+   position: absolute;
+   top: 0;
+   bottom: 0;
+   left: -60px;
+   width: 60px;
+   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+   animation: bar-shimmer 2s ease-in-out infinite;
+}
+
+@keyframes bar-shimmer {
+   0% { left: -60px; }
+   100% { left: 100%; }
+}
+
+.mp-float {
+   position: absolute;
+   font-family: var(--font-display);
+   font-size: 1.4rem;
+   font-weight: 900;
+   pointer-events: none;
+   z-index: 100;
+   animation: mp-float-up 1.2s var(--ease-dramatic) forwards;
+}
+
+.mp-float.gain { color: #10b981; text-shadow: 0 0 20px rgba(16, 185, 129, 0.8); }
+.mp-float.loss { color: #ef4444; text-shadow: 0 0 20px rgba(239, 68, 68, 0.8); }
+
+@keyframes mp-float-up {
+   0% { transform: translateY(0) scale(0.8); opacity: 1; }
+   40% { transform: translateY(-30px) scale(1.1); opacity: 1; }
+   100% { transform: translateY(-70px) scale(0.9); opacity: 0; }
+}
+
+@keyframes level-up-burst {
+   0% { transform: scale(1); box-shadow: 0 0 0 0 var(--mosje-glow); }
+   30% { transform: scale(1.06); box-shadow: 0 0 0 20px transparent; }
+   60% { transform: scale(0.98); }
+   100% { transform: scale(1); box-shadow: 0 0 0 0 transparent; }
+}
+
+.card--mosje.level-up {
+   animation: level-up-burst 0.8s var(--ease-snap);
+}
+
+.level-up-text {
+   position: fixed;
+   font-family: var(--font-display);
+   font-size: 3rem;
+   letter-spacing: 0.15em;
+   color: var(--mosje-gold);
+   text-shadow: 0 0 40px var(--mosje-glow), 0 0 80px rgba(232, 185, 79, 0.3);
+   pointer-events: none;
+   z-index: 200;
+   animation: level-up-text 2s var(--ease-dramatic) forwards;
+}
+
+@keyframes level-up-text {
+   0% { opacity: 0; transform: translate(-50%, -30%) scale(0.5); }
+   25% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+   75% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+   100% { opacity: 0; transform: translate(-50%, -70%) scale(0.9); }
+}
+
+/* ── MODALS ──────────────────────────────────────────────────────── */
 .modal-root {
    display: none;
 }
@@ -132,42 +471,65 @@
    display: block;
    position: fixed;
    inset: 0;
-   z-index: 80;
-   pointer-events: none;
+   z-index: 150;
 }
 
-.modal-backdrop {
+.modal-backdrop,
+.modal-overlay {
    position: absolute;
    inset: 0;
-   background: rgba(5, 8, 20, 0.48);
-   pointer-events: none;
+   background: rgba(0, 0, 0, 0.7);
+   backdrop-filter: blur(4px);
+   animation: overlay-in 0.2s var(--ease-smooth);
 }
 
-.modal-card {
+@keyframes overlay-in {
+   from { opacity: 0; }
+   to { opacity: 1; }
+}
+
+.modal-card,
+.modal-box {
    position: relative;
-   width: min(440px, calc(100% - 30px));
-   margin: 18vh auto 0;
-   background: #121a32;
-   border: 1px solid #38549a;
-   border-radius: 12px;
-   padding: 14px;
+   background: #080c1a;
+   border: 1px solid rgba(255, 255, 255, 0.08);
+   border-radius: 16px;
+   padding: 24px;
+   max-width: 480px;
+   width: min(90vw, 480px);
+   margin: 16vh auto 0;
+   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.04);
+   animation: modal-in 0.3s var(--ease-dramatic);
    display: grid;
-   gap: 8px;
-   pointer-events: all;
+   gap: 10px;
 }
 
-.hand-card.playable-now {
-   box-shadow: 0 0 12px 3px #ff4a4a, 0 0 4px #ff4a4a;
-   animation: snelle-pulse 1s ease-in-out infinite alternate;
+@keyframes modal-in {
+   from { transform: scale(0.92) translateY(12px); opacity: 0; }
+   to { transform: scale(1) translateY(0); opacity: 1; }
 }
 
-@keyframes snelle-pulse {
-   from {
-      box-shadow: 0 0 8px 2px #ff4a4a;
-   }
-   to {
-      box-shadow: 0 0 18px 5px #ff4a4a;
-   }
+.modal-close {
+   position: absolute;
+   top: 16px;
+   right: 16px;
+   background: rgba(255, 255, 255, 0.04);
+   border: 1px solid rgba(255, 255, 255, 0.08);
+   color: #64748b;
+   width: 28px;
+   height: 28px;
+   border-radius: 6px;
+   cursor: pointer;
+   font-size: 0.75rem;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+}
+
+.modal-close:hover {
+   background: rgba(239, 68, 68, 0.1);
+   border-color: #ef4444;
+   color: #ef4444;
 }
 
 .modal-actions {
@@ -176,12 +538,13 @@
 }
 
 .modal-btn {
+   font-family: var(--font-display);
+   letter-spacing: 0.1em;
    border: none;
    border-radius: 8px;
-   padding: 8px 12px;
-   background: #5aa5ff;
-   color: #031021;
-   font-weight: 700;
+   padding: 9px 14px;
+   background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+   color: #fff;
    cursor: pointer;
 }
 
@@ -190,83 +553,32 @@
    color: #e6ebff;
 }
 
-/* Dice roll modal */
 .dice-display {
-   font-size: 4rem;
-   font-weight: 900;
+   font-family: var(--font-display);
+   font-size: 5rem;
    text-align: center;
-   padding: 12px 24px;
-   margin: 12px auto;
-   border: 2px solid var(--color-gold);
-   border-radius: 14px;
-   min-width: 80px;
-   display: inline-block;
-   color: var(--color-gold);
-   transition: border-color 0.3s, color 0.3s;
+   color: var(--mosje-gold);
+   text-shadow: 0 0 40px var(--mosje-glow);
+   animation: dice-roll 0.5s var(--ease-dramatic);
+   margin: 16px 0;
 }
 
-.dice-display--success {
-   border-color: var(--color-green);
-   color: var(--color-green);
+@keyframes dice-roll {
+   0% { transform: rotate(-20deg) scale(0.5); opacity: 0; }
+   60% { transform: rotate(10deg) scale(1.2); opacity: 1; }
+   100% { transform: rotate(0deg) scale(1); }
 }
 
-.dice-display--fail {
-   border-color: var(--color-red);
-   color: var(--color-red);
-}
-
-.modal-quest-req {
-   font-size: 0.85rem;
-   color: var(--color-gold);
-   font-style: italic;
-   margin-bottom: 6px;
-}
-
-.modal-threshold {
-   font-size: 0.9rem;
-   color: #b0bcdf;
-   margin-bottom: 10px;
-}
-
-.modal-threshold--fail {
-   color: var(--color-red);
-}
-
-.modal-result {
-   font-weight: 700;
-   padding: 8px;
-   border-radius: 8px;
-   margin: 10px 0;
-}
-
-.modal-result--success {
-   background: rgba(72, 199, 116, 0.15);
-   color: var(--color-green);
-}
-
-.modal-result--fail {
-   background: rgba(255, 99, 99, 0.15);
-   color: var(--color-red);
-}
-
-/* Text input modal */
 .modal-input {
    width: 100%;
-   padding: 8px 10px;
+   padding: 10px;
    background: #1b2444;
    border: 1px solid #38549a;
    border-radius: 8px;
    color: #e6ebff;
    font-size: 1rem;
-   outline: none;
-   box-sizing: border-box;
 }
 
-.modal-input:focus {
-   border-color: var(--color-blue, #5aa5ff);
-}
-
-/* Card choice list modal */
 .modal-card-list {
    list-style: none;
    margin: 0;
@@ -286,14 +598,11 @@
    border-radius: 8px;
    color: #e6ebff;
    cursor: pointer;
-   display: grid;
-   gap: 3px;
-   transition: background 100ms ease, border-color 100ms ease;
 }
 
 .modal-card-option:hover {
    background: #253369;
-   border-color: var(--color-blue, #5aa5ff);
+   border-color: var(--piecie-blue);
 }
 
 .modal-card-option__desc {
@@ -302,53 +611,12 @@
    display: block;
 }
 
-@media (min-width: 768px) {
-   .game-layout {
-      grid-template-columns: 2fr 1fr;
-      grid-template-areas:
-         'board log'
-         'hand hand';
-   }
-
-   .game-board {
-      grid-area: board;
-   }
-
-   .game-log-panel {
-      grid-area: log;
-   }
-
-   .game-hand-panel {
-      grid-area: hand;
-   }
-
-   .game-topbar {
-      grid-template-columns: 1fr auto auto;
-      align-items: center;
-   }
-
-   .game-topbar p {
-      text-align: right;
-   }
-}
-
-@media (min-width: 1280px) {
-   .game-layout {
-      gap: 16px;
-   }
-
-   .game-log {
-      max-height: 420px;
-   }
-}
-
-/* ── Active Quest Panel (Phase 8 Rule 3) ──────────────────────────── */
+/* ── Active Quest Panel ──────────────────────────────────────────── */
 .active-quest-panel {
    background: rgba(16, 22, 48, 0.92);
-   border: 2px solid #7b4fff;
+   border: 1px solid var(--quest-purple);
    border-radius: 10px;
    padding: 10px 14px;
-   margin-top: 8px;
    color: #e6ebff;
    display: grid;
    gap: 4px;
@@ -364,8 +632,8 @@
    font-weight: 700;
    letter-spacing: 0.08em;
    text-transform: uppercase;
-   color: #7b4fff;
-   background: rgba(123, 79, 255, 0.14);
+   color: var(--quest-purple);
+   background: rgba(168, 85, 247, 0.14);
    border-radius: 4px;
    padding: 2px 6px;
    width: fit-content;
@@ -373,8 +641,7 @@
 
 .quest-name {
    font-size: 0.95rem;
-   font-weight: 700;
-   color: var(--color-gold, #f8d56b);
+   color: var(--mosje-gold);
 }
 
 .quest-type {
@@ -393,7 +660,6 @@
    color: #f8d56b;
 }
 
-/* ── Target Selector (Phase 8 Rule 1) ────────────────────────────── */
 .target-grid {
    display: flex;
    flex-direction: column;
@@ -413,25 +679,390 @@
    gap: 10px;
    padding: 8px 12px;
    text-align: left;
-   transition: background 100ms ease, border-color 100ms ease;
 }
 
 .target-option:hover {
    background: #253369;
-   border-color: var(--color-blue, #5aa5ff);
+   border-color: var(--piecie-blue);
 }
 
-.target-name {
-   font-weight: 600;
+.target-mp { font-size: 0.8rem; color: #8ef58e; font-weight: 600; }
+.target-level { font-size: 0.75rem; color: #b0bcdf; }
+
+/* ── MOBILE ──────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+   html,
+   body {
+      overflow: auto;
+   }
+
+   .game-layout {
+      width: min(100%, calc(100% - 12px));
+      margin: 0 auto 10px;
+      grid-template-columns: 1fr;
+      grid-template-areas:
+         'main'
+         'hand'
+         'log';
+      gap: 6px;
+   }
+
+   .game-topbar {
+      width: min(100%, calc(100% - 12px));
+      margin: 8px auto 0;
+      padding: 8px;
+      gap: 6px;
+   }
+
+   .topbar-actions {
+      width: 100%;
+      justify-content: stretch;
+   }
+
+   .topbar-actions button {
+      flex: 1 1 auto;
+      min-width: 0;
+      padding: 8px 10px;
+      font-size: 0.76rem;
+   }
+
+   .game-log,
+   .log-entries {
+      max-height: 240px;
+   }
 }
 
-.target-mp {
-   font-size: 0.8rem;
-   color: #8ef58e;
-   font-weight: 600;
+/* ==============================================================
+    Skeuomorphic Layer Overrides
+    ============================================================== */
+
+/* ── INLAID FIELD ZONES ──────────────────────────────────────────── */
+.player-field,
+.opponent-field,
+.board-zone--player,
+.board-zone--opponent {
+   background:
+      repeating-linear-gradient(
+         45deg,
+         rgba(255, 255, 255, 0.008) 0px,
+         rgba(255, 255, 255, 0.008) 1px,
+         transparent 1px,
+         transparent 5px
+      ),
+      linear-gradient(180deg, #0a0e18 0%, #0c1120 100%);
+   border: 1px solid rgba(255, 255, 255, 0.04);
+   box-shadow:
+      inset 0 2px 8px rgba(0, 0, 0, 0.6),
+      inset 2px 0 6px rgba(0, 0, 0, 0.3),
+      inset -2px 0 6px rgba(0, 0, 0, 0.3),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.03),
+      0 1px 3px rgba(0, 0, 0, 0.4);
+   border-radius: 16px;
 }
 
-.target-level {
-   font-size: 0.75rem;
-   color: #b0bcdf;
+.player-field.is-active-turn,
+.board-zone--player {
+   border-color: rgba(232, 185, 79, 0.12);
+   box-shadow:
+      inset 0 2px 8px rgba(0, 0, 0, 0.6),
+      inset 2px 0 6px rgba(0, 0, 0, 0.3),
+      inset -2px 0 6px rgba(0, 0, 0, 0.3),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.03),
+      0 0 0 1px rgba(232, 185, 79, 0.08),
+      0 0 20px rgba(232, 185, 79, 0.04);
+}
+
+/* ── MOSJE SLOT ──────────────────────────────────────────────────── */
+.mosje-slot,
+.board-zone__slots {
+   background:
+      repeating-linear-gradient(
+         45deg,
+         rgba(0, 0, 0, 0.15) 0px,
+         rgba(0, 0, 0, 0.15) 1px,
+         transparent 1px,
+         transparent 4px
+      ),
+      rgba(0, 0, 0, 0.2);
+   border: 1px solid rgba(255, 255, 255, 0.04);
+   box-shadow:
+      inset 0 2px 6px rgba(0, 0, 0, 0.5),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.02);
+   border-radius: 10px;
+}
+
+/* ── PIECIE SLOTS ────────────────────────────────────────────────── */
+.piecie-slot {
+   background: rgba(0, 0, 0, 0.15);
+   border: 1px solid rgba(255, 255, 255, 0.03);
+   box-shadow:
+      inset 0 1px 4px rgba(0, 0, 0, 0.4),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.02);
+   border-radius: 8px;
+}
+
+/* ── SHARED CENTER ZONE ──────────────────────────────────────────── */
+#shared-zone,
+.board-zone--center {
+   background:
+      repeating-linear-gradient(
+         -45deg,
+         rgba(255, 255, 255, 0.006) 0px,
+         rgba(255, 255, 255, 0.006) 1px,
+         transparent 1px,
+         transparent 7px
+      ),
+      linear-gradient(180deg, #080c14 0%, #0a0f1c 100%);
+   box-shadow:
+      inset 0 3px 12px rgba(0, 0, 0, 0.7),
+      inset 0 -2px 8px rgba(0, 0, 0, 0.4),
+      0 2px 0 rgba(255, 255, 255, 0.02);
+   border-top: 1px solid rgba(255, 255, 255, 0.03);
+   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+/* ── GAME LOG ────────────────────────────────────────────────────── */
+#game-log,
+.game-log-panel {
+   background:
+      repeating-linear-gradient(
+         0deg,
+         rgba(255, 255, 255, 0.015) 0px,
+         rgba(255, 255, 255, 0.015) 1px,
+         transparent 1px,
+         transparent 22px
+      ),
+      linear-gradient(180deg, #07090f 0%, #080c14 100%);
+   border-left: 1px solid rgba(255, 255, 255, 0.04);
+   box-shadow:
+      inset 2px 0 8px rgba(0, 0, 0, 0.4),
+      -2px 0 10px rgba(0, 0, 0, 0.3);
+}
+
+/* ── PLACE CARD CENTERPIECE ─────────────────────────────────────── */
+.place-slot.has-place .card--place .card-face,
+.place-slot.has-place .card--place {
+   box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.95),
+      0 6px 12px rgba(0, 0, 0, 0.8),
+      0 12px 30px rgba(0, 0, 0, 0.6),
+      0 20px 60px rgba(0, 0, 0, 0.4),
+      0 0 30px rgba(61, 214, 140, 0.12);
+}
+
+.place-slot.has-place .card--place.currently-active .card-face,
+.place-slot.has-place .card--place.currently-active {
+   box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.95),
+      0 6px 12px rgba(0, 0, 0, 0.8),
+      0 12px 30px rgba(0, 0, 0, 0.6),
+      0 20px 60px rgba(0, 0, 0, 0.4),
+      0 0 40px rgba(61, 214, 140, 0.25),
+      0 0 80px rgba(61, 214, 140, 0.1),
+      inset 0 1px 0 rgba(61, 214, 140, 0.08);
+}
+
+.quest-deck-stack {
+   filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.8));
+}
+
+/* ── Fit to viewport + secondary log drawer ─────────────────────── */
+.page--game {
+   height: 100vh;
+   overflow: hidden;
+}
+
+.game-layout {
+   width: min(1280px, calc(100% - 20px));
+   height: calc(100vh - 96px);
+   margin: 0 auto 8px;
+   gap: 4px;
+   grid-template-columns: 1fr;
+   grid-template-rows: minmax(0, 1fr) auto;
+   grid-template-areas:
+      'main'
+      'hand';
+   min-height: 0;
+}
+
+.game-board,
+.game-hand-panel {
+   min-height: 0;
+   overflow: hidden;
+}
+
+.game-board {
+   max-height: calc(100vh - 370px);
+   overflow: auto;
+}
+
+.game-hand-panel {
+   height: 286px;
+   max-height: 286px;
+   padding-top: 16px;
+}
+
+.game-hand-panel .hand-strip,
+.game-hand-panel .hand-cards {
+   overflow-x: auto;
+   overflow-y: hidden;
+   align-items: flex-end;
+   padding-top: 26px;
+   padding-bottom: 10px;
+}
+
+.game-hand-panel .card--mosje {
+   width: var(--mosje-card-w-hand, 190px);
+   min-width: var(--mosje-card-w-hand, 190px);
+   max-width: var(--mosje-card-w-hand, 190px);
+   height: var(--mosje-card-h-hand, 290px);
+}
+
+.game-hand-panel .card--piecie,
+.game-hand-panel .card--snelle,
+.game-hand-panel .card--snelle_piecie {
+   width: var(--piecie-card-w-hand, 120px);
+   min-width: var(--piecie-card-w-hand, 120px);
+   max-width: var(--piecie-card-w-hand, 120px);
+   height: var(--piecie-card-h-hand, 175px);
+}
+
+.game-hand-panel .card--quest,
+.game-hand-panel .card--quest-general,
+.game-hand-panel .card--quest-personal,
+.game-hand-panel .card--place {
+   width: var(--support-card-w, 110px);
+   min-width: var(--support-card-w, 110px);
+   max-width: var(--support-card-w, 110px);
+   height: var(--support-card-h, 160px);
+}
+
+.board-zone__piecies {
+   display: flex;
+   gap: 6px;
+   flex-wrap: wrap;
+   min-height: 48px;
+   align-items: flex-start;
+}
+
+.board-zone__piecies .field-piecie-card {
+   width: var(--piecie-card-w, 130px);
+   min-width: var(--piecie-card-w, 130px);
+   max-width: var(--piecie-card-w, 130px);
+   height: var(--piecie-card-h, 190px);
+}
+
+.piecie-slot {
+   width: var(--piecie-card-w, 130px);
+   height: var(--piecie-card-h, 190px);
+}
+
+@media (min-width: 901px) {
+   .game-log-panel {
+      position: fixed;
+      right: 10px;
+      top: 110px;
+      bottom: 12px;
+      width: 46px;
+      min-height: 0;
+      max-height: none;
+      overflow: hidden;
+      border-radius: 12px;
+      z-index: 60;
+      transition: width 0.2s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth);
+   }
+
+   .game-log-panel h2 {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      margin: 10px auto;
+      color: #8392af;
+   }
+
+   .game-log {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+   }
+
+   .game-log-panel:hover,
+   .game-log-panel:focus-within {
+      width: 240px;
+      box-shadow: -6px 0 24px rgba(0, 0, 0, 0.45);
+   }
+
+   .game-log-panel:hover h2,
+   .game-log-panel:focus-within h2 {
+      writing-mode: horizontal-tb;
+      transform: none;
+      margin: 8px 10px;
+   }
+
+   .game-log-panel:hover .game-log,
+   .game-log-panel:focus-within .game-log {
+      opacity: 1;
+      pointer-events: auto;
+   }
+}
+
+@media (max-width: 900px) {
+   :root {
+      --mosje-card-w: 150px;
+      --mosje-card-h: 230px;
+      --mosje-card-w-hand: 130px;
+      --mosje-card-h-hand: 200px;
+      --piecie-card-w: 100px;
+      --piecie-card-h: 148px;
+      --piecie-card-w-hand: 96px;
+      --piecie-card-h-hand: 140px;
+   }
+
+   .page--game {
+      overflow: auto;
+      height: auto;
+   }
+
+   .game-layout {
+      height: auto;
+   }
+
+   .game-board,
+   .game-hand-panel {
+      max-height: none;
+   }
+
+   .game-hand-panel {
+      height: auto;
+   }
+
+   .board-zone--player,
+   .board-zone--opponent {
+      min-height: auto;
+   }
+
+   .board-zone--center {
+      grid-template-columns: 1fr;
+   }
+
+   .board-zone--player .card--mosje,
+   .board-zone--player .mosje-card--owned {
+      width: var(--mosje-card-w, 150px);
+      min-width: var(--mosje-card-w, 150px);
+      max-width: var(--mosje-card-w, 150px);
+      height: var(--mosje-card-h, 230px);
+   }
+
+   .board-zone--opponent .card--mosje,
+   .board-zone--opponent .mosje-card--opponent {
+      width: calc(var(--mosje-card-w, 150px) * 0.9);
+      min-width: calc(var(--mosje-card-w, 150px) * 0.9);
+      max-width: calc(var(--mosje-card-w, 150px) * 0.9);
+      height: calc(var(--mosje-card-h, 230px) * 0.9);
+   }
+
+   .game-log-panel {
+      display: none;
+   }
 }

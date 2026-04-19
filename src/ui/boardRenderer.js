@@ -31,6 +31,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		<section class="board-zone board-zone--opponent">
 			<header class="board-zone__header">${escapeHtml(viewModel.players.top.name)}</header>
 			<div class="board-zone__slots" id="zone-opponent"></div>
+			<div class="board-zone__piecies" id="piecies-opponent"></div>
 		</section>
 
 		<section class="board-zone board-zone--center">
@@ -42,24 +43,31 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		<section class="board-zone board-zone--player">
 			<header class="board-zone__header">${escapeHtml(viewModel.players.bottom.name)}</header>
 			<div class="board-zone__slots" id="zone-player"></div>
+			<div class="board-zone__piecies" id="piecies-player"></div>
 		</section>
 	`;
 
 	const topZone = container.querySelector('#zone-opponent');
 	const bottomZone = container.querySelector('#zone-player');
+	const topPiecies = container.querySelector('#piecies-opponent');
+	const bottomPiecies = container.querySelector('#piecies-player');
 
 	for (const mosje of viewModel.players.top.mosjes) {
 		const cardEl = renderCard(mosje, { compact: true });
 		const fullCard = getCardById(mosje.cardId) || mosje;
-		cardEl.classList.add('mosje-clickable');
+		cardEl.classList.add('mosje-clickable', 'mosje-card--opponent');
 		cardEl.addEventListener('click', () => getBoardModal().showMosjeDetailModal({ ...fullCard, ...mosje }));
 		topZone?.appendChild(cardEl);
 	}
 
 	for (const mosje of viewModel.players.bottom.mosjes) {
-		const cardEl = renderCard(mosje, { compact: true });
+		const cardEl = renderCard(mosje, {
+			compact: true,
+			gameState: viewModel.gameState || null,
+			viewingPlayerId: viewModel.myPlayerId || null,
+		});
 		const fullCard = getCardById(mosje.cardId) || mosje;
-		cardEl.classList.add('mosje-clickable');
+		cardEl.classList.add('mosje-clickable', 'mosje-card--owned');
 		cardEl.addEventListener('click', () => getBoardModal().showMosjeDetailModal({ ...fullCard, ...mosje }));
 
 		if (onUseAbility && !mosje.isDefeated && mosje.cardId) {
@@ -91,6 +99,30 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 			cardEl.appendChild(returnBtn);
 		}
 		bottomZone?.appendChild(cardEl);
+	}
+
+	for (const piecie of viewModel.players.top.piecies || []) {
+		if (piecie.faceDown) {
+			const slot = document.createElement('div');
+			slot.className = 'piecie-slot face-down-piecie has-card';
+			topPiecies?.appendChild(slot);
+			continue;
+		}
+		const piecieEl = renderCard(piecie, { compact: true });
+		piecieEl.classList.add('field-piecie-card');
+		topPiecies?.appendChild(piecieEl);
+	}
+
+	for (const piecie of viewModel.players.bottom.piecies || []) {
+		if (piecie.faceDown) {
+			const slot = document.createElement('div');
+			slot.className = 'piecie-slot face-down-piecie has-card';
+			bottomPiecies?.appendChild(slot);
+			continue;
+		}
+		const piecieEl = renderCard(piecie, { compact: true });
+		piecieEl.classList.add('field-piecie-card');
+		bottomPiecies?.appendChild(piecieEl);
 	}
 
 	// Render active quest panel (Phase 8 Rule 3 — shared quest visibility)
@@ -144,6 +176,73 @@ function renderActiveQuestInto(panel, questData, myPlayerId) {
 export function buildActiveQuestViewModel(gameState, myPlayerId) {
 	if (!gameState?.activeQuest) return null;
 	return { ...gameState.activeQuest, attacker: gameState.activeQuest.attacker ?? gameState.activePlayerId };
+}
+
+// Shows a floating MP number above a card.
+export function showMPFloat(cardEl, amount) {
+	if (!cardEl || !Number.isFinite(amount) || amount === 0) return;
+	const float = document.createElement('div');
+	float.className = `mp-float ${amount > 0 ? 'gain' : 'loss'}`;
+	float.textContent = amount > 0 ? `+${amount}` : `${amount}`;
+
+	const rect = cardEl.getBoundingClientRect();
+	float.style.left = `${rect.left + rect.width / 2}px`;
+	float.style.top = `${rect.top}px`;
+
+	document.body.appendChild(float);
+	float.addEventListener('animationend', () => float.remove(), { once: true });
+}
+
+// Triggers entry animation for a card newly placed on field.
+export function animateCardPlay(cardEl) {
+	if (!cardEl) return;
+	cardEl.classList.add('just-played');
+	cardEl.addEventListener('animationend', () => cardEl.classList.remove('just-played'), { once: true });
+}
+
+// Triggers damage shake animation on a Mosje card.
+export function animateCardDamage(cardEl) {
+	if (!cardEl) return;
+	cardEl.classList.add('taking-damage');
+	cardEl.addEventListener('animationend', () => cardEl.classList.remove('taking-damage'), { once: true });
+}
+
+// Triggers level up burst and center text effect.
+export function animateLevelUp(cardEl) {
+	if (!cardEl) return;
+	cardEl.classList.add('level-up');
+	cardEl.addEventListener('animationend', () => cardEl.classList.remove('level-up'), { once: true });
+
+	const text = document.createElement('div');
+	text.className = 'level-up-text';
+	text.textContent = 'LEVEL UP!';
+	text.style.left = '50%';
+	text.style.top = '50%';
+	document.body.appendChild(text);
+	text.addEventListener('animationend', () => text.remove(), { once: true });
+}
+
+// Updates MP bar fill width, classes, and labels for a Mosje card by data-mosje-id.
+export function updateMPBar(mosjeInstanceId, mp, level) {
+	if (!mosjeInstanceId) return;
+	const root = document.querySelector(`[data-mosje-id="${String(mosjeInstanceId)}"]`);
+	const bar = root?.querySelector('.mp-bar-fill');
+	if (!bar) return;
+
+	const safeMp = Number.isFinite(mp) ? mp : 0;
+	const pct = Math.max(0, Math.min(100, safeMp));
+	bar.style.width = `${pct}%`;
+
+	bar.classList.remove('mp-low', 'mp-mid', 'mp-high');
+	if (pct < 30) bar.classList.add('mp-low');
+	else if (pct < 70) bar.classList.add('mp-mid');
+	else bar.classList.add('mp-high');
+
+	const valueEl = bar.closest('.mp-bar-container')?.querySelector('.mp-bar-values');
+	if (valueEl) valueEl.textContent = `${safeMp} / 100`;
+
+	const levelEl = bar.closest('.mp-bar-container')?.querySelector('.mp-bar-level');
+	if (levelEl) levelEl.textContent = `LV.${Number.isFinite(level) ? level : 0}`;
 }
 
 function escapeHtml(text) {
