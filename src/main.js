@@ -141,8 +141,13 @@ function initGamePage() {
 
 	// ── Shared remote-state handler — registered after game init ─────────
 	function onRemoteState(remoteState) {
-		gameState = remoteState;
+		const { state: sanitizedState, changed } = sanitizeQuestCardsInPlayerZones(remoteState);
+		gameState = sanitizedState;
 		renderFromState(gameState);
+		// Persist one-time migration so all clients stop seeing legacy GENERAL quests in player zones.
+		if (changed && isOnline && localPlayerId === 'player_1') {
+			syncPush();
+		}
 		const activeName = gameState.players[gameState.activePlayerId]?.name;
 		log.add('quest', `Opponent acted — now ${activeName}'s turn.`);
 		if (gameState.status === 'FINISHED') {
@@ -190,8 +195,12 @@ function initGamePage() {
 		listenToState(roomCode, localPlayerId);
 		// First remote state initialises the game for player_2, then ongoing handler takes over
 		eventBus.once('mp:remote-state', initialState => {
-			gameState = initialState;
+			const { state: sanitizedState, changed } = sanitizeQuestCardsInPlayerZones(initialState);
+			gameState = sanitizedState;
 			renderFromState(gameState);
+			if (changed && isOnline && localPlayerId === 'player_1') {
+				syncPush();
+			}
 			log.add('gain', `Game started! Waiting for opponent's first turn.`);
 			eventBus.on('mp:remote-state', onRemoteState);
 		});
@@ -586,6 +595,66 @@ function initGamePage() {
 			return;
 		}
 
+		if (cardType === 'QUEST') {
+			if (gameState.activePlayerId !== localPlayerId) {
+				modal.showInfo('Not Your Turn', 'You can only attempt quests on your own turn.');
+				return;
+			}
+			if (gameState.players[localPlayerId].hasAttemptedQuestThisTurn) {
+				modal.showInfo('Already Attempted', 'You have already attempted a quest this turn.');
+				return;
+			}
+			if (cardDef.questType !== 'PERSONAL') {
+				modal.showInfo('Cannot Play', 'Only Personal Quests can be played from your hand.');
+				return;
+			}
+			if (!canAttemptPersonalQuest(cardDef, gameState, localPlayerId)) {
+				modal.showInfo(
+					'Required Mosje Missing',
+					`${cardDef.name} requirements are not met right now.`
+				);
+				return;
+			}
+
+			const { state: newState, questCard: playedCard } = attemptPersonalQuest(gameState, cardRef.cardId);
+			gameState = newState;
+
+			const activeMosje = gameState.players[localPlayerId].activeSlots.find(s => s && !s.isDefeated);
+			const threshold = getQuestDiceThreshold(cardDef, activeMosje);
+			log.add('quest', `${localPlayerName} is attempting Personal Quest: ${cardDef.name}`);
+
+			const diceBonus = gameState._snelleFlags?.questDiceBonus || 0;
+			const forceReroll = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
+			if (diceBonus) delete gameState._snelleFlags.questDiceBonus;
+			if (forceReroll) delete gameState._snelleFlags.forceReroll[localPlayerId];
+
+			gameState.activeQuest = {
+				questName: cardDef.name,
+				cardName: cardDef.name,
+				questType: cardDef.questType || 'PERSONAL',
+				attacker: localPlayerId,
+				successMP: cardDef.successMP,
+				failMP: cardDef.failMP,
+				currentMp: activeMosje?.mp ?? null,
+			};
+			renderFromState(gameState);
+			syncPush();
+
+			modal.showDiceRoll(cardDef, threshold, (didSucceed) => {
+				gameState = resolveQuest(gameState, localPlayerId, cardDef, didSucceed);
+				gameState.activeQuest = null;
+				renderFromState(gameState);
+				syncPush();
+
+				const mpDelta = didSucceed ? cardDef.successMP : cardDef.failMP;
+				const sign = mpDelta >= 0 ? '+' : '';
+				log.add(didSucceed ? 'gain' : 'loss',
+					`${cardDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`
+				);
+			}, { diceBonus, forceReroll });
+			return;
+		}
+
 		if (cardType === 'PLACE') {
 			const currentPlaceName = gameState.activePlace
 				? (PLACES.find(p => p.id === gameState.activePlace)?.name || gameState.activePlace)
@@ -702,4 +771,42 @@ function pickOpponentDeck(localDeckId) {
 	if (localDeckId === 'PHYSICAL_FORCE') return 'ARTISTIC_RHYTHM';
 	if (localDeckId === 'ARTISTIC_RHYTHM') return 'DIGITAL_CONTROL';
 	return 'PHYSICAL_FORCE';
+}
+
+function sanitizeQuestCardsInPlayerZones(rawState) {
+	const state = JSON.parse(JSON.stringify(rawState));
+	const generalQuestIds = new Set(
+		QUESTS.filter(q => q.questType === 'GENERAL').map(q => q.id)
+	);
+
+	let changed = false;
+	const movedToSharedDiscard = [];
+
+	for (const player of Object.values(state.players || {})) {
+		for (const zoneName of ['hand', 'deck', 'discard']) {
+			const zone = Array.isArray(player[zoneName]) ? player[zoneName] : [];
+			const kept = [];
+
+			for (const cardRef of zone) {
+				const cardId = cardRef?.cardId;
+				const isQuest = cardRef?.type === 'QUEST';
+				if (isQuest && cardId && generalQuestIds.has(cardId)) {
+					movedToSharedDiscard.push({ cardId, type: 'QUEST' });
+					changed = true;
+					continue;
+				}
+				kept.push(cardRef);
+			}
+
+			player[zoneName] = kept;
+		}
+	}
+
+	if (movedToSharedDiscard.length > 0) {
+		if (!Array.isArray(state.sharedGeneralQuestDiscard)) state.sharedGeneralQuestDiscard = [];
+		state.sharedGeneralQuestDiscard.unshift(...movedToSharedDiscard);
+		console.log(`[UI] Sanitized ${movedToSharedDiscard.length} legacy GENERAL quest card(s) from player zones`);
+	}
+
+	return { state, changed };
 }

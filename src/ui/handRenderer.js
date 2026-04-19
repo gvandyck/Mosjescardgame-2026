@@ -30,6 +30,7 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 
 		const isSnelle = card.type === 'SNELLE_PIECIE';
 		const isRegularPlayable = card.type === 'PIECIE';
+		const isPersonalQuest = card.type === 'QUEST' && card.questType === 'PERSONAL';
 
 		// Snelle Piecies are always interactive (can be played as interrupt any turn)
 		if (isSnelle && onPlay) {
@@ -56,6 +57,23 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 				btn.className = 'hand-card__play-btn';
 				btn.type = 'button';
 				btn.textContent = 'Play';
+				btn.addEventListener('click', (e) => {
+					e.stopPropagation();
+					onPlay(card.cardId, card.type);
+				});
+				cardEl.appendChild(btn);
+			} else {
+				cardEl.classList.add('hand-card--not-playable');
+				cardEl.title = 'Not your turn';
+			}
+		}
+		else if (isPersonalQuest && onPlay) {
+			if (isLocalTurn) {
+				cardEl.classList.add('hand-card--playable');
+				const btn = document.createElement('button');
+				btn.className = 'hand-card__play-btn';
+				btn.type = 'button';
+				btn.textContent = 'Attempt Quest';
 				btn.addEventListener('click', (e) => {
 					e.stopPropagation();
 					onPlay(card.cardId, card.type);
