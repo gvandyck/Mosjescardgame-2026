@@ -29,6 +29,7 @@ let _localPlayerId = 'player_1';   // Which player this client controls
 let _roomRef = null;
 let _onValueHandler = null;
 let _lastStateSignature = null;
+let _lastPushedSignature = null;
 let _hasSeenPlayer2 = false;
 
 // ── pushState ─────────────────────────────────────────────────────────────
@@ -45,6 +46,7 @@ export async function pushState(roomCode, gameState) {
 	try {
 		// Firestore cannot store undefined values — strip them out
 		const sanitized = JSON.parse(JSON.stringify(gameState));
+		_lastPushedSignature = JSON.stringify(sanitized);
 		await update(roomRef, {
 			gameState: sanitized,
 			status: gameState.status === 'FINISHED' ? 'FINISHED' : 'PLAYING',
@@ -74,6 +76,7 @@ export async function listenToState(roomCode, localPlayerId) {
 	// Clean up any existing listener
 	stopListening();
 	_lastStateSignature = null;
+	_lastPushedSignature = null;
 	_hasSeenPlayer2 = false;
 
 	const db = getRtdb();
@@ -97,11 +100,12 @@ export async function listenToState(roomCode, localPlayerId) {
 		if (signature === _lastStateSignature) return;
 		_lastStateSignature = signature;
 
-		// Only act on opponent's writes to avoid re-applying our own pushes
-		if (gs.activePlayerId !== _localPlayerId) {
-			console.log('[SYNC] Remote state received from opponent. Active:', gs.activePlayerId);
-			eventBus.emit('mp:remote-state', gs);
-		}
+		// Ignore local RTDB echo of our own last push.
+		// Do NOT use activePlayerId for filtering; that breaks turn handoff updates.
+		if (signature === _lastPushedSignature) return;
+
+		console.log('[SYNC] Remote state received. Active:', gs.activePlayerId);
+		eventBus.emit('mp:remote-state', gs);
 
 		if (gs.status === 'FINISHED') {
 			eventBus.emit('mp:game-finished', gs);
