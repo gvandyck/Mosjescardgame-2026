@@ -18,7 +18,7 @@ export const PLACES = [
     tags: ["PHYSICAL"],
     description: "End Phase: All Mosjes lose 10 MP. Physical ★★ gain 25 MP instead. Physical ★★★ gain 35 MP instead.",
     flavourText: "Alleen de sterksten overleven.",
-    artPath: "assets/places/placeholder.png",
+    artPath: "assets/mosje-art/Place The Gym.jpg",
     goodFor: ["FIGHTING"],
     badFor: ["DIGITAL"],
     rarity: "★★★☆☆",

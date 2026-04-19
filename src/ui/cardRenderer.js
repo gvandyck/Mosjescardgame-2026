@@ -64,6 +64,11 @@ export function renderCard(card, options = {}) {
     return element;
   }
 
+  if (type === 'PLACE') {
+    element.innerHTML = buildPlaceCardHTML(resolvedCard);
+    return element;
+  }
+
   element.innerHTML = `
     ${badge}
     <div class="card__top">
@@ -215,6 +220,68 @@ export function buildMosjeCardHTML(card, gameState = null, viewingPlayerId = nul
             <p class="mosje-flavour">&quot;${escapeHtml(card.flavourText)}&quot;</p>
           `
           : ''}
+      </div>
+    </div>
+  `;
+}
+
+export function buildPlaceCardHTML(card) {
+  const hasRealArt = typeof card.artPath === 'string'
+    && card.artPath.length > 0
+    && !card.artPath.endsWith('/placeholder.png');
+  const artUrl = hasRealArt ? resolveArtPathForCss(card.artPath) : '';
+  const artStyle = hasRealArt
+    ? ` style="--place-art-url: url('${escapeCssUrl(artUrl)}');"`
+    : '';
+
+  const triggerLabel = card.trigger
+    ? card.trigger.replaceAll('_', ' ')
+    : 'PASSIVE';
+
+  const tagBadges = (Array.isArray(card.tags) ? card.tags : [])
+    .map(t => `<span class="place-tag">${escapeHtml(t)}</span>`)
+    .join('');
+
+  const rarityStars = escapeHtml(String(card.rarity || '★★★☆☆'));
+
+  return `
+    <div class="place-card-inner">
+      <div class="place-full-art${hasRealArt ? '' : ' is-placeholder'}"${artStyle}></div>
+      <div class="place-full-art-vignette"></div>
+      <div class="place-card-content">
+        <div class="place-banner">
+          <span class="place-type-label">PLACE</span>
+          <span class="place-trigger-badge">${escapeHtml(triggerLabel)}</span>
+        </div>
+
+        <div class="place-identity">
+          <h3 class="place-name">${escapeHtml(card.name || 'Unnamed Place')}</h3>
+          ${tagBadges ? `<div class="place-tags">${tagBadges}</div>` : ''}
+        </div>
+
+        <div class="place-card-rule"></div>
+
+        <div class="place-effect-section">
+          <div class="section-label">✦ EFFECT</div>
+          <p class="place-effect-text">${escapeHtml(card.description || '')}</p>
+        </div>
+
+        ${card.goodFor?.length || card.badFor?.length ? `
+          <div class="place-card-rule"></div>
+          <div class="place-affinity">
+            ${card.goodFor?.length ? `<span class="place-good">▲ ${escapeHtml(card.goodFor.join(', '))}</span>` : ''}
+            ${card.badFor?.length ? `<span class="place-bad">▼ ${escapeHtml(card.badFor.join(', '))}</span>` : ''}
+          </div>
+        ` : ''}
+
+        ${card.flavourText ? `
+          <div class="place-card-rule"></div>
+          <p class="place-flavour">&quot;${escapeHtml(card.flavourText)}&quot;</p>
+        ` : ''}
+
+        <div class="place-footer">
+          <span class="place-rarity">${rarityStars}</span>
+        </div>
       </div>
     </div>
   `;

@@ -94,7 +94,7 @@ export const MOSJES = [
     petSynergy: "piecie_vianna_poes",
     tags: ["CLESS"],
     flavourText: "Nobody knows what he'll do next... including him.",
-    artPath: "assets/mosje-art/placeholder.png",
+    artPath: "assets/mosje-art/azn-cless-the-wildcard.jpg",
     rarity: "◆",
     isBoosterOnly: false
   },
@@ -518,7 +518,7 @@ export const MOSJES = [
     petSynergy: null,
     tags: ["BINTI"],
     flavourText: "Her words cut deeper than any blade.",
-    artPath: "assets/mosje-art/binti-the-sharp-tongue-ALT.jpg",
+    artPath: "assets/mosje-art/binti-the-sharp-tongue.jpg",
     rarity: "◆",
     isBoosterOnly: false
   },
@@ -674,6 +674,10 @@ export const MOSJES = [
 ];
 
 const MOSJE_ALT_ART_VARIANTS = {
+  mosje_binti: [
+    "assets/mosje-art/binti-the-sharp-tongue.jpg",
+    "assets/mosje-art/binti-the-sharp-tongue-ALT.jpg",
+  ],
   mosje_chris: [
     "assets/mosje-art/Chris The All-Rounder.jpg",
     "assets/mosje-art/Chris-the-allrounder-ALT.jpg",
