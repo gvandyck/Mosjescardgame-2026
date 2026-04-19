@@ -25,6 +25,8 @@
     import { runVictoryCheckerTests } from './core/test-victoryChecker.js';
     import { runDeckEngineTests } from './core/test-deckEngine.js';
     import { runTurnManagerTests } from './core/test-turnManager.js';
+    import { runGameStateTests } from './core/test-gameState.js';
+    import { runBoardRendererTests } from './core/test-boardRenderer.js';
 
     import { runMosjeAbilityTests } from './cards/test-mosjeAbilities.js';
     import { runPiecieEffectsTests } from './cards/test-piecieEffects.js';
@@ -40,6 +42,8 @@
       runVictoryCheckerTests();
       runDeckEngineTests();
       runTurnManagerTests();
+      runGameStateTests();
+      runBoardRendererTests();
 
       runQuestLogicTests();
       runMosjeAbilityTests();
