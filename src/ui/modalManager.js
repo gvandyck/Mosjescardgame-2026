@@ -13,6 +13,7 @@ export function initModalManager(container) {
 			showDiceRoll: (_info, _threshold, onResolved) => onResolved(false),
 			showConfirm: async () => false,
 			showPlaceDetailModal: () => {},
+			showMosjeSelect: (_slots, onSelected) => onSelected(0),
 			close: () => {},
 		};
 	}
@@ -359,6 +360,37 @@ export function initModalManager(container) {
 		container.querySelector('#modal-close-reveal')?.addEventListener('click', close);
 	}
 
+	function showMosjeSelect(mosjeSlots, onSelected) {
+		if (mosjeSlots.length <= 1) {
+			onSelected(mosjeSlots[0]?.slotIndex ?? 0);
+			return;
+		}
+		container.classList.add('modal-root--open');
+		const rows = mosjeSlots.map(m => `
+			<button class="modal-mosje-select-btn" data-slot="${m.slotIndex}" type="button">
+				<span class="mosje-select-name">${escapeHtml(m.name)}</span>
+				<span class="mosje-select-mp">${m.mp} MP</span>
+			</button>
+		`).join('');
+
+		container.innerHTML = `
+			<div class="modal-backdrop"></div>
+			<section class="modal-card" role="dialog" aria-modal="true">
+				<h3>Choose Mosje for Quest</h3>
+				<p>Select which Mosje will receive the quest reward or take the damage.</p>
+				<div class="modal-mosje-select-list">${rows}</div>
+			</section>
+		`;
+
+		container.querySelectorAll('.modal-mosje-select-btn').forEach(btn => {
+			btn.addEventListener('click', () => {
+				const slot = parseInt(btn.dataset.slot, 10);
+				close();
+				onSelected(slot);
+			});
+		});
+	}
+
 	return {
 		showInfo,
 		showDiceRoll,
@@ -369,6 +401,7 @@ export function initModalManager(container) {
 		showMosjeDetailModal,
 		showPlaceDetailModal,
 		showOpponentHandRevealModal,
+		showMosjeSelect,
 		close,
 	};
 }

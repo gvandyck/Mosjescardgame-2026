@@ -198,7 +198,7 @@ export function runDeckEngineTests() {
 
     const returned = returnMosjeToHand(state, 'player_1', 0);
     assertEqual(returned.players.player_1.activeSlots[0], null);
-    const handMosje = returned.players.player_1.hand.find(c => c.type === 'MOSJE');
+    const handMosje = returned.players.player_1.hand.find(c => c.type === 'MOSJE' && c.returnedThisTurn);
     assertTrue(!!handMosje);
     assertTrue(!!handMosje.savedState);
     assertTrue(handMosje.returnedThisTurn);

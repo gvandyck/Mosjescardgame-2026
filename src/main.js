@@ -383,24 +383,37 @@ function initGamePage() {
 		renderFromState(gameState);
 		syncPush();
 
-		modal.showDiceRoll(questDef, threshold, (didSucceed) => {
-			const beforeResolve = gameState;
-			gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed);
-			gameState.activeQuest = null;
-			if (!Array.isArray(gameState.sharedGeneralQuestDiscard)) {
-				gameState.sharedGeneralQuestDiscard = [];
-			}
-			gameState.sharedGeneralQuestDiscard.push(questRef);
-			renderFromState(gameState);
-			syncPush();
+		const gqSlots = gameState.players[localPlayerId].activeSlots
+			.map((slot, index) => ({ slot, index }))
+			.filter(({ slot }) => slot && !slot.isDefeated)
+			.map(({ slot, index }) => ({ slotIndex: index, name: slot.cardId || 'Mosje', mp: slot.mp }));
 
-			const mpDelta = didSucceed ? questDef.successMP : questDef.failMP;
-			const sign = mpDelta >= 0 ? '+' : '';
-			log.add(didSucceed ? 'gain' : 'loss',
-				`${questDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`
-			);
-			logStateOutcome(log, beforeResolve, gameState, localPlayerId, `${questDef.name} resolution`);
-		}, { diceBonus: diceBonus + placeDiceBonus, forceReroll, skiffaRerolls });
+		function runGeneralQuestDiceRoll(targetSlotIndex) {
+			modal.showDiceRoll(questDef, threshold, (didSucceed) => {
+				const beforeResolve = gameState;
+				gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed, targetSlotIndex);
+				gameState.activeQuest = null;
+				if (!Array.isArray(gameState.sharedGeneralQuestDiscard)) {
+					gameState.sharedGeneralQuestDiscard = [];
+				}
+				gameState.sharedGeneralQuestDiscard.push(questRef);
+				renderFromState(gameState);
+				syncPush();
+
+				const mpDelta = didSucceed ? questDef.successMP : questDef.failMP;
+				const sign = mpDelta >= 0 ? '+' : '';
+				log.add(didSucceed ? 'gain' : 'loss',
+					`${questDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`
+				);
+				logStateOutcome(log, beforeResolve, gameState, localPlayerId, `${questDef.name} resolution`);
+			}, { diceBonus: diceBonus + placeDiceBonus, forceReroll, skiffaRerolls });
+		}
+
+		if (gqSlots.length > 1) {
+			modal.showMosjeSelect(gqSlots, runGeneralQuestDiceRoll);
+		} else {
+			runGeneralQuestDiceRoll(gqSlots[0]?.slotIndex ?? 0);
+		}
 	});
 
 	document.getElementById('btn-personal-quest')?.addEventListener('click', () => {
@@ -463,20 +476,33 @@ function initGamePage() {
 		renderFromState(gameState);
 		syncPush();
 
-		modal.showDiceRoll(questDef, threshold, (didSucceed) => {
-			const beforeResolve = gameState;
-			gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed);
-			gameState.activeQuest = null;
-			renderFromState(gameState);
-			syncPush();
+		const pqSlots = gameState.players[localPlayerId].activeSlots
+			.map((slot, index) => ({ slot, index }))
+			.filter(({ slot }) => slot && !slot.isDefeated)
+			.map(({ slot, index }) => ({ slotIndex: index, name: slot.cardId || 'Mosje', mp: slot.mp }));
 
-			const mpDelta = didSucceed ? questDef.successMP : questDef.failMP;
-			const sign = mpDelta >= 0 ? '+' : '';
-			log.add(didSucceed ? 'gain' : 'loss',
-				`${questDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`
-			);
-			logStateOutcome(log, beforeResolve, gameState, localPlayerId, `${questDef.name} resolution`);
-		}, { diceBonus: diceBonus2 + placeDiceBonus2, forceReroll: forceReroll2, skiffaRerolls: skiffaRerolls2 });
+		function runPersonalQuestDiceRoll(targetSlotIndex) {
+			modal.showDiceRoll(questDef, threshold, (didSucceed) => {
+				const beforeResolve = gameState;
+				gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed, targetSlotIndex);
+				gameState.activeQuest = null;
+				renderFromState(gameState);
+				syncPush();
+
+				const mpDelta = didSucceed ? questDef.successMP : questDef.failMP;
+				const sign = mpDelta >= 0 ? '+' : '';
+				log.add(didSucceed ? 'gain' : 'loss',
+					`${questDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`
+				);
+				logStateOutcome(log, beforeResolve, gameState, localPlayerId, `${questDef.name} resolution`);
+			}, { diceBonus: diceBonus2 + placeDiceBonus2, forceReroll: forceReroll2, skiffaRerolls: skiffaRerolls2 });
+		}
+
+		if (pqSlots.length > 1) {
+			modal.showMosjeSelect(pqSlots, runPersonalQuestDiceRoll);
+		} else {
+			runPersonalQuestDiceRoll(pqSlots[0]?.slotIndex ?? 0);
+		}
 	});
 
 	function renderFromState(state) {

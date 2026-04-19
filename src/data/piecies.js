@@ -787,7 +787,7 @@ export const PIECIES = [
     tags: ["PET", "PROTECT"],
     description: "Persistent 2 turns: GANDOE/DJ/TUK/MICHELLE Mosjes reduce MP loss by 50% (75% with synergy).",
     flavourText: "",
-    artPath: "assets/piecies/placeholder.png",
+    artPath: "assets/piecie-art/Piecie Animal Bowie.jpg",
     rarity: "★★★★☆",
     isBoosterOnly: false,
     deckLimit: null

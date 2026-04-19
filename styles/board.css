@@ -631,8 +631,8 @@
 }
 
 .modal-card--mosje-detail {
-   width: min(92vw, 980px);
-   max-width: 980px;
+   width: min(96vw, 1280px);
+   max-width: 1280px;
    grid-template-columns: auto 1fr;
    align-items: start;
    gap: 16px;
@@ -641,6 +641,8 @@
 .modal-mosje-preview {
    position: sticky;
    top: 8px;
+   zoom: 2;
+   pointer-events: none;
 }
 
 .modal-mosje-preview .card--mosje,
@@ -657,12 +659,16 @@
 }
 
 .modal-card--place-detail {
+   width: min(96vw, 1280px);
+   max-width: 1280px;
    grid-template-columns: auto 1fr;
 }
 
 .modal-place-preview {
    position: sticky;
    top: 8px;
+   zoom: 2;
+   pointer-events: none;
 }
 
 .modal-place-preview .card--place,

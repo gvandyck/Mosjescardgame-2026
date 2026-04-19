@@ -219,7 +219,7 @@ export function getQuestDiceThreshold(questCard, activeMosje) {
 
 // Resolves the MP result of a quest and updates completion counters.
 // The caller provides didSucceed after rolling/checking requirements.
-export function resolveQuest(gameState, playerId, questCard, didSucceed) {
+export function resolveQuest(gameState, playerId, questCard, didSucceed, targetSlotIndex = -1) {
 	let state = cloneState(gameState);
 	const player = state.players[playerId];
   if (!player) {
@@ -227,11 +227,18 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed) {
     return state;
   }
 
-  const slotIndex = getFirstActiveMosjeSlotIndex(player);
-  if (slotIndex < 0) {
+  const firstActive = getFirstActiveMosjeSlotIndex(player);
+  if (firstActive < 0) {
     console.log('[QUEST] resolveQuest: no active Mosje found for player:', playerId);
     return state;
   }
+  const isValidTarget = (
+    typeof targetSlotIndex === 'number' &&
+    targetSlotIndex >= 0 &&
+    player.activeSlots[targetSlotIndex] &&
+    !player.activeSlots[targetSlotIndex].isDefeated
+  );
+  const slotIndex = isValidTarget ? targetSlotIndex : firstActive;
 
 	// Perfect Sync auto-succeeds when requirement gate passed.
 	if (questCard.requirementId === 'quest_req_perfect_sync') {
