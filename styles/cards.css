@@ -1,27 +1,199 @@
-/* ============================================
-   cards.css — Card visuals, borders, animations
-   Controls how every card type looks:
-   gold border for Mosjes, blue for Piecies, etc.
-   Full styles added in Phase 5.
-   ============================================ */
-
-/* ── Quest card types ─────────────────────── */
-
+/* ── BASE CARD ───────────────────────────────────────────────────── */
 .card {
-  min-width: 170px;
-  max-width: 200px;
-  background: linear-gradient(160deg, #171d33 0%, #0f1425 100%);
-  border: 1px solid #2f3d6d;
-  border-radius: 10px;
+  position: relative;
+  width: var(--card-w);
+  min-width: var(--card-w);
+  max-width: var(--card-w);
+  height: var(--card-h);
+  border-radius: var(--radius-card);
+  cursor: pointer;
+  transition:
+    transform 0.25s var(--ease-snap),
+    box-shadow 0.25s var(--ease-smooth);
+  transform-style: preserve-3d;
+  user-select: none;
+  flex-shrink: 0;
+  overflow: hidden;
   padding: 10px;
   display: grid;
   gap: 8px;
-  position: relative;
-  animation: card-slide-in 180ms ease-out;
+  animation: card-slide-in 0.22s var(--ease-smooth);
 }
 
 .card--compact {
-  min-width: 150px;
+  width: calc(var(--card-w) * 0.9);
+  min-width: calc(var(--card-w) * 0.9);
+  max-width: calc(var(--card-w) * 0.9);
+  height: calc(var(--card-h) * 0.9);
+}
+
+.card.face-down {
+  transform: rotateY(180deg);
+}
+
+.card-face,
+.card-back {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-card);
+  backface-visibility: hidden;
+  overflow: hidden;
+}
+
+.card-back {
+  transform: rotateY(180deg);
+  background:
+    repeating-linear-gradient(
+      45deg,
+      #0d1528 0px, #0d1528 2px,
+      #111e3a 2px, #111e3a 12px
+    );
+  border: 2px solid #1a2a4a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-back::after {
+  content: 'MOSJES';
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  letter-spacing: 0.3em;
+  color: #1a2a4a;
+}
+
+.card:not(.card--disabled):not(.face-down):hover {
+  transform: translateY(-8px) scale(1.04);
+  z-index: 50;
+}
+
+.card--mosje {
+  border: 2px solid var(--mosje-gold);
+  background: linear-gradient(160deg, #1c1508 0%, #0e0c04 60%, #1a1205 100%);
+  box-shadow: 0 0 0 1px rgba(232, 185, 79, 0.15), inset 0 1px 0 rgba(232, 185, 79, 0.1);
+}
+
+.card--mosje:hover,
+.card--mosje.active {
+  box-shadow:
+    0 0 20px var(--mosje-glow),
+    0 0 60px rgba(232, 185, 79, 0.15),
+    inset 0 1px 0 rgba(232, 185, 79, 0.2);
+}
+
+.card--piecie {
+  border: 2px solid var(--piecie-blue);
+  background: linear-gradient(160deg, #050f1c 0%, #04080f 60%, #060c18 100%);
+}
+
+.card--piecie:hover {
+  box-shadow: 0 0 20px var(--piecie-glow), 0 0 60px rgba(61, 142, 245, 0.1);
+}
+
+.card--snelle,
+.card--snelle_piecie {
+  border: 2px solid var(--snelle-red);
+  background: linear-gradient(160deg, #1c0505 0%, #0f0404 60%, #180606 100%);
+}
+
+.card--snelle:hover,
+.card--snelle_piecie:hover {
+  box-shadow: 0 0 20px var(--snelle-glow), 0 0 60px rgba(232, 69, 69, 0.1);
+}
+
+.card--place {
+  border: 2px solid var(--place-green);
+  background: linear-gradient(160deg, #041a0e 0%, #030f08 60%, #051508 100%);
+}
+
+.card--place:hover {
+  box-shadow: 0 0 20px var(--place-glow), 0 0 60px rgba(61, 214, 140, 0.1);
+}
+
+.card--quest,
+.card--quest-general,
+.card--quest-personal {
+  border: 2px solid var(--quest-purple);
+  background: linear-gradient(160deg, #0e0518 0%, #08030f 60%, #0c0415 100%);
+}
+
+.card--quest:hover,
+.card--quest-general:hover,
+.card--quest-personal:hover {
+  box-shadow: 0 0 20px var(--quest-glow), 0 0 60px rgba(168, 85, 247, 0.1);
+}
+
+.card--quest-personal {
+  border-color: var(--personal-quest);
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.2), inset 0 0 25px rgba(245, 158, 11, 0.08);
+}
+
+@property --holo-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.card.playable-now::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    var(--holo-angle),
+    transparent 30%,
+    rgba(255, 255, 255, 0.04) 45%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.04) 55%,
+    transparent 70%
+  );
+  animation: holo-sweep 3s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes holo-sweep {
+  from { --holo-angle: 0deg; }
+  to { --holo-angle: 360deg; }
+}
+
+.card--disabled,
+.hand-card--not-playable,
+.hand-card--returned-mosje {
+  opacity: 0.35;
+  cursor: not-allowed;
+  filter: grayscale(0.6);
+}
+
+.card--disabled:hover,
+.hand-card--not-playable:hover {
+  transform: none;
+}
+
+@keyframes card-play {
+  0% { transform: translateY(-40px) scale(0.8); opacity: 0; }
+  60% { transform: translateY(4px) scale(1.02); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.card.just-played {
+  animation: card-play 0.45s var(--ease-dramatic) forwards;
+}
+
+@keyframes card-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px) rotate(-1deg); }
+  40% { transform: translateX(6px) rotate(1deg); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+.card.taking-damage {
+  animation: card-shake 0.4s var(--ease-smooth);
+}
+
+@keyframes card-slide-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .card__top {
@@ -31,41 +203,52 @@
 }
 
 .card__type-label {
-  font-size: 0.72rem;
-  letter-spacing: 0.5px;
-  color: #d2dcff;
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  color: #9fb0dc;
+  font-family: var(--font-display);
 }
 
 .card__difficulty {
-  font-size: 0.72rem;
-  color: #d0dbff;
-  background: #273864;
+  font-size: 0.67rem;
+  color: #d7e3ff;
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 99px;
-  padding: 2px 7px;
+  padding: 2px 8px;
+  font-family: var(--font-mono);
 }
 
 .card__name {
+  font-family: var(--font-display);
   font-size: 1rem;
-  color: #f2f6ff;
-  line-height: 1.2;
+  letter-spacing: 0.04em;
+  color: #f1f5ff;
+  line-height: 1;
+}
+
+.card--mosje .card__name {
+  color: var(--mosje-gold);
 }
 
 .card__desc {
-  font-size: 0.84rem;
-  color: #b4c1e9;
-  min-height: 34px;
+  font-size: 0.64rem;
+  color: #94a3c4;
+  line-height: 1.42;
+  min-height: 50px;
 }
 
 .card__meta {
-  font-size: 0.78rem;
-  color: #d8e1ff;
-  border-top: 1px solid #33457d;
+  margin-top: auto;
+  font-size: 0.62rem;
+  color: #b5c4ea;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding-top: 6px;
 }
 
 .card__meta--stacked {
   display: grid;
-  gap: 4px;
+  gap: 3px;
 }
 
 .card__traits {
@@ -75,96 +258,70 @@
 }
 
 .card__trait-badge {
-  font-size: 0.72rem;
-  color: #e7efff;
-  background: #21315c;
-  border: 1px solid #334d87;
+  font-size: 0.62rem;
+  color: #dce7ff;
+  background: rgba(20, 33, 66, 0.75);
+  border: 1px solid rgba(96, 124, 186, 0.6);
   border-radius: 999px;
   padding: 2px 7px;
 }
 
 .card__portrait-badge {
   position: absolute;
-  top: -8px;
-  left: -8px;
-  width: 28px;
-  height: 28px;
+  top: 8px;
+  right: 8px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 30%, #ffe78a 0%, #e4b600 65%, #9d7900 100%);
   color: #121212;
   display: grid;
   place-items: center;
-  font-size: 0.66rem;
+  font-size: 0.62rem;
   font-weight: 800;
+  font-family: var(--font-mono);
 }
 
-.card--mosje { border-color: var(--color-gold); box-shadow: 0 0 20px rgba(255, 215, 0, 0.12); }
-.card--piecie { border-color: var(--color-blue); box-shadow: 0 0 20px rgba(74, 158, 255, 0.1); }
-.card--snelle { border-color: var(--color-red); box-shadow: 0 0 20px rgba(255, 74, 74, 0.12); }
-.card--place { border-color: var(--color-green); box-shadow: 0 0 20px rgba(74, 255, 158, 0.11); }
-.card--quest { border-color: var(--color-purple); box-shadow: 0 0 20px rgba(196, 74, 255, 0.13); }
-
-/* GENERAL Quest — purple border */
-.card--quest-general {
-  border: 2px solid var(--color-purple);
+.card--snelle .card__type-label::after,
+.card--snelle_piecie .card__type-label::after {
+  content: '  ⚡';
+  color: var(--snelle-red);
 }
 
-/* PERSONAL Quest — gold border with purple inner glow.
-   Also shows a character portrait badge (added by cardRenderer in Phase 5). */
-.card--quest-personal {
-  border: 2px solid var(--color-gold);
-  box-shadow: inset 0 0 8px var(--color-purple);
+.card--snelle::after,
+.card--snelle_piecie::after {
+  content: 'INSTANT';
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-family: var(--font-display);
+  font-size: 0.56rem;
+  letter-spacing: 0.11em;
+  color: var(--snelle-red);
+  background: rgba(232, 69, 69, 0.1);
+  border: 1px solid rgba(232, 69, 69, 0.3);
+  padding: 2px 5px;
+  border-radius: 3px;
 }
 
-/* "PERSONAL QUEST" label badge shown on Personal Quest cards */
-.card--quest-personal .card__type-label::after {
-  content: " • PERSONAL";
-  color: var(--color-gold);
-  font-size: 0.75em;
-}
-
-@keyframes card-slide-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* ── Not playable (opponent's turn) ─────── */
-
-.hand-card--not-playable {
-  opacity: 0.5;
-  filter: grayscale(40%);
-  cursor: default;
-}
-
-.hand-card--returned-mosje {
-  opacity: 0.5;
-  filter: grayscale(65%);
-  border-color: #5c6fa6;
-}
-
-/* ── Mosje ability button ─────────────────── */
-.mosje-ability-btn {
+.mosje-ability-btn,
+.mosje-return-btn,
+.hand-card__play-btn {
   width: 100%;
   margin-top: 6px;
-  padding: 5px 0;
+  padding: 6px 0;
   border: none;
   border-radius: 6px;
-  background: var(--color-gold, #e4b600);
-  color: #121212;
-  font-size: 0.8rem;
+  color: #fff;
+  font-size: 0.72rem;
   font-weight: 700;
+  letter-spacing: 0.08em;
+  font-family: var(--font-display);
   cursor: pointer;
-  transition: background 100ms ease;
 }
 
-.mosje-ability-btn:hover:not(:disabled) {
-  background: #f5ca00;
+.mosje-ability-btn {
+  background: linear-gradient(135deg, #92400e, #f59e0b);
 }
 
 .mosje-ability-btn--used,
@@ -174,62 +331,27 @@
   cursor: not-allowed;
 }
 
-.mosje-return-btn {
-  width: 100%;
-  margin-top: 5px;
-  padding: 5px 0;
-  border: none;
-  border-radius: 6px;
-  background: #4767d1;
-  color: #fff;
-  font-size: 0.8rem;
-  font-weight: 700;
-  cursor: pointer;
+.mosje-return-btn,
+.hand-card__play-btn {
+  background: linear-gradient(135deg, #1d4ed8, #3b82f6);
 }
 
-.mosje-return-btn:hover {
-  background: #5a7aec;
+.card--snelle .hand-card__play-btn,
+.card--snelle_piecie .hand-card__play-btn {
+  background: linear-gradient(135deg, #991b1b, #ef4444);
+}
+
+.hand-card--playable {
+  cursor: pointer;
+  transition: transform 0.2s var(--ease-snap), box-shadow 0.2s var(--ease-smooth);
+}
+
+.hand-card--playable:hover {
+  transform: translateY(-14px) scale(1.06);
+  box-shadow: 0 12px 28px rgba(74, 158, 255, 0.35);
 }
 
 .mosje-clickable {
   cursor: zoom-in;
-}
-
-
-.hand-card--playable {
-  cursor: pointer;
-  transition: transform 120ms ease, box-shadow 120ms ease;
-}
-
-.hand-card--playable:hover {
-  transform: translateY(-6px) scale(1.02);
-  box-shadow: 0 8px 24px rgba(74, 158, 255, 0.35);
-}
-
-.hand-card__play-btn {
-  width: 100%;
-  margin-top: 6px;
-  padding: 6px 0;
-  border: none;
-  border-radius: 6px;
-  background: var(--color-blue, #4a9eff);
-  color: #fff;
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  cursor: pointer;
-  transition: background 100ms ease;
-}
-
-.hand-card__play-btn:hover {
-  background: #6db8ff;
-}
-
-.card--snelle .hand-card__play-btn {
-  background: var(--color-red, #ff4a4a);
-}
-
-.card--snelle .hand-card__play-btn:hover {
-  background: #ff7070;
 }
 

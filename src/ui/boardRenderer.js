@@ -146,6 +146,73 @@ export function buildActiveQuestViewModel(gameState, myPlayerId) {
 	return { ...gameState.activeQuest, attacker: gameState.activeQuest.attacker ?? gameState.activePlayerId };
 }
 
+// Shows a floating MP number above a card.
+export function showMPFloat(cardEl, amount) {
+	if (!cardEl || !Number.isFinite(amount) || amount === 0) return;
+	const float = document.createElement('div');
+	float.className = `mp-float ${amount > 0 ? 'gain' : 'loss'}`;
+	float.textContent = amount > 0 ? `+${amount}` : `${amount}`;
+
+	const rect = cardEl.getBoundingClientRect();
+	float.style.left = `${rect.left + rect.width / 2}px`;
+	float.style.top = `${rect.top}px`;
+
+	document.body.appendChild(float);
+	float.addEventListener('animationend', () => float.remove(), { once: true });
+}
+
+// Triggers entry animation for a card newly placed on field.
+export function animateCardPlay(cardEl) {
+	if (!cardEl) return;
+	cardEl.classList.add('just-played');
+	cardEl.addEventListener('animationend', () => cardEl.classList.remove('just-played'), { once: true });
+}
+
+// Triggers damage shake animation on a Mosje card.
+export function animateCardDamage(cardEl) {
+	if (!cardEl) return;
+	cardEl.classList.add('taking-damage');
+	cardEl.addEventListener('animationend', () => cardEl.classList.remove('taking-damage'), { once: true });
+}
+
+// Triggers level up burst and center text effect.
+export function animateLevelUp(cardEl) {
+	if (!cardEl) return;
+	cardEl.classList.add('level-up');
+	cardEl.addEventListener('animationend', () => cardEl.classList.remove('level-up'), { once: true });
+
+	const text = document.createElement('div');
+	text.className = 'level-up-text';
+	text.textContent = 'LEVEL UP!';
+	text.style.left = '50%';
+	text.style.top = '50%';
+	document.body.appendChild(text);
+	text.addEventListener('animationend', () => text.remove(), { once: true });
+}
+
+// Updates MP bar fill width, classes, and labels for a Mosje card by data-mosje-id.
+export function updateMPBar(mosjeInstanceId, mp, level) {
+	if (!mosjeInstanceId) return;
+	const root = document.querySelector(`[data-mosje-id="${String(mosjeInstanceId)}"]`);
+	const bar = root?.querySelector('.mp-bar-fill');
+	if (!bar) return;
+
+	const safeMp = Number.isFinite(mp) ? mp : 0;
+	const pct = Math.max(0, Math.min(100, safeMp));
+	bar.style.width = `${pct}%`;
+
+	bar.classList.remove('mp-low', 'mp-mid', 'mp-high');
+	if (pct < 30) bar.classList.add('mp-low');
+	else if (pct < 70) bar.classList.add('mp-mid');
+	else bar.classList.add('mp-high');
+
+	const valueEl = bar.closest('.mp-bar-container')?.querySelector('.mp-bar-values');
+	if (valueEl) valueEl.textContent = `${safeMp} / 100`;
+
+	const levelEl = bar.closest('.mp-bar-container')?.querySelector('.mp-bar-level');
+	if (levelEl) levelEl.textContent = `LV.${Number.isFinite(level) ? level : 0}`;
+}
+
 function escapeHtml(text) {
 	return String(text)
 		.replaceAll('&', '&amp;')
