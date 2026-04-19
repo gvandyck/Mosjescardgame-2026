@@ -153,6 +153,13 @@ function initGamePage() {
 	const urlParams = new URLSearchParams(window.location.search);
 	const lobbyData = readLobbyData();
 	const log = createLogRenderer(logRoot);
+
+	const roomCodeBadge = document.getElementById('topbar-room-code');
+	const roomCodeValue = document.getElementById('topbar-room-code-value');
+	if (roomCodeBadge && roomCodeValue && lobbyData.roomCode) {
+		roomCodeValue.textContent = lobbyData.roomCode;
+		roomCodeBadge.hidden = false;
+	}
 	const modal = initModalManager(modalRoot);
 	if (logCopyBuffer) log.attachBuffer(logCopyBuffer);
 

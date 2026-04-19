@@ -40,7 +40,7 @@ export const MOSJES = [
     petSynergy: null,
     tags: ["JEFFREY"],
     flavourText: "Why heal when you can just hit harder?",
-    artPath: "assets/mosje-art/placeholder.png",
+    artPath: "assets/mosje-art/Jeffrey-The-Strongman.JPG",
     rarity: "◆",
     isBoosterOnly: false
   },
@@ -58,7 +58,7 @@ export const MOSJES = [
     petSynergy: "piecie_katjegang",
     tags: ["ALYSSA"],
     flavourText: "She charges into battle with a laugh, getting stronger with every hit she takes.",
-    artPath: "assets/mosje-art/placeholder.png",
+    artPath: "assets/mosje-art/Alyssa The Bulldozer.png",
     rarity: "◆◆",
     isBoosterOnly: false
   },
@@ -76,7 +76,7 @@ export const MOSJES = [
     petSynergy: "piecie_katjegang",
     tags: ["ALYSSA"],
     flavourText: "Every victory deserves a party, every party needs a fighter!",
-    artPath: "assets/mosje-art/placeholder.png",
+    artPath: "assets/mosje-art/alyssa-fissa.jpg",
     rarity: "◆",
     isBoosterOnly: false
   },
@@ -112,7 +112,7 @@ export const MOSJES = [
     petSynergy: "piecie_bowie_stormey",
     tags: ["MICHELLE", "TUK"],
     flavourText: "Go big or go home... usually it's go home.",
-    artPath: "assets/mosje-art/placeholder.png",
+    artPath: "assets/mosje-art/Michelle-Iron-Tuk.jpeg",
     rarity: "◆",
     isBoosterOnly: false
   },
@@ -148,7 +148,7 @@ export const MOSJES = [
     petSynergy: null,
     tags: ["GANDOE"],
     flavourText: "",
-    artPath: "assets/mosje-art/placeholder.png",
+    artPath: "assets/mosje-art/gandoe-the-destroyer.jpg",
     rarity: "◆◆◆",
     isBoosterOnly: false
   },
@@ -171,7 +171,7 @@ export const MOSJES = [
     petSynergy: null,
     tags: ["RONALD"],
     flavourText: "A perfect dish requires the perfect ingredients... and knowing what your opponent ordered.",
-    artPath: "assets/mosje-art/placeholder.png",
+    artPath: "assets/mosje-art/Ronald The Master Chef.png",
     rarity: "◆◆",
     isBoosterOnly: false
   },
@@ -189,7 +189,7 @@ export const MOSJES = [
     petSynergy: null,
     tags: ["MING"],
     flavourText: "I literally just showed up and won. Is that weird?",
-    artPath: "assets/mosje-art/placeholder.png",
+    artPath: "assets/mosje-art/Ming The Natural.png",
     rarity: "◆",
     isBoosterOnly: false
   },
@@ -243,7 +243,7 @@ export const MOSJES = [
     petSynergy: null,
     tags: ["MARTIN", "WEST"],
     flavourText: "I've calculated every possibility... this should work... probably.",
-    artPath: "assets/mosje-art/placeholder.png",
+    artPath: "assets/mosje-art/Martin senor West.jpeg",
     rarity: "◆",
     isBoosterOnly: false
   },
@@ -261,7 +261,7 @@ export const MOSJES = [
     petSynergy: null,
     tags: ["COERT"],
     flavourText: "Aloha spirit meets silicon efficiency.",
-    artPath: "assets/mosje-art/placeholder.png",
+    artPath: "assets/mosje-art/coert-hawaiian-tech-savant.jpg",
     rarity: "◆",
     isBoosterOnly: false
   },
@@ -315,7 +315,7 @@ export const MOSJES = [
     petSynergy: null,
     tags: ["CHRIS"],
     flavourText: "Why specialize when you can master everything?",
-    artPath: "assets/mosje-art/placeholder.png",
+    artPath: "assets/mosje-art/Chris The All-Rounder.jpg",
     rarity: "◆",
     isBoosterOnly: false
   },
@@ -333,7 +333,7 @@ export const MOSJES = [
     petSynergy: null,
     tags: ["YOURI"],
     flavourText: "Frame-perfect inputs, pixel-perfect movement... wait, is this real life?",
-    artPath: "assets/mosje-art/placeholder.png",
+    artPath: "assets/mosje-art/Youri The Speedrunner.jpg",
     rarity: "◆",
     isBoosterOnly: false
   },
@@ -446,7 +446,7 @@ export const MOSJES = [
     petSynergy: "piecie_gekke_vogels",
     tags: ["JISCA"],
     flavourText: "Every note is a weapon, every performance a battle.",
-    artPath: "assets/mosje-art/placeholder.png",
+    artPath: "assets/mosje-art/Jisca The Maestro.png",
     rarity: "◆◆",
     isBoosterOnly: false
   },
@@ -482,7 +482,7 @@ export const MOSJES = [
     petSynergy: "piecie_bowie_stormey",
     tags: ["DJ", "GANDOE"],
     flavourText: "The beat drops at exactly the right moment... every time.",
-    artPath: "assets/mosje-art/placeholder.png",
+    artPath: "assets/mosje-art/dj8020 the lucky mixer.png",
     rarity: "◆",
     isBoosterOnly: false
   },
@@ -500,7 +500,7 @@ export const MOSJES = [
     petSynergy: null,
     tags: ["COERT"],
     flavourText: "When fortune smiles, she takes full advantage.",
-    artPath: "assets/mosje-art/placeholder.png",
+    artPath: "assets/mosje-art/Coert Kasteluck.jpeg",
     rarity: "◆",
     isBoosterOnly: false
   },
@@ -518,7 +518,7 @@ export const MOSJES = [
     petSynergy: null,
     tags: ["BINTI"],
     flavourText: "Her words cut deeper than any blade.",
-    artPath: "assets/mosje-art/placeholder.png",
+    artPath: "assets/mosje-art/binti-the-sharp-tongue-ALT.jpg",
     rarity: "◆",
     isBoosterOnly: false
   },
@@ -536,7 +536,7 @@ export const MOSJES = [
     petSynergy: null,
     tags: ["BINTI"],
     flavourText: "",
-    artPath: "assets/mosje-art/placeholder.png",
+    artPath: "assets/mosje-art/Binti The Creator.jpg",
     rarity: "◆",
     isBoosterOnly: false
   },
@@ -554,7 +554,7 @@ export const MOSJES = [
     petSynergy: "piecie_vianna_poes",
     tags: ["CLESS"],
     flavourText: "When inspiration strikes, magic happens.",
-    artPath: "assets/mosje-art/placeholder.png",
+    artPath: "assets/mosje-art/Cless Teacher.jpg",
     rarity: "◆",
     isBoosterOnly: false
   },
@@ -667,8 +667,36 @@ export const MOSJES = [
     petSynergy: null,
     tags: ["WEST"],
     flavourText: "Always three moves ahead.",
-    artPath: "assets/mosje-art/placeholder.png",
+    artPath: "assets/mosje-art/Martin senor West.jpeg",
     rarity: "◆",
     isBoosterOnly: false
   },
 ];
+
+const MOSJE_ALT_ART_VARIANTS = {
+  mosje_chris: [
+    "assets/mosje-art/Chris The All-Rounder.jpg",
+    "assets/mosje-art/Chris-the-allrounder-ALT.jpg",
+  ],
+  mosje_coert_kasteluck: [
+    "assets/mosje-art/Coert Kasteluck.jpeg",
+    "assets/mosje-art/Coert Kasteluck-ALT.jpeg.jpg",
+  ],
+  mosje_michelle: [
+    "assets/mosje-art/Michelle-Iron-Tuk.jpeg",
+    "assets/mosje-art/Michelle-Iron-Tuk-Alt.jpeg.jpg",
+  ],
+};
+
+applyRandomMosjeArtVariants(MOSJES);
+
+function applyRandomMosjeArtVariants(mosjes) {
+  if (!Array.isArray(mosjes)) return;
+  for (const card of mosjes) {
+    if (!card || card.type !== "MOSJE") continue;
+    const variants = MOSJE_ALT_ART_VARIANTS[card.id];
+    if (!Array.isArray(variants) || variants.length < 2) continue;
+    const randomIndex = Math.floor(Math.random() * variants.length);
+    card.artPath = variants[randomIndex];
+  }
+}

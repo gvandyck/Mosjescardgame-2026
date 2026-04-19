@@ -249,6 +249,28 @@
   transform: none;
 }
 
+/* ── Hand drag-and-drop ─────────────────────────────── */
+.hand-cards .hand-card-wrap[draggable="true"] {
+  cursor: grab;
+}
+.hand-cards .hand-card-wrap[draggable="true"]:active {
+  cursor: grabbing;
+}
+.hand-card--dragging {
+  opacity: 0.35;
+  filter: grayscale(0.4);
+  transform: scale(0.95) !important;
+}
+.hand-card--drop-left {
+  border-left: 3px solid var(--mosje-gold, #e8b94f);
+  margin-left: -9px !important;
+  border-radius: 4px;
+}
+.hand-card--drop-right {
+  border-right: 3px solid var(--mosje-gold, #e8b94f);
+  border-radius: 4px;
+}
+
 @keyframes card-play {
   0% { transform: translateY(-40px) scale(0.8); opacity: 0; }
   60% { transform: translateY(4px) scale(1.02); opacity: 1; }
@@ -298,6 +320,16 @@
   gap: 0;
   overflow: hidden;
   position: relative;
+  isolation: isolate;
+}
+
+.mosje-card-content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(to bottom, rgba(6, 8, 16, 0.08), rgba(4, 5, 10, 0.6) 52%, rgba(4, 5, 10, 0.92) 100%);
 }
 
 .mosje-banner {
@@ -324,37 +356,28 @@
   letter-spacing: -1px;
 }
 
-.mosje-art {
-  width: 100%;
-  height: 110px;
-  flex-shrink: 0;
-  position: relative;
-  overflow: hidden;
-  border-top: 1px solid rgba(0, 0, 0, 0.15);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
-}
-
-.mosje-art img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.mosje-art-placeholder {
+.mosje-full-art {
   position: absolute;
   inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 3rem;
-  opacity: 0.15;
+  z-index: 0;
+  background-image: var(--mosje-art-url);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transform: scale(1.02);
 }
 
-.mosje-art-vignette {
+.mosje-full-art.is-placeholder {
+  background-image: radial-gradient(circle at 50% 35%, rgba(232, 185, 79, 0.2), rgba(8, 10, 18, 0.95) 70%);
+}
+
+.mosje-full-art-vignette {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.45) 100%);
+  z-index: 1;
+  background:
+    linear-gradient(to bottom, rgba(4, 5, 10, 0.1) 4%, rgba(4, 5, 10, 0.32) 45%, rgba(4, 5, 10, 0.86) 100%),
+    linear-gradient(to right, rgba(0, 0, 0, 0.25) 0%, transparent 28%, transparent 72%, rgba(0, 0, 0, 0.25) 100%);
   pointer-events: none;
 }
 

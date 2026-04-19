@@ -40,6 +40,22 @@
    letter-spacing: 0.04em;
 }
 
+.topbar-room-code {
+   font-size: 0.75rem;
+   color: #8aa0c8;
+   letter-spacing: 0.06em;
+   white-space: nowrap;
+   padding: 2px 8px;
+   border: 1px solid rgba(74, 158, 255, 0.2);
+   border-radius: 6px;
+   background: rgba(74, 158, 255, 0.06);
+}
+
+.topbar-room-code strong {
+   color: var(--mosje-gold);
+   font-variant-numeric: tabular-nums;
+}
+
 .topbar-actions {
    display: flex;
    gap: 8px;

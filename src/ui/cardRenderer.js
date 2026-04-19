@@ -79,6 +79,14 @@ export function renderCard(card, options = {}) {
 }
 
 export function buildMosjeCardHTML(card, gameState = null, viewingPlayerId = null) {
+  const hasRealArt = typeof card.artPath === 'string'
+    && card.artPath.length > 0
+    && !card.artPath.endsWith('/placeholder.png');
+  const artUrl = hasRealArt ? resolveArtPathForCss(card.artPath) : '';
+  const artStyle = hasRealArt
+    ? ` style="--mosje-art-url: url('${escapeCssUrl(artUrl)}');"`
+    : '';
+
   const traitRows = Object.entries(card.traits || {})
     .filter(([, stars]) => Number(stars) > 0)
     .map(([trait, stars]) => {
@@ -150,60 +158,64 @@ export function buildMosjeCardHTML(card, gameState = null, viewingPlayerId = nul
 
   return `
     <div class="mosje-card-inner">
-      <div class="mosje-banner">
-        <span class="mosje-subtype">${escapeHtml(card.subtype || 'MOSJE')}</span>
-        <span class="mosje-level-stars" title="Level ${displayLevel}">${levelStars}</span>
-        <span class="mosje-rarity-dots">${rarityDots}</span>
-      </div>
-
-      <div class="mosje-identity">
-        <h3 class="mosje-name">${escapeHtml(card.name || 'Unnamed Mosje')}</h3>
-        <div class="mosje-start-mp">
-          <span class="mp-label">MP</span>
-          <span class="mp-value">${currentMp}</span>
+      <div class="mosje-full-art${hasRealArt ? '' : ' is-placeholder'}"${artStyle}></div>
+      <div class="mosje-full-art-vignette"></div>
+      <div class="mosje-card-content">
+        <div class="mosje-banner">
+          <span class="mosje-subtype">${escapeHtml(card.subtype || 'MOSJE')}</span>
+          <span class="mosje-level-stars" title="Level ${displayLevel}">${levelStars}</span>
+          <span class="mosje-rarity-dots">${rarityDots}</span>
         </div>
-      </div>
 
-      <div class="mosje-card-rule"></div>
-
-      <div class="mosje-traits">
-        ${traitRows || '<span class="no-traits">No traits</span>'}
-      </div>
-
-      <div class="mosje-card-rule"></div>
-
-      <div class="mosje-ability-section">
-        <div class="section-label">✦ ABILITY</div>
-        <div class="mosje-ability-text">
-          ${abilityLines || `<p class="ability-line">${escapeHtml(describeAbility(card.abilityId) || 'No ability.')}</p>`}
+        <div class="mosje-identity">
+          <h3 class="mosje-name">${escapeHtml(card.name || 'Unnamed Mosje')}</h3>
+          <div class="mosje-start-mp">
+            <span class="mp-label">MP</span>
+            <span class="mp-value">${currentMp}</span>
+          </div>
         </div>
+
+        <div class="mosje-card-rule"></div>
+
+        <div class="mosje-traits">
+          ${traitRows || '<span class="no-traits">No traits</span>'}
+        </div>
+
+        <div class="mosje-card-rule"></div>
+
+        <div class="mosje-ability-section">
+          <div class="section-label">✦ ABILITY</div>
+          <div class="mosje-ability-text">
+            ${abilityLines || `<p class="ability-line">${escapeHtml(describeAbility(card.abilityId) || 'No ability.')}</p>`}
+          </div>
+        </div>
+
+        ${synergyRows
+          ? `
+            <div class="mosje-card-rule"></div>
+            <div class="mosje-synergies-section">
+              <div class="section-label">🔗 SYNERGY</div>
+              ${synergyRows}
+            </div>
+          `
+          : ''}
+
+        ${petRow
+          ? `
+            <div class="mosje-card-rule"></div>
+            <div class="mosje-pet-section">
+              ${petRow}
+            </div>
+          `
+          : ''}
+
+        ${card.flavourText
+          ? `
+            <div class="mosje-card-rule"></div>
+            <p class="mosje-flavour">&quot;${escapeHtml(card.flavourText)}&quot;</p>
+          `
+          : ''}
       </div>
-
-      ${synergyRows
-        ? `
-          <div class="mosje-card-rule"></div>
-          <div class="mosje-synergies-section">
-            <div class="section-label">🔗 SYNERGY</div>
-            ${synergyRows}
-          </div>
-        `
-        : ''}
-
-      ${petRow
-        ? `
-          <div class="mosje-card-rule"></div>
-          <div class="mosje-pet-section">
-            ${petRow}
-          </div>
-        `
-        : ''}
-
-      ${card.flavourText
-        ? `
-          <div class="mosje-card-rule"></div>
-          <p class="mosje-flavour">&quot;${escapeHtml(card.flavourText)}&quot;</p>
-        `
-        : ''}
     </div>
   `;
 }
@@ -321,4 +333,21 @@ function escapeHtml(text) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
+}
+
+function escapeCssUrl(path) {
+  return String(path || '')
+    .replaceAll('\\', '/')
+    .replaceAll("'", '%27')
+    .replaceAll('"', '%22')
+    .replaceAll('(', '%28')
+    .replaceAll(')', '%29');
+}
+
+function resolveArtPathForCss(path) {
+  const raw = String(path || '').trim();
+  if (!raw) return '';
+  if (/^https?:\/\//i.test(raw)) return raw;
+  if (raw.startsWith('/')) return `${window.location.origin}${raw}`;
+  return new URL(raw, window.location.href).toString();
 }

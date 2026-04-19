@@ -117,32 +117,118 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 	}
 
 	const handCards = Array.from(container.querySelectorAll('.hand-card-wrap'));
-	const total = handCards.length;
-	const mid = (total - 1) / 2;
-	handCards.forEach((cardEl, index) => {
-		const offset = index - mid;
-		const normalized = total > 1 ? offset / Math.max(1, mid) : 0;
-		const rotation = normalized * 6;
-		const lift = Math.round(Math.abs(normalized) * -6);
-		cardEl.style.setProperty('--fan-rot', `${rotation.toFixed(2)}deg`);
-		cardEl.style.setProperty('--fan-lift', `${lift}px`);
-		cardEl.dataset.handIndex = String(index);
-	});
+	applyFanLayout(container);
 
 	handCards.forEach((cardEl, index) => {
 		cardEl.addEventListener('mouseenter', () => {
-			handCards.forEach((other, otherIndex) => {
-				if (otherIndex === index) return;
+			const current = Array.from(container.querySelectorAll('.hand-card-wrap'));
+			const idx = current.indexOf(cardEl);
+			current.forEach((other, otherIndex) => {
+				if (otherIndex === idx) return;
 				other.classList.remove('nudge-left', 'nudge-right');
-				if (otherIndex < index) other.classList.add('nudge-left');
+				if (otherIndex < idx) other.classList.add('nudge-left');
 				else other.classList.add('nudge-right');
 			});
 		});
 
 		cardEl.addEventListener('mouseleave', () => {
-			handCards.forEach((other) => {
+			Array.from(container.querySelectorAll('.hand-card-wrap')).forEach((other) => {
 				other.classList.remove('nudge-left', 'nudge-right');
 			});
 		});
 	});
+
+	initHandDragDrop(container);
+}
+
+/** Recalculate and apply --fan-rot / --fan-lift on all .hand-card-wrap children. */
+function applyFanLayout(container) {
+	const wraps = Array.from(container.querySelectorAll('.hand-card-wrap'));
+	const total = wraps.length;
+	const mid = (total - 1) / 2;
+	wraps.forEach((wrap, index) => {
+		wrap.dataset.handIndex = String(index);
+		const offset = index - mid;
+		const normalized = total > 1 ? offset / Math.max(1, mid) : 0;
+		const rotation = normalized * 6;
+		const lift = Math.round(Math.abs(normalized) * -6);
+		wrap.style.setProperty('--fan-rot', `${rotation.toFixed(2)}deg`);
+		wrap.style.setProperty('--fan-lift', `${lift}px`);
+	});
+}
+
+/** Attach HTML5 drag-and-drop reordering to hand card wrappers. */
+function initHandDragDrop(container) {
+	let dragSrcIndex = null;
+
+	function getWraps() {
+		return Array.from(container.querySelectorAll('.hand-card-wrap'));
+	}
+
+	function attachTo(wrap) {
+		wrap.setAttribute('draggable', 'true');
+		// Prevent buttons inside cards from accidentally triggering drag
+		wrap.querySelectorAll('button').forEach(btn => btn.setAttribute('draggable', 'false'));
+
+		wrap.addEventListener('dragstart', onDragStart);
+		wrap.addEventListener('dragover', onDragOver);
+		wrap.addEventListener('dragleave', onDragLeave);
+		wrap.addEventListener('drop', onDrop);
+		wrap.addEventListener('dragend', onDragEnd);
+	}
+
+	function onDragStart(e) {
+		dragSrcIndex = parseInt(this.dataset.handIndex, 10);
+		this.classList.add('hand-card--dragging');
+		e.dataTransfer.effectAllowed = 'move';
+		e.dataTransfer.setData('text/plain', String(dragSrcIndex));
+	}
+
+	function onDragOver(e) {
+		e.preventDefault();
+		e.dataTransfer.dropEffect = 'move';
+		const targetIndex = parseInt(this.dataset.handIndex, 10);
+		if (dragSrcIndex === null || targetIndex === dragSrcIndex) return;
+
+		getWraps().forEach(w => w.classList.remove('hand-card--drop-left', 'hand-card--drop-right'));
+		const rect = this.getBoundingClientRect();
+		if (e.clientX < rect.left + rect.width / 2) {
+			this.classList.add('hand-card--drop-left');
+		} else {
+			this.classList.add('hand-card--drop-right');
+		}
+	}
+
+	function onDragLeave(e) {
+		if (!this.contains(e.relatedTarget)) {
+			this.classList.remove('hand-card--drop-left', 'hand-card--drop-right');
+		}
+	}
+
+	function onDrop(e) {
+		e.preventDefault();
+		const targetIndex = parseInt(this.dataset.handIndex, 10);
+		if (dragSrcIndex === null || targetIndex === dragSrcIndex) return;
+
+		const dragged = container.querySelector(`[data-hand-index="${dragSrcIndex}"]`);
+		const rect = this.getBoundingClientRect();
+		const insertBefore = e.clientX < rect.left + rect.width / 2;
+
+		if (insertBefore) {
+			container.insertBefore(dragged, this);
+		} else {
+			container.insertBefore(dragged, this.nextSibling);
+		}
+
+		getWraps().forEach(w => w.classList.remove('hand-card--drop-left', 'hand-card--drop-right'));
+		applyFanLayout(container);
+	}
+
+	function onDragEnd() {
+		this.classList.remove('hand-card--dragging');
+		getWraps().forEach(w => w.classList.remove('hand-card--drop-left', 'hand-card--drop-right'));
+		dragSrcIndex = null;
+	}
+
+	getWraps().forEach(attachTo);
 }
