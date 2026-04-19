@@ -786,6 +786,7 @@
    width: min(1280px, calc(100% - 20px));
    height: calc(100vh - 96px);
    margin: 0 auto 8px;
+   gap: 4px;
    grid-template-columns: 1fr;
    grid-template-rows: minmax(0, 1fr) auto;
    grid-template-areas:
@@ -806,8 +807,9 @@
 }
 
 .game-hand-panel {
-   height: 260px;
-   max-height: 260px;
+   height: 286px;
+   max-height: 286px;
+   padding-top: 16px;
 }
 
 .game-hand-panel .hand-strip,
@@ -815,7 +817,7 @@
    overflow-x: auto;
    overflow-y: hidden;
    align-items: flex-end;
-   padding-top: 6px;
+   padding-top: 26px;
    padding-bottom: 10px;
 }
 
