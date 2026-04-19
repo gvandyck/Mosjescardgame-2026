@@ -277,8 +277,22 @@ function initGamePage() {
 		if (diceBonus) delete gameState._snelleFlags.questDiceBonus;
 		if (forceReroll) delete gameState._snelleFlags.forceReroll[localPlayerId];
 
+		// Phase 8 Rule 3: broadcast active quest so opponent can see it
+		gameState.activeQuest = {
+			questName: questDef.name,
+			cardName: questDef.name,
+			questType: questDef.questType || 'GENERAL',
+			attacker: localPlayerId,
+			successMP: questDef.successMP,
+			failMP: questDef.failMP,
+			currentMp: activeMosje?.mp ?? null,
+		};
+		renderFromState(gameState);
+		syncPush();
+
 		modal.showDiceRoll(questDef, threshold, (didSucceed) => {
 			gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed);
+			gameState.activeQuest = null;
 			gameState.sharedGeneralQuestDiscard.push(questRef);
 			renderFromState(gameState);
 			syncPush();
@@ -335,8 +349,22 @@ function initGamePage() {
 		if (diceBonus2) delete gameState._snelleFlags.questDiceBonus;
 		if (forceReroll2) delete gameState._snelleFlags.forceReroll[localPlayerId];
 
+		// Phase 8 Rule 3: broadcast active quest so opponent can see it
+		gameState.activeQuest = {
+			questName: questDef.name,
+			cardName: questDef.name,
+			questType: questDef.questType || 'PERSONAL',
+			attacker: localPlayerId,
+			successMP: questDef.successMP,
+			failMP: questDef.failMP,
+			currentMp: activeMosje?.mp ?? null,
+		};
+		renderFromState(gameState);
+		syncPush();
+
 		modal.showDiceRoll(questDef, threshold, (didSucceed) => {
 			gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed);
+			gameState.activeQuest = null;
 			renderFromState(gameState);
 			syncPush();
 
@@ -358,7 +386,7 @@ function initGamePage() {
 		// Regular cards only on local turn; Snelle Piecies always available
 		// Pass onPlay always so Snelle Piecies show their interrupt button
 		const onPlay = !gameOver ? handlePlayCard : null;
-		renderHand(handRoot, toHandViewModel(state.players.player_1.hand), onPlay, isLocalTurn);
+		renderHand(handRoot, toHandViewModel(state.players[localPlayerId].hand), onPlay, isLocalTurn);
 
 		const onUseAbility = (isLocalTurn && !gameOver) ? handleUseAbility : null;
 		renderBoard(boardRoot, uiState, onUseAbility);
@@ -463,6 +491,28 @@ function initGamePage() {
 			renderFromState(gameState);
 		}
 
+		// Some cards target one of your own active Mosjes (e.g. Kannetje Melk, Jensen)
+		async function resolveOwnMosjeTarget(promptText) {
+			const ownTargets = getPlayerMosjes(gameState, localPlayerId);
+			if (ownTargets.length === 0) {
+				modal.showInfo('No Active Mosje', 'You need at least one active Mosje for this card.');
+				return null;
+			}
+			const selectedId = await modal.showTargetSelector(ownTargets, promptText);
+			if (!selectedId) return null;
+
+			const selectedParts = selectedId.split('_slot_');
+			const selectedSlotIndex = parseInt(selectedParts[1], 10);
+			if (Number.isNaN(selectedSlotIndex)) return null;
+
+			const stateWithTargets = JSON.parse(JSON.stringify(gameState));
+			stateWithTargets._pendingTargets = {
+				...(stateWithTargets._pendingTargets || {}),
+				own_slot_index: selectedSlotIndex,
+			};
+			return stateWithTargets;
+		}
+
 		const cardRef = gameState.players[localPlayerId].hand.find(c => c.cardId === cardId);
 		const cardDef = CARD_LOOKUP[cardId];
 		if (!cardRef || !cardDef) {
@@ -476,7 +526,18 @@ function initGamePage() {
 				await resolveTargetingCard(cardDef, cardRef);
 				return;
 			}
-			const { state: newState, success, error } = playPiecie(gameState, localPlayerId, cardRef, cardDef);
+
+			let piecieStateForPlay = gameState;
+			if (cardDef.effectId === 'effect_kannetje_melk') {
+				const ownTargets = getPlayerMosjes(gameState, localPlayerId);
+				if (ownTargets.length > 1) {
+					const selectedState = await resolveOwnMosjeTarget('Choose your Mosje to receive Kannetje Melk MP:');
+					if (!selectedState) return;
+					piecieStateForPlay = selectedState;
+				}
+			}
+
+			const { state: newState, success, error } = playPiecie(piecieStateForPlay, localPlayerId, cardRef, cardDef);
 			if (!success) {
 				modal.showInfo('Cannot Play', error || 'That card cannot be played right now.');
 				return;
@@ -496,7 +557,17 @@ function initGamePage() {
 		}
 
 		if (cardType === 'SNELLE_PIECIE') {
-			const { state: newState, success, error } = playSnellie(gameState, localPlayerId, cardRef, cardDef);
+			let snelleStateForPlay = gameState;
+			if (cardDef.effectId === 'effect_snelle_jensen') {
+				const ownTargets = getPlayerMosjes(gameState, localPlayerId);
+				if (ownTargets.length > 1) {
+					const selectedState = await resolveOwnMosjeTarget('Choose your Mosje to receive Jensen MP:');
+					if (!selectedState) return;
+					snelleStateForPlay = selectedState;
+				}
+			}
+
+			const { state: newState, success, error } = playSnellie(snelleStateForPlay, localPlayerId, cardRef, cardDef);
 			if (!success) {
 				modal.showInfo('Cannot Play', error || 'That card cannot be played right now.');
 				return;

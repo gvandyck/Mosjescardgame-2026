@@ -65,6 +65,70 @@ export function runPiecieEffectsTests() {
     assertEqual(result.players.player_2.activeSlots[0].mp, 5);
   });
 
+  test('Affoe drains selected opponent Mosje and boosts selected own Mosje when targets are provided', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          activeSlots: [
+            {
+              cardId: 'mosje_west',
+              name: '[West] Sr.Tactical',
+              traits: { mental: 3, technical: 1 },
+              mp: 15,
+              level: 1,
+              isDefeated: false,
+              statusEffects: [],
+              abilityUsedThisTurn: false,
+            },
+            {
+              cardId: 'mosje_gandoe',
+              name: '[Gandoe] Prime',
+              traits: { technical: 2 },
+              mp: 22,
+              level: 1,
+              isDefeated: false,
+              statusEffects: [],
+              abilityUsedThisTurn: false,
+            },
+          ],
+        },
+        player_2: {
+          activeSlots: [
+            {
+              cardId: 'mosje_jeffrey',
+              name: '[Jeffrey] The Strongman',
+              traits: { physical: 3, resilient: 1 },
+              mp: 30,
+              level: 1,
+              isDefeated: false,
+              statusEffects: [],
+              abilityUsedThisTurn: false,
+            },
+            {
+              cardId: 'mosje_west',
+              name: '[West] Lt.',
+              traits: { mental: 2 },
+              mp: 25,
+              level: 1,
+              isDefeated: false,
+              statusEffects: [],
+              abilityUsedThisTurn: false,
+            },
+          ],
+        },
+      },
+      _pendingTargets: { affoe_drain: 'player_2_slot_1', affoe_gain: 'player_1_slot_1' },
+    });
+
+    const result = piecieEffects.effect_affoe(state, 'player_1');
+    // Slot 0 of each player should be untouched
+    assertEqual(result.players.player_2.activeSlots[0].mp, 30);
+    assertEqual(result.players.player_1.activeSlots[0].mp, 15);
+    // Slot 1 of opponent drained, slot 1 of self boosted
+    assertEqual(result.players.player_2.activeSlots[1].mp, 10);
+    assertEqual(result.players.player_1.activeSlots[1].mp, 32);
+  });
+
   test('Broodje Doner gives +35 MP when level is 1+', () => {
     const state = createEngineState({
       players: {

@@ -67,8 +67,11 @@ function renderActiveQuestInto(panel, questData, myPlayerId) {
 
 	const isMyQuest = questData.attacker === myPlayerId;
 	const role = isMyQuest ? 'YOUR' : "OPPONENT'S";
-	const progress = questData.currentMp != null && questData.mpRequired != null
-		? `${questData.currentMp} / ${questData.mpRequired} MP`
+	const mosjeInfo = questData.currentMp != null
+		? `Mosje at ${questData.currentMp} MP`
+		: '';
+	const stakes = questData.successMP != null
+		? `Win: +${questData.successMP} MP  |  Fail: ${questData.failMP} MP`
 		: '';
 	const diceInfo = questData.rolledValue != null
 		? `<span class="quest-dice">🎲 Rolled: ${questData.rolledValue}</span>`
@@ -78,7 +81,8 @@ function renderActiveQuestInto(panel, questData, myPlayerId) {
 		<div class="quest-badge">${escapeHtml(role)} QUEST</div>
 		<div class="quest-name">${escapeHtml(questData.questName || questData.cardName || 'Quest')}</div>
 		${questData.questType ? `<div class="quest-type">${escapeHtml(questData.questType)}</div>` : ''}
-		${progress ? `<div class="quest-progress">${escapeHtml(progress)}</div>` : ''}
+		${mosjeInfo ? `<div class="quest-progress">${escapeHtml(mosjeInfo)}</div>` : ''}
+		${stakes ? `<div class="quest-type">${escapeHtml(stakes)}</div>` : ''}
 		${diceInfo}
 	`;
 }
