@@ -787,6 +787,7 @@
    height: calc(100vh - 96px);
    margin: 0 auto 8px;
    grid-template-columns: 1fr;
+   grid-template-rows: minmax(0, 1fr) auto;
    grid-template-areas:
       'main'
       'hand';
@@ -796,15 +797,33 @@
 .game-board,
 .game-hand-panel {
    min-height: 0;
-   overflow: auto;
+   overflow: hidden;
 }
 
 .game-board {
-   max-height: calc(100vh - 260px);
+   max-height: calc(100vh - 370px);
+   overflow: auto;
 }
 
 .game-hand-panel {
-   max-height: 180px;
+   height: 260px;
+   max-height: 260px;
+}
+
+.game-hand-panel .hand-strip,
+.game-hand-panel .hand-cards {
+   overflow-x: auto;
+   overflow-y: hidden;
+   align-items: flex-end;
+   padding-top: 6px;
+   padding-bottom: 10px;
+}
+
+.game-hand-panel .card {
+   width: calc(var(--card-w) * 0.8);
+   min-width: calc(var(--card-w) * 0.8);
+   max-width: calc(var(--card-w) * 0.8);
+   height: calc(var(--card-h) * 0.8);
 }
 
 .board-zone__piecies {
@@ -885,6 +904,17 @@
    .game-board,
    .game-hand-panel {
       max-height: none;
+   }
+
+   .game-hand-panel {
+      height: auto;
+   }
+
+   .game-hand-panel .card {
+      width: calc(var(--card-w) * 0.72);
+      min-width: calc(var(--card-w) * 0.72);
+      max-width: calc(var(--card-w) * 0.72);
+      height: calc(var(--card-h) * 0.72);
    }
 
    .game-log-panel {
