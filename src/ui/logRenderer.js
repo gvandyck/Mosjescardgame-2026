@@ -11,6 +11,7 @@ const ICONS = {
 	loss: '📉',
 	level: '⬆️',
 	win: '🏆',
+	info: 'ℹ️',
 };
 
 export function createLogRenderer(container) {
@@ -23,7 +24,7 @@ export function createLogRenderer(container) {
 
 	function add(type, message) {
 		const row = document.createElement('div');
-		row.className = 'log-row';
+		row.className = `log-row ${type || 'system'}`;
 		const icon = ICONS[type] || '•';
 		row.textContent = `${icon} ${message}`;
 		container.prepend(row);

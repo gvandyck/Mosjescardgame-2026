@@ -25,6 +25,9 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 	}
 
 	for (const card of cards) {
+		const wrapEl = document.createElement('div');
+		wrapEl.className = 'hand-card-wrap';
+
 		const cardEl = renderCard(card, { compact: false });
 		cardEl.classList.add('hand-card');
 
@@ -39,7 +42,8 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
     const isReturnedMosje = card.type === 'MOSJE' && !!card.returnedThisTurn;
 
 		if (isReturnedMosje) {
-			container.appendChild(cardEl);
+			wrapEl.appendChild(cardEl);
+			container.appendChild(wrapEl);
 			continue;
 		}
 
@@ -104,6 +108,37 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 			}
 		}
 
-		container.appendChild(cardEl);
+		wrapEl.appendChild(cardEl);
+		container.appendChild(wrapEl);
 	}
+
+	const handCards = Array.from(container.querySelectorAll('.hand-card-wrap'));
+	const total = handCards.length;
+	const mid = (total - 1) / 2;
+	handCards.forEach((cardEl, index) => {
+		const offset = index - mid;
+		const normalized = total > 1 ? offset / Math.max(1, mid) : 0;
+		const rotation = normalized * 6;
+		const lift = Math.round(Math.abs(normalized) * -6);
+		cardEl.style.setProperty('--fan-rot', `${rotation.toFixed(2)}deg`);
+		cardEl.style.setProperty('--fan-lift', `${lift}px`);
+		cardEl.dataset.handIndex = String(index);
+	});
+
+	handCards.forEach((cardEl, index) => {
+		cardEl.addEventListener('mouseenter', () => {
+			handCards.forEach((other, otherIndex) => {
+				if (otherIndex === index) return;
+				other.classList.remove('nudge-left', 'nudge-right');
+				if (otherIndex < index) other.classList.add('nudge-left');
+				else other.classList.add('nudge-right');
+			});
+		});
+
+		cardEl.addEventListener('mouseleave', () => {
+			handCards.forEach((other) => {
+				other.classList.remove('nudge-left', 'nudge-right');
+			});
+		});
+	});
 }

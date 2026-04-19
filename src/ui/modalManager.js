@@ -2,6 +2,8 @@
 // dice roll animations, card zoom view, yes/no confirmations.
 // Filled in Phase 5.
 
+import { renderCard } from './cardRenderer.js';
+
 console.log('[UI] modalManager.js loaded');
 
 export function initModalManager(container) {
@@ -255,7 +257,7 @@ export function initModalManager(container) {
 				`<button class="target-option" data-id="${escapeHtml(opt.id)}" type="button">
 					<span class="target-name">${escapeHtml(opt.label)}</span>
 					<span class="target-mp">${opt.mpValue} MP</span>
-					<span class="target-level">LV.${opt.level}</span>
+					<span class="target-level">LV.${Number(opt.level || 0) + 1}</span>
 				</button>`
 			).join('');
 
@@ -280,6 +282,8 @@ export function initModalManager(container) {
 
 	function showMosjeDetailModal(mosje) {
 		if (!mosje) return;
+		const previewEl = renderCard(mosje, { compact: true });
+		previewEl.classList.add('modal-mosje-preview-card');
 		const traitRows = Object.entries(mosje.traits || {})
 			.filter(([, value]) => Number(value) > 0)
 			.map(([name, value]) => `<li><strong>${escapeHtml(name)}</strong>: ${Number(value)}</li>`)
@@ -288,14 +292,17 @@ export function initModalManager(container) {
 		container.classList.add('modal-root--open');
 		container.innerHTML = `
 			<div class="modal-backdrop"></div>
-			<section class="modal-card" role="dialog" aria-modal="true">
-				<h3>${escapeHtml(mosje.name || 'Mosje')}</h3>
-				<p>${escapeHtml(mosje.flavourText || mosje.description || '')}</p>
-				<p><strong>Ability:</strong> ${escapeHtml(mosje.abilityDescription || 'No ability description')}</p>
-				<p><strong>Synergy:</strong> ${escapeHtml(mosje.synergyEffect || 'None')}</p>
-				<p><strong>Pet synergy:</strong> ${escapeHtml(mosje.petSynergy || 'None')}</p>
-				<ul class="modal-card-list">${traitRows || '<li>No active traits</li>'}</ul>
-				<button class="modal-btn" id="modal-close-mosje">Close</button>
+			<section class="modal-card modal-card--mosje-detail" role="dialog" aria-modal="true">
+				<div class="modal-mosje-preview">${previewEl.outerHTML}</div>
+				<div class="modal-mosje-copy">
+					<h3>${escapeHtml(mosje.name || 'Mosje')}</h3>
+					<p>${escapeHtml(mosje.flavourText || mosje.description || '')}</p>
+					<p><strong>Ability:</strong> ${escapeHtml(mosje.abilityDescription || 'No ability description')}</p>
+					<p><strong>Synergy:</strong> ${escapeHtml(mosje.synergyEffect || 'None')}</p>
+					<p><strong>Pet synergy:</strong> ${escapeHtml(mosje.petSynergy || 'None')}</p>
+					<ul class="modal-card-list">${traitRows || '<li>No active traits</li>'}</ul>
+					<button class="modal-btn" id="modal-close-mosje">Close</button>
+				</div>
 			</section>
 		`;
 

@@ -15,23 +15,27 @@
   <header class="game-topbar">
     <h1>MOSJES Arena</h1>
     <p id="turn-label">Loading turn...</p>
+    <div class="topbar-flow" id="topbar-flow">
+      <div class="topbar-flow__item">Place: <strong id="topbar-place">None</strong></div>
+      <div class="topbar-flow__item">Quest Flow: <strong id="topbar-quest-flow">DRAW</strong></div>
+      <div class="topbar-flow__item" id="topbar-place-turns">0 turns active</div>
+    </div>
     <div class="topbar-actions">
+      <button id="btn-toggle-log" class="btn-secondary" type="button" aria-expanded="false" aria-controls="topbar-log-popover">Battle Log</button>
       <button id="btn-general-quest" class="btn-secondary" type="button">General Quest 🎯</button>
       <button id="btn-personal-quest" class="btn-secondary" type="button">Personal Quest ⭐</button>
       <button id="btn-end-turn" class="btn-primary" type="button">End Turn</button>
     </div>
+    <section id="topbar-log-popover" class="topbar-log-popover" hidden>
+      <h2>Battle Log</h2>
+      <div id="log-root" class="game-log"></div>
+    </section>
   </header>
 
   <main class="game-layout">
     <section class="game-board" id="board-root" aria-label="Game board"></section>
 
-    <aside class="game-log-panel">
-      <h2>Battle Log</h2>
-      <div id="log-root" class="game-log"></div>
-    </aside>
-
     <section class="game-hand-panel">
-      <h2>Your Hand</h2>
       <div id="hand-root" class="hand-strip"></div>
     </section>
   </main>

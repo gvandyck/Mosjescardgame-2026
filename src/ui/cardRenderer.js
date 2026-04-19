@@ -52,6 +52,10 @@ export function renderCard(card, options = {}) {
     : '';
 
   if (type === 'MOSJE') {
+    const subtypeClass = `mosje-subtype-${String(resolvedCard.subtype || '').toLowerCase()}`;
+    if (subtypeClass !== 'mosje-subtype-') {
+      element.classList.add(subtypeClass);
+    }
     element.innerHTML = buildMosjeCardHTML(
       resolvedCard,
       options.gameState || null,
@@ -138,29 +142,25 @@ export function buildMosjeCardHTML(card, gameState = null, viewingPlayerId = nul
     .map((dot) => `<span class="rarity-dot">${escapeHtml(dot)}</span>`)
     .join('');
 
-  const artPath = card.artPath ? escapeHtml(card.artPath) : '';
-  const startMp = Number(card.startMP ?? card.mp ?? 0);
+  const internalLevel = Number.isFinite(Number(card.level)) ? Number(card.level) : 0;
+  const displayLevel = Math.max(1, Math.min(3, internalLevel + 1));
+  const levelStars = `${'★'.repeat(displayLevel)}${'☆'.repeat(Math.max(0, 3 - displayLevel))}`;
+
+  const currentMp = Number(card.mp ?? card.startMP ?? 0);
 
   return `
     <div class="mosje-card-inner">
       <div class="mosje-banner">
         <span class="mosje-subtype">${escapeHtml(card.subtype || 'MOSJE')}</span>
+        <span class="mosje-level-stars" title="Level ${displayLevel}">${levelStars}</span>
         <span class="mosje-rarity-dots">${rarityDots}</span>
-      </div>
-
-      <div class="mosje-art">
-        ${artPath
-          ? `<img src="${artPath}" alt="${escapeHtml(card.name || 'Mosje')}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />`
-          : ''}
-        <div class="mosje-art-placeholder" ${artPath ? 'style="display:none"' : ''}>${escapeHtml((card.name || 'M').charAt(0))}</div>
-        <div class="mosje-art-vignette"></div>
       </div>
 
       <div class="mosje-identity">
         <h3 class="mosje-name">${escapeHtml(card.name || 'Unnamed Mosje')}</h3>
         <div class="mosje-start-mp">
-          <span class="mp-label">Start MP</span>
-          <span class="mp-value">${startMp}</span>
+          <span class="mp-label">MP</span>
+          <span class="mp-value">${currentMp}</span>
         </div>
       </div>
 

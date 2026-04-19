@@ -14,6 +14,16 @@ function getFirstActiveSlotIndex(player) {
 	return player.activeSlots.findIndex(slot => slot !== null && !slot.isDefeated);
 }
 
+function getActiveSlotIndexForMosje(player, preferredCardId = null) {
+	if (preferredCardId) {
+		const explicitIndex = player.activeSlots.findIndex(
+			slot => slot !== null && !slot.isDefeated && slot.cardId === preferredCardId
+		);
+		if (explicitIndex >= 0) return explicitIndex;
+	}
+	return getFirstActiveSlotIndex(player);
+}
+
 function getOpponentId(state, playerId) {
 	return Object.keys(state.players).find(id => id !== playerId) || null;
 }
@@ -61,12 +71,12 @@ export function ability_binti_cutting_words(gameState, playerId, discardedCardId
 }
 
 // Coert active: pay 10 MP to draw 1 card.
-export function ability_coert_extra_resources(gameState, playerId) {
+export function ability_coert_extra_resources(gameState, playerId, sourceMosjeId = null) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) throw new Error('Player not found');
 
-	const slotIndex = getFirstActiveSlotIndex(player);
+	const slotIndex = getActiveSlotIndexForMosje(player, sourceMosjeId);
 	if (slotIndex < 0) throw new Error('No active Mosje for Coert ability');
 
 	const mosje = player.activeSlots[slotIndex];
@@ -284,8 +294,8 @@ export function ability_west_calculated_guess(gameState, playerId) {
 }
 
 // Coert Tech — alias of coert_extra_resources: pay 10 MP, draw 1 card.
-export function ability_coert_tech_extra_resources(gameState, playerId) {
-	return ability_coert_extra_resources(gameState, playerId);
+export function ability_coert_tech_extra_resources(gameState, playerId, sourceMosjeId = null) {
+	return ability_coert_extra_resources(gameState, playerId, sourceMosjeId);
 }
 
 // Hacker — system hack: forces opponent to reveal top 1 card from deck (move to their hand; logged).

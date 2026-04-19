@@ -449,7 +449,7 @@ export function useMosjeAbility(gameState, playerId, mosjeId) {
   }
 
   // Dispatch â€” ability functions clone the state internally and return a new state
-  let state = fn(gameState, playerId);
+  let state = fn(gameState, playerId, mosjeId);
 
   // Mark ability as used for this turn
   state.players[playerId].activeSlots[slotIndex].abilityUsedThisTurn = true;

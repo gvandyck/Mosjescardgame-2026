@@ -1,12 +1,12 @@
-﻿// mosjes.js â€” Data definitions for all Mosje character cards.
-// No logic here â€” just plain JavaScript objects describing each card.
+// mosjes.js — Data definitions for all Mosje character cards.
+// No logic here — just plain JavaScript objects describing each card.
 // The abilityId links to a function name in src/abilities/mosjeAbilities.js.
 
 export const MOSJES = [
 
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─────────────────────────────────────────
   // FIGHTING TYPE MOSJES
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─────────────────────────────────────────
 
   {
     id: "mosje_gandoe_wizard",
@@ -16,14 +16,14 @@ export const MOSJES = [
     startMP: 10,
     traits: { physical: 2, resilient: 1, creative: 2 },
     abilityId: "ability_gandoe_wizard_chaos_roll",
-    abilityDescription: "Ability: ability_gandoe_wizard_chaos_roll",
+    abilityDescription: "Chaos Roll: At turn start roll 1d6; 1-2 lose 10 MP, 3-4 nothing, 5-6 gain 20 MP and draw 1 card.",
     synergyWith: [],
     synergyEffect: null,
     petSynergy: null,
     tags: ["GANDOE"],
     flavourText: "Is it a healing spell? A fireball? Not even he knows until it happens!",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†",
+    rarity: "◆",
     isBoosterOnly: false
   },
   {
@@ -34,14 +34,14 @@ export const MOSJES = [
     startMP: 20,
     traits: { physical: 3, resilient: 1 },
     abilityId: "ability_jeffrey_brute_force",
-    abilityDescription: "Ability: ability_jeffrey_brute_force",
+    abilityDescription: "Brute Force: All your Quests give +10 MP bonus; this Mosje cannot use FOOD or RESTORE Piecies.",
     synergyWith: [],
     synergyEffect: null,
     petSynergy: null,
     tags: ["JEFFREY"],
     flavourText: "Why heal when you can just hit harder?",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†",
+    rarity: "◆",
     isBoosterOnly: false
   },
   {
@@ -52,14 +52,14 @@ export const MOSJES = [
     startMP: 0,
     traits: { physical: 3, resilient: 2, social: 3 },
     abilityId: "ability_alyssa_bulldozer_unstoppable",
-    abilityDescription: "Ability: ability_alyssa_bulldozer_unstoppable",
+    abilityDescription: "Unstoppable: At turn start draw 2 keep 1, gain +10 MP before own Quest attempts, and when losing 30+ MP at once regain 25 MP.",
     synergyWith: ["mosje_jisca"],
     synergyEffect: null,
     petSynergy: "piecie_katjegang",
     tags: ["ALYSSA"],
     flavourText: "She charges into battle with a laugh, getting stronger with every hit she takes.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†â—†",
+    rarity: "◆◆",
     isBoosterOnly: false
   },
   {
@@ -70,14 +70,14 @@ export const MOSJES = [
     startMP: 10,
     traits: { physical: 2, social: 3, resilient: 1 },
     abilityId: "ability_alyssa_fissa_party_power",
-    abilityDescription: "Ability: ability_alyssa_fissa_party_power",
+    abilityDescription: "Party Power: When you or an ally destroys a Place card, gain +15 MP (max once per turn).",
     synergyWith: ["mosje_jisca"],
     synergyEffect: null,
     petSynergy: "piecie_katjegang",
     tags: ["ALYSSA"],
     flavourText: "Every victory deserves a party, every party needs a fighter!",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†",
+    rarity: "◆",
     isBoosterOnly: false
   },
   {
@@ -88,14 +88,14 @@ export const MOSJES = [
     startMP: 10,
     traits: { physical: 2, social: 2, creative: 1 },
     abilityId: "ability_azn_cless_risk_reward",
-    abilityDescription: "Ability: ability_azn_cless_risk_reward",
+    abilityDescription: "Risk and Reward: At end of each turn roll 1d6; 1 discard 1 card, 2-5 no effect, 6 draw 2 cards and gain 10 MP.",
     synergyWith: ["mosje_west", "mosje_martin_senor_west"],
     synergyEffect: "Physical Quests give +15 bonus MP",
     petSynergy: "piecie_vianna_poes",
     tags: ["CLESS"],
     flavourText: "Nobody knows what he'll do next... including him.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†",
+    rarity: "◆",
     isBoosterOnly: false
   },
   {
@@ -106,14 +106,14 @@ export const MOSJES = [
     startMP: 0,
     traits: { physical: 2, social: 1, resilient: 2 },
     abilityId: "ability_michelle_tough_gamble",
-    abilityDescription: "Ability: ability_michelle_tough_gamble",
+    abilityDescription: "Tough Gamble: After each Quest roll 1d6; 1-3 receive half Quest reward, 4-6 receive double Quest reward.",
     synergyWith: [],
     synergyEffect: null,
     petSynergy: "piecie_bowie_stormey",
     tags: ["MICHELLE", "TUK"],
     flavourText: "Go big or go home... usually it's go home.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†",
+    rarity: "◆",
     isBoosterOnly: false
   },
   {
@@ -124,14 +124,14 @@ export const MOSJES = [
     startMP: 10,
     traits: { physical: 3, creative: 2, resilient: 2 },
     abilityId: "ability_parkour_west_adaptive_combat",
-    abilityDescription: "Ability: ability_parkour_west_adaptive_combat",
+    abilityDescription: "Adaptive Combat Flow: On Physical Quest success gain 20 MP and next Attack Piecie costs 10 less this turn; reduce one 30+ damage hit by 20 each turn.",
     synergyWith: [],
     synergyEffect: null,
     petSynergy: null,
     tags: ["WEST"],
     flavourText: "Every wall is a weapon, every movement a counter-strike.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†â—†",
+    rarity: "◆◆",
     isBoosterOnly: false
   },
   {
@@ -142,20 +142,20 @@ export const MOSJES = [
     startMP: 0,
     traits: { physical: 3, resilient: 2 },
     abilityId: "ability_gandoe_destroyer_elimination_strike",
-    abilityDescription: "Ability: ability_gandoe_destroyer_elimination_strike",
+    abilityDescription: "Elimination Strike: Pay 80 MP once per game to send the opponent lowest-level Mosje directly to the Welloe pile.",
     synergyWith: [],
     synergyEffect: null,
     petSynergy: null,
     tags: ["GANDOE"],
     flavourText: "",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†â—†â—†",
+    rarity: "◆◆◆",
     isBoosterOnly: false
   },
 
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─────────────────────────────────────────
   // DIGITAL TYPE MOSJES
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─────────────────────────────────────────
 
   {
     id: "mosje_ronald_chef",
@@ -165,14 +165,14 @@ export const MOSJES = [
     startMP: 0,
     traits: { mental: 3, social: 3, physical: 1 },
     abilityId: "ability_ronald_chef_strategic_insight",
-    abilityDescription: "Ability: ability_ronald_chef_strategic_insight",
+    abilityDescription: "Strategic Insight: Pay 20 MP to view opponent hand and lock 1 chosen card next turn (once per turn, 3-turn cooldown).",
     synergyWith: [],
     synergyEffect: "Ronald Kip gives 60 MP + draw 1 instead of 50 MP",
     petSynergy: null,
     tags: ["RONALD"],
     flavourText: "A perfect dish requires the perfect ingredients... and knowing what your opponent ordered.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†â—†",
+    rarity: "◆◆",
     isBoosterOnly: false
   },
   {
@@ -183,14 +183,14 @@ export const MOSJES = [
     startMP: 10,
     traits: { mental: 3, technical: 2, creative: 2 },
     abilityId: "ability_ming_natural_lucky_draw",
-    abilityDescription: "Ability: ability_ming_natural_lucky_draw",
+    abilityDescription: "Lucky Draw: On draw reveal card; if Piecie activate for free or keep it, otherwise add to hand and gain 15 MP.",
     synergyWith: [],
     synergyEffect: null,
     petSynergy: null,
     tags: ["MING"],
     flavourText: "I literally just showed up and won. Is that weird?",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†",
+    rarity: "◆",
     isBoosterOnly: false
   },
   {
@@ -201,14 +201,14 @@ export const MOSJES = [
     startMP: 20,
     traits: { mental: 3, technical: 2 },
     abilityId: "ability_ming_predictor_future_sight",
-    abilityDescription: "Ability: ability_ming_predictor_future_sight",
+    abilityDescription: "Future Sight: Pay 10 MP to look at top General Quest card and optionally move it to the bottom (once per turn).",
     synergyWith: [],
     synergyEffect: null,
     petSynergy: null,
     tags: ["MING"],
     flavourText: "Seeing the future is easy when you control the deck.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†",
+    rarity: "◆",
     isBoosterOnly: false
   },
   {
@@ -219,14 +219,14 @@ export const MOSJES = [
     startMP: 10,
     traits: { mental: 3, technical: 1, resilient: 2 },
     abilityId: "ability_martin_historian_time_control",
-    abilityDescription: "Ability: ability_martin_historian_time_control",
+    abilityDescription: "Time Control: Skip Draw Phase to reorder top 5 of any deck, gain 15 MP, then draw 2 cards at end of turn.",
     synergyWith: [],
     synergyEffect: null,
     petSynergy: null,
     tags: ["MARTIN"],
     flavourText: "Why work hard when you can work smart? Or better yet, don't work at all.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†â—†",
+    rarity: "◆◆",
     isBoosterOnly: false
   },
   {
@@ -237,14 +237,14 @@ export const MOSJES = [
     startMP: 15,
     traits: { mental: 3, technical: 1 },
     abilityId: "ability_martin_senor_west_calculated_guess",
-    abilityDescription: "Ability: ability_martin_senor_west_calculated_guess",
+    abilityDescription: "Calculated Guess: Name a card type and reveal top of chosen deck; correct draw 2 and gain 10 MP, wrong lose 10 MP.",
     synergyWith: ["mosje_azn_cless"],
     synergyEffect: "Physical Quests give +15 bonus MP",
     petSynergy: null,
     tags: ["MARTIN", "WEST"],
     flavourText: "I've calculated every possibility... this should work... probably.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†",
+    rarity: "◆",
     isBoosterOnly: false
   },
   {
@@ -255,14 +255,14 @@ export const MOSJES = [
     startMP: 10,
     traits: { mental: 2, technical: 3, social: 1 },
     abilityId: "ability_coert_tech_extra_resources",
-    abilityDescription: "Ability: ability_coert_tech_extra_resources",
+    abilityDescription: "Extra Resources: During Draw Phase pay 10 MP per use to draw 1 additional card with no per-turn limit.",
     synergyWith: ["mosje_binti"],
     synergyEffect: "DOUBLE MP from FOOD cards",
     petSynergy: null,
     tags: ["COERT"],
     flavourText: "Aloha spirit meets silicon efficiency.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†",
+    rarity: "◆",
     isBoosterOnly: false
   },
   {
@@ -273,14 +273,14 @@ export const MOSJES = [
     startMP: 15,
     traits: { mental: 3, technical: 2 },
     abilityId: "ability_hacker_system_hack",
-    abilityDescription: "Ability: ability_hacker_system_hack",
+    abilityDescription: "System Hack: Once every 5 turns look at top 3 cards of any deck, reorder them, and gain 10 MP.",
     synergyWith: [],
     synergyEffect: null,
     petSynergy: null,
     tags: ["HACKER"],
     flavourText: "Access granted. Reality.exe is now running under my parameters.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†",
+    rarity: "◆",
     isBoosterOnly: false
   },
   {
@@ -291,14 +291,14 @@ export const MOSJES = [
     startMP: 0,
     traits: { physical: 3, technical: 2, mental: 2 },
     abilityId: "ability_jeffrey_gambler_high_stakes",
-    abilityDescription: "Ability: ability_jeffrey_gambler_high_stakes",
+    abilityDescription: "High Stakes: Wager X MP then roll 1d6; 1-2 lose X, 3-4 no change, 5-6 gain X and draw 1; next Quest gives +25 MP.",
     synergyWith: [],
     synergyEffect: null,
     petSynergy: null,
     tags: ["JEFFREY"],
     flavourText: "Silent at the table, deadly with the dice.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†â—†",
+    rarity: "◆◆",
     isBoosterOnly: false
   },
   {
@@ -309,14 +309,14 @@ export const MOSJES = [
     startMP: 10,
     traits: { physical: 3, technical: 2, social: 2 },
     abilityId: "ability_chris_perfect_setup",
-    abilityDescription: "Ability: ability_chris_perfect_setup",
+    abilityDescription: "Perfect Setup: If you have 3+ face-down Piecies, activate 1 for free and gain 15 MP (once per turn).",
     synergyWith: ["mosje_youri"],
     synergyEffect: "Both may play Piecies directly to active state without face-down waiting",
     petSynergy: null,
     tags: ["CHRIS"],
     flavourText: "Why specialize when you can master everything?",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†",
+    rarity: "◆",
     isBoosterOnly: false
   },
   {
@@ -327,14 +327,14 @@ export const MOSJES = [
     startMP: 0,
     traits: { technical: 3, mental: 2, resilient: 1 },
     abilityId: "ability_youri_speed_activate",
-    abilityDescription: "Ability: ability_youri_speed_activate",
+    abilityDescription: "Speed Activate: Pay 20 MP to activate a newly set face-down Piecie the same turn, then draw 1 card (max 3 uses per game).",
     synergyWith: ["mosje_chris"],
     synergyEffect: "Both may play Piecies directly to active state without face-down waiting",
     petSynergy: null,
     tags: ["YOURI"],
     flavourText: "Frame-perfect inputs, pixel-perfect movement... wait, is this real life?",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†",
+    rarity: "◆",
     isBoosterOnly: false
   },
   {
@@ -345,14 +345,14 @@ export const MOSJES = [
     startMP: 15,
     traits: { mental: 3, social: 2, technical: 1 },
     abilityId: "ability_tactician_mp_manipulation",
-    abilityDescription: "Ability: ability_tactician_mp_manipulation",
+    abilityDescription: "MP Manipulation: Pay 15 MP to set any Mosje MP to exactly 60 (once per turn).",
     synergyWith: [],
     synergyEffect: null,
     petSynergy: null,
     tags: ["PLACEHOLDER"],
     flavourText: "",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†â—†",
+    rarity: "◆◆",
     isBoosterOnly: false
   },
   {
@@ -363,14 +363,14 @@ export const MOSJES = [
     startMP: 20,
     traits: { mental: 2, technical: 3, resilient: 1 },
     abilityId: "ability_drainer_continuous_drain",
-    abilityDescription: "Ability: ability_drainer_continuous_drain",
+    abilityDescription: "Continuous Drain: At the start of each opponent turn, all opponents lose 5 MP.",
     synergyWith: [],
     synergyEffect: null,
     petSynergy: null,
     tags: ["PLACEHOLDER"],
     flavourText: "",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†â—†",
+    rarity: "◆◆",
     isBoosterOnly: false
   },
   {
@@ -381,14 +381,14 @@ export const MOSJES = [
     startMP: 15,
     traits: { technical: 3, physical: 2, mental: 2 },
     abilityId: "ability_fps_coert_headshot_precision",
-    abilityDescription: "Ability: ability_fps_coert_headshot_precision",
+    abilityDescription: "Headshot Precision: After Physical or Technical Quest success roll 1d6; on 6 gain 30 MP and target opponent loses 15 MP.",
     synergyWith: ["mosje_fps_west"],
     synergyEffect: "When either Mosje completes a Quest: BOTH gain +10 MP",
     petSynergy: null,
     tags: ["COERT", "FPS"],
-    flavourText: "Quick scopes and clutch plays â€” every shot counts.",
+    flavourText: "Quick scopes and clutch plays — every shot counts.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†â—†",
+    rarity: "◆◆",
     isBoosterOnly: false
   },
   {
@@ -399,20 +399,20 @@ export const MOSJES = [
     startMP: 10,
     traits: { technical: 3, mental: 3, physical: 1 },
     abilityId: "ability_fps_west_tactical_analysis",
-    abilityDescription: "Ability: ability_fps_west_tactical_analysis",
+    abilityDescription: "Tactical Analysis: Pay 10 MP to view opponent hand and predict next card type; correct gain 20 MP, wrong lose 10 MP.",
     synergyWith: ["mosje_fps_coert", "mosje_azn_cless"],
     synergyEffect: "When either Mosje completes a Quest: BOTH gain +10 MP",
     petSynergy: null,
     tags: ["WEST", "FPS"],
     flavourText: "Analyzing angles, predicting movements, always one step ahead.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†â—†",
+    rarity: "◆◆",
     isBoosterOnly: false
   },
 
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─────────────────────────────────────────
   // ARTISTIC TYPE MOSJES
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─────────────────────────────────────────
 
   {
     id: "mosje_ronald_mastermind",
@@ -422,14 +422,14 @@ export const MOSJES = [
     startMP: 0,
     traits: { creative: 3, mental: 3 },
     abilityId: "ability_ronald_mastermind_master_plan",
-    abilityDescription: "Ability: ability_ronald_mastermind_master_plan",
+    abilityDescription: "Master Plan: Once per game activate any Piecie directly from discard for free and resolve it immediately.",
     synergyWith: [],
     synergyEffect: null,
     petSynergy: null,
     tags: ["RONALD"],
     flavourText: "The greatest artist controls not just the canvas, but reality itself.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†â—†",
+    rarity: "◆◆",
     isBoosterOnly: false
   },
   {
@@ -440,14 +440,14 @@ export const MOSJES = [
     startMP: 0,
     traits: { creative: 3, social: 2, mental: 2 },
     abilityId: "ability_jisca_perfect_combo",
-    abilityDescription: "Ability: ability_jisca_perfect_combo",
+    abilityDescription: "Perfect Combo: After each Piecie this turn roll 1d6; 4-6 chain another Piecie and opponent loses 15 MP, 1-3 this Mosje loses 10 MP.",
     synergyWith: ["mosje_alyssa_bulldozer", "mosje_alyssa_fissa"],
     synergyEffect: null,
     petSynergy: "piecie_gekke_vogels",
     tags: ["JISCA"],
     flavourText: "Every note is a weapon, every performance a battle.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†â—†",
+    rarity: "◆◆",
     isBoosterOnly: false
   },
   {
@@ -458,14 +458,14 @@ export const MOSJES = [
     startMP: 10,
     traits: { creative: 2, social: 2, resilient: 3 },
     abilityId: "ability_tuk_healer_healing_presence",
-    abilityDescription: "Ability: ability_tuk_healer_healing_presence",
+    abilityDescription: "Healing Presence: Once per turn choose gain 25 MP yourself or give ally 15 MP and draw 1; whenever this Mosje gains MP, gain +10 extra.",
     synergyWith: [],
     synergyEffect: null,
     petSynergy: "piecie_bowie_stormey",
     tags: ["TUK"],
     flavourText: "Gentle hands, fierce heart. She mends what others break.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†â—†",
+    rarity: "◆◆",
     isBoosterOnly: false
   },
   {
@@ -476,14 +476,14 @@ export const MOSJES = [
     startMP: 20,
     traits: { creative: 3, resilient: 2 },
     abilityId: "ability_dj_8020_lucky_beats",
-    abilityDescription: "Ability: ability_dj_8020_lucky_beats",
+    abilityDescription: "Lucky Beats: Passive gain 10 MP at every turn start; active once per turn reroll one die result.",
     synergyWith: [],
     synergyEffect: null,
     petSynergy: "piecie_bowie_stormey",
     tags: ["DJ", "GANDOE"],
     flavourText: "The beat drops at exactly the right moment... every time.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†",
+    rarity: "◆",
     isBoosterOnly: false
   },
   {
@@ -494,14 +494,14 @@ export const MOSJES = [
     startMP: 20,
     traits: { creative: 2, social: 2, resilient: 1 },
     abilityId: "ability_coert_kasteluck_morning_luck",
-    abilityDescription: "Ability: ability_coert_kasteluck_morning_luck",
+    abilityDescription: "Morning Luck: At turn start roll 1d6; on 4-6 you may play one extra Piecie for free this turn.",
     synergyWith: ["mosje_binti"],
     synergyEffect: "DOUBLE MP from FOOD cards",
     petSynergy: null,
     tags: ["COERT"],
     flavourText: "When fortune smiles, she takes full advantage.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†",
+    rarity: "◆",
     isBoosterOnly: false
   },
   {
@@ -512,14 +512,14 @@ export const MOSJES = [
     startMP: 5,
     traits: { creative: 2, social: 3 },
     abilityId: "ability_binti_cutting_words",
-    abilityDescription: "Ability: ability_binti_cutting_words",
+    abilityDescription: "Cutting Words: Discard 1 Piecie to make opponent discard 1 random hand card and lose 10 MP (once per turn).",
     synergyWith: ["mosje_coert_tech", "mosje_coert_kasteluck", "mosje_coert_kastelein"],
     synergyEffect: "DOUBLE MP from FOOD cards",
     petSynergy: null,
     tags: ["BINTI"],
     flavourText: "Her words cut deeper than any blade.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†",
+    rarity: "◆",
     isBoosterOnly: false
   },
   {
@@ -530,14 +530,14 @@ export const MOSJES = [
     startMP: 60,
     traits: { creative: 3, social: 2 },
     abilityId: "ability_binti_creator_quick_sketch",
-    abilityDescription: "Ability: ability_binti_creator_quick_sketch",
+    abilityDescription: "Quick Sketch: Discard 2 FOOD Piecies to search deck for 1 card and place it directly to the field.",
     synergyWith: [],
     synergyEffect: null,
     petSynergy: null,
     tags: ["BINTI"],
     flavourText: "",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†",
+    rarity: "◆",
     isBoosterOnly: false
   },
   {
@@ -548,14 +548,14 @@ export const MOSJES = [
     startMP: 10,
     traits: { creative: 3, mental: 2 },
     abilityId: "ability_cless_teacher_teaching_moment",
-    abilityDescription: "Ability: ability_cless_teacher_teaching_moment",
+    abilityDescription: "Teaching Moment: On each Piecie activation roll 1d6; on 5-6 draw 1 card and gain 5 MP.",
     synergyWith: ["mosje_west", "mosje_martin_senor_west"],
     synergyEffect: "Physical Quests give +15 bonus MP",
     petSynergy: "piecie_vianna_poes",
     tags: ["CLESS"],
     flavourText: "When inspiration strikes, magic happens.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†",
+    rarity: "◆",
     isBoosterOnly: false
   },
   {
@@ -566,14 +566,14 @@ export const MOSJES = [
     startMP: 20,
     traits: { creative: 3, technical: 2, mental: 2 },
     abilityId: "ability_martin_driver_perfect_line",
-    abilityDescription: "Ability: ability_martin_driver_perfect_line",
+    abilityDescription: "Perfect Line: After any Quest gain 15 MP; once per game at turn start roll 4-6 to complete one extra Quest this turn.",
     synergyWith: [],
     synergyEffect: null,
     petSynergy: null,
     tags: ["MARTIN"],
-    flavourText: "Finding the racing line between chaos and control â€” every millisecond counts.",
+    flavourText: "Finding the racing line between chaos and control — every millisecond counts.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†â—†",
+    rarity: "◆◆",
     isBoosterOnly: false
   },
   {
@@ -584,14 +584,14 @@ export const MOSJES = [
     startMP: 10,
     traits: { creative: 3, mental: 2, social: 1 },
     abilityId: "ability_amplifier_power_boost",
-    abilityDescription: "Ability: ability_amplifier_power_boost",
+    abilityDescription: "Power Boost: Pay 30 MP to make all your Mosje abilities trigger twice this turn (max 2 uses per game).",
     synergyWith: [],
     synergyEffect: null,
     petSynergy: null,
     tags: ["PLACEHOLDER"],
     flavourText: "",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†â—†â—†",
+    rarity: "◆◆◆",
     isBoosterOnly: false
   },
   {
@@ -602,14 +602,14 @@ export const MOSJES = [
     startMP: 20,
     traits: { creative: 2, resilient: 3, physical: 2 },
     abilityId: "ability_coert_kastelein_immovable_object",
-    abilityDescription: "Ability: ability_coert_kastelein_immovable_object",
+    abilityDescription: "Immovable Object: Reduce all incoming MP loss by 20, cap any single 50+ hit to 25, and cannot enter Welloe while at 30+ MP.",
     synergyWith: ["mosje_binti"],
     synergyEffect: "DOUBLE MP from FOOD cards",
     petSynergy: null,
     tags: ["COERT"],
-    flavourText: "Built like a closet â€” unmovable, unshakeable, unstoppable.",
+    flavourText: "Built like a closet — unmovable, unshakeable, unstoppable.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†â—†â—†",
+    rarity: "◆◆◆",
     isBoosterOnly: false
   },
   {
@@ -620,14 +620,14 @@ export const MOSJES = [
     startMP: 10,
     traits: { technical: 3, creative: 3, mental: 2 },
     abilityId: "ability_tuk_architect_perfect_placement",
-    abilityDescription: "Ability: ability_tuk_architect_perfect_placement",
+    abilityDescription: "Perfect Placement: Pay 15 MP to look at top 5 deck cards, take 2 to hand, bottom the rest; if both are Piecies place 1 face-down for free.",
     synergyWith: [],
     synergyEffect: null,
     petSynergy: "piecie_bowie_stormey",
     tags: ["TUK"],
-    flavourText: "Every piece in its perfect place â€” just like her dream houses.",
+    flavourText: "Every piece in its perfect place — just like her dream houses.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†â—†",
+    rarity: "◆◆",
     isBoosterOnly: false
   },
   {
@@ -638,20 +638,20 @@ export const MOSJES = [
     startMP: 15,
     traits: { physical: 3, creative: 3, social: 2 },
     abilityId: "ability_chris_ddr_perfect_combo_chain",
-    abilityDescription: "Ability: ability_chris_ddr_perfect_combo_chain",
+    abilityDescription: "Perfect Combo Chain: After any Piecie roll 1d6; on 5-6 activate another Piecie from hand for free, chain up to 3 times per turn.",
     synergyWith: ["mosje_youri"],
     synergyEffect: "Both may play Piecies directly to active state without face-down waiting",
     petSynergy: null,
     tags: ["CHRIS"],
     flavourText: "Four arrows, perfect timing, infinite style.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†â—†",
+    rarity: "◆◆",
     isBoosterOnly: false
   },
 
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─────────────────────────────────────────
   // LEGACY STARTER CARD (kept for deckbuilder compat)
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─────────────────────────────────────────
 
   {
     id: "mosje_west",
@@ -661,14 +661,14 @@ export const MOSJES = [
     startMP: 15,
     traits: { mental: 3, technical: 1 },
     abilityId: "ability_west_calculated_guess",
-    abilityDescription: "Ability: ability_west_calculated_guess",
+    abilityDescription: "Calculated Guess: Name a card type and reveal top of chosen deck; correct draw 2 and gain 10 MP, wrong lose 10 MP.",
     synergyWith: ["mosje_azn_cless", "mosje_cless_teacher"],
     synergyEffect: "Physical Quests give +15 bonus MP",
     petSynergy: null,
     tags: ["WEST"],
     flavourText: "Always three moves ahead.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "â—†",
+    rarity: "◆",
     isBoosterOnly: false
   },
 ];

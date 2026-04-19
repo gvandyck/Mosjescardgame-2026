@@ -121,4 +121,42 @@ export function runMosjeAbilityTests() {
     }
     assertTrue(threw, 'Expected Coert ability to throw when MP is below 10');
   });
+
+  test('Coert ability deducts MP from selected Coert slot', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          activeSlots: [
+            {
+              cardId: 'mosje_west',
+              name: '[West] Sr.Tactical',
+              traits: { mental: 3, technical: 1 },
+              mp: 40,
+              level: 1,
+              isDefeated: false,
+              statusEffects: [],
+              abilityUsedThisTurn: false,
+            },
+            {
+              cardId: 'mosje_coert_tech',
+              name: '[Coert] The Tech Savant',
+              traits: { mental: 2, technical: 3 },
+              mp: 30,
+              level: 1,
+              isDefeated: false,
+              statusEffects: [],
+              abilityUsedThisTurn: false,
+            },
+          ],
+          hand: [],
+          deck: [{ cardId: 'piecie_affoe', type: 'PIECIE' }],
+        },
+      },
+    });
+
+    const result = mosjeAbilities.ability_coert_extra_resources(state, 'player_1', 'mosje_coert_tech');
+    assertEqual(result.players.player_1.activeSlots[0].mp, 40);
+    assertEqual(result.players.player_1.activeSlots[1].mp, 20);
+    assertEqual(result.players.player_1.hand.length, 1);
+  });
 }

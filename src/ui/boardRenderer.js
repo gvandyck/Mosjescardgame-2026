@@ -30,21 +30,18 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 	container.innerHTML = `
 		<section class="board-zone board-zone--opponent">
 			<header class="board-zone__header">${escapeHtml(viewModel.players.top.name)}</header>
-			<div class="board-zone__slots" id="zone-opponent"></div>
-			<div class="board-zone__piecies" id="piecies-opponent"></div>
-		</section>
-
-		<section class="board-zone board-zone--center" id="shared-zone">
-			<div class="board-place">Active Place: <strong>${escapeHtml(viewModel.activePlaceName || 'None')}</strong></div>
-			<div class="board-quest">Quest Flow: <strong>${escapeHtml(viewModel.turnPhase)}</strong></div>
-			<div class="board-place-turns">⏱ ${Number(viewModel.activePlaceTurns || 0)} turn${Number(viewModel.activePlaceTurns || 0) === 1 ? '' : 's'} active</div>
-			<div id="active-quest-display" class="active-quest-panel active-quest-panel--hidden"></div>
+			<div class="board-zone__row">
+				<div class="board-zone__slots" id="zone-opponent"></div>
+				<div class="board-zone__piecies" id="piecies-opponent"></div>
+			</div>
 		</section>
 
 		<section class="board-zone board-zone--player">
 			<header class="board-zone__header">${escapeHtml(viewModel.players.bottom.name)}</header>
-			<div class="board-zone__slots" id="zone-player"></div>
-			<div class="board-zone__piecies" id="piecies-player"></div>
+			<div class="board-zone__row">
+				<div class="board-zone__slots" id="zone-player"></div>
+				<div class="board-zone__piecies" id="piecies-player"></div>
+			</div>
 		</section>
 	`;
 
@@ -74,7 +71,9 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		if (onUseAbility && !mosje.isDefeated && mosje.cardId) {
 			const btn = document.createElement('button');
 			btn.className = 'mosje-ability-btn' + (mosje.abilityUsedThisTurn ? ' mosje-ability-btn--used' : '');
-			btn.textContent = mosje.abilityUsedThisTurn ? '⚡ Used' : '⚡ Ability';
+			btn.textContent = '⚡';
+			btn.title = mosje.abilityUsedThisTurn ? 'Ability used this turn' : 'Use ability';
+			btn.setAttribute('aria-label', mosje.abilityUsedThisTurn ? 'Ability used this turn' : 'Use ability');
 			btn.disabled = mosje.abilityUsedThisTurn;
 			btn.addEventListener('click', (event) => {
 				event.stopPropagation();
@@ -102,7 +101,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		bottomZone?.appendChild(cardEl);
 	}
 
-	for (const piecie of viewModel.players.top.piecies || []) {
+	for (const piecie of (viewModel.players.top.piecies || []).slice(0, 4)) {
 		if (piecie.faceDown) {
 			const slot = document.createElement('div');
 			slot.className = 'piecie-slot face-down-piecie has-card';
@@ -114,7 +113,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		topPiecies?.appendChild(piecieEl);
 	}
 
-	for (const piecie of viewModel.players.bottom.piecies || []) {
+	for (const piecie of (viewModel.players.bottom.piecies || []).slice(0, 4)) {
 		if (piecie.faceDown) {
 			const slot = document.createElement('div');
 			slot.className = 'piecie-slot face-down-piecie has-card';
@@ -243,14 +242,17 @@ export function updateMPBar(mosjeInstanceId, mp, level) {
 	if (valueEl) valueEl.textContent = `${safeMp} / 100`;
 
 	const levelEl = bar.closest('.mp-bar-container')?.querySelector('.mp-bar-level');
-	if (levelEl) levelEl.textContent = `LV.${Number.isFinite(level) ? level : 0}`;
+	if (levelEl) {
+		const displayLevel = (Number.isFinite(level) ? Number(level) : 0) + 1;
+		levelEl.textContent = `LV.${displayLevel}`;
+	}
 }
 
 export function showPlaceEffectBanner(placeName, effectSummary, phase) {
-	const sharedZone = document.getElementById('shared-zone');
-	if (!sharedZone) return;
+	const topbarFlow = document.getElementById('topbar-flow');
+	if (!topbarFlow) return;
 
-	const existing = sharedZone.querySelector('.place-effect-banner');
+	const existing = topbarFlow.querySelector('.place-effect-banner');
 	if (existing) existing.remove();
 
 	const banner = document.createElement('div');
@@ -260,7 +262,7 @@ export function showPlaceEffectBanner(placeName, effectSummary, phase) {
 		<span class="place-banner-effect">${escapeHtml(effectSummary || `Effect triggered (${phase || 'phase'})`)}</span>
 	`;
 
-	sharedZone.appendChild(banner);
+	topbarFlow.appendChild(banner);
 	setTimeout(() => {
 		banner.classList.add('place-banner-fade');
 		banner.addEventListener('transitionend', () => banner.remove(), { once: true });

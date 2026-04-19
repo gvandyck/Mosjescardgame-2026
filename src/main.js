@@ -112,10 +112,39 @@ function initGamePage() {
 	const logRoot = document.getElementById('log-root');
 	const modalRoot = document.getElementById('modal-root');
 	const turnLabel = document.getElementById('turn-label');
+	const logToggleBtn = document.getElementById('btn-toggle-log');
+	const logPopover = document.getElementById('topbar-log-popover');
 
 	if (!boardRoot || !handRoot || !logRoot || !modalRoot) {
 		console.log('[UI] Game containers missing — page not fully ready');
 		return;
+	}
+
+	if (logToggleBtn && logPopover) {
+		const setLogOpen = (open) => {
+			logPopover.hidden = !open;
+			logToggleBtn.setAttribute('aria-expanded', String(open));
+			logToggleBtn.classList.toggle('is-open', open);
+		};
+
+		setLogOpen(false);
+
+		logToggleBtn.addEventListener('click', () => {
+			const isOpen = !logPopover.hidden;
+			setLogOpen(!isOpen);
+		});
+
+		document.addEventListener('click', (event) => {
+			if (logPopover.hidden) return;
+			const target = event.target;
+			if (!(target instanceof Node)) return;
+			if (logPopover.contains(target) || logToggleBtn.contains(target)) return;
+			setLogOpen(false);
+		});
+
+		document.addEventListener('keydown', (event) => {
+			if (event.key === 'Escape' && !logPopover.hidden) setLogOpen(false);
+		});
 	}
 
 	const urlParams = new URLSearchParams(window.location.search);
@@ -282,6 +311,7 @@ function initGamePage() {
 
 		const threshold = getQuestDiceThreshold(questDef, activeMosje);
 		log.add('quest', `${localPlayerName} is attempting General Quest: ${questDef.name}`);
+		if (questDef.description) log.add('info', `Effect: ${questDef.description}`);
 
 		const diceBonus = gameState._snelleFlags?.questDiceBonus || 0;
 		const placeDiceBonus = gameState.activePlace === 'place_synergy_chamber' ? 1 : 0;
@@ -305,6 +335,7 @@ function initGamePage() {
 		syncPush();
 
 		modal.showDiceRoll(questDef, threshold, (didSucceed) => {
+			const beforeResolve = gameState;
 			gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed);
 			gameState.activeQuest = null;
 			if (!Array.isArray(gameState.sharedGeneralQuestDiscard)) {
@@ -319,6 +350,7 @@ function initGamePage() {
 			log.add(didSucceed ? 'gain' : 'loss',
 				`${questDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`
 			);
+			logStateOutcome(log, beforeResolve, gameState, localPlayerId, `${questDef.name} resolution`);
 		}, { diceBonus: diceBonus + placeDiceBonus, forceReroll, skiffaRerolls });
 	});
 
@@ -360,6 +392,7 @@ function initGamePage() {
 		const activeMosje = gameState.players[localPlayerId].activeSlots.find(s => s && !s.isDefeated);
 		const threshold = getQuestDiceThreshold(questDef, activeMosje);
 		log.add('quest', `${localPlayerName} is attempting Personal Quest: ${questDef.name}`);
+		if (questDef.description) log.add('info', `Effect: ${questDef.description}`);
 
 		const diceBonus2 = gameState._snelleFlags?.questDiceBonus || 0;
 		const placeDiceBonus2 = gameState.activePlace === 'place_synergy_chamber' ? 1 : 0;
@@ -382,6 +415,7 @@ function initGamePage() {
 		syncPush();
 
 		modal.showDiceRoll(questDef, threshold, (didSucceed) => {
+			const beforeResolve = gameState;
 			gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed);
 			gameState.activeQuest = null;
 			renderFromState(gameState);
@@ -392,6 +426,7 @@ function initGamePage() {
 			log.add(didSucceed ? 'gain' : 'loss',
 				`${questDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`
 			);
+			logStateOutcome(log, beforeResolve, gameState, localPlayerId, `${questDef.name} resolution`);
 		}, { diceBonus: diceBonus2 + placeDiceBonus2, forceReroll: forceReroll2, skiffaRerolls: skiffaRerolls2 });
 	});
 
@@ -433,6 +468,16 @@ function initGamePage() {
 			turnLabel.textContent = `${isLocalTurn ? 'You' : uiState.activePlayerName} • ${phaseLabel}`;
 		}
 
+		const topbarPlace = document.getElementById('topbar-place');
+		const topbarQuestFlow = document.getElementById('topbar-quest-flow');
+		const topbarPlaceTurns = document.getElementById('topbar-place-turns');
+		if (topbarPlace) topbarPlace.textContent = uiState.activePlaceName || 'None';
+		if (topbarQuestFlow) topbarQuestFlow.textContent = uiState.turnPhase || 'DRAW';
+		if (topbarPlaceTurns) {
+			const turns = Number(uiState.activePlaceTurns || 0);
+			topbarPlaceTurns.textContent = `${turns} turn${turns === 1 ? '' : 's'} active`;
+		}
+
 		const btnGeneral = document.getElementById('btn-general-quest');
 		const btnPersonal = document.getElementById('btn-personal-quest');
 		const btnEndTurn = document.getElementById('btn-end-turn');
@@ -445,6 +490,7 @@ function initGamePage() {
 	function handleUseAbility(mosjeId) {
 		if (!gameState || gameState.status === 'FINISHED') return;
 
+		const beforeAbility = gameState;
 		const { state: newState, success, error } = useMosjeAbility(gameState, localPlayerId, mosjeId);
 		if (!success) {
 			modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
@@ -454,6 +500,9 @@ function initGamePage() {
 
 		const slot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
 		log.add('gain', `Used ability: ${slot?.name || mosjeId}.`);
+		const abilityDef = CARD_LOOKUP[mosjeId];
+		if (abilityDef?.abilityDescription) log.add('info', `Effect: ${abilityDef.abilityDescription}`);
+		logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${slot?.name || mosjeId} ability`);
 		syncPush();
 
 		if (gameState.status === 'FINISHED') {
@@ -476,6 +525,7 @@ function initGamePage() {
 
 		// Targeting cards: show selector, then dispatch with resolved targets
 		async function resolveTargetingCard(def, ref) {
+			const beforePlay = gameState;
 			const oppTargets = getOpponentMosjes(gameState, localPlayerId);
 			const ownTargets = getPlayerMosjes(gameState, localPlayerId);
 
@@ -512,6 +562,8 @@ function initGamePage() {
 			}
 			gameState = newState;
 			log.add('gain', `Played ${def.name}.`);
+			if (def.description) log.add('info', `Effect: ${def.description}`);
+			logStateOutcome(log, beforePlay, gameState, localPlayerId, `${def.name} activation`);
 			syncPush();
 			if (gameState.status === 'FINISHED') {
 				stopListening();
@@ -568,6 +620,7 @@ function initGamePage() {
 				}
 			}
 
+			const beforePlay = gameState;
 			const { state: newState, success, error } = playPiecie(piecieStateForPlay, localPlayerId, cardRef, cardDef);
 			if (!success) {
 				modal.showInfo('Cannot Play', error || 'That card cannot be played right now.');
@@ -576,6 +629,7 @@ function initGamePage() {
 			gameState = newState;
 			log.add('gain', `Played ${cardDef.name}.`);
 			if (cardDef.description) log.add('info', cardDef.description);
+			logStateOutcome(log, beforePlay, gameState, localPlayerId, `${cardDef.name} activation`);
 			syncPush();
 			if (gameState.status === 'FINISHED') {
 				stopListening();
@@ -588,6 +642,7 @@ function initGamePage() {
 		}
 
 		if (cardType === 'SNELLE_PIECIE') {
+			const beforePlay = gameState;
 			let snelleStateForPlay = gameState;
 			if (cardDef.effectId === 'effect_snelle_jensen') {
 				const ownTargets = getPlayerMosjes(gameState, localPlayerId);
@@ -605,6 +660,8 @@ function initGamePage() {
 			}
 			gameState = newState;
 			log.add('gain', `Played ${cardDef.name} (instant).`);
+			if (cardDef.description) log.add('info', `Effect: ${cardDef.description}`);
+			logStateOutcome(log, beforePlay, gameState, localPlayerId, `${cardDef.name} instant activation`);
 			syncPush();
 			renderFromState(gameState);
 			return;
@@ -673,6 +730,7 @@ function initGamePage() {
 		}
 
 		if (cardType === 'PLACE') {
+			const beforePlay = gameState;
 			const currentPlaceName = gameState.activePlace
 				? (PLACES.find(p => p.id === gameState.activePlace)?.name || gameState.activePlace)
 				: null;
@@ -691,6 +749,7 @@ function initGamePage() {
 			gameState = newState;
 			log.add('gain', `Played Place: ${cardDef.name}.`);
 			if (cardDef.description) log.add('info', cardDef.description);
+			logStateOutcome(log, beforePlay, gameState, localPlayerId, `${cardDef.name} placement`);
 			syncPush();
 			if (gameState.status === 'FINISHED') {
 				stopListening();
@@ -819,6 +878,89 @@ function pickOpponentDeck(localDeckId) {
 	if (localDeckId === 'PHYSICAL_FORCE') return 'ARTISTIC_RHYTHM';
 	if (localDeckId === 'ARTISTIC_RHYTHM') return 'DIGITAL_CONTROL';
 	return 'PHYSICAL_FORCE';
+}
+
+function logStateOutcome(log, beforeState, afterState, actorId, label = 'Action') {
+	const lines = summarizeStateOutcome(beforeState, afterState, actorId);
+	if (!lines.length) {
+		log.add('info', `${label}: no visible stat changes.`);
+		return;
+	}
+	log.add('info', `${label}:`);
+	for (const line of lines.slice(0, 6)) {
+		log.add('info', `- ${line}`);
+	}
+}
+
+function summarizeStateOutcome(beforeState, afterState, actorId) {
+	if (!beforeState || !afterState) return [];
+	const lines = [];
+
+	const beforePlace = beforeState.activePlace || 'None';
+	const afterPlace = afterState.activePlace || 'None';
+	if (beforePlace !== afterPlace) {
+		const beforeName = beforePlace === 'None' ? 'None' : (CARD_LOOKUP[beforePlace]?.name || beforePlace);
+		const afterName = afterPlace === 'None' ? 'None' : (CARD_LOOKUP[afterPlace]?.name || afterPlace);
+		lines.push(`Place changed: ${beforeName} -> ${afterName}`);
+	}
+
+	for (const pid of Object.keys(afterState.players || {})) {
+		const beforePlayer = beforeState.players?.[pid];
+		const afterPlayer = afterState.players?.[pid];
+		if (!afterPlayer) continue;
+		const prefix = pid === actorId ? 'You' : (afterPlayer.name || pid);
+
+		for (let i = 0; i < 2; i++) {
+			const b = beforePlayer?.activeSlots?.[i] || null;
+			const a = afterPlayer?.activeSlots?.[i] || null;
+			if (!a && !b) continue;
+
+			if (!b && a) {
+				lines.push(`${prefix} fielded ${a.name || a.cardId} (MP ${a.mp ?? 0}).`);
+				continue;
+			}
+			if (b && !a) {
+				lines.push(`${prefix} lost ${b.name || b.cardId} from field.`);
+				continue;
+			}
+			if (!a || !b) continue;
+
+			const beforeMp = Number(b.mp || 0);
+			const afterMp = Number(a.mp || 0);
+			const delta = afterMp - beforeMp;
+			if (delta !== 0) {
+				const sign = delta > 0 ? '+' : '';
+				lines.push(`${prefix} ${a.name || a.cardId}: ${sign}${delta} MP (now ${afterMp}).`);
+			}
+
+			if ((b.level || 0) !== (a.level || 0)) {
+				const beforeLevel = (b.level || 0) + 1;
+				const afterLevel = (a.level || 0) + 1;
+				lines.push(`${prefix} ${a.name || a.cardId}: level ${beforeLevel} -> ${afterLevel}.`);
+			}
+			if (!b.isDefeated && a.isDefeated) {
+				lines.push(`${prefix} ${a.name || a.cardId} was defeated.`);
+			}
+		}
+
+		const zones = [
+			['hand', 'cards in hand'],
+			['deck', 'cards in deck'],
+			['discard', 'cards in discard'],
+			['welloe', 'cards in welloe'],
+		];
+		for (const [zoneKey, labelText] of zones) {
+			const beforeCount = Array.isArray(beforePlayer?.[zoneKey]) ? beforePlayer[zoneKey].length : 0;
+			const afterCount = Array.isArray(afterPlayer?.[zoneKey]) ? afterPlayer[zoneKey].length : 0;
+			const zoneDelta = afterCount - beforeCount;
+			if (zoneDelta !== 0) {
+				const sign = zoneDelta > 0 ? '+' : '';
+				lines.push(`${prefix}: ${labelText} ${sign}${zoneDelta} (now ${afterCount}).`);
+			}
+		}
+	}
+
+	return lines;
 }
 
 function setVersionLabel() {
