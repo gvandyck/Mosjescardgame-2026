@@ -800,6 +800,52 @@
    display: block;
 }
 
+/* ── Mosje Select (quest targeting) ─────────────────────────────── */
+.modal-mosje-select-list {
+   display: grid;
+   gap: 8px;
+   margin-top: 4px;
+}
+
+.modal-mosje-select-btn {
+   width: 100%;
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   gap: 12px;
+   padding: 10px 14px;
+   background: linear-gradient(135deg, #1a150a 0%, #0e0c04 100%);
+   border: 1px solid rgba(232, 185, 79, 0.3);
+   border-radius: 8px;
+   color: #e6ebff;
+   cursor: pointer;
+   font-family: var(--font-display);
+   letter-spacing: 0.04em;
+   transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+
+.modal-mosje-select-btn:hover {
+   background: linear-gradient(135deg, #2a1f08 0%, #181308 100%);
+   border-color: var(--mosje-gold);
+   box-shadow: 0 0 14px rgba(232, 185, 79, 0.2);
+}
+
+.mosje-select-name {
+   font-size: 0.95rem;
+   color: var(--mosje-gold);
+}
+
+.mosje-select-mp {
+   font-size: 0.8rem;
+   color: #b0bcdf;
+   font-family: var(--font-mono);
+   background: rgba(255,255,255,0.06);
+   border: 1px solid rgba(255,255,255,0.1);
+   border-radius: 99px;
+   padding: 2px 9px;
+   white-space: nowrap;
+}
+
 /* ── Active Quest Panel ──────────────────────────────────────────── */
 .active-quest-panel {
    background: rgba(16, 22, 48, 0.92);
