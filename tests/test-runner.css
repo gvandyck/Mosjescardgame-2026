@@ -41,6 +41,12 @@ h1 {
   margin-bottom: 8px;
 }
 
+.app-version {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+
 #summary {
   margin: 8px 0 12px;
   padding: 10px 12px;

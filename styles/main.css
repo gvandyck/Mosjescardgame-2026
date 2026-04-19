@@ -54,6 +54,20 @@ h1, h2, h3 { font-family: var(--font-heading); }
   z-index: -1;
 }
 
+.app-version-badge {
+  position: fixed;
+  right: 10px;
+  bottom: 10px;
+  z-index: 120;
+  background: rgba(10, 14, 26, 0.9);
+  border: 1px solid #364071;
+  color: #c7d1ee;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+}
+
 .btn-primary {
   border: none;
   background: linear-gradient(90deg, #4A9EFF 0%, #63b2ff 100%);

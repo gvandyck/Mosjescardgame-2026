@@ -16,6 +16,7 @@ import { QUESTS } from './data/quests.js';
 import { createRoom, joinRoom } from './multiplayer/roomManager.js';
 import { pushState, listenToState, stopListening } from './multiplayer/syncManager.js';
 import { eventBus } from './multiplayer/eventBus.js';
+import { APP_VERSION } from './version.js';
 
 console.log('[UI] App bootstrapping...');
 
@@ -33,6 +34,7 @@ if (path.endsWith('/game.html')) {
 
 function initLobbyPage() {
 	console.log('[UI] Initializing lobby page');
+	setVersionLabel();
 	const form = document.getElementById('lobby-form');
 	if (!form) return;
 
@@ -103,6 +105,7 @@ function initLobbyPage() {
 
 function initGamePage() {
 	console.log('[UI] Initializing game page');
+	setVersionLabel();
 
 	const boardRoot = document.getElementById('board-root');
 	const handRoot = document.getElementById('hand-root');
@@ -771,6 +774,12 @@ function pickOpponentDeck(localDeckId) {
 	if (localDeckId === 'PHYSICAL_FORCE') return 'ARTISTIC_RHYTHM';
 	if (localDeckId === 'ARTISTIC_RHYTHM') return 'DIGITAL_CONTROL';
 	return 'PHYSICAL_FORCE';
+}
+
+function setVersionLabel() {
+	const label = document.getElementById('app-version');
+	if (!label) return;
+	label.textContent = `Version ${APP_VERSION}`;
 }
 
 function sanitizeQuestCardsInPlayerZones(rawState) {

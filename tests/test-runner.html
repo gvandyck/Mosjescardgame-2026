@@ -10,6 +10,7 @@
   <div class="shell">
     <header>
       <h1>MOSJES Test Runner</h1>
+      <p id="app-version" class="app-version">Version loading...</p>
       <p id="summary">Running tests...</p>
       <div class="controls">
         <button id="btn-run" type="button">Run All Tests</button>
@@ -20,6 +21,7 @@
   </div>
 
   <script type="module">
+    import { APP_VERSION } from '../src/version.js';
     import { results, clearResults } from './helpers/testHelpers.js';
     import { runMpManagerTests } from './core/test-mpManager.js';
     import { runVictoryCheckerTests } from './core/test-victoryChecker.js';
@@ -32,6 +34,8 @@
     import { runPiecieEffectsTests } from './cards/test-piecieEffects.js';
     import { runSnelleEffectsTests } from './cards/test-snelleEffects.js';
     import { runPlaceEffectsTests } from './cards/test-placeEffects.js';
+
+    document.getElementById('app-version').textContent = `Version ${APP_VERSION}`;
     import { runQuestLogicTests } from './cards/test-questLogic.js';
 
     function runAll() {
