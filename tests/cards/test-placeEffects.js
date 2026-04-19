@@ -238,6 +238,13 @@ export function runPlaceEffectsTests() {
     assertEqual(result.players.player_1.activeSlots[0].mp, 35); // 20 + 15 (mental 3 >= 2, drew 2)
   });
 
+  test('resolvePlaceEffect records last place effect metadata', () => {
+    const state = createEngineState({ activePlace: 'place_the_void' });
+    const result = placeEffects.resolvePlaceEffect(state, 'END_PHASE');
+    assertEqual(result._lastPlaceEffect.placeId, 'place_the_void');
+    assertEqual(result._lastPlaceEffect.phase, 'END_PHASE');
+  });
+
   test('resolvePlaceEffect routes END_PHASE to effect_zo_is_natuur', () => {
     const state = createEngineState({
       activePlace: 'place_zo_is_natuur',
@@ -259,5 +266,30 @@ export function runPlaceEffectsTests() {
     const result = placeEffects.resolvePlaceEffect(state, 'END_PHASE');
     assertEqual(result.players.player_1.activeSlots[0].mp, 30); // level 1 → +10
     assertEqual(result.players.player_2.activeSlots[0].mp, 15); // level 0 → +5
+  });
+
+  test('triggerPlaceDestroyedEffects gives Alyssa Fissa +15 MP', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          activeSlots: [
+            {
+              cardId: 'mosje_alyssa_fissa',
+              name: '[Alyssa Fissa] Party Power',
+              traits: { social: 3 },
+              mp: 30,
+              level: 1,
+              isDefeated: false,
+              statusEffects: [],
+              abilityUsedThisTurn: false,
+            },
+            null,
+          ],
+        },
+      },
+    });
+
+    const result = placeEffects.triggerPlaceDestroyedEffects(state, 'player_1');
+    assertEqual(result.players.player_1.activeSlots[0].mp, 45);
   });
 }

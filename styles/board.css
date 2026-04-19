@@ -176,8 +176,66 @@
    padding: 7px 9px;
 }
 
+.board-zone--center .board-place-turns {
+   grid-column: 1 / -1;
+   font-size: 0.68rem;
+   color: #88a6d9;
+   padding: 4px 8px;
+   border-radius: 7px;
+   background: rgba(136, 166, 217, 0.08);
+   border: 1px solid rgba(136, 166, 217, 0.16);
+}
+
 .board-zone--center #active-quest-display {
    grid-column: 1 / -1;
+}
+
+.place-effect-banner {
+   position: absolute;
+   top: 50%;
+   left: 50%;
+   transform: translate(-50%, -50%);
+   background: rgba(61, 214, 140, 0.08);
+   border: 1px solid rgba(61, 214, 140, 0.25);
+   border-radius: 8px;
+   padding: 8px 16px;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   gap: 3px;
+   pointer-events: none;
+   z-index: 30;
+   animation: place-banner-in 0.3s ease;
+   white-space: nowrap;
+}
+
+@keyframes place-banner-in {
+   from {
+      opacity: 0;
+      transform: translate(-50%, calc(-50% - 8px));
+   }
+   to {
+      opacity: 1;
+      transform: translate(-50%, -50%);
+   }
+}
+
+.place-banner-fade {
+   opacity: 0;
+   transform: translate(-50%, calc(-50% - 12px));
+   transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.place-banner-name {
+   font-family: var(--font-display);
+   font-size: 0.7rem;
+   letter-spacing: 0.1em;
+   color: var(--place-green);
+}
+
+.place-banner-effect {
+   font-size: 0.6rem;
+   color: rgba(255, 255, 255, 0.55);
 }
 
 .board-zone__slots .card {

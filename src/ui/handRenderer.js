@@ -8,7 +8,7 @@ console.log('[UI] handRenderer.js loaded');
 
 // onPlay(cardId, cardType) — optional callback when a playable card is clicked.
 // isLocalTurn — when false, regular cards are dimmed; Snelle Piecies stay active.
-export function renderHand(container, cards, onPlay = null, isLocalTurn = true, activeQuest = null, localPlayerId = null) {
+export function renderHand(container, cards, onPlay = null, isLocalTurn = true, activeQuest = null, localPlayerId = null, gameState = null) {
 	if (!container) return;
 	console.log('[UI] Rendering hand with', cards.length, 'cards');
 	container.innerHTML = '';
@@ -64,6 +64,14 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 		else if (isRegularPlayable && onPlay) {
 			if (isLocalTurn) {
 				cardEl.classList.add('hand-card--playable');
+				const hasFreeActivation = Boolean(
+					gameState?.players?.[localPlayerId]?.freePiecieActivationAvailable &&
+					gameState?.activePlace === 'place_coerts_caravan'
+				);
+				if (hasFreeActivation) {
+					cardEl.classList.add('free-activation');
+					cardEl.title = '⭐ Free activation — Coert\'s Caravan';
+				}
 				const btn = document.createElement('button');
 				btn.className = 'hand-card__play-btn';
 				btn.type = 'button';

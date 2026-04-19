@@ -34,9 +34,10 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 			<div class="board-zone__piecies" id="piecies-opponent"></div>
 		</section>
 
-		<section class="board-zone board-zone--center">
+		<section class="board-zone board-zone--center" id="shared-zone">
 			<div class="board-place">Active Place: <strong>${escapeHtml(viewModel.activePlaceName || 'None')}</strong></div>
 			<div class="board-quest">Quest Flow: <strong>${escapeHtml(viewModel.turnPhase)}</strong></div>
+			<div class="board-place-turns">⏱ ${Number(viewModel.activePlaceTurns || 0)} turn${Number(viewModel.activePlaceTurns || 0) === 1 ? '' : 's'} active</div>
 			<div id="active-quest-display" class="active-quest-panel active-quest-panel--hidden"></div>
 		</section>
 
@@ -243,6 +244,27 @@ export function updateMPBar(mosjeInstanceId, mp, level) {
 
 	const levelEl = bar.closest('.mp-bar-container')?.querySelector('.mp-bar-level');
 	if (levelEl) levelEl.textContent = `LV.${Number.isFinite(level) ? level : 0}`;
+}
+
+export function showPlaceEffectBanner(placeName, effectSummary, phase) {
+	const sharedZone = document.getElementById('shared-zone');
+	if (!sharedZone) return;
+
+	const existing = sharedZone.querySelector('.place-effect-banner');
+	if (existing) existing.remove();
+
+	const banner = document.createElement('div');
+	banner.className = 'place-effect-banner';
+	banner.innerHTML = `
+		<span class="place-banner-name">📍 ${escapeHtml(placeName || 'Active Place')}</span>
+		<span class="place-banner-effect">${escapeHtml(effectSummary || `Effect triggered (${phase || 'phase'})`)}</span>
+	`;
+
+	sharedZone.appendChild(banner);
+	setTimeout(() => {
+		banner.classList.add('place-banner-fade');
+		banner.addEventListener('transitionend', () => banner.remove(), { once: true });
+	}, 2000);
 }
 
 function escapeHtml(text) {

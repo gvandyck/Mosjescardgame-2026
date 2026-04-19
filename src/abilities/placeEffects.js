@@ -2,6 +2,7 @@
 // Filled in Phase 4.
 
 import { PLACES } from '../data/places.js';
+import { getCardById } from '../data/cardIndex.js';
 
 console.log('[ABILITY] placeEffects.js loaded');
 
@@ -205,20 +206,27 @@ export function effect_momentum_factory(gameState) {
 // ─────────────────────────────────────────
 export function effect_coerts_caravan(gameState) {
 	const state = cloneState(gameState);
-	const playerId = state.activePlayerId;
-	const player = state.players[playerId];
-	if (!player) return state;
+	for (const pid of Object.keys(state.players || {})) {
+		const player = state.players[pid];
+		if (!player) continue;
 
-	// Bonus for Coert-tagged Mosjes when drawing
-	for (const mosje of player.activeSlots) {
-		if (!mosje || mosje.isDefeated) continue;
-		const isCoert = mosje.mosjeId && mosje.mosjeId.toLowerCase().includes('coert');
-		if (isCoert) {
-			mosje.mp += 15;
-			console.log('[ABILITY] Coert\'s Caravan: +15 MP for Coert Mosje on draw');
+		let hasCoert = false;
+		for (const mosje of player.activeSlots || []) {
+			if (!mosje || mosje.isDefeated) continue;
+			const id = String(mosje.cardId || mosje.mosjeId || '').toLowerCase();
+			const isCoert = id.includes('coert');
+			if (isCoert) {
+				hasCoert = true;
+				mosje.mp += 15;
+				console.log('[ABILITY] Coert\'s Caravan: +15 MP for Coert Mosje on draw');
+			}
+		}
+
+		if (hasCoert) {
+			player.freePiecieActivationAvailable = true;
+			console.log(`[PLACE] Coert's Caravan — ${pid} gets 1 free Piecie activation this turn`);
 		}
 	}
-	// Note: Binti Piecie cost reduction requires UI validation
 	return state;
 }
 
@@ -232,6 +240,34 @@ export function effect_synergy_chamber(gameState) {
 	// Mark that synergy chamber is active so synergy resolver can apply effects
 	state.synergyChamberActive = true;
 	console.log('[ABILITY] Synergy Chamber: passive synergy triggers unlocked');
+	return state;
+}
+
+export function getSynergyChambercostReduction(gameState) {
+	return gameState?.activePlace === 'place_synergy_chamber' ? 5 : 0;
+}
+
+export function getSynergyChamberDiceBonus(gameState) {
+	return gameState?.activePlace === 'place_synergy_chamber' ? 1 : 0;
+}
+
+export function getSynergyChamberDurationBonus(gameState) {
+	return gameState?.activePlace === 'place_synergy_chamber' ? 1 : 0;
+}
+
+export function triggerPlaceDestroyedEffects(gameState, destroyingPlayerId) {
+	const state = cloneState(gameState);
+	const player = state.players?.[destroyingPlayerId];
+	if (!player) return state;
+
+	for (const slot of player.activeSlots || []) {
+		if (!slot || slot.isDefeated) continue;
+		if (getCardById(slot.cardId)?.id === 'mosje_alyssa_fissa') {
+			slot.mp += 15;
+			console.log('[ABILITY] Alyssa Fissa Fissa Party Power triggered — +15 MP');
+		}
+	}
+
 	return state;
 }
 
@@ -365,64 +401,93 @@ export function resolvePlaceEffect(gameState, triggerPhase, context = {}) {
 	const placeDef = PLACES.find(p => p.id === placeId);
 	if (!placeDef || placeDef.trigger !== triggerPhase) return gameState;
 
-	let state = gameState;
+	const state = gameState;
+	let nextState = state;
 	const { playerId, questCard, didSucceed, mosje, questsCompletedThisTurn, cardsDrawn, newMosjeSlotIndex } = context;
 
 	switch (placeId) {
 		case 'place_the_gym':
-			return effect_the_gym(state);
+			nextState = effect_the_gym(state);
+			break;
 
 		case 'place_quest_haven':
-			return effect_quest_haven(state, (questsCompletedThisTurn || 0) >= 2);
+			nextState = effect_quest_haven(state, (questsCompletedThisTurn || 0) >= 2);
+			break;
 
 		case 'place_bank_chilling':
-			return effect_bank_chilling(state, playerId, cardsDrawn || 0);
+			nextState = effect_bank_chilling(state, playerId, cardsDrawn || 0);
+			break;
 
 		case 'place_skiffa':
-			return effect_skiffa(state);
+			nextState = effect_skiffa(state);
+			break;
 
 		case 'place_obby_1':
-			return effect_obby_1(state, questCard, didSucceed);
+			nextState = effect_obby_1(state, questCard, didSucceed);
+			break;
 
 		case 'place_arcade':
-			return effect_arcade(state, questCard, didSucceed);
+			nextState = effect_arcade(state, questCard, didSucceed);
+			break;
 
 		case 'place_zo_is_natuur':
-			return effect_zo_is_natuur(state);
+			nextState = effect_zo_is_natuur(state);
+			break;
 
 		case 'place_the_void':
-			return effect_the_void(state);
+			nextState = effect_the_void(state);
+			break;
 
 		case 'place_momentum_factory':
-			return effect_momentum_factory(state);
+			nextState = effect_momentum_factory(state);
+			break;
 
 		case 'place_coerts_caravan':
-			return effect_coerts_caravan(state);
+			nextState = effect_coerts_caravan(state);
+			break;
 
 		case 'place_synergy_chamber':
-			return effect_synergy_chamber(state);
+			nextState = effect_synergy_chamber(state);
+			break;
 
 		case 'place_welloe_graveyard':
-			return effect_welloe_graveyard(state, playerId, newMosjeSlotIndex ?? -1);
+			nextState = effect_welloe_graveyard(state, playerId, newMosjeSlotIndex ?? -1);
+			break;
 
 		case 'place_drain_zone':
-			return effect_drain_zone(state);
+			nextState = effect_drain_zone(state);
+			break;
 
 		case 'place_momentum_stabilizer':
-			return effect_momentum_stabilizer(state);
+			nextState = effect_momentum_stabilizer(state);
+			break;
 
 		case 'place_delluft':
-			return effect_delluft(state);
+			nextState = effect_delluft(state);
+			break;
 
 		case 'place_dierenasiel':
-			return effect_dierenasiel(state);
+			nextState = effect_dierenasiel(state);
+			break;
 
 		case 'place_digital_gaming_stop':
-			return effect_digital_gaming_stop(state, questCard, mosje);
+			nextState = effect_digital_gaming_stop(state, questCard, mosje);
+			break;
 
 		default:
 			console.warn('[ABILITY] resolvePlaceEffect: unknown place id', placeId);
 			return state;
 	}
+
+	return {
+		...nextState,
+		_lastPlaceEffect: {
+			placeId,
+			placeName: placeDef.name,
+			phase: triggerPhase,
+			description: placeDef.description || 'Place effect triggered',
+			time: Date.now(),
+		},
+	};
 }
 

@@ -7,6 +7,7 @@
 import { rollDie } from '../engine/deckEngine.js';
 import { gainMP, loseMP } from '../engine/mpManager.js';
 import { applyPlaceEffectsOnQuest } from '../engine/turnManager.js';
+import { getSynergyChamberDiceBonus } from './placeEffects.js';
 
 console.log('[ABILITY] questLogic.js loaded');
 
@@ -245,7 +246,7 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed) {
 			state = gainMP(state, playerId, slotIndex, questCard.successMP);
 		} else {
 			const failValue = Math.abs(typeof questCard.failMP === 'number' ? questCard.failMP : 0);
-			state = loseMP(state, playerId, slotIndex, failValue);
+			state = loseMP(state, playerId, slotIndex, failValue, 'QUEST');
 		}
 	}
 
@@ -651,8 +652,13 @@ export function quest_req_sustained_assault(questCard, mosje, gameState) {
 }
 
 export function quest_req_perfect_timing(questCard, mosje) {
+	if (questCard?.activePlace === 'place_momentum_stabilizer') {
+		return { canAttempt: true, success: true, autoSuccess: true };
+	}
+
 	// Roll exactly 6 (no threshold, must be exact match)
-	const roll = rollDie();
+	const raw = rollDie();
+	const roll = raw + getSynergyChamberDiceBonus(questCard?.gameState || null);
 	return { canAttempt: true, diceRoll: roll, threshold: 6, exact: true, success: roll === 6 };
 }
 

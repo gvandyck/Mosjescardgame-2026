@@ -74,4 +74,27 @@ export function runMpManagerTests() {
     state = gainMP(state, 'player_1', 0, 90);
     assertTrue(state.players.player_1.activeSlots[0].level >= 3);
   });
+
+  test('The Void blocks gainMP and loseMP', () => {
+    const state = createEngineState({ activePlace: 'place_the_void' });
+    const afterGain = gainMP(state, 'player_1', 0, 20);
+    const afterLoss = loseMP(afterGain, 'player_1', 0, 10);
+    assertEqual(afterLoss.players.player_1.activeSlots[0].mp, 15);
+  });
+
+  test('Momentum Factory blocks ATTACK loss only', () => {
+    const state = createEngineState({ activePlace: 'place_momentum_factory' });
+    const blocked = loseMP(state, 'player_1', 0, 30, 'ATTACK');
+    const allowed = loseMP(state, 'player_1', 0, 30, 'DRAIN');
+    assertEqual(blocked.players.player_1.activeSlots[0].mp, 15);
+    assertEqual(allowed.players.player_1.activeSlots[0].mp, -15);
+  });
+
+  test('Drain Zone boosts gain and DRAIN loss', () => {
+    const state = createEngineState({ activePlace: 'place_drain_zone' });
+    const afterGain = gainMP(state, 'player_1', 0, 10);
+    const afterDrain = loseMP(afterGain, 'player_1', 0, 20, 'DRAIN');
+    assertEqual(afterGain.players.player_1.activeSlots[0].mp, 30); // +15
+    assertEqual(afterDrain.players.player_1.activeSlots[0].mp, 0); // -30
+  });
 }

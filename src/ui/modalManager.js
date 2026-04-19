@@ -44,8 +44,11 @@ export function initModalManager(container) {
 	// onResolved(didSucceed) — callback
 	// options.diceBonus — added to rolled value (Sleutelpuntje +1)
 	// options.forceReroll — if true, shows "Reroll!" button after first roll (Je Weet Niet)
-	function showDiceRoll(questInfo, threshold, onResolved, { diceBonus = 0, forceReroll = false } = {}) {
+	// options.skiffaRerolls — number of rerolls granted by active Place/traits
+	function showDiceRoll(questInfo, threshold, onResolved, { diceBonus = 0, forceReroll = false, skiffaRerolls = 0 } = {}) {
 		container.classList.add('modal-root--open');
+		let forceRerollAvailable = Boolean(forceReroll);
+		let placeRerollsLeft = Math.max(0, Number(skiffaRerolls) || 0);
 
 		const thresholdLabel = threshold >= 7
 			? '<span class="modal-threshold--fail">Can\'t attempt — missing required trait</span>'
@@ -95,9 +98,13 @@ export function initModalManager(container) {
 					const section = container.querySelector('section');
 					// Remove any previous result
 					section.querySelectorAll('.modal-result, #modal-done, #modal-reroll').forEach(e => e.remove());
+					const rerollText = allowReroll
+						? '🎲 Je Weet Niet — Reroll!'
+						: `🎲 Skiffa Reroll (${placeRerollsLeft} left)`;
+
 					section.insertAdjacentHTML('beforeend', `
 						<p class="modal-result modal-result--${didSucceed ? 'success' : 'fail'}">${escapeHtml(resultLabel)}</p>
-						${allowReroll ? '<button class="modal-btn modal-btn--ghost" id="modal-reroll" type="button">🎲 Je Weet Niet — Reroll!</button>' : ''}
+						${(allowReroll || placeRerollsLeft > 0) ? `<button class="modal-btn modal-btn--ghost" id="modal-reroll" type="button">${rerollText}</button>` : ''}
 						<button class="modal-btn" id="modal-done" type="button">Continue</button>
 					`);
 
@@ -108,15 +115,22 @@ export function initModalManager(container) {
 
 					// forceReroll: opponent's Je Weet Niet forces one reroll
 					container.querySelector('#modal-reroll')?.addEventListener('click', () => {
+						if (!allowReroll && placeRerollsLeft > 0) {
+							placeRerollsLeft -= 1;
+						}
 						section.querySelectorAll('.modal-result, #modal-done, #modal-reroll').forEach(e => e.remove());
 						if (rollBtn) { rollBtn.disabled = false; rollBtn.textContent = 'Roll Dice 🎲'; }
-						doRoll(false); // only one reroll allowed
+						doRoll(false);
 					});
 				}
 			}, 80);
 		}
 
-		container.querySelector('#modal-roll')?.addEventListener('click', () => doRoll(forceReroll));
+		container.querySelector('#modal-roll')?.addEventListener('click', () => {
+			const allowForced = forceRerollAvailable;
+			forceRerollAvailable = false;
+			doRoll(allowForced);
+		});
 	}
 
 	async function showConfirm(title, message) {

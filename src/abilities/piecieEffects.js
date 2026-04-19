@@ -3,6 +3,8 @@
 
 import { rollDie } from '../engine/deckEngine.js';
 import { hasFoodDoubleSynergy } from '../engine/synergyResolver.js';
+import { destroyActivePlace } from '../engine/gameState.js';
+import { triggerPlaceDestroyedEffects } from './placeEffects.js';
 
 console.log('[ABILITY] piecieEffects.js loaded');
 
@@ -315,15 +317,22 @@ export function effect_zie_je_die_dingetjes(gameState, playerId) {
 }
 
 export function effect_slecht_gezet(gameState) {
-	const state = cloneState(gameState);
-	state.activePlace = null;
+	if (!gameState.activePlace) {
+		console.log('[ABILITY] Slecht Gezet: no active Place to destroy');
+		return gameState;
+	}
+	let state = destroyActivePlace(cloneState(gameState));
+	state = triggerPlaceDestroyedEffects(state, state.activePlayerId);
 	console.log('[ABILITY] Slecht Gezet: active Place destroyed');
 	return state;
 }
 
 export function effect_bong_hit_demolition(gameState, playerId) {
-	const state = cloneState(gameState);
-	state.activePlace = null;
+	let state = cloneState(gameState);
+	if (state.activePlace) {
+		state = destroyActivePlace(state);
+		state = triggerPlaceDestroyedEffects(state, playerId);
+	}
 	const player = state.players[playerId];
 	if (player) player.hand.push(...player.deck.splice(0, Math.min(2, player.deck.length)));
 	console.log('[ABILITY] Bong Hit Demolition: Place destroyed + drew 2');
@@ -401,6 +410,11 @@ export function effect_mp_amplifier(gameState, playerId) {
 }
 
 export function effect_mosje_reborn(gameState, playerId) {
+	if (gameState.activePlace === 'place_welloe_graveyard') {
+		console.log('[ABILITY] Mosje Reborn blocked by Welloe Graveyard');
+		return gameState;
+	}
+
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player || player.welloe.length === 0) {
@@ -513,7 +527,8 @@ export function effect_popo_komt(gameState, playerId) {
 		.flatMap(p => p.activeSlots)
 		.filter(s => s && !s.isDefeated).length;
 	if (totalMosjes >= 3) {
-		state.activePlace = null;
+		const afterDestroy = state.activePlace ? destroyActivePlace(state) : state;
+		return triggerPlaceDestroyedEffects(afterDestroy, playerId);
 		console.log('[ABILITY] Popo Komt: 3+ Mosjes \u2014 Place destroyed!');
 	} else {
 		console.log('[ABILITY] Popo Komt: not enough Mosjes on field');
@@ -523,8 +538,11 @@ export function effect_popo_komt(gameState, playerId) {
 
 export function effect_huisbaas(gameState, playerId) {
 	// Needs UI: choose new Place from deck. For now just destroy.
-	const state = cloneState(gameState);
-	state.activePlace = null;
+	let state = cloneState(gameState);
+	if (state.activePlace) {
+		state = destroyActivePlace(state);
+		state = triggerPlaceDestroyedEffects(state, playerId);
+	}
 	console.log('[ABILITY] Huisbaas: Place destroyed (new Place search pending UI)');
 	return state;
 }
@@ -573,6 +591,11 @@ export function effect_f1_telemetry(gameState, playerId) {
 }
 
 export function effect_perfect_setup(gameState, playerId) {
+	if (gameState.activePlace === 'place_momentum_stabilizer') {
+		console.log('[ABILITY] Perfect Setup blocked by Momentum Stabilizer');
+		return gameState;
+	}
+
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
@@ -586,6 +609,11 @@ export function effect_perfect_setup(gameState, playerId) {
 }
 
 export function effect_mp_adjuster(gameState, playerId) {
+	if (gameState.activePlace === 'place_momentum_stabilizer') {
+		console.log('[ABILITY] MP Adjuster blocked by Momentum Stabilizer');
+		return gameState;
+	}
+
 	// Needs UI: choose exact value 30-100. Default: set to 50.
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
@@ -615,6 +643,11 @@ export function effect_double_trigger(gameState, playerId) {
 }
 
 export function effect_call_of_welloes(gameState, playerId) {
+	if (gameState.activePlace === 'place_welloe_graveyard') {
+		console.log('[ABILITY] Call of Welloes blocked by Welloe Graveyard');
+		return gameState;
+	}
+
 	// Revive without consuming the piecie; UI handles placement.
 	return effect_mosje_reborn(gameState, playerId);
 }

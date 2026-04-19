@@ -33,6 +33,30 @@ export function runTurnManagerTests() {
     assertEqual(result.players.player_1.hasAttemptedQuestThisTurn, false);
   });
 
+  test('startTurn resets per-turn action counters', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          drawsThisTurn: 3,
+          pieciesActivatedThisTurn: 2,
+          actionsThisTurn: 4,
+          freePiecieActivationAvailable: true,
+        },
+      },
+    });
+    const result = startTurn(state);
+    assertEqual(result.players.player_1.drawsThisTurn, 1);
+    assertEqual(result.players.player_1.pieciesActivatedThisTurn, 0);
+    assertEqual(result.players.player_1.actionsThisTurn.length, 0);
+    assertEqual(result.players.player_1.freePiecieActivationAvailable, false);
+  });
+
+  test('phaseDrawCard increments drawsThisTurn', () => {
+    const state = createEngineState();
+    const result = phaseDrawCard(state, 'player_1');
+    assertEqual(result.players.player_1.drawsThisTurn, 1);
+  });
+
   test('attemptGeneralQuest draws from sharedGeneralQuestDeck', () => {
     const state = createEngineState();
     const deckBefore = state.sharedGeneralQuestDeck.length;

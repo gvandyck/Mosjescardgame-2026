@@ -35,6 +35,10 @@ export function startTurn(gameState) {
   activePlayer.instantPiecieThisTurn = false;
   activePlayer.chainReactionActive = false;
   activePlayer.abilityDoubleTrigger = false;
+  activePlayer.drawsThisTurn = 0;
+  activePlayer.pieciesActivatedThisTurn = 0;
+  activePlayer.actionsThisTurn = [];
+  activePlayer.freePiecieActivationAvailable = false;
   for (const slot of activePlayer.activeSlots) {
     if (slot) {
       slot.abilityUsedThisTurn = false;
@@ -48,6 +52,9 @@ export function startTurn(gameState) {
   state = checkVictory(state);
   state.momentumCheckPhase = false;
   if (state.status === 'FINISHED') return state;
+
+  // START PHASE — fire active Place effects (START_PHASE trigger only)
+  state = applyPlaceEffectsOnStart(state, playerId);
 
   // DRAW PHASE â€” draw 1 card
   state = phaseDrawCard(state, playerId);
@@ -77,6 +84,7 @@ export function phaseDrawCard(gameState, playerId, count = 1) {
   const { drawn, remaining } = drawCards(player.deck, count);
   player.deck = remaining;
   player.hand.push(...drawn);
+  player.drawsThisTurn = (player.drawsThisTurn || 0) + drawn.length;
   console.log(`[ENGINE] ${playerId} drew ${drawn.length} card(s). Hand size: ${player.hand.length}`);
   return state;
 }
@@ -276,6 +284,16 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
   // Remove from hand
   const handIndex = player.hand.findIndex(c => c.cardId === cardRef.cardId);
   if (handIndex === -1) return { state, success: false, error: 'Card not in hand' };
+
+  if (
+    state.activePlace === 'place_coerts_caravan' &&
+    player.freePiecieActivationAvailable === true &&
+    player.activeSlots.some(s => s && !s.isDefeated && String(s.cardId || '').includes('coert'))
+  ) {
+    player.freePiecieActivationAvailable = false;
+    console.log('[PLACE] Coert\'s Caravan — free Piecie activation consumed');
+  }
+
   player.hand.splice(handIndex, 1);
 
   // Place Piecie on field instead of immediate discard.
@@ -323,8 +341,17 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
 
   // Track play counters
   state.players[playerId].pieciesPlayedThisTurn = (state.players[playerId].pieciesPlayedThisTurn || 0) + 1;
+  state.players[playerId].pieciesActivatedThisTurn = (state.players[playerId].pieciesActivatedThisTurn || 0) + 1;
+  const actions = Array.isArray(state.players[playerId].actionsThisTurn)
+    ? state.players[playerId].actionsThisTurn
+    : [];
+  if (!actions.includes('PIECIE_ACTIVATED')) {
+    state.players[playerId].actionsThisTurn = [...actions, 'PIECIE_ACTIVATED'];
+  }
   const primaryTag = cardDef.tags?.[0] || null;
   state.players[playerId].lastCardPlayedType = primaryTag;
+
+  state = applyPlaceEffectsOnPiecieActivate(state, playerId, cardRef.cardId);
 
   // Apply Momentum Factory bonus if active (first Piecie each turn gets +10 MP)
   if (state.activePlace === 'place_momentum_factory') {
@@ -476,6 +503,13 @@ export function applyPlaceEffectsOnEnd(gameState) {
   return state;
 }
 
+export function applyPlaceEffectsOnStart(gameState, playerId) {
+  let state = JSON.parse(JSON.stringify(gameState));
+  if (!state.activePlace) return state;
+  state = placeEffects.resolvePlaceEffect(state, 'START_PHASE', { playerId });
+  return state;
+}
+
 export function applyPlaceEffectsOnDraw(gameState, playerId, cardsDrawn) {
   let state = JSON.parse(JSON.stringify(gameState));
   if (!state.activePlace) return state;
@@ -523,6 +557,10 @@ export function playPlace(gameState, playerId, cardRef, cardDef) {
   let state = JSON.parse(JSON.stringify(gameState));
   const player = state.players[playerId];
   if (!player) return { state, success: false, error: 'Player not found' };
+
+  if (state.activePlace) {
+    return { state, success: false, error: 'A Place is already active. Destroy it first.' };
+  }
 
   // Defensive normalization
   if (!Array.isArray(player.hand)) player.hand = [];

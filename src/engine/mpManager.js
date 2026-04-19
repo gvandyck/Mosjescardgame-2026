@@ -4,6 +4,10 @@
 
 console.log('[ENGINE] mpManager.js loaded');
 
+function getActivePlaceId(gameState) {
+  return gameState?.activePlace || gameState?.sharedPlaceSlot?.cardId || null;
+}
+
 // ─────────────────────────────────────────────────────────────
 // gainMP
 // Gives `amount` MP to a specific Mosje slot for a player.
@@ -16,8 +20,19 @@ console.log('[ENGINE] mpManager.js loaded');
 //
 // Returns updated gameState.
 // ─────────────────────────────────────────────────────────────
-export function gainMP(gameState, playerId, slotIndex, amount) {
+export function gainMP(gameState, playerId, slotIndex, amount, source = 'GAIN') {
   if (amount <= 0) return gameState;
+
+  const placeId = getActivePlaceId(gameState);
+  if (placeId === 'place_the_void') {
+    console.log('[MP] The Void active — gainMP blocked');
+    return gameState;
+  }
+
+  let gainAmount = amount;
+  if (placeId === 'place_drain_zone') {
+    gainAmount += 5;
+  }
 
   const state = deepCloneState(gameState);
   const mosje = state.players[playerId].activeSlots[slotIndex];
@@ -26,8 +41,8 @@ export function gainMP(gameState, playerId, slotIndex, amount) {
     return state;
   }
 
-  mosje.mp += amount;
-  console.log(`[ENGINE] 💥 ${mosje.name} gains ${amount} MP → now ${mosje.mp} MP`);
+  mosje.mp += gainAmount;
+  console.log(`[ENGINE] 💥 ${mosje.name} gains ${gainAmount} MP (${source}) → now ${mosje.mp} MP`);
 
   return checkLevelUp(state, playerId, slotIndex);
 }
@@ -41,12 +56,30 @@ export function gainMP(gameState, playerId, slotIndex, amount) {
 //
 // Returns updated gameState.
 // ─────────────────────────────────────────────────────────────
-export function loseMP(gameState, playerId, slotIndex, amount) {
+export function loseMP(gameState, playerId, slotIndex, amount, source = 'DRAIN') {
   if (amount <= 0) return gameState;
 
+  const placeId = getActivePlaceId(gameState);
+
+  if (placeId === 'place_the_void') {
+    console.log('[MP] The Void active — loseMP blocked');
+    return gameState;
+  }
+
+  if (placeId === 'place_momentum_factory' && source === 'ATTACK') {
+    console.log('[MP] Momentum Factory active — ATTACK damage blocked');
+    return gameState;
+  }
+
+  let lossAmount = amount;
+
+  if (placeId === 'place_drain_zone' && source === 'DRAIN') {
+    lossAmount += 10;
+  }
+
   // Momentum Stabilizer: cap MP loss at 30 per single effect
-  if (gameState.activePlace === 'place_momentum_stabilizer') {
-    amount = Math.min(amount, 30);
+  if (placeId === 'place_momentum_stabilizer') {
+    lossAmount = Math.min(lossAmount, 30);
   }
 
   const state = deepCloneState(gameState);
@@ -56,13 +89,17 @@ export function loseMP(gameState, playerId, slotIndex, amount) {
     return state;
   }
 
-  mosje.mp -= amount;
+  if (placeId === 'place_zo_is_natuur' && (mosje.traits?.resilient || 0) >= 2) {
+    lossAmount = Math.min(lossAmount, 25);
+  }
+
+  mosje.mp -= lossAmount;
 
   // Track cumulative damage taken for Personal Quest requirements (Iron Will).
   state.players[playerId].totalDamageTaken =
-    (state.players[playerId].totalDamageTaken || 0) + amount;
+    (state.players[playerId].totalDamageTaken || 0) + lossAmount;
 
-  console.log(`[ENGINE] 📉 ${mosje.name} loses ${amount} MP → now ${mosje.mp} MP`);
+  console.log(`[ENGINE] 📉 ${mosje.name} loses ${lossAmount} MP (${source}) → now ${mosje.mp} MP`);
 
   return state;
 }

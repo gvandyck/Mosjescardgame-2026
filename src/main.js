@@ -1,7 +1,7 @@
 // main.js — Entry point for the app.
 // Detects the current page and starts the matching UI flow.
 
-import { renderBoard } from './ui/boardRenderer.js';
+import { renderBoard, showPlaceEffectBanner } from './ui/boardRenderer.js';
 import { createLogRenderer } from './ui/logRenderer.js';
 import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
@@ -284,6 +284,8 @@ function initGamePage() {
 		log.add('quest', `${localPlayerName} is attempting General Quest: ${questDef.name}`);
 
 		const diceBonus = gameState._snelleFlags?.questDiceBonus || 0;
+		const placeDiceBonus = gameState.activePlace === 'place_synergy_chamber' ? 1 : 0;
+		const skiffaRerolls = getSkiffaRerolls(gameState, localPlayerId);
 		const forceReroll = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
 		// Consume the flags before showing the modal
 		if (diceBonus) delete gameState._snelleFlags.questDiceBonus;
@@ -317,7 +319,7 @@ function initGamePage() {
 			log.add(didSucceed ? 'gain' : 'loss',
 				`${questDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`
 			);
-		}, { diceBonus, forceReroll });
+		}, { diceBonus: diceBonus + placeDiceBonus, forceReroll, skiffaRerolls });
 	});
 
 	document.getElementById('btn-personal-quest')?.addEventListener('click', () => {
@@ -360,6 +362,8 @@ function initGamePage() {
 		log.add('quest', `${localPlayerName} is attempting Personal Quest: ${questDef.name}`);
 
 		const diceBonus2 = gameState._snelleFlags?.questDiceBonus || 0;
+		const placeDiceBonus2 = gameState.activePlace === 'place_synergy_chamber' ? 1 : 0;
+		const skiffaRerolls2 = getSkiffaRerolls(gameState, localPlayerId);
 		const forceReroll2 = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
 		if (diceBonus2) delete gameState._snelleFlags.questDiceBonus;
 		if (forceReroll2) delete gameState._snelleFlags.forceReroll[localPlayerId];
@@ -388,7 +392,7 @@ function initGamePage() {
 			log.add(didSucceed ? 'gain' : 'loss',
 				`${questDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`
 			);
-		}, { diceBonus: diceBonus2, forceReroll: forceReroll2 });
+		}, { diceBonus: diceBonus2 + placeDiceBonus2, forceReroll: forceReroll2, skiffaRerolls: skiffaRerolls2 });
 	});
 
 	function renderFromState(state) {
@@ -407,11 +411,16 @@ function initGamePage() {
 			onPlay,
 			isLocalTurn,
 			state.activeQuest,
-			localPlayerId
+			localPlayerId,
+			state
 		);
 
 		const onUseAbility = (isLocalTurn && !gameOver) ? handleUseAbility : null;
 		renderBoard(boardRoot, uiState, onUseAbility);
+		if (state._lastPlaceEffect?.placeName) {
+			showPlaceEffectBanner(state._lastPlaceEffect.placeName, state._lastPlaceEffect.description, state._lastPlaceEffect.phase);
+			delete state._lastPlaceEffect;
+		}
 
 		const questBtnsEnabled = isLocalTurn && !alreadyAttempted && !gameOver;
 		const phaseLabel = gameOver
@@ -630,6 +639,8 @@ function initGamePage() {
 			log.add('quest', `${localPlayerName} is attempting Personal Quest: ${cardDef.name}`);
 
 			const diceBonus = gameState._snelleFlags?.questDiceBonus || 0;
+			const placeDiceBonus = gameState.activePlace === 'place_synergy_chamber' ? 1 : 0;
+			const skiffaRerolls = getSkiffaRerolls(gameState, localPlayerId);
 			const forceReroll = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
 			if (diceBonus) delete gameState._snelleFlags.questDiceBonus;
 			if (forceReroll) delete gameState._snelleFlags.forceReroll[localPlayerId];
@@ -657,7 +668,7 @@ function initGamePage() {
 				log.add(didSucceed ? 'gain' : 'loss',
 					`${cardDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`
 				);
-			}, { diceBonus, forceReroll });
+			}, { diceBonus: diceBonus + placeDiceBonus, forceReroll, skiffaRerolls });
 			return;
 		}
 
@@ -721,6 +732,8 @@ function toBoardViewModel(gameState, localPlayerId) {
 			? (PLACES.find(p => p.id === gameState.activePlace)?.name || gameState.activePlace)
 			: 'None',
 		activeQuest: gameState.activeQuest ?? null,
+		activePlaceTurns: gameState.activePlaceTurnsActive || 0,
+		gameState,
 		myPlayerId: localPlayerId,
 		players: {
 			top: {
@@ -735,6 +748,16 @@ function toBoardViewModel(gameState, localPlayerId) {
 			},
 		},
 	};
+}
+
+function getSkiffaRerolls(gameState, playerId) {
+	if (gameState?.activePlace !== 'place_skiffa') return 0;
+	const activeMosje = gameState?.players?.[playerId]?.activeSlots?.find(s => s && !s.isDefeated);
+	if (!activeMosje) return 0;
+	const card = CARD_LOOKUP[activeMosje.cardId];
+	if (card?.subtype !== 'ARTISTIC') return 0;
+	const creative = Number(activeMosje?.traits?.creative || 0);
+	return creative >= 3 ? 2 : 1;
 }
 
 function toMosjeCards(activeSlots) {
