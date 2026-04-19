@@ -1,964 +1,867 @@
-/* ── CARD SIZE TOKENS ───────────────────────────────────────────── */
-:root {
-  --mosje-card-w: 220px;
-  --mosje-card-h: 340px;
-  --mosje-card-w-hand: 190px;
-  --mosje-card-h-hand: 290px;
+﻿/* ═══════════════════════════════════════════════════════════
+   AMBER VAULT — CARD STYLES
+   The sweep animation uses @property --sweep and --glow-o
+   registered in main.css to animate conic-gradient borders.
+   ═══════════════════════════════════════════════════════════ */
 
-  --piecie-card-w: 130px;
-  --piecie-card-h: 190px;
-  --piecie-card-w-hand: 120px;
-  --piecie-card-h-hand: 175px;
-
-  --support-card-w: 110px;
-  --support-card-h: 160px;
-
-  --synergy-active-color: #e8c050;
-  --synergy-active-glow: rgba(232, 192, 80, 0.35);
-  --synergy-inactive-color: #5a4820;
-  --synergy-inactive-glow: transparent;
-  --pet-synergy-color: #a855f7;
-  --pet-synergy-glow: rgba(168, 85, 247, 0.25);
-}
-
-/* ── BASE CARD ───────────────────────────────────────────────────── */
+/* ── BASE CARD ─────────────────────────────────────────────── */
 .card {
-  position: relative;
   border-radius: var(--radius-card);
-  cursor: pointer;
-  transition:
-    transform 0.25s var(--ease-snap),
-    box-shadow 0.25s var(--ease-smooth);
+  position: relative;
+  cursor: default;
   transform-style: preserve-3d;
   user-select: none;
   flex-shrink: 0;
-  overflow: hidden;
-  padding: 10px;
-  display: grid;
-  gap: 8px;
-  animation: card-slide-in 0.22s var(--ease-smooth);
+  display: flex;
+  flex-direction: column;
+  --sweep: 0;
+  --glow-o: 0;
+  /* NO width/height here — set per type */
 }
 
-.card--compact {
-  transform: none;
-}
-
-.card--mosje {
-  width: var(--mosje-card-w);
-  min-width: var(--mosje-card-w);
-  max-width: var(--mosje-card-w);
-  height: var(--mosje-card-h);
-}
-
-.hand-cards .card--mosje,
-.hand-strip .card--mosje {
-  width: var(--mosje-card-w-hand);
-  min-width: var(--mosje-card-w-hand);
-  max-width: var(--mosje-card-w-hand);
-  height: var(--mosje-card-h-hand);
-}
+/* ── CARD TYPE SIZES ────────────────────────────────────────── */
+.card--mosje                { width: var(--mosje-w);        height: var(--mosje-h); }
+.hand-cards .card--mosje    { width: var(--mosje-w-hand);   height: var(--mosje-h-hand); }
 
 .card--piecie,
-.card--snelle_piecie,
-.card--snelle {
-  width: var(--piecie-card-w);
-  min-width: var(--piecie-card-w);
-  max-width: var(--piecie-card-w);
-  height: var(--piecie-card-h);
-}
-
+.card--snelle_piecie        { width: var(--piecie-w);       height: var(--piecie-h); }
 .hand-cards .card--piecie,
-.hand-cards .card--snelle_piecie,
-.hand-cards .card--snelle,
-.hand-strip .card--piecie,
-.hand-strip .card--snelle_piecie,
-.hand-strip .card--snelle {
-  width: var(--piecie-card-w-hand);
-  min-width: var(--piecie-card-w-hand);
-  max-width: var(--piecie-card-w-hand);
-  height: var(--piecie-card-h-hand);
-}
+.hand-cards .card--snelle_piecie { width: var(--piecie-w-hand); height: var(--piecie-h-hand); }
 
-.card--quest,
-.card--quest-general,
-.card--quest-personal,
-.card--place {
-  width: var(--support-card-w);
-  min-width: var(--support-card-w);
-  max-width: var(--support-card-w);
-  height: var(--support-card-h);
-}
+.card--place,
+.card--quest                { width: var(--support-w);      height: var(--support-h); }
 
-.card.face-down {
-  transform: rotateY(180deg);
-}
-
+/* ── CARD FACE ──────────────────────────────────────────────── */
 .card-face,
-.card-back {
-  position: absolute;
-  inset: 0;
+.card > .mosje-card-inner {
+  position: absolute; inset: 0;
   border-radius: var(--radius-card);
+  overflow: hidden;
   backface-visibility: hidden;
-  overflow: hidden;
-}
-
-.card-back {
-  transform: rotateY(180deg);
-  background:
-    repeating-linear-gradient(
-      45deg,
-      #0d1528 0px, #0d1528 2px,
-      #111e3a 2px, #111e3a 12px
-    );
-  border: 2px solid #1a2a4a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.card-back::after {
-  content: 'MOSJES';
-  font-family: var(--font-display);
-  font-size: 1.4rem;
-  letter-spacing: 0.3em;
-  color: #1a2a4a;
-}
-
-.card:not(.card--disabled):not(.face-down):hover {
-  transform: translateY(-8px) scale(1.04);
-  z-index: 50;
-}
-
-.card--mosje {
-  border: 2px solid var(--mosje-gold);
-  background: linear-gradient(160deg, #1c1508 0%, #0e0c04 60%, #1a1205 100%);
-  box-shadow: 0 0 0 1px rgba(232, 185, 79, 0.15), inset 0 1px 0 rgba(232, 185, 79, 0.1);
-}
-
-.card--mosje:hover,
-.card--mosje.active {
-  box-shadow:
-    0 0 20px var(--mosje-glow),
-    0 0 60px rgba(232, 185, 79, 0.15),
-    inset 0 1px 0 rgba(232, 185, 79, 0.2);
-}
-
-.card--piecie {
-  border: 2px solid var(--piecie-blue);
-  background: linear-gradient(160deg, #050f1c 0%, #04080f 60%, #060c18 100%);
-}
-
-.card--piecie:hover {
-  box-shadow: 0 0 20px var(--piecie-glow), 0 0 60px rgba(61, 142, 245, 0.1);
-}
-
-.card--snelle,
-.card--snelle_piecie {
-  border: 2px solid var(--snelle-red);
-  background: linear-gradient(160deg, #1c0505 0%, #0f0404 60%, #180606 100%);
-}
-
-.card--snelle:hover,
-.card--snelle_piecie:hover {
-  box-shadow: 0 0 20px var(--snelle-glow), 0 0 60px rgba(232, 69, 69, 0.1);
-}
-
-.card--place {
-  border: 2px solid var(--place-green);
-  background: linear-gradient(160deg, #041a0e 0%, #030f08 60%, #051508 100%);
-}
-
-.card--place:hover {
-  box-shadow: 0 0 20px var(--place-glow), 0 0 60px rgba(61, 214, 140, 0.1);
-}
-
-.card--quest,
-.card--quest-general,
-.card--quest-personal {
-  border: 2px solid var(--quest-purple);
-  background: linear-gradient(160deg, #0e0518 0%, #08030f 60%, #0c0415 100%);
-}
-
-.card--quest:hover,
-.card--quest-general:hover,
-.card--quest-personal:hover {
-  box-shadow: 0 0 20px var(--quest-glow), 0 0 60px rgba(168, 85, 247, 0.1);
-}
-
-.card--quest-personal {
-  border-color: var(--personal-quest);
-  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.2), inset 0 0 25px rgba(245, 158, 11, 0.08);
-}
-
-@property --holo-angle {
-  syntax: '<angle>';
-  inherits: false;
-  initial-value: 0deg;
-}
-
-.card.playable-now::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(
-    var(--holo-angle),
-    transparent 30%,
-    rgba(255, 255, 255, 0.04) 45%,
-    rgba(255, 255, 255, 0.08) 50%,
-    rgba(255, 255, 255, 0.04) 55%,
-    transparent 70%
-  );
-  animation: holo-sweep 3s linear infinite;
-  pointer-events: none;
-}
-
-@keyframes holo-sweep {
-  from { --holo-angle: 0deg; }
-  to { --holo-angle: 360deg; }
-}
-
-.card--disabled,
-.hand-card--not-playable,
-.hand-card--returned-mosje {
-  opacity: 0.35;
-  cursor: not-allowed;
-  filter: grayscale(0.6);
-}
-
-.card--disabled:hover,
-.hand-card--not-playable:hover {
-  transform: none;
-}
-
-@keyframes card-play {
-  0% { transform: translateY(-40px) scale(0.8); opacity: 0; }
-  60% { transform: translateY(4px) scale(1.02); opacity: 1; }
-  100% { transform: translateY(0) scale(1); opacity: 1; }
-}
-
-.card.just-played {
-  animation: card-play 0.45s var(--ease-dramatic) forwards;
-}
-
-@keyframes card-shake {
-  0%, 100% { transform: translateX(0); }
-  20% { transform: translateX(-6px) rotate(-1deg); }
-  40% { transform: translateX(6px) rotate(1deg); }
-  60% { transform: translateX(-4px); }
-  80% { transform: translateX(4px); }
-}
-
-.card.taking-damage {
-  animation: card-shake 0.4s var(--ease-smooth);
-}
-
-@keyframes card-slide-in {
-  from { opacity: 0; transform: translateY(8px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-.card__top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.card__type-label {
-  font-size: 0.66rem;
-  letter-spacing: 0.12em;
-  color: #9fb0dc;
-  font-family: var(--font-display);
-}
-
-/* ── MOSJE CARD INNER LAYOUT ─────────────────────────────────────── */
-.mosje-card-inner {
-  padding: 0;
-  height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 0;
-  overflow: hidden;
-  position: relative;
+  z-index: 0;
 }
 
-.mosje-banner {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 5px 10px;
-}
-
-.mosje-subtype {
-  font-family: var(--font-display);
-  font-size: 0.55rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  opacity: 0.7;
-}
-
-.mosje-rarity-dots {
-  font-size: 0.6rem;
-  opacity: 0.8;
-}
-
-.rarity-dot {
-  letter-spacing: -1px;
-}
-
-.mosje-art {
-  width: 100%;
-  height: 110px;
-  flex-shrink: 0;
-  position: relative;
-  overflow: hidden;
-  border-top: 1px solid rgba(0, 0, 0, 0.15);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
-}
-
-.mosje-art img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.mosje-art-placeholder {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 3rem;
-  opacity: 0.15;
-}
-
-.mosje-art-vignette {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.45) 100%);
-  pointer-events: none;
-}
-
-.mosje-identity {
-  padding: 6px 10px 2px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  flex-shrink: 0;
-}
-
-.mosje-name {
-  font-family: var(--font-display);
-  font-size: 0.82rem;
-  font-weight: 700;
-  line-height: 1.1;
-  flex: 1;
-  color: var(--mosje-gold);
-}
-
-.mosje-start-mp {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  flex-shrink: 0;
-  margin-left: 6px;
-}
-
-.mp-label {
-  font-size: 0.44rem;
-  opacity: 0.5;
-  line-height: 1;
-}
-
-.mp-value {
-  font-size: 0.72rem;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.mosje-card-rule {
-  height: 1px;
-  margin: 0 10px;
-  opacity: 0.2;
-  flex-shrink: 0;
-  background: currentColor;
-}
-
-.mosje-traits {
-  padding: 5px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  flex-shrink: 0;
-}
-
-.mosje-trait {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.6rem;
-  color: var(--trait-color, #aaaaaa);
-}
-
-.trait-icon {
-  font-size: 0.65rem;
-  flex-shrink: 0;
-}
-
-.trait-name {
-  flex: 1;
-  opacity: 0.8;
-}
-
-.trait-stars {
-  letter-spacing: -0.5px;
-  font-size: 0.7rem;
-}
-
-.trait-empty {
-  opacity: 0.2;
-}
-
-.no-traits {
-  font-size: 0.58rem;
-  opacity: 0.6;
-}
-
-.mosje-ability-section {
-  padding: 5px 10px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.section-label {
-  font-size: 0.5rem;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  opacity: 0.5;
-  flex-shrink: 0;
-}
-
-.mosje-ability-text {
-  overflow: hidden;
-  flex: 1;
-}
-
-.ability-line {
-  font-size: 0.6rem;
-  line-height: 1.5;
-  opacity: 0.85;
-  margin-bottom: 2px;
-}
-
-.ability-line:last-child {
-  margin-bottom: 0;
-}
-
-.mosje-synergies-section {
-  padding: 5px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  flex-shrink: 0;
-}
-
-.mosje-synergy-row {
-  border-radius: 4px;
-  padding: 4px 6px;
-  transition: all 0.3s ease;
-}
-
-.mosje-synergy-row.synergy-inactive {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 0 8px var(--synergy-inactive-glow);
-}
-
-.mosje-synergy-row.synergy-active {
-  background: rgba(232, 192, 80, 0.08);
-  border: 1px solid rgba(232, 192, 80, 0.25);
-  box-shadow: 0 0 8px rgba(232, 192, 80, 0.12);
-}
-
-.synergy-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2px;
-}
-
-.synergy-with-label {
-  font-size: 0.58rem;
-  font-weight: 600;
-  text-transform: capitalize;
-}
-
-.synergy-inactive .synergy-with-label {
-  color: var(--synergy-inactive-color);
-}
-
-.synergy-active .synergy-with-label {
-  color: var(--synergy-active-color);
-  text-shadow: 0 0 8px var(--synergy-active-glow);
-}
-
-.synergy-status-badge {
-  font-size: 0.44rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 1px 4px;
-  border-radius: 3px;
-}
-
-.synergy-inactive .synergy-status-badge {
-  color: rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.synergy-active .synergy-status-badge {
-  color: var(--synergy-active-color);
-  background: rgba(232, 192, 80, 0.12);
-  animation: synergy-pulse 2s ease-in-out infinite;
-}
-
-@keyframes synergy-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.6;
-  }
-}
-
-.synergy-effect-text {
-  font-size: 0.55rem;
-  line-height: 1.4;
-}
-
-.synergy-inactive .synergy-effect-text {
-  color: rgba(180, 160, 100, 0.35);
-}
-
-.synergy-active .synergy-effect-text {
-  color: rgba(232, 192, 80, 0.75);
-}
-
-.mosje-pet-section {
-  padding: 4px 10px;
-  flex-shrink: 0;
-}
-
-.mosje-pet-row {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 6px;
-  border-radius: 4px;
-  font-size: 0.58rem;
-  transition: all 0.3s;
-}
-
-.pet-inactive {
-  background: rgba(168, 85, 247, 0.04);
-  border: 1px solid rgba(168, 85, 247, 0.08);
-}
-
-.pet-active {
-  background: rgba(168, 85, 247, 0.1);
-  border: 1px solid rgba(168, 85, 247, 0.25);
-  box-shadow: 0 0 8px var(--pet-synergy-glow);
-}
-
-.pet-icon {
-  flex-shrink: 0;
-}
-
-.pet-name {
-  flex: 1;
-  text-transform: capitalize;
-  font-weight: 600;
-}
-
-.pet-inactive .pet-name {
-  color: rgba(168, 85, 247, 0.35);
-}
-
-.pet-active .pet-name {
-  color: rgba(200, 140, 255, 0.9);
-}
-
-.pet-status {
-  font-size: 0.48rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-}
-
-.pet-inactive .pet-status {
-  color: rgba(168, 85, 247, 0.25);
-}
-
-.pet-active .pet-status {
-  color: rgba(200, 140, 255, 0.7);
-  animation: synergy-pulse 2s ease-in-out infinite;
-}
-
-.mosje-flavour {
-  padding: 4px 10px 6px;
-  font-size: 0.52rem;
-  font-style: italic;
-  line-height: 1.4;
-  opacity: 0.35;
-  flex-shrink: 0;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-.card__difficulty {
-  font-size: 0.67rem;
-  color: #d7e3ff;
-  background: rgba(255, 255, 255, 0.09);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 99px;
-  padding: 2px 8px;
-  font-family: var(--font-mono);
-}
-
-.card__name {
-  font-family: var(--font-display);
-  font-size: 1rem;
-  letter-spacing: 0.04em;
-  color: #f1f5ff;
-  line-height: 1;
-}
-
-.card--mosje .card__name {
-  color: var(--mosje-gold);
-}
-
-.card__desc {
-  font-size: 0.64rem;
-  color: #94a3c4;
-  line-height: 1.42;
-  min-height: 50px;
-}
-
-.card__meta {
-  margin-top: auto;
-  font-size: 0.62rem;
-  color: #b5c4ea;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding-top: 6px;
-}
-
-.card__meta--stacked {
-  display: grid;
-  gap: 3px;
-}
-
-.card__traits {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-}
-
-.card__trait-badge {
-  font-size: 0.62rem;
-  color: #dce7ff;
-  background: rgba(20, 33, 66, 0.75);
-  border: 1px solid rgba(96, 124, 186, 0.6);
-  border-radius: 999px;
-  padding: 2px 7px;
-}
-
-.card__portrait-badge {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #ffe78a 0%, #e4b600 65%, #9d7900 100%);
-  color: #121212;
-  display: grid;
-  place-items: center;
-  font-size: 0.62rem;
-  font-weight: 800;
-  font-family: var(--font-mono);
-}
-
-.card--snelle .card__type-label::after,
-.card--snelle_piecie .card__type-label::after {
-  content: '  ⚡';
-  color: var(--snelle-red);
-}
-
-.card--snelle::after,
-.card--snelle_piecie::after {
-  content: 'INSTANT';
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  font-family: var(--font-display);
-  font-size: 0.56rem;
-  letter-spacing: 0.11em;
-  color: var(--snelle-red);
-  background: rgba(232, 69, 69, 0.1);
-  border: 1px solid rgba(232, 69, 69, 0.3);
-  padding: 2px 5px;
-  border-radius: 3px;
-}
-
-.mosje-ability-btn,
-.mosje-return-btn,
-.hand-card__play-btn {
-  width: 100%;
-  margin-top: 6px;
-  padding: 6px 0;
-  border: none;
-  border-radius: 6px;
-  color: #fff;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  font-family: var(--font-display);
-  cursor: pointer;
-}
-
-.mosje-ability-btn {
-  background: linear-gradient(135deg, #92400e, #f59e0b);
-}
-
-.mosje-ability-btn--used,
-.mosje-ability-btn:disabled {
-  background: #2a355f;
-  color: #6a7aaa;
-  cursor: not-allowed;
-}
-
-.mosje-return-btn,
-.hand-card__play-btn {
-  background: linear-gradient(135deg, #1d4ed8, #3b82f6);
-}
-
-.card--snelle .hand-card__play-btn,
-.card--snelle_piecie .hand-card__play-btn {
-  background: linear-gradient(135deg, #991b1b, #ef4444);
-}
-
-.hand-card--playable {
-  cursor: pointer;
-  transition: transform 0.2s var(--ease-snap), box-shadow 0.2s var(--ease-smooth);
-}
-
-.hand-card--playable:hover {
-  transform: translateY(-14px) scale(1.06);
-  box-shadow: 0 12px 28px rgba(74, 158, 255, 0.35);
-}
-
-.card.free-activation .card-face,
-.card.free-activation {
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.9),
-    0 4px 8px rgba(0, 0, 0, 0.7),
-    0 8px 24px rgba(0, 0, 0, 0.5),
-    0 16px 48px rgba(0, 0, 0, 0.3),
-    0 0 0 2px #f59e0b,
-    0 0 16px rgba(245, 158, 11, 0.3);
-}
-
-.card.free-activation::after {
-  content: '⭐ FREE';
-  position: absolute;
-  top: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.5rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: #f59e0b;
-  background: rgba(245, 158, 11, 0.1);
-  border: 1px solid rgba(245, 158, 11, 0.3);
-  padding: 2px 6px;
-  border-radius: 4px;
-  white-space: nowrap;
-  z-index: 10;
-}
-
-.mosje-clickable {
-  cursor: zoom-in;
-}
-
-/* ==============================================================
-   Skeuomorphic Layer Overrides
-   ============================================================== */
-
-/* ── PHYSICAL CARD SHADOWS ───────────────────────────────────────── */
-.card .card-face,
-.card {
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.9),
-    0 4px 8px rgba(0, 0, 0, 0.7),
-    0 8px 24px rgba(0, 0, 0, 0.5),
-    0 16px 48px rgba(0, 0, 0, 0.3);
-}
+/* Type-specific backgrounds */
+.card--mosje .card-face,
+.card--mosje > .mosje-card-inner { background: var(--mosje-bg); }
+.card--piecie .card-face         { background: var(--piecie-bg); }
+.card--snelle_piecie .card-face  { background: var(--snelle-bg); }
+.card--place .card-face          { background: var(--place-bg); }
+.card--quest .card-face          { background: var(--quest-bg); }
 
-/* ── CARD EDGE (thickness illusion) ──────────────────────────────── */
-.card .card-face::before,
+/* ── THE SWEEP BORDER LAYER ─────────────────────────────────── */
 .card::before {
   content: '';
   position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  box-shadow:
-    inset 1px 0 0 rgba(255, 255, 255, 0.07),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    inset -1px 0 0 rgba(0, 0, 0, 0.4),
-    inset 0 -2px 0 rgba(0, 0, 0, 0.6);
-  z-index: 10;
-}
-
-/* Preserve holo shimmer on playable cards by moving it to ::after */
-.card.playable-now::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(
-    120deg,
-    transparent 30%,
-    rgba(255, 255, 255, 0.04) 45%,
-    rgba(255, 255, 255, 0.08) 50%,
-    rgba(255, 255, 255, 0.04) 55%,
-    transparent 70%
+  inset: -2.5px;
+  border-radius: calc(var(--radius-card) + 2px);
+  z-index: -1;
+  opacity: calc(var(--glow-o) * 1);
+  background: conic-gradient(
+    from calc(var(--sweep) * 3.6deg),
+    #ff0060   0%,
+    #ff7000  12%,
+    #ffd000  25%,
+    #00e87a  40%,
+    #00c8ff  55%,
+    #8800ff  70%,
+    #ff0060 100%
   );
-  animation: holo-sweep 3s linear infinite;
+  transition:
+    --sweep  0.95s linear,
+    --glow-o 0.18s ease;
+}
+
+/* Static border — always visible, type-colored */
+.card::after {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: var(--radius-card);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.card--mosje         { outline: 1.5px solid var(--mosje-dark); }
+.card--piecie        { outline: 1.5px solid var(--piecie-dark); }
+.card--snelle_piecie { outline: 1.5px solid var(--snelle-dark); }
+.card--place         { outline: 1.5px solid var(--place-dark); }
+.card--quest         { outline: 1.5px solid var(--quest-dark); }
+
+/* ── FIELD CARD SHADOW ──────────────────────────────────────── */
+.mosje-slot .card,
+.piecie-slot .card,
+.place-slot .card,
+.board-zone__slots .card,
+.board-zone__piecies .card {
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.5),
+    0 1px  0   rgba(255,255,255,0.03);
+}
+
+/* ── CARD BACK ──────────────────────────────────────────────── */
+.card-back {
+  position: absolute; inset: 0;
+  border-radius: var(--radius-card);
+  backface-visibility: hidden;
+  transform: rotateY(180deg);
+  background:
+    repeating-linear-gradient(45deg,
+      rgba(200,146,12,.08) 0, rgba(200,146,12,.08) 1px,
+      transparent 1px, transparent 8px),
+    repeating-linear-gradient(-45deg,
+      rgba(200,146,12,.08) 0, rgba(200,146,12,.08) 1px,
+      transparent 1px, transparent 8px),
+    #0a0c10;
+  outline: 1.5px solid #1a2030;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: 0.3em;
+  color: rgba(200,146,12,.15);
+}
+
+/* Flip */
+.card.face-down { transform: rotateY(180deg); }
+.card-face { transition: opacity .2s; }
+
+/* ── TYPE BANNER (top strip of every card) ──────────────────── */
+.card-type-banner {
+  height: 20px;
+  display: flex; align-items: center;
+  padding: 0 8px;
+  font-family: var(--font-display);
+  font-size: 0.52rem;
+  letter-spacing: 0.16em;
+  flex-shrink: 0;
+  position: relative; z-index: 2;
+}
+
+.card--mosje .card-type-banner         { background: var(--mosje-dark);  color: var(--mosje-primary); }
+.card--piecie .card-type-banner        { background: var(--piecie-dark); color: var(--piecie-primary); }
+.card--snelle_piecie .card-type-banner { background: var(--snelle-dark); color: var(--snelle-primary); }
+.card--place .card-type-banner         { background: var(--place-dark);  color: var(--place-primary); }
+.card--quest .card-type-banner         { background: var(--quest-dark);  color: var(--quest-primary); }
+
+/* ── ART AREA ───────────────────────────────────────────────── */
+.card-art {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-art img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+
+.card-art-placeholder {
+  font-family: var(--font-display);
+  font-size: 2.8rem;
+  opacity: 0.12;
+  color: var(--text-primary);
+}
+
+.card-art-vignette {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, transparent 55%, rgba(0,0,0,0.55) 100%);
   pointer-events: none;
 }
 
-/* ── CARD HOVER — lifting off the table ──────────────────────────── */
-.card:not(.card--disabled):not(.face-down):hover {
-  transform: translateY(-10px) scale(1.05) rotate(0.5deg);
+/* ── CARD NAME + STATS ──────────────────────────────────────── */
+.card-name {
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  padding: 5px 8px 2px;
+  line-height: 1.15;
+  letter-spacing: 0.04em;
+  border-top: 1px solid rgba(255,255,255,.04);
+  position: relative; z-index: 2;
+}
+
+.card-sub {
+  font-family: var(--font-body);
+  font-size: 0.58rem;
+  color: var(--text-secondary);
+  padding: 0 8px 4px;
+  line-height: 1.3;
+  position: relative; z-index: 2;
+}
+
+/* ── ABILITY BOX (Mosje cards) ──────────────────────────────── */
+.card-ability-box {
+  margin: 0 6px 4px;
+  padding: 5px 6px;
+  border: 1px solid rgba(255,255,255,.05);
+  border-radius: 4px;
+  background: rgba(0,0,0,.25);
+  position: relative; z-index: 2;
+}
+
+.ability-header {
+  font-family: var(--font-display);
+  font-size: 0.48rem;
+  letter-spacing: 0.14em;
+  color: var(--amber-mid);
+  margin-bottom: 3px;
+}
+
+.ability-body {
+  font-family: var(--font-body);
+  font-size: 0.58rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── SYNERGY ROWS ───────────────────────────────────────────── */
+.card-synergy-row {
+  margin: 0 6px 3px;
+  padding: 3px 6px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  transition: border-color .3s, background .3s;
+  position: relative; z-index: 2;
+}
+
+.card-synergy-row.synergy-inactive {
+  background: rgba(255,255,255,.02);
+  border-color: rgba(255,255,255,.04);
+}
+
+.card-synergy-row.synergy-active {
+  background: rgba(200,146,12,.07);
+  border-color: rgba(200,146,12,.22);
+  animation: synergy-breathe 2.5s ease-in-out infinite;
+}
+
+@keyframes synergy-breathe {
+  0%,100% { border-color: rgba(200,146,12,.22); }
+  50%      { border-color: rgba(200,146,12,.45); }
+}
+
+.synergy-row-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 2px;
+}
+
+.synergy-partner {
+  font-family: var(--font-display);
+  font-size: 0.55rem;
+  letter-spacing: 0.06em;
+}
+
+.synergy-inactive .synergy-partner { color: rgba(200,146,12,.28); }
+.synergy-active   .synergy-partner { color: var(--amber-bright); }
+
+.synergy-badge {
+  font-size: 0.44rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+.synergy-inactive .synergy-badge {
+  color: rgba(255,255,255,.15);
+  background: rgba(255,255,255,.03);
+}
+
+.synergy-active .synergy-badge {
+  color: var(--amber-bright);
+  background: rgba(200,146,12,.1);
+}
+
+.synergy-effect-text {
+  font-family: var(--font-body);
+  font-size: 0.52rem;
+  line-height: 1.4;
+}
+.synergy-inactive .synergy-effect-text { color: rgba(200,146,12,.25); }
+.synergy-active   .synergy-effect-text { color: rgba(200,146,12,.65); }
+
+/* ── MP BAR ─────────────────────────────────────────────────── */
+.mp-bar-wrap {
+  padding: 4px 6px 6px;
+  display: flex; flex-direction: column; gap: 3px;
+  position: relative; z-index: 2;
+}
+
+.mp-bar-header {
+  display: flex; justify-content: space-between; align-items: center;
+}
+
+.mp-bar-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--text-secondary);
+}
+
+.mp-bar-level {
+  font-family: var(--font-display);
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+  color: var(--amber-bright);
+  background: rgba(200,146,12,.08);
+  border: 1px solid rgba(200,146,12,.15);
+  padding: 1px 5px;
+  border-radius: 2px;
+}
+
+.mp-bar-track {
+  height: 6px;
+  background: rgba(0,0,0,.5);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.mp-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width .6s var(--ease-dramatic);
+}
+
+.mp-bar-fill.mp-high { background: var(--mp-high); }
+.mp-bar-fill.mp-mid  { background: var(--mp-mid); }
+.mp-bar-fill.mp-low  { background: var(--mp-low); }
+
+/* ── FLAVOR TEXT ─────────────────────────────────────────────── */
+.card-flavour {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 0.54rem;
+  color: var(--text-muted);
+  padding: 3px 8px 6px;
+  border-top: 1px solid rgba(255,255,255,.04);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  position: relative; z-index: 2;
+}
+
+/* ── FLOAT MP NUMBERS ────────────────────────────────────────── */
+.mp-float {
+  position: absolute;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+  z-index: 100;
+  animation: mp-float-up 1.3s var(--ease-dramatic) forwards;
+}
+
+.mp-float.gain { color: #2aaa6a; }
+.mp-float.loss { color: #dc3a3a; }
+.mp-float.blocked { color: #5a5a5a; }
+
+@keyframes mp-float-up {
+  0%   { opacity: 1; transform: translateY(0) scale(.75); }
+  35%  { opacity: 1; transform: translateY(-28px) scale(1.1); }
+  100% { opacity: 0; transform: translateY(-68px) scale(.85); }
+}
+
+/* ── ANIMATIONS ─────────────────────────────────────────────── */
+
+/* Card entering field */
+@keyframes card-enter-field {
+  0%   { transform: translateY(-32px) scale(.84); opacity: 0; }
+  55%  { transform: translateY(4px)   scale(1.03); opacity: 1; }
+  100% { transform: translateY(0)     scale(1);    opacity: 1; }
+}
+.card.entering,
+.card.just-played { animation: card-enter-field .45s var(--ease-dramatic) forwards; }
+
+/* Card taking damage — thud shake */
+@keyframes card-thud {
+  0%,100% { transform: translateX(0); }
+  20%     { transform: translateX(-5px) rotate(-.8deg); }
+  40%     { transform: translateX(5px)  rotate(.8deg); }
+  60%     { transform: translateX(-3px); }
+  80%     { transform: translateX(3px); }
+}
+.card.taking-damage { animation: card-thud .4s ease; }
+
+/* Level-up burst */
+@keyframes level-up-burst {
+  0%   { outline-color: var(--mosje-dark); }
+  25%  { outline-color: var(--amber-bright); outline-width: 3px; }
+  75%  { outline-color: var(--amber-bright); outline-width: 3px; }
+  100% { outline-color: var(--mosje-dark);  outline-width: 1.5px; }
+}
+.card--mosje.level-up { animation: level-up-burst 1.1s ease; }
+
+/* Card played from hand */
+@keyframes card-fly-out {
+  0%   { transform: translateY(0) scale(1)    rotate(0deg);  opacity: 1; }
+  25%  { transform: translateY(-18px) scale(1.06) rotate(-3deg); opacity: 1; }
+  100% { transform: translateY(-120px) scale(.78) rotate(5deg);  opacity: 0; }
+}
+.card.playing { animation: card-fly-out .5s var(--ease-smooth) forwards; pointer-events: none; }
+
+/* ── DISABLED ────────────────────────────────────────────────── */
+.card--disabled {
+  filter: saturate(0.25) brightness(0.6);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ── RARITY FOIL (◆◆ and above) ──────────────────────────────── */
+.card.rarity-rare:hover .card-face::after,
+.card.rarity-ultra:hover .card-face::after,
+.card.rarity-rare:hover > .mosje-card-inner::after,
+.card.rarity-ultra:hover > .mosje-card-inner::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    108deg,
+    transparent 20%,
+    rgba(255,215,100,.05) 36%,
+    rgba(255,255,200,.10) 50%,
+    rgba(255,215,100,.05) 64%,
+    transparent 80%
+  );
+  animation: foil-pass 2.2s ease-in-out infinite;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+@keyframes foil-pass {
+  0%   { transform: translateX(-120%) skewX(-8deg); }
+  100% { transform: translateX(220%)  skewX(-8deg); }
+}
+
+/* ── Compatibility for existing board card markup ─────────── */
+.card .mosje-banner,
+.card .mosje-identity,
+.card .mosje-traits,
+.card .mosje-ability-section,
+.card .mosje-synergies-section,
+.card .mosje-pet-section,
+.card .mosje-flavour,
+.card .card__top,
+.card .card__name,
+.card .card__desc,
+.card .card__meta {
+  position: relative;
+  z-index: 2;
+}
+
+.card .mosje-banner,
+.card .card__top {
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+  font-family: var(--font-display);
+  font-size: 0.52rem;
+  letter-spacing: 0.12em;
+}
+
+.card--mosje .mosje-banner { background: var(--mosje-dark); color: var(--mosje-primary); }
+.card--piecie .card__top { background: var(--piecie-dark); color: var(--piecie-primary); }
+.card--snelle_piecie .card__top { background: var(--snelle-dark); color: var(--snelle-primary); }
+.card--place .card__top { background: var(--place-dark); color: var(--place-primary); }
+.card--quest .card__top { background: var(--quest-dark); color: var(--quest-primary); }
+
+.card .mosje-name,
+.card .card__name {
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  color: var(--text-primary);
+  line-height: 1.2;
+  letter-spacing: 0.03em;
+  padding: 6px 8px 3px;
+}
+
+.card .mosje-start-mp {
+  display: inline-flex;
+  gap: 6px;
+  margin: 0 8px 6px;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--amber-bright);
+}
+
+.card .card__desc,
+.card .mosje-ability-text,
+.card .ability-line,
+.card .synergy-effect-text,
+.card .card__meta {
+  font-family: var(--font-body);
+  color: var(--text-secondary);
+}
+
+.card .card__desc {
+  font-size: 0.62rem;
+  padding: 0 8px 6px;
+  line-height: 1.45;
+}
+
+.card .card__meta {
+  margin-top: auto;
+  padding: 6px 8px;
+  font-size: 0.58rem;
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+
+.card .mosje-card-rule {
+  border-top: 1px solid rgba(255,255,255,.06);
+  margin: 4px 8px;
+}
+
+.card .mosje-trait {
+  display: grid;
+  grid-template-columns: 14px 1fr auto;
+  gap: 4px;
+  align-items: center;
+  font-size: 0.55rem;
+  padding: 1px 8px;
+  color: var(--text-secondary);
+}
+
+.card .section-label {
+  font-family: var(--font-display);
+  font-size: 0.48rem;
+  letter-spacing: 0.12em;
+  color: var(--amber-mid);
+  padding: 0 8px 3px;
+}
+
+.card .ability-line {
+  font-size: 0.56rem;
+  line-height: 1.4;
+  padding: 0 8px 3px;
+}
+
+.card .mosje-synergy-row,
+.card .mosje-pet-row {
+  margin: 0 8px 4px;
+  padding: 4px 6px;
+  border-radius: 3px;
+  border: 1px solid rgba(255,255,255,.06);
+  background: rgba(0,0,0,.2);
+}
+
+.card .synergy-header,
+.card .mosje-pet-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.5rem;
+}
+
+.card .mosje-flavour {
+  margin-top: auto;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 0.54rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+  padding: 4px 8px 7px;
+  border-top: 1px solid rgba(255,255,255,.04);
+}
+
+/* keep existing ability button visible on board cards */
+.mosje-ability-btn {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  z-index: 4;
+  font-family: var(--font-display);
+  font-size: 0.52rem;
+  letter-spacing: 0.08em;
+  border-radius: 3px;
+  border: 1px solid var(--amber-dark);
+  background: var(--amber-dim);
+  color: var(--amber-bright);
+  padding: 3px 7px;
+  cursor: pointer;
+}
+
+.mosje-ability-btn:hover { background: #3a2808; border-color: var(--amber-mid); }
+.mosje-ability-btn--used,
+.mosje-ability-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mosje-return-btn {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  z-index: 4;
+  font-family: var(--font-display);
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+  border-radius: 3px;
+  border: 1px solid var(--zone-border-hi);
+  background: rgba(4, 8, 16, 0.8);
+  color: var(--text-secondary);
+  padding: 3px 7px;
+  cursor: pointer;
+}
+
+.mosje-return-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--amber-mid);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HAND CARD SPECIFIC STYLES
+   ═══════════════════════════════════════════════════════════ */
+
+.hand-cards {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding: 48px 32px 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  position: relative;
+  z-index: 90;
+}
+
+.hand-cards::-webkit-scrollbar { display: none; }
+
+/* ── HAND CARD WRAPPER ─────────────────────────────────── */
+.hand-card-wrap {
+  position: relative;
+  flex-shrink: 0;
+  margin: 0 -14px;
+  transition: transform .28s var(--ease-spring);
+  transform-origin: bottom center;
+}
+
+.hand-card-wrap:first-child { margin-left: 0; }
+.hand-card-wrap:last-child  { margin-right: 0; }
+
+/* Hover: snap to upright and lift */
+.hand-card-wrap:hover {
   z-index: 50;
+  transform: rotate(0deg) translateY(-40px) !important;
 }
 
-.card:not(.card--disabled):not(.face-down):hover .card-face,
-.card:not(.card--disabled):not(.face-down):hover {
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.8),
-    0 12px 20px rgba(0, 0, 0, 0.7),
-    0 20px 40px rgba(0, 0, 0, 0.5),
-    0 30px 80px rgba(0, 0, 0, 0.35),
-    var(--card-hover-glow, 0 0 30px rgba(255, 255, 255, 0.05));
+/* Disabled hand cards */
+.hand-card-disabled { opacity: .4; }
+.hand-card-disabled:hover { z-index: 0; }
+
+/* Snelle available during opponent quest */
+.snelle-available .card::before {
+  --glow-o: .5;
+  --sweep: 40;
+  animation: snelle-waiting 1.8s ease-in-out infinite alternate;
 }
 
-.card--mosje:not(.card--disabled):hover { --card-hover-glow: 0 0 30px var(--mosje-glow); }
-.card--piecie:not(.card--disabled):hover { --card-hover-glow: 0 0 30px var(--piecie-glow); }
-.card--snelle_piecie:not(.card--disabled):hover,
-.card--snelle:not(.card--disabled):hover { --card-hover-glow: 0 0 30px var(--snelle-glow); }
-.card--place:not(.card--disabled):hover { --card-hover-glow: 0 0 30px var(--place-glow); }
-.card--quest:not(.card--disabled):hover { --card-hover-glow: 0 0 30px var(--quest-glow); }
-
-/* ── CARD ON THE FIELD ───────────────────────────────────────────── */
-.mosje-slot.has-card .card .card-face,
-.piecie-slot.has-card .card .card-face,
-.board-zone__slots .card {
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.95),
-    0 3px 6px rgba(0, 0, 0, 0.7),
-    0 6px 16px rgba(0, 0, 0, 0.4);
+@keyframes snelle-waiting {
+  from { --sweep: 0;  --glow-o: .35; }
+  to   { --sweep: 80; --glow-o: .65; }
 }
 
-/* ── CARD STACK DEPTH ────────────────────────────────────────────── */
-.quest-deck-stack {
-  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.7));
+/* ── ACTION BUTTON ────────────────────────────────────── */
+.hand-card-btn {
+  position: absolute;
+  bottom: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  padding: 5px 12px;
+  border-radius: 3px;
+  border: 1px solid;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .15s, transform .15s;
+  pointer-events: none;
+  z-index: 60;
 }
 
-.quest-deck-stack .deck-card {
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.9),
-    0 3px 8px rgba(0, 0, 0, 0.6);
+/* Show button when wrapper is hovered */
+.hand-card-wrap:hover .hand-card-btn {
+  opacity: 1;
+  pointer-events: all;
 }
 
-.quest-deck-stack .deck-card:last-child {
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.9),
-    0 6px 14px rgba(0, 0, 0, 0.6),
-    0 12px 28px rgba(0, 0, 0, 0.4);
+.hand-card-btn:hover {
+  transform: translateX(-50%) scale(1.04);
 }
 
-/* ── FACE-DOWN PIECIE BACK ───────────────────────────────────────── */
-.face-down-piecie,
-.card.face-down .card-back {
-  background:
-    repeating-linear-gradient(
-      60deg,
-      rgba(255, 255, 255, 0.025) 0px,
-      rgba(255, 255, 255, 0.025) 1px,
-      transparent 1px,
-      transparent 8px
-    ),
-    repeating-linear-gradient(
-      -60deg,
-      rgba(255, 255, 255, 0.015) 0px,
-      rgba(255, 255, 255, 0.015) 1px,
-      transparent 1px,
-      transparent 8px
-    ),
-    linear-gradient(160deg, #111827 0%, #0d1520 50%, #0f1a28 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow:
-    inset 1px 0 0 rgba(255, 255, 255, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.07),
-    inset -1px 0 0 rgba(0, 0, 0, 0.4),
-    inset 0 -2px 0 rgba(0, 0, 0, 0.6),
-    0 2px 4px rgba(0, 0, 0, 0.8),
-    0 4px 12px rgba(0, 0, 0, 0.5);
+.hand-card-btn:active {
+  transform: translateX(-50%) scale(.97);
 }
 
-/* ── ACTIVE MOSJE ────────────────────────────────────────────────── */
-.card--mosje.is-active {
-  transform: translateY(-4px);
+/* Type-specific button colors */
+.hand-btn-mosje {
+  background: var(--amber-dim);
+  border-color: var(--amber-dark);
+  color: var(--amber-bright);
+}
+.hand-btn-mosje:hover { background: #3a2808; border-color: var(--amber-mid); }
+
+.hand-btn-piecie {
+  background: var(--navy-dim);
+  border-color: var(--piecie-dark);
+  color: var(--piecie-primary);
+}
+.hand-btn-piecie:hover { background: #0e1a3a; border-color: var(--navy-bright); }
+
+.hand-btn-snelle {
+  background: #1a0404;
+  border-color: var(--snelle-dark);
+  color: var(--snelle-primary);
+  animation: snelle-btn-pulse 1.4s ease-in-out infinite;
 }
 
-.card--mosje.is-active .card-face,
-.card--mosje.is-active {
-  box-shadow:
-    0 4px 8px rgba(0, 0, 0, 0.9),
-    0 8px 20px rgba(0, 0, 0, 0.6),
-    0 12px 40px rgba(0, 0, 0, 0.4),
-    0 0 20px var(--mosje-glow),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+@keyframes snelle-btn-pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(220,58,58,0); }
+  50%     { box-shadow: 0 0 0 4px rgba(220,58,58,.15); }
 }
 
-/* ── HAND CARD NATURAL ROTATION ──────────────────────────────────── */
-.hand-cards .card:nth-child(odd),
-.hand-strip .card:nth-child(odd) {
-  transform: rotate(-0.8deg);
+.hand-btn-place {
+  background: #020e06;
+  border-color: var(--place-dark);
+  color: var(--place-primary);
+}
+.hand-btn-place:hover { background: #041808; border-color: var(--place-primary); }
+
+.hand-btn-quest {
+  background: #06020e;
+  border-color: var(--quest-dark);
+  color: var(--quest-primary);
+}
+.hand-btn-quest:hover { background: #0e0420; border-color: var(--quest-primary); }
+
+/* ── TOOLTIP ─────────────────────────────────────────── */
+.hand-card-tooltip {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 148px;
+  background: #06080e;
+  border: 1px solid rgba(200,146,12,.12);
+  border-radius: 7px;
+  padding: 9px 11px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .12s .06s;
+  z-index: 200;
 }
 
-.hand-cards .card:nth-child(even),
-.hand-strip .card:nth-child(even) {
-  transform: rotate(0.6deg);
+.hand-card-wrap:hover .hand-card-tooltip { opacity: 1; }
+
+/* Inner amber frame */
+.hand-card-tooltip::before {
+  content: '';
+  position: absolute; inset: 3px;
+  border: 1px solid rgba(200,146,12,.05);
+  border-radius: 5px;
+  pointer-events: none;
 }
 
-.hand-cards .card:nth-child(3n),
-.hand-strip .card:nth-child(3n) {
-  transform: rotate(1.2deg);
+.tip-name {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  color: var(--text-primary);
+  margin-bottom: 5px;
+  letter-spacing: .04em;
 }
 
-.hand-cards .card:hover,
-.hand-strip .card:hover {
-  transform: translateY(-22px) rotate(0deg) scale(1.08) !important;
+.tip-ability {
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 5px;
 }
 
+.tip-synergies {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 5px;
+}
+
+.tip-synergy {
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  text-transform: capitalize;
+  color: rgba(200,146,12,.35);
+}
+
+.tip-syn-active {
+  color: var(--amber-bright);
+  font-weight: 600;
+}
+
+.tip-flavour {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 0.58rem;
+  color: var(--text-muted);
+  line-height: 1.3;
+  display: block;
+  border-top: 1px solid rgba(255,255,255,.04);
+  padding-top: 4px;
+}
+
+/* ── HAND TRAIT PILLS ────────────────────────────────── */
+.hand-traits {
+  display: flex;
+  gap: 3px;
+  padding: 2px 8px 3px;
+  flex-wrap: wrap;
+}
+
+.hand-trait {
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  color: var(--text-muted);
+}
+
+.hand-trait[data-trait="physical"]  { color: #c8502a; }
+.hand-trait[data-trait="mental"]    { color: #3a7aca; }
+.hand-trait[data-trait="social"]    { color: #c88020; }
+.hand-trait[data-trait="creative"]  { color: #8a40ca; }
+.hand-trait[data-trait="technical"] { color: #1a8a8a; }
+.hand-trait[data-trait="resilient"] { color: #1a8a4a; }
+
+/* ── PLAY ANIMATION ──────────────────────────────────── */
+.hand-card-playing {
+  animation: card-fly-out .5s var(--ease-smooth) forwards;
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* ── RETURNED THIS TURN BADGE ────────────────────────── */
+.hand-card-lock-badge {
+  position: absolute;
+  bottom: -26px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.hand-empty {
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  padding: 8px 0 0;
+  text-align: center;
+}
