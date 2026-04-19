@@ -7,31 +7,56 @@
 //
 // Fully implemented in Phase 5. CSS classes defined in styles/cards.css.
 
+import { getCardById } from '../data/cardIndex.js';
+
 console.log('[UI] cardRenderer.js loaded');
+
+const TRAIT_ICONS = {
+  physical: '⚡',
+  mental: '🧠',
+  social: '💬',
+  creative: '🎨',
+  technical: '🔧',
+  resilient: '🛡️',
+};
+
+const TRAIT_COLORS = {
+  physical: 'var(--trait-physical)',
+  mental: 'var(--trait-mental)',
+  social: 'var(--trait-social)',
+  creative: 'var(--trait-creative)',
+  technical: 'var(--trait-technical)',
+  resilient: 'var(--trait-resilient)',
+};
 
 export function renderCard(card, options = {}) {
   const element = document.createElement('article');
-  const type = String(card.type || 'UNKNOWN').toUpperCase();
-  const title = String(card.name || 'Unnamed Card');
-  const desc = String(card.description || card.flavourText || '');
+  const resolvedCard = hydrateCard(card);
+  const type = String(resolvedCard.type || 'UNKNOWN').toUpperCase();
+  const title = String(resolvedCard.name || 'Unnamed Card');
+  const desc = String(resolvedCard.description || resolvedCard.flavourText || '');
 
   element.className = [
     'card',
     getTypeClass(type),
-    getQuestCssClass(card),
+    getQuestCssClass(resolvedCard),
     options.compact ? 'card--compact' : '',
   ]
     .filter(Boolean)
     .join(' ');
 
-  const typeLabel = card.questType === 'PERSONAL' ? 'PERSONAL QUEST' : type.replaceAll('_', ' ');
-  const difficulty = card.difficulty ? `<span class="card__difficulty">${escapeHtml(card.difficulty)}</span>` : '';
-  const badge = card.questType === 'PERSONAL'
-    ? `<span class="card__portrait-badge">${escapeHtml(shortMosjeName(card.requiredMosjeId))}</span>`
+  const typeLabel = resolvedCard.questType === 'PERSONAL' ? 'PERSONAL QUEST' : type.replaceAll('_', ' ');
+  const difficulty = resolvedCard.difficulty ? `<span class="card__difficulty">${escapeHtml(resolvedCard.difficulty)}</span>` : '';
+  const badge = resolvedCard.questType === 'PERSONAL'
+    ? `<span class="card__portrait-badge">${escapeHtml(shortMosjeName(resolvedCard.requiredMosjeId))}</span>`
     : '';
 
   if (type === 'MOSJE') {
-    element.innerHTML = renderMosjeCardInner(card, { title, typeLabel, badge });
+    element.innerHTML = buildMosjeCardHTML(
+      resolvedCard,
+      options.gameState || null,
+      options.viewingPlayerId || resolvedCard.ownerId || null
+    );
     return element;
   }
 
@@ -43,41 +68,142 @@ export function renderCard(card, options = {}) {
     </div>
     <h3 class="card__name">${escapeHtml(title)}</h3>
     <p class="card__desc">${escapeHtml(desc)}</p>
-    ${renderMpMeta(card)}
+    ${renderMpMeta(resolvedCard)}
   `;
 
   return element;
 }
 
-function renderMosjeCardInner(card, { title, typeLabel, badge }) {
-  const traits = card.traits || {};
-  const traitEntries = Object.entries(traits)
-    .filter(([, value]) => Number(value) > 0)
-    .sort((a, b) => Number(b[1]) - Number(a[1]));
-  const traitBadges = traitEntries.length
-    ? traitEntries.map(([name, value]) => `<span class="card__trait-badge">${escapeHtml(capitalize(name))} ${Number(value)}</span>`).join('')
-    : '<span class="card__trait-badge">No traits</span>';
+export function buildMosjeCardHTML(card, gameState = null, viewingPlayerId = null) {
+  const traitRows = Object.entries(card.traits || {})
+    .filter(([, stars]) => Number(stars) > 0)
+    .map(([trait, stars]) => {
+      const icon = TRAIT_ICONS[trait] || '•';
+      const label = capitalize(trait);
+      const starCount = Number(stars) || 0;
+      const filled = '★'.repeat(starCount);
+      const empty = '☆'.repeat(Math.max(0, 3 - starCount));
+      const color = TRAIT_COLORS[trait] || '#aaaaaa';
+      return `
+        <div class="mosje-trait" data-trait="${escapeHtml(trait)}" data-stars="${starCount}" style="--trait-color: ${escapeHtml(color)}">
+          <span class="trait-icon">${icon}</span>
+          <span class="trait-name">${escapeHtml(label)}</span>
+          <span class="trait-stars">${filled}<span class="trait-empty">${empty}</span></span>
+        </div>
+      `;
+    })
+    .join('');
 
-  const abilityText = card.abilityDescription || describeAbility(card.abilityId);
-  const synergyText = Array.isArray(card.synergyWith) && card.synergyWith.length
-    ? card.synergyWith.map(shortMosjeName).join(', ')
-    : 'None';
-  const petText = card.petSynergy ? card.petSynergy.replace('piecie_', '') : 'None';
+  const ownedActiveMosjes = getOwnedActiveMosjeIds(gameState, viewingPlayerId);
+  const ownedActivePiecies = getOwnedActivePiecieIds(gameState, viewingPlayerId);
+
+  const synergyRows = (Array.isArray(card.synergyWith) ? card.synergyWith : [])
+    .map((synergyId) => {
+      const active = ownedActiveMosjes.has(synergyId);
+      const statusClass = active ? 'synergy-active' : 'synergy-inactive';
+      const statusLabel = active ? '● ACTIVE' : '○ inactive';
+      const partnerName = formatIdLabel(synergyId, 'mosje_');
+      return `
+        <div class="mosje-synergy-row ${statusClass}">
+          <div class="synergy-header">
+            <span class="synergy-with-label">🔗 + ${escapeHtml(partnerName)}</span>
+            <span class="synergy-status-badge">${statusLabel}</span>
+          </div>
+          <p class="synergy-effect-text">${escapeHtml(card.synergyEffect || '')}</p>
+        </div>
+      `;
+    })
+    .join('');
+
+  const petActive = card.petSynergy ? ownedActivePiecies.has(card.petSynergy) : false;
+  const petRow = card.petSynergy
+    ? `
+      <div class="mosje-pet-row ${petActive ? 'pet-active' : 'pet-inactive'}">
+        <span class="pet-icon">🐾</span>
+        <span class="pet-name">${escapeHtml(formatIdLabel(card.petSynergy, 'piecie_'))}</span>
+        <span class="pet-status">${petActive ? '● active' : '○ not active'}</span>
+      </div>
+    `
+    : '';
+
+  const abilityLines = String(card.abilityDescription || describeAbility(card.abilityId) || '')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => `<p class="ability-line">${escapeHtml(line)}</p>`)
+    .join('');
+
+  const rarityDots = String(card.rarity || '◆')
+    .split('')
+    .map((dot) => `<span class="rarity-dot">${escapeHtml(dot)}</span>`)
+    .join('');
+
+  const artPath = card.artPath ? escapeHtml(card.artPath) : '';
+  const startMp = Number(card.startMP ?? card.mp ?? 0);
 
   return `
-    ${badge}
-    <div class="card__top">
-      <span class="card__type-label">${escapeHtml(typeLabel)}</span>
-      ${card.rarity ? `<span class="card__difficulty">${escapeHtml(card.rarity)}</span>` : ''}
-    </div>
-    <h3 class="card__name">${escapeHtml(title)}</h3>
-    <div class="card__traits">${traitBadges}</div>
-    <p class="card__desc">${escapeHtml(String(card.flavourText || card.description || ''))}</p>
-    <div class="card__meta card__meta--stacked">
-      <div><strong>Ability:</strong> ${escapeHtml(abilityText)}</div>
-      <div><strong>Synergy:</strong> ${escapeHtml(synergyText)}</div>
-      <div><strong>Pet:</strong> ${escapeHtml(petText)}</div>
-      <div><strong>MP/LVL:</strong> ${Number(card.mp ?? card.startMP ?? 0)} / ${Number(card.level || 0)}</div>
+    <div class="mosje-card-inner">
+      <div class="mosje-banner">
+        <span class="mosje-subtype">${escapeHtml(card.subtype || 'MOSJE')}</span>
+        <span class="mosje-rarity-dots">${rarityDots}</span>
+      </div>
+
+      <div class="mosje-art">
+        ${artPath
+          ? `<img src="${artPath}" alt="${escapeHtml(card.name || 'Mosje')}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />`
+          : ''}
+        <div class="mosje-art-placeholder" ${artPath ? 'style="display:none"' : ''}>${escapeHtml((card.name || 'M').charAt(0))}</div>
+        <div class="mosje-art-vignette"></div>
+      </div>
+
+      <div class="mosje-identity">
+        <h3 class="mosje-name">${escapeHtml(card.name || 'Unnamed Mosje')}</h3>
+        <div class="mosje-start-mp">
+          <span class="mp-label">Start MP</span>
+          <span class="mp-value">${startMp}</span>
+        </div>
+      </div>
+
+      <div class="mosje-card-rule"></div>
+
+      <div class="mosje-traits">
+        ${traitRows || '<span class="no-traits">No traits</span>'}
+      </div>
+
+      <div class="mosje-card-rule"></div>
+
+      <div class="mosje-ability-section">
+        <div class="section-label">✦ ABILITY</div>
+        <div class="mosje-ability-text">
+          ${abilityLines || `<p class="ability-line">${escapeHtml(describeAbility(card.abilityId) || 'No ability.')}</p>`}
+        </div>
+      </div>
+
+      ${synergyRows
+        ? `
+          <div class="mosje-card-rule"></div>
+          <div class="mosje-synergies-section">
+            <div class="section-label">🔗 SYNERGY</div>
+            ${synergyRows}
+          </div>
+        `
+        : ''}
+
+      ${petRow
+        ? `
+          <div class="mosje-card-rule"></div>
+          <div class="mosje-pet-section">
+            ${petRow}
+          </div>
+        `
+        : ''}
+
+      ${card.flavourText
+        ? `
+          <div class="mosje-card-rule"></div>
+          <p class="mosje-flavour">&quot;${escapeHtml(card.flavourText)}&quot;</p>
+        `
+        : ''}
     </div>
   `;
 }
@@ -99,7 +225,7 @@ function capitalize(text) {
 function getTypeClass(type) {
   if (type === 'MOSJE') return 'card--mosje';
   if (type === 'PIECIE') return 'card--piecie';
-  if (type === 'SNELLE_PIECIE') return 'card--snelle';
+  if (type === 'SNELLE_PIECIE') return 'card--snelle card--snelle_piecie';
   if (type === 'PLACE') return 'card--place';
   if (type === 'QUEST') return 'card--quest';
   return 'card--unknown';
@@ -127,6 +253,65 @@ function renderMpMeta(card) {
 function shortMosjeName(requiredMosjeId) {
   if (!requiredMosjeId) return 'PQ';
   return requiredMosjeId.replace('mosje_', '').slice(0, 3).toUpperCase();
+}
+
+function hydrateCard(card) {
+  const fallback = card || {};
+  const cardId = fallback.cardId || fallback.id;
+  if (!cardId) return fallback;
+  const definition = getCardById(cardId);
+  return definition ? { ...definition, ...fallback } : fallback;
+}
+
+function formatIdLabel(id, prefix = '') {
+  return String(id || '')
+    .replace(prefix, '')
+    .replaceAll('_', ' ')
+    .trim();
+}
+
+function getOwnedActiveMosjeIds(gameState, viewingPlayerId) {
+  const active = new Set();
+  if (!gameState || !viewingPlayerId) return active;
+
+  const slots = gameState.players?.[viewingPlayerId]?.activeSlots;
+  if (Array.isArray(slots)) {
+    for (const slot of slots) {
+      if (slot && !slot.isDefeated && slot.cardId) active.add(slot.cardId);
+    }
+  }
+
+  const mosjeStates = gameState.mosjeStates;
+  if (mosjeStates && typeof mosjeStates === 'object') {
+    for (const value of Object.values(mosjeStates)) {
+      if (value?.ownerId === viewingPlayerId && !value?.defeated && value?.cardId) {
+        active.add(value.cardId);
+      }
+    }
+  }
+  return active;
+}
+
+function getOwnedActivePiecieIds(gameState, viewingPlayerId) {
+  const active = new Set();
+  if (!gameState || !viewingPlayerId) return active;
+
+  const slots = gameState.players?.[viewingPlayerId]?.piecieSlots;
+  if (Array.isArray(slots)) {
+    for (const slot of slots) {
+      if (slot && !slot.faceDown && slot.cardId) active.add(slot.cardId);
+    }
+  }
+
+  const piecieStates = gameState.piecieStates;
+  if (piecieStates && typeof piecieStates === 'object') {
+    for (const value of Object.values(piecieStates)) {
+      if (value?.ownerId === viewingPlayerId && !value?.isFaceDown && value?.cardId) {
+        active.add(value.cardId);
+      }
+    }
+  }
+  return active;
 }
 
 function escapeHtml(text) {

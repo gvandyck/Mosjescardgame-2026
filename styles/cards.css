@@ -1,10 +1,29 @@
+/* ── CARD SIZE TOKENS ───────────────────────────────────────────── */
+:root {
+  --mosje-card-w: 220px;
+  --mosje-card-h: 340px;
+  --mosje-card-w-hand: 190px;
+  --mosje-card-h-hand: 290px;
+
+  --piecie-card-w: 130px;
+  --piecie-card-h: 190px;
+  --piecie-card-w-hand: 120px;
+  --piecie-card-h-hand: 175px;
+
+  --support-card-w: 110px;
+  --support-card-h: 160px;
+
+  --synergy-active-color: #e8c050;
+  --synergy-active-glow: rgba(232, 192, 80, 0.35);
+  --synergy-inactive-color: #5a4820;
+  --synergy-inactive-glow: transparent;
+  --pet-synergy-color: #a855f7;
+  --pet-synergy-glow: rgba(168, 85, 247, 0.25);
+}
+
 /* ── BASE CARD ───────────────────────────────────────────────────── */
 .card {
   position: relative;
-  width: var(--card-w);
-  min-width: var(--card-w);
-  max-width: var(--card-w);
-  height: var(--card-h);
   border-radius: var(--radius-card);
   cursor: pointer;
   transition:
@@ -21,10 +40,53 @@
 }
 
 .card--compact {
-  width: calc(var(--card-w) * 0.9);
-  min-width: calc(var(--card-w) * 0.9);
-  max-width: calc(var(--card-w) * 0.9);
-  height: calc(var(--card-h) * 0.9);
+  transform: none;
+}
+
+.card--mosje {
+  width: var(--mosje-card-w);
+  min-width: var(--mosje-card-w);
+  max-width: var(--mosje-card-w);
+  height: var(--mosje-card-h);
+}
+
+.hand-cards .card--mosje,
+.hand-strip .card--mosje {
+  width: var(--mosje-card-w-hand);
+  min-width: var(--mosje-card-w-hand);
+  max-width: var(--mosje-card-w-hand);
+  height: var(--mosje-card-h-hand);
+}
+
+.card--piecie,
+.card--snelle_piecie,
+.card--snelle {
+  width: var(--piecie-card-w);
+  min-width: var(--piecie-card-w);
+  max-width: var(--piecie-card-w);
+  height: var(--piecie-card-h);
+}
+
+.hand-cards .card--piecie,
+.hand-cards .card--snelle_piecie,
+.hand-cards .card--snelle,
+.hand-strip .card--piecie,
+.hand-strip .card--snelle_piecie,
+.hand-strip .card--snelle {
+  width: var(--piecie-card-w-hand);
+  min-width: var(--piecie-card-w-hand);
+  max-width: var(--piecie-card-w-hand);
+  height: var(--piecie-card-h-hand);
+}
+
+.card--quest,
+.card--quest-general,
+.card--quest-personal,
+.card--place {
+  width: var(--support-card-w);
+  min-width: var(--support-card-w);
+  max-width: var(--support-card-w);
+  height: var(--support-card-h);
 }
 
 .card.face-down {
@@ -207,6 +269,358 @@
   letter-spacing: 0.12em;
   color: #9fb0dc;
   font-family: var(--font-display);
+}
+
+/* ── MOSJE CARD INNER LAYOUT ─────────────────────────────────────── */
+.mosje-card-inner {
+  padding: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.mosje-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 10px;
+}
+
+.mosje-subtype {
+  font-family: var(--font-display);
+  font-size: 0.55rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.mosje-rarity-dots {
+  font-size: 0.6rem;
+  opacity: 0.8;
+}
+
+.rarity-dot {
+  letter-spacing: -1px;
+}
+
+.mosje-art {
+  width: 100%;
+  height: 110px;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid rgba(0, 0, 0, 0.15);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.mosje-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.mosje-art-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  opacity: 0.15;
+}
+
+.mosje-art-vignette {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.45) 100%);
+  pointer-events: none;
+}
+
+.mosje-identity {
+  padding: 6px 10px 2px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.mosje-name {
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.1;
+  flex: 1;
+  color: var(--mosje-gold);
+}
+
+.mosje-start-mp {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+  margin-left: 6px;
+}
+
+.mp-label {
+  font-size: 0.44rem;
+  opacity: 0.5;
+  line-height: 1;
+}
+
+.mp-value {
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.mosje-card-rule {
+  height: 1px;
+  margin: 0 10px;
+  opacity: 0.2;
+  flex-shrink: 0;
+  background: currentColor;
+}
+
+.mosje-traits {
+  padding: 5px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.mosje-trait {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.6rem;
+  color: var(--trait-color, #aaaaaa);
+}
+
+.trait-icon {
+  font-size: 0.65rem;
+  flex-shrink: 0;
+}
+
+.trait-name {
+  flex: 1;
+  opacity: 0.8;
+}
+
+.trait-stars {
+  letter-spacing: -0.5px;
+  font-size: 0.7rem;
+}
+
+.trait-empty {
+  opacity: 0.2;
+}
+
+.no-traits {
+  font-size: 0.58rem;
+  opacity: 0.6;
+}
+
+.mosje-ability-section {
+  padding: 5px 10px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.section-label {
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+.mosje-ability-text {
+  overflow: hidden;
+  flex: 1;
+}
+
+.ability-line {
+  font-size: 0.6rem;
+  line-height: 1.5;
+  opacity: 0.85;
+  margin-bottom: 2px;
+}
+
+.ability-line:last-child {
+  margin-bottom: 0;
+}
+
+.mosje-synergies-section {
+  padding: 5px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.mosje-synergy-row {
+  border-radius: 4px;
+  padding: 4px 6px;
+  transition: all 0.3s ease;
+}
+
+.mosje-synergy-row.synergy-inactive {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 8px var(--synergy-inactive-glow);
+}
+
+.mosje-synergy-row.synergy-active {
+  background: rgba(232, 192, 80, 0.08);
+  border: 1px solid rgba(232, 192, 80, 0.25);
+  box-shadow: 0 0 8px rgba(232, 192, 80, 0.12);
+}
+
+.synergy-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.synergy-with-label {
+  font-size: 0.58rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.synergy-inactive .synergy-with-label {
+  color: var(--synergy-inactive-color);
+}
+
+.synergy-active .synergy-with-label {
+  color: var(--synergy-active-color);
+  text-shadow: 0 0 8px var(--synergy-active-glow);
+}
+
+.synergy-status-badge {
+  font-size: 0.44rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.synergy-inactive .synergy-status-badge {
+  color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.synergy-active .synergy-status-badge {
+  color: var(--synergy-active-color);
+  background: rgba(232, 192, 80, 0.12);
+  animation: synergy-pulse 2s ease-in-out infinite;
+}
+
+@keyframes synergy-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.synergy-effect-text {
+  font-size: 0.55rem;
+  line-height: 1.4;
+}
+
+.synergy-inactive .synergy-effect-text {
+  color: rgba(180, 160, 100, 0.35);
+}
+
+.synergy-active .synergy-effect-text {
+  color: rgba(232, 192, 80, 0.75);
+}
+
+.mosje-pet-section {
+  padding: 4px 10px;
+  flex-shrink: 0;
+}
+
+.mosje-pet-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 0.58rem;
+  transition: all 0.3s;
+}
+
+.pet-inactive {
+  background: rgba(168, 85, 247, 0.04);
+  border: 1px solid rgba(168, 85, 247, 0.08);
+}
+
+.pet-active {
+  background: rgba(168, 85, 247, 0.1);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  box-shadow: 0 0 8px var(--pet-synergy-glow);
+}
+
+.pet-icon {
+  flex-shrink: 0;
+}
+
+.pet-name {
+  flex: 1;
+  text-transform: capitalize;
+  font-weight: 600;
+}
+
+.pet-inactive .pet-name {
+  color: rgba(168, 85, 247, 0.35);
+}
+
+.pet-active .pet-name {
+  color: rgba(200, 140, 255, 0.9);
+}
+
+.pet-status {
+  font-size: 0.48rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.pet-inactive .pet-status {
+  color: rgba(168, 85, 247, 0.25);
+}
+
+.pet-active .pet-status {
+  color: rgba(200, 140, 255, 0.7);
+  animation: synergy-pulse 2s ease-in-out infinite;
+}
+
+.mosje-flavour {
+  padding: 4px 10px 6px;
+  font-size: 0.52rem;
+  font-style: italic;
+  line-height: 1.4;
+  opacity: 0.35;
+  flex-shrink: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .card__difficulty {
