@@ -31,6 +31,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		<section class="board-zone board-zone--opponent">
 			<header class="board-zone__header">${escapeHtml(viewModel.players.top.name)}</header>
 			<div class="board-zone__slots" id="zone-opponent"></div>
+			<div class="board-zone__piecies" id="piecies-opponent"></div>
 		</section>
 
 		<section class="board-zone board-zone--center">
@@ -42,11 +43,14 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		<section class="board-zone board-zone--player">
 			<header class="board-zone__header">${escapeHtml(viewModel.players.bottom.name)}</header>
 			<div class="board-zone__slots" id="zone-player"></div>
+			<div class="board-zone__piecies" id="piecies-player"></div>
 		</section>
 	`;
 
 	const topZone = container.querySelector('#zone-opponent');
 	const bottomZone = container.querySelector('#zone-player');
+	const topPiecies = container.querySelector('#piecies-opponent');
+	const bottomPiecies = container.querySelector('#piecies-player');
 
 	for (const mosje of viewModel.players.top.mosjes) {
 		const cardEl = renderCard(mosje, { compact: true });
@@ -91,6 +95,30 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 			cardEl.appendChild(returnBtn);
 		}
 		bottomZone?.appendChild(cardEl);
+	}
+
+	for (const piecie of viewModel.players.top.piecies || []) {
+		if (piecie.faceDown) {
+			const slot = document.createElement('div');
+			slot.className = 'piecie-slot face-down-piecie has-card';
+			topPiecies?.appendChild(slot);
+			continue;
+		}
+		const piecieEl = renderCard(piecie, { compact: true });
+		piecieEl.classList.add('field-piecie-card');
+		topPiecies?.appendChild(piecieEl);
+	}
+
+	for (const piecie of viewModel.players.bottom.piecies || []) {
+		if (piecie.faceDown) {
+			const slot = document.createElement('div');
+			slot.className = 'piecie-slot face-down-piecie has-card';
+			bottomPiecies?.appendChild(slot);
+			continue;
+		}
+		const piecieEl = renderCard(piecie, { compact: true });
+		piecieEl.classList.add('field-piecie-card');
+		bottomPiecies?.appendChild(piecieEl);
 	}
 
 	// Render active quest panel (Phase 8 Rule 3 — shared quest visibility)

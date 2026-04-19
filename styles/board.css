@@ -775,3 +775,119 @@
 .quest-deck-stack {
    filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.8));
 }
+
+/* ── Fit to viewport + secondary log drawer ─────────────────────── */
+.page--game {
+   height: 100vh;
+   overflow: hidden;
+}
+
+.game-layout {
+   width: min(1280px, calc(100% - 20px));
+   height: calc(100vh - 96px);
+   margin: 0 auto 8px;
+   grid-template-columns: 1fr;
+   grid-template-areas:
+      'main'
+      'hand';
+   min-height: 0;
+}
+
+.game-board,
+.game-hand-panel {
+   min-height: 0;
+   overflow: auto;
+}
+
+.game-board {
+   max-height: calc(100vh - 260px);
+}
+
+.game-hand-panel {
+   max-height: 180px;
+}
+
+.board-zone__piecies {
+   display: flex;
+   gap: 6px;
+   flex-wrap: wrap;
+   min-height: 48px;
+   align-items: flex-start;
+}
+
+.board-zone__piecies .field-piecie-card {
+   width: calc(var(--card-w) * 0.58);
+   min-width: calc(var(--card-w) * 0.58);
+   max-width: calc(var(--card-w) * 0.58);
+   height: calc(var(--card-h) * 0.46);
+}
+
+@media (min-width: 901px) {
+   .game-log-panel {
+      position: fixed;
+      right: 10px;
+      top: 110px;
+      bottom: 12px;
+      width: 46px;
+      min-height: 0;
+      max-height: none;
+      overflow: hidden;
+      border-radius: 12px;
+      z-index: 60;
+      transition: width 0.2s var(--ease-smooth), box-shadow 0.2s var(--ease-smooth);
+   }
+
+   .game-log-panel h2 {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      margin: 10px auto;
+      color: #8392af;
+   }
+
+   .game-log {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+   }
+
+   .game-log-panel:hover,
+   .game-log-panel:focus-within {
+      width: 240px;
+      box-shadow: -6px 0 24px rgba(0, 0, 0, 0.45);
+   }
+
+   .game-log-panel:hover h2,
+   .game-log-panel:focus-within h2 {
+      writing-mode: horizontal-tb;
+      transform: none;
+      margin: 8px 10px;
+   }
+
+   .game-log-panel:hover .game-log,
+   .game-log-panel:focus-within .game-log {
+      opacity: 1;
+      pointer-events: auto;
+   }
+}
+
+@media (max-width: 900px) {
+   .page--game {
+      overflow: auto;
+      height: auto;
+   }
+
+   .game-layout {
+      height: auto;
+   }
+
+   .game-board,
+   .game-hand-panel {
+      max-height: none;
+   }
+
+   .game-log-panel {
+      display: none;
+   }
+}
