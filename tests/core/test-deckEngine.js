@@ -115,6 +115,39 @@ export function runDeckEngineTests() {
     assertEqual(overlap.length, 0, 'no card instance should be in both hand and deck');
   });
 
+  test('createInitialGameState starts each player with exactly 1 active Mosje', () => {
+    const state = createInitialGameState(
+      [
+        { playerId: 'player_1', name: 'Test 1', deckId: 'DIGITAL_CONTROL' },
+        { playerId: 'player_2', name: 'Test 2', deckId: 'PHYSICAL_FORCE' },
+      ],
+      'TEST'
+    );
+
+    const p1Active = state.players.player_1.activeSlots.filter(slot => !!slot && !slot.isDefeated);
+    const p2Active = state.players.player_2.activeSlots.filter(slot => !!slot && !slot.isDefeated);
+    assertEqual(p1Active.length, 1);
+    assertEqual(p2Active.length, 1);
+  });
+
+  test('createInitialGameState keeps the other starter deck Mosje in hand/deck pool', () => {
+    const state = createInitialGameState(
+      [
+        { playerId: 'player_1', name: 'Test 1', deckId: 'DIGITAL_CONTROL' },
+        { playerId: 'player_2', name: 'Test 2', deckId: 'PHYSICAL_FORCE' },
+      ],
+      'TEST'
+    );
+
+    const p1 = state.players.player_1;
+    const activeMosjeId = p1.activeSlots.find(slot => !!slot)?.cardId;
+    const deckDef = STARTER_DECKS.find(d => d.id === p1.deckId);
+    const otherMosjeId = deckDef.mosjes.find(id => id !== activeMosjeId);
+    const pool = [...p1.hand, ...p1.deck].map(card => card.cardId);
+    assertTrue(pool.includes(otherMosjeId));
+    assertTrue(!pool.includes(activeMosjeId));
+  });
+
   test('initializeGame: sharedGeneralQuestDeck contains GENERAL quests only', () => {
     const state = createInitialGameState(
       [

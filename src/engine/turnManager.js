@@ -457,6 +457,61 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
   return { state, success: true };
 }
 
+export function playMosje(gameState, playerId, cardRef) {
+  let state = JSON.parse(JSON.stringify(gameState));
+  const player = state.players[playerId];
+  if (!player) return { state, success: false, error: 'Player not found' };
+
+  if (!Array.isArray(player.hand)) player.hand = [];
+  if (!Array.isArray(player.activeSlots)) player.activeSlots = [null, null];
+  while (player.activeSlots.length < 2) player.activeSlots.push(null);
+
+  const handIndex = player.hand.findIndex(c => c.cardId === cardRef.cardId && c.type === 'MOSJE');
+  if (handIndex === -1) return { state, success: false, error: 'Card not in hand' };
+
+  const openSlotIndex = player.activeSlots.findIndex(slot => slot === null);
+  if (openSlotIndex < 0) {
+    return { state, success: false, error: 'You can have up to 2 Mosjes on the field' };
+  }
+
+  const [removed] = player.hand.splice(handIndex, 1);
+  const mosjeDef = MOSJES.find(m => m.id === removed.cardId);
+  if (!mosjeDef) {
+    player.hand.splice(handIndex, 0, removed);
+    return { state, success: false, error: 'Unknown Mosje definition' };
+  }
+
+  const saved = removed.savedState || {};
+  const slot = createMosjeSlotFromDefinition(mosjeDef);
+  if (typeof saved.mp === 'number') slot.mp = saved.mp;
+  if (typeof saved.level === 'number') slot.level = saved.level;
+  if (saved.traits && typeof saved.traits === 'object') slot.traits = { ...saved.traits };
+  if (Array.isArray(saved.statusEffects)) slot.statusEffects = [...saved.statusEffects];
+  if (typeof saved.abilityUsedThisTurn === 'boolean') slot.abilityUsedThisTurn = saved.abilityUsedThisTurn;
+
+  player.activeSlots[openSlotIndex] = slot;
+
+  state = checkVictory(state);
+  return { state, success: true, slotIndex: openSlotIndex };
+}
+
+function createMosjeSlotFromDefinition(mosjeDef) {
+  let mp = Number(mosjeDef.startMP || 0);
+  if (mp > 0 && mp < 10) mp = 10;
+  return {
+    cardId: mosjeDef.id,
+    name: mosjeDef.name,
+    traits: { ...(mosjeDef.traits || {}) },
+    mp,
+    level: 0,
+    isDefeated: false,
+    statusEffects: [],
+    abilityUsedThisTurn: false,
+    immuneThisTurn: false,
+    mpLostThisTurn: 0,
+  };
+}
+
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // useMosjeAbility
 // Activates the unique ability of one of the player's Mosjes.

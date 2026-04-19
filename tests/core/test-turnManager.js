@@ -6,6 +6,7 @@ import {
   attemptGeneralQuest,
   attemptPersonalQuest,
   playPiecie,
+  playMosje,
   activatePiecie,
   playSnellie,
   canPlayerActNow,
@@ -214,6 +215,73 @@ export function runTurnManagerTests() {
 
     assertFalse(out.success);
     assertEqual(out.error, 'You can place up to 4 Piecies');
+    assertEqual(out.state.players.player_1.hand.length, 1);
+  });
+
+  test('playMosje plays a Mosje from hand into an empty slot', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          hand: [{ cardId: 'mosje_coert_tech', type: 'MOSJE' }],
+          activeSlots: [
+            {
+              cardId: 'mosje_west',
+              name: '[West] Sr.Tactical',
+              traits: { mental: 3, technical: 1 },
+              mp: 15,
+              level: 1,
+              isDefeated: false,
+              statusEffects: [],
+              abilityUsedThisTurn: false,
+            },
+            null,
+          ],
+        },
+      },
+      activePlayerId: 'player_1',
+    });
+
+    const out = playMosje(state, 'player_1', { cardId: 'mosje_coert_tech', type: 'MOSJE' });
+    assertTrue(out.success);
+    assertEqual(out.state.players.player_1.hand.length, 0);
+    assertEqual(out.state.players.player_1.activeSlots[1].cardId, 'mosje_coert_tech');
+  });
+
+  test('playMosje is blocked when both field slots are occupied', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          hand: [{ cardId: 'mosje_coert_tech', type: 'MOSJE' }],
+          activeSlots: [
+            {
+              cardId: 'mosje_west',
+              name: '[West] Sr.Tactical',
+              traits: { mental: 3, technical: 1 },
+              mp: 15,
+              level: 1,
+              isDefeated: false,
+              statusEffects: [],
+              abilityUsedThisTurn: false,
+            },
+            {
+              cardId: 'mosje_coert_tech',
+              name: '[Coert] The Hawaiian Tech Savant',
+              traits: { technical: 3, mental: 2, social: 1 },
+              mp: 10,
+              level: 0,
+              isDefeated: false,
+              statusEffects: [],
+              abilityUsedThisTurn: false,
+            },
+          ],
+        },
+      },
+      activePlayerId: 'player_1',
+    });
+
+    const out = playMosje(state, 'player_1', { cardId: 'mosje_coert_tech', type: 'MOSJE' });
+    assertFalse(out.success);
+    assertEqual(out.error, 'You can have up to 2 Mosjes on the field');
     assertEqual(out.state.players.player_1.hand.length, 1);
   });
 

@@ -66,16 +66,15 @@ function createPlayerState(config) {
   const deckDef = STARTER_DECKS.find(d => d.id === config.deckId);
   if (!deckDef) throw new Error(`[ENGINE] Unknown deckId: ${config.deckId}`);
 
-  // Build Mosje slots — start both Mosjes on the field, apply MP rounding rule
-  const activeSlots = deckDef.mosjes.map(mosjeId => {
-    const mosjeData = MOSJES.find(m => m.id === mosjeId);
-    if (!mosjeData) throw new Error(`[ENGINE] Unknown mosjeId: ${mosjeId}`);
-    return createMosjeSlot(mosjeData);
-  });
+  const starterMosjeId = pickRandomMosjeId(deckDef.mosjes || []);
+  const starterMosjeData = MOSJES.find(m => m.id === starterMosjeId);
+  if (!starterMosjeData) throw new Error(`[ENGINE] Unknown starter mosjeId: ${starterMosjeId}`);
 
-  // Build personal draw deck from all non-Mosje cards in the deck config.
-  // Safety guard in buildDeck blocks GENERAL quests from entering player decks.
-  const deck = buildDeck(deckDef);
+  // Start with exactly one random Mosje on field; second slot remains empty.
+  const activeSlots = [createMosjeSlot(starterMosjeData), null];
+
+  // Build personal draw deck, including non-starting Mosjes from the chosen deck.
+  const deck = buildDeck(deckDef, { excludeCardIds: [starterMosjeId] });
 
   // Draw opening hand of 7 cards
   const hand = deck.splice(0, 7);
@@ -142,6 +141,15 @@ function createMosjeSlot(mosjeData) {
   };
 }
 
+function pickRandomMosjeId(mosjeIds) {
+  const pool = Array.isArray(mosjeIds) ? mosjeIds.filter(Boolean) : [];
+  if (pool.length === 0) {
+    throw new Error('[ENGINE] Starter deck has no Mosjes');
+  }
+  const index = Math.floor(Math.random() * pool.length);
+  return pool[index];
+}
+
 // ─────────────────────────────────────────────────────────────
 // getActiveMosjesForPlayer
 // Returns only the non-defeated Mosje slots for a player.
@@ -195,7 +203,10 @@ export function initializeGame(gameState, starterDeckConfigs = null) {
       const cfg = cfgByPlayerId[playerId] || STARTER_DECKS.find(d => d.id === existing.deckId);
       if (!cfg) continue;
 
-      const deck = buildDeck(cfg);
+      const starterOnField = (existing.activeSlots || [])
+        .filter(slot => slot && slot.cardId)
+        .map(slot => slot.cardId);
+      const deck = buildDeck(cfg, { excludeCardIds: starterOnField });
       const hand = deck.splice(0, 7);
       state.players[playerId].deck = deck;
       state.players[playerId].hand = hand;

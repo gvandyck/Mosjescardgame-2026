@@ -6,7 +6,7 @@ import { createLogRenderer } from './ui/logRenderer.js';
 import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes } from './engine/gameState.js';
-import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, playSnellie, playPlace, useMosjeAbility, canPlayerActNow } from './engine/turnManager.js';
+import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, playSnellie, playPlace, playMosje, useMosjeAbility, canPlayerActNow } from './engine/turnManager.js';
 import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold } from './abilities/questLogic.js';
 import { MOSJES } from './data/mosjes.js';
 import { PIECIES } from './data/piecies.js';
@@ -684,6 +684,22 @@ function initGamePage() {
 				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
 				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
 			}
+			renderFromState(gameState);
+			return;
+		}
+
+		if (cardType === 'MOSJE') {
+			const beforePlay = gameState;
+			const { state: newState, success, error } = playMosje(gameState, localPlayerId, cardRef);
+			if (!success) {
+				modal.showInfo('Cannot Play', error || 'That Mosje cannot be played right now.');
+				return;
+			}
+			gameState = newState;
+			log.add('gain', `Played Mosje: ${cardDef.name}.`);
+			if (cardDef.abilityDescription) log.add('info', `Ability: ${cardDef.abilityDescription}`);
+			logStateOutcome(log, beforePlay, gameState, localPlayerId, `${cardDef.name} deployment`);
+			syncPush();
 			renderFromState(gameState);
 			return;
 		}

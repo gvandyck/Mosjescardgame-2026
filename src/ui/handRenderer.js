@@ -37,7 +37,7 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 		}
 
 		const isSnelle = card.type === 'SNELLE_PIECIE';
-		const isRegularPlayable = card.type === 'PIECIE';
+		const isRegularPlayable = card.type === 'PIECIE' || card.type === 'MOSJE';
 		const isPlace = card.type === 'PLACE';
 		const isPersonalQuest = card.type === 'QUEST' && card.questType === 'PERSONAL';
     const isReturnedMosje = card.type === 'MOSJE' && !!card.returnedThisTurn;
@@ -65,7 +65,7 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 			});
 			cardEl.appendChild(btn);
 		}
-		// Regular Piecies and Places are only playable on your own turn
+		// Regular Piecies, Mosjes and Places are only playable on your own turn
 		else if ((isRegularPlayable || isPlace) && onPlay) {
 			if (isLocalTurn) {
 				cardEl.classList.add('hand-card--playable');
@@ -82,7 +82,8 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 				const btn = document.createElement('button');
 				btn.className = 'hand-card__play-btn';
 				btn.type = 'button';
-				btn.textContent = isRegularPlayable ? 'PLACE' : 'Play';
+				if (card.type === 'MOSJE') btn.textContent = 'Play Mosje';
+				else btn.textContent = isRegularPlayable ? 'PLACE' : 'Play';
 				btn.addEventListener('click', (e) => {
 					e.stopPropagation();
 					onPlay(card.cardId, card.type);

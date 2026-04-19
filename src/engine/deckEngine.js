@@ -95,23 +95,36 @@ function expandEntries(entries = []) {
 }
 
 // Build a player draw deck from starter deck config.
-// Includes Piecie/Snelle/Place and PERSONAL quests only.
-export function buildDeck(starterDeckConfig) {
+// Includes Piecie/Snelle/Place, optional MOSJES, and PERSONAL quests only.
+export function buildDeck(starterDeckConfig, options = {}) {
+  const includeMosjes = options.includeMosjes !== false;
+  const excludedCardIds = new Set(Array.isArray(options.excludeCardIds) ? options.excludeCardIds : []);
   const cards = [];
 
+  if (includeMosjes) {
+    for (const cardId of expandEntries(starterDeckConfig?.mosjes || [])) {
+      if (excludedCardIds.has(cardId)) continue;
+      cards.push({ cardId, type: 'MOSJE', faceDown: false, turnsOnField: 0 });
+    }
+  }
+
   for (const cardId of expandEntries(starterDeckConfig?.piecies || [])) {
+    if (excludedCardIds.has(cardId)) continue;
     cards.push({ cardId, type: 'PIECIE', faceDown: false, turnsOnField: 0 });
   }
 
   for (const cardId of expandEntries(starterDeckConfig?.snellePiecies || [])) {
+    if (excludedCardIds.has(cardId)) continue;
     cards.push({ cardId, type: 'SNELLE_PIECIE', faceDown: false, turnsOnField: 0 });
   }
 
   for (const cardId of expandEntries(starterDeckConfig?.places || [])) {
+    if (excludedCardIds.has(cardId)) continue;
     cards.push({ cardId, type: 'PLACE', faceDown: false, turnsOnField: 0 });
   }
 
   for (const cardId of expandEntries(starterDeckConfig?.quests || [])) {
+    if (excludedCardIds.has(cardId)) continue;
     const card = getCardById(cardId);
     if (card?.questType === 'PERSONAL') {
       cards.push({ cardId, type: 'QUEST', faceDown: false, turnsOnField: 0 });
