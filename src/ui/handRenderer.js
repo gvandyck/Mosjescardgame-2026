@@ -28,9 +28,20 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 		const cardEl = renderCard(card, { compact: false });
 		cardEl.classList.add('hand-card');
 
+		if (card.returnedThisTurn) {
+			cardEl.classList.add('hand-card--returned-mosje');
+			cardEl.title = 'Returned this turn; can be replayed next turn';
+		}
+
 		const isSnelle = card.type === 'SNELLE_PIECIE';
 		const isRegularPlayable = card.type === 'PIECIE';
 		const isPersonalQuest = card.type === 'QUEST' && card.questType === 'PERSONAL';
+    const isReturnedMosje = card.type === 'MOSJE' && !!card.returnedThisTurn;
+
+		if (isReturnedMosje) {
+			container.appendChild(cardEl);
+			continue;
+		}
 
 		// Snelle Piecies are always interactive (can be played as interrupt any turn)
 		if (isSnelle && onPlay) {

@@ -105,6 +105,7 @@ function createPlayerState(config) {
     mpAmplifierActive: false,         // 50% bonus on next MP gain (mp_amplifier piecie)
     chainReactionActive: false,       // free second piecie this turn
     opponentHandPeeked: false,        // stookerino / fps_west peek flag
+    returnedMosjesThisTurn: [],       // cardIds returned this turn (cannot replay until next turn)
     hasRerolledDieThisTurn: false,    // DJ 80/20 free reroll tracker
     pieciesPlayedThisTurn: 0,         // chris_ddr combo chain counter
     lastCardPlayedType: null,         // 'PIECIE' | 'SNELLE_PIECIE' | 'QUEST' | null — for jisca
@@ -296,6 +297,65 @@ export function destroyActivePlace(gameState) {
   state.activePlacePlayedBy = null;
   state.activePlaceTurnsActive = 0;
   console.log(`[ENGINE] Place destroyed: ${removed}`);
+  return state;
+}
+
+export function addCardToHand(gameState, playerId, cardRef) {
+  const state = JSON.parse(JSON.stringify(gameState));
+  const player = state.players?.[playerId];
+  if (!player || !cardRef) return state;
+  if (!Array.isArray(player.hand)) player.hand = [];
+  player.hand.push(cardRef);
+  return state;
+}
+
+export function returnMosjeToHand(gameState, playerId, slotIndex) {
+  const state = JSON.parse(JSON.stringify(gameState));
+  const player = state.players?.[playerId];
+  if (!player) return state;
+
+  const slot = player.activeSlots?.[slotIndex];
+  if (!slot || slot.isDefeated) return state;
+
+  const returned = {
+    cardId: slot.cardId,
+    type: 'MOSJE',
+    returnedThisTurn: true,
+    savedState: {
+      mp: slot.mp,
+      level: slot.level,
+      traits: { ...(slot.traits || {}) },
+      statusEffects: Array.isArray(slot.statusEffects) ? [...slot.statusEffects] : [],
+      abilityUsedThisTurn: !!slot.abilityUsedThisTurn,
+    },
+  };
+
+  player.activeSlots[slotIndex] = null;
+  if (!Array.isArray(player.returnedMosjesThisTurn)) player.returnedMosjesThisTurn = [];
+  if (!player.returnedMosjesThisTurn.includes(slot.cardId)) {
+    player.returnedMosjesThisTurn.push(slot.cardId);
+  }
+
+  if (!Array.isArray(player.hand)) player.hand = [];
+  player.hand.push(returned);
+  return state;
+}
+
+export function clearReturnedMosjesAtTurnEnd(gameState, playerId) {
+  const state = JSON.parse(JSON.stringify(gameState));
+  const player = state.players?.[playerId];
+  if (!player) return state;
+
+  const blocked = new Set(player.returnedMosjesThisTurn || []);
+  player.hand = (player.hand || []).map(card => {
+    if (card?.type === 'MOSJE' && blocked.has(card.cardId)) {
+      const next = { ...card };
+      delete next.returnedThisTurn;
+      return next;
+    }
+    return card;
+  });
+  player.returnedMosjesThisTurn = [];
   return state;
 }
 

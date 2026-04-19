@@ -1,6 +1,7 @@
 import { test, assertEqual, assertTrue } from '../helpers/testHelpers.js';
 import { shuffleDeck, drawCards, discardCards, buildDeck } from '../../src/engine/deckEngine.js';
 import { createInitialGameState, initializeGame } from '../../src/engine/gameState.js';
+import { returnMosjeToHand, clearReturnedMosjesAtTurnEnd } from '../../src/engine/gameState.js';
 import { STARTER_DECKS } from '../../src/data/starterDecks.js';
 import { QUESTS } from '../../src/data/quests.js';
 
@@ -151,5 +152,39 @@ export function runDeckEngineTests() {
       const hasGeneralQuest = allCards.some(c => c.type === 'QUEST' && generalIds.has(c.cardId));
       assertTrue(!hasGeneralQuest);
     }
+  });
+
+  test('returnMosjeToHand moves active slot card to hand with saved state', () => {
+    const state = createInitialGameState(
+      [
+        { playerId: 'player_1', name: 'Test 1', deckId: 'DIGITAL_CONTROL' },
+        { playerId: 'player_2', name: 'Test 2', deckId: 'PHYSICAL_FORCE' },
+      ],
+      'TEST'
+    );
+
+    const returned = returnMosjeToHand(state, 'player_1', 0);
+    assertEqual(returned.players.player_1.activeSlots[0], null);
+    const handMosje = returned.players.player_1.hand.find(c => c.type === 'MOSJE');
+    assertTrue(!!handMosje);
+    assertTrue(!!handMosje.savedState);
+    assertTrue(handMosje.returnedThisTurn);
+  });
+
+  test('clearReturnedMosjesAtTurnEnd unlocks returned Mosje cards in hand', () => {
+    const state = createInitialGameState(
+      [
+        { playerId: 'player_1', name: 'Test 1', deckId: 'DIGITAL_CONTROL' },
+        { playerId: 'player_2', name: 'Test 2', deckId: 'PHYSICAL_FORCE' },
+      ],
+      'TEST'
+    );
+
+    const returned = returnMosjeToHand(state, 'player_1', 0);
+    const cleared = clearReturnedMosjesAtTurnEnd(returned, 'player_1');
+    const handMosje = cleared.players.player_1.hand.find(c => c.type === 'MOSJE');
+    assertTrue(!!handMosje);
+    assertTrue(!handMosje.returnedThisTurn);
+    assertEqual(cleared.players.player_1.returnedMosjesThisTurn.length, 0);
   });
 }

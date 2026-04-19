@@ -5,7 +5,7 @@
 import { drawCards, shuffleDeck } from './deckEngine.js';
 import { gainMP, applyStatusEffectMP, getTotalMPForPlayer } from './mpManager.js';
 import { checkVictory } from './victoryChecker.js';
-import { getAllPlayerIds, setActivePlace, destroyActivePlace } from './gameState.js';
+import { getAllPlayerIds, setActivePlace, destroyActivePlace, clearReturnedMosjesAtTurnEnd } from './gameState.js';
 import * as placeEffects from '../abilities/placeEffects.js';
 import * as piecieEffects from '../abilities/piecieEffects.js';
 import * as snelleEffects from '../abilities/snelleEffects.js';
@@ -91,6 +91,9 @@ export function endTurn(gameState) {
   let state = JSON.parse(JSON.stringify(gameState));
   const playerId = state.activePlayerId;
   console.log(`[ENGINE] â”€â”€ Turn ${state.turnNumber} END â€” Player: ${playerId} â”€â”€`);
+
+  // Returned Mosjes become replayable on the player's next turn.
+  state = clearReturnedMosjesAtTurnEnd(state, playerId);
 
   // END PHASE — fire active Place effects (END_PHASE trigger only)
   state = applyPlaceEffectsOnEnd(state);

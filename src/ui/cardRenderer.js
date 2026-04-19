@@ -30,6 +30,11 @@ export function renderCard(card, options = {}) {
     ? `<span class="card__portrait-badge">${escapeHtml(shortMosjeName(card.requiredMosjeId))}</span>`
     : '';
 
+  if (type === 'MOSJE') {
+    element.innerHTML = renderMosjeCardInner(card, { title, typeLabel, badge });
+    return element;
+  }
+
   element.innerHTML = `
     ${badge}
     <div class="card__top">
@@ -42,6 +47,53 @@ export function renderCard(card, options = {}) {
   `;
 
   return element;
+}
+
+function renderMosjeCardInner(card, { title, typeLabel, badge }) {
+  const traits = card.traits || {};
+  const traitEntries = Object.entries(traits)
+    .filter(([, value]) => Number(value) > 0)
+    .sort((a, b) => Number(b[1]) - Number(a[1]));
+  const traitBadges = traitEntries.length
+    ? traitEntries.map(([name, value]) => `<span class="card__trait-badge">${escapeHtml(capitalize(name))} ${Number(value)}</span>`).join('')
+    : '<span class="card__trait-badge">No traits</span>';
+
+  const abilityText = card.abilityDescription || describeAbility(card.abilityId);
+  const synergyText = Array.isArray(card.synergyWith) && card.synergyWith.length
+    ? card.synergyWith.map(shortMosjeName).join(', ')
+    : 'None';
+  const petText = card.petSynergy ? card.petSynergy.replace('piecie_', '') : 'None';
+
+  return `
+    ${badge}
+    <div class="card__top">
+      <span class="card__type-label">${escapeHtml(typeLabel)}</span>
+      ${card.rarity ? `<span class="card__difficulty">${escapeHtml(card.rarity)}</span>` : ''}
+    </div>
+    <h3 class="card__name">${escapeHtml(title)}</h3>
+    <div class="card__traits">${traitBadges}</div>
+    <p class="card__desc">${escapeHtml(String(card.flavourText || card.description || ''))}</p>
+    <div class="card__meta card__meta--stacked">
+      <div><strong>Ability:</strong> ${escapeHtml(abilityText)}</div>
+      <div><strong>Synergy:</strong> ${escapeHtml(synergyText)}</div>
+      <div><strong>Pet:</strong> ${escapeHtml(petText)}</div>
+      <div><strong>MP/LVL:</strong> ${Number(card.mp ?? card.startMP ?? 0)} / ${Number(card.level || 0)}</div>
+    </div>
+  `;
+}
+
+function describeAbility(abilityId) {
+  if (!abilityId) return 'No ability.';
+  return abilityId
+    .replace('ability_', '')
+    .split('_')
+    .map(capitalize)
+    .join(' ');
+}
+
+function capitalize(text) {
+  const value = String(text || '');
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
 function getTypeClass(type) {

@@ -222,3 +222,28 @@ h1, h2, h3 { font-family: var(--font-heading); }
   opacity: 0.7;
   margin-top: 8px;
 }
+
+.sync-toast {
+  position: fixed;
+  right: 14px;
+  top: 14px;
+  z-index: 140;
+  background: rgba(16, 23, 46, 0.95);
+  border: 1px solid #4961a8;
+  color: #dce6ff;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.88rem;
+  animation: sync-toast-in 180ms ease-out;
+}
+
+@keyframes sync-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -3,10 +3,27 @@
 // Filled in Phase 5.
 
 import { renderCard } from './cardRenderer.js';
+import { getCardById } from '../data/cardIndex.js';
+import { initModalManager } from './modalManager.js';
 
 console.log('[UI] boardRenderer.js loaded');
 
-export function renderBoard(container, viewModel, onUseAbility = null) {
+let _boardModal = null;
+
+function getBoardModal() {
+	if (_boardModal) return _boardModal;
+	let root = document.querySelector('#modal-root');
+	if (!root) {
+		root = document.createElement('div');
+		root.id = 'modal-root';
+		root.className = 'modal-root';
+		document.body.appendChild(root);
+	}
+	_boardModal = initModalManager(root);
+	return _boardModal;
+}
+
+export function renderBoard(container, viewModel, onUseAbility = null, onReturnToHand = null) {
 	if (!container) return;
 	console.log('[UI] Rendering board view');
 
@@ -32,18 +49,46 @@ export function renderBoard(container, viewModel, onUseAbility = null) {
 	const bottomZone = container.querySelector('#zone-player');
 
 	for (const mosje of viewModel.players.top.mosjes) {
-		topZone?.appendChild(renderCard(mosje, { compact: true }));
+		const cardEl = renderCard(mosje, { compact: true });
+		const fullCard = getCardById(mosje.cardId) || mosje;
+		cardEl.classList.add('mosje-clickable');
+		cardEl.addEventListener('click', () => getBoardModal().showMosjeDetailModal({ ...fullCard, ...mosje }));
+		topZone?.appendChild(cardEl);
 	}
 
 	for (const mosje of viewModel.players.bottom.mosjes) {
 		const cardEl = renderCard(mosje, { compact: true });
+		const fullCard = getCardById(mosje.cardId) || mosje;
+		cardEl.classList.add('mosje-clickable');
+		cardEl.addEventListener('click', () => getBoardModal().showMosjeDetailModal({ ...fullCard, ...mosje }));
+
 		if (onUseAbility && !mosje.isDefeated && mosje.cardId) {
 			const btn = document.createElement('button');
 			btn.className = 'mosje-ability-btn' + (mosje.abilityUsedThisTurn ? ' mosje-ability-btn--used' : '');
 			btn.textContent = mosje.abilityUsedThisTurn ? '⚡ Used' : '⚡ Ability';
 			btn.disabled = mosje.abilityUsedThisTurn;
-			btn.addEventListener('click', () => onUseAbility(mosje.cardId));
+			btn.addEventListener('click', (event) => {
+				event.stopPropagation();
+				onUseAbility(mosje.cardId);
+			});
 			cardEl.appendChild(btn);
+		}
+
+		if (
+			onReturnToHand &&
+			viewModel.currentPhase === 'MAIN' &&
+			viewModel.activePlayerId === viewModel.myPlayerId &&
+			!mosje.isDefeated
+		) {
+			const returnBtn = document.createElement('button');
+			returnBtn.className = 'mosje-return-btn';
+			returnBtn.type = 'button';
+			returnBtn.textContent = 'Return To Hand';
+			returnBtn.addEventListener('click', (event) => {
+				event.stopPropagation();
+				onReturnToHand(mosje.cardId);
+			});
+			cardEl.appendChild(returnBtn);
 		}
 		bottomZone?.appendChild(cardEl);
 	}
@@ -55,6 +100,13 @@ export function renderBoard(container, viewModel, onUseAbility = null) {
 			viewModel.activeQuest,
 			viewModel.myPlayerId
 		);
+	}
+
+	if (viewModel.activeQuest?.revealOpponentHand && Array.isArray(viewModel.activeQuest?.revealedOpponentHandNames)) {
+		getBoardModal().showOpponentHandRevealModal(viewModel.activeQuest.revealedOpponentHandNames);
+		if (typeof viewModel.onClearRevealFlag === 'function') {
+			viewModel.onClearRevealFlag();
+		}
 	}
 }
 

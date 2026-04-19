@@ -264,7 +264,60 @@ export function initModalManager(container) {
 		});
 	}
 
-	return { showInfo, showDiceRoll, showConfirm, showTextInput, showCardChoice, showTargetSelector, close };
+	function showMosjeDetailModal(mosje) {
+		if (!mosje) return;
+		const traitRows = Object.entries(mosje.traits || {})
+			.filter(([, value]) => Number(value) > 0)
+			.map(([name, value]) => `<li><strong>${escapeHtml(name)}</strong>: ${Number(value)}</li>`)
+			.join('');
+
+		container.classList.add('modal-root--open');
+		container.innerHTML = `
+			<div class="modal-backdrop"></div>
+			<section class="modal-card" role="dialog" aria-modal="true">
+				<h3>${escapeHtml(mosje.name || 'Mosje')}</h3>
+				<p>${escapeHtml(mosje.flavourText || mosje.description || '')}</p>
+				<p><strong>Ability:</strong> ${escapeHtml(mosje.abilityDescription || 'No ability description')}</p>
+				<p><strong>Synergy:</strong> ${escapeHtml(mosje.synergyEffect || 'None')}</p>
+				<p><strong>Pet synergy:</strong> ${escapeHtml(mosje.petSynergy || 'None')}</p>
+				<ul class="modal-card-list">${traitRows || '<li>No active traits</li>'}</ul>
+				<button class="modal-btn" id="modal-close-mosje">Close</button>
+			</section>
+		`;
+
+		container.querySelector('#modal-close-mosje')?.addEventListener('click', close);
+	}
+
+	function showOpponentHandRevealModal(cardNames = []) {
+		container.classList.add('modal-root--open');
+		const rows = cardNames.length
+			? cardNames.map(name => `<li>${escapeHtml(name)}</li>`).join('')
+			: '<li>Opponent hand is empty.</li>';
+
+		container.innerHTML = `
+			<div class="modal-backdrop"></div>
+			<section class="modal-card" role="dialog" aria-modal="true">
+				<h3>Perfect Sync: Opponent Hand Revealed</h3>
+				<p>Memorize these cards before ending your turn.</p>
+				<ul class="modal-card-list">${rows}</ul>
+				<button class="modal-btn" id="modal-close-reveal">Close</button>
+			</section>
+		`;
+
+		container.querySelector('#modal-close-reveal')?.addEventListener('click', close);
+	}
+
+	return {
+		showInfo,
+		showDiceRoll,
+		showConfirm,
+		showTextInput,
+		showCardChoice,
+		showTargetSelector,
+		showMosjeDetailModal,
+		showOpponentHandRevealModal,
+		close,
+	};
 }
 
 function escapeHtml(text) {

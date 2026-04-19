@@ -32,6 +32,15 @@ let _lastStateSignature = null;
 let _lastPushedSignature = null;
 let _hasSeenPlayer2 = false;
 
+function showToast(message) {
+	if (typeof document === 'undefined') return;
+	const toast = document.createElement('div');
+	toast.className = 'sync-toast';
+	toast.textContent = String(message || '');
+	document.body.appendChild(toast);
+	setTimeout(() => toast.remove(), 2800);
+}
+
 // ── pushState ─────────────────────────────────────────────────────────────
 // Writes the full gameState object to Firestore.
 // Called after every local mutation (play card, end turn, quest, etc.)
@@ -105,6 +114,11 @@ export async function listenToState(roomCode, localPlayerId) {
 		if (signature === _lastPushedSignature) return;
 
 		console.log('[SYNC] Remote state received. Active:', gs.activePlayerId);
+		const quest = gs?.activeQuest;
+		if (quest?.revealOpponentHand && Array.isArray(quest?.revealedOpponentHandNames)) {
+			eventBus.emit('ui:show-opponent-hand-modal', quest.revealedOpponentHandNames);
+			showToast('Your hand has been revealed by Perfect Sync!');
+		}
 		eventBus.emit('mp:remote-state', gs);
 
 		if (gs.status === 'FINISHED') {

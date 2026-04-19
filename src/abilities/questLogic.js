@@ -31,6 +31,41 @@ function hasActiveMosjeCard(gameState, playerId, cardId) {
 	return getActiveMosjes(gameState?.players?.[playerId]).some(m => m.cardId === cardId);
 }
 
+export function getMosjeTrait(gameState, playerId, activeMosjeId, traitName) {
+	const trait = String(traitName || '').toLowerCase();
+	const player = gameState?.players?.[playerId];
+	if (!player || !trait) return 0;
+	const slot = (player.activeSlots || []).find(s => s && !s.isDefeated && s.cardId === activeMosjeId);
+	return Number(slot?.traits?.[trait] || 0);
+}
+
+export function checkTraitRoll(gameState, playerId, activeMosjeId, traitName, thresholds, fallbackThreshold = 5) {
+	const roll = rollDie();
+	const rating = getMosjeTrait(gameState, playerId, activeMosjeId, traitName);
+	let threshold = fallbackThreshold;
+
+	if (Array.isArray(thresholds) && thresholds.length) {
+		threshold = fallbackThreshold;
+		for (const entry of thresholds) {
+			if (rating >= Number(entry.rating || 0)) {
+				threshold = Number(entry.threshold || fallbackThreshold);
+				break;
+			}
+		}
+	}
+
+	return {
+		canAttempt: true,
+		diceRoll: roll,
+		threshold,
+		success: roll >= threshold,
+	};
+}
+
+function getTraitFromMosje(mosje, traitName) {
+	return Number(mosje?.traits?.[traitName] || 0);
+}
+
 function applyQuestMpResult(mosje, questCard, didSucceed) {
   if (didSucceed) {
     mosje.mp += questCard.successMP;
@@ -136,23 +171,36 @@ export function canAttemptPersonalQuest(questCard, gameState, playerId) {
 // activeMosje  — the live Mosje slot object (has .traits)
 // ─────────────────────────────────────────────────────────────
 export function getQuestDiceThreshold(questCard, activeMosje) {
-  const traits = activeMosje?.traits || {};
+	const fakeState = {
+		players: {
+			_tmp: {
+				activeSlots: [
+					{
+						cardId: activeMosje?.cardId || '_tmp_mosje',
+						traits: { ...(activeMosje?.traits || {}) },
+						isDefeated: false,
+					},
+				],
+			},
+		},
+	};
+	const activeMosjeId = activeMosje?.cardId || '_tmp_mosje';
 
   switch (questCard.requirementId) {
     case 'quest_req_arm_wrestling': {
-      const phys = traits.physical || 0;
+			const phys = getMosjeTrait(fakeState, '_tmp', activeMosjeId, 'physical');
       if (phys >= 3) return 2;
       if (phys >= 2) return 3;
       return 5;
     }
     case 'quest_req_quick_thinking': {
-      const mental = traits.mental || 0;
+			const mental = getMosjeTrait(fakeState, '_tmp', activeMosjeId, 'mental');
       if (mental >= 3) return 3;
       if (mental >= 2) return 4;
       return 5;
     }
     case 'quest_req_artistic_expression': {
-      const creative = traits.creative || 0;
+			const creative = getMosjeTrait(fakeState, '_tmp', activeMosjeId, 'creative');
       // Missing creative trait → impossible (threshold beyond max roll)
       return creative >= 2 ? 4 : 7;
     }
@@ -245,7 +293,15 @@ function resolvePersonalQuestSideEffects(gameState, questCard, playerId) {
 	let state = cloneState(gameState);
 
 	if (questCard.id === 'quest_personal_perfect_sync' && state.activeQuest) {
-		state.activeQuest = { ...state.activeQuest, revealOpponentHand: true };
+		const opponentId = Object.keys(state.players || {}).find(pid => pid !== playerId);
+		const revealedOpponentHandNames = opponentId
+			? (state.players[opponentId]?.hand || []).map(card => card.cardId || card.id || 'Unknown card')
+			: [];
+		state.activeQuest = {
+			...state.activeQuest,
+			revealOpponentHand: true,
+			revealedOpponentHandNames,
+		};
 		console.log('[QUEST] Perfect Sync side effect — opponent hand revealed');
 	}
 
@@ -271,13 +327,17 @@ function resolvePersonalQuestSideEffects(gameState, questCard, playerId) {
 
 // PHYSICAL QUESTS
 export function quest_req_arm_wrestling(questCard, mosje) {
-	const roll = rollDie();
-	const physical = mosje.traits?.physical || 0;
-	let threshold;
-	if (physical >= 3) threshold = 2;
-	else if (physical >= 2) threshold = 3;
-	else threshold = 5;
-	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+	return checkTraitRoll(
+		{ players: { _tmp: { activeSlots: [{ cardId: mosje?.cardId || '_tmp', traits: mosje?.traits || {}, isDefeated: false }] } } },
+		'_tmp',
+		mosje?.cardId || '_tmp',
+		'physical',
+		[
+			{ rating: 3, threshold: 2 },
+			{ rating: 2, threshold: 3 },
+		],
+		5
+	);
 }
 
 export function quest_req_parkour_challenge(questCard, mosje) {
@@ -314,13 +374,17 @@ export function quest_req_sprint_race(questCard, mosje) {
 
 // MENTAL QUESTS
 export function quest_req_quick_thinking(questCard, mosje) {
-	const roll = rollDie();
-	const mental = mosje.traits?.mental || 0;
-	let threshold;
-	if (mental >= 3) threshold = 3;
-	else if (mental >= 2) threshold = 4;
-	else threshold = 5;
-	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+	return checkTraitRoll(
+		{ players: { _tmp: { activeSlots: [{ cardId: mosje?.cardId || '_tmp', traits: mosje?.traits || {}, isDefeated: false }] } } },
+		'_tmp',
+		mosje?.cardId || '_tmp',
+		'mental',
+		[
+			{ rating: 3, threshold: 3 },
+			{ rating: 2, threshold: 4 },
+		],
+		5
+	);
 }
 
 export function quest_req_strategy_puzzle(questCard, mosje) {
@@ -433,13 +497,17 @@ export function quest_req_lucky_break(questCard, mosje) {
 
 // TECHNICAL QUESTS
 export function quest_req_debug_system(questCard, mosje) {
-	const roll = rollDie();
-	const technical = mosje.traits?.technical || 0;
-	let threshold;
-	if (technical >= 3) threshold = 2;
-	else if (technical >= 2) threshold = 3;
-	else threshold = 5;
-	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+	return checkTraitRoll(
+		{ players: { _tmp: { activeSlots: [{ cardId: mosje?.cardId || '_tmp', traits: mosje?.traits || {}, isDefeated: false }] } } },
+		'_tmp',
+		mosje?.cardId || '_tmp',
+		'technical',
+		[
+			{ rating: 3, threshold: 2 },
+			{ rating: 2, threshold: 3 },
+		],
+		5
+	);
 }
 
 export function quest_req_hack_mainframe(questCard, mosje) {
@@ -485,13 +553,17 @@ export function quest_req_leap_of_faith(questCard, mosje) {
 }
 
 export function quest_req_survive_storm(questCard, mosje) {
-	const roll = rollDie();
-	const resilient = mosje.traits?.resilient || 0;
-	let threshold;
-	if (resilient >= 3) threshold = 2;
-	else if (resilient >= 2) threshold = 3;
-	else threshold = 5;
-	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
+	return checkTraitRoll(
+		{ players: { _tmp: { activeSlots: [{ cardId: mosje?.cardId || '_tmp', traits: mosje?.traits || {}, isDefeated: false }] } } },
+		'_tmp',
+		mosje?.cardId || '_tmp',
+		'resilient',
+		[
+			{ rating: 3, threshold: 2 },
+			{ rating: 2, threshold: 3 },
+		],
+		5
+	);
 }
 
 export function quest_req_endure_pain(questCard, mosje) {
@@ -611,7 +683,7 @@ export function quest_req_synergy_mastery(questCard, mosje, gameState) {
 
 // DUTCH SPECIAL QUESTS
 export function quest_req_regelaar(questCard, mosje) {
-	const social = mosje.traits?.social || 0;
+	const social = getTraitFromMosje(mosje, 'social');
 	let threshold;
 	if (social >= 3) return { canAttempt: true, success: true, autoSuccess: true }; // auto-succeed
 	else if (social >= 2) threshold = 3;
@@ -639,7 +711,7 @@ export function quest_req_geen_raad_vraag_aad(questCard, mosje) {
 
 export function quest_req_parkeren_delft(questCard, mosje) {
 	const roll = rollDie();
-	const technical = mosje.traits?.technical || 0;
+	const technical = getTraitFromMosje(mosje, 'technical');
 	const threshold = technical >= 3 ? 3 : 5;
 	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
 }

@@ -63,6 +63,26 @@
   padding-top: 6px;
 }
 
+.card__meta--stacked {
+  display: grid;
+  gap: 4px;
+}
+
+.card__traits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.card__trait-badge {
+  font-size: 0.72rem;
+  color: #e7efff;
+  background: #21315c;
+  border: 1px solid #334d87;
+  border-radius: 999px;
+  padding: 2px 7px;
+}
+
 .card__portrait-badge {
   position: absolute;
   top: -8px;
@@ -122,6 +142,12 @@
   cursor: default;
 }
 
+.hand-card--returned-mosje {
+  opacity: 0.5;
+  filter: grayscale(65%);
+  border-color: #5c6fa6;
+}
+
 /* ── Mosje ability button ─────────────────── */
 .mosje-ability-btn {
   width: 100%;
@@ -146,6 +172,27 @@
   background: #2a355f;
   color: #6a7aaa;
   cursor: not-allowed;
+}
+
+.mosje-return-btn {
+  width: 100%;
+  margin-top: 5px;
+  padding: 5px 0;
+  border: none;
+  border-radius: 6px;
+  background: #4767d1;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mosje-return-btn:hover {
+  background: #5a7aec;
+}
+
+.mosje-clickable {
+  cursor: zoom-in;
 }
 
 

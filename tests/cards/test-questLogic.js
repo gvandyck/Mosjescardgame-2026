@@ -20,6 +20,29 @@ export function runQuestLogicTests() {
     );
   });
 
+  test('getMosjeTrait returns rating from active Mosje traits', () => {
+    const state = createEngineState();
+    const trait = questLogic.getMosjeTrait(state, 'player_1', 'mosje_west', 'mental');
+    assertEqual(trait, 3);
+  });
+
+  test('checkTraitRoll uses fallback threshold when trait missing', () => {
+    const originalRandom = Math.random;
+    Math.random = () => 0.1; // roll 1
+    const state = createEngineState();
+    const out = questLogic.checkTraitRoll(
+      state,
+      'player_1',
+      'mosje_west',
+      'creative',
+      [{ rating: 3, threshold: 2 }],
+      5
+    );
+    Math.random = originalRandom;
+    assertEqual(out.threshold, 5);
+    assertFalse(out.success);
+  });
+
   test('Personal Quest allowed when required Mosje is on field', () => {
     assertDefined(questLogic.canAttemptPersonalQuest, 'canAttemptPersonalQuest is missing');
     const state = createEngineState();
@@ -293,6 +316,7 @@ export function runQuestLogicTests() {
     const quest = QUESTS.find(q => q.id === 'quest_personal_perfect_sync');
     const result = questLogic.resolveQuest(state, 'player_1', quest, true);
     assertTrue(!!result.activeQuest?.revealOpponentHand);
+    assertTrue(Array.isArray(result.activeQuest?.revealedOpponentHandNames));
   });
 
   test('quest_req_lucky_crescendo fails if DJ is not active', () => {
