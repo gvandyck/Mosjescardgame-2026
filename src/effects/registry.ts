@@ -13,7 +13,14 @@ import { rollDie, rerollDie, chooseDieResult } from "./dice/index.js";
 import { applyBuff, reduceMPLossBy, clearExpiredBuffs, negateEffect } from "./buffs/index.js";
 import { ifThenElse, chain, choose, rollBranch } from "./control/index.js";
 
-export const primitiveRegistry: Record<string, Primitive> = {
+export class UnknownPrimitiveError extends Error {
+  constructor(name: string) {
+    super(`Unknown primitive: ${name}`);
+    this.name = "UnknownPrimitiveError";
+  }
+}
+
+export const primitiveRegistry: Readonly<Record<string, Primitive>> = Object.freeze({
   gainMP,
   loseMP,
   drainMP,
@@ -40,12 +47,12 @@ export const primitiveRegistry: Record<string, Primitive> = {
   chain,
   choose,
   rollBranch
-};
+});
 
 export function resolvePrimitive(name: string): Primitive {
   const primitive = primitiveRegistry[name];
   if (primitive === undefined) {
-    throw new Error(`Unknown primitive: ${name}`);
+    throw new UnknownPrimitiveError(name);
   }
   return primitive;
 }
