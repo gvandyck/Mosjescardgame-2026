@@ -26,6 +26,31 @@ export class UnknownPlaceholderError extends Error {
   }
 }
 
+export class UntargetableError extends Error {
+  constructor(targetRef: MosjeRef) {
+    super(
+      `Target mosje '${targetRef.instanceId}' (player '${targetRef.playerId}') is untargetable`
+    );
+    this.name = "UntargetableError";
+  }
+}
+
+/**
+ * Throws UntargetableError if the given mosje has an active 'buff:untargetable' flag.
+ * Called for every explicitly-targeted opponent/any/required mosje.
+ */
+function assertTargetable(state: GameState, targetRef: MosjeRef): void {
+  const player = state.players.find((p) => p.id === targetRef.playerId);
+  const mosje = player?.mosjes.find((m) => m.instanceId === targetRef.instanceId);
+  if (mosje === undefined) return;
+  const buff = mosje.flags["buff:untargetable"] as { expiryTurn?: number } | undefined;
+  if (buff === undefined) return;
+  // Active if no expiry or has not yet expired
+  if (buff.expiryTurn === undefined || buff.expiryTurn >= state.turnCount) {
+    throw new UntargetableError(targetRef);
+  }
+}
+
 /**
  * Resolves the target MosjeRef that a card needs based on its TargetDefinition
  * and the provided invocation.
@@ -49,6 +74,7 @@ export function resolveTargetReference(
     case "any_mosje":
     case "required_mosje":
       if (invocation.targetRef === undefined) throw new MissingTargetError(target);
+      assertTargetable(state, invocation.targetRef);
       return invocation.targetRef;
 
     case "self_or_ally_mosje":

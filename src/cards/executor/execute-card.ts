@@ -13,7 +13,7 @@ import { checkSynergy } from "../../effects/conditions/check-synergy.js";
 import { checkTrait as checkTraitCondition } from "../../effects/conditions/check-trait.js";
 import type { RequirementDefinition } from "../schema/requirement-definition.js";
 import type { CardDefinition } from "../schema/card-definition.js";
-import { resolveTargetReference } from "./resolve-target-reference.js";
+import { resolveTargetReference, UntargetableError } from "./resolve-target-reference.js";
 import type { CardInvocation } from "./resolve-target-reference.js";
 import type { EffectContext } from "../../effects/effect-context.js";
 import { runCardEffects } from "./run-card-effects.js";
@@ -180,6 +180,21 @@ export function executeCard(
       playerId: invocation.actingPlayerId,
       outcome: "rejected"
     });
+  }
+
+  // Step 2b: Check targetability before paying cost (throws UntargetableError when blocked)
+  try {
+    resolveTargetReference(state, card.target, invocation);
+  } catch (e) {
+    if (e instanceof UntargetableError) {
+      return appendEvent(state, {
+        type: "card_resolved",
+        cardId,
+        playerId: invocation.actingPlayerId,
+        outcome: "rejected"
+      });
+    }
+    throw e;
   }
 
   // Step 3: Pay cost
