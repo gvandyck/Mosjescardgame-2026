@@ -1,0 +1,37 @@
+# Ambiguities
+
+- [Jeffrey] The Strongman: restriction duration/stacking interactions are not fully defined.
+- [Jeffrey] The Strongman: scope with personal/general quests and stacked bonuses is unspecified.
+- [Ronald] The Master Chef: locked card behavior (unplayable, unusable, or hidden) is not defined.
+- [Martin] The Historian: 'any deck' does not define owner scope or visibility permissions.
+- [The Hacker]: 'any deck' does not define owner scope or visibility permissions.
+- [The Hacker]: cooldown counting start point is unspecified.
+- [FPS Coert]: single target selection rules are not specified (choose at resolution vs preselect).
+- [Ronald] The Mastermind: card zone after resolution (banish vs discard) is unspecified.
+- [Binti] The Sharp Tongue: random selection method/source is not specified.
+- [Coert] Kast-elein: restriction duration/stacking interactions are not fully defined.
+- Ronald Kip: base value for doubling when multiple modifiers apply is ambiguous.
+- Super Saiyan Mos: single target selection rules are not specified (choose at resolution vs preselect).
+- Te Hard Gaan: single target selection rules are not specified (choose at resolution vs preselect).
+- Momentum Diefje: single target selection rules are not specified (choose at resolution vs preselect).
+- Kleine Taks: single target selection rules are not specified (choose at resolution vs preselect).
+- Affoe: single target selection rules are not specified (choose at resolution vs preselect).
+- TemPiecie: restriction duration/stacking interactions are not fully defined.
+- Mosje Shield: restriction duration/stacking interactions are not fully defined.
+- Perfect Setup: MP set/reset ordering with simultaneous effects is unspecified.
+- Tikker: restriction duration/stacking interactions are not fully defined.
+- Mouse: 'any deck' does not define owner scope or visibility permissions.
+- Continuous Assault: single target selection rules are not specified (choose at resolution vs preselect).
+- Jammertje Gepakt!: random selection method/source is not specified.
+- Gevalletje Klakkeloos: copy semantics are unclear for costs, targets, and timing.
+- Skiffa: choice owner and hidden information timing are ambiguous.
+- The Void: restriction duration/stacking interactions are not fully defined.
+- Personal Quest group metadata: File header says personal quests are booster-only, but multiple PERSONAL cards have isBoosterOnly=false.
+- Perfect Setup: 'Set MP to 60-90' does not define exact value selection (player choice, random, or fixed).
+- Emergency Swap: Copying another Mosje ability this turn is unclear if once-per-game/per-turn limits are copied or ignored.
+- Synergy Chamber: Forcing all synergy effects active does not define whether both directions and conditional bonuses stack.
+- Momentum Stabilizer: 'single effect' cap interaction with multi-tick effects and chains is unspecified.
+- Call of the Welloes: Summoned Mosje entry MP and level state are undefined.
+- Harde Didde / Klaar Met Jou: Elimination threshold check timing vs replacement effects (e.g., Not Today) is unspecified.
+- Drain Reversal: For multi-source drain effects, amount to reverse is not clearly defined.
+- Frenssen / Blensen chain: Counter-chain priority and maximum chain termination rule are not written in card text.
