@@ -4,10 +4,17 @@ import { resolvePrimitive } from "../effects/registry.js";
 import { runCardEffects } from "../cards/executor/run-card-effects.js";
 import { resolveTargetReference } from "../cards/executor/resolve-target-reference.js";
 import { createRng } from "../utils/rng.js";
+import { checkTrait } from "../effects/conditions/check-trait.js";
+import { checkLevel } from "../effects/conditions/check-level.js";
+import { checkMP } from "../effects/conditions/check-mp.js";
+import { checkCardTypeInPlay } from "../effects/conditions/check-card-type-in-play.js";
+import { checkPlaceActive } from "../effects/conditions/check-place-active.js";
 import type { GameState } from "../types/game-state.js";
 import type { CardId } from "../types/card-id.js";
 import type { PendingEffect, SnelleInvocationData } from "../types/pending-effect.js";
 import type { EffectContext } from "../effects/effect-context.js";
+import type { RequirementDefinition } from "../cards/schema/requirement-definition.js";
+import type { CardDefinition } from "../cards/schema/card-definition.js";
 import type { CardInvocation } from "../cards/executor/resolve-target-reference.js";
 
 // ─── Error classes ────────────────────────────────────────────────────────────
@@ -36,7 +43,157 @@ export interface SnelleResponseOptions {
 
 // ─── Internal helpers ─────────────────────────────────────────────────────────
 
-/** Execute a snelle card's effects (no cost payment, no requirements re-check). */
+function validateRequirement(
+  state: GameState,
+  req: RequirementDefinition,
+  invocation: CardInvocation
+): boolean {
+  const requirementTarget =
+    req.params["applyTo"] === "target" && invocation.targetRef !== undefined
+      ? invocation.targetRef
+      : invocation.actingMosjeRef;
+
+  switch (req.type) {
+    case "trait":
+      return checkTrait(state, {
+        target: requirementTarget,
+        trait: req.params["trait"] as string,
+        minStars: req.params["minStars"] as 1 | 2 | 3
+      });
+    case "level":
+      return checkLevel(state, {
+        target: requirementTarget,
+        minLevel: req.params["minLevel"] as 1 | 2 | 3
+      });
+    case "mp":
+      return checkMP(state, {
+        target: requirementTarget,
+        operator: req.params["operator"] as ">=" | "<=" | "==" | "between",
+        value: req.params["value"] as number,
+        rangeEnd: req.params["rangeEnd"] as number | undefined
+      });
+    case "card_in_play":
+      return checkCardTypeInPlay(state, {
+        playerId: invocation.actingPlayerId,
+        cardType: req.params["cardType"] as string
+      });
+    case "place_active":
+      return checkPlaceActive(state, {
+        placeCardId: req.params["placeCardId"] as string
+      });
+    case "custom":
+      return true;
+    default: {
+      const _: never = req.type;
+      return _;
+    }
+  }
+}
+
+function meetsCostGates(state: GameState, invocation: CardInvocation, card: CardDefinition): boolean {
+  if (card.cost.levelRequirement !== undefined) {
+    const levelOk = checkLevel(state, {
+      target: invocation.actingMosjeRef,
+      minLevel: card.cost.levelRequirement
+    });
+    if (!levelOk) return false;
+  }
+
+  const traitReqs = card.cost.traitRequirements;
+  if (traitReqs !== undefined) {
+    for (const req of traitReqs) {
+      const traitOk = checkTrait(state, {
+        target: invocation.actingMosjeRef,
+        trait: req.trait,
+        minStars: req.minStars
+      });
+      if (!traitOk) return false;
+    }
+  }
+
+  return true;
+}
+
+function canPayCost(state: GameState, invocation: CardInvocation, mpCost: number): boolean {
+  const player = state.players.find((p) => p.id === invocation.actingPlayerId);
+  const mosje = player?.mosjes.find((m) => m.instanceId === invocation.actingMosjeRef.instanceId);
+  if (mosje === undefined) return false;
+  return mosje.mp >= mpCost;
+}
+
+function payCost(
+  state: GameState,
+  invocation: CardInvocation,
+  cardId: CardId,
+  mpCost: number,
+  context: EffectContext
+): GameState {
+  const loseMP = resolvePrimitive("loseMP");
+  return loseMP(
+    state,
+    {
+      target: invocation.actingMosjeRef,
+      amount: mpCost,
+      isCostPayment: true
+    },
+    { ...context, source: { kind: "cost", cardId } }
+  );
+}
+
+function validateAndPayResponseCard(
+  state: GameState,
+  card: CardDefinition,
+  invocation: CardInvocation,
+  context: EffectContext
+): { ok: true; state: GameState } | { ok: false; state: GameState } {
+  const unmetRequirement = card.requirements.find((req) => !validateRequirement(state, req, invocation));
+  if (unmetRequirement !== undefined) {
+    return {
+      ok: false,
+      state: appendEvent(state, {
+        type: "card_resolved",
+        cardId: card.id,
+        playerId: invocation.actingPlayerId,
+        outcome: "rejected"
+      })
+    };
+  }
+
+  if (!meetsCostGates(state, invocation, card)) {
+    return {
+      ok: false,
+      state: appendEvent(state, {
+        type: "card_resolved",
+        cardId: card.id,
+        playerId: invocation.actingPlayerId,
+        outcome: "rejected"
+      })
+    };
+  }
+
+  if (card.cost.type === "mp" && card.cost.mp !== undefined && card.cost.mp > 0) {
+    if (!canPayCost(state, invocation, card.cost.mp)) {
+      return {
+        ok: false,
+        state: appendEvent(state, {
+          type: "card_resolved",
+          cardId: card.id,
+          playerId: invocation.actingPlayerId,
+          outcome: "rejected"
+        })
+      };
+    }
+
+    return {
+      ok: true,
+      state: payCost(state, invocation, card.id, card.cost.mp, context)
+    };
+  }
+
+  return { ok: true, state };
+}
+
+/** Execute a snelle card's effects (cost already paid on response push). */
 function executeSnellePendingEffect(state: GameState, pendingEffect: PendingEffect): GameState {
   const cardId = pendingEffect.snelleCardId!;
   const rawInvocation = pendingEffect.snelleInvocation!;
@@ -145,8 +302,24 @@ export function resolveEffectStack(
       throw new ChainDepthExceededError();
     }
 
-    // Push to top of stack
-    const topEffect = state.effectStack[state.effectStack.length - 1] as PendingEffect | undefined;
+    const responseContext: EffectContext = {
+      source: { kind: "card", cardId: options.snelleCardId },
+      actingPlayerId: options.respondingPlayerId,
+      rng: createRng(state.rngSeed),
+      turnCount: state.turnCount,
+      respondingToEffectId: state.effectStack[state.effectStack.length - 1]?.id,
+      respondingToPendingEffect: state.effectStack[state.effectStack.length - 1]
+    };
+
+    const validated = validateAndPayResponseCard(state, card, options.invocation, responseContext);
+    if (!validated.ok) {
+      return validated.state;
+    }
+
+    // Push to top of stack after successful validation/cost payment
+    const topEffect = validated.state.effectStack[validated.state.effectStack.length - 1] as
+      | PendingEffect
+      | undefined;
     const snelleInvocationData: SnelleInvocationData = {
       actingPlayerId: options.invocation.actingPlayerId,
       actingMosjeRef: options.invocation.actingMosjeRef,
@@ -154,7 +327,7 @@ export function resolveEffectStack(
       playerChoices: options.invocation.playerChoices
     };
     const pendingEffect: PendingEffect = {
-      id: `snelle_${options.snelleCardId}_${state.turnCount}_${state.effectStack.length}`,
+      id: `snelle_${options.snelleCardId}_${validated.state.turnCount}_${validated.state.effectStack.length}`,
       source: { kind: "card", cardId: options.snelleCardId },
       primitive: "__snelle__",
       params: {},
@@ -163,10 +336,10 @@ export function resolveEffectStack(
       snelleInvocation: snelleInvocationData,
       respondingToEffectId: topEffect?.id
     };
-    return { ...state, effectStack: [...state.effectStack, pendingEffect] };
+    return { ...validated.state, effectStack: [...validated.state.effectStack, pendingEffect] };
   }
 
-  // ── Non-counter snelle: execute immediately as interrupt, then resolve stack ──
+  // ── Non-counter snelle: validate/pay, then execute as interrupt, then resolve stack ──
   const context: EffectContext = {
     source: { kind: "card", cardId: options.snelleCardId },
     actingPlayerId: options.respondingPlayerId,
@@ -176,13 +349,26 @@ export function resolveEffectStack(
     respondingToPendingEffect: state.effectStack[state.effectStack.length - 1]
   };
 
-  const resolvedTarget = resolveTargetReference(state, card.target, options.invocation);
+  if (card.requiresStackTarget === true && state.effectStack.length === 0) {
+    return appendEvent(state, {
+      type: "warning",
+      code: "snelle_fizzle",
+      message: `${options.snelleCardId} requires a stack target but effectStack is empty — fizzles`
+    });
+  }
+
+  const validated = validateAndPayResponseCard(state, card, options.invocation, context);
+  if (!validated.ok) {
+    return validated.state;
+  }
+
+  const resolvedTarget = resolveTargetReference(validated.state, card.target, options.invocation);
   const effectInvocation: CardInvocation = {
     ...options.invocation,
     targetRef: resolvedTarget ?? options.invocation.targetRef
   };
 
-  const afterSnelle = runCardEffects(state, card.effects, effectInvocation, context);
+  const afterSnelle = runCardEffects(validated.state, card.effects, effectInvocation, context);
   return resolveAllPending(afterSnelle);
 }
 
