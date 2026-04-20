@@ -53,6 +53,12 @@ export type GameEvent =
   | { type: "effect_negated"; pendingEffectId: string }
   | { type: "warning"; code: string; message: string }
   | {
+      type: "card_resolved";
+      cardId: CardId;
+      playerId: string;
+      outcome: "success" | "rejected" | "partial";
+    }
+  | {
       type: "game_won";
       playerId: string;
       reason: "level_3" | "knockout" | "quest_master" | "momentum_domination";
