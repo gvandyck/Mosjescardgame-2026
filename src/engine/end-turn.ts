@@ -1,7 +1,39 @@
 import { appendEvent } from "./append-event.js";
 import { clearExpiredBuffs } from "../effects/buffs/clear-expired-buffs.js";
+import { loseMP } from "../effects/mp/lose-mp.js";
 import { createRng } from "../utils/rng.js";
 import type { GameState } from "../types/game-state.js";
+
+function applyEndOfTurnMPLossBuffs(state: GameState): GameState {
+  let next = state;
+
+  for (const player of next.players) {
+    for (const mosje of player.mosjes) {
+      const endTurnLossBuff = mosje.flags["buff:end_of_turn_mp_loss"] as
+        | { readonly data?: { readonly amount?: number } }
+        | undefined;
+      const amount = Number(endTurnLossBuff?.data?.amount ?? 0);
+      if (amount <= 0) continue;
+
+      next = loseMP(
+        next,
+        {
+          target: { playerId: player.id, instanceId: mosje.instanceId },
+          amount,
+          isCostPayment: false
+        },
+        {
+          source: { kind: "ability" },
+          actingPlayerId: state.currentPlayerId,
+          rng: createRng(state.rngSeed),
+          turnCount: state.turnCount
+        }
+      );
+    }
+  }
+
+  return next;
+}
 
 export function endTurn(state: GameState): GameState {
   const currentPlayerIndex = state.players.findIndex((player) => player.id === state.currentPlayerId);
@@ -46,8 +78,10 @@ export function endTurn(state: GameState): GameState {
     playerId: state.currentPlayerId
   });
 
+  const withEndTurnBuffs = applyEndOfTurnMPLossBuffs(withTurnEnd);
+
   return clearExpiredBuffs(
-    withTurnEnd,
+    withEndTurnBuffs,
     {},
     {
       source: { kind: "ability" },
