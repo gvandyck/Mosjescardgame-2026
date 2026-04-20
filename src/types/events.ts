@@ -59,6 +59,12 @@ export type GameEvent =
       outcome: "success" | "rejected" | "partial";
     }
   | {
+      type: "for_each_completed";
+      targetType: string;
+      count: number;
+      source: EffectSource;
+    }
+  | {
       type: "game_won";
       playerId: string;
       reason: "level_3" | "knockout" | "quest_master" | "momentum_domination";

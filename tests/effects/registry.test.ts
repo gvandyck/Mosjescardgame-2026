@@ -108,6 +108,10 @@ const paramsByPrimitive: Record<string, Record<string, unknown>> = {
     branches: [
       { range: [1, 6], effect: { primitive: "gainMP", params: { target: { playerId: "p1", instanceId: "m1" }, amount: 1 } } }
     ]
+  },
+  forEachTarget: {
+    targetType: "all_opponents",
+    effect: { primitive: "loseMP", params: { target: "$target", amount: 1 } }
   }
 };
 

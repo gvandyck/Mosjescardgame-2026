@@ -1,6 +1,7 @@
 import { appendEvent } from "../../engine/append-event.js";
 import { gainMP as gainMPReducer } from "../../engine/reducers/player/gain-mp.js";
 import type { GameState } from "../../types/game-state.js";
+import { ModifierSource } from "../../types/modifier-source.js";
 import type { Primitive } from "../primitive.js";
 import type { GainMPParams } from "./types.js";
 
@@ -29,14 +30,32 @@ export const gainMP: Primitive<GainMPParams> = (state, params, context) => {
   const actingPlayer = state.players.find((player) => player.id === context.actingPlayerId);
   const targetMosje = targetPlayer.mosjes[targetMosjeIndex];
 
+  const targetFlatBySource = targetMosje.flags.u6_gain_flat_modifiers as
+    | Readonly<Partial<Record<ModifierSource, number>>>
+    | undefined;
+  const actingMultipliersBySource = actingPlayer?.flags.u6_gain_multipliers as
+    | Readonly<Partial<Record<ModifierSource, number>>>
+    | undefined;
+  const placeMultipliersBySource = state.activePlace?.flags.u6_gain_multipliers as
+    | Readonly<Partial<Record<ModifierSource, number>>>
+    | undefined;
+
   let computedAmount = params.amount;
-  const ronaldBonus = Number(targetMosje.flags.u6_ronald_bonus ?? 0);
+  const ronaldBonus = Number(
+    targetFlatBySource?.[ModifierSource.MOSJE_PASSIVE] ?? targetMosje.flags.u6_ronald_bonus ?? 0
+  );
   computedAmount += ronaldBonus;
 
-  const partnerMultiplier = Number(actingPlayer?.flags.u6_partner_multiplier ?? 1);
+  const partnerMultiplier = Number(
+    actingMultipliersBySource?.[ModifierSource.PARTNER_SYNERGY] ??
+      actingPlayer?.flags.u6_partner_multiplier ??
+      1
+  );
   computedAmount = Math.floor(computedAmount * partnerMultiplier);
 
-  const placeMultiplier = Number(state.activePlace?.flags.u6_place_multiplier ?? 1);
+  const placeMultiplier = Number(
+    placeMultipliersBySource?.[ModifierSource.PLACE] ?? state.activePlace?.flags.u6_place_multiplier ?? 1
+  );
   computedAmount = Math.floor(computedAmount * placeMultiplier);
 
   let nextState = state;

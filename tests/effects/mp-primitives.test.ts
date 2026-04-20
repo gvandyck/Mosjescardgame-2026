@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { gainMP, loseMP, drainMP, setMP, multiplyNextMPGain } from "../../src/effects/mp/index.js";
 import { createRng } from "../../src/utils/rng.js";
+import { ModifierSource } from "../../src/types/modifier-source.js";
 import type { EffectContext } from "../../src/effects/effect-context.js";
 import type { GameState } from "../../src/types/game-state.js";
 
@@ -78,14 +79,21 @@ describe("mp primitives", () => {
         if (player.id !== "p1") return player;
         return {
           ...player,
-          flags: { ...player.flags, u6_partner_multiplier: 2 },
+          flags: {
+            ...player.flags,
+            u6_gain_multipliers: {
+              [ModifierSource.PARTNER_SYNERGY]: 2
+            }
+          },
           mosjes: player.mosjes.map((mosje) => {
             if (mosje.instanceId !== "m1") return mosje;
             return {
               ...mosje,
               flags: {
                 ...mosje.flags,
-                u6_ronald_bonus: 10,
+                u6_gain_flat_modifiers: {
+                  [ModifierSource.MOSJE_PASSIVE]: 10
+                },
                 mp_gain_multiplier: { multiplier: 1.5, duration: "next_gain" }
               }
             };

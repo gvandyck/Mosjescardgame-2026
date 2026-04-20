@@ -1,5 +1,6 @@
 import { appendEvent } from "../../engine/append-event.js";
 import { loseMP as loseMPReducer } from "../../engine/reducers/player/lose-mp.js";
+import { ModifierSource } from "../../types/modifier-source.js";
 import type { Primitive } from "../primitive.js";
 import type { LoseMPParams } from "./types.js";
 
@@ -44,8 +45,15 @@ export const loseMP: Primitive<LoseMPParams> = (state, params, context) => {
   let adjustedAmount = params.amount;
 
   if (!params.isCostPayment) {
+    const lossFlatReductionsBySource = targetMosje.flags.u6_loss_flat_reductions as
+      | Readonly<Partial<Record<ModifierSource, number>>>
+      | undefined;
+    const sourceFlatReduction = Object.values(ModifierSource)
+      .map((source) => Number(lossFlatReductionsBySource?.[source] ?? 0))
+      .reduce((sum, value) => sum + value, 0);
+
     const flatReduction = Number(targetMosje.flags.kast_elein_flat_reduction ?? 0);
-    adjustedAmount = Math.max(0, adjustedAmount - flatReduction);
+    adjustedAmount = Math.max(0, adjustedAmount - flatReduction - sourceFlatReduction);
 
     if (adjustedAmount >= 50 && targetMosje.flags.kast_elein_half_after_threshold === true) {
       adjustedAmount = Math.floor(adjustedAmount / 2);

@@ -11,7 +11,7 @@ import {
 import { destroyPlace, enterPlace, destroyPiecie, activateFaceDownPiecie } from "./board/index.js";
 import { rollDie, rerollDie, chooseDieResult } from "./dice/index.js";
 import { applyBuff, reduceMPLossBy, clearExpiredBuffs, negateEffect } from "./buffs/index.js";
-import { ifThenElse, chain, choose, rollBranch } from "./control/index.js";
+import { ifThenElse, chain, choose, rollBranch, forEachTarget } from "./control/index.js";
 
 export class UnknownPrimitiveError extends Error {
   constructor(name: string) {
@@ -46,7 +46,8 @@ export const primitiveRegistry: Readonly<Record<string, Primitive>> = Object.fre
   ifThenElse,
   chain,
   choose,
-  rollBranch
+  rollBranch,
+  forEachTarget
 });
 
 export function resolvePrimitive(name: string): Primitive {
