@@ -24,4 +24,8 @@ export interface CardDefinition {
   readonly effects: ReadonlyArray<EffectExpression>;
   readonly synergies?: ReadonlyArray<SynergyDefinition>;
   readonly petSynergies?: ReadonlyArray<PetSynergyDefinition>;
+  /** True if this card can be pushed to the effectStack as a chain counter (Frenssen, Blensen). */
+  readonly canCounter?: boolean;
+  /** True if this card requires something on the effectStack to play (fizzles when empty). */
+  readonly requiresStackTarget?: boolean;
 }

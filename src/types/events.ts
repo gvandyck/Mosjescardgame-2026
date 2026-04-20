@@ -52,7 +52,8 @@ export type GameEvent =
   | { type: "buff_expired"; target: MosjeRef | PlayerRef; buffId: string }
   | { type: "effect_negated"; pendingEffectId: string }
   | { type: "warning"; code: string; message: string }
-  | {
+    | { type: "double_activation_triggered"; cardId: CardId; source: EffectSource }
+    | {
       type: "card_resolved";
       cardId: CardId;
       playerId: string;

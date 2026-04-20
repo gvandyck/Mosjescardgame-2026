@@ -2,9 +2,17 @@ import type { MosjeRef } from "../../types/events.js";
 import type { EffectExpression } from "../schema/effect-expression.js";
 import type { CardInvocation, MissingTargetError } from "./resolve-target-reference.js";
 import { UnknownPlaceholderError } from "./resolve-target-reference.js";
+import type { PendingEffect } from "../../types/pending-effect.js";
+
+export interface EffectResponseInfo {
+  readonly effectId?: string;
+  readonly cardId?: string;
+  readonly pendingEffect?: PendingEffect;
+}
 
 interface ResolveOptions {
   readonly allowDeferredTargetPlaceholders?: boolean;
+  readonly responseInfo?: EffectResponseInfo;
 }
 
 export class AmbiguousTargetError extends Error {
@@ -35,11 +43,11 @@ function substituteValue(
   enclosingPrimitive?: string
 ): unknown {
   if (typeof value === "string" && value.startsWith("$")) {
-    return resolvePlaceholder(value, invocation, turnCount, options, playerIds);
+    return resolvePlaceholder(value, invocation, turnCount, options, playerIds, options.responseInfo);
   }
   if (Array.isArray(value)) {
     return value.map((item: unknown) =>
-      substituteValue(item, invocation, turnCount, options, playerIds, enclosingPrimitive)
+      substituteValue(item, invocation, turnCount, options, playerIds, enclosingPrimitive) // responseInfo is in options
     );
   }
   if (value !== null && typeof value === "object") {
@@ -50,7 +58,7 @@ function substituteValue(
     for (const [k, v] of Object.entries(asRecord)) {
       const nestedOptions: ResolveOptions =
         enclosingPrimitive === "forEachTarget" && k === "effect"
-          ? { ...options, allowDeferredTargetPlaceholders: true }
+          ? { ...options, allowDeferredTargetPlaceholders: true, responseInfo: options.responseInfo }
           : options;
       result[k] = substituteValue(v, invocation, turnCount, nestedOptions, playerIds, objectPrimitive);
     }
@@ -73,7 +81,8 @@ function resolvePlaceholder(
   invocation: CardInvocation,
   turnCount: number,
   options: ResolveOptions,
-  playerIds: ReadonlyArray<string>
+  playerIds: ReadonlyArray<string>,
+  responseInfo?: EffectResponseInfo
 ): unknown {
   const turnExpr = resolveCurrentTurnExpression(placeholder, turnCount);
   if (turnExpr !== undefined) return turnExpr;
@@ -108,6 +117,14 @@ function resolvePlaceholder(
   if (placeholder === "$targetPlayer" && options.allowDeferredTargetPlaceholders === true) {
     return "$targetPlayer";
   }
+  if (placeholder === "$pendingEffectId") return responseInfo?.effectId ?? "";
+  if (placeholder === "$pendingEffectCardId") return responseInfo?.cardId ?? "";
+  if (placeholder === "$pendingEffectDrainAmount") {
+    return Number(responseInfo?.pendingEffect?.params?.["amount"] ?? 0);
+  }
+  if (placeholder === "$pendingEffectGainAmount") {
+    return Number(responseInfo?.pendingEffect?.params?.["amount"] ?? 0);
+  }
   throw new UnknownPlaceholderError(placeholder);
 }
 
@@ -119,10 +136,12 @@ export function resolveEffectExpression(
   expr: EffectExpression,
   invocation: CardInvocation,
   turnCount: number,
-  playerIds: ReadonlyArray<string>
+  playerIds: ReadonlyArray<string>,
+  responseInfo?: EffectResponseInfo
 ): EffectExpression {
   const resolvedParams = substituteValue(expr.params, invocation, turnCount, {
-    allowDeferredTargetPlaceholders: false
+    allowDeferredTargetPlaceholders: false,
+    responseInfo
   }, playerIds, expr.primitive) as Record<string, unknown>;
   return { primitive: expr.primitive, params: resolvedParams };
 }

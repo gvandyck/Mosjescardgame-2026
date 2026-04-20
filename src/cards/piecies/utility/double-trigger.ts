@@ -21,7 +21,7 @@ export const DOUBLE_TRIGGER: CardDefinition = {
       params: {
         target: "$self",
         buffId: "double_activate_this_turn",
-        data: {},
+        data: { usesRemaining: 1 },
         expiryTurn: "$currentTurn"
       }
     }
