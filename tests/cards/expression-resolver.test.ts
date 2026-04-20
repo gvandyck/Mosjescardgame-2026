@@ -22,7 +22,7 @@ describe("expression resolver — '$'-prefix substitution (step 5)", () => {
         primitive: "gainMP",
         params: { target: "$self", amount: 10 }
       };
-      const resolved = resolveEffectExpression(expr, baseInvocation);
+      const resolved = resolveEffectExpression(expr, baseInvocation, 3);
       expect(resolved.params["target"]).toEqual({ playerId: "p1", instanceId: "m1" });
     });
 
@@ -31,7 +31,7 @@ describe("expression resolver — '$'-prefix substitution (step 5)", () => {
         primitive: "drainMP",
         params: { from: "$self", to: "$target", amount: 20 }
       };
-      const resolved = resolveEffectExpression(expr, baseInvocation);
+      const resolved = resolveEffectExpression(expr, baseInvocation, 3);
       expect(resolved.params["from"]).toEqual({ playerId: "p1", instanceId: "m1" });
       expect(resolved.params["to"]).toEqual({ playerId: "p2", instanceId: "m3" });
     });
@@ -45,7 +45,7 @@ describe("expression resolver — '$'-prefix substitution (step 5)", () => {
         primitive: "gainMP",
         params: { target: "$self", amount: 5 }
       };
-      const resolved = resolveEffectExpression(expr, invocationWithoutTarget);
+      const resolved = resolveEffectExpression(expr, invocationWithoutTarget, 3);
       expect(resolved.params["target"]).toEqual({ playerId: "p1", instanceId: "m1" });
     });
   });
@@ -56,7 +56,7 @@ describe("expression resolver — '$'-prefix substitution (step 5)", () => {
         primitive: "loseMP",
         params: { target: "$target", amount: 15 }
       };
-      const resolved = resolveEffectExpression(expr, baseInvocation);
+      const resolved = resolveEffectExpression(expr, baseInvocation, 3);
       expect(resolved.params["target"]).toEqual({ playerId: "p2", instanceId: "m3" });
     });
 
@@ -69,8 +69,8 @@ describe("expression resolver — '$'-prefix substitution (step 5)", () => {
         primitive: "loseMP",
         params: { target: "$target", amount: 10 }
       };
-      expect(() => resolveEffectExpression(expr, invocationNoTarget)).toThrow();
-      expect(() => resolveEffectExpression(expr, invocationNoTarget)).toThrow(/\$target/);
+      expect(() => resolveEffectExpression(expr, invocationNoTarget, 3)).toThrow();
+      expect(() => resolveEffectExpression(expr, invocationNoTarget, 3)).toThrow(/\$target/);
     });
   });
 
@@ -80,7 +80,7 @@ describe("expression resolver — '$'-prefix substitution (step 5)", () => {
         primitive: "drawCards",
         params: { playerId: "$player", count: 2 }
       };
-      const resolved = resolveEffectExpression(expr, baseInvocation);
+      const resolved = resolveEffectExpression(expr, baseInvocation, 3);
       expect(resolved.params["playerId"]).toBe("p1");
     });
   });
@@ -99,7 +99,7 @@ describe("expression resolver — '$'-prefix substitution (step 5)", () => {
         }
       };
 
-      const resolved = resolveEffectExpression(expr, baseInvocation);
+      const resolved = resolveEffectExpression(expr, baseInvocation, 3);
 
       const conditionParams = (resolved.params["condition"] as Record<string, unknown>)["params"] as Record<string, unknown>;
       expect(conditionParams["target"]).toEqual({ playerId: "p2", instanceId: "m3" });
@@ -141,7 +141,7 @@ describe("expression resolver — '$'-prefix substitution (step 5)", () => {
         }
       };
 
-      const resolved = resolveEffectExpression(outerExpr, baseInvocation);
+      const resolved = resolveEffectExpression(outerExpr, baseInvocation, 3);
 
       // Check outer condition uses $target
       const outerCond = (resolved.params["condition"] as Record<string, unknown>)["params"] as Record<string, unknown>;
@@ -169,7 +169,7 @@ describe("expression resolver — '$'-prefix substitution (step 5)", () => {
         }
       };
 
-      const resolved = resolveEffectExpression(expr, baseInvocation);
+      const resolved = resolveEffectExpression(expr, baseInvocation, 3);
       const effects = resolved.params["effects"] as Record<string, unknown>[];
       expect((effects[0] as Record<string, unknown>).params).toMatchObject({
         target: { playerId: "p1", instanceId: "m1" }
@@ -186,8 +186,8 @@ describe("expression resolver — '$'-prefix substitution (step 5)", () => {
         primitive: "gainMP",
         params: { target: "$wrong", amount: 10 }
       };
-      expect(() => resolveEffectExpression(expr, baseInvocation)).toThrow(UnknownPlaceholderError);
-      expect(() => resolveEffectExpression(expr, baseInvocation)).toThrow("$wrong");
+      expect(() => resolveEffectExpression(expr, baseInvocation, 3)).toThrow(UnknownPlaceholderError);
+      expect(() => resolveEffectExpression(expr, baseInvocation, 3)).toThrow("$wrong");
     });
 
     it("throws for deeply nested unknown placeholder", () => {
@@ -198,7 +198,7 @@ describe("expression resolver — '$'-prefix substitution (step 5)", () => {
           then: { primitive: "gainMP", params: { target: "$self", amount: 10 } }
         }
       };
-      expect(() => resolveEffectExpression(expr, baseInvocation)).toThrow(UnknownPlaceholderError);
+      expect(() => resolveEffectExpression(expr, baseInvocation, 3)).toThrow(UnknownPlaceholderError);
     });
   });
 
@@ -208,7 +208,7 @@ describe("expression resolver — '$'-prefix substitution (step 5)", () => {
         primitive: "gainMP",
         params: { note: "hello world", amount: 10, target: "$self" }
       };
-      const resolved = resolveEffectExpression(expr, baseInvocation);
+      const resolved = resolveEffectExpression(expr, baseInvocation, 3);
       expect(resolved.params["note"]).toBe("hello world");
     });
 
@@ -217,7 +217,7 @@ describe("expression resolver — '$'-prefix substitution (step 5)", () => {
         primitive: "fakePrimitive",
         params: { num: 42, flag: true, nothing: null, target: "$self" }
       };
-      const resolved = resolveEffectExpression(expr, baseInvocation);
+      const resolved = resolveEffectExpression(expr, baseInvocation, 3);
       expect(resolved.params["num"]).toBe(42);
       expect(resolved.params["flag"]).toBe(true);
       expect(resolved.params["nothing"]).toBeNull();
@@ -228,7 +228,7 @@ describe("expression resolver — '$'-prefix substitution (step 5)", () => {
         primitive: "gainMP",
         params: { target: "$self", amount: 1 }
       };
-      const resolved = resolveEffectExpression(expr, baseInvocation);
+      const resolved = resolveEffectExpression(expr, baseInvocation, 3);
       expect(resolved.primitive).toBe("gainMP");
     });
   });
@@ -245,9 +245,58 @@ describe("expression resolver — '$'-prefix substitution (step 5)", () => {
         primitive: "drainMP",
         params: { from: "$self", to: "$target", amount: 10 }
       };
-      const resolved = resolveEffectExpression(expr, specialInvocation);
+      const resolved = resolveEffectExpression(expr, specialInvocation, 3);
       expect(resolved.params["from"]).toEqual({ playerId: "p2", instanceId: "m3" });
       expect(resolved.params["to"]).toEqual({ playerId: "p1", instanceId: "m1" });
+    });
+  });
+
+  describe("$currentTurn resolution", () => {
+    it("substitutes $currentTurn with turnCount", () => {
+      const expr: EffectExpression = {
+        primitive: "applyBuff",
+        params: { expiryTurn: "$currentTurn" }
+      };
+      const resolved = resolveEffectExpression(expr, baseInvocation, 7);
+      expect(resolved.params["expiryTurn"]).toBe(7);
+    });
+
+    it("supports $currentTurn + N arithmetic", () => {
+      const expr: EffectExpression = {
+        primitive: "applyBuff",
+        params: { expiryTurn: "$currentTurn + 2" }
+      };
+      const resolved = resolveEffectExpression(expr, baseInvocation, 7);
+      expect(resolved.params["expiryTurn"]).toBe(9);
+    });
+
+    it("supports $currentTurn - N arithmetic", () => {
+      const expr: EffectExpression = {
+        primitive: "applyBuff",
+        params: { expiryTurn: "$currentTurn - 2" }
+      };
+      const resolved = resolveEffectExpression(expr, baseInvocation, 7);
+      expect(resolved.params["expiryTurn"]).toBe(5);
+    });
+  });
+
+  describe("forEachTarget deferred placeholders", () => {
+    it("keeps $target and $targetPlayer inside child effect for runtime iteration substitution", () => {
+      const expr: EffectExpression = {
+        primitive: "forEachTarget",
+        params: {
+          targetType: "all_opponents",
+          effect: {
+            primitive: "drawCards",
+            params: { playerId: "$targetPlayer", note: "$target" }
+          }
+        }
+      };
+
+      const resolved = resolveEffectExpression(expr, baseInvocation, 3);
+      const nested = (resolved.params["effect"] as Record<string, unknown>)["params"] as Record<string, unknown>;
+      expect(nested["playerId"]).toBe("$targetPlayer");
+      expect(nested["note"]).toBe("$target");
     });
   });
 });

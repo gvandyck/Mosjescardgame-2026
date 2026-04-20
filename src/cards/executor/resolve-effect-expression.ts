@@ -3,6 +3,10 @@ import type { EffectExpression } from "../schema/effect-expression.js";
 import type { CardInvocation, MissingTargetError } from "./resolve-target-reference.js";
 import { UnknownPlaceholderError } from "./resolve-target-reference.js";
 
+interface ResolveOptions {
+  readonly allowDeferredTargetPlaceholders?: boolean;
+}
+
 /**
  * Performs '$'-prefix placeholder substitution in effect params.
  *
@@ -17,27 +21,57 @@ import { UnknownPlaceholderError } from "./resolve-target-reference.js";
  */
 function substituteValue(
   value: unknown,
-  invocation: CardInvocation
+  invocation: CardInvocation,
+  turnCount: number,
+  options: ResolveOptions,
+  enclosingPrimitive?: string
 ): unknown {
   if (typeof value === "string" && value.startsWith("$")) {
-    return resolvePlaceholder(value, invocation);
+    return resolvePlaceholder(value, invocation, turnCount, options);
   }
   if (Array.isArray(value)) {
-    return value.map((item: unknown) => substituteValue(item, invocation));
+    return value.map((item: unknown) =>
+      substituteValue(item, invocation, turnCount, options, enclosingPrimitive)
+    );
   }
   if (value !== null && typeof value === "object") {
+    const asRecord = value as Record<string, unknown>;
+    const objectPrimitive =
+      typeof asRecord["primitive"] === "string" ? (asRecord["primitive"] as string) : enclosingPrimitive;
     const result: Record<string, unknown> = {};
-    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
-      result[k] = substituteValue(v, invocation);
+    for (const [k, v] of Object.entries(asRecord)) {
+      const nestedOptions: ResolveOptions =
+        enclosingPrimitive === "forEachTarget" && k === "effect"
+          ? { ...options, allowDeferredTargetPlaceholders: true }
+          : options;
+      result[k] = substituteValue(v, invocation, turnCount, nestedOptions, objectPrimitive);
     }
     return result;
   }
   return value;
 }
 
-function resolvePlaceholder(placeholder: string, invocation: CardInvocation): unknown {
+function resolveCurrentTurnExpression(raw: string, turnCount: number): number | undefined {
+  const match = raw.match(/^\$currentTurn(?:\s*([+-])\s*(\d+))?$/);
+  if (match === null) return undefined;
+  const sign = match[1];
+  const amount = match[2] === undefined ? 0 : Number(match[2]);
+  if (sign === "-") return turnCount - amount;
+  return turnCount + amount;
+}
+
+function resolvePlaceholder(
+  placeholder: string,
+  invocation: CardInvocation,
+  turnCount: number,
+  options: ResolveOptions
+): unknown {
+  const turnExpr = resolveCurrentTurnExpression(placeholder, turnCount);
+  if (turnExpr !== undefined) return turnExpr;
+
   if (placeholder === "$self") return invocation.actingMosjeRef;
   if (placeholder === "$target") {
+    if (options.allowDeferredTargetPlaceholders === true) return "$target";
     if (invocation.targetRef === undefined) {
       // Throw as MissingTargetError-compatible message
       const err = new Error(`Card requires targetRef for placeholder '$target' but none was provided`);
@@ -47,6 +81,9 @@ function resolvePlaceholder(placeholder: string, invocation: CardInvocation): un
     return invocation.targetRef;
   }
   if (placeholder === "$player") return invocation.actingPlayerId;
+  if (placeholder === "$targetPlayer" && options.allowDeferredTargetPlaceholders === true) {
+    return "$targetPlayer";
+  }
   throw new UnknownPlaceholderError(placeholder);
 }
 
@@ -56,9 +93,12 @@ function resolvePlaceholder(placeholder: string, invocation: CardInvocation): un
  */
 export function resolveEffectExpression(
   expr: EffectExpression,
-  invocation: CardInvocation
+  invocation: CardInvocation,
+  turnCount: number
 ): EffectExpression {
-  const resolvedParams = substituteValue(expr.params, invocation) as Record<string, unknown>;
+  const resolvedParams = substituteValue(expr.params, invocation, turnCount, {
+    allowDeferredTargetPlaceholders: false
+  }, expr.primitive) as Record<string, unknown>;
   return { primitive: expr.primitive, params: resolvedParams };
 }
 

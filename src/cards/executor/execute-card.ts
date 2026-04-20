@@ -10,8 +10,10 @@ import { checkMP } from "../../effects/conditions/check-mp.js";
 import { checkCardTypeInPlay } from "../../effects/conditions/check-card-type-in-play.js";
 import { checkPlaceActive } from "../../effects/conditions/check-place-active.js";
 import { checkSynergy } from "../../effects/conditions/check-synergy.js";
+import { checkTrait as checkTraitCondition } from "../../effects/conditions/check-trait.js";
 import type { RequirementDefinition } from "../schema/requirement-definition.js";
 import type { EffectExpression } from "../schema/effect-expression.js";
+import type { CardDefinition } from "../schema/card-definition.js";
 import { resolveEffectExpression } from "./resolve-effect-expression.js";
 import { resolveTargetReference } from "./resolve-target-reference.js";
 import type { CardInvocation } from "./resolve-target-reference.js";
@@ -78,6 +80,31 @@ function canPayCost(
   return mosje.mp >= mpCost;
 }
 
+function meetsCostGates(state: GameState, invocation: CardInvocation, card: CardDefinition): boolean {
+
+  if (card.cost.levelRequirement !== undefined) {
+    const levelOk = checkLevel(state, {
+      target: invocation.actingMosjeRef,
+      minLevel: card.cost.levelRequirement
+    });
+    if (!levelOk) return false;
+  }
+
+  const traitReqs = card.cost.traitRequirements;
+  if (traitReqs !== undefined) {
+    for (const req of traitReqs) {
+      const traitOk = checkTraitCondition(state, {
+        target: invocation.actingMosjeRef,
+        trait: req.trait,
+        minStars: req.minStars
+      });
+      if (!traitOk) return false;
+    }
+  }
+
+  return true;
+}
+
 function payCost(
   state: GameState,
   invocation: CardInvocation,
@@ -108,7 +135,7 @@ function runEffects(
 ): GameState {
   let next = state;
   for (const expr of effects) {
-    const resolved = resolveEffectExpression(expr, invocation);
+    const resolved = resolveEffectExpression(expr, invocation, context.turnCount);
     try {
       const primitive = resolvePrimitive(resolved.primitive);
       next = primitive(next, resolved.params, context);
@@ -147,6 +174,15 @@ export function executeCard(
     (req) => !validateRequirement(state, req, invocation)
   );
   if (unmetRequirement !== undefined) {
+    return appendEvent(state, {
+      type: "card_resolved",
+      cardId,
+      playerId: invocation.actingPlayerId,
+      outcome: "rejected"
+    });
+  }
+
+  if (!meetsCostGates(state, invocation, card)) {
     return appendEvent(state, {
       type: "card_resolved",
       cardId,
