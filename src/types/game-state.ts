@@ -5,6 +5,13 @@ import type { Phase } from "./phase.js";
 import type { PlaceInstance } from "./place-instance.js";
 import type { PlayerState } from "./player-state.js";
 
+export interface LastRoll {
+  readonly raw: 1 | 2 | 3 | 4 | 5 | 6;
+  readonly modifier: number;
+  readonly final: number;
+  readonly rollerId: string;
+}
+
 export interface GameState {
   readonly turnCount: number;
   readonly currentPlayerId: string;
@@ -15,4 +22,5 @@ export interface GameState {
   readonly effectStack: ReadonlyArray<PendingEffect>;
   readonly eventLog: ReadonlyArray<GameEvent>;
   readonly rngSeed: number;
+  readonly lastRoll: LastRoll | null;
 }
