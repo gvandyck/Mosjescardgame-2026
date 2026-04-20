@@ -1,0 +1,12 @@
+export { KEYBOARD } from "./keyboard.js";
+export { MOUSE } from "./mouse.js";
+export { CONTROLLER } from "./controller.js";
+export { GRAMMETJE_PIETER } from "./grammetje-pieter.js";
+export { LARRY_ZEGELTJE } from "./larry-zegeltje.js";
+export { STRAFFOE } from "./straffoe.js";
+export { TIKKER } from "./tikker.js";
+export { TEMPIECIE } from "./tempiecie.js";
+export { AFBLIJVEN } from "./afblijven.js";
+export { LAAT_ME_CHILLEN } from "./laat-me-chillen.js";
+export { STOOKERINO } from "./stookerino.js";
+export { MOSJE_SHIELD } from "./mosje-shield.js";

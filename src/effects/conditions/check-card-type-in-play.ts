@@ -7,7 +7,9 @@ export function checkCardTypeInPlay(
   const player = state.players.find((candidate) => candidate.id === params.playerId);
   if (player === undefined) return false;
 
-  const hasMosjeType = player.mosjes.some((mosje) => mosje.flags.cardType === params.cardType);
+  const hasMosjeType = player.mosjes.some(
+    (mosje) => mosje.flags.cardType === params.cardType || mosje.cardId === params.cardType
+  );
   if (hasMosjeType) return true;
 
   if (state.activePlace?.flags.cardType === params.cardType) return true;

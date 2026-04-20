@@ -26,6 +26,8 @@ export interface CardFilter {
   readonly byType?: string;
   readonly byName?: string;
   readonly byCost?: number;
+  readonly category?: string;
+  readonly subcategory?: string;
 }
 
 export interface SearchDeckAndDrawParams {
