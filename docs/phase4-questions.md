@@ -21,3 +21,9 @@ player choice (`$choice:mosjeId`).
 Card intent depends on checking revealed card type from the top deck card.
 There is no `checkRevealedCardType` primitive yet, so Step 1 uses approved
 fallback behavior: if active mosje MP >= 120 gain 30 MP, else draw 1.
+
+## Q6: double-trigger executor double-activation (Phase 4C Step 2)
+`double-trigger` applies `buff:double_activate_this_turn` to the acting Mosje via
+`applyBuff`. The executor does not yet consume this flag to run a card's effects
+twice. Double-activation behavior is deferred to a future phase; the buff itself
+is correctly applied and cleared by `clearExpiredBuffs`.

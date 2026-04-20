@@ -113,6 +113,14 @@ export const gainMP: Primitive<GainMPParams> = (state, params, context) => {
     nextState = { ...nextState, players: updatedPlayers };
   }
 
+  const mpGainReducedBuff = nextState.players[targetPlayerIndex].mosjes[targetMosjeIndex].flags[
+    "buff:mp_gain_reduced"
+  ] as { readonly data?: { readonly reduceBy?: number } } | undefined;
+  if (mpGainReducedBuff !== undefined) {
+    const reduceBy = Number(mpGainReducedBuff.data?.reduceBy ?? 0);
+    computedAmount = Math.max(0, computedAmount - reduceBy);
+  }
+
   if (computedAmount <= 0) return nextState;
 
   return gainMPReducer(nextState, {

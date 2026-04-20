@@ -19,3 +19,7 @@ export { HUISBAAS } from "./huisbaas.js";
 export { SHHH_POPO_KOMT } from "./shhh-popo-komt.js";
 export { SYNERGY_FIELD } from "./synergy-field.js";
 export { EMERGENCY_SWAP } from "./emergency-swap.js";
+export { BATTLE_CONCERT } from "./battle-concert.js";
+export { MP_ADJUSTER } from "./mp-adjuster.js";
+export { DOUBLE_TRIGGER } from "./double-trigger.js";
+export { JANTJE_JANTJE } from "./jantje-jantje.js";
