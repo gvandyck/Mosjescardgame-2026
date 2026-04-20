@@ -36,6 +36,9 @@ export const gainMP: Primitive<GainMPParams> = (state, params, context) => {
   const partnerMultiplier = Number(actingPlayer?.flags.u6_partner_multiplier ?? 1);
   computedAmount = Math.floor(computedAmount * partnerMultiplier);
 
+  const placeMultiplier = Number(state.activePlace?.flags.u6_place_multiplier ?? 1);
+  computedAmount = Math.floor(computedAmount * placeMultiplier);
+
   let nextState = state;
   const multiplierFlag = targetMosje.flags.mp_gain_multiplier as
     | {

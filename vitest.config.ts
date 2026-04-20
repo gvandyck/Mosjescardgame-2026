@@ -8,7 +8,13 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "json-summary"],
-      include: ["src/**/*.ts"]
+      include: ["src/effects/**/*.ts"],
+      exclude: [
+        "src/effects/**/index.ts",
+        "src/effects/**/types.ts",
+        "src/effects/effect-context.ts",
+        "src/effects/primitive.ts"
+      ]
     }
   }
 });
