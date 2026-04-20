@@ -86,6 +86,8 @@ const paramsByPrimitive: Record<string, Record<string, unknown>> = {
   enterPlace: { cardId: "p_new", playerId: "p1" },
   destroyPiecie: { target: { playerId: "p1", slotIndex: 0 } },
   activateFaceDownPiecie: { playerId: "p1", slotIndex: 0 },
+  switchActiveMosje: { playerId: "p1" },
+  sendToWelloe: { target: { playerId: "p2", instanceId: "m3" } },
   rollDie: { modifier: 1 },
   rerollDie: {},
   chooseDieResult: { chosenValue: 6 },

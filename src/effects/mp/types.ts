@@ -20,6 +20,7 @@ export interface DrainMPParams {
 export interface SetMPParams {
   readonly target: MosjeRef;
   readonly value: number;
+  readonly isQuestOverride?: boolean;
 }
 
 export interface MultiplyNextMPGainParams {

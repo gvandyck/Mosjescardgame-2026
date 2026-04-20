@@ -8,7 +8,14 @@ import {
   searchDeckAndDraw,
   returnToHand
 } from "./cards/index.js";
-import { destroyPlace, enterPlace, destroyPiecie, activateFaceDownPiecie } from "./board/index.js";
+import {
+  destroyPlace,
+  enterPlace,
+  destroyPiecie,
+  activateFaceDownPiecie,
+  switchActiveMosje,
+  sendToWelloe
+} from "./board/index.js";
 import { rollDie, rerollDie, chooseDieResult } from "./dice/index.js";
 import { applyBuff, reduceMPLossBy, clearExpiredBuffs, negateEffect } from "./buffs/index.js";
 import { ifThenElse, chain, choose, rollBranch, forEachTarget, multiplyByCount } from "./control/index.js";
@@ -44,6 +51,8 @@ export const primitiveRegistry: Readonly<Record<string, Primitive>> = Object.fre
   enterPlace,
   destroyPiecie,
   activateFaceDownPiecie,
+  switchActiveMosje,
+  sendToWelloe,
   rollDie,
   rerollDie,
   chooseDieResult,

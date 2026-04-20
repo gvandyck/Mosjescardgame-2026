@@ -4,32 +4,33 @@ import { loseMP } from "../effects/mp/lose-mp.js";
 import { createRng } from "../utils/rng.js";
 import type { GameState } from "../types/game-state.js";
 
-function applyEndOfTurnMPLossBuffs(state: GameState): GameState {
+function applyEndOfTurnMPLossBuffs(state: GameState, endingTurnPlayerId: string): GameState {
   let next = state;
+  const endingTurnPlayer = state.players.find((player) => player.id === endingTurnPlayerId);
+  if (endingTurnPlayer === undefined) return state;
 
-  for (const player of next.players) {
-    for (const mosje of player.mosjes) {
-      const endTurnLossBuff = mosje.flags["buff:end_of_turn_mp_loss"] as
-        | { readonly data?: { readonly amount?: number } }
-        | undefined;
-      const amount = Number(endTurnLossBuff?.data?.amount ?? 0);
-      if (amount <= 0) continue;
+  for (const mosje of endingTurnPlayer.mosjes) {
+    if (mosje.flags.in_welloe === true) continue;
+    const endTurnLossBuff = mosje.flags["buff:end_of_turn_mp_loss"] as
+      | { readonly data?: { readonly amount?: number } }
+      | undefined;
+    const amount = Number(endTurnLossBuff?.data?.amount ?? 0);
+    if (amount <= 0) continue;
 
-      next = loseMP(
-        next,
-        {
-          target: { playerId: player.id, instanceId: mosje.instanceId },
-          amount,
-          isCostPayment: false
-        },
-        {
-          source: { kind: "ability" },
-          actingPlayerId: state.currentPlayerId,
-          rng: createRng(state.rngSeed),
-          turnCount: state.turnCount
-        }
-      );
-    }
+    next = loseMP(
+      next,
+      {
+        target: { playerId: endingTurnPlayer.id, instanceId: mosje.instanceId },
+        amount,
+        isCostPayment: false
+      },
+      {
+        source: { kind: "ability" },
+        actingPlayerId: state.currentPlayerId,
+        rng: createRng(state.rngSeed),
+        turnCount: state.turnCount
+      }
+    );
   }
 
   return next;
@@ -78,7 +79,7 @@ export function endTurn(state: GameState): GameState {
     playerId: state.currentPlayerId
   });
 
-  const withEndTurnBuffs = applyEndOfTurnMPLossBuffs(withTurnEnd);
+  const withEndTurnBuffs = applyEndOfTurnMPLossBuffs(withTurnEnd, state.currentPlayerId);
 
   return clearExpiredBuffs(
     withEndTurnBuffs,

@@ -17,6 +17,24 @@ export const setMP: Primitive<SetMPParams> = (state, params, context) => {
   );
   if (targetMosjeIndex < 0) return state;
 
+  if (params.isQuestOverride === true) {
+    const updatedMosjes = targetPlayer.mosjes.map((mosje, index) => {
+      if (index !== targetMosjeIndex) return mosje;
+      return {
+        ...mosje,
+        flags: {
+          ...mosje.flags,
+          quest_mp_override: params.value
+        }
+      };
+    });
+    const updatedPlayers = state.players.map((player, index) => {
+      if (index !== targetPlayerIndex) return player;
+      return { ...player, mosjes: updatedMosjes };
+    });
+    return { ...state, players: updatedPlayers };
+  }
+
   const oldValue = targetPlayer.mosjes[targetMosjeIndex].mp;
   const nextFlags = { ...targetPlayer.mosjes[targetMosjeIndex].flags };
   if (params.value < 0) {

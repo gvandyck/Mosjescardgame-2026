@@ -28,22 +28,26 @@ function validateRequirement(
   req: RequirementDefinition,
   invocation: CardInvocation
 ): boolean {
+  const requirementTarget =
+    req.params["applyTo"] === "target" && invocation.targetRef !== undefined
+      ? invocation.targetRef
+      : invocation.actingMosjeRef;
   const self = invocation.actingMosjeRef;
   switch (req.type) {
     case "trait":
       return checkTrait(state, {
-        target: self,
+        target: requirementTarget,
         trait: req.params["trait"] as string,
         minStars: req.params["minStars"] as 1 | 2 | 3
       });
     case "level":
       return checkLevel(state, {
-        target: self,
+        target: requirementTarget,
         minLevel: req.params["minLevel"] as 1 | 2 | 3
       });
     case "mp":
       return checkMP(state, {
-        target: self,
+        target: requirementTarget,
         operator: req.params["operator"] as ">=" | "<=" | "==" | "between",
         value: req.params["value"] as number,
         rangeEnd: req.params["rangeEnd"] as number | undefined
@@ -174,6 +178,19 @@ export function executeCard(
     turnCount: state.turnCount
   };
 
+  if (card.id === ("perfect-setup" as CardId)) {
+    const chosen = invocation.playerChoices?.targetMP;
+    const chosenNumber = Number(chosen);
+    if (!Number.isInteger(chosenNumber) || chosenNumber < 60 || chosenNumber > 90) {
+      return appendEvent(state, {
+        type: "card_resolved",
+        cardId,
+        playerId: invocation.actingPlayerId,
+        outcome: "rejected"
+      });
+    }
+  }
+
   // Step 2: Validate requirements
   const unmetRequirement = card.requirements.find(
     (req) => !validateRequirement(state, req, invocation)
@@ -222,11 +239,24 @@ export function executeCard(
   let afterSynergies = afterEffects;
 
   if (card.synergies !== undefined) {
+    const actingPlayer = afterSynergies.players.find((p) => p.id === invocation.actingPlayerId);
+    const actingMosje = actingPlayer?.mosjes.find(
+      (m) => m.instanceId === invocation.actingMosjeRef.instanceId
+    );
+    const forcedSynergyBuff = actingMosje?.flags["buff:synergy_active_forced"] as
+      | { readonly expiryTurn?: number }
+      | undefined;
+    const forceSynergyActive =
+      forcedSynergyBuff !== undefined &&
+      (forcedSynergyBuff.expiryTurn === undefined || context.turnCount <= forcedSynergyBuff.expiryTurn);
+
     for (const synergy of card.synergies) {
-      const hasPartner = checkSynergy(afterSynergies, {
-        mosje: invocation.actingMosjeRef,
-        partnerCardId: synergy.partnerCardId
-      });
+      const hasPartner =
+        forceSynergyActive ||
+        checkSynergy(afterSynergies, {
+          mosje: invocation.actingMosjeRef,
+          partnerCardId: synergy.partnerCardId
+        });
       if (hasPartner) {
         afterSynergies = runEffects(afterSynergies, synergy.bonusEffects, effectInvocation, context);
       }
