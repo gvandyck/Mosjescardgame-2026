@@ -1,4 +1,6 @@
 import { appendEvent } from "./append-event.js";
+import { clearExpiredBuffs } from "../effects/buffs/clear-expired-buffs.js";
+import { createRng } from "../utils/rng.js";
 import type { GameState } from "../types/game-state.js";
 
 export function endTurn(state: GameState): GameState {
@@ -38,9 +40,20 @@ export function endTurn(state: GameState): GameState {
     turnCount: state.turnCount + 1
   };
 
-  return appendEvent(nextState, {
+  const withTurnEnd = appendEvent(nextState, {
     type: "turn_ended",
     turn: state.turnCount,
     playerId: state.currentPlayerId
   });
+
+  return clearExpiredBuffs(
+    withTurnEnd,
+    {},
+    {
+      source: { kind: "ability" },
+      actingPlayerId: state.currentPlayerId,
+      rng: createRng(state.rngSeed),
+      turnCount: nextState.turnCount
+    }
+  );
 }
