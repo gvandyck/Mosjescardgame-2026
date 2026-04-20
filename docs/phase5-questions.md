@@ -47,3 +47,20 @@ Card text: reduce incoming MP loss of 30 or more to 10 (Physical 3-star: to 0).
 Current implementation applies flat reduction (`20` or `9999`) for one turn without inspecting
 pending amount threshold. This is equivalent for 30-damage hits but differs for smaller/larger hits.
 **Status:** Flagged. Kept as temporary approximation pending arithmetic/threshold primitive support.
+
+## Q14: frenssen — opponent targetRef must be provided by caller (Phase 5 Step 3)
+Card text: "Negate Jensen. Deal 10 damage to the Jensen player."
+`frenssen` uses `target: "opponent_active_mosje"` so the caller must supply
+`invocation.targetRef = { playerId: jensenPlayerId, instanceId: jensenMosjeInstanceId }`.
+`resolve-target-reference.ts` throws `MissingTargetError` if `targetRef` is absent.
+In UI/room-manager layer, `targetRef` must be auto-resolved from `respondingToPendingEffect.source`.
+**Status:** Flagged. Engine-level auto-resolution of opponent mosje from pending effect source
+deferred. Caller (UI/mpManager) must populate targetRef when invoking Frenssen.
+
+## Q15: blensen — conditional free cost if Jensen/Frenssen played this turn (Phase 5 Step 3)
+Card text: "Cost 50 MP, OR free if Jensen! or Frenssen! was played this turn."
+Requires scanning the event log for `card_resolved` events with `cardId in ["snelle_jensen", "snelle_frenssen"]`
+at `turnCount === state.turnCount`. No `checkCardPlayedThisTurn` condition or `variable` cost
+type handler exists in the requirement evaluator.
+**Status:** Flagged. `snelle_blensen` is implemented with fixed 50 MP cost.
+Conditional free-cost deferred until a `checkEventLogThisTurn` condition is added.

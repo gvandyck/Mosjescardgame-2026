@@ -12,3 +12,7 @@ export { JAMMERTJE_GEPAKT } from "./jammertje-gepakt.js";
 export { DRAIN_REVERSAL } from "./drain-reversal.js";
 export { THE_PROTECTOR } from "./the-protector.js";
 export { GEVALLETJE_KLAKKELOOS } from "./gevalletje-klakkeloos.js";
+export { FRENSSEN } from "./frenssen.js";
+export { BLENSEN } from "./blensen.js";
+export { DUBBELE_TEMMINKS } from "./dubbele-temminks.js";
+export { JANTJE_JANTJE_JANTJE } from "./jantje-jantje-jantje.js";
