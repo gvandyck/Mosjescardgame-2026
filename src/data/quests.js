@@ -812,7 +812,7 @@ export const QUESTS = [
     failMP: -30,
     description: "Requires [Jeffrey] The Strongman on field. You must have taken 40 or more total MP damage this game. Roll 4 or higher.",
     difficulty: "HIGH",
-    isBoosterOnly: false,
+    isBoosterOnly: true,
     rarity: "★★★★",
     flavourText: "Pain is just weakness leaving the body.",
     artPath: "assets/quests/placeholder.png"
@@ -830,7 +830,7 @@ export const QUESTS = [
     failMP: -20,
     description: "Requires [West] Sr.Tactical and [Coert] The Tech Savant both active on your field simultaneously. Look at the opponent's full hand. Gain +70 MP.",
     difficulty: "HIGH",
-    isBoosterOnly: false,
+    isBoosterOnly: true,
     rarity: "★★★★",
     flavourText: "When information meets efficiency, nothing is hidden.",
     artPath: "assets/quests/placeholder.png"
@@ -848,7 +848,7 @@ export const QUESTS = [
     failMP: -10,
     description: "Requires [DJ 80/20] active and the Skiffa Place card active. Roll 1d6. Roll 5 or higher to succeed. All opponents lose 20 MP on success.",
     difficulty: "MEDIUM",
-    isBoosterOnly: false,
+    isBoosterOnly: true,
     rarity: "★★★★",
     flavourText: "The crowd goes silent. The beat drops. Everything lands perfectly.",
     artPath: "assets/quests/placeholder.png"
