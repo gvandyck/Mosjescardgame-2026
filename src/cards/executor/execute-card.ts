@@ -109,8 +109,8 @@ function runEffects(
   let next = state;
   for (const expr of effects) {
     const resolved = resolveEffectExpression(expr, invocation);
-    const primitive = resolvePrimitive(resolved.primitive);
     try {
+      const primitive = resolvePrimitive(resolved.primitive);
       next = primitive(next, resolved.params, context);
     } catch (error) {
       next = appendEvent(next, {
