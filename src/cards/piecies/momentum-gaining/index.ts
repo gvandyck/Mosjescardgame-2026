@@ -6,3 +6,7 @@ export { MOMENTUM_BOOST } from "./momentum-boost.js";
 export { WARM_KANNETJE_MELK } from "./warm-kannetje-melk.js";
 export { MOMENTUM_RUSH } from "./momentum-rush.js";
 export { GUN_EEN_PIECE } from "./gun-een-piece.js";
+export { RONALD_KIP } from "./ronald-kip.js";
+export { VARKENSPOOTJES } from "./varkenspootjes.js";
+export { CHEFS_SPECIAL } from "./chefs-special.js";
+export { DIKKE_JONKO } from "./dikke-jonko.js";
