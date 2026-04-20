@@ -6,3 +6,9 @@ export type Primitive<P = Record<string, unknown>> = (
   params: P,
   context: EffectContext
 ) => GameState;
+
+export type QueryPrimitive<P = Record<string, unknown>, R = unknown> = (
+  state: GameState,
+  params: P,
+  context: EffectContext
+) => R;

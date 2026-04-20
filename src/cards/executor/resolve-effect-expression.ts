@@ -7,6 +7,13 @@ interface ResolveOptions {
   readonly allowDeferredTargetPlaceholders?: boolean;
 }
 
+export class AmbiguousTargetError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "AmbiguousTargetError";
+  }
+}
+
 /**
  * Performs '$'-prefix placeholder substitution in effect params.
  *
@@ -24,14 +31,15 @@ function substituteValue(
   invocation: CardInvocation,
   turnCount: number,
   options: ResolveOptions,
+  playerIds: ReadonlyArray<string>,
   enclosingPrimitive?: string
 ): unknown {
   if (typeof value === "string" && value.startsWith("$")) {
-    return resolvePlaceholder(value, invocation, turnCount, options);
+    return resolvePlaceholder(value, invocation, turnCount, options, playerIds);
   }
   if (Array.isArray(value)) {
     return value.map((item: unknown) =>
-      substituteValue(item, invocation, turnCount, options, enclosingPrimitive)
+      substituteValue(item, invocation, turnCount, options, playerIds, enclosingPrimitive)
     );
   }
   if (value !== null && typeof value === "object") {
@@ -44,7 +52,7 @@ function substituteValue(
         enclosingPrimitive === "forEachTarget" && k === "effect"
           ? { ...options, allowDeferredTargetPlaceholders: true }
           : options;
-      result[k] = substituteValue(v, invocation, turnCount, nestedOptions, objectPrimitive);
+      result[k] = substituteValue(v, invocation, turnCount, nestedOptions, playerIds, objectPrimitive);
     }
     return result;
   }
@@ -64,7 +72,8 @@ function resolvePlaceholder(
   placeholder: string,
   invocation: CardInvocation,
   turnCount: number,
-  options: ResolveOptions
+  options: ResolveOptions,
+  playerIds: ReadonlyArray<string>
 ): unknown {
   const turnExpr = resolveCurrentTurnExpression(placeholder, turnCount);
   if (turnExpr !== undefined) return turnExpr;
@@ -81,6 +90,13 @@ function resolvePlaceholder(
     return invocation.targetRef;
   }
   if (placeholder === "$player") return invocation.actingPlayerId;
+  if (placeholder === "$opponent") {
+    const opponents = playerIds.filter((id) => id !== invocation.actingPlayerId);
+    if (opponents.length === 1) return opponents[0];
+    throw new AmbiguousTargetError(
+      "Use forEachTarget for multiplayer opponent targeting, not $opponent."
+    );
+  }
   if (placeholder.startsWith("$choice:")) {
     const key = placeholder.slice("$choice:".length);
     const value = invocation.playerChoices?.[key];
@@ -102,11 +118,12 @@ function resolvePlaceholder(
 export function resolveEffectExpression(
   expr: EffectExpression,
   invocation: CardInvocation,
-  turnCount: number
+  turnCount: number,
+  playerIds: ReadonlyArray<string>
 ): EffectExpression {
   const resolvedParams = substituteValue(expr.params, invocation, turnCount, {
     allowDeferredTargetPlaceholders: false
-  }, expr.primitive) as Record<string, unknown>;
+  }, playerIds, expr.primitive) as Record<string, unknown>;
   return { primitive: expr.primitive, params: resolvedParams };
 }
 

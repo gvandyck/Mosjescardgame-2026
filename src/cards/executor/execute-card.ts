@@ -135,7 +135,12 @@ function runEffects(
 ): GameState {
   let next = state;
   for (const expr of effects) {
-    const resolved = resolveEffectExpression(expr, invocation, context.turnCount);
+    const resolved = resolveEffectExpression(
+      expr,
+      invocation,
+      context.turnCount,
+      state.players.map((player) => player.id)
+    );
     try {
       const primitive = resolvePrimitive(resolved.primitive);
       next = primitive(next, resolved.params, context);

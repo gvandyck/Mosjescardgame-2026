@@ -90,6 +90,25 @@ function createStateThreePlayers(): GameState {
   };
 }
 
+function createStateTwoPlayersForChef(): GameState {
+  return {
+    ...createStateThreePlayers(),
+    players: [
+      {
+        ...createStateThreePlayers().players[0],
+        mosjes: [
+          { instanceId: "m1", cardId: cardId("self_main"), level: 2, mp: 40, flags: {} },
+          { instanceId: "m2", cardId: cardId("self_partner"), level: 1, mp: 20, flags: {} }
+        ]
+      },
+      {
+        ...createStateThreePlayers().players[1],
+        hand: [cardId("ronald-kip"), cardId("varkenspootjes")]
+      }
+    ]
+  };
+}
+
 function invocation() {
   return {
     actingPlayerId: "p1",
@@ -156,14 +175,14 @@ describe("phase4a step 2 - food synergy piecies", () => {
     expect(penalized.players[0].mosjes[0].mp).toBe(10);
   });
 
-  it("chefs-special gives +15 without Ronald and reveal +30 with Ronald", () => {
-    const noRonald = executeCard(createStateThreePlayers(), cardId("chefs-special"), invocation());
+  it("chefs-special gives +15 without Ronald and reveal +60 with Ronald when opponent has 2 piecies", () => {
+    const noRonald = executeCard(createStateTwoPlayersForChef(), cardId("chefs-special"), invocation());
     // 40 - 10 cost + 15 effect = 45
     expect(noRonald.players[0].mosjes[0].mp).toBe(45);
 
     const withRonald: GameState = {
-      ...createStateThreePlayers(),
-      players: createStateThreePlayers().players.map((player) =>
+      ...createStateTwoPlayersForChef(),
+      players: createStateTwoPlayersForChef().players.map((player) =>
         player.id !== "p1"
           ? player
           : {
@@ -178,8 +197,9 @@ describe("phase4a step 2 - food synergy piecies", () => {
     };
 
     const boosted = executeCard(withRonald, cardId("chefs-special"), invocation());
-    // 40 - 10 cost + 30 effect = 60
-    expect(boosted.players[0].mosjes[0].mp).toBe(60);
+    // 40 - 10 cost + (2 piecies * 30) = 90
+    expect(boosted.players[0].mosjes[0].level).toBe(2);
+    expect(boosted.players[0].mosjes[0].mp).toBe(90);
 
     const revealEvents = boosted.eventLog.filter((event) => event.type === "cards_revealed_private");
     expect(revealEvents.length).toBeGreaterThanOrEqual(1);

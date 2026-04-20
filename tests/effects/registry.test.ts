@@ -112,6 +112,12 @@ const paramsByPrimitive: Record<string, Record<string, unknown>> = {
   forEachTarget: {
     targetType: "all_opponents",
     effect: { primitive: "loseMP", params: { target: "$target", amount: 1 } }
+  },
+  multiplyByCount: {
+    countParams: { playerId: "p1", zone: "hand" },
+    perUnitEffect: { primitive: "gainMP", params: { target: { playerId: "p1", instanceId: "m1" }, amount: 1 } },
+    target: "$self",
+    cap: 2
   }
 };
 

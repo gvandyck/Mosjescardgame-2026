@@ -26,16 +26,29 @@ export const CHEFS_SPECIAL: CardDefinition = {
           params: {
             effects: [
               {
-                primitive: "forEachTarget",
+                primitive: "revealTopDeck",
                 params: {
-                  targetType: "all_opponents",
-                  effect: {
-                    primitive: "revealTopDeck",
-                    params: { playerId: "$player", targetDeckOwner: "$targetPlayer", count: 99 }
-                  }
+                  playerId: "$player",
+                  targetDeckOwner: "$opponent",
+                  count: 99
                 }
               },
-              { primitive: "gainMP", params: { target: "$self", amount: 30 } }
+              {
+                primitive: "multiplyByCount",
+                params: {
+                  countParams: {
+                    playerId: "$opponent",
+                    zone: "hand",
+                    filter: { category: "piecie" }
+                  },
+                  perUnitEffect: {
+                    primitive: "gainMP",
+                    params: { target: "$self", amount: 30 }
+                  },
+                  target: "$self",
+                  cap: 150
+                }
+              }
             ]
           }
         },
