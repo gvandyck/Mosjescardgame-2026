@@ -96,9 +96,18 @@ describe("extra branch coverage", () => {
               ...player,
               piecieSlots: player.piecieSlots.map((slot, index) => (index === 0 ? { ...slot, faceUp: true } : slot)),
               mosjes: player.mosjes.map((mosje) =>
-                mosje.instanceId === "m1" ? { ...mosje, flags: { ...mosje.flags, cardType: "mosje" } } : mosje
+                mosje.instanceId === "m1"
+                  ? {
+                      ...mosje,
+                      flags: {
+                        ...mosje.flags,
+                        cardType: "mosje",
+                        "buff:pet_active:pet": { data: { petId: "pet" }, expiryTurn: 99 }
+                      }
+                    }
+                  : mosje
               ),
-              flags: { "pet:pet:expiryTurn": 9 }
+              flags: {}
             }
           : player
       )

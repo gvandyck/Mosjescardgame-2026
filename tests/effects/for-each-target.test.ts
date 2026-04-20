@@ -145,4 +145,80 @@ describe("forEachTarget primitive", () => {
     expect(next.players[0].mosjes[0].mp).toBe(21);
     expect(next.eventLog.at(-1)).toMatchObject({ type: "for_each_completed", count: 2 });
   });
+
+  it("all_opponent_mosjes targets every non-self mosje including non-active", () => {
+    const next = forEachTarget(
+      createState(2),
+      {
+        targetType: "all_opponent_mosjes",
+        effect: { primitive: "loseMP", params: { target: "$target", amount: 3 } }
+      },
+      ctx()
+    );
+
+    expect(next.players[1].mosjes[0].mp).toBe(17);
+    expect(next.players[1].mosjes[1].mp).toBe(17);
+    expect(next.eventLog.at(-1)).toMatchObject({ type: "for_each_completed", count: 2 });
+  });
+
+  it("all_mosjes targets every player's mosjes including self", () => {
+    const next = forEachTarget(
+      createState(2),
+      {
+        targetType: "all_mosjes",
+        effect: { primitive: "loseMP", params: { target: "$target", amount: 2 } }
+      },
+      ctx()
+    );
+
+    expect(next.players[0].mosjes[0].mp).toBe(18);
+    expect(next.players[0].mosjes[1].mp).toBe(18);
+    expect(next.players[1].mosjes[0].mp).toBe(18);
+    expect(next.players[1].mosjes[1].mp).toBe(18);
+    expect(next.eventLog.at(-1)).toMatchObject({ type: "for_each_completed", count: 4 });
+  });
+
+  it("skips defeated mosjes (mp <= 0) in all_opponent_mosjes", () => {
+    const state: GameState = {
+      ...createState(2),
+      players: createState(2).players.map((player) => {
+        if (player.id !== "p2") return player;
+        return {
+          ...player,
+          mosjes: player.mosjes.map((mosje, idx) =>
+            idx === 0 ? { ...mosje, mp: 0 } : mosje
+          )
+        };
+      })
+    };
+
+    const next = forEachTarget(
+      state,
+      {
+        targetType: "all_opponent_mosjes",
+        effect: { primitive: "loseMP", params: { target: "$target", amount: 3 } }
+      },
+      ctx()
+    );
+
+    expect(next.players[1].mosjes[0].mp).toBe(0);
+    expect(next.players[1].mosjes[1].mp).toBe(17);
+    expect(next.eventLog.at(-1)).toMatchObject({ type: "for_each_completed", count: 1 });
+  });
+
+  it("builds event source for non-card source kinds", () => {
+    const abilityCtx = {
+      ...ctx(),
+      source: { kind: "ability" as const, cardId: "some-card" }
+    };
+    const next = forEachTarget(
+      createState(2),
+      {
+        targetType: "all_opponents",
+        effect: { primitive: "loseMP", params: { target: "$target", amount: 1 } }
+      },
+      abilityCtx
+    );
+    expect(next.eventLog.at(-1)).toMatchObject({ type: "for_each_completed" });
+  });
 });

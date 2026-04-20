@@ -35,7 +35,8 @@ function createState(): GameState {
                 Wild: 1
               },
               cardType: "mosje",
-              quest_mp_override: 90
+              quest_mp_override: 90,
+              "buff:pet_active:pet_cat": { data: { petId: "pet_cat" }, expiryTurn: 9 }
             }
           },
           { instanceId: "m2", cardId: "partner_card", level: 1, mp: 15, flags: {} }
@@ -52,9 +53,7 @@ function createState(): GameState {
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
-        flags: {
-          "pet:pet_cat:expiryTurn": 8
-        }
+        flags: {}
       },
       {
         id: "p2",
@@ -113,15 +112,26 @@ describe("condition primitives", () => {
     expect(checkSynergy(state, { mosje: { playerId: "p1", instanceId: "m1" }, partnerCardId: "missing_partner" })).toBe(false);
   });
 
-  it("check-pet-synergy respects expiry", () => {
+  it("check-pet-synergy respects buff flag presence and absence", () => {
     const state = createState();
     expect(checkPetSynergy(state, { mosje: { playerId: "p1", instanceId: "m1" }, petCardId: "pet_cat" })).toBe(true);
 
-    const expired = {
+    const withoutBuff = {
       ...state,
-      turnCount: 9
+      players: state.players.map((player) => {
+        if (player.id !== "p1") return player;
+        return {
+          ...player,
+          mosjes: player.mosjes.map((mosje) => {
+            if (mosje.instanceId !== "m1") return mosje;
+            const nextFlags = { ...mosje.flags };
+            delete nextFlags["buff:pet_active:pet_cat"];
+            return { ...mosje, flags: nextFlags };
+          })
+        };
+      })
     };
-    expect(checkPetSynergy(expired, { mosje: { playerId: "p1", instanceId: "m1" }, petCardId: "pet_cat" })).toBe(false);
+    expect(checkPetSynergy(withoutBuff, { mosje: { playerId: "p1", instanceId: "m1" }, petCardId: "pet_cat" })).toBe(false);
   });
 
   it("check-level and place-active behave correctly", () => {
