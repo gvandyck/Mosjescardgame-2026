@@ -84,6 +84,7 @@ export function createGame(config: {
     questDeck: [],
     effectStack: [],
     eventLog: [],
-    rngSeed: config.seed
+    rngSeed: config.seed,
+    lastRoll: null
   };
 }
