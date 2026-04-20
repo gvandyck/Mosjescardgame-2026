@@ -11,3 +11,13 @@
 Card text implies choosing 1 card from the top 3 cards. Current Phase 4A uses
 the approved simplification: `lookAtTop` for 3 cards and `drawCards` top 1.
 Full choose-from-top wiring remains pending for later phases.
+
+## Q4: Call of the Welloes summon semantics
+Card intent is summoning a Mosje directly from welloe to board. We do not yet
+have `summonFromWelloe`, so Step 1 uses the approved `returnToHand` stub with
+player choice (`$choice:mosjeId`).
+
+## Q5: Dingetje Toch revealed-card check primitive
+Card intent depends on checking revealed card type from the top deck card.
+There is no `checkRevealedCardType` primitive yet, so Step 1 uses approved
+fallback behavior: if active mosje MP >= 120 gain 30 MP, else draw 1.

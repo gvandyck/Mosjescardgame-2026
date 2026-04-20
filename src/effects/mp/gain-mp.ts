@@ -93,6 +93,26 @@ export const gainMP: Primitive<GainMPParams> = (state, params, context) => {
     }
   }
 
+  const doubleNextGainBuff = targetMosje.flags["buff:double_next_mp_gain"] as
+    | { readonly data?: { readonly multiplier?: number } }
+    | undefined;
+  if (doubleNextGainBuff !== undefined) {
+    const buffMultiplier = Number(doubleNextGainBuff.data?.multiplier ?? 2);
+    computedAmount = Math.floor(computedAmount * buffMultiplier);
+
+    const updatedMosjes = nextState.players[targetPlayerIndex].mosjes.map((mosje, index) => {
+      if (index !== targetMosjeIndex) return mosje;
+      const nextFlags = { ...mosje.flags };
+      delete nextFlags["buff:double_next_mp_gain"];
+      return { ...mosje, flags: nextFlags };
+    });
+    const updatedPlayers = nextState.players.map((player, index) => {
+      if (index !== targetPlayerIndex) return player;
+      return { ...player, mosjes: updatedMosjes };
+    });
+    nextState = { ...nextState, players: updatedPlayers };
+  }
+
   if (computedAmount <= 0) return nextState;
 
   return gainMPReducer(nextState, {
