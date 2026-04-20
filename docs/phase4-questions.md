@@ -11,3 +11,8 @@ implementation uses `forEachTarget` with `targetType: 'all_opponents'` and
 `revealTopDeck` with `count: 99` to approximate revealing opponents' hands.
 In 2-player games this matches the intent (single opponent); in multiplayer it
 reveals each opponent's hand.
+
+## Q3: Zie Je Die Dingetjes top-3 choose behavior
+Card text implies choosing 1 card from the top 3 cards. Current Phase 4A uses
+the approved simplification: `lookAtTop` for 3 cards and `drawCards` top 1.
+Full choose-from-top wiring remains pending for later phases.

@@ -81,6 +81,14 @@ function resolvePlaceholder(
     return invocation.targetRef;
   }
   if (placeholder === "$player") return invocation.actingPlayerId;
+  if (placeholder.startsWith("$choice:")) {
+    const key = placeholder.slice("$choice:".length);
+    const value = invocation.playerChoices?.[key];
+    if (value === undefined) {
+      throw new UnknownPlaceholderError(placeholder);
+    }
+    return value;
+  }
   if (placeholder === "$targetPlayer" && options.allowDeferredTargetPlaceholders === true) {
     return "$targetPlayer";
   }

@@ -83,6 +83,20 @@ describe("expression resolver — '$'-prefix substitution (step 5)", () => {
       const resolved = resolveEffectExpression(expr, baseInvocation, 3);
       expect(resolved.params["playerId"]).toBe("p1");
     });
+
+    it("substitutes $choice:key using invocation.playerChoices", () => {
+      const expr: EffectExpression = {
+        primitive: "discardCards",
+        params: { chosenCardIds: "$choice:discard", mode: "choose", playerId: "$player", count: 1 }
+      };
+      const withChoices: CardInvocation = {
+        ...baseInvocation,
+        playerChoices: { discard: [cardId("x1")] }
+      };
+
+      const resolved = resolveEffectExpression(expr, withChoices, 3);
+      expect(resolved.params["chosenCardIds"]).toEqual([cardId("x1")]);
+    });
   });
 
   describe("deeply nested expressions", () => {
