@@ -1,4 +1,5 @@
 import { appendEvent } from "../../append-event.js";
+import { applyVictoryCheck } from "../../apply-victory-check.js";
 import type { GameState } from "../../../types/game-state.js";
 import type { LoseMPAction } from "../../../types/player-reducer-actions.js";
 
@@ -33,10 +34,12 @@ export function loseMP(state: GameState, action: LoseMPAction): GameState {
   const updatedPlayers = state.players.map((item, index) => (index === playerIndex ? updatedPlayer : item));
   const nextState = { ...state, players: updatedPlayers };
 
-  return appendEvent(nextState, {
+  const withEvent = appendEvent(nextState, {
     type: "mp_lost",
     target: action.target,
     amount: action.amount,
     source: action.source
   });
+
+  return applyVictoryCheck(withEvent);
 }

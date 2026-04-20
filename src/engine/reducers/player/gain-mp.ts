@@ -1,4 +1,5 @@
 import { appendEvent } from "../../append-event.js";
+import { applyVictoryCheck } from "../../apply-victory-check.js";
 import type { GameState } from "../../../types/game-state.js";
 import type { GainMPAction } from "../../../types/player-reducer-actions.js";
 
@@ -55,5 +56,5 @@ export function gainMP(state: GameState, action: GainMPAction): GameState {
     });
   }
 
-  return nextState;
+  return applyVictoryCheck(nextState);
 }

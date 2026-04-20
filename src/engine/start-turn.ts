@@ -1,4 +1,5 @@
 import { appendEvent } from "./append-event.js";
+import { applyVictoryCheck } from "./apply-victory-check.js";
 import type { GameState } from "../types/game-state.js";
 
 export function startTurn(state: GameState): GameState {
@@ -30,5 +31,5 @@ export function startTurn(state: GameState): GameState {
     });
   }
 
-  return nextState;
+  return applyVictoryCheck(nextState);
 }

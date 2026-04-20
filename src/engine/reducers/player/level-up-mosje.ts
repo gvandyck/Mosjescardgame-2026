@@ -1,4 +1,5 @@
 import { appendEvent } from "../../append-event.js";
+import { applyVictoryCheck } from "../../apply-victory-check.js";
 import type { GameState } from "../../../types/game-state.js";
 import type { LevelUpMosjeAction } from "../../../types/player-reducer-actions.js";
 
@@ -27,9 +28,11 @@ export function levelUpMosje(state: GameState, action: LevelUpMosjeAction): Game
   const updatedPlayers = state.players.map((item, index) => (index === playerIndex ? updatedPlayer : item));
   const nextState = { ...state, players: updatedPlayers };
 
-  return appendEvent(nextState, {
+  const withEvent = appendEvent(nextState, {
     type: "mosje_leveled_up",
     target: action.target,
     newLevel
   });
+
+  return applyVictoryCheck(withEvent);
 }
