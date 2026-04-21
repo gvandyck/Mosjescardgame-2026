@@ -24,6 +24,7 @@ export interface QuestInvocation {
   readonly actingMosjeRef: MosjeRef;
   readonly playerChoices?: Readonly<Record<string, unknown>>;
   readonly diceRollOverride?: 1 | 2 | 3 | 4 | 5 | 6;
+  readonly targetRef?: MosjeRef;
 }
 
 export class NonQuestCardError extends Error {
@@ -179,7 +180,8 @@ function runQuestEffects(
     {
       actingPlayerId: invocation.actingPlayerId,
       actingMosjeRef: invocation.actingMosjeRef,
-      playerChoices: invocation.playerChoices
+      playerChoices: invocation.playerChoices,
+      targetRef: invocation.targetRef
     },
     context
   );
