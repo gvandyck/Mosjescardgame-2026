@@ -18,7 +18,7 @@ export const PRECISION_WORK: QuestDefinition = {
   scope: "general",
   roll: {
     die: "d6",
-    thresholds: { "1": 5, "2": 4, "3": 3 }
+    thresholds: { "1": 4, "2": 3, "3": 2 }
   },
   onSuccess: [{ primitive: "gainMP", params: { target: "$self", amount: 70 } }],
   onFailure: [{ primitive: "loseMP", params: { target: "$self", amount: 70, isCostPayment: false } }]

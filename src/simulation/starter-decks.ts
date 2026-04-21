@@ -102,15 +102,16 @@ const DIGITAL_CONTROL_DECK_CARDS: ReadonlyArray<CardId> = [
   id("mouse"),
   id("controller"),
   id("afblijven"),
-  id("afblijven"),
-  id("stookerino"),
+  id("kannetje-melk"),
+  id("kannetje-melk"),
   id("dubbele-dosis"),
   id("dubbele-dosis"),
   id("mp-amplifier"),
   id("f1-telemetry-data"),
   id("redbull"),
   id("zie-je-die-dingetjes"),
-  id("bong-hit-demolition"),
+  id("shoettoe"),
+  id("warm-kannetje-melk"),
   // Snelle Piecies ×5
   id("snelle_counter_strikka"),
   id("snelle_counter_strikka"),
@@ -120,7 +121,7 @@ const DIGITAL_CONTROL_DECK_CARDS: ReadonlyArray<CardId> = [
   // Places ×3
   id("place_quest_haven"),
   id("place_bank_chilling"),
-  id("place_momentum_factory"),
+  id("place_quest_haven"),
   // Quests ×10
   id("quest_debug_system"),
   id("quest_debug_system"),

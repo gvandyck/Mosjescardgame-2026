@@ -22,7 +22,7 @@ export const HACK_MAINFRAME: QuestDefinition = {
   autoSucceedCondition: { type: "trait", params: { trait: "Technical", minStars: 3 } },
   roll: {
     die: "d6",
-    thresholds: { "1": 5, "2": 5, "3": 5 }
+    thresholds: { "1": 5, "2": 6, "3": 6 }
   },
   onSuccess: [{ primitive: "gainMP", params: { target: "$self", amount: 30 } }],
   onFailure: [{ primitive: "loseMP", params: { target: "$self", amount: 50, isCostPayment: false } }]

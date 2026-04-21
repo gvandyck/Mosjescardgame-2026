@@ -12,13 +12,16 @@ export const SPEED_RUN: QuestDefinition = {
   rarity: "rare",
   isBoosterOnly: false,
   cost: { type: "free" },
-  requirements: [{ type: "custom", params: { desc: "Activated 2+ Piecies this turn" } }],
+  requirements: [],
   target: "self_active_mosje",
   trigger: "quest_attempt",
   duration: "instant",
   effects: [],
   scope: "general",
-  autoSucceedCondition: { type: "custom", params: { desc: "Activated 2+ Piecies this turn" } },
+  roll: {
+    die: "d6",
+    thresholds: { "1": 5, "2": 4, "3": 3 }
+  },
   onSuccess: [{ primitive: "gainMP", params: { target: "$self", amount: 60 } }],
   onFailure: [{ primitive: "loseMP", params: { target: "$self", amount: 50, isCostPayment: false } }]
 };

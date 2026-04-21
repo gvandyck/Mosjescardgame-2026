@@ -20,6 +20,10 @@ export const DEBUG_SYSTEM: QuestDefinition = {
   effects: [],
   scope: "general",
   autoSucceedCondition: { type: "trait", params: { trait: "Technical", minStars: 2 } },
+  roll: {
+    die: "d6",
+    thresholds: { "1": 4, "2": 5, "3": 5 }
+  },
   onSuccess: [{ primitive: "gainMP", params: { target: "$self", amount: 40 } }],
   onFailure: [{ primitive: "loseMP", params: { target: "$self", amount: 60, isCostPayment: false } }]
 };
