@@ -35,3 +35,13 @@
 - FPS Coert/FPS West synergy "force opponent to reveal full hand" — no `revealHand` primitive exists. Synergy label registered; hand-reveal enforcement deferred.
 - Martin The Precision Driver "Pit Stop Strategy" — intended to require discarding 2 cards as a cost. Discard-cost enforcement by executor is not reliably implemented; ability simplified to free (draw 3 + gain 20 MP). Discard cost and "once-per-game extra Quest completion" from Perfect Line passive are deferred.
 - The Drainer `$opponent` placeholder — changed to `$target` to correctly resolve the opponent active Mosje for loseMP. The `$opponent` placeholder resolves a playerId string, not a MosjeRef.
+
+## Step 7
+
+- Placeholder 3 Amplifier "Power Boost" — "all Mosje abilities trigger twice this turn" requires a double-trigger dispatch loop in the executor. No such primitive exists. Simplified to apply a `double_trigger_this_turn` buff label on self; actual double-trigger enforcement is deferred.
+- Coert Kastelein "Immovable Object" — 20 MP damage reduction, 50+ cap-to-25, and Welloe-prevention all require engine-level interception hooks that do not exist. Simplified to apply a `damage_reduction_20` buff label only; all enforcement is deferred.
+- Coert Kastelein "Castle Builder" — Castle token system (persistent field object, per-turn +10 MP gain while active, 70+ single-turn damage to destroy) does not exist. Simplified to gain 10 MP when the triggered ability fires; Castle object system is deferred.
+- Tuk The Sims Architect "Perfect Placement" — top-5 look + choose-2-to-hand + conditional immediate face-down place. `lookAtTop` fires correctly; choose-2 and conditional placement are deferred.
+- Tuk The Sims Architect "House Design" — extra Piecie slot per turn requires turn-tracking in the Piecie placement engine. Deferred (empty effects array, label only).
+- Dancing/DDR Chris "Perfect Combo Chain" — free Piecie activation on 5-6 roll requires `activatePiecie` primitive. Simplified to gain 10 MP on 5-6 roll instead; chain cap of 3 per turn is also deferred.
+- Dancing/DDR Chris + Youri synergy — "direct-to-active Piecie play" requires engine hook. Registered as label only; enforcement deferred.

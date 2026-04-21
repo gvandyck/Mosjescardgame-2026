@@ -7,3 +7,7 @@ export { BINTI_THE_SHARP_TONGUE } from "./binti-the-sharp-tongue.js";
 export { BINTI_THE_CREATOR } from "./binti-the-creator.js";
 export { CLESS_THE_TEACHER } from "./cless-the-teacher.js";
 export { MARTIN_THE_PRECISION_DRIVER } from "./martin-the-precision-driver.js";
+export { PLACEHOLDER_THE_AMPLIFIER } from "./placeholder-the-amplifier.js";
+export { COERT_KASTELEIN } from "./coert-kastelein.js";
+export { TUK_THE_SIMS_ARCHITECT } from "./tuk-the-sims-architect.js";
+export { CHRIS_DDR } from "./chris-ddr.js";
