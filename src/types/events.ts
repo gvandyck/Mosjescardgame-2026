@@ -45,6 +45,7 @@ export type GameEvent =
   | { type: "quest_rejected"; playerId: string; questId: CardId }
   | { type: "place_entered"; cardId: CardId }
   | { type: "place_destroyed"; cardId: CardId }
+  | { type: "place_trigger_fired"; placeCardId: CardId; triggerOn: string }
   | { type: "mosje_leveled_up"; target: MosjeRef; newLevel: 2 | 3 }
   | { type: "mosje_defeated"; target: MosjeRef }
   | { type: "die_rolled"; raw: 1 | 2 | 3 | 4 | 5 | 6; modifier: number; final: number; rollerId: string }
