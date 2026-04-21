@@ -39,8 +39,10 @@ export type GameEvent =
   | { type: "piecie_activated"; playerId: string; slotIndex: number; cardId: CardId }
   | { type: "piecie_destroyed"; target: { playerId: string; slotIndex: number }; cardId: CardId }
   | { type: "quest_attempted"; playerId: string; questId: CardId }
-  | { type: "quest_completed"; playerId: string; questId: CardId; reward: number }
-  | { type: "quest_failed"; playerId: string; questId: CardId; penalty: number }
+  | { type: "quest_completed"; playerId: string; questId: CardId; reward: number; rollResult: number }
+  | { type: "quest_failed"; playerId: string; questId: CardId; penalty: number; rollResult: number }
+  | { type: "quest_skipped"; playerId: string; questId: CardId }
+  | { type: "quest_rejected"; playerId: string; questId: CardId }
   | { type: "place_entered"; cardId: CardId }
   | { type: "place_destroyed"; cardId: CardId }
   | { type: "mosje_leveled_up"; target: MosjeRef; newLevel: 2 | 3 }
