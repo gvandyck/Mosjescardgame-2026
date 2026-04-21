@@ -37,6 +37,73 @@ export class InvalidChoiceError extends Error {
   }
 }
 
+function findActingMosje(state: GameState, invocation: CardInvocation) {
+  const player = state.players.find((candidate) => candidate.id === invocation.actingPlayerId);
+  if (player === undefined) return undefined;
+  return player.mosjes.find((candidate) => candidate.instanceId === invocation.actingMosjeRef.instanceId);
+}
+
+function effectContainsPrimitive(value: unknown, primitiveName: string): boolean {
+  if (Array.isArray(value)) {
+    return value.some((entry) => effectContainsPrimitive(entry, primitiveName));
+  }
+  if (value === null || typeof value !== "object") return false;
+
+  const obj = value as Record<string, unknown>;
+  if (obj["primitive"] === primitiveName) return true;
+  return Object.values(obj).some((nested) => effectContainsPrimitive(nested, primitiveName));
+}
+
+function isRestoreLocked(state: GameState, invocation: CardInvocation, card: CardDefinition): boolean {
+  const actingMosje = findActingMosje(state, invocation);
+  if (actingMosje === undefined) return false;
+  if (actingMosje.flags["buff:piecie_mp_restore_locked"] === undefined) return false;
+  return effectContainsPrimitive(card.effects, "gainMP");
+}
+
+function getNextPiecieFreeBuff(state: GameState, invocation: CardInvocation) {
+  const actingMosje = findActingMosje(state, invocation);
+  return actingMosje?.flags["buff:next_piecie_free"] as
+    | { readonly data?: { readonly usesRemaining?: number }; readonly expiryTurn?: number }
+    | undefined;
+}
+
+function consumeNextPiecieFree(state: GameState, invocation: CardInvocation): GameState {
+  const playerIndex = state.players.findIndex((candidate) => candidate.id === invocation.actingPlayerId);
+  if (playerIndex < 0) return state;
+
+  const mosjeIndex = state.players[playerIndex].mosjes.findIndex(
+    (candidate) => candidate.instanceId === invocation.actingMosjeRef.instanceId
+  );
+  if (mosjeIndex < 0) return state;
+
+  const mosje = state.players[playerIndex].mosjes[mosjeIndex];
+  const buff = mosje.flags["buff:next_piecie_free"] as
+    | { readonly data?: { readonly usesRemaining?: number }; readonly expiryTurn?: number }
+    | undefined;
+  if (buff === undefined) return state;
+
+  const usesRemaining = Number(buff.data?.usesRemaining ?? 1) - 1;
+  const nextFlags = { ...mosje.flags };
+  if (usesRemaining <= 0) {
+    delete nextFlags["buff:next_piecie_free"];
+  } else {
+    nextFlags["buff:next_piecie_free"] = {
+      data: { ...((buff.data as Record<string, unknown>) ?? {}), usesRemaining },
+      expiryTurn: buff.expiryTurn
+    };
+  }
+
+  const updatedMosjes = state.players[playerIndex].mosjes.map((candidate, index) =>
+    index === mosjeIndex ? { ...candidate, flags: nextFlags } : candidate
+  );
+  const updatedPlayers = state.players.map((player, index) =>
+    index === playerIndex ? { ...player, mosjes: updatedMosjes } : player
+  );
+
+  return { ...state, players: updatedPlayers };
+}
+
 // ─── Requirement validation ─────────────────────────────────────────────────
 
 function validateRequirement(
@@ -238,6 +305,15 @@ export function executeCard(
     });
   }
 
+  if (isRestoreLocked(state, invocation, card)) {
+    return appendEvent(state, {
+      type: "card_resolved",
+      cardId,
+      playerId: invocation.actingPlayerId,
+      outcome: "rejected"
+    });
+  }
+
   // Step 2b: Check targetability before paying cost (throws UntargetableError when blocked)
   try {
     resolveTargetReference(state, card.target, invocation);
@@ -257,7 +333,10 @@ export function executeCard(
   const effectiveCost = resolveEffectiveCost(state, card, context);
   let afterCost = state;
   if (effectiveCost.type === "mp" && effectiveCost.mp !== undefined && effectiveCost.mp > 0) {
-    if (!canPayCost(state, invocation, effectiveCost.mp)) {
+    const freeBuff = getNextPiecieFreeBuff(state, invocation);
+    const hasFreeActivation = Number(freeBuff?.data?.usesRemaining ?? 0) > 0;
+
+    if (!hasFreeActivation && !canPayCost(state, invocation, effectiveCost.mp)) {
       return appendEvent(state, {
         type: "card_resolved",
         cardId,
@@ -265,7 +344,10 @@ export function executeCard(
         outcome: "rejected"
       });
     }
-    afterCost = payCost(state, invocation, cardId, effectiveCost.mp, context);
+
+    afterCost = hasFreeActivation
+      ? consumeNextPiecieFree(state, invocation)
+      : payCost(state, invocation, cardId, effectiveCost.mp, context);
   }
 
   if (effectiveCost.type === "discard" && (effectiveCost.discardCount ?? 0) > 0) {

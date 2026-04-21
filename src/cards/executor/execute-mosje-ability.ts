@@ -17,6 +17,7 @@ export interface AbilityInvocation {
   readonly targetRef?: MosjeRef;
   readonly playerChoices?: Readonly<Record<string, unknown>>;
   readonly levelOverride?: 1 | 2 | 3;
+  readonly allowPassiveTrigger?: boolean;
 }
 
 export class NonMosjeCardError extends Error {
@@ -48,12 +49,7 @@ function resolveAbility(
   return { ability: definition.baseAbility, abilityId: `${definition.id}:base` };
 }
 
-function withMosjeFlag(
-  state: GameState,
-  ref: MosjeRef,
-  key: string,
-  value: unknown
-): GameState {
+function withMosjeFlag(state: GameState, ref: MosjeRef, key: string, value: unknown): GameState {
   const resolved = resolveMosje(state, ref);
   if (resolved === undefined) return state;
 
@@ -140,10 +136,11 @@ function payAbilityCost(
   return state;
 }
 
-export function executeMosjeAbility(
+function executeMosjeAbilityInternal(
   state: GameState,
   mosjeCardId: CardId,
-  abilityInvocation: AbilityInvocation
+  abilityInvocation: AbilityInvocation,
+  allowPassiveTrigger: boolean
 ): GameState {
   const card = getCard(mosjeCardId);
   if (card.category !== "mosje") throw new NonMosjeCardError(mosjeCardId);
@@ -155,7 +152,7 @@ export function executeMosjeAbility(
   const level = abilityInvocation.levelOverride ?? resolvedSelf.mosje.level;
   const { ability, abilityId } = resolveAbility(definition, level);
 
-  if (ability.usageLimit === "passive") {
+  if (ability.usageLimit === "passive" && !allowPassiveTrigger) {
     return appendEvent(state, {
       type: "warning",
       code: "mosje_ability_passive",
@@ -221,4 +218,20 @@ export function executeMosjeAbility(
   });
 
   return applyVictoryCheck(withEvent);
+}
+
+export function executeMosjeAbility(
+  state: GameState,
+  mosjeCardId: CardId,
+  abilityInvocation: AbilityInvocation
+): GameState {
+  return executeMosjeAbilityInternal(state, mosjeCardId, abilityInvocation, abilityInvocation.allowPassiveTrigger === true);
+}
+
+export function executeTriggeredMosjeAbility(
+  state: GameState,
+  mosjeCardId: CardId,
+  abilityInvocation: AbilityInvocation
+): GameState {
+  return executeMosjeAbilityInternal(state, mosjeCardId, abilityInvocation, true);
 }
