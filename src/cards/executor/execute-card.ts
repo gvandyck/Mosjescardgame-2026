@@ -428,12 +428,12 @@ export function executeCard(
     | undefined;
 
   if (doubleBuff !== undefined && Number(doubleBuff.data?.usesRemaining ?? 0) > 0) {
-    // Decrement usesRemaining; clear buff if it reaches 0
-    const newUsesRemaining = Number(doubleBuff.data?.usesRemaining ?? 1) - 1;
+    // Decrement usesRemaining; clear buff if it reaches 0.
+    const newUsesRemaining = Number(doubleBuff.data?.usesRemaining) - 1;
     const actingPlayerIdx = afterDouble.players.findIndex((p) => p.id === invocation.actingPlayerId);
-    const actingMosjeIdx = afterDouble.players[actingPlayerIdx]?.mosjes.findIndex(
+    const actingMosjeIdx = afterDouble.players[actingPlayerIdx].mosjes.findIndex(
       (m) => m.instanceId === invocation.actingMosjeRef.instanceId
-    ) ?? -1;
+    );
 
     if (actingPlayerIdx >= 0 && actingMosjeIdx >= 0) {
       const updatedMosjes = afterDouble.players[actingPlayerIdx].mosjes.map((mosje, index) => {
@@ -443,7 +443,7 @@ export function executeCard(
           delete nextFlags["buff:double_activate_this_turn"];
         } else {
           nextFlags["buff:double_activate_this_turn"] = {
-            data: { ...((doubleBuff.data as Record<string, unknown>) ?? {}), usesRemaining: newUsesRemaining },
+            data: { ...(doubleBuff.data as Record<string, unknown>), usesRemaining: newUsesRemaining },
             expiryTurn: doubleBuff.expiryTurn
           };
         }
