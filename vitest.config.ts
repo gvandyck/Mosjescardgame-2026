@@ -15,7 +15,8 @@ export default defineConfig({
         "src/effects/effect-context.ts",
         "src/effects/primitive.ts",
         "src/cards/**/index.ts",
-        "src/cards/schema/**/*.ts"
+        "src/cards/schema/**/*.ts",
+        "src/simulation/**/*.ts"
       ]
     }
   }
