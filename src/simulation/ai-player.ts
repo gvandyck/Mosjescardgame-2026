@@ -71,14 +71,30 @@ function buildPlayerChoices(
 
   // discardCardId: first card in hand alphabetically (excluding the card being played)
   const sortedHand = [...(player?.hand ?? [])].sort();
-  const discardCardId = sortedHand[0] ?? null;
+  const discardCardId = sortedHand[0] ?? ("kannetje-melk" as CardId);
+
+  // cardId: first card in discard pile
+  const discardPileCardId = player?.discard[0] ?? discardCardId ?? ("kannetje-melk" as CardId);
 
   // mosjeId: first Mosje in welloe pile
-  const mosjeId = player?.welloePile[0] ?? null;
+  const mosjeId = player?.welloePile[0] ?? player?.mosjes[player.activeMosjeIndex]?.cardId ?? ("kannetje-melk" as CardId);
 
   // lockedCardId: first card in opponent hand alphabetically
   const sortedOpponentHand = [...(opponent?.hand ?? [])].sort();
-  const lockedCardId = sortedOpponentHand[0] ?? null;
+  const lockedCardId = sortedOpponentHand[0] ?? discardCardId;
+
+  // targetMosjeCardId: first Mosje in own hand
+  const targetMosjeCardId =
+    sortedHand.find((cardId) => {
+      if (!hasCard(cardId)) return false;
+      try {
+        return getCard(cardId).category === "mosje";
+      } catch {
+        return false;
+      }
+    }) ??
+    player?.mosjes[player.activeMosjeIndex]?.cardId ??
+    ("kannetje-melk" as CardId);
 
   // deckOwnerId: opponent
   const deckOwnerId = opponent?.id ?? null;
@@ -86,8 +102,11 @@ function buildPlayerChoices(
   return {
     targetMP: 75,
     discardCardId,
+    baggaDiscard: discardCardId,
+    cardId: discardPileCardId,
     mosjeId,
     namedCardId: "kannetje-melk" as CardId,
+    targetMosjeCardId,
     lockedCardId,
     deckOwnerId
   };
@@ -101,7 +120,13 @@ function seemsPlayable(state: GameState, playerId: string, cardId: CardId): bool
   if (!hasCard(cardId)) return false;
   try {
     const card = getCard(cardId);
-    if (card.category !== "piecie" && card.category !== "snelle-piecie") return false;
+    if (
+      card.category !== "piecie" &&
+      card.category !== "snelle-piecie" &&
+      card.category !== "place"
+    ) {
+      return false;
+    }
 
     const player = getPlayer(state, playerId);
     if (player === undefined) return false;
@@ -171,16 +196,24 @@ export function aiTakeTurn(
   current = fireNewPlaceTriggers(beforeMain, current);
   if (isGameOver(current)) return current;
 
-  // ── Main phase — play up to 2 Piecie cards ──────────────────────────────────
+  // ── Main phase — play up to 2 cards (max 1 place) ──────────────────────────
   let pieciesPlayedThisTurn = 0;
+  let placePlayedThisTurn = false;
 
   while (pieciesPlayedThisTurn < 2 && !isGameOver(current)) {
     const player = getPlayer(current, playerId);
     if (player === undefined) break;
 
-    // Find playable piecie/snelle-piecie cards, sorted alphabetically
+    // Find playable cards, sorted alphabetically.
+    // Places are limited to one play per turn to avoid wasting replacement plays.
     const playablePiecies = [...player.hand]
       .filter((cardId) => seemsPlayable(current, playerId, cardId))
+      .filter((cardId) => {
+        if (!hasCard(cardId)) return false;
+        const category = getCard(cardId).category;
+        if (category === "place" && placePlayedThisTurn) return false;
+        return category === "piecie" || category === "snelle-piecie" || category === "place";
+      })
       .sort();
 
     if (playablePiecies.length === 0) break;
@@ -197,6 +230,7 @@ export function aiTakeTurn(
 
     const beforePlay = current;
     try {
+      const isPlacePlay = hasCard(cardId) && getCard(cardId).category === "place";
       current = executeCard(current, cardId, {
         actingPlayerId: playerId,
         actingMosjeRef: freshMosjeRef,
@@ -204,6 +238,9 @@ export function aiTakeTurn(
         playerChoices: choices
       });
       current = fireNewPlaceTriggers(beforePlay, current);
+      if (isPlacePlay) {
+        placePlayedThisTurn = true;
+      }
     } catch (err) {
       // Log error but continue — skip this card
       console.error(`[AI] executeCard error on ${cardId}:`, err instanceof Error ? err.message : String(err));

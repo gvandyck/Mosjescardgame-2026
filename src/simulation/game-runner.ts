@@ -8,6 +8,7 @@ import { createRng } from "../utils/rng.js";
 import { createGame } from "../engine/create-game.js";
 import { applyVictoryCheck } from "../engine/apply-victory-check.js";
 import { freezeRegistry } from "../cards/registry/index.js";
+import { getCard, hasCard } from "../cards/registry/card-registry.js";
 import { aiTakeTurn } from "./ai-player.js";
 import type { GameState } from "../types/game-state.js";
 import type { GameEvent } from "../types/events.js";
@@ -111,17 +112,22 @@ function collectStats(
             (questsFailedByPlayer[event.playerId] ?? 0) + 1;
         }
         break;
-      case "piecie_activated": {
-        if (event.playerId in pieciesPlayedByPlayer) {
-          pieciesPlayedByPlayer[event.playerId] =
-            (pieciesPlayedByPlayer[event.playerId] ?? 0) + 1;
-        }
-        break;
-      }
       case "card_resolved": {
         if (event.outcome === "success") {
           const cid = event.cardId as string;
           cardPlayCounts[cid] = (cardPlayCounts[cid] ?? 0) + 1;
+
+          if (event.playerId in pieciesPlayedByPlayer && hasCard(event.cardId)) {
+            const category = getCard(event.cardId).category;
+            if (category === "piecie") {
+              pieciesPlayedByPlayer[event.playerId] =
+                (pieciesPlayedByPlayer[event.playerId] ?? 0) + 1;
+            }
+            if (category === "snelle-piecie") {
+              snellePieciesPlayedByPlayer[event.playerId] =
+                (snellePieciesPlayedByPlayer[event.playerId] ?? 0) + 1;
+            }
+          }
         }
         break;
       }
