@@ -6,3 +6,5 @@ export { MARTIN_SENOR_WEST } from "./martin-senor-west.js";
 export { COERT_TECH_SAVANT } from "./coert-tech-savant.js";
 export { THE_HACKER } from "./the-hacker.js";
 export { JEFFREY_THE_SILENT_GAMBLER } from "./jeffrey-the-silent-gambler.js";
+export { CHRIS_THE_ALL_ROUNDER } from "./chris-the-all-rounder.js";
+export { YOURI_THE_SPEEDRUNNER } from "./youri-the-speedrunner.js";

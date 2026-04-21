@@ -16,3 +16,9 @@
 
 - Martin Senor West "Calculated Guess" ability requires reading the category/type of the just-revealed card from state and comparing it to a player-declared guess. No `$lastRevealedCardType` placeholder or `checkGuess` primitive exists. Card is implemented with only the reveal step; the conditional MP gain/loss is deferred.
 - The Hacker "cooldown_5_turns" is stored as a `usageLimit` label in the definition but the executor does not yet enforce a 5-turn cooldown window. The cooldown is logged here for future engine work; currently it fires as once-per-game (unlimited re-activation is blocked by `ability_used_this_turn` but not truly 5-turn gated).
+
+## Step 4
+
+- Chris The All-Rounder "activate face-down Piecie for free" requires an `activatePiecie` primitive targeting a slot by index. No such primitive exists. The card is defined with the effect call; actual slot-activation is deferred.
+- Ronald The Mastermind "activate Piecie from discard" requires an `activateFromDiscard` primitive. No such primitive exists. Effect call is defined; actual discard-activation is deferred.
+- Tuk The Healing Spirit "ally-heal" branch requires targeting a bench Mosje (`$bench`) and a `checkPlayerChoice` condition primitive. Neither exists. Card is simplified to self-heal only (gain 25 MP); ally-heal and passive +10 bonus are deferred.
