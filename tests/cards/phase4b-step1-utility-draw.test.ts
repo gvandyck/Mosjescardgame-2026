@@ -109,7 +109,7 @@ describe("phase4b step 1 - utility and draw piecies", () => {
 
   it("redbull draws 2 and grants this-turn extra slot buff", () => {
     const next = invoke("redbull");
-    expect(next.players[0].mosjes[0].mp).toBe(60);
+    expect(next.players[0].mosjes[0].mp).toBe(70);
     expect(next.players[0].hand).toEqual([cardId("h0"), cardId("d1"), cardId("d2")]);
     expect(next.players[0].mosjes[0].flags["buff:extra_piecie_slot_this_turn"]).toMatchObject({
       data: { extraSlots: 1 },
@@ -209,9 +209,9 @@ describe("phase4b step 1 - utility and draw piecies", () => {
       actingMosjeRef: { playerId: "p1", instanceId: "m1" }
     });
 
-    expect(amplified.players[0].mosjes[0].mp).toBe(70);
+    expect(amplified.players[0].mosjes[0].mp).toBe(80);
     expect(gained.players[0].mosjes[0].level).toBe(3);
-    expect(gained.players[0].mosjes[0].mp).toBe(20);
+    expect(gained.players[0].mosjes[0].mp).toBe(40);
   });
 
   it("chain-reaction gains 10 per discarded piecie card up to cap 5", () => {

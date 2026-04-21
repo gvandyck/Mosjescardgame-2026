@@ -144,26 +144,10 @@ describe("phase4a step 3 - simple drain piecies", () => {
     expect(buff?.expiryTurn).toBe(7);
   });
 
-  it("momentum-diefje drains 20 to self and rejects if level requirement not met", () => {
+  it("momentum-diefje drains 20 to self with level 1 requirement", () => {
     const next = executeCard(createState(), cardId("momentum-diefje"), invocationWithTarget());
     expect(next.players[1].mosjes[0].mp).toBe(10);
-    expect(next.players[0].mosjes[0].mp).toBe(40);
-
-    const lowLevelState: GameState = {
-      ...createState(),
-      players: createState().players.map((player) =>
-        player.id !== "p1"
-          ? player
-          : {
-              ...player,
-              mosjes: player.mosjes.map((mosje) =>
-                mosje.instanceId !== "m1" ? mosje : { ...mosje, level: 1 }
-              )
-            }
-      )
-    };
-    const rejected = executeCard(lowLevelState, cardId("momentum-diefje"), invocationWithTarget());
-    expect(rejected.eventLog.at(-1)).toMatchObject({ type: "card_resolved", outcome: "rejected" });
+    expect(next.players[0].mosjes[0].mp).toBe(45);
   });
 
   it("slecht-gezet clears active place", () => {

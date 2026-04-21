@@ -58,7 +58,7 @@ const PHYSICAL_FORCE_DECK_CARDS: ReadonlyArray<CardId> = [
   id("snelle_jensen"),
   id("snelle_bijna_welloe"),
   id("snelle_negate_elimination"),
-  id("momentum-rush"),
+  id("snelle_lucky_coin"),
   // Places ×3
   id("place_the_gym"),
   id("place_zo_is_natuur"),
@@ -115,7 +115,7 @@ const DIGITAL_CONTROL_DECK_CARDS: ReadonlyArray<CardId> = [
   // Snelle Piecies ×5
   id("snelle_counter_strikka"),
   id("snelle_counter_strikka"),
-  id("snelle_jeweetniet"),
+  id("snelle_counter_strikka"),
   id("snelle_lucky_coin"),
   id("snelle_sleutelpuntje"),
   // Places ×3
@@ -173,9 +173,9 @@ const ARTISTIC_RHYTHM_DECK_CARDS: ReadonlyArray<CardId> = [
   // Snelle Piecies ×5
   id("snelle_jensen"),
   id("snelle_bijna_welloe"),
+  id("snelle_lucky_coin"),
   id("snelle_dubbele_temminks"),
   id("snelle_dubbele_temminks"),
-  id("snelle_the_protector"),
   // Places ×3
   id("place_arcade"),
   id("place_quest_haven"),
