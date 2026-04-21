@@ -14,7 +14,8 @@ export function startTurn(state: GameState): GameState {
   let nextState: GameState = {
     ...state,
     players: updatedPlayers,
-    currentPhase: "draw"
+    currentPhase: "draw",
+    currentTurnStartCount: state.turnCount
   };
 
   nextState = appendEvent(nextState, {

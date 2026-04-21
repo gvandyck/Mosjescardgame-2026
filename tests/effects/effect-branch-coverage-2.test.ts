@@ -62,8 +62,7 @@ function state(): GameState {
     effectStack: [],
     eventLog: [],
     rngSeed: 1,
-    lastRoll: null
-  };
+    lastRoll: null};
 }
 
 function ctx(): EffectContext {
@@ -113,14 +112,14 @@ describe("extra branch coverage", () => {
       )
     };
 
-    expect(runConditionExpr(s, { condition: "checkTrait", params: { target: { playerId: "p1", instanceId: "m1" }, trait: "Creative", minStars: 1 } })).toBe(true);
-    expect(runConditionExpr(s, { condition: "checkSynergy", params: { mosje: { playerId: "p1", instanceId: "m1" }, partnerCardId: "partner" } })).toBe(true);
-    expect(runConditionExpr(s, { condition: "checkPetSynergy", params: { mosje: { playerId: "p1", instanceId: "m1" }, petCardId: "pet" } })).toBe(true);
-    expect(runConditionExpr(s, { condition: "checkLevel", params: { target: { playerId: "p1", instanceId: "m1" }, minLevel: 2 } })).toBe(true);
-    expect(runConditionExpr(s, { condition: "checkMP", params: { target: { playerId: "p1", instanceId: "m1" }, operator: ">=", value: 10 } })).toBe(true);
-    expect(runConditionExpr(s, { condition: "checkCardTypeInPlay", params: { playerId: "p1", cardType: "mosje" } })).toBe(true);
-    expect(runConditionExpr(s, { condition: "checkPlaceActive", params: { placeCardId: "place_a" } })).toBe(true);
-    expect(runConditionExpr(s, { condition: "unknown", params: {} })).toBe(false);
+    expect(runConditionExpr(s, { condition: "checkTrait", params: { target: { playerId: "p1", instanceId: "m1" }, trait: "Creative", minStars: 1 } }, ctx())).toBe(true);
+    expect(runConditionExpr(s, { condition: "checkSynergy", params: { mosje: { playerId: "p1", instanceId: "m1" }, partnerCardId: "partner" } }, ctx())).toBe(true);
+    expect(runConditionExpr(s, { condition: "checkPetSynergy", params: { mosje: { playerId: "p1", instanceId: "m1" }, petCardId: "pet" } }, ctx())).toBe(true);
+    expect(runConditionExpr(s, { condition: "checkLevel", params: { target: { playerId: "p1", instanceId: "m1" }, minLevel: 2 } }, ctx())).toBe(true);
+    expect(runConditionExpr(s, { condition: "checkMP", params: { target: { playerId: "p1", instanceId: "m1" }, operator: ">=", value: 10 } }, ctx())).toBe(true);
+    expect(runConditionExpr(s, { condition: "checkCardTypeInPlay", params: { playerId: "p1", cardType: "mosje" } }, ctx())).toBe(true);
+    expect(runConditionExpr(s, { condition: "checkPlaceActive", params: { placeCardId: "place_a" } }, ctx())).toBe(true);
+    expect(runConditionExpr(s, { condition: "unknown", params: {} }, ctx())).toBe(false);
   });
 
   it("covers board/cards and mp no-op branches", () => {
@@ -206,3 +205,5 @@ describe("extra branch coverage", () => {
     expect(cleared.players[0].flags["buff:bad"]).toBeDefined();
   });
 });
+
+

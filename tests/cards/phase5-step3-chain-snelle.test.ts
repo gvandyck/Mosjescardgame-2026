@@ -20,7 +20,7 @@ function makePendingEffect(
 ): PendingEffect {
   return {
     id,
-    source: { kind: "card", cardId: cardId(sourceCardId) },
+    source: { kind: "card", cardId: cardId(sourceCardId), playerId },
     primitive,
     params: { target: { playerId, instanceId }, amount },
     canBeCountered: true
@@ -73,8 +73,7 @@ function createTwoPlayerState(p1Mp = 80, p2Mp = 80): GameState {
     effectStack: [],
     eventLog: [],
     rngSeed: 1,
-    lastRoll: null
-  };
+    lastRoll: null};
 }
 
 function createBankState(p1Mp = 80): GameState {
@@ -349,14 +348,21 @@ describe("dubbele-temminks", () => {
 // ── jantje-jantje-jantje ──────────────────────────────────────────────────────
 
 describe("jantje-jantje-jantje", () => {
-  it("works when Bank is the active place (no MP cost, but discard no-op)", () => {
-    const state = createBankState(60);
+  it("works when Bank is active and discardCardId is provided", () => {
+    const state = {
+      ...createBankState(60),
+      players: createBankState(60).players.map((player) =>
+        player.id !== "p1" ? player : { ...player, hand: [cardId("discard-me")] }
+      )
+    };
     const next = executeCard(state, cardId("snelle_jantje_jantje_jantje"), {
       actingPlayerId: "p1",
-      actingMosjeRef: { playerId: "p1", instanceId: "m1" }
+      actingMosjeRef: { playerId: "p1", instanceId: "m1" },
+      playerChoices: { discardCardId: "discard-me" }
     });
-    // Discard cost = no-op, so MP unchanged
+    // Discard cost paid from hand; no MP cost
     expect(next.players[0].mosjes[0].mp).toBe(60);
+    expect(next.players[0].discard).toContain(cardId("discard-me"));
     const resolved = next.eventLog.some((e) => e.type === "card_resolved" && e.outcome === "success");
     expect(resolved).toBe(true);
   });
@@ -382,7 +388,7 @@ describe("Jensen → Frenssen → Blensen chain", () => {
     // Jensen effect on stack: p2 attacks p1 with loseMP(30)
     const jensenPending: PendingEffect = {
       id: "jensen-1",
-      source: { kind: "card", cardId: cardId("snelle_jensen") },
+      source: { kind: "card", cardId: cardId("snelle_jensen"), playerId: "p1" },
       primitive: "loseMP",
       params: { target: { playerId: "p1", instanceId: "m1" }, amount: 30 },
       canBeCountered: true
@@ -438,3 +444,5 @@ describe("Jensen → Frenssen → Blensen chain", () => {
     expect(negateEvents.length).toBeGreaterThanOrEqual(1); // Frenssen was negated by Blensen
   });
 });
+
+

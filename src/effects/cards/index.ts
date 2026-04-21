@@ -4,6 +4,8 @@ export { revealTopDeck } from "./reveal-top-deck.js";
 export { lookAtTop } from "./look-at-top.js";
 export { searchDeckAndDraw } from "./search-deck-and-draw.js";
 export { returnToHand } from "./return-to-hand.js";
+export { sendToBottomOfDeck } from "./send-to-bottom-of-deck.js";
+export { discardSourceCard } from "./discard-source-card.js";
 export type {
   DrawCardsParams,
   DiscardCardsParams,
@@ -11,5 +13,7 @@ export type {
   LookAtTopParams,
   CardFilter,
   SearchDeckAndDrawParams,
-  ReturnToHandParams
+  ReturnToHandParams,
+  SendToBottomOfDeckParams,
+  DiscardSourceCardParams
 } from "./types.js";

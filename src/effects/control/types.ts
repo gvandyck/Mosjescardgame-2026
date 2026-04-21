@@ -7,7 +7,8 @@ export interface EffectExpr {
 }
 
 export interface ConditionExpr {
-  readonly condition: string;
+  readonly condition?: string;
+  readonly primitive?: string;
   readonly params: Readonly<Record<string, unknown>>;
 }
 

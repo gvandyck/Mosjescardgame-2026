@@ -11,14 +11,31 @@ import { checkCardTypeInPlay } from "../../effects/conditions/check-card-type-in
 import { checkPlaceActive } from "../../effects/conditions/check-place-active.js";
 import { checkSynergy } from "../../effects/conditions/check-synergy.js";
 import { checkTrait as checkTraitCondition } from "../../effects/conditions/check-trait.js";
+import { discardCards } from "../../effects/cards/discard-cards.js";
 import type { RequirementDefinition } from "../schema/requirement-definition.js";
 import type { CardDefinition } from "../schema/card-definition.js";
+import type { CostDefinition } from "../schema/cost-definition.js";
 import { resolveTargetReference, UntargetableError } from "./resolve-target-reference.js";
 import type { CardInvocation } from "./resolve-target-reference.js";
 import type { EffectContext } from "../../effects/effect-context.js";
 import { runCardEffects } from "./run-card-effects.js";
+import { variableCostResolvers } from "../variable-cost-resolvers.js";
 
 export type { CardInvocation };
+
+export class MissingChoiceError extends Error {
+  constructor(choiceKey: string) {
+    super(`Missing required player choice: ${choiceKey}`);
+    this.name = "MissingChoiceError";
+  }
+}
+
+export class InvalidChoiceError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "InvalidChoiceError";
+  }
+}
 
 // ─── Requirement validation ─────────────────────────────────────────────────
 
@@ -124,7 +141,46 @@ function payCost(
       amount: mpCost,
       isCostPayment: true
     },
-    { ...context, source: { kind: "cost", cardId } }
+    { ...context, source: { kind: "cost", cardId, playerId: invocation.actingPlayerId } }
+  );
+}
+
+function resolveEffectiveCost(
+  state: GameState,
+  card: CardDefinition,
+  context: EffectContext
+): CostDefinition {
+  if (card.cost.type !== "variable") return card.cost;
+  const resolver = variableCostResolvers[(card.cost as { resolver?: string }).resolver ?? ""];
+  if (resolver === undefined) return { type: "free" };
+  return resolver(state, context);
+}
+
+function payDiscardCost(
+  state: GameState,
+  invocation: CardInvocation,
+  discardCount: number,
+  context: EffectContext
+): GameState {
+  const chosen = invocation.playerChoices?.discardCardId;
+  if (typeof chosen !== "string") {
+    throw new MissingChoiceError("discardCardId");
+  }
+
+  const player = state.players.find((p) => p.id === invocation.actingPlayerId);
+  if (player === undefined || !player.hand.includes(chosen as CardId)) {
+    throw new InvalidChoiceError(`Chosen discard card is not in hand: ${String(chosen)}`);
+  }
+
+  return discardCards(
+    state,
+    {
+      playerId: invocation.actingPlayerId,
+      count: discardCount,
+      mode: "choose",
+      chosenCardIds: [chosen]
+    },
+    context
   );
 }
 
@@ -141,7 +197,7 @@ export function executeCard(
   const card = getCard(cardId);
 
   const context: EffectContext = {
-    source: { kind: "card", cardId },
+    source: { kind: "card", cardId, playerId: invocation.actingPlayerId },
     actingPlayerId: invocation.actingPlayerId,
     rng: createRng(state.rngSeed),
     turnCount: state.turnCount
@@ -198,9 +254,10 @@ export function executeCard(
   }
 
   // Step 3: Pay cost
+  const effectiveCost = resolveEffectiveCost(state, card, context);
   let afterCost = state;
-  if (card.cost.type === "mp" && card.cost.mp !== undefined && card.cost.mp > 0) {
-    if (!canPayCost(state, invocation, card.cost.mp)) {
+  if (effectiveCost.type === "mp" && effectiveCost.mp !== undefined && effectiveCost.mp > 0) {
+    if (!canPayCost(state, invocation, effectiveCost.mp)) {
       return appendEvent(state, {
         type: "card_resolved",
         cardId,
@@ -208,7 +265,23 @@ export function executeCard(
         outcome: "rejected"
       });
     }
-    afterCost = payCost(state, invocation, cardId, card.cost.mp, context);
+    afterCost = payCost(state, invocation, cardId, effectiveCost.mp, context);
+  }
+
+  if (effectiveCost.type === "discard" && (effectiveCost.discardCount ?? 0) > 0) {
+    try {
+      afterCost = payDiscardCost(afterCost, invocation, effectiveCost.discardCount ?? 1, context);
+    } catch (error) {
+      if (error instanceof MissingChoiceError || error instanceof InvalidChoiceError) {
+        return appendEvent(state, {
+          type: "card_resolved",
+          cardId,
+          playerId: invocation.actingPlayerId,
+          outcome: "rejected"
+        });
+      }
+      throw error;
+    }
   }
 
   // Step 4: Resolve effects

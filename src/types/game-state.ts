@@ -23,4 +23,7 @@ export interface GameState {
   readonly eventLog: ReadonlyArray<GameEvent>;
   readonly rngSeed: number;
   readonly lastRoll: LastRoll | null;
+  readonly currentTurnStartCount?: number;
 }
+
+

@@ -6,7 +6,9 @@ import {
   revealTopDeck,
   lookAtTop,
   searchDeckAndDraw,
-  returnToHand
+  returnToHand,
+  sendToBottomOfDeck,
+  discardSourceCard
 } from "./cards/index.js";
 import {
   destroyPlace,
@@ -20,6 +22,7 @@ import { rollDie, rerollDie, chooseDieResult } from "./dice/index.js";
 import { applyBuff, reduceMPLossBy, clearExpiredBuffs, negateEffect } from "./buffs/index.js";
 import { ifThenElse, chain, choose, rollBranch, forEachTarget, multiplyByCount } from "./control/index.js";
 import { countCardsInZone } from "./query/index.js";
+import { checkPendingEffectAmount, checkEventLogThisTurn } from "./conditions/index.js";
 
 export class UnknownPrimitiveError extends Error {
   constructor(name: string) {
@@ -47,6 +50,8 @@ export const primitiveRegistry: Readonly<Record<string, Primitive>> = Object.fre
   lookAtTop,
   searchDeckAndDraw,
   returnToHand,
+  sendToBottomOfDeck,
+  discardSourceCard,
   destroyPlace,
   enterPlace,
   destroyPiecie,
@@ -69,7 +74,9 @@ export const primitiveRegistry: Readonly<Record<string, Primitive>> = Object.fre
 });
 
 export const queryRegistry: Readonly<Record<string, QueryPrimitive>> = Object.freeze({
-  countCardsInZone
+  countCardsInZone,
+  checkPendingEffectAmount,
+  checkEventLogThisTurn
 });
 
 export function resolvePrimitive(name: string): Primitive {

@@ -47,8 +47,7 @@ function createState(overrides: { selfMp?: number; traits?: Record<string, numbe
     effectStack: [],
     eventLog: [],
     rngSeed: 1,
-    lastRoll: null
-  };
+    lastRoll: null};
 }
 
 function makePendingLoseMP(id: string, playerId: string, instanceId: string, amount: number): PendingEffect {
@@ -110,9 +109,32 @@ beforeEach(() => {
       {
         primitive: "ifThenElse",
         params: {
-          condition: { condition: "checkTrait", params: { target: "$self", trait: "Physical", minStars: 3 } },
-          then: { primitive: "reduceMPLossBy", params: { target: "$self", amount: 9999, duration: 1 } },
-          else: { primitive: "reduceMPLossBy", params: { target: "$self", amount: 20, duration: 1 } }
+          condition: { primitive: "checkTrait", params: { target: "$self", trait: "Physical", minStars: 3 } },
+          then: {
+            primitive: "chain",
+            params: {
+              effects: [
+                { primitive: "negateEffect", params: { pendingEffectId: "$pendingEffectId" } },
+                { primitive: "gainMP", params: { target: "$self", amount: 15 } }
+              ]
+            }
+          },
+          else: {
+            primitive: "ifThenElse",
+            params: {
+              condition: { primitive: "checkPendingEffectAmount", params: { operator: ">=", value: 30 } },
+              then: {
+                primitive: "chain",
+                params: {
+                  effects: [
+                    { primitive: "negateEffect", params: { pendingEffectId: "$pendingEffectId" } },
+                    { primitive: "gainMP", params: { target: "$self", amount: 15 } }
+                  ]
+                }
+              },
+              else: { primitive: "gainMP", params: { target: "$self", amount: 15 } }
+            }
+          }
         }
       }
     ]
@@ -130,6 +152,7 @@ beforeEach(() => {
     duration: "instant",
     effects: [
       { primitive: "negateEffect", params: { pendingEffectId: "$pendingEffectId" } },
+      { primitive: "sendToBottomOfDeck", params: { playerId: "$player", cardId: "$pendingEffectCardId" } },
       {
         primitive: "ifThenElse",
         params: {
@@ -239,29 +262,49 @@ describe("counter-strikka", () => {
 // ── perfect-dodge ─────────────────────────────────────────────────────────────
 
 describe("perfect-dodge", () => {
-  it("applies 20 MP loss reduction (base) and costs 20 MP", () => {
+  it("physical 2 with pending amount >=30 negates effect and grants +15 MP after cost", () => {
     const state = createState({ selfMp: 60, traits: { Physical: 2 } });
-    const next = executeCard(state, cardId("snelle_perfect_dodge"), {
-      actingPlayerId: "p1",
-      actingMosjeRef: { playerId: "p1", instanceId: "m1" }
+    const withPending = pushPendingEffect(state, makePendingLoseMP("e_pd_1", "p1", "m1", 30));
+    const next = resolveEffectStack(withPending, {
+      respondingPlayerId: "p1",
+      snelleCardId: cardId("snelle_perfect_dodge"),
+      invocation: {
+        actingPlayerId: "p1",
+        actingMosjeRef: { playerId: "p1", instanceId: "m1" }
+      }
     });
-    const buff = next.players[0].mosjes[0].flags["buff:mp-loss-reduction"] as
-      | { data?: { amount?: number } }
-      | undefined;
-    expect(buff?.data?.amount).toBe(20);
-    expect(next.players[0].mosjes[0].mp).toBe(40); // 60 - 20 cost
+    expect(next.players[0].mosjes[0].mp).toBe(55); // 60 - 20 + 15
+    expect(next.eventLog.some((e) => e.type === "effect_negated")).toBe(true);
   });
 
-  it("applies 9999 (full block) with Physical ★★★", () => {
-    const state = createState({ selfMp: 60, traits: { Physical: 3 } });
-    const next = executeCard(state, cardId("snelle_perfect_dodge"), {
-      actingPlayerId: "p1",
-      actingMosjeRef: { playerId: "p1", instanceId: "m1" }
+  it("physical 2 with pending amount <30 does not negate, only grants +15 MP", () => {
+    const state = createState({ selfMp: 60, traits: { Physical: 2 } });
+    const withPending = pushPendingEffect(state, makePendingLoseMP("e_pd_2", "p1", "m1", 20));
+    const next = resolveEffectStack(withPending, {
+      respondingPlayerId: "p1",
+      snelleCardId: cardId("snelle_perfect_dodge"),
+      invocation: {
+        actingPlayerId: "p1",
+        actingMosjeRef: { playerId: "p1", instanceId: "m1" }
+      }
     });
-    const buff = next.players[0].mosjes[0].flags["buff:mp-loss-reduction"] as
-      | { data?: { amount?: number } }
-      | undefined;
-    expect(buff?.data?.amount).toBe(9999);
+    expect(next.players[0].mosjes[0].mp).toBe(35); // 60 -20 cost +15 gain -20 pending lose
+    expect(next.eventLog.some((e) => e.type === "effect_negated")).toBe(false);
+  });
+
+  it("physical 3 always negates pending effect", () => {
+    const state = createState({ selfMp: 60, traits: { Physical: 3 } });
+    const withPending = pushPendingEffect(state, makePendingLoseMP("e_pd_3", "p1", "m1", 10));
+    const next = resolveEffectStack(withPending, {
+      respondingPlayerId: "p1",
+      snelleCardId: cardId("snelle_perfect_dodge"),
+      invocation: {
+        actingPlayerId: "p1",
+        actingMosjeRef: { playerId: "p1", instanceId: "m1" }
+      }
+    });
+    expect(next.players[0].mosjes[0].mp).toBe(55); // 60 -20 +15
+    expect(next.eventLog.some((e) => e.type === "effect_negated")).toBe(true);
   });
 });
 
@@ -365,3 +408,5 @@ describe("gevalletje-klakkeloos", () => {
     expect(next.players[0].mosjes[0].mp).toBe(90); // 40 + 25 (klakkeloos) + 25 (original pending)
   });
 });
+
+

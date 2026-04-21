@@ -9,6 +9,7 @@ export interface MosjeRef {
 export interface EffectSource {
   readonly kind: "card" | "place" | "ability" | "quest" | "cost";
   readonly cardId?: CardId;
+  readonly playerId?: string;
 }
 
 export interface PlayerRef {
@@ -21,6 +22,7 @@ export type GameEvent =
   | { type: "phase_changed"; from: Phase; to: Phase }
   | { type: "mp_gained"; target: MosjeRef; amount: number; source: EffectSource }
   | { type: "mp_lost"; target: MosjeRef; amount: number; source: EffectSource }
+  | { type: "mp_loss_blocked"; target: MosjeRef; source: EffectSource }
   | { type: "mp_drained"; from: MosjeRef; to: MosjeRef; amount: number }
   | {
       type: "mp_set";
@@ -31,6 +33,7 @@ export type GameEvent =
     }
   | { type: "card_drawn"; playerId: string; cardId: CardId }
   | { type: "card_discarded"; playerId: string; cardId: CardId }
+  | { type: "card_sent_to_deck_bottom"; playerId: string; cardId: CardId; source: string }
   | { type: "cards_revealed_private"; viewerId: string; ownerId: string; cards: ReadonlyArray<CardId> }
   | { type: "piecie_placed"; playerId: string; slotIndex: number; cardId: CardId }
   | { type: "piecie_activated"; playerId: string; slotIndex: number; cardId: CardId }

@@ -2,10 +2,8 @@ import type { CardDefinition } from "../schema/card-definition.js";
 import type { CardId } from "../../types/card-id.js";
 import { registerCard } from "../registry/card-registry.js";
 
-// Jensen — ignore/negate a Piecie that specifically targets your Mosje.
-// The Piecie is sent to its owner's discard pile.
-// NOTE: phase5-questions Q10 — "send triggering piecie to discard" requires
-//   reverse-lookup of which card created the PendingEffect; stubbed as negateEffect only.
+// Jensen — ignore/negate a Piecie that specifically targets your Mosje,
+// then send that source card to its owner's discard pile.
 export const JENSEN: CardDefinition = {
   id: "snelle_jensen" as CardId,
   name: "Jensen!",
@@ -18,7 +16,8 @@ export const JENSEN: CardDefinition = {
   trigger: "instant",
   duration: "instant",
   effects: [
-    { primitive: "negateEffect", params: { pendingEffectId: "$pendingEffectId" } }
+    { primitive: "negateEffect", params: { pendingEffectId: "$pendingEffectId" } },
+    { primitive: "discardSourceCard", params: { pendingEffectId: "$pendingEffectId" } }
   ]
 };
 

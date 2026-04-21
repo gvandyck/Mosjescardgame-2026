@@ -28,6 +28,22 @@ export const loseMP: Primitive<LoseMPParams> = (state, params, context) => {
     return state;
   }
 
+  if (!params.isCostPayment) {
+    const mpLossImmune = targetMosje.flags["buff:mp_loss_immune"] as
+      | { readonly expiryTurn?: number }
+      | undefined;
+    if (mpLossImmune !== undefined) {
+      const isActive = mpLossImmune.expiryTurn === undefined || mpLossImmune.expiryTurn >= state.turnCount;
+      if (isActive) {
+        return appendEvent(state, {
+          type: "mp_loss_blocked",
+          target: params.target,
+          source: context.source
+        });
+      }
+    }
+  }
+
   if (!params.isCostPayment && targetMosje.flags.negate_next_mp_loss === true) {
     const updatedMosjes = targetPlayer.mosjes.map((mosje, index) => {
       if (index !== targetMosjeIndex) return mosje;

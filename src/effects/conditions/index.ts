@@ -5,3 +5,5 @@ export { checkLevel } from "./check-level.js";
 export { checkMP } from "./check-mp.js";
 export { checkCardTypeInPlay } from "./check-card-type-in-play.js";
 export { checkPlaceActive } from "./check-place-active.js";
+export { checkPendingEffectAmount } from "./check-pending-effect-amount.js";
+export { checkEventLogThisTurn } from "./check-event-log-this-turn.js";

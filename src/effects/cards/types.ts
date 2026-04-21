@@ -40,3 +40,12 @@ export interface ReturnToHandParams {
   readonly zone: "discard" | "welloe";
   readonly cardId: string;
 }
+
+export interface SendToBottomOfDeckParams {
+  readonly playerId: string;
+  readonly cardId: string;
+}
+
+export interface DiscardSourceCardParams {
+  readonly pendingEffectId: string;
+}

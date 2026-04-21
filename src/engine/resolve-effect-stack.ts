@@ -15,7 +15,9 @@ import type { PendingEffect, SnelleInvocationData } from "../types/pending-effec
 import type { EffectContext } from "../effects/effect-context.js";
 import type { RequirementDefinition } from "../cards/schema/requirement-definition.js";
 import type { CardDefinition } from "../cards/schema/card-definition.js";
+import type { CostDefinition } from "../cards/schema/cost-definition.js";
 import type { CardInvocation } from "../cards/executor/resolve-target-reference.js";
+import { variableCostResolvers } from "../cards/variable-cost-resolvers.js";
 
 // ─── Error classes ────────────────────────────────────────────────────────────
 
@@ -121,6 +123,34 @@ function canPayCost(state: GameState, invocation: CardInvocation, mpCost: number
   return mosje.mp >= mpCost;
 }
 
+function resolveEffectiveCost(state: GameState, card: CardDefinition, context: EffectContext): CostDefinition {
+  if (card.cost.type !== "variable") return card.cost;
+  const resolver = variableCostResolvers[(card.cost as { resolver?: string }).resolver ?? ""];
+  if (resolver === undefined) return { type: "free" };
+  return resolver(state, context);
+}
+
+function resolveAutoTargetRefFromPending(
+  state: GameState,
+  card: CardDefinition,
+  invocation: CardInvocation,
+  pending?: PendingEffect
+): CardInvocation {
+  if (invocation.targetRef !== undefined) return invocation;
+  if (card.target !== "opponent_active_mosje") return invocation;
+  const sourcePlayerId = pending?.source.playerId;
+  if (sourcePlayerId === undefined) return invocation;
+  const sourcePlayer = state.players.find((player) => player.id === sourcePlayerId);
+  if (sourcePlayer === undefined) return invocation;
+  const activeMosje = sourcePlayer.mosjes[sourcePlayer.activeMosjeIndex];
+  if (activeMosje === undefined) return invocation;
+
+  return {
+    ...invocation,
+    targetRef: { playerId: sourcePlayerId, instanceId: activeMosje.instanceId }
+  };
+}
+
 function payCost(
   state: GameState,
   invocation: CardInvocation,
@@ -136,7 +166,7 @@ function payCost(
       amount: mpCost,
       isCostPayment: true
     },
-    { ...context, source: { kind: "cost", cardId } }
+    { ...context, source: { kind: "cost", cardId, playerId: invocation.actingPlayerId } }
   );
 }
 
@@ -146,6 +176,8 @@ function validateAndPayResponseCard(
   invocation: CardInvocation,
   context: EffectContext
 ): { ok: true; state: GameState } | { ok: false; state: GameState } {
+  const effectiveCost = resolveEffectiveCost(state, card, context);
+
   const unmetRequirement = card.requirements.find((req) => !validateRequirement(state, req, invocation));
   if (unmetRequirement !== undefined) {
     return {
@@ -171,8 +203,8 @@ function validateAndPayResponseCard(
     };
   }
 
-  if (card.cost.type === "mp" && card.cost.mp !== undefined && card.cost.mp > 0) {
-    if (!canPayCost(state, invocation, card.cost.mp)) {
+  if (effectiveCost.type === "mp" && effectiveCost.mp !== undefined && effectiveCost.mp > 0) {
+    if (!canPayCost(state, invocation, effectiveCost.mp)) {
       return {
         ok: false,
         state: appendEvent(state, {
@@ -186,7 +218,7 @@ function validateAndPayResponseCard(
 
     return {
       ok: true,
-      state: payCost(state, invocation, card.id, card.cost.mp, context)
+      state: payCost(state, invocation, card.id, effectiveCost.mp, context)
     };
   }
 
@@ -208,7 +240,7 @@ function executeSnellePendingEffect(state: GameState, pendingEffect: PendingEffe
   };
 
   const context: EffectContext = {
-    source: { kind: "card", cardId },
+    source: { kind: "card", cardId, playerId: rawInvocation.actingPlayerId },
     actingPlayerId: rawInvocation.actingPlayerId,
     rng: createRng(state.rngSeed),
     turnCount: state.turnCount,
@@ -303,7 +335,7 @@ export function resolveEffectStack(
     }
 
     const responseContext: EffectContext = {
-      source: { kind: "card", cardId: options.snelleCardId },
+      source: { kind: "card", cardId: options.snelleCardId, playerId: options.respondingPlayerId },
       actingPlayerId: options.respondingPlayerId,
       rng: createRng(state.rngSeed),
       turnCount: state.turnCount,
@@ -311,7 +343,14 @@ export function resolveEffectStack(
       respondingToPendingEffect: state.effectStack[state.effectStack.length - 1]
     };
 
-    const validated = validateAndPayResponseCard(state, card, options.invocation, responseContext);
+    const invocationWithAutoTarget = resolveAutoTargetRefFromPending(
+      state,
+      card,
+      options.invocation,
+      state.effectStack[state.effectStack.length - 1]
+    );
+
+    const validated = validateAndPayResponseCard(state, card, invocationWithAutoTarget, responseContext);
     if (!validated.ok) {
       return validated.state;
     }
@@ -321,14 +360,14 @@ export function resolveEffectStack(
       | PendingEffect
       | undefined;
     const snelleInvocationData: SnelleInvocationData = {
-      actingPlayerId: options.invocation.actingPlayerId,
-      actingMosjeRef: options.invocation.actingMosjeRef,
-      targetRef: options.invocation.targetRef,
-      playerChoices: options.invocation.playerChoices
+      actingPlayerId: invocationWithAutoTarget.actingPlayerId,
+      actingMosjeRef: invocationWithAutoTarget.actingMosjeRef,
+      targetRef: invocationWithAutoTarget.targetRef,
+      playerChoices: invocationWithAutoTarget.playerChoices
     };
     const pendingEffect: PendingEffect = {
       id: `snelle_${options.snelleCardId}_${validated.state.turnCount}_${validated.state.effectStack.length}`,
-      source: { kind: "card", cardId: options.snelleCardId },
+      source: { kind: "card", cardId: options.snelleCardId, playerId: options.respondingPlayerId },
       primitive: "__snelle__",
       params: {},
       canBeCountered: true,
@@ -336,12 +375,20 @@ export function resolveEffectStack(
       snelleInvocation: snelleInvocationData,
       respondingToEffectId: topEffect?.id
     };
-    return { ...validated.state, effectStack: [...validated.state.effectStack, pendingEffect] };
+    return appendEvent(
+      { ...validated.state, effectStack: [...validated.state.effectStack, pendingEffect] },
+      {
+        type: "card_resolved",
+        cardId: options.snelleCardId,
+        playerId: options.respondingPlayerId,
+        outcome: "success"
+      }
+    );
   }
 
   // ── Non-counter snelle: validate/pay, then execute as interrupt, then resolve stack ──
   const context: EffectContext = {
-    source: { kind: "card", cardId: options.snelleCardId },
+    source: { kind: "card", cardId: options.snelleCardId, playerId: options.respondingPlayerId },
     actingPlayerId: options.respondingPlayerId,
     rng: createRng(state.rngSeed),
     turnCount: state.turnCount,
@@ -369,7 +416,13 @@ export function resolveEffectStack(
   };
 
   const afterSnelle = runCardEffects(validated.state, card.effects, effectInvocation, context);
-  return resolveAllPending(afterSnelle);
+  const withResolved = appendEvent(afterSnelle, {
+    type: "card_resolved",
+    cardId: options.snelleCardId,
+    playerId: options.respondingPlayerId,
+    outcome: "success"
+  });
+  return resolveAllPending(withResolved);
 }
 
 /** Push an arbitrary PendingEffect to the effectStack (for game system use). */

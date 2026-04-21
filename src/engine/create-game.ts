@@ -85,6 +85,9 @@ export function createGame(config: {
     effectStack: [],
     eventLog: [],
     rngSeed: config.seed,
-    lastRoll: null
+    lastRoll: null,
+    currentTurnStartCount: 0
   };
 }
+
+

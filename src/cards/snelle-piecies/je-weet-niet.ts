@@ -3,8 +3,6 @@ import type { CardId } from "../../types/card-id.js";
 import { registerCard } from "../registry/card-registry.js";
 
 // Jeweetniet wie Ikben — negate all MP loss for active Mosje this turn AND next player turn.
-// Implemented as a large reduction buff (9999) lasting 2 turns for effective immunity.
-// NOTE: phase5-questions Q11 — proper turnsLeft-based immunity flag pending UI/turn tracker work.
 export const JE_WEET_NIET: CardDefinition = {
   id: "snelle_jeweetniet" as CardId,
   name: "Jeweetniet wie Ikben",
@@ -17,8 +15,13 @@ export const JE_WEET_NIET: CardDefinition = {
   duration: "instant",
   effects: [
     {
-      primitive: "reduceMPLossBy",
-      params: { target: "$self", amount: 9999, duration: 2 }
+      primitive: "applyBuff",
+      params: {
+        target: "$self",
+        buffId: "mp_loss_immune",
+        data: { immune: true },
+        expiryTurn: "$currentTurn + 2"
+      }
     }
   ]
 };

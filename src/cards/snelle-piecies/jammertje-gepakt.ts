@@ -5,8 +5,6 @@ import { registerCard } from "../registry/card-registry.js";
 // Jammertje Gepakt — cancel a Piecie activation currently being attempted.
 // Send that Piecie to the bottom of its owner's deck (not discard).
 // Mental ★★★: also draw 1 card.
-// NOTE: phase5-questions Q7 — sendToBottomOfDeck primitive missing.
-//   Stubbed as negateEffect only; "send to deck bottom" deferred.
 export const JAMMERTJE_GEPAKT: CardDefinition = {
   id: "snelle_jammertje_gepakt" as CardId,
   name: "Jammertje Gepakt",
@@ -20,6 +18,13 @@ export const JAMMERTJE_GEPAKT: CardDefinition = {
   duration: "instant",
   effects: [
     { primitive: "negateEffect", params: { pendingEffectId: "$pendingEffectId" } },
+    {
+      primitive: "sendToBottomOfDeck",
+      params: {
+        playerId: "$opponent",
+        cardId: "$pendingEffectCardId"
+      }
+    },
     {
       primitive: "ifThenElse",
       params: {

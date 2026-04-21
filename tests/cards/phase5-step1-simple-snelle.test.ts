@@ -46,8 +46,7 @@ function createState(overrides: { selfMp?: number; level?: number; traits?: Reco
     effectStack: [],
     eventLog: [],
     rngSeed: 42,
-    lastRoll: null
-  };
+    lastRoll: null};
 }
 
 beforeEach(() => {
@@ -307,21 +306,29 @@ describe("je-weet-niet", () => {
       trigger: "instant",
       duration: "instant",
       effects: [
-        { primitive: "reduceMPLossBy", params: { target: "$self", amount: 9999, duration: 2 } }
+        {
+          primitive: "applyBuff",
+          params: {
+            target: "$self",
+            buffId: "mp_loss_immune",
+            data: { immune: true },
+            expiryTurn: "$currentTurn + 2"
+          }
+        }
       ]
     });
   });
 
-  it("applies a large mp-loss-reduction buff", () => {
+  it("applies mp_loss_immune buff", () => {
     const state = createState({ selfMp: 30 });
     const next = executeCard(state, cardId("snelle_jeweetniet"), {
       actingPlayerId: "p1",
       actingMosjeRef: { playerId: "p1", instanceId: "m1" }
     });
-    const buff = next.players[0].mosjes[0].flags["buff:mp-loss-reduction"] as
-      | { data?: { amount?: number } }
+    const buff = next.players[0].mosjes[0].flags["buff:mp_loss_immune"] as
+      | { data?: { immune?: boolean } }
       | undefined;
-    expect(buff?.data?.amount).toBe(9999);
+    expect(buff?.data?.immune).toBe(true);
   });
 });
 
@@ -382,7 +389,8 @@ describe("jensen", () => {
       trigger: "instant",
       duration: "instant",
       effects: [
-        { primitive: "negateEffect", params: { pendingEffectId: "$pendingEffectId" } }
+        { primitive: "negateEffect", params: { pendingEffectId: "$pendingEffectId" } },
+        { primitive: "discardSourceCard", params: { pendingEffectId: "$pendingEffectId" } }
       ]
     });
   });
@@ -396,3 +404,5 @@ describe("jensen", () => {
     expect(next.players[0].mosjes[0].mp).toBe(40); // 50 - 10
   });
 });
+
+
