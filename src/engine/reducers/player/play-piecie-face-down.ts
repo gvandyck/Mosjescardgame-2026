@@ -1,6 +1,30 @@
 import { appendEvent } from "../../append-event.js";
+import { getCard } from "../../../cards/registry/card-registry.js";
 import type { GameState } from "../../../types/game-state.js";
 import type { PlayPiecieFaceDownAction } from "../../../types/player-reducer-actions.js";
+
+function hasDurationBuffEffect(value: unknown): boolean {
+  if (Array.isArray(value)) {
+    return value.some((entry) => hasDurationBuffEffect(entry));
+  }
+  if (value === null || typeof value !== "object") return false;
+
+  const obj = value as Record<string, unknown>;
+  if (obj["primitive"] === "applyBuff") {
+    const params = obj["params"] as Record<string, unknown> | undefined;
+    if (params !== undefined && params["expiryTurn"] !== undefined) return true;
+  }
+
+  return Object.values(obj).some((nested) => hasDurationBuffEffect(nested));
+}
+
+function resolveCardEffects(cardId: string): unknown[] {
+  try {
+    return getCard(cardId).effects;
+  } catch {
+    return [];
+  }
+}
 
 export function playPiecieFaceDown(state: GameState, action: PlayPiecieFaceDownAction): GameState {
   const playerIndex = state.players.findIndex((player) => player.id === action.playerId);
@@ -27,10 +51,19 @@ export function playPiecieFaceDown(state: GameState, action: PlayPiecieFaceDownA
   });
 
   const updatedHand = player.hand.filter((_, index) => index !== handIndex);
+  const shouldMarkDurationBonus =
+    state.gameFlags?.["synergy_chamber_active"] === true && hasDurationBuffEffect(resolveCardEffects(action.cardId));
+
   const updatedPlayer = {
     ...player,
     hand: updatedHand,
-    piecieSlots: updatedSlots
+    piecieSlots: updatedSlots,
+    flags: shouldMarkDurationBonus
+      ? {
+          ...player.flags,
+          [`synergy_chamber_duration_bonus:${action.cardId}`]: true
+        }
+      : player.flags
   };
 
   const updatedPlayers = state.players.map((item, index) => (index === playerIndex ? updatedPlayer : item));

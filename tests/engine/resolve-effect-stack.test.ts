@@ -108,6 +108,7 @@ function createState(overrides: { selfMp?: number; oppMp?: number } = {}): GameS
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: {}
       },
       {
@@ -125,6 +126,7 @@ function createState(overrides: { selfMp?: number; oppMp?: number } = {}): GameS
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: {}
       }
     ],

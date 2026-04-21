@@ -97,7 +97,6 @@ export function enterPlace(state: GameState, cardId: CardId): GameState {
 
   const withActivePlace: GameState = {
     ...next,
-    voidActive: cardId === "place_the_void" ? true : next.voidActive ?? false,
     activePlace: {
       cardId,
       flags: {},
@@ -121,7 +120,6 @@ export function exitPlace(state: GameState): GameState {
 
   const withoutPlace: GameState = {
     ...next,
-    voidActive: placeCardId === "place_the_void" ? false : next.voidActive ?? false,
     activePlace: null
   };
 
@@ -131,9 +129,6 @@ export function exitPlace(state: GameState): GameState {
 export function resolveActivePlaceTriggers(state: GameState, event: GameEvent): GameState {
   const activePlace = state.activePlace;
   if (activePlace === null) return state;
-  const subscribedTriggers = Array.isArray((activePlace as { subscribedTriggers?: unknown }).subscribedTriggers)
-    ? (activePlace as { readonly subscribedTriggers: ReadonlyArray<PlaceTrigger> }).subscribedTriggers
-    : [];
 
   const actingPlayerId = playerIdFromEvent(event) ?? state.currentPlayerId;
   const actingMosjeRef = findActiveMosjeRef(state, actingPlayerId);
@@ -152,7 +147,7 @@ export function resolveActivePlaceTriggers(state: GameState, event: GameEvent): 
   };
 
   let next = state;
-  for (const trigger of subscribedTriggers) {
+  for (const trigger of activePlace.subscribedTriggers) {
     if (!eventMatches(trigger, event)) continue;
     if (!playerFilterPasses(next, event, trigger)) continue;
 

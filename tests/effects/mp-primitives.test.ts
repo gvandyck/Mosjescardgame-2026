@@ -29,6 +29,7 @@ function createState(): GameState {
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: {}
       },
       {
@@ -49,6 +50,7 @@ function createState(): GameState {
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: {}
       }
     ],
@@ -115,7 +117,7 @@ describe("mp primitives", () => {
   it("void blocks non-cost loss and gain", () => {
     const state = {
       ...createState(),
-      activePlace: { cardId: "place_the_void", flags: {} }
+      gameFlags: { void_active: true }
     } as GameState;
 
     const gainState = gainMP(state, { target: { playerId: "p1", instanceId: "m1" }, amount: 20 }, context());
@@ -129,6 +131,20 @@ describe("mp primitives", () => {
     expect(gainState.players[0].mosjes[0].mp).toBe(10);
     expect(loseState.players[0].mosjes[0].mp).toBe(10);
     expect(costState.players[0].mosjes[0].mp).toBe(-10);
+  });
+
+  it("tracks cumulative non-cost damage only", () => {
+    const state = createState();
+
+    const damaged = loseMP(state, { target: { playerId: "p1", instanceId: "m1" }, amount: 12 }, context());
+    const costPaid = loseMP(
+      damaged,
+      { target: { playerId: "p1", instanceId: "m1" }, amount: 7, isCostPayment: true },
+      context()
+    );
+
+    expect(damaged.players[0].totalDamageTaken).toBe(12);
+    expect(costPaid.players[0].totalDamageTaken).toBe(12);
   });
 
   it("loseMP applies kastelein reduction path", () => {
@@ -161,7 +177,7 @@ describe("mp primitives", () => {
   it("setMP is blocked by momentum stabilizer", () => {
     const state = {
       ...createState(),
-      activePlace: { cardId: "place_momentum_stabilizer", flags: {} }
+      activePlace: { cardId: "place_momentum_stabilizer", flags: {}, subscribedTriggers: [] }
     } as GameState;
 
     const next = setMP(state, { target: { playerId: "p1", instanceId: "m1" }, value: 99 }, context());

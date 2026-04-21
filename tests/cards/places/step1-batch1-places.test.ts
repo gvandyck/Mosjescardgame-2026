@@ -10,6 +10,7 @@ import { THE_GYM } from "../../../src/cards/places/the-gym.js";
 import { SKIFFA } from "../../../src/cards/places/skiffa.js";
 import { THE_VOID } from "../../../src/cards/places/the-void.js";
 import { ZO_IS_NATUUR } from "../../../src/cards/places/zo-is-natuur.js";
+import type { MosjeDefinition } from "../../../src/cards/schema/mosje-definition.js";
 import type { CardId } from "../../../src/types/card-id.js";
 import type { GameState } from "../../../src/types/game-state.js";
 
@@ -71,6 +72,28 @@ function mp(state: GameState, playerId: string): number {
   if (player === undefined) throw new Error("missing player");
   return player.mosjes[player.activeMosjeIndex].mp;
 }
+
+const FIGHTER_MOSJE: MosjeDefinition = {
+  id: id("mosje_fighter"),
+  name: "Fighter",
+  category: "mosje",
+  isBoosterOnly: false,
+  cost: { type: "free" },
+  requirements: [],
+  target: "self_active_mosje",
+  trigger: "on_play",
+  duration: "instant",
+  effects: [],
+  mosjeType: "FIGHTING",
+  traits: { Physical: 1, Mental: 0, Social: 0, Creative: 0, Technical: 0, Resilient: 0 },
+  startMP: 50,
+  baseAbility: {
+    trigger: "on_play",
+    usageLimit: "passive",
+    effects: [],
+    description: ""
+  }
+};
 
 beforeEach(() => {
   clearRegistry();
@@ -164,7 +187,7 @@ describe("step1 batch1 places", () => {
       }
     );
 
-    expect(entered.voidActive).toBe(true);
+    expect(entered.gameFlags["void_active"]).toBe(true);
     expect(mp(blockedLoss, "p1")).toBe(50);
     expect(mp(costLoss, "p1")).toBe(40);
   });
@@ -185,8 +208,43 @@ describe("step1 batch1 places", () => {
       }
     );
 
-    expect(replaced.voidActive).toBe(false);
+    expect(replaced.gameFlags["void_active"]).toBe(false);
     expect(mp(gained, "p1")).toBe(70);
+  });
+
+  it("the-gym gives fighting mosje +25 when physical trait is below 3", () => {
+    registerCard(FIGHTER_MOSJE);
+
+    const prepared = {
+      ...baseState(),
+      players: baseState().players.map((player) =>
+        player.id !== "p2"
+          ? player
+          : {
+              ...player,
+              mosjes: player.mosjes.map((mosje, index) =>
+                index === player.activeMosjeIndex
+                  ? {
+                      ...mosje,
+                      cardId: id("mosje_fighter"),
+                      flags: {
+                        ...mosje.flags,
+                        traits: { Physical: 1, Resilient: 0 }
+                      }
+                    }
+                  : mosje
+              )
+            }
+      )
+    };
+
+    const entered = enterPlace(prepared, id("place_the_gym"));
+    const fired = appendEvent(
+      { ...entered, currentPlayerId: "p1" },
+      { type: "turn_ended", turn: 1, playerId: "p1" }
+    );
+
+    expect(mp(fired, "p2")).toBe(75);
   });
 
   it("zo-is-natuur enters and applies resilient split at turn_end", () => {

@@ -51,6 +51,7 @@ function createState(handCount: number): GameState {
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: {}
       }
     ],

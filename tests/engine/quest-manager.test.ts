@@ -75,6 +75,7 @@ function baseState(): GameState {
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: { quests_completed_total: 0 },
       },
       {
@@ -96,6 +97,7 @@ function baseState(): GameState {
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: { quests_completed_total: 0 },
       },
     ],

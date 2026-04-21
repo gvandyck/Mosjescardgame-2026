@@ -32,6 +32,7 @@ function stateWithLevel3(): GameState {
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: {}
       },
       {
@@ -53,6 +54,7 @@ function stateWithLevel3(): GameState {
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: {}
       }
     ],

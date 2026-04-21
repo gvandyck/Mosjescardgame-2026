@@ -15,6 +15,8 @@ export const THE_VOID: PlaceDefinition = {
   trigger: "passive",
   duration: "while_active",
   effects: [],
+  onEnterEffects: [{ primitive: "setGameFlag", params: { flag: "void_active", value: true } }],
+  onExitEffects: [{ primitive: "setGameFlag", params: { flag: "void_active", value: false } }],
   triggers: []
 };
 

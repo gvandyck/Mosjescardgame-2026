@@ -52,6 +52,7 @@ function createState(): GameState {
         discard: [cardId("discard_piecie"), cardId("discard_place")],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: {}
       }
     ],

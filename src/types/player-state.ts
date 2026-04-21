@@ -12,5 +12,6 @@ export interface PlayerState {
   readonly discard: ReadonlyArray<CardId>;
   readonly welloePile: ReadonlyArray<CardId>;
   readonly activeMosjeIndex: 0 | 1;
+  readonly totalDamageTaken: number;
   readonly flags: Readonly<Record<string, unknown>>;
 }

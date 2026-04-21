@@ -4,6 +4,7 @@ import {
   checkLevel,
   checkMP,
   checkPendingEffectAmount,
+  checkMosjeType,
   checkPetSynergy,
   checkPlaceActive,
   checkSynergy,
@@ -25,6 +26,7 @@ export function runConditionExpr(state: GameState, expr: ConditionExpr, context:
   if (conditionName === "checkPendingEffectAmount") {
     return checkPendingEffectAmount(state, expr.params as never, context);
   }
+  if (conditionName === "checkMosjeType") return checkMosjeType(state, expr.params as never);
   if (conditionName === "checkEventLogThisTurn") {
     return checkEventLogThisTurn(state, expr.params as never, context);
   }

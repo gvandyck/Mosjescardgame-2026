@@ -38,6 +38,7 @@ function createState(overrides: { selfMp?: number; level?: number; traits?: Reco
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: {}
       }
     ],

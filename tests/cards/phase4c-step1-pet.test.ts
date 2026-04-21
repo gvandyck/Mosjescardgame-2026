@@ -35,6 +35,7 @@ function createState(): GameState {
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: {}
       },
       {
@@ -54,6 +55,7 @@ function createState(): GameState {
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: {}
       }
     ],

@@ -31,7 +31,16 @@ export function loseMP(state: GameState, action: LoseMPAction): GameState {
   });
 
   const updatedPlayer = { ...player, mosjes: updatedMosjes };
-  const updatedPlayers = state.players.map((item, index) => (index === playerIndex ? updatedPlayer : item));
+  const isCostPayment = action.source.kind === "cost";
+  const updatedPlayers = state.players.map((item, index) => {
+    if (index !== playerIndex) return item;
+    return {
+      ...updatedPlayer,
+      totalDamageTaken: isCostPayment
+        ? updatedPlayer.totalDamageTaken
+        : updatedPlayer.totalDamageTaken + action.amount
+    };
+  });
   const nextState = { ...state, players: updatedPlayers };
 
   const withEvent = appendEvent(nextState, {

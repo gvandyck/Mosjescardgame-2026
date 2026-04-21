@@ -23,10 +23,7 @@ export const gainMP: Primitive<GainMPParams> = (state, params, context) => {
   );
   if (targetMosjeIndex < 0) return state;
 
-  if (
-    context.source.kind !== "cost" &&
-    (state.voidActive === true || state.activePlace?.cardId === "place_the_void")
-  ) {
+  if (context.source.kind !== "cost" && state.gameFlags?.["void_active"] === true) {
     return state;
   }
 

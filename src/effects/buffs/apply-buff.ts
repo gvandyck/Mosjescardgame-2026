@@ -2,10 +2,15 @@ import { appendEvent } from "../../engine/append-event.js";
 import type { Primitive } from "../primitive.js";
 import type { ApplyBuffParams } from "./types.js";
 
-export const applyBuff: Primitive<ApplyBuffParams> = (state, params) => {
+export const applyBuff: Primitive<ApplyBuffParams> = (state, params, context) => {
   const key = `buff:${params.buffId}`;
   const playerIndex = state.players.findIndex((player) => player.id === params.target.playerId);
   if (playerIndex < 0) return state;
+
+  const durationBonusKey = `synergy_chamber_duration_bonus:${context.source.cardId ?? ""}`;
+  const sourcePlayer = state.players.find((player) => player.id === context.actingPlayerId);
+  const hasDurationBonus = sourcePlayer?.flags[durationBonusKey] === true;
+  const effectiveExpiryTurn = hasDurationBonus ? params.expiryTurn + 1 : params.expiryTurn;
 
   if (params.target.instanceId === undefined) {
     const updatedPlayers = state.players.map((player, index) => {
@@ -16,7 +21,7 @@ export const applyBuff: Primitive<ApplyBuffParams> = (state, params) => {
           ...player.flags,
           [key]: {
             data: params.data,
-            expiryTurn: params.expiryTurn
+            expiryTurn: effectiveExpiryTurn
           }
         }
       };
@@ -26,7 +31,7 @@ export const applyBuff: Primitive<ApplyBuffParams> = (state, params) => {
       type: "buff_applied",
       target: { playerId: params.target.playerId },
       buffId: params.buffId,
-      expiryTurn: params.expiryTurn
+      expiryTurn: effectiveExpiryTurn
     });
   }
 
@@ -42,7 +47,7 @@ export const applyBuff: Primitive<ApplyBuffParams> = (state, params) => {
         ...mosje.flags,
         [key]: {
           data: params.data,
-          expiryTurn: params.expiryTurn
+          expiryTurn: effectiveExpiryTurn
         }
       }
     };
@@ -60,6 +65,6 @@ export const applyBuff: Primitive<ApplyBuffParams> = (state, params) => {
     type: "buff_applied",
     target: { playerId: params.target.playerId, instanceId: params.target.instanceId },
     buffId: params.buffId,
-    expiryTurn: params.expiryTurn
+    expiryTurn: effectiveExpiryTurn
   });
 };

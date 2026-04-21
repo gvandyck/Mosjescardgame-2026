@@ -48,6 +48,7 @@ function createTwoPlayerState(p1Mp = 80, p2Mp = 80): GameState {
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: {}
       },
       {
@@ -65,6 +66,7 @@ function createTwoPlayerState(p1Mp = 80, p2Mp = 80): GameState {
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: {}
       }
     ],
@@ -78,7 +80,7 @@ function createTwoPlayerState(p1Mp = 80, p2Mp = 80): GameState {
 
 function createBankState(p1Mp = 80): GameState {
   const base = createTwoPlayerState(p1Mp);
-  return { ...base, activePlace: { cardId: cardId("place_bank_chilling"), ownerId: "p1", turnsActive: 1 } };
+  return { ...base, activePlace: { cardId: cardId("place_bank_chilling"), flags: {}, subscribedTriggers: [] } };
 }
 
 beforeEach(() => {

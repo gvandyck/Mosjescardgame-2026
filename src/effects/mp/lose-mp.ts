@@ -24,10 +24,7 @@ export const loseMP: Primitive<LoseMPParams> = (state, params, context) => {
 
   const targetMosje = targetPlayer.mosjes[targetMosjeIndex];
 
-  if (
-    !params.isCostPayment &&
-    (state.voidActive === true || state.activePlace?.cardId === "place_the_void")
-  ) {
+  if (!params.isCostPayment && state.gameFlags?.["void_active"] === true) {
     return state;
   }
 

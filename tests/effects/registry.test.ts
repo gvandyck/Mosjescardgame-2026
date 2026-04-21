@@ -29,6 +29,7 @@ function createState(): GameState {
         discard: ["x1"],
         welloePile: ["w1"],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: { "pet:pet:expiryTurn": 10 }
       },
       {
@@ -49,6 +50,7 @@ function createState(): GameState {
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: {}
       }
     ],

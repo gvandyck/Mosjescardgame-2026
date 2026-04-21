@@ -39,6 +39,7 @@ function state(): GameState {
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: { "pet:pet:expiryTurn": 2 }
       },
       {
@@ -54,6 +55,7 @@ function state(): GameState {
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: {}
       }
     ],
@@ -88,7 +90,7 @@ describe("extra branch coverage", () => {
   it("covers condition-expression dispatch paths", () => {
     const s = {
       ...state(),
-      activePlace: { cardId: "place_a", flags: { cardType: "place" } },
+      activePlace: { cardId: "place_a", flags: { cardType: "place" }, subscribedTriggers: [] },
       players: state().players.map((player) =>
         player.id === "p1"
           ? {
@@ -147,7 +149,7 @@ describe("extra branch coverage", () => {
     ).toEqual(s);
 
     const blockedSet = setMP(
-      { ...s, activePlace: { cardId: "place_momentum_stabilizer", flags: {} } },
+      { ...s, activePlace: { cardId: "place_momentum_stabilizer", flags: {}, subscribedTriggers: [] } },
       { target: { playerId: "p1", instanceId: "m1" }, value: 99 },
       ctx()
     );

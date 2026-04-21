@@ -32,6 +32,7 @@ function baseState(): GameState {
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: { shield_turns: 2 }
       },
       {
@@ -53,6 +54,7 @@ function baseState(): GameState {
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: {}
       }
     ],

@@ -35,6 +35,7 @@ function createState(): GameState {
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: {}
       },
       {
@@ -55,6 +56,7 @@ function createState(): GameState {
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: {}
       }
     ],
@@ -117,7 +119,7 @@ describe("phase 2 phantom cards", () => {
   it("stacked modifiers follow U6 order", () => {
     const prepared = {
       ...createState(),
-      activePlace: { cardId: "place_boost", flags: { u6_place_multiplier: 1 } },
+      activePlace: { cardId: "place_boost", flags: { u6_place_multiplier: 1 }, subscribedTriggers: [] },
       players: createState().players.map((player) =>
         player.id === "p1"
           ? {

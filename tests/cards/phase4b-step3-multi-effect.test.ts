@@ -51,6 +51,7 @@ function createState(): GameState {
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: {}
       },
       {
@@ -71,6 +72,7 @@ function createState(): GameState {
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: {}
       },
       {
@@ -91,10 +93,11 @@ function createState(): GameState {
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: {}
       }
     ],
-    activePlace: { cardId: cardId("place_test"), flags: {} },
+    activePlace: { cardId: cardId("place_test"), flags: {}, subscribedTriggers: [] },
     questDeck: [],
     effectStack: [],
     eventLog: [],

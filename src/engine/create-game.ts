@@ -71,6 +71,7 @@ export function createGame(config: {
       discard: [],
       welloePile: [],
       activeMosjeIndex: 0,
+      totalDamageTaken: 0,
       flags: {}
     };
   });
@@ -87,7 +88,6 @@ export function createGame(config: {
     rngSeed: config.seed,
     lastRoll: null,
     currentTurnStartCount: 0,
-    voidActive: false,
     gameFlags: {}
   };
 }

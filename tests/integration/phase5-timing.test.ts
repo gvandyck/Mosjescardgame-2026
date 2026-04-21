@@ -90,6 +90,7 @@ function twoPlayerState(p1Mp: number, p2Mp: number): GameState {
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: {}
       },
       {
@@ -107,6 +108,7 @@ function twoPlayerState(p1Mp: number, p2Mp: number): GameState {
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: {}
       }
     ],

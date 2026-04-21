@@ -30,6 +30,7 @@ function twoPlayerState(p1Mp = 80, p2Mp = 80): GameState {
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: {}
       },
       {
@@ -42,6 +43,7 @@ function twoPlayerState(p1Mp = 80, p2Mp = 80): GameState {
         discard: [],
         welloePile: [],
         activeMosjeIndex: 0,
+        totalDamageTaken: 0,
         flags: {}
       }
     ],
@@ -200,7 +202,7 @@ describe("phase6 step0 infrastructure", () => {
   it("discard cost in executeCard removes chosen card from hand", () => {
     const state = {
       ...twoPlayerState(60),
-      activePlace: { cardId: cid("place_bank_chilling"), ownerId: "p1", turnsActive: 1 },
+      activePlace: { cardId: cid("place_bank_chilling"), flags: {}, subscribedTriggers: [] },
       players: twoPlayerState(60).players.map((p) => (p.id !== "p1" ? p : { ...p, hand: [cid("d1")] }))
     };
 

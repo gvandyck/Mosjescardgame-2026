@@ -24,7 +24,6 @@ export interface GameState {
   readonly rngSeed: number;
   readonly lastRoll: LastRoll | null;
   readonly currentTurnStartCount?: number;
-  readonly voidActive?: boolean;
   readonly gameFlags?: Readonly<Record<string, unknown>>;
 }
 

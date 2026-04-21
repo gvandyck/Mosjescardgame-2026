@@ -72,8 +72,14 @@ function evaluateRequirement(
       });
     case "place_active":
       return checkPlaceActive(state, { placeCardId: req.params["placeCardId"] as string });
-    case "custom":
+    case "custom": {
+      const description = String(req.params["description"] ?? "");
+      if (description === "40_or_more_total_mp_damage_taken_this_game") {
+        const player = state.players.find((candidate) => candidate.id === playerId);
+        return (player?.totalDamageTaken ?? 0) >= 40;
+      }
       return true;
+    }
     default: {
       const _: never = req.type;
       return _;

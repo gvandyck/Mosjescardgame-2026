@@ -33,8 +33,8 @@ export const THE_GYM: PlaceDefinition = {
                   primitive: "ifThenElse",
                   params: {
                     condition: {
-                      primitive: "checkCardTypeInPlay",
-                      params: { playerId: "$targetPlayer", cardType: "fighting" }
+                      primitive: "checkMosjeType",
+                      params: { target: "$target", mosjeType: "FIGHTING" }
                     },
                     then: { primitive: "gainMP", params: { target: "$target", amount: 25 } },
                     else: {
