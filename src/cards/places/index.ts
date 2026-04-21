@@ -9,3 +9,7 @@ export { QUEST_HAVEN } from "./quest-haven.js";
 export { OBBY_1 } from "./obby-1.js";
 export { ARCADE } from "./arcade.js";
 export { MOMENTUM_FACTORY } from "./momentum-factory.js";
+export { COERTS_CARAVAN } from "./coerts-caravan.js";
+export { WELLOE_GRAVEYARD } from "./welloe-graveyard.js";
+export { MOMENTUM_STABILIZER } from "./momentum-stabilizer.js";
+export { SYNERGY_CHAMBER } from "./synergy-chamber.js";

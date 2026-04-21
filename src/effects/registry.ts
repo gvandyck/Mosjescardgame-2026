@@ -16,7 +16,8 @@ import {
   destroyPiecie,
   activateFaceDownPiecie,
   switchActiveMosje,
-  sendToWelloe
+  sendToWelloe,
+  setGameFlag
 } from "./board/index.js";
 import { rollDie, rerollDie, chooseDieResult } from "./dice/index.js";
 import { applyBuff, reduceMPLossBy, clearExpiredBuffs, negateEffect } from "./buffs/index.js";
@@ -58,6 +59,7 @@ export const primitiveRegistry: Readonly<Record<string, Primitive>> = Object.fre
   activateFaceDownPiecie,
   switchActiveMosje,
   sendToWelloe,
+  setGameFlag,
   rollDie,
   rerollDie,
   chooseDieResult,

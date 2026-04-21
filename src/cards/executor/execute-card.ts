@@ -300,10 +300,12 @@ export function executeCard(
     const actingMosje = actingPlayer?.mosjes.find(
       (m) => m.instanceId === invocation.actingMosjeRef.instanceId
     );
+    const synergyChamberActive = afterSynergies.gameFlags?.["synergy_chamber_active"] === true;
     const forcedSynergyBuff = actingMosje?.flags["buff:synergy_active_forced"] as
       | { readonly expiryTurn?: number }
       | undefined;
     const forceSynergyActive =
+      synergyChamberActive ||
       forcedSynergyBuff !== undefined &&
       (forcedSynergyBuff.expiryTurn === undefined || context.turnCount <= forcedSynergyBuff.expiryTurn);
 

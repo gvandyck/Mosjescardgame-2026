@@ -4,7 +4,10 @@ import type { Primitive } from "../primitive.js";
 import type { SetMPParams } from "./types.js";
 
 export const setMP: Primitive<SetMPParams> = (state, params, context) => {
-  if (state.activePlace?.cardId === "place_momentum_stabilizer") {
+  if (
+    state.gameFlags?.["stabilizer_active"] === true ||
+    state.activePlace?.cardId === "place_momentum_stabilizer"
+  ) {
     return state;
   }
 

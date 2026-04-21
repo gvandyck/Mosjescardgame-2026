@@ -7,7 +7,8 @@ export type PlaceTriggerEventType =
   | "quest_completed"
   | "piecie_activated"
   | "mp_gained"
-  | "mosje_leveled_up";
+  | "mosje_leveled_up"
+  | "mosje_defeated";
 
 export interface PlaceTrigger {
   readonly on: PlaceTriggerEventType;
