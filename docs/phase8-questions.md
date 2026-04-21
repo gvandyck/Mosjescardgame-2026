@@ -7,3 +7,7 @@
 ## Step 1
 
 - Jeffrey The Strongman has a separate passive Quest reward bonus in the prompt; the current Step 1 implementation covers the active ability and executor hooks, but QuestManager has not yet been wired to read a Mosje-level passive quest bonus from the active Mosje definition.
+
+## Step 2
+
+- Ronald The Master Chef currently reveals the opponent hand and applies a `buff:card_locked_in_hand` marker to the opponent active Mosje, but hand-play validation is not yet wired to enforce that chosen card lock globally.
