@@ -8,3 +8,7 @@ export { THE_HACKER } from "./the-hacker.js";
 export { JEFFREY_THE_SILENT_GAMBLER } from "./jeffrey-the-silent-gambler.js";
 export { CHRIS_THE_ALL_ROUNDER } from "./chris-the-all-rounder.js";
 export { YOURI_THE_SPEEDRUNNER } from "./youri-the-speedrunner.js";
+export { PLACEHOLDER_THE_TACTICIAN } from "./placeholder-the-tactician.js";
+export { PLACEHOLDER_THE_DRAINER } from "./placeholder-the-drainer.js";
+export { FPS_COERT } from "./fps-coert.js";
+export { FPS_WEST } from "./fps-west.js";

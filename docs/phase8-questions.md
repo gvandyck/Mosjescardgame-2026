@@ -28,3 +28,10 @@
 - Binti The Sharp Tongue "Cutting Words" — full effect is: discard 1 card from hand + opponent discards 1 random card + opponent loses 10 MP. The `discardRandom` primitive (force opponent to discard a random hand card) does not exist. Simplified to: discard 1 from own hand (cost) + opponent loses 10 MP only. `discardRandom` is deferred.
 - Binti The Creator — intended effect: pay 20 MP + discard 2 food Piecies to search deck for any Mosje card and put it into hand. The `searchDeck` primitive does not exist. Card definition retains the cost and logs a `mosje_ability_used` event; actual deck search is deferred.
 - Cless The Teacher synergy — West/Physical Quest bonus (+15 MP on Physical Quest completion, look-at-top once-per-turn before attempting) requires hook integration with the Quest manager. Registered as a synergy label only; runtime enforcement is deferred.
+
+## Step 6
+
+- FPS West "Tactical Analysis" — predict opponent's next card type: correct=gain 20 MP, wrong=lose 10 MP. `checkGuess`/conditional prediction logic does not exist. Simplified to always gain 20 MP (optimistic path). Prediction logic deferred.
+- FPS Coert/FPS West synergy "force opponent to reveal full hand" — no `revealHand` primitive exists. Synergy label registered; hand-reveal enforcement deferred.
+- Martin The Precision Driver "Pit Stop Strategy" — intended to require discarding 2 cards as a cost. Discard-cost enforcement by executor is not reliably implemented; ability simplified to free (draw 3 + gain 20 MP). Discard cost and "once-per-game extra Quest completion" from Perfect Line passive are deferred.
+- The Drainer `$opponent` placeholder — changed to `$target` to correctly resolve the opponent active Mosje for loseMP. The `$opponent` placeholder resolves a playerId string, not a MosjeRef.
