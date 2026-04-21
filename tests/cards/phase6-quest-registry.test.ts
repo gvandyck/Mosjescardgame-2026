@@ -60,6 +60,11 @@ const EXPECTED_QUEST_IDS = [
   "quest_geen_raad_vraag_aad",
   "quest_parkeren_delft",
   "quest_shotje_obby",
+  // Personal
+  "quest_west_perfect_read",
+  "quest_personal_iron_will",
+  "quest_personal_perfect_sync",
+  "quest_personal_lucky_crescendo",
 ] as const;
 
 afterAll(() => {
@@ -119,6 +124,14 @@ describe("phase6 quest registry audit", () => {
     const general = quests.filter((q) => q.scope === "general");
     for (const q of general) {
       expect(q.requiredMosjeCardId, `${q.id} general quest should not have requiredMosjeCardId`).toBeUndefined();
+    }
+  });
+
+  it("every personal quest has a requiredMosjeCardId", () => {
+    const quests = getCardsByCategory("quest") as ReadonlyArray<QuestDefinition>;
+    const personal = quests.filter((q) => q.scope === "personal");
+    for (const q of personal) {
+      expect(q.requiredMosjeCardId, `${q.id} personal quest missing requiredMosjeCardId`).toBeDefined();
     }
   });
 
