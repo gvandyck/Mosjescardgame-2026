@@ -150,11 +150,11 @@ export function effect_energy_surge(gameState, playerId) {
 	const si = getFirstActiveSlotIndex(player);
 	if (si < 0) return state;
 	if (player.activeSlots[si].mp >= 30) {
-		console.log('[ABILITY] Energy Surge: blocked (MP >= 30)');
+		console.log('[ABILITY] Shoettoe: blocked (MP >= 30)');
 		return state;
 	}
 	applyMPGain(player, si, 20, state, playerId);
-	console.log('[ABILITY] Energy Surge: +20 MP');
+	console.log('[ABILITY] Shoettoe: +20 MP');
 	return state;
 }
 
@@ -396,7 +396,7 @@ export function effect_quest_prep(gameState, playerId) {
 	const player = state.players[playerId];
 	if (!player) return state;
 	player.questPrepBonus = (player.questPrepBonus || 0) + 2;
-	console.log('[ABILITY] Quest Prep: +2 to next Quest roll');
+	console.log('[ABILITY] Dubbele Dosis: +2 to next Quest roll');
 	return state;
 }
 

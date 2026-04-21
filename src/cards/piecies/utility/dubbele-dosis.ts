@@ -3,8 +3,8 @@ import type { CardId } from "../../../types/card-id.js";
 import { registerCard } from "../../registry/card-registry.js";
 
 export const QUEST_PREP: CardDefinition = {
-  id: "quest-prep" as CardId,
-  name: "Quest Prep",
+  id: "dubbele-dosis" as CardId,
+  name: "Dubbele Dosis",
   category: "piecie",
   subcategory: "UTILITY",
   isBoosterOnly: false,

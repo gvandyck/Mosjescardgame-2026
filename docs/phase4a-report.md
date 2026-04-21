@@ -14,7 +14,7 @@ src/cards/piecies/
     index.ts
     kannetje-melk.ts
     broodje-doner.ts
-    energy-surge.ts
+    shoettoe.ts
     nature-s-gift.ts
     momentum-boost.ts
     warm-kannetje-melk.ts
@@ -63,7 +63,7 @@ src/cards/piecies/
 ## Fully Implemented Cards (22)
 1. kannetje-melk
 2. broodje-doner
-3. energy-surge
+3. shoettoe
 4. nature-s-gift
 5. momentum-boost
 6. warm-kannetje-melk

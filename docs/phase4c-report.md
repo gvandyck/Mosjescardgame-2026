@@ -104,7 +104,7 @@ src/cards/piecies/
 │   ├── broodje-doner.ts
 │   ├── chefs-special.ts
 │   ├── dikke-jonko.ts
-│   ├── energy-surge.ts
+│   ├── shoettoe.ts
 │   ├── gun-een-piece.ts
 │   ├── kannetje-melk.ts
 │   ├── momentum-boost.ts
@@ -135,7 +135,7 @@ src/cards/piecies/
     ├── mp-adjuster.ts      ← NEW (Phase 4C Step 2)
     ├── mp-amplifier.ts
     ├── perfect-setup.ts
-    ├── quest-prep.ts
+    ├── dubbele-dosis.ts
     ├── redbull.ts
     ├── shhh-popo-komt.ts
     ├── slecht-gezet.ts

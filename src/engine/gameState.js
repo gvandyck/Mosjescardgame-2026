@@ -95,7 +95,7 @@ function createPlayerState(config) {
     questsCompleted: 0,
     questsCompletedThisTurn: 0,
     totalDamageTaken: 0,
-    questPrepBonus: 0,       // added to next Quest roll by Quest Prep piecie
+    questPrepBonus: 0,       // added to next Quest roll by Dubbele Dosis piecie
     questBonusMP: 0,         // next successful Quest gives this bonus MP (momentum_boost etc.)
     hasAttemptedQuestThisTurn: false,
     hasRerolledDieThisTurn: false,    // DJ 80/20 free reroll tracker

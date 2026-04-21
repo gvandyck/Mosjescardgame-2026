@@ -3,8 +3,8 @@ import type { CardId } from "../../../types/card-id.js";
 import { registerCard } from "../../registry/card-registry.js";
 
 export const ENERGY_SURGE: CardDefinition = {
-  id: "energy-surge" as CardId,
-  name: "Energy Surge",
+  id: "shoettoe" as CardId,
+  name: "Shoettoe",
   category: "piecie",
   subcategory: "MOMENTUM-GAINING",
   isBoosterOnly: false,

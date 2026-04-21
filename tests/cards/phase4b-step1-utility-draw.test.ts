@@ -41,7 +41,7 @@ function createState(): GameState {
         })),
         hand: [cardId("h0")],
         deck: [cardId("d1"), cardId("d2"), cardId("d3"), cardId("d4"), cardId("d5")],
-        discard: [cardId("stripje-bennies"), cardId("redbull"), cardId("quest-prep")],
+        discard: [cardId("stripje-bennies"), cardId("redbull"), cardId("dubbele-dosis")],
         welloePile: [cardId("welloe_a"), cardId("welloe_b")],
         activeMosjeIndex: 0,
         totalDamageTaken: 0,
@@ -194,8 +194,8 @@ describe("phase4b step 1 - utility and draw piecies", () => {
     expect(afterGain.players[0].mosjes[0].flags["buff:double_next_mp_gain"]).toBeUndefined();
   });
 
-  it("quest-prep applies quest auto-complete buff until end of turn", () => {
-    const next = invoke("quest-prep");
+  it("dubbele-dosis applies quest auto-complete buff until end of turn", () => {
+    const next = invoke("dubbele-dosis");
     expect(next.players[0].mosjes[0].flags["buff:quest_auto_complete_once"]).toMatchObject({
       data: { consumesOnQuest: true },
       expiryTurn: 12
@@ -224,7 +224,7 @@ describe("phase4b step 1 - utility and draw piecies", () => {
           discard: [
             cardId("stripje-bennies"),
             cardId("redbull"),
-            cardId("quest-prep"),
+            cardId("dubbele-dosis"),
             cardId("chain-reaction"),
             cardId("dingetje-toch"),
             cardId("mp-amplifier")

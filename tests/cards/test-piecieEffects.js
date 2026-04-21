@@ -198,7 +198,7 @@ export function runPiecieEffectsTests() {
     assertEqual(result.players.player_1.deck.length, 1);
   });
 
-  test('Quest Prep sets +2 next quest roll bonus', () => {
+  test('Dubbele Dosis sets +2 next quest roll bonus', () => {
     const state = createEngineState({
       players: {
         player_1: { questPrepBonus: 0 },

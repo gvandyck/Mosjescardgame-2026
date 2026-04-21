@@ -9,7 +9,7 @@ export { CALL_OF_THE_WELLOES } from "./call-of-the-welloes.js";
 export { WELLOE_FORCE } from "./welloe-force.js";
 export { DINGETJE_TOCH } from "./dingetje-toch.js";
 export { DUBBELE_DING } from "./dubbele-ding.js";
-export { QUEST_PREP } from "./quest-prep.js";
+export { QUEST_PREP } from "./dubbele-dosis.js";
 export { MP_AMPLIFIER } from "./mp-amplifier.js";
 export { CHAIN_REACTION } from "./chain-reaction.js";
 export { THOSE_EYELASHES_THO } from "./those-eyelashes-tho.js";

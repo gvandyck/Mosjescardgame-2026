@@ -31,7 +31,7 @@ Digital Control vs Artistic Rhythm (33 games) | 4 (12.1%) | 20 (60.6%) | 9 (27.3
 Artistic Rhythm vs Physical Force (34 games) | 13 (38.2%) | 15 (44.1%) | 6 (17.6%) | 22.0
 
 **Most common win condition:** `level_3`  
-**Most played card:** `energy-surge`  
+**Most played card:** `shoettoe`  
 **Total crashes:** 0
 
 ## Balance Findings

@@ -141,11 +141,11 @@ describe("phase4a step 1 - simple gain piecies", () => {
     expect(accepted.players[0].mosjes[0].mp).toBe(55);
   });
 
-  it("energy-surge applies at MP <= 29 and rejects at MP >= 30", () => {
-    const accepted = executeCard(withSelfMP(createState(), 29), cardId("energy-surge"), invocation());
+  it("shoettoe applies at MP <= 29 and rejects at MP >= 30", () => {
+    const accepted = executeCard(withSelfMP(createState(), 29), cardId("shoettoe"), invocation());
     expect(accepted.players[0].mosjes[0].mp).toBe(49);
 
-    const rejected = executeCard(withSelfMP(createState(), 30), cardId("energy-surge"), invocation());
+    const rejected = executeCard(withSelfMP(createState(), 30), cardId("shoettoe"), invocation());
     expect(rejected.players[0].mosjes[0].mp).toBe(30);
     expect(rejected.eventLog.at(-1)).toMatchObject({ type: "card_resolved", outcome: "rejected" });
   });
