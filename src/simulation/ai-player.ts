@@ -10,7 +10,7 @@ import { switchActiveMosje } from "../engine/reducers/player/switch-active-mosje
 import { advancePhase } from "../engine/advance-phase.js";
 import { startTurn } from "../engine/start-turn.js";
 import { executeCard } from "../cards/executor/execute-card.js";
-import { getCard, hasCard } from "../cards/registry/card-registry.js";
+import { getAllCards, getCard, hasCard } from "../cards/registry/card-registry.js";
 import { attemptQuest } from "../engine/quest-manager.js";
 import { resolveActivePlaceTriggers } from "../engine/place-manager.js";
 import type { GameState } from "../types/game-state.js";
@@ -58,32 +58,92 @@ function hasBenchMosje(state: GameState, playerId: string): boolean {
   return benchMosje !== undefined && benchMosje.flags["in_welloe"] !== true;
 }
 
+function pickRandom<T>(values: ReadonlyArray<T>, rng: ReturnType<typeof createRng>): T | undefined {
+  if (values.length === 0) return undefined;
+  const idx = rng.nextInt(0, values.length - 1);
+  return values[idx];
+}
+
+function getRegisteredCardIds(): ReadonlyArray<CardId> {
+  return getAllCards().map((card) => card.id);
+}
+
+function containsChoiceKey(value: unknown, key: string): boolean {
+  if (typeof value === "string") return value === `$choice:${key}`;
+  if (Array.isArray(value)) {
+    return value.some((item) => containsChoiceKey(item, key));
+  }
+  if (value !== null && typeof value === "object") {
+    return Object.values(value).some((item) => containsChoiceKey(item, key));
+  }
+  return false;
+}
+
+function resolveUnknownChoice(
+  key: string,
+  rng: ReturnType<typeof createRng>
+): CardId {
+  const registered = getRegisteredCardIds();
+  const fallback = pickRandom(registered, rng) ?? ("kannetje-melk" as CardId);
+  console.warn(`[AI] unresolved $choice:${key}; falling back to random registered card: ${fallback}`);
+  return fallback;
+}
+
 /**
  * Build deterministic player choices for any card that might need them.
  * Returns a best-effort choices map.
  */
 function buildPlayerChoices(
   state: GameState,
-  playerId: string
+  playerId: string,
+  rng: ReturnType<typeof createRng>
 ): Readonly<Record<string, unknown>> {
   const player = getPlayer(state, playerId);
   const opponent = state.players.find((p) => p.id !== playerId);
+  const registeredCardIds = getRegisteredCardIds();
 
-  // discardCardId: first card in hand alphabetically (excluding the card being played)
+  const randomRegisteredCardId =
+    pickRandom(registeredCardIds, rng) ?? ("kannetje-melk" as CardId);
+
+  // discardCardId: random card from hand
   const sortedHand = [...(player?.hand ?? [])].sort();
-  const discardCardId = sortedHand[0] ?? ("kannetje-melk" as CardId);
+  const discardCardId = pickRandom(sortedHand, rng) ?? randomRegisteredCardId;
 
-  // cardId: first card in discard pile
+  // cardId: random card from discard pile
   const discardPileCardId = player?.discard[0] ?? discardCardId ?? ("kannetje-melk" as CardId);
+  const randomDiscardCardId = pickRandom(player?.discard ?? [], rng) ?? discardPileCardId;
 
   // mosjeId: first Mosje in welloe pile
-  const mosjeId = player?.welloePile[0] ?? player?.mosjes[player.activeMosjeIndex]?.cardId ?? ("kannetje-melk" as CardId);
+  const mosjeId = player?.welloePile[0] ?? player?.mosjes[player.activeMosjeIndex]?.cardId ?? randomRegisteredCardId;
 
-  // lockedCardId: first card in opponent hand alphabetically
+  // named/locked card guesses: random from opponent hand (fallback random registered card)
   const sortedOpponentHand = [...(opponent?.hand ?? [])].sort();
-  const lockedCardId = sortedOpponentHand[0] ?? discardCardId;
+  const randomOpponentCardId = pickRandom(sortedOpponentHand, rng) ?? randomRegisteredCardId;
+  const lockedCardId = randomOpponentCardId;
+  const namedCardId = randomOpponentCardId;
 
-  // targetMosjeCardId: first Mosje in own hand
+  // namedTypes (West Perfect Read): random 3-category guess tuple
+  const guessTypes: ReadonlyArray<"piecie" | "mosje" | "quest" | "place" | "snelle-piecie"> = [
+    "piecie",
+    "mosje",
+    "quest",
+    "place",
+    "snelle-piecie"
+  ];
+  const namedTypes = [
+    pickRandom(guessTypes, rng) ?? "piecie",
+    pickRandom(guessTypes, rng) ?? "mosje",
+    pickRandom(guessTypes, rng) ?? "quest"
+  ];
+
+  // targetMosjeCardId: random own Mosje card ID currently on field
+  const ownFieldMosjeCardIds = (player?.mosjes ?? []).map((mosje) => mosje.cardId);
+  const randomOwnFieldMosjeCardId =
+    pickRandom(ownFieldMosjeCardIds, rng) ??
+    player?.mosjes[player.activeMosjeIndex]?.cardId ??
+    randomRegisteredCardId;
+
+  // targetMosjeCardId fallback from own hand if present
   const targetMosjeCardId =
     sortedHand.find((cardId) => {
       if (!hasCard(cardId)) return false;
@@ -93,23 +153,31 @@ function buildPlayerChoices(
         return false;
       }
     }) ??
-    player?.mosjes[player.activeMosjeIndex]?.cardId ??
-    ("kannetje-melk" as CardId);
+    randomOwnFieldMosjeCardId;
 
   // deckOwnerId: opponent
-  const deckOwnerId = opponent?.id ?? null;
+  const deckOwnerId = opponent?.id ?? playerId;
 
-  return {
+  const knownChoices: Record<string, unknown> = {
     targetMP: 75,
     discardCardId,
     baggaDiscard: discardCardId,
-    cardId: discardPileCardId,
+    cardId: randomDiscardCardId,
     mosjeId,
-    namedCardId: "kannetje-melk" as CardId,
+    namedCardId,
+    namedTypes,
     targetMosjeCardId,
     lockedCardId,
     deckOwnerId
   };
+
+  return new Proxy(knownChoices, {
+    get(target, prop): unknown {
+      if (typeof prop !== "string") return Reflect.get(target, prop);
+      if (prop in target) return target[prop];
+      return resolveUnknownChoice(prop, rng);
+    }
+  });
 }
 
 /**
@@ -132,6 +200,11 @@ function seemsPlayable(state: GameState, playerId: string, cardId: CardId): bool
     if (player === undefined) return false;
     const activeMosje = player.mosjes[player.activeMosjeIndex];
     if (activeMosje === undefined) return false;
+
+    // Cards requiring mosjeId choice are skipped when no Welloe target exists.
+    if (containsChoiceKey(card, "mosjeId") && player.welloePile.length === 0) {
+      return false;
+    }
 
     const cost = card.cost;
     if (cost.type === "free") return true;
@@ -226,7 +299,7 @@ export function aiTakeTurn(
     if (freshMosjeRef === undefined) break;
 
     const opponentRef = getOpponentActiveMosjeRef(current, playerId);
-    const choices = buildPlayerChoices(current, playerId);
+    const choices = buildPlayerChoices(current, playerId, rng);
 
     const beforePlay = current;
     try {
@@ -278,7 +351,7 @@ export function aiTakeTurn(
       if (questId !== undefined) {
         const freshMosjeRef = getActiveMosjeRef(current, playerId);
         const opponentRef = getOpponentActiveMosjeRef(current, playerId);
-        const choices = buildPlayerChoices(current, playerId);
+        const choices = buildPlayerChoices(current, playerId, rng);
 
         if (freshMosjeRef !== undefined) {
           const beforeQuest2 = current;
