@@ -86,7 +86,9 @@ export function createGame(config: {
     eventLog: [],
     rngSeed: config.seed,
     lastRoll: null,
-    currentTurnStartCount: 0
+    currentTurnStartCount: 0,
+    voidActive: false,
+    gameFlags: {}
   };
 }
 

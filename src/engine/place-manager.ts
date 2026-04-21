@@ -96,6 +96,7 @@ export function enterPlace(state: GameState, cardId: CardId): GameState {
 
   const withActivePlace: GameState = {
     ...next,
+    voidActive: cardId === "place_the_void" ? true : next.voidActive ?? false,
     activePlace: {
       cardId,
       flags: {},
@@ -119,6 +120,7 @@ export function exitPlace(state: GameState): GameState {
 
   const withoutPlace: GameState = {
     ...next,
+    voidActive: placeCardId === "place_the_void" ? false : next.voidActive ?? false,
     activePlace: null
   };
 
