@@ -7,6 +7,7 @@ export const EMERGENCY_SWAP: CardDefinition = {
   name: "Emergency Swap",
   category: "piecie",
   subcategory: "UTILITY",
+  flavorText: "Advanced card — recommended for experienced players.",
   isBoosterOnly: false,
   cost: { type: "mp", mp: 30, levelRequirement: 1 },
   requirements: [],

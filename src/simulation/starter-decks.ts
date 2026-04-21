@@ -42,8 +42,8 @@ const PHYSICAL_FORCE_DECK_CARDS: ReadonlyArray<CardId> = [
   id("snoeiertje"),
   id("momentum-diefje"),
   id("dikke-taks"),
-  id("harde-didde"),
-  id("klaar-met-jou"),
+  id("te-hard-gaan"),
+  id("quest_tough_it_out"),
   id("grammetje-pieter"),
   id("grammetje-pieter"),
   id("varkenspootjes"),
@@ -73,7 +73,7 @@ const PHYSICAL_FORCE_DECK_CARDS: ReadonlyArray<CardId> = [
   id("quest_survive_storm"),
   id("quest_never_give_up"),
   id("quest_tough_it_out"),
-  id("quest_elimination_challenge")
+  id("quest_leap_of_faith")
 ];
 
 export const PHYSICAL_FORCE: DeckConfig = {
@@ -109,7 +109,7 @@ const DIGITAL_CONTROL_DECK_CARDS: ReadonlyArray<CardId> = [
   id("mp-amplifier"),
   id("f1-telemetry-data"),
   id("redbull"),
-  id("zie-je-die-dingetjes"),
+  id("gun-een-piece"),
   id("shoettoe"),
   id("warm-kannetje-melk"),
   // Snelle Piecies ×5
@@ -168,7 +168,7 @@ const ARTISTIC_RHYTHM_DECK_CARDS: ReadonlyArray<CardId> = [
   id("dubbele-ding"),
   id("mosje-shield"),
   id("laat-me-chillen"),
-  id("emergency-swap"),
+  id("warm-kannetje-melk"),
   id("shoettoe"),
   // Snelle Piecies ×5
   id("snelle_jensen"),
@@ -188,8 +188,8 @@ const ARTISTIC_RHYTHM_DECK_CARDS: ReadonlyArray<CardId> = [
   id("quest_create_masterpiece"),
   id("quest_lucky_break"),
   id("quest_lucky_break"),
-  id("quest_inspire_crowd"),
-  id("quest_negotiation"),
+  id("quest_improvise"),
+  id("quest_lucky_break"),
   id("quest_synergy_mastery")
 ];
 

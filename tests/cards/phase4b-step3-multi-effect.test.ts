@@ -151,7 +151,7 @@ describe("phase4b step 3 - multi-effect piecies", () => {
     expect(next.players[0].hand).toEqual([cardId("h0"), cardId("d1"), cardId("d2")]);
   });
 
-  it("harde-didde accepts <= 40 and sends target to welloe", () => {
+  it("harde-didde accepts <= 50 and sends target to welloe", () => {
     const next = invoke("harde-didde");
     expect(next.players[1].mosjes[0].flags.in_welloe).toBe(true);
   });
@@ -164,7 +164,7 @@ describe("phase4b step 3 - multi-effect piecies", () => {
         return {
           ...player,
           mosjes: player.mosjes.map((mosje) =>
-            mosje.instanceId === "m3" ? { ...mosje, mp: 41 } : mosje
+            mosje.instanceId === "m3" ? { ...mosje, mp: 51 } : mosje
           )
         };
       })
@@ -173,7 +173,7 @@ describe("phase4b step 3 - multi-effect piecies", () => {
     expect(next.eventLog.at(-1)).toMatchObject({ type: "card_resolved", outcome: "rejected" });
   });
 
-  it("klaar-met-jou enforces <= 30 threshold", () => {
+  it("klaar-met-jou enforces <= 40 threshold", () => {
     const lowTarget = {
       ...createState(),
       players: createState().players.map((player) => {
@@ -181,7 +181,7 @@ describe("phase4b step 3 - multi-effect piecies", () => {
         return {
           ...player,
           mosjes: player.mosjes.map((mosje) =>
-            mosje.instanceId === "m3" ? { ...mosje, mp: 30 } : mosje
+            mosje.instanceId === "m3" ? { ...mosje, mp: 40 } : mosje
           )
         };
       })
