@@ -22,3 +22,9 @@
 - Chris The All-Rounder "activate face-down Piecie for free" requires an `activatePiecie` primitive targeting a slot by index. No such primitive exists. The card is defined with the effect call; actual slot-activation is deferred.
 - Ronald The Mastermind "activate Piecie from discard" requires an `activateFromDiscard` primitive. No such primitive exists. Effect call is defined; actual discard-activation is deferred.
 - Tuk The Healing Spirit "ally-heal" branch requires targeting a bench Mosje (`$bench`) and a `checkPlayerChoice` condition primitive. Neither exists. Card is simplified to self-heal only (gain 25 MP); ally-heal and passive +10 bonus are deferred.
+
+## Step 5
+
+- Binti The Sharp Tongue "Cutting Words" — full effect is: discard 1 card from hand + opponent discards 1 random card + opponent loses 10 MP. The `discardRandom` primitive (force opponent to discard a random hand card) does not exist. Simplified to: discard 1 from own hand (cost) + opponent loses 10 MP only. `discardRandom` is deferred.
+- Binti The Creator — intended effect: pay 20 MP + discard 2 food Piecies to search deck for any Mosje card and put it into hand. The `searchDeck` primitive does not exist. Card definition retains the cost and logs a `mosje_ability_used` event; actual deck search is deferred.
+- Cless The Teacher synergy — West/Physical Quest bonus (+15 MP on Physical Quest completion, look-at-top once-per-turn before attempting) requires hook integration with the Quest manager. Registered as a synergy label only; runtime enforcement is deferred.

@@ -1,3 +1,8 @@
 export { RONALD_THE_MASTERMIND } from "./ronald-the-mastermind.js";
 export { JISCA_THE_MAESTRO } from "./jisca-the-maestro.js";
 export { TUK_THE_HEALING_SPIRIT } from "./tuk-the-healing-spirit.js";
+export { DJ_8020 } from "./dj-8020.js";
+export { COERT_KASTELUCK } from "./coert-kasteluck.js";
+export { BINTI_THE_SHARP_TONGUE } from "./binti-the-sharp-tongue.js";
+export { BINTI_THE_CREATOR } from "./binti-the-creator.js";
+export { CLESS_THE_TEACHER } from "./cless-the-teacher.js";
