@@ -221,6 +221,9 @@ export function getQuestDiceThreshold(questCard, activeMosje) {
 // The caller provides didSucceed after rolling/checking requirements.
 export function resolveQuest(gameState, playerId, questCard, didSucceed, targetSlotIndex = -1) {
 	let state = cloneState(gameState);
+	const damageTotalsBefore = Object.fromEntries(
+		Object.entries(state.players || {}).map(([pid, playerState]) => [pid, Number(playerState?.totalDamageTaken || 0)])
+	);
 	const player = state.players[playerId];
   if (!player) {
     console.log('[QUEST] resolveQuest: player not found:', playerId);
@@ -280,6 +283,7 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 		console.log('[QUEST] Quest failed:', questCard.id, '| MP now:', liveMosje?.mp);
   }
 
+	state = enqueueAadRecoveryPrompt(state, questCard, damageTotalsBefore);
   return state;
 }
 
@@ -325,6 +329,43 @@ function resolvePersonalQuestSideEffects(gameState, questCard, playerId) {
 		console.log('[QUEST] Lucky Crescendo side effect — all opponents lose 20 MP');
 	}
 
+	return state;
+}
+
+function enqueueAadRecoveryPrompt(gameState, questCard, damageTotalsBefore) {
+	const state = cloneState(gameState);
+	if (questCard?.id !== 'quest_geen_raad_vraag_aad') {
+		return state;
+	}
+
+	const before = damageTotalsBefore || {};
+	const eligiblePlayerIds = Object.entries(state.players || {})
+		.filter(([pid, player]) => {
+			const damageBefore = Number(before[pid] || 0);
+			const damageAfter = Number(player?.totalDamageTaken || 0);
+			const handSize = Array.isArray(player?.hand) ? player.hand.length : 0;
+			return damageAfter > damageBefore && handSize > 0;
+		})
+		.map(([pid]) => pid);
+
+	if (!eligiblePlayerIds.length) {
+		return state;
+	}
+
+	const existing = state._pendingAadRecovery || {};
+	const mergedEligible = [...new Set([
+		...(Array.isArray(existing.eligiblePlayerIds) ? existing.eligiblePlayerIds : []),
+		...eligiblePlayerIds,
+	])];
+	const resolved = Array.isArray(existing.resolvedPlayerIds) ? existing.resolvedPlayerIds : [];
+
+	state._pendingAadRecovery = {
+		questId: 'quest_geen_raad_vraag_aad',
+		mpGain: 40,
+		discardCount: 1,
+		eligiblePlayerIds: mergedEligible,
+		resolvedPlayerIds: resolved.filter(pid => mergedEligible.includes(pid)),
+	};
 	return state;
 }
 
@@ -718,8 +759,14 @@ export function quest_req_larry_temmen(questCard, mosje) {
 }
 
 export function quest_req_geen_raad_vraag_aad(questCard, mosje) {
-	// Name a card in opponent's hand (UI prompt required)
-	return { canAttempt: true, requiresUIPrompt: true, promptType: 'GUESS_CARD' };
+	// Select card type in UI, then compare against opponent hand types.
+	return {
+		canAttempt: true,
+		requiresUIPrompt: true,
+		promptType: 'SELECT_CARD_TYPE',
+		requiresHiddenOpponentCard: true,
+		allowedTypes: ['QUEST_PERSONAL', 'PIECIE', 'PLACE', 'MOSJE', 'SNELLE_PIECIE'],
+	};
 }
 
 export function quest_req_parkeren_delft(questCard, mosje) {

@@ -46,7 +46,7 @@ export const PLACES = [
     trigger: "ON_QUEST",
     effectId: "effect_quest_haven",
     tags: ["QUEST-BOOST"],
-    description: "On Quest: All Quest rewards +10 MP. Complete 2 Quests in one turn for +25 bonus MP.",
+    description: "While active: attempt 2 Quests per turn. Succeed your 2nd Quest in one turn for +25 bonus MP.",
     flavourText: "Hier worden helden geboren.",
     artPath: "assets/place-art/place-Quest Haven.jpeg",
     goodFor: [],

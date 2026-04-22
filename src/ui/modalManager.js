@@ -13,6 +13,17 @@ export function initModalManager(container) {
 			showDiceRoll: (_info, _threshold, onResolved) => onResolved(false),
 			showConfirm: async () => false,
 			showPlaceDetailModal: () => {},
+			showOptionSelect: async (config = {}) => {
+				const options = Array.isArray(config.options) ? config.options : [];
+				return options[0]?.id ?? null;
+			},
+			showCardTypeSelect: async ({ allowedTypes = [] } = {}) => {
+				const list = Array.isArray(allowedTypes) ? allowedTypes : [];
+				return list[0] ?? null;
+			},
+			showOpponentHandCardSelect: async ({ handSize = 0 } = {}) => {
+				return Number(handSize) > 0 ? 0 : null;
+			},
 			showMosjeSelect: (_slots, onSelected) => onSelected(0),
 			close: () => {},
 		};
@@ -360,34 +371,140 @@ export function initModalManager(container) {
 		container.querySelector('#modal-close-reveal')?.addEventListener('click', close);
 	}
 
+	async function showOptionSelect({
+		title = 'Choose Option',
+		prompt = 'Select one option.',
+		options = [],
+		allowCancel = false,
+		autoSelectSingle = false,
+	} = {}) {
+		const safeOptions = Array.isArray(options) ? options.filter(Boolean) : [];
+
+		if (autoSelectSingle && safeOptions.length === 1) {
+			return safeOptions[0]?.id ?? null;
+		}
+
+		return new Promise(resolve => {
+			container.classList.add('modal-root--open');
+			const rows = safeOptions.map(option => {
+				const optionId = option?.id ?? '';
+				const primaryLabel = option?.label ?? option?.primaryLabel ?? String(optionId);
+				const secondaryLabel = option?.metaLabel ?? option?.secondaryLabel ?? '';
+				return `
+					<button class="modal-mosje-select-btn" data-id="${escapeHtml(String(optionId))}" type="button">
+						<span class="mosje-select-name">${escapeHtml(String(primaryLabel))}</span>
+						${secondaryLabel ? `<span class="mosje-select-mp">${escapeHtml(String(secondaryLabel))}</span>` : ''}
+					</button>
+				`;
+			}).join('');
+
+			container.innerHTML = `
+				<div class="modal-backdrop"></div>
+				<section class="modal-card" role="dialog" aria-modal="true">
+					<h3>${escapeHtml(title)}</h3>
+					<p>${escapeHtml(prompt)}</p>
+					<div class="modal-mosje-select-list">${rows}</div>
+					${allowCancel ? '<button class="modal-btn modal-btn--ghost" id="modal-option-cancel" type="button">Cancel</button>' : ''}
+				</section>
+			`;
+
+			container.querySelectorAll('.modal-mosje-select-btn').forEach(btn => {
+				btn.addEventListener('click', () => {
+					const { id } = btn.dataset;
+					close();
+					resolve(id ?? null);
+				});
+			});
+
+			container.querySelector('#modal-option-cancel')?.addEventListener('click', () => {
+				close();
+				resolve(null);
+			});
+		});
+	}
+
+	async function showCardTypeSelect({
+		title = 'Select Card Type',
+		prompt = 'Choose one card type.',
+		allowedTypes = ['MOSJE', 'PIECIE', 'PLACE', 'SNELLE_PIECIE', 'QUEST_PERSONAL'],
+		allowCancel = true,
+		autoSelectSingle = false,
+	} = {}) {
+		const typeLabels = {
+			MOSJE: 'Mosje',
+			PIECIE: 'Piecie',
+			PLACE: 'Place',
+			SNELLE_PIECIE: 'Snelle Piecie',
+			QUEST_PERSONAL: 'Personal Quest',
+		};
+
+		const safeTypes = (Array.isArray(allowedTypes) ? allowedTypes : [])
+			.filter(typeId => Boolean(typeLabels[typeId]));
+
+		const options = safeTypes.map(typeId => ({
+			id: typeId,
+			label: typeLabels[typeId],
+		}));
+
+		return showOptionSelect({
+			title,
+			prompt,
+			options,
+			allowCancel,
+			autoSelectSingle,
+		});
+	}
+
+	async function showOpponentHandCardSelect({
+		title = 'Select Opponent Card',
+		prompt = 'Pick one hidden card from opponent hand.',
+		handSize = 0,
+		allowCancel = false,
+	} = {}) {
+		const count = Math.max(0, Number(handSize) || 0);
+		if (count === 0) {
+			return null;
+		}
+
+		const options = Array.from({ length: count }, (_, index) => ({
+			id: String(index),
+			label: `Card ${index + 1}`,
+			metaLabel: 'Hidden',
+		}));
+
+		const selectedId = await showOptionSelect({
+			title,
+			prompt,
+			options,
+			allowCancel,
+		});
+
+		if (selectedId == null) {
+			return null;
+		}
+
+		const parsed = Number.parseInt(String(selectedId), 10);
+		return Number.isFinite(parsed) ? parsed : null;
+	}
+
 	function showMosjeSelect(mosjeSlots, onSelected) {
 		if (mosjeSlots.length <= 1) {
 			onSelected(mosjeSlots[0]?.slotIndex ?? 0);
 			return;
 		}
-		container.classList.add('modal-root--open');
-		const rows = mosjeSlots.map(m => `
-			<button class="modal-mosje-select-btn" data-slot="${m.slotIndex}" type="button">
-				<span class="mosje-select-name">${escapeHtml(m.name)}</span>
-				<span class="mosje-select-mp">${m.mp} MP</span>
-			</button>
-		`).join('');
 
-		container.innerHTML = `
-			<div class="modal-backdrop"></div>
-			<section class="modal-card" role="dialog" aria-modal="true">
-				<h3>Choose Mosje for Quest</h3>
-				<p>Select which Mosje will receive the quest reward or take the damage.</p>
-				<div class="modal-mosje-select-list">${rows}</div>
-			</section>
-		`;
+		const options = mosjeSlots.map(mosjeSlot => ({
+			id: String(mosjeSlot.slotIndex),
+			label: mosjeSlot.name,
+			metaLabel: `${mosjeSlot.mp} MP`,
+		}));
 
-		container.querySelectorAll('.modal-mosje-select-btn').forEach(btn => {
-			btn.addEventListener('click', () => {
-				const slot = parseInt(btn.dataset.slot, 10);
-				close();
-				onSelected(slot);
-			});
+		showOptionSelect({
+			title: 'Choose Mosje for Quest',
+			prompt: 'Select which Mosje will receive the quest reward or take the damage.',
+			options,
+		}).then(selectedId => {
+			onSelected(Number.parseInt(selectedId ?? '0', 10));
 		});
 	}
 
@@ -401,6 +518,9 @@ export function initModalManager(container) {
 		showMosjeDetailModal,
 		showPlaceDetailModal,
 		showOpponentHandRevealModal,
+		showOptionSelect,
+		showCardTypeSelect,
+		showOpponentHandCardSelect,
 		showMosjeSelect,
 		close,
 	};

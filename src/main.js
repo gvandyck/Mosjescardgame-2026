@@ -7,7 +7,8 @@ import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes } from './engine/gameState.js';
 import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, playSnellie, playPlace, playMosje, useMosjeAbility, canPlayerActNow } from './engine/turnManager.js';
-import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold } from './abilities/questLogic.js';
+import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold, quest_req_geen_raad_vraag_aad } from './abilities/questLogic.js';
+import { gainMP } from './engine/mpManager.js';
 import { MOSJES } from './data/mosjes.js';
 import { PIECIES } from './data/piecies.js';
 import { SNELLE_PIECIES } from './data/snellePiecies.js';
@@ -220,11 +221,155 @@ function initGamePage() {
 		if (isOnline && gameState) pushState(roomCode, gameState);
 	}
 
+	let aadRecoveryPromptInProgress = false;
+
+	function getFirstActiveSlotIndex(player) {
+		if (!player || !Array.isArray(player.activeSlots)) return -1;
+		return player.activeSlots.findIndex(slot => slot && !slot.isDefeated);
+	}
+
+	async function processPendingAadRecoveryForLocalPlayer() {
+		if (aadRecoveryPromptInProgress || !gameState || gameState.status === 'FINISHED') {
+			return;
+		}
+
+		const pending = gameState._pendingAadRecovery;
+		if (!pending || pending.questId !== 'quest_geen_raad_vraag_aad') {
+			return;
+		}
+
+		const eligible = Array.isArray(pending.eligiblePlayerIds) ? pending.eligiblePlayerIds : [];
+		const resolved = Array.isArray(pending.resolvedPlayerIds) ? pending.resolvedPlayerIds : [];
+		if (!eligible.includes(localPlayerId) || resolved.includes(localPlayerId)) {
+			return;
+		}
+
+		aadRecoveryPromptInProgress = true;
+		try {
+			let nextState = JSON.parse(JSON.stringify(gameState));
+			const localPlayer = nextState.players?.[localPlayerId];
+			if (!localPlayer) {
+				return;
+			}
+
+			const hand = Array.isArray(localPlayer.hand) ? localPlayer.hand : [];
+			if (hand.length > 0) {
+				const shouldDiscard = await modal.showConfirm(
+					'Aad Recovery',
+					'You took MP damage during Aad resolution. Discard 1 card to regain 40 MP?'
+				);
+
+				if (shouldDiscard) {
+					const options = hand.map((cardRef, index) => ({
+						id: String(index),
+						label: CARD_LOOKUP[cardRef?.cardId]?.name || cardRef?.cardId || `Card ${index + 1}`,
+						metaLabel: CARD_LOOKUP[cardRef?.cardId]?.type || cardRef?.type || 'CARD',
+					}));
+
+					const selectedId = await modal.showOptionSelect({
+						title: 'Aad Recovery — Discard 1 Card',
+						prompt: 'Choose a card to discard for +40 MP recovery.',
+						options,
+						allowCancel: false,
+						autoSelectSingle: true,
+					});
+
+					const discardIndex = Number.parseInt(String(selectedId ?? '0'), 10);
+					if (Number.isInteger(discardIndex) && discardIndex >= 0 && discardIndex < hand.length) {
+						const [discarded] = localPlayer.hand.splice(discardIndex, 1);
+						if (!Array.isArray(localPlayer.discard)) localPlayer.discard = [];
+						localPlayer.discard.push(discarded);
+						const gainSlotIndex = getFirstActiveSlotIndex(localPlayer);
+						if (gainSlotIndex >= 0) {
+							nextState = gainMP(nextState, localPlayerId, gainSlotIndex, Number(pending.mpGain || 40), 'AAD_RECOVERY');
+							log.add('gain', `Aad recovery: discarded 1 card to regain +${Number(pending.mpGain || 40)} MP.`);
+						}
+					}
+				}
+			}
+
+			const currentPending = nextState._pendingAadRecovery || pending;
+			const currentEligible = Array.isArray(currentPending.eligiblePlayerIds) ? currentPending.eligiblePlayerIds : [];
+			const currentResolved = Array.isArray(currentPending.resolvedPlayerIds) ? currentPending.resolvedPlayerIds : [];
+			const resolvedSet = new Set([...currentResolved, localPlayerId]);
+			const unresolved = currentEligible.filter(pid => !resolvedSet.has(pid));
+			if (unresolved.length === 0) {
+				delete nextState._pendingAadRecovery;
+			} else {
+				nextState._pendingAadRecovery = {
+					...currentPending,
+					eligiblePlayerIds: currentEligible,
+					resolvedPlayerIds: [...resolvedSet],
+				};
+			}
+
+			gameState = nextState;
+			renderFromState(gameState);
+			syncPush();
+		} finally {
+			aadRecoveryPromptInProgress = false;
+		}
+	}
+
+	function mapCardToAadTypeId(cardRef) {
+		const resolvedCard = CARD_LOOKUP[cardRef?.cardId] || cardRef || {};
+		const baseType = String(resolvedCard.type || cardRef?.type || '').toUpperCase();
+		if (baseType === 'QUEST') {
+			const questType = String(resolvedCard.questType || cardRef?.questType || '').toUpperCase();
+			return questType === 'PERSONAL' ? 'QUEST_PERSONAL' : null;
+		}
+		if (baseType === 'MOSJE' || baseType === 'PIECIE' || baseType === 'PLACE' || baseType === 'SNELLE_PIECIE') {
+			return baseType;
+		}
+		return null;
+	}
+
+	async function resolveQuestPromptIfNeeded(questDef, activeMosje) {
+		if (questDef?.requirementId !== 'quest_req_geen_raad_vraag_aad') {
+			return null;
+		}
+
+		const promptRequest = quest_req_geen_raad_vraag_aad(questDef, activeMosje);
+		if (!promptRequest?.requiresUIPrompt || promptRequest?.promptType !== 'SELECT_CARD_TYPE') {
+			return null;
+		}
+
+		const opponentHand = gameState?.players?.[opponentId]?.hand || [];
+		if (!opponentHand.length) {
+			return { didSucceed: false, selectedType: 'NO_CARD', selectedCardIndex: null };
+		}
+
+		let selectedCardIndex = 0;
+		if (promptRequest?.requiresHiddenOpponentCard) {
+			const pickedIndex = await modal.showOpponentHandCardSelect({
+				title: `${questDef.name} — Select Opponent Card`,
+				prompt: 'Pick one hidden card from opponent hand.',
+				handSize: opponentHand.length,
+				allowCancel: false,
+			});
+			selectedCardIndex = Number.isInteger(pickedIndex) ? pickedIndex : 0;
+		}
+
+		const selectedType = await modal.showCardTypeSelect({
+			title: `${questDef.name} — Select Card Type`,
+			prompt: 'Select the card type you think the opponent has in hand.',
+			allowedTypes: promptRequest.allowedTypes || [],
+			allowCancel: false,
+		});
+
+		const selectedCardRef = opponentHand[selectedCardIndex] || null;
+		const selectedCardType = mapCardToAadTypeId(selectedCardRef);
+		const didSucceed = selectedCardType === selectedType;
+
+		return { didSucceed, selectedType, selectedCardIndex };
+	}
+
 	// ── Shared remote-state handler — registered after game init ─────────
 	function onRemoteState(remoteState) {
 		const { state: sanitizedState, changed } = sanitizeQuestCardsInPlayerZones(remoteState);
 		gameState = sanitizedState;
 		renderFromState(gameState);
+		processPendingAadRecoveryForLocalPlayer();
 		// Persist one-time migration so all clients stop seeing legacy GENERAL quests in player zones.
 		if (changed && isOnline && localPlayerId === 'player_1') {
 			syncPush();
@@ -328,7 +473,8 @@ function initGamePage() {
 			modal.showInfo('Not Your Turn', 'You can only attempt quests on your own turn.');
 			return;
 		}
-		if (gameState.players[localPlayerId].hasAttemptedQuestThisTurn) {
+		const maxQGAttempts = gameState.activePlace === 'place_quest_haven' ? 2 : 1;
+		if ((gameState.players[localPlayerId].questsAttemptedThisTurn || 0) >= maxQGAttempts) {
 			modal.showInfo('Already Attempted', 'You have already attempted a quest this turn.');
 			return;
 		}
@@ -358,17 +504,8 @@ function initGamePage() {
 			return;
 		}
 
-		const threshold = getQuestDiceThreshold(questDef, activeMosje);
 		log.add('quest', `${localPlayerName} is attempting General Quest: ${questDef.name}`);
 		if (questDef.description) log.add('info', `Effect: ${questDef.description}`);
-
-		const diceBonus = gameState._snelleFlags?.questDiceBonus || 0;
-		const placeDiceBonus = gameState.activePlace === 'place_synergy_chamber' ? 1 : 0;
-		const skiffaRerolls = getSkiffaRerolls(gameState, localPlayerId);
-		const forceReroll = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
-		// Consume the flags before showing the modal
-		if (diceBonus) delete gameState._snelleFlags.questDiceBonus;
-		if (forceReroll) delete gameState._snelleFlags.forceReroll[localPlayerId];
 
 		// Phase 8 Rule 3: broadcast active quest so opponent can see it
 		gameState.activeQuest = {
@@ -388,7 +525,43 @@ function initGamePage() {
 			.filter(({ slot }) => slot && !slot.isDefeated)
 			.map(({ slot, index }) => ({ slotIndex: index, name: slot.cardId || 'Mosje', mp: slot.mp }));
 
-		function runGeneralQuestDiceRoll(targetSlotIndex) {
+		async function runGeneralQuestDiceRoll(targetSlotIndex) {
+			// Use the selected Mosje's traits for threshold calculation
+			const selectedMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex] || activeMosje;
+			const threshold = getQuestDiceThreshold(questDef, selectedMosje);
+
+			const promptResult = await resolveQuestPromptIfNeeded(questDef, selectedMosje);
+			if (promptResult) {
+				const beforeResolve = gameState;
+				gameState = resolveQuest(gameState, localPlayerId, questDef, promptResult.didSucceed, targetSlotIndex);
+				gameState.activeQuest = null;
+				if (!Array.isArray(gameState.sharedGeneralQuestDiscard)) {
+					gameState.sharedGeneralQuestDiscard = [];
+				}
+				gameState.sharedGeneralQuestDiscard.push(questRef);
+				renderFromState(gameState);
+				syncPush();
+
+				const mpDelta = promptResult.didSucceed ? questDef.successMP : questDef.failMP;
+				const sign = mpDelta >= 0 ? '+' : '';
+				log.add(promptResult.didSucceed ? 'gain' : 'loss',
+					`${questDef.name}: ${promptResult.didSucceed ? 'Success' : 'Failed'} (${promptResult.selectedType}) → ${sign}${mpDelta} MP`
+				);
+				logStateOutcome(log, beforeResolve, gameState, localPlayerId, `${questDef.name} resolution`);
+				return;
+			}
+
+			const diceBonus = (gameState._snelleFlags?.questDiceBonus || 0) +
+				(gameState.players[localPlayerId].questPrepBonus || 0);
+			const placeDiceBonus = gameState.activePlace === 'place_synergy_chamber' ? 1 : 0;
+			const skiffaRerolls = getSkiffaRerolls(gameState, localPlayerId);
+			const forceReroll = (gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false) ||
+				(gameState._snelleFlags?.luckyCoinReroll?.[localPlayerId] ?? false);
+			if (gameState._snelleFlags?.questDiceBonus) delete gameState._snelleFlags.questDiceBonus;
+			if (gameState.players[localPlayerId].questPrepBonus) gameState.players[localPlayerId].questPrepBonus = 0;
+			if (gameState._snelleFlags?.forceReroll?.[localPlayerId]) delete gameState._snelleFlags.forceReroll[localPlayerId];
+			if (gameState._snelleFlags?.luckyCoinReroll?.[localPlayerId]) delete gameState._snelleFlags.luckyCoinReroll[localPlayerId];
+
 			modal.showDiceRoll(questDef, threshold, (didSucceed) => {
 				const beforeResolve = gameState;
 				gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed, targetSlotIndex);
@@ -422,7 +595,8 @@ function initGamePage() {
 			modal.showInfo('Not Your Turn', 'You can only attempt quests on your own turn.');
 			return;
 		}
-		if (gameState.players[localPlayerId].hasAttemptedQuestThisTurn) {
+		const maxPQAttempts = gameState.activePlace === 'place_quest_haven' ? 2 : 1;
+		if ((gameState.players[localPlayerId].questsAttemptedThisTurn || 0) >= maxPQAttempts) {
 			modal.showInfo('Already Attempted', 'You have already attempted a quest this turn.');
 			return;
 		}
@@ -452,16 +626,8 @@ function initGamePage() {
 		gameState = newState;
 
 		const activeMosje = gameState.players[localPlayerId].activeSlots.find(s => s && !s.isDefeated);
-		const threshold = getQuestDiceThreshold(questDef, activeMosje);
 		log.add('quest', `${localPlayerName} is attempting Personal Quest: ${questDef.name}`);
 		if (questDef.description) log.add('info', `Effect: ${questDef.description}`);
-
-		const diceBonus2 = gameState._snelleFlags?.questDiceBonus || 0;
-		const placeDiceBonus2 = gameState.activePlace === 'place_synergy_chamber' ? 1 : 0;
-		const skiffaRerolls2 = getSkiffaRerolls(gameState, localPlayerId);
-		const forceReroll2 = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
-		if (diceBonus2) delete gameState._snelleFlags.questDiceBonus;
-		if (forceReroll2) delete gameState._snelleFlags.forceReroll[localPlayerId];
 
 		// Phase 8 Rule 3: broadcast active quest so opponent can see it
 		gameState.activeQuest = {
@@ -481,7 +647,39 @@ function initGamePage() {
 			.filter(({ slot }) => slot && !slot.isDefeated)
 			.map(({ slot, index }) => ({ slotIndex: index, name: slot.cardId || 'Mosje', mp: slot.mp }));
 
-		function runPersonalQuestDiceRoll(targetSlotIndex) {
+		async function runPersonalQuestDiceRoll(targetSlotIndex) {
+			// Use the selected Mosje's traits for threshold calculation
+			const selectedMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex] || activeMosje;
+			const threshold = getQuestDiceThreshold(questDef, selectedMosje);
+
+			const promptResult = await resolveQuestPromptIfNeeded(questDef, selectedMosje);
+			if (promptResult) {
+				const beforeResolve = gameState;
+				gameState = resolveQuest(gameState, localPlayerId, questDef, promptResult.didSucceed, targetSlotIndex);
+				gameState.activeQuest = null;
+				renderFromState(gameState);
+				syncPush();
+
+				const mpDelta = promptResult.didSucceed ? questDef.successMP : questDef.failMP;
+				const sign = mpDelta >= 0 ? '+' : '';
+				log.add(promptResult.didSucceed ? 'gain' : 'loss',
+					`${questDef.name}: ${promptResult.didSucceed ? 'Success' : 'Failed'} (${promptResult.selectedType}) → ${sign}${mpDelta} MP`
+				);
+				logStateOutcome(log, beforeResolve, gameState, localPlayerId, `${questDef.name} resolution`);
+				return;
+			}
+
+			const diceBonus2 = (gameState._snelleFlags?.questDiceBonus || 0) +
+				(gameState.players[localPlayerId].questPrepBonus || 0);
+			const placeDiceBonus2 = gameState.activePlace === 'place_synergy_chamber' ? 1 : 0;
+			const skiffaRerolls2 = getSkiffaRerolls(gameState, localPlayerId);
+			const forceReroll2 = (gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false) ||
+				(gameState._snelleFlags?.luckyCoinReroll?.[localPlayerId] ?? false);
+			if (gameState._snelleFlags?.questDiceBonus) delete gameState._snelleFlags.questDiceBonus;
+			if (gameState.players[localPlayerId].questPrepBonus) gameState.players[localPlayerId].questPrepBonus = 0;
+			if (gameState._snelleFlags?.forceReroll?.[localPlayerId]) delete gameState._snelleFlags.forceReroll[localPlayerId];
+			if (gameState._snelleFlags?.luckyCoinReroll?.[localPlayerId]) delete gameState._snelleFlags.luckyCoinReroll[localPlayerId];
+
 			modal.showDiceRoll(questDef, threshold, (didSucceed) => {
 				const beforeResolve = gameState;
 				gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed, targetSlotIndex);
@@ -509,7 +707,8 @@ function initGamePage() {
 		const uiState = toBoardViewModel(state, localPlayerId);
 
 		const isLocalTurn = state.activePlayerId === localPlayerId;
-		const alreadyAttempted = state.players[localPlayerId].hasAttemptedQuestThisTurn;
+		const maxQuestAttempts = state.activePlace === 'place_quest_haven' ? 2 : 1;
+		const alreadyAttempted = (state.players[localPlayerId].questsAttemptedThisTurn || 0) >= maxQuestAttempts;
 		const gameOver = state.status === 'FINISHED';
 
 		// Regular cards only on local turn; Snelle Piecies always available
@@ -559,18 +758,46 @@ function initGamePage() {
 		if (btnGeneral) btnGeneral.disabled = !questBtnsEnabled;
 		if (btnPersonal) btnPersonal.disabled = !questBtnsEnabled;
 		if (btnEndTurn) btnEndTurn.disabled = !isLocalTurn || gameOver;
+
+		// Non-blocking check so each client can resolve its own Aad recovery prompt.
+		processPendingAadRecoveryForLocalPlayer();
 	}
 
-	function handleUseAbility(mosjeId) {
+	async function handleUseAbility(mosjeId) {
 		if (!gameState || gameState.status === 'FINISHED') return;
 
 		const beforeAbility = gameState;
+
+		// West Calculated Guess: show type-selector modal before dispatching the ability.
+		const mosjeDef = CARD_LOOKUP[mosjeId];
+		const westAbilityIds = ['ability_martin_senor_west_calculated_guess', 'ability_west_calculated_guess'];
+		if (westAbilityIds.includes(mosjeDef?.abilityId)) {
+			const selectedType = await modal.showCardTypeSelect({
+				title: 'Calculated Guess',
+				prompt: 'Name a card type, then reveal the top of your own deck. Correct: draw 2 + gain 10 MP. Wrong: lose 10 MP.',
+				allowedTypes: ['MOSJE', 'PIECIE', 'PLACE', 'SNELLE_PIECIE', 'QUEST_PERSONAL'],
+				allowCancel: true,
+			});
+			if (!selectedType) return;
+			gameState = JSON.parse(JSON.stringify(gameState));
+			gameState._pendingTargets = { ...(gameState._pendingTargets || {}), westSelectedType: selectedType };
+		}
+
 		const { state: newState, success, error } = useMosjeAbility(gameState, localPlayerId, mosjeId);
 		if (!success) {
 			modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
+			if (gameState._pendingTargets?.westSelectedType) delete gameState._pendingTargets.westSelectedType;
 			return;
 		}
 		gameState = newState;
+
+		// Log which card was revealed for West's Calculated Guess
+		if (westAbilityIds.includes(mosjeDef?.abilityId) && gameState._westRevealedCard !== undefined) {
+			const revealedDef = CARD_LOOKUP[gameState._westRevealedCard];
+			const revealedName = revealedDef?.name || gameState._westRevealedCard || '(empty deck)';
+			log.add('info', `Revealed top card: ${revealedName}`);
+			delete gameState._westRevealedCard;
+		}
 
 		const slot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
 		log.add('gain', `Used ability: ${slot?.name || mosjeId}.`);
@@ -588,10 +815,43 @@ function initGamePage() {
 		renderFromState(gameState);
 	}
 
-	function handleActivatePiecie(slotIndex) {
+	async function handleActivatePiecie(slotIndex) {
 		if (!gameState || gameState.status === 'FINISHED') return;
-		const beforeActivate = gameState;
-		const { state: newState, success, error, cardDef, negated } = activatePiecie(gameState, localPlayerId, slotIndex);
+
+		// Peek at the piecie slot to determine if targeting is needed before activation
+		const piecieSlot = gameState.players[localPlayerId].piecieSlots?.[slotIndex];
+		const piecieCardDef = piecieSlot ? CARD_LOOKUP[piecieSlot.cardId] : null;
+
+		let stateForActivation = gameState;
+
+		if (piecieCardDef?.effectId === 'effect_kannetje_melk') {
+			const ownTargets = getPlayerMosjes(gameState, localPlayerId);
+			if (ownTargets.length > 1) {
+				const chosenId = await modal.showTargetSelector(ownTargets, 'Choose your Mosje to receive Kannetje Melk:');
+				if (!chosenId) return;
+				const chosenSlotIndex = gameState.players[localPlayerId].activeSlots.findIndex(s => s && s.cardId === chosenId);
+				stateForActivation = JSON.parse(JSON.stringify(gameState));
+				stateForActivation._pendingTargets = { own_slot_index: chosenSlotIndex };
+			}
+		} else if (piecieCardDef?.effectId === 'effect_affoe') {
+			const oppTargets = getOpponentMosjes(gameState, localPlayerId);
+			const ownTargets = getPlayerMosjes(gameState, localPlayerId);
+			if (oppTargets.length === 0) {
+				modal.showInfo('No Targets', 'No valid opponent targets for Affoe.');
+				return;
+			}
+			const drainId = await modal.showTargetSelector(oppTargets, 'Affoe: Choose an opponent Mosje to drain:');
+			if (!drainId) return;
+			let gainId = null;
+			if (ownTargets.length > 0) {
+				gainId = await modal.showTargetSelector(ownTargets, 'Affoe: Choose your Mosje to receive MP:');
+			}
+			stateForActivation = JSON.parse(JSON.stringify(gameState));
+			stateForActivation._pendingTargets = { affoe_drain: drainId, affoe_gain: gainId };
+		}
+
+		const beforeActivate = stateForActivation;
+		const { state: newState, success, error, cardDef, negated } = activatePiecie(stateForActivation, localPlayerId, slotIndex);
 		if (!success) {
 			modal.showInfo('Cannot Activate', error || 'That Piecie cannot be activated right now.');
 			return;
@@ -749,6 +1009,28 @@ function initGamePage() {
 				}
 			}
 
+			if (cardDef.effectId === 'effect_snelle_lucky_coin') {
+				const coinResult = Math.random() < 0.5 ? 'heads' : 'tails';
+				snelleStateForPlay = JSON.parse(JSON.stringify(snelleStateForPlay));
+				snelleStateForPlay._snelleFlags = snelleStateForPlay._snelleFlags || {};
+				snelleStateForPlay._snelleFlags.luckyCoinPreflip = coinResult;
+				if (coinResult === 'tails') {
+					const ownTargets = getPlayerMosjes(gameState, localPlayerId);
+					if (ownTargets.length > 1) {
+						const tgt = await resolveOwnMosjeTarget('Lucky Coin: TAILS — choose your Mosje to take 10 MP damage:');
+						if (tgt) {
+							snelleStateForPlay._pendingTargets = {
+								...(snelleStateForPlay._pendingTargets || {}),
+								own_slot_index: tgt._pendingTargets?.own_slot_index,
+							};
+						}
+					}
+					log.add('loss', 'Lucky Coin: Tails — 10 MP damage to own Mosje.');
+				} else {
+					log.add('gain', 'Lucky Coin: Heads — one free dice reroll available this turn!');
+				}
+			}
+
 			const { state: newState, success, error } = playSnellie(snelleStateForPlay, localPlayerId, cardRef, cardDef);
 			if (!success) {
 				modal.showInfo('Cannot Play', error || 'That card cannot be played right now.');
@@ -768,7 +1050,8 @@ function initGamePage() {
 				modal.showInfo('Not Your Turn', 'You can only attempt quests on your own turn.');
 				return;
 			}
-			if (gameState.players[localPlayerId].hasAttemptedQuestThisTurn) {
+			const maxQAttempts = gameState.activePlace === 'place_quest_haven' ? 2 : 1;
+			if ((gameState.players[localPlayerId].questsAttemptedThisTurn || 0) >= maxQAttempts) {
 				modal.showInfo('Already Attempted', 'You have already attempted a quest this turn.');
 				return;
 			}
@@ -791,13 +1074,6 @@ function initGamePage() {
 			const threshold = getQuestDiceThreshold(cardDef, activeMosje);
 			log.add('quest', `${localPlayerName} is attempting Personal Quest: ${cardDef.name}`);
 
-			const diceBonus = gameState._snelleFlags?.questDiceBonus || 0;
-			const placeDiceBonus = gameState.activePlace === 'place_synergy_chamber' ? 1 : 0;
-			const skiffaRerolls = getSkiffaRerolls(gameState, localPlayerId);
-			const forceReroll = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
-			if (diceBonus) delete gameState._snelleFlags.questDiceBonus;
-			if (forceReroll) delete gameState._snelleFlags.forceReroll[localPlayerId];
-
 			gameState.activeQuest = {
 				questName: cardDef.name,
 				cardName: cardDef.name,
@@ -810,18 +1086,41 @@ function initGamePage() {
 			renderFromState(gameState);
 			syncPush();
 
-			modal.showDiceRoll(cardDef, threshold, (didSucceed) => {
-				gameState = resolveQuest(gameState, localPlayerId, cardDef, didSucceed);
-				gameState.activeQuest = null;
-				renderFromState(gameState);
-				syncPush();
+			resolveQuestPromptIfNeeded(cardDef, activeMosje).then(promptResult => {
+				if (promptResult) {
+					gameState = resolveQuest(gameState, localPlayerId, cardDef, promptResult.didSucceed);
+					gameState.activeQuest = null;
+					renderFromState(gameState);
+					syncPush();
 
-				const mpDelta = didSucceed ? cardDef.successMP : cardDef.failMP;
-				const sign = mpDelta >= 0 ? '+' : '';
-				log.add(didSucceed ? 'gain' : 'loss',
-					`${cardDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`
-				);
-			}, { diceBonus: diceBonus + placeDiceBonus, forceReroll, skiffaRerolls });
+					const mpDelta = promptResult.didSucceed ? cardDef.successMP : cardDef.failMP;
+					const sign = mpDelta >= 0 ? '+' : '';
+					log.add(promptResult.didSucceed ? 'gain' : 'loss',
+						`${cardDef.name}: ${promptResult.didSucceed ? 'Success' : 'Failed'} (${promptResult.selectedType}) → ${sign}${mpDelta} MP`
+					);
+					return;
+				}
+
+				const diceBonus = gameState._snelleFlags?.questDiceBonus || 0;
+				const placeDiceBonus = gameState.activePlace === 'place_synergy_chamber' ? 1 : 0;
+				const skiffaRerolls = getSkiffaRerolls(gameState, localPlayerId);
+				const forceReroll = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
+				if (diceBonus) delete gameState._snelleFlags.questDiceBonus;
+				if (forceReroll) delete gameState._snelleFlags.forceReroll[localPlayerId];
+
+				modal.showDiceRoll(cardDef, threshold, (didSucceed) => {
+					gameState = resolveQuest(gameState, localPlayerId, cardDef, didSucceed);
+					gameState.activeQuest = null;
+					renderFromState(gameState);
+					syncPush();
+
+					const mpDelta = didSucceed ? cardDef.successMP : cardDef.failMP;
+					const sign = mpDelta >= 0 ? '+' : '';
+					log.add(didSucceed ? 'gain' : 'loss',
+						`${cardDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`
+					);
+				}, { diceBonus: diceBonus + placeDiceBonus, forceReroll, skiffaRerolls });
+			});
 			return;
 		}
 
@@ -931,16 +1230,21 @@ function getSkiffaRerolls(gameState, playerId) {
 function toMosjeCards(activeSlots) {
 	return activeSlots
 		.filter(slot => slot !== null)
-		.map(slot => ({
-			cardId: slot.cardId,
-			name: slot.name,
-			type: 'MOSJE',
-			mp: slot.mp,
-			level: slot.level,
-			isDefeated: slot.isDefeated,
-			abilityUsedThisTurn: slot.abilityUsedThisTurn,
-			description: slot.isDefeated ? 'Defeated' : 'Active on field',
-		}));
+		.map(slot => {
+			const cardDef = CARD_LOOKUP[slot.cardId];
+			const abilityCost = cardDef?.abilityCost || 0;
+			const cantAffordAbility = abilityCost > 0 && slot.mp < abilityCost;
+			return {
+				cardId: slot.cardId,
+				name: slot.name,
+				type: 'MOSJE',
+				mp: slot.mp,
+				level: slot.level,
+				isDefeated: slot.isDefeated,
+				abilityUsedThisTurn: slot.abilityUsedThisTurn || cantAffordAbility,
+				description: slot.isDefeated ? 'Defeated' : 'Active on field',
+			};
+		});
 }
 
 function toPiecieCards(piecieSlots, options = {}) {

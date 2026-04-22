@@ -380,6 +380,18 @@ export function runQuestLogicTests() {
     assertTrue(out.success);
   });
 
+  test('quest_req_geen_raad_vraag_aad returns selector prompt contract', () => {
+    const out = questLogic.quest_req_geen_raad_vraag_aad({}, {});
+    assertTrue(out.canAttempt, 'Aad quest should be attemptable before prompt resolution');
+    assertTrue(out.requiresUIPrompt, 'Aad quest should require UI prompt');
+    assertEqual(out.promptType, 'SELECT_CARD_TYPE');
+    assertEqual(out.requiresHiddenOpponentCard, true);
+    assertEqual(Array.isArray(out.allowedTypes), true);
+    assertEqual(out.allowedTypes.includes('SNELLE_PIECIE'), true);
+    assertEqual(out.allowedTypes.includes('PIECIE'), true);
+    assertEqual(out.allowedTypes.includes('QUEST_PERSONAL'), true);
+  });
+
   test('Lucky Crescendo success causes all opponents to lose 20 MP', () => {
     const state = createEngineState({
       activeQuest: { questName: 'Lucky Crescendo' },
@@ -419,6 +431,53 @@ export function runQuestLogicTests() {
     const quest = QUESTS.find(q => q.id === 'quest_personal_lucky_crescendo');
     const result = questLogic.resolveQuest(state, 'player_1', quest, true);
     assertEqual(result.players.player_2.activeSlots[0].mp, 20);
+  });
+
+  test('Aad failure enqueues post-resolution recovery for damaged players with cards in hand', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          activeSlots: [
+            {
+              cardId: 'mosje_west',
+              name: '[West] Sr.Tactical',
+              traits: { mental: 3, technical: 1 },
+              mp: 50,
+              level: 0,
+              isDefeated: false,
+              statusEffects: [],
+              abilityUsedThisTurn: false,
+            },
+            null,
+          ],
+          hand: [{ cardId: 'piecie_gun_een_piece', type: 'PIECIE' }],
+          totalDamageTaken: 0,
+        },
+        player_2: {
+          activeSlots: [
+            {
+              cardId: 'mosje_jeffrey',
+              name: '[Jeffrey] The Strongman',
+              traits: { physical: 3 },
+              mp: 40,
+              level: 0,
+              isDefeated: false,
+              statusEffects: [],
+              abilityUsedThisTurn: false,
+            },
+            null,
+          ],
+          hand: [{ cardId: 'piecie_kannetje_melk', type: 'PIECIE' }],
+          totalDamageTaken: 0,
+        },
+      },
+    });
+    const quest = QUESTS.find(q => q.id === 'quest_geen_raad_vraag_aad');
+    const result = questLogic.resolveQuest(state, 'player_1', quest, false);
+    assertTrue(Array.isArray(result._pendingAadRecovery?.eligiblePlayerIds));
+    assertTrue(result._pendingAadRecovery.eligiblePlayerIds.includes('player_1'));
+    assertEqual(result._pendingAadRecovery.questId, 'quest_geen_raad_vraag_aad');
+    assertEqual(result._pendingAadRecovery.mpGain, 40);
   });
 
   test('The Void blocks base quest MP gain/loss on resolve', () => {

@@ -8,8 +8,37 @@ export function effect_jensen(gameState) {
 	return JSON.parse(JSON.stringify(gameState));
 }
 
+export function effect_snelle_lucky_coin(gameState, playerId) {
+	const state = JSON.parse(JSON.stringify(gameState));
+	const player = state.players?.[playerId];
+	if (!player) return state;
+
+	// Use pre-determined coin result from UI if set, otherwise flip now.
+	const preflip = state._snelleFlags?.luckyCoinPreflip;
+	const coinResult = (typeof preflip === 'string' ? preflip : preflip?.result) ?? (Math.random() < 0.5 ? 'heads' : 'tails');
+	if (state._snelleFlags?.luckyCoinPreflip) delete state._snelleFlags.luckyCoinPreflip;
+
+	console.log(`[ABILITY] Lucky Coin: ${coinResult}`);
+
+	if (coinResult === 'heads') {
+		state._snelleFlags = state._snelleFlags || {};
+		state._snelleFlags.luckyCoinReroll = state._snelleFlags.luckyCoinReroll || {};
+		state._snelleFlags.luckyCoinReroll[playerId] = true;
+		console.log('[ABILITY] Lucky Coin: HEADS — one free reroll available this turn');
+	} else {
+		// Tails: deal 10 MP damage to selected own Mosje (falls back to first active)
+		const si = Number.isInteger(state._pendingTargets?.own_slot_index)
+			? state._pendingTargets.own_slot_index
+			: player.activeSlots.findIndex(s => s !== null && !s.isDefeated);
+		if (si >= 0) player.activeSlots[si].mp -= 10;
+		if (state._pendingTargets) delete state._pendingTargets.own_slot_index;
+		console.log('[ABILITY] Lucky Coin: TAILS — 10 MP damage to own Mosje');
+	}
+	return state;
+}
+
 export function effect_lucky_coin(gameState) {
-	console.log('[ABILITY] Lucky Coin: reroll die (resolution hook placeholder)');
+	console.log('[ABILITY] Lucky Coin (legacy stub — use effect_snelle_lucky_coin)');
 	return JSON.parse(JSON.stringify(gameState));
 }
 
@@ -79,10 +108,7 @@ export function effect_snelle_emergency_healings(gameState, playerId) {
 	return state;
 }
 
-export function effect_snelle_lucky_coin(gameState) {
-	console.log('[STUB] snelle_lucky_coin');
-	return gameState;
-}
+// effect_snelle_lucky_coin is defined above (full implementation).
 
 export function effect_snelle_ff_haaltje_nemen(gameState, playerId) {
 	const state = JSON.parse(JSON.stringify(gameState));

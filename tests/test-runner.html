@@ -29,6 +29,7 @@
     import { runTurnManagerTests } from './core/test-turnManager.js';
     import { runGameStateTests } from './core/test-gameState.js';
     import { runBoardRendererTests } from './core/test-boardRenderer.js';
+    import { runModalManagerTests } from './core/test-modalManager.js';
     import { runUniversalRulesTests } from './rules/test-universalRules.js';
 
     import { runMosjeAbilityTests } from './cards/test-mosjeAbilities.js';
@@ -39,7 +40,7 @@
     document.getElementById('app-version').textContent = `Version ${APP_VERSION}`;
     import { runQuestLogicTests } from './cards/test-questLogic.js';
 
-    function runAll() {
+    async function runAll() {
       clearResults();
       document.getElementById('results').innerHTML = '';
 
@@ -49,6 +50,7 @@
       runTurnManagerTests();
       runGameStateTests();
       runBoardRendererTests();
+      await runModalManagerTests();
       runUniversalRulesTests();
 
       runQuestLogicTests();
@@ -79,7 +81,9 @@
       }
     }
 
-    document.getElementById('btn-run').addEventListener('click', runAll);
+    document.getElementById('btn-run').addEventListener('click', () => {
+      runAll();
+    });
     runAll();
   </script>
 </body>

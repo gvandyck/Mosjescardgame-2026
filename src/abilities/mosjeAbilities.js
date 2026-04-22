@@ -271,19 +271,51 @@ export function ability_martin_historian_time_control(gameState, playerId) {
 	return state;
 }
 
-// Martin Senor West — calculated guess: roll d6. 4+ → +20 MP.
+// Helper: maps a card reference to a canonical type ID string used in type-guessing.
+function getCardTypeId(cardRef) {
+	if (!cardRef) return null;
+	const baseType = String(cardRef.type || '').toUpperCase();
+	if (baseType === 'QUEST') {
+		const questType = String(cardRef.questType || '').toUpperCase();
+		return questType === 'PERSONAL' ? 'QUEST_PERSONAL' : null;
+	}
+	if (['MOSJE', 'PIECIE', 'PLACE', 'SNELLE_PIECIE'].includes(baseType)) return baseType;
+	return null;
+}
+
+// Martin Senor West — Calculated Guess: name a card type, reveal top of own deck.
+// Correct: draw 2 + gain 10 MP. Wrong: lose 10 MP.
+// Uses _pendingTargets.westSelectedType (set by main.js modal before this runs).
 export function ability_martin_senor_west_calculated_guess(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
 	const si = getFirstActiveSlotIndex(player);
 	if (si < 0) return state;
-	const roll = rollDie(6);
-	if (roll >= 4) {
-		player.activeSlots[si].mp += 20;
-		console.log(`[ABILITY] Senor West: rolled ${roll} → +20 MP`);
+
+	const selectedType = state._pendingTargets?.westSelectedType || null;
+	if (!selectedType) {
+		// Flag that the UI needs to show the type-guess modal before this ability resolves.
+		state._needsWestGuessModal = true;
+		return state;
+	}
+	if (state._pendingTargets) delete state._pendingTargets.westSelectedType;
+
+	// Reveal top of own deck
+	const topCard = player.deck[0] || null;
+	const topCardTypeId = getCardTypeId(topCard);
+	state._westRevealedCard = topCard?.cardId || null;
+
+	const didGuessRight = topCardTypeId !== null && selectedType === topCardTypeId;
+
+	if (didGuessRight) {
+		const drawCount = Math.min(2, player.deck.length);
+		player.hand.push(...player.deck.splice(0, drawCount));
+		player.activeSlots[si].mp += 10;
+		console.log(`[ABILITY] Senor West: correct guess (${selectedType}) → drew ${drawCount} + +10 MP`);
 	} else {
-		console.log(`[ABILITY] Senor West: rolled ${roll} → no effect`);
+		player.activeSlots[si].mp -= 10;
+		console.log(`[ABILITY] Senor West: wrong guess (${selectedType} vs ${topCardTypeId}) → -10 MP`);
 	}
 	return state;
 }

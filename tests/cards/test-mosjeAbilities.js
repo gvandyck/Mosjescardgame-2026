@@ -159,4 +159,100 @@ export function runMosjeAbilityTests() {
     assertEqual(result.players.player_1.activeSlots[1].mp, 20);
     assertEqual(result.players.player_1.hand.length, 1);
   });
+
+  // ── West Calculated Guess ────────────────────────────────────────────────
+  test('West Calculated Guess: correct type guess draws 2 cards and adds 10 MP', () => {
+    assertDefined(
+      mosjeAbilities.ability_martin_senor_west_calculated_guess,
+      'ability_martin_senor_west_calculated_guess missing'
+    );
+
+    const state = createEngineState({
+      players: {
+        player_1: {
+          activeSlots: [
+            {
+              cardId: 'mosje_west',
+              name: '[West] Sr.Tactical',
+              traits: { mental: 3, technical: 1 },
+              mp: 20,
+              level: 1,
+              isDefeated: false,
+              statusEffects: [],
+              abilityUsedThisTurn: false,
+            },
+            null,
+          ],
+          deck: [
+            { cardId: 'piecie_kannetje_melk', type: 'PIECIE' },
+            { cardId: 'piecie_affoe', type: 'PIECIE' },
+          ],
+          hand: [],
+        },
+      },
+      _pendingTargets: { westSelectedType: 'PIECIE' },
+    });
+
+    const result = mosjeAbilities.ability_martin_senor_west_calculated_guess(state, 'player_1');
+    assertEqual(result.players.player_1.activeSlots[0].mp, 30, 'Should gain +10 MP on correct guess');
+    assertEqual(result.players.player_1.hand.length, 2, 'Should draw 2 cards on correct guess');
+  });
+
+  test('West Calculated Guess: wrong type loses 10 MP', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          activeSlots: [
+            {
+              cardId: 'mosje_west',
+              name: '[West] Sr.Tactical',
+              traits: { mental: 3, technical: 1 },
+              mp: 20,
+              level: 1,
+              isDefeated: false,
+              statusEffects: [],
+              abilityUsedThisTurn: false,
+            },
+            null,
+          ],
+          deck: [
+            { cardId: 'piecie_kannetje_melk', type: 'PIECIE' },
+          ],
+          hand: [],
+        },
+      },
+      _pendingTargets: { westSelectedType: 'MOSJE' },
+    });
+
+    const result = mosjeAbilities.ability_martin_senor_west_calculated_guess(state, 'player_1');
+    assertEqual(result.players.player_1.activeSlots[0].mp, 10, 'Should lose 10 MP on wrong guess');
+    assertEqual(result.players.player_1.hand.length, 0, 'Should not draw cards on wrong guess');
+  });
+
+  test('West Calculated Guess: sets _needsWestGuessModal when no type selected', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          activeSlots: [
+            {
+              cardId: 'mosje_west',
+              name: '[West] Sr.Tactical',
+              traits: { mental: 3, technical: 1 },
+              mp: 20,
+              level: 1,
+              isDefeated: false,
+              statusEffects: [],
+              abilityUsedThisTurn: false,
+            },
+            null,
+          ],
+          deck: [{ cardId: 'piecie_kannetje_melk', type: 'PIECIE' }],
+          hand: [],
+        },
+      },
+    });
+
+    const result = mosjeAbilities.ability_martin_senor_west_calculated_guess(state, 'player_1');
+    assertTrue(result._needsWestGuessModal, 'Should set _needsWestGuessModal when no type provided');
+  });
 }

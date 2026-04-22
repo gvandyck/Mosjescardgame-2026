@@ -39,6 +39,7 @@ export function startTurn(gameState) {
   const activePlayer = state.players[playerId];
   activePlayer.questsCompletedThisTurn = 0;
   activePlayer.hasAttemptedQuestThisTurn = false;
+  activePlayer.questsAttemptedThisTurn = 0;
   activePlayer.hasRerolledDieThisTurn = false;
   activePlayer.pieciesPlayedThisTurn = 0;
   activePlayer.lastCardPlayedType = null;
@@ -159,8 +160,9 @@ export function attemptGeneralQuest(gameState) {
   const playerId = state.activePlayerId;
   const player = state.players[playerId];
 
-  if (player.hasAttemptedQuestThisTurn) {
-    console.log('[ENGINE] Quest already attempted this turn');
+  const maxAttempts = state.activePlace === 'place_quest_haven' ? 2 : 1;
+  if ((player.questsAttemptedThisTurn || 0) >= maxAttempts) {
+    console.log('[ENGINE] Quest already attempted this turn (max reached)');
     return { state, questCard: null };
   }
 
@@ -179,6 +181,7 @@ export function attemptGeneralQuest(gameState) {
   console.log('[ENGINE] General Quest drawn:', questCard.cardId);
 
   player.hasAttemptedQuestThisTurn = true;
+  player.questsAttemptedThisTurn = (player.questsAttemptedThisTurn || 0) + 1;
 
   return { state, questCard };
 }
@@ -195,8 +198,9 @@ export function attemptPersonalQuest(gameState, questCardId) {
   const playerId = state.activePlayerId;
   const player = state.players[playerId];
 
-  if (player.hasAttemptedQuestThisTurn) {
-    console.log('[ENGINE] Quest already attempted this turn');
+  const maxAttempts = state.activePlace === 'place_quest_haven' ? 2 : 1;
+  if ((player.questsAttemptedThisTurn || 0) >= maxAttempts) {
+    console.log('[ENGINE] Quest already attempted this turn (max reached)');
     return { state, questCard: null, eligible: false };
   }
 
@@ -208,6 +212,7 @@ export function attemptPersonalQuest(gameState, questCardId) {
 
   const [questCard] = player.hand.splice(cardIndex, 1);
   player.hasAttemptedQuestThisTurn = true;
+  player.questsAttemptedThisTurn = (player.questsAttemptedThisTurn || 0) + 1;
   console.log('[ENGINE] Personal Quest played from hand:', questCardId);
 
   return { state, questCard, eligible: true };
@@ -354,12 +359,17 @@ export function activatePiecie(gameState, playerId, slotIndex) {
   // Apply the effect function
   const effectFn = piecieEffects[knownCardDef.effectId];
   if (typeof effectFn === 'function') {
+    const handSizeBefore = state.players[playerId].hand.length;
     state = effectFn(state, playerId);
     // Dubbele Temminks: double-trigger
     if (flags.doubleNextPiecie?.[playerId]) {
       delete state._snelleFlags.doubleNextPiecie[playerId];
       state = effectFn(state, playerId);
       console.log('[ENGINE] Dubbele Temminks: effect triggered twice');
+    }
+    const cardsDrawnInAction = Math.max(0, state.players[playerId].hand.length - handSizeBefore);
+    if (cardsDrawnInAction > 0) {
+      state = applyPlaceEffectsOnDraw(state, playerId, cardsDrawnInAction);
     }
     console.log(`[ENGINE] Piecie activated: ${knownCardDef.name} (${knownCardDef.effectId})`);
   } else {
@@ -428,7 +438,12 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
   // Apply the effect function
   const effectFn = snelleEffects[cardDef.effectId];
   if (typeof effectFn === 'function') {
+    const handSizeBefore = state.players[playerId].hand.length;
     state = effectFn(state, playerId);
+    const cardsDrawnInAction = Math.max(0, state.players[playerId].hand.length - handSizeBefore);
+    if (cardsDrawnInAction > 0) {
+      state = applyPlaceEffectsOnDraw(state, playerId, cardsDrawnInAction);
+    }
     console.log(`[ENGINE] Snelle Piecie played: ${cardDef.name} (${cardDef.effectId})`);
   } else {
     console.warn(`[ENGINE] No snelle effect function found for: ${cardDef.effectId}`);
@@ -527,13 +542,21 @@ export function useMosjeAbility(gameState, playerId, mosjeId) {
   if (slotIndex < 0) return { state: gameState, success: false, error: 'Mosje not on field or is defeated' };
 
   const slot = player.activeSlots[slotIndex];
-  if (slot.abilityUsedThisTurn) {
-    return { state: gameState, success: false, error: 'Ability already used this turn' };
-  }
 
   const mosjeDef = MOSJES.find(m => m.id === mosjeId);
   if (!mosjeDef?.abilityId) {
     return { state: gameState, success: false, error: 'This Mosje has no ability' };
+  }
+
+  if (!mosjeDef.unlimitedAbility && slot.abilityUsedThisTurn) {
+    return { state: gameState, success: false, error: 'Ability already used this turn' };
+  }
+
+  // MP cost check for abilities with a cost
+  if (mosjeDef.abilityCost && mosjeDef.abilityCost > 0) {
+    if (slot.mp < mosjeDef.abilityCost) {
+      return { state: gameState, success: false, error: `Not enough MP (need ${mosjeDef.abilityCost})` };
+    }
   }
 
   const fn = mosjeAbilities[mosjeDef.abilityId];
@@ -541,11 +564,13 @@ export function useMosjeAbility(gameState, playerId, mosjeId) {
     return { state: gameState, success: false, error: `Ability not implemented: ${mosjeDef.abilityId}` };
   }
 
-  // Dispatch â€” ability functions clone the state internally and return a new state
+  // Dispatch — ability functions clone the state internally and return a new state
   let state = fn(gameState, playerId, mosjeId);
 
-  // Mark ability as used for this turn
-  state.players[playerId].activeSlots[slotIndex].abilityUsedThisTurn = true;
+  // Mark ability as used this turn (skip for unlimited abilities)
+  if (!mosjeDef.unlimitedAbility) {
+    state.players[playerId].activeSlots[slotIndex].abilityUsedThisTurn = true;
+  }
 
   state = checkVictory(state);
   return { state, success: true };
