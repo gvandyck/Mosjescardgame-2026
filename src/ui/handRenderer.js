@@ -83,7 +83,8 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 				btn.className = 'hand-card__play-btn';
 				btn.type = 'button';
 				if (card.type === 'MOSJE') btn.textContent = 'Play Mosje';
-				else btn.textContent = isRegularPlayable ? 'PLACE' : 'Play';
+				else if (card.type === 'PLACE') btn.textContent = 'Play Place';
+				else btn.textContent = 'Play';
 				btn.addEventListener('click', (e) => {
 					e.stopPropagation();
 					onPlay(card.cardId, card.type);

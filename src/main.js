@@ -733,10 +733,17 @@ function initGamePage() {
 		}
 
 		const questBtnsEnabled = isLocalTurn && !alreadyAttempted && !gameOver;
+		const questsUsed = state.players[localPlayerId].questsAttemptedThisTurn || 0;
+		const questHavenActive = state.activePlace === 'place_quest_haven';
+
 		const phaseLabel = gameOver
 			? 'Game Over'
 			: isLocalTurn
-				? (alreadyAttempted ? 'MAIN Phase' : 'MAIN / QUEST Phase')
+				? (alreadyAttempted
+					? 'MAIN Phase'
+					: questHavenActive
+						? `MAIN / QUEST Phase (${questsUsed}/2 quests used)`
+						: 'MAIN / QUEST Phase')
 				: `${uiState.activePlayerName}'s Turn`;
 
 		if (turnLabel) {
@@ -755,8 +762,15 @@ function initGamePage() {
 		const btnPersonal = document.getElementById('btn-personal-quest');
 		const btnEndTurn = document.getElementById('btn-end-turn');
 
-		if (btnGeneral) btnGeneral.disabled = !questBtnsEnabled;
-		if (btnPersonal) btnPersonal.disabled = !questBtnsEnabled;
+		const questBtnLabel = questHavenActive && questsUsed === 1 ? ' (2nd)' : '';
+		if (btnGeneral) {
+			btnGeneral.disabled = !questBtnsEnabled;
+			btnGeneral.textContent = `General Quest 🎯${questBtnLabel}`;
+		}
+		if (btnPersonal) {
+			btnPersonal.disabled = !questBtnsEnabled;
+			btnPersonal.textContent = `Personal Quest ⭐${questBtnLabel}`;
+		}
 		if (btnEndTurn) btnEndTurn.disabled = !isLocalTurn || gameOver;
 
 		// Non-blocking check so each client can resolve its own Aad recovery prompt.
@@ -1241,6 +1255,8 @@ function toMosjeCards(activeSlots) {
 				mp: slot.mp,
 				level: slot.level,
 				isDefeated: slot.isDefeated,
+				abilityCost,
+				cantAffordAbility,
 				abilityUsedThisTurn: slot.abilityUsedThisTurn || cantAffordAbility,
 				description: slot.isDefeated ? 'Defeated' : 'Active on field',
 			};
