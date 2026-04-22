@@ -29,3 +29,8 @@ node_modules/
 # Build output folders (not used, but good practice)
 dist/
 build/
+
+# Coverage artifacts
+coverage-summary.json
+coverage/
+.nyc_output/
