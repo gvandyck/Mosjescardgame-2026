@@ -22,6 +22,7 @@ export const ENDURANCE_TEST: QuestDefinition = {
   autoSucceedCondition: { type: "mp", params: { operator: ">=", value: 60 } },
   roll: {
     die: "d6",
+    trait: "Physical",
     thresholds: { "1": 5, "2": 3, "3": 1 }
   },
   onSuccess: [{ primitive: "gainMP", params: { target: "$self", amount: 60 } }],

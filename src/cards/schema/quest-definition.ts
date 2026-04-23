@@ -9,6 +9,7 @@ export interface QuestDefinition extends CardDefinition {
   readonly requiredMosjeCardId?: CardId;
   readonly roll?: {
     readonly die: "d6";
+    readonly trait?: string;
     readonly thresholds: Readonly<Record<"1" | "2" | "3", number>>;
   };
   readonly autoSucceedCondition?: RequirementDefinition;

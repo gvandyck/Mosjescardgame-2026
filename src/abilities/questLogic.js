@@ -180,51 +180,15 @@ export function canAttemptPersonalQuest(questCard, gameState, playerId) {
 // activeMosje  — the live Mosje slot object (has .traits)
 // ─────────────────────────────────────────────────────────────
 export function getQuestDiceThreshold(questCard, activeMosje) {
-	const fakeState = {
-		players: {
-			_tmp: {
-				activeSlots: [
-					{
-						cardId: activeMosje?.cardId || '_tmp_mosje',
-						traits: { ...(activeMosje?.traits || {}) },
-						isDefeated: false,
-					},
-				],
-			},
-		},
-	};
-	const activeMosjeId = activeMosje?.cardId || '_tmp_mosje';
+  const roll = questCard.roll;
+  if (!roll) return 1; // no dice roll (auto-success or UI prompt)
 
-  switch (questCard.requirementId) {
-    case 'quest_req_arm_wrestling': {
-			const phys = getMosjeTrait(fakeState, '_tmp', activeMosjeId, 'physical');
-      if (phys >= 3) return 2;
-      if (phys >= 2) return 3;
-      return 5;
-    }
-    case 'quest_req_quick_thinking': {
-			const mental = getMosjeTrait(fakeState, '_tmp', activeMosjeId, 'mental');
-      if (mental >= 3) return 3;
-      if (mental >= 2) return 4;
-      return 5;
-    }
-    case 'quest_req_artistic_expression': {
-			const creative = getMosjeTrait(fakeState, '_tmp', activeMosjeId, 'creative');
-      // Missing creative trait → impossible (threshold beyond max roll)
-      return creative >= 2 ? 4 : 7;
-    }
-    case 'quest_req_momentum_master':
-      return 3;
-    case 'quest_req_leap_of_faith':
-		case 'quest_req_iron_will':
-			return 4;
-		case 'quest_req_lucky_crescendo':
-			return 5;
-		case 'quest_req_perfect_sync':
-			return 1; // auto-success handled in resolveQuest
-    default:
-      return 4;
+  if (roll.trait) {
+    const stars = Math.min(3, Math.max(1, Number(activeMosje?.traits?.[roll.trait] || 1)));
+    return roll.thresholds[stars] ?? 4;
   }
+
+  return roll.thresholds[1] ?? 4;
 }
 
 // Resolves the MP result of a quest and updates completion counters.

@@ -18,6 +18,7 @@ export const ARM_WRESTLING: QuestDefinition = {
   scope: "general",
   roll: {
     die: "d6",
+    trait: "Physical",
     thresholds: { "1": 5, "2": 3, "3": 2 }
   },
   onSuccess: [{ primitive: "gainMP", params: { target: "$self", amount: 40 } }],

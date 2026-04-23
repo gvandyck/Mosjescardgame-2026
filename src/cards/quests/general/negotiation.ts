@@ -22,6 +22,7 @@ export const NEGOTIATION: QuestDefinition = {
   autoSucceedCondition: { type: "trait", params: { trait: "Social", minStars: 3 } },
   roll: {
     die: "d6",
+    trait: "Social",
     thresholds: { "1": 3, "2": 3, "3": 3 }
   },
   onSuccess: [{ primitive: "gainMP", params: { target: "$self", amount: 25 } }],

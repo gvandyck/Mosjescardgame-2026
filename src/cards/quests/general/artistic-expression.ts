@@ -22,6 +22,7 @@ export const ARTISTIC_EXPRESSION: QuestDefinition = {
   autoSucceedCondition: { type: "trait", params: { trait: "Creative", minStars: 2 } },
   roll: {
     die: "d6",
+    trait: "Creative",
     thresholds: { "1": 4, "2": 3, "3": 2 }
   },
   onSuccess: [{ primitive: "gainMP", params: { target: "$self", amount: 40 } }],

@@ -23,6 +23,7 @@ export const IMPROVISE: QuestDefinition = {
   autoSucceedCondition: { type: "trait", params: { trait: "Creative", minStars: 3 } },
   roll: {
     die: "d6",
+    trait: "Creative",
     thresholds: { "1": 4, "2": 4, "3": 4 }
   },
   onSuccess: [{ primitive: "gainMP", params: { target: "$self", amount: 50 } }],

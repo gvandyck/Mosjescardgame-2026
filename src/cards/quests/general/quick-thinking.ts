@@ -18,6 +18,7 @@ export const QUICK_THINKING: QuestDefinition = {
   scope: "general",
   roll: {
     die: "d6",
+    trait: "Mental",
     thresholds: { "1": 5, "2": 4, "3": 3 }
   },
   onSuccess: [{ primitive: "gainMP", params: { target: "$self", amount: 20 } }],
