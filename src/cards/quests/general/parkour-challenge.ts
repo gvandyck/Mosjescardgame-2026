@@ -20,6 +20,7 @@ export const PARKOUR_CHALLENGE: QuestDefinition = {
   scope: "general",
   roll: {
     die: "d6",
+    trait: "Physical",
     thresholds: { "1": 4, "2": 4, "3": 4 }
   },
   onSuccess: [

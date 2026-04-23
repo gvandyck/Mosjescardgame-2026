@@ -21,6 +21,7 @@ export const CALCULATE_ODDS: QuestDefinition = {
   scope: "general",
   roll: {
     die: "d6",
+    trait: "Mental",
     thresholds: { "1": 4, "2": 4, "3": 4 }
   },
   onSuccess: [{ primitive: "gainMP", params: { target: "$self", amount: 20 } }],

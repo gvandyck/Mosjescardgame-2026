@@ -24,7 +24,7 @@ export function initModalManager(container) {
 			showOpponentHandCardSelect: async ({ handSize = 0 } = {}) => {
 				return Number(handSize) > 0 ? 0 : null;
 			},
-			showMosjeSelect: (_slots, onSelected) => onSelected(0),
+			showMosjeSelect: (_slots, onSelected, _questDef) => onSelected(0),
 			close: () => {},
 		};
 	}
@@ -487,21 +487,45 @@ export function initModalManager(container) {
 		return Number.isFinite(parsed) ? parsed : null;
 	}
 
-	function showMosjeSelect(mosjeSlots, onSelected) {
+	function showMosjeSelect(mosjeSlots, onSelected, questDef) {
 		if (mosjeSlots.length <= 1) {
 			onSelected(mosjeSlots[0]?.slotIndex ?? 0);
 			return;
 		}
 
+		const roll = questDef?.roll ?? null;
+		const traitKey = roll?.trait ?? null;
+		const traitLabel = traitKey
+			? traitKey.charAt(0).toUpperCase() + traitKey.slice(1)
+			: null;
+
+		function starsText(count) {
+			const n = Math.min(3, Math.max(0, Number(count) || 0));
+			return n > 0 ? '★'.repeat(n) + '☆'.repeat(3 - n) : '☆☆☆';
+		}
+
+		function rollLabel(mosjeSlot) {
+			if (!roll) return `${mosjeSlot.mp} MP`;
+			const stars = traitKey
+				? Math.min(3, Math.max(1, Number(mosjeSlot.traits?.[traitKey] || 1)))
+				: 1;
+			const threshold = roll.thresholds[stars] ?? 4;
+			const starCount = traitKey ? Number(mosjeSlot.traits?.[traitKey] || 0) : null;
+			const starDisplay = starCount !== null ? starsText(starCount) : '';
+			const traitPart = traitLabel ? `${traitLabel} ${starDisplay}` : 'Any';
+			if (threshold > 6) return `${traitPart} — ★★ required`;
+			return `${traitPart} — needs ${threshold}+`;
+		}
+
 		const options = mosjeSlots.map(mosjeSlot => ({
 			id: String(mosjeSlot.slotIndex),
 			label: mosjeSlot.name,
-			metaLabel: `${mosjeSlot.mp} MP`,
+			metaLabel: rollLabel(mosjeSlot),
 		}));
 
 		showOptionSelect({
 			title: 'Choose Mosje for Quest',
-			prompt: 'Select which Mosje will receive the quest reward or take the damage.',
+			prompt: 'Select which Mosje will attempt the quest.',
 			options,
 		}).then(selectedId => {
 			onSelected(Number.parseInt(selectedId ?? '0', 10));

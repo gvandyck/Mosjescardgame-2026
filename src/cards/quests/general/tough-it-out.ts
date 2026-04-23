@@ -18,6 +18,7 @@ export const TOUGH_IT_OUT: QuestDefinition = {
   scope: "general",
   roll: {
     die: "d6",
+    trait: "Resilient",
     thresholds: { "1": 5, "2": 4, "3": 3 }
   },
   onSuccess: [{ primitive: "gainMP", params: { target: "$self", amount: 80 } }],

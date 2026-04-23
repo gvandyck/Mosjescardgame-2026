@@ -523,7 +523,12 @@ function initGamePage() {
 		const gqSlots = gameState.players[localPlayerId].activeSlots
 			.map((slot, index) => ({ slot, index }))
 			.filter(({ slot }) => slot && !slot.isDefeated)
-			.map(({ slot, index }) => ({ slotIndex: index, name: slot.cardId || 'Mosje', mp: slot.mp }));
+			.map(({ slot, index }) => ({
+				slotIndex: index,
+				name: slot.cardId || 'Mosje',
+				mp: slot.mp,
+				traits: slot.traits || CARD_LOOKUP[slot.cardId]?.traits || {},
+			}));
 
 		async function runGeneralQuestDiceRoll(targetSlotIndex) {
 			// Use the selected Mosje's traits for threshold calculation
@@ -583,7 +588,7 @@ function initGamePage() {
 		}
 
 		if (gqSlots.length > 1) {
-			modal.showMosjeSelect(gqSlots, runGeneralQuestDiceRoll);
+			modal.showMosjeSelect(gqSlots, runGeneralQuestDiceRoll, questDef);
 		} else {
 			runGeneralQuestDiceRoll(gqSlots[0]?.slotIndex ?? 0);
 		}
@@ -645,7 +650,12 @@ function initGamePage() {
 		const pqSlots = gameState.players[localPlayerId].activeSlots
 			.map((slot, index) => ({ slot, index }))
 			.filter(({ slot }) => slot && !slot.isDefeated)
-			.map(({ slot, index }) => ({ slotIndex: index, name: slot.cardId || 'Mosje', mp: slot.mp }));
+			.map(({ slot, index }) => ({
+				slotIndex: index,
+				name: slot.cardId || 'Mosje',
+				mp: slot.mp,
+				traits: slot.traits || CARD_LOOKUP[slot.cardId]?.traits || {},
+			}));
 
 		async function runPersonalQuestDiceRoll(targetSlotIndex) {
 			// Use the selected Mosje's traits for threshold calculation
@@ -697,7 +707,7 @@ function initGamePage() {
 		}
 
 		if (pqSlots.length > 1) {
-			modal.showMosjeSelect(pqSlots, runPersonalQuestDiceRoll);
+			modal.showMosjeSelect(pqSlots, runPersonalQuestDiceRoll, questDef);
 		} else {
 			runPersonalQuestDiceRoll(pqSlots[0]?.slotIndex ?? 0);
 		}

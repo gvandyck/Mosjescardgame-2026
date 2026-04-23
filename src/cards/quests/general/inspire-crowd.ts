@@ -18,6 +18,7 @@ export const INSPIRE_CROWD: QuestDefinition = {
   scope: "general",
   roll: {
     die: "d6",
+    trait: "Social",
     thresholds: { "1": 5, "2": 4, "3": 3 }
   },
   onSuccess: [{ primitive: "gainMP", params: { target: "$self", amount: 25 } }],

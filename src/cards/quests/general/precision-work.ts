@@ -18,6 +18,7 @@ export const PRECISION_WORK: QuestDefinition = {
   scope: "general",
   roll: {
     die: "d6",
+    trait: "Technical",
     thresholds: { "1": 4, "2": 3, "3": 2 }
   },
   onSuccess: [{ primitive: "gainMP", params: { target: "$self", amount: 70 } }],
