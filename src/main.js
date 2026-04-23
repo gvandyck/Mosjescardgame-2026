@@ -363,11 +363,13 @@ function initGamePage() {
 		if (questDef.description) log.add('info', `Effect: ${questDef.description}`);
 
 		const diceBonus = gameState._snelleFlags?.questDiceBonus || 0;
+		const questPrepBonus = gameState.players[localPlayerId]?.questPrepBonus || 0;
 		const placeDiceBonus = gameState.activePlace === 'place_synergy_chamber' ? 1 : 0;
 		const skiffaRerolls = getSkiffaRerolls(gameState, localPlayerId);
 		const forceReroll = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
 		// Consume the flags before showing the modal
 		if (diceBonus) delete gameState._snelleFlags.questDiceBonus;
+		if (questPrepBonus) gameState.players[localPlayerId].questPrepBonus = 0;
 		if (forceReroll) delete gameState._snelleFlags.forceReroll[localPlayerId];
 
 		// Phase 8 Rule 3: broadcast active quest so opponent can see it
@@ -406,7 +408,7 @@ function initGamePage() {
 					`${questDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`
 				);
 				logStateOutcome(log, beforeResolve, gameState, localPlayerId, `${questDef.name} resolution`);
-			}, { diceBonus: diceBonus + placeDiceBonus, forceReroll, skiffaRerolls });
+			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus, forceReroll, skiffaRerolls });
 		}
 
 		if (gqSlots.length > 1) {
@@ -457,10 +459,12 @@ function initGamePage() {
 		if (questDef.description) log.add('info', `Effect: ${questDef.description}`);
 
 		const diceBonus2 = gameState._snelleFlags?.questDiceBonus || 0;
+		const questPrepBonus2 = gameState.players[localPlayerId]?.questPrepBonus || 0;
 		const placeDiceBonus2 = gameState.activePlace === 'place_synergy_chamber' ? 1 : 0;
 		const skiffaRerolls2 = getSkiffaRerolls(gameState, localPlayerId);
 		const forceReroll2 = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
 		if (diceBonus2) delete gameState._snelleFlags.questDiceBonus;
+		if (questPrepBonus2) gameState.players[localPlayerId].questPrepBonus = 0;
 		if (forceReroll2) delete gameState._snelleFlags.forceReroll[localPlayerId];
 
 		// Phase 8 Rule 3: broadcast active quest so opponent can see it
@@ -495,7 +499,7 @@ function initGamePage() {
 					`${questDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`
 				);
 				logStateOutcome(log, beforeResolve, gameState, localPlayerId, `${questDef.name} resolution`);
-			}, { diceBonus: diceBonus2 + placeDiceBonus2, forceReroll: forceReroll2, skiffaRerolls: skiffaRerolls2 });
+			}, { diceBonus: diceBonus2 + questPrepBonus2 + placeDiceBonus2, forceReroll: forceReroll2, skiffaRerolls: skiffaRerolls2 });
 		}
 
 		if (pqSlots.length > 1) {
@@ -792,10 +796,12 @@ function initGamePage() {
 			log.add('quest', `${localPlayerName} is attempting Personal Quest: ${cardDef.name}`);
 
 			const diceBonus = gameState._snelleFlags?.questDiceBonus || 0;
+			const questPrepBonus = gameState.players[localPlayerId]?.questPrepBonus || 0;
 			const placeDiceBonus = gameState.activePlace === 'place_synergy_chamber' ? 1 : 0;
 			const skiffaRerolls = getSkiffaRerolls(gameState, localPlayerId);
 			const forceReroll = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
 			if (diceBonus) delete gameState._snelleFlags.questDiceBonus;
+			if (questPrepBonus) gameState.players[localPlayerId].questPrepBonus = 0;
 			if (forceReroll) delete gameState._snelleFlags.forceReroll[localPlayerId];
 
 			gameState.activeQuest = {
@@ -821,7 +827,7 @@ function initGamePage() {
 				log.add(didSucceed ? 'gain' : 'loss',
 					`${cardDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`
 				);
-			}, { diceBonus: diceBonus + placeDiceBonus, forceReroll, skiffaRerolls });
+			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus, forceReroll, skiffaRerolls });
 			return;
 		}
 
