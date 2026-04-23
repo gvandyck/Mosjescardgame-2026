@@ -353,6 +353,7 @@ export function activatePiecie(gameState, playerId, slotIndex) {
 
   // Apply the effect function
   const effectFn = piecieEffects[knownCardDef.effectId];
+  const handSizeBeforeEffect = state.players[playerId].hand.length;
   if (typeof effectFn === 'function') {
     state = effectFn(state, playerId);
     // Dubbele Temminks: double-trigger
@@ -364,6 +365,12 @@ export function activatePiecie(gameState, playerId, slotIndex) {
     console.log(`[ENGINE] Piecie activated: ${knownCardDef.name} (${knownCardDef.effectId})`);
   } else {
     console.warn(`[ENGINE] No effect function found for: ${knownCardDef.effectId}`);
+  }
+
+  // Fire ON_DRAW place effect for cards drawn by this Piecie (e.g. Bank Chilling)
+  const piecieCardsDrawn = Math.max(0, state.players[playerId].hand.length - handSizeBeforeEffect);
+  if (piecieCardsDrawn > 0) {
+    state = applyPlaceEffectsOnDraw(state, playerId, piecieCardsDrawn);
   }
 
   // Track last played piecie for Gevalletje Klakkeloos
