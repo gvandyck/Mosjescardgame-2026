@@ -588,10 +588,32 @@ function initGamePage() {
 		renderFromState(gameState);
 	}
 
-	function handleActivatePiecie(slotIndex) {
+	async function handleActivatePiecie(slotIndex) {
 		if (!gameState || gameState.status === 'FINISHED') return;
 		const beforeActivate = gameState;
-		const { state: newState, success, error, cardDef, negated } = activatePiecie(gameState, localPlayerId, slotIndex);
+
+		const piecieSlot = gameState.players[localPlayerId]?.piecieSlots?.[slotIndex];
+		const piecieCardDef = piecieSlot?.cardId ? CARD_LOOKUP[piecieSlot.cardId] : null;
+
+		let stateForActivation = gameState;
+		if (piecieCardDef?.effectId === 'effect_affoe') {
+			const oppTargets = getOpponentMosjes(gameState, localPlayerId);
+			const ownTargets = getPlayerMosjes(gameState, localPlayerId);
+			if (oppTargets.length === 0) {
+				modal.showInfo('No Targets', 'No valid opponent targets.');
+				return;
+			}
+			const drainId = await modal.showTargetSelector(oppTargets, 'Choose an opponent Mosje to drain:');
+			if (!drainId) return;
+			let gainId = null;
+			if (ownTargets.length > 0) {
+				gainId = await modal.showTargetSelector(ownTargets, 'Choose your Mosje to receive MP:');
+			}
+			stateForActivation = JSON.parse(JSON.stringify(gameState));
+			stateForActivation._pendingTargets = { affoe_drain: drainId, affoe_gain: gainId };
+		}
+
+		const { state: newState, success, error, cardDef, negated } = activatePiecie(stateForActivation, localPlayerId, slotIndex);
 		if (!success) {
 			modal.showInfo('Cannot Activate', error || 'That Piecie cannot be activated right now.');
 			return;
@@ -810,18 +832,31 @@ function initGamePage() {
 			renderFromState(gameState);
 			syncPush();
 
-			modal.showDiceRoll(cardDef, threshold, (didSucceed) => {
-				gameState = resolveQuest(gameState, localPlayerId, cardDef, didSucceed);
-				gameState.activeQuest = null;
-				renderFromState(gameState);
-				syncPush();
+			const handQuestSlots = gameState.players[localPlayerId].activeSlots
+				.map((slot, index) => ({ slot, index }))
+				.filter(({ slot }) => slot && !slot.isDefeated)
+				.map(({ slot, index }) => ({ slotIndex: index, name: slot.cardId || 'Mosje', mp: slot.mp }));
 
-				const mpDelta = didSucceed ? cardDef.successMP : cardDef.failMP;
-				const sign = mpDelta >= 0 ? '+' : '';
-				log.add(didSucceed ? 'gain' : 'loss',
-					`${cardDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`
-				);
-			}, { diceBonus: diceBonus + placeDiceBonus, forceReroll, skiffaRerolls });
+			function runHandQuestDiceRoll(targetSlotIndex) {
+				modal.showDiceRoll(cardDef, threshold, (didSucceed) => {
+					gameState = resolveQuest(gameState, localPlayerId, cardDef, didSucceed, targetSlotIndex);
+					gameState.activeQuest = null;
+					renderFromState(gameState);
+					syncPush();
+
+					const mpDelta = didSucceed ? cardDef.successMP : cardDef.failMP;
+					const sign = mpDelta >= 0 ? '+' : '';
+					log.add(didSucceed ? 'gain' : 'loss',
+						`${cardDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`
+					);
+				}, { diceBonus: diceBonus + placeDiceBonus, forceReroll, skiffaRerolls });
+			}
+
+			if (handQuestSlots.length > 1) {
+				modal.showMosjeSelect(handQuestSlots, runHandQuestDiceRoll);
+			} else {
+				runHandQuestDiceRoll(handQuestSlots[0]?.slotIndex ?? 0);
+			}
 			return;
 		}
 
