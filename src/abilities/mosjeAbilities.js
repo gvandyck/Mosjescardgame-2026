@@ -271,7 +271,7 @@ export function ability_martin_historian_time_control(gameState, playerId) {
 	return state;
 }
 
-// Martin Senor West — calculated guess: roll d6. 4+ → +20 MP.
+// Martin Senor West — calculated guess: roll d6. 4+ → +10 MP. Else → -10 MP.
 export function ability_martin_senor_west_calculated_guess(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
@@ -280,10 +280,11 @@ export function ability_martin_senor_west_calculated_guess(gameState, playerId) 
 	if (si < 0) return state;
 	const roll = rollDie(6);
 	if (roll >= 4) {
-		player.activeSlots[si].mp += 20;
-		console.log(`[ABILITY] Senor West: rolled ${roll} → +20 MP`);
+		player.activeSlots[si].mp += 10;
+		console.log(`[ABILITY] Senor West: rolled ${roll} → +10 MP`);
 	} else {
-		console.log(`[ABILITY] Senor West: rolled ${roll} → no effect`);
+		player.activeSlots[si].mp -= 10;
+		console.log(`[ABILITY] Senor West: rolled ${roll} → -10 MP`);
 	}
 	return state;
 }
