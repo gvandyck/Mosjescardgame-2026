@@ -322,7 +322,7 @@ function initGamePage() {
 		log.add('gain', `Now active: ${activeName}. Turn ${gameState.turnNumber}.`);
 	});
 
-	document.getElementById('btn-general-quest')?.addEventListener('click', () => {
+	document.getElementById('btn-general-quest')?.addEventListener('click', async () => {
 		if (!gameState) return;
 		if (gameState.activePlayerId !== localPlayerId) {
 			modal.showInfo('Not Your Turn', 'You can only attempt quests on your own turn.');
@@ -384,6 +384,68 @@ function initGamePage() {
 		};
 		renderFromState(gameState);
 		syncPush();
+
+		// Geen Raad Vraag Aad — no dice; interactive card-type guess against opponent's hand
+		if (questDef.id === 'quest_geen_raad_vraag_aad') {
+			const opponentPlayer = gameState.players[opponentId];
+			const opponentHand = opponentPlayer?.hand ?? [];
+			const firstSlotIndex = gameState.players[localPlayerId].activeSlots
+				.findIndex(s => s && !s.isDefeated);
+
+			if (opponentHand.length === 0) {
+				log.add('quest', 'Geen Raad: opponent hand is empty — quest cannot resolve.');
+				gameState.activeQuest = null;
+				if (!Array.isArray(gameState.sharedGeneralQuestDiscard)) gameState.sharedGeneralQuestDiscard = [];
+				gameState.sharedGeneralQuestDiscard.push(questRef);
+				renderFromState(gameState);
+				syncPush();
+				return;
+			}
+
+			const pickedIndex = await modal.showFaceDownCardPicker(
+				'Geen Raad? Vraag Aad! — Pick a card from opponent\'s hand',
+				opponentHand.length
+			);
+			if (pickedIndex === null) {
+				gameState.activeQuest = null;
+				gameState.sharedGeneralQuestDiscard.push(questRef);
+				renderFromState(gameState);
+				syncPush();
+				return;
+			}
+
+			const guess = await modal.showCardTypeSelector('Geen Raad: What type is this card?');
+			if (!guess) {
+				gameState.activeQuest = null;
+				gameState.sharedGeneralQuestDiscard.push(questRef);
+				renderFromState(gameState);
+				syncPush();
+				return;
+			}
+
+			const actualCard = opponentHand[pickedIndex];
+			const actualCardDef = CARD_LOOKUP[actualCard?.cardId];
+			const actualCardType = actualCard?.type || actualCardDef?.type || 'UNKNOWN';
+			const actualCardName = actualCardDef?.name || actualCard?.cardId || '???';
+
+			await modal.showRevealedCard('Geen Raad — Card Revealed', actualCardName, actualCardType);
+
+			const didSucceed = guess === actualCardType;
+			const beforeResolve = gameState;
+			gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed, firstSlotIndex);
+			gameState.activeQuest = null;
+			if (!Array.isArray(gameState.sharedGeneralQuestDiscard)) gameState.sharedGeneralQuestDiscard = [];
+			gameState.sharedGeneralQuestDiscard.push(questRef);
+
+			renderFromState(gameState);
+			syncPush();
+
+			log.add(didSucceed ? 'gain' : 'loss',
+				`Geen Raad: guessed ${guess}, was ${actualCardType} → ${didSucceed ? '+50 MP' : '-25 MP'}`
+			);
+			logStateOutcome(log, beforeResolve, gameState, localPlayerId, 'Geen Raad? Vraag Aad! resolution');
+			return;
+		}
 
 		const gqSlots = gameState.players[localPlayerId].activeSlots
 			.map((slot, index) => ({ slot, index }))
