@@ -70,11 +70,16 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 
 		if (onUseAbility && !mosje.isDefeated && mosje.cardId) {
 			const btn = document.createElement('button');
-			btn.className = 'mosje-ability-btn' + (mosje.abilityUsedThisTurn ? ' mosje-ability-btn--used' : '');
+			const insufficientMp = mosje.abilityCost != null && mosje.mp < mosje.abilityCost;
+			const btnDisabled = mosje.abilityUsedThisTurn || insufficientMp;
+			const btnTitle = mosje.abilityUsedThisTurn ? 'Ability used this turn'
+				: insufficientMp ? `Not enough MP (need ${mosje.abilityCost})`
+				: 'Use ability';
+			btn.className = 'mosje-ability-btn' + (btnDisabled ? ' mosje-ability-btn--used' : '');
 			btn.textContent = '⚡';
-			btn.title = mosje.abilityUsedThisTurn ? 'Ability used this turn' : 'Use ability';
-			btn.setAttribute('aria-label', mosje.abilityUsedThisTurn ? 'Ability used this turn' : 'Use ability');
-			btn.disabled = mosje.abilityUsedThisTurn;
+			btn.title = btnTitle;
+			btn.setAttribute('aria-label', btnTitle);
+			btn.disabled = btnDisabled;
 			btn.addEventListener('click', (event) => {
 				event.stopPropagation();
 				onUseAbility(mosje.cardId);

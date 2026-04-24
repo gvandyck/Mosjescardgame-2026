@@ -972,16 +972,20 @@ function getSkiffaRerolls(gameState, playerId) {
 function toMosjeCards(activeSlots) {
 	return activeSlots
 		.filter(slot => slot !== null)
-		.map(slot => ({
-			cardId: slot.cardId,
-			name: slot.name,
-			type: 'MOSJE',
-			mp: slot.mp,
-			level: slot.level,
-			isDefeated: slot.isDefeated,
-			abilityUsedThisTurn: slot.abilityUsedThisTurn,
-			description: slot.isDefeated ? 'Defeated' : 'Active on field',
-		}));
+		.map(slot => {
+			const mosjeDef = MOSJES.find(m => m.id === slot.cardId);
+			return {
+				cardId: slot.cardId,
+				name: slot.name,
+				type: 'MOSJE',
+				mp: slot.mp,
+				level: slot.level,
+				isDefeated: slot.isDefeated,
+				abilityUsedThisTurn: slot.abilityUsedThisTurn,
+				abilityCost: mosjeDef?.abilityCost ?? null,
+				description: slot.isDefeated ? 'Defeated' : 'Active on field',
+			};
+		});
 }
 
 function toPiecieCards(piecieSlots, options = {}) {

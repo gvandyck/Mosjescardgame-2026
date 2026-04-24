@@ -551,8 +551,10 @@ export function useMosjeAbility(gameState, playerId, mosjeId) {
   // Dispatch â€” ability functions clone the state internally and return a new state
   let state = fn(gameState, playerId, mosjeId);
 
-  // Mark ability as used for this turn
-  state.players[playerId].activeSlots[slotIndex].abilityUsedThisTurn = true;
+  // Mark ability as used — skip for unlimited-use abilities (e.g. Coert)
+  if (!mosjeDef.unlimitedAbility) {
+    state.players[playerId].activeSlots[slotIndex].abilityUsedThisTurn = true;
+  }
 
   state = checkVictory(state);
   return { state, success: true };
