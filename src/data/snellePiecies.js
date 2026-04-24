@@ -49,7 +49,7 @@ export const SNELLE_PIECIES = [
     requirement: "any",
     effectId: "effect_snelle_lucky_coin",
     tags: ["GAMBLE"],
-    description: "Play as interrupt. Flip a coin: heads = reroll your last die; tails = nothing.",
+    description: "Flip a coin: heads = reroll any one die this turn; tails = choose a Mosje on your field to take 10 MP damage.",
     flavourText: "",
     artPath: "assets/snelle-piecies/placeholder.png",
     rarity: "★★☆☆☆",

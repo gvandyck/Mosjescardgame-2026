@@ -773,6 +773,24 @@ function initGamePage() {
 					if (!selectedState) return;
 					snelleStateForPlay = selectedState;
 				}
+			} else if (cardDef.effectId === 'effect_snelle_lucky_coin') {
+				const isHeads = Math.random() < 0.5;
+				snelleStateForPlay = JSON.parse(JSON.stringify(gameState));
+				if (!snelleStateForPlay._pendingTargets) snelleStateForPlay._pendingTargets = {};
+				if (isHeads) {
+					snelleStateForPlay._pendingTargets.lucky_coin_result = 'heads';
+				} else {
+					const ownTargets = getPlayerMosjes(gameState, localPlayerId);
+					if (ownTargets.length > 0) {
+						const selectedId = await modal.showTargetSelector(ownTargets, 'Lucky Coin — Tails! Choose your Mosje to take 10 MP damage:');
+						if (!selectedId) return;
+						const slotIndex = parseInt(selectedId.split('_slot_')[1], 10);
+						snelleStateForPlay._pendingTargets.lucky_coin_result = 'tails';
+						if (!Number.isNaN(slotIndex)) snelleStateForPlay._pendingTargets.lucky_coin_tails_slot = slotIndex;
+					} else {
+						snelleStateForPlay._pendingTargets.lucky_coin_result = 'tails';
+					}
+				}
 			}
 
 			const { state: newState, success, error } = playSnellie(snelleStateForPlay, localPlayerId, cardRef, cardDef);
