@@ -95,7 +95,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 				event.stopPropagation();
 				onUseAbility(mosje.cardId);
 			});
-			(cardEl.querySelector('.mosje-footer') || cardEl).appendChild(btn);
+			cardEl.appendChild(btn);
 		}
 
 		if (
