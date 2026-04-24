@@ -95,11 +95,28 @@ export function loseMP(gameState, playerId, slotIndex, amount, source = 'DRAIN')
 
   mosje.mp -= lossAmount;
 
+  // Level regression — MP floor is 0.
+  // Overflow below 0 costs one level and carries the remainder into 100 MP.
+  // At level 0 excess damage is ignored; the effect already fired.
+  while (mosje.mp < 0) {
+    if (mosje.level === 0) {
+      mosje.mp = 0;
+      break;
+    }
+    const overflow = -mosje.mp;
+    mosje.level -= 1;
+    mosje.mp = 100 - overflow;
+    console.log(`[ENGINE] ⬇️ ${mosje.name} level regression → Level ${mosje.level} | MP: ${mosje.mp}`);
+  }
+
   // Track cumulative damage taken for Personal Quest requirements (Iron Will).
   state.players[playerId].totalDamageTaken =
     (state.players[playerId].totalDamageTaken || 0) + lossAmount;
 
-  console.log(`[ENGINE] 📉 ${mosje.name} loses ${lossAmount} MP (${source}) → now ${mosje.mp} MP`);
+  // Track per-turn damage for abilities that react to it (Alyssa, Parkour West).
+  mosje.mpLostThisTurn = (mosje.mpLostThisTurn || 0) + lossAmount;
+
+  console.log(`[ENGINE] 📉 ${mosje.name} loses ${lossAmount} MP (${source}) → now Level ${mosje.level} | ${mosje.mp} MP`);
 
   return state;
 }
