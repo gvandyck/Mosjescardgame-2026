@@ -407,10 +407,12 @@ function initGamePage() {
 				return;
 			}
 
-			const pickedIndex = await modal.showFaceDownCardPicker(
-				'Geen Raad? Vraag Aad! — Pick a card from opponent\'s hand',
-				opponentHand.length
-			);
+			const pickedIndex = await modal.showOpponentHandCardSelect({
+				title: 'Geen Raad? Vraag Aad! — Pick a card',
+				prompt: "Pick one of your opponent's face-down cards.",
+				handSize: opponentHand.length,
+				allowCancel: true,
+			});
 			if (pickedIndex === null) {
 				gameState.activeQuest = null;
 				gameState.sharedGeneralQuestDiscard.push(questRef);
@@ -419,7 +421,7 @@ function initGamePage() {
 				return;
 			}
 
-			const guess = await modal.showCardTypeSelector('Geen Raad: What type is this card?');
+			const guess = await modal.showCardTypeSelect({ title: 'Geen Raad: What type is this card?' });
 			if (!guess) {
 				gameState.activeQuest = null;
 				gameState.sharedGeneralQuestDiscard.push(questRef);
@@ -698,7 +700,7 @@ function initGamePage() {
 				return;
 			}
 
-			const guess = await modal.showCardTypeSelector('West: Name a card type');
+			const guess = await modal.showCardTypeSelect({ title: 'West: Name a card type' });
 			if (!guess) return;
 
 			const topCard = deck[0];

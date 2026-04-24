@@ -13,6 +13,9 @@ export function initModalManager(container) {
 			showDiceRoll: (_info, _threshold, onResolved) => onResolved(false),
 			showConfirm: async () => false,
 			showPlaceDetailModal: () => {},
+			showOptionSelect: async () => null,
+			showCardTypeSelect: async () => null,
+			showOpponentHandCardSelect: async () => null,
 			showMosjeSelect: (_slots, onSelected) => onSelected(0),
 			close: () => {},
 		};
@@ -360,83 +363,107 @@ export function initModalManager(container) {
 		container.querySelector('#modal-close-reveal')?.addEventListener('click', close);
 	}
 
-	function showMosjeSelect(mosjeSlots, onSelected) {
-		if (mosjeSlots.length <= 1) {
-			onSelected(mosjeSlots[0]?.slotIndex ?? 0);
-			return;
-		}
-		container.classList.add('modal-root--open');
-		const rows = mosjeSlots.map(m => `
-			<button class="modal-mosje-select-btn" data-slot="${m.slotIndex}" type="button">
-				<span class="mosje-select-name">${escapeHtml(m.name)}</span>
-				<span class="mosje-select-mp">${m.mp} MP</span>
-			</button>
-		`).join('');
-
-		container.innerHTML = `
-			<div class="modal-backdrop"></div>
-			<section class="modal-card" role="dialog" aria-modal="true">
-				<h3>Choose Mosje for Quest</h3>
-				<p>Select which Mosje will receive the quest reward or take the damage.</p>
-				<div class="modal-mosje-select-list">${rows}</div>
-			</section>
-		`;
-
-		container.querySelectorAll('.modal-mosje-select-btn').forEach(btn => {
-			btn.addEventListener('click', () => {
-				const slot = parseInt(btn.dataset.slot, 10);
-				close();
-				onSelected(slot);
-			});
-		});
-	}
-
-	// Shows a card-type picker used by West's Calculated Guess and Geen Raad Vraag Aad.
-	// Resolves with one of the five card type strings, or null if cancelled.
-	async function showCardTypeSelector(title) {
-		const TYPES = [
-			{ label: 'Mosje',          value: 'MOSJE' },
-			{ label: 'Piecie',         value: 'PIECIE' },
-			{ label: 'Snelle Piecie',  value: 'SNELLE_PIECIE' },
-			{ label: 'Place',          value: 'PLACE' },
-			{ label: 'Personal Quest', value: 'QUEST' },
-		];
+	// Generic option picker — the single reusable selector for all "choose one" flows.
+	// options: [{ id, label, metaLabel? }]
+	// Resolves with the chosen id string, or null if cancelled / empty.
+	async function showOptionSelect({
+		title = 'Choose',
+		prompt = '',
+		options = [],
+		allowCancel = false,
+		autoSelectSingle = false,
+	} = {}) {
+		const safeOptions = Array.isArray(options) ? options.filter(Boolean) : [];
+		if (autoSelectSingle && safeOptions.length === 1) return safeOptions[0]?.id ?? null;
 
 		return new Promise(resolve => {
 			container.classList.add('modal-root--open');
 
-			const buttons = TYPES.map(t =>
-				`<button class="modal-card-option card-type-option" data-value="${t.value}" type="button">
-					<strong>${escapeHtml(t.label)}</strong>
-				</button>`
-			).join('');
+			const rows = safeOptions.map(opt => {
+				const id = opt?.id ?? '';
+				const label = opt?.label ?? String(id);
+				const meta = opt?.metaLabel ?? '';
+				return `<button class="modal-mosje-select-btn" data-id="${escapeHtml(String(id))}" type="button">
+					<span class="mosje-select-name">${escapeHtml(String(label))}</span>
+					${meta ? `<span class="mosje-select-mp">${escapeHtml(String(meta))}</span>` : ''}
+				</button>`;
+			}).join('');
 
 			container.innerHTML = `
 				<div class="modal-backdrop"></div>
 				<section class="modal-card" role="dialog" aria-modal="true">
 					<h3>${escapeHtml(title)}</h3>
-					<p>Pick the type of the card you think is on top of the deck.</p>
-					<div class="modal-card-list">${buttons}</div>
-					<button class="modal-btn modal-btn--ghost" id="modal-cancel" type="button">Cancel</button>
+					${prompt ? `<p>${escapeHtml(prompt)}</p>` : ''}
+					<div class="modal-mosje-select-list">${rows}</div>
+					${allowCancel ? '<button class="modal-btn modal-btn--ghost" id="modal-option-cancel" type="button">Cancel</button>' : ''}
 				</section>
 			`;
 
-			container.querySelectorAll('.card-type-option').forEach(btn => {
-				btn.addEventListener('click', () => {
-					const value = btn.dataset.value;
-					close();
-					resolve(value ?? null);
-				});
+			container.querySelectorAll('.modal-mosje-select-btn').forEach(btn => {
+				btn.addEventListener('click', () => { close(); resolve(btn.dataset.id ?? null); });
 			});
-
-			container.querySelector('#modal-cancel')?.addEventListener('click', () => {
-				close();
-				resolve(null);
-			});
+			container.querySelector('#modal-option-cancel')?.addEventListener('click', () => { close(); resolve(null); });
 		});
 	}
 
-	// Shows a card from the deck (or any card) briefly so the player can see it.
+	// Card-type picker — uses showOptionSelect.
+	// Resolves with 'MOSJE'|'PIECIE'|'SNELLE_PIECIE'|'PLACE'|'QUEST', or null if cancelled.
+	async function showCardTypeSelect({
+		title = 'Choose Card Type',
+		prompt = 'Pick the card type.',
+		allowCancel = true,
+		autoSelectSingle = false,
+	} = {}) {
+		const options = [
+			{ id: 'MOSJE',        label: 'Mosje' },
+			{ id: 'PIECIE',       label: 'Piecie' },
+			{ id: 'SNELLE_PIECIE', label: 'Snelle Piecie' },
+			{ id: 'PLACE',        label: 'Place' },
+			{ id: 'QUEST',        label: 'Personal Quest' },
+		];
+		return showOptionSelect({ title, prompt, options, allowCancel, autoSelectSingle });
+	}
+
+	// Hidden card picker — shows N face-down cards from opponent's hand.
+	// Resolves with the chosen hand index (0-based), or null if cancelled / hand empty.
+	async function showOpponentHandCardSelect({
+		title = 'Pick a Card',
+		prompt = "Pick one of your opponent's face-down cards.",
+		handSize = 0,
+		allowCancel = false,
+	} = {}) {
+		const count = Math.max(0, Number(handSize) || 0);
+		if (count === 0) return null;
+		const options = Array.from({ length: count }, (_, i) => ({
+			id: String(i),
+			label: `Card ${i + 1}`,
+			metaLabel: '?',
+		}));
+		const selected = await showOptionSelect({ title, prompt, options, allowCancel });
+		if (selected == null) return null;
+		const parsed = Number.parseInt(String(selected), 10);
+		return Number.isFinite(parsed) ? parsed : null;
+	}
+
+	// Mosje selector — uses showOptionSelect; auto-selects when only one Mosje is on field.
+	function showMosjeSelect(mosjeSlots, onSelected) {
+		if (mosjeSlots.length <= 1) {
+			onSelected(mosjeSlots[0]?.slotIndex ?? 0);
+			return;
+		}
+		const options = mosjeSlots.map(m => ({
+			id: String(m.slotIndex),
+			label: m.name,
+			metaLabel: `${m.mp} MP`,
+		}));
+		showOptionSelect({
+			title: 'Choose Mosje for Quest',
+			prompt: 'Select which Mosje will receive the quest reward or take the damage.',
+			options,
+		}).then(selected => onSelected(Number.parseInt(selected ?? '0', 10)));
+	}
+
+	// Shows a card from the deck briefly so the player can see it.
 	// Resolves when the player clicks Continue.
 	async function showRevealedCard(title, cardName, cardType) {
 		return new Promise(resolve => {
@@ -459,44 +486,6 @@ export function initModalManager(container) {
 		});
 	}
 
-	// Shows a row of face-down cards from the opponent's hand.
-	// Player picks one by position. Resolves with the hand index, or null if cancelled.
-	async function showFaceDownCardPicker(title, count) {
-		return new Promise(resolve => {
-			container.classList.add('modal-root--open');
-
-			const buttons = Array.from({ length: count }, (_, i) =>
-				`<button class="modal-card-option face-down-card-option" data-index="${i}" type="button">
-					<strong>Card ${i + 1}</strong>
-					<span class="face-down-card-option__label">?</span>
-				</button>`
-			).join('');
-
-			container.innerHTML = `
-				<div class="modal-backdrop"></div>
-				<section class="modal-card" role="dialog" aria-modal="true">
-					<h3>${escapeHtml(title)}</h3>
-					<p>Pick one of your opponent's face-down cards.</p>
-					<div class="modal-card-list">${buttons}</div>
-					<button class="modal-btn modal-btn--ghost" id="modal-cancel" type="button">Cancel</button>
-				</section>
-			`;
-
-			container.querySelectorAll('.face-down-card-option').forEach(btn => {
-				btn.addEventListener('click', () => {
-					const index = parseInt(btn.dataset.index, 10);
-					close();
-					resolve(Number.isNaN(index) ? null : index);
-				});
-			});
-
-			container.querySelector('#modal-cancel')?.addEventListener('click', () => {
-				close();
-				resolve(null);
-			});
-		});
-	}
-
 	return {
 		showInfo,
 		showDiceRoll,
@@ -504,9 +493,10 @@ export function initModalManager(container) {
 		showTextInput,
 		showCardChoice,
 		showTargetSelector,
-		showCardTypeSelector,
+		showOptionSelect,
+		showCardTypeSelect,
+		showOpponentHandCardSelect,
 		showRevealedCard,
-		showFaceDownCardPicker,
 		showMosjeDetailModal,
 		showPlaceDetailModal,
 		showOpponentHandRevealModal,
