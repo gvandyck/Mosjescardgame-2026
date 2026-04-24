@@ -449,6 +449,50 @@ function initGamePage() {
 				`Geen Raad: guessed ${guess}, was ${actualCardType} → ${didSucceed ? '+50 MP' : '-25 MP'}`
 			);
 			logStateOutcome(log, beforeResolve, gameState, localPlayerId, 'Geen Raad? Vraag Aad! resolution');
+
+			// Aad Recovery — each player who lost MP from this quest may discard 1 card to regain 40 MP
+			let recoveryHappened = false;
+			for (const pid of [localPlayerId, opponentId]) {
+				const beforeSlot = beforeResolve.players[pid]?.activeSlots?.find(s => s && !s.isDefeated);
+				const afterSlot = gameState.players[pid]?.activeSlots?.find(s => s && !s.isDefeated);
+				if (!beforeSlot || !afterSlot || afterSlot.mp >= beforeSlot.mp) continue;
+
+				const hand = gameState.players[pid]?.hand ?? [];
+				if (hand.length === 0) continue;
+
+				const pName = gameState.players[pid]?.name ?? pid;
+				const mpLost = beforeSlot.mp - afterSlot.mp;
+				const wantsRecovery = await modal.showConfirm(
+					`${pName} — Aad Recovery`,
+					`You lost ${mpLost} MP from Geen Raad. Discard 1 card to regain 40 MP?`
+				);
+				if (!wantsRecovery) continue;
+
+				const handCards = hand.map(c => ({
+					cardId: c.cardId,
+					name: CARD_LOOKUP[c.cardId]?.name || c.cardId,
+					description: c.type || CARD_LOOKUP[c.cardId]?.type || '',
+				}));
+				const discarded = await modal.showCardChoice(`${pName} — Pick a card to discard`, handCards);
+				if (!discarded) continue;
+
+				const cardIdx = gameState.players[pid].hand.findIndex(c => c.cardId === discarded.cardId);
+				if (cardIdx !== -1) {
+					const [removed] = gameState.players[pid].hand.splice(cardIdx, 1);
+					if (!Array.isArray(gameState.players[pid].discard)) gameState.players[pid].discard = [];
+					gameState.players[pid].discard.unshift(removed);
+				}
+				const slotIdx = gameState.players[pid].activeSlots.findIndex(s => s && !s.isDefeated);
+				if (slotIdx >= 0) {
+					gameState.players[pid].activeSlots[slotIdx].mp += 40;
+				}
+				log.add('gain', `${pName} — Aad Recovery: discarded ${discarded.name}, regained 40 MP`);
+				recoveryHappened = true;
+			}
+			if (recoveryHappened) {
+				renderFromState(gameState);
+				syncPush();
+			}
 			return;
 		}
 
