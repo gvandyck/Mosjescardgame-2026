@@ -190,6 +190,60 @@
    letter-spacing: 0.2em;
    color: #475778;
    text-transform: uppercase;
+   display: flex;
+   align-items: center;
+   gap: 8px;
+   flex-wrap: wrap;
+}
+
+/* ── SNELLE MODIFIER PILLS ───────────────────────────────────────── */
+.snelle-modifier-bar {
+   display: flex;
+   gap: 4px;
+   flex-wrap: wrap;
+   line-height: 1;
+}
+
+.snelle-pill {
+   font-size: 0.6rem;
+   font-family: var(--font-display);
+   letter-spacing: 0.05em;
+   padding: 2px 7px;
+   border-radius: 99px;
+   white-space: nowrap;
+   text-transform: none;
+   animation: pill-in 0.25s var(--ease-smooth, ease) both;
+}
+
+@keyframes pill-in {
+   from { opacity: 0; transform: scale(0.75) translateY(3px); }
+   to   { opacity: 1; transform: scale(1)    translateY(0);   }
+}
+
+.snelle-pill--gold {
+   color: #e8b94f;
+   background: rgba(232, 185, 79, 0.10);
+   border: 1px solid rgba(232, 185, 79, 0.28);
+}
+.snelle-pill--teal {
+   color: #34d399;
+   background: rgba(52, 211, 153, 0.08);
+   border: 1px solid rgba(52, 211, 153, 0.24);
+}
+.snelle-pill--blue {
+   color: #60a5fa;
+   background: rgba(96, 165, 250, 0.08);
+   border: 1px solid rgba(96, 165, 250, 0.24);
+}
+.snelle-pill--purple {
+   color: #c084fc;
+   background: rgba(192, 132, 252, 0.08);
+   border: 1px solid rgba(192, 132, 252, 0.24);
+}
+.snelle-pill--orange {
+   color: #fb923c;
+   background: rgba(251, 146, 60, 0.08);
+   border: 1px solid rgba(251, 146, 60, 0.24);
 }
 .board-zone__row {
    display: flex;

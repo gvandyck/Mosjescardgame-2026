@@ -49,10 +49,11 @@ export function gainMP(gameState, playerId, slotIndex, amount, source = 'GAIN') 
 
 // ─────────────────────────────────────────────────────────────
 // loseMP
-// Removes `amount` MP from a Mosje. MP can go negative —
-// a negative Mosje cannot attempt Quests until back at 0+.
-// Checks for defeat (MP going below -100 while at level 0 is not defeat —
-// only explicit defeat via the welloe rule applies here; see victoryChecker).
+// Removes `amount` MP from a Mosje. MP is clamped to 0 — it cannot go negative.
+// If overflow would push below 0, the Mosje loses one level and carries the
+// remainder into 100 MP (level regression). At level 0 excess damage is ignored.
+// Defeat occurs only when a level-0 Mosje is sent to the Welloe pile via
+// explicit game rules; see victoryChecker.
 //
 // Returns updated gameState.
 // ─────────────────────────────────────────────────────────────
