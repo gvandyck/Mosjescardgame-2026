@@ -92,20 +92,20 @@ export function buildMosjeCardHTML(card, gameState = null, viewingPlayerId = nul
     ? ` style="--mosje-art-url: url('${escapeCssUrl(artUrl)}');"`
     : '';
 
+  const mosjeType = String(card.subtype || card.mosjeType || '').toLowerCase();
+  const typeLabel = capitalize(mosjeType);
+
   const traitRows = Object.entries(card.traits || {})
     .filter(([, stars]) => Number(stars) > 0)
     .map(([trait, stars]) => {
-      const icon = TRAIT_ICONS[trait] || '•';
       const label = capitalize(trait);
       const starCount = Number(stars) || 0;
       const filled = '★'.repeat(starCount);
       const empty = '☆'.repeat(Math.max(0, 3 - starCount));
-      const color = TRAIT_COLORS[trait] || '#aaaaaa';
       return `
-        <div class="mosje-trait" data-trait="${escapeHtml(trait)}" data-stars="${starCount}" style="--trait-color: ${escapeHtml(color)}">
-          <span class="trait-icon">${icon}</span>
-          <span class="trait-name">${escapeHtml(label)}</span>
-          <span class="trait-stars">${filled}<span class="trait-empty">${empty}</span></span>
+        <div class="mosje-trait-item" data-trait="${escapeHtml(trait)}">
+          <span class="mosje-trait-name">${escapeHtml(label)}</span>
+          <span class="mosje-trait-stars">${filled}<span class="mosje-trait-empty">${empty}</span></span>
         </div>
       `;
     })
@@ -157,69 +157,50 @@ export function buildMosjeCardHTML(card, gameState = null, viewingPlayerId = nul
 
   const internalLevel = Number.isFinite(Number(card.level)) ? Number(card.level) : 0;
   const displayLevel = Math.max(1, Math.min(3, internalLevel + 1));
-  const levelStars = `${'★'.repeat(displayLevel)}${'☆'.repeat(Math.max(0, 3 - displayLevel))}`;
-
   const currentMp = Number(card.mp ?? card.startMP ?? 0);
 
   return `
-    <div class="mosje-card-inner">
+    <div class="mosje-card-inner" data-mosje-type="${escapeHtml(mosjeType)}">
       <div class="mosje-full-art${hasRealArt ? '' : ' is-placeholder'}"${artStyle}></div>
       <div class="mosje-full-art-vignette"></div>
-      <div class="mosje-card-content">
-        <div class="mosje-banner">
-          <span class="mosje-subtype">${escapeHtml(card.subtype || 'MOSJE')}</span>
-          <span class="mosje-level-stars" title="Level ${displayLevel}">${levelStars}</span>
-          <span class="mosje-rarity-dots">${rarityDots}</span>
+
+      <header class="mosje-header">
+        <div class="mosje-title-group">
+          <span class="mosje-name">${escapeHtml(card.name || 'Unnamed Mosje')}</span>
+          ${card.flavourText ? `<span class="mosje-flavor">${escapeHtml(card.flavourText)}</span>` : ''}
+          ${typeLabel ? `<span class="mosje-type type-${escapeHtml(mosjeType)}">${escapeHtml(typeLabel)}</span>` : ''}
+        </div>
+        <div class="mosje-hp">
+          <span class="mosje-mp-label">MP</span>
+          <span class="mosje-mp-value">${currentMp}</span>
+        </div>
+      </header>
+
+      <div class="mosje-content">
+        ${traitRows ? `<div class="mosje-traits">${traitRows}</div>` : ''}
+        <div class="mosje-divider"></div>
+        <div class="mosje-ability">
+          <span class="mosje-ability-title">✦ ABILITY</span>
+          ${abilityLines || `<p class="ability-line">${escapeHtml(describeAbility(card.abilityId) || 'No ability.')}</p>`}
         </div>
 
-        <div class="mosje-identity">
-          <h3 class="mosje-name">${escapeHtml(card.name || 'Unnamed Mosje')}</h3>
-          <div class="mosje-start-mp">
-            <span class="mp-label">MP</span>
-            <span class="mp-value">${currentMp}</span>
+        ${synergyRows ? `
+          <div class="mosje-divider"></div>
+          <div class="mosje-synergies-section">
+            <div class="section-label">🔗 SYNERGY</div>
+            ${synergyRows}
           </div>
-        </div>
+        ` : ''}
 
-        <div class="mosje-card-rule"></div>
+        ${petRow ? `
+          <div class="mosje-divider"></div>
+          <div class="mosje-pet-section">${petRow}</div>
+        ` : ''}
 
-        <div class="mosje-traits">
-          ${traitRows || '<span class="no-traits">No traits</span>'}
-        </div>
-
-        <div class="mosje-card-rule"></div>
-
-        <div class="mosje-ability-section">
-          <div class="section-label">✦ ABILITY</div>
-          <div class="mosje-ability-text">
-            ${abilityLines || `<p class="ability-line">${escapeHtml(describeAbility(card.abilityId) || 'No ability.')}</p>`}
-          </div>
-        </div>
-
-        ${synergyRows
-          ? `
-            <div class="mosje-card-rule"></div>
-            <div class="mosje-synergies-section">
-              <div class="section-label">🔗 SYNERGY</div>
-              ${synergyRows}
-            </div>
-          `
-          : ''}
-
-        ${petRow
-          ? `
-            <div class="mosje-card-rule"></div>
-            <div class="mosje-pet-section">
-              ${petRow}
-            </div>
-          `
-          : ''}
-
-        ${card.flavourText
-          ? `
-            <div class="mosje-card-rule"></div>
-            <p class="mosje-flavour">&quot;${escapeHtml(card.flavourText)}&quot;</p>
-          `
-          : ''}
+        <footer class="mosje-footer">
+          <span class="mosje-rarity">${rarityDots}</span>
+          <span class="mosje-level-badge">LV.${displayLevel}</span>
+        </footer>
       </div>
     </div>
   `;
