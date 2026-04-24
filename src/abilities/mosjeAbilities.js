@@ -275,11 +275,14 @@ export function ability_martin_historian_time_control(gameState, playerId) {
 // Expects state._pendingTargets.west_guess (card type string) and
 // state._pendingTargets.west_top_card_type (type of the top deck card).
 // Correct guess → draw 2 cards + gain 10 MP. Wrong → lose 10 MP.
-export function ability_martin_senor_west_calculated_guess(gameState, playerId) {
+export function ability_martin_senor_west_calculated_guess(gameState, playerId, mosjeId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const westIds = new Set(['mosje_martin_senor_west', 'mosje_west']);
+	const si = mosjeId && westIds.has(mosjeId)
+		? player.activeSlots.findIndex(s => s && s.cardId === mosjeId && !s.isDefeated)
+		: getFirstActiveSlotIndex(player);
 	if (si < 0) return state;
 
 	const guess = state._pendingTargets?.west_guess;
@@ -304,8 +307,8 @@ export function ability_martin_senor_west_calculated_guess(gameState, playerId) 
 }
 
 // West (legacy alias) — delegates to the full implementation.
-export function ability_west_calculated_guess(gameState, playerId) {
-	return ability_martin_senor_west_calculated_guess(gameState, playerId);
+export function ability_west_calculated_guess(gameState, playerId, mosjeId) {
+	return ability_martin_senor_west_calculated_guess(gameState, playerId, mosjeId);
 }
 
 // Coert Tech — alias of coert_extra_resources: pay 10 MP, draw 1 card.

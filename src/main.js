@@ -1193,6 +1193,7 @@ function toMosjeCards(activeSlots) {
 		.filter(slot => slot !== null)
 		.map(slot => {
 			const mosjeDef = MOSJES.find(m => m.id === slot.cardId);
+			const cost = mosjeDef?.abilityCost ?? null;
 			return {
 				cardId: slot.cardId,
 				name: slot.name,
@@ -1200,8 +1201,10 @@ function toMosjeCards(activeSlots) {
 				mp: slot.mp,
 				level: slot.level,
 				isDefeated: slot.isDefeated,
+				traits: slot.traits ?? {},
 				abilityUsedThisTurn: slot.abilityUsedThisTurn,
-				abilityCost: mosjeDef?.abilityCost ?? null,
+				abilityCost: cost,
+				cantAffordAbility: cost != null && cost > 0 && slot.mp < cost,
 				description: slot.isDefeated ? 'Defeated' : 'Active on field',
 			};
 		});
