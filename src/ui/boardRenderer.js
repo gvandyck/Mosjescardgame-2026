@@ -69,17 +69,19 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		cardEl.addEventListener('click', () => getBoardModal().showMosjeDetailModal({ ...fullCard, ...mosje }));
 
 		if (onUseAbility && !mosje.isDefeated && mosje.cardId) {
+			const isUsed = mosje.abilityUsedThisTurn;
+			const costLabel = mosje.abilityCost > 0 ? ` ${mosje.abilityCost} MP` : '';
+			let tooltip;
+			if (!isUsed && mosje.cantAffordAbility) tooltip = `Not enough MP (need ${mosje.abilityCost})`;
+			else if (isUsed) tooltip = 'Ability already used this turn';
+			else tooltip = `Use ability${costLabel ? ` (costs ${mosje.abilityCost} MP)` : ''}`;
+
 			const btn = document.createElement('button');
-			const insufficientMp = mosje.abilityCost != null && mosje.mp < mosje.abilityCost;
-			const btnDisabled = mosje.abilityUsedThisTurn || insufficientMp;
-			const btnTitle = mosje.abilityUsedThisTurn ? 'Ability used this turn'
-				: insufficientMp ? `Not enough MP (need ${mosje.abilityCost})`
-				: 'Use ability';
-			btn.className = 'mosje-ability-btn' + (btnDisabled ? ' mosje-ability-btn--used' : '');
-			btn.textContent = '⚡';
-			btn.title = btnTitle;
-			btn.setAttribute('aria-label', btnTitle);
-			btn.disabled = btnDisabled;
+			btn.className = 'mosje-ability-btn' + (isUsed ? ' mosje-ability-btn--used' : '');
+			btn.textContent = `⚡${costLabel}`;
+			btn.title = tooltip;
+			btn.setAttribute('aria-label', tooltip);
+			btn.disabled = isUsed || (mosje.cantAffordAbility ?? false);
 			btn.addEventListener('click', (event) => {
 				event.stopPropagation();
 				onUseAbility(mosje.cardId);
