@@ -185,10 +185,10 @@ export function getQuestDiceThreshold(questCard, activeMosje) {
 
   if (roll.trait) {
     const stars = Math.min(3, Math.max(1, Number(activeMosje?.traits?.[roll.trait] || 1)));
-    return roll.thresholds[stars] ?? 4;
+    return roll.thresholds?.[stars] ?? 4;
   }
 
-  return roll.thresholds[1] ?? 4;
+  return roll.thresholds?.[1] ?? 4;
 }
 
 // Resolves the MP result of a quest and updates completion counters.

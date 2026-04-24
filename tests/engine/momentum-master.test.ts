@@ -5,6 +5,7 @@ import { canAttemptGeneralQuest, getQuestDiceThreshold } from "../../src/abiliti
 const MOMENTUM_MASTER_QUEST = {
   id: "quest_momentum_master",
   requirementId: "quest_req_momentum_master",
+  roll: { trait: null, thresholds: { 1: 3, 2: 3, 3: 3 } },
   successMP: 55,
   failMP: -20,
 };
@@ -84,8 +85,8 @@ describe("Momentum Master — getQuestDiceThreshold", () => {
     expect(getQuestDiceThreshold(MOMENTUM_MASTER_QUEST, dummyMosje)).toBe(3);
   });
 
-  it("returns 4 (default) for quests without a specific threshold mapping", () => {
-    const unknownQuest = { id: "quest_unknown", requirementId: "quest_req_unknown" };
+  it("returns 4 (default) for quests with roll but no thresholds", () => {
+    const unknownQuest = { id: "quest_unknown", requirementId: "quest_req_unknown", roll: {} };
     expect(getQuestDiceThreshold(unknownQuest, dummyMosje)).toBe(4);
   });
 });
