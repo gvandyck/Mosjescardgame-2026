@@ -565,10 +565,62 @@ function initGamePage() {
 		if (btnEndTurn) btnEndTurn.disabled = !isLocalTurn || gameOver;
 	}
 
-	function handleUseAbility(mosjeId) {
+	const WEST_CALCULATED_GUESS_IDS = new Set(['mosje_west', 'mosje_martin_senor_west']);
+
+	async function handleUseAbility(mosjeId) {
 		if (!gameState || gameState.status === 'FINISHED') return;
 
 		const beforeAbility = gameState;
+
+		// West — Tactical Calculated Guess: pick card type → reveal top of deck → resolve
+		if (WEST_CALCULATED_GUESS_IDS.has(mosjeId)) {
+			const deck = gameState.players[localPlayerId]?.deck ?? [];
+			if (deck.length === 0) {
+				modal.showInfo('Cannot Use Ability', 'Your deck is empty — Calculated Guess cannot be used.');
+				return;
+			}
+
+			const guess = await modal.showCardTypeSelector('West: Name a card type');
+			if (!guess) return;
+
+			const topCard = deck[0];
+			const topCardDef = CARD_LOOKUP[topCard?.cardId];
+			const topCardType = topCard?.type || topCardDef?.type || 'UNKNOWN';
+			const topCardName = topCardDef?.name || topCard?.cardId || '???';
+
+			await modal.showRevealedCard('Revealed: Top of Your Deck', topCardName, topCardType);
+
+			const stateForAbility = JSON.parse(JSON.stringify(gameState));
+			stateForAbility._pendingTargets = {
+				...(stateForAbility._pendingTargets || {}),
+				west_guess: guess,
+				west_top_card_type: topCardType,
+			};
+
+			const { state: newState, success, error } = useMosjeAbility(stateForAbility, localPlayerId, mosjeId);
+			if (!success) {
+				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
+				return;
+			}
+			gameState = newState;
+
+			const slot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
+			const isCorrect = guess === topCardType;
+			log.add(isCorrect ? 'gain' : 'loss',
+				`West Calculated Guess: guessed ${guess}, was ${topCardType} → ${isCorrect ? '+10 MP + draw 2' : '-10 MP'}`
+			);
+			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${slot?.name || mosjeId} ability`);
+			syncPush();
+			if (gameState.status === 'FINISHED') {
+				stopListening();
+				const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
+				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
+				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+			}
+			renderFromState(gameState);
+			return;
+		}
+
 		const { state: newState, success, error } = useMosjeAbility(gameState, localPlayerId, mosjeId);
 		if (!success) {
 			modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');

@@ -271,25 +271,39 @@ export function ability_martin_historian_time_control(gameState, playerId) {
 	return state;
 }
 
-// Martin Senor West — calculated guess: roll d6. 4+ → +10 MP. Else → -10 MP.
+// Martin Senor West — Tactical Calculated Guess.
+// Expects state._pendingTargets.west_guess (card type string) and
+// state._pendingTargets.west_top_card_type (type of the top deck card).
+// Correct guess → draw 2 cards + gain 10 MP. Wrong → lose 10 MP.
 export function ability_martin_senor_west_calculated_guess(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
 	const si = getFirstActiveSlotIndex(player);
 	if (si < 0) return state;
-	const roll = rollDie(6);
-	if (roll >= 4) {
+
+	const guess = state._pendingTargets?.west_guess;
+	const topCardType = state._pendingTargets?.west_top_card_type;
+
+	if (!guess || !topCardType) {
+		console.warn('[ABILITY] Senor West: missing guess or top card type — no effect');
+		return state;
+	}
+
+	const isCorrect = guess === topCardType;
+	if (isCorrect) {
 		player.activeSlots[si].mp += 10;
-		console.log(`[ABILITY] Senor West: rolled ${roll} → +10 MP`);
+		const drawn = player.deck.splice(0, 2);
+		player.hand.push(...drawn);
+		console.log(`[ABILITY] Senor West: correct guess (${guess}) → +10 MP, drew ${drawn.length} card(s)`);
 	} else {
 		player.activeSlots[si].mp -= 10;
-		console.log(`[ABILITY] Senor West: rolled ${roll} → -10 MP`);
+		console.log(`[ABILITY] Senor West: wrong guess (${guess}, was ${topCardType}) → -10 MP`);
 	}
 	return state;
 }
 
-// West (legacy) — same mechanic.
+// West (legacy alias) — delegates to the full implementation.
 export function ability_west_calculated_guess(gameState, playerId) {
 	return ability_martin_senor_west_calculated_guess(gameState, playerId);
 }
