@@ -94,6 +94,7 @@ function createPlayerState(config) {
 
     questsCompleted: 0,
     questsCompletedThisTurn: 0,
+    questsAttemptedThisTurn: 0,   // counter; Quest Haven allows up to 2 per turn
     totalDamageTaken: 0,
     questPrepBonus: 0,       // added to next Quest roll by Dubbele Dosis piecie
     questBonusMP: 0,         // next successful Quest gives this bonus MP (momentum_boost etc.)

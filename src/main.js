@@ -328,9 +328,14 @@ function initGamePage() {
 			modal.showInfo('Not Your Turn', 'You can only attempt quests on your own turn.');
 			return;
 		}
-		if (gameState.players[localPlayerId].hasAttemptedQuestThisTurn) {
-			modal.showInfo('Already Attempted', 'You have already attempted a quest this turn.');
-			return;
+		{
+			const _qhActive = gameState.activePlace === 'place_quest_haven';
+			const _maxQ = _qhActive ? 2 : 1;
+			const _attempted = gameState.players[localPlayerId].questsAttemptedThisTurn ?? (gameState.players[localPlayerId].hasAttemptedQuestThisTurn ? 1 : 0);
+			if (_attempted >= _maxQ) {
+				modal.showInfo('Already Attempted', 'You have already attempted a quest this turn.');
+				return;
+			}
 		}
 
 		const { state: newState, questCard: questRef } = attemptGeneralQuest(gameState);
@@ -486,9 +491,14 @@ function initGamePage() {
 			modal.showInfo('Not Your Turn', 'You can only attempt quests on your own turn.');
 			return;
 		}
-		if (gameState.players[localPlayerId].hasAttemptedQuestThisTurn) {
-			modal.showInfo('Already Attempted', 'You have already attempted a quest this turn.');
-			return;
+		{
+			const _qhActive = gameState.activePlace === 'place_quest_haven';
+			const _maxQ = _qhActive ? 2 : 1;
+			const _attempted = gameState.players[localPlayerId].questsAttemptedThisTurn ?? (gameState.players[localPlayerId].hasAttemptedQuestThisTurn ? 1 : 0);
+			if (_attempted >= _maxQ) {
+				modal.showInfo('Already Attempted', 'You have already attempted a quest this turn.');
+				return;
+			}
 		}
 
 		const personalQuestsInHand = gameState.players[localPlayerId].hand.filter(
@@ -575,7 +585,9 @@ function initGamePage() {
 		const uiState = toBoardViewModel(state, localPlayerId);
 
 		const isLocalTurn = state.activePlayerId === localPlayerId;
-		const alreadyAttempted = state.players[localPlayerId].hasAttemptedQuestThisTurn;
+		const _qhActiveRender = state.activePlace === 'place_quest_haven';
+	const _maxQRender = _qhActiveRender ? 2 : 1;
+	const alreadyAttempted = (state.players[localPlayerId].questsAttemptedThisTurn ?? (state.players[localPlayerId].hasAttemptedQuestThisTurn ? 1 : 0)) >= _maxQRender;
 		const gameOver = state.status === 'FINISHED';
 
 		// Regular cards only on local turn; Snelle Piecies always available
@@ -926,9 +938,14 @@ function initGamePage() {
 				modal.showInfo('Not Your Turn', 'You can only attempt quests on your own turn.');
 				return;
 			}
-			if (gameState.players[localPlayerId].hasAttemptedQuestThisTurn) {
-				modal.showInfo('Already Attempted', 'You have already attempted a quest this turn.');
-				return;
+			{
+				const _qhActive = gameState.activePlace === 'place_quest_haven';
+				const _maxQ = _qhActive ? 2 : 1;
+				const _attempted = gameState.players[localPlayerId].questsAttemptedThisTurn ?? (gameState.players[localPlayerId].hasAttemptedQuestThisTurn ? 1 : 0);
+				if (_attempted >= _maxQ) {
+					modal.showInfo('Already Attempted', 'You have already attempted a quest this turn.');
+					return;
+				}
 			}
 			if (cardDef.questType !== 'PERSONAL') {
 				modal.showInfo('Cannot Play', 'Only Personal Quests can be played from your hand.');
