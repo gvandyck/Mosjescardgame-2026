@@ -10,6 +10,7 @@ import {
   activatePiecie,
   playSnellie,
   canPlayerActNow,
+  useMosjeAbility,
 } from '../../src/engine/turnManager.js';
 
 export function runTurnManagerTests() {
@@ -376,5 +377,102 @@ export function runTurnManagerTests() {
     assertEqual(out.state.players.player_1.piecieSlots[0], null);
     assertEqual(out.state.players.player_1.discard[0].cardId, 'piecie_kannetje_melk');
     assertEqual(out.state.players.player_1.pieciesActivatedThisTurn, 1);
+  });
+
+  // ── Quest Haven: 2 quests per turn ────────────────────────────────────────
+  test('attemptGeneralQuest allows a second attempt when Quest Haven is active', () => {
+    const state = createEngineState({
+      activePlace: 'place_quest_haven',
+      players: {
+        player_1: {
+          hasAttemptedQuestThisTurn: true,
+          questsAttemptedThisTurn: 1,
+        },
+      },
+    });
+    const out = attemptGeneralQuest(state);
+    assertTrue(!!out.questCard, 'Should allow second quest attempt under Quest Haven');
+    assertEqual(out.state.players.player_1.questsAttemptedThisTurn, 2);
+  });
+
+  test('attemptGeneralQuest blocks second attempt without Quest Haven', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          hasAttemptedQuestThisTurn: true,
+          questsAttemptedThisTurn: 1,
+        },
+      },
+    });
+    const out = attemptGeneralQuest(state);
+    assertEqual(out.questCard, null, 'Should block second quest when no Quest Haven');
+  });
+
+  test('startTurn resets questsAttemptedThisTurn to 0', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          questsAttemptedThisTurn: 2,
+        },
+      },
+    });
+    const result = startTurn(state);
+    assertEqual(result.players.player_1.questsAttemptedThisTurn, 0);
+  });
+
+  // ── Coert unlimited ability ──────────────────────────────────────────────
+  test('useMosjeAbility allows Coert to use ability multiple times per turn', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          activeSlots: [
+            {
+              cardId: 'mosje_coert_tech',
+              name: '[Coert] The Hawaiian Tech Savant',
+              traits: { mental: 2, technical: 3, social: 1 },
+              mp: 30,
+              level: 1,
+              isDefeated: false,
+              statusEffects: [],
+              abilityUsedThisTurn: false,
+            },
+            null,
+          ],
+          deck: [
+            { cardId: 'piecie_kannetje_melk', type: 'PIECIE' },
+            { cardId: 'piecie_affoe', type: 'PIECIE' },
+          ],
+        },
+      },
+    });
+    const out1 = useMosjeAbility(state, 'player_1', 'mosje_coert_tech');
+    assertTrue(out1.success, 'First use should succeed');
+    const out2 = useMosjeAbility(out1.state, 'player_1', 'mosje_coert_tech');
+    assertTrue(out2.success, 'Second use should also succeed (unlimited)');
+  });
+
+  test('useMosjeAbility blocks Coert ability when MP < 10', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          activeSlots: [
+            {
+              cardId: 'mosje_coert_tech',
+              name: '[Coert] The Hawaiian Tech Savant',
+              traits: { mental: 2, technical: 3, social: 1 },
+              mp: 5,
+              level: 1,
+              isDefeated: false,
+              statusEffects: [],
+              abilityUsedThisTurn: false,
+            },
+            null,
+          ],
+          deck: [{ cardId: 'piecie_kannetje_melk', type: 'PIECIE' }],
+        },
+      },
+    });
+    const out = useMosjeAbility(state, 'player_1', 'mosje_coert_tech');
+    assertFalse(out.success, 'Should block when insufficient MP');
   });
 }

@@ -206,4 +206,59 @@ export function runSnelleEffectsTests() {
     assertEqual(result._snelleFlags?.counterChain?.length, 1);
     assertEqual(result._snelleFlags.counterChain[0].card, 'blensen');
   });
+
+  // ── Lucky Coin full implementation ───────────────────────────────────────
+  test('Lucky Coin heads: sets forceReroll flag for player', () => {
+    assertDefined(snelleEffects.effect_snelle_lucky_coin, 'effect_snelle_lucky_coin missing');
+    const state = createEngineState({
+      _pendingTargets: { lucky_coin_result: 'heads' },
+    });
+    const result = snelleEffects.effect_snelle_lucky_coin(state, 'player_1');
+    assertTrue(result._snelleFlags?.forceReroll?.['player_1'] === true, 'Should set forceReroll flag on heads');
+    assertEqual(result.players.player_1.activeSlots[0].mp, 15, 'Should not change MP on heads');
+  });
+
+  test('Lucky Coin tails: deducts 10 MP from active Mosje', () => {
+    const state = createEngineState({
+      _pendingTargets: { lucky_coin_result: 'tails' },
+    });
+    const result = snelleEffects.effect_snelle_lucky_coin(state, 'player_1');
+    assertEqual(result.players.player_1.activeSlots[0].mp, 5, 'Should lose 10 MP on tails');
+    assertFalse(result._snelleFlags?.forceReroll?.['player_1'] === true, 'Should not set forceReroll flag on tails');
+  });
+
+  test('Lucky Coin tails: uses lucky_coin_tails_slot when set', () => {
+    const state = createEngineState({
+      _pendingTargets: { lucky_coin_result: 'tails', lucky_coin_tails_slot: 1 },
+      players: {
+        player_1: {
+          activeSlots: [
+            {
+              cardId: 'mosje_west',
+              name: '[West]',
+              traits: { mental: 3, technical: 1 },
+              mp: 30,
+              level: 1,
+              isDefeated: false,
+              statusEffects: [],
+              abilityUsedThisTurn: false,
+            },
+            {
+              cardId: 'mosje_coert_tech',
+              name: '[Coert]',
+              traits: { mental: 2, technical: 3, social: 1 },
+              mp: 20,
+              level: 1,
+              isDefeated: false,
+              statusEffects: [],
+              abilityUsedThisTurn: false,
+            },
+          ],
+        },
+      },
+    });
+    const result = snelleEffects.effect_snelle_lucky_coin(state, 'player_1');
+    assertEqual(result.players.player_1.activeSlots[0].mp, 30, 'Slot 0 should be unaffected');
+    assertEqual(result.players.player_1.activeSlots[1].mp, 10, 'Slot 1 should lose 10 MP');
+  });
 }
