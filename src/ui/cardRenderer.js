@@ -94,6 +94,7 @@ export function buildMosjeCardHTML(card, gameState = null, viewingPlayerId = nul
 
   const mosjeType = String(card.subtype || card.mosjeType || '').toLowerCase();
   const typeLabel = capitalize(mosjeType);
+  const { displayName, nickname } = parseMosjeName(card.name);
 
   const traitRows = Object.entries(card.traits || {})
     .filter(([, stars]) => Number(stars) > 0)
@@ -166,8 +167,8 @@ export function buildMosjeCardHTML(card, gameState = null, viewingPlayerId = nul
 
       <header class="mosje-header">
         <div class="mosje-title-group">
-          <span class="mosje-name">${escapeHtml(card.name || 'Unnamed Mosje')}</span>
-          ${card.flavourText ? `<span class="mosje-flavor">${escapeHtml(card.flavourText)}</span>` : ''}
+          <span class="mosje-name">${escapeHtml(displayName)}</span>
+          ${nickname ? `<span class="mosje-flavor">${escapeHtml(nickname)}</span>` : ''}
           ${typeLabel ? `<span class="mosje-type type-${escapeHtml(mosjeType)}">${escapeHtml(typeLabel)}</span>` : ''}
         </div>
         <div class="mosje-hp">
@@ -372,6 +373,14 @@ function getOwnedActivePiecieIds(gameState, viewingPlayerId) {
     }
   }
   return active;
+}
+
+function parseMosjeName(name) {
+  const match = String(name || '').match(/^\[(.+?)\]\s*(.*)/);
+  if (match) {
+    return { displayName: match[1].trim(), nickname: match[2].trim() || null };
+  }
+  return { displayName: String(name || 'Unnamed'), nickname: null };
 }
 
 function escapeHtml(text) {
