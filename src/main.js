@@ -1161,6 +1161,7 @@ function toBoardViewModel(gameState, localPlayerId) {
 			top: {
 				name: opponent.name,
 				mosjes: toMosjeCards(opponent.activeSlots),
+				activeModifiers: buildActiveModifiers(gameState, opponentId, false),
 				piecies: toPiecieCards(opponent.piecieSlots, {
 					ownerId: opponentId,
 					localPlayerId,
@@ -1172,6 +1173,7 @@ function toBoardViewModel(gameState, localPlayerId) {
 			bottom: {
 				name: localPlayer.name,
 				mosjes: toMosjeCards(localPlayer.activeSlots),
+				activeModifiers: buildActiveModifiers(gameState, localPlayerId, true),
 				piecies: toPiecieCards(localPlayer.piecieSlots, {
 					ownerId: localPlayerId,
 					localPlayerId,
@@ -1182,6 +1184,31 @@ function toBoardViewModel(gameState, localPlayerId) {
 			},
 		},
 	};
+}
+
+function buildActiveModifiers(gameState, playerId, isLocalPlayer = false) {
+	const flags = gameState._snelleFlags || {};
+	const player = gameState.players[playerId];
+	const pills = [];
+
+	// Quest dice bonuses — only show on the local player's zone (they're the ones questing)
+	if (isLocalPlayer) {
+		const questBonus = (flags.questDiceBonus || 0) + (player?.questPrepBonus || 0);
+		if (questBonus > 0) pills.push({ label: `+${questBonus} Quest Roll`, color: 'gold' });
+	}
+
+	if (flags.forceReroll?.[playerId])         pills.push({ label: '🎲 Reroll Ready', color: 'gold' });
+	if (flags.negateNextPiecie?.[playerId])     pills.push({ label: '🛡 Negate Piecie', color: 'blue' });
+	if (flags.negateNextAttack?.[playerId])     pills.push({ label: '⚡ Dodge Active', color: 'teal' });
+	if (flags.negateNextElimination?.[playerId]) pills.push({ label: '💀 Not Today!', color: 'blue' });
+	if (flags.doubleNextPiecie?.[playerId])     pills.push({ label: '×2 Double Trigger', color: 'purple' });
+	if (flags.negateNextSearch?.[playerId])     pills.push({ label: '🚫 Anti-Search', color: 'orange' });
+	if (flags.drainReversal?.[playerId])        pills.push({ label: '↩ Drain Reflect', color: 'orange' });
+	const mpRed = flags.mpLossReduction?.[playerId];
+	if (Number.isInteger(mpRed) && mpRed > 0)  pills.push({ label: `🛡 -${mpRed} Damage`, color: 'blue' });
+	if (flags.copyLastPiecie?.forPlayer === playerId) pills.push({ label: '📋 Copy Ready', color: 'purple' });
+
+	return pills;
 }
 
 function getSkiffaRerolls(gameState, playerId) {

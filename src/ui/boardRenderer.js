@@ -29,7 +29,10 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 
 	container.innerHTML = `
 		<section class="board-zone board-zone--opponent">
-			<header class="board-zone__header">${escapeHtml(viewModel.players.top.name)}</header>
+			<header class="board-zone__header">
+				${escapeHtml(viewModel.players.top.name)}
+				<div class="snelle-modifier-bar" id="modifier-bar-opponent"></div>
+			</header>
 			<div class="board-zone__row">
 				<div class="board-zone__slots" id="zone-opponent"></div>
 				<div class="board-zone__piecies" id="piecies-opponent"></div>
@@ -37,13 +40,19 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		</section>
 
 		<section class="board-zone board-zone--player">
-			<header class="board-zone__header">${escapeHtml(viewModel.players.bottom.name)}</header>
+			<header class="board-zone__header">
+				${escapeHtml(viewModel.players.bottom.name)}
+				<div class="snelle-modifier-bar" id="modifier-bar-player"></div>
+			</header>
 			<div class="board-zone__row">
 				<div class="board-zone__slots" id="zone-player"></div>
 				<div class="board-zone__piecies" id="piecies-player"></div>
 			</div>
 		</section>
 	`;
+
+	renderModifierBar(container.querySelector('#modifier-bar-opponent'), viewModel.players.top.activeModifiers);
+	renderModifierBar(container.querySelector('#modifier-bar-player'), viewModel.players.bottom.activeModifiers);
 
 	const topZone = container.querySelector('#zone-opponent');
 	const bottomZone = container.querySelector('#zone-player');
@@ -285,6 +294,21 @@ export function showPlaceEffectBanner(placeName, effectSummary, phase) {
 		banner.classList.add('place-banner-fade');
 		banner.addEventListener('transitionend', () => banner.remove(), { once: true });
 	}, 2000);
+}
+
+// Renders modifier pill badges into a .snelle-modifier-bar container.
+// pills — array of { label: string, color: 'gold'|'teal'|'blue'|'purple'|'orange' }
+function renderModifierBar(bar, pills) {
+	if (!bar) return;
+	bar.innerHTML = '';
+	if (!Array.isArray(pills) || pills.length === 0) return;
+	for (const pill of pills) {
+		const span = document.createElement('span');
+		span.className = `snelle-pill snelle-pill--${pill.color}`;
+		span.textContent = pill.label;
+		span.title = pill.label;
+		bar.appendChild(span);
+	}
 }
 
 function escapeHtml(text) {
