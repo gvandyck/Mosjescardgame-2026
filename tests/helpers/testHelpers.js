@@ -20,6 +20,18 @@ export function test(name, fn) {
   }
 }
 
+export async function testAsync(name, fn) {
+  try {
+    await fn();
+    results.push({ name, passed: true });
+    console.log(`[TEST] PASS - ${name}`);
+  } catch (err) {
+    const message = err?.message || String(err);
+    results.push({ name, passed: false, error: message });
+    console.error(`[TEST] FAIL - ${name}: ${message}`);
+  }
+}
+
 // Assertion helpers
 export function assertEqual(actual, expected, msg) {
   if (actual !== expected) {
@@ -161,6 +173,7 @@ export function createEngineState(overrides = {}) {
         piecieSlots: [null, null, null, null, null],
         questsCompleted: 0,
         questsCompletedThisTurn: 0,
+        questsAttemptedThisTurn: 0,
         totalDamageTaken: 0,
         questPrepBonus: 0,
         hasAttemptedQuestThisTurn: false,
@@ -190,6 +203,7 @@ export function createEngineState(overrides = {}) {
         piecieSlots: [null, null, null, null, null],
         questsCompleted: 0,
         questsCompletedThisTurn: 0,
+        questsAttemptedThisTurn: 0,
         totalDamageTaken: 0,
         questPrepBonus: 0,
         hasAttemptedQuestThisTurn: false,

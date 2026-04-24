@@ -380,6 +380,40 @@ export function runQuestLogicTests() {
     assertTrue(out.success);
   });
 
+  test('quest_req_geen_raad_vraag_aad returns UI prompt contract', () => {
+    const out = questLogic.quest_req_geen_raad_vraag_aad({}, {});
+    assertTrue(out.canAttempt, 'Aad quest should be attemptable before prompt resolution');
+    assertTrue(out.requiresUIPrompt, 'Aad quest should require UI prompt');
+    assertEqual(out.promptType, 'GUESS_CARD');
+  });
+
+  test('Geen Raad failure applies failMP to the active Mosje', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          activeSlots: [
+            {
+              cardId: 'mosje_west',
+              name: '[West] Sr.Tactical',
+              traits: { mental: 3, technical: 1 },
+              mp: 50,
+              level: 0,
+              isDefeated: false,
+              statusEffects: [],
+              abilityUsedThisTurn: false,
+            },
+            null,
+          ],
+          hand: [{ cardId: 'piecie_gun_een_piece', type: 'PIECIE' }],
+          totalDamageTaken: 0,
+        },
+      },
+    });
+    const quest = QUESTS.find(q => q.id === 'quest_geen_raad_vraag_aad');
+    const result = questLogic.resolveQuest(state, 'player_1', quest, false);
+    assertEqual(result.players.player_1.activeSlots[0].mp, 25, 'Should lose 25 MP on Geen Raad failure');
+  });
+
   test('Lucky Crescendo success causes all opponents to lose 20 MP', () => {
     const state = createEngineState({
       activeQuest: { questName: 'Lucky Crescendo' },
