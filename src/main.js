@@ -968,10 +968,16 @@ function initGamePage() {
 			let snelleStateForPlay = gameState;
 			if (cardDef.effectId === 'effect_snelle_jensen') {
 				const ownTargets = getPlayerMosjes(gameState, localPlayerId);
+				snelleStateForPlay = JSON.parse(JSON.stringify(gameState));
+				if (!snelleStateForPlay._pendingTargets) snelleStateForPlay._pendingTargets = {};
 				if (ownTargets.length > 1) {
-					const selectedState = await resolveOwnMosjeTarget('Choose your Mosje to receive Jensen MP:');
-					if (!selectedState) return;
-					snelleStateForPlay = selectedState;
+					const selectedId = await modal.showTargetSelector(ownTargets, 'Choose your Mosje to receive Jensen MP:');
+					if (!selectedId) return;
+					const parts = selectedId.split('_slot_');
+					const idx = parseInt(parts[1], 10);
+					if (!Number.isNaN(idx)) snelleStateForPlay._pendingTargets.jensen_slot_index = idx;
+				} else if (ownTargets.length === 1) {
+					snelleStateForPlay._pendingTargets.jensen_slot_index = ownTargets[0].slotIndex;
 				}
 			} else if (cardDef.effectId === 'effect_snelle_lucky_coin') {
 				const isHeads = Math.random() < 0.5;
