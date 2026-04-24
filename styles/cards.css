@@ -925,23 +925,24 @@
 
 .mosje-ability-btn {
   background: linear-gradient(135deg, #92400e, #f59e0b);
-  width: 34px;
-  min-width: 34px;
-  max-width: 34px;
-  height: 34px;
+  width: auto;
+  min-width: unset;
+  max-width: unset;
+  height: auto;
   margin: 0;
-  padding: 0;
+  padding: 3px 7px;
   border-radius: 6px;
-  font-size: 1.16rem;
-  letter-spacing: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
   opacity: 0.88;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   line-height: 1;
   position: absolute;
-  right: 8px;
-  bottom: 8px;
+  right: 6px;
+  bottom: 6px;
+  white-space: nowrap;
 }
 
 .mosje-ability-btn--used,
