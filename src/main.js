@@ -787,6 +787,17 @@ function initGamePage() {
 			}
 			stateForActivation = JSON.parse(JSON.stringify(gameState));
 			stateForActivation._pendingTargets = { affoe_drain: drainId, affoe_gain: gainId };
+		} else if (piecieCardDef?.effectId === 'effect_kannetje_melk') {
+			const ownTargets = getPlayerMosjes(gameState, localPlayerId);
+			if (ownTargets.length > 1) {
+				const selectedId = await modal.showTargetSelector(ownTargets, 'Choose your Mosje to receive MP:');
+				if (!selectedId) return;
+				const slotIndex = parseInt(selectedId.split('_slot_')[1], 10);
+				if (!Number.isNaN(slotIndex)) {
+					stateForActivation = JSON.parse(JSON.stringify(gameState));
+					stateForActivation._pendingTargets = { own_slot_index: slotIndex };
+				}
+			}
 		}
 
 		const { state: newState, success, error, cardDef, negated } = activatePiecie(stateForActivation, localPlayerId, slotIndex);
