@@ -79,9 +79,29 @@ export function effect_snelle_emergency_healings(gameState, playerId) {
 	return state;
 }
 
-export function effect_snelle_lucky_coin(gameState) {
-	console.log('[STUB] snelle_lucky_coin');
-	return gameState;
+export function effect_snelle_lucky_coin(gameState, playerId) {
+	const state = JSON.parse(JSON.stringify(gameState));
+	const result = state._pendingTargets?.lucky_coin_result;
+
+	if (result === 'heads') {
+		if (!state._snelleFlags) state._snelleFlags = {};
+		if (!state._snelleFlags.forceReroll) state._snelleFlags.forceReroll = {};
+		state._snelleFlags.forceReroll[playerId] = true;
+		console.log('[ABILITY] Lucky Coin: heads → reroll token granted');
+	} else if (result === 'tails') {
+		const slotIndex = state._pendingTargets?.lucky_coin_tails_slot;
+		const player = state.players[playerId];
+		if (player && Number.isInteger(slotIndex) && player.activeSlots[slotIndex]) {
+			player.activeSlots[slotIndex].mp -= 10;
+			console.log(`[ABILITY] Lucky Coin: tails → -10 MP to slot ${slotIndex}`);
+		}
+	}
+
+	if (state._pendingTargets) {
+		delete state._pendingTargets.lucky_coin_result;
+		delete state._pendingTargets.lucky_coin_tails_slot;
+	}
+	return state;
 }
 
 export function effect_snelle_ff_haaltje_nemen(gameState, playerId) {

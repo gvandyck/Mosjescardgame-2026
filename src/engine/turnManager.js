@@ -38,6 +38,7 @@ export function startTurn(gameState) {
   // Reset per-turn trackers for the active player
   const activePlayer = state.players[playerId];
   activePlayer.questsCompletedThisTurn = 0;
+  activePlayer.questsAttemptedThisTurn = 0;
   activePlayer.hasAttemptedQuestThisTurn = false;
   activePlayer.hasRerolledDieThisTurn = false;
   activePlayer.pieciesPlayedThisTurn = 0;
@@ -159,8 +160,12 @@ export function attemptGeneralQuest(gameState) {
   const playerId = state.activePlayerId;
   const player = state.players[playerId];
 
-  if (player.hasAttemptedQuestThisTurn) {
-    console.log('[ENGINE] Quest already attempted this turn');
+  const questHavenActive = state.activePlace === 'place_quest_haven';
+  const maxQuestsThisTurn = questHavenActive ? 2 : 1;
+  const questsAttempted = player.questsAttemptedThisTurn ?? (player.hasAttemptedQuestThisTurn ? 1 : 0);
+
+  if (questsAttempted >= maxQuestsThisTurn) {
+    console.log('[ENGINE] Quest already attempted the maximum times this turn');
     return { state, questCard: null };
   }
 
@@ -175,9 +180,10 @@ export function attemptGeneralQuest(gameState) {
     console.log(`[ENGINE] Recycled ${state.sharedGeneralQuestDeck.length} General Quests back into deck`);
   }
 
-  const questCard = state.sharedGeneralQuestDeck.shift(); // take from top
+  const questCard = state.sharedGeneralQuestDeck.shift();
   console.log('[ENGINE] General Quest drawn:', questCard.cardId);
 
+  player.questsAttemptedThisTurn = questsAttempted + 1;
   player.hasAttemptedQuestThisTurn = true;
 
   return { state, questCard };
@@ -195,8 +201,12 @@ export function attemptPersonalQuest(gameState, questCardId) {
   const playerId = state.activePlayerId;
   const player = state.players[playerId];
 
-  if (player.hasAttemptedQuestThisTurn) {
-    console.log('[ENGINE] Quest already attempted this turn');
+  const questHavenActive = state.activePlace === 'place_quest_haven';
+  const maxQuestsThisTurn = questHavenActive ? 2 : 1;
+  const questsAttempted = player.questsAttemptedThisTurn ?? (player.hasAttemptedQuestThisTurn ? 1 : 0);
+
+  if (questsAttempted >= maxQuestsThisTurn) {
+    console.log('[ENGINE] Quest already attempted the maximum times this turn');
     return { state, questCard: null, eligible: false };
   }
 
@@ -207,6 +217,7 @@ export function attemptPersonalQuest(gameState, questCardId) {
   }
 
   const [questCard] = player.hand.splice(cardIndex, 1);
+  player.questsAttemptedThisTurn = questsAttempted + 1;
   player.hasAttemptedQuestThisTurn = true;
   console.log('[ENGINE] Personal Quest played from hand:', questCardId);
 

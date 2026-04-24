@@ -75,7 +75,7 @@ export function runDeckEngineTests() {
   });
 
   // ── initializeGame / starting hand ─────────────────────────
-  test('initializeGame: each player has exactly 7 cards in hand after init', () => {
+  test('initializeGame: each player has exactly 6 cards in hand after init', () => {
     const state = createInitialGameState(
       [
         { playerId: 'player_1', name: 'Test 1', deckId: 'DIGITAL_CONTROL' },
@@ -84,8 +84,8 @@ export function runDeckEngineTests() {
       'TEST'
     );
     const verified = initializeGame(state);
-    assertEqual(verified.players.player_1.hand.length, 7, 'player_1 should have 7 cards');
-    assertEqual(verified.players.player_2.hand.length, 7, 'player_2 should have 7 cards');
+    assertEqual(verified.players.player_1.hand.length, 6, 'player_1 should have 6 cards');
+    assertEqual(verified.players.player_2.hand.length, 6, 'player_2 should have 6 cards');
   });
 
   test('initializeGame: deck has correct number of cards remaining after init', () => {
@@ -98,8 +98,8 @@ export function runDeckEngineTests() {
     );
     const p1 = state.players.player_1;
     const totalCards = p1.hand.length + p1.deck.length;
-    assertEqual(p1.hand.length, 7, 'starting hand must be 7');
-    assertTrue(p1.deck.length === totalCards - 7, 'remaining deck = total - 7');
+    assertEqual(p1.hand.length, 6, 'starting hand must be 6');
+    assertTrue(p1.deck.length === totalCards - 6, 'remaining deck = total - 6');
   });
 
   test('initializeGame: no card instance appears in both hand and deck', () => {

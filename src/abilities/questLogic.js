@@ -79,6 +79,7 @@ function applyQuestMpResult(mosje, questCard, didSucceed) {
 }
 
 // General Quests can be attempted by any active Mosje with non-negative MP.
+// Cards with extra preconditions (e.g. Momentum Master) are enforced here too.
 export function canAttemptGeneralQuest(questCard, gameState, playerId) {
   console.log('[QUEST] Checking General Quest eligibility:', questCard.id);
   const player = gameState.players[playerId];
@@ -91,6 +92,13 @@ export function canAttemptGeneralQuest(questCard, gameState, playerId) {
   if (activeMosje.mp < 0) {
     console.log('[QUEST] Active Mosje has negative MP — cannot attempt General Quest');
     return false;
+  }
+  if (questCard.requirementId === 'quest_req_momentum_master') {
+    const pieciesUsed = player.pieciesPlayedThisTurn || 0;
+    if (pieciesUsed < 2) {
+      console.log('[QUEST] Momentum Master blocked — fewer than 2 Piecies used this turn:', pieciesUsed);
+      return false;
+    }
   }
   return true;
 }
@@ -205,6 +213,8 @@ export function getQuestDiceThreshold(questCard, activeMosje) {
       // Missing creative trait → impossible (threshold beyond max roll)
       return creative >= 2 ? 4 : 7;
     }
+    case 'quest_req_momentum_master':
+      return 3;
     case 'quest_req_leap_of_faith':
 		case 'quest_req_iron_will':
 			return 4;

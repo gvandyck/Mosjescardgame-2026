@@ -391,6 +391,112 @@ export function initModalManager(container) {
 		});
 	}
 
+	// Shows a card-type picker used by West's Calculated Guess and Geen Raad Vraag Aad.
+	// Resolves with one of the five card type strings, or null if cancelled.
+	async function showCardTypeSelector(title) {
+		const TYPES = [
+			{ label: 'Mosje',          value: 'MOSJE' },
+			{ label: 'Piecie',         value: 'PIECIE' },
+			{ label: 'Snelle Piecie',  value: 'SNELLE_PIECIE' },
+			{ label: 'Place',          value: 'PLACE' },
+			{ label: 'Personal Quest', value: 'QUEST' },
+		];
+
+		return new Promise(resolve => {
+			container.classList.add('modal-root--open');
+
+			const buttons = TYPES.map(t =>
+				`<button class="modal-card-option card-type-option" data-value="${t.value}" type="button">
+					<strong>${escapeHtml(t.label)}</strong>
+				</button>`
+			).join('');
+
+			container.innerHTML = `
+				<div class="modal-backdrop"></div>
+				<section class="modal-card" role="dialog" aria-modal="true">
+					<h3>${escapeHtml(title)}</h3>
+					<p>Pick the type of the card you think is on top of the deck.</p>
+					<div class="modal-card-list">${buttons}</div>
+					<button class="modal-btn modal-btn--ghost" id="modal-cancel" type="button">Cancel</button>
+				</section>
+			`;
+
+			container.querySelectorAll('.card-type-option').forEach(btn => {
+				btn.addEventListener('click', () => {
+					const value = btn.dataset.value;
+					close();
+					resolve(value ?? null);
+				});
+			});
+
+			container.querySelector('#modal-cancel')?.addEventListener('click', () => {
+				close();
+				resolve(null);
+			});
+		});
+	}
+
+	// Shows a card from the deck (or any card) briefly so the player can see it.
+	// Resolves when the player clicks Continue.
+	async function showRevealedCard(title, cardName, cardType) {
+		return new Promise(resolve => {
+			container.classList.add('modal-root--open');
+			container.innerHTML = `
+				<div class="modal-backdrop"></div>
+				<section class="modal-card" role="dialog" aria-modal="true">
+					<h3>${escapeHtml(title)}</h3>
+					<div class="modal-revealed-card">
+						<p class="modal-revealed-card__name">${escapeHtml(cardName)}</p>
+						<p class="modal-revealed-card__type">${escapeHtml(cardType)}</p>
+					</div>
+					<button class="modal-btn" id="modal-continue" type="button">Continue</button>
+				</section>
+			`;
+			container.querySelector('#modal-continue')?.addEventListener('click', () => {
+				close();
+				resolve();
+			});
+		});
+	}
+
+	// Shows a row of face-down cards from the opponent's hand.
+	// Player picks one by position. Resolves with the hand index, or null if cancelled.
+	async function showFaceDownCardPicker(title, count) {
+		return new Promise(resolve => {
+			container.classList.add('modal-root--open');
+
+			const buttons = Array.from({ length: count }, (_, i) =>
+				`<button class="modal-card-option face-down-card-option" data-index="${i}" type="button">
+					<strong>Card ${i + 1}</strong>
+					<span class="face-down-card-option__label">?</span>
+				</button>`
+			).join('');
+
+			container.innerHTML = `
+				<div class="modal-backdrop"></div>
+				<section class="modal-card" role="dialog" aria-modal="true">
+					<h3>${escapeHtml(title)}</h3>
+					<p>Pick one of your opponent's face-down cards.</p>
+					<div class="modal-card-list">${buttons}</div>
+					<button class="modal-btn modal-btn--ghost" id="modal-cancel" type="button">Cancel</button>
+				</section>
+			`;
+
+			container.querySelectorAll('.face-down-card-option').forEach(btn => {
+				btn.addEventListener('click', () => {
+					const index = parseInt(btn.dataset.index, 10);
+					close();
+					resolve(Number.isNaN(index) ? null : index);
+				});
+			});
+
+			container.querySelector('#modal-cancel')?.addEventListener('click', () => {
+				close();
+				resolve(null);
+			});
+		});
+	}
+
 	return {
 		showInfo,
 		showDiceRoll,
@@ -398,6 +504,9 @@ export function initModalManager(container) {
 		showTextInput,
 		showCardChoice,
 		showTargetSelector,
+		showCardTypeSelector,
+		showRevealedCard,
+		showFaceDownCardPicker,
 		showMosjeDetailModal,
 		showPlaceDetailModal,
 		showOpponentHandRevealModal,

@@ -322,15 +322,20 @@ function initGamePage() {
 		log.add('gain', `Now active: ${activeName}. Turn ${gameState.turnNumber}.`);
 	});
 
-	document.getElementById('btn-general-quest')?.addEventListener('click', () => {
+	document.getElementById('btn-general-quest')?.addEventListener('click', async () => {
 		if (!gameState) return;
 		if (gameState.activePlayerId !== localPlayerId) {
 			modal.showInfo('Not Your Turn', 'You can only attempt quests on your own turn.');
 			return;
 		}
-		if (gameState.players[localPlayerId].hasAttemptedQuestThisTurn) {
-			modal.showInfo('Already Attempted', 'You have already attempted a quest this turn.');
-			return;
+		{
+			const _qhActive = gameState.activePlace === 'place_quest_haven';
+			const _maxQ = _qhActive ? 2 : 1;
+			const _attempted = gameState.players[localPlayerId].questsAttemptedThisTurn ?? (gameState.players[localPlayerId].hasAttemptedQuestThisTurn ? 1 : 0);
+			if (_attempted >= _maxQ) {
+				modal.showInfo('Already Attempted', 'You have already attempted a quest this turn.');
+				return;
+			}
 		}
 
 		const { state: newState, questCard: questRef } = attemptGeneralQuest(gameState);
@@ -385,6 +390,112 @@ function initGamePage() {
 		renderFromState(gameState);
 		syncPush();
 
+		// Geen Raad Vraag Aad — no dice; interactive card-type guess against opponent's hand
+		if (questDef.id === 'quest_geen_raad_vraag_aad') {
+			const opponentPlayer = gameState.players[opponentId];
+			const opponentHand = opponentPlayer?.hand ?? [];
+			const firstSlotIndex = gameState.players[localPlayerId].activeSlots
+				.findIndex(s => s && !s.isDefeated);
+
+			if (opponentHand.length === 0) {
+				log.add('quest', 'Geen Raad: opponent hand is empty — quest cannot resolve.');
+				gameState.activeQuest = null;
+				if (!Array.isArray(gameState.sharedGeneralQuestDiscard)) gameState.sharedGeneralQuestDiscard = [];
+				gameState.sharedGeneralQuestDiscard.push(questRef);
+				renderFromState(gameState);
+				syncPush();
+				return;
+			}
+
+			const pickedIndex = await modal.showFaceDownCardPicker(
+				'Geen Raad? Vraag Aad! — Pick a card from opponent\'s hand',
+				opponentHand.length
+			);
+			if (pickedIndex === null) {
+				gameState.activeQuest = null;
+				gameState.sharedGeneralQuestDiscard.push(questRef);
+				renderFromState(gameState);
+				syncPush();
+				return;
+			}
+
+			const guess = await modal.showCardTypeSelector('Geen Raad: What type is this card?');
+			if (!guess) {
+				gameState.activeQuest = null;
+				gameState.sharedGeneralQuestDiscard.push(questRef);
+				renderFromState(gameState);
+				syncPush();
+				return;
+			}
+
+			const actualCard = opponentHand[pickedIndex];
+			const actualCardDef = CARD_LOOKUP[actualCard?.cardId];
+			const actualCardType = actualCard?.type || actualCardDef?.type || 'UNKNOWN';
+			const actualCardName = actualCardDef?.name || actualCard?.cardId || '???';
+
+			await modal.showRevealedCard('Geen Raad — Card Revealed', actualCardName, actualCardType);
+
+			const didSucceed = guess === actualCardType;
+			const beforeResolve = gameState;
+			gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed, firstSlotIndex);
+			gameState.activeQuest = null;
+			if (!Array.isArray(gameState.sharedGeneralQuestDiscard)) gameState.sharedGeneralQuestDiscard = [];
+			gameState.sharedGeneralQuestDiscard.push(questRef);
+
+			renderFromState(gameState);
+			syncPush();
+
+			log.add(didSucceed ? 'gain' : 'loss',
+				`Geen Raad: guessed ${guess}, was ${actualCardType} → ${didSucceed ? '+50 MP' : '-25 MP'}`
+			);
+			logStateOutcome(log, beforeResolve, gameState, localPlayerId, 'Geen Raad? Vraag Aad! resolution');
+
+			// Aad Recovery — each player who lost MP from this quest may discard 1 card to regain 40 MP
+			let recoveryHappened = false;
+			for (const pid of [localPlayerId, opponentId]) {
+				const beforeSlot = beforeResolve.players[pid]?.activeSlots?.find(s => s && !s.isDefeated);
+				const afterSlot = gameState.players[pid]?.activeSlots?.find(s => s && !s.isDefeated);
+				if (!beforeSlot || !afterSlot || afterSlot.mp >= beforeSlot.mp) continue;
+
+				const hand = gameState.players[pid]?.hand ?? [];
+				if (hand.length === 0) continue;
+
+				const pName = gameState.players[pid]?.name ?? pid;
+				const mpLost = beforeSlot.mp - afterSlot.mp;
+				const wantsRecovery = await modal.showConfirm(
+					`${pName} — Aad Recovery`,
+					`You lost ${mpLost} MP from Geen Raad. Discard 1 card to regain 40 MP?`
+				);
+				if (!wantsRecovery) continue;
+
+				const handCards = hand.map(c => ({
+					cardId: c.cardId,
+					name: CARD_LOOKUP[c.cardId]?.name || c.cardId,
+					description: c.type || CARD_LOOKUP[c.cardId]?.type || '',
+				}));
+				const discarded = await modal.showCardChoice(`${pName} — Pick a card to discard`, handCards);
+				if (!discarded) continue;
+
+				const cardIdx = gameState.players[pid].hand.findIndex(c => c.cardId === discarded.cardId);
+				if (cardIdx !== -1) {
+					const [removed] = gameState.players[pid].hand.splice(cardIdx, 1);
+					if (!Array.isArray(gameState.players[pid].discard)) gameState.players[pid].discard = [];
+					gameState.players[pid].discard.unshift(removed);
+				}
+				const slotIdx = gameState.players[pid].activeSlots.findIndex(s => s && !s.isDefeated);
+				if (slotIdx >= 0) {
+					gameState.players[pid].activeSlots[slotIdx].mp += 40;
+				}
+				log.add('gain', `${pName} — Aad Recovery: discarded ${discarded.name}, regained 40 MP`);
+				recoveryHappened = true;
+			}
+			if (recoveryHappened) {
+				renderFromState(gameState);
+				syncPush();
+			}
+			return;
+		}
+
 		const gqSlots = gameState.players[localPlayerId].activeSlots
 			.map((slot, index) => ({ slot, index }))
 			.filter(({ slot }) => slot && !slot.isDefeated)
@@ -424,9 +535,14 @@ function initGamePage() {
 			modal.showInfo('Not Your Turn', 'You can only attempt quests on your own turn.');
 			return;
 		}
-		if (gameState.players[localPlayerId].hasAttemptedQuestThisTurn) {
-			modal.showInfo('Already Attempted', 'You have already attempted a quest this turn.');
-			return;
+		{
+			const _qhActive = gameState.activePlace === 'place_quest_haven';
+			const _maxQ = _qhActive ? 2 : 1;
+			const _attempted = gameState.players[localPlayerId].questsAttemptedThisTurn ?? (gameState.players[localPlayerId].hasAttemptedQuestThisTurn ? 1 : 0);
+			if (_attempted >= _maxQ) {
+				modal.showInfo('Already Attempted', 'You have already attempted a quest this turn.');
+				return;
+			}
 		}
 
 		const personalQuestsInHand = gameState.players[localPlayerId].hand.filter(
@@ -513,7 +629,9 @@ function initGamePage() {
 		const uiState = toBoardViewModel(state, localPlayerId);
 
 		const isLocalTurn = state.activePlayerId === localPlayerId;
-		const alreadyAttempted = state.players[localPlayerId].hasAttemptedQuestThisTurn;
+		const _qhActiveRender = state.activePlace === 'place_quest_haven';
+	const _maxQRender = _qhActiveRender ? 2 : 1;
+	const alreadyAttempted = (state.players[localPlayerId].questsAttemptedThisTurn ?? (state.players[localPlayerId].hasAttemptedQuestThisTurn ? 1 : 0)) >= _maxQRender;
 		const gameOver = state.status === 'FINISHED';
 
 		// Regular cards only on local turn; Snelle Piecies always available
@@ -565,10 +683,62 @@ function initGamePage() {
 		if (btnEndTurn) btnEndTurn.disabled = !isLocalTurn || gameOver;
 	}
 
-	function handleUseAbility(mosjeId) {
+	const WEST_CALCULATED_GUESS_IDS = new Set(['mosje_west', 'mosje_martin_senor_west']);
+
+	async function handleUseAbility(mosjeId) {
 		if (!gameState || gameState.status === 'FINISHED') return;
 
 		const beforeAbility = gameState;
+
+		// West — Tactical Calculated Guess: pick card type → reveal top of deck → resolve
+		if (WEST_CALCULATED_GUESS_IDS.has(mosjeId)) {
+			const deck = gameState.players[localPlayerId]?.deck ?? [];
+			if (deck.length === 0) {
+				modal.showInfo('Cannot Use Ability', 'Your deck is empty — Calculated Guess cannot be used.');
+				return;
+			}
+
+			const guess = await modal.showCardTypeSelector('West: Name a card type');
+			if (!guess) return;
+
+			const topCard = deck[0];
+			const topCardDef = CARD_LOOKUP[topCard?.cardId];
+			const topCardType = topCard?.type || topCardDef?.type || 'UNKNOWN';
+			const topCardName = topCardDef?.name || topCard?.cardId || '???';
+
+			await modal.showRevealedCard('Revealed: Top of Your Deck', topCardName, topCardType);
+
+			const stateForAbility = JSON.parse(JSON.stringify(gameState));
+			stateForAbility._pendingTargets = {
+				...(stateForAbility._pendingTargets || {}),
+				west_guess: guess,
+				west_top_card_type: topCardType,
+			};
+
+			const { state: newState, success, error } = useMosjeAbility(stateForAbility, localPlayerId, mosjeId);
+			if (!success) {
+				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
+				return;
+			}
+			gameState = newState;
+
+			const slot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
+			const isCorrect = guess === topCardType;
+			log.add(isCorrect ? 'gain' : 'loss',
+				`West Calculated Guess: guessed ${guess}, was ${topCardType} → ${isCorrect ? '+10 MP + draw 2' : '-10 MP'}`
+			);
+			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${slot?.name || mosjeId} ability`);
+			syncPush();
+			if (gameState.status === 'FINISHED') {
+				stopListening();
+				const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
+				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
+				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+			}
+			renderFromState(gameState);
+			return;
+		}
+
 		const { state: newState, success, error } = useMosjeAbility(gameState, localPlayerId, mosjeId);
 		if (!success) {
 			modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
@@ -773,6 +943,24 @@ function initGamePage() {
 					if (!selectedState) return;
 					snelleStateForPlay = selectedState;
 				}
+			} else if (cardDef.effectId === 'effect_snelle_lucky_coin') {
+				const isHeads = Math.random() < 0.5;
+				snelleStateForPlay = JSON.parse(JSON.stringify(gameState));
+				if (!snelleStateForPlay._pendingTargets) snelleStateForPlay._pendingTargets = {};
+				if (isHeads) {
+					snelleStateForPlay._pendingTargets.lucky_coin_result = 'heads';
+				} else {
+					const ownTargets = getPlayerMosjes(gameState, localPlayerId);
+					if (ownTargets.length > 0) {
+						const selectedId = await modal.showTargetSelector(ownTargets, 'Lucky Coin — Tails! Choose your Mosje to take 10 MP damage:');
+						if (!selectedId) return;
+						const slotIndex = parseInt(selectedId.split('_slot_')[1], 10);
+						snelleStateForPlay._pendingTargets.lucky_coin_result = 'tails';
+						if (!Number.isNaN(slotIndex)) snelleStateForPlay._pendingTargets.lucky_coin_tails_slot = slotIndex;
+					} else {
+						snelleStateForPlay._pendingTargets.lucky_coin_result = 'tails';
+					}
+				}
 			}
 
 			const { state: newState, success, error } = playSnellie(snelleStateForPlay, localPlayerId, cardRef, cardDef);
@@ -794,9 +982,14 @@ function initGamePage() {
 				modal.showInfo('Not Your Turn', 'You can only attempt quests on your own turn.');
 				return;
 			}
-			if (gameState.players[localPlayerId].hasAttemptedQuestThisTurn) {
-				modal.showInfo('Already Attempted', 'You have already attempted a quest this turn.');
-				return;
+			{
+				const _qhActive = gameState.activePlace === 'place_quest_haven';
+				const _maxQ = _qhActive ? 2 : 1;
+				const _attempted = gameState.players[localPlayerId].questsAttemptedThisTurn ?? (gameState.players[localPlayerId].hasAttemptedQuestThisTurn ? 1 : 0);
+				if (_attempted >= _maxQ) {
+					modal.showInfo('Already Attempted', 'You have already attempted a quest this turn.');
+					return;
+				}
 			}
 			if (cardDef.questType !== 'PERSONAL') {
 				modal.showInfo('Cannot Play', 'Only Personal Quests can be played from your hand.');

@@ -76,8 +76,8 @@ function createPlayerState(config) {
   // Build personal draw deck, including non-starting Mosjes from the chosen deck.
   const deck = buildDeck(deckDef, { excludeCardIds: [starterMosjeId] });
 
-  // Draw opening hand of 7 cards
-  const hand = deck.splice(0, 7);
+  // Draw opening hand of 6 cards (players draw 1 more on their first turn = 7 in hand during play)
+  const hand = deck.splice(0, 6);
 
   return {
     playerId: config.playerId,
@@ -94,6 +94,7 @@ function createPlayerState(config) {
 
     questsCompleted: 0,
     questsCompletedThisTurn: 0,
+    questsAttemptedThisTurn: 0,   // counter; Quest Haven allows up to 2 per turn
     totalDamageTaken: 0,
     questPrepBonus: 0,       // added to next Quest roll by Dubbele Dosis piecie
     questBonusMP: 0,         // next successful Quest gives this bonus MP (momentum_boost etc.)
@@ -179,7 +180,7 @@ export function getOpponentIds(gameState, playerId) {
 // initializeGame
 // Called once after createInitialGameState to deal starting hands.
 // Currently a verification/logging function since createInitialGameState
-// already deals 7 cards. Can be called for explicit initialization.
+// already deals 6 cards. Can be called for explicit initialization.
 // ─────────────────────────────────────────────────────────────
 export function initializeGame(gameState, starterDeckConfigs = null) {
   console.log('[ENGINE] Initializing game');
@@ -207,7 +208,7 @@ export function initializeGame(gameState, starterDeckConfigs = null) {
         .filter(slot => slot && slot.cardId)
         .map(slot => slot.cardId);
       const deck = buildDeck(cfg, { excludeCardIds: starterOnField });
-      const hand = deck.splice(0, 7);
+      const hand = deck.splice(0, 6);
       state.players[playerId].deck = deck;
       state.players[playerId].hand = hand;
     }
@@ -216,8 +217,8 @@ export function initializeGame(gameState, starterDeckConfigs = null) {
   for (const playerId of Object.keys(state.players)) {
     const hand = state.players[playerId].hand;
     console.log(`[ENGINE] ${playerId} hand: ${hand.length} cards | deck: ${state.players[playerId].deck.length}`);
-    if (hand.length !== 7) {
-      console.warn(`[ENGINE] Warning: expected 7 cards for ${playerId}, got ${hand.length}`);
+    if (hand.length !== 6) {
+      console.warn(`[ENGINE] Warning: expected 6 cards for ${playerId}, got ${hand.length}`);
     }
   }
 
