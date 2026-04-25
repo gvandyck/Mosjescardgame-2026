@@ -1221,7 +1221,7 @@
 }
 
 .game-hand-panel {
-   --hand-card-width: 300px;
+   --hand-card-width: 225px;
    --hand-card-height: calc(var(--hand-card-width) * var(--card-height-ratio));
 }
 
