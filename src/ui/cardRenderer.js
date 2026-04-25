@@ -175,7 +175,8 @@ export function buildMosjeCardHTML(card, gameState = null, viewingPlayerId = nul
 
   const internalLevel = Number.isFinite(Number(card.level)) ? Number(card.level) : 0;
   const displayLevel = Math.max(1, Math.min(3, internalLevel + 1));
-  const levelStars = `${'★'.repeat(displayLevel)}${'☆'.repeat(Math.max(0, 3 - displayLevel))}`;
+  const levelText = ['', 'one', 'two', 'three'][displayLevel] || 'unknown';
+  const rarityText = String(card.rarity || '').length;
 
   const currentMp = Number(card.mp ?? card.startMP ?? 0);
 
@@ -196,10 +197,15 @@ export function buildMosjeCardHTML(card, gameState = null, viewingPlayerId = nul
       <div class="mosje-full-art${hasRealArt ? '' : ' is-placeholder'}"${artStyle}></div>
       <div class="mosje-full-art-vignette"></div>
       <div class="mosje-card-content">
-        <div class="mosje-identity-v2">
-          <h3 class="mosje-name-v2">${escapeHtml(firstName)}</h3>
-          ${nickname ? `<p class="mosje-nickname-v2">${escapeHtml(nickname)}</p>` : ''}
-          <p class="mosje-type-v2">${escapeHtml(card.subtype || 'MOSJE')}</p>
+        <div class="mosje-header-v2">
+          <div class="mosje-top-section">
+            <div class="mosje-name-mp-row">
+              <h3 class="mosje-name-v2">${escapeHtml(firstName)}</h3>
+              <span class="mosje-mp-header">MP ${currentMp}</span>
+            </div>
+            ${nickname ? `<p class="mosje-nickname-v2">${escapeHtml(nickname)}</p>` : ''}
+            <p class="mosje-type-v2">${escapeHtml(card.subtype || 'MOSJE')}</p>
+          </div>
         </div>
 
         <div class="mosje-card-rule"></div>
@@ -225,9 +231,8 @@ export function buildMosjeCardHTML(card, gameState = null, viewingPlayerId = nul
         <div class="mosje-card-rule"></div>
 
         <div class="mosje-footer-stats">
-          <span class="footer-stat">${rarityDots}</span>
-          <span class="footer-stat">${levelStars}</span>
-          <span class="footer-stat mosje-mp-footer">MP ${currentMp}</span>
+          <span class="footer-stat-text">Rarity ${rarityText}</span>
+          <span class="footer-stat-text">Level ${escapeHtml(levelText)}</span>
         </div>
       </div>
     </div>

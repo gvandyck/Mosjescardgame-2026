@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mosje Card Demo - V2 Layout Experiment</title>
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/cards.css" />
+  <link rel="stylesheet" href="styles/board.css" />
+  <style>
+    body {
+      padding: 40px 20px;
+      background: linear-gradient(to bottom, #0a0e1a, #0d1117);
+      font-family: var(--font-body);
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    h1 { color: #e8b94f; font-family: var(--font-display); font-size: 2.5rem; margin-bottom: 10px; }
+    h2 { color: #c9a961; font-family: var(--font-display); font-size: 1.5rem; margin: 40px 0 20px 0; }
+    .note { color: #888; font-size: 0.95rem; margin-bottom: 20px; }
+    .demo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; margin: 30px 0; }
+
+    /* Card styling */
+    .demo-card {
+      border-radius: 8px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #1a1f2e, #2a1f3d);
+      border: 2px solid #3a4a6a;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      transition: transform 0.2s;
+    }
+    .demo-card:hover { transform: translateY(-4px); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎮 Mosje Card V2 Layout Test</h1>
+    <p class="note">Experimental layout: Name / Nickname / Type at top, traits horizontal, footer with stats</p>
+
+    <h2>V2 Layout Preview</h2>
+    <div class="demo-grid" id="cards-container"></div>
+  </div>
+
+  <script>
+    const mosjes = [
+      {
+        id: 'gandoe',
+        name: '[Gandoe] The Unpredictable Wizard',
+        subtype: 'Digital',
+        traits: { physical: 2, mental: 1, technical: 3 },
+        abilityDescription: 'Draws 2 cards when correctly guessing opponent card type',
+        rarity: '◆◆◆',
+        level: 1,
+        startMP: 20,
+        synergyWith: ['martin'],
+        synergyEffect: 'Gandoe and Martin combo for +5 MP'
+      },
+      {
+        id: 'martin',
+        name: '[Martin] The Historian',
+        subtype: 'Artistic',
+        traits: { mental: 3, social: 1 },
+        abilityDescription: 'Gains +1 dice bonus to all quest rolls',
+        rarity: '◆◆',
+        level: 0,
+        startMP: 15,
+        synergyWith: [],
+        synergyEffect: ''
+      },
+      {
+        id: 'coert',
+        name: '[Coert] The Hawaiian Tech Savant',
+        subtype: 'Digital',
+        traits: { technical: 3, creative: 1 },
+        abilityDescription: 'Can activate Piecies one turn earlier than normal',
+        rarity: '◆◆◆',
+        level: 2,
+        startMP: 25,
+        synergyWith: [],
+        synergyEffect: ''
+      }
+    ];
+
+    function createCardHTML(mosje) {
+      const traitsText = Object.entries(mosje.traits || {})
+        .filter(([, stars]) => stars > 0)
+        .map(([trait, stars]) => {
+          const filled = '★'.repeat(stars);
+          const empty = '☆'.repeat(3 - stars);
+          return `${trait.charAt(0).toUpperCase() + trait.slice(1)} ${filled}${empty}`;
+        })
+        .join(' • ');
+
+      const synergy = mosje.synergyWith.length > 0
+        ? `<div style="font-size: 0.65rem; color: #bbb; margin-top: 3px;">🔗 Synergy with ${mosje.synergyWith.join(', ')}</div>`
+        : '';
+
+      const levelStars = '★'.repeat(mosje.level + 1) + '☆'.repeat(Math.max(0, 3 - (mosje.level + 1)));
+
+      return `
+        <article class="card card--mosje" style="width: 280px; height: 410px;">
+          <div style="display: flex; flex-direction: column; gap: 0; height: 100%; overflow: hidden; background: linear-gradient(160deg, #1c1508 0%, #0e0c04 60%, #1a1205 100%);">
+            <!-- Header -->
+            <div style="padding: 12px 10px 0 10px; text-align: left;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 4px;">
+                <h3 style="font-size: 2.2rem; color: #ffffff; margin: 0; font-weight: 700; line-height: 1; flex: 1;">Gandoe</h3>
+                <span style="font-size: 2.2rem; color: #ffffff; font-weight: 700; line-height: 1; white-space: nowrap;">MP 20</span>
+              </div>
+              <p style="font-size: 0.85rem; color: #ffffff; font-style: italic; margin: 3px 0 5px 0; opacity: 0.95;">The Unpredictable Wizard</p>
+              <p style="font-size: 0.55rem; color: #888; text-transform: uppercase; margin: 0; opacity: 0.7; letter-spacing: 0.1em;">Digital</p>
+            </div>
+
+            <div style="border-bottom: 1px solid rgba(255,255,255,0.1); margin: 8px 10px;"></div>
+
+            <!-- Traits -->
+            <div style="padding: 6px 10px; font-size: 0.72rem; color: #ffffff; line-height: 1.4; text-align: left;">
+              ${traitsText}
+            </div>
+
+            <!-- Ability -->
+            <div style="flex: 1; padding: 6px 10px; overflow: hidden;">
+              <p style="font-size: 0.8rem; color: #ffffff; line-height: 1.35; margin: 0;">
+                Draws 2 cards when correctly guessing opponent card type
+              </p>
+            </div>
+
+            <!-- Synergy -->
+            <div style="padding: 0 10px; font-size: 0.68rem; color: #ffffff;">
+              🔗 Synergy with martin
+            </div>
+
+            <div style="border-bottom: 1px solid rgba(255,255,255,0.1); margin: 8px 10px;"></div>
+
+            <!-- Footer Stats -->
+            <div style="display: flex; justify-content: flex-start; align-items: center; padding: 6px 10px; gap: 12px; font-size: 0.75rem; color: #ffffff;">
+              <span>Rarity 3</span>
+              <span>Level two</span>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    const container = document.getElementById('cards-container');
+    mosjes.forEach(mosje => {
+      container.innerHTML += createCardHTML(mosje);
+    });
+  </script>
+</body>
+</html>
