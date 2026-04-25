@@ -266,10 +266,10 @@
 }
 
 .board-zone--player {
-   --mosje-slot-h: calc(240px * var(--card-height-ratio));
+   --mosje-slot-h: calc(300px * var(--card-height-ratio));
    --piecie-cell-w: 108px;
    --piecie-cell-h: calc(var(--piecie-cell-w) * var(--card-height-ratio));
-   min-height: 520px;
+   min-height: 650px;
 }
 
 .board-zone--opponent {
@@ -288,10 +288,10 @@
 
 .board-zone--player .card--mosje,
 .board-zone--player .mosje-card--owned {
-   width: 240px;
-   min-width: 240px;
-   max-width: 240px;
-   height: calc(240px * var(--card-height-ratio));
+   width: 300px;
+   min-width: 300px;
+   max-width: 300px;
+   height: calc(300px * var(--card-height-ratio));
 }
 
 .board-zone--player .mosje-card--owned .mosje-card-inner {
@@ -309,6 +309,82 @@
    overflow: visible;
    -webkit-line-clamp: unset;
    -webkit-box-orient: initial;
+}
+
+/* Player's Mosje card text sizing (1.25x) */
+.board-zone--player .card--mosje .mosje-name,
+.board-zone--player .mosje-card--owned .mosje-name {
+   font-size: 1.0rem;
+}
+
+.board-zone--player .card--mosje .mosje-subtype,
+.board-zone--player .mosje-card--owned .mosje-subtype {
+   font-size: 0.69rem;
+}
+
+.board-zone--player .card--mosje .mosje-rarity-dots,
+.board-zone--player .mosje-card--owned .mosje-rarity-dots {
+   font-size: 0.75rem;
+}
+
+.board-zone--player .card--mosje .mosje-start-mp,
+.board-zone--player .mosje-card--owned .mosje-start-mp {
+   font-size: 0.75rem;
+}
+
+.board-zone--player .card--mosje .mp-label,
+.board-zone--player .mosje-card--owned .mp-label {
+   font-size: 0.65rem;
+}
+
+.board-zone--player .card--mosje .mp-value,
+.board-zone--player .mosje-card--owned .mp-value {
+   font-size: 0.9rem;
+}
+
+.board-zone--player .card--mosje .mosje-trait,
+.board-zone--player .mosje-card--owned .mosje-trait {
+   font-size: 0.75rem;
+}
+
+.board-zone--player .card--mosje .trait-icon,
+.board-zone--player .mosje-card--owned .trait-icon {
+   font-size: 0.75rem;
+}
+
+.board-zone--player .card--mosje .section-label,
+.board-zone--player .mosje-card--owned .section-label {
+   font-size: 0.75rem;
+}
+
+.board-zone--player .card--mosje .ability-line,
+.board-zone--player .mosje-card--owned .ability-line {
+   font-size: 0.75rem;
+}
+
+.board-zone--player .card--mosje .mosje-synergy-row,
+.board-zone--player .mosje-card--owned .mosje-synergy-row {
+   font-size: 0.7rem;
+}
+
+.board-zone--player .card--mosje .synergy-with-label,
+.board-zone--player .mosje-card--owned .synergy-with-label {
+   font-size: 0.75rem;
+}
+
+.board-zone--player .card--mosje .synergy-effect-text,
+.board-zone--player .mosje-card--owned .synergy-effect-text {
+   font-size: 0.7rem;
+}
+
+.board-zone--player .card--mosje .mosje-pet-row,
+.board-zone--player .mosje-card--owned .mosje-pet-row {
+   font-size: 0.7rem;
+}
+
+.board-zone--player .card--mosje .mosje-flavour,
+.board-zone--player .mosje-card--owned .mosje-flavour {
+   font-size: 0.75rem;
 }
 
 .board-zone--opponent .card--mosje,
