@@ -179,66 +179,56 @@ export function buildMosjeCardHTML(card, gameState = null, viewingPlayerId = nul
 
   const currentMp = Number(card.mp ?? card.startMP ?? 0);
 
+  // Build horizontal traits row without emoji
+  const traitsHorizontal = Object.entries(card.traits || {})
+    .filter(([, stars]) => Number(stars) > 0)
+    .map(([trait, stars]) => {
+      const label = capitalize(trait);
+      const starCount = Number(stars) || 0;
+      const filled = '★'.repeat(starCount);
+      const empty = '☆'.repeat(Math.max(0, 3 - starCount));
+      return `${escapeHtml(label)} ${filled}${empty}`;
+    })
+    .join(' • ');
+
   return `
     <div class="mosje-card-inner">
       <div class="mosje-full-art${hasRealArt ? '' : ' is-placeholder'}"${artStyle}></div>
       <div class="mosje-full-art-vignette"></div>
       <div class="mosje-card-content">
-        <div class="mosje-banner">
-          <span class="mosje-subtype">${escapeHtml(card.subtype || 'MOSJE')}</span>
-          <span class="mosje-level-stars" title="Level ${displayLevel}">${levelStars}</span>
-          <span class="mosje-rarity-dots">${rarityDots}</span>
-        </div>
-
-        <div class="mosje-identity">
-          <h3 class="mosje-name">${escapeHtml(firstName)}</h3>
-          ${nickname ? `<p class="mosje-nickname">${escapeHtml(nickname)}</p>` : ''}
-          <div class="mosje-start-mp">
-            <span class="mp-label">MP</span>
-            <span class="mp-value">${currentMp}</span>
-          </div>
+        <div class="mosje-identity-v2">
+          <h3 class="mosje-name-v2">${escapeHtml(firstName)}</h3>
+          ${nickname ? `<p class="mosje-nickname-v2">${escapeHtml(nickname)}</p>` : ''}
+          <p class="mosje-type-v2">${escapeHtml(card.subtype || 'MOSJE')}</p>
         </div>
 
         <div class="mosje-card-rule"></div>
 
-        <div class="mosje-traits">
-          ${traitRows || '<span class="no-traits">No traits</span>'}
+        <div class="mosje-traits-horizontal">
+          ${traitsHorizontal || '<span class="no-traits">No traits</span>'}
         </div>
 
-        <div class="mosje-card-rule"></div>
-
-        <div class="mosje-ability-section">
-          <div class="section-label">✦ ABILITY</div>
-          <div class="mosje-ability-text">
+        <div class="mosje-ability-section-v2">
+          <p class="mosje-ability-text-v2">
             ${abilityLines || `<p class="ability-line">${escapeHtml(describeAbility(card.abilityId) || 'No ability.')}</p>`}
-          </div>
+          </p>
         </div>
 
         ${synergyRows
           ? `
-            <div class="mosje-card-rule"></div>
-            <div class="mosje-synergies-section">
-              <div class="section-label">🔗 SYNERGY</div>
+            <div class="mosje-synergies-section-v2">
               ${synergyRows}
             </div>
           `
           : ''}
 
-        ${petRow
-          ? `
-            <div class="mosje-card-rule"></div>
-            <div class="mosje-pet-section">
-              ${petRow}
-            </div>
-          `
-          : ''}
+        <div class="mosje-card-rule"></div>
 
-        ${card.flavourText
-          ? `
-            <div class="mosje-card-rule"></div>
-            <p class="mosje-flavour">&quot;${escapeHtml(card.flavourText)}&quot;</p>
-          `
-          : ''}
+        <div class="mosje-footer-stats">
+          <span class="footer-stat">${rarityDots}</span>
+          <span class="footer-stat">${levelStars}</span>
+          <span class="footer-stat mosje-mp-footer">MP ${currentMp}</span>
+        </div>
       </div>
     </div>
   `;
