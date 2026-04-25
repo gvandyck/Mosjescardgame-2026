@@ -110,6 +110,9 @@ export function loseMP(gameState, playerId, slotIndex, amount, source = 'DRAIN')
     console.log(`[ENGINE] ⬇️ ${mosje.name} level regression → Level ${mosje.level} | MP: ${mosje.mp}`);
   }
 
+  // Safety clamp: ensure MP is never negative (should be caught by while loop above)
+  mosje.mp = Math.max(0, mosje.mp);
+
   // Track cumulative damage taken for Personal Quest requirements (Iron Will).
   state.players[playerId].totalDamageTaken =
     (state.players[playerId].totalDamageTaken || 0) + lossAmount;
