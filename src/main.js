@@ -1312,9 +1312,8 @@ function toHandViewModel(hand) {
 }
 
 function pickOpponentDeck(localDeckId) {
-	if (localDeckId === 'PHYSICAL_FORCE') return 'ARTISTIC_RHYTHM';
-	if (localDeckId === 'ARTISTIC_RHYTHM') return 'DIGITAL_CONTROL';
-	return 'PHYSICAL_FORCE';
+	// Only Digital Control is available in starter selection (Phase 11+)
+	return 'DIGITAL_CONTROL';
 }
 
 function logStateOutcome(log, beforeState, afterState, actorId, label = 'Action') {
