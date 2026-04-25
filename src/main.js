@@ -698,8 +698,6 @@ function initGamePage() {
 			btnPersonal.textContent = `Personal Quest ⭐${questBtnLabel}`;
 		}
 		if (btnEndTurn) btnEndTurn.disabled = !isLocalTurn || gameOver;
-
-		processPendingAadRecoveryForLocalPlayer();
 	}
 
 	const WEST_CALCULATED_GUESS_IDS = new Set(['mosje_west', 'mosje_martin_senor_west']);
