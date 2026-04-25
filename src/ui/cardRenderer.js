@@ -83,6 +83,22 @@ export function renderCard(card, options = {}) {
   return element;
 }
 
+function parseMosjeName(fullName) {
+  // Parse "[FirstName] Nickname" format into { firstName, nickname }
+  const match = String(fullName || '').match(/^\[(.+?)\]\s*(.*)/);
+  if (match) {
+    return {
+      firstName: match[1],
+      nickname: match[2] || '',
+    };
+  }
+  // Fallback if format doesn't match
+  return {
+    firstName: String(fullName || 'Mosje'),
+    nickname: '',
+  };
+}
+
 export function buildMosjeCardHTML(card, gameState = null, viewingPlayerId = null) {
   const hasRealArt = typeof card.artPath === 'string'
     && card.artPath.length > 0
@@ -91,6 +107,8 @@ export function buildMosjeCardHTML(card, gameState = null, viewingPlayerId = nul
   const artStyle = hasRealArt
     ? ` style="--mosje-art-url: url('${escapeCssUrl(artUrl)}');"`
     : '';
+
+  const { firstName, nickname } = parseMosjeName(card.name);
 
   const traitRows = Object.entries(card.traits || {})
     .filter(([, stars]) => Number(stars) > 0)
@@ -173,7 +191,7 @@ export function buildMosjeCardHTML(card, gameState = null, viewingPlayerId = nul
         </div>
 
         <div class="mosje-identity">
-          <h3 class="mosje-name">${escapeHtml(card.name || 'Unnamed Mosje')}</h3>
+          <h3 class="mosje-name">${escapeHtml(firstName)}</h3>
           <div class="mosje-start-mp">
             <span class="mp-label">MP</span>
             <span class="mp-value">${currentMp}</span>
@@ -214,10 +232,10 @@ export function buildMosjeCardHTML(card, gameState = null, viewingPlayerId = nul
           `
           : ''}
 
-        ${card.flavourText
+        ${nickname
           ? `
             <div class="mosje-card-rule"></div>
-            <p class="mosje-flavour">&quot;${escapeHtml(card.flavourText)}&quot;</p>
+            <p class="mosje-flavour">&quot;${escapeHtml(nickname)}&quot;</p>
           `
           : ''}
       </div>
