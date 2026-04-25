@@ -1442,6 +1442,14 @@
   color: #ffffff;
   line-height: 1.4;
   text-align: left;
+  margin-bottom: 4px;
+}
+
+.mosje-level-text-v2 {
+  padding: 0 10px 6px 10px;
+  font-size: 0.7rem;
+  color: #ffffff;
+  text-align: left;
   margin-bottom: 6px;
 }
 
@@ -1518,13 +1526,12 @@
   justify-content: flex-start;
   align-items: center;
   padding: 6px 10px;
-  gap: 12px;
+  gap: 4px;
   font-size: 0.75rem;
 }
 
 .footer-stat-text {
   color: #ffffff;
-  font-family: var(--font-display);
   letter-spacing: 0.05em;
 }
 

@@ -214,6 +214,10 @@ export function buildMosjeCardHTML(card, gameState = null, viewingPlayerId = nul
           ${traitsHorizontal || '<span class="no-traits">No traits</span>'}
         </div>
 
+        <div class="mosje-level-text-v2">
+          Level ${escapeHtml(levelText)}
+        </div>
+
         <div class="mosje-ability-section-v2">
           <p class="mosje-ability-text-v2">
             ${abilityLines || `<p class="ability-line">${escapeHtml(describeAbility(card.abilityId) || 'No ability.')}</p>`}
@@ -231,8 +235,7 @@ export function buildMosjeCardHTML(card, gameState = null, viewingPlayerId = nul
         <div class="mosje-card-rule"></div>
 
         <div class="mosje-footer-stats">
-          <span class="footer-stat-text">Rarity ${rarityText}</span>
-          <span class="footer-stat-text">Level ${escapeHtml(levelText)}</span>
+          <span class="footer-stat-text">${rarityDots}</span>
         </div>
       </div>
     </div>
