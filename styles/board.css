@@ -1318,12 +1318,12 @@
 
 .board-zone__piecies {
    display: grid;
-   grid-template-columns: repeat(2, var(--piecie-cell-w));
-   grid-template-rows: repeat(2, var(--piecie-cell-h));
+   grid-template-columns: repeat(4, var(--piecie-cell-w));
+   grid-template-rows: var(--piecie-cell-h);
    gap: 6px;
-   width: calc((var(--piecie-cell-w) * 2) + 6px);
-   height: var(--mosje-slot-h);
-   min-height: var(--mosje-slot-h);
+   width: calc((var(--piecie-cell-w) * 4) + 18px);
+   height: auto;
+   min-height: var(--piecie-cell-h);
    align-content: start;
    justify-content: center;
    padding: 6px;
