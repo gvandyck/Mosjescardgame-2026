@@ -499,7 +499,7 @@ function initGamePage() {
 			.filter(({ slot }) => slot && !slot.isDefeated)
 			.map(({ slot, index }) => ({
 				slotIndex: index,
-				name: slot.cardId || 'Mosje',
+				name: slot.name || CARD_LOOKUP[slot.cardId]?.name || slot.cardId || 'Mosje',
 				mp: slot.mp,
 				traits: slot.traits || CARD_LOOKUP[slot.cardId]?.traits || {},
 			}));
@@ -600,7 +600,7 @@ function initGamePage() {
 			.filter(({ slot }) => slot && !slot.isDefeated)
 			.map(({ slot, index }) => ({
 				slotIndex: index,
-				name: slot.cardId || 'Mosje',
+				name: slot.name || CARD_LOOKUP[slot.cardId]?.name || slot.cardId || 'Mosje',
 				mp: slot.mp,
 				traits: slot.traits || CARD_LOOKUP[slot.cardId]?.traits || {},
 			}));
@@ -1064,7 +1064,7 @@ function initGamePage() {
 			const handQuestSlots = gameState.players[localPlayerId].activeSlots
 				.map((slot, index) => ({ slot, index }))
 				.filter(({ slot }) => slot && !slot.isDefeated)
-				.map(({ slot, index }) => ({ slotIndex: index, name: slot.cardId || 'Mosje', mp: slot.mp }));
+				.map(({ slot, index }) => ({ slotIndex: index, name: slot.name || CARD_LOOKUP[slot.cardId]?.name || slot.cardId || 'Mosje', mp: slot.mp }));
 
 			function runHandQuestDiceRoll(targetSlotIndex) {
 				modal.showDiceRoll(cardDef, threshold, (didSucceed) => {
