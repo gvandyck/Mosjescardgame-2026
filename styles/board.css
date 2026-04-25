@@ -1068,7 +1068,7 @@
    }
 
    .game-layout {
-      width: min(100%, calc(100% - 12px));
+      width: 80vw;
       margin: 0 auto 10px;
       grid-template-columns: 1fr;
       grid-template-areas:
@@ -1252,7 +1252,7 @@
 }
 
 .game-layout {
-   width: min(1280px, calc(100% - 20px));
+   width: 80vw;
    height: calc(100vh - 96px);
    margin: 0 auto 8px;
    gap: 0;
