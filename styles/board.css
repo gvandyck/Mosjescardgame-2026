@@ -1458,11 +1458,11 @@
    }
 }
 
-/* ── CARD TEXT SCALING ON BOARD ──────────────────────────────────── */
-.board-zone .card {
+/* ── PIECIE TEXT SCALING ON BOARD ──────────────────────────────────── */
+.board-zone__piecies .card {
    font-size: 1.25em;
 }
 
-.board-zone .card * {
+.board-zone__piecies .card * {
    font-size: inherit;
 }
