@@ -192,6 +192,7 @@ export function buildMosjeCardHTML(card, gameState = null, viewingPlayerId = nul
 
         <div class="mosje-identity">
           <h3 class="mosje-name">${escapeHtml(firstName)}</h3>
+          ${nickname ? `<p class="mosje-nickname">${escapeHtml(nickname)}</p>` : ''}
           <div class="mosje-start-mp">
             <span class="mp-label">MP</span>
             <span class="mp-value">${currentMp}</span>
@@ -232,10 +233,10 @@ export function buildMosjeCardHTML(card, gameState = null, viewingPlayerId = nul
           `
           : ''}
 
-        ${nickname
+        ${card.flavourText
           ? `
             <div class="mosje-card-rule"></div>
-            <p class="mosje-flavour">&quot;${escapeHtml(nickname)}&quot;</p>
+            <p class="mosje-flavour">&quot;${escapeHtml(card.flavourText)}&quot;</p>
           `
           : ''}
       </div>

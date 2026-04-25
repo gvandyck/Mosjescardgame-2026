@@ -297,6 +297,11 @@
   font-size: 1.64rem;
 }
 
+.hand-cards .mosje-nickname,
+.hand-strip .mosje-nickname {
+  font-size: 0.73rem;
+}
+
 .hand-cards .mosje-subtype,
 .hand-strip .mosje-subtype {
   font-size: 1.1rem;
@@ -656,6 +661,16 @@
   line-height: 1.1;
   flex: 1;
   color: var(--mosje-gold);
+  margin-bottom: 2px;
+}
+
+.mosje-nickname {
+  font-size: 0.58rem;
+  color: #a89968;
+  font-style: italic;
+  margin: 0;
+  line-height: 1.2;
+  opacity: 0.9;
 }
 
 .mosje-start-mp {

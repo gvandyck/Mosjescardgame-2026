@@ -317,6 +317,11 @@
    font-size: 1.0rem;
 }
 
+.board-zone--player .card--mosje .mosje-nickname,
+.board-zone--player .mosje-card--owned .mosje-nickname {
+   font-size: 0.73rem;
+}
+
 .board-zone--player .card--mosje .mosje-subtype,
 .board-zone--player .mosje-card--owned .mosje-subtype {
    font-size: 0.69rem;
