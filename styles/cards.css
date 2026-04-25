@@ -271,6 +271,102 @@
   border-radius: 4px;
 }
 
+/* ── Hand card text scaling (2x font sizes) ────────────────────────── */
+.hand-cards .card__name,
+.hand-strip .card__name {
+  font-size: 2.7rem;
+}
+
+.hand-cards .card__desc,
+.hand-strip .card__desc {
+  font-size: 1.2rem;
+}
+
+.hand-cards .card__type-label,
+.hand-strip .card__type-label {
+  font-size: 1.32rem;
+}
+
+.hand-cards .card__difficulty,
+.hand-strip .card__difficulty {
+  font-size: 1.2rem;
+}
+
+.hand-cards .mosje-name,
+.hand-strip .mosje-name {
+  font-size: 1.64rem;
+}
+
+.hand-cards .mosje-subtype,
+.hand-strip .mosje-subtype {
+  font-size: 1.1rem;
+}
+
+.hand-cards .mosje-rarity-dots,
+.hand-strip .mosje-rarity-dots {
+  font-size: 1.2rem;
+}
+
+.hand-cards .mosje-start-mp,
+.hand-strip .mosje-start-mp {
+  font-size: 1.2rem;
+}
+
+.hand-cards .mosje-level-stars,
+.hand-strip .mosje-level-stars {
+  font-size: 1.2rem;
+}
+
+.hand-cards .mosje-trait,
+.hand-strip .mosje-trait {
+  font-size: 1.2rem;
+}
+
+.hand-cards .trait-icon,
+.hand-strip .trait-icon {
+  font-size: 1.2rem;
+}
+
+.hand-cards .trait-name,
+.hand-strip .trait-name {
+  font-size: 1.2rem;
+}
+
+.hand-cards .trait-stars,
+.hand-strip .trait-stars {
+  font-size: 1.2rem;
+}
+
+.hand-cards .mosje-ability-section,
+.hand-strip .mosje-ability-section {
+  font-size: 1.1rem;
+}
+
+.hand-cards .section-label,
+.hand-strip .section-label {
+  font-size: 1.2rem;
+}
+
+.hand-cards .ability-line,
+.hand-strip .ability-line {
+  font-size: 1.2rem;
+}
+
+.hand-cards .mosje-flavour,
+.hand-strip .mosje-flavour {
+  font-size: 1.2rem;
+}
+
+.hand-cards .place-name,
+.hand-strip .place-name {
+  font-size: 2.7rem;
+}
+
+.hand-cards .place-effect-text,
+.hand-strip .place-effect-text {
+  font-size: 1.2rem;
+}
+
 @keyframes card-play {
   0% { transform: translateY(-40px) scale(0.8); opacity: 0; }
   60% { transform: translateY(4px) scale(1.02); opacity: 1; }
