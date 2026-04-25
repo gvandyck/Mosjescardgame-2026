@@ -201,7 +201,7 @@ export function buildMosjeCardHTML(card, gameState = null, viewingPlayerId = nul
           <div class="mosje-top-section">
             <div class="mosje-name-mp-row">
               <h3 class="mosje-name-v2">${escapeHtml(firstName)}</h3>
-              <span class="mosje-mp-header">MP ${currentMp}</span>
+              <span class="mosje-mp-header">${currentMp}</span>
             </div>
             ${nickname ? `<p class="mosje-nickname-v2">${escapeHtml(nickname)}</p>` : ''}
             <p class="mosje-type-v2">${escapeHtml(card.subtype || 'MOSJE')}</p>
