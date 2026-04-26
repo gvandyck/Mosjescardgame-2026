@@ -434,6 +434,13 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
   let player = state.players[playerId];
   if (!player) return { state, success: false, error: 'Player not found' };
 
+  // Check if all 4 Piecie slots are full — cannot play Snelle Piecie if board is full
+  const piecieSlots = player.piecieSlots || [];
+  const filledSlots = piecieSlots.filter(slot => slot !== null && slot !== undefined).length;
+  if (filledSlots >= 4) {
+    return { state, success: false, error: 'Cannot play Snelle Piecie — all Piecie slots are full.' };
+  }
+
   // Defensive normalization for synced multiplayer states
   if (!Array.isArray(player.hand)) player.hand = [];
   if (!Array.isArray(player.discard)) player.discard = [];
