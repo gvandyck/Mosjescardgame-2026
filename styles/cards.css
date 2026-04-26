@@ -1460,8 +1460,15 @@
   flex-direction: column;
   gap: 0;
   min-height: 0;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   margin-bottom: 6px;
+  cursor: grab;
+  scroll-behavior: smooth;
+}
+
+.mosje-ability-section-v2:active {
+  cursor: grabbing;
 }
 
 .mosje-ability-text-v2 {

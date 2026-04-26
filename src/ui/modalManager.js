@@ -365,6 +365,43 @@ export function initModalManager(container) {
 		});
 
 		container.querySelector('#modal-cancel-quest')?.addEventListener('click', close);
+
+		// Initialize drag-to-scroll for ability section
+		const abilitySection = previewEl.querySelector('.mosje-ability-section-v2');
+		if (abilitySection) {
+			initDragScroll(abilitySection);
+		}
+	}
+
+	function initDragScroll(element) {
+		let isDown = false;
+		let startY = 0;
+		let scrollTop = 0;
+
+		element.addEventListener('mousedown', (e) => {
+			isDown = true;
+			startY = e.pageY - element.offsetTop;
+			scrollTop = element.scrollTop;
+			element.style.cursor = 'grabbing';
+		});
+
+		element.addEventListener('mouseleave', () => {
+			isDown = false;
+			element.style.cursor = 'grab';
+		});
+
+		element.addEventListener('mouseup', () => {
+			isDown = false;
+			element.style.cursor = 'grab';
+		});
+
+		element.addEventListener('mousemove', (e) => {
+			if (!isDown) return;
+			e.preventDefault();
+			const y = e.pageY - element.offsetTop;
+			const walk = (y - startY) * 1.5;
+			element.scrollTop = scrollTop - walk;
+		});
 	}
 
 	function showPlaceDetailModal(place) {
