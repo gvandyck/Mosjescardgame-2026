@@ -634,6 +634,122 @@ export function initModalManager(container) {
 		container.querySelector('#modal-close-discard')?.addEventListener('click', close);
 	}
 
+	// Discard recovery modal — allows selecting cards to recover from discard.
+	// config: { playerId, playerName, discardCards, requiredCount, filter?, onRecover(selectedCardIds) }
+	// RECOVERY MODE: shows selectable cards, confirm button appears when right count selected
+	// Returns a promise that resolves with selected card IDs
+	async function showDiscardRecoveryModal(config = {}) {
+		const {
+			playerName = 'Player',
+			discardCards = [],
+			requiredCount = 1,
+			filter = null,
+			onRecover = null,
+		} = config;
+
+		return new Promise(resolve => {
+			const cardCount = discardCards.length;
+			const selectedIds = new Set();
+
+			if (cardCount === 0) {
+				container.classList.add('modal-root--open');
+				container.innerHTML = `
+					<div class="modal-backdrop"></div>
+					<section class="modal-card" role="dialog" aria-modal="true">
+						<h3>Recover from Discard</h3>
+						<p>Discard pile is empty. No cards to recover.</p>
+						<button class="modal-btn" id="modal-recovery-done">OK</button>
+					</section>
+				`;
+				container.querySelector('#modal-recovery-done')?.addEventListener('click', () => {
+					close();
+					if (typeof onRecover === 'function') onRecover([]);
+					resolve([]);
+				});
+				return;
+			}
+
+			const filteredCards = filter
+				? discardCards.filter(id => {
+					// Simple filter: check if card ID contains the filter keyword
+					return String(id).toLowerCase().includes(String(filter).toLowerCase());
+				})
+				: discardCards;
+
+			const cardRows = filteredCards.map((cardId) => {
+				const displayName = String(cardId).replace(/_/g, ' ');
+				return `<li class="recovery-card-option" data-card-id="${escapeHtml(String(cardId))}">
+					<input type="checkbox" id="recovery-${escapeHtml(String(cardId))}" />
+					<label for="recovery-${escapeHtml(String(cardId))}">${escapeHtml(displayName)}</label>
+				</li>`;
+			}).join('');
+
+			const progressText = `(Select ${requiredCount}/${requiredCount})`;
+
+			container.classList.add('modal-root--open');
+			container.innerHTML = `
+				<div class="modal-backdrop"></div>
+				<section class="modal-card" role="dialog" aria-modal="true">
+					<h3>Recover from Discard</h3>
+					<p>Select ${requiredCount} card${requiredCount !== 1 ? 's' : ''} to recover from ${escapeHtml(playerName)}'s discard.</p>
+					<div class="recovery-progress" id="recovery-progress">${progressText}</div>
+					<ul class="recovery-card-list">${cardRows}</ul>
+					<div class="modal-actions">
+						<button class="modal-btn" id="modal-recovery-confirm" type="button" disabled>Confirm Selection</button>
+						<button class="modal-btn modal-btn--ghost" id="modal-recovery-cancel" type="button">Cancel</button>
+					</div>
+				</section>
+			`;
+
+			const confirmBtn = container.querySelector('#modal-recovery-confirm');
+			const progressEl = container.querySelector('#recovery-progress');
+			const checkboxes = container.querySelectorAll('.recovery-card-option input');
+
+			const updateProgress = () => {
+				const count = selectedIds.size;
+				const isComplete = count === requiredCount;
+				if (confirmBtn) {
+					confirmBtn.disabled = !isComplete;
+				}
+				if (progressEl) {
+					progressEl.textContent = `(Select ${requiredCount - count}/${requiredCount})`;
+					progressEl.classList.toggle('recovery-progress--complete', isComplete);
+				}
+			};
+
+			checkboxes.forEach(checkbox => {
+				const cardId = checkbox.closest('.recovery-card-option')?.dataset.cardId;
+				checkbox.addEventListener('change', (e) => {
+					if (e.target.checked) {
+						if (selectedIds.size < requiredCount) {
+							selectedIds.add(cardId);
+						} else {
+							e.target.checked = false;
+						}
+					} else {
+						selectedIds.delete(cardId);
+					}
+					updateProgress();
+				});
+			});
+
+			confirmBtn?.addEventListener('click', () => {
+				close();
+				const selected = Array.from(selectedIds);
+				if (typeof onRecover === 'function') onRecover(selected);
+				resolve(selected);
+			});
+
+			container.querySelector('#modal-recovery-cancel')?.addEventListener('click', () => {
+				close();
+				if (typeof onRecover === 'function') onRecover(null);
+				resolve(null);
+			});
+
+			updateProgress();
+		});
+	}
+
 	return {
 		showInfo,
 		showDiceRoll,
@@ -651,6 +767,7 @@ export function initModalManager(container) {
 		showOpponentHandRevealModal,
 		showMosjeSelect,
 		showDiscardViewerModal,
+		showDiscardRecoveryModal,
 		close,
 	};
 }

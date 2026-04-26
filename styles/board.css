@@ -1279,6 +1279,60 @@
 	}
 }
 
+/* ── DISCARD RECOVERY MODAL ──────────────────────────────────────── */
+.recovery-progress {
+	font-size: 0.85rem;
+	color: #b0bcdf;
+	text-align: center;
+	margin-bottom: 12px;
+	transition: color 0.3s;
+}
+
+.recovery-progress--complete {
+	color: #10b981;
+	font-weight: 600;
+}
+
+.recovery-card-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	gap: 6px;
+	max-height: 320px;
+	overflow-y: auto;
+	margin-bottom: 12px;
+}
+
+.recovery-card-option {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 12px;
+	background: #1b2444;
+	border: 1px solid #38549a;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: background-color 0.2s, border-color 0.2s;
+}
+
+.recovery-card-option:hover {
+	background-color: #253369;
+	border-color: var(--piecie-blue);
+}
+
+.recovery-card-option input[type="checkbox"] {
+	cursor: pointer;
+	accent-color: var(--piecie-blue);
+}
+
+.recovery-card-option label {
+	flex: 1;
+	cursor: pointer;
+	color: #e6ebff;
+	font-size: 0.9rem;
+}
+
 /* ── MOBILE ──────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
    html,
