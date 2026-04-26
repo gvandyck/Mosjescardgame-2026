@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MOSJES - Test Game (Discard Pile & Recovery)</title>
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/board.css" />
+  <link rel="stylesheet" href="styles/cards.css" />
+  <style>
+    .test-toolbar {
+      position: fixed;
+      top: 0;
+      right: 0;
+      background: rgba(10, 14, 24, 0.95);
+      border: 2px solid #e8b94f;
+      border-radius: 0 0 0 12px;
+      padding: 15px;
+      z-index: 1000;
+      max-width: 350px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .test-toolbar h3 {
+      color: #e8b94f;
+      margin: 0 0 15px 0;
+      font-size: 0.95rem;
+    }
+    .test-btn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-align: left;
+    }
+    .test-btn:hover {
+      opacity: 0.9;
+    }
+    .test-btn.small {
+      padding: 6px 10px;
+      font-size: 0.75rem;
+      margin-bottom: 4px;
+    }
+    .test-section {
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .test-label {
+      font-size: 0.75rem;
+      color: #9099b7;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body class="page page--game">
+  <div class="bg-noise" aria-hidden="true"></div>
+  <div id="app-version" class="app-version-badge">Test Game v1.0</div>
+
+  <header class="game-topbar">
+    <h1>MOSJES Arena - TEST</h1>
+    <p id="turn-label">Initializing...</p>
+    <div class="topbar-flow" id="topbar-flow">
+      <div class="topbar-flow__item">Place: <strong id="topbar-place">None</strong></div>
+    </div>
+  </header>
+
+  <main class="game-layout">
+    <section class="game-board" id="board-root" aria-label="Game board"></section>
+    <section class="game-hand-panel">
+      <div id="hand-root" class="hand-strip"></div>
+    </section>
+  </main>
+
+  <div id="modal-root" class="modal-root"></div>
+
+  <div class="test-toolbar">
+    <h3>🧪 TEST CONTROLS</h3>
+
+    <div class="test-section">
+      <div class="test-label">Discard Piles</div>
+      <button class="test-btn small" onclick="testAddDiscard('opponent', 3)">+3 cards to Opponent</button>
+      <button class="test-btn small" onclick="testAddDiscard('player', 5)">+5 cards to Player</button>
+      <button class="test-btn small" onclick="testClearDiscard('both')">Clear All</button>
+    </div>
+
+    <div class="test-section">
+      <div class="test-label">Recovery System</div>
+      <button class="test-btn small" onclick="testRecovery(1, 'hand')">Recovery: 1 → Hand</button>
+      <button class="test-btn small" onclick="testRecovery(2, 'deck')">Recovery: 2 → Deck</button>
+      <button class="test-btn small" onclick="testRecovery(1, 'field')">Recovery: 1 → Field</button>
+    </div>
+
+    <div class="test-section">
+      <div class="test-label">Quest Test</div>
+      <button class="test-btn small" onclick="testQuestSuccess()">Test Quest Success</button>
+    </div>
+
+    <div class="test-section" style="border: none; padding: 0; color: #9099b7; font-size: 0.75rem; line-height: 1.4;">
+      <strong>Features visible:</strong>
+      ✓ Discard pile rendering<br>
+      ✓ Count badges<br>
+      ✓ Empty state<br>
+      ✓ Recovery modal<br>
+      ✓ Card selection<br>
+      ✓ Progress tracking
+    </div>
+  </div>
+
+  <script type="module">
+    import { renderBoard } from './src/ui/boardRenderer.js';
+    import { initModalManager } from './src/ui/modalManager.js';
+    import { renderHand } from './src/ui/handRenderer.js';
+
+    let gameState = {
+      players: {
+        player_1: {
+          id: 'player_1',
+          name: 'Opponent',
+          mosjes: [],
+          hand: [],
+          deck: [],
+          discard: [],
+          piecieSlots: [
+            { faceDown: false, cardId: 'afblijven' },
+            { faceDown: false, cardId: 'bagga-of-greed' },
+            { faceDown: true },
+            { faceDown: true }
+          ],
+          activeMosjeIndex: 0,
+          totalDamageTaken: 0,
+          flags: {}
+        },
+        player_2: {
+          id: 'player_2',
+          name: 'You',
+          mosjes: [],
+          hand: [],
+          deck: [],
+          discard: [],
+          piecieSlots: [
+            { faceDown: false, cardId: 'controller' },
+            { faceDown: false, cardId: 'keyboard' },
+            { faceDown: false, cardId: 'mouse' },
+            { faceDown: true }
+          ],
+          activeMosjeIndex: 0,
+          totalDamageTaken: 0,
+          flags: {}
+        }
+      },
+      activePlace: null,
+      activeQuest: null,
+      currentPhase: 'MAIN'
+    };
+
+    let localPlayerId = 'player_2';
+    const boardRoot = document.getElementById('board-root');
+    const modalRoot = document.getElementById('modal-root');
+    const modal = initModalManager(modalRoot);
+
+    // Initialize with mock Mosjes
+    gameState.players.player_1.mosjes = [
+      { cardId: 'ronald-the-master-chef', isDefeated: false, abilityUsedThisTurn: false, mp: 45, level: 1 }
+    ];
+    gameState.players.player_2.mosjes = [
+      { cardId: 'jisca-the-maestro', isDefeated: false, abilityUsedThisTurn: false, mp: 55, level: 1 }
+    ];
+
+    function render() {
+      const myPlayer = gameState.players[localPlayerId];
+      const opponent = Object.values(gameState.players).find(p => p.id !== localPlayerId);
+
+      const uiState = {
+        gameState: gameState,
+        myPlayerId: localPlayerId,
+        players: {
+          top: opponent,
+          bottom: myPlayer
+        },
+        activePlayerName: myPlayer.name,
+        activePlaceName: gameState.activePlace ? 'Active Place' : 'None',
+        currentPhase: gameState.currentPhase
+      };
+
+      renderBoard(boardRoot, uiState);
+      document.getElementById('turn-label').textContent = 'Test Mode - Your Turn';
+    }
+
+    // Test functions
+    window.testAddDiscard = function(player, count) {
+      const cardNames = ['ronald-kip', 'broodje-doner', 'kannetje-melk', 'snoeiertje', 'momentum-diefje', 'tikker'];
+      const target = player === 'opponent' ? gameState.players.player_1 : gameState.players.player_2;
+
+      target.discard = [];
+      for (let i = 0; i < count; i++) {
+        target.discard.push(cardNames[i % cardNames.length]);
+      }
+      render();
+      console.log(`✓ Added ${count} cards to ${player}'s discard`);
+    };
+
+    window.testClearDiscard = function(target) {
+      if (target === 'both' || target === 'opponent') {
+        gameState.players.player_1.discard = [];
+      }
+      if (target === 'both' || target === 'player') {
+        gameState.players.player_2.discard = [];
+      }
+      render();
+      console.log('✓ Cleared discard piles');
+    };
+
+    window.testRecovery = async function(count, destination) {
+      const myPlayer = gameState.players[localPlayerId];
+      const cards = myPlayer.discard.length > 0 ? myPlayer.discard : ['ronald-kip', 'broodje-doner', 'kannetje-melk', 'snoeiertje'];
+
+      console.log(`🔄 Opening recovery modal: ${count} cards to ${destination}`);
+
+      const selected = await modal.showDiscardRecoveryModal({
+        playerName: myPlayer.name,
+        discardCards: cards,
+        requiredCount: count,
+        filter: destination === 'field' ? 'piecie' : null,
+        onRecover: (selectedIds) => {
+          if (selectedIds) {
+            console.log('✓ Cards selected:', selectedIds);
+            // Simulate moving cards
+            if (destination === 'hand') {
+              myPlayer.hand.push(...selectedIds);
+            } else if (destination === 'deck') {
+              myPlayer.deck.push(...selectedIds);
+            } else if (destination === 'field') {
+              // Add to next available face-down slot
+              const firstEmpty = myPlayer.piecieSlots.findIndex(s => s.faceDown && !s.cardId);
+              if (firstEmpty >= 0) {
+                myPlayer.piecieSlots[firstEmpty].cardId = selectedIds[0];
+              }
+            }
+            // Remove from discard
+            selectedIds.forEach(id => {
+              const idx = myPlayer.discard.indexOf(id);
+              if (idx >= 0) myPlayer.discard.splice(idx, 1);
+            });
+            render();
+          }
+        }
+      });
+    };
+
+    window.testQuestSuccess = async function() {
+      const myPlayer = gameState.players[localPlayerId];
+
+      // Set up some discard for recovery
+      if (myPlayer.discard.length === 0) {
+        myPlayer.discard = ['broodje-doner', 'kannetje-melk', 'snoeiertje'];
+      }
+
+      // Show quest success message
+      await modal.showInfo(
+        '✅ Calculate Odds - Success!',
+        'You rolled a 5 and needed 4+.\n\n+20 MP gained!\n\nNow recovering 1 card from discard...'
+      );
+
+      // Automatically show recovery modal for the quest success
+      await testRecovery(1, 'hand');
+    };
+
+    // Initial render
+    console.log('🎮 Test game initialized');
+    render();
+  </script>
+</body>
+</html>

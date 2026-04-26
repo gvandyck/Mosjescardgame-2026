@@ -5,4 +5,5 @@ export interface PlaceInstance {
   readonly cardId: CardId;
   readonly flags: Readonly<Record<string, unknown>>;
   readonly subscribedTriggers: ReadonlyArray<PlaceTrigger>;
+  readonly playerId: string;
 }

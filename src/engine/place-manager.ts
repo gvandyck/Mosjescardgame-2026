@@ -100,7 +100,8 @@ export function enterPlace(state: GameState, cardId: CardId): GameState {
     activePlace: {
       cardId,
       flags: {},
-      subscribedTriggers: place?.triggers ?? []
+      subscribedTriggers: place?.triggers ?? [],
+      playerId: next.currentPlayerId
     }
   };
 
@@ -111,6 +112,7 @@ export function exitPlace(state: GameState): GameState {
   if (state.activePlace === null) return state;
 
   const placeCardId = state.activePlace.cardId;
+  const placePlayerId = state.activePlace.playerId;
   const place = resolvePlace(placeCardId);
 
   let next = state;
@@ -118,8 +120,19 @@ export function exitPlace(state: GameState): GameState {
     next = runEffectsForPlayer(next, placeCardId, place.onExitEffects, next.currentPlayerId);
   }
 
+  // Move Place card to the player's discard (U3: Replaced Place cards go to player's discard)
+  const playerIndex = next.players.findIndex((p) => p.id === placePlayerId);
+  let finalState = next;
+  if (playerIndex >= 0) {
+    const updatedPlayers = next.players.map((player, index) => {
+      if (index !== playerIndex) return player;
+      return { ...player, discard: [...player.discard, placeCardId] };
+    });
+    finalState = { ...next, players: updatedPlayers };
+  }
+
   const withoutPlace: GameState = {
-    ...next,
+    ...finalState,
     activePlace: null
   };
 

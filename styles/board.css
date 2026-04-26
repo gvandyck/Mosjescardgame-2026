@@ -266,6 +266,11 @@
    flex: 0 0 auto;
 }
 
+.discard-pile-container {
+   margin-left: auto;
+   flex: 0 0 auto;
+}
+
 .board-zone__slots {
    display: flex;
    gap: 12px;
