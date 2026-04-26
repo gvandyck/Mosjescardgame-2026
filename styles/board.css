@@ -270,20 +270,6 @@
    flex: 0 0 auto;
 }
 
-/* Visual drag handle indicator */
-.board-zone__row::after {
-   content: '⋯⋯⋯';
-   position: sticky;
-   right: 8px;
-   bottom: -8px;
-   flex-shrink: 0;
-   color: rgba(255, 255, 255, 0.3);
-   font-size: 0.8rem;
-   letter-spacing: 2px;
-   user-select: none;
-   pointer-events: none;
-}
-
 .board-zone__slots {
    display: flex;
    gap: 12px;
