@@ -677,16 +677,13 @@
 }
 
 .place-footer {
-  padding: 0;
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0;
+  gap: 4px;
+  font-size: 0.75rem;
   flex-shrink: 0;
-}
-
-.place-rarity {
-  font-size: 0.6rem;
-  opacity: 0.6;
-  letter-spacing: -0.5px;
 }
 
 /* ── Kannetje Melk Piecie Full-Art Card ────────────────────── */

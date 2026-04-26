@@ -264,7 +264,10 @@ export function buildPlaceCardHTML(card) {
     .map(t => `<span class="place-tag">${escapeHtml(t)}</span>`)
     .join('');
 
-  const rarityStars = escapeHtml(String(card.rarity || '★★★☆☆'));
+  const rarityDots = String(card.rarity || '◆')
+    .split('')
+    .map((dot) => `<span class="rarity-dot">${escapeHtml(dot)}</span>`)
+    .join('');
 
   return `
     <div class="place-card-inner">
@@ -297,7 +300,7 @@ export function buildPlaceCardHTML(card) {
         ` : ''}
 
         <div class="place-footer">
-          <span class="place-rarity">${rarityStars}</span>
+          <span class="footer-stat-text">${rarityDots}</span>
         </div>
       </div>
     </div>
