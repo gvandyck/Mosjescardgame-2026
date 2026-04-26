@@ -1262,15 +1262,11 @@
 .board-zone__slots,
 .board-zone__piecies {
    background: transparent;
-   border: 1px solid rgba(255, 255, 255, 0.08);
-   border-radius: 12px;
 }
 
 /* ── PIECIE SLOTS ────────────────────────────────────────────────── */
 .piecie-slot {
    background: transparent;
-   border: 1px dashed rgba(255, 255, 255, 0.12);
-   border-radius: 10px;
 }
 
 /* ── GAME LOG ────────────────────────────────────────────────────── */
