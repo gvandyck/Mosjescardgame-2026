@@ -14,7 +14,8 @@
       "Bash(git push *)",
       "Bash(gh pr create --title 'fix\\(quests\\): correct threshold lookup + Mosje selector with trait display' --body ' *)",
       "Bash(cd c:\\\\\\\\Users\\\\\\\\Gandoe\\\\\\\\Documents\\\\\\\\GitHub\\\\\\\\Mosjescardgame-2026)",
-      "Bash(xargs basename *)"
+      "Bash(xargs basename *)",
+      "Bash(xargs -I {} bash -c 'echo \"=== {} ===\" && head -20 {}')"
     ]
   }
 }

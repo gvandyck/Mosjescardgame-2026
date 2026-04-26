@@ -487,8 +487,33 @@ export function executeCard(
     }
   }
 
-  // Step 7: Emit card_resolved event
-  return appendEvent(afterDouble, {
+  // Step 7: Move card to discard if it's a one-shot card type (Snelle Piecie or Personal Quest)
+  let finalState = afterDouble;
+  const isOneShot = card.category === "snelle-piecie" ||
+                    (card.category === "quest" && card.isBoosterOnly === true);
+
+  if (isOneShot) {
+    const playerIndex = finalState.players.findIndex((p) => p.id === invocation.actingPlayerId);
+    if (playerIndex >= 0) {
+      const player = finalState.players[playerIndex];
+      const cardInHand = player.hand.includes(cardId);
+
+      if (cardInHand) {
+        const updatedPlayer = {
+          ...player,
+          hand: player.hand.filter((id) => id !== cardId),
+          discard: [...player.discard, cardId]
+        };
+        const updatedPlayers = finalState.players.map((p, idx) =>
+          idx === playerIndex ? updatedPlayer : p
+        );
+        finalState = { ...finalState, players: updatedPlayers };
+      }
+    }
+  }
+
+  // Step 8: Emit card_resolved event
+  return appendEvent(finalState, {
     type: "card_resolved",
     cardId,
     playerId: invocation.actingPlayerId,
