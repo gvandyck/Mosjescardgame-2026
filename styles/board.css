@@ -7,7 +7,7 @@
       'topbar'
       'main'
       'hand';
-   gap: 20px;
+   gap: 0 0 20px 0;
    padding: 0;
    position: relative;
    z-index: 1;
@@ -16,17 +16,18 @@
 
 .game-topbar {
    grid-area: topbar;
-   width: 95vw;
-   margin: 10px auto 0;
-   background: linear-gradient(140deg, rgba(22, 22, 22, 0.95), rgba(15, 15, 15, 0.95));
+   width: 100%;
+   margin: 0;
+   background: var(--board-felt);
    border: none;
    border-radius: 0;
-   padding: 12px 16px;
+   padding: 16px 12px;
    display: flex;
    align-items: center;
    gap: 12px;
    flex-wrap: wrap;
    box-shadow: none;
+   border-bottom: 1px solid rgba(200, 200, 200, 0.08);
 }
 
 .game-topbar h1 {
