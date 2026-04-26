@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find \"c:\\\\\\\\Users\\\\\\\\Gandoe\\\\\\\\Documents\\\\\\\\GitHub\\\\\\\\Mosjescardgame-2026\" -type f \\\\\\( -name \"*.tsx\" -o -name \"*.ts\" -o -name \"*.jsx\" -o -name \"*.js\" \\\\\\))",
+      "Bash(find \"c:\\\\\\\\Users\\\\\\\\Gandoe\\\\\\\\Documents\\\\\\\\GitHub\\\\\\\\Mosjescardgame-2026/src\" -type f \\\\\\( -name \"*.tsx\" -o -name \"*.ts\" -o -name \"*.jsx\" -o -name \"*.js\" \\\\\\))",
+      "Bash(find \"c:\\\\\\\\Users\\\\\\\\Gandoe\\\\\\\\Documents\\\\\\\\GitHub\\\\\\\\Mosjescardgame-2026/src\" -type f \\\\\\( -name \"*selector*\" -o -name \"*modal*\" \\\\\\))",
+      "Bash(find \"c:\\\\\\\\Users\\\\\\\\Gandoe\\\\\\\\Documents\\\\\\\\GitHub\\\\\\\\Mosjescardgame-2026\" -type f -name \"*.js\" -o -name \"*.ts\" -o -name \"*.jsx\" -o -name \"*.tsx\")",
+      "Bash(xargs grep *)",
+      "Bash(ls -la \"c:\\\\\\\\Users\\\\\\\\Gandoe\\\\\\\\Documents\\\\\\\\GitHub\\\\\\\\Mosjescardgame-2026/src/ui/\")",
+      "Bash(git checkout *)",
+      "Bash(npm test *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(gh pr create --title 'fix\\(quests\\): correct threshold lookup + Mosje selector with trait display' --body ' *)"
+    ]
+  }
+}

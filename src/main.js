@@ -525,10 +525,22 @@ function initGamePage() {
 			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus, forceReroll, skiffaRerolls });
 		}
 
+		function showQuestPreviewThenRoll(targetSlotIndex) {
+			const targetMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
+			if (targetMosje) {
+				const thresholdForMosje = getQuestDiceThreshold(questDef, targetMosje);
+				modal.showQuestAttemptPreview(targetMosje, questDef, thresholdForMosje, () => {
+					runGeneralQuestDiceRoll(targetSlotIndex);
+				});
+			} else {
+				runGeneralQuestDiceRoll(targetSlotIndex);
+			}
+		}
+
 		if (gqSlots.length > 1) {
-			modal.showMosjeSelect(gqSlots, runGeneralQuestDiceRoll, questDef);
+			modal.showMosjeSelect(gqSlots, showQuestPreviewThenRoll, questDef);
 		} else {
-			runGeneralQuestDiceRoll(gqSlots[0]?.slotIndex ?? 0);
+			showQuestPreviewThenRoll(gqSlots[0]?.slotIndex ?? 0);
 		}
 	});
 
@@ -622,10 +634,22 @@ function initGamePage() {
 			}, { diceBonus: diceBonus2 + questPrepBonus2 + placeDiceBonus2, forceReroll: forceReroll2, skiffaRerolls: skiffaRerolls2 });
 		}
 
+		function showPersonalQuestPreviewThenRoll(targetSlotIndex) {
+			const targetMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
+			if (targetMosje) {
+				const thresholdForMosje = getQuestDiceThreshold(questDef, targetMosje);
+				modal.showQuestAttemptPreview(targetMosje, questDef, thresholdForMosje, () => {
+					runPersonalQuestDiceRoll(targetSlotIndex);
+				});
+			} else {
+				runPersonalQuestDiceRoll(targetSlotIndex);
+			}
+		}
+
 		if (pqSlots.length > 1) {
-			modal.showMosjeSelect(pqSlots, runPersonalQuestDiceRoll, questDef);
+			modal.showMosjeSelect(pqSlots, showPersonalQuestPreviewThenRoll, questDef);
 		} else {
-			runPersonalQuestDiceRoll(pqSlots[0]?.slotIndex ?? 0);
+			showPersonalQuestPreviewThenRoll(pqSlots[0]?.slotIndex ?? 0);
 		}
 	});
 
@@ -1081,10 +1105,22 @@ function initGamePage() {
 				}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus, forceReroll, skiffaRerolls });
 			}
 
+			function showHandQuestPreviewThenRoll(targetSlotIndex) {
+				const targetMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
+				if (targetMosje) {
+					const thresholdForMosje = getQuestDiceThreshold(cardDef, targetMosje);
+					modal.showQuestAttemptPreview(targetMosje, cardDef, thresholdForMosje, () => {
+						runHandQuestDiceRoll(targetSlotIndex);
+					});
+				} else {
+					runHandQuestDiceRoll(targetSlotIndex);
+				}
+			}
+
 			if (handQuestSlots.length > 1) {
-				modal.showMosjeSelect(handQuestSlots, runHandQuestDiceRoll);
+				modal.showMosjeSelect(handQuestSlots, showHandQuestPreviewThenRoll);
 			} else {
-				runHandQuestDiceRoll(handQuestSlots[0]?.slotIndex ?? 0);
+				showHandQuestPreviewThenRoll(handQuestSlots[0]?.slotIndex ?? 0);
 			}
 			return;
 		}

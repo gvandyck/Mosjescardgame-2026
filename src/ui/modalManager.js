@@ -322,6 +322,51 @@ export function initModalManager(container) {
 		container.querySelector('#modal-close-mosje')?.addEventListener('click', close);
 	}
 
+	function showQuestAttemptPreview(mosje, questDef, threshold, onConfirm) {
+		if (!mosje || !questDef) return;
+		const previewEl = renderCard(mosje, { compact: true });
+		previewEl.classList.add('modal-mosje-preview-card');
+		const traitRows = Object.entries(mosje.traits || {})
+			.filter(([, value]) => Number(value) > 0)
+			.map(([name, value]) => `<li><strong>${escapeHtml(name)}</strong>: ${Number(value)}</li>`)
+			.join('');
+
+		const thresholdLabel = threshold >= 7
+			? '<span class="modal-threshold--fail">Missing required trait</span>'
+			: `${threshold}+ to succeed`;
+
+		container.classList.add('modal-root--open');
+		container.innerHTML = `
+			<div class="modal-backdrop"></div>
+			<section class="modal-card modal-card--mosje-detail" role="dialog" aria-modal="true">
+				<div class="modal-mosje-preview">${previewEl.outerHTML}</div>
+				<div class="modal-mosje-copy">
+					<h3>🎯 ${escapeHtml(questDef.name || 'Quest')}</h3>
+					<p><strong>Current MP:</strong> ${Number(mosje.mp || 0)}</p>
+					<p><strong>Requirement:</strong> ${escapeHtml(questDef.requirementDescription || 'Roll dice')}</p>
+					<p><strong>Roll needed:</strong> ${thresholdLabel}</p>
+					<p><strong>On success:</strong> <span style="color: #4ade80;">+${Number(questDef.successMP || 0)} MP</span></p>
+					<p><strong>On failure:</strong> <span style="color: #f87171;">${Number(questDef.failMP || 0)} MP</span></p>
+					<div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1);">
+						<p><strong>Mosje traits:</strong></p>
+						<ul class="modal-card-list">${traitRows || '<li>No active traits</li>'}</ul>
+					</div>
+					<div style="display: flex; gap: 8px; margin-top: 16px;">
+						<button class="modal-btn" id="modal-attempt" type="button">Attempt Quest</button>
+						<button class="modal-btn modal-btn--ghost" id="modal-cancel-quest" type="button">Cancel</button>
+					</div>
+				</div>
+			</section>
+		`;
+
+		container.querySelector('#modal-attempt')?.addEventListener('click', () => {
+			close();
+			onConfirm();
+		});
+
+		container.querySelector('#modal-cancel-quest')?.addEventListener('click', close);
+	}
+
 	function showPlaceDetailModal(place) {
 		if (!place) return;
 		const previewEl = renderCard(place, { compact: true });
@@ -532,6 +577,7 @@ export function initModalManager(container) {
 		showOpponentHandCardSelect,
 		showRevealedCard,
 		showMosjeDetailModal,
+		showQuestAttemptPreview,
 		showPlaceDetailModal,
 		showOpponentHandRevealModal,
 		showMosjeSelect,

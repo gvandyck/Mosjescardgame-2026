@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm *)",
+      "Bash(git status)",
+      "Bash(git diff *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git checkout *)",
+      "Bash(git branch *)",
+      "Bash(git log *)",
+      "Bash(git push *)",
+      "Bash(git merge --no-ff feature/* main)",
+      "Bash(git merge --no-ff fix/* main)",
+      "Bash(git merge --no-ff card/* main)",
+      "Bash(git merge --no-ff ui/* main)",
+      "Bash(git merge --no-ff test/* main)",
+      "Bash(gh pr create *)",
+      "Bash(node *)",
+      "Bash(xargs -I {} node -e \"import\\('{}'\\).then\\(m => console.log\\(JSON.stringify\\(Object.values\\(m\\)[0], null, 2\\)\\)\\).catch\\(e=>console.log\\(e.message\\)\\)\")",
+      "Bash(curl -sL -o /dev/null -w \"%{http_code}\" http://localhost:5173/game.html)",
+      "Bash(git revert *)",
+      "Bash(python3 -m http.server 5173 --directory .)",
+      "Bash(echo \"HTTP Server PID: $!\")",
+      "Bash(pkill -f \"python3 -m http.server\")",
+      "Bash(python3 -m http.server 5173)",
+      "Read(//tmp/**)",
+      "Read(//c/Users/Gandoe/.claude/projects/**)"
+    ],
+    "deny": [
+      "Bash(git push --force *)",
+      "Bash(git push -f *)",
+      "Bash(git reset --hard *)",
+      "Bash(git merge main *)",
+      "Bash(rm -rf *)"
+    ],
+    "defaultMode": "acceptEdits"
+  }
+}
