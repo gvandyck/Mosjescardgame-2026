@@ -244,15 +244,16 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
   const handIndex = player.hand.findIndex(c => c.cardId === cardRef.cardId);
   if (handIndex === -1) return { state, success: false, error: 'Card not in hand' };
 
-  if ((player.pieciesPlayedThisTurn || 0) >= 4) {
-    return { state, success: false, error: 'You can place up to 4 Piecies' };
+  const maxPiecieSlots = state.activePlace ? 5 : 4;
+  if ((player.pieciesPlayedThisTurn || 0) >= maxPiecieSlots) {
+    return { state, success: false, error: `You can place up to ${maxPiecieSlots} Piecies` };
   }
 
   player.hand.splice(handIndex, 1);
 
   // Place Piecie face-down on the field.
   // It can be activated starting next turn by the owner.
-  normalizePiecieSlots(player, 4);
+  normalizePiecieSlots(player, maxPiecieSlots);
   const emptySlot = player.piecieSlots.findIndex(s => s === null);
   if (emptySlot < 0) {
     // Restore card to hand if placement fails.
@@ -434,10 +435,11 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
   let player = state.players[playerId];
   if (!player) return { state, success: false, error: 'Player not found' };
 
-  // Check if all 4 Piecie slots are full — cannot play Snelle Piecie if board is full
+  // Check if all Piecie slots are full — cannot play Snelle Piecie if board is full
   const piecieSlots = player.piecieSlots || [];
   const filledSlots = piecieSlots.filter(slot => slot !== null && slot !== undefined).length;
-  if (filledSlots >= 4) {
+  const maxPiecieSlots = state.activePlace ? 5 : 4;
+  if (filledSlots >= maxPiecieSlots) {
     return { state, success: false, error: 'Cannot play Snelle Piecie — all Piecie slots are full.' };
   }
 
