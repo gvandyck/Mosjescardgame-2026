@@ -48,7 +48,8 @@
   flex-shrink: 0;
   overflow: hidden;
   padding: 10px;
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 7.2px;
   animation: card-slide-in 0.22s var(--ease-smooth);
 }
@@ -1052,6 +1053,9 @@
   color: #94a3c4;
   line-height: 1.42;
   min-height: 50px;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .card--quest .card__desc,
@@ -1124,12 +1128,14 @@
   margin: 10px;
   color: #fff;
   cursor: pointer;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   white-space: nowrap;
   height: 40px;
   min-height: 40px;
+  width: calc(100% - 20px);
+  margin-top: auto;
 }
 
 .mosje-ability-btn {

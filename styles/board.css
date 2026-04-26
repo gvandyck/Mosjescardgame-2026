@@ -953,6 +953,12 @@
 .modal-actions {
    display: flex;
    gap: 8px;
+   width: 100%;
+}
+
+.modal-actions .modal-btn {
+   flex: 1;
+   width: 100%;
 }
 
 .modal-btn {
