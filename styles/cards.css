@@ -587,14 +587,7 @@
 }
 
 .place-trigger-badge {
-  font-size: 0.48rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  background: rgba(61, 214, 140, 0.12);
-  border: 1px solid rgba(61, 214, 140, 0.3);
-  border-radius: 3px;
-  padding: 1px 5px;
-  color: var(--place-green, #3dd68c);
+  display: none;
 }
 
 .place-identity {
@@ -611,10 +604,7 @@
 }
 
 .place-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px;
-  margin-top: 3px;
+  display: none;
 }
 
 .place-tag {
