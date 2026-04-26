@@ -721,6 +721,16 @@ function initGamePage() {
 			topbarPlaceTurns.textContent = `${turns} turn${turns === 1 ? '' : 's'} active`;
 		}
 
+		// Toggle Place active visual indicator
+		const pageBody = document.querySelector('.page--game');
+		if (pageBody) {
+			if (state.activePlace) {
+				pageBody.classList.add('place-active');
+			} else {
+				pageBody.classList.remove('place-active');
+			}
+		}
+
 		const btnGeneral = document.getElementById('btn-general-quest');
 		const btnPersonal = document.getElementById('btn-personal-quest');
 		const btnEndTurn = document.getElementById('btn-end-turn');

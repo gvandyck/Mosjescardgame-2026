@@ -1318,6 +1318,11 @@
 .page--game {
    height: 100vh;
    overflow: hidden;
+   transition: background-color 0.6s ease;
+}
+
+.page--game.place-active {
+   background-color: rgba(61, 214, 140, 0.06);
 }
 
 .game-layout {
