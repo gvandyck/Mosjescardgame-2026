@@ -280,14 +280,14 @@
 
 .board-zone--player {
    --mosje-slot-h: calc(300px * var(--card-height-ratio));
-   --piecie-cell-w: 169px;
+   --piecie-cell-w: 254px;
    --piecie-cell-h: calc(var(--piecie-cell-w) * var(--card-height-ratio));
    min-height: 650px;
 }
 
 .board-zone--opponent {
    --mosje-slot-h: calc(165px * var(--card-height-ratio));
-   --piecie-cell-w: 122px;
+   --piecie-cell-w: 183px;
    --piecie-cell-h: calc(var(--piecie-cell-w) * var(--card-height-ratio));
    min-height: 330px;
 }
@@ -1348,13 +1348,13 @@
    display: grid;
    grid-template-columns: repeat(4, var(--piecie-cell-w));
    grid-template-rows: var(--piecie-cell-h);
-   gap: 6px;
-   width: calc((var(--piecie-cell-w) * 4) + 18px);
+   gap: 12px;
+   width: calc((var(--piecie-cell-w) * 4) + 36px);
    height: auto;
    min-height: var(--piecie-cell-h);
    align-content: start;
    justify-content: center;
-   padding: 6px;
+   padding: 12px;
 }
 
 .board-zone__piecies .field-piecie-card {
