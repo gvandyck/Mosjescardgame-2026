@@ -157,8 +157,8 @@
 }
 
 .board-zone {
-   background: var(--zone-bg);
-   border: 1px solid var(--zone-border);
+   background: transparent !important;
+   border: none !important;
    border-radius: 12px;
    padding: 12px;
    display: flex;
@@ -167,12 +167,6 @@
    position: relative;
    overflow: hidden;
    margin-bottom: 10px;
-}
-
-.board-zone--player,
-.board-zone--opponent {
-   background: transparent;
-   border: none;
 }
 
 .board-zone:last-child {
