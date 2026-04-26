@@ -1164,6 +1164,11 @@
   background: linear-gradient(135deg, #991b1b, #ef4444);
 }
 
+.card--quest-personal .hand-card__play-btn {
+  margin: 10px 0px 0px 0px;
+  width: auto;
+}
+
 .hand-card--playable {
   cursor: pointer;
   transition: transform 0.2s var(--ease-snap), box-shadow 0.2s var(--ease-smooth);
