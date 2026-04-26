@@ -1156,16 +1156,6 @@ function initGamePage() {
 
 		if (cardType === 'PLACE') {
 			const beforePlay = gameState;
-			const currentPlaceName = gameState.activePlace
-				? (PLACES.find(p => p.id === gameState.activePlace)?.name || gameState.activePlace)
-				: null;
-			const replaceWarning = currentPlaceName ? ` This will replace "${currentPlaceName}".` : '';
-			const confirmed = await modal.showConfirm(
-				'Play Place Card',
-				`Play "${cardDef.name}" as the active Place?${replaceWarning}`
-			);
-			if (!confirmed) return;
-
 			const { state: newState, success, error } = playPlace(gameState, localPlayerId, cardRef, cardDef);
 			if (!success) {
 				modal.showInfo('Cannot Play', error || 'That card cannot be played right now.');
