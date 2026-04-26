@@ -317,13 +317,11 @@ function buildKannetjeMilkCardHTML(card) {
       <div class="piecie-full-art"${artStyle}></div>
       <div class="piecie-full-art-vignette"></div>
       <div class="piecie-card-content">
-        <div class="piecie-header">
-          <h3 class="piecie-name">${escapeHtml(card.name || 'Kannetje Melk')}</h3>
-          <p class="piecie-type">PIECIE</p>
+        <div class="card__top">
+          <span class="card__type-label">PIECIE</span>
         </div>
-        <div class="piecie-effect-section">
-          <p class="piecie-effect-text">${escapeHtml(card.description || '')}</p>
-        </div>
+        <h3 class="card__name">${escapeHtml(card.name || 'Kannetje Melk')}</h3>
+        <p class="card__desc">${escapeHtml(card.description || '')}</p>
       </div>
     </div>
   `;
