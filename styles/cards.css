@@ -50,7 +50,7 @@
   padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 7.2px;
+  gap: 4px;
   animation: card-slide-in 0.22s var(--ease-smooth);
 }
 
