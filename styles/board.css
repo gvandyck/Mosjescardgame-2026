@@ -188,12 +188,8 @@
    align-items: center;
    gap: 8px;
    flex-wrap: wrap;
-   padding-left: 0;
-}
-
-.board-zone--player .board-zone__header,
-.board-zone--opponent .board-zone__header {
-   padding-left: 0;
+   padding-left: 0.5vw;
+   width: fit-content;
 }
 
 /* ── SNELLE MODIFIER PILLS ───────────────────────────────────────── */
