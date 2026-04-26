@@ -674,6 +674,7 @@
   gap: 4px;
   font-size: 0.75rem;
   flex-shrink: 0;
+  margin-top: auto;
 }
 
 /* ── Kannetje Melk Piecie Full-Art Card ────────────────────── */
@@ -1611,6 +1612,7 @@
   padding: 0;
   gap: 4px;
   font-size: 0.75rem;
+  margin-top: auto;
 }
 
 .footer-stat-text {
