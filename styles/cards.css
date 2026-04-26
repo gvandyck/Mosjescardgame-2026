@@ -220,6 +220,7 @@
 .card--quest,
 .card--quest-general,
 .card--quest-personal {
+  gap: 4px;
   border: 2px solid var(--quest-purple);
   background: linear-gradient(160deg, #0e0518 0%, #08030f 60%, #0c0415 100%);
 }
@@ -1053,6 +1054,12 @@
   min-height: 50px;
 }
 
+.card--quest .card__desc,
+.card--quest-general .card__desc,
+.card--quest-personal .card__desc {
+  min-height: auto;
+}
+
 .card__meta {
   margin-top: auto;
   font-size: 0.62rem;
@@ -1121,6 +1128,8 @@
   align-items: center;
   justify-content: center;
   white-space: nowrap;
+  height: 40px;
+  min-height: 40px;
 }
 
 .mosje-ability-btn {

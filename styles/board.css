@@ -963,9 +963,13 @@
    border: none;
    border-radius: 8px;
    padding: 10px 16px;
+   height: 40px;
    background: linear-gradient(135deg, #1d4ed8, #3b82f6);
    color: #fff;
    cursor: pointer;
+   display: flex;
+   align-items: center;
+   justify-content: center;
 }
 
 .modal-btn--ghost {
