@@ -1474,9 +1474,11 @@
 
 .ability-line {
   margin: 0;
+  padding: 0 10px 6px 10px;
   font-size: 0.5rem;
   line-height: 1.4;
   color: #ffffff;
+  overflow-y: auto;
 }
 
 .mosje-synergies-section-v2 {
