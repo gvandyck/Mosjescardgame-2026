@@ -1460,15 +1460,8 @@
   flex-direction: column;
   gap: 0;
   min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
   margin-bottom: 6px;
-  cursor: grab;
-  scroll-behavior: smooth;
-}
-
-.mosje-ability-section-v2:active {
-  cursor: grabbing;
 }
 
 .mosje-ability-text-v2 {
@@ -1476,7 +1469,7 @@
   color: #ffffff;
   line-height: 1.35;
   margin: 0;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .ability-line {
