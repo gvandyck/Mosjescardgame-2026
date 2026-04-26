@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kannetje Melk Preview</title>
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/cards.css" />
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      background: #0a0f1a;
+    }
+    .preview-container {
+      width: 130px;
+      height: calc(130px * 1.457627);
+    }
+  </style>
+</head>
+<body>
+  <div class="preview-container"></div>
+
+  <script type="module">
+    import { renderCard } from './src/ui/cardRenderer.js';
+
+    // Kannetje Melk card data
+    const kannetjeMilk = {
+      id: 'kannetje-melk',
+      name: 'Kannetje Melk',
+      type: 'PIECIE',
+      category: 'piecie',
+      subcategory: 'MOMENTUM-GAINING',
+      rarity: 'uncommon',
+      cost: { type: 'free' },
+      description: 'Gain 25 MP.',
+    };
+
+    const container = document.querySelector('.preview-container');
+    const card = renderCard(kannetjeMilk);
+    container.appendChild(card);
+  </script>
+</body>
+</html>
