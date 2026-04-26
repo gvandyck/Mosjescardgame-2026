@@ -1103,17 +1103,19 @@
   color: var(--snelle-red);
 }
 
+/* ── CARD ACTION BUTTONS (match .modal-btn base style) ──────── */
 .mosje-ability-btn,
 .mosje-return-btn,
 .hand-card__play-btn {
-  padding: 10px 16px;
-  border: none;
-  border-radius: 8px;
-  color: #fff;
+  font-family: var(--font-display);
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.08em;
-  font-family: var(--font-display);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  margin: 10px;
+  color: #fff;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -1123,7 +1125,6 @@
 
 .mosje-ability-btn {
   background: linear-gradient(135deg, #92400e, #f59e0b);
-  opacity: 0.88;
   position: absolute;
   right: 10px;
   bottom: 10px;
@@ -1132,9 +1133,10 @@
 
 .mosje-ability-btn--used,
 .mosje-ability-btn:disabled {
-  background: #2a355f;
+  background: rgba(42, 53, 95, 0.6);
   color: #6a7aaa;
   cursor: not-allowed;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .mosje-return-btn,
