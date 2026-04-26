@@ -280,14 +280,14 @@
 
 .board-zone--player {
    --mosje-slot-h: calc(300px * var(--card-height-ratio));
-   --piecie-cell-w: 254px;
+   --piecie-cell-w: 300px;
    --piecie-cell-h: calc(var(--piecie-cell-w) * var(--card-height-ratio));
    min-height: 650px;
 }
 
 .board-zone--opponent {
    --mosje-slot-h: calc(165px * var(--card-height-ratio));
-   --piecie-cell-w: 183px;
+   --piecie-cell-w: 165px;
    --piecie-cell-h: calc(var(--piecie-cell-w) * var(--card-height-ratio));
    min-height: 330px;
 }
