@@ -972,10 +972,25 @@
    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
 }
 
-.modal-mosje-select-btn:hover {
+.modal-mosje-select-btn:hover:not(:disabled) {
    background: linear-gradient(135deg, #2a1f08 0%, #181308 100%);
    border-color: var(--mosje-gold);
    box-shadow: 0 0 14px rgba(232, 185, 79, 0.2);
+}
+
+.modal-mosje-select-btn--disabled,
+.modal-mosje-select-btn:disabled {
+   opacity: 0.5;
+   cursor: not-allowed;
+   border-color: rgba(232, 185, 79, 0.1);
+   color: #9099b7;
+}
+
+.modal-mosje-select-btn--disabled:hover,
+.modal-mosje-select-btn:disabled:hover {
+   background: linear-gradient(135deg, #1a150a 0%, #0e0c04 100%);
+   border-color: rgba(232, 185, 79, 0.1);
+   box-shadow: none;
 }
 
 .mosje-select-name {

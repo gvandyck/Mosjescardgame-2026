@@ -436,9 +436,12 @@ export function initModalManager(container) {
 				const id = opt?.id ?? '';
 				const label = opt?.label ?? String(id);
 				const meta = opt?.metaLabel ?? '';
-				return `<button class="modal-mosje-select-btn" data-id="${escapeHtml(String(id))}" type="button">
+				const isDisabled = Boolean(opt?.disabled);
+				const disabledAttr = isDisabled ? 'disabled' : '';
+				const disabledClass = isDisabled ? 'modal-mosje-select-btn--disabled' : '';
+				return `<button class="modal-mosje-select-btn ${disabledClass}" data-id="${escapeHtml(String(id))}" type="button" ${disabledAttr}>
 					<span class="mosje-select-name">${escapeHtml(String(label))}</span>
-					${meta ? `<span class="mosje-select-mp">${escapeHtml(String(meta))}</span>` : ''}
+					${meta ? `<span class="mosje-select-mp">${meta}</span>` : ''}
 				</button>`;
 			}).join('');
 
@@ -452,7 +455,7 @@ export function initModalManager(container) {
 				</section>
 			`;
 
-			container.querySelectorAll('.modal-mosje-select-btn').forEach(btn => {
+			container.querySelectorAll('.modal-mosje-select-btn:not(:disabled)').forEach(btn => {
 				btn.addEventListener('click', () => { close(); resolve(btn.dataset.id ?? null); });
 			});
 			container.querySelector('#modal-option-cancel')?.addEventListener('click', () => { close(); resolve(null); });
@@ -499,45 +502,36 @@ export function initModalManager(container) {
 	}
 
 	// Mosje selector — uses showOptionSelect; auto-selects when only one Mosje is on field.
-	// questDef is optional: when provided, shows roll threshold info per Mosje.
+	// questDef is optional: when provided, requires 20 MP to attempt quest.
 	function showMosjeSelect(mosjeSlots, onSelected, questDef) {
 		if (mosjeSlots.length <= 1) {
 			onSelected(mosjeSlots[0]?.slotIndex ?? 0);
 			return;
 		}
 
-		const roll = questDef?.roll ?? null;
-		const traitKey = roll?.trait ?? null;
-		const traitLabel = traitKey
-			? traitKey.charAt(0).toUpperCase() + traitKey.slice(1)
-			: null;
+		const isQuestAttempt = Boolean(questDef);
+		const questCost = 20;
 
-		function starsText(count) {
-			const n = Math.min(3, Math.max(0, Number(count) || 0));
-			return n > 0 ? '★'.repeat(n) + '☆'.repeat(3 - n) : '☆☆☆';
+		function getMpLabel(mosjeSlot) {
+			const hasEnoughMp = mosjeSlot.mp >= questCost;
+			const color = hasEnoughMp ? '#4ade80' : '#ef4444';
+			return `<span style="color: ${color};">${mosjeSlot.mp} MP</span>`;
 		}
 
-		function rollLabel(mosjeSlot) {
-			if (!roll) return `${mosjeSlot.mp} MP`;
-			const stars = traitKey
-				? Math.min(3, Math.max(1, Number(mosjeSlot.traits?.[traitKey] || 1)))
-				: 1;
-			const threshold = roll.thresholds[stars] ?? 4;
-			const starCount = traitKey ? Number(mosjeSlot.traits?.[traitKey] || 0) : null;
-			const starDisplay = starCount !== null ? starsText(starCount) : '';
-			const traitPart = traitLabel ? `${traitLabel} ${starDisplay}` : 'Any';
-			if (threshold > 6) return `${traitPart} — ★★ required`;
-			return `${traitPart} — needs ${threshold}+`;
-		}
-
-		const options = mosjeSlots.map(mosjeSlot => ({
-			id: String(mosjeSlot.slotIndex),
-			label: mosjeSlot.name,
-			metaLabel: rollLabel(mosjeSlot),
-		}));
+		const options = mosjeSlots.map(mosjeSlot => {
+			const hasEnoughMp = mosjeSlot.mp >= questCost;
+			return {
+				id: String(mosjeSlot.slotIndex),
+				label: mosjeSlot.name,
+				metaLabel: isQuestAttempt ? getMpLabel(mosjeSlot) : undefined,
+				disabled: isQuestAttempt && !hasEnoughMp,
+				slotIndex: mosjeSlot.slotIndex,
+				mp: mosjeSlot.mp,
+			};
+		});
 		showOptionSelect({
 			title: 'Choose Mosje for Quest',
-			prompt: 'Select which Mosje will attempt the quest.',
+			prompt: isQuestAttempt ? `Select Mosje to attempt quest (costs 20 MP).` : 'Select which Mosje will attempt the quest.',
 			options,
 		}).then(selected => onSelected(Number.parseInt(selected ?? '0', 10)));
 	}

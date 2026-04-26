@@ -8,6 +8,7 @@ import { initModalManager } from './ui/modalManager.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes } from './engine/gameState.js';
 import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, playSnellie, playPlace, playMosje, useMosjeAbility, canPlayerActNow } from './engine/turnManager.js';
 import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold } from './abilities/questLogic.js';
+import { loseMP } from './engine/mpManager.js';
 import { MOSJES } from './data/mosjes.js';
 import { PIECIES } from './data/piecies.js';
 import { SNELLE_PIECIES } from './data/snellePiecies.js';
@@ -528,8 +529,14 @@ function initGamePage() {
 		function showQuestPreviewThenRoll(targetSlotIndex) {
 			const targetMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
 			if (targetMosje) {
-				const thresholdForMosje = getQuestDiceThreshold(questDef, targetMosje);
-				modal.showQuestAttemptPreview(targetMosje, questDef, thresholdForMosje, () => {
+				// Deduct 20 MP quest cost immediately upon selection
+				const costState = loseMP(gameState, localPlayerId, targetSlotIndex, 20, 'QUEST_COST');
+				gameState = costState;
+				log.add('loss', `Quest attempt cost: -20 MP`);
+
+				const updatedMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
+				const thresholdForMosje = getQuestDiceThreshold(questDef, updatedMosje);
+				modal.showQuestAttemptPreview(updatedMosje, questDef, thresholdForMosje, () => {
 					runGeneralQuestDiceRoll(targetSlotIndex);
 				});
 			} else {
@@ -637,8 +644,14 @@ function initGamePage() {
 		function showPersonalQuestPreviewThenRoll(targetSlotIndex) {
 			const targetMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
 			if (targetMosje) {
-				const thresholdForMosje = getQuestDiceThreshold(questDef, targetMosje);
-				modal.showQuestAttemptPreview(targetMosje, questDef, thresholdForMosje, () => {
+				// Deduct 20 MP quest cost immediately upon selection
+				const costState = loseMP(gameState, localPlayerId, targetSlotIndex, 20, 'QUEST_COST');
+				gameState = costState;
+				log.add('loss', `Quest attempt cost: -20 MP`);
+
+				const updatedMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
+				const thresholdForMosje = getQuestDiceThreshold(questDef, updatedMosje);
+				modal.showQuestAttemptPreview(updatedMosje, questDef, thresholdForMosje, () => {
 					runPersonalQuestDiceRoll(targetSlotIndex);
 				});
 			} else {
@@ -1108,8 +1121,14 @@ function initGamePage() {
 			function showHandQuestPreviewThenRoll(targetSlotIndex) {
 				const targetMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
 				if (targetMosje) {
-					const thresholdForMosje = getQuestDiceThreshold(cardDef, targetMosje);
-					modal.showQuestAttemptPreview(targetMosje, cardDef, thresholdForMosje, () => {
+					// Deduct 20 MP quest cost immediately upon selection
+					const costState = loseMP(gameState, localPlayerId, targetSlotIndex, 20, 'QUEST_COST');
+					gameState = costState;
+					log.add('loss', `Quest attempt cost: -20 MP`);
+
+					const updatedMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
+					const thresholdForMosje = getQuestDiceThreshold(cardDef, updatedMosje);
+					modal.showQuestAttemptPreview(updatedMosje, cardDef, thresholdForMosje, () => {
 						runHandQuestDiceRoll(targetSlotIndex);
 					});
 				} else {
