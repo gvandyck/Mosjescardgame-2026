@@ -254,6 +254,12 @@
    padding-bottom: 10px;
    cursor: grab;
    scroll-behavior: smooth;
+   scrollbar-width: none;
+   -ms-overflow-style: none;
+}
+
+.board-zone__row::-webkit-scrollbar {
+   display: none;
 }
 
 .board-zone__row:active {
