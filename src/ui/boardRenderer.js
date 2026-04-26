@@ -117,6 +117,13 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		bottomZone?.appendChild(cardEl);
 	}
 
+	// Render active Place card in Piecie slot (opponent side)
+	if (viewModel.activePlace) {
+		const placeEl = renderCard(viewModel.activePlace, { compact: true });
+		placeEl.classList.add('field-piecie-card', 'place-card-in-slot');
+		topPiecies?.appendChild(placeEl);
+	}
+
 	for (const piecie of (viewModel.players.top.piecies || []).slice(0, 4)) {
 		if (piecie.faceDown) {
 			const slot = document.createElement('div');

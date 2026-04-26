@@ -1200,12 +1200,13 @@ function toBoardViewModel(gameState, localPlayerId) {
 	const opponent = gameState.players[opponentId];
 	const isLocalTurn = gameState.activePlayerId === localPlayerId;
 
+	const activePlaceCard = gameState.activePlace ? PLACES.find(p => p.id === gameState.activePlace) : null;
+
 	return {
 		activePlayerName: gameState.players[gameState.activePlayerId].name,
 		turnPhase: 'DRAW',
-		activePlaceName: gameState.activePlace
-			? (PLACES.find(p => p.id === gameState.activePlace)?.name || gameState.activePlace)
-			: 'None',
+		activePlaceName: activePlaceCard?.name || 'None',
+		activePlace: activePlaceCard,
 		activeQuest: gameState.activeQuest ?? null,
 		activePlaceTurns: gameState.activePlaceTurnsActive || 0,
 		gameState,
