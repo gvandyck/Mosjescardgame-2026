@@ -1460,7 +1460,7 @@
   flex-direction: column;
   gap: 0;
   min-height: 0;
-  overflow: hidden;
+  overflow: auto;
   margin-bottom: 6px;
 }
 
@@ -1469,7 +1469,7 @@
   color: #ffffff;
   line-height: 1.35;
   margin: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .ability-line {
@@ -1478,7 +1478,6 @@
   font-size: 0.5rem;
   line-height: 1.4;
   color: #ffffff;
-  overflow-y: auto;
 }
 
 .mosje-synergies-section-v2 {
