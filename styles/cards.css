@@ -1454,11 +1454,11 @@
 }
 
 .mosje-ability-section-v2 {
-  padding: 12px 10px;
+  padding: 0;
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 0;
   min-height: 0;
   overflow: hidden;
   margin-bottom: 6px;
