@@ -1217,6 +1217,7 @@ function toBoardViewModel(gameState, localPlayerId) {
 		turnPhase: 'DRAW',
 		activePlaceName: activePlaceCard?.name || 'None',
 		activePlace: activePlaceCard,
+		activePlacePlayedBy: gameState.activePlacePlayedBy || null,
 		activeQuest: gameState.activeQuest ?? null,
 		activePlaceTurns: gameState.activePlaceTurnsActive || 0,
 		gameState,

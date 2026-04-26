@@ -117,15 +117,19 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		bottomZone?.appendChild(cardEl);
 	}
 
-	// Render active Place card in Piecie slot (both players)
-	if (viewModel.activePlace) {
-		const placeOpponent = renderCard(viewModel.activePlace, { compact: true });
-		placeOpponent.classList.add('field-piecie-card', 'place-card-in-slot');
-		topPiecies?.appendChild(placeOpponent);
+	// Render active Place card in Piecie slot (only on the field that played it)
+	if (viewModel.activePlace && viewModel.activePlacePlayedBy) {
+		const opponentId = Object.keys(viewModel.gameState.players).find(id => id !== viewModel.myPlayerId);
 
-		const placePlayer = renderCard(viewModel.activePlace, { compact: true });
-		placePlayer.classList.add('field-piecie-card', 'place-card-in-slot');
-		bottomPiecies?.appendChild(placePlayer);
+		if (viewModel.activePlacePlayedBy === opponentId) {
+			const placeOpponent = renderCard(viewModel.activePlace, { compact: true });
+			placeOpponent.classList.add('field-piecie-card', 'place-card-in-slot');
+			topPiecies?.appendChild(placeOpponent);
+		} else if (viewModel.activePlacePlayedBy === viewModel.myPlayerId) {
+			const placePlayer = renderCard(viewModel.activePlace, { compact: true });
+			placePlayer.classList.add('field-piecie-card', 'place-card-in-slot');
+			bottomPiecies?.appendChild(placePlayer);
+		}
 	}
 
 	for (const piecie of (viewModel.players.top.piecies || []).slice(0, 4)) {
