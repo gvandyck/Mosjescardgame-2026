@@ -159,7 +159,8 @@
 .board-zone {
    background: transparent !important;
    border: none !important;
-   border-radius: 12px;
+   box-shadow: none !important;
+   border-radius: 0;
    padding: 12px;
    display: flex;
    flex-direction: column;
