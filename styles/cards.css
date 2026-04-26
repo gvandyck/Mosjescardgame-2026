@@ -646,6 +646,83 @@
   letter-spacing: -0.5px;
 }
 
+/* ── Kannetje Melk Piecie Full-Art Card ────────────────────── */
+.piecie-card-inner {
+  padding: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  isolation: isolate;
+}
+
+.piecie-full-art {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: var(--piecie-full-art-url);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transform: scale(1.02);
+}
+
+.piecie-full-art-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(to bottom, rgba(5, 15, 28, 0.08) 0%, rgba(4, 8, 15, 0.35) 40%, rgba(6, 12, 24, 0.88) 100%),
+    linear-gradient(to right, rgba(0, 0, 0, 0.22) 0%, transparent 28%, transparent 72%, rgba(0, 0, 0, 0.22) 100%);
+  pointer-events: none;
+}
+
+.piecie-card-content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(to bottom, rgba(5, 15, 28, 0.08), rgba(4, 8, 15, 0.55) 50%, rgba(6, 12, 24, 0.93) 100%);
+}
+
+.piecie-header {
+  padding: 8px 10px;
+  flex-shrink: 0;
+}
+
+.piecie-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 2px 0;
+  letter-spacing: 0.05em;
+}
+
+.piecie-type {
+  font-size: 0.65rem;
+  color: #3d8ef5;
+  margin: 0;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+}
+
+.piecie-effect-section {
+  padding: 8px 10px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.piecie-effect-text {
+  font-size: 0.65rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+}
+
 .mosje-identity {
   padding: 6px 10px 2px;
   display: flex;

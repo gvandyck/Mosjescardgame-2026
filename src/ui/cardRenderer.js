@@ -69,6 +69,11 @@ export function renderCard(card, options = {}) {
     return element;
   }
 
+  if (type === 'PIECIE' && resolvedCard.name === 'Kannetje Melk') {
+    element.innerHTML = buildKannetjeMilkCardHTML(resolvedCard);
+    return element;
+  }
+
   element.innerHTML = `
     ${badge}
     <div class="card__top">
@@ -298,6 +303,26 @@ export function buildPlaceCardHTML(card) {
 
         <div class="place-footer">
           <span class="place-rarity">${rarityStars}</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function buildKannetjeMilkCardHTML(card) {
+  const artStyle = ` style="--piecie-full-art-url: url('/assets/piecie-art/kannetje-melk.jpeg');"`
+
+  return `
+    <div class="piecie-card-inner">
+      <div class="piecie-full-art"${artStyle}></div>
+      <div class="piecie-full-art-vignette"></div>
+      <div class="piecie-card-content">
+        <div class="piecie-header">
+          <h3 class="piecie-name">${escapeHtml(card.name || 'Kannetje Melk')}</h3>
+          <p class="piecie-type">PIECIE</p>
+        </div>
+        <div class="piecie-effect-section">
+          <p class="piecie-effect-text">${escapeHtml(card.description || '')}</p>
         </div>
       </div>
     </div>
