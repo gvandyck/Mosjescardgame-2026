@@ -1339,11 +1339,10 @@
    background-color: rgba(61, 214, 140, 0.09);
 }
 
-.page--game.place-active .board-zone--player,
-.page--game.place-active .board-zone--opponent {
+.page--game.place-active .game-board {
    background: linear-gradient(180deg, rgba(61, 214, 140, 0.04) 0%, rgba(61, 214, 140, 0.02) 100%),
-               linear-gradient(180deg, #0a0e18 0%, #0c1120 100%);
-   box-shadow: inset 0 0 16px rgba(255, 255, 255, 0.03), 0 0 20px rgba(255, 255, 255, 0.02);
+               var(--board-felt);
+   box-shadow: inset 0 0 20px rgba(61, 214, 140, 0.15);
 }
 
 .game-layout {
