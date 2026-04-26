@@ -682,6 +682,13 @@ export function playPlace(gameState, playerId, cardRef, cardDef) {
     return { state, success: false, error: 'A Place is already active. Destroy it first.' };
   }
 
+  // Check if all 4 Piecie/Place slots are full
+  const piecieSlots = player.piecieSlots || [];
+  const filledSlots = piecieSlots.filter(slot => slot !== null && slot !== undefined).length;
+  if (filledSlots >= 4) {
+    return { state, success: false, error: 'Cannot place a Place — all Piecie slots are full.' };
+  }
+
   // Defensive normalization
   if (!Array.isArray(player.hand)) player.hand = [];
   if (!Array.isArray(player.discard)) player.discard = [];
