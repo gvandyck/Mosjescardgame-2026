@@ -413,6 +413,87 @@
    height: calc(165px * var(--card-height-ratio));
 }
 
+/* ── Natural Card Angles ────────────────────────────────────────────── */
+.board-zone__slots > :nth-child(1) {
+   transform: rotate(-0.8deg);
+}
+
+.board-zone__slots > :nth-child(2) {
+   transform: rotate(0.6deg);
+}
+
+.board-zone__slots > :nth-child(3) {
+   transform: rotate(-0.4deg);
+}
+
+.board-zone__slots > :nth-child(4) {
+   transform: rotate(0.9deg);
+}
+
+.board-zone__piecies .field-piecie-card:nth-child(1) {
+   transform: rotate(-0.7deg);
+}
+
+.board-zone__piecies .field-piecie-card:nth-child(2) {
+   transform: rotate(0.5deg);
+}
+
+.board-zone__piecies .field-piecie-card:nth-child(3) {
+   transform: rotate(-0.6deg);
+}
+
+.board-zone__piecies .field-piecie-card:nth-child(4) {
+   transform: rotate(0.8deg);
+}
+
+.board-zone__piecies .piecie-slot:nth-child(5) {
+   transform: rotate(-0.3deg);
+}
+
+.board-zone__piecies .piecie-slot:nth-child(6) {
+   transform: rotate(0.7deg);
+}
+
+.board-zone__piecies .piecie-slot:nth-child(7) {
+   transform: rotate(-0.5deg);
+}
+
+.board-zone__piecies .piecie-slot:nth-child(8) {
+   transform: rotate(0.4deg);
+}
+
+.board-zone--opponent .card--mosje {
+   transform: rotate(-0.5deg);
+}
+
+.board-zone--opponent .card--mosje:nth-child(2) {
+   transform: rotate(0.6deg);
+}
+
+.board-zone--opponent .card--mosje:nth-child(3) {
+   transform: rotate(-0.4deg);
+}
+
+.board-zone--opponent .card--mosje:nth-child(4) {
+   transform: rotate(0.7deg);
+}
+
+.board-zone--opponent .piecie-slot:nth-child(5) {
+   transform: rotate(-0.3deg);
+}
+
+.board-zone--opponent .piecie-slot:nth-child(6) {
+   transform: rotate(0.5deg);
+}
+
+.board-zone--opponent .piecie-slot:nth-child(7) {
+   transform: rotate(-0.6deg);
+}
+
+.board-zone--opponent .piecie-slot:nth-child(8) {
+   transform: rotate(0.4deg);
+}
+
 .board-zone--opponent .mosje-card--opponent .mosje-flavour,
 .board-zone--opponent .mosje-card--opponent .synergy-effect-text,
 .board-zone--opponent .mosje-card--opponent .ability-line {
@@ -1166,35 +1247,14 @@
 .opponent-field,
 .board-zone--player,
 .board-zone--opponent {
-   background:
-      repeating-linear-gradient(
-         45deg,
-         rgba(255, 255, 255, 0.008) 0px,
-         rgba(255, 255, 255, 0.008) 1px,
-         transparent 1px,
-         transparent 5px
-      ),
-      linear-gradient(180deg, #0a0e18 0%, #0c1120 100%);
-   border: 1px solid rgba(255, 255, 255, 0.04);
-   box-shadow:
-      inset 0 2px 8px rgba(0, 0, 0, 0.6),
-      inset 2px 0 6px rgba(0, 0, 0, 0.3),
-      inset -2px 0 6px rgba(0, 0, 0, 0.3),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.03),
-      0 1px 3px rgba(0, 0, 0, 0.4);
+   background: linear-gradient(180deg, #0a0e18 0%, #0c1120 100%);
+   border: 1px solid rgba(255, 255, 255, 0.06);
    border-radius: 16px;
 }
 
 .player-field.is-active-turn,
 .board-zone--player {
-   border-color: rgba(232, 185, 79, 0.12);
-   box-shadow:
-      inset 0 2px 8px rgba(0, 0, 0, 0.6),
-      inset 2px 0 6px rgba(0, 0, 0, 0.3),
-      inset -2px 0 6px rgba(0, 0, 0, 0.3),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.03),
-      0 0 0 1px rgba(232, 185, 79, 0.08),
-      0 0 20px rgba(232, 185, 79, 0.04);
+   border-color: rgba(232, 185, 79, 0.15);
 }
 
 /* ── MOSJE SLOT ──────────────────────────────────────────────────── */
