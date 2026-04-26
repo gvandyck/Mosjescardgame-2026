@@ -23,7 +23,7 @@ function getBoardModal() {
 	return _boardModal;
 }
 
-export function renderBoard(container, viewModel, onUseAbility = null, onReturnToHand = null, onActivatePiecie = null) {
+export function renderBoard(container, viewModel, onUseAbility = null, onReturnToHand = null, onActivatePiecie = null, onOpenDiscard = null) {
 	if (!container) return;
 	console.log('[UI] Rendering board view');
 
@@ -36,6 +36,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 			<div class="board-zone__row">
 				<div class="board-zone__slots" id="zone-opponent"></div>
 				<div class="board-zone__piecies" id="piecies-opponent"></div>
+				<div class="discard-pile-container" id="discard-opponent"></div>
 			</div>
 		</section>
 
@@ -47,6 +48,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 			<div class="board-zone__row">
 				<div class="board-zone__slots" id="zone-player"></div>
 				<div class="board-zone__piecies" id="piecies-player"></div>
+				<div class="discard-pile-container" id="discard-player"></div>
 			</div>
 		</section>
 	`;
@@ -58,6 +60,8 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 	const bottomZone = container.querySelector('#zone-player');
 	const topPiecies = container.querySelector('#piecies-opponent');
 	const bottomPiecies = container.querySelector('#piecies-player');
+	const topDiscard = container.querySelector('#discard-opponent');
+	const bottomDiscard = container.querySelector('#discard-player');
 
 	for (const mosje of viewModel.players.top.mosjes) {
 		const cardEl = renderCard(mosje, { compact: true });
@@ -166,6 +170,14 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		}
 		bottomPiecies?.appendChild(piecieEl);
 	}
+
+	// Render discard piles for both players
+	const opponentPlayerId = Object.keys(viewModel.gameState?.players || {}).find(id => id !== viewModel.myPlayerId);
+	const topPlayer = viewModel.players.top;
+	const bottomPlayer = viewModel.players.bottom;
+
+	renderDiscardPile(topDiscard, topPlayer, viewModel.myPlayerId === opponentPlayerId, onOpenDiscard);
+	renderDiscardPile(bottomDiscard, bottomPlayer, viewModel.myPlayerId === bottomPlayer.id, onOpenDiscard);
 
 	// Render active quest panel (Phase 8 Rule 3 — shared quest visibility)
 	if (viewModel.activeQuest) {
@@ -359,6 +371,69 @@ function renderModifierBar(bar, pills) {
 		span.title = pill.label;
 		bar.appendChild(span);
 	}
+}
+
+// Renders a discard pile (Welloe) into a container.
+// Shows top card face-up, count badge at 2+ cards, stacked visual effect.
+// Empty state shows a faint placeholder.
+function renderDiscardPile(container, player, isOwned, onOpenDiscard) {
+	if (!container || !player) return;
+	container.innerHTML = '';
+
+	const discardCards = player.discard || [];
+	const count = discardCards.length;
+
+	if (count === 0) {
+		// Empty state: faint outlined placeholder
+		const emptyPile = document.createElement('div');
+		emptyPile.className = 'discard-pile discard-pile--empty';
+		emptyPile.innerHTML = `
+			<div class="discard-pile__placeholder"></div>
+			<div class="discard-pile__label">Empty</div>
+		`;
+		container.appendChild(emptyPile);
+		return;
+	}
+
+	// Build stacked pile visual
+	const pile = document.createElement('div');
+	pile.className = 'discard-pile discard-pile--has-cards';
+	pile.setAttribute('data-card-count', count);
+
+	// Render top card (with slight offset for stack visual)
+	const topCardId = discardCards[count - 1];
+	const topCardData = getCardById(topCardId);
+	if (topCardData) {
+		const topCardEl = renderCard(topCardData, { compact: true });
+		topCardEl.className = 'discard-pile__top-card';
+		pile.appendChild(topCardEl);
+	}
+
+	// Count badge for 2+ cards
+	if (count >= 2) {
+		const badge = document.createElement('div');
+		badge.className = 'discard-pile__count-badge';
+		badge.textContent = `x${count}`;
+		pile.appendChild(badge);
+	}
+
+	// Add label
+	const label = document.createElement('div');
+	label.className = 'discard-pile__label';
+	label.textContent = 'Discard';
+	pile.appendChild(label);
+
+	// Click to open discard viewer
+	pile.addEventListener('click', () => {
+		if (typeof onOpenDiscard === 'function') {
+			onOpenDiscard(player.id, isOwned);
+		} else {
+			// Fallback: show modal with discard contents
+			getBoardModal().showDiscardViewerModal(player, isOwned);
+		}
+	});
+
+	container.appendChild(pile);
 }
 
 function escapeHtml(text) {

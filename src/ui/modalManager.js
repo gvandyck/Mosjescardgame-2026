@@ -598,6 +598,42 @@ export function initModalManager(container) {
 		});
 	}
 
+	// Discard viewer modal — shows cards in a player's discard pile.
+	// isOwned — true if this is the current player's discard (allows recovery actions)
+	function showDiscardViewerModal(player, isOwned) {
+		container.classList.add('modal-root--open');
+		const discardCards = player?.discard || [];
+		const count = discardCards.length;
+
+		if (count === 0) {
+			container.innerHTML = `
+				<div class="modal-backdrop"></div>
+				<section class="modal-card" role="dialog" aria-modal="true">
+					<h3>${escapeHtml(player?.name || 'Player')}'s Discard</h3>
+					<p>Discard pile is empty.</p>
+					<button class="modal-btn" id="modal-close-discard">Close</button>
+				</section>
+			`;
+			container.querySelector('#modal-close-discard')?.addEventListener('click', close);
+			return;
+		}
+
+		const cardRows = discardCards.map((cardId, idx) => {
+			const card = { cardId };
+			return `<li><span>${escapeHtml(cardId || 'Unknown')}</span></li>`;
+		}).join('');
+
+		container.innerHTML = `
+			<div class="modal-backdrop"></div>
+			<section class="modal-card" role="dialog" aria-modal="true">
+				<h3>${escapeHtml(player?.name || 'Player')}'s Discard (${count} cards)</h3>
+				<ul class="modal-card-list">${cardRows}</ul>
+				<button class="modal-btn" id="modal-close-discard">Close</button>
+			</section>
+		`;
+		container.querySelector('#modal-close-discard')?.addEventListener('click', close);
+	}
+
 	return {
 		showInfo,
 		showDiceRoll,
@@ -614,6 +650,7 @@ export function initModalManager(container) {
 		showPlaceDetailModal,
 		showOpponentHandRevealModal,
 		showMosjeSelect,
+		showDiscardViewerModal,
 		close,
 	};
 }
