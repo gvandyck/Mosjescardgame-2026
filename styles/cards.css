@@ -274,7 +274,7 @@
 /* ── Hand card text scaling (2x font sizes) ────────────────────────── */
 .hand-cards .card__name,
 .hand-strip .card__name {
-  font-size: 2.43rem;
+  font-size: 1.6rem;
 }
 
 .hand-cards .card__desc,
@@ -349,7 +349,7 @@
 
 .hand-cards .section-label,
 .hand-strip .section-label {
-  font-size: 1.2rem;
+  font-size: 0.8rem;
 }
 
 .hand-cards .ability-line,
@@ -364,7 +364,7 @@
 
 .hand-cards .place-name,
 .hand-strip .place-name {
-  font-size: 2.7rem;
+  font-size: 1.6rem;
 }
 
 .hand-cards .place-effect-text,
@@ -536,7 +536,7 @@
 
 .place-type-label {
   font-family: var(--font-display);
-  font-size: 0.55rem;
+  font-size: 0.8rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--place-green, #3dd68c);
@@ -753,7 +753,7 @@
 }
 
 .section-label {
-  font-size: 0.5rem;
+  font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
