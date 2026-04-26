@@ -296,11 +296,6 @@ export function buildPlaceCardHTML(card) {
           </div>
         ` : ''}
 
-        ${card.flavourText ? `
-          <div class="place-card-rule"></div>
-          <p class="place-flavour">&quot;${escapeHtml(card.flavourText)}&quot;</p>
-        ` : ''}
-
         <div class="place-footer">
           <span class="place-rarity">${rarityStars}</span>
         </div>
