@@ -1106,39 +1106,28 @@
 .mosje-ability-btn,
 .mosje-return-btn,
 .hand-card__play-btn {
-  width: 100%;
-  margin-top: 6px;
-  padding: 6px 0;
+  padding: 10px 16px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   color: #fff;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   font-family: var(--font-display);
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
 }
 
 .mosje-ability-btn {
   background: linear-gradient(135deg, #92400e, #f59e0b);
-  width: auto;
-  min-width: unset;
-  max-width: unset;
-  height: auto;
-  margin: 0;
-  padding: 3px 7px;
-  border-radius: 6px;
-  font-size: 0.72rem;
-  letter-spacing: 0.04em;
   opacity: 0.88;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
   position: absolute;
-  right: 6px;
-  bottom: 6px;
-  white-space: nowrap;
+  right: 10px;
+  bottom: 10px;
+  line-height: 1;
 }
 
 .mosje-ability-btn--used,

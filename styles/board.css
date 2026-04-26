@@ -957,18 +957,21 @@
 
 .modal-btn {
    font-family: var(--font-display);
-   letter-spacing: 0.1em;
+   font-size: 0.72rem;
+   font-weight: 700;
+   letter-spacing: 0.08em;
    border: none;
    border-radius: 8px;
-   padding: 9px 14px;
+   padding: 10px 16px;
    background: linear-gradient(135deg, #1d4ed8, #3b82f6);
    color: #fff;
    cursor: pointer;
 }
 
 .modal-btn--ghost {
-   background: #2a355f;
+   background: rgba(42, 53, 95, 0.6);
    color: #e6ebff;
+   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .dice-display {
