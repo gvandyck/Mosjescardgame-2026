@@ -144,6 +144,7 @@
 }
 
 .card--mosje {
+  padding: 0;
   border: 2px solid var(--mosje-gold);
   background: linear-gradient(160deg, #1c1508 0%, #0e0c04 60%, #1a1205 100%);
   box-shadow: 0 0 0 1px rgba(232, 185, 79, 0.15), inset 0 1px 0 rgba(232, 185, 79, 0.1);
@@ -158,6 +159,7 @@
 }
 
 .card--piecie {
+  padding: 0;
   border: 2px solid var(--piecie-blue);
   background: linear-gradient(160deg, #050f1c 0%, #04080f 60%, #060c18 100%);
 }
@@ -168,6 +170,7 @@
 
 .card--snelle,
 .card--snelle_piecie {
+  padding: 0;
   border: 2px solid var(--snelle-red);
   background: linear-gradient(160deg, #1c0505 0%, #0f0404 60%, #180606 100%);
 }
@@ -178,6 +181,7 @@
 }
 
 .card--place {
+  padding: 0;
   border: 2px solid var(--place-green);
   background: linear-gradient(160deg, #041a0e 0%, #030f08 60%, #051508 100%);
 }
