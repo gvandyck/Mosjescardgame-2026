@@ -117,11 +117,15 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		bottomZone?.appendChild(cardEl);
 	}
 
-	// Render active Place card in Piecie slot (opponent side)
+	// Render active Place card in Piecie slot (both players)
 	if (viewModel.activePlace) {
-		const placeEl = renderCard(viewModel.activePlace, { compact: true });
-		placeEl.classList.add('field-piecie-card', 'place-card-in-slot');
-		topPiecies?.appendChild(placeEl);
+		const placeOpponent = renderCard(viewModel.activePlace, { compact: true });
+		placeOpponent.classList.add('field-piecie-card', 'place-card-in-slot');
+		topPiecies?.appendChild(placeOpponent);
+
+		const placePlayer = renderCard(viewModel.activePlace, { compact: true });
+		placePlayer.classList.add('field-piecie-card', 'place-card-in-slot');
+		bottomPiecies?.appendChild(placePlayer);
 	}
 
 	for (const piecie of (viewModel.players.top.piecies || []).slice(0, 4)) {
