@@ -94,9 +94,9 @@ export function canAttemptGeneralQuest(questCard, gameState, playerId) {
     return false;
   }
   if (questCard.requirementId === 'quest_req_momentum_master') {
-    const pieciesUsed = player.pieciesPlayedThisTurn || 0;
-    if (pieciesUsed < 2) {
-      console.log('[QUEST] Momentum Master blocked — fewer than 2 Piecies used this turn:', pieciesUsed);
+    const mp = activeMosje.mp || 0;
+    if (mp < 80 || mp > 100) {
+      console.log('[QUEST] Momentum Master blocked — Active Mosje MP not between 80-100:', mp);
       return false;
     }
   }
@@ -580,11 +580,10 @@ export function quest_req_tough_it_out(questCard, mosje) {
 
 // MIXED/SPECIAL QUESTS
 export function quest_req_momentum_master(questCard, mosje, gameState) {
-	// Must have used 2+ Piecies this turn
-	const pieciesUsed = gameState?.players[gameState.activePlayerId]?.pieciesPlayedThisTurn || 0;
-	if (pieciesUsed < 2) return { canAttempt: false };
-	const roll = rollDie();
-	return { canAttempt: true, diceRoll: roll, threshold: 3, success: roll >= 3 };
+	// Active Mosje must have between 80 and 100 MP (auto-succeed if requirement met)
+	const mp = mosje?.mp || 0;
+	const canAttempt = mp >= 80 && mp <= 100;
+	return { canAttempt, success: canAttempt };
 }
 
 export function quest_req_the_gauntlet(questCard, mosje) {
