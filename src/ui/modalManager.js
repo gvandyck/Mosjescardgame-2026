@@ -366,11 +366,13 @@ export function initModalManager(container) {
 
 		container.querySelector('#modal-cancel-quest')?.addEventListener('click', close);
 
-		// Initialize drag-to-scroll for ability section
-		const abilitySection = previewEl.querySelector('.mosje-ability-section-v2');
-		if (abilitySection) {
-			initDragScroll(abilitySection);
-		}
+		// Initialize drag-to-scroll for ability section (after modal is rendered)
+		setTimeout(() => {
+			const abilitySection = container.querySelector('.mosje-ability-section-v2');
+			if (abilitySection) {
+				initDragScroll(abilitySection);
+			}
+		}, 0);
 	}
 
 	function initDragScroll(element) {
