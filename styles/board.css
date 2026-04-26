@@ -18,7 +18,7 @@
    grid-area: topbar;
    width: 95vw;
    margin: 10px auto 0;
-   background: linear-gradient(140deg, rgba(12, 16, 32, 0.95), rgba(8, 12, 26, 0.95));
+   background: linear-gradient(140deg, rgba(33, 33, 33, 0.95), rgba(26, 26, 26, 0.95));
    border: 1px solid var(--zone-border);
    border-radius: 12px;
    padding: 12px 16px;
@@ -26,7 +26,7 @@
    align-items: center;
    gap: 12px;
    flex-wrap: wrap;
-   box-shadow: 0 14px 38px rgba(0, 0, 0, 0.35), inset 0 0 0 1px rgba(74, 158, 255, 0.05);
+   box-shadow: 0 14px 38px rgba(0, 0, 0, 0.35), inset 0 0 0 1px rgba(200, 200, 200, 0.05);
 }
 
 .game-topbar h1 {
@@ -43,13 +43,13 @@
 
 .topbar-room-code {
    font-size: 0.75rem;
-   color: #8aa0c8;
+   color: #a0a0a0;
    letter-spacing: 0.06em;
    white-space: nowrap;
    padding: 2px 8px;
-   border: 1px solid rgba(74, 158, 255, 0.2);
+   border: 1px solid rgba(200, 200, 200, 0.2);
    border-radius: 6px;
-   background: rgba(74, 158, 255, 0.06);
+   background: rgba(200, 200, 200, 0.06);
 }
 
 .topbar-room-code strong {
@@ -64,15 +64,15 @@
 }
 
 .topbar-actions #btn-toggle-log.is-open {
-   background: rgba(61, 142, 245, 0.18);
-   border-color: rgba(61, 142, 245, 0.48);
-   color: #dbeafe;
+   background: rgba(200, 200, 200, 0.18);
+   border-color: rgba(200, 200, 200, 0.48);
+   color: #f0f0f0;
 }
 
 .topbar-log-popover {
    width: 100%;
    margin-top: 6px;
-   background: rgba(5, 8, 16, 0.96);
+   background: rgba(26, 26, 26, 0.96);
    border: 1px solid rgba(255, 255, 255, 0.08);
    border-radius: 10px;
    padding: 8px;
@@ -106,8 +106,8 @@
    width: 100%;
    min-height: 90px;
    max-height: 180px;
-   background: rgba(2, 6, 15, 0.95);
-   color: #dbe7ff;
+   background: rgba(20, 20, 20, 0.95);
+   color: #e0e0e0;
    border: 1px solid rgba(255, 255, 255, 0.18);
    border-radius: 8px;
    padding: 8px;
@@ -125,9 +125,9 @@
 
 .topbar-flow__item {
    font-size: 0.7rem;
-   color: #9cb3df;
-   background: rgba(156, 179, 223, 0.08);
-   border: 1px solid rgba(156, 179, 223, 0.2);
+   color: #b0b0b0;
+   background: rgba(156, 156, 156, 0.08);
+   border: 1px solid rgba(156, 156, 156, 0.2);
    border-radius: 8px;
    padding: 4px 8px;
    white-space: nowrap;
@@ -153,7 +153,7 @@
    border: 1px solid var(--zone-border);
    border-radius: 12px;
    padding: 0;
-   box-shadow: inset 0 0 0 1px rgba(74, 158, 255, 0.04);
+   box-shadow: inset 0 0 0 1px rgba(200, 200, 200, 0.04);
 }
 
 .board-zone {
@@ -1340,9 +1340,9 @@
 }
 
 .page--game.place-active .game-board {
-   background: linear-gradient(180deg, rgba(61, 214, 140, 0.04) 0%, rgba(61, 214, 140, 0.02) 100%),
+   background: linear-gradient(180deg, rgba(61, 214, 140, 0.06) 0%, rgba(61, 214, 140, 0.02) 100%),
                var(--board-felt);
-   box-shadow: inset 0 0 20px rgba(61, 214, 140, 0.15);
+   box-shadow: inset 0 0 20px rgba(61, 214, 140, 0.20);
 }
 
 .game-layout {

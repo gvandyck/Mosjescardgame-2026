@@ -1,11 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
-  --board-bg:        #05070f;
-  --board-felt:      #080c1a;
-  --zone-bg:         #0c1020;
-  --zone-border:     #1a2040;
-  --zone-glow:       rgba(74, 158, 255, 0.06);
+  --board-bg:        #1a1a1a;
+  --board-felt:      #212121;
+  --zone-bg:         #2a2a2a;
+  --zone-border:     #3a3a3a;
+  --zone-glow:       rgba(200, 200, 200, 0.06);
 
   --mosje-gold:      #e8b94f;
   --mosje-glow:      rgba(232, 185, 79, 0.4);
