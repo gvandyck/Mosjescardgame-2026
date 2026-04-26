@@ -251,11 +251,31 @@
    align-items: flex-start;
    gap: 10px;
    overflow-x: auto;
-   padding-bottom: 2px;
+   padding-bottom: 10px;
+   cursor: grab;
+   scroll-behavior: smooth;
+}
+
+.board-zone__row:active {
+   cursor: grabbing;
 }
 
 .board-zone__row > * {
    flex: 0 0 auto;
+}
+
+/* Visual drag handle indicator */
+.board-zone__row::after {
+   content: '⋯⋯⋯';
+   position: sticky;
+   right: 8px;
+   bottom: -8px;
+   flex-shrink: 0;
+   color: rgba(255, 255, 255, 0.3);
+   font-size: 0.8rem;
+   letter-spacing: 2px;
+   user-select: none;
+   pointer-events: none;
 }
 
 .board-zone__slots {

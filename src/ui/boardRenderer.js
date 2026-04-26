@@ -167,6 +167,41 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 			viewModel.onClearRevealFlag();
 		}
 	}
+
+	// Initialize drag-to-scroll handlers for horizontal overflow areas
+	const rows = container.querySelectorAll('.board-zone__row');
+	rows.forEach(initDragScroll);
+}
+
+function initDragScroll(element) {
+	let isDown = false;
+	let startX = 0;
+	let scrollLeft = 0;
+
+	element.addEventListener('mousedown', (e) => {
+		isDown = true;
+		startX = e.pageX - element.offsetLeft;
+		scrollLeft = element.scrollLeft;
+		element.style.cursor = 'grabbing';
+	});
+
+	element.addEventListener('mouseleave', () => {
+		isDown = false;
+		element.style.cursor = 'grab';
+	});
+
+	element.addEventListener('mouseup', () => {
+		isDown = false;
+		element.style.cursor = 'grab';
+	});
+
+	element.addEventListener('mousemove', (e) => {
+		if (!isDown) return;
+		e.preventDefault();
+		const x = e.pageX - element.offsetLeft;
+		const walk = (x - startX) * 1.5;
+		element.scrollLeft = scrollLeft - walk;
+	});
 }
 
 // Populates the active-quest-display panel with the current quest details.
