@@ -244,10 +244,12 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
   const handIndex = player.hand.findIndex(c => c.cardId === cardRef.cardId);
   if (handIndex === -1) return { state, success: false, error: 'Card not in hand' };
 
-  // Check if field already has 4 Piecies/Places
+  // Check if field already has 4 Piecies/Places (count activePlace as 1 slot)
   const piecieSlots = player.piecieSlots || [];
   const filledSlots = piecieSlots.filter(slot => slot !== null && slot !== undefined).length;
-  if (filledSlots >= 4) {
+  const activePlaceCount = state.activePlace ? 1 : 0;
+  const totalSlots = filledSlots + activePlaceCount;
+  if (totalSlots >= 4) {
     return { state, success: false, error: 'You can place up to 4 Piecies/Places total' };
   }
 
@@ -437,11 +439,13 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
   let player = state.players[playerId];
   if (!player) return { state, success: false, error: 'Player not found' };
 
-  // Check if all 4 Piecie slots are full — cannot play Snelle Piecie if board is full
+  // Check if all 4 Piecie/Place slots are full — cannot play Snelle Piecie if board is full
   const piecieSlots = player.piecieSlots || [];
   const filledSlots = piecieSlots.filter(slot => slot !== null && slot !== undefined).length;
-  if (filledSlots >= 4) {
-    return { state, success: false, error: 'Cannot play Snelle Piecie — all Piecie slots are full.' };
+  const activePlaceCount = state.activePlace ? 1 : 0;
+  const totalSlots = filledSlots + activePlaceCount;
+  if (totalSlots >= 4) {
+    return { state, success: false, error: 'Cannot play Snelle Piecie — all Piecie/Place slots are full.' };
   }
 
   // Defensive normalization for synced multiplayer states
@@ -685,7 +689,7 @@ export function playPlace(gameState, playerId, cardRef, cardDef) {
     return { state, success: false, error: 'A Place is already active. Destroy it first.' };
   }
 
-  // Check if all 4 Piecie/Place slots are full
+  // Check if all 4 Piecie/Place slots are full (Place counts as 1 slot)
   const piecieSlots = player.piecieSlots || [];
   const filledSlots = piecieSlots.filter(slot => slot !== null && slot !== undefined).length;
   if (filledSlots >= 4) {
