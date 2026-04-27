@@ -883,22 +883,27 @@ function initGamePage() {
 	}
 
 	function handleOpenDiscard(playerId, isOwned) {
-		console.log('[UI] handleOpenDiscard called for player:', playerId, 'isOwned:', isOwned);
-		console.log('[UI] gameState exists?', !!gameState, 'gameState.players?', !!gameState?.players);
-		if (!gameState) {
-			console.error('[UI] No gameState available');
-			return;
+		try {
+			console.log('[UI] handleOpenDiscard called for player:', playerId, 'isOwned:', isOwned);
+			console.log('[UI] gameState exists?', !!gameState, 'gameState.players?', !!gameState?.players);
+			if (!gameState) {
+				console.error('[UI] No gameState available');
+				return;
+			}
+			console.log('[UI] About to find player in gameState.players');
+			const player = gameState.players.find(p => p.id === playerId);
+			console.log('[UI] Found player?', !!player, 'player:', player?.name || playerId);
+			if (!player) {
+				console.error('[UI] Player not found:', playerId, 'available players:', gameState.players.map(p => p.id));
+				return;
+			}
+			console.log('[UI] Opening discard modal for player:', player.name || playerId, 'with', player.discard?.length || 0, 'cards');
+			console.log('[UI] modal exists?', !!modal, 'modal.showDiscardViewerModal?', !!modal?.showDiscardViewerModal);
+			modal.showDiscardViewerModal(player, isOwned);
+			console.log('[UI] Modal should be open now');
+		} catch (error) {
+			console.error('[UI] Error in handleOpenDiscard:', error.message, error);
 		}
-		const player = gameState.players.find(p => p.id === playerId);
-		console.log('[UI] Found player?', !!player, 'player:', player?.name || playerId);
-		if (!player) {
-			console.error('[UI] Player not found:', playerId, 'available players:', gameState.players.map(p => p.id));
-			return;
-		}
-		console.log('[UI] Opening discard modal for player:', player.name || playerId, 'with', player.discard?.length || 0, 'cards');
-		console.log('[UI] modal exists?', !!modal, 'modal.showDiscardViewerModal?', !!modal?.showDiscardViewerModal);
-		modal.showDiscardViewerModal(player, isOwned);
-		console.log('[UI] Modal should be open now');
 	}
 
 	async function handlePlayCard(cardId, cardType) {
