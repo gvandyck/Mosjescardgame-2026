@@ -350,7 +350,7 @@ export function activatePiecie(gameState, playerId, slotIndex) {
   if (oppId && flags.negateNextPiecie?.[oppId]) {
     delete state._snelleFlags.negateNextPiecie[oppId];
     console.log('[ENGINE] Counter Strikka negated:', knownCardDef.name);
-    player.discard.unshift({ cardId: slotCardId, type: 'PIECIE' });
+    player.discard.push(slotCardId);
     player.piecieSlots[safeSlotIndex] = null;
     state = checkVictory(state);
     return { state, success: true, negated: true, cardDef: knownCardDef };
@@ -362,7 +362,7 @@ export function activatePiecie(gameState, playerId, slotIndex) {
     const si = oppPlayer.activeSlots.findIndex(s => s && !s.isDefeated);
     if (si >= 0) oppPlayer.activeSlots[si].mp += 15;
     console.log('[ENGINE] Perfect Dodge negated ATTACK + granted 15 MP to opponent');
-    player.discard.unshift({ cardId: slotCardId, type: 'PIECIE' });
+    player.discard.push(slotCardId);
     player.piecieSlots[safeSlotIndex] = null;
     state = checkVictory(state);
     return { state, success: true, negated: true, cardDef: knownCardDef };
@@ -415,7 +415,7 @@ export function activatePiecie(gameState, playerId, slotIndex) {
   player = state.players[playerId];
   if (!Array.isArray(player.discard)) player.discard = [];
   normalizePiecieSlots(player, 4);
-  player.discard.unshift({ cardId: slotCardId, type: 'PIECIE' });
+  player.discard.push(slotCardId);
   player.piecieSlots[safeSlotIndex] = null;
 
   state = checkVictory(state);
