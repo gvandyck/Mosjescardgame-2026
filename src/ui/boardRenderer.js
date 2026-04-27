@@ -393,7 +393,6 @@ function renderDiscardPile(container, player, isOwned, onOpenDiscard) {
 		emptyPile.className = 'discard-pile discard-pile--empty';
 		emptyPile.innerHTML = `
 			<div class="discard-pile__placeholder"></div>
-			<div class="discard-pile__label">Empty</div>
 		`;
 		container.appendChild(emptyPile);
 		return;
