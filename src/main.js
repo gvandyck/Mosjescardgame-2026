@@ -1230,6 +1230,7 @@ function toBoardViewModel(gameState, localPlayerId) {
 		myPlayerId: localPlayerId,
 		players: {
 			top: {
+				id: opponentId,
 				name: opponent.name,
 				mosjes: toMosjeCards(opponent.activeSlots),
 				activeModifiers: buildActiveModifiers(gameState, opponentId, false),
@@ -1240,8 +1241,10 @@ function toBoardViewModel(gameState, localPlayerId) {
 					isLocalTurn,
 					viewerOwns: false,
 				}),
+				discard: opponent.discard || [],
 			},
 			bottom: {
+				id: localPlayerId,
 				name: localPlayer.name,
 				mosjes: toMosjeCards(localPlayer.activeSlots),
 				activeModifiers: buildActiveModifiers(gameState, localPlayerId, true),
@@ -1252,6 +1255,7 @@ function toBoardViewModel(gameState, localPlayerId) {
 					isLocalTurn,
 					viewerOwns: true,
 				}),
+				discard: localPlayer.discard || [],
 			},
 		},
 	};
