@@ -429,15 +429,6 @@ function renderDiscardPile(container, player, isOwned, onOpenDiscard) {
 
 	pile.appendChild(pileStack);
 
-	// Render top card details overlay (on top of pile)
-	const topCardId = discardCards[count - 1];
-	const topCardData = getCardById(topCardId);
-	if (topCardData) {
-		const topCardEl = renderCard(topCardData, { compact: true });
-		topCardEl.className = 'discard-pile__top-card';
-		pile.appendChild(topCardEl);
-	}
-
 	// Count badge for 2+ cards
 	if (count >= 2) {
 		const badge = document.createElement('div');
