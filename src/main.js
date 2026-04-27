@@ -689,7 +689,8 @@ function initGamePage() {
 
 		const onUseAbility = (isLocalTurn && !gameOver) ? handleUseAbility : null;
 		const onActivatePiecie = (isLocalTurn && !gameOver) ? handleActivatePiecie : null;
-		renderBoard(boardRoot, uiState, onUseAbility, null, onActivatePiecie);
+		const onOpenDiscard = handleOpenDiscard;
+		renderBoard(boardRoot, uiState, onUseAbility, null, onActivatePiecie, onOpenDiscard);
 		if (state._lastPlaceEffect?.placeName) {
 			showPlaceEffectBanner(state._lastPlaceEffect.placeName, state._lastPlaceEffect.description, state._lastPlaceEffect.phase);
 			delete state._lastPlaceEffect;
@@ -879,6 +880,13 @@ function initGamePage() {
 		logStateOutcome(log, beforeActivate, gameState, localPlayerId, `${activatedName} activation`);
 		syncPush();
 		renderFromState(gameState);
+	}
+
+	function handleOpenDiscard(playerId, isOwned) {
+		if (!gameState) return;
+		const player = gameState.players.find(p => p.id === playerId);
+		if (!player) return;
+		modal.showDiscardViewerModal(player, isOwned);
 	}
 
 	async function handlePlayCard(cardId, cardType) {
