@@ -883,9 +883,17 @@ function initGamePage() {
 	}
 
 	function handleOpenDiscard(playerId, isOwned) {
-		if (!gameState) return;
+		console.log('[UI] handleOpenDiscard called for player:', playerId, 'isOwned:', isOwned);
+		if (!gameState) {
+			console.error('[UI] No gameState available');
+			return;
+		}
 		const player = gameState.players.find(p => p.id === playerId);
-		if (!player) return;
+		if (!player) {
+			console.error('[UI] Player not found:', playerId);
+			return;
+		}
+		console.log('[UI] Opening discard modal for player:', player.name || playerId, 'with', player.discard?.length || 0, 'cards');
 		modal.showDiscardViewerModal(player, isOwned);
 	}
 

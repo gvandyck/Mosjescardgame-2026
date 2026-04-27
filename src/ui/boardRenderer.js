@@ -425,10 +425,12 @@ function renderDiscardPile(container, player, isOwned, onOpenDiscard) {
 
 	// Click to open discard viewer
 	pile.addEventListener('click', () => {
+		console.log('[UI] Discard pile clicked for player:', player.id, 'isOwned:', isOwned);
 		if (typeof onOpenDiscard === 'function') {
+			console.log('[UI] Calling onOpenDiscard callback');
 			onOpenDiscard(player.id, isOwned);
 		} else {
-			// Fallback: show modal with discard contents
+			console.log('[UI] Using fallback showDiscardViewerModal');
 			getBoardModal().showDiscardViewerModal(player, isOwned);
 		}
 	});
