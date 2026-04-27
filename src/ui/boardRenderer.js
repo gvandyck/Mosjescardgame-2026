@@ -418,9 +418,9 @@ function renderDiscardPile(container, player, isOwned, onOpenDiscard) {
 		// Calculate position in pile (0 = bottom, layerCount-1 = top)
 		const positionFromTop = i;
 		const offsetMultiplier = (positionFromTop / Math.max(1, layerCount - 1)) * maxOffset;
-		const rotation = (Math.random() - 0.5) * 2; // Slight random rotation ±1 degree
+		const rotation = (Math.random() - 0.5) * 8; // More extreme rotation ±4 degrees
 
-		cardLayer.style.transform = `translateY(${offsetMultiplier}px) translateX(${(Math.random() - 0.5) * 1}px) rotateZ(${rotation}deg)`;
+		cardLayer.style.transform = `translateY(${offsetMultiplier}px) translateX(${(Math.random() - 0.5) * 2}px) rotateZ(${rotation}deg)`;
 		cardLayer.style.zIndex = i;
 
 		pileStack.appendChild(cardLayer);
