@@ -25,7 +25,8 @@
    display: flex;
    align-items: center;
    gap: 12px;
-   flex-wrap: wrap;
+   flex-wrap: nowrap;
+   overflow: hidden;
    box-shadow: none;
    border-bottom: 1px solid rgba(200, 200, 200, 0.08);
 }
@@ -33,13 +34,22 @@
 .game-topbar h1 {
    color: var(--mosje-gold);
    font-size: 1.55rem;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+   min-width: 0;
+   flex-shrink: 0;
 }
 
 .game-topbar p {
    color: #b8c8ea;
-   flex: 1 1 auto;
+   flex: 0 1 auto;
    font-size: 0.95rem;
    letter-spacing: 0.04em;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+   min-width: 0;
 }
 
 .topbar-room-code {
@@ -47,10 +57,14 @@
    color: #a0a0a0;
    letter-spacing: 0.06em;
    white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
    padding: 2px 8px;
    border: 1px solid rgba(200, 200, 200, 0.2);
    border-radius: 6px;
    background: rgba(200, 200, 200, 0.06);
+   flex-shrink: 0;
+   min-width: 0;
 }
 
 .topbar-room-code strong {
@@ -61,13 +75,24 @@
 .topbar-actions {
    display: flex;
    gap: 8px;
-   flex-wrap: wrap;
+   flex-wrap: nowrap;
+   min-width: 0;
+   flex-shrink: 1;
+   overflow: hidden;
 }
 
 .topbar-actions #btn-toggle-log.is-open {
    background: rgba(200, 200, 200, 0.18);
    border-color: rgba(200, 200, 200, 0.48);
    color: #f0f0f0;
+}
+
+.topbar-actions button {
+   flex: 0 1 auto;
+   min-width: 0;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
 }
 
 .topbar-log-popover {
@@ -120,8 +145,11 @@
    display: flex;
    align-items: center;
    gap: 8px;
-   flex-wrap: wrap;
+   flex-wrap: nowrap;
    margin-left: auto;
+   min-width: 0;
+   flex-shrink: 1;
+   overflow: hidden;
 }
 
 .topbar-flow__item {
@@ -132,6 +160,10 @@
    border-radius: 8px;
    padding: 4px 8px;
    white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+   min-width: 0;
+   flex-shrink: 1;
 }
 
 .topbar-flow__item strong {
@@ -1387,12 +1419,12 @@
    }
 
    .topbar-actions {
-      width: 100%;
-      justify-content: stretch;
+      flex-wrap: nowrap;
+      flex-shrink: 1;
    }
 
    .topbar-actions button {
-      flex: 1 1 auto;
+      flex: 0 1 auto;
       min-width: 0;
       padding: 8px 10px;
       font-size: 0.76rem;
