@@ -217,7 +217,7 @@ export function attemptPersonalQuest(gameState, questCardId) {
   }
 
   const [questCard] = player.hand.splice(cardIndex, 1);
-  player.discard.push(questCard);
+  player.discard.push(questCard.cardId);
   player.questsAttemptedThisTurn = questsAttempted + 1;
   player.hasAttemptedQuestThisTurn = true;
   console.log('[ENGINE] Personal Quest played from hand and moved to discard:', questCardId);
@@ -457,7 +457,7 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
   const handIndex = player.hand.findIndex(c => c.cardId === cardRef.cardId);
   if (handIndex === -1) return { state, success: false, error: 'Card not in hand' };
   const [playedCard] = player.hand.splice(handIndex, 1);
-  player.discard.push(playedCard);
+  player.discard.push(playedCard.cardId);
 
   // Apply the effect function
   const effectFn = snelleEffects[cardDef.effectId];
@@ -483,9 +483,6 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
     }
     delete state._snelleFlags.copyLastPiecie;
   }
-
-  // Move card to discard pile
-  player.discard.unshift(cardRef);
 
   state = checkVictory(state);
   return { state, success: true };
