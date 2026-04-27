@@ -8,6 +8,8 @@ import { rollDie } from '../engine/deckEngine.js';
 import { gainMP, loseMP } from '../engine/mpManager.js';
 import { applyPlaceEffectsOnQuest } from '../engine/turnManager.js';
 import { getSynergyChamberDiceBonus } from './placeEffects.js';
+import { runCardEffects } from '../cards/executor/run-card-effects.ts';
+import { resolveEffectExpression } from '../cards/executor/resolve-effect-expression.ts';
 
 console.log('[ABILITY] questLogic.js loaded');
 
@@ -223,11 +225,34 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 	const baseQuestMpBlocked = state.activePlace === 'place_the_void';
 
 	if (!baseQuestMpBlocked) {
-		if (didSucceed) {
-			state = gainMP(state, playerId, slotIndex, questCard.successMP);
+		// Support both old format (successMP/failMP) and new format (onSuccess/onFailure effects)
+		const hasNewFormat = (didSucceed && questCard.onSuccess?.length > 0) || (!didSucceed && questCard.onFailure?.length > 0);
+
+		if (hasNewFormat) {
+			// Execute onSuccess or onFailure effects (new format)
+			const effects = didSucceed ? (questCard.onSuccess || []) : (questCard.onFailure || []);
+			if (effects.length > 0) {
+				const playerIds = Object.keys(state.players);
+				const context = {
+					source: { kind: 'quest', cardId: questCard.id, playerId },
+					actingPlayerId: playerId,
+					turnCount: state.turnNumber
+				};
+				const invocation = { actingPlayerId: playerId, actingMosjeRef: { playerId, instanceId: state.players[playerId].activeSlots[slotIndex].instanceId } };
+
+				const resolvedEffects = effects.map(expr =>
+					resolveEffectExpression(expr, invocation, context.turnCount, playerIds)
+				);
+				state = runCardEffects(state, resolvedEffects, invocation, context);
+			}
 		} else {
-			const failValue = Math.abs(typeof questCard.failMP === 'number' ? questCard.failMP : 0);
-			state = loseMP(state, playerId, slotIndex, failValue, 'QUEST');
+			// Fall back to old format (successMP/failMP)
+			if (didSucceed) {
+				state = gainMP(state, playerId, slotIndex, questCard.successMP);
+			} else {
+				const failValue = Math.abs(typeof questCard.failMP === 'number' ? questCard.failMP : 0);
+				state = loseMP(state, playerId, slotIndex, failValue, 'QUEST');
+			}
 		}
 	}
 
