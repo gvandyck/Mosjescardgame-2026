@@ -892,7 +892,8 @@ function initGamePage() {
 			}
 			console.log('[UI] About to find player in gameState.players');
 			console.log('[UI] gameState.players is array?', Array.isArray(gameState.players), 'length:', gameState.players?.length);
-			const player = gameState.players.find(p => p.id === playerId);
+			// gameState.players is an object, not an array
+			const player = gameState.players[playerId];
 			console.log('[UI] Found player?', !!player, 'player:', player?.name || playerId);
 			if (!player) {
 				console.error('[UI] Player not found:', playerId, 'available players:', gameState.players.map(p => p.id));
