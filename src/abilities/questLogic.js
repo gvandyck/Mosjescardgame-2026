@@ -760,7 +760,7 @@ export function quest_req_perfect_sync(gameState, playerId) {
 	const westActive = hasActiveMosjeCard(gameState, playerId, 'mosje_west');
 	const coertActive = hasActiveMosjeCard(gameState, playerId, 'mosje_coert_tech');
 
-	if (!westActive) return { canAttempt: false, reason: '[West] Sr.Tactical must be on your field.' };
+	if (!westActive) return { canAttempt: false, reason: '[Martin] Señor West must be on your field.' };
 	if (!coertActive) return { canAttempt: false, reason: '[Coert] The Tech Savant must be on your field.' };
 
 	return {

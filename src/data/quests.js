@@ -871,7 +871,7 @@ export const QUESTS = [
     requirementDescription: "Requires both West and Coert active. Auto-success.",
     successMP: 70,
     failMP: -20,
-    description: "Requires [West] Sr.Tactical and [Coert] The Tech Savant both active on your field simultaneously. Look at the opponent's full hand. Gain +70 MP.",
+    description: "Requires [Martin] Señor West and [Coert] The Tech Savant both active on your field simultaneously. Look at the opponent's full hand. Gain +70 MP.",
     difficulty: "HIGH",
     isBoosterOnly: true,
     rarity: "★★★★",

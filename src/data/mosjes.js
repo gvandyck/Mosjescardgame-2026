@@ -659,7 +659,7 @@ export const MOSJES = [
     id: "mosje_west",
     type: "MOSJE",
     subtype: "DIGITAL",
-    name: "[West] Sr.Tactical",
+    name: "[Martin] Señor West",
     startMP: 15,
     traits: { mental: 3, technical: 1 },
     abilityId: "ability_west_calculated_guess",

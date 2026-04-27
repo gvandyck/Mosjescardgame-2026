@@ -2,8 +2,8 @@ import type { CardId } from "../../../types/card-id.js";
 import type { QuestDefinition } from "../../schema/quest-definition.js";
 import { registerCard } from "../../registry/card-registry.js";
 
-// Personal quest for [Martin] Senor West.
-// "Requires [West] Sr.Tactical and [Coert] The Hawaiian Tech Savant both active. Auto-success.
+// Personal quest for [Martin] Señor West.
+// "Requires [Martin] Señor West and [Coert] The Hawaiian Tech Savant both active. Auto-success.
 //  Look at the opponent's full hand."
 // West-on-field enforced by requiredMosjeCardId. Coert-on-field checked via card_in_play.
 // "Look at opponent's full hand" is stubbed (no revealHand primitive yet).
