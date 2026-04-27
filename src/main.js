@@ -891,6 +891,7 @@ function initGamePage() {
 				return;
 			}
 			console.log('[UI] About to find player in gameState.players');
+			console.log('[UI] gameState.players is array?', Array.isArray(gameState.players), 'length:', gameState.players?.length);
 			const player = gameState.players.find(p => p.id === playerId);
 			console.log('[UI] Found player?', !!player, 'player:', player?.name || playerId);
 			if (!player) {
