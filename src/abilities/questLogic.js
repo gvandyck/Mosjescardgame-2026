@@ -8,8 +8,6 @@ import { rollDie } from '../engine/deckEngine.js';
 import { gainMP, loseMP } from '../engine/mpManager.js';
 import { applyPlaceEffectsOnQuest } from '../engine/turnManager.js';
 import { getSynergyChamberDiceBonus } from './placeEffects.js';
-import { runCardEffects } from '../cards/executor/run-card-effects.ts';
-import { resolveEffectExpression } from '../cards/executor/resolve-effect-expression.ts';
 
 console.log('[ABILITY] questLogic.js loaded');
 
@@ -226,24 +224,16 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 
 	if (!baseQuestMpBlocked) {
 		// Support both old format (successMP/failMP) and new format (onSuccess/onFailure effects)
-		const hasNewFormat = (didSucceed && questCard.onSuccess?.length > 0) || (!didSucceed && questCard.onFailure?.length > 0);
+		const effects = didSucceed ? (questCard.onSuccess || []) : (questCard.onFailure || []);
 
-		if (hasNewFormat) {
-			// Execute onSuccess or onFailure effects (new format)
-			const effects = didSucceed ? (questCard.onSuccess || []) : (questCard.onFailure || []);
-			if (effects.length > 0) {
-				const playerIds = Object.keys(state.players);
-				const context = {
-					source: { kind: 'quest', cardId: questCard.id, playerId },
-					actingPlayerId: playerId,
-					turnCount: state.turnNumber
-				};
-				const invocation = { actingPlayerId: playerId, actingMosjeRef: { playerId, instanceId: state.players[playerId].activeSlots[slotIndex].instanceId } };
-
-				const resolvedEffects = effects.map(expr =>
-					resolveEffectExpression(expr, invocation, context.turnCount, playerIds)
-				);
-				state = runCardEffects(state, resolvedEffects, invocation, context);
+		if (effects.length > 0) {
+			// Extract MP amounts from effect expressions (new format)
+			for (const effect of effects) {
+				if (effect.primitive === 'gainMP' && effect.params?.amount) {
+					state = gainMP(state, playerId, slotIndex, effect.params.amount);
+				} else if (effect.primitive === 'loseMP' && effect.params?.amount) {
+					state = loseMP(state, playerId, slotIndex, effect.params.amount, 'QUEST');
+				}
 			}
 		} else {
 			// Fall back to old format (successMP/failMP)
