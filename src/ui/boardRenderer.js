@@ -404,7 +404,32 @@ function renderDiscardPile(container, player, isOwned, onOpenDiscard) {
 	pile.className = 'discard-pile discard-pile--has-cards';
 	pile.setAttribute('data-card-count', count);
 
-	// Render top card (with slight offset for stack visual)
+	// Create pile stack container for layered cards
+	const pileStack = document.createElement('div');
+	pileStack.className = 'discard-pile__stack';
+
+	// Generate card layers (show up to 5 layers, more cards = more offset)
+	const layerCount = Math.min(count, 5);
+	const maxOffset = Math.min(count * 2, 8); // Cap offset at 8px even if many cards
+
+	for (let i = 0; i < layerCount; i++) {
+		const cardLayer = document.createElement('div');
+		cardLayer.className = 'discard-pile__card-layer';
+
+		// Calculate position in pile (0 = bottom, layerCount-1 = top)
+		const positionFromTop = i;
+		const offsetMultiplier = (positionFromTop / Math.max(1, layerCount - 1)) * maxOffset;
+		const rotation = (Math.random() - 0.5) * 2; // Slight random rotation ±1 degree
+
+		cardLayer.style.transform = `translateY(${offsetMultiplier}px) translateX(${(Math.random() - 0.5) * 1}px) rotateZ(${rotation}deg)`;
+		cardLayer.style.zIndex = i;
+
+		pileStack.appendChild(cardLayer);
+	}
+
+	pile.appendChild(pileStack);
+
+	// Render top card details overlay (on top of pile)
 	const topCardId = discardCards[count - 1];
 	const topCardData = getCardById(topCardId);
 	if (topCardData) {
@@ -417,7 +442,7 @@ function renderDiscardPile(container, player, isOwned, onOpenDiscard) {
 	if (count >= 2) {
 		const badge = document.createElement('div');
 		badge.className = 'discard-pile__count-badge';
-		badge.textContent = `x${count}`;
+		badge.textContent = `${count}`;
 		pile.appendChild(badge);
 	}
 
