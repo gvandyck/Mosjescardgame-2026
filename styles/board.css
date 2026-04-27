@@ -1512,7 +1512,7 @@
 }
 
 .page--game.place-active .game-board {
-   background: transparent;
+   background: transparent !important;
 }
 
 .game-layout {

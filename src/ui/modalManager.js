@@ -572,7 +572,12 @@ export function initModalManager(container) {
 			title: 'Choose Mosje for Quest',
 			prompt: isQuestAttempt ? `Select Mosje to attempt quest (costs 20 MP).` : 'Select which Mosje will attempt the quest.',
 			options,
-		}).then(selected => onSelected(Number.parseInt(selected ?? '0', 10)));
+			allowCancel: true,
+		}).then(selected => {
+			if (selected !== null) {
+				onSelected(Number.parseInt(selected, 10));
+			}
+		});
 	}
 
 	// Shows a card from the deck briefly so the player can see it.
