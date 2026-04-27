@@ -1192,17 +1192,19 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	justify-content: center;
-	gap: 4px;
-	min-width: 120px;
-	padding: 12px 8px;
+	justify-content: flex-start;
+	gap: 8px;
+	width: var(--piecie-cell-w);
+	min-width: var(--piecie-cell-w);
+	max-width: var(--piecie-cell-w);
+	padding: 0;
 	flex-shrink: 0;
 }
 
 .discard-pile {
 	position: relative;
-	width: 100px;
-	height: calc(100px * var(--card-height-ratio));
+	width: var(--piecie-cell-w);
+	height: var(--piecie-cell-h);
 	cursor: pointer;
 	transition: transform 0.2s, filter 0.2s;
 	user-select: none;
@@ -1222,8 +1224,8 @@
 }
 
 .discard-pile__placeholder {
-	width: 100px;
-	height: calc(100px * var(--card-height-ratio));
+	width: var(--piecie-cell-w);
+	height: var(--piecie-cell-h);
 	border: 2px dashed rgba(200, 200, 200, 0.15);
 	border-radius: 6px;
 	background: rgba(200, 200, 200, 0.02);
@@ -1238,8 +1240,8 @@
 	position: absolute;
 	top: 0;
 	left: 0;
-	width: 100px;
-	height: calc(100px * var(--card-height-ratio));
+	width: var(--piecie-cell-w);
+	height: var(--piecie-cell-h);
 	perspective-origin: 50% 50%;
 }
 
