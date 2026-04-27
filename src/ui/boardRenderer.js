@@ -377,7 +377,11 @@ function renderModifierBar(bar, pills) {
 // Shows top card face-up, count badge at 2+ cards, stacked visual effect.
 // Empty state shows a faint placeholder.
 function renderDiscardPile(container, player, isOwned, onOpenDiscard) {
-	if (!container || !player) return;
+	console.log('[UI] renderDiscardPile called for player:', player?.id, 'discard count:', player?.discard?.length);
+	if (!container || !player) {
+		console.warn('[UI] renderDiscardPile: container or player missing', !!container, !!player);
+		return;
+	}
 	container.innerHTML = '';
 
 	const discardCards = player.discard || [];
