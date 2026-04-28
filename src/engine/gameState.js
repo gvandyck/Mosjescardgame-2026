@@ -47,6 +47,7 @@ export function createInitialGameState(playerConfigs, roomCode) {
     activePlace: null,           // string card id e.g. 'place_the_gym', or null
     activePlacePlayedBy: null,   // playerId who played the current Place
     activePlaceTurnsActive: 0,   // how many full end-phases have passed since Place was set
+    activePlaceCanActivateOnTurn: 0, // earliest turn number when Place can be activated
     sharedPlaceDiscard: [],      // Place cards that have been destroyed/replaced
 
     // Active Quest — visible to all players once revealed
@@ -290,6 +291,7 @@ export function setActivePlace(gameState, cardId, playedByPlayerId) {
   state.activePlace = cardId;
   state.activePlacePlayedBy = playedByPlayerId || null;
   state.activePlaceTurnsActive = 0;
+  state.activePlaceCanActivateOnTurn = state.turnNumber + 1;
   console.log(`[ENGINE] Place set: ${cardId} (played by ${playedByPlayerId})`);
   return state;
 }

@@ -1178,9 +1178,9 @@ Flavor: (none listed)
 
 ---
 
-### Gun een Piece
+### Pot of Weed
 ```
-ID:         piecie_gun_een_piece
+ID:         piecie_pot_of_weed
 Type:       PIECIE
 Subtype:    UTILITY
 MP Cost:    Free
@@ -3818,7 +3818,7 @@ Flavor: (none listed)
 | `[PET]` | Bowie & Stormey, Gekke Vogels, KatjeGang, ViannaPoes |
 | `[ELIMINATION]` | Harde Didde, Klaar Met Jou, Gandoe Destroyer ability |
 | `[DOT]` | Kleine Taks, Continuous Assault, MP Hemorrhage |
-| `[DRAW]` | Gun een Piece, Bagga of Greed, Stripje Bennies, Warm Kannetje Melk |
+| `[DRAW]` | Pot of Weed, Bagga of Greed, Stripje Bennies, Warm Kannetje Melk |
 | `[DESTROY]` | Slecht Gezet, Bong Hit Demolition, Shhh popo komt |
 | `[PROTECT]` | Afblijven, Laat me chillen, Mosje Shield |
 | `[GANDOE]` | Gandoe Wizard, Gandoe Destroyer, DJ 80/20 |

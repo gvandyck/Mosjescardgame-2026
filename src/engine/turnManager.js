@@ -282,6 +282,52 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
   return { state, success: true };
 }
 
+export function activatePlace(gameState, playerId, slotIndex) {
+  let state = JSON.parse(JSON.stringify(gameState));
+  let player = state.players[playerId];
+  if (!player) return { state, success: false, error: 'Player not found' };
+
+  if (state.activePlayerId !== playerId) {
+    return { state, success: false, error: 'You can only activate Places on your own turn' };
+  }
+
+  normalizePiecieSlots(player, 4);
+  const slot = player.piecieSlots[slotIndex];
+  if (!slot || slot.type !== 'PLACE') {
+    return { state, success: false, error: 'No Place in this slot' };
+  }
+
+  if (slot.activated) {
+    return { state, success: false, error: 'This Place is already activated' };
+  }
+
+  const canActivateOnTurn = Number.isFinite(slot.canActivateOnTurn)
+    ? slot.canActivateOnTurn
+    : 0;
+  if (state.turnNumber < canActivateOnTurn) {
+    return { state, success: false, error: `This Place cannot be activated until turn ${canActivateOnTurn}` };
+  }
+
+  const cardId = slot.cardId;
+  const cardDef = getCardById(cardId);
+  if (!cardDef) return { state, success: false, error: 'Card definition not found' };
+
+  // Remove from piecieSlots
+  player.piecieSlots[slotIndex] = null;
+
+  // Set as active Place
+  state = setActivePlace(state, cardId, playerId);
+
+  // Apply PASSIVE effects on activation
+  if (cardDef.trigger === 'PASSIVE') {
+    state = placeEffects.resolvePlaceEffect(state, 'PASSIVE');
+  }
+
+  console.log(`[ENGINE] Place activated: ${cardDef.name} by ${playerId}`);
+  state = checkVictory(state);
+  return { state, success: true, cardDef };
+}
+
 export function activatePiecie(gameState, playerId, slotIndex) {
   let state = JSON.parse(JSON.stringify(gameState));
   let player = state.players[playerId];
@@ -684,11 +730,7 @@ export function playPlace(gameState, playerId, cardRef, cardDef) {
   const player = state.players[playerId];
   if (!player) return { state, success: false, error: 'Player not found' };
 
-  if (state.activePlace) {
-    return { state, success: false, error: 'A Place is already active. Destroy it first.' };
-  }
-
-  // Check if all 4 Piecie/Place slots are full (Place counts as 1 slot)
+  // Check if all 4 Piecie/Place slots are full
   const piecieSlots = player.piecieSlots || [];
   const filledSlots = piecieSlots.filter(slot => slot !== null && slot !== undefined).length;
   if (filledSlots >= 4) {
@@ -704,15 +746,24 @@ export function playPlace(gameState, playerId, cardRef, cardDef) {
   if (handIndex === -1) return { state, success: false, error: 'Card not in hand' };
   player.hand.splice(handIndex, 1);
 
-  // setActivePlace handles destroying the old one + setting the new one
-  state = setActivePlace(state, cardRef.cardId, playerId);
-
-  // Apply PASSIVE effects immediately on placement
-  if (cardDef.trigger === 'PASSIVE') {
-    state = placeEffects.resolvePlaceEffect(state, 'PASSIVE');
+  // Find empty slot and place face-down (like a Piecie)
+  const emptySlot = piecieSlots.findIndex(slot => slot === null || slot === undefined);
+  if (emptySlot === -1) {
+    player.hand.splice(handIndex, 0, cardRef);
+    return { state, success: false, error: 'No empty Piecie slot available' };
   }
 
-  console.log(`[ENGINE] Place played: ${cardDef.name} by ${playerId}`);
+  player.piecieSlots[emptySlot] = {
+    cardId: cardRef.cardId,
+    type: 'PLACE',
+    faceDown: true,
+    activated: false,
+    playedOnTurn: state.turnNumber,
+    canActivateOnTurn: state.turnNumber + 1,
+    slotIndex: emptySlot,
+  };
+
+  console.log(`[ENGINE] Place played face-down: ${cardDef.name} by ${playerId}`);
   state = checkVictory(state);
   return { state, success: true };
 }

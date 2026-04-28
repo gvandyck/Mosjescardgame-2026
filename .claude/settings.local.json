@@ -15,7 +15,13 @@
       "Bash(gh pr create --title 'fix\\(quests\\): correct threshold lookup + Mosje selector with trait display' --body ' *)",
       "Bash(cd c:\\\\\\\\Users\\\\\\\\Gandoe\\\\\\\\Documents\\\\\\\\GitHub\\\\\\\\Mosjescardgame-2026)",
       "Bash(xargs basename *)",
-      "Bash(xargs -I {} bash -c 'echo \"=== {} ===\" && head -20 {}')"
+      "Bash(xargs -I {} bash -c 'echo \"=== {} ===\" && head -20 {}')",
+      "Skill(gsd-new-project)",
+      "Skill(gsd-new-project:*)",
+      "Bash(curl -s http://localhost:8000/index.html)",
+      "Bash(bash /tmp/check_piecie_images.sh)",
+      "Bash(bash /tmp/check_real_art.sh)",
+      "Bash(bash /tmp/missing_art_complete.sh)"
     ]
   }
 }

@@ -53,7 +53,7 @@
 | Dikke Taks | Piecies/ATTACK | on_play | mp(25) + level_req(2) | all_opponents | lose_mp(opponent_active_mosje, 35) | draw(self, 2) | requires level2 | instant | - | - | piecie_dikke_taks; effect_dikke_taks |
 | Kleine Taks | Piecies/ATTACK | on_play | mp(15) + level_req(1) | opponent_active_mosje | effect_ref(effect_kleine_taks) | - | requires level1 | instant | - | - | piecie_kleine_taks; effect_kleine_taks |
 | Affoe | Piecies/SUBSTANCE | on_play | mp(5) | opponent_active_mosje | lose_mp(opponent_active_mosje, 15) | gain_mp(self_active_mosje, 10) | - | instant | - | - | piecie_affoe; effect_affoe |
-| Gun een Piece | Piecies/UTILITY | on_play | free | self_active_mosje | draw(self, 2) | - | - | instant | - | - | piecie_gun_een_piece; effect_gun_een_piece |
+| Pot of Weed | Piecies/UTILITY | on_play | free | self_active_mosje | draw(self, 2) | - | - | instant | - | - | piecie_pot_of_weed; effect_pot_of_weed |
 | Zie je die Dingetjes | Piecies/UTILITY | on_play | free + level_req(1) | self_active_mosje | effect_ref(effect_zie_je_die_dingetjes) | - | requires level1 | instant | - | - | piecie_zie_je_die_dingetjes; effect_zie_je_die_dingetjes |
 | Slecht Gezet | Piecies/UTILITY | on_play | free | self_active_mosje | destroy(active_place) | - | - | instant | - | - | piecie_slecht_gezet; effect_slecht_gezet |
 | Bong Hit Demolition | Piecies/UTILITY | on_play | mp(10) | self_active_mosje | draw(self, 2) | destroy(active_place) | - | instant | - | - | piecie_bong_hit_demolition; effect_bong_hit_demolition |

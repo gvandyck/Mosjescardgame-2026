@@ -2,9 +2,9 @@ import type { CardDefinition } from "../../schema/card-definition.js";
 import type { CardId } from "../../../types/card-id.js";
 import { registerCard } from "../../registry/card-registry.js";
 
-export const GUN_EEN_PIECE: CardDefinition = {
-  id: "gun-een-piece" as CardId,
-  name: "Gun Een Piece",
+export const POT_OF_WEED: CardDefinition = {
+  id: "pot-of-weed" as CardId,
+  name: "Pot of Weed",
   category: "piecie",
   subcategory: "MOMENTUM-GAINING",
   isBoosterOnly: false,
@@ -16,4 +16,4 @@ export const GUN_EEN_PIECE: CardDefinition = {
   effects: [{ primitive: "drawCards", params: { playerId: "$player", count: 2 } }]
 };
 
-registerCard(GUN_EEN_PIECE);
+registerCard(POT_OF_WEED);

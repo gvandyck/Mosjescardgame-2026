@@ -105,7 +105,7 @@ src/cards/piecies/
 │   ├── chefs-special.ts
 │   ├── dikke-jonko.ts
 │   ├── shoettoe.ts
-│   ├── gun-een-piece.ts
+│   ├── pot-of-weed.ts
 │   ├── kannetje-melk.ts
 │   ├── momentum-boost.ts
 │   ├── momentum-rush.ts  ← snelle-piecie

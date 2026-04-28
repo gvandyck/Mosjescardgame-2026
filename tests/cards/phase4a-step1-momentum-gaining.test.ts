@@ -3,7 +3,7 @@ import { executeCard } from "../../src/cards/executor/execute-card.js";
 import {
   BROODJE_DONER,
   ENERGY_SURGE,
-  GUN_EEN_PIECE,
+  POT_OF_WEED,
   KANNETJE_MELK,
   MOMENTUM_BOOST,
   MOMENTUM_RUSH,
@@ -108,7 +108,7 @@ beforeEach(() => {
   registerCard(MOMENTUM_BOOST);
   registerCard(WARM_KANNETJE_MELK);
   registerCard(MOMENTUM_RUSH);
-  registerCard(GUN_EEN_PIECE);
+  registerCard(POT_OF_WEED);
 });
 
 describe("phase4a step 1 - simple gain piecies", () => {
@@ -196,8 +196,8 @@ describe("phase4a step 1 - simple gain piecies", () => {
     expect(firstDrawEventIndex).toBeGreaterThan(loseEventIndex);
   });
 
-  it("gun-een-piece draws 2 cards without changing MP", () => {
-    const next = executeCard(createState(), cardId("gun-een-piece"), invocation());
+  it("pot-of-weed draws 2 cards without changing MP", () => {
+    const next = executeCard(createState(), cardId("pot-of-weed"), invocation());
     expect(next.players[0].mosjes[0].mp).toBe(20);
     expect(next.players[0].hand).toEqual([cardId("d1"), cardId("d2")]);
   });

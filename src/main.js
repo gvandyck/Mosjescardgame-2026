@@ -6,7 +6,7 @@ import { createLogRenderer } from './ui/logRenderer.js';
 import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes } from './engine/gameState.js';
-import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, playSnellie, playPlace, playMosje, useMosjeAbility, canPlayerActNow } from './engine/turnManager.js';
+import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow } from './engine/turnManager.js';
 import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold } from './abilities/questLogic.js';
 import { loseMP } from './engine/mpManager.js';
 import { MOSJES } from './data/mosjes.js';
@@ -704,8 +704,9 @@ function initGamePage() {
 
 		const onUseAbility = (isLocalTurn && !gameOver) ? handleUseAbility : null;
 		const onActivatePiecie = (isLocalTurn && !gameOver) ? handleActivatePiecie : null;
+		const onActivatePlace = (isLocalTurn && !gameOver) ? handleActivatePlace : null;
 		const onOpenDiscard = handleOpenDiscard;
-		renderBoard(boardRoot, uiState, onUseAbility, null, onActivatePiecie, onOpenDiscard);
+		renderBoard(boardRoot, uiState, onUseAbility, null, onActivatePiecie, onActivatePlace, onOpenDiscard);
 		if (state._lastPlaceEffect?.placeName) {
 			showPlaceEffectBanner(state._lastPlaceEffect.placeName, state._lastPlaceEffect.description, state._lastPlaceEffect.phase);
 			delete state._lastPlaceEffect;
@@ -892,6 +893,25 @@ function initGamePage() {
 			log.add('gain', `Activated ${activatedName}.`);
 			if (cardDef?.description) log.add('info', cardDef.description);
 		}
+		logStateOutcome(log, beforeActivate, gameState, localPlayerId, `${activatedName} activation`);
+		syncPush();
+		renderFromState(gameState);
+	}
+
+	function handleActivatePlace(slotIndex) {
+		if (!gameState || gameState.status === 'FINISHED') return;
+		const beforeActivate = gameState;
+
+		const { state: newState, success, error, cardDef } = activatePlace(gameState, localPlayerId, slotIndex);
+		if (!success) {
+			modal.showInfo('Cannot Activate', error || 'That Place cannot be activated right now.');
+			return;
+		}
+		gameState = newState;
+
+		const activatedName = cardDef?.name || 'Place';
+		log.add('gain', `Activated ${activatedName}.`);
+		if (cardDef?.description) log.add('info', cardDef.description);
 		logStateOutcome(log, beforeActivate, gameState, localPlayerId, `${activatedName} activation`);
 		syncPush();
 		renderFromState(gameState);

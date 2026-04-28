@@ -19,7 +19,7 @@ src/cards/piecies/
     momentum-boost.ts
     warm-kannetje-melk.ts
     momentum-rush.ts
-    gun-een-piece.ts
+    pot-of-weed.ts
     ronald-kip.ts
     varkenspootjes.ts
     chefs-special.ts
@@ -68,7 +68,7 @@ src/cards/piecies/
 5. momentum-boost
 6. warm-kannetje-melk
 7. momentum-rush
-8. gun-een-piece
+8. pot-of-weed
 9. ronald-kip
 10. varkenspootjes
 11. chefs-special
