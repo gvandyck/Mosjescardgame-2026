@@ -69,12 +69,12 @@ export function renderCard(card, options = {}) {
     return element;
   }
 
-  if (type === 'PIECIE') {
+  if (type === 'PIECIE' || type === 'SNELLE_PIECIE') {
     const hasRealArt = typeof resolvedCard.artPath === 'string'
       && resolvedCard.artPath.length > 0
       && !resolvedCard.artPath.endsWith('/placeholder.png');
     if (hasRealArt) {
-      element.innerHTML = buildPiecieCardHTML(resolvedCard);
+      element.innerHTML = buildCardWithArt(resolvedCard);
       return element;
     }
   }
@@ -312,9 +312,10 @@ export function buildPlaceCardHTML(card) {
   `;
 }
 
-function buildPiecieCardHTML(card) {
+function buildCardWithArt(card) {
   const artUrl = resolveArtPathForCss(card.artPath);
   const artStyle = artUrl ? ` style="--piecie-full-art-url: url('${escapeCssUrl(artUrl)}');"` : '';
+  const typeLabel = String(card.type || 'UNKNOWN').toUpperCase().replaceAll('_', ' ');
 
   return `
     <div class="piecie-card-inner">
@@ -322,27 +323,9 @@ function buildPiecieCardHTML(card) {
       <div class="piecie-full-art-vignette"></div>
       <div class="piecie-card-content">
         <div class="card__top">
-          <span class="card__type-label">PIECIE</span>
+          <span class="card__type-label">${escapeHtml(typeLabel)}</span>
         </div>
-        <h3 class="card__name">${escapeHtml(card.name || 'Unnamed Piecie')}</h3>
-        <p class="card__desc">${escapeHtml(card.description || '')}</p>
-      </div>
-    </div>
-  `;
-}
-
-function buildKannetjeMilkCardHTML(card) {
-  const artStyle = ` style="--piecie-full-art-url: url('/assets/piecie-art/kannetje-melk.jpeg');"`
-
-  return `
-    <div class="piecie-card-inner">
-      <div class="piecie-full-art"${artStyle}></div>
-      <div class="piecie-full-art-vignette"></div>
-      <div class="piecie-card-content">
-        <div class="card__top">
-          <span class="card__type-label">PIECIE</span>
-        </div>
-        <h3 class="card__name">${escapeHtml(card.name || 'Kannetje Melk')}</h3>
+        <h3 class="card__name">${escapeHtml(card.name || 'Unnamed Card')}</h3>
         <p class="card__desc">${escapeHtml(card.description || '')}</p>
       </div>
     </div>
