@@ -292,17 +292,17 @@ export const PIECIES = [
   // ─────────────────────────────────────────
 
   {
-    id: "piecie_gun_een_piece",
+    id: "piecie_pot_of_weed",
     type: "PIECIE",
     subtype: "UTILITY",
-    name: "Gun een Piece",
+    name: "Pot of Weed",
     mpCost: 0,
     requirement: "any",
-    effectId: "effect_gun_een_piece",
+    effectId: "effect_pot_of_weed",
     tags: ["DRAW"],
     description: "Draw 2 cards from your deck.",
     flavourText: "",
-    artPath: "assets/piecies/placeholder.png",
+    artPath: "assets/piecie-art/pot-of-weed.jpeg",
     rarity: "★★★☆☆",
     isBoosterOnly: false,
     deckLimit: null

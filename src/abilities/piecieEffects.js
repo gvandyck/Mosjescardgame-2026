@@ -295,13 +295,13 @@ export function effect_kleine_taks(gameState, playerId) {
 // UTILITY
 // ─────────────────────────────────────────
 
-export function effect_gun_een_piece(gameState, playerId) {
+export function effect_pot_of_weed(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
 	const drawn = Math.min(2, player.deck.length);
 	player.hand.push(...player.deck.splice(0, drawn));
-	console.log(`[ABILITY] Gun een Piece: drew ${drawn} card(s)`);
+	console.log(`[ABILITY] Pot of Weed: drew ${drawn} card(s)`);
 	return state;
 }
 
