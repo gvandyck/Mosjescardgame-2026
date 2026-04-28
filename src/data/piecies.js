@@ -36,7 +36,7 @@ export const PIECIES = [
     tags: ["FOOD", "RESTORE"],
     description: "Gain 35 MP. (Level 1+ only) (70 MP with Coert/Binti synergy)",
     flavourText: "",
-    artPath: "assets/piecies/placeholder.png",
+    artPath: "assets/piecie-art/Broodje Döner.jpeg",
     rarity: "★★★☆☆",
     isBoosterOnly: false,
     deckLimit: null
