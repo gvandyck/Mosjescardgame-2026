@@ -245,10 +245,10 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
   const handIndex = player.hand.findIndex(c => c.cardId === cardRef.cardId);
   if (handIndex === -1) return { state, success: false, error: 'Card not in hand' };
 
-  // Check if field already has 4 Piecies/Places (count activePlace as 1 slot)
+  // Check if field already has 4 Piecies/Places (count activePlace as 1 slot, but only if player played it)
   const piecieSlots = player.piecieSlots || [];
   const filledSlots = piecieSlots.filter(slot => slot !== null && slot !== undefined).length;
-  const activePlaceCount = state.activePlace ? 1 : 0;
+  const activePlaceCount = (state.activePlace && state.activePlacePlayedBy === playerId) ? 1 : 0;
   const totalSlots = filledSlots + activePlaceCount;
   if (totalSlots >= 4) {
     return { state, success: false, error: 'You can place up to 4 Piecies/Places total' };
