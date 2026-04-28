@@ -505,6 +505,21 @@ function initGamePage() {
 				traits: slot.traits || CARD_LOOKUP[slot.cardId]?.traits || {},
 			}));
 
+		// Check if player wants to pay 20 MP to attempt the quest
+		const confirmPayment = await modal.showConfirm(
+			`Attempt ${questDef.name}?`,
+			'Pay 20 MP to attempt this quest?'
+		);
+		if (!confirmPayment) {
+			// Player declined — return quest to discard and exit
+			gameState.activeQuest = null;
+			if (!Array.isArray(gameState.sharedGeneralQuestDiscard)) gameState.sharedGeneralQuestDiscard = [];
+			gameState.sharedGeneralQuestDiscard.push(questRef);
+			renderFromState(gameState);
+			syncPush();
+			return;
+		}
+
 		function runGeneralQuestDiceRoll(targetSlotIndex) {
 			modal.showDiceRoll(questDef, threshold, (didSucceed) => {
 				const beforeResolve = gameState;
