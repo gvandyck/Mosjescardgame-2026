@@ -281,7 +281,7 @@ export const PIECIES = [
     tags: ["SUBSTANCE", "ATTACK", "TARGETING"],
     description: "Target opponent loses 15 MP. You gain 10 MP.",
     flavourText: "Niet persoonlijk.",
-    artPath: "assets/piecie-art/affoe.jpeg",
+    artPath: "assets/snelle-art/affoe.jpeg",
     rarity: "★★☆☆☆",
     isBoosterOnly: false,
     deckLimit: null
