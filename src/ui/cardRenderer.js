@@ -69,9 +69,14 @@ export function renderCard(card, options = {}) {
     return element;
   }
 
-  if (type === 'PIECIE' && resolvedCard.name === 'Kannetje Melk') {
-    element.innerHTML = buildKannetjeMilkCardHTML(resolvedCard);
-    return element;
+  if (type === 'PIECIE') {
+    const hasRealArt = typeof resolvedCard.artPath === 'string'
+      && resolvedCard.artPath.length > 0
+      && !resolvedCard.artPath.endsWith('/placeholder.png');
+    if (hasRealArt) {
+      element.innerHTML = buildPiecieCardHTML(resolvedCard);
+      return element;
+    }
   }
 
   element.innerHTML = `
@@ -302,6 +307,25 @@ export function buildPlaceCardHTML(card) {
         <div class="place-footer">
           <span class="footer-stat-text">${rarityDots}</span>
         </div>
+      </div>
+    </div>
+  `;
+}
+
+function buildPiecieCardHTML(card) {
+  const artUrl = resolveArtPathForCss(card.artPath);
+  const artStyle = artUrl ? ` style="--piecie-full-art-url: url('${escapeCssUrl(artUrl)}');"` : '';
+
+  return `
+    <div class="piecie-card-inner">
+      <div class="piecie-full-art"${artStyle}></div>
+      <div class="piecie-full-art-vignette"></div>
+      <div class="piecie-card-content">
+        <div class="card__top">
+          <span class="card__type-label">PIECIE</span>
+        </div>
+        <h3 class="card__name">${escapeHtml(card.name || 'Unnamed Piecie')}</h3>
+        <p class="card__desc">${escapeHtml(card.description || '')}</p>
       </div>
     </div>
   `;
