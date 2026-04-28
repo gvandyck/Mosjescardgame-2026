@@ -20,7 +20,7 @@ export const PIECIES = [
     tags: ["FOOD", "RESTORE"],
     description: "Gain 25 MP to your active Mosje. (50 MP with Coert/Binti synergy)",
     flavourText: "",
-    artPath: "assets/piecies/placeholder.png",
+    artPath: "assets/piecie-art/kannetje-melk.jpeg",
     rarity: "★★☆☆☆",
     isBoosterOnly: false,
     deckLimit: null
@@ -446,7 +446,7 @@ export const PIECIES = [
     tags: ["QUEST-BOOST"],
     description: "Your next Quest roll this turn gets +2 added to the dice result.",
     flavourText: "",
-    artPath: "assets/piecies/placeholder.png",
+    artPath: "assets/piecie-art/dubbele-dosis.jpeg",
     rarity: "★★★☆☆",
     isBoosterOnly: false,
     deckLimit: null
