@@ -23,7 +23,7 @@ function getBoardModal() {
 	return _boardModal;
 }
 
-export function renderBoard(container, viewModel, onUseAbility = null, onReturnToHand = null, onActivatePiecie = null, onOpenDiscard = null) {
+export function renderBoard(container, viewModel, onUseAbility = null, onReturnToHand = null, onActivatePiecie = null, onActivatePlace = null, onOpenDiscard = null) {
 	if (!container) return;
 	console.log('[UI] Rendering board view');
 
@@ -157,7 +157,9 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		}
 		const piecieEl = renderCard(piecie, { compact: true });
 		piecieEl.classList.add('field-piecie-card');
-		if (onActivatePiecie && piecie.canActivate) {
+
+		// Add activate button for Piecies
+		if (onActivatePiecie && piecie.canActivate && piecie.type === 'PIECIE') {
 			const btn = document.createElement('button');
 			btn.className = 'hand-card__play-btn';
 			btn.type = 'button';
@@ -165,6 +167,19 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 			btn.addEventListener('click', (event) => {
 				event.stopPropagation();
 				onActivatePiecie(piecie.slotIndex);
+			});
+			piecieEl.appendChild(btn);
+		}
+
+		// Add activate button for Places
+		if (onActivatePlace && piecie.canActivate && piecie.type === 'PLACE') {
+			const btn = document.createElement('button');
+			btn.className = 'hand-card__play-btn';
+			btn.type = 'button';
+			btn.textContent = 'Activate';
+			btn.addEventListener('click', (event) => {
+				event.stopPropagation();
+				onActivatePlace(piecie.slotIndex);
 			});
 			piecieEl.appendChild(btn);
 		}
