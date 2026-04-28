@@ -16,7 +16,7 @@ export const STARTER_DECKS = [
       "piecie_affoe",
       "piecie_quest_prep",
       "piecie_quest_prep",
-      "piecie_gun_een_piece",
+      "piecie_pot_of_weed",
       "piecie_slecht_gezet"
     ],
     snellePiecies: [
@@ -39,8 +39,8 @@ export const STARTER_DECKS = [
     description: "Card draw, MP efficiency, and tech synergies. Best for strategic players.",
     mosjes: ["mosje_west", "mosje_coert_tech"],
     piecies: [
-      "piecie_gun_een_piece",
-      "piecie_gun_een_piece",
+      "piecie_pot_of_weed",
+      "piecie_pot_of_weed",
       "piecie_kannetje_melk",
       "piecie_kannetje_melk",
       "piecie_quest_prep",
@@ -72,8 +72,8 @@ export const STARTER_DECKS = [
       "piecie_kannetje_melk",
       "piecie_affoe",
       "piecie_affoe",
-      "piecie_gun_een_piece",
-      "piecie_gun_een_piece",
+      "piecie_pot_of_weed",
+      "piecie_pot_of_weed",
       "piecie_quest_prep",
       "piecie_slecht_gezet"
     ],
