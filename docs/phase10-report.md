@@ -39,7 +39,7 @@
   - Added: `te-hard-gaan`, extra `quest_leap_of_faith`, extra `quest_tough_it_out`.
 - Digital Control deck:
   - Removed: `zie-je-die-dingetjes`.
-  - Added: one additional `gun-een-piece`.
+  - Added: one additional `pot-of-weed`.
 - Artistic Rhythm deck:
   - Removed: `emergency-swap`, `quest_negotiation`, `quest_inspire_crowd`.
   - Added: one extra `warm-kannetje-melk`, one extra `quest_improvise`, one extra `quest_lucky_break`.

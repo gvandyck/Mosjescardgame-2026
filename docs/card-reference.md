@@ -78,7 +78,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 | ronald-kip | Ronald Kip | FOOD | no | no | free | gainMP | advanced |
 | varkenspootjes | Varkenspootjes | FOOD | yes | no | free | ifThenElse | implemented |
 | broodje-doner | Broodje Doner | MOMENTUM-GAINING | yes | no | free | gainMP | implemented |
-| gun-een-piece | Gun Een Piece | MOMENTUM-GAINING | yes | no | free | drawCards | implemented |
+| pot-of-weed | Pot of Weed | MOMENTUM-GAINING | yes | no | free | drawCards | implemented |
 | kannetje-melk | Kannetje Melk | MOMENTUM-GAINING | yes | no | free | gainMP | implemented |
 | momentum-boost | Momentum Boost | MOMENTUM-GAINING | no | no | free | gainMP+applyBuff | advanced |
 | nature-s-gift | Nature's Gift | MOMENTUM-GAINING | yes | no | free | ifThenElse | implemented |

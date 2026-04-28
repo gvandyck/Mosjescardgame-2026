@@ -37,7 +37,7 @@ Seeds: 7, 10, 11, 12, 13, 14, 15, 18, 19, 21, 24, 25, 27, 28, 29, 33, 35, 39, 46
 | `bowie-stormey` | 349 |
 | `kannetje-melk` | 320 |
 | `broodje-doner` | 320 |
-| `gun-een-piece` | 236 |
+| `pot-of-weed` | 236 |
 | `dubbele-ding` | 198 |
 | `controller` | 156 |
 | `afblijven` | 116 |
