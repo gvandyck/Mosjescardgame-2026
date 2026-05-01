@@ -1,11 +1,11 @@
 # Card Playtest Report
 
-Generated: 2026-04-30
+Generated: 2026-05-01
 
 ## Summary
 
-- Total tests: 12
-- ✅ Passed: 12
+- Total tests: 21
+- ✅ Passed: 21
 - ❌ Failed: 0
 - ⚠️  Not played: 0
 
@@ -158,3 +158,99 @@ Generated: 2026-04-30
 **Expectations:**
 
 - ✅ Card resolves (may be rejected due to level requirement if not met)
+
+### ✅ bagga-of-greed — Bagga of Greed
+
+**Status:** Passed
+
+> Draws cards and discards cards (hand cycling)
+
+**Expectations:**
+
+- ✅ Card resolves successfully
+- ✅ Draws at least one card
+  > Found 5 matching event(s)
+
+### ✅ keyboard — Keyboard
+
+**Status:** Passed
+
+> Gains MP and draws cards (conditional or direct)
+
+**Expectations:**
+
+- ✅ Card resolves successfully
+- ✅ Gains MP
+  > Found 2 matching event(s)
+
+### ✅ mouse — Mouse
+
+**Status:** Passed
+
+> Gains MP with conditional logic
+
+**Expectations:**
+
+- ✅ Card resolves successfully
+
+### ✅ controller — Controller
+
+**Status:** Passed
+
+> Gains MP based on game state
+
+**Expectations:**
+
+- ✅ Card resolves successfully
+
+### ✅ afblijven — Afblijven!
+
+**Status:** Passed
+
+> Costs 10 MP; applies buff for defense/utility
+
+**Expectations:**
+
+- ✅ Card resolves successfully
+- ✅ Applies buff
+  > Found 2 matching event(s)
+
+### ✅ dubbele-dosis — Dubbele Dosis
+
+**Status:** Passed
+
+> Complex multi-effect card (likely chain/conditional)
+
+**Expectations:**
+
+- ✅ Card resolves (outcome varies by conditions)
+
+### ✅ mp-amplifier — MP Amplifier
+
+**Status:** Passed
+
+> Modifies MP gains (multiplier or boost)
+
+**Expectations:**
+
+- ✅ Card resolves successfully
+
+### ✅ f1-telemetry-data — F1 Telemetry Data
+
+**Status:** Passed
+
+> Gains information or MP based on game state
+
+**Expectations:**
+
+- ✅ Card resolves successfully
+
+### ✅ redbull — Redbull
+
+**Status:** Passed
+
+> Substance card (likely MP-related effect)
+
+**Expectations:**
+
+- ✅ Card resolves successfully
