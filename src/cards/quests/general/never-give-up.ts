@@ -16,7 +16,7 @@ export const NEVER_GIVE_UP: QuestDefinition = {
   cost: { type: "free" },
   requirements: [
     { type: "trait", params: { trait: "Resilient", minStars: 3 } },
-    { type: "custom", params: { desc: "Mosje must be exactly Level 1" } }
+    { type: "custom", params: { description: "Mosje must be exactly Level 1" } }
   ],
   target: "self_active_mosje",
   trigger: "quest_attempt",

@@ -12,13 +12,13 @@ export const SUSTAINED_ASSAULT: QuestDefinition = {
   rarity: "epic",
   isBoosterOnly: false,
   cost: { type: "free" },
-  requirements: [{ type: "custom", params: { desc: "Dealt 30+ MP damage this turn" } }],
+  requirements: [{ type: "custom", params: { description: "Dealt 30+ MP damage this turn" } }],
   target: "self_active_mosje",
   trigger: "quest_attempt",
   duration: "instant",
   effects: [],
   scope: "general",
-  autoSucceedCondition: { type: "custom", params: { desc: "Dealt 30+ MP damage this turn" } },
+  autoSucceedCondition: { type: "custom", params: { description: "Dealt 30+ MP damage this turn" } },
   onSuccess: [{ primitive: "gainMP", params: { target: "$self", amount: 50 } }],
   onFailure: [{ primitive: "loseMP", params: { target: "$self", amount: 30, isCostPayment: false } }]
 };

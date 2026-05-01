@@ -14,7 +14,7 @@ export const LARRY_TEMMEN: QuestDefinition = {
   rarity: "legendary",
   isBoosterOnly: false,
   cost: { type: "free" },
-  requirements: [{ type: "custom", params: { desc: "piecie_larry_zegeltje on field or in hand" } }],
+  requirements: [{ type: "custom", params: { description: "piecie_larry_zegeltje on field or in hand" } }],
   target: "self_active_mosje",
   trigger: "quest_attempt",
   duration: "instant",

@@ -12,13 +12,13 @@ export const CHAIN_MASTER: QuestDefinition = {
   rarity: "epic",
   isBoosterOnly: false,
   cost: { type: "free" },
-  requirements: [{ type: "custom", params: { desc: "Activated 3+ Piecies this turn" } }],
+  requirements: [{ type: "custom", params: { description: "Activated 3+ Piecies this turn" } }],
   target: "self_active_mosje",
   trigger: "quest_attempt",
   duration: "instant",
   effects: [],
   scope: "general",
-  autoSucceedCondition: { type: "custom", params: { desc: "Activated 3+ Piecies this turn" } },
+  autoSucceedCondition: { type: "custom", params: { description: "Activated 3+ Piecies this turn" } },
   onSuccess: [{ primitive: "gainMP", params: { target: "$self", amount: 55 } }],
   onFailure: [{ primitive: "loseMP", params: { target: "$self", amount: 25, isCostPayment: false } }]
 };

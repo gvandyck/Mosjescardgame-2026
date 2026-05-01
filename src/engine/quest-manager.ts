@@ -1,5 +1,6 @@
 import { appendEvent } from "./append-event.js";
 import { applyVictoryCheck } from "./apply-victory-check.js";
+import { eventsSince } from "./events-since.js";
 import { getCard } from "../cards/registry/card-registry.js";
 import { runCardEffects } from "../cards/executor/run-card-effects.js";
 import { createRng } from "../utils/rng.js";
@@ -74,11 +75,85 @@ function evaluateRequirement(
       return checkPlaceActive(state, { placeCardId: req.params["placeCardId"] as string });
     case "custom": {
       const description = String(req.params["description"] ?? "");
-      if (description === "40_or_more_total_mp_damage_taken_this_game") {
-        const player = state.players.find((candidate) => candidate.id === playerId);
-        return (player?.totalDamageTaken ?? 0) >= 40;
+      const player = state.players.find((candidate) => candidate.id === playerId);
+      const mosje = player?.mosjes[player.activeMosjeIndex];
+
+      switch (description) {
+        case "40_or_more_total_mp_damage_taken_this_game":
+          return (player?.totalDamageTaken ?? 0) >= 40;
+
+        case "Dealt 30+ MP damage this turn": {
+          const recentEvents = eventsSince(state, state.currentTurnStartCount ?? 0);
+          const damageDealt = recentEvents
+            .filter(e => e.type === "mp_lost" && (e as any).target.playerId !== playerId)
+            .reduce((sum, e) => sum + ((e as any).amount ?? 0), 0);
+          return damageDealt >= 30;
+        }
+
+        case "Used Mosje ability AND completed 1 Quest this turn": {
+          const recentEvents = eventsSince(state, state.currentTurnStartCount ?? 0);
+          const usedAbility = recentEvents.some(e =>
+            e.type === "mosje_ability_used" && (e as any).mosjeRef.playerId === playerId
+          );
+          const completedQuest = recentEvents.some(e =>
+            e.type === "quest_completed" && (e as any).playerId === playerId
+          );
+          return usedAbility && completedQuest;
+        }
+
+        case "Mosje must be exactly Level 1":
+          return mosje?.level === 1;
+
+        case "Any trait at ★★★": {
+          if (mosje === undefined) return false;
+          const traits = (mosje.flags.traits as Readonly<Record<string, number>> | undefined) ?? {};
+          return Object.values(traits).some(stars => stars >= 3);
+        }
+
+        case "Activated keyboard/mouse/controller this game": {
+          const allEvents = state.eventLog;
+          const targetCardIds = ["keyboard", "mouse", "controller"] as CardId[];
+          return allEvents.some(e =>
+            e.type === "card_resolved" && targetCardIds.includes((e as any).cardId)
+          );
+        }
+
+        case "Activated 2+ Piecies this turn": {
+          const recentEvents = eventsSince(state, state.currentTurnStartCount ?? 0);
+          const piecieCount = recentEvents.filter(e => {
+            if (e.type !== "card_resolved") return false;
+            const cardId = (e as any).cardId as CardId;
+            const card = getCard(cardId);
+            return card.category === "piecie" || card.category === "snelle-piecie";
+          }).length;
+          return piecieCount >= 2;
+        }
+
+        case "Activated 3+ Piecies this turn": {
+          const recentEvents = eventsSince(state, state.currentTurnStartCount ?? 0);
+          const piecieCount = recentEvents.filter(e => {
+            if (e.type !== "card_resolved") return false;
+            const cardId = (e as any).cardId as CardId;
+            const card = getCard(cardId);
+            return card.category === "piecie" || card.category === "snelle-piecie";
+          }).length;
+          return piecieCount >= 3;
+        }
+
+        case "piecie_larry_zegeltje on field or in hand": {
+          if (player === undefined) return false;
+          const targetCardId = "larry-zegeltje" as CardId;
+
+          // Check hand
+          if (player.hand.includes(targetCardId)) return true;
+
+          // Check piecie field
+          return player.piecieSlots.some(slot => slot.cardId === targetCardId);
+        }
+
+        default:
+          return false;
       }
-      return true;
     }
     default: {
       const _: never = req.type;

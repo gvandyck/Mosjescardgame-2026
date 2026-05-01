@@ -15,7 +15,10 @@ export const DEBUG_SYSTEM: QuestDefinition & { onSuccessRecovery?: any, required
   rarity: "uncommon",
   isBoosterOnly: false,
   cost: { type: "free" },
-  requirements: [{ type: "trait", params: { trait: "Technical", minStars: 2 } }],
+  requirements: [
+    { type: "trait", params: { trait: "Technical", minStars: 2 } },
+    { type: "place_active", params: { placeCardId: "place_digital_gaming_stop" } }
+  ],
   target: "self_active_mosje",
   trigger: "quest_attempt",
   duration: "instant",

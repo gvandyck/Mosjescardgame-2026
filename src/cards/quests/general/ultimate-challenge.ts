@@ -15,14 +15,14 @@ export const ULTIMATE_CHALLENGE: QuestDefinition = {
   cost: { type: "free" },
   requirements: [
     { type: "mp", params: { operator: ">=", value: 30 } },
-    { type: "custom", params: { desc: "Any trait at ★★★" } }
+    { type: "custom", params: { description: "Any trait at ★★★" } }
   ],
   target: "self_active_mosje",
   trigger: "quest_attempt",
   duration: "instant",
   effects: [],
   scope: "general",
-  autoSucceedCondition: { type: "custom", params: { desc: "Any trait at ★★★" } },
+  autoSucceedCondition: { type: "custom", params: { description: "Any trait at ★★★" } },
   onSuccess: [
     { primitive: "loseMP", params: { target: "$self", amount: 30, isCostPayment: true } },
     { primitive: "gainMP", params: { target: "$self", amount: 100 } }
