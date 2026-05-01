@@ -13,13 +13,13 @@ export const SYNERGY_MASTERY: QuestDefinition = {
   rarity: "legendary",
   isBoosterOnly: false,
   cost: { type: "free" },
-  requirements: [{ type: "custom", params: { desc: "Used Mosje ability AND completed 1 Quest this turn" } }],
+  requirements: [{ type: "custom", params: { description: "Used Mosje ability AND completed 1 Quest this turn" } }],
   target: "self_active_mosje",
   trigger: "quest_attempt",
   duration: "instant",
   effects: [],
   scope: "general",
-  autoSucceedCondition: { type: "custom", params: { desc: "Used Mosje ability AND completed 1 Quest this turn" } },
+  autoSucceedCondition: { type: "custom", params: { description: "Used Mosje ability AND completed 1 Quest this turn" } },
   onSuccess: [{ primitive: "gainMP", params: { target: "$self", amount: 70 } }],
   onFailure: [{ primitive: "loseMP", params: { target: "$self", amount: 35, isCostPayment: false } }]
 };

@@ -13,13 +13,13 @@ export const LATE_NIGHT_QUESTING: QuestDefinition = {
   rarity: "epic",
   isBoosterOnly: false,
   cost: { type: "free" },
-  requirements: [{ type: "custom", params: { desc: "Activated keyboard/mouse/controller this game" } }],
+  requirements: [{ type: "custom", params: { description: "Activated keyboard/mouse/controller this game" } }],
   target: "self_active_mosje",
   trigger: "quest_attempt",
   duration: "instant",
   effects: [],
   scope: "general",
-  autoSucceedCondition: { type: "custom", params: { desc: "Activated keyboard/mouse/controller this game" } },
+  autoSucceedCondition: { type: "custom", params: { description: "Activated keyboard/mouse/controller this game" } },
   onSuccess: [{ primitive: "gainMP", params: { target: "$self", amount: 50 } }],
   onFailure: [{ primitive: "loseMP", params: { target: "$self", amount: 30, isCostPayment: false } }]
 };
