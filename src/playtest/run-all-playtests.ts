@@ -5,7 +5,7 @@ import { join } from "path";
 import { fileURLToPath } from "url";
 import { runCardPlaytest } from "./run-card-playtest.js";
 import { generateReport } from "./generate-report.js";
-import { PHYSICAL_FORCE_SPECS, DIGITAL_CONTROL_SPECS } from "./specs/index.js";
+import { PHYSICAL_FORCE_SPECS, DIGITAL_CONTROL_SPECS, ARTISTIC_RHYTHM_SPECS } from "./specs/index.js";
 import type { PlaytestSummary } from "./types.js";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
@@ -14,7 +14,7 @@ const docsDir = join(__dirname, "../../docs");
 console.log("=== Card Playtest Runner ===");
 console.log(`Start time: ${new Date().toISOString()}\n`);
 
-const allSpecs = [...PHYSICAL_FORCE_SPECS, ...DIGITAL_CONTROL_SPECS];
+const allSpecs = [...PHYSICAL_FORCE_SPECS, ...DIGITAL_CONTROL_SPECS, ...ARTISTIC_RHYTHM_SPECS];
 const results = [];
 
 for (const spec of allSpecs) {
