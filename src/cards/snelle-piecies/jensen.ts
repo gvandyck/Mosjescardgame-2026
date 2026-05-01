@@ -16,8 +16,8 @@ export const JENSEN: CardDefinition = {
   trigger: "instant",
   duration: "instant",
   effects: [
-    { primitive: "negateEffect", params: { pendingEffectId: "$pendingEffectId" } },
-    { primitive: "discardSourceCard", params: { pendingEffectId: "$pendingEffectId" } }
+    { primitive: "discardSourceCard", params: { pendingEffectId: "$pendingEffectId" } },
+    { primitive: "negateEffect", params: { pendingEffectId: "$pendingEffectId" } }
   ]
 };
 
