@@ -118,6 +118,17 @@ function evaluateRequirement(
           );
         }
 
+        case "Activated 2+ Piecies this turn": {
+          const recentEvents = eventsSince(state, state.currentTurnStartCount ?? 0);
+          const piecieCount = recentEvents.filter(e => {
+            if (e.type !== "card_resolved") return false;
+            const cardId = (e as any).cardId as CardId;
+            const card = getCard(cardId);
+            return card.category === "piecie" || card.category === "snelle-piecie";
+          }).length;
+          return piecieCount >= 2;
+        }
+
         case "Activated 3+ Piecies this turn": {
           const recentEvents = eventsSince(state, state.currentTurnStartCount ?? 0);
           const piecieCount = recentEvents.filter(e => {

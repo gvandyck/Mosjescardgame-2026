@@ -12,12 +12,13 @@ export const SPEED_RUN: QuestDefinition = {
   rarity: "rare",
   isBoosterOnly: false,
   cost: { type: "free" },
-  requirements: [],
+  requirements: [{ type: "custom", params: { description: "Activated 2+ Piecies this turn" } }],
   target: "self_active_mosje",
   trigger: "quest_attempt",
   duration: "instant",
   effects: [],
   scope: "general",
+  autoSucceedCondition: { type: "custom", params: { description: "Activated 2+ Piecies this turn" } },
   roll: {
     die: "d6",
     thresholds: { "1": 5, "2": 4, "3": 3 }
