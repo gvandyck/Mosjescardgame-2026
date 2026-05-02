@@ -94,11 +94,16 @@ export async function listenToState(roomCode, localPlayerId) {
 
 	_onValueHandler = snap => {
 		const data = snap.val();
+		console.log('[SYNC] onValue fired. data:', data ? `status=${data.status} hasP2=${!!data.players?.player_2} hasGameState=${!!data.gameState}` : 'null');
 		if (!data) return;
 
 		// Notify once when player 2 joins the waiting room
+		if (!_hasSeenPlayer2) {
+			console.log('[SYNC] player2-joined check: hasP2=', !!data.players?.player_2, 'status=', data.status);
+		}
 		if (!_hasSeenPlayer2 && data.players?.player_2 && data.status === 'PLAYING') {
 			_hasSeenPlayer2 = true;
+			console.log('[SYNC] Emitting mp:player2-joined for', data.players.player_2?.name);
 			eventBus.emit('mp:player2-joined', data.players.player_2);
 		}
 

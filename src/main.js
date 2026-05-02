@@ -263,8 +263,14 @@ function initGamePage() {
 			log.add('quest', `Room code: ${roomCode}`);
 			listenToState(roomCode, localPlayerId);
 			eventBus.once('mp:player2-joined', p2Data => {
+				console.log('[UI] mp:player2-joined received, p2Data:', p2Data);
 				log.add('gain', `${p2Data.name} joined the room!`);
-				startGame(localPlayerName, localDeckId, p2Data.name, p2Data.deckId || pickOpponentDeck(localDeckId));
+				try {
+					startGame(localPlayerName, localDeckId, p2Data.name, p2Data.deckId || pickOpponentDeck(localDeckId));
+				} catch (err) {
+					console.error('[UI] startGame failed:', err);
+					if (turnLabel) turnLabel.textContent = `Error starting game: ${err.message}`;
+				}
 			});
 		} else {
 			// LOCAL mode — start immediately
@@ -277,14 +283,20 @@ function initGamePage() {
 		listenToState(roomCode, localPlayerId);
 		// First remote state initialises the game for player_2, then ongoing handler takes over
 		eventBus.once('mp:remote-state', initialState => {
-			const { state: sanitizedState, changed } = sanitizeQuestCardsInPlayerZones(initialState);
-			gameState = sanitizedState;
-			renderFromState(gameState);
-			if (changed && isOnline && localPlayerId === 'player_1') {
-				syncPush();
+			console.log('[UI] mp:remote-state received (initial) for player_2');
+			try {
+				const { state: sanitizedState, changed } = sanitizeQuestCardsInPlayerZones(initialState);
+				gameState = sanitizedState;
+				renderFromState(gameState);
+				if (changed && isOnline && localPlayerId === 'player_1') {
+					syncPush();
+				}
+				log.add('gain', `Game started! Waiting for opponent's first turn.`);
+				eventBus.on('mp:remote-state', onRemoteState);
+			} catch (err) {
+				console.error('[UI] renderFromState failed (player_2 init):', err);
+				if (turnLabel) turnLabel.textContent = `Error loading game: ${err.message}`;
 			}
-			log.add('gain', `Game started! Waiting for opponent's first turn.`);
-			eventBus.on('mp:remote-state', onRemoteState);
 		});
 		// For LOCAL testing as player_2, fall back to starting immediately
 		if (!isOnline) {
