@@ -336,132 +336,120 @@
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.09);
   overflow: hidden;
-  cursor: default;
-  position: relative;
-  transition: transform 0.15s var(--ease-snap), border-color 0.15s, box-shadow 0.15s;
   background: #0d1020;
+  transition: transform 0.15s var(--ease-snap), box-shadow 0.15s, border-color 0.15s;
 }
 
-/* Art image as background on the top portion */
-.card-tile::before {
-  content: '';
-  display: block;
-  width: 100%;
-  height: 140px;
-  background-image: var(--card-art, none);
+.card-tile:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,0.45); }
+.card-tile--full:not(.card-tile--selected) { opacity: 0.4; }
+.card-tile--selected { border-color: rgba(59,130,246,0.55); box-shadow: 0 0 0 2px rgba(59,130,246,0.18); }
+
+/* Type accent — coloured top border */
+.card-tile--mosje        { border-top: 3px solid var(--mosje-gold); }
+.card-tile--piecie       { border-top: 3px solid var(--piecie-blue); }
+.card-tile--snelle-piecie{ border-top: 3px solid var(--snelle-red); }
+.card-tile--place        { border-top: 3px solid var(--place-green); }
+.card-tile--quest        { border-top: 3px solid var(--quest-purple); }
+
+/* ── Art zone — real <div> so background-image resolves from the HTML document ── */
+
+.tile-art {
+  position: relative;
+  height: 150px;
+  flex-shrink: 0;
   background-size: cover;
   background-position: center top;
-  flex-shrink: 0;
+  background-repeat: no-repeat;
 }
 
-/* Gradient overlay blending art into card body */
-.tile-art-layer {
+/* Type-coloured fallback when no image is set */
+.card-tile--mosje        .tile-art { background-color: rgba(232,185,79,0.12); }
+.card-tile--piecie       .tile-art { background-color: rgba(61,142,245,0.12); }
+.card-tile--snelle-piecie .tile-art{ background-color: rgba(232,69,69,0.12); }
+.card-tile--place        .tile-art { background-color: rgba(61,214,140,0.12); }
+.card-tile--quest        .tile-art { background-color: rgba(168,85,247,0.12); }
+
+/* Dark gradient: transparent at top, solid at bottom — art bleeds into card body */
+.tile-art-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 190px;
-  pointer-events: none;
+  inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(13, 16, 32, 0)     0%,
-    rgba(13, 16, 32, 0)    50%,
-    rgba(13, 16, 32, 0.6)  75%,
-    rgba(13, 16, 32, 1)   100%
+    rgba(6,10,20,0.15)  0%,
+    rgba(6,10,20,0.15) 45%,
+    rgba(13,16,32,0.7) 75%,
+    rgba(13,16,32,1)  100%
   );
 }
 
-/* Fallback gradient when no art — colour by type */
-.card-tile:not([style*="--card-art"])::before {
-  background-image: none;
-}
-.card-tile--mosje:not([style*="--card-art"])::before         { background: linear-gradient(160deg, rgba(232,185,79,0.18), #0d1020 80%); }
-.card-tile--piecie:not([style*="--card-art"])::before        { background: linear-gradient(160deg, rgba(61,142,245,0.18), #0d1020 80%); }
-.card-tile--snelle-piecie:not([style*="--card-art"])::before { background: linear-gradient(160deg, rgba(232,69,69,0.18),  #0d1020 80%); }
-.card-tile--place:not([style*="--card-art"])::before         { background: linear-gradient(160deg, rgba(61,214,140,0.18), #0d1020 80%); }
-.card-tile--quest:not([style*="--card-art"])::before         { background: linear-gradient(160deg, rgba(168,85,247,0.18), #0d1020 80%); }
-
-/* Selected / at-limit states */
-.card-tile--selected {
-  border-color: rgba(59, 130, 246, 0.5);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.18);
-}
-
-.card-tile--full:not(.card-tile--selected) {
-  opacity: 0.42;
-}
-
-.card-tile:hover:not(.card-tile--full) {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-}
-
-/* Type accent — left border stripe */
-.card-tile--mosje        { border-left: 3px solid var(--mosje-gold); }
-.card-tile--piecie       { border-left: 3px solid var(--piecie-blue); }
-.card-tile--snelle-piecie{ border-left: 3px solid var(--snelle-red); }
-.card-tile--place        { border-left: 3px solid var(--place-green); }
-.card-tile--quest        { border-left: 3px solid var(--quest-purple); }
-
-/* ── Header bar (overlaid on art) ────────────────────────────────────────────── */
-
-.tile-header {
+/* Type badge + rarity — top of art */
+.tile-art-header {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 0.45rem;
+  left: 0.5rem;
+  right: 0.5rem;
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.45rem 0.55rem;
-  background: linear-gradient(to bottom, rgba(6, 10, 20, 0.75), transparent);
+  gap: 0.3rem;
 }
 
 .tile-type-badge {
-  font-size: 0.6rem;
+  font-size: 0.58rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 0.18rem 0.45rem;
+  padding: 0.18rem 0.5rem;
   border-radius: 999px;
 }
-
-.tile-type-badge--mosje        { background: rgba(232,185,79,0.25); color: var(--mosje-gold); }
-.tile-type-badge--piecie       { background: rgba(61,142,245,0.25); color: #93c5fd; }
-.tile-type-badge--snelle-piecie{ background: rgba(232,69,69,0.25);  color: #fca5a5; }
-.tile-type-badge--place        { background: rgba(61,214,140,0.25); color: var(--place-green); }
-.tile-type-badge--quest        { background: rgba(168,85,247,0.25); color: #d8b4fe; }
-
-.tile-subtype {
-  font-size: 0.58rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.45);
-}
+.tile-type-badge--mosje        { background: rgba(13,8,0,0.65);  color: var(--mosje-gold); }
+.tile-type-badge--piecie       { background: rgba(0,10,30,0.65); color: #93c5fd; }
+.tile-type-badge--snelle-piecie{ background: rgba(20,0,0,0.65);  color: #fca5a5; }
+.tile-type-badge--place        { background: rgba(0,20,10,0.65); color: var(--place-green); }
+.tile-type-badge--quest        { background: rgba(15,0,25,0.65); color: #d8b4fe; }
 
 .tile-rarity {
   margin-left: auto;
   font-size: 0.65rem;
-  color: rgba(255, 255, 255, 0.5);
-  letter-spacing: 0.05em;
+  color: rgba(255,255,255,0.6);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
 }
 
-/* ── Body (below art) ────────────────────────────────────────────────────────── */
+/* Card name + subtype — pinned to bottom of art */
+.tile-art-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.5rem 0.6rem 0.45rem;
+}
+
+.tile-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.9);
+  word-break: break-word;
+}
+
+.tile-subtype {
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.5);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+  margin-top: 0.1rem;
+  display: block;
+}
+
+/* ── Body — all card stats and text below the art ────────────────────────────── */
 
 .tile-body {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  padding: 0.55rem 0.65rem 0.5rem;
-}
-
-.tile-name {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: #e8efff;
-  line-height: 1.25;
-  word-break: break-word;
+  padding: 0.6rem 0.65rem 0.5rem;
 }
 
 /* ── Stats row ───────────────────────────────────────────────────────────────── */
@@ -473,7 +461,7 @@
 }
 
 .stat {
-  font-size: 0.62rem;
+  font-size: 0.6rem;
   font-family: var(--font-mono);
   padding: 0.15rem 0.4rem;
   border-radius: 4px;
@@ -481,26 +469,26 @@
   letter-spacing: 0.04em;
 }
 
-.stat--mp      { background: rgba(74,255,158,0.12); color: var(--mp-high); }
-.stat--instant { background: rgba(232,69,69,0.15);  color: #fca5a5; }
+.stat--mp      { background: rgba(74,255,158,0.12);  color: var(--mp-high); }
+.stat--instant { background: rgba(232,69,69,0.15);   color: #fca5a5; }
 .stat--req     { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.5); }
-.stat--trigger { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.5); text-transform: uppercase; font-size: 0.58rem; }
-.stat--good    { background: rgba(61,214,140,0.12); color: var(--place-green); }
-.stat--easy    { background: rgba(74,255,158,0.12); color: var(--mp-high); }
-.stat--medium  { background: rgba(255,215,0,0.12);  color: var(--mp-mid); }
-.stat--hard    { background: rgba(232,69,69,0.12);  color: #f87171; }
-.stat--cat     { background: rgba(168,85,247,0.12); color: #d8b4fe; }
-.stat--traits  { background: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.2rem; }
+.stat--trigger { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.5); text-transform: uppercase; font-size: 0.57rem; }
+.stat--good    { background: rgba(61,214,140,0.12);  color: var(--place-green); }
+.stat--easy    { background: rgba(74,255,158,0.12);  color: var(--mp-high); }
+.stat--medium  { background: rgba(255,215,0,0.12);   color: var(--mp-mid); }
+.stat--hard    { background: rgba(232,69,69,0.12);   color: #f87171; }
+.stat--cat     { background: rgba(168,85,247,0.12);  color: #d8b4fe; }
 
 /* ── Trait chips ─────────────────────────────────────────────────────────────── */
 
 .trait {
-  font-size: 0.6rem;
+  font-size: 0.58rem;
   font-family: var(--font-mono);
   padding: 0.12rem 0.35rem;
   border-radius: 4px;
   font-weight: 700;
   letter-spacing: 0.04em;
+  display: inline-block;
 }
 
 .trait--physical  { background: rgba(255,107,53,0.18);  color: var(--trait-physical); }
@@ -514,19 +502,21 @@
 
 .tile-desc {
   font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255,255,255,0.65);
   line-height: 1.45;
 }
 
-/* ── Ability line (Mosje) ────────────────────────────────────────────────────── */
+/* ── Ability line ────────────────────────────────────────────────────────────── */
 
 .tile-ability {
   font-size: 0.68rem;
-  color: rgba(232, 185, 79, 0.75);
+  color: rgba(232,185,79,0.85);
   line-height: 1.4;
-  padding-top: 0.2rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 0.3rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
 }
+
+.tile-ability strong { font-weight: 700; }
 
 /* ── Tags ────────────────────────────────────────────────────────────────────── */
 
@@ -534,30 +524,29 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.2rem;
-  margin-top: auto;
-  padding-top: 0.25rem;
+  padding-top: 0.15rem;
 }
 
 .tile-tag {
-  font-size: 0.58rem;
+  font-size: 0.57rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   padding: 0.1rem 0.35rem;
   border-radius: 3px;
-  background: rgba(255, 255, 255, 0.07);
-  color: rgba(255, 255, 255, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255,255,255,0.07);
+  color: rgba(255,255,255,0.4);
+  border: 1px solid rgba(255,255,255,0.1);
 }
 
 /* ── Flavour text ────────────────────────────────────────────────────────────── */
 
 .tile-flavour {
-  font-size: 0.63rem;
+  font-size: 0.62rem;
   font-style: italic;
-  color: rgba(255, 255, 255, 0.28);
+  color: rgba(255,255,255,0.28);
   line-height: 1.35;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid rgba(255,255,255,0.05);
   padding-top: 0.25rem;
   margin-top: 0.1rem;
 }
@@ -570,49 +559,36 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 0.5rem 0.65rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  background: rgba(0,0,0,0.25);
 }
 
 .tile-btn {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 5px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.13);
+  border-radius: 6px;
   color: #e0e8ff;
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   line-height: 1;
   cursor: pointer;
   transition: background 0.12s, color 0.12s, border-color 0.12s;
   flex-shrink: 0;
 }
 
-.tile-btn--add:hover:not(:disabled) {
-  background: rgba(59, 130, 246, 0.3);
-  border-color: rgba(59, 130, 246, 0.55);
-  color: #93c5fd;
-}
-
-.tile-btn--remove:hover {
-  background: rgba(239, 68, 68, 0.25);
-  border-color: rgba(239, 68, 68, 0.45);
-  color: #f87171;
-}
-
-.tile-btn:disabled {
-  opacity: 0.25;
-  cursor: not-allowed;
-}
+.tile-btn--add:hover:not(:disabled)  { background: rgba(59,130,246,0.3);  border-color: rgba(59,130,246,0.6);  color: #93c5fd; }
+.tile-btn--remove:hover              { background: rgba(239,68,68,0.25);  border-color: rgba(239,68,68,0.5);   color: #f87171; }
+.tile-btn:disabled                   { opacity: 0.22; cursor: not-allowed; }
 
 .tile-count {
   font-family: var(--font-mono);
   font-size: 0.85rem;
   font-weight: 700;
   color: #93c5fd;
-  min-width: 28px;
+  min-width: 30px;
   text-align: center;
 }

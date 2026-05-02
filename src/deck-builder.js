@@ -148,101 +148,82 @@ function renderGrid() {
 		].filter(Boolean).join(' ');
 		tile.dataset.id   = card.id;
 		tile.dataset.type = card.cardType;
-
-		// Art background — skip paths that are placeholders
-		const hasArt = card.artPath && !card.artPath.includes('placeholder');
-		if (hasArt) {
-			tile.style.setProperty('--card-art', `url('${encodeArtPath(card.artPath)}')`);
-		}
-
 		tile.innerHTML = buildTileHTML(card, count, atMax);
 		grid.appendChild(tile);
 	}
-}
-
-function encodeArtPath(path) {
-	// Encode spaces and special chars but keep slashes and dots intact
-	return path.split('/').map(seg => encodeURIComponent(seg)).join('/');
 }
 
 function buildTileHTML(card, count, atMax) {
 	const { id, cardType, rarity } = card;
 	const typeSlug = cardType.toLowerCase().replace(/_/g, '-');
 
-	// ── Header bar ───────────────────────────────────────────────
+	// Art zone — inline style so URL resolves relative to the HTML document,
+	// not the CSS file (CSS custom properties with url() resolve relative to
+	// the stylesheet that consumes them, which would break relative paths).
+	const hasArt = card.artPath && !card.artPath.includes('placeholder');
+	const artStyle = hasArt
+		? ` style="background-image: url('${cssUrl(card.artPath)}')"`
+		: '';
+
+	// ── Art header: badge top-left, rarity top-right ──────────────
+	const rarityLabel = rarity ? `<span class="tile-rarity">${rarity}</span>` : '';
 	const subtypeLabel = card.subtype
 		? `<span class="tile-subtype">${card.subtype.replace(/-/g, ' ')}</span>`
-		: '';
-	const rarityLabel = rarity
-		? `<span class="tile-rarity">${rarity}</span>`
 		: '';
 
 	// ── Type-specific stats ───────────────────────────────────────
 	let statsHTML = '';
 	if (cardType === 'MOSJE') {
-		const traitsStr = card.traits ? formatTraits(card.traits) : '';
-		statsHTML = `
-			<div class="tile-stats">
-				<span class="stat stat--mp">Start ${card.startMP ?? 0} MP</span>
-				${traitsStr ? `<span class="stat stat--traits">${traitsStr}</span>` : ''}
-			</div>`;
+		statsHTML = `<div class="tile-stats">
+			<span class="stat stat--mp">Start ${card.startMP ?? 0} MP</span>
+			${card.traits ? formatTraits(card.traits) : ''}
+		</div>`;
 	} else if (cardType === 'PIECIE' || cardType === 'SNELLE_PIECIE') {
 		const costStr = card.mpCost === 0 ? 'Free' : `${card.mpCost} MP`;
-		const reqStr  = card.requirement && card.requirement !== 'any'
-			? `Req: ${card.requirement}` : '';
-		statsHTML = `
-			<div class="tile-stats">
-				<span class="stat stat--mp">${costStr}</span>
-				${cardType === 'SNELLE_PIECIE' ? '<span class="stat stat--instant">Interrupt</span>' : ''}
-				${reqStr ? `<span class="stat stat--req">${reqStr}</span>` : ''}
-			</div>`;
+		const reqStr  = card.requirement && card.requirement !== 'any' ? `Req: ${card.requirement}` : '';
+		statsHTML = `<div class="tile-stats">
+			<span class="stat stat--mp">${costStr}</span>
+			${cardType === 'SNELLE_PIECIE' ? '<span class="stat stat--instant">Interrupt</span>' : ''}
+			${reqStr ? `<span class="stat stat--req">${reqStr}</span>` : ''}
+		</div>`;
 	} else if (cardType === 'PLACE') {
 		const triggerStr = card.trigger ? card.trigger.replace(/_/g, ' ') : '';
-		const goodFor    = (card.goodFor || []).join(', ');
-		statsHTML = `
-			<div class="tile-stats">
-				${triggerStr ? `<span class="stat stat--trigger">${triggerStr}</span>` : ''}
-				${goodFor    ? `<span class="stat stat--good">Best: ${goodFor}</span>` : ''}
-			</div>`;
+		const goodFor = (card.goodFor || []).join(', ');
+		statsHTML = `<div class="tile-stats">
+			${triggerStr ? `<span class="stat stat--trigger">${triggerStr}</span>` : ''}
+			${goodFor    ? `<span class="stat stat--good">Best: ${goodFor}</span>` : ''}
+		</div>`;
 	} else if (cardType === 'QUEST') {
-		const diffColor = { LOW: 'stat--easy', MEDIUM: 'stat--medium', HIGH: 'stat--hard' };
-		statsHTML = `
-			<div class="tile-stats">
-				<span class="stat ${diffColor[card.difficulty] || ''}">${card.difficulty || ''}</span>
-				<span class="stat stat--mp">+${card.successMP ?? 0} / ${card.failMP ?? 0}</span>
-				${card.category ? `<span class="stat stat--cat">${card.category}</span>` : ''}
-			</div>`;
+		const diffClass = { LOW: 'stat--easy', MEDIUM: 'stat--medium', HIGH: 'stat--hard' };
+		statsHTML = `<div class="tile-stats">
+			${card.difficulty ? `<span class="stat ${diffClass[card.difficulty] || ''}">${card.difficulty}</span>` : ''}
+			<span class="stat stat--mp">+${card.successMP ?? 0} / ${card.failMP ?? 0}</span>
+			${card.category ? `<span class="stat stat--cat">${card.category}</span>` : ''}
+		</div>`;
 	}
 
-	// ── Full description (no truncation) ─────────────────────────
-	const desc = card.description || card.requirementDescription || '';
-
-	// ── Ability line (Mosje only) ─────────────────────────────────
-	const abilityHTML = card.abilityDescription
-		? `<p class="tile-ability">${card.abilityDescription}</p>`
-		: '';
-
-	// ── Flavour text ──────────────────────────────────────────────
-	const flavourHTML = card.flavourText
-		? `<p class="tile-flavour">${card.flavourText}</p>`
-		: '';
-
-	// ── Tags ──────────────────────────────────────────────────────
-	const tagsHTML = (card.tags?.length)
+	const desc        = card.description || card.requirementDescription || '';
+	const abilityHTML = card.abilityDescription ? `<p class="tile-ability"><strong>Ability:</strong> ${card.abilityDescription}</p>` : '';
+	const flavourHTML = card.flavourText        ? `<p class="tile-flavour">${card.flavourText}</p>` : '';
+	const tagsHTML    = card.tags?.length
 		? `<div class="tile-tags">${card.tags.map(t => `<span class="tile-tag">${t}</span>`).join('')}</div>`
 		: '';
 
 	return `
-		<div class="tile-art-layer"></div>
-		<div class="tile-header">
-			<span class="tile-type-badge tile-type-badge--${typeSlug}">${typeBadge(cardType)}</span>
-			${subtypeLabel}
-			${rarityLabel}
+		<div class="tile-art"${artStyle}>
+			<div class="tile-art-overlay"></div>
+			<div class="tile-art-header">
+				<span class="tile-type-badge tile-type-badge--${typeSlug}">${typeBadge(cardType)}</span>
+				${rarityLabel}
+			</div>
+			<div class="tile-art-footer">
+				<p class="tile-name">${card.name}</p>
+				${subtypeLabel}
+			</div>
 		</div>
 		<div class="tile-body">
-			<p class="tile-name">${card.name}</p>
 			${statsHTML}
-			${desc   ? `<p class="tile-desc">${desc}</p>`   : ''}
+			${desc        ? `<p class="tile-desc">${desc}</p>`     : ''}
 			${abilityHTML}
 			${tagsHTML}
 			${flavourHTML}
@@ -251,8 +232,13 @@ function buildTileHTML(card, count, atMax) {
 			<button class="tile-btn tile-btn--remove" data-id="${id}" data-ctype="${cardType}" title="Remove one copy">−</button>
 			<span class="tile-count">${count > 0 ? `×${count}` : ''}</span>
 			<button class="tile-btn tile-btn--add" data-id="${id}" data-ctype="${cardType}" title="Add one copy" ${atMax ? 'disabled' : ''}>+</button>
-		</div>
-	`;
+		</div>`;
+}
+
+// Encode a file path for use inside a CSS url() string value.
+// Encodes spaces and non-ASCII chars; leaves slashes and dots intact.
+function cssUrl(path) {
+	return path.split('/').map(seg => encodeURIComponent(seg)).join('/');
 }
 
 function typeBadge(cardType) {
@@ -263,7 +249,7 @@ function typeBadge(cardType) {
 function formatTraits(traits) {
 	const ABBR = { physical: 'PHY', mental: 'MEN', social: 'SOC', creative: 'CRE', technical: 'TEC', resilient: 'RES' };
 	return Object.entries(traits)
-		.map(([k, v]) => `<span class="trait trait--${k}" title="${k}">${ABBR[k] || k.slice(0,3).toUpperCase()} ${'★'.repeat(v)}</span>`)
+		.map(([k, v]) => `<span class="trait trait--${k}" title="${k}">${ABBR[k] || k.slice(0, 3).toUpperCase()} ${'★'.repeat(v)}</span>`)
 		.join('');
 }
 
