@@ -5,10 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MOSJES - Lobby</title>
   <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/account.css" />
 </head>
 <body class="page page--lobby">
   <div class="bg-noise" aria-hidden="true"></div>
   <div id="app-version" class="app-version-badge">Version loading...</div>
+  <div id="user-badge" class="user-badge" hidden>
+    <span id="user-badge-name"></span>
+    <button id="btn-signout" class="btn-signout">Sign out</button>
+  </div>
   <main class="lobby-shell">
     <header class="lobby-header">
       <p class="lobby-kicker">EIGHTYTWENTY CARDGAME</p>

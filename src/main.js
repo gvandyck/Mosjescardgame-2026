@@ -18,6 +18,7 @@ import { createRoom, joinRoom } from './multiplayer/roomManager.js';
 import { pushState, listenToState, stopListening } from './multiplayer/syncManager.js';
 import { eventBus } from './multiplayer/eventBus.js';
 import { APP_VERSION } from './version.js';
+import { onAuthStateChanged, signOut, getCurrentUser } from './multiplayer/authManager.js';
 
 console.log('[UI] App bootstrapping...');
 
@@ -38,6 +39,33 @@ function initLobbyPage() {
 	setVersionLabel();
 	const form = document.getElementById('lobby-form');
 	if (!form) return;
+
+	// Auth gate: redirect to account page if not signed in.
+	// Also pre-fills name and shows user badge once auth resolves.
+	onAuthStateChanged(user => {
+		if (!user) {
+			window.location.href = './account.html';
+			return;
+		}
+		// Pre-fill player name from account
+		const nameInput = document.getElementById('player-name');
+		if (nameInput && !nameInput.value && user.displayName) {
+			nameInput.value = user.displayName;
+		}
+		// Show user badge
+		const badge = document.getElementById('user-badge');
+		const badgeName = document.getElementById('user-badge-name');
+		if (badge && badgeName) {
+			badgeName.textContent = user.isAnonymous ? 'Playing as Guest' : user.displayName || user.email;
+			badge.hidden = false;
+		}
+	});
+
+	// Sign out button
+	document.getElementById('btn-signout')?.addEventListener('click', async () => {
+		await signOut();
+		window.location.href = './account.html';
+	});
 
 	form.addEventListener('submit', async event => {
 		event.preventDefault();
