@@ -344,6 +344,34 @@ document.getElementById('search-input').addEventListener('input', e => {
 	renderGrid();
 });
 
+// ── Drag-to-scroll on card grid ───────────────────────────────────────────────
+(function initDragScroll() {
+	const grid = document.getElementById('card-grid');
+	let isDragging = false;
+	let startY = 0;
+	let startScrollTop = 0;
+
+	grid.addEventListener('mousedown', e => {
+		// Only drag on the grid background, not on buttons
+		if (e.target.closest('.tile-btn')) return;
+		isDragging = true;
+		startY = e.clientY;
+		startScrollTop = grid.scrollTop;
+		grid.classList.add('is-dragging');
+		e.preventDefault();
+	});
+
+	document.addEventListener('mousemove', e => {
+		if (!isDragging) return;
+		grid.scrollTop = startScrollTop - (e.clientY - startY);
+	});
+
+	document.addEventListener('mouseup', () => {
+		isDragging = false;
+		grid.classList.remove('is-dragging');
+	});
+})();
+
 // ── Save deck ─────────────────────────────────────────────────────────────────
 document.getElementById('btn-save-deck').addEventListener('click', async () => {
 	const user = getCurrentUser();

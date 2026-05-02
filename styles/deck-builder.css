@@ -320,15 +320,20 @@
 
 .card-grid {
   flex: 1;
-  overflow-y: auto;
+  overflow-y: scroll;
+  scrollbar-width: none;       /* Firefox */
   padding: 0.85rem;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 0.75rem;
   align-content: start;
   max-width: 50%;
-  margin: 0 auto;
+  cursor: grab;
+  user-select: none;
 }
+
+.card-grid::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+.card-grid.is-dragging { cursor: grabbing; }
 
 /* ── Card tile ───────────────────────────────────────────────────────────────── */
 
