@@ -64,7 +64,7 @@ export function createInitialGameState(playerConfigs, roomCode) {
 function createPlayerState(config) {
   console.log('[ENGINE] Building player state for:', config.name, '| deck:', config.deckId);
 
-  const deckDef = STARTER_DECKS.find(d => d.id === config.deckId);
+  const deckDef = config.deckDef || STARTER_DECKS.find(d => d.id === config.deckId);
   if (!deckDef) throw new Error(`[ENGINE] Unknown deckId: ${config.deckId}`);
 
   const starterMosjeId = pickRandomMosjeId(deckDef.mosjes || []);

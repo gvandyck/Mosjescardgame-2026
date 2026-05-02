@@ -19,10 +19,12 @@ import { pushState, listenToState, stopListening } from './multiplayer/syncManag
 import { eventBus } from './multiplayer/eventBus.js';
 import { APP_VERSION } from './version.js';
 import { onAuthStateChanged, signOut, getCurrentUser } from './multiplayer/authManager.js';
+import { loadUserDecks } from './multiplayer/userStore.js';
 
 console.log('[UI] App bootstrapping...');
 
 const CARD_LOOKUP = buildCardLookup();
+let _customDecksCache = [];
 
 const path = window.location.pathname.toLowerCase();
 
@@ -42,7 +44,7 @@ function initLobbyPage() {
 
 	// Auth gate: redirect to account page if not signed in.
 	// Also pre-fills name and shows user badge once auth resolves.
-	onAuthStateChanged(user => {
+	onAuthStateChanged(async user => {
 		if (!user) {
 			window.location.href = './account.html';
 			return;
@@ -58,6 +60,24 @@ function initLobbyPage() {
 		if (badge && badgeName) {
 			badgeName.textContent = user.isAnonymous ? 'Playing as Guest' : user.displayName || user.email;
 			badge.hidden = false;
+		}
+		// Load custom decks into deck selector (registered users only)
+		if (!user.isAnonymous) {
+			const customDecks = await loadUserDecks(user.uid);
+			_customDecksCache = customDecks;
+			if (customDecks.length > 0) {
+				const deckSelect = document.getElementById('deck-select');
+				const divider = document.createElement('option');
+				divider.disabled = true;
+				divider.textContent = '── My Decks ──';
+				deckSelect.appendChild(divider);
+				for (const d of customDecks) {
+					const opt = document.createElement('option');
+					opt.value = d.id;
+					opt.textContent = d.name;
+					deckSelect.appendChild(opt);
+				}
+			}
 		}
 	});
 
@@ -86,6 +106,12 @@ function initLobbyPage() {
 
 		const submitBtn = form.querySelector('button[type="submit"]');
 		if (submitBtn) submitBtn.disabled = true;
+
+		// Persist custom deck def to sessionStorage so game page can reconstruct it
+		if (deckId.startsWith('custom_')) {
+			const customDef = _customDecksCache.find(d => d.id === deckId);
+			if (customDef) sessionStorage.setItem(`mosjes:customDeck:${deckId}`, JSON.stringify(customDef));
+		}
 
 		if (mode === 'create') {
 			const result = await createRoom(name, deckId);
@@ -269,10 +295,15 @@ function initGamePage() {
 	}
 
 	// ── Initialize game ──────────────────────────────────────────────────
+	function resolveCustomDeckDef(deckId) {
+		if (!deckId.startsWith('custom_')) return undefined;
+		return _customDecksCache.find(d => d.id === deckId) || readCustomDeckFromSession(deckId);
+	}
+
 	function startGame(p1Name, p1Deck, p2Name, p2Deck) {
 		const players = [
-			{ playerId: 'player_1', name: p1Name, deckId: p1Deck },
-			{ playerId: 'player_2', name: p2Name, deckId: p2Deck },
+			{ playerId: 'player_1', name: p1Name, deckId: p1Deck, deckDef: resolveCustomDeckDef(p1Deck) },
+			{ playerId: 'player_2', name: p2Name, deckId: p2Deck, deckDef: resolveCustomDeckDef(p2Deck) },
 		];
 		gameState = createInitialGameState(players, roomCode);
 		gameState = startTurn(gameState);
@@ -1286,6 +1317,16 @@ function readLobbyData() {
 		return JSON.parse(raw);
 	} catch {
 		return {};
+	}
+}
+
+function readCustomDeckFromSession(deckId) {
+	try {
+		const raw = sessionStorage.getItem(`mosjes:customDeck:${deckId}`);
+		if (!raw) return undefined;
+		return JSON.parse(raw);
+	} catch {
+		return undefined;
 	}
 }
 

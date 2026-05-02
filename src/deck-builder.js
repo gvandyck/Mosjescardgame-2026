@@ -1,0 +1,341 @@
+// deck-builder.js — Deck Builder page logic.
+// Auth-required (anonymous/guest users are redirected).
+// Saves custom decks to Firebase RTDB under users/{uid}/decks.
+
+import { onAuthStateChanged, getCurrentUser } from './multiplayer/authManager.js';
+import { loadUserDecks, saveDeck, deleteDeck } from './multiplayer/userStore.js';
+import { MOSJES } from './data/mosjes.js';
+import { PIECIES } from './data/piecies.js';
+import { SNELLE_PIECIES } from './data/snellePiecies.js';
+import { PLACES } from './data/places.js';
+import { QUESTS } from './data/quests.js';
+
+// ── Card pool (non-booster only) ──────────────────────────────────────────────
+const ALL_CARDS = [
+	...MOSJES.filter(c => !c.isBoosterOnly).map(c => ({ ...c, cardType: 'MOSJE' })),
+	...PIECIES.filter(c => !c.isBoosterOnly).map(c => ({ ...c, cardType: 'PIECIE' })),
+	...SNELLE_PIECIES.filter(c => !c.isBoosterOnly).map(c => ({ ...c, cardType: 'SNELLE_PIECIE' })),
+	...PLACES.filter(c => !c.isBoosterOnly).map(c => ({ ...c, cardType: 'PLACE' })),
+	...QUESTS.filter(c => !c.isBoosterOnly && c.questType === 'PERSONAL').map(c => ({ ...c, cardType: 'QUEST' })),
+];
+
+const LIMITS = { MOSJE: 2, PIECIE: 8, SNELLE_PIECIE: 4, PLACE: 2, QUEST: 1 };
+const MAX_COPIES = 2; // per individual card (unless deckLimit: 1)
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let deck = { MOSJE: {}, PIECIE: {}, SNELLE_PIECIE: {}, PLACE: {}, QUEST: {} }; // { cardId: count }
+let savedDecks = [];       // loaded from Firebase
+let activeFilter = 'ALL';
+let searchQuery = '';
+let editingDeckId = null;  // id of the deck being edited (null = new)
+
+// ── Auth gate ─────────────────────────────────────────────────────────────────
+onAuthStateChanged(async user => {
+	if (!user) { window.location.href = './account.html'; return; }
+	if (user.isAnonymous) {
+		window.location.href = './index.html?msg=signin-for-decks';
+		return;
+	}
+	// Show user badge
+	const badge = document.getElementById('user-badge');
+	const name = document.getElementById('user-badge-name');
+	if (badge && name) { name.textContent = user.displayName || user.email; badge.hidden = false; }
+
+	// Load saved decks
+	savedDecks = await loadUserDecks(user.uid);
+	populateDeckSelect();
+	renderGrid();
+});
+
+// ── Deck select ───────────────────────────────────────────────────────────────
+function populateDeckSelect() {
+	const sel = document.getElementById('deck-load-select');
+	sel.innerHTML = '<option value="">— New Deck —</option>';
+	for (const d of savedDecks) {
+		const opt = document.createElement('option');
+		opt.value = d.id;
+		opt.textContent = d.name;
+		sel.appendChild(opt);
+	}
+}
+
+document.getElementById('deck-load-select').addEventListener('change', e => {
+	const id = e.target.value;
+	if (!id) { clearDeck(); return; }
+	const found = savedDecks.find(d => d.id === id);
+	if (found) loadDeckIntoBuilder(found);
+});
+
+function clearDeck() {
+	deck = { MOSJE: {}, PIECIE: {}, SNELLE_PIECIE: {}, PLACE: {}, QUEST: {} };
+	editingDeckId = null;
+	document.getElementById('deck-name-input').value = '';
+	document.getElementById('btn-delete-deck').hidden = true;
+	updateAll();
+}
+
+function loadDeckIntoBuilder(deckDef) {
+	deck = { MOSJE: {}, PIECIE: {}, SNELLE_PIECIE: {}, PLACE: {}, QUEST: {} };
+	editingDeckId = deckDef.id;
+	document.getElementById('deck-name-input').value = deckDef.name;
+	document.getElementById('btn-delete-deck').hidden = false;
+
+	const addCards = (ids, type) => {
+		for (const id of (ids || [])) {
+			deck[type][id] = (deck[type][id] || 0) + 1;
+		}
+	};
+	addCards(deckDef.mosjes, 'MOSJE');
+	addCards(deckDef.piecies, 'PIECIE');
+	addCards(deckDef.snellePiecies, 'SNELLE_PIECIE');
+	addCards(deckDef.places, 'PLACE');
+	addCards(deckDef.quests, 'QUEST');
+	updateAll();
+}
+
+// ── Add / remove cards ────────────────────────────────────────────────────────
+function getCount(cardType, cardId) {
+	return deck[cardType]?.[cardId] ?? 0;
+}
+
+function totalOfType(cardType) {
+	return Object.values(deck[cardType] || {}).reduce((s, n) => s + n, 0);
+}
+
+function addCard(card) {
+	const { id, cardType, deckLimit } = card;
+	const maxCopies = deckLimit ?? MAX_COPIES;
+	if (getCount(cardType, id) >= maxCopies) return;
+	if (totalOfType(cardType) >= LIMITS[cardType]) return;
+	deck[cardType][id] = getCount(cardType, id) + 1;
+	updateAll();
+}
+
+function removeCard(cardType, cardId) {
+	const current = getCount(cardType, cardId);
+	if (current <= 0) return;
+	if (current === 1) delete deck[cardType][cardId];
+	else deck[cardType][cardId] = current - 1;
+	updateAll();
+}
+
+// ── Render card grid ──────────────────────────────────────────────────────────
+function renderGrid() {
+	const grid = document.getElementById('card-grid');
+	const filtered = ALL_CARDS.filter(c => {
+		if (activeFilter !== 'ALL' && c.cardType !== activeFilter) return false;
+		if (searchQuery) {
+			const q = searchQuery.toLowerCase();
+			return c.name.toLowerCase().includes(q) || (c.description || '').toLowerCase().includes(q);
+		}
+		return true;
+	});
+
+	grid.innerHTML = '';
+	for (const card of filtered) {
+		const count = getCount(card.cardType, card.id);
+		const maxCopies = card.deckLimit ?? MAX_COPIES;
+		const typeTotal = totalOfType(card.cardType);
+		const atMax = count >= maxCopies || typeTotal >= LIMITS[card.cardType];
+
+		const tile = document.createElement('div');
+		tile.className = `card-tile card-tile--${card.cardType.toLowerCase().replace('_', '-')}${atMax ? ' card-tile--full' : ''}${count > 0 ? ' card-tile--selected' : ''}`;
+		tile.dataset.id = card.id;
+		tile.dataset.type = card.cardType;
+
+		const costLabel = card.mpCost !== undefined && card.cardType !== 'MOSJE' && card.cardType !== 'QUEST'
+			? `<span class="tile-cost">${card.mpCost === 0 ? 'Free' : card.mpCost + ' MP'}</span>`
+			: '';
+
+		const traitsLabel = card.cardType === 'MOSJE' && card.traits
+			? `<span class="tile-traits">${formatTraits(card.traits)}</span>`
+			: '';
+
+		tile.innerHTML = `
+			<div class="tile-top">
+				<span class="tile-type-badge">${typeBadge(card.cardType)}</span>
+				${costLabel}
+			</div>
+			<p class="tile-name">${card.name}</p>
+			${traitsLabel}
+			<p class="tile-desc">${(card.description || '').slice(0, 80)}${card.description?.length > 80 ? '…' : ''}</p>
+			<div class="tile-actions">
+				<button class="tile-btn tile-btn--remove" data-id="${card.id}" data-ctype="${card.cardType}" title="Remove one copy">−</button>
+				<span class="tile-count">${count > 0 ? `×${count}` : ''}</span>
+				<button class="tile-btn tile-btn--add" data-id="${card.id}" data-ctype="${card.cardType}" title="Add one copy" ${atMax ? 'disabled' : ''}>+</button>
+			</div>
+		`;
+		grid.appendChild(tile);
+	}
+}
+
+function typeBadge(cardType) {
+	const map = { MOSJE: 'Mosje', PIECIE: 'Piecie', SNELLE_PIECIE: 'Snelle', PLACE: 'Place', QUEST: 'Quest' };
+	return map[cardType] || cardType;
+}
+
+function formatTraits(traits) {
+	return Object.entries(traits).map(([k, v]) => `${k} ${'★'.repeat(v)}`).join(' · ');
+}
+
+// ── Render deck list (sidebar) ────────────────────────────────────────────────
+function renderDeckList() {
+	const ul = document.getElementById('deck-list');
+	ul.innerHTML = '';
+	for (const [ctype, entries] of Object.entries(deck)) {
+		for (const [id, count] of Object.entries(entries)) {
+			const card = ALL_CARDS.find(c => c.id === id);
+			if (!card) continue;
+			const li = document.createElement('li');
+			li.className = `deck-list-item deck-list-item--${ctype.toLowerCase().replace('_', '-')}`;
+			li.innerHTML = `
+				<span class="deck-list-name">${count > 1 ? `×${count} ` : ''}${card.name}</span>
+				<button class="tile-btn tile-btn--remove deck-list-remove" data-id="${id}" data-ctype="${ctype}" title="Remove">−</button>
+			`;
+			ul.appendChild(li);
+		}
+	}
+	if (ul.children.length === 0) {
+		ul.innerHTML = '<li class="deck-list-empty">No cards yet</li>';
+	}
+}
+
+// ── Composition bar ───────────────────────────────────────────────────────────
+function updateComposition() {
+	const types = { MOSJE: 2, PIECIE: 8, SNELLE_PIECIE: 4, PLACE: 2, QUEST: 1 };
+	const idMap = { MOSJE: 'mosje', PIECIE: 'piecie', SNELLE_PIECIE: 'snelle', PLACE: 'place', QUEST: 'quest' };
+	let valid = true;
+	for (const [ctype, limit] of Object.entries(types)) {
+		const total = totalOfType(ctype);
+		const key = idMap[ctype];
+		document.getElementById(`count-${key}`).textContent = `${total} / ${limit}`;
+		const bar = document.getElementById(`bar-${key}`);
+		const pct = Math.min(100, (total / limit) * 100);
+		bar.style.width = pct + '%';
+		bar.classList.toggle('comp-bar--over', total > limit);
+		if (ctype !== 'QUEST' && total !== limit) valid = false;
+		if (ctype === 'QUEST' && total > limit) valid = false;
+	}
+	const validEl = document.getElementById('comp-valid');
+	if (valid) {
+		validEl.textContent = '✓ Deck is valid';
+		validEl.className = 'comp-valid comp-valid--ok';
+	} else {
+		const missing = Object.entries(types)
+			.filter(([ct]) => ct !== 'QUEST' && totalOfType(ct) !== types[ct])
+			.map(([ct]) => `${idMap[ct]} (${totalOfType(ct)}/${types[ct]})`);
+		validEl.textContent = missing.length ? `Fill: ${missing.join(', ')}` : 'Check deck limits';
+		validEl.className = 'comp-valid comp-valid--warn';
+	}
+}
+
+function updateAll() {
+	updateComposition();
+	renderDeckList();
+	renderGrid();
+}
+
+// ── Event delegation for card grid + deck list ────────────────────────────────
+document.getElementById('card-grid').addEventListener('click', e => {
+	const btn = e.target.closest('.tile-btn');
+	if (!btn) return;
+	const { id, ctype } = btn.dataset;
+	if (btn.classList.contains('tile-btn--add')) {
+		const card = ALL_CARDS.find(c => c.id === id);
+		if (card) addCard(card);
+	} else if (btn.classList.contains('tile-btn--remove')) {
+		removeCard(ctype, id);
+	}
+});
+
+document.getElementById('deck-list').addEventListener('click', e => {
+	const btn = e.target.closest('.deck-list-remove');
+	if (!btn) return;
+	removeCard(btn.dataset.ctype, btn.dataset.id);
+});
+
+// ── Filter tabs ───────────────────────────────────────────────────────────────
+document.querySelectorAll('.filter-tab').forEach(tab => {
+	tab.addEventListener('click', () => {
+		document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+		tab.classList.add('active');
+		activeFilter = tab.dataset.filter;
+		renderGrid();
+	});
+});
+
+document.getElementById('search-input').addEventListener('input', e => {
+	searchQuery = e.target.value.trim();
+	renderGrid();
+});
+
+// ── Save deck ─────────────────────────────────────────────────────────────────
+document.getElementById('btn-save-deck').addEventListener('click', async () => {
+	const user = getCurrentUser();
+	if (!user || user.isAnonymous) { showStatus('Sign in to save decks.', 'error'); return; }
+
+	const name = document.getElementById('deck-name-input').value.trim();
+	if (!name) { showStatus('Enter a deck name first.', 'error'); return; }
+
+	// Validate required slots
+	if (totalOfType('MOSJE') !== 2) { showStatus('Deck needs exactly 2 Mosjes.', 'error'); return; }
+	if (totalOfType('PIECIE') !== 8) { showStatus('Deck needs exactly 8 Piecies.', 'error'); return; }
+	if (totalOfType('SNELLE_PIECIE') !== 4) { showStatus('Deck needs exactly 4 Snelle Piecies.', 'error'); return; }
+	if (totalOfType('PLACE') !== 2) { showStatus('Deck needs exactly 2 Places.', 'error'); return; }
+
+	const deckId = editingDeckId || `custom_${Date.now()}`;
+	const deckDef = {
+		id: deckId,
+		name,
+		mosjes: expandDeckType('MOSJE'),
+		piecies: expandDeckType('PIECIE'),
+		snellePiecies: expandDeckType('SNELLE_PIECIE'),
+		places: expandDeckType('PLACE'),
+		quests: expandDeckType('QUEST'),
+	};
+
+	const btn = document.getElementById('btn-save-deck');
+	btn.disabled = true;
+	const result = await saveDeck(user.uid, deckDef);
+	btn.disabled = false;
+
+	if (result.success) {
+		editingDeckId = deckId;
+		// Refresh saved list
+		savedDecks = await loadUserDecks(user.uid);
+		populateDeckSelect();
+		document.getElementById('deck-load-select').value = deckId;
+		document.getElementById('btn-delete-deck').hidden = false;
+		showStatus('Deck saved!', 'ok');
+	} else {
+		showStatus('Save failed. Try again.', 'error');
+	}
+});
+
+function expandDeckType(ctype) {
+	const result = [];
+	for (const [id, count] of Object.entries(deck[ctype] || {})) {
+		for (let i = 0; i < count; i++) result.push(id);
+	}
+	return result;
+}
+
+function showStatus(msg, type) {
+	const el = document.getElementById('save-status');
+	el.textContent = msg;
+	el.className = `save-status save-status--${type}`;
+	setTimeout(() => { if (el.textContent === msg) el.textContent = ''; }, 3000);
+}
+
+// ── Delete deck ───────────────────────────────────────────────────────────────
+document.getElementById('btn-delete-deck').addEventListener('click', async () => {
+	const user = getCurrentUser();
+	if (!user || !editingDeckId) return;
+	if (!confirm('Delete this deck? This cannot be undone.')) return;
+
+	await deleteDeck(user.uid, editingDeckId);
+	savedDecks = await loadUserDecks(user.uid);
+	populateDeckSelect();
+	clearDeck();
+	showStatus('Deck deleted.', 'ok');
+});

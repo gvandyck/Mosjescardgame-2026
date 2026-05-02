@@ -151,6 +151,9 @@ h3 {
   border: none;
   cursor: pointer;
   transition: all 0.2s var(--ease-snap);
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
 }
 
 .btn-primary {
