@@ -730,16 +730,16 @@ export function playPlace(gameState, playerId, cardRef, cardDef) {
   const player = state.players[playerId];
   if (!player) return { state, success: false, error: 'Player not found' };
 
-  // Check if all 4 Piecie/Place slots are full
-  const piecieSlots = player.piecieSlots || [];
-  const filledSlots = piecieSlots.filter(slot => slot !== null && slot !== undefined).length;
+  // Defensive normalization — ensures piecieSlots is always 4 elements with null for empty
+  normalizePiecieSlots(player, 4);
+  if (!Array.isArray(player.hand)) player.hand = [];
+  if (!Array.isArray(player.discard)) player.discard = [];
+
+  // Check if all 4 slots are full
+  const filledSlots = player.piecieSlots.filter(slot => slot !== null && slot !== undefined).length;
   if (filledSlots >= 4) {
     return { state, success: false, error: 'Cannot place a Place — all Piecie slots are full.' };
   }
-
-  // Defensive normalization
-  if (!Array.isArray(player.hand)) player.hand = [];
-  if (!Array.isArray(player.discard)) player.discard = [];
 
   // Remove from hand
   const handIndex = player.hand.findIndex(c => c.cardId === cardRef.cardId);
@@ -747,7 +747,7 @@ export function playPlace(gameState, playerId, cardRef, cardDef) {
   player.hand.splice(handIndex, 1);
 
   // Find empty slot and place face-down (like a Piecie)
-  const emptySlot = piecieSlots.findIndex(slot => slot === null || slot === undefined);
+  const emptySlot = player.piecieSlots.findIndex(slot => slot === null);
   if (emptySlot === -1) {
     player.hand.splice(handIndex, 0, cardRef);
     return { state, success: false, error: 'No empty Piecie slot available' };
