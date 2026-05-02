@@ -12,10 +12,12 @@ import * as snelleEffects from '../abilities/snelleEffects.js';
 import * as mosjeAbilities from '../abilities/mosjeAbilities.js';
 import { MOSJES } from '../data/mosjes.js';
 import { PIECIES } from '../data/piecies.js';
+import { PLACES } from '../data/places.js';
 
 console.log('[ENGINE] turnManager.js loaded');
 
 const PIECIE_LOOKUP = Object.fromEntries(PIECIES.map(card => [card.id, card]));
+const PLACE_LOOKUP = Object.fromEntries(PLACES.map(card => [card.id, card]));
 
 function normalizePiecieSlots(player, slotCount = 4) {
   const source = Array.isArray(player?.piecieSlots) ? player.piecieSlots : [];
@@ -309,7 +311,7 @@ export function activatePlace(gameState, playerId, slotIndex) {
   }
 
   const cardId = slot.cardId;
-  const cardDef = getCardById(cardId);
+  const cardDef = PLACE_LOOKUP[cardId];
   if (!cardDef) return { state, success: false, error: 'Card definition not found' };
 
   // Remove from piecieSlots
