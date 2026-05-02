@@ -12,7 +12,9 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Write firebase-config.js from secret
-        run: echo "${{ secrets.FIREBASE_CONFIG }}" > firebase-config.js
+        env:
+          FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
+        run: printf '%s' "$FIREBASE_CONFIG" > firebase-config.js
 
       - name: Sync to FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
