@@ -56,7 +56,7 @@
 
 .sidebar-label {
   display: block;
-  font-size: 0.7rem;
+  font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -89,7 +89,7 @@
   border-radius: 6px;
   color: #e0e8ff;
   font-family: var(--font-ui);
-  font-size: 0.85rem;
+  font-size: 0.93rem;
   transition: border-color 0.15s;
 }
 
@@ -114,7 +114,7 @@
   border-radius: 6px;
   color: #f87171;
   font-family: var(--font-ui);
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   cursor: pointer;
   flex-shrink: 0;
   transition: background 0.15s;
@@ -123,7 +123,7 @@
 .btn-danger-sm:hover { background: rgba(239, 68, 68, 0.28); }
 
 .save-status {
-  font-size: 0.78rem;
+  font-size: 0.86rem;
   min-height: 1.2em;
   text-align: center;
 }
@@ -145,7 +145,7 @@
 }
 
 .comp-type {
-  font-size: 0.72rem;
+  font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -179,14 +179,14 @@
 .comp-bar--over    { background: #ef4444 !important; }
 
 .comp-count {
-  font-size: 0.7rem;
+  font-size: 0.78rem;
   font-family: var(--font-mono);
   color: rgba(255, 255, 255, 0.5);
   text-align: right;
 }
 
 .comp-valid {
-  font-size: 0.78rem;
+  font-size: 0.86rem;
   font-weight: 600;
   text-align: center;
   padding: 0.3rem;
@@ -217,7 +217,7 @@
   padding: 0.3rem 0.5rem;
   border-radius: 4px;
   border-left: 2px solid transparent;
-  font-size: 0.8rem;
+  font-size: 0.88rem;
 }
 
 .deck-list-item--mosje        { border-color: var(--mosje-gold);  background: rgba(232,185,79,0.06); }
@@ -247,7 +247,7 @@
 .deck-list-remove:hover { color: #f87171; background: rgba(239, 68, 68, 0.12); }
 
 .deck-list-empty {
-  font-size: 0.78rem;
+  font-size: 0.86rem;
   color: rgba(255, 255, 255, 0.25);
   text-align: center;
   padding: 1rem 0;
@@ -278,7 +278,7 @@
   border-radius: 999px;
   color: rgba(255, 255, 255, 0.5);
   font-family: var(--font-ui);
-  font-size: 0.75rem;
+  font-size: 0.83rem;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -305,7 +305,7 @@
   border-radius: 999px;
   color: #e0e8ff;
   font-family: var(--font-ui);
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   width: 180px;
   transition: border-color 0.15s, width 0.2s;
 }
@@ -316,7 +316,7 @@
   width: 220px;
 }
 
-/* ── Card grid — fixed 4 columns ─────────────────────────────────────────────── */
+/* ── Card grid — responsive columns via auto-fill ────────────────────────────── */
 
 .card-grid {
   flex: 1;
@@ -324,10 +324,9 @@
   scrollbar-width: none;       /* Firefox */
   padding: 0.85rem;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 0.75rem;
   align-content: start;
-  max-width: 50%;
   cursor: grab;
   user-select: none;
 }
@@ -344,7 +343,7 @@
   border: 1px solid rgba(255, 255, 255, 0.09);
   overflow: hidden;
   background: #0d1020;
-  min-height: 380px;
+  min-height: 460px;
   transition: transform 0.15s var(--ease-snap), box-shadow 0.15s, border-color 0.15s;
 }
 
@@ -402,11 +401,11 @@
 }
 
 .tile-type-badge {
-  font-size: 0.58rem;
+  font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 0.18rem 0.5rem;
+  padding: 0.22rem 0.6rem;
   border-radius: 999px;
 }
 .tile-type-badge--mosje        { background: rgba(13,8,0,0.65);  color: var(--mosje-gold); }
@@ -417,7 +416,7 @@
 
 .tile-rarity {
   margin-left: auto;
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   color: rgba(255,255,255,0.6);
   text-shadow: 0 1px 4px rgba(0,0,0,0.8);
 }
@@ -428,11 +427,11 @@
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 0.5rem 0.6rem 0.45rem;
+  padding: 0.65rem 0.75rem 0.6rem;
 }
 
 .tile-name {
-  font-size: 0.82rem;
+  font-size: 0.92rem;
   font-weight: 700;
   color: #fff;
   line-height: 1.2;
@@ -441,7 +440,7 @@
 }
 
 .tile-subtype {
-  font-size: 0.58rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: rgba(255,255,255,0.5);
@@ -453,12 +452,11 @@
 /* ── Body — all card stats and text below the art ────────────────────────────── */
 
 .tile-body {
-  flex: 1 1 auto;
+  flex: none;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  padding: 0.6rem 0.65rem 0.5rem;
-  overflow: hidden;
+  gap: 0.5rem;
+  padding: 0.8rem 0.85rem 0.65rem;
 }
 
 /* ── Stats row ───────────────────────────────────────────────────────────────── */
@@ -470,9 +468,9 @@
 }
 
 .stat {
-  font-size: 0.6rem;
+  font-size: 0.7rem;
   font-family: var(--font-mono);
-  padding: 0.15rem 0.4rem;
+  padding: 0.2rem 0.5rem;
   border-radius: 4px;
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -481,7 +479,7 @@
 .stat--mp      { background: rgba(74,255,158,0.12);  color: var(--mp-high); }
 .stat--instant { background: rgba(232,69,69,0.15);   color: #fca5a5; }
 .stat--req     { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.5); }
-.stat--trigger { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.5); text-transform: uppercase; font-size: 0.57rem; }
+.stat--trigger { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.5); text-transform: uppercase; font-size: 0.67rem; }
 .stat--good    { background: rgba(61,214,140,0.12);  color: var(--place-green); }
 .stat--easy    { background: rgba(74,255,158,0.12);  color: var(--mp-high); }
 .stat--medium  { background: rgba(255,215,0,0.12);   color: var(--mp-mid); }
@@ -491,9 +489,9 @@
 /* ── Trait chips ─────────────────────────────────────────────────────────────── */
 
 .trait {
-  font-size: 0.58rem;
+  font-size: 0.68rem;
   font-family: var(--font-mono);
-  padding: 0.12rem 0.35rem;
+  padding: 0.18rem 0.45rem;
   border-radius: 4px;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -510,7 +508,7 @@
 /* ── Description ─────────────────────────────────────────────────────────────── */
 
 .tile-desc {
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   color: rgba(255,255,255,0.65);
   line-height: 1.5;
 }
@@ -518,10 +516,10 @@
 /* ── Ability line ────────────────────────────────────────────────────────────── */
 
 .tile-ability {
-  font-size: 0.78rem;
+  font-size: 0.88rem;
   color: rgba(232,185,79,0.85);
   line-height: 1.4;
-  padding-top: 0.3rem;
+  padding-top: 0.45rem;
   border-top: 1px solid rgba(255,255,255,0.06);
 }
 
@@ -532,16 +530,16 @@
 .tile-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.2rem;
-  padding-top: 0.15rem;
+  gap: 0.25rem;
+  padding-top: 0.25rem;
 }
 
 .tile-tag {
-  font-size: 0.57rem;
+  font-size: 0.67rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 0.1rem 0.35rem;
+  padding: 0.15rem 0.45rem;
   border-radius: 3px;
   background: rgba(255,255,255,0.07);
   color: rgba(255,255,255,0.4);
@@ -551,13 +549,13 @@
 /* ── Flavour text ────────────────────────────────────────────────────────────── */
 
 .tile-flavour {
-  font-size: 0.72rem;
+  font-size: 0.82rem;
   font-style: italic;
   color: rgba(255,255,255,0.28);
   line-height: 1.35;
   border-top: 1px solid rgba(255,255,255,0.05);
-  padding-top: 0.25rem;
-  margin-top: 0.1rem;
+  padding-top: 0.35rem;
+  margin-top: 0.15rem;
 }
 
 /* ── Actions bar ─────────────────────────────────────────────────────────────── */
@@ -567,7 +565,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.5rem 0.65rem;
+  padding: 0.65rem 0.85rem;
   border-top: 1px solid rgba(255,255,255,0.06);
   background: rgba(0,0,0,0.25);
 }
@@ -595,7 +593,7 @@
 
 .tile-count {
   font-family: var(--font-mono);
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: #93c5fd;
   min-width: 30px;
