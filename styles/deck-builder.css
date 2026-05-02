@@ -326,6 +326,8 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 0.75rem;
   align-content: start;
+  max-width: 50%;
+  margin: 0 auto;
 }
 
 /* ── Card tile ───────────────────────────────────────────────────────────────── */
@@ -503,15 +505,15 @@
 /* ── Description ─────────────────────────────────────────────────────────────── */
 
 .tile-desc {
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   color: rgba(255,255,255,0.65);
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
 /* ── Ability line ────────────────────────────────────────────────────────────── */
 
 .tile-ability {
-  font-size: 0.68rem;
+  font-size: 0.78rem;
   color: rgba(232,185,79,0.85);
   line-height: 1.4;
   padding-top: 0.3rem;
@@ -544,7 +546,7 @@
 /* ── Flavour text ────────────────────────────────────────────────────────────── */
 
 .tile-flavour {
-  font-size: 0.62rem;
+  font-size: 0.72rem;
   font-style: italic;
   color: rgba(255,255,255,0.28);
   line-height: 1.35;
