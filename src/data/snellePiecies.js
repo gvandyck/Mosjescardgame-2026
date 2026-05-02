@@ -67,7 +67,7 @@ export const SNELLE_PIECIES = [
     tags: ["DRAW"],
     description: "Draw 2 cards. Play as interrupt during any phase.",
     flavourText: "",
-    artPath: "assets/snelle-piecies/placeholder.png",
+    artPath: "assets/piecie-art/FF Haaltje Nemen.jpeg",
     rarity: "★★★☆☆",
     isBoosterOnly: false,
     deckLimit: null
