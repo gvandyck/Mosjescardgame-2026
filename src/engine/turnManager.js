@@ -385,6 +385,16 @@ export function activatePiecie(gameState, playerId, slotIndex) {
     }
   }
 
+  // Jeffrey The Strongman: cannot use FOOD or RESTORE Piecies
+  const jeffreyActive = player.activeSlots.some(s => s && !s.isDefeated && s.cardId === 'mosje_jeffrey');
+  if (jeffreyActive) {
+    const blocked = ['FOOD', 'RESTORE'];
+    if (knownCardDef.tags?.some(t => blocked.includes(t))) {
+      console.log('[ENGINE] Jeffrey The Strongman blocks FOOD/RESTORE Piecies');
+      return { state, success: false, error: 'Jeffrey The Strongman cannot use FOOD or RESTORE Piecies' };
+    }
+  }
+
   // Check reactive negation flags set by opponent's Snelle Piecies
   const flags = state._snelleFlags || {};
   const oppId = Object.keys(state.players).find(id => id !== playerId);

@@ -56,11 +56,6 @@ export function effect_broodje_doner(gameState, playerId) {
 	if (!player) return state;
 	const si = getFirstActiveSlotIndex(player);
 	if (si < 0) return state;
-	const mosje = player.activeSlots[si];
-	if (mosje.level < 1) {
-		console.log('[ABILITY] Broodje Doner blocked: requires level 1+');
-		return state;
-	}
 	const base = hasFoodDoubleSynergy(state, playerId) ? 70 : 35;
 	applyMPGain(player, si, base, state, playerId);
 	console.log(`[ABILITY] Broodje Doner: +${base} MP`);

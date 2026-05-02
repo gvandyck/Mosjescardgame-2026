@@ -303,8 +303,12 @@
 }
 
 .discard-pile-container {
-   margin-left: auto;
+   position: sticky;
+   right: 0;
+   z-index: 20;
    flex: 0 0 auto;
+   background: var(--board-bg, #0f0f0f);
+   padding-left: 6px;
 }
 
 .board-zone__slots {
