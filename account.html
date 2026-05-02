@@ -54,39 +54,47 @@
 
       </form>
 
-      <!-- Register form (hidden by default) -->
-      <form id="form-register" class="auth-form" data-mode="register" hidden novalidate>
+      <!-- Create account toggle -->
+      <button type="button" class="btn-register-toggle" id="btn-register-toggle" aria-expanded="false">
+        <span class="register-toggle-label">New here? Create account</span>
+        <svg class="register-toggle-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
 
-        <div class="field-group">
-          <label for="reg-name">Display Name</label>
-          <input id="reg-name" type="text" maxlength="18" autocomplete="nickname"
-                 placeholder="e.g. Gandoe" required />
-        </div>
+      <!-- Register form (collapsed by default) -->
+      <div class="register-collapse" id="register-collapse">
+        <form id="form-register" class="auth-form" data-mode="register" novalidate>
 
-        <div class="field-group">
-          <label for="reg-email">Email</label>
-          <input id="reg-email" type="email" autocomplete="email"
-                 placeholder="you@example.com" required />
-        </div>
-
-        <div class="field-group">
-          <label for="reg-password">Password <span class="field-hint">min. 6 characters</span></label>
-          <div class="input-wrap">
-            <input id="reg-password" type="password" autocomplete="new-password"
-                   placeholder="Choose a password" required minlength="6" />
-            <button type="button" class="btn-toggle-pw" data-target="reg-password"
-                    aria-label="Show password" tabindex="-1">
-              <svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-              <svg class="icon-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" hidden><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-            </button>
+          <div class="field-group">
+            <label for="reg-name">Display Name</label>
+            <input id="reg-name" type="text" maxlength="18" autocomplete="nickname"
+                   placeholder="e.g. Gandoe" required />
           </div>
-        </div>
 
-        <p id="register-error" class="auth-error" hidden></p>
+          <div class="field-group">
+            <label for="reg-email">Email</label>
+            <input id="reg-email" type="email" autocomplete="email"
+                   placeholder="you@example.com" required />
+          </div>
 
-        <button type="submit" class="btn-primary btn-auth-submit" id="btn-register">Create Account</button>
+          <div class="field-group">
+            <label for="reg-password">Password <span class="field-hint">min. 6 characters</span></label>
+            <div class="input-wrap">
+              <input id="reg-password" type="password" autocomplete="new-password"
+                     placeholder="Choose a password" required minlength="6" />
+              <button type="button" class="btn-toggle-pw" data-target="reg-password"
+                      aria-label="Show password" tabindex="-1">
+                <svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="icon-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" hidden><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+            </div>
+          </div>
 
-      </form>
+          <p id="register-error" class="auth-error" hidden></p>
+
+          <button type="submit" class="btn-primary btn-auth-submit" id="btn-register">Create Account</button>
+
+        </form>
+      </div>
 
       <!-- Guest path — clearly tertiary -->
       <div class="auth-guest-section">

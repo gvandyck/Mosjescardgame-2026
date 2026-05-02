@@ -14,25 +14,19 @@ onAuthStateChanged(user => {
 	if (user) window.location.href = './index.html';
 });
 
-// ── Mode switching (Sign In ↔ Register) ───────────────────────────────────────
-const formSignin   = document.getElementById('form-signin');
-const formRegister = document.getElementById('form-register');
+// ── Create account collapse toggle ────────────────────────────────────────────
+const formSignin        = document.getElementById('form-signin');
+const formRegister      = document.getElementById('form-register');
+const registerCollapse  = document.getElementById('register-collapse');
+const btnRegisterToggle = document.getElementById('btn-register-toggle');
 
-function switchMode(mode) {
-	const toSignin = mode === 'signin';
-	formSignin.hidden   = !toSignin;
-	formRegister.hidden = toSignin;
-	clearErrors();
-	// Auto-focus first visible input (Fitts's Law: user's eye is already there)
-	const firstInput = (toSignin ? formSignin : formRegister).querySelector('input');
-	firstInput?.focus();
-}
-
-document.querySelectorAll('.auth-mode-link').forEach(link => {
-	link.addEventListener('click', e => {
-		e.preventDefault();
-		switchMode(link.dataset.switchTo);
-	});
+btnRegisterToggle.addEventListener('click', () => {
+	const isOpen = registerCollapse.classList.toggle('is-open');
+	btnRegisterToggle.setAttribute('aria-expanded', isOpen);
+	if (isOpen) {
+		clearErrors();
+		registerCollapse.querySelector('input')?.focus();
+	}
 });
 
 // Auto-focus email on page load
@@ -92,7 +86,7 @@ document.getElementById('btn-google').addEventListener('click', async () => {
 	const result = await signInWithGoogle();
 	setLoading(btn, false);
 	if (result.error) {
-		const activeErrorEl = formRegister.hidden ? 'signin-error' : 'register-error';
+		const activeErrorEl = registerCollapse.classList.contains('is-open') ? 'register-error' : 'signin-error';
 		showError(activeErrorEl, result.error);
 		return;
 	}
