@@ -38,7 +38,7 @@ export async function signInWithEmail(email, password) {
 		const { signInWithEmailAndPassword } = await getAuthAPI();
 		await signInWithEmailAndPassword(auth, email, password);
 		console.log('[AUTH] Signed in:', auth.currentUser?.email);
-		return { success: true };
+		return { success: true, user: auth.currentUser };
 	} catch (err) {
 		return { success: false, error: friendlyAuthError(err.code) };
 	}
@@ -54,7 +54,7 @@ export async function registerWithEmail(email, password, displayName) {
 		const cred = await createUserWithEmailAndPassword(auth, email, password);
 		await updateProfile(cred.user, { displayName: displayName.trim() });
 		console.log('[AUTH] Registered:', cred.user.email);
-		return { success: true };
+		return { success: true, user: cred.user };
 	} catch (err) {
 		return { success: false, error: friendlyAuthError(err.code) };
 	}
