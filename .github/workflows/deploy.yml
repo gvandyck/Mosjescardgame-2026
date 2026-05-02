@@ -1,0 +1,33 @@
+name: Deploy to eightytwenty.nl
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sync to FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASS }}
+          server-dir: /domains/eightytwenty.nl/public_html/cardgame2026/
+          exclude: |
+            **/.git/**
+            **/node_modules/**
+            **/docs/**
+            **/*.ts
+            **/src/simulation/**
+            **/src/playtest/**
+            **/*.md
+            **/tsconfig*.json
+            **/package*.json
+            **/jest.config.*
+            **/get-shit-done/**
+            **/.github/**
