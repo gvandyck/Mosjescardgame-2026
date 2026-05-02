@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MOSJES - Deck Builder</title>
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/account.css" />
+  <link rel="stylesheet" href="styles/deck-builder.css" />
+</head>
+<body class="page page--builder">
+  <div class="bg-noise" aria-hidden="true"></div>
+
+  <header class="builder-header">
+    <a href="./index.html" class="btn-back">← Lobby</a>
+    <h1 class="builder-title">Deck Builder</h1>
+    <div id="user-badge" class="user-badge" hidden>
+      <span id="user-badge-name"></span>
+    </div>
+  </header>
+
+  <main class="builder-layout">
+
+    <!-- LEFT: Deck controls + composition -->
+    <aside class="builder-sidebar">
+      <div class="deck-controls">
+        <label class="sidebar-label">My Decks</label>
+        <div class="deck-load-row">
+          <select id="deck-load-select" class="lobby-input deck-select-input">
+            <option value="">— New Deck —</option>
+          </select>
+          <button id="btn-delete-deck" class="btn-danger-sm" hidden title="Delete this deck">✕</button>
+        </div>
+
+        <label class="sidebar-label" for="deck-name-input">Deck Name</label>
+        <input id="deck-name-input" class="lobby-input" type="text" maxlength="24" placeholder="My Custom Deck" />
+
+        <button id="btn-save-deck" class="btn-primary btn-save">Save Deck</button>
+        <p id="save-status" class="save-status"></p>
+      </div>
+
+      <div class="composition-panel">
+        <p class="sidebar-label">Composition</p>
+        <div class="comp-rows">
+          <div class="comp-row">
+            <span class="comp-type comp-type--mosje">Mosjes</span>
+            <div class="comp-bar-wrap"><div id="bar-mosje" class="comp-bar comp-bar--mosje"></div></div>
+            <span id="count-mosje" class="comp-count">0 / 2</span>
+          </div>
+          <div class="comp-row">
+            <span class="comp-type comp-type--piecie">Piecies</span>
+            <div class="comp-bar-wrap"><div id="bar-piecie" class="comp-bar comp-bar--piecie"></div></div>
+            <span id="count-piecie" class="comp-count">0 / 8</span>
+          </div>
+          <div class="comp-row">
+            <span class="comp-type comp-type--snelle">Snelle</span>
+            <div class="comp-bar-wrap"><div id="bar-snelle" class="comp-bar comp-bar--snelle"></div></div>
+            <span id="count-snelle" class="comp-count">0 / 4</span>
+          </div>
+          <div class="comp-row">
+            <span class="comp-type comp-type--place">Places</span>
+            <div class="comp-bar-wrap"><div id="bar-place" class="comp-bar comp-bar--place"></div></div>
+            <span id="count-place" class="comp-count">0 / 2</span>
+          </div>
+          <div class="comp-row">
+            <span class="comp-type comp-type--quest">Quest</span>
+            <div class="comp-bar-wrap"><div id="bar-quest" class="comp-bar comp-bar--quest"></div></div>
+            <span id="count-quest" class="comp-count">0 / 1</span>
+          </div>
+        </div>
+        <p id="comp-valid" class="comp-valid"></p>
+      </div>
+
+      <!-- Deck card list -->
+      <div class="deck-list-panel">
+        <p class="sidebar-label">In Deck</p>
+        <ul id="deck-list" class="deck-list"></ul>
+      </div>
+    </aside>
+
+    <!-- RIGHT: Card browser -->
+    <section class="builder-browser">
+      <div class="browser-filters">
+        <button class="filter-tab active" data-filter="ALL">All</button>
+        <button class="filter-tab" data-filter="MOSJE">Mosjes</button>
+        <button class="filter-tab" data-filter="PIECIE">Piecies</button>
+        <button class="filter-tab" data-filter="SNELLE_PIECIE">Snelle</button>
+        <button class="filter-tab" data-filter="PLACE">Places</button>
+        <button class="filter-tab" data-filter="QUEST">Quests</button>
+        <input id="search-input" class="browser-search" type="search" placeholder="Search cards..." />
+      </div>
+
+      <div id="card-grid" class="card-grid"></div>
+    </section>
+  </main>
+
+  <script type="module" src="src/deck-builder.js"></script>
+</body>
+</html>
