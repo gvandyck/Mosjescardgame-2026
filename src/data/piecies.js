@@ -148,7 +148,7 @@ export const PIECIES = [
     tags: ["FOOD"],
     description: "Lose 10 MP. Draw 2 cards.",
     flavourText: "",
-    artPath: "assets/piecies/placeholder.png",
+    artPath: "assets/piecie-art/Warm kannetje melk.jpeg",
     rarity: "★★☆☆☆",
     isBoosterOnly: false,
     deckLimit: null
@@ -888,7 +888,7 @@ export const PIECIES = [
     tags: ["SUBSTANCE", "DRAW"],
     description: "Draw 3 cards. Lose 20 MP.",
     flavourText: "",
-    artPath: "assets/piecies/placeholder.png",
+    artPath: "assets/piecie-art/Stripje bennies.jpeg",
     rarity: "★★★☆☆",
     isBoosterOnly: false,
     deckLimit: null

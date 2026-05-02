@@ -26,15 +26,16 @@
       <button id="btn-personal-quest" class="btn-secondary" type="button">Personal Quest ⭐</button>
       <button id="btn-end-turn" class="btn-primary" type="button">End Turn</button>
     </div>
-    <section id="topbar-log-popover" class="topbar-log-popover" hidden>
-      <div class="topbar-log-header">
-        <h2>Battle Log</h2>
-        <button id="btn-copy-log" class="btn-secondary" type="button">Copy Log</button>
-      </div>
-      <div id="log-root" class="game-log"></div>
-      <textarea id="log-copy-buffer" class="log-copy-buffer" readonly aria-label="Battle log plain text"></textarea>
-    </section>
   </header>
+
+  <section id="topbar-log-popover" class="topbar-log-popover" hidden>
+    <div class="topbar-log-header">
+      <h2>Battle Log</h2>
+      <button id="btn-copy-log" class="btn-secondary" type="button">Copy Log</button>
+    </div>
+    <div id="log-root" class="game-log"></div>
+    <textarea id="log-copy-buffer" class="log-copy-buffer" readonly aria-label="Battle log plain text"></textarea>
+  </section>
 
   <main class="game-layout">
     <section class="game-board" id="board-root" aria-label="Game board"></section>
