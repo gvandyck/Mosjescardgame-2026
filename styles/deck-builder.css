@@ -337,6 +337,7 @@
   border: 1px solid rgba(255, 255, 255, 0.09);
   overflow: hidden;
   background: #0d1020;
+  min-height: 380px;
   transition: transform 0.15s var(--ease-snap), box-shadow 0.15s, border-color 0.15s;
 }
 
@@ -445,11 +446,12 @@
 /* ── Body — all card stats and text below the art ────────────────────────────── */
 
 .tile-body {
-  flex: 1;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
   padding: 0.6rem 0.65rem 0.5rem;
+  overflow: hidden;
 }
 
 /* ── Stats row ───────────────────────────────────────────────────────────────── */
