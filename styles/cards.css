@@ -1298,7 +1298,8 @@
   z-index: 10;
 }
 
-.mosje-clickable {
+.mosje-clickable,
+.card--previewable {
   cursor: zoom-in;
 }
 

@@ -963,6 +963,19 @@
    line-height: 1.35;
 }
 
+.modal-card--card-preview {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   gap: 16px;
+   width: min(96vw, 480px);
+}
+
+.modal-card-preview-wrap {
+   zoom: 1.8;
+   pointer-events: none;
+}
+
 @keyframes modal-in {
    from { transform: scale(0.92) translateY(12px); opacity: 0; }
    to { transform: scale(1) translateY(0); opacity: 1; }

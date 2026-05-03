@@ -25,6 +25,7 @@ export function initModalManager(container) {
 				return Number(handSize) > 0 ? 0 : null;
 			},
 			showMosjeSelect: (_slots, onSelected, _questDef) => onSelected(0),
+			showCardPreviewModal: () => {},
 			close: () => {},
 		};
 	}
@@ -406,6 +407,23 @@ export function initModalManager(container) {
 		});
 	}
 
+	function showCardPreviewModal(card) {
+		if (!card) return;
+		const previewEl = renderCard(card, { compact: false });
+
+		container.classList.add('modal-root--open');
+		container.innerHTML = `
+			<div class="modal-backdrop"></div>
+			<section class="modal-card modal-card--card-preview" role="dialog" aria-modal="true">
+				<div class="modal-card-preview-wrap"></div>
+				<button class="modal-btn" id="modal-close-preview">Close</button>
+			</section>
+		`;
+
+		container.querySelector('.modal-card-preview-wrap')?.appendChild(previewEl);
+		container.querySelector('#modal-close-preview')?.addEventListener('click', close);
+	}
+
 	function showPlaceDetailModal(place) {
 		if (!place) return;
 		const previewEl = renderCard(place, { compact: true });
@@ -766,6 +784,7 @@ export function initModalManager(container) {
 		showCardTypeSelect,
 		showOpponentHandCardSelect,
 		showRevealedCard,
+		showCardPreviewModal,
 		showMosjeDetailModal,
 		showQuestAttemptPreview,
 		showPlaceDetailModal,

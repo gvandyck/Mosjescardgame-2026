@@ -3,8 +3,33 @@
 // Filled in Phase 5.
 
 import { renderCard } from './cardRenderer.js';
+import { initModalManager } from './modalManager.js';
+import { getCardById } from '../data/cardIndex.js';
 
 console.log('[UI] handRenderer.js loaded');
+
+let _handModal = null;
+function getHandModal() {
+	if (_handModal) return _handModal;
+	let root = document.querySelector('#modal-root');
+	if (!root) {
+		root = document.createElement('div');
+		root.id = 'modal-root';
+		root.className = 'modal-root';
+		document.body.appendChild(root);
+	}
+	_handModal = initModalManager(root);
+	return _handModal;
+}
+
+function showCardPreview(card) {
+	const fullCard = getCardById(card.cardId) || card;
+	const merged = { ...fullCard, ...card };
+	const modal = getHandModal();
+	if (merged.type === 'MOSJE') modal.showMosjeDetailModal(merged);
+	else if (merged.type === 'PLACE') modal.showPlaceDetailModal(merged);
+	else modal.showCardPreviewModal(merged);
+}
 
 // onPlay(cardId, cardType) — optional callback when a playable card is clicked.
 // isLocalTurn — when false, regular cards are dimmed; Snelle Piecies stay active.
@@ -41,6 +66,12 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 		const isPlace = card.type === 'PLACE';
 		const isPersonalQuest = card.type === 'QUEST' && card.questType === 'PERSONAL';
     const isReturnedMosje = card.type === 'MOSJE' && !!card.returnedThisTurn;
+
+		cardEl.classList.add('card--previewable');
+		cardEl.addEventListener('click', (e) => {
+			if (e.target.closest('button')) return;
+			showCardPreview(card);
+		});
 
 		if (isReturnedMosje) {
 			wrapEl.appendChild(cardEl);

@@ -153,6 +153,10 @@ function renderGrid() {
 	}
 }
 
+function cardNameById(id) {
+	return ALL_CARDS.find(c => c.id === id)?.name || id;
+}
+
 function buildTileHTML(card, count, atMax) {
 	const { id, cardType, rarity } = card;
 	const typeSlug = cardType.toLowerCase().replace(/_/g, '-');
@@ -189,9 +193,11 @@ function buildTileHTML(card, count, atMax) {
 	} else if (cardType === 'PLACE') {
 		const triggerStr = card.trigger ? card.trigger.replace(/_/g, ' ') : '';
 		const goodFor = (card.goodFor || []).join(', ');
+		const badFor  = (card.badFor  || []).join(', ');
 		statsHTML = `<div class="tile-stats">
 			${triggerStr ? `<span class="stat stat--trigger">${triggerStr}</span>` : ''}
 			${goodFor    ? `<span class="stat stat--good">Best: ${goodFor}</span>` : ''}
+			${badFor     ? `<span class="stat stat--bad">Avoid: ${badFor}</span>` : ''}
 		</div>`;
 	} else if (cardType === 'QUEST') {
 		const diffClass = { LOW: 'stat--easy', MEDIUM: 'stat--medium', HIGH: 'stat--hard' };
@@ -209,6 +215,17 @@ function buildTileHTML(card, count, atMax) {
 		? `<div class="tile-tags">${card.tags.map(t => `<span class="tile-tag">${t}</span>`).join('')}</div>`
 		: '';
 
+	let synergyHTML = '';
+	if (cardType === 'MOSJE') {
+		if (Array.isArray(card.synergyWith) && card.synergyWith.length > 0) {
+			const names = card.synergyWith.map(cardNameById).join(', ');
+			synergyHTML += `<p class="tile-synergy"><strong>Synergy:</strong> ${names}</p>`;
+		}
+		if (card.petSynergy) {
+			synergyHTML += `<p class="tile-synergy tile-synergy--pet"><strong>Pet synergy:</strong> ${cardNameById(card.petSynergy)}</p>`;
+		}
+	}
+
 	return `
 		<div class="tile-art"${artStyle}>
 			<div class="tile-art-overlay"></div>
@@ -225,6 +242,7 @@ function buildTileHTML(card, count, atMax) {
 			${statsHTML}
 			${desc        ? `<p class="tile-desc">${desc}</p>`     : ''}
 			${abilityHTML}
+			${synergyHTML}
 			${tagsHTML}
 			${flavourHTML}
 		</div>

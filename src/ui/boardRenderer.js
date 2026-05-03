@@ -124,14 +124,18 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 	// Render active Place card in Piecie slot (only on the field that played it)
 	if (viewModel.activePlace && viewModel.activePlacePlayedBy) {
 		const opponentId = Object.keys(viewModel.gameState.players).find(id => id !== viewModel.myPlayerId);
+		const fullPlace = getCardById(viewModel.activePlace.cardId) || viewModel.activePlace;
+		const mergedPlace = { ...fullPlace, ...viewModel.activePlace };
 
 		if (viewModel.activePlacePlayedBy === opponentId) {
 			const placeOpponent = renderCard(viewModel.activePlace, { compact: true });
-			placeOpponent.classList.add('field-piecie-card', 'place-card-in-slot');
+			placeOpponent.classList.add('field-piecie-card', 'place-card-in-slot', 'card--previewable');
+			placeOpponent.addEventListener('click', () => getBoardModal().showPlaceDetailModal(mergedPlace));
 			topPiecies?.appendChild(placeOpponent);
 		} else if (viewModel.activePlacePlayedBy === viewModel.myPlayerId) {
 			const placePlayer = renderCard(viewModel.activePlace, { compact: true });
-			placePlayer.classList.add('field-piecie-card', 'place-card-in-slot');
+			placePlayer.classList.add('field-piecie-card', 'place-card-in-slot', 'card--previewable');
+			placePlayer.addEventListener('click', () => getBoardModal().showPlaceDetailModal(mergedPlace));
 			bottomPiecies?.appendChild(placePlayer);
 		}
 	}
@@ -144,7 +148,14 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 			continue;
 		}
 		const piecieEl = renderCard(piecie, { compact: true });
-		piecieEl.classList.add('field-piecie-card');
+		piecieEl.classList.add('field-piecie-card', 'card--previewable');
+		const fullPiecie = getCardById(piecie.cardId) || piecie;
+		const mergedPiecie = { ...fullPiecie, ...piecie };
+		piecieEl.addEventListener('click', (e) => {
+			if (e.target.closest('button')) return;
+			if (mergedPiecie.type === 'PLACE') getBoardModal().showPlaceDetailModal(mergedPiecie);
+			else getBoardModal().showCardPreviewModal(mergedPiecie);
+		});
 		topPiecies?.appendChild(piecieEl);
 	}
 
@@ -156,7 +167,14 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 			continue;
 		}
 		const piecieEl = renderCard(piecie, { compact: true });
-		piecieEl.classList.add('field-piecie-card');
+		piecieEl.classList.add('field-piecie-card', 'card--previewable');
+		const fullPiecieBottom = getCardById(piecie.cardId) || piecie;
+		const mergedPiecieBottom = { ...fullPiecieBottom, ...piecie };
+		piecieEl.addEventListener('click', (e) => {
+			if (e.target.closest('button')) return;
+			if (mergedPiecieBottom.type === 'PLACE') getBoardModal().showPlaceDetailModal(mergedPiecieBottom);
+			else getBoardModal().showCardPreviewModal(mergedPiecieBottom);
+		});
 
 		// Add activate button for Piecies
 		if (onActivatePiecie && piecie.canActivate && piecie.type === 'PIECIE') {
