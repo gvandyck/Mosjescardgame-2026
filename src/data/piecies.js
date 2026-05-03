@@ -872,7 +872,7 @@ export const PIECIES = [
     tags: ["SUBSTANCE"],
     description: "You gain 25 MP. Each opponent gains 10 MP. All players draw 1 card.",
     flavourText: "",
-    artPath: "assets/piecies/placeholder.png",
+    artPath: "assets/piecie-art/Dikke Jonko.jpeg",
     rarity: "★★★☆☆",
     isBoosterOnly: false,
     deckLimit: null
