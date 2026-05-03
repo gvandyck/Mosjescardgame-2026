@@ -51,7 +51,7 @@ export const SNELLE_PIECIES = [
     tags: ["GAMBLE"],
     description: "Flip a coin: heads = reroll any one die this turn; tails = choose a Mosje on your field to take 10 MP damage.",
     flavourText: "",
-    artPath: "assets/snelle-piecies/placeholder.png",
+    artPath: "assets/snelle-art/Lucky Coin.jpeg",
     rarity: "★★☆☆☆",
     isBoosterOnly: false,
     deckLimit: null

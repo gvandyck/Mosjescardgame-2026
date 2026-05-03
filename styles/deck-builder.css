@@ -350,6 +350,7 @@
 /* ── Card tile ───────────────────────────────────────────────────────────────── */
 
 .card-tile {
+  position: relative;
   display: flex;
   flex-direction: column;
   border-radius: 0.625rem;
@@ -374,10 +375,8 @@
 /* ── Art zone ────────────────────────────────────────────────────────────────── */
 
 .tile-art {
-  position: relative;
-  aspect-ratio: 5 / 4;
-  max-height: 30rem;
-  flex-shrink: 0;
+  position: absolute;
+  inset: 0;
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
@@ -390,22 +389,24 @@
 .card-tile--place        .tile-art { background-color: rgba(61,214,140,0.12); }
 .card-tile--quest        .tile-art { background-color: rgba(168,85,247,0.12); }
 
-/* Dark gradient: transparent at top, solid at bottom — art bleeds into card body */
+/* Dark gradient: fully transparent at top, very dark at bottom — keeps body text readable */
 .tile-art-overlay {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(6,10,20,0.15)  0%,
-    rgba(6,10,20,0.15) 45%,
-    rgba(13,16,32,0.7) 75%,
-    rgba(13,16,32,1)  100%
+    rgba(6,10,20,0)    0%,
+    rgba(6,10,20,0.08) 30%,
+    rgba(6,10,20,0.65) 58%,
+    rgba(6,10,20,0.93) 78%,
+    rgba(6,10,20,0.97) 100%
   );
 }
 
-/* Type badge + rarity — top of art */
+/* Type badge + rarity — pinned to top of card, above tile-body */
 .tile-art-header {
   position: absolute;
+  z-index: 2;
   top: 0.45rem;
   left: 0.5rem;
   right: 0.5rem;
@@ -435,17 +436,15 @@
   text-shadow: 0 0.0625rem 0.25rem rgba(0,0,0,0.8);
 }
 
-/* Card name + subtype — pinned to bottom of art */
-.tile-art-footer {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 0.65rem 0.75rem 0.6rem;
+/* Card name + subtype — first item inside tile-body */
+.tile-name-wrap {
+  flex-shrink: 0;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
 .tile-name {
-  font-size: 0.92rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: #fff;
   line-height: 1.2;
@@ -454,7 +453,7 @@
 }
 
 .tile-subtype {
-  font-size: 0.68rem;
+  font-size: 0.74rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: rgba(255,255,255,0.5);
@@ -466,6 +465,8 @@
 /* ── Body — all card stats and text below the art ────────────────────────────── */
 
 .tile-body {
+  position: relative;
+  z-index: 1;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -485,7 +486,7 @@
 }
 
 .stat {
-  font-size: 0.7rem;
+  font-size: 0.76rem;
   font-family: var(--font-mono);
   padding: 0.2rem 0.5rem;
   border-radius: 0.25rem;
@@ -507,7 +508,7 @@
 /* ── Trait chips ─────────────────────────────────────────────────────────────── */
 
 .trait {
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   font-family: var(--font-mono);
   padding: 0.18rem 0.45rem;
   border-radius: 0.25rem;
@@ -526,7 +527,7 @@
 /* ── Description ─────────────────────────────────────────────────────────────── */
 
 .tile-desc {
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: rgba(255,255,255,0.65);
   line-height: 1.5;
   flex-shrink: 0;
@@ -535,7 +536,7 @@
 /* ── Ability line ────────────────────────────────────────────────────────────── */
 
 .tile-ability {
-  font-size: 0.88rem;
+  font-size: 0.96rem;
   color: rgba(232,185,79,0.85);
   line-height: 1.4;
   padding-top: 0.45rem;
@@ -548,7 +549,7 @@
 /* ── Synergy lines ───────────────────────────────────────────────────────────── */
 
 .tile-synergy {
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   color: rgba(232,192,80,0.75);
   line-height: 1.4;
   padding-top: 0.35rem;
@@ -575,7 +576,7 @@
 }
 
 .tile-tag {
-  font-size: 0.67rem;
+  font-size: 0.73rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -589,7 +590,7 @@
 /* ── Flavour text — pushed to bottom of body ─────────────────────────────────── */
 
 .tile-flavour {
-  font-size: 0.82rem;
+  font-size: 0.88rem;
   font-style: italic;
   color: rgba(255,255,255,0.28);
   line-height: 1.35;
@@ -600,13 +601,15 @@
 /* ── Actions bar ─────────────────────────────────────────────────────────────── */
 
 .tile-actions {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: flex-start;
   gap: 0.5rem;
   padding: 0.65rem 1.25rem;
-  border-top: 1px solid rgba(255,255,255,0.06);
-  background: rgba(0,0,0,0.25);
+  border-top: 1px solid rgba(255,255,255,0.1);
+  background: rgba(0,0,0,0.35);
   flex-shrink: 0;
 }
 

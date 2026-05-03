@@ -233,12 +233,12 @@ function buildTileHTML(card, count, atMax) {
 				<span class="tile-type-badge tile-type-badge--${typeSlug}">${typeBadge(cardType)}</span>
 				${rarityLabel}
 			</div>
-			<div class="tile-art-footer">
+		</div>
+		<div class="tile-body">
+			<div class="tile-name-wrap">
 				<p class="tile-name">${card.name}</p>
 				${subtypeLabel}
 			</div>
-		</div>
-		<div class="tile-body">
 			${statsHTML}
 			${desc        ? `<p class="tile-desc">${desc}</p>`     : ''}
 			${abilityHTML}
