@@ -856,7 +856,7 @@ export const PIECIES = [
     tags: ["SUBSTANCE", "GAMBLE"],
     description: "Roll 1d6: 1–3 lose 15 MP, 4–6 gain 30 MP.",
     flavourText: "",
-    artPath: "assets/piecies/placeholder.png",
+    artPath: "assets/piecie-art/grammetje pieter.jpeg",
     rarity: "★★☆☆☆",
     isBoosterOnly: false,
     deckLimit: null
