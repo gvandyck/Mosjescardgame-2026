@@ -407,7 +407,7 @@ export const MOSJES = [
     petSynergy: null,
     tags: ["WEST", "FPS"],
     flavourText: "Analyzing angles, predicting movements, always one step ahead.",
-    artPath: "assets/mosje-art/placeholder.png",
+    artPath: "assets/mosje-art/FPS West.png",
     rarity: "◆◆",
     isBoosterOnly: false
   },
