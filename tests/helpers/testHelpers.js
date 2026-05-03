@@ -97,7 +97,7 @@ export function mockState(overrides = {}) {
     },
     mosjeStates: {
       inst_west: {
-        cardId: 'mosje_west',
+        cardId: 'mosje_martin_senor_west',
         ownerId: 'player_1',
         level: 1,
         mp: 15,
@@ -159,7 +159,7 @@ export function createEngineState(overrides = {}) {
         welloe: [],
         activeSlots: [
           {
-            cardId: 'mosje_west',
+            cardId: 'mosje_martin_senor_west',
             name: '[West] Sr.Tactical',
             traits: { mental: 3, technical: 1 },
             mp: 15,

@@ -11,7 +11,7 @@ export function runGameStateTests() {
     const result = getPlayerMosjes(state, 'player_1');
     assertEqual(result.length, 1);
     assertEqual(result[0].id, 'player_1_slot_0');
-    assertEqual(result[0].cardId, 'mosje_west');
+    assertEqual(result[0].cardId, 'mosje_martin_senor_west');
     assertEqual(result[0].owner, 'player_1');
     assertEqual(result[0].mpValue, 15);
     assertEqual(result[0].level, 1);
@@ -32,7 +32,7 @@ export function runGameStateTests() {
         player_1: {
           activeSlots: [
             {
-              cardId: 'mosje_west',
+              cardId: 'mosje_martin_senor_west',
               name: '[West] Sr.Tactical',
               traits: { mental: 3 },
               mp: 0,
@@ -56,7 +56,7 @@ export function runGameStateTests() {
         player_1: {
           activeSlots: [
             {
-              cardId: 'mosje_west',
+              cardId: 'mosje_martin_senor_west',
               name: '[West] Sr.Tactical',
               traits: { mental: 3 },
               mp: 15,
@@ -175,7 +175,7 @@ export function runGameStateTests() {
     const state = createEngineState();
     const result = getActiveMosjesForPlayer(state, 'player_1');
     assertEqual(result.length, 1);
-    assertEqual(result[0].cardId, 'mosje_west');
+    assertEqual(result[0].cardId, 'mosje_martin_senor_west');
   });
 
   test('getActiveMosjesForPlayer returns empty array for unknown player', () => {

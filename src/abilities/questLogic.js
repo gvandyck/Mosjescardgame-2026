@@ -150,7 +150,7 @@ export function canAttemptPersonalQuest(questCard, gameState, playerId) {
 	}
 
 	if (questCard.requirementId === 'quest_req_perfect_sync') {
-		const hasWest = hasActiveMosjeCard(gameState, playerId, 'mosje_west');
+		const hasWest = hasActiveMosjeCard(gameState, playerId, 'mosje_martin_senor_west');
 		const hasCoert = hasActiveMosjeCard(gameState, playerId, 'mosje_coert_tech');
 		if (!hasWest || !hasCoert) {
 			console.log('[QUEST] Perfect Sync blocked — West + Coert both required');
@@ -757,7 +757,7 @@ export function quest_req_iron_will(gameState, playerId) {
 
 export function quest_req_perfect_sync(gameState, playerId) {
 	console.log('[QUEST] Perfect Sync requirement check');
-	const westActive = hasActiveMosjeCard(gameState, playerId, 'mosje_west');
+	const westActive = hasActiveMosjeCard(gameState, playerId, 'mosje_martin_senor_west');
 	const coertActive = hasActiveMosjeCard(gameState, playerId, 'mosje_coert_tech');
 
 	if (!westActive) return { canAttempt: false, reason: '[Martin] Señor West must be on your field.' };

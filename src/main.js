@@ -835,7 +835,7 @@ function initGamePage() {
 		if (btnEndTurn) btnEndTurn.disabled = !isLocalTurn || gameOver;
 	}
 
-	const WEST_CALCULATED_GUESS_IDS = new Set(['mosje_west', 'mosje_martin_senor_west']);
+	const WEST_CALCULATED_GUESS_IDS = new Set(['mosje_martin_senor_west']);
 
 	async function handleUseAbility(mosjeId) {
 		if (!gameState || gameState.status === 'FINISHED') return;

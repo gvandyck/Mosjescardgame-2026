@@ -20,7 +20,7 @@ export function runPlaceEffectsTests() {
         player_1: {
           activeSlots: [
             {
-              cardId: 'mosje_west',
+              cardId: 'mosje_martin_senor_west',
               name: '[West] Sr.Tactical',
               traits: { mental: 3, technical: 1 },
               mp: 15,
@@ -67,7 +67,7 @@ export function runPlaceEffectsTests() {
         player_1: {
           activeSlots: [
             {
-              cardId: 'mosje_west',
+              cardId: 'mosje_martin_senor_west',
               name: '[West] Sr.Tactical',
               traits: { mental: 3, technical: 1 },
               mp: 15,
@@ -98,7 +98,7 @@ export function runPlaceEffectsTests() {
         player_1: {
           activeSlots: [
             {
-              cardId: 'mosje_west',
+              cardId: 'mosje_martin_senor_west',
               name: '[West] Sr.Tactical',
               traits: { mental: 3, technical: 1 },
               mp: 15,
@@ -175,7 +175,7 @@ export function runPlaceEffectsTests() {
       players: {
         player_1: {
           activeSlots: [
-            { cardId: 'mosje_west', name: '[West] Sr.Tactical', traits: { mental: 3 }, mp: 50, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
+            { cardId: 'mosje_martin_senor_west', name: '[West] Sr.Tactical', traits: { mental: 3 }, mp: 50, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
             null,
           ],
         },
@@ -199,7 +199,7 @@ export function runPlaceEffectsTests() {
       players: {
         player_1: {
           activeSlots: [
-            { cardId: 'mosje_west', name: '[West] Sr.Tactical', traits: { physical: 3 }, mp: 40, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
+            { cardId: 'mosje_martin_senor_west', name: '[West] Sr.Tactical', traits: { physical: 3 }, mp: 40, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
             null,
           ],
         },
@@ -222,7 +222,7 @@ export function runPlaceEffectsTests() {
       players: {
         player_1: {
           activeSlots: [
-            { cardId: 'mosje_west', name: '[West] Sr.Tactical', traits: { mental: 3 }, mp: 20, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
+            { cardId: 'mosje_martin_senor_west', name: '[West] Sr.Tactical', traits: { mental: 3 }, mp: 20, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
             null,
           ],
         },
@@ -251,7 +251,7 @@ export function runPlaceEffectsTests() {
       players: {
         player_1: {
           activeSlots: [
-            { cardId: 'mosje_west', name: '[West] Sr.Tactical', traits: { mental: 3 }, mp: 20, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
+            { cardId: 'mosje_martin_senor_west', name: '[West] Sr.Tactical', traits: { mental: 3 }, mp: 20, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
             null,
           ],
         },

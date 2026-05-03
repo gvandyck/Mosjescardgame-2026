@@ -279,7 +279,7 @@ export function ability_martin_senor_west_calculated_guess(gameState, playerId, 
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const westIds = new Set(['mosje_martin_senor_west', 'mosje_west']);
+	const westIds = new Set(['mosje_martin_senor_west']);
 	const si = mosjeId && westIds.has(mosjeId)
 		? player.activeSlots.findIndex(s => s && s.cardId === mosjeId && !s.isDefeated)
 		: getFirstActiveSlotIndex(player);

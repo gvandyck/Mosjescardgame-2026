@@ -10,7 +10,7 @@ function makeState(mp: number, level: number) {
         totalDamageTaken: 0,
         activeSlots: [
           {
-            cardId: "mosje_west",
+            cardId: "mosje_martin_senor_west",
             name: "West",
             mp,
             level,

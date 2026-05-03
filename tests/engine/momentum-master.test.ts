@@ -23,7 +23,7 @@ function makeState(pieciesPlayed: number, mp = 30) {
       player_1: {
         activeSlots: [
           {
-            cardId: "mosje_west",
+            cardId: "mosje_martin_senor_west",
             name: "West",
             mp,
             level: 0,
@@ -77,7 +77,7 @@ describe("Momentum Master — canAttemptGeneralQuest", () => {
 
 describe("Momentum Master — getQuestDiceThreshold", () => {
   const dummyMosje = {
-    cardId: "mosje_west",
+    cardId: "mosje_martin_senor_west",
     traits: { mental: 3 },
   };
 

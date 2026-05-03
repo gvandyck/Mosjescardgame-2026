@@ -22,7 +22,7 @@ export function runQuestLogicTests() {
 
   test('getMosjeTrait returns rating from active Mosje traits', () => {
     const state = createEngineState();
-    const trait = questLogic.getMosjeTrait(state, 'player_1', 'mosje_west', 'mental');
+    const trait = questLogic.getMosjeTrait(state, 'player_1', 'mosje_martin_senor_west', 'mental');
     assertEqual(trait, 3);
   });
 
@@ -33,7 +33,7 @@ export function runQuestLogicTests() {
     const out = questLogic.checkTraitRoll(
       state,
       'player_1',
-      'mosje_west',
+      'mosje_martin_senor_west',
       'creative',
       [{ rating: 3, threshold: 2 }],
       5
@@ -49,7 +49,7 @@ export function runQuestLogicTests() {
     const quest = {
       id: 'quest_west_perfect_read',
       questType: 'PERSONAL',
-      requiredMosjeId: 'mosje_west',
+      requiredMosjeId: 'mosje_martin_senor_west',
     };
     const result = questLogic.canAttemptPersonalQuest(quest, state, 'player_1');
     assertTrue(result);
@@ -73,7 +73,7 @@ export function runQuestLogicTests() {
         player_1: {
           activeSlots: [
             {
-              cardId: 'mosje_west',
+              cardId: 'mosje_martin_senor_west',
               name: '[West] Sr.Tactical',
               traits: { mental: 3, technical: 1 },
               mp: 15,
@@ -91,7 +91,7 @@ export function runQuestLogicTests() {
     const quest = {
       id: 'quest_west_perfect_read',
       questType: 'PERSONAL',
-      requiredMosjeId: 'mosje_west',
+      requiredMosjeId: 'mosje_martin_senor_west',
     };
 
     const result = questLogic.canAttemptPersonalQuest(quest, state, 'player_1');
@@ -111,7 +111,7 @@ export function runQuestLogicTests() {
         player_1: {
           activeSlots: [
             {
-              cardId: 'mosje_west',
+              cardId: 'mosje_martin_senor_west',
               name: '[West] Sr.Tactical',
               traits: { mental: 3, technical: 1 },
               mp: -5,
@@ -230,7 +230,7 @@ export function runQuestLogicTests() {
         player_1: {
           activeSlots: [
             {
-              cardId: 'mosje_west',
+              cardId: 'mosje_martin_senor_west',
               name: '[West] Sr.Tactical',
               traits: { technical: 2 },
               mp: 15,
@@ -254,7 +254,7 @@ export function runQuestLogicTests() {
         player_1: {
           activeSlots: [
             {
-              cardId: 'mosje_west',
+              cardId: 'mosje_martin_senor_west',
               name: '[West] Sr.Tactical',
               traits: { technical: 2 },
               mp: 15,
@@ -290,7 +290,7 @@ export function runQuestLogicTests() {
         player_1: {
           activeSlots: [
             {
-              cardId: 'mosje_west',
+              cardId: 'mosje_martin_senor_west',
               name: '[West] Sr.Tactical',
               traits: { technical: 2 },
               mp: 15,
@@ -393,7 +393,7 @@ export function runQuestLogicTests() {
         player_1: {
           activeSlots: [
             {
-              cardId: 'mosje_west',
+              cardId: 'mosje_martin_senor_west',
               name: '[West] Sr.Tactical',
               traits: { mental: 3, technical: 1 },
               mp: 50,

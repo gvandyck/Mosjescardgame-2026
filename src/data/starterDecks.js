@@ -37,7 +37,7 @@ export const STARTER_DECKS = [
     id: "DIGITAL_CONTROL",
     name: "Digital Control",
     description: "Card draw, MP efficiency, and tech synergies. Best for strategic players.",
-    mosjes: ["mosje_west", "mosje_coert_tech"],
+    mosjes: ["mosje_martin_senor_west", "mosje_coert_tech"],
     piecies: [
       "piecie_pot_of_weed",
       "piecie_pot_of_weed",

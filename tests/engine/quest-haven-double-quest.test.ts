@@ -16,7 +16,7 @@ function makeState(overrides: Record<string, unknown> = {}) {
       player_1: {
         activeSlots: [
           {
-            cardId: "mosje_west",
+            cardId: "mosje_martin_senor_west",
             name: "West",
             mp: 50,
             level: 0,

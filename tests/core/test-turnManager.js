@@ -226,7 +226,7 @@ export function runTurnManagerTests() {
           hand: [{ cardId: 'mosje_coert_tech', type: 'MOSJE' }],
           activeSlots: [
             {
-              cardId: 'mosje_west',
+              cardId: 'mosje_martin_senor_west',
               name: '[West] Sr.Tactical',
               traits: { mental: 3, technical: 1 },
               mp: 15,
@@ -255,7 +255,7 @@ export function runTurnManagerTests() {
           hand: [{ cardId: 'mosje_coert_tech', type: 'MOSJE' }],
           activeSlots: [
             {
-              cardId: 'mosje_west',
+              cardId: 'mosje_martin_senor_west',
               name: '[West] Sr.Tactical',
               traits: { mental: 3, technical: 1 },
               mp: 15,

@@ -16,7 +16,7 @@ function makeState(mp = 30) {
       player_1: {
         activeSlots: [
           {
-            cardId: "mosje_west",
+            cardId: "mosje_martin_senor_west",
             name: "West",
             mp,
             level: 0,

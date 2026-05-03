@@ -24,7 +24,7 @@ export function runPiecieEffectsTests() {
         player_1: {
           activeSlots: [
             {
-              cardId: 'mosje_west',
+              cardId: 'mosje_martin_senor_west',
               name: '[West] Sr.Tactical',
               traits: { mental: 3, technical: 1 },
               mp: 15,
@@ -71,7 +71,7 @@ export function runPiecieEffectsTests() {
         player_1: {
           activeSlots: [
             {
-              cardId: 'mosje_west',
+              cardId: 'mosje_martin_senor_west',
               name: '[West] Sr.Tactical',
               traits: { mental: 3, technical: 1 },
               mp: 15,
@@ -105,7 +105,7 @@ export function runPiecieEffectsTests() {
               abilityUsedThisTurn: false,
             },
             {
-              cardId: 'mosje_west',
+              cardId: 'mosje_martin_senor_west',
               name: '[West] Lt.',
               traits: { mental: 2 },
               mp: 25,
@@ -135,7 +135,7 @@ export function runPiecieEffectsTests() {
         player_1: {
           activeSlots: [
             {
-              cardId: 'mosje_west',
+              cardId: 'mosje_martin_senor_west',
               name: '[West] Sr.Tactical',
               traits: { mental: 3, technical: 1 },
               mp: 15,
@@ -160,7 +160,7 @@ export function runPiecieEffectsTests() {
         player_1: {
           activeSlots: [
             {
-              cardId: 'mosje_west',
+              cardId: 'mosje_martin_senor_west',
               name: '[West] Sr.Tactical',
               traits: { mental: 3, technical: 1 },
               mp: 15,

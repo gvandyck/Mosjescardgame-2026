@@ -25,7 +25,7 @@ export function runSnelleEffectsTests() {
         player_1: {
           activeSlots: [
             {
-              cardId: 'mosje_west',
+              cardId: 'mosje_martin_senor_west',
               name: '[West] Sr.Tactical',
               traits: { mental: 3, technical: 1 },
               mp: 15,
@@ -114,7 +114,7 @@ export function runSnelleEffectsTests() {
   });
 
   test('Bijna Welloe gives +20 MP when Mosje is at 10 MP or less', () => {
-    const state = createEngineState({ players: { player_1: { activeSlots: [{ cardId: 'mosje_west', name: '[West]', traits: { mental: 3, technical: 1 }, mp: 8, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false }, null] } } });
+    const state = createEngineState({ players: { player_1: { activeSlots: [{ cardId: 'mosje_martin_senor_west', name: '[West]', traits: { mental: 3, technical: 1 }, mp: 8, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false }, null] } } });
     const result = snelleEffects.effect_snelle_bijna_welloe(state, 'player_1');
     assertEqual(result.players.player_1.activeSlots[0].mp, 28);
   });
@@ -234,7 +234,7 @@ export function runSnelleEffectsTests() {
         player_1: {
           activeSlots: [
             {
-              cardId: 'mosje_west',
+              cardId: 'mosje_martin_senor_west',
               name: '[West]',
               traits: { mental: 3, technical: 1 },
               mp: 30,

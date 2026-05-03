@@ -89,7 +89,7 @@ export const MOSJES = [
     traits: { physical: 2, social: 2, creative: 1 },
     abilityId: "ability_azn_cless_risk_reward",
     abilityDescription: "Risk and Reward: At end of each turn roll 1d6; 1 discard 1 card, 2-5 no effect, 6 draw 2 cards and gain 10 MP.",
-    synergyWith: ["mosje_west", "mosje_martin_senor_west"],
+    synergyWith: ["mosje_martin_senor_west"],
     synergyEffect: "Physical Quests give +15 bonus MP",
     petSynergy: "piecie_vianna_poes",
     tags: ["CLESS"],
@@ -551,7 +551,7 @@ export const MOSJES = [
     traits: { creative: 3, mental: 2 },
     abilityId: "ability_cless_teacher_teaching_moment",
     abilityDescription: "Teaching Moment: On each Piecie activation roll 1d6; on 5-6 draw 1 card and gain 5 MP.",
-    synergyWith: ["mosje_west", "mosje_martin_senor_west"],
+    synergyWith: ["mosje_martin_senor_west"],
     synergyEffect: "Physical Quests give +15 bonus MP",
     petSynergy: "piecie_vianna_poes",
     tags: ["CLESS"],
@@ -651,28 +651,6 @@ export const MOSJES = [
     isBoosterOnly: false
   },
 
-  // ─────────────────────────────────────────
-  // LEGACY STARTER CARD (kept for deckbuilder compat)
-  // ─────────────────────────────────────────
-
-  {
-    id: "mosje_west",
-    type: "MOSJE",
-    subtype: "DIGITAL",
-    name: "[Martin] Señor West",
-    startMP: 15,
-    traits: { mental: 3, technical: 1 },
-    abilityId: "ability_west_calculated_guess",
-    abilityDescription: "Calculated Guess: Name a card type and reveal top of chosen deck; correct draw 2 and gain 10 MP, wrong lose 10 MP.",
-    synergyWith: ["mosje_azn_cless", "mosje_cless_teacher"],
-    synergyEffect: "Physical Quests give +15 bonus MP",
-    petSynergy: null,
-    tags: ["WEST"],
-    flavourText: "Always three moves ahead.",
-    artPath: "assets/mosje-art/Martin senor West.jpeg",
-    rarity: "◆",
-    isBoosterOnly: false
-  },
 ];
 
 const MOSJE_ALT_ART_VARIANTS = {
