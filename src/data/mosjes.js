@@ -299,7 +299,7 @@ export const MOSJES = [
     petSynergy: null,
     tags: ["JEFFREY"],
     flavourText: "Silent at the table, deadly with the dice.",
-    artPath: "assets/mosje-art/placeholder.png",
+    artPath: "assets/mosje-art/Jeffrey The Silent Gambler.png",
     rarity: "◆◆",
     isBoosterOnly: false
   },
