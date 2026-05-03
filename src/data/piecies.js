@@ -100,7 +100,7 @@ export const PIECIES = [
     tags: ["RESTORE"],
     description: "Gain 30 MP. Resilient ★★+: gain 40 MP instead.",
     flavourText: "",
-    artPath: "assets/piecies/placeholder.png",
+    artPath: "assets/piecie-art/Eendjes voeren.jpeg",
     rarity: "★★★☆☆",
     isBoosterOnly: false,
     deckLimit: null
