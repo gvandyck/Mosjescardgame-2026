@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { executeCard } from "../../src/cards/executor/execute-card.js";
 import { endTurn } from "../../src/engine/end-turn.js";
-import { BOWIE_STORMEY, GEKKE_VOGELS, KATJEGANG, VIANNA_POES } from "../../src/cards/piecies/pet/index.js";
+import { BOWIE_STORMEY, GEKKE_VOGELS, KATJEGANG, TONY, VIANNA_POES } from "../../src/cards/piecies/pet/index.js";
 import { checkPetSynergy } from "../../src/effects/conditions/check-pet-synergy.js";
 import { clearRegistry, registerCard } from "../../src/cards/registry/card-registry.js";
 import type { CardId } from "../../src/types/card-id.js";
@@ -80,6 +80,7 @@ beforeEach(() => {
   registerCard(BOWIE_STORMEY);
   registerCard(GEKKE_VOGELS);
   registerCard(KATJEGANG);
+  registerCard(TONY);
   registerCard(VIANNA_POES);
 });
 
@@ -88,6 +89,7 @@ describe("phase4c step 1 - pet piecies", () => {
     ["bowie-stormey", "pet_active:bowie-stormey"],
     ["gekke-vogels", "pet_active:gekke-vogels"],
     ["katjegang", "pet_active:katjegang"],
+    ["tony", "pet_active:tony"],
     ["vianna-poes", "pet_active:vianna-poes"]
   ])("%s: costs 15 MP, applies buff, gains 10 MP on play", (id, expectedBuffId) => {
     const next = playPet(id);

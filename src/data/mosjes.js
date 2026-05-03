@@ -574,7 +574,7 @@ export const MOSJES = [
     petSynergy: null,
     tags: ["MARTIN"],
     flavourText: "Finding the racing line between chaos and control — every millisecond counts.",
-    artPath: "assets/mosje-art/placeholder.png",
+    artPath: "assets/piecie-art/Martin The Precision Driver West.jpeg",
     rarity: "◆◆",
     isBoosterOnly: false
   },

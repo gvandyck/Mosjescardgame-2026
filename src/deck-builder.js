@@ -40,10 +40,7 @@ function getModal() {
 
 function showCardPreview(card) {
 	const modal = getModal();
-	const normalized = { ...card, type: card.cardType };
-	if (card.cardType === 'MOSJE') modal.showMosjeDetailModal(normalized);
-	else if (card.cardType === 'PLACE') modal.showPlaceDetailModal(normalized);
-	else modal.showCardPreviewModal(normalized);
+	modal.showDeckBuilderCardPreview({ ...card, type: card.cardType });
 }
 
 // ── State ─────────────────────────────────────────────────────────────────────

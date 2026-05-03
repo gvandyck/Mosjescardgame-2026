@@ -7,7 +7,7 @@ import {
   KANNETJE_MELK,
   MOMENTUM_BOOST,
   MOMENTUM_RUSH,
-  NATURE_S_GIFT,
+  EENDJES_VOEREN,
   WARM_KANNETJE_MELK
 } from "../../src/cards/piecies/momentum-gaining/index.js";
 import { clearRegistry, registerCard } from "../../src/cards/registry/card-registry.js";
@@ -104,7 +104,7 @@ beforeEach(() => {
   registerCard(KANNETJE_MELK);
   registerCard(BROODJE_DONER);
   registerCard(ENERGY_SURGE);
-  registerCard(NATURE_S_GIFT);
+  registerCard(EENDJES_VOEREN);
   registerCard(MOMENTUM_BOOST);
   registerCard(WARM_KANNETJE_MELK);
   registerCard(MOMENTUM_RUSH);
@@ -150,7 +150,7 @@ describe("phase4a step 1 - simple gain piecies", () => {
     expect(rejected.eventLog.at(-1)).toMatchObject({ type: "card_resolved", outcome: "rejected" });
   });
 
-  it("nature-s-gift runs both resilient branches", () => {
+  it("eendjes-voeren runs both resilient branches", () => {
     const resilientState: GameState = {
       ...createState(),
       players: createState().players.map((player) =>
@@ -167,10 +167,10 @@ describe("phase4a step 1 - simple gain piecies", () => {
       )
     };
 
-    const thenState = executeCard(resilientState, cardId("nature-s-gift"), invocation());
+    const thenState = executeCard(resilientState, cardId("eendjes-voeren"), invocation());
     expect(thenState.players[0].mosjes[0].mp).toBe(60);
 
-    const elseState = executeCard(createState(), cardId("nature-s-gift"), invocation());
+    const elseState = executeCard(createState(), cardId("eendjes-voeren"), invocation());
     expect(elseState.players[0].mosjes[0].mp).toBe(50);
   });
 

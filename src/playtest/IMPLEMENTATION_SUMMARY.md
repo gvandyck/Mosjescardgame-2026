@@ -126,7 +126,7 @@ Data-first test definitions (CardPlaytestSpec). Why?
 | grammetje-pieter | ✅ | Gains/loses MP |
 | varkenspootjes | ✅ | Conditional effect |
 | tikker | ✅ | Gains MP + buff |
-| nature-s-gift | ✅ | Conditional draw/gain |
+| eendjes-voeren | ✅ | Conditional draw/gain |
 | shoettoe | ✅ | MP-gated (requires MP <= 29) |
 | warm-kannetje-melk | ✅ | Loses MP to draw |
 | dikke-taks | ✅ | Complex multi-effect |

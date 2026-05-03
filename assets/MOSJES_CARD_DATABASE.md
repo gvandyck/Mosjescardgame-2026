@@ -955,9 +955,9 @@ Flavor: (none listed)
 
 ---
 
-### Nature's Gift
+### Eendjes voeren
 ```
-ID:         piecie_natures_gift
+ID:         piecie_eendjes_voeren
 Type:       PIECIE
 Subtype:    MOMENTUM-GAINING
 MP Cost:    Free
@@ -3811,7 +3811,7 @@ Flavor: (none listed)
 | Tag | Used By |
 |---|---|
 | `[FOOD]` | Kannetje Melk, Broodje Döner, Ronald Kip, Chef's Special, Varkenspootjes, Warm Kannetje Melk |
-| `[RESTORE]` | Kannetje Melk, Broodje Döner, Momentum Boost, Nature's Gift, Energy Surge |
+| `[RESTORE]` | Kannetje Melk, Broodje Döner, Momentum Boost, Eendjes voeren, Energy Surge |
 | `[ATTACK]` | Te Hard Gaan, Super Saiyan Mos, Dikke Taks, Kleine Taks, Snoeiertje, Jantje Jantje, Momentum Diefje |
 | `[SUBSTANCE]` | Grammetje Pieter, Dikke Jonko, Affoe, Stripje Bennies, Tikker, Straffoe, Larry/Zegeltje, Bong Hit Demolition |
 | `[DIGITAL-EQUIPMENT]` | Keyboard, Mouse, Controller |

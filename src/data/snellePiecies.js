@@ -184,7 +184,7 @@ export const SNELLE_PIECIES = [
     tags: ["PROTECT"],
     description: "Play when any ally Mosje would lose MP: reduce that loss by 30 this once. Free. Deck limit 1.",
     flavourText: "",
-    artPath: "assets/snelle-piecies/placeholder.png",
+    artPath: "assets/piecie-art/The Protector.jpeg",
     rarity: "★★★★☆",
     isBoosterOnly: false,
     deckLimit: 1

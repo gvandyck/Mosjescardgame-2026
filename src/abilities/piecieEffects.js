@@ -108,7 +108,7 @@ export function effect_momentum_boost(gameState, playerId) {
 	return state;
 }
 
-export function effect_natures_gift(gameState, playerId) {
+export function effect_eendjes_voeren(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
@@ -117,7 +117,7 @@ export function effect_natures_gift(gameState, playerId) {
 	const mosje = player.activeSlots[si];
 	const gain = (mosje.traits?.resilient || 0) >= 2 ? 40 : 30;
 	applyMPGain(player, si, gain, state, playerId);
-	console.log(`[ABILITY] Nature's Gift: +${gain} MP`);
+	console.log(`[ABILITY] Eendjes voeren: +${gain} MP`);
 	return state;
 }
 
@@ -674,6 +674,18 @@ export function effect_bowie_stormey(gameState, playerId) {
 		slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 50, turnsLeft: 2 });
 	}
 	console.log('[ABILITY] Bowie & Stormey: MP loss halved for 2 turns');
+	return state;
+}
+
+export function effect_tony(gameState, playerId) {
+	const state = cloneState(gameState);
+	const player = state.players[playerId];
+	if (!player) return state;
+	for (const slot of player.activeSlots) {
+		if (!slot || slot.isDefeated) continue;
+		slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 50, turnsLeft: 2 });
+	}
+	console.log('[ABILITY] Tony: MP loss halved for 2 turns');
 	return state;
 }
 

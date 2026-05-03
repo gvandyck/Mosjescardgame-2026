@@ -201,10 +201,10 @@ export const tikkerSpec: CardPlaytestSpec = {
   ],
 };
 
-export const natureSGiftSpec: CardPlaytestSpec = {
-  cardId: "nature-s-gift" as CardId,
+export const eendjesVoerenSpec: CardPlaytestSpec = {
+  cardId: "eendjes-voeren" as CardId,
   description: "Conditional effect: gains MP if hand size meets condition, else draws",
-  deck: ["nature-s-gift", ...FILLER] as CardId[],
+  deck: ["eendjes-voeren", ...FILLER] as CardId[],
   mosje: PLAYER_MOSJES[0],
   opponentMosje: OPP_MOSJES[0],
   expectations: [
@@ -289,7 +289,7 @@ export const PHYSICAL_FORCE_SPECS: readonly CardPlaytestSpec[] = [
   grammettePieterSpec,
   varkenspootjesSpec,
   tikkerSpec,
-  natureSGiftSpec,
+  eendjesVoerenSpec,
   shoettoeSpec,
   warmKannetjeMelkSpec,
   dikkeTaksSpec,

@@ -2,9 +2,9 @@ import type { CardDefinition } from "../../schema/card-definition.js";
 import type { CardId } from "../../../types/card-id.js";
 import { registerCard } from "../../registry/card-registry.js";
 
-export const NATURE_S_GIFT: CardDefinition = {
-  id: "nature-s-gift" as CardId,
-  name: "Nature's Gift",
+export const EENDJES_VOEREN: CardDefinition = {
+  id: "eendjes-voeren" as CardId,
+  name: "Eendjes voeren",
   category: "piecie",
   subcategory: "MOMENTUM-GAINING",
   isBoosterOnly: false,
@@ -28,4 +28,4 @@ export const NATURE_S_GIFT: CardDefinition = {
   ]
 };
 
-registerCard(NATURE_S_GIFT);
+registerCard(EENDJES_VOEREN);

@@ -81,7 +81,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 | pot-of-weed | Pot of Weed | MOMENTUM-GAINING | yes | no | free | drawCards | implemented |
 | kannetje-melk | Kannetje Melk | MOMENTUM-GAINING | yes | no | free | gainMP | implemented |
 | momentum-boost | Momentum Boost | MOMENTUM-GAINING | no | no | free | gainMP+applyBuff | advanced |
-| nature-s-gift | Nature's Gift | MOMENTUM-GAINING | yes | no | free | ifThenElse | implemented |
+| eendjes-voeren | Eendjes voeren | MOMENTUM-GAINING | yes | no | free | ifThenElse | implemented |
 | shoettoe | Shoettoe | MOMENTUM-GAINING | yes | no | free | gainMP | implemented |
 | warm-kannetje-melk | Warm Kannetje Melk | MOMENTUM-GAINING | yes | no | free | loseMP+drawCards | implemented |
 | bowie-stormey | Bowie & Stormey | PET | yes | no | 15 MP | applyBuff+gainMP | implemented |

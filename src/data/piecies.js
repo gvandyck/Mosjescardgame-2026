@@ -52,7 +52,7 @@ export const PIECIES = [
     tags: ["FOOD", "RESTORE"],
     description: "Gain 50 MP. Ronald synergy: gain 60 MP + draw 1. Coert/Binti: double base.",
     flavourText: "",
-    artPath: "assets/piecies/placeholder.png",
+    artPath: "assets/piecie-art/Ronald Kip.jpeg",
     rarity: "★★★★☆",
     isBoosterOnly: false,
     deckLimit: null
@@ -90,13 +90,13 @@ export const PIECIES = [
     deckLimit: null
   },
   {
-    id: "piecie_natures_gift",
+    id: "piecie_eendjes_voeren",
     type: "PIECIE",
     subtype: "MOMENTUM-GAINING",
-    name: "Nature's Gift",
+    name: "Eendjes voeren",
     mpCost: 0,
     requirement: "any",
-    effectId: "effect_natures_gift",
+    effectId: "effect_eendjes_voeren",
     tags: ["RESTORE"],
     description: "Gain 30 MP. Resilient ★★+: gain 40 MP instead.",
     flavourText: "",
@@ -793,6 +793,22 @@ export const PIECIES = [
     deckLimit: null
   },
   {
+    id: "piecie_tony",
+    type: "PIECIE",
+    subtype: "PET",
+    name: "Tony",
+    mpCost: 15,
+    requirement: "any",
+    effectId: "effect_tony",
+    tags: ["PET", "PROTECT"],
+    description: "Persistent 2 turns: GANDOE/DJ/TUK/MICHELLE Mosjes reduce MP loss by 50% (75% with synergy).",
+    flavourText: "",
+    artPath: "assets/piecie-art/Piecie Animal Tony.jpg",
+    rarity: "★★★★☆",
+    isBoosterOnly: false,
+    deckLimit: null
+  },
+  {
     id: "piecie_gekke_vogels",
     type: "PIECIE",
     subtype: "PET",
@@ -819,7 +835,7 @@ export const PIECIES = [
     tags: ["PET", "PROTECT", "ALYSSA"],
     description: "Persistent 2 turns: Alyssa Mosjes reduce MP loss by 50% (80% with Jisca + both pets).",
     flavourText: "",
-    artPath: "assets/piecies/placeholder.png",
+    artPath: "assets/piecie-art/Katje Gang.jpeg",
     rarity: "★★★☆☆",
     isBoosterOnly: false,
     deckLimit: null
