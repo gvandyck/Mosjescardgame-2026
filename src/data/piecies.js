@@ -116,7 +116,7 @@ export const PIECIES = [
     tags: ["FOOD"],
     description: "Binti on field: gain 60 MP. Any other Mosje: lose 30 MP instead.",
     flavourText: "",
-    artPath: "assets/piecies/placeholder.png",
+    artPath: "assets/piecie-art/varkenspootjes.jpeg",
     rarity: "★★★★☆",
     isBoosterOnly: false,
     deckLimit: null
