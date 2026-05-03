@@ -22,7 +22,7 @@ export const MOSJES = [
     petSynergy: null,
     tags: ["GANDOE"],
     flavourText: "Is it a healing spell? A fireball? Not even he knows until it happens!",
-    artPath: "assets/mosje-art/placeholder.png",
+    artPath: "assets/mosje-art/Gandoe The Unpredictable Wizard.jpeg",
     rarity: "◆",
     isBoosterOnly: false
   },
@@ -225,7 +225,7 @@ export const MOSJES = [
     petSynergy: null,
     tags: ["MARTIN"],
     flavourText: "Why work hard when you can work smart? Or better yet, don't work at all.",
-    artPath: "assets/mosje-art/placeholder.png",
+    artPath: "assets/mosje-art/Martin The Historian West.jpeg",
     rarity: "◆◆",
     isBoosterOnly: false
   },
@@ -430,7 +430,7 @@ export const MOSJES = [
     petSynergy: null,
     tags: ["RONALD"],
     flavourText: "The greatest artist controls not just the canvas, but reality itself.",
-    artPath: "assets/mosje-art/placeholder.png",
+    artPath: "assets/mosje-art/Ronald The Master Mind.jpeg",
     rarity: "◆◆",
     isBoosterOnly: false
   },
