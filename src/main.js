@@ -440,10 +440,6 @@ function initGamePage() {
 		const placeDiceBonus = gameState.activePlace === 'place_synergy_chamber' ? 1 : 0;
 		const skiffaRerolls = getSkiffaRerolls(gameState, localPlayerId);
 		const forceReroll = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
-		// Consume the flags before showing the modal
-		if (diceBonus) delete gameState._snelleFlags.questDiceBonus;
-		if (questPrepBonus) gameState.players[localPlayerId].questPrepBonus = 0;
-		if (forceReroll) delete gameState._snelleFlags.forceReroll[localPlayerId];
 
 		// Phase 8 Rule 3: broadcast active quest so opponent can see it
 		gameState.activeQuest = {
@@ -455,7 +451,12 @@ function initGamePage() {
 			failMP: questDef.failMP,
 			currentMp: activeMosje?.mp ?? null,
 		};
+		// Render BEFORE consuming flags so modifier pills (e.g. +2 Quest Roll) stay visible
 		renderFromState(gameState);
+		// Consume the flags after rendering so the pill shows during quest prep
+		if (diceBonus) delete gameState._snelleFlags.questDiceBonus;
+		if (questPrepBonus) gameState.players[localPlayerId].questPrepBonus = 0;
+		if (forceReroll) delete gameState._snelleFlags.forceReroll[localPlayerId];
 		syncPush();
 
 		// Geen Raad Vraag Aad — no dice; interactive card-type guess against opponent's hand
@@ -624,7 +625,7 @@ function initGamePage() {
 				const thresholdForMosje = getQuestDiceThreshold(questDef, updatedMosje);
 				modal.showQuestAttemptPreview(updatedMosje, questDef, thresholdForMosje, () => {
 					runGeneralQuestDiceRoll(targetSlotIndex);
-				});
+				}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus });
 			} else {
 				runGeneralQuestDiceRoll(targetSlotIndex);
 			}
@@ -683,9 +684,6 @@ function initGamePage() {
 		const placeDiceBonus2 = gameState.activePlace === 'place_synergy_chamber' ? 1 : 0;
 		const skiffaRerolls2 = getSkiffaRerolls(gameState, localPlayerId);
 		const forceReroll2 = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
-		if (diceBonus2) delete gameState._snelleFlags.questDiceBonus;
-		if (questPrepBonus2) gameState.players[localPlayerId].questPrepBonus = 0;
-		if (forceReroll2) delete gameState._snelleFlags.forceReroll[localPlayerId];
 
 		// Phase 8 Rule 3: broadcast active quest so opponent can see it
 		gameState.activeQuest = {
@@ -698,6 +696,9 @@ function initGamePage() {
 			currentMp: activeMosje?.mp ?? null,
 		};
 		renderFromState(gameState);
+		if (diceBonus2) delete gameState._snelleFlags.questDiceBonus;
+		if (questPrepBonus2) gameState.players[localPlayerId].questPrepBonus = 0;
+		if (forceReroll2) delete gameState._snelleFlags.forceReroll[localPlayerId];
 		syncPush();
 
 		const pqSlots = gameState.players[localPlayerId].activeSlots
@@ -739,7 +740,7 @@ function initGamePage() {
 				const thresholdForMosje = getQuestDiceThreshold(questDef, updatedMosje);
 				modal.showQuestAttemptPreview(updatedMosje, questDef, thresholdForMosje, () => {
 					runPersonalQuestDiceRoll(targetSlotIndex);
-				});
+				}, { diceBonus: diceBonus2 + questPrepBonus2 + placeDiceBonus2 });
 			} else {
 				runPersonalQuestDiceRoll(targetSlotIndex);
 			}
@@ -777,7 +778,8 @@ function initGamePage() {
 		const onActivatePiecie = (isLocalTurn && !gameOver) ? handleActivatePiecie : null;
 		const onActivatePlace = (isLocalTurn && !gameOver) ? handleActivatePlace : null;
 		const onOpenDiscard = handleOpenDiscard;
-		renderBoard(boardRoot, uiState, onUseAbility, null, onActivatePiecie, onActivatePlace, onOpenDiscard);
+		const onPlayFromHand = (isLocalTurn && !gameOver) ? handlePlayCard : null;
+		renderBoard(boardRoot, uiState, onUseAbility, null, onActivatePiecie, onActivatePlace, onOpenDiscard, onPlayFromHand);
 		if (state._lastPlaceEffect?.placeName) {
 			showPlaceEffectBanner(state._lastPlaceEffect.placeName, state._lastPlaceEffect.description, state._lastPlaceEffect.phase);
 			delete state._lastPlaceEffect;
@@ -1225,9 +1227,6 @@ function initGamePage() {
 			const placeDiceBonus = gameState.activePlace === 'place_synergy_chamber' ? 1 : 0;
 			const skiffaRerolls = getSkiffaRerolls(gameState, localPlayerId);
 			const forceReroll = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
-			if (diceBonus) delete gameState._snelleFlags.questDiceBonus;
-			if (questPrepBonus) gameState.players[localPlayerId].questPrepBonus = 0;
-			if (forceReroll) delete gameState._snelleFlags.forceReroll[localPlayerId];
 
 			gameState.activeQuest = {
 				questName: cardDef.name,
@@ -1239,6 +1238,9 @@ function initGamePage() {
 				currentMp: activeMosje?.mp ?? null,
 			};
 			renderFromState(gameState);
+			if (diceBonus) delete gameState._snelleFlags.questDiceBonus;
+			if (questPrepBonus) gameState.players[localPlayerId].questPrepBonus = 0;
+			if (forceReroll) delete gameState._snelleFlags.forceReroll[localPlayerId];
 			syncPush();
 
 			const handQuestSlots = gameState.players[localPlayerId].activeSlots
@@ -1273,7 +1275,7 @@ function initGamePage() {
 					const thresholdForMosje = getQuestDiceThreshold(cardDef, updatedMosje);
 					modal.showQuestAttemptPreview(updatedMosje, cardDef, thresholdForMosje, () => {
 						runHandQuestDiceRoll(targetSlotIndex);
-					});
+					}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus });
 				} else {
 					runHandQuestDiceRoll(targetSlotIndex);
 				}

@@ -52,6 +52,8 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 	for (const card of cards) {
 		const wrapEl = document.createElement('div');
 		wrapEl.className = 'hand-card-wrap';
+		wrapEl.dataset.cardId = card.cardId;
+		wrapEl.dataset.cardType = card.type;
 
 		const cardEl = renderCard(card, { compact: false });
 		cardEl.classList.add('hand-card');
@@ -214,6 +216,10 @@ function initHandDragDrop(container) {
 		this.classList.add('hand-card--dragging');
 		e.dataTransfer.effectAllowed = 'move';
 		e.dataTransfer.setData('text/plain', String(dragSrcIndex));
+		const cardId = this.dataset.cardId || '';
+		const cardType = this.dataset.cardType || '';
+		e.dataTransfer.setData('application/mosjes-card', JSON.stringify({ cardId, cardType }));
+		document.body.dataset.draggingCardType = cardType;
 	}
 
 	function onDragOver(e) {
@@ -260,6 +266,7 @@ function initHandDragDrop(container) {
 		this.classList.remove('hand-card--dragging');
 		getWraps().forEach(w => w.classList.remove('hand-card--drop-left', 'hand-card--drop-right'));
 		dragSrcIndex = null;
+		delete document.body.dataset.draggingCardType;
 	}
 
 	getWraps().forEach(attachTo);

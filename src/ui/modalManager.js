@@ -323,7 +323,7 @@ export function initModalManager(container) {
 		container.querySelector('#modal-close-mosje')?.addEventListener('click', close);
 	}
 
-	function showQuestAttemptPreview(mosje, questDef, threshold, onConfirm) {
+	function showQuestAttemptPreview(mosje, questDef, threshold, onConfirm, { diceBonus = 0 } = {}) {
 		if (!mosje || !questDef) return;
 		const previewEl = renderCard(mosje, { compact: true });
 		previewEl.classList.add('modal-mosje-preview-card');
@@ -336,6 +336,10 @@ export function initModalManager(container) {
 			? '<span class="modal-threshold--fail">Missing required trait</span>'
 			: `${threshold}+ to succeed`;
 
+		const bonusRow = diceBonus > 0
+			? `<p><strong>Dice bonus:</strong> <span style="color: #e8b94f;">+${diceBonus} to roll</span></p>`
+			: '';
+
 		container.classList.add('modal-root--open');
 		container.innerHTML = `
 			<div class="modal-backdrop"></div>
@@ -346,6 +350,7 @@ export function initModalManager(container) {
 					<p><strong>Current MP:</strong> ${Number(mosje.mp || 0)}</p>
 					<p><strong>Requirement:</strong> ${escapeHtml(questDef.requirementDescription || 'Roll dice')}</p>
 					<p><strong>Roll needed:</strong> ${thresholdLabel}</p>
+					${bonusRow}
 					<p><strong>On success:</strong> <span style="color: #4ade80;">+${Number(questDef.successMP || 0)} MP</span></p>
 					<p><strong>On failure:</strong> <span style="color: #f87171;">${Number(questDef.failMP || 0)} MP</span></p>
 					<div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1);">

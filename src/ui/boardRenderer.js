@@ -23,7 +23,7 @@ function getBoardModal() {
 	return _boardModal;
 }
 
-export function renderBoard(container, viewModel, onUseAbility = null, onReturnToHand = null, onActivatePiecie = null, onActivatePlace = null, onOpenDiscard = null) {
+export function renderBoard(container, viewModel, onUseAbility = null, onReturnToHand = null, onActivatePiecie = null, onActivatePlace = null, onOpenDiscard = null, onPlayFromHand = null) {
 	if (!container) return;
 	console.log('[UI] Rendering board view');
 
@@ -228,9 +228,48 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		}
 	}
 
+	// Initialize drag-to-play drop zones (hand → field)
+	initBoardDropZones(container, onPlayFromHand);
+
 	// Initialize drag-to-scroll handlers for horizontal overflow areas
 	const rows = container.querySelectorAll('.board-zone__row');
 	rows.forEach(initDragScroll);
+}
+
+function initBoardDropZones(container, onPlayFromHand) {
+	if (!onPlayFromHand) return;
+
+	const mosjeZone = container.querySelector('#zone-player');
+	const piecieZone = container.querySelector('#piecies-player');
+
+	for (const zone of [mosjeZone, piecieZone]) {
+		if (!zone) continue;
+
+		zone.addEventListener('dragover', (e) => {
+			if (!document.body.dataset.draggingCardType) return;
+			e.preventDefault();
+			e.dataTransfer.dropEffect = 'move';
+			zone.classList.add('drop-target--active');
+		});
+
+		zone.addEventListener('dragleave', (e) => {
+			if (!zone.contains(e.relatedTarget)) {
+				zone.classList.remove('drop-target--active');
+			}
+		});
+
+		zone.addEventListener('drop', (e) => {
+			e.preventDefault();
+			zone.classList.remove('drop-target--active');
+			let cardId, cardType;
+			try {
+				({ cardId, cardType } = JSON.parse(e.dataTransfer.getData('application/mosjes-card')));
+			} catch {
+				return;
+			}
+			if (cardId && cardType) onPlayFromHand(cardId, cardType);
+		});
+	}
 }
 
 function initDragScroll(element) {
