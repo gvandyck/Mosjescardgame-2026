@@ -68,7 +68,7 @@ export const PIECIES = [
     tags: ["FOOD"],
     description: "Ronald on field: look at opponent's hand, gain 30 MP per Piecie there. Otherwise: gain 15 MP.",
     flavourText: "",
-    artPath: "assets/piecies/placeholder.png",
+    artPath: "assets/piecie-art/Chefs Special.jpeg",
     rarity: "★★★★☆",
     isBoosterOnly: false,
     deckLimit: null
@@ -936,7 +936,7 @@ export const PIECIES = [
     tags: ["SUBSTANCE", "GAMBLE"],
     description: "Roll 1d6: 1–2 lose 25 MP + discard 1; 3–4 gain 20 MP; 5–6 gain 40 MP + draw 2.",
     flavourText: "",
-    artPath: "assets/piecies/placeholder.png",
+    artPath: "assets/piecie-art/Larry - zegeltje.jpeg",
     rarity: "★★★☆☆",
     isBoosterOnly: false,
     deckLimit: null

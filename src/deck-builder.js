@@ -9,6 +9,7 @@ import { PIECIES } from './data/piecies.js';
 import { SNELLE_PIECIES } from './data/snellePiecies.js';
 import { PLACES } from './data/places.js';
 import { QUESTS } from './data/quests.js';
+import { initModalManager } from './ui/modalManager.js';
 
 // ── Card pool (non-booster only) ──────────────────────────────────────────────
 const ALL_CARDS = [
@@ -21,6 +22,29 @@ const ALL_CARDS = [
 
 const LIMITS = { MOSJE: 2, PIECIE: 8, SNELLE_PIECIE: 4, PLACE: 2, QUEST: 1 };
 const MAX_COPIES = 2; // per individual card (unless deckLimit: 1)
+
+// ── Modal manager (lazy-init, shared for preview) ─────────────────────────────
+let _modal = null;
+function getModal() {
+	if (_modal) return _modal;
+	let root = document.querySelector('#modal-root');
+	if (!root) {
+		root = document.createElement('div');
+		root.id = 'modal-root';
+		root.className = 'modal-root';
+		document.body.appendChild(root);
+	}
+	_modal = initModalManager(root);
+	return _modal;
+}
+
+function showCardPreview(card) {
+	const modal = getModal();
+	const normalized = { ...card, type: card.cardType };
+	if (card.cardType === 'MOSJE') modal.showMosjeDetailModal(normalized);
+	else if (card.cardType === 'PLACE') modal.showPlaceDetailModal(normalized);
+	else modal.showCardPreviewModal(normalized);
+}
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let deck = { MOSJE: {}, PIECIE: {}, SNELLE_PIECIE: {}, PLACE: {}, QUEST: {} }; // { cardId: count }
@@ -331,14 +355,22 @@ function updateAll() {
 // ── Event delegation for card grid + deck list ────────────────────────────────
 document.getElementById('card-grid').addEventListener('click', e => {
 	const btn = e.target.closest('.tile-btn');
-	if (!btn) return;
-	const { id, ctype } = btn.dataset;
-	if (btn.classList.contains('tile-btn--add')) {
-		const card = ALL_CARDS.find(c => c.id === id);
-		if (card) addCard(card);
-	} else if (btn.classList.contains('tile-btn--remove')) {
-		removeCard(ctype, id);
+	if (btn) {
+		const { id, ctype } = btn.dataset;
+		if (btn.classList.contains('tile-btn--add')) {
+			const card = ALL_CARDS.find(c => c.id === id);
+			if (card) addCard(card);
+		} else if (btn.classList.contains('tile-btn--remove')) {
+			removeCard(ctype, id);
+		}
+		return;
 	}
+
+	if (_dragMoved) return;
+	const tile = e.target.closest('.card-tile');
+	if (!tile) return;
+	const card = ALL_CARDS.find(c => c.id === tile.dataset.id);
+	if (card) showCardPreview(card);
 });
 
 document.getElementById('deck-list').addEventListener('click', e => {
@@ -363,6 +395,8 @@ document.getElementById('search-input').addEventListener('input', e => {
 });
 
 // ── Drag-to-scroll on card grid ───────────────────────────────────────────────
+// _dragMoved is read by the click handler above to suppress preview on scroll.
+let _dragMoved = false;
 (function initDragScroll() {
 	const grid = document.getElementById('card-grid');
 	let isDragging = false;
@@ -370,9 +404,9 @@ document.getElementById('search-input').addEventListener('input', e => {
 	let startScrollTop = 0;
 
 	grid.addEventListener('mousedown', e => {
-		// Only drag on the grid background, not on buttons
 		if (e.target.closest('.tile-btn')) return;
 		isDragging = true;
+		_dragMoved = false;
 		startY = e.clientY;
 		startScrollTop = grid.scrollTop;
 		grid.classList.add('is-dragging');
@@ -381,12 +415,14 @@ document.getElementById('search-input').addEventListener('input', e => {
 
 	document.addEventListener('mousemove', e => {
 		if (!isDragging) return;
+		if (Math.abs(e.clientY - startY) > 5) _dragMoved = true;
 		grid.scrollTop = startScrollTop - (e.clientY - startY);
 	});
 
 	document.addEventListener('mouseup', () => {
 		isDragging = false;
 		grid.classList.remove('is-dragging');
+		setTimeout(() => { _dragMoved = false; }, 0);
 	});
 })();
 
