@@ -180,7 +180,7 @@ function initGamePage() {
 
 	if (logToggleBtn && logPopover) {
 		const setLogOpen = (open) => {
-			logPopover.hidden = !open;
+			logPopover.classList.toggle('is-visible', open);
 			logToggleBtn.setAttribute('aria-expanded', String(open));
 			logToggleBtn.classList.toggle('is-open', open);
 		};
@@ -188,12 +188,12 @@ function initGamePage() {
 		setLogOpen(false);
 
 		logToggleBtn.addEventListener('click', () => {
-			const isOpen = !logPopover.hidden;
+			const isOpen = logPopover.classList.contains('is-visible');
 			setLogOpen(!isOpen);
 		});
 
 		document.addEventListener('click', (event) => {
-			if (logPopover.hidden) return;
+			if (!logPopover.classList.contains('is-visible')) return;
 			const target = event.target;
 			if (!(target instanceof Node)) return;
 			if (logPopover.contains(target) || logToggleBtn.contains(target)) return;
@@ -201,7 +201,7 @@ function initGamePage() {
 		});
 
 		document.addEventListener('keydown', (event) => {
-			if (event.key === 'Escape' && !logPopover.hidden) setLogOpen(false);
+			if (event.key === 'Escape' && logPopover.classList.contains('is-visible')) setLogOpen(false);
 		});
 	}
 
