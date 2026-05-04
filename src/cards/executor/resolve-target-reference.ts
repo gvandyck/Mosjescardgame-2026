@@ -67,7 +67,9 @@ export function resolveTargetReference(
 ): MosjeRef | undefined {
   switch (target) {
     case "none":
+    case "self":
     case "self_active_mosje":
+    case "any_active_mosje":
       return invocation.actingMosjeRef;
 
     case "opponent_active_mosje":

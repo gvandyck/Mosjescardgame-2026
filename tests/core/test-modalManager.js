@@ -27,7 +27,7 @@ export async function runModalManagerTests() {
     assertEqual(selectedId, 'PIECIE');
   });
 
-  await testAsync('showMosjeSelect preserves synchronous single-slot behavior', async () => {
+  await testAsync('showMosjeSelect opens modal even for a single Mosje', async () => {
     const container = document.createElement('div');
     const modal = initModalManager(container);
     let selectedSlot = null;
@@ -38,7 +38,15 @@ export async function runModalManagerTests() {
       selectedSlot = slotIndex;
     });
 
-    assertEqual(selectedSlot, 1, 'Expected immediate callback for single slot');
+    assertEqual(selectedSlot, null, 'Expected no immediate callback for single slot');
+
+    const buttons = container.querySelectorAll('.modal-mosje-select-btn');
+    assertEqual(buttons.length, 1, 'Expected one Mosje selector button');
+
+    buttons[0].click();
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    assertEqual(selectedSlot, 1, 'Expected selected slot after click');
   });
 
   await testAsync('showMosjeSelect resolves clicked slot for multiple options', async () => {

@@ -1,4 +1,5 @@
 import { appendEvent } from "../../engine/append-event.js";
+import type { CardId } from "../../types/card-id.js";
 import type { Primitive } from "../primitive.js";
 import type { ReturnToHandParams } from "./types.js";
 
@@ -20,7 +21,7 @@ export const returnToHand: Primitive<ReturnToHandParams> = (state, params) => {
   const nextZone = sourceZone.filter((_, index) => index !== sourceIndex);
   const updatedPlayer = {
     ...player,
-    hand: [...player.hand, params.cardId],
+    hand: [...player.hand, params.cardId as CardId],
     discard: params.zone === "discard" ? nextZone : player.discard,
     welloePile: params.zone === "welloe" ? nextZone : player.welloePile
   };

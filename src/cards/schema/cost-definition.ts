@@ -2,8 +2,11 @@
 export type Trait = string;
 
 export interface CostDefinition {
-  readonly type: "free" | "mp" | "discard" | "combo" | "variable";
+  readonly type: "free" | "mp" | "discard" | "discard_food" | "combo" | "variable" | "mp_variable";
   readonly mp?: number;
+  readonly amount?: number;
+  readonly minMp?: number;
+  readonly label?: string;
   readonly discardCount?: number;
   readonly resolver?: string;
   readonly traitRequirements?: ReadonlyArray<{ readonly trait: Trait; readonly minStars: 1 | 2 | 3 }>;

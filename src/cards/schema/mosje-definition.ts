@@ -17,7 +17,7 @@ export interface MosjeTraits {
 export interface MosjeAbility {
   readonly trigger: TriggerType;
   readonly cost?: CostDefinition;
-  readonly usageLimit?: "once_per_turn" | "once_per_game" | "passive";
+  readonly usageLimit?: "once_per_turn" | "once_per_game" | "passive" | "unlimited" | "limit_2_per_game" | "limit_3_per_game" | "cooldown_5_turns";
   readonly effects: ReadonlyArray<EffectExpression>;
   readonly description: string;
 }
@@ -34,6 +34,7 @@ export interface MosjeDefinition extends CardDefinition {
   readonly traits: MosjeTraits;
   readonly startMP: number;
   readonly baseAbility: MosjeAbility;
+  readonly triggeredAbility?: MosjeAbility;
   readonly levelAbilities?: Readonly<Record<2 | 3, MosjeAbility>>;
   readonly synergies?: ReadonlyArray<MosjeSynergyDefinition>;
   readonly petSynergies?: ReadonlyArray<PetSynergyDefinition>;
