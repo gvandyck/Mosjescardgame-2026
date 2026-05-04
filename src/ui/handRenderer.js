@@ -131,7 +131,7 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 				const btn = document.createElement('button');
 				btn.className = 'hand-card__play-btn';
 				btn.type = 'button';
-				btn.textContent = 'Attempt Quest';
+				btn.textContent = 'Place';
 				btn.addEventListener('click', (e) => {
 					e.stopPropagation();
 					onPlay(card.cardId, card.type);

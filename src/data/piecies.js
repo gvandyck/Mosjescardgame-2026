@@ -185,7 +185,7 @@ export const PIECIES = [
     tags: ["ATTACK"],
     description: "Target opponent loses 25 MP.",
     flavourText: "",
-    artPath: "assets/piecies/placeholder.png",
+    artPath: "assets/piecie-art/Te hard gaan.jpeg",
     rarity: "★★★☆☆",
     isBoosterOnly: false,
     deckLimit: null
@@ -350,7 +350,7 @@ export const PIECIES = [
     tags: ["DESTROY", "DRAW", "SUBSTANCE"],
     description: "Destroy the active Place card. Draw 2 cards.",
     flavourText: "",
-    artPath: "assets/piecies/placeholder.png",
+    artPath: "assets/piecie-art/Bong Hit Demolition.jpeg",
     rarity: "★★★★☆",
     isBoosterOnly: false,
     deckLimit: null
@@ -560,7 +560,7 @@ export const PIECIES = [
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
     rarity: "★★★☆☆",
-    isBoosterOnly: false,
+    isBoosterOnly: true,
     deckLimit: null
   },
   {

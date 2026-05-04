@@ -165,4 +165,49 @@ export function runBoardRendererTests() {
     activateBtn.click();
     assertEqual(activatedSlot, 0, 'Activate callback should receive piecie slot index');
   });
+
+  test('renderBoard shows Activate button for own activatable Personal Quest', () => {
+    const container = document.createElement('div');
+    const viewModel = {
+      myPlayerId: 'player_1',
+      activePlayerId: 'player_1',
+      currentPhase: 'MAIN',
+      players: {
+        top: {
+          name: 'Opponent',
+          mosjes: [],
+          piecies: [],
+        },
+        bottom: {
+          name: 'You',
+          mosjes: [],
+          piecies: [
+            {
+              cardId: 'quest_personal_perfect_sync',
+              name: 'Perfect Sync',
+              type: 'QUEST',
+              description: 'Personal quest',
+              faceDown: false,
+              canActivate: true,
+              slotIndex: 2,
+            },
+          ],
+        },
+      },
+      activeQuest: null,
+      gameState: createEngineState(),
+    };
+
+    let activatedSlot = null;
+    renderBoard(container, viewModel, null, null, (slotIndex) => {
+      activatedSlot = slotIndex;
+    });
+
+    const activateBtn = container.querySelector('#piecies-player .hand-card__play-btn');
+    assertTrue(!!activateBtn, 'Expected Activate button on own activatable personal quest');
+    assertEqual(activateBtn.textContent, 'Activate');
+
+    activateBtn.click();
+    assertEqual(activatedSlot, 2, 'Activate callback should receive quest slot index');
+  });
 }

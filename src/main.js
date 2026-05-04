@@ -843,38 +843,29 @@ function initGamePage() {
 			return;
 		}
 
-		const activeMosjesBeforeActivation = (gameState.players[localPlayerId]?.activeSlots || [])
-			.filter(s => s && !s.isDefeated);
-		const canAnyMosjeAffordCost = activeMosjesBeforeActivation.some(s => s.mp >= 20);
-		if (!canAnyMosjeAffordCost) {
-			modal.showInfo('Cannot Activate', `${questDef.name} requires at least one Mosje with 20 MP to pay the activation cost.`);
+		// Read-only guard checks (mirrors activatePersonalQuest) before showing any modal.
+		const player = gameState.players[localPlayerId];
+		const questSlotData = player?.piecieSlots?.[slotIndex];
+		const canActivateOnTurn = Number.isFinite(questSlotData?.canActivateOnTurn) ? questSlotData.canActivateOnTurn : 0;
+		if (gameState.turnNumber < canActivateOnTurn) {
+			modal.showInfo('Cannot Activate', 'This Quest can be activated starting next turn.');
+			return;
+		}
+		const questHavenActive = gameState.activePlace === 'place_quest_haven';
+		const maxQuestsThisTurn = questHavenActive ? 2 : 1;
+		if ((player.questsAttemptedThisTurn ?? 0) >= maxQuestsThisTurn) {
+			modal.showInfo('Cannot Activate', 'You have already attempted a quest this turn.');
 			return;
 		}
 
-		const { state: activatedState, success, error } = activatePersonalQuest(gameState, localPlayerId, slotIndex);
-		if (!success) { modal.showInfo('Cannot Activate', error || 'Quest cannot be activated now.'); return; }
-		gameState = activatedState;
-
-		const activeMosje = gameState.players[localPlayerId].activeSlots.find(s => s && !s.isDefeated);
-		const threshold = getQuestDiceThreshold(questDef, activeMosje);
+		// Capture bonuses before any state mutation.
 		const diceBonus = gameState._snelleFlags?.questDiceBonus || 0;
 		const questPrepBonus = gameState.players[localPlayerId]?.questPrepBonus || 0;
 		const placeDiceBonus = gameState.activePlace === 'place_synergy_chamber' ? 1 : 0;
 		const skiffaRerolls = getSkiffaRerolls(gameState, localPlayerId);
 		const forceReroll = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
 
-		gameState.activeQuest = {
-			questName: questDef.name, cardName: questDef.name,
-			questType: questDef.questType || 'PERSONAL', attacker: localPlayerId,
-			successMP: questDef.successMP, failMP: questDef.failMP,
-			currentMp: activeMosje?.mp ?? null,
-		};
-		renderFromState(gameState);
-		if (diceBonus) delete gameState._snelleFlags.questDiceBonus;
-		if (questPrepBonus) gameState.players[localPlayerId].questPrepBonus = 0;
-		if (forceReroll) delete gameState._snelleFlags.forceReroll[localPlayerId];
-		syncPush();
-
+		// Build Mosje options from current state (quest card still on field at this point).
 		const questSlots = gameState.players[localPlayerId].activeSlots
 			.map((slot, index) => ({ slot, index }))
 			.filter(({ slot }) => slot && !slot.isDefeated)
@@ -885,7 +876,41 @@ function initGamePage() {
 				traits: slot.traits || CARD_LOOKUP[slot.cardId]?.traits || {},
 			}));
 
+		// Fires only after the player confirms a Mosje in the selection modal.
+		function onMosjeSelected(targetSlotIndex) {
+			// Commit: remove quest from field, discard, increment attempt counter.
+			const { state: activatedState, success, error } = activatePersonalQuest(gameState, localPlayerId, slotIndex);
+			if (!success) { modal.showInfo('Cannot Activate', error || 'Quest cannot be activated now.'); return; }
+			gameState = activatedState;
+
+			// Deduct 20 MP from the chosen Mosje.
+			gameState = loseMP(gameState, localPlayerId, targetSlotIndex, 20, 'QUEST_COST');
+			log.add('loss', 'Quest attempt cost: -20 MP');
+
+			const chosenMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
+			gameState.activeQuest = {
+				questName: questDef.name, cardName: questDef.name,
+				questType: questDef.questType || 'PERSONAL', attacker: localPlayerId,
+				successMP: questDef.successMP, failMP: questDef.failMP,
+				currentMp: chosenMosje?.mp ?? null,
+			};
+			renderFromState(gameState);
+			if (diceBonus) delete gameState._snelleFlags.questDiceBonus;
+			if (questPrepBonus) gameState.players[localPlayerId].questPrepBonus = 0;
+			if (forceReroll) delete gameState._snelleFlags.forceReroll[localPlayerId];
+			syncPush();
+
+			// Show quest detail preview (modal-card--mosje-detail).
+			// "Attempt Quest" → dice roll. "Cancel" → close with no MP refund.
+			const updatedMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
+			modal.showQuestAttemptPreview(updatedMosje, questDef, getQuestDiceThreshold(questDef, updatedMosje), () => {
+				runQuestDiceRoll(targetSlotIndex);
+			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus });
+		}
+
 		function runQuestDiceRoll(targetSlotIndex) {
+			const liveMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
+			const threshold = getQuestDiceThreshold(questDef, liveMosje);
 			modal.showDiceRoll(questDef, threshold, (didSucceed) => {
 				const beforeResolve = gameState;
 				gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed, targetSlotIndex);
@@ -929,26 +954,8 @@ function initGamePage() {
 			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus, forceReroll, skiffaRerolls });
 		}
 
-		function showQuestPreviewThenRoll(targetSlotIndex) {
-			const targetMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
-			if (targetMosje) {
-				gameState = loseMP(gameState, localPlayerId, targetSlotIndex, 20, 'QUEST_COST');
-				log.add('loss', 'Quest attempt cost: -20 MP');
-				const updatedMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
-				modal.showQuestAttemptPreview(updatedMosje, questDef, getQuestDiceThreshold(questDef, updatedMosje), () => {
-					runQuestDiceRoll(targetSlotIndex);
-				}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus });
-			} else {
-				runQuestDiceRoll(targetSlotIndex);
-			}
-		}
-
 		log.add('quest', `Activating Personal Quest: ${questDef.name}`);
-		if (questSlots.length > 1) {
-			modal.showMosjeSelect(questSlots, showQuestPreviewThenRoll, questDef);
-		} else {
-			showQuestPreviewThenRoll(questSlots[0]?.slotIndex ?? 0);
-		}
+		modal.showMosjeSelect(questSlots, onMosjeSelected, questDef);
 	}
 
 	async function handleActivatePiecie(slotIndex) {

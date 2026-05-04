@@ -25,6 +25,7 @@ export function initModalManager(container) {
 				return Number(handSize) > 0 ? 0 : null;
 			},
 			showMosjeSelect: (_slots, onSelected, _questDef) => onSelected(0),
+			showHandViewerModal: (_ids, _name, _lookup, onClose) => { if (onClose) onClose(); },
 			showCardPreview: () => {},
 			showCardPreviewModal: () => {},
 			showDeckBuilderCardPreview: () => {},
@@ -566,14 +567,9 @@ export function initModalManager(container) {
 		return Number.isFinite(parsed) ? parsed : null;
 	}
 
-	// Mosje selector — uses showOptionSelect; auto-selects when only one Mosje is on field.
+	// Mosje selector — uses showOptionSelect; always shows modal regardless of Mosje count.
 	// questDef is optional: when provided, requires 20 MP to attempt quest.
 	function showMosjeSelect(mosjeSlots, onSelected, questDef) {
-		if (mosjeSlots.length <= 1) {
-			onSelected(mosjeSlots[0]?.slotIndex ?? 0);
-			return;
-		}
-
 		const isQuestAttempt = Boolean(questDef);
 		const questCost = 20;
 
@@ -626,6 +622,33 @@ export function initModalManager(container) {
 				close();
 				resolve();
 			});
+		});
+	}
+
+	// Hand viewer modal — reveals all cards in a player's hand (e.g. Perfect Sync effect).
+	// handCardIds: array of card ID strings. cardLookup: map from cardId → card def.
+	// onClose: callback invoked after the player closes the modal.
+	function showHandViewerModal(handCardIds, playerName, cardLookup, onClose) {
+		container.classList.add('modal-root--open');
+		const count = handCardIds.length;
+
+		const rows = handCardIds.map(cardId => {
+			const name = cardLookup?.[cardId]?.name || cardId;
+			const type = cardLookup?.[cardId]?.type || '';
+			return `<li><span class="hand-reveal-name">${escapeHtml(name)}</span>${type ? `<span class="hand-reveal-type">${escapeHtml(type)}</span>` : ''}</li>`;
+		}).join('');
+
+		container.innerHTML = `
+			<div class="modal-backdrop"></div>
+			<section class="modal-card" role="dialog" aria-modal="true">
+				<h3>👁 ${escapeHtml(playerName)}'s Hand (${count} card${count !== 1 ? 's' : ''})</h3>
+				${count === 0 ? '<p>Hand is empty.</p>' : `<ul class="modal-card-list">${rows}</ul>`}
+				<button class="modal-btn" id="modal-close-hand-reveal">Close</button>
+			</section>
+		`;
+		container.querySelector('#modal-close-hand-reveal')?.addEventListener('click', () => {
+			close();
+			if (onClose) onClose();
 		});
 	}
 
@@ -802,6 +825,7 @@ export function initModalManager(container) {
 		showMosjeSelect,
 		showDiscardViewerModal,
 		showDiscardRecoveryModal,
+		showHandViewerModal,
 		close,
 	};
 }

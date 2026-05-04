@@ -1,6 +1,7 @@
 import { appendEvent } from "./append-event.js";
 import { checkVictory } from "./check-victory.js";
 import type { GameState } from "../types/game-state.js";
+import type { GameEvent } from "../types/events.js";
 
 export function applyVictoryCheck(state: GameState): GameState {
   const existingWinEvent = state.eventLog.some((event) => event.type === "game_won");
@@ -14,6 +15,6 @@ export function applyVictoryCheck(state: GameState): GameState {
   return appendEvent(state, {
     type: "game_won",
     playerId: result.winnerId,
-    reason: result.reason
+    reason: result.reason as Extract<GameEvent, { type: "game_won" }>["reason"]
   });
 }

@@ -222,7 +222,10 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 	// The Void nullifies direct Quest MP gain/loss; quest still resolves.
 	const baseQuestMpBlocked = state.activePlace === 'place_the_void';
 
-	if (!baseQuestMpBlocked) {
+	// Perfect Sync defers gainMP to the UI layer (player picks target mosje after seeing opponent hand)
+	const defersMPToUI = questCard.id === 'quest_personal_perfect_sync' && didSucceed;
+
+	if (!baseQuestMpBlocked && !defersMPToUI) {
 		// Support both old format (successMP/failMP) and new format (onSuccess/onFailure effects)
 		const effects = didSucceed ? (questCard.onSuccess || []) : (questCard.onFailure || []);
 

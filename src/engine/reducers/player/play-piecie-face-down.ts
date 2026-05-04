@@ -1,5 +1,6 @@
 import { appendEvent } from "../../append-event.js";
 import { getCard } from "../../../cards/registry/card-registry.js";
+import type { CardId } from "../../../types/card-id.js";
 import type { GameState } from "../../../types/game-state.js";
 import type { PlayPiecieFaceDownAction } from "../../../types/player-reducer-actions.js";
 
@@ -18,7 +19,7 @@ function hasDurationBuffEffect(value: unknown): boolean {
   return Object.values(obj).some((nested) => hasDurationBuffEffect(nested));
 }
 
-function resolveCardEffects(cardId: string): unknown[] {
+function resolveCardEffects(cardId: CardId): ReadonlyArray<unknown> {
   try {
     return getCard(cardId).effects;
   } catch {
