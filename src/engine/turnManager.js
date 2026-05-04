@@ -131,6 +131,18 @@ export function endTurn(gameState) {
     });
   }
 
+  // Sweep Snelle Piecies from field to discard at end of turn
+  normalizePiecieSlots(state.players[playerId], 4);
+  for (let i = 0; i < state.players[playerId].piecieSlots.length; i++) {
+    const slot = state.players[playerId].piecieSlots[i];
+    if (slot?.type === 'SNELLE_PIECIE') {
+      if (!Array.isArray(state.players[playerId].discard)) state.players[playerId].discard = [];
+      state.players[playerId].discard.push(slot.cardId);
+      state.players[playerId].piecieSlots[i] = null;
+      console.log(`[ENGINE] Snelle Piecie swept to discard: ${slot.cardId}`);
+    }
+  }
+
   state = checkVictory(state);
   if (state.status === 'FINISHED') return state;
 
@@ -280,8 +292,93 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
   state.players[playerId].pieciesPlayedThisTurn = (state.players[playerId].pieciesPlayedThisTurn || 0) + 1;
   state.players[playerId].lastCardPlayedType = 'PIECIE';
 
+
   state = checkVictory(state);
   return { state, success: true };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// playPersonalQuest
+// Places a Personal Quest card face-down on the field (like a Piecie).
+// Player must wait one turn before activating (attempting) it.
+// ─────────────────────────────────────────────────────────────────────────────
+export function playPersonalQuest(gameState, playerId, cardRef) {
+  let state = JSON.parse(JSON.stringify(gameState));
+  const player = state.players[playerId];
+  if (!player) return { state, success: false, error: 'Player not found' };
+
+  if (state.activePlayerId !== playerId) {
+    return { state, success: false, error: 'You can only place quests on your own turn' };
+  }
+
+  normalizePiecieSlots(player, 4);
+  if (!Array.isArray(player.hand)) player.hand = [];
+
+  const handIndex = player.hand.findIndex(c => c.cardId === cardRef.cardId);
+  if (handIndex === -1) return { state, success: false, error: 'Card not in hand' };
+
+  const filledSlots = player.piecieSlots.filter(s => s !== null).length;
+  const activePlaceCount = (state.activePlace && state.activePlacePlayedBy === playerId) ? 1 : 0;
+  if (filledSlots + activePlaceCount >= 4) {
+    return { state, success: false, error: 'No slot available — field is full' };
+  }
+
+  player.hand.splice(handIndex, 1);
+  const emptySlot = player.piecieSlots.findIndex(s => s === null);
+  player.piecieSlots[emptySlot] = {
+    cardId: cardRef.cardId,
+    type: 'QUEST',
+    faceDown: true,
+    activated: false,
+    playedOnTurn: state.turnNumber,
+    canActivateOnTurn: state.turnNumber + 1,
+  };
+
+  console.log(`[ENGINE] Personal Quest placed face-down: ${cardRef.cardId} by ${playerId}`);
+  return { state, success: true };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// activatePersonalQuest
+// Removes the quest from its piecie slot and marks the attempt so the UI
+// can run the dice-roll flow.
+// ─────────────────────────────────────────────────────────────────────────────
+export function activatePersonalQuest(gameState, playerId, slotIndex) {
+  let state = JSON.parse(JSON.stringify(gameState));
+  const player = state.players[playerId];
+  if (!player) return { state, success: false, error: 'Player not found' };
+
+  if (state.activePlayerId !== playerId) {
+    return { state, success: false, error: 'You can only activate quests on your own turn' };
+  }
+
+  normalizePiecieSlots(player, 4);
+  const slot = player.piecieSlots[slotIndex];
+  if (!slot || slot.type !== 'QUEST') {
+    return { state, success: false, error: 'No Personal Quest in that slot' };
+  }
+
+  const canActivateOnTurn = Number.isFinite(slot.canActivateOnTurn) ? slot.canActivateOnTurn : 0;
+  if (state.turnNumber < canActivateOnTurn) {
+    return { state, success: false, error: 'This Quest can be activated starting next turn' };
+  }
+
+  const questHavenActive = state.activePlace === 'place_quest_haven';
+  const maxQuestsThisTurn = questHavenActive ? 2 : 1;
+  const questsAttempted = player.questsAttemptedThisTurn ?? 0;
+  if (questsAttempted >= maxQuestsThisTurn) {
+    return { state, success: false, error: 'You have already attempted a quest this turn' };
+  }
+
+  const questCardId = slot.cardId;
+  player.piecieSlots[slotIndex] = null;
+  if (!Array.isArray(player.discard)) player.discard = [];
+  player.discard.push(questCardId);
+  player.questsAttemptedThisTurn = questsAttempted + 1;
+  player.hasAttemptedQuestThisTurn = true;
+
+  console.log(`[ENGINE] Personal Quest activated from field: ${questCardId} by ${playerId}`);
+  return { state, success: true, questCardId };
 }
 
 export function activatePlace(gameState, playerId, slotIndex) {
@@ -511,11 +608,24 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
   if (!Array.isArray(player.hand)) player.hand = [];
   if (!Array.isArray(player.discard)) player.discard = [];
 
-  // Remove from hand and move to discard
+  // Remove from hand and place face-up in a piecie slot (swept to discard at end of turn)
   const handIndex = player.hand.findIndex(c => c.cardId === cardRef.cardId);
   if (handIndex === -1) return { state, success: false, error: 'Card not in hand' };
   const [playedCard] = player.hand.splice(handIndex, 1);
-  player.discard.push(playedCard.cardId);
+
+  normalizePiecieSlots(player, 4);
+  const snelleSlot = player.piecieSlots.findIndex(s => s === null);
+  if (snelleSlot >= 0) {
+    player.piecieSlots[snelleSlot] = {
+      cardId: playedCard.cardId,
+      type: 'SNELLE_PIECIE',
+      faceDown: false,
+      activated: true,
+      playedOnTurn: state.turnNumber,
+    };
+  } else {
+    player.discard.push(playedCard.cardId);
+  }
 
   // Apply the effect function
   const effectFn = snelleEffects[cardDef.effectId];
