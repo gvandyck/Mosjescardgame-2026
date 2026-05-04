@@ -8,7 +8,7 @@ import { initModalManager } from './ui/modalManager.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes } from './engine/gameState.js';
 import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, playPersonalQuest, activatePersonalQuest } from './engine/turnManager.js';
 import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold } from './abilities/questLogic.js';
-import { loseMP } from './engine/mpManager.js';
+import { loseMP, gainMP } from './engine/mpManager.js';
 import { MOSJES } from './data/mosjes.js';
 import { PIECIES } from './data/piecies.js';
 import { SNELLE_PIECIES } from './data/snellePiecies.js';
@@ -843,6 +843,14 @@ function initGamePage() {
 			return;
 		}
 
+		const activeMosjesBeforeActivation = (gameState.players[localPlayerId]?.activeSlots || [])
+			.filter(s => s && !s.isDefeated);
+		const canAnyMosjeAffordCost = activeMosjesBeforeActivation.some(s => s.mp >= 20);
+		if (!canAnyMosjeAffordCost) {
+			modal.showInfo('Cannot Activate', `${questDef.name} requires at least one Mosje with 20 MP to pay the activation cost.`);
+			return;
+		}
+
 		const { state: activatedState, success, error } = activatePersonalQuest(gameState, localPlayerId, slotIndex);
 		if (!success) { modal.showInfo('Cannot Activate', error || 'Quest cannot be activated now.'); return; }
 		gameState = activatedState;
@@ -882,6 +890,36 @@ function initGamePage() {
 				const beforeResolve = gameState;
 				gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed, targetSlotIndex);
 				gameState.activeQuest = null;
+
+				// Perfect Sync: show opponent hand, then let player pick mosje for +70 MP.
+				if (questDef.id === 'quest_personal_perfect_sync' && didSucceed) {
+					const opponentId = Object.keys(gameState.players).find(pid => pid !== localPlayerId);
+					const opponent = gameState.players[opponentId];
+					const handCardIds = (opponent?.hand || []).map(c => c.cardId || c.id || 'Unknown');
+					const opponentName = opponent?.name || 'Opponent';
+					renderFromState(gameState);
+					syncPush();
+					modal.showHandViewerModal(handCardIds, opponentName, CARD_LOOKUP, () => {
+						const liveMosjeSlots = gameState.players[localPlayerId].activeSlots
+							.map((slot, index) => ({ slot, index }))
+							.filter(({ slot }) => slot && !slot.isDefeated)
+							.map(({ slot, index }) => ({
+								slotIndex: index,
+								name: slot.name || CARD_LOOKUP[slot.cardId]?.name || slot.cardId || 'Mosje',
+								mp: slot.mp,
+								traits: slot.traits || CARD_LOOKUP[slot.cardId]?.traits || {},
+							}));
+						modal.showMosjeSelect(liveMosjeSlots, (selectedSlotIndex) => {
+							gameState = gainMP(gameState, localPlayerId, selectedSlotIndex, 70);
+							renderFromState(gameState);
+							syncPush();
+							log.add('gain', `Perfect Sync: Success → +70 MP`);
+							logStateOutcome(log, beforeResolve, gameState, localPlayerId, 'Perfect Sync resolution');
+						}, null);
+					});
+					return;
+				}
+
 				renderFromState(gameState);
 				syncPush();
 				const mpDelta = didSucceed ? questDef.successMP : questDef.failMP;
