@@ -1,6 +1,8 @@
 // snelleEffects.js — One function per Snelle Piecie (instant) card's effect.
 // Filled in Phase 4.
 
+import { loseMP } from '../engine/mpManager.js';
+
 console.log('[ABILITY] snelleEffects.js loaded');
 
 export function effect_jensen(gameState) {
@@ -82,7 +84,7 @@ export function effect_snelle_emergency_healings(gameState, playerId) {
 }
 
 export function effect_snelle_lucky_coin(gameState, playerId) {
-	const state = JSON.parse(JSON.stringify(gameState));
+	let state = JSON.parse(JSON.stringify(gameState));
 	const result = state._pendingTargets?.lucky_coin_result;
 
 	if (result === 'heads') {
@@ -94,7 +96,7 @@ export function effect_snelle_lucky_coin(gameState, playerId) {
 		const slotIndex = state._pendingTargets?.lucky_coin_tails_slot;
 		const player = state.players[playerId];
 		if (player && Number.isInteger(slotIndex) && player.activeSlots[slotIndex]) {
-			player.activeSlots[slotIndex].mp -= 10;
+			state = loseMP(state, playerId, slotIndex, 10, 'DRAIN');
 			console.log(`[ABILITY] Lucky Coin: tails → -10 MP to slot ${slotIndex}`);
 		}
 	}
@@ -237,8 +239,8 @@ export function effect_snelle_jantje_jantje_jantje(gameState, playerId) {
 
 	const oppSlot = opp.activeSlots.findIndex(s => s !== null && !s.isDefeated);
 	const ownSlot = player.activeSlots.findIndex(s => s !== null && !s.isDefeated);
-	if (oppSlot >= 0) opp.activeSlots[oppSlot].mp -= 30;
-	if (ownSlot >= 0) player.activeSlots[ownSlot].mp += 30;
+	if (oppSlot >= 0) state = loseMP(state, oppId, oppSlot, 30, 'DRAIN');
+	if (ownSlot >= 0) state.players[playerId].activeSlots[ownSlot].mp += 30;
 	console.log('[ABILITY] Jantje Jantje Jantje: stole 30 MP from opponent');
 	return state;
 }
