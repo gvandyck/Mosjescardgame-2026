@@ -134,6 +134,8 @@
 .topbar-log-popover .game-log {
    max-height: 360px;
    overflow-y: auto;
+   opacity: 1;
+   pointer-events: auto;
 }
 
 .log-copy-buffer {
