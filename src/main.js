@@ -6,7 +6,7 @@ import { createLogRenderer } from './ui/logRenderer.js';
 import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes } from './engine/gameState.js';
-import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow } from './engine/turnManager.js';
+import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, playPersonalQuest, activatePersonalQuest } from './engine/turnManager.js';
 import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold } from './abilities/questLogic.js';
 import { loseMP } from './engine/mpManager.js';
 import { MOSJES } from './data/mosjes.js';
@@ -641,12 +641,7 @@ function initGamePage() {
 	document.getElementById('btn-personal-quest')?.addEventListener('click', () => {
 		if (!gameState) return;
 		if (gameState.activePlayerId !== localPlayerId) {
-			modal.showInfo('Not Your Turn', 'You can only attempt quests on your own turn.');
-			return;
-		}
-		const maxPQAttempts = gameState.activePlace === 'place_quest_haven' ? 2 : 1;
-		if ((gameState.players[localPlayerId].questsAttemptedThisTurn || 0) >= maxPQAttempts) {
-			modal.showInfo('Already Attempted', 'You have already attempted a quest this turn.');
+			modal.showInfo('Not Your Turn', 'You can only place quests on your own turn.');
 			return;
 		}
 
@@ -659,98 +654,18 @@ function initGamePage() {
 			return;
 		}
 
-		// Use the first personal quest found (pick UI can be a future enhancement)
 		const handCard = personalQuestsInHand[0];
 		const questDef = CARD_LOOKUP[handCard.cardId];
 
-		if (!canAttemptPersonalQuest(questDef, gameState, localPlayerId)) {
-			modal.showInfo(
-				'Required Mosje Missing',
-				`${questDef.name} requires ${questDef.requiredMosjeId} on the field.`
-			);
+		const { state: newState, success, error } = playPersonalQuest(gameState, localPlayerId, handCard);
+		if (!success) {
+			modal.showInfo('Cannot Place', error || 'Cannot place this Quest right now.');
 			return;
 		}
-
-		const { state: newState, questCard: playedCard } = attemptPersonalQuest(gameState, handCard.cardId);
 		gameState = newState;
-
-		const activeMosje = gameState.players[localPlayerId].activeSlots.find(s => s && !s.isDefeated);
-		const threshold = getQuestDiceThreshold(questDef, activeMosje);
-		log.add('quest', `${localPlayerName} is attempting Personal Quest: ${questDef.name}`);
-		if (questDef.description) log.add('info', `Effect: ${questDef.description}`);
-
-		const diceBonus2 = gameState._snelleFlags?.questDiceBonus || 0;
-		const questPrepBonus2 = gameState.players[localPlayerId]?.questPrepBonus || 0;
-		const placeDiceBonus2 = gameState.activePlace === 'place_synergy_chamber' ? 1 : 0;
-		const skiffaRerolls2 = getSkiffaRerolls(gameState, localPlayerId);
-		const forceReroll2 = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
-
-		// Phase 8 Rule 3: broadcast active quest so opponent can see it
-		gameState.activeQuest = {
-			questName: questDef.name,
-			cardName: questDef.name,
-			questType: questDef.questType || 'PERSONAL',
-			attacker: localPlayerId,
-			successMP: questDef.successMP,
-			failMP: questDef.failMP,
-			currentMp: activeMosje?.mp ?? null,
-		};
-		renderFromState(gameState);
-		if (diceBonus2) delete gameState._snelleFlags.questDiceBonus;
-		if (questPrepBonus2) gameState.players[localPlayerId].questPrepBonus = 0;
-		if (forceReroll2) delete gameState._snelleFlags.forceReroll[localPlayerId];
+		log.add('quest', `Placed ${questDef?.name || 'Personal Quest'} face-down. Activate it next turn.`);
 		syncPush();
-
-		const pqSlots = gameState.players[localPlayerId].activeSlots
-			.map((slot, index) => ({ slot, index }))
-			.filter(({ slot }) => slot && !slot.isDefeated)
-			.map(({ slot, index }) => ({
-				slotIndex: index,
-				name: slot.name || CARD_LOOKUP[slot.cardId]?.name || slot.cardId || 'Mosje',
-				mp: slot.mp,
-				traits: slot.traits || CARD_LOOKUP[slot.cardId]?.traits || {},
-			}));
-
-		function runPersonalQuestDiceRoll(targetSlotIndex) {
-			modal.showDiceRoll(questDef, threshold, (didSucceed) => {
-				const beforeResolve = gameState;
-				gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed, targetSlotIndex);
-				gameState.activeQuest = null;
-				renderFromState(gameState);
-				syncPush();
-
-				const mpDelta = didSucceed ? questDef.successMP : questDef.failMP;
-				const sign = mpDelta >= 0 ? '+' : '';
-				log.add(didSucceed ? 'gain' : 'loss',
-					`${questDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`
-				);
-				logStateOutcome(log, beforeResolve, gameState, localPlayerId, `${questDef.name} resolution`);
-			}, { diceBonus: diceBonus2 + questPrepBonus2 + placeDiceBonus2, forceReroll: forceReroll2, skiffaRerolls: skiffaRerolls2 });
-		}
-
-		function showPersonalQuestPreviewThenRoll(targetSlotIndex) {
-			const targetMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
-			if (targetMosje) {
-				// Deduct 20 MP quest cost immediately upon selection
-				const costState = loseMP(gameState, localPlayerId, targetSlotIndex, 20, 'QUEST_COST');
-				gameState = costState;
-				log.add('loss', `Quest attempt cost: -20 MP`);
-
-				const updatedMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
-				const thresholdForMosje = getQuestDiceThreshold(questDef, updatedMosje);
-				modal.showQuestAttemptPreview(updatedMosje, questDef, thresholdForMosje, () => {
-					runPersonalQuestDiceRoll(targetSlotIndex);
-				}, { diceBonus: diceBonus2 + questPrepBonus2 + placeDiceBonus2 });
-			} else {
-				runPersonalQuestDiceRoll(targetSlotIndex);
-			}
-		}
-
-		if (pqSlots.length > 1) {
-			modal.showMosjeSelect(pqSlots, showPersonalQuestPreviewThenRoll, questDef);
-		} else {
-			showPersonalQuestPreviewThenRoll(pqSlots[0]?.slotIndex ?? 0);
-		}
+		renderFromState(gameState);
 	});
 
 	function renderFromState(state) {
@@ -916,12 +831,100 @@ function initGamePage() {
 		renderFromState(gameState);
 	}
 
+	async function handleActivatePersonalQuestFromField(slotIndex) {
+		if (!gameState || gameState.status === 'FINISHED') return;
+
+		const piecieSlot = gameState.players[localPlayerId]?.piecieSlots?.[slotIndex];
+		const questDef = piecieSlot?.cardId ? CARD_LOOKUP[piecieSlot.cardId] : null;
+		if (!questDef) { modal.showInfo('Error', 'Quest card not found.'); return; }
+
+		if (!canAttemptPersonalQuest(questDef, gameState, localPlayerId)) {
+			modal.showInfo('Cannot Activate', `${questDef.name} requires its Mosje to be on the field.`);
+			return;
+		}
+
+		const { state: activatedState, success, error } = activatePersonalQuest(gameState, localPlayerId, slotIndex);
+		if (!success) { modal.showInfo('Cannot Activate', error || 'Quest cannot be activated now.'); return; }
+		gameState = activatedState;
+
+		const activeMosje = gameState.players[localPlayerId].activeSlots.find(s => s && !s.isDefeated);
+		const threshold = getQuestDiceThreshold(questDef, activeMosje);
+		const diceBonus = gameState._snelleFlags?.questDiceBonus || 0;
+		const questPrepBonus = gameState.players[localPlayerId]?.questPrepBonus || 0;
+		const placeDiceBonus = gameState.activePlace === 'place_synergy_chamber' ? 1 : 0;
+		const skiffaRerolls = getSkiffaRerolls(gameState, localPlayerId);
+		const forceReroll = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
+
+		gameState.activeQuest = {
+			questName: questDef.name, cardName: questDef.name,
+			questType: questDef.questType || 'PERSONAL', attacker: localPlayerId,
+			successMP: questDef.successMP, failMP: questDef.failMP,
+			currentMp: activeMosje?.mp ?? null,
+		};
+		renderFromState(gameState);
+		if (diceBonus) delete gameState._snelleFlags.questDiceBonus;
+		if (questPrepBonus) gameState.players[localPlayerId].questPrepBonus = 0;
+		if (forceReroll) delete gameState._snelleFlags.forceReroll[localPlayerId];
+		syncPush();
+
+		const questSlots = gameState.players[localPlayerId].activeSlots
+			.map((slot, index) => ({ slot, index }))
+			.filter(({ slot }) => slot && !slot.isDefeated)
+			.map(({ slot, index }) => ({
+				slotIndex: index,
+				name: slot.name || CARD_LOOKUP[slot.cardId]?.name || slot.cardId || 'Mosje',
+				mp: slot.mp,
+				traits: slot.traits || CARD_LOOKUP[slot.cardId]?.traits || {},
+			}));
+
+		function runQuestDiceRoll(targetSlotIndex) {
+			modal.showDiceRoll(questDef, threshold, (didSucceed) => {
+				const beforeResolve = gameState;
+				gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed, targetSlotIndex);
+				gameState.activeQuest = null;
+				renderFromState(gameState);
+				syncPush();
+				const mpDelta = didSucceed ? questDef.successMP : questDef.failMP;
+				const sign = mpDelta >= 0 ? '+' : '';
+				log.add(didSucceed ? 'gain' : 'loss', `${questDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`);
+				logStateOutcome(log, beforeResolve, gameState, localPlayerId, `${questDef.name} resolution`);
+			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus, forceReroll, skiffaRerolls });
+		}
+
+		function showQuestPreviewThenRoll(targetSlotIndex) {
+			const targetMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
+			if (targetMosje) {
+				gameState = loseMP(gameState, localPlayerId, targetSlotIndex, 20, 'QUEST_COST');
+				log.add('loss', 'Quest attempt cost: -20 MP');
+				const updatedMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
+				modal.showQuestAttemptPreview(updatedMosje, questDef, getQuestDiceThreshold(questDef, updatedMosje), () => {
+					runQuestDiceRoll(targetSlotIndex);
+				}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus });
+			} else {
+				runQuestDiceRoll(targetSlotIndex);
+			}
+		}
+
+		log.add('quest', `Activating Personal Quest: ${questDef.name}`);
+		if (questSlots.length > 1) {
+			modal.showMosjeSelect(questSlots, showQuestPreviewThenRoll, questDef);
+		} else {
+			showQuestPreviewThenRoll(questSlots[0]?.slotIndex ?? 0);
+		}
+	}
+
 	async function handleActivatePiecie(slotIndex) {
 		if (!gameState || gameState.status === 'FINISHED') return;
 		const beforeActivate = gameState;
 
 		const piecieSlot = gameState.players[localPlayerId]?.piecieSlots?.[slotIndex];
 		const piecieCardDef = piecieSlot?.cardId ? CARD_LOOKUP[piecieSlot.cardId] : null;
+
+		// Route Personal Quest activation to its own handler
+		if (piecieSlot?.type === 'QUEST') {
+			await handleActivatePersonalQuestFromField(slotIndex);
+			return;
+		}
 
 		let stateForActivation = gameState;
 		if (piecieCardDef?.effectId === 'effect_affoe') {
@@ -1199,97 +1202,23 @@ function initGamePage() {
 
 		if (cardType === 'QUEST') {
 			if (gameState.activePlayerId !== localPlayerId) {
-				modal.showInfo('Not Your Turn', 'You can only attempt quests on your own turn.');
-				return;
-			}
-			const maxQCardAttempts = gameState.activePlace === 'place_quest_haven' ? 2 : 1;
-			if ((gameState.players[localPlayerId].questsAttemptedThisTurn || 0) >= maxQCardAttempts) {
-				modal.showInfo('Already Attempted', 'You have already attempted a quest this turn.');
+				modal.showInfo('Not Your Turn', 'You can only place quests on your own turn.');
 				return;
 			}
 			if (cardDef.questType !== 'PERSONAL') {
-				modal.showInfo('Cannot Play', 'Only Personal Quests can be played from your hand.');
-				return;
-			}
-			if (!canAttemptPersonalQuest(cardDef, gameState, localPlayerId)) {
-				modal.showInfo(
-					'Required Mosje Missing',
-					`${cardDef.name} requirements are not met right now.`
-				);
+				modal.showInfo('Cannot Play', 'Only Personal Quests can be placed from your hand.');
 				return;
 			}
 
-			const { state: newState, questCard: playedCard } = attemptPersonalQuest(gameState, cardRef.cardId);
+			const { state: newState, success, error } = playPersonalQuest(gameState, localPlayerId, cardRef);
+			if (!success) {
+				modal.showInfo('Cannot Place', error || 'Cannot place this Quest right now.');
+				return;
+			}
 			gameState = newState;
-
-			const activeMosje = gameState.players[localPlayerId].activeSlots.find(s => s && !s.isDefeated);
-			const threshold = getQuestDiceThreshold(cardDef, activeMosje);
-			log.add('quest', `${localPlayerName} is attempting Personal Quest: ${cardDef.name}`);
-
-			const diceBonus = gameState._snelleFlags?.questDiceBonus || 0;
-			const questPrepBonus = gameState.players[localPlayerId]?.questPrepBonus || 0;
-			const placeDiceBonus = gameState.activePlace === 'place_synergy_chamber' ? 1 : 0;
-			const skiffaRerolls = getSkiffaRerolls(gameState, localPlayerId);
-			const forceReroll = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
-
-			gameState.activeQuest = {
-				questName: cardDef.name,
-				cardName: cardDef.name,
-				questType: cardDef.questType || 'PERSONAL',
-				attacker: localPlayerId,
-				successMP: cardDef.successMP,
-				failMP: cardDef.failMP,
-				currentMp: activeMosje?.mp ?? null,
-			};
-			renderFromState(gameState);
-			if (diceBonus) delete gameState._snelleFlags.questDiceBonus;
-			if (questPrepBonus) gameState.players[localPlayerId].questPrepBonus = 0;
-			if (forceReroll) delete gameState._snelleFlags.forceReroll[localPlayerId];
+			log.add('quest', `Placed ${cardDef.name} face-down. Activate it next turn.`);
 			syncPush();
-
-			const handQuestSlots = gameState.players[localPlayerId].activeSlots
-				.map((slot, index) => ({ slot, index }))
-				.filter(({ slot }) => slot && !slot.isDefeated)
-				.map(({ slot, index }) => ({ slotIndex: index, name: slot.name || CARD_LOOKUP[slot.cardId]?.name || slot.cardId || 'Mosje', mp: slot.mp }));
-
-			function runHandQuestDiceRoll(targetSlotIndex) {
-				modal.showDiceRoll(cardDef, threshold, (didSucceed) => {
-					gameState = resolveQuest(gameState, localPlayerId, cardDef, didSucceed, targetSlotIndex);
-					gameState.activeQuest = null;
-					renderFromState(gameState);
-					syncPush();
-
-					const mpDelta = didSucceed ? cardDef.successMP : cardDef.failMP;
-					const sign = mpDelta >= 0 ? '+' : '';
-					log.add(didSucceed ? 'gain' : 'loss',
-						`${cardDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`
-					);
-				}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus, forceReroll, skiffaRerolls });
-			}
-
-			function showHandQuestPreviewThenRoll(targetSlotIndex) {
-				const targetMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
-				if (targetMosje) {
-					// Deduct 20 MP quest cost immediately upon selection
-					const costState = loseMP(gameState, localPlayerId, targetSlotIndex, 20, 'QUEST_COST');
-					gameState = costState;
-					log.add('loss', `Quest attempt cost: -20 MP`);
-
-					const updatedMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
-					const thresholdForMosje = getQuestDiceThreshold(cardDef, updatedMosje);
-					modal.showQuestAttemptPreview(updatedMosje, cardDef, thresholdForMosje, () => {
-						runHandQuestDiceRoll(targetSlotIndex);
-					}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus });
-				} else {
-					runHandQuestDiceRoll(targetSlotIndex);
-				}
-			}
-
-			if (handQuestSlots.length > 1) {
-				modal.showMosjeSelect(handQuestSlots, showHandQuestPreviewThenRoll);
-			} else {
-				showHandQuestPreviewThenRoll(handQuestSlots[0]?.slotIndex ?? 0);
-			}
+			renderFromState(gameState);
 			return;
 		}
 
