@@ -1146,6 +1146,7 @@ function initGamePage() {
 		if (cardType === 'SNELLE_PIECIE') {
 			const beforePlay = gameState;
 			let snelleStateForPlay = gameState;
+			let resultLog = null; // set inside effect-specific branches to log outcome details
 			if (cardDef.effectId === 'effect_snelle_jensen') {
 				const ownTargets = getPlayerMosjes(gameState, localPlayerId);
 				snelleStateForPlay = JSON.parse(JSON.stringify(gameState));
@@ -1165,6 +1166,7 @@ function initGamePage() {
 				if (!snelleStateForPlay._pendingTargets) snelleStateForPlay._pendingTargets = {};
 				if (isHeads) {
 					snelleStateForPlay._pendingTargets.lucky_coin_result = 'heads';
+					resultLog = { type: 'info', msg: 'Lucky Coin: Heads — reroll token granted!' };
 				} else {
 					const ownTargets = getPlayerMosjes(gameState, localPlayerId);
 					if (ownTargets.length > 0) {
@@ -1176,6 +1178,7 @@ function initGamePage() {
 					} else {
 						snelleStateForPlay._pendingTargets.lucky_coin_result = 'tails';
 					}
+					resultLog = { type: 'loss', msg: 'Lucky Coin: Tails — −10 MP to your Mosje.' };
 				}
 			}
 
@@ -1186,6 +1189,7 @@ function initGamePage() {
 			}
 			gameState = newState;
 			log.add('gain', `Played ${cardDef.name} (instant).`);
+			if (resultLog) log.add(resultLog.type, resultLog.msg);
 			if (cardDef.description) log.add('info', `Effect: ${cardDef.description}`);
 			logStateOutcome(log, beforePlay, gameState, localPlayerId, `${cardDef.name} instant activation`);
 			syncPush();
