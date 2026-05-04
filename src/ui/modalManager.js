@@ -26,6 +26,7 @@ export function initModalManager(container) {
 			},
 			showMosjeSelect: (_slots, onSelected, _questDef) => onSelected(0),
 			showCardPreviewModal: () => {},
+			showDeckBuilderCardPreview: () => {},
 			close: () => {},
 		};
 	}
