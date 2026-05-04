@@ -25,10 +25,7 @@ function getHandModal() {
 function showCardPreview(card) {
 	const fullCard = getCardById(card.cardId) || card;
 	const merged = { ...fullCard, ...card };
-	const modal = getHandModal();
-	if (merged.type === 'MOSJE') modal.showMosjeDetailModal(merged);
-	else if (merged.type === 'PLACE') modal.showPlaceDetailModal(merged);
-	else modal.showCardPreviewModal(merged);
+	getHandModal().showCardPreview(merged);
 }
 
 // onPlay(cardId, cardType) — optional callback when a playable card is clicked.

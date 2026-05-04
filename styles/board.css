@@ -918,6 +918,13 @@
 }
 
 .modal-mosje-preview .card--mosje,
+.modal-mosje-preview .card--piecie,
+.modal-mosje-preview .card--snelle,
+.modal-mosje-preview .card--snelle_piecie,
+.modal-mosje-preview .card--place,
+.modal-mosje-preview .card--quest,
+.modal-mosje-preview .card--quest-general,
+.modal-mosje-preview .card--quest-personal,
 .modal-mosje-preview-card {
    width: 240px;
    min-width: 240px;
@@ -943,13 +950,7 @@
    pointer-events: none;
 }
 
-.modal-place-preview .card--place,
-.modal-place-preview-card {
-   width: 220px;
-   min-width: 220px;
-   max-width: 220px;
-   height: calc(220px * var(--card-height-ratio));
-}
+/* card sizing handled by .modal-mosje-preview unified rule above */
 
 .modal-place-copy {
    display: grid;

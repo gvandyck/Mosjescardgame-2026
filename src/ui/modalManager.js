@@ -25,6 +25,7 @@ export function initModalManager(container) {
 				return Number(handSize) > 0 ? 0 : null;
 			},
 			showMosjeSelect: (_slots, onSelected, _questDef) => onSelected(0),
+			showCardPreview: () => {},
 			showCardPreviewModal: () => {},
 			showDeckBuilderCardPreview: () => {},
 			close: () => {},
@@ -295,34 +296,81 @@ export function initModalManager(container) {
 		});
 	}
 
-	function showMosjeDetailModal(mosje) {
-		if (!mosje) return;
-		const previewEl = renderCard(mosje, { compact: true });
-		previewEl.classList.add('modal-mosje-preview-card');
-		const traitRows = Object.entries(mosje.traits || {})
-			.filter(([, value]) => Number(value) > 0)
-			.map(([name, value]) => `<li><strong>${escapeHtml(name)}</strong>: ${Number(value)}</li>`)
-			.join('');
+	// ── Unified card preview — always two-col, card left at 240 px, info right ──
+	function showCardPreview(card) {
+		if (!card) return;
+		const previewEl = renderCard(card, { compact: true });
+		const type = String(card.type || card.cardType || '').toUpperCase();
+
+		let rightHTML = `<h3>${escapeHtml(card.name || 'Card')}</h3>`;
+
+		if (type === 'MOSJE') {
+			if (card.flavourText || card.description) rightHTML += `<p>${escapeHtml(card.flavourText || card.description)}</p>`;
+			if (card.abilityDescription) rightHTML += `<p><strong>Ability:</strong> ${escapeHtml(card.abilityDescription)}</p>`;
+			if (card.synergyEffect) rightHTML += `<p><strong>Synergy:</strong> ${escapeHtml(card.synergyEffect)}</p>`;
+			if (card.petSynergy) rightHTML += `<p><strong>Pet synergy:</strong> ${escapeHtml(card.petSynergy)}</p>`;
+			const traitRows = Object.entries(card.traits || {})
+				.filter(([, v]) => Number(v) > 0)
+				.map(([n, v]) => `<li><strong>${escapeHtml(n)}</strong>: ${'★'.repeat(Number(v))}</li>`)
+				.join('');
+			rightHTML += `<ul class="modal-card-list">${traitRows || '<li>No active traits</li>'}</ul>`;
+
+		} else if (type === 'PIECIE' || type === 'SNELLE_PIECIE') {
+			const costStr = card.mpCost === 0 ? 'Free' : `${card.mpCost} MP`;
+			rightHTML += `<p><strong>Cost:</strong> ${escapeHtml(costStr)}</p>`;
+			if (type === 'SNELLE_PIECIE') rightHTML += `<p><strong>Type:</strong> Interrupt — play any time</p>`;
+			if (card.requirement && card.requirement !== 'any') rightHTML += `<p><strong>Requires:</strong> ${escapeHtml(card.requirement)}</p>`;
+			if (Array.isArray(card.tags) && card.tags.length) rightHTML += `<p><strong>Tags:</strong> ${card.tags.map(t => escapeHtml(t)).join(', ')}</p>`;
+			if (card.description) rightHTML += `<p><strong>Effect:</strong> ${escapeHtml(card.description)}</p>`;
+			if (card.abilityDescription) rightHTML += `<p><strong>Ability:</strong> ${escapeHtml(card.abilityDescription)}</p>`;
+			if (card.flavourText) rightHTML += `<p class="modal-card-flavour"><em>${escapeHtml(card.flavourText)}</em></p>`;
+
+		} else if (type === 'PLACE') {
+			if (card.trigger) rightHTML += `<p><strong>Trigger:</strong> ${escapeHtml(card.trigger.replace(/_/g, ' '))}</p>`;
+			if (Array.isArray(card.tags) && card.tags.length) rightHTML += `<p><strong>Tags:</strong> ${card.tags.map(t => escapeHtml(t)).join(', ')}</p>`;
+			if (card.description) rightHTML += `<p><strong>Effect:</strong> ${escapeHtml(card.description)}</p>`;
+			if (card.flavourText) rightHTML += `<p class="modal-card-flavour"><em>${escapeHtml(card.flavourText)}</em></p>`;
+			const goodFor = Array.isArray(card.goodFor) && card.goodFor.length ? card.goodFor.join(', ') : 'None';
+			const badFor  = Array.isArray(card.badFor)  && card.badFor.length  ? card.badFor.join(', ')  : 'None';
+			rightHTML += `<p><strong>Good for:</strong> ${escapeHtml(goodFor)}</p>`;
+			rightHTML += `<p><strong>Avoid for:</strong> ${escapeHtml(badFor)}</p>`;
+			if (card.rarity) rightHTML += `<p><strong>Rarity:</strong> ${escapeHtml(card.rarity)}</p>`;
+
+		} else if (type === 'QUEST' || type === 'QUEST_GENERAL' || type === 'QUEST_PERSONAL') {
+			if (card.difficulty) rightHTML += `<p><strong>Difficulty:</strong> ${escapeHtml(card.difficulty)}</p>`;
+			if (card.category) rightHTML += `<p><strong>Category:</strong> ${escapeHtml(card.category)}</p>`;
+			if (card.requirementDescription) rightHTML += `<p><strong>Requirement:</strong> ${escapeHtml(card.requirementDescription)}</p>`;
+			if (card.description) rightHTML += `<p><strong>Description:</strong> ${escapeHtml(card.description)}</p>`;
+			rightHTML += `<p><strong>Success:</strong> <span style="color:#4ade80">+${Number(card.successMP || 0)} MP</span></p>`;
+			rightHTML += `<p><strong>Failure:</strong> <span style="color:#f87171">${Number(card.failMP || 0)} MP</span></p>`;
+			if (card.flavourText) rightHTML += `<p class="modal-card-flavour"><em>${escapeHtml(card.flavourText)}</em></p>`;
+
+		} else {
+			if (card.description) rightHTML += `<p>${escapeHtml(card.description)}</p>`;
+		}
+
+		if (card.rarity && type !== 'PLACE') rightHTML += `<p><strong>Rarity:</strong> ${escapeHtml(card.rarity)}</p>`;
+		if (card.deckLimit === 1) rightHTML += `<p><strong>Deck limit:</strong> 1</p>`;
+		rightHTML += `<button class="modal-btn" id="modal-close-preview" type="button">Close</button>`;
 
 		container.classList.add('modal-root--open');
 		container.innerHTML = `
 			<div class="modal-backdrop"></div>
 			<section class="modal-card modal-card--mosje-detail" role="dialog" aria-modal="true">
-				<div class="modal-mosje-preview">${previewEl.outerHTML}</div>
-				<div class="modal-mosje-copy">
-					<h3>${escapeHtml(mosje.name || 'Mosje')}</h3>
-					<p>${escapeHtml(mosje.flavourText || mosje.description || '')}</p>
-					<p><strong>Ability:</strong> ${escapeHtml(mosje.abilityDescription || 'No ability description')}</p>
-					<p><strong>Synergy:</strong> ${escapeHtml(mosje.synergyEffect || 'None')}</p>
-					<p><strong>Pet synergy:</strong> ${escapeHtml(mosje.petSynergy || 'None')}</p>
-					<ul class="modal-card-list">${traitRows || '<li>No active traits</li>'}</ul>
-					<button class="modal-btn" id="modal-close-mosje">Close</button>
-				</div>
+				<div class="modal-mosje-preview"></div>
+				<div class="modal-mosje-copy">${rightHTML}</div>
 			</section>
 		`;
 
-		container.querySelector('#modal-close-mosje')?.addEventListener('click', close);
+		container.querySelector('.modal-mosje-preview').appendChild(previewEl);
+		container.querySelector('#modal-close-preview')?.addEventListener('click', close);
 	}
+
+	// Legacy aliases — all routes through the unified preview
+	const showMosjeDetailModal      = showCardPreview;
+	const showPlaceDetailModal      = showCardPreview;
+	const showCardPreviewModal      = showCardPreview;
+	const showDeckBuilderCardPreview = showCardPreview;
 
 	function showQuestAttemptPreview(mosje, questDef, threshold, onConfirm, { diceBonus = 0 } = {}) {
 		if (!mosje || !questDef) return;
@@ -413,121 +461,6 @@ export function initModalManager(container) {
 		});
 	}
 
-	function showCardPreviewModal(card) {
-		if (!card) return;
-		const previewEl = renderCard(card, { compact: false });
-
-		container.classList.add('modal-root--open');
-		container.innerHTML = `
-			<div class="modal-backdrop"></div>
-			<section class="modal-card modal-card--card-preview" role="dialog" aria-modal="true">
-				<div class="modal-card-preview-wrap"></div>
-				<button class="modal-btn" id="modal-close-preview">Close</button>
-			</section>
-		`;
-
-		container.querySelector('.modal-card-preview-wrap')?.appendChild(previewEl);
-		container.querySelector('#modal-close-preview')?.addEventListener('click', close);
-	}
-
-	// Deck-builder card preview — two-panel layout for all card types.
-	// Uses the same .modal-card--mosje-detail grid (card left, info right).
-	function showDeckBuilderCardPreview(card) {
-		if (!card) return;
-		const previewEl = renderCard(card, { compact: false });
-		const type = String(card.type || card.cardType || 'UNKNOWN').toUpperCase();
-
-		let infoHTML = `<h3>${escapeHtml(card.name || 'Card')}</h3>`;
-
-		const subtypeLine = [card.subtype].filter(Boolean).join('');
-		if (subtypeLine) infoHTML += `<p class="modal-card-typeline">${escapeHtml(subtypeLine)}</p>`;
-
-		if (type === 'MOSJE') {
-			infoHTML += `<p><strong>Start MP:</strong> ${Number(card.startMP || 0)}</p>`;
-			const traitRows = Object.entries(card.traits || {})
-				.filter(([, v]) => Number(v) > 0)
-				.map(([name, val]) => `<li><strong>${escapeHtml(name)}</strong>: ${'★'.repeat(Number(val))}</li>`)
-				.join('');
-			if (traitRows) infoHTML += `<ul class="modal-card-list">${traitRows}</ul>`;
-			if (card.abilityDescription) infoHTML += `<p><strong>Ability:</strong> ${escapeHtml(card.abilityDescription)}</p>`;
-			if (card.synergyEffect) infoHTML += `<p><strong>Synergy:</strong> ${escapeHtml(card.synergyEffect)}</p>`;
-			if (card.petSynergy) infoHTML += `<p><strong>Pet synergy:</strong> ${escapeHtml(card.petSynergy)}</p>`;
-
-		} else if (type === 'PIECIE' || type === 'SNELLE_PIECIE') {
-			const costStr = card.mpCost === 0 ? 'Free' : `${card.mpCost} MP`;
-			infoHTML += `<p><strong>Cost:</strong> ${escapeHtml(costStr)}</p>`;
-			if (card.requirement && card.requirement !== 'any') infoHTML += `<p><strong>Requires:</strong> ${escapeHtml(card.requirement)}</p>`;
-			if (type === 'SNELLE_PIECIE') infoHTML += `<p><strong>Type:</strong> Interrupt — play any time</p>`;
-			if (Array.isArray(card.tags) && card.tags.length) infoHTML += `<p><strong>Tags:</strong> ${card.tags.map(t => escapeHtml(t)).join(', ')}</p>`;
-			if (card.description) infoHTML += `<p><strong>Effect:</strong> ${escapeHtml(card.description)}</p>`;
-			if (card.abilityDescription) infoHTML += `<p><strong>Ability:</strong> ${escapeHtml(card.abilityDescription)}</p>`;
-
-		} else if (type === 'PLACE') {
-			if (card.trigger) infoHTML += `<p><strong>Trigger:</strong> ${escapeHtml(card.trigger.replace(/_/g, ' '))}</p>`;
-			if (Array.isArray(card.tags) && card.tags.length) infoHTML += `<p><strong>Tags:</strong> ${card.tags.map(t => escapeHtml(t)).join(', ')}</p>`;
-			if (card.description) infoHTML += `<p><strong>Effect:</strong> ${escapeHtml(card.description)}</p>`;
-			const goodFor = Array.isArray(card.goodFor) && card.goodFor.length ? card.goodFor.join(', ') : 'None';
-			const badFor  = Array.isArray(card.badFor)  && card.badFor.length  ? card.badFor.join(', ')  : 'None';
-			infoHTML += `<p><strong>Best for:</strong> ${escapeHtml(goodFor)}</p>`;
-			infoHTML += `<p><strong>Avoid for:</strong> ${escapeHtml(badFor)}</p>`;
-
-		} else if (type === 'QUEST') {
-			if (card.difficulty) infoHTML += `<p><strong>Difficulty:</strong> ${escapeHtml(card.difficulty)}</p>`;
-			if (card.category) infoHTML += `<p><strong>Category:</strong> ${escapeHtml(card.category)}</p>`;
-			if (card.requirementDescription) infoHTML += `<p><strong>Requirement:</strong> ${escapeHtml(card.requirementDescription)}</p>`;
-			if (card.description) infoHTML += `<p><strong>Description:</strong> ${escapeHtml(card.description)}</p>`;
-			infoHTML += `<p><strong>Success:</strong> <span style="color:#4ade80">+${Number(card.successMP || 0)} MP</span></p>`;
-			infoHTML += `<p><strong>Failure:</strong> <span style="color:#f87171">${Number(card.failMP || 0)} MP</span></p>`;
-		}
-
-		if (card.flavourText) infoHTML += `<p class="modal-card-flavour"><em>${escapeHtml(card.flavourText)}</em></p>`;
-		if (card.rarity) infoHTML += `<p><strong>Rarity:</strong> ${escapeHtml(card.rarity)}</p>`;
-		if (card.deckLimit === 1) infoHTML += `<p><strong>Deck limit:</strong> 1</p>`;
-
-		infoHTML += `<button class="modal-btn" id="modal-close-deck-preview">Close</button>`;
-
-		container.classList.add('modal-root--open');
-		container.innerHTML = `
-			<div class="modal-backdrop"></div>
-			<section class="modal-card modal-card--mosje-detail" role="dialog" aria-modal="true">
-				<div class="modal-mosje-preview"></div>
-				<div class="modal-mosje-copy">${infoHTML}</div>
-			</section>
-		`;
-
-		container.querySelector('.modal-mosje-preview').appendChild(previewEl);
-		container.querySelector('#modal-close-deck-preview')?.addEventListener('click', close);
-	}
-
-	function showPlaceDetailModal(place) {
-		if (!place) return;
-		const previewEl = renderCard(place, { compact: true });
-		previewEl.classList.add('modal-place-preview-card');
-		const tags = Array.isArray(place.tags) && place.tags.length > 0 ? place.tags.join(', ') : 'None';
-		const goodFor = Array.isArray(place.goodFor) && place.goodFor.length > 0 ? place.goodFor.join(', ') : 'None';
-		const badFor = Array.isArray(place.badFor) && place.badFor.length > 0 ? place.badFor.join(', ') : 'None';
-
-		container.classList.add('modal-root--open');
-		container.innerHTML = `
-			<div class="modal-backdrop"></div>
-			<section class="modal-card modal-card--mosje-detail modal-card--place-detail" role="dialog" aria-modal="true">
-				<div class="modal-place-preview">${previewEl.outerHTML}</div>
-				<div class="modal-place-copy">
-					<h3>${escapeHtml(place.name || 'Place')}</h3>
-					<p><strong>Description:</strong> ${escapeHtml(place.description || 'No description available.')}</p>
-					<p><strong>Flavour text:</strong> ${escapeHtml(place.flavourText || 'None')}</p>
-					<p><strong>Trigger:</strong> ${escapeHtml(place.trigger || 'None')}</p>
-					<p><strong>Tags:</strong> ${escapeHtml(tags)}</p>
-					<p><strong>Good for:</strong> ${escapeHtml(goodFor)}</p>
-					<p><strong>Bad for:</strong> ${escapeHtml(badFor)}</p>
-					<p><strong>Rarity:</strong> ${escapeHtml(place.rarity || 'Unknown')}</p>
-					<button class="modal-btn" id="modal-close-place">Close</button>
-				</div>
-			</section>
-		`;
-
-		container.querySelector('#modal-close-place')?.addEventListener('click', close);
-	}
 
 	function showOpponentHandRevealModal(cardNames = []) {
 		container.classList.add('modal-root--open');
@@ -859,6 +792,7 @@ export function initModalManager(container) {
 		showCardTypeSelect,
 		showOpponentHandCardSelect,
 		showRevealedCard,
+		showCardPreview,
 		showCardPreviewModal,
 		showDeckBuilderCardPreview,
 		showMosjeDetailModal,

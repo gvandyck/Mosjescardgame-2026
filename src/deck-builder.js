@@ -40,7 +40,7 @@ function getModal() {
 
 function showCardPreview(card) {
 	const modal = getModal();
-	modal.showDeckBuilderCardPreview({ ...card, type: card.cardType });
+	modal.showCardPreview({ ...card, type: card.cardType });
 }
 
 // ── State ─────────────────────────────────────────────────────────────────────
