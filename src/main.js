@@ -940,7 +940,7 @@ function initGamePage() {
 							syncPush();
 							log.add('gain', `Perfect Sync: Success → +70 MP`);
 							logStateOutcome(log, beforeResolve, gameState, localPlayerId, 'Perfect Sync resolution');
-						}, null);
+						}, null, { title: 'Perfect Sync', prompt: 'Select Mosje to receive +70 MP.' });
 					});
 					return;
 				}

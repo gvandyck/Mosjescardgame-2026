@@ -569,7 +569,8 @@ export function initModalManager(container) {
 
 	// Mosje selector — uses showOptionSelect; always shows modal regardless of Mosje count.
 	// questDef is optional: when provided, requires 20 MP to attempt quest.
-	function showMosjeSelect(mosjeSlots, onSelected, questDef) {
+	// overrides is optional: { title, prompt } to replace default heading/text.
+	function showMosjeSelect(mosjeSlots, onSelected, questDef, overrides = {}) {
 		const isQuestAttempt = Boolean(questDef);
 		const questCost = 20;
 
@@ -591,8 +592,8 @@ export function initModalManager(container) {
 			};
 		});
 		showOptionSelect({
-			title: 'Choose Mosje for Quest',
-			prompt: isQuestAttempt ? `Select Mosje to attempt quest (costs 20 MP).` : 'Select which Mosje will attempt the quest.',
+			title: overrides.title ?? 'Choose Mosje for Quest',
+			prompt: overrides.prompt ?? (isQuestAttempt ? `Select Mosje to attempt quest (costs 20 MP).` : 'Select which Mosje will attempt the quest.'),
 			options,
 			allowCancel: true,
 		}).then(selected => {
