@@ -153,8 +153,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		const mergedPiecie = { ...fullPiecie, ...piecie };
 		piecieEl.addEventListener('click', (e) => {
 			if (e.target.closest('button')) return;
-			if (mergedPiecie.type === 'PLACE') getBoardModal().showPlaceDetailModal(mergedPiecie);
-			else getBoardModal().showCardPreviewModal(mergedPiecie);
+			getBoardModal().showDeckBuilderCardPreview(mergedPiecie);
 		});
 		topPiecies?.appendChild(piecieEl);
 	}
@@ -163,6 +162,8 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		if (piecie.faceDown) {
 			const slot = document.createElement('div');
 			slot.className = 'piecie-slot face-down-piecie has-card';
+			const fullFaceDown = getCardById(piecie.cardId) || piecie;
+			slot.addEventListener('click', () => getBoardModal().showDeckBuilderCardPreview({ ...fullFaceDown, ...piecie }));
 			bottomPiecies?.appendChild(slot);
 			continue;
 		}
@@ -172,8 +173,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		const mergedPiecieBottom = { ...fullPiecieBottom, ...piecie };
 		piecieEl.addEventListener('click', (e) => {
 			if (e.target.closest('button')) return;
-			if (mergedPiecieBottom.type === 'PLACE') getBoardModal().showPlaceDetailModal(mergedPiecieBottom);
-			else getBoardModal().showCardPreviewModal(mergedPiecieBottom);
+			getBoardModal().showDeckBuilderCardPreview(mergedPiecieBottom);
 		});
 
 		// Add activate button for Piecies

@@ -96,6 +96,7 @@
 }
 
 .topbar-log-popover {
+   display: none;
    position: fixed;
    top: 72px;
    right: 16px;
@@ -106,6 +107,10 @@
    border-radius: 10px;
    padding: 8px;
    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55);
+}
+
+.topbar-log-popover.is-visible {
+   display: block;
 }
 
 .topbar-log-popover h2 {
@@ -127,22 +132,19 @@
 }
 
 .topbar-log-popover .game-log {
-   max-height: 180px;
+   max-height: 360px;
    overflow-y: auto;
+   opacity: 1;
+   pointer-events: auto;
 }
 
 .log-copy-buffer {
-   margin-top: 8px;
-   width: 100%;
-   min-height: 90px;
-   max-height: 180px;
-   background: rgba(20, 20, 20, 0.95);
-   color: #e0e0e0;
-   border: 1px solid rgba(255, 255, 255, 0.18);
-   border-radius: 8px;
-   padding: 8px;
-   font: 0.76rem/1.35 Consolas, Menlo, Monaco, monospace;
-   resize: vertical;
+   position: absolute;
+   opacity: 0;
+   pointer-events: none;
+   width: 1px;
+   height: 1px;
+   overflow: hidden;
 }
 
 .topbar-flow {
@@ -916,6 +918,13 @@
 }
 
 .modal-mosje-preview .card--mosje,
+.modal-mosje-preview .card--piecie,
+.modal-mosje-preview .card--snelle,
+.modal-mosje-preview .card--snelle_piecie,
+.modal-mosje-preview .card--place,
+.modal-mosje-preview .card--quest,
+.modal-mosje-preview .card--quest-general,
+.modal-mosje-preview .card--quest-personal,
 .modal-mosje-preview-card {
    width: 240px;
    min-width: 240px;
@@ -941,13 +950,7 @@
    pointer-events: none;
 }
 
-.modal-place-preview .card--place,
-.modal-place-preview-card {
-   width: 220px;
-   min-width: 220px;
-   max-width: 220px;
-   height: calc(220px * var(--card-height-ratio));
-}
+/* card sizing handled by .modal-mosje-preview unified rule above */
 
 .modal-place-copy {
    display: grid;
