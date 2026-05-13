@@ -188,7 +188,7 @@ export const PLACES = [
     tags: ["REVIVE"],
     description: "On Mosje Welloe: that player may immediately swap in another Mosje at +20 MP.",
     flavourText: "",
-    artPath: "assets/places/placeholder.png",
+    artPath: "assets/place-art/Place- Welloe Graveyard.jpeg",
     goodFor: [],
     badFor: [],
     rarity: "◆◆◆◆",
