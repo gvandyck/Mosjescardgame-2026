@@ -248,7 +248,7 @@ export const SNELLE_PIECIES = [
     tags: ["QUEST-BOOST"],
     description: "Play right before a Quest: gain +1 on the dice roll this Quest only.",
     flavourText: "",
-    artPath: "assets/snelle-piecies/placeholder.png",
+    artPath: "assets/snelle-art/Sleutelpuntje.jpeg",
     rarity: "★★☆☆☆",
     isBoosterOnly: false,
     deckLimit: null
