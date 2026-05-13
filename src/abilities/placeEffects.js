@@ -53,26 +53,25 @@ export function effect_quest_haven(gameState, didSucceed, questsCompletedThisTur
 	return state;
 }
 
-export function effect_bank_chilling(gameState, playerId, cardsDrawnInAction) {
+// ─────────────────────────────────────────
+// BANK CHILLING — Turn Start: Social ★★+ Mosjes gain +15 MP.
+// Design direction: bank chilling is a social thing.
+// ─────────────────────────────────────────
+export function effect_bank_chilling(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-
-	if (cardsDrawnInAction < 2) {
-		console.log('[ABILITY] Bank Chilling: no bonus (drew fewer than 2 cards)');
-		return state;
-	}
 
 	const slotIndex = player.activeSlots.findIndex(slot => slot !== null && !slot.isDefeated);
 	if (slotIndex < 0) return state;
 
 	const mosje = player.activeSlots[slotIndex];
-	const mental = mosje.traits?.mental || 0;
-	if (mental >= 2) {
+	const social = mosje.traits?.social || 0;
+	if (social >= 2) {
 		mosje.mp += 15;
-		console.log('[ABILITY] Bank Chilling: +15 MP applied');
+		console.log('[ABILITY] Bank Chilling: +15 MP applied (Social 2+)');
 	} else {
-		console.log('[ABILITY] Bank Chilling: no bonus (mental below 2)');
+		console.log('[ABILITY] Bank Chilling: no bonus (social below 2)');
 	}
 
 	return state;
@@ -81,7 +80,7 @@ export function effect_bank_chilling(gameState, playerId, cardsDrawnInAction) {
 // ─────────────────────────────────────────
 // SKIFFA — End Phase: discard 1 card OR lose 15 MP. SUBSTANCE Mosjes immune.
 // Note: Requires player choice (UI prompt) to implement discard option.
-// For now, all Mosjes lose 15 MP (neutral effect).
+// For now, all non-SUBSTANCE Mosjes lose 15 MP.
 // ─────────────────────────────────────────
 export function effect_skiffa(gameState) {
 	const state = cloneState(gameState);
@@ -102,9 +101,7 @@ export function effect_skiffa(gameState) {
 }
 
 // ─────────────────────────────────────────
-// OBBY #1 — On Quest: Physical/Resilient Quests +20 MP. Failure -10 MP.
-// Note: Requires quest resolution integration to detect quest type.
-// Currently implemented as passive bonus for Physical/Resilient Mosjes.
+// OBBY #1 — On Quest: Physical ★★+/Resilient ★★+ Mosjes gain +20 MP on success, -10 MP on failure.
 // ─────────────────────────────────────────
 export function effect_obby_1(gameState, questCard, didSucceed) {
 	const state = cloneState(gameState);
@@ -130,9 +127,8 @@ export function effect_obby_1(gameState, questCard, didSucceed) {
 }
 
 // ─────────────────────────────────────────
-// ARCADE — On Quest: Technical/Creative Quests +15 MP. All dice results +1.
-// Note: Dice bonus requires integration with quest resolution.
-// Currently implemented as MP bonus for Technical/Creative Mosjes.
+// ARCADE — On Quest: Technical ★★+ Mosjes gain +15 MP on success.
+// Design direction: for Martin, Chris, Youri. Technical-focused.
 // ─────────────────────────────────────────
 export function effect_arcade(gameState, questCard, didSucceed) {
 	const state = cloneState(gameState);
@@ -143,18 +139,17 @@ export function effect_arcade(gameState, questCard, didSucceed) {
 
 	const mosje = player.activeSlots[slotIndex];
 	const technical = mosje.traits?.technical || 0;
-	const creative = mosje.traits?.creative || 0;
 
-	if ((technical >= 2 || creative >= 2) && didSucceed) {
+	if (technical >= 2 && didSucceed) {
 		mosje.mp += 15;
-		console.log('[ABILITY] Arcade: +15 MP on successful Technical/Creative quest');
+		console.log('[ABILITY] Arcade: +15 MP on successful Technical quest');
 	}
 	return state;
 }
 
 // ─────────────────────────────────────────
-// ZO IS NATUUR — End Phase: all Mosjes gain 10 MP (5 at Level 0).
-// Nature restores all.
+// ZO IS NATUUR — End Phase: all Mosjes gain 10 MP.
+// Resilient Mosjes gain 15 MP instead.
 // ─────────────────────────────────────────
 export function effect_zo_is_natuur(gameState) {
 	const state = cloneState(gameState);
@@ -162,9 +157,9 @@ export function effect_zo_is_natuur(gameState) {
 		const player = state.players[playerId];
 		for (const mosje of player.activeSlots) {
 			if (!mosje || mosje.isDefeated) continue;
-			const bonus = mosje.level === 0 ? 5 : 10;
+			const bonus = (mosje.traits?.resilient || 0) >= 1 ? 15 : 10;
 			mosje.mp += bonus;
-			console.log(`[ABILITY] Zo is Natuur: +${bonus} MP (Level ${mosje.level})`);
+			console.log(`[ABILITY] Zo is Natuur: +${bonus} MP`);
 		}
 	}
 	return state;
@@ -212,8 +207,9 @@ export function effect_momentum_factory(gameState) {
 }
 
 // ─────────────────────────────────────────
-// COERT'S CARAVAN — On Draw: Coert Mosjes +15 MP. All Binti Piecies cost 5 less MP.
-// Note: Binti cost reduction requires UI validation during card play.
+// COERT'S CARAVAN — Turn Start: Coert Mosjes gain +15 MP. All Binti Piecies cost 5 less MP.
+// Design direction: exclusively for Coert. Hard requirement, good payoff.
+// Binti cost reduction requires UI validation during card play.
 // ─────────────────────────────────────────
 export function effect_coerts_caravan(gameState) {
 	const state = cloneState(gameState);
@@ -229,7 +225,7 @@ export function effect_coerts_caravan(gameState) {
 			if (isCoert) {
 				hasCoert = true;
 				mosje.mp += 15;
-				console.log('[ABILITY] Coert\'s Caravan: +15 MP for Coert Mosje on draw');
+				console.log('[ABILITY] Coert\'s Caravan: +15 MP for Coert Mosje');
 			}
 		}
 
@@ -301,33 +297,32 @@ export function effect_welloe_graveyard(gameState, welloePlayerId, newMosjeSlotI
 }
 
 // ─────────────────────────────────────────
-// DRAIN ZONE — End Phase: lowest MP player -10 more. ATTACK Piecies +10 damage.
+// DRAIN ZONE — End Phase: Mosje with lowest MP (across all players) loses another 10 MP.
+// ATTACK Piecies +10 damage enforced via UI validation.
 // ─────────────────────────────────────────
 export function effect_drain_zone(gameState) {
 	const state = cloneState(gameState);
-	// Find player with lowest active Mosje MP
+	// Find the Mosje with the lowest MP across all players
 	let lowestPlayerId = null;
+	let lowestSlotIndex = -1;
 	let lowestMp = Infinity;
 
 	for (const playerId of Object.keys(state.players)) {
 		const player = state.players[playerId];
-		const slotIndex = player.activeSlots.findIndex(slot => slot !== null && !slot.isDefeated);
-		if (slotIndex >= 0) {
-			const mosje = player.activeSlots[slotIndex];
+		for (let i = 0; i < player.activeSlots.length; i++) {
+			const mosje = player.activeSlots[i];
+			if (!mosje || mosje.isDefeated) continue;
 			if (mosje.mp < lowestMp) {
 				lowestMp = mosje.mp;
 				lowestPlayerId = playerId;
+				lowestSlotIndex = i;
 			}
 		}
 	}
 
-	if (lowestPlayerId) {
-		const player = state.players[lowestPlayerId];
-		const slotIndex = player.activeSlots.findIndex(slot => slot !== null && !slot.isDefeated);
-		if (slotIndex >= 0) {
-			player.activeSlots[slotIndex].mp -= 10;
-			console.log('[ABILITY] Drain Zone: -10 extra MP to player with lowest MP');
-		}
+	if (lowestPlayerId !== null && lowestSlotIndex >= 0) {
+		state.players[lowestPlayerId].activeSlots[lowestSlotIndex].mp -= 10;
+		console.log('[ABILITY] Drain Zone: -10 extra MP to Mosje with lowest MP');
 	}
 	// Note: ATTACK Piecie +10 damage bonus requires validation during card play
 	return state;
@@ -378,7 +373,7 @@ export function effect_dierenasiel(gameState) {
 
 // ─────────────────────────────────────────
 // DIGITAL GAMING STOP — On Quest: Technical Quests auto-succeed for DIGITAL.
-// DIGITAL-EQUIPMENT Piecies give +20 MP.
+// DIGITAL-EQUIPMENT Piecies give +20 MP. Hidden/booster-only.
 // Note: Auto-succeed requires quest resolution integration.
 // ─────────────────────────────────────────
 export function effect_digital_gaming_stop(gameState, questCard, mosje) {
@@ -401,7 +396,7 @@ export function effect_digital_gaming_stop(gameState, questCard, mosje) {
 // Fires the effect function for the current active Place, but ONLY
 // if the Place's trigger matches the given triggerPhase.
 //
-// triggerPhase — one of 'END_PHASE' | 'ON_DRAW' | 'ON_QUEST' |
+// triggerPhase — one of 'END_PHASE' | 'TURN_START' | 'ON_QUEST' |
 //                'PASSIVE' | 'ON_PIECIE_ACTIVATE' | 'ON_WELLOE'
 // context      — optional data for the effect (questCard, didSucceed, etc.)
 // ─────────────────────────────────────────────────────────────
@@ -419,7 +414,7 @@ export function resolvePlaceEffect(gameState, triggerPhase, context = {}) {
 
 	const state = gameState;
 	let nextState = state;
-	const { playerId, questCard, didSucceed, mosje, questsCompletedThisTurn, cardsDrawn, newMosjeSlotIndex } = context;
+	const { playerId, questCard, didSucceed, mosje, questsCompletedThisTurn, newMosjeSlotIndex } = context;
 
 	switch (placeId) {
 		case 'place_the_gym':
@@ -431,7 +426,7 @@ export function resolvePlaceEffect(gameState, triggerPhase, context = {}) {
 			break;
 
 		case 'place_bank_chilling':
-			nextState = effect_bank_chilling(state, playerId, cardsDrawn || 0);
+			nextState = effect_bank_chilling(state, playerId);
 			break;
 
 		case 'place_skiffa':
@@ -506,4 +501,3 @@ export function resolvePlaceEffect(gameState, triggerPhase, context = {}) {
 		},
 	};
 }
-

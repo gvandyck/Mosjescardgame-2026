@@ -33,7 +33,7 @@ This file maps the authoritative Phase 0 rulings to concrete card IDs.
 - piecie_emergency_swap: copied ability is one-time base-form use; copied ability costs still paid; no transfer of synergy/pet bonuses.
 - place_synergy_chamber: forces declared synergies active globally; chamber bonuses remain separate from synergy values.
 - place_momentum_stabilizer: blocks set_mp / exact adjust primitives; does not block normal gain_mp/lose_mp.
-- piecie_call_of_welloes: summoned Mosje enters level 1 at 0 MP, tied to source, returns to welloe when source leaves.
+- piecie_call_of_welloes: Call of the Haunted-style linked revive. Choose a Mosje in a Welloe pile and summon it to the field at level 1, 0 MP. Call of the Welloes stays linked to that Mosje; if the Piecie leaves play, the summoned Mosje returns to Welloe. If the summoned Mosje leaves the field first, Call of the Welloes is discarded/cleared.
 - piecie_harde_didde: threshold checked at activation, then opponent gets snelle response window.
 - piecie_klaar_met_jou: threshold checked at activation, then opponent gets snelle response window.
 - snelle_drain_reversal: reverses next single incoming effect-based loss only; one tick in multi-tick chains.

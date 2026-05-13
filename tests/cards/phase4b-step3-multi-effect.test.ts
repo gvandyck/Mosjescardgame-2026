@@ -134,14 +134,18 @@ beforeEach(() => {
 });
 
 describe("phase4b step 3 - multi-effect piecies", () => {
-  it("kleine-taks applies immediate loss and three end-turn ticks", () => {
+  it("kleine-taks applies immediate loss and end-turn ticks until defeat", () => {
     const played = invoke("kleine-taks");
     expect(played.players[1].mosjes[0].mp).toBe(20);
 
     const tick1 = endTurn({ ...played, currentPlayerId: "p2" });
+    expect(tick1.players[1].mosjes[0].mp).toBe(10);
+
     const tick2 = endTurn({ ...tick1, currentPlayerId: "p2" });
+    expect(tick2.players[1].mosjes[0].flags.in_welloe).toBe(true); // defeated at 0 MP
+
     const tick3 = endTurn({ ...tick2, currentPlayerId: "p2" });
-    expect(tick3.players[1].mosjes[0].mp).toBe(-10);
+    expect(tick3.players[1].mosjes[0].mp).toBe(0); // no further change after defeat
   });
 
   it("dikke-taks hits all opponents and draws 2", () => {
@@ -197,13 +201,18 @@ describe("phase4b step 3 - multi-effect piecies", () => {
     expect(tick.players[1].mosjes[0].mp).toBe(0);
   });
 
-  it("continuous-assault applies immediate and three subsequent ticks", () => {
+  it("continuous-assault applies immediate and ticks until Mosje is defeated", () => {
     const played = invoke("continuous-assault");
     expect(played.players[1].mosjes[0].mp).toBe(20);
+
     const tick1 = endTurn({ ...played, currentPlayerId: "p2" });
+    expect(tick1.players[1].mosjes[0].mp).toBe(5);
+
     const tick2 = endTurn({ ...tick1, currentPlayerId: "p2" });
+    expect(tick2.players[1].mosjes[0].flags.in_welloe).toBe(true); // defeated at -10
+
     const tick3 = endTurn({ ...tick2, currentPlayerId: "p2" });
-    expect(tick3.players[1].mosjes[0].mp).toBe(-25);
+    expect(tick3.players[1].mosjes[0].mp).toBe(-10); // no further change after defeat
   });
 
   it("those-eyelashes-tho gains self MP and locks all opponents", () => {

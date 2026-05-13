@@ -182,12 +182,12 @@ describe("player reducers", () => {
     expect(frozen.players[0].mosjes[0]).toMatchObject({ level: 1, mp: 95 });
   });
 
-  it("loseMP allows negative and sets cannot_complete_quests flag", () => {
+  it("cost payment allows negative and sets cannot_complete_quests flag", () => {
     const frozen = deepFreeze(baseState());
     const next = loseMP(frozen, {
       target: { playerId: "p1", instanceId: "m2" },
       amount: 25,
-      source: { kind: "ability" }
+      source: { kind: "cost" }
     });
 
     expect(next.players[0].mosjes[1].mp).toBe(-15);

@@ -2,6 +2,8 @@ import type { CardId } from "../../types/card-id.js";
 import type { PlaceDefinition } from "../schema/place-definition.js";
 import { registerCard } from "../registry/card-registry.js";
 
+// Drain Zone — general hostile Place. Punishes the Mosje with the lowest MP each end phase.
+// ATTACK Piecie +10 damage bonus enforced in UI only.
 export const DRAIN_ZONE: PlaceDefinition = {
   id: "place_drain_zone" as CardId,
   name: "Drain Zone",
@@ -23,7 +25,7 @@ export const DRAIN_ZONE: PlaceDefinition = {
         {
           primitive: "forEachTarget",
           params: {
-            targetType: "all_opponents",
+            targetType: "lowestMpMosje",
             effect: {
               primitive: "loseMP",
               params: { target: "$target", amount: 10, isCostPayment: false }

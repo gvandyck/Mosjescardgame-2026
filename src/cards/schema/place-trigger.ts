@@ -5,6 +5,7 @@ export type PlaceTriggerEventType =
   | "turn_start"
   | "quest_attempt"
   | "quest_completed"
+  | "quest_failed"
   | "piecie_activated"
   | "mp_gained"
   | "mosje_leveled_up"

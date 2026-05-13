@@ -12,10 +12,17 @@ export function loseMP(state: GameState, action: LoseMPAction): GameState {
   if (mosjeIndex < 0) return state;
 
   const mosje = player.mosjes[mosjeIndex];
-  const nextMp = mosje.mp - action.amount;
-  const nextFlags = { ...mosje.flags };
+  if (mosje.flags.in_welloe === true) return state;
 
-  if (nextMp < 0) {
+  const isCostPayment = action.source.kind === "cost";
+  const nextMp = mosje.mp - action.amount;
+  const isDefeated = !isCostPayment && nextMp <= 0;
+
+  const nextFlags = { ...mosje.flags };
+  if (isDefeated) {
+    nextFlags.in_welloe = true;
+    delete nextFlags.cannot_complete_quests;
+  } else if (nextMp < 0) {
     nextFlags.cannot_complete_quests = true;
   } else {
     delete nextFlags.cannot_complete_quests;
@@ -23,15 +30,15 @@ export function loseMP(state: GameState, action: LoseMPAction): GameState {
 
   const updatedMosjes = player.mosjes.map((item, index) => {
     if (index !== mosjeIndex) return item;
-    return {
-      ...item,
-      mp: nextMp,
-      flags: nextFlags
-    };
+    return { ...item, mp: nextMp, flags: nextFlags };
   });
 
-  const updatedPlayer = { ...player, mosjes: updatedMosjes };
-  const isCostPayment = action.source.kind === "cost";
+  const updatedPlayer = {
+    ...player,
+    mosjes: updatedMosjes,
+    ...(isDefeated ? { discard: [...player.discard, mosje.cardId] } : {})
+  };
+
   const updatedPlayers = state.players.map((item, index) => {
     if (index !== playerIndex) return item;
     return {
@@ -41,14 +48,19 @@ export function loseMP(state: GameState, action: LoseMPAction): GameState {
         : updatedPlayer.totalDamageTaken + action.amount
     };
   });
+
   const nextState = { ...state, players: updatedPlayers };
 
-  const withEvent = appendEvent(nextState, {
+  const withMpEvent = appendEvent(nextState, {
     type: "mp_lost",
     target: action.target,
     amount: action.amount,
     source: action.source
   });
 
-  return applyVictoryCheck(withEvent);
+  const withAllEvents = isDefeated
+    ? appendEvent(withMpEvent, { type: "mosje_defeated", target: action.target })
+    : withMpEvent;
+
+  return applyVictoryCheck(withAllEvents);
 }

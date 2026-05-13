@@ -13,6 +13,7 @@ export const sendToWelloe: Primitive<SendToWelloeParams> = (state, params) => {
   const mosjeIndex = player.mosjes.findIndex((mosje) => mosje.instanceId === params.target.instanceId);
   if (mosjeIndex < 0) return state;
 
+  const defeatedMosje = player.mosjes[mosjeIndex];
   const updatedMosjes = player.mosjes.map((mosje, index) => {
     if (index !== mosjeIndex) return mosje;
     return {
@@ -26,7 +27,11 @@ export const sendToWelloe: Primitive<SendToWelloeParams> = (state, params) => {
   });
   const updatedPlayers = state.players.map((candidate, index) => {
     if (index !== playerIndex) return candidate;
-    return { ...candidate, mosjes: updatedMosjes };
+    return {
+      ...candidate,
+      mosjes: updatedMosjes,
+      welloePile: [...candidate.welloePile, defeatedMosje.cardId]
+    };
   });
 
   return appendEvent({ ...state, players: updatedPlayers }, {

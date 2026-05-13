@@ -12,7 +12,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 - Mosje: 34
 - Piecie: 64
 - Snelle Piecie: 19
-- Place: 15
+- Place: 16
 - Quest (General + Personal): 44
 
 ## Mosje (34)
@@ -97,7 +97,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 | bagga-of-greed | Bagga of Greed | UTILITY | yes | no | free | drawCards+discardCards | implemented |
 | battle-concert | Battle Concert | UTILITY | no | no | 25 MP, lvl 2+ | loseMP+ifThenElse | advanced |
 | bong-hit-demolition | Bong Hit Demolition | UTILITY | no | no | 10 MP | destroyPlace+drawCards | advanced |
-| call-of-the-welloes | Call of the Welloes | UTILITY | no | no | free | returnToHand | partial |
+| call-of-the-welloes | Call of the Welloes | UTILITY | no | no | free | returnToHand stub; intended linked Welloe summon | partial |
 | chain-reaction | Chain Reaction | UTILITY | no | no | free | multiplyByCount | advanced |
 | dingetje-toch | Dingetje Toch | UTILITY | no | no | free | ifThenElse | partial |
 | double-trigger | Double Trigger | UTILITY | no | no | 20 MP | applyBuff | partial |
@@ -113,7 +113,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 | mp-adjuster | MP Adjuster | UTILITY | no | no | free | ifThenElse | advanced |
 | mp-amplifier | MP Amplifier | UTILITY | yes | no | free | multiplyNextMPGain | implemented |
 | perfect-setup | Perfect Setup | UTILITY | no | no | free | setMP | advanced |
-| redbull | Redbull | UTILITY | yes | no | 10 MP, lvl 1+ | drawCards+applyBuff | implemented |
+| redbull | Redbull | UTILITY | yes | no | 20 MP, lvl 1+ | applyBuff | implemented |
 | shhh-popo-komt | Shhh, popo komt! | UTILITY | no | no | free | destroyPlace+gainMP | advanced |
 | stookerino | Stookerino | UTILITY | no | no | 10 MP, lvl 1+ | applyBuff+loseMP | advanced |
 | synergy-field | Synergy Field | UTILITY | yes | no | 15 MP | applyBuff+gainMP | implemented |
@@ -147,25 +147,32 @@ This document is the final Phase 11 master card inventory, generated from the li
 | snelle_the_protector | The Protector | - | no | no | free | reduceMPLossBy | advanced |
 | momentum-rush | Momentum Rush | MOMENTUM-GAINING | no | no | free | gainMP+drawCards | advanced |
 
-## Place (15)
+## Place (16)
 
-| ID | Name | Group | Starter | Booster | Cost | Summary | Status |
+| ID | Name | Group | Starter | Booster | Cost | Effect (aligned) | Status |
 |---|---|---|---|---|---|---|---|
-| place_arcade | Arcade | PLACE | yes | no | free | No direct effect primitives | implemented |
-| place_bank_chilling | Bank Chilling | PLACE | yes | no | free | No direct effect primitives | implemented |
-| place_coerts_caravan | Coert's Caravan | PLACE | yes | no | free | No direct effect primitives | implemented |
-| place_delluft | Delluft | PLACE | no | no | free | No direct effect primitives | advanced |
-| place_drain_zone | Drain Zone | PLACE | no | no | free | No direct effect primitives | advanced |
-| place_momentum_factory | Momentum Factory | PLACE | no | no | free | No direct effect primitives | advanced |
-| place_momentum_stabilizer | Momentum Stabilizer | PLACE | no | no | free | No direct effect primitives | advanced |
-| place_obby_1 | Obby #1 | PLACE | yes | no | free | No direct effect primitives | implemented |
-| place_quest_haven | Quest Haven | PLACE | yes | no | free | No direct effect primitives | implemented |
-| place_skiffa | Skiffa | PLACE | no | no | free | No direct effect primitives | advanced |
-| place_synergy_chamber | Synergy Chamber | PLACE | no | no | free | No direct effect primitives | partial |
-| place_the_gym | The Gym | PLACE | yes | no | free | No direct effect primitives | implemented |
-| place_the_void | The Void | PLACE | no | no | free | No direct effect primitives | advanced |
-| place_welloe_graveyard | Welloe Graveyard | PLACE | no | no | free | No direct effect primitives | advanced |
-| place_zo_is_natuur | Zo is Natuur | PLACE | yes | no | free | No direct effect primitives | implemented |
+| place_arcade | Arcade | PLACE | yes | no | free | quest_completed, Technical 2+, +15 MP | implemented |
+| place_bank_chilling | Bank Chilling | PLACE | yes | no | free | turn_start, Social 2+, +15 MP | implemented |
+| place_coerts_caravan | Coert's Caravan | PLACE | yes | no | free | turn_start, Coert Mosje only, +15 MP | implemented |
+| place_delluft | Delluft | PLACE | no | no | free | turn_end, all draw 1 card; SUBSTANCE cost 0 (UI flag) | advanced |
+| place_dierenasiel | Dierenasiel | PLACE | no | no | free | passive flag only; PET cost 0 and protection +25% enforced in UI | partial |
+| place_drain_zone | Drain Zone | PLACE | no | no | free | turn_end, lowest MP Mosje loses -10 MP | advanced |
+| place_momentum_factory | Momentum Factory | PLACE | no | no | free | piecie_activated, +10 MP (first-only enforced in UI) | advanced |
+| place_momentum_stabilizer | Momentum Stabilizer | PLACE | no | no | free | passive flag only; 30 MP loss cap enforced in UI | advanced |
+| place_obby_1 | Obby #1 | PLACE | yes | no | free | quest_completed/failed, Physical 2+ or Resilient 2+, +20/-10 MP | implemented |
+| place_quest_haven | Quest Haven | PLACE | yes | no | free | quest_completed, +10 MP; 2-quest bonus +25 MP (UI tracked) | implemented |
+| place_skiffa | Skiffa | PLACE | no | no | free | turn_end, -15 MP unless SUBSTANCE trait 1+ | advanced |
+| place_synergy_chamber | Synergy Chamber | PLACE | no | no | free | passive flag only; synergy without pair enforced in UI | partial |
+| place_the_gym | The Gym | PLACE | yes | no | free | turn_end, Physical 3→+35, Physical 2→+25, else -10 MP | implemented |
+| place_the_void | The Void | PLACE | no | no | free | turn_end, all -15 MP; RESTORE/FOOD restriction via void_active flag | advanced |
+| place_welloe_graveyard | Welloe Graveyard | PLACE | no | no | free | mosje_defeated, +20 MP + draw 1 card for that player | advanced |
+| place_zo_is_natuur | Zo is Natuur | PLACE | yes | no | free | turn_end, Resilient 1+→+15 MP, else +10 MP | implemented |
+
+### Place Design Notes
+- **Digital Gaming Stop**: hidden (booster-only flag set); no engine implementation.
+- **Dierenasiel**: TS stub registered with `dierenasiel_active` flag; PET cost/protection effects enforced in browser only. For Cless teacher / AZN Cless.
+- **Quest Haven**: 2-quest-per-turn bonus (+25 MP) tracked in browser only via `questsCompletedThisTurn` counter; TS engine fires +10 MP per quest_completed event.
+- **Momentum Factory**: TS engine fires +10 MP per piecie_activated event; browser enforces "first Piecie only" restriction via `pieciesPlayedThisTurn` counter.
 
 ## Quest (44)
 
