@@ -113,7 +113,7 @@ export const PLACES = [
     tags: ["RESILIENT", "RESTORE"],
     description: "End Phase: All Mosjes gain 10 MP. Resilient Mosjes gain 15 MP instead.",
     flavourText: "",
-    artPath: "assets/places/placeholder.png",
+    artPath: "assets/place-art/place-Zo is Natuur.jpeg",
     goodFor: [],
     badFor: [],
     rarity: "◆◆◆",
