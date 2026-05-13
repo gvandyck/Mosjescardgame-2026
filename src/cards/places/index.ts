@@ -13,3 +13,4 @@ export { COERTS_CARAVAN } from "./coerts-caravan.js";
 export { WELLOE_GRAVEYARD } from "./welloe-graveyard.js";
 export { MOMENTUM_STABILIZER } from "./momentum-stabilizer.js";
 export { SYNERGY_CHAMBER } from "./synergy-chamber.js";
+export { DIERENASIEL } from "./dierenasiel.js";

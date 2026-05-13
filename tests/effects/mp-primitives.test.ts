@@ -185,13 +185,21 @@ describe("mp primitives", () => {
     expect(next.eventLog.length).toBe(0);
   });
 
-  it("sets and clears negative mp quest flag", () => {
+  it("cost payment below 0 sets cannot_complete_quests flag", () => {
     const state = createState();
-    const down = loseMP(state, { target: { playerId: "p1", instanceId: "m1" }, amount: 15 }, context());
+    const down = loseMP(state, { target: { playerId: "p1", instanceId: "m1" }, amount: 15, isCostPayment: true }, context());
     expect(down.players[0].mosjes[0].flags.cannot_complete_quests).toBe(true);
 
     const up = gainMP(down, { target: { playerId: "p1", instanceId: "m1" }, amount: 5 }, context());
     expect(up.players[0].mosjes[0].flags.cannot_complete_quests).toBeUndefined();
+  });
+
+  it("non-cost damage to 0 MP defeats the Mosje and adds cardId to discard", () => {
+    const state = createState();
+    const defeated = loseMP(state, { target: { playerId: "p1", instanceId: "m1" }, amount: 10 }, context());
+    expect(defeated.players[0].mosjes[0].flags.in_welloe).toBe(true);
+    expect(defeated.players[0].discard).toContain("mosje_1");
+    expect(defeated.eventLog.at(-1)).toMatchObject({ type: "mosje_defeated" });
   });
 
   it("drain transfers actual lost amount only", () => {

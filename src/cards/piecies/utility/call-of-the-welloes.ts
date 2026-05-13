@@ -13,7 +13,10 @@ export const CALL_OF_THE_WELLOES: CardDefinition = {
   target: "none",
   trigger: "on_play",
   duration: "instant",
-  // summonFromWelloe primitive is pending, so this step uses the approved stub.
+  flavorText:
+    "Intended: choose a Mosje in a Welloe pile and summon it to the field at Level 1, 0 MP. This Piecie remains linked to that Mosje; if this Piecie leaves play, the Mosje returns to Welloe. Stub: returns the chosen Mosje to hand until summonFromWelloe exists.",
+  // Intended Call of the Haunted-style behavior is documented above. The engine
+  // does not have linked field attachments yet, so this remains a returnToHand stub.
   effects: [
     {
       primitive: "returnToHand",

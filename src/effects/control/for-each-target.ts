@@ -5,7 +5,7 @@ import { resolvePrimitive } from "../registry.js";
 import type { EffectExpr } from "./types.js";
 
 export interface ForEachTargetParams {
-  readonly targetType: "all_opponents" | "all_mosjes" | "all_opponent_mosjes";
+  readonly targetType: "all_opponents" | "all_mosjes" | "all_opponent_mosjes" | "lowestMpMosje";
   readonly effect: EffectExpr;
 }
 
@@ -18,6 +18,20 @@ function resolveTargets(
   actingPlayerId: string,
   targetType: ForEachTargetParams["targetType"]
 ): ReadonlyArray<MosjeRef> {
+  if (targetType === "lowestMpMosje") {
+    let lowestRef: MosjeRef | undefined;
+    let lowestMp = Infinity;
+    for (const player of state.players) {
+      const active = player.mosjes[player.activeMosjeIndex];
+      if (active === undefined || !isAlive(active.mp)) continue;
+      if (active.mp < lowestMp) {
+        lowestMp = active.mp;
+        lowestRef = { playerId: player.id, instanceId: active.instanceId };
+      }
+    }
+    return lowestRef !== undefined ? [lowestRef] : [];
+  }
+
   if (targetType === "all_opponents") {
     return state.players
       .filter((player) => player.id !== actingPlayerId)

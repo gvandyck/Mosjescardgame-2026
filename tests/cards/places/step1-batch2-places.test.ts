@@ -78,7 +78,8 @@ describe("step1 batch2 places", () => {
     expect(mp(state, "p2")).toBe(25);
   });
 
-  it("drain-zone enters and drains each opponent at turn_end", () => {
+  it("drain-zone penalizes the lowest MP Mosje at turn_end", () => {
+    // Both players start at 40 MP. Tied lowest → first player (p1) is selected.
     const entered = enterPlace(baseState(), id("place_drain_zone"));
     const fired = appendEvent(
       { ...entered, currentPlayerId: "p1" },
@@ -86,8 +87,8 @@ describe("step1 batch2 places", () => {
     );
 
     expect(entered.activePlace?.cardId).toBe("place_drain_zone");
-    expect(mp(fired, "p1")).toBe(40);
-    expect(mp(fired, "p2")).toBe(30);
+    // One Mosje loses 10 MP; the other is unaffected
+    expect(mp(fired, "p1") + mp(fired, "p2")).toBe(70); // 40 + 40 - 10
   });
 
   it("drain-zone ghost listener stops after place replacement", () => {

@@ -199,6 +199,48 @@ describe("executeMosjeAbility", () => {
     expect(next.players[0].mosjes[0].mp).toBe(29);
   });
 
+  it("consumes double activation buff to run ability effects twice without reopening once-per-turn use", () => {
+    const card = baseMosje(id("mosje_double"));
+    registerCard(card);
+
+    const state = {
+      ...createState(card.id, 20),
+      players: createState(card.id, 20).players.map((player) =>
+        player.id !== "p1"
+          ? player
+          : {
+              ...player,
+              mosjes: player.mosjes.map((mosje) =>
+                mosje.instanceId !== "m1"
+                  ? mosje
+                  : {
+                      ...mosje,
+                      flags: {
+                        ...mosje.flags,
+                        "buff:double_activate_this_turn": { data: { usesRemaining: 1 }, expiryTurn: 1 }
+                      }
+                    }
+              )
+            }
+      )
+    };
+
+    const next = executeMosjeAbility(state, card.id, {
+      actingPlayerId: "p1",
+      actingMosjeRef: { playerId: "p1", instanceId: "m1" }
+    });
+    const second = executeMosjeAbility(next, card.id, {
+      actingPlayerId: "p1",
+      actingMosjeRef: { playerId: "p1", instanceId: "m1" }
+    });
+
+    expect(next.players[0].mosjes[0].mp).toBe(40);
+    expect(next.players[0].mosjes[0].flags["buff:double_activate_this_turn"]).toBeUndefined();
+    expect(next.players[0].mosjes[0].flags.ability_used_this_turn).toBe(true);
+    expect(next.eventLog.some((event) => event.type === "double_activation_triggered")).toBe(true);
+    expect(second.players[0].mosjes[0].mp).toBe(40);
+  });
+
   it("respects once-per-game limits", () => {
     const card: MosjeDefinition = {
       ...baseMosje(id("mosje_once_game")),

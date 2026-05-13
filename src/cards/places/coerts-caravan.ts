@@ -2,6 +2,7 @@ import type { CardId } from "../../types/card-id.js";
 import type { PlaceDefinition } from "../schema/place-definition.js";
 import { registerCard } from "../registry/card-registry.js";
 
+// Coert's Caravan — exclusively for Coert Mosjes (cardId contains "coert"). Hard requirement, good payoff.
 export const COERTS_CARAVAN: PlaceDefinition = {
   id: "place_coerts_caravan" as CardId,
   name: "Coert's Caravan",
@@ -18,20 +19,12 @@ export const COERTS_CARAVAN: PlaceDefinition = {
   triggers: [
     {
       on: "turn_start",
-      forPlayer: "both",
-      effects: [
-        {
-          primitive: "ifThenElse",
-          params: {
-            condition: {
-              primitive: "checkTrait",
-              params: { target: "$self", trait: "Technical", minStars: 2 }
-            },
-            then: { primitive: "gainMP", params: { target: "$self", amount: 20 } },
-            else: { primitive: "gainMP", params: { target: "$self", amount: 10 } }
-          }
-        }
-      ]
+      forPlayer: "active",
+      condition: {
+        primitive: "checkMosjeCardId",
+        params: { target: "$self", pattern: "coert" }
+      },
+      effects: [{ primitive: "gainMP", params: { target: "$self", amount: 15 } }]
     }
   ]
 };

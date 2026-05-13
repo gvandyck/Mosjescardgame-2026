@@ -198,27 +198,40 @@ describe("phase 2 phantom cards", () => {
   });
 
   it("duration buff applies for 2 turns then expires", () => {
+    const highMpState = {
+      ...createState(),
+      players: createState().players.map((player) => {
+        if (player.id !== "p1") return player;
+        return {
+          ...player,
+          mosjes: player.mosjes.map((mosje) =>
+            mosje.instanceId === "m1" ? { ...mosje, mp: 100 } : mosje
+          )
+        };
+      })
+    };
+
     const withBuff = resolvePrimitive("reduceMPLossBy")(
-      createState(),
+      highMpState,
       { target: { playerId: "p1", instanceId: "m1" }, amount: 20, duration: 2 },
       ctx(10)
     );
 
     const t1 = resolvePrimitive("loseMP")(withBuff, { target: { playerId: "p1", instanceId: "m1" }, amount: 30 }, ctx(10));
-    expect(t1.players[0].mosjes[0].mp).toBe(0);
+    expect(t1.players[0].mosjes[0].mp).toBe(90); // 100 - (30-20) = 90
 
     const turn2 = endTurn(t1);
     const t2 = resolvePrimitive("loseMP")(turn2, { target: { playerId: "p1", instanceId: "m1" }, amount: 30 }, {
       ...ctx(11),
       turnCount: turn2.turnCount
     });
-    expect(t2.players[0].mosjes[0].mp).toBe(-10);
+    expect(t2.players[0].mosjes[0].mp).toBe(80); // 90 - (30-20) = 80
 
     const turn3 = endTurn(t2);
     const t3 = resolvePrimitive("loseMP")(turn3, { target: { playerId: "p1", instanceId: "m1" }, amount: 30 }, {
       ...ctx(12),
       turnCount: turn3.turnCount
     });
-    expect(t3.players[0].mosjes[0].mp).toBe(-40);
+    expect(t3.players[0].mosjes[0].mp).toBe(50); // 80 - 30 = 50 (buff expired)
   });
 });

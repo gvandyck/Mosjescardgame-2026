@@ -2,6 +2,8 @@ import type { CardId } from "../../types/card-id.js";
 import type { PlaceDefinition } from "../schema/place-definition.js";
 import { registerCard } from "../registry/card-registry.js";
 
+// Momentum Factory — first Piecie each turn gives +10 bonus MP.
+// Note: "first only" tracking requires UI state; engine grants +10 per activation.
 export const MOMENTUM_FACTORY: PlaceDefinition = {
   id: "place_momentum_factory" as CardId,
   name: "Momentum Factory",
@@ -18,8 +20,8 @@ export const MOMENTUM_FACTORY: PlaceDefinition = {
   triggers: [
     {
       on: "piecie_activated",
-      forPlayer: "both",
-      effects: [{ primitive: "gainMP", params: { target: "$self", amount: 5 } }]
+      forPlayer: "active",
+      effects: [{ primitive: "gainMP", params: { target: "$self", amount: 10 } }]
     }
   ]
 };

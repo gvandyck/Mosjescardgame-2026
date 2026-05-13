@@ -83,7 +83,13 @@ describe("checkVictory", () => {
       ...baseState(),
       players: [
         baseState().players[0],
-        { ...baseState().players[1], welloePile: [card("c"), card("d")] }
+        {
+          ...baseState().players[1],
+          mosjes: baseState().players[1].mosjes.map((mosje) => ({
+            ...mosje,
+            flags: { ...mosje.flags, in_welloe: true }
+          }))
+        }
       ]
     };
     expect(checkVictory(state)).toEqual({ winnerId: "p1", reason: "knockout" });

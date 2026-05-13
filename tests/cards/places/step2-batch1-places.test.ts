@@ -48,7 +48,9 @@ function baseState(seed = 77): GameState {
         ...mosje,
         flags: {
           ...mosje.flags,
-          traits: index === 0 ? { Social: 2, Physical: 2 } : { Social: 0, Physical: 0 }
+          // p1: Social 2, Physical 2, Technical 2 — qualifies for multiple Place bonuses
+          // p2: no traits
+          traits: index === 0 ? { Social: 2, Physical: 2, Technical: 2 } : { Social: 0, Physical: 0, Technical: 0 }
         }
       }))
     }))
@@ -71,17 +73,21 @@ beforeEach(() => {
 });
 
 describe("step2 batch1 places", () => {
-  it("bank-chilling grants Social mosje +15 on turn_end", () => {
+  // ─── Bank Chilling ───────────────────────────────────────────────────────────
+  it("bank-chilling grants Social 2+ mosje +15 on turn_start", () => {
     const entered = enterPlace(baseState(), id("place_bank_chilling"));
+
+    // Social mosje: fires on turn_started for p1
     const fired = appendEvent(
       { ...entered, currentPlayerId: "p1" },
-      { type: "turn_ended", turn: 1, playerId: "p1" }
+      { type: "turn_started", turn: 1, playerId: "p1" }
     );
+    expect(mp(fired, "p1")).toBe(45); // 30 + 15
 
-    expect(mp(fired, "p1")).toBe(45);
+    // Non-social mosje: no bonus for p2
     const noSocial = appendEvent(
       { ...entered, currentPlayerId: "p2" },
-      { type: "turn_ended", turn: 1, playerId: "p2" }
+      { type: "turn_started", turn: 1, playerId: "p2" }
     );
     expect(mp(noSocial, "p2")).toBe(30);
   });
@@ -91,12 +97,13 @@ describe("step2 batch1 places", () => {
     state = enterPlace(state, id("place_skiffa"));
     state = appendEvent(
       { ...state, currentPlayerId: "p1" },
-      { type: "turn_ended", turn: 1, playerId: "p1" }
+      { type: "turn_started", turn: 1, playerId: "p1" }
     );
-
-    expect(mp(state, "p1")).toBe(15);
+    // Skiffa fires on turn_ended, not turn_started — p1 gets no change here
+    expect(mp(state, "p1")).toBe(30);
   });
 
+  // ─── Quest Haven ─────────────────────────────────────────────────────────────
   it("quest-haven grants +10 on quest_completed", () => {
     const entered = enterPlace(baseState(), id("place_quest_haven"));
     const fired = appendEvent(entered, {
@@ -124,53 +131,80 @@ describe("step2 batch1 places", () => {
     expect(mp(state, "p1")).toBe(30);
   });
 
-  it("obby-1 grants +10 on quest_attempt for Physical mosje", () => {
+  // ─── Obby #1 ─────────────────────────────────────────────────────────────────
+  it("obby-1 grants +20 on quest_completed for Physical 2+ mosje", () => {
     const entered = enterPlace(baseState(), id("place_obby_1"));
-    const fired = appendEvent(entered, { type: "quest_attempted", playerId: "p1", questId: id("quest_x") });
+    const fired = appendEvent(entered, {
+      type: "quest_completed",
+      playerId: "p1",
+      questId: id("quest_x"),
+      reward: 0,
+      rollResult: 4
+    });
     const notPhysical = appendEvent(entered, {
-      type: "quest_attempted",
+      type: "quest_completed",
       playerId: "p2",
-      questId: id("quest_x")
+      questId: id("quest_x"),
+      reward: 0,
+      rollResult: 4
     });
 
-    expect(mp(fired, "p1")).toBe(40);
-    expect(mp(notPhysical, "p2")).toBe(30);
+    expect(mp(fired, "p1")).toBe(50);     // 30 + 20 (Physical 2)
+    expect(mp(notPhysical, "p2")).toBe(30); // no trait
+  });
+
+  it("obby-1 penalizes -10 on quest_failed for Physical 2+ mosje", () => {
+    const entered = enterPlace(baseState(), id("place_obby_1"));
+    const fired = appendEvent(entered, {
+      type: "quest_failed",
+      playerId: "p1",
+      questId: id("quest_x"),
+      penalty: 0,
+      rollResult: 2
+    });
+
+    expect(mp(fired, "p1")).toBe(20); // 30 - 10 (Physical 2, failed)
   });
 
   it("obby-1 ghost listener stops after replacement", () => {
     let state = enterPlace(baseState(), id("place_obby_1"));
     state = enterPlace(state, id("place_skiffa"));
-    state = appendEvent(state, { type: "quest_attempted", playerId: "p1", questId: id("quest_x") });
+    state = appendEvent(state, {
+      type: "quest_completed",
+      playerId: "p1",
+      questId: id("quest_x"),
+      reward: 0,
+      rollResult: 4
+    });
 
     expect(mp(state, "p1")).toBe(30);
   });
 
-  it("arcade branches: 1-2 => +0, 3-4 => +15, 5-6 => +30", () => {
-    const runWithSeed = (seed: number): number => {
-      const fired = appendEvent(enterPlace(baseState(seed), id("place_arcade")), {
-        type: "quest_completed",
-        playerId: "p1",
-        questId: id("quest_x"),
-        reward: 0,
-        rollResult: 5
-      });
-      return mp(fired, "p1") - 30;
-    };
+  // ─── Arcade ──────────────────────────────────────────────────────────────────
+  it("arcade grants Technical 2+ mosje +15 on quest_completed", () => {
+    const entered = enterPlace(baseState(), id("place_arcade"));
+    const fired = appendEvent(entered, {
+      type: "quest_completed",
+      playerId: "p1",
+      questId: id("quest_x"),
+      reward: 0,
+      rollResult: 5
+    });
 
-    let saw0 = false;
-    let saw15 = false;
-    let saw30 = false;
-    for (let seed = 1; seed <= 200; seed += 1) {
-      const delta = runWithSeed(seed);
-      if (delta === 0) saw0 = true;
-      if (delta === 15) saw15 = true;
-      if (delta === 30) saw30 = true;
-      if (saw0 && saw15 && saw30) break;
-    }
+    expect(mp(fired, "p1")).toBe(45); // 30 + 15 (Technical 2)
+  });
 
-    expect(saw0).toBe(true);
-    expect(saw15).toBe(true);
-    expect(saw30).toBe(true);
+  it("arcade gives no bonus to non-Technical mosje on quest_completed", () => {
+    const entered = enterPlace(baseState(), id("place_arcade"));
+    const fired = appendEvent(entered, {
+      type: "quest_completed",
+      playerId: "p2",
+      questId: id("quest_x"),
+      reward: 0,
+      rollResult: 5
+    });
+
+    expect(mp(fired, "p2")).toBe(30); // no Technical trait
   });
 
   it("arcade ghost listener stops after replacement", () => {

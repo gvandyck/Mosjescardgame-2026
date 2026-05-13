@@ -8,3 +8,4 @@ export { checkPlaceActive } from "./check-place-active.js";
 export { checkPendingEffectAmount } from "./check-pending-effect-amount.js";
 export { checkEventLogThisTurn } from "./check-event-log-this-turn.js";
 export { checkMosjeType } from "./check-mosje-type.js";
+export { checkMosjeCardId } from "./check-mosje-card-id.js";

@@ -212,9 +212,46 @@ describe("step1 batch1 places", () => {
     expect(mp(gained, "p1")).toBe(70);
   });
 
-  it("the-gym gives fighting mosje +25 when physical trait is below 3", () => {
+  it("the-gym gives Physical 2 mosje +25 MP (middle branch, not FIGHTING type check)", () => {
     registerCard(FIGHTER_MOSJE);
 
+    // p2 has Physical 2 — should get +25 MP (not dependent on mosjeType)
+    const prepared = {
+      ...baseState(),
+      players: baseState().players.map((player) =>
+        player.id !== "p2"
+          ? player
+          : {
+              ...player,
+              mosjes: player.mosjes.map((mosje, index) =>
+                index === player.activeMosjeIndex
+                  ? {
+                      ...mosje,
+                      cardId: id("mosje_fighter"),
+                      flags: {
+                        ...mosje.flags,
+                        traits: { Physical: 2, Resilient: 0 }
+                      }
+                    }
+                  : mosje
+              )
+            }
+      )
+    };
+
+    const entered = enterPlace(prepared, id("place_the_gym"));
+    const fired = appendEvent(
+      { ...entered, currentPlayerId: "p1" },
+      { type: "turn_ended", turn: 1, playerId: "p1" }
+    );
+
+    expect(mp(fired, "p2")).toBe(75); // 50 + 25 (Physical 2)
+  });
+
+  it("the-gym applies -10 MP to Mosje with Physical 1 (below threshold)", () => {
+    registerCard(FIGHTER_MOSJE);
+
+    // p2 is a FIGHTING type but only Physical 1 — should lose 10 MP
     const prepared = {
       ...baseState(),
       players: baseState().players.map((player) =>
@@ -244,7 +281,7 @@ describe("step1 batch1 places", () => {
       { type: "turn_ended", turn: 1, playerId: "p1" }
     );
 
-    expect(mp(fired, "p2")).toBe(75);
+    expect(mp(fired, "p2")).toBe(40); // 50 - 10 (Physical < 2, no bonus)
   });
 
   it("zo-is-natuur enters and applies resilient split at turn_end", () => {

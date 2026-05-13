@@ -17,6 +17,12 @@ Card intent is summoning a Mosje directly from welloe to board. We do not yet
 have `summonFromWelloe`, so Step 1 uses the approved `returnToHand` stub with
 player choice (`$choice:mosjeId`).
 
+Intended behavior is Call of the Haunted-style: choose a Mosje in a Welloe pile
+and summon it to the field at Level 1, 0 MP. Call of the Welloes remains linked
+to that Mosje while it is on the field. If Call of the Welloes leaves play, the
+summoned Mosje returns to Welloe. If the summoned Mosje leaves the field first,
+Call of the Welloes should be discarded/cleared with it.
+
 ## Q5: Dingetje Toch revealed-card check primitive
 Card intent depends on checking revealed card type from the top deck card.
 There is no `checkRevealedCardType` primitive yet, so Step 1 uses approved

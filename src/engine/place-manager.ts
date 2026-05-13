@@ -47,6 +47,7 @@ function eventMatches(trigger: PlaceTrigger, event: GameEvent): boolean {
   if (trigger.on === "quest_completed") return event.type === "quest_completed";
   if (trigger.on === "piecie_activated") return event.type === "piecie_activated";
   if (trigger.on === "mp_gained") return event.type === "mp_gained";
+  if (trigger.on === "quest_failed") return event.type === "quest_failed";
   if (trigger.on === "mosje_leveled_up") return event.type === "mosje_leveled_up";
   if (trigger.on === "mosje_defeated") return event.type === "mosje_defeated";
   return false;

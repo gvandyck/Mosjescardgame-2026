@@ -72,6 +72,74 @@ function withMosjeFlag(state: GameState, ref: MosjeRef, key: string, value: unkn
   return { ...state, players: updatedPlayers };
 }
 
+function consumeDoubleActivationBuff(state: GameState, ref: MosjeRef): { state: GameState; consumed: boolean } {
+  const resolved = resolveMosje(state, ref);
+  if (resolved === undefined) return { state, consumed: false };
+
+  const doubleBuff = resolved.mosje.flags["buff:double_activate_this_turn"] as
+    | { readonly data?: { readonly usesRemaining?: number }; readonly expiryTurn?: number }
+    | undefined;
+
+  if (doubleBuff === undefined || Number(doubleBuff.data?.usesRemaining ?? 0) <= 0) {
+    return { state, consumed: false };
+  }
+
+  const newUsesRemaining = Number(doubleBuff.data?.usesRemaining) - 1;
+  const updatedMosjes = resolved.player.mosjes.map((mosje, index) => {
+    if (index !== resolved.mosjeIndex) return mosje;
+
+    const nextFlags = { ...mosje.flags };
+    if (newUsesRemaining <= 0) {
+      delete nextFlags["buff:double_activate_this_turn"];
+    } else {
+      nextFlags["buff:double_activate_this_turn"] = {
+        data: { ...(doubleBuff.data as Record<string, unknown>), usesRemaining: newUsesRemaining },
+        expiryTurn: doubleBuff.expiryTurn
+      };
+    }
+
+    return { ...mosje, flags: nextFlags };
+  });
+
+  const updatedPlayers = state.players.map((player, index) => {
+    if (index !== resolved.playerIndex) return player;
+    return { ...player, mosjes: updatedMosjes };
+  });
+
+  return { state: { ...state, players: updatedPlayers }, consumed: true };
+}
+
+function runAbilityBonuses(
+  state: GameState,
+  definition: MosjeDefinition,
+  abilityInvocation: AbilityInvocation,
+  invocation: CardInvocation,
+  context: EffectContext
+): GameState {
+  let next = state;
+  const chamberActive = next.gameFlags?.["synergy_chamber_active"] === true;
+  for (const synergy of definition.synergies ?? []) {
+    const active =
+      chamberActive ||
+      checkSynergy(next, {
+        mosje: abilityInvocation.actingMosjeRef,
+        partnerCardId: synergy.partnerCardId
+      });
+    if (!active) continue;
+    next = runCardEffects(next, synergy.bonusEffects, invocation, context);
+  }
+
+  const refreshedSelf = resolveMosje(next, abilityInvocation.actingMosjeRef);
+  const selfFlags = refreshedSelf?.mosje.flags ?? {};
+  for (const petSynergy of definition.petSynergies ?? []) {
+    const isPetActive = selfFlags[`buff:pet_active:${petSynergy.petCardId}`] !== undefined;
+    if (!isPetActive) continue;
+    next = runCardEffects(next, petSynergy.bonusEffects, invocation, context);
+  }
+
+  return next;
+}
+
 function payAbilityCost(
   state: GameState,
   ability: MosjeAbility,
@@ -184,24 +252,17 @@ function executeMosjeAbilityInternal(
 
   let next = runCardEffects(paid, ability.effects, invocation, context);
 
-  const chamberActive = next.gameFlags?.["synergy_chamber_active"] === true;
-  for (const synergy of definition.synergies ?? []) {
-    const active =
-      chamberActive ||
-      checkSynergy(next, {
-        mosje: abilityInvocation.actingMosjeRef,
-        partnerCardId: synergy.partnerCardId
-      });
-    if (!active) continue;
-    next = runCardEffects(next, synergy.bonusEffects, invocation, context);
-  }
+  next = runAbilityBonuses(next, definition, abilityInvocation, invocation, context);
 
-  const refreshedSelf = resolveMosje(next, abilityInvocation.actingMosjeRef);
-  const selfFlags = refreshedSelf?.mosje.flags ?? {};
-  for (const petSynergy of definition.petSynergies ?? []) {
-    const isPetActive = selfFlags[`buff:pet_active:${petSynergy.petCardId}`] !== undefined;
-    if (!isPetActive) continue;
-    next = runCardEffects(next, petSynergy.bonusEffects, invocation, context);
+  const doubleActivation = consumeDoubleActivationBuff(next, abilityInvocation.actingMosjeRef);
+  if (doubleActivation.consumed) {
+    next = appendEvent(doubleActivation.state, {
+      type: "double_activation_triggered",
+      cardId: mosjeCardId,
+      source: context.source
+    });
+    next = runCardEffects(next, ability.effects, invocation, context);
+    next = runAbilityBonuses(next, definition, abilityInvocation, invocation, context);
   }
 
   if (ability.usageLimit === "once_per_turn") {

@@ -33,8 +33,8 @@ export const THE_GYM: PlaceDefinition = {
                   primitive: "ifThenElse",
                   params: {
                     condition: {
-                      primitive: "checkMosjeType",
-                      params: { target: "$target", mosjeType: "FIGHTING" }
+                      primitive: "checkTrait",
+                      params: { target: "$target", trait: "Physical", minStars: 2 }
                     },
                     then: { primitive: "gainMP", params: { target: "$target", amount: 25 } },
                     else: {

@@ -51,7 +51,7 @@ beforeEach(() => {
 });
 
 describe("step2 batch2 places", () => {
-  it("momentum-factory gives +5 on piecie_activated", () => {
+  it("momentum-factory gives +10 on piecie_activated", () => {
     const entered = enterPlace(baseState(), id("place_momentum_factory"));
     const fired = appendEvent(entered, {
       type: "piecie_activated",
@@ -60,7 +60,7 @@ describe("step2 batch2 places", () => {
       cardId: id("piecie_x")
     });
 
-    expect(mp(fired, "p1")).toBe(35);
+    expect(mp(fired, "p1")).toBe(40); // 30 + 10
   });
 
   it("momentum-factory ghost listener stops after replacement", () => {

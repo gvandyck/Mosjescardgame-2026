@@ -107,12 +107,12 @@ describe("phase4b step 1 - utility and draw piecies", () => {
     expect(next.players[0].hand).toEqual([cardId("h0"), cardId("d1"), cardId("d2"), cardId("d3")]);
   });
 
-  it("redbull draws 2 and grants this-turn extra slot buff", () => {
+  it("redbull grants this-turn double activation buff", () => {
     const next = invoke("redbull");
-    expect(next.players[0].mosjes[0].mp).toBe(70);
-    expect(next.players[0].hand).toEqual([cardId("h0"), cardId("d1"), cardId("d2")]);
-    expect(next.players[0].mosjes[0].flags["buff:extra_piecie_slot_this_turn"]).toMatchObject({
-      data: { extraSlots: 1 },
+    expect(next.players[0].mosjes[0].mp).toBe(60);
+    expect(next.players[0].hand).toEqual([cardId("h0")]);
+    expect(next.players[0].mosjes[0].flags["buff:double_activate_this_turn"]).toMatchObject({
+      data: { usesRemaining: 1 },
       expiryTurn: 12
     });
   });

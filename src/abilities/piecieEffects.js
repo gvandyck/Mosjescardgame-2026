@@ -643,7 +643,10 @@ export function effect_call_of_welloes(gameState, playerId) {
 		return gameState;
 	}
 
-	// Revive without consuming the piecie; UI handles placement.
+	// Intended: choose a Mosje in a Welloe pile and summon it to the field at
+	// Level 1, 0 MP. This Piecie stays linked to that Mosje; if this Piecie
+	// leaves play, that Mosje returns to Welloe. For now, reuse Mosje Reborn as
+	// the UI/browser stub until linked field attachments exist.
 	return effect_mosje_reborn(gameState, playerId);
 }
 

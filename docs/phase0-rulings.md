@@ -109,7 +109,8 @@ Each turn has four phases in this exact order:
 - Quest failure penalties (where stated on card)
 - Paying MP costs for abilities
 - Place card effects (where stated on card)
-- A Mosje can go negative. **A Mosje with negative MP cannot attempt Quests** until back at 0 or above.
+- **Defeat at 0 MP**: When a Mosje reaches 0 or below MP from any non-cost-payment effect (Quest failure damage, Piecie effects, Place effects, Snelle Piecies, Mosje abilities), that Mosje is immediately sent to the player's discard pile. The `in_welloe` flag is set on the Mosje instance.
+- **Cost payments can go negative**: Paying an MP cost (see U7) can bring a Mosje below 0 MP without triggering defeat. A Mosje with negative MP from cost payment **cannot attempt Quests** until back at 0 or above.
 
 ---
 
@@ -232,11 +233,13 @@ If a card says "pay X MP", that is a cost. If a card says "lose X MP" or "drain 
 
 ## Welloe Mosje System
 
-- When a Mosje is defeated (HP reaches 0, or a card says "defeat" / "send to Welloe"), it goes to the **Welloe Mosje Pile** — a face-up discard area separate from the regular discard.
+- When a Mosje is defeated by reaching 0 MP from a non-cost effect, it is sent to the player's **regular discard pile** and marked with the `in_welloe` flag.
+- When a card explicitly says "send to Welloe" or "defeat", the Mosje goes to the **Welloe Mosje Pile** (a separate face-up area) and is also marked with the `in_welloe` flag.
+- In both cases, the `in_welloe` flag is the authoritative indicator that a Mosje is out of play. The knockout victory condition checks this flag.
 - Defeated Mosje loses all Level progress and MP (see U4).
 - If a player has no Mosjes on the field and no Mosjes in hand or deck, they are eliminated (in multiplayer) or lose (in 1v1).
 - Revival via **Mosje Reborn**: returns target Mosje from your Welloe pile to your field at Level 1, 0 MP.
-- Revival via **Call of the Welloes**: returns target Mosje from any player's Welloe pile to that player's field at Level 1, 0 MP. (This is intentionally weaker than Mosje Reborn — it does not give the opponent a Level bonus.)
+- Revival via **Call of the Welloes**: summons target Mosje from a Welloe pile to that player's field at Level 1, 0 MP. Call of the Welloes remains linked to that Mosje; if the Piecie leaves play, the summoned Mosje returns to Welloe. (This is intentionally weaker than Mosje Reborn — it does not give the opponent a Level bonus.)
 
 ---
 
@@ -253,7 +256,7 @@ These rulings cover cards where the text was ambiguous or where the obvious read
 | **Bijna Welloe** | "Defeat" means send to Welloe pile (see U4). Does not trigger "on MP loss" effects — it is a defeat, not a drain. |
 | **Jantje Jantje Jantje** | Effect resolves once per activation regardless of how many Jantje cards are in play. Does not chain with itself. |
 | **Emergency Swap** | Marked advanced. Creates a one-time copy of the target Mosje's ability that does not count against the target's own once-per-turn limits. The copy is discarded after use. |
-| **Call of the Welloes** | Revived Mosje enters at Level 1, 0 MP — intentionally weaker than Mosje Reborn. Does not restore level or stored MP. |
+| **Call of the Welloes** | Revived Mosje enters at Level 1, 0 MP — intentionally weaker than Mosje Reborn. Does not restore level or stored MP. This is a linked field effect: if Call of the Welloes leaves play, the summoned Mosje returns to Welloe; if the summoned Mosje leaves the field first, Call of the Welloes is discarded/cleared. |
 | **Perfect Setup** | Creates a quest-MP-override for the current Quest attempt only. Does not permanently change the player's MP. Useful for hitting exact Quest thresholds without losing real progress. |
 | **Drain Reversal** | Only triggers on effect-based MP loss (see U7). Does not trigger when an opponent pays MP costs. |
 | **The Void** | Only triggers on effect-based MP loss (see U7). Does not trigger when an opponent pays MP costs. |

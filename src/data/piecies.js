@@ -748,7 +748,7 @@ export const PIECIES = [
     requirement: "any",
     effectId: "effect_call_of_welloes",
     tags: ["REVIVE", "FIELD-EFFECT"],
-    description: "Summon a Mosje from Welloe pile. This Piecie stays while that Mosje is on field.",
+    description: "Choose a Mosje in a Welloe pile and summon it to the field at Level 1, 0 MP. This Piecie stays linked to that Mosje; if this Piecie leaves play, that Mosje returns to Welloe.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
     rarity: "★★★☆☆",

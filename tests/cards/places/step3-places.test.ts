@@ -84,8 +84,25 @@ beforeEach(() => {
 });
 
 describe("step3 places", () => {
-  it("coerts-caravan gives +20 to technical 2+ and +10 otherwise at turn_start", () => {
-    const entered = enterPlace(baseState(), id("place_coerts_caravan"));
+  it("coerts-caravan gives +15 to Coert Mosje at turn_start, no bonus otherwise", () => {
+    // Give p1 a Coert cardId so the checkMosjeCardId condition fires
+    const stateWithCoert = {
+      ...baseState(),
+      players: baseState().players.map((player) =>
+        player.id !== "p1"
+          ? player
+          : {
+              ...player,
+              mosjes: player.mosjes.map((mosje, index) =>
+                index === player.activeMosjeIndex
+                  ? { ...mosje, cardId: id("coert-kasteluck") }
+                  : mosje
+              )
+            }
+      )
+    };
+
+    const entered = enterPlace(stateWithCoert, id("place_coerts_caravan"));
     const p1 = appendEvent(
       { ...entered, currentPlayerId: "p1" },
       { type: "turn_started", turn: 1, playerId: "p1" }
@@ -95,8 +112,8 @@ describe("step3 places", () => {
       { type: "turn_started", turn: 1, playerId: "p2" }
     );
 
-    expect(mp(p1, "p1")).toBe(70);
-    expect(mp(p2, "p2")).toBe(60);
+    expect(mp(p1, "p1")).toBe(65); // 50 + 15 (Coert cardId)
+    expect(mp(p2, "p2")).toBe(50); // no Coert cardId, no bonus
   });
 
   it("coerts-caravan ghost listener stops after replacement", () => {

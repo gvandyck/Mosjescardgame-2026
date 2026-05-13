@@ -12,7 +12,7 @@ export function checkVictory(state: GameState): { winnerId: string | null; reaso
     if (
       opponents.length > 0 &&
       opponents.every((opponent) =>
-        opponent.mosjes.every((mosje) => opponent.welloePile.includes(mosje.cardId))
+        opponent.mosjes.every((mosje) => mosje.flags.in_welloe === true)
       )
     ) {
       return { winnerId: player.id, reason: "knockout" };
