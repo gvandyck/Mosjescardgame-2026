@@ -103,7 +103,13 @@ export function showPackOpeningOverlay({ drawnCards, ownedBefore, newBalance, on
 		progress.textContent = `${i + 1} / ${drawnCards.length}`;
 		renderFront(card, isNew);
 
+		// Reset instantly — suppress the CSS flip-back transition so the
+		// new card's front face is never visible before the player clicks.
+		flipper.style.transition = 'none';
 		flipper.classList.remove('is-flipped');
+		void flipper.offsetWidth; // force reflow before restoring transition
+		flipper.style.transition = '';
+
 		nextBtn.hidden = true;
 		hint.hidden    = false;
 
