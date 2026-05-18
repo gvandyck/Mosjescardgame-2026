@@ -1,17 +1,14 @@
 // walletStore.js — Reads and writes the Munten wallet for a user.
 // Path: users/{uid}/wallet/{ munten, lifetimeEarned, lastUpdated }
-//
-// addMunten and spendMunten use RTDB transactions to prevent race conditions
-// when both clients write wallet data at the same time (e.g. after a match).
 
 import { isFirebaseReady, getRtdb } from '../firebase.js';
 
 console.log('[WALLET] walletStore.js loaded');
 
 async function getRtdbAPI() {
-	const { ref, get, runTransaction } =
+	const { ref, get, update, runTransaction } =
 		await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js');
-	return { ref, get, runTransaction };
+	return { ref, get, update, runTransaction };
 }
 
 export async function getWallet(uid) {
@@ -53,20 +50,26 @@ export async function addMunten(uid, amount) {
 }
 
 // Returns { success: true, newBalance } or { success: false, error }
+// Uses read-then-write. Safe for single-user spend (one browser at a time).
 export async function spendMunten(uid, amount) {
 	if (!uid || amount <= 0) return { success: false, error: 'Invalid amount.' };
 	const ready = await isFirebaseReady();
 	if (!ready) return { success: false, error: 'Firebase unavailable.' };
 	const db = getRtdb();
-	const { ref, runTransaction } = await getRtdbAPI();
+	const { ref, get, update } = await getRtdbAPI();
 	try {
-		const result = await runTransaction(ref(db, `users/${uid}/wallet`), (current) => {
-			const wallet = current ?? { munten: 0, lifetimeEarned: 0 };
-			if ((wallet.munten ?? 0) < amount) return undefined; // abort
-			return { ...wallet, munten: wallet.munten - amount, lastUpdated: Date.now() };
+		const snap = await get(ref(db, `users/${uid}/wallet`));
+		const wallet = snap.val() ?? { munten: 0 };
+		const balance = wallet.munten ?? 0;
+		if (balance < amount) {
+			return { success: false, error: 'Not enough Munten.' };
+		}
+		const newBalance = balance - amount;
+		await update(ref(db, `users/${uid}/wallet`), {
+			munten: newBalance,
+			lastUpdated: Date.now(),
 		});
-		if (!result.committed) return { success: false, error: 'Not enough Munten.' };
-		return { success: true, newBalance: result.snapshot.val()?.munten ?? 0 };
+		return { success: true, newBalance };
 	} catch (err) {
 		console.warn('[WALLET] spendMunten failed:', err?.code);
 		return { success: false, error: 'Transaction failed. Try again.' };
