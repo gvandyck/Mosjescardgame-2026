@@ -21,13 +21,6 @@ onAuthStateChanged(async user => {
 
 	_uid = user.uid;
 
-	const badgeName = document.getElementById('user-badge-name');
-	const badge = document.getElementById('user-badge');
-	if (badge && badgeName) {
-		badgeName.textContent = user.displayName || user.email;
-		badge.hidden = false;
-	}
-
 	await initNewAccount(_uid);
 	await refreshBalance();
 	renderPack();
