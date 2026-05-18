@@ -76,20 +76,104 @@ export function showPackOpeningOverlay({ drawnCards, ownedBefore, newBalance, on
 		const label    = TYPE_LABEL[card.cardType]  || card.cardType;
 		const hasArt   = card.artPath && !card.artPath.includes('placeholder');
 		const artStyle = hasArt ? `style="background-image:url('${cssUrl(card.artPath)}')"` : '';
+		const badge    = isNew
+			? '<span class="pff-new">NEW</span>'
+			: '<span class="pff-dupe">+1 copy</span>';
+
+		// Small badge shown in the art zone top-left alongside the type label
+		let subtypeBadge = '';
+		if (card.cardType === 'SNELLE_PIECIE') {
+			subtypeBadge = '<span class="pff-subtype-badge pff-subtype-badge--instant">⚡ INSTANT</span>';
+		} else if (card.subtype) {
+			subtypeBadge = `<span class="pff-subtype-badge">${card.subtype}</span>`;
+		} else if (card.trigger) {
+			subtypeBadge = `<span class="pff-subtype-badge">${card.trigger.replace(/_/g, ' ')}</span>`;
+		} else if (card.category) {
+			subtypeBadge = `<span class="pff-subtype-badge">${card.category}</span>`;
+		}
+
+		let bodyHTML = '';
+
+		if (card.cardType === 'MOSJE') {
+			const traits = card.traits
+				? Object.entries(card.traits)
+					.map(([k, v]) => `<span class="pff-trait">${k} ${'★'.repeat(v)}</span>`)
+					.join('')
+				: '';
+			bodyHTML = `
+				<div class="pff-name-row">
+					<p class="pff-name">${card.name}</p>
+					${card.rarity ? `<span class="pff-rarity">${card.rarity}</span>` : ''}
+				</div>
+				<p class="pff-meta">${card.subtype ? card.subtype + ' · ' : ''}Start MP: ${card.startMP ?? 0}</p>
+				${traits ? `<div class="pff-traits">${traits}</div>` : ''}
+				${card.abilityDescription ? `<p class="pff-ability">${card.abilityDescription}</p>` : ''}
+				${card.flavourText ? `<p class="pff-flavour">"${card.flavourText}"</p>` : ''}
+			`;
+		} else if (card.cardType === 'PIECIE' || card.cardType === 'SNELLE_PIECIE') {
+			const tags = card.tags?.map(t => `<span class="pff-tag">${t}</span>`).join('') || '';
+			const req  = card.requirement && card.requirement !== 'any' ? card.requirement : null;
+			bodyHTML = `
+				<div class="pff-name-row">
+					<p class="pff-name">${card.name}</p>
+					${card.rarity ? `<span class="pff-rarity">${card.rarity}</span>` : ''}
+				</div>
+				${card.cardType === 'SNELLE_PIECIE'
+					? '<p class="pff-meta pff-meta--instant">⚡ Instant Interrupt — play from hand at any time</p>'
+					: ''}
+				<div class="pff-cost-row">
+					<span class="pff-cost-chip">${card.mpCost > 0 ? card.mpCost + ' MP' : 'Free'}</span>
+					${req ? `<span class="pff-req-chip">Req: ${req}</span>` : ''}
+				</div>
+				${tags ? `<div class="pff-tags">${tags}</div>` : ''}
+				${card.description ? `<p class="pff-ability">${card.description}</p>` : ''}
+				${card.flavourText ? `<p class="pff-flavour">"${card.flavourText}"</p>` : ''}
+			`;
+		} else if (card.cardType === 'PLACE') {
+			const good = card.goodFor?.length ? card.goodFor.join(', ') : null;
+			const bad  = card.badFor?.length  ? card.badFor.join(', ')  : null;
+			bodyHTML = `
+				<div class="pff-name-row">
+					<p class="pff-name">${card.name}</p>
+					${card.rarity ? `<span class="pff-rarity">${card.rarity}</span>` : ''}
+				</div>
+				${card.trigger ? `<p class="pff-meta">Trigger: ${card.trigger.replace(/_/g, ' ')}</p>` : ''}
+				${card.description ? `<p class="pff-ability">${card.description}</p>` : ''}
+				${good ? `<p class="pff-place-good">▲ Good for: ${good}</p>` : ''}
+				${bad  ? `<p class="pff-place-bad">▼ Bad for: ${bad}</p>`   : ''}
+				${card.flavourText ? `<p class="pff-flavour">"${card.flavourText}"</p>` : ''}
+			`;
+		} else if (card.cardType === 'QUEST') {
+			bodyHTML = `
+				<div class="pff-name-row">
+					<p class="pff-name">${card.name}</p>
+					${card.rarity ? `<span class="pff-rarity">${card.rarity}</span>` : ''}
+				</div>
+				<p class="pff-meta">${card.category ? card.category + ' · ' : ''}${card.difficulty || ''}</p>
+				${card.requirementDescription ? `<p class="pff-ability">${card.requirementDescription}</p>` : ''}
+				<div class="pff-quest-outcomes">
+					${card.successMP != null ? `<span class="pff-outcome pff-outcome--win">✓ +${card.successMP} MP</span>` : ''}
+					${card.failMP    != null ? `<span class="pff-outcome pff-outcome--lose">✗ ${card.failMP} MP</span>` : ''}
+				</div>
+				${card.description ? `<p class="pff-ability">${card.description}</p>` : ''}
+				${card.flavourText ? `<p class="pff-flavour">"${card.flavourText}"</p>` : ''}
+			`;
+		}
 
 		front.style.borderColor = colour;
 		front.innerHTML = `
 			<div class="pff-art" ${artStyle}>
 				<div class="pff-art-overlay"></div>
 				<div class="pff-art-header">
-					<span class="pff-type" style="color:${colour}">${label}</span>
-					${isNew ? '<span class="pff-new">NEW</span>' : '<span class="pff-dupe">+1 copy</span>'}
+					<div class="pff-art-header-left">
+						<span class="pff-type" style="color:${colour}">${label}</span>
+						${subtypeBadge}
+					</div>
+					${badge}
 				</div>
 			</div>
 			<div class="pff-body">
-				<p class="pff-name">${card.name}</p>
-				${card.rarity ? `<p class="pff-rarity">${card.rarity}</p>` : ''}
-				${card.description ? `<p class="pff-desc">${card.description}</p>` : ''}
+				${bodyHTML}
 			</div>
 		`;
 	}
