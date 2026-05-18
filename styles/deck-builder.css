@@ -26,7 +26,8 @@
   transition: color 0.15s;
 }
 
-.btn-back:hover { color: #fff; }
+.btn-back:visited { color: rgba(255, 255, 255, 0.55); }
+.btn-back:hover   { color: #fff; }
 
 .builder-title {
   font-family: var(--font-display);

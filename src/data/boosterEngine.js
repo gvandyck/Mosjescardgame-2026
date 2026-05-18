@@ -54,7 +54,7 @@ export function drawPack(count = 5) {
 }
 
 export const PACK = {
-	name: 'Mosjes Pakje',
+	name: 'Boosteros',
 	cost: 150,
 	cardCount: 5,
 	description: '5 random cards from the full card pool.',

@@ -33,11 +33,15 @@ onAuthStateChanged(async user => {
 	renderPack();
 });
 
+function formatMunten(n) {
+	return Number(n).toLocaleString('nl-NL') + ' Munten';
+}
+
 async function refreshBalance() {
 	const wallet = await getWallet(_uid);
 	_balance = wallet.munten ?? 0;
 	const el = document.getElementById('wallet-balance');
-	if (el) el.textContent = `${_balance} Munten`;
+	if (el) el.textContent = formatMunten(_balance);
 }
 
 // ── Render the single pack ────────────────────────────────────────────────────
@@ -50,8 +54,17 @@ function renderPack() {
 	container.innerHTML = `
 		<div class="store-pack-card">
 			<div class="store-pack-art">
-				<div class="store-pack-art-inner">
-					<p class="store-pack-emoji">🃏</p>
+				<div class="store-pack-visual">
+					<div class="spv-shine"></div>
+					<div class="spv-top-strip"></div>
+					<div class="spv-logo">MOSJES</div>
+					<div class="spv-subtitle">BOOSTER PACK</div>
+					<div class="spv-cards">
+						<div class="spv-card spv-card--1"></div>
+						<div class="spv-card spv-card--2"></div>
+						<div class="spv-card spv-card--3"></div>
+					</div>
+					<div class="spv-bottom-strip"></div>
 				</div>
 			</div>
 			<div class="store-pack-body">
@@ -100,7 +113,7 @@ async function onBuyPack() {
 	// Update local balance
 	_balance = spendResult.newBalance;
 	const balanceEl = document.getElementById('wallet-balance');
-	if (balanceEl) balanceEl.textContent = `${_balance} Munten`;
+	if (balanceEl) balanceEl.textContent = formatMunten(_balance);
 
 	// Show pack opening overlay
 	showPackOpeningOverlay({
