@@ -27,6 +27,8 @@ import {
 } from './multiplayer/authManager.js';
 import { loadUserDecks, getLastUserStoreError, deleteUserData } from './multiplayer/userStore.js';
 import { initNewAccount } from './multiplayer/accountSetup.js';
+import { claimMatchReward } from './multiplayer/matchRewards.js';
+import { showRewardOverlay } from './ui/rewardOverlay.js';
 
 console.log('[UI] App bootstrapping...');
 
@@ -335,6 +337,25 @@ function initGamePage() {
 		if (isOnline && gameState) pushState(roomCode, gameState);
 	}
 
+	// ── Post-match reward flow ────────────────────────────────────────────
+	async function handleGameOver(gs) {
+		stopListening();
+		const winnerName = gs.players[gs.winnerId]?.name || 'Unknown';
+		const opponentName = gs.players[localPlayerId === 'player_1' ? 'player_2' : 'player_1']?.name || 'Opponent';
+		const outcome = gs.winnerId === localPlayerId ? 'win' : 'loss';
+
+		log.add('win', `${winnerName} won by ${gs.winReason}.`);
+
+		let muntenAwarded = 0;
+		const user = getCurrentUser();
+		if (isOnline && user && !user.isAnonymous) {
+			const result = await claimMatchReward(roomCode, user.uid, outcome, opponentName);
+			muntenAwarded = result.muntenAwarded;
+		}
+
+		showRewardOverlay({ outcome, winnerName, winReason: gs.winReason, muntenAwarded, isOnline });
+	}
+
 	// ── Shared remote-state handler — registered after game init ─────────
 	function onRemoteState(remoteState) {
 		const { state: sanitizedState, changed } = sanitizeQuestCardsInPlayerZones(remoteState);
@@ -347,10 +368,7 @@ function initGamePage() {
 		const activeName = gameState.players[gameState.activePlayerId]?.name;
 		log.add('quest', `Opponent acted — now ${activeName}'s turn.`);
 		if (gameState.status === 'FINISHED') {
-			stopListening();
-			const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
-			log.add('win', `${winnerName} won by ${gameState.winReason}.`);
-			modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+			handleGameOver(gameState);
 		}
 	}
 
@@ -443,10 +461,7 @@ function initGamePage() {
 		log.add('quest', `${previousPlayerName} ended their turn.`);
 
 		if (gameState.status === 'FINISHED') {
-			stopListening();
-			const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
-			log.add('win', `${winnerName} won by ${gameState.winReason}.`);
-			modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+			handleGameOver(gameState);
 			return;
 		}
 
