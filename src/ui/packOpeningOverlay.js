@@ -45,8 +45,6 @@ export function showPackOpeningOverlay({ drawnCards, ownedBefore, newBalance, on
 
 			<p class="pack-hint" id="pack-hint">Click the card to reveal</p>
 
-			<button class="pack-next-btn" id="pack-next-btn" hidden></button>
-
 			<div class="pack-summary" id="pack-summary" hidden>
 				<p class="pack-summary-label" id="pack-summary-label"></p>
 				<p class="pack-opening-balance">Balance: <strong id="pack-balance-val"></strong></p>
@@ -66,9 +64,8 @@ export function showPackOpeningOverlay({ drawnCards, ownedBefore, newBalance, on
 	const stage    = overlay.querySelector('#pack-stage');
 	const flipper  = overlay.querySelector('#pack-flipper');
 	const front    = overlay.querySelector('#pack-front');
-	const hint     = overlay.querySelector('#pack-hint');
-	const nextBtn  = overlay.querySelector('#pack-next-btn');
-	const summary  = overlay.querySelector('#pack-summary');
+	const hint    = overlay.querySelector('#pack-hint');
+	const summary = overlay.querySelector('#pack-summary');
 
 	// ── Render one card's front face ──────────────────────────────────────────
 	function renderFront(card, isNew) {
@@ -194,8 +191,7 @@ export function showPackOpeningOverlay({ drawnCards, ownedBefore, newBalance, on
 		void flipper.offsetWidth; // force reflow before restoring transition
 		flipper.style.transition = '';
 
-		nextBtn.hidden = true;
-		hint.hidden    = false;
+		hint.hidden = false;
 
 		if (animate) {
 			// Slide in from right
@@ -205,26 +201,23 @@ export function showPackOpeningOverlay({ drawnCards, ownedBefore, newBalance, on
 		}
 	}
 
-	// ── Flip click ────────────────────────────────────────────────────────────
+	// ── Card click: first click flips, second click advances ─────────────────
 	flipper.addEventListener('click', () => {
-		if (flipped) return;
-		flipped = true;
-		flipper.classList.add('is-flipped');
+		if (!flipped) {
+			flipped = true;
+			flipper.classList.add('is-flipped');
+			const isLast = index === drawnCards.length - 1;
+			hint.textContent = isLast ? 'Click to finish' : 'Click to continue';
+			hint.hidden = false;
+			return;
+		}
+
+		// Second click — advance
 		hint.hidden = true;
-
-		const isLast = index === drawnCards.length - 1;
-		nextBtn.textContent = isLast ? 'Done ✓' : 'Next Card →';
-		nextBtn.hidden = false;
-	});
-
-	// ── Next / Done ───────────────────────────────────────────────────────────
-	nextBtn.addEventListener('click', () => {
 		if (index === drawnCards.length - 1) {
 			showSummary();
 			return;
 		}
-
-		// Exit current card
 		stage.classList.add('stage-exit');
 		setTimeout(() => {
 			index++;
@@ -236,9 +229,8 @@ export function showPackOpeningOverlay({ drawnCards, ownedBefore, newBalance, on
 	function showSummary() {
 		stage.hidden    = true;
 		progress.hidden = true;
-		hint.hidden     = true;
-		nextBtn.hidden  = true;
-		summary.hidden  = false;
+		hint.hidden    = true;
+		summary.hidden = false;
 
 		const newCount = drawnCards.filter(c => !ownedBefore.has(c.id)).length;
 		const label = newCount === drawnCards.length ? 'All new cards!'
