@@ -16,6 +16,7 @@ import {
 	deleteUserData,
 } from './multiplayer/userStore.js';
 import { initNewAccount } from './multiplayer/accountSetup.js';
+import { getOwnedCardIds } from './multiplayer/collectionStore.js';
 import { MOSJES } from './data/mosjes.js';
 import { PIECIES } from './data/piecies.js';
 import { SNELLE_PIECIES } from './data/snellePiecies.js';
@@ -57,7 +58,8 @@ function showCardPreview(card) {
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let deck = { MOSJE: {}, PIECIE: {}, SNELLE_PIECIE: {}, PLACE: {}, QUEST: {} }; // { cardId: count }
-let savedDecks = [];       // loaded from Firebase
+let savedDecks = [];            // loaded from Firebase
+let _ownedCardIds = new Set();  // card IDs the player owns at least 1 copy of
 let activeFilter = 'ALL';
 let searchQuery = '';
 let editingDeckId = null;  // id of the deck being edited (null = new)
@@ -74,8 +76,11 @@ onAuthStateChanged(async user => {
 	const name = document.getElementById('user-badge-name');
 	if (badge && name) { name.textContent = user.displayName || user.email; badge.hidden = false; }
 
-	// One-time account setup (wallet + starter collection)
-	initNewAccount(user.uid);
+	// Ensure wallet + starter collection exist before reading collection
+	await initNewAccount(user.uid);
+
+	// Load collection so the grid can grey out unowned cards
+	_ownedCardIds = await getOwnedCardIds(user.uid);
 
 	// Load saved decks
 	savedDecks = await loadUserDecks(user.uid);
@@ -222,16 +227,18 @@ function renderGrid() {
 		const atMax     = count >= maxCopies || typeTotal >= LIMITS[card.cardType];
 		const typeSlug  = card.cardType.toLowerCase().replace(/_/g, '-');
 
+		const owned = _ownedCardIds.has(card.id);
 		const tile = document.createElement('div');
 		tile.className = [
 			'card-tile',
 			`card-tile--${typeSlug}`,
-			atMax  ? 'card-tile--full'     : '',
-			count > 0 ? 'card-tile--selected' : '',
+			atMax      ? 'card-tile--full'     : '',
+			count > 0  ? 'card-tile--selected'  : '',
+			!owned     ? 'card-tile--unowned'   : '',
 		].filter(Boolean).join(' ');
 		tile.dataset.id   = card.id;
 		tile.dataset.type = card.cardType;
-		tile.innerHTML = buildTileHTML(card, count, atMax);
+		tile.innerHTML = buildTileHTML(card, count, atMax, owned);
 		grid.appendChild(tile);
 	}
 }
@@ -240,7 +247,7 @@ function cardNameById(id) {
 	return ALL_CARDS.find(c => c.id === id)?.name || id;
 }
 
-function buildTileHTML(card, count, atMax) {
+function buildTileHTML(card, count, atMax, owned = true) {
 	const { id, cardType, rarity } = card;
 	const typeSlug = cardType.toLowerCase().replace(/_/g, '-');
 
@@ -252,8 +259,10 @@ function buildTileHTML(card, count, atMax) {
 		? ` style="background-image: url('${cssUrl(card.artPath)}')"`
 		: '';
 
-	// ── Art header: badge top-left, rarity top-right ──────────────
-	const rarityLabel = rarity ? `<span class="tile-rarity">${rarity}</span>` : '';
+	// ── Art header: badge top-left, rarity/lock top-right ────────
+	const rarityLabel = !owned
+		? `<span class="tile-lock">Unowned</span>`
+		: (rarity ? `<span class="tile-rarity">${rarity}</span>` : '');
 	const subtypeLabel = card.subtype
 		? `<span class="tile-subtype">${card.subtype.replace(/-/g, ' ')}</span>`
 		: '';

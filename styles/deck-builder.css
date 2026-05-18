@@ -436,6 +436,27 @@
   text-shadow: 0 0.0625rem 0.25rem rgba(0,0,0,0.8);
 }
 
+/* Unowned cards — greyed out, lock badge replaces rarity */
+.card-tile--unowned {
+  filter: grayscale(1);
+  opacity: 0.5;
+}
+.card-tile--unowned:hover {
+  opacity: 0.7;
+}
+.tile-lock {
+  margin-left: auto;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 0.25rem;
+  padding: 0.05rem 0.35rem;
+}
+
 /* Card name + subtype — first item inside tile-body */
 .tile-name-wrap {
   flex-shrink: 0;
