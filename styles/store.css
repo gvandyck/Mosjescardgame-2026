@@ -1,0 +1,341 @@
+/* store.css — Booster Pack Store page */
+
+/* ── Layout ─────────────────────────────────────────────────────────────────── */
+
+.page--store {
+  min-height: 100vh;
+  background: var(--board-bg);
+  color: #e2e8f0;
+}
+
+.store-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #222;
+  background: rgba(15,15,15,0.8);
+  backdrop-filter: blur(6px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.store-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  letter-spacing: 2px;
+  color: var(--mosje-gold);
+  margin: 0;
+  flex: 1;
+}
+
+.store-header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.wallet-badge {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--mosje-gold);
+  background: rgba(232,185,79,0.08);
+  border: 1px solid rgba(232,185,79,0.25);
+  border-radius: 20px;
+  padding: 0.3rem 1rem;
+  white-space: nowrap;
+}
+
+.store-main {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem;
+}
+
+.store-intro {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.05rem;
+  color: #94a3b8;
+  line-height: 1.6;
+}
+
+.store-intro-tip {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-top: 0.4rem;
+}
+
+.store-error {
+  background: rgba(239,68,68,0.12);
+  border: 1px solid rgba(239,68,68,0.35);
+  border-radius: 8px;
+  color: #fca5a5;
+  padding: 0.75rem 1rem;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+/* ── Pack card ───────────────────────────────────────────────────────────────── */
+
+.store-pack-grid {
+  display: flex;
+  justify-content: center;
+}
+
+.store-pack-card {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  overflow: hidden;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.store-pack-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 32px rgba(232,185,79,0.15), 0 8px 32px rgba(0,0,0,0.5);
+  border-color: rgba(232,185,79,0.3);
+}
+
+.store-pack-art {
+  background: linear-gradient(135deg, #1c1c2e 0%, #16213e 50%, #0f0f1a 100%);
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.store-pack-art-inner {
+  text-align: center;
+}
+
+.store-pack-emoji {
+  font-size: 5rem;
+  margin: 0;
+  filter: drop-shadow(0 0 24px rgba(232,185,79,0.4));
+  animation: pack-float 3s ease-in-out infinite;
+}
+
+@keyframes pack-float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+
+.store-pack-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.store-pack-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  letter-spacing: 2px;
+  color: #fff;
+  margin: 0;
+}
+
+.store-pack-desc {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.store-pack-count {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.store-pack-cost {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: 1px;
+  color: var(--mosje-gold);
+  margin: 0.25rem 0;
+}
+
+.store-pack-btn {
+  margin-top: 0.5rem;
+  width: 100%;
+  font-size: 1.15rem;
+  padding: 14px;
+}
+
+.store-pack-btn:disabled {
+  background: #333;
+  color: #666;
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+/* ── Pack opening overlay ────────────────────────────────────────────────────── */
+
+.pack-opening-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0,0,0,0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  overflow-y: auto;
+  padding: 2rem 1rem;
+}
+
+.pack-opening-overlay--visible {
+  opacity: 1;
+}
+
+.pack-opening-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  max-width: 760px;
+  width: 100%;
+}
+
+.pack-opening-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.5rem;
+  letter-spacing: 3px;
+  color: var(--mosje-gold);
+  margin: 0;
+}
+
+.pack-opening-sub {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.1rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.pack-opening-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  width: 100%;
+}
+
+/* ── Individual pack card ────────────────────────────────────────────────────── */
+
+.pack-card {
+  width: 130px;
+  border-radius: 10px;
+  border: 2px solid #444;
+  background: #1a1a1a;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(16px) scale(0.95);
+  animation: pack-card-in 0.35s ease forwards;
+}
+
+@keyframes pack-card-in {
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.pack-card-art {
+  height: 80px;
+  background: #111;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0.3rem;
+}
+
+.pack-card-art-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.55));
+}
+
+.pack-card-type {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+}
+
+.pack-card-new {
+  align-self: flex-end;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  color: #000;
+  background: var(--mosje-gold);
+  border-radius: 4px;
+  padding: 0 0.3rem;
+  position: relative;
+  z-index: 1;
+}
+
+.pack-card-body {
+  padding: 0.4rem 0.5rem;
+}
+
+.pack-card-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.pack-card-rarity {
+  font-size: 0.6rem;
+  color: #64748b;
+  margin: 0.15rem 0 0;
+}
+
+/* ── Pack overlay actions ─────────────────────────────────────────────────────── */
+
+.pack-opening-balance {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.pack-opening-balance strong {
+  color: var(--mosje-gold);
+}
+
+.pack-opening-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pack-btn--secondary {
+  background: #2a2a2a;
+  color: #e2e8f0;
+  border: 1px solid #444;
+}
+
+.pack-btn--secondary:hover {
+  background: #333;
+  opacity: 1;
+}

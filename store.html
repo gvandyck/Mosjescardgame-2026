@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MOSJES - Store</title>
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/account.css" />
+  <link rel="stylesheet" href="styles/store.css" />
+</head>
+<body class="page page--store">
+  <div class="bg-noise" aria-hidden="true"></div>
+
+  <header class="store-header">
+    <a href="./index.html" class="btn-back">← Lobby</a>
+    <h1 class="store-title">Store</h1>
+    <div class="store-header-right">
+      <div class="wallet-badge">
+        🪙 <span id="wallet-balance">— Munten</span>
+      </div>
+      <div id="user-badge" class="user-badge" hidden>
+        <span id="user-badge-name"></span>
+      </div>
+    </div>
+  </header>
+
+  <main class="store-main">
+    <div class="store-intro">
+      <p>Spend your Munten on booster packs to expand your collection.</p>
+      <p class="store-intro-tip">Win matches to earn Munten. Earn 50 on a win, 15 on a loss.</p>
+    </div>
+
+    <p id="store-error" class="store-error" hidden></p>
+
+    <div id="store-pack-grid" class="store-pack-grid">
+      <!-- Rendered by store.js -->
+    </div>
+  </main>
+
+  <script type="module" src="src/store.js"></script>
+</body>
+</html>
