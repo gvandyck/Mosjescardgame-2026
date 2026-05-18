@@ -2,8 +2,19 @@
 // Auth-required (anonymous/guest users are redirected).
 // Saves custom decks to Firebase RTDB under users/{uid}/decks.
 
-import { onAuthStateChanged, getCurrentUser } from './multiplayer/authManager.js';
-import { loadUserDecks, saveDeck, deleteDeck } from './multiplayer/userStore.js';
+import {
+	onAuthStateChanged,
+	getCurrentUser,
+	reauthenticateCurrentUser,
+	deleteCurrentAccount,
+} from './multiplayer/authManager.js';
+import {
+	loadUserDecks,
+	saveDeck,
+	deleteDeck,
+	getLastUserStoreError,
+	deleteUserData,
+} from './multiplayer/userStore.js';
 import { MOSJES } from './data/mosjes.js';
 import { PIECIES } from './data/piecies.js';
 import { SNELLE_PIECIES } from './data/snellePiecies.js';
@@ -66,7 +77,54 @@ onAuthStateChanged(async user => {
 	savedDecks = await loadUserDecks(user.uid);
 	populateDeckSelect();
 	renderGrid();
+	if (getLastUserStoreError()) {
+		showStatus('Saved decks could not load. Check Firebase Database rules.', 'error');
+	}
 });
+
+document.getElementById('btn-delete-account')?.addEventListener('click', deleteSignedInAccount);
+
+async function deleteSignedInAccount() {
+	const user = getCurrentUser();
+	if (!user || user.isAnonymous) return;
+
+	const confirmed = confirm(
+		'Delete your MOSJES account permanently?\n\nThis removes your saved decks and account login. This cannot be undone.'
+	);
+	if (!confirmed) return;
+
+	const providerIds = user.providerData?.map(provider => provider.providerId) || [];
+	const password = providerIds.includes('password')
+		? prompt('Enter your password to confirm account deletion:')
+		: null;
+	if (providerIds.includes('password') && !password) return;
+
+	const deleteBtn = document.getElementById('btn-delete-account');
+	if (deleteBtn) deleteBtn.disabled = true;
+
+	const reauth = await reauthenticateCurrentUser(password);
+	if (!reauth.success) {
+		showStatus(reauth.error || 'Could not confirm your account. Please sign in again and try once more.', 'error');
+		if (deleteBtn) deleteBtn.disabled = false;
+		return;
+	}
+
+	const dataResult = await deleteUserData(user.uid);
+	if (!dataResult.success) {
+		showStatus(dataResult.error || 'Could not delete saved account data. Please try again.', 'error');
+		if (deleteBtn) deleteBtn.disabled = false;
+		return;
+	}
+
+	const authResult = await deleteCurrentAccount();
+	if (!authResult.success) {
+		showStatus(authResult.error || 'Could not delete account. Please sign in again and try once more.', 'error');
+		if (deleteBtn) deleteBtn.disabled = false;
+		return;
+	}
+
+	window.location.href = './account.html?msg=account-deleted';
+}
 
 // ── Deck select ───────────────────────────────────────────────────────────────
 function populateDeckSelect() {
@@ -462,7 +520,7 @@ document.getElementById('btn-save-deck').addEventListener('click', async () => {
 		document.getElementById('btn-delete-deck').hidden = false;
 		showStatus('Deck saved!', 'ok');
 	} else {
-		showStatus('Save failed. Try again.', 'error');
+		showStatus(result.error || 'Save failed. Try again.', 'error');
 	}
 });
 
@@ -487,7 +545,11 @@ document.getElementById('btn-delete-deck').addEventListener('click', async () =>
 	if (!user || !editingDeckId) return;
 	if (!confirm('Delete this deck? This cannot be undone.')) return;
 
-	await deleteDeck(user.uid, editingDeckId);
+	const result = await deleteDeck(user.uid, editingDeckId);
+	if (!result.success) {
+		showStatus(result.error || 'Delete failed. Try again.', 'error');
+		return;
+	}
 	savedDecks = await loadUserDecks(user.uid);
 	populateDeckSelect();
 	clearDeck();

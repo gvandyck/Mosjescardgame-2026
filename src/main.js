@@ -18,8 +18,14 @@ import { createRoom, joinRoom } from './multiplayer/roomManager.js';
 import { pushState, listenToState, stopListening } from './multiplayer/syncManager.js';
 import { eventBus } from './multiplayer/eventBus.js';
 import { APP_VERSION } from './version.js';
-import { onAuthStateChanged, signOut, getCurrentUser } from './multiplayer/authManager.js';
-import { loadUserDecks } from './multiplayer/userStore.js';
+import {
+	onAuthStateChanged,
+	signOut,
+	getCurrentUser,
+	reauthenticateCurrentUser,
+	deleteCurrentAccount,
+} from './multiplayer/authManager.js';
+import { loadUserDecks, getLastUserStoreError, deleteUserData } from './multiplayer/userStore.js';
 
 console.log('[UI] App bootstrapping...');
 
@@ -57,13 +63,18 @@ function initLobbyPage() {
 		// Show user badge
 		const badge = document.getElementById('user-badge');
 		const badgeName = document.getElementById('user-badge-name');
+		const deleteAccountBtn = document.getElementById('btn-delete-account');
 		if (badge && badgeName) {
 			badgeName.textContent = user.isAnonymous ? 'Playing as Guest' : user.displayName || user.email;
 			badge.hidden = false;
 		}
+		if (deleteAccountBtn) deleteAccountBtn.hidden = user.isAnonymous;
 		// Load custom decks into deck selector (registered users only)
 		if (!user.isAnonymous) {
 			const customDecks = await loadUserDecks(user.uid);
+			if (getLastUserStoreError()) {
+				console.warn('[UI] Custom decks could not load. Check Firebase Database rules.');
+			}
 			_customDecksCache = customDecks;
 			if (customDecks.length > 0) {
 				const deckSelect = document.getElementById('deck-select');
@@ -86,6 +97,8 @@ function initLobbyPage() {
 		await signOut();
 		window.location.href = './account.html';
 	});
+
+	document.getElementById('btn-delete-account')?.addEventListener('click', deleteSignedInAccount);
 
 	form.addEventListener('submit', async event => {
 		event.preventDefault();
@@ -156,6 +169,48 @@ function initLobbyPage() {
 			window.location.href = `./game.html?room=${encodeURIComponent(roomCodeInput)}&player=player_2`;
 		}
 	});
+}
+
+async function deleteSignedInAccount() {
+	const user = getCurrentUser();
+	if (!user || user.isAnonymous) return;
+
+	const confirmed = confirm(
+		'Delete your MOSJES account permanently?\n\nThis removes your saved decks and account login. This cannot be undone.'
+	);
+	if (!confirmed) return;
+
+	const providerIds = user.providerData?.map(provider => provider.providerId) || [];
+	const password = providerIds.includes('password')
+		? prompt('Enter your password to confirm account deletion:')
+		: null;
+	if (providerIds.includes('password') && !password) return;
+
+	const deleteBtn = document.getElementById('btn-delete-account');
+	if (deleteBtn) deleteBtn.disabled = true;
+
+	const reauth = await reauthenticateCurrentUser(password);
+	if (!reauth.success) {
+		alert(reauth.error || 'Could not confirm your account. Please sign in again and try once more.');
+		if (deleteBtn) deleteBtn.disabled = false;
+		return;
+	}
+
+	const dataResult = await deleteUserData(user.uid);
+	if (!dataResult.success) {
+		alert(dataResult.error || 'Could not delete saved account data. Please try again.');
+		if (deleteBtn) deleteBtn.disabled = false;
+		return;
+	}
+
+	const authResult = await deleteCurrentAccount();
+	if (!authResult.success) {
+		alert(authResult.error || 'Could not delete account. Please sign in again and try once more.');
+		if (deleteBtn) deleteBtn.disabled = false;
+		return;
+	}
+
+	window.location.href = './account.html?msg=account-deleted';
 }
 
 function initGamePage() {
