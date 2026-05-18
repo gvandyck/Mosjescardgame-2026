@@ -1,0 +1,775 @@
+/* store.css — Booster Pack Store page */
+
+/* ── Global link fix — prevent browser purple visited state on button links ── */
+a.btn-back:visited,
+a.btn-secondary:visited,
+a.reward-btn:visited {
+  color: inherit;
+}
+
+/* ── Layout ─────────────────────────────────────────────────────────────────── */
+
+.page--store {
+  min-height: 100vh;
+  background: var(--board-bg);
+  color: #e2e8f0;
+}
+
+.store-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid #222;
+  background: rgba(15,15,15,0.8);
+  backdrop-filter: blur(6px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-wrap: wrap;
+}
+
+.store-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  letter-spacing: 2px;
+  color: var(--mosje-gold);
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.store-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.wallet-badge {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--mosje-gold);
+  background: rgba(232,185,79,0.08);
+  border: 1px solid rgba(232,185,79,0.25);
+  border-radius: 20px;
+  padding: 0.3rem 0.85rem;
+  white-space: nowrap;
+}
+
+.store-main {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem;
+}
+
+.store-intro {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.05rem;
+  color: #94a3b8;
+  line-height: 1.6;
+}
+
+.store-intro-tip {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-top: 0.4rem;
+}
+
+.store-error {
+  background: rgba(239,68,68,0.12);
+  border: 1px solid rgba(239,68,68,0.35);
+  border-radius: 8px;
+  color: #fca5a5;
+  padding: 0.75rem 1rem;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+/* ── Pack card ───────────────────────────────────────────────────────────────── */
+
+.store-pack-grid {
+  display: flex;
+  justify-content: center;
+}
+
+.store-pack-card {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  overflow: hidden;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.store-pack-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 32px rgba(232,185,79,0.15), 0 8px 32px rgba(0,0,0,0.5);
+  border-color: rgba(232,185,79,0.3);
+}
+
+.store-pack-art {
+  background: linear-gradient(160deg, #0d0d1a 0%, #111128 60%, #0a0a14 100%);
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* ── CSS Booster Pack ─────────────────────────────────────────── */
+.store-pack-visual {
+  position: relative;
+  width: 140px;
+  height: 190px;
+  background: linear-gradient(170deg, #1a1040 0%, #0e0830 40%, #1a0e3a 70%, #0d0820 100%);
+  border-radius: 10px;
+  border: 2px solid rgba(232,185,79,0.6);
+  box-shadow:
+    0 0 0 1px rgba(232,185,79,0.15),
+    0 0 24px rgba(232,185,79,0.2),
+    0 8px 32px rgba(0,0,0,0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  overflow: hidden;
+  animation: pack-float 3s ease-in-out infinite;
+}
+
+@keyframes pack-float {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50%       { transform: translateY(-8px) rotate(1deg); }
+}
+
+/* Foil shine sweep */
+.spv-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255,255,255,0.04) 45%,
+    rgba(255,220,100,0.08) 50%,
+    rgba(255,255,255,0.04) 55%,
+    transparent 70%
+  );
+  animation: foil-sweep 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes foil-sweep {
+  0%, 100% { opacity: 0.5; transform: translateX(-20px); }
+  50%       { opacity: 1;   transform: translateX(20px); }
+}
+
+.spv-top-strip {
+  width: 100%;
+  height: 10px;
+  background: linear-gradient(90deg, #e8b94f, #f5d98a, #c8941f, #e8b94f);
+  background-size: 200% 100%;
+  animation: gold-shimmer 2.5s linear infinite;
+  flex-shrink: 0;
+}
+
+.spv-bottom-strip {
+  width: 100%;
+  height: 8px;
+  background: linear-gradient(90deg, #c8941f, #e8b94f, #f5d98a, #c8941f);
+  background-size: 200% 100%;
+  animation: gold-shimmer 2.5s linear infinite reverse;
+  flex-shrink: 0;
+}
+
+@keyframes gold-shimmer {
+  0%   { background-position: 0% 0%; }
+  100% { background-position: 200% 0%; }
+}
+
+.spv-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem;
+  letter-spacing: 4px;
+  color: var(--mosje-gold);
+  text-shadow: 0 0 12px rgba(232,185,79,0.6);
+  margin-top: 4px;
+  position: relative;
+  z-index: 1;
+}
+
+.spv-subtitle {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(232,185,79,0.6);
+  position: relative;
+  z-index: 1;
+  margin-top: -10px;
+}
+
+/* Fanned card backs inside the pack */
+.spv-cards {
+  position: relative;
+  width: 80px;
+  height: 68px;
+  flex-shrink: 0;
+  margin-bottom: 4px;
+}
+
+.spv-card {
+  position: absolute;
+  width: 44px;
+  height: 60px;
+  border-radius: 5px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: linear-gradient(135deg, #1e1060 0%, #2a1880 50%, #160c50 100%);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+.spv-card::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 3px;
+  border: 1px solid rgba(232,185,79,0.2);
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 3px,
+    rgba(232,185,79,0.04) 3px,
+    rgba(232,185,79,0.04) 4px
+  );
+}
+.spv-card--1 { transform: rotate(-12deg) translate(-18px, 4px); z-index: 1; }
+.spv-card--2 { transform: rotate(0deg)   translate(0px,   0px); z-index: 2; }
+.spv-card--3 { transform: rotate(12deg)  translate(18px,  4px); z-index: 1; }
+
+.store-pack-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.store-pack-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  letter-spacing: 2px;
+  color: #fff;
+  margin: 0;
+}
+
+.store-pack-desc {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.store-pack-count {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.store-pack-cost {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: 1px;
+  color: var(--mosje-gold);
+  margin: 0.25rem 0;
+}
+
+.store-pack-btn {
+  margin-top: 0.5rem;
+  width: 100%;
+  font-size: 1.15rem;
+  padding: 14px;
+}
+
+.store-pack-btn:disabled {
+  background: #333;
+  color: #666;
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+/* ── Pack opening overlay ────────────────────────────────────────────────────── */
+
+.pack-opening-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0,0,0,0.93);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow-y: auto;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.pack-opening-overlay--visible { opacity: 1; }
+
+/* ── Shell ───────────────────────────────────────────────────────────────────── */
+
+.pack-reveal-shell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 2rem 1rem 3rem;
+  min-height: min-content;
+  width: 100%;
+}
+
+.pack-reveal-progress {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+/* ── Stage (holds the flipping card) ────────────────────────────────────────── */
+
+.pack-stage {
+  perspective: 900px;
+}
+
+.pack-stage.stage-enter {
+  animation: stage-slide-in 0.3s ease forwards;
+}
+
+.pack-stage.stage-exit {
+  animation: stage-slide-out 0.25s ease forwards;
+}
+
+@keyframes stage-slide-in {
+  from { opacity: 0; transform: translateX(48px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes stage-slide-out {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(-48px); }
+}
+
+/* ── Flip card ───────────────────────────────────────────────────────────────── */
+
+.pack-flipper {
+  width: min(400px, 90vw);
+  height: min(580px, 78vh);
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+  cursor: pointer;
+}
+
+.pack-flipper.is-flipped { transform: rotateY(180deg); }
+
+.pack-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+}
+
+/* ── Card back ───────────────────────────────────────────────────────────────── */
+
+.pack-face--back {
+  background: linear-gradient(150deg, #1a1040 0%, #0e0830 50%, #1a0e3a 100%);
+  border: 2px solid rgba(232,185,79,0.5);
+  box-shadow: 0 0 24px rgba(232,185,79,0.12), 0 8px 32px rgba(0,0,0,0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.pfb-pattern {
+  position: absolute;
+  inset: 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(232,185,79,0.15);
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 6px,
+    rgba(232,185,79,0.04) 6px,
+    rgba(232,185,79,0.04) 7px
+  );
+}
+
+.pfb-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 3rem;
+  letter-spacing: 8px;
+  color: var(--mosje-gold);
+  text-shadow: 0 0 24px rgba(232,185,79,0.5);
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Card front ──────────────────────────────────────────────────────────────── */
+
+.pack-face--front {
+  transform: rotateY(180deg);
+  background: #1a1a1a;
+  border: 2px solid #444;
+  display: flex;
+  flex-direction: column;
+}
+
+.pff-art {
+  flex: 0 0 220px;
+  background: #111;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0.6rem;
+}
+
+.pff-art-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.15), rgba(0,0,0,0.6));
+}
+
+.pff-art-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+  z-index: 1;
+}
+
+.pff-art-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.pff-type {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+  background: rgba(0,0,0,0.5);
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.pff-subtype-badge {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.75);
+  background: rgba(0,0,0,0.45);
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.pff-subtype-badge--instant {
+  color: var(--snelle-red);
+}
+
+.pff-new {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  color: #000;
+  background: var(--mosje-gold);
+  border-radius: 4px;
+  padding: 0.1rem 0.5rem;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+.pff-dupe {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.5);
+  background: rgba(0,0,0,0.45);
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+  flex-shrink: 0;
+}
+
+.pff-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0.75rem 0.9rem 0.9rem;
+  background: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  scrollbar-width: thin;
+  scrollbar-color: #333 transparent;
+}
+
+.pff-name-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.pff-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin: 0;
+  line-height: 1.2;
+  flex: 1;
+}
+
+.pff-rarity {
+  font-size: 0.8rem;
+  color: var(--mosje-gold);
+  flex-shrink: 0;
+  letter-spacing: 1px;
+}
+
+.pff-meta {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+
+.pff-meta--instant { color: var(--snelle-red); }
+
+/* Mosje traits */
+.pff-traits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.pff-trait {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  background: #2a2a3a;
+  border: 1px solid #3a3a5a;
+  border-radius: 3px;
+  padding: 0.1rem 0.4rem;
+  text-transform: capitalize;
+}
+
+/* Piecie cost / requirement row */
+.pff-cost-row {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.pff-cost-chip {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--mosje-gold);
+  background: rgba(232,185,79,0.1);
+  border: 1px solid rgba(232,185,79,0.3);
+  border-radius: 3px;
+  padding: 0.1rem 0.4rem;
+}
+
+.pff-req-chip {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #94a3b8;
+  background: #232323;
+  border: 1px solid #333;
+  border-radius: 3px;
+  padding: 0.1rem 0.4rem;
+}
+
+/* Piecie tags */
+.pff-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.pff-tag {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #64748b;
+  background: #1e1e1e;
+  border: 1px solid #2a2a2a;
+  border-radius: 3px;
+  padding: 0.05rem 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Ability / effect text */
+.pff-ability {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.78rem;
+  color: #cbd5e1;
+  margin: 0;
+  line-height: 1.45;
+}
+
+/* Place good/bad */
+.pff-place-good {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #4ade80;
+  margin: 0;
+}
+
+.pff-place-bad {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #f87171;
+  margin: 0;
+}
+
+/* Quest success / fail */
+.pff-quest-outcomes {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.pff-outcome {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-radius: 4px;
+  padding: 0.15rem 0.5rem;
+}
+
+.pff-outcome--win  { color: #4ade80; background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.3); }
+.pff-outcome--lose { color: #f87171; background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.3); }
+
+/* Flavour text */
+.pff-flavour {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.7rem;
+  font-style: italic;
+  color: #475569;
+  margin: 0;
+  line-height: 1.4;
+  border-top: 1px solid #2a2a2a;
+  padding-top: 0.35rem;
+  margin-top: auto;
+}
+
+/* ── Hint + next button ──────────────────────────────────────────────────────── */
+
+.pack-hint {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0;
+  letter-spacing: 0.05em;
+  animation: hint-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes hint-pulse {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 1; }
+}
+
+.pack-next-btn {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.3rem;
+  letter-spacing: 2px;
+  color: var(--mosje-gold);
+  background: rgba(232,185,79,0.08);
+  border: 1px solid rgba(232,185,79,0.35);
+  border-radius: 8px;
+  padding: 0.6rem 2rem;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+  animation: btn-appear 0.2s ease forwards;
+}
+
+@keyframes btn-appear {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.pack-next-btn:hover {
+  background: rgba(232,185,79,0.15);
+  transform: translateY(-2px);
+}
+
+/* ── Summary screen ──────────────────────────────────────────────────────────── */
+
+.pack-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  animation: btn-appear 0.3s ease forwards;
+}
+
+.pack-summary-label {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem;
+  letter-spacing: 2px;
+  color: var(--mosje-gold);
+  margin: 0;
+}
+
+.pack-opening-balance {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.pack-opening-balance strong { color: var(--mosje-gold); }
+
+.pack-opening-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pack-btn--secondary {
+  background: #2a2a2a;
+  color: #e2e8f0;
+  border: 1px solid #444;
+}
+
+.pack-btn--secondary:hover { background: #333; opacity: 1; }
