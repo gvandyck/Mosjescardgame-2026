@@ -26,6 +26,7 @@ import {
 	deleteCurrentAccount,
 } from './multiplayer/authManager.js';
 import { loadUserDecks, getLastUserStoreError, deleteUserData } from './multiplayer/userStore.js';
+import { initNewAccount } from './multiplayer/accountSetup.js';
 
 console.log('[UI] App bootstrapping...');
 
@@ -69,6 +70,10 @@ function initLobbyPage() {
 			badge.hidden = false;
 		}
 		if (deleteAccountBtn) deleteAccountBtn.hidden = user.isAnonymous;
+		// One-time account setup (wallet + starter collection) for registered users
+		if (!user.isAnonymous) {
+			initNewAccount(user.uid);
+		}
 		// Load custom decks into deck selector (registered users only)
 		if (!user.isAnonymous) {
 			const customDecks = await loadUserDecks(user.uid);

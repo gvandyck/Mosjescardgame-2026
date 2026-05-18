@@ -15,6 +15,7 @@ import {
 	getLastUserStoreError,
 	deleteUserData,
 } from './multiplayer/userStore.js';
+import { initNewAccount } from './multiplayer/accountSetup.js';
 import { MOSJES } from './data/mosjes.js';
 import { PIECIES } from './data/piecies.js';
 import { SNELLE_PIECIES } from './data/snellePiecies.js';
@@ -72,6 +73,9 @@ onAuthStateChanged(async user => {
 	const badge = document.getElementById('user-badge');
 	const name = document.getElementById('user-badge-name');
 	if (badge && name) { name.textContent = user.displayName || user.email; badge.hidden = false; }
+
+	// One-time account setup (wallet + starter collection)
+	initNewAccount(user.uid);
 
 	// Load saved decks
 	savedDecks = await loadUserDecks(user.uid);
