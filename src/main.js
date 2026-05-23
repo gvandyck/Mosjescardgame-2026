@@ -409,9 +409,8 @@ function initGamePage() {
 				console.log('[UI] mp:player2-joined received, p2Data:', p2Data);
 				log.add('gain', `${p2Data.name} joined the room!`);
 				const user = getCurrentUser();
-				if (user && !user.isAnonymous) {
-					registerDisconnectLoss(roomCode, user.uid, p2Data.uid || null);
-				}
+				const uid = user && !user.isAnonymous ? user.uid : null;
+				registerDisconnectLoss(roomCode, uid, p2Data.uid || null);
 				try {
 					startGame(localPlayerName, localDeckId, p2Data.name, p2Data.deckId || pickOpponentDeck(localDeckId));
 				} catch (err) {
@@ -432,9 +431,8 @@ function initGamePage() {
 		eventBus.once('mp:remote-state', initialState => {
 			console.log('[UI] mp:remote-state received (initial) for player_2');
 			const user = getCurrentUser();
-			if (user && !user.isAnonymous) {
-				registerDisconnectLoss(roomCode, user.uid, opponentUid);
-			}
+			const uid = user && !user.isAnonymous ? user.uid : null;
+			registerDisconnectLoss(roomCode, uid, opponentUid);
 			try {
 				const { state: sanitizedState, changed } = sanitizeQuestCardsInPlayerZones(initialState);
 				gameState = sanitizedState;
