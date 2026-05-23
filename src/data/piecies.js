@@ -771,6 +771,22 @@ export const PIECIES = [
     isBoosterOnly: false,
     deckLimit: null
   },
+  {
+    id: "piecie_kan_het",
+    type: "PIECIE",
+    subtype: "UTILITY",
+    name: "Kan het?!",
+    mpCost: 0,
+    requirement: "any",
+    effectId: "effect_kan_het",
+    tags: ["DICE", "GAMBLE"],
+    description: "Roll 1d6: on 6 gain +50 MP. On 1–5 lose 10 MP.",
+    flavourText: "...KAN HET?!",
+    artPath: "assets/piecie-art/Kan het.jpeg",
+    rarity: "★★★★☆",
+    isBoosterOnly: true,
+    deckLimit: null
+  },
 
   // ─────────────────────────────────────────
   // PET PROTECTION
