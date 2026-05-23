@@ -19,38 +19,38 @@ This document is the final Phase 11 master card inventory, generated from the li
 
 | ID | Name | Group | Starter | Booster | Cost | Summary | Status |
 |---|---|---|---|---|---|---|---|
-| binti-the-creator | Binti The Creator | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | partial |
-| binti-the-sharp-tongue | Binti The Sharp Tongue | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | partial |
-| cless-the-teacher | Cless The Teacher | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | partial |
+| binti-the-creator | Binti The Creator | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
+| binti-the-sharp-tongue | Binti The Sharp Tongue | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
+| cless-the-teacher | Cless The Teacher | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
 | coert-kasteluck | Coert KasteLuck | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
 | dj-8020 | DJ 80/20 | ARTISTIC | yes | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
 | jisca-the-maestro | Jisca The Maestro | ARTISTIC | yes | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
-| mosje_amplifier | Placeholder 3 — The Amplifier | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | partial |
-| mosje_chris_ddr | Dancing/DDR Chris | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | partial |
-| mosje_coert_kastelein | Coert Kast-elein | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | partial |
-| mosje_martin_driver | Martin The Precision Driver | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | partial |
-| mosje_tuk_architect | Tuk The Sims Architect | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | partial |
-| ronald-the-mastermind | Ronald The Mastermind | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | partial |
-| tuk-the-healing-spirit | Tuk The Healing Spirit | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | partial |
-| chris-the-all-rounder | Chris The All-Rounder | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | partial |
+| mosje_amplifier | Placeholder 3 — The Amplifier | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
+| mosje_chris_ddr | Dancing/DDR Chris | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
+| mosje_coert_kastelein | Coert Kast-elein | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
+| mosje_martin_driver | Martin The Precision Driver | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
+| mosje_tuk_architect | Tuk The Sims Architect | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
+| ronald-the-mastermind | Ronald The Mastermind | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
+| tuk-the-healing-spirit | Tuk The Healing Spirit | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
+| chris-the-all-rounder | Chris The All-Rounder | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
 | coert-tech-savant | Coert The Hawaiian Tech Savant | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
 | jeffrey-the-silent-gambler | Jeffrey The Silent Gambler | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
-| martin-senor-west | Martin Senor West | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | partial |
+| martin-senor-west | Martin Senor West | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
 | martin-the-historian | Martin The Historian | DIGITAL | yes | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
 | ming-the-natural | Ming The Natural | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
 | ming-the-predictor | Ming The Predictor | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
 | mosje_drainer | Placeholder 4 — The Drainer | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
-| mosje_fps_coert | FPS Coert | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | partial |
-| mosje_fps_west | FPS West | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | partial |
+| mosje_fps_coert | FPS Coert | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
+| mosje_fps_west | FPS West | DIGITAL | no | no | free | opponentHandPeeked flag set; full hand reveal requires UI layer integration | partial |
 | mosje_tactician | Placeholder 1 — The Tactician | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
-| ronald-the-master-chef | Ronald The Master Chef | DIGITAL | yes | no | free | Mosje ability defined in execute-mosje-ability flow | partial |
-| the-hacker | The Hacker | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | partial |
+| ronald-the-master-chef | Ronald The Master Chef | DIGITAL | yes | no | free | _ronaldPeek metadata set with playerId+timestamp; full opponent hand reveal requires UI layer integration | partial |
+| the-hacker | The Hacker | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
 | youri-the-speedrunner | Youri The Speedrunner | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
 | alyssa-the-bulldozer | Alyssa The Bulldozer | FIGHTING | yes | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
 | azn-cless | AZN Cless | FIGHTING | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
 | gandoe-the-destroyer | Gandoe The Destroyer | FIGHTING | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
 | gandoe-the-wizard | Gandoe The Wizard | FIGHTING | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
-| jeffrey-the-strongman | Jeffrey The Strongman | FIGHTING | yes | no | free | Mosje ability defined in execute-mosje-ability flow | partial |
+| jeffrey-the-strongman | Jeffrey The Strongman | FIGHTING | yes | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
 | michelle-iron-tuk | Michelle Iron Tuk | FIGHTING | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
 | parkour-west | Parkour West | FIGHTING | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
 
@@ -121,28 +121,28 @@ This document is the final Phase 11 master card inventory, generated from the li
 | those-eyelashes-tho | Those Eyelashes Tho... | UTILITY | no | no | 15 MP, lvl 1+ | gainMP+forEachTarget | advanced |
 | tweede-kans | Tweede Kans | UTILITY | no | no | 5 MP | rerollDie | advanced |
 | welloe-force | Welloe Force | UTILITY | no | no | 10 MP, lvl 1+ | forEachTarget+drawCards | advanced |
-| zie-je-die-dingetjes | Zie Je Die Dingetjes | UTILITY | no | no | free | lookAtTop+drawCards | partial |
+| zie-je-die-dingetjes | Zie Je Die Dingetjes | UTILITY | no | no | free | lookAtTop+drawCards | implemented |
 
 ## Snelle Piecie (19)
 
 | ID | Name | Group | Starter | Booster | Cost | Summary | Status |
 |---|---|---|---|---|---|---|---|
 | snelle_bijna_welloe | Bijna Welloe | - | yes | no | free | negateEffect+ifThenElse | implemented |
-| snelle_blensen | Blensen! | - | no | no | variable | negateEffect+applyBuff | partial |
-| snelle_counter_strikka | Counter Strikka | - | yes | no | 15 MP | negateEffect+ifThenElse | partial |
-| snelle_drain_reversal | Drain Reversal | - | no | no | 15 MP | negateEffect+gainMP | partial |
+| snelle_blensen | Blensen! | - | no | no | variable | negateEffect+applyBuff | implemented |
+| snelle_counter_strikka | Counter Strikka | - | yes | no | 15 MP | negateEffect+ifThenElse | implemented |
+| snelle_drain_reversal | Drain Reversal | - | no | no | 15 MP | negateEffect+gainMP | implemented |
 | snelle_dubbele_temminks | Dubbele Temminks | - | yes | no | 20 MP | applyBuff | implemented |
 | snelle_emergency_healings | Emergency Healings | - | no | no | 10 MP | ifThenElse | advanced |
 | snelle_ff_haaltje_nemen | FF Haaltje Nemen | - | no | no | free | ifThenElse | advanced |
-| snelle_frenssen | Frenssen! | - | no | no | 15 MP | negateEffect+loseMP | partial |
+| snelle_frenssen | Frenssen! | - | no | no | 15 MP | negateEffect+loseMP | advanced |
 | snelle_gevalletje_klakkeloos | Gevalletje Klakkeloos | - | no | no | free | gainMP | advanced |
-| snelle_jammertje_gepakt | Jammertje Gepakt | - | no | no | 20 MP | negateEffect+sendToBottomOfDeck+ifThenElse | partial |
-| snelle_jantje_jantje_jantje | Jantje Jantje Jantje… | - | no | no | discard 1 | negateEffect | partial |
-| snelle_jensen | Jensen! | - | yes | no | 10 MP | negateEffect+discardSourceCard | partial |
-| snelle_jeweetniet | Jeweetniet wie Ikben | - | no | no | 10 MP | applyBuff | partial |
+| snelle_jammertje_gepakt | Jammertje Gepakt | - | no | no | 20 MP | negateEffect+sendToBottomOfDeck+ifThenElse | advanced |
+| snelle_jantje_jantje_jantje | Jantje Jantje Jantje… | - | no | no | discard 1 | negateEffect | implemented |
+| snelle_jensen | Jensen! | - | yes | no | 10 MP | negateEffect+discardSourceCard | advanced |
+| snelle_jeweetniet | Jeweetniet wie Ikben | - | no | no | 10 MP | applyBuff | advanced |
 | snelle_lucky_coin | Lucky Cóin | - | yes | no | 10 MP | ifThenElse | implemented |
 | snelle_negate_elimination | Not Today | - | yes | no | 20 MP | negateEffect | implemented |
-| snelle_perfect_dodge | Perfect Dodge | - | no | no | 20 MP | ifThenElse | partial |
+| snelle_perfect_dodge | Perfect Dodge | - | no | no | 20 MP | ifThenElse | implemented |
 | snelle_sleutelpuntje | Sleutelpuntje | - | yes | no | 5 MP | choose | implemented |
 | snelle_the_protector | The Protector | - | no | no | free | reduceMPLossBy | advanced |
 | momentum-rush | Momentum Rush | MOMENTUM-GAINING | no | no | free | gainMP+drawCards | advanced |
@@ -155,14 +155,14 @@ This document is the final Phase 11 master card inventory, generated from the li
 | place_bank_chilling | Bank Chilling | PLACE | yes | no | free | turn_start, Social 2+, +15 MP | implemented |
 | place_coerts_caravan | Coert's Caravan | PLACE | yes | no | free | turn_start, Coert Mosje only, +15 MP | implemented |
 | place_delluft | Delluft | PLACE | no | no | free | turn_end, all draw 1 card; SUBSTANCE cost 0 (UI flag) | advanced |
-| place_dierenasiel | Dierenasiel | PLACE | no | no | free | passive flag only; PET cost 0 and protection +25% enforced in UI | partial |
+| place_dierenasiel | Dierenasiel | PLACE | no | no | free | 25% MP loss reduction now wired in loseMP (plan 08-04); PET cost-waiver at 0 MP still enforced in UI only | partial |
 | place_drain_zone | Drain Zone | PLACE | no | no | free | turn_end, lowest MP Mosje loses -10 MP | advanced |
 | place_momentum_factory | Momentum Factory | PLACE | no | no | free | piecie_activated, +10 MP (first-only enforced in UI) | advanced |
 | place_momentum_stabilizer | Momentum Stabilizer | PLACE | no | no | free | passive flag only; 30 MP loss cap enforced in UI | advanced |
 | place_obby_1 | Obby #1 | PLACE | yes | no | free | quest_completed/failed, Physical 2+ or Resilient 2+, +20/-10 MP | implemented |
 | place_quest_haven | Quest Haven | PLACE | yes | no | free | quest_completed, +10 MP; 2-quest bonus +25 MP (UI tracked) | implemented |
 | place_skiffa | Skiffa | PLACE | no | no | free | turn_end, -15 MP unless SUBSTANCE trait 1+ | advanced |
-| place_synergy_chamber | Synergy Chamber | PLACE | no | no | free | passive flag only; synergy without pair enforced in UI | partial |
+| place_synergy_chamber | Synergy Chamber | PLACE | no | no | free | getSynergyChambercostReduction/DurationBonus/DiceBonus exported+JSDoc'd; dice bonus already consumed in questLogic; cost/duration reduction deferred to ability activation caller | partial |
 | place_the_gym | The Gym | PLACE | yes | no | free | turn_end, Physical 3→+35, Physical 2→+25, else -10 MP | implemented |
 | place_the_void | The Void | PLACE | no | no | free | turn_end, all -15 MP; RESTORE/FOOD restriction via void_active flag | advanced |
 | place_welloe_graveyard | Welloe Graveyard | PLACE | no | no | free | mosje_defeated, +20 MP + draw 1 card for that player | advanced |
@@ -226,21 +226,21 @@ This document is the final Phase 11 master card inventory, generated from the li
 ## Deferred Features and Simplifications
 
 ### Phase 4 Questions
-- zie-je-die-dingetjes: full choose-from-top behavior still simplified.
-- call-of-the-welloes: summon semantics stubbed.
-- dingetje-toch: revealed-card-type check deferred.
+- zie-je-die-dingetjes: ✅ resolved in Phase 8 (plan 08-03) — full two-call peek+keep pattern implemented.
+- call-of-the-welloes: summon semantics stubbed — linked-Mosje attachment primitive still needed.
+- dingetje-toch: flag set; consumption in piecie requirement check deferred to UI layer (documented in turnManager.js plan 08-03).
 - double-trigger: executor-level double activation still deferred.
 
 ### Phase 5 Questions
-- snelle_jammertje_gepakt: send-to-bottom primitive deferred.
-- snelle_drain_reversal: pending source guard simplified.
-- snelle_jantje_jantje_jantje: discard cost currently no-op.
-- snelle_jensen: source-card discard on negate deferred.
-- snelle_jeweetniet: immunity approximated via large reduction buff.
-- snelle_counter_strikka: true retarget behavior deferred.
-- snelle_perfect_dodge: threshold-sensitive reduction simplified.
-- snelle_frenssen: caller must provide targetRef manually.
-- snelle_blensen: conditional free-cost branch deferred.
+- snelle_jammertje_gepakt: send-to-bottom primitive deferred — reclassified `advanced`.
+- snelle_drain_reversal: ✅ resolved in Phase 8 (plan 08-04) — drain reflects to opponent in loseMP.
+- snelle_jantje_jantje_jantje: ✅ resolved in Phase 8 (plan 08-02) — const→let crash fixed; steal works when Bank Chilling active.
+- snelle_jensen: source-card discard on negate deferred — reclassified `advanced`; +20 MP gain is approved Phase 5 simplification.
+- snelle_jeweetniet: force-reroll flag set correctly; consumption in questLogic confirmed; reclassified `advanced` as force-reroll interception is UI-layer deferred.
+- snelle_counter_strikka: ✅ resolved in Phase 8 (plan 08-04) — DRAIN damage negated in loseMP.
+- snelle_perfect_dodge: ✅ resolved in Phase 8 (plan 08-04) — ATTACK negated + +15 MP in loseMP.
+- snelle_frenssen: counter-chain push implemented; caller targetRef resolution deferred to UI — reclassified `advanced`.
+- snelle_blensen: ✅ resolved in Phase 8 (plan 08-02) — free-cost flag set when countering Frenssen.
 
 ### Phase 6 Questions
 - Multiple quests still use OR-condition, event-log, or interactive simplifications (see listed partial quest cards in table).
@@ -250,7 +250,9 @@ This document is the final Phase 11 master card inventory, generated from the li
 - place_synergy_chamber keeps forced-synergy support; duration extension and ability-cost reduction remain deferred.
 
 ### Phase 8 Questions
-- Several Mosje abilities are intentionally partial where new primitives are still missing (activate-from-discard, prediction checks, random discard, castle-token system, true cooldown enforcement, ally-heal targeting, and quest-hook passives).
+- Plans 08-01 through 08-04 resolved most partial cards (see ✅ notes above and in Phase 5 section).
+- Remaining partial/advanced cards: mosje_fps_west (UI peek reveal), ronald-the-master-chef (UI hand reveal), place_synergy_chamber (cost/duration reduction callers deferred), place_dierenasiel (PET cost-waiver deferred), call-of-the-welloes (linked-Mosje attachment), dingetje-toch (requirement bypass UI), double-trigger (double-fire executor), snelle_frenssen (UI targetRef), snelle_jammertje_gepakt (send-to-bottom primitive), snelle_jensen (source-card discard), snelle_jeweetniet (force-reroll interception UI).
+- Quest section: see plan 08-06 for full quest audit and classification.
 
 ### Phase 10 Notes
 - emergency-swap is explicitly marked as advanced for experienced players.
