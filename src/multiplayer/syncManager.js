@@ -156,7 +156,8 @@ export async function listenToState(roomCode, localPlayerId) {
 // rules (T-07-08) — accepted limitation; future Cloud Function enhancement.
 // Call cancelDisconnectHooks() when the game ends normally.
 export async function registerDisconnectLoss(roomCode, uid, opponentUid) {
-	if (!uid || !roomCode || roomCode === 'LOCAL') return;
+	// uid is optional — anonymous players still need the room ABANDONED hook
+	if (!roomCode || roomCode === 'LOCAL') return;
 	const ready = await isFirebaseReady();
 	if (!ready) return;
 
@@ -169,22 +170,26 @@ export async function registerDisconnectLoss(roomCode, uid, opponentUid) {
 		// Mark room as abandoned — any auth user can write to rooms/{roomCode}
 		// so this onDisconnect write succeeds. The surviving player's onValue
 		// listener detects status === 'ABANDONED' and ends the game for them.
+		// This runs for ALL players, including anonymous guests.
 		const roomHook = getOnDisconnect(ref(db, `rooms/${roomCode}`));
 		await roomHook.update({ status: 'ABANDONED', abandonedAt: Date.now() });
 		_disconnectHooks.push(roomHook);
 
-		const myStatsRef = ref(db, `users/${uid}/stats`);
-		const myHook = getOnDisconnect(myStatsRef);
-		await myHook.update({ losses: increment(1), currentStreak: 0 });
-		_disconnectHooks.push(myHook);
+		// Stats hooks require a real uid (anonymous players have no stats node)
+		if (uid) {
+			const myStatsRef = ref(db, `users/${uid}/stats`);
+			const myHook = getOnDisconnect(myStatsRef);
+			await myHook.update({ losses: increment(1), currentStreak: 0 });
+			_disconnectHooks.push(myHook);
 
-		if (opponentUid) {
-			const oppStatsRef = ref(db, `users/${opponentUid}/stats`);
-			const oppHook = getOnDisconnect(oppStatsRef);
-			await oppHook.update({ wins: increment(1), currentStreak: increment(1) });
-			_disconnectHooks.push(oppHook);
+			if (opponentUid) {
+				const oppStatsRef = ref(db, `users/${opponentUid}/stats`);
+				const oppHook = getOnDisconnect(oppStatsRef);
+				await oppHook.update({ wins: increment(1), currentStreak: increment(1) });
+				_disconnectHooks.push(oppHook);
+			}
 		}
-		console.log('[SYNC] Disconnect hooks registered for uid:', uid);
+		console.log('[SYNC] Disconnect hooks registered. uid:', uid ?? 'anonymous');
 	} catch (err) {
 		console.warn('[SYNC] Could not register disconnect hooks:', err?.code);
 	}
