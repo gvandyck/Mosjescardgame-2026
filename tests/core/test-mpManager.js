@@ -97,4 +97,95 @@ export function runMpManagerTests() {
     assertEqual(afterGain.players.player_1.activeSlots[0].mp, 30); // +15
     assertEqual(afterDrain.players.player_1.activeSlots[0].mp, 0); // -30
   });
+
+  // ── Snelle flag interceptions in loseMP ─────────────────────────────────────
+  test('Drain Reversal: reflects drain to opponent, p1 takes 0 damage, flag cleared', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          activeSlots: [
+            { cardId: 'mosje_gandoe', name: 'Gandoe', traits: {}, mp: 50, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
+            null,
+          ],
+        },
+        player_2: {
+          activeSlots: [
+            { cardId: 'mosje_binti', name: 'Binti', traits: {}, mp: 50, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
+            null,
+          ],
+        },
+      },
+      _snelleFlags: { drainReversal: { player_1: true } },
+    });
+    const result = loseMP(state, 'player_1', 0, 20, 'DRAIN');
+    assertEqual(result.players.player_1.activeSlots[0].mp, 50, 'p1 should take 0 damage');
+    assertEqual(result.players.player_2.activeSlots[0].mp, 30, 'opponent should take 20 reflected damage');
+    assertEqual(result._snelleFlags?.drainReversal?.player_1, undefined, 'drainReversal flag cleared');
+  });
+
+  test('Perfect Dodge: negates ATTACK, grants +15 MP, flag cleared', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          activeSlots: [
+            { cardId: 'mosje_gandoe', name: 'Gandoe', traits: {}, mp: 50, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
+            null,
+          ],
+        },
+      },
+      _snelleFlags: { negateNextAttack: { player_1: true } },
+    });
+    const result = loseMP(state, 'player_1', 0, 30, 'ATTACK');
+    assertEqual(result.players.player_1.activeSlots[0].mp, 65, 'p1 should gain +15 MP (50+15)');
+    assertEqual(result._snelleFlags?.negateNextAttack?.player_1, undefined, 'negateNextAttack flag cleared');
+  });
+
+  test('Counter Strikka: negates DRAIN damage, flag cleared', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          activeSlots: [
+            { cardId: 'mosje_gandoe', name: 'Gandoe', traits: {}, mp: 50, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
+            null,
+          ],
+        },
+      },
+      _snelleFlags: { negateNextPiecie: { player_1: true } },
+    });
+    const result = loseMP(state, 'player_1', 0, 25, 'DRAIN');
+    assertEqual(result.players.player_1.activeSlots[0].mp, 50, 'p1 should take 0 damage');
+    assertEqual(result._snelleFlags?.negateNextPiecie?.player_1, undefined, 'negateNextPiecie flag cleared');
+  });
+
+  test('Counter Strikka does NOT intercept ATTACK source', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          activeSlots: [
+            { cardId: 'mosje_gandoe', name: 'Gandoe', traits: {}, mp: 50, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
+            null,
+          ],
+        },
+      },
+      _snelleFlags: { negateNextPiecie: { player_1: true } },
+    });
+    const result = loseMP(state, 'player_1', 0, 25, 'ATTACK');
+    assertEqual(result.players.player_1.activeSlots[0].mp, 25, 'ATTACK source should still deal damage');
+  });
+
+  test('Dierenasiel: reduces incoming loss by 25%', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          activeSlots: [
+            { cardId: 'mosje_gandoe', name: 'Gandoe', traits: {}, mp: 50, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
+            null,
+          ],
+        },
+      },
+      dierenasielActive: true,
+    });
+    const result = loseMP(state, 'player_1', 0, 40, 'DRAIN');
+    assertEqual(result.players.player_1.activeSlots[0].mp, 20, 'p1 should lose 30 MP (floor(40*0.75))');
+  });
 }

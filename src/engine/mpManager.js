@@ -94,6 +94,46 @@ export function loseMP(gameState, playerId, slotIndex, amount, source = 'DRAIN')
     lossAmount = Math.min(lossAmount, 25);
   }
 
+  // ── Snelle Piecie interception flags ─────────────────────────────────────
+  const snelleFlags = state._snelleFlags || {};
+
+  // Counter Strikka: negate next Piecie-sourced MP loss (DRAIN) for this player.
+  if (snelleFlags.negateNextPiecie?.[playerId] && source === 'DRAIN') {
+    console.log('[MP] Counter Strikka: Piecie/DRAIN damage negated for', playerId);
+    delete state._snelleFlags.negateNextPiecie[playerId];
+    return state;
+  }
+
+  // Perfect Dodge: negate next ATTACK source + gain 15 MP for the defender.
+  if (snelleFlags.negateNextAttack?.[playerId] && source === 'ATTACK') {
+    console.log('[MP] Perfect Dodge: ATTACK negated for', playerId, '— +15 MP refund');
+    mosje.mp += 15;
+    delete state._snelleFlags.negateNextAttack[playerId];
+    return state;
+  }
+
+  // Drain Reversal: reflect incoming DRAIN to the opponent (direct mutation — bypass stack to avoid recursion).
+  if (snelleFlags.drainReversal?.[playerId] && source === 'DRAIN') {
+    const oppId = Object.keys(state.players).find(id => id !== playerId);
+    if (oppId) {
+      const opp = state.players[oppId];
+      const osi = opp.activeSlots.findIndex(s => s && !s.isDefeated);
+      if (osi >= 0) {
+        opp.activeSlots[osi].mp = Math.max(0, opp.activeSlots[osi].mp - lossAmount);
+        console.log('[MP] Drain Reversal: reflected', lossAmount, 'drain to opponent');
+      }
+    }
+    delete state._snelleFlags.drainReversal[playerId];
+    return state;
+  }
+
+  // Dierenasiel passive: PET protection reduces any incoming loss by 25%.
+  if (state.dierenasielActive) {
+    lossAmount = Math.floor(lossAmount * 0.75);
+    console.log('[MP] Dierenasiel: PET protection — reduced loss to', lossAmount);
+  }
+  // ── End snelle interception ───────────────────────────────────────────────
+
   mosje.mp -= lossAmount;
 
   // Level regression — MP floor is 0.

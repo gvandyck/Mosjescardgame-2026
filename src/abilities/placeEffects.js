@@ -250,14 +250,32 @@ export function effect_synergy_chamber(gameState) {
 	return state;
 }
 
+/**
+ * Returns the MP cost reduction (5) granted by Synergy Chamber for ability activations.
+ * Callers: Mosje ability activation cost deduction in mosjeAbilities.js / UI layer.
+ * @param {object} gameState
+ * @returns {number} 5 if Synergy Chamber active, 0 otherwise
+ */
 export function getSynergyChambercostReduction(gameState) {
 	return gameState?.activePlace === 'place_synergy_chamber' ? 5 : 0;
 }
 
+/**
+ * Returns the dice roll bonus (+1) granted by Synergy Chamber for quest rolls.
+ * Already consumed in questLogic.js quest_req_perfect_timing.
+ * @param {object} gameState
+ * @returns {number} 1 if Synergy Chamber active, 0 otherwise
+ */
 export function getSynergyChamberDiceBonus(gameState) {
 	return gameState?.activePlace === 'place_synergy_chamber' ? 1 : 0;
 }
 
+/**
+ * Returns the duration bonus (+1 turn) granted by Synergy Chamber to buffs applied this turn.
+ * Callers: applyBuff in effects layer — add this to turnsLeft when Synergy Chamber is active.
+ * @param {object} gameState
+ * @returns {number} 1 if Synergy Chamber active, 0 otherwise
+ */
 export function getSynergyChamberDurationBonus(gameState) {
 	return gameState?.activePlace === 'place_synergy_chamber' ? 1 : 0;
 }
