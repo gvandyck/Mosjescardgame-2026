@@ -1,77 +1,130 @@
 /* leaderboard.css — Leaderboard page styles */
 
+/* ── Visited link fix (mirrors store.css) ──────────────────────────────────── */
+a.btn-back:visited { color: rgba(255, 255, 255, 0.45); }
+
+/* ── Back button ────────────────────────────────────────────────────────────── */
+.btn-back {
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.45);
+  text-decoration: none;
+  transition: color 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.btn-back:hover { color: #fff; }
+
+/* ── Page shell ─────────────────────────────────────────────────────────────── */
 .page--leaderboard {
   min-height: 100vh;
   background: var(--board-bg);
   color: #e2e8f0;
+  overflow-y: auto;
 }
 
+/* ── Header ─────────────────────────────────────────────────────────────────── */
+.lb-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid rgba(232, 185, 79, 0.18);
+  background: rgba(15, 15, 15, 0.85);
+  backdrop-filter: blur(6px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.lb-title {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  letter-spacing: 3px;
+  color: var(--mosje-gold);
+  margin: 0;
+  flex: 1;
+}
+
+/* ── Main content ───────────────────────────────────────────────────────────── */
 .leaderboard-main {
-  max-width: 700px;
+  max-width: 720px;
   margin: 0 auto;
-  padding: 2.5rem 1.5rem;
+  padding: 2rem 1.25rem 3rem;
 }
 
 .leaderboard-status {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: var(--font-ui);
   font-size: 1rem;
   color: #64748b;
   text-align: center;
+  padding: 3rem 0;
 }
 
+/* ── Table container ────────────────────────────────────────────────────────── */
 .leaderboard-container {
   overflow-x: auto;
+  border: 1px solid #222;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.015);
 }
 
 .leaderboard-table {
   width: 100%;
   border-collapse: collapse;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: var(--font-ui);
+}
+
+/* ── Header row ─────────────────────────────────────────────────────────────── */
+.leaderboard-table thead tr {
+  border-bottom: 1px solid rgba(232, 185, 79, 0.15);
 }
 
 .leaderboard-table thead th {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #64748b;
-  border-bottom: 1px solid #2a2a2a;
-  padding: 0.5rem 0.75rem;
+  color: rgba(232, 185, 79, 0.55);
+  padding: 0.65rem 1rem;
   text-align: left;
 }
 
+/* ── Body rows ──────────────────────────────────────────────────────────────── */
 .leaderboard-table tbody tr {
   border-bottom: 1px solid #1a1a1a;
-  transition: background 0.1s;
+  transition: background 0.12s;
 }
+.leaderboard-table tbody tr:last-child { border-bottom: none; }
+.leaderboard-table tbody tr:hover { background: rgba(255, 255, 255, 0.03); }
 
-.leaderboard-table tbody tr:hover {
-  background: rgba(255,255,255,0.03);
-}
-
+/* ── Cells ──────────────────────────────────────────────────────────────────── */
 .lb-col {
-  padding: 0.7rem 0.75rem;
-  font-size: 0.95rem;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
   vertical-align: middle;
 }
 
 .lb-col--rank {
-  color: #64748b;
+  color: #4a5568;
   font-size: 0.85rem;
-  width: 2.5rem;
+  font-weight: 700;
+  width: 3rem;
+  text-align: center;
 }
 
-.lb-col--rank.is-top3 {
-  color: var(--mosje-gold);
-  font-weight: 700;
-}
+/* top-3 medal ranks rendered via JS as 🥇🥈🥉 */
+.lb-col--rank.is-top3 { font-size: 1.1rem; }
 
 .lb-col--name {
   font-weight: 700;
+  font-size: 1.05rem;
   color: #e2e8f0;
 }
 
-.lb-col--wins  { color: #4ade80; }
-.lb-col--losses { color: #f87171; }
+.lb-col--wins    { color: #4ade80; font-weight: 600; }
+.lb-col--losses  { color: #f87171; font-weight: 600; }
 .lb-col--winrate { color: #94a3b8; }
-.lb-col--streak  { color: var(--mosje-gold); }
+.lb-col--streak  { color: var(--mosje-gold); font-weight: 600; }

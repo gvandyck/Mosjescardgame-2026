@@ -37,12 +37,14 @@ async function loadLeaderboard() {
     if (containerEl) containerEl.hidden = false;
 
     if (bodyEl) {
+        const MEDALS = ['🥇', '🥈', '🥉'];
         bodyEl.innerHTML = players.map((p, i) => {
             const rank = i + 1;
             const rankClass = rank <= 3 ? ' is-top3' : '';
+            const rankDisplay = rank <= 3 ? MEDALS[i] : rank;
             return `
                 <tr>
-                    <td class="lb-col lb-col--rank${rankClass}">${rank}</td>
+                    <td class="lb-col lb-col--rank${rankClass}">${rankDisplay}</td>
                     <td class="lb-col lb-col--name">${escapeHtml(p.displayName)}</td>
                     <td class="lb-col lb-col--wins">${p.wins}</td>
                     <td class="lb-col lb-col--losses">${p.losses}</td>
