@@ -15,6 +15,7 @@
 | 5 | Implement Quests | All 14 unique Quests functional | IMPL-PF-Q1:7, AR-Q1:5 | 14 quests work (rolls, rewards) |
 | 6 | Integration & Launch | Testing, lobby, deployment | IMPL-TEST, LOBBY, SIM, REG | Both decks playable in lobby |
 | 7 | Leaderboard | Global player leaderboard with win/loss/streak stats | LB-STATS, LB-PAGE, LB-NAV, LB-PROFILE, LB-DISCONNECT | Leaderboard page live, stats update after every match |
+| 8 | Complete Partial Cards | Every card marked partial/deferred in card-reference.md fully working in the browser game | CARD-COMP-1 through CARD-COMP-N | All partial cards resolve correctly, no stubs remaining |
 
 ---
 
@@ -196,6 +197,34 @@ Plans:
 
 ---
 
+### Phase 8: Complete Partial Cards
+
+**Goal:** Every card marked `partial` or with deferred behaviour in `docs/card-reference.md` is fully working in the live browser game (`src/abilities/piecieEffects.js`, `src/abilities/snelleEffects.js`, `src/abilities/mosjeAbilities.js`, `src/data/quests.js`).
+
+**Requirements:**
+- CARD-COMP-MOSJE: All partial Mosje abilities implemented (Binti, Cless, Coert, Martin, Tuk, Ronald, Chris variants, etc.)
+- CARD-COMP-SNELLE: All partial Snelle Piecies with deferred behaviours completed (blensen, counter-strikka, drain-reversal, frenssen, jammertje-gepakt, jantje-jantje, jensen, jeweetniet, perfect-dodge)
+- CARD-COMP-PIECIE: All partial Piecies with simplified/deferred logic completed (zie-je-die-dingetjes, call-of-the-welloes, dingetje-toch, double-trigger)
+- CARD-COMP-QUEST: All partial Quests with OR-condition / interactive simplifications completed
+- CARD-COMP-PLACE: place_synergy_chamber duration extension and ability-cost reduction
+
+**Plans:** 5 plans
+
+Plans:
+- [ ] 08-01-PLAN.md — Mosje ability fixes: Tuk Architect deck reorder, Ronald Mastermind sort-to-top, Jeffrey quest-bonus fix, Ronald Chef/FPS West peek flags (src/abilities/mosjeAbilities.js)
+- [ ] 08-02-PLAN.md — Snelle bug fixes: Jantje×3 const/let crash, Blensen free-cost flag (src/abilities/snelleEffects.js)
+- [ ] 08-03-PLAN.md — Piecie stub completions: Zie Je Die Dingetjes two-call keep pattern, Dingetje Toch flag documentation (src/abilities/piecieEffects.js, src/engine/turnManager.js)
+- [ ] 08-04-PLAN.md — Snelle flag enforcement in loseMP: drainReversal, negateNextAttack, negateNextPiecie, dierenasiel; Synergy Chamber JSDoc (src/engine/mpManager.js, src/abilities/placeEffects.js)
+- [ ] 08-05-PLAN.md — Verification: npm test, simulation run, card-reference.md status updates (docs/card-reference.md)
+
+**Success Criteria:**
+1. No card function in any ability file returns early with a "pending UI" or "deferred" stub comment
+2. All cards in card-reference.md with status `partial` are updated to `implemented` or `advanced`
+3. Existing 588+ tests still pass
+4. Simulation runs without new crashes
+
+---
+
 ## Build Order Rationale
 
 1. **Mosje abilities first** — Foundation for deck synergies and playstyles
@@ -225,4 +254,4 @@ src/cards/quests/general/quest-endurance-test.ts
 
 ---
 
-*Last updated: 2026-05-23*
+*Last updated: 2026-05-24*
