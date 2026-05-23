@@ -300,14 +300,47 @@ export function effect_pot_of_weed(gameState, playerId) {
 	return state;
 }
 
-export function effect_zie_je_die_dingetjes(gameState, playerId) {
+// Zie Je Die Dingetjes — Look at top 3 cards, keep 1 in hand, put the other 2 back.
+// Two-call pattern:
+//   Call 1: no chosenCardId → peeks top 3, stores _dingetjesPeek, deck unchanged
+//   Call 2: chosenCardId + optional orderedRemainder[] → moves chosen card to hand,
+//            puts the other 2 back (in orderedRemainder order if provided, else original order)
+export function effect_zie_je_die_dingetjes(gameState, playerId, chosenCardId = null, orderedRemainder = null) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player || player.deck.length === 0) return state;
-	const top3 = player.deck.slice(0, 3);
-	state._dingetjesPeek = { playerId, cards: top3.map(c => c.cardId) };
-	// Keep 1 (top), put rest back — UI decides the final order. For now just log.
-	console.log('[ABILITY] Zie je die dingetjes: peeked top 3');
+
+	if (!chosenCardId) {
+		// Call 1: peek only
+		const top3 = player.deck.slice(0, 3);
+		state._dingetjesPeek = { playerId, cards: top3.map(c => c.cardId) };
+		console.log('[ABILITY] Zie je die dingetjes: peeked top 3:', state._dingetjesPeek.cards);
+		return state;
+	}
+
+	// Call 2: resolve
+	const top3 = player.deck.splice(0, 3);
+	const chosen = top3.find(c => c.cardId === chosenCardId);
+	if (chosen) {
+		player.hand.push(chosen);
+	}
+	const remaining = top3.filter(c => c.cardId !== chosenCardId);
+
+	// Reorder the 2 remaining cards if caller provided a preferred order
+	let finalRemaining = remaining;
+	if (Array.isArray(orderedRemainder) && orderedRemainder.length > 0) {
+		const ordered = orderedRemainder
+			.map(id => remaining.find(c => c.cardId === id))
+			.filter(Boolean);
+		const unordered = remaining.filter(c => !orderedRemainder.includes(c.cardId));
+		finalRemaining = [...ordered, ...unordered];
+	}
+
+	// Put remaining 2 back at top of deck
+	player.deck.unshift(...finalRemaining);
+
+	delete state._dingetjesPeek;
+	console.log('[ABILITY] Zie je die dingetjes: kept', chosenCardId, '— other 2 put back');
 	return state;
 }
 

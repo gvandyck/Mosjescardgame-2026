@@ -217,4 +217,74 @@ export function runPiecieEffectsTests() {
     const result = piecieEffects.effect_slecht_gezet(state);
     assertEqual(result.activePlace, null);
   });
+
+  // ── Zie Je Die Dingetjes (two-call pattern) ──────────────────────────────────
+  test('Zie Je Die Dingetjes call-1: sets _dingetjesPeek, deck unchanged', () => {
+    assertDefined(
+      piecieEffects.effect_zie_je_die_dingetjes,
+      'effect_zie_je_die_dingetjes missing'
+    );
+    const state = createEngineState({
+      players: {
+        player_1: {
+          deck: [
+            { cardId: 'card-a', type: 'PIECIE' },
+            { cardId: 'card-b', type: 'PIECIE' },
+            { cardId: 'card-c', type: 'PIECIE' },
+            { cardId: 'card-d', type: 'PIECIE' },
+            { cardId: 'card-e', type: 'PIECIE' },
+          ],
+        },
+      },
+    });
+    const result = piecieEffects.effect_zie_je_die_dingetjes(state, 'player_1');
+    assertDefined(result._dingetjesPeek, '_dingetjesPeek should be set after call-1');
+    assertEqual(result._dingetjesPeek.cards.length, 3, 'should peek 3 cards');
+    assertEqual(result._dingetjesPeek.cards[0], 'card-a', 'first peeked card should be card-a');
+    assertEqual(result.players.player_1.deck.length, 5, 'deck length should be unchanged');
+  });
+
+  test('Zie Je Die Dingetjes call-2: chosen card in hand, other 2 at deck top, peek cleared', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          deck: [
+            { cardId: 'card-a', type: 'PIECIE' },
+            { cardId: 'card-b', type: 'PIECIE' },
+            { cardId: 'card-c', type: 'PIECIE' },
+            { cardId: 'card-d', type: 'PIECIE' },
+          ],
+          hand: [],
+        },
+      },
+      _dingetjesPeek: { playerId: 'player_1', cards: ['card-a', 'card-b', 'card-c'] },
+    });
+    const result = piecieEffects.effect_zie_je_die_dingetjes(state, 'player_1', 'card-b');
+    assertEqual(result.players.player_1.hand.length, 1, 'chosen card should be in hand');
+    assertEqual(result.players.player_1.hand[0].cardId, 'card-b', 'card-b should be in hand');
+    assertEqual(result.players.player_1.deck[0].cardId !== 'card-b', true, 'card-b not at deck top');
+    assertEqual(result.players.player_1.deck.length, 3, 'deck should have 3 cards (2 put back + card-d)');
+    assertEqual(result._dingetjesPeek, undefined, '_dingetjesPeek should be cleared');
+  });
+
+  test('Zie Je Die Dingetjes call-2 with orderedRemainder: deck positions match requested order', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          deck: [
+            { cardId: 'card-a', type: 'PIECIE' },
+            { cardId: 'card-b', type: 'PIECIE' },
+            { cardId: 'card-c', type: 'PIECIE' },
+            { cardId: 'card-d', type: 'PIECIE' },
+          ],
+          hand: [],
+        },
+      },
+    });
+    const result = piecieEffects.effect_zie_je_die_dingetjes(state, 'player_1', 'card-a', ['card-c', 'card-b']);
+    assertEqual(result.players.player_1.hand[0].cardId, 'card-a', 'card-a should be in hand');
+    assertEqual(result.players.player_1.deck[0].cardId, 'card-c', 'deck[0] should be card-c per orderedRemainder');
+    assertEqual(result.players.player_1.deck[1].cardId, 'card-b', 'deck[1] should be card-b per orderedRemainder');
+    assertEqual(result.players.player_1.deck[2].cardId, 'card-d', 'card-d should remain at position 2');
+  });
 }

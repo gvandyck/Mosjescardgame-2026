@@ -502,6 +502,10 @@ export function activatePiecie(gameState, playerId, slotIndex) {
     }
   }
 
+  // Dingetje Toch wildcard: if state._dingetjeTochActive is true, the UI layer must bypass
+  // any single failing trait/type requirement before calling activatePiecie, then clear the flag.
+  // state._dingetjeTochActive = false  ← consumed by UI piecie activation validator, not here.
+
   // Check reactive negation flags set by opponent's Snelle Piecies
   const flags = state._snelleFlags || {};
   const oppId = Object.keys(state.players).find(id => id !== playerId);
