@@ -261,4 +261,107 @@ export function runSnelleEffectsTests() {
     assertEqual(result.players.player_1.activeSlots[0].mp, 30, 'Slot 0 should be unaffected');
     assertEqual(result.players.player_1.activeSlots[1].mp, 10, 'Slot 1 should lose 10 MP');
   });
+
+  // ── Jantje Jantje Jantje (const/let bug fix) ─────────────────────────────
+  test('Jantje Jantje Jantje: no crash when Bank Chilling is active', () => {
+    assertDefined(
+      snelleEffects.effect_snelle_jantje_jantje_jantje,
+      'effect_snelle_jantje_jantje_jantje missing'
+    );
+    const state = createEngineState({
+      activePlace: 'place_bank_chilling',
+      players: {
+        player_1: {
+          activeSlots: [{
+            cardId: 'mosje_martin_senor_west',
+            name: '[West]',
+            traits: { mental: 3 },
+            mp: 50, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false,
+          }, null],
+        },
+        player_2: {
+          activeSlots: [{
+            cardId: 'mosje_jeffrey',
+            name: '[Jeffrey]',
+            traits: { physical: 3 },
+            mp: 50, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false,
+          }, null],
+        },
+      },
+    });
+    let result;
+    let threw = false;
+    try {
+      result = snelleEffects.effect_snelle_jantje_jantje_jantje(state, 'player_1');
+    } catch {
+      threw = true;
+    }
+    assertFalse(threw, 'effect_snelle_jantje_jantje_jantje should not throw');
+    assertEqual(result.players.player_2.activeSlots[0].mp, 20, 'opponent should lose 30 MP (50→20)');
+    assertEqual(result.players.player_1.activeSlots[0].mp, 80, 'own Mosje should gain 30 MP (50→80)');
+  });
+
+  test('Jantje Jantje Jantje: no effect when Bank Chilling is NOT active', () => {
+    const state = createEngineState({
+      activePlace: null,
+      players: {
+        player_1: { activeSlots: [{ cardId: 'mosje_x', name: 'X', traits: {}, mp: 50, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false }, null] },
+        player_2: { activeSlots: [{ cardId: 'mosje_y', name: 'Y', traits: {}, mp: 50, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false }, null] },
+      },
+    });
+    const result = snelleEffects.effect_snelle_jantje_jantje_jantje(state, 'player_1');
+    assertEqual(result.players.player_2.activeSlots[0].mp, 50, 'opponent MP unchanged without Bank Chilling');
+    assertEqual(result.players.player_1.activeSlots[0].mp, 50, 'own MP unchanged without Bank Chilling');
+  });
+
+  // ── Blensen free-cost flag ───────────────────────────────────────────────
+  test('Blensen: sets blensenIsFreeThisActivation when last counterChain entry is frenssen', () => {
+    assertDefined(
+      snelleEffects.effect_snelle_blensen,
+      'effect_snelle_blensen missing'
+    );
+    const state = createEngineState({
+      _snelleFlags: {
+        counterChain: [{ playerId: 'player_1', card: 'frenssen' }],
+      },
+    });
+    const result = snelleEffects.effect_snelle_blensen(state, 'player_2');
+    assertTrue(
+      result._snelleFlags.blensenIsFreeThisActivation === true,
+      'blensenIsFreeThisActivation should be true when countering Frenssen'
+    );
+  });
+
+  test('Blensen: does NOT set blensenIsFreeThisActivation when counterChain is empty', () => {
+    const state = createEngineState();
+    const result = snelleEffects.effect_snelle_blensen(state, 'player_1');
+    assertFalse(
+      result._snelleFlags?.blensenIsFreeThisActivation === true,
+      'blensenIsFreeThisActivation should NOT be set when counterChain is empty'
+    );
+  });
+
+  test('Blensen: does NOT set blensenIsFreeThisActivation when last chain entry is not frenssen', () => {
+    const state = createEngineState({
+      _snelleFlags: {
+        counterChain: [{ playerId: 'player_2', card: 'blensen' }],
+      },
+    });
+    const result = snelleEffects.effect_snelle_blensen(state, 'player_1');
+    assertFalse(
+      result._snelleFlags?.blensenIsFreeThisActivation === true,
+      'blensenIsFreeThisActivation should NOT be set when countering a non-Frenssen'
+    );
+  });
+
+  test('Blensen: always pushes own entry to counterChain', () => {
+    const state = createEngineState({
+      _snelleFlags: { counterChain: [{ playerId: 'player_1', card: 'frenssen' }] },
+    });
+    const result = snelleEffects.effect_snelle_blensen(state, 'player_2');
+    const chain = result._snelleFlags.counterChain;
+    assertEqual(chain.length, 2, 'counterChain should have 2 entries');
+    assertEqual(chain[1].card, 'blensen', 'last entry should be blensen');
+    assertEqual(chain[1].playerId, 'player_2', 'last entry should be player_2');
+  });
 }

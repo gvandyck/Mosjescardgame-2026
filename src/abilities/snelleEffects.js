@@ -222,7 +222,7 @@ export function effect_snelle_bijna_welloe(gameState, playerId) {
 
 // Jantje Jantje Jantje — steal 30 MP from opponent (Bank Chilling must be active, checked by playSnellie requirement guard)
 export function effect_snelle_jantje_jantje_jantje(gameState, playerId) {
-	const state = JSON.parse(JSON.stringify(gameState));
+	let state = JSON.parse(JSON.stringify(gameState));
 	const player = state.players?.[playerId];
 	if (!player) return state;
 
@@ -295,7 +295,15 @@ export function effect_snelle_blensen(gameState, playerId) {
 	const state = JSON.parse(JSON.stringify(gameState));
 	state._snelleFlags = state._snelleFlags || {};
 	state._snelleFlags.counterChain = state._snelleFlags.counterChain || [];
-	state._snelleFlags.counterChain.push({ playerId, card: 'blensen' });
+
+	// Free-cost branch: Blensen is free when countering a Frenssen (last chain entry)
+	const chain = state._snelleFlags.counterChain;
+	if (chain.length > 0 && chain[chain.length - 1].card === 'frenssen') {
+		state._snelleFlags.blensenIsFreeThisActivation = true;
+		console.log('[ABILITY] Blensen: countering Frenssen — activation is FREE this time');
+	}
+
+	chain.push({ playerId, card: 'blensen' });
 	console.log('[ABILITY] Blensen: ultimate counter-chain stack entry added');
 	return state;
 }
