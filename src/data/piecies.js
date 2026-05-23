@@ -249,7 +249,7 @@ export const PIECIES = [
     tags: ["ATTACK", "AOE"],
     description: "All opponents lose 35 MP (40 MP if 3+ opponents). Draw 2 cards.",
     flavourText: "",
-    artPath: "assets/piecies/placeholder.png",
+    artPath: "assets/piecie-art/Dikke Taks.jpeg",
     rarity: "★★★★☆",
     isBoosterOnly: false,
     deckLimit: null
@@ -265,7 +265,7 @@ export const PIECIES = [
     tags: ["ATTACK", "DOT"],
     description: "Target opponent loses 10 MP per turn for 4 turns. Ticks at end of opponent's turn.",
     flavourText: "",
-    artPath: "assets/piecies/placeholder.png",
+    artPath: "assets/piecie-art/Kleine Taks.jpeg",
     rarity: "★★★☆☆",
     isBoosterOnly: false,
     deckLimit: null
@@ -366,7 +366,7 @@ export const PIECIES = [
     tags: ["ABILITY-BOOST"],
     description: "Your active Mosje's unique ability triggers TWICE this turn.",
     flavourText: "",
-    artPath: "assets/piecies/placeholder.png",
+    artPath: "assets/piecie-art/Redbull.jpeg",
     rarity: "★★★☆☆",
     isBoosterOnly: false,
     deckLimit: null
@@ -494,7 +494,7 @@ export const PIECIES = [
     tags: ["PROTECT"],
     description: "Active Mosje cannot lose MP from opponent effects until your next turn.",
     flavourText: "",
-    artPath: "assets/piecies/placeholder.png",
+    artPath: "assets/piecie-art/Afblijven!.jpeg",
     rarity: "★★☆☆☆",
     isBoosterOnly: false,
     deckLimit: null
@@ -750,7 +750,7 @@ export const PIECIES = [
     tags: ["REVIVE", "FIELD-EFFECT"],
     description: "Choose a Mosje in a Welloe pile and summon it to the field at Level 1, 0 MP. This Piecie stays linked to that Mosje; if this Piecie leaves play, that Mosje returns to Welloe.",
     flavourText: "",
-    artPath: "assets/piecies/placeholder.png",
+    artPath: "assets/piecie-art/Call of the Welloes.jpeg",
     rarity: "★★★☆☆",
     isBoosterOnly: false,
     deckLimit: null
@@ -920,7 +920,7 @@ export const PIECIES = [
     tags: ["SUBSTANCE"],
     description: "Gain 40 MP. Cannot complete any Quests on your next turn (QUEST_BLOCKED status).",
     flavourText: "",
-    artPath: "assets/piecies/placeholder.png",
+    artPath: "assets/piecie-art/Tikker.jpeg",
     rarity: "★★★☆☆",
     isBoosterOnly: false,
     deckLimit: null
