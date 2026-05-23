@@ -35,7 +35,7 @@ export const SNELLE_PIECIES = [
     tags: ["RESTORE"],
     description: "When active Mosje would reach 0 MP: restore to 30 MP. Play as interrupt.",
     flavourText: "",
-    artPath: "assets/snelle-piecies/placeholder.png",
+    artPath: "assets/piecie-art/Emergency Healings.jpeg",
     rarity: "★★★★☆",
     isBoosterOnly: false,
     deckLimit: null
