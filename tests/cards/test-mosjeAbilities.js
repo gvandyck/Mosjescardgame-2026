@@ -229,6 +229,148 @@ export function runMosjeAbilityTests() {
     assertEqual(result.players.player_1.hand.length, 0, 'Should not draw cards on wrong guess');
   });
 
+  // ── Jeffrey Brute Force (fixed) ──────────────────────────────────────────
+  test('Jeffrey Brute Force: adds +10 questBonusMP and sets jeffreyFoodRestrictActive', () => {
+    assertDefined(
+      mosjeAbilities.ability_jeffrey_brute_force,
+      'ability_jeffrey_brute_force missing'
+    );
+    const state = createEngineState();
+    const result = mosjeAbilities.ability_jeffrey_brute_force(state, 'player_1');
+    assertEqual(result.players.player_1.questBonusMP, 10, 'questBonusMP should be 10');
+    assertTrue(result.players.player_1.jeffreyFoodRestrictActive, 'jeffreyFoodRestrictActive should be true');
+  });
+
+  test('Jeffrey Brute Force: does NOT drain opponent MP', () => {
+    const state = createEngineState();
+    const before = state.players.player_2.activeSlots[0].mp;
+    const result = mosjeAbilities.ability_jeffrey_brute_force(state, 'player_1');
+    assertEqual(result.players.player_2.activeSlots[0].mp, before, 'opponent MP should be unchanged');
+  });
+
+  test('Jeffrey Brute Force: stacks questBonusMP if called multiple times', () => {
+    const state = createEngineState();
+    const r1 = mosjeAbilities.ability_jeffrey_brute_force(state, 'player_1');
+    const r2 = mosjeAbilities.ability_jeffrey_brute_force(r1, 'player_1');
+    assertEqual(r2.players.player_1.questBonusMP, 20, 'questBonusMP should stack to 20');
+  });
+
+  // ── Tuk Architect (two-call pattern) ─────────────────────────────────────
+  test('Tuk Architect call-1: sets _architectPeek, deck unchanged', () => {
+    assertDefined(
+      mosjeAbilities.ability_tuk_architect_perfect_placement,
+      'ability_tuk_architect_perfect_placement missing'
+    );
+    const state = createEngineState({
+      players: {
+        player_1: {
+          deck: [
+            { cardId: 'card-a', type: 'PIECIE' },
+            { cardId: 'card-b', type: 'PIECIE' },
+            { cardId: 'card-c', type: 'PIECIE' },
+            { cardId: 'card-d', type: 'PIECIE' },
+          ],
+        },
+      },
+    });
+    const result = mosjeAbilities.ability_tuk_architect_perfect_placement(state, 'player_1');
+    assertDefined(result._architectPeek, '_architectPeek should be set after call-1');
+    assertEqual(result._architectPeek.cards.length, 3, 'should peek 3 cards');
+    assertEqual(result.players.player_1.deck.length, 4, 'deck length should be unchanged');
+  });
+
+  test('Tuk Architect call-2: reorders top 3 to match orderedCardIds', () => {
+    const state = createEngineState({
+      players: {
+        player_1: {
+          deck: [
+            { cardId: 'card-a', type: 'PIECIE' },
+            { cardId: 'card-b', type: 'PIECIE' },
+            { cardId: 'card-c', type: 'PIECIE' },
+            { cardId: 'card-d', type: 'PIECIE' },
+          ],
+        },
+      },
+    });
+    const result = mosjeAbilities.ability_tuk_architect_perfect_placement(
+      state, 'player_1', ['card-c', 'card-a', 'card-b']
+    );
+    assertEqual(result.players.player_1.deck[0].cardId, 'card-c', 'deck[0] should be card-c');
+    assertEqual(result.players.player_1.deck[1].cardId, 'card-a', 'deck[1] should be card-a');
+    assertEqual(result.players.player_1.deck[2].cardId, 'card-b', 'deck[2] should be card-b');
+    assertEqual(result.players.player_1.deck[3].cardId, 'card-d', 'card-d should remain at position 3');
+  });
+
+  // ── Ronald Mastermind (masterPlanChosenIndex) ─────────────────────────────
+  test('Ronald Mastermind call-1: peeks top 3 without changing deck', () => {
+    assertDefined(
+      mosjeAbilities.ability_ronald_mastermind_master_plan,
+      'ability_ronald_mastermind_master_plan missing'
+    );
+    const state = createEngineState({
+      sharedGeneralQuestDeck: [
+        { cardId: 'quest-a', type: 'QUEST' },
+        { cardId: 'quest-b', type: 'QUEST' },
+        { cardId: 'quest-c', type: 'QUEST' },
+      ],
+    });
+    const result = mosjeAbilities.ability_ronald_mastermind_master_plan(state, 'player_1');
+    assertDefined(result._masterPlanPeek, '_masterPlanPeek should be set');
+    assertEqual(result.sharedGeneralQuestDeck[0].cardId, 'quest-a', 'top card unchanged in call-1');
+  });
+
+  test('Ronald Mastermind call-2: rotates card at masterPlanChosenIndex=1 to top', () => {
+    const state = createEngineState({
+      sharedGeneralQuestDeck: [
+        { cardId: 'quest-a', type: 'QUEST' },
+        { cardId: 'quest-b', type: 'QUEST' },
+        { cardId: 'quest-c', type: 'QUEST' },
+      ],
+      _pendingTargets: { masterPlanChosenIndex: 1 },
+    });
+    const result = mosjeAbilities.ability_ronald_mastermind_master_plan(state, 'player_1');
+    assertEqual(result.sharedGeneralQuestDeck[0].cardId, 'quest-b', 'quest-b should be rotated to top');
+  });
+
+  test('Ronald Mastermind call-2: clears masterPlanChosenIndex after rotation', () => {
+    const state = createEngineState({
+      sharedGeneralQuestDeck: [
+        { cardId: 'quest-a', type: 'QUEST' },
+        { cardId: 'quest-b', type: 'QUEST' },
+        { cardId: 'quest-c', type: 'QUEST' },
+      ],
+      _pendingTargets: { masterPlanChosenIndex: 0 },
+    });
+    const result = mosjeAbilities.ability_ronald_mastermind_master_plan(state, 'player_1');
+    assertEqual(
+      result._pendingTargets?.masterPlanChosenIndex,
+      undefined,
+      'masterPlanChosenIndex should be cleared after use'
+    );
+  });
+
+  // ── Ronald Chef (peek metadata) ───────────────────────────────────────────
+  test('Ronald Chef: sets _ronaldPeekPlayerId and _ronaldPeekTimestamp', () => {
+    assertDefined(
+      mosjeAbilities.ability_ronald_chef_strategic_insight,
+      'ability_ronald_chef_strategic_insight missing'
+    );
+    const state = createEngineState({
+      players: {
+        player_2: {
+          deck: [
+            { cardId: 'piecie-x', type: 'PIECIE' },
+            { cardId: 'piecie-y', type: 'PIECIE' },
+          ],
+        },
+      },
+    });
+    const result = mosjeAbilities.ability_ronald_chef_strategic_insight(state, 'player_1');
+    assertEqual(result._ronaldPeekPlayerId, 'player_1', '_ronaldPeekPlayerId should be player_1');
+    assertDefined(result._ronaldPeekTimestamp, '_ronaldPeekTimestamp should be set');
+    assertTrue(result._ronaldPeekTimestamp > 0, '_ronaldPeekTimestamp should be a positive number');
+  });
+
   test('West Calculated Guess: no effect when pending targets absent', () => {
     const state = createEngineState({
       players: {

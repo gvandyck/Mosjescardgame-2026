@@ -115,17 +115,14 @@ export function ability_gandoe_wizard_chaos_roll(gameState, playerId) {
 	return state;
 }
 
-// Jeffrey Strongman — brute force: opponent loses 20 MP.
+// Jeffrey Strongman — all Quests give +10 MP bonus; this Mosje cannot use FOOD or RESTORE Piecies.
 export function ability_jeffrey_brute_force(gameState, playerId) {
 	const state = cloneState(gameState);
-	const oppId = getOpponentId(state, playerId);
-	if (!oppId) return state;
-	const opp = state.players[oppId];
-	const osi = getFirstActiveSlotIndex(opp);
-	if (osi >= 0) {
-		opp.activeSlots[osi].mp -= 20;
-		console.log('[ABILITY] Jeffrey Brute Force: opponent -20 MP');
-	}
+	const player = state.players[playerId];
+	if (!player) return state;
+	player.questBonusMP = (player.questBonusMP || 0) + 10;
+	player.jeffreyFoodRestrictActive = true;
+	console.log('[ABILITY] Jeffrey Brute Force: +10 questBonusMP, FOOD/RESTORE Piecies blocked');
 	return state;
 }
 
@@ -222,7 +219,8 @@ export function ability_gandoe_destroyer_elimination_strike(gameState, playerId)
 
 // DIGITAL MOSJES
 
-// Ronald Chef — strategic insight: peek opponent top 2 deck cards (logs only; UI renders later).
+// Ronald Chef — strategic insight: peek opponent top 2 deck cards.
+// Sets _ronaldPeek (card IDs), _ronaldPeekPlayerId, and _ronaldPeekTimestamp for UI consumption.
 export function ability_ronald_chef_strategic_insight(gameState, playerId) {
 	const state = cloneState(gameState);
 	const oppId = getOpponentId(state, playerId);
@@ -230,6 +228,8 @@ export function ability_ronald_chef_strategic_insight(gameState, playerId) {
 	const opp = state.players[oppId];
 	const peeked = opp.deck.slice(0, 2).map(c => c.cardId);
 	state._ronaldPeek = peeked;
+	state._ronaldPeekPlayerId = playerId;
+	state._ronaldPeekTimestamp = Date.now();
 	console.log('[ABILITY] Ronald Chef: peeked opponent top 2:', peeked);
 	return state;
 }
@@ -434,12 +434,26 @@ export function ability_fps_west_tactical_analysis(gameState, playerId) {
 
 // ARTISTIC MOSJES
 
-// Ronald Mastermind — look at top 3 of shared Quest deck, put back (logged only).
+// Ronald Mastermind — look at top 3 of shared Quest deck; optionally rotate chosen card to top.
+// Two-call pattern:
+//   Call 1: no _pendingTargets.masterPlanChosenIndex → peek only, deck unchanged
+//   Call 2: _pendingTargets.masterPlanChosenIndex set (0/1/2) → rotate that card to position 0
 export function ability_ronald_mastermind_master_plan(gameState, playerId) {
 	const state = cloneState(gameState);
 	const top3 = state.sharedGeneralQuestDeck.slice(0, 3).map(c => c.cardId);
 	state._masterPlanPeek = top3;
 	console.log('[ABILITY] Ronald Mastermind: quest deck top 3:', top3);
+
+	const chosenIndex = state._pendingTargets?.masterPlanChosenIndex;
+	if (typeof chosenIndex === 'number' && chosenIndex >= 0 && chosenIndex <= 2) {
+		const deck = state.sharedGeneralQuestDeck;
+		if (chosenIndex < deck.length) {
+			const [chosen] = deck.splice(chosenIndex, 1);
+			deck.unshift(chosen);
+			console.log('[ABILITY] Ronald Mastermind: rotated card at index', chosenIndex, 'to top:', chosen.cardId);
+		}
+		delete state._pendingTargets.masterPlanChosenIndex;
+	}
 	return state;
 }
 
@@ -548,14 +562,30 @@ export function ability_coert_kastelein_immovable_object(gameState, playerId) {
 	return state;
 }
 
-// Tuk Architect — reorder top 3 of own deck (for now: just log; future: UI picks order).
-export function ability_tuk_architect_perfect_placement(gameState, playerId) {
+// Tuk Architect — reorder top 3 of own deck.
+// Two-call pattern:
+//   Call 1: no orderedCardIds → peeks top 3, stores _architectPeek, deck unchanged
+//   Call 2: orderedCardIds provided → reorders deck top 3 to match
+export function ability_tuk_architect_perfect_placement(gameState, playerId, orderedCardIds = null) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const top3 = player.deck.slice(0, 3).map(c => c.cardId);
-	state._architectPeek = { playerId, cards: top3 };
-	console.log('[ABILITY] Tuk Architect: peeked top 3 of own deck:', top3);
+	const top3 = player.deck.slice(0, 3);
+	if (top3.length === 0) return state;
+
+	if (Array.isArray(orderedCardIds) && orderedCardIds.length > 0) {
+		const rest = player.deck.slice(top3.length);
+		const reordered = orderedCardIds
+			.map(id => top3.find(c => c.cardId === id))
+			.filter(Boolean);
+		const mentioned = new Set(orderedCardIds);
+		const leftovers = top3.filter(c => !mentioned.has(c.cardId));
+		player.deck = [...reordered, ...leftovers, ...rest];
+		console.log('[ABILITY] Tuk Architect: reordered top 3 →', player.deck.slice(0, 3).map(c => c.cardId));
+	} else {
+		state._architectPeek = { playerId, cards: top3.map(c => c.cardId) };
+		console.log('[ABILITY] Tuk Architect: peeked top 3 of own deck:', state._architectPeek.cards);
+	}
 	return state;
 }
 
