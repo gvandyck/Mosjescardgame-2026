@@ -77,7 +77,7 @@ onAuthStateChanged(async user => {
 	if (badge && name) { name.textContent = user.displayName || user.email; badge.hidden = false; }
 
 	// Ensure wallet + starter collection exist before reading collection
-	await initNewAccount(user.uid);
+	await initNewAccount(user.uid, user.displayName || '');
 
 	// Load collection so the grid can grey out unowned cards
 	_ownedCardIds = await getOwnedCardIds(user.uid);

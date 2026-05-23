@@ -1,6 +1,6 @@
 # Card Implementation Roadmap
 
-**6 phases** | **~43 unique cards to implement** | **Sequential execution**
+**7 phases** | **~43 unique cards + multiplayer features** | **Sequential execution**
 
 ---
 
@@ -14,6 +14,7 @@
 | 4 | Implement Places | All 5 unique Places functional | IMPL-PF-PL1:3, AR-PL1:3 | 5 places resolve correctly |
 | 5 | Implement Quests | All 14 unique Quests functional | IMPL-PF-Q1:7, AR-Q1:5 | 14 quests work (rolls, rewards) |
 | 6 | Integration & Launch | Testing, lobby, deployment | IMPL-TEST, LOBBY, SIM, REG | Both decks playable in lobby |
+| 7 | Leaderboard | Global player leaderboard with win/loss/streak stats | LB-STATS, LB-PAGE, LB-NAV, LB-PROFILE, LB-DISCONNECT | Leaderboard page live, stats update after every match |
 
 ---
 
@@ -168,6 +169,33 @@
 
 ---
 
+### Phase 7: Leaderboard
+
+**Goal:** Global player leaderboard showing ranked win/loss/streak stats, accessible from the lobby.
+
+**Requirements:**
+- LB-STATS: Track wins, losses, currentStreak, bestStreak per player in RTDB at users/{uid}/stats
+- LB-PAGE: Leaderboard HTML page showing ranked table (rank, name, wins, losses, win rate %, current streak)
+- LB-NAV: Nav button on index.html below Deck Builder / Store links
+- LB-PROFILE: Store displayName in RTDB at users/{uid}/profile/displayName on login
+- LB-DISCONNECT: Disconnect = loss for the leaving player via RTDB onDisconnect hook
+
+**Plans:** 3 plans
+
+Plans:
+- [ ] 07-01-PLAN.md — Stats data layer: statsStore.js, leaderboardStore.js, matchRewards.js stats hook, accountSetup.js profile seeding, RTDB rules
+- [ ] 07-02-PLAN.md — Leaderboard UI: leaderboard.html, leaderboard.css, leaderboard.js, index.html nav button
+- [ ] 07-03-PLAN.md — Disconnect loss hook: registerDisconnectLoss + cancelDisconnectHooks in syncManager.js
+
+**Success Criteria:**
+1. Leaderboard page accessible from lobby nav
+2. Stats update after every completed match (win/loss/streak)
+3. Disconnect records a loss for the leaving player
+4. Anonymous players excluded from leaderboard
+5. No regressions in existing tests
+
+---
+
 ## Build Order Rationale
 
 1. **Mosje abilities first** — Foundation for deck synergies and playstyles
@@ -197,4 +225,4 @@ src/cards/quests/general/quest-endurance-test.ts
 
 ---
 
-*Last updated: 2026-04-28*
+*Last updated: 2026-05-23*

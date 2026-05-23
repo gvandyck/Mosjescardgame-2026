@@ -15,7 +15,7 @@ import { SNELLE_PIECIES } from './data/snellePiecies.js';
 import { PLACES } from './data/places.js';
 import { QUESTS } from './data/quests.js';
 import { createRoom, joinRoom } from './multiplayer/roomManager.js';
-import { pushState, listenToState, stopListening } from './multiplayer/syncManager.js';
+import { pushState, listenToState, stopListening, registerDisconnectLoss, cancelDisconnectHooks } from './multiplayer/syncManager.js';
 import { eventBus } from './multiplayer/eventBus.js';
 import { APP_VERSION } from './version.js';
 import {
@@ -74,7 +74,7 @@ function initLobbyPage() {
 		if (deleteAccountBtn) deleteAccountBtn.hidden = user.isAnonymous;
 		// One-time account setup (wallet + starter collection) for registered users
 		if (!user.isAnonymous) {
-			initNewAccount(user.uid);
+			initNewAccount(user.uid, user.displayName || '');
 		}
 		// Load custom decks into deck selector (registered users only)
 		if (!user.isAnonymous) {
@@ -133,8 +133,11 @@ function initLobbyPage() {
 			if (customDef) sessionStorage.setItem(`mosjes:customDeck:${deckId}`, JSON.stringify(customDef));
 		}
 
+		const lobbyUser = getCurrentUser();
+		const lobbyUid = lobbyUser && !lobbyUser.isAnonymous ? lobbyUser.uid : null;
+
 		if (mode === 'create') {
-			const result = await createRoom(name, deckId);
+			const result = await createRoom(name, deckId, lobbyUid);
 			if (!result.success) {
 				window.alert(result.error || 'Could not create a room. Please try again.');
 				if (submitBtn) submitBtn.disabled = false;
@@ -155,7 +158,7 @@ function initLobbyPage() {
 				window.location.href = `./game.html?room=${encodeURIComponent(code)}&player=player_1`;
 			}, 2000);
 		} else {
-			const result = await joinRoom(roomCodeInput, name, deckId);
+			const result = await joinRoom(roomCodeInput, name, deckId, lobbyUid);
 			if (!result.success) {
 				window.alert(result.error || 'Could not join room. Please check the code and try again.');
 				if (submitBtn) submitBtn.disabled = false;
@@ -171,6 +174,7 @@ function initLobbyPage() {
 				playerId: 'player_2',
 				opponentName: opponentData.name || 'Opponent',
 				opponentDeckId: opponentData.deckId || 'PHYSICAL_FORCE',
+				opponentUid: opponentData.uid || null,
 			}));
 			console.log('[UI] Joined room:', roomCodeInput);
 			window.location.href = `./game.html?room=${encodeURIComponent(roomCodeInput)}&player=player_2`;
@@ -327,6 +331,7 @@ function initGamePage() {
 	const localDeckId = lobbyData.deckId || 'DIGITAL_CONTROL';
 	const opponentName = lobbyData.opponentName || 'Opponent';
 	const opponentDeckId = lobbyData.opponentDeckId || pickOpponentDeck(localDeckId);
+	const opponentUid = lobbyData.opponentUid || null;
 
 	const isOnline = roomCode !== 'LOCAL';
 
@@ -339,6 +344,7 @@ function initGamePage() {
 
 	// ── Post-match reward flow ────────────────────────────────────────────
 	async function handleGameOver(gs) {
+		await cancelDisconnectHooks();
 		stopListening();
 		const winnerName = gs.players[gs.winnerId]?.name || 'Unknown';
 		const opponentName = gs.players[localPlayerId === 'player_1' ? 'player_2' : 'player_1']?.name || 'Opponent';
@@ -402,6 +408,10 @@ function initGamePage() {
 			eventBus.once('mp:player2-joined', p2Data => {
 				console.log('[UI] mp:player2-joined received, p2Data:', p2Data);
 				log.add('gain', `${p2Data.name} joined the room!`);
+				const user = getCurrentUser();
+				if (user && !user.isAnonymous) {
+					registerDisconnectLoss(roomCode, user.uid, p2Data.uid || null);
+				}
 				try {
 					startGame(localPlayerName, localDeckId, p2Data.name, p2Data.deckId || pickOpponentDeck(localDeckId));
 				} catch (err) {
@@ -421,6 +431,10 @@ function initGamePage() {
 		// First remote state initialises the game for player_2, then ongoing handler takes over
 		eventBus.once('mp:remote-state', initialState => {
 			console.log('[UI] mp:remote-state received (initial) for player_2');
+			const user = getCurrentUser();
+			if (user && !user.isAnonymous) {
+				registerDisconnectLoss(roomCode, user.uid, opponentUid);
+			}
 			try {
 				const { state: sanitizedState, changed } = sanitizeQuestCardsInPlayerZones(initialState);
 				gameState = sanitizedState;
@@ -439,6 +453,19 @@ function initGamePage() {
 		if (!isOnline) {
 			startGame(opponentName, opponentDeckId, localPlayerName, localDeckId);
 		}
+	}
+
+	// When opponent disconnects mid-game, auto-end the game and award a win
+	if (isOnline) {
+		eventBus.once('mp:opponent-abandoned', () => {
+			if (!gameState || gameState.status === 'FINISHED') return;
+			handleGameOver({
+				...gameState,
+				status: 'FINISHED',
+				winnerId: localPlayerId,
+				winReason: 'opponent disconnected',
+			});
+		});
 	}
 
 	// Stop Firestore listener on page unload

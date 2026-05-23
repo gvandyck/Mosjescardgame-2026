@@ -31,6 +31,8 @@ let _onValueHandler = null;
 let _lastStateSignature = null;
 let _lastPushedSignature = null;
 let _hasSeenPlayer2 = false;
+let _hasSeenAbandoned = false;
+let _disconnectHooks = [];  // onDisconnect refs to cancel when game ends normally
 
 function showToast(message) {
 	if (typeof document === 'undefined') return;
@@ -87,6 +89,7 @@ export async function listenToState(roomCode, localPlayerId) {
 	_lastStateSignature = null;
 	_lastPushedSignature = null;
 	_hasSeenPlayer2 = false;
+	_hasSeenAbandoned = false;
 
 	const db = getRtdb();
 	const { ref, onValue } = await getRtdbAPI();
@@ -96,6 +99,14 @@ export async function listenToState(roomCode, localPlayerId) {
 		const data = snap.val();
 		console.log('[SYNC] onValue fired. data:', data ? `status=${data.status} hasP2=${!!data.players?.player_2} hasGameState=${!!data.gameState}` : 'null');
 		if (!data) return;
+
+		// Notify once when opponent abandons (disconnects mid-game)
+		if (!_hasSeenAbandoned && data.status === 'ABANDONED') {
+			_hasSeenAbandoned = true;
+			console.log('[SYNC] Room abandoned — emitting mp:opponent-abandoned');
+			eventBus.emit('mp:opponent-abandoned');
+			return;
+		}
 
 		// Notify once when player 2 joins the waiting room
 		if (!_hasSeenPlayer2) {
@@ -136,6 +147,58 @@ export async function listenToState(roomCode, localPlayerId) {
 	});
 
 	console.log('[SYNC] Listening to room (RTDB):', roomCode, '| local player:', localPlayerId);
+}
+
+// ── registerDisconnectLoss ────────────────────────────────────────────────
+// Registers RTDB onDisconnect hooks so that if this client disconnects
+// mid-match, the server automatically records a loss for them.
+// Opponent win hook (opponentUid) is attempted but will be rejected by RTDB
+// rules (T-07-08) — accepted limitation; future Cloud Function enhancement.
+// Call cancelDisconnectHooks() when the game ends normally.
+export async function registerDisconnectLoss(roomCode, uid, opponentUid) {
+	if (!uid || !roomCode || roomCode === 'LOCAL') return;
+	const ready = await isFirebaseReady();
+	if (!ready) return;
+
+	const db = getRtdb();
+	const { ref, onDisconnect: getOnDisconnect, increment } =
+		await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js');
+
+	_disconnectHooks = [];
+	try {
+		// Mark room as abandoned — any auth user can write to rooms/{roomCode}
+		// so this onDisconnect write succeeds. The surviving player's onValue
+		// listener detects status === 'ABANDONED' and ends the game for them.
+		const roomHook = getOnDisconnect(ref(db, `rooms/${roomCode}`));
+		await roomHook.update({ status: 'ABANDONED', abandonedAt: Date.now() });
+		_disconnectHooks.push(roomHook);
+
+		const myStatsRef = ref(db, `users/${uid}/stats`);
+		const myHook = getOnDisconnect(myStatsRef);
+		await myHook.update({ losses: increment(1), currentStreak: 0 });
+		_disconnectHooks.push(myHook);
+
+		if (opponentUid) {
+			const oppStatsRef = ref(db, `users/${opponentUid}/stats`);
+			const oppHook = getOnDisconnect(oppStatsRef);
+			await oppHook.update({ wins: increment(1), currentStreak: increment(1) });
+			_disconnectHooks.push(oppHook);
+		}
+		console.log('[SYNC] Disconnect hooks registered for uid:', uid);
+	} catch (err) {
+		console.warn('[SYNC] Could not register disconnect hooks:', err?.code);
+	}
+}
+
+// ── cancelDisconnectHooks ─────────────────────────────────────────────────
+// Cancels all onDisconnect hooks registered for this match.
+// Must be called BEFORE stopListening() so the cancel reaches Firebase.
+export async function cancelDisconnectHooks() {
+	for (const hook of _disconnectHooks) {
+		try { await hook.cancel(); } catch (_) {}
+	}
+	_disconnectHooks = [];
+	console.log('[SYNC] Disconnect hooks cancelled');
 }
 
 // ── stopListening ──────────────────────────────────────────────────────────

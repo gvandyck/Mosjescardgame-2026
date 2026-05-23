@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MOSJES - Leaderboard</title>
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/leaderboard.css" />
+</head>
+<body class="page page--leaderboard">
+  <div class="bg-noise" aria-hidden="true"></div>
+
+  <header class="lb-header">
+    <a href="./index.html" class="btn-back">← Lobby</a>
+    <h1 class="lb-title">Leaderboard</h1>
+  </header>
+
+  <main class="leaderboard-main">
+    <p id="leaderboard-status" class="leaderboard-status">Loading...</p>
+    <div id="leaderboard-container" class="leaderboard-container" hidden>
+      <table class="leaderboard-table" aria-label="Player leaderboard">
+        <thead>
+          <tr>
+            <th class="lb-col lb-col--rank">#</th>
+            <th class="lb-col lb-col--name">Player</th>
+            <th class="lb-col lb-col--wins">Wins</th>
+            <th class="lb-col lb-col--losses">Losses</th>
+            <th class="lb-col lb-col--winrate">Win Rate</th>
+            <th class="lb-col lb-col--streak">Streak</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard-body">
+          <!-- Rendered by leaderboard.js -->
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script type="module" src="src/leaderboard.js"></script>
+</body>
+</html>
