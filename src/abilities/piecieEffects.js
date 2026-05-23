@@ -661,6 +661,23 @@ export function effect_welloe_force(gameState, playerId) {
 	return state;
 }
 
+export function effect_kan_het(gameState, playerId) {
+	const state = cloneState(gameState);
+	const player = state.players[playerId];
+	if (!player) return state;
+	const si = getFirstActiveSlotIndex(player);
+	if (si < 0) return state;
+	const roll = rollDie(6);
+	if (roll === 6) {
+		applyMPGain(player, si, 50, state, playerId);
+		console.log(`[ABILITY] Kan het?!: rolled ${roll} → KAN HET! +50 MP`);
+	} else {
+		player.activeSlots[si].mp -= 10;
+		console.log(`[ABILITY] Kan het?!: rolled ${roll} → nope, -10 MP`);
+	}
+	return state;
+}
+
 // ─────────────────────────────────────────
 // PET PROTECTION
 // ─────────────────────────────────────────
