@@ -24,13 +24,16 @@ import { PLACES } from './data/places.js';
 import { QUESTS } from './data/quests.js';
 import { initModalManager } from './ui/modalManager.js';
 
-// ── Card pool (non-booster only) ──────────────────────────────────────────────
+// ── Card pool (all cards, including booster-only) ─────────────────────────────
+// Booster-only cards are shown but greyed out until owned, matching the
+// existing unowned card pattern. Filtering them out here would make them
+// unsearchable even after a player earns them from a pack.
 const ALL_CARDS = [
-	...MOSJES.filter(c => !c.isBoosterOnly).map(c => ({ ...c, cardType: 'MOSJE' })),
-	...PIECIES.filter(c => !c.isBoosterOnly).map(c => ({ ...c, cardType: 'PIECIE' })),
-	...SNELLE_PIECIES.filter(c => !c.isBoosterOnly).map(c => ({ ...c, cardType: 'SNELLE_PIECIE' })),
-	...PLACES.filter(c => !c.isBoosterOnly).map(c => ({ ...c, cardType: 'PLACE' })),
-	...QUESTS.filter(c => !c.isBoosterOnly && c.questType === 'PERSONAL').map(c => ({ ...c, cardType: 'QUEST' })),
+	...MOSJES.map(c => ({ ...c, cardType: 'MOSJE' })),
+	...PIECIES.map(c => ({ ...c, cardType: 'PIECIE' })),
+	...SNELLE_PIECIES.map(c => ({ ...c, cardType: 'SNELLE_PIECIE' })),
+	...PLACES.map(c => ({ ...c, cardType: 'PLACE' })),
+	...QUESTS.filter(c => c.questType === 'PERSONAL').map(c => ({ ...c, cardType: 'QUEST' })),
 ];
 
 const LIMITS = { MOSJE: 2, PIECIE: 8, SNELLE_PIECIE: 4, PLACE: 2, QUEST: 1 };
