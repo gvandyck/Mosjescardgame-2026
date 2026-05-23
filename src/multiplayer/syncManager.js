@@ -31,6 +31,7 @@ let _onValueHandler = null;
 let _lastStateSignature = null;
 let _lastPushedSignature = null;
 let _hasSeenPlayer2 = false;
+let _disconnectHooks = [];  // onDisconnect refs to cancel when game ends normally
 
 function showToast(message) {
 	if (typeof document === 'undefined') return;
@@ -136,6 +137,51 @@ export async function listenToState(roomCode, localPlayerId) {
 	});
 
 	console.log('[SYNC] Listening to room (RTDB):', roomCode, '| local player:', localPlayerId);
+}
+
+// ── registerDisconnectLoss ────────────────────────────────────────────────
+// Registers RTDB onDisconnect hooks so that if this client disconnects
+// mid-match, the server automatically records a loss for them.
+// Opponent win hook (opponentUid) is attempted but will be rejected by RTDB
+// rules (T-07-08) — accepted limitation; future Cloud Function enhancement.
+// Call cancelDisconnectHooks() when the game ends normally.
+export async function registerDisconnectLoss(roomCode, uid, opponentUid) {
+	if (!uid || !roomCode || roomCode === 'LOCAL') return;
+	const ready = await isFirebaseReady();
+	if (!ready) return;
+
+	const db = getRtdb();
+	const { ref, onDisconnect: getOnDisconnect, increment } =
+		await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js');
+
+	_disconnectHooks = [];
+	try {
+		const myStatsRef = ref(db, `users/${uid}/stats`);
+		const myHook = getOnDisconnect(myStatsRef);
+		await myHook.update({ losses: increment(1), currentStreak: 0 });
+		_disconnectHooks.push(myHook);
+
+		if (opponentUid) {
+			const oppStatsRef = ref(db, `users/${opponentUid}/stats`);
+			const oppHook = getOnDisconnect(oppStatsRef);
+			await oppHook.update({ wins: increment(1), currentStreak: increment(1) });
+			_disconnectHooks.push(oppHook);
+		}
+		console.log('[SYNC] Disconnect hooks registered for uid:', uid);
+	} catch (err) {
+		console.warn('[SYNC] Could not register disconnect hooks:', err?.code);
+	}
+}
+
+// ── cancelDisconnectHooks ─────────────────────────────────────────────────
+// Cancels all onDisconnect hooks registered for this match.
+// Must be called BEFORE stopListening() so the cancel reaches Firebase.
+export async function cancelDisconnectHooks() {
+	for (const hook of _disconnectHooks) {
+		try { await hook.cancel(); } catch (_) {}
+	}
+	_disconnectHooks = [];
+	console.log('[SYNC] Disconnect hooks cancelled');
 }
 
 // ── stopListening ──────────────────────────────────────────────────────────

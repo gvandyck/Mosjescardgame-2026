@@ -56,12 +56,21 @@ async function getRtdbAPI() {
 
 // Call this after every successful sign-in.
 // Resolves immediately if setup has already been completed for this account.
-export async function initNewAccount(uid) {
+export async function initNewAccount(uid, displayName = '') {
 	if (!uid) return;
 	const ready = await isFirebaseReady();
 	if (!ready) return;
 	const db = getRtdb();
 	const { ref, get, set } = await getRtdbAPI();
+
+	// Seed / refresh display name in profile (runs on every login, not just first setup)
+	if (displayName) {
+		try {
+			await set(ref(db, `users/${uid}/profile/displayName`), displayName);
+		} catch (err) {
+			console.warn('[SETUP] Could not write displayName:', err?.code);
+		}
+	}
 
 	// Check if already set up
 	const flagRef = ref(db, `users/${uid}/setup/complete`);

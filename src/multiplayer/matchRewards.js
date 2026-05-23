@@ -5,6 +5,7 @@
 
 import { isFirebaseReady, getRtdb } from '../firebase.js';
 import { addMunten } from './walletStore.js';
+import { updateStats } from './statsStore.js';
 
 console.log('[REWARDS] matchRewards.js loaded');
 
@@ -59,6 +60,9 @@ export async function claimMatchReward(roomCode, uid, outcome, opponentName = 'O
 		console.warn('[REWARDS] addMunten failed — reward not recorded');
 		return { muntenAwarded: 0, alreadyClaimed: false };
 	}
+
+	// Update win/loss stats
+	await updateStats(uid, outcome);
 
 	// Write match history
 	try {

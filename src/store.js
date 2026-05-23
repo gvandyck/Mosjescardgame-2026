@@ -21,7 +21,7 @@ onAuthStateChanged(async user => {
 
 	_uid = user.uid;
 
-	await initNewAccount(_uid);
+	await initNewAccount(_uid, user.displayName || '');
 	await refreshBalance();
 	renderPack();
 });
