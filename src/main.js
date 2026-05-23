@@ -455,6 +455,19 @@ function initGamePage() {
 		}
 	}
 
+	// When opponent disconnects mid-game, auto-end the game and award a win
+	if (isOnline) {
+		eventBus.once('mp:opponent-abandoned', () => {
+			if (!gameState || gameState.status === 'FINISHED') return;
+			handleGameOver({
+				...gameState,
+				status: 'FINISHED',
+				winnerId: localPlayerId,
+				winReason: 'opponent disconnected',
+			});
+		});
+	}
+
 	// Stop Firestore listener on page unload
 	window.addEventListener('beforeunload', stopListening);
 

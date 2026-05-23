@@ -31,6 +31,7 @@ let _onValueHandler = null;
 let _lastStateSignature = null;
 let _lastPushedSignature = null;
 let _hasSeenPlayer2 = false;
+let _hasSeenAbandoned = false;
 let _disconnectHooks = [];  // onDisconnect refs to cancel when game ends normally
 
 function showToast(message) {
@@ -88,6 +89,7 @@ export async function listenToState(roomCode, localPlayerId) {
 	_lastStateSignature = null;
 	_lastPushedSignature = null;
 	_hasSeenPlayer2 = false;
+	_hasSeenAbandoned = false;
 
 	const db = getRtdb();
 	const { ref, onValue } = await getRtdbAPI();
@@ -97,6 +99,14 @@ export async function listenToState(roomCode, localPlayerId) {
 		const data = snap.val();
 		console.log('[SYNC] onValue fired. data:', data ? `status=${data.status} hasP2=${!!data.players?.player_2} hasGameState=${!!data.gameState}` : 'null');
 		if (!data) return;
+
+		// Notify once when opponent abandons (disconnects mid-game)
+		if (!_hasSeenAbandoned && data.status === 'ABANDONED') {
+			_hasSeenAbandoned = true;
+			console.log('[SYNC] Room abandoned — emitting mp:opponent-abandoned');
+			eventBus.emit('mp:opponent-abandoned');
+			return;
+		}
 
 		// Notify once when player 2 joins the waiting room
 		if (!_hasSeenPlayer2) {
@@ -156,6 +166,13 @@ export async function registerDisconnectLoss(roomCode, uid, opponentUid) {
 
 	_disconnectHooks = [];
 	try {
+		// Mark room as abandoned — any auth user can write to rooms/{roomCode}
+		// so this onDisconnect write succeeds. The surviving player's onValue
+		// listener detects status === 'ABANDONED' and ends the game for them.
+		const roomHook = getOnDisconnect(ref(db, `rooms/${roomCode}`));
+		await roomHook.update({ status: 'ABANDONED', abandonedAt: Date.now() });
+		_disconnectHooks.push(roomHook);
+
 		const myStatsRef = ref(db, `users/${uid}/stats`);
 		const myHook = getOnDisconnect(myStatsRef);
 		await myHook.update({ losses: increment(1), currentStreak: 0 });
