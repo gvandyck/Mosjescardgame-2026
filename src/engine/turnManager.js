@@ -20,7 +20,17 @@ const PIECIE_LOOKUP = Object.fromEntries(PIECIES.map(card => [card.id, card]));
 const PLACE_LOOKUP = Object.fromEntries(PLACES.map(card => [card.id, card]));
 
 function normalizePiecieSlots(player, slotCount = 4) {
-  const source = Array.isArray(player?.piecieSlots) ? player.piecieSlots : [];
+  let source;
+  if (Array.isArray(player?.piecieSlots)) {
+    source = player.piecieSlots;
+  } else if (player?.piecieSlots && typeof player.piecieSlots === 'object') {
+    // Firebase RTDB strips null values from arrays, returning an object with
+    // integer keys instead (e.g. [null, {cardId:'x'}, null] → {"1":{cardId:'x'}}).
+    // Reconstruct the full-length array so no cards are silently lost.
+    source = Array.from({ length: slotCount }, (_, i) => player.piecieSlots[i] ?? null);
+  } else {
+    source = [];
+  }
   const normalized = source.slice(0, slotCount).map(slot => (slot == null ? null : slot));
   while (normalized.length < slotCount) normalized.push(null);
   player.piecieSlots = normalized;
@@ -252,6 +262,7 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
   if (!player) return { state, success: false, error: 'Player not found' };
 
   // Defensive normalization for synced multiplayer states
+  normalizePiecieSlots(player, 4);
   if (!Array.isArray(player.hand)) player.hand = [];
   if (!Array.isArray(player.discard)) player.discard = [];
 
@@ -260,8 +271,7 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
   if (handIndex === -1) return { state, success: false, error: 'Card not in hand' };
 
   // Check if field already has 4 Piecies/Places (count activePlace as 1 slot, but only if player played it)
-  const piecieSlots = player.piecieSlots || [];
-  const filledSlots = piecieSlots.filter(slot => slot !== null && slot !== undefined).length;
+  const filledSlots = player.piecieSlots.filter(slot => slot !== null && slot !== undefined).length;
   const activePlaceCount = (state.activePlace && state.activePlacePlayedBy === playerId) ? 1 : 0;
   const totalSlots = filledSlots + activePlaceCount;
   if (totalSlots >= 4) {
@@ -595,17 +605,17 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
   let player = state.players[playerId];
   if (!player) return { state, success: false, error: 'Player not found' };
 
+  // Defensive normalization for synced multiplayer states
+  normalizePiecieSlots(player, 4);
+  if (!Array.isArray(player.hand)) player.hand = [];
+
   // Check if all 4 Piecie/Place slots are full — cannot play Snelle Piecie if board is full
-  const piecieSlots = player.piecieSlots || [];
-  const filledSlots = piecieSlots.filter(slot => slot !== null && slot !== undefined).length;
+  const filledSlots = player.piecieSlots.filter(slot => slot !== null && slot !== undefined).length;
   const activePlaceCount = state.activePlace ? 1 : 0;
   const totalSlots = filledSlots + activePlaceCount;
   if (totalSlots >= 4) {
     return { state, success: false, error: 'Cannot play Snelle Piecie — all Piecie/Place slots are full.' };
   }
-
-  // Defensive normalization for synced multiplayer states
-  if (!Array.isArray(player.hand)) player.hand = [];
   if (!Array.isArray(player.discard)) player.discard = [];
 
   // Remove from hand and place face-up in a piecie slot (swept to discard at end of turn)

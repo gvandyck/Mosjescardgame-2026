@@ -1701,6 +1701,15 @@ function sanitizeQuestCardsInPlayerZones(rawState) {
 	const movedToSharedDiscard = [];
 
 	for (const player of Object.values(state.players || {})) {
+		// Firebase RTDB strips null array values, converting piecieSlots to an object
+		// with integer keys. Re-hydrate to a proper 4-element array before any engine
+		// function touches it, so no cards are silently lost from the field.
+		if (player.piecieSlots && !Array.isArray(player.piecieSlots)) {
+			player.piecieSlots = Array.from({ length: 4 }, (_, i) => player.piecieSlots[i] ?? null);
+		} else if (!player.piecieSlots) {
+			player.piecieSlots = [null, null, null, null];
+		}
+
 		for (const zoneName of ['hand', 'deck', 'discard']) {
 			const zone = Array.isArray(player[zoneName]) ? player[zoneName] : [];
 			const kept = [];
