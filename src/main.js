@@ -1333,6 +1333,14 @@ function initGamePage() {
 					snelleStateForPlay._pendingTargets.jensen_slot_index = ownTargets[0].slotIndex;
 				}
 			} else if (cardDef.effectId === 'effect_snelle_lucky_coin') {
+				// BUG-04 fix: check slot availability BEFORE flipping the coin.
+				// playSnellie() also checks this, but the flip must not happen first.
+				const filledSlots = gameState.players[localPlayerId].piecieSlots.filter(s => s !== null).length;
+				const activePlaceCount = gameState.activePlace ? 1 : 0;
+				if (filledSlots + activePlaceCount >= 4) {
+					modal.showInfo('Cannot Play', 'Cannot play Lucky Coin — all Piecie/Place slots are full.');
+					return;
+				}
 				const isHeads = Math.random() < 0.5;
 				snelleStateForPlay = JSON.parse(JSON.stringify(gameState));
 				if (!snelleStateForPlay._pendingTargets) snelleStateForPlay._pendingTargets = {};
