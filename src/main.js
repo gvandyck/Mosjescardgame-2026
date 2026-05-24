@@ -539,6 +539,11 @@ function initGamePage() {
 		}
 
 		const threshold = getQuestDiceThreshold(questDef, activeMosje);
+		// BUG-01 diagnostic: log computed threshold vs requirement description.
+		// If the modal ever shows a wrong threshold, compare this log output to the
+		// actual roll result. A mismatch means activeMosje here is stale (different
+		// object than the one received by the requirement function).
+		console.log(`[QUEST-DEBUG] ${questDef.name}: computed threshold=${threshold}, requirementDesc="${questDef.requirementDescription}", mosje=${activeMosje?.name}, mental=${activeMosje?.traits?.mental}`);
 		log.add('quest', `${localPlayerName} is attempting General Quest: ${questDef.name}`);
 		if (questDef.description) log.add('info', `Effect: ${questDef.description}`);
 

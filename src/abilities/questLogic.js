@@ -178,6 +178,16 @@ export function canAttemptPersonalQuest(questCard, gameState, playerId) {
 //
 // questCard    — full quest card definition from QUESTS data
 // activeMosje  — the live Mosje slot object (has .traits)
+//
+// IMPORTANT: This function computes the DISPLAY threshold for the quest modal.
+// The actual roll threshold is computed independently by the quest requirement
+// function (questCard.requirementId, e.g. quest_req_strategy_puzzle).
+// Both code paths MUST agree for every quest and stat level.
+// Verified by: tests/engine/quest-threshold.test.ts
+// BUG-01 status: static analysis confirmed both paths agree. If the modal
+// shows a wrong value at runtime, check that activeMosje passed here is the
+// same live object received by the requirement function — a stale reference
+// (captured before a stat update) can cause a display/roll disagreement.
 // ─────────────────────────────────────────────────────────────
 export function getQuestDiceThreshold(questCard, activeMosje) {
   const roll = questCard.roll;
