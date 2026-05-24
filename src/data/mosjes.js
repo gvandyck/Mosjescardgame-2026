@@ -478,7 +478,7 @@ export const MOSJES = [
     startMP: 20,
     traits: { creative: 3, resilient: 2 },
     abilityId: "ability_dj_8020_lucky_beats",
-    abilityDescription: "Lucky Beats: Passive gain 10 MP at every turn start; active once per turn reroll one die result.",
+    abilityDescription: "Lucky Beats: Passive gain 10 MP at every turn start; +2 added to your next Quest dice roll this turn.",
     synergyWith: [],
     synergyEffect: null,
     petSynergy: "piecie_bowie_stormey",

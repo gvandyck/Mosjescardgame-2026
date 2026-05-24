@@ -29,7 +29,7 @@ function getOpponentId(state, playerId) {
 	return Object.keys(state.players).find(id => id !== playerId) || null;
 }
 
-// DJ 80/20 passive: gain 10 MP at turn start.
+// DJ 80/20 passive: gain 10 MP at turn start, +2 to next Quest roll this turn.
 export function ability_dj_8020_lucky_beats(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
@@ -39,7 +39,10 @@ export function ability_dj_8020_lucky_beats(gameState, playerId) {
 	if (slotIndex < 0) return state;
 
 	player.activeSlots[slotIndex].mp += 10;
-	console.log('[ABILITY] DJ 80/20 passive applied +10 MP');
+	// BUG-05: DJ Lucky Mixer — add +2 to next Quest roll this turn.
+	// questPrepBonus is consumed at quest resolution in main.js and reset to 0 at endTurn.
+	player.questPrepBonus = (player.questPrepBonus || 0) + 2;
+	console.log('[ABILITY] DJ 80/20 passive applied +10 MP and +2 Quest dice modifier');
 	return state;
 }
 

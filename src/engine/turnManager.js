@@ -141,7 +141,7 @@ export function endTurn(gameState) {
     });
   }
 
-  // Sweep Snelle Piecies from field to discard at end of turn
+  // Sweep Snelle Piecies and persistent regular Piecies from field to discard at end of turn
   normalizePiecieSlots(state.players[playerId], 4);
   for (let i = 0; i < state.players[playerId].piecieSlots.length; i++) {
     const slot = state.players[playerId].piecieSlots[i];
@@ -150,8 +150,15 @@ export function endTurn(gameState) {
       state.players[playerId].discard.push(slot.cardId);
       state.players[playerId].piecieSlots[i] = null;
       console.log(`[ENGINE] Snelle Piecie swept to discard: ${slot.cardId}`);
+    } else if (slot?.persistUntilEoT === true) {
+      if (!Array.isArray(state.players[playerId].discard)) state.players[playerId].discard = [];
+      state.players[playerId].discard.push(slot.cardId);
+      state.players[playerId].piecieSlots[i] = null;
+      console.log(`[ENGINE] Persistent Piecie swept to discard at EoT: ${slot.cardId}`);
     }
   }
+  // Reset questPrepBonus at end of turn — same lifecycle as persistUntilEoT Piecies (BUG-05)
+  state.players[playerId].questPrepBonus = 0;
 
   state = checkVictory(state);
   if (state.status === 'FINISHED') return state;
@@ -582,12 +589,19 @@ export function activatePiecie(gameState, playerId, slotIndex) {
     state = placeEffects.effect_momentum_factory(state);
   }
 
-  // Piecie resolves and is discarded.
+  // Piecie resolves — persistent cards stay in slot until end-of-turn sweep.
   player = state.players[playerId];
   if (!Array.isArray(player.discard)) player.discard = [];
   normalizePiecieSlots(player, 4);
-  player.discard.push(slotCardId);
-  player.piecieSlots[safeSlotIndex] = null;
+  if (knownCardDef.persistUntilEndOfTurn === true) {
+    // Mark slot as persistent — will be swept to discard in endTurn()
+    player.piecieSlots[safeSlotIndex].persistUntilEoT = true;
+    player.piecieSlots[safeSlotIndex].faceDown = false;
+    console.log(`[ENGINE] Piecie persisting until EoT: ${knownCardDef.name}`);
+  } else {
+    player.discard.push(slotCardId);
+    player.piecieSlots[safeSlotIndex] = null;
+  }
   console.log(`[ENGINE] piecieSlots after activation:`, player.piecieSlots.map((s, i) => s ? `[${i}] ${s.cardId} (${s.type})` : `[${i}] null`).join(' | '));
 
   state = checkVictory(state);
