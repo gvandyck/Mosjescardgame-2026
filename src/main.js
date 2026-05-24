@@ -874,6 +874,13 @@ function initGamePage() {
 				return;
 			}
 
+			const westSlot = gameState.players[localPlayerId].activeSlots
+				.find(s => s && s.cardId === mosjeId && !s.isDefeated);
+			if (westSlot && westSlot.level === 0 && westSlot.mp === 0) {
+				modal.showInfo('Cannot Use Ability', 'Senor West is at Level 0 with 0 MP — Calculated Guess cannot be used.');
+				return;
+			}
+
 			const guess = await modal.showCardTypeSelect({ title: 'West: Name a card type' });
 			if (!guess) return;
 
