@@ -463,7 +463,9 @@ export function quest_req_team_building(questCard, mosje) {
 // CREATIVE QUESTS
 export function quest_req_artistic_expression(questCard, mosje) {
 	const creative = mosje.traits?.creative || 0;
-	// Requires Creative ★★ + draw 2 cards (checked by caller)
+	// Auto-succeed for Creative ★★+.
+	// SIMPLIFIED: draw 2 cards on success is not wired in resolveQuest — drawExtra flag ignored.
+	// DEFERRED: draw-on-quest-success hook required to restore the draw 2 side effect.
 	const canAttempt = creative >= 2;
 	return { canAttempt, success: canAttempt };
 }
@@ -628,8 +630,9 @@ export function quest_req_ultimate_challenge(questCard, mosje) {
 }
 
 export function quest_req_speed_run(questCard, mosje, gameState, isFirstAction) {
-	// Must be first action of turn
-	if (!isFirstAction) return { canAttempt: false };
+	// SIMPLIFIED: isFirstAction gate removed — the parameter is never passed by the quest activation flow,
+	// so the gate blocked all attempts. Roll 3+ (Technical ★★★) or 5+ (otherwise) now always available.
+	// DEFERRED: re-add first-action gating once UI layer passes the isFirstAction flag.
 	const roll = rollDie();
 	const technical = mosje.traits?.technical || 0;
 	const threshold = technical >= 3 ? 3 : 5;
@@ -637,9 +640,9 @@ export function quest_req_speed_run(questCard, mosje, gameState, isFirstAction) 
 }
 
 export function quest_req_sustained_assault(questCard, mosje, gameState) {
-	// Must have used an ATTACK Piecie this turn
-	const attackUsed = gameState?.players[gameState.activePlayerId]?.lastCardPlayedType === 'ATTACK' || false;
-	if (!attackUsed) return { canAttempt: false };
+	// SIMPLIFIED: ATTACK gate removed — lastCardPlayedType is set to 'PIECIE' (not 'ATTACK') when cards
+	// are played, so the gate permanently blocked all attempts. Roll with Physical scaling now always available.
+	// DEFERRED: re-add the ATTACK-Piecie-this-turn gate once the card-play pipeline tracks attack source separately.
 	const roll = rollDie();
 	const physical = mosje.traits?.physical || 0;
 	let threshold;
@@ -661,15 +664,17 @@ export function quest_req_perfect_timing(questCard, mosje) {
 }
 
 export function quest_req_elimination_challenge(questCard, mosje) {
-	// Roll 4+. On success: opponent loses 30 MP + you gain 30 MP
+	// Roll 4+. Returns isElimination: true on success.
+	// DEFERRED: isElimination flag not consumed by resolveQuest — opponent-loses-30-MP side effect requires UI layer hook.
 	const roll = rollDie();
 	return { canAttempt: true, diceRoll: roll, threshold: 4, success: roll >= 4, isElimination: true };
 }
 
 export function quest_req_chain_master(questCard, mosje, gameState) {
-	// Must have 3+ Piecies in discard this turn
+	// Requires 3+ Piecies in the active player's discard pile. Roll 3+ to succeed.
+	// DEFERRED: discard currently accumulates all-time Piecies, not just this-turn Piecies —
+	// a per-turn Piecie counter is needed to enforce the "this turn" rule properly.
 	const discard = gameState?.players[gameState.activePlayerId]?.discard || [];
-	// Count Piecies played this turn (newly added to discard)
 	const pieciesInDiscard = discard.filter(c => c.type === 'PIECIE').length;
 	if (pieciesInDiscard < 3) return { canAttempt: false };
 	const roll = rollDie();
@@ -697,20 +702,27 @@ export function quest_req_regelaar(questCard, mosje) {
 }
 
 export function quest_req_late_night_questing(questCard, mosje) {
-	// Roll 3+. Success draws 2 extra cards
+	// Roll 3+. Returns drawExtra: 2 on success.
+	// DEFERRED: drawExtra flag is not consumed by resolveQuest — draw-on-quest-success requires UI layer hook.
 	const roll = rollDie();
 	return { canAttempt: true, diceRoll: roll, threshold: 3, success: roll >= 3, drawExtra: 2 };
 }
 
 export function quest_req_larry_temmen(questCard, mosje) {
-	// Roll 1d6: 1-2 = both lose 20, 3-4 = nothing, 5-6 = gain 40 + opponent -20
+	// SIMPLIFIED: collapsed 3-way outcome (1-2 lose, 3-4 nothing, 5-6 gain) to standard 2-way roll.
+	// The 3-way variant required resolveQuest to handle a "nothing" middle tier which it doesn't support.
+	// Rolls 5+ = success (gain 40 MP). Rolls 1-4 = fail (standard failMP applies).
+	// DEFERRED: restore 3-way outcome (rolls 3-4 = no effect) once resolveQuest supports a neutral tier.
 	const roll = rollDie();
-	return { canAttempt: true, diceRoll: roll, isSpecial: true, success: roll >= 5 };
+	return { canAttempt: true, diceRoll: roll, threshold: 5, success: roll >= 5 };
 }
 
 export function quest_req_geen_raad_vraag_aad(questCard, mosje) {
-	// Name a card in opponent's hand (UI prompt required)
-	return { canAttempt: true, requiresUIPrompt: true, promptType: 'GUESS_CARD' };
+	// SIMPLIFIED: replaced UI-prompt guess with a straight roll 4+.
+	// The original requiresUIPrompt return is not handled by resolveQuest, so the quest never resolved.
+	// DEFERRED: restore card-guess mechanic (opponent hand reveal + player input) once UI layer supports GUESS_CARD prompts.
+	const roll = rollDie();
+	return { canAttempt: true, diceRoll: roll, threshold: 4, success: roll >= 4 };
 }
 
 export function quest_req_parkeren_delft(questCard, mosje) {
@@ -723,7 +735,7 @@ export function quest_req_parkeren_delft(questCard, mosje) {
 export function quest_req_shotje_obby(questCard, mosje, gameState) {
 	// Roll 4+. At Obby #1 Place: auto-succeed
 	const currentPlace = gameState?.activePlace;
-	if (currentPlace?.id === 'place_obby_1') return { canAttempt: true, success: true, autoSuccess: true };
+	if (currentPlace === 'place_obby_1') return { canAttempt: true, success: true, autoSuccess: true };
 	const roll = rollDie();
 	return { canAttempt: true, diceRoll: roll, threshold: 4, success: roll >= 4 };
 }

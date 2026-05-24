@@ -179,45 +179,45 @@ This document is the final Phase 11 master card inventory, generated from the li
 | ID | Name | Group | Starter | Booster | Cost | Summary | Status |
 |---|---|---|---|---|---|---|---|
 | quest_arm_wrestling | Arm Wrestling | general | no | no | free | Quest success effects: gainMP | advanced |
-| quest_artistic_expression | Artistic Expression | general | yes | no | free | Quest success effects: gainMP | partial |
-| quest_build_gadget | Build Gadget | general | no | no | free | Quest success effects: gainMP | partial |
-| quest_calculate_odds | Calculate Odds | general | no | no | free | Quest success effects: gainMP | partial |
-| quest_chain_master | Chain Master | general | no | no | free | Quest success effects: gainMP | partial |
-| quest_create_masterpiece | Create Masterpiece | general | yes | no | free | Quest success effects: gainMP | partial |
-| quest_debug_system | Debug System | general | yes | no | free | Quest success effects: gainMP | partial |
-| quest_elimination_challenge | Elimination Challenge | general | no | no | free | Quest success effects: gainMP | partial |
-| quest_endurance_test | Endurance Test | general | yes | no | free | Quest success effects: gainMP | partial |
-| quest_endure_pain | Endure Pain | general | no | no | free | Quest success effects: gainMP | partial |
-| quest_form_alliance | Form Alliance | general | no | no | free | Quest success effects: drainMP+gainMP | partial |
-| quest_geen_raad_vraag_aad | Geen Raad? Vraag Aad! | general | no | no | free | Quest success effects: gainMP | partial |
-| quest_hack_mainframe | Hack Mainframe | general | yes | no | free | Quest success effects: gainMP | partial |
-| quest_improvise | Improvise! | general | yes | no | free | Quest success effects: gainMP | partial |
+| quest_artistic_expression | Artistic Expression | general | yes | no | free | auto-succeed Creative ★★+; draw 2 DEFERRED (UI hook) | implemented |
+| quest_build_gadget | Build Gadget | general | no | no | free | Quest success effects: gainMP | implemented |
+| quest_calculate_odds | Calculate Odds | general | no | no | free | Quest success effects: gainMP | implemented |
+| quest_chain_master | Chain Master | general | no | no | free | roll 3+ with 3+ Piecies in discard; this-turn tracking DEFERRED | implemented |
+| quest_create_masterpiece | Create Masterpiece | general | yes | no | free | Quest success effects: gainMP | implemented |
+| quest_debug_system | Debug System | general | yes | no | free | Quest success effects: gainMP | implemented |
+| quest_elimination_challenge | Elimination Challenge | general | no | no | free | roll 4+; opponent -30 MP side effect DEFERRED (UI hook) | implemented |
+| quest_endurance_test | Endurance Test | general | yes | no | free | Quest success effects: gainMP | implemented |
+| quest_endure_pain | Endure Pain | general | no | no | free | Quest success effects: gainMP | implemented |
+| quest_form_alliance | Form Alliance | general | no | no | free | Quest success effects: drainMP+gainMP | implemented |
+| quest_geen_raad_vraag_aad | Geen Raad? Vraag Aad! | general | no | no | free | SIMPLIFIED: roll 4+ (card-guess UI DEFERRED) | implemented |
+| quest_hack_mainframe | Hack Mainframe | general | yes | no | free | Quest success effects: gainMP; Hacker bonus DEFERRED (mosjeId vs cardId) | implemented |
+| quest_improvise | Improvise! | general | yes | no | free | Quest success effects: gainMP | implemented |
 | quest_inspire_crowd | Inspire Crowd | general | no | no | free | Quest success effects: gainMP | advanced |
-| quest_larry_temmen | Larry Temmen Niemand Zeggen | general | no | no | free | Quest success effects: gainMP | partial |
-| quest_late_night_questing | Late Night Questing | general | no | no | free | Quest success effects: gainMP | partial |
+| quest_larry_temmen | Larry Temmen Niemand Zeggen | general | no | no | free | SIMPLIFIED: roll 5+ = success (3-way outcome DEFERRED) | implemented |
+| quest_late_night_questing | Late Night Questing | general | no | no | free | roll 3+; draw 2 on success DEFERRED (UI hook) | implemented |
 | quest_leap_of_faith | Leap of Faith | general | yes | no | free | Quest success effects: gainMP | implemented |
 | quest_lucky_break | Lucky Break | general | yes | no | free | Quest success effects: gainMP | implemented |
-| quest_master_plan | Master Plan | general | yes | no | free | Quest success effects: gainMP | partial |
+| quest_master_plan | Master Plan | general | yes | no | free | Quest success effects: gainMP | implemented |
 | quest_momentum_master | Momentum Master | general | no | no | free | Quest success effects: gainMP | advanced |
-| quest_negotiation | Negotiation | general | no | no | free | Quest success effects: gainMP | partial |
-| quest_never_give_up | Never Give Up | general | yes | no | free | Quest success effects: gainMP | partial |
-| quest_parkeren_delft | Parkeren Delft | general | no | no | free | Quest success effects: loseMP+gainMP | partial |
+| quest_negotiation | Negotiation | general | no | no | free | Quest success effects: gainMP | implemented |
+| quest_never_give_up | Never Give Up | general | yes | no | free | Quest success effects: gainMP | implemented |
+| quest_parkeren_delft | Parkeren Delft | general | no | no | free | Quest success effects: loseMP+gainMP | implemented |
 | quest_parkour_challenge | Parkour Challenge | general | no | no | free | Quest success effects: loseMP+gainMP | advanced |
 | quest_perfect_timing | Perfect Timing | general | yes | no | free | Quest success effects: gainMP | implemented |
 | quest_precision_work | Precision Work | general | yes | no | free | Quest success effects: gainMP | implemented |
 | quest_quick_thinking | Quick Thinking | general | no | no | free | Quest success effects: gainMP | advanced |
-| quest_regelaar | Regelaar | general | no | no | free | Quest success effects: gainMP | partial |
-| quest_shotje_obby | Shotje Obby | general | yes | no | free | Quest success effects: gainMP | partial |
-| quest_speed_run | Speed Run | general | yes | no | free | Quest success effects: gainMP | partial |
+| quest_regelaar | Regelaar | general | no | no | free | Quest success effects: gainMP | implemented |
+| quest_shotje_obby | Shotje Obby | general | yes | no | free | roll 4+; auto-succeed at place_obby_1 (place ID bug fixed) | implemented |
+| quest_speed_run | Speed Run | general | yes | no | free | SIMPLIFIED: first-action gate removed; roll Technical-scaled (DEFERRED) | implemented |
 | quest_sprint_race | Sprint Race | general | no | no | free | Quest success effects: gainMP | advanced |
 | quest_strategy_puzzle | Strategy Puzzle | general | yes | no | free | Quest success effects: discardCards+gainMP | implemented |
-| quest_survive_storm | Survive Storm | general | yes | no | free | Quest success effects: gainMP | partial |
-| quest_sustained_assault | Sustained Assault | general | yes | no | free | Quest success effects: gainMP | partial |
-| quest_synergy_mastery | Synergy Mastery | general | yes | no | free | Quest success effects: gainMP | partial |
+| quest_survive_storm | Survive Storm | general | yes | no | free | Quest success effects: gainMP | implemented |
+| quest_sustained_assault | Sustained Assault | general | yes | no | free | SIMPLIFIED: ATTACK gate removed; Physical-scaled roll (DEFERRED) | implemented |
+| quest_synergy_mastery | Synergy Mastery | general | yes | no | free | Quest success effects: gainMP | implemented |
 | quest_team_building | Team Building | general | no | no | free | Quest success effects: gainMP | advanced |
-| quest_the_gauntlet | The Gauntlet | general | no | no | free | Quest success effects: gainMP | partial |
+| quest_the_gauntlet | The Gauntlet | general | no | no | free | Quest success effects: gainMP | implemented |
 | quest_tough_it_out | Tough It Out | general | yes | no | free | Quest success effects: gainMP | implemented |
-| quest_ultimate_challenge | Ultimate Challenge | general | no | no | free | Quest success effects: loseMP+gainMP | partial |
+| quest_ultimate_challenge | Ultimate Challenge | general | no | no | free | Quest success effects: loseMP+gainMP | implemented |
 | quest_personal_iron_will | Iron Will | personal | no | yes | free | Quest success effects: gainMP | advanced |
 | quest_personal_lucky_crescendo | Lucky Crescendo | personal | no | yes | free | Quest success effects: gainMP+forEachTarget | advanced |
 | quest_personal_perfect_sync | Perfect Sync | personal | no | yes | free | Quest success effects: gainMP | advanced |

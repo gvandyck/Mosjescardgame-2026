@@ -274,6 +274,7 @@ export const QUESTS = [
     requirementId: "quest_req_artistic_expression",
     roll: { trait: "creative", thresholds: { 1: 99, 2: 4, 3: 2 } },
     requirementDescription: "Requires Creative ★★ + draw 2 cards",
+    // DEFERRED: draw 2 cards on success not wired — drawExtra flag requires UI layer hook in resolveQuest.
     successMP: 40,
     failMP: -10,
     description: "Success: +40 MP. Failure: -10 MP.",
@@ -593,6 +594,8 @@ export const QUESTS = [
     requirementId: "quest_req_speed_run",
     roll: { trait: "technical", thresholds: { 1: 5, 2: 5, 3: 3 } },
     requirementDescription: "Roll: need 5+ base. Technical ★★★: 3+. Must be first action of turn",
+    // SIMPLIFIED: first-action-of-turn gate removed (isFirstAction never passed by quest flow, blocked all attempts).
+    // DEFERRED: restore gate once UI layer passes isFirstAction flag to quest_req_speed_run.
     successMP: 45,
     failMP: -15,
     description: "Success: +45 MP. Failure: -15 MP.",
@@ -612,6 +615,8 @@ export const QUESTS = [
     requirementId: "quest_req_sustained_assault",
     roll: { trait: "physical", thresholds: { 1: 4, 2: 3, 3: 2 } },
     requirementDescription: "Must have used an ATTACK Piecie this turn. Roll: Physical ★=4+, ★★=3+, ★★★=2+",
+    // SIMPLIFIED: ATTACK-Piecie gate removed (lastCardPlayedType is 'PIECIE' not 'ATTACK', blocked all attempts).
+    // DEFERRED: restore gate once card-play pipeline tracks attack source separately.
     successMP: 50,
     failMP: -25,
     description: "Success: +50 MP. Failure: -25 MP.",
@@ -650,6 +655,7 @@ export const QUESTS = [
     requirementId: "quest_req_elimination_challenge",
     roll: { trait: null, thresholds: { 1: 4, 2: 4, 3: 4 } },
     requirementDescription: "Roll 4+. On success: opponent loses 30 MP + you gain 30 MP. Failure: you lose 30 MP",
+    // DEFERRED: isElimination flag not consumed by resolveQuest — opponent-loses-30-MP side effect requires UI layer hook.
     successMP: 30,
     failMP: -30,
     description: "Success: Drain opponent 30 MP, gain 30 MP. Failure: -30 MP.",
@@ -669,6 +675,7 @@ export const QUESTS = [
     requirementId: "quest_req_chain_master",
     roll: { trait: null, thresholds: { 1: 3, 2: 3, 3: 3 } },
     requirementDescription: "Must have 3+ Piecies in discard this turn. Roll 3+",
+    // DEFERRED: discard counts all-time Piecies, not just this-turn — per-turn Piecie counter needed.
     successMP: 65,
     failMP: -25,
     description: "Success: +65 MP. Failure: -25 MP.",
@@ -731,6 +738,7 @@ export const QUESTS = [
     requirementId: "quest_req_late_night_questing",
     roll: { trait: null, thresholds: { 1: 3, 2: 3, 3: 3 } },
     requirementDescription: "Roll 3+. Success draws 2 extra cards.",
+    // DEFERRED: drawExtra: 2 flag not consumed by resolveQuest — draw-on-success requires UI layer hook.
     successMP: 30,
     failMP: -15,
     description: "Success: +30 MP + draw 2 cards. Failure: -15 MP.",
@@ -750,6 +758,8 @@ export const QUESTS = [
     requirementId: "quest_req_larry_temmen",
     roll: { trait: null, thresholds: { 1: 5, 2: 5, 3: 5 } },
     requirementDescription: "Roll 1d6: 1-2 = both lose 20 MP; 3-4 = nothing; 5-6 = gain 40 MP + opponent loses 20",
+    // SIMPLIFIED: 3-way outcome collapsed to standard 2-way (5+ success, else fail).
+    // DEFERRED: restore rolls 3-4 = no-effect tier once resolveQuest supports a neutral outcome.
     successMP: 40,
     failMP: -20,
     description: "Roll 1-2: you and opponent lose 20 MP. 3-4: nothing. 5-6: gain 40 MP, opponent -20 MP.",
@@ -769,6 +779,8 @@ export const QUESTS = [
     requirementId: "quest_req_geen_raad_vraag_aad",
     roll: null,
     requirementDescription: "Guess a card type in opponent's hand.",
+    // SIMPLIFIED: card-guess UI prompt replaced with roll 4+ (resolveQuest doesn't handle requiresUIPrompt).
+    // DEFERRED: restore opponent-hand-reveal + player-input guess once UI layer supports GUESS_CARD prompts.
     successMP: 50,
     failMP: -25,
     description: "Correct guess: +50 MP. Wrong guess: -25 MP.",
