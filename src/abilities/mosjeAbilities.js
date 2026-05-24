@@ -3,6 +3,7 @@
 // Filled in Phase 4.
 
 import { drawCards, rollDie } from '../engine/deckEngine.js';
+import { loseMP } from '../engine/mpManager.js';
 
 console.log('[ABILITY] mosjeAbilities.js loaded');
 
@@ -276,7 +277,7 @@ export function ability_martin_historian_time_control(gameState, playerId) {
 // state._pendingTargets.west_top_card_type (type of the top deck card).
 // Correct guess → draw 2 cards + gain 10 MP. Wrong → lose 10 MP.
 export function ability_martin_senor_west_calculated_guess(gameState, playerId, mosjeId) {
-	const state = cloneState(gameState);
+	let state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
 	const westIds = new Set(['mosje_martin_senor_west']);
@@ -300,8 +301,8 @@ export function ability_martin_senor_west_calculated_guess(gameState, playerId, 
 		player.hand.push(...drawn);
 		console.log(`[ABILITY] Senor West: correct guess (${guess}) → +10 MP, drew ${drawn.length} card(s)`);
 	} else {
-		player.activeSlots[si].mp -= 10;
-		console.log(`[ABILITY] Senor West: wrong guess (${guess}, was ${topCardType}) → -10 MP`);
+		state = loseMP(state, playerId, si, 10, 'ABILITY');
+		console.log(`[ABILITY] Senor West: wrong guess (${guess}, was ${topCardType}) → -10 MP via loseMP`);
 	}
 	return state;
 }
