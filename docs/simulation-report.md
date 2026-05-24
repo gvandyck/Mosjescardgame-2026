@@ -4,26 +4,22 @@
 
 - Total games: 100
 - Crashes: 0
-- Timeouts: 28 (28.0% of games)
-
-### Timeout Seeds
-
-Seeds: 7, 10, 11, 12, 13, 14, 15, 18, 19, 21, 24, 25, 27, 28, 29, 33, 35, 39, 46, 49, 51, 54, 56, 60, 72, 86, 87, 90
+- Timeouts: 0 (0.0% of games)
 
 ## Win Rates by Matchup
 
 | Matchup | P1 Wins | P2 Wins | Timeouts | Avg Turns |
 |---------|---------|---------|----------|-----------|
-| Physical Force vs Digital Control | 14 (42.4%) | 3 (9.1%) | 16 | 36.8 |
-| Digital Control vs Artistic Rhythm | 2 (6.1%) | 23 (69.7%) ⚠️ | 8 | 26.6 |
-| Artistic Rhythm vs Physical Force | 15 (44.1%) | 15 (44.1%) | 4 | 19.7 |
+| Physical Force vs Digital Control | 19 (57.6%) | 14 (42.4%) | 0 | 9.0 |
+| Digital Control vs Artistic Rhythm | 12 (36.4%) | 21 (63.6%) | 0 | 10.9 |
+| Artistic Rhythm vs Physical Force | 18 (52.9%) | 16 (47.1%) | 0 | 8.3 |
 
 ## Win Conditions
 
 | Condition | Count | % |
 |-----------|-------|---|
-| level_3 | 72 | 72.0% ⚠️ dominant |
-| timeout | 28 | 28.0% |
+| knockout | 53 | 53.0% |
+| level_3 | 47 | 47.0% |
 
 ## Card Play Frequency
 
@@ -31,16 +27,16 @@ Seeds: 7, 10, 11, 12, 13, 14, 15, 18, 19, 21, 24, 25, 27, 28, 29, 33, 35, 39, 46
 
 | Card | Play Count |
 |------|-----------|
-| `bagga-of-greed` | 1161 |
-| `grammetje-pieter` | 1090 |
-| `dubbele-dosis` | 513 |
-| `bowie-stormey` | 349 |
-| `kannetje-melk` | 320 |
-| `broodje-doner` | 320 |
-| `pot-of-weed` | 236 |
-| `dubbele-ding` | 198 |
-| `controller` | 156 |
-| `afblijven` | 116 |
+| `kannetje-melk` | 245 |
+| `dubbele-dosis` | 185 |
+| `bagga-of-greed` | 129 |
+| `eendjes-voeren` | 114 |
+| `dubbele-ding` | 88 |
+| `grammetje-pieter` | 83 |
+| `broodje-doner` | 71 |
+| `bowie-stormey` | 69 |
+| `pot-of-weed` | 54 |
+| `afblijven` | 49 |
 
 ### Never Played (0 plays across 100 games)
 
@@ -54,6 +50,7 @@ Cards never played may be too expensive, require impossible conditions, or have 
 - `quest_leap_of_faith`
 - `quest_survive_storm`
 - `quest_never_give_up`
+- `redbull`
 - `snelle_counter_strikka`
 - `quest_debug_system`
 - `quest_hack_mainframe`
@@ -70,31 +67,28 @@ Cards never played may be too expensive, require impossible conditions, or have 
 
 ## Balance Flags
 
-- ⚠️ **Artistic Rhythm** wins 69.7% vs Digital Control — potential imbalance
-- ⚠️ Win condition **level_3** dominates (72.0% of all decisive games)
-- ⚠️ Card `redbull` played in only 2 games (2.0%)
-- ⚠️ Card `snelle_negate_elimination` played in only 2 games (2.0%)
+- ⚠️ Card `snelle_negate_elimination` played in only 1 games (1.0%)
+- ⚠️ Card `te-hard-gaan` played in only 2 games (2.0%)
 - ⚠️ Card `snelle_dubbele_temminks` played in only 4 games (4.0%)
+- ⚠️ Card `laat-me-chillen` played in only 4 games (4.0%)
 - ⚠️ Card `place_coerts_caravan` played in only 2 games (2.0%)
-- ⚠️ Card `place_bank_chilling` played in only 1 games (1.0%)
+- ⚠️ Card `place_bank_chilling` played in only 2 games (2.0%)
+- ⚠️ Card `varkenspootjes` played in only 1 games (1.0%)
 
 ## Aggregate Stats
 
 | Metric | Value |
 |--------|-------|
-| Avg game length (turns) | 27.6 |
-| Avg MP gained / turn | 29.4 |
-| Avg quests per game | 3.2 |
-| Avg piecies per game | 48.6 |
-| Most played card | `bagga-of-greed` |
-| Most common win condition | level_3 |
+| Avg game length (turns) | 9.4 |
+| Avg MP gained / turn | 30.9 |
+| Avg quests per game | 2.0 |
+| Avg piecies per game | 13.5 |
+| Most played card | `kannetje-melk` |
+| Most common win condition | knockout |
 
 ## Recommended Follow-up
 
 Based on simulation results:
 
-- High timeout rate (28.0%): consider adding more aggressive win conditions or reducing card costs to speed up games.
-- Investigate 21 never-played card(s): check cost gating, requirement conditions, and whether they belong in starter decks.
-- Review deck balance for matchups flagged as one-sided (>65% win rate).
-- The dominant win condition suggests that strategy is too powerful relative to alternatives.
+- Investigate 22 never-played card(s): check cost gating, requirement conditions, and whether they belong in starter decks.
 - Review cards played in very few games — they may need cost reductions or requirement relaxation.
