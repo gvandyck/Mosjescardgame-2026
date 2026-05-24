@@ -16,6 +16,7 @@
 | 6 | Integration & Launch | Testing, lobby, deployment | IMPL-TEST, LOBBY, SIM, REG | Both decks playable in lobby |
 | 7 | Leaderboard | Global player leaderboard with win/loss/streak stats | LB-STATS, LB-PAGE, LB-NAV, LB-PROFILE, LB-DISCONNECT | Leaderboard page live, stats update after every match |
 | 8 | Complete Partial Cards | Every card marked partial/deferred in card-reference.md fully working in the browser game | CARD-COMP-1 through CARD-COMP-N | All partial cards resolve correctly, no stubs remaining |
+| 9 | UI & Engine Bug Fixes | Fix 5 playtesting bugs: quest roll threshold, Dubbele Dosis lifecycle, Senor West MP floor, Lucky Coin activation order, DJ Lucky Mixer turn modifier | BUG-01 through BUG-05 | All 5 bugs fixed, tests pass, no regressions |
 
 ---
 
@@ -205,10 +206,10 @@ Plans:
 - CARD-COMP-MOSJE: All partial Mosje abilities implemented (Binti, Cless, Coert, Martin, Tuk, Ronald, Chris variants, etc.)
 - CARD-COMP-SNELLE: All partial Snelle Piecies with deferred behaviours completed (blensen, counter-strikka, drain-reversal, frenssen, jammertje-gepakt, jantje-jantje, jensen, jeweetniet, perfect-dodge)
 - CARD-COMP-PIECIE: All partial Piecies with simplified/deferred logic completed (zie-je-die-dingetjes, call-of-the-welloes, dingetje-toch, double-trigger)
-- CARD-COMP-QUEST: All partial Quests with OR-condition / interactive simplifications completed
+- CARD-COMP-QUEST: All partial Quests audited — functional quests upgraded to `implemented`; OR-condition / interactive-pick quests documented with specific deferred reasons naming the blocking primitive (UI selection primitive does not exist yet — deferred to UI phase per Phase 5 decision)
 - CARD-COMP-PLACE: place_synergy_chamber duration extension and ability-cost reduction
 
-**Plans:** 5 plans
+**Plans:** 6 plans
 
 Plans:
 - [ ] 08-01-PLAN.md — Mosje ability fixes: Tuk Architect deck reorder, Ronald Mastermind sort-to-top, Jeffrey quest-bonus fix, Ronald Chef/FPS West peek flags (src/abilities/mosjeAbilities.js)
@@ -216,12 +217,43 @@ Plans:
 - [ ] 08-03-PLAN.md — Piecie stub completions: Zie Je Die Dingetjes two-call keep pattern, Dingetje Toch flag documentation (src/abilities/piecieEffects.js, src/engine/turnManager.js)
 - [ ] 08-04-PLAN.md — Snelle flag enforcement in loseMP: drainReversal, negateNextAttack, negateNextPiecie, dierenasiel; Synergy Chamber JSDoc (src/engine/mpManager.js, src/abilities/placeEffects.js)
 - [ ] 08-05-PLAN.md — Verification: npm test, simulation run, card-reference.md status updates (docs/card-reference.md)
+- [ ] 08-06-PLAN.md — Quest audit: classify all partial quests as implemented or deferred-with-reason; add DEFERRED comments in quests.js (src/data/quests.js, docs/card-reference.md)
 
 **Success Criteria:**
 1. No card function in any ability file returns early with a "pending UI" or "deferred" stub comment
 2. All cards in card-reference.md with status `partial` are updated to `implemented` or `advanced`
 3. Existing 588+ tests still pass
 4. Simulation runs without new crashes
+
+---
+
+### Phase 9: UI & Engine Bug Fixes
+
+**Goal:** Fix 5 playtesting bugs found in the live browser game: quest roll threshold display, Dubbele Dosis Piecie card lifecycle, Senor West MP floor + level-degrade fallback, Lucky Coin activation guard, DJ Lucky Mixer turn modifier redesign.
+
+**Requirements:**
+- BUG-01: Quest roll threshold displays wrong tier — Strategy Puzzle shows 3+ instead of 2+ when player has Mental ★★★ (stat level 3)
+- BUG-02: Dubbele Dosis Piecie discards immediately after activation instead of persisting until end of turn
+- BUG-03: Senor West wrong-guess penalty drives MP to −10 when player is at 0 MP (floor not respected); should degrade level −1 or block activation if already at minimum level
+- BUG-04: Lucky Coin coin flip resolves before checking Piecie slot availability — player can flip risk-free with full slots; slot check must run first and block activation if no slots free
+- BUG-05: DJ Lucky Mixer reroll effect does nothing on Quest dice rolls; redesign to a +2 turn-scoped Quest dice modifier using same end-of-turn lifecycle as BUG-02 fix
+
+**Plans:** 5/5 complete - 2026-05-25
+
+Plans:
+- [x] 09-01-PLAN.md -- BUG-03: Senor West MP floor fix + activation guard
+- [x] 09-02-PLAN.md -- BUG-04: Lucky Coin pre-flip slot guard
+- [x] 09-03-PLAN.md -- BUG-02 + BUG-05: Dubbele Dosis lifecycle + DJ Lucky Mixer quest modifier
+- [x] 09-04-PLAN.md -- BUG-01: Quest threshold verification
+- [x] 09-05-PLAN.md -- Verification: full test suite, simulation, card-reference.md updates
+
+**Success Criteria:**
+1. Quest roll modal shows the correct threshold tier for the player's stat level
+2. Dubbele Dosis Piecie stays in play until end of turn, then moves to discard
+3. Senor West cannot drive MP below 0; wrong-guess at 0 MP degrades level instead (or blocks if already min level)
+4. Lucky Coin activation is blocked when all Piecie slots are full; flip never triggers
+5. DJ Lucky Mixer adds +2 to all Quest dice results for the duration of the current turn
+6. All existing tests still pass; no regressions
 
 ---
 

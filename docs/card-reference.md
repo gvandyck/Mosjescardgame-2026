@@ -23,7 +23,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 | binti-the-sharp-tongue | Binti The Sharp Tongue | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
 | cless-the-teacher | Cless The Teacher | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
 | coert-kasteluck | Coert KasteLuck | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
-| dj-8020 | DJ 80/20 | ARTISTIC | yes | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
+| dj-8020 | DJ 80/20 | ARTISTIC | yes | no | free | Mosje ability: +10 MP passive + questPrepBonus +2 (BUG-05 fixed: reroll redesigned as +2 Quest dice modifier) | implemented |
 | jisca-the-maestro | Jisca The Maestro | ARTISTIC | yes | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
 | mosje_amplifier | Placeholder 3 — The Amplifier | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
 | mosje_chris_ddr | Dancing/DDR Chris | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
@@ -35,7 +35,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 | chris-the-all-rounder | Chris The All-Rounder | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
 | coert-tech-savant | Coert The Hawaiian Tech Savant | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
 | jeffrey-the-silent-gambler | Jeffrey The Silent Gambler | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
-| martin-senor-west | Martin Senor West | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
+| martin-senor-west | Martin Senor West | DIGITAL | no | no | free | Mosje ability: Calculated Guess — wrong guess routes through loseMP(); blocked at level 0+MP 0 (BUG-03 fixed) | implemented |
 | martin-the-historian | Martin The Historian | DIGITAL | yes | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
 | ming-the-natural | Ming The Natural | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
 | ming-the-predictor | Ming The Predictor | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
@@ -102,7 +102,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 | dingetje-toch | Dingetje Toch | UTILITY | no | no | free | ifThenElse | partial |
 | double-trigger | Double Trigger | UTILITY | no | no | 20 MP | applyBuff | partial |
 | dubbele-ding | Dubbele Ding | UTILITY | yes | no | free | applyBuff | implemented |
-| dubbele-dosis | Dubbele Dosis | UTILITY | yes | no | free | applyBuff | implemented |
+| dubbele-dosis | Dubbele Dosis | UTILITY | yes | no | free | applyBuff; persists in slot until endTurn (BUG-02 fixed: no longer discards immediately) | implemented |
 | emergency-swap | Emergency Swap | UTILITY | no | no | 30 MP, lvl 1+ | switchActiveMosje+applyBuff | advanced |
 | f1-telemetry-data | F1 Telemetry Data | UTILITY | yes | no | 10 MP | ifThenElse+lookAtTop | implemented |
 | huisbaas | Huisbaas | UTILITY | no | no | free | destroyPlace+ifThenElse | advanced |
@@ -140,7 +140,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 | snelle_jantje_jantje_jantje | Jantje Jantje Jantje… | - | no | no | discard 1 | negateEffect | implemented |
 | snelle_jensen | Jensen! | - | yes | no | 10 MP | negateEffect+discardSourceCard | advanced |
 | snelle_jeweetniet | Jeweetniet wie Ikben | - | no | no | 10 MP | applyBuff | advanced |
-| snelle_lucky_coin | Lucky Cóin | - | yes | no | 10 MP | ifThenElse | implemented |
+| snelle_lucky_coin | Lucky Cóin | - | yes | no | 10 MP | ifThenElse; slot guard blocks activation when all 4 slots full (BUG-04 fixed) | implemented |
 | snelle_negate_elimination | Not Today | - | yes | no | 20 MP | negateEffect | implemented |
 | snelle_perfect_dodge | Perfect Dodge | - | no | no | 20 MP | ifThenElse | implemented |
 | snelle_sleutelpuntje | Sleutelpuntje | - | yes | no | 5 MP | choose | implemented |
@@ -210,7 +210,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 | quest_shotje_obby | Shotje Obby | general | yes | no | free | roll 4+; auto-succeed at place_obby_1 (place ID bug fixed) | implemented |
 | quest_speed_run | Speed Run | general | yes | no | free | SIMPLIFIED: first-action gate removed; roll Technical-scaled (DEFERRED) | implemented |
 | quest_sprint_race | Sprint Race | general | no | no | free | Quest success effects: gainMP | advanced |
-| quest_strategy_puzzle | Strategy Puzzle | general | yes | no | free | Quest success effects: discardCards+gainMP | implemented |
+| quest_strategy_puzzle | Strategy Puzzle | general | yes | no | free | Quest success effects: discardCards+gainMP; both threshold paths agree (BUG-01: runtime debug log added to main.js:541 — stale activeMosje suspected) | implemented |
 | quest_survive_storm | Survive Storm | general | yes | no | free | Quest success effects: gainMP | implemented |
 | quest_sustained_assault | Sustained Assault | general | yes | no | free | SIMPLIFIED: ATTACK gate removed; Physical-scaled roll (DEFERRED) | implemented |
 | quest_synergy_mastery | Synergy Mastery | general | yes | no | free | Quest success effects: gainMP | implemented |

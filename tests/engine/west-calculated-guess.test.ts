@@ -7,8 +7,9 @@ function makeState(overrides: {
   topCardType?: string;
   deckCards?: Array<{ cardId: string; type: string }>;
   mp?: number;
+  level?: number;
 }) {
-  const { guess, topCardType, deckCards = [], mp = 30 } = overrides;
+  const { guess, topCardType, deckCards = [], mp = 30, level = 0 } = overrides;
   return {
     _pendingTargets: guess && topCardType
       ? { west_guess: guess, west_top_card_type: topCardType }
@@ -20,7 +21,7 @@ function makeState(overrides: {
             cardId: "mosje_martin_senor_west",
             name: "West",
             mp,
-            level: 0,
+            level,
             isDefeated: false,
             traits: { mental: 3 },
             statusEffects: [],
@@ -84,5 +85,27 @@ describe("West — Calculated Guess", () => {
     const result = ability_martin_senor_west_calculated_guess(state, "player_1");
     expect(result.players.player_1.activeSlots[0].mp).toBe(30);
     expect(result.players.player_1.hand).toHaveLength(0);
+  });
+});
+
+describe("West — MP floor behavior (BUG-03)", () => {
+  it("wrong guess at mp=0, level=0: mp stays at 0 (floor clamp)", () => {
+    const state = makeState({ guess: "MOSJE", topCardType: "PIECIE", mp: 0, level: 0 });
+    const result = ability_martin_senor_west_calculated_guess(state, "player_1");
+    expect(result.players.player_1.activeSlots[0].mp).toBe(0);
+    expect(result.players.player_1.activeSlots[0].level).toBe(0);
+  });
+
+  it("wrong guess at mp=0, level=1: triggers level regression", () => {
+    const state = makeState({ guess: "MOSJE", topCardType: "PIECIE", mp: 0, level: 1 });
+    const result = ability_martin_senor_west_calculated_guess(state, "player_1");
+    expect(result.players.player_1.activeSlots[0].level).toBe(0);
+    expect(result.players.player_1.activeSlots[0].mp).toBeGreaterThanOrEqual(0);
+  });
+
+  it("wrong guess at mp=5, level=0: mp clamps to 0 not -5", () => {
+    const state = makeState({ guess: "MOSJE", topCardType: "PIECIE", mp: 5, level: 0 });
+    const result = ability_martin_senor_west_calculated_guess(state, "player_1");
+    expect(result.players.player_1.activeSlots[0].mp).toBe(0);
   });
 });

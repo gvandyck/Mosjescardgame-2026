@@ -309,6 +309,73 @@ describe("Mosje Abilities", () => {
     });
   });
 
+  describe("DJ 80/20 — Quest Dice Modifier (BUG-05)", () => {
+    it("ability sets questPrepBonus += 2", async () => {
+      // Use a simplified inline state matching the JS ability layer's schema.
+      // The TypeScript GameState type does not include questPrepBonus.
+      // @ts-expect-error — simplified state for JS ability layer
+      const djState = {
+        activePlayerId: "p1",
+        players: {
+          p1: {
+            activeSlots: [
+              {
+                cardId: "mosje_dj_8020",
+                name: "DJ 80/20",
+                mp: 50,
+                level: 0,
+                isDefeated: false,
+                traits: {},
+                statusEffects: [],
+                abilityUsedThisTurn: false,
+              },
+              null,
+            ],
+            hand: [],
+            deck: [],
+            discard: [],
+            questPrepBonus: 0,
+          },
+        },
+      };
+      // @ts-expect-error — JS module
+      const { ability_dj_8020_lucky_beats } = await import("../../src/abilities/mosjeAbilities.js");
+      const result = ability_dj_8020_lucky_beats(djState, "p1");
+      expect(result.players.p1.questPrepBonus).toBe(2);
+    });
+
+    it("ability still grants +10 MP passive", async () => {
+      // @ts-expect-error — simplified state for JS ability layer
+      const djState = {
+        activePlayerId: "p1",
+        players: {
+          p1: {
+            activeSlots: [
+              {
+                cardId: "mosje_dj_8020",
+                mp: 40,
+                level: 0,
+                isDefeated: false,
+                traits: {},
+                statusEffects: [],
+                abilityUsedThisTurn: false,
+              },
+              null,
+            ],
+            hand: [],
+            deck: [],
+            discard: [],
+            questPrepBonus: 0,
+          },
+        },
+      };
+      // @ts-expect-error — JS module
+      const { ability_dj_8020_lucky_beats } = await import("../../src/abilities/mosjeAbilities.js");
+      const result = ability_dj_8020_lucky_beats(djState, "p1");
+      expect(result.players.p1.activeSlots[0].mp).toBe(50);
+    });
+  });
+
   describe("Integration", () => {
     it("all 4 Mosjes can be registered and executed without errors", () => {
       const cards = [ALYSSA_THE_BULLDOZER, JEFFREY_THE_STRONGMAN, DJ_8020, JISCA_THE_MAESTRO];

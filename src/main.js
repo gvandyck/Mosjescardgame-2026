@@ -539,6 +539,11 @@ function initGamePage() {
 		}
 
 		const threshold = getQuestDiceThreshold(questDef, activeMosje);
+		// BUG-01 diagnostic: log computed threshold vs requirement description.
+		// If the modal ever shows a wrong threshold, compare this log output to the
+		// actual roll result. A mismatch means activeMosje here is stale (different
+		// object than the one received by the requirement function).
+		console.log(`[QUEST-DEBUG] ${questDef.name}: computed threshold=${threshold}, requirementDesc="${questDef.requirementDescription}", mosje=${activeMosje?.name}, mental=${activeMosje?.traits?.mental}`);
 		log.add('quest', `${localPlayerName} is attempting General Quest: ${questDef.name}`);
 		if (questDef.description) log.add('info', `Effect: ${questDef.description}`);
 
@@ -871,6 +876,13 @@ function initGamePage() {
 			const deck = gameState.players[localPlayerId]?.deck ?? [];
 			if (deck.length === 0) {
 				modal.showInfo('Cannot Use Ability', 'Your deck is empty — Calculated Guess cannot be used.');
+				return;
+			}
+
+			const westSlot = gameState.players[localPlayerId].activeSlots
+				.find(s => s && s.cardId === mosjeId && !s.isDefeated);
+			if (westSlot && westSlot.level === 0 && westSlot.mp === 0) {
+				modal.showInfo('Cannot Use Ability', 'Senor West is at Level 0 with 0 MP — Calculated Guess cannot be used.');
 				return;
 			}
 
@@ -1326,6 +1338,14 @@ function initGamePage() {
 					snelleStateForPlay._pendingTargets.jensen_slot_index = ownTargets[0].slotIndex;
 				}
 			} else if (cardDef.effectId === 'effect_snelle_lucky_coin') {
+				// BUG-04 fix: check slot availability BEFORE flipping the coin.
+				// playSnellie() also checks this, but the flip must not happen first.
+				const filledSlots = gameState.players[localPlayerId].piecieSlots.filter(s => s !== null).length;
+				const activePlaceCount = gameState.activePlace ? 1 : 0;
+				if (filledSlots + activePlaceCount >= 4) {
+					modal.showInfo('Cannot Play', 'Cannot play Lucky Coin — all Piecie/Place slots are full.');
+					return;
+				}
 				const isHeads = Math.random() < 0.5;
 				snelleStateForPlay = JSON.parse(JSON.stringify(gameState));
 				if (!snelleStateForPlay._pendingTargets) snelleStateForPlay._pendingTargets = {};

@@ -21,7 +21,15 @@
       "Bash(curl -s http://localhost:8000/index.html)",
       "Bash(bash /tmp/check_piecie_images.sh)",
       "Bash(bash /tmp/check_real_art.sh)",
-      "Bash(bash /tmp/missing_art_complete.sh)"
+      "Bash(bash /tmp/missing_art_complete.sh)",
+      "Bash(npx firebase-tools *)",
+      "Bash(bash -c 'echo \"test\" | npx firebase-tools database:set \"/users/AIJiAddooVeI1EkpTrCict9jLzk2/wallet\" 2>&1')",
+      "Bash(npx firebase *)",
+      "Bash(firebase auth:export auth-export.json --format=json)",
+      "Bash(node_modules/.bin/firebase auth:export auth-export.json --format=json)",
+      "Bash(cmd /c \"where firebase\")",
+      "Bash(cmd /c \"firebase auth:export auth-export.json --format=json\")",
+      "Bash(cmd /c \"where firebase 2>&1\")"
     ]
   }
 }

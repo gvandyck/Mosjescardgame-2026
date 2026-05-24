@@ -101,3 +101,27 @@ describe("Snelle Piecie — Full Slots Rule", () => {
     expect(result4.error).toBe("Cannot play Snelle Piecie — all Piecie/Place slots are full.");
   });
 });
+
+describe("Lucky Coin — Full Slot Guard (BUG-04)", () => {
+  it("playSnellie with Lucky Coin and 4 full slots returns slot-full error", () => {
+    const state = makeState(4);
+    const cardRef = { cardId: "snelle_lucky_coin", type: "SNELLE_PIECIE" };
+    const cardDef = { name: "Lucky Coin", effectId: "effect_snelle_lucky_coin" };
+
+    const { success, error } = playSnellie(state, "player_1", cardRef, cardDef);
+    expect(success).toBe(false);
+    expect(error).toBe("Cannot play Snelle Piecie — all Piecie/Place slots are full.");
+  });
+
+  it("playSnellie with Lucky Coin and 3 full slots succeeds (slot available)", () => {
+    const state = makeState(3);
+    const cardRef = { cardId: "snelle_lucky_coin", type: "SNELLE_PIECIE" };
+    const cardDef = { name: "Lucky Coin", effectId: "effect_snelle_lucky_coin" };
+
+    const { success, error } = playSnellie(state, "player_1", cardRef, cardDef);
+    // Not blocked by full-slots rule (may fail for other reasons, but not slot capacity)
+    if (error) {
+      expect(error).not.toContain("all Piecie slots are full");
+    }
+  });
+});

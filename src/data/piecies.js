@@ -449,7 +449,8 @@ export const PIECIES = [
     artPath: "assets/piecie-art/dubbele-dosis.jpeg",
     rarity: "★★★☆☆",
     isBoosterOnly: false,
-    deckLimit: null
+    deckLimit: null,
+    persistUntilEndOfTurn: true    // BUG-02: card stays in slot until end-of-turn sweep
   },
   {
     id: "piecie_mp_amplifier",
