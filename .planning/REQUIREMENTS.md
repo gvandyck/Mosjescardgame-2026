@@ -92,4 +92,16 @@
 
 ---
 
-*Last updated: 2026-04-28*
+---
+
+## Phase 9 — UI & Engine Bug Fixes
+
+- [x] **BUG-01:** Quest roll threshold tier mismatch — both code paths agree; stale activeMosje suspected at runtime, debug log added
+- [x] **BUG-02:** Dubbele Dosis Piecie lifecycle — persistUntilEndOfTurn flag + endTurn sweep implemented
+- [x] **BUG-03:** Senor West MP floor — wrong-guess routes through loseMP(); activation blocked at level 0 + MP 0
+- [x] **BUG-04:** Lucky Coin activation guard — slot check runs before coin flip; blocks when all 4 slots full
+- [x] **BUG-05:** DJ Lucky Mixer turn modifier — redesigned as questPrepBonus +2, cleared at endTurn
+
+---
+
+*Last updated: 2026-05-25*
