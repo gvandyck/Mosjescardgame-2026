@@ -452,6 +452,8 @@ export function activatePiecie(gameState, playerId, slotIndex) {
   }
 
   const safeSlotIndex = Number(slotIndex);
+  console.log(`[ENGINE] activatePiecie called: player=${playerId} slotIndex=${safeSlotIndex} turn=${state.turnNumber}`);
+  console.log(`[ENGINE] piecieSlots before activation:`, player.piecieSlots.map((s, i) => s ? `[${i}] ${s.cardId} (${s.type})` : `[${i}] null`).join(' | '));
   if (!Number.isInteger(safeSlotIndex) || safeSlotIndex < 0 || safeSlotIndex >= player.piecieSlots.length) {
     return { state, success: false, error: 'Invalid Piecie slot' };
   }
@@ -586,6 +588,7 @@ export function activatePiecie(gameState, playerId, slotIndex) {
   normalizePiecieSlots(player, 4);
   player.discard.push(slotCardId);
   player.piecieSlots[safeSlotIndex] = null;
+  console.log(`[ENGINE] piecieSlots after activation:`, player.piecieSlots.map((s, i) => s ? `[${i}] ${s.cardId} (${s.type})` : `[${i}] null`).join(' | '));
 
   state = checkVictory(state);
   return { state, success: true, cardDef: knownCardDef };

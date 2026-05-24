@@ -57,7 +57,19 @@ export async function pushState(roomCode, gameState) {
 	try {
 		// Firestore cannot store undefined values — strip them out
 		const sanitized = JSON.parse(JSON.stringify(gameState));
-		_lastPushedSignature = JSON.stringify(sanitized);
+		// Firebase RTDB strips null values from arrays, converting piecieSlots to an object
+		// with integer string keys (e.g. [null, A, B, null] → {"1":A,"2":B}).
+		// Pre-apply this transformation so that the echo signature matches _lastPushedSignature
+		// and we correctly skip our own echoes instead of treating them as opponent actions.
+		const forSig = JSON.parse(JSON.stringify(sanitized));
+		for (const player of Object.values(forSig.players || {})) {
+			if (Array.isArray(player.piecieSlots)) {
+				const obj = {};
+				player.piecieSlots.forEach((slot, i) => { if (slot !== null && slot !== undefined) obj[String(i)] = slot; });
+				player.piecieSlots = obj;
+			}
+		}
+		_lastPushedSignature = JSON.stringify(forSig);
 		await update(roomRef, {
 			gameState: sanitized,
 			status: gameState.status === 'FINISHED' ? 'FINISHED' : 'PLAYING',

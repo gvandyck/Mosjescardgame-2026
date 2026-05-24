@@ -364,6 +364,13 @@ function initGamePage() {
 
 	// ── Shared remote-state handler — registered after game init ─────────
 	function onRemoteState(remoteState) {
+		for (const [pid, p] of Object.entries(remoteState.players || {})) {
+			const slots = p.piecieSlots;
+			const slotsSummary = Array.isArray(slots)
+				? slots.map((s, i) => s ? `[${i}] ${s.cardId} (${s.type})` : `[${i}] null`).join(' | ')
+				: JSON.stringify(slots);
+			console.log(`[UI] onRemoteState ${pid} piecieSlots:`, slotsSummary);
+		}
 		const { state: sanitizedState, changed } = sanitizeQuestCardsInPlayerZones(remoteState);
 		gameState = sanitizedState;
 		renderFromState(gameState);
@@ -1062,7 +1069,12 @@ function initGamePage() {
 		if (!gameState || gameState.status === 'FINISHED') return;
 		const beforeActivate = gameState;
 
-		const piecieSlot = gameState.players[localPlayerId]?.piecieSlots?.[slotIndex];
+		const slots = gameState.players[localPlayerId]?.piecieSlots;
+		console.log(`[UI] handleActivatePiecie: slotIndex=${slotIndex}`);
+		console.log(`[UI] piecieSlots at activation:`, Array.isArray(slots)
+			? slots.map((s, i) => s ? `[${i}] ${s.cardId} (${s.type})` : `[${i}] null`).join(' | ')
+			: String(slots));
+		const piecieSlot = slots?.[slotIndex];
 		const piecieCardDef = piecieSlot?.cardId ? CARD_LOOKUP[piecieSlot.cardId] : null;
 
 		// Route Personal Quest activation to its own handler
@@ -1092,10 +1104,10 @@ function initGamePage() {
 			if (ownTargets.length > 1) {
 				const selectedId = await modal.showTargetSelector(ownTargets, 'Choose your Mosje to receive MP:');
 				if (!selectedId) return;
-				const slotIndex = parseInt(selectedId.split('_slot_')[1], 10);
-				if (!Number.isNaN(slotIndex)) {
+				const mosjeSlotIndex = parseInt(selectedId.split('_slot_')[1], 10);
+				if (!Number.isNaN(mosjeSlotIndex)) {
 					stateForActivation = JSON.parse(JSON.stringify(gameState));
-					stateForActivation._pendingTargets = { own_slot_index: slotIndex };
+					stateForActivation._pendingTargets = { own_slot_index: mosjeSlotIndex };
 				}
 			}
 		}
@@ -1123,6 +1135,11 @@ function initGamePage() {
 		if (!gameState || gameState.status === 'FINISHED') return;
 		const beforeActivate = gameState;
 
+		const slots = gameState.players[localPlayerId]?.piecieSlots;
+		console.log(`[UI] handleActivatePlace: slotIndex=${slotIndex}`);
+		console.log(`[UI] piecieSlots at place activation:`, Array.isArray(slots)
+			? slots.map((s, i) => s ? `[${i}] ${s.cardId} (${s.type})` : `[${i}] null`).join(' | ')
+			: String(slots));
 		const { state: newState, success, error, cardDef } = activatePlace(gameState, localPlayerId, slotIndex);
 		if (!success) {
 			modal.showInfo('Cannot Activate', error || 'That Place cannot be activated right now.');
@@ -1526,7 +1543,10 @@ function toMosjeCards(activeSlots) {
 }
 
 function toPiecieCards(piecieSlots, options = {}) {
-	if (!Array.isArray(piecieSlots)) return [];
+	if (!Array.isArray(piecieSlots)) {
+		console.log('[UI] toPiecieCards: piecieSlots is not an array:', typeof piecieSlots, JSON.stringify(piecieSlots));
+		return [];
+	}
 	const {
 		ownerId = null,
 		localPlayerId = null,
@@ -1536,7 +1556,7 @@ function toPiecieCards(piecieSlots, options = {}) {
 	} = options;
 	const canActivateForViewer = viewerOwns && ownerId === localPlayerId && isLocalTurn;
 
-	return piecieSlots
+	const result = piecieSlots
 		.map((slot, slotIndex) => ({ slot, slotIndex }))
 		.filter(({ slot }) => slot !== null)
 		.map(({ slot, slotIndex }) => {
@@ -1570,6 +1590,9 @@ function toPiecieCards(piecieSlots, options = {}) {
 				canActivate: canActivateNow,
 			};
 		});
+	console.log('[UI] toPiecieCards result (owner=%s):', ownerId,
+		result.map(c => `[${c.slotIndex}] ${c.cardId} (${c.type}) canActivate=${c.canActivate}`).join(' | ') || '(empty)');
+	return result;
 }
 
 function toHandViewModel(hand) {
