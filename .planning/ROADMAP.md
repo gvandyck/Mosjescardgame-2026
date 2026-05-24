@@ -238,7 +238,14 @@ Plans:
 - BUG-04: Lucky Coin coin flip resolves before checking Piecie slot availability â€” player can flip risk-free with full slots; slot check must run first and block activation if no slots free
 - BUG-05: DJ Lucky Mixer reroll effect does nothing on Quest dice rolls; redesign to a +2 turn-scoped Quest dice modifier using same end-of-turn lifecycle as BUG-02 fix
 
-**Plans:** 5 plans\n\nPlans:\n- [ ] 09-01-PLAN.md — BUG-03: Senor West MP floor fix + activation guard (src/abilities/mosjeAbilities.js, src/main.js)\n- [ ] 09-02-PLAN.md — BUG-04: Lucky Coin pre-flip slot guard (src/main.js)\n- [ ] 09-03-PLAN.md — BUG-02 + BUG-05: Dubbele Dosis lifecycle + DJ Lucky Mixer quest modifier (src/data/piecies.js, src/engine/turnManager.js, src/abilities/mosjeAbilities.js)\n- [ ] 09-04-PLAN.md — BUG-01: Quest threshold display/roll path agreement verification (src/abilities/questLogic.js)\n- [ ] 09-05-PLAN.md — Verification: full test suite, simulation, card-reference.md updates (docs/card-reference.md)
+**Plans:** 5/5 complete - 2026-05-25
+
+Plans:
+- [x] 09-01-PLAN.md -- BUG-03: Senor West MP floor fix + activation guard
+- [x] 09-02-PLAN.md -- BUG-04: Lucky Coin pre-flip slot guard
+- [x] 09-03-PLAN.md -- BUG-02 + BUG-05: Dubbele Dosis lifecycle + DJ Lucky Mixer quest modifier
+- [x] 09-04-PLAN.md -- BUG-01: Quest threshold verification
+- [x] 09-05-PLAN.md -- Verification: full test suite, simulation, card-reference.md updates
 
 **Success Criteria:**
 1. Quest roll modal shows the correct threshold tier for the player's stat level
