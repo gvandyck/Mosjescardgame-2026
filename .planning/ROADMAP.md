@@ -17,6 +17,7 @@
 | 7 | Leaderboard | Global player leaderboard with win/loss/streak stats | LB-STATS, LB-PAGE, LB-NAV, LB-PROFILE, LB-DISCONNECT | Leaderboard page live, stats update after every match |
 | 8 | Complete Partial Cards | Every card marked partial/deferred in card-reference.md fully working in the browser game | CARD-COMP-1 through CARD-COMP-N | All partial cards resolve correctly, no stubs remaining |
 | 9 | UI & Engine Bug Fixes | Fix 5 playtesting bugs: quest roll threshold, Dubbele Dosis lifecycle, Senor West MP floor, Lucky Coin activation order, DJ Lucky Mixer turn modifier | BUG-01 through BUG-05 | All 5 bugs fixed, tests pass, no regressions |
+| 10 | Deck Balance | Fix game stalling — insufficient MP generation across all 3 decks causes games to end in deck-out or stalemate instead of someone reaching Level 3 | BAL-01 through BAL-N | All 3 decks can reliably progress to Level 3; deck-out eliminated; game length reduced to target range |
 
 ---
 
@@ -254,6 +255,26 @@ Plans:
 4. Lucky Coin activation is blocked when all Piecie slots are full; flip never triggers
 5. DJ Lucky Mixer adds +2 to all Quest dice results for the duration of the current turn
 6. All existing tests still pass; no regressions
+
+---
+
+### Phase 10: Deck Balance
+
+**Goal:** Fix game stalling — insufficient MP generation across all 3 starter decks causes games to end in deck-out or stalemate before anyone reaches Level 3. Fix by reworking underused cards, adjusting deck compositions, and/or tweaking rules. Prefer reworking existing cards over adding new ones.
+
+**Requirements:**
+- BAL-01: Digital Control stalling — too many draw-only cards, not enough reliable MP gain; Coert's draw ability bleeds MP
+- BAL-02: Physical Force — adequate direct MP but lacks fallback when quests fail; emergency_healings only delays stalls
+- BAL-03: Artistic Rhythm — post-bug-fix state unknown; verify balance after Phase 8 fixes
+- BAL-04: Quest cost vs reward economy — quests require MP upfront; if failing quests, net negative
+- BAL-05: Deck-out vulnerability — 15-17 card decks run dry before game ends
+
+**Success Criteria:**
+1. Digital Control can reliably reach Level 3 without deck-out
+2. All 3 decks have at least 2 clear paths to MP generation per game
+3. Games end with a winner (Level 3) rather than stalemate/deck-out
+4. Quest economy feels fair — attempting quests is never a pure drain
+5. Changes are backwards-compatible with existing card implementations
 
 ---
 
