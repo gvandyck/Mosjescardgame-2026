@@ -365,6 +365,16 @@ function initGamePage() {
 		if (isOnline && gameState) pushState(roomCode, gameState);
 	}
 
+	// ── Offline win-check wrapper ──────────────────────────────────────────
+	// After any human action, check if the game just ended.
+	// Replaces bare renderFromState(gameState) calls in all 7 action handlers.
+	function renderAndCheckWin() {
+		renderFromState(gameState);
+		if (isOffline && gameState && gameState.status === 'FINISHED') {
+			handleGameOver(gameState);
+		}
+	}
+
 	// ── Post-match reward flow ────────────────────────────────────────────
 	async function handleGameOver(gs) {
 		await cancelDisconnectHooks();
@@ -520,7 +530,7 @@ function initGamePage() {
 			gameState = startTurn(gameState);
 		}
 
-		renderFromState(gameState);
+		renderAndCheckWin();
 		syncPush();
 		log.add('quest', `${previousPlayerName} ended their turn.`);
 
@@ -578,7 +588,7 @@ function initGamePage() {
 
 		if (!questRef) {
 			log.add('quest', 'General Quest deck is empty!');
-			renderFromState(gameState);
+			renderAndCheckWin();
 			return;
 		}
 
@@ -593,7 +603,7 @@ function initGamePage() {
 		if (!canAttemptGeneralQuest(questDef, gameState, localPlayerId)) {
 			log.add('quest', `Cannot attempt ${questDef.name} — active Mosje has negative MP.`);
 			gameState.sharedGeneralQuestDiscard.push(questRef);
-			renderFromState(gameState);
+			renderAndCheckWin();
 			return;
 		}
 
@@ -642,7 +652,7 @@ function initGamePage() {
 				gameState.activeQuest = null;
 				if (!Array.isArray(gameState.sharedGeneralQuestDiscard)) gameState.sharedGeneralQuestDiscard = [];
 				gameState.sharedGeneralQuestDiscard.push(questRef);
-				renderFromState(gameState);
+				renderAndCheckWin();
 				syncPush();
 				return;
 			}
@@ -656,7 +666,7 @@ function initGamePage() {
 			if (pickedIndex === null) {
 				gameState.activeQuest = null;
 				gameState.sharedGeneralQuestDiscard.push(questRef);
-				renderFromState(gameState);
+				renderAndCheckWin();
 				syncPush();
 				return;
 			}
@@ -665,7 +675,7 @@ function initGamePage() {
 			if (!guess) {
 				gameState.activeQuest = null;
 				gameState.sharedGeneralQuestDiscard.push(questRef);
-				renderFromState(gameState);
+				renderAndCheckWin();
 				syncPush();
 				return;
 			}
@@ -684,7 +694,7 @@ function initGamePage() {
 			if (!Array.isArray(gameState.sharedGeneralQuestDiscard)) gameState.sharedGeneralQuestDiscard = [];
 			gameState.sharedGeneralQuestDiscard.push(questRef);
 
-			renderFromState(gameState);
+			renderAndCheckWin();
 			syncPush();
 
 			log.add(didSucceed ? 'gain' : 'loss',
@@ -732,7 +742,7 @@ function initGamePage() {
 				recoveryHappened = true;
 			}
 			if (recoveryHappened) {
-				renderFromState(gameState);
+				renderAndCheckWin();
 				syncPush();
 			}
 			return;
@@ -758,7 +768,7 @@ function initGamePage() {
 			gameState.activeQuest = null;
 			if (!Array.isArray(gameState.sharedGeneralQuestDiscard)) gameState.sharedGeneralQuestDiscard = [];
 			gameState.sharedGeneralQuestDiscard.push(questRef);
-			renderFromState(gameState);
+			renderAndCheckWin();
 			syncPush();
 			return;
 		}
@@ -772,7 +782,7 @@ function initGamePage() {
 					gameState.sharedGeneralQuestDiscard = [];
 				}
 				gameState.sharedGeneralQuestDiscard.push(questRef);
-				renderFromState(gameState);
+				renderAndCheckWin();
 				syncPush();
 
 				const mpDelta = didSucceed ? questDef.successMP : questDef.failMP;
@@ -982,7 +992,7 @@ function initGamePage() {
 				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
 				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
 			}
-			renderFromState(gameState);
+			renderAndCheckWin();
 			return;
 		}
 
@@ -1006,7 +1016,7 @@ function initGamePage() {
 			log.add('win', `${winnerName} won by ${gameState.winReason}.`);
 			modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
 		}
-		renderFromState(gameState);
+		renderAndCheckWin();
 	}
 
 	async function handleActivatePersonalQuestFromField(slotIndex) {
@@ -1199,7 +1209,7 @@ function initGamePage() {
 		}
 		logStateOutcome(log, beforeActivate, gameState, localPlayerId, `${activatedName} activation`);
 		syncPush();
-		renderFromState(gameState);
+		renderAndCheckWin();
 	}
 
 	function handleActivatePlace(slotIndex) {
@@ -1223,7 +1233,7 @@ function initGamePage() {
 		if (cardDef?.description) log.add('info', cardDef.description);
 		logStateOutcome(log, beforeActivate, gameState, localPlayerId, `${activatedName} activation`);
 		syncPush();
-		renderFromState(gameState);
+		renderAndCheckWin();
 	}
 
 	function handleOpenDiscard(playerId, isOwned) {
@@ -1359,7 +1369,7 @@ function initGamePage() {
 				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
 				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
 			}
-			renderFromState(gameState);
+			renderAndCheckWin();
 			return;
 		}
 
@@ -1481,7 +1491,7 @@ function initGamePage() {
 				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
 				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
 			}
-			renderFromState(gameState);
+			renderAndCheckWin();
 		}
 	}
 }
