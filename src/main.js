@@ -348,7 +348,8 @@ function initGamePage() {
 	const localPlayerId = urlParams.get('player') || lobbyData.playerId || 'player_1';
 	const opponentId = localPlayerId === 'player_1' ? 'player_2' : 'player_1';
 	const roomCode = urlParams.get('room') || lobbyData.roomCode || 'LOCAL';
-	const isOffline = urlParams.get('offline') === 'true';
+	const isOffline  = urlParams.get('offline')   === 'true';
+	const isBotVsBot = urlParams.get('botvsbot') === 'true';
 
 	const localPlayerName = lobbyData.name || 'Player 1';
 	const localDeckId = lobbyData.deckId || 'DIGITAL_CONTROL';
@@ -373,6 +374,28 @@ function initGamePage() {
 		if (isOffline && gameState && gameState.status === 'FINISHED') {
 			handleGameOver(gameState);
 		}
+	}
+
+	// ── Bot vs Bot loop — drives both players automatically ──────────────
+	function runBotVsBotLoop() {
+		if (!gameState || gameState.status === 'FINISHED') return;
+		const botId = gameState.activePlayerId;
+		setTimeout(() => {
+			try {
+				gameState = driveBotTurn(gameState, botId);
+			} catch (err) {
+				console.error('[BOT] driveBotTurn threw:', err);
+			}
+			renderFromState(gameState);
+			log.add('quest', `${gameState.players[botId]?.name ?? botId} ended their turn.`);
+			if (gameState.status === 'FINISHED') {
+				handleGameOver(gameState);
+				return;
+			}
+			gameState = startTurn(gameState);
+			renderFromState(gameState);
+			runBotVsBotLoop();
+		}, 800);
 	}
 
 	// ── Post-match reward flow ────────────────────────────────────────────
@@ -460,8 +483,14 @@ function initGamePage() {
 				}
 			});
 		} else {
-			// Offline vs Bot OR LOCAL dev mode
-			if (isOffline) {
+			// Bot vs Bot, Offline vs Bot, or LOCAL dev mode
+			if (isBotVsBot) {
+				const deck1 = STARTER_DECKS[Math.floor(Math.random() * STARTER_DECKS.length)].id;
+				const deck2 = pickOpponentDeck(deck1);
+				startGame('Bot A', deck1, 'Bot B', deck2);
+				log.add('quest', 'Bot vs Bot mode — no human input needed. Sit back and watch!');
+				runBotVsBotLoop();
+			} else if (isOffline) {
 				const offlineData = readOfflineData();
 				const humanName  = offlineData.name    || localPlayerName || 'Player';
 				const humanDeck  = offlineData.deckId  || localDeckId;
@@ -542,6 +571,11 @@ function initGamePage() {
 
 		const activeName = gameState.players[gameState.activePlayerId].name;
 		log.add('gain', `Now active: ${activeName}. Turn ${gameState.turnNumber}.`);
+
+		// Bot vs Bot mode: current player was already advanced by endTurn/startTurn above — kick off next bot
+		if (isBotVsBot && gameState.status !== 'FINISHED') {
+			runBotVsBotLoop();
+		}
 
 		// Offline bot turn: after human ends turn, drive the bot automatically
 		if (isOffline && gameState.activePlayerId === 'player_2' && gameState.status !== 'FINISHED') {
