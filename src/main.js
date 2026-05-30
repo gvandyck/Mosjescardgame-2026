@@ -30,7 +30,7 @@ import { loadUserDecks, getLastUserStoreError, deleteUserData } from './multipla
 import { initNewAccount } from './multiplayer/accountSetup.js';
 import { claimMatchReward } from './multiplayer/matchRewards.js';
 import { showRewardOverlay } from './ui/rewardOverlay.js';
-import { driveBotTurn } from './bot/botDriver.js';
+import { driveBotTurn, driveBotTurnSteps } from './bot/botDriver.js';
 
 console.log('[UI] App bootstrapping...');
 
@@ -376,26 +376,41 @@ function initGamePage() {
 		}
 	}
 
-	// ── Bot vs Bot loop — drives both players automatically ──────────────
+	// ── Bot vs Bot loop — drives both players with per-action delays ────
 	function runBotVsBotLoop() {
 		if (!gameState || gameState.status === 'FINISHED') return;
 		const botId = gameState.activePlayerId;
+		const botName = gameState.players[botId]?.name ?? botId;
+		let steps;
+		try {
+			steps = driveBotTurnSteps(gameState, botId);
+		} catch (err) {
+			console.error('[BOT] driveBotTurnSteps threw:', err);
+			return;
+		}
+		playBotSteps(steps, botName, 0);
+	}
+
+	function playBotSteps(steps, botName, index) {
+		if (index >= steps.length) return;
 		setTimeout(() => {
-			try {
-				gameState = driveBotTurn(gameState, botId);
-			} catch (err) {
-				console.error('[BOT] driveBotTurn threw:', err);
-			}
+			const { state, label } = steps[index];
+			gameState = state;
 			renderFromState(gameState);
-			log.add('quest', `${gameState.players[botId]?.name ?? botId} ended their turn.`);
+			log.add('quest', `${botName} ${label}`);
 			if (gameState.status === 'FINISHED') {
 				handleGameOver(gameState);
 				return;
 			}
-			gameState = startTurn(gameState);
-			renderFromState(gameState);
-			runBotVsBotLoop();
-		}, 800);
+			if (index === steps.length - 1) {
+				// endTurn was the last step — start next player's turn and continue
+				gameState = startTurn(gameState);
+				renderFromState(gameState);
+				runBotVsBotLoop();
+				return;
+			}
+			playBotSteps(steps, botName, index + 1);
+		}, 1000);
 	}
 
 	// ── Post-match reward flow ────────────────────────────────────────────

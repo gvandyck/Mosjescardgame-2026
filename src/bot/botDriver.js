@@ -34,6 +34,129 @@ const QUEST_LOOKUP = Object.fromEntries(QUESTS.map(c => [c.id, c]));
 const MOSJE_LOOKUP = Object.fromEntries(MOSJES.map(m => [m.id, m]));
 
 /**
+ * driveBotTurnSteps
+ * Same logic as driveBotTurn but returns an array of { state, label } snapshots —
+ * one per action taken — so callers can animate each step individually.
+ *
+ * @param {object} gameState
+ * @param {string} botPlayerId
+ * @returns {Array<{state: object, label: string}>}
+ */
+export function driveBotTurnSteps(gameState, botPlayerId) {
+  const steps = [];
+  let state = gameState;
+
+  // Step 1: Play Piecies
+  const handSnapshot = [...(state.players[botPlayerId]?.hand || [])];
+  for (const cardRef of handSnapshot) {
+    if (cardRef.type !== 'PIECIE') continue;
+    const cardDef = PIECIE_LOOKUP[cardRef.cardId];
+    if (!cardDef) continue;
+    const result = playPiecie(state, botPlayerId, cardRef, cardDef);
+    if (result.success) {
+      state = result.state;
+      steps.push({ state, label: `plays ${cardDef.name}` });
+    } else if (result.error && /slot|full/i.test(result.error)) {
+      break;
+    }
+  }
+
+  // Step 2: Activate Piecies
+  const piecieSlots = state.players[botPlayerId]?.piecieSlots || [];
+  for (let i = 0; i < piecieSlots.length; i++) {
+    const slot = piecieSlots[i];
+    if (!slot || slot.type !== 'PIECIE' || slot.activated) continue;
+    if (state.turnNumber < (slot.canActivateOnTurn ?? Infinity)) continue;
+    const result = activatePiecie(state, botPlayerId, i);
+    if (result.success) {
+      state = result.state;
+      steps.push({ state, label: `activates ${slot.cardId.replace('piecie_', '').replace(/_/g, ' ')}` });
+      const updated = state.players[botPlayerId]?.piecieSlots || [];
+      for (let j = i + 1; j < piecieSlots.length; j++) piecieSlots[j] = updated[j] ?? null;
+    }
+  }
+
+  // Step 3: General Quest
+  const questResult = attemptGeneralQuest(state);
+  state = questResult.state;
+  const questCard = questResult.questCard;
+  if (questCard) {
+    const questDef = QUEST_LOOKUP[questCard.cardId];
+    if (questDef && canAttemptGeneralQuest(questDef, state, botPlayerId)) {
+      const player = state.players[botPlayerId];
+      const slotIdx = (player?.activeSlots || []).findIndex(s => s && !s.isDefeated);
+      const didSucceed = rollDie() >= 4;
+      state = resolveQuest(state, botPlayerId, questDef, didSucceed, slotIdx);
+      state = { ...state, sharedGeneralQuestDiscard: [...(state.sharedGeneralQuestDiscard || []), questCard] };
+      steps.push({ state, label: `quests "${questDef.name}" — ${didSucceed ? '✓ success' : '✗ failed'}` });
+    } else {
+      state = { ...state, sharedGeneralQuestDiscard: [...(state.sharedGeneralQuestDiscard || []), questCard] };
+    }
+  }
+
+  // Step 3b: Personal Quest
+  for (const cardRef of (state.players[botPlayerId]?.hand || [])) {
+    if (cardRef.type !== 'QUEST') continue;
+    const questDef = QUEST_LOOKUP[cardRef.cardId];
+    if (!questDef || questDef.questType !== 'PERSONAL') continue;
+    if (canAttemptPersonalQuest(questDef, state, botPlayerId)) {
+      const pqResult = attemptPersonalQuest(state, cardRef.cardId);
+      if (pqResult.eligible) {
+        state = pqResult.state;
+        steps.push({ state, label: `attempts personal quest "${questDef.name}"` });
+      }
+    }
+    break;
+  }
+
+  // Step 4: Play Place
+  for (const cardRef of [...(state.players[botPlayerId]?.hand || [])]) {
+    if (cardRef.type !== 'PLACE') continue;
+    const cardDef = PLACE_LOOKUP[cardRef.cardId];
+    if (!cardDef) continue;
+    const result = playPlace(state, botPlayerId, cardRef, cardDef);
+    if (result.success) {
+      state = result.state;
+      steps.push({ state, label: `plays Place: ${cardDef.name}` });
+      break;
+    }
+  }
+
+  // Step 5: Activate Place
+  const slotsForPlace = state.players[botPlayerId]?.piecieSlots || [];
+  for (let i = 0; i < slotsForPlace.length; i++) {
+    const slot = slotsForPlace[i];
+    if (!slot || slot.type !== 'PLACE' || slot.activated) continue;
+    if (state.turnNumber < (slot.canActivateOnTurn ?? Infinity)) continue;
+    const result = activatePlace(state, botPlayerId, i);
+    if (result.success) {
+      state = result.state;
+      steps.push({ state, label: `activates Place: ${slot.cardId.replace('place_', '').replace(/_/g, ' ')}` });
+      break;
+    }
+  }
+
+  // Step 6: Mosje ability
+  for (const slot of (state.players[botPlayerId]?.activeSlots || [])) {
+    if (!slot || slot.isDefeated || slot.abilityUsedThisTurn) continue;
+    const mosjeDef = MOSJE_LOOKUP[slot.cardId];
+    if (!mosjeDef?.abilityId) continue;
+    const result = useMosjeAbility(state, botPlayerId, slot.cardId);
+    if (result.success) {
+      state = result.state;
+      steps.push({ state, label: `uses ${slot.name}'s ability` });
+    }
+    break;
+  }
+
+  // Step 7: End turn
+  state = endTurn(state);
+  steps.push({ state, label: 'ends turn' });
+
+  return steps;
+}
+
+/**
  * driveBotTurn
  * Executes the bot's full turn by calling the same turnManager.js action
  * functions a human calls. Returns the final state after endTurn.
