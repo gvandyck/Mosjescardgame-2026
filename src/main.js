@@ -14,6 +14,7 @@ import { PIECIES } from './data/piecies.js';
 import { SNELLE_PIECIES } from './data/snellePiecies.js';
 import { PLACES } from './data/places.js';
 import { QUESTS } from './data/quests.js';
+import { STARTER_DECKS } from './data/starterDecks.js';
 import { createRoom, joinRoom } from './multiplayer/roomManager.js';
 import { pushState, listenToState, stopListening, registerDisconnectLoss, cancelDisconnectHooks } from './multiplayer/syncManager.js';
 import { eventBus } from './multiplayer/eventBus.js';
@@ -116,6 +117,26 @@ function initLobbyPage() {
 
 		if (!name) {
 			window.alert('Please enter your player name.');
+			return;
+		}
+
+		const isOffline = document.getElementById('play-offline')?.checked === true;
+		if (isOffline) {
+			// Pick a bot deck different from the human's pick
+			const candidates = STARTER_DECKS.filter(d => d.id !== deckId);
+			const botDeck = candidates.length > 0
+				? candidates[Math.floor(Math.random() * candidates.length)]
+				: STARTER_DECKS[0];
+			const botDeckId = botDeck.id;
+
+			sessionStorage.setItem('mosjes:offline', JSON.stringify({
+				name,
+				deckId,
+				botDeckId,
+				playerId: 'player_1',
+			}));
+
+			window.location.href = `./game.html?offline=true&player=player_1`;
 			return;
 		}
 
