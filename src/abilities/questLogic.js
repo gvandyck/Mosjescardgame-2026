@@ -276,7 +276,9 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 		state.players[playerId].questsCompletedThisTurn += 1;
 
 		// Apply active Place bonuses/penalties for quest success.
-		state = applyPlaceEffectsOnQuest(state, playerId, questCard, true);
+		// Pass slotIndex so Quest Haven (and other places) award the bonus to the
+		// correct Mosje — the one that actually completed the quest.
+		state = applyPlaceEffectsOnQuest(state, playerId, questCard, true, slotIndex);
 
 		// Placeholder hook for persistent Piecies that react to quest outcomes.
 		state = applyPiecieFieldEffectsOnQuest(state, playerId, true);

@@ -880,15 +880,17 @@ export function applyPlaceEffectsOnDraw(gameState, playerId, cardsDrawn) {
   return state;
 }
 
-export function applyPlaceEffectsOnQuest(gameState, playerId, questCard, didSucceed) {
+export function applyPlaceEffectsOnQuest(gameState, playerId, questCard, didSucceed, targetSlotIndex = -1) {
   let state = JSON.parse(JSON.stringify(gameState));
   if (!state.activePlace) return state;
   const player = state.players[playerId];
-  const slotIndex = player?.activeSlots.findIndex(s => s && !s.isDefeated) ?? -1;
+  // Use the caller-supplied slot when available; fall back to first active Mosje.
+  const fallbackSlot = player?.activeSlots.findIndex(s => s && !s.isDefeated) ?? -1;
+  const slotIndex = (targetSlotIndex >= 0) ? targetSlotIndex : fallbackSlot;
   const mosje = slotIndex >= 0 ? player.activeSlots[slotIndex] : null;
   const questsCompletedThisTurn = player?.questsCompletedThisTurn || 0;
   state = placeEffects.resolvePlaceEffect(state, 'ON_QUEST', {
-    playerId, questCard, didSucceed, mosje, questsCompletedThisTurn,
+    playerId, questCard, didSucceed, mosje, questsCompletedThisTurn, targetSlotIndex: slotIndex,
   });
   return state;
 }

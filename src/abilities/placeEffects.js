@@ -26,28 +26,30 @@ export function effect_the_gym(gameState) {
 	return state;
 }
 
-export function effect_quest_haven(gameState, didSucceed, questsCompletedThisTurn = 0) {
+export function effect_quest_haven(gameState, didSucceed, questsCompletedThisTurn = 0, targetSlotIndex = -1) {
 	const state = cloneState(gameState);
 
-	// Only apply bonus on quest success
-	if (!didSucceed) {
-		return state;
-	}
+	if (!didSucceed) return state;
 
 	const playerId = state.activePlayerId;
 	const player = state.players[playerId];
-	const slotIndex = player.activeSlots.findIndex(slot => slot !== null && !slot.isDefeated);
+
+	// Use the slot of the Mosje that completed the quest; fall back to first active.
+	const fallback = player.activeSlots.findIndex(slot => slot !== null && !slot.isDefeated);
+	const slotIndex = (targetSlotIndex >= 0 && player.activeSlots[targetSlotIndex] && !player.activeSlots[targetSlotIndex].isDefeated)
+		? targetSlotIndex
+		: fallback;
 
 	if (slotIndex < 0) return state;
 
-	// Apply +10 MP for every quest success
+	// +10 MP for every quest success
 	player.activeSlots[slotIndex].mp += 10;
-	console.log('[ABILITY] Quest Haven bonus applied: +10 MP for quest success');
+	console.log('[ABILITY] Quest Haven +10 MP → slot', slotIndex);
 
-	// Apply additional +25 MP when 2 quests completed in one turn
+	// +25 MP bonus when 2 quests completed in one turn
 	if (questsCompletedThisTurn >= 2) {
 		player.activeSlots[slotIndex].mp += 25;
-		console.log('[ABILITY] Quest Haven bonus applied: +25 MP for 2 quests in one turn');
+		console.log('[ABILITY] Quest Haven +25 MP bonus (2 quests this turn) → slot', slotIndex);
 	}
 
 	return state;
@@ -440,7 +442,7 @@ export function resolvePlaceEffect(gameState, triggerPhase, context = {}) {
 			break;
 
 		case 'place_quest_haven':
-			nextState = effect_quest_haven(state, didSucceed, questsCompletedThisTurn || 0);
+			nextState = effect_quest_haven(state, didSucceed, questsCompletedThisTurn || 0, context.targetSlotIndex ?? -1);
 			break;
 
 		case 'place_bank_chilling':
