@@ -23,7 +23,7 @@ export const MOSJES = [
     tags: ["GANDOE"],
     flavourText: "Is it a healing spell? A fireball? Not even he knows until it happens!",
     artPath: "assets/mosje-art/Gandoe The Unpredictable Wizard.jpeg",
-    rarity: "◆",
+    rarity: "★★",
     isBoosterOnly: false
   },
   {
@@ -41,7 +41,7 @@ export const MOSJES = [
     tags: ["JEFFREY"],
     flavourText: "Why heal when you can just hit harder?",
     artPath: "assets/mosje-art/Jeffrey-The-Strongman.JPG",
-    rarity: "◆",
+    rarity: "★★",
     isBoosterOnly: false
   },
   {
@@ -59,7 +59,7 @@ export const MOSJES = [
     tags: ["ALYSSA"],
     flavourText: "She charges into battle with a laugh, getting stronger with every hit she takes.",
     artPath: "assets/mosje-art/Alyssa The Bulldozer.png",
-    rarity: "◆◆",
+    rarity: "★★★",
     isBoosterOnly: false
   },
   {
@@ -77,7 +77,7 @@ export const MOSJES = [
     tags: ["ALYSSA"],
     flavourText: "Every victory deserves a party, every party needs a fighter!",
     artPath: "assets/mosje-art/alyssa-fissa.jpg",
-    rarity: "◆",
+    rarity: "★★",
     isBoosterOnly: false
   },
   {
@@ -95,7 +95,7 @@ export const MOSJES = [
     tags: ["CLESS"],
     flavourText: "Nobody knows what he'll do next... including him.",
     artPath: "assets/mosje-art/azn-cless-the-wildcard.jpg",
-    rarity: "◆",
+    rarity: "★★",
     isBoosterOnly: false
   },
   {
@@ -113,7 +113,7 @@ export const MOSJES = [
     tags: ["MICHELLE", "TUK"],
     flavourText: "Go big or go home... usually it's go home.",
     artPath: "assets/mosje-art/Michelle-Iron-Tuk.jpeg",
-    rarity: "◆",
+    rarity: "★★",
     isBoosterOnly: false
   },
   {
@@ -131,7 +131,7 @@ export const MOSJES = [
     tags: ["WEST"],
     flavourText: "Every wall is a weapon, every movement a counter-strike.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "◆◆",
+    rarity: "★★★",
     isBoosterOnly: false
   },
   {
@@ -149,7 +149,7 @@ export const MOSJES = [
     tags: ["GANDOE"],
     flavourText: "",
     artPath: "assets/mosje-art/gandoe-the-destroyer.jpg",
-    rarity: "◆◆◆",
+    rarity: "★★★★",
     isBoosterOnly: false
   },
 
@@ -172,7 +172,7 @@ export const MOSJES = [
     tags: ["RONALD"],
     flavourText: "A perfect dish requires the perfect ingredients... and knowing what your opponent ordered.",
     artPath: "assets/mosje-art/Ronald The Master Chef.png",
-    rarity: "◆◆",
+    rarity: "★★★",
     isBoosterOnly: false
   },
   {
@@ -190,7 +190,7 @@ export const MOSJES = [
     tags: ["MING"],
     flavourText: "I literally just showed up and won. Is that weird?",
     artPath: "assets/mosje-art/Ming The Natural.png",
-    rarity: "◆",
+    rarity: "★★",
     isBoosterOnly: false
   },
   {
@@ -208,7 +208,7 @@ export const MOSJES = [
     tags: ["MING"],
     flavourText: "Seeing the future is easy when you control the deck.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "◆",
+    rarity: "★★",
     isBoosterOnly: false
   },
   {
@@ -226,7 +226,7 @@ export const MOSJES = [
     tags: ["MARTIN"],
     flavourText: "Why work hard when you can work smart? Or better yet, don't work at all.",
     artPath: "assets/mosje-art/Martin The Historian West.jpeg",
-    rarity: "◆◆",
+    rarity: "★★★",
     isBoosterOnly: false
   },
   {
@@ -244,7 +244,7 @@ export const MOSJES = [
     tags: ["MARTIN", "WEST"],
     flavourText: "I've calculated every possibility... this should work... probably.",
     artPath: "assets/mosje-art/Martin senor West.jpeg",
-    rarity: "◆",
+    rarity: "★★",
     isBoosterOnly: false
   },
   {
@@ -264,7 +264,7 @@ export const MOSJES = [
     tags: ["COERT"],
     flavourText: "Aloha spirit meets silicon efficiency.",
     artPath: "assets/mosje-art/coert-hawaiian-tech-savant.jpg",
-    rarity: "◆",
+    rarity: "★★",
     isBoosterOnly: false
   },
   {
@@ -282,7 +282,7 @@ export const MOSJES = [
     tags: ["HACKER"],
     flavourText: "Access granted. Reality.exe is now running under my parameters.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "◆",
+    rarity: "★★",
     isBoosterOnly: false
   },
   {
@@ -300,7 +300,7 @@ export const MOSJES = [
     tags: ["JEFFREY"],
     flavourText: "Silent at the table, deadly with the dice.",
     artPath: "assets/mosje-art/Jeffrey The Silent Gambler.png",
-    rarity: "◆◆",
+    rarity: "★★★",
     isBoosterOnly: false
   },
   {
@@ -318,7 +318,7 @@ export const MOSJES = [
     tags: ["CHRIS"],
     flavourText: "Why specialize when you can master everything?",
     artPath: "assets/mosje-art/Chris The All-Rounder.jpg",
-    rarity: "◆",
+    rarity: "★★",
     isBoosterOnly: false
   },
   {
@@ -336,7 +336,7 @@ export const MOSJES = [
     tags: ["YOURI"],
     flavourText: "Frame-perfect inputs, pixel-perfect movement... wait, is this real life?",
     artPath: "assets/mosje-art/Youri The Speedrunner.jpg",
-    rarity: "◆",
+    rarity: "★★",
     isBoosterOnly: false
   },
   {
@@ -354,7 +354,7 @@ export const MOSJES = [
     tags: ["PLACEHOLDER"],
     flavourText: "",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "◆◆",
+    rarity: "★★★",
     isBoosterOnly: false
   },
   {
@@ -372,7 +372,7 @@ export const MOSJES = [
     tags: ["PLACEHOLDER"],
     flavourText: "",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "◆◆",
+    rarity: "★★★",
     isBoosterOnly: false
   },
   {
@@ -390,7 +390,7 @@ export const MOSJES = [
     tags: ["COERT", "FPS"],
     flavourText: "Quick scopes and clutch plays — every shot counts.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "◆◆",
+    rarity: "★★★",
     isBoosterOnly: false
   },
   {
@@ -408,7 +408,7 @@ export const MOSJES = [
     tags: ["WEST", "FPS"],
     flavourText: "Analyzing angles, predicting movements, always one step ahead.",
     artPath: "assets/mosje-art/FPS West.png",
-    rarity: "◆◆",
+    rarity: "★★★",
     isBoosterOnly: false
   },
 
@@ -431,7 +431,7 @@ export const MOSJES = [
     tags: ["RONALD"],
     flavourText: "The greatest artist controls not just the canvas, but reality itself.",
     artPath: "assets/mosje-art/Ronald The Master Mind.jpeg",
-    rarity: "◆◆",
+    rarity: "★★★",
     isBoosterOnly: false
   },
   {
@@ -449,7 +449,7 @@ export const MOSJES = [
     tags: ["JISCA"],
     flavourText: "Every note is a weapon, every performance a battle.",
     artPath: "assets/mosje-art/Jisca The Maestro.png",
-    rarity: "◆◆",
+    rarity: "★★★",
     isBoosterOnly: false
   },
   {
@@ -467,7 +467,7 @@ export const MOSJES = [
     tags: ["TUK"],
     flavourText: "Gentle hands, fierce heart. She mends what others break.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "◆◆",
+    rarity: "★★★",
     isBoosterOnly: false
   },
   {
@@ -485,7 +485,7 @@ export const MOSJES = [
     tags: ["DJ", "GANDOE"],
     flavourText: "The beat drops at exactly the right moment... every time.",
     artPath: "assets/mosje-art/dj8020 the lucky mixer.png",
-    rarity: "◆",
+    rarity: "★★",
     isBoosterOnly: false
   },
   {
@@ -503,7 +503,7 @@ export const MOSJES = [
     tags: ["COERT"],
     flavourText: "When fortune smiles, she takes full advantage.",
     artPath: "assets/mosje-art/Coert Kasteluck.jpeg",
-    rarity: "◆",
+    rarity: "★★",
     isBoosterOnly: false
   },
   {
@@ -521,7 +521,7 @@ export const MOSJES = [
     tags: ["BINTI"],
     flavourText: "Her words cut deeper than any blade.",
     artPath: "assets/mosje-art/binti-the-sharp-tongue.jpg",
-    rarity: "◆",
+    rarity: "★★",
     isBoosterOnly: false
   },
   {
@@ -539,7 +539,7 @@ export const MOSJES = [
     tags: ["BINTI"],
     flavourText: "",
     artPath: "assets/mosje-art/Binti The Creator.jpg",
-    rarity: "◆",
+    rarity: "★★",
     isBoosterOnly: false
   },
   {
@@ -557,7 +557,7 @@ export const MOSJES = [
     tags: ["CLESS"],
     flavourText: "When inspiration strikes, magic happens.",
     artPath: "assets/mosje-art/Cless Teacher.jpg",
-    rarity: "◆",
+    rarity: "★★",
     isBoosterOnly: false
   },
   {
@@ -575,7 +575,7 @@ export const MOSJES = [
     tags: ["MARTIN"],
     flavourText: "Finding the racing line between chaos and control — every millisecond counts.",
     artPath: "assets/mosje-art/Martin The Precision Driver West.jpeg",
-    rarity: "◆◆",
+    rarity: "★★★",
     isBoosterOnly: false
   },
   {
@@ -593,7 +593,7 @@ export const MOSJES = [
     tags: ["PLACEHOLDER"],
     flavourText: "",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "◆◆◆",
+    rarity: "★★★★",
     isBoosterOnly: false
   },
   {
@@ -611,7 +611,7 @@ export const MOSJES = [
     tags: ["COERT"],
     flavourText: "Built like a closet — unmovable, unshakeable, unstoppable.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "◆◆◆",
+    rarity: "★★★★",
     isBoosterOnly: false
   },
   {
@@ -629,7 +629,7 @@ export const MOSJES = [
     tags: ["TUK"],
     flavourText: "Every piece in its perfect place — just like her dream houses.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "◆◆",
+    rarity: "★★★",
     isBoosterOnly: false
   },
   {
@@ -647,7 +647,7 @@ export const MOSJES = [
     tags: ["CHRIS"],
     flavourText: "Four arrows, perfect timing, infinite style.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "◆◆",
+    rarity: "★★★",
     isBoosterOnly: false
   },
 

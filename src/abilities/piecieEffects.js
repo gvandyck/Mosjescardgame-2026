@@ -834,10 +834,9 @@ export function effect_tikker(gameState, playerId) {
 	if (!player) return state;
 	const si = getFirstActiveSlotIndex(player);
 	if (si < 0) return state;
-	const roll = rollDie(6);
-	const gain = roll * 5;
-	player.activeSlots[si].mp += gain;
-	console.log(`[ABILITY] Tikker: rolled ${roll} \u2192 +${gain} MP`);
+	player.activeSlots[si].mp += 40;
+	player.activeSlots[si].statusEffects.push({ type: 'QUEST_BLOCKED', value: 1, turnsLeft: 1 });
+	console.log('[ABILITY] Tikker: +40 MP, QUEST_BLOCKED next turn');
 	return state;
 }
 
@@ -868,14 +867,26 @@ export function effect_larry_zegeltje(gameState, playerId) {
 // DIGITAL EQUIPMENT
 // ─────────────────────────────────────────
 
+function getDigitalMP(mosje) {
+	if (mosje.subtype !== 'DIGITAL') return 5;
+	const level = mosje.level || 1;
+	if (level >= 3) return 40;
+	if (level === 2) return 25;
+	return 15;
+}
+
 export function effect_keyboard(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
 	const si = getFirstActiveSlotIndex(player);
-	if (si >= 0) player.activeSlots[si].mp += 15;
-	player.questPrepBonus = (player.questPrepBonus || 0) + 1;
-	console.log('[ABILITY] Keyboard: +15 MP, +1 quest bonus (DIGITAL Mosjes)');
+	if (si < 0) return state;
+	const mosje = player.activeSlots[si];
+	const mp = getDigitalMP(mosje);
+	applyMPGain(player, si, mp, state, playerId);
+	// Flavor bonus: draw 1 card
+	if (player.deck.length > 0) player.hand.push(player.deck.shift());
+	console.log(`[ABILITY] Keyboard: +${mp} MP${mosje.subtype === 'DIGITAL' ? ' (Digital Lv' + (mosje.level||1) + ')' : ' (base)'}, drew 1`);
 	return state;
 }
 
@@ -883,8 +894,14 @@ export function effect_mouse(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
+	const si = getFirstActiveSlotIndex(player);
+	if (si < 0) return state;
+	const mosje = player.activeSlots[si];
+	const mp = getDigitalMP(mosje);
+	applyMPGain(player, si, mp, state, playerId);
+	// Flavor bonus: draw 1 card (peek UI for "look at top 2" deferred to UI phase)
 	if (player.deck.length > 0) player.hand.push(player.deck.shift());
-	console.log('[ABILITY] Mouse: draw 1');
+	console.log(`[ABILITY] Mouse: +${mp} MP${mosje.subtype === 'DIGITAL' ? ' (Digital Lv' + (mosje.level||1) + ')' : ' (base)'}, drew 1`);
 	return state;
 }
 
@@ -893,9 +910,13 @@ export function effect_controller(gameState, playerId) {
 	const player = state.players[playerId];
 	if (!player) return state;
 	const si = getFirstActiveSlotIndex(player);
-	if (si >= 0) player.activeSlots[si].mp += 10;
-	if (player.deck.length > 0) player.hand.push(player.deck.shift());
-	console.log('[ABILITY] Controller: +10 MP, draw 1');
+	if (si < 0) return state;
+	const mosje = player.activeSlots[si];
+	const mp = getDigitalMP(mosje);
+	applyMPGain(player, si, mp, state, playerId);
+	// Flavor bonus: +1 quest roll this turn
+	player.questPrepBonus = (player.questPrepBonus || 0) + 1;
+	console.log(`[ABILITY] Controller: +${mp} MP${mosje.subtype === 'DIGITAL' ? ' (Digital Lv' + (mosje.level||1) + ')' : ' (base)'}, +1 quest bonus`);
 	return state;
 }
 

@@ -21,9 +21,8 @@ export const PIECIES = [
     description: "Gain 25 MP to your active Mosje. (50 MP with Coert/Binti synergy)",
     flavourText: "",
     artPath: "assets/piecie-art/kannetje-melk.jpeg",
-    rarity: "★★☆☆☆",
+    rarity: "★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_broodje_doner",
@@ -37,9 +36,8 @@ export const PIECIES = [
     description: "Gain 35 MP. (Level 1+ only) (70 MP with Coert/Binti synergy)",
     flavourText: "",
     artPath: "assets/piecie-art/Broodje Döner.jpeg",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_ronald_kip",
@@ -53,9 +51,8 @@ export const PIECIES = [
     description: "Gain 50 MP. Ronald synergy: gain 60 MP + draw 1. Coert/Binti: double base.",
     flavourText: "",
     artPath: "assets/piecie-art/Ronald Kip.jpeg",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_chefs_special",
@@ -69,9 +66,8 @@ export const PIECIES = [
     description: "Ronald on field: look at opponent's hand, gain 30 MP per Piecie there. Otherwise: gain 15 MP.",
     flavourText: "",
     artPath: "assets/piecie-art/Chefs Special.jpeg",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_momentum_boost",
@@ -85,9 +81,8 @@ export const PIECIES = [
     description: "Restore 15 MP. Your next Quest this turn gives +10 bonus MP on success.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_eendjes_voeren",
@@ -101,9 +96,8 @@ export const PIECIES = [
     description: "Gain 30 MP. Resilient ★★+: gain 40 MP instead.",
     flavourText: "",
     artPath: "assets/piecie-art/Eendjes voeren.jpeg",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_varkenspootjes",
@@ -117,9 +111,8 @@ export const PIECIES = [
     description: "Binti on field: gain 60 MP. Any other Mosje: lose 30 MP instead.",
     flavourText: "",
     artPath: "assets/piecie-art/varkenspootjes.jpeg",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_energy_surge",
@@ -133,9 +126,8 @@ export const PIECIES = [
     description: "Can only be played if active Mosje has less than 30 MP. Gain 20 MP.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★☆☆☆",
+    rarity: "★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_warm_kannetje_melk",
@@ -149,9 +141,8 @@ export const PIECIES = [
     description: "Lose 10 MP. Draw 2 cards.",
     flavourText: "",
     artPath: "assets/piecie-art/Warm kannetje melk.jpeg",
-    rarity: "★★☆☆☆",
+    rarity: "★",
     isBoosterOnly: false,
-    deckLimit: null
   },
 
   // ─────────────────────────────────────────
@@ -170,9 +161,8 @@ export const PIECIES = [
     description: "Your next Quest drains 25 MP from a target opponent on success.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_te_hard_gaan",
@@ -186,9 +176,8 @@ export const PIECIES = [
     description: "Target opponent loses 25 MP.",
     flavourText: "",
     artPath: "assets/piecie-art/Te hard gaan.jpeg",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_momentum_diefje",
@@ -202,9 +191,8 @@ export const PIECIES = [
     description: "Steal 20 MP from target opponent. Add to your active Mosje.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_snoeiertje",
@@ -218,9 +206,8 @@ export const PIECIES = [
     description: "Next Quest drains 15 MP from opponent on success. End of turn: you lose 15 MP.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_jantje_jantje",
@@ -234,9 +221,8 @@ export const PIECIES = [
     description: "Name a card. Reveal opponent's hand. Correct: opponent -50 MP. Wrong: you -30 MP.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_dikke_taks",
@@ -250,9 +236,8 @@ export const PIECIES = [
     description: "All opponents lose 35 MP (40 MP if 3+ opponents). Draw 2 cards.",
     flavourText: "",
     artPath: "assets/piecie-art/Dikke Taks.jpeg",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_kleine_taks",
@@ -266,9 +251,8 @@ export const PIECIES = [
     description: "Target opponent loses 10 MP per turn for 4 turns. Ticks at end of opponent's turn.",
     flavourText: "",
     artPath: "assets/piecie-art/Kleine Taks.jpeg",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_affoe",
@@ -282,9 +266,8 @@ export const PIECIES = [
     description: "Target opponent loses 15 MP. You gain 10 MP.",
     flavourText: "Niet persoonlijk.",
     artPath: "assets/snelle-art/affoe.jpeg",
-    rarity: "★★☆☆☆",
+    rarity: "★",
     isBoosterOnly: false,
-    deckLimit: null
   },
 
   // ─────────────────────────────────────────
@@ -303,9 +286,8 @@ export const PIECIES = [
     description: "Draw 2 cards from your deck.",
     flavourText: "",
     artPath: "assets/piecie-art/pot-of-weed.jpeg",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_zie_je_die_dingetjes",
@@ -319,9 +301,8 @@ export const PIECIES = [
     description: "Look at top 3 cards of deck. Keep 1, put rest back in any order.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_slecht_gezet",
@@ -335,9 +316,8 @@ export const PIECIES = [
     description: "Destroy the active Place card.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_bong_hit_demolition",
@@ -351,9 +331,8 @@ export const PIECIES = [
     description: "Destroy the active Place card. Draw 2 cards.",
     flavourText: "",
     artPath: "assets/piecie-art/Bong Hit Demolition.jpeg",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_redbull",
@@ -367,9 +346,8 @@ export const PIECIES = [
     description: "Your active Mosje's unique ability triggers TWICE this turn.",
     flavourText: "",
     artPath: "assets/piecie-art/Redbull.jpeg",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_tweede_kans",
@@ -383,9 +361,8 @@ export const PIECIES = [
     description: "Reroll any 1 die result this turn.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★☆☆☆",
+    rarity: "★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_bagga_of_greed",
@@ -399,9 +376,8 @@ export const PIECIES = [
     description: "Draw 2 cards. Then discard 1 card from your hand.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_dubbele_ding",
@@ -415,9 +391,8 @@ export const PIECIES = [
     description: "Activate 2 Piecies from your hand immediately, bypassing face-down rule.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_tempiecie",
@@ -431,9 +406,8 @@ export const PIECIES = [
     description: "Retrieve any 1 card from your discard pile to hand. Cannot play it this turn.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_quest_prep",
@@ -447,9 +421,8 @@ export const PIECIES = [
     description: "Your next Quest roll this turn gets +2 added to the dice result.",
     flavourText: "",
     artPath: "assets/piecie-art/dubbele-dosis.jpeg",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null,
     persistUntilEndOfTurn: true    // BUG-02: card stays in slot until end-of-turn sweep
   },
   {
@@ -464,9 +437,8 @@ export const PIECIES = [
     description: "Your next MP gain this turn is increased by 50%.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_mosje_reborn",
@@ -480,9 +452,8 @@ export const PIECIES = [
     description: "Revive a Mosje from Welloe pile. MP based on prior level: 60/40/20.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: 1
   },
   {
     id: "piecie_afblijven",
@@ -496,9 +467,8 @@ export const PIECIES = [
     description: "Active Mosje cannot lose MP from opponent effects until your next turn.",
     flavourText: "",
     artPath: "assets/piecie-art/Afblijven!.jpeg",
-    rarity: "★★☆☆☆",
+    rarity: "★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_laat_me_chillen",
@@ -512,9 +482,8 @@ export const PIECIES = [
     description: "Next time active Mosje would lose MP: reduce that loss by 20 (one-time).",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★☆☆☆",
+    rarity: "★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_synergy_field",
@@ -528,9 +497,8 @@ export const PIECIES = [
     description: "Persistent 3 turns: all Mosje restore abilities give +10 additional MP.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_mosje_shield",
@@ -544,9 +512,8 @@ export const PIECIES = [
     description: "Persistent 2 turns: target Mosje cannot be sent to Welloe pile.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_emergency_swap",
@@ -560,9 +527,8 @@ export const PIECIES = [
     description: "Your active Mosje copies and uses another Mosje's unique ability this turn.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: true,
-    deckLimit: null
   },
   {
     id: "piecie_battle_concert",
@@ -576,9 +542,8 @@ export const PIECIES = [
     description: "Redirect Alyssa's next Quest failure damage to an opponent. She still triggers Unstoppable.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_stookerino",
@@ -592,9 +557,8 @@ export const PIECIES = [
     description: "Reveal opponent's hand, discard 1 card of your choice. Gain MP = that card's cost.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_dingetje_toch",
@@ -608,9 +572,8 @@ export const PIECIES = [
     description: "Universal wildcard — substitutes for any named card, Piecie requirement, or trait check.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★★★",
+    rarity: "★★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_popo_komt",
@@ -624,9 +587,8 @@ export const PIECIES = [
     description: "Only if 3+ Mosjes total on field: destroy the active Place card.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_huisbaas",
@@ -640,9 +602,8 @@ export const PIECIES = [
     description: "Only if a SUBSTANCE Piecie was used last turn: destroy Place and search deck for a new one.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_those_eyelashes",
@@ -656,9 +617,8 @@ export const PIECIES = [
     description: "Martin/West on field: all opponents discard 1, you gain 20 MP, block opponent Snelles.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_f1_telemetry",
@@ -672,9 +632,8 @@ export const PIECIES = [
     description: "Martin/West on field: gain 40 MP, draw 2, next Quest +20 MP. Otherwise: gain 15 MP, draw 1.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_perfect_setup",
@@ -688,9 +647,8 @@ export const PIECIES = [
     description: "Set active Mosje's MP to 60–90 until end of turn. Resets after.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_mp_adjuster",
@@ -704,9 +662,8 @@ export const PIECIES = [
     description: "Set active Mosje's MP to any exact value between 30–100 (permanent).",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_chain_reaction",
@@ -720,9 +677,8 @@ export const PIECIES = [
     description: "After you activate any Piecie this turn, activate one more from hand for free (once).",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_double_trigger",
@@ -736,9 +692,8 @@ export const PIECIES = [
     description: "Target Mosje (yours) activates their unique ability TWICE this turn.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_call_of_welloes",
@@ -752,9 +707,8 @@ export const PIECIES = [
     description: "Choose a Mosje in a Welloe pile and summon it to the field at Level 1, 0 MP. This Piecie stays linked to that Mosje; if this Piecie leaves play, that Mosje returns to Welloe.",
     flavourText: "",
     artPath: "assets/piecie-art/Call of the Welloes.jpeg",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_welloe_force",
@@ -768,9 +722,8 @@ export const PIECIES = [
     description: "Discard 1 card. Redirect any currently resolving Piecie or ability to a new target.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_kan_het",
@@ -784,9 +737,8 @@ export const PIECIES = [
     description: "Roll 1d6: on 6 gain +50 MP. On 1–5 lose 10 MP.",
     flavourText: "...KAN HET?!",
     artPath: "assets/piecie-art/Kan het.jpeg",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: true,
-    deckLimit: null
   },
 
   // ─────────────────────────────────────────
@@ -805,9 +757,8 @@ export const PIECIES = [
     description: "Persistent 2 turns: GANDOE/DJ/TUK/MICHELLE Mosjes reduce MP loss by 50% (75% with synergy).",
     flavourText: "",
     artPath: "assets/piecie-art/Piecie Animal Bowie.jpg",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_tony",
@@ -821,9 +772,8 @@ export const PIECIES = [
     description: "Persistent 2 turns: GANDOE/DJ/TUK/MICHELLE Mosjes reduce MP loss by 50% (75% with synergy).",
     flavourText: "",
     artPath: "assets/piecie-art/Piecie Animal Tony.jpg",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_gekke_vogels",
@@ -837,9 +787,8 @@ export const PIECIES = [
     description: "Persistent 2 turns: Jisca reduces MP loss by 50% (80% with Alyssa + both pets).",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_katjegang",
@@ -853,9 +802,8 @@ export const PIECIES = [
     description: "Persistent 2 turns: Alyssa Mosjes reduce MP loss by 50% (80% with Jisca + both pets).",
     flavourText: "",
     artPath: "assets/piecie-art/Katje Gang.jpeg",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_vianna_poes",
@@ -869,9 +817,8 @@ export const PIECIES = [
     description: "Persistent 2 turns: Cless-tagged Mosjes reduce MP loss by 50%.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
 
   // ─────────────────────────────────────────
@@ -890,9 +837,8 @@ export const PIECIES = [
     description: "Roll 1d6: 1–3 lose 15 MP, 4–6 gain 30 MP.",
     flavourText: "",
     artPath: "assets/piecie-art/grammetje pieter.jpeg",
-    rarity: "★★☆☆☆",
+    rarity: "★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_dikke_jonko",
@@ -906,9 +852,8 @@ export const PIECIES = [
     description: "You gain 25 MP. Each opponent gains 10 MP. All players draw 1 card.",
     flavourText: "",
     artPath: "assets/piecie-art/Dikke Jonko.jpeg",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_stripje_bennies",
@@ -922,9 +867,8 @@ export const PIECIES = [
     description: "Draw 3 cards. Lose 20 MP.",
     flavourText: "",
     artPath: "assets/piecie-art/Stripje bennies.jpeg",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_tikker",
@@ -938,9 +882,8 @@ export const PIECIES = [
     description: "Gain 40 MP. Cannot complete any Quests on your next turn (QUEST_BLOCKED status).",
     flavourText: "",
     artPath: "assets/piecie-art/Tikker.jpeg",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_straffoe",
@@ -954,9 +897,8 @@ export const PIECIES = [
     description: "All Mosjes lose 20 MP. Each player must immediately attempt a General Quest.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_larry_zegeltje",
@@ -970,9 +912,8 @@ export const PIECIES = [
     description: "Roll 1d6: 1–2 lose 25 MP + discard 1; 3–4 gain 20 MP; 5–6 gain 40 MP + draw 2.",
     flavourText: "",
     artPath: "assets/piecie-art/Larry - zegeltje.jpeg",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
 
   // ─────────────────────────────────────────
@@ -991,9 +932,8 @@ export const PIECIES = [
     description: "Digital Mosje on field: gain 10 MP and draw 1 card.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★☆☆☆",
+    rarity: "★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_mouse",
@@ -1007,9 +947,8 @@ export const PIECIES = [
     description: "Digital Mosje on field: gain 10 MP and look at top 2 cards of any deck.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★☆☆☆",
+    rarity: "★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "piecie_controller",
@@ -1023,9 +962,8 @@ export const PIECIES = [
     description: "Digital Mosje on field: gain 10 MP and your next Quest roll gets +1.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★☆☆☆",
+    rarity: "★",
     isBoosterOnly: false,
-    deckLimit: null
   },
 
   // ─────────────────────────────────────────
@@ -1044,9 +982,8 @@ export const PIECIES = [
     description: "Persistent 4 turns: target opponent loses 10 MP per turn.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: true,
-    deckLimit: null
   },
   {
     id: "piecie_harde_didde",
@@ -1060,9 +997,8 @@ export const PIECIES = [
     description: "Send target Mosje (0–40 MP) to Welloe pile permanently.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★★★",
+    rarity: "★★★★",
     isBoosterOnly: true,
-    deckLimit: 1
   },
   {
     id: "piecie_mp_hemorrhage",
@@ -1076,9 +1012,8 @@ export const PIECIES = [
     description: "Target loses 15 MP now and another 15 MP at start of their next turn.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: true,
-    deckLimit: null
   },
   {
     id: "piecie_klaar_met_jou",
@@ -1092,8 +1027,7 @@ export const PIECIES = [
     description: "Send target Mosje (0–30 MP) to Welloe pile permanently. Draw 1 card.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★★★",
+    rarity: "★★★★",
     isBoosterOnly: true,
-    deckLimit: null
   },
 ];

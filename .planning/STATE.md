@@ -1,16 +1,16 @@
 # Project State
 
-**Last updated:** 2026-05-25
-**Current phase:** Phase 9 complete — next: Phase 10 (TBD) or additional phases
-**Branch:** fix/phase-09-bug-fixes
+**Last updated:** 2026-05-30
+**Current phase:** Phase 10 complete — next: Phase 11 or additional phases
+**Branch:** fix/phase-10-deck-balance
 
-## Phase 9 Complete
+## Phase 10 Complete
 
-All 5 bug fix plans executed and verified:
-- BUG-01: Strategy Puzzle threshold — both code paths agree; debug log added
-- BUG-02: Dubbele Dosis persist-until-EOT — fixed
-- BUG-03: Senor West MP floor — fixed
-- BUG-04: Lucky Coin slot guard — fixed
-- BUG-05: DJ Lucky Mixer +2 quest modifier — fixed
+All 5 balance plans executed and verified (BAL-01 through BAL-05):
+- BAL-01: Digital Equipment MP scaling (Keyboard/Mouse/Controller — 15/25/40 MP by Mosje level + DIGITAL subtype)
+- BAL-02: Physical Force SUBSTANCE fallback (Grammetje Pieter + Tikker; Tikker fixed flat +40 MP + QUEST_BLOCKED)
+- BAL-03: Artistic Rhythm SUBSTANCE fallback (Larry Zegeltje + Grammetje Pieter)
+- BAL-04: Quest economy (all successMP +20, all failMP capped at -20 max)
+- BAL-05: Deck-out reshuffle rule (empty deck → reshuffle discard, draw 1, skip next turn)
 
-617 tests passing. 0 simulation crashes.
+653 tests passing. 0 simulation crashes. 0 timeouts.

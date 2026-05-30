@@ -49,6 +49,22 @@ export function startTurn(gameState) {
 
   // Reset per-turn trackers for the active player
   const activePlayer = state.players[playerId];
+
+  // Deck-out penalty: skip this entire turn (per D-06)
+  if (activePlayer.skipNextTurn === true) {
+    activePlayer.skipNextTurn = false;
+    console.log(`[ENGINE] startTurn: ${playerId} skips turn (deck-out penalty)`);
+    const playerIds = getAllPlayerIds(state);
+    const currentIndex = playerIds.indexOf(playerId);
+    const nextIndex = (currentIndex + 1) % playerIds.length;
+    state.activePlayerId = playerIds[nextIndex];
+    if (nextIndex === 0) {
+      state.turnNumber += 1;
+      console.log(`[ENGINE] Round complete during skip. Turn ${state.turnNumber} begins.`);
+    }
+    return state;
+  }
+
   activePlayer.questsCompletedThisTurn = 0;
   activePlayer.questsAttemptedThisTurn = 0;
   activePlayer.hasAttemptedQuestThisTurn = false;
@@ -100,7 +116,19 @@ export function phaseDrawCard(gameState, playerId, count = 1) {
   const player = state.players[playerId];
 
   if (player.deck.length === 0) {
-    console.log('[ENGINE] Draw phase: deck is empty, no card drawn');
+    if (player.discard.length === 0) {
+      console.log('[ENGINE] Draw phase: deck AND discard empty — no draw, no penalty');
+      return state;
+    }
+    // Reshuffle discard into deck (deck-out rule per D-06)
+    player.deck = shuffleDeck([...player.discard]);
+    player.discard = [];
+    const { drawn, remaining } = drawCards(player.deck, 1);
+    player.deck = remaining;
+    player.hand.push(...drawn);
+    player.drawsThisTurn = (player.drawsThisTurn || 0) + drawn.length;
+    player.skipNextTurn = true;
+    console.log(`[ENGINE] Draw phase: deck-out — reshuffled ${player.deck.length + 1} cards, drew ${drawn.length}, skipNextTurn set`);
     return state;
   }
 
@@ -731,6 +759,7 @@ function createMosjeSlotFromDefinition(mosjeDef) {
   return {
     cardId: mosjeDef.id,
     name: mosjeDef.name,
+    subtype: mosjeDef.subtype,
     traits: { ...(mosjeDef.traits || {}) },
     mp,
     level: 0,

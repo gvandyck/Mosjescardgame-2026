@@ -36,8 +36,9 @@ const ALL_CARDS = [
 	...QUESTS.filter(c => c.questType === 'PERSONAL').map(c => ({ ...c, cardType: 'QUEST' })),
 ];
 
-const LIMITS = { MOSJE: 2, PIECIE: 8, SNELLE_PIECIE: 4, PLACE: 2, QUEST: 1 };
-const MAX_COPIES = 2; // per individual card (unless deckLimit: 1)
+const RARITY_COPY_LIMITS = { '★': 4, '★★': 3, '★★★': 2, '★★★★': 1 };
+const DECK_MIN = 16;
+const DECK_MAX = 60;
 
 // ── Modal manager (lazy-init, shared for preview) ─────────────────────────────
 let _modal = null;
@@ -193,11 +194,15 @@ function totalOfType(cardType) {
 	return Object.values(deck[cardType] || {}).reduce((s, n) => s + n, 0);
 }
 
+function totalDeckCards() {
+	return Object.keys(deck).reduce((s, ctype) => s + totalOfType(ctype), 0);
+}
+
 function addCard(card) {
-	const { id, cardType, deckLimit } = card;
-	const maxCopies = deckLimit ?? MAX_COPIES;
+	const { id, cardType, rarity } = card;
+	const maxCopies = RARITY_COPY_LIMITS[rarity] ?? 1;
 	if (getCount(cardType, id) >= maxCopies) return;
-	if (totalOfType(cardType) >= LIMITS[cardType]) return;
+	if (totalDeckCards() >= DECK_MAX) return;
 	deck[cardType][id] = getCount(cardType, id) + 1;
 	updateAll();
 }
@@ -225,9 +230,8 @@ function renderGrid() {
 	grid.innerHTML = '';
 	for (const card of filtered) {
 		const count     = getCount(card.cardType, card.id);
-		const maxCopies = card.deckLimit ?? MAX_COPIES;
-		const typeTotal = totalOfType(card.cardType);
-		const atMax     = count >= maxCopies || typeTotal >= LIMITS[card.cardType];
+		const maxCopies = RARITY_COPY_LIMITS[card.rarity] ?? 1;
+		const atMax     = count >= maxCopies || totalDeckCards() >= DECK_MAX;
 		const typeSlug  = card.cardType.toLowerCase().replace(/_/g, '-');
 
 		const owned = _ownedCardIds.has(card.id);
@@ -263,9 +267,10 @@ function buildTileHTML(card, count, atMax, owned = true) {
 		: '';
 
 	// ── Art header: badge top-left, rarity/lock top-right ────────
+	const maxCopiesForCard = RARITY_COPY_LIMITS[rarity] ?? 1;
 	const rarityLabel = !owned
 		? `<span class="tile-lock">Unowned</span>`
-		: (rarity ? `<span class="tile-rarity">${rarity}</span>` : '');
+		: (rarity ? `<span class="tile-rarity" title="Max ${maxCopiesForCard}x per deck">${rarity}</span>` : '');
 	const subtypeLabel = card.subtype
 		? `<span class="tile-subtype">${card.subtype.replace(/-/g, ' ')}</span>`
 		: '';
@@ -390,30 +395,25 @@ function renderDeckList() {
 
 // ── Composition bar ───────────────────────────────────────────────────────────
 function updateComposition() {
-	const types = { MOSJE: 2, PIECIE: 8, SNELLE_PIECIE: 4, PLACE: 2, QUEST: 1 };
 	const idMap = { MOSJE: 'mosje', PIECIE: 'piecie', SNELLE_PIECIE: 'snelle', PLACE: 'place', QUEST: 'quest' };
-	let valid = true;
-	for (const [ctype, limit] of Object.entries(types)) {
-		const total = totalOfType(ctype);
-		const key = idMap[ctype];
-		document.getElementById(`count-${key}`).textContent = `${total} / ${limit}`;
+	const total = totalDeckCards();
+	for (const [ctype, key] of Object.entries(idMap)) {
+		const count = totalOfType(ctype);
+		document.getElementById(`count-${key}`).textContent = `${count}`;
 		const bar = document.getElementById(`bar-${key}`);
-		const pct = Math.min(100, (total / limit) * 100);
-		bar.style.width = pct + '%';
-		bar.classList.toggle('comp-bar--over', total > limit);
-		if (ctype !== 'QUEST' && total !== limit) valid = false;
-		if (ctype === 'QUEST' && total > limit) valid = false;
+		bar.style.width = total > 0 ? Math.min(100, (count / DECK_MAX) * 100) + '%' : '0%';
+		bar.classList.remove('comp-bar--over');
 	}
 	const validEl = document.getElementById('comp-valid');
-	if (valid) {
-		validEl.textContent = '✓ Deck is valid';
-		validEl.className = 'comp-valid comp-valid--ok';
-	} else {
-		const missing = Object.entries(types)
-			.filter(([ct]) => ct !== 'QUEST' && totalOfType(ct) !== types[ct])
-			.map(([ct]) => `${idMap[ct]} (${totalOfType(ct)}/${types[ct]})`);
-		validEl.textContent = missing.length ? `Fill: ${missing.join(', ')}` : 'Check deck limits';
+	if (total < DECK_MIN) {
+		validEl.textContent = `${total} / ${DECK_MAX} — needs at least ${DECK_MIN} cards`;
 		validEl.className = 'comp-valid comp-valid--warn';
+	} else if (total > DECK_MAX) {
+		validEl.textContent = `${total} / ${DECK_MAX} — exceeds 60 card limit`;
+		validEl.className = 'comp-valid comp-valid--warn';
+	} else {
+		validEl.textContent = `✓ ${total} / ${DECK_MAX} cards`;
+		validEl.className = 'comp-valid comp-valid--ok';
 	}
 }
 
@@ -505,11 +505,10 @@ document.getElementById('btn-save-deck').addEventListener('click', async () => {
 	const name = document.getElementById('deck-name-input').value.trim();
 	if (!name) { showStatus('Enter a deck name first.', 'error'); return; }
 
-	// Validate required slots
-	if (totalOfType('MOSJE') !== 2) { showStatus('Deck needs exactly 2 Mosjes.', 'error'); return; }
-	if (totalOfType('PIECIE') !== 8) { showStatus('Deck needs exactly 8 Piecies.', 'error'); return; }
-	if (totalOfType('SNELLE_PIECIE') !== 4) { showStatus('Deck needs exactly 4 Snelle Piecies.', 'error'); return; }
-	if (totalOfType('PLACE') !== 2) { showStatus('Deck needs exactly 2 Places.', 'error'); return; }
+	// Validate deck size
+	const totalCards = totalDeckCards();
+	if (totalCards < DECK_MIN) { showStatus(`Deck needs at least ${DECK_MIN} cards (has ${totalCards}).`, 'error'); return; }
+	if (totalCards > DECK_MAX) { showStatus(`Deck exceeds the ${DECK_MAX} card limit (has ${totalCards}).`, 'error'); return; }
 
 	const deckId = editingDeckId || `custom_${Date.now()}`;
 	const deckDef = {
