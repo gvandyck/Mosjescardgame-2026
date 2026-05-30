@@ -16,7 +16,7 @@ import {
 	deleteUserData,
 } from './multiplayer/userStore.js';
 import { initNewAccount } from './multiplayer/accountSetup.js';
-import { getOwnedCardIds } from './multiplayer/collectionStore.js';
+import { getOwnedCardCounts } from './multiplayer/collectionStore.js';
 import { MOSJES } from './data/mosjes.js';
 import { PIECIES } from './data/piecies.js';
 import { SNELLE_PIECIES } from './data/snellePiecies.js';
@@ -63,7 +63,7 @@ function showCardPreview(card) {
 // ── State ─────────────────────────────────────────────────────────────────────
 let deck = { MOSJE: {}, PIECIE: {}, SNELLE_PIECIE: {}, PLACE: {}, QUEST: {} }; // { cardId: count }
 let savedDecks = [];            // loaded from Firebase
-let _ownedCardIds = new Set();  // card IDs the player owns at least 1 copy of
+let _ownedCounts = {};  // { [cardId]: copiesOwned }
 let activeFilter = 'ALL';
 let searchQuery = '';
 let editingDeckId = null;  // id of the deck being edited (null = new)
@@ -83,8 +83,8 @@ onAuthStateChanged(async user => {
 	// Ensure wallet + starter collection exist before reading collection
 	await initNewAccount(user.uid, user.displayName || '');
 
-	// Load collection so the grid can grey out unowned cards
-	_ownedCardIds = await getOwnedCardIds(user.uid);
+	// Load collection so the grid can grey out unowned cards and cap copies to owned count
+	_ownedCounts = await getOwnedCardCounts(user.uid);
 
 	// Load saved decks
 	savedDecks = await loadUserDecks(user.uid);
@@ -198,10 +198,15 @@ function totalDeckCards() {
 	return Object.keys(deck).reduce((s, ctype) => s + totalOfType(ctype), 0);
 }
 
+function ownedCount(cardId) {
+	return _ownedCounts[cardId] ?? 0;
+}
+
 function addCard(card) {
 	const { id, cardType, rarity } = card;
-	const maxCopies = RARITY_COPY_LIMITS[rarity] ?? 1;
-	if (getCount(cardType, id) >= maxCopies) return;
+	const rarityMax = RARITY_COPY_LIMITS[rarity] ?? 1;
+	const effectiveMax = Math.min(rarityMax, ownedCount(id));
+	if (getCount(cardType, id) >= effectiveMax) return;
 	if (totalDeckCards() >= DECK_MAX) return;
 	deck[cardType][id] = getCount(cardType, id) + 1;
 	updateAll();
@@ -229,12 +234,12 @@ function renderGrid() {
 
 	grid.innerHTML = '';
 	for (const card of filtered) {
-		const count     = getCount(card.cardType, card.id);
-		const maxCopies = RARITY_COPY_LIMITS[card.rarity] ?? 1;
-		const atMax     = count >= maxCopies || totalDeckCards() >= DECK_MAX;
-		const typeSlug  = card.cardType.toLowerCase().replace(/_/g, '-');
-
-		const owned = _ownedCardIds.has(card.id);
+		const count       = getCount(card.cardType, card.id);
+		const rarityMax   = RARITY_COPY_LIMITS[card.rarity] ?? 1;
+		const owned       = ownedCount(card.id) > 0;
+		const effectiveMax = Math.min(rarityMax, ownedCount(card.id));
+		const atMax       = !owned || count >= effectiveMax || totalDeckCards() >= DECK_MAX;
+		const typeSlug    = card.cardType.toLowerCase().replace(/_/g, '-');
 		const tile = document.createElement('div');
 		tile.className = [
 			'card-tile',
@@ -245,7 +250,7 @@ function renderGrid() {
 		].filter(Boolean).join(' ');
 		tile.dataset.id   = card.id;
 		tile.dataset.type = card.cardType;
-		tile.innerHTML = buildTileHTML(card, count, atMax, owned);
+		tile.innerHTML = buildTileHTML(card, count, atMax, owned, ownedCount(card.id));
 		grid.appendChild(tile);
 	}
 }
@@ -254,7 +259,7 @@ function cardNameById(id) {
 	return ALL_CARDS.find(c => c.id === id)?.name || id;
 }
 
-function buildTileHTML(card, count, atMax, owned = true) {
+function buildTileHTML(card, count, atMax, owned = true, copies = 0) {
 	const { id, cardType, rarity } = card;
 	const typeSlug = cardType.toLowerCase().replace(/_/g, '-');
 
@@ -267,10 +272,10 @@ function buildTileHTML(card, count, atMax, owned = true) {
 		: '';
 
 	// ── Art header: badge top-left, rarity/lock top-right ────────
-	const maxCopiesForCard = RARITY_COPY_LIMITS[rarity] ?? 1;
+	const rarityMax = RARITY_COPY_LIMITS[rarity] ?? 1;
 	const rarityLabel = !owned
 		? `<span class="tile-lock">Unowned</span>`
-		: (rarity ? `<span class="tile-rarity" title="Max ${maxCopiesForCard}x per deck">${rarity}</span>` : '');
+		: (rarity ? `<span class="tile-rarity" title="Owned: ${copies} · Max per deck: ${rarityMax}">${rarity} <small>(${copies})</small></span>` : '');
 	const subtypeLabel = card.subtype
 		? `<span class="tile-subtype">${card.subtype.replace(/-/g, ' ')}</span>`
 		: '';

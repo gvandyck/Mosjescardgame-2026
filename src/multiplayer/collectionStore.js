@@ -36,6 +36,12 @@ export async function getOwnedCardIds(uid) {
 	return new Set(Object.keys(collection).filter(id => (collection[id] ?? 0) >= 1));
 }
 
+// Returns { [cardId]: count } for all cards owned (count >= 1).
+export async function getOwnedCardCounts(uid) {
+	const collection = await getCollection(uid);
+	return Object.fromEntries(Object.entries(collection).filter(([, n]) => n >= 1));
+}
+
 // Adds one copy of each cardId in the array to the player's collection.
 // Uses a single batched update (not per-card transactions) — acceptable since
 // booster opens are not concurrent with other collection writes.
