@@ -731,6 +731,7 @@ function createMosjeSlotFromDefinition(mosjeDef) {
   return {
     cardId: mosjeDef.id,
     name: mosjeDef.name,
+    subtype: mosjeDef.subtype,
     traits: { ...(mosjeDef.traits || {}) },
     mp,
     level: 0,
