@@ -1,4 +1,4 @@
-# Card Implementation Roadmap
+﻿# Card Implementation Roadmap
 
 **7 phases** | **~43 unique cards + multiplayer features** | **Sequential execution**
 
@@ -18,6 +18,7 @@
 | 8 | Complete Partial Cards | Every card marked partial/deferred in card-reference.md fully working in the browser game | CARD-COMP-1 through CARD-COMP-N | All partial cards resolve correctly, no stubs remaining |
 | 9 | UI & Engine Bug Fixes | Fix 5 playtesting bugs: quest roll threshold, Dubbele Dosis lifecycle, Senor West MP floor, Lucky Coin activation order, DJ Lucky Mixer turn modifier | BUG-01 through BUG-05 | All 5 bugs fixed, tests pass, no regressions |
 | 10 | Deck Balance | Fix game stalling — insufficient MP generation across all 3 decks causes games to end in deck-out or stalemate instead of someone reaching Level 3 | BAL-01 through BAL-N | All 3 decks can reliably progress to Level 3; deck-out eliminated; game length reduced to target range |
+| 11 | Bot Opponent | Add a basic AI opponent for offline single-player matches. Bot plays Piecie cards, activates Places, attempts Quests, levels its Mosje, and uses Mosje abilities. Players opt in via "Play Offline" checkbox in room creation. | BOT-01 through BOT-05 | Player can start and complete a full game against the bot; bot makes valid moves every turn; no Firebase required for offline mode |
 
 ---
 
@@ -284,6 +285,35 @@ Plans:
 - [x] 10-03-PLAN.md — Equipment effect scaling + Tikker bug fix (piecieEffects.js)
 - [x] 10-04-PLAN.md — Deck-out engine rule: reshuffle + skipNextTurn (turnManager.js)
 - [x] 10-05-PLAN.md — Deck compositions + docs + full verification
+
+---
+
+### Phase 11: Bot Opponent
+
+**Goal:** Add a basic AI opponent so players can practice or play offline without needing a second human. The bot uses simple heuristics (no ML, no tree search) and drives the same engine action functions a human player calls.
+
+**Requirements:**
+- BOT-01: Bot decision loop — on bot's turn, pick and execute actions using heuristics (play Piecies, activate Places, attempt Quests, use Mosje ability)
+- BOT-02: Offline room mode — "Play Offline" checkbox on the lobby form bypasses Firebase room creation and starts a local-only game immediately
+- BOT-03: Bot identity — bot gets a name, a starter deck selection, and a player slot (player_2) in the engine state
+- BOT-04: Bot turn driver — after the human ends their turn, automatically drive the bot's turn without any UI input (with a short delay so moves are readable)
+- BOT-05: Full game loop — offline game runs through win conditions (Level 3 / knockout) and shows the result screen
+
+**Success Criteria:**
+1. "Play Offline" checkbox appears in the lobby and starts a game without Firebase
+2. Bot takes valid turns (no engine errors, no infinite loops)
+3. Bot plays at least one Piecie, attempts at least one Quest, and uses its Mosje ability over the course of a game
+4. Game ends with a proper win/loss screen
+5. Existing online multiplayer is completely unaffected
+
+**Plans:** 5 plans
+
+Plans:
+- [ ] 11-01-PLAN.md -- botDriver.js: pure driveBotTurn function + unit tests
+- [ ] 11-02-PLAN.md -- Offline lobby: Play Offline vs Bot checkbox + session storage
+- [ ] 11-03-PLAN.md -- Offline game init: detect ?offline=true, skip Firebase, start game immediately
+- [ ] 11-04-PLAN.md -- Bot turn driver: wire driveBotTurn into End Turn handler with 600ms delay
+- [ ] 11-05-PLAN.md -- Win condition + result screen: offline FINISHED detection + smoke tests
 
 ---
 
