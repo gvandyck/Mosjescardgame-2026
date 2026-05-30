@@ -354,6 +354,28 @@ function applyMosjeFieldEffectsOnQuest(gameState, playerId, slotIndex, questMpGa
 		};
 	}
 
+	// ── Jeffrey The Strongman — Brute Force ────────────────────────────────────
+	// Passive: every quest success gives +10 MP. Always active while Jeffrey is
+	// on field — no manual activation needed. FOOD/RESTORE block is enforced
+	// separately in playPiecie (turnManager.js) also without needing activation.
+	if (mosje.cardId === 'mosje_jeffrey' && questMpGained > 0) {
+		mosje.mp += 10;
+		const label = `Brute Force: +10 MP bonus (total quest gain ${questMpGained + 10})`;
+		console.log(`[ABILITY] Jeffrey ${label} | mp=${mosje.mp}`);
+		// Append to existing auto-ability log if Michelle also fired (edge case),
+		// otherwise start a new entry.
+		if (state._autoAbilityLog) {
+			state._autoAbilityLog.label += ` · [Jeffrey] ${label}`;
+		} else {
+			state._autoAbilityLog = {
+				mosje: mosje.name,
+				ability: 'Brute Force',
+				adjustment: 10,
+				label: `[Jeffrey] ${label}`,
+			};
+		}
+	}
+
 	return state;
 }
 

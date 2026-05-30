@@ -119,15 +119,13 @@ export function ability_gandoe_wizard_chaos_roll(gameState, playerId) {
 	return state;
 }
 
-// Jeffrey Strongman — all Quests give +10 MP bonus; this Mosje cannot use FOOD or RESTORE Piecies.
-export function ability_jeffrey_brute_force(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	player.questBonusMP = (player.questBonusMP || 0) + 10;
-	player.jeffreyFoodRestrictActive = true;
-	console.log('[ABILITY] Jeffrey Brute Force: +10 questBonusMP, FOOD/RESTORE Piecies blocked');
-	return state;
+// Jeffrey Strongman — Brute Force is a passive auto-ability (see questLogic.js).
+// +10 MP per quest fires in applyMosjeFieldEffectsOnQuest.
+// FOOD/RESTORE block fires in playPiecie (turnManager.js) whenever Jeffrey is on field.
+// This manual entry is a no-op kept so useMosjeAbility does not crash if called.
+export function ability_jeffrey_brute_force(gameState, _playerId) {
+	console.log('[ABILITY] Jeffrey Brute Force: passive auto-ability — no manual activation needed');
+	return gameState;
 }
 
 // Alyssa Bulldozer — gains 5 MP for every 10 MP she lost this turn (comeback).
