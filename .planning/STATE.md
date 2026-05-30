@@ -1,10 +1,15 @@
 # Project State
 
 **Last updated:** 2026-05-31
-**Current phase:** Phase 11 — Bot Opponent (plan 02 of 5 complete)
+**Current phase:** Phase 11 — Bot Opponent (plan 01 + 02 of 5 complete)
 **Branch:** feature/phase-11-bot-opponent
 
 ## Phase 11 Progress
+
+### 11-01: Bot Driver — driveBotTurn (COMPLETE)
+- Created src/bot/botDriver.js — pure 7-step heuristic bot turn driver
+- Imports only engine and data — zero multiplayer imports
+- 8 unit tests in tests/bot/botDriver.test.ts; 661 total tests passing
 
 ### 11-02: Offline Lobby Entry Point (COMPLETE)
 - Added "Play Offline vs Bot" checkbox to lobby form (index.html)
@@ -15,6 +20,8 @@
 ### Decisions
 - Offline mode entry: checkbox short-circuits Firebase, stores sessionStorage 'mosjes:offline' with name/deckId/botDeckId/playerId='player_1'
 - Bot deck selection filters STARTER_DECKS, fallback to STARTER_DECKS[0]
+- driveBotTurn is a pure function: follows 7 priority steps, calls same turnManager.js functions as human
+- Test file uses .ts extension (vitest only picks up tests/**/*.ts per vitest.config.js)
 
 ## Phase 10 Complete (prior)
 
