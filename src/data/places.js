@@ -21,7 +21,7 @@ export const PLACES = [
     artPath: "assets/place-art/Place The Gym.jpg",
     goodFor: ["FIGHTING"],
     badFor: ["DIGITAL"],
-    rarity: "◆◆◆",
+    rarity: "★★",
     isBoosterOnly: false
   },
   {
@@ -36,7 +36,7 @@ export const PLACES = [
     artPath: "assets/place-art/place-bank.jpeg",
     goodFor: ["DIGITAL", "ARTISTIC"],
     badFor: [],
-    rarity: "◆◆◆",
+    rarity: "★★",
     isBoosterOnly: false
   },
   {
@@ -51,7 +51,7 @@ export const PLACES = [
     artPath: "assets/place-art/place-Quest Haven.jpeg",
     goodFor: [],
     badFor: [],
-    rarity: "◆◆◆",
+    rarity: "★★",
     isBoosterOnly: false
   },
 
@@ -71,7 +71,7 @@ export const PLACES = [
     artPath: "assets/place-art/Place-Skiffa.jpeg",
     goodFor: [],
     badFor: [],
-    rarity: "◆◆◆◆",
+    rarity: "★★★",
     isBoosterOnly: false
   },
   {
@@ -86,7 +86,7 @@ export const PLACES = [
     artPath: "assets/places/placeholder.png",
     goodFor: ["FIGHTING"],
     badFor: ["DIGITAL"],
-    rarity: "◆◆◆",
+    rarity: "★★",
     isBoosterOnly: false
   },
   {
@@ -101,7 +101,7 @@ export const PLACES = [
     artPath: "assets/place-art/Place-Arcade.jpeg",
     goodFor: ["DIGITAL", "ARTISTIC"],
     badFor: [],
-    rarity: "◆◆◆",
+    rarity: "★★",
     isBoosterOnly: false
   },
   {
@@ -116,7 +116,7 @@ export const PLACES = [
     artPath: "assets/place-art/place-Zo is Natuur.jpeg",
     goodFor: [],
     badFor: [],
-    rarity: "◆◆◆",
+    rarity: "★★",
     isBoosterOnly: false
   },
   {
@@ -131,7 +131,7 @@ export const PLACES = [
     artPath: "assets/places/placeholder.png",
     goodFor: [],
     badFor: [],
-    rarity: "◆◆◆◆",
+    rarity: "★★★",
     isBoosterOnly: false
   },
   {
@@ -146,7 +146,7 @@ export const PLACES = [
     artPath: "assets/places/placeholder.png",
     goodFor: [],
     badFor: [],
-    rarity: "◆◆◆◆",
+    rarity: "★★★",
     isBoosterOnly: false
   },
   {
@@ -161,7 +161,7 @@ export const PLACES = [
     artPath: "assets/places/placeholder.png",
     goodFor: ["DIGITAL", "ARTISTIC"],
     badFor: [],
-    rarity: "◆◆◆",
+    rarity: "★★",
     isBoosterOnly: false
   },
   {
@@ -176,7 +176,7 @@ export const PLACES = [
     artPath: "assets/places/placeholder.png",
     goodFor: [],
     badFor: [],
-    rarity: "◆◆◆◆◆",
+    rarity: "★★★★",
     isBoosterOnly: false
   },
   {
@@ -191,7 +191,7 @@ export const PLACES = [
     artPath: "assets/place-art/Place- Welloe Graveyard.jpeg",
     goodFor: [],
     badFor: [],
-    rarity: "◆◆◆◆",
+    rarity: "★★★",
     isBoosterOnly: false
   },
   {
@@ -206,7 +206,7 @@ export const PLACES = [
     artPath: "assets/places/placeholder.png",
     goodFor: [],
     badFor: [],
-    rarity: "◆◆◆◆",
+    rarity: "★★★",
     isBoosterOnly: false
   },
   {
@@ -221,7 +221,7 @@ export const PLACES = [
     artPath: "assets/places/placeholder.png",
     goodFor: [],
     badFor: [],
-    rarity: "◆◆◆◆",
+    rarity: "★★★",
     isBoosterOnly: false
   },
   {
@@ -236,7 +236,7 @@ export const PLACES = [
     artPath: "assets/places/placeholder.png",
     goodFor: [],
     badFor: [],
-    rarity: "◆◆◆",
+    rarity: "★★",
     isBoosterOnly: false
   },
   {
@@ -251,7 +251,7 @@ export const PLACES = [
     artPath: "assets/place-art/Place- Dierenasiel.jpeg",
     goodFor: [],
     badFor: [],
-    rarity: "◆◆◆◆",
+    rarity: "★★★",
     isBoosterOnly: false
   },
   {
@@ -266,7 +266,7 @@ export const PLACES = [
     artPath: "assets/places/placeholder.png",
     goodFor: ["DIGITAL"],
     badFor: ["FIGHTING"],
-    rarity: "◆◆◆◆",
+    rarity: "★★★",
     isBoosterOnly: true
   },
 ];

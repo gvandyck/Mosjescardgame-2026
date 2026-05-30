@@ -20,9 +20,8 @@ export const SNELLE_PIECIES = [
     description: "Gain 20 MP. (Free, usable any time as interrupt)",
     flavourText: "",
     artPath: "assets/snelle-piecies/placeholder.png",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "snelle_emergency_healings",
@@ -36,9 +35,8 @@ export const SNELLE_PIECIES = [
     description: "When active Mosje would reach 0 MP: restore to 30 MP. Play as interrupt.",
     flavourText: "",
     artPath: "assets/piecie-art/Emergency Healings.jpeg",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "snelle_lucky_coin",
@@ -52,9 +50,8 @@ export const SNELLE_PIECIES = [
     description: "Flip a coin: heads = reroll any one die this turn; tails = choose a Mosje on your field to take 10 MP damage.",
     flavourText: "",
     artPath: "assets/snelle-art/Lucky Coin.jpeg",
-    rarity: "★★☆☆☆",
+    rarity: "★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "snelle_ff_haaltje_nemen",
@@ -68,9 +65,8 @@ export const SNELLE_PIECIES = [
     description: "Draw 2 cards. Play as interrupt during any phase.",
     flavourText: "",
     artPath: "assets/piecie-art/FF Haaltje Nemen.jpeg",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
 
   // ─────────────────────────────────────────
@@ -89,9 +85,8 @@ export const SNELLE_PIECIES = [
     description: "Play after opponent activates a Piecie: negate its effect. Requires Mental ★★+.",
     flavourText: "",
     artPath: "assets/snelle-piecies/placeholder.png",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "snelle_perfect_dodge",
@@ -105,9 +100,8 @@ export const SNELLE_PIECIES = [
     description: "Play when targeted by an ATTACK Piecie: negate it and gain 15 MP. Physical ★★+.",
     flavourText: "",
     artPath: "assets/snelle-piecies/placeholder.png",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "snelle_jammertje_gepakt",
@@ -121,9 +115,8 @@ export const SNELLE_PIECIES = [
     description: "Play when opponent searches their deck or hand: negate + reveal 1 random card. Mental ★★★.",
     flavourText: "",
     artPath: "assets/snelle-piecies/placeholder.png",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "snelle_momentum_rush",
@@ -137,9 +130,8 @@ export const SNELLE_PIECIES = [
     description: "Play at end of any turn: gain 15 MP. Free.",
     flavourText: "",
     artPath: "assets/snelle-piecies/placeholder.png",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "snelle_negate_elimination",
@@ -153,9 +145,8 @@ export const SNELLE_PIECIES = [
     description: "Play when your Mosje would be sent to Welloe pile: negate. Mosje stays at 5 MP instead.",
     flavourText: "",
     artPath: "assets/snelle-piecies/placeholder.png",
-    rarity: "★★★★★",
+    rarity: "★★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "snelle_drain_reversal",
@@ -169,9 +160,8 @@ export const SNELLE_PIECIES = [
     description: "Play when opponent drains your MP: return that amount to you and deal equal damage instead.",
     flavourText: "",
     artPath: "assets/snelle-piecies/placeholder.png",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "snelle_the_protector",
@@ -185,9 +175,8 @@ export const SNELLE_PIECIES = [
     description: "Play when any ally Mosje would lose MP: reduce that loss by 30 this once. Free. Deck limit 1.",
     flavourText: "",
     artPath: "assets/piecie-art/The Protector.jpeg",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: 1
   },
   {
     id: "snelle_jeweetniet",
@@ -201,9 +190,8 @@ export const SNELLE_PIECIES = [
     description: "Interrupt any opponent's Quest attempt: they must reroll the dice. No MP change.",
     flavourText: "",
     artPath: "assets/snelle-piecies/placeholder.png",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "snelle_bijna_welloe",
@@ -217,9 +205,8 @@ export const SNELLE_PIECIES = [
     description: "Play when active Mosje has 10 MP or less: gain 20 MP. Free.",
     flavourText: "",
     artPath: "assets/snelle-piecies/placeholder.png",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "snelle_jantje_jantje_jantje",
@@ -233,9 +220,8 @@ export const SNELLE_PIECIES = [
     description: "Only when Bank Chilling is active: steal 30 MP from opponent. Free.",
     flavourText: "",
     artPath: "assets/snelle-piecies/placeholder.png",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "snelle_sleutelpuntje",
@@ -249,9 +235,8 @@ export const SNELLE_PIECIES = [
     description: "Play right before a Quest: gain +1 on the dice roll this Quest only.",
     flavourText: "",
     artPath: "assets/snelle-art/Sleutelpuntje.jpeg",
-    rarity: "★★☆☆☆",
+    rarity: "★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "snelle_dubbele_temminks",
@@ -265,9 +250,8 @@ export const SNELLE_PIECIES = [
     description: "Play after any Piecie activates: its effect triggers a second time. Level 1+.",
     flavourText: "",
     artPath: "assets/snelle-piecies/placeholder.png",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "snelle_gevalletje_klakkeloos",
@@ -281,9 +265,8 @@ export const SNELLE_PIECIES = [
     description: "Play immediately after opponent activates a Piecie: copy its effect. Free.",
     flavourText: "",
     artPath: "assets/snelle-piecies/placeholder.png",
-    rarity: "★★★★☆",
+    rarity: "★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
 
   // ─────────────────────────────────────────
@@ -302,9 +285,8 @@ export const SNELLE_PIECIES = [
     description: "Counter a Snelle Piecie with this card. Can itself be countered.",
     flavourText: "",
     artPath: "assets/snelle-piecies/placeholder.png",
-    rarity: "★★★☆☆",
+    rarity: "★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
   {
     id: "snelle_blensen",
@@ -318,8 +300,7 @@ export const SNELLE_PIECIES = [
     description: "Ultimate counter-chain card. Counters any Snelle Piecie. Free if countering a Frenssen.",
     flavourText: "",
     artPath: "assets/snelle-piecies/placeholder.png",
-    rarity: "★★★★★",
+    rarity: "★★★★",
     isBoosterOnly: false,
-    deckLimit: null
   },
 ];

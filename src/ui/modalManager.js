@@ -350,8 +350,10 @@ export function initModalManager(container) {
 			if (card.description) rightHTML += `<p>${escapeHtml(card.description)}</p>`;
 		}
 
-		if (card.rarity && type !== 'PLACE') rightHTML += `<p><strong>Rarity:</strong> ${escapeHtml(card.rarity)}</p>`;
-		if (card.deckLimit === 1) rightHTML += `<p><strong>Deck limit:</strong> 1</p>`;
+		if (card.rarity) {
+			const copyLimit = { '★': 4, '★★': 3, '★★★': 2, '★★★★': 1 }[card.rarity] ?? 1;
+			rightHTML += `<p><strong>Rarity:</strong> ${escapeHtml(card.rarity)} &nbsp;·&nbsp; Max ${copyLimit}x per deck</p>`;
+		}
 		rightHTML += `<button class="modal-btn" id="modal-close-preview" type="button">Close</button>`;
 
 		container.classList.add('modal-root--open');

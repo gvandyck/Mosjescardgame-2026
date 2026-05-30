@@ -178,7 +178,7 @@ export function buildMosjeCardHTML(card, gameState = null, viewingPlayerId = nul
     .map((line) => `<p class="ability-line">${escapeHtml(line)}</p>`)
     .join('');
 
-  const rarityDots = String(card.rarity || '◆')
+  const rarityDots = String(card.rarity || '★')
     .split('')
     .map((dot) => `<span class="rarity-dot">${escapeHtml(dot)}</span>`)
     .join('');
@@ -269,7 +269,7 @@ export function buildPlaceCardHTML(card) {
     .map(t => `<span class="place-tag">${escapeHtml(t)}</span>`)
     .join('');
 
-  const rarityDots = String(card.rarity || '◆')
+  const rarityDots = String(card.rarity || '★')
     .split('')
     .map((dot) => `<span class="rarity-dot">${escapeHtml(dot)}</span>`)
     .join('');
