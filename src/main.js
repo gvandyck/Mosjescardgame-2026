@@ -14,6 +14,7 @@ import { PIECIES } from './data/piecies.js';
 import { SNELLE_PIECIES } from './data/snellePiecies.js';
 import { PLACES } from './data/places.js';
 import { QUESTS } from './data/quests.js';
+import { STARTER_DECKS } from './data/starterDecks.js';
 import { createRoom, joinRoom } from './multiplayer/roomManager.js';
 import { pushState, listenToState, stopListening, registerDisconnectLoss, cancelDisconnectHooks } from './multiplayer/syncManager.js';
 import { eventBus } from './multiplayer/eventBus.js';
@@ -29,6 +30,7 @@ import { loadUserDecks, getLastUserStoreError, deleteUserData } from './multipla
 import { initNewAccount } from './multiplayer/accountSetup.js';
 import { claimMatchReward } from './multiplayer/matchRewards.js';
 import { showRewardOverlay } from './ui/rewardOverlay.js';
+import { driveBotTurn } from './bot/botDriver.js';
 
 console.log('[UI] App bootstrapping...');
 
@@ -116,6 +118,26 @@ function initLobbyPage() {
 
 		if (!name) {
 			window.alert('Please enter your player name.');
+			return;
+		}
+
+		const isOffline = document.getElementById('play-offline')?.checked === true;
+		if (isOffline) {
+			// Pick a bot deck different from the human's pick
+			const candidates = STARTER_DECKS.filter(d => d.id !== deckId);
+			const botDeck = candidates.length > 0
+				? candidates[Math.floor(Math.random() * candidates.length)]
+				: STARTER_DECKS[0];
+			const botDeckId = botDeck.id;
+
+			sessionStorage.setItem('mosjes:offline', JSON.stringify({
+				name,
+				deckId,
+				botDeckId,
+				playerId: 'player_1',
+			}));
+
+			window.location.href = `./game.html?offline=true&player=player_1`;
 			return;
 		}
 
@@ -326,6 +348,7 @@ function initGamePage() {
 	const localPlayerId = urlParams.get('player') || lobbyData.playerId || 'player_1';
 	const opponentId = localPlayerId === 'player_1' ? 'player_2' : 'player_1';
 	const roomCode = urlParams.get('room') || lobbyData.roomCode || 'LOCAL';
+	const isOffline = urlParams.get('offline') === 'true';
 
 	const localPlayerName = lobbyData.name || 'Player 1';
 	const localDeckId = lobbyData.deckId || 'DIGITAL_CONTROL';
@@ -340,6 +363,16 @@ function initGamePage() {
 	// ── Sync helpers ──────────────────────────────────────────────────────
 	function syncPush() {
 		if (isOnline && gameState) pushState(roomCode, gameState);
+	}
+
+	// ── Offline win-check wrapper ──────────────────────────────────────────
+	// After any human action, check if the game just ended.
+	// Replaces bare renderFromState(gameState) calls in all 7 action handlers.
+	function renderAndCheckWin() {
+		renderFromState(gameState);
+		if (isOffline && gameState && gameState.status === 'FINISHED') {
+			handleGameOver(gameState);
+		}
 	}
 
 	// ── Post-match reward flow ────────────────────────────────────────────
@@ -426,8 +459,17 @@ function initGamePage() {
 				}
 			});
 		} else {
-			// LOCAL mode — start immediately
-			startGame(localPlayerName, localDeckId, opponentName, opponentDeckId);
+			// Offline vs Bot OR LOCAL dev mode
+			if (isOffline) {
+				const offlineData = readOfflineData();
+				const humanName  = offlineData.name    || localPlayerName || 'Player';
+				const humanDeck  = offlineData.deckId  || localDeckId;
+				const botDeck    = offlineData.botDeckId || pickOpponentDeck(humanDeck);
+				startGame(humanName, humanDeck, 'Bot', botDeck);
+				log.add('quest', 'Offline mode — playing vs Bot. No Firebase used.');
+			} else {
+				startGame(localPlayerName, localDeckId, opponentName, opponentDeckId);
+			}
 		}
 	} else {
 		// player_2: wait for player_1 to push initial state via onSnapshot
@@ -488,7 +530,7 @@ function initGamePage() {
 			gameState = startTurn(gameState);
 		}
 
-		renderFromState(gameState);
+		renderAndCheckWin();
 		syncPush();
 		log.add('quest', `${previousPlayerName} ended their turn.`);
 
@@ -499,6 +541,33 @@ function initGamePage() {
 
 		const activeName = gameState.players[gameState.activePlayerId].name;
 		log.add('gain', `Now active: ${activeName}. Turn ${gameState.turnNumber}.`);
+
+		// Offline bot turn: after human ends turn, drive the bot automatically
+		if (isOffline && gameState.activePlayerId === 'player_2' && gameState.status !== 'FINISHED') {
+			const endTurnBtn = document.getElementById('btn-end-turn');
+			if (endTurnBtn) endTurnBtn.disabled = true;
+
+			setTimeout(() => {
+				try {
+					gameState = driveBotTurn(gameState, 'player_2');
+				} catch (err) {
+					console.error('[BOT] driveBotTurn threw:', err);
+				}
+				renderFromState(gameState);
+				log.add('quest', 'Bot ended its turn.');
+
+				if (gameState.status === 'FINISHED') {
+					handleGameOver(gameState);
+					return;
+				}
+
+				gameState = startTurn(gameState);
+				renderFromState(gameState);
+				log.add('gain', `Now active: ${gameState.players[gameState.activePlayerId]?.name}. Turn ${gameState.turnNumber}.`);
+
+				if (endTurnBtn) endTurnBtn.disabled = false;
+			}, 600);
+		}
 	});
 
 	document.getElementById('btn-general-quest')?.addEventListener('click', async () => {
@@ -519,7 +588,7 @@ function initGamePage() {
 
 		if (!questRef) {
 			log.add('quest', 'General Quest deck is empty!');
-			renderFromState(gameState);
+			renderAndCheckWin();
 			return;
 		}
 
@@ -534,7 +603,7 @@ function initGamePage() {
 		if (!canAttemptGeneralQuest(questDef, gameState, localPlayerId)) {
 			log.add('quest', `Cannot attempt ${questDef.name} — active Mosje has negative MP.`);
 			gameState.sharedGeneralQuestDiscard.push(questRef);
-			renderFromState(gameState);
+			renderAndCheckWin();
 			return;
 		}
 
@@ -583,7 +652,7 @@ function initGamePage() {
 				gameState.activeQuest = null;
 				if (!Array.isArray(gameState.sharedGeneralQuestDiscard)) gameState.sharedGeneralQuestDiscard = [];
 				gameState.sharedGeneralQuestDiscard.push(questRef);
-				renderFromState(gameState);
+				renderAndCheckWin();
 				syncPush();
 				return;
 			}
@@ -597,7 +666,7 @@ function initGamePage() {
 			if (pickedIndex === null) {
 				gameState.activeQuest = null;
 				gameState.sharedGeneralQuestDiscard.push(questRef);
-				renderFromState(gameState);
+				renderAndCheckWin();
 				syncPush();
 				return;
 			}
@@ -606,7 +675,7 @@ function initGamePage() {
 			if (!guess) {
 				gameState.activeQuest = null;
 				gameState.sharedGeneralQuestDiscard.push(questRef);
-				renderFromState(gameState);
+				renderAndCheckWin();
 				syncPush();
 				return;
 			}
@@ -625,7 +694,7 @@ function initGamePage() {
 			if (!Array.isArray(gameState.sharedGeneralQuestDiscard)) gameState.sharedGeneralQuestDiscard = [];
 			gameState.sharedGeneralQuestDiscard.push(questRef);
 
-			renderFromState(gameState);
+			renderAndCheckWin();
 			syncPush();
 
 			log.add(didSucceed ? 'gain' : 'loss',
@@ -673,7 +742,7 @@ function initGamePage() {
 				recoveryHappened = true;
 			}
 			if (recoveryHappened) {
-				renderFromState(gameState);
+				renderAndCheckWin();
 				syncPush();
 			}
 			return;
@@ -699,7 +768,7 @@ function initGamePage() {
 			gameState.activeQuest = null;
 			if (!Array.isArray(gameState.sharedGeneralQuestDiscard)) gameState.sharedGeneralQuestDiscard = [];
 			gameState.sharedGeneralQuestDiscard.push(questRef);
-			renderFromState(gameState);
+			renderAndCheckWin();
 			syncPush();
 			return;
 		}
@@ -713,7 +782,7 @@ function initGamePage() {
 					gameState.sharedGeneralQuestDiscard = [];
 				}
 				gameState.sharedGeneralQuestDiscard.push(questRef);
-				renderFromState(gameState);
+				renderAndCheckWin();
 				syncPush();
 
 				const mpDelta = didSucceed ? questDef.successMP : questDef.failMP;
@@ -923,7 +992,7 @@ function initGamePage() {
 				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
 				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
 			}
-			renderFromState(gameState);
+			renderAndCheckWin();
 			return;
 		}
 
@@ -947,7 +1016,7 @@ function initGamePage() {
 			log.add('win', `${winnerName} won by ${gameState.winReason}.`);
 			modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
 		}
-		renderFromState(gameState);
+		renderAndCheckWin();
 	}
 
 	async function handleActivatePersonalQuestFromField(slotIndex) {
@@ -1140,7 +1209,7 @@ function initGamePage() {
 		}
 		logStateOutcome(log, beforeActivate, gameState, localPlayerId, `${activatedName} activation`);
 		syncPush();
-		renderFromState(gameState);
+		renderAndCheckWin();
 	}
 
 	function handleActivatePlace(slotIndex) {
@@ -1164,7 +1233,7 @@ function initGamePage() {
 		if (cardDef?.description) log.add('info', cardDef.description);
 		logStateOutcome(log, beforeActivate, gameState, localPlayerId, `${activatedName} activation`);
 		syncPush();
-		renderFromState(gameState);
+		renderAndCheckWin();
 	}
 
 	function handleOpenDiscard(playerId, isOwned) {
@@ -1300,7 +1369,7 @@ function initGamePage() {
 				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
 				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
 			}
-			renderFromState(gameState);
+			renderAndCheckWin();
 			return;
 		}
 
@@ -1422,7 +1491,7 @@ function initGamePage() {
 				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
 				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
 			}
-			renderFromState(gameState);
+			renderAndCheckWin();
 		}
 	}
 }
@@ -1432,6 +1501,14 @@ function readLobbyData() {
 		const raw = sessionStorage.getItem('mosjes:lobby');
 		if (!raw) return {};
 		return JSON.parse(raw);
+	} catch {
+		return {};
+	}
+}
+
+function readOfflineData() {
+	try {
+		return JSON.parse(sessionStorage.getItem('mosjes:offline') || '{}');
 	} catch {
 		return {};
 	}

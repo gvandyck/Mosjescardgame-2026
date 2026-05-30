@@ -309,11 +309,11 @@ Plans:
 **Plans:** 5 plans
 
 Plans:
-- [ ] 11-01-PLAN.md -- botDriver.js: pure driveBotTurn function + unit tests
-- [ ] 11-02-PLAN.md -- Offline lobby: Play Offline vs Bot checkbox + session storage
-- [ ] 11-03-PLAN.md -- Offline game init: detect ?offline=true, skip Firebase, start game immediately
-- [ ] 11-04-PLAN.md -- Bot turn driver: wire driveBotTurn into End Turn handler with 600ms delay
-- [ ] 11-05-PLAN.md -- Win condition + result screen: offline FINISHED detection + smoke tests
+- [x] 11-01-PLAN.md -- botDriver.js: pure driveBotTurn function + unit tests
+- [x] 11-02-PLAN.md -- Offline lobby: Play Offline vs Bot checkbox + session storage
+- [x] 11-03-PLAN.md -- Offline game init: detect ?offline=true, skip Firebase, start game immediately
+- [x] 11-04-PLAN.md -- Bot turn driver: wire driveBotTurn into End Turn handler with 600ms delay
+- [x] 11-05-PLAN.md -- Win condition + result screen: offline FINISHED detection + smoke tests
 
 ---
 
