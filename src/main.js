@@ -387,8 +387,9 @@ function initGamePage() {
 
 		let muntenAwarded = 0;
 		const user = getCurrentUser();
-		if (isOnline && user && !user.isAnonymous) {
-			const result = await claimMatchReward(roomCode, user.uid, outcome, opponentName);
+		if ((isOnline || isOffline) && user && !user.isAnonymous) {
+			const rewardRoomCode = isOnline ? roomCode : `OFFLINE_${Date.now()}`;
+			const result = await claimMatchReward(rewardRoomCode, user.uid, outcome, opponentName);
 			muntenAwarded = result.muntenAwarded;
 		}
 

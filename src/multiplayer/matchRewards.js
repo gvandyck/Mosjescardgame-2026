@@ -36,10 +36,28 @@ export async function claimMatchReward(roomCode, uid, outcome, opponentName = 'O
 	const ready = await isFirebaseReady();
 	if (!ready) return { muntenAwarded: 0, alreadyClaimed: false };
 
-	const db = getRtdb();
-	const { ref, get, set, update } = await getRtdbAPI();
+	const muntenAwarded = outcome === 'win' ? MUNTEN_WIN : MUNTEN_LOSS;
 
-	// Deduplication check
+	// Offline bot games: no room doc, no dedup check — just award and record
+	if (roomCode.startsWith('OFFLINE_')) {
+		const walletResult = await addMunten(uid, muntenAwarded);
+		if (!walletResult.success) return { muntenAwarded: 0, alreadyClaimed: false };
+		await updateStats(uid, outcome);
+		const db = getRtdb();
+		const { ref, set } = await getRtdbAPI();
+		try {
+			await set(ref(db, `users/${uid}/matchHistory/${roomCode}`), {
+				outcome, muntenEarned: muntenAwarded, opponentName, timestamp: Date.now(),
+			});
+		} catch (err) { /* non-blocking */ }
+		console.log(`[REWARDS] Offline match claimed ${muntenAwarded} Munten (${outcome})`);
+		return { muntenAwarded, alreadyClaimed: false };
+	}
+
+	const db = getRtdb();
+	const { ref, get, set } = await getRtdbAPI();
+
+	// Deduplication check (online only)
 	const claimRef = ref(db, `rooms/${roomCode}/rewards/${uid}`);
 	try {
 		const snap = await get(claimRef);
@@ -51,8 +69,6 @@ export async function claimMatchReward(roomCode, uid, outcome, opponentName = 'O
 		console.warn('[REWARDS] Could not read claim flag:', err?.code);
 		return { muntenAwarded: 0, alreadyClaimed: false };
 	}
-
-	const muntenAwarded = outcome === 'win' ? MUNTEN_WIN : MUNTEN_LOSS;
 
 	// Award Munten
 	const walletResult = await addMunten(uid, muntenAwarded);
