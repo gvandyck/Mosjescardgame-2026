@@ -1,7 +1,7 @@
 # Project State
 
 **Last updated:** 2026-05-31
-**Current phase:** Phase 11 — Bot Opponent (plan 01 + 02 of 5 complete)
+**Current phase:** Phase 11 — Bot Opponent (plan 01 + 02 + 03 of 5 complete)
 **Branch:** feature/phase-11-bot-opponent
 
 ## Phase 11 Progress
@@ -17,11 +17,19 @@
 - Bot deck: random STARTER_DECKS element with id != human's deckId
 - Online create/join path completely unaffected
 
+### 11-03: Offline Game Init Branch (COMPLETE)
+- isOffline flag declared from urlParams.get('offline') in initGamePage() scope
+- readOfflineData() module-level helper reads sessionStorage 'mosjes:offline'
+- player_1 else branch: when isOffline=true, calls startGame(human, humanDeck, 'Bot', botDeck)
+- syncManager and Firebase listeners never called in offline mode
+- 661 tests passing, online path completely unaffected
+
 ### Decisions
 - Offline mode entry: checkbox short-circuits Firebase, stores sessionStorage 'mosjes:offline' with name/deckId/botDeckId/playerId='player_1'
 - Bot deck selection filters STARTER_DECKS, fallback to STARTER_DECKS[0]
 - driveBotTurn is a pure function: follows 7 priority steps, calls same turnManager.js functions as human
 - Test file uses .ts extension (vitest only picks up tests/**/*.ts per vitest.config.js)
+- isOffline declared at urlParams scope (not inside startGame) so Plan 04 btn-end-turn listener can read it for bot turn trigger
 
 ## Phase 10 Complete (prior)
 
