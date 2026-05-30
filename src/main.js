@@ -30,6 +30,7 @@ import { loadUserDecks, getLastUserStoreError, deleteUserData } from './multipla
 import { initNewAccount } from './multiplayer/accountSetup.js';
 import { claimMatchReward } from './multiplayer/matchRewards.js';
 import { showRewardOverlay } from './ui/rewardOverlay.js';
+import { driveBotTurn } from './bot/botDriver.js';
 
 console.log('[UI] App bootstrapping...');
 
@@ -530,6 +531,33 @@ function initGamePage() {
 
 		const activeName = gameState.players[gameState.activePlayerId].name;
 		log.add('gain', `Now active: ${activeName}. Turn ${gameState.turnNumber}.`);
+
+		// Offline bot turn: after human ends turn, drive the bot automatically
+		if (isOffline && gameState.activePlayerId === 'player_2' && gameState.status !== 'FINISHED') {
+			const endTurnBtn = document.getElementById('btn-end-turn');
+			if (endTurnBtn) endTurnBtn.disabled = true;
+
+			setTimeout(() => {
+				try {
+					gameState = driveBotTurn(gameState, 'player_2');
+				} catch (err) {
+					console.error('[BOT] driveBotTurn threw:', err);
+				}
+				renderFromState(gameState);
+				log.add('quest', 'Bot ended its turn.');
+
+				if (gameState.status === 'FINISHED') {
+					handleGameOver(gameState);
+					return;
+				}
+
+				gameState = startTurn(gameState);
+				renderFromState(gameState);
+				log.add('gain', `Now active: ${gameState.players[gameState.activePlayerId]?.name}. Turn ${gameState.turnNumber}.`);
+
+				if (endTurnBtn) endTurnBtn.disabled = false;
+			}, 600);
+		}
 	});
 
 	document.getElementById('btn-general-quest')?.addEventListener('click', async () => {
