@@ -347,6 +347,7 @@ function initGamePage() {
 	const localPlayerId = urlParams.get('player') || lobbyData.playerId || 'player_1';
 	const opponentId = localPlayerId === 'player_1' ? 'player_2' : 'player_1';
 	const roomCode = urlParams.get('room') || lobbyData.roomCode || 'LOCAL';
+	const isOffline = urlParams.get('offline') === 'true';
 
 	const localPlayerName = lobbyData.name || 'Player 1';
 	const localDeckId = lobbyData.deckId || 'DIGITAL_CONTROL';
@@ -447,8 +448,17 @@ function initGamePage() {
 				}
 			});
 		} else {
-			// LOCAL mode — start immediately
-			startGame(localPlayerName, localDeckId, opponentName, opponentDeckId);
+			// Offline vs Bot OR LOCAL dev mode
+			if (isOffline) {
+				const offlineData = readOfflineData();
+				const humanName  = offlineData.name    || localPlayerName || 'Player';
+				const humanDeck  = offlineData.deckId  || localDeckId;
+				const botDeck    = offlineData.botDeckId || pickOpponentDeck(humanDeck);
+				startGame(humanName, humanDeck, 'Bot', botDeck);
+				log.add('quest', 'Offline mode — playing vs Bot. No Firebase used.');
+			} else {
+				startGame(localPlayerName, localDeckId, opponentName, opponentDeckId);
+			}
 		}
 	} else {
 		// player_2: wait for player_1 to push initial state via onSnapshot
@@ -1453,6 +1463,14 @@ function readLobbyData() {
 		const raw = sessionStorage.getItem('mosjes:lobby');
 		if (!raw) return {};
 		return JSON.parse(raw);
+	} catch {
+		return {};
+	}
+}
+
+function readOfflineData() {
+	try {
+		return JSON.parse(sessionStorage.getItem('mosjes:offline') || '{}');
 	} catch {
 		return {};
 	}
