@@ -88,7 +88,12 @@ export function driveBotTurnSteps(gameState, botPlayerId) {
       const didSucceed = rollDie() >= 4;
       state = resolveQuest(state, botPlayerId, questDef, didSucceed, slotIdx);
       state = { ...state, sharedGeneralQuestDiscard: [...(state.sharedGeneralQuestDiscard || []), questCard] };
-      steps.push({ state, label: `quests "${questDef.name}" — ${didSucceed ? '✓ success' : '✗ failed'}` });
+      let questLabel = `quests "${questDef.name}" — ${didSucceed ? '✓ success' : '✗ failed'}`;
+      if (state._autoAbilityLog) {
+        questLabel += ` · ${state._autoAbilityLog.label}`;
+        delete state._autoAbilityLog;
+      }
+      steps.push({ state, label: questLabel });
     } else {
       state = { ...state, sharedGeneralQuestDiscard: [...(state.sharedGeneralQuestDiscard || []), questCard] };
     }
@@ -218,6 +223,11 @@ export function driveBotTurn(gameState, botPlayerId) {
         .findIndex(s => s && !s.isDefeated);
       const didSucceed = rollDie() >= 4;
       state = resolveQuest(state, botPlayerId, questDef, didSucceed, firstActiveMosjeSlotIndex);
+      // Drain auto-ability log (e.g. Michelle Tough Gamble) — just console for driveBotTurn
+      if (state._autoAbilityLog) {
+        console.log('[ABILITY-AUTO] bot turn:', state._autoAbilityLog.label);
+        delete state._autoAbilityLog;
+      }
       state = {
         ...state,
         sharedGeneralQuestDiscard: [...(state.sharedGeneralQuestDiscard || []), questCard],

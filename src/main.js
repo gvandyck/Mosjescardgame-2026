@@ -844,6 +844,14 @@ function initGamePage() {
 					`${questDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`
 				);
 				logStateOutcome(log, beforeResolve, gameState, localPlayerId, `${questDef.name} resolution`);
+
+				// Drain auto-ability log (e.g. Michelle's Tough Gamble)
+				if (gameState._autoAbilityLog) {
+					const al = gameState._autoAbilityLog;
+					log.add(al.adjustment >= 0 ? 'gain' : 'loss', al.label);
+					console.log('[ABILITY-AUTO]', al.label, '| roll:', al.roll, '| adjustment:', al.adjustment);
+					delete gameState._autoAbilityLog;
+				}
 			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus, forceReroll, skiffaRerolls });
 		}
 

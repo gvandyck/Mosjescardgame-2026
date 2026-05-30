@@ -176,21 +176,12 @@ export function ability_azn_cless_risk_reward(gameState, playerId) {
 	return state;
 }
 
-// Michelle — tough gamble: roll d6. 4+ → +40 MP. Below 4 → nothing.
-export function ability_michelle_tough_gamble(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
-	if (si < 0) return state;
-	const roll = rollDie(6);
-	if (roll >= 4) {
-		player.activeSlots[si].mp += 40;
-		console.log(`[ABILITY] Michelle: rolled ${roll} → +40 MP`);
-	} else {
-		console.log(`[ABILITY] Michelle: rolled ${roll} → no effect`);
-	}
-	return state;
+// Michelle — Tough Gamble fires automatically after each quest (see questLogic.js).
+// This manual-ability entry is kept so useMosjeAbility does not crash if called,
+// but it does nothing — the real logic lives in applyMosjeFieldEffectsOnQuest.
+export function ability_michelle_tough_gamble(gameState, _playerId) {
+	console.log('[ABILITY] Michelle Tough Gamble: auto-ability — fires after quest, not manually');
+	return gameState;
 }
 
 // Parkour West — adaptive: if Mosje lost MP last turn, gain 20 MP. Otherwise gain 10 MP.

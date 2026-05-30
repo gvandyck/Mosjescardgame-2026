@@ -81,7 +81,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		cardEl.classList.add('mosje-clickable', 'mosje-card--owned');
 		cardEl.addEventListener('click', () => getBoardModal().showMosjeDetailModal({ ...fullCard, ...mosje }));
 
-		if (onUseAbility && !mosje.isDefeated && mosje.cardId) {
+		if (onUseAbility && !mosje.isDefeated && mosje.cardId && !fullCard.autoAbility) {
 			const isUsed = mosje.abilityUsedThisTurn;
 			const costLabel = mosje.abilityCost > 0 ? ` ${mosje.abilityCost} MP` : '';
 			let tooltip;

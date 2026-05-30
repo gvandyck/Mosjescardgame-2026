@@ -247,6 +247,9 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 	// Perfect Sync defers gainMP to the UI layer (player picks target mosje after seeing opponent hand)
 	const defersMPToUI = questCard.id === 'quest_personal_perfect_sync' && didSucceed;
 
+	// Track how much MP was actually gained on success — used by Mosje auto-abilities (e.g. Michelle).
+	let questMpGained = 0;
+
 	if (!baseQuestMpBlocked && !defersMPToUI) {
 		// Support both old format (successMP/failMP) and new format (onSuccess/onFailure effects)
 		const effects = didSucceed ? (questCard.onSuccess || []) : (questCard.onFailure || []);
@@ -255,6 +258,7 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 			// Extract MP amounts from effect expressions (new format)
 			for (const effect of effects) {
 				if (effect.primitive === 'gainMP' && effect.params?.amount) {
+					if (didSucceed) questMpGained += effect.params.amount;
 					state = gainMP(state, playerId, slotIndex, effect.params.amount);
 				} else if (effect.primitive === 'loseMP' && effect.params?.amount) {
 					state = loseMP(state, playerId, slotIndex, effect.params.amount, 'QUEST');
@@ -263,6 +267,7 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 		} else {
 			// Fall back to old format (successMP/failMP)
 			if (didSucceed) {
+				questMpGained = questCard.successMP ?? 0;
 				state = gainMP(state, playerId, slotIndex, questCard.successMP);
 			} else {
 				const failValue = Math.abs(typeof questCard.failMP === 'number' ? questCard.failMP : 0);
@@ -270,6 +275,10 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 			}
 		}
 	}
+
+	// Mosje auto-abilities that react to quest outcomes (e.g. Michelle Tough Gamble).
+	// Fires before Place effects so the modified MP feeds into Quest Haven bonuses.
+	state = applyMosjeFieldEffectsOnQuest(state, playerId, slotIndex, questMpGained);
 
   if (didSucceed) {
 		state.players[playerId].questsCompleted += 1;
@@ -297,6 +306,55 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
   }
 
   return state;
+}
+
+// ─────────────────────────────────────────────────────────────
+// applyMosjeFieldEffectsOnQuest
+// Auto-abilities on the active Mosje that trigger after a quest resolves.
+// questMpGained: the raw successMP that was applied (0 on failure/void).
+// Attaches state._autoAbilityLog for the UI to surface in the battle log.
+// ─────────────────────────────────────────────────────────────
+function applyMosjeFieldEffectsOnQuest(gameState, playerId, slotIndex, questMpGained) {
+	let state = cloneState(gameState);
+	const player = state.players[playerId];
+	if (!player || slotIndex < 0) return state;
+	const mosje = player.activeSlots[slotIndex];
+	if (!mosje || mosje.isDefeated) return state;
+
+	// ── Michelle — Tough Gamble ─────────────────────────────────────────────
+	// After each quest: roll d6. 4-6 → double the quest reward. 1-3 → half it.
+	// Only modifies success rewards (questMpGained > 0); failure is unaffected.
+	if (mosje.cardId === 'mosje_michelle') {
+		const roll = rollDie(6);
+		let adjustment = 0;
+		let label = '';
+
+		if (questMpGained > 0) {
+			if (roll >= 4) {
+				adjustment = questMpGained;           // add same amount again → 2× total
+				mosje.mp += adjustment;
+				label = `rolled ${roll} (4+) ✦ DOUBLED! +${adjustment} extra MP (total +${questMpGained * 2})`;
+			} else {
+				adjustment = -Math.floor(questMpGained / 2);  // take back half → ½ total
+				mosje.mp += adjustment;
+				label = `rolled ${roll} (1-3) ✦ Halved. ${adjustment} MP (total +${questMpGained + adjustment})`;
+			}
+		} else {
+			label = `rolled ${roll} — no success reward to modify`;
+		}
+
+		console.log(`[ABILITY] Michelle Tough Gamble: ${label} | base=${questMpGained} adj=${adjustment} mp=${mosje.mp}`);
+		mosje.abilityUsedThisTurn = true;
+		state._autoAbilityLog = {
+			mosje: mosje.name,
+			ability: 'Tough Gamble',
+			roll,
+			adjustment,
+			label: `[Michelle] Tough Gamble: ${label}`,
+		};
+	}
+
+	return state;
 }
 
 function applyPiecieFieldEffectsOnQuest(gameState, playerId, didSucceed) {
