@@ -89,6 +89,11 @@ export function canAttemptGeneralQuest(questCard, gameState, playerId) {
     console.log('[QUEST] No active Mosje on field — cannot attempt General Quest');
     return false;
   }
+  // Block quest attempts when Tikker's QUEST_BLOCKED status is active
+  if (activeMosje?.statusEffects?.some(e => e.type === 'QUEST_BLOCKED')) {
+    console.log('[QUEST] QUEST_BLOCKED status active — cannot attempt quest this turn');
+    return false;
+  }
   if (activeMosje.mp < 0) {
     console.log('[QUEST] Active Mosje has negative MP — cannot attempt General Quest');
     return false;
@@ -120,6 +125,13 @@ export function canAttemptPersonalQuest(questCard, gameState, playerId) {
   const player = gameState.players[playerId];
   if (!player) {
     console.log('[QUEST] Player not found:', playerId);
+    return false;
+  }
+
+  // Block quest attempts when Tikker's QUEST_BLOCKED status is active
+  const firstActiveMosje = getFirstActiveMosje(player);
+  if (firstActiveMosje?.statusEffects?.some(e => e.type === 'QUEST_BLOCKED')) {
+    console.log('[QUEST] QUEST_BLOCKED status active — cannot attempt personal quest this turn');
     return false;
   }
 
