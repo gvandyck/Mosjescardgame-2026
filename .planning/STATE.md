@@ -1,8 +1,8 @@
 # Project State
 
 **Last updated:** 2026-05-31
-**Current phase:** Phase 11 — Bot Opponent (ALL 5 plans COMPLETE)
-**Branch:** feature/phase-11-bot-opponent
+**Current phase:** Phase 11 complete — next: Phase 12 or additional phases
+**Branch:** main
 
 ## Phase 11 Progress
 
