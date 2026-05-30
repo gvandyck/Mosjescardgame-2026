@@ -801,7 +801,16 @@ export function useMosjeAbility(gameState, playerId, mosjeId) {
   }
 
   // Dispatch â€” ability functions clone the state internally and return a new state
-  let state = fn(gameState, playerId, mosjeId);
+  // Wrap in try/catch: some abilities require pending targets (e.g. Binti’s discard) that
+  // are not present when called without UI interaction (e.g. from the bot driver).
+  // In that case, treat the ability as unusable rather than crashing.
+  let state;
+  try {
+    state = fn(gameState, playerId, mosjeId);
+  } catch (err) {
+    console.warn(`[ENGINE] useMosjeAbility: ability ${mosjeDef.abilityId} threw — needs UI input:`, err.message);
+    return { state: gameState, success: false, error: err.message };
+  }
 
   // Mark ability as used — skip for unlimited-use abilities (e.g. Coert)
   if (!mosjeDef.unlimitedAbility) {
