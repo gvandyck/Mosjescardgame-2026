@@ -279,11 +279,11 @@ Plans:
 **Plans:** 5 plans
 
 Plans:
-- [ ] 10-01-PLAN.md — Prerequisite: add subtype to Mosje slots (turnManager.js) + test scaffolds
-- [ ] 10-02-PLAN.md — Quest economy: all successMP +20, failMP capped at -20 (quests.js)
-- [ ] 10-03-PLAN.md — Equipment effect scaling + Tikker bug fix (piecieEffects.js)
-- [ ] 10-04-PLAN.md — Deck-out engine rule: reshuffle + skipNextTurn (turnManager.js)
-- [ ] 10-05-PLAN.md — Deck compositions + docs + full verification
+- [x] 10-01-PLAN.md — Prerequisite: add subtype to Mosje slots (turnManager.js) + test scaffolds
+- [x] 10-02-PLAN.md — Quest economy: all successMP +20, failMP capped at -20 (quests.js)
+- [x] 10-03-PLAN.md — Equipment effect scaling + Tikker bug fix (piecieEffects.js)
+- [x] 10-04-PLAN.md — Deck-out engine rule: reshuffle + skipNextTurn (turnManager.js)
+- [x] 10-05-PLAN.md — Deck compositions + docs + full verification
 
 ---
 
