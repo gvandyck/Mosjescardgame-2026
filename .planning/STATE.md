@@ -1,7 +1,7 @@
 # Project State
 
 **Last updated:** 2026-05-31
-**Current phase:** Phase 11 — Bot Opponent (plan 01 + 02 + 03 + 04 of 5 complete)
+**Current phase:** Phase 11 — Bot Opponent (ALL 5 plans COMPLETE)
 **Branch:** feature/phase-11-bot-opponent
 
 ## Phase 11 Progress
@@ -31,6 +31,14 @@
 - End Turn button disabled during bot's 600ms window, re-enabled after
 - Online End Turn path completely unchanged; 661 tests passing
 
+### 11-05: Offline Game Over + Smoke Test (COMPLETE)
+- Added renderAndCheckWin() helper inside initGamePage() — renders then checks isOffline && FINISHED
+- Replaced renderFromState(gameState) with renderAndCheckWin() in all 7 human action handlers (17 total occurrences: 1 def + 16 calls)
+- Offline game now shows result overlay when any human action triggers FINISHED
+- Created tests/bot/offlineGame.smoke.test.ts — 3 smoke tests drive full games to FINISHED, 0 crashes
+- Fixed useMosjeAbility in turnManager.js: try/catch around ability dispatch prevents Binti throw when bot calls without pending targets
+- 664 tests passing
+
 ### Decisions
 - Offline mode entry: checkbox short-circuits Firebase, stores sessionStorage 'mosjes:offline' with name/deckId/botDeckId/playerId='player_1'
 - Bot deck selection filters STARTER_DECKS, fallback to STARTER_DECKS[0]
@@ -39,6 +47,9 @@
 - isOffline declared at urlParams scope (not inside startGame) so Plan 04 btn-end-turn listener can read it for bot turn trigger
 - Bot turn trigger: triple guard (isOffline && player_2 active && not FINISHED) ensures online path is untouched
 - startTurn called after driveBotTurn returns because driveBotTurn already calls endTurn internally
+- renderAndCheckWin: single wrapper function handles FINISHED detection for all human action handlers, avoiding scattered if-checks
+- Smoke test file uses .ts extension (vitest only picks up tests/**/*.ts)
+- useMosjeAbility try/catch: abilities requiring UI input (Binti discard) gracefully return {success:false} rather than throwing
 
 ## Phase 10 Complete (prior)
 
