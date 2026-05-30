@@ -206,6 +206,13 @@ If a card says "pay X MP", that is a cost. If a card says "lose X MP" or "drain 
 
 ---
 
+## Deck Construction
+
+- Maximum deck size: **60 cards** (Mosjes + Piecies + Snelle Piecies + Places + Quests combined).
+- Only the 60-card cap applies. No per-card-type limits (as of Phase 10).
+
+---
+
 ## Card Type Rules
 
 ### Snelle Piecies

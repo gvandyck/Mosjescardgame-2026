@@ -17,7 +17,9 @@ export const STARTER_DECKS = [
       "piecie_quest_prep",
       "piecie_quest_prep",
       "piecie_pot_of_weed",
-      "piecie_slecht_gezet"
+      "piecie_slecht_gezet",
+      "piecie_grammetje_pieter",
+      "piecie_tikker"
     ],
     snellePiecies: [
       "snelle_emergency_healings",
@@ -46,7 +48,10 @@ export const STARTER_DECKS = [
       "piecie_quest_prep",
       "piecie_quest_prep",
       "piecie_affoe",
-      "piecie_slecht_gezet"
+      "piecie_slecht_gezet",
+      "piecie_keyboard",
+      "piecie_mouse",
+      "piecie_controller"
     ],
     snellePiecies: [
       "snelle_jensen",
@@ -75,7 +80,9 @@ export const STARTER_DECKS = [
       "piecie_pot_of_weed",
       "piecie_pot_of_weed",
       "piecie_quest_prep",
-      "piecie_slecht_gezet"
+      "piecie_slecht_gezet",
+      "piecie_larry_zegeltje",
+      "piecie_grammetje_pieter"
     ],
     snellePiecies: [
       "snelle_lucky_coin",
