@@ -838,3 +838,87 @@ body::before {
   background: #07111f;
   color: #cbd5e1;
 }
+
+/* ── LOBBY VISUAL HIERARCHY ─────────────────────────────────────── */
+
+/* Tier 2: Ghost nav row — Build Deck / Store / Leaderboard */
+.lobby-nav-links {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.btn-nav {
+  font-family: var(--font-display);
+  letter-spacing: 0.1em;
+  font-size: 0.8rem;
+  padding: 9px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  display: inline-block;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.btn-nav:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.85);
+  transform: none;
+}
+
+.btn-nav:visited {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Tier 3: Dev-tool link — Bot vs Bot */
+.lobby-dev-tools {
+  display: flex;
+  justify-content: center;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.btn-dev-tool {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.25);
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+  transition: color 0.15s;
+}
+
+.btn-dev-tool:hover {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.btn-dev-tool:visited {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+/* Offline checkbox row */
+.lobby-offline {
+  display: flex;
+  align-items: center;
+}
+
+.lobby-offline label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  user-select: none;
+}
+
+.lobby-offline input[type="checkbox"] {
+  width: auto;
+  accent-color: var(--piecie-blue);
+}

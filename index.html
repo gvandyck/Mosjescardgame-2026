@@ -40,6 +40,9 @@
           <label><input type="radio" name="lobby-mode" value="join" /> Join Room</label>
         </fieldset>
 
+        <label for="room-code">Room Code (4 digits, join only)</label>
+        <input id="room-code" name="room-code" type="text" inputmode="numeric" maxlength="4" placeholder="4827" />
+
         <div class="lobby-offline">
           <label>
             <input type="checkbox" id="play-offline" name="play-offline" />
@@ -47,17 +50,17 @@
           </label>
         </div>
 
-        <div class="lobby-offline">
-          <a href="./game.html?botvsbot=true&player=player_1" class="btn-secondary btn-botvsbot">🤖 Watch Bot vs Bot</a>
+        <button type="submit" class="btn-primary">Enter Game Board</button>
+
+        <div class="lobby-nav-links">
+          <a href="./deck-builder.html" class="btn-nav">Build Deck</a>
+          <a href="./store.html" class="btn-nav">Store 🪙</a>
+          <a href="./leaderboard.html" class="btn-nav">Leaderboard</a>
         </div>
 
-        <label for="room-code">Room Code (4 digits, join only)</label>
-        <input id="room-code" name="room-code" type="text" inputmode="numeric" maxlength="4" placeholder="4827" />
-
-        <button type="submit" class="btn-primary">Enter Game Board</button>
-        <a href="./deck-builder.html" class="btn-secondary btn-build-deck">Build Deck</a>
-        <a href="./store.html" class="btn-secondary btn-store">Store 🪙</a>
-        <a href="./leaderboard.html" class="btn-secondary btn-leaderboard">Leaderboard</a>
+        <div class="lobby-dev-tools">
+          <a href="./game.html?botvsbot=true&player=player_1" class="btn-dev-tool">🤖 Bot vs Bot (test)</a>
+        </div>
       </form>
 
       <div id="room-code-display" class="room-code-display" hidden>
