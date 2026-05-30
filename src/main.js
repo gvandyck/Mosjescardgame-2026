@@ -391,8 +391,10 @@ function initGamePage() {
 		playBotSteps(steps, botName, 0);
 	}
 
-	function playBotSteps(steps, botName, index) {
-		if (index >= steps.length) return;
+	// delay: ms between each step. onComplete: called after the final step instead of
+	// advancing to the next bot (used by offline single-player to hand back to the human).
+	function playBotSteps(steps, botName, index, delay = 1000, onComplete = null) {
+		if (index >= steps.length) { if (onComplete) onComplete(); return; }
 		setTimeout(() => {
 			const { state, label } = steps[index];
 			gameState = state;
@@ -403,14 +405,18 @@ function initGamePage() {
 				return;
 			}
 			if (index === steps.length - 1) {
-				// endTurn was the last step — start next player's turn and continue
-				gameState = startTurn(gameState);
-				renderFromState(gameState);
-				runBotVsBotLoop();
+				if (onComplete) {
+					onComplete();
+				} else {
+					// bot vs bot: start next player's turn and keep the loop going
+					gameState = startTurn(gameState);
+					renderFromState(gameState);
+					runBotVsBotLoop();
+				}
 				return;
 			}
-			playBotSteps(steps, botName, index + 1);
-		}, 1000);
+			playBotSteps(steps, botName, index + 1, delay, onComplete);
+		}, delay);
 	}
 
 	// ── Post-match reward flow ────────────────────────────────────────────
@@ -592,31 +598,28 @@ function initGamePage() {
 			runBotVsBotLoop();
 		}
 
-		// Offline bot turn: after human ends turn, drive the bot automatically
+		// Offline bot turn: animate each bot action with log entries at 400ms per step
 		if (isOffline && gameState.activePlayerId === 'player_2' && gameState.status !== 'FINISHED') {
 			const endTurnBtn = document.getElementById('btn-end-turn');
 			if (endTurnBtn) endTurnBtn.disabled = true;
 
-			setTimeout(() => {
-				try {
-					gameState = driveBotTurn(gameState, 'player_2');
-				} catch (err) {
-					console.error('[BOT] driveBotTurn threw:', err);
-				}
-				renderFromState(gameState);
-				log.add('quest', 'Bot ended its turn.');
+			const botName = gameState.players['player_2']?.name ?? 'Bot';
+			let steps;
+			try {
+				steps = driveBotTurnSteps(gameState, 'player_2');
+			} catch (err) {
+				console.error('[BOT] driveBotTurnSteps threw:', err);
+				if (endTurnBtn) endTurnBtn.disabled = false;
+				return;
+			}
 
-				if (gameState.status === 'FINISHED') {
-					handleGameOver(gameState);
-					return;
-				}
-
+			playBotSteps(steps, botName, 0, 400, () => {
+				if (gameState.status === 'FINISHED') return;
 				gameState = startTurn(gameState);
 				renderFromState(gameState);
 				log.add('gain', `Now active: ${gameState.players[gameState.activePlayerId]?.name}. Turn ${gameState.turnNumber}.`);
-
 				if (endTurnBtn) endTurnBtn.disabled = false;
-			}, 600);
+			});
 		}
 	});
 
