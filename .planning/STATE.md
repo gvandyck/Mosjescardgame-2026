@@ -1,7 +1,7 @@
 # Project State
 
 **Last updated:** 2026-05-31
-**Current phase:** Phase 12 — Ready to execute (5 plans, 5 waves)
+**Current phase:** Phase 12 — In progress (5 plans, 5 waves) — Plan 02 complete
 **Branch:** audit/unimplemented-stubs-and-mechanics
 
 ## Phase 11 Progress
@@ -50,6 +50,26 @@
 - renderAndCheckWin: single wrapper function handles FINISHED detection for all human action handlers, avoiding scattered if-checks
 - Smoke test file uses .ts extension (vitest only picks up tests/**/*.ts)
 - useMosjeAbility try/catch: abilities requiring UI input (Binti discard) gracefully return {success:false} rather than throwing
+
+## Phase 12 Progress
+
+### 12-01: Stub Engine Wiring — MP_LOSS_HALVED, MP_LOSS_REDUCTION, WELLOE_SHIELD (COMPLETE)
+- Wired three status effects into loseMP() and markMosjeDefeated()
+- Fixed effect_ff_haaltje_nemen ReferenceError; corrected 6 zero-value push sites
+- 17 new tests added; 681 tests passing
+
+### 12-02: negateNextSearch + STUB-05/07/08 Cleanup (COMPLETE)
+- Wired negateNextSearch guard in phaseDrawCard() with isOpponentTriggered parameter
+- STUB-05 confirmed implemented (doubleNextPiecie) — comment added
+- STUB-07 documented with explicit UI consumption point in main.js handleActivatePiecie()
+- STUB-08: dead SNOEIERTJE_COST push removed from effect_snoeiertje
+- 3 new tests added; 684 tests passing
+
+### Decisions
+- negateNextSearch guard placed inside if (isOpponentTriggered) — natural turn draws never negated
+- STUB-05 needed no code change — doubleNextPiecie block already exists and works
+- STUB-07 is entirely UI-side — engine comment enhancement is the complete deliverable for this wave
+- SNOEIERTJE_COST push removal confirmed safe (no test relied on it)
 
 ## Phase 10 Complete (prior)
 
