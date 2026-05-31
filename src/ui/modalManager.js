@@ -89,7 +89,7 @@ export function initModalManager(container) {
 
 		function doRoll(allowReroll) {
 			const rollBtn = container.querySelector('#modal-roll');
-			if (rollBtn) rollBtn.hidden = true;
+			if (rollBtn) { rollBtn.hidden = true; rollBtn.disabled = true; }
 			const diceEl = container.querySelector('#dice-display');
 
 			const rawRoll = Math.floor(Math.random() * 6) + 1;

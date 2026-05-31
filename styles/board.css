@@ -1,3 +1,7 @@
+/* ── GLOBAL ATTRIBUTE RESET ─────────────────────────────────────── */
+/* [hidden] must beat any display: flex/block/grid from component rules */
+[hidden] { display: none !important; }
+
 /* ── GAME BOARD ──────────────────────────────────────────────────── */
 #game-board,
 .game-layout {
