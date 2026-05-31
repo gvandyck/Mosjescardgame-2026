@@ -114,6 +114,9 @@ export function initModalManager(container) {
 						? `✅ Success! Rolled ${result}${bonusTxt} (needed ${threshold}+) → ${sign}${mpDelta} MP`
 						: `❌ Failed! Rolled ${result}${bonusTxt} (needed ${threshold}+) → ${sign}${mpDelta} MP`;
 
+					// Hide the Roll button — it has no function once the result is in
+					if (rollBtn) rollBtn.hidden = true;
+
 					const section = container.querySelector('section');
 					// Remove any previous result
 					section.querySelectorAll('.modal-result, #modal-done, #modal-reroll').forEach(e => e.remove());
@@ -124,7 +127,7 @@ export function initModalManager(container) {
 					section.insertAdjacentHTML('beforeend', `
 						<p class="modal-result modal-result--${didSucceed ? 'success' : 'fail'}">${escapeHtml(resultLabel)}</p>
 						${(allowReroll || placeRerollsLeft > 0) ? `<button class="modal-btn modal-btn--ghost" id="modal-reroll" type="button">${rerollText}</button>` : ''}
-						<button class="modal-btn" id="modal-done" type="button">Continue</button>
+						<button class="modal-btn" id="modal-done" type="button">Continue →</button>
 					`);
 
 					container.querySelector('#modal-done')?.addEventListener('click', () => {
@@ -138,7 +141,7 @@ export function initModalManager(container) {
 							placeRerollsLeft -= 1;
 						}
 						section.querySelectorAll('.modal-result, #modal-done, #modal-reroll').forEach(e => e.remove());
-						if (rollBtn) { rollBtn.disabled = false; rollBtn.textContent = 'Roll Dice 🎲'; }
+						if (rollBtn) { rollBtn.hidden = false; rollBtn.disabled = false; rollBtn.textContent = 'Rolling...'; }
 						doRoll(false);
 					});
 				}
