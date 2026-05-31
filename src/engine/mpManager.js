@@ -127,6 +127,32 @@ export function loseMP(gameState, playerId, slotIndex, amount, source = 'DRAIN')
     return state;
   }
 
+  // MP_LOSS_HALVED: statusEffect pushed by Bowie & Stormey, Tony, Gekke Vogels, KatjeGang, ViannaPoes
+  const halvingEffect = mosje.statusEffects?.find(
+    e => e.type === 'MP_LOSS_HALVED' && e.turnsLeft > 0
+  );
+  if (halvingEffect) {
+    lossAmount = Math.ceil(lossAmount / 2);
+    halvingEffect.turnsLeft -= 1;
+    console.log('[MP] MP_LOSS_HALVED: loss halved to', lossAmount);
+  }
+
+  // MP_LOSS_REDUCTION: pushed by Laat me chillen (value:20), FF Haaltje Nemen (value:20/30)
+  const reductionEffect = mosje.statusEffects?.find(
+    e => e.type === 'MP_LOSS_REDUCTION' && e.turnsLeft > 0
+  );
+  if (reductionEffect) {
+    lossAmount = Math.max(0, lossAmount - reductionEffect.value);
+    reductionEffect.turnsLeft -= 1;
+    console.log('[MP] MP_LOSS_REDUCTION: loss reduced by', reductionEffect.value, '→', lossAmount);
+  }
+  // Consolidate The Protector snelle flag into same read point
+  if (snelleFlags.mpLossReduction?.[playerId]) {
+    lossAmount = Math.max(0, lossAmount - snelleFlags.mpLossReduction[playerId]);
+    console.log('[MP] Snelle Protector: loss reduced by', snelleFlags.mpLossReduction[playerId]);
+    delete state._snelleFlags.mpLossReduction[playerId];
+  }
+
   // Dierenasiel passive: PET protection reduces any incoming loss by 25%.
   if (state.dierenasielActive) {
     lossAmount = Math.floor(lossAmount * 0.75);

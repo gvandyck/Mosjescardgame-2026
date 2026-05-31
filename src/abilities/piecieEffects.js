@@ -498,7 +498,7 @@ export function effect_laat_me_chillen(gameState, playerId) {
 	if (!player) return state;
 	const si = getFirstActiveSlotIndex(player);
 	if (si >= 0) {
-		player.activeSlots[si].statusEffects.push({ type: 'MP_LOSS_REDUCTION', value: 0, turnsLeft: 1 });
+		player.activeSlots[si].statusEffects.push({ type: 'MP_LOSS_REDUCTION', value: 20, turnsLeft: 1 });
 	}
 	console.log('[ABILITY] Laat me chillen: -20 MP loss reduction (one-time)');
 	return state;
@@ -518,7 +518,7 @@ export function effect_mosje_shield(gameState, playerId) {
 	if (!player) return state;
 	const si = getFirstActiveSlotIndex(player);
 	if (si >= 0) {
-		player.activeSlots[si].statusEffects.push({ type: 'WELLOE_SHIELD', value: 0, turnsLeft: 2 });
+		player.activeSlots[si].statusEffects.push({ type: 'WELLOE_SHIELD', value: 1, turnsLeft: 2 });
 		console.log('[ABILITY] Mosje Shield: protected from Welloe for 2 turns');
 	}
 	return state;
@@ -739,7 +739,7 @@ export function effect_bowie_stormey(gameState, playerId) {
 		if (!slot || slot.isDefeated) continue;
 		const cardTags = slot.traits ? Object.keys(slot.traits) : [];
 		// Apply to Mosjes matching pet synergy tags
-		slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 0, turnsLeft: 2 });
+		slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 1, turnsLeft: 2 });
 	}
 	console.log('[ABILITY] Bowie & Stormey: MP loss halved for 2 turns');
 	return state;
@@ -751,7 +751,7 @@ export function effect_tony(gameState, playerId) {
 	if (!player) return state;
 	for (const slot of player.activeSlots) {
 		if (!slot || slot.isDefeated) continue;
-		slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 0, turnsLeft: 2 });
+		slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 1, turnsLeft: 2 });
 	}
 	console.log('[ABILITY] Tony: MP loss halved for 2 turns');
 	return state;
@@ -763,7 +763,7 @@ export function effect_gekke_vogels(gameState, playerId) {
 	if (!player) return state;
 	for (const slot of player.activeSlots) {
 		if (!slot || slot.isDefeated) continue;
-		slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 0, turnsLeft: 2 });
+		slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 1, turnsLeft: 2 });
 	}
 	console.log('[ABILITY] Gekke Vogels: MP loss halved for 2 turns (Jisca)');
 	return state;
@@ -775,7 +775,7 @@ export function effect_katjegang(gameState, playerId) {
 	if (!player) return state;
 	for (const slot of player.activeSlots) {
 		if (!slot || slot.isDefeated) continue;
-		slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 0, turnsLeft: 2 });
+		slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 1, turnsLeft: 2 });
 	}
 	console.log('[ABILITY] KatjeGang: MP loss halved for 2 turns (Alyssa)');
 	return state;
@@ -787,7 +787,7 @@ export function effect_vianna_poes(gameState, playerId) {
 	if (!player) return state;
 	for (const slot of player.activeSlots) {
 		if (!slot || slot.isDefeated) continue;
-		slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 0, turnsLeft: 2 });
+		slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 1, turnsLeft: 2 });
 	}
 	console.log('[ABILITY] ViannaPoes: MP loss halved for 2 turns (Cless)');
 	return state;
