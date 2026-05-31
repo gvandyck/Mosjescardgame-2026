@@ -42,9 +42,10 @@ export function effect_ff_haaltje_nemen(gameState, playerId) {
 
 	const mosje = player.activeSlots[slotIndex];
 	const resilient = mosje.traits?.resilient || 0;
+	const reduction = resilient >= 2 ? 30 : 20;
 	mosje.statusEffects.push({
 		type: 'MP_LOSS_REDUCTION',
-		value: 0,
+		value: reduction,
 		turnsLeft: 1,
 	});
 

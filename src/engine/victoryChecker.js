@@ -90,6 +90,17 @@ export function markMosjeDefeated(gameState, playerId, slotIndex) {
   const mosje = state.players[playerId].activeSlots[slotIndex];
   if (!mosje) return state;
 
+  // WELLOE_SHIELD: pushed by Mosje Shield Piecie. Protects from Welloe pile for turnsLeft turns.
+  const shieldEffect = mosje.statusEffects?.find(
+    e => e.type === 'WELLOE_SHIELD' && e.turnsLeft > 0
+  );
+  if (shieldEffect) {
+    shieldEffect.turnsLeft -= 1;
+    state.players[playerId].activeSlots[slotIndex].mp = 1;
+    console.log(`[ENGINE] WELLOE_SHIELD: ${mosje.name} protected — restored to 1 MP`);
+    return state;
+  }
+
   // "Not Today!" — negate_elimination flag: stay at 5 MP instead of being sent to Welloe
   const negateFlag = state._snelleFlags?.negateNextElimination;
   if (negateFlag?.[playerId]) {
