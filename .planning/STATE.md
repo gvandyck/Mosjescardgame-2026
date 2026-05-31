@@ -1,7 +1,7 @@
 # Project State
 
 **Last updated:** 2026-05-31
-**Current phase:** Phase 12 — In progress (5 plans, 5 waves) — Plan 04 complete
+**Current phase:** Phase 12 — COMPLETE (5 plans, 5 waves — all complete)
 **Branch:** audit/unimplemented-stubs-and-mechanics
 
 ## Phase 11 Progress
@@ -71,6 +71,13 @@
 - placeEffects.getSynergyChambercostReduction() call established in turnManager.js
 - 7 new tests added (Tests 17–23); 691 tests passing
 
+### 12-05: Deferred Comments + card-reference.md Full Update (COMPLETE)
+- DEFERRED comment in effect_emergency_swap with full implementation path (ability registry dispatch + showOptionSelect modal)
+- Huisbaas PARTIAL/DEFERRED comments: Place destruction intact; deck-search-modal named as blocking primitive
+- DEFERRED (STUB-16) comments at FPS West opponentHandPeeked and Ronald Chef _ronaldPeek set sites
+- docs/card-reference.md: deferred status added to legend; all 16 STUB entries updated; Phase 12 notes section added
+- 691 tests passing (no change — comments only)
+
 ### 12-04: UI-Gated Piecie Interactions — Bagga of Greed, Welloe Force, MP Adjuster (COMPLETE)
 - Bagga of Greed: full-hand discard picker via showCardChoice modal after activation (STUB-11)
 - Welloe Force: 3-turn engine-level damage redirect wired in loseMP(); target picker via showOptionSelect; auto-select when 1 target; cancel when 0 targets (STUB-14)
@@ -90,6 +97,10 @@
 - MP Adjuster is temporary: delta reverted at next turn start via startTurn() cleanup — one-turn boost not permanent override
 - Welloe Force is engine-level 3-turn redirect in loseMP(); mpCost 40 / ★★★★ rarity; auto-selects single target, cancels if no targets
 - main.js flag-check paths (Bagga/Welloe/MP Adjuster) are NOT unit-tested; browser-DOM modal awaits cannot be mocked; Task 3 checkpoint is accepted functional verification substitute
+- Emergency Swap DEFERRED: ability registry already exists; blocking primitive is UI modal for opponent Mosje selection
+- Huisbaas PARTIAL: Place destruction implemented; deck-search-for-Place requires new searchDeck primitive
+- FPS West + Ronald Chef DEFERRED: engine flags set correctly; blocking primitive is opponent hand reveal UI in boardRenderer.js
+- card-reference.md deferred status added to legend; Phase 12 Wave 5 is the final audit wave — all stubs now either wired or tagged
 
 ## Phase 10 Complete (prior)
 
