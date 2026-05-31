@@ -1,8 +1,8 @@
 # Project State
 
 **Last updated:** 2026-05-31
-**Current phase:** Phase 12 — COMPLETE (5 plans, 5 waves — all complete)
-**Branch:** audit/unimplemented-stubs-and-mechanics
+**Current phase:** Phase 12 COMPLETE — next: Phase 13 (UI polish / next milestone)
+**Branch:** audit/unimplemented-stubs-and-mechanics → ready to merge to main
 
 ## Phase 11 Progress
 
