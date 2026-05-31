@@ -7,6 +7,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 - implemented: Fully playable in current engine and used in starter flow.
 - partial: Registered and runnable, but one or more behaviors are simplified/deferred.
 - advanced: Implemented but not part of the first-timer starter experience (typically booster or high-complexity pool).
+- deferred: Stub exists; requires a named blocking primitive before implementation is possible (see Phase 12 Wave 5 notes).
 
 ## Card Counts
 - Mosje: 34
@@ -41,9 +42,9 @@ This document is the final Phase 11 master card inventory, generated from the li
 | ming-the-predictor | Ming The Predictor | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
 | mosje_drainer | Placeholder 4 — The Drainer | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
 | mosje_fps_coert | FPS Coert | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
-| mosje_fps_west | FPS West | DIGITAL | no | no | free | opponentHandPeeked flag set; full hand reveal requires UI layer integration | partial |
+| mosje_fps_west | FPS West | DIGITAL | no | no | free | DEFERRED: opponentHandPeeked flag set; requires opponent hand reveal UI primitive in boardRenderer.js (STUB-16) | deferred |
 | mosje_tactician | Placeholder 1 — The Tactician | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
-| ronald-the-master-chef | Ronald The Master Chef | DIGITAL | yes | no | free | _ronaldPeek metadata set with playerId+timestamp; full opponent hand reveal requires UI layer integration | partial |
+| ronald-the-master-chef | Ronald The Master Chef | DIGITAL | yes | no | free | DEFERRED: _ronaldPeek flag set with peeked card IDs; requires peek-reveal modal primitive (STUB-16) | deferred |
 | the-hacker | The Hacker | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
 | youri-the-speedrunner | Youri The Speedrunner | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
 | alyssa-the-bulldozer | Alyssa The Bulldozer | FIGHTING | yes | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
@@ -67,7 +68,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 | momentum-diefje | Momentum Diefje | ATTACK | yes | no | 15 MP, lvl 1+ | drainMP | implemented |
 | mp-hemorrhage | MP Hemorrhage | ATTACK | no | no | 25 MP, lvl 2+ | loseMP+applyBuff | advanced |
 | slecht-gezet | Slecht Gezet | ATTACK | no | no | free | destroyPlace | advanced |
-| snoeiertje | Snoeiertje | ATTACK | yes | no | free | loseMP+applyBuff | implemented |
+| snoeiertje | Snoeiertje | ATTACK | yes | no | free | loseMP+applyBuff; dead SNOEIERTJE_COST push removed; questBonusMP handles real logic (STUB-08) | implemented |
 | super-saiyan-mos | Super Saiyan Mos | ATTACK | no | no | 15 MP, lvl 1+ | applyBuff | advanced |
 | te-hard-gaan | Te Hard Gaan | ATTACK | yes | no | 15 MP | loseMP | implemented |
 | controller | Controller | DIGITAL-EQUIPMENT | yes | no | free | gainMP+ifThenElse | implemented |
@@ -84,33 +85,33 @@ This document is the final Phase 11 master card inventory, generated from the li
 | eendjes-voeren | Eendjes voeren | MOMENTUM-GAINING | yes | no | free | ifThenElse | implemented |
 | shoettoe | Shoettoe | MOMENTUM-GAINING | yes | no | free | gainMP | implemented |
 | warm-kannetje-melk | Warm Kannetje Melk | MOMENTUM-GAINING | yes | no | free | loseMP+drawCards | implemented |
-| bowie-stormey | Bowie & Stormey | PET | yes | no | 15 MP | applyBuff+gainMP | implemented |
-| gekke-vogels | Gekke Vogels | PET | yes | no | 15 MP | applyBuff+gainMP | implemented |
-| katjegang | KatjeGang | PET | no | no | 15 MP | applyBuff+gainMP | advanced |
-| vianna-poes | ViannaPoes | PET | no | no | 15 MP | applyBuff+gainMP | advanced |
+| bowie-stormey | Bowie & Stormey | PET | yes | no | 15 MP | applyBuff+gainMP; MP_LOSS_HALVED wired in loseMP() (STUB-01) | implemented |
+| gekke-vogels | Gekke Vogels | PET | yes | no | 15 MP | applyBuff+gainMP; MP_LOSS_HALVED wired in loseMP() via Jisca ability (STUB-01) | implemented |
+| katjegang | KatjeGang | PET | no | no | 15 MP | applyBuff+gainMP; MP_LOSS_HALVED wired in loseMP() via Alyssa ability (STUB-01) | implemented |
+| vianna-poes | ViannaPoes | PET | no | no | 15 MP | applyBuff+gainMP; MP_LOSS_HALVED wired in loseMP() via Cless ability (STUB-01) | implemented |
 | grammetje-pieter | Grammetje Pieter | SUBSTANCE | yes | no | free | gainMP+loseMP | implemented |
 | larry-zegeltje | Larry Zegeltje | SUBSTANCE | no | no | free | gainMP+loseMP | advanced |
 | straffoe | Straffoe | SUBSTANCE | no | no | free | loseMP+ifThenElse | advanced |
 | stripje-bennies | Stripje Bennies | SUBSTANCE | no | no | free | loseMP+drawCards | advanced |
 | tikker | Tikker | SUBSTANCE | yes | no | free | gainMP+applyBuff | implemented |
 | afblijven | Afblijven! | UTILITY | yes | no | 10 MP | applyBuff | implemented |
-| bagga-of-greed | Bagga of Greed | UTILITY | yes | no | free | drawCards+discardCards | implemented |
+| bagga-of-greed | Bagga of Greed | UTILITY | yes | no | free | drawCards+discardCards; showCardChoice modal wired in main.js — full-hand discard picker after activation (STUB-11) | implemented |
 | battle-concert | Battle Concert | UTILITY | no | no | 25 MP, lvl 2+ | loseMP+ifThenElse | advanced |
 | bong-hit-demolition | Bong Hit Demolition | UTILITY | no | no | 10 MP | destroyPlace+drawCards | advanced |
 | call-of-the-welloes | Call of the Welloes | UTILITY | no | no | free | returnToHand stub; intended linked Welloe summon | partial |
 | chain-reaction | Chain Reaction | UTILITY | no | no | free | multiplyByCount | advanced |
-| dingetje-toch | Dingetje Toch | UTILITY | no | no | free | ifThenElse | partial |
-| double-trigger | Double Trigger | UTILITY | no | no | 20 MP | applyBuff | partial |
+| dingetje-toch | Dingetje Toch | UTILITY | no | no | free | ifThenElse; DEFERRED to UI phase — consumption point documented in turnManager.js handleActivatePiecie() comment (STUB-07) | partial |
+| double-trigger | Double Trigger | UTILITY | no | no | 20 MP | applyBuff | implemented |
 | dubbele-ding | Dubbele Ding | UTILITY | yes | no | free | applyBuff | implemented |
 | dubbele-dosis | Dubbele Dosis | UTILITY | yes | no | free | applyBuff; persists in slot until endTurn (BUG-02 fixed: no longer discards immediately) | implemented |
-| emergency-swap | Emergency Swap | UTILITY | no | no | 30 MP, lvl 1+ | switchActiveMosje+applyBuff | advanced |
+| emergency-swap | Emergency Swap | UTILITY | no | no | 30 MP, lvl 1+ | DEFERRED: requires UI selection modal + ability registry dispatch (blocking primitive: Mosje selection modal + abilityId lookup) (STUB-12) | deferred |
 | f1-telemetry-data | F1 Telemetry Data | UTILITY | yes | no | 10 MP | ifThenElse+lookAtTop | implemented |
-| huisbaas | Huisbaas | UTILITY | no | no | free | destroyPlace+ifThenElse | advanced |
+| huisbaas | Huisbaas | UTILITY | no | no | free | destroyPlace implemented; DEFERRED: deck-search for new Place requires deck-search-modal primitive (STUB-13) | deferred |
 | jantje-jantje | Jantje Jantje | UTILITY | no | no | 15 MP | loseMP+applyBuff | advanced |
-| laat-me-chillen | Laat Me Chillen | UTILITY | yes | no | 10 MP | gainMP+applyBuff | implemented |
+| laat-me-chillen | Laat Me Chillen | UTILITY | yes | no | 10 MP | gainMP+applyBuff; MP_LOSS_REDUCTION wired in loseMP() (STUB-02) | implemented |
 | mosje-reborn | Mosje Reborn | UTILITY | no | no | free | returnToHand | advanced |
-| mosje-shield | Mosje Shield | UTILITY | yes | no | 10 MP | applyBuff | implemented |
-| mp-adjuster | MP Adjuster | UTILITY | no | no | free | ifThenElse | advanced |
+| mosje-shield | Mosje Shield | UTILITY | yes | no | 10 MP | applyBuff; WELLOE_SHIELD wired in markMosjeDefeated() (STUB-03) | implemented |
+| mp-adjuster | MP Adjuster | UTILITY | no | no | free | ifThenElse; showOptionSelect modal wired in main.js (20/40/60/80/100 MP); temporary effect — reverts at next turn start via startTurn(); rarity ★★★★ (STUB-15) | implemented |
 | mp-amplifier | MP Amplifier | UTILITY | yes | no | free | multiplyNextMPGain | implemented |
 | perfect-setup | Perfect Setup | UTILITY | no | no | free | setMP | advanced |
 | redbull | Redbull | UTILITY | yes | no | 20 MP, lvl 1+ | applyBuff | implemented |
@@ -120,7 +121,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 | tempiecie | TemPiecie | UTILITY | no | no | 15 MP, lvl 1+ | returnToHand+applyBuff | advanced |
 | those-eyelashes-tho | Those Eyelashes Tho... | UTILITY | no | no | 15 MP, lvl 1+ | gainMP+forEachTarget | advanced |
 | tweede-kans | Tweede Kans | UTILITY | no | no | 5 MP | rerollDie | advanced |
-| welloe-force | Welloe Force | UTILITY | no | no | 10 MP, lvl 1+ | forEachTarget+drawCards | advanced |
+| welloe-force | Welloe Force | UTILITY | no | no | 40 MP, lvl 1+ | forEachTarget+drawCards; showOptionSelect modal wired in main.js; 3-turn engine-level damage redirect in loseMP(); rarity ★★★★ (STUB-14) | implemented |
 | zie-je-die-dingetjes | Zie Je Die Dingetjes | UTILITY | no | no | free | lookAtTop+drawCards | implemented |
 
 ## Snelle Piecie (19)
@@ -131,12 +132,12 @@ This document is the final Phase 11 master card inventory, generated from the li
 | snelle_blensen | Blensen! | - | no | no | variable | negateEffect+applyBuff | implemented |
 | snelle_counter_strikka | Counter Strikka | - | yes | no | 15 MP | negateEffect+ifThenElse | implemented |
 | snelle_drain_reversal | Drain Reversal | - | no | no | 15 MP | negateEffect+gainMP | implemented |
-| snelle_dubbele_temminks | Dubbele Temminks | - | yes | no | 20 MP | applyBuff | implemented |
+| snelle_dubbele_temminks | Dubbele Temminks | - | yes | no | 20 MP | applyBuff; doubleNextPiecie confirmed implemented in activatePiecie() (STUB-05) | implemented |
 | snelle_emergency_healings | Emergency Healings | - | no | no | 10 MP | ifThenElse | advanced |
-| snelle_ff_haaltje_nemen | FF Haaltje Nemen | - | no | no | free | ifThenElse | advanced |
+| snelle_ff_haaltje_nemen | FF Haaltje Nemen | - | no | no | free | ifThenElse; ReferenceError fixed + MP_LOSS_REDUCTION value restored (20/30) + wired in loseMP() (STUB-02, STUB-06) | implemented |
 | snelle_frenssen | Frenssen! | - | no | no | 15 MP | negateEffect+loseMP | advanced |
 | snelle_gevalletje_klakkeloos | Gevalletje Klakkeloos | - | no | no | free | gainMP | advanced |
-| snelle_jammertje_gepakt | Jammertje Gepakt | - | no | no | 20 MP | negateEffect+sendToBottomOfDeck+ifThenElse | advanced |
+| snelle_jammertje_gepakt | Jammertje Gepakt | - | no | no | 20 MP | negateEffect+sendToBottomOfDeck+ifThenElse; negateNextSearch guard wired in phaseDrawCard() (STUB-04) | implemented |
 | snelle_jantje_jantje_jantje | Jantje Jantje Jantje… | - | no | no | discard 1 | negateEffect | implemented |
 | snelle_jensen | Jensen! | - | yes | no | 10 MP | negateEffect+discardSourceCard | advanced |
 | snelle_jeweetniet | Jeweetniet wie Ikben | - | no | no | 10 MP | applyBuff | advanced |
@@ -144,7 +145,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 | snelle_negate_elimination | Not Today | - | yes | no | 20 MP | negateEffect | implemented |
 | snelle_perfect_dodge | Perfect Dodge | - | no | no | 20 MP | ifThenElse | implemented |
 | snelle_sleutelpuntje | Sleutelpuntje | - | yes | no | 5 MP | choose | implemented |
-| snelle_the_protector | The Protector | - | no | no | free | reduceMPLossBy | advanced |
+| snelle_the_protector | The Protector | - | no | no | free | reduceMPLossBy; mpLossReduction snelle flag consolidated into loseMP() read point (STUB-02) | implemented |
 | momentum-rush | Momentum Rush | MOMENTUM-GAINING | no | no | free | gainMP+drawCards | advanced |
 
 ## Place (16)
@@ -155,14 +156,14 @@ This document is the final Phase 11 master card inventory, generated from the li
 | place_bank_chilling | Bank Chilling | PLACE | yes | no | free | turn_start, Social 2+, +15 MP | implemented |
 | place_coerts_caravan | Coert's Caravan | PLACE | yes | no | free | turn_start, Coert Mosje only, +15 MP | implemented |
 | place_delluft | Delluft | PLACE | no | no | free | turn_end, all draw 1 card; SUBSTANCE cost 0 (UI flag) | advanced |
-| place_dierenasiel | Dierenasiel | PLACE | no | no | free | 25% MP loss reduction now wired in loseMP (plan 08-04); PET cost-waiver at 0 MP still enforced in UI only | partial |
+| place_dierenasiel | Dierenasiel | PLACE | no | no | free | 25% MP loss reduction wired in loseMP (plan 08-04); engine guard logged in useMosjeAbility (STUB-09); UI cantAffordAbility check for 0-MP PET deferred to UI phase | partial |
 | place_drain_zone | Drain Zone | PLACE | no | no | free | turn_end, lowest MP Mosje loses -10 MP | advanced |
 | place_momentum_factory | Momentum Factory | PLACE | no | no | free | piecie_activated, +10 MP (first-only enforced in UI) | advanced |
 | place_momentum_stabilizer | Momentum Stabilizer | PLACE | no | no | free | passive flag only; 30 MP loss cap enforced in UI | advanced |
 | place_obby_1 | Obby #1 | PLACE | yes | no | free | quest_completed/failed, Physical 2+ or Resilient 2+, +20/-10 MP | implemented |
 | place_quest_haven | Quest Haven | PLACE | yes | no | free | quest_completed, +10 MP; 2-quest bonus +25 MP (UI tracked) | implemented |
 | place_skiffa | Skiffa | PLACE | no | no | free | turn_end, -15 MP unless SUBSTANCE trait 1+ | advanced |
-| place_synergy_chamber | Synergy Chamber | PLACE | no | no | free | getSynergyChambercostReduction/DurationBonus/DiceBonus exported+JSDoc'd; dice bonus already consumed in questLogic; cost/duration reduction deferred to ability activation caller | partial |
+| place_synergy_chamber | Synergy Chamber | PLACE | no | no | free | getSynergyChambercostReduction() wired in useMosjeAbility(); -5 MP pre-adjustment applied before ability dispatch (STUB-10); duration reduction deferred to UI phase | implemented |
 | place_the_gym | The Gym | PLACE | yes | no | free | turn_end, Physical 3→+35, Physical 2→+25, else -10 MP | implemented |
 | place_the_void | The Void | PLACE | no | no | free | turn_end, all -15 MP; RESTORE/FOOD restriction via void_active flag | advanced |
 | place_welloe_graveyard | Welloe Graveyard | PLACE | no | no | free | mosje_defeated, +20 MP + draw 1 card for that player | advanced |
@@ -257,3 +258,27 @@ This document is the final Phase 11 master card inventory, generated from the li
 ### Phase 10 Notes
 - emergency-swap is explicitly marked as advanced for experienced players.
 - Post-balance simulation reduced never-played cards from 36 to 21 but did not eliminate all advanced/deferred mechanics.
+
+### Phase 12 Notes (Unfinished Stubs Audit — Waves 1–5)
+**Implemented (stubs now fully wired):**
+- STUB-01: MP_LOSS_HALVED wired in loseMP() — Bowie & Stormey, Gekke Vogels, KatjeGang, ViannaPoes, Tony all functional
+- STUB-02: MP_LOSS_REDUCTION wired in loseMP() — Laat me chillen, FF Haaltje Nemen, The Protector all functional
+- STUB-03: WELLOE_SHIELD wired in markMosjeDefeated() — Mosje Shield prevents knockout
+- STUB-04: negateNextSearch guard wired in phaseDrawCard() — Jammertje Gepakt cancels opponent draws
+- STUB-05: doubleNextPiecie confirmed already implemented in activatePiecie() — Dubbele Temminks functional
+- STUB-06: effect_ff_haaltje_nemen ReferenceError fixed; value restored (20/30)
+- STUB-08: Dead SNOEIERTJE_COST push removed from effect_snoeiertje
+- STUB-10: getSynergyChambercostReduction() wired in useMosjeAbility(); -5 MP pre-adjustment applied
+- STUB-11: Bagga of Greed — showCardChoice modal wired in main.js; full-hand discard picker after activation
+- STUB-14: Welloe Force — showOptionSelect modal + 3-turn engine-level damage redirect in loseMP()
+- STUB-15: MP Adjuster — showOptionSelect modal (20/40/60/80/100 MP); temporary, reverts at startTurn()
+
+**Partial (engine done, UI deferred):**
+- STUB-07: Dingetje Toch — engine flag set; UI consumption point documented in turnManager.js handleActivatePiecie()
+- STUB-09: Dierenasiel — engine guard logged; UI cantAffordAbility check for 0-MP PET deferred to UI phase
+
+**Deferred (requires named blocking primitive):**
+- STUB-12: Emergency Swap — blocking primitive: UI modal for opponent Mosje selection + abilityId lookup
+- STUB-13: Huisbaas — blocking primitive: deck-search-modal (filter by card type PLACE) + activatePlace call
+- STUB-16: FPS West — blocking primitive: opponent hand reveal UI in boardRenderer.js (opponentHandPeeked flag)
+- STUB-16: Ronald Chef — blocking primitive: peek-reveal modal showing top 2 deck card names (_ronaldPeek flag)
