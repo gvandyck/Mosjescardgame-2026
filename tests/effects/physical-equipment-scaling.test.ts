@@ -9,7 +9,7 @@ import {
   effect_protein_shake,
 } from '../../src/abilities/piecieEffects.js';
 // @ts-expect-error — JS module, no type declarations
-import { effect_boxing_ring } from '../../src/abilities/placeEffects.js';
+import { effect_boxing_ring, effect_the_gym } from '../../src/abilities/placeEffects.js';
 
 function makeState(overrides: {
   subtype?: string;
@@ -263,4 +263,27 @@ describe('Physical Equipment: Protein Shake + Boxing Ring (PHYS-04/05)', () => {
     });
   });
 
+});
+
+describe('effect_the_gym CLESS patch (PHYS-06)', () => {
+  it('CLESS Mosje (mosje_azn_cless) gains +20 MP instead of losing', () => {
+    const state = makeState({ subtype: 'FIGHTING', level: 1, mp: 30, cardId: 'mosje_azn_cless' });
+    // Set physical trait < 2 so normal physical branch does NOT trigger
+    state.players.player_1.activeSlots[0].traits = { physical: 1, social: 2 };
+    const result = effect_the_gym(state);
+    expect(result.players.player_1.activeSlots[0].mp).toBe(50); // 30 + 20
+  });
+
+  it('CLESS Mosje with physical >= 2 still gets physical bonus (not CLESS bonus)', () => {
+    const state = makeState({ subtype: 'FIGHTING', level: 1, mp: 30, cardId: 'mosje_azn_cless' });
+    state.players.player_1.activeSlots[0].traits = { physical: 2, social: 2 };
+    const result = effect_the_gym(state);
+    expect(result.players.player_1.activeSlots[0].mp).toBe(55); // 30 + 25 (physical branch wins)
+  });
+
+  it('non-CLESS Mosje with physical < 2 still takes 10 MP damage', () => {
+    const state = makeState({ subtype: 'DIGITAL', level: 1, mp: 30 });
+    const result = effect_the_gym(state);
+    expect(result.players.player_1.activeSlots[0].mp).toBe(20); // 30 - 10
+  });
 });
