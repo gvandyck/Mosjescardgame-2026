@@ -526,7 +526,7 @@ export function effect_mosje_shield(gameState, playerId) {
 }
 
 export function effect_emergency_swap(gameState, playerId) {
-	// DEFERRED: Emergency Swap requires UI selection of which opponent Mosje's ability to copy.
+	// DEFERRED: Emergency Swap requires UI selection + ability registry dispatch to copy opponent Mosje ability.
 	// The ability registry (mosjeAbilities module) already exists \u2014 see useMosjeAbility() in
 	// turnManager.js: mosjeAbilities[mosjeDef.abilityId] is the dispatch pattern.
 	// Blocking primitive: UI modal to select opponent's active Mosje + abilityId lookup.
@@ -953,6 +953,74 @@ export function effect_controller(gameState, playerId) {
 	// Flavor bonus: +1 quest roll this turn
 	player.questPrepBonus = (player.questPrepBonus || 0) + 1;
 	console.log(`[ABILITY] Controller: +${mp} MP${mosje.subtype === 'DIGITAL' ? ' (Digital Lv' + (mosje.level||1) + ')' : ' (base)'}, +1 quest bonus`);
+	return state;
+}
+
+// ─────────────────────────────────────────
+// PHYSICAL EQUIPMENT
+// ─────────────────────────────────────────
+
+export function effect_dumbbells(gameState, playerId) {
+	const state = cloneState(gameState);
+	const player = state.players[playerId];
+	if (!player) return state;
+	const si = getFirstActiveSlotIndex(player);
+	if (si < 0) return state;
+	const mosje = player.activeSlots[si];
+	const isPhysical = mosje.subtype === 'FIGHTING';
+	const mp = isPhysical ? 20 : 5;
+	applyMPGain(player, si, mp, state, playerId);
+	// Flavor bonus: draw 1 card only at Physical ★★★ (level >= 3)
+	if (isPhysical && (mosje.level || 1) >= 3 && player.deck.length > 0) {
+		player.hand.push(player.deck.shift());
+		console.log(`[ABILITY] Dumbbells: +${mp} MP (Physical Lv${mosje.level}), drew 1`);
+	} else {
+		console.log(`[ABILITY] Dumbbells: +${mp} MP${isPhysical ? ' (Physical)' : ' (base)'}`);
+	}
+	return state;
+}
+
+export function effect_boxing_gloves(gameState, playerId) {
+	const state = cloneState(gameState);
+	const player = state.players[playerId];
+	if (!player) return state;
+	const si = getFirstActiveSlotIndex(player);
+	if (si < 0) return state;
+	const mosje = player.activeSlots[si];
+	const physical = mosje.traits?.physical || 0;
+	if (physical < 2) {
+		console.log('[ABILITY] Boxing Gloves: no effect (Physical trait < 2)');
+		return state;
+	}
+	const id = String(mosje.cardId || '').toLowerCase();
+	const isGandoe = id.includes('gandoe');
+	const mp = isGandoe ? 40 : 25;
+	applyMPGain(player, si, mp, state, playerId);
+	if (isGandoe) {
+		for (const slot of player.activeSlots) {
+			if (!slot || slot.isDefeated) continue;
+			slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 1, turnsLeft: 1 });
+		}
+		console.log(`[ABILITY] Boxing Gloves: +${mp} MP (GANDOE), MP loss halved 1 turn`);
+	} else {
+		console.log(`[ABILITY] Boxing Gloves: +${mp} MP (Physical ★★+)`);
+	}
+	return state;
+}
+
+export function effect_skipping_rope(gameState, playerId) {
+	const state = cloneState(gameState);
+	const player = state.players[playerId];
+	if (!player) return state;
+	const si = getFirstActiveSlotIndex(player);
+	if (si < 0) return state;
+	const mosje = player.activeSlots[si];
+	const isPhysical = mosje.subtype === 'FIGHTING';
+	if (isPhysical) {
+		player.questPrepBonus = (player.questPrepBonus || 0) + 1;
+	}
+	if (player.deck.length > 0) player.hand.push(player.deck.shift());
+	console.log(`[ABILITY] Skipping Rope:${isPhysical ? ' +1 quest bonus,' : ''} drew 1`);
 	return state;
 }
 

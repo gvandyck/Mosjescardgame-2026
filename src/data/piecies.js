@@ -967,6 +967,56 @@ export const PIECIES = [
   },
 
   // ─────────────────────────────────────────
+  // PHYSICAL EQUIPMENT
+  // ─────────────────────────────────────────
+
+  {
+    id: "piecie_dumbbells",
+    type: "PIECIE",
+    subtype: "PHYSICAL-EQUIPMENT",
+    name: "Dumbbells",
+    mpCost: 0,
+    requirement: "any",
+    effectId: "effect_dumbbells",
+    tags: ["PHYSICAL-EQUIPMENT"],
+    description: "Physical Mosje on field: +20 MP. Physical ★★★: also draw 1 card.",
+    flavourText: "",
+    artPath: "assets/piecies/placeholder.png",
+    rarity: "★",
+    isBoosterOnly: false,
+  },
+  {
+    id: "piecie_boxing_gloves",
+    type: "PIECIE",
+    subtype: "PHYSICAL-EQUIPMENT",
+    name: "Boxing Gloves",
+    mpCost: 0,
+    requirement: "any",
+    effectId: "effect_boxing_gloves",
+    tags: ["PHYSICAL-EQUIPMENT"],
+    description: "Physical ★★+ Mosje: +25 MP. GANDOE tag: +40 MP + MP loss halved 1 turn.",
+    flavourText: "",
+    artPath: "assets/piecies/placeholder.png",
+    rarity: "★★",
+    isBoosterOnly: false,
+  },
+  {
+    id: "piecie_skipping_rope",
+    type: "PIECIE",
+    subtype: "PHYSICAL-EQUIPMENT",
+    name: "Skipping Rope",
+    mpCost: 0,
+    requirement: "any",
+    effectId: "effect_skipping_rope",
+    tags: ["PHYSICAL-EQUIPMENT"],
+    description: "Physical Mosje: +1 next Quest roll + draw 1 card. No Physical Mosje: draw 1 only.",
+    flavourText: "",
+    artPath: "assets/piecies/placeholder.png",
+    rarity: "★",
+    isBoosterOnly: false,
+  },
+
+  // ─────────────────────────────────────────
   // ATTACK — UNUSED / BOOSTER ONLY
   // ─────────────────────────────────────────
 
