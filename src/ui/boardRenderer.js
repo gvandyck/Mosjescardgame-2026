@@ -67,6 +67,12 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		const cardEl = renderCard(mosje, { compact: true });
 		const fullCard = getCardById(mosje.cardId) || mosje;
 		cardEl.classList.add('mosje-clickable', 'mosje-card--opponent');
+		tagBoardElement(cardEl, {
+			zone: 'mosje',
+			playerId: viewModel.players.top.id,
+			slotIndex: mosje.slotIndex,
+			cardId: mosje.cardId,
+		});
 		cardEl.addEventListener('click', () => getBoardModal().showMosjeDetailModal({ ...fullCard, ...mosje }));
 		topZone?.appendChild(cardEl);
 	}
@@ -79,6 +85,12 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		});
 		const fullCard = getCardById(mosje.cardId) || mosje;
 		cardEl.classList.add('mosje-clickable', 'mosje-card--owned');
+		tagBoardElement(cardEl, {
+			zone: 'mosje',
+			playerId: viewModel.players.bottom.id,
+			slotIndex: mosje.slotIndex,
+			cardId: mosje.cardId,
+		});
 		cardEl.addEventListener('click', () => getBoardModal().showMosjeDetailModal({ ...fullCard, ...mosje }));
 
 		if (onUseAbility && !mosje.isDefeated && mosje.cardId && !fullCard.autoAbility) {
@@ -130,11 +142,21 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		if (viewModel.activePlacePlayedBy === opponentId) {
 			const placeOpponent = renderCard(viewModel.activePlace, { compact: true });
 			placeOpponent.classList.add('field-piecie-card', 'place-card-in-slot', 'card--previewable');
+			tagBoardElement(placeOpponent, {
+				zone: 'place',
+				playerId: opponentId,
+				cardId: viewModel.activePlace.cardId || viewModel.activePlace.id,
+			});
 			placeOpponent.addEventListener('click', () => getBoardModal().showPlaceDetailModal(mergedPlace));
 			topPiecies?.appendChild(placeOpponent);
 		} else if (viewModel.activePlacePlayedBy === viewModel.myPlayerId) {
 			const placePlayer = renderCard(viewModel.activePlace, { compact: true });
 			placePlayer.classList.add('field-piecie-card', 'place-card-in-slot', 'card--previewable');
+			tagBoardElement(placePlayer, {
+				zone: 'place',
+				playerId: viewModel.myPlayerId,
+				cardId: viewModel.activePlace.cardId || viewModel.activePlace.id,
+			});
 			placePlayer.addEventListener('click', () => getBoardModal().showPlaceDetailModal(mergedPlace));
 			bottomPiecies?.appendChild(placePlayer);
 		}
@@ -144,11 +166,23 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		if (piecie.faceDown) {
 			const slot = document.createElement('div');
 			slot.className = 'piecie-slot face-down-piecie has-card';
+			tagBoardElement(slot, {
+				zone: 'piecie',
+				playerId: viewModel.players.top.id,
+				slotIndex: piecie.slotIndex,
+				faceDown: true,
+			});
 			topPiecies?.appendChild(slot);
 			continue;
 		}
 		const piecieEl = renderCard(piecie, { compact: true });
 		piecieEl.classList.add('field-piecie-card', 'card--previewable');
+		tagBoardElement(piecieEl, {
+			zone: 'piecie',
+			playerId: viewModel.players.top.id,
+			slotIndex: piecie.slotIndex,
+			cardId: piecie.cardId,
+		});
 		const fullPiecie = getCardById(piecie.cardId) || piecie;
 		const mergedPiecie = { ...fullPiecie, ...piecie };
 		piecieEl.addEventListener('click', (e) => {
@@ -162,6 +196,13 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		if (piecie.faceDown) {
 			const slot = document.createElement('div');
 			slot.className = 'piecie-slot face-down-piecie has-card';
+			tagBoardElement(slot, {
+				zone: 'piecie',
+				playerId: viewModel.players.bottom.id,
+				slotIndex: piecie.slotIndex,
+				cardId: piecie.cardId,
+				faceDown: true,
+			});
 			const fullFaceDown = getCardById(piecie.cardId) || piecie;
 			slot.addEventListener('click', () => getBoardModal().showDeckBuilderCardPreview({ ...fullFaceDown, ...piecie }));
 			bottomPiecies?.appendChild(slot);
@@ -169,6 +210,12 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		}
 		const piecieEl = renderCard(piecie, { compact: true });
 		piecieEl.classList.add('field-piecie-card', 'card--previewable');
+		tagBoardElement(piecieEl, {
+			zone: 'piecie',
+			playerId: viewModel.players.bottom.id,
+			slotIndex: piecie.slotIndex,
+			cardId: piecie.cardId,
+		});
 		const fullPiecieBottom = getCardById(piecie.cardId) || piecie;
 		const mergedPiecieBottom = { ...fullPiecieBottom, ...piecie };
 		piecieEl.addEventListener('click', (e) => {
@@ -285,6 +332,15 @@ function initBoardDropZones(container, onPlayFromHand) {
 	}
 }
 
+function tagBoardElement(element, { zone, playerId, slotIndex, cardId, faceDown = false } = {}) {
+	if (!element) return;
+	if (zone) element.dataset.zone = zone;
+	if (playerId) element.dataset.playerId = playerId;
+	if (slotIndex !== undefined && slotIndex !== null) element.dataset.slotIndex = String(slotIndex);
+	if (cardId) element.dataset.cardId = cardId;
+	if (faceDown) element.dataset.faceDown = 'true';
+}
+
 function initDragScroll(element) {
 	let isDown = false;
 	let startX = 0;
@@ -353,10 +409,16 @@ export function buildActiveQuestViewModel(gameState, myPlayerId) {
 }
 
 // Shows a floating MP number above a card.
-export function showMPFloat(cardEl, amount) {
+export function showMPFloat(cardEl, amount, options = {}) {
 	if (!cardEl || !Number.isFinite(amount) || amount === 0) return;
 	const float = document.createElement('div');
 	float.className = `mp-float ${amount > 0 ? 'gain' : 'loss'}`;
+	if (options.emphasis === 'big' || Math.abs(amount) >= 40) {
+		float.classList.add('mp-float--big');
+	}
+	if (options.emphasis === 'huge' || Math.abs(amount) >= 60) {
+		float.classList.add('mp-float--huge');
+	}
 	float.textContent = amount > 0 ? `+${amount}` : `${amount}`;
 
 	const rect = cardEl.getBoundingClientRect();
