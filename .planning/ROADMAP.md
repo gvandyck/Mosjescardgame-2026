@@ -352,7 +352,7 @@ Plans:
 - [x] 12-01-PLAN.md — Engine wiring: MP_LOSS_HALVED, MP_LOSS_REDUCTION, WELLOE_SHIELD checks wired into loseMP() and markMosjeDefeated(); fix FF Haaltje Nemen ReferenceError; restore push site values
 - [x] 12-02-PLAN.md — Flag wiring: negateNextSearch in phaseDrawCard, STUB-05 verification, dingetjeToch documentation, SNOEIERTJE_COST dead push removal
 - [x] 12-03-PLAN.md — Place mechanics: Dierenasiel 0-MP guard and Synergy Chamber cost reduction in useMosjeAbility
-- [ ] 12-04-PLAN.md — UI-gated interactions: Bagga of Greed discard picker, Welloe Force redirect target, MP Adjuster value picker (via existing modal functions)
+- [x] 12-04-PLAN.md — UI-gated interactions: Bagga of Greed discard picker, Welloe Force redirect target, MP Adjuster value picker (via existing modal functions)
 - [ ] 12-05-PLAN.md — Deferred docs: Emergency Swap and Huisbaas DEFERRED comments, FPS West/Ronald Chef flag comments, card-reference.md full update
 
 ---

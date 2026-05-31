@@ -1,7 +1,7 @@
 # Project State
 
 **Last updated:** 2026-05-31
-**Current phase:** Phase 12 — In progress (5 plans, 5 waves) — Plan 03 complete
+**Current phase:** Phase 12 — In progress (5 plans, 5 waves) — Plan 04 complete
 **Branch:** audit/unimplemented-stubs-and-mechanics
 
 ## Phase 11 Progress
@@ -71,6 +71,13 @@
 - placeEffects.getSynergyChambercostReduction() call established in turnManager.js
 - 7 new tests added (Tests 17–23); 691 tests passing
 
+### 12-04: UI-Gated Piecie Interactions — Bagga of Greed, Welloe Force, MP Adjuster (COMPLETE)
+- Bagga of Greed: full-hand discard picker via showCardChoice modal after activation (STUB-11)
+- Welloe Force: 3-turn engine-level damage redirect wired in loseMP(); target picker via showOptionSelect; auto-select when 1 target; cancel when 0 targets (STUB-14)
+- MP Adjuster: temporary value picker (20/40/60/80/100 MP) via showOptionSelect; reverts at next turn start; _mpAdjusterPending replaces hardcoded mp=50 (STUB-15)
+- Post-approval reworks per user: Bagga shows full hand, MP Adjuster is temporary, Welloe Force is engine-level 3-turn redirect with ★★★★ / 40 MP cost
+- 691 tests passing (no new tests; browser-DOM interactions verified via Task 3 checkpoint)
+
 ### Decisions
 - negateNextSearch guard placed inside if (isOpponentTriggered) — natural turn draws never negated
 - STUB-05 needed no code change — doubleNextPiecie block already exists and works
@@ -79,6 +86,10 @@
 - Dierenasiel guard is documentation-only — engine has no cost gate; dierenasielWaiver logs and documents UI responsibility
 - Synergy Chamber reduction applied as pre-MP-adjustment (stateForAbility clone with s.mp += 5) rather than changing every individual ability function
 - stateForAbility clone only created when synergyDiscount > 0 AND mosjeDef.abilityCost > 0
+- Bagga of Greed shows full hand (not just 2 drawn cards) — user-requested; more strategic discard choice
+- MP Adjuster is temporary: delta reverted at next turn start via startTurn() cleanup — one-turn boost not permanent override
+- Welloe Force is engine-level 3-turn redirect in loseMP(); mpCost 40 / ★★★★ rarity; auto-selects single target, cancels if no targets
+- main.js flag-check paths (Bagga/Welloe/MP Adjuster) are NOT unit-tested; browser-DOM modal awaits cannot be mocked; Task 3 checkpoint is accepted functional verification substitute
 
 ## Phase 10 Complete (prior)
 
