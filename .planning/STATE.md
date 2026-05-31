@@ -1,7 +1,7 @@
 # Project State
 
 **Last updated:** 2026-05-31
-**Current phase:** Phase 14 IN PROGRESS — 14-01 and 14-02 complete; 14-03 pending
+**Current phase:** Phase 14 COMPLETE — 14-01, 14-02, 14-03 all complete
 **Branch:** audit/unimplemented-stubs-and-mechanics
 
 ## Phase 11 Progress
@@ -121,12 +121,21 @@
 - Boxing Ring bypass added to resolvePlaceEffect before trigger guard (handles both triggers via questCard discriminator)
 - 718 tests passing (10 new tests; no regressions)
 
+### 14-03: The Gym CLESS Patch + Card Reference Docs (COMPLETE)
+- Patched effect_the_gym with isCless branch: CLESS Mosjes (physical < 2) gain +20 MP instead of -10
+- Priority chain: physical >= 3 > physical >= 2 > isCless > default applyDamage(-10)
+- Updated The Gym description in places.js to mention CLESS-tagged Mosjes bonus
+- Documented all 6 Phase 14 cards in docs/card-reference.md (counts: Piecie 64→68, Place 16→17)
+- 721 tests passing (3 new CLESS tests; no regressions)
+
 ### Decisions
 - Dumbbells flat 20 MP (not level-scaled) — PLAN.md truths take precedence over PATTERNS.md getPhysicalMP helper
 - GANDOE check: cardId.toLowerCase().includes('gandoe') — matches existing Coert's Caravan pattern
 - MP_LOSS_HALVED turnsLeft:1 for Boxing Gloves (not 2 like Bowie & Stormey) — 1-turn only per plan spec
 - Boxing Ring bypass before trigger guard: handles dual ON_QUEST/END_PHASE triggers without switch case
 - effect_boxing_ring questCard discriminator: questCard !== undefined = ON_QUEST path; else END_PHASE path
+- CLESS branch placed as else-if after physical >= 2 — physical trait bonus takes priority for CLESS Mosjes with physical >= 2
+- isCless uses cardId.includes('cless') — consistent with effect_coerts_caravan id.includes('coert') pattern
 
 ## Phase 10 Complete (prior)
 
