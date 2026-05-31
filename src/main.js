@@ -391,6 +391,17 @@ function initGamePage() {
 		playBotSteps(steps, botName, 0);
 	}
 
+	// Log the +10 MP trickle that startTurn() just applied for the given player.
+	function logTurnTrickle(activePlayerId) {
+		const player = gameState.players[activePlayerId];
+		if (!player) return;
+		for (const slot of player.activeSlots) {
+			if (slot && !slot.isDefeated) {
+				log.add('gain', `Turn trickle: ${slot.name} +10 MP`);
+			}
+		}
+	}
+
 	// delay: ms between each step. onComplete: called after the final step instead of
 	// advancing to the next bot (used by offline single-player to hand back to the human).
 	function playBotSteps(steps, botName, index, delay = 1000, onComplete = null) {
@@ -411,6 +422,7 @@ function initGamePage() {
 					// bot vs bot: start next player's turn and keep the loop going
 					gameState = startTurn(gameState);
 					renderFromState(gameState);
+					logTurnTrickle(gameState.activePlayerId);
 					runBotVsBotLoop();
 				}
 				return;
@@ -479,6 +491,7 @@ function initGamePage() {
 		renderFromState(gameState);
 		log.add('quest', `${localPlayerName} entered room ${roomCode}.`);
 		log.add('gain', `Turn ${gameState.turnNumber} started for ${gameState.players[gameState.activePlayerId].name}.`);
+		logTurnTrickle(gameState.activePlayerId);
 		// Register ongoing remote handler for when opponent acts
 		eventBus.on('mp:remote-state', onRemoteState);
 		if (isOnline && localPlayerId === 'player_1') syncPush();
@@ -592,6 +605,7 @@ function initGamePage() {
 
 		const activeName = gameState.players[gameState.activePlayerId].name;
 		log.add('gain', `Now active: ${activeName}. Turn ${gameState.turnNumber}.`);
+		logTurnTrickle(gameState.activePlayerId);
 
 		// Bot vs Bot mode: current player was already advanced by endTurn/startTurn above — kick off next bot
 		if (isBotVsBot && gameState.status !== 'FINISHED') {
@@ -618,6 +632,7 @@ function initGamePage() {
 				gameState = startTurn(gameState);
 				renderFromState(gameState);
 				log.add('gain', `Now active: ${gameState.players[gameState.activePlayerId]?.name}. Turn ${gameState.turnNumber}.`);
+				logTurnTrickle(gameState.activePlayerId);
 				if (endTurnBtn) endTurnBtn.disabled = false;
 			});
 		}
