@@ -317,6 +317,39 @@ Plans:
 
 ---
 
+### Phase 12: Implement Unfinished Mechanics & Stubs
+
+**Goal:** Eliminate all silent no-ops in the engine — status effects that are pushed but never read, stub functions that return early, snelle flags set but never consumed, and partial card mechanics deferred to UI. Every card that claims to protect, halve, or modify MP must actually do so.
+
+**Requirements:**
+- STUB-01: MP_LOSS_HALVED — wire into loseMP() in mpManager.js (5 cards: Bowie & Stormey, Tony, Gekke Vogels, KatjeGang, ViannaPoes)
+- STUB-02: MP_LOSS_REDUCTION — wire into loseMP() (3 consumers: Laat me chillen, FF Haaltje Nemen, The Protector snelle flag)
+- STUB-03: WELLOE_SHIELD — implement no-knockout protection check in victoryChecker.js (1 card: Mosje Shield)
+- STUB-04: negateNextSearch — wire into deck draw logic in turnManager.js (1 card: Jammertje Gepakt)
+- STUB-05: doubleNextPiecie — implement double-activation executor logic (1 card: Double Trigger)
+- STUB-06: FF Haaltje Nemen undefined variable — fix console.log referencing undefined `reduction`
+- STUB-07: Dingetje Toch — wire _dingetjeTochActive flag consumption in piecie requirement checker
+- STUB-08: SNOEIERTJE_COST — cleanup: push is never consumed (questBonusMP handles the real logic); remove the dead push or document clearly
+- STUB-09: Dierenasiel cost-waiver — move 0-MP PET ability cost-waiver from UI-only to engine guard
+- STUB-10: Synergy Chamber cost/duration reduction — integrate into ability activation caller
+- STUB-11: Bagga of Greed discard-one-of-two — wire the `_baggaDiscard = true` flag into UI selection handler (draw 2, discard 1 is currently only flagged, not enforced)
+- STUB-12: Emergency Swap — implement ability-copy selection or document as deferred with explicit reason
+- STUB-13: Huisbaas — implement Place search from deck or document as deferred with explicit reason
+- STUB-14: Welloe Force redirect — implement damage redirect or document as deferred with explicit reason
+- STUB-15: MP Adjuster hardcoded 50 — wire UI exact-value selection or document as deferred
+- STUB-16: FPS West + Ronald Chef hand reveal — wire opponentHandPeeked flag to actual UI hand reveal
+
+**Success Criteria:**
+1. Every status effect type that is pushed to statusEffects is either checked in loseMP/turnManager/victoryChecker OR explicitly documented as deferred with a named blocking primitive
+2. No function in any ability file returns early with a silent no-op where real behaviour was intended — all are either implemented or tagged `// DEFERRED: <reason>`
+3. All snelle flags that are set have corresponding read-points in the engine
+4. 664+ tests pass, 0 simulation crashes
+5. card-reference.md updated: all items that are now implemented changed to `implemented`; all remaining deferred items given a specific reason naming the missing primitive
+
+**Plans:** (to be created)
+
+---
+
 ## Build Order Rationale
 
 1. **Mosje abilities first** — Foundation for deck synergies and playstyles
