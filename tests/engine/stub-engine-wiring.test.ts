@@ -4,6 +4,8 @@ import { loseMP } from "../../src/engine/mpManager.js";
 // @ts-expect-error — JS module, no type declarations
 import { markMosjeDefeated } from "../../src/engine/victoryChecker.js";
 // @ts-expect-error — JS module, no type declarations
+import { phaseDrawCard } from "../../src/engine/turnManager.js";
+// @ts-expect-error — JS module, no type declarations
 import { effect_laat_me_chillen } from "../../src/abilities/piecieEffects.js";
 // @ts-expect-error — JS module, no type declarations
 import { effect_bowie_stormey } from "../../src/abilities/piecieEffects.js";
@@ -233,5 +235,91 @@ describe("snelleEffects — effect_ff_haaltje_nemen", () => {
     );
     expect(effect).toBeDefined();
     expect(effect?.value).toBe(30);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────
+// TASK 1 (Wave 2): negateNextSearch in phaseDrawCard (STUB-04)
+// ─────────────────────────────────────────────────────────────
+
+function makeDrawState() {
+  return {
+    activePlace: null,
+    _snelleFlags: {},
+    players: {
+      p1: {
+        deck: [{ cardId: "test_card_1" }, { cardId: "test_card_2" }],
+        hand: [],
+        discard: [],
+        drawsThisTurn: 0,
+        activeSlots: [
+          {
+            cardId: "mosje_test",
+            name: "Test",
+            mp: 100,
+            level: 1,
+            isDefeated: false,
+            traits: {},
+            statusEffects: [],
+            immuneThisTurn: false,
+            mpLostThisTurn: 0,
+          },
+          null,
+        ],
+        welloe: [],
+        questsCompleted: 0,
+      },
+      p2: {
+        deck: [{ cardId: "test_card_3" }],
+        hand: [],
+        discard: [],
+        drawsThisTurn: 0,
+        activeSlots: [
+          {
+            cardId: "mosje_test2",
+            name: "Test2",
+            mp: 100,
+            level: 1,
+            isDefeated: false,
+            traits: {},
+            statusEffects: [],
+            immuneThisTurn: false,
+            mpLostThisTurn: 0,
+          },
+          null,
+        ],
+        welloe: [],
+        questsCompleted: 0,
+      },
+    },
+  };
+}
+
+describe("phaseDrawCard — negateNextSearch (STUB-04)", () => {
+  it("Test 14: isOpponentTriggered=true with negateNextSearch[p2] set — draw does NOT happen; flag deleted; hand unchanged", () => {
+    const state = makeDrawState();
+    (state as any)._snelleFlags = { negateNextSearch: { p2: true } };
+    const result = phaseDrawCard(state, "p1", 1, true);
+    // Hand should still be empty — draw was negated
+    expect(result.players.p1.hand).toHaveLength(0);
+    // Flag should be consumed
+    expect((result as any)._snelleFlags?.negateNextSearch?.p2).toBeUndefined();
+  });
+
+  it("Test 15: natural turn draw (isOpponentTriggered NOT passed) — draw happens normally even when negateNextSearch is set", () => {
+    const state = makeDrawState();
+    (state as any)._snelleFlags = { negateNextSearch: { p2: true } };
+    // Called without isOpponentTriggered (natural turn draw)
+    const result = phaseDrawCard(state, "p1", 1);
+    // Natural draws are never negated
+    expect(result.players.p1.hand).toHaveLength(1);
+  });
+
+  it("Test 16: isOpponentTriggered=true but NO negateNextSearch flag — draw happens normally", () => {
+    const state = makeDrawState();
+    // No negateNextSearch flag at all
+    const result = phaseDrawCard(state, "p1", 1, true);
+    // Draw proceeds because flag is not set
+    expect(result.players.p1.hand).toHaveLength(1);
   });
 });
