@@ -804,6 +804,10 @@ function createMosjeSlotFromDefinition(mosjeDef) {
 // Each Mosje can only use its ability once per turn (abilityUsedThisTurn).
 // Returns { state, success, error? }
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// NOTE: the engine does NOT enforce abilityCost before calling fn(). Each individual
+// ability function is responsible for checking/deducting its own cost. The UI
+// cantAffordAbility display is the primary guard against insufficient-MP activations.
+// UI must also check dierenasielActive before disabling PET Mosje abilities (STUB-09).
 export function useMosjeAbility(gameState, playerId, mosjeId) {
   const player = gameState.players[playerId];
   if (!player) return { state: gameState, success: false, error: 'Player not found' };
@@ -812,6 +816,17 @@ export function useMosjeAbility(gameState, playerId, mosjeId) {
   if (slotIndex < 0) return { state: gameState, success: false, error: 'Mosje not on field or is defeated' };
 
   const slot = player.activeSlots[slotIndex];
+
+  // Dierenasiel 0-MP PET cost-waiver: when Dierenasiel place is active, PET-tagged
+  // ability activations are allowed even at 0 MP. The individual ability function
+  // must not throw for 0 MP in this case.
+  // STUB-09: engine-level guard documented here. UI cantAffordAbility must also check
+  // dierenasielActive before displaying the disabled state for PET Mosjes (UI phase).
+  const dierenasielWaiver = gameState.dierenasielActive === true;
+  if (dierenasielWaiver) {
+    console.log('[ENGINE] Dierenasiel: 0-MP PET ability activation allowed for', mosjeId);
+  }
+
   if (slot.abilityUsedThisTurn) {
     return { state: gameState, success: false, error: 'Ability already used this turn' };
   }
@@ -830,9 +845,20 @@ export function useMosjeAbility(gameState, playerId, mosjeId) {
   // Wrap in try/catch: some abilities require pending targets (e.g. Binti’s discard) that
   // are not present when called without UI interaction (e.g. from the bot driver).
   // In that case, treat the ability as unusable rather than crashing.
+  // Synergy Chamber: ability activation costs 5 fewer MP when place_synergy_chamber is active.
+  // Pre-adjust the Mosje MP so individual ability functions see the reduced effective cost.
+  const synergyDiscount = placeEffects.getSynergyChambercostReduction(gameState);
+  let stateForAbility = gameState;
+  if (synergyDiscount > 0 && mosjeDef.abilityCost > 0) {
+    stateForAbility = JSON.parse(JSON.stringify(gameState));
+    const s = stateForAbility.players[playerId].activeSlots[slotIndex];
+    s.mp += synergyDiscount; // grant the discount pre-payment
+    console.log('[ENGINE] Synergy Chamber: ability cost reduced by', synergyDiscount, 'for', mosjeId);
+  }
+
   let state;
   try {
-    state = fn(gameState, playerId, mosjeId);
+    state = fn(stateForAbility, playerId, mosjeId);
   } catch (err) {
     console.warn(`[ENGINE] useMosjeAbility: ability ${mosjeDef.abilityId} threw — needs UI input:`, err.message);
     return { state: gameState, success: false, error: err.message };
