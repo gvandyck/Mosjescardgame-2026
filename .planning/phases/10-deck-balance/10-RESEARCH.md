@@ -485,22 +485,18 @@ export function effect_tikker(gameState, playerId) {
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **questLogic.js QUEST_BLOCKED enforcement**
-   - What we know: The TypeScript quest-manager reads `quest_locked` buff. The JS layer uses `statusEffects` array with `QUEST_BLOCKED`.
-   - What's unclear: Does `questLogic.js` / the JS quest resolution path currently check for a `QUEST_BLOCKED` status effect before allowing an attempt?
-   - Recommendation: Read `src/abilities/questLogic.js` during plan execution to verify. If missing, add the check as part of the Tikker fix task.
+1. **questLogic.js QUEST_BLOCKED enforcement** ✅ RESOLVED 2026-05-30
+   - **Answer:** `questLogic.js` does NOT currently check for QUEST_BLOCKED in either `canAttemptGeneralQuest` or `canAttemptPersonalQuest`. Both functions return true without inspecting `statusEffects`. The check is missing from the JS layer entirely.
+   - **Impact on plans:** Plan 03 must include a task to add the QUEST_BLOCKED guard to `canAttemptGeneralQuest` and `canAttemptPersonalQuest` in `questLogic.js` as part of the Tikker fix. Without this, Tikker's "cannot attempt Quests next turn" mechanic silently fails.
+   - **Pattern to use:** At the top of both `canAttemptGeneralQuest` and `canAttemptPersonalQuest`, add: `if (activeMosje?.statusEffects?.some(e => e.type === 'QUEST_BLOCKED')) return false;`
 
-2. **Mouse "look at top 2" flavor — is it implemented?**
-   - What we know: Current `effect_mouse` only draws 1 card. The piecies.js description says "look at top 2 cards of any deck." The CONTEXT.md states Mouse's flavor bonus is "look at top 2 cards of any deck."
-   - What's unclear: Whether the plan should implement the full peek UI or just leave the draw-1 behavior.
-   - Recommendation: Given Phase 10 is a balance pass, implement as draw 1 (existing) for now. The peek requires UI infrastructure. Document this as a deferred UI enhancement.
+2. **Mouse "look at top 2" flavor — is it implemented?** ✅ RESOLVED 2026-05-30
+   - **Answer:** Deferred. Current `effect_mouse` draws 1 card. The full peek-top-2 requires UI infrastructure not in scope for Phase 10 (a balance pass). Phase 10 implements Mouse with draw 1 + the level-scaled MP gain. The peek is documented as a Deferred Idea in CONTEXT.md.
 
-3. **`description` field update scope**
-   - What we know: Each quest has a human-readable `description` string that also lists MP values.
-   - What's unclear: Are description strings used in the UI, tests, or purely cosmetic?
-   - Recommendation: Update them along with the data fields. Low risk, high correctness.
+3. **`description` field update scope** ✅ RESOLVED 2026-05-30
+   - **Answer:** Update them. Quest descriptions are displayed in the UI quest modal and must match the actual values. Plan 02 already includes description updates alongside the MP field changes.
 
 ---
 

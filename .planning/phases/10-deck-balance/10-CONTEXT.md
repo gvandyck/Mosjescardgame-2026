@@ -128,3 +128,4 @@ piecie_grammetje_pieter x1  — Roll 1d6: 1-3 lose 15, 4-6 gain 30 (SUBSTANCE)
 - **Artistic post-bug-fix verification** — flag for a dedicated playtest session to verify Artistic is balanced after Phase 8 fixes before and after these balance changes
 - **Jeffrey's FOOD/RESTORE restriction** — debated relaxing to FOOD-only; decided to keep full restriction for now. Revisit if Physical still stalls after Substance additions.
 - **Custom deck builder** — user mentioned removing per-type limits; full custom deck builder is a future project phase.
+- **Mouse "look at top 2 cards" peek UI** — Decision 2 lists this as Mouse's flavor bonus, but the full peek UI (showing top 2 cards of any deck) requires a UI selection primitive that doesn't exist yet. Phase 10 behavior: Mouse draws 1 card (same as Keyboard) instead. Full peek deferred to a future UI phase.
