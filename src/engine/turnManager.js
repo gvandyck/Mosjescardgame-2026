@@ -121,9 +121,20 @@ export function startTurn(gameState) {
 // Draws 1 card from the player's personal deck into their hand.
 // If the deck is empty, nothing happens (no penalty â€” may change later).
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-export function phaseDrawCard(gameState, playerId, count = 1) {
+export function phaseDrawCard(gameState, playerId, count = 1, isOpponentTriggered = false) {
   const state = JSON.parse(JSON.stringify(gameState));
   const player = state.players[playerId];
+
+  // negateNextSearch: Jammertje Gepakt flag — negate opponent-triggered search/draw only.
+  // Regular turn draw (isOpponentTriggered=false) is NOT negated.
+  if (isOpponentTriggered) {
+    const oppId = Object.keys(state.players).find(id => id !== playerId);
+    if (oppId && state._snelleFlags?.negateNextSearch?.[oppId]) {
+      delete state._snelleFlags.negateNextSearch[oppId];
+      console.log('[ENGINE] Jammertje Gepakt: opponent search/draw negated for', playerId);
+      return state;
+    }
+  }
 
   if (player.deck.length === 0) {
     if (player.discard.length === 0) {
@@ -551,7 +562,10 @@ export function activatePiecie(gameState, playerId, slotIndex) {
 
   // Dingetje Toch wildcard: if state._dingetjeTochActive is true, the UI layer must bypass
   // any single failing trait/type requirement before calling activatePiecie, then clear the flag.
-  // state._dingetjeTochActive = false  ← consumed by UI piecie activation validator, not here.
+  // Consumption point: in main.js handleActivatePiecie(), before the activatePiecie() call,
+  // check state._dingetjeTochActive — if set, skip the single failing requirement check and
+  // delete state._dingetjeTochActive before passing state to activatePiecie.
+  // STUB-07: UI-side implementation deferred to UI wiring phase.
 
   // Check reactive negation flags set by opponent's Snelle Piecies
   const flags = state._snelleFlags || {};
@@ -589,6 +603,8 @@ export function activatePiecie(gameState, playerId, slotIndex) {
   const handSizeBeforeEffect = state.players[playerId].hand.length;
   if (typeof effectFn === 'function') {
     state = effectFn(state, playerId);
+    // STUB-05 (doubleNextPiecie / Double Trigger) — IMPLEMENTED. Flag is set by
+    // effect_snelle_dubbele_temminks in snelleEffects.js and consumed here.
     // Dubbele Temminks: double-trigger
     if (flags.doubleNextPiecie?.[playerId]) {
       delete state._snelleFlags.doubleNextPiecie[playerId];
