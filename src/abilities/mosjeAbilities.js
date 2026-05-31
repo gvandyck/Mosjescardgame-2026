@@ -234,6 +234,9 @@ export function ability_ronald_chef_strategic_insight(gameState, playerId) {
 	const opp = state.players[oppId];
 	const peeked = opp.deck.slice(0, 2).map(c => c.cardId);
 	state._ronaldPeek = peeked;
+	// DEFERRED (STUB-16): _ronaldPeek contains the peeked card IDs but UI does not render them.
+	// Blocking primitive: a "peek reveal" modal showing opponent deck top 2 card names.
+	// Deferred to: UI phase (peek/reveal UI primitive).
 	state._ronaldPeekPlayerId = playerId;
 	state._ronaldPeekTimestamp = Date.now();
 	console.log('[ABILITY] Ronald Chef: peeked opponent top 2:', peeked);
@@ -434,6 +437,9 @@ export function ability_fps_west_tactical_analysis(gameState, playerId) {
 	if (!player) return state;
 	if (player.deck.length > 0) player.hand.push(player.deck.shift());
 	player.opponentHandPeeked = true;
+	// DEFERRED (STUB-16): opponentHandPeeked flag is set but UI has not implemented opponent hand
+	// reveal. Blocking primitive: render opponent hand face-up in boardRenderer.js when
+	// opponentHandPeeked is true. Deferred to: UI phase (hand reveal primitive).
 	console.log('[ABILITY] FPS West: drew 1 card + opponent hand peek active');
 	return state;
 }

@@ -526,8 +526,17 @@ export function effect_mosje_shield(gameState, playerId) {
 }
 
 export function effect_emergency_swap(gameState, playerId) {
-	// Needs UI: copy which Mosje's ability? For now: log.
-	console.log('[ABILITY] Emergency Swap: requires UI selection \u2014 pending');
+	// DEFERRED: Emergency Swap requires UI selection of which opponent Mosje's ability to copy.
+	// The ability registry (mosjeAbilities module) already exists \u2014 see useMosjeAbility() in
+	// turnManager.js: mosjeAbilities[mosjeDef.abilityId] is the dispatch pattern.
+	// Blocking primitive: UI modal to select opponent's active Mosje + abilityId lookup.
+	// Implementation path when unblocked:
+	//   1. Modal: "Choose an opponent Mosje to copy ability from" (showOptionSelect)
+	//   2. Look up mosjeDef.abilityId for chosen Mosje via MOSJES array
+	//   3. Call mosjeAbilities[abilityId](state, playerId, chosenMosjeId)
+	//   4. Per card-specific-rulings.md: one-time use, no synergy/pet bonuses transferred
+	// Deferred to: UI selection phase.
+	console.log('[ABILITY] Emergency Swap: UI selection required \u2014 DEFERRED');
 	return gameState;
 }
 
@@ -581,13 +590,20 @@ export function effect_popo_komt(gameState, playerId) {
 }
 
 export function effect_huisbaas(gameState, playerId) {
-	// Needs UI: choose new Place from deck. For now just destroy.
+	// PARTIAL: Place destruction implemented. Place search is DEFERRED.
+	// DEFERRED: searching the deck for a specific Place card requires a UI selection modal
+	// (player picks which Place to put into play) + a deck-search-and-place-activate primitive.
+	// No searchDeck function exists in turnManager.js for Places — only phaseDrawCard (top-of-deck).
+	// Blocking primitive: deck search modal (filter by card type PLACE) + activatePlace call.
+	// Deferred to: UI selection phase.
 	let state = cloneState(gameState);
 	if (state.activePlace) {
 		state = destroyActivePlace(state);
 		state = triggerPlaceDestroyedEffects(state, playerId);
+		console.log('[ABILITY] Huisbaas: active Place destroyed. New Place search DEFERRED (requires deck-search primitive).');
+	} else {
+		console.log('[ABILITY] Huisbaas: no active Place to destroy.');
 	}
-	console.log('[ABILITY] Huisbaas: Place destroyed (new Place search pending UI)');
 	return state;
 }
 
