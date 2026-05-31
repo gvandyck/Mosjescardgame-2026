@@ -1,7 +1,7 @@
 # Project State
 
 **Last updated:** 2026-05-31
-**Current phase:** Phase 14 IN PROGRESS — 14-01 complete (Dumbbells/Boxing Gloves/Skipping Rope); 14-02 and 14-03 pending
+**Current phase:** Phase 14 IN PROGRESS — 14-01 and 14-02 complete; 14-03 pending
 **Branch:** audit/unimplemented-stubs-and-mechanics
 
 ## Phase 11 Progress
@@ -113,10 +113,20 @@
 - Skipping Rope: questPrepBonus +1 if FIGHTING Mosje + draw 1; draw 1 only for non-FIGHTING
 - 708 tests passing (17 new tests; no regressions)
 
+### 14-02: Protein Shake + Boxing Ring (COMPLETE)
+- Added piecie_protein_shake to src/data/piecies.js (PHYSICAL-EQUIPMENT, FOOD tags, rarity ★★)
+- Added effect_protein_shake to src/abilities/piecieEffects.js (+25 MP to FIGHTING; +35 MP when Boxing Ring active)
+- Added place_boxing_ring to src/data/places.js (trigger ON_QUEST, goodFor FIGHTING, badFor DIGITAL/ARTISTIC)
+- Added effect_boxing_ring to src/abilities/placeEffects.js (ON_QUEST: +15 MP / GANDOE +25; END_PHASE: FIGHTING +10 / non-FIGHTING -5)
+- Boxing Ring bypass added to resolvePlaceEffect before trigger guard (handles both triggers via questCard discriminator)
+- 718 tests passing (10 new tests; no regressions)
+
 ### Decisions
 - Dumbbells flat 20 MP (not level-scaled) — PLAN.md truths take precedence over PATTERNS.md getPhysicalMP helper
 - GANDOE check: cardId.toLowerCase().includes('gandoe') — matches existing Coert's Caravan pattern
 - MP_LOSS_HALVED turnsLeft:1 for Boxing Gloves (not 2 like Bowie & Stormey) — 1-turn only per plan spec
+- Boxing Ring bypass before trigger guard: handles dual ON_QUEST/END_PHASE triggers without switch case
+- effect_boxing_ring questCard discriminator: questCard !== undefined = ON_QUEST path; else END_PHASE path
 
 ## Phase 10 Complete (prior)
 

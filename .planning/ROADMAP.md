@@ -394,7 +394,7 @@ Plans:
 
 Plans:
 - [x] 14-01-PLAN.md — Physical Equipment Piecies: Dumbbells, Boxing Gloves, Skipping Rope (data + effects + tests)
-- [ ] 14-02-PLAN.md — Protein Shake + Boxing Ring place (data + effects + tests)
+- [x] 14-02-PLAN.md — Protein Shake + Boxing Ring place (data + effects + tests)
 - [ ] 14-03-PLAN.md — Gym patch (CLESS bonus) + card-reference.md update + simulation check
 
 ---
