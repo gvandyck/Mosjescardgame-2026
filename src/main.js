@@ -1306,6 +1306,29 @@ function initGamePage() {
 			delete gameState._baggaDiscard;
 		}
 
+		// ── STUB-14: Welloe Force — choose damage redirect target ─────────────────
+		if (gameState._welloeForceActive) {
+			// Build options from all non-defeated Mosje slots across all players
+			const activeMosjeSlots = [];
+			for (const [pid, p] of Object.entries(gameState.players)) {
+				p.activeSlots.forEach((slot, idx) => {
+					if (slot && !slot.isDefeated) {
+						activeMosjeSlots.push({ id: `${pid}_slot_${idx}`, label: slot.name, metaLabel: `${slot.mp} MP` });
+					}
+				});
+			}
+			const targetId = await modal.showOptionSelect({
+				title: 'Welloe Force — Redirect Damage',
+				prompt: 'Choose a Mosje to redirect the next incoming damage to.',
+				options: activeMosjeSlots,
+				allowCancel: false,
+			});
+			// Store as _welloeForceTarget for damage-redirect consumer (future wave)
+			gameState._welloeForceTarget = targetId;
+			delete gameState._welloeForceActive;
+			console.log('[UI] Welloe Force: redirect target set to', targetId);
+		}
+
 		// ── STUB-15: MP Adjuster — choose exact MP value ───────────────────────────
 		if (gameState._mpAdjusterPending) {
 			const { playerId: mpPlayerId, slotIndex: mpSlotIndex } = gameState._mpAdjusterPending;
