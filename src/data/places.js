@@ -269,4 +269,19 @@ export const PLACES = [
     rarity: "★★★",
     isBoosterOnly: true
   },
+  {
+    id: "place_boxing_ring",
+    type: "PLACE",
+    name: "Boxing Ring",
+    trigger: "ON_QUEST",
+    effectId: "effect_boxing_ring",
+    tags: ["PHYSICAL"],
+    description: "On Quest: Physical Mosjes +15 MP any outcome; GANDOE tag: +25 MP instead. End Phase: FIGHTING Mosjes +10 MP; non-FIGHTING -5 MP.",
+    flavourText: "",
+    artPath: "assets/places/placeholder.png",
+    goodFor: ["FIGHTING"],
+    badFor: ["DIGITAL", "ARTISTIC"],
+    rarity: "★★★",
+    isBoosterOnly: false
+  },
 ];

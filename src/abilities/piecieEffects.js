@@ -1024,6 +1024,24 @@ export function effect_skipping_rope(gameState, playerId) {
 	return state;
 }
 
+export function effect_protein_shake(gameState, playerId) {
+	const state = cloneState(gameState);
+	const player = state.players[playerId];
+	if (!player) return state;
+	const si = getFirstActiveSlotIndex(player);
+	if (si < 0) return state;
+	const mosje = player.activeSlots[si];
+	if (mosje.subtype !== 'FIGHTING') {
+		console.log('[ABILITY] Protein Shake: no effect (no Physical Mosje)');
+		return state;
+	}
+	const isBoxingRing = state.activePlace === 'place_boxing_ring';
+	const mp = isBoxingRing ? 35 : 25;
+	applyMPGain(player, si, mp, state, playerId);
+	console.log(`[ABILITY] Protein Shake: +${mp} MP (Physical${isBoxingRing ? ', Boxing Ring bonus' : ''})`);
+	return state;
+}
+
 // ─────────────────────────────────────────
 // BOOSTER-ONLY ATTACK
 // ─────────────────────────────────────────

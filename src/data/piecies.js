@@ -1015,6 +1015,21 @@ export const PIECIES = [
     rarity: "★",
     isBoosterOnly: false,
   },
+  {
+    id: "piecie_protein_shake",
+    type: "PIECIE",
+    subtype: "PHYSICAL-EQUIPMENT",
+    name: "Protein Shake",
+    mpCost: 0,
+    requirement: "any",
+    effectId: "effect_protein_shake",
+    tags: ["PHYSICAL-EQUIPMENT", "FOOD"],
+    description: "+25 MP to active Physical Mosje. +35 MP if Boxing Ring is active place.",
+    flavourText: "",
+    artPath: "assets/piecies/placeholder.png",
+    rarity: "★★",
+    isBoosterOnly: false,
+  },
 
   // ─────────────────────────────────────────
   // ATTACK — UNUSED / BOOSTER ONLY
