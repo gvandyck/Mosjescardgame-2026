@@ -1,10 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, beforeAll } from "vitest";
 // @ts-expect-error — JS module, no type declarations
 import { loseMP } from "../../src/engine/mpManager.js";
 // @ts-expect-error — JS module, no type declarations
 import { markMosjeDefeated } from "../../src/engine/victoryChecker.js";
 // @ts-expect-error — JS module, no type declarations
-import { phaseDrawCard } from "../../src/engine/turnManager.js";
+import { phaseDrawCard, useMosjeAbility } from "../../src/engine/turnManager.js";
+// @ts-expect-error — JS module, no type declarations
+import { getSynergyChambercostReduction } from "../../src/abilities/placeEffects.js";
 // @ts-expect-error — JS module, no type declarations
 import { effect_laat_me_chillen } from "../../src/abilities/piecieEffects.js";
 // @ts-expect-error — JS module, no type declarations
@@ -321,5 +323,149 @@ describe("phaseDrawCard — negateNextSearch (STUB-04)", () => {
     const result = phaseDrawCard(state, "p1", 1, true);
     // Draw proceeds because flag is not set
     expect(result.players.p1.hand).toHaveLength(1);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────
+// WAVE 3: STUB-09 Dierenasiel 0-MP guard in useMosjeAbility()
+// ─────────────────────────────────────────────────────────────
+
+function makeAbilityState(mp: number, extraStateProps: Record<string, unknown> = {}) {
+  return {
+    activePlace: null,
+    dierenasielActive: false,
+    _snelleFlags: {},
+    _pendingTargets: {},
+    players: {
+      p1: {
+        totalDamageTaken: 0,
+        hand: [],
+        deck: [{ cardId: "test_card_1" }, { cardId: "test_card_2" }],
+        discard: [],
+        drawsThisTurn: 0,
+        questsCompleted: 0,
+        questsAttempted: 0,
+        level: 1,
+        questBonusMP: 0,
+        piecieSlots: [null, null, null, null],
+        welloe: [],
+        activeSlots: [
+          {
+            cardId: "mosje_gandoe_wizard",
+            name: "[Gandoe] The Unpredictable Wizard",
+            subtype: "FIGHTING",
+            traits: { physical: 2, resilient: 1, creative: 2 },
+            mp,
+            level: 0,
+            isDefeated: false,
+            statusEffects: [],
+            abilityUsedThisTurn: false,
+            immuneThisTurn: false,
+            mpLostThisTurn: 0,
+          },
+          null,
+        ],
+      },
+    },
+    ...extraStateProps,
+  };
+}
+
+describe("useMosjeAbility — Dierenasiel 0-MP guard (STUB-09)", () => {
+  it("Test 17: turnManager.js contains 'dierenasielWaiver' inside useMosjeAbility (artifact check)", async () => {
+    const fs = await import("fs");
+    const path = await import("path");
+    const filePath = path.resolve("src/engine/turnManager.js");
+    const content = fs.readFileSync(filePath, "utf-8");
+    expect(content).toContain("dierenasielWaiver");
+  });
+
+  it("Test 18: useMosjeAbility() with Mosje at 0 MP and no engine cost gate — returns success:true (no regression)", () => {
+    // Gandoe Wizard has no abilityCost, ability does not check mp
+    // Confirms engine does not block activation at 0 MP
+    const state = makeAbilityState(0);
+    const result = (useMosjeAbility as any)(state, "p1", "mosje_gandoe_wizard");
+    expect(result.success).toBe(true);
+  });
+
+  it("Test 19: useMosjeAbility() with dierenasielActive=true — returns success:true, does not throw", () => {
+    const state = makeAbilityState(0, { dierenasielActive: true });
+    let result: any;
+    expect(() => {
+      result = (useMosjeAbility as any)(state, "p1", "mosje_gandoe_wizard");
+    }).not.toThrow();
+    expect(result.success).toBe(true);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────
+// WAVE 3: STUB-10 Synergy Chamber cost reduction in useMosjeAbility()
+// ─────────────────────────────────────────────────────────────
+
+function makeCoertAbilityState(mp: number, activePlace: string | null = null) {
+  return {
+    activePlace,
+    dierenasielActive: false,
+    _snelleFlags: {},
+    _pendingTargets: {},
+    players: {
+      p1: {
+        totalDamageTaken: 0,
+        hand: [],
+        deck: [{ cardId: "test_card_1" }, { cardId: "test_card_2" }],
+        discard: [],
+        drawsThisTurn: 0,
+        questsCompleted: 0,
+        questsAttempted: 0,
+        level: 1,
+        questBonusMP: 0,
+        piecieSlots: [null, null, null, null],
+        welloe: [],
+        activeSlots: [
+          {
+            cardId: "mosje_coert_tech",
+            name: "[Coert] The Hawaiian Tech Savant",
+            subtype: "DIGITAL",
+            traits: { mental: 2, technical: 3, social: 1 },
+            mp,
+            level: 0,
+            isDefeated: false,
+            statusEffects: [],
+            abilityUsedThisTurn: false,
+            immuneThisTurn: false,
+            mpLostThisTurn: 0,
+          },
+          null,
+        ],
+      },
+    },
+  };
+}
+
+describe("getSynergyChambercostReduction — unit tests (STUB-10)", () => {
+  it("Test 22: getSynergyChambercostReduction with activePlace='place_synergy_chamber' returns 5", () => {
+    const result = getSynergyChambercostReduction({ activePlace: "place_synergy_chamber" });
+    expect(result).toBe(5);
+  });
+
+  it("Test 23: getSynergyChambercostReduction with activePlace=null returns 0", () => {
+    const result = getSynergyChambercostReduction({ activePlace: null });
+    expect(result).toBe(0);
+  });
+});
+
+describe("useMosjeAbility — Synergy Chamber cost reduction (STUB-10)", () => {
+  it("Test 20: Synergy Chamber active, Coert at 8 MP (cost 10, discount 5 → effective 5) — success:true", () => {
+    // Coert abilityCost=10, Synergy Chamber grants -5 discount. 8 >= 5 after discount.
+    const state = makeCoertAbilityState(8, "place_synergy_chamber");
+    const result = (useMosjeAbility as any)(state, "p1", "mosje_coert_tech");
+    expect(result.success).toBe(true);
+  });
+
+  it("Test 21: No Synergy Chamber, Coert at 8 MP (cost 10, no discount) — success:false (not enough MP)", () => {
+    // Without chamber discount, Coert at 8 MP cannot pay 10 cost.
+    const state = makeCoertAbilityState(8, null);
+    const result = (useMosjeAbility as any)(state, "p1", "mosje_coert_tech");
+    expect(result.success).toBe(false);
   });
 });
