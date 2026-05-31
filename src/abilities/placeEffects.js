@@ -10,6 +10,19 @@ function cloneState(state) {
 	return JSON.parse(JSON.stringify(state));
 }
 
+function applyDamage(mosje, amount) {
+	if (!mosje || mosje.isDefeated || amount <= 0) return;
+	mosje.mp -= amount;
+	while (mosje.mp < 0) {
+		if (mosje.level === 0) { mosje.mp = 0; break; }
+		const overflow = -mosje.mp;
+		mosje.level -= 1;
+		mosje.mp = 100 - overflow;
+	}
+	mosje.mp = Math.max(0, mosje.mp);
+	mosje.mpLostThisTurn = (mosje.mpLostThisTurn || 0) + amount;
+}
+
 export function effect_the_gym(gameState) {
 	const state = cloneState(gameState);
 	for (const playerId of Object.keys(state.players)) {
@@ -19,7 +32,7 @@ export function effect_the_gym(gameState) {
 			const physical = mosje.traits?.physical || 0;
 			if (physical >= 3) mosje.mp += 35;
 			else if (physical >= 2) mosje.mp += 25;
-			else mosje.mp -= 10;
+			else applyDamage(mosje, 10);
 		}
 	}
 	console.log('[ABILITY] The Gym end phase effect applied');
@@ -92,7 +105,7 @@ export function effect_skiffa(gameState) {
 			if (!mosje || mosje.isDefeated) continue;
 			const hasSubstance = mosje.traits?.substance >= 1;
 			if (!hasSubstance) {
-				mosje.mp -= 15;
+				applyDamage(mosje, 15);
 				console.log('[ABILITY] Skiffa: -15 MP (no SUBSTANCE immunity)');
 			} else {
 				console.log('[ABILITY] Skiffa: immune due to SUBSTANCE trait');
@@ -121,7 +134,7 @@ export function effect_obby_1(gameState, questCard, didSucceed) {
 			mosje.mp += 20;
 			console.log('[ABILITY] Obby #1: +20 MP on successful Physical/Resilient quest');
 		} else {
-			mosje.mp -= 10;
+			applyDamage(mosje, 10);
 			console.log('[ABILITY] Obby #1: -10 MP on failed Physical/Resilient quest');
 		}
 	}
@@ -177,7 +190,7 @@ export function effect_the_void(gameState) {
 		const player = state.players[playerId];
 		for (const mosje of player.activeSlots) {
 			if (!mosje || mosje.isDefeated) continue;
-			mosje.mp -= 15;
+			applyDamage(mosje, 15);
 			console.log('[ABILITY] The Void: -15 MP drain');
 		}
 	}
@@ -341,7 +354,7 @@ export function effect_drain_zone(gameState) {
 	}
 
 	if (lowestPlayerId !== null && lowestSlotIndex >= 0) {
-		state.players[lowestPlayerId].activeSlots[lowestSlotIndex].mp -= 10;
+		applyDamage(state.players[lowestPlayerId].activeSlots[lowestSlotIndex], 10);
 		console.log('[ABILITY] Drain Zone: -10 extra MP to Mosje with lowest MP');
 	}
 	// Note: ATTACK Piecie +10 damage bonus requires validation during card play

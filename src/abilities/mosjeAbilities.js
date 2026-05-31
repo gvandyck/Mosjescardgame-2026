@@ -11,6 +11,19 @@ function cloneState(state) {
 	return JSON.parse(JSON.stringify(state));
 }
 
+function applyDamage(mosje, amount) {
+	if (!mosje || mosje.isDefeated || amount <= 0) return;
+	mosje.mp -= amount;
+	while (mosje.mp < 0) {
+		if (mosje.level === 0) { mosje.mp = 0; break; }
+		const overflow = -mosje.mp;
+		mosje.level -= 1;
+		mosje.mp = 100 - overflow;
+	}
+	mosje.mp = Math.max(0, mosje.mp);
+	mosje.mpLostThisTurn = (mosje.mpLostThisTurn || 0) + amount;
+}
+
 function getFirstActiveSlotIndex(player) {
 	return player.activeSlots.findIndex(slot => slot !== null && !slot.isDefeated);
 }
@@ -62,7 +75,7 @@ export function ability_binti_cutting_words(gameState, playerId, discardedCardId
 
 	const oppSlotIndex = getFirstActiveSlotIndex(opponent);
 	if (oppSlotIndex >= 0) {
-		opponent.activeSlots[oppSlotIndex].mp -= 10;
+		applyDamage(opponent.activeSlots[oppSlotIndex], 10);
 	}
 
 	if (opponent.hand.length > 0) {
@@ -85,7 +98,7 @@ export function ability_coert_extra_resources(gameState, playerId, sourceMosjeId
 
 	const mosje = player.activeSlots[slotIndex];
 	if (mosje.mp < 10) throw new Error('Not enough MP for Coert ability');
-	mosje.mp -= 10;
+	applyDamage(mosje, 10);
 
 	const { drawn, remaining } = drawCards(player.deck, 1);
 	player.deck = remaining;
@@ -168,7 +181,7 @@ export function ability_azn_cless_risk_reward(gameState, playerId) {
 		player.activeSlots[si].mp += 25;
 		console.log(`[ABILITY] AZN Cless: rolled ${roll} (even) → +25 MP`);
 	} else {
-		player.activeSlots[si].mp -= 15;
+		applyDamage(player.activeSlots[si], 15);
 		console.log(`[ABILITY] AZN Cless: rolled ${roll} (odd) → -15 MP`);
 	}
 	return state;
@@ -204,7 +217,7 @@ export function ability_gandoe_destroyer_elimination_strike(gameState, playerId)
 	const opp = state.players[oppId];
 	const osi = getFirstActiveSlotIndex(opp);
 	if (osi >= 0) {
-		opp.activeSlots[osi].mp -= 45;
+		applyDamage(opp.activeSlots[osi], 45);
 		console.log('[ABILITY] Gandoe Destroyer: opponent -45 MP');
 	}
 	return state;
@@ -335,7 +348,7 @@ export function ability_jeffrey_gambler_high_stakes(gameState, playerId) {
 		console.log('[ABILITY] Jeffrey Gambler: not enough MP to bet (need 30)');
 		return state;
 	}
-	mosje.mp -= 30;
+	applyDamage(mosje, 30);
 	const roll = rollDie(6);
 	if (roll >= 4) {
 		mosje.mp += 60;
@@ -381,7 +394,7 @@ export function ability_tactician_mp_manipulation(gameState, playerId) {
 	}
 	const [high, low] = slots[0].mp >= slots[1].mp ? [slots[0], slots[1]] : [slots[1], slots[0]];
 	const transfer = Math.min(20, high.mp);
-	high.mp -= transfer;
+	applyDamage(high, transfer);
 	low.mp += transfer;
 	console.log(`[ABILITY] Tactician: transferred ${transfer} MP from ${high.name} → ${low.name}`);
 	return state;
@@ -408,7 +421,7 @@ export function ability_fps_coert_headshot_precision(gameState, playerId) {
 	const opp = state.players[oppId];
 	const osi = getFirstActiveSlotIndex(opp);
 	if (osi >= 0) {
-		opp.activeSlots[osi].mp -= 25;
+		applyDamage(opp.activeSlots[osi], 25);
 		console.log('[ABILITY] FPS Coert: headshot! opponent -25 MP');
 	}
 	return state;

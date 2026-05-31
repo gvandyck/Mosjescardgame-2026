@@ -20,6 +20,21 @@ function getOpponentId(state, playerId) {
 	return Object.keys(state.players).find(id => id !== playerId) || null;
 }
 
+// applyDamage — mutates a Mosje slot with clamp + level-regression (mirrors loseMP in mpManager).
+// Use instead of direct `slot.mp -= X` to prevent negative MP and handle level overflow.
+function applyDamage(mosje, amount) {
+	if (!mosje || mosje.isDefeated || amount <= 0) return;
+	mosje.mp -= amount;
+	while (mosje.mp < 0) {
+		if (mosje.level === 0) { mosje.mp = 0; break; }
+		const overflow = -mosje.mp;
+		mosje.level -= 1;
+		mosje.mp = 100 - overflow;
+	}
+	mosje.mp = Math.max(0, mosje.mp);
+	mosje.mpLostThisTurn = (mosje.mpLostThisTurn || 0) + amount;
+}
+
 function applyMPGain(player, si, amount, state, playerId) {
 	// Apply mpAmplifier 50% bonus if active
 	let total = amount;
@@ -132,7 +147,7 @@ export function effect_varkenspootjes(gameState, playerId) {
 		applyMPGain(player, si, 60, state, playerId);
 		console.log('[ABILITY] Varkenspootjes: Binti! +60 MP');
 	} else {
-		player.activeSlots[si].mp -= 30;
+		applyDamage(player.activeSlots[si], 30);
 		console.log('[ABILITY] Varkenspootjes: no Binti \u2014 -30 MP');
 	}
 	return state;
@@ -158,7 +173,7 @@ export function effect_warm_kannetje_melk(gameState, playerId) {
 	const player = state.players[playerId];
 	if (!player) return state;
 	const si = getFirstActiveSlotIndex(player);
-	if (si >= 0) player.activeSlots[si].mp -= 10;
+	if (si >= 0) applyDamage(player.activeSlots[si], 10);
 	const drawCount = Math.min(2, player.deck.length);
 	player.hand.push(...player.deck.splice(0, drawCount));
 	console.log(`[ABILITY] Warm Kannetje Melk: -10 MP, drew ${drawCount}`);
@@ -194,7 +209,7 @@ export function effect_affoe(gameState, playerId) {
 		si = getFirstActiveSlotIndex(player);
 	}
 
-	if (osi >= 0) state.players[oppId].activeSlots[osi].mp -= 15;
+	if (osi >= 0) applyDamage(state.players[oppId].activeSlots[osi], 15);
 	if (si >= 0) applyMPGain(player, si, 10, state, playerId);
 	delete state._pendingTargets;
 	console.log('[ABILITY] Affoe: opponent -15 MP, self +10 MP');
@@ -219,7 +234,7 @@ export function effect_te_hard_gaan(gameState, playerId) {
 	const oppId = getOpponentId(state, playerId);
 	if (!oppId) return state;
 	const osi = getFirstActiveSlotIndex(state.players[oppId]);
-	if (osi >= 0) state.players[oppId].activeSlots[osi].mp -= 25;
+	if (osi >= 0) applyDamage(state.players[oppId].activeSlots[osi], 25);
 	console.log('[ABILITY] Te Hard Gaan: opponent -25 MP');
 	return state;
 }
@@ -233,7 +248,7 @@ export function effect_momentum_diefje(gameState, playerId) {
 	const osi = getFirstActiveSlotIndex(state.players[oppId]);
 	if (si >= 0 && osi >= 0) {
 		const stolen = Math.min(20, state.players[oppId].activeSlots[osi].mp);
-		state.players[oppId].activeSlots[osi].mp -= stolen;
+		applyDamage(state.players[oppId].activeSlots[osi], stolen);
 		player.activeSlots[si].mp += stolen;
 		console.log(`[ABILITY] Momentum Diefje: stole ${stolen} MP`);
 	}
@@ -264,7 +279,7 @@ export function effect_dikke_taks(gameState, playerId) {
 	const damage = opponents.length >= 3 ? 40 : 35;
 	for (const oppId of opponents) {
 		const osi = getFirstActiveSlotIndex(state.players[oppId]);
-		if (osi >= 0) state.players[oppId].activeSlots[osi].mp -= damage;
+		if (osi >= 0) applyDamage(state.players[oppId].activeSlots[osi], damage);
 	}
 	const player = state.players[playerId];
 	if (player.deck.length > 0) player.hand.push(...player.deck.splice(0, Math.min(2, player.deck.length)));
@@ -705,7 +720,7 @@ export function effect_kan_het(gameState, playerId) {
 		applyMPGain(player, si, 50, state, playerId);
 		console.log(`[ABILITY] Kan het?!: rolled ${roll} → KAN HET! +50 MP`);
 	} else {
-		player.activeSlots[si].mp -= 10;
+		applyDamage(player.activeSlots[si], 10);
 		console.log(`[ABILITY] Kan het?!: rolled ${roll} → nope, -10 MP`);
 	}
 	return state;
@@ -793,7 +808,7 @@ export function effect_grammetje_pieter(gameState, playerId) {
 		player.activeSlots[si].mp += 30;
 		console.log(`[ABILITY] Grammetje Pieter: rolled ${roll} \u2192 +30 MP`);
 	} else {
-		player.activeSlots[si].mp -= 15;
+		applyDamage(player.activeSlots[si], 15);
 		console.log(`[ABILITY] Grammetje Pieter: rolled ${roll} \u2192 -15 MP`);
 	}
 	return state;
@@ -822,7 +837,7 @@ export function effect_stripje_bennies(gameState, playerId) {
 	const player = state.players[playerId];
 	if (!player) return state;
 	const si = getFirstActiveSlotIndex(player);
-	if (si >= 0) player.activeSlots[si].mp -= 20;
+	if (si >= 0) applyDamage(player.activeSlots[si], 20);
 	player.hand.push(...player.deck.splice(0, Math.min(3, player.deck.length)));
 	console.log('[ABILITY] Stripje Bennies: draw 3, -20 MP');
 	return state;
@@ -846,7 +861,7 @@ export function effect_straffoe(gameState, playerId) {
 	if (!oppId) return state;
 	const osi = getFirstActiveSlotIndex(state.players[oppId]);
 	if (osi >= 0) {
-		state.players[oppId].activeSlots[osi].mp -= 30;
+		applyDamage(state.players[oppId].activeSlots[osi], 30);
 		console.log('[ABILITY] Straffoe: opponent -30 MP');
 	}
 	return state;
@@ -943,7 +958,7 @@ export function effect_harde_didde(gameState, playerId) {
 	const oppId = getOpponentId(state, playerId);
 	if (!oppId) return state;
 	const osi = getFirstActiveSlotIndex(state.players[oppId]);
-	if (osi >= 0) state.players[oppId].activeSlots[osi].mp -= 50;
+	if (osi >= 0) applyDamage(state.players[oppId].activeSlots[osi], 50);
 	console.log('[ABILITY] Harde Didde: opponent -50 MP');
 	return state;
 }
@@ -969,8 +984,8 @@ export function effect_klaar_met_jou(gameState, playerId) {
 	const opp = state.players[oppId];
 	const osi = getFirstActiveSlotIndex(opp);
 	if (osi >= 0) {
-		opp.activeSlots[osi].mp -= 40;
-		if (opp.hand.length > 0) opp.hand.pop(); // discard last card in hand
+		applyDamage(opp.activeSlots[osi], 40);
+		if (opp.hand.length > 0) opp.hand.pop();
 		console.log('[ABILITY] Klaar met jou: opponent -40 MP, discard 1');
 	}
 	return state;
