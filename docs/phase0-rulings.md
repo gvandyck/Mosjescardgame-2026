@@ -55,6 +55,11 @@ MOSJES is a 2–6 player card game where each player builds a deck around charac
 
 Each turn has four phases in this exact order:
 
+### 0. Turn Start (before Draw Phase)
+- Every active Mosje you control gains **+10 MP** automatically.
+- This fires before the Draw Phase and before any Place start effects.
+- Defeated Mosjes do not receive the trickle.
+
 ### 1. Draw Phase
 - Draw 1 card from your personal deck.
 - Some card effects may allow drawing additional cards.
@@ -86,6 +91,7 @@ Each turn has four phases in this exact order:
 ## Momentum Points & Leveling
 
 ### Gaining MP
+- **Turn trickle** → each active Mosje gains +10 MP automatically at the start of your turn
 - Complete a Quest → earn +10 to +30 MP (stated on card)
 - Piecie card effects → stated on card
 - Mosje abilities → stated on card

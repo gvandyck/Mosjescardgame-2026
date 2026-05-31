@@ -28,6 +28,7 @@ Latest validation baseline before this handoff phase:
 
 4. Game engine
 - Turn flow, state transitions, event append, victory checks, and place manager.
+- Turn start trickle: every active Mosje of the active player gains +10 MP at the start of each turn (fires in startTurn() before Place effects and the Draw Phase).
 
 5. Simulation harness
 - Deterministic AI plays full games and writes aggregate reports.

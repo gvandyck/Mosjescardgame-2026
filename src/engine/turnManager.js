@@ -95,6 +95,16 @@ export function startTurn(gameState) {
   // START PHASE — fire active Place effects (START_PHASE trigger only)
   state = applyPlaceEffectsOnStart(state, playerId);
 
+  // TURN TRICKLE — every active Mosje of the active player gains +10 MP at turn start
+  const tricklePlayer = state.players[playerId];
+  for (let i = 0; i < tricklePlayer.activeSlots.length; i++) {
+    const slot = tricklePlayer.activeSlots[i];
+    if (slot && !slot.isDefeated) {
+      state = gainMP(state, playerId, i, 10);
+      console.log(`[ENGINE] Turn trickle: ${slot.name} +10 MP → ${state.players[playerId].activeSlots[i].mp} MP`);
+    }
+  }
+
   // DRAW PHASE â€” draw 1 card
   state = phaseDrawCard(state, playerId);
   // ON_DRAW Place effects — fires if active Place has trigger 'ON_DRAW'
