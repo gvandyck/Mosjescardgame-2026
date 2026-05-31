@@ -89,7 +89,7 @@ export function initModalManager(container) {
 
 		function doRoll(allowReroll) {
 			const rollBtn = container.querySelector('#modal-roll');
-			if (rollBtn) { rollBtn.disabled = true; rollBtn.textContent = 'Rolling...'; }
+			if (rollBtn) rollBtn.hidden = true;
 			const diceEl = container.querySelector('#dice-display');
 
 			const rawRoll = Math.floor(Math.random() * 6) + 1;
@@ -113,9 +113,6 @@ export function initModalManager(container) {
 					const resultLabel = didSucceed
 						? `✅ Success! Rolled ${result}${bonusTxt} (needed ${threshold}+) → ${sign}${mpDelta} MP`
 						: `❌ Failed! Rolled ${result}${bonusTxt} (needed ${threshold}+) → ${sign}${mpDelta} MP`;
-
-					// Hide the Roll button — it has no function once the result is in
-					if (rollBtn) rollBtn.hidden = true;
 
 					const section = container.querySelector('section');
 					// Remove any previous result
@@ -141,7 +138,6 @@ export function initModalManager(container) {
 							placeRerollsLeft -= 1;
 						}
 						section.querySelectorAll('.modal-result, #modal-done, #modal-reroll').forEach(e => e.remove());
-						if (rollBtn) { rollBtn.hidden = false; rollBtn.disabled = false; rollBtn.textContent = 'Rolling...'; }
 						doRoll(false);
 					});
 				}
