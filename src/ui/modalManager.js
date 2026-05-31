@@ -70,7 +70,7 @@ export function initModalManager(container) {
 		let placeRerollsLeft = Math.max(0, Number(skiffaRerolls) || 0);
 
 		const thresholdLabel = threshold >= 7
-			? '<span class="modal-threshold--fail">Can\'t attempt — missing required trait</span>'
+			? `<span class="modal-threshold--fail">Cannot succeed — missing required ${escapeHtml(questInfo.roll?.trait ?? 'trait')}</span>`
 			: `${threshold}+ to succeed`;
 
 		const bonusLabel = diceBonus > 0 ? ` (+${diceBonus} bonus)` : '';
@@ -384,9 +384,12 @@ export function initModalManager(container) {
 			.map(([name, value]) => `<li><strong>${escapeHtml(name)}</strong>: ${Number(value)}</li>`)
 			.join('');
 
-		const thresholdLabel = threshold >= 7
-			? '<span class="modal-threshold--fail">Missing required trait</span>'
-			: `${threshold}+ to succeed`;
+		const canAttempt = threshold < 7;
+		const requiredTrait = questDef.roll?.trait;
+		const minThreshold  = questDef.roll?.thresholds?.[2] ?? questDef.roll?.thresholds?.[1] ?? threshold;
+		const thresholdLabel = canAttempt
+			? `${threshold}+ to succeed`
+			: `<span class="modal-threshold--fail">Cannot attempt — need ${escapeHtml(requiredTrait ?? 'required')} ★★ (would need ${minThreshold}+ with ★★)</span>`;
 
 		const bonusRow = diceBonus > 0
 			? `<p><strong>Dice bonus:</strong> <span style="color: #e8b94f;">+${diceBonus} to roll</span></p>`
@@ -410,7 +413,7 @@ export function initModalManager(container) {
 						<ul class="modal-card-list">${traitRows || '<li>No active traits</li>'}</ul>
 					</div>
 					<div style="display: flex; gap: 8px; margin-top: 16px;">
-						<button class="modal-btn" id="modal-attempt" type="button">Attempt Quest</button>
+						<button class="modal-btn" id="modal-attempt" type="button" ${canAttempt ? '' : 'disabled'}>Attempt Quest</button>
 						<button class="modal-btn modal-btn--ghost" id="modal-cancel-quest" type="button">Cancel</button>
 					</div>
 				</div>
