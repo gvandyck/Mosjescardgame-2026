@@ -16,7 +16,7 @@ export const PLACES = [
     trigger: "END_PHASE",
     effectId: "effect_the_gym",
     tags: ["PHYSICAL"],
-    description: "End Phase: All Mosjes lose 10 MP. Physical ★★ gain 25 MP instead. Physical ★★★ gain 35 MP instead.",
+    description: "End Phase: All Mosjes lose 10 MP. Physical ★★ gain 25 MP instead. Physical ★★★ gain 35 MP instead. CLESS-tagged Mosjes: +20 MP instead.",
     flavourText: "Alleen de sterksten overleven.",
     artPath: "assets/place-art/Place The Gym.jpg",
     goodFor: ["FIGHTING"],

@@ -30,8 +30,11 @@ export function effect_the_gym(gameState) {
 		for (const mosje of player.activeSlots) {
 			if (!mosje || mosje.isDefeated) continue;
 			const physical = mosje.traits?.physical || 0;
+			const id = String(mosje.cardId || '').toLowerCase();
+			const isCless = id.includes('cless');
 			if (physical >= 3) mosje.mp += 35;
 			else if (physical >= 2) mosje.mp += 25;
+			else if (isCless) mosje.mp += 20;
 			else applyDamage(mosje, 10);
 		}
 	}
