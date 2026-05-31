@@ -658,13 +658,14 @@ export function effect_mp_adjuster(gameState, playerId) {
 		return gameState;
 	}
 
-	// Needs UI: choose exact value 30-100. Default: set to 50.
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
 	const si = getFirstActiveSlotIndex(player);
-	if (si >= 0) player.activeSlots[si].mp = 50;
-	console.log('[ABILITY] MP Adjuster: set to 50 (UI pending for exact value)');
+	if (si >= 0) {
+		state._mpAdjusterPending = { playerId, slotIndex: si };
+	}
+	console.log('[ABILITY] MP Adjuster: value selection pending UI');
 	return state;
 }
 

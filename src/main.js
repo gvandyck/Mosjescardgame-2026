@@ -1286,6 +1286,47 @@ function initGamePage() {
 		}
 		gameState = newState;
 
+		// ── STUB-11: Bagga of Greed — discard 1 of 2 drawn cards ──────────────────
+		if (gameState._baggaDiscard) {
+			const hand = gameState.players[localPlayerId].hand;
+			// The 2 drawn cards are the last 2 entries in hand
+			const drawnCards = hand.slice(-2).map(c => {
+				const def = CARD_LOOKUP[c.cardId] || {};
+				return { cardId: c.cardId, name: def.name || c.cardId, description: def.description || '' };
+			});
+			const cardToDiscard = await modal.showCardChoice('Bagga of Greed — Discard a Card', drawnCards);
+			if (cardToDiscard) {
+				const idx = gameState.players[localPlayerId].hand.findIndex(c => c.cardId === cardToDiscard.cardId);
+				if (idx >= 0) {
+					const [removed] = gameState.players[localPlayerId].hand.splice(idx, 1);
+					gameState.players[localPlayerId].discard.unshift(removed.cardId || removed);
+				}
+			}
+			// If null: player keeps both cards (Keep Both Cards ghost button)
+			delete gameState._baggaDiscard;
+		}
+
+		// ── STUB-15: MP Adjuster — choose exact MP value ───────────────────────────
+		if (gameState._mpAdjusterPending) {
+			const { playerId: mpPlayerId, slotIndex: mpSlotIndex } = gameState._mpAdjusterPending;
+			const chosen = await modal.showOptionSelect({
+				title: 'MP Adjuster',
+				prompt: 'Choose the MP value to set.',
+				options: [
+					{ id: '20', label: '20 MP' },
+					{ id: '40', label: '40 MP' },
+					{ id: '60', label: '60 MP' },
+					{ id: '80', label: '80 MP' },
+					{ id: '100', label: '100 MP' },
+				],
+				allowCancel: false,
+			});
+			const mpValue = Number(chosen);  // always valid: allowCancel:false + non-empty options
+			gameState.players[mpPlayerId].activeSlots[mpSlotIndex].mp = mpValue;
+			delete gameState._mpAdjusterPending;
+			console.log('[UI] MP Adjuster: set to', mpValue, 'MP');
+		}
+
 		const activatedName = cardDef?.name || 'Piecie';
 		if (negated) {
 			log.add('loss', `Activated ${activatedName}, but it was negated.`);
