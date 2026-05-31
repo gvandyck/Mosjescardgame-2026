@@ -6,7 +6,10 @@ import {
   effect_dumbbells,
   effect_boxing_gloves,
   effect_skipping_rope,
+  effect_protein_shake,
 } from '../../src/abilities/piecieEffects.js';
+// @ts-expect-error — JS module, no type declarations
+import { effect_boxing_ring } from '../../src/abilities/placeEffects.js';
 
 function makeState(overrides: {
   subtype?: string;
@@ -189,4 +192,75 @@ describe('Physical Equipment cards (PHYS-01/02/03)', () => {
       expect(result.players.player_1.hand.length).toBe(0);
     });
   });
+});
+
+describe('Physical Equipment: Protein Shake + Boxing Ring (PHYS-04/05)', () => {
+
+  describe('effect_protein_shake', () => {
+    it('gives 25 MP to FIGHTING Mosje (no Boxing Ring)', () => {
+      const state = makeState({ subtype: 'FIGHTING', level: 1, mp: 0 });
+      const result = effect_protein_shake(state, 'player_1');
+      expect(result.players.player_1.activeSlots[0].mp).toBe(25);
+    });
+
+    it('gives 35 MP to FIGHTING Mosje when Boxing Ring is active place', () => {
+      const state = { ...makeState({ subtype: 'FIGHTING', level: 1, mp: 0 }), activePlace: 'place_boxing_ring' };
+      const result = effect_protein_shake(state, 'player_1');
+      expect(result.players.player_1.activeSlots[0].mp).toBe(35);
+    });
+
+    it('gives 0 MP to non-FIGHTING Mosje', () => {
+      const state = makeState({ subtype: 'DIGITAL', level: 1, mp: 0 });
+      const result = effect_protein_shake(state, 'player_1');
+      expect(result.players.player_1.activeSlots[0].mp).toBe(0);
+    });
+
+    it('does not mutate input state', () => {
+      const state = makeState({ subtype: 'FIGHTING', level: 1, mp: 0 });
+      effect_protein_shake(state, 'player_1');
+      expect(state.players.player_1.activeSlots[0].mp).toBe(0);
+    });
+  });
+
+  describe('effect_boxing_ring (END_PHASE — questCard undefined)', () => {
+    it('gives FIGHTING Mosje +10 MP at end phase', () => {
+      const state = makeState({ subtype: 'FIGHTING', level: 1, mp: 50 });
+      const result = effect_boxing_ring(state);
+      expect(result.players.player_1.activeSlots[0].mp).toBe(60);
+    });
+
+    it('deals 5 MP damage to non-FIGHTING Mosje at end phase', () => {
+      const state = makeState({ subtype: 'DIGITAL', level: 1, mp: 50 });
+      const result = effect_boxing_ring(state);
+      expect(result.players.player_1.activeSlots[0].mp).toBe(45);
+    });
+
+    it('skips defeated Mosjes', () => {
+      const state = makeState({ subtype: 'FIGHTING', level: 1, mp: 50 });
+      state.players.player_1.activeSlots[0].isDefeated = true;
+      const result = effect_boxing_ring(state);
+      expect(result.players.player_1.activeSlots[0].mp).toBe(50);
+    });
+  });
+
+  describe('effect_boxing_ring (ON_QUEST — questCard defined)', () => {
+    it('gives active Mosje +15 MP on any quest outcome (Physical Mosje)', () => {
+      const state = makeState({ subtype: 'FIGHTING', level: 1, mp: 30 });
+      const result = effect_boxing_ring(state, { id: 'quest_arm_wrestling' }, true);
+      expect(result.players.player_1.activeSlots[0].mp).toBe(45);
+    });
+
+    it('gives active Mosje +15 MP even on quest failure', () => {
+      const state = makeState({ subtype: 'FIGHTING', level: 1, mp: 30 });
+      const result = effect_boxing_ring(state, { id: 'quest_arm_wrestling' }, false);
+      expect(result.players.player_1.activeSlots[0].mp).toBe(45);
+    });
+
+    it('gives GANDOE Mosje +25 MP on quest (any outcome)', () => {
+      const state = makeState({ subtype: 'FIGHTING', level: 1, mp: 30, cardId: 'mosje_gandoe_destroyer' });
+      const result = effect_boxing_ring(state, { id: 'quest_arm_wrestling' }, true);
+      expect(result.players.player_1.activeSlots[0].mp).toBe(55);
+    });
+  });
+
 });
