@@ -357,6 +357,48 @@ Plans:
 
 ---
 
+### Phase 13: Action Animation Feedback
+
+**Goal:** Add visual animation feedback to game actions so players can clearly see what happened — MP gains, MP losses, attacks, quest results — without reading the log.
+
+**Status:** COMPLETE (implemented by gvandyck, 2026-05-31)
+
+**Plans:** 1 plan
+Plans:
+- [x] 13-01-PLAN.md — Action animation system: actionAnimations.js module, boardRenderer wiring, CSS animations for MP gain/loss/attack/quest events
+
+---
+
+### Phase 14: Physical Equipment Cards & Boxing Ring
+
+**Goal:** Add a Physical equipment Piecie suite (mirroring the Digital Keyboard/Mouse/Controller set), a new Boxing Ring place, and update The Gym to give CLESS-tagged Mosjes a bonus — giving Fighting/Physical decks a proper item identity and making Gandoe + Cless cards meaningfully stronger in themed setups.
+
+**Requirements:**
+- PHYS-01: Dumbbells (★, PHYSICAL-EQUIPMENT) — Physical Mosje on field: +20 MP; Physical ★★★: also draw 1 card
+- PHYS-02: Boxing Gloves (★★, PHYSICAL-EQUIPMENT) — Physical ★★+ Mosje: +25 MP; GANDOE tag: +40 MP + apply MP_LOSS_HALVED 1 turn
+- PHYS-03: Skipping Rope (★, PHYSICAL-EQUIPMENT) — Physical Mosje: +1 next Quest roll + draw 1 card; no Physical Mosje: draw 1 only
+- PHYS-04: Protein Shake (★★, PHYSICAL-EQUIPMENT + FOOD) — +25 MP to active Physical Mosje; +35 MP if Boxing Ring is active place
+- PHYS-05: Boxing Ring (★★★, Place) — ON_QUEST: Physical Mosjes +15 MP any outcome; GANDOE tag: +25 MP instead; END_PHASE: FIGHTING type +10 MP, non-FIGHTING -5 MP
+- PHYS-06: Gym update — Add CLESS-tag bonus: +20 MP at END_PHASE when any CLESS Mosje is on field (regardless of physical trait level)
+
+**Success Criteria:**
+1. All 4 PHYSICAL-EQUIPMENT Piecies have card definitions, effect functions, and tests
+2. Boxing Ring place has definition, effect function triggered at ON_QUEST and END_PHASE, and tests
+3. The Gym updated: CLESS-tagged Mosjes gain +20 MP at END_PHASE
+4. Boxing Gloves correctly applies MP_LOSS_HALVED for GANDOE-tagged Mosjes
+5. Protein Shake checks activePlace === 'place_boxing_ring' for the bonus tier
+6. All existing tests still pass; new cards have at least 2 tests each
+7. card-reference.md updated for all new and modified cards
+
+**Plans:** 3 plans
+
+Plans:
+- [ ] 14-01-PLAN.md — Physical Equipment Piecies: Dumbbells, Boxing Gloves, Skipping Rope (data + effects + tests)
+- [ ] 14-02-PLAN.md — Protein Shake + Boxing Ring place (data + effects + tests)
+- [ ] 14-03-PLAN.md — Gym patch (CLESS bonus) + card-reference.md update + simulation check
+
+---
+
 ## Build Order Rationale
 
 1. **Mosje abilities first** — Foundation for deck synergies and playstyles
