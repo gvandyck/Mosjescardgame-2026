@@ -1,8 +1,8 @@
 # Project State
 
 **Last updated:** 2026-05-31
-**Current phase:** Phase 11 complete — next: Phase 12 or additional phases
-**Branch:** main
+**Current phase:** Phase 12 — Ready to execute (5 plans, 5 waves)
+**Branch:** audit/unimplemented-stubs-and-mechanics
 
 ## Phase 11 Progress
 
