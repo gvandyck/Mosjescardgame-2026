@@ -44,6 +44,9 @@ export function renderCard(card, options = {}) {
   ]
     .filter(Boolean)
     .join(' ');
+  if (resolvedCard.cardId || resolvedCard.id) {
+    element.dataset.cardId = resolvedCard.cardId || resolvedCard.id;
+  }
 
   const typeLabel = resolvedCard.questType === 'PERSONAL' ? 'PERSONAL QUEST' : type.replaceAll('_', ' ');
   const difficulty = resolvedCard.difficulty ? `<span class="card__difficulty">${escapeHtml(resolvedCard.difficulty)}</span>` : '';

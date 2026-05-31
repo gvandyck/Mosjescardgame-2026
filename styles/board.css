@@ -818,53 +818,144 @@
 .mp-float {
    position: absolute;
    font-family: var(--font-display);
-   font-size: 1.4rem;
+   font-size: 2.25rem;
    font-weight: 900;
    pointer-events: none;
-   z-index: 100;
-   animation: mp-float-up 1.2s var(--ease-dramatic) forwards;
+   z-index: 240;
+   animation: mp-float-up 3.35s var(--ease-dramatic) forwards;
 }
 
-.mp-float.gain { color: #10b981; text-shadow: 0 0 20px rgba(16, 185, 129, 0.8); }
-.mp-float.loss { color: #ef4444; text-shadow: 0 0 20px rgba(239, 68, 68, 0.8); }
+.mp-float--big {
+   font-size: 3rem;
+}
+
+.mp-float--huge {
+   font-size: 4.4rem;
+   letter-spacing: 0;
+}
+
+.mp-float.gain { color: #34d399; text-shadow: 0 0 16px rgba(16, 185, 129, 1), 0 0 46px rgba(16, 185, 129, 0.72); }
+.mp-float.loss { color: #f87171; text-shadow: 0 0 16px rgba(239, 68, 68, 1), 0 0 46px rgba(239, 68, 68, 0.7); }
 
 @keyframes mp-float-up {
-   0% { transform: translateY(0) scale(0.8); opacity: 1; }
-   40% { transform: translateY(-30px) scale(1.1); opacity: 1; }
-   100% { transform: translateY(-70px) scale(0.9); opacity: 0; }
+   0% { transform: translate(-50%, 0) scale(0.45) rotate(-5deg); opacity: 0; }
+   10% { transform: translate(-50%, -18px) scale(1.35) rotate(2deg); opacity: 1; }
+   82% { transform: translate(-50%, -62px) scale(1.05) rotate(-1deg); opacity: 1; }
+   100% { transform: translate(-50%, -112px) scale(0.85) rotate(4deg); opacity: 0; }
 }
 
 @keyframes level-up-burst {
-   0% { transform: scale(1); box-shadow: 0 0 0 0 var(--mosje-glow); }
-   30% { transform: scale(1.06); box-shadow: 0 0 0 20px transparent; }
-   60% { transform: scale(0.98); }
+   0% { transform: scale(1); box-shadow: 0 0 0 0 var(--mosje-glow); filter: brightness(1); }
+   24% { transform: scale(1.2) rotate(-2deg); box-shadow: 0 0 0 34px rgba(232, 185, 79, 0.26), 0 0 80px rgba(232, 185, 79, 0.48); filter: brightness(1.9) saturate(1.4); }
+   58% { transform: scale(0.95) rotate(1deg); box-shadow: 0 0 0 10px rgba(232, 185, 79, 0.12); filter: brightness(1.35); }
    100% { transform: scale(1); box-shadow: 0 0 0 0 transparent; }
 }
 
 .card--mosje.level-up {
-   animation: level-up-burst 0.8s var(--ease-snap);
+   animation: level-up-burst 1.15s var(--ease-snap);
 }
 
 .level-up-text {
    position: fixed;
    font-family: var(--font-display);
-   font-size: 3rem;
-   letter-spacing: 0.15em;
+   font-size: 5rem;
+   letter-spacing: 0;
    color: var(--mosje-gold);
-   text-shadow: 0 0 40px var(--mosje-glow), 0 0 80px rgba(232, 185, 79, 0.3);
+   text-shadow: 0 0 28px var(--mosje-glow), 0 0 90px rgba(232, 185, 79, 0.55), 0 4px 0 rgba(0, 0, 0, 0.55);
    pointer-events: none;
-   z-index: 200;
-   animation: level-up-text 2s var(--ease-dramatic) forwards;
+   z-index: 260;
+   animation: level-up-text 3.35s var(--ease-dramatic) forwards;
 }
 
 @keyframes level-up-text {
-   0% { opacity: 0; transform: translate(-50%, -30%) scale(0.5); }
-   25% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
-   75% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-   100% { opacity: 0; transform: translate(-50%, -70%) scale(0.9); }
+   0% { opacity: 0; transform: translate(-50%, -24%) scale(0.35) rotate(-8deg); }
+   16% { opacity: 1; transform: translate(-50%, -50%) scale(1.28) rotate(2deg); }
+   82% { opacity: 1; transform: translate(-50%, -50%) scale(1.02) rotate(0deg); }
+   100% { opacity: 0; transform: translate(-50%, -86%) scale(0.86) rotate(5deg); }
 }
 
 /* ── MODALS ──────────────────────────────────────────────────────── */
+.turn-transition {
+   position: fixed;
+   top: 104px;
+   left: 50%;
+   z-index: 250;
+   pointer-events: none;
+   transform: translateX(-50%);
+   min-width: min(460px, calc(100vw - 32px));
+   padding: 0.9rem 1.45rem;
+   border: 2px solid rgba(52, 211, 153, 0.72);
+   border-radius: 6px;
+   background:
+      linear-gradient(90deg, rgba(6, 78, 59, 0.9), rgba(8, 12, 26, 0.94) 34%, rgba(8, 12, 26, 0.94) 66%, rgba(120, 53, 15, 0.9));
+   color: #ecfdf5;
+   box-shadow:
+      0 22px 50px rgba(0, 0, 0, 0.5),
+      0 0 24px rgba(52, 211, 153, 0.42),
+      0 0 56px rgba(232, 185, 79, 0.20);
+   font-family: var(--font-display);
+   font-size: 1.35rem;
+   font-weight: 800;
+   letter-spacing: 0;
+   text-align: center;
+   text-shadow: 0 2px 0 rgba(0, 0, 0, 0.65), 0 0 18px rgba(52, 211, 153, 0.55);
+   animation: turn-transition-in 3.35s var(--ease-dramatic) forwards;
+}
+
+.turn-transition--end {
+   color: #fff7ed;
+   border-color: rgba(251, 191, 36, 0.72);
+   background:
+      linear-gradient(90deg, rgba(120, 53, 15, 0.92), rgba(8, 12, 26, 0.94) 34%, rgba(8, 12, 26, 0.94) 66%, rgba(6, 78, 59, 0.86));
+   box-shadow:
+      0 22px 50px rgba(0, 0, 0, 0.5),
+      0 0 24px rgba(251, 191, 36, 0.38),
+      0 0 56px rgba(52, 211, 153, 0.14);
+   text-shadow: 0 2px 0 rgba(0, 0, 0, 0.65), 0 0 18px rgba(251, 191, 36, 0.48);
+}
+
+@keyframes turn-transition-in {
+   0% { opacity: 0; transform: translate(-50%, -18px) scale(0.82); }
+   12% { opacity: 1; transform: translate(-50%, 0) scale(1.08); }
+   84% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+   100% { opacity: 0; transform: translate(-50%, -12px) scale(0.96); }
+}
+
+.card-activation-burst {
+   position: fixed;
+   z-index: 245;
+   pointer-events: none;
+   transform: translate(-50%, -50%);
+   border: 3px solid rgba(253, 230, 138, 0.95);
+   border-radius: 8px;
+   box-shadow: 0 0 34px rgba(232, 185, 79, 0.85), inset 0 0 28px rgba(232, 185, 79, 0.28);
+   background: radial-gradient(circle, rgba(253, 230, 138, 0.2), rgba(253, 230, 138, 0.02) 55%, transparent 72%);
+   animation: card-activation-burst 0.72s var(--ease-dramatic) forwards;
+}
+
+@keyframes card-activation-burst {
+   0% { opacity: 0; transform: translate(-50%, -50%) scale(0.76) rotate(-4deg); }
+   20% { opacity: 1; transform: translate(-50%, -50%) scale(1.12) rotate(2deg); }
+   70% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.34) rotate(0deg); }
+   100% { opacity: 0; transform: translate(-50%, -50%) scale(1.58) rotate(5deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+   .turn-transition,
+   .mp-float,
+   .card--mosje.level-up,
+   .level-up-text,
+   .card-activation-burst,
+   .card.card-activating,
+   .piecie-slot.card-activating,
+   .place-effect-banner,
+   .log-entry,
+   .log-row {
+      animation: none !important;
+      transition: none !important;
+   }
+}
+
 .modal-root {
    display: none;
 }

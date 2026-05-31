@@ -412,25 +412,50 @@
 }
 
 @keyframes card-play {
-  0% { transform: translateY(-40px) scale(0.8); opacity: 0; }
-  60% { transform: translateY(4px) scale(1.02); opacity: 1; }
-  100% { transform: translateY(0) scale(1); opacity: 1; }
+  0% { transform: translateY(-24px) scale(0.9) rotate(-2deg); opacity: 0; filter: brightness(1.45) saturate(1.2); }
+  48% { transform: translateY(3px) scale(1.06) rotate(1deg); opacity: 1; filter: brightness(1.28) saturate(1.15); }
+  74% { transform: translateY(-2px) scale(0.99) rotate(0deg); opacity: 1; filter: brightness(1.12) saturate(1.05); }
+  100% { transform: translateY(0) scale(1); opacity: 1; filter: brightness(1) saturate(1); }
 }
 
 .card.just-played {
-  animation: card-play 0.45s var(--ease-dramatic) forwards;
+  animation: card-play 0.5s var(--ease-dramatic) forwards;
 }
 
 @keyframes card-shake {
   0%, 100% { transform: translateX(0); }
-  20% { transform: translateX(-6px) rotate(-1deg); }
-  40% { transform: translateX(6px) rotate(1deg); }
-  60% { transform: translateX(-4px); }
-  80% { transform: translateX(4px); }
+  15% { transform: translateX(-7px) rotate(-1.5deg) scale(1.01); }
+  34% { transform: translateX(6px) rotate(1.5deg) scale(1.015); }
+  54% { transform: translateX(-4px) rotate(-1deg); }
+  74% { transform: translateX(3px) rotate(0.75deg); }
 }
 
 .card.taking-damage {
-  animation: card-shake 0.4s var(--ease-smooth);
+  animation: card-shake 0.44s var(--ease-smooth);
+}
+
+@keyframes card-activate-pulse {
+  0% { transform: scale(1) rotate(0deg); filter: brightness(1); }
+  32% { transform: scale(1.16) rotate(-2deg); filter: brightness(2) saturate(1.55); }
+  62% { transform: scale(0.96) rotate(1deg); filter: brightness(1.45) saturate(1.25); }
+  100% { transform: scale(1) rotate(0deg); filter: brightness(1); }
+}
+
+.card.card-activating,
+.piecie-slot.card-activating {
+  animation: card-activate-pulse 0.62s var(--ease-dramatic);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card.just-played,
+  .card.taking-damage,
+  .card.card-activating,
+  .piecie-slot.card-activating,
+  .hand-card--dragging,
+  .hand-card-wrap {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
 @keyframes card-slide-in {
