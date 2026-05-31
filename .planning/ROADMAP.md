@@ -346,7 +346,14 @@ Plans:
 4. 664+ tests pass, 0 simulation crashes
 5. card-reference.md updated: all items that are now implemented changed to `implemented`; all remaining deferred items given a specific reason naming the missing primitive
 
-**Plans:** (to be created)
+**Plans:** 5 plans
+
+Plans:
+- [ ] 12-01-PLAN.md — Engine wiring: MP_LOSS_HALVED, MP_LOSS_REDUCTION, WELLOE_SHIELD checks wired into loseMP() and markMosjeDefeated(); fix FF Haaltje Nemen ReferenceError; restore push site values
+- [ ] 12-02-PLAN.md — Flag wiring: negateNextSearch in phaseDrawCard, STUB-05 verification, dingetjeToch documentation, SNOEIERTJE_COST dead push removal
+- [ ] 12-03-PLAN.md — Place mechanics: Dierenasiel 0-MP guard and Synergy Chamber cost reduction in useMosjeAbility
+- [ ] 12-04-PLAN.md — UI-gated interactions: Bagga of Greed discard picker, Welloe Force redirect target, MP Adjuster value picker (via existing modal functions)
+- [ ] 12-05-PLAN.md — Deferred docs: Emergency Swap and Huisbaas DEFERRED comments, FPS West/Ronald Chef flag comments, card-reference.md full update
 
 ---
 
