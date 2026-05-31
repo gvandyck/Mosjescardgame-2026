@@ -11,9 +11,9 @@ This document is the final Phase 11 master card inventory, generated from the li
 
 ## Card Counts
 - Mosje: 34
-- Piecie: 64
+- Piecie: 68
 - Snelle Piecie: 19
-- Place: 16
+- Place: 17
 - Quest (General + Personal): 44
 
 ## Mosje (34)
@@ -74,6 +74,10 @@ This document is the final Phase 11 master card inventory, generated from the li
 | controller | Controller | DIGITAL-EQUIPMENT | yes | no | free | gainMP+ifThenElse | implemented |
 | keyboard | Keyboard | DIGITAL-EQUIPMENT | yes | no | free | gainMP+drawCards | implemented |
 | mouse | Mouse | DIGITAL-EQUIPMENT | yes | no | free | gainMP+ifThenElse | implemented |
+| dumbbells | Dumbbells | PHYSICAL-EQUIPMENT | no | no | free | FIGHTING Mosje: +20 MP; level 3: draw 1 | implemented |
+| boxing-gloves | Boxing Gloves | PHYSICAL-EQUIPMENT | no | no | free | Physical ★★+: +25 MP; GANDOE: +40 MP + MP_LOSS_HALVED 1 turn | implemented |
+| skipping-rope | Skipping Rope | PHYSICAL-EQUIPMENT | no | no | free | FIGHTING: +1 quest roll + draw 1; else: draw 1 only | implemented |
+| protein-shake | Protein Shake | PHYSICAL-EQUIPMENT + FOOD | no | no | free | FIGHTING: +25 MP; Boxing Ring active: +35 MP | implemented |
 | chefs-special | Chef's Special | FOOD | no | no | 10 MP, lvl 1+ | ifThenElse | advanced |
 | dikke-jonko | Dikke Jonko | FOOD | no | no | free | gainMP+forEachTarget+drawCards+forEachTarget | advanced |
 | ronald-kip | Ronald Kip | FOOD | no | no | free | gainMP | advanced |
@@ -153,6 +157,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 | ID | Name | Group | Starter | Booster | Cost | Effect (aligned) | Status |
 |---|---|---|---|---|---|---|---|
 | place_arcade | Arcade | PLACE | yes | no | free | quest_completed, Technical 2+, +15 MP | implemented |
+| place_boxing_ring | Boxing Ring | PLACE | no | no | free | END_PHASE: FIGHTING +10 MP, non-FIGHTING -5 MP; ON_QUEST: Physical +15 MP (GANDOE: +25 MP) | implemented |
 | place_bank_chilling | Bank Chilling | PLACE | yes | no | free | turn_start, Social 2+, +15 MP | implemented |
 | place_coerts_caravan | Coert's Caravan | PLACE | yes | no | free | turn_start, Coert Mosje only, +15 MP | implemented |
 | place_delluft | Delluft | PLACE | no | no | free | turn_end, all draw 1 card; SUBSTANCE cost 0 (UI flag) | advanced |
@@ -164,7 +169,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 | place_quest_haven | Quest Haven | PLACE | yes | no | free | quest_completed, +10 MP; 2-quest bonus +25 MP (UI tracked) | implemented |
 | place_skiffa | Skiffa | PLACE | no | no | free | turn_end, -15 MP unless SUBSTANCE trait 1+ | advanced |
 | place_synergy_chamber | Synergy Chamber | PLACE | no | no | free | getSynergyChambercostReduction() wired in useMosjeAbility(); -5 MP pre-adjustment applied before ability dispatch (STUB-10); duration reduction deferred to UI phase | implemented |
-| place_the_gym | The Gym | PLACE | yes | no | free | turn_end, Physical 3→+35, Physical 2→+25, else -10 MP | implemented |
+| place_the_gym | The Gym | PLACE | yes | no | free | END_PHASE: Physical ★★★ +35 MP, Physical ★★ +25 MP, CLESS +20 MP, else -10 MP | implemented |
 | place_the_void | The Void | PLACE | no | no | free | turn_end, all -15 MP; RESTORE/FOOD restriction via void_active flag | advanced |
 | place_welloe_graveyard | Welloe Graveyard | PLACE | no | no | free | mosje_defeated, +20 MP + draw 1 card for that player | advanced |
 | place_zo_is_natuur | Zo is Natuur | PLACE | yes | no | free | turn_end, Resilient 1+→+15 MP, else +10 MP | implemented |
@@ -282,3 +287,12 @@ This document is the final Phase 11 master card inventory, generated from the li
 - STUB-13: Huisbaas — blocking primitive: deck-search-modal (filter by card type PLACE) + activatePlace call
 - STUB-16: FPS West — blocking primitive: opponent hand reveal UI in boardRenderer.js (opponentHandPeeked flag)
 - STUB-16: Ronald Chef — blocking primitive: peek-reveal modal showing top 2 deck card names (_ronaldPeek flag)
+
+### Phase 14 Notes (Physical Equipment Cards & Boxing Ring)
+
+- Added 4 PHYSICAL-EQUIPMENT Piecies: Dumbbells, Boxing Gloves, Skipping Rope, Protein Shake
+- Added 1 new Place: Boxing Ring (END_PHASE + ON_QUEST dual trigger via resolvePlaceEffect bypass)
+- Updated The Gym: CLESS-tagged Mosjes gain +20 MP instead of losing 10 MP (PHYS-06)
+- Boxing Gloves: GANDOE path pushes MP_LOSS_HALVED turnsLeft:1 (consumed by mpManager.js / loseMP())
+- Protein Shake: bonus tier (+35 MP) when activePlace === 'place_boxing_ring' (vs +25 MP base)
+- Boxing Ring bypass placed before trigger guard in resolvePlaceEffect — handles both ON_QUEST and END_PHASE without switch case
