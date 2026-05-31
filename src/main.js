@@ -669,7 +669,11 @@ function initGamePage() {
 
 		const activeMosje = gameState.players[localPlayerId].activeSlots.find(s => s && !s.isDefeated);
 		if (!canAttemptGeneralQuest(questDef, gameState, localPlayerId)) {
-			log.add('quest', `Cannot attempt ${questDef.name} — active Mosje has negative MP.`);
+			const isQuestBlocked = activeMosje?.statusEffects?.some(e => e.type === 'QUEST_BLOCKED');
+			const blockReason = isQuestBlocked
+				? `quest blocked this turn (Tikker effect — cannot attempt Quests).`
+				: `active Mosje has negative MP.`;
+			log.add('quest', `Cannot attempt ${questDef.name} — ${blockReason}`);
 			gameState.sharedGeneralQuestDiscard.push(questRef);
 			renderAndCheckWin();
 			return;
@@ -1103,7 +1107,13 @@ function initGamePage() {
 		if (!questDef) { modal.showInfo('Error', 'Quest card not found.'); return; }
 
 		if (!canAttemptPersonalQuest(questDef, gameState, localPlayerId)) {
-			modal.showInfo('Cannot Activate', `${questDef.name} requires its Mosje to be on the field.`);
+			const player = gameState.players[localPlayerId];
+			const activeMosjeForBlock = player?.activeSlots?.find(s => s && !s.isDefeated);
+			const isQuestBlockedP = activeMosjeForBlock?.statusEffects?.some(e => e.type === 'QUEST_BLOCKED');
+			const pBlockReason = isQuestBlockedP
+				? `Quest blocked this turn (Tikker effect — cannot attempt Quests).`
+				: `${questDef.name} requires its Mosje to be on the field.`;
+			modal.showInfo('Cannot Activate', pBlockReason);
 			return;
 		}
 
