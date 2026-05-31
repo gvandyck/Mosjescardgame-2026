@@ -1,8 +1,8 @@
 # Project State
 
 **Last updated:** 2026-05-31
-**Current phase:** Phase 12 COMPLETE — next: Phase 13 (UI polish / next milestone)
-**Branch:** audit/unimplemented-stubs-and-mechanics → ready to merge to main
+**Current phase:** Phase 14 IN PROGRESS — 14-01 complete (Dumbbells/Boxing Gloves/Skipping Rope); 14-02 and 14-03 pending
+**Branch:** audit/unimplemented-stubs-and-mechanics
 
 ## Phase 11 Progress
 
@@ -101,6 +101,22 @@
 - Huisbaas PARTIAL: Place destruction implemented; deck-search-for-Place requires new searchDeck primitive
 - FPS West + Ronald Chef DEFERRED: engine flags set correctly; blocking primitive is opponent hand reveal UI in boardRenderer.js
 - card-reference.md deferred status added to legend; Phase 12 Wave 5 is the final audit wave — all stubs now either wired or tagged
+
+## Phase 14 Progress
+
+### 14-01: Physical Equipment Piecies — Dumbbells, Boxing Gloves, Skipping Rope (COMPLETE)
+- Created tests/effects/physical-equipment-scaling.test.ts (17 tests, TDD RED-then-GREEN)
+- Added PHYSICAL-EQUIPMENT block to src/data/piecies.js (3 card definitions)
+- Added effect_dumbbells, effect_boxing_gloves, effect_skipping_rope to src/abilities/piecieEffects.js
+- Dumbbells: flat 20 MP to FIGHTING Mosje; 5 MP base to others; draw 1 at FIGHTING level 3 only
+- Boxing Gloves: requires physical >= 2 trait; 25 MP standard; GANDOE tag → 40 MP + MP_LOSS_HALVED turnsLeft:1
+- Skipping Rope: questPrepBonus +1 if FIGHTING Mosje + draw 1; draw 1 only for non-FIGHTING
+- 708 tests passing (17 new tests; no regressions)
+
+### Decisions
+- Dumbbells flat 20 MP (not level-scaled) — PLAN.md truths take precedence over PATTERNS.md getPhysicalMP helper
+- GANDOE check: cardId.toLowerCase().includes('gandoe') — matches existing Coert's Caravan pattern
+- MP_LOSS_HALVED turnsLeft:1 for Boxing Gloves (not 2 like Bowie & Stormey) — 1-turn only per plan spec
 
 ## Phase 10 Complete (prior)
 
