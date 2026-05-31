@@ -166,13 +166,14 @@ describe('Equipment MP scaling (BAL-01)', () => {
       expect(result.players.player_1.activeSlots[0].mp).toBe(40);
     });
 
-    it('pushes QUEST_BLOCKED status effect with turnsLeft=1', () => {
+    it('pushes QUEST_BLOCKED status effect with turnsLeft=1 and value=0', () => {
       const state = makeState({ subtype: 'DIGITAL', level: 1 });
       const result = effect_tikker(state, 'player_1');
       const statusEffects = result.players.player_1.activeSlots[0].statusEffects;
       const blocked = statusEffects.find((e: { type: string }) => e.type === 'QUEST_BLOCKED');
       expect(blocked).toBeDefined();
       expect(blocked.turnsLeft).toBe(1);
+      expect(blocked.value).toBe(0);
     });
   });
 
@@ -194,14 +195,14 @@ describe('Equipment MP scaling (BAL-01)', () => {
 
     it('canAttemptGeneralQuest returns false when QUEST_BLOCKED is active', () => {
       const state = makeState({
-        statusEffects: [{ type: 'QUEST_BLOCKED', value: 1, turnsLeft: 1 }],
+        statusEffects: [{ type: 'QUEST_BLOCKED', value: 0, turnsLeft: 1 }],
       });
       expect(canAttemptGeneralQuest(GENERAL_QUEST, state, 'player_1')).toBe(false);
     });
 
     it('canAttemptPersonalQuest returns false when QUEST_BLOCKED is active', () => {
       const state = makeState({
-        statusEffects: [{ type: 'QUEST_BLOCKED', value: 1, turnsLeft: 1 }],
+        statusEffects: [{ type: 'QUEST_BLOCKED', value: 0, turnsLeft: 1 }],
       });
       expect(canAttemptPersonalQuest(PERSONAL_QUEST, state, 'player_1')).toBe(false);
     });
