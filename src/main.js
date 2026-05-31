@@ -5,6 +5,7 @@ import { renderBoard, showPlaceEffectBanner } from './ui/boardRenderer.js';
 import { createLogRenderer } from './ui/logRenderer.js';
 import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
+import { animateFieldActivation, animateStateDelta, showTurnTransition } from './ui/actionAnimations.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes } from './engine/gameState.js';
 import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, playPersonalQuest, activatePersonalQuest } from './engine/turnManager.js';
 import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold } from './abilities/questLogic.js';
@@ -376,6 +377,20 @@ function initGamePage() {
 		}
 	}
 
+	function snapshotForAnimation(state = gameState) {
+		if (!state) return null;
+		return JSON.parse(JSON.stringify(state));
+	}
+
+	function renderAndAnimate(beforeState, options = {}) {
+		renderAndCheckWin();
+		animateStateDelta(beforeState, gameState, {
+			actorId: localPlayerId,
+			localPlayerId,
+			...options,
+		});
+	}
+
 	// ── Bot vs Bot loop — drives both players with per-action delays ────
 	function runBotVsBotLoop() {
 		if (!gameState || gameState.status === 'FINISHED') return;
@@ -588,15 +603,17 @@ function initGamePage() {
 			modal.showInfo('Not Your Turn', 'Wait for your opponent to end their turn.');
 			return;
 		}
+		const beforeTurnChange = snapshotForAnimation();
 		const previousPlayerName = gameState.players[gameState.activePlayerId].name;
 		gameState = endTurn(gameState);
 		if (gameState.status !== 'FINISHED') {
 			gameState = startTurn(gameState);
 		}
 
-		renderAndCheckWin();
+		renderAndAnimate(beforeTurnChange, { actionLabel: 'turn-change' });
 		syncPush();
 		log.add('quest', `${previousPlayerName} ended their turn.`);
+		showTurnTransition({ playerName: previousPlayerName, type: 'end' });
 
 		if (gameState.status === 'FINISHED') {
 			handleGameOver(gameState);
@@ -606,6 +623,7 @@ function initGamePage() {
 		const activeName = gameState.players[gameState.activePlayerId].name;
 		log.add('gain', `Now active: ${activeName}. Turn ${gameState.turnNumber}.`);
 		logTurnTrickle(gameState.activePlayerId);
+		showTurnTransition({ playerName: activeName, turnNumber: gameState.turnNumber, type: 'start' });
 
 		// Bot vs Bot mode: current player was already advanced by endTurn/startTurn above — kick off next bot
 		if (isBotVsBot && gameState.status !== 'FINISHED') {
@@ -629,10 +647,21 @@ function initGamePage() {
 
 			playBotSteps(steps, botName, 0, 400, () => {
 				if (gameState.status === 'FINISHED') return;
+				const beforeHumanTurn = snapshotForAnimation();
 				gameState = startTurn(gameState);
 				renderFromState(gameState);
+				animateStateDelta(beforeHumanTurn, gameState, {
+					actorId: localPlayerId,
+					localPlayerId,
+					actionLabel: 'turn-start',
+				});
 				log.add('gain', `Now active: ${gameState.players[gameState.activePlayerId]?.name}. Turn ${gameState.turnNumber}.`);
 				logTurnTrickle(gameState.activePlayerId);
+				showTurnTransition({
+					playerName: gameState.players[gameState.activePlayerId]?.name,
+					turnNumber: gameState.turnNumber,
+					type: 'start',
+				});
 				if (endTurnBtn) endTurnBtn.disabled = false;
 			});
 		}
@@ -760,13 +789,13 @@ function initGamePage() {
 			await modal.showRevealedCard('Geen Raad — Card Revealed', actualCardName, actualCardType);
 
 			const didSucceed = guess === actualCardType;
-			const beforeResolve = gameState;
+			const beforeResolve = snapshotForAnimation();
 			gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed, firstSlotIndex);
 			gameState.activeQuest = null;
 			if (!Array.isArray(gameState.sharedGeneralQuestDiscard)) gameState.sharedGeneralQuestDiscard = [];
 			gameState.sharedGeneralQuestDiscard.push(questRef);
 
-			renderAndCheckWin();
+			renderAndAnimate(beforeResolve, { actionLabel: 'quest-resolution' });
 			syncPush();
 
 			log.add(didSucceed ? 'gain' : 'loss',
@@ -814,7 +843,7 @@ function initGamePage() {
 				recoveryHappened = true;
 			}
 			if (recoveryHappened) {
-				renderAndCheckWin();
+				renderAndAnimate(beforeResolve, { actionLabel: 'quest-recovery' });
 				syncPush();
 			}
 			return;
@@ -847,14 +876,14 @@ function initGamePage() {
 
 		function runGeneralQuestDiceRoll(targetSlotIndex) {
 			modal.showDiceRoll(questDef, threshold, (didSucceed) => {
-				const beforeResolve = gameState;
+				const beforeResolve = snapshotForAnimation();
 				gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed, targetSlotIndex);
 				gameState.activeQuest = null;
 				if (!Array.isArray(gameState.sharedGeneralQuestDiscard)) {
 					gameState.sharedGeneralQuestDiscard = [];
 				}
 				gameState.sharedGeneralQuestDiscard.push(questRef);
-				renderAndCheckWin();
+				renderAndAnimate(beforeResolve, { actionLabel: 'quest-resolution' });
 				syncPush();
 
 				const mpDelta = didSucceed ? questDef.successMP : questDef.failMP;
@@ -918,6 +947,7 @@ function initGamePage() {
 		const handCard = personalQuestsInHand[0];
 		const questDef = CARD_LOOKUP[handCard.cardId];
 
+		const beforePlay = snapshotForAnimation();
 		const { state: newState, success, error } = playPersonalQuest(gameState, localPlayerId, handCard);
 		if (!success) {
 			modal.showInfo('Cannot Place', error || 'Cannot place this Quest right now.');
@@ -926,7 +956,7 @@ function initGamePage() {
 		gameState = newState;
 		log.add('quest', `Placed ${questDef?.name || 'Personal Quest'} face-down. Activate it next turn.`);
 		syncPush();
-		renderFromState(gameState);
+		renderAndAnimate(beforePlay, { actionLabel: 'play-personal-quest', placedCardId: questDef?.id });
 	});
 
 	function renderFromState(state) {
@@ -1018,7 +1048,9 @@ function initGamePage() {
 	async function handleUseAbility(mosjeId) {
 		if (!gameState || gameState.status === 'FINISHED') return;
 
-		const beforeAbility = gameState;
+		const beforeAbility = snapshotForAnimation();
+		const abilitySlotIndex = gameState.players[localPlayerId]?.activeSlots
+			?.findIndex(slot => slot && slot.cardId === mosjeId && !slot.isDefeated);
 
 		// West — Tactical Calculated Guess: pick card type → reveal top of deck → resolve
 		if (WEST_CALCULATED_GUESS_IDS.has(mosjeId)) {
@@ -1057,6 +1089,14 @@ function initGamePage() {
 				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
 				return;
 			}
+			if (abilitySlotIndex >= 0) {
+				animateFieldActivation({
+					zone: 'mosje',
+					playerId: localPlayerId,
+					slotIndex: abilitySlotIndex,
+					cardId: mosjeId,
+				});
+			}
 			gameState = newState;
 
 			const slot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
@@ -1072,7 +1112,7 @@ function initGamePage() {
 				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
 				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
 			}
-			renderAndCheckWin();
+			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
 			return;
 		}
 
@@ -1080,6 +1120,14 @@ function initGamePage() {
 		if (!success) {
 			modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
 			return;
+		}
+		if (abilitySlotIndex >= 0) {
+			animateFieldActivation({
+				zone: 'mosje',
+				playerId: localPlayerId,
+				slotIndex: abilitySlotIndex,
+				cardId: mosjeId,
+			});
 		}
 		gameState = newState;
 
@@ -1096,7 +1144,7 @@ function initGamePage() {
 			log.add('win', `${winnerName} won by ${gameState.winReason}.`);
 			modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
 		}
-		renderAndCheckWin();
+		renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
 	}
 
 	async function handleActivatePersonalQuestFromField(slotIndex) {
@@ -1152,6 +1200,12 @@ function initGamePage() {
 
 		// Fires only after the player confirms a Mosje in the selection modal.
 		function onMosjeSelected(targetSlotIndex) {
+			animateFieldActivation({
+				zone: 'piecie',
+				playerId: localPlayerId,
+				slotIndex,
+				cardId: questDef.id,
+			});
 			// Commit: remove quest from field, discard, increment attempt counter.
 			const { state: activatedState, success, error } = activatePersonalQuest(gameState, localPlayerId, slotIndex);
 			if (!success) { modal.showInfo('Cannot Activate', error || 'Quest cannot be activated now.'); return; }
@@ -1186,7 +1240,7 @@ function initGamePage() {
 			const liveMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
 			const threshold = getQuestDiceThreshold(questDef, liveMosje);
 			modal.showDiceRoll(questDef, threshold, (didSucceed) => {
-				const beforeResolve = gameState;
+				const beforeResolve = snapshotForAnimation();
 				gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed, targetSlotIndex);
 				gameState.activeQuest = null;
 
@@ -1197,6 +1251,11 @@ function initGamePage() {
 					const handCardIds = (opponent?.hand || []).map(c => c.cardId || c.id || 'Unknown');
 					const opponentName = opponent?.name || 'Opponent';
 					renderFromState(gameState);
+					animateStateDelta(beforeResolve, gameState, {
+						actorId: localPlayerId,
+						localPlayerId,
+						actionLabel: 'quest-resolution',
+					});
 					syncPush();
 					modal.showHandViewerModal(handCardIds, opponentName, CARD_LOOKUP, () => {
 						const liveMosjeSlots = gameState.players[localPlayerId].activeSlots
@@ -1209,8 +1268,14 @@ function initGamePage() {
 								traits: slot.traits || CARD_LOOKUP[slot.cardId]?.traits || {},
 							}));
 						modal.showMosjeSelect(liveMosjeSlots, (selectedSlotIndex) => {
+							const beforePerfectGain = snapshotForAnimation();
 							gameState = gainMP(gameState, localPlayerId, selectedSlotIndex, 70);
 							renderFromState(gameState);
+							animateStateDelta(beforePerfectGain, gameState, {
+								actorId: localPlayerId,
+								localPlayerId,
+								actionLabel: 'quest-resolution',
+							});
 							syncPush();
 							log.add('gain', `Perfect Sync: Success → +70 MP`);
 							logStateOutcome(log, beforeResolve, gameState, localPlayerId, 'Perfect Sync resolution');
@@ -1220,6 +1285,11 @@ function initGamePage() {
 				}
 
 				renderFromState(gameState);
+				animateStateDelta(beforeResolve, gameState, {
+					actorId: localPlayerId,
+					localPlayerId,
+					actionLabel: 'quest-resolution',
+				});
 				syncPush();
 				const mpDelta = didSucceed ? questDef.successMP : questDef.failMP;
 				const sign = mpDelta >= 0 ? '+' : '';
@@ -1234,7 +1304,7 @@ function initGamePage() {
 
 	async function handleActivatePiecie(slotIndex) {
 		if (!gameState || gameState.status === 'FINISHED') return;
-		const beforeActivate = gameState;
+		const beforeActivate = snapshotForAnimation();
 
 		const slots = gameState.players[localPlayerId]?.piecieSlots;
 		console.log(`[UI] handleActivatePiecie: slotIndex=${slotIndex}`);
@@ -1284,6 +1354,12 @@ function initGamePage() {
 			modal.showInfo('Cannot Activate', error || 'That Piecie cannot be activated right now.');
 			return;
 		}
+		animateFieldActivation({
+			zone: 'piecie',
+			playerId: localPlayerId,
+			slotIndex,
+			cardId: piecieCardDef?.id || piecieSlot?.cardId,
+		});
 		gameState = newState;
 
 		const activatedName = cardDef?.name || 'Piecie';
@@ -1295,12 +1371,12 @@ function initGamePage() {
 		}
 		logStateOutcome(log, beforeActivate, gameState, localPlayerId, `${activatedName} activation`);
 		syncPush();
-		renderAndCheckWin();
+		renderAndAnimate(beforeActivate, { actionLabel: 'activate-piecie' });
 	}
 
 	function handleActivatePlace(slotIndex) {
 		if (!gameState || gameState.status === 'FINISHED') return;
-		const beforeActivate = gameState;
+		const beforeActivate = snapshotForAnimation();
 
 		const slots = gameState.players[localPlayerId]?.piecieSlots;
 		console.log(`[UI] handleActivatePlace: slotIndex=${slotIndex}`);
@@ -1312,6 +1388,12 @@ function initGamePage() {
 			modal.showInfo('Cannot Activate', error || 'That Place cannot be activated right now.');
 			return;
 		}
+		animateFieldActivation({
+			zone: 'piecie',
+			playerId: localPlayerId,
+			slotIndex,
+			cardId: slots?.[slotIndex]?.cardId,
+		});
 		gameState = newState;
 
 		const activatedName = cardDef?.name || 'Place';
@@ -1319,7 +1401,7 @@ function initGamePage() {
 		if (cardDef?.description) log.add('info', cardDef.description);
 		logStateOutcome(log, beforeActivate, gameState, localPlayerId, `${activatedName} activation`);
 		syncPush();
-		renderAndCheckWin();
+		renderAndAnimate(beforeActivate, { actionLabel: 'activate-place' });
 	}
 
 	function handleOpenDiscard(playerId, isOwned) {
@@ -1359,7 +1441,7 @@ function initGamePage() {
 
 		// Targeting cards: show selector, then dispatch with resolved targets
 		async function resolveTargetingCard(def, ref) {
-			const beforePlay = gameState;
+			const beforePlay = snapshotForAnimation();
 			const oppTargets = getOpponentMosjes(gameState, localPlayerId);
 			const ownTargets = getPlayerMosjes(gameState, localPlayerId);
 
@@ -1405,7 +1487,7 @@ function initGamePage() {
 				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
 				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
 			}
-			renderFromState(gameState);
+			renderAndAnimate(beforePlay, { actionLabel: 'play-piecie', placedCardId: def.id });
 		}
 
 		// Some cards target one of your own active Mosjes (e.g. Kannetje Melk, Jensen)
@@ -1438,7 +1520,7 @@ function initGamePage() {
 		}
 
 		if (cardType === 'PIECIE') {
-			const beforePlay = gameState;
+			const beforePlay = snapshotForAnimation();
 			const { state: newState, success, error } = playPiecie(gameState, localPlayerId, cardRef, cardDef);
 			if (!success) {
 				modal.showInfo('Cannot Play', error || 'That card cannot be played right now.');
@@ -1455,12 +1537,12 @@ function initGamePage() {
 				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
 				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
 			}
-			renderAndCheckWin();
+			renderAndAnimate(beforePlay, { actionLabel: 'play-piecie', placedCardId: cardDef.id });
 			return;
 		}
 
 		if (cardType === 'MOSJE') {
-			const beforePlay = gameState;
+			const beforePlay = snapshotForAnimation();
 			const { state: newState, success, error } = playMosje(gameState, localPlayerId, cardRef);
 			if (!success) {
 				modal.showInfo('Cannot Play', error || 'That Mosje cannot be played right now.');
@@ -1471,12 +1553,12 @@ function initGamePage() {
 			if (cardDef.abilityDescription) log.add('info', `Ability: ${cardDef.abilityDescription}`);
 			logStateOutcome(log, beforePlay, gameState, localPlayerId, `${cardDef.name} deployment`);
 			syncPush();
-			renderFromState(gameState);
+			renderAndAnimate(beforePlay, { actionLabel: 'play-mosje', placedCardId: cardDef.id });
 			return;
 		}
 
 		if (cardType === 'SNELLE_PIECIE') {
-			const beforePlay = gameState;
+			const beforePlay = snapshotForAnimation();
 			let snelleStateForPlay = gameState;
 			let resultLog = null; // set inside effect-specific branches to log outcome details
 			if (cardDef.effectId === 'effect_snelle_jensen') {
@@ -1533,7 +1615,7 @@ function initGamePage() {
 			if (cardDef.description) log.add('info', `Effect: ${cardDef.description}`);
 			logStateOutcome(log, beforePlay, gameState, localPlayerId, `${cardDef.name} instant activation`);
 			syncPush();
-			renderFromState(gameState);
+			renderAndAnimate(beforePlay, { actionLabel: 'play-snelle', placedCardId: cardDef.id });
 			return;
 		}
 
@@ -1547,6 +1629,7 @@ function initGamePage() {
 				return;
 			}
 
+			const beforePlay = snapshotForAnimation();
 			const { state: newState, success, error } = playPersonalQuest(gameState, localPlayerId, cardRef);
 			if (!success) {
 				modal.showInfo('Cannot Place', error || 'Cannot place this Quest right now.');
@@ -1555,12 +1638,12 @@ function initGamePage() {
 			gameState = newState;
 			log.add('quest', `Placed ${cardDef.name} face-down. Activate it next turn.`);
 			syncPush();
-			renderFromState(gameState);
+			renderAndAnimate(beforePlay, { actionLabel: 'play-personal-quest', placedCardId: cardDef.id });
 			return;
 		}
 
 		if (cardType === 'PLACE') {
-			const beforePlay = gameState;
+			const beforePlay = snapshotForAnimation();
 			const { state: newState, success, error } = playPlace(gameState, localPlayerId, cardRef, cardDef);
 			if (!success) {
 				modal.showInfo('Cannot Play', error || 'That card cannot be played right now.');
@@ -1577,7 +1660,7 @@ function initGamePage() {
 				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
 				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
 			}
-			renderAndCheckWin();
+			renderAndAnimate(beforePlay, { actionLabel: 'play-place', placedCardId: cardDef.id });
 		}
 	}
 }
@@ -1705,12 +1788,14 @@ function getSkiffaRerolls(gameState, playerId) {
 
 function toMosjeCards(activeSlots) {
 	return activeSlots
-		.filter(slot => slot !== null)
-		.map(slot => {
+		.map((slot, slotIndex) => ({ slot, slotIndex }))
+		.filter(({ slot }) => slot !== null)
+		.map(({ slot, slotIndex }) => {
 			const mosjeDef = MOSJES.find(m => m.id === slot.cardId);
 			const cost = mosjeDef?.abilityCost ?? null;
 			return {
 				cardId: slot.cardId,
+				slotIndex,
 				name: slot.name,
 				type: 'MOSJE',
 				mp: slot.mp,

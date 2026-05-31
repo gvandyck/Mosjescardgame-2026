@@ -40,7 +40,7 @@ function showToast(message) {
 	toast.className = 'sync-toast';
 	toast.textContent = String(message || '');
 	document.body.appendChild(toast);
-	setTimeout(() => toast.remove(), 2800);
+	setTimeout(() => toast.remove(), 3350);
 }
 
 // ── pushState ─────────────────────────────────────────────────────────────
