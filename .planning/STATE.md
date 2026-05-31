@@ -1,7 +1,7 @@
 # Project State
 
 **Last updated:** 2026-05-31
-**Current phase:** Phase 12 — In progress (5 plans, 5 waves) — Plan 02 complete
+**Current phase:** Phase 12 — In progress (5 plans, 5 waves) — Plan 03 complete
 **Branch:** audit/unimplemented-stubs-and-mechanics
 
 ## Phase 11 Progress
@@ -65,11 +65,20 @@
 - STUB-08: dead SNOEIERTJE_COST push removed from effect_snoeiertje
 - 3 new tests added; 684 tests passing
 
+### 12-03: Dierenasiel 0-MP Guard + Synergy Chamber Cost Reduction (COMPLETE)
+- dierenasielWaiver constant documented at useMosjeAbility engine call site (STUB-09)
+- Synergy Chamber cost reduction pre-adjustment wired before fn() dispatch (STUB-10)
+- placeEffects.getSynergyChambercostReduction() call established in turnManager.js
+- 7 new tests added (Tests 17–23); 691 tests passing
+
 ### Decisions
 - negateNextSearch guard placed inside if (isOpponentTriggered) — natural turn draws never negated
 - STUB-05 needed no code change — doubleNextPiecie block already exists and works
 - STUB-07 is entirely UI-side — engine comment enhancement is the complete deliverable for this wave
 - SNOEIERTJE_COST push removal confirmed safe (no test relied on it)
+- Dierenasiel guard is documentation-only — engine has no cost gate; dierenasielWaiver logs and documents UI responsibility
+- Synergy Chamber reduction applied as pre-MP-adjustment (stateForAbility clone with s.mp += 5) rather than changing every individual ability function
+- stateForAbility clone only created when synergyDiscount > 0 AND mosjeDef.abilityCost > 0
 
 ## Phase 10 Complete (prior)
 
