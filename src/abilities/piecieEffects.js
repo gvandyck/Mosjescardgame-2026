@@ -261,9 +261,10 @@ export function effect_snoeiertje(gameState, playerId) {
 	if (!player) return state;
 	const si = getFirstActiveSlotIndex(player);
 	if (si < 0) return state;
+	// questBonusMP handles the real logic (+15 MP on quest success this turn).
+	// STUB-08: SNOEIERTJE_COST status effect push removed — it was never consumed anywhere.
 	player.questBonusMP = (player.questBonusMP || 0) + 15;
-	player.activeSlots[si].statusEffects.push({ type: 'SNOEIERTJE_COST', value: -15, turnsLeft: 1 });
-	console.log('[ABILITY] Snoeiertje: +15 quest drain, -15 MP end of turn');
+	console.log('[ABILITY] Snoeiertje: +15 quest bonus MP applied');
 	return state;
 }
 
