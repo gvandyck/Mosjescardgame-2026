@@ -83,6 +83,23 @@ export function startTurn(gameState) {
       slot.abilityUsedThisTurn = false;
       slot.immuneThisTurn = false;
       slot.mpLostThisTurn = 0;
+      // MP Adjuster: reverse the temporary delta applied last turn
+      if (slot._mpAdjustDelta !== undefined) {
+        slot.mp = Math.max(0, slot.mp - slot._mpAdjustDelta);
+        console.log(`[ENGINE] MP Adjuster: reverted ${slot._mpAdjustDelta} MP delta for ${playerId}`);
+        delete slot._mpAdjustDelta;
+      }
+    }
+  }
+
+  // Welloe Force: decrement turn counter when the card owner's turn starts
+  if (state._welloeForceActive?.ownerId === playerId) {
+    state._welloeForceActive.turnsRemaining -= 1;
+    if (state._welloeForceActive.turnsRemaining <= 0) {
+      delete state._welloeForceActive;
+      console.log('[ENGINE] Welloe Force: 3-turn redirect expired');
+    } else {
+      console.log(`[ENGINE] Welloe Force: ${state._welloeForceActive.turnsRemaining} turn(s) remaining`);
     }
   }
 

@@ -701,13 +701,16 @@ export function effect_call_of_welloes(gameState, playerId) {
 }
 
 export function effect_welloe_force(gameState, playerId) {
-	// Redirect resolving effect — complex; just discard 1 for now.
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
-	if (!player || player.hand.length === 0) return state;
-	player.discard.unshift(player.hand.shift());
-	state._welloeForceActive = true;
-	console.log('[ABILITY] Welloe Force: discard 1, redirect pending UI');
+	if (!player) return state;
+	const si = getFirstActiveSlotIndex(player);
+	if (si < 0) return state;
+	// Pay 40 MP activation cost from active Mosje
+	applyDamage(player.activeSlots[si], 40);
+	// Set 3-turn damage redirect. UI picks the target opponent Mosje.
+	state._welloeForceActive = { ownerId: playerId, turnsRemaining: 3, targetSlotId: null };
+	console.log('[ABILITY] Welloe Force: paid 40 MP, 3-turn redirect active, target pending UI');
 	return state;
 }
 

@@ -1286,15 +1286,14 @@ function initGamePage() {
 		}
 		gameState = newState;
 
-		// ── STUB-11: Bagga of Greed — discard 1 of 2 drawn cards ──────────────────
+		// ── STUB-11: Bagga of Greed — discard 1 from entire hand ─────────────────
 		if (gameState._baggaDiscard) {
 			const hand = gameState.players[localPlayerId].hand;
-			// The 2 drawn cards are the last 2 entries in hand
-			const drawnCards = hand.slice(-2).map(c => {
+			const allCards = hand.map(c => {
 				const def = CARD_LOOKUP[c.cardId] || {};
 				return { cardId: c.cardId, name: def.name || c.cardId, description: def.description || '' };
 			});
-			const cardToDiscard = await modal.showCardChoice('Bagga of Greed — Discard a Card', drawnCards);
+			const cardToDiscard = await modal.showCardChoice('Bagga of Greed — Discard a Card', allCards);
 			if (cardToDiscard) {
 				const idx = gameState.players[localPlayerId].hand.findIndex(c => c.cardId === cardToDiscard.cardId);
 				if (idx >= 0) {
@@ -1306,35 +1305,42 @@ function initGamePage() {
 			delete gameState._baggaDiscard;
 		}
 
-		// ── STUB-14: Welloe Force — choose damage redirect target ─────────────────
-		if (gameState._welloeForceActive) {
-			// Build options from all non-defeated Mosje slots across all players
-			const activeMosjeSlots = [];
-			for (const [pid, p] of Object.entries(gameState.players)) {
-				p.activeSlots.forEach((slot, idx) => {
+		// ── STUB-14: Welloe Force — pick opponent Mosje as redirect target ────────
+		if (gameState._welloeForceActive?.targetSlotId === null) {
+			const oppId = Object.keys(gameState.players).find(id => id !== localPlayerId);
+			const oppSlots = [];
+			if (oppId) {
+				gameState.players[oppId].activeSlots.forEach((slot, idx) => {
 					if (slot && !slot.isDefeated) {
-						activeMosjeSlots.push({ id: `${pid}_slot_${idx}`, label: slot.name, metaLabel: `${slot.mp} MP` });
+						oppSlots.push({ id: `${oppId}_slot_${idx}`, label: slot.name, metaLabel: `${slot.mp} MP` });
 					}
 				});
 			}
-			const targetId = await modal.showOptionSelect({
-				title: 'Welloe Force — Redirect Damage',
-				prompt: 'Choose a Mosje to redirect the next incoming damage to.',
-				options: activeMosjeSlots,
-				allowCancel: false,
-			});
-			// Store as _welloeForceTarget for damage-redirect consumer (future wave)
-			gameState._welloeForceTarget = targetId;
-			delete gameState._welloeForceActive;
-			console.log('[UI] Welloe Force: redirect target set to', targetId);
+			if (oppSlots.length === 1) {
+				gameState._welloeForceActive.targetSlotId = oppSlots[0].id;
+				console.log('[UI] Welloe Force: auto-selected only target', oppSlots[0].id);
+			} else if (oppSlots.length > 1) {
+				const targetId = await modal.showOptionSelect({
+					title: 'Welloe Force — Redirect Damage',
+					prompt: 'Choose a Mosje to redirect all incoming damage to (3 turns).',
+					options: oppSlots,
+					allowCancel: false,
+				});
+				gameState._welloeForceActive.targetSlotId = targetId;
+				console.log('[UI] Welloe Force: redirect target set to', targetId);
+			} else {
+				// No opponent Mosjes on field — cancel the effect
+				delete gameState._welloeForceActive;
+				console.log('[UI] Welloe Force: no opponent targets, effect cancelled');
+			}
 		}
 
-		// ── STUB-15: MP Adjuster — choose exact MP value ───────────────────────────
+		// ── STUB-15: MP Adjuster — choose exact MP value (temporary until next turn) ──
 		if (gameState._mpAdjusterPending) {
 			const { playerId: mpPlayerId, slotIndex: mpSlotIndex } = gameState._mpAdjusterPending;
 			const chosen = await modal.showOptionSelect({
 				title: 'MP Adjuster',
-				prompt: 'Choose the MP value to set.',
+				prompt: 'Choose the MP value to set (reverts at start of your next turn).',
 				options: [
 					{ id: '20', label: '20 MP' },
 					{ id: '40', label: '40 MP' },
@@ -1344,10 +1350,13 @@ function initGamePage() {
 				],
 				allowCancel: false,
 			});
-			const mpValue = Number(chosen);  // always valid: allowCancel:false + non-empty options
-			gameState.players[mpPlayerId].activeSlots[mpSlotIndex].mp = mpValue;
+			const mpValue = Number(chosen);
+			const slot = gameState.players[mpPlayerId].activeSlots[mpSlotIndex];
+			const delta = mpValue - slot.mp;
+			slot._mpAdjustDelta = delta;
+			slot.mp = mpValue;
 			delete gameState._mpAdjusterPending;
-			console.log('[UI] MP Adjuster: set to', mpValue, 'MP');
+			console.log('[UI] MP Adjuster: set to', mpValue, 'MP (delta', delta, ', reverts next turn start)');
 		}
 
 		const activatedName = cardDef?.name || 'Piecie';
