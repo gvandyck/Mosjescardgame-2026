@@ -144,6 +144,7 @@ export const MOSJES = [
     startMP: 0,
     traits: { physical: 3, resilient: 2 },
     abilityId: "ability_gandoe_destroyer_elimination_strike",
+    abilityCost: 80,
     abilityDescription: "Elimination Strike: Pay 80 MP once per game to send the opponent lowest-level Mosje directly to the Welloe pile.",
     synergyWith: ["mosje_michelle"],
     synergyEffect: "Physical quests give +15 bonus MP when Michelle is also active",

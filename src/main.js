@@ -1045,6 +1045,7 @@ function initGamePage() {
 
 	const WEST_CALCULATED_GUESS_IDS = new Set(['mosje_martin_senor_west']);
 	const BINTI_CUTTING_WORDS_IDS = new Set(['mosje_binti']);
+	const GANDOE_ELIMINATION_IDS = new Set(['mosje_gandoe_destroyer']);
 
 	async function handleUseAbility(mosjeId) {
 		if (!gameState || gameState.status === 'FINISHED') return;
@@ -1148,6 +1149,64 @@ function initGamePage() {
 			const bintiSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
 			log.add('loss', `Binti Cutting Words: discarded ${chosen.name || chosen.cardId} — opponent loses 10 MP and discards a card.`);
 			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${bintiSlot?.name || mosjeId} ability`);
+			syncPush();
+			if (gameState.status === 'FINISHED') {
+				stopListening();
+				const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
+				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
+				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+			}
+			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
+			return;
+		}
+
+		// Gandoe — Elimination Strike: confirm before firing (once per game, 80 MP cost)
+		if (GANDOE_ELIMINATION_IDS.has(mosjeId)) {
+			const gandoeSlot = gameState.players[localPlayerId].activeSlots
+				.find(s => s && !s.isDefeated && String(s.cardId).includes('gandoe_destroyer'));
+			if (gandoeSlot?.eliminationStrikeUsed) {
+				modal.showInfo('Already Used', 'Elimination Strike can only be used once per game.');
+				return;
+			}
+			if (!gandoeSlot || gandoeSlot.mp < 80) {
+				modal.showInfo('Cannot Use Ability', `Not enough MP — Elimination Strike costs 80 MP (Gandoe has ${gandoeSlot?.mp ?? 0} MP).`);
+				return;
+			}
+			// Find target: opponent's lowest-level Mosje
+			const oppId = Object.keys(gameState.players).find(id => id !== localPlayerId);
+			const oppSlots = oppId ? gameState.players[oppId].activeSlots : [];
+			let targetSlot = null;
+			oppSlots.forEach(s => {
+				if (!s || s.isDefeated) return;
+				if (!targetSlot || s.level < targetSlot.level || (s.level === targetSlot.level && s.mp < targetSlot.mp)) {
+					targetSlot = s;
+				}
+			});
+			if (!targetSlot) {
+				modal.showInfo('Cannot Use Ability', 'No opponent Mosje on field to target.');
+				return;
+			}
+			const confirmed = await modal.showOptionSelect({
+				title: 'Elimination Strike',
+				prompt: `Pay 80 MP to send ${targetSlot.name} (Level ${targetSlot.level}, ${targetSlot.mp} MP) to the Welloe pile? This cannot be undone and can only be used once.`,
+				options: [
+					{ id: 'confirm', label: '💀 Execute — Pay 80 MP' },
+					{ id: 'cancel', label: 'Cancel' },
+				],
+				allowCancel: true,
+			});
+			if (!confirmed || confirmed === 'cancel') return;
+			const { state: newState, success, error } = useMosjeAbility(gameState, localPlayerId, mosjeId);
+			if (!success) {
+				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
+				return;
+			}
+			if (abilitySlotIndex >= 0) {
+				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
+			}
+			gameState = newState;
+			log.add('loss', `Gandoe Elimination Strike: ${targetSlot.name} sent to the Welloe pile. (-80 MP)`);
+			logStateOutcome(log, beforeAbility, gameState, localPlayerId, 'Gandoe Elimination Strike');
 			syncPush();
 			if (gameState.status === 'FINISHED') {
 				stopListening();

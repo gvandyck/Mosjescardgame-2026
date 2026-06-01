@@ -4,6 +4,7 @@
 
 import { drawCards, rollDie } from '../engine/deckEngine.js';
 import { loseMP } from '../engine/mpManager.js';
+import { markMosjeDefeated } from '../engine/victoryChecker.js';
 
 console.log('[ABILITY] mosjeAbilities.js loaded');
 
@@ -217,15 +218,53 @@ export function ability_parkour_west_adaptive_combat(gameState, playerId) {
 // Gandoe Destroyer — elimination strike: deal 45 MP damage to opponent.
 export function ability_gandoe_destroyer_elimination_strike(gameState, playerId) {
 	const state = cloneState(gameState);
-	const oppId = getOpponentId(state, playerId);
-	if (!oppId) return state;
-	const opp = state.players[oppId];
-	const osi = getFirstActiveSlotIndex(opp);
-	if (osi >= 0) {
-		applyDamage(opp.activeSlots[osi], 45);
-		console.log('[ABILITY] Gandoe Destroyer: opponent -45 MP');
+	const player = state.players[playerId];
+	if (!player) throw new Error('Player not found');
+
+	// Find Gandoe's slot
+	const gandoeSlotIndex = player.activeSlots.findIndex(
+		s => s && !s.isDefeated && String(s.cardId).includes('gandoe_destroyer')
+	);
+	if (gandoeSlotIndex < 0) throw new Error('Gandoe not on field');
+	const gandoeSlot = player.activeSlots[gandoeSlotIndex];
+
+	// Once per game guard
+	if (gandoeSlot.eliminationStrikeUsed) {
+		throw new Error('Elimination Strike already used this game');
 	}
-	return state;
+
+	// MP cost check
+	if (gandoeSlot.mp < 80) {
+		throw new Error('Not enough MP — Elimination Strike costs 80 MP');
+	}
+
+	// Deduct 80 MP
+	gandoeSlot.mp -= 80;
+
+	// Find opponent's lowest-level active Mosje (tiebreak: lowest MP)
+	const oppId = getOpponentId(state, playerId);
+	if (!oppId) throw new Error('No opponent found');
+	const opp = state.players[oppId];
+	let targetIndex = -1;
+	let lowestLevel = Infinity;
+	let lowestMP = Infinity;
+	opp.activeSlots.forEach((slot, idx) => {
+		if (!slot || slot.isDefeated) return;
+		if (slot.level < lowestLevel || (slot.level === lowestLevel && slot.mp < lowestMP)) {
+			lowestLevel = slot.level;
+			lowestMP = slot.mp;
+			targetIndex = idx;
+		}
+	});
+	if (targetIndex < 0) throw new Error('No opponent Mosje to target');
+
+	// Mark once-per-game before calling markMosjeDefeated (which clones state internally)
+	gandoeSlot.eliminationStrikeUsed = true;
+
+	// Send target to Welloe pile — respects WELLOE_SHIELD and Not Today!
+	const finalState = markMosjeDefeated(state, oppId, targetIndex);
+	console.log(`[ABILITY] Gandoe Elimination Strike: ${opp.activeSlots[targetIndex]?.name} sent to Welloe`);
+	return finalState;
 }
 
 // DIGITAL MOSJES
