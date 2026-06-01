@@ -80,17 +80,19 @@ export function ability_binti_cutting_words(gameState, playerId, discardedCardId
 	const opponent = state.players[opponentId];
 
 	const oppSlotIndex = getFirstActiveSlotIndex(opponent);
+	let finalState = state;
 	if (oppSlotIndex >= 0) {
-		applyDamage(opponent.activeSlots[oppSlotIndex], 10);
+		finalState = loseMP(state, opponentId, oppSlotIndex, 10, 'ABILITY');
+		console.log('[ABILITY] Binti Cutting Words: opponent loses 10 MP');
 	}
 
-	if (opponent.hand.length > 0) {
-		const discarded = opponent.hand.shift();
-		opponent.discard.unshift(discarded);
+	if (finalState.players[opponentId].hand.length > 0) {
+		const discarded = finalState.players[opponentId].hand.shift();
+		finalState.players[opponentId].discard.unshift(discarded);
 	}
 
 	console.log('[ABILITY] Binti Cutting Words resolved');
-	return state;
+	return finalState;
 }
 
 // Coert active: pay 10 MP to draw 1 card.
