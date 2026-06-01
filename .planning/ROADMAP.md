@@ -399,6 +399,43 @@ Plans:
 
 ---
 
+### Phase 15: Starter Deck Reworks
+
+**Goal:** Fix the three starter decks so every card earns its slot — remove blocked/dead cards, wire at least one genuine Mosje synergy pair per deck, add Phase 14 Physical Equipment to Physical Force, and fix the unplayable Personal Quest in Artistic Rhythm.
+
+**Requirements:**
+- DECK-01: Physical Force — remove Broodje Döner ×2 (Jeffrey blocks FOOD); replace with Dumbbells ×2
+- DECK-02: Physical Force — remove Slecht Gezet; replace with Skipping Rope
+- DECK-03: Physical Force — add Boxing Gloves ×1; remove one Pot of Weed
+- DECK-04: Physical Force — swap The Gym → Boxing Ring; add Protein Shake ×1 (remove one Affoe)
+- DECK-05: Physical Force — swap Mosje pair to Jeffrey + Alyssa (physical 3 + physical 2, both FIGHTING) for genuine synergy; remove Michelle (her Tough Gamble halves rewards randomly and her petSynergy Bowie & Stormey is absent)
+- DECK-06: Digital Control — replace Slecht Gezet with Redbull (doubles Coert draw ability)
+- DECK-07: Digital Control — swap one snelle_lucky_coin → snelle_counter_strikka (Mental ★★+; both Mosjes qualify)
+- DECK-08: Digital Control — swap Mosje pair to Coert Tech + Binti to wire the food-double synergy (hasFoodDoubleSynergy() hardcodes this pair); add Kannetje Melk ×3, remove one Pot of Weed
+- DECK-09: Artistic Rhythm — remove quest_personal_lucky_crescendo (requires Skiffa Place; deck has Quest Haven + Bank Chilling — can never fire); replace with quest_improvise (third copy)
+- DECK-10: Artistic Rhythm — replace piecie_larry_zegeltje with piecie_kannetje_melk (third copy)
+- DECK-11: Artistic Rhythm — replace Slecht Gezet with piecie_synergy_field
+- DECK-12: Artistic Rhythm — swap DJ 8020 partner from Binti to AZN Cless (Cless synergyWith Martin/DJ chain; DJ's +2 quest roll synergizes with Cless's risk/reward; or keep Binti + add Coert to wire food double)
+- DECK-13: All decks — fix isBoosterOnly: true on personal quests that appear in starter decks (data consistency)
+- DECK-14: Simulation decks (starter-decks.ts) — align with UI decks or document the divergence explicitly
+
+**Success Criteria:**
+1. Physical Force contains at least 3 Physical Equipment cards; no FOOD-blocked cards while Jeffrey is the primary Mosje
+2. Digital Control has at least one wired Mosje synergy (Coert + Binti food-double OR Martin + AZN Cless physical-quest bonus)
+3. Artistic Rhythm's personal quest is completable (Place requirement either removed or Place added to deck)
+4. Slecht Gezet removed from all three starter decks
+5. All starter deck Mosje pairs have at least one declared synergyWith pointing to their partner
+6. All existing tests still pass; no engine changes required (data-only changes to starterDecks.js and mosjes.js synergyWith fields)
+
+**Plans:** 3 plans
+
+Plans:
+- [ ] 15-01-PLAN.md — Physical Force rework: swap Mosje pair, add Physical Equipment cards, swap Boxing Ring place
+- [ ] 15-02-PLAN.md — Digital Control rework: wire Coert+Binti synergy, replace dead cards
+- [ ] 15-03-PLAN.md — Artistic Rhythm rework: fix Personal Quest, replace Larry/Slecht Gezet, align simulation decks + fix isBoosterOnly flags
+
+---
+
 ## Build Order Rationale
 
 1. **Mosje abilities first** — Foundation for deck synergies and playstyles
