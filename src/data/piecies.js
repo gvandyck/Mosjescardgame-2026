@@ -97,7 +97,7 @@ export const PIECIES = [
     flavourText: "",
     artPath: "assets/piecie-art/Eendjes voeren.jpeg",
     rarity: "★★",
-    isBoosterOnly: false,
+    isBoosterOnly: true,
   },
   {
     id: "piecie_varkenspootjes",

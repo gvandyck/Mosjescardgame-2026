@@ -75,8 +75,8 @@ describe('Phase 15 — Physical Force rework (DECK-01/02/03/04)', () => {
   it('piecies contains piecie_dikke_jonko', () => {
     expect(pf()?.piecies).toContain('piecie_dikke_jonko');
   });
-  it('piecies contains piecie_eendjes_voeren', () => {
-    expect(pf()?.piecies).toContain('piecie_eendjes_voeren');
+  it('piecies does NOT contain piecie_eendjes_voeren (it is now a place)', () => {
+    expect(pf()?.piecies).not.toContain('piecie_eendjes_voeren');
   });
   it('piecies contains piecie_laat_me_chillen', () => {
     expect(pf()?.piecies).toContain('piecie_laat_me_chillen');
