@@ -146,7 +146,14 @@ export function driveBotTurnSteps(gameState, botPlayerId) {
     if (!slot || slot.isDefeated || slot.abilityUsedThisTurn) continue;
     const mosjeDef = MOSJE_LOOKUP[slot.cardId];
     if (!mosjeDef?.abilityId) continue;
-    const result = useMosjeAbility(state, botPlayerId, slot.cardId);
+    let stateForAbility = state;
+    if (mosjeDef.abilityId === 'ability_binti_cutting_words') {
+      const hand = state.players[botPlayerId].hand;
+      if (hand.length === 0) break;
+      stateForAbility = JSON.parse(JSON.stringify(state));
+      stateForAbility._pendingTargets = { ...(stateForAbility._pendingTargets || {}), binti_discard: hand[0].cardId || hand[0] };
+    }
+    const result = useMosjeAbility(stateForAbility, botPlayerId, slot.cardId);
     if (result.success) {
       state = result.state;
       steps.push({ state, label: `uses ${slot.name}'s ability` });
@@ -293,7 +300,14 @@ export function driveBotTurn(gameState, botPlayerId) {
     if (slot.abilityUsedThisTurn) continue;
     const mosjeDef = MOSJE_LOOKUP[slot.cardId];
     if (!mosjeDef?.abilityId) continue;
-    const result = useMosjeAbility(state, botPlayerId, slot.cardId);
+    let stateForAbility = state;
+    if (mosjeDef.abilityId === 'ability_binti_cutting_words') {
+      const hand = state.players[botPlayerId].hand;
+      if (hand.length === 0) break;
+      stateForAbility = JSON.parse(JSON.stringify(state));
+      stateForAbility._pendingTargets = { ...(stateForAbility._pendingTargets || {}), binti_discard: hand[0].cardId || hand[0] };
+    }
+    const result = useMosjeAbility(stateForAbility, botPlayerId, slot.cardId);
     if (result.success) {
       state = result.state;
     }

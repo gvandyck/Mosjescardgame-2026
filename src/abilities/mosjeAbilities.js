@@ -65,11 +65,12 @@ export function ability_binti_cutting_words(gameState, playerId, discardedCardId
 	const player = state.players[playerId];
 	if (!player) throw new Error('Player not found');
 
-	// Accept card ID from direct arg or from _pendingTargets.binti_discard (set by UI pre-pick)
-	const cardId = discardedCardId || state._pendingTargets?.binti_discard;
+	// Always read from _pendingTargets.binti_discard (set by UI pre-pick or bot driver).
+	// discardedCardId arg is the mosjeId passed by useMosjeAbility — not a card to discard.
+	const cardId = state._pendingTargets?.binti_discard;
 	if (state._pendingTargets?.binti_discard) delete state._pendingTargets.binti_discard;
 
-	const handIndex = player.hand.findIndex(card => card.cardId === cardId || card === cardId);
+	const handIndex = player.hand.findIndex(card => (card.cardId ?? card) === cardId);
 	if (handIndex < 0) throw new Error('Binti ability requires discarding a card from hand');
 	player.hand.splice(handIndex, 1);
 

@@ -1125,8 +1125,9 @@ function initGamePage() {
 				return;
 			}
 			const handCards = hand.map(c => {
-				const def = CARD_LOOKUP[c.cardId] || {};
-				return { cardId: c.cardId, name: def.name || c.cardId, description: def.description || '' };
+				const id = c.cardId ?? c;
+				const def = CARD_LOOKUP[id] || {};
+				return { cardId: id, name: def.name || id, description: def.description || '' };
 			});
 			const chosen = await modal.showCardChoice('Binti — Cutting Words: discard a card', handCards);
 			if (!chosen) return;
