@@ -1,6 +1,6 @@
 ﻿# Card Implementation Roadmap
 
-**7 phases** | **~43 unique cards + multiplayer features** | **Sequential execution**
+**16 phases** | **~43 unique cards + multiplayer features + deck reworks** | **Sequential execution**
 
 ---
 
@@ -19,6 +19,7 @@
 | 9 | UI & Engine Bug Fixes | Fix 5 playtesting bugs: quest roll threshold, Dubbele Dosis lifecycle, Senor West MP floor, Lucky Coin activation order, DJ Lucky Mixer turn modifier | BUG-01 through BUG-05 | All 5 bugs fixed, tests pass, no regressions |
 | 10 | Deck Balance | Fix game stalling — insufficient MP generation across all 3 decks causes games to end in deck-out or stalemate instead of someone reaching Level 3 | BAL-01 through BAL-N | All 3 decks can reliably progress to Level 3; deck-out eliminated; game length reduced to target range |
 | 11 | Bot Opponent | Add a basic AI opponent for offline single-player matches. Bot plays Piecie cards, activates Places, attempts Quests, levels its Mosje, and uses Mosje abilities. Players opt in via "Play Offline" checkbox in room creation. | BOT-01 through BOT-05 | Player can start and complete a full game against the bot; bot makes valid moves every turn; no Firebase required for offline mode |
+| 16 | Eendjes Voeren Place | Transform Eendjes Voeren from a Piecie into a Place: resilience aura (all resilient traits max ★★★ while active) + Michelle +10 MP each End Phase. | EEV-01 through EEV-05 | place_eendjes_voeren in places.js; getMosjeTrait maxes resilient; Physical Force deck updated; piecie retired to booster-only |
 
 ---
 
