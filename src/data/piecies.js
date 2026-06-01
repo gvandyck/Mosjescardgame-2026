@@ -108,7 +108,7 @@ export const PIECIES = [
     requirement: "any",
     effectId: "effect_varkenspootjes",
     tags: ["FOOD"],
-    description: "Binti on field: gain 60 MP. Any other Mosje: lose 30 MP instead.",
+    description: "Pick any active Mosje (yours or opponent's). Binti: +60 MP. Anyone else: -30 MP.",
     flavourText: "",
     artPath: "assets/piecie-art/varkenspootjes.jpeg",
     rarity: "★★★",

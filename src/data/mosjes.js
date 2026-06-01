@@ -648,7 +648,7 @@ export const MOSJES = [
     petSynergy: null,
     tags: ["CHRIS"],
     flavourText: "Four arrows, perfect timing, infinite style.",
-    artPath: "assets/mosje-art/placeholder.png",
+    artPath: "assets/mosje-art/Chris-the-allrounder-ALT.jpg",
     rarity: "★★★",
     isBoosterOnly: false
   },

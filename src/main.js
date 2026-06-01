@@ -1435,6 +1435,59 @@ function initGamePage() {
 			console.log('[UI] MP Adjuster: set to', mpValue, 'MP (delta', delta, ', reverts next turn start)');
 		}
 
+		// ── Varkenspootjes — pick any active Mosje (own or opponent) ─────────────
+		if (gameState._varkenspootjesPending) {
+			const { activatingPlayerId } = gameState._varkenspootjesPending;
+			const allSlots = [];
+			for (const [pid, player] of Object.entries(gameState.players)) {
+				player.activeSlots.forEach((slot, idx) => {
+					if (slot && !slot.isDefeated) {
+						const isBinti = String(slot.cardId).startsWith('mosje_binti');
+						const owner = pid === localPlayerId ? 'Your' : 'Opponent';
+						allSlots.push({
+							id: `${pid}_slot_${idx}`,
+							label: `${slot.name} (${owner})`,
+							metaLabel: isBinti ? '+60 MP 🍖' : '-30 MP',
+						});
+					}
+				});
+			}
+			if (allSlots.length === 1) {
+				const [pid, sidx] = allSlots[0].id.split('_slot_').map((v, i) => i === 1 ? Number(v) : v);
+				const slot = gameState.players[pid].activeSlots[sidx];
+				if (String(slot.cardId).startsWith('mosje_binti')) {
+					slot.mp += 60;
+					log.add('gain', `Varkenspootjes: Binti loves it! +60 MP.`);
+				} else {
+					slot.mp = Math.max(0, slot.mp - 30);
+					log.add('loss', `Varkenspootjes: ${slot.name} hates the taste — -30 MP.`);
+				}
+			} else if (allSlots.length > 1) {
+				const chosen = await modal.showOptionSelect({
+					title: 'Varkenspootjes',
+					prompt: 'Choose a Mosje to serve the dish to.',
+					options: allSlots,
+					allowCancel: false,
+				});
+				if (chosen) {
+					const parts = chosen.split('_slot_');
+					const targetPid = parts[0];
+					const targetIdx = Number(parts[1]);
+					const slot = gameState.players[targetPid].activeSlots[targetIdx];
+					if (slot) {
+						if (String(slot.cardId).startsWith('mosje_binti')) {
+							slot.mp += 60;
+							log.add('gain', `Varkenspootjes: Binti loves it! +60 MP.`);
+						} else {
+							slot.mp = Math.max(0, slot.mp - 30);
+							log.add('loss', `Varkenspootjes: ${slot.name} hates the taste — -30 MP.`);
+						}
+					}
+				}
+			}
+			delete gameState._varkenspootjesPending;
+		}
+
 		const activatedName = cardDef?.name || 'Piecie';
 		if (negated) {
 			log.add('loss', `Activated ${activatedName}, but it was negated.`);

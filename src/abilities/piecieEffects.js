@@ -138,18 +138,10 @@ export function effect_eendjes_voeren(gameState, playerId) {
 
 export function effect_varkenspootjes(gameState, playerId) {
 	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
-	if (si < 0) return state;
-	const hasBinti = player.activeSlots.some(s => s && !s.isDefeated && s.cardId?.startsWith('mosje_binti'));
-	if (hasBinti) {
-		applyMPGain(player, si, 60, state, playerId);
-		console.log('[ABILITY] Varkenspootjes: Binti! +60 MP');
-	} else {
-		applyDamage(player.activeSlots[si], 30);
-		console.log('[ABILITY] Varkenspootjes: no Binti \u2014 -30 MP');
-	}
+	// Defer to UI: player picks any active Mosje (own or opponent).
+	// If Binti: +60 MP. Anyone else: -30 MP. Resolved in main.js handleActivatePiecie.
+	state._varkenspootjesPending = { activatingPlayerId: playerId };
+	console.log('[ABILITY] Varkenspootjes: waiting for Mosje target selection');
 	return state;
 }
 
