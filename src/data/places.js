@@ -302,6 +302,21 @@ export const PLACES = [
     isBoosterOnly: false
   },
   {
+    id: "place_eendjes_voeren",
+    type: "PLACE",
+    name: "Eendjes Voeren",
+    trigger: "END_PHASE",
+    effectId: "effect_eendjes_voeren",
+    tags: ["PHYSICAL", "MICHELLE", "FIGHTING"],
+    description: "While active: all resilient traits treated as ★★★. End Phase: MICHELLE Mosje +10 MP.",
+    flavourText: "Stil aan het water. Alles even rustig.",
+    artPath: "assets/piecie-art/Eendjes voeren.jpeg",
+    goodFor: ["FIGHTING"],
+    badFor: [],
+    rarity: "★★",
+    isBoosterOnly: false
+  },
+  {
     id: "place_de_box",
     type: "PLACE",
     name: "De Box",

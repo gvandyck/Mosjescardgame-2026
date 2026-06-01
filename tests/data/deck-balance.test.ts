@@ -10,9 +10,9 @@ import { PLACES } from '../../src/data/places.js';
 // @ts-expect-error — JS module, no type declarations
 import { MOSJES } from '../../src/data/mosjes.js';
 // @ts-expect-error — JS module, no type declarations
-import { effect_de_box, effect_tesla } from '../../src/abilities/placeEffects.js';
+import { effect_de_box, effect_tesla, effect_eendjes_voeren } from '../../src/abilities/placeEffects.js';
 // @ts-expect-error — JS module, no type declarations
-import { getKickboxingBootcampDiceBonus } from '../../src/abilities/questLogic.js';
+import { getKickboxingBootcampDiceBonus, getMosjeTrait } from '../../src/abilities/questLogic.js';
 
 describe('deck balance data integrity', () => {
   describe('quest economy (BAL-04)', () => {
@@ -71,6 +71,9 @@ describe('Phase 15 — Physical Force rework (DECK-01/02/03/04)', () => {
   });
   it('piecies contains piecie_bowie_stormey', () => {
     expect(pf()?.piecies).toContain('piecie_bowie_stormey');
+  });
+  it('piecies contains piecie_dikke_jonko', () => {
+    expect(pf()?.piecies).toContain('piecie_dikke_jonko');
   });
   it('piecies contains piecie_eendjes_voeren', () => {
     expect(pf()?.piecies).toContain('piecie_eendjes_voeren');
@@ -408,5 +411,94 @@ describe('Phase 15 — synergyWith patches (DECK-18/19)', () => {
   it('quest_personal_lucky_crescendo retains isBoosterOnly true', () => {
     const q = QUESTS.find((q: { id: string }) => q.id === 'quest_personal_lucky_crescendo');
     expect(q?.isBoosterOnly).toBe(true);
+  });
+});
+
+describe('Phase 16 — place_eendjes_voeren definition (EEV-01)', () => {
+  const ev = () => PLACES.find((p: { id: string }) => p.id === 'place_eendjes_voeren');
+
+  it('PLACES contains place_eendjes_voeren', () => {
+    expect(ev()).toBeDefined();
+  });
+  it('has trigger END_PHASE', () => {
+    expect(ev()?.trigger).toBe('END_PHASE');
+  });
+  it('has effectId effect_eendjes_voeren', () => {
+    expect(ev()?.effectId).toBe('effect_eendjes_voeren');
+  });
+  it('has isBoosterOnly false', () => {
+    expect(ev()?.isBoosterOnly).toBe(false);
+  });
+});
+
+describe('Phase 16 — Physical Force deck update (EEV-05)', () => {
+  const pf = () => STARTER_DECKS.find((d: { id: string }) => d.id === 'PHYSICAL_FORCE');
+
+  it('places contains place_eendjes_voeren', () => {
+    expect(pf()?.places).toContain('place_eendjes_voeren');
+  });
+  it('piecies contains piecie_dikke_jonko', () => {
+    expect(pf()?.piecies).toContain('piecie_dikke_jonko');
+  });
+});
+
+describe('Phase 16 — effect_eendjes_voeren (EEV-02)', () => {
+  function makeState(mosjes: Array<{ cardId: string; isDefeated?: boolean }>) {
+    return {
+      activePlace: 'place_eendjes_voeren',
+      players: {
+        player_1: {
+          activeSlots: mosjes.map(m => ({
+            cardId: m.cardId,
+            isDefeated: m.isDefeated ?? false,
+            mp: 0,
+          })),
+        },
+      },
+    };
+  }
+
+  it('gives MICHELLE Mosje +10 MP at END_PHASE', () => {
+    const state = makeState([{ cardId: 'mosje_michelle' }]);
+    const result = effect_eendjes_voeren(state);
+    expect(result.players.player_1.activeSlots[0].mp).toBe(10);
+  });
+
+  it('gives 0 MP to non-MICHELLE Mosje', () => {
+    const state = makeState([{ cardId: 'mosje_gandoe_destroyer' }]);
+    const result = effect_eendjes_voeren(state);
+    expect(result.players.player_1.activeSlots[0].mp).toBe(0);
+  });
+});
+
+describe('Phase 16 — getMosjeTrait resilience aura (EEV-03)', () => {
+  function makeGameState(activePlace: string, resilient: number) {
+    return {
+      activePlace,
+      players: {
+        p1: {
+          activeSlots: [{
+            cardId: 'mosje_gandoe_destroyer',
+            isDefeated: false,
+            traits: { physical: 3, resilient },
+          }],
+        },
+      },
+    };
+  }
+
+  it('returns 3 for resilient when place_eendjes_voeren is active', () => {
+    const state = makeGameState('place_eendjes_voeren', 1);
+    expect(getMosjeTrait(state, 'p1', 'mosje_gandoe_destroyer', 'resilient')).toBe(3);
+  });
+
+  it('returns real resilient value when a different place is active', () => {
+    const state = makeGameState('place_boxing_ring', 1);
+    expect(getMosjeTrait(state, 'p1', 'mosje_gandoe_destroyer', 'resilient')).toBe(1);
+  });
+
+  it('returns real physical trait value (not overridden) when place is active', () => {
+    const state = makeGameState('place_eendjes_voeren', 1);
+    expect(getMosjeTrait(state, 'p1', 'mosje_gandoe_destroyer', 'physical')).toBe(3);
   });
 });

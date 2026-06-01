@@ -36,6 +36,10 @@ export function getMosjeTrait(gameState, playerId, activeMosjeId, traitName) {
 	const trait = String(traitName || '').toLowerCase();
 	const player = gameState?.players?.[playerId];
 	if (!player || !trait) return 0;
+	// Eendjes Voeren Place: treat resilient as ★★★ (max 3) for all Mosjes while active
+	if (trait === 'resilient' && gameState?.activePlace === 'place_eendjes_voeren') {
+		return 3;
+	}
 	const slot = (player.activeSlots || []).find(s => s && !s.isDefeated && s.cardId === activeMosjeId);
 	return Number(slot?.traits?.[trait] || 0);
 }

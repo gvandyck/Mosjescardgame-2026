@@ -11,11 +11,11 @@ export const STARTER_DECKS = [
     piecies: [
       "piecie_boxing_gloves",
       "piecie_bowie_stormey",
+      "piecie_dikke_jonko",
       "piecie_eendjes_voeren",
       "piecie_laat_me_chillen",
       "piecie_kannetje_melk",
       "piecie_protein_shake",
-      "piecie_affoe",
       "piecie_affoe",
       "piecie_quest_prep",
       "piecie_tikker"
@@ -28,7 +28,8 @@ export const STARTER_DECKS = [
     ],
     places: [
       "place_boxing_ring",
-      "place_de_box"
+      "place_de_box",
+      "place_eendjes_voeren"
     ],
     quests: [
       "quest_personal_kickboxing_bootcamp"

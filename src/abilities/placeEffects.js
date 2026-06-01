@@ -469,6 +469,27 @@ export function effect_boxing_ring(gameState, questCard, didSucceed) {
 }
 
 // ─────────────────────────────────────────
+// EENDJES VOEREN — End Phase: MICHELLE Mosje +10 MP.
+// Resilience aura (always-on while active): getMosjeTrait in questLogic.js
+// returns 3 for 'resilient' whenever activePlace === 'place_eendjes_voeren'.
+// ─────────────────────────────────────────
+export function effect_eendjes_voeren(gameState) {
+	const state = cloneState(gameState);
+	for (const playerId of Object.keys(state.players)) {
+		const player = state.players[playerId];
+		for (const mosje of player.activeSlots) {
+			if (!mosje || mosje.isDefeated) continue;
+			const id = String(mosje.cardId).toLowerCase();
+			if (id.includes('michelle')) {
+				mosje.mp += 10;
+				console.log('[ABILITY] Eendjes Voeren: +10 MP (MICHELLE)');
+			}
+		}
+	}
+	return state;
+}
+
+// ─────────────────────────────────────────
 // DE BOX — End Phase: GANDOE Mosje +20 MP; MICHELLE/TUK Mosje +15 MP.
 // Both active simultaneously on same player's field: +10 bonus each.
 // ─────────────────────────────────────────
@@ -633,6 +654,10 @@ export function resolvePlaceEffect(gameState, triggerPhase, context = {}) {
 
 		case 'place_digital_gaming_stop':
 			nextState = effect_digital_gaming_stop(state, questCard, mosje);
+			break;
+
+		case 'place_eendjes_voeren':
+			nextState = effect_eendjes_voeren(state);
 			break;
 
 		case 'place_de_box':
