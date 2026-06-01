@@ -572,8 +572,13 @@ export function resolvePlaceEffect(gameState, triggerPhase, context = {}) {
 	const placeDef = PLACES.find(p => p.id === placeId);
 
 	// Boxing Ring fires on both ON_QUEST and END_PHASE — bypass single-trigger guard
+	// MUST check triggerPhase here: the bypass skips the guard below, so without this
+	// check the END_PHASE effect would fire on every resolvePlaceEffect call.
 	if (placeId === 'place_boxing_ring') {
-		return effect_boxing_ring(gameState, context.questCard, context.didSucceed);
+		if (triggerPhase === 'ON_QUEST' || triggerPhase === 'END_PHASE') {
+			return effect_boxing_ring(gameState, context.questCard, context.didSucceed);
+		}
+		return gameState;
 	}
 
 	if (!placeDef || placeDef.trigger !== triggerPhase) return gameState;

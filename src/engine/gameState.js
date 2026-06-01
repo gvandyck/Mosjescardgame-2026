@@ -130,16 +130,15 @@ function createMosjeSlot(mosjeData) {
   return {
     cardId: mosjeData.id,
     name: mosjeData.name,
-    immuneThisTurn: false,      // coert_kastelein: cannot lose MP this turn
-    mpLostThisTurn: 0,          // alyssa_bulldozer: tracks damage taken this turn
+    subtype: mosjeData.subtype || 'UNKNOWN',
     traits: { ...mosjeData.traits },
     mp,
     level: 0,               // 0, 1, 2 — reach 3 to win
     isDefeated: false,
     statusEffects: [],      // e.g. [{ type: 'MP_LOSS_PER_TURN', value: 10, turnsLeft: 4 }]
     abilityUsedThisTurn: false,
-    immuneThisTurn: false,      // coert_kastelein: cannot lose MP this turn
-    mpLostThisTurn: 0,          // alyssa_bulldozer: tracks damage taken this turn
+    immuneThisTurn: false,
+    mpLostThisTurn: 0,
   };
 }
 
