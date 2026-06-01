@@ -28,7 +28,6 @@ export const STARTER_DECKS = [
     ],
     places: [
       "place_boxing_ring",
-      "place_de_box",
       "place_eendjes_voeren"
     ],
     quests: [

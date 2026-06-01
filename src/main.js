@@ -1334,6 +1334,17 @@ function initGamePage() {
 			// "Attempt Quest" → dice roll. "Cancel" → close with no MP refund.
 			const updatedMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
 			modal.showQuestAttemptPreview(updatedMosje, questDef, getQuestDiceThreshold(questDef, updatedMosje), () => {
+				// Kickboxing Bootcamp: auto-succeed when Boxing Ring is the active Place
+				if (questDef.id === 'quest_personal_kickboxing_bootcamp' && gameState.activePlace === 'place_boxing_ring') {
+					const beforeResolve = snapshotForAnimation();
+					gameState = resolveQuest(gameState, localPlayerId, questDef, true, targetSlotIndex);
+					gameState.activeQuest = null;
+					log.add('gain', `Kickboxing Bootcamp: Boxing Ring active — auto-succeed! +${questDef.successMP} MP`);
+					logStateOutcome(log, beforeResolve, gameState, localPlayerId, 'Kickboxing Bootcamp (auto)');
+					renderAndAnimate(beforeResolve, { actionLabel: 'quest-resolution' });
+					syncPush();
+					return;
+				}
 				runQuestDiceRoll(targetSlotIndex);
 			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus });
 		}

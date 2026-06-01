@@ -96,8 +96,8 @@ describe('Phase 15 — Physical Force rework (DECK-01/02/03/04)', () => {
   it('places contains place_boxing_ring', () => {
     expect(pf()?.places).toContain('place_boxing_ring');
   });
-  it('places contains place_de_box', () => {
-    expect(pf()?.places).toContain('place_de_box');
+  it('places does NOT contain place_de_box (removed from starter deck)', () => {
+    expect(pf()?.places).not.toContain('place_de_box');
   });
   it('quests contains quest_personal_kickboxing_bootcamp', () => {
     expect(pf()?.quests).toContain('quest_personal_kickboxing_bootcamp');

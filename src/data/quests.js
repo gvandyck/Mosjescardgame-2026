@@ -938,15 +938,15 @@ export const QUESTS = [
     requiredMosjeId: "mosje_michelle",
     name: "Kickboxing Bootcamp",
     requirementId: "quest_req_kickboxing_bootcamp",
-    roll: { trait: "physical", thresholds: { 1: 4, 2: 3, 3: 2 } },
-    requirementDescription: "Michelle active. Gandoe on field: +2 dice bonus.",
+    roll: { trait: null, thresholds: { 1: 6, 2: 6, 3: 6 } },
+    requirementDescription: "Michelle active. Boxing Ring active: auto-succeed. Otherwise: must roll 6.",
     successMP: 80,
     failMP: -20,
-    description: "Michelle follows Gandoe's boxing routine. Gandoe on field: +2 to roll. Success: +80 MP. Fail: -20 MP.",
+    description: "Michelle active. Boxing Ring active as Place: auto-succeed (+80 MP). Otherwise: roll 6 to succeed (+80 MP). Fail: -20 MP.",
     difficulty: "HIGH",
     isBoosterOnly: false,
     rarity: "★★★",
-    flavourText: "Één, twee! Gandoe houdt het tempo bij.",
+    flavourText: "Één, twee! Hoofd omlaag. De boksring is het bewijs.",
     artPath: "assets/quests/placeholder.png"
   }
 
