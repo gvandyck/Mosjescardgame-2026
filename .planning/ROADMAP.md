@@ -401,38 +401,73 @@ Plans:
 
 ### Phase 15: Starter Deck Reworks
 
-**Goal:** Fix the three starter decks so every card earns its slot — remove blocked/dead cards, wire at least one genuine Mosje synergy pair per deck, add Phase 14 Physical Equipment to Physical Force, and fix the unplayable Personal Quest in Artistic Rhythm.
+**Goal:** Redesign all three starter decks around real-life relationships and thematic identities. Add 4 new IRL-themed cards (Toennoe place, Tesla place, Kickboxing Bootcamp quest, Tijd voor Winston Jaaa quest) with dedicated engine wiring. Every card in every deck earns its slot.
+
+**Final deck compositions:**
+
+Physical Force — Gandoe Destroyer + Michelle Iron Tuk (couple IRL, boxing theme):
+Piecies: Boxing Gloves, Bowie & Stormey, Eendjes Voeren, Laat me Chillen, Kannetje Melk, Protein Shake, Affoe ×2, Dubbele Dosis, Tikker
+Snelle: Not Today!, Emergency Healings, Jensen!, Lucky Coin
+Places: Boxing Ring, Toennoe (NEW)
+Quest: Kickboxing Bootcamp (NEW personal quest)
+
+Digital Control — Coert Tech + Binti Sharp Tongue (couple IRL, food-double synergy + Tesla loop):
+Piecies: Kannetje Melk ×3, Varkenspootjes, Pot of Weed, Dubbele Dosis ×2, Bong Hit Demolition, Redbull, Keyboard, Controller
+Snelle: Jensen! ×2, Lucky Coin, Counter Strikka
+Places: Tesla (NEW), Bank Chilling
+Quest: Tijd voor Winston Jaaa (NEW personal quest)
+
+Artistic Rhythm — Youri Speedrunner + Chris DDR (gaming + dancing, wired synergy):
+Piecies: Kannetje Melk ×2, Affoe ×2, Pot of Weed, Dubbele Dosis ×2, Controller, Synergy Field, Grammetje Pieter
+Snelle: Lucky Coin ×2, Jensen!, Ff Haaltje Nemen
+Places: Quest Haven, Bank Chilling
+Quest: quest_improvise
+
+**New cards (4):**
+- DECK-NEW-01: place_toennoe — END_PHASE: GANDOE Mosje +20 MP, MICHELLE/TUK Mosje +15 MP, both active: +10 bonus each. New effect function in placeEffects.js.
+- DECK-NEW-02: quest_personal_kickboxing_bootcamp — requiredMosjeId: mosje_michelle. Physical roll 4+ alone, 2+ with Gandoe on field. If Gandoe active: questLogic adds +2 diceBonus. Success: +80 MP. Fail: -20 MP.
+- DECK-NEW-03: place_tesla — Requires Coert active to play (activation guard in main.js). TURN_START: COERT +20 MP, BINTI +20 MP, both active: +10 each. Coert defeated: Tesla destroyed → sent to player discard (hook in victoryChecker.js).
+- DECK-NEW-04: quest_personal_winston_tijd — requiredMosjeId: mosje_binti. Requires place_tesla active. Tesla returns to player hand. Auto-succeed: +100 MP. Recover piecie_varkenspootjes from player discard if present. Logic in questLogic.js.
 
 **Requirements:**
-- DECK-01: Physical Force — remove Broodje Döner ×2 (Jeffrey blocks FOOD); replace with Dumbbells ×2
-- DECK-02: Physical Force — remove Slecht Gezet; replace with Skipping Rope
-- DECK-03: Physical Force — add Boxing Gloves ×1; remove one Pot of Weed
-- DECK-04: Physical Force — swap The Gym → Boxing Ring; add Protein Shake ×1 (remove one Affoe)
-- DECK-05: Physical Force — swap Mosje pair to Jeffrey + Alyssa (physical 3 + physical 2, both FIGHTING) for genuine synergy; remove Michelle (her Tough Gamble halves rewards randomly and her petSynergy Bowie & Stormey is absent)
-- DECK-06: Digital Control — replace Slecht Gezet with Redbull (doubles Coert draw ability)
-- DECK-07: Digital Control — swap one snelle_lucky_coin → snelle_counter_strikka (Mental ★★+; both Mosjes qualify)
-- DECK-08: Digital Control — swap Mosje pair to Coert Tech + Binti to wire the food-double synergy (hasFoodDoubleSynergy() hardcodes this pair); add Kannetje Melk ×3, remove one Pot of Weed
-- DECK-09: Artistic Rhythm — remove quest_personal_lucky_crescendo (requires Skiffa Place; deck has Quest Haven + Bank Chilling — can never fire); replace with quest_improvise (third copy)
-- DECK-10: Artistic Rhythm — replace piecie_larry_zegeltje with piecie_kannetje_melk (third copy)
-- DECK-11: Artistic Rhythm — replace Slecht Gezet with piecie_synergy_field
-- DECK-12: Artistic Rhythm — swap DJ 8020 partner from Binti to AZN Cless (Cless synergyWith Martin/DJ chain; DJ's +2 quest roll synergizes with Cless's risk/reward; or keep Binti + add Coert to wire food double)
-- DECK-13: All decks — fix isBoosterOnly: true on personal quests that appear in starter decks (data consistency)
-- DECK-14: Simulation decks (starter-decks.ts) — align with UI decks or document the divergence explicitly
+- DECK-01: Physical Force mosjes → mosje_gandoe_destroyer + mosje_michelle
+- DECK-02: Physical Force piecies — full list as above (Boxing Gloves, Bowie & Stormey, etc.)
+- DECK-03: Physical Force places → Boxing Ring + Toennoe (NEW)
+- DECK-04: Physical Force quest → quest_personal_kickboxing_bootcamp (NEW)
+- DECK-05: Digital Control mosjes → mosje_coert_tech + mosje_binti
+- DECK-06: Digital Control piecies — full list as above (Kannetje Melk ×3, Varkenspootjes, etc.)
+- DECK-07: Digital Control places → Tesla (NEW) + Bank Chilling
+- DECK-08: Digital Control quest → quest_personal_winston_tijd (NEW)
+- DECK-09: Artistic Rhythm mosjes → mosje_youri + mosje_chris_ddr
+- DECK-10: Artistic Rhythm piecies — full list as above (Controller replaces F1 Telemetry)
+- DECK-11: Artistic Rhythm quest → quest_improvise (replacing quest_personal_lucky_crescendo)
+- DECK-12: Engine — Tesla activation guard in main.js (Coert required to play card)
+- DECK-13: Engine — victoryChecker.js: Coert defeated → Tesla destroyed, sent to discard
+- DECK-14: Engine — questLogic.js: Kickboxing Bootcamp +2 diceBonus when Gandoe active
+- DECK-15: Engine — questLogic.js: Winston quest auto-succeed, Tesla to hand, recover Varkenspootjes
+- DECK-16: placeEffects.js: effect_toennoe (GANDOE/MICHELLE/TUK tag checks)
+- DECK-17: placeEffects.js: effect_tesla (COERT/BINTI tag checks, Coert guard)
+- DECK-18: mosjes.js: mosje_dj_8020.synergyWith → add mosje_chris_ddr; mosje_youri.synergyWith → add mosje_chris_ddr; mosje_gandoe_destroyer.synergyWith → add mosje_michelle; mosje_michelle.synergyWith → add mosje_gandoe_destroyer
+- DECK-19: quests.js: fix isBoosterOnly: false on all personal quests in starter decks
+- DECK-20: simulation/starter-decks.ts: align all three simulation decks with final compositions
 
 **Success Criteria:**
-1. Physical Force contains at least 3 Physical Equipment cards; no FOOD-blocked cards while Jeffrey is the primary Mosje
-2. Digital Control has at least one wired Mosje synergy (Coert + Binti food-double OR Martin + AZN Cless physical-quest bonus)
-3. Artistic Rhythm's personal quest is completable (Place requirement either removed or Place added to deck)
-4. Slecht Gezet removed from all three starter decks
-5. All starter deck Mosje pairs have at least one declared synergyWith pointing to their partner
-6. All existing tests still pass; no engine changes required (data-only changes to starterDecks.js and mosjes.js synergyWith fields)
+1. All three starterDecks.js deck objects match the final compositions exactly
+2. place_toennoe and place_tesla exist in places.js with correct fields; effects implemented in placeEffects.js
+3. quest_personal_kickboxing_bootcamp and quest_personal_winston_tijd exist in quests.js; engine logic in questLogic.js
+4. Tesla activation blocked in main.js when Coert not on field
+5. Tesla destroyed and sent to discard when Coert is defeated (victoryChecker.js)
+6. Kickboxing Bootcamp gives +2 diceBonus when Gandoe is on field
+7. Winston quest auto-succeeds with Tesla active; Tesla returns to hand; Varkenspootjes recovered from discard
+8. All Mosje pairs in starter decks have mutual synergyWith entries
+9. All existing 721 tests still pass; new cards have tests
 
 **Plans:** 3 plans
 
 Plans:
-- [ ] 15-01-PLAN.md — Physical Force rework: swap Mosje pair, add Physical Equipment cards, swap Boxing Ring place
-- [ ] 15-02-PLAN.md — Digital Control rework: wire Coert+Binti synergy, replace dead cards
-- [ ] 15-03-PLAN.md — Artistic Rhythm rework: fix Personal Quest, replace Larry/Slecht Gezet, align simulation decks + fix isBoosterOnly flags
+- [ ] 15-01-PLAN.md — Physical Force rework: Gandoe+Michelle pair, deck composition, Toennoe place, Kickboxing quest + questLogic
+- [ ] 15-02-PLAN.md — Digital Control rework: Coert+Binti pair, deck composition, Tesla place + engine hooks, Winston quest + questLogic
+- [ ] 15-03-PLAN.md — Artistic Rhythm rework: Youri+Chris DDR pair, deck composition, synergyWith updates, isBoosterOnly fixes, simulation alignment, docs
 
 ---
 
