@@ -432,36 +432,24 @@ export function effect_digital_gaming_stop(gameState, questCard, mosje) {
 // End Phase: FIGHTING Mosjes +10 MP; non-FIGHTING -5 MP.
 // On Quest: active Mosje +15 MP (GANDOE: +25 MP), any outcome.
 // ─────────────────────────────────────────
-export function effect_boxing_ring(gameState, questCard, didSucceed) {
+// ─────────────────────────────────────────
+// BOXING RING — Turn Start (START_PHASE):
+// Active player's FIGHTING Mosjes +10 MP.
+// GANDOE Mosje: additional +10 MP (20 total from place).
+// Combined with the +10 trickle: FIGHTING = 20 MP/turn, GANDOE = 30 MP/turn.
+// ─────────────────────────────────────────
+export function effect_boxing_ring(gameState, playerId) {
 	const state = cloneState(gameState);
-
-	// ON_QUEST path: questCard is defined
-	if (questCard !== undefined) {
-		const playerId = state.activePlayerId;
-		const player = state.players[playerId];
-		if (!player) return state;
-		const slotIndex = player.activeSlots.findIndex(slot => slot !== null && !slot.isDefeated);
-		if (slotIndex < 0) return state;
-		const mosje = player.activeSlots[slotIndex];
-		const id = String(mosje.cardId || mosje.mosjeId || '').toLowerCase();
-		const isGandoe = id.includes('gandoe');
-		const mp = isGandoe ? 25 : 15;
-		mosje.mp += mp;
-		console.log(`[ABILITY] Boxing Ring quest bonus: +${mp} MP${isGandoe ? ' (GANDOE)' : ''}`);
-		return state;
-	}
-
-	// END_PHASE path: questCard is undefined
-	for (const playerId of Object.keys(state.players)) {
-		const player = state.players[playerId];
-		for (const mosje of player.activeSlots) {
-			if (!mosje || mosje.isDefeated) continue;
-			if (mosje.subtype === 'FIGHTING') {
+	const player = state.players[playerId];
+	if (!player) return state;
+	for (const mosje of player.activeSlots) {
+		if (!mosje || mosje.isDefeated) continue;
+		if (mosje.subtype === 'FIGHTING') {
+			mosje.mp += 10;
+			console.log('[ABILITY] Boxing Ring: +10 MP (FIGHTING)');
+			if (String(mosje.cardId).toLowerCase().includes('gandoe')) {
 				mosje.mp += 10;
-				console.log('[ABILITY] Boxing Ring end phase: +10 MP (FIGHTING)');
-			} else {
-				applyDamage(mosje, 5);
-				console.log('[ABILITY] Boxing Ring end phase: -5 MP (non-FIGHTING)');
+				console.log('[ABILITY] Boxing Ring: +10 MP extra (GANDOE)');
 			}
 		}
 	}
@@ -571,15 +559,6 @@ export function resolvePlaceEffect(gameState, triggerPhase, context = {}) {
 
 	const placeDef = PLACES.find(p => p.id === placeId);
 
-	// Boxing Ring fires on both ON_QUEST and END_PHASE — bypass single-trigger guard
-	// MUST check triggerPhase here: the bypass skips the guard below, so without this
-	// check the END_PHASE effect would fire on every resolvePlaceEffect call.
-	if (placeId === 'place_boxing_ring') {
-		if (triggerPhase === 'ON_QUEST' || triggerPhase === 'END_PHASE') {
-			return effect_boxing_ring(gameState, context.questCard, context.didSucceed);
-		}
-		return gameState;
-	}
 
 	if (!placeDef || placeDef.trigger !== triggerPhase) return gameState;
 
@@ -593,6 +572,10 @@ export function resolvePlaceEffect(gameState, triggerPhase, context = {}) {
 	const { playerId, questCard, didSucceed, mosje, questsCompletedThisTurn, newMosjeSlotIndex } = context;
 
 	switch (placeId) {
+		case 'place_boxing_ring':
+			nextState = effect_boxing_ring(state, playerId);
+			break;
+
 		case 'place_the_gym':
 			nextState = effect_the_gym(state);
 			break;
