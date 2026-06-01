@@ -1044,6 +1044,7 @@ function initGamePage() {
 	}
 
 	const WEST_CALCULATED_GUESS_IDS = new Set(['mosje_martin_senor_west']);
+	const BINTI_CUTTING_WORDS_IDS = new Set(['mosje_binti']);
 
 	async function handleUseAbility(mosjeId) {
 		if (!gameState || gameState.status === 'FINISHED') return;
@@ -1105,6 +1106,47 @@ function initGamePage() {
 				`West Calculated Guess: guessed ${guess}, was ${topCardType} → ${isCorrect ? '+10 MP + draw 2' : '-10 MP'}`
 			);
 			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${slot?.name || mosjeId} ability`);
+			syncPush();
+			if (gameState.status === 'FINISHED') {
+				stopListening();
+				const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
+				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
+				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+			}
+			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
+			return;
+		}
+
+		// Binti — Cutting Words: discard a card from hand first
+		if (BINTI_CUTTING_WORDS_IDS.has(mosjeId)) {
+			const hand = gameState.players[localPlayerId].hand;
+			if (hand.length === 0) {
+				modal.showInfo('Cannot Use Ability', 'Your hand is empty — Binti needs a card to discard.');
+				return;
+			}
+			const handCards = hand.map(c => {
+				const def = CARD_LOOKUP[c.cardId] || {};
+				return { cardId: c.cardId, name: def.name || c.cardId, description: def.description || '' };
+			});
+			const chosen = await modal.showCardChoice('Binti — Cutting Words: discard a card', handCards);
+			if (!chosen) return;
+			const stateWithTarget = JSON.parse(JSON.stringify(gameState));
+			stateWithTarget._pendingTargets = {
+				...(stateWithTarget._pendingTargets || {}),
+				binti_discard: chosen.cardId,
+			};
+			const { state: newState, success, error } = useMosjeAbility(stateWithTarget, localPlayerId, mosjeId);
+			if (!success) {
+				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
+				return;
+			}
+			if (abilitySlotIndex >= 0) {
+				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
+			}
+			gameState = newState;
+			const bintiSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
+			log.add('loss', `Binti Cutting Words: discarded ${chosen.name || chosen.cardId} — opponent loses 10 MP and discards a card.`);
+			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${bintiSlot?.name || mosjeId} ability`);
 			syncPush();
 			if (gameState.status === 'FINISHED') {
 				stopListening();

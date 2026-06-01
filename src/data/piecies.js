@@ -348,6 +348,7 @@ export const PIECIES = [
     artPath: "assets/piecie-art/Redbull.jpeg",
     rarity: "★★",
     isBoosterOnly: false,
+    persistUntilEndOfTurn: true,
   },
   {
     id: "piecie_tweede_kans",

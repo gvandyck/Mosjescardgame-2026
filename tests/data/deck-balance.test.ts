@@ -274,8 +274,8 @@ describe('Phase 15 — place_tesla card definition (DECK-07)', () => {
   it('PLACES contains place_tesla', () => {
     expect(tesla()).toBeDefined();
   });
-  it('place_tesla has trigger TURN_START', () => {
-    expect(tesla()?.trigger).toBe('TURN_START');
+  it('place_tesla has trigger START_PHASE', () => {
+    expect(tesla()?.trigger).toBe('START_PHASE');
   });
   it('place_tesla has effectId effect_tesla', () => {
     expect(tesla()?.effectId).toBe('effect_tesla');
