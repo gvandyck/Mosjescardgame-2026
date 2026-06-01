@@ -1362,6 +1362,79 @@ function initGamePage() {
 		});
 		gameState = newState;
 
+		// ── STUB-11: Bagga of Greed — discard 1 from entire hand ─────────────────
+		if (gameState._baggaDiscard) {
+			const hand = gameState.players[localPlayerId].hand;
+			const allCards = hand.map(c => {
+				const def = CARD_LOOKUP[c.cardId] || {};
+				return { cardId: c.cardId, name: def.name || c.cardId, description: def.description || '' };
+			});
+			const cardToDiscard = await modal.showCardChoice('Bagga of Greed — Discard a Card', allCards);
+			if (cardToDiscard) {
+				const idx = gameState.players[localPlayerId].hand.findIndex(c => c.cardId === cardToDiscard.cardId);
+				if (idx >= 0) {
+					const [removed] = gameState.players[localPlayerId].hand.splice(idx, 1);
+					gameState.players[localPlayerId].discard.unshift(removed.cardId || removed);
+				}
+			}
+			// If null: player keeps both cards (Keep Both Cards ghost button)
+			delete gameState._baggaDiscard;
+		}
+
+		// ── STUB-14: Welloe Force — pick opponent Mosje as redirect target ────────
+		if (gameState._welloeForceActive?.targetSlotId === null) {
+			const oppId = Object.keys(gameState.players).find(id => id !== localPlayerId);
+			const oppSlots = [];
+			if (oppId) {
+				gameState.players[oppId].activeSlots.forEach((slot, idx) => {
+					if (slot && !slot.isDefeated) {
+						oppSlots.push({ id: `${oppId}_slot_${idx}`, label: slot.name, metaLabel: `${slot.mp} MP` });
+					}
+				});
+			}
+			if (oppSlots.length === 1) {
+				gameState._welloeForceActive.targetSlotId = oppSlots[0].id;
+				console.log('[UI] Welloe Force: auto-selected only target', oppSlots[0].id);
+			} else if (oppSlots.length > 1) {
+				const targetId = await modal.showOptionSelect({
+					title: 'Welloe Force — Redirect Damage',
+					prompt: 'Choose a Mosje to redirect all incoming damage to (3 turns).',
+					options: oppSlots,
+					allowCancel: false,
+				});
+				gameState._welloeForceActive.targetSlotId = targetId;
+				console.log('[UI] Welloe Force: redirect target set to', targetId);
+			} else {
+				// No opponent Mosjes on field — cancel the effect
+				delete gameState._welloeForceActive;
+				console.log('[UI] Welloe Force: no opponent targets, effect cancelled');
+			}
+		}
+
+		// ── STUB-15: MP Adjuster — choose exact MP value (temporary until next turn) ──
+		if (gameState._mpAdjusterPending) {
+			const { playerId: mpPlayerId, slotIndex: mpSlotIndex } = gameState._mpAdjusterPending;
+			const chosen = await modal.showOptionSelect({
+				title: 'MP Adjuster',
+				prompt: 'Choose the MP value to set (reverts at start of your next turn).',
+				options: [
+					{ id: '20', label: '20 MP' },
+					{ id: '40', label: '40 MP' },
+					{ id: '60', label: '60 MP' },
+					{ id: '80', label: '80 MP' },
+					{ id: '100', label: '100 MP' },
+				],
+				allowCancel: false,
+			});
+			const mpValue = Number(chosen);
+			const slot = gameState.players[mpPlayerId].activeSlots[mpSlotIndex];
+			const delta = mpValue - slot.mp;
+			slot._mpAdjustDelta = delta;
+			slot.mp = mpValue;
+			delete gameState._mpAdjusterPending;
+			console.log('[UI] MP Adjuster: set to', mpValue, 'MP (delta', delta, ', reverts next turn start)');
+		}
+
 		const activatedName = cardDef?.name || 'Piecie';
 		if (negated) {
 			log.add('loss', `Activated ${activatedName}, but it was negated.`);

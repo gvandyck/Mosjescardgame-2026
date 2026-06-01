@@ -57,8 +57,22 @@ export function gainMP(gameState, playerId, slotIndex, amount, source = 'GAIN') 
 //
 // Returns updated gameState.
 // ─────────────────────────────────────────────────────────────
-export function loseMP(gameState, playerId, slotIndex, amount, source = 'DRAIN') {
+export function loseMP(gameState, playerId, slotIndex, amount, source = 'DRAIN', _redirected = false) {
   if (amount <= 0) return gameState;
+
+  // Welloe Force: if the target is the card owner's Mosje, redirect to stored opponent target.
+  // _redirected flag prevents infinite loops if the target also has a redirect active.
+  if (!_redirected && gameState._welloeForceActive?.ownerId === playerId && gameState._welloeForceActive.targetSlotId) {
+    const targetSlotId = gameState._welloeForceActive.targetSlotId;
+    const lastSlot = targetSlotId.lastIndexOf('_slot_');
+    const tPlayerId = targetSlotId.slice(0, lastSlot);
+    const tSlotIndex = parseInt(targetSlotId.slice(lastSlot + 6), 10);
+    const tMosje = gameState.players[tPlayerId]?.activeSlots[tSlotIndex];
+    if (tMosje && !tMosje.isDefeated) {
+      console.log(`[MP] Welloe Force: redirecting ${amount} damage from ${playerId}_slot_${slotIndex} → ${targetSlotId}`);
+      return loseMP(gameState, tPlayerId, tSlotIndex, amount, source, true);
+    }
+  }
 
   const placeId = getActivePlaceId(gameState);
 
@@ -125,6 +139,32 @@ export function loseMP(gameState, playerId, slotIndex, amount, source = 'DRAIN')
     }
     delete state._snelleFlags.drainReversal[playerId];
     return state;
+  }
+
+  // MP_LOSS_HALVED: statusEffect pushed by Bowie & Stormey, Tony, Gekke Vogels, KatjeGang, ViannaPoes
+  const halvingEffect = mosje.statusEffects?.find(
+    e => e.type === 'MP_LOSS_HALVED' && e.turnsLeft > 0
+  );
+  if (halvingEffect) {
+    lossAmount = Math.ceil(lossAmount / 2);
+    halvingEffect.turnsLeft -= 1;
+    console.log('[MP] MP_LOSS_HALVED: loss halved to', lossAmount);
+  }
+
+  // MP_LOSS_REDUCTION: pushed by Laat me chillen (value:20), FF Haaltje Nemen (value:20/30)
+  const reductionEffect = mosje.statusEffects?.find(
+    e => e.type === 'MP_LOSS_REDUCTION' && e.turnsLeft > 0
+  );
+  if (reductionEffect) {
+    lossAmount = Math.max(0, lossAmount - reductionEffect.value);
+    reductionEffect.turnsLeft -= 1;
+    console.log('[MP] MP_LOSS_REDUCTION: loss reduced by', reductionEffect.value, '→', lossAmount);
+  }
+  // Consolidate The Protector snelle flag into same read point
+  if (snelleFlags.mpLossReduction?.[playerId]) {
+    lossAmount = Math.max(0, lossAmount - snelleFlags.mpLossReduction[playerId]);
+    console.log('[MP] Snelle Protector: loss reduced by', snelleFlags.mpLossReduction[playerId]);
+    delete state._snelleFlags.mpLossReduction[playerId];
   }
 
   // Dierenasiel passive: PET protection reduces any incoming loss by 25%.

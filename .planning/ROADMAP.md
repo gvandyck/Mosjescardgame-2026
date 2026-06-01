@@ -317,6 +317,88 @@ Plans:
 
 ---
 
+### Phase 12: Implement Unfinished Mechanics & Stubs
+
+**Goal:** Eliminate all silent no-ops in the engine — status effects that are pushed but never read, stub functions that return early, snelle flags set but never consumed, and partial card mechanics deferred to UI. Every card that claims to protect, halve, or modify MP must actually do so.
+
+**Requirements:**
+- STUB-01: MP_LOSS_HALVED — wire into loseMP() in mpManager.js (5 cards: Bowie & Stormey, Tony, Gekke Vogels, KatjeGang, ViannaPoes)
+- STUB-02: MP_LOSS_REDUCTION — wire into loseMP() (3 consumers: Laat me chillen, FF Haaltje Nemen, The Protector snelle flag)
+- STUB-03: WELLOE_SHIELD — implement no-knockout protection check in victoryChecker.js (1 card: Mosje Shield)
+- STUB-04: negateNextSearch — wire into deck draw logic in turnManager.js (1 card: Jammertje Gepakt)
+- STUB-05: doubleNextPiecie — implement double-activation executor logic (1 card: Double Trigger)
+- STUB-06: FF Haaltje Nemen undefined variable — fix console.log referencing undefined `reduction`
+- STUB-07: Dingetje Toch — wire _dingetjeTochActive flag consumption in piecie requirement checker
+- STUB-08: SNOEIERTJE_COST — cleanup: push is never consumed (questBonusMP handles the real logic); remove the dead push or document clearly
+- STUB-09: Dierenasiel cost-waiver — move 0-MP PET ability cost-waiver from UI-only to engine guard
+- STUB-10: Synergy Chamber cost/duration reduction — integrate into ability activation caller
+- STUB-11: Bagga of Greed discard-one-of-two — wire the `_baggaDiscard = true` flag into UI selection handler (draw 2, discard 1 is currently only flagged, not enforced)
+- STUB-12: Emergency Swap — implement ability-copy selection or document as deferred with explicit reason
+- STUB-13: Huisbaas — implement Place search from deck or document as deferred with explicit reason
+- STUB-14: Welloe Force redirect — implement damage redirect or document as deferred with explicit reason
+- STUB-15: MP Adjuster hardcoded 50 — wire UI exact-value selection or document as deferred
+- STUB-16: FPS West + Ronald Chef hand reveal — wire opponentHandPeeked flag to actual UI hand reveal
+
+**Success Criteria:**
+1. Every status effect type that is pushed to statusEffects is either checked in loseMP/turnManager/victoryChecker OR explicitly documented as deferred with a named blocking primitive
+2. No function in any ability file returns early with a silent no-op where real behaviour was intended — all are either implemented or tagged `// DEFERRED: <reason>`
+3. All snelle flags that are set have corresponding read-points in the engine
+4. 664+ tests pass, 0 simulation crashes
+5. card-reference.md updated: all items that are now implemented changed to `implemented`; all remaining deferred items given a specific reason naming the missing primitive
+
+**Plans:** 5 plans
+
+Plans:
+- [x] 12-01-PLAN.md — Engine wiring: MP_LOSS_HALVED, MP_LOSS_REDUCTION, WELLOE_SHIELD checks wired into loseMP() and markMosjeDefeated(); fix FF Haaltje Nemen ReferenceError; restore push site values
+- [x] 12-02-PLAN.md — Flag wiring: negateNextSearch in phaseDrawCard, STUB-05 verification, dingetjeToch documentation, SNOEIERTJE_COST dead push removal
+- [x] 12-03-PLAN.md — Place mechanics: Dierenasiel 0-MP guard and Synergy Chamber cost reduction in useMosjeAbility
+- [x] 12-04-PLAN.md — UI-gated interactions: Bagga of Greed discard picker, Welloe Force redirect target, MP Adjuster value picker (via existing modal functions)
+- [x] 12-05-PLAN.md — Deferred docs: Emergency Swap and Huisbaas DEFERRED comments, FPS West/Ronald Chef flag comments, card-reference.md full update
+
+---
+
+### Phase 13: Action Animation Feedback
+
+**Goal:** Add visual animation feedback to game actions so players can clearly see what happened — MP gains, MP losses, attacks, quest results — without reading the log.
+
+**Status:** COMPLETE (implemented by gvandyck, 2026-05-31)
+
+**Plans:** 1 plan
+Plans:
+- [x] 13-01-PLAN.md — Action animation system: actionAnimations.js module, boardRenderer wiring, CSS animations for MP gain/loss/attack/quest events
+
+---
+
+### Phase 14: Physical Equipment Cards & Boxing Ring
+
+**Goal:** Add a Physical equipment Piecie suite (mirroring the Digital Keyboard/Mouse/Controller set), a new Boxing Ring place, and update The Gym to give CLESS-tagged Mosjes a bonus — giving Fighting/Physical decks a proper item identity and making Gandoe + Cless cards meaningfully stronger in themed setups.
+
+**Requirements:**
+- PHYS-01: Dumbbells (★, PHYSICAL-EQUIPMENT) — Physical Mosje on field: +20 MP; Physical ★★★: also draw 1 card
+- PHYS-02: Boxing Gloves (★★, PHYSICAL-EQUIPMENT) — Physical ★★+ Mosje: +25 MP; GANDOE tag: +40 MP + apply MP_LOSS_HALVED 1 turn
+- PHYS-03: Skipping Rope (★, PHYSICAL-EQUIPMENT) — Physical Mosje: +1 next Quest roll + draw 1 card; no Physical Mosje: draw 1 only
+- PHYS-04: Protein Shake (★★, PHYSICAL-EQUIPMENT + FOOD) — +25 MP to active Physical Mosje; +35 MP if Boxing Ring is active place
+- PHYS-05: Boxing Ring (★★★, Place) — ON_QUEST: Physical Mosjes +15 MP any outcome; GANDOE tag: +25 MP instead; END_PHASE: FIGHTING type +10 MP, non-FIGHTING -5 MP
+- PHYS-06: Gym update — Add CLESS-tag bonus: +20 MP at END_PHASE when any CLESS Mosje is on field (regardless of physical trait level)
+
+**Success Criteria:**
+1. All 4 PHYSICAL-EQUIPMENT Piecies have card definitions, effect functions, and tests
+2. Boxing Ring place has definition, effect function triggered at ON_QUEST and END_PHASE, and tests
+3. The Gym updated: CLESS-tagged Mosjes gain +20 MP at END_PHASE
+4. Boxing Gloves correctly applies MP_LOSS_HALVED for GANDOE-tagged Mosjes
+5. Protein Shake checks activePlace === 'place_boxing_ring' for the bonus tier
+6. All existing tests still pass; new cards have at least 2 tests each
+7. card-reference.md updated for all new and modified cards
+
+**Plans:** 3 plans
+
+Plans:
+- [x] 14-01-PLAN.md — Physical Equipment Piecies: Dumbbells, Boxing Gloves, Skipping Rope (data + effects + tests)
+- [x] 14-02-PLAN.md — Protein Shake + Boxing Ring place (data + effects + tests)
+- [x] 14-03-PLAN.md — Gym patch (CLESS bonus) + card-reference.md update + simulation check
+
+---
+
 ## Build Order Rationale
 
 1. **Mosje abilities first** — Foundation for deck synergies and playstyles
@@ -346,4 +428,4 @@ src/cards/quests/general/quest-endurance-test.ts
 
 ---
 
-*Last updated: 2026-05-24*
+*Last updated: 2026-05-31*

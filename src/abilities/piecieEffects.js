@@ -261,9 +261,10 @@ export function effect_snoeiertje(gameState, playerId) {
 	if (!player) return state;
 	const si = getFirstActiveSlotIndex(player);
 	if (si < 0) return state;
+	// questBonusMP handles the real logic (+15 MP on quest success this turn).
+	// STUB-08: SNOEIERTJE_COST status effect push removed — it was never consumed anywhere.
 	player.questBonusMP = (player.questBonusMP || 0) + 15;
-	player.activeSlots[si].statusEffects.push({ type: 'SNOEIERTJE_COST', value: -15, turnsLeft: 1 });
-	console.log('[ABILITY] Snoeiertje: +15 quest drain, -15 MP end of turn');
+	console.log('[ABILITY] Snoeiertje: +15 quest bonus MP applied');
 	return state;
 }
 
@@ -498,7 +499,7 @@ export function effect_laat_me_chillen(gameState, playerId) {
 	if (!player) return state;
 	const si = getFirstActiveSlotIndex(player);
 	if (si >= 0) {
-		player.activeSlots[si].statusEffects.push({ type: 'MP_LOSS_REDUCTION', value: 0, turnsLeft: 1 });
+		player.activeSlots[si].statusEffects.push({ type: 'MP_LOSS_REDUCTION', value: 20, turnsLeft: 1 });
 	}
 	console.log('[ABILITY] Laat me chillen: -20 MP loss reduction (one-time)');
 	return state;
@@ -518,15 +519,24 @@ export function effect_mosje_shield(gameState, playerId) {
 	if (!player) return state;
 	const si = getFirstActiveSlotIndex(player);
 	if (si >= 0) {
-		player.activeSlots[si].statusEffects.push({ type: 'WELLOE_SHIELD', value: 0, turnsLeft: 2 });
+		player.activeSlots[si].statusEffects.push({ type: 'WELLOE_SHIELD', value: 1, turnsLeft: 2 });
 		console.log('[ABILITY] Mosje Shield: protected from Welloe for 2 turns');
 	}
 	return state;
 }
 
 export function effect_emergency_swap(gameState, playerId) {
-	// Needs UI: copy which Mosje's ability? For now: log.
-	console.log('[ABILITY] Emergency Swap: requires UI selection \u2014 pending');
+	// DEFERRED: Emergency Swap requires UI selection + ability registry dispatch to copy opponent Mosje ability.
+	// The ability registry (mosjeAbilities module) already exists \u2014 see useMosjeAbility() in
+	// turnManager.js: mosjeAbilities[mosjeDef.abilityId] is the dispatch pattern.
+	// Blocking primitive: UI modal to select opponent's active Mosje + abilityId lookup.
+	// Implementation path when unblocked:
+	//   1. Modal: "Choose an opponent Mosje to copy ability from" (showOptionSelect)
+	//   2. Look up mosjeDef.abilityId for chosen Mosje via MOSJES array
+	//   3. Call mosjeAbilities[abilityId](state, playerId, chosenMosjeId)
+	//   4. Per card-specific-rulings.md: one-time use, no synergy/pet bonuses transferred
+	// Deferred to: UI selection phase.
+	console.log('[ABILITY] Emergency Swap: UI selection required \u2014 DEFERRED');
 	return gameState;
 }
 
@@ -580,13 +590,20 @@ export function effect_popo_komt(gameState, playerId) {
 }
 
 export function effect_huisbaas(gameState, playerId) {
-	// Needs UI: choose new Place from deck. For now just destroy.
+	// PARTIAL: Place destruction implemented. Place search is DEFERRED.
+	// DEFERRED: searching the deck for a specific Place card requires a UI selection modal
+	// (player picks which Place to put into play) + a deck-search-and-place-activate primitive.
+	// No searchDeck function exists in turnManager.js for Places — only phaseDrawCard (top-of-deck).
+	// Blocking primitive: deck search modal (filter by card type PLACE) + activatePlace call.
+	// Deferred to: UI selection phase.
 	let state = cloneState(gameState);
 	if (state.activePlace) {
 		state = destroyActivePlace(state);
 		state = triggerPlaceDestroyedEffects(state, playerId);
+		console.log('[ABILITY] Huisbaas: active Place destroyed. New Place search DEFERRED (requires deck-search primitive).');
+	} else {
+		console.log('[ABILITY] Huisbaas: no active Place to destroy.');
 	}
-	console.log('[ABILITY] Huisbaas: Place destroyed (new Place search pending UI)');
 	return state;
 }
 
@@ -657,13 +674,14 @@ export function effect_mp_adjuster(gameState, playerId) {
 		return gameState;
 	}
 
-	// Needs UI: choose exact value 30-100. Default: set to 50.
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
 	const si = getFirstActiveSlotIndex(player);
-	if (si >= 0) player.activeSlots[si].mp = 50;
-	console.log('[ABILITY] MP Adjuster: set to 50 (UI pending for exact value)');
+	if (si >= 0) {
+		state._mpAdjusterPending = { playerId, slotIndex: si };
+	}
+	console.log('[ABILITY] MP Adjuster: value selection pending UI');
 	return state;
 }
 
@@ -699,13 +717,16 @@ export function effect_call_of_welloes(gameState, playerId) {
 }
 
 export function effect_welloe_force(gameState, playerId) {
-	// Redirect resolving effect — complex; just discard 1 for now.
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
-	if (!player || player.hand.length === 0) return state;
-	player.discard.unshift(player.hand.shift());
-	state._welloeForceActive = true;
-	console.log('[ABILITY] Welloe Force: discard 1, redirect pending UI');
+	if (!player) return state;
+	const si = getFirstActiveSlotIndex(player);
+	if (si < 0) return state;
+	// Pay 40 MP activation cost from active Mosje
+	applyDamage(player.activeSlots[si], 40);
+	// Set 3-turn damage redirect. UI picks the target opponent Mosje.
+	state._welloeForceActive = { ownerId: playerId, turnsRemaining: 3, targetSlotId: null };
+	console.log('[ABILITY] Welloe Force: paid 40 MP, 3-turn redirect active, target pending UI');
 	return state;
 }
 
@@ -739,7 +760,7 @@ export function effect_bowie_stormey(gameState, playerId) {
 		if (!slot || slot.isDefeated) continue;
 		const cardTags = slot.traits ? Object.keys(slot.traits) : [];
 		// Apply to Mosjes matching pet synergy tags
-		slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 0, turnsLeft: 2 });
+		slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 1, turnsLeft: 2 });
 	}
 	console.log('[ABILITY] Bowie & Stormey: MP loss halved for 2 turns');
 	return state;
@@ -751,7 +772,7 @@ export function effect_tony(gameState, playerId) {
 	if (!player) return state;
 	for (const slot of player.activeSlots) {
 		if (!slot || slot.isDefeated) continue;
-		slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 0, turnsLeft: 2 });
+		slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 1, turnsLeft: 2 });
 	}
 	console.log('[ABILITY] Tony: MP loss halved for 2 turns');
 	return state;
@@ -763,7 +784,7 @@ export function effect_gekke_vogels(gameState, playerId) {
 	if (!player) return state;
 	for (const slot of player.activeSlots) {
 		if (!slot || slot.isDefeated) continue;
-		slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 0, turnsLeft: 2 });
+		slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 1, turnsLeft: 2 });
 	}
 	console.log('[ABILITY] Gekke Vogels: MP loss halved for 2 turns (Jisca)');
 	return state;
@@ -775,7 +796,7 @@ export function effect_katjegang(gameState, playerId) {
 	if (!player) return state;
 	for (const slot of player.activeSlots) {
 		if (!slot || slot.isDefeated) continue;
-		slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 0, turnsLeft: 2 });
+		slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 1, turnsLeft: 2 });
 	}
 	console.log('[ABILITY] KatjeGang: MP loss halved for 2 turns (Alyssa)');
 	return state;
@@ -787,7 +808,7 @@ export function effect_vianna_poes(gameState, playerId) {
 	if (!player) return state;
 	for (const slot of player.activeSlots) {
 		if (!slot || slot.isDefeated) continue;
-		slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 0, turnsLeft: 2 });
+		slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 1, turnsLeft: 2 });
 	}
 	console.log('[ABILITY] ViannaPoes: MP loss halved for 2 turns (Cless)');
 	return state;
@@ -932,6 +953,92 @@ export function effect_controller(gameState, playerId) {
 	// Flavor bonus: +1 quest roll this turn
 	player.questPrepBonus = (player.questPrepBonus || 0) + 1;
 	console.log(`[ABILITY] Controller: +${mp} MP${mosje.subtype === 'DIGITAL' ? ' (Digital Lv' + (mosje.level||1) + ')' : ' (base)'}, +1 quest bonus`);
+	return state;
+}
+
+// ─────────────────────────────────────────
+// PHYSICAL EQUIPMENT
+// ─────────────────────────────────────────
+
+export function effect_dumbbells(gameState, playerId) {
+	const state = cloneState(gameState);
+	const player = state.players[playerId];
+	if (!player) return state;
+	const si = getFirstActiveSlotIndex(player);
+	if (si < 0) return state;
+	const mosje = player.activeSlots[si];
+	const isPhysical = mosje.subtype === 'FIGHTING';
+	const mp = isPhysical ? 20 : 5;
+	applyMPGain(player, si, mp, state, playerId);
+	// Flavor bonus: draw 1 card only at Physical ★★★ (level >= 3)
+	if (isPhysical && (mosje.level || 1) >= 3 && player.deck.length > 0) {
+		player.hand.push(player.deck.shift());
+		console.log(`[ABILITY] Dumbbells: +${mp} MP (Physical Lv${mosje.level}), drew 1`);
+	} else {
+		console.log(`[ABILITY] Dumbbells: +${mp} MP${isPhysical ? ' (Physical)' : ' (base)'}`);
+	}
+	return state;
+}
+
+export function effect_boxing_gloves(gameState, playerId) {
+	const state = cloneState(gameState);
+	const player = state.players[playerId];
+	if (!player) return state;
+	const si = getFirstActiveSlotIndex(player);
+	if (si < 0) return state;
+	const mosje = player.activeSlots[si];
+	const physical = mosje.traits?.physical || 0;
+	if (physical < 2) {
+		console.log('[ABILITY] Boxing Gloves: no effect (Physical trait < 2)');
+		return state;
+	}
+	const id = String(mosje.cardId || '').toLowerCase();
+	const isGandoe = id.includes('gandoe');
+	const mp = isGandoe ? 40 : 25;
+	applyMPGain(player, si, mp, state, playerId);
+	if (isGandoe) {
+		for (const slot of player.activeSlots) {
+			if (!slot || slot.isDefeated) continue;
+			slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 1, turnsLeft: 1 });
+		}
+		console.log(`[ABILITY] Boxing Gloves: +${mp} MP (GANDOE), MP loss halved 1 turn`);
+	} else {
+		console.log(`[ABILITY] Boxing Gloves: +${mp} MP (Physical ★★+)`);
+	}
+	return state;
+}
+
+export function effect_skipping_rope(gameState, playerId) {
+	const state = cloneState(gameState);
+	const player = state.players[playerId];
+	if (!player) return state;
+	const si = getFirstActiveSlotIndex(player);
+	if (si < 0) return state;
+	const mosje = player.activeSlots[si];
+	const isPhysical = mosje.subtype === 'FIGHTING';
+	if (isPhysical) {
+		player.questPrepBonus = (player.questPrepBonus || 0) + 1;
+	}
+	if (player.deck.length > 0) player.hand.push(player.deck.shift());
+	console.log(`[ABILITY] Skipping Rope:${isPhysical ? ' +1 quest bonus,' : ''} drew 1`);
+	return state;
+}
+
+export function effect_protein_shake(gameState, playerId) {
+	const state = cloneState(gameState);
+	const player = state.players[playerId];
+	if (!player) return state;
+	const si = getFirstActiveSlotIndex(player);
+	if (si < 0) return state;
+	const mosje = player.activeSlots[si];
+	if (mosje.subtype !== 'FIGHTING') {
+		console.log('[ABILITY] Protein Shake: no effect (no Physical Mosje)');
+		return state;
+	}
+	const isBoxingRing = state.activePlace === 'place_boxing_ring';
+	const mp = isBoxingRing ? 35 : 25;
+	applyMPGain(player, si, mp, state, playerId);
+	console.log(`[ABILITY] Protein Shake: +${mp} MP (Physical${isBoxingRing ? ', Boxing Ring bonus' : ''})`);
 	return state;
 }
 

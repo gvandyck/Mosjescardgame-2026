@@ -83,6 +83,23 @@ export function startTurn(gameState) {
       slot.abilityUsedThisTurn = false;
       slot.immuneThisTurn = false;
       slot.mpLostThisTurn = 0;
+      // MP Adjuster: reverse the temporary delta applied last turn
+      if (slot._mpAdjustDelta !== undefined) {
+        slot.mp = Math.max(0, slot.mp - slot._mpAdjustDelta);
+        console.log(`[ENGINE] MP Adjuster: reverted ${slot._mpAdjustDelta} MP delta for ${playerId}`);
+        delete slot._mpAdjustDelta;
+      }
+    }
+  }
+
+  // Welloe Force: decrement turn counter when the card owner's turn starts
+  if (state._welloeForceActive?.ownerId === playerId) {
+    state._welloeForceActive.turnsRemaining -= 1;
+    if (state._welloeForceActive.turnsRemaining <= 0) {
+      delete state._welloeForceActive;
+      console.log('[ENGINE] Welloe Force: 3-turn redirect expired');
+    } else {
+      console.log(`[ENGINE] Welloe Force: ${state._welloeForceActive.turnsRemaining} turn(s) remaining`);
     }
   }
 
@@ -121,9 +138,20 @@ export function startTurn(gameState) {
 // Draws 1 card from the player's personal deck into their hand.
 // If the deck is empty, nothing happens (no penalty â€” may change later).
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-export function phaseDrawCard(gameState, playerId, count = 1) {
+export function phaseDrawCard(gameState, playerId, count = 1, isOpponentTriggered = false) {
   const state = JSON.parse(JSON.stringify(gameState));
   const player = state.players[playerId];
+
+  // negateNextSearch: Jammertje Gepakt flag — negate opponent-triggered search/draw only.
+  // Regular turn draw (isOpponentTriggered=false) is NOT negated.
+  if (isOpponentTriggered) {
+    const oppId = Object.keys(state.players).find(id => id !== playerId);
+    if (oppId && state._snelleFlags?.negateNextSearch?.[oppId]) {
+      delete state._snelleFlags.negateNextSearch[oppId];
+      console.log('[ENGINE] Jammertje Gepakt: opponent search/draw negated for', playerId);
+      return state;
+    }
+  }
 
   if (player.deck.length === 0) {
     if (player.discard.length === 0) {
@@ -551,7 +579,10 @@ export function activatePiecie(gameState, playerId, slotIndex) {
 
   // Dingetje Toch wildcard: if state._dingetjeTochActive is true, the UI layer must bypass
   // any single failing trait/type requirement before calling activatePiecie, then clear the flag.
-  // state._dingetjeTochActive = false  ← consumed by UI piecie activation validator, not here.
+  // Consumption point: in main.js handleActivatePiecie(), before the activatePiecie() call,
+  // check state._dingetjeTochActive — if set, skip the single failing requirement check and
+  // delete state._dingetjeTochActive before passing state to activatePiecie.
+  // STUB-07: UI-side implementation deferred to UI wiring phase.
 
   // Check reactive negation flags set by opponent's Snelle Piecies
   const flags = state._snelleFlags || {};
@@ -589,6 +620,8 @@ export function activatePiecie(gameState, playerId, slotIndex) {
   const handSizeBeforeEffect = state.players[playerId].hand.length;
   if (typeof effectFn === 'function') {
     state = effectFn(state, playerId);
+    // STUB-05 (doubleNextPiecie / Double Trigger) — IMPLEMENTED. Flag is set by
+    // effect_snelle_dubbele_temminks in snelleEffects.js and consumed here.
     // Dubbele Temminks: double-trigger
     if (flags.doubleNextPiecie?.[playerId]) {
       delete state._snelleFlags.doubleNextPiecie[playerId];
@@ -788,6 +821,10 @@ function createMosjeSlotFromDefinition(mosjeDef) {
 // Each Mosje can only use its ability once per turn (abilityUsedThisTurn).
 // Returns { state, success, error? }
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// NOTE: the engine does NOT enforce abilityCost before calling fn(). Each individual
+// ability function is responsible for checking/deducting its own cost. The UI
+// cantAffordAbility display is the primary guard against insufficient-MP activations.
+// UI must also check dierenasielActive before disabling PET Mosje abilities (STUB-09).
 export function useMosjeAbility(gameState, playerId, mosjeId) {
   const player = gameState.players[playerId];
   if (!player) return { state: gameState, success: false, error: 'Player not found' };
@@ -796,6 +833,17 @@ export function useMosjeAbility(gameState, playerId, mosjeId) {
   if (slotIndex < 0) return { state: gameState, success: false, error: 'Mosje not on field or is defeated' };
 
   const slot = player.activeSlots[slotIndex];
+
+  // Dierenasiel 0-MP PET cost-waiver: when Dierenasiel place is active, PET-tagged
+  // ability activations are allowed even at 0 MP. The individual ability function
+  // must not throw for 0 MP in this case.
+  // STUB-09: engine-level guard documented here. UI cantAffordAbility must also check
+  // dierenasielActive before displaying the disabled state for PET Mosjes (UI phase).
+  const dierenasielWaiver = gameState.dierenasielActive === true;
+  if (dierenasielWaiver) {
+    console.log('[ENGINE] Dierenasiel: 0-MP PET ability activation allowed for', mosjeId);
+  }
+
   if (slot.abilityUsedThisTurn) {
     return { state: gameState, success: false, error: 'Ability already used this turn' };
   }
@@ -814,9 +862,20 @@ export function useMosjeAbility(gameState, playerId, mosjeId) {
   // Wrap in try/catch: some abilities require pending targets (e.g. Binti’s discard) that
   // are not present when called without UI interaction (e.g. from the bot driver).
   // In that case, treat the ability as unusable rather than crashing.
+  // Synergy Chamber: ability activation costs 5 fewer MP when place_synergy_chamber is active.
+  // Pre-adjust the Mosje MP so individual ability functions see the reduced effective cost.
+  const synergyDiscount = placeEffects.getSynergyChambercostReduction(gameState);
+  let stateForAbility = gameState;
+  if (synergyDiscount > 0 && mosjeDef.abilityCost > 0) {
+    stateForAbility = JSON.parse(JSON.stringify(gameState));
+    const s = stateForAbility.players[playerId].activeSlots[slotIndex];
+    s.mp += synergyDiscount; // grant the discount pre-payment
+    console.log('[ENGINE] Synergy Chamber: ability cost reduced by', synergyDiscount, 'for', mosjeId);
+  }
+
   let state;
   try {
-    state = fn(gameState, playerId, mosjeId);
+    state = fn(stateForAbility, playerId, mosjeId);
   } catch (err) {
     console.warn(`[ENGINE] useMosjeAbility: ability ${mosjeDef.abilityId} threw — needs UI input:`, err.message);
     return { state: gameState, success: false, error: err.message };
