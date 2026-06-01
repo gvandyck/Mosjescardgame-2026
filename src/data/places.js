@@ -310,7 +310,7 @@ export const PLACES = [
     tags: ["PHYSICAL", "GANDOE", "MICHELLE", "FIGHTING"],
     description: "End Phase: GANDOE Mosje +20 MP. MICHELLE/TUK Mosje +15 MP. Both active together: +10 bonus each.",
     flavourText: "Eén, twee! Hoofd omlaag. De Box sluit nooit.",
-    artPath: "assets/places/placeholder.png",
+    artPath: "assets/place-art/De box.jpeg",
     goodFor: ["FIGHTING"],
     badFor: [],
     rarity: "★★",
