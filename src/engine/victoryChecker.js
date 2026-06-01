@@ -110,6 +110,13 @@ export function markMosjeDefeated(gameState, playerId, slotIndex) {
     return state;
   }
 
+  // Tesla destruction: Coert sent to Welloe while Tesla is active → destroy Tesla.
+  if (String(mosje.cardId).includes('coert') && state.activePlace === 'place_tesla') {
+    state.activePlace = null;
+    state.players[playerId].discard.unshift({ cardId: 'place_tesla' });
+    console.log('[ENGINE] Tesla: Coert sent to Welloe — Tesla destroyed, sent to discard');
+  }
+
   console.log(`[ENGINE] ${mosje.name} has been defeated — sent to Welloe pile`);
   mosje.isDefeated = true;
   state.players[playerId].welloe.push({ ...mosje });

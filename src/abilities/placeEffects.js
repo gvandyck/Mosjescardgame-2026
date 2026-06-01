@@ -468,6 +468,73 @@ export function effect_boxing_ring(gameState, questCard, didSucceed) {
 	return state;
 }
 
+// ─────────────────────────────────────────
+// TOENNOE — End Phase: GANDOE Mosje +20 MP; MICHELLE/TUK Mosje +15 MP.
+// Both active simultaneously on same player's field: +10 bonus each.
+// ─────────────────────────────────────────
+export function effect_toennoe(gameState) {
+	const state = cloneState(gameState);
+	for (const playerId of Object.keys(state.players)) {
+		const player = state.players[playerId];
+		let gandoeSlot = null;
+		let michelleSlot = null;
+		for (const mosje of player.activeSlots) {
+			if (!mosje || mosje.isDefeated) continue;
+			const id = String(mosje.cardId).toLowerCase();
+			if (id.includes('gandoe')) {
+				mosje.mp += 20;
+				gandoeSlot = mosje;
+				console.log('[ABILITY] Toennoe: +20 MP (GANDOE)');
+			} else if (id.includes('michelle')) {
+				mosje.mp += 15;
+				michelleSlot = mosje;
+				console.log('[ABILITY] Toennoe: +15 MP (MICHELLE/TUK)');
+			}
+		}
+		if (gandoeSlot && michelleSlot) {
+			gandoeSlot.mp += 10;
+			michelleSlot.mp += 10;
+			console.log('[ABILITY] Toennoe: +10 bonus each (Gandoe & Michelle together)');
+		}
+	}
+	return state;
+}
+
+// ─────────────────────────────────────────
+// TESLA — Turn Start: COERT Mosje +20 MP; BINTI Mosje +20 MP.
+// Both active simultaneously: +10 bonus each.
+// No-op when Coert is not active (car is parked).
+// Coert defeat hook: handled in victoryChecker.js markMosjeDefeated.
+// ─────────────────────────────────────────
+export function effect_tesla(gameState, playerId) {
+	const state = cloneState(gameState);
+	const player = state.players[playerId];
+	if (!player) return state;
+	const coertSlot = player.activeSlots.find(
+		s => s && !s.isDefeated && String(s.cardId).toLowerCase().includes('coert')
+	);
+	if (!coertSlot) {
+		console.log('[PLACE] Tesla: Coert not active — car parked');
+		return state;
+	}
+	let bintiActive = false;
+	for (const mosje of player.activeSlots) {
+		if (!mosje || mosje.isDefeated) continue;
+		const id = String(mosje.cardId).toLowerCase();
+		if (id.includes('coert')) mosje.mp += 20;
+		if (id.includes('binti')) { mosje.mp += 20; bintiActive = true; }
+	}
+	if (bintiActive) {
+		for (const mosje of player.activeSlots) {
+			if (!mosje || mosje.isDefeated) continue;
+			const id = String(mosje.cardId).toLowerCase();
+			if (id.includes('coert') || id.includes('binti')) mosje.mp += 10;
+		}
+		console.log('[PLACE] Tesla: road trip bonus — Coert & Binti together +10 each');
+	}
+	return state;
+}
+
 // ─────────────────────────────────────────────────────────────
 // resolvePlaceEffect — central dispatcher
 // Fires the effect function for the current active Place, but ONLY
@@ -566,6 +633,14 @@ export function resolvePlaceEffect(gameState, triggerPhase, context = {}) {
 
 		case 'place_digital_gaming_stop':
 			nextState = effect_digital_gaming_stop(state, questCard, mosje);
+			break;
+
+		case 'place_toennoe':
+			nextState = effect_toennoe(state);
+			break;
+
+		case 'place_tesla':
+			nextState = effect_tesla(state, playerId);
 			break;
 
 		default:

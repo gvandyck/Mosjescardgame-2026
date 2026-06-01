@@ -908,6 +908,46 @@ export const QUESTS = [
     rarity: "★★★★",
     flavourText: "The crowd goes silent. The beat drops. Everything lands perfectly.",
     artPath: "assets/quests/placeholder.png"
+  },
+
+  // ─── PHASE 15 NEW PERSONAL QUESTS ───
+  {
+    id: "quest_personal_winston_tijd",
+    type: "QUEST",
+    questType: "PERSONAL",
+    category: "Social",
+    requiredMosjeId: "mosje_binti",
+    name: "Tijd voor Winston Jaaa",
+    requirementId: "quest_req_winston_tijd",
+    roll: null,
+    requirementDescription: "Binti active. Tesla must be active place.",
+    successMP: 100,
+    failMP: 0,
+    description: "Tesla must be active. Tesla returns to hand. Auto-succeed: +100 MP. Recover Varkenspootjes from discard if present.",
+    difficulty: "HIGH",
+    isBoosterOnly: false,
+    rarity: "★★★★",
+    flavourText: "Winston wacht niet op iemand. Maar hij wacht wel op de Tesla.",
+    artPath: "assets/quests/placeholder.png"
+  },
+  {
+    id: "quest_personal_kickboxing_bootcamp",
+    type: "QUEST",
+    questType: "PERSONAL",
+    category: "Physical",
+    requiredMosjeId: "mosje_michelle",
+    name: "Kickboxing Bootcamp",
+    requirementId: "quest_req_kickboxing_bootcamp",
+    roll: { trait: "physical", thresholds: { 1: 4, 2: 3, 3: 2 } },
+    requirementDescription: "Michelle active. Gandoe on field: +2 dice bonus.",
+    successMP: 80,
+    failMP: -20,
+    description: "Michelle follows Gandoe's boxing routine. Gandoe on field: +2 to roll. Success: +80 MP. Fail: -20 MP.",
+    difficulty: "HIGH",
+    isBoosterOnly: false,
+    rarity: "★★★",
+    flavourText: "Één, twee! Gandoe houdt het tempo bij.",
+    artPath: "assets/quests/placeholder.png"
   }
 
 ];

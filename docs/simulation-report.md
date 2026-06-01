@@ -10,16 +10,16 @@
 
 | Matchup | P1 Wins | P2 Wins | Timeouts | Avg Turns |
 |---------|---------|---------|----------|-----------|
-| Physical Force vs Digital Control | 19 (57.6%) | 14 (42.4%) | 0 | 9.0 |
-| Digital Control vs Artistic Rhythm | 12 (36.4%) | 21 (63.6%) | 0 | 10.9 |
-| Artistic Rhythm vs Physical Force | 18 (52.9%) | 16 (47.1%) | 0 | 8.3 |
+| Physical Force vs Digital Control | 18 (54.5%) | 15 (45.5%) | 0 | 9.8 |
+| Digital Control vs Artistic Rhythm | 11 (33.3%) | 22 (66.7%) ⚠️ | 0 | 11.0 |
+| Artistic Rhythm vs Physical Force | 21 (61.8%) | 13 (38.2%) | 0 | 8.4 |
 
 ## Win Conditions
 
 | Condition | Count | % |
 |-----------|-------|---|
-| knockout | 53 | 53.0% |
-| level_3 | 47 | 47.0% |
+| knockout | 50 | 50.0% |
+| level_3 | 50 | 50.0% |
 
 ## Card Play Frequency
 
@@ -27,21 +27,22 @@
 
 | Card | Play Count |
 |------|-----------|
-| `kannetje-melk` | 245 |
-| `dubbele-dosis` | 185 |
-| `bagga-of-greed` | 129 |
-| `eendjes-voeren` | 114 |
-| `dubbele-ding` | 88 |
-| `grammetje-pieter` | 83 |
-| `broodje-doner` | 71 |
-| `bowie-stormey` | 69 |
-| `pot-of-weed` | 54 |
-| `afblijven` | 49 |
+| `kannetje-melk` | 253 |
+| `dubbele-dosis` | 172 |
+| `eendjes-voeren` | 158 |
+| `bagga-of-greed` | 157 |
+| `dubbele-ding` | 91 |
+| `grammetje-pieter` | 79 |
+| `broodje-doner` | 70 |
+| `bowie-stormey` | 65 |
+| `afblijven` | 64 |
+| `pot-of-weed` | 59 |
 
 ### Never Played (0 plays across 100 games)
 
 Cards never played may be too expensive, require impossible conditions, or have bugs.
 
+- `te-hard-gaan`
 - `quest_tough_it_out`
 - `snelle_lucky_coin`
 - `quest_endurance_test`
@@ -60,6 +61,7 @@ Cards never played may be too expensive, require impossible conditions, or have 
 - `quest_perfect_timing`
 - `quest_speed_run`
 - `quest_synergy_mastery`
+- `snelle_dubbele_temminks`
 - `quest_artistic_expression`
 - `quest_improvise`
 - `quest_create_masterpiece`
@@ -67,22 +69,22 @@ Cards never played may be too expensive, require impossible conditions, or have 
 
 ## Balance Flags
 
+- ⚠️ **Artistic Rhythm** wins 66.7% vs Digital Control — potential imbalance
 - ⚠️ Card `snelle_negate_elimination` played in only 1 games (1.0%)
-- ⚠️ Card `te-hard-gaan` played in only 2 games (2.0%)
-- ⚠️ Card `snelle_dubbele_temminks` played in only 4 games (4.0%)
-- ⚠️ Card `laat-me-chillen` played in only 4 games (4.0%)
+- ⚠️ Card `place_bank_chilling` played in only 3 games (3.0%)
 - ⚠️ Card `place_coerts_caravan` played in only 2 games (2.0%)
-- ⚠️ Card `place_bank_chilling` played in only 2 games (2.0%)
+- ⚠️ Card `laat-me-chillen` played in only 2 games (2.0%)
 - ⚠️ Card `varkenspootjes` played in only 1 games (1.0%)
+- ⚠️ Card `momentum-diefje` played in only 3 games (3.0%)
 
 ## Aggregate Stats
 
 | Metric | Value |
 |--------|-------|
-| Avg game length (turns) | 9.4 |
-| Avg MP gained / turn | 30.9 |
-| Avg quests per game | 2.0 |
-| Avg piecies per game | 13.5 |
+| Avg game length (turns) | 9.7 |
+| Avg MP gained / turn | 31.6 |
+| Avg quests per game | 2.1 |
+| Avg piecies per game | 14.0 |
 | Most played card | `kannetje-melk` |
 | Most common win condition | knockout |
 
@@ -90,5 +92,6 @@ Cards never played may be too expensive, require impossible conditions, or have 
 
 Based on simulation results:
 
-- Investigate 22 never-played card(s): check cost gating, requirement conditions, and whether they belong in starter decks.
+- Investigate 24 never-played card(s): check cost gating, requirement conditions, and whether they belong in starter decks.
+- Review deck balance for matchups flagged as one-sided (>65% win rate).
 - Review cards played in very few games — they may need cost reductions or requirement relaxation.

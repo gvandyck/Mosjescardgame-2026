@@ -178,6 +178,13 @@ export function canAttemptPersonalQuest(questCard, gameState, playerId) {
 		}
 	}
 
+	if (questCard.requirementId === 'quest_req_winston_tijd') {
+		if (gameState?.activePlace !== 'place_tesla') {
+			console.log('[QUEST] Winston blocked — Tesla must be the active Place');
+			return false;
+		}
+	}
+
   console.log('[QUEST] Personal Quest eligible — required Mosje is on field.');
   return true;
 }
@@ -238,6 +245,11 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 
 	// Perfect Sync auto-succeeds when requirement gate passed.
 	if (questCard.requirementId === 'quest_req_perfect_sync') {
+		didSucceed = true;
+	}
+
+	// Winston Tijd auto-succeeds — Tesla presence already enforced by canAttemptPersonalQuest
+	if (questCard.id === 'quest_personal_winston_tijd') {
 		didSucceed = true;
 	}
 
@@ -419,6 +431,22 @@ function resolvePersonalQuestSideEffects(gameState, questCard, playerId) {
 			});
 		}
 		console.log('[QUEST] Lucky Crescendo side effect — all opponents lose 20 MP');
+	}
+
+	if (questCard.id === 'quest_personal_winston_tijd') {
+		// Tesla returns to the player's hand
+		state.activePlace = null;
+		state.players[playerId].hand.push({ cardId: 'place_tesla' });
+		// Recover Varkenspootjes from discard if present
+		const vi = state.players[playerId].discard.findIndex(
+			c => (c.cardId || c) === 'piecie_varkenspootjes'
+		);
+		if (vi >= 0) {
+			const [recovered] = state.players[playerId].discard.splice(vi, 1);
+			state.players[playerId].hand.push(recovered);
+			console.log('[QUEST] Winston: Varkenspootjes recovered from discard');
+		}
+		console.log('[QUEST] Winston: Tesla returned to hand');
 	}
 
 	return state;
@@ -912,3 +940,22 @@ export function quest_req_lucky_crescendo(gameState, playerId) {
 	};
 }
 
+// ─────────────────────────────────────────
+// getKickboxingBootcampDiceBonus
+// Returns +2 dice bonus for quest_personal_kickboxing_bootcamp when
+// any Gandoe Mosje is simultaneously active on the player's field.
+// Call from main.js alongside existing diceBonus reads in quest activation handlers.
+// ─────────────────────────────────────────
+export function getKickboxingBootcampDiceBonus(questCard, gameState, playerId) {
+	if (questCard?.id !== 'quest_personal_kickboxing_bootcamp') return 0;
+	const player = gameState?.players?.[playerId];
+	if (!player) return 0;
+	const gandoeOnField = (player.activeSlots || []).some(
+		s => s && !s.isDefeated && String(s.cardId).includes('gandoe')
+	);
+	if (gandoeOnField) {
+		console.log('[QUEST] Kickboxing Bootcamp: Gandoe hypes Michelle — +2 dice bonus');
+		return 2;
+	}
+	return 0;
+}

@@ -1716,6 +1716,16 @@ function initGamePage() {
 		}
 
 		if (cardType === 'PLACE') {
+			// Tesla activation guard (DECK-12): Coert must be active to play Tesla.
+			if (cardDef.id === 'place_tesla') {
+				const coertOnField = gameState.players[localPlayerId].activeSlots.some(
+					s => s && !s.isDefeated && String(s.cardId).includes('coert')
+				);
+				if (!coertOnField) {
+					modal.showInfo('Cannot Activate', 'Coert must be active to drive the Tesla.');
+					return;
+				}
+			}
 			const beforePlay = snapshotForAnimation();
 			const { state: newState, success, error } = playPlace(gameState, localPlayerId, cardRef, cardDef);
 			if (!success) {

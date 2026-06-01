@@ -284,4 +284,36 @@ export const PLACES = [
     rarity: "★★★",
     isBoosterOnly: false
   },
+
+  // ─── PHASE 15 NEW PLACES ───
+  {
+    id: "place_tesla",
+    type: "PLACE",
+    name: "Tesla",
+    trigger: "TURN_START",
+    effectId: "effect_tesla",
+    tags: ["DIGITAL", "COERT", "BINTI"],
+    description: "Requires Coert active to play. Turn Start: COERT +20 MP, BINTI +20 MP. Both active: +10 bonus each. Coert leaves field: Tesla destroyed, sent to discard.",
+    flavourText: "Coert rijdt, Binti kiest de muziek. Maar eerst moet Coert ja zeggen.",
+    artPath: "assets/places/placeholder.png",
+    goodFor: ["DIGITAL"],
+    badFor: [],
+    rarity: "★★★",
+    isBoosterOnly: false
+  },
+  {
+    id: "place_toennoe",
+    type: "PLACE",
+    name: "Toennoe",
+    trigger: "END_PHASE",
+    effectId: "effect_toennoe",
+    tags: ["PHYSICAL", "GANDOE", "MICHELLE"],
+    description: "End Phase: GANDOE Mosje +20 MP. MICHELLE/TUK Mosje +15 MP. Both active together: +10 bonus each.",
+    flavourText: "Lekker buiten in de tuin.",
+    artPath: "assets/places/placeholder.png",
+    goodFor: ["FIGHTING"],
+    badFor: [],
+    rarity: "★★",
+    isBoosterOnly: false
+  },
 ];

@@ -6,82 +6,81 @@ export const STARTER_DECKS = [
   {
     id: "PHYSICAL_FORCE",
     name: "Physical Force",
-    description: "Raw power and Quest dominance. Best for aggressive players who want big MP swings.",
-    mosjes: ["mosje_jeffrey", "mosje_michelle"],
+    description: "Couple power: Gandoe and Michelle's boxing chemistry. Physical quests, place synergies, and the Toennoe hangout.",
+    mosjes: ["mosje_gandoe_destroyer", "mosje_michelle"],
     piecies: [
-      // 2x copies of high-value FOOD and attack cards
-      "piecie_broodje_doner",
-      "piecie_broodje_doner",
+      "piecie_boxing_gloves",
+      "piecie_bowie_stormey",
+      "piecie_eendjes_voeren",
+      "piecie_laat_me_chillen",
+      "piecie_kannetje_melk",
+      "piecie_protein_shake",
       "piecie_affoe",
       "piecie_affoe",
       "piecie_quest_prep",
-      "piecie_quest_prep",
-      "piecie_pot_of_weed",
-      "piecie_slecht_gezet",
-      "piecie_grammetje_pieter",
       "piecie_tikker"
     ],
     snellePiecies: [
+      "snelle_negate_elimination",
       "snelle_emergency_healings",
-      "snelle_emergency_healings",
-      "snelle_ff_haaltje_nemen",
+      "snelle_jensen",
       "snelle_lucky_coin"
     ],
     places: [
-      "place_the_gym",
-      "place_quest_haven"
+      "place_boxing_ring",
+      "place_toennoe"
     ],
     quests: [
-      "quest_personal_iron_will"
+      "quest_personal_kickboxing_bootcamp"
     ]
   },
   {
     id: "DIGITAL_CONTROL",
     name: "Digital Control",
-    description: "Card draw, MP efficiency, and tech synergies. Best for strategic players.",
-    mosjes: ["mosje_martin_senor_west", "mosje_coert_tech"],
+    description: "Coert and Binti's Tesla loop: FOOD synergy, quest economy, and the Winston Jaaa auto-quest combo.",
+    mosjes: ["mosje_coert_tech", "mosje_binti"],
     piecies: [
-      "piecie_pot_of_weed",
-      "piecie_pot_of_weed",
       "piecie_kannetje_melk",
       "piecie_kannetje_melk",
+      "piecie_kannetje_melk",
+      "piecie_varkenspootjes",
+      "piecie_pot_of_weed",
       "piecie_quest_prep",
       "piecie_quest_prep",
-      "piecie_affoe",
-      "piecie_slecht_gezet",
+      "piecie_bong_hit_demolition",
+      "piecie_redbull",
       "piecie_keyboard",
-      "piecie_mouse",
       "piecie_controller"
     ],
     snellePiecies: [
       "snelle_jensen",
       "snelle_jensen",
       "snelle_lucky_coin",
-      "snelle_lucky_coin"
+      "snelle_counter_strikka"
     ],
     places: [
-      "place_bank_chilling",
-      "place_quest_haven"
+      "place_tesla",
+      "place_bank_chilling"
     ],
     quests: [
-      "quest_personal_perfect_sync"
+      "quest_personal_winston_tijd"
     ]
   },
   {
     id: "ARTISTIC_RHYTHM",
     name: "Artistic Rhythm",
-    description: "Social pressure and creative combos. Best for players who like disrupting opponents.",
-    mosjes: ["mosje_binti", "mosje_dj_8020"],
+    description: "Youri and Chris DDR: speedrun combos, piecie chains, and creative quest pressure.",
+    mosjes: ["mosje_youri", "mosje_chris_ddr"],
     piecies: [
       "piecie_kannetje_melk",
       "piecie_kannetje_melk",
       "piecie_affoe",
       "piecie_affoe",
       "piecie_pot_of_weed",
-      "piecie_pot_of_weed",
       "piecie_quest_prep",
-      "piecie_slecht_gezet",
-      "piecie_larry_zegeltje",
+      "piecie_quest_prep",
+      "piecie_controller",
+      "piecie_synergy_field",
       "piecie_grammetje_pieter"
     ],
     snellePiecies: [
@@ -95,7 +94,7 @@ export const STARTER_DECKS = [
       "place_bank_chilling"
     ],
     quests: [
-      "quest_personal_lucky_crescendo"
+      "quest_improvise"
     ]
   }
 ];

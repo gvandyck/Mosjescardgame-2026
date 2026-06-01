@@ -27,8 +27,8 @@ export interface DeckConfig {
 // ─── Physical Force ───────────────────────────────────────────────────────────
 
 const PHYSICAL_FORCE_MOSJES: readonly [MosjeConfig, MosjeConfig] = [
-  { cardId: id("alyssa-the-bulldozer"), startMP: 10 },
-  { cardId: id("jeffrey-the-strongman"), startMP: 15 }
+  { cardId: id("gandoe-the-destroyer"), startMP: 0 },
+  { cardId: id("michelle-iron-tuk"), startMP: 0 }
 ];
 
 const PHYSICAL_FORCE_DECK_CARDS: ReadonlyArray<CardId> = [
@@ -85,8 +85,8 @@ export const PHYSICAL_FORCE: DeckConfig = {
 // ─── Digital Control ──────────────────────────────────────────────────────────
 
 const DIGITAL_CONTROL_MOSJES: readonly [MosjeConfig, MosjeConfig] = [
-  { cardId: id("martin-the-historian"), startMP: 10 },
-  { cardId: id("ronald-the-master-chef"), startMP: 10 }
+  { cardId: id("coert-the-tech-savant"), startMP: 10 },
+  { cardId: id("binti-the-sharp-tongue"), startMP: 5 }
 ];
 
 const DIGITAL_CONTROL_DECK_CARDS: ReadonlyArray<CardId> = [
@@ -144,8 +144,8 @@ export const DIGITAL_CONTROL: DeckConfig = {
 // ─── Artistic Rhythm ──────────────────────────────────────────────────────────
 
 const ARTISTIC_RHYTHM_MOSJES: readonly [MosjeConfig, MosjeConfig] = [
-  { cardId: id("dj-8020"), startMP: 20 },
-  { cardId: id("jisca-the-maestro"), startMP: 0 }
+  { cardId: id("youri-the-speedrunner"), startMP: 0 },
+  { cardId: id("chris-ddr"), startMP: 15 }
 ];
 
 const ARTISTIC_RHYTHM_DECK_CARDS: ReadonlyArray<CardId> = [
