@@ -10,7 +10,7 @@ import { PLACES } from '../../src/data/places.js';
 // @ts-expect-error — JS module, no type declarations
 import { MOSJES } from '../../src/data/mosjes.js';
 // @ts-expect-error — JS module, no type declarations
-import { effect_toennoe, effect_tesla } from '../../src/abilities/placeEffects.js';
+import { effect_de_box, effect_tesla } from '../../src/abilities/placeEffects.js';
 // @ts-expect-error — JS module, no type declarations
 import { getKickboxingBootcampDiceBonus } from '../../src/abilities/questLogic.js';
 
@@ -93,28 +93,28 @@ describe('Phase 15 — Physical Force rework (DECK-01/02/03/04)', () => {
   it('places contains place_boxing_ring', () => {
     expect(pf()?.places).toContain('place_boxing_ring');
   });
-  it('places contains place_toennoe', () => {
-    expect(pf()?.places).toContain('place_toennoe');
+  it('places contains place_de_box', () => {
+    expect(pf()?.places).toContain('place_de_box');
   });
   it('quests contains quest_personal_kickboxing_bootcamp', () => {
     expect(pf()?.quests).toContain('quest_personal_kickboxing_bootcamp');
   });
 });
 
-describe('Phase 15 — place_toennoe card definition (DECK-03)', () => {
-  const toennoe = () => PLACES.find((p: { id: string }) => p.id === 'place_toennoe');
+describe('Phase 15 — place_de_box card definition (DECK-03)', () => {
+  const deBox = () => PLACES.find((p: { id: string }) => p.id === 'place_de_box');
 
-  it('PLACES contains place_toennoe', () => {
-    expect(toennoe()).toBeDefined();
+  it('PLACES contains place_de_box', () => {
+    expect(deBox()).toBeDefined();
   });
-  it('place_toennoe has trigger END_PHASE', () => {
-    expect(toennoe()?.trigger).toBe('END_PHASE');
+  it('place_de_box has trigger END_PHASE', () => {
+    expect(deBox()?.trigger).toBe('END_PHASE');
   });
-  it('place_toennoe has effectId effect_toennoe', () => {
-    expect(toennoe()?.effectId).toBe('effect_toennoe');
+  it('place_de_box has effectId effect_de_box', () => {
+    expect(deBox()?.effectId).toBe('effect_de_box');
   });
-  it('place_toennoe has isBoosterOnly false', () => {
-    expect(toennoe()?.isBoosterOnly).toBe(false);
+  it('place_de_box has isBoosterOnly false', () => {
+    expect(deBox()?.isBoosterOnly).toBe(false);
   });
 });
 
@@ -138,7 +138,7 @@ describe('Phase 15 — quest_personal_kickboxing_bootcamp definition (DECK-04)',
   });
 });
 
-describe('Phase 15 — effect_toennoe (DECK-16)', () => {
+describe('Phase 15 — effect_de_box (DECK-16)', () => {
   function makeState(mosjes: Array<{ cardId: string; isDefeated?: boolean }>) {
     return {
       players: {
@@ -155,13 +155,13 @@ describe('Phase 15 — effect_toennoe (DECK-16)', () => {
 
   it('gives GANDOE Mosje +20 MP at END_PHASE', () => {
     const state = makeState([{ cardId: 'mosje_gandoe_destroyer' }]);
-    const result = effect_toennoe(state);
+    const result = effect_de_box(state);
     expect(result.players.player_1.activeSlots[0].mp).toBe(20);
   });
 
   it('gives MICHELLE Mosje +15 MP at END_PHASE', () => {
     const state = makeState([{ cardId: 'mosje_michelle' }]);
-    const result = effect_toennoe(state);
+    const result = effect_de_box(state);
     expect(result.players.player_1.activeSlots[0].mp).toBe(15);
   });
 
@@ -170,14 +170,14 @@ describe('Phase 15 — effect_toennoe (DECK-16)', () => {
       { cardId: 'mosje_gandoe_destroyer' },
       { cardId: 'mosje_michelle' },
     ]);
-    const result = effect_toennoe(state);
+    const result = effect_de_box(state);
     expect(result.players.player_1.activeSlots[0].mp).toBe(30); // 20 + 10
     expect(result.players.player_1.activeSlots[1].mp).toBe(25); // 15 + 10
   });
 
   it('gives 0 MP change to non-GANDOE non-MICHELLE Mosje', () => {
     const state = makeState([{ cardId: 'mosje_jeffrey' }]);
-    const result = effect_toennoe(state);
+    const result = effect_de_box(state);
     expect(result.players.player_1.activeSlots[0].mp).toBe(0);
   });
 });

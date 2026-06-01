@@ -469,10 +469,10 @@ export function effect_boxing_ring(gameState, questCard, didSucceed) {
 }
 
 // ─────────────────────────────────────────
-// TOENNOE — End Phase: GANDOE Mosje +20 MP; MICHELLE/TUK Mosje +15 MP.
+// DE BOX — End Phase: GANDOE Mosje +20 MP; MICHELLE/TUK Mosje +15 MP.
 // Both active simultaneously on same player's field: +10 bonus each.
 // ─────────────────────────────────────────
-export function effect_toennoe(gameState) {
+export function effect_de_box(gameState) {
 	const state = cloneState(gameState);
 	for (const playerId of Object.keys(state.players)) {
 		const player = state.players[playerId];
@@ -635,8 +635,8 @@ export function resolvePlaceEffect(gameState, triggerPhase, context = {}) {
 			nextState = effect_digital_gaming_stop(state, questCard, mosje);
 			break;
 
-		case 'place_toennoe':
-			nextState = effect_toennoe(state);
+		case 'place_de_box':
+			nextState = effect_de_box(state);
 			break;
 
 		case 'place_tesla':

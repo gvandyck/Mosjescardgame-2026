@@ -28,7 +28,7 @@ export const STARTER_DECKS = [
     ],
     places: [
       "place_boxing_ring",
-      "place_toennoe"
+      "place_de_box"
     ],
     quests: [
       "quest_personal_kickboxing_bootcamp"
