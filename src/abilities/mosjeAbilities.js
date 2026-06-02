@@ -273,22 +273,30 @@ export function ability_gandoe_destroyer_elimination_strike(gameState, playerId)
 
 // DIGITAL MOSJES
 
-// Ronald Chef — strategic insight: peek opponent top 2 deck cards.
-// Sets _ronaldPeek (card IDs), _ronaldPeekPlayerId, and _ronaldPeekTimestamp for UI consumption.
+// Ronald Chef — Strategic Insight: pay 20 MP, lock a card in the opponent's hand
+// (chosen via the UI -> _pendingTargets.ronaldLockCardId) until this player's next
+// turn. Once per turn (abilityUsedThisTurn) + a 3-turn cooldown on the slot.
 export function ability_ronald_chef_strategic_insight(gameState, playerId) {
 	const state = cloneState(gameState);
+	const player = state.players[playerId];
+	if (!player) throw new Error('Player not found');
+	const slotIndex = player.activeSlots.findIndex(s => s && !s.isDefeated && String(s.cardId).includes('ronald_chef'));
+	if (slotIndex < 0) throw new Error('Ronald Chef not on field');
+	const slot = player.activeSlots[slotIndex];
+	if ((slot.strategicInsightCooldown || 0) > 0) {
+		throw new Error(`Strategic Insight is on cooldown (${slot.strategicInsightCooldown} turn(s) left)`);
+	}
+	if (slot.mp < 20) throw new Error('Not enough MP — Strategic Insight costs 20 MP');
+	const lockCardId = state._pendingTargets?.ronaldLockCardId;
+	if (!lockCardId) throw new Error('Strategic Insight requires an opponent card to lock');
 	const oppId = getOpponentId(state, playerId);
-	if (!oppId) return state;
-	const opp = state.players[oppId];
-	const peeked = opp.deck.slice(0, 2).map(c => c.cardId);
-	state._ronaldPeek = peeked;
-	// DEFERRED (STUB-16): _ronaldPeek contains the peeked card IDs but UI does not render them.
-	// Blocking primitive: a "peek reveal" modal showing opponent deck top 2 card names.
-	// Deferred to: UI phase (peek/reveal UI primitive).
-	state._ronaldPeekPlayerId = playerId;
-	state._ronaldPeekTimestamp = Date.now();
-	console.log('[ABILITY] Ronald Chef: peeked opponent top 2:', peeked);
-	return state;
+	if (!oppId) throw new Error('No opponent on field');
+	let next = loseMP(state, playerId, slotIndex, 20, 'RONALD_INSIGHT');
+	next.players[oppId]._lockedCard = { cardId: lockCardId, byPlayer: playerId };
+	next.players[playerId].activeSlots[slotIndex].strategicInsightCooldown = 3;
+	if (next._pendingTargets) delete next._pendingTargets.ronaldLockCardId;
+	console.log('[ABILITY] Ronald Strategic Insight: locked', lockCardId, 'on', oppId, '(cooldown 3)');
+	return next;
 }
 
 // Ming Natural — draw 1 card.

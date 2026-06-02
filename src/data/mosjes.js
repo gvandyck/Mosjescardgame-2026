@@ -168,7 +168,9 @@ export const MOSJES = [
     startMP: 0,
     traits: { mental: 3, social: 3, physical: 1 },
     abilityId: "ability_ronald_chef_strategic_insight",
-    abilityDescription: "Strategic Insight: Pay 20 MP to view opponent hand and lock 1 chosen card next turn (once per turn, 3-turn cooldown).",
+    // LEGACY abilityDescription (pre-Phase 19, archived for possible revert):
+    // "Strategic Insight: Pay 20 MP to view opponent hand and lock 1 chosen card next turn (once per turn, 3-turn cooldown)."
+    abilityDescription: "Strategic Insight: Pay 20 MP to pick a card in your opponent's hand and lock it until your next turn — they can't play it. Once per turn, 3-turn cooldown.",
     synergyWith: [],
     synergyEffect: "Ronald Kip gives 60 MP + draw 1 instead of 50 MP",
     petSynergy: null,

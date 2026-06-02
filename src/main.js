@@ -1056,6 +1056,7 @@ function initGamePage() {
 	const MING_FUTURE_SIGHT_IDS = new Set(['mosje_ming_predictor']);
 	const TUK_PERFECT_PLACEMENT_IDS = new Set(['mosje_tuk_architect']);
 	const FPS_WEST_TACTICAL_IDS = new Set(['mosje_fps_west']);
+	const RONALD_CHEF_INSIGHT_IDS = new Set(['mosje_ronald_chef']);
 
 	async function handleUseAbility(mosjeId) {
 		if (!gameState || gameState.status === 'FINISHED') return;
@@ -1159,6 +1160,51 @@ function initGamePage() {
 			const bintiSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
 			log.add('loss', `Binti Cutting Words: discarded ${chosen.name || chosen.cardId} — opponent loses 10 MP and discards a card.`);
 			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${bintiSlot?.name || mosjeId} ability`);
+			syncPush();
+			if (gameState.status === 'FINISHED') {
+				stopListening();
+				const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
+				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
+				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+			}
+			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
+			return;
+		}
+
+		// Ronald Chef — Strategic Insight: pick an opponent hand card to lock
+		if (RONALD_CHEF_INSIGHT_IDS.has(mosjeId)) {
+			const oppId = Object.keys(gameState.players).find(id => id !== localPlayerId);
+			const oppHand = gameState.players[oppId]?.hand ?? [];
+			if (oppHand.length === 0) {
+				modal.showInfo('Cannot Use Ability', "Your opponent's hand is empty — nothing to lock.");
+				return;
+			}
+			const pickedIndex = await modal.showOpponentHandCardSelect({
+				title: 'Strategic Insight — Lock a card',
+				prompt: "Pick one of your opponent's face-down cards to lock until your next turn.",
+				handSize: oppHand.length,
+				allowCancel: true,
+			});
+			if (pickedIndex === null) return;
+			const lockCard = oppHand[pickedIndex];
+			const lockCardId = lockCard?.cardId ?? lockCard;
+			const stateWithTarget = JSON.parse(JSON.stringify(gameState));
+			stateWithTarget._pendingTargets = {
+				...(stateWithTarget._pendingTargets || {}),
+				ronaldLockCardId: lockCardId,
+			};
+			const { state: newState, success, error } = useMosjeAbility(stateWithTarget, localPlayerId, mosjeId);
+			if (!success) {
+				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
+				return;
+			}
+			if (abilitySlotIndex >= 0) {
+				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
+			}
+			gameState = newState;
+			const lockName = CARD_LOOKUP[lockCardId]?.name || lockCardId;
+			log.add('loss', `Ronald Strategic Insight: paid 20 MP and locked ${lockName} in the opponent's hand until your next turn.`);
+			logStateOutcome(log, beforeAbility, gameState, localPlayerId, 'Ronald Strategic Insight');
 			syncPush();
 			if (gameState.status === 'FINISHED') {
 				stopListening();

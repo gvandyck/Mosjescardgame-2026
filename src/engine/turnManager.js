@@ -36,6 +36,12 @@ function normalizePiecieSlots(player, slotCount = 4) {
   player.piecieSlots = normalized;
 }
 
+// Ronald Strategic Insight: a hand card locked by an opponent cannot be played.
+function isHandCardLocked(gameState, playerId, cardRef) {
+  const playedId = cardRef?.cardId ?? cardRef;
+  return gameState.players?.[playerId]?._lockedCard?.cardId === playedId;
+}
+
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // startTurn
 // Called at the beginning of a player's turn.
@@ -85,6 +91,20 @@ export function startTurn(gameState) {
   delete state._snelleBlocked;
   delete state._battleConcertActive;
   delete state._rerollGranted;
+
+  // Phase 19 — Ronald Strategic Insight hygiene:
+  // tick the cooldown on the starting player's slots
+  for (const s of activePlayer.activeSlots) {
+    if (s && typeof s.strategicInsightCooldown === 'number' && s.strategicInsightCooldown > 0) {
+      s.strategicInsightCooldown -= 1;
+    }
+  }
+  // a lock expires when the player who set it begins their next turn
+  for (const pid of Object.keys(state.players)) {
+    if (state.players[pid]._lockedCard?.byPlayer === playerId) {
+      delete state.players[pid]._lockedCard;
+    }
+  }
 
   for (const slot of activePlayer.activeSlots) {
     if (slot) {
@@ -341,6 +361,10 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
   let state = JSON.parse(JSON.stringify(gameState));
   const player = state.players[playerId];
   if (!player) return { state, success: false, error: 'Player not found' };
+
+  if (isHandCardLocked(state, playerId, cardRef)) {
+    return { state, success: false, error: 'That card is locked by Ronald Strategic Insight — you cannot play it this turn.' };
+  }
 
   // Defensive normalization for synced multiplayer states
   normalizePiecieSlots(player, 4);
@@ -705,6 +729,10 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
   let player = state.players[playerId];
   if (!player) return { state, success: false, error: 'Player not found' };
 
+  if (isHandCardLocked(state, playerId, cardRef)) {
+    return { state, success: false, error: 'That card is locked by Ronald Strategic Insight — you cannot play it this turn.' };
+  }
+
   // Those Eyelashes: this player's Snelles are blocked this turn
   if (state._snelleBlocked === playerId) {
     return { state, success: false, error: 'Your Snelle Piecies are blocked this turn (Those Eyelashes).' };
@@ -775,6 +803,10 @@ export function playMosje(gameState, playerId, cardRef) {
   let state = JSON.parse(JSON.stringify(gameState));
   const player = state.players[playerId];
   if (!player) return { state, success: false, error: 'Player not found' };
+
+  if (isHandCardLocked(state, playerId, cardRef)) {
+    return { state, success: false, error: 'That card is locked by Ronald Strategic Insight — you cannot play it this turn.' };
+  }
 
   if (!Array.isArray(player.hand)) player.hand = [];
   if (!Array.isArray(player.activeSlots)) player.activeSlots = [null, null];
@@ -1004,6 +1036,10 @@ export function playPlace(gameState, playerId, cardRef, cardDef) {
   let state = JSON.parse(JSON.stringify(gameState));
   const player = state.players[playerId];
   if (!player) return { state, success: false, error: 'Player not found' };
+
+  if (isHandCardLocked(state, playerId, cardRef)) {
+    return { state, success: false, error: 'That card is locked by Ronald Strategic Insight — you cannot play it this turn.' };
+  }
 
   // Defensive normalization — ensures piecieSlots is always 4 elements with null for empty
   normalizePiecieSlots(player, 4);
