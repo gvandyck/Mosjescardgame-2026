@@ -36,7 +36,7 @@ const ALL_CARDS = [
 	...QUESTS.filter(c => c.questType === 'PERSONAL').map(c => ({ ...c, cardType: 'QUEST' })),
 ];
 
-const RARITY_COPY_LIMITS = { '★': 4, '★★': 3, '★★★': 2, '★★★★': 1, '★★★★★': 1 };
+const RARITY_COPY_LIMITS = { '★': 4, '★★': 3, '★★★': 2, '★★★★': 1 };
 const DECK_MIN = 16;
 const DECK_MAX = 60;
 

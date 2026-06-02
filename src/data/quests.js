@@ -10,7 +10,7 @@
 //   category        : "Physical" | "Mental" | "Social" | "Creative" | "Technical" | "Resilient" | "Mixed"
 //   requiredMosjeId : null (General) or a mosje id string (Personal)
 //   isBoosterOnly   : false = can appear in starter decks, true = booster packs only
-//   rarity          : "★★★" | "★★★★" | "★★★★★"
+//   rarity          : "★★★" | "★★★★"
 //   difficulty      : "LOW" | "MEDIUM" | "HIGH"
 //
 // requirementId links to a function in src/abilities/questLogic.js.
@@ -580,7 +580,7 @@ export const QUESTS = [
     description: "Success: +120 MP. Failure: -20 MP.",
     difficulty: "HIGH",
     isBoosterOnly: false,
-    rarity: "★★★★★",
+    rarity: "★★★★",
     flavourText: "",
     artPath: "assets/quests/placeholder.png"
   },
