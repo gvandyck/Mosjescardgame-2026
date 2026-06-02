@@ -1,6 +1,6 @@
 ﻿# Card Implementation Roadmap
 
-**16 phases** | **~43 unique cards + multiplayer features + deck reworks** | **Sequential execution**
+**20 phases** | **~43 unique cards + multiplayer features + deck reworks** | **Sequential execution**
 
 ---
 
@@ -22,6 +22,8 @@
 | 16 | Eendjes Voeren Place | Transform Eendjes Voeren from a Piecie into a Place: resilience aura (all resilient traits max ★★★ while active) + Michelle +10 MP each End Phase. | EEV-01 through EEV-05 | place_eendjes_voeren in places.js; getMosjeTrait maxes resilient; Physical Force deck updated; piecie retired to booster-only |
 | 17 | Place Recovery Mechanics ✅ | Unified per-player graveyard (Places + Mosjes + Piecies all go to owner's discard). Rework Slecht Gezet (ownership-aware: return own / destroy opponent's), rework Huisbaas (return Place from own discard), add new snelle Chillingsvoorbij! | PLACE-REC-01/02/03 + ENGINE-01/02/03 | DONE — 821 tests pass, 0 sim crashes. Engine unified, 3 recovery cards live |
 | 18 | Dead-Flag Card Fixes ✅ | Wire 6 cards whose effect flags were set but never consumed. Wave 1 (engine + persistence): Tweede Kans reroll, Battle Concert redirect, Those Eyelashes Snelle-block — all persist on field. Wave 2 (UI-pick): Ronald Master Plan (play Piecie from discard), Ming Future Sight (quest peek/bottom), Tuk Perfect Placement (peek 5 take 2, face-down removed). | DEADFLAG-01 through 06 | DONE — 837 tests pass, 0 sim crashes. All 6 cards match their descriptions; no dead flags remain |
+| 19 | UI-Modal Card Completions | Wire the 2 remaining "deferred — needs UI" Mosje abilities to existing modals (the reveal flags `opponentHandPeeked` + `_ronaldPeek` were dead). Plan 01 — **FPS West**: Geen Raad-style guess-a-card-type-in-opponent's-hand game, correct +70 MP / wrong −20 MP (old text archived). Plan 02 — **Ronald Chef**: pay 20 MP to pick an opponent hand card and LOCK it (unplayable) until your next turn, 3-turn cooldown. (Geen Raad was already implemented — card-reference was stale. Emergency Swap → reworked into Vieze Ginyu, Phase 20.) | UICARD-01/02 | Both cards do what their text says; both dead flags gone; new hand-card-lock mechanic enforced across play paths; tests + simulation green |
+| 20 | Vieze Ginyu (temporary MP swap) | Rework the unused Emergency Swap into **Vieze Ginyu** (Captain Ginyu body-swap theme; max rarity ★★★★★ = 1 per deck; no MP cost; stays on field 1 turn). On your turn, pick one of your Mosjes + an opponent Mosje and swap their MP; at the END of your turn swap the *current* MP back. Levels banked off the borrowed progress stick; leftover MP is handed to the other Mosje (double-swap). Imperative engine: effect + endTurn revert + target modals; rename old emergency_swap refs across both card systems + docs. | GINYU-01 | Vieze Ginyu swaps then reverts correctly; banked levels persist; rarity/deck-cap set; old refs renamed; tests + sim green |
 
 ---
 
