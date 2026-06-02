@@ -450,7 +450,7 @@ export const PIECIES = [
     requirement: "any",
     effectId: "effect_mosje_reborn",
     tags: ["REVIVE"],
-    description: "Revive the most recently defeated Mosje from your graveyard with 40 MP.",
+    description: "Revive the most recently defeated Mosje from your graveyard at its base starting MP + 40.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
     rarity: "★★★",

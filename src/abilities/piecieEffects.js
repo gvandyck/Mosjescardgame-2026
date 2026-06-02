@@ -5,6 +5,7 @@ import { rollDie } from '../engine/deckEngine.js';
 import { hasFoodDoubleSynergy } from '../engine/synergyResolver.js';
 import { destroyActivePlace } from '../engine/gameState.js';
 import { triggerPlaceDestroyedEffects } from './placeEffects.js';
+import { MOSJES } from '../data/mosjes.js';
 
 console.log('[ABILITY] piecieEffects.js loaded');
 
@@ -458,13 +459,15 @@ export function effect_mosje_reborn(gameState, playerId) {
 		return state;
 	}
 	const revived = player.welloe.shift();
+	const mosjeDef = MOSJES.find(m => m.id === revived.cardId);
+	const startMP = mosjeDef?.startMP ?? 0;
 	revived.isDefeated = false;
-	revived.mp = 40;
+	revived.mp = startMP + 40;
 	revived.abilityUsedThisTurn = false;
 	revived.immuneThisTurn = false;
 	revived.mpLostThisTurn = 0;
 	player.activeSlots[emptySlot] = revived;
-	console.log('[ABILITY] Mosje Reborn: revived', revived.name, 'at 40 MP');
+	console.log(`[ABILITY] Mosje Reborn: revived ${revived.name} at ${revived.mp} MP (${startMP} base + 40)`);
 	return state;
 }
 
