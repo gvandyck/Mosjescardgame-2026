@@ -446,32 +446,25 @@ export function effect_mp_amplifier(gameState, playerId) {
 }
 
 export function effect_mosje_reborn(gameState, playerId) {
-	if (gameState.activePlace === 'place_welloe_graveyard') {
-		console.log('[ABILITY] Mosje Reborn blocked by Welloe Graveyard');
-		return gameState;
-	}
-
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player || player.welloe.length === 0) {
 		console.log('[ABILITY] Mosje Reborn: welloe pile is empty');
 		return state;
 	}
-	// Auto-revive the most recently defeated Mosje with level-scaled MP
-	const revived = player.welloe.shift();
-	revived.isDefeated = false;
-	revived.mp = revived.level === 2 ? 60 : revived.level === 1 ? 40 : 20;
-	// Place in first empty slot
 	const emptySlot = player.activeSlots.findIndex(s => s === null);
-	if (emptySlot >= 0) {
-		player.activeSlots[emptySlot] = revived;
-	} else {
-		// All slots full — cannot revive right now
-		player.welloe.unshift(revived);
+	if (emptySlot < 0) {
 		console.log('[ABILITY] Mosje Reborn: no empty slot available');
 		return state;
 	}
-	console.log('[ABILITY] Mosje Reborn: revived', revived.name, 'at', revived.mp, 'MP');
+	const revived = player.welloe.shift();
+	revived.isDefeated = false;
+	revived.mp = 40;
+	revived.abilityUsedThisTurn = false;
+	revived.immuneThisTurn = false;
+	revived.mpLostThisTurn = 0;
+	player.activeSlots[emptySlot] = revived;
+	console.log('[ABILITY] Mosje Reborn: revived', revived.name, 'at 40 MP');
 	return state;
 }
 

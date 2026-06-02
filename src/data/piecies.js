@@ -450,7 +450,7 @@ export const PIECIES = [
     requirement: "any",
     effectId: "effect_mosje_reborn",
     tags: ["REVIVE"],
-    description: "Revive a Mosje from Welloe pile. MP based on prior level: 60/40/20.",
+    description: "Revive the most recently defeated Mosje from your graveyard with 40 MP.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
     rarity: "★★★",
