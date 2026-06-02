@@ -1,8 +1,31 @@
 # Project State
 
-**Last updated:** 2026-05-31
-**Current phase:** Phase 14 COMPLETE — 14-01, 14-02, 14-03 all complete
-**Branch:** audit/unimplemented-stubs-and-mechanics
+**Last updated:** 2026-06-02
+**Current phase:** Phase 18 COMPLETE — 18-01, 18-02 both complete
+**Branch:** fix/phase-18-dead-flags
+
+> Note: STATE.md was not maintained during Phases 15–17 (tracked in their phase dirs / ROADMAP only). This header jumps from Phase 14 to Phase 18.
+
+## Phase 18 Progress — Dead-Flag Card Fixes
+
+### 18-01: Dead-flag Piecie fixes + persistence (COMPLETE)
+- Those Eyelashes: `_snelleBlocked` now stores the blocked opponent's playerId; playSnellie rejects that player's Snelle plays for the turn
+- Battle Concert: `_battleConcertActive` redirects Alyssa's quest-failure MP to an opponent's first active Mosje (once), Alyssa untouched; guarded both onFailure and legacy failMP paths with a `failRedirected` local + gated on `!baseQuestMpBlocked` (The Void still nullifies)
+- Tweede Kans: `_rerollGranted` consumed into both quest dice flows as +1 skiffaRerolls
+- All three cards gained `persistUntilEndOfTurn: true`; startTurn clears all three flags
+- 8 new tests; 829 total passing; simulation 100 games 0 crashes/0 timeouts
+
+### 18-02: Dead-flag Mosje ability rewrites (COMPLETE)
+- Ronald Master Plan: play a Piecie free from own discard (once per game, `masterPlanUsed`), resolve its effect; persists on field if persistent, else to discard. Added `import * as piecieEffects` + `import { PIECIES }`
+- Ming Future Sight: 10 MP, reveal top General Quest, optional send-to-bottom via `_pendingTargets.mingSendToBottom`
+- Tuk Perfect Placement: 15 MP, peek top 5, take 2 to hand, bottom 3; abilityDescription face-down clause removed
+- All three consume real UI selections via `_pendingTargets` (West/Binti modal pattern in main.js handleUseAbility)
+- 8 new tests; 837 total passing; simulation 100 games 0 crashes/0 timeouts; no `_masterPlanPeek`/`_mingPredictorPeek`/`_architectPeek` flags remain
+
+### Decisions
+- showCardChoice supports only single picks, so Tuk uses two sequential picks (filter first from second list) — plan's documented fallback
+- useMosjeAbility try/catch means UI-gated abilities (Ronald/Ming/Tuk) cleanly return {success:false} for the bot/sim path (no `_pendingTargets`), same as Binti — no crashes
+- Ronald rewrite required `import * as piecieEffects` in mosjeAbilities.js; verified one-way (piecieEffects.js does not import mosjeAbilities.js) — no circular import
 
 ## Phase 11 Progress
 
