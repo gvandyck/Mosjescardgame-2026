@@ -5,6 +5,8 @@
 import { drawCards, rollDie } from '../engine/deckEngine.js';
 import { loseMP } from '../engine/mpManager.js';
 import { markMosjeDefeated } from '../engine/victoryChecker.js';
+import * as piecieEffects from './piecieEffects.js';
+import { PIECIES } from '../data/piecies.js';
 
 console.log('[ABILITY] mosjeAbilities.js loaded');
 
@@ -301,14 +303,26 @@ export function ability_ming_natural_lucky_draw(gameState, playerId) {
 	return state;
 }
 
-// Ming Predictor — peek top 2 of own deck. For now: just log.
+// Ming Predictor — Future Sight: pay 10 MP, look at the top shared General Quest
+// card and optionally move it to the bottom (decision comes from the UI via
+// _pendingTargets.mingSendToBottom). Once per turn (abilityUsedThisTurn handles that).
 export function ability_ming_predictor_future_sight(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
-	if (!player || player.deck.length === 0) return state;
-	const peeked = player.deck.slice(0, Math.min(2, player.deck.length)).map(c => c.cardId);
-	state._mingPredictorPeek = { playerId, cards: peeked };
-	console.log('[ABILITY] Ming Predictor: peeked own top 2:', peeked);
+	if (!player) throw new Error('Player not found');
+	const slotIndex = player.activeSlots.findIndex(s => s && !s.isDefeated && String(s.cardId).includes('ming'));
+	if (slotIndex < 0) throw new Error('Ming not on field');
+	if (player.activeSlots[slotIndex].mp < 10) throw new Error('Not enough MP — Future Sight costs 10 MP');
+	player.activeSlots[slotIndex].mp -= 10;
+	const deck = state.sharedGeneralQuestDeck || [];
+	if (deck.length === 0) { console.log('[ABILITY] Ming: quest deck empty'); return state; }
+	// Move-to-bottom decision comes from _pendingTargets.mingSendToBottom (set by UI)
+	if (state._pendingTargets?.mingSendToBottom === true) {
+		const [top] = deck.splice(0, 1);
+		deck.push(top);
+		console.log('[ABILITY] Ming Future Sight: top quest sent to bottom');
+	}
+	if (state._pendingTargets) delete state._pendingTargets.mingSendToBottom;
 	return state;
 }
 
@@ -492,27 +506,42 @@ export function ability_fps_west_tactical_analysis(gameState, playerId) {
 
 // ARTISTIC MOSJES
 
-// Ronald Mastermind — look at top 3 of shared Quest deck; optionally rotate chosen card to top.
-// Two-call pattern:
-//   Call 1: no _pendingTargets.masterPlanChosenIndex → peek only, deck unchanged
-//   Call 2: _pendingTargets.masterPlanChosenIndex set (0/1/2) → rotate that card to position 0
+// Ronald Mastermind — Master Plan: once per game, activate any Piecie directly
+// from your discard for free and resolve it immediately. The chosen Piecie comes
+// from the UI via _pendingTargets.masterPlanCardId. If the Piecie persists until
+// end of turn it stays on the field; otherwise it returns to discard.
 export function ability_ronald_mastermind_master_plan(gameState, playerId) {
 	const state = cloneState(gameState);
-	const top3 = state.sharedGeneralQuestDeck.slice(0, 3).map(c => c.cardId);
-	state._masterPlanPeek = top3;
-	console.log('[ABILITY] Ronald Mastermind: quest deck top 3:', top3);
-
-	const chosenIndex = state._pendingTargets?.masterPlanChosenIndex;
-	if (typeof chosenIndex === 'number' && chosenIndex >= 0 && chosenIndex <= 2) {
-		const deck = state.sharedGeneralQuestDeck;
-		if (chosenIndex < deck.length) {
-			const [chosen] = deck.splice(chosenIndex, 1);
-			deck.unshift(chosen);
-			console.log('[ABILITY] Ronald Mastermind: rotated card at index', chosenIndex, 'to top:', chosen.cardId);
-		}
-		delete state._pendingTargets.masterPlanChosenIndex;
+	const player = state.players[playerId];
+	if (!player) throw new Error('Player not found');
+	const slotIndex = player.activeSlots.findIndex(s => s && !s.isDefeated && String(s.cardId).includes('ronald'));
+	if (slotIndex < 0) throw new Error('Ronald not on field');
+	if (player.activeSlots[slotIndex].masterPlanUsed) throw new Error('Master Plan already used this game');
+	const chosenCardId = state._pendingTargets?.masterPlanCardId;
+	if (!chosenCardId) throw new Error('Master Plan requires a Piecie selection from discard');
+	// Pull the chosen Piecie out of discard
+	const di = player.discard.findIndex(c => (c.cardId ?? c) === chosenCardId);
+	if (di < 0) throw new Error('Chosen Piecie not in discard');
+	player.discard.splice(di, 1);
+	// Run its effect for free
+	const def = PIECIES.find(p => p.id === chosenCardId);
+	let next = state;
+	if (def?.effectId && typeof piecieEffects[def.effectId] === 'function') {
+		next = piecieEffects[def.effectId](state, playerId);
 	}
-	return state;
+	// Persist on field or send to discard
+	const np = next.players[playerId];
+	if (def?.persistUntilEndOfTurn) {
+		const empty = np.piecieSlots.findIndex(s => s === null);
+		if (empty >= 0) np.piecieSlots[empty] = { cardId: chosenCardId, type: 'PIECIE', faceDown: false, activated: true, persistUntilEoT: true, playedOnTurn: next.turnNumber };
+		else np.discard.unshift({ cardId: chosenCardId });
+	} else {
+		np.discard.unshift({ cardId: chosenCardId });
+	}
+	np.activeSlots[slotIndex].masterPlanUsed = true;
+	if (next._pendingTargets) delete next._pendingTargets.masterPlanCardId;
+	console.log('[ABILITY] Ronald Master Plan: played', chosenCardId, 'free from discard');
+	return next;
 }
 
 // Jisca — perfect combo: if last card played was a Piecie, gain 20 MP.
@@ -620,30 +649,31 @@ export function ability_coert_kastelein_immovable_object(gameState, playerId) {
 	return state;
 }
 
-// Tuk Architect — reorder top 3 of own deck.
-// Two-call pattern:
-//   Call 1: no orderedCardIds → peeks top 3, stores _architectPeek, deck unchanged
-//   Call 2: orderedCardIds provided → reorders deck top 3 to match
-export function ability_tuk_architect_perfect_placement(gameState, playerId, orderedCardIds = null) {
+// Tuk Architect — Perfect Placement: pay 15 MP, look at the top 5 cards of your
+// deck, take 2 into your hand, and send the other 3 to the bottom. The 2 chosen
+// cardIds come from the UI via _pendingTargets.tukChosenCardIds. No face-down placement.
+export function ability_tuk_architect_perfect_placement(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
-	if (!player) return state;
-	const top3 = player.deck.slice(0, 3);
-	if (top3.length === 0) return state;
-
-	if (Array.isArray(orderedCardIds) && orderedCardIds.length > 0) {
-		const rest = player.deck.slice(top3.length);
-		const reordered = orderedCardIds
-			.map(id => top3.find(c => c.cardId === id))
-			.filter(Boolean);
-		const mentioned = new Set(orderedCardIds);
-		const leftovers = top3.filter(c => !mentioned.has(c.cardId));
-		player.deck = [...reordered, ...leftovers, ...rest];
-		console.log('[ABILITY] Tuk Architect: reordered top 3 →', player.deck.slice(0, 3).map(c => c.cardId));
-	} else {
-		state._architectPeek = { playerId, cards: top3.map(c => c.cardId) };
-		console.log('[ABILITY] Tuk Architect: peeked top 3 of own deck:', state._architectPeek.cards);
+	if (!player) throw new Error('Player not found');
+	const slotIndex = player.activeSlots.findIndex(s => s && !s.isDefeated && String(s.cardId).includes('tuk'));
+	if (slotIndex < 0) throw new Error('Tuk not on field');
+	if (player.activeSlots[slotIndex].mp < 15) throw new Error('Not enough MP — Perfect Placement costs 15 MP');
+	const chosen = state._pendingTargets?.tukChosenCardIds; // array of up to 2 cardIds from top 5
+	if (!Array.isArray(chosen) || chosen.length === 0) throw new Error('Perfect Placement requires card selection');
+	player.activeSlots[slotIndex].mp -= 15;
+	const top5 = player.deck.slice(0, 5);
+	const rest = player.deck.slice(5);
+	const taken = [];
+	const bottomed = [];
+	for (const c of top5) {
+		if (taken.length < 2 && chosen.includes(c.cardId)) taken.push(c);
+		else bottomed.push(c);
 	}
+	player.hand.push(...taken);
+	player.deck = [...rest, ...bottomed];
+	if (state._pendingTargets) delete state._pendingTargets.tukChosenCardIds;
+	console.log('[ABILITY] Tuk Perfect Placement: took', taken.map(c => c.cardId), 'bottomed', bottomed.map(c => c.cardId));
 	return state;
 }
 

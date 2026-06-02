@@ -625,7 +625,7 @@ export const MOSJES = [
     startMP: 10,
     traits: { technical: 3, creative: 3, mental: 2 },
     abilityId: "ability_tuk_architect_perfect_placement",
-    abilityDescription: "Perfect Placement: Pay 15 MP to look at top 5 deck cards, take 2 to hand, bottom the rest; if both are Piecies place 1 face-down for free.",
+    abilityDescription: "Perfect Placement: Pay 15 MP to look at the top 5 cards of your deck, take 2 into your hand, and send the other 3 to the bottom.",
     synergyWith: [],
     synergyEffect: null,
     petSynergy: "piecie_bowie_stormey",

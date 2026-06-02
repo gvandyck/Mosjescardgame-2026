@@ -1052,6 +1052,9 @@ function initGamePage() {
 	const WEST_CALCULATED_GUESS_IDS = new Set(['mosje_martin_senor_west']);
 	const BINTI_CUTTING_WORDS_IDS = new Set(['mosje_binti']);
 	const GANDOE_ELIMINATION_IDS = new Set(['mosje_gandoe_destroyer']);
+	const RONALD_MASTERMIND_IDS = new Set(['mosje_ronald_mastermind']);
+	const MING_FUTURE_SIGHT_IDS = new Set(['mosje_ming_predictor']);
+	const TUK_PERFECT_PLACEMENT_IDS = new Set(['mosje_tuk_architect']);
 
 	async function handleUseAbility(mosjeId) {
 		if (!gameState || gameState.status === 'FINISHED') return;
@@ -1213,6 +1216,149 @@ function initGamePage() {
 			gameState = newState;
 			log.add('loss', `Gandoe Elimination Strike: ${targetSlot.name} sent to the Welloe pile. (-80 MP)`);
 			logStateOutcome(log, beforeAbility, gameState, localPlayerId, 'Gandoe Elimination Strike');
+			syncPush();
+			if (gameState.status === 'FINISHED') {
+				stopListening();
+				const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
+				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
+				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+			}
+			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
+			return;
+		}
+
+		// Ronald Mastermind — Master Plan: pick a Piecie from your discard to play for free
+		if (RONALD_MASTERMIND_IDS.has(mosjeId)) {
+			const discard = gameState.players[localPlayerId].discard || [];
+			const piecieCards = discard
+				.map(c => {
+					const id = c.cardId ?? c;
+					const def = CARD_LOOKUP[id] || {};
+					return { cardId: id, type: def.type, name: def.name || id, description: def.description || '' };
+				})
+				.filter(c => c.type !== 'MOSJE' && c.type !== 'PLACE' && String(c.cardId).startsWith('piecie_'));
+			if (piecieCards.length === 0) {
+				modal.showInfo('Cannot Use Ability', 'No Piecie in your discard to play with Master Plan.');
+				return;
+			}
+			const chosen = await modal.showCardChoice('Master Plan — play a Piecie from discard', piecieCards);
+			if (!chosen) return;
+			const stateWithTarget = JSON.parse(JSON.stringify(gameState));
+			stateWithTarget._pendingTargets = {
+				...(stateWithTarget._pendingTargets || {}),
+				masterPlanCardId: chosen.cardId,
+			};
+			const { state: newState, success, error } = useMosjeAbility(stateWithTarget, localPlayerId, mosjeId);
+			if (!success) {
+				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
+				return;
+			}
+			if (abilitySlotIndex >= 0) {
+				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
+			}
+			gameState = newState;
+			const ronaldSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
+			log.add('gain', `Ronald Master Plan: played ${chosen.name || chosen.cardId} for free from discard.`);
+			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${ronaldSlot?.name || mosjeId} ability`);
+			syncPush();
+			if (gameState.status === 'FINISHED') {
+				stopListening();
+				const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
+				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
+				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+			}
+			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
+			return;
+		}
+
+		// Ming Predictor — Future Sight: reveal top General Quest, optionally send it to the bottom
+		if (MING_FUTURE_SIGHT_IDS.has(mosjeId)) {
+			const questDeck = gameState.sharedGeneralQuestDeck || [];
+			const topQuest = questDeck[0];
+			if (!topQuest) {
+				modal.showInfo('Cannot Use Ability', 'The General Quest deck is empty — nothing to look at.');
+				return;
+			}
+			const topQuestId = topQuest.cardId ?? topQuest;
+			const topQuestName = CARD_LOOKUP[topQuestId]?.name || topQuestId || '???';
+			await modal.showRevealedCard('Future Sight — Top Quest', topQuestName, 'QUEST');
+			const choice = await modal.showOptionSelect({
+				title: 'Future Sight',
+				prompt: 'Move this quest to the bottom?',
+				options: [
+					{ id: 'bottom', label: 'Send to bottom' },
+					{ id: 'leave', label: 'Leave on top' },
+				],
+				allowCancel: true,
+			});
+			if (!choice) return;
+			const stateWithTarget = JSON.parse(JSON.stringify(gameState));
+			stateWithTarget._pendingTargets = {
+				...(stateWithTarget._pendingTargets || {}),
+				mingSendToBottom: choice === 'bottom',
+			};
+			const { state: newState, success, error } = useMosjeAbility(stateWithTarget, localPlayerId, mosjeId);
+			if (!success) {
+				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
+				return;
+			}
+			if (abilitySlotIndex >= 0) {
+				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
+			}
+			gameState = newState;
+			const mingSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
+			log.add('loss', `Ming Future Sight: paid 10 MP to look at the top quest${choice === 'bottom' ? ' and sent it to the bottom' : ''}.`);
+			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${mingSlot?.name || mosjeId} ability`);
+			syncPush();
+			if (gameState.status === 'FINISHED') {
+				stopListening();
+				const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
+				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
+				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+			}
+			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
+			return;
+		}
+
+		// Tuk Architect — Perfect Placement: peek top 5, take 2 to hand, bottom the other 3
+		if (TUK_PERFECT_PLACEMENT_IDS.has(mosjeId)) {
+			const deck = gameState.players[localPlayerId].deck || [];
+			if (deck.length === 0) {
+				modal.showInfo('Cannot Use Ability', 'Your deck is empty — Perfect Placement cannot be used.');
+				return;
+			}
+			const top5 = deck.slice(0, 5).map(c => {
+				const id = c.cardId ?? c;
+				const def = CARD_LOOKUP[id] || {};
+				return { cardId: id, name: def.name || id, description: def.description || '' };
+			});
+			// Two sequential single picks (showCardChoice does not support multi-select).
+			const first = await modal.showCardChoice('Perfect Placement — take 1st card to hand', top5);
+			if (!first) return;
+			const remaining = top5.filter(c => c.cardId !== first.cardId);
+			const second = remaining.length > 0
+				? await modal.showCardChoice('Perfect Placement — take 2nd card to hand', remaining)
+				: null;
+			if (remaining.length > 0 && !second) return;
+			const tukChosenCardIds = second ? [first.cardId, second.cardId] : [first.cardId];
+			const stateWithTarget = JSON.parse(JSON.stringify(gameState));
+			stateWithTarget._pendingTargets = {
+				...(stateWithTarget._pendingTargets || {}),
+				tukChosenCardIds,
+			};
+			const { state: newState, success, error } = useMosjeAbility(stateWithTarget, localPlayerId, mosjeId);
+			if (!success) {
+				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
+				return;
+			}
+			if (abilitySlotIndex >= 0) {
+				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
+			}
+			gameState = newState;
+			const tukSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
+			const takenNames = tukChosenCardIds.map(id => CARD_LOOKUP[id]?.name || id).join(', ');
+			log.add('loss', `Tuk Perfect Placement: paid 15 MP, took ${takenNames} to hand, bottomed the rest.`);
+			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${tukSlot?.name || mosjeId} ability`);
 			syncPush();
 			if (gameState.status === 'FINISHED') {
 				stopListening();
