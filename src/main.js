@@ -1055,6 +1055,7 @@ function initGamePage() {
 	const RONALD_MASTERMIND_IDS = new Set(['mosje_ronald_mastermind']);
 	const MING_FUTURE_SIGHT_IDS = new Set(['mosje_ming_predictor']);
 	const TUK_PERFECT_PLACEMENT_IDS = new Set(['mosje_tuk_architect']);
+	const FPS_WEST_TACTICAL_IDS = new Set(['mosje_fps_west']);
 
 	async function handleUseAbility(mosjeId) {
 		if (!gameState || gameState.status === 'FINISHED') return;
@@ -1158,6 +1159,58 @@ function initGamePage() {
 			const bintiSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
 			log.add('loss', `Binti Cutting Words: discarded ${chosen.name || chosen.cardId} — opponent loses 10 MP and discards a card.`);
 			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${bintiSlot?.name || mosjeId} ability`);
+			syncPush();
+			if (gameState.status === 'FINISHED') {
+				stopListening();
+				const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
+				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
+				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+			}
+			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
+			return;
+		}
+
+		// FPS West — Tactical Analysis: guess a card type in the opponent's hand
+		if (FPS_WEST_TACTICAL_IDS.has(mosjeId)) {
+			const oppId = Object.keys(gameState.players).find(id => id !== localPlayerId);
+			const oppHand = gameState.players[oppId]?.hand ?? [];
+			if (oppHand.length === 0) {
+				modal.showInfo('Cannot Use Ability', "Your opponent's hand is empty — nothing to analyze.");
+				return;
+			}
+			const pickedIndex = await modal.showOpponentHandCardSelect({
+				title: 'Tactical Analysis — Pick a card',
+				prompt: "Pick one of your opponent's face-down cards.",
+				handSize: oppHand.length,
+				allowCancel: true,
+			});
+			if (pickedIndex === null) return;
+			const guess = await modal.showCardTypeSelect({ title: 'Tactical Analysis: What type is this card?' });
+			if (!guess) return;
+			const actualCard = oppHand[pickedIndex];
+			const actualId = actualCard?.cardId ?? actualCard;
+			const actualDef = CARD_LOOKUP[actualId] || {};
+			const actualType = actualCard?.type || actualDef.type || 'UNKNOWN';
+			await modal.showRevealedCard('Tactical Analysis — Card Revealed', actualDef.name || actualId, actualType);
+			const didSucceed = guess === actualType;
+			const stateWithTarget = JSON.parse(JSON.stringify(gameState));
+			stateWithTarget._pendingTargets = {
+				...(stateWithTarget._pendingTargets || {}),
+				fpsWestGuessCorrect: didSucceed,
+			};
+			const { state: newState, success, error } = useMosjeAbility(stateWithTarget, localPlayerId, mosjeId);
+			if (!success) {
+				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
+				return;
+			}
+			if (abilitySlotIndex >= 0) {
+				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
+			}
+			gameState = newState;
+			log.add(didSucceed ? 'gain' : 'loss', didSucceed
+				? 'FPS West Tactical Analysis: correct guess — +70 MP!'
+				: 'FPS West Tactical Analysis: wrong guess — -20 MP.');
+			logStateOutcome(log, beforeAbility, gameState, localPlayerId, 'FPS West Tactical Analysis');
 			syncPush();
 			if (gameState.status === 'FINISHED') {
 				stopListening();

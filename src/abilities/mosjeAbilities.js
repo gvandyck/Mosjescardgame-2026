@@ -3,7 +3,7 @@
 // Filled in Phase 4.
 
 import { drawCards, rollDie } from '../engine/deckEngine.js';
-import { loseMP } from '../engine/mpManager.js';
+import { gainMP, loseMP } from '../engine/mpManager.js';
 import { markMosjeDefeated } from '../engine/victoryChecker.js';
 import * as piecieEffects from './piecieEffects.js';
 import { PIECIES } from '../data/piecies.js';
@@ -490,18 +490,23 @@ export function ability_fps_coert_headshot_precision(gameState, playerId) {
 	return state;
 }
 
-// FPS West — tactical: draw 1 card, set opponent-peek flag.
+// FPS West — Tactical Analysis: guess a card type in the opponent's hand.
+// The UI (main.js) runs the pick/guess/reveal flow and passes the outcome via
+// _pendingTargets.fpsWestGuessCorrect. Correct: +70 MP. Wrong: -20 MP.
 export function ability_fps_west_tactical_analysis(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
-	if (!player) return state;
-	if (player.deck.length > 0) player.hand.push(player.deck.shift());
-	player.opponentHandPeeked = true;
-	// DEFERRED (STUB-16): opponentHandPeeked flag is set but UI has not implemented opponent hand
-	// reveal. Blocking primitive: render opponent hand face-up in boardRenderer.js when
-	// opponentHandPeeked is true. Deferred to: UI phase (hand reveal primitive).
-	console.log('[ABILITY] FPS West: drew 1 card + opponent hand peek active');
-	return state;
+	if (!player) throw new Error('Player not found');
+	const slotIndex = player.activeSlots.findIndex(s => s && !s.isDefeated && String(s.cardId).includes('fps_west'));
+	if (slotIndex < 0) throw new Error('FPS West not on field');
+	const correct = state._pendingTargets?.fpsWestGuessCorrect;
+	if (correct === undefined) throw new Error('Tactical Analysis requires a guess');
+	let next = correct === true
+		? gainMP(state, playerId, slotIndex, 70, 'FPS_WEST_GUESS')
+		: loseMP(state, playerId, slotIndex, 20, 'FPS_WEST_GUESS');
+	if (next._pendingTargets) delete next._pendingTargets.fpsWestGuessCorrect;
+	console.log('[ABILITY] FPS West Tactical Analysis:', correct ? '+70 MP (correct)' : '-20 MP (wrong)');
+	return next;
 }
 
 // ARTISTIC MOSJES

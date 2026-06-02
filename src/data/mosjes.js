@@ -404,7 +404,9 @@ export const MOSJES = [
     startMP: 10,
     traits: { technical: 3, mental: 3, physical: 1 },
     abilityId: "ability_fps_west_tactical_analysis",
-    abilityDescription: "Tactical Analysis: Pay 10 MP to view opponent hand and predict next card type; correct gain 20 MP, wrong lose 10 MP.",
+    // LEGACY abilityDescription (pre-Phase 19, archived for possible revert):
+    // "Tactical Analysis: Pay 10 MP to view opponent hand and predict next card type; correct gain 20 MP, wrong lose 10 MP."
+    abilityDescription: "Tactical Analysis: Guess a card type in your opponent's hand — correct guess: +70 MP, wrong guess: -20 MP.",
     synergyWith: ["mosje_fps_coert", "mosje_azn_cless"],
     synergyEffect: "When either Mosje completes a Quest: BOTH gain +10 MP",
     petSynergy: null,
