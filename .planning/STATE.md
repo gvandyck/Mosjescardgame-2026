@@ -1,10 +1,25 @@
 # Project State
 
-**Last updated:** 2026-06-02
-**Current phase:** Phase 20 COMPLETE - Leipe Swap implemented
-**Branch:** card/leipe-swap (Phase 20 implementation; not merged/pushed)
+**Last updated:** 2026-06-03
+**Current phase:** Phase 21 COMPLETE - Quest Behaviors + Cleanup (Buckets A + C)
+**Branch:** main — Phases 18–21 merged & pushed (Phase 21 work was on feature/phase-21-quest-behaviors)
 
 > Note: STATE.md was not maintained during Phases 15–17 (tracked in their phase dirs / ROADMAP only). This header jumps from Phase 14 to Phase 18.
+
+## Phase 21 Progress — Quest Behaviors + Cleanup
+
+### 21-01: Quest behaviors (C) + dead-code/doc cleanup (A) (COMPLETE)
+- Bucket C — data-driven quest behaviors via static quest-def fields read by `resolveQuest`:
+  - `drawOnSuccess: 2` on quest_artistic_expression + quest_late_night_questing → resolveQuest draws N deck→hand on success (FRESH state, placed after the MP block)
+  - `opponentLoseMP: 30` on quest_elimination_challenge → loseMP on opponent's first active Mosje on success, gated on `!baseQuestMpBlocked` (The Void skips it)
+  - quest_req_hack_mainframe id fix: Hacker/FPS −1 threshold now checks `cardId` (was the always-undefined `mosjeId`)
+- Bucket A — deleted dead `effect_jensen` + `effect_lucky_coin` from snelleEffects.js (no card referenced them); removed their blocks from the unrun `tests/cards/test-snelleEffects.js` (kept the file — it has live-effect tests); refreshed stale card-reference.md rows (Geen Raad + Huisbaas now implemented; dropped DEFERRED notes on the 4 wired quests)
+- 11 new tests; 867 total; sim 100 games 0 crashes
+
+### Decisions
+- resolveQuest draw/elimination reference the FRESH `state.players[playerId]`, not the stale `player` from the top of the function (gainMP/loseMP reassign `state`)
+- Kept test-snelleEffects.js (a `.js` file vitest doesn't run) rather than delete — it holds meaningful live-effect tests; only removed the two dead-stub blocks
+- Left FPS West / Ronald Chef (STUB-16) doc status unchanged — their blockers are genuine UI primitives, out of this engine phase's scope
 
 ## Phase 20 Progress - Leipe Swap
 
