@@ -981,7 +981,7 @@ export function applyPlaceEffectsOnWelloe(gameState, playerId, newMosjeSlotIndex
 // ─────────────────────────────────────────────────────────────
 // playPlace
 // Plays a Place card from the active player's hand onto the shared field.
-// Destroys any currently active Place first (moves it to sharedPlaceDiscard).
+// Destroys any currently active Place first (moves it to its owner's discard pile).
 // Applies PASSIVE effects immediately after placement.
 // cardRef — the hand reference object { cardId, type }
 // cardDef — full card definition from PLACES data (has trigger, effectId)

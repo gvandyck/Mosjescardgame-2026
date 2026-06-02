@@ -119,7 +119,14 @@ export function markMosjeDefeated(gameState, playerId, slotIndex) {
 
   console.log(`[ENGINE] ${mosje.name} has been defeated — sent to Welloe pile`);
   mosje.isDefeated = true;
-  state.players[playerId].welloe.push({ ...mosje });
+  state.players[playerId].welloe.push({ ...mosje });           // full object for revival mechanics
+  if (!Array.isArray(state.players[playerId].discard)) state.players[playerId].discard = [];
+  state.players[playerId].discard.unshift({                    // unified graveyard entry
+    cardId: mosje.cardId,
+    type: 'MOSJE',
+    level: mosje.level,
+    mp: mosje.mp,
+  });
   state.players[playerId].activeSlots[slotIndex] = null;
 
   return checkVictory(state);

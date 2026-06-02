@@ -13,6 +13,12 @@ import { MOSJES } from '../../src/data/mosjes.js';
 import { effect_de_box, effect_tesla, effect_eendjes_voeren } from '../../src/abilities/placeEffects.js';
 // @ts-expect-error — JS module, no type declarations
 import { getKickboxingBootcampDiceBonus, getMosjeTrait } from '../../src/abilities/questLogic.js';
+// @ts-expect-error — JS module, no type declarations
+import { effect_slecht_gezet, effect_huisbaas } from '../../src/abilities/piecieEffects.js';
+// @ts-expect-error — JS module, no type declarations
+import { SNELLE_PIECIES } from '../../src/data/snellePiecies.js';
+// @ts-expect-error — JS module, no type declarations
+import { effect_snelle_chillingsvoorbij } from '../../src/abilities/snelleEffects.js';
 
 describe('deck balance data integrity', () => {
   describe('quest economy (BAL-04)', () => {
@@ -500,5 +506,103 @@ describe('Phase 16 — getMosjeTrait resilience aura (EEV-03)', () => {
   it('returns real physical trait value (not overridden) when place is active', () => {
     const state = makeGameState('place_eendjes_voeren', 1);
     expect(getMosjeTrait(state, 'p1', 'mosje_gandoe_destroyer', 'physical')).toBe(3);
+  });
+});
+
+describe('Phase 17 — effect_slecht_gezet ownership-aware (PLACE-REC-01)', () => {
+  function makeState(activePlayerId: string, placeOwner: string | null) {
+    return {
+      activePlayerId,
+      activePlace: 'place_boxing_ring',
+      activePlacePlayedBy: placeOwner,
+      activePlaceTurnsActive: 1,
+      players: {
+        player_1: { hand: [] as unknown[], discard: [] as unknown[], activeSlots: [] },
+        player_2: { hand: [] as unknown[], discard: [] as unknown[], activeSlots: [] },
+      },
+    };
+  }
+
+  it('returns own Place to hand when activePlacePlayedBy === activePlayerId', () => {
+    const state = makeState('player_1', 'player_1');
+    const result = effect_slecht_gezet(state);
+    expect(result.players.player_1.hand).toContainEqual({ cardId: 'place_boxing_ring', type: 'PLACE' });
+    expect(result.activePlace).toBeNull();
+  });
+
+  it('does NOT push to any discard when returning own Place', () => {
+    const state = makeState('player_1', 'player_1');
+    const result = effect_slecht_gezet(state);
+    expect(result.players.player_1.discard).toHaveLength(0);
+    expect(result.players.player_2.discard).toHaveLength(0);
+  });
+
+  it('destroys opponent Place and pushes to opponent discard', () => {
+    const state = makeState('player_1', 'player_2');
+    const result = effect_slecht_gezet(state);
+    expect(result.activePlace).toBeNull();
+    expect(result.players.player_2.discard[0]?.cardId).toBe('place_boxing_ring');
+    expect(result.players.player_1.hand).toHaveLength(0);
+  });
+
+  it('does nothing when no active Place', () => {
+    const state = { ...makeState('player_1', 'player_1'), activePlace: null };
+    const result = effect_slecht_gezet(state);
+    expect(result.players.player_1.hand).toHaveLength(0);
+  });
+});
+
+describe('Phase 17 — effect_huisbaas from player discard (PLACE-REC-02)', () => {
+  function makeState(discardContents: unknown[]) {
+    return {
+      players: { player_1: { hand: [] as unknown[], discard: discardContents } },
+    };
+  }
+
+  it('returns most recent PLACE entry from player discard to hand', () => {
+    const state = makeState([{ cardId: 'place_de_box', type: 'PLACE' }]);
+    const result = effect_huisbaas(state, 'player_1');
+    expect(result.players.player_1.hand).toContainEqual({ cardId: 'place_de_box', type: 'PLACE' });
+    expect(result.players.player_1.discard).toHaveLength(0);
+  });
+
+  it('finds PLACE card even when piecie entries are on top of discard', () => {
+    const state = makeState([
+      'piecie_affoe',
+      { cardId: 'place_boxing_ring', type: 'PLACE' },
+    ]);
+    const result = effect_huisbaas(state, 'player_1');
+    expect(result.players.player_1.hand).toContainEqual({ cardId: 'place_boxing_ring', type: 'PLACE' });
+  });
+
+  it('does nothing when no PLACE cards in discard', () => {
+    const state = makeState(['piecie_affoe', 'piecie_kannetje_melk']);
+    const result = effect_huisbaas(state, 'player_1');
+    expect(result.players.player_1.hand).toHaveLength(0);
+  });
+});
+
+describe('Phase 17 — snelle_chillingsvoorbij (PLACE-REC-03)', () => {
+  it('SNELLE_PIECIES contains snelle_chillingsvoorbij', () => {
+    expect(SNELLE_PIECIES.find((s: { id: string }) => s.id === 'snelle_chillingsvoorbij')).toBeDefined();
+  });
+
+  it('snelle_chillingsvoorbij has correct effectId', () => {
+    const card = SNELLE_PIECIES.find((s: { id: string }) => s.id === 'snelle_chillingsvoorbij');
+    expect(card?.effectId).toBe('effect_snelle_chillingsvoorbij');
+  });
+
+  it('effect_snelle_chillingsvoorbij recovers PLACE from player discard', () => {
+    const state = {
+      players: { player_1: { hand: [] as unknown[], discard: [{ cardId: 'place_boxing_ring', type: 'PLACE' }] } },
+    };
+    const result = effect_snelle_chillingsvoorbij(state, 'player_1');
+    expect(result.players.player_1.hand).toContainEqual({ cardId: 'place_boxing_ring', type: 'PLACE' });
+    expect(result.players.player_1.discard).toHaveLength(0);
+  });
+
+  it('PHYSICAL_FORCE snellePiecies contains snelle_chillingsvoorbij', () => {
+    const pf = STARTER_DECKS.find((d: { id: string }) => d.id === 'PHYSICAL_FORCE');
+    expect(pf?.snellePiecies).toContain('snelle_chillingsvoorbij');
   });
 });

@@ -388,18 +388,18 @@ export function runPlaceEffectsTests() {
     assertEqual(result.activePlaceTurnsActive, 0);
   });
 
-  test('setActivePlace moves old Place to sharedPlaceDiscard', () => {
-    let state = createEngineState({ activePlace: 'place_the_void' });
+  test('setActivePlace moves old Place to owner discard', () => {
+    let state = createEngineState({ activePlace: 'place_the_void', activePlacePlayedBy: 'player_1' });
     state = setActivePlace(state, 'place_arcade', 'player_1');
     assertEqual(state.activePlace, 'place_arcade');
-    assertEqual(state.sharedPlaceDiscard[0].cardId, 'place_the_void');
+    assertEqual(state.players.player_1.discard[0].cardId, 'place_the_void');
   });
 
-  test('destroyActivePlace clears activePlace and pushes to discard', () => {
-    let state = createEngineState({ activePlace: 'place_the_gym' });
+  test('destroyActivePlace clears activePlace and pushes to owner discard', () => {
+    let state = createEngineState({ activePlace: 'place_the_gym', activePlacePlayedBy: 'player_1' });
     state = destroyActivePlace(state);
     assertEqual(state.activePlace, null);
-    assertEqual(state.sharedPlaceDiscard[0].cardId, 'place_the_gym');
+    assertEqual(state.players.player_1.discard[0].cardId, 'place_the_gym');
     assertEqual(state.activePlaceTurnsActive, 0);
   });
 
@@ -407,7 +407,7 @@ export function runPlaceEffectsTests() {
     const state = createEngineState();
     const result = destroyActivePlace(state);
     assertEqual(result.activePlace, null);
-    assertEqual(result.sharedPlaceDiscard.length, 0);
+    assertEqual(result.players.player_1.discard.length, 0);
   });
 
   // ─── resolvePlaceEffect dispatcher ──────────────────────────────────────────

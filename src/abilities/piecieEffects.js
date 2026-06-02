@@ -355,13 +355,32 @@ export function effect_zie_je_die_dingetjes(gameState, playerId, chosenCardId = 
 
 export function effect_slecht_gezet(gameState) {
 	if (!gameState.activePlace) {
-		console.log('[ABILITY] Slecht Gezet: no active Place to destroy');
+		console.log('[ABILITY] Slecht Gezet: no active Place');
 		return gameState;
 	}
-	let state = destroyActivePlace(cloneState(gameState));
-	state = triggerPlaceDestroyedEffects(state, state.activePlayerId);
-	console.log('[ABILITY] Slecht Gezet: active Place destroyed');
-	return state;
+	const state = cloneState(gameState);
+	const activePlayer = state.activePlayerId;
+	const placeOwner = state.activePlacePlayedBy;
+
+	if (placeOwner === activePlayer) {
+		// Your own Place → return directly to hand (not via discard)
+		const player = state.players[activePlayer];
+		if (player) {
+			if (!Array.isArray(player.hand)) player.hand = [];
+			player.hand.push({ cardId: state.activePlace, type: 'PLACE' });
+		}
+		state.activePlace = null;
+		state.activePlacePlayedBy = null;
+		state.activePlaceTurnsActive = 0;
+		console.log('[ABILITY] Slecht Gezet: returned own Place to hand');
+		return state;
+	}
+
+	// Opponent's Place (or null owner) → destroy it (routes to owner's discard)
+	let next = destroyActivePlace(state);
+	next = triggerPlaceDestroyedEffects(next, activePlayer);
+	console.log('[ABILITY] Slecht Gezet: opponent Place destroyed');
+	return next;
 }
 
 export function effect_bong_hit_demolition(gameState, playerId) {
@@ -578,20 +597,22 @@ export function effect_popo_komt(gameState, playerId) {
 }
 
 export function effect_huisbaas(gameState, playerId) {
-	// PARTIAL: Place destruction implemented. Place search is DEFERRED.
-	// DEFERRED: searching the deck for a specific Place card requires a UI selection modal
-	// (player picks which Place to put into play) + a deck-search-and-place-activate primitive.
-	// No searchDeck function exists in turnManager.js for Places — only phaseDrawCard (top-of-deck).
-	// Blocking primitive: deck search modal (filter by card type PLACE) + activatePlace call.
-	// Deferred to: UI selection phase.
-	let state = cloneState(gameState);
-	if (state.activePlace) {
-		state = destroyActivePlace(state);
-		state = triggerPlaceDestroyedEffects(state, playerId);
-		console.log('[ABILITY] Huisbaas: active Place destroyed. New Place search DEFERRED (requires deck-search primitive).');
-	} else {
-		console.log('[ABILITY] Huisbaas: no active Place to destroy.');
+	// Return the most recently lost Place from this player's own discard pile to hand.
+	const state = cloneState(gameState);
+	const player = state.players[playerId];
+	if (!player) return state;
+	if (!Array.isArray(player.discard)) player.discard = [];
+	const placeIndex = player.discard.findIndex(
+		c => c?.type === 'PLACE' || (c?.cardId && String(c.cardId).startsWith('place_'))
+	);
+	if (placeIndex < 0) {
+		console.log('[ABILITY] Huisbaas: no Place cards in discard');
+		return state;
 	}
+	const [recovered] = player.discard.splice(placeIndex, 1);
+	if (!Array.isArray(player.hand)) player.hand = [];
+	player.hand.push({ cardId: recovered.cardId ?? recovered, type: 'PLACE' });
+	console.log('[ABILITY] Huisbaas: recovered', recovered.cardId ?? recovered, 'from discard to hand');
 	return state;
 }
 

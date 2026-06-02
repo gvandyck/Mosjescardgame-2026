@@ -48,7 +48,6 @@ export function createInitialGameState(playerConfigs, roomCode) {
     activePlacePlayedBy: null,   // playerId who played the current Place
     activePlaceTurnsActive: 0,   // how many full end-phases have passed since Place was set
     activePlaceCanActivateOnTurn: 0, // earliest turn number when Place can be activated
-    sharedPlaceDiscard: [],      // Place cards that have been destroyed/replaced
 
     // Active Quest — visible to all players once revealed
     activeQuest: null,
@@ -276,16 +275,20 @@ export function getPlayerMosjes(gameState, playerId) {
 // ─────────────────────────────────────────────────────────────
 // setActivePlace
 // Places a Place card onto the shared field.
-// Destroys any existing Place (moves it to sharedPlaceDiscard).
+// Moves any existing Place to its owner's personal discard, then sets the new Place.
 // playedByPlayerId — the player who played this Place card.
 // Returns updated gameState.
 // ─────────────────────────────────────────────────────────────
 export function setActivePlace(gameState, cardId, playedByPlayerId) {
   const state = JSON.parse(JSON.stringify(gameState));
-  // If a Place is already active, discard it first
+  // If a Place is already active, route it to the owner's personal discard
   if (state.activePlace) {
-    if (!Array.isArray(state.sharedPlaceDiscard)) state.sharedPlaceDiscard = [];
-    state.sharedPlaceDiscard.unshift({ cardId: state.activePlace, type: 'PLACE' });
+    const ownerId = state.activePlacePlayedBy || state.activePlayerId;
+    const owner = state.players[ownerId];
+    if (owner) {
+      if (!Array.isArray(owner.discard)) owner.discard = [];
+      owner.discard.unshift({ cardId: state.activePlace, type: 'PLACE' });
+    }
   }
   state.activePlace = cardId;
   state.activePlacePlayedBy = playedByPlayerId || null;
@@ -297,14 +300,19 @@ export function setActivePlace(gameState, cardId, playedByPlayerId) {
 
 // ─────────────────────────────────────────────────────────────
 // destroyActivePlace
-// Removes the active Place card from the field, moving it to sharedPlaceDiscard.
+// Removes the active Place card from the field, routing it to the Place owner's
+// personal discard pile.
 // Returns updated gameState.
 // ─────────────────────────────────────────────────────────────
 export function destroyActivePlace(gameState) {
   const state = JSON.parse(JSON.stringify(gameState));
   if (!state.activePlace) return state;
-  if (!Array.isArray(state.sharedPlaceDiscard)) state.sharedPlaceDiscard = [];
-  state.sharedPlaceDiscard.unshift({ cardId: state.activePlace, type: 'PLACE' });
+  const ownerId = state.activePlacePlayedBy || state.activePlayerId;
+  const owner = state.players[ownerId];
+  if (owner) {
+    if (!Array.isArray(owner.discard)) owner.discard = [];
+    owner.discard.unshift({ cardId: state.activePlace, type: 'PLACE' });
+  }
   const removed = state.activePlace;
   state.activePlace = null;
   state.activePlacePlayedBy = null;

@@ -24,7 +24,7 @@ export const STARTER_DECKS = [
       "snelle_negate_elimination",
       "snelle_emergency_healings",
       "snelle_jensen",
-      "snelle_lucky_coin"
+      "snelle_chillingsvoorbij"
     ],
     places: [
       "place_boxing_ring",
