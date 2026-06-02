@@ -24,10 +24,10 @@
 ## Phase 20 Progress - Leipe Swap
 
 ### 20-01: Leipe Swap temporary MP double-swap (COMPLETE)
-- Reworked the old unused swap Piecie into `piecie_leipe_swap`: free, level 1+, booster-only, max rarity `★★★★★`, persists until end of turn.
+- Reworked the old unused swap Piecie into `piecie_leipe_swap`: free, level 1+, booster-only, rarest tier `★★★★` (not a new 5-star category), persists until end of turn.
 - Browser/imperative path: activation modal picks one own Mosje and one opponent Mosje; `effect_leipe_swap` swaps only `mp` by direct assignment and stores `_leipeSwap`.
 - End-turn path: `endTurn` swaps the two recorded slots' current MP back on the swapper's turn and clears `_leipeSwap`; levels banked mid-turn stay.
-- Rarity cap: `RARITY_COPY_LIMITS["★★★★★"] === 1`.
+- Rarity cap: `RARITY_COPY_LIMITS["★★★★"] === 1` (★★★★ already caps at 1 per deck).
 - Declarative registry twin renamed to `leipe-swap.ts` with new identity and no-op effects because the TS executor has no interactive double-swap primitive.
 - Old Emergency Swap references removed from `src/`, `tests/`, and `docs`.
 - Verification: 856 tests passing; simulation 100 games, 0 crashes / 0 timeouts.

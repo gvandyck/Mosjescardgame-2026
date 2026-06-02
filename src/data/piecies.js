@@ -529,7 +529,7 @@ export const PIECIES = [
     description: "Swap one of your Mosjes' MP with an opponent Mosje's for the rest of your turn; at end of turn the current MP swaps back (levels you gained stay).",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★★★",
+    rarity: "★★★★",
     isBoosterOnly: true,
     persistUntilEndOfTurn: true,
   },
