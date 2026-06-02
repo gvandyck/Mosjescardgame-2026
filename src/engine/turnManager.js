@@ -254,6 +254,20 @@ export function endTurn(gameState) {
   // Reset questPrepBonus at end of turn — same lifecycle as persistUntilEoT Piecies (BUG-05)
   state.players[playerId].questPrepBonus = 0;
 
+  // Leipe Swap: at the end of the swapper's turn, swap the two slots' current MP back.
+  if (state._leipeSwap && state._leipeSwap.byPlayerId === playerId) {
+    const rec = state._leipeSwap;
+    const a = state.players[rec.byPlayerId]?.activeSlots?.[rec.yourSlotIndex];
+    const b = state.players[rec.oppId]?.activeSlots?.[rec.oppSlotIndex];
+    if (a && b) {
+      const tmp = a.mp;
+      a.mp = b.mp;
+      b.mp = tmp;
+      console.log('[PIECIE] Leipe Swap: end-of-turn swap-back');
+    }
+    delete state._leipeSwap;
+  }
+
   state = checkVictory(state);
   if (state.status === 'FINISHED') return state;
 

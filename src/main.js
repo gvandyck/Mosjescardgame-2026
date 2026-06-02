@@ -1706,6 +1706,25 @@ function initGamePage() {
 			}
 			stateForActivation = JSON.parse(JSON.stringify(gameState));
 			stateForActivation._pendingTargets = { affoe_drain: drainId, affoe_gain: gainId };
+		} else if (piecieCardDef?.effectId === 'effect_leipe_swap') {
+			const ownTargets = getPlayerMosjes(gameState, localPlayerId);
+			const oppTargets = getOpponentMosjes(gameState, localPlayerId);
+			if (ownTargets.length === 0 || oppTargets.length === 0) {
+				modal.showInfo('No Targets', 'Leipe Swap needs one of your Mosjes and an opponent Mosje on the field.');
+				return;
+			}
+			const yourPick = await modal.showTargetSelector(ownTargets, 'Leipe Swap - choose YOUR Mosje to swap MP:');
+			if (!yourPick) return;
+			const oppPick = await modal.showTargetSelector(oppTargets, 'Leipe Swap - choose the OPPONENT Mosje to swap with:');
+			if (!oppPick) return;
+			const oppId = String(oppPick).split('_slot_')[0];
+			stateForActivation = JSON.parse(JSON.stringify(gameState));
+			stateForActivation._pendingTargets = {
+				...(stateForActivation._pendingTargets || {}),
+				leipeYourSlot: parseInt(String(yourPick).split('_slot_')[1], 10),
+				leipeOppId: oppId,
+				leipeOppSlot: parseInt(String(oppPick).split('_slot_')[1], 10),
+			};
 		} else if (piecieCardDef?.effectId === 'effect_kannetje_melk') {
 			const ownTargets = getPlayerMosjes(gameState, localPlayerId);
 			if (ownTargets.length > 1) {

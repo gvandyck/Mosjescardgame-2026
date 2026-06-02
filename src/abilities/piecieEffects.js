@@ -532,19 +532,29 @@ export function effect_mosje_shield(gameState, playerId) {
 	return state;
 }
 
-export function effect_emergency_swap(gameState, playerId) {
-	// DEFERRED: Emergency Swap requires UI selection + ability registry dispatch to copy opponent Mosje ability.
-	// The ability registry (mosjeAbilities module) already exists \u2014 see useMosjeAbility() in
-	// turnManager.js: mosjeAbilities[mosjeDef.abilityId] is the dispatch pattern.
-	// Blocking primitive: UI modal to select opponent's active Mosje + abilityId lookup.
-	// Implementation path when unblocked:
-	//   1. Modal: "Choose an opponent Mosje to copy ability from" (showOptionSelect)
-	//   2. Look up mosjeDef.abilityId for chosen Mosje via MOSJES array
-	//   3. Call mosjeAbilities[abilityId](state, playerId, chosenMosjeId)
-	//   4. Per card-specific-rulings.md: one-time use, no synergy/pet bonuses transferred
-	// Deferred to: UI selection phase.
-	console.log('[ABILITY] Emergency Swap: UI selection required \u2014 DEFERRED');
-	return gameState;
+export function effect_leipe_swap(gameState, playerId) {
+	const state = cloneState(gameState);
+	const t = state._pendingTargets || {};
+	const yourSlotIndex = t.leipeYourSlot;
+	const oppId = t.leipeOppId;
+	const oppSlotIndex = t.leipeOppSlot;
+	const me = state.players[playerId];
+	const opp = oppId ? state.players[oppId] : null;
+	if (!me || !opp || yourSlotIndex == null || oppSlotIndex == null) return state;
+	const yourSlot = me.activeSlots?.[yourSlotIndex];
+	const oppSlot = opp.activeSlots?.[oppSlotIndex];
+	if (!yourSlot || !oppSlot || yourSlot.isDefeated || oppSlot.isDefeated) return state;
+	const tmp = yourSlot.mp;
+	yourSlot.mp = oppSlot.mp;
+	oppSlot.mp = tmp;
+	state._leipeSwap = { byPlayerId: playerId, yourSlotIndex, oppId, oppSlotIndex };
+	if (state._pendingTargets) {
+		delete state._pendingTargets.leipeYourSlot;
+		delete state._pendingTargets.leipeOppId;
+		delete state._pendingTargets.leipeOppSlot;
+	}
+	console.log('[PIECIE] Leipe Swap: swapped MP', `${playerId}#${yourSlotIndex}`, '<->', `${oppId}#${oppSlotIndex}`);
+	return state;
 }
 
 export function effect_battle_concert(gameState, playerId) {
