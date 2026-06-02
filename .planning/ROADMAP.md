@@ -20,6 +20,7 @@
 | 10 | Deck Balance | Fix game stalling — insufficient MP generation across all 3 decks causes games to end in deck-out or stalemate instead of someone reaching Level 3 | BAL-01 through BAL-N | All 3 decks can reliably progress to Level 3; deck-out eliminated; game length reduced to target range |
 | 11 | Bot Opponent | Add a basic AI opponent for offline single-player matches. Bot plays Piecie cards, activates Places, attempts Quests, levels its Mosje, and uses Mosje abilities. Players opt in via "Play Offline" checkbox in room creation. | BOT-01 through BOT-05 | Player can start and complete a full game against the bot; bot makes valid moves every turn; no Firebase required for offline mode |
 | 16 | Eendjes Voeren Place | Transform Eendjes Voeren from a Piecie into a Place: resilience aura (all resilient traits max ★★★ while active) + Michelle +10 MP each End Phase. | EEV-01 through EEV-05 | place_eendjes_voeren in places.js; getMosjeTrait maxes resilient; Physical Force deck updated; piecie retired to booster-only |
+| 17 | Place Recovery Mechanics | Make it possible to recover Place cards after an opponent replaces/destroys yours. Rework Slecht Gezet (ownership-aware: return own / destroy opponent's), rework Huisbaas (return from shared Place discard), and add new snelle Chillingsvoorbij! | PLACE-REC-01 through PLACE-REC-03 | effect_slecht_gezet ownership check; effect_huisbaas recovery; snelle_chillingsvoorbij new card; Physical Force deck updated |
 
 ---
 
