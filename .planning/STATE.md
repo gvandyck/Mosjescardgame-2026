@@ -1,10 +1,21 @@
 # Project State
 
 **Last updated:** 2026-06-02
-**Current phase:** Phase 19 COMPLETE — 19-01, 19-02 both complete (Phase 20 = Leipe Swap planned, not yet executed)
-**Branch:** fix/phase-18-dead-flags (carries Phases 18–19 implementation + Phase 19–20 plans; not merged/pushed)
+**Current phase:** Phase 20 COMPLETE - Leipe Swap implemented
+**Branch:** card/leipe-swap (Phase 20 implementation; not merged/pushed)
 
 > Note: STATE.md was not maintained during Phases 15–17 (tracked in their phase dirs / ROADMAP only). This header jumps from Phase 14 to Phase 18.
+
+## Phase 20 Progress - Leipe Swap
+
+### 20-01: Leipe Swap temporary MP double-swap (COMPLETE)
+- Reworked the old unused swap Piecie into `piecie_leipe_swap`: free, level 1+, booster-only, max rarity `★★★★★`, persists until end of turn.
+- Browser/imperative path: activation modal picks one own Mosje and one opponent Mosje; `effect_leipe_swap` swaps only `mp` by direct assignment and stores `_leipeSwap`.
+- End-turn path: `endTurn` swaps the two recorded slots' current MP back on the swapper's turn and clears `_leipeSwap`; levels banked mid-turn stay.
+- Rarity cap: `RARITY_COPY_LIMITS["★★★★★"] === 1`.
+- Declarative registry twin renamed to `leipe-swap.ts` with new identity and no-op effects because the TS executor has no interactive double-swap primitive.
+- Old Emergency Swap references removed from `src/`, `tests/`, and `docs`.
+- Verification: 856 tests passing; simulation 100 games, 0 crashes / 0 timeouts.
 
 ## Phase 19 Progress — UI-Modal Card Completions
 
