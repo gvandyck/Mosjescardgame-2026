@@ -10,9 +10,9 @@ import {
   MP_HEMORRHAGE
 } from "../../src/cards/piecies/attack/index.js";
 import {
-  EMERGENCY_SWAP,
   F1_TELEMETRY_DATA,
   HUISBAAS,
+  LEIPE_SWAP,
   PERFECT_SETUP,
   SHHH_POPO_KOMT,
   SYNERGY_FIELD,
@@ -129,7 +129,7 @@ beforeEach(() => {
   registerCard(HUISBAAS);
   registerCard(SHHH_POPO_KOMT);
   registerCard(SYNERGY_FIELD);
-  registerCard(EMERGENCY_SWAP);
+  registerCard(LEIPE_SWAP);
   registerCard(KEYBOARD);
 });
 
@@ -259,9 +259,14 @@ describe("phase4b step 3 - multi-effect piecies", () => {
     expect(next.players[0].mosjes[0].mp).toBe(95);
   });
 
-  it("emergency-swap switches active mosje and applies copy buff", () => {
-    const next = invoke("emergency-swap", createState(), { targetMosjeCardId: cardId("opp_main") });
-    expect(next.players[0].activeMosjeIndex).toBe(1);
-    expect(next.players[0].mosjes[0].flags["buff:copy_ability_once"]).toBeDefined();
+  it("piecie_leipe_swap is registered as a declarative no-op twin", () => {
+    const next = invoke("piecie_leipe_swap", createState());
+    expect(next.players[0].activeMosjeIndex).toBe(0);
+    expect(next.players[0].mosjes[0].mp).toBe(80);
+    expect(next.eventLog.at(-1)).toMatchObject({
+      type: "card_resolved",
+      cardId: cardId("piecie_leipe_swap"),
+      outcome: "success"
+    });
   });
 });

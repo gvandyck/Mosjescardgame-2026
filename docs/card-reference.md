@@ -108,7 +108,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 | double-trigger | Double Trigger | UTILITY | no | no | 20 MP | applyBuff | implemented |
 | dubbele-ding | Dubbele Ding | UTILITY | yes | no | free | applyBuff | implemented |
 | dubbele-dosis | Dubbele Dosis | UTILITY | yes | no | free | applyBuff; persists in slot until endTurn (BUG-02 fixed: no longer discards immediately) | implemented |
-| emergency-swap | Emergency Swap | UTILITY | no | no | 30 MP, lvl 1+ | DEFERRED: requires UI selection modal + ability registry dispatch (blocking primitive: Mosje selection modal + abilityId lookup) (STUB-12) | deferred |
+| piecie_leipe_swap | Leipe Swap | UTILITY | no | yes | free, lvl 1+ | Swap one of your Mosjes' MP with an opponent Mosje's until end of turn; current MP swaps back and banked levels stay. Max rarity, 1 per deck. | implemented |
 | f1-telemetry-data | F1 Telemetry Data | UTILITY | yes | no | 10 MP | ifThenElse+lookAtTop | implemented |
 | huisbaas | Huisbaas | UTILITY | no | no | free | destroyPlace implemented; DEFERRED: deck-search for new Place requires deck-search-modal primitive (STUB-13) | deferred |
 | jantje-jantje | Jantje Jantje | UTILITY | no | no | 15 MP | loseMP+applyBuff | advanced |
@@ -261,7 +261,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 - Quest section: see plan 08-06 for full quest audit and classification.
 
 ### Phase 10 Notes
-- emergency-swap is explicitly marked as advanced for experienced players.
+- Leipe Swap became an implemented max-rarity swap card in Phase 20.
 - Post-balance simulation reduced never-played cards from 36 to 21 but did not eliminate all advanced/deferred mechanics.
 
 ### Phase 12 Notes (Unfinished Stubs Audit — Waves 1–5)
@@ -283,7 +283,6 @@ This document is the final Phase 11 master card inventory, generated from the li
 - STUB-09: Dierenasiel — engine guard logged; UI cantAffordAbility check for 0-MP PET deferred to UI phase
 
 **Deferred (requires named blocking primitive):**
-- STUB-12: Emergency Swap — blocking primitive: UI modal for opponent Mosje selection + abilityId lookup
 - STUB-13: Huisbaas — blocking primitive: deck-search-modal (filter by card type PLACE) + activatePlace call
 - STUB-16: FPS West — blocking primitive: opponent hand reveal UI in boardRenderer.js (opponentHandPeeked flag)
 - STUB-16: Ronald Chef — blocking primitive: peek-reveal modal showing top 2 deck card names (_ronaldPeek flag)

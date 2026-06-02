@@ -127,7 +127,7 @@ src/cards/piecies/
     ├── dingetje-toch.ts
     ├── double-trigger.ts   ← NEW (Phase 4C Step 2)
     ├── dubbele-ding.ts
-    ├── emergency-swap.ts
+    ├── leipe-swap.ts
     ├── f1-telemetry-data.ts
     ├── huisbaas.ts
     ├── jantje-jantje.ts    ← NEW (Phase 4C Step 2)

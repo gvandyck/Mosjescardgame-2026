@@ -71,7 +71,7 @@ This list is derived from cards marked as advanced or partial in docs/card-refer
 - dingetje-toch
 - double-trigger
 - zie-je-die-dingetjes
-- emergency-swap (explicitly marked advanced)
+- piecie_leipe_swap
 
 ### Avoid in first-time sessions: Mosje abilities with known partial mechanics
 - binti-the-creator

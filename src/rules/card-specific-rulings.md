@@ -30,7 +30,7 @@ This file maps the authoritative Phase 0 rulings to concrete card IDs.
 - snelle_gevalletje_klakkeloos: copies final MP gain amount only, one trigger instance per event.
 - place_skiffa: discard-or-lose choice belongs to Mosje owner; digital activation penalty applies immediately on piecie activation.
 - place_the_void: blocks effect-based gain/loss only; quest success/failure still occurs with zero reward/penalty.
-- piecie_emergency_swap: copied ability is one-time base-form use; copied ability costs still paid; no transfer of synergy/pet bonuses.
+- piecie_leipe_swap: choose one of your Mosjes and an opponent Mosje; swap their current MP by direct assignment, then at the end of your turn swap those slots' current MP back. Levels gained during the turn stay. This max-rarity card is capped at 1 copy per deck.
 - place_synergy_chamber: forces declared synergies active globally; chamber bonuses remain separate from synergy values.
 - place_momentum_stabilizer: blocks set_mp / exact adjust primitives; does not block normal gain_mp/lose_mp.
 - piecie_call_of_welloes: Call of the Haunted-style linked revive. Choose a Mosje in a Welloe pile and summon it to the field at level 1, 0 MP. Call of the Welloes stays linked to that Mosje; if the Piecie leaves play, the summoned Mosje returns to Welloe. If the summoned Mosje leaves the field first, Call of the Welloes is discarded/cleared.

@@ -41,12 +41,12 @@
   - Removed: `zie-je-die-dingetjes`.
   - Added: one additional `pot-of-weed`.
 - Artistic Rhythm deck:
-  - Removed: `emergency-swap`, `quest_negotiation`, `quest_inspire_crowd`.
+  - Removed: `piecie_leipe_swap`, `quest_negotiation`, `quest_inspire_crowd`.
   - Added: one extra `warm-kannetje-melk`, one extra `quest_improvise`, one extra `quest_lucky_break`.
 - Card definition adjustments:
   - `harde-didde`: target MP requirement `<= 40 -> <= 50` and text guidance updated.
   - `klaar-met-jou`: target MP requirement `<= 30 -> <= 40` and text guidance updated.
-  - `emergency-swap`: added note text: "Advanced card — recommended for experienced players."
+  - `piecie_leipe_swap`: predecessor note text added for experienced-player guidance.
 
 ### Never-played card fixes (Step 3)
 - `momentum-diefje`:
@@ -95,7 +95,7 @@ Notes on Step 4 target checks:
   - Prediction/guessing cards.
   - Cards requiring card-name guessing or hidden-information calls.
 - Advanced-only cards still in the full pool:
-  - `emergency-swap` is now explicitly marked as advanced.
+  - `piecie_leipe_swap` now occupies the former advanced utility slot.
 
 ## First-Timer Deck Summary
 
