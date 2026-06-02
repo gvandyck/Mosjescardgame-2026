@@ -1,10 +1,29 @@
 # Project State
 
 **Last updated:** 2026-06-02
-**Current phase:** Phase 18 COMPLETE — 18-01, 18-02 both complete
-**Branch:** fix/phase-18-dead-flags
+**Current phase:** Phase 19 COMPLETE — 19-01, 19-02 both complete (Phase 20 = Leipe Swap planned, not yet executed)
+**Branch:** fix/phase-18-dead-flags (carries Phases 18–19 implementation + Phase 19–20 plans; not merged/pushed)
 
 > Note: STATE.md was not maintained during Phases 15–17 (tracked in their phase dirs / ROADMAP only). This header jumps from Phase 14 to Phase 18.
+
+## Phase 19 Progress — UI-Modal Card Completions
+
+### 19-01: FPS West Tactical Analysis — guess game (COMPLETE)
+- Reworked into a Geen Raad-style guess: pick an opponent hand card, guess its type; correct +70 MP / wrong −20 MP, routed through gainMP/loseMP (visible/logged)
+- Removed the dead `opponentHandPeeked` flag + the old draw; old abilityDescription archived as a comment
+- main.js FPS_WEST_TACTICAL_IDS block reuses showOpponentHandCardSelect → showCardTypeSelect → showRevealedCard, stores fpsWestGuessCorrect in _pendingTargets
+- 5 new tests; 842 total; sim 100 games 0 crashes; Ronald Kip stacking test passed
+
+### 19-02: Ronald Chef Strategic Insight — hand-card lock (COMPLETE)
+- 20 MP (via loseMP) to pick an opponent hand card and lock it (unplayable) until your next turn; 3-turn cooldown (`strategicInsightCooldown`); removed the dead `_ronaldPeek`
+- New mechanic: `isHandCardLocked` guard in all 4 play-from-hand functions (playPiecie/playSnellie/playMosje/playPlace); startTurn ticks the cooldown + expires the lock when the locker's turn returns
+- main.js RONALD_CHEF_INSIGHT_IDS pick-and-lock block; old abilityDescription archived
+- 8 new tests; 850 total; sim 100 games 0 crashes
+
+### Decisions
+- FPS West test starting MP set to 25 (not the plan's illustrative 50) so the +70 correct case (→95) stays clear of the auto-level-at-100 edge — gainMP always runs checkLevelUp
+- Lock guards return each play function's real failure shape (`{ state: <local clone>, success:false, error }`); lock matched by cardId (duplicates: first copy blocked) — documented v1 limitation
+- `isHandCardLocked` is a shared helper (1 def + 4 call sites) per CLAUDE.md "build once, reuse"
 
 ## Phase 18 Progress — Dead-Flag Card Fixes
 
