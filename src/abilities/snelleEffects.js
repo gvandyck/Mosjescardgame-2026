@@ -5,16 +5,6 @@ import { loseMP } from '../engine/mpManager.js';
 
 console.log('[ABILITY] snelleEffects.js loaded');
 
-export function effect_jensen(gameState) {
-	console.log('[ABILITY] Jensen: cancel target piecie (resolution hook placeholder)');
-	return JSON.parse(JSON.stringify(gameState));
-}
-
-export function effect_lucky_coin(gameState) {
-	console.log('[ABILITY] Lucky Coin: reroll die (resolution hook placeholder)');
-	return JSON.parse(JSON.stringify(gameState));
-}
-
 export function effect_emergency_healings(gameState, playerId) {
 	const state = JSON.parse(JSON.stringify(gameState));
 	const player = state.players[playerId];

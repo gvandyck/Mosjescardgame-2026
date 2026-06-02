@@ -8,17 +8,6 @@ export function runSnelleEffectsTests() {
     assertDefined(snelleEffects, 'snelleEffects module failed to load');
   });
 
-  test('Jensen returns cloned state without mutating original', () => {
-    assertDefined(
-      snelleEffects.effect_jensen,
-      'effect_jensen missing'
-    );
-    const state = createEngineState();
-    const result = snelleEffects.effect_jensen(state);
-    assertEqual(result !== state, true);
-    assertEqual(result.players.player_1.activeSlots[0].mp, 15);
-  });
-
   test('Snelle Jensen applies to selected own Mosje when target is provided', () => {
     const state = createEngineState({
       players: {
@@ -53,17 +42,6 @@ export function runSnelleEffectsTests() {
     const result = snelleEffects.effect_snelle_jensen(state, 'player_1');
     assertEqual(result.players.player_1.activeSlots[0].mp, 15);
     assertEqual(result.players.player_1.activeSlots[1].mp, 29);
-  });
-
-  test('Lucky Coin returns cloned state without changing MP', () => {
-    assertDefined(
-      snelleEffects.effect_lucky_coin,
-      'effect_lucky_coin missing'
-    );
-    const state = createEngineState();
-    const result = snelleEffects.effect_lucky_coin(state);
-    assertEqual(result !== state, true);
-    assertEqual(result.players.player_1.activeSlots[0].mp, 15);
   });
 
   test('Emergency Healings gives +25 MP normally', () => {

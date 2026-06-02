@@ -110,7 +110,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 | dubbele-dosis | Dubbele Dosis | UTILITY | yes | no | free | applyBuff; persists in slot until endTurn (BUG-02 fixed: no longer discards immediately) | implemented |
 | piecie_leipe_swap | Leipe Swap | UTILITY | no | yes | free, lvl 1+ | Swap one of your Mosjes' MP with an opponent Mosje's until end of turn; current MP swaps back and banked levels stay. Max rarity, 1 per deck. | implemented |
 | f1-telemetry-data | F1 Telemetry Data | UTILITY | yes | no | 10 MP | ifThenElse+lookAtTop | implemented |
-| huisbaas | Huisbaas | UTILITY | no | no | free | destroyPlace implemented; DEFERRED: deck-search for new Place requires deck-search-modal primitive (STUB-13) | deferred |
+| huisbaas | Huisbaas | UTILITY | no | no | free | destroyPlace + return a Place from the owner's discard (Phase 17 rework — no deck-search-modal needed) | implemented |
 | jantje-jantje | Jantje Jantje | UTILITY | no | no | 15 MP | loseMP+applyBuff | advanced |
 | laat-me-chillen | Laat Me Chillen | UTILITY | yes | no | 10 MP | gainMP+applyBuff; MP_LOSS_REDUCTION wired in loseMP() (STUB-02) | implemented |
 | mosje-reborn | Mosje Reborn | UTILITY | no | no | free | returnToHand | advanced |
@@ -185,22 +185,22 @@ This document is the final Phase 11 master card inventory, generated from the li
 | ID | Name | Group | Starter | Booster | Cost | Summary | Status |
 |---|---|---|---|---|---|---|---|
 | quest_arm_wrestling | Arm Wrestling | general | no | no | free | Quest success effects: gainMP | advanced |
-| quest_artistic_expression | Artistic Expression | general | yes | no | free | auto-succeed Creative ★★+; draw 2 DEFERRED (UI hook) | implemented |
+| quest_artistic_expression | Artistic Expression | general | yes | no | free | auto-succeed Creative ★★+; draws 2 on success (drawOnSuccess, Phase 21) | implemented |
 | quest_build_gadget | Build Gadget | general | no | no | free | Quest success effects: gainMP | implemented |
 | quest_calculate_odds | Calculate Odds | general | no | no | free | Quest success effects: gainMP | implemented |
 | quest_chain_master | Chain Master | general | no | no | free | roll 3+ with 3+ Piecies in discard; this-turn tracking DEFERRED | implemented |
 | quest_create_masterpiece | Create Masterpiece | general | yes | no | free | Quest success effects: gainMP | implemented |
 | quest_debug_system | Debug System | general | yes | no | free | Quest success effects: gainMP | implemented |
-| quest_elimination_challenge | Elimination Challenge | general | no | no | free | roll 4+; opponent -30 MP side effect DEFERRED (UI hook) | implemented |
+| quest_elimination_challenge | Elimination Challenge | general | no | no | free | roll 4+; opponent's first active Mosje loses 30 MP on success (opponentLoseMP, Phase 21; skipped under The Void) | implemented |
 | quest_endurance_test | Endurance Test | general | yes | no | free | Quest success effects: gainMP | implemented |
 | quest_endure_pain | Endure Pain | general | no | no | free | Quest success effects: gainMP | implemented |
 | quest_form_alliance | Form Alliance | general | no | no | free | Quest success effects: drainMP+gainMP | implemented |
-| quest_geen_raad_vraag_aad | Geen Raad? Vraag Aad! | general | no | no | free | SIMPLIFIED: roll 4+ (card-guess UI DEFERRED) | implemented |
-| quest_hack_mainframe | Hack Mainframe | general | yes | no | free | Quest success effects: gainMP; Hacker bonus DEFERRED (mosjeId vs cardId) | implemented |
+| quest_geen_raad_vraag_aad | Geen Raad? Vraag Aad! | general | no | no | free | full pick→guess→reveal card-guess flow live in main.js | implemented |
+| quest_hack_mainframe | Hack Mainframe | general | yes | no | free | Quest success effects: gainMP; Hacker/FPS -1 threshold now fires (reads cardId, Phase 21) | implemented |
 | quest_improvise | Improvise! | general | yes | no | free | Quest success effects: gainMP | implemented |
 | quest_inspire_crowd | Inspire Crowd | general | no | no | free | Quest success effects: gainMP | advanced |
 | quest_larry_temmen | Larry Temmen Niemand Zeggen | general | no | no | free | SIMPLIFIED: roll 5+ = success (3-way outcome DEFERRED) | implemented |
-| quest_late_night_questing | Late Night Questing | general | no | no | free | roll 3+; draw 2 on success DEFERRED (UI hook) | implemented |
+| quest_late_night_questing | Late Night Questing | general | no | no | free | roll 3+; draws 2 on success (drawOnSuccess, Phase 21) | implemented |
 | quest_leap_of_faith | Leap of Faith | general | yes | no | free | Quest success effects: gainMP | implemented |
 | quest_lucky_break | Lucky Break | general | yes | no | free | Quest success effects: gainMP | implemented |
 | quest_master_plan | Master Plan | general | yes | no | free | Quest success effects: gainMP | implemented |
@@ -283,7 +283,6 @@ This document is the final Phase 11 master card inventory, generated from the li
 - STUB-09: Dierenasiel — engine guard logged; UI cantAffordAbility check for 0-MP PET deferred to UI phase
 
 **Deferred (requires named blocking primitive):**
-- STUB-13: Huisbaas — blocking primitive: deck-search-modal (filter by card type PLACE) + activatePlace call
 - STUB-16: FPS West — blocking primitive: opponent hand reveal UI in boardRenderer.js (opponentHandPeeked flag)
 - STUB-16: Ronald Chef — blocking primitive: peek-reveal modal showing top 2 deck card names (_ronaldPeek flag)
 
