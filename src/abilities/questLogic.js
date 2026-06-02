@@ -313,6 +313,26 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 		}
 	}
 
+	// Draw-on-success (quest-def driven). Use FRESH state — gainMP/loseMP above reassigned `state`.
+	if (didSucceed && questCard.drawOnSuccess > 0) {
+		const p = state.players[playerId];
+		for (let i = 0; i < questCard.drawOnSuccess && p.deck.length > 0; i++) {
+			p.hand.push(p.deck.shift());
+		}
+		console.log('[QUEST] drawOnSuccess: drew', questCard.drawOnSuccess);
+	}
+	// Elimination side-effect: opponent's first active Mosje loses MP on success (skipped under The Void).
+	if (didSucceed && !baseQuestMpBlocked && questCard.opponentLoseMP > 0) {
+		const oppId = Object.keys(state.players).find(id => id !== playerId);
+		const oppSlotIndex = oppId
+			? state.players[oppId].activeSlots.findIndex(s => s && !s.isDefeated)
+			: -1;
+		if (oppId && oppSlotIndex >= 0) {
+			state = loseMP(state, oppId, oppSlotIndex, questCard.opponentLoseMP, 'QUEST_ELIMINATION');
+			console.log('[QUEST] Elimination Challenge: opponent loses', questCard.opponentLoseMP, 'MP');
+		}
+	}
+
 	// Mosje auto-abilities that react to quest outcomes (e.g. Michelle Tough Gamble).
 	// Fires before Place effects so the modified MP feeds into Quest Haven bonuses.
 	state = applyMosjeFieldEffectsOnQuest(state, playerId, slotIndex, questMpGained);
@@ -621,8 +641,7 @@ export function quest_req_team_building(questCard, mosje) {
 export function quest_req_artistic_expression(questCard, mosje) {
 	const creative = mosje.traits?.creative || 0;
 	// Auto-succeed for Creative ★★+.
-	// SIMPLIFIED: draw 2 cards on success is not wired in resolveQuest — drawExtra flag ignored.
-	// DEFERRED: draw-on-quest-success hook required to restore the draw 2 side effect.
+	// Draw-on-success (2 cards) is wired via the quest-def `drawOnSuccess` field, consumed by resolveQuest.
 	const canAttempt = creative >= 2;
 	return { canAttempt, success: canAttempt };
 }
@@ -676,8 +695,10 @@ export function quest_req_hack_mainframe(questCard, mosje) {
 	if (technical >= 3) threshold = 3;
 	else if (technical >= 2) threshold = 4;
 	else threshold = 6;
-	// Hacker/FPS Mosje: -1 threshold (name-based check)
-	const isHacker = mosje.mosjeId && (mosje.mosjeId.toLowerCase().includes('hacker') || mosje.mosjeId.toLowerCase().includes('fps'));
+	// Hacker/FPS Mosje: -1 threshold (id-based check).
+	// The passed `mosje` carries `cardId` (mosjeId is always undefined); prefer cardId, fall back to mosjeId.
+	const hackId = String(mosje?.cardId ?? mosje?.mosjeId ?? '').toLowerCase();
+	const isHacker = hackId.includes('hacker') || hackId.includes('fps');
 	if (isHacker) threshold -= 1;
 	return { canAttempt: true, diceRoll: roll, threshold, success: roll >= threshold };
 }
@@ -821,8 +842,7 @@ export function quest_req_perfect_timing(questCard, mosje) {
 }
 
 export function quest_req_elimination_challenge(questCard, mosje) {
-	// Roll 4+. Returns isElimination: true on success.
-	// DEFERRED: isElimination flag not consumed by resolveQuest — opponent-loses-30-MP side effect requires UI layer hook.
+	// Roll 4+. The opponent-loses-30-MP side effect is driven by the quest-def `opponentLoseMP` field, consumed by resolveQuest on success.
 	const roll = rollDie();
 	return { canAttempt: true, diceRoll: roll, threshold: 4, success: roll >= 4, isElimination: true };
 }
@@ -859,8 +879,7 @@ export function quest_req_regelaar(questCard, mosje) {
 }
 
 export function quest_req_late_night_questing(questCard, mosje) {
-	// Roll 3+. Returns drawExtra: 2 on success.
-	// DEFERRED: drawExtra flag is not consumed by resolveQuest — draw-on-quest-success requires UI layer hook.
+	// Roll 3+. The draw-2-on-success side effect is driven by the quest-def `drawOnSuccess` field, consumed by resolveQuest.
 	const roll = rollDie();
 	return { canAttempt: true, diceRoll: roll, threshold: 3, success: roll >= 3, drawExtra: 2 };
 }

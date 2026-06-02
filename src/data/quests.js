@@ -274,7 +274,7 @@ export const QUESTS = [
     requirementId: "quest_req_artistic_expression",
     roll: { trait: "creative", thresholds: { 1: 99, 2: 4, 3: 2 } },
     requirementDescription: "Requires Creative ★★ + draw 2 cards",
-    // DEFERRED: draw 2 cards on success not wired — drawExtra flag requires UI layer hook in resolveQuest.
+    drawOnSuccess: 2,
     successMP: 60,
     failMP: -10,
     description: "Success: +60 MP. Failure: -10 MP.",
@@ -655,7 +655,7 @@ export const QUESTS = [
     requirementId: "quest_req_elimination_challenge",
     roll: { trait: null, thresholds: { 1: 4, 2: 4, 3: 4 } },
     requirementDescription: "Roll 4+. On success: opponent loses 30 MP + you gain 50 MP. Failure: you lose 20 MP",
-    // DEFERRED: isElimination flag not consumed by resolveQuest — opponent-loses-30-MP side effect requires UI layer hook.
+    opponentLoseMP: 30,
     successMP: 50,
     failMP: -20,
     description: "Success: Drain opponent 30 MP, gain 50 MP. Failure: -20 MP.",
@@ -738,7 +738,7 @@ export const QUESTS = [
     requirementId: "quest_req_late_night_questing",
     roll: { trait: null, thresholds: { 1: 3, 2: 3, 3: 3 } },
     requirementDescription: "Roll 3+. Success draws 2 extra cards.",
-    // DEFERRED: drawExtra: 2 flag not consumed by resolveQuest — draw-on-success requires UI layer hook.
+    drawOnSuccess: 2,
     successMP: 50,
     failMP: -15,
     description: "Success: +50 MP + draw 2 cards. Failure: -15 MP.",
