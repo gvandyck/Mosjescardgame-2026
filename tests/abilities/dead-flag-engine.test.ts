@@ -214,7 +214,7 @@ describe("Battle Concert — redirect Alyssa's quest-failure MP to opponent", ()
   });
 
   it("does NOT redirect when the questing Mosje is not Alyssa", () => {
-    const state = makeBattleConcertState("mosje_not_alyssa");
+    const state = makeBattleConcertState("mosje_jisca");
     (state as any)._battleConcertActive = "player_1";
 
     const next = resolveQuest(state, "player_1", failQuest, false, 0);

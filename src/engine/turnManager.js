@@ -78,6 +78,14 @@ export function startTurn(gameState) {
   activePlayer.pieciesActivatedThisTurn = 0;
   activePlayer.actionsThisTurn = [];
   activePlayer.freePiecieActivationAvailable = false;
+
+  // Dead-flag turn hygiene (Phase 18): clear stale single-turn effect flags so a
+  // flag set but never triggered does not leak into a later turn. These live on
+  // `state` (global), not on activePlayer.
+  delete state._snelleBlocked;
+  delete state._battleConcertActive;
+  delete state._rerollGranted;
+
   for (const slot of activePlayer.activeSlots) {
     if (slot) {
       slot.abilityUsedThisTurn = false;
@@ -696,6 +704,11 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
   let state = JSON.parse(JSON.stringify(gameState));
   let player = state.players[playerId];
   if (!player) return { state, success: false, error: 'Player not found' };
+
+  // Those Eyelashes: this player's Snelles are blocked this turn
+  if (state._snelleBlocked === playerId) {
+    return { state, success: false, error: 'Your Snelle Piecies are blocked this turn (Those Eyelashes).' };
+  }
 
   // Defensive normalization for synced multiplayer states
   normalizePiecieSlots(player, 4);

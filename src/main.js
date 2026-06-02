@@ -875,6 +875,12 @@ function initGamePage() {
 		}
 
 		function runGeneralQuestDiceRoll(targetSlotIndex) {
+			// Tweede Kans: consume the granted reroll into this quest's dice roll.
+			let tweedeKansReroll = 0;
+			if (gameState._rerollGranted) {
+				tweedeKansReroll = 1;
+				delete gameState._rerollGranted;
+			}
 			modal.showDiceRoll(questDef, threshold, (didSucceed) => {
 				const beforeResolve = snapshotForAnimation();
 				gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed, targetSlotIndex);
@@ -900,7 +906,7 @@ function initGamePage() {
 					console.log('[ABILITY-AUTO]', al.label, '| roll:', al.roll, '| adjustment:', al.adjustment);
 					delete gameState._autoAbilityLog;
 				}
-			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus, forceReroll, skiffaRerolls });
+			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus, forceReroll, skiffaRerolls: skiffaRerolls + tweedeKansReroll });
 		}
 
 		function showQuestPreviewThenRoll(targetSlotIndex) {
@@ -1352,6 +1358,12 @@ function initGamePage() {
 		function runQuestDiceRoll(targetSlotIndex) {
 			const liveMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
 			const threshold = getQuestDiceThreshold(questDef, liveMosje);
+			// Tweede Kans: consume the granted reroll into this quest's dice roll.
+			let tweedeKansReroll = 0;
+			if (gameState._rerollGranted) {
+				tweedeKansReroll = 1;
+				delete gameState._rerollGranted;
+			}
 			modal.showDiceRoll(questDef, threshold, (didSucceed) => {
 				const beforeResolve = snapshotForAnimation();
 				gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed, targetSlotIndex);
@@ -1408,7 +1420,7 @@ function initGamePage() {
 				const sign = mpDelta >= 0 ? '+' : '';
 				log.add(didSucceed ? 'gain' : 'loss', `${questDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`);
 				logStateOutcome(log, beforeResolve, gameState, localPlayerId, `${questDef.name} resolution`);
-			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus, forceReroll, skiffaRerolls });
+			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus, forceReroll, skiffaRerolls: skiffaRerolls + tweedeKansReroll });
 		}
 
 		log.add('quest', `Activating Personal Quest: ${questDef.name}`);

@@ -633,7 +633,8 @@ export function effect_those_eyelashes(gameState, playerId) {
 		const opp = state.players[oppId];
 		if (opp.hand.length > 0) opp.hand.shift(); // discard 1
 	}
-	state._snelleBlocked = true;
+	// Store the blocked opponent's playerId (consumed by playSnellie), not boolean true.
+	if (oppIds[0]) state._snelleBlocked = oppIds[0];
 	console.log('[ABILITY] Those Eyelashes: +20 MP, all opponents discard 1, Snelles blocked');
 	return state;
 }

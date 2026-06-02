@@ -266,6 +266,27 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 	// Track how much MP was actually gained on success — used by Mosje auto-abilities (e.g. Michelle).
 	let questMpGained = 0;
 
+	// Battle Concert: redirect Alyssa's quest-failure damage to an opponent's Mosje (once).
+	// When redirected, the normal failMP application below is skipped so Alyssa is not double-hit.
+	let failRedirected = false;
+	if (!didSucceed && !baseQuestMpBlocked && state._battleConcertActive === playerId) {
+		const questingMosje = player.activeSlots[slotIndex];
+		const isAlyssa = questingMosje && String(questingMosje.cardId).includes('alyssa');
+		if (isAlyssa) {
+			const oppId = Object.keys(state.players).find(id => id !== playerId);
+			const oppSlotIndex = oppId
+				? state.players[oppId].activeSlots.findIndex(s => s && !s.isDefeated)
+				: -1;
+			const failAmount = Math.abs(questCard.failMP || 0);
+			if (oppId && oppSlotIndex >= 0 && failAmount > 0) {
+				state = loseMP(state, oppId, oppSlotIndex, failAmount, 'BATTLE_CONCERT');
+				delete state._battleConcertActive;
+				failRedirected = true;
+				console.log('[QUEST] Battle Concert: Alyssa quest-failure damage redirected to opponent');
+			}
+		}
+	}
+
 	if (!baseQuestMpBlocked && !defersMPToUI) {
 		// Support both old format (successMP/failMP) and new format (onSuccess/onFailure effects)
 		const effects = didSucceed ? (questCard.onSuccess || []) : (questCard.onFailure || []);
@@ -276,7 +297,7 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 				if (effect.primitive === 'gainMP' && effect.params?.amount) {
 					if (didSucceed) questMpGained += effect.params.amount;
 					state = gainMP(state, playerId, slotIndex, effect.params.amount);
-				} else if (effect.primitive === 'loseMP' && effect.params?.amount) {
+				} else if (effect.primitive === 'loseMP' && effect.params?.amount && !failRedirected) {
 					state = loseMP(state, playerId, slotIndex, effect.params.amount, 'QUEST');
 				}
 			}
@@ -285,7 +306,7 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 			if (didSucceed) {
 				questMpGained = questCard.successMP ?? 0;
 				state = gainMP(state, playerId, slotIndex, questCard.successMP);
-			} else {
+			} else if (!failRedirected) {
 				const failValue = Math.abs(typeof questCard.failMP === 'number' ? questCard.failMP : 0);
 				state = loseMP(state, playerId, slotIndex, failValue, 'QUEST');
 			}
