@@ -1806,7 +1806,8 @@ function initGamePage() {
 			const options = (welloeOptions || []).map(w => ({
 				id: w.cardId,
 				label: w.name,
-				metaLabel: `${w.mp} MP · Lvl ${w.level}`,
+				// Summon always enters at 50 MP / Level 1 regardless of welloe record (D-05/D-06)
+				metaLabel: `50 MP · Lvl 1`,
 			}));
 			const chosen = await modal.showOptionSelect({
 				title: 'Call of the Welloes',
