@@ -251,6 +251,44 @@ describe("piecies.js — piecie_call_of_welloes description (revised)", () => {
 // ─────────────────────────────────────────────────────────────
 // K. markMosjeDefeated clears linkedMosjeCardId on anchor Piecie slot
 // ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+// L. markMosjeDefeated: Piecie is immediately discarded when its linked Mosje is defeated
+// ─────────────────────────────────────────────────────────────
+describe("markMosjeDefeated — Piecie immediately discarded when linked Mosje dies", () => {
+  it("L: piecieSlots entry is nulled and 'piecie_call_of_welloes' is in discard after markMosjeDefeated", () => {
+    const mosjeInSlot = {
+      cardId: "mosje_test",
+      name: "T",
+      mp: 0,
+      level: 1,
+      isDefeated: false,
+      traits: {},
+      statusEffects: [],
+      abilityUsedThisTurn: false,
+      summonedByPiecie: "piecie_call_of_welloes",
+    };
+    const state = makeState({
+      activeSlots: [mosjeInSlot, null],
+      welloe: [],
+      piecieSlots: [
+        { cardId: "piecie_call_of_welloes", type: "PIECIE", linkedMosjeCardId: "mosje_test" },
+        null, null, null,
+      ],
+    });
+    const result = markMosjeDefeated(state, "player_1", 0);
+    // Piecie slot must be nulled
+    const pSlots = result.players.player_1.piecieSlots as any[];
+    const piecieStillOnField = pSlots.some((p: any) => p?.cardId === "piecie_call_of_welloes");
+    expect(piecieStillOnField).toBe(false);
+    // Piecie cardId must be in discard
+    const discard = result.players.player_1.discard as any[];
+    const piecieInDiscard = discard.some(
+      (d: any) => d === "piecie_call_of_welloes" || d?.cardId === "piecie_call_of_welloes"
+    );
+    expect(piecieInDiscard).toBe(true);
+  });
+});
+
 describe("markMosjeDefeated — clears linkedMosjeCardId on anchor Piecie slot", () => {
   it("K: when a summoned Mosje is defeated, the anchor Piecie's linkedMosjeCardId is cleared", () => {
     const mosjeInSlot = {
