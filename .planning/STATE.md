@@ -1,12 +1,20 @@
 # Project State
 
 **Last updated:** 2026-06-03
-**Current phase:** Phase 22 IN PROGRESS - Call of the Welloes (Plan 04 complete)
+**Current phase:** Phase 22 IN PROGRESS - Call of the Welloes (Plan 05 complete)
 **Branch:** plan/phase-22-call-of-welloes
 
 > Note: STATE.md was not maintained during Phases 15–17 (tracked in their phase dirs / ROADMAP only). This header jumps from Phase 14 to Phase 18.
 
 ## Phase 22 Progress — Call of the Welloes
+
+### 22-05: Bidirectional destroy — gap closure (COMPLETE)
+- Replaced D-17 block: piecieSlots[pIdx] nulled + discard.push(slot.cardId) in same markMosjeDefeated call
+- Tightened findIndex: match both cardId === 'piecie_call_of_welloes' AND linkedMosjeCardId === mosje.cardId
+- Updated test K: accept null slot (slot gone = link cleared)
+- Added test L: confirms piecieStillOnField false + piecieInDiscard true
+- TDD RED-then-GREEN: eced576 RED → 33bf6eb GREEN
+- 896 tests passing (0 failures)
 
 ### 22-04: Mechanic revision — gap closure (COMPLETE)
 - Removed returnMosjeToWelloe (wrong silent-return function from Wave 1)

@@ -494,9 +494,11 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 22-01-PLAN.md — Engine return path: returnMosjeToWelloe helper + endTurn sweep hook (TDD)
-- [ ] 22-02-PLAN.md — Summon path: effect_call_of_welloes + confirmCallOfWelloes + description fix (TDD)
-- [ ] 22-03-PLAN.md — UI wiring: main.js _callOfWelloesPending modal branch + card-reference.md (human-verify)
+- [x] 22-01-PLAN.md — Engine return path: returnMosjeToWelloe helper + endTurn sweep hook (TDD)
+- [x] 22-02-PLAN.md — Summon path: effect_call_of_welloes + confirmCallOfWelloes + description fix (TDD)
+- [x] 22-03-PLAN.md — UI wiring: main.js _callOfWelloesPending modal branch + card-reference.md (human-verify)
+- [x] 22-04-PLAN.md — Gap closure: mechanic revision (Level 1/50 MP, defeat-on-sweep, persistence guard) (TDD)
+- [x] 22-05-PLAN.md — Gap closure: bidirectional destroy — Piecie discarded immediately when linked Mosje defeated (TDD)
 
 **Success Criteria:**
 1. effect_call_of_welloes functional; summon + return lifecycle correct
