@@ -84,6 +84,7 @@ export function startTurn(gameState) {
   activePlayer.pieciesActivatedThisTurn = 0;
   activePlayer.actionsThisTurn = [];
   activePlayer.freePiecieActivationAvailable = false;
+  activePlayer.attackPieciePlayedThisTurn = false;
 
   // Dead-flag turn hygiene (Phase 18): clear stale single-turn effect flags so a
   // flag set but never triggered does not leak into a later turn. These live on
@@ -420,6 +421,9 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
 
   state.players[playerId].pieciesPlayedThisTurn = (state.players[playerId].pieciesPlayedThisTurn || 0) + 1;
   state.players[playerId].lastCardPlayedType = 'PIECIE';
+  if (cardDef?.subtype === 'ATTACK') {
+    state.players[playerId].attackPieciePlayedThisTurn = true;
+  }
 
 
   state = checkVictory(state);
