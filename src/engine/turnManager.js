@@ -243,7 +243,7 @@ export function endTurn(gameState) {
     // Call of the Welloes persistence: do not sweep this Piecie while its linked Mosje is alive (D-16)
     if (slot?.cardId === 'piecie_call_of_welloes' && slot.linkedMosjeCardId) {
       const linkedAlive = state.players[playerId].activeSlots.some(
-        s => s?.cardId === slot.linkedMosjeCardId
+        s => s?.cardId === slot.linkedMosjeCardId && s?.summonedByPiecie === 'piecie_call_of_welloes'
       );
       if (linkedAlive) continue;
     }
