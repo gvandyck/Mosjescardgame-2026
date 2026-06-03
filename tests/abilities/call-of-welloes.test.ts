@@ -86,7 +86,8 @@ describe("endTurn — Call of the Welloes: defeat when Piecie is gone", () => {
       welloe: [],
       piecieSlots: [null, null, null, null],
     });
-    const result = endTurn(state, "player_1");
+    // state.activePlayerId is explicitly "player_1" (set in makeState), so endTurn acts on player_1
+    const result = endTurn(state);
     // Mosje is defeated: slot nulled
     expect(result.players.player_1.activeSlots[0]).toBeNull();
     // Welloe pile receives the defeated Mosje
@@ -114,7 +115,8 @@ describe("endTurn — Call of the Welloes: Mosje stays when Piecie is present", 
         null, null, null,
       ],
     });
-    const result = endTurn(state, "player_1");
+    // state.activePlayerId is explicitly "player_1" (set in makeState), so endTurn acts on player_1
+    const result = endTurn(state);
     expect(result.players.player_1.activeSlots[0]).not.toBeNull();
     expect(result.players.player_1.activeSlots[0]?.cardId).toBe("mosje_test");
     const welloe = result.players.player_1.welloe as any[];
@@ -137,7 +139,8 @@ describe("endTurn — piecie_call_of_welloes persistence guard", () => {
         null, null, null,
       ],
     });
-    const result = endTurn(state, "player_1");
+    // state.activePlayerId is explicitly "player_1" (set in makeState), so endTurn acts on player_1
+    const result = endTurn(state);
     const pSlots = result.players.player_1.piecieSlots as any[];
     const piecieStillPresent = pSlots.some((p: any) => p?.cardId === "piecie_call_of_welloes");
     expect(piecieStillPresent).toBe(true);
