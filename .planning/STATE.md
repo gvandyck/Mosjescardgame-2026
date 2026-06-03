@@ -1,10 +1,24 @@
 # Project State
 
 **Last updated:** 2026-06-03
-**Current phase:** Phase 21 COMPLETE - Quest Behaviors + Cleanup (Buckets A + C)
-**Branch:** main — Phases 18–21 merged & pushed (Phase 21 work was on feature/phase-21-quest-behaviors)
+**Current phase:** Phase 22 IN PROGRESS - Call of the Welloes (Plan 01 complete)
+**Branch:** plan/phase-22-call-of-welloes
 
 > Note: STATE.md was not maintained during Phases 15–17 (tracked in their phase dirs / ROADMAP only). This header jumps from Phase 14 to Phase 18.
+
+## Phase 22 Progress — Call of the Welloes
+
+### 22-01: returnMosjeToWelloe + endTurn sweep (COMPLETE)
+- Engine return-path primitive: `returnMosjeToWelloe` exported from turnManager.js
+- Deep-clone helper: pushes archived mosjeSlot (minus summonedByPiecie) to welloe[], nulls activeSlot
+- No defeat side-effects: no isDefeated, no discard entry, no checkVictory
+- endTurn sweep: after piecieSlots sweep, iterates activeSlots for summonedByPiecie === 'piecie_call_of_welloes'; returns Mosje when anchor Piecie absent, leaves in place when present
+- TDD RED-then-GREEN: 5 new tests (e77caf7 RED → ba07463 GREEN)
+- 891 tests passing (5 new); simulation 100 games 0 crashes
+
+### Decisions
+- Sweep reassigns `state` via `let` (endTurn already declares let state) — no inline mutation needed
+- returnMosjeToWelloe uses `delete archived.summonedByPiecie` before push — clean archive
 
 ## Phase 21 Progress — Quest Behaviors + Cleanup
 
