@@ -714,6 +714,7 @@ export const PIECIES = [
     artPath: "assets/piecie-art/Call of the Welloes.jpeg",
     rarity: "★★",
     isBoosterOnly: false,
+    persistUntilEndOfTurn: true,
   },
   {
     id: "piecie_welloe_force",

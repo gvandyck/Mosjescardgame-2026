@@ -1891,3 +1891,31 @@
 .board-zone__piecies .card * {
    font-size: inherit;
 }
+
+/* ── Call of the Welloes — spirit link visual ───────────────────────────── */
+/* outline is used instead of box-shadow: cards have overflow:hidden which clips shadows */
+@keyframes welloe-spirit-pulse {
+  0%, 100% { outline-color: rgba(140, 90, 255, 0.55); filter: drop-shadow(0 0 4px rgba(120, 80, 255, 0.45)); }
+  50%       { outline-color: rgba(160, 110, 255, 1);   filter: drop-shadow(0 0 10px rgba(140, 80, 255, 0.95)) drop-shadow(0 0 18px rgba(80, 200, 255, 0.55)); }
+}
+
+.mosje--welloe-bound,
+.piecie--welloe-anchor {
+  outline: 2.5px solid rgba(140, 90, 255, 0.9);
+  outline-offset: 2px;
+  border-radius: 8px;
+  animation: welloe-spirit-pulse 2s ease-in-out infinite !important;
+  position: relative;
+  z-index: 1;
+}
+
+.mosje--welloe-bound::after,
+.piecie--welloe-anchor::after {
+  content: '👻';
+  position: absolute;
+  top: -12px;
+  right: -8px;
+  font-size: 15px;
+  pointer-events: none;
+  z-index: 10;
+}

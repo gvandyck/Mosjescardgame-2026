@@ -67,6 +67,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		const cardEl = renderCard(mosje, { compact: true });
 		const fullCard = getCardById(mosje.cardId) || mosje;
 		cardEl.classList.add('mosje-clickable', 'mosje-card--opponent');
+		if (mosje.summonedByPiecie === 'piecie_call_of_welloes') cardEl.classList.add('mosje--welloe-bound');
 		tagBoardElement(cardEl, {
 			zone: 'mosje',
 			playerId: viewModel.players.top.id,
@@ -85,6 +86,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		});
 		const fullCard = getCardById(mosje.cardId) || mosje;
 		cardEl.classList.add('mosje-clickable', 'mosje-card--owned');
+		if (mosje.summonedByPiecie === 'piecie_call_of_welloes') cardEl.classList.add('mosje--welloe-bound');
 		tagBoardElement(cardEl, {
 			zone: 'mosje',
 			playerId: viewModel.players.bottom.id,
@@ -177,6 +179,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		}
 		const piecieEl = renderCard(piecie, { compact: true });
 		piecieEl.classList.add('field-piecie-card', 'card--previewable');
+		if (piecie.linkedMosjeCardId) piecieEl.classList.add('piecie--welloe-anchor');
 		tagBoardElement(piecieEl, {
 			zone: 'piecie',
 			playerId: viewModel.players.top.id,
@@ -210,6 +213,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		}
 		const piecieEl = renderCard(piecie, { compact: true });
 		piecieEl.classList.add('field-piecie-card', 'card--previewable');
+		if (piecie.linkedMosjeCardId) piecieEl.classList.add('piecie--welloe-anchor');
 		tagBoardElement(piecieEl, {
 			zone: 'piecie',
 			playerId: viewModel.players.bottom.id,

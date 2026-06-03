@@ -125,6 +125,7 @@ function initLobbyPage() {
 		const isOffline = document.getElementById('play-offline')?.checked === true;
 		if (isOffline) {
 			// Pick a bot deck different from the human's pick
+			// Special case: test decks are paired together
 			const candidates = STARTER_DECKS.filter(d => d.id !== deckId);
 			const botDeck = candidates.length > 0
 				? candidates[Math.floor(Math.random() * candidates.length)]
@@ -2359,6 +2360,7 @@ function toMosjeCards(activeSlots) {
 				abilityCost: cost,
 				cantAffordAbility: cost != null && cost > 0 && slot.mp < cost,
 				description: slot.isDefeated ? 'Defeated' : 'Active on field',
+				summonedByPiecie: slot.summonedByPiecie || null,
 			};
 		});
 }
@@ -2409,6 +2411,7 @@ function toPiecieCards(piecieSlots, options = {}) {
 				faceDown: viewerOwns ? false : slot.faceDown === true,
 				slotIndex,
 				canActivate: canActivateNow,
+				linkedMosjeCardId: slot.linkedMosjeCardId || null,
 			};
 		});
 	console.log('[UI] toPiecieCards result (owner=%s):', ownerId,

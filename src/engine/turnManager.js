@@ -843,8 +843,17 @@ export function confirmCallOfWelloes(gameState, playerId, mosjeCardId) {
   const player = state.players[playerId];
   if (!player) return { state, success: false, error: 'Player not found' };
   if (!Array.isArray(player.activeSlots)) player.activeSlots = [null, null];
-  const openSlot = player.activeSlots.findIndex(s => s === null);
-  if (openSlot < 0) return { state, success: false, error: 'No free slot' };
+  // Always summon into the rightmost slot so the Mosje appears next to the Piecie zone.
+  // If rightmost is occupied, shift that Mosje left to the first free slot first.
+  const hasFreeSlot = player.activeSlots.some(s => s === null);
+  if (!hasFreeSlot) return { state, success: false, error: 'No free slot' };
+  const rightmost = player.activeSlots.length - 1;
+  if (player.activeSlots[rightmost] !== null) {
+    const leftFree = player.activeSlots.findIndex(s => s === null);
+    player.activeSlots[leftFree] = player.activeSlots[rightmost];
+    player.activeSlots[rightmost] = null;
+  }
+  const openSlot = rightmost;
   if (!Array.isArray(player.welloe)) return { state, success: false, error: 'No Welloe pile' };
   const welloeIdx = player.welloe.findIndex(w => w.cardId === mosjeCardId);
   if (welloeIdx < 0) return { state, success: false, error: 'Mosje not in Welloe pile' };

@@ -1,13 +1,16 @@
 # Phase 22: Call of the Welloes — Context
 
 **Gathered:** 2026-06-03
-**Status:** Ready for planning
-**Source:** Design session (conversation analysis + codebase audit)
+**Updated:** 2026-06-03 (mechanic revision after Wave 1+2 execution)
+**Status:** Revised — gap closure plans needed
+**Source:** Design session + user mechanic correction
 
 <domain>
 ## Phase Boundary
 
-Implement the full Call of the Welloes Piecie effect using existing engine primitives wherever possible. The card summons a Mosje from the owner's Welloe pile into a free active slot; the Piecie acts as an anchor — when it leaves play, the summoned Mosje immediately returns to the Welloe pile. No new top-level state keys are needed. Everything lives on existing objects via two small new fields.
+Implement the full Call of the Welloes Piecie effect using existing engine primitives wherever possible. The card summons a Mosje from the owner's Welloe pile into a free active slot at **Level 1, 50 MP**. The Piecie stays active on the field as long as the summoned Mosje is alive. If the Piecie is destroyed, the summoned Mosje is also defeated. No new top-level state keys are needed. Everything lives on existing objects via two small new fields.
+
+**MECHANIC REVISION (2026-06-03):** Waves 1 and 2 were executed with the wrong mechanic (restored stats + return-to-welloe). Gap-closure plans must replace those implementations with the correct mechanic below.
 
 **In scope:**
 - `effect_call_of_welloes` activation logic (summon path)
@@ -35,23 +38,25 @@ Implement the full Call of the Welloes Piecie effect using existing engine primi
 
 ### Summon path — reuse playMosje primitives
 - **D-04** Free-slot check: `player.activeSlots.findIndex(s => s === null) >= 0` — same logic as `playMosje` (line 836 of turnManager.js).
-- **D-05** Mosje placement: use `createMosjeSlotFromDefinition(mosjeDef)` then restore saved stats from the welloe record (`saved.mp`, `saved.level`, `saved.traits`, `saved.statusEffects`) — identical to the saved-state restoration in `playMosje` lines 848–854.
-- **D-06** Summoned Mosje starts with its **welloe-recorded** MP and level (not fresh Level 0 / 0 MP). The card was already in play before being defeated; restore where it left off.
+- **D-05** Mosje placement: use `createMosjeSlotFromDefinition(mosjeDef)` then set `mp: 50, level: 1` on the slot — NOT restored from welloe record. Summoned Mosje always starts fresh.
+- **D-06** Summoned Mosje always starts at **Level 1, 50 MP** regardless of what it had when defeated. This is intentional — the card is balanced around a fresh but cheap summon.
 - **D-07** After placing, pop the chosen Mosje from `player.welloe[]` (remove it from the welloe pile while it's on the field).
 
 ### Cancel conditions (silent — no error shown to user)
 - **D-08** If `player.welloe.length === 0`: return `{ canActivate: false }` before the UI pick. Effect does nothing.
 - **D-09** If no free `activeSlots` slot: return `{ canActivate: false }` before the UI pick. Effect does nothing.
 
-### Return path — new helper `returnMosjeToWelloe`
-- **D-10** `returnMosjeToWelloe(state, playerId, slotIndex)` — pure function, subset of `markMosjeDefeated` without: WELLOE_SHIELD check, Not Today! check, Tesla check, `isDefeated = true`, discard entry, or `checkVictory` call. Just: `player.welloe.push({ ...mosjeSlot })` then `player.activeSlots[slotIndex] = null`.
-- **D-11** The return does NOT trigger a victory check — the Mosje goes back to the welloe pile (already "out of play"), not to defeat. No knockout state change.
-- **D-12** The return does NOT add a discard entry — the Mosje was never truly defeated, just un-summoned.
+### Destruction path — Piecie destroyed → defeat Mosje
+- **D-10** When the anchor Piecie (`piecie_call_of_welloes`) is removed from `piecieSlots`, its linked Mosje must also be defeated. This is done by calling `markMosjeDefeated` (not a return-to-welloe). The Mosje is truly defeated, triggering the normal defeat flow (victory check, discard, etc.).
+- **D-11** The `returnMosjeToWelloe` function created in Wave 1 is WRONG for this mechanic. It must be removed and replaced with defeat logic. Any tests relying on `returnMosjeToWelloe` must be updated.
+- **D-12** The defeat happens inside the end-of-turn sweep: if the anchor Piecie is gone, call `markMosjeDefeated(state, playerId, slotIndex)` on the summoned Mosje's slot.
 
-### End-of-turn sweep — hook into existing loop
-- **D-13** In `endTurn`, after the existing piecieSlots sweep loop (lines 241–253), add a second pass over `player.activeSlots`. For each slot with `summonedByPiecie === 'piecie_call_of_welloes'`, check whether any `piecieSlots` entry still has `cardId === 'piecie_call_of_welloes'`. If no match found → call `returnMosjeToWelloe`.
-- **D-14** The sweep runs for the player whose turn is ending (same `playerId` as the existing sweep) — the Piecie and the summoned Mosje always belong to the same player.
-- **D-15** If the Piecie is still on field → do nothing. Mosje stays.
+### End-of-turn sweep — Piecie persistence + defeat-on-removal
+- **D-13** The Call of the Welloes Piecie **stays active on the field** as long as its linked Mosje is in `activeSlots`. This means the normal piecieSlots sweep must be modified or bypassed for this Piecie while it has a live linked Mosje (`linkedMosjeCardId` is set and that Mosje is in an activeSlot).
+- **D-14** At end of turn, after the piecieSlots sweep: scan `player.activeSlots` for slots with `summonedByPiecie === 'piecie_call_of_welloes'`. Check if the anchor Piecie (`piecie_call_of_welloes`) is still in `piecieSlots`. If NOT found → call `markMosjeDefeated` on that activeSlot.
+- **D-15** If the anchor Piecie IS still in piecieSlots → do nothing. Mosje stays on field, Piecie stays on field.
+- **D-16 (NEW)** The piecieSlots sweep must NOT remove a `piecie_call_of_welloes` Piecie while its `linkedMosjeCardId` refers to a live Mosje in `activeSlots`. Skip that Piecie entry during the normal sweep.
+- **D-17 (NEW)** When the linked Mosje is defeated naturally (via `markMosjeDefeated`) → clear `linkedMosjeCardId` from the Piecie slot. The Piecie can then be swept normally on the next turn.
 
 ### UI flow — reuse showOptionSelect pattern
 - **D-16** After `activatePiecie` fires `effect_call_of_welloes` and the engine returns `{ requiresWelloeSelect: true, welloeOptions: [{cardId, name, mp, level}, ...] }`, main.js shows `showOptionSelect` for the player to pick a Mosje.
@@ -102,11 +107,10 @@ Implement the full Call of the Welloes Piecie effect using existing engine primi
 <specifics>
 ## Specific Implementation Notes
 
-**Card description (from piecies.js):**
-> "Choose a Mosje in a Welloe pile and summon it to the field at Level 1, 0 MP. This Piecie stays linked to that Mosje; if this Piecie leaves play, that Mosje returns to Welloe."
+**Card description (REVISED — what it must say in piecies.js):**
+> "Choose a Mosje in your Welloe pile and summon it to the field at Level 1, 50 MP. This Piecie stays on the field as long as that Mosje is active. If this Piecie is destroyed, the summoned Mosje is also defeated."
 
-**Note on "Level 1, 0 MP" in description vs D-06:**
-The card description says "summon at Level 1, 0 MP" but the user design session said restore welloe-recorded stats. These conflict. The planner should flag this and default to **restoring welloe stats** (the more interesting/strategic mechanic), and update the card description text in piecies.js to match. This is a data correction, not an engine design change.
+**Wave 2 implemented a wrong description** ("restoring its MP and Level"). The gap-closure plan must correct this to match the mechanic above.
 
 **Piecie leaving play — when does this happen?**
 1. Normal end-of-turn sweep (Piecie not persistent → swept to discard)
