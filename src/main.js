@@ -7,7 +7,7 @@ import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
 import { animateFieldActivation, animateStateDelta, showTurnTransition } from './ui/actionAnimations.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes } from './engine/gameState.js';
-import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, playPersonalQuest, activatePersonalQuest } from './engine/turnManager.js';
+import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, playPersonalQuest, activatePersonalQuest } from './engine/turnManager.js';
 import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold } from './abilities/questLogic.js';
 import { loseMP, gainMP } from './engine/mpManager.js';
 import { MOSJES } from './data/mosjes.js';
@@ -1799,6 +1799,28 @@ function initGamePage() {
 				console.log('[UI] Welloe Force: no opponent targets, effect cancelled');
 			}
 		}
+
+		// ── Call of the Welloes — pick Mosje from Welloe pile to summon ──────────
+		if (gameState._callOfWelloesPending) {
+			const { welloeOptions } = gameState._callOfWelloesPending;
+			const options = (welloeOptions || []).map(w => ({
+				id: w.cardId,
+				label: w.name,
+				metaLabel: `${w.mp} MP · Lvl ${w.level}`,
+			}));
+			const chosen = await modal.showOptionSelect({
+				title: 'Call of the Welloes',
+				prompt: 'Choose a Mosje from your Welloe pile to summon.',
+				options,
+				allowCancel: false,
+			});
+			if (chosen) {
+				const { state: confirmedState } = confirmCallOfWelloes(gameState, localPlayerId, chosen);
+				gameState = confirmedState;
+			}
+			delete gameState._callOfWelloesPending;
+		}
+		if (gameState._callOfWelloesCancel) { delete gameState._callOfWelloesCancel; }
 
 		// ── STUB-15: MP Adjuster — choose exact MP value (temporary until next turn) ──
 		if (gameState._mpAdjusterPending) {
