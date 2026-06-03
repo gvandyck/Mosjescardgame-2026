@@ -262,7 +262,7 @@ export function endTurn(gameState) {
   // Call of the Welloes: if anchor Piecie has left play, defeat the summoned Mosje (D-12/D-14)
   for (let i = 0; i < state.players[playerId].activeSlots.length; i++) {
     const aSlot = state.players[playerId].activeSlots[i];
-    if (aSlot?.summonedByPiecie === 'piecie_call_of_welloes') {
+    if (aSlot?.summonedByPiecie === 'piecie_call_of_welloes' && !aSlot.isDefeated) {
       const piecieStillOnField = state.players[playerId].piecieSlots.some(
         p => p?.cardId === 'piecie_call_of_welloes'
       );
