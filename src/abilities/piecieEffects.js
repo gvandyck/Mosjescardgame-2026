@@ -598,8 +598,8 @@ export function effect_popo_komt(gameState, playerId) {
 		.filter(s => s && !s.isDefeated).length;
 	if (totalMosjes >= 3) {
 		const afterDestroy = state.activePlace ? destroyActivePlace(state) : state;
-		return triggerPlaceDestroyedEffects(afterDestroy, playerId);
 		console.log('[ABILITY] Popo Komt: 3+ Mosjes \u2014 Place destroyed!');
+		return triggerPlaceDestroyedEffects(afterDestroy, playerId);
 	} else {
 		console.log('[ABILITY] Popo Komt: not enough Mosjes on field');
 	}
