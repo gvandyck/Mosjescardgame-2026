@@ -846,6 +846,39 @@ export function returnMosjeToWelloe(gameState, playerId, slotIndex) {
   return state;
 }
 
+export function confirmCallOfWelloes(gameState, playerId, mosjeCardId) {
+  const state = JSON.parse(JSON.stringify(gameState));
+  const player = state.players[playerId];
+  if (!player) return { state, success: false, error: 'Player not found' };
+  if (!Array.isArray(player.activeSlots)) player.activeSlots = [null, null];
+  const openSlot = player.activeSlots.findIndex(s => s === null);
+  if (openSlot < 0) return { state, success: false, error: 'No free slot' };
+  if (!Array.isArray(player.welloe)) return { state, success: false, error: 'No Welloe pile' };
+  const welloeIdx = player.welloe.findIndex(w => w.cardId === mosjeCardId);
+  if (welloeIdx < 0) return { state, success: false, error: 'Mosje not in Welloe pile' };
+
+  const [record] = player.welloe.splice(welloeIdx, 1);
+  const mosjeDef = MOSJES.find(m => m.id === record.cardId);
+  const slot = mosjeDef ? createMosjeSlotFromDefinition(mosjeDef) : { ...record };
+  // Restore welloe-recorded stats — the record IS the saved state (D-05/D-06)
+  if (typeof record.mp === 'number') slot.mp = record.mp;
+  if (typeof record.level === 'number') slot.level = record.level;
+  if (record.traits && typeof record.traits === 'object') slot.traits = { ...record.traits };
+  if (Array.isArray(record.statusEffects)) slot.statusEffects = [...record.statusEffects];
+  slot.summonedByPiecie = 'piecie_call_of_welloes';
+  slot.isDefeated = false;
+
+  player.activeSlots[openSlot] = slot;
+  const piecieSlotIdx = player.piecieSlots
+    ? player.piecieSlots.findIndex(s => s?.cardId === 'piecie_call_of_welloes')
+    : -1;
+  if (piecieSlotIdx >= 0) {
+    player.piecieSlots[piecieSlotIdx].linkedMosjeCardId = mosjeCardId;
+  }
+  console.log(`[ENGINE] confirmCallOfWelloes: summoned ${slot.name} at ${slot.mp} MP / Lvl ${slot.level}`);
+  return { state, success: true, slotIndex: openSlot };
+}
+
 export function playMosje(gameState, playerId, cardRef) {
   let state = JSON.parse(JSON.stringify(gameState));
   const player = state.players[playerId];

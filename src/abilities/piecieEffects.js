@@ -724,16 +724,23 @@ export function effect_double_trigger(gameState, playerId) {
 }
 
 export function effect_call_of_welloes(gameState, playerId) {
-	if (gameState.activePlace === 'place_welloe_graveyard') {
-		console.log('[ABILITY] Call of Welloes blocked by Welloe Graveyard');
-		return gameState;
+	const state = cloneState(gameState);
+	const player = state.players[playerId];
+	if (!player) return state;
+	if (!Array.isArray(player.welloe) || player.welloe.length === 0) {
+		return { ...state, _callOfWelloesCancel: true };
 	}
-
-	// Intended: choose a Mosje in a Welloe pile and summon it to the field at
-	// Level 1, 0 MP. This Piecie stays linked to that Mosje; if this Piecie
-	// leaves play, that Mosje returns to Welloe. For now, reuse Mosje Reborn as
-	// the UI/browser stub until linked field attachments exist.
-	return effect_mosje_reborn(gameState, playerId);
+	if (!Array.isArray(player.activeSlots)) player.activeSlots = [null, null];
+	const openSlot = player.activeSlots.findIndex(s => s === null);
+	if (openSlot < 0) {
+		return { ...state, _callOfWelloesCancel: true };
+	}
+	const welloeOptions = player.welloe.map(w => ({
+		cardId: w.cardId, name: w.name, mp: w.mp, level: w.level,
+	}));
+	state._callOfWelloesPending = { playerId, welloeOptions };
+	console.log('[ABILITY] Call of the Welloes: welloe options pending UI pick');
+	return state;
 }
 
 export function effect_welloe_force(gameState, playerId) {
