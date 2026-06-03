@@ -1814,11 +1814,16 @@ function initGamePage() {
 				options,
 				allowCancel: false,
 			});
-			if (chosen) {
-				const { state: confirmedState } = confirmCallOfWelloes(gameState, localPlayerId, chosen);
-				gameState = confirmedState;
-			}
 			delete gameState._callOfWelloesPending;
+			if (!chosen) {
+				// Player did not pick (modal cancelled or no options). The Piecie was already
+				// moved to discard by activatePiecie, so state is consistent — just bail out.
+				renderAndCheckWin();
+				syncPush();
+				return;
+			}
+			const { state: confirmedState } = confirmCallOfWelloes(gameState, localPlayerId, chosen);
+			gameState = confirmedState;
 		}
 		if (gameState._callOfWelloesCancel) { delete gameState._callOfWelloesCancel; }
 
