@@ -867,7 +867,8 @@ export function confirmCallOfWelloes(gameState, playerId, mosjeCardId) {
     player.piecieSlots[piecieSlotIdx].linkedMosjeCardId = mosjeCardId;
   }
   console.log(`[ENGINE] confirmCallOfWelloes: summoned ${slot.name} at 50 MP / Lvl 1`);
-  return { state, success: true, slotIndex: openSlot };
+  const finalState = checkVictory(state);
+  return { state: finalState, success: true, slotIndex: openSlot };
 }
 
 export function playMosje(gameState, playerId, cardRef) {
