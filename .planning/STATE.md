@@ -1,10 +1,53 @@
 # Project State
 
 **Last updated:** 2026-06-03
-**Current phase:** Phase 21 COMPLETE - Quest Behaviors + Cleanup (Buckets A + C)
-**Branch:** main — Phases 18–21 merged & pushed (Phase 21 work was on feature/phase-21-quest-behaviors)
+**Current phase:** Phase 22 IN PROGRESS - Call of the Welloes (Plan 05 complete)
+**Branch:** plan/phase-22-call-of-welloes
 
 > Note: STATE.md was not maintained during Phases 15–17 (tracked in their phase dirs / ROADMAP only). This header jumps from Phase 14 to Phase 18.
+
+## Phase 22 Progress — Call of the Welloes
+
+### 22-05: Bidirectional destroy — gap closure (COMPLETE)
+- Replaced D-17 block: piecieSlots[pIdx] nulled + discard.push(slot.cardId) in same markMosjeDefeated call
+- Tightened findIndex: match both cardId === 'piecie_call_of_welloes' AND linkedMosjeCardId === mosje.cardId
+- Updated test K: accept null slot (slot gone = link cleared)
+- Added test L: confirms piecieStillOnField false + piecieInDiscard true
+- TDD RED-then-GREEN: eced576 RED → 33bf6eb GREEN
+- 896 tests passing (0 failures)
+
+### 22-04: Mechanic revision — gap closure (COMPLETE)
+- Removed returnMosjeToWelloe (wrong silent-return function from Wave 1)
+- confirmCallOfWelloes: summons at Level 1, 50 MP unconditionally (NOT restored stats)
+- endTurn Piecie persistence guard: piecie_call_of_welloes NOT swept while linkedMosjeCardId is live
+- endTurn defeat-on-sweep: markMosjeDefeated replaces returnMosjeToWelloe call (isDefeated=true, discard entry, victory check)
+- markMosjeDefeated: clears linkedMosjeCardId on Piecie slot after defeat (D-17)
+- piecies.js description corrected: "Level 1, 50 MP ... summoned Mosje is also defeated"
+- TDD RED-then-GREEN: f091ee6 RED → b872ce1 GREEN
+- 895 tests passing (0 failures)
+
+### 22-02: effect_call_of_welloes + confirmCallOfWelloes + description fix (COMPLETE)
+- Cancel-guard + pending-flag activation: effect_call_of_welloes (empty-welloe / no-free-slot guards + _callOfWelloesPending)
+- Stat-restoring summon executor: confirmCallOfWelloes (mp/level/traits/statusEffects restored from welloe record)
+- Dual tracking: summonedByPiecie on activeSlot + linkedMosjeCardId on piecieSlot
+- Description fix in piecies.js: "restoring its MP and Level" replaces "Level 1, 0 MP" stub text
+- TDD RED-then-GREEN: 5 new tests (778ad4f RED → cab6ac3 GREEN)
+- 896 tests passing (5 new); simulation 100 games 0 crashes
+
+### 22-01: returnMosjeToWelloe + endTurn sweep (COMPLETE)
+- Engine return-path primitive: `returnMosjeToWelloe` exported from turnManager.js
+- Deep-clone helper: pushes archived mosjeSlot (minus summonedByPiecie) to welloe[], nulls activeSlot
+- No defeat side-effects: no isDefeated, no discard entry, no checkVictory
+- endTurn sweep: after piecieSlots sweep, iterates activeSlots for summonedByPiecie === 'piecie_call_of_welloes'; returns Mosje when anchor Piecie absent, leaves in place when present
+- TDD RED-then-GREEN: 5 new tests (e77caf7 RED → ba07463 GREEN)
+- 891 tests passing (5 new); simulation 100 games 0 crashes
+
+### Decisions
+- Sweep reassigns `state` via `let` (endTurn already declares let state) — no inline mutation needed
+- returnMosjeToWelloe uses `delete archived.summonedByPiecie` before push — clean archive
+- confirmCallOfWelloes reads stats directly from welloe record (no savedState wrapper) — consistent with Wave 1 archive design
+- No checkVictory in confirmCallOfWelloes — summon is not a victory-affecting event
+- Replaced old effect_call_of_welloes stub (Mosje Reborn passthrough) with real implementation
 
 ## Phase 21 Progress — Quest Behaviors + Cleanup
 

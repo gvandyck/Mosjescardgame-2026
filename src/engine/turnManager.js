@@ -4,7 +4,7 @@
 
 import { drawCards, shuffleDeck } from './deckEngine.js';
 import { gainMP, applyStatusEffectMP, getTotalMPForPlayer } from './mpManager.js';
-import { checkVictory } from './victoryChecker.js';
+import { checkVictory, markMosjeDefeated } from './victoryChecker.js';
 import { getAllPlayerIds, setActivePlace, destroyActivePlace, clearReturnedMosjesAtTurnEnd } from './gameState.js';
 import * as placeEffects from '../abilities/placeEffects.js';
 import * as piecieEffects from '../abilities/piecieEffects.js';
@@ -84,6 +84,7 @@ export function startTurn(gameState) {
   activePlayer.pieciesActivatedThisTurn = 0;
   activePlayer.actionsThisTurn = [];
   activePlayer.freePiecieActivationAvailable = false;
+  activePlayer.attackPieciePlayedThisTurn = false;
 
   // Dead-flag turn hygiene (Phase 18): clear stale single-turn effect flags so a
   // flag set but never triggered does not leak into a later turn. These live on
@@ -239,6 +240,13 @@ export function endTurn(gameState) {
   normalizePiecieSlots(state.players[playerId], 4);
   for (let i = 0; i < state.players[playerId].piecieSlots.length; i++) {
     const slot = state.players[playerId].piecieSlots[i];
+    // Call of the Welloes persistence: do not sweep this Piecie while its linked Mosje is alive (D-16)
+    if (slot?.cardId === 'piecie_call_of_welloes' && slot.linkedMosjeCardId) {
+      const linkedAlive = state.players[playerId].activeSlots.some(
+        s => s?.cardId === slot.linkedMosjeCardId && s?.summonedByPiecie === 'piecie_call_of_welloes'
+      );
+      if (linkedAlive) continue;
+    }
     if (slot?.type === 'SNELLE_PIECIE') {
       if (!Array.isArray(state.players[playerId].discard)) state.players[playerId].discard = [];
       state.players[playerId].discard.push(slot.cardId);
@@ -251,6 +259,20 @@ export function endTurn(gameState) {
       console.log(`[ENGINE] Persistent Piecie swept to discard at EoT: ${slot.cardId}`);
     }
   }
+  // Call of the Welloes: if anchor Piecie has left play, defeat the summoned Mosje (D-12/D-14)
+  for (let i = 0; i < state.players[playerId].activeSlots.length; i++) {
+    const aSlot = state.players[playerId].activeSlots[i];
+    if (aSlot?.summonedByPiecie === 'piecie_call_of_welloes' && !aSlot.isDefeated) {
+      const piecieStillOnField = state.players[playerId].piecieSlots.some(
+        p => p?.cardId === 'piecie_call_of_welloes'
+      );
+      if (!piecieStillOnField) {
+        state = markMosjeDefeated(state, playerId, i);
+        console.log('[ENGINE] endTurn sweep: summoned Mosje defeated — anchor Piecie no longer on field');
+      }
+    }
+  }
+
   // Reset questPrepBonus at end of turn — same lifecycle as persistUntilEoT Piecies (BUG-05)
   state.players[playerId].questPrepBonus = 0;
 
@@ -420,6 +442,9 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
 
   state.players[playerId].pieciesPlayedThisTurn = (state.players[playerId].pieciesPlayedThisTurn || 0) + 1;
   state.players[playerId].lastCardPlayedType = 'PIECIE';
+  if (cardDef?.subtype === 'ATTACK') {
+    state.players[playerId].attackPieciePlayedThisTurn = true;
+  }
 
 
   state = checkVictory(state);
@@ -811,6 +836,48 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
 
   state = checkVictory(state);
   return { state, success: true };
+}
+
+export function confirmCallOfWelloes(gameState, playerId, mosjeCardId) {
+  const state = JSON.parse(JSON.stringify(gameState));
+  const player = state.players[playerId];
+  if (!player) return { state, success: false, error: 'Player not found' };
+  if (!Array.isArray(player.activeSlots)) player.activeSlots = [null, null];
+  // Always summon into the rightmost slot so the Mosje appears next to the Piecie zone.
+  // If rightmost is occupied, shift that Mosje left to the first free slot first.
+  const hasFreeSlot = player.activeSlots.some(s => s === null);
+  if (!hasFreeSlot) return { state, success: false, error: 'No free slot' };
+  const rightmost = player.activeSlots.length - 1;
+  if (player.activeSlots[rightmost] !== null) {
+    const leftFree = player.activeSlots.findIndex(s => s === null);
+    player.activeSlots[leftFree] = player.activeSlots[rightmost];
+    player.activeSlots[rightmost] = null;
+  }
+  const openSlot = rightmost;
+  if (!Array.isArray(player.welloe)) return { state, success: false, error: 'No Welloe pile' };
+  const welloeIdx = player.welloe.findIndex(w => w.cardId === mosjeCardId);
+  if (welloeIdx < 0) return { state, success: false, error: 'Mosje not in Welloe pile' };
+
+  const [record] = player.welloe.splice(welloeIdx, 1);
+  const mosjeDef = MOSJES.find(m => m.id === record.cardId);
+  const slot = mosjeDef ? createMosjeSlotFromDefinition(mosjeDef) : { ...record };
+  // Fresh summon at Level 1, 50 MP — NOT restored from welloe record (D-05/D-06)
+  slot.mp = 50;
+  slot.level = 1;
+  // traits and statusEffects are not restored — fresh summon per D-05/D-06
+  slot.summonedByPiecie = 'piecie_call_of_welloes';
+  slot.isDefeated = false;
+
+  player.activeSlots[openSlot] = slot;
+  const piecieSlotIdx = player.piecieSlots
+    ? player.piecieSlots.findIndex(s => s?.cardId === 'piecie_call_of_welloes')
+    : -1;
+  if (piecieSlotIdx >= 0) {
+    player.piecieSlots[piecieSlotIdx].linkedMosjeCardId = mosjeCardId;
+  }
+  console.log(`[ENGINE] confirmCallOfWelloes: summoned ${slot.name} at 50 MP / Lvl 1`);
+  const finalState = checkVictory(state);
+  return { state: finalState, success: true, slotIndex: openSlot };
 }
 
 export function playMosje(gameState, playerId, cardRef) {

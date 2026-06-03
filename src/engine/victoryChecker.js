@@ -129,5 +129,22 @@ export function markMosjeDefeated(gameState, playerId, slotIndex) {
   });
   state.players[playerId].activeSlots[slotIndex] = null;
 
+  // Call of the Welloes: if this Mosje was summoned by the Piecie, clear the anchor link (D-17)
+  // so the Piecie can be swept normally on the next turn.
+  if (mosje.summonedByPiecie === 'piecie_call_of_welloes') {
+    const pSlots = state.players[playerId].piecieSlots;
+    if (Array.isArray(pSlots)) {
+      const pIdx = pSlots.findIndex(
+        p => p?.cardId === 'piecie_call_of_welloes' && p?.linkedMosjeCardId === mosje.cardId
+      );
+      if (pIdx >= 0) {
+        if (!Array.isArray(state.players[playerId].discard)) state.players[playerId].discard = [];
+        state.players[playerId].discard.push(pSlots[pIdx].cardId);
+        state.players[playerId].piecieSlots[pIdx] = null;
+        console.log('[ENGINE] markMosjeDefeated: piecie_call_of_welloes discarded — linked Mosje defeated');
+      }
+    }
+  }
+
   return checkVictory(state);
 }

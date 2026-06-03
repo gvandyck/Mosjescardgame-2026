@@ -3,6 +3,10 @@
 // Filled in Phase 5.
 
 import { renderCard } from './cardRenderer.js';
+import { MOSJES } from '../data/mosjes.js';
+import { PIECIES } from '../data/piecies.js';
+import { SNELLE_PIECIES } from '../data/snellePiecies.js';
+import { PLACES } from '../data/places.js';
 
 console.log('[UI] modalManager.js loaded');
 
@@ -677,9 +681,16 @@ export function initModalManager(container) {
 			return;
 		}
 
-		const cardRows = discardCards.map((cardId, idx) => {
-			const card = { cardId };
-			return `<li><span>${escapeHtml(cardId || 'Unknown')}</span></li>`;
+		// Build a flat card name lookup from all card data sources
+		const _allCards = [...MOSJES, ...PIECIES, ...SNELLE_PIECIES, ...PLACES];
+		const _cardNameMap = Object.fromEntries(_allCards.map(c => [c.id, c.name]));
+
+		const cardRows = discardCards.map((entry) => {
+			// entry can be a plain cardId string OR an object { cardId, type, ... }
+			const id = typeof entry === 'string' ? entry : entry?.cardId;
+			const name = _cardNameMap[id] || id || 'Unknown';
+			const type = typeof entry === 'object' && entry?.type ? ` (${entry.type})` : '';
+			return `<li><span>${escapeHtml(name)}${escapeHtml(type)}</span></li>`;
 		}).join('');
 
 		container.innerHTML = `

@@ -593,9 +593,7 @@ export const QUESTS = [
     name: "Speed Run",
     requirementId: "quest_req_speed_run",
     roll: { trait: "technical", thresholds: { 1: 5, 2: 5, 3: 3 } },
-    requirementDescription: "Roll: need 5+ base. Technical ★★★: 3+. Must be first action of turn",
-    // SIMPLIFIED: first-action-of-turn gate removed (isFirstAction never passed by quest flow, blocked all attempts).
-    // DEFERRED: restore gate once UI layer passes isFirstAction flag to quest_req_speed_run.
+    requirementDescription: "Must be early in the turn (fewer than 2 Piecies played). Roll 5+, Technical ★★★: 3+.",
     successMP: 65,
     failMP: -15,
     description: "Success: +65 MP. Failure: -15 MP.",
@@ -614,9 +612,7 @@ export const QUESTS = [
     name: "Sustained Assault",
     requirementId: "quest_req_sustained_assault",
     roll: { trait: "physical", thresholds: { 1: 4, 2: 3, 3: 2 } },
-    requirementDescription: "Must have used an ATTACK Piecie this turn. Roll: Physical ★=4+, ★★=3+, ★★★=2+",
-    // SIMPLIFIED: ATTACK-Piecie gate removed (lastCardPlayedType is 'PIECIE' not 'ATTACK', blocked all attempts).
-    // DEFERRED: restore gate once card-play pipeline tracks attack source separately.
+    requirementDescription: "Must have played an ATTACK Piecie this turn. Roll: Physical ★=4+, ★★=3+, ★★★=2+",
     successMP: 70,
     failMP: -20,
     description: "Success: +70 MP. Failure: -20 MP.",
@@ -674,8 +670,7 @@ export const QUESTS = [
     name: "Chain Master",
     requirementId: "quest_req_chain_master",
     roll: { trait: null, thresholds: { 1: 3, 2: 3, 3: 3 } },
-    requirementDescription: "Must have 3+ Piecies in discard this turn. Roll 3+",
-    // DEFERRED: discard counts all-time Piecies, not just this-turn — per-turn Piecie counter needed.
+    requirementDescription: "Must have played 3+ Piecies this turn. Roll 3+",
     successMP: 85,
     failMP: -20,
     description: "Success: +85 MP. Failure: -20 MP.",
@@ -757,12 +752,10 @@ export const QUESTS = [
     name: "Larry Temmen",
     requirementId: "quest_req_larry_temmen",
     roll: { trait: null, thresholds: { 1: 5, 2: 5, 3: 5 } },
-    requirementDescription: "Roll 1d6: 1-2 = both lose 20 MP; 3-4 = nothing; 5-6 = gain 60 MP + opponent loses 20",
-    // SIMPLIFIED: 3-way outcome collapsed to standard 2-way (5+ success, else fail).
-    // DEFERRED: restore rolls 3-4 = no-effect tier once resolveQuest supports a neutral outcome.
+    requirementDescription: "Roll 5+: gain 60 MP, opponent loses 20 MP. Otherwise: you lose 20 MP.",
     successMP: 60,
     failMP: -20,
-    description: "Roll 1-2: you and opponent lose 20 MP. 3-4: nothing. 5-6: gain 60 MP, opponent -20 MP.",
+    description: "Roll 5+: +60 MP and opponent -20 MP. Failure: -20 MP.",
     difficulty: "MEDIUM",
     isBoosterOnly: false,
     rarity: "★★★★",

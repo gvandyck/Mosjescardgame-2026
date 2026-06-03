@@ -807,10 +807,10 @@ export function quest_req_ultimate_challenge(questCard, mosje) {
 	return { canAttempt: true, diceRoll: roll, threshold: 5, success: roll >= 5 };
 }
 
-export function quest_req_speed_run(questCard, mosje, gameState, isFirstAction) {
-	// SIMPLIFIED: isFirstAction gate removed — the parameter is never passed by the quest activation flow,
-	// so the gate blocked all attempts. Roll 3+ (Technical ★★★) or 5+ (otherwise) now always available.
-	// DEFERRED: re-add first-action gating once UI layer passes the isFirstAction flag.
+export function quest_req_speed_run(questCard, mosje, gameState) {
+	// Gate: must be early in the turn (fewer than 2 Piecies played). Uses pieciesPlayedThisTurn (reset in startTurn).
+	const pieciesThisTurn = gameState?.players[gameState.activePlayerId]?.pieciesPlayedThisTurn || 0;
+	if (pieciesThisTurn >= 2) return { canAttempt: false };
 	const roll = rollDie();
 	const technical = mosje.traits?.technical || 0;
 	const threshold = technical >= 3 ? 3 : 5;
@@ -818,9 +818,9 @@ export function quest_req_speed_run(questCard, mosje, gameState, isFirstAction) 
 }
 
 export function quest_req_sustained_assault(questCard, mosje, gameState) {
-	// SIMPLIFIED: ATTACK gate removed — lastCardPlayedType is set to 'PIECIE' (not 'ATTACK') when cards
-	// are played, so the gate permanently blocked all attempts. Roll with Physical scaling now always available.
-	// DEFERRED: re-add the ATTACK-Piecie-this-turn gate once the card-play pipeline tracks attack source separately.
+	// Gate: requires an ATTACK-subtype Piecie played this turn. Set by playPiecie when cardDef.subtype === 'ATTACK'.
+	const attackPlayed = gameState?.players[gameState.activePlayerId]?.attackPieciePlayedThisTurn || false;
+	if (!attackPlayed) return { canAttempt: false };
 	const roll = rollDie();
 	const physical = mosje.traits?.physical || 0;
 	let threshold;
@@ -848,12 +848,9 @@ export function quest_req_elimination_challenge(questCard, mosje) {
 }
 
 export function quest_req_chain_master(questCard, mosje, gameState) {
-	// Requires 3+ Piecies in the active player's discard pile. Roll 3+ to succeed.
-	// DEFERRED: discard currently accumulates all-time Piecies, not just this-turn Piecies —
-	// a per-turn Piecie counter is needed to enforce the "this turn" rule properly.
-	const discard = gameState?.players[gameState.activePlayerId]?.discard || [];
-	const pieciesInDiscard = discard.filter(c => c.type === 'PIECIE').length;
-	if (pieciesInDiscard < 3) return { canAttempt: false };
+	// Requires 3+ Piecies played THIS turn. Uses pieciesPlayedThisTurn (reset in startTurn).
+	const pieciesThisTurn = gameState?.players[gameState.activePlayerId]?.pieciesPlayedThisTurn || 0;
+	if (pieciesThisTurn < 3) return { canAttempt: false };
 	const roll = rollDie();
 	return { canAttempt: true, diceRoll: roll, threshold: 3, success: roll >= 3 };
 }

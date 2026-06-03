@@ -7,7 +7,7 @@ import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
 import { animateFieldActivation, animateStateDelta, showTurnTransition } from './ui/actionAnimations.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes } from './engine/gameState.js';
-import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, playPersonalQuest, activatePersonalQuest } from './engine/turnManager.js';
+import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, playPersonalQuest, activatePersonalQuest } from './engine/turnManager.js';
 import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold } from './abilities/questLogic.js';
 import { loseMP, gainMP } from './engine/mpManager.js';
 import { MOSJES } from './data/mosjes.js';
@@ -125,6 +125,7 @@ function initLobbyPage() {
 		const isOffline = document.getElementById('play-offline')?.checked === true;
 		if (isOffline) {
 			// Pick a bot deck different from the human's pick
+			// Special case: test decks are paired together
 			const candidates = STARTER_DECKS.filter(d => d.id !== deckId);
 			const botDeck = candidates.length > 0
 				? candidates[Math.floor(Math.random() * candidates.length)]
@@ -1800,6 +1801,34 @@ function initGamePage() {
 			}
 		}
 
+		// ── Call of the Welloes — pick Mosje from Welloe pile to summon ──────────
+		if (gameState._callOfWelloesPending) {
+			const { welloeOptions } = gameState._callOfWelloesPending;
+			const options = (welloeOptions || []).map(w => ({
+				id: w.cardId,
+				label: w.name,
+				// Summon always enters at 50 MP / Level 1 regardless of welloe record (D-05/D-06)
+				metaLabel: `50 MP · Lvl 1`,
+			}));
+			const chosen = await modal.showOptionSelect({
+				title: 'Call of the Welloes',
+				prompt: 'Choose a Mosje from your Welloe pile to summon.',
+				options,
+				allowCancel: false,
+			});
+			delete gameState._callOfWelloesPending;
+			if (!chosen) {
+				// Player did not pick (modal cancelled or no options). The Piecie was already
+				// moved to discard by activatePiecie, so state is consistent — just bail out.
+				renderAndCheckWin();
+				syncPush();
+				return;
+			}
+			const { state: confirmedState } = confirmCallOfWelloes(gameState, localPlayerId, chosen);
+			gameState = confirmedState;
+		}
+		if (gameState._callOfWelloesCancel) { delete gameState._callOfWelloesCancel; }
+
 		// ── STUB-15: MP Adjuster — choose exact MP value (temporary until next turn) ──
 		if (gameState._mpAdjusterPending) {
 			const { playerId: mpPlayerId, slotIndex: mpSlotIndex } = gameState._mpAdjusterPending;
@@ -2331,6 +2360,7 @@ function toMosjeCards(activeSlots) {
 				abilityCost: cost,
 				cantAffordAbility: cost != null && cost > 0 && slot.mp < cost,
 				description: slot.isDefeated ? 'Defeated' : 'Active on field',
+				summonedByPiecie: slot.summonedByPiecie || null,
 			};
 		});
 }
@@ -2381,6 +2411,7 @@ function toPiecieCards(piecieSlots, options = {}) {
 				faceDown: viewerOwns ? false : slot.faceDown === true,
 				slotIndex,
 				canActivate: canActivateNow,
+				linkedMosjeCardId: slot.linkedMosjeCardId || null,
 			};
 		});
 	console.log('[UI] toPiecieCards result (owner=%s):', ownerId,

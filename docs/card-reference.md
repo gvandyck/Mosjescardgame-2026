@@ -102,7 +102,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 | bagga-of-greed | Bagga of Greed | UTILITY | yes | no | free | drawCards+discardCards; showCardChoice modal wired in main.js — full-hand discard picker after activation (STUB-11) | implemented |
 | battle-concert | Battle Concert | UTILITY | no | no | 25 MP, lvl 2+ | loseMP+ifThenElse | advanced |
 | bong-hit-demolition | Bong Hit Demolition | UTILITY | no | no | 10 MP | destroyPlace+drawCards | advanced |
-| call-of-the-welloes | Call of the Welloes | UTILITY | no | no | free | returnToHand stub; intended linked Welloe summon | partial |
+| call-of-the-welloes | Call of the Welloes | UTILITY | no | no | free | Summon a Mosje from your Welloe pile to a free slot, restoring its recorded MP/Level. Piecie is the anchor — leaves play → Mosje returns to Welloe (end-of-turn sweep). | implemented |
 | chain-reaction | Chain Reaction | UTILITY | no | no | free | multiplyByCount | advanced |
 | dingetje-toch | Dingetje Toch | UTILITY | no | no | free | ifThenElse; DEFERRED to UI phase — consumption point documented in turnManager.js handleActivatePiecie() comment (STUB-07) | partial |
 | double-trigger | Double Trigger | UTILITY | no | no | 20 MP | applyBuff | implemented |
@@ -233,7 +233,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 
 ### Phase 4 Questions
 - zie-je-die-dingetjes: ✅ resolved in Phase 8 (plan 08-03) — full two-call peek+keep pattern implemented.
-- call-of-the-welloes: summon semantics stubbed — linked-Mosje attachment primitive still needed.
+- call-of-the-welloes: ✅ resolved in Phase 22 (plan 22-01 through 22-03) — summon/restore/return-to-Welloe fully implemented.
 - dingetje-toch: flag set; consumption in piecie requirement check deferred to UI layer (documented in turnManager.js plan 08-03).
 - double-trigger: executor-level double activation still deferred.
 
@@ -257,7 +257,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 
 ### Phase 8 Questions
 - Plans 08-01 through 08-04 resolved most partial cards (see ✅ notes above and in Phase 5 section).
-- Remaining partial/advanced cards: mosje_fps_west (UI peek reveal), ronald-the-master-chef (UI hand reveal), place_synergy_chamber (cost/duration reduction callers deferred), place_dierenasiel (PET cost-waiver deferred), call-of-the-welloes (linked-Mosje attachment), dingetje-toch (requirement bypass UI), double-trigger (double-fire executor), snelle_frenssen (UI targetRef), snelle_jammertje_gepakt (send-to-bottom primitive), snelle_jensen (source-card discard), snelle_jeweetniet (force-reroll interception UI).
+- Remaining partial/advanced cards: mosje_fps_west (UI peek reveal), ronald-the-master-chef (UI hand reveal), place_synergy_chamber (cost/duration reduction callers deferred), place_dierenasiel (PET cost-waiver deferred), dingetje-toch (requirement bypass UI), double-trigger (double-fire executor), snelle_frenssen (UI targetRef), snelle_jammertje_gepakt (send-to-bottom primitive), snelle_jensen (source-card discard), snelle_jeweetniet (force-reroll interception UI).
 - Quest section: see plan 08-06 for full quest audit and classification.
 
 ### Phase 10 Notes
@@ -285,6 +285,14 @@ This document is the final Phase 11 master card inventory, generated from the li
 **Deferred (requires named blocking primitive):**
 - STUB-16: FPS West — blocking primitive: opponent hand reveal UI in boardRenderer.js (opponentHandPeeked flag)
 - STUB-16: Ronald Chef — blocking primitive: peek-reveal modal showing top 2 deck card names (_ronaldPeek flag)
+
+### Phase 22 Notes (Call of the Welloes — full implementation)
+
+- returnMosjeToWelloe primitive added to turnManager.js; endTurn sweep returns Mosjes linked by summonedByPiecie === 'piecie_call_of_welloes' when the anchor Piecie is gone
+- confirmCallOfWelloes restores mp/level/traits/statusEffects from welloe archive record
+- effect_call_of_welloes: empty-welloe / no-free-slot guards produce silent cancel; _callOfWelloesPending on success
+- main.js handleActivatePiecie: _callOfWelloesPending branch → showOptionSelect modal → confirmCallOfWelloes → silent _callOfWelloesCancel cleanup
+- All three waves TDD RED-then-GREEN; 896 tests passing; 100-game sim 0 crashes
 
 ### Phase 14 Notes (Physical Equipment Cards & Boxing Ring)
 

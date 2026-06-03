@@ -1,6 +1,6 @@
 ﻿# Card Implementation Roadmap
 
-**21 phases** | **~43 unique cards + multiplayer features + deck reworks** | **Sequential execution**
+**22 phases** | **~43 unique cards + multiplayer features + deck reworks** | **Sequential execution**
 
 ---
 
@@ -25,6 +25,7 @@
 | 19 | UI-Modal Card Completions ✅ | Wire the 2 remaining "deferred — needs UI" Mosje abilities to existing modals (the reveal flags `opponentHandPeeked` + `_ronaldPeek` were dead). Plan 01 — **FPS West**: Geen Raad-style guess-a-card-type-in-opponent's-hand game, correct +70 MP / wrong −20 MP (old text archived). Plan 02 — **Ronald Chef**: pay 20 MP to pick an opponent hand card and LOCK it (unplayable) until your next turn, 3-turn cooldown. (Geen Raad was already implemented — card-reference was stale. Emergency Swap → reworked into Leipe Swap, Phase 20.) | UICARD-01/02 | DONE — 850 tests pass, 0 sim crashes. FPS West guess game (+70/−20) live; Ronald hand-card lock + 3-turn cooldown enforced across all 4 play paths; both dead flags gone |
 | 20 | Leipe Swap (temporary MP swap) ✅ | Rework the unused Emergency Swap into **Leipe Swap** (*leip* = Dutch slang for sick/crazy; rarest tier ★★★★ = 1 per deck; no MP cost; stays on field 1 turn). On your turn, pick one of your Mosjes + an opponent Mosje and swap their MP; at the END of your turn swap the *current* MP back. Levels banked off the borrowed progress stick; leftover MP is handed to the other Mosje (double-swap). Imperative engine: effect + endTurn revert + target modals; rename old emergency_swap refs across both card systems + docs. | LEIPE-01 | DONE — 856 tests pass, 0 sim crashes. Leipe Swap swaps/reverts MP, banked levels persist, max-rarity deck cap set, old refs renamed |
 | 21 | Quest Behaviors + Cleanup ✅ | **Bucket C** — wire 3 engine-doable quest behaviors via static quest-def fields read by `resolveQuest`: draw-on-success (Artistic Expression + Late Night Questing draw 2), Elimination Challenge (opponent −30 MP on success), Hack Mainframe Hacker/FPS −1 threshold id fix. **Bucket A** — delete dead `effect_jensen`/`effect_lucky_coin` stubs + tidy the unrun `.js` test, refresh stale `card-reference.md` rows (Geen Raad, Huisbaas, the 4 wired quests). (Bucket D — 3-way outcomes + turn-action gates — deferred.) | QUEST-01/02/03 + CLEAN-01 | DONE — 867 tests pass, 0 sim crashes. Draw-on-success + Elimination −30 MP + Hack FPS bonus wired; dead stubs removed; card-reference rows corrected |
+| 22 | Call of the Welloes | Implement the full Call of the Welloes Piecie effect: summon a Mosje from the Welloe pile into a free active slot (level+MP restored from welloe record); Piecie stays on field as the anchor — if the Piecie leaves play the summoned Mosje immediately returns to the Welloe pile. Requires: UI pick (showOptionSelect), new `returnMosjeToWelloe` engine helper, end-of-turn sweep check, `linkedMosjeCardId` field on piecieSlot, `summonedByPiecie` field on mosjeSlot. No free slot → effect silently cancelled. Welloe pile empty → effect silently cancelled. | CALLW-01 through CALLW-04 | effect_call_of_welloes functional; summon + return lifecycle correct; 0 sim crashes; all tests pass |
 
 ---
 
@@ -475,6 +476,35 @@ Plans:
 - [ ] 15-02-PLAN.md — Digital Control rework: Coert+Binti pair, deck composition, Tesla place + engine hooks, Winston quest + questLogic
 - [ ] 15-03-PLAN.md — Artistic Rhythm rework: Youri+Chris DDR pair, deck composition, synergyWith updates, isBoosterOnly fixes, simulation alignment, docs
 
+---
+
+
+---
+
+### Phase 22: Call of the Welloes
+
+**Goal:** Implement the full Call of the Welloes Piecie effect — summon a Mosje from the owner’s Welloe pile into a free active slot at restored MP/Level; the Piecie is the anchor, and when it leaves play the summoned Mosje returns to the Welloe pile. Two new tracking fields only (`piecieSlots[i].linkedMosjeCardId`, `activeSlots[i].summonedByPiecie`).
+
+**Requirements:**
+- CALLW-01: effect_call_of_welloes — silent cancel guards + welloe-pick pending flag
+- CALLW-02: returnMosjeToWelloe engine helper — push to welloe[] + null slot, no defeat side-effects
+- CALLW-03: End-of-turn sweep — return summoned Mosjes whose anchor Piecie has left play
+- CALLW-04: confirmCallOfWelloes summon executor + main.js showOptionSelect UI flow
+
+**Plans:** 3 plans
+
+Plans:
+- [x] 22-01-PLAN.md — Engine return path: returnMosjeToWelloe helper + endTurn sweep hook (TDD)
+- [x] 22-02-PLAN.md — Summon path: effect_call_of_welloes + confirmCallOfWelloes + description fix (TDD)
+- [x] 22-03-PLAN.md — UI wiring: main.js _callOfWelloesPending modal branch + card-reference.md (human-verify)
+- [x] 22-04-PLAN.md — Gap closure: mechanic revision (Level 1/50 MP, defeat-on-sweep, persistence guard) (TDD)
+- [x] 22-05-PLAN.md — Gap closure: bidirectional destroy — Piecie discarded immediately when linked Mosje defeated (TDD)
+
+**Success Criteria:**
+1. effect_call_of_welloes functional; summon + return lifecycle correct
+2. Summoned Mosje restores welloe-recorded MP/Level (not Level 1 / 0 MP)
+3. Empty Welloe pile or no free slot → effect silently cancelled (no UI, no error)
+4. All tests pass; 0 simulation crashes
 ---
 
 ## Build Order Rationale
