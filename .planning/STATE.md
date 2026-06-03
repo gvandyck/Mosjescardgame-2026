@@ -1,12 +1,22 @@
 # Project State
 
 **Last updated:** 2026-06-03
-**Current phase:** Phase 22 IN PROGRESS - Call of the Welloes (Plan 02 complete)
+**Current phase:** Phase 22 IN PROGRESS - Call of the Welloes (Plan 04 complete)
 **Branch:** plan/phase-22-call-of-welloes
 
 > Note: STATE.md was not maintained during Phases 15–17 (tracked in their phase dirs / ROADMAP only). This header jumps from Phase 14 to Phase 18.
 
 ## Phase 22 Progress — Call of the Welloes
+
+### 22-04: Mechanic revision — gap closure (COMPLETE)
+- Removed returnMosjeToWelloe (wrong silent-return function from Wave 1)
+- confirmCallOfWelloes: summons at Level 1, 50 MP unconditionally (NOT restored stats)
+- endTurn Piecie persistence guard: piecie_call_of_welloes NOT swept while linkedMosjeCardId is live
+- endTurn defeat-on-sweep: markMosjeDefeated replaces returnMosjeToWelloe call (isDefeated=true, discard entry, victory check)
+- markMosjeDefeated: clears linkedMosjeCardId on Piecie slot after defeat (D-17)
+- piecies.js description corrected: "Level 1, 50 MP ... summoned Mosje is also defeated"
+- TDD RED-then-GREEN: f091ee6 RED → b872ce1 GREEN
+- 895 tests passing (0 failures)
 
 ### 22-02: effect_call_of_welloes + confirmCallOfWelloes + description fix (COMPLETE)
 - Cancel-guard + pending-flag activation: effect_call_of_welloes (empty-welloe / no-free-slot guards + _callOfWelloesPending)
