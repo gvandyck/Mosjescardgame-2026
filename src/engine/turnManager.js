@@ -252,6 +252,20 @@ export function endTurn(gameState) {
       console.log(`[ENGINE] Persistent Piecie swept to discard at EoT: ${slot.cardId}`);
     }
   }
+  // Call of the Welloes: return summoned Mosjes whose anchor Piecie has left play
+  for (let i = 0; i < state.players[playerId].activeSlots.length; i++) {
+    const aSlot = state.players[playerId].activeSlots[i];
+    if (aSlot?.summonedByPiecie === 'piecie_call_of_welloes') {
+      const piecieStillOnField = state.players[playerId].piecieSlots.some(
+        p => p?.cardId === 'piecie_call_of_welloes'
+      );
+      if (!piecieStillOnField) {
+        state = returnMosjeToWelloe(state, playerId, i);
+        console.log('[ENGINE] endTurn sweep: summoned Mosje returned — anchor Piecie no longer on field');
+      }
+    }
+  }
+
   // Reset questPrepBonus at end of turn — same lifecycle as persistUntilEoT Piecies (BUG-05)
   state.players[playerId].questPrepBonus = 0;
 
@@ -815,6 +829,21 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
 
   state = checkVictory(state);
   return { state, success: true };
+}
+
+export function returnMosjeToWelloe(gameState, playerId, slotIndex) {
+  const state = JSON.parse(JSON.stringify(gameState));
+  const player = state.players[playerId];
+  if (!player) return state;
+  if (!Array.isArray(player.welloe)) player.welloe = [];
+  const mosjeSlot = player.activeSlots[slotIndex];
+  if (!mosjeSlot) return state;
+  const archived = { ...mosjeSlot };
+  delete archived.summonedByPiecie;
+  player.welloe.push(archived);
+  player.activeSlots[slotIndex] = null;
+  console.log(`[ENGINE] returnMosjeToWelloe: ${mosjeSlot.name} returned to Welloe pile`);
+  return state;
 }
 
 export function playMosje(gameState, playerId, cardRef) {
