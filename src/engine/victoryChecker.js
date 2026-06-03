@@ -129,5 +129,18 @@ export function markMosjeDefeated(gameState, playerId, slotIndex) {
   });
   state.players[playerId].activeSlots[slotIndex] = null;
 
+  // Call of the Welloes: if this Mosje was summoned by the Piecie, clear the anchor link (D-17)
+  // so the Piecie can be swept normally on the next turn.
+  if (mosje.summonedByPiecie === 'piecie_call_of_welloes') {
+    const pSlots = state.players[playerId].piecieSlots;
+    if (Array.isArray(pSlots)) {
+      const pIdx = pSlots.findIndex(p => p?.cardId === 'piecie_call_of_welloes');
+      if (pIdx >= 0) {
+        pSlots[pIdx].linkedMosjeCardId = null;
+        console.log('[ENGINE] markMosjeDefeated: cleared linkedMosjeCardId from piecie_call_of_welloes slot');
+      }
+    }
+  }
+
   return checkVictory(state);
 }

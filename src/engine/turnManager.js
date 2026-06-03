@@ -4,7 +4,7 @@
 
 import { drawCards, shuffleDeck } from './deckEngine.js';
 import { gainMP, applyStatusEffectMP, getTotalMPForPlayer } from './mpManager.js';
-import { checkVictory } from './victoryChecker.js';
+import { checkVictory, markMosjeDefeated } from './victoryChecker.js';
 import { getAllPlayerIds, setActivePlace, destroyActivePlace, clearReturnedMosjesAtTurnEnd } from './gameState.js';
 import * as placeEffects from '../abilities/placeEffects.js';
 import * as piecieEffects from '../abilities/piecieEffects.js';
@@ -240,6 +240,13 @@ export function endTurn(gameState) {
   normalizePiecieSlots(state.players[playerId], 4);
   for (let i = 0; i < state.players[playerId].piecieSlots.length; i++) {
     const slot = state.players[playerId].piecieSlots[i];
+    // Call of the Welloes persistence: do not sweep this Piecie while its linked Mosje is alive (D-16)
+    if (slot?.cardId === 'piecie_call_of_welloes' && slot.linkedMosjeCardId) {
+      const linkedAlive = state.players[playerId].activeSlots.some(
+        s => s?.cardId === slot.linkedMosjeCardId
+      );
+      if (linkedAlive) continue;
+    }
     if (slot?.type === 'SNELLE_PIECIE') {
       if (!Array.isArray(state.players[playerId].discard)) state.players[playerId].discard = [];
       state.players[playerId].discard.push(slot.cardId);
@@ -252,7 +259,7 @@ export function endTurn(gameState) {
       console.log(`[ENGINE] Persistent Piecie swept to discard at EoT: ${slot.cardId}`);
     }
   }
-  // Call of the Welloes: return summoned Mosjes whose anchor Piecie has left play
+  // Call of the Welloes: if anchor Piecie has left play, defeat the summoned Mosje (D-12/D-14)
   for (let i = 0; i < state.players[playerId].activeSlots.length; i++) {
     const aSlot = state.players[playerId].activeSlots[i];
     if (aSlot?.summonedByPiecie === 'piecie_call_of_welloes') {
@@ -260,8 +267,8 @@ export function endTurn(gameState) {
         p => p?.cardId === 'piecie_call_of_welloes'
       );
       if (!piecieStillOnField) {
-        state = returnMosjeToWelloe(state, playerId, i);
-        console.log('[ENGINE] endTurn sweep: summoned Mosje returned — anchor Piecie no longer on field');
+        state = markMosjeDefeated(state, playerId, i);
+        console.log('[ENGINE] endTurn sweep: summoned Mosje defeated — anchor Piecie no longer on field');
       }
     }
   }
@@ -831,21 +838,6 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
   return { state, success: true };
 }
 
-export function returnMosjeToWelloe(gameState, playerId, slotIndex) {
-  const state = JSON.parse(JSON.stringify(gameState));
-  const player = state.players[playerId];
-  if (!player) return state;
-  if (!Array.isArray(player.welloe)) player.welloe = [];
-  const mosjeSlot = player.activeSlots[slotIndex];
-  if (!mosjeSlot) return state;
-  const archived = { ...mosjeSlot };
-  delete archived.summonedByPiecie;
-  player.welloe.push(archived);
-  player.activeSlots[slotIndex] = null;
-  console.log(`[ENGINE] returnMosjeToWelloe: ${mosjeSlot.name} returned to Welloe pile`);
-  return state;
-}
-
 export function confirmCallOfWelloes(gameState, playerId, mosjeCardId) {
   const state = JSON.parse(JSON.stringify(gameState));
   const player = state.players[playerId];
@@ -860,11 +852,10 @@ export function confirmCallOfWelloes(gameState, playerId, mosjeCardId) {
   const [record] = player.welloe.splice(welloeIdx, 1);
   const mosjeDef = MOSJES.find(m => m.id === record.cardId);
   const slot = mosjeDef ? createMosjeSlotFromDefinition(mosjeDef) : { ...record };
-  // Restore welloe-recorded stats — the record IS the saved state (D-05/D-06)
-  if (typeof record.mp === 'number') slot.mp = record.mp;
-  if (typeof record.level === 'number') slot.level = record.level;
-  if (record.traits && typeof record.traits === 'object') slot.traits = { ...record.traits };
-  if (Array.isArray(record.statusEffects)) slot.statusEffects = [...record.statusEffects];
+  // Fresh summon at Level 1, 50 MP — NOT restored from welloe record (D-05/D-06)
+  slot.mp = 50;
+  slot.level = 1;
+  // traits and statusEffects are not restored — fresh summon per D-05/D-06
   slot.summonedByPiecie = 'piecie_call_of_welloes';
   slot.isDefeated = false;
 
@@ -875,7 +866,7 @@ export function confirmCallOfWelloes(gameState, playerId, mosjeCardId) {
   if (piecieSlotIdx >= 0) {
     player.piecieSlots[piecieSlotIdx].linkedMosjeCardId = mosjeCardId;
   }
-  console.log(`[ENGINE] confirmCallOfWelloes: summoned ${slot.name} at ${slot.mp} MP / Lvl ${slot.level}`);
+  console.log(`[ENGINE] confirmCallOfWelloes: summoned ${slot.name} at 50 MP / Lvl 1`);
   return { state, success: true, slotIndex: openSlot };
 }
 
