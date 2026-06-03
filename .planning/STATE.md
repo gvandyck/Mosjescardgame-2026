@@ -1,12 +1,20 @@
 # Project State
 
 **Last updated:** 2026-06-03
-**Current phase:** Phase 22 IN PROGRESS - Call of the Welloes (Plan 01 complete)
+**Current phase:** Phase 22 IN PROGRESS - Call of the Welloes (Plan 02 complete)
 **Branch:** plan/phase-22-call-of-welloes
 
 > Note: STATE.md was not maintained during Phases 15–17 (tracked in their phase dirs / ROADMAP only). This header jumps from Phase 14 to Phase 18.
 
 ## Phase 22 Progress — Call of the Welloes
+
+### 22-02: effect_call_of_welloes + confirmCallOfWelloes + description fix (COMPLETE)
+- Cancel-guard + pending-flag activation: effect_call_of_welloes (empty-welloe / no-free-slot guards + _callOfWelloesPending)
+- Stat-restoring summon executor: confirmCallOfWelloes (mp/level/traits/statusEffects restored from welloe record)
+- Dual tracking: summonedByPiecie on activeSlot + linkedMosjeCardId on piecieSlot
+- Description fix in piecies.js: "restoring its MP and Level" replaces "Level 1, 0 MP" stub text
+- TDD RED-then-GREEN: 5 new tests (778ad4f RED → cab6ac3 GREEN)
+- 896 tests passing (5 new); simulation 100 games 0 crashes
 
 ### 22-01: returnMosjeToWelloe + endTurn sweep (COMPLETE)
 - Engine return-path primitive: `returnMosjeToWelloe` exported from turnManager.js
@@ -19,6 +27,9 @@
 ### Decisions
 - Sweep reassigns `state` via `let` (endTurn already declares let state) — no inline mutation needed
 - returnMosjeToWelloe uses `delete archived.summonedByPiecie` before push — clean archive
+- confirmCallOfWelloes reads stats directly from welloe record (no savedState wrapper) — consistent with Wave 1 archive design
+- No checkVictory in confirmCallOfWelloes — summon is not a victory-affecting event
+- Replaced old effect_call_of_welloes stub (Mosje Reborn passthrough) with real implementation
 
 ## Phase 21 Progress — Quest Behaviors + Cleanup
 
