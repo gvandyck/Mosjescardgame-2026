@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 // @ts-expect-error — JS module, no type declarations
-import { endTurn, returnMosjeToWelloe } from "../../src/engine/turnManager.js";
+import { endTurn, returnMosjeToWelloe, confirmCallOfWelloes } from "../../src/engine/turnManager.js";
+// @ts-expect-error — JS module, no type declarations
+import { effect_call_of_welloes } from "../../src/abilities/piecieEffects.js";
+// @ts-expect-error — JS module, no type declarations
+import { PIECIES } from "../../src/data/piecies.js";
 
 // ─────────────────────────────────────────────────────────────
 // Phase 22 — Wave 1: returnMosjeToWelloe + endTurn sweep
@@ -163,5 +167,105 @@ describe("endTurn — Call of the Welloes sweep", () => {
     expect(result.players.player_1.activeSlots[0]?.cardId).toBe("mosje_test");
     const welloe = result.players.player_1.welloe as any[];
     expect(welloe.some((w: any) => w.cardId === "mosje_test")).toBe(false);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────
+// Wave 2: effect_call_of_welloes + confirmCallOfWelloes + description
+//   F. empty-welloe cancel
+//   G. no-free-slot cancel
+//   H. pending flag set with welloeOptions
+//   I. summon restores welloe-recorded stats + wires tracking fields
+//   J. piecies.js description corrected
+// ─────────────────────────────────────────────────────────────
+
+describe("effect_call_of_welloes — cancel guards", () => {
+  it("F: returns _callOfWelloesCancel === true when welloe[] is empty", () => {
+    const state = makeState({
+      welloe: [],
+      activeSlots: [null, null],
+    });
+    const result = effect_call_of_welloes(state, "player_1");
+    expect(result._callOfWelloesCancel).toBe(true);
+    expect(result._callOfWelloesPending).toBeUndefined();
+  });
+
+  it("G: returns _callOfWelloesCancel === true when both activeSlots are occupied", () => {
+    const occupied = { cardId: "mosje_a", name: "A", mp: 80, level: 1 };
+    const state = makeState({
+      welloe: [{ cardId: "mosje_x", name: "X", mp: 50, level: 1 }],
+      activeSlots: [occupied, { ...occupied, cardId: "mosje_b" }],
+    });
+    const result = effect_call_of_welloes(state, "player_1");
+    expect(result._callOfWelloesCancel).toBe(true);
+    expect(result._callOfWelloesPending).toBeUndefined();
+  });
+});
+
+describe("effect_call_of_welloes — pending flag", () => {
+  it("H: sets _callOfWelloesPending with playerId and welloeOptions when activatable", () => {
+    const state = makeState({
+      welloe: [{ cardId: "mosje_x", name: "X", mp: 60, level: 2 }],
+      activeSlots: [{ cardId: "mosje_a", name: "A", mp: 80, level: 1 }, null],
+    });
+    const result = effect_call_of_welloes(state, "player_1");
+    expect(result._callOfWelloesCancel).toBeUndefined();
+    expect(result._callOfWelloesPending).toBeDefined();
+    expect(result._callOfWelloesPending.playerId).toBe("player_1");
+    const opts = result._callOfWelloesPending.welloeOptions as any[];
+    expect(opts.length).toBe(1);
+    expect(opts[0].cardId).toBe("mosje_x");
+    expect(opts[0].mp).toBe(60);
+    expect(opts[0].level).toBe(2);
+  });
+});
+
+describe("confirmCallOfWelloes — summon executor", () => {
+  it("I: places Mosje in free activeSlot with restored stats, sets summonedByPiecie, sets linkedMosjeCardId, removes from welloe[]", () => {
+    const welloeRecord = {
+      cardId: "mosje_x",
+      name: "X",
+      subtype: "FIGHTING",
+      traits: { physical: 2 },
+      mp: 60,
+      level: 2,
+      statusEffects: [] as any[],
+    };
+    const state = makeState({
+      welloe: [welloeRecord],
+      activeSlots: [{ cardId: "mosje_a", name: "A", mp: 80, level: 1 }, null],
+      piecieSlots: [{ cardId: "piecie_call_of_welloes", type: "PIECIE" }, null, null, null],
+    });
+
+    const { state: s, success } = confirmCallOfWelloes(state, "player_1", "mosje_x");
+
+    expect(success).toBe(true);
+
+    // Mosje placed in a free slot
+    const slots = s.players.player_1.activeSlots as any[];
+    const placed = slots.find((sl: any) => sl?.cardId === "mosje_x");
+    expect(placed).toBeDefined();
+    expect(placed.mp).toBe(60);
+    expect(placed.level).toBe(2);
+    expect(placed.summonedByPiecie).toBe("piecie_call_of_welloes");
+
+    // Removed from welloe[]
+    const welloe = s.players.player_1.welloe as any[];
+    expect(welloe.some((w: any) => w.cardId === "mosje_x")).toBe(false);
+
+    // Anchor link on piecieSlot
+    const pSlot = (s.players.player_1.piecieSlots as any[]).find(
+      (p: any) => p?.cardId === "piecie_call_of_welloes"
+    );
+    expect(pSlot?.linkedMosjeCardId).toBe("mosje_x");
+  });
+});
+
+describe("piecies.js — piecie_call_of_welloes description", () => {
+  it("J: description includes 'restoring its MP and Level' and does NOT include 'Level 1, 0 MP'", () => {
+    const def = (PIECIES as any[]).find((p: any) => p.id === "piecie_call_of_welloes");
+    expect(def).toBeDefined();
+    expect(def.description).toContain("restoring its MP and Level");
+    expect(def.description).not.toContain("Level 1, 0 MP");
   });
 });
