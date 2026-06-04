@@ -1,12 +1,20 @@
 # Project State
 
 **Last updated:** 2026-06-04
-**Current phase:** Phase 23 IN PROGRESS - Graveyard System (Plan 01 complete)
+**Current phase:** Phase 23 IN PROGRESS - Graveyard System (Plan 02 complete)
 **Branch:** feature/phase-23-graveyard-system
 
 > Note: STATE.md was not maintained during Phases 15–17 (tracked in their phase dirs / ROADMAP only). This header jumps from Phase 14 to Phase 18.
 
 ## Phase 23 Progress — Graveyard System
+
+### 23-02: UI rename — showGraveyardModal + board label + card descriptions + docs (COMPLETE)
+- showGraveyardModal (was showDiscardViewerModal): reads player.graveyard, header "Graveyard"
+- boardRenderer: label.textContent='Graveyard'; reads player.graveyard
+- main.js toBoardViewModel: graveyard: player.graveyard; calls showGraveyardModal
+- piecies.js, snellePiecies.js: "discard pile" -> "Graveyard" in card descriptions
+- developer-handoff.md: Graveyard System section added
+- 912 tests passing (0 failures)
 
 ### 23-01: Graveyard data layer — graveyardUtils + eliminate welloe + fix revival cards (COMPLETE)
 - Created graveyardUtils.js: toGraveyardEntry, addToGraveyard, getGraveyardByType (pure functions)

@@ -523,7 +523,7 @@ Plans:
 
 Plans:
 - [x] 23-01-PLAN.md — graveyardUtils.js + player.discard rename + Klaar met Jou + Those Eyelashes fixes (TDD) — COMPLETE: 912 tests pass
-- [ ] 23-02-PLAN.md — UI rename (Graveyard label + modal) + card descriptions + docs
+- [x] 23-02-PLAN.md — UI rename (Graveyard label + modal) + card descriptions + docs — COMPLETE: 912 tests pass
 
 **Success Criteria:**
 1. No card removal bypasses the graveyard � every destroyed/discarded card is visible
