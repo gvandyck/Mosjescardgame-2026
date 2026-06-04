@@ -13,11 +13,16 @@ import * as mosjeAbilities from '../abilities/mosjeAbilities.js';
 import { MOSJES } from '../data/mosjes.js';
 import { PIECIES } from '../data/piecies.js';
 import { PLACES } from '../data/places.js';
+import { SNELLE_PIECIES } from '../data/snellePiecies.js';
+import { QUESTS } from '../data/quests.js';
+import { toGraveyardEntry } from './graveyardUtils.js';
 
 console.log('[ENGINE] turnManager.js loaded');
 
 const PIECIE_LOOKUP = Object.fromEntries(PIECIES.map(card => [card.id, card]));
+const SNELLE_PIECIE_LOOKUP = Object.fromEntries(SNELLE_PIECIES.map(card => [card.id, card]));
 const PLACE_LOOKUP = Object.fromEntries(PLACES.map(card => [card.id, card]));
+const QUEST_LOOKUP = Object.fromEntries(QUESTS.map(card => [card.id, card]));
 
 function normalizePiecieSlots(player, slotCount = 4) {
   let source;
@@ -249,12 +254,12 @@ export function endTurn(gameState) {
     }
     if (slot?.type === 'SNELLE_PIECIE') {
       if (!Array.isArray(state.players[playerId].graveyard)) state.players[playerId].graveyard = [];
-      state.players[playerId].graveyard.push(slot.cardId);
+      state.players[playerId].graveyard.push(toGraveyardEntry(slot.cardId, 'played'));
       state.players[playerId].piecieSlots[i] = null;
       console.log(`[ENGINE] Snelle Piecie swept to discard: ${slot.cardId}`);
     } else if (slot?.persistUntilEoT === true) {
       if (!Array.isArray(state.players[playerId].graveyard)) state.players[playerId].graveyard = [];
-      state.players[playerId].graveyard.push(slot.cardId);
+      state.players[playerId].graveyard.push(toGraveyardEntry(slot.cardId, 'played'));
       state.players[playerId].piecieSlots[i] = null;
       console.log(`[ENGINE] Persistent Piecie swept to discard at EoT: ${slot.cardId}`);
     }
@@ -378,7 +383,7 @@ export function attemptPersonalQuest(gameState, questCardId) {
   }
 
   const [questCard] = player.hand.splice(cardIndex, 1);
-  player.graveyard.push(questCard.cardId);
+  player.graveyard.push(toGraveyardEntry(questCard.cardId, 'played'));
   player.questsAttemptedThisTurn = questsAttempted + 1;
   player.hasAttemptedQuestThisTurn = true;
   console.log('[ENGINE] Personal Quest played from hand and moved to discard:', questCardId);
@@ -527,7 +532,7 @@ export function activatePersonalQuest(gameState, playerId, slotIndex) {
   const questCardId = slot.cardId;
   player.piecieSlots[slotIndex] = null;
   if (!Array.isArray(player.graveyard)) player.graveyard = [];
-  player.graveyard.push(questCardId);
+  player.graveyard.push(toGraveyardEntry(questCardId, 'played'));
   player.questsAttemptedThisTurn = questsAttempted + 1;
   player.hasAttemptedQuestThisTurn = true;
 
@@ -668,7 +673,7 @@ export function activatePiecie(gameState, playerId, slotIndex) {
   if (oppId && flags.negateNextPiecie?.[oppId]) {
     delete state._snelleFlags.negateNextPiecie[oppId];
     console.log('[ENGINE] Counter Strikka negated:', knownCardDef.name);
-    player.graveyard.push(slotCardId);
+    player.graveyard.push(toGraveyardEntry(slotCardId, 'played'));
     player.piecieSlots[safeSlotIndex] = null;
     state = checkVictory(state);
     return { state, success: true, negated: true, cardDef: knownCardDef };
@@ -680,7 +685,7 @@ export function activatePiecie(gameState, playerId, slotIndex) {
     const si = oppPlayer.activeSlots.findIndex(s => s && !s.isDefeated);
     if (si >= 0) oppPlayer.activeSlots[si].mp += 15;
     console.log('[ENGINE] Perfect Dodge negated ATTACK + granted 15 MP to opponent');
-    player.graveyard.push(slotCardId);
+    player.graveyard.push(toGraveyardEntry(slotCardId, 'played'));
     player.piecieSlots[safeSlotIndex] = null;
     state = checkVictory(state);
     return { state, success: true, negated: true, cardDef: knownCardDef };
@@ -741,7 +746,7 @@ export function activatePiecie(gameState, playerId, slotIndex) {
     player.piecieSlots[safeSlotIndex].faceDown = false;
     console.log(`[ENGINE] Piecie persisting until EoT: ${knownCardDef.name}`);
   } else {
-    player.graveyard.push(slotCardId);
+    player.graveyard.push(toGraveyardEntry(slotCardId, 'played'));
     player.piecieSlots[safeSlotIndex] = null;
   }
   console.log(`[ENGINE] piecieSlots after activation:`, player.piecieSlots.map((s, i) => s ? `[${i}] ${s.cardId} (${s.type})` : `[${i}] null`).join(' | '));
@@ -806,7 +811,7 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
       playedOnTurn: state.turnNumber,
     };
   } else {
-    player.graveyard.push(playedCard.cardId);
+    player.graveyard.push(toGraveyardEntry(playedCard.cardId, 'played'));
   }
 
   // Apply the effect function
