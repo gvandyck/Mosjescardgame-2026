@@ -661,23 +661,23 @@ export function initModalManager(container) {
 		});
 	}
 
-	// Discard viewer modal — shows cards in a player's discard pile.
-	// isOwned — true if this is the current player's discard (allows recovery actions)
-	function showDiscardViewerModal(player, isOwned) {
+	// Graveyard viewer modal — shows cards in a player's graveyard.
+	// isOwned — true if this is the current player's graveyard (allows recovery actions)
+	function showGraveyardModal(player, isOwned) {
 		container.classList.add('modal-root--open');
-		const discardCards = player?.discard || [];
+		const discardCards = player?.graveyard || [];
 		const count = discardCards.length;
 
 		if (count === 0) {
 			container.innerHTML = `
 				<div class="modal-backdrop"></div>
 				<section class="modal-card" role="dialog" aria-modal="true">
-					<h3>${escapeHtml(player?.name || 'Player')}'s Discard</h3>
-					<p>Discard pile is empty.</p>
-					<button class="modal-btn" id="modal-close-discard">Close</button>
+					<h3>${escapeHtml(player?.name || 'Player')}'s Graveyard</h3>
+					<p>Graveyard is empty.</p>
+					<button class="modal-btn" id="modal-close-graveyard">Close</button>
 				</section>
 			`;
-			container.querySelector('#modal-close-discard')?.addEventListener('click', close);
+			container.querySelector('#modal-close-graveyard')?.addEventListener('click', close);
 			return;
 		}
 
@@ -696,12 +696,12 @@ export function initModalManager(container) {
 		container.innerHTML = `
 			<div class="modal-backdrop"></div>
 			<section class="modal-card" role="dialog" aria-modal="true">
-				<h3>${escapeHtml(player?.name || 'Player')}'s Discard (${count} cards)</h3>
+				<h3>${escapeHtml(player?.name || 'Player')}'s Graveyard (${count} cards)</h3>
 				<ul class="modal-card-list">${cardRows}</ul>
-				<button class="modal-btn" id="modal-close-discard">Close</button>
+				<button class="modal-btn" id="modal-close-graveyard">Close</button>
 			</section>
 		`;
-		container.querySelector('#modal-close-discard')?.addEventListener('click', close);
+		container.querySelector('#modal-close-graveyard')?.addEventListener('click', close);
 	}
 
 	// Discard recovery modal — allows selecting cards to recover from discard.
@@ -839,7 +839,8 @@ export function initModalManager(container) {
 		showPlaceDetailModal,
 		showOpponentHandRevealModal,
 		showMosjeSelect,
-		showDiscardViewerModal,
+		showGraveyardModal,
+		showDiscardViewerModal: showGraveyardModal, // legacy alias — do not remove
 		showDiscardRecoveryModal,
 		showHandViewerModal,
 		close,

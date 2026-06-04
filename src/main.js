@@ -1965,9 +1965,9 @@ function initGamePage() {
 				console.error('[UI] Player not found:', playerId, 'available players:', gameState.players.map(p => p.id));
 				return;
 			}
-			console.log('[UI] Opening discard modal for player:', player.name || playerId, 'with', player.discard?.length || 0, 'cards');
-			console.log('[UI] modal exists?', !!modal, 'modal.showDiscardViewerModal?', !!modal?.showDiscardViewerModal);
-			modal.showDiscardViewerModal(player, isOwned);
+			console.log('[UI] Opening graveyard modal for player:', player.name || playerId, 'with', player.graveyard?.length || 0, 'cards');
+			console.log('[UI] modal exists?', !!modal, 'modal.showGraveyardModal?', !!modal?.showGraveyardModal);
+			modal.showGraveyardModal(player, isOwned);
 			console.log('[UI] Modal should be open now');
 		} catch (error) {
 			console.error('[UI] Error in handleOpenDiscard:', error.message, error);
@@ -2285,7 +2285,7 @@ function toBoardViewModel(gameState, localPlayerId) {
 					isLocalTurn,
 					viewerOwns: false,
 				}),
-				discard: opponent.discard || [],
+				graveyard: opponent.graveyard || [],
 			},
 			bottom: {
 				id: localPlayerId,
@@ -2299,7 +2299,7 @@ function toBoardViewModel(gameState, localPlayerId) {
 					isLocalTurn,
 					viewerOwns: true,
 				}),
-				discard: localPlayer.discard || [],
+				graveyard: localPlayer.graveyard || [],
 			},
 		},
 	};
