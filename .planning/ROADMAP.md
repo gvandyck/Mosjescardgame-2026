@@ -17,15 +17,15 @@
 | 7 | Leaderboard | Global player leaderboard with win/loss/streak stats | LB-STATS, LB-PAGE, LB-NAV, LB-PROFILE, LB-DISCONNECT | Leaderboard page live, stats update after every match |
 | 8 | Complete Partial Cards | Every card marked partial/deferred in card-reference.md fully working in the browser game | CARD-COMP-1 through CARD-COMP-N | All partial cards resolve correctly, no stubs remaining |
 | 9 | UI & Engine Bug Fixes | Fix 5 playtesting bugs: quest roll threshold, Dubbele Dosis lifecycle, Senor West MP floor, Lucky Coin activation order, DJ Lucky Mixer turn modifier | BUG-01 through BUG-05 | All 5 bugs fixed, tests pass, no regressions |
-| 10 | Deck Balance | Fix game stalling — insufficient MP generation across all 3 decks causes games to end in deck-out or stalemate instead of someone reaching Level 3 | BAL-01 through BAL-N | All 3 decks can reliably progress to Level 3; deck-out eliminated; game length reduced to target range |
+| 10 | Deck Balance | Fix game stalling ï¿½ insufficient MP generation across all 3 decks causes games to end in deck-out or stalemate instead of someone reaching Level 3 | BAL-01 through BAL-N | All 3 decks can reliably progress to Level 3; deck-out eliminated; game length reduced to target range |
 | 11 | Bot Opponent | Add a basic AI opponent for offline single-player matches. Bot plays Piecie cards, activates Places, attempts Quests, levels its Mosje, and uses Mosje abilities. Players opt in via "Play Offline" checkbox in room creation. | BOT-01 through BOT-05 | Player can start and complete a full game against the bot; bot makes valid moves every turn; no Firebase required for offline mode |
 | 16 | Eendjes Voeren Place | Transform Eendjes Voeren from a Piecie into a Place: resilience aura (all resilient traits max ??? while active) + Michelle +10 MP each End Phase. | EEV-01 through EEV-05 | place_eendjes_voeren in places.js; getMosjeTrait maxes resilient; Physical Force deck updated; piecie retired to booster-only |
-| 17 | Place Recovery Mechanics ? | Unified per-player graveyard (Places + Mosjes + Piecies all go to owner's discard). Rework Slecht Gezet (ownership-aware: return own / destroy opponent's), rework Huisbaas (return Place from own discard), add new snelle Chillingsvoorbij! | PLACE-REC-01/02/03 + ENGINE-01/02/03 | DONE — 821 tests pass, 0 sim crashes. Engine unified, 3 recovery cards live |
-| 18 | Dead-Flag Card Fixes ? | Wire 6 cards whose effect flags were set but never consumed. Wave 1 (engine + persistence): Tweede Kans reroll, Battle Concert redirect, Those Eyelashes Snelle-block — all persist on field. Wave 2 (UI-pick): Ronald Master Plan (play Piecie from discard), Ming Future Sight (quest peek/bottom), Tuk Perfect Placement (peek 5 take 2, face-down removed). | DEADFLAG-01 through 06 | DONE — 837 tests pass, 0 sim crashes. All 6 cards match their descriptions; no dead flags remain |
-| 19 | UI-Modal Card Completions ? | Wire the 2 remaining "deferred — needs UI" Mosje abilities to existing modals (the reveal flags `opponentHandPeeked` + `_ronaldPeek` were dead). Plan 01 — **FPS West**: Geen Raad-style guess-a-card-type-in-opponent's-hand game, correct +70 MP / wrong -20 MP (old text archived). Plan 02 — **Ronald Chef**: pay 20 MP to pick an opponent hand card and LOCK it (unplayable) until your next turn, 3-turn cooldown. (Geen Raad was already implemented — card-reference was stale. Emergency Swap ? reworked into Leipe Swap, Phase 20.) | UICARD-01/02 | DONE — 850 tests pass, 0 sim crashes. FPS West guess game (+70/-20) live; Ronald hand-card lock + 3-turn cooldown enforced across all 4 play paths; both dead flags gone |
-| 20 | Leipe Swap (temporary MP swap) ? | Rework the unused Emergency Swap into **Leipe Swap** (*leip* = Dutch slang for sick/crazy; rarest tier ???? = 1 per deck; no MP cost; stays on field 1 turn). On your turn, pick one of your Mosjes + an opponent Mosje and swap their MP; at the END of your turn swap the *current* MP back. Levels banked off the borrowed progress stick; leftover MP is handed to the other Mosje (double-swap). Imperative engine: effect + endTurn revert + target modals; rename old emergency_swap refs across both card systems + docs. | LEIPE-01 | DONE — 856 tests pass, 0 sim crashes. Leipe Swap swaps/reverts MP, banked levels persist, max-rarity deck cap set, old refs renamed |
-| 21 | Quest Behaviors + Cleanup ? | **Bucket C** — wire 3 engine-doable quest behaviors via static quest-def fields read by `resolveQuest`: draw-on-success (Artistic Expression + Late Night Questing draw 2), Elimination Challenge (opponent -30 MP on success), Hack Mainframe Hacker/FPS -1 threshold id fix. **Bucket A** — delete dead `effect_jensen`/`effect_lucky_coin` stubs + tidy the unrun `.js` test, refresh stale `card-reference.md` rows (Geen Raad, Huisbaas, the 4 wired quests). (Bucket D — 3-way outcomes + turn-action gates — deferred.) | QUEST-01/02/03 + CLEAN-01 | DONE — 867 tests pass, 0 sim crashes. Draw-on-success + Elimination -30 MP + Hack FPS bonus wired; dead stubs removed; card-reference rows corrected |
-| 22 | Call of the Welloes | Implement the full Call of the Welloes Piecie effect: summon a Mosje from the Welloe pile into a free active slot (level+MP restored from welloe record); Piecie stays on field as the anchor — if the Piecie leaves play the summoned Mosje immediately returns to the Welloe pile. Requires: UI pick (showOptionSelect), new `returnMosjeToWelloe` engine helper, end-of-turn sweep check, `linkedMosjeCardId` field on piecieSlot, `summonedByPiecie` field on mosjeSlot. No free slot ? effect silently cancelled. Welloe pile empty ? effect silently cancelled. | CALLW-01 through CALLW-04 | effect_call_of_welloes functional; summon + return lifecycle correct; 0 sim crashes; all tests pass |
+| 17 | Place Recovery Mechanics ? | Unified per-player graveyard (Places + Mosjes + Piecies all go to owner's discard). Rework Slecht Gezet (ownership-aware: return own / destroy opponent's), rework Huisbaas (return Place from own discard), add new snelle Chillingsvoorbij! | PLACE-REC-01/02/03 + ENGINE-01/02/03 | DONE ï¿½ 821 tests pass, 0 sim crashes. Engine unified, 3 recovery cards live |
+| 18 | Dead-Flag Card Fixes ? | Wire 6 cards whose effect flags were set but never consumed. Wave 1 (engine + persistence): Tweede Kans reroll, Battle Concert redirect, Those Eyelashes Snelle-block ï¿½ all persist on field. Wave 2 (UI-pick): Ronald Master Plan (play Piecie from discard), Ming Future Sight (quest peek/bottom), Tuk Perfect Placement (peek 5 take 2, face-down removed). | DEADFLAG-01 through 06 | DONE ï¿½ 837 tests pass, 0 sim crashes. All 6 cards match their descriptions; no dead flags remain |
+| 19 | UI-Modal Card Completions ? | Wire the 2 remaining "deferred ï¿½ needs UI" Mosje abilities to existing modals (the reveal flags `opponentHandPeeked` + `_ronaldPeek` were dead). Plan 01 ï¿½ **FPS West**: Geen Raad-style guess-a-card-type-in-opponent's-hand game, correct +70 MP / wrong -20 MP (old text archived). Plan 02 ï¿½ **Ronald Chef**: pay 20 MP to pick an opponent hand card and LOCK it (unplayable) until your next turn, 3-turn cooldown. (Geen Raad was already implemented ï¿½ card-reference was stale. Emergency Swap ? reworked into Leipe Swap, Phase 20.) | UICARD-01/02 | DONE ï¿½ 850 tests pass, 0 sim crashes. FPS West guess game (+70/-20) live; Ronald hand-card lock + 3-turn cooldown enforced across all 4 play paths; both dead flags gone |
+| 20 | Leipe Swap (temporary MP swap) ? | Rework the unused Emergency Swap into **Leipe Swap** (*leip* = Dutch slang for sick/crazy; rarest tier ???? = 1 per deck; no MP cost; stays on field 1 turn). On your turn, pick one of your Mosjes + an opponent Mosje and swap their MP; at the END of your turn swap the *current* MP back. Levels banked off the borrowed progress stick; leftover MP is handed to the other Mosje (double-swap). Imperative engine: effect + endTurn revert + target modals; rename old emergency_swap refs across both card systems + docs. | LEIPE-01 | DONE ï¿½ 856 tests pass, 0 sim crashes. Leipe Swap swaps/reverts MP, banked levels persist, max-rarity deck cap set, old refs renamed |
+| 21 | Quest Behaviors + Cleanup ? | **Bucket C** ï¿½ wire 3 engine-doable quest behaviors via static quest-def fields read by `resolveQuest`: draw-on-success (Artistic Expression + Late Night Questing draw 2), Elimination Challenge (opponent -30 MP on success), Hack Mainframe Hacker/FPS -1 threshold id fix. **Bucket A** ï¿½ delete dead `effect_jensen`/`effect_lucky_coin` stubs + tidy the unrun `.js` test, refresh stale `card-reference.md` rows (Geen Raad, Huisbaas, the 4 wired quests). (Bucket D ï¿½ 3-way outcomes + turn-action gates ï¿½ deferred.) | QUEST-01/02/03 + CLEAN-01 | DONE ï¿½ 867 tests pass, 0 sim crashes. Draw-on-success + Elimination -30 MP + Hack FPS bonus wired; dead stubs removed; card-reference rows corrected |
+| 22 | Call of the Welloes | Implement the full Call of the Welloes Piecie effect: summon a Mosje from the Welloe pile into a free active slot (level+MP restored from welloe record); Piecie stays on field as the anchor ï¿½ if the Piecie leaves play the summoned Mosje immediately returns to the Welloe pile. Requires: UI pick (showOptionSelect), new `returnMosjeToWelloe` engine helper, end-of-turn sweep check, `linkedMosjeCardId` field on piecieSlot, `summonedByPiecie` field on mosjeSlot. No free slot ? effect silently cancelled. Welloe pile empty ? effect silently cancelled. | CALLW-01 through CALLW-04 | effect_call_of_welloes functional; summon + return lifecycle correct; 0 sim crashes; all tests pass |
 
 ---
 
@@ -194,9 +194,9 @@
 **Plans:** 3 plans
 
 Plans:
-- [ ] 07-01-PLAN.md — Stats data layer: statsStore.js, leaderboardStore.js, matchRewards.js stats hook, accountSetup.js profile seeding, RTDB rules
-- [ ] 07-02-PLAN.md — Leaderboard UI: leaderboard.html, leaderboard.css, leaderboard.js, index.html nav button
-- [ ] 07-03-PLAN.md — Disconnect loss hook: registerDisconnectLoss + cancelDisconnectHooks in syncManager.js
+- [ ] 07-01-PLAN.md ï¿½ Stats data layer: statsStore.js, leaderboardStore.js, matchRewards.js stats hook, accountSetup.js profile seeding, RTDB rules
+- [ ] 07-02-PLAN.md ï¿½ Leaderboard UI: leaderboard.html, leaderboard.css, leaderboard.js, index.html nav button
+- [ ] 07-03-PLAN.md ï¿½ Disconnect loss hook: registerDisconnectLoss + cancelDisconnectHooks in syncManager.js
 
 **Success Criteria:**
 1. Leaderboard page accessible from lobby nav
@@ -215,18 +215,18 @@ Plans:
 - CARD-COMP-MOSJE: All partial Mosje abilities implemented (Binti, Cless, Coert, Martin, Tuk, Ronald, Chris variants, etc.)
 - CARD-COMP-SNELLE: All partial Snelle Piecies with deferred behaviours completed (blensen, counter-strikka, drain-reversal, frenssen, jammertje-gepakt, jantje-jantje, jensen, jeweetniet, perfect-dodge)
 - CARD-COMP-PIECIE: All partial Piecies with simplified/deferred logic completed (zie-je-die-dingetjes, call-of-the-welloes, dingetje-toch, double-trigger)
-- CARD-COMP-QUEST: All partial Quests audited — functional quests upgraded to `implemented`; OR-condition / interactive-pick quests documented with specific deferred reasons naming the blocking primitive (UI selection primitive does not exist yet — deferred to UI phase per Phase 5 decision)
+- CARD-COMP-QUEST: All partial Quests audited ï¿½ functional quests upgraded to `implemented`; OR-condition / interactive-pick quests documented with specific deferred reasons naming the blocking primitive (UI selection primitive does not exist yet ï¿½ deferred to UI phase per Phase 5 decision)
 - CARD-COMP-PLACE: place_synergy_chamber duration extension and ability-cost reduction
 
 **Plans:** 6 plans
 
 Plans:
-- [ ] 08-01-PLAN.md — Mosje ability fixes: Tuk Architect deck reorder, Ronald Mastermind sort-to-top, Jeffrey quest-bonus fix, Ronald Chef/FPS West peek flags (src/abilities/mosjeAbilities.js)
-- [ ] 08-02-PLAN.md — Snelle bug fixes: Jantje×3 const/let crash, Blensen free-cost flag (src/abilities/snelleEffects.js)
-- [ ] 08-03-PLAN.md — Piecie stub completions: Zie Je Die Dingetjes two-call keep pattern, Dingetje Toch flag documentation (src/abilities/piecieEffects.js, src/engine/turnManager.js)
-- [ ] 08-04-PLAN.md — Snelle flag enforcement in loseMP: drainReversal, negateNextAttack, negateNextPiecie, dierenasiel; Synergy Chamber JSDoc (src/engine/mpManager.js, src/abilities/placeEffects.js)
-- [ ] 08-05-PLAN.md — Verification: npm test, simulation run, card-reference.md status updates (docs/card-reference.md)
-- [ ] 08-06-PLAN.md — Quest audit: classify all partial quests as implemented or deferred-with-reason; add DEFERRED comments in quests.js (src/data/quests.js, docs/card-reference.md)
+- [ ] 08-01-PLAN.md ï¿½ Mosje ability fixes: Tuk Architect deck reorder, Ronald Mastermind sort-to-top, Jeffrey quest-bonus fix, Ronald Chef/FPS West peek flags (src/abilities/mosjeAbilities.js)
+- [ ] 08-02-PLAN.md ï¿½ Snelle bug fixes: Jantjeï¿½3 const/let crash, Blensen free-cost flag (src/abilities/snelleEffects.js)
+- [ ] 08-03-PLAN.md ï¿½ Piecie stub completions: Zie Je Die Dingetjes two-call keep pattern, Dingetje Toch flag documentation (src/abilities/piecieEffects.js, src/engine/turnManager.js)
+- [ ] 08-04-PLAN.md ï¿½ Snelle flag enforcement in loseMP: drainReversal, negateNextAttack, negateNextPiecie, dierenasiel; Synergy Chamber JSDoc (src/engine/mpManager.js, src/abilities/placeEffects.js)
+- [ ] 08-05-PLAN.md ï¿½ Verification: npm test, simulation run, card-reference.md status updates (docs/card-reference.md)
+- [ ] 08-06-PLAN.md ï¿½ Quest audit: classify all partial quests as implemented or deferred-with-reason; add DEFERRED comments in quests.js (src/data/quests.js, docs/card-reference.md)
 
 **Success Criteria:**
 1. No card function in any ability file returns early with a "pending UI" or "deferred" stub comment
@@ -241,10 +241,10 @@ Plans:
 **Goal:** Fix 5 playtesting bugs found in the live browser game: quest roll threshold display, Dubbele Dosis Piecie card lifecycle, Senor West MP floor + level-degrade fallback, Lucky Coin activation guard, DJ Lucky Mixer turn modifier redesign.
 
 **Requirements:**
-- BUG-01: Quest roll threshold displays wrong tier — Strategy Puzzle shows 3+ instead of 2+ when player has Mental ??? (stat level 3)
+- BUG-01: Quest roll threshold displays wrong tier ï¿½ Strategy Puzzle shows 3+ instead of 2+ when player has Mental ??? (stat level 3)
 - BUG-02: Dubbele Dosis Piecie discards immediately after activation instead of persisting until end of turn
 - BUG-03: Senor West wrong-guess penalty drives MP to -10 when player is at 0 MP (floor not respected); should degrade level -1 or block activation if already at minimum level
-- BUG-04: Lucky Coin coin flip resolves before checking Piecie slot availability — player can flip risk-free with full slots; slot check must run first and block activation if no slots free
+- BUG-04: Lucky Coin coin flip resolves before checking Piecie slot availability ï¿½ player can flip risk-free with full slots; slot check must run first and block activation if no slots free
 - BUG-05: DJ Lucky Mixer reroll effect does nothing on Quest dice rolls; redesign to a +2 turn-scoped Quest dice modifier using same end-of-turn lifecycle as BUG-02 fix
 
 **Plans:** 5/5 complete - 2026-05-25
@@ -268,30 +268,30 @@ Plans:
 
 ### Phase 10: Deck Balance
 
-**Goal:** Fix game stalling — insufficient MP generation across all 3 starter decks causes games to end in deck-out or stalemate before anyone reaches Level 3. Fix by reworking underused cards, adjusting deck compositions, and/or tweaking rules. Prefer reworking existing cards over adding new ones.
+**Goal:** Fix game stalling ï¿½ insufficient MP generation across all 3 starter decks causes games to end in deck-out or stalemate before anyone reaches Level 3. Fix by reworking underused cards, adjusting deck compositions, and/or tweaking rules. Prefer reworking existing cards over adding new ones.
 
 **Requirements:**
-- BAL-01: Digital Control stalling — too many draw-only cards, not enough reliable MP gain; Coert's draw ability bleeds MP
-- BAL-02: Physical Force — adequate direct MP but lacks fallback when quests fail; emergency_healings only delays stalls
-- BAL-03: Artistic Rhythm — post-bug-fix state unknown; verify balance after Phase 8 fixes
-- BAL-04: Quest cost vs reward economy — quests require MP upfront; if failing quests, net negative
-- BAL-05: Deck-out vulnerability — 15-17 card decks run dry before game ends
+- BAL-01: Digital Control stalling ï¿½ too many draw-only cards, not enough reliable MP gain; Coert's draw ability bleeds MP
+- BAL-02: Physical Force ï¿½ adequate direct MP but lacks fallback when quests fail; emergency_healings only delays stalls
+- BAL-03: Artistic Rhythm ï¿½ post-bug-fix state unknown; verify balance after Phase 8 fixes
+- BAL-04: Quest cost vs reward economy ï¿½ quests require MP upfront; if failing quests, net negative
+- BAL-05: Deck-out vulnerability ï¿½ 15-17 card decks run dry before game ends
 
 **Success Criteria:**
 1. Digital Control can reliably reach Level 3 without deck-out
 2. All 3 decks have at least 2 clear paths to MP generation per game
 3. Games end with a winner (Level 3) rather than stalemate/deck-out
-4. Quest economy feels fair — attempting quests is never a pure drain
+4. Quest economy feels fair ï¿½ attempting quests is never a pure drain
 5. Changes are backwards-compatible with existing card implementations
 
 **Plans:** 5 plans
 
 Plans:
-- [x] 10-01-PLAN.md — Prerequisite: add subtype to Mosje slots (turnManager.js) + test scaffolds
-- [x] 10-02-PLAN.md — Quest economy: all successMP +20, failMP capped at -20 (quests.js)
-- [x] 10-03-PLAN.md — Equipment effect scaling + Tikker bug fix (piecieEffects.js)
-- [x] 10-04-PLAN.md — Deck-out engine rule: reshuffle + skipNextTurn (turnManager.js)
-- [x] 10-05-PLAN.md — Deck compositions + docs + full verification
+- [x] 10-01-PLAN.md ï¿½ Prerequisite: add subtype to Mosje slots (turnManager.js) + test scaffolds
+- [x] 10-02-PLAN.md ï¿½ Quest economy: all successMP +20, failMP capped at -20 (quests.js)
+- [x] 10-03-PLAN.md ï¿½ Equipment effect scaling + Tikker bug fix (piecieEffects.js)
+- [x] 10-04-PLAN.md ï¿½ Deck-out engine rule: reshuffle + skipNextTurn (turnManager.js)
+- [x] 10-05-PLAN.md ï¿½ Deck compositions + docs + full verification
 
 ---
 
@@ -300,11 +300,11 @@ Plans:
 **Goal:** Add a basic AI opponent so players can practice or play offline without needing a second human. The bot uses simple heuristics (no ML, no tree search) and drives the same engine action functions a human player calls.
 
 **Requirements:**
-- BOT-01: Bot decision loop — on bot's turn, pick and execute actions using heuristics (play Piecies, activate Places, attempt Quests, use Mosje ability)
-- BOT-02: Offline room mode — "Play Offline" checkbox on the lobby form bypasses Firebase room creation and starts a local-only game immediately
-- BOT-03: Bot identity — bot gets a name, a starter deck selection, and a player slot (player_2) in the engine state
-- BOT-04: Bot turn driver — after the human ends their turn, automatically drive the bot's turn without any UI input (with a short delay so moves are readable)
-- BOT-05: Full game loop — offline game runs through win conditions (Level 3 / knockout) and shows the result screen
+- BOT-01: Bot decision loop ï¿½ on bot's turn, pick and execute actions using heuristics (play Piecies, activate Places, attempt Quests, use Mosje ability)
+- BOT-02: Offline room mode ï¿½ "Play Offline" checkbox on the lobby form bypasses Firebase room creation and starts a local-only game immediately
+- BOT-03: Bot identity ï¿½ bot gets a name, a starter deck selection, and a player slot (player_2) in the engine state
+- BOT-04: Bot turn driver ï¿½ after the human ends their turn, automatically drive the bot's turn without any UI input (with a short delay so moves are readable)
+- BOT-05: Full game loop ï¿½ offline game runs through win conditions (Level 3 / knockout) and shows the result screen
 
 **Success Criteria:**
 1. "Play Offline" checkbox appears in the lobby and starts a game without Firebase
@@ -326,29 +326,29 @@ Plans:
 
 ### Phase 12: Implement Unfinished Mechanics & Stubs
 
-**Goal:** Eliminate all silent no-ops in the engine — status effects that are pushed but never read, stub functions that return early, snelle flags set but never consumed, and partial card mechanics deferred to UI. Every card that claims to protect, halve, or modify MP must actually do so.
+**Goal:** Eliminate all silent no-ops in the engine ï¿½ status effects that are pushed but never read, stub functions that return early, snelle flags set but never consumed, and partial card mechanics deferred to UI. Every card that claims to protect, halve, or modify MP must actually do so.
 
 **Requirements:**
-- STUB-01: MP_LOSS_HALVED — wire into loseMP() in mpManager.js (5 cards: Bowie & Stormey, Tony, Gekke Vogels, KatjeGang, ViannaPoes)
-- STUB-02: MP_LOSS_REDUCTION — wire into loseMP() (3 consumers: Laat me chillen, FF Haaltje Nemen, The Protector snelle flag)
-- STUB-03: WELLOE_SHIELD — implement no-knockout protection check in victoryChecker.js (1 card: Mosje Shield)
-- STUB-04: negateNextSearch — wire into deck draw logic in turnManager.js (1 card: Jammertje Gepakt)
-- STUB-05: doubleNextPiecie — implement double-activation executor logic (1 card: Double Trigger)
-- STUB-06: FF Haaltje Nemen undefined variable — fix console.log referencing undefined `reduction`
-- STUB-07: Dingetje Toch — wire _dingetjeTochActive flag consumption in piecie requirement checker
-- STUB-08: SNOEIERTJE_COST — cleanup: push is never consumed (questBonusMP handles the real logic); remove the dead push or document clearly
-- STUB-09: Dierenasiel cost-waiver — move 0-MP PET ability cost-waiver from UI-only to engine guard
-- STUB-10: Synergy Chamber cost/duration reduction — integrate into ability activation caller
-- STUB-11: Bagga of Greed discard-one-of-two — wire the `_baggaDiscard = true` flag into UI selection handler (draw 2, discard 1 is currently only flagged, not enforced)
-- STUB-12: Emergency Swap — implement ability-copy selection or document as deferred with explicit reason
-- STUB-13: Huisbaas — implement Place search from deck or document as deferred with explicit reason
-- STUB-14: Welloe Force redirect — implement damage redirect or document as deferred with explicit reason
-- STUB-15: MP Adjuster hardcoded 50 — wire UI exact-value selection or document as deferred
-- STUB-16: FPS West + Ronald Chef hand reveal — wire opponentHandPeeked flag to actual UI hand reveal
+- STUB-01: MP_LOSS_HALVED ï¿½ wire into loseMP() in mpManager.js (5 cards: Bowie & Stormey, Tony, Gekke Vogels, KatjeGang, ViannaPoes)
+- STUB-02: MP_LOSS_REDUCTION ï¿½ wire into loseMP() (3 consumers: Laat me chillen, FF Haaltje Nemen, The Protector snelle flag)
+- STUB-03: WELLOE_SHIELD ï¿½ implement no-knockout protection check in victoryChecker.js (1 card: Mosje Shield)
+- STUB-04: negateNextSearch ï¿½ wire into deck draw logic in turnManager.js (1 card: Jammertje Gepakt)
+- STUB-05: doubleNextPiecie ï¿½ implement double-activation executor logic (1 card: Double Trigger)
+- STUB-06: FF Haaltje Nemen undefined variable ï¿½ fix console.log referencing undefined `reduction`
+- STUB-07: Dingetje Toch ï¿½ wire _dingetjeTochActive flag consumption in piecie requirement checker
+- STUB-08: SNOEIERTJE_COST ï¿½ cleanup: push is never consumed (questBonusMP handles the real logic); remove the dead push or document clearly
+- STUB-09: Dierenasiel cost-waiver ï¿½ move 0-MP PET ability cost-waiver from UI-only to engine guard
+- STUB-10: Synergy Chamber cost/duration reduction ï¿½ integrate into ability activation caller
+- STUB-11: Bagga of Greed discard-one-of-two ï¿½ wire the `_baggaDiscard = true` flag into UI selection handler (draw 2, discard 1 is currently only flagged, not enforced)
+- STUB-12: Emergency Swap ï¿½ implement ability-copy selection or document as deferred with explicit reason
+- STUB-13: Huisbaas ï¿½ implement Place search from deck or document as deferred with explicit reason
+- STUB-14: Welloe Force redirect ï¿½ implement damage redirect or document as deferred with explicit reason
+- STUB-15: MP Adjuster hardcoded 50 ï¿½ wire UI exact-value selection or document as deferred
+- STUB-16: FPS West + Ronald Chef hand reveal ï¿½ wire opponentHandPeeked flag to actual UI hand reveal
 
 **Success Criteria:**
 1. Every status effect type that is pushed to statusEffects is either checked in loseMP/turnManager/victoryChecker OR explicitly documented as deferred with a named blocking primitive
-2. No function in any ability file returns early with a silent no-op where real behaviour was intended — all are either implemented or tagged `// DEFERRED: <reason>`
+2. No function in any ability file returns early with a silent no-op where real behaviour was intended ï¿½ all are either implemented or tagged `// DEFERRED: <reason>`
 3. All snelle flags that are set have corresponding read-points in the engine
 4. 664+ tests pass, 0 simulation crashes
 5. card-reference.md updated: all items that are now implemented changed to `implemented`; all remaining deferred items given a specific reason naming the missing primitive
@@ -356,37 +356,37 @@ Plans:
 **Plans:** 5 plans
 
 Plans:
-- [x] 12-01-PLAN.md — Engine wiring: MP_LOSS_HALVED, MP_LOSS_REDUCTION, WELLOE_SHIELD checks wired into loseMP() and markMosjeDefeated(); fix FF Haaltje Nemen ReferenceError; restore push site values
-- [x] 12-02-PLAN.md — Flag wiring: negateNextSearch in phaseDrawCard, STUB-05 verification, dingetjeToch documentation, SNOEIERTJE_COST dead push removal
-- [x] 12-03-PLAN.md — Place mechanics: Dierenasiel 0-MP guard and Synergy Chamber cost reduction in useMosjeAbility
-- [x] 12-04-PLAN.md — UI-gated interactions: Bagga of Greed discard picker, Welloe Force redirect target, MP Adjuster value picker (via existing modal functions)
-- [x] 12-05-PLAN.md — Deferred docs: Emergency Swap and Huisbaas DEFERRED comments, FPS West/Ronald Chef flag comments, card-reference.md full update
+- [x] 12-01-PLAN.md ï¿½ Engine wiring: MP_LOSS_HALVED, MP_LOSS_REDUCTION, WELLOE_SHIELD checks wired into loseMP() and markMosjeDefeated(); fix FF Haaltje Nemen ReferenceError; restore push site values
+- [x] 12-02-PLAN.md ï¿½ Flag wiring: negateNextSearch in phaseDrawCard, STUB-05 verification, dingetjeToch documentation, SNOEIERTJE_COST dead push removal
+- [x] 12-03-PLAN.md ï¿½ Place mechanics: Dierenasiel 0-MP guard and Synergy Chamber cost reduction in useMosjeAbility
+- [x] 12-04-PLAN.md ï¿½ UI-gated interactions: Bagga of Greed discard picker, Welloe Force redirect target, MP Adjuster value picker (via existing modal functions)
+- [x] 12-05-PLAN.md ï¿½ Deferred docs: Emergency Swap and Huisbaas DEFERRED comments, FPS West/Ronald Chef flag comments, card-reference.md full update
 
 ---
 
 ### Phase 13: Action Animation Feedback
 
-**Goal:** Add visual animation feedback to game actions so players can clearly see what happened — MP gains, MP losses, attacks, quest results — without reading the log.
+**Goal:** Add visual animation feedback to game actions so players can clearly see what happened ï¿½ MP gains, MP losses, attacks, quest results ï¿½ without reading the log.
 
 **Status:** COMPLETE (implemented by gvandyck, 2026-05-31)
 
 **Plans:** 1 plan
 Plans:
-- [x] 13-01-PLAN.md — Action animation system: actionAnimations.js module, boardRenderer wiring, CSS animations for MP gain/loss/attack/quest events
+- [x] 13-01-PLAN.md ï¿½ Action animation system: actionAnimations.js module, boardRenderer wiring, CSS animations for MP gain/loss/attack/quest events
 
 ---
 
 ### Phase 14: Physical Equipment Cards & Boxing Ring
 
-**Goal:** Add a Physical equipment Piecie suite (mirroring the Digital Keyboard/Mouse/Controller set), a new Boxing Ring place, and update The Gym to give CLESS-tagged Mosjes a bonus — giving Fighting/Physical decks a proper item identity and making Gandoe + Cless cards meaningfully stronger in themed setups.
+**Goal:** Add a Physical equipment Piecie suite (mirroring the Digital Keyboard/Mouse/Controller set), a new Boxing Ring place, and update The Gym to give CLESS-tagged Mosjes a bonus ï¿½ giving Fighting/Physical decks a proper item identity and making Gandoe + Cless cards meaningfully stronger in themed setups.
 
 **Requirements:**
-- PHYS-01: Dumbbells (?, PHYSICAL-EQUIPMENT) — Physical Mosje on field: +20 MP; Physical ???: also draw 1 card
-- PHYS-02: Boxing Gloves (??, PHYSICAL-EQUIPMENT) — Physical ??+ Mosje: +25 MP; GANDOE tag: +40 MP + apply MP_LOSS_HALVED 1 turn
-- PHYS-03: Skipping Rope (?, PHYSICAL-EQUIPMENT) — Physical Mosje: +1 next Quest roll + draw 1 card; no Physical Mosje: draw 1 only
-- PHYS-04: Protein Shake (??, PHYSICAL-EQUIPMENT + FOOD) — +25 MP to active Physical Mosje; +35 MP if Boxing Ring is active place
-- PHYS-05: Boxing Ring (???, Place) — ON_QUEST: Physical Mosjes +15 MP any outcome; GANDOE tag: +25 MP instead; END_PHASE: FIGHTING type +10 MP, non-FIGHTING -5 MP
-- PHYS-06: Gym update — Add CLESS-tag bonus: +20 MP at END_PHASE when any CLESS Mosje is on field (regardless of physical trait level)
+- PHYS-01: Dumbbells (?, PHYSICAL-EQUIPMENT) ï¿½ Physical Mosje on field: +20 MP; Physical ???: also draw 1 card
+- PHYS-02: Boxing Gloves (??, PHYSICAL-EQUIPMENT) ï¿½ Physical ??+ Mosje: +25 MP; GANDOE tag: +40 MP + apply MP_LOSS_HALVED 1 turn
+- PHYS-03: Skipping Rope (?, PHYSICAL-EQUIPMENT) ï¿½ Physical Mosje: +1 next Quest roll + draw 1 card; no Physical Mosje: draw 1 only
+- PHYS-04: Protein Shake (??, PHYSICAL-EQUIPMENT + FOOD) ï¿½ +25 MP to active Physical Mosje; +35 MP if Boxing Ring is active place
+- PHYS-05: Boxing Ring (???, Place) ï¿½ ON_QUEST: Physical Mosjes +15 MP any outcome; GANDOE tag: +25 MP instead; END_PHASE: FIGHTING type +10 MP, non-FIGHTING -5 MP
+- PHYS-06: Gym update ï¿½ Add CLESS-tag bonus: +20 MP at END_PHASE when any CLESS Mosje is on field (regardless of physical trait level)
 
 **Success Criteria:**
 1. All 4 PHYSICAL-EQUIPMENT Piecies have card definitions, effect functions, and tests
@@ -400,9 +400,9 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [x] 14-01-PLAN.md — Physical Equipment Piecies: Dumbbells, Boxing Gloves, Skipping Rope (data + effects + tests)
-- [x] 14-02-PLAN.md — Protein Shake + Boxing Ring place (data + effects + tests)
-- [x] 14-03-PLAN.md — Gym patch (CLESS bonus) + card-reference.md update + simulation check
+- [x] 14-01-PLAN.md ï¿½ Physical Equipment Piecies: Dumbbells, Boxing Gloves, Skipping Rope (data + effects + tests)
+- [x] 14-02-PLAN.md ï¿½ Protein Shake + Boxing Ring place (data + effects + tests)
+- [x] 14-03-PLAN.md ï¿½ Gym patch (CLESS bonus) + card-reference.md update + simulation check
 
 ---
 
@@ -412,46 +412,46 @@ Plans:
 
 **Final deck compositions:**
 
-Physical Force — Gandoe Destroyer + Michelle Iron Tuk (couple IRL, boxing theme):
-Piecies: Boxing Gloves, Bowie & Stormey, Eendjes Voeren, Laat me Chillen, Kannetje Melk, Protein Shake, Affoe ×2, Dubbele Dosis, Tikker
+Physical Force ï¿½ Gandoe Destroyer + Michelle Iron Tuk (couple IRL, boxing theme):
+Piecies: Boxing Gloves, Bowie & Stormey, Eendjes Voeren, Laat me Chillen, Kannetje Melk, Protein Shake, Affoe ï¿½2, Dubbele Dosis, Tikker
 Snelle: Not Today!, Emergency Healings, Jensen!, Lucky Coin
 Places: Boxing Ring, Toennoe (NEW)
 Quest: Kickboxing Bootcamp (NEW personal quest)
 
-Digital Control — Coert Tech + Binti Sharp Tongue (couple IRL, food-double synergy + Tesla loop):
-Piecies: Kannetje Melk ×3, Varkenspootjes, Pot of Weed, Dubbele Dosis ×2, Bong Hit Demolition, Redbull, Keyboard, Controller
-Snelle: Jensen! ×2, Lucky Coin, Counter Strikka
+Digital Control ï¿½ Coert Tech + Binti Sharp Tongue (couple IRL, food-double synergy + Tesla loop):
+Piecies: Kannetje Melk ï¿½3, Varkenspootjes, Pot of Weed, Dubbele Dosis ï¿½2, Bong Hit Demolition, Redbull, Keyboard, Controller
+Snelle: Jensen! ï¿½2, Lucky Coin, Counter Strikka
 Places: Tesla (NEW), Bank Chilling
 Quest: Tijd voor Winston Jaaa (NEW personal quest)
 
-Artistic Rhythm — Youri Speedrunner + Chris DDR (gaming + dancing, wired synergy):
-Piecies: Kannetje Melk ×2, Affoe ×2, Pot of Weed, Dubbele Dosis ×2, Controller, Synergy Field, Grammetje Pieter
-Snelle: Lucky Coin ×2, Jensen!, Ff Haaltje Nemen
+Artistic Rhythm ï¿½ Youri Speedrunner + Chris DDR (gaming + dancing, wired synergy):
+Piecies: Kannetje Melk ï¿½2, Affoe ï¿½2, Pot of Weed, Dubbele Dosis ï¿½2, Controller, Synergy Field, Grammetje Pieter
+Snelle: Lucky Coin ï¿½2, Jensen!, Ff Haaltje Nemen
 Places: Quest Haven, Bank Chilling
 Quest: quest_improvise
 
 **New cards (4):**
-- DECK-NEW-01: place_toennoe — END_PHASE: GANDOE Mosje +20 MP, MICHELLE/TUK Mosje +15 MP, both active: +10 bonus each. New effect function in placeEffects.js.
-- DECK-NEW-02: quest_personal_kickboxing_bootcamp — requiredMosjeId: mosje_michelle. Physical roll 4+ alone, 2+ with Gandoe on field. If Gandoe active: questLogic adds +2 diceBonus. Success: +80 MP. Fail: -20 MP.
-- DECK-NEW-03: place_tesla — Requires Coert active to play (activation guard in main.js). TURN_START: COERT +20 MP, BINTI +20 MP, both active: +10 each. Coert defeated: Tesla destroyed ? sent to player discard (hook in victoryChecker.js).
-- DECK-NEW-04: quest_personal_winston_tijd — requiredMosjeId: mosje_binti. Requires place_tesla active. Tesla returns to player hand. Auto-succeed: +100 MP. Recover piecie_varkenspootjes from player discard if present. Logic in questLogic.js.
+- DECK-NEW-01: place_toennoe ï¿½ END_PHASE: GANDOE Mosje +20 MP, MICHELLE/TUK Mosje +15 MP, both active: +10 bonus each. New effect function in placeEffects.js.
+- DECK-NEW-02: quest_personal_kickboxing_bootcamp ï¿½ requiredMosjeId: mosje_michelle. Physical roll 4+ alone, 2+ with Gandoe on field. If Gandoe active: questLogic adds +2 diceBonus. Success: +80 MP. Fail: -20 MP.
+- DECK-NEW-03: place_tesla ï¿½ Requires Coert active to play (activation guard in main.js). TURN_START: COERT +20 MP, BINTI +20 MP, both active: +10 each. Coert defeated: Tesla destroyed ? sent to player discard (hook in victoryChecker.js).
+- DECK-NEW-04: quest_personal_winston_tijd ï¿½ requiredMosjeId: mosje_binti. Requires place_tesla active. Tesla returns to player hand. Auto-succeed: +100 MP. Recover piecie_varkenspootjes from player discard if present. Logic in questLogic.js.
 
 **Requirements:**
 - DECK-01: Physical Force mosjes ? mosje_gandoe_destroyer + mosje_michelle
-- DECK-02: Physical Force piecies — full list as above (Boxing Gloves, Bowie & Stormey, etc.)
+- DECK-02: Physical Force piecies ï¿½ full list as above (Boxing Gloves, Bowie & Stormey, etc.)
 - DECK-03: Physical Force places ? Boxing Ring + Toennoe (NEW)
 - DECK-04: Physical Force quest ? quest_personal_kickboxing_bootcamp (NEW)
 - DECK-05: Digital Control mosjes ? mosje_coert_tech + mosje_binti
-- DECK-06: Digital Control piecies — full list as above (Kannetje Melk ×3, Varkenspootjes, etc.)
+- DECK-06: Digital Control piecies ï¿½ full list as above (Kannetje Melk ï¿½3, Varkenspootjes, etc.)
 - DECK-07: Digital Control places ? Tesla (NEW) + Bank Chilling
 - DECK-08: Digital Control quest ? quest_personal_winston_tijd (NEW)
 - DECK-09: Artistic Rhythm mosjes ? mosje_youri + mosje_chris_ddr
-- DECK-10: Artistic Rhythm piecies — full list as above (Controller replaces F1 Telemetry)
+- DECK-10: Artistic Rhythm piecies ï¿½ full list as above (Controller replaces F1 Telemetry)
 - DECK-11: Artistic Rhythm quest ? quest_improvise (replacing quest_personal_lucky_crescendo)
-- DECK-12: Engine — Tesla activation guard in main.js (Coert required to play card)
-- DECK-13: Engine — victoryChecker.js: Coert defeated ? Tesla destroyed, sent to discard
-- DECK-14: Engine — questLogic.js: Kickboxing Bootcamp +2 diceBonus when Gandoe active
-- DECK-15: Engine — questLogic.js: Winston quest auto-succeed, Tesla to hand, recover Varkenspootjes
+- DECK-12: Engine ï¿½ Tesla activation guard in main.js (Coert required to play card)
+- DECK-13: Engine ï¿½ victoryChecker.js: Coert defeated ? Tesla destroyed, sent to discard
+- DECK-14: Engine ï¿½ questLogic.js: Kickboxing Bootcamp +2 diceBonus when Gandoe active
+- DECK-15: Engine ï¿½ questLogic.js: Winston quest auto-succeed, Tesla to hand, recover Varkenspootjes
 - DECK-16: placeEffects.js: effect_toennoe (GANDOE/MICHELLE/TUK tag checks)
 - DECK-17: placeEffects.js: effect_tesla (COERT/BINTI tag checks, Coert guard)
 - DECK-18: mosjes.js: mosje_dj_8020.synergyWith ? add mosje_chris_ddr; mosje_youri.synergyWith ? add mosje_chris_ddr; mosje_gandoe_destroyer.synergyWith ? add mosje_michelle; mosje_michelle.synergyWith ? add mosje_gandoe_destroyer
@@ -472,9 +472,9 @@ Quest: quest_improvise
 **Plans:** 3 plans
 
 Plans:
-- [ ] 15-01-PLAN.md — Physical Force rework: Gandoe+Michelle pair, deck composition, Toennoe place, Kickboxing quest + questLogic
-- [ ] 15-02-PLAN.md — Digital Control rework: Coert+Binti pair, deck composition, Tesla place + engine hooks, Winston quest + questLogic
-- [ ] 15-03-PLAN.md — Artistic Rhythm rework: Youri+Chris DDR pair, deck composition, synergyWith updates, isBoosterOnly fixes, simulation alignment, docs
+- [ ] 15-01-PLAN.md ï¿½ Physical Force rework: Gandoe+Michelle pair, deck composition, Toennoe place, Kickboxing quest + questLogic
+- [ ] 15-02-PLAN.md ï¿½ Digital Control rework: Coert+Binti pair, deck composition, Tesla place + engine hooks, Winston quest + questLogic
+- [ ] 15-03-PLAN.md ï¿½ Artistic Rhythm rework: Youri+Chris DDR pair, deck composition, synergyWith updates, isBoosterOnly fixes, simulation alignment, docs
 
 ---
 
@@ -483,22 +483,22 @@ Plans:
 
 ### Phase 22: Call of the Welloes
 
-**Goal:** Implement the full Call of the Welloes Piecie effect — summon a Mosje from the owner’s Welloe pile into a free active slot at restored MP/Level; the Piecie is the anchor, and when it leaves play the summoned Mosje returns to the Welloe pile. Two new tracking fields only (`piecieSlots[i].linkedMosjeCardId`, `activeSlots[i].summonedByPiecie`).
+**Goal:** Implement the full Call of the Welloes Piecie effect ï¿½ summon a Mosje from the ownerï¿½s Welloe pile into a free active slot at restored MP/Level; the Piecie is the anchor, and when it leaves play the summoned Mosje returns to the Welloe pile. Two new tracking fields only (`piecieSlots[i].linkedMosjeCardId`, `activeSlots[i].summonedByPiecie`).
 
 **Requirements:**
-- CALLW-01: effect_call_of_welloes — silent cancel guards + welloe-pick pending flag
-- CALLW-02: returnMosjeToWelloe engine helper — push to welloe[] + null slot, no defeat side-effects
-- CALLW-03: End-of-turn sweep — return summoned Mosjes whose anchor Piecie has left play
+- CALLW-01: effect_call_of_welloes ï¿½ silent cancel guards + welloe-pick pending flag
+- CALLW-02: returnMosjeToWelloe engine helper ï¿½ push to welloe[] + null slot, no defeat side-effects
+- CALLW-03: End-of-turn sweep ï¿½ return summoned Mosjes whose anchor Piecie has left play
 - CALLW-04: confirmCallOfWelloes summon executor + main.js showOptionSelect UI flow
 
 **Plans:** 3 plans
 
 Plans:
-- [x] 22-01-PLAN.md — Engine return path: returnMosjeToWelloe helper + endTurn sweep hook (TDD)
-- [x] 22-02-PLAN.md — Summon path: effect_call_of_welloes + confirmCallOfWelloes + description fix (TDD)
-- [x] 22-03-PLAN.md — UI wiring: main.js _callOfWelloesPending modal branch + card-reference.md (human-verify)
-- [x] 22-04-PLAN.md — Gap closure: mechanic revision (Level 1/50 MP, defeat-on-sweep, persistence guard) (TDD)
-- [x] 22-05-PLAN.md — Gap closure: bidirectional destroy — Piecie discarded immediately when linked Mosje defeated (TDD)
+- [x] 22-01-PLAN.md ï¿½ Engine return path: returnMosjeToWelloe helper + endTurn sweep hook (TDD)
+- [x] 22-02-PLAN.md ï¿½ Summon path: effect_call_of_welloes + confirmCallOfWelloes + description fix (TDD)
+- [x] 22-03-PLAN.md ï¿½ UI wiring: main.js _callOfWelloesPending modal branch + card-reference.md (human-verify)
+- [x] 22-04-PLAN.md ï¿½ Gap closure: mechanic revision (Level 1/50 MP, defeat-on-sweep, persistence guard) (TDD)
+- [x] 22-05-PLAN.md ï¿½ Gap closure: bidirectional destroy ï¿½ Piecie discarded immediately when linked Mosje defeated (TDD)
 
 **Success Criteria:**
 1. effect_call_of_welloes functional; summon + return lifecycle correct
@@ -512,17 +512,21 @@ Plans:
 **Goal:** Normalize the graveyard (discard pile) into a clean, modular system ready for graveyard-themed card mechanics. Fix silent-removal bugs in Klaar met Jou and Those Eyelashes. Standardize all entries as typed objects. Rename "discard pile" ? "Graveyard" in all UI labels and card descriptions.
 
 **Requirements:**
-- GRAV-01: Fix Klaar met Jou — discarded hand card must go to opponent's graveyard
-- GRAV-02: Fix Those Eyelashes — discarded hand cards must go to owner's graveyard
-- GRAV-03: Normalize graveyard entry format — all entries as `{ cardId, name, type, ...meta }` objects (no bare strings)
+- GRAV-01: Fix Klaar met Jou ï¿½ discarded hand card must go to opponent's graveyard
+- GRAV-02: Fix Those Eyelashes ï¿½ discarded hand cards must go to owner's graveyard
+- GRAV-03: Normalize graveyard entry format ï¿½ all entries as `{ cardId, name, type, ...meta }` objects (no bare strings)
 - GRAV-04: Rename `player.discard` ? `player.graveyard` across engine, UI, and tests
 - GRAV-05: Rename "Graveyard" in all UI labels, card descriptions, and docs (discard pile ? Graveyard)
 - GRAV-06: Graveyard viewer shows card names, types, and counts clearly; ready for future filtering
 
-**Plans:** 2 plans\n\nPlans:\n- [ ] 23-01-PLAN.md — graveyardUtils.js + player.discard rename + Klaar met Jou + Those Eyelashes fixes (TDD)\n- [ ] 23-02-PLAN.md — UI rename (Graveyard label + modal) + card descriptions + docs
+**Plans:** 2 plans
+
+Plans:
+- [x] 23-01-PLAN.md â€” graveyardUtils.js + player.discard rename + Klaar met Jou + Those Eyelashes fixes (TDD) â€” COMPLETE: 912 tests pass
+- [ ] 23-02-PLAN.md â€” UI rename (Graveyard label + modal) + card descriptions + docs
 
 **Success Criteria:**
-1. No card removal bypasses the graveyard — every destroyed/discarded card is visible
+1. No card removal bypasses the graveyard ï¿½ every destroyed/discarded card is visible
 2. All graveyard entries are typed objects with at minimum `{ cardId, name, type }`
 3. UI label reads "Graveyard" everywhere; card descriptions updated
 4. All existing tests pass; 0 regressions
@@ -531,12 +535,12 @@ Plans:
 
 ## Build Order Rationale
 
-1. **Mosje abilities first** — Foundation for deck synergies and playstyles
-2. **Piecies second** — Most of a deck, bulk of effects
-3. **Snelle Piecies third** — Instant responses, fewer interdependencies
-4. **Places fourth** — Environmental effects, moderate complexity
-5. **Quests fifth** — Most complex (roll mechanics), depends on other systems
-6. **Integration last** — After all cards work individually
+1. **Mosje abilities first** ï¿½ Foundation for deck synergies and playstyles
+2. **Piecies second** ï¿½ Most of a deck, bulk of effects
+3. **Snelle Piecies third** ï¿½ Instant responses, fewer interdependencies
+4. **Places fourth** ï¿½ Environmental effects, moderate complexity
+5. **Quests fifth** ï¿½ Most complex (roll mechanics), depends on other systems
+6. **Integration last** ï¿½ After all cards work individually
 
 ---
 

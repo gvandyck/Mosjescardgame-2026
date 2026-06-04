@@ -1,10 +1,29 @@
 # Project State
 
-**Last updated:** 2026-06-03
-**Current phase:** Phase 22 IN PROGRESS - Call of the Welloes (Plan 05 complete)
-**Branch:** plan/phase-22-call-of-welloes
+**Last updated:** 2026-06-04
+**Current phase:** Phase 23 IN PROGRESS - Graveyard System (Plan 01 complete)
+**Branch:** feature/phase-23-graveyard-system
 
 > Note: STATE.md was not maintained during Phases 15–17 (tracked in their phase dirs / ROADMAP only). This header jumps from Phase 14 to Phase 18.
+
+## Phase 23 Progress — Graveyard System
+
+### 23-01: Graveyard data layer — graveyardUtils + eliminate welloe + fix revival cards (COMPLETE)
+- Created graveyardUtils.js: toGraveyardEntry, addToGraveyard, getGraveyardByType (pure functions)
+- markMosjeDefeated: single push to player.graveyard with type:MOSJE, source:defeated (no welloe)
+- effect_mosje_reborn: reads from getGraveyardByType(player, 'MOSJE') — no player.welloe
+- effect_call_of_welloes: reads mosjeEntries from getGraveyardByType — no player.welloe
+- confirmCallOfWelloes: splices from player.graveyard by cardId+type='MOSJE'
+- effect_klaar_met_jou: fixed silent hand.pop() → splice + addToGraveyard
+- effect_those_eyelashes: fixed silent hand.shift() → splice + addToGraveyard per opponent
+- player.discard → player.graveyard renamed across all engine/abilities JS files
+- TDD RED-then-GREEN: a6cb720 RED → ed7dfc5 GREEN
+- 912 tests passing (0 failures)
+
+### Decisions
+- player.graveyard is the single destination for all defeated/discarded/destroyed cards
+- addToGraveyard returns new state via spread — no mutation (immutable reducer pattern enforced)
+- TS declarative registry files (src/engine/reducers/) left unchanged — separate system
 
 ## Phase 22 Progress — Call of the Welloes
 
