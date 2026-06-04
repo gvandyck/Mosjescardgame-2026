@@ -1829,7 +1829,9 @@ function initGamePage() {
 				leipeOppId: oppId,
 				leipeOppSlot: parseInt(String(oppPick).split('_slot_')[1], 10),
 			};
-		} else if (piecieCardDef?.effectId === 'effect_kannetje_melk') {
+		} else if (piecieCardDef?.effectId === 'effect_kannetje_melk'
+				|| piecieCardDef?.effectId === 'effect_dikke_jonko'
+				|| piecieCardDef?.effectId === 'effect_tikker') {
 			const ownTargets = getPlayerMosjes(gameState, localPlayerId);
 			if (ownTargets.length > 1) {
 				const selectedId = await modal.showTargetSelector(ownTargets, 'Choose your Mosje to receive MP:');
@@ -2436,6 +2438,15 @@ function buildActiveModifiers(gameState, playerId, isLocalPlayer = false) {
 	if (flags.drainReversal?.[playerId])        pills.push({ label: '↩ Drain Reflect', color: 'orange' });
 	const mpRed = flags.mpLossReduction?.[playerId];
 	if (Number.isInteger(mpRed) && mpRed > 0)  pills.push({ label: `🛡 -${mpRed} Damage`, color: 'blue' });
+
+	// Laat me chillen! and Snelle Laat me chillen! store MP_LOSS_REDUCTION in the active Mosje's statusEffects
+	if (player) {
+		for (const slot of player.activeSlots) {
+			if (!slot || slot.isDefeated) continue;
+			const se = (slot.statusEffects || []).find(e => e.type === 'MP_LOSS_REDUCTION' && (e.turnsLeft ?? 1) > 0);
+			if (se) { pills.push({ label: `🛡 -${se.value} Damage`, color: 'teal' }); break; }
+		}
+	}
 	if (flags.copyLastPiecie?.forPlayer === playerId) pills.push({ label: '📋 Copy Ready', color: 'purple' });
 
 	return pills;
