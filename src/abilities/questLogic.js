@@ -393,7 +393,7 @@ function applyMosjeFieldEffectsOnQuest(gameState, playerId, slotIndex, questMpGa
 				label = `rolled ${roll} (4+) ✦ DOUBLED! +${adjustment} extra MP (total +${questMpGained * 2})`;
 			} else {
 				adjustment = -Math.floor(questMpGained / 2);  // take back half → ½ total
-				mosje.mp += adjustment;
+				mosje.mp = Math.max(0, mosje.mp + adjustment);  // clamp: level-up may have reset mp to 0 before this fires
 				label = `rolled ${roll} (1-3) ✦ Halved. ${adjustment} MP (total +${questMpGained + adjustment})`;
 			}
 		} else {
@@ -983,9 +983,10 @@ export function quest_req_lucky_crescendo(gameState, playerId) {
 
 // ─────────────────────────────────────────
 // getKickboxingBootcampDiceBonus
-// Returns +2 dice bonus for quest_personal_kickboxing_bootcamp when
-// any Gandoe Mosje is simultaneously active on the player's field.
-// Call from main.js alongside existing diceBonus reads in quest activation handlers.
+// Returns +4 dice bonus for quest_personal_kickboxing_bootcamp when
+// Gandoe is simultaneously active on the player's field.
+// Threshold is 6, so rawRoll + 4 >= 6 means the quest succeeds on a 2+.
+// Called from main.js runQuestDiceRoll alongside other diceBonus sources.
 // ─────────────────────────────────────────
 export function getKickboxingBootcampDiceBonus(questCard, gameState, playerId) {
 	if (questCard?.id !== 'quest_personal_kickboxing_bootcamp') return 0;
@@ -995,8 +996,8 @@ export function getKickboxingBootcampDiceBonus(questCard, gameState, playerId) {
 		s => s && !s.isDefeated && String(s.cardId).includes('gandoe')
 	);
 	if (gandoeOnField) {
-		console.log('[QUEST] Kickboxing Bootcamp: Gandoe hypes Michelle — +2 dice bonus');
-		return 2;
+		console.log('[QUEST] Kickboxing Bootcamp: Gandoe is the teacher — +4 dice bonus (succeeds on 2+)');
+		return 4;
 	}
 	return 0;
 }
