@@ -579,7 +579,9 @@ export function effect_stookerino(gameState, playerId) {
 	if (opp.hand.length === 0) return state;
 	const idx = Math.floor(Math.random() * opp.hand.length);
 	const discarded = opp.hand.splice(idx, 1)[0];
-	opp.discard.unshift(discarded);
+	if (!Array.isArray(opp.graveyard)) opp.graveyard = [];
+	const discardedId = discarded?.cardId ?? discarded;
+	opp.graveyard.push({ cardId: discardedId, name: discardedId, type: 'HAND_CARD', source: 'discarded' });
 	const player = state.players[playerId];
 	const si = getFirstActiveSlotIndex(player);
 	if (si >= 0) player.activeSlots[si].mp += discarded.mpCost || 0;
