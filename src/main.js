@@ -486,31 +486,67 @@ function initGamePage() {
 
 	// delay: ms between each step. onComplete: called after the final step instead of
 	// advancing to the next bot (used by offline single-player to hand back to the human).
-	function playBotSteps(steps, botName, index, delay = 1000, onComplete = null) {
+	async function playBotSteps(steps, botName, index, delay = 1000, onComplete = null) {
 		if (index >= steps.length) { if (onComplete) onComplete(); return; }
-		setTimeout(() => {
-			const { state, label } = steps[index];
-			gameState = state;
-			renderFromState(gameState);
-			log.add('quest', `${botName} ${label}`);
-			if (gameState.status === 'FINISHED') {
-				handleGameOver(gameState);
-				return;
-			}
-			if (index === steps.length - 1) {
-				if (onComplete) {
-					onComplete();
-				} else {
-					// bot vs bot: start next player's turn and keep the loop going
-					gameState = startTurn(gameState);
-					renderFromState(gameState);
-					logTurnTrickle(gameState.activePlayerId);
-					runBotVsBotLoop();
+
+		// Wait the animation delay before processing this step
+		await new Promise(resolve => setTimeout(resolve, delay));
+
+		const prevState = gameState;
+		const { state: nextState, label } = steps[index];
+
+		// Interrupt check: pause before applying a damage/elimination step (offline only)
+		if (isOffline) {
+			const damageInfo = humanTakesDamageOrElimination(prevState, nextState, localPlayerId);
+			if (damageInfo.isDamage) {
+				const humanPlayed = await showDamageInterruptModal(prevState, nextState, localPlayerId);
+				if (humanPlayed) {
+					// Human played a reactive card — gameState now has the flag set.
+					// Re-run bot step computation from the updated gameState so the engine
+					// consumes the flag correctly (e.g. negateNextElimination).
+					let freshSteps;
+					try {
+						freshSteps = driveBotTurnSteps(gameState, 'player_2');
+					} catch (err) {
+						console.error('[BOT] re-run driveBotTurnSteps after interrupt threw:', err);
+						freshSteps = steps.slice(index); // fallback: use remaining original steps
+					}
+					// If fresh steps are empty, hand control back
+					if (!freshSteps || freshSteps.length === 0) {
+						if (onComplete) onComplete();
+						return;
+					}
+					// Continue from the beginning of fresh steps (step 0)
+					await playBotSteps(freshSteps, botName, 0, delay, onComplete);
+					return;
 				}
-				return;
 			}
-			playBotSteps(steps, botName, index + 1, delay, onComplete);
-		}, delay);
+		}
+
+		// Apply bot step
+		gameState = nextState;
+		renderFromState(gameState);
+		log.add('quest', `${botName} ${label}`);
+
+		if (gameState.status === 'FINISHED') {
+			handleGameOver(gameState);
+			return;
+		}
+
+		if (index === steps.length - 1) {
+			if (onComplete) {
+				onComplete();
+			} else {
+				// bot vs bot: start next player's turn and keep the loop going
+				gameState = startTurn(gameState);
+				renderFromState(gameState);
+				logTurnTrickle(gameState.activePlayerId);
+				runBotVsBotLoop();
+			}
+			return;
+		}
+
+		await playBotSteps(steps, botName, index + 1, delay, onComplete);
 	}
 
 	// ── Post-match reward flow ────────────────────────────────────────────
@@ -730,7 +766,7 @@ function initGamePage() {
 					type: 'start',
 				});
 				if (endTurnBtn) endTurnBtn.disabled = false;
-			});
+			}).catch(err => console.error('[BOT] playBotSteps error:', err));
 		}
 	});
 
