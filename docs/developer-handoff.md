@@ -142,6 +142,28 @@ Prioritized for engine completeness and human-play quality.
 4. Shrink never-played list below 15 without introducing high-complexity starter friction.
 5. Add one regression test per resolved deferred item.
 
+## Graveyard System (Phase 23)
+
+### player.graveyard[]
+All defeated, destroyed, and discarded cards are placed into a unified `player.graveyard[]` array. The legacy fields `player.discard` and `player.welloe` have been removed from all engine and abilities code.
+
+Entry format: `{ cardId: string, name: string, type: 'MOSJE' | 'PIECIE' | 'SNELLE' | 'PLACE' | 'UNKNOWN', source: 'defeated' | 'discarded' | 'destroyed' }`
+
+### graveyardUtils.js (src/engine/graveyardUtils.js)
+Three pure helper functions:
+- `toGraveyardEntry(cardId, allCardData, source)` — builds a typed graveyard entry from the card data lookup.
+- `addToGraveyard(state, playerId, cardId, allCardData, source)` — returns new state via spread (no mutation).
+- `getGraveyardByType(player, type)` — filters graveyard entries by type string (e.g. `'MOSJE'`).
+
+### Revival cards
+- **Mosje Reborn** and **Call of the Welloes** read from `getGraveyardByType(player, 'MOSJE')` instead of the removed `player.welloe[]`.
+- `confirmCallOfWelloes` splices from `player.graveyard` using `cardId + type === 'MOSJE'` index lookup.
+
+### UI
+- The graveyard viewer modal is `showGraveyardModal` in `src/ui/modalManager.js` (legacy alias `showDiscardViewerModal` retained for safety).
+- Board label renders as "Graveyard" in `src/ui/boardRenderer.js`.
+- `toBoardViewModel` in `src/main.js` outputs `graveyard: player.graveyard`.
+
 ## Environment Setup
 
 ### Requirements
