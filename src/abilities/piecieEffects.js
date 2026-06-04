@@ -648,7 +648,7 @@ export function effect_those_eyelashes(gameState, playerId) {
 		if (opp.hand.length > 0) {
 			const [removed] = opp.hand.splice(0, 1);
 			const cardId = removed?.cardId ?? removed;
-			state = addToGraveyard(state, oppId, cardId, [...PIECIES, ...MOSJES], 'discarded');
+			state = addToGraveyard(state, oppId, cardId, 'discarded');
 			opp = state.players[oppId];
 		}
 	}
@@ -1132,7 +1132,7 @@ export function effect_klaar_met_jou(gameState, playerId) {
 		if (opp.hand.length > 0) {
 			const [removed] = opp.hand.splice(opp.hand.length - 1, 1);
 			const cardId = removed?.cardId ?? removed;
-			state = addToGraveyard(state, oppId, cardId, [...PIECIES, ...MOSJES], 'discarded');
+			state = addToGraveyard(state, oppId, cardId, 'discarded');
 			opp = state.players[oppId];
 		}
 		console.log('[ABILITY] Klaar met jou: opponent -40 MP, discard 1 to graveyard');

@@ -1,14 +1,23 @@
 // graveyardUtils.js — Pure graveyard helpers. No side effects.
 
+import { MOSJES } from '../data/mosjes.js';
+import { PIECIES } from '../data/piecies.js';
+import { PLACES } from '../data/places.js';
+import { SNELLE_PIECIES } from '../data/snellePiecies.js';
+import { QUESTS } from '../data/quests.js';
+
+// Internal lookup built once — includes every card type so callers never miss a type.
+const ALL_CARD_DATA = [...MOSJES, ...PIECIES, ...PLACES, ...SNELLE_PIECIES, ...QUESTS];
+const CARD_DEF_MAP = Object.fromEntries(ALL_CARD_DATA.map(c => [c.id, c]));
+
 /**
  * toGraveyardEntry — builds a typed graveyard entry for any card.
  * @param {string} cardId
- * @param {Array<{id:string, name:string, type:string}>} allCardData - flat array of all card definitions
  * @param {string} source - 'defeated' | 'played' | 'discarded' | 'destroyed'
  * @returns {{ cardId: string, name: string, type: string, source: string }}
  */
-export function toGraveyardEntry(cardId, allCardData, source) {
-  const def = allCardData.find(c => c.id === cardId);
+export function toGraveyardEntry(cardId, source) {
+  const def = CARD_DEF_MAP[cardId];
   return {
     cardId,
     name: def?.name ?? cardId,
@@ -22,12 +31,11 @@ export function toGraveyardEntry(cardId, allCardData, source) {
  * @param {object} state
  * @param {string} playerId
  * @param {string} cardId
- * @param {Array} allCardData
  * @param {string} source
  * @returns {object} new state
  */
-export function addToGraveyard(state, playerId, cardId, allCardData, source) {
-  const entry = toGraveyardEntry(cardId, allCardData, source);
+export function addToGraveyard(state, playerId, cardId, source) {
+  const entry = toGraveyardEntry(cardId, source);
   const player = state.players[playerId];
   return {
     ...state,
