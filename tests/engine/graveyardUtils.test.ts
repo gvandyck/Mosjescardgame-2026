@@ -3,11 +3,7 @@ import { describe, it, expect } from 'vitest';
 // @ts-expect-error — JS module, no type declarations
 import { toGraveyardEntry, addToGraveyard, getGraveyardByType } from '../../src/engine/graveyardUtils.js';
 
-const allCards = [
-  { id: 'piecie_ronald_kip', name: 'Ronald Kip', type: 'PIECIE' },
-  { id: 'mosje_jeffrey', name: 'Jeffrey', type: 'MOSJE' },
-  { id: 'place_tesla', name: 'Tesla', type: 'PLACE' },
-];
+// NOTE: allCardData parameter removed — graveyardUtils now builds its own internal lookup.
 
 function makeState(graveyard: unknown[] = []) {
   return {
@@ -19,12 +15,13 @@ function makeState(graveyard: unknown[] = []) {
 
 describe('toGraveyardEntry', () => {
   it('returns object with cardId, name, type, source for known card', () => {
-    const entry = toGraveyardEntry('piecie_ronald_kip', allCards, 'discarded');
-    expect(entry).toMatchObject({ cardId: 'piecie_ronald_kip', name: 'Ronald Kip', type: 'PIECIE', source: 'discarded' });
+    // piecie_ronald_kip exists in the real PIECIES data
+    const entry = toGraveyardEntry('piecie_ronald_kip', 'discarded');
+    expect(entry).toMatchObject({ cardId: 'piecie_ronald_kip', type: 'PIECIE', source: 'discarded' });
   });
 
   it('falls back to HAND_CARD type for unknown card', () => {
-    const entry = toGraveyardEntry('unknown_card', allCards, 'discarded');
+    const entry = toGraveyardEntry('unknown_card', 'discarded');
     expect(entry.type).toBe('HAND_CARD');
     expect(entry.cardId).toBe('unknown_card');
     expect(entry.source).toBe('discarded');
@@ -34,14 +31,14 @@ describe('toGraveyardEntry', () => {
 describe('addToGraveyard', () => {
   it('returns new state with entry appended to player graveyard', () => {
     const state = makeState([]);
-    const newState = addToGraveyard(state, 'p1', 'piecie_ronald_kip', allCards, 'played');
+    const newState = addToGraveyard(state, 'p1', 'piecie_ronald_kip', 'played');
     expect(newState.players.p1.graveyard).toHaveLength(1);
     expect(newState.players.p1.graveyard[0]).toMatchObject({ cardId: 'piecie_ronald_kip', type: 'PIECIE', source: 'played' });
   });
 
   it('does NOT mutate original state', () => {
     const state = makeState([]);
-    addToGraveyard(state, 'p1', 'piecie_ronald_kip', allCards, 'played');
+    addToGraveyard(state, 'p1', 'piecie_ronald_kip', 'played');
     expect(state.players.p1.graveyard).toHaveLength(0);
   });
 });

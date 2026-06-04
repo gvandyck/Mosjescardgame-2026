@@ -122,7 +122,7 @@ describe("Dubbele Dosis — Persist Until End-of-Turn (BUG-02)", () => {
     const afterEnd = endTurn(afterActivate);
     // After endTurn, player_1's discard should contain the card
     const p1Graveyard = afterEnd.players.player_1.graveyard;
-    expect(p1Graveyard).toContain("piecie_quest_prep");
+    expect(p1Graveyard.some((e: any) => (e?.cardId ?? e) === "piecie_quest_prep")).toBe(true);
   });
 
   it("questPrepBonus is 0 after endTurn when no quest was attempted", () => {
