@@ -8,7 +8,7 @@ import { initModalManager } from './ui/modalManager.js';
 import { animateFieldActivation, animateStateDelta, showTurnTransition } from './ui/actionAnimations.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes } from './engine/gameState.js';
 import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, playPersonalQuest, activatePersonalQuest } from './engine/turnManager.js';
-import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold } from './abilities/questLogic.js';
+import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold, getKickboxingBootcampDiceBonus } from './abilities/questLogic.js';
 import { loseMP, gainMP } from './engine/mpManager.js';
 import { MOSJES } from './data/mosjes.js';
 import { PIECIES } from './data/piecies.js';
@@ -416,6 +416,72 @@ function initGamePage() {
 				log.add('gain', `Turn trickle: ${slot.name} +10 MP`);
 			}
 		}
+	}
+
+	// Returns info about whether a bot step would damage or eliminate the human Mosje.
+	// prevState: state before the step, nextState: state after the step.
+	function humanTakesDamageOrElimination(prevState, nextState, humanPlayerId) {
+		const noResult = { isDamage: false, isElimination: false, affectedSlotIndex: -1, mpDelta: 0 };
+		const prevPlayer = prevState?.players?.[humanPlayerId];
+		const nextPlayer = nextState?.players?.[humanPlayerId];
+		if (!prevPlayer || !nextPlayer) return noResult;
+		for (let i = 0; i < prevPlayer.activeSlots.length; i++) {
+			const prevSlot = prevPlayer.activeSlots[i];
+			if (!prevSlot || prevSlot.isDefeated) continue;
+			const prevMp = prevSlot.mp;
+			const nextSlot = nextPlayer.activeSlots[i];
+			if (nextSlot === null || nextSlot === undefined || nextSlot.isDefeated === true) {
+				return { isDamage: true, isElimination: true, affectedSlotIndex: i, mpDelta: prevMp };
+			}
+			if (nextSlot.mp < prevMp && (prevMp - nextSlot.mp) >= 30) {
+				return { isDamage: true, isElimination: false, affectedSlotIndex: i, mpDelta: prevMp - nextSlot.mp };
+			}
+		}
+		return noResult;
+	}
+
+	// Shows a modal that lets the human play a PROTECT-tagged Snelle Piecie before a damaging bot step.
+	// Returns true if the human played a card (gameState was mutated to reflect the play), false otherwise.
+	async function showDamageInterruptModal(prevState, nextState, humanPlayerId) {
+		const damageInfo = humanTakesDamageOrElimination(prevState, nextState, humanPlayerId);
+		const humanHand = prevState?.players?.[humanPlayerId]?.hand ?? [];
+		// Find PROTECT-tagged Snelle Piecies in hand
+		const playableCards = humanHand
+			.filter(handCard => {
+				const def = SNELLE_PIECIES.find(c => c.id === handCard.id);
+				return def && Array.isArray(def.tags) && def.tags.includes('PROTECT');
+			})
+			.map(handCard => SNELLE_PIECIES.find(c => c.id === handCard.id));
+		if (playableCards.length === 0) return false;
+		const options = [
+			...playableCards.map(def => ({
+				id: def.id,
+				label: def.name,
+				metaLabel: `Cost: ${def.mpCost} MP — ${def.description}`,
+			})),
+			{ id: '__pass__', label: 'Pass — take the damage' },
+		];
+		const promptStr = damageInfo.isElimination
+			? "The bot's next action would eliminate your Mosje. Play a card to react?"
+			: `The bot's next action would deal ${damageInfo.mpDelta} MP damage. Play a card to react?`;
+		const choice = await modal.showOptionSelect({
+			title: 'Damage Interrupt',
+			prompt: promptStr,
+			options,
+			allowCancel: false,
+		});
+		if (!choice || choice === '__pass__') return false;
+		const handIndex = gameState.players[humanPlayerId].hand.findIndex(c => c.id === choice);
+		if (handIndex < 0) return false;
+		const cardDef = SNELLE_PIECIES.find(c => c.id === choice);
+		if (!cardDef) return false;
+		const result = playSnellie(gameState, humanPlayerId, { id: choice, index: handIndex }, cardDef);
+		if (result.success) {
+			gameState = result.state;
+			log.add('gain', `Interrupt: played ${cardDef.name} before bot step.`);
+			return true;
+		}
+		return false;
 	}
 
 	// delay: ms between each step. onComplete: called after the final step instead of
@@ -1604,6 +1670,7 @@ function initGamePage() {
 		function runQuestDiceRoll(targetSlotIndex) {
 			const liveMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
 			const threshold = getQuestDiceThreshold(questDef, liveMosje);
+			const gandoeBonus = getKickboxingBootcampDiceBonus(questDef, gameState, localPlayerId);
 			// Tweede Kans: consume the granted reroll into this quest's dice roll.
 			let tweedeKansReroll = 0;
 			if (gameState._rerollGranted) {
@@ -1666,7 +1733,7 @@ function initGamePage() {
 				const sign = mpDelta >= 0 ? '+' : '';
 				log.add(didSucceed ? 'gain' : 'loss', `${questDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`);
 				logStateOutcome(log, beforeResolve, gameState, localPlayerId, `${questDef.name} resolution`);
-			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus, forceReroll, skiffaRerolls: skiffaRerolls + tweedeKansReroll });
+			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus + gandoeBonus, forceReroll, skiffaRerolls: skiffaRerolls + tweedeKansReroll });
 		}
 
 		log.add('quest', `Activating Personal Quest: ${questDef.name}`);
@@ -1856,6 +1923,12 @@ function initGamePage() {
 		}
 
 		// ── Varkenspootjes — pick any active Mosje (own or opponent) ─────────────
+		// Guard: if pending belongs to the bot (not local player), the bot should
+		// have already resolved it in botDriver.js. Clear stale flag and skip.
+		if (gameState._varkenspootjesPending && gameState._varkenspootjesPending.activatingPlayerId !== localPlayerId) {
+			console.warn('[UI] Stale _varkenspootjesPending from bot — clearing without resolving');
+			delete gameState._varkenspootjesPending;
+		}
 		if (gameState._varkenspootjesPending) {
 			const { activatingPlayerId } = gameState._varkenspootjesPending;
 			const allSlots = [];
