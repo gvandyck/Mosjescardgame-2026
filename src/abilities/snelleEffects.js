@@ -303,15 +303,15 @@ export function effect_snelle_chillingsvoorbij(gameState, playerId) {
 	const state = JSON.parse(JSON.stringify(gameState));
 	const player = state.players?.[playerId];
 	if (!player) return state;
-	if (!Array.isArray(player.discard)) player.discard = [];
-	const placeIndex = player.discard.findIndex(
+	if (!Array.isArray(player.graveyard)) player.graveyard = [];
+	const placeIndex = player.graveyard.findIndex(
 		c => c?.type === 'PLACE' || (c?.cardId && String(c.cardId).startsWith('place_'))
 	);
 	if (placeIndex < 0) {
 		console.log('[SNELLE] Chillingsvoorbij: no Place cards in discard');
 		return state;
 	}
-	const [recovered] = player.discard.splice(placeIndex, 1);
+	const [recovered] = player.graveyard.splice(placeIndex, 1);
 	if (!Array.isArray(player.hand)) player.hand = [];
 	player.hand.push({ cardId: recovered.cardId ?? recovered, type: 'PLACE' });
 	console.log('[SNELLE] Chillingsvoorbij!: recovered', recovered.cardId ?? recovered, 'to hand');

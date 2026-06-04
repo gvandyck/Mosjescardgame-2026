@@ -31,7 +31,7 @@ function makeState(overrides: Record<string, unknown> = {}) {
           { cardId: "quest_personal_west", type: "QUEST" },
         ],
         deck: [],
-        discard: [],
+        graveyard: [],
         piecieSlots: [null, null, null, null],
         questsCompleted: 0,
         questsCompletedThisTurn: 0,

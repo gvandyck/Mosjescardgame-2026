@@ -45,7 +45,7 @@ function makeState(mp: number, level: number, statusEffects: unknown[] = []) {
           },
           null,
         ],
-        welloe: [],
+        graveyard: [],
         questsCompleted: 0,
       },
     },
@@ -189,9 +189,9 @@ describe("markMosjeDefeated — WELLOE_SHIELD status effect", () => {
   it("Test 9: WELLOE_SHIELD at turnsLeft:0 — Mosje IS sent to Welloe (normal defeat)", () => {
     const state = makeState(0, 1, [{ type: "WELLOE_SHIELD", value: 1, turnsLeft: 0 }]);
     const result = markMosjeDefeated(state, "p1", 0);
-    // Normal defeat: slot set to null, Mosje in welloe
+    // Normal defeat: slot set to null, Mosje in graveyard
     expect(result.players.p1.activeSlots[0]).toBeNull();
-    expect(result.players.p1.welloe).toHaveLength(1);
+    const gravMosjes = (result.players.p1.graveyard as any[]).filter((e: any) => e.type === 'MOSJE'); expect(gravMosjes).toHaveLength(1);
   });
 
   it("Test 10: WELLOE_SHIELD AND negateNextElimination both set — WELLOE_SHIELD fires first", () => {
@@ -268,7 +268,7 @@ function makeDrawState() {
           },
           null,
         ],
-        welloe: [],
+        graveyard: [],
         questsCompleted: 0,
       },
       p2: {
@@ -290,7 +290,7 @@ function makeDrawState() {
           },
           null,
         ],
-        welloe: [],
+        graveyard: [],
         questsCompleted: 0,
       },
     },
@@ -348,7 +348,7 @@ function makeAbilityState(mp: number, extraStateProps: Record<string, unknown> =
         level: 1,
         questBonusMP: 0,
         piecieSlots: [null, null, null, null],
-        welloe: [],
+        graveyard: [],
         activeSlots: [
           {
             cardId: "mosje_gandoe_wizard",
@@ -420,7 +420,7 @@ function makeCoertAbilityState(mp: number, activePlace: string | null = null) {
         level: 1,
         questBonusMP: 0,
         piecieSlots: [null, null, null, null],
-        welloe: [],
+        graveyard: [],
         activeSlots: [
           {
             cardId: "mosje_coert_tech",

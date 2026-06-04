@@ -517,8 +517,8 @@ describe('Phase 17 — effect_slecht_gezet ownership-aware (PLACE-REC-01)', () =
       activePlacePlayedBy: placeOwner,
       activePlaceTurnsActive: 1,
       players: {
-        player_1: { hand: [] as unknown[], discard: [] as unknown[], activeSlots: [] },
-        player_2: { hand: [] as unknown[], discard: [] as unknown[], activeSlots: [] },
+        player_1: { hand: [] as unknown[], graveyard: [] as unknown[], activeSlots: [] },
+        player_2: { hand: [] as unknown[], graveyard: [] as unknown[], activeSlots: [] },
       },
     };
   }
@@ -530,18 +530,18 @@ describe('Phase 17 — effect_slecht_gezet ownership-aware (PLACE-REC-01)', () =
     expect(result.activePlace).toBeNull();
   });
 
-  it('does NOT push to any discard when returning own Place', () => {
+  it('does NOT push to any graveyard when returning own Place', () => {
     const state = makeState('player_1', 'player_1');
     const result = effect_slecht_gezet(state);
-    expect(result.players.player_1.discard).toHaveLength(0);
-    expect(result.players.player_2.discard).toHaveLength(0);
+    expect(result.players.player_1.graveyard).toHaveLength(0);
+    expect(result.players.player_2.graveyard).toHaveLength(0);
   });
 
-  it('destroys opponent Place and pushes to opponent discard', () => {
+  it('destroys opponent Place and pushes to opponent graveyard', () => {
     const state = makeState('player_1', 'player_2');
     const result = effect_slecht_gezet(state);
     expect(result.activePlace).toBeNull();
-    expect(result.players.player_2.discard[0]?.cardId).toBe('place_boxing_ring');
+    expect(result.players.player_2.graveyard[0]?.cardId).toBe('place_boxing_ring');
     expect(result.players.player_1.hand).toHaveLength(0);
   });
 
@@ -552,18 +552,18 @@ describe('Phase 17 — effect_slecht_gezet ownership-aware (PLACE-REC-01)', () =
   });
 });
 
-describe('Phase 17 — effect_huisbaas from player discard (PLACE-REC-02)', () => {
-  function makeState(discardContents: unknown[]) {
+describe('Phase 17 — effect_huisbaas from player graveyard (PLACE-REC-02)', () => {
+  function makeState(graveyardContents: unknown[]) {
     return {
-      players: { player_1: { hand: [] as unknown[], discard: discardContents } },
+      players: { player_1: { hand: [] as unknown[], graveyard: graveyardContents } },
     };
   }
 
-  it('returns most recent PLACE entry from player discard to hand', () => {
+  it('returns most recent PLACE entry from player graveyard to hand', () => {
     const state = makeState([{ cardId: 'place_de_box', type: 'PLACE' }]);
     const result = effect_huisbaas(state, 'player_1');
     expect(result.players.player_1.hand).toContainEqual({ cardId: 'place_de_box', type: 'PLACE' });
-    expect(result.players.player_1.discard).toHaveLength(0);
+    expect(result.players.player_1.graveyard).toHaveLength(0);
   });
 
   it('finds PLACE card even when piecie entries are on top of discard', () => {
@@ -575,7 +575,7 @@ describe('Phase 17 — effect_huisbaas from player discard (PLACE-REC-02)', () =
     expect(result.players.player_1.hand).toContainEqual({ cardId: 'place_boxing_ring', type: 'PLACE' });
   });
 
-  it('does nothing when no PLACE cards in discard', () => {
+  it('does nothing when no PLACE cards in graveyard', () => {
     const state = makeState(['piecie_affoe', 'piecie_kannetje_melk']);
     const result = effect_huisbaas(state, 'player_1');
     expect(result.players.player_1.hand).toHaveLength(0);
@@ -592,13 +592,13 @@ describe('Phase 17 — snelle_chillingsvoorbij (PLACE-REC-03)', () => {
     expect(card?.effectId).toBe('effect_snelle_chillingsvoorbij');
   });
 
-  it('effect_snelle_chillingsvoorbij recovers PLACE from player discard', () => {
+  it('effect_snelle_chillingsvoorbij recovers PLACE from player graveyard', () => {
     const state = {
-      players: { player_1: { hand: [] as unknown[], discard: [{ cardId: 'place_boxing_ring', type: 'PLACE' }] } },
+      players: { player_1: { hand: [] as unknown[], graveyard: [{ cardId: 'place_boxing_ring', type: 'PLACE' }] } },
     };
     const result = effect_snelle_chillingsvoorbij(state, 'player_1');
     expect(result.players.player_1.hand).toContainEqual({ cardId: 'place_boxing_ring', type: 'PLACE' });
-    expect(result.players.player_1.discard).toHaveLength(0);
+    expect(result.players.player_1.graveyard).toHaveLength(0);
   });
 
   it('PHYSICAL_FORCE snellePiecies contains snelle_chillingsvoorbij', () => {

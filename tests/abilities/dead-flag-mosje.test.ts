@@ -12,7 +12,7 @@ import { MOSJES } from "../../src/data/mosjes.js";
 // Phase 18 Plan 02 — dead-flag Mosje ability fixes
 // Three Mosje abilities set a peek flag that was never consumed and did the
 // WRONG thing vs. their card text:
-//   _masterPlanPeek  (Ronald Mastermind) → must instead play a Piecie from discard for free
+//   _masterPlanPeek  (Ronald Mastermind) → must instead play a Piecie from graveyard for free
 //   _mingPredictorPeek (Ming Future Sight) → must instead peek the shared quest deck + optional bottom
 //   _architectPeek   (Tuk Architect)      → must instead peek top 5, take 2 to hand, bottom 3
 // Selections are supplied via state._pendingTargets (same pattern as West/Binti).
@@ -35,7 +35,7 @@ function makePlayer(slotCardId: string, mp = 100) {
   return {
     hand: [] as any[],
     deck: [] as any[],
-    discard: [] as any[],
+    graveyard: [] as any[],
     activeSlots: [makeSlot(slotCardId, mp), null],
     piecieSlots: [null, null, null, null],
     questsCompleted: 0,
@@ -148,14 +148,14 @@ describe("Tuk Perfect Placement — peek 5, take 2 to hand, bottom 3", () => {
 });
 
 // ─────────────────────────────────────────────────────────────
-// Ronald — Master Plan: play a Piecie from discard for free, resolve it,
+// Ronald — Master Plan: play a Piecie from graveyard for free, resolve it,
 // persist if persistUntilEndOfTurn else send to discard; once per game.
 // ─────────────────────────────────────────────────────────────
-describe("Ronald Master Plan — play a Piecie from discard for free", () => {
-  it("plays a non-persistent Piecie from discard (removed from discard, effect ran), sets masterPlanUsed", () => {
+describe("Ronald Master Plan — play a Piecie from graveyard for free", () => {
+  it("plays a non-persistent Piecie from graveyard (removed from graveyard, effect ran), sets masterPlanUsed", () => {
     const state = makeState("mosje_ronald_mastermind", 50);
     // kannetje_melk has NO persistUntilEndOfTurn; its effect grants +25 MP to the active Mosje
-    state.players.player_1.discard = [{ cardId: "piecie_kannetje_melk" }];
+    state.players.player_1.graveyard = [{ cardId: "piecie_kannetje_melk" }];
     state._pendingTargets = { masterPlanCardId: "piecie_kannetje_melk" };
 
     const next = ability_ronald_mastermind_master_plan(state, "player_1");
@@ -164,9 +164,9 @@ describe("Ronald Master Plan — play a Piecie from discard for free", () => {
     expect(next.players.player_1.activeSlots[0].mp).toBe(75);
     // once-per-game flag set
     expect(next.players.player_1.activeSlots[0].masterPlanUsed).toBe(true);
-    // non-persistent → ends in discard, NOT on the field
+    // non-persistent → ends in graveyard, NOT on the field
     expect(
-      next.players.player_1.discard.some((c: any) => (c.cardId ?? c) === "piecie_kannetje_melk")
+      next.players.player_1.graveyard.some((c: any) => (c.cardId ?? c) === "piecie_kannetje_melk")
     ).toBe(true);
     expect(
       next.players.player_1.piecieSlots.some(
@@ -178,7 +178,7 @@ describe("Ronald Master Plan — play a Piecie from discard for free", () => {
   it("keeps a persistUntilEndOfTurn Piecie on the field after playing it", () => {
     const state = makeState("mosje_ronald_mastermind", 50);
     // redbull HAS persistUntilEndOfTurn true
-    state.players.player_1.discard = [{ cardId: "piecie_redbull" }];
+    state.players.player_1.graveyard = [{ cardId: "piecie_redbull" }];
     state._pendingTargets = { masterPlanCardId: "piecie_redbull" };
 
     const next = ability_ronald_mastermind_master_plan(state, "player_1");
@@ -189,9 +189,9 @@ describe("Ronald Master Plan — play a Piecie from discard for free", () => {
     );
     expect(placed).toBeTruthy();
     expect(placed.persistUntilEoT).toBe(true);
-    // removed from discard
+    // removed from graveyard
     expect(
-      next.players.player_1.discard.some((c: any) => (c.cardId ?? c) === "piecie_redbull")
+      next.players.player_1.graveyard.some((c: any) => (c.cardId ?? c) === "piecie_redbull")
     ).toBe(false);
     expect(next.players.player_1.activeSlots[0].masterPlanUsed).toBe(true);
   });
@@ -199,7 +199,7 @@ describe("Ronald Master Plan — play a Piecie from discard for free", () => {
   it("throws when masterPlanUsed is already true", () => {
     const state = makeState("mosje_ronald_mastermind", 50);
     state.players.player_1.activeSlots[0].masterPlanUsed = true;
-    state.players.player_1.discard = [{ cardId: "piecie_kannetje_melk" }];
+    state.players.player_1.graveyard = [{ cardId: "piecie_kannetje_melk" }];
     state._pendingTargets = { masterPlanCardId: "piecie_kannetje_melk" };
 
     expect(() => ability_ronald_mastermind_master_plan(state, "player_1")).toThrow();

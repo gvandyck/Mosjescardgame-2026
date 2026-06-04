@@ -86,8 +86,7 @@ function createPlayerState(config) {
 
     hand,
     deck,
-    discard: [],
-    welloe: [],           // defeated Mosjes rest here, out of the game
+    graveyard: [],        // all defeated/discarded/destroyed cards end up here (typed entries)
 
     activeSlots,          // [mosjeSlot, mosjeSlot] — up to 2 active Mosjes
     piecieSlots: [null, null, null, null],  // 4 face-down Piecie positions
@@ -281,13 +280,13 @@ export function getPlayerMosjes(gameState, playerId) {
 // ─────────────────────────────────────────────────────────────
 export function setActivePlace(gameState, cardId, playedByPlayerId) {
   const state = JSON.parse(JSON.stringify(gameState));
-  // If a Place is already active, route it to the owner's personal discard
+  // If a Place is already active, route it to the owner's personal graveyard
   if (state.activePlace) {
     const ownerId = state.activePlacePlayedBy || state.activePlayerId;
     const owner = state.players[ownerId];
     if (owner) {
-      if (!Array.isArray(owner.discard)) owner.discard = [];
-      owner.discard.unshift({ cardId: state.activePlace, type: 'PLACE' });
+      if (!Array.isArray(owner.graveyard)) owner.graveyard = [];
+      owner.graveyard.push({ cardId: state.activePlace, type: 'PLACE', source: 'replaced' });
     }
   }
   state.activePlace = cardId;
@@ -310,8 +309,8 @@ export function destroyActivePlace(gameState) {
   const ownerId = state.activePlacePlayedBy || state.activePlayerId;
   const owner = state.players[ownerId];
   if (owner) {
-    if (!Array.isArray(owner.discard)) owner.discard = [];
-    owner.discard.unshift({ cardId: state.activePlace, type: 'PLACE' });
+    if (!Array.isArray(owner.graveyard)) owner.graveyard = [];
+    owner.graveyard.push({ cardId: state.activePlace, type: 'PLACE', source: 'destroyed' });
   }
   const removed = state.activePlace;
   state.activePlace = null;

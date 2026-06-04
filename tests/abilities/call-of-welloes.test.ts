@@ -25,8 +25,7 @@ function makePlayer(overrides: Record<string, any> = {}) {
   return {
     hand: [] as any[],
     deck: [] as any[],
-    discard: [] as any[],
-    welloe: [] as any[],
+    graveyard: [] as any[],
     activeSlots: [
       {
         cardId: "mosje_self",
@@ -83,22 +82,18 @@ describe("endTurn — Call of the Welloes: defeat when Piecie is gone", () => {
   it("A: markMosjeDefeated is triggered on summoned Mosje when anchor Piecie is absent", () => {
     const state = makeState({
       activeSlots: [{ ...summonedSlot }, null],
-      welloe: [],
+      graveyard: [],
       piecieSlots: [null, null, null, null],
     });
     // state.activePlayerId is explicitly "player_1" (set in makeState), so endTurn acts on player_1
     const result = endTurn(state);
     // Mosje is defeated: slot nulled
     expect(result.players.player_1.activeSlots[0]).toBeNull();
-    // Welloe pile receives the defeated Mosje
-    const welloe = result.players.player_1.welloe as any[];
-    expect(welloe.some((w: any) => w.cardId === "mosje_test")).toBe(true);
-    // isDefeated flag is set (markMosjeDefeated sets this, returnMosjeToWelloe did not)
-    const defeated = welloe.find((w: any) => w.cardId === "mosje_test");
+    // Graveyard receives the defeated Mosje (type: MOSJE, isDefeated: true)
+    const graveyard = result.players.player_1.graveyard as any[];
+    const defeated = graveyard.find((e: any) => e.cardId === "mosje_test" && e.type === "MOSJE");
+    expect(defeated).toBeDefined();
     expect(defeated.isDefeated).toBe(true);
-    // Discard entry present (markMosjeDefeated adds this, returnMosjeToWelloe did not)
-    const discard = result.players.player_1.discard as any[];
-    expect(discard.some((d: any) => d.cardId === "mosje_test" || d === "mosje_test")).toBe(true);
   });
 });
 
@@ -109,7 +104,7 @@ describe("endTurn — Call of the Welloes: Mosje stays when Piecie is present", 
   it("B: does NOT defeat summoned Mosje when anchor Piecie is still in piecieSlots", () => {
     const state = makeState({
       activeSlots: [{ ...summonedSlot }, null],
-      welloe: [],
+      graveyard: [],
       piecieSlots: [
         { cardId: "piecie_call_of_welloes", type: "PIECIE", linkedMosjeCardId: "mosje_test" },
         null, null, null,
@@ -119,8 +114,8 @@ describe("endTurn — Call of the Welloes: Mosje stays when Piecie is present", 
     const result = endTurn(state);
     expect(result.players.player_1.activeSlots[0]).not.toBeNull();
     expect(result.players.player_1.activeSlots[0]?.cardId).toBe("mosje_test");
-    const welloe = result.players.player_1.welloe as any[];
-    expect(welloe.some((w: any) => w.cardId === "mosje_test")).toBe(false);
+    const graveyard = result.players.player_1.graveyard as any[];
+    expect(graveyard.some((e: any) => e.cardId === "mosje_test" && e.type === "MOSJE")).toBe(false);
   });
 });
 
@@ -133,7 +128,7 @@ describe("endTurn — piecie_call_of_welloes persistence guard", () => {
     // piecie_call_of_welloes must be exempt while linkedMosjeCardId is live.
     const state = makeState({
       activeSlots: [{ ...summonedSlot }, null],
-      welloe: [],
+      graveyard: [],
       piecieSlots: [
         { cardId: "piecie_call_of_welloes", type: "PIECIE", linkedMosjeCardId: "mosje_test" },
         null, null, null,
@@ -157,9 +152,9 @@ describe("endTurn — piecie_call_of_welloes persistence guard", () => {
 // ─────────────────────────────────────────────────────────────
 
 describe("effect_call_of_welloes — cancel guards", () => {
-  it("F: returns _callOfWelloesCancel === true when welloe[] is empty", () => {
+  it("F: returns _callOfWelloesCancel === true when graveyard has no MOSJE entries", () => {
     const state = makeState({
-      welloe: [],
+      graveyard: [],
       activeSlots: [null, null],
     });
     const result = effect_call_of_welloes(state, "player_1");
@@ -170,7 +165,7 @@ describe("effect_call_of_welloes — cancel guards", () => {
   it("G: returns _callOfWelloesCancel === true when both activeSlots are occupied", () => {
     const occupied = { cardId: "mosje_a", name: "A", mp: 80, level: 1 };
     const state = makeState({
-      welloe: [{ cardId: "mosje_x", name: "X", mp: 50, level: 1 }],
+      graveyard: [{ cardId: "mosje_x", name: "X", type: "MOSJE", source: "defeated", mp: 50, level: 1 }],
       activeSlots: [occupied, { ...occupied, cardId: "mosje_b" }],
     });
     const result = effect_call_of_welloes(state, "player_1");
@@ -182,7 +177,7 @@ describe("effect_call_of_welloes — cancel guards", () => {
 describe("effect_call_of_welloes — pending flag", () => {
   it("H: sets _callOfWelloesPending with playerId and welloeOptions when activatable", () => {
     const state = makeState({
-      welloe: [{ cardId: "mosje_x", name: "X", mp: 60, level: 2 }],
+      graveyard: [{ cardId: "mosje_x", name: "X", type: "MOSJE", source: "defeated", mp: 60, level: 2 }],
       activeSlots: [{ cardId: "mosje_a", name: "A", mp: 80, level: 1 }, null],
     });
     const result = effect_call_of_welloes(state, "player_1");
@@ -198,18 +193,21 @@ describe("effect_call_of_welloes — pending flag", () => {
 });
 
 describe("confirmCallOfWelloes — summon executor", () => {
-  it("I: places Mosje in free activeSlot at Level 1, 50 MP (NOT restored stats), sets summonedByPiecie, sets linkedMosjeCardId, removes from welloe[]", () => {
-    const welloeRecord = {
+  it("I: places Mosje in free activeSlot at Level 1, 50 MP (NOT restored stats), sets summonedByPiecie, sets linkedMosjeCardId, removes from graveyard", () => {
+    const gravEntry = {
       cardId: "mosje_x",
       name: "X",
+      type: "MOSJE",
+      source: "defeated",
       subtype: "FIGHTING",
       traits: { physical: 2 },
       mp: 60,
       level: 2,
       statusEffects: [] as any[],
+      isDefeated: true,
     };
     const state = makeState({
-      welloe: [welloeRecord],
+      graveyard: [gravEntry],
       activeSlots: [{ cardId: "mosje_a", name: "A", mp: 80, level: 1 }, null],
       piecieSlots: [{ cardId: "piecie_call_of_welloes", type: "PIECIE" }, null, null, null],
     });
@@ -226,9 +224,9 @@ describe("confirmCallOfWelloes — summon executor", () => {
     expect(placed.level).toBe(1);
     expect(placed.summonedByPiecie).toBe("piecie_call_of_welloes");
 
-    // Removed from welloe[]
-    const welloe = s.players.player_1.welloe as any[];
-    expect(welloe.some((w: any) => w.cardId === "mosje_x")).toBe(false);
+    // Removed from graveyard
+    const graveyard = s.players.player_1.graveyard as any[];
+    expect(graveyard.some((e: any) => e.cardId === "mosje_x" && e.type === "MOSJE")).toBe(false);
 
     // Anchor link on piecieSlot
     const pSlot = (s.players.player_1.piecieSlots as any[]).find(
@@ -255,7 +253,7 @@ describe("piecies.js — piecie_call_of_welloes description (revised)", () => {
 // L. markMosjeDefeated: Piecie is immediately discarded when its linked Mosje is defeated
 // ─────────────────────────────────────────────────────────────
 describe("markMosjeDefeated — Piecie immediately discarded when linked Mosje dies", () => {
-  it("L: piecieSlots entry is nulled and 'piecie_call_of_welloes' is in discard after markMosjeDefeated", () => {
+  it("L: piecieSlots entry is nulled and 'piecie_call_of_welloes' is in graveyard after markMosjeDefeated", () => {
     const mosjeInSlot = {
       cardId: "mosje_test",
       name: "T",
@@ -269,7 +267,7 @@ describe("markMosjeDefeated — Piecie immediately discarded when linked Mosje d
     };
     const state = makeState({
       activeSlots: [mosjeInSlot, null],
-      welloe: [],
+      graveyard: [],
       piecieSlots: [
         { cardId: "piecie_call_of_welloes", type: "PIECIE", linkedMosjeCardId: "mosje_test" },
         null, null, null,
@@ -280,12 +278,12 @@ describe("markMosjeDefeated — Piecie immediately discarded when linked Mosje d
     const pSlots = result.players.player_1.piecieSlots as any[];
     const piecieStillOnField = pSlots.some((p: any) => p?.cardId === "piecie_call_of_welloes");
     expect(piecieStillOnField).toBe(false);
-    // Piecie cardId must be in discard
-    const discard = result.players.player_1.discard as any[];
-    const piecieInDiscard = discard.some(
-      (d: any) => d === "piecie_call_of_welloes" || d?.cardId === "piecie_call_of_welloes"
+    // Piecie cardId must be in graveyard
+    const graveyard = result.players.player_1.graveyard as any[];
+    const piecieInGraveyard = graveyard.some(
+      (e: any) => e?.cardId === "piecie_call_of_welloes"
     );
-    expect(piecieInDiscard).toBe(true);
+    expect(piecieInGraveyard).toBe(true);
   });
 });
 
@@ -304,14 +302,14 @@ describe("markMosjeDefeated — clears linkedMosjeCardId on anchor Piecie slot",
     };
     const state = makeState({
       activeSlots: [mosjeInSlot, null],
-      welloe: [],
+      graveyard: [],
       piecieSlots: [
         { cardId: "piecie_call_of_welloes", type: "PIECIE", linkedMosjeCardId: "mosje_test" },
         null, null, null,
       ],
     });
     const result = markMosjeDefeated(state, "player_1", 0);
-    // Slot is now null (Piecie was discarded) — that satisfies D-17 + D-bidirectional
+    // Slot is now null (Piecie was sent to graveyard) — that satisfies D-17 + D-bidirectional
     const pSlots = result.players.player_1.piecieSlots as any[];
     const pSlot = pSlots.find((p: any) => p?.cardId === "piecie_call_of_welloes");
     expect(pSlot == null || pSlot.linkedMosjeCardId == null).toBe(true);
