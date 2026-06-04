@@ -142,7 +142,7 @@ export const SNELLE_PIECIES = [
     requirement: "any",
     effectId: "effect_snelle_negate_elimination",
     tags: ["PROTECT", "COUNTER"],
-    description: "Play when your Mosje would be sent to Welloe pile: negate. Mosje stays at 5 MP instead.",
+    description: "Play when your Mosje would be sent to the graveyard: negate. Mosje stays at 5 MP instead.",
     flavourText: "",
     artPath: "assets/snelle-piecies/placeholder.png",
     rarity: "★★★★",
