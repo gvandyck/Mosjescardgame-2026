@@ -833,8 +833,8 @@ function initGamePage() {
 				const cardIdx = gameState.players[pid].hand.findIndex(c => c.cardId === discarded.cardId);
 				if (cardIdx !== -1) {
 					const [removed] = gameState.players[pid].hand.splice(cardIdx, 1);
-					if (!Array.isArray(gameState.players[pid].discard)) gameState.players[pid].discard = [];
-					gameState.players[pid].discard.unshift(removed);
+					if (!Array.isArray(gameState.players[pid].graveyard)) gameState.players[pid].graveyard = [];
+					gameState.players[pid].graveyard.push({ cardId: removed.cardId ?? removed, name: removed.name ?? CARD_LOOKUP[removed.cardId ?? removed]?.name ?? removed.cardId ?? removed, type: 'HAND_CARD', source: 'discarded' });
 				}
 				const slotIdx = gameState.players[pid].activeSlots.findIndex(s => s && !s.isDefeated);
 				if (slotIdx >= 0) {
@@ -1329,7 +1329,7 @@ function initGamePage() {
 
 		// Ronald Mastermind — Master Plan: pick a Piecie from your discard to play for free
 		if (RONALD_MASTERMIND_IDS.has(mosjeId)) {
-			const discard = gameState.players[localPlayerId].discard || [];
+			const discard = gameState.players[localPlayerId].graveyard || [];
 			const piecieCards = discard
 				.map(c => {
 					const id = c.cardId ?? c;
@@ -1764,7 +1764,9 @@ function initGamePage() {
 				const idx = gameState.players[localPlayerId].hand.findIndex(c => c.cardId === cardToDiscard.cardId);
 				if (idx >= 0) {
 					const [removed] = gameState.players[localPlayerId].hand.splice(idx, 1);
-					gameState.players[localPlayerId].discard.unshift(removed.cardId || removed);
+					const _removedId = removed.cardId || removed;
+					if (!Array.isArray(gameState.players[localPlayerId].graveyard)) gameState.players[localPlayerId].graveyard = [];
+					gameState.players[localPlayerId].graveyard.push({ cardId: _removedId, name: CARD_LOOKUP[_removedId]?.name ?? _removedId, type: CARD_LOOKUP[_removedId]?.type ?? 'HAND_CARD', source: 'discarded' });
 				}
 			}
 			// If null: player keeps both cards (Keep Both Cards ghost button)
@@ -1965,9 +1967,9 @@ function initGamePage() {
 				console.error('[UI] Player not found:', playerId, 'available players:', gameState.players.map(p => p.id));
 				return;
 			}
-			console.log('[UI] Opening discard modal for player:', player.name || playerId, 'with', player.discard?.length || 0, 'cards');
-			console.log('[UI] modal exists?', !!modal, 'modal.showDiscardViewerModal?', !!modal?.showDiscardViewerModal);
-			modal.showDiscardViewerModal(player, isOwned);
+			console.log('[UI] Opening graveyard modal for player:', player.name || playerId, 'with', player.graveyard?.length || 0, 'cards');
+			console.log('[UI] modal exists?', !!modal, 'modal.showGraveyardModal?', !!modal?.showGraveyardModal);
+			modal.showGraveyardModal(player, isOwned);
 			console.log('[UI] Modal should be open now');
 		} catch (error) {
 			console.error('[UI] Error in handleOpenDiscard:', error.message, error);
@@ -2285,7 +2287,7 @@ function toBoardViewModel(gameState, localPlayerId) {
 					isLocalTurn,
 					viewerOwns: false,
 				}),
-				discard: opponent.discard || [],
+				graveyard: opponent.graveyard || [],
 			},
 			bottom: {
 				id: localPlayerId,
@@ -2299,7 +2301,7 @@ function toBoardViewModel(gameState, localPlayerId) {
 					isLocalTurn,
 					viewerOwns: true,
 				}),
-				discard: localPlayer.discard || [],
+				graveyard: localPlayer.graveyard || [],
 			},
 		},
 	};

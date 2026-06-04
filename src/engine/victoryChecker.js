@@ -110,23 +110,18 @@ export function markMosjeDefeated(gameState, playerId, slotIndex) {
     return state;
   }
 
-  // Tesla destruction: Coert sent to Welloe while Tesla is active → destroy Tesla.
+  // Tesla destruction: Coert sent to graveyard while Tesla is active → destroy Tesla.
   if (String(mosje.cardId).includes('coert') && state.activePlace === 'place_tesla') {
     state.activePlace = null;
-    state.players[playerId].discard.unshift({ cardId: 'place_tesla' });
-    console.log('[ENGINE] Tesla: Coert sent to Welloe — Tesla destroyed, sent to discard');
+    if (!Array.isArray(state.players[playerId].graveyard)) state.players[playerId].graveyard = [];
+    state.players[playerId].graveyard.push({ cardId: 'place_tesla', name: 'Tesla', type: 'PLACE', source: 'destroyed' });
+    console.log('[ENGINE] Tesla: Coert defeated — Tesla destroyed, sent to graveyard');
   }
 
-  console.log(`[ENGINE] ${mosje.name} has been defeated — sent to Welloe pile`);
+  console.log(`[ENGINE] ${mosje.name} has been defeated — sent to graveyard`);
   mosje.isDefeated = true;
-  state.players[playerId].welloe.push({ ...mosje });           // full object for revival mechanics
-  if (!Array.isArray(state.players[playerId].discard)) state.players[playerId].discard = [];
-  state.players[playerId].discard.unshift({                    // unified graveyard entry
-    cardId: mosje.cardId,
-    type: 'MOSJE',
-    level: mosje.level,
-    mp: mosje.mp,
-  });
+  if (!Array.isArray(state.players[playerId].graveyard)) state.players[playerId].graveyard = [];
+  state.players[playerId].graveyard.push({ ...mosje, type: 'MOSJE', source: 'defeated' });
   state.players[playerId].activeSlots[slotIndex] = null;
 
   // Call of the Welloes: if this Mosje was summoned by the Piecie, clear the anchor link (D-17)
@@ -138,10 +133,10 @@ export function markMosjeDefeated(gameState, playerId, slotIndex) {
         p => p?.cardId === 'piecie_call_of_welloes' && p?.linkedMosjeCardId === mosje.cardId
       );
       if (pIdx >= 0) {
-        if (!Array.isArray(state.players[playerId].discard)) state.players[playerId].discard = [];
-        state.players[playerId].discard.push(pSlots[pIdx].cardId);
+        if (!Array.isArray(state.players[playerId].graveyard)) state.players[playerId].graveyard = [];
+        state.players[playerId].graveyard.push({ cardId: pSlots[pIdx].cardId, name: 'Call of the Welloes', type: 'PIECIE', source: 'destroyed' });
         state.players[playerId].piecieSlots[pIdx] = null;
-        console.log('[ENGINE] markMosjeDefeated: piecie_call_of_welloes discarded — linked Mosje defeated');
+        console.log('[ENGINE] markMosjeDefeated: piecie_call_of_welloes sent to graveyard — linked Mosje defeated');
       }
     }
   }

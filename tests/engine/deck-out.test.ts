@@ -24,7 +24,7 @@ function makeState(
     players: {
       p1: {
         deck: [...p1Deck],
-        discard: [...p1Discard],
+        graveyard: [...p1Discard],
         hand: [],
         questsCompleted: 0,
         questsCompletedThisTurn: 0,
@@ -49,7 +49,7 @@ function makeState(
       },
       p2: {
         deck: ["card_a", "card_b"],
-        discard: [],
+        graveyard: [],
         hand: [],
         questsCompleted: 0,
         questsCompletedThisTurn: 0,
@@ -80,7 +80,7 @@ describe("deck-out behavior (BAL-05)", () => {
   it("phaseDrawCard reshuffles discard into deck when deck is empty", () => {
     const state = makeState([], ["c1", "c2", "c3"]);
     const result = phaseDrawCard(state, "p1");
-    expect(result.players.p1.discard.length).toBe(0);
+    expect(result.players.p1.graveyard.length).toBe(0);
     expect(result.players.p1.hand.length).toBe(1);
   });
 

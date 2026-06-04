@@ -312,7 +312,7 @@ export const SNELLE_PIECIES = [
     requirement: "any",
     effectId: "effect_snelle_chillingsvoorbij",
     tags: ["PLACE-RECOVERY"],
-    description: "Instant: Return the most recently lost Place card from your discard pile to your hand.",
+    description: "Instant: Return the most recently lost Place card from your Graveyard to your hand.",
     flavourText: "De chill is over. Jij pakt 'm terug.",
     artPath: "assets/snelle-piecies/placeholder.png",
     rarity: "★★",

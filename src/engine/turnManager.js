@@ -13,11 +13,16 @@ import * as mosjeAbilities from '../abilities/mosjeAbilities.js';
 import { MOSJES } from '../data/mosjes.js';
 import { PIECIES } from '../data/piecies.js';
 import { PLACES } from '../data/places.js';
+import { SNELLE_PIECIES } from '../data/snellePiecies.js';
+import { QUESTS } from '../data/quests.js';
+import { toGraveyardEntry } from './graveyardUtils.js';
 
 console.log('[ENGINE] turnManager.js loaded');
 
 const PIECIE_LOOKUP = Object.fromEntries(PIECIES.map(card => [card.id, card]));
+const SNELLE_PIECIE_LOOKUP = Object.fromEntries(SNELLE_PIECIES.map(card => [card.id, card]));
 const PLACE_LOOKUP = Object.fromEntries(PLACES.map(card => [card.id, card]));
+const QUEST_LOOKUP = Object.fromEntries(QUESTS.map(card => [card.id, card]));
 
 function normalizePiecieSlots(player, slotCount = 4) {
   let source;
@@ -183,13 +188,13 @@ export function phaseDrawCard(gameState, playerId, count = 1, isOpponentTriggere
   }
 
   if (player.deck.length === 0) {
-    if (player.discard.length === 0) {
+    if (player.graveyard.length === 0) {
       console.log('[ENGINE] Draw phase: deck AND discard empty — no draw, no penalty');
       return state;
     }
     // Reshuffle discard into deck (deck-out rule per D-06)
-    player.deck = shuffleDeck([...player.discard]);
-    player.discard = [];
+    player.deck = shuffleDeck([...player.graveyard]);
+    player.graveyard = [];
     const { drawn, remaining } = drawCards(player.deck, 1);
     player.deck = remaining;
     player.hand.push(...drawn);
@@ -248,13 +253,13 @@ export function endTurn(gameState) {
       if (linkedAlive) continue;
     }
     if (slot?.type === 'SNELLE_PIECIE') {
-      if (!Array.isArray(state.players[playerId].discard)) state.players[playerId].discard = [];
-      state.players[playerId].discard.push(slot.cardId);
+      if (!Array.isArray(state.players[playerId].graveyard)) state.players[playerId].graveyard = [];
+      state.players[playerId].graveyard.push(toGraveyardEntry(slot.cardId, 'played'));
       state.players[playerId].piecieSlots[i] = null;
       console.log(`[ENGINE] Snelle Piecie swept to discard: ${slot.cardId}`);
     } else if (slot?.persistUntilEoT === true) {
-      if (!Array.isArray(state.players[playerId].discard)) state.players[playerId].discard = [];
-      state.players[playerId].discard.push(slot.cardId);
+      if (!Array.isArray(state.players[playerId].graveyard)) state.players[playerId].graveyard = [];
+      state.players[playerId].graveyard.push(toGraveyardEntry(slot.cardId, 'played'));
       state.players[playerId].piecieSlots[i] = null;
       console.log(`[ENGINE] Persistent Piecie swept to discard at EoT: ${slot.cardId}`);
     }
@@ -378,7 +383,7 @@ export function attemptPersonalQuest(gameState, questCardId) {
   }
 
   const [questCard] = player.hand.splice(cardIndex, 1);
-  player.discard.push(questCard.cardId);
+  player.graveyard.push(toGraveyardEntry(questCard.cardId, 'played'));
   player.questsAttemptedThisTurn = questsAttempted + 1;
   player.hasAttemptedQuestThisTurn = true;
   console.log('[ENGINE] Personal Quest played from hand and moved to discard:', questCardId);
@@ -405,7 +410,7 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
   // Defensive normalization for synced multiplayer states
   normalizePiecieSlots(player, 4);
   if (!Array.isArray(player.hand)) player.hand = [];
-  if (!Array.isArray(player.discard)) player.discard = [];
+  if (!Array.isArray(player.graveyard)) player.graveyard = [];
 
   // Remove from hand
   const handIndex = player.hand.findIndex(c => c.cardId === cardRef.cardId);
@@ -526,8 +531,8 @@ export function activatePersonalQuest(gameState, playerId, slotIndex) {
 
   const questCardId = slot.cardId;
   player.piecieSlots[slotIndex] = null;
-  if (!Array.isArray(player.discard)) player.discard = [];
-  player.discard.push(questCardId);
+  if (!Array.isArray(player.graveyard)) player.graveyard = [];
+  player.graveyard.push(toGraveyardEntry(questCardId, 'played'));
   player.questsAttemptedThisTurn = questsAttempted + 1;
   player.hasAttemptedQuestThisTurn = true;
 
@@ -591,8 +596,8 @@ export function activatePiecie(gameState, playerId, slotIndex) {
   }
 
   normalizePiecieSlots(player, 4);
-  if (!Array.isArray(player.discard)) {
-    player.discard = [];
+  if (!Array.isArray(player.graveyard)) {
+    player.graveyard = [];
   }
 
   const safeSlotIndex = Number(slotIndex);
@@ -668,7 +673,7 @@ export function activatePiecie(gameState, playerId, slotIndex) {
   if (oppId && flags.negateNextPiecie?.[oppId]) {
     delete state._snelleFlags.negateNextPiecie[oppId];
     console.log('[ENGINE] Counter Strikka negated:', knownCardDef.name);
-    player.discard.push(slotCardId);
+    player.graveyard.push(toGraveyardEntry(slotCardId, 'played'));
     player.piecieSlots[safeSlotIndex] = null;
     state = checkVictory(state);
     return { state, success: true, negated: true, cardDef: knownCardDef };
@@ -680,7 +685,7 @@ export function activatePiecie(gameState, playerId, slotIndex) {
     const si = oppPlayer.activeSlots.findIndex(s => s && !s.isDefeated);
     if (si >= 0) oppPlayer.activeSlots[si].mp += 15;
     console.log('[ENGINE] Perfect Dodge negated ATTACK + granted 15 MP to opponent');
-    player.discard.push(slotCardId);
+    player.graveyard.push(toGraveyardEntry(slotCardId, 'played'));
     player.piecieSlots[safeSlotIndex] = null;
     state = checkVictory(state);
     return { state, success: true, negated: true, cardDef: knownCardDef };
@@ -733,7 +738,7 @@ export function activatePiecie(gameState, playerId, slotIndex) {
 
   // Piecie resolves — persistent cards stay in slot until end-of-turn sweep.
   player = state.players[playerId];
-  if (!Array.isArray(player.discard)) player.discard = [];
+  if (!Array.isArray(player.graveyard)) player.graveyard = [];
   normalizePiecieSlots(player, 4);
   if (knownCardDef.persistUntilEndOfTurn === true) {
     // Mark slot as persistent — will be swept to discard in endTurn()
@@ -741,7 +746,7 @@ export function activatePiecie(gameState, playerId, slotIndex) {
     player.piecieSlots[safeSlotIndex].faceDown = false;
     console.log(`[ENGINE] Piecie persisting until EoT: ${knownCardDef.name}`);
   } else {
-    player.discard.push(slotCardId);
+    player.graveyard.push(toGraveyardEntry(slotCardId, 'played'));
     player.piecieSlots[safeSlotIndex] = null;
   }
   console.log(`[ENGINE] piecieSlots after activation:`, player.piecieSlots.map((s, i) => s ? `[${i}] ${s.cardId} (${s.type})` : `[${i}] null`).join(' | '));
@@ -788,7 +793,7 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
   if (totalSlots >= 4) {
     return { state, success: false, error: 'Cannot play Snelle Piecie — all Piecie/Place slots are full.' };
   }
-  if (!Array.isArray(player.discard)) player.discard = [];
+  if (!Array.isArray(player.graveyard)) player.graveyard = [];
 
   // Remove from hand and place face-up in a piecie slot (swept to discard at end of turn)
   const handIndex = player.hand.findIndex(c => c.cardId === cardRef.cardId);
@@ -806,7 +811,7 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
       playedOnTurn: state.turnNumber,
     };
   } else {
-    player.discard.push(playedCard.cardId);
+    player.graveyard.push(toGraveyardEntry(playedCard.cardId, 'played'));
   }
 
   // Apply the effect function
@@ -821,7 +826,7 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
   // Rebind player reference because effect functions return a cloned state
   player = state.players[playerId];
   if (!Array.isArray(player.hand)) player.hand = [];
-  if (!Array.isArray(player.discard)) player.discard = [];
+  if (!Array.isArray(player.graveyard)) player.graveyard = [];
 
   // Gevalletje Klakkeloos: resolve copy flag — run the copied effect immediately
   const copyFlag = state._snelleFlags?.copyLastPiecie;
@@ -854,11 +859,11 @@ export function confirmCallOfWelloes(gameState, playerId, mosjeCardId) {
     player.activeSlots[rightmost] = null;
   }
   const openSlot = rightmost;
-  if (!Array.isArray(player.welloe)) return { state, success: false, error: 'No Welloe pile' };
-  const welloeIdx = player.welloe.findIndex(w => w.cardId === mosjeCardId);
-  if (welloeIdx < 0) return { state, success: false, error: 'Mosje not in Welloe pile' };
+  if (!Array.isArray(player.graveyard)) return { state, success: false, error: 'No graveyard' };
+  const gIdx = player.graveyard.findIndex(e => e.cardId === mosjeCardId && e.type === 'MOSJE');
+  if (gIdx < 0) return { state, success: false, error: 'Mosje not in graveyard' };
 
-  const [record] = player.welloe.splice(welloeIdx, 1);
+  const [record] = player.graveyard.splice(gIdx, 1);
   const mosjeDef = MOSJES.find(m => m.id === record.cardId);
   const slot = mosjeDef ? createMosjeSlotFromDefinition(mosjeDef) : { ...record };
   // Fresh summon at Level 1, 50 MP — NOT restored from welloe record (D-05/D-06)
@@ -1125,7 +1130,7 @@ export function playPlace(gameState, playerId, cardRef, cardDef) {
   // Defensive normalization — ensures piecieSlots is always 4 elements with null for empty
   normalizePiecieSlots(player, 4);
   if (!Array.isArray(player.hand)) player.hand = [];
-  if (!Array.isArray(player.discard)) player.discard = [];
+  if (!Array.isArray(player.graveyard)) player.graveyard = [];
 
   // Check if all 4 slots are full
   const filledSlots = player.piecieSlots.filter(slot => slot !== null && slot !== undefined).length;

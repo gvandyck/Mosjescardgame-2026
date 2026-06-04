@@ -90,7 +90,7 @@ export function ability_binti_cutting_words(gameState, playerId, discardedCardId
 
 	if (finalState.players[opponentId].hand.length > 0) {
 		const discarded = finalState.players[opponentId].hand.shift();
-		finalState.players[opponentId].discard.unshift(discarded);
+		finalState.players[opponentId].graveyard.push(discarded);
 	}
 
 	console.log('[ABILITY] Binti Cutting Words resolved');
@@ -338,11 +338,11 @@ export function ability_ming_predictor_future_sight(gameState, playerId) {
 export function ability_martin_historian_time_control(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
-	if (!player || player.discard.length === 0) {
+	if (!player || player.graveyard.length === 0) {
 		console.log('[ABILITY] Martin Historian: discard empty');
 		return state;
 	}
-	const retrieved = player.discard.shift();
+	const retrieved = player.graveyard.shift();
 	player.hand.push(retrieved);
 	console.log('[ABILITY] Martin Historian: retrieved', retrieved.cardId, 'from discard');
 	return state;
@@ -533,9 +533,9 @@ export function ability_ronald_mastermind_master_plan(gameState, playerId) {
 	const chosenCardId = state._pendingTargets?.masterPlanCardId;
 	if (!chosenCardId) throw new Error('Master Plan requires a Piecie selection from discard');
 	// Pull the chosen Piecie out of discard
-	const di = player.discard.findIndex(c => (c.cardId ?? c) === chosenCardId);
+	const di = player.graveyard.findIndex(c => (c.cardId ?? c) === chosenCardId);
 	if (di < 0) throw new Error('Chosen Piecie not in discard');
-	player.discard.splice(di, 1);
+	player.graveyard.splice(di, 1);
 	// Run its effect for free
 	const def = PIECIES.find(p => p.id === chosenCardId);
 	let next = state;
@@ -547,9 +547,9 @@ export function ability_ronald_mastermind_master_plan(gameState, playerId) {
 	if (def?.persistUntilEndOfTurn) {
 		const empty = np.piecieSlots.findIndex(s => s === null);
 		if (empty >= 0) np.piecieSlots[empty] = { cardId: chosenCardId, type: 'PIECIE', faceDown: false, activated: true, persistUntilEoT: true, playedOnTurn: next.turnNumber };
-		else np.discard.unshift({ cardId: chosenCardId });
+		else np.graveyard.push({ cardId: chosenCardId });
 	} else {
-		np.discard.unshift({ cardId: chosenCardId });
+		np.graveyard.push({ cardId: chosenCardId });
 	}
 	np.activeSlots[slotIndex].masterPlanUsed = true;
 	if (next._pendingTargets) delete next._pendingTargets.masterPlanCardId;

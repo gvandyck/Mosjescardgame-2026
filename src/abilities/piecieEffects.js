@@ -6,6 +6,8 @@ import { hasFoodDoubleSynergy } from '../engine/synergyResolver.js';
 import { destroyActivePlace } from '../engine/gameState.js';
 import { triggerPlaceDestroyedEffects } from './placeEffects.js';
 import { MOSJES } from '../data/mosjes.js';
+import { PIECIES } from '../data/piecies.js';
+import { getGraveyardByType, addToGraveyard } from '../engine/graveyardUtils.js';
 
 console.log('[ABILITY] piecieEffects.js loaded');
 
@@ -438,9 +440,9 @@ export function effect_dubbele_ding(gameState, playerId) {
 export function effect_tempiecie(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
-	if (!player || player.discard.length === 0) return state;
+	if (!player || player.graveyard?.length === 0) return state;
 	// Retrieve top discard card to hand, mark as unplayable this turn
-	const retrieved = player.discard.shift();
+	const retrieved = player.graveyard.shift();
 	retrieved._unplayableThisTurn = true;
 	player.hand.push(retrieved);
 	console.log('[ABILITY] TemPiecie: retrieved', retrieved.cardId, '(unplayable this turn)');
@@ -468,8 +470,9 @@ export function effect_mp_amplifier(gameState, playerId) {
 export function effect_mosje_reborn(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
-	if (!player || player.welloe.length === 0) {
-		console.log('[ABILITY] Mosje Reborn: welloe pile is empty');
+	const mosjesToRevive = getGraveyardByType(player, 'MOSJE');
+	if (!player || mosjesToRevive.length === 0) {
+		console.log('[ABILITY] Mosje Reborn: no defeated Mosjes in graveyard');
 		return state;
 	}
 	const emptySlot = player.activeSlots.findIndex(s => s === null);
@@ -477,7 +480,8 @@ export function effect_mosje_reborn(gameState, playerId) {
 		console.log('[ABILITY] Mosje Reborn: no empty slot available');
 		return state;
 	}
-	const revived = player.welloe.shift();
+	const reviveIdx = player.graveyard.findIndex(e => e.type === 'MOSJE');
+	const [revived] = player.graveyard.splice(reviveIdx, 1);
 	const mosjeDef = MOSJES.find(m => m.id === revived.cardId);
 	const startMP = mosjeDef?.startMP ?? 0;
 	revived.isDefeated = false;
@@ -575,7 +579,9 @@ export function effect_stookerino(gameState, playerId) {
 	if (opp.hand.length === 0) return state;
 	const idx = Math.floor(Math.random() * opp.hand.length);
 	const discarded = opp.hand.splice(idx, 1)[0];
-	opp.discard.unshift(discarded);
+	if (!Array.isArray(opp.graveyard)) opp.graveyard = [];
+	const discardedId = discarded?.cardId ?? discarded;
+	opp.graveyard.push({ cardId: discardedId, name: discardedId, type: 'HAND_CARD', source: 'discarded' });
 	const player = state.players[playerId];
 	const si = getFirstActiveSlotIndex(player);
 	if (si >= 0) player.activeSlots[si].mp += discarded.mpCost || 0;
@@ -611,23 +617,23 @@ export function effect_huisbaas(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	if (!Array.isArray(player.discard)) player.discard = [];
-	const placeIndex = player.discard.findIndex(
+	if (!Array.isArray(player.graveyard)) player.graveyard = [];
+	const placeIndex = player.graveyard.findIndex(
 		c => c?.type === 'PLACE' || (c?.cardId && String(c.cardId).startsWith('place_'))
 	);
 	if (placeIndex < 0) {
-		console.log('[ABILITY] Huisbaas: no Place cards in discard');
+		console.log('[ABILITY] Huisbaas: no Place cards in graveyard');
 		return state;
 	}
-	const [recovered] = player.discard.splice(placeIndex, 1);
+	const [recovered] = player.graveyard.splice(placeIndex, 1);
 	if (!Array.isArray(player.hand)) player.hand = [];
 	player.hand.push({ cardId: recovered.cardId ?? recovered, type: 'PLACE' });
-	console.log('[ABILITY] Huisbaas: recovered', recovered.cardId ?? recovered, 'from discard to hand');
+	console.log('[ABILITY] Huisbaas: recovered', recovered.cardId ?? recovered, 'from graveyard to hand');
 	return state;
 }
 
 export function effect_those_eyelashes(gameState, playerId) {
-	const state = cloneState(gameState);
+	let state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
 	const hasMartin = player.activeSlots.some(s => s && !s.isDefeated &&
@@ -640,8 +646,13 @@ export function effect_those_eyelashes(gameState, playerId) {
 	if (si >= 0) player.activeSlots[si].mp += 20;
 	const oppIds = Object.keys(state.players).filter(id => id !== playerId);
 	for (const oppId of oppIds) {
-		const opp = state.players[oppId];
-		if (opp.hand.length > 0) opp.hand.shift(); // discard 1
+		let opp = state.players[oppId];
+		if (opp.hand.length > 0) {
+			const [removed] = opp.hand.splice(0, 1);
+			const cardId = removed?.cardId ?? removed;
+			state = addToGraveyard(state, oppId, cardId, 'discarded');
+			opp = state.players[oppId];
+		}
 	}
 	// Store the blocked opponent's playerId (consumed by playSnellie), not boolean true.
 	if (oppIds[0]) state._snelleBlocked = oppIds[0];
@@ -727,7 +738,8 @@ export function effect_call_of_welloes(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	if (!Array.isArray(player.welloe) || player.welloe.length === 0) {
+	const mosjeEntries = getGraveyardByType(player, 'MOSJE');
+	if (mosjeEntries.length === 0) {
 		return { ...state, _callOfWelloesCancel: true };
 	}
 	if (!Array.isArray(player.activeSlots)) player.activeSlots = [null, null];
@@ -735,7 +747,7 @@ export function effect_call_of_welloes(gameState, playerId) {
 	if (openSlot < 0) {
 		return { ...state, _callOfWelloesCancel: true };
 	}
-	const welloeOptions = player.welloe.map(w => ({
+	const welloeOptions = mosjeEntries.map(w => ({
 		cardId: w.cardId, name: w.name, mp: w.mp, level: w.level,
 	}));
 	state._callOfWelloesPending = { playerId, welloeOptions };
@@ -1112,15 +1124,20 @@ export function effect_mp_hemorrhage(gameState, playerId) {
 }
 
 export function effect_klaar_met_jou(gameState, playerId) {
-	const state = cloneState(gameState);
+	let state = cloneState(gameState);
 	const oppId = getOpponentId(state, playerId);
 	if (!oppId) return state;
-	const opp = state.players[oppId];
+	let opp = state.players[oppId];
 	const osi = getFirstActiveSlotIndex(opp);
 	if (osi >= 0) {
 		applyDamage(opp.activeSlots[osi], 40);
-		if (opp.hand.length > 0) opp.hand.pop();
-		console.log('[ABILITY] Klaar met jou: opponent -40 MP, discard 1');
+		if (opp.hand.length > 0) {
+			const [removed] = opp.hand.splice(opp.hand.length - 1, 1);
+			const cardId = removed?.cardId ?? removed;
+			state = addToGraveyard(state, oppId, cardId, 'discarded');
+			opp = state.players[oppId];
+		}
+		console.log('[ABILITY] Klaar met jou: opponent -40 MP, discard 1 to graveyard');
 	}
 	return state;
 }

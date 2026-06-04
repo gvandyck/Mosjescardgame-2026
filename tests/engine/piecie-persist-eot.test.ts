@@ -20,7 +20,7 @@ function makeState(overrides: { mp?: number; turnNumber?: number } = {}) {
       player_1: {
         hand: [],
         deck: [],
-        discard: [],
+        graveyard: [],
         questsCompleted: 0,
         questsCompletedThisTurn: 0,
         questsAttemptedThisTurn: 0,
@@ -60,7 +60,7 @@ function makeState(overrides: { mp?: number; turnNumber?: number } = {}) {
       player_2: {
         hand: [],
         deck: [],
-        discard: [],
+        graveyard: [],
         questsCompleted: 0,
         questsCompletedThisTurn: 0,
         questsAttemptedThisTurn: 0,
@@ -116,13 +116,13 @@ describe("Dubbele Dosis — Persist Until End-of-Turn (BUG-02)", () => {
     expect(afterEnd.players.player_1.piecieSlots[0]).toBeNull();
   });
 
-  it("piecie_quest_prep is in discard after endTurn", () => {
+  it("piecie_quest_prep is in graveyard after endTurn", () => {
     const state = makeState();
     const { state: afterActivate } = activatePiecie(state, "player_1", 0);
     const afterEnd = endTurn(afterActivate);
     // After endTurn, player_1's discard should contain the card
-    const p1Discard = afterEnd.players.player_1.discard;
-    expect(p1Discard).toContain("piecie_quest_prep");
+    const p1Graveyard = afterEnd.players.player_1.graveyard;
+    expect(p1Graveyard.some((e: any) => (e?.cardId ?? e) === "piecie_quest_prep")).toBe(true);
   });
 
   it("questPrepBonus is 0 after endTurn when no quest was attempted", () => {
