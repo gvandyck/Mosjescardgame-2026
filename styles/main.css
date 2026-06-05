@@ -277,6 +277,14 @@ h3 {
   font-size: 0.92rem;
 }
 
+.deck-tagline {
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--text-muted, #9ca3af);
+  margin-top: 0.2rem;
+  min-height: 1.1em;
+}
+
 .lobby-form input,
 .lobby-form select,
 .lobby-input {

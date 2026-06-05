@@ -7,6 +7,7 @@ export const STARTER_DECKS = [
     id: "PHYSICAL_FORCE",
     name: "Physical Force",
     description: "Couple power: Gandoe and Michelle's boxing chemistry. Physical quests, place synergies, and the Toennoe hangout.",
+    tagline: "Couple power, physical quests",
     mosjes: ["mosje_gandoe_destroyer", "mosje_michelle"],
     piecies: [
       "piecie_boxing_gloves",
@@ -38,6 +39,7 @@ export const STARTER_DECKS = [
     id: "DIGITAL_CONTROL",
     name: "Digital Control",
     description: "Coert and Binti's Tesla loop: FOOD synergy, quest economy, and the Winston Jaaa auto-quest combo.",
+    tagline: "Tesla loop, auto-quest combo",
     mosjes: ["mosje_coert_tech", "mosje_binti"],
     piecies: [
       "piecie_kannetje_melk",
@@ -70,6 +72,7 @@ export const STARTER_DECKS = [
     id: "ARTISTIC_RHYTHM",
     name: "Artistic Rhythm",
     description: "Youri and Chris DDR: speedrun combos, piecie chains, and creative quest pressure.",
+    tagline: "Speedrun combos, creative pressure",
     mosjes: ["mosje_youri", "mosje_chris_ddr"],
     piecies: [
       "piecie_kannetje_melk",
