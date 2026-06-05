@@ -614,7 +614,24 @@ src/cards/quests/general/quest-endurance-test.ts
 
 ---
 
-*Last updated: 2026-06-02*
+*Last updated: 2026-06-05*
+
+---
+
+### Phase 27: Youri Ability + Chris Synergy Fix
+
+**Goal:** Fix Youri Speed Activate to match its card description (20 MP cost â†’ activate a face-down piecie on field â†’ draw 1 card, max 3 uses per game), and implement the Chris+Youri passive synergy (both on field = piecies played from hand go directly to active state, no waiting turn).
+
+**Requirements:** YCS-01, YCS-02, YCS-03
+
+**Plans:** 3 plans\n\nPlans:\n- [ ] 27-01-PLAN.md — Fix ability_youri_speed_activate engine logic + youriAbilityUses counter\n- [ ] 27-02-PLAN.md — Wire Youri ability UI in main.js: slot selector modal + activatePiecie + card draw\n- [ ] 27-03-PLAN.md — Chris+Youri passive synergy in playPiecie + test suite
+
+**Success Criteria:**
+1. Youri ability costs 20 MP, activates a face-down piecie on field, then draws 1 card
+2. Youri ability is blocked if player has < 20 MP or no face-down piecies on field
+3. Youri ability use-count is tracked and capped at 3 per game
+4. When both Chris and Youri are on the field, playing any piecie from hand skips the face-down waiting turn and activates immediately
+5. node --check clean, npm test passes
 
 ---
 
