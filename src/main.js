@@ -102,6 +102,17 @@ function initLobbyPage() {
 		}
 	});
 
+	// Deck tagline — show one-liner identity when player selects a deck
+	const deckTaglineEl = document.getElementById('deck-tagline');
+	function updateDeckTagline(deckId) {
+		if (!deckTaglineEl) return;
+		const deck = STARTER_DECKS.find(d => d.id === deckId);
+		deckTaglineEl.textContent = deck?.tagline ?? '';
+	}
+	const deckSelectEl = document.getElementById('deck-select');
+	deckSelectEl?.addEventListener('change', (e) => updateDeckTagline(e.target.value));
+	updateDeckTagline(deckSelectEl?.value); // set tagline on initial page load
+
 	// Sign out button
 	document.getElementById('btn-signout')?.addEventListener('click', async () => {
 		await signOut();
