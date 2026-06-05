@@ -26,6 +26,7 @@
 | 20 | Leipe Swap (temporary MP swap) ? | Rework the unused Emergency Swap into **Leipe Swap** (*leip* = Dutch slang for sick/crazy; rarest tier ???? = 1 per deck; no MP cost; stays on field 1 turn). On your turn, pick one of your Mosjes + an opponent Mosje and swap their MP; at the END of your turn swap the *current* MP back. Levels banked off the borrowed progress stick; leftover MP is handed to the other Mosje (double-swap). Imperative engine: effect + endTurn revert + target modals; rename old emergency_swap refs across both card systems + docs. | LEIPE-01 | DONE � 856 tests pass, 0 sim crashes. Leipe Swap swaps/reverts MP, banked levels persist, max-rarity deck cap set, old refs renamed |
 | 21 | Quest Behaviors + Cleanup ? | **Bucket C** � wire 3 engine-doable quest behaviors via static quest-def fields read by `resolveQuest`: draw-on-success (Artistic Expression + Late Night Questing draw 2), Elimination Challenge (opponent -30 MP on success), Hack Mainframe Hacker/FPS -1 threshold id fix. **Bucket A** � delete dead `effect_jensen`/`effect_lucky_coin` stubs + tidy the unrun `.js` test, refresh stale `card-reference.md` rows (Geen Raad, Huisbaas, the 4 wired quests). (Bucket D � 3-way outcomes + turn-action gates � deferred.) | QUEST-01/02/03 + CLEAN-01 | DONE � 867 tests pass, 0 sim crashes. Draw-on-success + Elimination -30 MP + Hack FPS bonus wired; dead stubs removed; card-reference rows corrected |
 | 22 | Call of the Welloes | Implement the full Call of the Welloes Piecie effect: summon a Mosje from the Welloe pile into a free active slot (level+MP restored from welloe record); Piecie stays on field as the anchor � if the Piecie leaves play the summoned Mosje immediately returns to the Welloe pile. Requires: UI pick (showOptionSelect), new `returnMosjeToWelloe` engine helper, end-of-turn sweep check, `linkedMosjeCardId` field on piecieSlot, `summonedByPiecie` field on mosjeSlot. No free slot ? effect silently cancelled. Welloe pile empty ? effect silently cancelled. | CALLW-01 through CALLW-04 | effect_call_of_welloes functional; summon + return lifecycle correct; 0 sim crashes; all tests pass |
+| 25 | UI Polish & Feel | (E1) Quest result animations — distinct visual feedback for quest success (green flash + MP float), fail (red shake), and level-up (celebratory event); (E2) Deck archetype identities — one-line identity label per starter deck shown on deck select screen; (E3) End-game stats screen — after game ends, show quests attempted/succeeded, peak MP, biggest single gain, Mosjes lost. Pure UI/UX, no engine changes. | UIPOL-01 through UIPOL-03 | Quest results have distinct animations; deck select shows archetype identity; end-game stats screen renders correctly after win/loss |
 | 24 | Interrupt Modal System | Add a "Damage Interrupt" modal so the human player can react when the bot would damage or eliminate their Mosje. Three cards hook in: (1) Not Today! — negateNextElimination flag triggers an interrupt prompt before bot elimination resolves; (2) Emergency Healings — playable as interrupt when opponent/bot deals damage; (3) Laat me chillen! — fix MP_LOSS_REDUCTION consumption from quest/card damage + fix lifecycle (stay on board until end of turn). Also fix stale "welloe pile" reference in Not Today! card text. | INT-01 through INT-05 | Interrupt modal fires when bot would eliminate or damage human Mosje; Not Today! / Emergency Healings / Laat me chillen! all trigger correctly; Laat me chillen! stays on field for its full turn; tests pass; 0 sim crashes |
 
 ---
@@ -531,6 +532,28 @@ Plans:
 2. All graveyard entries are typed objects with at minimum `{ cardId, name, type }`
 3. UI label reads "Graveyard" everywhere; card descriptions updated
 4. All existing tests pass; 0 regressions
+
+---
+
+### Phase 25: UI Polish & Feel
+
+**Goal:** Make the game look and feel polished through three independent UI improvements that add no engine complexity.
+
+**Requirement IDs:** UIPOL-01, UIPOL-02, UIPOL-03
+
+- UIPOL-01: Quest result animations — green flash + MP float on success; red shake on fail; celebratory level-up event distinct from normal MP gain
+- UIPOL-02: Deck archetype identities — each starter deck gets a one-line identity shown on deck select screen (e.g. "High risk, high reward questing")
+- UIPOL-03: End-game stats screen — after game ends, render: quests attempted, quests succeeded, peak MP reached, biggest single MP gain, Mosjes lost
+
+**Plans:** 3 plans\n\nPlans:\n- [ ] 25-01-PLAN.md � Quest result animations (CSS + boardRenderer + actionAnimations wiring)\n- [ ] 25-02-PLAN.md � Deck archetype identities (tagline field + lobby tagline div + change listener)\n- [ ] 25-03-PLAN.md � End-game stats screen (gameStats accumulator + rewardOverlay extension)
+
+**Success Criteria:**
+1. Quest success shows a green animated flash + floating MP number
+2. Quest fail shows a red shake animation
+3. Level-up has a visually distinct celebratory moment
+4. Deck select screen shows a one-line archetype identity per deck
+5. End-game stats screen appears after win/loss with all 5 stat categories
+6. All 920+ tests pass; 0 sim crashes; node --check clean
 
 ---
 
