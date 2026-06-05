@@ -363,16 +363,52 @@ function initGamePage() {
 
 	let gameState = null;
 
+	// Stats accumulator — local player game summary for end-screen
+	let gameStats = {
+		questsAttempted: 0,
+		questsSucceeded: 0,
+		peakMP: 0,
+		biggestSingleGain: 0,
+		mosjesLost: 0,
+	};
+	let prevActiveSlots = null; // snapshot of local player's active slots after each render
+
 	// ── Sync helpers ──────────────────────────────────────────────────────
 	function syncPush() {
 		if (isOnline && gameState) pushState(roomCode, gameState);
+	}
+
+	// Tracks peak MP for local player after every render.
+	function trackPeakMP() {
+		const localPlayer = gameState.players?.[localPlayerId];
+		if (!localPlayer) return;
+		(localPlayer.activeSlots || []).forEach(slot => {
+			if (!slot) return;
+			const mp = Number(slot.mp || 0);
+			if (mp > gameStats.peakMP) gameStats.peakMP = mp;
+		});
 	}
 
 	// ── Offline win-check wrapper ──────────────────────────────────────────
 	// After any human action, check if the game just ended.
 	// Replaces bare renderFromState(gameState) calls in all 7 action handlers.
 	function renderAndCheckWin() {
+		const localSlots = gameState.players?.[localPlayerId]?.activeSlots || [];
+
 		renderFromState(gameState);
+
+		// Detect mosje defeats since last render
+		if (prevActiveSlots) {
+			prevActiveSlots.forEach((before, i) => {
+				const after = localSlots[i];
+				if (before && !before.isDefeated && after && after.isDefeated) {
+					gameStats.mosjesLost += 1;
+				}
+			});
+		}
+		prevActiveSlots = localSlots.map(s => s ? { isDefeated: s.isDefeated } : null);
+
+		trackPeakMP();
 		if (isOffline && gameState && gameState.status === 'FINISHED') {
 			handleGameOver(gameState);
 		}
@@ -567,7 +603,7 @@ function initGamePage() {
 			muntenAwarded = result.muntenAwarded;
 		}
 
-		showRewardOverlay({ outcome, winnerName, winReason: gs.winReason, muntenAwarded, isOnline });
+		showRewardOverlay({ outcome, winnerName, winReason: gs.winReason, muntenAwarded, isOnline, stats: gameStats });
 	}
 
 	// ── Shared remote-state handler — registered after game init ─────────
@@ -898,6 +934,22 @@ function initGamePage() {
 			if (!Array.isArray(gameState.sharedGeneralQuestDiscard)) gameState.sharedGeneralQuestDiscard = [];
 			gameState.sharedGeneralQuestDiscard.push(questRef);
 
+			// Stats: Geen Raad quest outcome
+			gameStats.questsAttempted += 1;
+			if (didSucceed) {
+				gameStats.questsSucceeded += 1;
+				const localBefore = beforeResolve.players?.[localPlayerId];
+				const localAfter = gameState.players?.[localPlayerId];
+				if (localBefore && localAfter) {
+					(localAfter.activeSlots || []).forEach((afterSlot, i) => {
+						const beforeSlot = (localBefore.activeSlots || [])[i];
+						if (!afterSlot || !beforeSlot) return;
+						const gain = Number(afterSlot.mp || 0) - Number(beforeSlot.mp || 0);
+						if (gain > gameStats.biggestSingleGain) gameStats.biggestSingleGain = gain;
+					});
+				}
+			}
+
 			renderAndAnimate(beforeResolve, { actionLabel: 'quest-resolution' });
 			syncPush();
 
@@ -992,6 +1044,23 @@ function initGamePage() {
 					gameState.sharedGeneralQuestDiscard = [];
 				}
 				gameState.sharedGeneralQuestDiscard.push(questRef);
+
+				// Stats: general quest outcome
+				gameStats.questsAttempted += 1;
+				if (didSucceed) {
+					gameStats.questsSucceeded += 1;
+					const localBefore = beforeResolve.players?.[localPlayerId];
+					const localAfter = gameState.players?.[localPlayerId];
+					if (localBefore && localAfter) {
+						(localAfter.activeSlots || []).forEach((afterSlot, i) => {
+							const beforeSlot = (localBefore.activeSlots || [])[i];
+							if (!afterSlot || !beforeSlot) return;
+							const gain = Number(afterSlot.mp || 0) - Number(beforeSlot.mp || 0);
+							if (gain > gameStats.biggestSingleGain) gameStats.biggestSingleGain = gain;
+						});
+					}
+				}
+
 				renderAndAnimate(beforeResolve, { actionLabel: 'quest-resolution' });
 				syncPush();
 
@@ -1721,6 +1790,22 @@ function initGamePage() {
 				}
 				gameState = resolveQuest(gameState, localPlayerId, resolveQuestDef, didSucceed, targetSlotIndex);
 				gameState.activeQuest = null;
+
+				// Stats: personal quest outcome
+				gameStats.questsAttempted += 1;
+				if (didSucceed) {
+					gameStats.questsSucceeded += 1;
+					const localBefore = beforeResolve.players?.[localPlayerId];
+					const localAfter = gameState.players?.[localPlayerId];
+					if (localBefore && localAfter) {
+						(localAfter.activeSlots || []).forEach((afterSlot, i) => {
+							const beforeSlot = (localBefore.activeSlots || [])[i];
+							if (!afterSlot || !beforeSlot) return;
+							const gain = Number(afterSlot.mp || 0) - Number(beforeSlot.mp || 0);
+							if (gain > gameStats.biggestSingleGain) gameStats.biggestSingleGain = gain;
+						});
+					}
+				}
 
 				// Perfect Sync: show opponent hand, then let player pick mosje for +70 MP.
 				if (questDef.id === 'quest_personal_perfect_sync' && didSucceed) {
