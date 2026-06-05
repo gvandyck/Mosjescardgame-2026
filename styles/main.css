@@ -834,31 +834,100 @@ body::before {
 }
 
 .reward-stats {
-  margin: 0.75rem 0;
-  text-align: left;
+  margin: 1.25rem 0 0.5rem;
+  width: 100%;
 }
-.reward-stats__title {
-  font-size: 0.7rem;
+
+.reward-stats__divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  color: rgba(255,255,255,0.25);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted, #9ca3af);
-  margin-bottom: 0.4rem;
 }
-.reward-stats__list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.reward-stats__divider::before,
+.reward-stats__divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.1);
+}
+.reward-stats__divider span { white-space: nowrap; }
+
+.reward-stats__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.stat-tile {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 0.85rem 0.75rem 0.7rem;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 0.2rem;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: stat-tile-in 0.35s var(--ease-smooth, ease) forwards;
 }
-.reward-stats__list li {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.85rem;
+.stat-tile:nth-child(1) { animation-delay: 0.05s; }
+.stat-tile:nth-child(2) { animation-delay: 0.12s; }
+.stat-tile:nth-child(3) { animation-delay: 0.19s; }
+.stat-tile:nth-child(4) { animation-delay: 0.26s; }
+.stat-tile:nth-child(5) { animation-delay: 0.33s; }
+
+@keyframes stat-tile-in {
+  to { opacity: 1; transform: translateY(0); }
 }
-.stat-label { color: var(--text-muted, #9ca3af); }
-.stat-value { font-weight: 600; color: var(--text-primary, #f9fafb); }
+
+.stat-tile--full {
+  grid-column: 1 / -1;
+}
+
+.stat-tile__icon {
+  font-size: 1rem;
+  line-height: 1;
+  margin-bottom: 0.1rem;
+}
+
+.stat-tile__value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #f9fafb;
+  letter-spacing: -0.02em;
+}
+.stat-tile__denom {
+  font-size: 0.9rem;
+  font-weight: 500;
+  opacity: 0.55;
+  letter-spacing: 0;
+}
+
+.stat-tile__label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.35);
+  margin-top: 0.15rem;
+}
+
+.stat-tile--quest  { border-color: rgba(99,  179, 237, 0.2); }
+.stat-tile--quest  .stat-tile__value { color: #63b3ed; }
+.stat-tile--rate   { border-color: rgba(104, 211, 145, 0.2); }
+.stat-tile--rate   .stat-tile__value { color: #68d391; }
+.stat-tile--peak   { border-color: rgba(236, 201, 75,  0.2); }
+.stat-tile--peak   .stat-tile__value { color: #ecc94b; }
+.stat-tile--gain   { border-color: rgba(154, 230, 180, 0.2); }
+.stat-tile--gain   .stat-tile__value { color: #9ae6b4; }
+.stat-tile--loss   { border-color: rgba(252, 129, 129, 0.2); }
+.stat-tile--loss   .stat-tile__value { color: #fc8181; }
 
 /* ── (existing rule continues below) */
 .lobby-form select option:disabled {

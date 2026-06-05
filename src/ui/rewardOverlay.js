@@ -27,16 +27,41 @@ export function showRewardOverlay({ outcome, winnerName, winReason, muntenAwarde
 		? `<p class="reward-munten">+${muntenAwarded} Munten</p>`
 		: '';
 
+	const successRate = stats
+		? (stats.questsAttempted > 0 ? Math.round((stats.questsSucceeded / stats.questsAttempted) * 100) : 0)
+		: 0;
+
 	const statsSection = stats ? `
 		<div class="reward-stats">
-			<div class="reward-stats__title">Your Game</div>
-			<ul class="reward-stats__list">
-				<li><span class="stat-label">Quests attempted</span><span class="stat-value">${stats.questsAttempted}</span></li>
-				<li><span class="stat-label">Quests succeeded</span><span class="stat-value">${stats.questsSucceeded}</span></li>
-				<li><span class="stat-label">Peak MP</span><span class="stat-value">${stats.peakMP}</span></li>
-				<li><span class="stat-label">Biggest gain</span><span class="stat-value">+${stats.biggestSingleGain} MP</span></li>
-				<li><span class="stat-label">Mosjes lost</span><span class="stat-value">${stats.mosjesLost}</span></li>
-			</ul>
+			<div class="reward-stats__divider"><span>Game Summary</span></div>
+			<div class="reward-stats__grid">
+				<div class="stat-tile stat-tile--quest">
+					<span class="stat-tile__icon">⚔️</span>
+					<span class="stat-tile__value">${stats.questsSucceeded}<span class="stat-tile__denom">/${stats.questsAttempted}</span></span>
+					<span class="stat-tile__label">Quests won</span>
+				</div>
+				<div class="stat-tile stat-tile--rate">
+					<span class="stat-tile__icon">🎯</span>
+					<span class="stat-tile__value">${successRate}<span class="stat-tile__denom">%</span></span>
+					<span class="stat-tile__label">Success rate</span>
+				</div>
+				<div class="stat-tile stat-tile--peak">
+					<span class="stat-tile__icon">⚡</span>
+					<span class="stat-tile__value">${stats.peakMP}<span class="stat-tile__denom"> MP</span></span>
+					<span class="stat-tile__label">Peak momentum</span>
+				</div>
+				<div class="stat-tile stat-tile--gain">
+					<span class="stat-tile__icon">📈</span>
+					<span class="stat-tile__value">+${stats.biggestSingleGain}<span class="stat-tile__denom"> MP</span></span>
+					<span class="stat-tile__label">Biggest gain</span>
+				</div>
+				${stats.mosjesLost > 0 ? `
+				<div class="stat-tile stat-tile--loss stat-tile--full">
+					<span class="stat-tile__icon">💀</span>
+					<span class="stat-tile__value">${stats.mosjesLost}</span>
+					<span class="stat-tile__label">Mosje${stats.mosjesLost !== 1 ? 's' : ''} lost</span>
+				</div>` : ''}
+			</div>
 		</div>
 	` : '';
 
