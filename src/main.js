@@ -2666,7 +2666,9 @@ function logStateOutcome(log, beforeState, afterState, actorId, label = 'Action'
 	}
 	log.add('info', `${label}:`);
 	for (const line of lines.slice(0, 6)) {
-		log.add('info', `- ${line}`);
+		// Level-up lines from summarizeStateOutcome contain "level N -> N"
+		const isLevelUp = /level \d+ -> \d+/i.test(line);
+		log.add(isLevelUp ? 'level' : 'info', `- ${line}`);
 	}
 }
 
