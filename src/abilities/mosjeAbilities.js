@@ -440,17 +440,54 @@ export function ability_chris_perfect_setup(gameState, playerId) {
 	return state;
 }
 
-// Youri Speedrunner — draw 1 card; that card may be played instantly this turn.
+// Youri Speedrunner — pay 20 MP → activate a face-down Piecie on field → draw 1 card (max 3/game).
 export function ability_youri_speed_activate(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
-	if (!player) return state;
-	if (player.deck.length > 0) {
-		player.hand.push(player.deck.shift());
-		player.instantPiecieThisTurn = true;
-		console.log('[ABILITY] Youri: drew 1 card + instant piecie flag set');
+	if (!player) return { state, success: false, error: 'Player not found' };
+
+	// Use-cap check
+	if ((player.youriAbilityUses || 0) >= 3) {
+		return { state, success: false, error: 'Youri Speed Activate has already been used 3 times this game' };
 	}
-	return state;
+
+	// Youri must be on the field
+	const youriSlot = player.activeSlots.find(s => s && !s.isDefeated && s.cardId === 'mosje_youri');
+	if (!youriSlot) {
+		return { state, success: false, error: 'Youri is not active on the field' };
+	}
+
+	// MP check
+	if (youriSlot.mp < 20) {
+		return { state, success: false, error: 'Not enough MP on Youri (need 20)' };
+	}
+
+	// Find face-down non-activated PIECIE slots
+	const faceDownIndices = player.piecieSlots
+		.map((s, i) => (s && s.type === 'PIECIE' && s.faceDown && !s.activated) ? i : -1)
+		.filter(i => i >= 0);
+	if (faceDownIndices.length === 0) {
+		return { state, success: false, error: 'No face-down Piecies on the field to activate' };
+	}
+
+	// Deduct 20 MP and increment use counter
+	youriSlot.mp -= 20;
+	player.youriAbilityUses = (player.youriAbilityUses || 0) + 1;
+
+	if (faceDownIndices.length === 1) {
+		// Auto-pick the only face-down piecie
+		player.piecieSlots[faceDownIndices[0]].canActivateOnTurn = state.turnNumber;
+		if (player.deck.length > 0) {
+			player.hand.push(player.deck.shift());
+		}
+		console.log('[ABILITY] Youri: 20 MP paid, auto-activated piecie at slot ' + faceDownIndices[0] + ', drew 1 card');
+		return { state, success: true };
+	} else {
+		// Multiple face-down piecies — signal UI to pick
+		state._pendingYouriActivation = { playerId, faceDownSlots: faceDownIndices };
+		console.log('[ABILITY] Youri: 20 MP paid, awaiting piecie selection from ' + faceDownIndices.length + ' slots');
+		return { state, success: true, pendingYouriActivation: true };
+	}
 }
 
 // Tactician — transfer up to 20 MP from slot 1 to slot 0 (or vice versa, picks the lower-MP slot).
