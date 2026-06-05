@@ -1019,8 +1019,21 @@ export function useMosjeAbility(gameState, playerId, mosjeId) {
   }
 
   let state;
+  let extraFields = {};
   try {
-    state = fn(stateForAbility, playerId, mosjeId);
+    const result = fn(stateForAbility, playerId, mosjeId);
+    // Ability functions may return either a raw state object OR a result envelope
+    // { state, success, error, ...extras }. Unwrap the envelope if present.
+    if (result && typeof result === 'object' && 'state' in result && 'success' in result) {
+      if (!result.success) {
+        return { state: gameState, success: false, error: result.error };
+      }
+      const { state: innerState, success: _s, error: _e, ...rest } = result;
+      state = innerState;
+      extraFields = rest;
+    } else {
+      state = result;
+    }
   } catch (err) {
     console.warn(`[ENGINE] useMosjeAbility: ability ${mosjeDef.abilityId} threw — needs UI input:`, err.message);
     return { state: gameState, success: false, error: err.message };
@@ -1032,7 +1045,7 @@ export function useMosjeAbility(gameState, playerId, mosjeId) {
   }
 
   state = checkVictory(state);
-  return { state, success: true };
+  return { state, success: true, ...extraFields };
 }
 
 // ─────────────────────────────────────────────────────────────
