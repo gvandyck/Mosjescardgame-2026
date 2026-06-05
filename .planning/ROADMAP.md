@@ -26,6 +26,8 @@
 | 20 | Leipe Swap (temporary MP swap) ? | Rework the unused Emergency Swap into **Leipe Swap** (*leip* = Dutch slang for sick/crazy; rarest tier ???? = 1 per deck; no MP cost; stays on field 1 turn). On your turn, pick one of your Mosjes + an opponent Mosje and swap their MP; at the END of your turn swap the *current* MP back. Levels banked off the borrowed progress stick; leftover MP is handed to the other Mosje (double-swap). Imperative engine: effect + endTurn revert + target modals; rename old emergency_swap refs across both card systems + docs. | LEIPE-01 | DONE � 856 tests pass, 0 sim crashes. Leipe Swap swaps/reverts MP, banked levels persist, max-rarity deck cap set, old refs renamed |
 | 21 | Quest Behaviors + Cleanup ? | **Bucket C** � wire 3 engine-doable quest behaviors via static quest-def fields read by `resolveQuest`: draw-on-success (Artistic Expression + Late Night Questing draw 2), Elimination Challenge (opponent -30 MP on success), Hack Mainframe Hacker/FPS -1 threshold id fix. **Bucket A** � delete dead `effect_jensen`/`effect_lucky_coin` stubs + tidy the unrun `.js` test, refresh stale `card-reference.md` rows (Geen Raad, Huisbaas, the 4 wired quests). (Bucket D � 3-way outcomes + turn-action gates � deferred.) | QUEST-01/02/03 + CLEAN-01 | DONE � 867 tests pass, 0 sim crashes. Draw-on-success + Elimination -30 MP + Hack FPS bonus wired; dead stubs removed; card-reference rows corrected |
 | 22 | Call of the Welloes | Implement the full Call of the Welloes Piecie effect: summon a Mosje from the Welloe pile into a free active slot (level+MP restored from welloe record); Piecie stays on field as the anchor � if the Piecie leaves play the summoned Mosje immediately returns to the Welloe pile. Requires: UI pick (showOptionSelect), new `returnMosjeToWelloe` engine helper, end-of-turn sweep check, `linkedMosjeCardId` field on piecieSlot, `summonedByPiecie` field on mosjeSlot. No free slot ? effect silently cancelled. Welloe pile empty ? effect silently cancelled. | CALLW-01 through CALLW-04 | effect_call_of_welloes functional; summon + return lifecycle correct; 0 sim crashes; all tests pass |
+| 26 | Debug Logging System | Add structured in-game event logging so MP changes, level-ups, and quest resolutions are clearly visible during play. Every MP gain/loss shows its source (card/effect), every level-up logs before/after state, quest rolls log threshold vs result. Output appears in the existing game log panel. Pure observability layer — no engine changes. | DBLOG-01 through DBLOG-03 | MP changes show source in log; level-ups show before/after; quest rolls show threshold vs result; log panel displays all events during a real game |
+| 25.1 | Animation Overflow Fix | Animations (quest success flash, fail shake, level-up celebration) get clipped by overflow:hidden on .card and inner containers. Fix: apply animation classes to the slot wrapper (.mosje-slot) instead of the card element — slot wrappers have no overflow clip so glows and bursts render freely. ~5 lines JS + CSS selector update. | ANIMFIX-01 | All card animations visible outside card boundaries; no clipping on any slot type; node --check clean; 920+ tests pass |
 | 25 | UI Polish & Feel | (E1) Quest result animations — distinct visual feedback for quest success (green flash + MP float), fail (red shake), and level-up (celebratory event); (E2) Deck archetype identities — one-line identity label per starter deck shown on deck select screen; (E3) End-game stats screen — after game ends, show quests attempted/succeeded, peak MP, biggest single gain, Mosjes lost. Pure UI/UX, no engine changes. | UIPOL-01 through UIPOL-03 | Quest results have distinct animations; deck select shows archetype identity; end-game stats screen renders correctly after win/loss |
 | 24 | Interrupt Modal System | Add a "Damage Interrupt" modal so the human player can react when the bot would damage or eliminate their Mosje. Three cards hook in: (1) Not Today! — negateNextElimination flag triggers an interrupt prompt before bot elimination resolves; (2) Emergency Healings — playable as interrupt when opponent/bot deals damage; (3) Laat me chillen! — fix MP_LOSS_REDUCTION consumption from quest/card damage + fix lifecycle (stay on board until end of turn). Also fix stale "welloe pile" reference in Not Today! card text. | INT-01 through INT-05 | Interrupt modal fires when bot would eliminate or damage human Mosje; Not Today! / Emergency Healings / Laat me chillen! all trigger correctly; Laat me chillen! stays on field for its full turn; tests pass; 0 sim crashes |
 
@@ -545,7 +547,7 @@ Plans:
 - UIPOL-02: Deck archetype identities — each starter deck gets a one-line identity shown on deck select screen (e.g. "High risk, high reward questing")
 - UIPOL-03: End-game stats screen — after game ends, render: quests attempted, quests succeeded, peak MP reached, biggest single MP gain, Mosjes lost
 
-**Plans:** 3 plans\n\nPlans:\n- [ ] 25-01-PLAN.md � Quest result animations (CSS + boardRenderer + actionAnimations wiring)\n- [ ] 25-02-PLAN.md � Deck archetype identities (tagline field + lobby tagline div + change listener)\n- [ ] 25-03-PLAN.md � End-game stats screen (gameStats accumulator + rewardOverlay extension)
+**Plans:** 3 plans\n\nPlans:\n- [ ] 25-01-PLAN.md � Quest result animations (CSS + boardRenderer + actionAnimations wiring)\n- [ ] 25-02-PLAN.md � Deck archetype identities (tagline field + lobby tagline div + change listener)\n- [ ] 25-03-PLAN.md � End-game stats screen (gameStats accumulator + rewardOverlay extension)
 
 **Success Criteria:**
 1. Quest success shows a green animated flash + floating MP number
@@ -612,4 +614,42 @@ src/cards/quests/general/quest-endurance-test.ts
 
 ---
 
-*Last updated: 2026-06-02*
+*Last updated: 2026-06-05*
+
+---
+
+### Phase 27: Youri Ability + Chris Synergy Fix
+
+**Goal:** Fix Youri Speed Activate to match its card description (20 MP cost → activate a face-down piecie on field → draw 1 card, max 3 uses per game), and implement the Chris+Youri passive synergy (both on field = piecies played from hand go directly to active state, no waiting turn).
+
+**Requirements:** YCS-01, YCS-02, YCS-03
+
+**Plans:** 3 plans\n\nPlans:\n- [ ] 27-01-PLAN.md � Fix ability_youri_speed_activate engine logic + youriAbilityUses counter\n- [ ] 27-02-PLAN.md � Wire Youri ability UI in main.js: slot selector modal + activatePiecie + card draw\n- [ ] 27-03-PLAN.md � Chris+Youri passive synergy in playPiecie + test suite
+
+**Success Criteria:**
+1. Youri ability costs 20 MP, activates a face-down piecie on field, then draws 1 card
+2. Youri ability is blocked if player has < 20 MP or no face-down piecies on field
+3. Youri ability use-count is tracked and capped at 3 per game
+4. When both Chris and Youri are on the field, playing any piecie from hand skips the face-down waiting turn and activates immediately
+5. node --check clean, npm test passes
+
+---
+
+### Phase 26: Debug Logging System
+
+**Goal:** Pure observability layer — every MP change shows its source, every level-up shows before/after, every quest roll shows threshold vs result. No engine changes.
+
+**Requirements:** DBLOG-01, DBLOG-02, DBLOG-03
+
+**Plans:** 3 plans
+
+Plans:
+- [ ] 26-01-PLAN.md — MP source logging: add source-attributed log.add calls at quest cost and resolution sites in main.js
+- [ ] 26-02-PLAN.md — Level-up log type: patch logStateOutcome to emit 'level' type for level-change lines
+- [ ] 26-03-PLAN.md — Quest roll logging: extend showDiceRoll callback to pass roll+threshold, wire log entries at both call sites
+
+**Success Criteria:**
+1. MP changes show source in log panel (quest name, ability name)
+2. Level-ups display with ⬆️ icon and before/after level numbers
+3. Quest rolls display "rolled N, needed M+ → Success/Failed"
+4. node --check clean, npm test passes

@@ -363,16 +363,52 @@ function initGamePage() {
 
 	let gameState = null;
 
+	// Stats accumulator — local player game summary for end-screen
+	let gameStats = {
+		questsAttempted: 0,
+		questsSucceeded: 0,
+		peakMP: 0,
+		biggestSingleGain: 0,
+		mosjesLost: 0,
+	};
+	let prevActiveSlots = null; // snapshot of local player's active slots after each render
+
 	// ── Sync helpers ──────────────────────────────────────────────────────
 	function syncPush() {
 		if (isOnline && gameState) pushState(roomCode, gameState);
+	}
+
+	// Tracks peak MP for local player after every render.
+	function trackPeakMP() {
+		const localPlayer = gameState.players?.[localPlayerId];
+		if (!localPlayer) return;
+		(localPlayer.activeSlots || []).forEach(slot => {
+			if (!slot) return;
+			const mp = Number(slot.mp || 0);
+			if (mp > gameStats.peakMP) gameStats.peakMP = mp;
+		});
 	}
 
 	// ── Offline win-check wrapper ──────────────────────────────────────────
 	// After any human action, check if the game just ended.
 	// Replaces bare renderFromState(gameState) calls in all 7 action handlers.
 	function renderAndCheckWin() {
+		const localSlots = gameState.players?.[localPlayerId]?.activeSlots || [];
+
 		renderFromState(gameState);
+
+		// Detect mosje defeats since last render
+		if (prevActiveSlots) {
+			prevActiveSlots.forEach((before, i) => {
+				const after = localSlots[i];
+				if (before && !before.isDefeated && after && after.isDefeated) {
+					gameStats.mosjesLost += 1;
+				}
+			});
+		}
+		prevActiveSlots = localSlots.map(s => s ? { isDefeated: s.isDefeated } : null);
+
+		trackPeakMP();
 		if (isOffline && gameState && gameState.status === 'FINISHED') {
 			handleGameOver(gameState);
 		}
@@ -567,7 +603,7 @@ function initGamePage() {
 			muntenAwarded = result.muntenAwarded;
 		}
 
-		showRewardOverlay({ outcome, winnerName, winReason: gs.winReason, muntenAwarded, isOnline });
+		showRewardOverlay({ outcome, winnerName, winReason: gs.winReason, muntenAwarded, isOnline, stats: gameStats });
 	}
 
 	// ── Shared remote-state handler — registered after game init ─────────
@@ -898,6 +934,22 @@ function initGamePage() {
 			if (!Array.isArray(gameState.sharedGeneralQuestDiscard)) gameState.sharedGeneralQuestDiscard = [];
 			gameState.sharedGeneralQuestDiscard.push(questRef);
 
+			// Stats: Geen Raad quest outcome
+			gameStats.questsAttempted += 1;
+			if (didSucceed) {
+				gameStats.questsSucceeded += 1;
+				const localBefore = beforeResolve.players?.[localPlayerId];
+				const localAfter = gameState.players?.[localPlayerId];
+				if (localBefore && localAfter) {
+					(localAfter.activeSlots || []).forEach((afterSlot, i) => {
+						const beforeSlot = (localBefore.activeSlots || [])[i];
+						if (!afterSlot || !beforeSlot) return;
+						const gain = Number(afterSlot.mp || 0) - Number(beforeSlot.mp || 0);
+						if (gain > gameStats.biggestSingleGain) gameStats.biggestSingleGain = gain;
+					});
+				}
+			}
+
 			renderAndAnimate(beforeResolve, { actionLabel: 'quest-resolution' });
 			syncPush();
 
@@ -984,7 +1036,7 @@ function initGamePage() {
 				tweedeKansReroll = 1;
 				delete gameState._rerollGranted;
 			}
-			modal.showDiceRoll(questDef, threshold, (didSucceed) => {
+			modal.showDiceRoll(questDef, threshold, (didSucceed, rollInfo) => {
 				const beforeResolve = snapshotForAnimation();
 				gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed, targetSlotIndex);
 				gameState.activeQuest = null;
@@ -992,13 +1044,31 @@ function initGamePage() {
 					gameState.sharedGeneralQuestDiscard = [];
 				}
 				gameState.sharedGeneralQuestDiscard.push(questRef);
+
+				// Stats: general quest outcome
+				gameStats.questsAttempted += 1;
+				if (didSucceed) {
+					gameStats.questsSucceeded += 1;
+					const localBefore = beforeResolve.players?.[localPlayerId];
+					const localAfter = gameState.players?.[localPlayerId];
+					if (localBefore && localAfter) {
+						(localAfter.activeSlots || []).forEach((afterSlot, i) => {
+							const beforeSlot = (localBefore.activeSlots || [])[i];
+							if (!afterSlot || !beforeSlot) return;
+							const gain = Number(afterSlot.mp || 0) - Number(beforeSlot.mp || 0);
+							if (gain > gameStats.biggestSingleGain) gameStats.biggestSingleGain = gain;
+						});
+					}
+				}
+
 				renderAndAnimate(beforeResolve, { actionLabel: 'quest-resolution' });
 				syncPush();
 
 				const mpDelta = didSucceed ? questDef.successMP : questDef.failMP;
 				const sign = mpDelta >= 0 ? '+' : '';
+				const rollLabel = rollInfo ? `rolled ${rollInfo.roll}, needed ${rollInfo.threshold}+ → ` : '';
 				log.add(didSucceed ? 'gain' : 'loss',
-					`${questDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`
+					`${questDef.name}: ${rollLabel}${didSucceed ? 'Success' : 'Failed'} (${sign}${mpDelta} MP)`
 				);
 				logStateOutcome(log, beforeResolve, gameState, localPlayerId, `${questDef.name} resolution`);
 
@@ -1018,7 +1088,7 @@ function initGamePage() {
 				// Deduct 20 MP quest cost immediately upon selection
 				const costState = loseMP(gameState, localPlayerId, targetSlotIndex, 20, 'QUEST_COST');
 				gameState = costState;
-				log.add('loss', `Quest attempt cost: -20 MP`);
+				log.add('loss', `Quest cost: ${questDef.name} -20 MP`);
 
 				const updatedMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
 				const thresholdForMosje = getQuestDiceThreshold(questDef, updatedMosje);
@@ -1160,6 +1230,7 @@ function initGamePage() {
 	const TUK_PERFECT_PLACEMENT_IDS = new Set(['mosje_tuk_architect']);
 	const FPS_WEST_TACTICAL_IDS = new Set(['mosje_fps_west']);
 	const RONALD_CHEF_INSIGHT_IDS = new Set(['mosje_ronald_chef']);
+	const YOURI_SPEED_ACTIVATE_IDS = new Set(['mosje_youri']);
 
 	async function handleUseAbility(mosjeId) {
 		if (!gameState || gameState.status === 'FINISHED') return;
@@ -1572,6 +1643,91 @@ function initGamePage() {
 			return;
 		}
 
+		if (YOURI_SPEED_ACTIVATE_IDS.has(mosjeId)) {
+			const { state: abilityState, success, error, pendingYouriActivation } =
+				useMosjeAbility(gameState, localPlayerId, mosjeId);
+			if (!success) {
+				modal.showInfo('Cannot Use Ability', error || 'Youri ability cannot be used right now.');
+				return;
+			}
+
+			let stateAfterAbility = abilityState;
+
+			if (pendingYouriActivation) {
+				// Multiple face-down piecies — show slot selector
+				const pending = stateAfterAbility._pendingYouriActivation;
+				const player = stateAfterAbility.players[localPlayerId];
+				const options = pending.faceDownSlots.map(i => {
+					const slot = player.piecieSlots[i];
+					const def = slot?.cardId ? CARD_LOOKUP[slot.cardId] : null;
+					return { id: i, label: `Slot ${i + 1} — ${def?.name || slot?.cardId || 'Unknown'}` };
+				});
+				const chosen = await modal.showOptionSelect({
+					title: 'Youri — Speed Activate',
+					prompt: 'Pick a face-down Piecie to activate:',
+					options,
+					allowCancel: true,
+				});
+				delete stateAfterAbility._pendingYouriActivation;
+				if (chosen === null || chosen === undefined) {
+					// Cost already spent — commit partial state and inform player
+					modal.showInfo('Ability Used', 'Youri paid 20 MP but no Piecie was selected. The cost is still spent.');
+					gameState = stateAfterAbility;
+					renderAll();
+					syncPush();
+					return;
+				}
+				const slotIndex = typeof chosen === 'object' ? chosen.id : chosen;
+				// Set canActivateOnTurn so the activatePiecie guard passes
+				stateAfterAbility = JSON.parse(JSON.stringify(stateAfterAbility));
+				stateAfterAbility.players[localPlayerId].piecieSlots[slotIndex].canActivateOnTurn =
+					stateAfterAbility.turnNumber;
+
+				const { state: activatedState, success: actSuccess, error: actError } =
+					activatePiecie(stateAfterAbility, localPlayerId, slotIndex);
+				if (!actSuccess) {
+					modal.showInfo('Activation Failed', actError || 'Could not activate the Piecie.');
+					gameState = stateAfterAbility;
+					renderAll();
+					return;
+				}
+				stateAfterAbility = activatedState;
+				// Draw 1 card after activation
+				if (stateAfterAbility.players[localPlayerId].deck.length > 0) {
+					stateAfterAbility = JSON.parse(JSON.stringify(stateAfterAbility));
+					stateAfterAbility.players[localPlayerId].hand.push(
+						stateAfterAbility.players[localPlayerId].deck.shift()
+					);
+				}
+			} else {
+				// Single-piecie auto-path: engine already set canActivateOnTurn and drew the card
+				// Find the unlocked slot (canActivateOnTurn === turnNumber, face-down, not activated)
+				const player = stateAfterAbility.players[localPlayerId];
+				const autoSlotIndex = player.piecieSlots.findIndex(
+					s => s && s.type === 'PIECIE' && s.faceDown && !s.activated &&
+						s.canActivateOnTurn === stateAfterAbility.turnNumber
+				);
+				if (autoSlotIndex >= 0) {
+					const { state: activatedState, success: actSuccess } =
+						activatePiecie(stateAfterAbility, localPlayerId, autoSlotIndex);
+					if (actSuccess) stateAfterAbility = activatedState;
+				}
+			}
+
+			if (abilitySlotIndex >= 0) {
+				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
+			}
+			gameState = stateAfterAbility;
+			// Log the ability cost against beforeAbility (shows -20 MP on Youri)
+			log.add('loss', `Youri Speed Activate: paid 20 MP, activated face-down Piecie, drew 1 card.`);
+			logStateOutcome(log, beforeAbility, abilityState, localPlayerId, 'Youri Speed Activate');
+			// Log the piecie effect against the post-cost state (shows piecie's full MP gain correctly)
+			logStateOutcome(log, abilityState, gameState, localPlayerId, 'Piecie effect');
+			syncPush();
+			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
+			return;
+		}
+
 		const { state: newState, success, error } = useMosjeAbility(gameState, localPlayerId, mosjeId);
 		if (!success) {
 			modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
@@ -1708,7 +1864,7 @@ function initGamePage() {
 				tweedeKansReroll = 1;
 				delete gameState._rerollGranted;
 			}
-			modal.showDiceRoll(questDef, threshold, (didSucceed) => {
+			modal.showDiceRoll(questDef, threshold, (didSucceed, rollInfo) => {
 				const beforeResolve = snapshotForAnimation();
 				// Kickboxing Bootcamp: override successMP per chosen Mosje + synergy bonus.
 				let resolveQuestDef = questDef;
@@ -1721,6 +1877,22 @@ function initGamePage() {
 				}
 				gameState = resolveQuest(gameState, localPlayerId, resolveQuestDef, didSucceed, targetSlotIndex);
 				gameState.activeQuest = null;
+
+				// Stats: personal quest outcome
+				gameStats.questsAttempted += 1;
+				if (didSucceed) {
+					gameStats.questsSucceeded += 1;
+					const localBefore = beforeResolve.players?.[localPlayerId];
+					const localAfter = gameState.players?.[localPlayerId];
+					if (localBefore && localAfter) {
+						(localAfter.activeSlots || []).forEach((afterSlot, i) => {
+							const beforeSlot = (localBefore.activeSlots || [])[i];
+							if (!afterSlot || !beforeSlot) return;
+							const gain = Number(afterSlot.mp || 0) - Number(beforeSlot.mp || 0);
+							if (gain > gameStats.biggestSingleGain) gameStats.biggestSingleGain = gain;
+						});
+					}
+				}
 
 				// Perfect Sync: show opponent hand, then let player pick mosje for +70 MP.
 				if (questDef.id === 'quest_personal_perfect_sync' && didSucceed) {
@@ -1771,7 +1943,8 @@ function initGamePage() {
 				syncPush();
 				const mpDelta = didSucceed ? resolveQuestDef.successMP : resolveQuestDef.failMP;
 				const sign = mpDelta >= 0 ? '+' : '';
-				log.add(didSucceed ? 'gain' : 'loss', `${questDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`);
+				const rollLabel = rollInfo ? `rolled ${rollInfo.roll}, needed ${rollInfo.threshold}+ → ` : '';
+				log.add(didSucceed ? 'gain' : 'loss', `${questDef.name}: ${rollLabel}${didSucceed ? 'Success' : 'Failed'} (${sign}${mpDelta} MP)`);
 				logStateOutcome(log, beforeResolve, gameState, localPlayerId, `${questDef.name} resolution`);
 			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus, forceReroll, skiffaRerolls: skiffaRerolls + tweedeKansReroll });
 		}
@@ -2581,7 +2754,9 @@ function logStateOutcome(log, beforeState, afterState, actorId, label = 'Action'
 	}
 	log.add('info', `${label}:`);
 	for (const line of lines.slice(0, 6)) {
-		log.add('info', `- ${line}`);
+		// Level-up lines from summarizeStateOutcome contain "level N -> N"
+		const isLevelUp = /level \d+ -> \d+/i.test(line);
+		log.add(isLevelUp ? 'level' : 'info', `- ${line}`);
 	}
 }
 

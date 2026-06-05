@@ -19,6 +19,16 @@ import { toGraveyardEntry } from './graveyardUtils.js';
 
 console.log('[ENGINE] turnManager.js loaded');
 
+// Returns true when the player has both a Chris variant AND Youri alive on the field.
+// Used by playPiecie for the passive Chris+Youri synergy (instant piecie placement).
+function hasBothChrisAndYouri(player) {
+  const CHRIS_IDS = new Set(['mosje_chris', 'mosje_chris_ddr']);
+  const slots = player.activeSlots;
+  const chrisAlive = slots.some(s => s && !s.isDefeated && CHRIS_IDS.has(s.cardId));
+  const youriAlive = slots.some(s => s && !s.isDefeated && s.cardId === 'mosje_youri');
+  return chrisAlive && youriAlive;
+}
+
 const PIECIE_LOOKUP = Object.fromEntries(PIECIES.map(card => [card.id, card]));
 const SNELLE_PIECIE_LOOKUP = Object.fromEntries(SNELLE_PIECIES.map(card => [card.id, card]));
 const PLACE_LOOKUP = Object.fromEntries(PLACES.map(card => [card.id, card]));
@@ -436,13 +446,17 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
     return { state, success: false, error: 'No empty Piecie slot available' };
   }
 
+  const chrisYouriSynergy = hasBothChrisAndYouri(player);
+  if (chrisYouriSynergy) {
+    console.log('[SYNERGY] Chris+Youri: Piecie placed with instant activation (canActivateOnTurn = ' + state.turnNumber + ')');
+  }
   player.piecieSlots[emptySlot] = {
     cardId: cardRef.cardId,
     type: 'PIECIE',
     faceDown: true,
     activated: false,
     playedOnTurn: state.turnNumber,
-    canActivateOnTurn: state.turnNumber + 1,
+    canActivateOnTurn: chrisYouriSynergy ? state.turnNumber : state.turnNumber + 1,
   };
 
   state.players[playerId].pieciesPlayedThisTurn = (state.players[playerId].pieciesPlayedThisTurn || 0) + 1;
@@ -1005,8 +1019,21 @@ export function useMosjeAbility(gameState, playerId, mosjeId) {
   }
 
   let state;
+  let extraFields = {};
   try {
-    state = fn(stateForAbility, playerId, mosjeId);
+    const result = fn(stateForAbility, playerId, mosjeId);
+    // Ability functions may return either a raw state object OR a result envelope
+    // { state, success, error, ...extras }. Unwrap the envelope if present.
+    if (result && typeof result === 'object' && 'state' in result && 'success' in result) {
+      if (!result.success) {
+        return { state: gameState, success: false, error: result.error };
+      }
+      const { state: innerState, success: _s, error: _e, ...rest } = result;
+      state = innerState;
+      extraFields = rest;
+    } else {
+      state = result;
+    }
   } catch (err) {
     console.warn(`[ENGINE] useMosjeAbility: ability ${mosjeDef.abilityId} threw — needs UI input:`, err.message);
     return { state: gameState, success: false, error: err.message };
@@ -1018,7 +1045,7 @@ export function useMosjeAbility(gameState, playerId, mosjeId) {
   }
 
   state = checkVictory(state);
-  return { state, success: true };
+  return { state, success: true, ...extraFields };
 }
 
 // ─────────────────────────────────────────────────────────────
