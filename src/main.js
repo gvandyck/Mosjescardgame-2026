@@ -1718,8 +1718,11 @@ function initGamePage() {
 				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
 			}
 			gameState = stateAfterAbility;
+			// Log the ability cost against beforeAbility (shows -20 MP on Youri)
 			log.add('loss', `Youri Speed Activate: paid 20 MP, activated face-down Piecie, drew 1 card.`);
-			logStateOutcome(log, beforeAbility, gameState, localPlayerId, 'Youri Speed Activate');
+			logStateOutcome(log, beforeAbility, abilityState, localPlayerId, 'Youri Speed Activate');
+			// Log the piecie effect against the post-cost state (shows piecie's full MP gain correctly)
+			logStateOutcome(log, abilityState, gameState, localPlayerId, 'Piecie effect');
 			syncPush();
 			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
 			return;
