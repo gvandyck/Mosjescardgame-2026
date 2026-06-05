@@ -20,8 +20,8 @@ decisions:
   - "isOffline guard ensures interrupt modal never fires in bot-vs-bot or online mode"
 metrics:
   duration: "~15 minutes"
-  completed: 2026-06-04
-  tasks_completed: 2
+  completed: 2026-06-05
+  tasks_completed: 3
   files_changed: 1
 ---
 
@@ -34,7 +34,8 @@ playBotSteps converted to async with a guaranteed pause window before damaging b
 | Task | Name | Commit | Files |
 |------|------|--------|-------|
 | 1 | Add humanTakesDamageOrElimination and showDamageInterruptModal helpers | 049dd37 | src/main.js |
-| 2 | Convert playBotSteps to async with interrupt hook | a9d16af | src/main.js |
+| 2 | Convert playBotSteps to async with interrupt hook | a9d6af | src/main.js |
+| 3 | Human-verify checkpoint | APPROVED | — |
 
 ## What Changed
 
@@ -46,19 +47,9 @@ playBotSteps converted to async with a guaranteed pause window before damaging b
 
 **End Turn call site** — Added `.catch(err => console.error('[BOT] playBotSteps error:', err))` to the fire-and-forget call in the click event listener.
 
-## Checkpoint: PENDING HUMAN VERIFY
+## Checkpoint: APPROVED
 
-The checkpoint task (human-verify) has not yet been approved. The following manual verification is required before this plan can be marked complete:
-
-**What to verify in offline mode (Physical Force deck):**
-1. Interrupt modal fires before bot steps that would deal >= 30 MP damage or eliminate a human Mosje
-2. Clicking "Pass" lets the bot step apply normally
-3. Not Today! prevents Mosje elimination — stays at 5 MP
-4. Emergency Healings heals +25 (or +35 resilient) before damage resolves
-5. Laat me chillen! stays on field until end of turn (Wave 1 fix, not this plan)
-6. No interrupt modal fires on non-damage bot steps (piecie placement, draw, MP trickle)
-
-**Resume signal:** Type "approved" if all tests pass, or describe which test failed.
+Human verified all 6 browser tests and approved. Plan is COMPLETE.
 
 ## Test Results
 
