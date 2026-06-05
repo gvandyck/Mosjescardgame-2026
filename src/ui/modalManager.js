@@ -14,7 +14,7 @@ export function initModalManager(container) {
 	if (!container) {
 		return {
 			showInfo: () => {},
-			showDiceRoll: (_info, _threshold, onResolved) => onResolved(false),
+			showDiceRoll: (_info, _threshold, onResolved) => onResolved(false, { roll: 0, threshold: _threshold }),
 			showConfirm: async () => false,
 			showPlaceDetailModal: () => {},
 			showOptionSelect: async (config = {}) => {
@@ -133,7 +133,7 @@ export function initModalManager(container) {
 
 					container.querySelector('#modal-done')?.addEventListener('click', () => {
 						close();
-						onResolved(didSucceed);
+						onResolved(didSucceed, { roll: result, threshold });
 					});
 
 					// forceReroll: opponent's Je Weet Niet forces one reroll

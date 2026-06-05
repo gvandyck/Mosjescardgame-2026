@@ -1036,7 +1036,7 @@ function initGamePage() {
 				tweedeKansReroll = 1;
 				delete gameState._rerollGranted;
 			}
-			modal.showDiceRoll(questDef, threshold, (didSucceed) => {
+			modal.showDiceRoll(questDef, threshold, (didSucceed, rollInfo) => {
 				const beforeResolve = snapshotForAnimation();
 				gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed, targetSlotIndex);
 				gameState.activeQuest = null;
@@ -1066,8 +1066,9 @@ function initGamePage() {
 
 				const mpDelta = didSucceed ? questDef.successMP : questDef.failMP;
 				const sign = mpDelta >= 0 ? '+' : '';
+				const rollLabel = rollInfo ? `rolled ${rollInfo.roll}, needed ${rollInfo.threshold}+ → ` : '';
 				log.add(didSucceed ? 'gain' : 'loss',
-					`${questDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`
+					`${questDef.name}: ${rollLabel}${didSucceed ? 'Success' : 'Failed'} (${sign}${mpDelta} MP)`
 				);
 				logStateOutcome(log, beforeResolve, gameState, localPlayerId, `${questDef.name} resolution`);
 
@@ -1777,7 +1778,7 @@ function initGamePage() {
 				tweedeKansReroll = 1;
 				delete gameState._rerollGranted;
 			}
-			modal.showDiceRoll(questDef, threshold, (didSucceed) => {
+			modal.showDiceRoll(questDef, threshold, (didSucceed, rollInfo) => {
 				const beforeResolve = snapshotForAnimation();
 				// Kickboxing Bootcamp: override successMP per chosen Mosje + synergy bonus.
 				let resolveQuestDef = questDef;
@@ -1856,7 +1857,8 @@ function initGamePage() {
 				syncPush();
 				const mpDelta = didSucceed ? resolveQuestDef.successMP : resolveQuestDef.failMP;
 				const sign = mpDelta >= 0 ? '+' : '';
-				log.add(didSucceed ? 'gain' : 'loss', `${questDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`);
+				const rollLabel = rollInfo ? `rolled ${rollInfo.roll}, needed ${rollInfo.threshold}+ → ` : '';
+				log.add(didSucceed ? 'gain' : 'loss', `${questDef.name}: ${rollLabel}${didSucceed ? 'Success' : 'Failed'} (${sign}${mpDelta} MP)`);
 				logStateOutcome(log, beforeResolve, gameState, localPlayerId, `${questDef.name} resolution`);
 			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus, forceReroll, skiffaRerolls: skiffaRerolls + tweedeKansReroll });
 		}
