@@ -1230,6 +1230,7 @@ function initGamePage() {
 	const TUK_PERFECT_PLACEMENT_IDS = new Set(['mosje_tuk_architect']);
 	const FPS_WEST_TACTICAL_IDS = new Set(['mosje_fps_west']);
 	const RONALD_CHEF_INSIGHT_IDS = new Set(['mosje_ronald_chef']);
+	const YOURI_SPEED_ACTIVATE_IDS = new Set(['mosje_youri']);
 
 	async function handleUseAbility(mosjeId) {
 		if (!gameState || gameState.status === 'FINISHED') return;
@@ -1638,6 +1639,88 @@ function initGamePage() {
 				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
 				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
 			}
+			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
+			return;
+		}
+
+		if (YOURI_SPEED_ACTIVATE_IDS.has(mosjeId)) {
+			const { state: abilityState, success, error, pendingYouriActivation } =
+				useMosjeAbility(gameState, localPlayerId, mosjeId);
+			if (!success) {
+				modal.showInfo('Cannot Use Ability', error || 'Youri ability cannot be used right now.');
+				return;
+			}
+
+			let stateAfterAbility = abilityState;
+
+			if (pendingYouriActivation) {
+				// Multiple face-down piecies — show slot selector
+				const pending = stateAfterAbility._pendingYouriActivation;
+				const player = stateAfterAbility.players[localPlayerId];
+				const options = pending.faceDownSlots.map(i => {
+					const slot = player.piecieSlots[i];
+					const def = slot?.cardId ? CARD_LOOKUP[slot.cardId] : null;
+					return { id: i, label: `Slot ${i + 1} — ${def?.name || slot?.cardId || 'Unknown'}` };
+				});
+				const chosen = await modal.showOptionSelect({
+					title: 'Youri — Speed Activate',
+					prompt: 'Pick a face-down Piecie to activate:',
+					options,
+					allowCancel: true,
+				});
+				delete stateAfterAbility._pendingYouriActivation;
+				if (chosen === null || chosen === undefined) {
+					// Cost already spent — commit partial state and inform player
+					modal.showInfo('Ability Used', 'Youri paid 20 MP but no Piecie was selected. The cost is still spent.');
+					gameState = stateAfterAbility;
+					renderAll();
+					syncPush();
+					return;
+				}
+				const slotIndex = typeof chosen === 'object' ? chosen.id : chosen;
+				// Set canActivateOnTurn so the activatePiecie guard passes
+				stateAfterAbility = JSON.parse(JSON.stringify(stateAfterAbility));
+				stateAfterAbility.players[localPlayerId].piecieSlots[slotIndex].canActivateOnTurn =
+					stateAfterAbility.turnNumber;
+
+				const { state: activatedState, success: actSuccess, error: actError } =
+					activatePiecie(stateAfterAbility, localPlayerId, slotIndex);
+				if (!actSuccess) {
+					modal.showInfo('Activation Failed', actError || 'Could not activate the Piecie.');
+					gameState = stateAfterAbility;
+					renderAll();
+					return;
+				}
+				stateAfterAbility = activatedState;
+				// Draw 1 card after activation
+				if (stateAfterAbility.players[localPlayerId].deck.length > 0) {
+					stateAfterAbility = JSON.parse(JSON.stringify(stateAfterAbility));
+					stateAfterAbility.players[localPlayerId].hand.push(
+						stateAfterAbility.players[localPlayerId].deck.shift()
+					);
+				}
+			} else {
+				// Single-piecie auto-path: engine already set canActivateOnTurn and drew the card
+				// Find the unlocked slot (canActivateOnTurn === turnNumber, face-down, not activated)
+				const player = stateAfterAbility.players[localPlayerId];
+				const autoSlotIndex = player.piecieSlots.findIndex(
+					s => s && s.type === 'PIECIE' && s.faceDown && !s.activated &&
+						s.canActivateOnTurn === stateAfterAbility.turnNumber
+				);
+				if (autoSlotIndex >= 0) {
+					const { state: activatedState, success: actSuccess } =
+						activatePiecie(stateAfterAbility, localPlayerId, autoSlotIndex);
+					if (actSuccess) stateAfterAbility = activatedState;
+				}
+			}
+
+			if (abilitySlotIndex >= 0) {
+				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
+			}
+			gameState = stateAfterAbility;
+			log.add('loss', `Youri Speed Activate: paid 20 MP, activated face-down Piecie, drew 1 card.`);
+			logStateOutcome(log, beforeAbility, gameState, localPlayerId, 'Youri Speed Activate');
+			syncPush();
 			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
 			return;
 		}
