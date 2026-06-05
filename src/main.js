@@ -10,7 +10,7 @@ import { initModalManager } from './ui/modalManager.js';
 import { animateFieldActivation, animateStateDelta, showTurnTransition } from './ui/actionAnimations.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes } from './engine/gameState.js';
 import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, playPersonalQuest, activatePersonalQuest } from './engine/turnManager.js';
-import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold, getKickboxingBootcampDiceBonus } from './abilities/questLogic.js';
+import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold } from './abilities/questLogic.js';
 import { loseMP, gainMP } from './engine/mpManager.js';
 import { MOSJES } from './data/mosjes.js';
 import { PIECIES } from './data/piecies.js';
@@ -1646,15 +1646,20 @@ function initGamePage() {
 		const forceReroll = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
 
 		// Build Mosje options from current state (quest card still on field at this point).
+		const isKickboxing = questDef.id === 'quest_personal_kickboxing_bootcamp';
 		const questSlots = gameState.players[localPlayerId].activeSlots
 			.map((slot, index) => ({ slot, index }))
 			.filter(({ slot }) => slot && !slot.isDefeated)
-			.map(({ slot, index }) => ({
-				slotIndex: index,
-				name: slot.name || CARD_LOOKUP[slot.cardId]?.name || slot.cardId || 'Mosje',
-				mp: slot.mp,
-				traits: slot.traits || CARD_LOOKUP[slot.cardId]?.traits || {},
-			}));
+			.map(({ slot, index }) => {
+				const eligible = !isKickboxing || (String(slot.cardId).includes('gandoe') || slot.cardId === 'mosje_michelle');
+				return {
+					slotIndex: index,
+					name: slot.name || CARD_LOOKUP[slot.cardId]?.name || slot.cardId || 'Mosje',
+					mp: slot.mp,
+					traits: slot.traits || CARD_LOOKUP[slot.cardId]?.traits || {},
+					disabled: !eligible,
+				};
+			});
 
 		// Fires only after the player confirms a Mosje in the selection modal.
 		function onMosjeSelected(targetSlotIndex) {
@@ -1674,10 +1679,11 @@ function initGamePage() {
 			log.add('loss', 'Quest attempt cost: -20 MP');
 
 			const chosenMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
+			const perMosjeCfg = questDef.perMosjeConfig?.[chosenMosje?.cardId];
 			gameState.activeQuest = {
 				questName: questDef.name, cardName: questDef.name,
 				questType: questDef.questType || 'PERSONAL', attacker: localPlayerId,
-				successMP: questDef.successMP, failMP: questDef.failMP,
+				successMP: perMosjeCfg?.successMP ?? questDef.successMP, failMP: questDef.failMP,
 				currentMp: chosenMosje?.mp ?? null,
 			};
 			renderFromState(gameState);
@@ -1696,8 +1702,8 @@ function initGamePage() {
 
 		function runQuestDiceRoll(targetSlotIndex) {
 			const liveMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
-			const threshold = getQuestDiceThreshold(questDef, liveMosje);
-			const gandoeBonus = getKickboxingBootcampDiceBonus(questDef, gameState, localPlayerId);
+			const mosjePerCfg = questDef.perMosjeConfig?.[liveMosje?.cardId];
+			const threshold = mosjePerCfg ? mosjePerCfg.threshold : getQuestDiceThreshold(questDef, liveMosje);
 			// Tweede Kans: consume the granted reroll into this quest's dice roll.
 			let tweedeKansReroll = 0;
 			if (gameState._rerollGranted) {
@@ -1706,7 +1712,16 @@ function initGamePage() {
 			}
 			modal.showDiceRoll(questDef, threshold, (didSucceed) => {
 				const beforeResolve = snapshotForAnimation();
-				gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed, targetSlotIndex);
+				// Kickboxing Bootcamp: override successMP per chosen Mosje + synergy bonus.
+				let resolveQuestDef = questDef;
+				if (isKickboxing && mosjePerCfg) {
+					const player = gameState.players[localPlayerId];
+					const bothActive = player.activeSlots.some(s => s && !s.isDefeated && String(s.cardId).includes('gandoe'))
+						&& player.activeSlots.some(s => s && !s.isDefeated && s.cardId === 'mosje_michelle');
+					const finalMP = mosjePerCfg.successMP + (didSucceed && bothActive ? 20 : 0);
+					resolveQuestDef = { ...questDef, successMP: finalMP };
+				}
+				gameState = resolveQuest(gameState, localPlayerId, resolveQuestDef, didSucceed, targetSlotIndex);
 				gameState.activeQuest = null;
 
 				// Perfect Sync: show opponent hand, then let player pick mosje for +70 MP.
@@ -1756,11 +1771,11 @@ function initGamePage() {
 					actionLabel: 'quest-resolution',
 				});
 				syncPush();
-				const mpDelta = didSucceed ? questDef.successMP : questDef.failMP;
+				const mpDelta = didSucceed ? resolveQuestDef.successMP : resolveQuestDef.failMP;
 				const sign = mpDelta >= 0 ? '+' : '';
 				log.add(didSucceed ? 'gain' : 'loss', `${questDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`);
 				logStateOutcome(log, beforeResolve, gameState, localPlayerId, `${questDef.name} resolution`);
-			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus + gandoeBonus, forceReroll, skiffaRerolls: skiffaRerolls + tweedeKansReroll });
+			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus, forceReroll, skiffaRerolls: skiffaRerolls + tweedeKansReroll });
 		}
 
 		log.add('quest', `Activating Personal Quest: ${questDef.name}`);

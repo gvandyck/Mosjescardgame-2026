@@ -12,7 +12,7 @@ import { MOSJES } from '../../src/data/mosjes.js';
 // @ts-expect-error — JS module, no type declarations
 import { effect_de_box, effect_tesla, effect_eendjes_voeren } from '../../src/abilities/placeEffects.js';
 // @ts-expect-error — JS module, no type declarations
-import { getKickboxingBootcampDiceBonus, getMosjeTrait } from '../../src/abilities/questLogic.js';
+import { getMosjeTrait } from '../../src/abilities/questLogic.js';
 // @ts-expect-error — JS module, no type declarations
 import { effect_slecht_gezet, effect_huisbaas } from '../../src/abilities/piecieEffects.js';
 // @ts-expect-error — JS module, no type declarations
@@ -133,11 +133,17 @@ describe('Phase 15 — quest_personal_kickboxing_bootcamp definition (DECK-04)',
   it('QUESTS contains quest_personal_kickboxing_bootcamp', () => {
     expect(kb()).toBeDefined();
   });
-  it('quest_personal_kickboxing_bootcamp has requiredMosjeId mosje_michelle', () => {
-    expect(kb()?.requiredMosjeId).toBe('mosje_michelle');
+  it('quest_personal_kickboxing_bootcamp has requiredMosjeId null (Gandoe or Michelle via custom check)', () => {
+    expect(kb()?.requiredMosjeId).toBeNull();
   });
-  it('quest_personal_kickboxing_bootcamp has successMP 80', () => {
-    expect(kb()?.successMP).toBe(80);
+  it('quest_personal_kickboxing_bootcamp has perMosjeConfig for Gandoe (threshold 2, successMP 60)', () => {
+    expect(kb()?.perMosjeConfig?.mosje_gandoe_destroyer).toEqual({ threshold: 2, successMP: 60 });
+  });
+  it('quest_personal_kickboxing_bootcamp has perMosjeConfig for Michelle (threshold 4, successMP 80)', () => {
+    expect(kb()?.perMosjeConfig?.mosje_michelle).toEqual({ threshold: 4, successMP: 80 });
+  });
+  it('quest_personal_kickboxing_bootcamp base successMP is 60', () => {
+    expect(kb()?.successMP).toBe(60);
   });
   it('quest_personal_kickboxing_bootcamp has failMP -20', () => {
     expect(kb()?.failMP).toBe(-20);
@@ -191,39 +197,23 @@ describe('Phase 15 — effect_de_box (DECK-16)', () => {
   });
 });
 
-describe('Phase 15 — getKickboxingBootcampDiceBonus (DECK-14)', () => {
-  const kickboxingQuest = { id: 'quest_personal_kickboxing_bootcamp' };
-  const otherQuest = { id: 'quest_arm_wrestling' };
+describe('Phase 15 — Kickboxing Bootcamp per-Mosje config (DECK-14)', () => {
+  const kb = () => QUESTS.find((q: { id: string }) => q.id === 'quest_personal_kickboxing_bootcamp') as any;
 
-  function makeState(mosjes: Array<{ cardId: string; isDefeated?: boolean }>) {
-    return {
-      players: {
-        player_1: {
-          activeSlots: mosjes.map(m => ({
-            cardId: m.cardId,
-            isDefeated: m.isDefeated ?? false,
-          })),
-        },
-      },
-    };
-  }
-
-  it('returns 2 when Gandoe is on field', () => {
-    const state = makeState([
-      { cardId: 'mosje_michelle' },
-      { cardId: 'mosje_gandoe_destroyer' },
-    ]);
-    expect(getKickboxingBootcampDiceBonus(kickboxingQuest, state, 'player_1')).toBe(2);
+  it('Gandoe threshold is 2', () => {
+    expect(kb()?.perMosjeConfig?.mosje_gandoe_destroyer?.threshold).toBe(2);
   });
 
-  it('returns 0 when Gandoe is NOT on field', () => {
-    const state = makeState([{ cardId: 'mosje_michelle' }]);
-    expect(getKickboxingBootcampDiceBonus(kickboxingQuest, state, 'player_1')).toBe(0);
+  it('Michelle threshold is 4', () => {
+    expect(kb()?.perMosjeConfig?.mosje_michelle?.threshold).toBe(4);
   });
 
-  it('returns 0 for unrelated quest cards', () => {
-    const state = makeState([{ cardId: 'mosje_gandoe_destroyer' }]);
-    expect(getKickboxingBootcampDiceBonus(otherQuest, state, 'player_1')).toBe(0);
+  it('Gandoe successMP is 60', () => {
+    expect(kb()?.perMosjeConfig?.mosje_gandoe_destroyer?.successMP).toBe(60);
+  });
+
+  it('Michelle successMP is 80', () => {
+    expect(kb()?.perMosjeConfig?.mosje_michelle?.successMP).toBe(80);
   });
 });
 

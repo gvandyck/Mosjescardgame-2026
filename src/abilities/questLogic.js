@@ -144,19 +144,26 @@ export function canAttemptPersonalQuest(questCard, gameState, playerId) {
 	const activeMosjes = player.activeSlots.filter(
     slot => slot !== null && !slot.isDefeated
   );
-  const hasRequiredMosje = activeMosjes.some(
-    mosje => mosje.cardId === questCard.requiredMosjeId
-  );
-
-  if (!hasRequiredMosje) {
-    console.log(
-      '[QUEST] Required Mosje not on field — cannot attempt.',
-      'Needs:', questCard.requiredMosjeId
+  if (questCard.requiredMosjeId) {
+    const hasRequiredMosje = activeMosjes.some(
+      mosje => mosje.cardId === questCard.requiredMosjeId
     );
-    return false;
+    if (!hasRequiredMosje) {
+      console.log('[QUEST] Required Mosje not on field — cannot attempt. Needs:', questCard.requiredMosjeId);
+      return false;
+    }
   }
 
 	// Additional requirement checks for specific Personal Quests.
+	if (questCard.requirementId === 'quest_req_kickboxing_bootcamp') {
+		const hasGandoe = activeMosjes.some(s => String(s.cardId).includes('gandoe'));
+		const hasMichelle = activeMosjes.some(s => s.cardId === 'mosje_michelle');
+		if (!hasGandoe && !hasMichelle) {
+			console.log('[QUEST] Kickboxing Bootcamp blocked — need Gandoe or Michelle on field');
+			return false;
+		}
+	}
+
 	if (questCard.requirementId === 'quest_req_iron_will') {
 		const totalDamageTaken = gameState.players[playerId].totalDamageTaken || 0;
 		if (totalDamageTaken < 40) {
@@ -981,23 +988,3 @@ export function quest_req_lucky_crescendo(gameState, playerId) {
 	};
 }
 
-// ─────────────────────────────────────────
-// getKickboxingBootcampDiceBonus
-// Returns +4 dice bonus for quest_personal_kickboxing_bootcamp when
-// Gandoe is simultaneously active on the player's field.
-// Threshold is 6, so rawRoll + 4 >= 6 means the quest succeeds on a 2+.
-// Called from main.js runQuestDiceRoll alongside other diceBonus sources.
-// ─────────────────────────────────────────
-export function getKickboxingBootcampDiceBonus(questCard, gameState, playerId) {
-	if (questCard?.id !== 'quest_personal_kickboxing_bootcamp') return 0;
-	const player = gameState?.players?.[playerId];
-	if (!player) return 0;
-	const gandoeOnField = (player.activeSlots || []).some(
-		s => s && !s.isDefeated && String(s.cardId).includes('gandoe')
-	);
-	if (gandoeOnField) {
-		console.log('[QUEST] Kickboxing Bootcamp: Gandoe is the teacher — +4 dice bonus (succeeds on 2+)');
-		return 4;
-	}
-	return 0;
-}
