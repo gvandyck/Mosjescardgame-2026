@@ -104,11 +104,30 @@ Apply this principle broadly: lists, selection UIs, confirmation dialogs, player
 
 ## Testing rules
 
-### Run tests after every change — never move forward on red
+### The full verification sequence — run this before every commit
+Run these three commands in order. All three must pass before committing.
+
+**Step 1 — Syntax check (catches parse errors in files the test suite never imports):**
+```bash
+node --check src/main.js src/ui/modalManager.js src/ui/boardRenderer.js src/ui/handRenderer.js src/ui/logRenderer.js src/ui/actionAnimations.js
+```
+No output = clean. Any output = syntax error, fix before continuing.
+
+**Step 2 — Unit tests:**
 ```bash
 npm test
 ```
 If tests fail after your change, fix it before doing anything else. Do not stack changes on a broken base.
+
+**Step 3 — After any change to MP gain/loss, quests, or level logic:**
+Re-run the Ronald Kip stacking test specifically, then the full simulation:
+```bash
+node --loader ts-node/esm src/simulation/run-once.ts
+```
+Target: 0 crashes, timeout rate < 25%.
+
+### Why syntax-checking UI files matters
+The unit test suite does **not** import `src/main.js` or any `src/ui/` files. A syntax error in those files will not be caught by `npm test` — the game will simply fail to load in the browser. `node --check` catches parse errors in under a second. Always run it first.
 
 ### Every new feature or card gets a test
 When you add something, add a test for it in the same PR/branch. The test must be added to the existing test suite so `npm test` catches it automatically.
@@ -120,12 +139,6 @@ A new card needs at minimum:
 
 ### When adding a new card
 Follow the exact pattern in `/src/cards/proof/proof-simple-gain.ts`.
-
-### Running the simulation
-```bash
-node --loader ts-node/esm src/simulation/run-once.ts
-```
-Target: 0 crashes, timeout rate < 25%.
 
 ---
 
