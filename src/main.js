@@ -1087,7 +1087,7 @@ function initGamePage() {
 				// Deduct 20 MP quest cost immediately upon selection
 				const costState = loseMP(gameState, localPlayerId, targetSlotIndex, 20, 'QUEST_COST');
 				gameState = costState;
-				log.add('loss', `Quest attempt cost: -20 MP`);
+				log.add('loss', `Quest cost: ${questDef.name} -20 MP`);
 
 				const updatedMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
 				const thresholdForMosje = getQuestDiceThreshold(questDef, updatedMosje);
