@@ -144,19 +144,26 @@ export function canAttemptPersonalQuest(questCard, gameState, playerId) {
 	const activeMosjes = player.activeSlots.filter(
     slot => slot !== null && !slot.isDefeated
   );
-  const hasRequiredMosje = activeMosjes.some(
-    mosje => mosje.cardId === questCard.requiredMosjeId
-  );
-
-  if (!hasRequiredMosje) {
-    console.log(
-      '[QUEST] Required Mosje not on field — cannot attempt.',
-      'Needs:', questCard.requiredMosjeId
+  if (questCard.requiredMosjeId) {
+    const hasRequiredMosje = activeMosjes.some(
+      mosje => mosje.cardId === questCard.requiredMosjeId
     );
-    return false;
+    if (!hasRequiredMosje) {
+      console.log('[QUEST] Required Mosje not on field — cannot attempt. Needs:', questCard.requiredMosjeId);
+      return false;
+    }
   }
 
 	// Additional requirement checks for specific Personal Quests.
+	if (questCard.requirementId === 'quest_req_kickboxing_bootcamp') {
+		const hasGandoe = activeMosjes.some(s => String(s.cardId).includes('gandoe'));
+		const hasMichelle = activeMosjes.some(s => s.cardId === 'mosje_michelle');
+		if (!hasGandoe && !hasMichelle) {
+			console.log('[QUEST] Kickboxing Bootcamp blocked — need Gandoe or Michelle on field');
+			return false;
+		}
+	}
+
 	if (questCard.requirementId === 'quest_req_iron_will') {
 		const totalDamageTaken = gameState.players[playerId].totalDamageTaken || 0;
 		if (totalDamageTaken < 40) {
@@ -393,7 +400,7 @@ function applyMosjeFieldEffectsOnQuest(gameState, playerId, slotIndex, questMpGa
 				label = `rolled ${roll} (4+) ✦ DOUBLED! +${adjustment} extra MP (total +${questMpGained * 2})`;
 			} else {
 				adjustment = -Math.floor(questMpGained / 2);  // take back half → ½ total
-				mosje.mp += adjustment;
+				mosje.mp = Math.max(0, mosje.mp + adjustment);  // clamp: level-up may have reset mp to 0 before this fires
 				label = `rolled ${roll} (1-3) ✦ Halved. ${adjustment} MP (total +${questMpGained + adjustment})`;
 			}
 		} else {
@@ -981,22 +988,3 @@ export function quest_req_lucky_crescendo(gameState, playerId) {
 	};
 }
 
-// ─────────────────────────────────────────
-// getKickboxingBootcampDiceBonus
-// Returns +2 dice bonus for quest_personal_kickboxing_bootcamp when
-// any Gandoe Mosje is simultaneously active on the player's field.
-// Call from main.js alongside existing diceBonus reads in quest activation handlers.
-// ─────────────────────────────────────────
-export function getKickboxingBootcampDiceBonus(questCard, gameState, playerId) {
-	if (questCard?.id !== 'quest_personal_kickboxing_bootcamp') return 0;
-	const player = gameState?.players?.[playerId];
-	if (!player) return 0;
-	const gandoeOnField = (player.activeSlots || []).some(
-		s => s && !s.isDefeated && String(s.cardId).includes('gandoe')
-	);
-	if (gandoeOnField) {
-		console.log('[QUEST] Kickboxing Bootcamp: Gandoe hypes Michelle — +2 dice bonus');
-		return 2;
-	}
-	return 0;
-}

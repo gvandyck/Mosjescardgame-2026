@@ -878,8 +878,10 @@ export function effect_dikke_jonko(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const selected = state._pendingTargets?.own_slot_index;
+	const si = Number.isInteger(selected) ? selected : getFirstActiveSlotIndex(player);
 	if (si >= 0) player.activeSlots[si].mp += 25;
+	if (state._pendingTargets) delete state._pendingTargets.own_slot_index;
 	const oppIds = Object.keys(state.players).filter(id => id !== playerId);
 	for (const oppId of oppIds) {
 		const opp = state.players[oppId];
@@ -907,8 +909,10 @@ export function effect_tikker(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const selected = state._pendingTargets?.own_slot_index;
+	const si = Number.isInteger(selected) ? selected : getFirstActiveSlotIndex(player);
 	if (si < 0) return state;
+	if (state._pendingTargets) delete state._pendingTargets.own_slot_index;
 	player.activeSlots[si].mp += 40;
 	player.activeSlots[si].statusEffects.push({ type: 'QUEST_BLOCKED', value: 0, turnsLeft: 1 });
 	console.log('[ABILITY] Tikker: +40 MP, QUEST_BLOCKED next turn');

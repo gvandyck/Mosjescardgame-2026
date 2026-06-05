@@ -67,9 +67,11 @@ export function effect_snelle_emergency_healings(gameState, playerId) {
 	const slotIndex = player.activeSlots.findIndex(s => s !== null && !s.isDefeated);
 	if (slotIndex >= 0) {
 		const mosje = player.activeSlots[slotIndex];
-		if (mosje.mp <= 0) mosje.mp = 30;
+		const resilient = mosje.traits?.resilient || 0;
+		const healAmount = resilient >= 2 ? 35 : 25;
+		mosje.mp += healAmount;
 	}
-	console.log('[ABILITY] Emergency Healings (snelle)');
+	console.log('[ABILITY] Emergency Healings (snelle): unconditional heal');
 	return state;
 }
 

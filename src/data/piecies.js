@@ -486,6 +486,7 @@ export const PIECIES = [
     artPath: "assets/piecies/placeholder.png",
     rarity: "★",
     isBoosterOnly: false,
+    persistUntilEndOfTurn: true,
   },
   {
     id: "piecie_synergy_field",

@@ -462,6 +462,36 @@ export function animateLevelUp(cardEl) {
 	text.addEventListener('animationend', () => text.remove(), { once: true });
 }
 
+// Triggers green flash on quest success.
+export function animateQuestSuccess(cardEl) {
+	if (!cardEl) return;
+	cardEl.classList.add('quest-success-flash');
+	cardEl.addEventListener('animationend', () => cardEl.classList.remove('quest-success-flash'), { once: true });
+}
+
+// Triggers red shake on quest fail.
+export function animateQuestFail(cardEl) {
+	if (!cardEl) return;
+	cardEl.classList.add('quest-fail-shake');
+	cardEl.addEventListener('animationend', () => cardEl.classList.remove('quest-fail-shake'), { once: true });
+}
+
+// Triggers large gold burst on level-up that comes from a quest success.
+// Only call when isQuestOutcome && levelIncreased — NOT for generic level-ups.
+export function animateLevelUpCelebration(cardEl) {
+	if (!cardEl) return;
+	cardEl.classList.add('quest-level-up-celebration');
+	cardEl.addEventListener('animationend', () => cardEl.classList.remove('quest-level-up-celebration'), { once: true });
+
+	const text = document.createElement('div');
+	text.className = 'level-up-text';
+	text.textContent = 'LEVEL UP!';
+	text.style.left = '50%';
+	text.style.top = '50%';
+	document.body.appendChild(text);
+	text.addEventListener('animationend', () => text.remove(), { once: true });
+}
+
 // Updates MP bar fill width, classes, and labels for a Mosje card by data-mosje-id.
 export function updateMPBar(mosjeInstanceId, mp, level) {
 	if (!mosjeInstanceId) return;

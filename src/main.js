@@ -418,33 +418,135 @@ function initGamePage() {
 		}
 	}
 
+	// Returns info about whether a bot step would damage or eliminate the human Mosje.
+	// prevState: state before the step, nextState: state after the step.
+	function humanTakesDamageOrElimination(prevState, nextState, humanPlayerId) {
+		const noResult = { isDamage: false, isElimination: false, affectedSlotIndex: -1, mpDelta: 0 };
+		const prevPlayer = prevState?.players?.[humanPlayerId];
+		const nextPlayer = nextState?.players?.[humanPlayerId];
+		if (!prevPlayer || !nextPlayer) return noResult;
+		for (let i = 0; i < prevPlayer.activeSlots.length; i++) {
+			const prevSlot = prevPlayer.activeSlots[i];
+			if (!prevSlot || prevSlot.isDefeated) continue;
+			const prevMp = prevSlot.mp;
+			const nextSlot = nextPlayer.activeSlots[i];
+			if (nextSlot === null || nextSlot === undefined || nextSlot.isDefeated === true) {
+				return { isDamage: true, isElimination: true, affectedSlotIndex: i, mpDelta: prevMp };
+			}
+			if (nextSlot.mp < prevMp && (prevMp - nextSlot.mp) >= 30) {
+				return { isDamage: true, isElimination: false, affectedSlotIndex: i, mpDelta: prevMp - nextSlot.mp };
+			}
+		}
+		return noResult;
+	}
+
+	// Shows a modal that lets the human play a PROTECT-tagged Snelle Piecie before a damaging bot step.
+	// Returns true if the human played a card (gameState was mutated to reflect the play), false otherwise.
+	async function showDamageInterruptModal(prevState, nextState, humanPlayerId) {
+		const damageInfo = humanTakesDamageOrElimination(prevState, nextState, humanPlayerId);
+		const humanHand = prevState?.players?.[humanPlayerId]?.hand ?? [];
+		// Find PROTECT-tagged Snelle Piecies in hand
+		const playableCards = humanHand
+			.filter(handCard => {
+				const def = SNELLE_PIECIES.find(c => c.id === handCard.id);
+				return def && Array.isArray(def.tags) && def.tags.includes('PROTECT');
+			})
+			.map(handCard => SNELLE_PIECIES.find(c => c.id === handCard.id));
+		if (playableCards.length === 0) return false;
+		const options = [
+			...playableCards.map(def => ({
+				id: def.id,
+				label: def.name,
+				metaLabel: `Cost: ${def.mpCost} MP — ${def.description}`,
+			})),
+			{ id: '__pass__', label: 'Pass — take the damage' },
+		];
+		const promptStr = damageInfo.isElimination
+			? "The bot's next action would eliminate your Mosje. Play a card to react?"
+			: `The bot's next action would deal ${damageInfo.mpDelta} MP damage. Play a card to react?`;
+		const choice = await modal.showOptionSelect({
+			title: 'Damage Interrupt',
+			prompt: promptStr,
+			options,
+			allowCancel: false,
+		});
+		if (!choice || choice === '__pass__') return false;
+		const handIndex = gameState.players[humanPlayerId].hand.findIndex(c => c.id === choice);
+		if (handIndex < 0) return false;
+		const cardDef = SNELLE_PIECIES.find(c => c.id === choice);
+		if (!cardDef) return false;
+		const result = playSnellie(gameState, humanPlayerId, { id: choice, index: handIndex }, cardDef);
+		if (result.success) {
+			gameState = result.state;
+			log.add('gain', `Interrupt: played ${cardDef.name} before bot step.`);
+			return true;
+		}
+		return false;
+	}
+
 	// delay: ms between each step. onComplete: called after the final step instead of
 	// advancing to the next bot (used by offline single-player to hand back to the human).
-	function playBotSteps(steps, botName, index, delay = 1000, onComplete = null) {
+	async function playBotSteps(steps, botName, index, delay = 1000, onComplete = null) {
 		if (index >= steps.length) { if (onComplete) onComplete(); return; }
-		setTimeout(() => {
-			const { state, label } = steps[index];
-			gameState = state;
-			renderFromState(gameState);
-			log.add('quest', `${botName} ${label}`);
-			if (gameState.status === 'FINISHED') {
-				handleGameOver(gameState);
-				return;
-			}
-			if (index === steps.length - 1) {
-				if (onComplete) {
-					onComplete();
-				} else {
-					// bot vs bot: start next player's turn and keep the loop going
-					gameState = startTurn(gameState);
-					renderFromState(gameState);
-					logTurnTrickle(gameState.activePlayerId);
-					runBotVsBotLoop();
+
+		// Wait the animation delay before processing this step
+		await new Promise(resolve => setTimeout(resolve, delay));
+
+		const prevState = gameState;
+		const { state: nextState, label } = steps[index];
+
+		// Interrupt check: pause before applying a damage/elimination step (offline only)
+		if (isOffline) {
+			const damageInfo = humanTakesDamageOrElimination(prevState, nextState, localPlayerId);
+			if (damageInfo.isDamage) {
+				const humanPlayed = await showDamageInterruptModal(prevState, nextState, localPlayerId);
+				if (humanPlayed) {
+					// Human played a reactive card — gameState now has the flag set.
+					// Re-run bot step computation from the updated gameState so the engine
+					// consumes the flag correctly (e.g. negateNextElimination).
+					let freshSteps;
+					try {
+						freshSteps = driveBotTurnSteps(gameState, 'player_2');
+					} catch (err) {
+						console.error('[BOT] re-run driveBotTurnSteps after interrupt threw:', err);
+						freshSteps = steps.slice(index); // fallback: use remaining original steps
+					}
+					// If fresh steps are empty, hand control back
+					if (!freshSteps || freshSteps.length === 0) {
+						if (onComplete) onComplete();
+						return;
+					}
+					// Continue from the beginning of fresh steps (step 0)
+					await playBotSteps(freshSteps, botName, 0, delay, onComplete);
+					return;
 				}
-				return;
 			}
-			playBotSteps(steps, botName, index + 1, delay, onComplete);
-		}, delay);
+		}
+
+		// Apply bot step
+		gameState = nextState;
+		renderFromState(gameState);
+		log.add('quest', `${botName} ${label}`);
+
+		if (gameState.status === 'FINISHED') {
+			handleGameOver(gameState);
+			return;
+		}
+
+		if (index === steps.length - 1) {
+			if (onComplete) {
+				onComplete();
+			} else {
+				// bot vs bot: start next player's turn and keep the loop going
+				gameState = startTurn(gameState);
+				renderFromState(gameState);
+				logTurnTrickle(gameState.activePlayerId);
+				runBotVsBotLoop();
+			}
+			return;
+		}
+
+		await playBotSteps(steps, botName, index + 1, delay, onComplete);
 	}
 
 	// ── Post-match reward flow ────────────────────────────────────────────
@@ -664,7 +766,7 @@ function initGamePage() {
 					type: 'start',
 				});
 				if (endTurnBtn) endTurnBtn.disabled = false;
-			});
+			}).catch(err => console.error('[BOT] playBotSteps error:', err));
 		}
 	});
 
@@ -796,7 +898,7 @@ function initGamePage() {
 			if (!Array.isArray(gameState.sharedGeneralQuestDiscard)) gameState.sharedGeneralQuestDiscard = [];
 			gameState.sharedGeneralQuestDiscard.push(questRef);
 
-			renderAndAnimate(beforeResolve, { actionLabel: 'quest-resolution' });
+			renderAndAnimate(beforeResolve, { actionLabel: 'quest-resolution', questDidSucceed: didSucceed });
 			syncPush();
 
 			log.add(didSucceed ? 'gain' : 'loss',
@@ -890,7 +992,7 @@ function initGamePage() {
 					gameState.sharedGeneralQuestDiscard = [];
 				}
 				gameState.sharedGeneralQuestDiscard.push(questRef);
-				renderAndAnimate(beforeResolve, { actionLabel: 'quest-resolution' });
+				renderAndAnimate(beforeResolve, { actionLabel: 'quest-resolution', questDidSucceed: didSucceed });
 				syncPush();
 
 				const mpDelta = didSucceed ? questDef.successMP : questDef.failMP;
@@ -1542,15 +1644,20 @@ function initGamePage() {
 		const forceReroll = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
 
 		// Build Mosje options from current state (quest card still on field at this point).
+		const isKickboxing = questDef.id === 'quest_personal_kickboxing_bootcamp';
 		const questSlots = gameState.players[localPlayerId].activeSlots
 			.map((slot, index) => ({ slot, index }))
 			.filter(({ slot }) => slot && !slot.isDefeated)
-			.map(({ slot, index }) => ({
-				slotIndex: index,
-				name: slot.name || CARD_LOOKUP[slot.cardId]?.name || slot.cardId || 'Mosje',
-				mp: slot.mp,
-				traits: slot.traits || CARD_LOOKUP[slot.cardId]?.traits || {},
-			}));
+			.map(({ slot, index }) => {
+				const eligible = !isKickboxing || (String(slot.cardId).includes('gandoe') || slot.cardId === 'mosje_michelle');
+				return {
+					slotIndex: index,
+					name: slot.name || CARD_LOOKUP[slot.cardId]?.name || slot.cardId || 'Mosje',
+					mp: slot.mp,
+					traits: slot.traits || CARD_LOOKUP[slot.cardId]?.traits || {},
+					disabled: !eligible,
+				};
+			});
 
 		// Fires only after the player confirms a Mosje in the selection modal.
 		function onMosjeSelected(targetSlotIndex) {
@@ -1570,10 +1677,11 @@ function initGamePage() {
 			log.add('loss', 'Quest attempt cost: -20 MP');
 
 			const chosenMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
+			const perMosjeCfg = questDef.perMosjeConfig?.[chosenMosje?.cardId];
 			gameState.activeQuest = {
 				questName: questDef.name, cardName: questDef.name,
 				questType: questDef.questType || 'PERSONAL', attacker: localPlayerId,
-				successMP: questDef.successMP, failMP: questDef.failMP,
+				successMP: perMosjeCfg?.successMP ?? questDef.successMP, failMP: questDef.failMP,
 				currentMp: chosenMosje?.mp ?? null,
 			};
 			renderFromState(gameState);
@@ -1586,24 +1694,14 @@ function initGamePage() {
 			// "Attempt Quest" → dice roll. "Cancel" → close with no MP refund.
 			const updatedMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
 			modal.showQuestAttemptPreview(updatedMosje, questDef, getQuestDiceThreshold(questDef, updatedMosje), () => {
-				// Kickboxing Bootcamp: auto-succeed when Boxing Ring is the active Place
-				if (questDef.id === 'quest_personal_kickboxing_bootcamp' && gameState.activePlace === 'place_boxing_ring') {
-					const beforeResolve = snapshotForAnimation();
-					gameState = resolveQuest(gameState, localPlayerId, questDef, true, targetSlotIndex);
-					gameState.activeQuest = null;
-					log.add('gain', `Kickboxing Bootcamp: Boxing Ring active — auto-succeed! +${questDef.successMP} MP`);
-					logStateOutcome(log, beforeResolve, gameState, localPlayerId, 'Kickboxing Bootcamp (auto)');
-					renderAndAnimate(beforeResolve, { actionLabel: 'quest-resolution' });
-					syncPush();
-					return;
-				}
 				runQuestDiceRoll(targetSlotIndex);
 			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus });
 		}
 
 		function runQuestDiceRoll(targetSlotIndex) {
 			const liveMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
-			const threshold = getQuestDiceThreshold(questDef, liveMosje);
+			const mosjePerCfg = questDef.perMosjeConfig?.[liveMosje?.cardId];
+			const threshold = mosjePerCfg ? mosjePerCfg.threshold : getQuestDiceThreshold(questDef, liveMosje);
 			// Tweede Kans: consume the granted reroll into this quest's dice roll.
 			let tweedeKansReroll = 0;
 			if (gameState._rerollGranted) {
@@ -1612,7 +1710,16 @@ function initGamePage() {
 			}
 			modal.showDiceRoll(questDef, threshold, (didSucceed) => {
 				const beforeResolve = snapshotForAnimation();
-				gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed, targetSlotIndex);
+				// Kickboxing Bootcamp: override successMP per chosen Mosje + synergy bonus.
+				let resolveQuestDef = questDef;
+				if (isKickboxing && mosjePerCfg) {
+					const player = gameState.players[localPlayerId];
+					const bothActive = player.activeSlots.some(s => s && !s.isDefeated && String(s.cardId).includes('gandoe'))
+						&& player.activeSlots.some(s => s && !s.isDefeated && s.cardId === 'mosje_michelle');
+					const finalMP = mosjePerCfg.successMP + (didSucceed && bothActive ? 20 : 0);
+					resolveQuestDef = { ...questDef, successMP: finalMP };
+				}
+				gameState = resolveQuest(gameState, localPlayerId, resolveQuestDef, didSucceed, targetSlotIndex);
 				gameState.activeQuest = null;
 
 				// Perfect Sync: show opponent hand, then let player pick mosje for +70 MP.
@@ -1626,6 +1733,7 @@ function initGamePage() {
 						actorId: localPlayerId,
 						localPlayerId,
 						actionLabel: 'quest-resolution',
+						questDidSucceed: didSucceed,
 					});
 					syncPush();
 					modal.showHandViewerModal(handCardIds, opponentName, CARD_LOOKUP, () => {
@@ -1660,9 +1768,10 @@ function initGamePage() {
 					actorId: localPlayerId,
 					localPlayerId,
 					actionLabel: 'quest-resolution',
+					questDidSucceed: didSucceed,
 				});
 				syncPush();
-				const mpDelta = didSucceed ? questDef.successMP : questDef.failMP;
+				const mpDelta = didSucceed ? resolveQuestDef.successMP : resolveQuestDef.failMP;
 				const sign = mpDelta >= 0 ? '+' : '';
 				log.add(didSucceed ? 'gain' : 'loss', `${questDef.name}: ${didSucceed ? 'Success' : 'Failed'} → ${sign}${mpDelta} MP`);
 				logStateOutcome(log, beforeResolve, gameState, localPlayerId, `${questDef.name} resolution`);
@@ -1726,7 +1835,9 @@ function initGamePage() {
 				leipeOppId: oppId,
 				leipeOppSlot: parseInt(String(oppPick).split('_slot_')[1], 10),
 			};
-		} else if (piecieCardDef?.effectId === 'effect_kannetje_melk') {
+		} else if (piecieCardDef?.effectId === 'effect_kannetje_melk'
+				|| piecieCardDef?.effectId === 'effect_dikke_jonko'
+				|| piecieCardDef?.effectId === 'effect_tikker') {
 			const ownTargets = getPlayerMosjes(gameState, localPlayerId);
 			if (ownTargets.length > 1) {
 				const selectedId = await modal.showTargetSelector(ownTargets, 'Choose your Mosje to receive MP:');
@@ -1856,6 +1967,12 @@ function initGamePage() {
 		}
 
 		// ── Varkenspootjes — pick any active Mosje (own or opponent) ─────────────
+		// Guard: if pending belongs to the bot (not local player), the bot should
+		// have already resolved it in botDriver.js. Clear stale flag and skip.
+		if (gameState._varkenspootjesPending && gameState._varkenspootjesPending.activatingPlayerId !== localPlayerId) {
+			console.warn('[UI] Stale _varkenspootjesPending from bot — clearing without resolving');
+			delete gameState._varkenspootjesPending;
+		}
 		if (gameState._varkenspootjesPending) {
 			const { activatingPlayerId } = gameState._varkenspootjesPending;
 			const allSlots = [];
@@ -2327,6 +2444,15 @@ function buildActiveModifiers(gameState, playerId, isLocalPlayer = false) {
 	if (flags.drainReversal?.[playerId])        pills.push({ label: '↩ Drain Reflect', color: 'orange' });
 	const mpRed = flags.mpLossReduction?.[playerId];
 	if (Number.isInteger(mpRed) && mpRed > 0)  pills.push({ label: `🛡 -${mpRed} Damage`, color: 'blue' });
+
+	// Laat me chillen! and Snelle Laat me chillen! store MP_LOSS_REDUCTION in the active Mosje's statusEffects
+	if (player) {
+		for (const slot of player.activeSlots) {
+			if (!slot || slot.isDefeated) continue;
+			const se = (slot.statusEffects || []).find(e => e.type === 'MP_LOSS_REDUCTION' && (e.turnsLeft ?? 1) > 0);
+			if (se) { pills.push({ label: `🛡 -${se.value} Damage`, color: 'teal' }); break; }
+		}
+	}
 	if (flags.copyLastPiecie?.forPlayer === playerId) pills.push({ label: '📋 Copy Ready', color: 'purple' });
 
 	return pills;

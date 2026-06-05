@@ -1,8 +1,8 @@
 # Project State
 
 **Last updated:** 2026-06-04
-**Current phase:** Phase 23 IN PROGRESS - Graveyard System (Plan 02 complete)
-**Branch:** feature/phase-23-graveyard-system
+**Current phase:** Phase 24 COMPLETE — Interrupt Modal System
+**Branch:** main (create feature/phase-24-interrupt-modal before executing)
 
 > Note: STATE.md was not maintained during Phases 15–17 (tracked in their phase dirs / ROADMAP only). This header jumps from Phase 14 to Phase 18.
 
