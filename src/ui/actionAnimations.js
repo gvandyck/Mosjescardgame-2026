@@ -2,9 +2,6 @@ import {
 	animateCardDamage,
 	animateCardPlay,
 	animateLevelUp,
-	animateQuestSuccess,
-	animateQuestFail,
-	animateLevelUpCelebration,
 	showMPFloat,
 } from './boardRenderer.js';
 
@@ -71,19 +68,7 @@ function animateMosjeDeltas(beforeState, afterState, options = {}) {
 			}
 
 			if (levelIncreased) {
-				if (isQuestOutcome && options.questDidSucceed) {
-					animateLevelUpCelebration(cardEl);
-				} else {
-					animateLevelUp(cardEl);
-				}
-			}
-			// Quest outcome flash / shake (fires after MP float)
-			if (isQuestOutcome) {
-				if (options.questDidSucceed) {
-					animateQuestSuccess(cardEl);
-				} else {
-					animateQuestFail(cardEl);
-				}
+				animateLevelUp(cardEl);
 			}
 		});
 	}

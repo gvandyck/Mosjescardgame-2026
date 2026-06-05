@@ -898,7 +898,7 @@ function initGamePage() {
 			if (!Array.isArray(gameState.sharedGeneralQuestDiscard)) gameState.sharedGeneralQuestDiscard = [];
 			gameState.sharedGeneralQuestDiscard.push(questRef);
 
-			renderAndAnimate(beforeResolve, { actionLabel: 'quest-resolution', questDidSucceed: didSucceed });
+			renderAndAnimate(beforeResolve, { actionLabel: 'quest-resolution' });
 			syncPush();
 
 			log.add(didSucceed ? 'gain' : 'loss',
@@ -992,7 +992,7 @@ function initGamePage() {
 					gameState.sharedGeneralQuestDiscard = [];
 				}
 				gameState.sharedGeneralQuestDiscard.push(questRef);
-				renderAndAnimate(beforeResolve, { actionLabel: 'quest-resolution', questDidSucceed: didSucceed });
+				renderAndAnimate(beforeResolve, { actionLabel: 'quest-resolution' });
 				syncPush();
 
 				const mpDelta = didSucceed ? questDef.successMP : questDef.failMP;
@@ -1733,7 +1733,6 @@ function initGamePage() {
 						actorId: localPlayerId,
 						localPlayerId,
 						actionLabel: 'quest-resolution',
-						questDidSucceed: didSucceed,
 					});
 					syncPush();
 					modal.showHandViewerModal(handCardIds, opponentName, CARD_LOOKUP, () => {
@@ -1768,7 +1767,6 @@ function initGamePage() {
 					actorId: localPlayerId,
 					localPlayerId,
 					actionLabel: 'quest-resolution',
-					questDidSucceed: didSucceed,
 				});
 				syncPush();
 				const mpDelta = didSucceed ? resolveQuestDef.successMP : resolveQuestDef.failMP;
