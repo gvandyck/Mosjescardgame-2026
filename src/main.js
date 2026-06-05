@@ -1,5 +1,3 @@
-				modal.showQuestAttemptPreview(updatedMosje, questDef, getQuestDiceThreshold(questDef, updatedMosje), () => {
-					runQuestDiceRoll(targetSlotIndex);
 // main.js — Entry point for the app.
 // Detects the current page and starts the matching UI flow.
 
