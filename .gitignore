@@ -34,3 +34,8 @@ build/
 coverage-summary.json
 coverage/
 .nyc_output/
+
+# Playwright
+tests/ui/screenshots/
+test-results/
+playwright-report/

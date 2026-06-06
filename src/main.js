@@ -44,7 +44,7 @@ if (path.endsWith('/index.html') || path.endsWith('/')) {
 	initLobbyPage();
 }
 
-if (path.endsWith('/game.html')) {
+if (path.endsWith('/game.html') || path.endsWith('/game')) {
 	initGamePage();
 }
 
