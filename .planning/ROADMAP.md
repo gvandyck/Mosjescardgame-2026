@@ -27,6 +27,7 @@
 | 21 | Quest Behaviors + Cleanup ? | **Bucket C** � wire 3 engine-doable quest behaviors via static quest-def fields read by `resolveQuest`: draw-on-success (Artistic Expression + Late Night Questing draw 2), Elimination Challenge (opponent -30 MP on success), Hack Mainframe Hacker/FPS -1 threshold id fix. **Bucket A** � delete dead `effect_jensen`/`effect_lucky_coin` stubs + tidy the unrun `.js` test, refresh stale `card-reference.md` rows (Geen Raad, Huisbaas, the 4 wired quests). (Bucket D � 3-way outcomes + turn-action gates � deferred.) | QUEST-01/02/03 + CLEAN-01 | DONE � 867 tests pass, 0 sim crashes. Draw-on-success + Elimination -30 MP + Hack FPS bonus wired; dead stubs removed; card-reference rows corrected |
 | 22 | Call of the Welloes | Implement the full Call of the Welloes Piecie effect: summon a Mosje from the Welloe pile into a free active slot (level+MP restored from welloe record); Piecie stays on field as the anchor � if the Piecie leaves play the summoned Mosje immediately returns to the Welloe pile. Requires: UI pick (showOptionSelect), new `returnMosjeToWelloe` engine helper, end-of-turn sweep check, `linkedMosjeCardId` field on piecieSlot, `summonedByPiecie` field on mosjeSlot. No free slot ? effect silently cancelled. Welloe pile empty ? effect silently cancelled. | CALLW-01 through CALLW-04 | effect_call_of_welloes functional; summon + return lifecycle correct; 0 sim crashes; all tests pass |
 | 26 | Debug Logging System | Add structured in-game event logging so MP changes, level-ups, and quest resolutions are clearly visible during play. Every MP gain/loss shows its source (card/effect), every level-up logs before/after state, quest rolls log threshold vs result. Output appears in the existing game log panel. Pure observability layer — no engine changes. | DBLOG-01 through DBLOG-03 | MP changes show source in log; level-ups show before/after; quest rolls show threshold vs result; log panel displays all events during a real game |
+| 28 | Visual UI Tests | 10 Playwright tests covering the most historically buggy and mechanically complex areas: Dubbele Dosis lifecycle, Leipe Swap revert, quest MP floor, quest threshold display, Youri ability (single-piecie + 3-use cap), Not Today! interrupt, Laat me chillen! lifecycle, quest 2/2 cap. Every test asserts MP before/during/after. | VIS-01 through VIS-10 | All 10 tests pass headed; MP assertions cover every effect; log assertions confirm every action; no existing tests broken |
 | 25.1 | Animation Overflow Fix | Animations (quest success flash, fail shake, level-up celebration) get clipped by overflow:hidden on .card and inner containers. Fix: apply animation classes to the slot wrapper (.mosje-slot) instead of the card element — slot wrappers have no overflow clip so glows and bursts render freely. ~5 lines JS + CSS selector update. | ANIMFIX-01 | All card animations visible outside card boundaries; no clipping on any slot type; node --check clean; 920+ tests pass |
 | 25 | UI Polish & Feel | (E1) Quest result animations — distinct visual feedback for quest success (green flash + MP float), fail (red shake), and level-up (celebratory event); (E2) Deck archetype identities — one-line identity label per starter deck shown on deck select screen; (E3) End-game stats screen — after game ends, show quests attempted/succeeded, peak MP, biggest single gain, Mosjes lost. Pure UI/UX, no engine changes. | UIPOL-01 through UIPOL-03 | Quest results have distinct animations; deck select shows archetype identity; end-game stats screen renders correctly after win/loss |
 | 24 | Interrupt Modal System | Add a "Damage Interrupt" modal so the human player can react when the bot would damage or eliminate their Mosje. Three cards hook in: (1) Not Today! — negateNextElimination flag triggers an interrupt prompt before bot elimination resolves; (2) Emergency Healings — playable as interrupt when opponent/bot deals damage; (3) Laat me chillen! — fix MP_LOSS_REDUCTION consumption from quest/card damage + fix lifecycle (stay on board until end of turn). Also fix stale "welloe pile" reference in Not Today! card text. | INT-01 through INT-05 | Interrupt modal fires when bot would eliminate or damage human Mosje; Not Today! / Emergency Healings / Laat me chillen! all trigger correctly; Laat me chillen! stays on field for its full turn; tests pass; 0 sim crashes |
@@ -614,7 +615,7 @@ src/cards/quests/general/quest-endurance-test.ts
 
 ---
 
-*Last updated: 2026-06-05*
+*Last updated: 2026-06-06*
 
 ---
 
@@ -624,7 +625,7 @@ src/cards/quests/general/quest-endurance-test.ts
 
 **Requirements:** YCS-01, YCS-02, YCS-03
 
-**Plans:** 3 plans\n\nPlans:\n- [ ] 27-01-PLAN.md � Fix ability_youri_speed_activate engine logic + youriAbilityUses counter\n- [ ] 27-02-PLAN.md � Wire Youri ability UI in main.js: slot selector modal + activatePiecie + card draw\n- [ ] 27-03-PLAN.md � Chris+Youri passive synergy in playPiecie + test suite
+**Plans:** 3 plans\n\nPlans:\n- [ ] 27-01-PLAN.md � Fix ability_youri_speed_activate engine logic + youriAbilityUses counter\n- [ ] 27-02-PLAN.md � Wire Youri ability UI in main.js: slot selector modal + activatePiecie + card draw\n- [ ] 27-03-PLAN.md � Chris+Youri passive synergy in playPiecie + test suite
 
 **Success Criteria:**
 1. Youri ability costs 20 MP, activates a face-down piecie on field, then draws 1 card
@@ -653,3 +654,34 @@ Plans:
 2. Level-ups display with ⬆️ icon and before/after level numbers
 3. Quest rolls display "rolled N, needed M+ → Success/Failed"
 4. node --check clean, npm test passes
+
+---
+
+### Phase 28: Visual UI Tests
+
+**Goal:** 10 Playwright tests covering the most historically buggy and mechanically complex areas of the game. Every test asserts MP before, during, and after an effect/ability/quest resolves, making regressions immediately visible in a real browser.
+
+**Requirements:**
+- VIS-01: Dubbele Dosis stays on field until end of turn, then moves to graveyard (+20 MP during, retained after)
+- VIS-02: Leipe Swap reverts MP at end of turn (own + opponent MP swap back; banked levels stick)
+- VIS-03: Quest success grants correct MP; log shows "rolled N, needed M+"
+- VIS-04: Quest fail MP never goes below 0 (floor enforced by loseMP)
+- VIS-05: Youri ability — single face-down piecie auto-activates, no modal, Youri MP -20, hand +1
+- VIS-06: Youri ability — 3-use cap blocks 4th use, no MP deducted on blocked attempt
+- VIS-07: Not Today! interrupt modal fires when bot would eliminate human Mosje; Mosje survives at 5 MP
+- VIS-08: Laat me chillen! stays on field for full turn; MP_LOSS_REDUCTION active during bot turn
+- VIS-09: Quest 2/2 cap — third general quest attempt blocked, MP unchanged
+- VIS-10: Helpers extracted — smoke.spec.js imports from helpers.js, all 6 smoke tests still pass
+
+**Plans:** 1 plan
+
+Plans:
+- [ ] 28-01-PLAN.md — All 10 tests + helpers extraction
+
+**Success Criteria:**
+1. `tests/ui/helpers.js` contains all shared test utilities
+2. `tests/ui/mechanics.spec.js` contains 9 named tests (VIS-01 through VIS-09)
+3. Every test asserts MP before, during, and after the effect resolves
+4. Every test has at least one log assertion confirming the action appeared in-game
+5. `npm run test:ui:headed` passes all 15 tests (6 smoke + 9 mechanics)
+6. `npm test` still passes (no unit test regressions)
