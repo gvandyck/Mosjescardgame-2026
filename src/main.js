@@ -635,6 +635,21 @@ function initGamePage() {
 		return _customDecksCache.find(d => d.id === deckId) || readCustomDeckFromSession(deckId);
 	}
 
+	// Test hooks — only active when URL contains ?testMode=true
+	if (urlParams.get('testMode') === 'true') {
+		window.__testHooks = {
+			setMosjeMP(playerId, slotIndex, mp) {
+				const slot = gameState?.players?.[playerId]?.activeSlots?.[slotIndex];
+				if (slot) { slot.mp = mp; renderFromState(gameState); }
+			},
+			setYouriUses(playerId, count) {
+				const player = gameState?.players?.[playerId];
+				if (player) player.youriAbilityUses = count;
+			},
+			getGameState() { return JSON.parse(JSON.stringify(gameState)); },
+		};
+	}
+
 	function startGame(p1Name, p1Deck, p2Name, p2Deck) {
 		const players = [
 			{ playerId: 'player_1', name: p1Name, deckId: p1Deck, deckDef: resolveCustomDeckDef(p1Deck) },
