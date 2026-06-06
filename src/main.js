@@ -646,7 +646,32 @@ function initGamePage() {
 				const player = gameState?.players?.[playerId];
 				if (player) player.youriAbilityUses = count;
 			},
+			setMpLostThisTurn(playerId, slotIndex, amount) {
+				const slot = gameState?.players?.[playerId]?.activeSlots?.[slotIndex];
+				if (slot) slot.mpLostThisTurn = amount;
+			},
+			setPieciesPlayedThisTurn(playerId, count) {
+				const player = gameState?.players?.[playerId];
+				if (player) player.pieciesPlayedThisTurn = count;
+			},
+			setLastCardPlayedType(playerId, type) {
+				const player = gameState?.players?.[playerId];
+				if (player) { player.lastCardPlayedType = type; }
+			},
+			setPendingTargets(targets) {
+				if (gameState) { gameState._pendingTargets = targets; }
+			},
+			injectHandCard(playerId, cardId) {
+				const player = gameState?.players?.[playerId];
+				if (player) { player.hand.unshift({ cardId, type: 'PIECIE' }); renderFromState(gameState); }
+			},
+			injectGraveyardCard(playerId, cardId) {
+				const player = gameState?.players?.[playerId];
+				if (player) { player.graveyard.unshift({ cardId, name: cardId, type: 'PIECIE', source: 'played' }); }
+			},
 			getGameState() { return JSON.parse(JSON.stringify(gameState)); },
+			getHandSize(playerId) { return gameState?.players?.[playerId]?.hand?.length ?? -1; },
+			getGraveyardSize(playerId) { return gameState?.players?.[playerId]?.graveyard?.length ?? -1; },
 		};
 	}
 

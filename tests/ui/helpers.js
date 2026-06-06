@@ -138,13 +138,68 @@ export async function setMosjeMP(page, playerId, slotIndex, mp) {
 	await page.waitForTimeout(200);
 }
 
-/**
- * Set youriAbilityUses for a player (requires testMode=true in URL).
- */
 export async function setYouriUses(page, playerId, count) {
 	await page.evaluate(({ pid, count }) => {
 		window.__testHooks?.setYouriUses(pid, count);
 	}, { pid: playerId, count });
+}
+
+/** Set mpLostThisTurn on a Mosje slot (for comeback/adaptive ability tests). */
+export async function setMpLostThisTurn(page, playerId, slotIndex, amount) {
+	await page.evaluate(({ pid, si, amount }) => {
+		window.__testHooks?.setMpLostThisTurn(pid, si, amount);
+	}, { pid: playerId, si: slotIndex, amount });
+}
+
+/** Set pieciesPlayedThisTurn counter (for Chris DDR ability test). */
+export async function setPieciesPlayedThisTurn(page, playerId, count) {
+	await page.evaluate(({ pid, count }) => {
+		window.__testHooks?.setPieciesPlayedThisTurn(pid, count);
+	}, { pid: playerId, count });
+}
+
+/** Set lastCardPlayedType (for Jisca combo ability test). */
+export async function setLastCardPlayedType(page, playerId, type) {
+	await page.evaluate(({ pid, type }) => {
+		window.__testHooks?.setLastCardPlayedType(pid, type);
+	}, { pid: playerId, type });
+}
+
+/** Inject _pendingTargets into game state (for abilities that need pre-set targets). */
+export async function setPendingTargets(page, targets) {
+	await page.evaluate((t) => {
+		window.__testHooks?.setPendingTargets(t);
+	}, targets);
+}
+
+/** Inject a card directly into a player's hand (for ability cost-discard tests). */
+export async function injectHandCard(page, playerId, cardId) {
+	await page.evaluate(({ pid, id }) => {
+		window.__testHooks?.injectHandCard(pid, id);
+	}, { pid: playerId, id: cardId });
+	await page.waitForTimeout(150);
+}
+
+/** Inject a card into a player's graveyard (for retrieve-from-graveyard ability tests). */
+export async function injectGraveyardCard(page, playerId, cardId) {
+	await page.evaluate(({ pid, id }) => {
+		window.__testHooks?.injectGraveyardCard(pid, id);
+	}, { pid: playerId, id: cardId });
+}
+
+/** Read current hand size for a player via testHooks. */
+export async function getHandSize(page, playerId) {
+	return page.evaluate((pid) => window.__testHooks?.getHandSize(pid) ?? -1, playerId);
+}
+
+/** Read current graveyard size for a player via testHooks. */
+export async function getGraveyardSize(page, playerId) {
+	return page.evaluate((pid) => window.__testHooks?.getGraveyardSize(pid) ?? -1, playerId);
+}
+
+/** Read a snapshot of the full game state (for asserting status effects, flags, etc.). */
+export async function getGameState(page) {
+	return page.evaluate(() => window.__testHooks?.getGameState() ?? null);
 }
 
 /**
