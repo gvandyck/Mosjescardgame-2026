@@ -669,6 +669,25 @@ function initGamePage() {
 				const player = gameState?.players?.[playerId];
 				if (player) { player.graveyard.unshift({ cardId, name: cardId, type: 'PIECIE', source: 'played' }); }
 			},
+			/** Call endTurn engine function directly and return Michelle MP before/after. */
+			simulateEndPhaseForMichelle(playerId) {
+				if (!gameState) return null;
+				const snap = JSON.parse(JSON.stringify(gameState));
+				const before = snap.players?.[playerId]?.activeSlots?.[0]?.mp ?? -1;
+				const after_state = endTurn(snap);
+				const after = after_state.players?.[playerId]?.activeSlots?.[0]?.mp ?? -1;
+				return { before, after, delta: after - before, turnNumber: snap.turnNumber, canActivateOnTurn: snap.activePlaceCanActivateOnTurn };
+			},
+			injectQuestToTopOfDeck(questId) {
+				// Put a specific quest at the front of the shared general quest deck.
+				// Removes any existing copy first to avoid duplicates.
+				if (!gameState) return;
+				const deck = gameState.sharedGeneralQuestDeck;
+				if (!Array.isArray(deck)) return;
+				const existing = deck.findIndex(q => (q.cardId ?? q) === questId);
+				if (existing >= 0) deck.splice(existing, 1);
+				deck.unshift({ cardId: questId });
+			},
 			getGameState() { return JSON.parse(JSON.stringify(gameState)); },
 			getHandSize(playerId) { return gameState?.players?.[playerId]?.hand?.length ?? -1; },
 			getGraveyardSize(playerId) { return gameState?.players?.[playerId]?.graveyard?.length ?? -1; },

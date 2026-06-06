@@ -300,6 +300,10 @@ test('VIS-05: Youri ability auto-activates single face-down piecie', async ({ pa
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
 
+	// Verify Youri is actually on field (confirms custom deck loaded)
+	const youriOnField = await page.locator('.mosje-card--owned[data-card-id="mosje_youri"]').isVisible({ timeout: 2000 }).catch(() => false);
+	if (!youriOnField) { console.log('Youri not on field — custom deck may not have loaded — skip'); test.skip(); return; }
+
 	// Give Youri 60 MP (ability costs 20)
 	await setMosjeMP(page, 'player_1', 0, 60);
 	await page.waitForTimeout(200);

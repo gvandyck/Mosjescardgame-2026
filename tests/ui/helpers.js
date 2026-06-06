@@ -203,6 +203,17 @@ export async function getGameState(page) {
 }
 
 /**
+ * Put a specific quest at the top of the shared general quest deck.
+ * Use before clicking General Quest to guarantee a known quest is drawn.
+ * questId: e.g. 'quest_arm_wrestling', 'quest_parkour_challenge'
+ */
+export async function injectQuestToTopOfDeck(page, questId) {
+	await page.evaluate((id) => {
+		window.__testHooks?.injectQuestToTopOfDeck(id);
+	}, questId);
+}
+
+/**
  * Play a card from hand by its cardId.
  * Clicks the play button if visible, otherwise the card wrap itself.
  */
