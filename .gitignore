@@ -39,3 +39,4 @@ coverage/
 tests/ui/screenshots/
 test-results/
 playwright-report/
+tests/ui/simulation/sim-report.json
