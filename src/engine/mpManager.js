@@ -178,10 +178,15 @@ export function loseMP(gameState, playerId, slotIndex, amount, source = 'DRAIN',
 
   // Level regression — MP floor is 0.
   // Overflow below 0 costs one level and carries the remainder into 100 MP.
-  // At level 0 excess damage is ignored; the effect already fired.
+  // At Level 0, dropping below 0 from a damaging effect DEFEATS the Mosje
+  // (canonical ruling phase0-rulings.md:118). The slot is flagged here and
+  // swept by applyPendingDefeats() inside checkVictory(). Guarded MP-cost
+  // payments never reach below 0, so they never trigger this.
   while (mosje.mp < 0) {
     if (mosje.level === 0) {
       mosje.mp = 0;
+      mosje._pendingDefeat = true;
+      console.log(`[ENGINE] 💀 ${mosje.name} reduced below 0 at Level 0 → pending defeat`);
       break;
     }
     const overflow = -mosje.mp;

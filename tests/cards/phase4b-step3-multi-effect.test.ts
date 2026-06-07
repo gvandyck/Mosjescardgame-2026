@@ -142,10 +142,14 @@ describe("phase4b step 3 - multi-effect piecies", () => {
     expect(tick1.players[1].mosjes[0].mp).toBe(10);
 
     const tick2 = endTurn({ ...tick1, currentPlayerId: "p2" });
-    expect(tick2.players[1].mosjes[0].flags.in_welloe).toBe(true); // defeated at 0 MP
+    expect(tick2.players[1].mosjes[0].mp).toBe(0); // exactly 0 — survives (rule: dies only below 0)
+    expect(tick2.players[1].mosjes[0].flags.in_welloe).toBeUndefined();
 
     const tick3 = endTurn({ ...tick2, currentPlayerId: "p2" });
-    expect(tick3.players[1].mosjes[0].mp).toBe(0); // no further change after defeat
+    expect(tick3.players[1].mosjes[0].flags.in_welloe).toBe(true); // next tick pushes below 0 → defeated
+
+    const tick4 = endTurn({ ...tick3, currentPlayerId: "p2" });
+    expect(tick4.players[1].mosjes[0].flags.in_welloe).toBe(true); // remains defeated; no further ticks
   });
 
   it("dikke-taks hits all opponents and draws 2", () => {

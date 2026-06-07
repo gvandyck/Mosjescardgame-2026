@@ -115,7 +115,7 @@ Each turn has four phases in this exact order:
 - Quest failure penalties (where stated on card)
 - Paying MP costs for abilities
 - Place card effects (where stated on card)
-- **Defeat at 0 MP**: When a Mosje reaches 0 or below MP from any non-cost-payment effect (Quest failure damage, Piecie effects, Place effects, Snelle Piecies, Mosje abilities), that Mosje is immediately sent to the player's discard pile. The `in_welloe` flag is set on the Mosje instance.
+- **Defeat below 0 MP**: When a damaging effect (Quest failure, Piecie, Place, Snelle Piecie, Mosje ability — anything that is *not* a cost payment) would reduce a Mosje **below 0 MP**, that Mosje is handled by level/MP rules: if it has Levels above 0 it **regresses one Level** (carrying the overflow into the new Level's MP); if it is at **Level 0** it is **defeated** — sent to the discard / Welloe pile and the `in_welloe` flag is set. A Mosje never holds negative MP. A Mosje at **exactly 0 MP survives** (e.g. a starter Mosje summoned at 0 MP, or one floored to 0); it is only defeated when further damage would push it below 0.
 - **Cost payments can go negative**: Paying an MP cost (see U7) can bring a Mosje below 0 MP without triggering defeat. A Mosje with negative MP from cost payment **cannot attempt Quests** until back at 0 or above.
 
 ---

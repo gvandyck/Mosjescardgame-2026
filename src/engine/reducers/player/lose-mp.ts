@@ -16,7 +16,10 @@ export function loseMP(state: GameState, action: LoseMPAction): GameState {
 
   const isCostPayment = action.source.kind === "cost";
   const nextMp = mosje.mp - action.amount;
-  const isDefeated = !isCostPayment && nextMp <= 0;
+  // Defeat only when reduced BELOW 0. A Mosje at exactly 0 survives; it dies
+  // only when further damage would push it negative. Matches the imperative
+  // engine + ruling phase0-rulings.md:118 (never hold negative MP).
+  const isDefeated = !isCostPayment && nextMp < 0;
 
   const nextFlags = { ...mosje.flags };
   if (isDefeated) {

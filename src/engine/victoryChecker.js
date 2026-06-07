@@ -24,14 +24,19 @@ export function checkVictory(gameState) {
   // Don't re-check if game is already over
   if (gameState.status === 'FINISHED') return gameState;
 
-  const playerIds = getAllPlayerIds(gameState);
+  // Defeat-at-0 MP: any Mosje flagged `_pendingDefeat` (reduced below 0 at Level 0
+  // by a damaging effect) is sent to the graveyard/Welloe pile before win checks.
+  let state = applyPendingDefeats(gameState);
+  if (state.status === 'FINISHED') return state;
+
+  const playerIds = getAllPlayerIds(state);
 
   for (const playerId of playerIds) {
-    const reason = getWinReason(gameState, playerId);
+    const reason = getWinReason(state, playerId);
     if (reason) {
       console.log(`[ENGINE] 🏆 Victory! Player ${playerId} wins by: ${reason}`);
       return {
-        ...gameState,
+        ...state,
         status: 'FINISHED',
         winnerId: playerId,
         winReason: reason,
@@ -39,7 +44,43 @@ export function checkVictory(gameState) {
     }
   }
 
-  return gameState;
+  return state;
+}
+
+// ─────────────────────────────────────────────────────────────
+// applyPendingDefeats
+// Sweeps every player's active slots and defeats any Mosje flagged
+// `_pendingDefeat` (set by loseMP/applyDamage when a damaging effect
+// would push MP below 0 at Level 0). Routes each through
+// markMosjeDefeated, which honors WELLOE_SHIELD + Not Today! and
+// re-checks victory. The flag is cleared BEFORE markMosjeDefeated so
+// a shield/Not-Today save (which keeps the Mosje on field) does not
+// re-trigger the sweep on the same slot. A guard caps iterations.
+// ─────────────────────────────────────────────────────────────
+export function applyPendingDefeats(gameState) {
+  let state = gameState;
+  let guard = 0;
+  while (guard++ < 10) {
+    let acted = false;
+    for (const pid of getAllPlayerIds(state)) {
+      const slots = state.players[pid]?.activeSlots || [];
+      for (let i = 0; i < slots.length; i++) {
+        const slot = slots[i];
+        if (slot && !slot.isDefeated && slot._pendingDefeat === true) {
+          // Clear the flag first (on a fresh clone) so a shielded/Not-Today
+          // save can't loop forever on the same flagged slot.
+          state = JSON.parse(JSON.stringify(state));
+          delete state.players[pid].activeSlots[i]._pendingDefeat;
+          state = markMosjeDefeated(state, pid, i);
+          acted = true;
+          break;
+        }
+      }
+      if (acted) break;
+    }
+    if (!acted) break;
+  }
+  return state;
 }
 
 // ─────────────────────────────────────────────────────────────

@@ -194,9 +194,19 @@ describe("mp primitives", () => {
     expect(up.players[0].mosjes[0].flags.cannot_complete_quests).toBeUndefined();
   });
 
-  it("non-cost damage to 0 MP defeats the Mosje and adds cardId to discard", () => {
+  it("non-cost damage to exactly 0 MP does NOT defeat (survives at 0)", () => {
+    // Rule (phase0-rulings.md:118): a Mosje at exactly 0 survives — it dies only
+    // when further damage would push it below 0.
     const state = createState();
-    const defeated = loseMP(state, { target: { playerId: "p1", instanceId: "m1" }, amount: 10 }, context());
+    const atZero = loseMP(state, { target: { playerId: "p1", instanceId: "m1" }, amount: 10 }, context());
+    expect(atZero.players[0].mosjes[0].mp).toBe(0);
+    expect(atZero.players[0].mosjes[0].flags.in_welloe).toBeUndefined();
+    expect(atZero.players[0].discard).not.toContain("mosje_1");
+  });
+
+  it("non-cost damage BELOW 0 MP defeats the Mosje and adds cardId to discard", () => {
+    const state = createState();
+    const defeated = loseMP(state, { target: { playerId: "p1", instanceId: "m1" }, amount: 15 }, context());
     expect(defeated.players[0].mosjes[0].flags.in_welloe).toBe(true);
     expect(defeated.players[0].discard).toContain("mosje_1");
     expect(defeated.eventLog.at(-1)).toMatchObject({ type: "mosje_defeated" });
