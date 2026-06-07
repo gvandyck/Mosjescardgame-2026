@@ -685,3 +685,31 @@ Plans:
 4. Every test has at least one log assertion confirming the action appeared in-game
 5. `npm run test:ui:headed` passes all 15 tests (6 smoke + 9 mechanics)
 6. `npm test` still passes (no unit test regressions)
+
+---
+
+### Phase 30: Defeat at 0 MP
+
+**Goal:** Implement the canonical ruling (phase0-rulings.md:118) that a Mosje dies when a damaging effect reduces its MP below 0 at Level 0. Currently the engine floors MP at 0 and Mosjes are effectively immortal. A Mosje never holds negative MP: Level>0 regresses a level (overflow carry), Level 0 is killed → discard/Welloe. Summoned-at-0 Mosjes and MP-cost payments are never lethal.
+
+**Requirements:**
+- DZ-01: loseMP + all 3 applyDamage copies flag `_pendingDefeat` on Lv0-below-0
+- DZ-02: `applyPendingDefeats` sweep in checkVictory routes flagged Mosjes via markMosjeDefeated
+- DZ-03: Summoned/placed-at-0 Mosjes survive (no reduction path = no flag)
+- DZ-04: MP-cost payments stay gated/non-lethal
+- DZ-05: ~30 tests migrated; Ronald Kip stacking test re-run
+- DZ-06: TS declarative engine reconciled (in_welloe semantics match)
+- DZ-07: Simulation crash-free + bot-vs-bot KNOCKOUT re-baseline
+
+**Plans:** 1 plan
+
+Plans:
+- [ ] 30-01-PLAN.md — Defeat-at-0 sweep + 4 reduction-site flags + test migration + sim
+
+**Success Criteria:**
+1. Lv0 Mosje reduced below 0 by any damaging effect → graveyard/Welloe via markMosjeDefeated; KNOCKOUT fires if last Mosje
+2. No Mosje ever holds negative MP; Lv>0 regression unchanged
+3. Mosjes summoned/placed at 0 MP are not killed on placement
+4. MP-cost payments never kill the paying Mosje
+5. npm test green (incl. Ronald Kip); typecheck:source green
+6. Simulation crash-free, timeout <25%; bot-vs-bot 30 games pass, no negative-MP anomalies
