@@ -13,14 +13,28 @@
 import { readHand } from '../helpers.js';
 
 /**
- * Dismiss any modal that appeared (target selectors, confirms, dice, etc.)
- * Skips disabled buttons — e.g. #modal-attempt is disabled when quest is impossible.
- * If the only visible modal button is disabled (impossible quest), exits the modal via cancel.
+ * Returns true if a modal is currently open.
  */
-async function autoDismissAll(page, maxRounds = 4) {
+async function isModalOpen(page) {
+	return page.locator('.modal-root--open').isVisible({ timeout: 200 }).catch(() => false);
+}
+
+/**
+ * Dismiss any modal that appeared (target selectors, confirms, dice, info modals, etc.)
+ *
+ * Strategy per round:
+ *   1. Click the highest-priority known progressing button (target → confirm → roll → done).
+ *   2. If none of those, click ANY enabled button inside the open modal (catch-all for
+ *      info modals "OK", card-choice modals, reveal modals, etc.).
+ *   3. If still nothing actionable, force-click the backdrop to dismiss.
+ * Loops until no modal remains open or maxRounds is hit.
+ */
+async function autoDismissAll(page, maxRounds = 10) {
 	for (let i = 0; i < maxRounds; i++) {
-		// Prefer enabled buttons
-		const enabledSelectors = [
+		if (!(await isModalOpen(page))) return;  // no modal — done
+
+		// Priority 1: known progressing buttons (enabled only)
+		const prioritySelectors = [
 			'.target-option',
 			'.modal-mosje-select-btn:not(:disabled)',
 			'#modal-yes',
@@ -30,35 +44,91 @@ async function autoDismissAll(page, maxRounds = 4) {
 			'#modal-continue',
 		];
 		let clicked = false;
-		for (const sel of enabledSelectors) {
+		for (const sel of prioritySelectors) {
 			const el = page.locator(sel).first();
-			if (await el.isVisible({ timeout: 300 }).catch(() => false)) {
-				// Double-check not disabled before clicking
+			if (await el.isVisible({ timeout: 200 }).catch(() => false)) {
 				const disabled = await el.evaluate(e => e.disabled === true).catch(() => false);
 				if (!disabled) {
-					await el.click();
+					await el.click().catch(() => {});
 					await page.waitForTimeout(300);
 					clicked = true;
 					break;
 				}
 			}
 		}
+
+		// Priority 2: ANY enabled button inside the open modal (catch-all)
 		if (!clicked) {
-			// Check if a modal is still open — if yes, try clicking the backdrop or a cancel button
-			const modalOpen = await page.locator('.modal-root--open').isVisible({ timeout: 200 }).catch(() => false);
-			if (modalOpen) {
-				// Quest impossible (#modal-attempt disabled) — click backdrop to close
-				const backdrop = page.locator('.modal-backdrop').first();
-				if (await backdrop.isVisible({ timeout: 200 }).catch(() => false)) {
-					await backdrop.click({ force: true });
-					await page.waitForTimeout(400);
-					continue;
-				}
+			const anyBtn = page.locator('.modal-root--open button:not([disabled])').first();
+			if (await anyBtn.isVisible({ timeout: 200 }).catch(() => false)) {
+				await anyBtn.click().catch(() => {});
+				await page.waitForTimeout(300);
+				clicked = true;
 			}
-			break;
 		}
-		await page.waitForTimeout(200);
+
+		// Priority 3: force-click the backdrop (last resort)
+		if (!clicked) {
+			const backdrop = page.locator('.modal-backdrop').first();
+			if (await backdrop.isVisible({ timeout: 200 }).catch(() => false)) {
+				await backdrop.click({ force: true }).catch(() => {});
+				await page.waitForTimeout(400);
+				clicked = true;
+			}
+		}
+
+		if (!clicked) return;  // nothing left to click
+		await page.waitForTimeout(150);
 	}
+}
+
+/**
+ * Walk the general-quest modal sequence explicitly:
+ *   confirm pay (#modal-yes) → attempt (#modal-attempt) → roll (#modal-roll)
+ *   → wait for dice animation → continue (#modal-done).
+ * Some quests need a target/type pick first (Geen Raad) — handled by autoDismissAll
+ * for those branches. Returns when the quest resolves or the flow can't proceed.
+ */
+async function runQuestFlow(page) {
+	// Stage 1: confirm payment
+	const yes = page.locator('#modal-yes');
+	if (await yes.isVisible({ timeout: 2000 }).catch(() => false)) {
+		await yes.click().catch(() => {});
+		await page.waitForTimeout(300);
+	}
+	// Some quests (Geen Raad) pop an opponent-hand picker / type picker instead of attempt.
+	// Resolve any such selector before the attempt button.
+	const earlyPick = page.locator('.modal-mosje-select-btn:not(:disabled), .target-option').first();
+	if (await earlyPick.isVisible({ timeout: 500 }).catch(() => false)) {
+		await earlyPick.click().catch(() => {});
+		await page.waitForTimeout(300);
+	}
+	// Stage 2: attempt (skip if disabled = impossible quest → close via backdrop)
+	const attempt = page.locator('#modal-attempt');
+	if (await attempt.isVisible({ timeout: 2000 }).catch(() => false)) {
+		const disabled = await attempt.evaluate(e => e.disabled === true).catch(() => false);
+		if (disabled) {
+			// Impossible quest — close the modal and bail
+			await autoDismissAll(page);
+			return;
+		}
+		await attempt.click().catch(() => {});
+		await page.waitForTimeout(300);
+	}
+	// Stage 3: roll the dice
+	const roll = page.locator('#modal-roll');
+	if (await roll.isVisible({ timeout: 2000 }).catch(() => false)) {
+		await roll.click().catch(() => {});
+		await page.waitForTimeout(1800);  // let the dice animation finish
+	}
+	// Stage 4: continue past the result
+	const done = page.locator('#modal-done');
+	if (await done.isVisible({ timeout: 3000 }).catch(() => false)) {
+		await done.click().catch(() => {});
+		await page.waitForTimeout(400);
+	}
+	// Any trailing modal (recovery prompts, reveals) — clean up generically
+	await autoDismissAll(page);
 }
 
 /**
@@ -86,13 +156,14 @@ export async function playAutoTurn(page) {
 
 	if (await page.locator('#reward-overlay').isVisible({ timeout: 100 }).catch(() => false)) return 'gameover';
 
-	// 2. Attempt general quest if available
+	// 2. Attempt general quest if available — use EXPLICIT staged flow so the dice
+	//    animation isn't interrupted by the generic backdrop-dismiss fallback.
 	const questBtn = page.locator('#btn-general-quest');
 	const questEnabled = await questBtn.evaluate(el => !el.disabled).catch(() => false);
 	if (questEnabled) {
 		await questBtn.click();
 		await page.waitForTimeout(400);
-		await autoDismissAll(page, 8);  // more rounds for multi-step quest flow
+		await runQuestFlow(page);
 	}
 
 	if (await page.locator('#reward-overlay').isVisible({ timeout: 100 }).catch(() => false)) return 'gameover';
@@ -112,8 +183,16 @@ export async function playAutoTurn(page) {
 
 	if (await page.locator('#reward-overlay').isVisible({ timeout: 100 }).catch(() => false)) return 'gameover';
 
-	// 4. End turn
-	await page.click('#btn-end-turn');
+	// 4. End turn — but FIRST make sure no modal backdrop is intercepting clicks.
+	// A lingering modal (info popup, card choice, reveal) blocks the End Turn button.
+	await autoDismissAll(page);
+	if (await isModalOpen(page)) {
+		// Still stuck — try one more aggressive dismissal pass
+		await autoDismissAll(page, 15);
+	}
+	if (await page.locator('#reward-overlay').isVisible({ timeout: 100 }).catch(() => false)) return 'gameover';
+
+	await page.click('#btn-end-turn').catch(() => {});
 	return await Promise.race([
 		page.waitForSelector('#btn-end-turn:not([disabled])', { timeout: 45000 }).then(() => 'turn'),
 		page.waitForSelector('#reward-overlay', { timeout: 45000 }).then(() => 'gameover'),

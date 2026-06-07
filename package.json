@@ -14,8 +14,9 @@
     "validate": "npm run lint && npm run typecheck:source && npm test",
     "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
     "format": "prettier --write \"**/*.{ts,js,json,md}\"",
-    "test:ui": "playwright test",
-    "test:ui:headed": "playwright test --headed",
+    "test:ui": "playwright test --project=visual",
+    "test:ui:headed": "playwright test --project=visual --headed",
+    "test:sim": "playwright test --project=sim",
     "serve": "npx http-server . -p 5500 --cors -c-1"
   },
   "devDependencies": {

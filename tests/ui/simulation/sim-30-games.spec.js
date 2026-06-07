@@ -21,7 +21,6 @@ import {
 	seedOfflineSession,
 	waitForBoard,
 	ss,
-	mockDiceRoll,
 } from '../helpers.js';
 import { playAutoTurn } from './auto-player.js';
 import { attachCollector, buildGameRecord, aggregateRecords } from './game-collector.js';
@@ -43,9 +42,10 @@ for (const matchup of MATCHUPS) {
 		test(`sim: ${matchup.label} game ${gameIndex}/${GAMES_PER_MATCHUP}`, async ({ page }) => {
 			test.setTimeout(180000);
 
-			// Use a different dice seed per game so we get variety across runs
-			const diceValue = (gameIndex / GAMES_PER_MATCHUP);  // 0.1 … 1.0
-			await mockDiceRoll(page, diceValue);
+			// NO mockDiceRoll — we want REAL randomness so each game plays differently.
+			// (mockDiceRoll overrides ALL Math.random globally, which breaks deck shuffle
+			//  and Mosje selection — value 1.0 produces out-of-bounds array indices.)
+			// Statistical variety across 10 games is the whole point of the simulation.
 			await seedOfflineSession(page, matchup.p1, matchup.p2);
 
 			const collector = attachCollector(page);
@@ -71,7 +71,6 @@ for (const matchup of MATCHUPS) {
 				p1Deck: matchup.p1,
 				p2Deck: matchup.p2,
 				gameIndex,
-				diceValue,
 			});
 			allRecords.push(record);
 
