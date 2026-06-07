@@ -66,15 +66,24 @@ export async function buildGameRecord(page, collector, meta) {
 		}
 	}
 
-	// Turn count: each "Now active" line = one turn transition
-	const turnCount = logs.filter(l => l.includes('Now active') || l.includes('activePlayerId')).length + 1;
+	// Turn count: read the authoritative turnNumber from the final game state
+	// (requires ?testMode=true). Falls back to log parsing if unavailable.
+	let turnCount = -1;
+	try {
+		const state = await page.evaluate(() => window.__testHooks?.getGameState?.() ?? null);
+		if (state && Number.isFinite(state.turnNumber)) turnCount = state.turnNumber;
+	} catch { /* ignore */ }
+	if (turnCount < 0) {
+		// Fallback: count "Turn N started" / "Now active" transitions
+		turnCount = logs.filter(l => /Turn \d+ started|Now active/.test(l)).length;
+	}
 
 	return {
 		...meta,
 		winner,
 		winReason,
 		outcome: winner === 'player_1' ? 'win' : 'loss',
-		turnCount: Math.max(1, Math.floor(turnCount / 2)),  // approximate human turns
+		turnCount: Math.max(1, turnCount),
 		pieciesActivated,
 		questsAttempted,
 		questsSucceeded,

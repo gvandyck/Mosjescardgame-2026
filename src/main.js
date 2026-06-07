@@ -429,6 +429,10 @@ function initGamePage() {
 	}
 
 	// ── Bot vs Bot loop — drives both players with per-action delays ────
+	// Bot-vs-bot step delay: ?fast=true collapses the 1000ms animation pause to 30ms
+	// so a full simulation game finishes in a few seconds instead of minutes.
+	const botStepDelay = urlParams.get('fast') === 'true' ? 30 : 1000;
+
 	function runBotVsBotLoop() {
 		if (!gameState || gameState.status === 'FINISHED') return;
 		const botId = gameState.activePlayerId;
@@ -440,7 +444,7 @@ function initGamePage() {
 			console.error('[BOT] driveBotTurnSteps threw:', err);
 			return;
 		}
-		playBotSteps(steps, botName, 0);
+		playBotSteps(steps, botName, 0, botStepDelay);
 	}
 
 	// Log the +10 MP trickle that startTurn() just applied for the given player.
@@ -732,8 +736,12 @@ function initGamePage() {
 		} else {
 			// Bot vs Bot, Offline vs Bot, or LOCAL dev mode
 			if (isBotVsBot) {
-				const deck1 = STARTER_DECKS[Math.floor(Math.random() * STARTER_DECKS.length)].id;
-				const deck2 = pickOpponentDeck(deck1);
+				// Optional deck1/deck2 URL params let a simulation control the matchup.
+				// Falls back to random decks when not provided.
+				const paramDeck1 = urlParams.get('deck1');
+				const paramDeck2 = urlParams.get('deck2');
+				const deck1 = paramDeck1 || STARTER_DECKS[Math.floor(Math.random() * STARTER_DECKS.length)].id;
+				const deck2 = paramDeck2 || pickOpponentDeck(deck1);
 				startGame('Bot A', deck1, 'Bot B', deck2);
 				log.add('quest', 'Bot vs Bot mode — no human input needed. Sit back and watch!');
 				runBotVsBotLoop();

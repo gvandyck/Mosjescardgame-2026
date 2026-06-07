@@ -24,7 +24,7 @@ export default defineConfig({
       // Everything watchable: smoke, mechanics, full-game, and the chain tests.
       // These were developed + validated with slowMo so keep them headed.
       name: 'visual',
-      testIgnore: '**/sim-30-games.spec.js',
+      testIgnore: ['**/sim-30-games.spec.js', '**/sim-botvsbot.spec.js'],
       use: {
         baseURL: 'http://localhost:5500',
         headless: false,
@@ -34,9 +34,9 @@ export default defineConfig({
       },
     },
     {
-      // Only the 30-game bulk statistical simulation — headless + fast.
+      // Bulk statistical simulations — headless + fast.
       name: 'sim',
-      testMatch: '**/sim-30-games.spec.js',
+      testMatch: ['**/sim-30-games.spec.js', '**/sim-botvsbot.spec.js'],
       timeout: 180000,
       use: {
         baseURL: 'http://localhost:5500',
