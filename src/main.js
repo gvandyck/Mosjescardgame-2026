@@ -641,10 +641,28 @@ function initGamePage() {
 
 	// Test hooks — only active when URL contains ?testMode=true
 	if (urlParams.get('testMode') === 'true') {
+		const cardTypeFor = (cardId) =>
+			String(cardId).startsWith('snelle_') ? 'SNELLE_PIECIE'
+			: String(cardId).startsWith('place_') ? 'PLACE'
+			: String(cardId).startsWith('quest_') ? 'QUEST'
+			: 'PIECIE';
 		window.__testHooks = {
 			setMosjeMP(playerId, slotIndex, mp) {
 				const slot = gameState?.players?.[playerId]?.activeSlots?.[slotIndex];
 				if (slot) { slot.mp = mp; renderFromState(gameState); }
+			},
+			// Make every face-down piecie/place immediately activatable THIS turn so a
+			// card test can place + activate without ending the turn (avoids the bot's
+			// turn entirely — important now that defeat-at-0 lets the bot KO a lone Mosje).
+			unlockPiecies(playerId) {
+				const player = gameState?.players?.[playerId];
+				if (!player || !Array.isArray(player.piecieSlots)) return;
+				for (const slot of player.piecieSlots) {
+					if (slot && !slot.activated && slot.faceDown) {
+						slot.canActivateOnTurn = gameState.turnNumber;
+					}
+				}
+				renderFromState(gameState);
 			},
 			setYouriUses(playerId, count) {
 				const player = gameState?.players?.[playerId];
@@ -667,7 +685,17 @@ function initGamePage() {
 			},
 			injectHandCard(playerId, cardId) {
 				const player = gameState?.players?.[playerId];
-				if (player) { player.hand.unshift({ cardId, type: 'PIECIE' }); renderFromState(gameState); }
+				if (!player) return;
+				player.hand.unshift({ cardId, type: cardTypeFor(cardId) });
+				renderFromState(gameState);
+			},
+			// Replace the hand with exactly the given cards. Keeps the hand small so a
+			// card's play button is never pushed off-screen by a bloated hand.
+			setHand(playerId, cardIds) {
+				const player = gameState?.players?.[playerId];
+				if (!player || !Array.isArray(cardIds)) return;
+				player.hand = cardIds.map(cardId => ({ cardId, type: cardTypeFor(cardId) }));
+				renderFromState(gameState);
 			},
 			injectGraveyardCard(playerId, cardId) {
 				const player = gameState?.players?.[playerId];

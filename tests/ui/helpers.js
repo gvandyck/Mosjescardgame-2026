@@ -144,6 +144,18 @@ export async function setYouriUses(page, playerId, count) {
 	}, { pid: playerId, count });
 }
 
+/** Make all face-down piecies/places immediately activatable this turn (testMode=true). */
+export async function unlockPiecies(page, playerId = 'player_1') {
+	await page.evaluate((pid) => window.__testHooks?.unlockPiecies(pid), playerId);
+	await page.waitForTimeout(200);
+}
+
+/** Replace a player's hand with exactly the given cardIds (keeps the hand small). */
+export async function setHand(page, playerId, cardIds) {
+	await page.evaluate(({ pid, ids }) => window.__testHooks?.setHand(pid, ids), { pid: playerId, ids: cardIds });
+	await page.waitForTimeout(200);
+}
+
 /** Set mpLostThisTurn on a Mosje slot (for comeback/adaptive ability tests). */
 export async function setMpLostThisTurn(page, playerId, slotIndex, amount) {
 	await page.evaluate(({ pid, si, amount }) => {

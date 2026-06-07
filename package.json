@@ -16,7 +16,9 @@
     "format": "prettier --write \"**/*.{ts,js,json,md}\"",
     "test:ui": "playwright test --project=visual",
     "test:ui:headed": "playwright test --project=visual --headed",
-    "test:sim": "playwright test --project=sim",
+    "test:sim": "playwright test --project=sim --workers=1",
+    "test:cards": "playwright test --project=cards --workers=1",
+    "test:cards:watch": "playwright test --project=cards --workers=1 --headed",
     "serve": "npx http-server . -p 5500 --cors -c-1"
   },
   "devDependencies": {
