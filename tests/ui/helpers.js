@@ -156,6 +156,17 @@ export async function setHand(page, playerId, cardIds) {
 	await page.waitForTimeout(200);
 }
 
+/**
+ * Place a specific Mosje into a slot with custom MP/level (testMode=true).
+ * Enables two-Mosje and precise-board scenarios. Pass cardId=null to clear.
+ *   setMosjeOnField(page, 'player_1', 1, 'mosje_michelle', { mp: 30, level: 1 })
+ */
+export async function setMosjeOnField(page, playerId, slotIndex, cardId, opts = {}) {
+	await page.evaluate(({ pid, si, cid, o }) => window.__testHooks?.setMosjeOnField(pid, si, cid, o),
+		{ pid: playerId, si: slotIndex, cid: cardId, o: opts });
+	await page.waitForTimeout(200);
+}
+
 /** Set mpLostThisTurn on a Mosje slot (for comeback/adaptive ability tests). */
 export async function setMpLostThisTurn(page, playerId, slotIndex, amount) {
 	await page.evaluate(({ pid, si, amount }) => {

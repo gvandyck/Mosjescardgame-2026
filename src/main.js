@@ -697,6 +697,24 @@ function initGamePage() {
 				player.hand = cardIds.map(cardId => ({ cardId, type: cardTypeFor(cardId) }));
 				renderFromState(gameState);
 			},
+			// Place a specific Mosje into a slot with custom MP/level — lets a scenario
+			// set up exactly the board it needs (e.g. two Mosjes for Tuk Healer/Tactician,
+			// or a specific opponent Mosje for a defeat chain). slotIndex 0 or 1.
+			// Pass cardId=null to clear the slot.
+			setMosjeOnField(playerId, slotIndex, cardId, { mp = 10, level = 0 } = {}) {
+				const player = gameState?.players?.[playerId];
+				if (!player) return;
+				if (cardId == null) { player.activeSlots[slotIndex] = null; renderFromState(gameState); return; }
+				const def = MOSJES.find(m => m.id === cardId);
+				if (!def) { console.warn('[TESTHOOK] setMosjeOnField: unknown Mosje', cardId); return; }
+				player.activeSlots[slotIndex] = {
+					cardId: def.id, name: def.name, subtype: def.subtype || 'UNKNOWN',
+					traits: { ...def.traits }, mp, level,
+					isDefeated: false, statusEffects: [],
+					abilityUsedThisTurn: false, immuneThisTurn: false, mpLostThisTurn: 0,
+				};
+				renderFromState(gameState);
+			},
 			injectGraveyardCard(playerId, cardId) {
 				const player = gameState?.players?.[playerId];
 				if (player) { player.graveyard.unshift({ cardId, name: cardId, type: 'PIECIE', source: 'played' }); }
