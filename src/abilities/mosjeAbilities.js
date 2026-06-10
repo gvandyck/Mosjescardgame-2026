@@ -549,7 +549,7 @@ export function ability_fps_west_tactical_analysis(gameState, playerId) {
 	const correct = state._pendingTargets?.fpsWestGuessCorrect;
 	if (correct === undefined) throw new Error('Tactical Analysis requires a guess');
 	let next = correct === true
-		? gainMP(state, playerId, slotIndex, 70, 'FPS_WEST_GUESS')
+		? gainMP(state, playerId, slotIndex, 70, 'FPS_WEST_GUESS', { allowLevelUp: false }) // ability gain caps at 100
 		: loseMP(state, playerId, slotIndex, 20, 'FPS_WEST_GUESS');
 	if (next._pendingTargets) delete next._pendingTargets.fpsWestGuessCorrect;
 	console.log('[ABILITY] FPS West Tactical Analysis:', correct ? '+70 MP (correct)' : '-20 MP (wrong)');

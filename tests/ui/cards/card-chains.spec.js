@@ -183,16 +183,12 @@ test('chain: Tactician moves MP from high Mosje to low (total unchanged)', async
 	expect(s0).toBeLessThan(60);         // high Mosje gave MP
 });
 
-// ── Chain E: Piecie MP gain must CAP at 100 — KNOWN BUG (expected failure) ───
+// ── Chain E: Piecie MP gain CAPS at 100 (no level-up) — Phase 31 ─────────────
 // Game rule (phase0-rulings.md): a Mosje's MP is always 0–100; piecies/abilities
 // NEVER permanently level up (only Quests do) and their gains cap at 100.
-// A Lv0/80 Mosje gaining +25 from Kannetje Melk should land at Lv0/100 (capped) —
-// NOT Lv0/105, and NOT level up. The engine currently overshoots to 105 because
-// piecie applyMPGain (piecieEffects.js) adds MP without clamping to 100.
-// BUG: applyMPGain (+ other non-quest gain sites) don't clamp MP to 100.
-// Remove test.fail() once the 0–100 cap is enforced.
-test('chain: piecie MP gain caps at 100 (no level-up) — BUG: overshoots to 105', async ({ page }) => {
-	test.fail(); // documents the missing 0–100 cap; flips green when gains clamp at 100
+// A Lv0/80 Mosje gaining +25 from Kannetje Melk lands at Lv0/100 (capped) — not
+// Lv0/105 and not a level-up. Enforced by applyMPGain cap + clampMosjeMp sweep.
+test('chain: piecie MP gain caps at 100 (no level-up)', async ({ page }) => {
 	test.setTimeout(60000);
 	await seedCustomDeck(page, {
 		id: 'custom_levelup_chain', name: 'MP-cap Chain',
@@ -212,10 +208,10 @@ test('chain: piecie MP gain caps at 100 (no level-up) — BUG: overshoots to 105
 	await activate(page, 'piecie_kannetje_melk');   // +25 on 80 → should CAP at 100
 
 	const after = await ownSlotObj(page, 0);
-	console.log(`MP-cap chain: → Lv${after.level}/${after.mp} (expected Lv0/100; actual Lv0/105 = bug)`);
+	console.log(`MP-cap chain: → Lv${after.level}/${after.mp} (expected Lv0/100)`);
 	await ss(page, 'chain-mp-cap');
 	expect(after.level).toBe(0);                    // piecies never permanently level up
-	expect(after.mp).toBe(100);                     // FAILS today: overshoots to 105 (no cap)
+	expect(after.mp).toBe(100);                     // +25 on 80 capped at 100 (not 105)
 });
 
 // ── Chain F: Tikker grants QUEST_BLOCKED → General Quest is blocked ──────────

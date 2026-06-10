@@ -20,7 +20,10 @@ function getActivePlaceId(gameState) {
 //
 // Returns updated gameState.
 // ─────────────────────────────────────────────────────────────
-export function gainMP(gameState, playerId, slotIndex, amount, source = 'GAIN') {
+// `allowLevelUp` — only Quest rewards permanently level a Mosje. Non-quest gains
+// (turn trickle, ability/piecie rewards) pass allowLevelUp:false → MP is capped at
+// 100 with NO level-up. Quest callers omit it (defaults true) to keep leveling.
+export function gainMP(gameState, playerId, slotIndex, amount, source = 'GAIN', { allowLevelUp = true } = {}) {
   if (amount <= 0) return gameState;
 
   const placeId = getActivePlaceId(gameState);
@@ -41,10 +44,16 @@ export function gainMP(gameState, playerId, slotIndex, amount, source = 'GAIN') 
     return state;
   }
 
-  mosje.mp += gainAmount;
-  console.log(`[ENGINE] 💥 ${mosje.name} gains ${gainAmount} MP (${source}) → now ${mosje.mp} MP`);
-
-  return checkLevelUp(state, playerId, slotIndex);
+  if (allowLevelUp) {
+    // Quest path: add then convert ≥100 into Level(s) (mp resets < 100).
+    mosje.mp += gainAmount;
+    console.log(`[ENGINE] 💥 ${mosje.name} gains ${gainAmount} MP (${source}) → now ${mosje.mp} MP`);
+    return checkLevelUp(state, playerId, slotIndex);
+  }
+  // Non-quest path: cap at 100, never level up.
+  mosje.mp = Math.min(100, mosje.mp + gainAmount);
+  console.log(`[ENGINE] 💥 ${mosje.name} gains ${gainAmount} MP (${source}, capped) → now ${mosje.mp} MP`);
+  return state;
 }
 
 // ─────────────────────────────────────────────────────────────

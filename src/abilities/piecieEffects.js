@@ -48,7 +48,10 @@ function applyMPGain(player, si, amount, state, playerId) {
 		player.mpAmplifierActive = false;
 		console.log(`[ABILITY] MP Amplifier applied: ${amount} \u2192 ${total}`);
 	}
-	player.activeSlots[si].mp += total;
+	// MP ceiling 100 — piecie/ability gains never permanently level up (only Quests
+	// do). The checkVictory sweep enforces this globally too; capping here keeps the
+	// in-effect mp truthful for any effect that reads it immediately after.
+	player.activeSlots[si].mp = Math.min(100, player.activeSlots[si].mp + total);
 	return total;
 }
 

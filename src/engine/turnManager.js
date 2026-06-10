@@ -161,7 +161,7 @@ export function startTurn(gameState) {
   for (let i = 0; i < tricklePlayer.activeSlots.length; i++) {
     const slot = tricklePlayer.activeSlots[i];
     if (slot && !slot.isDefeated) {
-      state = gainMP(state, playerId, i, 10);
+      state = gainMP(state, playerId, i, 10, 'GAIN', { allowLevelUp: false }); // trickle caps at 100; only Quests level
       console.log(`[ENGINE] Turn trickle: ${slot.name} +10 MP → ${state.players[playerId].activeSlots[i].mp} MP`);
     }
   }
