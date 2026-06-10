@@ -43,6 +43,14 @@ const FILLER = [
 	'piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk',
 ];
 
+// Watch-mode pause: inserts a visible pause at each key moment so a human can follow
+// the board change. Auto-enabled when running --headed (npm run test:cards:watch);
+// 0 in the headless CI default. Override with SLOWMO=<ms>.
+const WATCH_PAUSE = Number(process.env.SLOWMO) || (process.argv.includes('--headed') ? 600 : 0);
+async function watch(page) {
+	if (WATCH_PAUSE > 0) await page.waitForTimeout(WATCH_PAUSE);
+}
+
 /** Build a deck guaranteed to hold the target card in the opening hand. */
 function buildDeck(spec) {
 	if (spec.deck) return spec.deck;
@@ -140,6 +148,7 @@ export async function runCardTest(page, spec, test) {
 	if (spec.playThen !== 'ability') {
 		await setHand(page, 'player_1', [spec.cardId]);
 	}
+	await watch(page); // board + scenario set up — pause so a watcher sees the starting state
 
 	if (spec.playThen === 'ability') {
 		return runAbilityFlow(page, spec, test);
@@ -167,10 +176,12 @@ async function runPlaceThenActivateFlow(page, spec, test) {
 
 	const before = await readMP(page);
 	const handBefore = await getHandSize(page, 'player_1');
+	await watch(page); // card is on the field, about to activate
 	await activateOnField(page, spec.cardId);
 	await ss(page, `card-${spec.cardId}`);
 	const after = await readMP(page);
 	after.handDelta = (await getHandSize(page, 'player_1')) - handBefore;
+	await watch(page); // effect resolved — pause so the board change is visible
 
 	await assertEffect(page, spec, before, after, test);
 }
@@ -189,6 +200,7 @@ async function runDirectFlow(page, spec, test) {
 	await ss(page, `card-${spec.cardId}`);
 	const after = await readMP(page);
 	after.handDelta = (await getHandSize(page, 'player_1')) - handBefore;
+	await watch(page); // effect resolved
 	await assertEffect(page, spec, before, after, test);
 }
 
@@ -209,6 +221,7 @@ async function runAbilityFlow(page, spec, test) {
 	await ss(page, `card-${spec.cardId}`);
 	const after = await readMP(page);
 	after.handDelta = (await getHandSize(page, 'player_1')) - handBefore;
+	await watch(page); // ability resolved
 	await assertEffect(page, spec, before, after, test);
 }
 

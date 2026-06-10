@@ -59,7 +59,8 @@ export default defineConfig({
       use: {
         baseURL: 'http://localhost:5500',
         headless: true,
-        slowMo: Number(process.env.SLOWMO) || 0,
+        // Auto-slow when watching (--headed); fast (0) for headless CI. Override via SLOWMO.
+        slowMo: Number(process.env.SLOWMO) || (process.argv.includes('--headed') ? 400 : 0),
         screenshot: 'only-on-failure',
         video: 'off',
       },
