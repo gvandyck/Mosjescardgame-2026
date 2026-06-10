@@ -270,5 +270,55 @@ export const SNELLE_REGISTRY = [
 	{ cardId: 'snelle_lucky_coin',         cardType: 'SNELLE_PIECIE', expectedEffect: 'GAMBLE',        skipReason: 'slot-guard + coin flip needs specific board state' },
 ];
 
+// ── Mosje abilities (clicked via the Mosje's ability button) ─────────────────
+// Each runs a single-Mosje deck so the named Mosje is the starter; the runner's
+// 'ability' flow clicks its .mosje-ability-btn and asserts the outcome.
+export const ABILITY_REGISTRY = [
+	{
+		mosje: 'mosje_amplifier', abilityMosjeId: 'mosje_amplifier', playThen: 'ability',
+		setup: { ownMP: 50 }, expectedEffect: 'MP_GAIN', mpDeltaMin: 10, mpDeltaMax: 10, // all own Mosjes +10
+		cardId: 'ability_amplifier_power_boost', logMatch: /[Aa]mplifier/,
+	},
+	{
+		mosje: 'mosje_martin_driver', abilityMosjeId: 'mosje_martin_driver', playThen: 'ability',
+		setup: { ownMP: 40 }, expectedEffect: 'MP_GAIN', mpDeltaMin: 15, mpDeltaMax: 15, // Lv0 → +15
+		cardId: 'ability_martin_driver_perfect_line', logMatch: /[Dd]river|[Pp]erfect [Ll]ine/,
+	},
+	{
+		mosje: 'mosje_ming_natural', abilityMosjeId: 'mosje_ming_natural', playThen: 'ability',
+		setup: { ownMP: 40 }, expectedEffect: 'DRAW', handDelta: 1,
+		cardId: 'ability_ming_natural_lucky_draw', logMatch: /[Mm]ing|[Ll]ucky [Dd]raw/,
+	},
+	{
+		mosje: 'mosje_binti_creator', abilityMosjeId: 'mosje_binti_creator', playThen: 'ability',
+		setup: { ownMP: 40 }, expectedEffect: 'DRAW', handDelta: 1,
+		cardId: 'ability_binti_creator_quick_sketch', logMatch: /[Bb]inti|[Ss]ketch/,
+	},
+	{
+		mosje: 'mosje_cless_teacher', abilityMosjeId: 'mosje_cless_teacher', playThen: 'ability',
+		setup: { ownMP: 40 }, expectedEffect: 'FIELD_EFFECT',
+		stateFlag: { path: 'players.player_1.questPrepBonus', equals: 3 },
+		cardId: 'ability_cless_teacher_teaching_moment', logMatch: /[Cc]less|[Tt]eaching/,
+	},
+	{
+		mosje: 'mosje_coert_kastelein', abilityMosjeId: 'mosje_coert_kastelein', playThen: 'ability',
+		setup: { ownMP: 40 }, expectedEffect: 'FIELD_EFFECT',
+		stateFlag: { path: 'players.player_1.activeSlots.0.immuneThisTurn', equals: true },
+		cardId: 'ability_coert_kastelein_immovable_object', logMatch: /[Kk]astelein|[Ii]mmovable/,
+	},
+	{
+		mosje: 'mosje_chris', abilityMosjeId: 'mosje_chris', playThen: 'ability',
+		setup: { ownMP: 40 }, expectedEffect: 'FIELD_EFFECT',
+		stateFlag: { path: 'players.player_1.instantPiecieThisTurn', equals: true },
+		cardId: 'ability_chris_perfect_setup', logMatch: /[Cc]hris|[Ss]etup/,
+	},
+	{
+		mosje: 'mosje_fps_coert', abilityMosjeId: 'mosje_fps_coert', playThen: 'ability',
+		setup: { ownMP: 40, opponentMP: 90 }, expectedEffect: 'ATTACK', oppDeltaMin: -25, oppDeltaMax: -25,
+		cardId: 'ability_fps_coert_headshot_precision', logMatch: /[Cc]oert|[Hh]eadshot/,
+	},
+];
+
 export const PIECIE_SPECS = CARD_REGISTRY.filter(c => c.cardType === 'PIECIE');
 export const SNELLE_SPECS = SNELLE_REGISTRY;
+export const ABILITY_SPECS = ABILITY_REGISTRY;

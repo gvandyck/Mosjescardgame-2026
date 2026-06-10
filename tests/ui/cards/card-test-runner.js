@@ -51,13 +51,14 @@ function buildDeck(spec) {
 	const isPiecie = spec.cardType === 'PIECIE';
 	const isSnelle = spec.cardType === 'SNELLE_PIECIE';
 	const isPlace = spec.cardType === 'PLACE';
+	// Generous filler so the deck never empties (opening hand is 6 + a turn-start draw;
+	// DRAW cards/abilities need cards LEFT in the deck to draw).
+	const baseFiller = [...FILLER, ...FILLER, 'piecie_affoe', 'piecie_affoe'];
 	return {
 		id: `custom_${id}`,
 		name: `Test ${id}`,
 		mosjes: [mosje],
-		piecies: isPiecie ? [id, id, id, ...FILLER, ...FILLER]
-		                  : ['piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk',
-		                     'piecie_affoe', 'piecie_affoe'],
+		piecies: isPiecie ? [id, id, id, ...baseFiller] : baseFiller,
 		snellePiecies: isSnelle ? [id, id, id, 'snelle_jensen'] : ['snelle_jensen'],
 		places: isPlace ? [id] : [],
 		quests: [],
