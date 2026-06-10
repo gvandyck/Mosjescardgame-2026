@@ -33,6 +33,7 @@ async function activate(page, cardId) {
 
 async function ownSlot0(page) { return (await getGameState(page))?.players?.player_1?.activeSlots?.[0]?.mp ?? null; }
 async function ownSlot(page, i) { return (await getGameState(page))?.players?.player_1?.activeSlots?.[i]?.mp ?? null; }
+async function ownSlotObj(page, i) { return (await getGameState(page))?.players?.player_1?.activeSlots?.[i] ?? null; }
 
 // ── Chain A: Defeat-at-0 KNOCKOUT (validates Phase 30 in a real win) ─────────
 // Opponent's lone Mosje at 5 MP (Lv0). Affoe drains -15 → below 0 → defeated →
@@ -180,4 +181,77 @@ test('chain: Tactician moves MP from high Mosje to low (total unchanged)', async
 	expect(totalAfter).toBe(totalBefore);
 	expect(s1).toBeGreaterThan(10);      // low Mosje received MP
 	expect(s0).toBeLessThan(60);         // high Mosje gave MP
+});
+
+// ── Chain E: MP gain crossing 100 → Level up — KNOWN BUG (expected failure) ──
+// A Mosje at Lv0/80 MP gaining +25 from Kannetje Melk SHOULD cross 100 and level
+// up to Lv1 (MP 5). It does NOT: the piecie helper applyMPGain (piecieEffects.js)
+// adds MP directly and never calls checkLevelUp — which lives only in gainMP
+// (mpManager.js). So piecie-driven MP can sit above 100 without leveling.
+// BUG: applyMPGain bypasses checkLevelUp. Remove test.fail() once fixed.
+test('chain: MP gain crossing 100 → Level up — BUG: piecie gain does not level up', async ({ page }) => {
+	test.fail(); // documents the bug; flips green when applyMPGain calls checkLevelUp
+	test.setTimeout(60000);
+	await seedCustomDeck(page, {
+		id: 'custom_levelup_chain', name: 'Level-up Chain',
+		mosjes: ['mosje_gandoe_destroyer'],
+		piecies: ['piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk'],
+		snellePiecies: ['snelle_jensen'], places: [], quests: [],
+	}, 'PHYSICAL_FORCE');
+	await page.goto(GAME_URL_TEST);
+	await waitForBoard(page);
+
+	await setMosjeOnField(page, 'player_1', 0, 'mosje_gandoe_destroyer', { mp: 80, level: 0 });
+	await setHand(page, 'player_1', ['piecie_kannetje_melk']);
+
+	await playCardFromHand(page, 'piecie_kannetje_melk');
+	await page.waitForTimeout(300);
+	await unlockPiecies(page, 'player_1');
+	await activate(page, 'piecie_kannetje_melk');   // +25 → 105 (should → Lv1/5)
+
+	const after = await ownSlotObj(page, 0);
+	console.log(`Level-up chain: → Lv${after.level}/${after.mp} (expected Lv1/5; actual Lv0/105 = bug)`);
+	await ss(page, 'chain-levelup');
+	expect(after.level).toBe(1);                    // FAILS today: stays Lv0 at 105 MP
+	expect(after.mp).toBe(5);
+});
+
+// ── Chain F: Tikker grants QUEST_BLOCKED → General Quest is blocked ──────────
+// Activate Tikker (+40 MP and QUEST_BLOCKED status). A General Quest attempt is
+// then refused — no payment modal, MP unchanged, log notes the block.
+test('chain: Tikker QUEST_BLOCKED prevents a General Quest', async ({ page }) => {
+	test.setTimeout(60000);
+	await seedCustomDeck(page, {
+		id: 'custom_tikker_chain', name: 'Tikker Chain',
+		mosjes: ['mosje_gandoe_destroyer'],
+		piecies: ['piecie_tikker', 'piecie_kannetje_melk', 'piecie_kannetje_melk'],
+		snellePiecies: ['snelle_jensen'], places: [], quests: [],
+	}, 'PHYSICAL_FORCE');
+	await page.goto(GAME_URL_TEST);
+	await waitForBoard(page);
+
+	await setMosjeMP(page, 'player_1', 0, 40);
+	await setHand(page, 'player_1', ['piecie_tikker']);
+
+	await playCardFromHand(page, 'piecie_tikker');
+	await page.waitForTimeout(300);
+	await unlockPiecies(page, 'player_1');
+	await activate(page, 'piecie_tikker');          // +40 MP + QUEST_BLOCKED status
+
+	// Confirm the status is present
+	const st = await ownSlotObj(page, 0);
+	const blocked = (st?.statusEffects || []).some(e => e.type === 'QUEST_BLOCKED');
+	console.log('QUEST_BLOCKED present:', blocked, '| MP after Tikker:', st?.mp);
+	expect(blocked).toBe(true);
+
+	// Attempt a General Quest — should be refused (no payment modal appears)
+	const mpBefore = await ownSlot0(page);
+	await page.click('#btn-general-quest').catch(() => {});
+	await page.waitForTimeout(800);
+	const payModalVisible = await page.locator('#modal-yes').isVisible({ timeout: 800 }).catch(() => false);
+	await ss(page, 'chain-tikker-questblock');
+	const mpAfter = await ownSlot0(page);
+	console.log(`Quest-block: payment modal visible=${payModalVisible}, MP ${mpBefore}→${mpAfter}`);
+	expect(payModalVisible).toBe(false);            // quest refused — no pay-to-attempt modal
+	expect(mpAfter).toBe(mpBefore);                 // no MP spent on a blocked quest
 });
