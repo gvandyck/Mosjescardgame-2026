@@ -18,6 +18,7 @@ import {
 	playCardFromHand, endTurnAndWait,
 	mockDiceRoll, getGameState, getHandSize,
 	setPendingTargets, injectQuestToTopOfDeck,
+	unlockPiecies, setHand,
 } from '../helpers.js';
 
 /**
@@ -394,12 +395,11 @@ test('chain-4: Youri Speed Activate — -20 MP, face-down piecie activates, hand
 
 // ─── Chain 5: Redbull + Ability — EXPECTED FAILURE (bug documented) ───────────
 
-test('chain-5: Redbull double-trigger BUG — abilityDoubleTrigger flag never consumed', async ({ page }) => {
-	// BUG: effect_redbull sets player.abilityDoubleTrigger = true (piecieEffects.js:404)
-	// but NO code in main.js handleUseAbility() or the engine reads this flag.
-	// The ability fires ONCE, not twice. This test documents the gap.
-	// Once the bug is fixed, remove test.fail() and update the assertion.
-	test.fail();  // expected to fail — remove when bug is fixed
+test('chain-5: Redbull double-triggers a Mosje ability (free echo)', async ({ page }) => {
+	// Redbull sets player.abilityDoubleTrigger; useMosjeAbility now re-runs the ability
+	// EFFECT once more at no extra cost (free echo). Alyssa Fissa gains +5 per card in
+	// hand, so with Redbull active her ability gains 2 × (5 × handSize).
+	// Start MP at 0 so the doubled gain stays under the 100 cap (Phase 31).
 	test.setTimeout(90000);
 
 	const deck = {
@@ -418,12 +418,17 @@ test('chain-5: Redbull double-trigger BUG — abilityDoubleTrigger flag never co
 	await waitForBoard(page);
 
 	await setMosjeMP(page, 'player_1', 0, 50);
+	// Redbull + 4 filler: after playing Redbull, Alyssa still sees 4 cards in hand, so
+	// her +5/card ability gains 20 — doubled to 40 (verifiable, and under the 100 cap).
+	await setHand(page, 'player_1', ['piecie_redbull',
+		'piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk']);
 	await page.waitForTimeout(200);
 
-	// Play Redbull face-down
+	// Play Redbull, then unlock + activate THIS turn (no bot turn — avoids the lone
+	// Mosje being KO'd by the bot during an end-turn, post defeat-at-0).
 	await playCardFromHand(page, 'piecie_redbull');
-	await page.waitForTimeout(500);
-	await endTurnAndWait(page);
+	await page.waitForTimeout(400);
+	await unlockPiecies(page, 'player_1');
 
 	// Activate Redbull → abilityDoubleTrigger = true
 	await activatePiecie(page, 'piecie_redbull');
@@ -438,10 +443,11 @@ test('chain-5: Redbull double-trigger BUG — abilityDoubleTrigger flag never co
 	const doubleTriggerGain = singleTriggerGain * 2;
 	console.log(`Hand size: ${handSize}, single gain: ${singleTriggerGain}, expected double: ${doubleTriggerGain}`);
 
-	await setMosjeMP(page, 'player_1', 0, 50);
+	// Start at 0 so the doubled gain doesn't hit the 100 cap (Phase 31)
+	await setMosjeMP(page, 'player_1', 0, 0);
 	await page.waitForTimeout(200);
 
-	// Use Alyssa Fissa ability
+	// Use Alyssa Fissa ability — Redbull makes it fire twice
 	const alyssaCard = page.locator('.mosje-card--owned[data-card-id="mosje_alyssa_fissa"]');
 	const abilityBtn = alyssaCard.locator('.mosje-ability-btn');
 	await abilityBtn.waitFor({ state: 'visible', timeout: 5000 });
@@ -450,13 +456,14 @@ test('chain-5: Redbull double-trigger BUG — abilityDoubleTrigger flag never co
 	await ss(page, 'chain5-after-ability');
 
 	const mpAfter = (await readOwnedMosjes(page))[0]?.mp;
-	const actualGain = mpAfter - 50;
-	console.log(`MP gained: ${actualGain} | expected double: ${doubleTriggerGain} | actual: ${actualGain}`);
-	console.log(`BUG CONFIRMED: only fired once (gain ${actualGain} = ${singleTriggerGain} × 1, not × 2)`);
+	const actualGain = mpAfter - 0;
+	console.log(`MP gained: ${actualGain} | expected double: ${doubleTriggerGain}`);
+	expect(doubleTriggerGain).toBeLessThanOrEqual(100); // sanity: stays under the cap
+	expect(actualGain).toBe(doubleTriggerGain);          // ability fired TWICE (free echo)
 
-	// This assertion FAILS because the double-trigger doesn't fire → test.fail() handles it
-	expect(actualGain).toBe(doubleTriggerGain);
-	// When this bug is fixed: actualGain should equal doubleTriggerGain
+	// And the flag is consumed after firing
+	const stateAfter = await getGameState(page);
+	expect(stateAfter?.players?.player_1?.abilityDoubleTrigger).toBeFalsy();
 });
 
 // ─── Chain 6: Controller + Quest (+15 MP DIGITAL, +1 dice) ────────────────────

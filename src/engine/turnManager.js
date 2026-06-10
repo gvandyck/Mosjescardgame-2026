@@ -34,6 +34,28 @@ const SNELLE_PIECIE_LOOKUP = Object.fromEntries(SNELLE_PIECIES.map(card => [card
 const PLACE_LOOKUP = Object.fromEntries(PLACES.map(card => [card.id, card]));
 const QUEST_LOOKUP = Object.fromEntries(QUESTS.map(card => [card.id, card]));
 
+// Redbull (abilityDoubleTrigger) does NOT double these abilities — re-running them
+// would double-charge an MP cost, bypass a once-per-game/use-cap/cooldown guard,
+// fizzle (needs a fresh target/guess), or no-op (passive). Everything else doubles
+// as a free echo (the effect runs twice, no extra cost/use). Ruling: "triggers twice".
+const NO_DOUBLE_ABILITIES = new Set([
+  'ability_youri_speed_activate',                 // 20 MP cost + 3-use cap
+  'ability_gandoe_destroyer_elimination_strike',  // 80 MP cost + once per game
+  'ability_ronald_mastermind_master_plan',        // once per game + discard target
+  'ability_ronald_chef_strategic_insight',        // 20 MP cost + cooldown + target
+  'ability_ming_predictor_future_sight',          // 10 MP cost + quest target
+  'ability_tuk_architect_perfect_placement',      // 15 MP cost + top-5 selection
+  'ability_binti_cutting_words',                  // discard target
+  'ability_fps_west_tactical_analysis',           // hand-card guess target
+  'ability_martin_senor_west_calculated_guess',   // card-type guess target
+  'ability_west_calculated_guess',                // alias of the above
+  'ability_coert_extra_resources',                // 10 MP cost
+  'ability_coert_tech_extra_resources',           // 10 MP cost (alias)
+  'ability_jeffrey_gambler_high_stakes',          // 30 MP bet cost
+  'ability_michelle_tough_gamble',                // passive (auto, no manual trigger)
+  'ability_jeffrey_brute_force',                  // passive (auto)
+]);
+
 function normalizePiecieSlots(player, slotCount = 4) {
   let source;
   if (Array.isArray(player?.piecieSlots)) {
@@ -1042,6 +1064,28 @@ export function useMosjeAbility(gameState, playerId, mosjeId) {
   // Mark ability as used — skip for unlimited-use abilities (e.g. Coert)
   if (!mosjeDef.unlimitedAbility) {
     state.players[playerId].activeSlots[slotIndex].abilityUsedThisTurn = true;
+  }
+
+  // Redbull free-echo: if abilityDoubleTrigger is set, run the ability EFFECT once
+  // more at no extra cost (mirrors the doubleNextPiecie pattern for piecies). Skip
+  // abilities that can't safely repeat (NO_DOUBLE_ABILITIES). The flag is consumed
+  // after the active Mosje's ability whether or not it actually doubled.
+  if (state.players[playerId].abilityDoubleTrigger === true) {
+    if (!NO_DOUBLE_ABILITIES.has(mosjeDef.abilityId)) {
+      try {
+        const echo = fn(state, playerId, mosjeId);
+        const echoState = (echo && typeof echo === 'object' && 'state' in echo && 'success' in echo)
+          ? (echo.success ? echo.state : null)
+          : echo;
+        if (echoState) {
+          state = echoState;
+          console.log('[ENGINE] Redbull: ability double-triggered (free echo) —', mosjeDef.abilityId);
+        }
+      } catch (err) {
+        console.log('[ENGINE] Redbull: double-trigger skipped (ability needs input):', err.message);
+      }
+    }
+    state.players[playerId].abilityDoubleTrigger = false;
   }
 
   state = checkVictory(state);
