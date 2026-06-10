@@ -713,3 +713,29 @@ Plans:
 4. MP-cost payments never kill the paying Mosje
 5. npm test green (incl. Ronald Kip); typecheck:source green
 6. Simulation crash-free, timeout <25%; bot-vs-bot 30 games pass, no negative-MP anomalies
+
+---
+
+### Phase 31: MP 0–100 Cap Invariant
+
+**Goal:** Enforce that a Mosje's MP is always 0–100 (never exceeds 100). Only Quests permanently level up; piecies/places/abilities/snelles cap at 100 (some abilities/piecies may temporarily level — out of scope). Lower bound (defeat below 0) already done in Phase 30; this is the upper bound + quest-only-leveling.
+
+**Requirements:**
+- MPCAP-01: clampMosjeMp sweep in checkVictory caps every active Mosje at 100
+- MPCAP-02: applyMPGain caps at source (Math.min(100, ...))
+- MPCAP-03: audit gainMP callers — only Quests level; non-quest callers cap
+- MPCAP-04: flip card-chains "piecie MP gain caps at 100" expected-failure to passing; add mp-cap unit tests
+- MPCAP-05: Ronald Kip stacking test + full sim + bot-vs-bot (no MP > 100)
+
+**Plans:** 1 plan
+
+Plans:
+- [ ] 31-01-PLAN.md — central clamp sweep + source cap + leveling audit + tests + sim
+
+**Success Criteria:**
+1. No Mosje ever holds MP > 100 (or < 0) after any action
+2. Only Quests permanently level up; non-quest gains cap at 100
+3. Quest rewards still level correctly (≥100 → Level+1, MP resets)
+4. card-chains cap test passes; mp-cap unit tests pass
+5. npm test + test:cards green; Ronald Kip green
+6. Simulation crash-free; bot-vs-bot shows no MP > 100
