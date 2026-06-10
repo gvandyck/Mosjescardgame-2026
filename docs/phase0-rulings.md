@@ -101,13 +101,20 @@ Each turn has four phases in this exact order:
 - Activate Mosje special abilities with MP costs
 - Note: **Cost payments are not the same as MP loss** (see U7)
 
+### MP range (hard invariant)
+- A Mosje's MP is **always clamped to 0–100**. It must **never exceed 100** and **never go below 0**.
+- Gains from **Piecies, Places, abilities, and the turn trickle are capped at 100** — they fill a Mosje toward 100 but do **not** themselves cause a permanent level-up. Excess MP above 100 is discarded (no carry-over).
+- Going below 0 from a damaging effect = defeat (see "Defeat below 0 MP").
+
 ### Leveling
 | Threshold | Result |
 |---|---|
-| 0 → 100 MP | Level Up to Level 2 |
-| 0 → 100 MP | Level Up to Level 3 → **WIN** |
+| Quest brings MP to 100 | Level Up (Level +1), MP resets to 0 |
+| Reach Level 3 (via Quests) | **WIN** |
 
-- MP **resets to 0** after each level-up.
+- **Only Quests permanently level up a Mosje.** When a Quest reward brings a Mosje to 100 MP, it levels up (Level +1) and MP resets to 0 (overflow carries into the new level's MP).
+- **Piecies / Places / abilities never permanently level a Mosje** — their MP gains cap at 100. (A "full" Mosje at 100 MP waits for a Quest to convert that into a Level.)
+- Certain **Abilities/Piecies may TEMPORARILY raise a Mosje's Level** for a turn/effect; this reverts afterward and is never permanent.
 - Leveling up grants: stronger abilities, +5 MP bonus on Quest completion, access to higher-tier Piecies (where stated on card).
 
 ### Losing MP

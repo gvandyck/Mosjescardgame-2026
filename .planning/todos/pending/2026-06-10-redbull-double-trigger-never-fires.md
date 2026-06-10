@@ -39,6 +39,10 @@ Then:
 - Per CLAUDE.md (touches MP/ability logic): re-run the Ronald Kip stacking test
   and the simulation after the fix.
 
-NOTE: a separate related bug exists — piecie `applyMPGain` never calls
-`checkLevelUp` (only `mpManager.gainMP` does), so piecie MP gains past 100 don't
-level up (see card-chains.spec.js level-up expected-failure). Track separately.
+NOTE: a separate, unrelated bug exists — **MP is not clamped to 100**. Piecies
+NOT leveling up is CORRECT (game rule: only Quests permanently level up). But
+non-quest gains (piecie `applyMPGain` + direct `.mp +=` in abilities/places) don't
+cap at 100, so a Mosje can reach 105 — violating the 0–100 invariant
+(phase0-rulings.md). See card-chains.spec.js "piecie MP gain caps at 100"
+expected-failure. Track + fix separately (likely its own GSD plan — touches all
+MP-gain sites + needs Ronald Kip test + sim).

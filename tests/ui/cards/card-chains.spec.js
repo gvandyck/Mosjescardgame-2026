@@ -183,17 +183,19 @@ test('chain: Tactician moves MP from high Mosje to low (total unchanged)', async
 	expect(s0).toBeLessThan(60);         // high Mosje gave MP
 });
 
-// ── Chain E: MP gain crossing 100 → Level up — KNOWN BUG (expected failure) ──
-// A Mosje at Lv0/80 MP gaining +25 from Kannetje Melk SHOULD cross 100 and level
-// up to Lv1 (MP 5). It does NOT: the piecie helper applyMPGain (piecieEffects.js)
-// adds MP directly and never calls checkLevelUp — which lives only in gainMP
-// (mpManager.js). So piecie-driven MP can sit above 100 without leveling.
-// BUG: applyMPGain bypasses checkLevelUp. Remove test.fail() once fixed.
-test('chain: MP gain crossing 100 → Level up — BUG: piecie gain does not level up', async ({ page }) => {
-	test.fail(); // documents the bug; flips green when applyMPGain calls checkLevelUp
+// ── Chain E: Piecie MP gain must CAP at 100 — KNOWN BUG (expected failure) ───
+// Game rule (phase0-rulings.md): a Mosje's MP is always 0–100; piecies/abilities
+// NEVER permanently level up (only Quests do) and their gains cap at 100.
+// A Lv0/80 Mosje gaining +25 from Kannetje Melk should land at Lv0/100 (capped) —
+// NOT Lv0/105, and NOT level up. The engine currently overshoots to 105 because
+// piecie applyMPGain (piecieEffects.js) adds MP without clamping to 100.
+// BUG: applyMPGain (+ other non-quest gain sites) don't clamp MP to 100.
+// Remove test.fail() once the 0–100 cap is enforced.
+test('chain: piecie MP gain caps at 100 (no level-up) — BUG: overshoots to 105', async ({ page }) => {
+	test.fail(); // documents the missing 0–100 cap; flips green when gains clamp at 100
 	test.setTimeout(60000);
 	await seedCustomDeck(page, {
-		id: 'custom_levelup_chain', name: 'Level-up Chain',
+		id: 'custom_levelup_chain', name: 'MP-cap Chain',
 		mosjes: ['mosje_gandoe_destroyer'],
 		piecies: ['piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk'],
 		snellePiecies: ['snelle_jensen'], places: [], quests: [],
@@ -207,13 +209,13 @@ test('chain: MP gain crossing 100 → Level up — BUG: piecie gain does not lev
 	await playCardFromHand(page, 'piecie_kannetje_melk');
 	await page.waitForTimeout(300);
 	await unlockPiecies(page, 'player_1');
-	await activate(page, 'piecie_kannetje_melk');   // +25 → 105 (should → Lv1/5)
+	await activate(page, 'piecie_kannetje_melk');   // +25 on 80 → should CAP at 100
 
 	const after = await ownSlotObj(page, 0);
-	console.log(`Level-up chain: → Lv${after.level}/${after.mp} (expected Lv1/5; actual Lv0/105 = bug)`);
-	await ss(page, 'chain-levelup');
-	expect(after.level).toBe(1);                    // FAILS today: stays Lv0 at 105 MP
-	expect(after.mp).toBe(5);
+	console.log(`MP-cap chain: → Lv${after.level}/${after.mp} (expected Lv0/100; actual Lv0/105 = bug)`);
+	await ss(page, 'chain-mp-cap');
+	expect(after.level).toBe(0);                    // piecies never permanently level up
+	expect(after.mp).toBe(100);                     // FAILS today: overshoots to 105 (no cap)
 });
 
 // ── Chain F: Tikker grants QUEST_BLOCKED → General Quest is blocked ──────────
