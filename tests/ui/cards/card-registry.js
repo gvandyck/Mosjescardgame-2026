@@ -142,6 +142,96 @@ export const CARD_REGISTRY = [
 		logMatch: /[Ss]kipping|[Rr]ope/,
 	},
 
+	// ── Batch 3: more MP-gain / attack / status / draw / gamble piecies ──────
+	{
+		cardId: 'piecie_energy_surge', cardType: 'PIECIE',
+		setup: { ownMP: 10 }, playThen: 'place-then-activate', // only gains when MP < 30
+		expectedEffect: 'MP_GAIN', mpDeltaMin: 20, mpDeltaMax: 20,
+		logMatch: /[Ee]nergy|[Ss]urge|[Ss]hoettoe/,
+	},
+	{
+		cardId: 'piecie_momentum_boost', cardType: 'PIECIE',
+		setup: { ownMP: 40 }, playThen: 'place-then-activate',
+		expectedEffect: 'MP_GAIN', mpDeltaMin: 15, mpDeltaMax: 15,
+		logMatch: /[Mm]omentum/,
+	},
+	{
+		cardId: 'piecie_dumbbells', cardType: 'PIECIE', mosje: 'mosje_gandoe_destroyer', // FIGHTING → +20
+		setup: { ownMP: 40 }, playThen: 'place-then-activate',
+		expectedEffect: 'MP_GAIN', mpDeltaMin: 20, mpDeltaMax: 20,
+		logMatch: /[Dd]umbbell/,
+	},
+	{
+		cardId: 'piecie_ronald_kip', cardType: 'PIECIE',
+		setup: { ownMP: 40, ownLevel: 2 }, playThen: 'place-then-activate', // requires Level 2
+		expectedEffect: 'MP_GAIN', mpDeltaMin: 50, mpDeltaMax: 100, // 50 base / 60 Ronald / 100 FOOD-double
+		logMatch: /[Rr]onald|[Kk]ip/,
+	},
+	{
+		cardId: 'piecie_mouse', cardType: 'PIECIE', mosje: 'mosje_coert_tech', // DIGITAL → +15
+		setup: { ownMP: 40 }, playThen: 'place-then-activate',
+		expectedEffect: 'MP_GAIN', mpDeltaMin: 15, mpDeltaMax: 15,
+		logMatch: /[Mm]ouse/,
+	},
+	{
+		cardId: 'piecie_chefs_special', cardType: 'PIECIE',
+		setup: { ownMP: 40 }, playThen: 'place-then-activate',
+		expectedEffect: 'MP_GAIN', mpDeltaMin: 15, mpDeltaMax: 300, // 15 base, +30 per opponent piecie in hand
+		logMatch: /[Cc]hef/,
+	},
+	{
+		cardId: 'piecie_harde_didde', cardType: 'PIECIE',
+		setup: { ownMP: 50, opponentMP: 90 }, playThen: 'place-then-activate',
+		expectedEffect: 'ATTACK', oppDeltaMin: -50, oppDeltaMax: -50,
+		logMatch: /[Hh]arde|[Dd]idde/,
+	},
+	{
+		cardId: 'piecie_te_hard_gaan', cardType: 'PIECIE',
+		setup: { ownMP: 50, opponentMP: 90 }, playThen: 'place-then-activate',
+		expectedEffect: 'ATTACK', oppDeltaMin: -25, oppDeltaMax: -25,
+		logMatch: /[Tt]e [Hh]ard|hard gaan/i,
+	},
+	{
+		cardId: 'piecie_kan_het', cardType: 'PIECIE',
+		setup: { ownMP: 50 }, playThen: 'place-then-activate',
+		expectedEffect: 'GAMBLE', // die roll: big gain or small self-loss
+		logMatch: /[Kk]an het|kanhet/i,
+	},
+	{
+		cardId: 'piecie_tony', cardType: 'PIECIE',
+		setup: { ownMP: 40 }, playThen: 'place-then-activate',
+		expectedEffect: 'STATUS_EFFECT', mpDeltaMax: 0, // MP_LOSS_HALVED status
+		logMatch: /[Tt]ony/,
+	},
+	{
+		cardId: 'piecie_gekke_vogels', cardType: 'PIECIE',
+		setup: { ownMP: 40 }, playThen: 'place-then-activate',
+		expectedEffect: 'STATUS_EFFECT', mpDeltaMax: 0,
+		logMatch: /[Gg]ekke|[Vv]ogel/,
+	},
+	{
+		cardId: 'piecie_katjegang', cardType: 'PIECIE',
+		setup: { ownMP: 40 }, playThen: 'place-then-activate',
+		expectedEffect: 'STATUS_EFFECT', mpDeltaMax: 0,
+		logMatch: /[Kk]atje/,
+	},
+	{
+		cardId: 'piecie_vianna_poes', cardType: 'PIECIE',
+		setup: { ownMP: 40 }, playThen: 'place-then-activate',
+		expectedEffect: 'STATUS_EFFECT', mpDeltaMax: 0,
+		logMatch: /[Vv]ianna|[Pp]oes/,
+	},
+	{
+		cardId: 'piecie_tempiecie', cardType: 'PIECIE',
+		expectedEffect: 'DRAW', skipReason: 'graveyard-retrieve (not a deck draw) — needs seeded graveyard',
+	},
+	{
+		cardId: 'piecie_stripje_bennies', cardType: 'PIECIE',
+		setup: { ownMP: 40 }, playThen: 'place-then-activate',
+		expectedEffect: 'DRAW', handDelta: 1, // draws (also self-damages 20 — DRAW measured by deck)
+		logMatch: /[Ss]tripje|[Bb]ennie/,
+	},
+
 	// ── Complex / target-modal piecies — tracked but not auto-run ────────────
 	{
 		cardId: 'piecie_varkenspootjes', cardType: 'PIECIE',
