@@ -19,6 +19,7 @@
     "test:sim": "playwright test --project=sim --workers=1",
     "test:cards": "playwright test --project=cards --workers=1",
     "test:cards:watch": "playwright test --project=cards --workers=1 --headed",
+    "test:cinema": "playwright test --project=visual --workers=1 --headed tests/ui/cinema/",
     "serve": "npx http-server . -p 5500 --cors -c-1"
   },
   "devDependencies": {
