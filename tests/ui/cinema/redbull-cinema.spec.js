@@ -29,6 +29,15 @@ test('🎬 Redbull cinema — ability triggers TWICE (free echo)', async ({ page
 	const BEAT = Number(process.env.CINEMA) || (testInfo.project.use.headless === false ? 2200 : 0);
 	const beat = (label) => { if (label) console.log(`🎬 ${label}`); return BEAT ? page.waitForTimeout(BEAT) : Promise.resolve(); };
 
+	// Opt-in: forward the engine's own console (LOG_PAGE=1) — shows the ability
+	// actually firing twice, with its per-fire MP breakdown.
+	if (process.env.LOG_PAGE) {
+		page.on('console', (m) => {
+			const t = m.text();
+			if (t.includes('Alyssa Fissa') || t.includes('Redbull')) console.log('   [engine]', t);
+		});
+	}
+
 	// ── Scene 1: set the stage ────────────────────────────────────────────────
 	await seedCustomDeck(page, {
 		id: 'custom_cinema_redbull', name: 'Redbull Cinema',  // id MUST start with custom_ (resolveCustomDeckDef)
