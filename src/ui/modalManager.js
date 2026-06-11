@@ -96,7 +96,11 @@ export function initModalManager(container) {
 			if (rollBtn) { rollBtn.hidden = true; rollBtn.disabled = true; }
 			const diceEl = container.querySelector('#dice-display');
 
-			const rawRoll = Math.floor(Math.random() * 6) + 1;
+			// Test override: window.__forceDiceRoll (an integer 1-6) forces the roll
+			// deterministically (quest tests). Never set in production → normal random.
+			const forcedRoll = (typeof window !== 'undefined' && Number.isInteger(window.__forceDiceRoll))
+				? window.__forceDiceRoll : null;
+			const rawRoll = forcedRoll !== null ? forcedRoll : Math.floor(Math.random() * 6) + 1;
 			const result = rawRoll + diceBonus;
 			const didSucceed = result >= threshold;
 
