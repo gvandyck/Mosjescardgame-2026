@@ -32,6 +32,10 @@ export default defineConfig({
         baseURL: 'http://localhost:5500',
         headless: false,
         slowMo: 600,
+        // Open maximized (fills the screen) instead of the 1280x720 default — looks
+        // tiny on a 4K panel. viewport:null lets the page match the window size.
+        viewport: null,
+        launchOptions: { args: ['--start-maximized'] },
         screenshot: 'on',
         video: 'retain-on-failure',
       },

@@ -301,19 +301,10 @@ export function getSynergyChamberDurationBonus(gameState) {
 }
 
 export function triggerPlaceDestroyedEffects(gameState, destroyingPlayerId) {
-	const state = cloneState(gameState);
-	const player = state.players?.[destroyingPlayerId];
-	if (!player) return state;
-
-	for (const slot of player.activeSlots || []) {
-		if (!slot || slot.isDefeated) continue;
-		if (getCardById(slot.cardId)?.id === 'mosje_alyssa_fissa') {
-			slot.mp += 15;
-			console.log('[ABILITY] Alyssa Fissa Fissa Party Power triggered — +15 MP');
-		}
-	}
-
-	return state;
+	// Extension point for "on Place-card destroyed" passives.
+	// (Alyssa Fissa's +15 passive was removed — her Party Power is now the
+	//  activated hand-size ability in mosjeAbilities.js. No passives active here.)
+	return cloneState(gameState);
 }
 
 // ─────────────────────────────────────────

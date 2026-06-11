@@ -523,7 +523,7 @@ export function runPlaceEffectsTests() {
     assertEqual(result.players.player_2.activeSlots[0].mp, 25); // resilient 1+ → +15
   });
 
-  test('triggerPlaceDestroyedEffects gives Alyssa Fissa +15 MP', () => {
+  test('triggerPlaceDestroyedEffects no longer gives Alyssa Fissa +15 MP (passive removed)', () => {
     const state = createEngineState({
       players: {
         player_1: {
@@ -545,6 +545,6 @@ export function runPlaceEffectsTests() {
     });
 
     const result = placeEffects.triggerPlaceDestroyedEffects(state, 'player_1');
-    assertEqual(result.players.player_1.activeSlots[0].mp, 45);
+    assertEqual(result.players.player_1.activeSlots[0].mp, 30); // unchanged — passive removed
   });
 }
