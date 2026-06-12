@@ -940,6 +940,67 @@
    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.58) rotate(5deg); }
 }
 
+/* ── Mosje ability "cast" — type-coloured ring + glow + chip ───────────────── */
+/* Fighting=red, Digital=blue, Artistic=purple. Distinct from the generic +MP. */
+.ability-casting--fighting { --cast: #ff5a3c; }
+.ability-casting--digital  { --cast: #38bdf8; }
+.ability-casting--artistic { --cast: #c084fc; }
+.cast-ring--fighting, .cast-chip--fighting { --cast: #ff5a3c; }
+.cast-ring--digital,  .cast-chip--digital  { --cast: #38bdf8; }
+.cast-ring--artistic, .cast-chip--artistic { --cast: #c084fc; }
+
+.ability-casting {
+   position: relative;
+   z-index: 6;
+   animation: ability-glow 1.6s var(--ease-dramatic) both;
+}
+@keyframes ability-glow {
+   0%   { box-shadow: 0 0 0 0 transparent; transform: scale(1); }
+   28%  { box-shadow: 0 0 26px 7px var(--cast, #fff), inset 0 0 18px 2px var(--cast, #fff); transform: scale(1.045); }
+   100% { box-shadow: 0 0 0 0 transparent; transform: scale(1); }
+}
+
+.cast-ring {
+   position: fixed;
+   transform: translate(-50%, -50%);
+   width: 44px; height: 44px;
+   border-radius: 50%;
+   border: 4px solid var(--cast, #fff);
+   pointer-events: none;
+   z-index: 60;
+   animation: cast-ring-expand 1.5s var(--ease-dramatic) forwards;
+}
+@keyframes cast-ring-expand {
+   0%   { width: 44px;  height: 44px;  opacity: 0.95; border-width: 5px; }
+   100% { width: 260px; height: 260px; opacity: 0;    border-width: 1px; }
+}
+
+.cast-chip {
+   position: fixed;
+   transform: translate(-50%, 0);
+   pointer-events: none;
+   z-index: 61;
+   font-weight: 800;
+   font-size: 0.78rem;
+   letter-spacing: 0.09em;
+   padding: 4px 11px;
+   border-radius: 999px;
+   color: #fff;
+   white-space: nowrap;
+   background: var(--cast, #333);
+   box-shadow: 0 5px 16px rgba(0, 0, 0, 0.45);
+   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+   animation: cast-chip-rise 4.8s var(--ease-dramatic) forwards;
+}
+/* Pops just BELOW the card and holds — clear of the +MP float lane up top. */
+@keyframes cast-chip-rise {
+   0%   { opacity: 0; transform: translate(-50%, -6px)  scale(0.7); }
+   8%   { opacity: 1; transform: translate(-50%, 10px)  scale(1.08); }
+   14%  { opacity: 1; transform: translate(-50%, 7px)   scale(1); }
+   85%  { opacity: 1; transform: translate(-50%, 7px)   scale(1); }
+   100% { opacity: 0; transform: translate(-50%, 16px)  scale(0.96); }
+}
+
 @media (prefers-reduced-motion: reduce) {
    .turn-transition,
    .mp-float,

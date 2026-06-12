@@ -5,7 +5,7 @@ import { renderBoard, showPlaceEffectBanner } from './ui/boardRenderer.js';
 import { createLogRenderer } from './ui/logRenderer.js';
 import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
-import { animateFieldActivation, animateStateDelta, showTurnTransition } from './ui/actionAnimations.js';
+import { animateFieldActivation, animateStateDelta, showTurnTransition, setAbilityNameResolver } from './ui/actionAnimations.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes } from './engine/gameState.js';
 import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, playPersonalQuest, activatePersonalQuest } from './engine/turnManager.js';
 import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold } from './abilities/questLogic.js';
@@ -37,6 +37,13 @@ console.log('[UI] App bootstrapping...');
 
 const CARD_LOOKUP = buildCardLookup();
 let _customDecksCache = [];
+
+// Feed the ability-cast chip the real ability name: the part before ":" in the
+// description, minus qualifiers like "(comeback)"/"(passive)".
+setAbilityNameResolver((mosjeId) => {
+	const desc = CARD_LOOKUP[mosjeId]?.abilityDescription || '';
+	return desc.split(':')[0].replace(/\s*\([^)]*\)/g, '').trim();
+});
 
 const path = window.location.pathname.toLowerCase();
 

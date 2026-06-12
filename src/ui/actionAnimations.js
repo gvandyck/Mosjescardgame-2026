@@ -9,6 +9,13 @@ export function prefersReducedMotion() {
 	return window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches === true;
 }
 
+// main.js wires this once so the ability chip can show the real ability name
+// (e.g. "Party Power") rather than a generic label.
+let abilityNameResolver = null;
+export function setAbilityNameResolver(fn) {
+	abilityNameResolver = typeof fn === 'function' ? fn : null;
+}
+
 export function animateStateDelta(beforeState, afterState, options = {}) {
 	if (prefersReducedMotion() || !beforeState || !afterState) return;
 
@@ -23,9 +30,53 @@ export function animateFieldActivation({ zone = 'piecie', playerId, slotIndex, c
 	const cardEl = selectFieldElement(zone, playerId, slotIndex) || selectByCardId(cardId, playerId);
 	if (!cardEl) return;
 
+	// Mosje ability → a distinct, type-coloured "cast" (ring + glow + chip) so a
+	// fired ability is instantly recognizable, not just a green +MP number.
+	if (zone === 'mosje') {
+		castAbilityEffect(cardEl, cardId);
+		return;
+	}
+
 	cardEl.classList.add('card-activating');
 	cardEl.addEventListener('animationend', () => cardEl.classList.remove('card-activating'), { once: true });
 	showActivationBurst(cardEl);
+}
+
+// Fighting=red, Digital=blue, Artistic=purple — read from the card's subtype class.
+function abilityTypeOf(cardEl) {
+	for (const c of cardEl.classList) {
+		if (c.startsWith('mosje-subtype-')) return c.slice('mosje-subtype-'.length);
+	}
+	return 'fighting';
+}
+
+function castAbilityEffect(cardEl, cardId) {
+	const type = abilityTypeOf(cardEl);
+	const name = (abilityNameResolver && abilityNameResolver(cardId)) || 'Ability';
+	cardEl.classList.add('ability-casting', `ability-casting--${type}`);
+	cardEl.addEventListener('animationend', () => {
+		cardEl.classList.remove('ability-casting', `ability-casting--${type}`);
+	}, { once: true });
+
+	const rect = cardEl.getBoundingClientRect();
+	const cx = rect.left + rect.width / 2;
+
+	const ring = document.createElement('div');
+	ring.className = `cast-ring cast-ring--${type}`;
+	ring.style.left = `${cx}px`;
+	ring.style.top = `${rect.top + rect.height / 2}px`;
+	document.body.appendChild(ring);
+	ring.addEventListener('animationend', () => ring.remove(), { once: true });
+
+	const chip = document.createElement('div');
+	chip.className = `cast-chip cast-chip--${type}`;
+	chip.textContent = `⚡ ${name}`;
+	chip.style.left = `${cx}px`;
+	// Anchor BELOW the card so it doesn't collide with the +MP float (which rises
+	// from the card's top-centre).
+	chip.style.top = `${rect.bottom}px`;
+	document.body.appendChild(chip);
+	chip.addEventListener('animationend', () => chip.remove(), { once: true });
 }
 
 export function showTurnTransition({ playerName, turnNumber, type } = {}) {
