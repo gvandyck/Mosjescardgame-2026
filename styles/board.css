@@ -940,6 +940,63 @@
    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.58) rotate(5deg); }
 }
 
+/* ── Quest outcome — a ~4s coloured border "afterglow" rendered as a body overlay
+   over the card (the card's parent clips box-shadow, so a class on the card is
+   invisible). Green = success, red = fail; fail also shakes the card. ── */
+/* The card's own gold border turns the effect colour for the duration. */
+.card--mosje.quest-border-success { border-color: #34d399 !important; transition: border-color 0.3s ease; }
+.card--mosje.quest-border-fail    { border-color: #ef4444 !important; transition: border-color 0.3s ease; }
+
+/* Soft glow halo around the card (no border of its own — the card border carries the colour). */
+.quest-glow {
+   position: absolute;
+   inset: 0;
+   pointer-events: none;
+   z-index: 7;
+   border-radius: inherit;
+   background: transparent;
+}
+.quest-glow--success { animation: quest-afterglow-green 4s var(--ease-smooth, ease-out) both; }
+.quest-glow--fail    { animation: quest-afterglow-red   4s var(--ease-smooth, ease-out) both; }
+@keyframes quest-afterglow-green {
+   0%   { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+   7%   { box-shadow: 0 0 34px 10px rgba(52, 211, 153, 0.85), inset 0 0 24px rgba(52, 211, 153, 0.5); }
+   82%  { box-shadow: 0 0 28px 8px rgba(52, 211, 153, 0.7),  inset 0 0 20px rgba(52, 211, 153, 0.4); }
+   100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+}
+@keyframes quest-afterglow-red {
+   0%   { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+   7%   { box-shadow: 0 0 34px 10px rgba(239, 68, 68, 0.85), inset 0 0 24px rgba(239, 68, 68, 0.5); }
+   82%  { box-shadow: 0 0 28px 8px rgba(239, 68, 68, 0.7),  inset 0 0 20px rgba(239, 68, 68, 0.4); }
+   100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+.quest-fail-shake { animation: quest-fail-shake 0.66s var(--ease-snap, ease); }
+@keyframes quest-fail-shake {
+   0%, 100% { transform: translateX(0) rotate(0); }
+   18%  { transform: translateX(-8px) rotate(-1.6deg); }
+   34%  { transform: translateX(7px)  rotate(1.6deg); }
+   52%  { transform: translateX(-5px) rotate(-0.8deg); }
+   70%  { transform: translateX(4px); }
+   86%  { transform: translateX(-2px); }
+}
+.quest-badge {
+   position: fixed;
+   transform: translate(-50%, -50%);
+   font-size: 3.4rem;
+   font-weight: 900;
+   pointer-events: none;
+   z-index: 62;
+   text-shadow: 0 3px 12px rgba(0, 0, 0, 0.5);
+}
+.quest-badge--success { color: #34d399; animation: quest-badge-pop 1.25s var(--ease-dramatic) forwards; }
+.quest-badge--fail    { color: #ef4444; animation: quest-badge-pop 1.05s var(--ease-dramatic) forwards; }
+@keyframes quest-badge-pop {
+   0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+   25%  { opacity: 1; transform: translate(-50%, -50%) scale(1.3); }
+   55%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+   100% { opacity: 0; transform: translate(-50%, -95%) scale(1); }
+}
+
 /* ── Mosje ability "cast" — type-coloured ring + glow + chip ───────────────── */
 /* Fighting=red, Digital=blue, Artistic=purple. Distinct from the generic +MP. */
 .ability-casting--fighting { --cast: #ff5a3c; }

@@ -79,6 +79,47 @@ function castAbilityEffect(cardEl, cardId) {
 	chip.addEventListener('animationend', () => chip.remove(), { once: true });
 }
 
+// Quest outcome on a Mosje: green flash + ✓ pop (success) or red shake + ✗ pop (fail).
+// Distinct from the generic +MP float so success vs fail is unmistakable.
+export function animateQuestResult({ playerId, slotIndex, success } = {}) {
+	if (prefersReducedMotion()) return;
+	const cardEl = selectFieldElement('mosje', playerId, slotIndex);
+	if (!cardEl) return;
+
+	// Border afterglow as a CHILD overlay of the card (inset: 0) so it inherits the
+	// card's exact position + rotation — no coordinate maths, always aligned.
+	if (getComputedStyle(cardEl).position === 'static') cardEl.style.position = 'relative';
+	// Recolour the card's own border for the duration (it's the gold .card--mosje
+	// border; a class override isn't clipped). The overlay below adds the soft halo.
+	const borderCls = success ? 'quest-border-success' : 'quest-border-fail';
+	cardEl.classList.add(borderCls);
+
+	const glow = document.createElement('div');
+	glow.className = `quest-glow quest-glow--${success ? 'success' : 'fail'}`;
+	cardEl.appendChild(glow);
+	glow.addEventListener('animationend', () => {
+		glow.remove();
+		cardEl.classList.remove(borderCls);
+	}, { once: true });
+
+	// Fail also gets a quick shake on the card (transform isn't clipped).
+	if (!success) {
+		cardEl.classList.add('quest-fail-shake');
+		cardEl.addEventListener('animationend', (e) => {
+			if (e.animationName === 'quest-fail-shake') cardEl.classList.remove('quest-fail-shake');
+		});
+	}
+
+	const rect = cardEl.getBoundingClientRect();
+	const badge = document.createElement('div');
+	badge.className = `quest-badge quest-badge--${success ? 'success' : 'fail'}`;
+	badge.textContent = success ? '✓' : '✗';
+	badge.style.left = `${rect.left + rect.width / 2}px`;
+	badge.style.top = `${rect.top + rect.height / 2}px`;
+	document.body.appendChild(badge);
+	badge.addEventListener('animationend', () => badge.remove(), { once: true });
+}
+
 export function showTurnTransition({ playerName, turnNumber, type } = {}) {
 	if (prefersReducedMotion()) return;
 

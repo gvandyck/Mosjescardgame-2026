@@ -5,7 +5,7 @@ import { renderBoard, showPlaceEffectBanner } from './ui/boardRenderer.js';
 import { createLogRenderer } from './ui/logRenderer.js';
 import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
-import { animateFieldActivation, animateStateDelta, showTurnTransition, setAbilityNameResolver } from './ui/actionAnimations.js';
+import { animateFieldActivation, animateStateDelta, showTurnTransition, setAbilityNameResolver, animateQuestResult } from './ui/actionAnimations.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes } from './engine/gameState.js';
 import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, playPersonalQuest, activatePersonalQuest } from './engine/turnManager.js';
 import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold } from './abilities/questLogic.js';
@@ -1071,6 +1071,7 @@ function initGamePage() {
 			}
 
 			renderAndAnimate(beforeResolve, { actionLabel: 'quest-resolution' });
+			animateQuestResult({ playerId: localPlayerId, slotIndex: firstSlotIndex, success: didSucceed });
 			syncPush();
 
 			log.add(didSucceed ? 'gain' : 'loss',
@@ -1182,6 +1183,7 @@ function initGamePage() {
 				}
 
 				renderAndAnimate(beforeResolve, { actionLabel: 'quest-resolution' });
+				animateQuestResult({ playerId: localPlayerId, slotIndex: targetSlotIndex, success: didSucceed });
 				syncPush();
 
 				const mpDelta = didSucceed ? questDef.successMP : questDef.failMP;
@@ -2060,6 +2062,7 @@ function initGamePage() {
 					localPlayerId,
 					actionLabel: 'quest-resolution',
 				});
+				animateQuestResult({ playerId: localPlayerId, slotIndex: targetSlotIndex, success: didSucceed });
 				syncPush();
 				const mpDelta = didSucceed ? resolveQuestDef.successMP : resolveQuestDef.failMP;
 				const sign = mpDelta >= 0 ? '+' : '';
