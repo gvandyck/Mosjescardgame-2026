@@ -414,6 +414,97 @@ test('VIS-06: Youri ability 3-use cap — blocked on 4th attempt', async ({ page
 	await ss(page, 'vis06-done');
 });
 
+// ─── VIS-06b: Youri ability — multiple face-down piecies → slot picker ───────
+// Phase-27 human-needed scenario 2: with 2+ face-down piecies, a slot picker
+// modal appears; selecting a slot activates that piecie, Youri pays 20 MP, draws 1.
+async function setupYouriWithTwoFaceDown(page) {
+	const deck = {
+		id: 'custom_youri_multi',
+		name: 'Youri Multi',
+		// quest_prep activates with NO MP change, so Youri's -20 is the only MP delta.
+		mosjes: ['mosje_youri'],
+		piecies: ['piecie_quest_prep', 'piecie_quest_prep', 'piecie_quest_prep',
+		          'piecie_quest_prep', 'piecie_quest_prep', 'piecie_quest_prep',
+		          'piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk'],
+		snellePiecies: ['snelle_jensen'], places: [], quests: [],
+	};
+	await seedCustomDeck(page, deck, 'PHYSICAL_FORCE');
+	await page.goto(GAME_URL_TEST);
+	await waitForBoard(page);
+	if (!await page.locator('.mosje-card--owned[data-card-id="mosje_youri"]').isVisible({ timeout: 2000 }).catch(() => false)) {
+		return false;
+	}
+	await setMosjeMP(page, 'player_1', 0, 60);
+	await page.waitForTimeout(200);
+	// Play TWO quest_prep piecies face-down.
+	let played = 0;
+	for (let i = 0; i < 5 && played < 2; i++) {
+		const hand = await readHand(page);
+		const qp = hand.find(c => c.cardId === 'piecie_quest_prep');
+		if (!qp) break;
+		await playCardFromHand(page, 'piecie_quest_prep');
+		await page.waitForTimeout(500);
+		played++;
+	}
+	return played >= 2;
+}
+
+test('VIS-06b: Youri ability — multiple face-down piecies show slot picker', async ({ page }) => {
+	if (!await setupYouriWithTwoFaceDown(page)) { console.log('Setup failed — skip'); test.skip(); return; }
+
+	const handBefore = (await readHand(page)).length;
+	const mpBefore = (await readOwnedMosjes(page))[0]?.mp;
+	expect(mpBefore).toBe(60);
+
+	await page.locator('.mosje-card--owned[data-card-id="mosje_youri"] .mosje-ability-btn').click();
+
+	// Slot-picker modal must appear with 2 options.
+	const list = page.locator('.modal-mosje-select-list');
+	await list.waitFor({ state: 'visible', timeout: 4000 });
+	const options = page.locator('.modal-mosje-select-btn');
+	expect(await options.count()).toBe(2);
+	await ss(page, 'vis06b-picker');
+
+	// Pick the first slot.
+	await options.first().click();
+	await page.waitForTimeout(900);
+
+	// Youri paid 20, drew 1.
+	expect((await readOwnedMosjes(page))[0]?.mp).toBe(mpBefore - 20);
+	expect((await readHand(page)).length).toBe(handBefore + 1);
+	await ss(page, 'vis06b-done');
+});
+
+// ─── VIS-06c: Youri ability — cancel the picker → cost still spent ───────────
+// Phase-27 human-needed scenario 3: cancelling the slot picker still spends the
+// 20 MP (and a use); no card is drawn.
+test('VIS-06c: Youri ability — cancelling slot picker still spends 20 MP', async ({ page }) => {
+	if (!await setupYouriWithTwoFaceDown(page)) { console.log('Setup failed — skip'); test.skip(); return; }
+
+	const handBefore = (await readHand(page)).length;
+	const mpBefore = (await readOwnedMosjes(page))[0]?.mp;
+	expect(mpBefore).toBe(60);
+
+	await page.locator('.mosje-card--owned[data-card-id="mosje_youri"] .mosje-ability-btn').click();
+	await page.locator('.modal-mosje-select-list').waitFor({ state: 'visible', timeout: 4000 });
+
+	// Cancel.
+	await page.locator('#modal-option-cancel').click();
+	await page.waitForTimeout(400);
+
+	// Info modal: cost still spent.
+	const info = page.locator('.modal-card');
+	await info.waitFor({ state: 'visible', timeout: 3000 });
+	expect(await info.textContent()).toMatch(/cost is still spent|paid 20 MP/i);
+	await page.locator('#modal-ok').click().catch(() => {});
+	await page.waitForTimeout(200);
+	await ss(page, 'vis06c-cancelled');
+
+	// MP dropped 20 (cost spent); no card drawn.
+	expect((await readOwnedMosjes(page))[0]?.mp).toBe(mpBefore - 20);
+	expect((await readHand(page)).length).toBe(handBefore);
+});
+
 // ─── VIS-07: Not Today! interrupt fires on bot elimination ───────────────────
 // Not Today! (snelle_negate_elimination) must be offered in interrupt modal
 // when bot would eliminate the human Mosje.

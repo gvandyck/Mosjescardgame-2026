@@ -1786,7 +1786,7 @@ function initGamePage() {
 					// Cost already spent — commit partial state and inform player
 					modal.showInfo('Ability Used', 'Youri paid 20 MP but no Piecie was selected. The cost is still spent.');
 					gameState = stateAfterAbility;
-					renderAll();
+					renderAndCheckWin();
 					syncPush();
 					return;
 				}
@@ -1801,7 +1801,7 @@ function initGamePage() {
 				if (!actSuccess) {
 					modal.showInfo('Activation Failed', actError || 'Could not activate the Piecie.');
 					gameState = stateAfterAbility;
-					renderAll();
+					renderAndCheckWin();
 					return;
 				}
 				stateAfterAbility = activatedState;
