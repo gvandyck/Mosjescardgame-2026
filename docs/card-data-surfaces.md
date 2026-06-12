@@ -1,8 +1,11 @@
 # Card Data Surfaces
 
-The repo currently has two card data surfaces. This is intentional for now, but it is easy to forget.
+> **Resolved 2026-06-12 — there is now ONE card data surface.** This doc previously
+> described two (a `.js` UI surface and a `.ts` engine surface). The `.ts` engine was
+> retired to `/_archive/`. The single source of truth is the plain-JavaScript data
+> below. Edit each card **once**; never create a `.ts` definition.
 
-## Browser/UI Data
+## The single card data surface (`src/data/*.js`)
 
 Files:
 
@@ -15,41 +18,21 @@ Files:
 
 Used by:
 
-- `src/main.js`
-- `src/ui/*`
-- browser pages such as `game.html`, `deck-builder.html`, and demos
-- Firebase/browser game state
+- `src/main.js`, `src/ui/*`
+- browser pages (`game.html`, `deck-builder.html`, demos)
+- the bot, multiplayer, and browser game state
 
-This layer controls what the current plain JavaScript UI displays and plays.
+Card **behaviour** (effects) lives in `src/abilities/*.js` — keep `src/data/*.js`
+pure data (name, cost, traits, description), with no logic.
 
-## TypeScript Engine Registry
+## Working rule
 
-Files:
+When adding or changing a card:
 
-- `src/cards/**/*.ts`
-- `src/cards/registry/*`
-- `src/cards/executor/*`
-- `src/effects/**/*`
-- `src/engine/**/*`
+1. Update the data entry in `src/data/<type>.js` (data only).
+2. Update its effect in the matching `src/abilities/*.js`.
+3. Update `docs/card-reference.md` (verify against code — flags have gone stale before).
+4. Add/adjust a test, preferably a real-engine browser test in `tests/ui/cards/`.
 
-Used by:
-
-- Vitest engine/effect/card tests
-- simulation harness
-- typed card executor and primitives
-
-This layer controls the tested declarative card runtime.
-
-## Working Rule
-
-When adding or changing a card, ask which surface is affected:
-
-- UI-only text/art/display change: update `src/data/*.js` and relevant UI.
-- Engine behavior change: update `src/cards/**/*.ts`, effects/engine code, and tests.
-- Player-visible gameplay change in the browser: update both surfaces or deliberately document why only one changes.
-
-If a card ID, name, cost, type, or effect summary changes in one surface, check the other surface before finishing.
-
-## Long-Term Direction
-
-The cleaner end state is one canonical card source feeding both UI and engine. Until that exists, this document is the guardrail.
+The old "update both surfaces" rule no longer applies. The retired `.ts` registry in
+`/_archive/` must not be read, scanned, or edited.
