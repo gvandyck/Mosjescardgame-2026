@@ -30,32 +30,46 @@ export function animateFieldActivation({ zone = 'piecie', playerId, slotIndex, c
 	const cardEl = selectFieldElement(zone, playerId, slotIndex) || selectByCardId(cardId, playerId);
 	if (!cardEl) return;
 
-	// Mosje ability → a distinct, type-coloured "cast" (ring + glow + chip) so a
-	// fired ability is instantly recognizable, not just a green +MP number.
+	// Mosje ability → a distinct, type-coloured "cast" (border + glow + ring + chip).
+	// Callers fire this BEFORE the board re-renders, which would wipe a class/child on
+	// the card — so defer to the next frame and re-select the freshly rendered card.
 	if (zone === 'mosje') {
-		castAbilityEffect(cardEl, cardId);
+		requestAnimationFrame(() => {
+			const fresh = selectFieldElement('mosje', playerId, slotIndex) || selectByCardId(cardId, playerId);
+			if (fresh) castAbilityEffect(fresh, cardId);
+		});
 		return;
 	}
 
 	cardEl.classList.add('card-activating');
 	cardEl.addEventListener('animationend', () => cardEl.classList.remove('card-activating'), { once: true });
-	showActivationBurst(cardEl);
+	showActivationBurst(cardEl, CATEGORY_GLOW[zone] || CATEGORY_GLOW.piecie);
 }
 
-// Fighting=red, Digital=blue, Artistic=purple — read from the card's subtype class.
-function abilityTypeOf(cardEl) {
-	for (const c of cardEl.classList) {
-		if (c.startsWith('mosje-subtype-')) return c.slice('mosje-subtype-'.length);
-	}
-	return 'fighting';
-}
+// Activation effect colour matches the card's category frame colour.
+const CATEGORY_GLOW = {
+	piecie: 'rgba(61, 142, 245, 0.85)',   // --piecie-blue
+	snelle: 'rgba(232, 69, 69, 0.85)',    // --snelle-red
+	place:  'rgba(61, 214, 140, 0.85)',   // --place-green
+	mosje:  'rgba(232, 185, 79, 0.85)',   // --mosje-gold
+	quest:  'rgba(168, 85, 247, 0.85)',   // --quest-purple
+};
 
 function castAbilityEffect(cardEl, cardId) {
-	const type = abilityTypeOf(cardEl);
+	// Ability casts use the Mosje category colour (gold), matching the frame scheme.
+	const type = 'mosje';
 	const name = (abilityNameResolver && abilityNameResolver(cardId)) || 'Ability';
-	cardEl.classList.add('ability-casting', `ability-casting--${type}`);
-	cardEl.addEventListener('animationend', () => {
-		cardEl.classList.remove('ability-casting', `ability-casting--${type}`);
+
+	// Recolour the card border to the type colour + add a soft glow halo as a child
+	// overlay (not clipped), mirroring the quest effect.
+	if (getComputedStyle(cardEl).position === 'static') cardEl.style.position = 'relative';
+	cardEl.classList.add(`ability-casting--${type}`);
+	const glow = document.createElement('div');
+	glow.className = `cast-glow cast-glow--${type}`;
+	cardEl.appendChild(glow);
+	glow.addEventListener('animationend', () => {
+		glow.remove();
+		cardEl.classList.remove(`ability-casting--${type}`);
 	}, { once: true });
 
 	const rect = cardEl.getBoundingClientRect();
@@ -166,10 +180,11 @@ function animateMosjeDeltas(beforeState, afterState, options = {}) {
 	}
 }
 
-function showActivationBurst(cardEl) {
+function showActivationBurst(cardEl, color = 'rgba(232, 185, 79, 0.85)') {
 	const rect = cardEl.getBoundingClientRect();
 	const burst = document.createElement('div');
 	burst.className = 'card-activation-burst';
+	burst.style.setProperty('--burst', color);
 	burst.style.left = `${rect.left + rect.width / 2}px`;
 	burst.style.top = `${rect.top + rect.height / 2}px`;
 	burst.style.width = `${rect.width}px`;

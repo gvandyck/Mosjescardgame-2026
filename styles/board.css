@@ -926,10 +926,10 @@
    z-index: 245;
    pointer-events: none;
    transform: translate(-50%, -50%);
-   border: 3px solid rgba(253, 230, 138, 0.95);
+   border: 3px solid var(--burst, rgba(253, 230, 138, 0.95));
    border-radius: 8px;
-   box-shadow: 0 0 34px rgba(232, 185, 79, 0.85), inset 0 0 28px rgba(232, 185, 79, 0.28);
-   background: radial-gradient(circle, rgba(253, 230, 138, 0.2), rgba(253, 230, 138, 0.02) 55%, transparent 72%);
+   box-shadow: 0 0 34px var(--burst, rgba(232, 185, 79, 0.85)), inset 0 0 28px var(--burst, rgba(232, 185, 79, 0.28));
+   background: radial-gradient(circle, var(--burst, rgba(253, 230, 138, 0.2)), transparent 62%);
    animation: card-activation-burst 0.72s var(--ease-dramatic) forwards;
 }
 
@@ -999,22 +999,26 @@
 
 /* ── Mosje ability "cast" — type-coloured ring + glow + chip ───────────────── */
 /* Fighting=red, Digital=blue, Artistic=purple. Distinct from the generic +MP. */
-.ability-casting--fighting { --cast: #ff5a3c; }
-.ability-casting--digital  { --cast: #38bdf8; }
-.ability-casting--artistic { --cast: #c084fc; }
-.cast-ring--fighting, .cast-chip--fighting { --cast: #ff5a3c; }
-.cast-ring--digital,  .cast-chip--digital  { --cast: #38bdf8; }
-.cast-ring--artistic, .cast-chip--artistic { --cast: #c084fc; }
+/* Ability casts use the Mosje category colour (gold). */
+.cast-ring--mosje, .cast-chip--mosje, .cast-glow--mosje { --cast: #e8b94f; --cast-soft: rgba(232, 185, 79, 0.9); }
 
-.ability-casting {
-   position: relative;
-   z-index: 6;
-   animation: ability-glow 1.6s var(--ease-dramatic) both;
+/* Card border brightens to a vivid gold during a cast (base border is already gold). */
+.card--mosje.ability-casting--mosje { border-color: #ffd24a !important; transition: border-color 0.3s ease; }
+
+/* Soft glow halo as a child overlay of the card (not clipped). */
+.cast-glow {
+   position: absolute;
+   inset: 0;
+   pointer-events: none;
+   z-index: 7;
+   border-radius: inherit;
+   background: transparent;
+   animation: cast-glow-pulse 1.6s var(--ease-dramatic) both;
 }
-@keyframes ability-glow {
-   0%   { box-shadow: 0 0 0 0 transparent; transform: scale(1); }
-   28%  { box-shadow: 0 0 26px 7px var(--cast, #fff), inset 0 0 18px 2px var(--cast, #fff); transform: scale(1.045); }
-   100% { box-shadow: 0 0 0 0 transparent; transform: scale(1); }
+@keyframes cast-glow-pulse {
+   0%   { box-shadow: 0 0 0 0 transparent; }
+   25%  { box-shadow: 0 0 32px 9px var(--cast-soft), inset 0 0 22px var(--cast-soft); }
+   100% { box-shadow: 0 0 0 0 transparent; }
 }
 
 .cast-ring {
