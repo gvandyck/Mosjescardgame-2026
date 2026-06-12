@@ -5,7 +5,7 @@ import { renderBoard, showPlaceEffectBanner } from './ui/boardRenderer.js';
 import { createLogRenderer } from './ui/logRenderer.js';
 import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
-import { animateFieldActivation, animateStateDelta, showTurnTransition, setAbilityNameResolver, animateQuestResult } from './ui/actionAnimations.js';
+import { animateFieldActivation, animateStateDelta, showTurnTransition, setAbilityNameResolver, animateQuestResult, showInstantEffect } from './ui/actionAnimations.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes } from './engine/gameState.js';
 import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, playPersonalQuest, activatePersonalQuest } from './engine/turnManager.js';
 import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold } from './abilities/questLogic.js';
@@ -2350,6 +2350,7 @@ function initGamePage() {
 			playerId: localPlayerId,
 			slotIndex,
 			cardId: slots?.[slotIndex]?.cardId,
+			colorCategory: 'place',   // green — a Place is being activated
 		});
 		gameState = newState;
 
@@ -2573,6 +2574,7 @@ function initGamePage() {
 			logStateOutcome(log, beforePlay, gameState, localPlayerId, `${cardDef.name} instant activation`);
 			syncPush();
 			renderAndAnimate(beforePlay, { actionLabel: 'play-snelle', placedCardId: cardDef.id });
+			showInstantEffect('snelle');   // red burst — instant card
 			return;
 		}
 
@@ -2628,6 +2630,8 @@ function initGamePage() {
 				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
 			}
 			renderAndAnimate(beforePlay, { actionLabel: 'play-place', placedCardId: cardDef.id });
+			// (Green burst fires on ACTIVATION — see handleActivatePlace — since a Place
+			//  is played face-down and only renders as active once activated.)
 		}
 	}
 }

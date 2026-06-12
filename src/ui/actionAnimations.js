@@ -25,7 +25,7 @@ export function animateStateDelta(beforeState, afterState, options = {}) {
 	});
 }
 
-export function animateFieldActivation({ zone = 'piecie', playerId, slotIndex, cardId } = {}) {
+export function animateFieldActivation({ zone = 'piecie', playerId, slotIndex, cardId, colorCategory } = {}) {
 	if (prefersReducedMotion()) return;
 	const cardEl = selectFieldElement(zone, playerId, slotIndex) || selectByCardId(cardId, playerId);
 	if (!cardEl) return;
@@ -43,16 +43,16 @@ export function animateFieldActivation({ zone = 'piecie', playerId, slotIndex, c
 
 	cardEl.classList.add('card-activating');
 	cardEl.addEventListener('animationend', () => cardEl.classList.remove('card-activating'), { once: true });
-	showActivationBurst(cardEl, CATEGORY_GLOW[zone] || CATEGORY_GLOW.piecie);
+	showActivationBurst(cardEl, CATEGORY_GLOW[colorCategory || zone] || CATEGORY_GLOW.piecie);
 }
 
 // Activation effect colour matches the card's category frame colour.
 const CATEGORY_GLOW = {
-	piecie: 'rgba(61, 142, 245, 0.85)',   // --piecie-blue
-	snelle: 'rgba(232, 69, 69, 0.85)',    // --snelle-red
-	place:  'rgba(61, 214, 140, 0.85)',   // --place-green
-	mosje:  'rgba(232, 185, 79, 0.85)',   // --mosje-gold
-	quest:  'rgba(168, 85, 247, 0.85)',   // --quest-purple
+	piecie: 'rgba(61, 142, 245, 0.85)',   // blue
+	snelle: 'rgba(125, 211, 252, 0.9)',   // light sky-blue — a piecie sub-shade (not red)
+	place:  'rgba(61, 214, 140, 0.85)',   // green
+	mosje:  'rgba(232, 185, 79, 0.85)',   // gold
+	quest:  'rgba(168, 85, 247, 0.85)',   // purple
 };
 
 function castAbilityEffect(cardEl, cardId) {
@@ -178,6 +178,24 @@ function animateMosjeDeltas(beforeState, afterState, options = {}) {
 			}
 		});
 	}
+}
+
+// Instant cards (Snelle Piecies) leave no field card — show a category-coloured
+// burst centred on the play area instead.
+export function showInstantEffect(category = 'snelle') {
+	if (prefersReducedMotion()) return;
+	const color = CATEGORY_GLOW[category] || CATEGORY_GLOW.snelle;
+	const burst = document.createElement('div');
+	burst.className = 'card-activation-burst';
+	burst.style.setProperty('--burst', color);
+	const zone = document.getElementById('zone-player') || document.body;
+	const rect = zone.getBoundingClientRect();
+	burst.style.left = `${rect.left + rect.width / 2}px`;
+	burst.style.top = `${rect.top + rect.height / 2}px`;
+	burst.style.width = '240px';
+	burst.style.height = '320px';
+	document.body.appendChild(burst);
+	burst.addEventListener('animationend', () => burst.remove(), { once: true });
 }
 
 function showActivationBurst(cardEl, color = 'rgba(232, 185, 79, 0.85)') {

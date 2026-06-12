@@ -11,8 +11,10 @@
   --mosje-glow:      rgba(232, 185, 79, 0.4);
   --piecie-blue:     #3d8ef5;
   --piecie-glow:     rgba(61, 142, 245, 0.4);
-  --snelle-red:      #e84545;
-  --snelle-glow:     rgba(232, 69, 69, 0.4);
+  /* Snelle Piecies are a quick-action sub-shade of Piecies — light sky-blue, not red.
+     (Var name kept for back-compat; value is intentionally blue now.) */
+  --snelle-red:      #7dd3fc;
+  --snelle-glow:     rgba(125, 211, 252, 0.4);
   --place-green:     #3dd68c;
   --place-glow:      rgba(61, 214, 140, 0.4);
   --quest-purple:    #a855f7;

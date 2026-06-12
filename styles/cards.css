@@ -189,7 +189,7 @@
 
 .card--snelle:hover,
 .card--snelle_piecie:hover {
-  box-shadow: 0 0 20px var(--snelle-glow), 0 0 60px rgba(232, 69, 69, 0.1);
+  box-shadow: 0 0 20px var(--snelle-glow), 0 0 60px rgba(125, 211, 252, 0.1);
 }
 
 .card--snelle > .card__top,
@@ -1178,7 +1178,7 @@
 
 .card--snelle .hand-card__play-btn,
 .card--snelle_piecie .hand-card__play-btn {
-  background: linear-gradient(135deg, #991b1b, #ef4444);
+  background: linear-gradient(135deg, #2563a8, #7dd3fc);
 }
 
 .card--quest-personal .hand-card__play-btn {
