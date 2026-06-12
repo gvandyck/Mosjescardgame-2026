@@ -2,22 +2,18 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
+    // Single source of truth = the imperative .js engine. These .ts tests import
+    // and exercise the live .js modules. The retired TS engine + its tests live in
+    // /_archive/ and are never run.
     include: ["tests/**/*.ts"],
+    exclude: ["**/node_modules/**", "**/_archive/**"],
     environment: "node",
     passWithNoTests: true,
     coverage: {
       provider: "v8",
       reporter: ["text", "json-summary"],
-      include: ["src/effects/**/*.ts", "src/cards/**/*.ts"],
-      exclude: [
-        "src/effects/**/index.ts",
-        "src/effects/**/types.ts",
-        "src/effects/effect-context.ts",
-        "src/effects/primitive.ts",
-        "src/cards/**/index.ts",
-        "src/cards/schema/**/*.ts",
-        "src/simulation/**/*.ts"
-      ]
+      include: ["src/**/*.js"],
+      exclude: ["**/_archive/**", "src/**/index.js"]
     }
   }
 });
