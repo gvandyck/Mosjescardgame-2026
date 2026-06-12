@@ -6,7 +6,21 @@ Never assume, guess, or work around missing information. If something is unclear
 ---
 
 ## What this project is
-A TypeScript card game engine for the Mosjes Card Game — a friend-group trading card game where players race to Level 3 by earning Momentum Points (MP) through Quests. The engine is feature-complete (Phase 11). Current work areas: UI layer, Firebase multiplayer, additional cards.
+A card game engine for the Mosjes Card Game — a friend-group trading card game where players race to Level 3 by earning Momentum Points (MP) through Quests. **This is a digital prototype used to playtest the rules, card interactions, chains, and multiplayer before printing a physical card game.** Priorities: a clean prototype, easy editing of cards/abilities, working multiplayer (P2P + bot), and tests that verify *real* card behavior (not hallucinated).
+
+## 🧭 Architecture: ONE engine — single source of truth
+There used to be **two** engines defining every card (a duplication tax — every change needed two edits). We are consolidating to a **single source of truth: the imperative JavaScript engine** that actually runs the live game.
+
+- **The live game = the imperative `.js` engine.** It runs raw `.js` in the browser (no build step), so a `.js` file can never import a `.ts` file. Everything players touch — cards, abilities, quests, bot, multiplayer, UI — lives in `.js`:
+  - `src/data/*.js` (card data), `src/abilities/*.js` (effects), `src/engine/*.js` (game loop: mpManager, turnManager, victoryChecker, gameState, deckEngine, synergyResolver), `src/ui/*.js`, `src/bot/`, `src/multiplayer/`, `src/rules/`.
+- **Tests that matter test the REAL engine** via the browser (Playwright): `tests/ui/cards/` (card-test-library), `tests/ui/cinema/` (narrated demos), `tests/ui/*.spec.js`. These boot the actual game and assert on-screen MP/results — the antidote to hallucinated tests. Plus the imperative-engine unit tests in `tests/` that import the `.js` modules.
+
+### 🚫 `/_archive/` — do NOT read or scan it
+The retired **declarative TypeScript engine** (the old second definition of every card) is being moved to **`/_archive/`**. It is parked, not deleted (recoverable any time from git history + the `backup-pre-ssot-*` tag).
+
+**Never read, grep, scan, edit, or reason about anything under `/_archive/`.** It does not run, it is not the source of truth, and scanning it wastes tokens and risks confusing the live engine with dead code. If a search hits `/_archive/`, ignore those results. Only touch it if the user explicitly asks to restore something from the archive.
+
+> The old "two card systems — reconcile both + docs" rule is **obsolete**. There is now ONE source of truth (the `.js` engine). When you add or change a card, edit it **once** in the `.js` engine + its docs. Do not create or maintain a parallel `.ts` definition.
 
 Read these docs before touching anything:
 - `/docs/developer-handoff.md` — full architecture overview
