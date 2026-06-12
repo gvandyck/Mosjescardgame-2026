@@ -4,22 +4,27 @@
 
 - Total games: 100
 - Crashes: 0
-- Timeouts: 0 (0.0% of games)
+- Timeouts: 1 (1.0% of games)
+
+### Timeout Seeds
+
+Seeds: 35
 
 ## Win Rates by Matchup
 
 | Matchup | P1 Wins | P2 Wins | Timeouts | Avg Turns |
 |---------|---------|---------|----------|-----------|
-| Physical Force vs Digital Control | 18 (54.5%) | 15 (45.5%) | 0 | 9.8 |
-| Digital Control vs Artistic Rhythm | 11 (33.3%) | 22 (66.7%) ⚠️ | 0 | 11.0 |
-| Artistic Rhythm vs Physical Force | 21 (61.8%) | 13 (38.2%) | 0 | 8.4 |
+| Physical Force vs Digital Control | 18 (54.5%) | 15 (45.5%) | 0 | 9.9 |
+| Digital Control vs Artistic Rhythm | 10 (30.3%) | 22 (66.7%) ⚠️ | 1 | 12.3 |
+| Artistic Rhythm vs Physical Force | 20 (58.8%) | 14 (41.2%) | 0 | 8.6 |
 
 ## Win Conditions
 
 | Condition | Count | % |
 |-----------|-------|---|
-| knockout | 50 | 50.0% |
 | level_3 | 50 | 50.0% |
+| knockout | 49 | 49.0% |
+| timeout | 1 | 1.0% |
 
 ## Card Play Frequency
 
@@ -27,14 +32,14 @@
 
 | Card | Play Count |
 |------|-----------|
-| `kannetje-melk` | 253 |
-| `dubbele-dosis` | 172 |
+| `kannetje-melk` | 254 |
+| `bagga-of-greed` | 197 |
+| `dubbele-dosis` | 174 |
 | `eendjes-voeren` | 158 |
-| `bagga-of-greed` | 157 |
-| `dubbele-ding` | 91 |
+| `bowie-stormey` | 95 |
+| `dubbele-ding` | 95 |
+| `broodje-doner` | 80 |
 | `grammetje-pieter` | 79 |
-| `broodje-doner` | 70 |
-| `bowie-stormey` | 65 |
 | `afblijven` | 64 |
 | `pot-of-weed` | 59 |
 
@@ -81,12 +86,12 @@ Cards never played may be too expensive, require impossible conditions, or have 
 
 | Metric | Value |
 |--------|-------|
-| Avg game length (turns) | 9.7 |
-| Avg MP gained / turn | 31.6 |
+| Avg game length (turns) | 10.2 |
+| Avg MP gained / turn | 30.8 |
 | Avg quests per game | 2.1 |
-| Avg piecies per game | 14.0 |
+| Avg piecies per game | 14.9 |
 | Most played card | `kannetje-melk` |
-| Most common win condition | knockout |
+| Most common win condition | level_3 |
 
 ## Recommended Follow-up
 

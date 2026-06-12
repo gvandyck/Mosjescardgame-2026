@@ -1,197 +1,101 @@
 # Developer Handoff
 
-## Project State
-Phase 11 handoff point after Phase 10 balancing and AI robustness work:
-- Core simulation pipeline exists and is stable.
-- Documentation now includes a full master card reference and playtesting guide.
-- Known deferred mechanics remain intentionally tracked in phase question docs.
+## ⚠️ Single source of truth: the imperative `.js` engine
+This project has **one** engine — the imperative JavaScript engine that runs the
+live browser game, the bot, multiplayer, and the Playwright/cinema tests. The old
+**declarative TypeScript engine** (card registry + effect primitives) has been
+**retired to `/_archive/`** (2026-06-12). Do **not** read, scan, or edit `/_archive/`,
+and never create a second `.ts` definition of a card — edit each card once, in `.js`.
+See CLAUDE.md → "Architecture: ONE engine".
 
-Latest validation baseline before this handoff phase:
-- 69 test files passed
-- 497 tests passed
-- Coverage snapshot: 99.41 statements, 90.89 branches, 98.03 functions, 99.41 lines
+> Because the live game serves raw `.js` to the browser (no build step), a `.js`
+> file can never import a `.ts` file. Everything that runs the game is `.js`.
+
+## Project State
+- Feature-complete engine: all cards, bot opponent, graveyard system, interrupt
+  modal, MP 0–100 invariant, defeat-at-0.
+- Tests: ~412 vitest unit tests (exercise the `.js` engine) + a Playwright
+  browser suite that boots the real game and asserts on-screen results.
+- Active focus: clean prototype for physical-print playtesting — card editing,
+  multiplayer (P2P + bot), and real-behavior testing.
 
 ## Architecture Overview
 
-### Runtime Layers
-1. Card registry and definitions
-- All cards are data definitions registered by side-effect imports.
-- Registry lookup drives executor behavior.
+### Runtime layers (all `.js`)
+1. **Card data** — pure data definitions, no logic: `src/data/*.js`
+   (`mosjes.js`, `piecies.js`, `snellePiecies.js`, `places.js`, `quests.js`).
+2. **Effects / abilities** — the behaviour of each card: `src/abilities/*.js`
+   (`mosjeAbilities.js`, `piecieEffects.js`, `snelleEffects.js`, `placeEffects.js`,
+   `questLogic.js`).
+3. **Game engine** — turn flow, MP, victory: `src/engine/*.js`
+   (`turnManager.js`, `mpManager.js`, `victoryChecker.js`, `gameState.js`,
+   `deckEngine.js`, `synergyResolver.js`, `graveyardUtils.js`).
+   - Turn-start trickle: every active Mosje of the active player gains +10 MP at
+     the start of each turn (in `startTurn()` before Place effects and the Draw Phase).
+   - Central invariant sweep in `victoryChecker.checkVictory`: `applyPendingDefeats`
+     (defeat below 0 MP) then `clampMosjeMp` (cap at 100). Only Quests permanently level.
+4. **UI** — `src/ui/*.js` (`boardRenderer`, `handRenderer`, `modalManager`,
+   `logRenderer`, `actionAnimations`) + `src/main.js` (bootstrap, test hooks).
+5. **Bot / multiplayer** — `src/bot/`, `src/multiplayer/`.
 
-2. Effect primitives
-- Primitive handlers live under src/effects.
-- Card effects are declarative expression objects mapped to primitives.
+### File map
+- **Card data (edit cards here):** `src/data/`
+- **Card behaviour:** `src/abilities/`
+- **Engine:** `src/engine/`
+- **UI:** `src/ui/`, `src/main.js`
+- **Bot / multiplayer:** `src/bot/`, `src/multiplayer/`
+- **Rules:** `src/rules/`
+- **Archived (do not touch):** `_archive/`
 
-3. Card execution
-- Executor resolves placeholders, validates requirements/costs, then runs effects.
-- Snelle response chain and stack resolution are integrated with engine flow.
+## Implementation guides
 
-4. Game engine
-- Turn flow, state transitions, event append, victory checks, and place manager.
-- Turn start trickle: every active Mosje of the active player gains +10 MP at the start of each turn (fires in startTurn() before Place effects and the Draw Phase).
+### Adding or changing a card
+1. Edit the data entry in `src/data/<type>.js` (name, cost, traits, description) —
+   **data only, no logic**.
+2. Implement/adjust its effect in the matching `src/abilities/*.js`.
+3. Update docs: `docs/card-reference.md` (verify against code, not stale flags).
+4. Add a test — preferably a real-engine browser test in `tests/ui/cards/`
+   (card-test-library) so it asserts actual in-game behaviour. If it touches
+   MP/quests/levels, also re-run the Ronald Kip stacking test + simulation.
+5. Do **not** create a `.ts` definition. One source of truth.
 
-5. Simulation harness
-- Deterministic AI plays full games and writes aggregate reports.
-
-## File Map
-
-### Core Engine
-- src/engine/create-game.ts
-- src/engine/turn-manager.ts
-- src/engine/player-reducers.ts
-- src/engine/place-manager.ts
-- src/engine/quest-manager.ts
-- src/engine/resolve-effect-stack.ts
-- src/engine/check-victory.ts
-
-### Card Runtime
-- src/cards/registry/card-registry.ts
-- src/cards/executor/execute-card.ts
-- src/cards/executor/execute-mosje-ability.ts
-- src/cards/executor/resolve-effect-expression.ts
-- src/cards/executor/resolve-target-reference.ts
-
-### Card Content
-- src/cards/mosjes/
-- src/cards/piecies/
-- src/cards/snelle-piecies/
-- src/cards/places/
-- src/cards/quests/
-
-### Effects and Conditions
-- src/effects/mp/
-- src/effects/cards/
-- src/effects/board/
-- src/effects/buffs/
-- src/effects/conditions/
-- src/effects/control/
-
-### Simulation and Reports
-- src/simulation/bootstrap-registry.ts
-- src/simulation/starter-decks.ts
-- src/simulation/ai-player.ts
-- src/simulation/game-runner.ts
-- src/simulation/run-simulation.ts
-- src/simulation/run-once.ts
-- docs/simulation-report.json
-- docs/simulation-report.md
-
-### Tests
-- tests/cards/
-- tests/core/
-- tests/simulation/
-- tests/helpers/
-
-## Implementation Guides
-
-### Adding a new card
-1. Add card definition file in proper category folder.
-2. Export from local index barrel.
-3. Ensure bootstrap/registry import path reaches it.
-4. Add or update tests for card behavior and registry audit.
-
-### Adding a new primitive
-1. Implement primitive in relevant src/effects module.
-2. Register primitive in src/effects/registry.ts.
-3. Add focused primitive tests.
-4. Add at least one card integration test using the primitive.
-
-### Adjusting AI behavior
-1. Edit src/simulation/ai-player.ts decision flow.
-2. Keep deterministic seeded behavior.
-3. Validate with tests/simulation/ai-player.test.ts.
-4. Re-run 100-game simulation and check report deltas.
-
-### Rebalancing starter decks
-1. Edit src/simulation/starter-decks.ts only.
-2. Run tests.
-3. Run simulation and compare:
-- Timeout rate
-- Never-played count
-- Matchup win spread
-4. Document changes in phase report.
-
-## Deferred Feature Priority List
-Prioritized for engine completeness and human-play quality.
-
-### Priority 1: Core mechanic gaps used by many cards
-- True retargetPendingEffect behavior.
-- activateFromDiscard and activatePiecie slot-target primitives.
-- discardRandom and robust discard-cost choice enforcement.
-- searchDeck primitive for mosje tutor effects.
-
-### Priority 2: Combat and protection hooks
-- Exact threshold-based MP mitigation checks.
-- Full mp_loss_immune flag path instead of large-reduction approximation.
-- Castle/token persistent object model with destruction checks.
-
-### Priority 3: Prediction and hidden-information support
-- checkGuess condition support.
-- revealHand and named-card/typed prediction contracts.
-- Better caller contracts for interactive target/choice collection.
-
-### Priority 4: Quest completeness
-- Native OR requirement composition.
-- Event-log-this-turn query primitives for quests.
-- Complex interactive/multi-player quest offers.
-
-## Next Phase Priorities
-1. Close Priority 1 deferred primitives and update partial cards to implemented.
-2. Run focused human playtests with docs/playtesting-guide.md flow.
-3. Reduce timeout rate under 25% while preserving matchup parity.
-4. Shrink never-played list below 15 without introducing high-complexity starter friction.
-5. Add one regression test per resolved deferred item.
+## Testing
+- **Unit (vitest):** `npm test` — `tests/**/*.ts` that import and exercise the `.js`
+  engine (`tests/abilities/`, `tests/engine/`, `tests/bot/`, …).
+- **Real-engine browser (Playwright):** boots the actual game and asserts on-screen
+  MP/results — the antidote to hallucinated tests:
+  - `npm run test:cards` — data-driven card-effect library (`tests/ui/cards/`)
+  - `npm run test:cinema` — narrated headed demos (`tests/ui/cinema/`)
+  - `npm run test:ui` — smoke + mechanics; `npm run test:sim` — bot-vs-bot simulation
+- Always syntax-check UI files (`node --check src/main.js src/ui/*.js`) — vitest does
+  not import them, so a parse error there only shows at runtime in the browser.
 
 ## Graveyard System (Phase 23)
 
 ### player.graveyard[]
-All defeated, destroyed, and discarded cards are placed into a unified `player.graveyard[]` array. The legacy fields `player.discard` and `player.welloe` have been removed from all engine and abilities code.
+All defeated, destroyed, and discarded cards go into a unified `player.graveyard[]`.
+The legacy fields `player.discard` and `player.welloe` were removed from all engine
+and abilities code.
 
-Entry format: `{ cardId: string, name: string, type: 'MOSJE' | 'PIECIE' | 'SNELLE' | 'PLACE' | 'UNKNOWN', source: 'defeated' | 'discarded' | 'destroyed' }`
+Entry format: `{ cardId, name, type: 'MOSJE'|'PIECIE'|'SNELLE'|'PLACE'|'UNKNOWN', source: 'defeated'|'discarded'|'destroyed' }`
 
-### graveyardUtils.js (src/engine/graveyardUtils.js)
-Three pure helper functions:
-- `toGraveyardEntry(cardId, allCardData, source)` — builds a typed graveyard entry from the card data lookup.
-- `addToGraveyard(state, playerId, cardId, allCardData, source)` — returns new state via spread (no mutation).
-- `getGraveyardByType(player, type)` — filters graveyard entries by type string (e.g. `'MOSJE'`).
-
-### Revival cards
-- **Mosje Reborn** and **Call of the Welloes** read from `getGraveyardByType(player, 'MOSJE')` instead of the removed `player.welloe[]`.
-- `confirmCallOfWelloes` splices from `player.graveyard` using `cardId + type === 'MOSJE'` index lookup.
+### graveyardUtils.js (`src/engine/graveyardUtils.js`)
+- `toGraveyardEntry(cardId, allCardData, source)` — builds a typed entry.
+- `addToGraveyard(state, playerId, cardId, allCardData, source)` — returns new state (no mutation).
+- `getGraveyardByType(player, type)` — filters entries by type.
 
 ### UI
-- The graveyard viewer modal is `showGraveyardModal` in `src/ui/modalManager.js` (legacy alias `showDiscardViewerModal` retained for safety).
-- Board label renders as "Graveyard" in `src/ui/boardRenderer.js`.
-- `toBoardViewModel` in `src/main.js` outputs `graveyard: player.graveyard`.
+- Viewer modal: `showGraveyardModal` in `src/ui/modalManager.js`.
+- Board label "Graveyard" in `src/ui/boardRenderer.js`; `toBoardViewModel` in
+  `src/main.js` outputs `graveyard: player.graveyard`.
 
 ## Environment Setup
+- Node.js (Node 20+), npm. `npm install`.
+- `npm test` — unit tests. `npm run test:cards` / `test:cinema` / `test:ui` — browser.
+- `npm run serve` — local server on port 5500 to play the game manually.
 
-### Requirements
-- Node.js (current repo tested with Node 24)
-- npm
-
-### Install
-1. npm install
-
-### Test and coverage
-1. npm test
-2. npm run coverage
-
-### Simulation run
-1. Preferred: npx tsx src/simulation/run-once.ts
-- Note: Node 24 + ts-node ESM loader is unstable in this repo; tsx is the reliable path used in recent phases.
-
-### Useful outputs
-- docs/simulation-report.json
-- docs/simulation-report.md
-
-## Documentation Index for Continuation
-- docs/card-reference.md
-- docs/playtesting-guide.md
-- docs/phase9-report.md
-- docs/phase10-report.md
-- docs/phase4-questions.md
-- docs/phase5-questions.md
-- docs/phase6-questions.md
-- docs/phase7-questions.md
-- docs/phase8-questions.md
+## Documentation index
+- `docs/card-reference.md` — what each card does (verify against code)
+- `docs/phase0-rulings.md` — canonical game rules
+- `docs/playtesting-guide.md`
+- `docs/simulation-report.md` — latest bot-vs-bot results

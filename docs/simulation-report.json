@@ -1,7 +1,9 @@
 {
   "totalGames": 100,
   "crashes": [],
-  "timeouts": [],
+  "timeouts": [
+    35
+  ],
   "matchupResults": [
     {
       "player1Deck": "Physical Force",
@@ -10,7 +12,7 @@
       "player1Wins": 18,
       "player2Wins": 15,
       "timeouts": 0,
-      "avgTurns": 9.818181818181818,
+      "avgTurns": 9.878787878787879,
       "winReasons": {
         "knockout": 19,
         "level_3": 14
@@ -20,23 +22,24 @@
       "player1Deck": "Digital Control",
       "player2Deck": "Artistic Rhythm",
       "gamesPlayed": 33,
-      "player1Wins": 11,
+      "player1Wins": 10,
       "player2Wins": 22,
-      "timeouts": 0,
-      "avgTurns": 11.030303030303031,
+      "timeouts": 1,
+      "avgTurns": 12.272727272727273,
       "winReasons": {
         "level_3": 20,
-        "knockout": 13
+        "timeout": 1,
+        "knockout": 12
       }
     },
     {
       "player1Deck": "Artistic Rhythm",
       "player2Deck": "Physical Force",
       "gamesPlayed": 34,
-      "player1Wins": 21,
-      "player2Wins": 13,
+      "player1Wins": 20,
+      "player2Wins": 14,
       "timeouts": 0,
-      "avgTurns": 8.411764705882353,
+      "avgTurns": 8.558823529411764,
       "winReasons": {
         "level_3": 16,
         "knockout": 18
@@ -45,12 +48,12 @@
   ],
   "globalCardPlayCounts": {
     "shoettoe": 31,
-    "bagga-of-greed": 157,
+    "bagga-of-greed": 197,
     "grammetje-pieter": 79,
     "afblijven": 64,
     "keyboard": 20,
-    "dubbele-dosis": 172,
-    "kannetje-melk": 253,
+    "dubbele-dosis": 174,
+    "kannetje-melk": 254,
     "snoeiertje": 13,
     "f1-telemetry-data": 18,
     "snelle_jensen": 10,
@@ -59,7 +62,7 @@
     "snelle_bijna_welloe": 7,
     "eendjes-voeren": 158,
     "pot-of-weed": 59,
-    "mp-amplifier": 12,
+    "mp-amplifier": 14,
     "controller": 46,
     "place_the_gym": 10,
     "snelle_sleutelpuntje": 5,
@@ -70,23 +73,23 @@
     "dikke-taks": 11,
     "place_arcade": 13,
     "gekke-vogels": 18,
-    "bowie-stormey": 65,
+    "bowie-stormey": 95,
     "place_quest_haven": 19,
-    "broodje-doner": 70,
-    "dubbele-ding": 91,
+    "broodje-doner": 80,
+    "dubbele-ding": 95,
     "synergy-field": 6,
     "place_coerts_caravan": 2,
     "mosje-shield": 5,
-    "tikker": 5,
+    "tikker": 7,
     "laat-me-chillen": 2,
     "varkenspootjes": 1,
     "momentum-diefje": 3
   },
   "globalStats": {
-    "avgGameLength": 9.74,
-    "avgMPGainedPerTurn": 31.555441478439427,
+    "avgGameLength": 10.22,
+    "avgMPGainedPerTurn": 30.812133072407043,
     "avgQuestsPerGame": 2.11,
-    "avgPieciesPerGame": 14,
+    "avgPieciesPerGame": 14.91,
     "mostPlayedCard": "kannetje-melk",
     "leastPlayedCard": "varkenspootjes",
     "neverPlayedCards": [
@@ -115,6 +118,6 @@
       "quest_create_masterpiece",
       "quest_lucky_break"
     ],
-    "mostCommonWinCondition": "knockout"
+    "mostCommonWinCondition": "level_3"
   }
 }

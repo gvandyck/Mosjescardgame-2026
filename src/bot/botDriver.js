@@ -34,6 +34,70 @@ const QUEST_LOOKUP = Object.fromEntries(QUESTS.map(c => [c.id, c]));
 const MOSJE_LOOKUP = Object.fromEntries(MOSJES.map(m => [m.id, m]));
 
 /**
+ * If Varkenspootjes left a pending target selection, resolve it for the bot:
+ * prefer targeting Binti (for +60 MP), else target the opponent's first Mosje (-30 MP),
+ * else fall back to own first Mosje. Always clears the flag.
+ */
+function resolveBotVarkenspootjesPending(state, botPlayerId) {
+  if (!state._varkenspootjesPending) return state;
+  const allPlayers = Object.entries(state.players);
+  const opponentId = allPlayers.find(([pid]) => pid !== botPlayerId)?.[0];
+
+  let targetPid = null;
+  let targetIdx = -1;
+
+  // Prefer Binti (own or opponent) for the +60
+  outer: for (const [pid, player] of allPlayers) {
+    for (let i = 0; i < (player.activeSlots || []).length; i++) {
+      const slot = player.activeSlots[i];
+      if (slot && !slot.isDefeated && String(slot.cardId).startsWith('mosje_binti')) {
+        targetPid = pid;
+        targetIdx = i;
+        break outer;
+      }
+    }
+  }
+
+  // Otherwise target opponent's first Mosje (-30 damage to them)
+  if (targetIdx === -1 && opponentId) {
+    const opp = state.players[opponentId];
+    for (let i = 0; i < (opp?.activeSlots || []).length; i++) {
+      if (opp.activeSlots[i] && !opp.activeSlots[i].isDefeated) {
+        targetPid = opponentId;
+        targetIdx = i;
+        break;
+      }
+    }
+  }
+
+  // Fallback: own first Mosje
+  if (targetIdx === -1) {
+    const own = state.players[botPlayerId];
+    for (let i = 0; i < (own?.activeSlots || []).length; i++) {
+      if (own.activeSlots[i] && !own.activeSlots[i].isDefeated) {
+        targetPid = botPlayerId;
+        targetIdx = i;
+        break;
+      }
+    }
+  }
+
+  delete state._varkenspootjesPending;
+
+  if (targetIdx === -1) return state;
+
+  const slot = state.players[targetPid].activeSlots[targetIdx];
+  if (String(slot.cardId).startsWith('mosje_binti')) {
+    slot.mp += 60;
+    console.log(`[BOT] Varkenspootjes resolved: Binti +60 MP`);
+  } else {
+    slot.mp = Math.max(0, slot.mp - 30);
+    console.log(`[BOT] Varkenspootjes resolved: ${slot.name} -30 MP`);
+  }
+  return state;
+}
+
+/**
  * driveBotTurnSteps
  * Same logic as driveBotTurn but returns an array of { state, label } snapshots —
  * one per action taken — so callers can animate each step individually.
@@ -70,6 +134,7 @@ export function driveBotTurnSteps(gameState, botPlayerId) {
     const result = activatePiecie(state, botPlayerId, i);
     if (result.success) {
       state = result.state;
+      state = resolveBotVarkenspootjesPending(state, botPlayerId);
       steps.push({ state, label: `activates ${slot.cardId.replace('piecie_', '').replace(/_/g, ' ')}` });
       const updated = state.players[botPlayerId]?.piecieSlots || [];
       for (let j = i + 1; j < piecieSlots.length; j++) piecieSlots[j] = updated[j] ?? null;
@@ -207,6 +272,7 @@ export function driveBotTurn(gameState, botPlayerId) {
     const result = activatePiecie(state, botPlayerId, i);
     if (result.success) {
       state = result.state;
+      state = resolveBotVarkenspootjesPending(state, botPlayerId);
       // Re-read slots from updated state for subsequent iterations
       const updatedSlots = state.players[botPlayerId]?.piecieSlots || [];
       // Update local reference for remaining indices
