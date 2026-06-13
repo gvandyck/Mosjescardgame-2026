@@ -1850,3 +1850,26 @@
   -webkit-line-clamp: 6;     /* contents are the focus — allow more description */
   font-size: 0.92rem;        /* hand cards: a touch larger description for easy reading */
 }
+
+/* ── Uniform card buttons — white with black text (overrides per-type colours).
+   Card frames/glows/effects keep their category colours; only the buttons unify. */
+.hand-card__play-btn,
+.card--mosje .hand-card__play-btn,
+.card--place .hand-card__play-btn,
+.card--snelle .hand-card__play-btn,
+.card--snelle_piecie .hand-card__play-btn,
+.card--quest .hand-card__play-btn,
+.card--quest-general .hand-card__play-btn,
+.card--quest-personal .hand-card__play-btn,
+.mosje-return-btn,
+.mosje-ability-btn {
+  background: #ffffff;
+  color: #14181f;
+  text-shadow: none;
+}
+.mosje-ability-btn--used,
+.hand-card__play-btn:disabled,
+.mosje-ability-btn:disabled {
+  background: rgba(255, 255, 255, 0.35);
+  color: #4a5263;
+}
