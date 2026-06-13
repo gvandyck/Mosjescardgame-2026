@@ -310,70 +310,96 @@ export function initModalManager(container) {
 		const previewEl = renderCard(card, { compact: true });
 		const type = String(card.type || card.cardType || '').toUpperCase();
 
-		let rightHTML = `<h3>${escapeHtml(card.name || 'Card')}</h3>`;
+		const esc = escapeHtml;
+		const cap = (s) => String(s).charAt(0).toUpperCase() + String(s).slice(1);
+		const TYPE_META = {
+			MOSJE:          { label: 'Mosje',  cls: 'mosje',  accent: '#e8b94f' },
+			PIECIE:         { label: 'Piecie', cls: 'piecie', accent: '#3d8ef5' },
+			SNELLE_PIECIE:  { label: 'Snelle', cls: 'snelle', accent: '#7dd3fc' },
+			PLACE:          { label: 'Place',  cls: 'place',  accent: '#3dd68c' },
+			QUEST:          { label: 'Quest',  cls: 'quest',  accent: '#a855f7' },
+			QUEST_GENERAL:  { label: 'Quest',  cls: 'quest',  accent: '#a855f7' },
+			QUEST_PERSONAL: { label: 'Quest',  cls: 'quest',  accent: '#a855f7' },
+		};
+		const meta = TYPE_META[type] || { label: type || 'Card', cls: 'generic', accent: '#94a3c4' };
+
+		// Clean name + (Mosje) nickname.
+		const nm = String(card.name || 'Card').match(/^\[(.+?)\]\s*(.*)/);
+		const name = nm ? nm[1] : String(card.name || 'Card');
+		const nick = nm ? (nm[2] || '') : '';
+
+		const chips = [];
+		const sections = []; // [label, bodyHTML, isRaw]
 
 		if (type === 'MOSJE') {
-			if (card.flavourText || card.description) rightHTML += `<p>${escapeHtml(card.flavourText || card.description)}</p>`;
-			if (card.abilityDescription) rightHTML += `<p><strong>Ability:</strong> ${escapeHtml(card.abilityDescription)}</p>`;
-			if (card.synergyEffect) rightHTML += `<p><strong>Synergy:</strong> ${escapeHtml(card.synergyEffect)}</p>`;
-			if (card.petSynergy) rightHTML += `<p><strong>Pet synergy:</strong> ${escapeHtml(card.petSynergy)}</p>`;
-			const traitRows = Object.entries(card.traits || {})
-				.filter(([, v]) => Number(v) > 0)
-				.map(([n, v]) => `<li><strong>${escapeHtml(n)}</strong>: ${'★'.repeat(Number(v))}</li>`)
-				.join('');
-			rightHTML += `<ul class="modal-card-list">${traitRows || '<li>No active traits</li>'}</ul>`;
-
+			if (card.abilityDescription) sections.push(['Ability', esc(card.abilityDescription)]);
+			if (card.synergyEffect) sections.push(['Synergy', esc(card.synergyEffect)]);
+			if (card.petSynergy) chips.push(`🐾 ${esc(String(card.petSynergy).replace('piecie_', '').replace(/_/g, ' '))}`);
+			const traits = Object.entries(card.traits || {}).filter(([, v]) => Number(v) > 0);
+			if (traits.length) {
+				const tHTML = traits.map(([n, v]) =>
+					`<span class="cd-trait"><span class="cd-trait-name">${esc(cap(n))}</span><span class="cd-trait-stars">${'★'.repeat(Number(v))}</span></span>`).join('');
+				sections.push(['Traits', `<div class="cd-traits">${tHTML}</div>`, true]);
+			}
 		} else if (type === 'PIECIE' || type === 'SNELLE_PIECIE') {
-			const costStr = card.mpCost === 0 ? 'Free' : `${card.mpCost} MP`;
-			rightHTML += `<p><strong>Cost:</strong> ${escapeHtml(costStr)}</p>`;
-			if (type === 'SNELLE_PIECIE') rightHTML += `<p><strong>Type:</strong> Interrupt — play any time</p>`;
-			if (card.requirement && card.requirement !== 'any') rightHTML += `<p><strong>Requires:</strong> ${escapeHtml(card.requirement)}</p>`;
-			if (Array.isArray(card.tags) && card.tags.length) rightHTML += `<p><strong>Tags:</strong> ${card.tags.map(t => escapeHtml(t)).join(', ')}</p>`;
-			if (card.description) rightHTML += `<p><strong>Effect:</strong> ${escapeHtml(card.description)}</p>`;
-			if (card.abilityDescription) rightHTML += `<p><strong>Ability:</strong> ${escapeHtml(card.abilityDescription)}</p>`;
-			if (card.flavourText) rightHTML += `<p class="modal-card-flavour"><em>${escapeHtml(card.flavourText)}</em></p>`;
-
+			chips.push((card.mpCost === 0 || card.mpCost == null) ? 'Free' : `${card.mpCost} MP`);
+			if (type === 'SNELLE_PIECIE') chips.push('⚡ Interrupt');
+			if (card.requirement && card.requirement !== 'any') chips.push(`Requires ${esc(card.requirement)}`);
+			if (Array.isArray(card.tags)) card.tags.forEach(t => chips.push(esc(t)));
+			if (card.description) sections.push(['Effect', esc(card.description)]);
+			if (card.abilityDescription) sections.push(['Ability', esc(card.abilityDescription)]);
 		} else if (type === 'PLACE') {
-			if (card.trigger) rightHTML += `<p><strong>Trigger:</strong> ${escapeHtml(card.trigger.replace(/_/g, ' '))}</p>`;
-			if (Array.isArray(card.tags) && card.tags.length) rightHTML += `<p><strong>Tags:</strong> ${card.tags.map(t => escapeHtml(t)).join(', ')}</p>`;
-			if (card.description) rightHTML += `<p><strong>Effect:</strong> ${escapeHtml(card.description)}</p>`;
-			if (card.flavourText) rightHTML += `<p class="modal-card-flavour"><em>${escapeHtml(card.flavourText)}</em></p>`;
-			const goodFor = Array.isArray(card.goodFor) && card.goodFor.length ? card.goodFor.join(', ') : 'None';
-			const badFor  = Array.isArray(card.badFor)  && card.badFor.length  ? card.badFor.join(', ')  : 'None';
-			rightHTML += `<p><strong>Good for:</strong> ${escapeHtml(goodFor)}</p>`;
-			rightHTML += `<p><strong>Avoid for:</strong> ${escapeHtml(badFor)}</p>`;
-			if (card.rarity) rightHTML += `<p><strong>Rarity:</strong> ${escapeHtml(card.rarity)}</p>`;
-
-		} else if (type === 'QUEST' || type === 'QUEST_GENERAL' || type === 'QUEST_PERSONAL') {
-			if (card.difficulty) rightHTML += `<p><strong>Difficulty:</strong> ${escapeHtml(card.difficulty)}</p>`;
-			if (card.category) rightHTML += `<p><strong>Category:</strong> ${escapeHtml(card.category)}</p>`;
-			if (card.requirementDescription) rightHTML += `<p><strong>Requirement:</strong> ${escapeHtml(card.requirementDescription)}</p>`;
-			if (card.description) rightHTML += `<p><strong>Description:</strong> ${escapeHtml(card.description)}</p>`;
-			rightHTML += `<p><strong>Success:</strong> <span style="color:#4ade80">+${Number(card.successMP || 0)} MP</span></p>`;
-			rightHTML += `<p><strong>Failure:</strong> <span style="color:#f87171">${Number(card.failMP || 0)} MP</span></p>`;
-			if (card.flavourText) rightHTML += `<p class="modal-card-flavour"><em>${escapeHtml(card.flavourText)}</em></p>`;
-
-		} else {
-			if (card.description) rightHTML += `<p>${escapeHtml(card.description)}</p>`;
+			if (card.trigger) chips.push(`Trigger: ${esc(card.trigger.replace(/_/g, ' '))}`);
+			if (Array.isArray(card.tags)) card.tags.forEach(t => chips.push(esc(t)));
+			if (card.description) sections.push(['Effect', esc(card.description)]);
+			const good = Array.isArray(card.goodFor) && card.goodFor.length ? card.goodFor.join(', ') : null;
+			const bad  = Array.isArray(card.badFor)  && card.badFor.length  ? card.badFor.join(', ')  : null;
+			if (good || bad) sections.push(['Affinity',
+				`${good ? `<span class="cd-good">▲ ${esc(good)}</span>` : ''}${bad ? `<span class="cd-bad">▼ ${esc(bad)}</span>` : ''}`, true]);
+		} else if (type.startsWith('QUEST')) {
+			if (card.difficulty) chips.push(`Difficulty: ${esc(card.difficulty)}`);
+			if (card.requirementDescription) sections.push(['Requirement', esc(card.requirementDescription)]);
+			if (card.description) sections.push(['Description', esc(card.description)]);
+			sections.push(['Outcome',
+				`<span class="cd-good">Success +${Number(card.successMP || 0)} MP</span><span class="cd-bad">Fail ${Number(card.failMP || 0)} MP</span>`, true]);
+		} else if (card.description) {
+			sections.push(['Effect', esc(card.description)]);
 		}
 
-		if (card.rarity) {
-			const copyLimit = { '★': 4, '★★': 3, '★★★': 2, '★★★★': 1 }[card.rarity] ?? 1;
-			rightHTML += `<p><strong>Rarity:</strong> ${escapeHtml(card.rarity)} &nbsp;·&nbsp; Max ${copyLimit}x per deck</p>`;
-		}
-		rightHTML += `<button class="modal-btn" id="modal-close-preview" type="button">Close</button>`;
+		const copyLimit = card.rarity ? ({ '★': 4, '★★': 3, '★★★': 2, '★★★★': 1 }[card.rarity] ?? 1) : null;
+		const chipsHTML = chips.length ? `<div class="cd-chips">${chips.map(c => `<span class="cd-chip">${c}</span>`).join('')}</div>` : '';
+		const sectionsHTML = sections.map(([label, body, raw]) =>
+			`<section class="cd-sec"><h4 class="cd-sec-label">${esc(label)}</h4>${raw ? body : `<p class="cd-sec-text">${body}</p>`}</section>`).join('');
+		const flavourHTML = card.flavourText ? `<p class="cd-flavour">${esc(card.flavourText)}</p>` : '';
+		const rarityHTML = card.rarity ? `<span class="cd-rarity">${esc(card.rarity)}${copyLimit ? ` · max ${copyLimit}/deck` : ''}</span>` : '';
 
 		container.classList.add('modal-root--open');
 		container.innerHTML = `
 			<div class="modal-backdrop"></div>
-			<section class="modal-card modal-card--mosje-detail" role="dialog" aria-modal="true">
-				<div class="modal-mosje-preview"></div>
-				<div class="modal-mosje-copy">${rightHTML}</div>
+			<section class="modal-card card-detail card-detail--${meta.cls}" role="dialog" aria-modal="true" style="--cd-accent: ${meta.accent};">
+				<div class="cd-preview"></div>
+				<div class="cd-info">
+					<header class="cd-head">
+						<div class="cd-title-row">
+							<h2 class="cd-name">${esc(name)}</h2>
+							<span class="cd-type-chip">${esc(meta.label)}</span>
+						</div>
+						<div class="cd-subrow">
+							${nick ? `<span class="cd-nick">"${esc(nick)}"</span>` : ''}
+							${rarityHTML}
+						</div>
+					</header>
+					${chipsHTML}
+					<div class="cd-sections">${sectionsHTML}</div>
+					${flavourHTML}
+					<button class="modal-btn cd-close" id="modal-close-preview" type="button">Close</button>
+				</div>
 			</section>
 		`;
 
-		container.querySelector('.modal-mosje-preview').appendChild(previewEl);
+		container.querySelector('.cd-preview').appendChild(previewEl);
 		container.querySelector('#modal-close-preview')?.addEventListener('click', close);
+		container.querySelector('.modal-backdrop')?.addEventListener('click', close);
 	}
 
 	// Legacy aliases — all routes through the unified preview
