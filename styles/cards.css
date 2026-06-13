@@ -1838,5 +1838,6 @@
   gap: 9px;
 }
 .hand-card .uc-text {
-  -webkit-line-clamp: 6;   /* contents are the focus — allow more description */
+  -webkit-line-clamp: 6;     /* contents are the focus — allow more description */
+  font-size: 0.92rem;        /* hand cards: a touch larger description for easy reading */
 }

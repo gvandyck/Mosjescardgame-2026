@@ -436,9 +436,11 @@ function initGamePage() {
 	}
 
 	// ── Bot vs Bot loop — drives both players with per-action delays ────
-	// Bot-vs-bot step delay: ?fast=true collapses the 1000ms animation pause to 30ms
-	// so a full simulation game finishes in a few seconds instead of minutes.
-	const botStepDelay = urlParams.get('fast') === 'true' ? 30 : 1000;
+	// Bot-vs-bot step delay: ?fast=true collapses the pause to 30ms (sim speed);
+	// ?delay=<ms> sets a custom pace for watching slowly; otherwise 1000ms.
+	const botStepDelay = urlParams.get('fast') === 'true'
+		? 30
+		: (Number(urlParams.get('delay')) || 1000);
 
 	function runBotVsBotLoop() {
 		if (!gameState || gameState.status === 'FINISHED') return;
