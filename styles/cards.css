@@ -184,7 +184,7 @@
 .card--snelle_piecie {
   padding: 0;
   border: 2px solid var(--snelle-red);
-  background: linear-gradient(160deg, #1c0505 0%, #0f0404 60%, #180606 100%);
+  background: linear-gradient(160deg, #07131f 0%, #050b14 60%, #08131d 100%);
 }
 
 .card--snelle:hover,
@@ -1651,3 +1651,156 @@
   font-size: 9px;
 }
 
+
+/* ════════════════════════════════════════════════════════════════════════════
+   CARD DESIGN SYSTEM — token-driven, applied across ALL card types.
+   Type is conveyed by frame colour + art ONLY. Names, body text and padding are
+   identical everywhere; the card's physical size is the only thing that varies.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* Titles — every card name renders the same. */
+.mosje-name-v2,
+.mosje-name,
+.place-name,
+.card__name {
+  font-size: var(--card-title-size) !important;
+  font-weight: var(--card-title-weight);
+  color: var(--card-title-color);
+  letter-spacing: var(--card-title-spacing);
+  line-height: var(--card-title-line);
+  text-transform: none;
+  margin: 0;
+}
+
+/* Body — every card description / ability / effect renders the same. */
+.mosje-ability-text-v2,
+.mosje-ability-text-v2 .ability-line,
+.ability-line,
+.place-effect-text,
+.card__desc {
+  font-size: var(--card-body-size) !important;
+  color: var(--card-body-color);
+  font-weight: 400;
+  line-height: var(--card-body-line);
+}
+
+/* Padding — uniform inset from the card edge to content for every type. */
+.mosje-card-content,
+.piecie-card-content,
+.place-card-content {
+  padding: var(--card-pad) !important;
+}
+.card--piecie > .card__top,
+.card--piecie > .card__name,
+.card--piecie > .card__desc,
+.card--snelle > .card__name,
+.card--snelle > .card__desc,
+.card--snelle_piecie > .card__name,
+.card--snelle_piecie > .card__desc,
+.card--quest .card__name,
+.card--quest-general .card__name,
+.card--quest-personal .card__name,
+.card--quest .card__desc,
+.card--quest-general .card__desc,
+.card--quest-personal .card__desc {
+  padding-left: var(--card-pad);
+  padding-right: var(--card-pad);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   UNIFIED CARD TEMPLATE — every card type renders identically:
+   full-cover art → vignette → name + description + rarity, anchored bottom.
+   Type is read from the frame colour (.card--*) only.
+   ════════════════════════════════════════════════════════════════════════════ */
+.uc-art {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: var(--card-art-url);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.uc-art.is-placeholder {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.01));
+}
+.uc-vignette {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    to top,
+    rgba(6, 9, 15, 0.96) 6%,
+    rgba(6, 9, 15, 0.78) 32%,
+    rgba(6, 9, 15, 0.25) 62%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+.uc-body {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 3px;
+  padding: var(--card-pad);
+  pointer-events: none;
+}
+.uc-title {
+  margin: 0;
+  font-size: var(--card-title-size);
+  font-weight: var(--card-title-weight);
+  color: var(--card-title-color);
+  letter-spacing: var(--card-title-spacing);
+  line-height: var(--card-title-line);
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.85);
+}
+.uc-text {
+  margin: 0;
+  font-size: var(--card-body-size);
+  color: var(--card-body-color);
+  line-height: var(--card-body-line);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.uc-rarity {
+  margin-top: 2px;
+  font-size: 0.72rem;
+  letter-spacing: 1px;
+  color: var(--mosje-gold);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+/* Action buttons (play / activate / ability) sit above the unified body. */
+.mosje-ability-btn,
+.hand-card__play-btn,
+.piecie-activate-btn,
+.place-activate-btn {
+  z-index: 4;
+}
+
+/* Minimal MP/Level badge — field Mosjes only (unified template). */
+.uc-mp {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 3;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(8, 10, 16, 0.82);
+  border: 1px solid var(--mosje-gold);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+.uc-mp-val { font-size: 1rem; font-weight: 800; color: #ffffff; line-height: 1; }
+.uc-mp-lvl {
+  font-size: 0.58rem; font-weight: 700; color: var(--mosje-gold);
+  text-transform: uppercase; letter-spacing: 0.04em; line-height: 1;
+}

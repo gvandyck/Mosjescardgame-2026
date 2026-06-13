@@ -18,6 +18,17 @@
   --place-green:     #3dd68c;
   --place-glow:      rgba(61, 214, 140, 0.4);
   --quest-purple:    #a855f7;
+
+  /* ── Card design-system tokens — one source of truth for every card type ── */
+  --card-pad:          11px;       /* uniform inset from card edge to content */
+  --card-title-size:   1rem;       /* every card NAME, same size */
+  --card-title-weight: 800;
+  --card-title-color:  #ffffff;
+  --card-title-spacing: 0.01em;
+  --card-title-line:   1.08;
+  --card-body-size:    0.72rem;    /* every card description/ability/effect */
+  --card-body-color:   #dbe4f3;
+  --card-body-line:    1.4;
   --quest-glow:      rgba(168, 85, 247, 0.4);
   --personal-quest:  #f59e0b;
 
