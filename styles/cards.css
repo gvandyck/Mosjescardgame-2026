@@ -221,6 +221,7 @@
 .card--quest,
 .card--quest-general,
 .card--quest-personal {
+  padding: 0;   /* match every other card type — base .card adds 10px, doubling the button inset */
   gap: 4px;
   border: 2px solid var(--quest-purple);
   background: linear-gradient(160deg, #0e0518 0%, #08030f 60%, #0c0415 100%);
