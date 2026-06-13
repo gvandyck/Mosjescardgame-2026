@@ -11,8 +11,9 @@ import {
 
 const HAND = ['mosje_youri', 'piecie_redbull', 'snelle_jensen', 'place_the_gym', 'quest_personal_winston_tijd'];
 
-test('🪟 Card-click modal — each type', async ({ page }) => {
+test('🪟 Card-click modal — each type', async ({ page }, testInfo) => {
 	test.setTimeout(120000);
+	const HOLD = Number(process.env.CINEMA) || (testInfo.project.use.headless === false ? 3500 : 0);
 	await seedCustomDeck(page, {
 		id: 'custom_modal_preview', name: 'Modal Preview',
 		mosjes: ['mosje_youri', 'mosje_alyssa_bulldozer'],
@@ -33,7 +34,8 @@ test('🪟 Card-click modal — each type', async ({ page }) => {
 		await page.locator('.card-detail').waitFor({ state: 'visible', timeout: 5000 });
 		await page.waitForTimeout(400);
 		await ss(page, `modal-${label}`);
-		console.log(`🪟 ${label} modal captured`);
+		console.log(`🪟 ${label} modal`);
+		if (HOLD) await page.waitForTimeout(HOLD);   // linger so it's watchable headed
 		// Close and wait for the modal to fully detach before the next card.
 		await page.locator('#modal-close-preview').click({ force: true }).catch(() => {});
 		await page.locator('.card-detail').waitFor({ state: 'detached', timeout: 3000 }).catch(() => {});
