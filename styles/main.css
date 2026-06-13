@@ -28,7 +28,7 @@
   --card-title-line:   1.08;
   --card-body-size:    0.72rem;    /* every card description/ability/effect */
   --card-body-color:   #dbe4f3;
-  --card-body-line:    1.4;
+  --card-body-line:    1.5;         /* roomier line spacing for readability */
   --quest-glow:      rgba(168, 85, 247, 0.4);
   --personal-quest:  #f59e0b;
 

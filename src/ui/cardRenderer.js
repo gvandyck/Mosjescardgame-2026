@@ -71,8 +71,16 @@ function buildUnifiedCardHTML(card) {
   const artUrl = hasArt ? resolveArtPathForCss(card.artPath) : '';
   const artStyle = hasArt ? ` style="--card-art-url: url('${escapeCssUrl(artUrl)}');"` : '';
 
-  // Clean display name: strip the "[First] Nick" brackets used by Mosje names.
-  const name = String(card.name || 'Unnamed').replace(/^\[(.+?)\]\s*/, '$1 ').trim();
+  // Name (top-left). Mosjes split into First name + "Nickname" (italic, below).
+  const isMosjeCard = String(card.type || '').toUpperCase() === 'MOSJE';
+  let title, nick = '';
+  if (isMosjeCard) {
+    const parsed = parseMosjeName(card.name);
+    title = parsed.firstName || String(card.name || 'Unnamed');
+    nick = parsed.nickname || '';
+  } else {
+    title = String(card.name || 'Unnamed');
+  }
   const desc = String(card.description || card.abilityDescription || card.flavourText || '');
   const rarity = String(card.rarity || '★')
     .split('')
@@ -95,9 +103,14 @@ function buildUnifiedCardHTML(card) {
     <div class="uc-vignette"></div>
     ${mpBadge}
     <div class="uc-body">
-      <h3 class="uc-title">${escapeHtml(name)}</h3>
-      <p class="uc-text">${escapeHtml(desc)}</p>
-      <div class="uc-rarity">${rarity}</div>
+      <div class="uc-head">
+        <h3 class="uc-title">${escapeHtml(title)}</h3>
+        ${nick ? `<p class="uc-nick">${escapeHtml(`"${nick}"`)}</p>` : ''}
+      </div>
+      <div class="uc-foot">
+        <p class="uc-text">${escapeHtml(desc)}</p>
+        <div class="uc-rarity">${rarity}</div>
+      </div>
     </div>
   `;
 }
