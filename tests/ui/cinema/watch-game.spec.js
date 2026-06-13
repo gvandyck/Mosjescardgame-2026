@@ -10,6 +10,9 @@
 import { test } from '@playwright/test';
 
 test('🎬 Watch a full game — bot vs bot, slow', async ({ page }) => {
+	// Manual viewer only — skipped in normal runs so it doesn't add a slow game to
+	// the suite. Run it with:  WATCH=1 npx playwright test --project=visual ... --headed
+	test.skip(!process.env.WATCH, 'viewer — run with WATCH=1');
 	test.setTimeout(600000); // up to 10 minutes
 
 	// botvsbot + a long per-step delay → slow & watchable. Override with CINEMA=<ms>.
