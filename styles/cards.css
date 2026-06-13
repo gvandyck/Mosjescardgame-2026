@@ -1182,8 +1182,9 @@
 }
 
 .card--quest-personal .hand-card__play-btn {
-  margin: 10px 0px 0px 0px;
-  width: auto;
+  /* Keep the button pinned to the bottom like every other card (don't reset
+     margin-top:auto, which previously floated it to the top of the card). */
+  margin-top: auto;
 }
 
 .hand-card--playable {
@@ -1803,4 +1804,16 @@
 .uc-mp-lvl {
   font-size: 0.58rem; font-weight: 700; color: var(--mosje-gold);
   text-transform: uppercase; letter-spacing: 0.04em; line-height: 1;
+}
+
+/* Hand cards: give the description breathing room above the play button.
+   The button is pinned to the card bottom (margin-top:auto), and the unified
+   text body is bottom-anchored — so reserve space at the bottom of the body. */
+.hand-card .uc-body {
+  padding-bottom: 56px;
+  justify-content: flex-end;
+  gap: 4px;
+}
+.hand-card .uc-text {
+  -webkit-line-clamp: 6;   /* contents are the focus — allow more description */
 }
