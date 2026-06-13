@@ -21,11 +21,11 @@
 
   /* ── Card design-system tokens — one source of truth for every card type ── */
   --card-pad:          11px;       /* uniform inset from card edge to content */
-  --card-title-size:   1.15rem;    /* every card NAME, same size */
-  --card-title-weight: 800;
+  --card-title-size:   1.25rem;    /* every card NAME, same size */
+  --card-title-weight: 700;        /* was 800 — slightly less heavy for readability */
   --card-title-color:  #ffffff;
-  --card-title-spacing: 0.01em;
-  --card-title-line:   1.1;
+  --card-title-spacing: 0.035em;   /* more letter-spacing so names don't run together */
+  --card-title-line:   1.12;
   --card-body-size:    0.84rem;    /* every card description/ability/effect */
   --card-body-color:   #dbe4f3;
   --card-body-line:    1.5;         /* roomier line spacing for readability */
