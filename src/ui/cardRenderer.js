@@ -60,7 +60,58 @@ export function renderCard(card, options = {}) {
   // verbose per-type info (traits, level, MP, trigger, affinity…) is hidden for now
   // and will return via an on-hover detail view.
   element.innerHTML = buildUnifiedCardHTML(resolvedCard);
+  attachHoverDetail(element, resolvedCard, options);
   return element;
+}
+
+// ── On-hover detail view ──────────────────────────────────────────────────────
+// Hovering a card pops up a larger, fully-detailed version (the info hidden on the
+// clean unified card: Mosje traits/level/ability/synergy, Place trigger/affinity…).
+let _hoverDetailEl = null;
+
+function hideHoverDetail() {
+  if (_hoverDetailEl) { _hoverDetailEl.remove(); _hoverDetailEl = null; }
+}
+
+function attachHoverDetail(element, card, options = {}) {
+  if (options.noHover) return;
+  element.addEventListener('mouseenter', () => showHoverDetail(element, card, options));
+  element.addEventListener('mouseleave', hideHoverDetail);
+}
+
+function showHoverDetail(anchor, card, options) {
+  hideHoverDetail();
+  const type = String(card.type || '').toUpperCase();
+
+  let inner = '';
+  const classes = ['card', getTypeClass(type), getQuestCssClass(card), 'card--hover-preview'];
+  if (type === 'MOSJE') {
+    const sub = `mosje-subtype-${String(card.subtype || '').toLowerCase()}`;
+    if (sub !== 'mosje-subtype-') classes.push(sub, 'mosje-card--owned');
+    inner = buildMosjeCardHTML(card, options.gameState || null, options.viewingPlayerId || card.ownerId || null);
+  } else if (type === 'PLACE') {
+    inner = buildPlaceCardHTML(card);
+  } else {
+    inner = buildCardWithArt(card);
+  }
+
+  const wrap = document.createElement('div');
+  wrap.className = 'card-hover-detail';
+  const cardEl = document.createElement('div');
+  cardEl.className = classes.filter(Boolean).join(' ');
+  cardEl.innerHTML = inner;
+  wrap.appendChild(cardEl);
+  document.body.appendChild(wrap);
+
+  // Position above the hovered card (or below if there's no room), clamped to viewport.
+  const r = anchor.getBoundingClientRect();
+  const w = wrap.offsetWidth, h = wrap.offsetHeight;
+  let left = r.left + r.width / 2 - w / 2;
+  let top = r.top - h - 12;
+  if (top < 8) top = Math.min(r.bottom + 12, window.innerHeight - h - 8);
+  left = Math.max(8, Math.min(left, window.innerWidth - w - 8));
+  wrap.style.left = `${left}px`;
+  wrap.style.top = `${Math.max(8, top)}px`;
 }
 
 // One template for all card types.

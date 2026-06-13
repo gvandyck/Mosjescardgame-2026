@@ -1850,3 +1850,35 @@
   -webkit-line-clamp: 6;     /* contents are the focus — allow more description */
   font-size: 0.92rem;        /* hand cards: a touch larger description for easy reading */
 }
+
+/* ── On-hover detail popover — full card info on demand ───────────────────────── */
+.card-hover-detail {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  filter: drop-shadow(0 16px 42px rgba(0, 0, 0, 0.75));
+  animation: hover-detail-in 0.12s ease-out;
+}
+@keyframes hover-detail-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+.card--hover-preview {
+  transform: none !important;
+  animation: none !important;
+  cursor: default;
+}
+.card-hover-detail .card--mosje.card--hover-preview {
+  width: 268px;
+  height: calc(268px * var(--card-height-ratio));
+}
+.card-hover-detail .card--place.card--hover-preview,
+.card-hover-detail .card--piecie.card--hover-preview,
+.card-hover-detail .card--snelle.card--hover-preview,
+.card-hover-detail .card--snelle_piecie.card--hover-preview,
+.card-hover-detail .card--quest.card--hover-preview,
+.card-hover-detail .card--quest-general.card--hover-preview,
+.card-hover-detail .card--quest-personal.card--hover-preview {
+  width: 244px;
+  height: calc(244px * var(--card-height-ratio));
+}
