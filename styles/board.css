@@ -2156,3 +2156,56 @@
    .card-detail { grid-template-columns: 1fr; justify-items: center; }
    .cd-info { min-height: 0; width: 100%; }
 }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   MOBILE / NARROW SCREENS — additive only (desktop is untouched above).
+   Focus: make "your hand" fit and stay usable. Tap a card → detail modal.
+   ════════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 820px) {
+   /* Zoom-to-fit: shrink ALL cards (board + hand) so the board stops eating the
+      screen, then scale the board down a touch more to fit narrow widths. */
+   :root {
+      --mosje-card-w: 118px;
+      --piecie-card-w: 80px;
+      --support-card-w: 76px;
+      --mosje-card-w-hand: 122px;
+      --piecie-card-w-hand: 86px;
+   }
+   .game-board {
+      zoom: 0.62;
+      padding: 4px;
+      overflow-x: auto;
+   }
+   .hand-strip,
+   .hand-cards {
+      padding: 12px 6px 10px;
+      flex-wrap: nowrap;
+   }
+   /* Fan: overlap cards more (names sit top-left, so they stay readable). */
+   .hand-strip .hand-card-wrap,
+   .hand-cards .hand-card-wrap { margin-left: -42px; }
+   .hand-cards .card--mosje,
+   .hand-strip .card--mosje { margin-left: -44px; }
+   .hand-strip .hand-card-wrap:first-child,
+   .hand-cards .hand-card-wrap:first-child { margin-left: 0; }
+
+   /* Lift the pressed/active card forward so it pops out of the fan. */
+   .hand-strip .hand-card-wrap:active,
+   .hand-cards .hand-card-wrap:active { z-index: 60; }
+   .hand-card-wrap:active .hand-card {
+      transform: translateY(-16px) scale(1.05);
+   }
+   /* Bigger touch targets. */
+   .hand-card__play-btn { min-height: 44px; }
+}
+
+@media (max-width: 480px) {
+   :root {
+      --mosje-card-w-hand: 120px;
+      --piecie-card-w-hand: 86px;
+   }
+   .hand-strip .hand-card-wrap,
+   .hand-cards .hand-card-wrap { margin-left: -50px; }
+   .hand-cards .card--mosje,
+   .hand-strip .card--mosje { margin-left: -52px; }
+}
