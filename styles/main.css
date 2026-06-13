@@ -11,11 +11,24 @@
   --mosje-glow:      rgba(232, 185, 79, 0.4);
   --piecie-blue:     #3d8ef5;
   --piecie-glow:     rgba(61, 142, 245, 0.4);
-  --snelle-red:      #e84545;
-  --snelle-glow:     rgba(232, 69, 69, 0.4);
+  /* Snelle Piecies are a quick-action sub-shade of Piecies — light sky-blue, not red.
+     (Var name kept for back-compat; value is intentionally blue now.) */
+  --snelle-red:      #7dd3fc;
+  --snelle-glow:     rgba(125, 211, 252, 0.4);
   --place-green:     #3dd68c;
   --place-glow:      rgba(61, 214, 140, 0.4);
   --quest-purple:    #a855f7;
+
+  /* ── Card design-system tokens — one source of truth for every card type ── */
+  --card-pad:          11px;       /* uniform inset from card edge to content */
+  --card-title-size:   1.25rem;    /* every card NAME, same size */
+  --card-title-weight: 700;        /* was 800 — slightly less heavy for readability */
+  --card-title-color:  #ffffff;
+  --card-title-spacing: 0.035em;   /* more letter-spacing so names don't run together */
+  --card-title-line:   1.12;
+  --card-body-size:    0.84rem;    /* every card description/ability/effect */
+  --card-body-color:   #dbe4f3;
+  --card-body-line:    1.5;         /* roomier line spacing for readability */
   --quest-glow:      rgba(168, 85, 247, 0.4);
   --personal-quest:  #f59e0b;
 

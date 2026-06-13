@@ -5,7 +5,7 @@ import { renderBoard, showPlaceEffectBanner } from './ui/boardRenderer.js';
 import { createLogRenderer } from './ui/logRenderer.js';
 import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
-import { animateFieldActivation, animateStateDelta, showTurnTransition } from './ui/actionAnimations.js';
+import { animateFieldActivation, animateStateDelta, showTurnTransition, setAbilityNameResolver, animateQuestResult, showInstantEffect } from './ui/actionAnimations.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes } from './engine/gameState.js';
 import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, playPersonalQuest, activatePersonalQuest } from './engine/turnManager.js';
 import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold } from './abilities/questLogic.js';
@@ -37,6 +37,13 @@ console.log('[UI] App bootstrapping...');
 
 const CARD_LOOKUP = buildCardLookup();
 let _customDecksCache = [];
+
+// Feed the ability-cast chip the real ability name: the part before ":" in the
+// description, minus qualifiers like "(comeback)"/"(passive)".
+setAbilityNameResolver((mosjeId) => {
+	const desc = CARD_LOOKUP[mosjeId]?.abilityDescription || '';
+	return desc.split(':')[0].replace(/\s*\([^)]*\)/g, '').trim();
+});
 
 const path = window.location.pathname.toLowerCase();
 
@@ -429,9 +436,11 @@ function initGamePage() {
 	}
 
 	// ── Bot vs Bot loop — drives both players with per-action delays ────
-	// Bot-vs-bot step delay: ?fast=true collapses the 1000ms animation pause to 30ms
-	// so a full simulation game finishes in a few seconds instead of minutes.
-	const botStepDelay = urlParams.get('fast') === 'true' ? 30 : 1000;
+	// Bot-vs-bot step delay: ?fast=true collapses the pause to 30ms (sim speed);
+	// ?delay=<ms> sets a custom pace for watching slowly; otherwise 1000ms.
+	const botStepDelay = urlParams.get('fast') === 'true'
+		? 30
+		: (Number(urlParams.get('delay')) || 1000);
 
 	function runBotVsBotLoop() {
 		if (!gameState || gameState.status === 'FINISHED') return;
@@ -1064,6 +1073,7 @@ function initGamePage() {
 			}
 
 			renderAndAnimate(beforeResolve, { actionLabel: 'quest-resolution' });
+			animateQuestResult({ playerId: localPlayerId, slotIndex: firstSlotIndex, success: didSucceed });
 			syncPush();
 
 			log.add(didSucceed ? 'gain' : 'loss',
@@ -1175,6 +1185,7 @@ function initGamePage() {
 				}
 
 				renderAndAnimate(beforeResolve, { actionLabel: 'quest-resolution' });
+				animateQuestResult({ playerId: localPlayerId, slotIndex: targetSlotIndex, success: didSucceed });
 				syncPush();
 
 				const mpDelta = didSucceed ? questDef.successMP : questDef.failMP;
@@ -2053,6 +2064,7 @@ function initGamePage() {
 					localPlayerId,
 					actionLabel: 'quest-resolution',
 				});
+				animateQuestResult({ playerId: localPlayerId, slotIndex: targetSlotIndex, success: didSucceed });
 				syncPush();
 				const mpDelta = didSucceed ? resolveQuestDef.successMP : resolveQuestDef.failMP;
 				const sign = mpDelta >= 0 ? '+' : '';
@@ -2340,6 +2352,7 @@ function initGamePage() {
 			playerId: localPlayerId,
 			slotIndex,
 			cardId: slots?.[slotIndex]?.cardId,
+			colorCategory: 'place',   // green — a Place is being activated
 		});
 		gameState = newState;
 
@@ -2563,6 +2576,7 @@ function initGamePage() {
 			logStateOutcome(log, beforePlay, gameState, localPlayerId, `${cardDef.name} instant activation`);
 			syncPush();
 			renderAndAnimate(beforePlay, { actionLabel: 'play-snelle', placedCardId: cardDef.id });
+			showInstantEffect('snelle');   // red burst — instant card
 			return;
 		}
 
@@ -2618,6 +2632,8 @@ function initGamePage() {
 				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
 			}
 			renderAndAnimate(beforePlay, { actionLabel: 'play-place', placedCardId: cardDef.id });
+			// (Green burst fires on ACTIVATION — see handleActivatePlace — since a Place
+			//  is played face-down and only renders as active once activated.)
 		}
 	}
 }

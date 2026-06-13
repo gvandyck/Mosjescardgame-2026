@@ -184,12 +184,12 @@
 .card--snelle_piecie {
   padding: 0;
   border: 2px solid var(--snelle-red);
-  background: linear-gradient(160deg, #1c0505 0%, #0f0404 60%, #180606 100%);
+  background: linear-gradient(160deg, #07131f 0%, #050b14 60%, #08131d 100%);
 }
 
 .card--snelle:hover,
 .card--snelle_piecie:hover {
-  box-shadow: 0 0 20px var(--snelle-glow), 0 0 60px rgba(232, 69, 69, 0.1);
+  box-shadow: 0 0 20px var(--snelle-glow), 0 0 60px rgba(125, 211, 252, 0.1);
 }
 
 .card--snelle > .card__top,
@@ -221,6 +221,7 @@
 .card--quest,
 .card--quest-general,
 .card--quest-personal {
+  padding: 0;   /* match every other card type — base .card adds 10px, doubling the button inset */
   gap: 4px;
   border: 2px solid var(--quest-purple);
   background: linear-gradient(160deg, #0e0518 0%, #08030f 60%, #0c0415 100%);
@@ -233,8 +234,9 @@
 }
 
 .card--quest-personal {
-  border-color: var(--personal-quest);
-  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.2), inset 0 0 25px rgba(245, 158, 11, 0.08);
+  /* Quests are purple-themed (was gold) — match the category colour scheme. */
+  border-color: var(--quest-purple);
+  box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.2), inset 0 0 25px rgba(168, 85, 247, 0.08);
 }
 
 .card--quest-personal .card__portrait-badge {
@@ -1178,12 +1180,28 @@
 
 .card--snelle .hand-card__play-btn,
 .card--snelle_piecie .hand-card__play-btn {
-  background: linear-gradient(135deg, #991b1b, #ef4444);
+  background: linear-gradient(135deg, #2563a8, #7dd3fc);
+}
+
+.card--quest .hand-card__play-btn,
+.card--quest-general .hand-card__play-btn,
+.card--quest-personal .hand-card__play-btn {
+  background: linear-gradient(135deg, #6b21a8, #a855f7);
+}
+
+.card--mosje .hand-card__play-btn {
+  background: linear-gradient(135deg, #9a6912, #e8b94f);   /* gold */
+  color: #1a1205;
+}
+
+.card--place .hand-card__play-btn {
+  background: linear-gradient(135deg, #137a4d, #3dd68c);   /* green */
 }
 
 .card--quest-personal .hand-card__play-btn {
-  margin: 10px 0px 0px 0px;
-  width: auto;
+  /* Keep the button pinned to the bottom like every other card (don't reset
+     margin-top:auto, which previously floated it to the top of the card). */
+  margin-top: auto;
 }
 
 .hand-card--playable {
@@ -1651,3 +1669,184 @@
   font-size: 9px;
 }
 
+
+/* ════════════════════════════════════════════════════════════════════════════
+   CARD DESIGN SYSTEM — token-driven, applied across ALL card types.
+   Type is conveyed by frame colour + art ONLY. Names, body text and padding are
+   identical everywhere; the card's physical size is the only thing that varies.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* Titles — every card name renders the same. */
+.mosje-name-v2,
+.mosje-name,
+.place-name,
+.card__name {
+  font-size: var(--card-title-size) !important;
+  font-weight: var(--card-title-weight);
+  color: var(--card-title-color);
+  letter-spacing: var(--card-title-spacing);
+  line-height: var(--card-title-line);
+  text-transform: none;
+  margin: 0;
+}
+
+/* Body — every card description / ability / effect renders the same. */
+.mosje-ability-text-v2,
+.mosje-ability-text-v2 .ability-line,
+.ability-line,
+.place-effect-text,
+.card__desc {
+  font-size: var(--card-body-size) !important;
+  color: var(--card-body-color);
+  font-weight: 400;
+  line-height: var(--card-body-line);
+}
+
+/* Padding — uniform inset from the card edge to content for every type. */
+.mosje-card-content,
+.piecie-card-content,
+.place-card-content {
+  padding: var(--card-pad) !important;
+}
+.card--piecie > .card__top,
+.card--piecie > .card__name,
+.card--piecie > .card__desc,
+.card--snelle > .card__name,
+.card--snelle > .card__desc,
+.card--snelle_piecie > .card__name,
+.card--snelle_piecie > .card__desc,
+.card--quest .card__name,
+.card--quest-general .card__name,
+.card--quest-personal .card__name,
+.card--quest .card__desc,
+.card--quest-general .card__desc,
+.card--quest-personal .card__desc {
+  padding-left: var(--card-pad);
+  padding-right: var(--card-pad);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   UNIFIED CARD TEMPLATE — every card type renders identically:
+   full-cover art → vignette → name + description + rarity, anchored bottom.
+   Type is read from the frame colour (.card--*) only.
+   ════════════════════════════════════════════════════════════════════════════ */
+.uc-art {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: var(--card-art-url);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.uc-art.is-placeholder {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.01));
+}
+.uc-vignette {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    to top,
+    rgba(6, 9, 15, 0.96) 6%,
+    rgba(6, 9, 15, 0.78) 32%,
+    rgba(6, 9, 15, 0.25) 62%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+.uc-body {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;   /* name pinned TOP, description/rarity bottom */
+  gap: 7px;
+  padding: var(--card-pad);
+  pointer-events: none;
+}
+/* Name block — top-left of the card. */
+.uc-head { display: flex; flex-direction: column; gap: 1px; text-align: left; }
+/* Mosje nickname — below the name, smaller, italic (description font). */
+.uc-nick {
+  margin: 1px 0 0 0;
+  font-size: var(--card-body-size);
+  font-style: italic;
+  font-weight: 500;
+  color: #c6d1e6;
+  line-height: 1.2;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+/* Description + rarity — bottom of the card. */
+.uc-foot { display: flex; flex-direction: column; gap: 6px; }
+.uc-rarity { margin-top: 2px; }
+.uc-title {
+  margin: 0;
+  font-size: var(--card-title-size);
+  font-weight: var(--card-title-weight);
+  color: var(--card-title-color);
+  letter-spacing: var(--card-title-spacing);
+  line-height: var(--card-title-line);
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.85);
+}
+.uc-text {
+  margin: 0;
+  font-size: var(--card-body-size);
+  color: var(--card-body-color);
+  line-height: var(--card-body-line);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.uc-rarity {
+  margin-top: 2px;
+  font-size: 0.72rem;
+  letter-spacing: 1px;
+  color: var(--mosje-gold);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+/* Action buttons (play / activate / ability) sit above the unified body. */
+.mosje-ability-btn,
+.hand-card__play-btn,
+.piecie-activate-btn,
+.place-activate-btn {
+  z-index: 4;
+}
+
+/* Minimal MP/Level badge — field Mosjes only (unified template). */
+.uc-mp {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 3;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(8, 10, 16, 0.82);
+  border: 1px solid var(--mosje-gold);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+.uc-mp-val { font-size: 1rem; font-weight: 800; color: #ffffff; line-height: 1; }
+.uc-mp-lvl {
+  font-size: 0.58rem; font-weight: 700; color: var(--mosje-gold);
+  text-transform: uppercase; letter-spacing: 0.04em; line-height: 1;
+}
+
+/* Hand cards: give the description breathing room above the play button.
+   The button is pinned to the card bottom (margin-top:auto), and the unified
+   text body is bottom-anchored — so reserve space at the bottom of the body. */
+.hand-card .uc-body {
+  padding-bottom: 60px;
+  justify-content: space-between;   /* name top, description above the button */
+  gap: 9px;
+}
+.hand-card .uc-text {
+  -webkit-line-clamp: 6;     /* contents are the focus — allow more description */
+  font-size: 0.92rem;        /* hand cards: a touch larger description for easy reading */
+}

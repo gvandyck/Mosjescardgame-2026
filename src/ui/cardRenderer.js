@@ -48,52 +48,71 @@ export function renderCard(card, options = {}) {
     element.dataset.cardId = resolvedCard.cardId || resolvedCard.id;
   }
 
-  const typeLabel = resolvedCard.questType === 'PERSONAL' ? 'PERSONAL QUEST' : type.replaceAll('_', ' ');
-  const difficulty = resolvedCard.difficulty ? `<span class="card__difficulty">${escapeHtml(resolvedCard.difficulty)}</span>` : '';
-  const badge = resolvedCard.questType === 'PERSONAL'
-    ? `<span class="card__portrait-badge">${escapeHtml(shortMosjeName(resolvedCard.requiredMosjeId))}</span>`
-    : '';
-
   if (type === 'MOSJE') {
     const subtypeClass = `mosje-subtype-${String(resolvedCard.subtype || '').toLowerCase()}`;
     if (subtypeClass !== 'mosje-subtype-') {
       element.classList.add(subtypeClass);
     }
-    element.innerHTML = buildMosjeCardHTML(
-      resolvedCard,
-      options.gameState || null,
-      options.viewingPlayerId || resolvedCard.ownerId || null
-    );
-    return element;
   }
 
-  if (type === 'PLACE') {
-    element.innerHTML = buildPlaceCardHTML(resolvedCard);
-    return element;
-  }
-
-  if (type === 'PIECIE' || type === 'SNELLE_PIECIE') {
-    const hasRealArt = typeof resolvedCard.artPath === 'string'
-      && resolvedCard.artPath.length > 0
-      && !resolvedCard.artPath.endsWith('/placeholder.png');
-    if (hasRealArt) {
-      element.innerHTML = buildCardWithArt(resolvedCard);
-      return element;
-    }
-  }
-
-  element.innerHTML = `
-    ${badge}
-    <div class="card__top">
-      <span class="card__type-label">${escapeHtml(typeLabel)}</span>
-      ${difficulty}
-    </div>
-    <h3 class="card__name">${escapeHtml(title)}</h3>
-    <p class="card__desc">${escapeHtml(desc)}</p>
-    ${renderMpMeta(resolvedCard)}
-  `;
-
+  // UNIFIED card template — every type renders the same: full-cover art + name +
+  // description + rarity. Only the frame colour + art distinguish the type. The
+  // verbose per-type info (traits, level, MP, trigger, affinity…) is hidden for now
+  // and will return via an on-hover detail view.
+  element.innerHTML = buildUnifiedCardHTML(resolvedCard);
   return element;
+}
+
+// One template for all card types.
+function buildUnifiedCardHTML(card) {
+  const hasArt = typeof card.artPath === 'string'
+    && card.artPath.length > 0
+    && !card.artPath.endsWith('/placeholder.png');
+  const artUrl = hasArt ? resolveArtPathForCss(card.artPath) : '';
+  const artStyle = hasArt ? ` style="--card-art-url: url('${escapeCssUrl(artUrl)}');"` : '';
+
+  // Name (top-left). Mosjes split into First name + "Nickname" (italic, below).
+  const isMosjeCard = String(card.type || '').toUpperCase() === 'MOSJE';
+  let title, nick = '';
+  if (isMosjeCard) {
+    const parsed = parseMosjeName(card.name);
+    title = parsed.firstName || String(card.name || 'Unnamed');
+    nick = parsed.nickname || '';
+  } else {
+    title = String(card.name || 'Unnamed');
+  }
+  const desc = String(card.description || card.abilityDescription || card.flavourText || '');
+  const rarity = String(card.rarity || '★')
+    .split('')
+    .map((d) => `<span class="uc-rarity-dot">${escapeHtml(d)}</span>`)
+    .join('');
+
+  // Minimal MP/Level badge — only for Mosjes that are ON THE FIELD (slot has a live
+  // numeric mp). Hand Mosjes are definitions (no .mp) and stay clean. Everything else
+  // about the Mosje (traits, synergy…) is hidden until the hover-detail view.
+  const isMosje = String(card.type || '').toUpperCase() === 'MOSJE';
+  const mpBadge = (isMosje && Number.isFinite(card.mp))
+    ? `<div class="uc-mp" data-mp="${card.mp}">
+         ${Number.isFinite(card.level) ? `<span class="uc-mp-lvl">Lv ${card.level}</span>` : ''}
+         <span class="uc-mp-val">${card.mp}</span>
+       </div>`
+    : '';
+
+  return `
+    <div class="uc-art${hasArt ? '' : ' is-placeholder'}"${artStyle}></div>
+    <div class="uc-vignette"></div>
+    ${mpBadge}
+    <div class="uc-body">
+      <div class="uc-head">
+        <h3 class="uc-title">${escapeHtml(title)}</h3>
+        ${nick ? `<p class="uc-nick">${escapeHtml(`"${nick}"`)}</p>` : ''}
+      </div>
+      <div class="uc-foot">
+        <p class="uc-text">${escapeHtml(desc)}</p>
+        <div class="uc-rarity">${rarity}</div>
+      </div>
+    </div>
+  `;
 }
 
 function parseMosjeName(fullName) {
@@ -217,7 +236,6 @@ export function buildMosjeCardHTML(card, gameState = null, viewingPlayerId = nul
               <span class="mosje-mp-header">${currentMp}</span>
             </div>
             ${nickname ? `<p class="mosje-nickname-v2">${escapeHtml(nickname)}</p>` : ''}
-            <p class="mosje-type-v2">${escapeHtml(card.subtype || 'MOSJE')}</p>
           </div>
         </div>
 
@@ -283,7 +301,6 @@ export function buildPlaceCardHTML(card) {
       <div class="place-full-art-vignette"></div>
       <div class="place-card-content">
         <div class="place-banner">
-          <span class="place-type-label">PLACE</span>
           <span class="place-trigger-badge">${escapeHtml(triggerLabel)}</span>
         </div>
 
@@ -295,7 +312,6 @@ export function buildPlaceCardHTML(card) {
         <div class="place-card-rule"></div>
 
         <div class="place-effect-section">
-          <div class="section-label">✦ EFFECT</div>
           <p class="place-effect-text">${escapeHtml(card.description || '')}</p>
         </div>
 
@@ -318,16 +334,12 @@ export function buildPlaceCardHTML(card) {
 function buildCardWithArt(card) {
   const artUrl = resolveArtPathForCss(card.artPath);
   const artStyle = artUrl ? ` style="--piecie-full-art-url: url('${escapeCssUrl(artUrl)}');"` : '';
-  const typeLabel = String(card.type || 'UNKNOWN').toUpperCase().replaceAll('_', ' ');
 
   return `
     <div class="piecie-card-inner">
       <div class="piecie-full-art"${artStyle}></div>
       <div class="piecie-full-art-vignette"></div>
       <div class="piecie-card-content">
-        <div class="card__top">
-          <span class="card__type-label">${escapeHtml(typeLabel)}</span>
-        </div>
         <h3 class="card__name">${escapeHtml(card.name || 'Unnamed Card')}</h3>
         <p class="card__desc">${escapeHtml(card.description || '')}</p>
       </div>
