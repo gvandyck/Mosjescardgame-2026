@@ -1873,3 +1873,43 @@
   background: rgba(255, 255, 255, 0.35);
   color: #4a5263;
 }
+
+/* ── On-field own-Mosje meta layer (Phase 32) ───────────────────── */
+.uc-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.uc-traits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  font-size: 0.62rem;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  opacity: 0.92;
+}
+.uc-trait {
+  white-space: nowrap;
+}
+.uc-ability {
+  margin: 0;
+  font-size: 0.64rem;
+  line-height: 1.2;
+  opacity: 0.9;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.uc-synergy {
+  margin: 0;
+  font-size: 0.62rem;
+  line-height: 1.2;
+  color: var(--mosje-gold, #e8b94f);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
