@@ -105,7 +105,11 @@ export function startTurn(gameState) {
       state.turnNumber += 1;
       console.log(`[ENGINE] Round complete during skip. Turn ${state.turnNumber} begins.`);
     }
-    return state;
+    // Actually START the next player's turn (draw, trickle, trackers, victory check).
+    // Returning here without this leaves activePlayerId pointed at a player whose turn
+    // was never set up — the UI then freezes because it assumes a fixed turn order.
+    // Recursion also resolves chained skips (e.g. both players decked out).
+    return startTurn(state);
   }
 
   activePlayer.questsCompletedThisTurn = 0;

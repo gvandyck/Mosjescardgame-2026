@@ -79,4 +79,44 @@ describe('Offline game smoke test', () => {
     expect(Array.isArray(finalState.players.player_1.activeSlots)).toBe(true);
     expect(Array.isArray(finalState.players.player_2.activeSlots)).toBe(true);
   });
+
+  // Regression for the deck-out hang: with tiny decks both players deck-out early
+  // and get skipNextTurn set repeatedly. A skipped startTurn must keep advancing to a
+  // properly-started turn so the loop reaches FINISHED instead of stalling. (Before the
+  // fix, startTurn returned an un-started, un-routed turn — offline play froze.)
+  it('reaches FINISHED even when both players repeatedly deck-out (skip turns)', () => {
+    const players = [
+      { playerId: 'player_1', name: 'Human', deckId: 'PHYSICAL_FORCE' },
+      { playerId: 'player_2', name: 'Bot',   deckId: 'DIGITAL_CONTROL' },
+    ];
+    let state: any = createInitialGameState(players, 'DECKOUT_TEST');
+    // Trim both decks to 3 cards so deck-out (and the skip path) triggers within a few turns.
+    state.players.player_1.deck = state.players.player_1.deck.slice(0, 3);
+    state.players.player_2.deck = state.players.player_2.deck.slice(0, 3);
+    state = startTurn(state);
+
+    let sawSkipFlag = false;
+    expect(() => {
+      for (let turn = 0; turn < 120; turn++) {
+        if (state.status === 'FINISHED') break;
+        if (state.players.player_1.skipNextTurn || state.players.player_2.skipNextTurn) {
+          sawSkipFlag = true;
+        }
+        const active = state.activePlayerId;
+        if (active === 'player_2') {
+          state = driveBotTurn(state, 'player_2');
+        } else {
+          state = endTurn(state);
+        }
+        if (state.status === 'FINISHED') break;
+        // startTurn must always hand back a properly-started, correctly-routed turn —
+        // even when it has to skip a deck-out player.
+        state = startTurn(state);
+        expect(['player_1', 'player_2']).toContain(state.activePlayerId);
+      }
+    }).not.toThrow();
+
+    expect(sawSkipFlag).toBe(true);     // the deck-out skip path was actually exercised
+    expect(state.status).toBe('FINISHED'); // and the game terminated rather than hanging
+  });
 });

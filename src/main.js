@@ -598,6 +598,52 @@ function initGamePage() {
 		await playBotSteps(steps, botName, index + 1, delay, onComplete);
 	}
 
+	// Offline single-player: drive one bot (player_2) turn, then hand back to the human.
+	// If the human's turn was skipped (deck-out penalty bounced control back to the bot),
+	// drive another bot turn instead of handing the human a dead turn — otherwise the game
+	// freezes with the end-turn button enabled but no player able to act.
+	function runOfflineBotTurnThenHuman() {
+		if (!isOffline || !gameState || gameState.status === 'FINISHED') return;
+		if (gameState.activePlayerId !== 'player_2') return;
+		const endTurnBtn = document.getElementById('btn-end-turn');
+		if (endTurnBtn) endTurnBtn.disabled = true;
+
+		const botName = gameState.players['player_2']?.name ?? 'Bot';
+		let steps;
+		try {
+			steps = driveBotTurnSteps(gameState, 'player_2');
+		} catch (err) {
+			console.error('[BOT] driveBotTurnSteps threw:', err);
+			if (endTurnBtn) endTurnBtn.disabled = false;
+			return;
+		}
+
+		playBotSteps(steps, botName, 0, 400, () => {
+			if (gameState.status === 'FINISHED') return;
+			const beforeHumanTurn = snapshotForAnimation();
+			gameState = startTurn(gameState);
+			renderFromState(gameState);
+			animateStateDelta(beforeHumanTurn, gameState, {
+				actorId: localPlayerId,
+				localPlayerId,
+				actionLabel: 'turn-start',
+			});
+			log.add('gain', `Now active: ${gameState.players[gameState.activePlayerId]?.name}. Turn ${gameState.turnNumber}.`);
+			logTurnTrickle(gameState.activePlayerId);
+			showTurnTransition({
+				playerName: gameState.players[gameState.activePlayerId]?.name,
+				turnNumber: gameState.turnNumber,
+				type: 'start',
+			});
+			// If startTurn skipped the human (deck-out), control is back on the bot — go again.
+			if (gameState.activePlayerId === 'player_2' && gameState.status !== 'FINISHED') {
+				runOfflineBotTurnThenHuman();
+			} else if (endTurnBtn) {
+				endTurnBtn.disabled = false;
+			}
+		}).catch(err => console.error('[BOT] playBotSteps error:', err));
+	}
+
 	// ── Post-match reward flow ────────────────────────────────────────────
 	async function handleGameOver(gs) {
 		await cancelDisconnectHooks();
@@ -727,6 +773,12 @@ function initGamePage() {
 			injectGraveyardCard(playerId, cardId) {
 				const player = gameState?.players?.[playerId];
 				if (player) { player.graveyard.unshift({ cardId, name: cardId, type: 'PIECIE', source: 'played' }); }
+			},
+			// Empty a player's draw deck to force the deck-out penalty (D-06) on their next
+			// draw phase — used to reproduce the deck-out turn-skip path.
+			emptyDeck(playerId) {
+				const player = gameState?.players?.[playerId];
+				if (player) { player.deck = []; }
 			},
 			/** Call endTurn engine function directly and return Michelle MP before/after. */
 			simulateEndPhaseForMichelle(playerId) {
@@ -891,40 +943,11 @@ function initGamePage() {
 			runBotVsBotLoop();
 		}
 
-		// Offline bot turn: animate each bot action with log entries at 400ms per step
+		// Offline bot turn: animate each bot action with log entries at 400ms per step.
+		// (If startTurn above skipped the bot via deck-out, activePlayerId is the human
+		// again and this is a no-op — the human simply keeps control.)
 		if (isOffline && gameState.activePlayerId === 'player_2' && gameState.status !== 'FINISHED') {
-			const endTurnBtn = document.getElementById('btn-end-turn');
-			if (endTurnBtn) endTurnBtn.disabled = true;
-
-			const botName = gameState.players['player_2']?.name ?? 'Bot';
-			let steps;
-			try {
-				steps = driveBotTurnSteps(gameState, 'player_2');
-			} catch (err) {
-				console.error('[BOT] driveBotTurnSteps threw:', err);
-				if (endTurnBtn) endTurnBtn.disabled = false;
-				return;
-			}
-
-			playBotSteps(steps, botName, 0, 400, () => {
-				if (gameState.status === 'FINISHED') return;
-				const beforeHumanTurn = snapshotForAnimation();
-				gameState = startTurn(gameState);
-				renderFromState(gameState);
-				animateStateDelta(beforeHumanTurn, gameState, {
-					actorId: localPlayerId,
-					localPlayerId,
-					actionLabel: 'turn-start',
-				});
-				log.add('gain', `Now active: ${gameState.players[gameState.activePlayerId]?.name}. Turn ${gameState.turnNumber}.`);
-				logTurnTrickle(gameState.activePlayerId);
-				showTurnTransition({
-					playerName: gameState.players[gameState.activePlayerId]?.name,
-					turnNumber: gameState.turnNumber,
-					type: 'start',
-				});
-				if (endTurnBtn) endTurnBtn.disabled = false;
-			}).catch(err => console.error('[BOT] playBotSteps error:', err));
+			runOfflineBotTurnThenHuman();
 		}
 	});
 

@@ -76,6 +76,17 @@ function makeState(
   };
 }
 
+// Give both players one live Mosje so checkVictory doesn't end the game on an
+// empty board (KNOCKOUT fires when a player has no active Mosjes).
+function giveLiveMosjes(state: any) {
+  const slot = (cardId: string) => ({
+    cardId, name: cardId, subtype: "FIGHTING", traits: {}, mp: 50, level: 0,
+    isDefeated: false, statusEffects: [], abilityUsedThisTurn: false,
+  });
+  state.players.p1.activeSlots = [slot("mosje_p1"), null, null, null];
+  state.players.p2.activeSlots = [slot("mosje_p2"), null, null, null];
+}
+
 describe("deck-out behavior (BAL-05)", () => {
   it("phaseDrawCard reshuffles discard into deck when deck is empty", () => {
     const state = makeState([], ["c1", "c2", "c3"]);
@@ -121,5 +132,29 @@ describe("deck-out behavior (BAL-05)", () => {
     const result = startTurn(state);
     expect(result.activePlayerId).not.toBe("p1");
     expect(result.activePlayerId).toBe("p2");
+  });
+
+  // Regression: a skipped turn used to return without starting the next player's
+  // turn, leaving activePlayerId pointed at a player whose turn was never set up.
+  // Offline play then froze (bot's turn never driven, human locked out).
+  it("startTurn actually STARTS the next player's turn after a skip (draws a card)", () => {
+    const state = makeState(["c1"], [], true);
+    giveLiveMosjes(state); // avoid instant KNOCKOUT on an empty board
+    const deckBefore = state.players.p2.deck.length;
+    const result = startTurn(state);
+    expect(result.players.p2.hand.length).toBe(1);
+    expect(result.players.p2.deck.length).toBe(deckBefore - 1);
+  });
+
+  it("startTurn resolves chained skips (both players decked out) and lands on a started turn", () => {
+    const state = makeState(["c1"], [], true);
+    giveLiveMosjes(state);
+    state.players.p2.skipNextTurn = true;
+    const result = startTurn(state);
+    // p1 skipped -> p2 skipped -> back to p1, whose turn is actually started
+    expect(result.activePlayerId).toBe("p1");
+    expect(result.players.p1.skipNextTurn).toBe(false);
+    expect(result.players.p2.skipNextTurn).toBe(false);
+    expect(result.players.p1.hand.length).toBe(1);
   });
 });
