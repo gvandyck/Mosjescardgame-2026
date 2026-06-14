@@ -2810,7 +2810,7 @@ function toMosjeCards(activeSlots) {
 				abilityUsedThisTurn: slot.abilityUsedThisTurn,
 				abilityCost: cost,
 				cantAffordAbility: cost != null && cost > 0 && slot.mp < cost,
-				description: slot.isDefeated ? 'Defeated' : 'Active on field',
+				description: slot.isDefeated ? 'Defeated' : '',
 				summonedByPiecie: slot.summonedByPiecie || null,
 			};
 		});
