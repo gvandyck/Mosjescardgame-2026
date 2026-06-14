@@ -332,6 +332,8 @@ export function initModalManager(container) {
 		const sections = []; // [label, bodyHTML, isRaw]
 
 		if (type === 'MOSJE') {
+			if (Number.isFinite(card.level)) chips.push(`Level ${Number(card.level) + 1}`);
+			if (Number.isFinite(card.mp)) chips.push(`${card.mp} MP`);
 			if (card.abilityDescription) sections.push(['Ability', esc(card.abilityDescription)]);
 			if (card.synergyEffect) sections.push(['Synergy', esc(card.synergyEffect)]);
 			if (card.petSynergy) chips.push(`🐾 ${esc(String(card.petSynergy).replace('piecie_', '').replace(/_/g, ' '))}`);
