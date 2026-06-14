@@ -81,6 +81,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 	for (const mosje of viewModel.players.bottom.mosjes) {
 		const cardEl = renderCard(mosje, {
 			compact: true,
+			owned: true,
 			gameState: viewModel.gameState || null,
 			viewingPlayerId: viewModel.myPlayerId || null,
 		});

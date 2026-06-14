@@ -59,12 +59,12 @@ export function renderCard(card, options = {}) {
   // description + rarity. Only the frame colour + art distinguish the type. The
   // verbose per-type info (traits, level, MP, trigger, affinity…) is hidden for now
   // and will return via an on-hover detail view.
-  element.innerHTML = buildUnifiedCardHTML(resolvedCard);
+  element.innerHTML = buildUnifiedCardHTML(resolvedCard, options);
   return element;
 }
 
 // One template for all card types.
-function buildUnifiedCardHTML(card) {
+function buildUnifiedCardHTML(card, options = {}) {
   const hasArt = typeof card.artPath === 'string'
     && card.artPath.length > 0
     && !card.artPath.endsWith('/placeholder.png');
@@ -93,10 +93,21 @@ function buildUnifiedCardHTML(card) {
   const isMosje = String(card.type || '').toUpperCase() === 'MOSJE';
   const mpBadge = (isMosje && Number.isFinite(card.mp))
     ? `<div class="uc-mp" data-mp="${card.mp}">
-         ${Number.isFinite(card.level) ? `<span class="uc-mp-lvl">Lv ${card.level}</span>` : ''}
+         ${Number.isFinite(card.level) ? `<span class="uc-mp-lvl">Lv ${(Number(card.level) || 0) + 1}</span>` : ''}
          <span class="uc-mp-val">${card.mp}</span>
        </div>`
     : '';
+
+  const isOnFieldMosje = isMosje && Number.isFinite(card.mp);
+  const enrichedMeta = (isOnFieldMosje && options.owned)
+    ? buildOnFieldMosjeMeta(card, options)
+    : '';
+  // On-field Mosjes never show abilityDescription/flavour as uc-text (own use the meta
+  // layer; opponent stay minimal — empty once main.js clears the description). Everything
+  // else keeps the original fallback behavior.
+  const footText = isOnFieldMosje
+    ? String(card.description || '')
+    : desc;
 
   return `
     <div class="uc-art${hasArt ? '' : ' is-placeholder'}"${artStyle}></div>
@@ -108,11 +119,41 @@ function buildUnifiedCardHTML(card) {
         ${nick ? `<p class="uc-nick">${escapeHtml(`"${nick}"`)}</p>` : ''}
       </div>
       <div class="uc-foot">
-        <p class="uc-text">${escapeHtml(desc)}</p>
+        ${enrichedMeta || (footText ? `<p class="uc-text">${escapeHtml(footText)}</p>` : '')}
         <div class="uc-rarity">${rarity}</div>
       </div>
     </div>
   `;
+}
+
+// Compact meta layer for the player's OWN on-field Mosjes: trait star-pips,
+// a short ability snippet, and synergy ONLY when a partner is currently active.
+function buildOnFieldMosjeMeta(card, options = {}) {
+  const traitsHTML = Object.entries(card.traits || {})
+    .filter(([, stars]) => Number(stars) > 0)
+    .map(([trait, stars]) => {
+      const n = Number(stars) || 0;
+      const pips = '★'.repeat(n) + '☆'.repeat(Math.max(0, 3 - n));
+      return `<span class="uc-trait">${escapeHtml(capitalize(trait).slice(0, 4))} ${pips}</span>`;
+    })
+    .join('');
+
+  const ability = String(card.abilityDescription || '').trim();
+  const abilityHTML = ability ? `<p class="uc-ability">⚡ ${escapeHtml(ability)}</p>` : '';
+
+  const activeMosjes = getOwnedActiveMosjeIds(options.gameState, options.viewingPlayerId);
+  const synergyActive = (Array.isArray(card.synergyWith) ? card.synergyWith : [])
+    .some((id) => activeMosjes.has(id));
+  const synergyHTML = (synergyActive && card.synergyEffect)
+    ? `<p class="uc-synergy">🔗 ${escapeHtml(card.synergyEffect)}</p>`
+    : '';
+
+  return `
+    <div class="uc-meta">
+      ${traitsHTML ? `<div class="uc-traits">${traitsHTML}</div>` : ''}
+      ${abilityHTML}
+      ${synergyHTML}
+    </div>`;
 }
 
 function parseMosjeName(fullName) {
