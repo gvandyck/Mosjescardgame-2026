@@ -5,6 +5,20 @@ Never assume, guess, or work around missing information. If something is unclear
 
 ---
 
+## 🐛 Reproduce every reported bug in a live browser BEFORE fixing it
+When the user reports a bug, **do not start coding a fix until you have reproduced it in a real browser** (Playwright, driving the actual `.js` game). Seeing the exact cause on a real board — not just reasoning from logs — is the whole point: it confirms the diagnosis for both of us before any code changes.
+
+The workflow that works (we proved it on the deck-out turn-skip freeze):
+1. **Diagnose from the report** (console log, battle log, repro steps) and form a hypothesis about the root cause.
+2. **Write a Playwright spec under `tests/ui/`** that recreates the user's scenario as closely as possible — same matchup/cards/board state. Use `seedOfflineSession` + `GAME_URL_TEST` and the `window.__testHooks` (e.g. `setMosjeOnField`, `setHand`, `injectGraveyardCard`, `emptyDeck`, `getGameState`) to force the exact conditions. Add a new test hook if you need one (they're gated behind `testMode=true`, so they never affect real play).
+3. **Make the spec FAIL on the current code** — it should hang/throw/assert-wrong, demonstrating the bug live. If it passes, you haven't reproduced it yet — keep going.
+4. **Prove it's the real cause:** confirm the spec fails on the buggy code and passes once fixed. The strongest proof is running the same spec against the pre-fix code (e.g. temporarily `git revert` the fix) and watching it break, then restoring the fix and watching it pass.
+5. **Only then fix the code**, keep the repro spec in the suite as a permanent regression guard, and run the full verification sequence below.
+
+If a bug genuinely can't be reproduced in the browser (e.g. it lives in pure-engine logic with no UI surface), say so explicitly and fall back to a failing unit test that reproduces it — never skip the "make it fail first" step.
+
+---
+
 ## What this project is
 A card game engine for the Mosjes Card Game — a friend-group trading card game where players race to Level 3 by earning Momentum Points (MP) through Quests. **This is a digital prototype used to playtest the rules, card interactions, chains, and multiplayer before printing a physical card game.** Priorities: a clean prototype, easy editing of cards/abilities, working multiplayer (P2P + bot), and tests that verify *real* card behavior (not hallucinated).
 
