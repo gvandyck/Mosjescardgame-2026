@@ -1924,13 +1924,13 @@
   margin-top: auto;                 /* push the button+description stack to the bottom */
   gap: 12px;                        /* breathing space between button and description */
 }
-/* Ability button: drop the absolute corner placement, sit in flow above the meta. */
+/* Ability button: drop the absolute corner placement, sit full-width in flow
+   BELOW the description (bottom-anchored). */
 .mosje-card--owned .mosje-ability-btn {
   position: static;
   width: 100%;
   margin: 0;
   pointer-events: auto;             /* re-enable clicks inside pointer-events:none body */
-  order: -1;                        /* belt-and-braces: keep it first even if reinserted */
 }
 .mosje-card--owned .uc-meta {
   gap: 5px;
