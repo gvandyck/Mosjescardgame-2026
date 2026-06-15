@@ -1941,7 +1941,7 @@
 }
 .mosje-card--owned .uc-traits { font-size: 0.76rem; gap: 5px 10px; opacity: 1; }
 .mosje-card--owned .uc-ability {
-  font-size: 0.82rem;
+  font-size: var(--card-body-size);   /* match .uc-text description size */
   line-height: 1.25;
   opacity: 1;
   -webkit-line-clamp: 3;
