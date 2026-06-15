@@ -1944,7 +1944,11 @@
   font-size: 1.25rem;   /* match on-field piecie description (.board-zone__piecies .card = 1.25em = 20px) */
   line-height: 1.25;
   opacity: 1;
-  -webkit-line-clamp: 3;
+  /* show the full ability — no truncation */
+  display: block;
+  -webkit-line-clamp: unset;
+  -webkit-box-orient: unset;
+  overflow: visible;
 }
 .mosje-card--owned .uc-synergy {
   font-size: 0.76rem;
