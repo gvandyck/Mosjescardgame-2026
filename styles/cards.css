@@ -1914,15 +1914,23 @@
   overflow: hidden;
 }
 
-/* ── On-field OWN-Mosje meta: larger text, vertically centred, off the buttons
-   (Phase 32 refinement — fixes overlap with the absolute ability/return buttons) */
+/* ── On-field OWN-Mosje: ability button stacked ABOVE the description, both
+   anchored to the card bottom with breathing space (Phase 32 layout). The
+   ability button is moved INTO .uc-foot (above the meta) by boardRenderer. */
 .mosje-card--owned .uc-body {
-  justify-content: flex-start;   /* name top; meta floats to centre via auto margins */
+  justify-content: space-between;   /* name pinned top, foot stack pinned bottom */
 }
 .mosje-card--owned .uc-foot {
-  margin-top: auto;
-  margin-bottom: auto;           /* vertically centre the meta block in the card */
-  gap: 5px;
+  margin-top: auto;                 /* push the button+description stack to the bottom */
+  gap: 12px;                        /* breathing space between button and description */
+}
+/* Ability button: drop the absolute corner placement, sit in flow above the meta. */
+.mosje-card--owned .mosje-ability-btn {
+  position: static;
+  width: 100%;
+  margin: 0;
+  pointer-events: auto;             /* re-enable clicks inside pointer-events:none body */
+  order: -1;                        /* belt-and-braces: keep it first even if reinserted */
 }
 .mosje-card--owned .uc-meta {
   gap: 5px;
@@ -1943,6 +1951,5 @@
   line-height: 1.25;
   -webkit-line-clamp: 2;
 }
-/* Rarity stars add bottom clutter on a board Mosje and collide with the
-   ability button — the detail modal already shows rarity. Hide on own field. */
+/* Rarity stars add bottom clutter on a board Mosje — the detail modal shows them. */
 .mosje-card--owned .uc-rarity { display: none; }

@@ -114,7 +114,12 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 				event.stopPropagation();
 				onUseAbility(mosje.cardId);
 			});
-			cardEl.appendChild(btn);
+			// Own Mosjes: place the ability button ABOVE the description meta block
+			// (inside the card foot) so the two stack with breathing space at the
+			// card bottom instead of the button floating over the text.
+			const foot = cardEl.querySelector('.uc-foot');
+			if (foot) foot.insertBefore(btn, foot.firstChild);
+			else cardEl.appendChild(btn);
 		}
 
 		if (
