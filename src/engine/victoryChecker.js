@@ -4,6 +4,7 @@
 
 import { getTotalMPForPlayer } from './mpManager.js';
 import { getAllPlayerIds } from './gameState.js';
+import { roundToFive } from './roundToFive.js';
 
 console.log('[ENGINE] victoryChecker.js loaded');
 
@@ -97,23 +98,31 @@ export function applyPendingDefeats(gameState) {
 // The floor (0 / defeat) is handled by loseMP + applyPendingDefeats.
 // ─────────────────────────────────────────────────────────────
 export function clampMosjeMp(gameState) {
+  // Needs work if any live Mosje is above 100 OR off the 5-grid (game rule: MP is
+  // always a multiple of 5 — this is the safety net behind the per-effect rounding).
   let mutated = false;
   for (const playerId of getAllPlayerIds(gameState)) {
     const slots = gameState.players[playerId]?.activeSlots || [];
     for (const slot of slots) {
-      if (slot && !slot.isDefeated && slot.mp > 100) { mutated = true; break; }
+      if (slot && !slot.isDefeated && (slot.mp > 100 || slot.mp % 5 !== 0)) { mutated = true; break; }
     }
     if (mutated) break;
   }
-  if (!mutated) return gameState; // common case: nothing above 100
+  if (!mutated) return gameState; // common case: nothing above 100 and all on the 5-grid
 
   const state = JSON.parse(JSON.stringify(gameState));
   for (const playerId of getAllPlayerIds(state)) {
     const slots = state.players[playerId]?.activeSlots || [];
     for (const slot of slots) {
-      if (slot && !slot.isDefeated && slot.mp > 100) {
+      if (!slot || slot.isDefeated) continue;
+      if (slot.mp > 100) {
         console.log(`[ENGINE] MP clamp: ${slot.name} ${slot.mp} → 100`);
         slot.mp = 100;
+      }
+      if (slot.mp % 5 !== 0) {
+        const snapped = roundToFive(slot.mp);
+        console.log(`[ENGINE] MP 5-grid snap: ${slot.name} ${slot.mp} → ${snapped}`);
+        slot.mp = snapped;
       }
     }
   }
@@ -174,8 +183,9 @@ export function markMosjeDefeated(gameState, playerId, slotIndex) {
   );
   if (shieldEffect) {
     shieldEffect.turnsLeft -= 1;
-    state.players[playerId].activeSlots[slotIndex].mp = 1;
-    console.log(`[ENGINE] WELLOE_SHIELD: ${mosje.name} protected — restored to 1 MP`);
+    // Game rule: MP stays on the 5-grid — survive at 5 MP (the minimum), like "Not Today!".
+    state.players[playerId].activeSlots[slotIndex].mp = 5;
+    console.log(`[ENGINE] WELLOE_SHIELD: ${mosje.name} protected — restored to 5 MP`);
     return state;
   }
 

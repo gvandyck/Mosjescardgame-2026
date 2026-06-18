@@ -174,12 +174,12 @@ describe("piecieEffects — push site value checks for Task 1", () => {
 // ─────────────────────────────────────────────────────────────
 
 describe("markMosjeDefeated — WELLOE_SHIELD status effect", () => {
-  it("Test 8: WELLOE_SHIELD active (turnsLeft:1) — Mosje NOT sent to Welloe; mp set to 1, turnsLeft decrements", () => {
+  it("Test 8: WELLOE_SHIELD active (turnsLeft:1) — Mosje NOT sent to Welloe; mp set to 5, turnsLeft decrements", () => {
     const state = makeState(0, 1, [{ type: "WELLOE_SHIELD", value: 1, turnsLeft: 1 }]);
     const result = markMosjeDefeated(state, "p1", 0);
     // Slot still exists (not set to null)
     expect(result.players.p1.activeSlots[0]).not.toBeNull();
-    expect(result.players.p1.activeSlots[0].mp).toBe(1);
+    expect(result.players.p1.activeSlots[0].mp).toBe(5);  // game rule: survive on the 5-grid
     const effect = result.players.p1.activeSlots[0].statusEffects.find(
       (e: any) => e.type === "WELLOE_SHIELD"
     );
@@ -198,9 +198,9 @@ describe("markMosjeDefeated — WELLOE_SHIELD status effect", () => {
     const state = makeState(0, 1, [{ type: "WELLOE_SHIELD", value: 1, turnsLeft: 1 }]);
     (state as any)._snelleFlags = { negateNextElimination: { p1: true } };
     const result = markMosjeDefeated(state, "p1", 0);
-    // WELLOE_SHIELD fires first: mp set to 1, negate flag still present
+    // WELLOE_SHIELD fires first: mp set to 5, negate flag still present
     expect(result.players.p1.activeSlots[0]).not.toBeNull();
-    expect(result.players.p1.activeSlots[0].mp).toBe(1);
+    expect(result.players.p1.activeSlots[0].mp).toBe(5);
   });
 });
 

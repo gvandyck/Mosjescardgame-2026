@@ -2,6 +2,8 @@
 // Pure logic — no visuals, no Firebase.
 // All functions return an updated copy of gameState (never mutate directly).
 
+import { roundToFive } from './roundToFive.js';
+
 console.log('[ENGINE] mpManager.js loaded');
 
 function getActivePlaceId(gameState) {
@@ -155,7 +157,7 @@ export function loseMP(gameState, playerId, slotIndex, amount, source = 'DRAIN',
     e => e.type === 'MP_LOSS_HALVED' && e.turnsLeft > 0
   );
   if (halvingEffect) {
-    lossAmount = Math.ceil(lossAmount / 2);
+    lossAmount = roundToFive(lossAmount / 2);  // game rule: MP stays on the 5-grid
     halvingEffect.turnsLeft -= 1;
     console.log('[MP] MP_LOSS_HALVED: loss halved to', lossAmount);
   }
@@ -178,7 +180,7 @@ export function loseMP(gameState, playerId, slotIndex, amount, source = 'DRAIN',
 
   // Dierenasiel passive: PET protection reduces any incoming loss by 25%.
   if (state.dierenasielActive) {
-    lossAmount = Math.floor(lossAmount * 0.75);
+    lossAmount = roundToFive(lossAmount * 0.75);  // game rule: MP stays on the 5-grid
     console.log('[MP] Dierenasiel: PET protection — reduced loss to', lossAmount);
   }
   // ── End snelle interception ───────────────────────────────────────────────

@@ -395,17 +395,22 @@ export function ability_coert_tech_extra_resources(gameState, playerId, sourceMo
 	return ability_coert_extra_resources(gameState, playerId, sourceMosjeId);
 }
 
-// Hacker — system hack: forces opponent to reveal top 1 card from deck (move to their hand; logged).
+// Hacker — System Hack: gain 10 MP and draw 1 card. Once every 5 turns
+// (slot.systemHackCooldown, ticked down at startTurn like Ronald Chef's cooldown).
 export function ability_hacker_system_hack(gameState, playerId) {
 	const state = cloneState(gameState);
-	const oppId = getOpponentId(state, playerId);
-	if (!oppId) return state;
-	const opp = state.players[oppId];
-	if (opp.deck.length === 0) return state;
-	const exposed = opp.deck.shift();
-	opp.hand.unshift(exposed);
-	state._hackerExposed = exposed.cardId;
-	console.log('[ABILITY] Hacker: exposed + forced into opponent hand:', exposed.cardId);
+	const player = state.players[playerId];
+	if (!player) throw new Error('Player not found');
+	const si = player.activeSlots.findIndex(s => s && !s.isDefeated && String(s.cardId).includes('hacker'));
+	if (si < 0) throw new Error('Hacker not on field');
+	const slot = player.activeSlots[si];
+	if ((slot.systemHackCooldown || 0) > 0) {
+		throw new Error(`System Hack is on cooldown (${slot.systemHackCooldown} turn(s) left)`);
+	}
+	slot.mp += 10;
+	if (player.deck.length > 0) player.hand.push(player.deck.shift());
+	slot.systemHackCooldown = 5;
+	console.log('[ABILITY] Hacker System Hack: +10 MP, drew 1 card, cooldown 5');
 	return state;
 }
 
@@ -641,15 +646,36 @@ export function ability_coert_kasteluck_morning_luck(gameState, playerId) {
 	return state;
 }
 
-// Binti Creator — quick sketch: draw 1 card.
+// Binti Creator — Quick Sketch: discard 2 FOOD Piecies from hand, then search your
+// deck for any card and add it to your hand. The 2 discards and the fetched card come
+// from the UI via _pendingTargets.bintiCreatorDiscard (2 cardIds) + .bintiCreatorTutor.
 export function ability_binti_creator_quick_sketch(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
-	if (!player) return state;
-	if (player.deck.length > 0) {
-		player.hand.push(player.deck.shift());
-		console.log('[ABILITY] Binti Creator: drew 1 card');
+	if (!player) throw new Error('Player not found');
+	const discardIds = state._pendingTargets?.bintiCreatorDiscard;
+	const tutorId = state._pendingTargets?.bintiCreatorTutor;
+	if (!Array.isArray(discardIds) || discardIds.length < 2) {
+		throw new Error('Quick Sketch requires discarding 2 FOOD Piecies');
 	}
+	if (!tutorId) throw new Error('Quick Sketch requires a card to fetch from your deck');
+	// Pay the cost: discard 2 cards from hand (one instance each — handles duplicates).
+	for (const id of discardIds.slice(0, 2)) {
+		const hi = player.hand.findIndex(c => (c.cardId ?? c) === id);
+		if (hi < 0) throw new Error('Quick Sketch discard not in hand');
+		const [removed] = player.hand.splice(hi, 1);
+		player.graveyard.push(removed);
+	}
+	// Tutor: pull the chosen card out of the deck into hand.
+	const di = player.deck.findIndex(c => (c.cardId ?? c) === tutorId);
+	if (di < 0) throw new Error('Quick Sketch card not in deck');
+	const [fetched] = player.deck.splice(di, 1);
+	player.hand.push(fetched);
+	if (state._pendingTargets) {
+		delete state._pendingTargets.bintiCreatorDiscard;
+		delete state._pendingTargets.bintiCreatorTutor;
+	}
+	console.log('[ABILITY] Binti Creator Quick Sketch: discarded 2 FOOD, tutored', tutorId);
 	return state;
 }
 
@@ -677,15 +703,22 @@ export function ability_martin_driver_perfect_line(gameState, playerId) {
 	return state;
 }
 
-// Amplifier — power boost: all your Mosjes gain 10 MP.
+// Amplifier — Power Boost: pay 30 MP, arm a double-trigger so your active Mosje's next
+// ability triggers twice this turn (reuses the Redbull abilityDoubleTrigger mechanic).
+// Max 2 uses per game (player.amplifierUses).
 export function ability_amplifier_power_boost(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
-	if (!player) return state;
-	for (const slot of player.activeSlots) {
-		if (slot && !slot.isDefeated) slot.mp += 10;
-	}
-	console.log('[ABILITY] Amplifier: all Mosjes +10 MP');
+	if (!player) throw new Error('Player not found');
+	if ((player.amplifierUses || 0) >= 2) throw new Error('Power Boost can only be used twice per game');
+	const si = player.activeSlots.findIndex(s => s && !s.isDefeated && String(s.cardId).includes('amplifier'));
+	if (si < 0) throw new Error('Amplifier not on field');
+	const mosje = player.activeSlots[si];
+	if (mosje.mp < 30) throw new Error('Not enough MP — Power Boost costs 30 MP');
+	applyDamage(mosje, 30);
+	player.amplifierUses = (player.amplifierUses || 0) + 1;
+	player.abilityDoubleTrigger = true;
+	console.log('[ABILITY] Amplifier Power Boost: paid 30 MP, double-trigger armed (use', player.amplifierUses, 'of 2)');
 	return state;
 }
 

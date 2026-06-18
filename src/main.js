@@ -1378,8 +1378,26 @@ function initGamePage() {
 	const FPS_WEST_TACTICAL_IDS = new Set(['mosje_fps_west']);
 	const RONALD_CHEF_INSIGHT_IDS = new Set(['mosje_ronald_chef']);
 	const YOURI_SPEED_ACTIVATE_IDS = new Set(['mosje_youri']);
+	const BINTI_CREATOR_IDS = new Set(['mosje_binti_creator']);
 
+	// Redbull "triggers twice" for input abilities that need a fresh prompt
+	// (Calculated Guess, Tactical Analysis, Perfect Placement). The engine signals
+	// state._redbullAwaitingReprompt instead of echoing; we re-run the activation
+	// flow once with new input, then the Redbull flag is consumed.
 	async function handleUseAbility(mosjeId) {
+		await runAbilityActivation(mosjeId);
+		if (gameState && gameState._redbullAwaitingReprompt === mosjeId) {
+			delete gameState._redbullAwaitingReprompt;
+			const player = gameState.players[localPlayerId];
+			const slot = player?.activeSlots?.find(s => s?.cardId === mosjeId);
+			if (slot) slot.abilityUsedThisTurn = false;     // allow the second cast
+			if (player) player.abilityDoubleTrigger = false; // consume Redbull
+			log.add('gain', 'Redbull: ability triggers TWICE — activate again!');
+			await runAbilityActivation(mosjeId);
+		}
+	}
+
+	async function runAbilityActivation(mosjeId) {
 		if (!gameState || gameState.status === 'FINISHED') return;
 
 		const beforeAbility = snapshotForAnimation();
@@ -1481,6 +1499,65 @@ function initGamePage() {
 			const bintiSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
 			log.add('loss', `Binti Cutting Words: discarded ${chosen.name || chosen.cardId} — opponent loses 10 MP and discards a card.`);
 			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${bintiSlot?.name || mosjeId} ability`);
+			syncPush();
+			if (gameState.status === 'FINISHED') {
+				stopListening();
+				const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
+				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
+				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+			}
+			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
+			return;
+		}
+
+		// Binti Creator — Quick Sketch: discard 2 FOOD Piecies, then tutor a card from deck to hand
+		if (BINTI_CREATOR_IDS.has(mosjeId)) {
+			const hand = gameState.players[localPlayerId].hand;
+			const isFood = (id) => (CARD_LOOKUP[id]?.tags || []).includes('FOOD');
+			const foodPool = hand
+				.map(c => c.cardId ?? c)
+				.filter(isFood)
+				.map(id => ({ cardId: id, name: CARD_LOOKUP[id]?.name || id, description: CARD_LOOKUP[id]?.description || '' }));
+			if (foodPool.length < 2) {
+				modal.showInfo('Cannot Use Ability', 'Quick Sketch needs 2 FOOD Piecies in your hand to discard.');
+				return;
+			}
+			const first = await modal.showCardChoice('Quick Sketch — discard 1st FOOD Piecie', foodPool);
+			if (!first) return;
+			foodPool.splice(foodPool.findIndex(c => c.cardId === first.cardId), 1); // remove one instance (handles duplicates)
+			const second = await modal.showCardChoice('Quick Sketch — discard 2nd FOOD Piecie', foodPool);
+			if (!second) return;
+
+			const deck = gameState.players[localPlayerId].deck;
+			if (deck.length === 0) {
+				modal.showInfo('Cannot Use Ability', 'Your deck is empty — nothing to search.');
+				return;
+			}
+			const deckCards = deck.map(c => {
+				const id = c.cardId ?? c;
+				return { cardId: id, name: CARD_LOOKUP[id]?.name || id, description: CARD_LOOKUP[id]?.description || '' };
+			});
+			const tutor = await modal.showCardChoice('Quick Sketch — search your deck for a card', deckCards);
+			if (!tutor) return;
+
+			const stateWithTarget = JSON.parse(JSON.stringify(gameState));
+			stateWithTarget._pendingTargets = {
+				...(stateWithTarget._pendingTargets || {}),
+				bintiCreatorDiscard: [first.cardId, second.cardId],
+				bintiCreatorTutor: tutor.cardId,
+			};
+			const { state: newState, success, error } = useMosjeAbility(stateWithTarget, localPlayerId, mosjeId);
+			if (!success) {
+				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
+				return;
+			}
+			if (abilitySlotIndex >= 0) {
+				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
+			}
+			gameState = newState;
+			const bcSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
+			log.add('gain', `Quick Sketch: discarded ${first.name} + ${second.name}, fetched ${tutor.name} to hand.`);
+			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${bcSlot?.name || mosjeId} ability`);
 			syncPush();
 			if (gameState.status === 'FINISHED') {
 				stopListening();
@@ -1895,6 +1972,9 @@ function initGamePage() {
 		const abilityDef = CARD_LOOKUP[mosjeId];
 		if (abilityDef?.abilityDescription) log.add('info', `Effect: ${abilityDef.abilityDescription}`);
 		logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${slot?.name || mosjeId} ability`);
+		if (gameState._redbullEchoFizzled) {
+			log.add('info', `Redbull: not enough MP for the second trigger — Redbull stays active this turn.`);
+		}
 		syncPush();
 
 		if (gameState.status === 'FINISHED') {

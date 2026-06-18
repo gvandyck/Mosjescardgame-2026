@@ -6,6 +6,7 @@
 
 import { rollDie } from '../engine/deckEngine.js';
 import { gainMP, loseMP } from '../engine/mpManager.js';
+import { roundToFive } from '../engine/roundToFive.js';
 import { applyPlaceEffectsOnQuest } from '../engine/turnManager.js';
 import { getSynergyChamberDiceBonus } from './placeEffects.js';
 
@@ -399,7 +400,7 @@ function applyMosjeFieldEffectsOnQuest(gameState, playerId, slotIndex, questMpGa
 				mosje.mp += adjustment;
 				label = `rolled ${roll} (4+) ✦ DOUBLED! +${adjustment} extra MP (total +${questMpGained * 2})`;
 			} else {
-				adjustment = -Math.floor(questMpGained / 2);  // take back half → ½ total
+				adjustment = -roundToFive(questMpGained / 2);  // take back half → ½ total (5-grid)
 				mosje.mp = Math.max(0, mosje.mp + adjustment);  // clamp: level-up may have reset mp to 0 before this fires
 				label = `rolled ${roll} (1-3) ✦ Halved. ${adjustment} MP (total +${questMpGained + adjustment})`;
 			}

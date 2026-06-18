@@ -5,7 +5,24 @@
  * NOTE: Test file uses .ts extension (vitest.config.ts only picks up tests/**\/*.ts).
  * The source files remain .js as specified by the plan.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
+// Determinism: the engine uses Math.random() for dice + deck shuffles, so an unseeded
+// game plays differently every run and this smoke suite was flaky (a random game might
+// not reach FINISHED within the turn cap). Reuse the same Math.random-override pattern as
+// the Playwright mockDiceRoll helper, but with a SEEDED generator (a constant breaks the
+// shuffle). mulberry32 gives a fixed, varied sequence → the same game plays every run.
+function mulberry32(seed: number): () => number {
+  return function () {
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+let _origRandom: () => number;
+beforeEach(() => { _origRandom = Math.random; Math.random = mulberry32(0xC0FFEE); });
+afterEach(() => { Math.random = _origRandom; });
 
 // @ts-expect-error JS module without type declarations
 import { createInitialGameState } from '../../src/engine/gameState.js';

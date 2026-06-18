@@ -103,14 +103,14 @@ describe("Defeat at 0 MP (Phase 30)", () => {
     expect(state.players.player_1.activeSlots[0]).toBeNull();
   });
 
-  it("WELLOE_SHIELD saves a flagged Mosje (restored to 1 MP, stays on field)", () => {
+  it("WELLOE_SHIELD saves a flagged Mosje (restored to 5 MP, stays on field)", () => {
     let state = makeState(10, 0, 50, 1);
     state.players.player_1.activeSlots[0].statusEffects.push({ type: "WELLOE_SHIELD", turnsLeft: 1 });
     state = loseMP(state, "player_1", 0, 30, "DRAIN"); // flagged
     state = checkVictory(state);
     const slot = state.players.player_1.activeSlots[0];
     expect(slot).not.toBeNull();           // shield saved it
-    expect(slot.mp).toBe(1);               // restored to 1 MP
+    expect(slot.mp).toBe(5);               // restored to 5 MP (game rule: 5-grid)
     expect(slot._pendingDefeat).toBeUndefined(); // flag cleared (no infinite loop)
     expect(state.status).not.toBe("FINISHED");
   });

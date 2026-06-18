@@ -2,6 +2,7 @@
 // Filled in Phase 4.
 
 import { rollDie } from '../engine/deckEngine.js';
+import { roundToFive } from '../engine/roundToFive.js';
 import { hasFoodDoubleSynergy } from '../engine/synergyResolver.js';
 import { destroyActivePlace } from '../engine/gameState.js';
 import { triggerPlaceDestroyedEffects } from './placeEffects.js';
@@ -44,7 +45,7 @@ function applyMPGain(player, si, amount, state, playerId) {
 	// Apply mpAmplifier 50% bonus if active
 	let total = amount;
 	if (player.mpAmplifierActive) {
-		total = Math.floor(amount * 1.5);
+		total = roundToFive(amount * 1.5);  // game rule: MP stays on the 5-grid
 		player.mpAmplifierActive = false;
 		console.log(`[ABILITY] MP Amplifier applied: ${amount} \u2192 ${total}`);
 	}
