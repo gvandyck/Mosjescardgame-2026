@@ -69,19 +69,23 @@ export function showRewardOverlay({ outcome, winnerName, winReason, winDetail, m
 		</div>
 	` : '';
 
+	// HTML-escape every value that reaches innerHTML below. Player/Mosje names are
+	// not pre-sanitised (the in-game log uses textContent), so an online opponent's
+	// display name could otherwise inject markup into this overlay.
+	const esc = (s) => String(s).replace(/[&<>"']/g, c => (
+		{ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+	));
+
 	const subtitle = isOnline
-		? (isWin ? 'You won the match!' : `${winnerName} won the match.`)
-		: `${winnerName} wins!`;
+		? (isWin ? 'You won the match!' : `${esc(winnerName)} won the match.`)
+		: `${esc(winnerName)} wins!`;
 
 	// Plain-language explanation of how the game was won. Falls back to the raw
-	// enum if main.js didn't supply a description.
+	// enum if main.js didn't supply a description. Escaped at render time below.
 	const reasonText = winDetail || (winReason ? `Won by ${winReason}.` : '');
 
 	// Battle log recap — the same colour-coded entries from the in-game log, so
 	// the player can review exactly what happened before leaving for the lobby.
-	const esc = (s) => String(s).replace(/[&<>"']/g, c => (
-		{ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
-	));
 	const hasLog = Array.isArray(logEntries) && logEntries.length > 0;
 	const logSection = hasLog ? `
 		<div class="reward-log-section">
@@ -97,7 +101,7 @@ export function showRewardOverlay({ outcome, winnerName, winReason, winDetail, m
 			<div class="reward-icon">${isWin ? '🏆' : '💀'}</div>
 			<h2 class="reward-title">${isWin ? 'Victory!' : 'Defeat'}</h2>
 			<p class="reward-subtitle">${subtitle}</p>
-			${reasonText ? `<p class="reward-reason">${reasonText}</p>` : ''}
+			${reasonText ? `<p class="reward-reason">${esc(reasonText)}</p>` : ''}
 			${muntenSection}
 			${statsSection}
 			${logSection}
