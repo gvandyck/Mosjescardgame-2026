@@ -61,11 +61,11 @@ test('chain: Affoe drains opponent below 0 → KNOCKOUT win', async ({ page }) =
 
 	await page.waitForSelector('#reward-overlay', { timeout: 10000 });
 	const title = (await page.locator('.reward-title').textContent().catch(() => '')).trim();
-	const subtitle = (await page.locator('.reward-subtitle').textContent().catch(() => '')).trim();
-	console.log('KO chain result:', title, '|', subtitle);
+	const reason = (await page.locator('.reward-reason').textContent().catch(() => '')).trim();
+	console.log('KO chain result:', title, '|', reason);
 	await ss(page, 'chain-defeat-at-0-knockout');
 	expect(title).toBe('Victory!');
-	expect(subtitle.toUpperCase()).toContain('KNOCKOUT');
+	expect(reason.toUpperCase()).toContain('KNOCKOUT');
 });
 
 // ── Chain B: MP Amplifier scales the NEXT gain ×1.5 ──────────────────────────

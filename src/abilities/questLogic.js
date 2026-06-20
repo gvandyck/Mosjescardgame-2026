@@ -6,6 +6,7 @@
 
 import { rollDie } from '../engine/deckEngine.js';
 import { gainMP, loseMP } from '../engine/mpManager.js';
+import { checkVictory } from '../engine/victoryChecker.js';
 import { roundToFive } from '../engine/roundToFive.js';
 import { applyPlaceEffectsOnQuest } from '../engine/turnManager.js';
 import { getSynergyChamberDiceBonus } from './placeEffects.js';
@@ -370,7 +371,10 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 		console.log('[QUEST] Quest failed:', questCard.id, '| MP now:', liveMosje?.mp);
   }
 
-  return state;
+  // Finalise win conditions in the SAME call so reaching Level 3 (or any other
+  // win) is declared instantly — not deferred to the next end-of-turn check.
+  // "Call checkVictory() after every state change." — victoryChecker.js
+  return checkVictory(state);
 }
 
 // ─────────────────────────────────────────────────────────────

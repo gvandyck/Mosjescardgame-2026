@@ -8,12 +8,14 @@ console.log('[UI] rewardOverlay.js loaded');
  * @param {object} opts
  * @param {'win'|'loss'} opts.outcome
  * @param {string}  opts.winnerName
- * @param {string}  opts.winReason
+ * @param {string}  opts.winReason       Raw win-condition enum (e.g. 'KNOCKOUT')
+ * @param {string}  [opts.winDetail]     Plain-language explanation of how the game was won
  * @param {number}  opts.muntenAwarded   0 for guests / LOCAL games
  * @param {boolean} opts.isOnline
  * @param {object}  [opts.stats]         Optional gameStats from main.js accumulator
+ * @param {Array<{type:string,text:string}>} [opts.logEntries]  Battle-log entries (newest-first)
  */
-export function showRewardOverlay({ outcome, winnerName, winReason, muntenAwarded, isOnline, stats }) {
+export function showRewardOverlay({ outcome, winnerName, winReason, winDetail, muntenAwarded, isOnline, stats, logEntries = [] }) {
 	// Remove any existing overlay
 	document.getElementById('reward-overlay')?.remove();
 
@@ -22,6 +24,8 @@ export function showRewardOverlay({ outcome, winnerName, winReason, muntenAwarde
 	const overlay = document.createElement('div');
 	overlay.id = 'reward-overlay';
 	overlay.className = `reward-overlay ${isWin ? 'reward-overlay--win' : 'reward-overlay--loss'}`;
+	// Machine-readable win reason — tools/sims read this instead of parsing prose.
+	if (winReason) overlay.dataset.winReason = winReason;
 
 	const muntenSection = (isOnline && muntenAwarded > 0)
 		? `<p class="reward-munten">+${muntenAwarded} Munten</p>`
@@ -67,16 +71,40 @@ export function showRewardOverlay({ outcome, winnerName, winReason, muntenAwarde
 
 	const subtitle = isOnline
 		? (isWin ? 'You won the match!' : `${winnerName} won the match.`)
-		: `${winnerName} wins — ${winReason}.`;
+		: `${winnerName} wins!`;
+
+	// Plain-language explanation of how the game was won. Falls back to the raw
+	// enum if main.js didn't supply a description.
+	const reasonText = winDetail || (winReason ? `Won by ${winReason}.` : '');
+
+	// Battle log recap — the same colour-coded entries from the in-game log, so
+	// the player can review exactly what happened before leaving for the lobby.
+	const esc = (s) => String(s).replace(/[&<>"']/g, c => (
+		{ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+	));
+	const hasLog = Array.isArray(logEntries) && logEntries.length > 0;
+	const logSection = hasLog ? `
+		<div class="reward-log-section">
+			<div class="reward-stats__divider"><span>Battle Log</span></div>
+			<div class="reward-log" id="reward-log">
+				${logEntries.map(e => `<div class="log-row ${esc(e.type)}">${esc(e.text)}</div>`).join('')}
+			</div>
+		</div>
+	` : '';
 
 	overlay.innerHTML = `
 		<div class="reward-card">
 			<div class="reward-icon">${isWin ? '🏆' : '💀'}</div>
 			<h2 class="reward-title">${isWin ? 'Victory!' : 'Defeat'}</h2>
 			<p class="reward-subtitle">${subtitle}</p>
+			${reasonText ? `<p class="reward-reason">${reasonText}</p>` : ''}
 			${muntenSection}
 			${statsSection}
-			<button class="reward-btn" id="reward-back-btn">Back to Lobby</button>
+			${logSection}
+			<div class="reward-actions">
+				${hasLog ? '<button class="reward-btn reward-btn--ghost" id="reward-copy-btn" type="button">Copy Log</button>' : ''}
+				<button class="reward-btn" id="reward-back-btn">Back to Lobby</button>
+			</div>
 		</div>
 	`;
 
@@ -85,6 +113,22 @@ export function showRewardOverlay({ outcome, winnerName, winReason, muntenAwarde
 	document.getElementById('reward-back-btn').addEventListener('click', () => {
 		window.location.href = './index.html';
 	});
+
+	// Copy the recap in chronological order (oldest → newest) for easy sharing.
+	const copyBtn = document.getElementById('reward-copy-btn');
+	if (copyBtn && hasLog) {
+		const chronological = [...logEntries].reverse().map(e => e.text).join('\n');
+		copyBtn.addEventListener('click', async () => {
+			try {
+				await navigator.clipboard.writeText(chronological);
+				copyBtn.textContent = 'Copied ✓';
+				setTimeout(() => { copyBtn.textContent = 'Copy Log'; }, 1500);
+			} catch {
+				copyBtn.textContent = 'Copy failed';
+				setTimeout(() => { copyBtn.textContent = 'Copy Log'; }, 1500);
+			}
+		});
+	}
 
 	// Animate in
 	requestAnimationFrame(() => overlay.classList.add('reward-overlay--visible'));

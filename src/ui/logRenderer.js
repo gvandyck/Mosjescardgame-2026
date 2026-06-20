@@ -25,6 +25,7 @@ export function createLogRenderer(container) {
 	}
 
 	const lines = [];
+	const entries = []; // structured mirror of `lines`: { type, text } (newest-first)
 	let mirrorBuffer = null;
 
 	function syncMirror() {
@@ -32,12 +33,15 @@ export function createLogRenderer(container) {
 	}
 
 	function add(type, message) {
-		const row = document.createElement('div');
-		row.className = `log-row ${type || 'system'}`;
+		const rowType = type || 'system';
 		const icon = ICONS[type] || '•';
-		row.textContent = `${icon} ${message}`;
+		const line = `${icon} ${message}`;
+		const row = document.createElement('div');
+		row.className = `log-row ${rowType}`;
+		row.textContent = line;
 		container.prepend(row);
-		lines.unshift(`${icon} ${message}`);
+		lines.unshift(line);
+		entries.unshift({ type: rowType, text: line });
 		syncMirror();
 		console.log('[UI] Log:', type, message);
 	}
@@ -45,6 +49,7 @@ export function createLogRenderer(container) {
 	function clear() {
 		container.innerHTML = '';
 		lines.length = 0;
+		entries.length = 0;
 		syncMirror();
 		console.log('[UI] Log cleared');
 	}
@@ -53,10 +58,16 @@ export function createLogRenderer(container) {
 		return lines.join('\n');
 	}
 
+	// Structured copy of the log (newest-first), for rendering the battle log
+	// inside the end-of-game reward overlay.
+	function getEntries() {
+		return entries.map(e => ({ ...e }));
+	}
+
 	function attachBuffer(textareaEl) {
 		mirrorBuffer = textareaEl || null;
 		syncMirror();
 	}
 
-	return { add, clear, asText, attachBuffer };
+	return { add, clear, asText, getEntries, attachBuffer };
 }

@@ -772,14 +772,16 @@ body::before {
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  padding: 48px 56px;
+  padding: 40px 44px;
   border-radius: 16px;
   background: #1a1a1a;
   border: 1px solid #2a2a2a;
   box-shadow: 0 8px 48px rgba(0, 0, 0, 0.6);
   text-align: center;
-  max-width: 380px;
+  max-width: 440px;
   width: 90%;
+  max-height: 92vh;
+  overflow-y: auto;
 }
 
 .reward-overlay--win .reward-card {
@@ -819,6 +821,19 @@ body::before {
   margin: 0;
 }
 
+.reward-reason {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: #e6dca8;
+  background: rgba(255, 214, 102, 0.1);
+  border: 1px solid rgba(255, 214, 102, 0.32);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 10px auto 0;
+  max-width: 320px;
+}
+
 .reward-munten {
   font-family: 'Bebas Neue', sans-serif;
   font-size: 2rem;
@@ -844,6 +859,47 @@ body::before {
 
 .reward-btn:hover {
   opacity: 0.85;
+}
+
+.reward-btn--ghost {
+  background: transparent;
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.reward-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+.reward-actions .reward-btn {
+  margin-top: 16px;
+  flex: 1 1 auto;
+}
+
+/* Battle-log recap inside the end screen — reuses the .log-row colour coding. */
+.reward-log-section {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.reward-log {
+  max-height: 34vh;
+  overflow-y: auto;
+  width: 100%;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  scrollbar-width: thin;
+  scrollbar-color: #333 transparent;
 }
 
 .reward-stats {

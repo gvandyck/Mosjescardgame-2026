@@ -68,33 +68,55 @@ export function initModalManager(container) {
 	// options.diceBonus — added to rolled value (Sleutelpuntje +1)
 	// options.forceReroll — if true, shows "Reroll!" button after first roll (Je Weet Niet)
 	// options.skiffaRerolls — number of rerolls granted by active Place/traits
-	function showDiceRoll(questInfo, threshold, onResolved, { diceBonus = 0, forceReroll = false, skiffaRerolls = 0 } = {}) {
+	function showDiceRoll(questInfo, threshold, onResolved, { diceBonus = 0, forceReroll = false, skiffaRerolls = 0, mosje = null } = {}) {
 		container.classList.add('modal-root--open');
 		let forceRerollAvailable = Boolean(forceReroll);
 		let placeRerollsLeft = Math.max(0, Number(skiffaRerolls) || 0);
 
-		const thresholdLabel = threshold >= 7
-			? `<span class="modal-threshold--fail">Cannot succeed — missing required ${escapeHtml(questInfo.roll?.trait ?? 'trait')}</span>`
-			: `${threshold}+ to succeed`;
-
-		const bonusLabel = diceBonus > 0 ? ` (+${diceBonus} bonus)` : '';
+		const impossible = threshold >= 7;
+		const bonusLabel = diceBonus > 0 ? `+${diceBonus} bonus` : '';
 
 		container.innerHTML = `
 			<div class="modal-backdrop"></div>
-			<section class="modal-card" role="dialog" aria-modal="true">
-				<h3>🎯 ${escapeHtml(questInfo.name)}</h3>
-				<p class="modal-quest-req">${escapeHtml(questInfo.requirementDescription)}</p>
-				<p>${escapeHtml(questInfo.description)}</p>
-				<p class="modal-threshold">Roll needed: ${thresholdLabel}${escapeHtml(bonusLabel)}</p>
-				<div class="dice-display" id="dice-display" aria-live="polite">?</div>
-				<button class="modal-btn" id="modal-roll" type="button">Roll Dice 🎲</button>
+			<section class="modal-card dice-modal" role="dialog" aria-modal="true" data-stage="ready">
+				<div class="dice-burst" aria-hidden="true"></div>
+				<header class="dice-head">
+					<h3 class="dice-quest-name">🎯 ${escapeHtml(questInfo.name)}</h3>
+					${renderDiceMosje(mosje, questInfo.roll?.trait)}
+					${questInfo.requirementDescription ? `<div class="dice-req">${renderRequirement(questInfo.requirementDescription)}</div>` : ''}
+					<span class="dice-pill${impossible ? ' dice-pill--fail' : ''}">
+						${impossible
+							? escapeHtml(`Cannot succeed — missing required ${questInfo.roll?.trait ?? 'trait'}`)
+							: `Need <b>${threshold}+</b>${bonusLabel ? `<span class="dice-bonus">${escapeHtml(bonusLabel)}</span>` : ''}`}
+					</span>
+				</header>
+				<div class="dice-body" aria-live="polite">
+					<div class="dice-die" id="dice-die">${renderDieFace(0)}</div>
+					<div class="dice-result" id="dice-result" hidden></div>
+				</div>
+				<div class="dice-actions">
+					<button class="modal-btn dice-roll-btn" id="modal-roll" type="button">Roll Dice 🎲</button>
+				</div>
 			</section>
 		`;
 
+		function setStage(stage) {
+			const card = container.querySelector('.dice-modal');
+			if (card) card.dataset.stage = stage;
+		}
+
 		function doRoll(allowReroll) {
+			setStage('rolling');
 			const rollBtn = container.querySelector('#modal-roll');
 			if (rollBtn) { rollBtn.hidden = true; rollBtn.disabled = true; }
-			const diceEl = container.querySelector('#dice-display');
+			const dieEl = container.querySelector('#dice-die');
+			const resultEl = container.querySelector('#dice-result');
+			if (resultEl) { resultEl.hidden = true; resultEl.innerHTML = ''; }
+			// Clear any prior win/lose flourish (relevant on reroll).
+			const cardEl = container.querySelector('.dice-modal');
+			if (cardEl) cardEl.classList.remove('dice-modal--win', 'dice-modal--lose');
+			const burstEl = container.querySelector('.dice-burst');
+			if (burstEl) burstEl.innerHTML = '';
 
 			// Test override: window.__forceDiceRoll (an integer 1-6) forces the roll
 			// deterministically (quest tests). Never set in production → normal random.
@@ -104,36 +126,53 @@ export function initModalManager(container) {
 			const result = rawRoll + diceBonus;
 			const didSucceed = result >= threshold;
 
+			if (dieEl) dieEl.className = 'dice-die dice-die--rolling';
 			let ticks = 0;
 			const interval = setInterval(() => {
-				if (diceEl) diceEl.textContent = Math.floor(Math.random() * 6) + 1;
+				if (dieEl) dieEl.innerHTML = renderDieFace(Math.floor(Math.random() * 6) + 1);
 				ticks++;
 				if (ticks >= 10) {
 					clearInterval(interval);
-					if (diceEl) {
-						diceEl.textContent = result;
-						diceEl.className = `dice-display dice-display--${didSucceed ? 'success' : 'fail'}`;
+					const settledFace = Math.min(6, Math.max(1, rawRoll));
+					if (dieEl) {
+						dieEl.innerHTML = renderDieFace(settledFace);
+						dieEl.className = `dice-die dice-die--${didSucceed ? 'success' : 'fail'}`;
+					}
+					setStage('result');
+
+					// Strong win/lose: card-level flash (win) or shake (fail), + sparkle burst on win.
+					const card = container.querySelector('.dice-modal');
+					if (card) card.classList.add(didSucceed ? 'dice-modal--win' : 'dice-modal--lose');
+					const burst = container.querySelector('.dice-burst');
+					if (burst && didSucceed) {
+						burst.innerHTML = '<span>✨</span><span>✨</span><span>✨</span>';
 					}
 
 					const mpDelta = didSucceed ? questInfo.successMP : questInfo.failMP;
 					const sign = mpDelta >= 0 ? '+' : '';
-					const bonusTxt = diceBonus > 0 ? ` (rolled ${rawRoll}+${diceBonus})` : '';
-					const resultLabel = didSucceed
-						? `✅ Success! Rolled ${result}${bonusTxt} (needed ${threshold}+) → ${sign}${mpDelta} MP`
-						: `❌ Failed! Rolled ${result}${bonusTxt} (needed ${threshold}+) → ${sign}${mpDelta} MP`;
+					const bonusTxt = diceBonus > 0 ? ` (${rawRoll}+${diceBonus})` : '';
 
-					const section = container.querySelector('section');
-					// Remove any previous result
-					section.querySelectorAll('.modal-result, #modal-done, #modal-reroll').forEach(e => e.remove());
+					const resultPanel = container.querySelector('#dice-result');
+					if (resultPanel) {
+						resultPanel.hidden = false;
+						resultPanel.className = `dice-result dice-result--${didSucceed ? 'success' : 'fail'}`;
+						resultPanel.innerHTML = `
+							<div class="dice-result-headline">${didSucceed ? '✅ Success!' : '❌ Failed!'}</div>
+							<div class="dice-result-detail">Rolled ${result}${escapeHtml(bonusTxt)} · needed ${threshold}+</div>
+							<div class="dice-result-mp">${sign}${mpDelta} MP</div>
+						`;
+					}
+
 					const rerollText = allowReroll
 						? '🎲 Je Weet Niet — Reroll!'
 						: `🎲 Skiffa Reroll (${placeRerollsLeft} left)`;
-
-					section.insertAdjacentHTML('beforeend', `
-						<p class="modal-result modal-result--${didSucceed ? 'success' : 'fail'}">${escapeHtml(resultLabel)}</p>
-						${(allowReroll || placeRerollsLeft > 0) ? `<button class="modal-btn modal-btn--ghost" id="modal-reroll" type="button">${rerollText}</button>` : ''}
-						<button class="modal-btn" id="modal-done" type="button">Continue →</button>
-					`);
+					const actions = container.querySelector('.dice-actions');
+					if (actions) {
+						actions.innerHTML = `
+							${(allowReroll || placeRerollsLeft > 0) ? `<button class="modal-btn modal-btn--ghost" id="modal-reroll" type="button">${rerollText}</button>` : ''}
+							<button class="modal-btn" id="modal-done" type="button">Continue →</button>
+						`;
+					}
 
 					container.querySelector('#modal-done')?.addEventListener('click', () => {
 						close();
@@ -142,10 +181,7 @@ export function initModalManager(container) {
 
 					// forceReroll: opponent's Je Weet Niet forces one reroll
 					container.querySelector('#modal-reroll')?.addEventListener('click', () => {
-						if (!allowReroll && placeRerollsLeft > 0) {
-							placeRerollsLeft -= 1;
-						}
-						section.querySelectorAll('.modal-result, #modal-done, #modal-reroll').forEach(e => e.remove());
+						if (!allowReroll && placeRerollsLeft > 0) placeRerollsLeft -= 1;
 						doRoll(false);
 					});
 				}
@@ -157,6 +193,85 @@ export function initModalManager(container) {
 			forceRerollAvailable = false;
 			doRoll(allowForced);
 		});
+	}
+
+	// Renders a compact stat strip for the Mosje attempting the quest, so the
+	// dice roll isn't disconnected from who's rolling. Shows level, MP, and each
+	// active trait as starred chips — the trait the quest rolls on is highlighted
+	// so the player can see WHY the threshold is what it is.
+	function renderDiceMosje(mosje, rollTrait) {
+		if (!mosje) return '';
+		const name = mosje.name || mosje.cardId || 'Mosje';
+		const lvl = Number(mosje.level || 0);
+		const mp = Number(mosje.mp || 0);
+		const trait = String(rollTrait || '').toLowerCase();
+		const chips = Object.entries(mosje.traits || {})
+			.filter(([, v]) => Number(v) > 0)
+			.map(([k, v]) => {
+				const stars = '★'.repeat(Math.max(0, Math.min(5, Number(v))));
+				const label = k.charAt(0).toUpperCase() + k.slice(1);
+				const relevant = k.toLowerCase() === trait;
+				return `<span class="dice-mosje-trait${relevant ? ' is-relevant' : ''}">${escapeHtml(label)} <span class="dice-mosje-stars">${stars}</span></span>`;
+			})
+			.join('');
+		return `
+			<div class="dice-mosje">
+				<div class="dice-mosje-id">
+					<span class="dice-mosje-name">${escapeHtml(name)}</span>
+					<span class="dice-mosje-meta">Lv ${lvl} · ${mp} MP</span>
+				</div>
+				${chips ? `<div class="dice-mosje-traits">${chips}</div>` : '<div class="dice-mosje-traits dice-mosje-traits--none">No active traits</div>'}
+			</div>
+		`;
+	}
+
+	// Formats a quest requirementDescription into readable lines.
+	// - Splits sentences (". ") onto their own line.
+	// - Turns trait-tier lists ("Social ★=5+, ★★=3+, ★★★=2+") into spaced chips.
+	// - Turns outcome enumerations ("1-2 = Fail, 3-4 = Partial") into chips.
+	function renderRequirement(text) {
+		if (!text) return '';
+		const clauses = String(text).split(/\.\s+/).map(s => s.trim()).filter(Boolean);
+		return clauses.map(clause => {
+			// Trait-tier list: optional "Label" then "★=N, ★★=N, ★★★=N"
+			if (/★\s*=/.test(clause)) {
+				const idx = clause.search(/★\s*=/);
+				const label = clause.slice(0, idx).replace(/[:\s]+$/, '').trim();
+				const chips = clause.slice(idx).split(/,\s*/).map(t => {
+					const m = t.match(/(★+)\s*=\s*(.+)/);
+					return m
+						? `<span class="dice-req-chip"><span class="dice-req-stars">${escapeHtml(m[1])}</span> ${escapeHtml(m[2].trim())}</span>`
+						: `<span class="dice-req-chip">${escapeHtml(t.trim())}</span>`;
+				}).join('');
+				return `<span class="dice-req-line">${label ? `<span class="dice-req-label">${escapeHtml(label)}</span> ` : ''}<span class="dice-req-chips">${chips}</span></span>`;
+			}
+			// Outcome enumeration: "1-2 = Fail, 3-4 = Partial, 5-6 = Full success"
+			if (/=/.test(clause) && /,/.test(clause)) {
+				const chips = clause.split(/,\s*/)
+					.map(p => `<span class="dice-req-chip">${escapeHtml(p.trim())}</span>`).join('');
+				return `<span class="dice-req-line">${chips}</span>`;
+			}
+			return `<span class="dice-req-line">${escapeHtml(clause)}</span>`;
+		}).join('');
+	}
+
+	// Renders a die face as pip dots. value 0 = blank/ready face; 1-6 = pip layout.
+	function renderDieFace(value) {
+		const v = Number(value) || 0;
+		// Which of the 9 grid cells are lit for each face (3×3 grid, indices 0-8).
+		const FACES = {
+			0: [],
+			1: [4],
+			2: [0, 8],
+			3: [0, 4, 8],
+			4: [0, 2, 6, 8],
+			5: [0, 2, 4, 6, 8],
+			6: [0, 2, 3, 5, 6, 8],
+		};
+		const lit = new Set(FACES[v] || []);
+		const cells = Array.from({ length: 9 }, (_, i) =>
+			`<span class="die-pip${lit.has(i) ? ' is-on' : ''}"></span>`).join('');
+		return `<div class="die-grid" data-face="${v}">${cells}</div>`;
 	}
 
 	async function showConfirm(title, message) {
