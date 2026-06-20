@@ -1,10 +1,36 @@
 # Project State
 
-**Last updated:** 2026-06-04
-**Current phase:** Phase 24 COMPLETE — Interrupt Modal System
-**Branch:** main (create feature/phase-24-interrupt-modal before executing)
+**Last updated:** 2026-06-20
+**Current phase:** Phase 32 IN PROGRESS — On-field Mosje Info + Quest Dice Modal Redesign (+ win-clarity UX)
+**Branch:** feature/phase-32-onfield-mosje-info-dice-modal
 
 > Note: STATE.md was not maintained during Phases 15–17 (tracked in their phase dirs / ROADMAP only). This header jumps from Phase 14 to Phase 18.
+
+## Accumulated Context
+
+### Roadmap Evolution
+- Phase 32 added (2026-06-14): On-field Mosje Info + Quest Dice Modal Redesign — own on-field Mosjes show Level/traits/ability + active-only synergy on card, remove "Active on field" text, full dice-modal redesign. UI-only.
+- Phase 32 extended (2026-06-20): win-clarity UX added on the same branch — instant Level-3 win (engine), plain-language win/defeat reason + battle-log recap in the end screen, "How to Win" panel, dice-modal Mosje stats.
+
+## Phase 32 Progress — On-field Mosje Info + Quest Dice Modal + Win Clarity
+
+### 32-WIN: Instant Level-3 win + legible end screen + win conditions (COMPLETE — commit a3fe3b3)
+- resolveQuest now calls checkVictory → reaching Level 3 declares the win in the SAME action (was deferred to end-of-turn, which let Mosjes overshoot to Level 4)
+- checkLevelUp caps level at 3 (`while mp>=100 && level<3`): leftover MP is kept and shown (Lv2/90 + 80 → Lv3/70); level can never reach 4
+- describeWin(): raw win enum → plain-language sentence with context (e.g. "Knockout — all of Bot's Mosjes were defeated (last to fall: Binti)"); surfaced in the battle log + reward overlay; `data-win-reason` attribute added for tooling/sims
+- Reward overlay embeds the colour-coded battle log + Copy Log button (review the match before returning to lobby)
+- Deduped the 13 inline raw-enum "Match Finished" popups into one idempotent handleGameOver (gameOverHandled guard)
+- "How to Win" top-bar panel listing the 4 win conditions (Reach Level 3, Knockout, Quest Master, Momentum Domination)
+- Dice-roll modal shows the attempting Mosje's stats (level, MP, trait stars; the rolled trait highlighted)
+- New tests/engine/instant-win-level3.test.ts (failing-first repro); rewrote the mislabeled full-game LEVEL_3 spec into a real instant-win + battle-log guard
+- Verification: node --check clean; 430 unit tests; full-game + chain UI specs green
+
+### Decisions
+- Only quests can reach Level 3 (non-quest gains pass `allowLevelUp:false`, capped at 100) — so resolveQuest + the Perfect Sync UI gain are the only level-up surfaces to guard
+- Leftover MP is kept on a Level-3 win per user ruling; the win modal fires instantly so the value never lingers on the board
+- handleGameOver made idempotent (gameOverHandled) so multiple FINISHED-detection paths can't stack two overlays
+- Battle log reuses the global `.log-row` styling inside the overlay; Copy Log exports chronological order (oldest→newest)
+- Scratch prototypes (_play32.html, _dice-anim-demo.html, _dice-modal-demo.html) deleted after the dice-modal work landed in the real game
 
 ## Phase 23 Progress — Graveyard System
 

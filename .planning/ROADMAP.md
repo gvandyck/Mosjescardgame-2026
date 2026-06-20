@@ -739,3 +739,40 @@ Plans:
 4. card-chains cap test passes; mp-cap unit tests pass
 5. npm test + test:cards green; Ronald Kip green
 6. Simulation crash-free; bot-vs-bot shows no MP > 100
+
+---
+
+### Phase 32: On-field Mosje Info + Quest Dice Modal Redesign
+
+**Goal:** Surface the meta info players need at a glance on their own on-field Mosjes (Level, traits, ability, active-only synergy) and fully redesign the Quest dice-roll/result modal for better UX. Pure UI/UX — no engine, MP, or quest-logic changes.
+
+**Requirements:**
+- ONFIELD-01: Own on-field Mosje cards show a compact info layer directly on the board card — Level badge, trait star-pips, and a short ability snippet — with full detail still available on click (detail modal).
+- ONFIELD-02: Synergy is displayed on a Mosje only when the synergy is currently ACTIVE (partner on field); hidden otherwise.
+- ONFIELD-03: Remove the useless "Active on field" description text from on-field Mosje cards (main.js toMosjeCards).
+- ONFIELD-04: Opponent on-field Mosjes stay minimal (no enriched layer); still clickable for the detail modal.
+- ONFIELD-05: Add Level to the click detail modal (showCardPreview) for Mosjes.
+- DICE-01: Full visual redesign of showDiceRoll — animated die face, staged requirement→rolling→result flow, themed colors, prominent success/fail reveal with MP delta. Preserve all logic: diceBonus, forceReroll (Je Weet Niet), skiffaRerolls, window.__forceDiceRoll test override, onResolved contract.
+
+**Plans:** 2 plans
+
+Plans:
+- [ ] 32-01-PLAN.md — on-field own-Mosje meta layer (Level/traits/ability/active-only synergy) + remove "Active on field" + detail-modal Level chip
+- [ ] 32-02-PLAN.md — full Quest dice-modal redesign (animated pip die, staged flow, themed success/fail + MP delta)
+
+**Success Criteria:**
+1. Own on-field Mosjes show Level + trait pips + ability snippet on the card; opponent Mosjes unchanged
+2. Synergy shows only when active; never shown inactive
+3. "Active on field" text no longer appears anywhere on-field
+4. Detail modal shows Level for Mosjes
+5. Dice modal redesigned; all existing reroll/bonus/test-override behavior preserved
+6. node --check clean on touched UI files; npm test + test:cards green; quest dice visual tests pass (no regressions)
+
+**Win-clarity UX (added on this branch, 2026-06-20 — beyond the original UI-only scope; commit a3fe3b3):**
+- WIN-01: Reaching Level 3 declares the win instantly (resolveQuest → checkVictory); checkLevelUp caps level at 3 so Mosjes never overshoot to Level 4. *(Engine change — the one exception to "UI-only".)*
+- WIN-02: Plain-language win/defeat reason (describeWin) replaces the raw enum in the battle log and reward overlay; `data-win-reason` attribute for tooling.
+- WIN-03: The win/defeat modal embeds the colour-coded battle log + a Copy Log button so the match can be reviewed before leaving.
+- WIN-04: 13 inline raw-enum "Match Finished" popups deduped into one idempotent handleGameOver.
+- WIN-05: "How to Win" top-bar panel listing the 4 win conditions.
+- WIN-06: Dice-roll modal shows the attempting Mosje's stats (level/MP/trait stars, rolled trait highlighted).
+- Repro/guard tests: tests/engine/instant-win-level3.test.ts; full-game LEVEL_3 spec rewritten as a real instant-win + battle-log guard.
