@@ -70,8 +70,8 @@ test('chain: Affoe drains opponent below 0 → KNOCKOUT win', async ({ page }) =
 
 // ── Chain B: MP Amplifier scales the NEXT gain ×1.5 ──────────────────────────
 // Activate MP Amplifier (sets mpAmplifierActive), then Kannetje Melk (+25 base).
-// Amplified: floor(25 × 1.5) = 37.
-test('chain: MP Amplifier → next Kannetje Melk gains +37 (×1.5)', async ({ page }) => {
+// Amplified + 5-grid rule: roundToFive(25 × 1.5) = roundToFive(37.5) = 40.
+test('chain: MP Amplifier → next Kannetje Melk gains +40 (×1.5, 5-grid)', async ({ page }) => {
 	test.setTimeout(60000);
 	await seedCustomDeck(page, {
 		id: 'custom_amp_chain', name: 'Amplifier Chain',
@@ -94,7 +94,7 @@ test('chain: MP Amplifier → next Kannetje Melk gains +37 (×1.5)', async ({ pa
 	const flagged = await getGameState(page);
 	expect(flagged?.players?.player_1?.mpAmplifierActive).toBe(true);
 
-	// Now play + activate Kannetje Melk — gain should be amplified to 37
+	// Now play + activate Kannetje Melk — gain should be amplified to 40 (5-grid)
 	const before = await ownSlot0(page);
 	await playCardFromHand(page, 'piecie_kannetje_melk');
 	await page.waitForTimeout(300);
@@ -102,9 +102,9 @@ test('chain: MP Amplifier → next Kannetje Melk gains +37 (×1.5)', async ({ pa
 	await activate(page, 'piecie_kannetje_melk');
 	const after = await ownSlot0(page);
 	const delta = after - before;
-	console.log(`Amplifier chain: Kannetje gain = ${delta} (expected 37 = floor(25×1.5))`);
+	console.log(`Amplifier chain: Kannetje gain = ${delta} (expected 40 = roundToFive(25×1.5))`);
 	await ss(page, 'chain-mp-amplifier');
-	expect(delta).toBe(37);
+	expect(delta).toBe(40);
 });
 
 // ── Chain C: Tuk Healer heals BOTH active Mosjes +15 (two-Mosje scenario) ────
