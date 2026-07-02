@@ -36,7 +36,10 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 			<div class="board-zone__row">
 				<div class="board-zone__slots" id="zone-opponent"></div>
 				<div class="board-zone__piecies" id="piecies-opponent"></div>
-				<div class="discard-pile-container" id="discard-opponent"></div>
+				<div class="pile-column">
+					<div class="deck-pile-container" id="deck-opponent"></div>
+					<div class="discard-pile-container" id="discard-opponent"></div>
+				</div>
 			</div>
 		</section>
 
@@ -48,7 +51,10 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 			<div class="board-zone__row">
 				<div class="board-zone__slots" id="zone-player"></div>
 				<div class="board-zone__piecies" id="piecies-player"></div>
-				<div class="discard-pile-container" id="discard-player"></div>
+				<div class="pile-column">
+					<div class="deck-pile-container" id="deck-player"></div>
+					<div class="discard-pile-container" id="discard-player"></div>
+				</div>
 			</div>
 		</section>
 	`;
@@ -62,6 +68,8 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 	const bottomPiecies = container.querySelector('#piecies-player');
 	const topDiscard = container.querySelector('#discard-opponent');
 	const bottomDiscard = container.querySelector('#discard-player');
+	const topDeck = container.querySelector('#deck-opponent');
+	const bottomDeck = container.querySelector('#deck-player');
 
 	for (const mosje of viewModel.players.top.mosjes) {
 		const cardEl = renderCard(mosje, { compact: true });
@@ -278,6 +286,11 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 	const opponentPlayerId = Object.keys(viewModel.gameState?.players || {}).find(id => id !== viewModel.myPlayerId);
 	const topPlayer = viewModel.players.top;
 	const bottomPlayer = viewModel.players.bottom;
+
+	// Draw piles (deck) sit ABOVE each player's graveyard in the pile column.
+	// Only the local player (bottom) sees their own deck count; the opponent's is hidden.
+	renderDeckPile(topDeck, topPlayer, false);
+	renderDeckPile(bottomDeck, bottomPlayer, true);
 
 	renderDiscardPile(topDiscard, topPlayer, viewModel.myPlayerId === opponentPlayerId, onOpenDiscard);
 	renderDiscardPile(bottomDiscard, bottomPlayer, viewModel.myPlayerId === bottomPlayer.id, onOpenDiscard);
@@ -528,6 +541,69 @@ function renderModifierBar(bar, pills) {
 		span.title = pill.label;
 		bar.appendChild(span);
 	}
+}
+
+// Renders a player's DRAW deck as a face-down stack.
+// Mirrors renderDiscardPile's stacked visual but is not clickable (the deck is hidden)
+// and sits above the graveyard in the pile column. Empty state = faint placeholder.
+// isOwned=false (opponent) HIDES the count and uses a fixed stack height, so you can't
+// tell or count how many cards they have left — deck-out stays a scary surprise.
+function renderDeckPile(container, player, isOwned = false) {
+	if (!container || !player) return;
+	container.innerHTML = '';
+
+	const deckCards = player.deck || [];
+	const count = deckCards.length;
+
+	if (count === 0) {
+		const emptyPile = document.createElement('div');
+		emptyPile.className = 'discard-pile deck-pile discard-pile--empty';
+		emptyPile.innerHTML = `
+			<div class="discard-pile__placeholder"></div>
+			<div class="discard-pile__label">Deck</div>
+		`;
+		container.appendChild(emptyPile);
+		return;
+	}
+
+	const pile = document.createElement('div');
+	pile.className = 'discard-pile deck-pile discard-pile--has-cards';
+	if (isOwned) pile.setAttribute('data-card-count', count);
+
+	const pileStack = document.createElement('div');
+	pileStack.className = 'discard-pile__stack';
+
+	// Own deck: stack height hints at how many cards remain. Opponent deck: fixed height so
+	// its size isn't inferable from the layer count either.
+	const layerCount = isOwned ? Math.min(count, 5) : 4;
+	const maxOffset = isOwned ? Math.min(count * 2, 8) : 6;
+
+	for (let i = 0; i < layerCount; i++) {
+		const cardLayer = document.createElement('div');
+		cardLayer.className = 'discard-pile__card-layer';
+		const offsetMultiplier = (i / Math.max(1, layerCount - 1)) * maxOffset;
+		const rotation = (Math.random() - 0.5) * 8;
+		cardLayer.style.transform = `translateY(${offsetMultiplier}px) translateX(${(Math.random() - 0.5) * 2}px) rotateZ(${rotation}deg)`;
+		cardLayer.style.zIndex = i;
+		pileStack.appendChild(cardLayer);
+	}
+	pile.appendChild(pileStack);
+
+	// Count badge — OWN deck only. The opponent's remaining-card count stays hidden so you
+	// can't count down to their deck-out.
+	if (isOwned) {
+		const badge = document.createElement('div');
+		badge.className = 'discard-pile__count-badge';
+		badge.textContent = `${count}`;
+		pile.appendChild(badge);
+	}
+
+	const label = document.createElement('div');
+	label.className = 'discard-pile__label';
+	label.textContent = 'Deck';
+	pile.appendChild(label);
+
+	container.appendChild(pile);
 }
 
 // Renders a discard pile (Welloe) into a container.

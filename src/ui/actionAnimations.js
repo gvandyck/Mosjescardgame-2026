@@ -148,6 +148,46 @@ export function showTurnTransition({ playerName, turnNumber, type } = {}) {
 	banner.addEventListener('animationend', () => banner.remove(), { once: true });
 }
 
+// Generic self-removing center banner. One place owns the append + animationend teardown;
+// callers just supply a class and inner HTML. (showTurnTransition may later adopt this.)
+function createCenterBanner(className, innerHTML) {
+	const banner = document.createElement('div');
+	banner.className = className;
+	banner.innerHTML = innerHTML;
+	document.body.appendChild(banner);
+	banner.addEventListener('animationend', () => banner.remove(), { once: true });
+	return banner;
+}
+
+// Deck-out "recycle" notice. Essential info, so it shows even under reduced motion
+// (CSS gives a plain fade there). Highlights the affected discard pile via callback.
+export function showDeckOutBanner({ playerName, onPileHighlight } = {}) {
+	const name = playerName || 'Player';
+	createCenterBanner(
+		'deckout-banner',
+		`<span class="deckout-banner__title">&#9851; DECK RECYCLED</span>
+		 <span class="deckout-banner__body">${escapeText(name)}'s deck ran out — discard reshuffled into a new deck. Skips next turn (1-turn cooldown).</span>`
+	);
+	if (typeof onPileHighlight === 'function') onPileHighlight();
+}
+
+// Flash the recycled player's piles so the board change is obvious: the graveyard empties
+// and the deck refills, so pulse BOTH (deck on top, discard under).
+export function pulseDiscardPile(deckOutPlayerId, localPlayerId) {
+	const suffix = deckOutPlayerId === localPlayerId ? 'player' : 'opponent';
+	for (const sel of [`#discard-${suffix}`, `#deck-${suffix}`]) {
+		const el = document.querySelector(sel);
+		if (!el) continue;
+		el.classList.add('discard-pile--recycling');
+		el.addEventListener('animationend', () => el.classList.remove('discard-pile--recycling'), { once: true });
+	}
+}
+
+// Minimal HTML-escape for the interpolated player name (names are user-set).
+function escapeText(s) {
+	return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 function animateMosjeDeltas(beforeState, afterState, options = {}) {
 	const isQuestOutcome = String(options.actionLabel || '').includes('quest');
 	for (const [playerId, afterPlayer] of Object.entries(afterState.players || {})) {

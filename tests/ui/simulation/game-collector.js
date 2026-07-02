@@ -43,9 +43,14 @@ export async function buildGameRecord(page, collector, meta) {
 	const title = await page.locator('.reward-title').textContent().catch(() => '');
 	const subtitle = await page.locator('.reward-subtitle').textContent().catch(() => '');
 
-	// Parse win reason from subtitle ("Bot wins — LEVEL_3." or "TestPlayer wins — MOMENTUM_DOMINATION.")
-	const winReasonMatch = subtitle.match(/\b(LEVEL_3|KNOCKOUT|QUEST_MASTER|MOMENTUM_DOMINATION)\b/);
-	const winReason = winReasonMatch ? winReasonMatch[1] : 'UNKNOWN';
+	// Win reason from the overlay's machine-readable data attribute (set by rewardOverlay.js),
+	// with a prose fallback to the human-readable reason line for older snapshots.
+	let winReason = await page.locator('#reward-overlay').getAttribute('data-win-reason').catch(() => null);
+	if (!winReason) {
+		const reasonText = await page.locator('.reward-reason').textContent().catch(() => '');
+		const winReasonMatch = `${subtitle} ${reasonText}`.toUpperCase().match(/\b(LEVEL[_ ]3|KNOCKOUT|QUEST[_ ]MASTER|MOMENTUM[_ ]DOMINATION)\b/);
+		winReason = winReasonMatch ? winReasonMatch[1].replace(/ /g, '_') : 'UNKNOWN';
+	}
 	const winner = title.trim() === 'Victory!' ? 'player_1' : 'player_2';
 
 	// Count from logs

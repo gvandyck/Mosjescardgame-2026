@@ -234,14 +234,19 @@ export function checkLevelUp(gameState, playerId, slotIndex) {
   const mosje = state.players[playerId].activeSlots[slotIndex];
   if (!mosje || mosje.isDefeated) return state;
 
-  while (mosje.mp >= 100) {
+  // Level 3 is the ceiling — reaching it is an instant win (finalised by the
+  // checkVictory call that follows every quest/MP change). A Mosje can never
+  // exceed Level 3: the loop stops the moment it lands on 3, keeping the
+  // leftover MP (e.g. Lvl 2 / 90 MP + 80 → Lvl 3 / 70 MP). The `level < 3`
+  // guard also prevents a second gain in the same turn from rolling 3 → 4.
+  while (mosje.mp >= 100 && mosje.level < 3) {
     mosje.mp -= 100;
     mosje.level += 1;
-    console.log(`[ENGINE] ⬆️ ${mosje.name} levelled up! Now Level ${mosje.level} | MP reset to ${mosje.mp}`);
+    console.log(`[ENGINE] ⬆️ ${mosje.name} levelled up! Now Level ${mosje.level} | MP carried over: ${mosje.mp}`);
 
     if (mosje.level >= 3) {
       console.log(`[ENGINE] 🏆 ${mosje.name} reached Level 3 — victory condition met!`);
-      // victoryChecker.js will detect and finalise the win
+      // victoryChecker.js will detect and finalise the win.
       break;
     }
   }

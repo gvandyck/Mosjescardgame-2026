@@ -42,8 +42,9 @@ async function waitForGameOver(page, timeout = 90000) {
 	await page.waitForSelector('#reward-overlay', { timeout });
 	const subtitle = await page.locator('.reward-subtitle').textContent().catch(() => '');
 	const title = await page.locator('.reward-title').textContent().catch(() => '');
-	console.log('Game over:', title, '|', subtitle);
-	return { title: title.trim(), subtitle: subtitle.trim() };
+	const reason = await page.locator('.reward-reason').textContent().catch(() => '');
+	console.log('Game over:', title, '|', subtitle, '|', reason);
+	return { title: title.trim(), subtitle: subtitle.trim(), reason: reason.trim() };
 }
 
 /**
@@ -173,7 +174,7 @@ test('full game: passive — human ends turns until game over (PHYSICAL_FORCE)',
 
 	// Verify reward overlay appeared
 	await page.waitForSelector('#reward-overlay', { timeout: 5000 });
-	const { title, subtitle } = await waitForGameOver(page, 5000);
+	const { title, subtitle, reason } = await waitForGameOver(page, 5000);
 	await ss(page, 'full-game-passive-end');
 
 	// Assert game ended with a valid screen
@@ -181,14 +182,14 @@ test('full game: passive — human ends turns until game over (PHYSICAL_FORCE)',
 	expect(subtitle).toBeTruthy();
 
 	// Assert win reason is one of the 4 valid conditions
-	const reasonFound = WIN_REASONS.some(r => subtitle.toUpperCase().includes(r));
+	const reasonFound = WIN_REASONS.some(r => reason.toUpperCase().includes(r.replace(/_/g, " ")));
 	console.log('Win reason found:', reasonFound, '|', subtitle);
 	expect(reasonFound).toBe(true);
 
 	// Assert log captured the game-over entry
 	const log = await readLog(page);
 	const logText = log.join(' ');
-	expect(logText).toMatch(/won by/i);
+	expect(logText).toMatch(/wins!/i);
 
 	// Assert turn count was reasonable (not stuck in infinite loop)
 	console.log(`Completed in ${turnCount} turns`);
@@ -234,12 +235,12 @@ test('full game: active — human plays quests + piecies each turn (DIGITAL_CONT
 	}
 
 	await page.waitForSelector('#reward-overlay', { timeout: 10000 });
-	const { title, subtitle } = await waitForGameOver(page, 5000);
+	const { title, subtitle, reason } = await waitForGameOver(page, 5000);
 	await ss(page, 'full-game-active-end');
 
 	// Core assertions
 	expect(title).toMatch(/Victory|Defeat/);
-	const reasonFound = WIN_REASONS.some(r => subtitle.toUpperCase().includes(r));
+	const reasonFound = WIN_REASONS.some(r => reason.toUpperCase().includes(r.replace(/_/g, " ")));
 	expect(reasonFound).toBe(true);
 	console.log(`Active game ended in ${turnCount} turns: ${subtitle}`);
 });
@@ -273,11 +274,11 @@ for (const matchup of DECK_MATCHUPS) {
 		}
 
 		await page.waitForSelector('#reward-overlay', { timeout: 5000 });
-		const { title, subtitle } = await waitForGameOver(page, 5000);
+		const { title, subtitle, reason } = await waitForGameOver(page, 5000);
 		await ss(page, `full-game-${matchup.p1.toLowerCase()}-vs-${matchup.p2.toLowerCase()}`);
 
 		expect(title).toMatch(/Victory|Defeat/);
-		const reasonFound = WIN_REASONS.some(r => subtitle.toUpperCase().includes(r));
+		const reasonFound = WIN_REASONS.some(r => reason.toUpperCase().includes(r.replace(/_/g, " ")));
 		expect(reasonFound).toBe(true);
 		console.log(`${matchup.p1} vs ${matchup.p2}: ${subtitle} (${turnCount} turns)`);
 	});
@@ -285,57 +286,67 @@ for (const matchup of DECK_MATCHUPS) {
 
 // ─── VIS-GAME-04: Accelerated game — force near-win, assert exact win reason ─
 
-test('full game: forced LEVEL_3 win — Mosje leveled to 2, one quest tips it over', async ({ page }) => {
+test('full game: LEVEL_3 win fires INSTANTLY when a quest tips a Mosje over — no end-turn needed', async ({ page }) => {
+	// Regression guard for the "games go to Lvl 4 / no instant You-Won" bug
+	// (2026-06-20). resolveQuest now calls checkVictory, so crossing into Level 3
+	// declares the win in the SAME action — not deferred to the next end-of-turn.
 	test.setTimeout(60000);
 
-	// Mock dice for guaranteed success
+	// Guaranteed dice success (roll 6) so the quest always passes its threshold.
 	await mockDiceRoll(page, 0.9999);
 	await seedOfflineSession(page, 'PHYSICAL_FORCE', 'DIGITAL_CONTROL');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
 
-	// Set player Mosje to Level 2 (1 more level needed to win) via MP injection.
-	// Level 2 requires completing 2 quests; we cheat by setting the level directly.
-	// The level is stored in activeSlots[0].level — set it via page.evaluate since
-	// testHooks doesn't expose level yet.
-	await page.evaluate(() => {
-		const state = window.__testHooks?.getGameState();
-		// Can't mutate via getGameState (it's a copy). Use setMosjeMP as indirect lever:
-		// actual level-up is controlled by quest completion, not MP alone.
-		// Instead, set MP very high (250+) to trigger MOMENTUM_DOMINATION at turn start.
+	// Put the human's Mosje one quest away from winning: Level 2 / 90 MP.
+	// After the 20 MP attempt cost (→70) a +60 quest reward crosses 100 → Level 3.
+	const cardId = await page.evaluate(() => {
+		const gs = window.__testHooks.getGameState();
+		return gs.players.player_1.activeSlots[0]?.cardId;
 	});
+	await page.evaluate((cid) => {
+		window.__testHooks.setMosjeOnField('player_1', 0, cid, { mp: 90, level: 2 });
+		window.__testHooks.injectQuestToTopOfDeck('quest_arm_wrestling'); // +60 MP on success
+	}, cardId);
 
-	// Simplest forced win: set own Mosje MP to 250+ → MOMENTUM_DOMINATION fires at next turn start
-	await setMosjeMP(page, 'player_1', 0, 255);
-	await page.waitForTimeout(200);
-
-	// End turn — bot plays. At the START of our next turn, checkVictory runs with
-	// momentumCheckPhase=true and sees 255 MP → MOMENTUM_DOMINATION win.
-	await page.click('#btn-end-turn');
-
-	// Wait for game over (should be very quick — one turn)
-	const result = await Promise.race([
-		page.waitForSelector('#reward-overlay', { timeout: 30000 }).then(() => 'gameover'),
-		page.waitForSelector('#btn-end-turn:not([disabled])', { timeout: 30000 }).then(() => 'turn'),
-	]).catch(() => 'timeout');
-
-	if (result === 'turn') {
-		// momentumCheckPhase may need another turn start — end one more turn
-		const overlay = await page.locator('#reward-overlay').isVisible({ timeout: 1000 }).catch(() => false);
-		if (!overlay) {
-			await page.click('#btn-end-turn');
-			await page.waitForSelector('#reward-overlay', { timeout: 30000 });
+	// Attempt the General Quest through the real UI flow.
+	await page.click('#btn-general-quest');
+	await page.waitForTimeout(400);
+	for (const sel of ['#modal-yes', '#modal-attempt', '#modal-roll', '#modal-done']) {
+		const btn = page.locator(sel);
+		if (await btn.isVisible({ timeout: 3000 }).catch(() => false)) {
+			// The dice modal must show the attempting Mosje's stats (name + traits).
+			if (sel === '#modal-roll') {
+				await expect(page.locator('.dice-mosje-name')).toBeVisible();
+				await ss(page, 'dice-modal-mosje-stats');
+				const traitChips = await page.locator('.dice-mosje-trait').count();
+				expect(traitChips).toBeGreaterThan(0);
+			}
+			await btn.click();
+			await page.waitForTimeout(sel === '#modal-roll' ? 1600 : 400);
 		}
 	}
 
-	await page.waitForSelector('#reward-overlay', { timeout: 10000 });
-	const { title, subtitle } = await waitForGameOver(page, 5000);
-	await ss(page, 'full-game-forced-win');
+	// The win overlay must already be on screen — we have NOT clicked End Turn.
+	await page.waitForSelector('#reward-overlay', { timeout: 5000 });
+	const { title, reason } = await waitForGameOver(page, 3000);
+	await ss(page, 'full-game-instant-level3-win');
 
-	// This should be a VICTORY for the human player
+	// Instant victory for the human, won by reaching Level 3.
 	expect(title).toBe('Victory!');
-	// Win reason should be MOMENTUM_DOMINATION (or LEVEL_3 if a level-up triggered first)
-	const reasonFound = WIN_REASONS.some(r => subtitle.toUpperCase().includes(r));
-	expect(reasonFound).toBe(true);
-	console.log('Forced win result:', subtitle);
+	expect(reason.toUpperCase()).toContain('LEVEL 3');
+
+	// The end screen embeds the battle log (colour-coded rows) + a Copy Log button.
+	await expect(page.locator('#reward-overlay .reward-log')).toBeVisible();
+	const logRows = await page.locator('#reward-overlay .reward-log .log-row').count();
+	expect(logRows).toBeGreaterThan(3);
+	await expect(page.locator('#reward-copy-btn')).toBeVisible();
+	await ss(page, 'reward-overlay-battle-log');
+
+	// And the Mosje is exactly Level 3 (never overshot to Level 4).
+	const winnerLevel = await page.evaluate(() => {
+		const gs = window.__testHooks.getGameState();
+		return gs.players.player_1.activeSlots[0]?.level;
+	});
+	expect(winnerLevel).toBe(3);
 });

@@ -21,12 +21,49 @@
       <div class="topbar-flow__item" id="topbar-place-turns">0 turns active</div>
     </div>
     <div class="topbar-actions">
+      <button id="btn-toggle-win" class="btn-secondary" type="button" aria-expanded="false" aria-controls="topbar-win-popover">How to Win 🏆</button>
       <button id="btn-toggle-log" class="btn-secondary" type="button" aria-expanded="false" aria-controls="topbar-log-popover">Battle Log</button>
       <button id="btn-general-quest" class="btn-secondary" type="button">General Quest 🎯</button>
       <button id="btn-personal-quest" class="btn-secondary" type="button">Personal Quest ⭐</button>
       <button id="btn-end-turn" class="btn-primary" type="button">End Turn</button>
     </div>
   </header>
+
+  <section id="topbar-win-popover" class="topbar-log-popover topbar-win-popover">
+    <div class="topbar-log-header">
+      <h2>How to Win — first to any one wins</h2>
+    </div>
+    <ul class="win-conditions">
+      <li class="win-conditions__item win-conditions__item--primary">
+        <span class="win-conditions__icon">🏆</span>
+        <span class="win-conditions__body">
+          <strong>Reach Level 3 (= 0 MP)</strong>
+          <small>Push a Mosje past 100 MP three times. Hitting Level 3 wins instantly.</small>
+        </span>
+      </li>
+      <li class="win-conditions__item">
+        <span class="win-conditions__icon">💥</span>
+        <span class="win-conditions__body">
+          <strong>Knockout</strong>
+          <small>Defeat all of your opponent's Mosjes.</small>
+        </span>
+      </li>
+      <li class="win-conditions__item">
+        <span class="win-conditions__icon">🎯</span>
+        <span class="win-conditions__body">
+          <strong>Quest Master</strong>
+          <small>Complete 7 Quests in total.</small>
+        </span>
+      </li>
+      <li class="win-conditions__item">
+        <span class="win-conditions__icon">⚡</span>
+        <span class="win-conditions__body">
+          <strong>Momentum Domination</strong>
+          <small>Hold 250+ total MP at the start of your turn.</small>
+        </span>
+      </li>
+    </ul>
+  </section>
 
   <section id="topbar-log-popover" class="topbar-log-popover">
     <div class="topbar-log-header">

@@ -5,11 +5,12 @@ import { renderBoard, showPlaceEffectBanner } from './ui/boardRenderer.js';
 import { createLogRenderer } from './ui/logRenderer.js';
 import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
-import { animateFieldActivation, animateStateDelta, showTurnTransition, setAbilityNameResolver, animateQuestResult, showInstantEffect } from './ui/actionAnimations.js';
+import { animateFieldActivation, animateStateDelta, showTurnTransition, setAbilityNameResolver, animateQuestResult, showInstantEffect, showDeckOutBanner, pulseDiscardPile } from './ui/actionAnimations.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes } from './engine/gameState.js';
 import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, playPersonalQuest, activatePersonalQuest } from './engine/turnManager.js';
 import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold } from './abilities/questLogic.js';
 import { loseMP, gainMP } from './engine/mpManager.js';
+import { checkVictory } from './engine/victoryChecker.js';
 import { MOSJES } from './data/mosjes.js';
 import { PIECIES } from './data/piecies.js';
 import { SNELLE_PIECIES } from './data/snellePiecies.js';
@@ -302,6 +303,35 @@ function initGamePage() {
 		});
 	}
 
+	// ── "How to Win" popover — same toggle pattern as the Battle Log ──────
+	const winToggleBtn = document.getElementById('btn-toggle-win');
+	const winPopover = document.getElementById('topbar-win-popover');
+	if (winToggleBtn && winPopover) {
+		const setWinOpen = (open) => {
+			winPopover.classList.toggle('is-visible', open);
+			winToggleBtn.setAttribute('aria-expanded', String(open));
+			winToggleBtn.classList.toggle('is-open', open);
+		};
+
+		setWinOpen(false);
+
+		winToggleBtn.addEventListener('click', () => {
+			setWinOpen(!winPopover.classList.contains('is-visible'));
+		});
+
+		document.addEventListener('click', (event) => {
+			if (!winPopover.classList.contains('is-visible')) return;
+			const target = event.target;
+			if (!(target instanceof Node)) return;
+			if (winPopover.contains(target) || winToggleBtn.contains(target)) return;
+			setWinOpen(false);
+		});
+
+		document.addEventListener('keydown', (event) => {
+			if (event.key === 'Escape' && winPopover.classList.contains('is-visible')) setWinOpen(false);
+		});
+	}
+
 	const urlParams = new URLSearchParams(window.location.search);
 	const lobbyData = readLobbyData();
 	const log = createLogRenderer(logRoot);
@@ -356,6 +386,9 @@ function initGamePage() {
 	// Determine which player this client controls
 	const localPlayerId = urlParams.get('player') || lobbyData.playerId || 'player_1';
 	const opponentId = localPlayerId === 'player_1' ? 'player_2' : 'player_1';
+	// De-dupe id for the deck-out recycle notice so re-renders / repeated remote pushes
+	// don't re-show the banner. Fires again only on a genuinely new deck-out (new turn).
+	let _lastDeckOutShownId = null;
 	const roomCode = urlParams.get('room') || lobbyData.roomCode || 'LOCAL';
 	const isOffline  = urlParams.get('offline')   === 'true';
 	const isBotVsBot = urlParams.get('botvsbot') === 'true';
@@ -379,6 +412,7 @@ function initGamePage() {
 		mosjesLost: 0,
 	};
 	let prevActiveSlots = null; // snapshot of local player's active slots after each render
+	let gameOverHandled = false; // guard: the win overlay must only ever show once
 
 	// ── Sync helpers ──────────────────────────────────────────────────────
 	function syncPush() {
@@ -644,15 +678,50 @@ function initGamePage() {
 		}).catch(err => console.error('[BOT] playBotSteps error:', err));
 	}
 
+	// Turn the raw win-reason enum into a plain-language sentence the player can
+	// actually parse ("KNOCKOUT" → "all of Bot's Mosjes were defeated"), including
+	// who/what triggered it. Keeps the win legible even when it fires on the
+	// opponent's turn (e.g. the bot KO'ing its own last Mosje on a failed quest).
+	function describeWin(gs) {
+		const winner = gs.players[gs.winnerId];
+		const opponentId = Object.keys(gs.players).find(id => id !== gs.winnerId);
+		const opponent = gs.players[opponentId];
+		const winnerName = winner?.name || 'Winner';
+		const opponentName = opponent?.name || 'Opponent';
+
+		switch (gs.winReason) {
+			case 'LEVEL_3': {
+				const champ = (winner?.activeSlots || []).find(s => s && s.level >= 3);
+				const who = champ?.name || `${winnerName}'s Mosje`;
+				return `Level 3 — ${who} maxed out and won the game.`;
+			}
+			case 'KNOCKOUT': {
+				const lastDefeated = [...(opponent?.graveyard || [])].reverse()
+					.find(c => c?.type === 'MOSJE');
+				const tail = lastDefeated?.name ? ` (last to fall: ${lastDefeated.name})` : '';
+				return `Knockout — all of ${opponentName}'s Mosjes were defeated${tail}.`;
+			}
+			case 'QUEST_MASTER':
+				return `Quest Master — ${winnerName} completed 7 Quests.`;
+			case 'MOMENTUM_DOMINATION':
+				return `Momentum Domination — ${winnerName} held 250+ total MP at turn start.`;
+			default:
+				return String(gs.winReason || 'Game over');
+		}
+	}
+
 	// ── Post-match reward flow ────────────────────────────────────────────
 	async function handleGameOver(gs) {
+		if (gameOverHandled) return; // already shown — never stack a second overlay
+		gameOverHandled = true;
 		await cancelDisconnectHooks();
 		stopListening();
 		const winnerName = gs.players[gs.winnerId]?.name || 'Unknown';
 		const opponentName = gs.players[localPlayerId === 'player_1' ? 'player_2' : 'player_1']?.name || 'Opponent';
 		const outcome = gs.winnerId === localPlayerId ? 'win' : 'loss';
+		const winDetail = describeWin(gs);
 
-		log.add('win', `${winnerName} won by ${gs.winReason}.`);
+		log.add('win', `🏆 ${winnerName} wins! ${winDetail}`);
 
 		let muntenAwarded = 0;
 		const user = getCurrentUser();
@@ -662,7 +731,7 @@ function initGamePage() {
 			muntenAwarded = result.muntenAwarded;
 		}
 
-		showRewardOverlay({ outcome, winnerName, winReason: gs.winReason, muntenAwarded, isOnline, stats: gameStats });
+		showRewardOverlay({ outcome, winnerName, winReason: gs.winReason, winDetail, muntenAwarded, isOnline, stats: gameStats, logEntries: log.getEntries() });
 	}
 
 	// ── Shared remote-state handler — registered after game init ─────────
@@ -1226,7 +1295,7 @@ function initGamePage() {
 					console.log('[ABILITY-AUTO]', al.label, '| roll:', al.roll, '| adjustment:', al.adjustment);
 					delete gameState._autoAbilityLog;
 				}
-			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus, forceReroll, skiffaRerolls: skiffaRerolls + tweedeKansReroll });
+			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus, forceReroll, skiffaRerolls: skiffaRerolls + tweedeKansReroll, mosje: gameState.players[localPlayerId].activeSlots[targetSlotIndex] });
 		}
 
 		function showQuestPreviewThenRoll(targetSlotIndex) {
@@ -1285,6 +1354,24 @@ function initGamePage() {
 		renderAndAnimate(beforePlay, { actionLabel: 'play-personal-quest', placedCardId: questDef?.id });
 	});
 
+	// Deck-out recycle notice: when the engine stamps _deckOutEvent (D-06 reshuffle), show a
+	// banner + battle-log line + discard-pile pulse. Runs on both the local action path and
+	// onRemoteState (via renderFromState), so BOTH players see it; de-duped per event.
+	function maybeAnnounceDeckOut(state) {
+		const evt = state?._deckOutEvent;
+		if (!evt) return;
+		const id = `${evt.playerId}#${evt.turnNumber}`;
+		if (id === _lastDeckOutShownId) return;   // already shown on THIS client
+		_lastDeckOutShownId = id;
+
+		const name = state.players?.[evt.playerId]?.name || 'A player';
+		log.add('quest', `♻ ${name}'s deck ran out — discard reshuffled into deck. ${name} skips their next turn (1-turn cooldown).`);
+		showDeckOutBanner({
+			playerName: name,
+			onPileHighlight: () => pulseDiscardPile(evt.playerId, localPlayerId),
+		});
+	}
+
 	function renderFromState(state) {
 		const uiState = toBoardViewModel(state, localPlayerId);
 
@@ -1316,6 +1403,8 @@ function initGamePage() {
 			showPlaceEffectBanner(state._lastPlaceEffect.placeName, state._lastPlaceEffect.description, state._lastPlaceEffect.phase);
 			delete state._lastPlaceEffect;
 		}
+		// Board is rendered (discard containers now exist) — announce any deck-out recycle.
+		maybeAnnounceDeckOut(state);
 
 		const questBtnsEnabled = isLocalTurn && !alreadyAttempted && !gameOver;
 		const questsUsed = state.players[localPlayerId].questsAttemptedThisTurn || 0;
@@ -1459,10 +1548,7 @@ function initGamePage() {
 			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${slot?.name || mosjeId} ability`);
 			syncPush();
 			if (gameState.status === 'FINISHED') {
-				stopListening();
-				const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
-				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
-				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+				handleGameOver(gameState);
 			}
 			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
 			return;
@@ -1501,10 +1587,7 @@ function initGamePage() {
 			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${bintiSlot?.name || mosjeId} ability`);
 			syncPush();
 			if (gameState.status === 'FINISHED') {
-				stopListening();
-				const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
-				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
-				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+				handleGameOver(gameState);
 			}
 			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
 			return;
@@ -1560,10 +1643,7 @@ function initGamePage() {
 			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${bcSlot?.name || mosjeId} ability`);
 			syncPush();
 			if (gameState.status === 'FINISHED') {
-				stopListening();
-				const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
-				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
-				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+				handleGameOver(gameState);
 			}
 			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
 			return;
@@ -1605,10 +1685,7 @@ function initGamePage() {
 			logStateOutcome(log, beforeAbility, gameState, localPlayerId, 'Ronald Strategic Insight');
 			syncPush();
 			if (gameState.status === 'FINISHED') {
-				stopListening();
-				const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
-				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
-				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+				handleGameOver(gameState);
 			}
 			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
 			return;
@@ -1657,10 +1734,7 @@ function initGamePage() {
 			logStateOutcome(log, beforeAbility, gameState, localPlayerId, 'FPS West Tactical Analysis');
 			syncPush();
 			if (gameState.status === 'FINISHED') {
-				stopListening();
-				const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
-				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
-				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+				handleGameOver(gameState);
 			}
 			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
 			return;
@@ -1715,10 +1789,7 @@ function initGamePage() {
 			logStateOutcome(log, beforeAbility, gameState, localPlayerId, 'Gandoe Elimination Strike');
 			syncPush();
 			if (gameState.status === 'FINISHED') {
-				stopListening();
-				const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
-				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
-				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+				handleGameOver(gameState);
 			}
 			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
 			return;
@@ -1759,10 +1830,7 @@ function initGamePage() {
 			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${ronaldSlot?.name || mosjeId} ability`);
 			syncPush();
 			if (gameState.status === 'FINISHED') {
-				stopListening();
-				const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
-				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
-				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+				handleGameOver(gameState);
 			}
 			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
 			return;
@@ -1808,10 +1876,7 @@ function initGamePage() {
 			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${mingSlot?.name || mosjeId} ability`);
 			syncPush();
 			if (gameState.status === 'FINISHED') {
-				stopListening();
-				const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
-				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
-				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+				handleGameOver(gameState);
 			}
 			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
 			return;
@@ -1858,10 +1923,7 @@ function initGamePage() {
 			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${tukSlot?.name || mosjeId} ability`);
 			syncPush();
 			if (gameState.status === 'FINISHED') {
-				stopListening();
-				const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
-				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
-				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+				handleGameOver(gameState);
 			}
 			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
 			return;
@@ -1978,10 +2040,7 @@ function initGamePage() {
 		syncPush();
 
 		if (gameState.status === 'FINISHED') {
-			stopListening();
-			const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
-			log.add('win', `${winnerName} won by ${gameState.winReason}.`);
-			modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+			handleGameOver(gameState);
 		}
 		renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
 	}
@@ -2147,12 +2206,10 @@ function initGamePage() {
 						modal.showMosjeSelect(liveMosjeSlots, (selectedSlotIndex) => {
 							const beforePerfectGain = snapshotForAnimation();
 							gameState = gainMP(gameState, localPlayerId, selectedSlotIndex, 70);
-							renderFromState(gameState);
-							animateStateDelta(beforePerfectGain, gameState, {
-								actorId: localPlayerId,
-								localPlayerId,
-								actionLabel: 'quest-resolution',
-							});
+							// Perfect Sync's +70 can cross into Level 3 — finalise the win now so
+							// the modal fires instantly instead of waiting for end of turn.
+							gameState = checkVictory(gameState);
+							renderAndAnimate(beforePerfectGain, { actionLabel: 'quest-resolution' });
 							syncPush();
 							log.add('gain', `Perfect Sync: Success → +70 MP`);
 							logStateOutcome(log, beforeResolve, gameState, localPlayerId, 'Perfect Sync resolution');
@@ -2161,12 +2218,7 @@ function initGamePage() {
 					return;
 				}
 
-				renderFromState(gameState);
-				animateStateDelta(beforeResolve, gameState, {
-					actorId: localPlayerId,
-					localPlayerId,
-					actionLabel: 'quest-resolution',
-				});
+				renderAndAnimate(beforeResolve, { actionLabel: 'quest-resolution' });
 				animateQuestResult({ playerId: localPlayerId, slotIndex: targetSlotIndex, success: didSucceed });
 				syncPush();
 				const mpDelta = didSucceed ? resolveQuestDef.successMP : resolveQuestDef.failMP;
@@ -2174,7 +2226,7 @@ function initGamePage() {
 				const rollLabel = rollInfo ? `rolled ${rollInfo.roll}, needed ${rollInfo.threshold}+ → ` : '';
 				log.add(didSucceed ? 'gain' : 'loss', `${questDef.name}: ${rollLabel}${didSucceed ? 'Success' : 'Failed'} (${sign}${mpDelta} MP)`);
 				logStateOutcome(log, beforeResolve, gameState, localPlayerId, `${questDef.name} resolution`);
-			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus, forceReroll, skiffaRerolls: skiffaRerolls + tweedeKansReroll });
+			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus, forceReroll, skiffaRerolls: skiffaRerolls + tweedeKansReroll, mosje: liveMosje });
 		}
 
 		log.add('quest', `Activating Personal Quest: ${questDef.name}`);
@@ -2545,10 +2597,7 @@ function initGamePage() {
 			logStateOutcome(log, beforePlay, gameState, localPlayerId, `${def.name} activation`);
 			syncPush();
 			if (gameState.status === 'FINISHED') {
-				stopListening();
-				const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
-				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
-				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+				handleGameOver(gameState);
 			}
 			renderAndAnimate(beforePlay, { actionLabel: 'play-piecie', placedCardId: def.id });
 		}
@@ -2595,10 +2644,7 @@ function initGamePage() {
 			logStateOutcome(log, beforePlay, gameState, localPlayerId, `${cardDef.name} placement`);
 			syncPush();
 			if (gameState.status === 'FINISHED') {
-				stopListening();
-				const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
-				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
-				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+				handleGameOver(gameState);
 			}
 			renderAndAnimate(beforePlay, { actionLabel: 'play-piecie', placedCardId: cardDef.id });
 			return;
@@ -2729,10 +2775,7 @@ function initGamePage() {
 			logStateOutcome(log, beforePlay, gameState, localPlayerId, `${cardDef.name} placement`);
 			syncPush();
 			if (gameState.status === 'FINISHED') {
-				stopListening();
-				const winnerName = gameState.players[gameState.winnerId]?.name || 'Unknown';
-				log.add('win', `${winnerName} won by ${gameState.winReason}.`);
-				modal.showInfo('Match Finished', `${winnerName} wins by ${gameState.winReason}.`);
+				handleGameOver(gameState);
 			}
 			renderAndAnimate(beforePlay, { actionLabel: 'play-place', placedCardId: cardDef.id });
 			// (Green burst fires on ACTIVATION — see handleActivatePlace — since a Place
@@ -2807,6 +2850,7 @@ function toBoardViewModel(gameState, localPlayerId) {
 					isLocalTurn,
 					viewerOwns: false,
 				}),
+				deck: opponent.deck || [],
 				graveyard: opponent.graveyard || [],
 			},
 			bottom: {
@@ -2821,6 +2865,7 @@ function toBoardViewModel(gameState, localPlayerId) {
 					isLocalTurn,
 					viewerOwns: true,
 				}),
+				deck: localPlayer.deck || [],
 				graveyard: localPlayer.graveyard || [],
 			},
 		},
