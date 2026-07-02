@@ -2060,7 +2060,9 @@
    flex-wrap: wrap;
    gap: 12px;
    width: auto;
-   max-width: calc((var(--piecie-cell-w) * 4) + 36px);
+   /* Room for 4 cards per row: 4*cell + 3 gaps (36) + horizontal padding (24, border-box)
+      + a few px rounding tolerance — otherwise the 4th card wraps to a stray 2nd row. */
+   max-width: calc((var(--piecie-cell-w) * 4) + 64px);
    height: auto;
    min-height: var(--piecie-cell-h);
    align-content: start;
