@@ -233,7 +233,9 @@ export function startTurn(gameState) {
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // phaseDrawCard
 // Draws 1 card from the player's personal deck into their hand.
-// If the deck is empty, nothing happens (no penalty â€” may change later).
+// If the deck is empty but the discard has cards, reshuffle it into a new deck, draw 1,
+// and set skipNextTurn (D-06 deck-out penalty) — also stamping a one-shot _deckOutEvent
+// marker for the UI. If deck AND discard are both empty, no draw and no penalty.
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export function phaseDrawCard(gameState, playerId, count = 1, isOpponentTriggered = false) {
   const state = JSON.parse(JSON.stringify(gameState));
@@ -263,6 +265,13 @@ export function phaseDrawCard(gameState, playerId, count = 1, isOpponentTriggere
     player.hand.push(...drawn);
     player.drawsThisTurn = (player.drawsThisTurn || 0) + drawn.length;
     player.skipNextTurn = true;
+    // One-shot marker for the UI: rides the existing gameState sync so BOTH clients can
+    // show the deck-out notice. Not cleared here — each client de-dupes on its own.
+    state._deckOutEvent = {
+      playerId,
+      turnNumber: state.turnNumber,
+      reshuffledCount: player.deck.length + drawn.length, // cards recycled from discard
+    };
     console.log(`[ENGINE] Draw phase: deck-out — reshuffled ${player.deck.length + 1} cards, drew ${drawn.length}, skipNextTurn set`);
     return state;
   }

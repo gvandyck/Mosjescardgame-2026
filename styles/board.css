@@ -291,10 +291,10 @@
    text-transform: uppercase;
    display: flex;
    align-items: center;
+   justify-content: center;   /* centre the player name + modifier pills over the board */
    gap: 8px;
    flex-wrap: wrap;
-   padding-left: 0.5vw;
-   width: fit-content;
+   width: 100%;
 }
 
 /* ── SNELLE MODIFIER PILLS ───────────────────────────────────────── */
@@ -349,6 +349,7 @@
 .board-zone__row {
    display: flex;
    align-items: flex-start;
+   justify-content: center;   /* centre the mosje + piecies + piles as a group */
    gap: 10px;
    overflow-x: auto;
    padding-bottom: 10px;
@@ -371,12 +372,9 @@
 }
 
 .discard-pile-container {
-   position: sticky;
-   right: 0;
-   z-index: 20;
+   /* Sits inside .pile-column now (deck above, graveyard below) — no longer sticky so the
+      two piles stay glued together as one column. */
    flex: 0 0 auto;
-   background: var(--board-bg, #0f0f0f);
-   padding-left: 6px;
 }
 
 .board-zone__slots {
@@ -388,10 +386,10 @@
 }
 
 .board-zone--player {
-   --mosje-slot-h: calc(300px * var(--card-height-ratio));
-   --piecie-cell-w: 300px;
+   --mosje-slot-h: calc(235px * var(--card-height-ratio));
+   --piecie-cell-w: 235px;
    --piecie-cell-h: calc(var(--piecie-cell-w) * var(--card-height-ratio));
-   min-height: 650px;
+   min-height: 540px;
 }
 
 .board-zone--opponent {
@@ -410,10 +408,10 @@
 
 .board-zone--player .card--mosje,
 .board-zone--player .mosje-card--owned {
-   width: 300px;
-   min-width: 300px;
-   max-width: 300px;
-   height: calc(300px * var(--card-height-ratio));
+   width: 235px;
+   min-width: 235px;
+   max-width: 235px;
+   height: calc(235px * var(--card-height-ratio));
 }
 
 .board-zone--player .mosje-card--owned .mosje-card-inner {
@@ -983,6 +981,75 @@
    100% { opacity: 0; transform: translate(-50%, -12px) scale(0.96); }
 }
 
+/* ── Deck-out recycle notice (Phase 33) ─────────────────────────── */
+.deckout-banner {
+   position: fixed;
+   top: 104px;
+   left: 50%;
+   z-index: 251;
+   pointer-events: none;
+   transform: translateX(-50%);
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   gap: 0.25rem;
+   min-width: min(460px, calc(100vw - 32px));
+   padding: 0.85rem 1.4rem;
+   border: 2px solid rgba(56, 189, 248, 0.75);
+   border-radius: 6px;
+   background: linear-gradient(90deg, rgba(8, 47, 73, 0.92), rgba(8, 12, 26, 0.94) 40%, rgba(8, 12, 26, 0.94) 60%, rgba(8, 47, 73, 0.92));
+   color: #e0f2fe;
+   text-align: center;
+   font-family: var(--font-display);
+   box-shadow: 0 22px 50px rgba(0, 0, 0, 0.5), 0 0 24px rgba(56, 189, 248, 0.4);
+   animation: deckout-banner-in 3s var(--ease-dramatic) forwards;
+}
+.deckout-banner__title {
+   font-size: 1.2rem;
+   font-weight: 800;
+   letter-spacing: 0.04em;
+   text-shadow: 0 2px 0 rgba(0, 0, 0, 0.6), 0 0 16px rgba(56, 189, 248, 0.55);
+}
+.deckout-banner__body {
+   font-size: 0.9rem;
+   font-weight: 600;
+   opacity: 0.95;
+   line-height: 1.25;
+}
+@keyframes deckout-banner-in {
+   0% { opacity: 0; transform: translate(-50%, -18px) scale(0.85); }
+   10% { opacity: 1; transform: translate(-50%, 0) scale(1.05); }
+   85% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+   100% { opacity: 0; transform: translate(-50%, -12px) scale(0.97); }
+}
+
+/* Board cue: the recycled discard pile flashes as it empties into the deck. */
+.discard-pile--recycling {
+   animation: discard-recycle-pulse 1s ease-out 2;
+}
+@keyframes discard-recycle-pulse {
+   0%, 100% { box-shadow: 0 0 0 rgba(56, 189, 248, 0); filter: none; }
+   50% { box-shadow: 0 0 22px rgba(56, 189, 248, 0.85), 0 0 40px rgba(56, 189, 248, 0.4); filter: brightness(1.35); }
+}
+
+/* Reduced motion: the banner is essential info, so it STILL shows via a plain fade (kept
+   OUT of the animation:none group so animationend still fires and it self-removes). The
+   pile pulse gets a brief fade so its animationend also fires and the class is cleared. */
+@media (prefers-reduced-motion: reduce) {
+   .deckout-banner {
+      animation: deckout-banner-fade 2.4s linear forwards;
+   }
+   .discard-pile--recycling {
+      animation: deckout-banner-fade 0.4s linear;
+   }
+}
+@keyframes deckout-banner-fade {
+   0% { opacity: 0; }
+   8% { opacity: 1; }
+   88% { opacity: 1; }
+   100% { opacity: 0; }
+}
+
 .card-activation-burst {
    position: fixed;
    z-index: 245;
@@ -1522,6 +1589,66 @@
 .target-mp { font-size: 0.8rem; color: #8ef58e; font-weight: 600; }
 .target-level { font-size: 0.75rem; color: #b0bcdf; }
 
+/* ── PILE COLUMN (deck on top, graveyard under) ──────────────────── */
+.pile-column {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	align-self: center;      /* vertically centre the piles beside the tall cards */
+	gap: 14px;
+	flex-shrink: 0;
+	/* Piles are compact SIDE indicators — override the board's huge card cell size so
+	   stacking deck + graveyard doesn't inflate the zone height (that pushed the cards
+	   and their Activate buttons off-screen). Both players get the same tidy pile size. */
+	--piecie-cell-w: 110px;
+	--piecie-cell-h: calc(110px * var(--card-height-ratio));
+}
+
+/* Mirror the opponent (top of the board) like a real tabletop: their graveyard sits on
+   top and the deck underneath — the reverse of the player's deck-top / graveyard-under.
+   Order flips visually only; the #deck-opponent / #discard-opponent ids stay put. */
+.board-zone--opponent .pile-column {
+	flex-direction: column-reverse;
+}
+
+/* ── DECK (DRAW PILE) UI — reuses the discard-pile stack visuals ──── */
+.deck-pile-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 8px;
+	width: var(--piecie-cell-w);
+	min-width: var(--piecie-cell-w);
+	max-width: var(--piecie-cell-w);
+	flex-shrink: 0;
+}
+
+/* Deck is hidden/face-down: no click affordance, and a cool blue card-back tint so it
+   reads differently from the graveyard sitting below it. */
+.deck-pile {
+	cursor: default;
+}
+.deck-pile:hover {
+	transform: none;
+	filter: none;
+}
+.deck-pile .discard-pile__card-layer {
+	/* Solid, fully opaque card-back so the deck reads as a real stack (not see-through). */
+	background: #1a2a48;
+	border-color: rgba(96, 165, 250, 0.5);
+}
+.deck-pile .discard-pile__card-layer::before {
+	background:
+		repeating-linear-gradient(45deg, rgba(96, 165, 250, 0.14), rgba(96, 165, 250, 0.14) 3px, rgba(20, 33, 56, 0.9) 3px, rgba(20, 33, 56, 0.9) 6px);
+	opacity: 1;
+}
+.deck-pile .discard-pile__count-badge {
+	background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+	color: #f0f6ff;
+}
+
 /* ── DISCARD PILE UI ─────────────────────────────────────────────── */
 .discard-pile-container {
 	display: flex;
@@ -1926,11 +2053,14 @@
 }
 
 .board-zone__piecies {
-   display: grid;
-   grid-template-columns: repeat(4, var(--piecie-cell-w));
-   grid-template-rows: var(--piecie-cell-h);
+   /* Size to the piecies actually present (up to 4 per row, wrapping to a 2nd row for 5–8),
+      NOT a fixed 4-slot block. An empty/near-empty field collapses so the Mosje + piecies +
+      piles stay a tight, centred group instead of the Mosje getting shoved to the left. */
+   display: flex;
+   flex-wrap: wrap;
    gap: 12px;
-   width: calc((var(--piecie-cell-w) * 4) + 36px);
+   width: auto;
+   max-width: calc((var(--piecie-cell-w) * 4) + 36px);
    height: auto;
    min-height: var(--piecie-cell-h);
    align-content: start;

@@ -5,7 +5,7 @@ import { renderBoard, showPlaceEffectBanner } from './ui/boardRenderer.js';
 import { createLogRenderer } from './ui/logRenderer.js';
 import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
-import { animateFieldActivation, animateStateDelta, showTurnTransition, setAbilityNameResolver, animateQuestResult, showInstantEffect } from './ui/actionAnimations.js';
+import { animateFieldActivation, animateStateDelta, showTurnTransition, setAbilityNameResolver, animateQuestResult, showInstantEffect, showDeckOutBanner, pulseDiscardPile } from './ui/actionAnimations.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes } from './engine/gameState.js';
 import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, playPersonalQuest, activatePersonalQuest } from './engine/turnManager.js';
 import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold } from './abilities/questLogic.js';
@@ -386,6 +386,9 @@ function initGamePage() {
 	// Determine which player this client controls
 	const localPlayerId = urlParams.get('player') || lobbyData.playerId || 'player_1';
 	const opponentId = localPlayerId === 'player_1' ? 'player_2' : 'player_1';
+	// De-dupe id for the deck-out recycle notice so re-renders / repeated remote pushes
+	// don't re-show the banner. Fires again only on a genuinely new deck-out (new turn).
+	let _lastDeckOutShownId = null;
 	const roomCode = urlParams.get('room') || lobbyData.roomCode || 'LOCAL';
 	const isOffline  = urlParams.get('offline')   === 'true';
 	const isBotVsBot = urlParams.get('botvsbot') === 'true';
@@ -1351,6 +1354,24 @@ function initGamePage() {
 		renderAndAnimate(beforePlay, { actionLabel: 'play-personal-quest', placedCardId: questDef?.id });
 	});
 
+	// Deck-out recycle notice: when the engine stamps _deckOutEvent (D-06 reshuffle), show a
+	// banner + battle-log line + discard-pile pulse. Runs on both the local action path and
+	// onRemoteState (via renderFromState), so BOTH players see it; de-duped per event.
+	function maybeAnnounceDeckOut(state) {
+		const evt = state?._deckOutEvent;
+		if (!evt) return;
+		const id = `${evt.playerId}#${evt.turnNumber}`;
+		if (id === _lastDeckOutShownId) return;   // already shown on THIS client
+		_lastDeckOutShownId = id;
+
+		const name = state.players?.[evt.playerId]?.name || 'A player';
+		log.add('quest', `♻ ${name}'s deck ran out — discard reshuffled into deck. ${name} skips their next turn (1-turn cooldown).`);
+		showDeckOutBanner({
+			playerName: name,
+			onPileHighlight: () => pulseDiscardPile(evt.playerId, localPlayerId),
+		});
+	}
+
 	function renderFromState(state) {
 		const uiState = toBoardViewModel(state, localPlayerId);
 
@@ -1382,6 +1403,8 @@ function initGamePage() {
 			showPlaceEffectBanner(state._lastPlaceEffect.placeName, state._lastPlaceEffect.description, state._lastPlaceEffect.phase);
 			delete state._lastPlaceEffect;
 		}
+		// Board is rendered (discard containers now exist) — announce any deck-out recycle.
+		maybeAnnounceDeckOut(state);
 
 		const questBtnsEnabled = isLocalTurn && !alreadyAttempted && !gameOver;
 		const questsUsed = state.players[localPlayerId].questsAttemptedThisTurn || 0;
@@ -2827,6 +2850,7 @@ function toBoardViewModel(gameState, localPlayerId) {
 					isLocalTurn,
 					viewerOwns: false,
 				}),
+				deck: opponent.deck || [],
 				graveyard: opponent.graveyard || [],
 			},
 			bottom: {
@@ -2841,6 +2865,7 @@ function toBoardViewModel(gameState, localPlayerId) {
 					isLocalTurn,
 					viewerOwns: true,
 				}),
+				deck: localPlayer.deck || [],
 				graveyard: localPlayer.graveyard || [],
 			},
 		},
