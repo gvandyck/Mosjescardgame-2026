@@ -84,16 +84,17 @@ export function showRewardOverlay({ outcome, winnerName, winReason, winDetail, m
 	// enum if main.js didn't supply a description. Escaped at render time below.
 	const reasonText = winDetail || (winReason ? `Won by ${winReason}.` : '');
 
-	// Battle log recap — the same colour-coded entries from the in-game log, so
-	// the player can review exactly what happened before leaving for the lobby.
+	// Battle log recap — the same colour-coded entries from the in-game log. Collapsed by
+	// default (as a <details>) so the win card stays short and doesn't need to scroll; the
+	// player can expand it to review, or just hit Copy Log.
 	const hasLog = Array.isArray(logEntries) && logEntries.length > 0;
 	const logSection = hasLog ? `
-		<div class="reward-log-section">
-			<div class="reward-stats__divider"><span>Battle Log</span></div>
+		<details class="reward-log-details">
+			<summary class="reward-log-summary">Battle Log <span class="reward-log-count">${logEntries.length}</span></summary>
 			<div class="reward-log" id="reward-log">
 				${logEntries.map(e => `<div class="log-row ${esc(e.type)}">${esc(e.text)}</div>`).join('')}
 			</div>
-		</div>
+		</details>
 	` : '';
 
 	overlay.innerHTML = `

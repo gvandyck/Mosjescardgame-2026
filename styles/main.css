@@ -782,7 +782,18 @@ body::before {
   width: 90%;
   max-height: 92vh;
   overflow-y: auto;
+  /* Slim, on-theme scrollbar instead of the chunky default one — only shows if the card
+     ever overflows (with the log collapsed it usually won't). */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(232, 185, 79, 0.45) transparent;
 }
+.reward-card::-webkit-scrollbar { width: 7px; }
+.reward-card::-webkit-scrollbar-track { background: transparent; }
+.reward-card::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+}
+.reward-card::-webkit-scrollbar-thumb:hover { background: rgba(232, 185, 79, 0.5); }
 
 .reward-overlay--win .reward-card {
   border-color: var(--mosje-gold);
@@ -880,11 +891,43 @@ body::before {
   flex: 1 1 auto;
 }
 
-/* Battle-log recap inside the end screen — reuses the .log-row colour coding. */
-.reward-log-section {
+/* Battle-log recap inside the end screen — reuses the .log-row colour coding.
+   Collapsed by default via <details> so the win card stays compact. */
+.reward-log-details {
   width: 100%;
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
 }
+.reward-log-summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  list-style: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 6px 0;
+  user-select: none;
+  transition: color 0.15s;
+}
+.reward-log-summary:hover { color: rgba(255, 255, 255, 0.7); }
+.reward-log-summary::-webkit-details-marker { display: none; }   /* hide default triangle */
+.reward-log-summary::before {
+  content: '▸';
+  font-size: 0.7rem;
+  transition: transform 0.15s;
+}
+.reward-log-details[open] .reward-log-summary::before { transform: rotate(90deg); }
+.reward-log-count {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 99px;
+  padding: 1px 7px;
+  font-size: 0.6rem;
+  letter-spacing: 0.05em;
+}
+.reward-log-details .reward-log { margin-top: 8px; }
 
 .reward-log {
   max-height: 34vh;
