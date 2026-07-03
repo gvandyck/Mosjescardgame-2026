@@ -33,6 +33,16 @@ const PLACE_LOOKUP = Object.fromEntries(PLACES.map(c => [c.id, c]));
 const QUEST_LOOKUP = Object.fromEntries(QUESTS.map(c => [c.id, c]));
 const MOSJE_LOOKUP = Object.fromEntries(MOSJES.map(m => [m.id, m]));
 
+// MP safety margin — the bot skips a General Quest attempt unless its active
+// Mosje holds at least 2x the quest's failMP as a buffer. A Level-0 Mosje is
+// defeated when damage drives it below 0 MP (docs/phase0-rulings.md — "Defeat
+// below 0 MP"), and the bot was gambling into that far too often at low MP.
+function botHasQuestSafetyMargin(mosje, questDef) {
+  const failAmount = Math.abs(questDef?.failMP || 0);
+  if (failAmount === 0) return true;
+  return (mosje?.mp ?? 0) >= failAmount * 2;
+}
+
 /**
  * If Varkenspootjes left a pending target selection, resolve it for the bot:
  * prefer targeting Binti (for +60 MP), else target the opponent's first Mosje (-30 MP),
@@ -147,9 +157,10 @@ export function driveBotTurnSteps(gameState, botPlayerId) {
   const questCard = questResult.questCard;
   if (questCard) {
     const questDef = QUEST_LOOKUP[questCard.cardId];
-    if (questDef && canAttemptGeneralQuest(questDef, state, botPlayerId)) {
-      const player = state.players[botPlayerId];
-      const slotIdx = (player?.activeSlots || []).findIndex(s => s && !s.isDefeated);
+    const player = state.players[botPlayerId];
+    const slotIdx = (player?.activeSlots || []).findIndex(s => s && !s.isDefeated);
+    const activeMosje = slotIdx >= 0 ? player.activeSlots[slotIdx] : null;
+    if (questDef && canAttemptGeneralQuest(questDef, state, botPlayerId) && botHasQuestSafetyMargin(activeMosje, questDef)) {
       const didSucceed = rollDie() >= 4;
       state = resolveQuest(state, botPlayerId, questDef, didSucceed, slotIdx);
       state = { ...state, sharedGeneralQuestDiscard: [...(state.sharedGeneralQuestDiscard || []), questCard] };
@@ -290,10 +301,11 @@ export function driveBotTurn(gameState, botPlayerId) {
 
   if (questCard) {
     const questDef = QUEST_LOOKUP[questCard.cardId];
-    if (questDef && canAttemptGeneralQuest(questDef, state, botPlayerId)) {
-      const player = state.players[botPlayerId];
-      const firstActiveMosjeSlotIndex = (player?.activeSlots || [])
-        .findIndex(s => s && !s.isDefeated);
+    const player = state.players[botPlayerId];
+    const firstActiveMosjeSlotIndex = (player?.activeSlots || [])
+      .findIndex(s => s && !s.isDefeated);
+    const activeMosje = firstActiveMosjeSlotIndex >= 0 ? player.activeSlots[firstActiveMosjeSlotIndex] : null;
+    if (questDef && canAttemptGeneralQuest(questDef, state, botPlayerId) && botHasQuestSafetyMargin(activeMosje, questDef)) {
       const didSucceed = rollDie() >= 4;
       state = resolveQuest(state, botPlayerId, questDef, didSucceed, firstActiveMosjeSlotIndex);
       // Drain auto-ability log (e.g. Michelle Tough Gamble) — just console for driveBotTurn
