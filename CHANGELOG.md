@@ -3,6 +3,30 @@
 All notable changes to MOSJES are recorded here.
 Format: `[version] — date — what changed`
 
+> **Note:** This file was not kept current between Phase 8 and Phase 34 —
+> ~25 phases of work (leaderboard, bot opponent, deck balance, graveyard
+> system, interrupt modals, UI polish, and more) shipped to `main` without
+> an entry here. That history lives in `.planning/ROADMAP.md`'s per-phase
+> rows and in git log, not in this file. Entries resume below from Phase 34.
+
+---
+
+## [Unreleased] — 2026-07-04
+
+### Added
+- Phase 34: Account Starter-Deck Onboarding & Active Deck — blocking first-login
+  "choose your starter deck" modal (5 duo decks only); picking a deck saves it,
+  sets it active, and grants its exact card multiset to the collection; signed-in
+  lobby shows an active-deck panel + "Change deck" switcher; guest lobby dropdown
+  now lists only the 5 duo decks; bot opponent picks a true-random duo deck
+- Bot: MP safety margin — the bot no longer attempts a General Quest unless its
+  active Mosje holds at least 2x the quest's failMP as a buffer, preventing it
+  from repeatedly gambling itself into defeat at low MP
+
+### Fixed
+- Removed the stale `DIGITAL_CONTROL_STARTER_CARDS` auto-seed in accountSetup.js
+  (referenced card IDs that no longer existed in the data)
+
 ---
 
 ## [Unreleased] — 2026-04-19
