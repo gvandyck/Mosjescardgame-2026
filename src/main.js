@@ -71,13 +71,29 @@ function initLobbyPage() {
 	const form = document.getElementById('lobby-form');
 	if (!form) return;
 
-	// testOnboarding=1 hook — the COMMITTED Playwright path (gated behind the
-	// URL param so it NEVER affects real play, mirroring the testMode pattern).
-	// Skips the auth gate and runs the real blocking picker against a STUB
-	// claim (no Firebase writes) so tests drive the actual modal DOM.
-	const isTestOnboarding = new URLSearchParams(window.location.search).get('testOnboarding') === '1';
+	// Test hooks — gated behind URL params so they NEVER affect real play
+	// (mirroring the game.html ?testMode=true pattern). Each skips the real
+	// auth gate and drives the REAL lobby code with a fake user/store so
+	// Playwright can assert on-screen behavior without touching Firebase.
+	const testParams = new URLSearchParams(window.location.search);
+	const isTestOnboarding = testParams.get('testOnboarding') === '1';
+	const isTestActiveDeck = testParams.get('testActiveDeck') === '1';
+	const isTestGuestDeck = testParams.get('testGuestDeck') === '1';
 	if (isTestOnboarding) {
+		// Skips the auth gate and runs the real blocking picker against a STUB
+		// claim (no Firebase writes) so tests drive the actual modal DOM.
 		runStubbedOnboarding();
+	} else if (isTestActiveDeck) {
+		// Drives the real setupActiveDeckPanel() with an in-memory fake decks
+		// list + fake active id (no Firebase) so the panel + Change-deck
+		// switcher can be asserted live.
+		runStubbedActiveDeck();
+	} else if (isTestGuestDeck) {
+		// Guest (anonymous) users never trigger Firebase calls inside
+		// handleLobbyAuthChange (all storage calls are gated on
+		// !user.isAnonymous), so a fake anonymous user object drives the
+		// exact real guest branch safely, with no test-only duplicate code.
+		handleLobbyAuthChange({ uid: 'test-guest', isAnonymous: true, displayName: null });
 	} else {
 		// Auth gate: redirect to account page if not signed in.
 		// Also pre-fills name and shows user badge once auth resolves.
@@ -257,7 +273,10 @@ async function handleLobbyAuthChange(user) {
 // Signed-in (non-anonymous) lobby: hide #deck-select, show the active-deck
 // panel (name + Mosjes), and wire the Change-deck switcher. Persists a
 // migration-safe default (first deck) when activeDeckId was missing.
-async function setupActiveDeckPanel(uid, decks) {
+// `getActive`/`setActive` default to the real userStore accessors; the
+// ?testActiveDeck=1 hook (runStubbedActiveDeck) injects in-memory stubs so
+// this exact real code path is exercised live with no Firebase calls.
+async function setupActiveDeckPanel(uid, decks, { getActive = getActiveDeckId, setActive = setActiveDeckId } = {}) {
 	const deckSelect = document.getElementById('deck-select');
 	const deckLabel = document.querySelector('label[for="deck-select"]');
 	const panel = document.getElementById('active-deck-panel');
@@ -265,11 +284,11 @@ async function setupActiveDeckPanel(uid, decks) {
 	if (deckLabel) deckLabel.hidden = true;
 	if (panel) panel.hidden = false;
 
-	const activeId = await getActiveDeckId(uid);
+	const activeId = await getActive(uid);
 	const active = resolveActiveDeck(decks, activeId);
 	if (!active) return;
 	if (!activeId) {
-		await setActiveDeckId(uid, active.id);
+		await setActive(uid, active.id);
 	}
 	signedInDeckId = active.id;
 	renderActiveDeckPanel(panel, active);
@@ -283,7 +302,7 @@ async function setupActiveDeckPanel(uid, decks) {
 			allowCancel: true,
 		});
 		if (!picked) return;
-		await setActiveDeckId(uid, picked);
+		await setActive(uid, picked);
 		signedInDeckId = picked;
 		renderActiveDeckPanel(panel, decks.find(d => d.id === picked) || active);
 	});
@@ -306,6 +325,26 @@ async function promptStarterDeckPick() {
 async function runStubbedOnboarding() {
 	const deckId = await promptStarterDeckPick();
 	console.log('[UI] testOnboarding: picked starter deck', deckId);
+}
+
+// testActiveDeck=1 stub path: drives the REAL setupActiveDeckPanel() (panel
+// render + Change-deck switcher) against an in-memory fake decks list (>=2
+// real duo decks) + a fake active id, with getActiveDeckId/setActiveDeckId
+// stubbed to read/update that in-memory state (no Firebase), mirroring the
+// testOnboarding hook style. Exposes signedInDeckId so a test can assert
+// what game-start would read after a switch. Test-only.
+async function runStubbedActiveDeck() {
+	const fakeDecks = getPlayerFacingDecks().slice(0, 2);
+	let fakeActiveId = fakeDecks[0].id;
+	_customDecksCache = fakeDecks;
+	window.__testActiveDeckHook = {
+		get signedInDeckId() { return signedInDeckId; },
+		get seededDeckIds() { return fakeDecks.map(d => d.id); },
+	};
+	await setupActiveDeckPanel('test-uid', fakeDecks, {
+		getActive: async () => fakeActiveId,
+		setActive: async (_uid, id) => { fakeActiveId = id; return { success: true }; },
+	});
 }
 
 async function deleteSignedInAccount() {
