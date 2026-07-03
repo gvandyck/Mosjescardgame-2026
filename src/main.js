@@ -30,6 +30,9 @@ import {
 } from './multiplayer/authManager.js';
 import { loadUserDecks, getLastUserStoreError, deleteUserData } from './multiplayer/userStore.js';
 import { initNewAccount } from './multiplayer/accountSetup.js';
+import { getPlayerFacingDecks } from './data/playerFacingDecks.js';
+import { claimStarterDeck } from './multiplayer/claimStarterDeck.js';
+import { showOnboardingDeckPicker } from './ui/onboardingDeckPicker.js';
 import { claimMatchReward } from './multiplayer/matchRewards.js';
 import { showRewardOverlay } from './ui/rewardOverlay.js';
 import { driveBotTurn, driveBotTurnSteps } from './bot/botDriver.js';
@@ -62,53 +65,18 @@ function initLobbyPage() {
 	const form = document.getElementById('lobby-form');
 	if (!form) return;
 
-	// Auth gate: redirect to account page if not signed in.
-	// Also pre-fills name and shows user badge once auth resolves.
-	onAuthStateChanged(async user => {
-		if (!user) {
-			window.location.href = './account.html';
-			return;
-		}
-		// Pre-fill player name from account
-		const nameInput = document.getElementById('player-name');
-		if (nameInput && !nameInput.value && user.displayName) {
-			nameInput.value = user.displayName;
-		}
-		// Show user badge
-		const badge = document.getElementById('user-badge');
-		const badgeName = document.getElementById('user-badge-name');
-		const deleteAccountBtn = document.getElementById('btn-delete-account');
-		if (badge && badgeName) {
-			badgeName.textContent = user.isAnonymous ? 'Playing as Guest' : user.displayName || user.email;
-			badge.hidden = false;
-		}
-		if (deleteAccountBtn) deleteAccountBtn.hidden = user.isAnonymous;
-		// One-time account setup (wallet + starter collection) for registered users
-		if (!user.isAnonymous) {
-			initNewAccount(user.uid, user.displayName || '');
-		}
-		// Load custom decks into deck selector (registered users only)
-		if (!user.isAnonymous) {
-			const customDecks = await loadUserDecks(user.uid);
-			if (getLastUserStoreError()) {
-				console.warn('[UI] Custom decks could not load. Check Firebase Database rules.');
-			}
-			_customDecksCache = customDecks;
-			if (customDecks.length > 0) {
-				const deckSelect = document.getElementById('deck-select');
-				const divider = document.createElement('option');
-				divider.disabled = true;
-				divider.textContent = '── My Decks ──';
-				deckSelect.appendChild(divider);
-				for (const d of customDecks) {
-					const opt = document.createElement('option');
-					opt.value = d.id;
-					opt.textContent = d.name;
-					deckSelect.appendChild(opt);
-				}
-			}
-		}
-	});
+	// testOnboarding=1 hook — the COMMITTED Playwright path (gated behind the
+	// URL param so it NEVER affects real play, mirroring the testMode pattern).
+	// Skips the auth gate and runs the real blocking picker against a STUB
+	// claim (no Firebase writes) so tests drive the actual modal DOM.
+	const isTestOnboarding = new URLSearchParams(window.location.search).get('testOnboarding') === '1';
+	if (isTestOnboarding) {
+		runStubbedOnboarding();
+	} else {
+		// Auth gate: redirect to account page if not signed in.
+		// Also pre-fills name and shows user badge once auth resolves.
+		onAuthStateChanged(handleLobbyAuthChange);
+	}
 
 	// Sign out button
 	document.getElementById('btn-signout')?.addEventListener('click', async () => {
@@ -212,6 +180,87 @@ function initLobbyPage() {
 			window.location.href = `./game.html?room=${encodeURIComponent(roomCodeInput)}&player=player_2`;
 		}
 	});
+}
+
+// Lobby auth-gate handler: redirect signed-out users, prep the lobby for
+// signed-in users, and run the blocking starter-deck onboarding when a
+// registered (non-anonymous) user owns 0 saved decks.
+async function handleLobbyAuthChange(user) {
+	if (!user) {
+		window.location.href = './account.html';
+		return;
+	}
+	// Pre-fill player name from account
+	const nameInput = document.getElementById('player-name');
+	if (nameInput && !nameInput.value && user.displayName) {
+		nameInput.value = user.displayName;
+	}
+	// Show user badge
+	const badge = document.getElementById('user-badge');
+	const badgeName = document.getElementById('user-badge-name');
+	const deleteAccountBtn = document.getElementById('btn-delete-account');
+	if (badge && badgeName) {
+		badgeName.textContent = user.isAnonymous ? 'Playing as Guest' : user.displayName || user.email;
+		badge.hidden = false;
+	}
+	if (deleteAccountBtn) deleteAccountBtn.hidden = user.isAnonymous;
+	// One-time account setup (wallet + starter collection) for registered users
+	if (!user.isAnonymous) {
+		initNewAccount(user.uid, user.displayName || '');
+	}
+	// Load custom decks into deck selector (registered users only)
+	if (!user.isAnonymous) {
+		let customDecks = await loadUserDecks(user.uid);
+		if (getLastUserStoreError()) {
+			console.warn('[UI] Custom decks could not load. Check Firebase Database rules.');
+		}
+		// Blocking onboarding: a registered user with 0 saved decks must pick a
+		// starter duo deck (save + setActive + exact card grant) before the
+		// lobby is usable. Skipped when the deck load errored (a Firebase read
+		// failure must not trap an existing account in the picker).
+		if (customDecks.length === 0 && !getLastUserStoreError()) {
+			const deckId = await promptStarterDeckPick();
+			const deck = getPlayerFacingDecks().find(d => d.id === deckId);
+			const claimed = await claimStarterDeck(user.uid, deck);
+			if (!claimed?.success) {
+				console.warn('[UI] Starter deck claim failed:', claimed?.error);
+			}
+			customDecks = await loadUserDecks(user.uid);
+		}
+		_customDecksCache = customDecks;
+		if (customDecks.length > 0) {
+			const deckSelect = document.getElementById('deck-select');
+			const divider = document.createElement('option');
+			divider.disabled = true;
+			divider.textContent = '── My Decks ──';
+			deckSelect.appendChild(divider);
+			for (const d of customDecks) {
+				const opt = document.createElement('option');
+				opt.value = d.id;
+				opt.textContent = d.name;
+				deckSelect.appendChild(opt);
+			}
+		}
+	}
+}
+
+// Blocks until a duo deck is picked. allowCancel:false means the picker
+// should never resolve null — the loop is defensive so the lobby stays
+// locked even if the modal is force-closed some other way.
+async function promptStarterDeckPick() {
+	const modal = initModalManager(document.getElementById('modal-root'));
+	let deckId = null;
+	while (!deckId) {
+		deckId = await showOnboardingDeckPicker(modal, getPlayerFacingDecks());
+	}
+	return deckId;
+}
+
+// testOnboarding=1 stub path: drives the REAL blocking modal DOM but skips
+// the Firebase claim entirely (logs the pick instead). Test-only.
+async function runStubbedOnboarding() {
+	const deckId = await promptStarterDeckPick();
+	console.log('[UI] testOnboarding: picked starter deck', deckId);
 }
 
 async function deleteSignedInAccount() {
