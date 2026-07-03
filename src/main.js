@@ -16,7 +16,6 @@ import { PIECIES } from './data/piecies.js';
 import { SNELLE_PIECIES } from './data/snellePiecies.js';
 import { PLACES } from './data/places.js';
 import { QUESTS } from './data/quests.js';
-import { STARTER_DECKS } from './data/starterDecks.js';
 import { createRoom, joinRoom } from './multiplayer/roomManager.js';
 import { pushState, listenToState, stopListening, registerDisconnectLoss, cancelDisconnectHooks } from './multiplayer/syncManager.js';
 import { eventBus } from './multiplayer/eventBus.js';
@@ -36,6 +35,7 @@ import { showOnboardingDeckPicker } from './ui/onboardingDeckPicker.js';
 import { claimMatchReward } from './multiplayer/matchRewards.js';
 import { showRewardOverlay } from './ui/rewardOverlay.js';
 import { driveBotTurn, driveBotTurnSteps } from './bot/botDriver.js';
+import { pickBotDeck } from './bot/pickBotDeck.js';
 
 console.log('[UI] App bootstrapping...');
 
@@ -100,13 +100,8 @@ function initLobbyPage() {
 
 		const isOffline = document.getElementById('play-offline')?.checked === true;
 		if (isOffline) {
-			// Pick a bot deck different from the human's pick
-			// Special case: test decks are paired together
-			const candidates = STARTER_DECKS.filter(d => d.id !== deckId);
-			const botDeck = candidates.length > 0
-				? candidates[Math.floor(Math.random() * candidates.length)]
-				: STARTER_DECKS[0];
-			const botDeckId = botDeck.id;
+			// True-random bot deck from the player-facing duo pool (mirror allowed).
+			const botDeckId = pickBotDeck(getPlayerFacingDecks()).id;
 
 			sessionStorage.setItem('mosjes:offline', JSON.stringify({
 				name,
@@ -204,6 +199,20 @@ async function handleLobbyAuthChange(user) {
 		badge.hidden = false;
 	}
 	if (deleteAccountBtn) deleteAccountBtn.hidden = user.isAnonymous;
+	// Guests: populate #deck-select with the 5 player-facing duo decks only
+	// (no originals) — the same pool the bot picks from and the onboarding
+	// picker offers to registered users.
+	if (user.isAnonymous) {
+		const deckSelect = document.getElementById('deck-select');
+		if (deckSelect) {
+			for (const deck of getPlayerFacingDecks()) {
+				const opt = document.createElement('option');
+				opt.value = deck.id;
+				opt.textContent = deck.name;
+				deckSelect.appendChild(opt);
+			}
+		}
+	}
 	// One-time account setup (wallet + starter collection) for registered users
 	if (!user.isAnonymous) {
 		initNewAccount(user.uid, user.displayName || '');
@@ -443,7 +452,8 @@ function initGamePage() {
 	const isBotVsBot = urlParams.get('botvsbot') === 'true';
 
 	const localPlayerName = lobbyData.name || 'Player 1';
-	const localDeckId = lobbyData.deckId || 'DIGITAL_CONTROL';
+	// N1: never default a player-facing deck selection to an original id.
+	const localDeckId = lobbyData.deckId || getPlayerFacingDecks()[0].id;
 	const opponentName = lobbyData.opponentName || 'Opponent';
 	const opponentDeckId = lobbyData.opponentDeckId || pickOpponentDeck(localDeckId);
 	const opponentUid = lobbyData.opponentUid || null;
@@ -965,7 +975,7 @@ function initGamePage() {
 				// Falls back to random decks when not provided.
 				const paramDeck1 = urlParams.get('deck1');
 				const paramDeck2 = urlParams.get('deck2');
-				const deck1 = paramDeck1 || STARTER_DECKS[Math.floor(Math.random() * STARTER_DECKS.length)].id;
+				const deck1 = paramDeck1 || pickBotDeck(getPlayerFacingDecks()).id;
 				const deck2 = paramDeck2 || pickOpponentDeck(deck1);
 				startGame('Bot A', deck1, 'Bot B', deck2);
 				log.add('quest', 'Bot vs Bot mode — no human input needed. Sit back and watch!');
@@ -3068,8 +3078,8 @@ function toHandViewModel(hand) {
 }
 
 function pickOpponentDeck(localDeckId) {
-	// Only Digital Control is available in starter selection (Phase 11+)
-	return 'DIGITAL_CONTROL';
+	// True-random duo deck from the player-facing pool (mirror allowed).
+	return pickBotDeck(getPlayerFacingDecks()).id;
 }
 
 function logStateOutcome(log, beforeState, afterState, actorId, label = 'Action') {
