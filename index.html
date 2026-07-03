@@ -31,6 +31,13 @@
         <label for="deck-select">Starter Deck</label>
         <select id="deck-select" name="deck-select"></select>
 
+        <div id="active-deck-panel" class="active-deck-panel" hidden>
+          <span class="active-deck-panel__label">Active Deck</span>
+          <span class="active-deck-panel__name"></span>
+          <span class="active-deck-panel__mosjes"></span>
+          <button type="button" id="btn-change-deck" class="btn-nav">Change deck</button>
+        </div>
+
         <fieldset class="lobby-mode">
           <legend>Game Mode</legend>
           <label><input type="radio" name="lobby-mode" value="create" checked /> Create Room</label>

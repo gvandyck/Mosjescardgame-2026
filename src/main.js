@@ -27,11 +27,13 @@ import {
 	reauthenticateCurrentUser,
 	deleteCurrentAccount,
 } from './multiplayer/authManager.js';
-import { loadUserDecks, getLastUserStoreError, deleteUserData } from './multiplayer/userStore.js';
+import { loadUserDecks, getLastUserStoreError, deleteUserData, getActiveDeckId, setActiveDeckId } from './multiplayer/userStore.js';
 import { initNewAccount } from './multiplayer/accountSetup.js';
 import { getPlayerFacingDecks } from './data/playerFacingDecks.js';
 import { claimStarterDeck } from './multiplayer/claimStarterDeck.js';
+import { resolveActiveDeck } from './multiplayer/resolveActiveDeck.js';
 import { showOnboardingDeckPicker } from './ui/onboardingDeckPicker.js';
+import { renderActiveDeckPanel } from './ui/activeDeckPanel.js';
 import { claimMatchReward } from './multiplayer/matchRewards.js';
 import { showRewardOverlay } from './ui/rewardOverlay.js';
 import { driveBotTurn, driveBotTurnSteps } from './bot/botDriver.js';
@@ -41,6 +43,10 @@ console.log('[UI] App bootstrapping...');
 
 const CARD_LOOKUP = buildCardLookup();
 let _customDecksCache = [];
+// Tracked active deck id for the signed-in (non-anonymous) lobby flow — read
+// at form submit instead of the (hidden) #deck-select. Never falls back to
+// an original id; see setupActiveDeckPanel / N1.
+let signedInDeckId = null;
 
 // Feed the ability-cast chip the real ability name: the part before ":" in the
 // description, minus qualifiers like "(comeback)"/"(passive)".
@@ -89,7 +95,12 @@ function initLobbyPage() {
 	form.addEventListener('submit', async event => {
 		event.preventDefault();
 		const name = String(document.getElementById('player-name')?.value || '').trim();
-		const deckId = String(document.getElementById('deck-select')?.value || 'DIGITAL_CONTROL');
+		// Signed-in (non-anonymous) users play with their tracked active deck;
+		// guests read the (duo-only) dropdown. Never fall back to an original id.
+		const submitUser = getCurrentUser();
+		const deckId = submitUser && !submitUser.isAnonymous
+			? (signedInDeckId || getPlayerFacingDecks()[0].id)
+			: String(document.getElementById('deck-select')?.value || getPlayerFacingDecks()[0].id);
 		const mode = String(document.querySelector('input[name="lobby-mode"]:checked')?.value || 'create');
 		const roomCodeInput = String(document.getElementById('room-code')?.value || '').trim();
 
@@ -237,20 +248,45 @@ async function handleLobbyAuthChange(user) {
 			customDecks = await loadUserDecks(user.uid);
 		}
 		_customDecksCache = customDecks;
-		if (customDecks.length > 0) {
-			const deckSelect = document.getElementById('deck-select');
-			const divider = document.createElement('option');
-			divider.disabled = true;
-			divider.textContent = '── My Decks ──';
-			deckSelect.appendChild(divider);
-			for (const d of customDecks) {
-				const opt = document.createElement('option');
-				opt.value = d.id;
-				opt.textContent = d.name;
-				deckSelect.appendChild(opt);
-			}
-		}
+		// Signed-in users get the active-deck panel instead of the dropdown
+		// (guests keep #deck-select, populated above).
+		await setupActiveDeckPanel(user.uid, customDecks);
 	}
+}
+
+// Signed-in (non-anonymous) lobby: hide #deck-select, show the active-deck
+// panel (name + Mosjes), and wire the Change-deck switcher. Persists a
+// migration-safe default (first deck) when activeDeckId was missing.
+async function setupActiveDeckPanel(uid, decks) {
+	const deckSelect = document.getElementById('deck-select');
+	const deckLabel = document.querySelector('label[for="deck-select"]');
+	const panel = document.getElementById('active-deck-panel');
+	if (deckSelect) deckSelect.hidden = true;
+	if (deckLabel) deckLabel.hidden = true;
+	if (panel) panel.hidden = false;
+
+	const activeId = await getActiveDeckId(uid);
+	const active = resolveActiveDeck(decks, activeId);
+	if (!active) return;
+	if (!activeId) {
+		await setActiveDeckId(uid, active.id);
+	}
+	signedInDeckId = active.id;
+	renderActiveDeckPanel(panel, active);
+
+	const changeBtn = document.getElementById('btn-change-deck');
+	changeBtn?.addEventListener('click', async () => {
+		const modal = initModalManager(document.getElementById('modal-root'));
+		const picked = await modal.showOptionSelect({
+			title: 'Change active deck',
+			options: decks.map(d => ({ id: d.id, label: d.name })),
+			allowCancel: true,
+		});
+		if (!picked) return;
+		await setActiveDeckId(uid, picked);
+		signedInDeckId = picked;
+		renderActiveDeckPanel(panel, decks.find(d => d.id === picked) || active);
+	});
 }
 
 // Blocks until a duo deck is picked. allowCancel:false means the picker
