@@ -25,14 +25,23 @@
       "Bash(pkill -f \"python3 -m http.server\")",
       "Bash(python3 -m http.server 5173)",
       "Read(//tmp/**)",
-      "Read(//c/Users/Gandoe/.claude/projects/**)"
+      "Read(//c/Users/Gandoe/.claude/projects/**)",
+      "Bash(git commit -m ' *)",
+      "Bash"
     ],
     "deny": [
       "Bash(git push --force *)",
       "Bash(git push -f *)",
       "Bash(git reset --hard *)",
       "Bash(git merge main *)",
-      "Bash(rm -rf *)"
+      "Bash(rm -rf *)",
+      "Bash(git push origin main)",
+      "Bash(git push origin main *)",
+      "Bash(git push upstream main)",
+      "Bash(git push upstream main *)",
+      "Bash(git push * main)",
+      "Bash(git push * main:*)",
+      "Bash(git push * HEAD:main)"
     ],
     "defaultMode": "acceptEdits"
   }
