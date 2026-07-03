@@ -1,16 +1,53 @@
 # Project State
 
-**Last updated:** 2026-06-20
-**Current phase:** Phase 32 IN PROGRESS — On-field Mosje Info + Quest Dice Modal Redesign (+ win-clarity UX)
-**Branch:** feature/phase-32-onfield-mosje-info-dice-modal
+**Last updated:** 2026-07-04
+**Current phase:** Phase 34 COMPLETE — Account Starter-Deck Onboarding & Active Deck
+**Branch:** feature/phase-34-starter-deck-onboarding (ready to merge to main)
 
-> Note: STATE.md was not maintained during Phases 15–17 (tracked in their phase dirs / ROADMAP only). This header jumps from Phase 14 to Phase 18.
+> Note: STATE.md was not maintained during Phases 15–17 (tracked in their phase dirs / ROADMAP only). This header jumps from Phase 14 to Phase 18. Phase 33 (deckout recycle notice + deck-pile/board polish, merged via PR #2/#3) and the 5-duo-starter-deck data commit also landed on main without a STATE.md entry — tracked only in ROADMAP.md and their own commit history.
 
 ## Accumulated Context
 
 ### Roadmap Evolution
 - Phase 32 added (2026-06-14): On-field Mosje Info + Quest Dice Modal Redesign — own on-field Mosjes show Level/traits/ability + active-only synergy on card, remove "Active on field" text, full dice-modal redesign. UI-only.
 - Phase 32 extended (2026-06-20): win-clarity UX added on the same branch — instant Level-3 win (engine), plain-language win/defeat reason + battle-log recap in the end screen, "How to Win" panel, dice-modal Mosje stats.
+- Phase 34 added (2026-07-03): Account Starter-Deck Onboarding & Active Deck — turns the 5 duo starter decks into the backbone of account onboarding: blocking first-login deck picker, exact-multiset card grant, active-deck concept + lobby switcher, duo-only guest dropdown, duo-only bot pool.
+
+## Phase 34 Progress — Account Starter-Deck Onboarding & Active Deck (COMPLETE)
+
+Branch: `feature/phase-34-starter-deck-onboarding` — 3 plans executed sequentially (data → onboarding modal → lobby rewiring), checker-verified before execution, all green after.
+
+### 34-01: Data + storage foundation (COMPLETE)
+- `src/data/playerFacingDecks.js` — `getPlayerFacingDecks()`, an explicit whitelist of the 5 duo decks (DUO_COERT_BINTI, DUO_GANDOE_MICHELLE, DUO_CHRIS_YOURI, DUO_JISCA_ALYSSA, DUO_WEST_CLESS). Single shared accessor so onboarding modal, guest dropdown, and bot pool can never drift out of sync; the 3 original decks (PHYSICAL_FORCE/DIGITAL_CONTROL/ARTISTIC_RHYTHM) stay in `STARTER_DECKS` untouched as bot/test fixtures, just never shown to players.
+- `src/multiplayer/expandDeckToCardIds.js` — pure multiset expander (mosjes+piecies+snellePiecies+places+quests, duplicates preserved).
+- `src/multiplayer/resolveActiveDeck.js` — pure resolver: activeDeckId → matching deck, else first deck, else null (migration-safe default).
+- `src/multiplayer/claimStarterDeck.js` — saveDeck + setActiveDeckId + `addCardsToCollection` with the deck's EXACT multiset (never `seedCollection`, which only grants 1-of-each) — a claimed starter deck is fully rebuildable in the deck builder.
+- `userStore.js` — added `getActiveDeckId(uid)` / `setActiveDeckId(uid, deckId)` at `users/{uid}/profile/activeDeckId`.
+- `accountSetup.js` — removed the stale `DIGITAL_CONTROL_STARTER_CARDS` auto-seed (had drifted to nonexistent card IDs); new accounts get no cards until they pick a starter deck.
+
+### 34-02: Blocking onboarding modal (COMPLETE)
+- `src/ui/onboardingDeckPicker.js` — built on the existing generic `modalManager.showOptionSelect` (`allowCancel:false`), not a bespoke modal, per the project's reusable-selection-modal rule.
+- Wired into the lobby's auth-gate handler (extracted to `handleLobbyAuthChange`): a signed-in, non-anonymous user with 0 saved decks blocks on the picker before reaching the lobby; picking calls `claimStarterDeck`.
+- `?testOnboarding=1` param-gated test hook drives the real modal DOM with a stubbed claim (no Firebase) — the committed Playwright-testing path, not a fallback.
+
+### 34-03: Lobby rewiring (COMPLETE)
+- `src/bot/pickBotDeck.js` — pure true-random pick from `getPlayerFacingDecks()` (mirror allowed), extracted to its own file so it's unit-testable (main.js has import side effects).
+- `src/ui/activeDeckPanel.js` + lobby wiring — signed-in users: `#deck-select` hidden, active-deck panel shown (deck name + Mosjes) with a "Change deck" button opening a switcher modal (same `showOptionSelect` pattern) that persists via `setActiveDeckId` and re-renders the panel.
+- Guest (anonymous) users: `#deck-select` now populated dynamically from `getPlayerFacingDecks()` — exactly 5 duo options, no originals.
+- All hardcoded `'DIGITAL_CONTROL'` player-facing fallback defaults removed (main.js ~124, ~397) → default to `getPlayerFacingDecks()[0].id`.
+- `?testActiveDeck=1` / `?testGuestDeck=1` param-gated hooks give the switcher and guest dropdown live Playwright coverage (mandatory, not optional — closes the "setActiveDeckId → reflected in UI" proof that a Firebase-mocked unit test can't provide).
+
+### Verification (final, all green)
+- `node --check` clean on every touched runtime/UI file.
+- `npm test`: 469/469 (up from 464 baseline; +5 new: duo-deck validity, player-facing-list, expander, resolver, claim helper).
+- Playwright: 7/7 — `onboarding-starter-deck.spec.js` (3) + `active-deck-lobby.spec.js` (4).
+- `tests/ui/cinema/starter-deck-onboarding-cinema.spec.js` — narrated 5s-beat walkthrough of all 4 new screens (regression/demo, not part of the pass/fail gate above but kept in the suite).
+- Bot-vs-bot sim (30 games, run for the *separate* bot-safety-margin change but exercising this branch's `pickBotDeck` too): 0 crashes.
+
+### Decisions
+- Deck onboarding is one-time: pick exactly one duo deck; more decks only via the deck builder + booster packs. No shop, no claiming multiple starters (explicit user decision).
+- Originals (PHYSICAL_FORCE/DIGITAL_CONTROL/ARTISTIC_RHYTHM) are never deleted from data — only filtered out of player-facing surfaces — so the pre-existing test suite (8+ files hardcoding those IDs) needed zero changes.
+- Bot deck selection is true-random over the duo pool, mirror matches allowed (explicit user decision, differs from the old "never mirror the human's deck" behavior).
 
 ## Phase 32 Progress — On-field Mosje Info + Quest Dice Modal + Win Clarity
 
