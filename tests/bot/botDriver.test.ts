@@ -267,3 +267,61 @@ describe('driveBotTurn', () => {
     expect(() => driveBotTurn(state, 'player_2')).not.toThrow();
   });
 });
+
+// ─────────────────────────────────────────────────────────────
+// Bot MP safety margin — skip a risky General Quest attempt
+// (arm_wrestling: failMP -20 → safety threshold is 2x = 40 MP)
+// ─────────────────────────────────────────────────────────────
+
+describe('driveBotTurn — quest MP safety margin', () => {
+  const ARM_WRESTLING_ID = 'quest_arm_wrestling'; // GENERAL, failMP: -20
+
+  it('active Mosje below the safety threshold (mp=10 < 40) — quest attempt is skipped, MP unchanged', () => {
+    const state = makeState({
+      questDeck: [{ cardId: ARM_WRESTLING_ID, type: 'QUEST' }],
+      activeSlots: [makeMosjeSlot('mosje_jeffrey', 10)],
+    });
+    const result = driveBotTurn(state, 'player_2');
+    const mosjeAfter = (result.players.player_2.activeSlots as MosjeSlot[])[0];
+    // No other card in hand/field can touch MP here, so an unchanged value
+    // proves resolveQuest was never called — the guard held regardless of
+    // the (unmocked) dice roll's outcome.
+    expect(mosjeAfter.mp).toBe(10);
+    expect(mosjeAfter.isDefeated).toBe(false);
+  });
+
+  it('active Mosje exactly at the safety threshold (mp=40 = 2x failMP) — quest attempt proceeds', () => {
+    const state = makeState({
+      questDeck: [{ cardId: ARM_WRESTLING_ID, type: 'QUEST' }],
+      activeSlots: [makeMosjeSlot('mosje_jeffrey', 40)],
+    });
+    const result = driveBotTurn(state, 'player_2');
+    const mosjeAfter = (result.players.player_2.activeSlots as MosjeSlot[])[0];
+    // Success (+60) or failure (-20) both move MP away from the starting 40.
+    expect(mosjeAfter.mp).not.toBe(40);
+  });
+
+  it('active Mosje comfortably above the threshold (mp=50) — quest attempt proceeds (existing behavior)', () => {
+    const state = makeState({
+      questDeck: [{ cardId: ARM_WRESTLING_ID, type: 'QUEST' }],
+      activeSlots: [makeMosjeSlot('mosje_jeffrey', 50)],
+    });
+    const result = driveBotTurn(state, 'player_2');
+    const mosjeAfter = (result.players.player_2.activeSlots as MosjeSlot[])[0];
+    expect(mosjeAfter.mp).not.toBe(50);
+  });
+
+  it('never drives a Level-0 Mosje into a below-threshold quest that could defeat it', () => {
+    // mp=15 is above 0 (so the OLD mp>=0 gate alone would have allowed it) but
+    // below the 40 safety threshold — this is exactly the "dies too often at
+    // low MP" scenario the guard exists to prevent.
+    const state = makeState({
+      questDeck: [{ cardId: ARM_WRESTLING_ID, type: 'QUEST' }],
+      activeSlots: [makeMosjeSlot('mosje_jeffrey', 15)],
+    });
+    const result = driveBotTurn(state, 'player_2');
+    const mosjeAfter = (result.players.player_2.activeSlots as MosjeSlot[])[0];
+    expect(mosjeAfter.mp).toBe(15);
+    expect(mosjeAfter.isDefeated).toBe(false);
+  });
+});
