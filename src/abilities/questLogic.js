@@ -222,6 +222,12 @@ export function canAttemptPersonalQuest(questCard, gameState, playerId) {
 // (captured before a stat update) can cause a display/roll disagreement.
 // ─────────────────────────────────────────────────────────────
 export function getQuestDiceThreshold(questCard, activeMosje) {
+  // Per-Mosje overrides (e.g. Kickboxing Bootcamp: Gandoe 2+, Michelle 4+)
+  // take priority — the roll path in main.js checks these first, so the
+  // displayed threshold must match.
+  const perMosjeThreshold = questCard.perMosjeConfig?.[activeMosje?.cardId]?.threshold;
+  if (Number.isFinite(perMosjeThreshold)) return perMosjeThreshold;
+
   const roll = questCard.roll;
   if (!roll) return 1; // no dice roll (auto-success or UI prompt)
 
