@@ -16,7 +16,6 @@ import { PIECIES } from './data/piecies.js';
 import { SNELLE_PIECIES } from './data/snellePiecies.js';
 import { PLACES } from './data/places.js';
 import { QUESTS } from './data/quests.js';
-import { STARTER_DECKS } from './data/starterDecks.js';
 import { createRoom, joinRoom } from './multiplayer/roomManager.js';
 import { pushState, listenToState, stopListening, registerDisconnectLoss, cancelDisconnectHooks } from './multiplayer/syncManager.js';
 import { eventBus } from './multiplayer/eventBus.js';
@@ -28,16 +27,26 @@ import {
 	reauthenticateCurrentUser,
 	deleteCurrentAccount,
 } from './multiplayer/authManager.js';
-import { loadUserDecks, getLastUserStoreError, deleteUserData } from './multiplayer/userStore.js';
+import { loadUserDecks, getLastUserStoreError, deleteUserData, getActiveDeckId, setActiveDeckId } from './multiplayer/userStore.js';
 import { initNewAccount } from './multiplayer/accountSetup.js';
+import { getPlayerFacingDecks } from './data/playerFacingDecks.js';
+import { claimStarterDeck } from './multiplayer/claimStarterDeck.js';
+import { resolveActiveDeck } from './multiplayer/resolveActiveDeck.js';
+import { showOnboardingDeckPicker } from './ui/onboardingDeckPicker.js';
+import { renderActiveDeckPanel } from './ui/activeDeckPanel.js';
 import { claimMatchReward } from './multiplayer/matchRewards.js';
 import { showRewardOverlay } from './ui/rewardOverlay.js';
 import { driveBotTurn, driveBotTurnSteps } from './bot/botDriver.js';
+import { pickBotDeck } from './bot/pickBotDeck.js';
 
 console.log('[UI] App bootstrapping...');
 
 const CARD_LOOKUP = buildCardLookup();
 let _customDecksCache = [];
+// Tracked active deck id for the signed-in (non-anonymous) lobby flow — read
+// at form submit instead of the (hidden) #deck-select. Never falls back to
+// an original id; see setupActiveDeckPanel / N1.
+let signedInDeckId = null;
 
 // Feed the ability-cast chip the real ability name: the part before ":" in the
 // description, minus qualifiers like "(comeback)"/"(passive)".
@@ -62,53 +71,34 @@ function initLobbyPage() {
 	const form = document.getElementById('lobby-form');
 	if (!form) return;
 
-	// Auth gate: redirect to account page if not signed in.
-	// Also pre-fills name and shows user badge once auth resolves.
-	onAuthStateChanged(async user => {
-		if (!user) {
-			window.location.href = './account.html';
-			return;
-		}
-		// Pre-fill player name from account
-		const nameInput = document.getElementById('player-name');
-		if (nameInput && !nameInput.value && user.displayName) {
-			nameInput.value = user.displayName;
-		}
-		// Show user badge
-		const badge = document.getElementById('user-badge');
-		const badgeName = document.getElementById('user-badge-name');
-		const deleteAccountBtn = document.getElementById('btn-delete-account');
-		if (badge && badgeName) {
-			badgeName.textContent = user.isAnonymous ? 'Playing as Guest' : user.displayName || user.email;
-			badge.hidden = false;
-		}
-		if (deleteAccountBtn) deleteAccountBtn.hidden = user.isAnonymous;
-		// One-time account setup (wallet + starter collection) for registered users
-		if (!user.isAnonymous) {
-			initNewAccount(user.uid, user.displayName || '');
-		}
-		// Load custom decks into deck selector (registered users only)
-		if (!user.isAnonymous) {
-			const customDecks = await loadUserDecks(user.uid);
-			if (getLastUserStoreError()) {
-				console.warn('[UI] Custom decks could not load. Check Firebase Database rules.');
-			}
-			_customDecksCache = customDecks;
-			if (customDecks.length > 0) {
-				const deckSelect = document.getElementById('deck-select');
-				const divider = document.createElement('option');
-				divider.disabled = true;
-				divider.textContent = '── My Decks ──';
-				deckSelect.appendChild(divider);
-				for (const d of customDecks) {
-					const opt = document.createElement('option');
-					opt.value = d.id;
-					opt.textContent = d.name;
-					deckSelect.appendChild(opt);
-				}
-			}
-		}
-	});
+	// Test hooks — gated behind URL params so they NEVER affect real play
+	// (mirroring the game.html ?testMode=true pattern). Each skips the real
+	// auth gate and drives the REAL lobby code with a fake user/store so
+	// Playwright can assert on-screen behavior without touching Firebase.
+	const testParams = new URLSearchParams(window.location.search);
+	const isTestOnboarding = testParams.get('testOnboarding') === '1';
+	const isTestActiveDeck = testParams.get('testActiveDeck') === '1';
+	const isTestGuestDeck = testParams.get('testGuestDeck') === '1';
+	if (isTestOnboarding) {
+		// Skips the auth gate and runs the real blocking picker against a STUB
+		// claim (no Firebase writes) so tests drive the actual modal DOM.
+		runStubbedOnboarding();
+	} else if (isTestActiveDeck) {
+		// Drives the real setupActiveDeckPanel() with an in-memory fake decks
+		// list + fake active id (no Firebase) so the panel + Change-deck
+		// switcher can be asserted live.
+		runStubbedActiveDeck();
+	} else if (isTestGuestDeck) {
+		// Guest (anonymous) users never trigger Firebase calls inside
+		// handleLobbyAuthChange (all storage calls are gated on
+		// !user.isAnonymous), so a fake anonymous user object drives the
+		// exact real guest branch safely, with no test-only duplicate code.
+		handleLobbyAuthChange({ uid: 'test-guest', isAnonymous: true, displayName: null });
+	} else {
+		// Auth gate: redirect to account page if not signed in.
+		// Also pre-fills name and shows user badge once auth resolves.
+		onAuthStateChanged(handleLobbyAuthChange);
+	}
 
 	// Sign out button
 	document.getElementById('btn-signout')?.addEventListener('click', async () => {
@@ -121,7 +111,12 @@ function initLobbyPage() {
 	form.addEventListener('submit', async event => {
 		event.preventDefault();
 		const name = String(document.getElementById('player-name')?.value || '').trim();
-		const deckId = String(document.getElementById('deck-select')?.value || 'DIGITAL_CONTROL');
+		// Signed-in (non-anonymous) users play with their tracked active deck;
+		// guests read the (duo-only) dropdown. Never fall back to an original id.
+		const submitUser = getCurrentUser();
+		const deckId = submitUser && !submitUser.isAnonymous
+			? (signedInDeckId || getPlayerFacingDecks()[0].id)
+			: String(document.getElementById('deck-select')?.value || getPlayerFacingDecks()[0].id);
 		const mode = String(document.querySelector('input[name="lobby-mode"]:checked')?.value || 'create');
 		const roomCodeInput = String(document.getElementById('room-code')?.value || '').trim();
 
@@ -132,13 +127,8 @@ function initLobbyPage() {
 
 		const isOffline = document.getElementById('play-offline')?.checked === true;
 		if (isOffline) {
-			// Pick a bot deck different from the human's pick
-			// Special case: test decks are paired together
-			const candidates = STARTER_DECKS.filter(d => d.id !== deckId);
-			const botDeck = candidates.length > 0
-				? candidates[Math.floor(Math.random() * candidates.length)]
-				: STARTER_DECKS[0];
-			const botDeckId = botDeck.id;
+			// True-random bot deck from the player-facing duo pool (mirror allowed).
+			const botDeckId = pickBotDeck(getPlayerFacingDecks()).id;
 
 			sessionStorage.setItem('mosjes:offline', JSON.stringify({
 				name,
@@ -211,6 +201,149 @@ function initLobbyPage() {
 			console.log('[UI] Joined room:', roomCodeInput);
 			window.location.href = `./game.html?room=${encodeURIComponent(roomCodeInput)}&player=player_2`;
 		}
+	});
+}
+
+// Lobby auth-gate handler: redirect signed-out users, prep the lobby for
+// signed-in users, and run the blocking starter-deck onboarding when a
+// registered (non-anonymous) user owns 0 saved decks.
+async function handleLobbyAuthChange(user) {
+	if (!user) {
+		window.location.href = './account.html';
+		return;
+	}
+	// Pre-fill player name from account
+	const nameInput = document.getElementById('player-name');
+	if (nameInput && !nameInput.value && user.displayName) {
+		nameInput.value = user.displayName;
+	}
+	// Show user badge
+	const badge = document.getElementById('user-badge');
+	const badgeName = document.getElementById('user-badge-name');
+	const deleteAccountBtn = document.getElementById('btn-delete-account');
+	if (badge && badgeName) {
+		badgeName.textContent = user.isAnonymous ? 'Playing as Guest' : user.displayName || user.email;
+		badge.hidden = false;
+	}
+	if (deleteAccountBtn) deleteAccountBtn.hidden = user.isAnonymous;
+	// Guests: populate #deck-select with the 5 player-facing duo decks only
+	// (no originals) — the same pool the bot picks from and the onboarding
+	// picker offers to registered users.
+	if (user.isAnonymous) {
+		const deckSelect = document.getElementById('deck-select');
+		if (deckSelect) {
+			for (const deck of getPlayerFacingDecks()) {
+				const opt = document.createElement('option');
+				opt.value = deck.id;
+				opt.textContent = deck.name;
+				deckSelect.appendChild(opt);
+			}
+		}
+	}
+	// One-time account setup (wallet + starter collection) for registered users
+	if (!user.isAnonymous) {
+		initNewAccount(user.uid, user.displayName || '');
+	}
+	// Load custom decks into deck selector (registered users only)
+	if (!user.isAnonymous) {
+		let customDecks = await loadUserDecks(user.uid);
+		if (getLastUserStoreError()) {
+			console.warn('[UI] Custom decks could not load. Check Firebase Database rules.');
+		}
+		// Blocking onboarding: a registered user with 0 saved decks must pick a
+		// starter duo deck (save + setActive + exact card grant) before the
+		// lobby is usable. Skipped when the deck load errored (a Firebase read
+		// failure must not trap an existing account in the picker).
+		if (customDecks.length === 0 && !getLastUserStoreError()) {
+			const deckId = await promptStarterDeckPick();
+			const deck = getPlayerFacingDecks().find(d => d.id === deckId);
+			const claimed = await claimStarterDeck(user.uid, deck);
+			if (!claimed?.success) {
+				console.warn('[UI] Starter deck claim failed:', claimed?.error);
+			}
+			customDecks = await loadUserDecks(user.uid);
+		}
+		_customDecksCache = customDecks;
+		// Signed-in users get the active-deck panel instead of the dropdown
+		// (guests keep #deck-select, populated above).
+		await setupActiveDeckPanel(user.uid, customDecks);
+	}
+}
+
+// Signed-in (non-anonymous) lobby: hide #deck-select, show the active-deck
+// panel (name + Mosjes), and wire the Change-deck switcher. Persists a
+// migration-safe default (first deck) when activeDeckId was missing.
+// `getActive`/`setActive` default to the real userStore accessors; the
+// ?testActiveDeck=1 hook (runStubbedActiveDeck) injects in-memory stubs so
+// this exact real code path is exercised live with no Firebase calls.
+async function setupActiveDeckPanel(uid, decks, { getActive = getActiveDeckId, setActive = setActiveDeckId } = {}) {
+	const deckSelect = document.getElementById('deck-select');
+	const deckLabel = document.querySelector('label[for="deck-select"]');
+	const panel = document.getElementById('active-deck-panel');
+	if (deckSelect) deckSelect.hidden = true;
+	if (deckLabel) deckLabel.hidden = true;
+	if (panel) panel.hidden = false;
+
+	const activeId = await getActive(uid);
+	const active = resolveActiveDeck(decks, activeId);
+	if (!active) return;
+	if (!activeId) {
+		await setActive(uid, active.id);
+	}
+	signedInDeckId = active.id;
+	renderActiveDeckPanel(panel, active);
+
+	const changeBtn = document.getElementById('btn-change-deck');
+	changeBtn?.addEventListener('click', async () => {
+		const modal = initModalManager(document.getElementById('modal-root'));
+		const picked = await modal.showOptionSelect({
+			title: 'Change active deck',
+			options: decks.map(d => ({ id: d.id, label: d.name })),
+			allowCancel: true,
+		});
+		if (!picked) return;
+		await setActive(uid, picked);
+		signedInDeckId = picked;
+		renderActiveDeckPanel(panel, decks.find(d => d.id === picked) || active);
+	});
+}
+
+// Blocks until a duo deck is picked. allowCancel:false means the picker
+// should never resolve null — the loop is defensive so the lobby stays
+// locked even if the modal is force-closed some other way.
+async function promptStarterDeckPick() {
+	const modal = initModalManager(document.getElementById('modal-root'));
+	let deckId = null;
+	while (!deckId) {
+		deckId = await showOnboardingDeckPicker(modal, getPlayerFacingDecks());
+	}
+	return deckId;
+}
+
+// testOnboarding=1 stub path: drives the REAL blocking modal DOM but skips
+// the Firebase claim entirely (logs the pick instead). Test-only.
+async function runStubbedOnboarding() {
+	const deckId = await promptStarterDeckPick();
+	console.log('[UI] testOnboarding: picked starter deck', deckId);
+}
+
+// testActiveDeck=1 stub path: drives the REAL setupActiveDeckPanel() (panel
+// render + Change-deck switcher) against an in-memory fake decks list (>=2
+// real duo decks) + a fake active id, with getActiveDeckId/setActiveDeckId
+// stubbed to read/update that in-memory state (no Firebase), mirroring the
+// testOnboarding hook style. Exposes signedInDeckId so a test can assert
+// what game-start would read after a switch. Test-only.
+async function runStubbedActiveDeck() {
+	const fakeDecks = getPlayerFacingDecks().slice(0, 2);
+	let fakeActiveId = fakeDecks[0].id;
+	_customDecksCache = fakeDecks;
+	window.__testActiveDeckHook = {
+		get signedInDeckId() { return signedInDeckId; },
+		get seededDeckIds() { return fakeDecks.map(d => d.id); },
+	};
+	await setupActiveDeckPanel('test-uid', fakeDecks, {
+		getActive: async () => fakeActiveId,
+		setActive: async (_uid, id) => { fakeActiveId = id; return { success: true }; },
 	});
 }
 
@@ -394,7 +527,8 @@ function initGamePage() {
 	const isBotVsBot = urlParams.get('botvsbot') === 'true';
 
 	const localPlayerName = lobbyData.name || 'Player 1';
-	const localDeckId = lobbyData.deckId || 'DIGITAL_CONTROL';
+	// N1: never default a player-facing deck selection to an original id.
+	const localDeckId = lobbyData.deckId || getPlayerFacingDecks()[0].id;
 	const opponentName = lobbyData.opponentName || 'Opponent';
 	const opponentDeckId = lobbyData.opponentDeckId || pickOpponentDeck(localDeckId);
 	const opponentUid = lobbyData.opponentUid || null;
@@ -916,7 +1050,7 @@ function initGamePage() {
 				// Falls back to random decks when not provided.
 				const paramDeck1 = urlParams.get('deck1');
 				const paramDeck2 = urlParams.get('deck2');
-				const deck1 = paramDeck1 || STARTER_DECKS[Math.floor(Math.random() * STARTER_DECKS.length)].id;
+				const deck1 = paramDeck1 || pickBotDeck(getPlayerFacingDecks()).id;
 				const deck2 = paramDeck2 || pickOpponentDeck(deck1);
 				startGame('Bot A', deck1, 'Bot B', deck2);
 				log.add('quest', 'Bot vs Bot mode — no human input needed. Sit back and watch!');
@@ -3019,8 +3153,8 @@ function toHandViewModel(hand) {
 }
 
 function pickOpponentDeck(localDeckId) {
-	// Only Digital Control is available in starter selection (Phase 11+)
-	return 'DIGITAL_CONTROL';
+	// True-random duo deck from the player-facing pool (mirror allowed).
+	return pickBotDeck(getPlayerFacingDecks()).id;
 }
 
 function logStateOutcome(log, beforeState, afterState, actorId, label = 'Action') {

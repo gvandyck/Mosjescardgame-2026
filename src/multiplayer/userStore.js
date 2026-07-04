@@ -1,6 +1,6 @@
 // userStore.js — Reads and writes per-user data in Firebase RTDB.
 // Path layout:
-//   users/{uid}/profile   — { displayName, isAnonymous, lastSeen }
+//   users/{uid}/profile   — { displayName, isAnonymous, lastSeen, activeDeckId }
 //   users/{uid}/decks     — { [deckId]: { name, mosjes, piecies, ... } }
 
 import { isFirebaseReady, getRtdb } from '../firebase.js';
@@ -41,6 +41,38 @@ export async function getUserProfile(uid) {
 	} catch (err) {
 		logUserStoreError('load profile failed', err);
 		return null;
+	}
+}
+
+// ── Active deck ───────────────────────────────────────────────────────────────
+// users/{uid}/profile/activeDeckId — the deck the player takes into battle.
+
+export async function getActiveDeckId(uid) {
+	const ready = await isFirebaseReady();
+	if (!ready || !uid) return null;
+	const db = getRtdb();
+	const { ref, get } = await getRtdbAPI();
+	try {
+		const snap = await get(ref(db, `users/${uid}/profile/activeDeckId`));
+		return snap.exists() ? snap.val() : null;
+	} catch (err) {
+		logUserStoreError('load active deck failed', err);
+		return null;
+	}
+}
+
+export async function setActiveDeckId(uid, deckId) {
+	const ready = await isFirebaseReady();
+	if (!ready || !uid || !deckId) return { success: false, error: userStoreErrorMessage() };
+	const db = getRtdb();
+	const { ref, update } = await getRtdbAPI();
+	try {
+		// Merge-update the profile (NOT set) so displayName/lastSeen stay intact.
+		await update(ref(db, `users/${uid}/profile`), { activeDeckId: deckId });
+		return { success: true };
+	} catch (err) {
+		logUserStoreError('set active deck failed', err);
+		return { success: false, error: userStoreErrorMessage(err) };
 	}
 }
 

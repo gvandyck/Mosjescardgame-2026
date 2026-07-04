@@ -1,52 +1,12 @@
 // accountSetup.js — One-time initialisation for new accounts.
 // Called after every sign-in; the setupComplete flag prevents it running twice.
 //
-// On first login a player receives:
-//   - A wallet seeded at 0 Munten
-//   - The Digital Control starter deck cards added to their collection
+// On first login a player receives a wallet seeded at 0 Munten; cards are
+// granted only when they pick a starter deck (see claimStarterDeck.js).
 
 import { isFirebaseReady, getRtdb } from '../firebase.js';
-import { seedCollection } from './collectionStore.js';
 
 console.log('[SETUP] accountSetup.js loaded');
-
-// Browser-side card IDs for the Digital Control starter deck (unique cards only).
-// Derived from starter-decks.ts mapped to src/data/* id fields.
-const DIGITAL_CONTROL_STARTER_CARDS = [
-	// Mosjes
-	'mosje_martin_historian',
-	'mosje_ronald_chef',
-	// Piecies
-	'piecie_kannetje_melk',
-	'piecie_pot_of_weed',
-	'piecie_bagga_of_greed',
-	'piecie_keyboard',
-	'piecie_mouse',
-	'piecie_controller',
-	'piecie_afblijven',
-	'piecie_quest_prep',      // Dubbele Dosis
-	'piecie_mp_amplifier',
-	'piecie_f1_telemetry',
-	'piecie_redbull',
-	'piecie_energy_surge',    // Shoettoe
-	'piecie_warm_kannetje_melk',
-	// Snelle Piecies
-	'snelle_counter_strikka',
-	'snelle_lucky_coin',
-	'snelle_sleutelpuntje',
-	// Places
-	'place_quest_haven',
-	'place_bank_chilling',
-	// Quests
-	'quest_debug_system',
-	'quest_hack_mainframe',
-	'quest_precision_work',
-	'quest_strategy_puzzle',
-	'quest_master_plan',
-	'quest_perfect_timing',
-	'quest_speed_run',
-	'quest_synergy_mastery',
-];
 
 async function getRtdbAPI() {
 	const { ref, get, set } =
@@ -95,9 +55,6 @@ export async function initNewAccount(uid, displayName = '') {
 	} catch (err) {
 		console.warn('[SETUP] Could not seed wallet:', err?.code);
 	}
-
-	// Seed collection with Digital Control starter cards
-	await seedCollection(uid, DIGITAL_CONTROL_STARTER_CARDS);
 
 	// Mark setup complete
 	try {
