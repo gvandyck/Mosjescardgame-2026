@@ -1,38 +1,45 @@
 /**
- * quest-threshold-label.spec.js — Reproduces the wrong "Roll needed" label for
+ * quest-threshold-label.spec.js — Reproduces wrong quest-modal labels for
  * quests with perMosjeConfig (Kickboxing Bootcamp) in a REAL browser.
  *
- * The bug: the quest-attempt preview modal computed its threshold via
- * getQuestDiceThreshold(), which only reads questDef.roll.thresholds — for
- * Kickboxing Bootcamp that's a placeholder {1:6, 2:6, 3:6}. The ACTUAL dice
- * roll (runQuestDiceRoll in main.js) checks questDef.perMosjeConfig first:
- * Michelle succeeds on 4+, Gandoe on 2+. So the modal said "6+ to succeed"
- * while the real roll used 4+/2+.
+ * Bug 1 (threshold): the quest-attempt preview modal computed its "Roll
+ * needed" threshold via getQuestDiceThreshold(), which only read
+ * questDef.roll.thresholds — for Kickboxing Bootcamp a placeholder
+ * {1:6, 2:6, 3:6}. The ACTUAL dice roll checks perMosjeConfig first:
+ * Michelle succeeds on 4+, Gandoe on 2+. The modal said "6+ to succeed".
+ *
+ * Bug 2 (success MP): the preview's "On success" line and the dice-result
+ * popup both displayed questDef.successMP (+60), while the resolution used
+ * perMosjeConfig.successMP (Michelle +80) plus the +20 both-active bonus.
+ * The popup said "+60 MP" while the log and the actual award said "+80 MP".
  *
  * These tests drive the full flow — place the quest from hand, activate it,
- * pick the Mosje — and assert the modal label matches the per-Mosje threshold
- * the roll actually uses. Pre-fix both fail ("6+ to succeed"); post-fix pass.
+ * pick the Mosje, roll (forced via window.__forceDiceRoll) — and assert every
+ * displayed number matches what the resolution actually awards (checked via
+ * the battle log). Pre-fix the Michelle and both-active tests fail.
  */
 
 import { test, expect } from '@playwright/test';
 import {
-	seedOfflineSession, waitForBoard, GAME_URL_TEST, ss,
+	seedOfflineSession, waitForBoard, GAME_URL_TEST, ss, readLog,
 	setMosjeOnField, setHand, unlockPiecies, playCardFromHand,
 } from './helpers.js';
 
 const QUEST_ID = 'quest_personal_kickboxing_bootcamp';
 
 /**
- * Board setup → quest preview modal, returns the "Roll needed" line text.
- * mosjeCardId is placed in slot 0 and picked in the Mosje-select modal.
+ * Board setup → quest preview modal. `mosjes` go into slots 0..n;
+ * `pickName` is clicked in the Mosje-select modal.
  */
-async function openKickboxingPreview(page, mosjeCardId, mosjeName) {
+async function openKickboxingPreview(page, mosjes, pickName) {
 	await seedOfflineSession(page);
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
 
-	// Only the chosen Mosje on field, with enough MP for the 20 MP quest cost.
-	await setMosjeOnField(page, 'player_1', 0, mosjeCardId, { mp: 60, level: 1 });
+	// Field the Mosjes with enough MP for the 20 MP quest cost.
+	for (const [slotIndex, cardId] of mosjes.entries()) {
+		await setMosjeOnField(page, 'player_1', slotIndex, cardId, { mp: 60, level: 1 });
+	}
 
 	// Place Kickboxing Bootcamp face-down, then unlock so it's activatable now.
 	await setHand(page, 'player_1', [QUEST_ID]);
@@ -45,7 +52,7 @@ async function openKickboxingPreview(page, mosjeCardId, mosjeName) {
 	await activateBtn.click();
 
 	// Mosje-select modal → pick the Mosje.
-	const mosjeBtn = page.locator('.modal-mosje-select-btn', { hasText: mosjeName }).first();
+	const mosjeBtn = page.locator('.modal-mosje-select-btn', { hasText: pickName }).first();
 	await mosjeBtn.waitFor({ timeout: 5000 });
 	await mosjeBtn.click();
 
@@ -55,24 +62,69 @@ async function openKickboxingPreview(page, mosjeCardId, mosjeName) {
 	return previewModal;
 }
 
-test('Kickboxing Bootcamp preview shows Michelle\'s real threshold (4+)', async ({ page }) => {
-	test.setTimeout(90000);
-	const previewModal = await openKickboxingPreview(page, 'mosje_michelle', 'Michelle');
+/** From the open preview modal: force the die, roll, and return the result panel. */
+async function attemptAndRoll(page, forcedRoll) {
+	await page.evaluate((v) => { window.__forceDiceRoll = v; }, forcedRoll);
+	await page.click('#modal-attempt');
+	await page.click('#modal-roll');
+	const resultPanel = page.locator('#dice-result');
+	await resultPanel.waitFor({ state: 'visible', timeout: 10000 });
+	return resultPanel;
+}
 
+test('Kickboxing Bootcamp with Michelle: modal shows 4+ and +80 MP, matching the award', async ({ page }) => {
+	test.setTimeout(90000);
+	const previewModal = await openKickboxingPreview(page, ['mosje_michelle'], 'Michelle');
+
+	// Bug 1: perMosjeConfig says Michelle rolls 4+, not the placeholder 6+.
+	await expect(previewModal.locator('p', { hasText: 'Roll needed:' })).toContainText('4+ to succeed');
+	// Bug 2: her success reward is +80, not the base +60.
+	await expect(previewModal.locator('p', { hasText: 'On success:' })).toContainText('+80 MP');
 	await ss(page, 'quest-threshold-label-michelle');
 
-	// perMosjeConfig says Michelle rolls 4+ — the label must agree with the
-	// threshold runQuestDiceRoll actually uses. Pre-fix this shows "6+".
-	const rollNeeded = previewModal.locator('p', { hasText: 'Roll needed:' });
-	await expect(rollNeeded).toContainText('4+ to succeed');
+	// Roll exactly her threshold: the result popup must show her +80.
+	const resultPanel = await attemptAndRoll(page, 4);
+	await expect(resultPanel).toContainText('Rolled 4');
+	await expect(resultPanel.locator('.dice-result-mp')).toContainText('+80 MP');
+	await ss(page, 'quest-dice-result-michelle');
+
+	// The displayed number must be what the resolution actually awards.
+	await page.click('#modal-done');
+	await expect.poll(async () => (await readLog(page)).join('\n'), { timeout: 5000 })
+		.toContain('Success (+80 MP)');
 });
 
-test('Kickboxing Bootcamp preview shows Gandoe\'s real threshold (2+)', async ({ page }) => {
+test('Kickboxing Bootcamp with Gandoe: modal shows 2+ and +60 MP, matching the award', async ({ page }) => {
 	test.setTimeout(90000);
-	const previewModal = await openKickboxingPreview(page, 'mosje_gandoe_destroyer', 'Gandoe');
+	const previewModal = await openKickboxingPreview(page, ['mosje_gandoe_destroyer'], 'Gandoe');
 
+	await expect(previewModal.locator('p', { hasText: 'Roll needed:' })).toContainText('2+ to succeed');
+	await expect(previewModal.locator('p', { hasText: 'On success:' })).toContainText('+60 MP');
 	await ss(page, 'quest-threshold-label-gandoe');
 
-	const rollNeeded = previewModal.locator('p', { hasText: 'Roll needed:' });
-	await expect(rollNeeded).toContainText('2+ to succeed');
+	const resultPanel = await attemptAndRoll(page, 2);
+	await expect(resultPanel.locator('.dice-result-mp')).toContainText('+60 MP');
+
+	await page.click('#modal-done');
+	await expect.poll(async () => (await readLog(page)).join('\n'), { timeout: 5000 })
+		.toContain('Success (+60 MP)');
+});
+
+test('Kickboxing Bootcamp with BOTH active: Michelle\'s modal shows +100 MP (80 + 20 bonus)', async ({ page }) => {
+	test.setTimeout(90000);
+	const previewModal = await openKickboxingPreview(
+		page, ['mosje_gandoe_destroyer', 'mosje_michelle'], 'Michelle');
+
+	await expect(previewModal.locator('p', { hasText: 'Roll needed:' })).toContainText('4+ to succeed');
+	// Both Kickboxers on field → +80 base + 20 bonus = +100 on success.
+	await expect(previewModal.locator('p', { hasText: 'On success:' })).toContainText('+100 MP');
+
+	const resultPanel = await attemptAndRoll(page, 4);
+	await expect(resultPanel.locator('.dice-result-mp')).toContainText('+100 MP');
+	await ss(page, 'quest-dice-result-both-active');
+
+	// Resolution already awarded 80+20 pre-fix; the displays must now agree.
+	await page.click('#modal-done');
+	await expect.poll(async () => (await readLog(page)).join('\n'), { timeout: 5000 })
+		.toContain('Success (+100 MP)');
 });
