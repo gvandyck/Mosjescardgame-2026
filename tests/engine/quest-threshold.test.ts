@@ -76,6 +76,62 @@ describe("getQuestDiceThreshold — Quick Thinking", () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// perMosjeConfig quests — Kickboxing Bootcamp (display/roll label bug)
+// The roll path (runQuestDiceRoll in main.js) reads perMosjeConfig.threshold
+// first; getQuestDiceThreshold must return the same value or the modal label
+// disagrees with the actual roll (it showed the placeholder 6+ instead of
+// Michelle's 4+ / Gandoe's 2+).
+// ─────────────────────────────────────────────────────────────────────────────
+
+const kickboxingQuest = {
+  id: "quest_personal_kickboxing_bootcamp",
+  type: "QUEST",
+  questType: "PERSONAL",
+  requirementId: "quest_req_kickboxing_bootcamp",
+  roll: { trait: null, thresholds: { 1: 6, 2: 6, 3: 6 } },
+  perMosjeConfig: {
+    mosje_gandoe_destroyer: { threshold: 2, successMP: 60 },
+    mosje_michelle: { threshold: 4, successMP: 80 },
+  },
+  successMP: 60,
+  failMP: -20,
+};
+
+function makeNamedMosje(cardId: string) {
+  return {
+    cardId,
+    name: cardId,
+    mp: 50,
+    level: 1,
+    isDefeated: false,
+    traits: {},
+    statusEffects: [],
+  };
+}
+
+describe("getQuestDiceThreshold — perMosjeConfig (Kickboxing Bootcamp)", () => {
+  it("Michelle → threshold 4 (perMosjeConfig, not the placeholder 6)", () => {
+    expect(getQuestDiceThreshold(kickboxingQuest, makeNamedMosje("mosje_michelle"))).toBe(4);
+  });
+  it("Gandoe → threshold 2 (perMosjeConfig, not the placeholder 6)", () => {
+    expect(getQuestDiceThreshold(kickboxingQuest, makeNamedMosje("mosje_gandoe_destroyer"))).toBe(2);
+  });
+  it("Mosje without a perMosjeConfig entry → falls back to roll.thresholds (6)", () => {
+    expect(getQuestDiceThreshold(kickboxingQuest, makeNamedMosje("mosje_youri"))).toBe(6);
+  });
+  it("matches the roll-path computation for every configured Mosje", () => {
+    // Mirrors runQuestDiceRoll in main.js:
+    //   perMosjeCfg ? perMosjeCfg.threshold : getQuestDiceThreshold(...)
+    for (const cardId of Object.keys(kickboxingQuest.perMosjeConfig)) {
+      const mosje = makeNamedMosje(cardId);
+      const perCfg = kickboxingQuest.perMosjeConfig[cardId as keyof typeof kickboxingQuest.perMosjeConfig];
+      const rollThreshold = perCfg ? perCfg.threshold : getQuestDiceThreshold(kickboxingQuest, mosje);
+      expect(getQuestDiceThreshold(kickboxingQuest, mosje)).toBe(rollThreshold);
+    }
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Path B — quest_req_strategy_puzzle (actual roll threshold)
 // ─────────────────────────────────────────────────────────────────────────────
 

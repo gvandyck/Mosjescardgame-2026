@@ -474,6 +474,21 @@ function initGamePage() {
 	if (roomCodeBadge && roomCodeValue && lobbyData.roomCode) {
 		roomCodeValue.textContent = lobbyData.roomCode;
 		roomCodeBadge.hidden = false;
+		roomCodeBadge.style.cursor = 'pointer';
+		roomCodeBadge.title = 'Click to copy room code';
+		roomCodeBadge.addEventListener('click', async () => {
+			const code = roomCodeValue.textContent || '';
+			if (!code || code === 'Copied!') return;
+			try {
+				if (navigator?.clipboard?.writeText) {
+					await navigator.clipboard.writeText(code);
+					roomCodeValue.textContent = 'Copied!';
+					window.setTimeout(() => { roomCodeValue.textContent = code; }, 1200);
+				}
+			} catch {
+				// Clipboard blocked (e.g. insecure context) — leave the code visible to copy manually.
+			}
+		});
 	}
 	const modal = initModalManager(modalRoot);
 	if (logCopyBuffer) log.attachBuffer(logCopyBuffer);
@@ -2235,6 +2250,19 @@ function initGamePage() {
 				};
 			});
 
+		// Per-Mosje quests (Kickboxing Bootcamp): fold the chosen Mosje's reward —
+		// including the +20 both-Kickboxers bonus — into one quest def, so the
+		// preview modal, the dice popup, and the resolution all use the same MP.
+		function questDefForMosje(mosje) {
+			const perCfg = questDef.perMosjeConfig?.[mosje?.cardId];
+			if (!perCfg) return questDef;
+			const p = gameState.players[localPlayerId];
+			const bothActive = isKickboxing
+				&& p.activeSlots.some(s => s && !s.isDefeated && String(s.cardId).includes('gandoe'))
+				&& p.activeSlots.some(s => s && !s.isDefeated && s.cardId === 'mosje_michelle');
+			return { ...questDef, successMP: perCfg.successMP + (bothActive ? 20 : 0) };
+		}
+
 		// Fires only after the player confirms a Mosje in the selection modal.
 		function onMosjeSelected(targetSlotIndex) {
 			animateFieldActivation({
@@ -2253,11 +2281,11 @@ function initGamePage() {
 			log.add('loss', 'Quest attempt cost: -20 MP');
 
 			const chosenMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
-			const perMosjeCfg = questDef.perMosjeConfig?.[chosenMosje?.cardId];
+			const chosenQuestDef = questDefForMosje(chosenMosje);
 			gameState.activeQuest = {
 				questName: questDef.name, cardName: questDef.name,
 				questType: questDef.questType || 'PERSONAL', attacker: localPlayerId,
-				successMP: perMosjeCfg?.successMP ?? questDef.successMP, failMP: questDef.failMP,
+				successMP: chosenQuestDef.successMP, failMP: questDef.failMP,
 				currentMp: chosenMosje?.mp ?? null,
 			};
 			renderFromState(gameState);
@@ -2269,7 +2297,8 @@ function initGamePage() {
 			// Show quest detail preview (modal-card--mosje-detail).
 			// "Attempt Quest" → dice roll. "Cancel" → close with no MP refund.
 			const updatedMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
-			modal.showQuestAttemptPreview(updatedMosje, questDef, getQuestDiceThreshold(questDef, updatedMosje), () => {
+			const previewQuestDef = questDefForMosje(updatedMosje);
+			modal.showQuestAttemptPreview(updatedMosje, previewQuestDef, getQuestDiceThreshold(previewQuestDef, updatedMosje), () => {
 				runQuestDiceRoll(targetSlotIndex);
 			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus });
 		}
@@ -2284,17 +2313,12 @@ function initGamePage() {
 				tweedeKansReroll = 1;
 				delete gameState._rerollGranted;
 			}
-			modal.showDiceRoll(questDef, threshold, (didSucceed, rollInfo) => {
+			// One def for the popup AND the resolution — the shown MP is the awarded MP.
+			// (successMP is only consumed on success, so folding the both-active bonus
+			// in unconditionally is behaviour-identical to the old didSucceed check.)
+			const resolveQuestDef = questDefForMosje(liveMosje);
+			modal.showDiceRoll(resolveQuestDef, threshold, (didSucceed, rollInfo) => {
 				const beforeResolve = snapshotForAnimation();
-				// Kickboxing Bootcamp: override successMP per chosen Mosje + synergy bonus.
-				let resolveQuestDef = questDef;
-				if (isKickboxing && mosjePerCfg) {
-					const player = gameState.players[localPlayerId];
-					const bothActive = player.activeSlots.some(s => s && !s.isDefeated && String(s.cardId).includes('gandoe'))
-						&& player.activeSlots.some(s => s && !s.isDefeated && s.cardId === 'mosje_michelle');
-					const finalMP = mosjePerCfg.successMP + (didSucceed && bothActive ? 20 : 0);
-					resolveQuestDef = { ...questDef, successMP: finalMP };
-				}
 				gameState = resolveQuest(gameState, localPlayerId, resolveQuestDef, didSucceed, targetSlotIndex);
 				gameState.activeQuest = null;
 
