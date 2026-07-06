@@ -1944,11 +1944,14 @@
   font-size: 1.25rem;   /* match on-field piecie description (.board-zone__piecies .card = 1.25em = 20px) */
   line-height: 1.25;
   opacity: 1;
-  /* show the full ability — no truncation */
-  display: block;
-  -webkit-line-clamp: unset;
-  -webkit-box-orient: unset;
-  overflow: visible;
+  /* Long abilities (e.g. Parkour West) must never push the ability button out
+     of the card — clamp to 4 lines; the Mosje detail modal shows the full text. */
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  hyphens: auto;
+  overflow-wrap: break-word;
 }
 .mosje-card--owned .uc-synergy {
   font-size: 0.76rem;
