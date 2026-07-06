@@ -47,6 +47,9 @@ let _customDecksCache = [];
 // at form submit instead of the (hidden) #deck-select. Never falls back to
 // an original id; see setupActiveDeckPanel / N1.
 let signedInDeckId = null;
+// Test-only fake signed-in user, set exclusively by the ?testActiveDeck=1 lobby
+// stub so form submit exercises the real signed-in branch without Firebase.
+let _testStubUser = null;
 
 // Feed the ability-cast chip the real ability name: the part before ":" in the
 // description, minus qualifiers like "(comeback)"/"(passive)".
@@ -113,7 +116,7 @@ function initLobbyPage() {
 		const name = String(document.getElementById('player-name')?.value || '').trim();
 		// Signed-in (non-anonymous) users play with their tracked active deck;
 		// guests read the (duo-only) dropdown. Never fall back to an original id.
-		const submitUser = getCurrentUser();
+		const submitUser = _testStubUser || getCurrentUser();
 		const deckId = submitUser && !submitUser.isAnonymous
 			? (signedInDeckId || getPlayerFacingDecks()[0].id)
 			: String(document.getElementById('deck-select')?.value || getPlayerFacingDecks()[0].id);
@@ -123,6 +126,14 @@ function initLobbyPage() {
 		if (!name) {
 			window.alert('Please enter your player name.');
 			return;
+		}
+
+		// Persist custom deck def to sessionStorage so game page can reconstruct it.
+		// Must happen BEFORE the offline early-return: offline games need it too
+		// (a signed-in player's active deck can be a custom_ deck).
+		if (deckId.startsWith('custom_')) {
+			const customDef = _customDecksCache.find(d => d.id === deckId);
+			if (customDef) sessionStorage.setItem(`mosjes:customDeck:${deckId}`, JSON.stringify(customDef));
 		}
 
 		const isOffline = document.getElementById('play-offline')?.checked === true;
@@ -148,12 +159,6 @@ function initLobbyPage() {
 
 		const submitBtn = form.querySelector('button[type="submit"]');
 		if (submitBtn) submitBtn.disabled = true;
-
-		// Persist custom deck def to sessionStorage so game page can reconstruct it
-		if (deckId.startsWith('custom_')) {
-			const customDef = _customDecksCache.find(d => d.id === deckId);
-			if (customDef) sessionStorage.setItem(`mosjes:customDeck:${deckId}`, JSON.stringify(customDef));
-		}
 
 		const lobbyUser = getCurrentUser();
 		const lobbyUid = lobbyUser && !lobbyUser.isAnonymous ? lobbyUser.uid : null;
@@ -335,8 +340,15 @@ async function runStubbedOnboarding() {
 // what game-start would read after a switch. Test-only.
 async function runStubbedActiveDeck() {
 	const fakeDecks = getPlayerFacingDecks().slice(0, 2);
+	// &testCustomActive=1: prepend a deck-builder-style custom deck (custom_ id)
+	// and make it the active deck — drives the signed-in offline flow with a
+	// custom deck, which cannot resolve from STARTER_DECKS on the game page.
+	if (new URLSearchParams(window.location.search).get('testCustomActive') === '1') {
+		fakeDecks.unshift({ ...fakeDecks[0], id: 'custom_test_deck', name: 'Custom Test Deck' });
+	}
 	let fakeActiveId = fakeDecks[0].id;
 	_customDecksCache = fakeDecks;
+	_testStubUser = { uid: 'test-uid', isAnonymous: false, displayName: 'TestPlayer' };
 	window.__testActiveDeckHook = {
 		get signedInDeckId() { return signedInDeckId; },
 		get seededDeckIds() { return fakeDecks.map(d => d.id); },
