@@ -41,3 +41,4 @@ test-results/
 playwright-report/
 tests/ui/simulation/sim-report.json
 tests/ui/simulation/sim-botvsbot-report.json
+tests/ui/simulation/sim-deck-matrix-report.json
