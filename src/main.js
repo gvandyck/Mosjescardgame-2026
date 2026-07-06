@@ -474,6 +474,21 @@ function initGamePage() {
 	if (roomCodeBadge && roomCodeValue && lobbyData.roomCode) {
 		roomCodeValue.textContent = lobbyData.roomCode;
 		roomCodeBadge.hidden = false;
+		roomCodeBadge.style.cursor = 'pointer';
+		roomCodeBadge.title = 'Click to copy room code';
+		roomCodeBadge.addEventListener('click', async () => {
+			const code = roomCodeValue.textContent || '';
+			if (!code || code === 'Copied!') return;
+			try {
+				if (navigator?.clipboard?.writeText) {
+					await navigator.clipboard.writeText(code);
+					roomCodeValue.textContent = 'Copied!';
+					window.setTimeout(() => { roomCodeValue.textContent = code; }, 1200);
+				}
+			} catch {
+				// Clipboard blocked (e.g. insecure context) — leave the code visible to copy manually.
+			}
+		});
 	}
 	const modal = initModalManager(modalRoot);
 	if (logCopyBuffer) log.attachBuffer(logCopyBuffer);
