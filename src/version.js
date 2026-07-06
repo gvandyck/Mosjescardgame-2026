@@ -1,2 +1,2 @@
 // Shared app version shown in UI so players can confirm they are on the same build.
-export const APP_VERSION = 'offline-custom-deck-fix';
+export const APP_VERSION = 'deck-panel-name-only';

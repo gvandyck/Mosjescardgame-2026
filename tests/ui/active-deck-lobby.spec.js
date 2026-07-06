@@ -48,7 +48,8 @@ test.describe('Lobby: signed-in active-deck panel + Change-deck switcher (live)'
 		const panel = page.locator('#active-deck-panel');
 		await expect(panel).toBeVisible();
 		await expect(panel.locator('.active-deck-panel__name')).toHaveText("Coert & Binti — Winston's Kitchen");
-		await expect(panel.locator('.active-deck-panel__mosjes')).toHaveText('Coert & Binti');
+		// Deck contents are intentionally NOT shown — the name is plenty.
+		await expect(panel.locator('.active-deck-panel__mosjes')).toHaveCount(0);
 
 		// The tracked signed-in deck id (what game-start would read) matches
 		// the seeded active deck.
@@ -76,7 +77,6 @@ test.describe('Lobby: signed-in active-deck panel + Change-deck switcher (live)'
 		await expect(page.locator('#modal-root .modal-card')).toHaveCount(0);
 		const panel = page.locator('#active-deck-panel');
 		await expect(panel.locator('.active-deck-panel__name')).toHaveText('Gandoe & Michelle — The Box');
-		await expect(panel.locator('.active-deck-panel__mosjes')).toHaveText('Gandoe & Michelle');
 
 		// The new active id is exactly what game-start would read.
 		const trackedId = await page.evaluate(() => window.__testActiveDeckHook.signedInDeckId);

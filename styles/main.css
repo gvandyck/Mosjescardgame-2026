@@ -1154,11 +1154,6 @@ body::before {
   color: #fff;
 }
 
-.active-deck-panel__mosjes {
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.6);
-}
-
 .active-deck-panel #btn-change-deck {
   align-self: flex-start;
   margin-top: 6px;
