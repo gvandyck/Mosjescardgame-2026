@@ -108,7 +108,8 @@ for (const pairing of PAIRINGS) {
 test.afterAll(() => {
 	if (allRecords.length === 0) return;
 
-	const stats = aggregateDeckStats(allRecords);
+	const deckIdToKey = Object.fromEntries(DECKS.map(d => [d.id, d.key]));
+	const stats = aggregateDeckStats(allRecords, deckIdToKey);
 	const expectedGames = PAIRINGS.length * GAMES_PER_PAIRING;
 
 	const report = {

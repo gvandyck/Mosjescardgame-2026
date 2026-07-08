@@ -1,7 +1,14 @@
 # Deck Matrix Testplan — round-robin bot-vs-bot deck balance stats
 
-**Status: DRAFT — awaiting review (not yet built)**
-**Date: 2026-07-06**
+**Status: BUILT & RUNNING — spec, aggregation and reports are committed**
+**Date: 2026-07-06 (built 2026-07-06, bot strategy layer added 2026-07-08)**
+
+> Since 2026-07-08 both bots run the strategy layer in `src/bot/strategy/`
+> (deck profiles, quest risk model, real dice thresholds, 20 MP quest cost,
+> combo-tag activation ordering). The results file also carries a
+> **Bot quality** section aggregated from `[BOT] METRIC` console lines
+> (quest attempts vs skips, confidence, setup activations, roll outcomes).
+> Results from before/after that date are not directly comparable.
 
 ## Goal
 Measure which player-facing decks over/underperform by letting the game's own

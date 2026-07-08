@@ -50,6 +50,29 @@ export function buildDeckMatrixMarkdown(report) {
 	}
 	lines.push('');
 
+	// ── Bot quality (only when the strategy layer emitted metrics) ──
+	const hasBot = Object.values(stats.decks).some(d => d.bot);
+	if (hasBot) {
+		lines.push('## Bot quality (per deck, quest decisions)');
+		lines.push('');
+		lines.push('| Deck | Attempts | Skips | Attempt rate | Avg confidence | Avg MP at decision | Setup acts/decision | Roll success | Top skip reason |');
+		lines.push('|------|----------|-------|--------------|----------------|--------------------|---------------------|--------------|-----------------|');
+		for (const key of deckOrder) {
+			const b = stats.decks[key]?.bot;
+			if (!b) continue;
+			const topSkip = Object.entries(b.skipReasons || {})
+				.sort((a, z) => z[1] - a[1])[0];
+			lines.push(`| ${deckNames[key] || key} | ${b.questAttempts} | ${b.questSkips} | ` +
+				`${b.attemptRate ?? '—'}% | ${b.avgConfidence ?? '—'} | ${b.avgMpAtDecision ?? '—'} | ` +
+				`${b.setupActsPerDecision ?? '—'} | ${b.rollSuccessRate ?? '—'}% | ` +
+				`${topSkip ? `${topSkip[0]}×${topSkip[1]}` : '—'} |`);
+		}
+		lines.push('');
+		lines.push('- *Avg confidence* = mean estimated success chance at decision time; ' +
+			'*roll success* = what the dice actually delivered.');
+		lines.push('');
+	}
+
 	lines.push('## Reading guide');
 	lines.push('- 10 games per pairing is a small sample (±~15% noise); trust the ' +
 		`${report.gamesPerPairing * (deckOrder.length - 1)}-game per-deck aggregate over any single pairing.`);

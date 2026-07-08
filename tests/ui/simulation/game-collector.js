@@ -32,6 +32,45 @@ export function attachCollector(page) {
 }
 
 /**
+ * Parse '[BOT] METRIC {json}' lines (emitted by src/bot/strategy/emitBotMetric.js)
+ * into a per-deck bot-quality summary: quest decisions/attempts/skips with
+ * reasons, confidence (estimated p of success), MP at decision time, setup
+ * activations before questing, and actual roll outcomes.
+ */
+export function summarizeBotMetrics(logs) {
+	const byDeck = {};
+	for (const line of logs) {
+		if (!line.startsWith('[BOT] METRIC ')) continue;
+		let m;
+		try { m = JSON.parse(line.slice('[BOT] METRIC '.length)); } catch { continue; }
+		const deck = m.deck || 'UNKNOWN';
+		const d = (byDeck[deck] ??= {
+			decisions: 0, attempts: 0, skips: 0, skipReasons: {},
+			pSum: 0, pCount: 0, mpSum: 0, mpCount: 0, setupSum: 0,
+			rolls: 0, rollSuccesses: 0,
+		});
+		if (m.ev === 'quest-decision') {
+			d.decisions++;
+			if (m.attempt) d.attempts++;
+			else {
+				d.skips++;
+				d.skipReasons[m.reason || 'unknown'] = (d.skipReasons[m.reason || 'unknown'] || 0) + 1;
+			}
+			if (typeof m.p === 'number') { d.pSum += m.p; d.pCount++; }
+			if (typeof m.mp === 'number') { d.mpSum += m.mp; d.mpCount++; }
+			if (typeof m.setupActs === 'number') d.setupSum += m.setupActs;
+		} else if (m.ev === 'quest-skip') {
+			d.skips++;
+			d.skipReasons[m.reason || 'unknown'] = (d.skipReasons[m.reason || 'unknown'] || 0) + 1;
+		} else if (m.ev === 'quest-roll') {
+			d.rolls++;
+			if (m.success) d.rollSuccesses++;
+		}
+	}
+	return byDeck;
+}
+
+/**
  * Extract a structured GameRecord from captured logs + final game state.
  * Call after the reward overlay appears.
  */
@@ -95,6 +134,7 @@ export async function buildGameRecord(page, collector, meta) {
 		abilitiesUsed,
 		crashes,
 		cardMentions,
+		botMetrics: summarizeBotMetrics(logs),
 		rawLogCount: logs.length,
 	};
 }
