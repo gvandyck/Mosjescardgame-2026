@@ -47,7 +47,7 @@ export function summarizeBotMetrics(logs) {
 		const d = (byDeck[deck] ??= {
 			decisions: 0, attempts: 0, skips: 0, skipReasons: {},
 			pSum: 0, pCount: 0, mpSum: 0, mpCount: 0, setupSum: 0,
-			rolls: 0, rollSuccesses: 0,
+			rolls: 0, rollSuccesses: 0, secondMosjePlays: 0,
 		});
 		if (m.ev === 'quest-decision') {
 			d.decisions++;
@@ -65,6 +65,8 @@ export function summarizeBotMetrics(logs) {
 		} else if (m.ev === 'quest-roll') {
 			d.rolls++;
 			if (m.success) d.rollSuccesses++;
+		} else if (m.ev === 'plays-second-mosje') {
+			d.secondMosjePlays++;
 		}
 	}
 	return byDeck;

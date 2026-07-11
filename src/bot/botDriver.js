@@ -5,6 +5,8 @@
 // strategy — never from multiplayer.
 //
 // Turn phases:
+//   0. Play a 2nd Mosje from hand if a field slot is free — unlocks board-
+//      state synergies (e.g. West+Cless) and abilities on the SAME turn.
 //   A. 'early' Mosje abilities (arm per-Piecie triggers / extra plays)
 //   B. Play Piecies + place Personal Quests face-down (tag-priority order)
 //   C. Activate ready Piecies in strategic order (multipliers → MP → prep …)
@@ -17,6 +19,7 @@
 //   H. End turn
 
 import {
+  playMosje,
   playPiecie,
   activatePiecie,
   playPlace,
@@ -293,6 +296,26 @@ export function driveBotTurnSteps(gameState, botPlayerId) {
       }
     }
   };
+
+  // ── Phase 0: play a 2nd Mosje if a field slot is free ─────────────────────
+  // Duo-deck synergies (West+Cless, Gandoe+Michelle's Kickboxing bonus, …)
+  // require BOTH Mosjes on the field — this was previously never true in
+  // bot-vs-bot play, since nothing ever called playMosje for the bot. Always
+  // play it: extra turn trickle, ability access, and quest-risk backup have
+  // no real downside, so this needs no risk model (unlike quests/gambles).
+  {
+    const mosjeCardRef = (state.players[botPlayerId]?.hand || []).find(c => c.type === 'MOSJE');
+    const hasFreeSlot = (state.players[botPlayerId]?.activeSlots || []).some(s => s === null);
+    if (mosjeCardRef && hasFreeSlot) {
+      const result = playMosje(state, botPlayerId, mosjeCardRef);
+      if (result.success) {
+        state = result.state;
+        const mosjeDef = MOSJE_LOOKUP[mosjeCardRef.cardId];
+        emitBotMetric('plays-second-mosje', { deck: profile.deckId, cardId: mosjeCardRef.cardId, slotIndex: result.slotIndex });
+        push(`plays ${mosjeDef?.name ?? mosjeCardRef.cardId} to the field`);
+      }
+    }
+  }
 
   // ── Phase A: early abilities ──────────────────────────────────────────────
   useAbilitiesFor('early');

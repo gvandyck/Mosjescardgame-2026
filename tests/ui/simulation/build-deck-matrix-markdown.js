@@ -55,8 +55,8 @@ export function buildDeckMatrixMarkdown(report) {
 	if (hasBot) {
 		lines.push('## Bot quality (per deck, quest decisions)');
 		lines.push('');
-		lines.push('| Deck | Attempts | Skips | Attempt rate | Avg confidence | Avg MP at decision | Setup acts/decision | Roll success | Top skip reason |');
-		lines.push('|------|----------|-------|--------------|----------------|--------------------|---------------------|--------------|-----------------|');
+		lines.push('| Deck | Attempts | Skips | Attempt rate | Avg confidence | Avg MP at decision | Setup acts/decision | Roll success | 2nd Mosje/game | Top skip reason |');
+		lines.push('|------|----------|-------|--------------|----------------|--------------------|---------------------|--------------|-----------------|-----------------|');
 		for (const key of deckOrder) {
 			const b = stats.decks[key]?.bot;
 			if (!b) continue;
@@ -64,12 +64,14 @@ export function buildDeckMatrixMarkdown(report) {
 				.sort((a, z) => z[1] - a[1])[0];
 			lines.push(`| ${deckNames[key] || key} | ${b.questAttempts} | ${b.questSkips} | ` +
 				`${b.attemptRate ?? '—'}% | ${b.avgConfidence ?? '—'} | ${b.avgMpAtDecision ?? '—'} | ` +
-				`${b.setupActsPerDecision ?? '—'} | ${b.rollSuccessRate ?? '—'}% | ` +
+				`${b.setupActsPerDecision ?? '—'} | ${b.rollSuccessRate ?? '—'}% | ${b.secondMosjePerGame ?? '—'} | ` +
 				`${topSkip ? `${topSkip[0]}×${topSkip[1]}` : '—'} |`);
 		}
 		lines.push('');
 		lines.push('- *Avg confidence* = mean estimated success chance at decision time; ' +
-			'*roll success* = what the dice actually delivered.');
+			'*roll success* = what the dice actually delivered. *2nd Mosje/game* = how often the bot ' +
+			'plays its second Mosje onto the field per game (0 here would mean duo synergies structurally ' +
+			'cannot trigger — see src/bot/botDriver.js Phase 0).');
 		lines.push('');
 	}
 

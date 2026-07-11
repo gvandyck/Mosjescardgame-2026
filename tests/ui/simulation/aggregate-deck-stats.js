@@ -52,7 +52,7 @@ export function aggregateDeckStats(records, deckIdToKey = {}) {
 			const b = (d._bot ??= {
 				decisions: 0, attempts: 0, skips: 0, skipReasons: {},
 				pSum: 0, pCount: 0, mpSum: 0, mpCount: 0, setupSum: 0,
-				rolls: 0, rollSuccesses: 0,
+				rolls: 0, rollSuccesses: 0, secondMosjePlays: 0,
 			});
 			b.decisions += m.decisions || 0;
 			b.attempts += m.attempts || 0;
@@ -67,6 +67,7 @@ export function aggregateDeckStats(records, deckIdToKey = {}) {
 			b.setupSum += m.setupSum || 0;
 			b.rolls += m.rolls || 0;
 			b.rollSuccesses += m.rollSuccesses || 0;
+			b.secondMosjePlays += m.secondMosjePlays || 0;
 		}
 	}
 
@@ -89,6 +90,8 @@ export function aggregateDeckStats(records, deckIdToKey = {}) {
 				avgMpAtDecision: b.mpCount > 0 ? +(b.mpSum / b.mpCount).toFixed(1) : null,
 				setupActsPerDecision: b.decisions > 0 ? +(b.setupSum / b.decisions).toFixed(2) : null,
 				rollSuccessRate: pct(b.rollSuccesses, b.rolls),
+				secondMosjePlays: b.secondMosjePlays,
+				secondMosjePerGame: d.games > 0 ? +(b.secondMosjePlays / d.games).toFixed(2) : null,
 			};
 			delete d._bot;
 		}

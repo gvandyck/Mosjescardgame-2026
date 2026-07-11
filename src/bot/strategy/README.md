@@ -28,7 +28,18 @@ peeking.
 - Personal Quests follow the human **place-then-activate** flow and are actually
   rolled + resolved (they used to be discarded with no effect).
 - The bot can pick **which Mosje quests** (best odds/safest MP), not always slot 0.
-- Both Mosjes may use abilities in a turn (was: only the first slot, ever).
+- Both Mosjes may use abilities in a turn (was: only the first slot, ever) — this
+  was dead code until 2026-07-12 below, since a second Mosje never existed.
+- **2026-07-12: the bot plays a 2nd Mosje from hand** (`botDriver.js` Phase 0,
+  `playMosje` from `turnManager.js`) whenever a field slot is free. Before this,
+  `botDriver.js` had no `playMosje` call anywhere — the bot only ever fielded its
+  single random starting Mosje for the whole game. Every "both Mosjes active"
+  synergy (West+Cless's Physical-quest bonus, GM's Kickboxing Bootcamp
+  both-active bonus, the "both may use abilities" fix above) was **structurally
+  unreachable** in bot-vs-bot simulation until this landed — confirmed by direct
+  measurement: wiring the West+Cless synergy alone moved WC's 100-game win rate
+  by 0%. Watch the **2nd Mosje/game** column in the deck-matrix report's Bot
+  quality table — 0 there for any deck means its duo synergy still can't fire.
 
 ## Tuning
 

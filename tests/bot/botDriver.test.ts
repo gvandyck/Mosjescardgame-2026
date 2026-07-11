@@ -8,6 +8,8 @@ import { describe, expect, it } from 'vitest';
 
 // @ts-expect-error JS module without type declarations
 import { driveBotTurn } from '../../src/bot/botDriver.js';
+// @ts-expect-error JS module without type declarations
+import { getPartnerSynergyQuestBonus } from '../../src/abilities/questLogic.js';
 import { PIECIES } from '../../src/data/piecies.js';
 import { PLACES } from '../../src/data/places.js';
 import { QUESTS } from '../../src/data/quests.js';
@@ -372,5 +374,58 @@ describe('driveBotTurn — AZN Cless Risk and Reward gating', () => {
     const clessAfter = (result.players.player_2.activeSlots as MosjeSlot[])[0];
     expect(clessAfter.mp).toBe(10);
     expect(clessAfter.abilityUsedThisTurn).toBe(false);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────
+// Plays a 2nd Mosje from hand
+// Previously botDriver.js had NO playMosje call anywhere — the bot only
+// ever fielded its single starting Mosje for the whole game, so any "both
+// Mosjes active" synergy (West+Cless, GM's Kickboxing bonus) could never
+// trigger in bot-vs-bot play regardless of being correctly implemented.
+// ─────────────────────────────────────────────────────────────
+
+describe('driveBotTurn — plays a 2nd Mosje from hand', () => {
+  it('plays a MOSJE hand card into a free field slot', () => {
+    const state = makeState({
+      hand: [{ cardId: 'mosje_azn_cless', type: 'MOSJE' }],
+      activeSlots: [makeMosjeSlot('mosje_martin_senor_west', 50), null as unknown as MosjeSlot],
+    });
+    const result = driveBotTurn(state, 'player_2');
+
+    const hand = result.players.player_2.hand as HandCard[];
+    expect(hand.find((c) => c.cardId === 'mosje_azn_cless')).toBeUndefined();
+
+    const slots = result.players.player_2.activeSlots as MosjeSlot[];
+    const played = slots.find((s) => s?.cardId === 'mosje_azn_cless');
+    expect(played).toBeDefined();
+    expect(played?.isDefeated).toBe(false);
+  });
+
+  it('does not play it when both field slots are already full', () => {
+    const state = makeState({
+      hand: [{ cardId: 'mosje_azn_cless', type: 'MOSJE' }],
+      activeSlots: [
+        makeMosjeSlot('mosje_martin_senor_west', 50),
+        makeMosjeSlot('mosje_jeffrey', 50),
+      ],
+    });
+    const result = driveBotTurn(state, 'player_2');
+
+    const hand = result.players.player_2.hand as HandCard[];
+    expect(hand.find((c) => c.cardId === 'mosje_azn_cless')).toBeDefined(); // still in hand
+  });
+
+  it('closes the loop: playing the 2nd Mosje makes the partner-synergy bonus detectable', () => {
+    // Direct proof the two fixes now connect — no dice-roll control needed:
+    // once driveBotTurn has actually placed Cless next to West, the live
+    // board-state synergy check (questLogic.js) must see BOTH of them.
+    const state = makeState({
+      hand: [{ cardId: 'mosje_azn_cless', type: 'MOSJE' }],
+      activeSlots: [makeMosjeSlot('mosje_martin_senor_west', 50), null as unknown as MosjeSlot],
+    });
+    const result = driveBotTurn(state, 'player_2');
+    const bonus = getPartnerSynergyQuestBonus(result, 'player_2', 'Physical');
+    expect(bonus).toBe(15);
   });
 });
