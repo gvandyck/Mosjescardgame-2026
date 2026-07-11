@@ -34,6 +34,37 @@ function hasActiveMosjeCard(gameState, playerId, cardId) {
 	return getActiveMosjes(gameState?.players?.[playerId]).some(m => m.cardId === cardId);
 }
 
+// ─────────────────────────────────────────────────────────────
+// getPartnerSynergyQuestBonus
+// U6 stack step 4 — "Partner-synergy bonus (from synergy partner being on
+// field)". Data-driven lookup so a future duo's category-wide quest synergy
+// is one table entry, not a new hardcoded branch. Only mosje.js pairs whose
+// synergyEffect text ties to a Quest CATEGORY belong here — a bonus scoped
+// to one specific quest card (e.g. Kickboxing Bootcamp's both-active +20)
+// stays as a perMosjeConfig override where it already lives, since that's a
+// different mechanic (one card, not "every Physical quest").
+//
+// [Martin] Señor West + [AZN Cless]: "Physical Quests give +15 bonus MP"
+// (src/data/mosjes.js) — both Mosjes declare this synergyEffect, but nothing
+// consumed it until this lookup; getActiveSynergies()/hasSynergy() in
+// synergyResolver.js only ever drove the Binti+Coert FOOD-double check.
+// ─────────────────────────────────────────────────────────────
+const PARTNER_QUEST_SYNERGIES = [
+	{ pair: ['mosje_martin_senor_west', 'mosje_azn_cless'], category: 'Physical', bonus: 15 },
+];
+
+export function getPartnerSynergyQuestBonus(gameState, playerId, category) {
+	if (!category) return 0;
+	const activeIds = new Set(getActiveMosjes(gameState?.players?.[playerId]).map(m => m.cardId));
+	let bonus = 0;
+	for (const entry of PARTNER_QUEST_SYNERGIES) {
+		if (entry.category === category && entry.pair.every(id => activeIds.has(id))) {
+			bonus += entry.bonus;
+		}
+	}
+	return bonus;
+}
+
 export function getMosjeTrait(gameState, playerId, activeMosjeId, traitName) {
 	const trait = String(traitName || '').toLowerCase();
 	const player = gameState?.players?.[playerId];
@@ -303,6 +334,22 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 	}
 
 	if (!baseQuestMpBlocked && !defersMPToUI) {
+		// Bonus MP sources that apply ONLY on success (U6 stack: step 2 —
+		// card-synergy bonus armed by a piecie this turn; step 4 — partner-
+		// synergy bonus from a live board-state pair). Read/consume the
+		// one-shot armed bonus BEFORE any gainMP/loseMP call below reassigns
+		// `state` to a new clone — `player` is only a valid mutation target
+		// on the CURRENT state up until that first reassignment.
+		//   - questBonusMP: armed by snoeiertje/super_saiyan_mos/momentum_boost/
+		//     f1_telemetry ("next successful Quest gives bonus MP"); consumed
+		//     (reset to 0) only when it actually applies, so a FAILED attempt
+		//     leaves it armed for the next try.
+		//   - partner-synergy bonus: live check, e.g. West+Cless "Physical
+		//     Quests give +15 bonus MP" — see getPartnerSynergyQuestBonus().
+		const armedBonus = didSucceed ? (player.questBonusMP || 0) : 0;
+		const synergyBonus = didSucceed ? getPartnerSynergyQuestBonus(state, playerId, questCard.category) : 0;
+		if (didSucceed && player.questBonusMP) player.questBonusMP = 0;
+
 		// Support both old format (successMP/failMP) and new format (onSuccess/onFailure effects)
 		const effects = didSucceed ? (questCard.onSuccess || []) : (questCard.onFailure || []);
 
@@ -325,6 +372,13 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 				const failValue = Math.abs(typeof questCard.failMP === 'number' ? questCard.failMP : 0);
 				state = loseMP(state, playerId, slotIndex, failValue, 'QUEST');
 			}
+		}
+
+		const totalBonus = armedBonus + synergyBonus;
+		if (totalBonus > 0) {
+			questMpGained += totalBonus;
+			state = gainMP(state, playerId, slotIndex, totalBonus, 'QUEST_BONUS');
+			console.log(`[QUEST] Bonus MP applied: +${totalBonus} (armed=${armedBonus}, partner-synergy=${synergyBonus})`);
 		}
 	}
 

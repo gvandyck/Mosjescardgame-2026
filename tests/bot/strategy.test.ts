@@ -183,6 +183,23 @@ describe('assessQuestRisk', () => {
     expect(dLevel.levelsUp).toBe(true);
     expect(dLevel.requiredP).toBeLessThan(dBase.requiredP as number);
   });
+
+  it('folds the West+Cless Physical-quest partner-synergy bonus into the levels-up prediction', () => {
+    // mp 50 -> 30 at roll; base successMP 60 -> 90 (no level). +15 synergy -> 105 (levels).
+    const west = makeMosje({ cardId: 'mosje_martin_senor_west', mp: 50, traits: { physical: 3 } });
+    const cless = makeMosje({ cardId: 'mosje_azn_cless', mp: 50 });
+    const withPartner = assessQuestRisk({
+      questDef: ARM_WRESTLING, mosje: west, slotIndex: 0,
+      gameState: makeState({ activeSlots: [west, cless] }), playerId: 'player_2', profile: neutral,
+    });
+    const withoutPartner = assessQuestRisk({
+      questDef: ARM_WRESTLING, mosje: west, slotIndex: 0,
+      gameState: makeState({ activeSlots: [west] }), playerId: 'player_2', profile: neutral,
+    });
+    expect(withPartner.levelsUp).toBe(true);
+    expect(withoutPartner.levelsUp).toBe(false);
+    expect(withPartner.requiredP).toBeLessThan(withoutPartner.requiredP as number);
+  });
 });
 
 // ─────────────────────────────────────────────────────────────

@@ -11,6 +11,7 @@
 //               or in own hand — own hand is the bot's legal knowledge).
 
 import { estimateQuestOdds } from './questOdds.js';
+import { getPartnerSynergyQuestBonus } from '../../abilities/questLogic.js';
 
 export const QUEST_ATTEMPT_COST = 20;
 
@@ -92,7 +93,14 @@ export function assessQuestRisk({ questDef, mosje, slotIndex, gameState, playerI
 		return { ...base, attempt: false, reason: 'requirement-not-met' };
 	}
 
-	const successMP = questSuccessMP(questDef);
+	// Include bonus MP the engine will actually add on success (the one-shot
+	// questBonusMP flag, plus any live partner-synergy bonus e.g. West+Cless)
+	// so a marginal quest that only clears 100 MP WITH the bonus is still
+	// correctly judged as "levels up" — reuses the exact function resolveQuest
+	// calls, so the two can never drift out of sync.
+	const successMP = questSuccessMP(questDef)
+		+ (gameState?.players?.[playerId]?.questBonusMP || 0)
+		+ getPartnerSynergyQuestBonus(gameState, playerId, questDef?.category);
 	const levelsUp = mpAtRoll + successMP >= 100;
 	const winsGame = levelsUp && (mosje.level || 0) >= 2;
 	if (odds.autoSuccess) {
