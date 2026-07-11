@@ -76,6 +76,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		const fullCard = getCardById(mosje.cardId) || mosje;
 		cardEl.classList.add('mosje-clickable', 'mosje-card--opponent');
 		if (mosje.summonedByPiecie === 'piecie_call_of_welloes') cardEl.classList.add('mosje--welloe-bound');
+		if (mosje.entryProtected) appendEntryProtectionBadge(cardEl);
 		tagBoardElement(cardEl, {
 			zone: 'mosje',
 			playerId: viewModel.players.top.id,
@@ -96,6 +97,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		const fullCard = getCardById(mosje.cardId) || mosje;
 		cardEl.classList.add('mosje-clickable', 'mosje-card--owned');
 		if (mosje.summonedByPiecie === 'piecie_call_of_welloes') cardEl.classList.add('mosje--welloe-bound');
+		if (mosje.entryProtected) appendEntryProtectionBadge(cardEl);
 		tagBoardElement(cardEl, {
 			zone: 'mosje',
 			playerId: viewModel.players.bottom.id,
@@ -526,6 +528,20 @@ export function showPlaceEffectBanner(placeName, effectSummary, phase) {
 		banner.classList.add('place-banner-fade');
 		banner.addEventListener('transitionend', () => banner.remove(), { once: true });
 	}, 2000);
+}
+
+// U8 — Entry Protection badge: 🛡️ overlay on a freshly entered Mosje card so
+// both players can see it cannot be targeted until its owner's next turn.
+function appendEntryProtectionBadge(cardEl) {
+	const badge = document.createElement('span');
+	badge.className = 'mosje-entry-protected-badge';
+	badge.textContent = '🛡️';
+	badge.title = 'Entry protection: just entered play — safe from opponents until its owner\'s next turn';
+	badge.setAttribute('aria-label', badge.title);
+	badge.style.cssText = 'position:absolute;top:4px;right:4px;z-index:5;font-size:16px;'
+		+ 'filter:drop-shadow(0 1px 2px rgba(0,0,0,0.6));pointer-events:none;';
+	if (!cardEl.style.position) cardEl.style.position = 'relative';
+	cardEl.appendChild(badge);
 }
 
 // Renders modifier pill badges into a .snelle-modifier-bar container.

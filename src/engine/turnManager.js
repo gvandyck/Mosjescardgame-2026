@@ -180,6 +180,13 @@ export function startTurn(gameState) {
       slot.abilityUsedThisTurn = false;
       slot.immuneThisTurn = false;
       slot.mpLostThisTurn = 0;
+      // U8 — Entry Protection ends the moment the owner's turn starts: the
+      // owner has now "had a turn" with the Mosje, so opponents may target it
+      // from their next turn onward.
+      if (slot.entryProtected) {
+        delete slot.entryProtected;
+        console.log(`[ENGINE] 🛡️ Entry protection ended for ${slot.name} (${playerId}'s turn started)`);
+      }
       // MP Adjuster: reverse the temporary delta applied last turn
       if (slot._mpAdjustDelta !== undefined) {
         slot.mp = Math.max(0, slot.mp - slot._mpAdjustDelta);
@@ -945,6 +952,7 @@ export function confirmCallOfWelloes(gameState, playerId, mosjeCardId) {
   // Fresh summon at Level 1, 50 MP — NOT restored from welloe record (D-05/D-06)
   slot.mp = 50;
   slot.level = 1;
+  slot.entryProtected = true; // U8 — also on the raw-record fallback path
   // traits and statusEffects are not restored — fresh summon per D-05/D-06
   slot.summonedByPiecie = 'piecie_call_of_welloes';
   slot.isDefeated = false;
@@ -1018,6 +1026,10 @@ function createMosjeSlotFromDefinition(mosjeDef) {
     abilityUsedThisTurn: false,
     immuneThisTurn: false,
     mpLostThisTurn: 0,
+    // U8 — Entry Protection: fresh Mosjes (played from hand, summoned or
+    // revived) are safe from opponent effects until their owner's next turn
+    // starts (cleared in startTurn).
+    entryProtected: true,
   };
 }
 

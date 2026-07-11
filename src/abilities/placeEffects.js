@@ -12,6 +12,12 @@ function cloneState(state) {
 
 function applyDamage(mosje, amount) {
 	if (!mosje || mosje.isDefeated || amount <= 0) return;
+	// U8 — Entry Protection: effect damage fizzles against a freshly entered
+	// Mosje (until its owner's next turn starts — cleared in startTurn).
+	if (mosje.entryProtected === true) {
+		console.log(`[ABILITY] 🛡️ Entry protection: ${mosje.name} just entered play — ${amount} damage fizzled`);
+		return;
+	}
 	mosje.mp -= amount;
 	while (mosje.mp < 0) {
 		// Defeat-at-0: Level 0 below 0 from a damaging effect → pending defeat

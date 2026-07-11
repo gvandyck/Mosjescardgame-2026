@@ -138,6 +138,11 @@ function createMosjeSlot(mosjeData) {
     abilityUsedThisTurn: false,
     immuneThisTurn: false,
     mpLostThisTurn: 0,
+    // U8 — Entry Protection: a Mosje that enters play cannot be targeted or
+    // harmed by opponents until its owner's next turn starts (cleared in
+    // startTurn). Game-start Mosjes get it here; played/summoned Mosjes get
+    // it via createMosjeSlotFromDefinition in turnManager.js.
+    entryProtected: true,
   };
 }
 
@@ -243,6 +248,8 @@ export function getOpponentMosjes(gameState, playerId) {
           level: slot.level,
           owner: pid,
           slotIndex: index,
+          // U8 — Entry Protection: target selectors render these disabled.
+          protected: slot.entryProtected === true,
         });
       }
     });

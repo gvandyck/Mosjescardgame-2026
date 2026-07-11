@@ -986,7 +986,7 @@ function initGamePage() {
 			// set up exactly the board it needs (e.g. two Mosjes for Tuk Healer/Tactician,
 			// or a specific opponent Mosje for a defeat chain). slotIndex 0 or 1.
 			// Pass cardId=null to clear the slot.
-			setMosjeOnField(playerId, slotIndex, cardId, { mp = 10, level = 0 } = {}) {
+			setMosjeOnField(playerId, slotIndex, cardId, { mp = 10, level = 0, entryProtected = false } = {}) {
 				const player = gameState?.players?.[playerId];
 				if (!player) return;
 				if (cardId == null) { player.activeSlots[slotIndex] = null; renderFromState(gameState); return; }
@@ -997,7 +997,22 @@ function initGamePage() {
 					traits: { ...def.traits }, mp, level,
 					isDefeated: false, statusEffects: [],
 					abilityUsedThisTurn: false, immuneThisTurn: false, mpLostThisTurn: 0,
+					// U8 — seeded test Mosjes are UNPROTECTED by default (card tests
+					// model an established board); pass entryProtected:true to test U8.
+					...(entryProtected ? { entryProtected: true } : {}),
 				};
+				renderFromState(gameState);
+			},
+			// U8 — strip entry protection from every Mosje on the board. Card tests
+			// call this once after seeding so turn-1 attack effects test the CARD,
+			// not the protection rule (which has its own spec).
+			clearEntryProtection() {
+				if (!gameState) return;
+				for (const pid of Object.keys(gameState.players)) {
+					for (const slot of gameState.players[pid].activeSlots || []) {
+						if (slot) delete slot.entryProtected;
+					}
+				}
 				renderFromState(gameState);
 			},
 			injectGraveyardCard(playerId, cardId) {
@@ -1722,6 +1737,14 @@ function initGamePage() {
 				modal.showInfo('Cannot Use Ability', 'Your hand is empty — Binti needs a card to discard.');
 				return;
 			}
+			// U8 — Entry Protection: block BEFORE the discard picker so the player
+			// doesn't pick a card only to see the ability fizzle (engine throws too).
+			const cwOppId = localPlayerId === 'player_1' ? 'player_2' : 'player_1';
+			const cwTarget = (gameState.players[cwOppId]?.activeSlots || []).find(s => s && !s.isDefeated);
+			if (cwTarget?.entryProtected === true) {
+				modal.showInfo('Cannot Use Ability', `${cwTarget.name} just entered play — it is protected until your opponent's next turn.`);
+				return;
+			}
 			const handCards = hand.map(c => {
 				const id = c.cardId ?? c;
 				const def = CARD_LOOKUP[id] || {};
@@ -2429,6 +2452,11 @@ function initGamePage() {
 				modal.showInfo('No Targets', 'No valid opponent targets.');
 				return;
 			}
+			// U8 — all opponent Mosjes just entered play → nothing selectable.
+			if (oppTargets.every(t => t.protected)) {
+				modal.showInfo('No Targets', 'All opponent Mosjes just entered play — they are protected until their next turn.');
+				return;
+			}
 			const drainId = await modal.showTargetSelector(oppTargets, 'Choose an opponent Mosje to drain:');
 			if (!drainId) return;
 			let gainId = null;
@@ -2442,6 +2470,11 @@ function initGamePage() {
 			const oppTargets = getOpponentMosjes(gameState, localPlayerId);
 			if (ownTargets.length === 0 || oppTargets.length === 0) {
 				modal.showInfo('No Targets', 'Leipe Swap needs one of your Mosjes and an opponent Mosje on the field.');
+				return;
+			}
+			// U8 — all opponent Mosjes just entered play → nothing selectable.
+			if (oppTargets.every(t => t.protected)) {
+				modal.showInfo('No Targets', 'All opponent Mosjes just entered play — they are protected until their next turn.');
 				return;
 			}
 			const yourPick = await modal.showTargetSelector(ownTargets, 'Leipe Swap - choose YOUR Mosje to swap MP:');
@@ -2511,7 +2544,8 @@ function initGamePage() {
 			const oppSlots = [];
 			if (oppId) {
 				gameState.players[oppId].activeSlots.forEach((slot, idx) => {
-					if (slot && !slot.isDefeated) {
+					// U8 — entry-protected Mosjes cannot be redirect targets.
+					if (slot && !slot.isDefeated && slot.entryProtected !== true) {
 						oppSlots.push({ id: `${oppId}_slot_${idx}`, label: slot.name, metaLabel: `${slot.mp} MP` });
 					}
 				});
@@ -2732,6 +2766,11 @@ function initGamePage() {
 
 			if (oppTargets.length === 0) {
 				modal.showInfo('No Targets', 'No valid opponent targets.');
+				return;
+			}
+			// U8 — all opponent Mosjes just entered play → nothing selectable.
+			if (oppTargets.every(t => t.protected)) {
+				modal.showInfo('No Targets', 'All opponent Mosjes just entered play — they are protected until their next turn.');
 				return;
 			}
 
@@ -3107,6 +3146,7 @@ function toMosjeCards(activeSlots) {
 				cantAffordAbility: cost != null && cost > 0 && slot.mp < cost,
 				description: slot.isDefeated ? 'Defeated' : '',
 				summonedByPiecie: slot.summonedByPiecie || null,
+				entryProtected: slot.entryProtected === true, // U8 — board shows 🛡️
 			};
 		});
 }

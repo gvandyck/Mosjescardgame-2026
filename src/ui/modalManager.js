@@ -392,11 +392,16 @@ export function initModalManager(container) {
 		return new Promise(resolve => {
 			container.classList.add('modal-root--open');
 
+			// U8 — Entry Protection: freshly entered Mosjes (opt.protected) are
+			// shown but DISABLED — they cannot be chosen as effect targets until
+			// their owner's next turn starts.
 			const optionItems = options.map(opt =>
-				`<button class="target-option" data-id="${escapeHtml(opt.id)}" type="button">
-					<span class="target-name">${escapeHtml(opt.label)}</span>
+				`<button class="target-option${opt.protected ? ' target-option--protected' : ''}"
+					data-id="${escapeHtml(opt.id)}" type="button"
+					${opt.protected ? 'disabled aria-disabled="true" style="opacity:0.45;cursor:not-allowed;"' : ''}>
+					<span class="target-name">${opt.protected ? '🛡️ ' : ''}${escapeHtml(opt.label)}</span>
 					<span class="target-mp">${opt.mpValue} MP</span>
-					<span class="target-level">LV.${Number(opt.level || 0) + 1}</span>
+					<span class="target-level">${opt.protected ? 'PROTECTED' : `LV.${Number(opt.level || 0) + 1}`}</span>
 				</button>`
 			).join('');
 
@@ -409,7 +414,7 @@ export function initModalManager(container) {
 				</section>
 			`;
 
-			container.querySelectorAll('.target-option').forEach(btn => {
+			container.querySelectorAll('.target-option:not([disabled])').forEach(btn => {
 				btn.addEventListener('click', () => {
 					const id = btn.dataset.id;
 					close();

@@ -34,6 +34,7 @@ import {
 	readLog, readOwnedMosjes, readOpponentMosjes,
 	isPiecieOnField, setMosjeMP, getGameState, getHandSize,
 	playCardFromHand, unlockPiecies, setHand, setMosjeOnField,
+	clearEntryProtection,
 } from '../helpers.js';
 
 // Generous filler so the deck never exhausts mid-test (DRAW cards like Pot of Weed
@@ -130,6 +131,11 @@ export async function runCardTest(page, spec, test) {
 	await seedCustomDeck(page, deck, spec.botDeck || 'PHYSICAL_FORCE');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
+
+	// U8 — card tests model an ESTABLISHED board: strip the fresh-game entry
+	// protection so turn-1 attack effects test the card, not the protection
+	// rule (tests/ui/entry-protection.spec.js covers U8 itself).
+	await clearEntryProtection(page);
 
 	// 2. Apply MP setup. If a level is needed (e.g. Ronald Kip requires Lv2), re-place
 	// the starter Mosje at that level (setMosjeMP only touches MP, not level).

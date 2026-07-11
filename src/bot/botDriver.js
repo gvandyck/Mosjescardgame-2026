@@ -71,11 +71,13 @@ function resolveBotVarkenspootjesPending(state, botPlayerId) {
     }
   }
 
-  // Otherwise target opponent's first Mosje (-30 damage to them)
+  // Otherwise target opponent's first Mosje (-30 damage to them).
+  // U8 — skip entry-protected Mosjes: damage would fizzle anyway.
   if (targetIdx === -1 && opponentId) {
     const opp = state.players[opponentId];
     for (let i = 0; i < (opp?.activeSlots || []).length; i++) {
-      if (opp.activeSlots[i] && !opp.activeSlots[i].isDefeated) {
+      const oppSlot = opp.activeSlots[i];
+      if (oppSlot && !oppSlot.isDefeated && oppSlot.entryProtected !== true) {
         targetPid = opponentId;
         targetIdx = i;
         break;
@@ -145,8 +147,13 @@ function getOpponentPressure(state, botPlayerId) {
   const active = (state.players[oppId]?.activeSlots || []).filter(s => s && !s.isDefeated);
   const lethalPressure = active.length === 1
     && (active[0].level || 0) === 0
-    && (active[0].mp || 0) <= 30;
-  return { oppId, lethalPressure };
+    && (active[0].mp || 0) <= 30
+    && active[0].entryProtected !== true; // U8 — no lethal window vs protected
+  // U8 — attacks fizzle while every opponent Mosje is entry-protected; the
+  // planner holds attack activations for a turn when this is true.
+  const opponentFullyProtected = active.length > 0
+    && active.every(s => s.entryProtected === true);
+  return { oppId, lethalPressure, opponentFullyProtected };
 }
 
 // Will the bot (probably) attempt a quest this turn? Optimistic on MP — the
@@ -200,6 +207,11 @@ function shouldUseEliminationStrike(state, botPlayerId, slot, cost) {
   const oppId = Object.keys(state.players).find(id => id !== botPlayerId);
   const oppActive = (state.players[oppId]?.activeSlots || []).filter(s => s && !s.isDefeated);
   if (oppActive.length === 0) return false;
+  // U8 — the strike auto-targets the lowest-level Mosje (no redirect). If that
+  // target just entered play, the ability would throw — don't attempt it.
+  const target = [...oppActive].sort((a, b) =>
+    (a.level || 0) - (b.level || 0) || (a.mp || 0) - (b.mp || 0))[0];
+  if (target?.entryProtected === true) return false;
   const setsUpKnockout = oppActive.length === 1;
   const removesLeveledThreat = oppActive.some(s => (s.level || 0) >= 1);
   if (setsUpKnockout || removesLeveledThreat) {
@@ -294,8 +306,8 @@ export function driveBotTurnSteps(gameState, botPlayerId) {
 
   // ── Phase C: activate ready Piecies in strategic order ───────────────────
   const willQuest = computeQuestIntent(state, botPlayerId);
-  const { lethalPressure } = getOpponentPressure(state, botPlayerId);
-  const activationPlan = planPiecieActivations(state, botPlayerId, profile, { willQuest, lethalPressure });
+  const { lethalPressure, opponentFullyProtected } = getOpponentPressure(state, botPlayerId);
+  const activationPlan = planPiecieActivations(state, botPlayerId, profile, { willQuest, lethalPressure, opponentFullyProtected });
   for (const entry of activationPlan) {
     if (finished()) break;
     // Re-locate by cardId: earlier activations can shift or sweep slots.

@@ -44,6 +44,9 @@ export function planPiecieActivations(gameState, playerId, profile, intent = {})
 	for (const entry of ready) {
 		// Quest-prep with no quest coming = wasted (bonus dies at end of turn).
 		if (entry.tags.includes('quest-prep') && !intent.willQuest) continue;
+		// U8 — attacks fizzle while every opponent Mosje is entry-protected;
+		// hold them a turn instead of wasting the activation.
+		if (entry.tags.includes('attack') && intent.opponentFullyProtected) continue;
 		// Patient decks hold payoff cards until at least 2 other activations
 		// are ready to feed them this turn.
 		if (

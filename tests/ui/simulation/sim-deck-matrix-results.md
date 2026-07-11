@@ -1,37 +1,37 @@
 # Deck Matrix Results — bot-vs-bot round-robin
 
-Generated: 2026-07-08T16:20:33.260Z
+Generated: 2026-07-11T14:02:40.535Z
 Games: 100/100 completed | 10 per pairing, seat-mirrored
 
 ## Leaderboard (by overall win rate)
 
 | # | Deck | W–L | Win rate | As 1st | As 2nd | Avg turns | Win reasons |
 |---|------|-----|----------|--------|--------|-----------|-------------|
-| 1 | GM Gandoe & Michelle ⚠️ over | 28–12 | 70% | 80% | 60% | 5.1 | KNOCKOUT×15, LEVEL_3×13 |
-| 2 | JA Jisca & Alyssa | 23–17 | 57.5% | 80% | 35% | 7.4 | LEVEL_3×9, KNOCKOUT×14 |
-| 3 | CB Coert & Binti | 20–20 | 50% | 65% | 35% | 8.2 | KNOCKOUT×8, LEVEL_3×12 |
-| 4 | CY Chris & Youri | 17–23 | 42.5% | 50% | 35% | 7 | LEVEL_3×14, KNOCKOUT×3 |
-| 5 | WC West & Cless ⚠️ under | 12–28 | 30% | 35% | 25% | 7.4 | LEVEL_3×7, KNOCKOUT×4, QUEST_MASTER×1 |
+| 1 | CB Coert & Binti ⚠️ over | 24–16 | 60% | 65% | 55% | 7.9 | LEVEL_3×19, KNOCKOUT×5 |
+| 2 | GM Gandoe & Michelle ⚠️ over | 24–16 | 60% | 85% | 35% | 5.1 | LEVEL_3×9, KNOCKOUT×15 |
+| 3 | JA Jisca & Alyssa | 21–19 | 52.5% | 70% | 35% | 5.6 | LEVEL_3×8, KNOCKOUT×13 |
+| 4 | CY Chris & Youri | 20–20 | 50% | 70% | 30% | 5.8 | LEVEL_3×11, KNOCKOUT×9 |
+| 5 | WC West & Cless ⚠️ under | 11–29 | 27.5% | 45% | 10% | 6.7 | LEVEL_3×6, KNOCKOUT×5 |
 
 ## Head-to-head (row wins – column wins)
 
 | | CB | GM | CY | JA | WC |
 |---|---|---|---|---|---|
-| **CB** | — | 3–7 | 5–5 | 6–4 | 6–4 |
-| **GM** | 7–3 | — | 9–1 | 4–6 | 8–2 |
-| **CY** | 5–5 | 1–9 | — | 3–7 | 8–2 |
-| **JA** | 4–6 | 6–4 | 7–3 | — | 6–4 |
-| **WC** | 4–6 | 2–8 | 2–8 | 4–6 | — |
+| **CB** | — | 5–5 | 6–4 | 5–5 | 8–2 |
+| **GM** | 5–5 | — | 6–4 | 5–5 | 8–2 |
+| **CY** | 4–6 | 4–6 | — | 5–5 | 7–3 |
+| **JA** | 5–5 | 5–5 | 5–5 | — | 6–4 |
+| **WC** | 2–8 | 2–8 | 3–7 | 4–6 | — |
 
 ## Bot quality (per deck, quest decisions)
 
 | Deck | Attempts | Skips | Attempt rate | Avg confidence | Avg MP at decision | Setup acts/decision | Roll success | Top skip reason |
 |------|----------|-------|--------------|----------------|--------------------|---------------------|--------------|-----------------|
-| CB Coert & Binti | 186 | 103 | 64.4% | 0.46 | 67.3 | 0.91 | 47.8% | too-risky×66 |
-| GM Gandoe & Michelle | 86 | 113 | 43.2% | 0.43 | 63.4 | 0.77 | 61.6% | cannot-afford-cost×49 |
-| CY Chris & Youri | 133 | 119 | 52.8% | 0.5 | 58.7 | 1.03 | 64.7% | too-risky×46 |
-| JA Jisca & Alyssa | 136 | 125 | 52.1% | 0.48 | 59 | 0.46 | 55.9% | cannot-afford-cost×57 |
-| WC West & Cless | 147 | 127 | 53.6% | 0.41 | 57.7 | 0.52 | 47.6% | too-risky×82 |
+| CB Coert & Binti | 186 | 98 | 65.5% | 0.44 | 67.5 | 0.93 | 58.6% | too-risky×58 |
+| GM Gandoe & Michelle | 89 | 104 | 46.1% | 0.45 | 62.4 | 0.71 | 58.4% | cannot-afford-cost×51 |
+| CY Chris & Youri | 113 | 88 | 56.2% | 0.49 | 60.9 | 0.89 | 63.7% | too-risky×35 |
+| JA Jisca & Alyssa | 80 | 111 | 41.9% | 0.49 | 56.1 | 0.47 | 63.7% | cannot-afford-cost×49 |
+| WC West & Cless | 113 | 124 | 47.7% | 0.41 | 57 | 0.53 | 48.7% | too-risky×79 |
 
 - *Avg confidence* = mean estimated success chance at decision time; *roll success* = what the dice actually delivered.
 

@@ -85,6 +85,22 @@ export function loseMP(gameState, playerId, slotIndex, amount, source = 'DRAIN',
     }
   }
 
+  // U8 — Entry Protection: a freshly entered Mosje cannot lose MP to effects
+  // inflicted outside its owner's turn (i.e. by opponents) until the owner's
+  // next turn starts. Own-turn losses (quest failMP, self-effects) and cost
+  // payments (U7 — sources containing 'COST') are never blocked.
+  {
+    const targetSlot = gameState.players[playerId]?.activeSlots?.[slotIndex];
+    if (
+      targetSlot?.entryProtected === true
+      && gameState.activePlayerId !== playerId
+      && !String(source).includes('COST')
+    ) {
+      console.log(`[MP] 🛡️ Entry protection: ${targetSlot.name} just entered play — ${amount} MP loss (${source}) fizzled`);
+      return gameState;
+    }
+  }
+
   const placeId = getActivePlaceId(gameState);
 
   if (placeId === 'place_the_void') {
