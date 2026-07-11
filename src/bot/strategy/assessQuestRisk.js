@@ -45,6 +45,34 @@ function hasBackupMosje(gameState, playerId, slotIndex) {
 }
 
 /**
+ * classifyLossSeverity — how bad would losing `lossAmount` MP be for a Mosje
+ * currently holding `mpBefore` MP at `level`? Shared by quest-risk assessment
+ * and any other "should I take this MP risk" decision (e.g. a gamble ability)
+ * — same five-tier vocabulary as the module docstring above.
+ */
+export function classifyLossSeverity({ mpBefore, level, lossAmount, gameState, playerId, slotIndex }) {
+	if (lossAmount <= 0) return 'none';
+	if (mpBefore - lossAmount >= 0) return 'safe';
+	if ((level || 0) > 0) return 'regress';
+	return hasBackupMosje(gameState, playerId, slotIndex) ? 'defeat' : 'fatal';
+}
+
+/**
+ * getRequiredConfidence — minimum success probability demanded for a
+ * `severity`-tier risk, shifted by the deck profile's risk tolerance and
+ * whether the payoff would level up / win the game. Shared so a fixed-odds
+ * gamble (e.g. a fifty-fifty ability) can be judged by the same standard as
+ * a quest roll — just compare its actual odds against this threshold.
+ */
+export function getRequiredConfidence(severity, profile, { winsGame = false, levelsUp = false } = {}) {
+	let requiredP = REQUIRED_P[severity];
+	requiredP -= ((profile?.riskTolerance ?? 0.5) - 0.5) * 0.3; // ±0.15 swing
+	if (winsGame) requiredP -= 0.25;       // success ends the game — lean in
+	else if (levelsUp) requiredP -= 0.1;   // permanent progress is worth risk
+	return Math.max(requiredP, severity === 'fatal' ? 0.34 : 0.1);
+}
+
+/**
  * assessQuestRisk — decision + reasoning for one (quest, mosje slot) pair.
  * Returns { attempt, reason, pSuccess, requiredP, severity, levelsUp, winsGame }.
  */
@@ -72,18 +100,10 @@ export function assessQuestRisk({ questDef, mosje, slotIndex, gameState, playerI
 	}
 
 	const failAmount = questFailAmount(questDef);
-	let severity = 'none';
-	if (failAmount > 0) {
-		if (mpAtRoll - failAmount >= 0) severity = 'safe';
-		else if ((mosje.level || 0) > 0) severity = 'regress';
-		else severity = hasBackupMosje(gameState, playerId, slotIndex) ? 'defeat' : 'fatal';
-	}
-
-	let requiredP = REQUIRED_P[severity];
-	requiredP -= ((profile?.riskTolerance ?? 0.5) - 0.5) * 0.3; // ±0.15 swing
-	if (winsGame) requiredP -= 0.25;       // success ends the game — lean in
-	else if (levelsUp) requiredP -= 0.1;   // permanent progress is worth risk
-	requiredP = Math.max(requiredP, severity === 'fatal' ? 0.34 : 0.1);
+	const severity = classifyLossSeverity({
+		mpBefore: mpAtRoll, level: mosje.level, lossAmount: failAmount, gameState, playerId, slotIndex,
+	});
+	const requiredP = getRequiredConfidence(severity, profile, { winsGame, levelsUp });
 
 	const attempt = odds.pSuccess >= requiredP;
 	return {

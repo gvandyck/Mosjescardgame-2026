@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest';
 // @ts-expect-error JS module without type declarations
 import { estimateQuestOdds } from '../../src/bot/strategy/questOdds.js';
 // @ts-expect-error JS module without type declarations
-import { assessQuestRisk, QUEST_ATTEMPT_COST } from '../../src/bot/strategy/assessQuestRisk.js';
+import { assessQuestRisk, QUEST_ATTEMPT_COST, classifyLossSeverity, getRequiredConfidence } from '../../src/bot/strategy/assessQuestRisk.js';
 // @ts-expect-error JS module without type declarations
 import { planPiecieActivations } from '../../src/bot/strategy/planPiecieActivations.js';
 // @ts-expect-error JS module without type declarations
@@ -247,5 +247,82 @@ describe('getBotProfile', () => {
     const profile = getBotProfile(state, 'player_2');
     expect(profile.archetype).toBe(DEFAULT_BOT_PROFILE.archetype);
     expect(profile.deckId).toBe('PHYSICAL_FORCE');
+  });
+});
+
+// ─────────────────────────────────────────────────────────────
+// classifyLossSeverity / getRequiredConfidence
+// Extracted from assessQuestRisk's inline logic so any fixed-or-variable-odds
+// MP risk (a quest roll, or a flat gamble ability) can be judged the same way.
+// ─────────────────────────────────────────────────────────────
+
+describe('classifyLossSeverity', () => {
+  const state = (activeSlots: any[], hand: any[] = []) => ({
+    players: { player_2: { activeSlots, hand } },
+  });
+
+  it('none — zero loss is never a risk', () => {
+    expect(classifyLossSeverity({ mpBefore: 5, level: 0, lossAmount: 0 })).toBe('none');
+  });
+
+  it('safe — MP stays at or above 0 after the loss', () => {
+    const sev = classifyLossSeverity({
+      mpBefore: 30, level: 0, lossAmount: 15,
+      gameState: state([makeMosje({ mp: 30 })]), playerId: 'player_2', slotIndex: 0,
+    });
+    expect(sev).toBe('safe');
+  });
+
+  it('regress — would drop below 0 but the Mosje has a level to lose', () => {
+    const sev = classifyLossSeverity({
+      mpBefore: 10, level: 1, lossAmount: 15,
+      gameState: state([makeMosje({ mp: 10, level: 1 })]), playerId: 'player_2', slotIndex: 0,
+    });
+    expect(sev).toBe('regress');
+  });
+
+  it('defeat — Level-0 and would be defeated, but a backup Mosje exists', () => {
+    const mosje = makeMosje({ mp: 10 });
+    const backup = makeMosje({ cardId: 'mosje_backup', mp: 40 });
+    const sev = classifyLossSeverity({
+      mpBefore: 10, level: 0, lossAmount: 15,
+      gameState: state([mosje, backup]), playerId: 'player_2', slotIndex: 0,
+    });
+    expect(sev).toBe('defeat');
+  });
+
+  it('fatal — Level-0, would be defeated, and no backup Mosje anywhere', () => {
+    const mosje = makeMosje({ mp: 10 });
+    const sev = classifyLossSeverity({
+      mpBefore: 10, level: 0, lossAmount: 15,
+      gameState: state([mosje], []), playerId: 'player_2', slotIndex: 0,
+    });
+    expect(sev).toBe('fatal');
+  });
+});
+
+describe('getRequiredConfidence', () => {
+  it('demands more confidence for worse severities, neutral profile', () => {
+    const none = getRequiredConfidence('none', DEFAULT_BOT_PROFILE);
+    const safe = getRequiredConfidence('safe', DEFAULT_BOT_PROFILE);
+    const fatal = getRequiredConfidence('fatal', DEFAULT_BOT_PROFILE);
+    expect(none).toBeLessThan(safe);
+    expect(safe).toBeLessThan(fatal);
+  });
+
+  it('higher risk tolerance lowers the bar; lower tolerance raises it', () => {
+    const cautious = getRequiredConfidence('defeat', { riskTolerance: 0.3 });
+    const neutral = getRequiredConfidence('defeat', { riskTolerance: 0.5 });
+    const bold = getRequiredConfidence('defeat', { riskTolerance: 0.7 });
+    expect(cautious).toBeGreaterThan(neutral);
+    expect(bold).toBeLessThan(neutral);
+  });
+
+  it('a game-winning payoff lowers the bar more than a mere level-up', () => {
+    const plain = getRequiredConfidence('safe', DEFAULT_BOT_PROFILE);
+    const levels = getRequiredConfidence('safe', DEFAULT_BOT_PROFILE, { levelsUp: true });
+    const wins = getRequiredConfidence('safe', DEFAULT_BOT_PROFILE, { winsGame: true });
+    expect(levels).toBeLessThan(plain);
+    expect(wins).toBeLessThan(levels);
   });
 });

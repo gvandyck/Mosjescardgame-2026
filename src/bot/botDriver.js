@@ -35,7 +35,7 @@ import { QUESTS } from '../data/quests.js';
 import { MOSJES } from '../data/mosjes.js';
 import { getBotProfile } from './strategy/botProfiles.js';
 import { planPiecieActivations } from './strategy/planPiecieActivations.js';
-import { assessQuestRisk, QUEST_ATTEMPT_COST } from './strategy/assessQuestRisk.js';
+import { assessQuestRisk, QUEST_ATTEMPT_COST, classifyLossSeverity, getRequiredConfidence } from './strategy/assessQuestRisk.js';
 import { rollBotQuestDice } from './strategy/rollBotQuestDice.js';
 import { getCardTags } from './strategy/comboTags.js';
 import { getAbilityTiming } from './strategy/abilityTiming.js';
@@ -190,14 +190,38 @@ function questDefWithPerMosje(questDef, mosje, player) {
 }
 
 // Gate costly/situational abilities so the bot doesn't burn its quest MP.
-function shouldUseAbility(state, botPlayerId, slot, def) {
+function shouldUseAbility(state, botPlayerId, slot, def, profile) {
   const cost = def.abilityCost || 0;
   if (def.abilityId === 'ability_gandoe_destroyer_elimination_strike') {
     return shouldUseEliminationStrike(state, botPlayerId, slot, cost);
   }
+  if (def.abilityId === 'ability_azn_cless_risk_reward') {
+    return shouldUseRiskReward(state, botPlayerId, slot, profile);
+  }
   // Keep enough MP after the ability to still afford a quest attempt.
   if (cost > 0 && (slot.mp || 0) < cost + QUEST_ATTEMPT_COST) return false;
   return true;
+}
+
+// AZN Cless — Risk and Reward: a manually-triggered d6 gamble, even → +25 MP,
+// odd → -15 MP (see mosjeAbilities.js — the card text calls this an automatic
+// end-of-turn roll, but it is a real ability-button activation with no MP
+// cost, so the generic cost gate above never applies). Fixed 50% odds either
+// way; reuse the same severity/confidence vocabulary as quest risk (U8-safe:
+// classifyLossSeverity already treats a Level-0, no-backup Mosje as fatal)
+// so the bot only skips the flip when a real loss would be a real problem.
+const RISK_REWARD_LOSS = 15;
+function shouldUseRiskReward(state, botPlayerId, slot, profile) {
+  const severity = classifyLossSeverity({
+    mpBefore: slot.mp || 0,
+    level: slot.level,
+    lossAmount: RISK_REWARD_LOSS,
+    gameState: state,
+    playerId: botPlayerId,
+    slotIndex: state.players[botPlayerId]?.activeSlots?.indexOf(slot) ?? -1,
+  });
+  const requiredP = getRequiredConfidence(severity, profile);
+  return 0.5 >= requiredP; // fixed odds — either side of the coin is equally likely
 }
 
 // Elimination Strike (80 MP, once per game): only when it sets up the
@@ -250,7 +274,7 @@ export function driveBotTurnSteps(gameState, botPlayerId) {
       const def = MOSJE_LOOKUP[slot.cardId];
       if (!def?.abilityId || def.autoAbility) continue;
       if (getAbilityTiming(slot.cardId) !== timing) continue;
-      if (!shouldUseAbility(state, botPlayerId, slot, def)) continue;
+      if (!shouldUseAbility(state, botPlayerId, slot, def, profile)) continue;
 
       // Clone before calling: useMosjeAbility mutates the state it receives.
       const stateForAbility = JSON.parse(JSON.stringify(state));

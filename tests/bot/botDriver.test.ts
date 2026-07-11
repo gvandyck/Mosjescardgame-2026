@@ -325,3 +325,52 @@ describe('driveBotTurn — quest MP safety margin', () => {
     expect(mosjeAfter.isDefeated).toBe(false);
   });
 });
+
+// ─────────────────────────────────────────────────────────────
+// AZN Cless — Risk and Reward gating
+// The ability is a manual, zero-cost, fixed 50/50 gamble (even d6 → +25 MP,
+// odd → -15 MP). It has no MP-cost gate to fall back on, so the bot must
+// reason about the DOWNSIDE severity itself (classifyLossSeverity /
+// getRequiredConfidence in strategy/assessQuestRisk.js) rather than firing
+// blind every turn.
+// ─────────────────────────────────────────────────────────────
+
+describe('driveBotTurn — AZN Cless Risk and Reward gating', () => {
+  it('gambles when the -15 MP outcome is merely "safe" (plenty of MP)', () => {
+    const state = makeState({
+      activeSlots: [makeMosjeSlot('mosje_azn_cless', 60)],
+    });
+    const result = driveBotTurn(state, 'player_2');
+    const mosjeAfter = (result.players.player_2.activeSlots as MosjeSlot[])[0];
+    // Fixed 50/50 outcome: either +25 (85) or -15 (45) — either way it moved.
+    expect([85, 45]).toContain(mosjeAfter.mp);
+    expect(mosjeAfter.abilityUsedThisTurn).toBe(true);
+  });
+
+  it('skips the gamble when it would be FATAL — Level 0, no backup Mosje, low MP', () => {
+    const state = makeState({
+      activeSlots: [makeMosjeSlot('mosje_azn_cless', 10)], // 10 - 15 < 0, Level 0, alone
+    });
+    const result = driveBotTurn(state, 'player_2');
+    const mosjeAfter = (result.players.player_2.activeSlots as MosjeSlot[])[0];
+    // No other card/quest in this minimal state can touch MP, so unchanged
+    // MP proves the ability was never invoked — the gate held.
+    expect(mosjeAfter.mp).toBe(10);
+    expect(mosjeAfter.abilityUsedThisTurn).toBe(false);
+  });
+
+  it('skips the gamble at "regress" severity too — even 0.55 required beats the fixed 50% odds', () => {
+    // Level 1 with low MP: 10 - 15 < 0, but a level to lose means this is
+    // 'regress' (not 'defeat'/'fatal') regardless of a backup Mosje existing.
+    // REQUIRED_P.regress (0.55) still exceeds the ability's fixed 0.5 odds at
+    // a neutral risk profile, so the gate should hold here too — proving the
+    // gate is genuinely severity-graduated, not just a defeat/no-defeat check.
+    const state = makeState({
+      activeSlots: [{ ...makeMosjeSlot('mosje_azn_cless', 10), level: 1 }],
+    });
+    const result = driveBotTurn(state, 'player_2');
+    const clessAfter = (result.players.player_2.activeSlots as MosjeSlot[])[0];
+    expect(clessAfter.mp).toBe(10);
+    expect(clessAfter.abilityUsedThisTurn).toBe(false);
+  });
+});
