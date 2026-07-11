@@ -272,4 +272,20 @@ describe('effect_the_gym CLESS patch (PHYS-06)', () => {
     const result = effect_the_gym(state);
     expect(result.players.player_1.activeSlots[0].mp).toBe(20); // 30 - 10
   });
+
+  it('WEST Mosje (mosje_martin_senor_west) is neutral — no gain, no loss (WC balance fix)', () => {
+    // West has no physical trait and isn't Cless, but he's Cless's synergy
+    // partner — WC's own Place shouldn't drain its own team's other Mosje.
+    const state = makeState({ subtype: 'DIGITAL', level: 1, mp: 30, cardId: 'mosje_martin_senor_west' });
+    state.players.player_1.activeSlots[0].traits = { mental: 3, technical: 1 };
+    const result = effect_the_gym(state);
+    expect(result.players.player_1.activeSlots[0].mp).toBe(30); // unchanged
+  });
+
+  it('WEST Mosje with physical >= 2 still gets the physical bonus (not the neutral carve-out)', () => {
+    const state = makeState({ subtype: 'DIGITAL', level: 1, mp: 30, cardId: 'mosje_martin_senor_west' });
+    state.players.player_1.activeSlots[0].traits = { physical: 2, mental: 3 };
+    const result = effect_the_gym(state);
+    expect(result.players.player_1.activeSlots[0].mp).toBe(55); // 30 + 25 (physical branch wins)
+  });
 });

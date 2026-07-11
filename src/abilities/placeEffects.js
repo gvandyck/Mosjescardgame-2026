@@ -40,9 +40,18 @@ export function effect_the_gym(gameState) {
 			const physical = mosje.traits?.physical || 0;
 			const id = String(mosje.cardId || '').toLowerCase();
 			const isCless = id.includes('cless');
+			// West is Cless's synergy partner (same "martin"/"west" identity check
+			// used by his own deck's F1 Telemetry / Those Eyelashes) — exempt him
+			// from the punishing branch rather than let his own team's Place drain
+			// him every END_PHASE (twice per round) for having no physical trait.
+			// He stays NEUTRAL here, same as his no-op treatment at Obby #1 below
+			// (physical<2 and resilient<2 → neither bonus nor penalty there either)
+			// — WC balance fix, see docs/card-reference.md.
+			const isWest = id.includes('martin') || id.includes('west');
 			if (physical >= 3) mosje.mp += 35;
 			else if (physical >= 2) mosje.mp += 25;
 			else if (isCless) mosje.mp += 20;
+			else if (isWest) { /* neutral — no gain, no loss */ }
 			else applyDamage(mosje, 10);
 		}
 	}
