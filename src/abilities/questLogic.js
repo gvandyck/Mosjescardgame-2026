@@ -121,6 +121,19 @@ export function canAttemptGeneralQuest(questCard, gameState, playerId) {
   console.log('[QUEST] Checking General Quest eligibility:', questCard.id);
   const player = gameState.players[playerId];
   if (!player) return false;
+  // First-seat tempo fix (2026-07-12): the very first player of the game
+  // could otherwise attempt a General Quest before their opponent has had
+  // any turn at all — General Quests have no "wait a turn" delay the way
+  // Piecies/Places/Personal Quests do (U2), so this was P1's only
+  // completely unopposed action. Deliberately asymmetric: P2's own first
+  // turn (also turnNumber===1, since turnNumber is a round counter) is NOT
+  // restricted — narrowing the gap requires P2 to have MORE access on
+  // their opening turn than P1 had, not the same restriction shifted by
+  // one turn for both (which would leave the relative gap unchanged).
+  if (gameState.turnNumber === 1 && playerId === gameState.firstPlayerId) {
+    console.log('[QUEST] Turn 1 (first player) — General Quest attempts blocked this turn');
+    return false;
+  }
   const activeMosje = getFirstActiveMosje(player);
   if (!activeMosje) {
     console.log('[QUEST] No active Mosje on field — cannot attempt General Quest');

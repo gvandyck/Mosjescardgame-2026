@@ -45,7 +45,7 @@ MOSJES is a 2–6 player card game where each player builds a deck around charac
 1. Each player shuffles their deck face-down.
 2. Each player picks one Mosje at random from their Mosje cards (face-down selection — no peeking). This becomes their first active Mosje on the field. It enters play with **Entry Protection** (see U8): opponents cannot affect it until its owner's first turn has started.
 3. Each player draws **6 cards**. On their first turn they draw 1 more (normal Draw Phase), giving 7 cards total in hand during play.
-4. Decide starting player (e.g. dice roll, youngest goes first).
+4. Decide starting player (e.g. dice roll, youngest goes first). The starting player may not attempt a General Quest on their first turn — see Quest Phase below.
 5. Place the shared Quest deck in the center of the table.
 6. Each player has **2 Mosje slots** on their side of the field. The second slot is empty at game start.
 
@@ -79,6 +79,7 @@ Each turn has four phases in this exact order:
 - **Success** — gain MP as stated on the Quest card.
 - **Failure** — some Quests apply a penalty; discard the Quest card.
 - Completed Quests go to your personal Quest discard.
+- **Turn 1 exception (2026-07-12):** the player who goes first may **not** attempt a General Quest on their very first turn. Personal Quests and Piecie/Place activation already have a built-in 1-turn delay before they can be used (see Main Phase above) — General Quests were the one action with no such delay, letting the first player bank a free, completely unopposed Quest attempt before their opponent had taken a single turn. This restriction applies **only** to the game's literal first turn, not to each player's own opening turn — the second player's first turn is unrestricted. (Simulation data: this was the dominant driver of a 65/35 first-seat/second-seat win-rate split across all 5 duo decks; see `tests/ui/simulation/sim-deck-matrix-results.md`.)
 
 ### 4. End Phase
 - Apply any Place card end-of-turn effects.

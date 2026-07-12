@@ -38,6 +38,11 @@ export function createInitialGameState(playerConfigs, roomCode) {
     status: 'PLAYING',
     turnNumber: 1,
     activePlayerId: playerConfigs[0].playerId,
+    // Fixed for the whole game — turnNumber is a ROUND counter (increments
+    // only when play wraps back to the first player), so turnNumber===1 is
+    // true for BOTH players' opening turns. This field is how
+    // canAttemptGeneralQuest tells P1's literal first turn apart from P2's.
+    firstPlayerId: playerConfigs[0].playerId,
     currentPhase: 'MAIN',
     winnerId: null,
 
