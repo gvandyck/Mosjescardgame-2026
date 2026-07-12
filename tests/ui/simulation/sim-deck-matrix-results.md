@@ -1,41 +1,41 @@
 # Deck Matrix Results — bot-vs-bot round-robin
 
-Generated: 2026-07-12T01:17:40.084Z
-Games: 10/10 completed | 1 per pairing, seat-mirrored
+Generated: 2026-07-12T01:24:32.781Z
+Games: 100/100 completed | 10 per pairing, seat-mirrored
 
 ## Leaderboard (by overall win rate)
 
 | # | Deck | W–L | Win rate | As 1st | As 2nd | Avg turns | Win reasons |
 |---|------|-----|----------|--------|--------|-----------|-------------|
-| 1 | CY Chris & Youri ⚠️ over | 3–1 | 75% | 100% | 50% | 8.3 | LEVEL_3×3 |
-| 2 | CB Coert & Binti | 2–2 | 50% | 50% | null% | 11.5 | LEVEL_3×2 |
-| 3 | JA Jisca & Alyssa | 2–2 | 50% | 0% | 66.7% | 5.8 | LEVEL_3×2 |
-| 4 | WC West & Cless | 2–2 | 50% | null% | 50% | 7 | LEVEL_3×1, KNOCKOUT×1 |
-| 5 | GM Gandoe & Michelle ⚠️ under | 1–3 | 25% | 33.3% | 0% | 6.5 | LEVEL_3×1 |
+| 1 | WC West & Cless ⚠️ over | 25–15 | 62.5% | 80% | 45% | 6.3 | LEVEL_3×13, KNOCKOUT×12 |
+| 2 | CB Coert & Binti | 21–19 | 52.5% | 55% | 50% | 8.8 | LEVEL_3×20, KNOCKOUT×1 |
+| 3 | GM Gandoe & Michelle | 20–20 | 50% | 50% | 50% | 7 | LEVEL_3×10, KNOCKOUT×10 |
+| 4 | JA Jisca & Alyssa | 19–21 | 47.5% | 70% | 25% | 7.8 | KNOCKOUT×6, LEVEL_3×13 |
+| 5 | CY Chris & Youri ⚠️ under | 15–25 | 37.5% | 50% | 25% | 8.1 | LEVEL_3×11, KNOCKOUT×4 |
 
 ## Head-to-head (row wins – column wins)
 
 | | CB | GM | CY | JA | WC |
 |---|---|---|---|---|---|
-| **CB** | — | 1–0 | 0–1 | 0–1 | 1–0 |
-| **GM** | 0–1 | — | 1–0 | 0–1 | 0–1 |
-| **CY** | 1–0 | 0–1 | — | 1–0 | 1–0 |
-| **JA** | 1–0 | 1–0 | 0–1 | — | 0–1 |
-| **WC** | 0–1 | 1–0 | 0–1 | 1–0 | — |
+| **CB** | — | 7–3 | 6–4 | 4–6 | 4–6 |
+| **GM** | 3–7 | — | 8–2 | 5–5 | 4–6 |
+| **CY** | 4–6 | 2–8 | — | 6–4 | 3–7 |
+| **JA** | 6–4 | 5–5 | 4–6 | — | 4–6 |
+| **WC** | 6–4 | 6–4 | 7–3 | 6–4 | — |
 
 ## Bot quality (per deck, quest decisions)
 
 | Deck | Attempts | Skips | Attempt rate | Avg confidence | Avg MP at decision | Setup acts/decision | Roll success | 2nd Mosje/game | Top skip reason |
 |------|----------|-------|--------------|----------------|--------------------|---------------------|--------------|-----------------|-----------------|
-| CB Coert & Binti | 31 | 13 | 70.5% | 0.49 | 78.5 | 0.97 | 48.4% | 1 | requirement-not-met×9 |
-| GM Gandoe & Michelle | 15 | 10 | 60% | 0.51 | 63.4 | 0.75 | 53.3% | 0.75 | cannot-afford-cost×5 |
-| CY Chris & Youri | 25 | 6 | 80.6% | 0.6 | 65.5 | 1.18 | 80% | 1 | requirement-not-met×3 |
-| JA Jisca & Alyssa | 15 | 7 | 68.2% | 0.66 | 53.1 | 0.44 | 73.3% | 0.75 | cannot-afford-cost×4 |
-| WC West & Cless | 12 | 12 | 50% | 0.46 | 60.7 | 0.48 | 66.7% | 0.5 | too-risky×10 |
+| CB Coert & Binti | 227 | 90 | 71.6% | 0.46 | 75.2 | 0.95 | 51.5% | 0.82 | requirement-not-met×48 |
+| GM Gandoe & Michelle | 152 | 118 | 56.3% | 0.48 | 68.5 | 0.57 | 53.9% | 0.78 | cannot-afford-cost×46 |
+| CY Chris & Youri | 172 | 115 | 59.9% | 0.51 | 65 | 1.04 | 55.2% | 0.82 | requirement-not-met×51 |
+| JA Jisca & Alyssa | 167 | 110 | 60.3% | 0.52 | 61.9 | 0.48 | 60.5% | 0.65 | cannot-afford-cost×51 |
+| WC West & Cless | 127 | 94 | 57.5% | 0.44 | 65.7 | 0.62 | 60.6% | 0.68 | too-risky×45 |
 
 - *Avg confidence* = mean estimated success chance at decision time; *roll success* = what the dice actually delivered. *2nd Mosje/game* = how often the bot plays its second Mosje onto the field per game (0 here would mean duo synergies structurally cannot trigger — see src/bot/botDriver.js Phase 0).
 
 ## Reading guide
-- 10 games per pairing is a small sample (±~15% noise); trust the 4-game per-deck aggregate over any single pairing.
+- 10 games per pairing is a small sample (±~15% noise); trust the 40-game per-deck aggregate over any single pairing.
 - ⚠️ over = aggregate win rate ≥ 60%, ⚠️ under = ≤ 40% — balance-review candidates.
 - Stats measure decks *as piloted by the smart bot*; synergies the bot ignores will underrate.
