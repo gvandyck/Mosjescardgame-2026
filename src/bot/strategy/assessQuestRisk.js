@@ -90,7 +90,7 @@ export function assessQuestRisk({ questDef, mosje, slotIndex, gameState, playerI
 	const mpAtRoll = mosje.mp - QUEST_ATTEMPT_COST;
 	const odds = estimateQuestOdds(questDef, { ...mosje, mp: mpAtRoll }, gameState, playerId);
 	if (!odds.canAttempt) {
-		return { ...base, attempt: false, reason: 'requirement-not-met' };
+		return { ...base, attempt: false, reason: odds.gateReason || 'requirement-not-met' };
 	}
 
 	// Include bonus MP the engine will actually add on success (the one-shot

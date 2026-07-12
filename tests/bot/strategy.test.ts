@@ -87,9 +87,16 @@ describe('estimateQuestOdds', () => {
     const blocked = estimateQuestOdds(
       SPEED_RUN, makeMosje(), makeState({ pieciesPlayedThisTurn: 2 }), 'player_2');
     expect(blocked.canAttempt).toBe(false);
+    // gateReason surfaces WHICH named requirement blocked it (2026-07-12) —
+    // this used to flatten into one generic 'requirement-not-met' bucket in
+    // assessQuestRisk's reason field, hiding which of 6 different quest
+    // gates (speed_run/chain_master/sustained_assault/ultimate_challenge/
+    // artistic_expression/momentum_master) was actually firing.
+    expect(blocked.gateReason).toBe('speed-run');
     const open = estimateQuestOdds(
       SPEED_RUN, makeMosje(), makeState({ pieciesPlayedThisTurn: 0 }), 'player_2');
     expect(open.canAttempt).toBe(true);
+    expect(open.gateReason).toBeUndefined();
   });
 
   it('Momentum Master: auto-success in the 80-100 MP window, blocked outside it', () => {
@@ -118,6 +125,17 @@ describe('assessQuestRisk', () => {
     });
     expect(d.attempt).toBe(false);
     expect(d.reason).toBe('cannot-afford-cost');
+  });
+
+  it('propagates the specific gate name instead of a generic "requirement-not-met"', () => {
+    const mosje = makeMosje({ mp: 50 });
+    const d = assessQuestRisk({
+      questDef: SPEED_RUN, mosje, slotIndex: 0,
+      gameState: makeState({ activeSlots: [mosje], pieciesPlayedThisTurn: 2 }),
+      playerId: 'player_2', profile: neutral,
+    });
+    expect(d.attempt).toBe(false);
+    expect(d.reason).toBe('speed-run');
   });
 
   it('attempts a safe, high-odds quest (Physical ★★★, plenty of MP)', () => {

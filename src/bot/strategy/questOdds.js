@@ -71,7 +71,13 @@ function countSkiffaRerolls(gameState, mosje) {
 export function estimateQuestOdds(questDef, mosje, gameState, playerId) {
 	const gate = checkRequirementGate(questDef, mosje, gameState, playerId);
 	if (!gate.canAttempt) {
-		return { canAttempt: false, autoSuccess: false, threshold: null, diceBonus: 0, rerolls: 0, pSuccess: 0 };
+		// gateReason: which named requirement blocked this — checkRequirementGate's
+		// switch is already keyed on questDef.requirementId, so reuse that identity
+		// instead of flattening every quest-specific gate into one generic bucket
+		// (this is what 'requirement-not-met' used to hide — see assessQuestRisk.js).
+		const gateReason = (questDef?.requirementId || 'unknown-requirement')
+			.replace(/^quest_req_/, '').replace(/_/g, '-');
+		return { canAttempt: false, autoSuccess: false, threshold: null, diceBonus: 0, rerolls: 0, pSuccess: 0, gateReason };
 	}
 	const player = gameState?.players?.[playerId];
 	const diceBonus = (gameState?._snelleFlags?.questDiceBonus || 0)
