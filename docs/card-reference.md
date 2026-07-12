@@ -48,7 +48,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 | the-hacker | The Hacker | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
 | youri-the-speedrunner | Youri The Speedrunner | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
 | alyssa-the-bulldozer | Alyssa The Bulldozer | FIGHTING | yes | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
-| azn-cless | AZN Cless | FIGHTING | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
+| azn-cless | AZN Cless | FIGHTING | no | no | free | Risk and Reward: manual activation, d6 even→+25 MP / odd→-15 MP, free, once/turn (2026-07-11: description previously said an auto end-of-turn 1/6-discard roll — code, not text, is the intended design; bot gates it via classifyLossSeverity, src/bot/strategy/assessQuestRisk.js). Synergy with West: Physical Quests +15 MP (wired 2026-07-11, see getPartnerSynergyQuestBonus in questLogic.js) | advanced |
 | gandoe-the-destroyer | Gandoe The Destroyer | FIGHTING | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
 | gandoe-the-wizard | Gandoe The Wizard | FIGHTING | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
 | jeffrey-the-strongman | Jeffrey The Strongman | FIGHTING | yes | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
@@ -169,7 +169,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 | place_quest_haven | Quest Haven | PLACE | yes | no | free | quest_completed, +10 MP; 2-quest bonus +25 MP (UI tracked) | implemented |
 | place_skiffa | Skiffa | PLACE | no | no | free | turn_end, -15 MP unless SUBSTANCE trait 1+ | advanced |
 | place_synergy_chamber | Synergy Chamber | PLACE | no | no | free | getSynergyChambercostReduction() wired in useMosjeAbility(); -5 MP pre-adjustment applied before ability dispatch (STUB-10); duration reduction deferred to UI phase | implemented |
-| place_the_gym | The Gym | PLACE | yes | no | free | END_PHASE: Physical ★★★ +35 MP, Physical ★★ +25 MP, CLESS +20 MP, else -10 MP | implemented |
+| place_the_gym | The Gym | PLACE | yes | no | free | END_PHASE (fires per player-turn, both sides): Physical ★★★ +35 MP, Physical ★★ +25 MP, CLESS +20 MP, WEST neutral (2026-07-11 balance fix — was punished at -10 like any other non-Physical Mosje, draining WC's own team; now matches his no-op treatment at Obby #1), else -10 MP | implemented |
 | place_the_void | The Void | PLACE | no | no | free | turn_end, all -15 MP; RESTORE/FOOD restriction via void_active flag | advanced |
 | place_welloe_graveyard | Welloe Graveyard | PLACE | no | no | free | mosje_defeated, +20 MP + draw 1 card for that player | advanced |
 | place_zo_is_natuur | Zo is Natuur | PLACE | yes | no | free | turn_end, Resilient 1+→+15 MP, else +10 MP | implemented |
@@ -302,3 +302,13 @@ This document is the final Phase 11 master card inventory, generated from the li
 - Boxing Gloves: GANDOE path pushes MP_LOSS_HALVED turnsLeft:1 (consumed by mpManager.js / loseMP())
 - Protein Shake: bonus tier (+35 MP) when activePlace === 'place_boxing_ring' (vs +25 MP base)
 - Boxing Ring bypass placed before trigger guard in resolvePlaceEffect — handles both ON_QUEST and END_PHASE without switch case
+
+### 2026-07-11 Notes (West & Cless deck investigation — 3 stacked fixes)
+
+Found while investigating why DUO_WEST_CLESS underperformed (27.5% in the 100-game deck-matrix sim). Branches: `fix/azn-cless-risk-reward` → `card/west-cless-physical-synergy` → `balance/the-gym-west-exemption`.
+
+- **AZN Cless bug**: `abilityDescription` claimed an automatic, mostly-harmless end-of-turn roll; the actual `ability_azn_cless_risk_reward` implementation is a manually-activated, zero-cost, fixed 50/50 gamble (even→+25 MP, odd→-15 MP). Since it has no MP cost, the bot's only ability gate never applied — it fired blind almost every turn. Description text corrected to match the code (kept as the source of truth per this doc's own "verify against code" convention); bot now gates it via `classifyLossSeverity`/`getRequiredConfidence` (extracted from `assessQuestRisk.js`, reused — same risk vocabulary as quest attempts).
+- **Dormant synergy bonus wired up**: `getActiveSynergies()`/`hasSynergy()` (synergyResolver.js) was only ever consumed by the hardcoded Binti+Coert FOOD-double check — West+Cless's declared "Physical Quests give +15 bonus MP" synergy never mechanically applied. New `getPartnerSynergyQuestBonus()` in questLogic.js (data-driven, one table entry) wires it into `resolveQuest`. While there, also fixed `player.questBonusMP` (armed by snoeiertje, super-saiyan-mos, momentum-boost, f1-telemetry-data — see STUB-08 above) — the "next successful Quest gives this bonus MP" comment was accurate about intent but `resolveQuest` never actually read the field. Both bonuses now apply together on success, questBonusMP resetting only when consumed (a failed attempt keeps it armed for the next try).
+- **The Gym balance tweak**: see place_the_gym row above — West no longer takes environmental damage from his own deck's Place card.
+
+Full details: `docs/phase0-rulings.md` is unchanged (these are card/place-level fixes, not universal-rule changes).

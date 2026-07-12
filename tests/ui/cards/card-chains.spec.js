@@ -14,6 +14,7 @@ import {
 	GAME_URL_TEST, seedCustomDeck, waitForBoard, ss,
 	readOwnedMosjes, readOpponentMosjes, getGameState,
 	setMosjeMP, setMosjeOnField, setHand, unlockPiecies, playCardFromHand,
+	clearEntryProtection,
 } from '../helpers.js';
 
 /** Activate a face-down piecie on the field, auto-dismissing up to two target pickers. */
@@ -48,6 +49,7 @@ test('chain: Affoe drains opponent below 0 → KNOCKOUT win', async ({ page }) =
 	}, 'PHYSICAL_FORCE');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
+	await clearEntryProtection(page); // U8 — chains model an established board
 
 	await setMosjeMP(page, 'player_1', 0, 50);
 	await setMosjeOnField(page, 'player_2', 1, null);   // ensure opponent has only ONE Mosje
@@ -81,6 +83,7 @@ test('chain: MP Amplifier → next Kannetje Melk gains +40 (×1.5, 5-grid)', asy
 	}, 'PHYSICAL_FORCE');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
+	await clearEntryProtection(page); // U8 — chains model an established board
 
 	await setMosjeMP(page, 'player_1', 0, 40);
 	await setHand(page, 'player_1', ['piecie_mp_amplifier', 'piecie_kannetje_melk']);
@@ -119,6 +122,7 @@ test('chain: Tuk Healer ability heals both active Mosjes +15', async ({ page }) 
 	}, 'PHYSICAL_FORCE');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
+	await clearEntryProtection(page); // U8 — chains model an established board
 
 	// Ensure Tuk Healer is slot 0, and place a second Mosje in slot 1.
 	await setMosjeOnField(page, 'player_1', 0, 'mosje_tuk_healer', { mp: 30, level: 0 });
@@ -156,6 +160,7 @@ test('chain: Tactician moves MP from high Mosje to low (total unchanged)', async
 	}, 'PHYSICAL_FORCE');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
+	await clearEntryProtection(page); // U8 — chains model an established board
 
 	await setMosjeOnField(page, 'player_1', 0, 'mosje_tactician', { mp: 60, level: 0 });
 	await setMosjeOnField(page, 'player_1', 1, 'mosje_michelle', { mp: 10, level: 0 });
@@ -198,6 +203,7 @@ test('chain: piecie MP gain caps at 100 (no level-up)', async ({ page }) => {
 	}, 'PHYSICAL_FORCE');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
+	await clearEntryProtection(page); // U8 — chains model an established board
 
 	await setMosjeOnField(page, 'player_1', 0, 'mosje_gandoe_destroyer', { mp: 80, level: 0 });
 	await setHand(page, 'player_1', ['piecie_kannetje_melk']);
@@ -227,6 +233,7 @@ test('chain: Tikker QUEST_BLOCKED prevents a General Quest', async ({ page }) =>
 	}, 'PHYSICAL_FORCE');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
+	await clearEntryProtection(page); // U8 — chains model an established board
 
 	await setMosjeMP(page, 'player_1', 0, 40);
 	await setHand(page, 'player_1', ['piecie_tikker']);

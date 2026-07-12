@@ -27,7 +27,7 @@ export default defineConfig({
   projects: [
     {
       name: 'visual',
-      testIgnore: ['**/sim-30-games.spec.js', '**/sim-botvsbot.spec.js', '**/cards/**'],
+      testIgnore: ['**/sim-30-games.spec.js', '**/sim-botvsbot.spec.js', '**/sim-deck-matrix.spec.js', '**/cards/**'],
       use: {
         baseURL: 'http://localhost:5500',
         headless: false,
@@ -42,7 +42,7 @@ export default defineConfig({
     },
     {
       name: 'sim',
-      testMatch: ['**/sim-30-games.spec.js', '**/sim-botvsbot.spec.js'],
+      testMatch: ['**/sim-30-games.spec.js', '**/sim-botvsbot.spec.js', '**/sim-deck-matrix.spec.js'],
       timeout: 180000,
       use: {
         baseURL: 'http://localhost:5500',

@@ -150,6 +150,16 @@ export async function unlockPiecies(page, playerId = 'player_1') {
 	await page.waitForTimeout(200);
 }
 
+/**
+ * U8 — strip entry protection from all Mosjes on the board (testMode=true).
+ * Card-effect tests call this after seeding so turn-1 attacks test the card,
+ * not the protection rule (tests/ui/entry-protection.spec.js covers U8 itself).
+ */
+export async function clearEntryProtection(page) {
+	await page.evaluate(() => window.__testHooks?.clearEntryProtection());
+	await page.waitForTimeout(100);
+}
+
 /** Replace a player's hand with exactly the given cardIds (keeps the hand small). */
 export async function setHand(page, playerId, cardIds) {
 	await page.evaluate(({ pid, ids }) => window.__testHooks?.setHand(pid, ids), { pid: playerId, ids: cardIds });

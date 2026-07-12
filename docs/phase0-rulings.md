@@ -12,7 +12,7 @@ Last updated: Phase 11 complete.
 3. [Turn Structure](#turn-structure)
 4. [Momentum Points & Leveling](#momentum-points--leveling)
 5. [Victory Conditions](#victory-conditions)
-6. [Universal Rules (U1–U7)](#universal-rules-u1u7)
+6. [Universal Rules (U1–U8)](#universal-rules-u1u8)
 7. [Card Type Rules](#card-type-rules)
 8. [Welloe Mosje System](#welloe-mosje-system)
 9. [Card-Specific Rulings](#card-specific-rulings)
@@ -43,9 +43,9 @@ MOSJES is a 2–6 player card game where each player builds a deck around charac
 ## Game Setup
 
 1. Each player shuffles their deck face-down.
-2. Each player picks one Mosje at random from their Mosje cards (face-down selection — no peeking). This becomes their first active Mosje on the field.
+2. Each player picks one Mosje at random from their Mosje cards (face-down selection — no peeking). This becomes their first active Mosje on the field. It enters play with **Entry Protection** (see U8): opponents cannot affect it until its owner's first turn has started.
 3. Each player draws **6 cards**. On their first turn they draw 1 more (normal Draw Phase), giving 7 cards total in hand during play.
-4. Decide starting player (e.g. dice roll, youngest goes first).
+4. Decide starting player (e.g. dice roll, youngest goes first). The starting player may not attempt a General Quest on their first turn — see Quest Phase below.
 5. Place the shared Quest deck in the center of the table.
 6. Each player has **2 Mosje slots** on their side of the field. The second slot is empty at game start.
 
@@ -79,6 +79,7 @@ Each turn has four phases in this exact order:
 - **Success** — gain MP as stated on the Quest card.
 - **Failure** — some Quests apply a penalty; discard the Quest card.
 - Completed Quests go to your personal Quest discard.
+- **Turn 1 exception (2026-07-12):** the player who goes first may **not** attempt a General Quest on their very first turn. Personal Quests and Piecie/Place activation already have a built-in 1-turn delay before they can be used (see Main Phase above) — General Quests were the one action with no such delay, letting the first player bank a free, completely unopposed Quest attempt before their opponent had taken a single turn. This restriction applies **only** to the game's literal first turn, not to each player's own opening turn — the second player's first turn is unrestricted. (Simulation data: this was the dominant driver of a 65/35 first-seat/second-seat win-rate split across all 5 duo decks; see `tests/ui/simulation/sim-deck-matrix-results.md`.)
 
 ### 4. End Phase
 - Apply any Place card end-of-turn effects.
@@ -102,9 +103,9 @@ Each turn has four phases in this exact order:
 - Note: **Cost payments are not the same as MP loss** (see U7)
 
 ### MP range (hard invariant)
-- A Mosje's MP is **always clamped to 0–100**. It must **never exceed 100** and **never go below 0**.
+- A Mosje's MP is **always clamped to 0–100**. It must **never exceed 100** and **never go below 0** — no exceptions for cost payments (see "Defeat below 0 MP" below).
 - Gains from **Piecies, Places, abilities, and the turn trickle are capped at 100** — they fill a Mosje toward 100 but do **not** themselves cause a permanent level-up. Excess MP above 100 is discarded (no carry-over).
-- Going below 0 from a damaging effect = defeat (see "Defeat below 0 MP").
+- Going below 0 — whether from a damaging effect **or from paying an MP cost** — always triggers defeat/regression (see "Defeat below 0 MP").
 
 ### Leveling
 | Threshold | Result |
@@ -122,8 +123,7 @@ Each turn has four phases in this exact order:
 - Quest failure penalties (where stated on card)
 - Paying MP costs for abilities
 - Place card effects (where stated on card)
-- **Defeat below 0 MP**: When a damaging effect (Quest failure, Piecie, Place, Snelle Piecie, Mosje ability — anything that is *not* a cost payment) would reduce a Mosje **below 0 MP**, that Mosje is handled by level/MP rules: if it has Levels above 0 it **regresses one Level** (carrying the overflow into the new Level's MP); if it is at **Level 0** it is **defeated** — sent to the discard / Welloe pile and the `in_welloe` flag is set. A Mosje never holds negative MP. A Mosje at **exactly 0 MP survives** (e.g. a starter Mosje summoned at 0 MP, or one floored to 0); it is only defeated when further damage would push it below 0.
-- **Cost payments can go negative**: Paying an MP cost (see U7) can bring a Mosje below 0 MP without triggering defeat. A Mosje with negative MP from cost payment **cannot attempt Quests** until back at 0 or above.
+- **Defeat below 0 MP (2026-07-12 — no exceptions):** A Mosje can never hold negative MP, **period** — this applies identically whether the reduction comes from a damaging effect (Quest failure, Piecie, Place, Snelle Piecie, Mosje ability) or from **paying an MP cost** (a Quest attempt's 20 MP fee, an ability's MP cost). Any reduction that would push a Mosje **below 0 MP** (i.e. to -1 or lower) resolves immediately: if it has Levels above 0 it **regresses one Level** (carrying the overflow into the new Level's MP); if it is at **Level 0** it is **defeated** — sent to the discard / Welloe pile and the `in_welloe` flag is set. A Mosje at **exactly 0 MP survives** (e.g. a starter Mosje summoned at 0 MP, one floored to 0 by damage, or one that paid a cost down to exactly 0) — only going below 0 (-1 or lower) triggers defeat/regression. There is no scenario where a Mosje persists with negative MP; every code path either clamps a cost-paying ability from activating at all when unaffordable (throws before deducting), or lets the payment go through and immediately applies the same defeat/regression rule a damaging effect would. See U7 for the separate, still-valid distinction about which *cards* react to cost payment vs. MP loss (e.g. The Void doesn't trigger on a cost payment) — that is unrelated to whether the paying Mosje itself can go negative.
 
 ---
 
@@ -138,9 +138,9 @@ Each turn has four phases in this exact order:
 
 ---
 
-## Universal Rules (U1–U7)
+## Universal Rules (U1–U8)
 
-These seven rules resolve the majority of edge cases. They were established in Phase 0 after reviewing all 200+ cards. **They cannot be overridden by individual card text unless the card explicitly says so.**
+These eight rules resolve the majority of edge cases. U1–U7 were established in Phase 0 after reviewing all 200+ cards; U8 was added 2026-07-11 after bot-vs-bot simulation exposed turn-1 kills of 0-MP starting Mosjes. **They cannot be overridden by individual card text unless the card explicitly says so.**
 
 ---
 
@@ -219,6 +219,19 @@ If a card says "pay X MP", that is a cost. If a card says "lose X MP" or "drain 
 
 ---
 
+### U8 — Entry Protection (fresh Mosjes are safe)
+> A Mosje that has just entered play — the starting Mosje at game setup, a Mosje played from hand, or one summoned/revived from the Welloe pile — cannot be affected by opponents until its owner's next turn starts.
+
+- While protected, a Mosje **cannot be chosen as a target** of opponent effects (target pickers show it disabled with a 🛡️), and **automatic opponent effects that would hit it fizzle whole** — no MP loss, no debuffs, no defeat, and no side effects riding on the same effect (e.g. a forced discard attached to the damage).
+- Protection **ends the moment the owner's next turn starts** — the owner has now "had a turn" with it. From the opponent's following turn it is a normal target.
+- Protection is **defensive only**. The protected Mosje can act normally: play cards, use abilities, attempt Quests. Its own risks still apply — a failed Quest still costs it MP, and cost payments are never blocked (U7).
+- **Friendly effects work normally** on your own protected Mosjes (MP gains, buffs, heals).
+- Abilities whose locked target (U1 — no redirect) is protected are simply **unusable** that turn: no cost is paid and the once-per-turn/once-per-game use is not consumed.
+- Rationale: several Mosjes enter play at 0 MP (Gandoe, Michelle, Youri, Jisca, Alyssa…). Without this rule, any chip damage — e.g. Binti's Cutting Words (-10 MP) — could defeat them **before their owner ever had a turn**, including an instant turn-1 KNOCKOUT win. Simulation showed bots exploiting this consistently; human players would too.
+- Engine: `entryProtected` flag set on every slot-creation path (game start, `playMosje`, Call of the Welloes/Mosje Reborn), cleared at the owner's `startTurn`. Enforced centrally in `loseMP` (opponent-inflicted losses fizzle) plus per-effect hostile-damage/hostile-status guards; UI target selectors disable protected entries.
+
+---
+
 ## Deck Construction
 
 - Maximum deck size: **60 cards** (Mosjes + Piecies + Snelle Piecies + Places + Quests combined).
@@ -258,6 +271,7 @@ If a card says "pay X MP", that is a cost. If a card says "lose X MP" or "drain 
 - In both cases, the `in_welloe` flag is the authoritative indicator that a Mosje is out of play. The knockout victory condition checks this flag.
 - Defeated Mosje loses all Level progress and MP (see U4).
 - If a player has no Mosjes on the field and no Mosjes in hand or deck, they are eliminated (in multiplayer) or lose (in 1v1).
+- Revived/summoned Mosjes **enter play with Entry Protection (U8)** — opponents cannot affect them until their owner's next turn starts.
 - Revival via **Mosje Reborn**: returns target Mosje from your Welloe pile to your field at Level 1, 0 MP.
 - Revival via **Call of the Welloes**: summons target Mosje from a Welloe pile to that player's field at Level 1, 0 MP. Call of the Welloes remains linked to that Mosje; if the Piecie leaves play, the summoned Mosje returns to Welloe. (This is intentionally weaker than Mosje Reborn — it does not give the opponent a Level bonus.)
 

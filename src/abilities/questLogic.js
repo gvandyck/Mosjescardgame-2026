@@ -34,6 +34,37 @@ function hasActiveMosjeCard(gameState, playerId, cardId) {
 	return getActiveMosjes(gameState?.players?.[playerId]).some(m => m.cardId === cardId);
 }
 
+// ─────────────────────────────────────────────────────────────
+// getPartnerSynergyQuestBonus
+// U6 stack step 4 — "Partner-synergy bonus (from synergy partner being on
+// field)". Data-driven lookup so a future duo's category-wide quest synergy
+// is one table entry, not a new hardcoded branch. Only mosje.js pairs whose
+// synergyEffect text ties to a Quest CATEGORY belong here — a bonus scoped
+// to one specific quest card (e.g. Kickboxing Bootcamp's both-active +20)
+// stays as a perMosjeConfig override where it already lives, since that's a
+// different mechanic (one card, not "every Physical quest").
+//
+// [Martin] Señor West + [AZN Cless]: "Physical Quests give +15 bonus MP"
+// (src/data/mosjes.js) — both Mosjes declare this synergyEffect, but nothing
+// consumed it until this lookup; getActiveSynergies()/hasSynergy() in
+// synergyResolver.js only ever drove the Binti+Coert FOOD-double check.
+// ─────────────────────────────────────────────────────────────
+const PARTNER_QUEST_SYNERGIES = [
+	{ pair: ['mosje_martin_senor_west', 'mosje_azn_cless'], category: 'Physical', bonus: 15 },
+];
+
+export function getPartnerSynergyQuestBonus(gameState, playerId, category) {
+	if (!category) return 0;
+	const activeIds = new Set(getActiveMosjes(gameState?.players?.[playerId]).map(m => m.cardId));
+	let bonus = 0;
+	for (const entry of PARTNER_QUEST_SYNERGIES) {
+		if (entry.category === category && entry.pair.every(id => activeIds.has(id))) {
+			bonus += entry.bonus;
+		}
+	}
+	return bonus;
+}
+
 export function getMosjeTrait(gameState, playerId, activeMosjeId, traitName) {
 	const trait = String(traitName || '').toLowerCase();
 	const player = gameState?.players?.[playerId];
@@ -84,32 +115,63 @@ function applyQuestMpResult(mosje, questCard, didSucceed) {
   mosje.mp += failValue;
 }
 
-// General Quests can be attempted by any active Mosje with non-negative MP.
-// Cards with extra preconditions (e.g. Momentum Master) are enforced here too.
-export function canAttemptGeneralQuest(questCard, gameState, playerId) {
-  console.log('[QUEST] Checking General Quest eligibility:', questCard.id);
+// ─────────────────────────────────────────────────────────────
+// getGeneralQuestBlockReason
+// Same checks as canAttemptGeneralQuest, but returns WHICH one failed
+// (or null if attemptable) instead of a bare boolean. canAttemptGeneralQuest
+// is a thin wrapper over this — single source of truth for the eligibility
+// logic, with a specific reason available to callers that want to explain
+// (or, for the bot, log/measure) why an attempt was blocked, rather than
+// a single generic "requirement-not-met" bucket.
+// ─────────────────────────────────────────────────────────────
+export function getGeneralQuestBlockReason(questCard, gameState, playerId) {
   const player = gameState.players[playerId];
-  if (!player) return false;
+  if (!player) return 'no-player';
+  // First-seat tempo fix (2026-07-12): the very first player of the game
+  // could otherwise attempt a General Quest before their opponent has had
+  // any turn at all — General Quests have no "wait a turn" delay the way
+  // Piecies/Places/Personal Quests do (U2), so this was P1's only
+  // completely unopposed action. Deliberately asymmetric: P2's own first
+  // turn (also turnNumber===1, since turnNumber is a round counter) is NOT
+  // restricted — narrowing the gap requires P2 to have MORE access on
+  // their opening turn than P1 had, not the same restriction shifted by
+  // one turn for both (which would leave the relative gap unchanged).
+  if (gameState.turnNumber === 1 && playerId === gameState.firstPlayerId) {
+    return 'first-turn-lock';
+  }
   const activeMosje = getFirstActiveMosje(player);
   if (!activeMosje) {
-    console.log('[QUEST] No active Mosje on field — cannot attempt General Quest');
-    return false;
+    return 'no-active-mosje';
   }
   // Block quest attempts when Tikker's QUEST_BLOCKED status is active
   if (activeMosje?.statusEffects?.some(e => e.type === 'QUEST_BLOCKED')) {
-    console.log('[QUEST] QUEST_BLOCKED status active — cannot attempt quest this turn');
-    return false;
+    return 'quest-blocked-status';
   }
+  // Defensive only (2026-07-12 ruling): a Mosje's mp should never actually be
+  // observed negative in practice — every MP-reducing path (loseMP, applyDamage,
+  // and every ability's own pre-check-and-throw cost guard) converts a
+  // below-0 result into immediate defeat/regression, with no exception for
+  // cost payments. Kept as a safety net, not because this state is expected.
   if (activeMosje.mp < 0) {
-    console.log('[QUEST] Active Mosje has negative MP — cannot attempt General Quest');
-    return false;
+    return 'negative-mp';
   }
   if (questCard.requirementId === 'quest_req_momentum_master') {
     const mp = activeMosje.mp || 0;
     if (mp < 80 || mp > 100) {
-      console.log('[QUEST] Momentum Master blocked — Active Mosje MP not between 80-100:', mp);
-      return false;
+      return 'momentum-master-range';
     }
+  }
+  return null;
+}
+
+// General Quests can be attempted by any active Mosje with non-negative MP.
+// Cards with extra preconditions (e.g. Momentum Master) are enforced here too.
+export function canAttemptGeneralQuest(questCard, gameState, playerId) {
+  console.log('[QUEST] Checking General Quest eligibility:', questCard.id);
+  const reason = getGeneralQuestBlockReason(questCard, gameState, playerId);
+  if (reason) {
+    console.log('[QUEST] Blocked:', reason);
+    return false;
   }
   return true;
 }
@@ -303,6 +365,22 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 	}
 
 	if (!baseQuestMpBlocked && !defersMPToUI) {
+		// Bonus MP sources that apply ONLY on success (U6 stack: step 2 —
+		// card-synergy bonus armed by a piecie this turn; step 4 — partner-
+		// synergy bonus from a live board-state pair). Read/consume the
+		// one-shot armed bonus BEFORE any gainMP/loseMP call below reassigns
+		// `state` to a new clone — `player` is only a valid mutation target
+		// on the CURRENT state up until that first reassignment.
+		//   - questBonusMP: armed by snoeiertje/super_saiyan_mos/momentum_boost/
+		//     f1_telemetry ("next successful Quest gives bonus MP"); consumed
+		//     (reset to 0) only when it actually applies, so a FAILED attempt
+		//     leaves it armed for the next try.
+		//   - partner-synergy bonus: live check, e.g. West+Cless "Physical
+		//     Quests give +15 bonus MP" — see getPartnerSynergyQuestBonus().
+		const armedBonus = didSucceed ? (player.questBonusMP || 0) : 0;
+		const synergyBonus = didSucceed ? getPartnerSynergyQuestBonus(state, playerId, questCard.category) : 0;
+		if (didSucceed && player.questBonusMP) player.questBonusMP = 0;
+
 		// Support both old format (successMP/failMP) and new format (onSuccess/onFailure effects)
 		const effects = didSucceed ? (questCard.onSuccess || []) : (questCard.onFailure || []);
 
@@ -325,6 +403,13 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 				const failValue = Math.abs(typeof questCard.failMP === 'number' ? questCard.failMP : 0);
 				state = loseMP(state, playerId, slotIndex, failValue, 'QUEST');
 			}
+		}
+
+		const totalBonus = armedBonus + synergyBonus;
+		if (totalBonus > 0) {
+			questMpGained += totalBonus;
+			state = gainMP(state, playerId, slotIndex, totalBonus, 'QUEST_BONUS');
+			console.log(`[QUEST] Bonus MP applied: +${totalBonus} (armed=${armedBonus}, partner-synergy=${synergyBonus})`);
 		}
 	}
 

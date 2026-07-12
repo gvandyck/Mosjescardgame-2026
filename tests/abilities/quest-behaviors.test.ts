@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 // @ts-expect-error — JS module, no type declarations
-import { resolveQuest, quest_req_hack_mainframe } from "../../src/abilities/questLogic.js";
+import { resolveQuest, quest_req_hack_mainframe, getPartnerSynergyQuestBonus } from "../../src/abilities/questLogic.js";
 // @ts-expect-error — JS module, no type declarations
 import { QUESTS } from "../../src/data/quests.js";
 
@@ -174,5 +174,133 @@ describe("quest defs carry the new data fields", () => {
   it("quest_elimination_challenge.opponentLoseMP === 30", () => {
     const q = QUESTS.find((x: any) => x.id === "quest_elimination_challenge");
     expect(q?.opponentLoseMP).toBe(30);
+  });
+
+  it("quest_arm_wrestling.category === 'Physical' (used by the partner-synergy bonus)", () => {
+    const q = QUESTS.find((x: any) => x.id === "quest_arm_wrestling");
+    expect(q?.category).toBe("Physical");
+  });
+});
+
+// ─────────────────────────────────────────────────────────────
+// getPartnerSynergyQuestBonus — U6 stack step 4 (live board-state check,
+// not consumed like questBonusMP). West + Cless: "Physical Quests give
+// +15 bonus MP" when both are active — previously declared in mosjes.js
+// but never mechanically applied (getActiveSynergies() only ever drove
+// the hardcoded Binti+Coert FOOD-double check).
+// ─────────────────────────────────────────────────────────────
+describe("getPartnerSynergyQuestBonus", () => {
+  function stateWithActive(cardIds: string[]) {
+    return {
+      players: {
+        player_1: {
+          activeSlots: cardIds.map((id) => makeSlot(id, 50)),
+        },
+      },
+    } as any;
+  }
+
+  it("returns +15 for a Physical quest when West AND Cless are both active", () => {
+    const state = stateWithActive(["mosje_martin_senor_west", "mosje_azn_cless"]);
+    expect(getPartnerSynergyQuestBonus(state, "player_1", "Physical")).toBe(15);
+  });
+
+  it("returns 0 when only one of the pair is active", () => {
+    const state = stateWithActive(["mosje_martin_senor_west"]);
+    expect(getPartnerSynergyQuestBonus(state, "player_1", "Physical")).toBe(0);
+  });
+
+  it("returns 0 for a non-Physical category even with both active", () => {
+    const state = stateWithActive(["mosje_martin_senor_west", "mosje_azn_cless"]);
+    expect(getPartnerSynergyQuestBonus(state, "player_1", "Mental")).toBe(0);
+  });
+
+  it("ignores a defeated partner", () => {
+    const state = stateWithActive(["mosje_martin_senor_west", "mosje_azn_cless"]);
+    state.players.player_1.activeSlots[1].isDefeated = true;
+    expect(getPartnerSynergyQuestBonus(state, "player_1", "Physical")).toBe(0);
+  });
+
+  it("returns 0 with no category", () => {
+    const state = stateWithActive(["mosje_martin_senor_west", "mosje_azn_cless"]);
+    expect(getPartnerSynergyQuestBonus(state, "player_1", undefined)).toBe(0);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────
+// resolveQuest — bonus MP application (armed questBonusMP + live
+// partner-synergy), both gated to success only.
+// ─────────────────────────────────────────────────────────────
+describe("resolveQuest — bonus MP application", () => {
+  // Every case below stays comfortably under the 100 MP level-up threshold —
+  // resolveQuest applies successMP and the bonus as TWO separate gainMP
+  // calls, so crossing 100 between them would pull in checkLevelUp's carry-
+  // over math, which isn't what these tests are about.
+  it("applies and resets the one-shot questBonusMP flag on success", () => {
+    const state = makeState({ p1mp: 20 });
+    state.players.player_1.questBonusMP = 10;
+
+    const next = resolveQuest(state, "player_1", questCard({ successMP: 30 }), true);
+
+    expect(next.players.player_1.activeSlots[0].mp).toBe(60); // 20 + 30 + 10
+    expect(next.players.player_1.questBonusMP).toBe(0);
+  });
+
+  it("leaves questBonusMP ARMED (unconsumed) after a failed attempt", () => {
+    const state = makeState({ p1mp: 50 });
+    state.players.player_1.questBonusMP = 10;
+
+    const next = resolveQuest(state, "player_1", questCard({ failMP: -10 }), false);
+
+    expect(next.players.player_1.questBonusMP).toBe(10);
+  });
+
+  it("applies the West+Cless Physical-quest synergy bonus on success", () => {
+    const state = makeState({ p1mp: 50 });
+    state.players.player_1.activeSlots = [
+      makeSlot("mosje_martin_senor_west", 30),
+      makeSlot("mosje_azn_cless", 30),
+    ];
+
+    const next = resolveQuest(
+      state, "player_1",
+      questCard({ id: "quest_test_physical", category: "Physical", successMP: 30 }),
+      true, 0
+    );
+
+    expect(next.players.player_1.activeSlots[0].mp).toBe(75); // 30 + 30 + 15
+  });
+
+  it("does NOT apply the synergy bonus for a non-Physical quest", () => {
+    const state = makeState({ p1mp: 50 });
+    state.players.player_1.activeSlots = [
+      makeSlot("mosje_martin_senor_west", 30),
+      makeSlot("mosje_azn_cless", 30),
+    ];
+
+    const next = resolveQuest(
+      state, "player_1",
+      questCard({ id: "quest_test_mental", category: "Mental", successMP: 30 }),
+      true, 0
+    );
+
+    expect(next.players.player_1.activeSlots[0].mp).toBe(60); // 30 + 30, no synergy
+  });
+
+  it("stacks the armed bonus AND the partner synergy together", () => {
+    const state = makeState({ p1mp: 50 });
+    state.players.player_1.questBonusMP = 10;
+    state.players.player_1.activeSlots = [
+      makeSlot("mosje_martin_senor_west", 20),
+      makeSlot("mosje_azn_cless", 20),
+    ];
+
+    const next = resolveQuest(
+      state, "player_1",
+      questCard({ id: "quest_test_physical2", category: "Physical", successMP: 20 }),
+      true, 0
+    );
+
+    expect(next.players.player_1.activeSlots[0].mp).toBe(65); // 20 + 20 + 10 + 15
   });
 });

@@ -14,6 +14,11 @@ function cloneState(state) {
 	return JSON.parse(JSON.stringify(state));
 }
 
+// NOTE (U8): applyDamage here is used mostly for OWN-Mosje ability costs and
+// self-gambles, which entry protection must never block (U7). Hostile
+// opponent-targeting abilities enforce U8 themselves by throwing when the
+// target just entered play (the throw is caught by useMosjeAbility, so the
+// ability is simply unusable — no cost, no once-per-turn consumed).
 function applyDamage(mosje, amount) {
 	if (!mosje || mosje.isDefeated || amount <= 0) return;
 	mosje.mp -= amount;
@@ -69,6 +74,18 @@ export function ability_binti_cutting_words(gameState, playerId, discardedCardId
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) throw new Error('Player not found');
+
+	// U8 — Entry Protection: whole ability fizzles (unusable — no discard cost,
+	// no once-per-turn) when the auto-target just entered play. This closes the
+	// turn-1 kill of 0-MP starters. Throw is caught by useMosjeAbility.
+	{
+		const oppIdForGuard = getOpponentId(state, playerId);
+		const oppForGuard = oppIdForGuard ? state.players[oppIdForGuard] : null;
+		const guardSlotIndex = oppForGuard ? getFirstActiveSlotIndex(oppForGuard) : -1;
+		if (guardSlotIndex >= 0 && oppForGuard.activeSlots[guardSlotIndex].entryProtected === true) {
+			throw new Error('Opponent Mosje just entered play — it is protected until their next turn');
+		}
+	}
 
 	// Always read from _pendingTargets.binti_discard (set by UI pre-pick or bot driver).
 	// discardedCardId arg is the mosjeId passed by useMosjeAbility — not a card to discard.
@@ -263,6 +280,13 @@ export function ability_gandoe_destroyer_elimination_strike(gameState, playerId)
 		}
 	});
 	if (targetIndex < 0) throw new Error('No opponent Mosje to target');
+
+	// U8 — Entry Protection: the locked target (lowest level, no redirect per
+	// U1) just entered play → the whole ability is unusable. The throw is
+	// caught by useMosjeAbility, so the 80 MP cost is not spent.
+	if (opp.activeSlots[targetIndex].entryProtected === true) {
+		throw new Error('Target Mosje just entered play — it is protected until their next turn');
+	}
 
 	// Mark once-per-game before calling markMosjeDefeated (which clones state internally)
 	gandoeSlot.eliminationStrikeUsed = true;
@@ -523,6 +547,11 @@ export function ability_drainer_continuous_drain(gameState, playerId) {
 	const opp = state.players[oppId];
 	const osi = getFirstActiveSlotIndex(opp);
 	if (osi < 0) return state;
+	// U8 — Entry Protection: whole ability fizzles (unusable, no cost) when the
+	// auto-target just entered play. The throw is caught by useMosjeAbility.
+	if (opp.activeSlots[osi].entryProtected === true) {
+		throw new Error('Opponent Mosje just entered play — it is protected until their next turn');
+	}
 	opp.activeSlots[osi].statusEffects.push({ type: 'DRAIN', value: -5, turnsLeft: 3 });
 	console.log('[ABILITY] Drainer: -5 MP/turn for 3 turns applied to opponent');
 	return state;
@@ -536,6 +565,10 @@ export function ability_fps_coert_headshot_precision(gameState, playerId) {
 	const opp = state.players[oppId];
 	const osi = getFirstActiveSlotIndex(opp);
 	if (osi >= 0) {
+		// U8 — Entry Protection: ability unusable vs a freshly entered target.
+		if (opp.activeSlots[osi].entryProtected === true) {
+			throw new Error('Opponent Mosje just entered play — it is protected until their next turn');
+		}
 		applyDamage(opp.activeSlots[osi], 25);
 		console.log('[ABILITY] FPS Coert: headshot! opponent -25 MP');
 	}

@@ -89,7 +89,7 @@ export const MOSJES = [
     startMP: 10,
     traits: { physical: 2, social: 2, creative: 1 },
     abilityId: "ability_azn_cless_risk_reward",
-    abilityDescription: "Risk and Reward: At end of each turn roll 1d6; 1 discard 1 card, 2-5 no effect, 6 draw 2 cards and gain 10 MP.",
+    abilityDescription: "Risk and Reward: Activate to roll 1d6 — even (2/4/6) gain 25 MP, odd (1/3/5) lose 15 MP. Free to use, once per turn.",
     synergyWith: ["mosje_martin_senor_west"],
     synergyEffect: "Physical Quests give +15 bonus MP",
     petSynergy: "piecie_vianna_poes",

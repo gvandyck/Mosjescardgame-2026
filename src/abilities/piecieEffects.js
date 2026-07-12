@@ -41,6 +41,33 @@ function applyDamage(mosje, amount) {
 	mosje.mpLostThisTurn = (mosje.mpLostThisTurn || 0) + amount;
 }
 
+// U8 — Entry Protection: hostile effect damage fizzles against a freshly
+// entered Mosje (until its owner's next turn starts). Use for OPPONENT-
+// targeted damage only — self-effects, gambles and cost payments keep
+// calling applyDamage directly (costs are never blocked, see U7).
+function applyHostileDamage(mosje, amount) {
+	if (!mosje) return false;
+	if (mosje.entryProtected === true) {
+		console.log(`[ABILITY] 🛡️ Entry protection: ${mosje.name} just entered play — ${amount} damage fizzled`);
+		return false;
+	}
+	applyDamage(mosje, amount);
+	return true;
+}
+
+// U8 — Entry Protection also blocks hostile status effects: a debuff aimed at
+// a freshly entered Mosje fizzles. Use for OPPONENT-targeting pushes only —
+// buffs on your own Mosjes are always allowed.
+function pushHostileStatus(mosje, effect, label) {
+	if (mosje.entryProtected === true) {
+		console.log(`[ABILITY] 🛡️ Entry protection: ${mosje.name} just entered play — ${effect.type} fizzled`);
+		return false;
+	}
+	mosje.statusEffects.push(effect);
+	if (label) console.log(label);
+	return true;
+}
+
 function applyMPGain(player, si, amount, state, playerId) {
 	// Apply mpAmplifier 50% bonus if active
 	let total = amount;
@@ -210,6 +237,12 @@ export function effect_affoe(gameState, playerId) {
 		si = getFirstActiveSlotIndex(player);
 	}
 
+	// U8 — whole effect fizzles when the drain target just entered play.
+	if (osi >= 0 && state.players[oppId].activeSlots[osi]?.entryProtected === true) {
+		console.log('[ABILITY] 🛡️ Entry protection: Affoe fizzled — target just entered play');
+		delete state._pendingTargets;
+		return state;
+	}
 	if (osi >= 0) applyDamage(state.players[oppId].activeSlots[osi], 15);
 	if (si >= 0) applyMPGain(player, si, 10, state, playerId);
 	delete state._pendingTargets;
@@ -235,8 +268,9 @@ export function effect_te_hard_gaan(gameState, playerId) {
 	const oppId = getOpponentId(state, playerId);
 	if (!oppId) return state;
 	const osi = getFirstActiveSlotIndex(state.players[oppId]);
-	if (osi >= 0) applyDamage(state.players[oppId].activeSlots[osi], 25);
-	console.log('[ABILITY] Te Hard Gaan: opponent -25 MP');
+	if (osi >= 0 && applyHostileDamage(state.players[oppId].activeSlots[osi], 25)) {
+		console.log('[ABILITY] Te Hard Gaan: opponent -25 MP');
+	}
 	return state;
 }
 
@@ -248,6 +282,11 @@ export function effect_momentum_diefje(gameState, playerId) {
 	const si = getFirstActiveSlotIndex(player);
 	const osi = getFirstActiveSlotIndex(state.players[oppId]);
 	if (si >= 0 && osi >= 0) {
+		// U8 — whole steal fizzles (no damage, no gain) vs a protected target.
+		if (state.players[oppId].activeSlots[osi].entryProtected === true) {
+			console.log('[ABILITY] 🛡️ Entry protection: Momentum Diefje fizzled — target just entered play');
+			return state;
+		}
 		const stolen = Math.min(20, state.players[oppId].activeSlots[osi].mp);
 		applyDamage(state.players[oppId].activeSlots[osi], stolen);
 		player.activeSlots[si].mp += stolen;
@@ -281,7 +320,7 @@ export function effect_dikke_taks(gameState, playerId) {
 	const damage = opponents.length >= 3 ? 40 : 35;
 	for (const oppId of opponents) {
 		const osi = getFirstActiveSlotIndex(state.players[oppId]);
-		if (osi >= 0) applyDamage(state.players[oppId].activeSlots[osi], damage);
+		if (osi >= 0) applyHostileDamage(state.players[oppId].activeSlots[osi], damage);
 	}
 	const player = state.players[playerId];
 	if (player.deck.length > 0) player.hand.push(...player.deck.splice(0, Math.min(2, player.deck.length)));
@@ -295,10 +334,11 @@ export function effect_kleine_taks(gameState, playerId) {
 	if (!oppId) return state;
 	const osi = getFirstActiveSlotIndex(state.players[oppId]);
 	if (osi >= 0) {
-		state.players[oppId].activeSlots[osi].statusEffects.push(
-			{ type: 'KLEINE_TAKS', value: -10, turnsLeft: 4 }
+		pushHostileStatus(
+			state.players[oppId].activeSlots[osi],
+			{ type: 'KLEINE_TAKS', value: -10, turnsLeft: 4 },
+			'[ABILITY] Kleine Taks: -10 MP/turn for 4 turns on opponent'
 		);
-		console.log('[ABILITY] Kleine Taks: -10 MP/turn for 4 turns on opponent');
 	}
 	return state;
 }
@@ -930,8 +970,7 @@ export function effect_straffoe(gameState, playerId) {
 	const oppId = getOpponentId(state, playerId);
 	if (!oppId) return state;
 	const osi = getFirstActiveSlotIndex(state.players[oppId]);
-	if (osi >= 0) {
-		applyDamage(state.players[oppId].activeSlots[osi], 30);
+	if (osi >= 0 && applyHostileDamage(state.players[oppId].activeSlots[osi], 30)) {
 		console.log('[ABILITY] Straffoe: opponent -30 MP');
 	}
 	return state;
@@ -1101,10 +1140,11 @@ export function effect_continuous_assault(gameState, playerId) {
 	if (!oppId) return state;
 	const osi = getFirstActiveSlotIndex(state.players[oppId]);
 	if (osi >= 0) {
-		state.players[oppId].activeSlots[osi].statusEffects.push(
-			{ type: 'CONTINUOUS_ASSAULT', value: -15, turnsLeft: 3 }
+		pushHostileStatus(
+			state.players[oppId].activeSlots[osi],
+			{ type: 'CONTINUOUS_ASSAULT', value: -15, turnsLeft: 3 },
+			'[ABILITY] Continuous Assault: -15 MP/turn for 3 turns on opponent'
 		);
-		console.log('[ABILITY] Continuous Assault: -15 MP/turn for 3 turns on opponent');
 	}
 	return state;
 }
@@ -1114,8 +1154,9 @@ export function effect_harde_didde(gameState, playerId) {
 	const oppId = getOpponentId(state, playerId);
 	if (!oppId) return state;
 	const osi = getFirstActiveSlotIndex(state.players[oppId]);
-	if (osi >= 0) applyDamage(state.players[oppId].activeSlots[osi], 50);
-	console.log('[ABILITY] Harde Didde: opponent -50 MP');
+	if (osi >= 0 && applyHostileDamage(state.players[oppId].activeSlots[osi], 50)) {
+		console.log('[ABILITY] Harde Didde: opponent -50 MP');
+	}
 	return state;
 }
 
@@ -1125,10 +1166,11 @@ export function effect_mp_hemorrhage(gameState, playerId) {
 	if (!oppId) return state;
 	const osi = getFirstActiveSlotIndex(state.players[oppId]);
 	if (osi >= 0) {
-		state.players[oppId].activeSlots[osi].statusEffects.push(
-			{ type: 'HEMORRHAGE', value: -20, turnsLeft: 5 }
+		pushHostileStatus(
+			state.players[oppId].activeSlots[osi],
+			{ type: 'HEMORRHAGE', value: -20, turnsLeft: 5 },
+			'[ABILITY] MP Hemorrhage: -20 MP/turn for 5 turns'
 		);
-		console.log('[ABILITY] MP Hemorrhage: -20 MP/turn for 5 turns');
 	}
 	return state;
 }
@@ -1140,6 +1182,11 @@ export function effect_klaar_met_jou(gameState, playerId) {
 	let opp = state.players[oppId];
 	const osi = getFirstActiveSlotIndex(opp);
 	if (osi >= 0) {
+		// U8 — whole effect fizzles (no damage, no discard) vs a protected target.
+		if (opp.activeSlots[osi].entryProtected === true) {
+			console.log('[ABILITY] 🛡️ Entry protection: Klaar met jou fizzled — target just entered play');
+			return state;
+		}
 		applyDamage(opp.activeSlots[osi], 40);
 		if (opp.hand.length > 0) {
 			const [removed] = opp.hand.splice(opp.hand.length - 1, 1);
