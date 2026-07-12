@@ -30,7 +30,7 @@ import {
   useMosjeAbility,
   endTurn,
 } from '../engine/turnManager.js';
-import { canAttemptGeneralQuest, canAttemptPersonalQuest, resolveQuest } from '../abilities/questLogic.js';
+import { canAttemptGeneralQuest, getGeneralQuestBlockReason, canAttemptPersonalQuest, resolveQuest } from '../abilities/questLogic.js';
 import { loseMP } from '../engine/mpManager.js';
 import { PIECIES } from '../data/piecies.js';
 import { PLACES } from '../data/places.js';
@@ -528,11 +528,21 @@ export function driveBotTurnSteps(gameState, botPlayerId) {
         sharedGeneralQuestDiscard: [...(state.sharedGeneralQuestDiscard || []), questCard],
       };
     };
-    if (!questDef || !canAttemptGeneralQuest(questDef, state, botPlayerId)) {
+    if (!questDef) {
       discardQuest();
       emitBotMetric('quest-skip', {
-        kind: 'general', deck: profile.deckId, quest: questCard.cardId, reason: 'requirement-not-met',
+        kind: 'general', deck: profile.deckId, quest: questCard.cardId, reason: 'unknown-quest-def',
       });
+      return;
+    }
+    if (!canAttemptGeneralQuest(questDef, state, botPlayerId)) {
+      discardQuest();
+      // Specific reason (first-turn-lock / negative-mp / momentum-master-range /
+      // quest-blocked-status / no-active-mosje) rather than one generic bucket —
+      // canAttemptGeneralQuest and getGeneralQuestBlockReason run the exact same
+      // checks in the exact same order, so this can't drift out of sync with it.
+      const reason = getGeneralQuestBlockReason(questDef, state, botPlayerId) || 'requirement-not-met';
+      emitBotMetric('quest-skip', { kind: 'general', deck: profile.deckId, quest: questCard.cardId, reason });
       return;
     }
     const { targetSlotIndex, decision } = bestQuestSlot(questDef);

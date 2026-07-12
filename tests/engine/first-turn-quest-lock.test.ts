@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 // @ts-expect-error — JS module, no type declarations
-import { canAttemptGeneralQuest } from "../../src/abilities/questLogic.js";
+import { canAttemptGeneralQuest, getGeneralQuestBlockReason } from "../../src/abilities/questLogic.js";
 // @ts-expect-error — JS module, no type declarations
 import { createInitialGameState } from "../../src/engine/gameState.js";
 
@@ -108,5 +108,66 @@ describe("createInitialGameState — firstPlayerId", () => {
       "TEST_ROOM"
     );
     expect(state.firstPlayerId).toBe("player_2");
+  });
+});
+
+/**
+ * getGeneralQuestBlockReason — specific reason strings, one per
+ * canAttemptGeneralQuest branch. Added 2026-07-12 after "requirement-not-met"
+ * turned out to be a single bucket hiding 5 different causes (first-turn
+ * lock, no active Mosje, QUEST_BLOCKED status, negative MP, Momentum Master
+ * range) — the deck-matrix report couldn't tell them apart. Each branch
+ * below matches an exact reason string canAttemptGeneralQuest now delegates
+ * to; keep these in sync if a new precondition is ever added to that
+ * function.
+ */
+describe("getGeneralQuestBlockReason — specific reasons behind requirement-not-met", () => {
+  const MOMENTUM_QUEST = { id: "quest_momentum_master", requirementId: "quest_req_momentum_master", successMP: 60, failMP: -40 };
+
+  it("'first-turn-lock' — the game's first player on turn 1", () => {
+    const state = makeState();
+    expect(getGeneralQuestBlockReason(QUEST, state, "player_1")).toBe("first-turn-lock");
+  });
+
+  it("null (attemptable) — second player on their own opening turn", () => {
+    const state = makeState({ activePlayerId: "player_2" });
+    expect(getGeneralQuestBlockReason(QUEST, state, "player_2")).toBeNull();
+  });
+
+  it("'no-active-mosje' — every Mosje slot empty or defeated", () => {
+    const state = makeState({ turnNumber: 2 });
+    state.players.player_1.activeSlots = [null, null];
+    expect(getGeneralQuestBlockReason(QUEST, state, "player_1")).toBe("no-active-mosje");
+  });
+
+  it("'quest-blocked-status' — Tikker's QUEST_BLOCKED status effect", () => {
+    const state = makeState({ turnNumber: 2 });
+    state.players.player_1.activeSlots[0].statusEffects = [{ type: "QUEST_BLOCKED" }];
+    expect(getGeneralQuestBlockReason(QUEST, state, "player_1")).toBe("quest-blocked-status");
+  });
+
+  it("'negative-mp' — active Mosje's MP dropped below 0 (from a cost payment)", () => {
+    const state = makeState({ turnNumber: 2 });
+    state.players.player_1.activeSlots[0].mp = -5;
+    expect(getGeneralQuestBlockReason(QUEST, state, "player_1")).toBe("negative-mp");
+  });
+
+  it("'momentum-master-range' — Momentum Master outside the 80-100 MP window", () => {
+    const state = makeState({ turnNumber: 2 });
+    state.players.player_1.activeSlots[0].mp = 50;
+    expect(getGeneralQuestBlockReason(MOMENTUM_QUEST, state, "player_1")).toBe("momentum-master-range");
+  });
+
+  it("null (attemptable) — Momentum Master WITHIN the 80-100 MP window", () => {
+    const state = makeState({ turnNumber: 2 });
+    state.players.player_1.activeSlots[0].mp = 90;
+    expect(getGeneralQuestBlockReason(MOMENTUM_QUEST, state, "player_1")).toBeNull();
+  });
+
+  it("canAttemptGeneralQuest stays a thin boolean wrapper over the same checks", () => {
+    const blocked = makeState();
+    const clear = makeState({ turnNumber: 2 });
+    expect(canAttemptGeneralQuest(QUEST, blocked, "player_1")).toBe(false);
+    expect(canAttemptGeneralQuest(QUEST, clear, "player_1")).toBe(true);
   });
 });

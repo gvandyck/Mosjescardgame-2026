@@ -115,12 +115,18 @@ function applyQuestMpResult(mosje, questCard, didSucceed) {
   mosje.mp += failValue;
 }
 
-// General Quests can be attempted by any active Mosje with non-negative MP.
-// Cards with extra preconditions (e.g. Momentum Master) are enforced here too.
-export function canAttemptGeneralQuest(questCard, gameState, playerId) {
-  console.log('[QUEST] Checking General Quest eligibility:', questCard.id);
+// ─────────────────────────────────────────────────────────────
+// getGeneralQuestBlockReason
+// Same checks as canAttemptGeneralQuest, but returns WHICH one failed
+// (or null if attemptable) instead of a bare boolean. canAttemptGeneralQuest
+// is a thin wrapper over this — single source of truth for the eligibility
+// logic, with a specific reason available to callers that want to explain
+// (or, for the bot, log/measure) why an attempt was blocked, rather than
+// a single generic "requirement-not-met" bucket.
+// ─────────────────────────────────────────────────────────────
+export function getGeneralQuestBlockReason(questCard, gameState, playerId) {
   const player = gameState.players[playerId];
-  if (!player) return false;
+  if (!player) return 'no-player';
   // First-seat tempo fix (2026-07-12): the very first player of the game
   // could otherwise attempt a General Quest before their opponent has had
   // any turn at all — General Quests have no "wait a turn" delay the way
@@ -131,29 +137,36 @@ export function canAttemptGeneralQuest(questCard, gameState, playerId) {
   // their opening turn than P1 had, not the same restriction shifted by
   // one turn for both (which would leave the relative gap unchanged).
   if (gameState.turnNumber === 1 && playerId === gameState.firstPlayerId) {
-    console.log('[QUEST] Turn 1 (first player) — General Quest attempts blocked this turn');
-    return false;
+    return 'first-turn-lock';
   }
   const activeMosje = getFirstActiveMosje(player);
   if (!activeMosje) {
-    console.log('[QUEST] No active Mosje on field — cannot attempt General Quest');
-    return false;
+    return 'no-active-mosje';
   }
   // Block quest attempts when Tikker's QUEST_BLOCKED status is active
   if (activeMosje?.statusEffects?.some(e => e.type === 'QUEST_BLOCKED')) {
-    console.log('[QUEST] QUEST_BLOCKED status active — cannot attempt quest this turn');
-    return false;
+    return 'quest-blocked-status';
   }
   if (activeMosje.mp < 0) {
-    console.log('[QUEST] Active Mosje has negative MP — cannot attempt General Quest');
-    return false;
+    return 'negative-mp';
   }
   if (questCard.requirementId === 'quest_req_momentum_master') {
     const mp = activeMosje.mp || 0;
     if (mp < 80 || mp > 100) {
-      console.log('[QUEST] Momentum Master blocked — Active Mosje MP not between 80-100:', mp);
-      return false;
+      return 'momentum-master-range';
     }
+  }
+  return null;
+}
+
+// General Quests can be attempted by any active Mosje with non-negative MP.
+// Cards with extra preconditions (e.g. Momentum Master) are enforced here too.
+export function canAttemptGeneralQuest(questCard, gameState, playerId) {
+  console.log('[QUEST] Checking General Quest eligibility:', questCard.id);
+  const reason = getGeneralQuestBlockReason(questCard, gameState, playerId);
+  if (reason) {
+    console.log('[QUEST] Blocked:', reason);
+    return false;
   }
   return true;
 }
