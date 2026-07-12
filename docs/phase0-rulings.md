@@ -103,9 +103,9 @@ Each turn has four phases in this exact order:
 - Note: **Cost payments are not the same as MP loss** (see U7)
 
 ### MP range (hard invariant)
-- A Mosje's MP is **always clamped to 0–100**. It must **never exceed 100** and **never go below 0**.
+- A Mosje's MP is **always clamped to 0–100**. It must **never exceed 100** and **never go below 0** — no exceptions for cost payments (see "Defeat below 0 MP" below).
 - Gains from **Piecies, Places, abilities, and the turn trickle are capped at 100** — they fill a Mosje toward 100 but do **not** themselves cause a permanent level-up. Excess MP above 100 is discarded (no carry-over).
-- Going below 0 from a damaging effect = defeat (see "Defeat below 0 MP").
+- Going below 0 — whether from a damaging effect **or from paying an MP cost** — always triggers defeat/regression (see "Defeat below 0 MP").
 
 ### Leveling
 | Threshold | Result |
@@ -123,8 +123,7 @@ Each turn has four phases in this exact order:
 - Quest failure penalties (where stated on card)
 - Paying MP costs for abilities
 - Place card effects (where stated on card)
-- **Defeat below 0 MP**: When a damaging effect (Quest failure, Piecie, Place, Snelle Piecie, Mosje ability — anything that is *not* a cost payment) would reduce a Mosje **below 0 MP**, that Mosje is handled by level/MP rules: if it has Levels above 0 it **regresses one Level** (carrying the overflow into the new Level's MP); if it is at **Level 0** it is **defeated** — sent to the discard / Welloe pile and the `in_welloe` flag is set. A Mosje never holds negative MP. A Mosje at **exactly 0 MP survives** (e.g. a starter Mosje summoned at 0 MP, or one floored to 0); it is only defeated when further damage would push it below 0.
-- **Cost payments can go negative**: Paying an MP cost (see U7) can bring a Mosje below 0 MP without triggering defeat. A Mosje with negative MP from cost payment **cannot attempt Quests** until back at 0 or above.
+- **Defeat below 0 MP (2026-07-12 — no exceptions):** A Mosje can never hold negative MP, **period** — this applies identically whether the reduction comes from a damaging effect (Quest failure, Piecie, Place, Snelle Piecie, Mosje ability) or from **paying an MP cost** (a Quest attempt's 20 MP fee, an ability's MP cost). Any reduction that would push a Mosje **below 0 MP** (i.e. to -1 or lower) resolves immediately: if it has Levels above 0 it **regresses one Level** (carrying the overflow into the new Level's MP); if it is at **Level 0** it is **defeated** — sent to the discard / Welloe pile and the `in_welloe` flag is set. A Mosje at **exactly 0 MP survives** (e.g. a starter Mosje summoned at 0 MP, one floored to 0 by damage, or one that paid a cost down to exactly 0) — only going below 0 (-1 or lower) triggers defeat/regression. There is no scenario where a Mosje persists with negative MP; every code path either clamps a cost-paying ability from activating at all when unaffordable (throws before deducting), or lets the payment go through and immediately applies the same defeat/regression rule a damaging effect would. See U7 for the separate, still-valid distinction about which *cards* react to cost payment vs. MP loss (e.g. The Void doesn't trigger on a cost payment) — that is unrelated to whether the paying Mosje itself can go negative.
 
 ---
 

@@ -147,6 +147,11 @@ export function getGeneralQuestBlockReason(questCard, gameState, playerId) {
   if (activeMosje?.statusEffects?.some(e => e.type === 'QUEST_BLOCKED')) {
     return 'quest-blocked-status';
   }
+  // Defensive only (2026-07-12 ruling): a Mosje's mp should never actually be
+  // observed negative in practice — every MP-reducing path (loseMP, applyDamage,
+  // and every ability's own pre-check-and-throw cost guard) converts a
+  // below-0 result into immediate defeat/regression, with no exception for
+  // cost payments. Kept as a safety net, not because this state is expected.
   if (activeMosje.mp < 0) {
     return 'negative-mp';
   }
