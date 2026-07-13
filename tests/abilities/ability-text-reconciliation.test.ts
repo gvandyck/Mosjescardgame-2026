@@ -1,6 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 // @ts-expect-error — JS module, no type declarations
-import { ability_ming_natural_lucky_draw } from "../../src/abilities/mosjeAbilities.js";
+import {
+  ability_ming_natural_lucky_draw,
+  ability_jeffrey_gambler_high_stakes,
+} from "../../src/abilities/mosjeAbilities.js";
 // @ts-expect-error — JS module, no type declarations
 import { MOSJES } from "../../src/data/mosjes.js";
 
@@ -113,5 +116,86 @@ describe("Ming Natural ability description", () => {
     expect(ming).toBeTruthy();
     expect(ming.abilityDescription.toLowerCase()).not.toContain("when you draw a card");
     expect(ming.abilityDescription.toLowerCase()).toContain("activate");
+  });
+});
+
+// ─────────────────────────────────────────────────────────────
+// 2026-07-12 ability-text-engine-reconciliation todo — card 2/10
+// Jeffrey Gambler — High Stakes: old wager mechanic (fixed 30 MP bet, 4+ on d6 nets
+// +30 MP) dropped entirely (Gandoe: "too OP"). NEW DESIGN: roll 1d6, no MP cost, no
+// MP change either way. 1-5 -> QUEST_BLOCKED this turn. 6 -> +3 Quest roll bonus.
+// ─────────────────────────────────────────────────────────────
+
+function makeJeffreySlot(mp = 50) {
+  return {
+    cardId: "mosje_jeffrey_gambler",
+    name: "mosje_jeffrey_gambler",
+    mp,
+    level: 1,
+    isDefeated: false,
+    traits: {},
+    statusEffects: [],
+    abilityUsedThisTurn: false,
+  };
+}
+
+function makeJeffreyState(mp = 50) {
+  return {
+    activePlayerId: "player_1",
+    turnNumber: 3,
+    players: {
+      player_1: {
+        hand: [] as any[],
+        deck: [] as any[],
+        graveyard: [] as any[],
+        activeSlots: [makeJeffreySlot(mp), null],
+        piecieSlots: [null, null, null, null],
+      },
+      player_2: {
+        hand: [] as any[],
+        deck: [] as any[],
+        graveyard: [] as any[],
+        activeSlots: [makeJeffreySlot(mp), null],
+        piecieSlots: [null, null, null, null],
+      },
+    },
+  } as any;
+}
+
+describe("Jeffrey Gambler — High Stakes", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("rolling a 6 grants +3 questPrepBonus, no status effect, no MP change", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0.999999); // rollDie(6) => 6
+    const state = makeJeffreyState(50);
+
+    const next = ability_jeffrey_gambler_high_stakes(state, "player_1");
+
+    expect(next.players.player_1.questPrepBonus).toBe(3);
+    expect(next.players.player_1.activeSlots[0].statusEffects).toEqual([]);
+    expect(next.players.player_1.activeSlots[0].mp).toBe(50);
+  });
+
+  it("rolling below 6 applies QUEST_BLOCKED this turn, no questPrepBonus, no MP change", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0); // rollDie(6) => 1
+    const state = makeJeffreyState(50);
+
+    const next = ability_jeffrey_gambler_high_stakes(state, "player_1");
+
+    expect(next.players.player_1.questPrepBonus).toBeUndefined();
+    expect(next.players.player_1.activeSlots[0].statusEffects).toEqual([
+      { type: "QUEST_BLOCKED", value: 0, turnsLeft: 1 },
+    ]);
+    expect(next.players.player_1.activeSlots[0].mp).toBe(50);
+  });
+});
+
+describe("Jeffrey Gambler ability description", () => {
+  it("no longer describes a wager/bet mechanic", () => {
+    const jeffrey = MOSJES.find((m: any) => m.id === "mosje_jeffrey_gambler");
+    expect(jeffrey).toBeTruthy();
+    expect(jeffrey.abilityDescription.toLowerCase()).not.toContain("wager");
   });
 });

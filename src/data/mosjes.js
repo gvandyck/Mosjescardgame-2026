@@ -298,7 +298,7 @@ export const MOSJES = [
     startMP: 0,
     traits: { physical: 3, technical: 2, mental: 2 },
     abilityId: "ability_jeffrey_gambler_high_stakes",
-    abilityDescription: "High Stakes: Wager X MP then roll 1d6; 1-2 lose X, 3-4 no change, 5-6 gain X and draw 1; next Quest gives +25 MP.",
+    abilityDescription: "High Stakes: Activate to roll 1d6. Rolls 1-5: no Quest attempts this turn. Roll 6: your next Quest roll gets +3.",
     synergyWith: [],
     synergyEffect: null,
     petSynergy: null,

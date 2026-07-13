@@ -469,25 +469,22 @@ export function ability_hacker_system_hack(gameState, playerId) {
 	return state;
 }
 
-// Jeffrey Gambler — bet 30 MP: roll d6. 4+ → gain 60 MP (net +30). Below 4 → lose 30 MP.
+// Jeffrey Gambler — High Stakes: roll 1d6. 1-5 → QUEST_BLOCKED this turn (no Quest
+// attempts). 6 → +3 Quest roll bonus (questPrepBonus). No MP cost, no MP gain/loss
+// either way (old wager mechanic dropped — ruled "too OP").
 export function ability_jeffrey_gambler_high_stakes(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
 	const si = getFirstActiveSlotIndex(player);
 	if (si < 0) return state;
-	const mosje = player.activeSlots[si];
-	if (mosje.mp < 30) {
-		console.log('[ABILITY] Jeffrey Gambler: not enough MP to bet (need 30)');
-		return state;
-	}
-	applyDamage(mosje, 30);
 	const roll = rollDie(6);
-	if (roll >= 4) {
-		mosje.mp += 60;
-		console.log(`[ABILITY] Jeffrey Gambler: rolled ${roll} (4+) → bet paid! Net +30 MP`);
+	if (roll === 6) {
+		player.questPrepBonus = (player.questPrepBonus || 0) + 3;
+		console.log(`[ABILITY] Jeffrey Gambler: rolled ${roll} (jackpot) → +3 Quest roll bonus`);
 	} else {
-		console.log(`[ABILITY] Jeffrey Gambler: rolled ${roll} (miss) → lost the bet`);
+		player.activeSlots[si].statusEffects.push({ type: 'QUEST_BLOCKED', value: 0, turnsLeft: 1 });
+		console.log(`[ABILITY] Jeffrey Gambler: rolled ${roll} → QUEST_BLOCKED this turn`);
 	}
 	return state;
 }

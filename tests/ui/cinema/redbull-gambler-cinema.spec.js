@@ -1,10 +1,12 @@
 /**
  * redbull-gambler-cinema.spec.js — slow, narrated walkthrough of Jeffrey Gambler's
- * High Stakes losing, and how Redbull doubling it lands on 10 MP (not "−60 = defeat").
+ * High Stakes, and how Redbull doubling it stacks a second roll.
  *
- * High Stakes: bet 30 MP, roll d6 — 4+ wins (+60), <4 loses the 30. Dice forced to 1
- * (a loss). Scene 1 shows ONE lost bet (70→40); Scene 2 shows Redbull firing it TWICE
- * (70→40→10). "−60" is the change; 10 is what's left of the starting 70.
+ * 2026-07-13 ability-text-engine-reconciliation ruling dropped the old fixed-30-MP
+ * wager entirely ("too OP"). NEW DESIGN: roll 1d6, no MP cost, no MP change ever.
+ * Rolls 1-5 → QUEST_BLOCKED this turn. Roll 6 → +3 Quest roll bonus. Scene 1 shows
+ * ONE forced-1 roll (QUEST_BLOCKED, MP untouched); Scene 2 shows Redbull firing it
+ * TWICE — two QUEST_BLOCKED entries stack, MP still untouched.
  *
  * Watch: npx playwright test --project=visual --headed tests/ui/cinema/redbull-gambler-cinema.spec.js --workers=1
  */
@@ -27,11 +29,16 @@ const DECK = {
 	snellePiecies: ['snelle_jensen'], places: [], quests: [],
 };
 const jefMp = async (page) => (await readOwnedMosjes(page))[0]?.mp;
+const questBlockedCount = async (page) => {
+	const state = await getGameState(page);
+	return (state?.players?.player_1?.activeSlots?.[0]?.statusEffects ?? [])
+		.filter(e => e.type === 'QUEST_BLOCKED').length;
+};
 
-test('🎬 High Stakes lost ONCE — 70 → 40 (−30)', async ({ page }, testInfo) => {
+test('🎬 High Stakes rolled ONCE — QUEST_BLOCKED, MP untouched (70 → 70)', async ({ page }, testInfo) => {
 	test.setTimeout(120000);
 	const beat = makeBeat(page, testInfo);
-	await mockDiceRoll(page, 0.1);  // d6 → 1, a guaranteed loss
+	await mockDiceRoll(page, 0.1);  // d6 → 1
 
 	await seedCustomDeck(page, DECK, 'PHYSICAL_FORCE');
 	await page.goto(GAME_URL_TEST);
@@ -41,21 +48,23 @@ test('🎬 High Stakes lost ONCE — 70 → 40 (−30)', async ({ page }, testIn
 	await page.waitForTimeout(200);
 	await ss(page, 'gambler-1-start');
 	await beat(`Scene 1 — Jeffrey starts at ${await jefMp(page)} MP. No Redbull.`);
-	await beat('High Stakes: he bets 30 MP and rolls a 1 (a loss) → he just loses the 30.');
+	await beat('High Stakes: no cost, no wager anymore — rolls 1d6 and gets a 1 → QUEST_BLOCKED this turn.');
 
 	await page.locator('.mosje-card--owned[data-card-id="mosje_jeffrey_gambler"] .mosje-ability-btn').click();
 	await page.waitForTimeout(900);
 	await ss(page, 'gambler-1-after');
 	const after = await jefMp(page);
-	console.log(`🎬 RESULT — Jeffrey 70 → ${after} (one lost bet: −30)`);
-	await beat(`One lost bet: 70 − 30 = ${after} MP.`);
-	expect(after).toBe(40);
+	const blocked = await questBlockedCount(page);
+	console.log(`🎬 RESULT — Jeffrey stays at ${after} MP; QUEST_BLOCKED count=${blocked}`);
+	await beat(`No MP lost: still ${after}. But QUEST_BLOCKED means no Quest attempts this turn.`);
+	expect(after).toBe(70);
+	expect(blocked).toBe(1);
 });
 
-test('🎬 Redbull doubles the loss — 70 → 40 → 10 (−60), still alive', async ({ page }, testInfo) => {
+test('🎬 Redbull doubles the roll — two QUEST_BLOCKED entries stack, MP still untouched (70 → 70)', async ({ page }, testInfo) => {
 	test.setTimeout(120000);
 	const beat = makeBeat(page, testInfo);
-	await mockDiceRoll(page, 0.1);  // d6 → 1, both bets lose
+	await mockDiceRoll(page, 0.1);  // d6 → 1, both rolls land the same
 
 	await seedCustomDeck(page, DECK, 'PHYSICAL_FORCE');
 	await page.goto(GAME_URL_TEST);
@@ -76,13 +85,15 @@ test('🎬 Redbull doubles the loss — 70 → 40 → 10 (−60), still alive', 
 	await page.waitForTimeout(200);
 	await ss(page, 'gambler-2-armed');
 	await beat(`Scene 2 — Jeffrey at ${await jefMp(page)} MP, ⚡ Redbull ACTIVE — High Stakes will fire TWICE.`);
-	await beat('Dice forced to 1 again → both bets lose. Bet 1: 70 − 30 = 40. Bet 2: 40 − 30 = 10.');
+	await beat('Dice forced to 1 again → both rolls push QUEST_BLOCKED. Still zero MP cost, either roll.');
 
 	await page.locator('.mosje-card--owned[data-card-id="mosje_jeffrey_gambler"] .mosje-ability-btn').click();
 	await page.waitForTimeout(1000);
 	await ss(page, 'gambler-2-after');
 	const after = await jefMp(page);
-	console.log(`🎬 RESULT — Jeffrey 70 → ${after} (two lost bets: net −60)`);
-	await beat(`Net −60, but he started at 70 → ends at ${after} MP. Still alive (−60 is the change, not the total). 🎬 fin`);
-	expect(after).toBe(10);
+	const blocked = await questBlockedCount(page);
+	console.log(`🎬 RESULT — Jeffrey stays at ${after} MP; QUEST_BLOCKED count=${blocked} (fired twice)`);
+	await beat(`MP untouched at ${after} — the redesign has nothing left for Redbull to double INTO danger. 🎬 fin`);
+	expect(after).toBe(70);
+	expect(blocked).toBe(2);
 });
