@@ -449,7 +449,7 @@ export const MOSJES = [
     startMP: 0,
     traits: { creative: 3, social: 2, mental: 2 },
     abilityId: "ability_jisca_perfect_combo",
-    abilityDescription: "Perfect Combo: After each Piecie this turn roll 1d6; 4-6 chain another Piecie and opponent loses 15 MP, 1-3 this Mosje loses 10 MP.",
+    abilityDescription: "Perfect Combo: Activate to roll 1d6. Rolls 1-4: no effect. Roll 5-6: pick any Piecie on your field (face-down or already-active) and activate it for free.",
     synergyWith: ["mosje_alyssa_bulldozer", "mosje_alyssa_fissa"],
     synergyEffect: null,
     petSynergy: "piecie_gekke_vogels",

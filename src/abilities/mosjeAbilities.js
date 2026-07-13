@@ -682,20 +682,56 @@ export function ability_ronald_mastermind_master_plan(gameState, playerId) {
 	return next;
 }
 
-// Jisca — perfect combo: if last card played was a Piecie, gain 20 MP.
+// Jisca — Perfect Combo: roll 1d6. 1-4 → no effect (the once-per-turn use is spent
+// either way, via useMosjeAbility's generic abilityUsedThisTurn gate). 5-6 → pick
+// ANY Piecie on your field (face-down OR already-active) and free-activate it.
+// Eligibility doesn't depend on the roll, so the UI resolves the choice UP FRONT
+// (like Chris) via _pendingTargets.jiscaComboSlotIndex — avoiding a second
+// useMosjeAbility call, which would re-roll and hit the once-per-turn gate.
+// Face-down: sets canActivateOnTurn only (same two-step as Chris/Youri: the UI
+// calls the shared activatePiecie() using the returned jiscaChainedSlot/
+// jiscaChainedFaceDown flags). Already-active: no re-trigger primitive exists, so
+// this calls the Piecie's effect fn directly (Ronald Master Plan's bypass
+// pattern), fully resolved here.
 export function ability_jisca_perfect_combo(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
-	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
-	if (si < 0) return state;
-	if (player.lastCardPlayedType === 'PIECIE' || player.lastCardPlayedType === 'SNELLE_PIECIE') {
-		player.activeSlots[si].mp += 20;
-		console.log('[ABILITY] Jisca: combo bonus! +20 MP');
-	} else {
-		console.log('[ABILITY] Jisca: no Piecie last played — no bonus');
+	if (!player) throw new Error('Player not found');
+	const selfIndex = player.activeSlots.findIndex(s => s && !s.isDefeated && s.cardId === 'mosje_jisca');
+	if (selfIndex < 0) throw new Error('Jisca not on field');
+	const roll = rollDie(6);
+	if (roll < 5) {
+		console.log(`[ABILITY] Jisca Perfect Combo: rolled ${roll} — no effect`);
+		return { state, success: true, jiscaRoll: roll };
 	}
-	return state;
+	const eligibleIndices = player.piecieSlots
+		.map((s, i) => (s && s.type === 'PIECIE') ? i : -1)
+		.filter(i => i >= 0);
+	if (eligibleIndices.length === 0) {
+		console.log(`[ABILITY] Jisca Perfect Combo: rolled ${roll} but no Piecie on the field to chain`);
+		return { state, success: true, jiscaRoll: roll };
+	}
+	const selected = state._pendingTargets?.jiscaComboSlotIndex;
+	const slotIndex = (Number.isInteger(selected) && eligibleIndices.includes(selected))
+		? selected
+		: eligibleIndices[0];
+	if (state._pendingTargets) delete state._pendingTargets.jiscaComboSlotIndex;
+	const slot = player.piecieSlots[slotIndex];
+	if (slot.faceDown && !slot.activated) {
+		slot.canActivateOnTurn = state.turnNumber;
+		console.log(`[ABILITY] Jisca Perfect Combo: rolled ${roll} — unlocked face-down Piecie at slot ${slotIndex}`);
+		return { state, success: true, jiscaRoll: roll, jiscaChainedSlot: slotIndex, jiscaChainedFaceDown: true };
+	}
+	const def = PIECIES.find(p => p.id === slot.cardId);
+	if (!def?.effectId || typeof piecieEffects[def.effectId] !== 'function') {
+		console.log(`[ABILITY] Jisca Perfect Combo: rolled ${roll} — chosen Piecie has no effect fn`);
+		return { state, success: true, jiscaRoll: roll };
+	}
+	console.log(`[ABILITY] Jisca Perfect Combo: rolled ${roll} — re-triggered active Piecie at slot ${slotIndex}`);
+	return {
+		state: piecieEffects[def.effectId](state, playerId),
+		success: true, jiscaRoll: roll, jiscaChainedSlot: slotIndex, jiscaChainedFaceDown: false,
+	};
 }
 
 // Tuk Healer — Healing Presence: once per turn, choose one own Mosje (this one or

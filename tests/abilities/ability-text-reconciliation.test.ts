@@ -5,6 +5,7 @@ import {
   ability_jeffrey_gambler_high_stakes,
   ability_tuk_healer_healing_presence,
   ability_chris_perfect_setup,
+  ability_jisca_perfect_combo,
 } from "../../src/abilities/mosjeAbilities.js";
 // @ts-expect-error — JS module, no type declarations
 import { MOSJES } from "../../src/data/mosjes.js";
@@ -381,5 +382,135 @@ describe("Chris All-Rounder ability description", () => {
     const chris = MOSJES.find((m: any) => m.id === "mosje_chris");
     expect(chris).toBeTruthy();
     expect(chris.abilityDescription.toLowerCase()).not.toContain("15 mp");
+  });
+});
+
+// ─────────────────────────────────────────────────────────────
+// 2026-07-12 ability-text-engine-reconciliation todo — card 5/10 (of the original 9)
+// Jisca — Perfect Combo: NEW DESIGN replacing both old text AND old code (a
+// "+20 MP if last card was a Piecie" stub). Roll 1d6: 1-4 no effect, 5-6 pick ANY
+// Piecie on the field (face-down or already-active) and free-activate it.
+// ─────────────────────────────────────────────────────────────
+
+function makeJiscaSlot(cardId: string, mp = 50) {
+  return {
+    cardId,
+    name: cardId,
+    mp,
+    level: 1,
+    isDefeated: false,
+    traits: {},
+    statusEffects: [],
+    abilityUsedThisTurn: false,
+  };
+}
+
+function makeJiscaState(piecieSlots: any[]) {
+  return {
+    activePlayerId: "player_1",
+    turnNumber: 7,
+    players: {
+      player_1: {
+        hand: [] as any[],
+        deck: [] as any[],
+        graveyard: [] as any[],
+        activeSlots: [makeJiscaSlot("mosje_jisca", 50), null],
+        piecieSlots,
+      },
+      player_2: {
+        hand: [] as any[],
+        deck: [] as any[],
+        graveyard: [] as any[],
+        activeSlots: [makeJiscaSlot("mosje_opponent", 100), null],
+        piecieSlots: [null, null, null, null],
+      },
+    },
+  } as any;
+}
+
+describe("Jisca — Perfect Combo", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("rolling 1-4 has no effect and doesn't touch any Piecie slot", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0); // rollDie(6) => 1
+    const state = makeJiscaState([makeFaceDownPiecieSlot("piecie_a"), null, null, null]);
+
+    const result = ability_jisca_perfect_combo(state, "player_1");
+
+    expect(result.success).toBe(true);
+    expect(result.jiscaRoll).toBe(1);
+    expect(result.state.players.player_1.piecieSlots[0].canActivateOnTurn).toBeUndefined();
+  });
+
+  it("rolling 5-6 with a single face-down Piecie unlocks it (canActivateOnTurn set, not yet flipped)", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0.99); // rollDie(6) => 6
+    const state = makeJiscaState([makeFaceDownPiecieSlot("piecie_a"), null, null, null]);
+
+    const result = ability_jisca_perfect_combo(state, "player_1");
+
+    expect(result.jiscaRoll).toBe(6);
+    expect(result.jiscaChainedFaceDown).toBe(true);
+    expect(result.jiscaChainedSlot).toBe(0);
+    expect(result.state.players.player_1.piecieSlots[0].canActivateOnTurn).toBe(7);
+    expect(result.state.players.player_1.piecieSlots[0].faceDown).toBe(true); // step 2 (activatePiecie) is the UI's job
+  });
+
+  it("rolling 5-6 with a single already-active Piecie runs its effect fn directly", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0.99); // rollDie(6) => 6
+    const activeSlot = { cardId: "piecie_kannetje_melk", type: "PIECIE", faceDown: false, activated: true };
+    const state = makeJiscaState([activeSlot, null, null, null]);
+
+    const result = ability_jisca_perfect_combo(state, "player_1");
+
+    expect(result.jiscaChainedFaceDown).toBe(false);
+    expect(result.jiscaChainedSlot).toBe(0);
+    // effect_kannetje_melk ran: +25 MP to the active Mosje (Jisca itself)
+    expect(result.state.players.player_1.activeSlots[0].mp).toBe(75);
+  });
+
+  it("with multiple eligible Piecies, honors _pendingTargets.jiscaComboSlotIndex", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0.99); // rollDie(6) => 6
+    const state = makeJiscaState([
+      makeFaceDownPiecieSlot("piecie_a"),
+      makeFaceDownPiecieSlot("piecie_b"),
+      null,
+      null,
+    ]);
+    state._pendingTargets = { jiscaComboSlotIndex: 1 };
+
+    const result = ability_jisca_perfect_combo(state, "player_1");
+
+    expect(result.jiscaChainedSlot).toBe(1);
+    expect(result.state.players.player_1.piecieSlots[1].canActivateOnTurn).toBe(7);
+    expect(result.state.players.player_1.piecieSlots[0].canActivateOnTurn).toBeUndefined();
+  });
+
+  it("rolling 5-6 with no Piecie on the field has no effect beyond the roll", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0.99); // rollDie(6) => 6
+    const state = makeJiscaState([null, null, null, null]);
+
+    const result = ability_jisca_perfect_combo(state, "player_1");
+
+    expect(result.jiscaRoll).toBe(6);
+    expect(result.jiscaChainedSlot).toBeUndefined();
+  });
+
+  it("throws when Jisca is not on field", () => {
+    const state = makeJiscaState([makeFaceDownPiecieSlot("piecie_a"), null, null, null]);
+    state.players.player_1.activeSlots[0].cardId = "mosje_other";
+
+    expect(() => ability_jisca_perfect_combo(state, "player_1")).toThrow();
+  });
+});
+
+describe("Jisca ability description", () => {
+  it("no longer describes the old flat +20 MP combo stub", () => {
+    const jisca = MOSJES.find((m: any) => m.id === "mosje_jisca");
+    expect(jisca).toBeTruthy();
+    const desc = jisca.abilityDescription.toLowerCase();
+    expect(desc).not.toContain("opponent loses 15 mp");
+    expect(desc).not.toContain("this mosje loses 10 mp");
   });
 });

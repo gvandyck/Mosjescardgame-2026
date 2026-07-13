@@ -14,7 +14,7 @@ import {
 	GAME_URL_TEST, seedCustomDeck, waitForBoard, ss,
 	readOwnedMosjes, readOpponentMosjes, getGameState, getHandSize,
 	setMosjeMP, setMosjeOnField, setHand, unlockPiecies, playCardFromHand,
-	clearEntryProtection,
+	clearEntryProtection, mockDiceRoll,
 } from '../helpers.js';
 
 /** Activate a face-down piecie on the field, auto-dismissing up to two target pickers. */
@@ -320,6 +320,54 @@ test('chain: Chris All-Rounder Perfect Setup — free-activates the chosen face-
 	// Non-persistent Piecie: activatePiecie sweeps it to graveyard, clearing the slot.
 	expect(slot0).toBeNull();
 	expect(inGraveyard).toBe(true);
+});
+
+// ── Chain: Jisca's Perfect Combo — rolling 5-6 free-activates the only eligible
+// face-down Piecie (engine unlocks it, UI's step 2 calls activatePiecie) ────────
+// 2026-07-13 ability-text-engine-reconciliation ruling: NEW DESIGN entirely
+// replacing the old "+20 MP if last card was a Piecie" stub. Dice mocked to
+// guarantee the 5-6 branch; the already-active/multi-choice branches are pure
+// engine logic already covered by the unit tests in ability-text-reconciliation.test.ts.
+test('chain: Jisca Perfect Combo — rolling 5-6 free-activates the only face-down Piecie', async ({ page }) => {
+	test.setTimeout(60000);
+	await mockDiceRoll(page, 0.99); // Math.random→0.99 ⇒ d6 always rolls 6
+
+	await seedCustomDeck(page, {
+		id: 'custom_jisca_chain', name: 'Jisca Perfect Combo Chain',
+		mosjes: ['mosje_jisca'],
+		piecies: ['piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk'],
+		snellePiecies: ['snelle_jensen'], places: [], quests: [],
+	}, 'PHYSICAL_FORCE');
+	await page.goto(GAME_URL_TEST);
+	await waitForBoard(page);
+	await clearEntryProtection(page); // U8 — chains model an established board
+
+	await setMosjeMP(page, 'player_1', 0, 40);
+	await setHand(page, 'player_1', ['piecie_kannetje_melk']);
+	await page.waitForTimeout(150);
+
+	// Place exactly ONE face-down Piecie — single eligible slot, no target picker.
+	await playCardFromHand(page, 'piecie_kannetje_melk');
+	await page.waitForTimeout(300);
+
+	const before = await ownSlot(page, 0);
+
+	const card = page.locator('.mosje-card--owned[data-card-id="mosje_jisca"]');
+	const btn = card.locator('.mosje-ability-btn');
+	await btn.waitFor({ state: 'visible', timeout: 5000 });
+	await btn.click();
+	await page.waitForTimeout(900);
+	await ss(page, 'chain-jisca-perfect-combo');
+
+	const after = await ownSlot(page, 0);
+	const state = await getGameState(page);
+	const slot0 = state?.players?.player_1?.piecieSlots?.[0];
+	console.log(`Jisca Perfect Combo: MP ${before}→${after}; slot0=${JSON.stringify(slot0)}`);
+
+	// Kannetje Melk's own effect ran (+25 MP) via the free chain-activation.
+	expect(after).toBe(before + 25);
+	// Non-persistent Piecie: activatePiecie sweeps it to graveyard, clearing the slot.
+	expect(slot0).toBeNull();
 });
 
 // ── Chain E: Piecie MP gain CAPS at 100 (no level-up) — Phase 31 ─────────────

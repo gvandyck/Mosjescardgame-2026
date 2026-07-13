@@ -77,6 +77,7 @@ const REPROMPT_DOUBLE_ABILITIES = new Set([
   'ability_youri_speed_activate',                 // 20 MP + face-down target; 3/game cap
                                                   // is enforced inside the fn, so the
                                                   // second cast is denied once exhausted.
+  'ability_jisca_perfect_combo',                  // fresh d6 roll + Piecie target (when 5-6 rolled)
   'ability_binti_creator_quick_sketch',           // discard 2 FOOD + deck-search tutor
 ]);
 

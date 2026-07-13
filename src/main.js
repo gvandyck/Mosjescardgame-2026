@@ -1642,6 +1642,7 @@ function initGamePage() {
 	const MING_NATURAL_LUCKY_DRAW_IDS = new Set(['mosje_ming_natural']);
 	const TUK_HEALER_PRESENCE_IDS = new Set(['mosje_tuk_healer']);
 	const CHRIS_PERFECT_SETUP_IDS = new Set(['mosje_chris']);
+	const JISCA_PERFECT_COMBO_IDS = new Set(['mosje_jisca']);
 	const TUK_PERFECT_PLACEMENT_IDS = new Set(['mosje_tuk_architect']);
 	const FPS_WEST_TACTICAL_IDS = new Set(['mosje_fps_west']);
 	const RONALD_CHEF_INSIGHT_IDS = new Set(['mosje_ronald_chef']);
@@ -2214,6 +2215,69 @@ function initGamePage() {
 			const activatedName = CARD_LOOKUP[activatedCardId]?.name || 'Piecie';
 			log.add('gain', `Perfect Setup: activated ${activatedName} for free.`);
 			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${chrisSlot?.name || mosjeId} ability`);
+			syncPush();
+			if (gameState.status === 'FINISHED') {
+				handleGameOver(gameState);
+			}
+			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
+			return;
+		}
+
+		// Jisca — Perfect Combo: rolls 1d6 (1-4 no effect, 5-6 chains a Piecie). Eligibility
+		// doesn't depend on the roll, so the target is picked UP FRONT (like Chris) —
+		// a second useMosjeAbility call would re-roll and hit the once-per-turn gate.
+		if (JISCA_PERFECT_COMBO_IDS.has(mosjeId)) {
+			const jiscaPlayer = gameState.players[localPlayerId];
+			const eligibleIndices = jiscaPlayer.piecieSlots
+				.map((s, i) => (s && s.type === 'PIECIE') ? i : -1)
+				.filter(i => i >= 0);
+			let stateForCombo = gameState;
+			if (eligibleIndices.length > 1) {
+				const options = eligibleIndices.map(i => {
+					const slot = jiscaPlayer.piecieSlots[i];
+					const def = slot?.cardId ? CARD_LOOKUP[slot.cardId] : null;
+					const status = (slot.faceDown && !slot.activated) ? 'face-down' : 'active';
+					return { id: i, label: `Slot ${i + 1} — ${def?.name || slot?.cardId || 'Unknown'} (${status})` };
+				});
+				const chosen = await modal.showOptionSelect({
+					title: 'Perfect Combo',
+					prompt: 'If you roll 5-6, which Piecie should chain? (Rolls 1-4 have no effect.)',
+					options,
+					allowCancel: true,
+				});
+				if (chosen === null || chosen === undefined) return;
+				const jiscaSlotIndex = typeof chosen === 'object' ? chosen.id : chosen;
+				stateForCombo = JSON.parse(JSON.stringify(gameState));
+				stateForCombo._pendingTargets = {
+					...(stateForCombo._pendingTargets || {}),
+					jiscaComboSlotIndex: jiscaSlotIndex,
+				};
+			}
+			const { state: abilityState, success, error, jiscaRoll, jiscaChainedSlot, jiscaChainedFaceDown } =
+				useMosjeAbility(stateForCombo, localPlayerId, mosjeId);
+			if (!success) {
+				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
+				return;
+			}
+			let finalState = abilityState;
+			if (jiscaChainedFaceDown === true && Number.isInteger(jiscaChainedSlot)) {
+				const { state: activatedState, success: actSuccess, error: actError } =
+					activatePiecie(finalState, localPlayerId, jiscaChainedSlot);
+				if (actSuccess) finalState = activatedState;
+				else console.warn('[UI] Jisca chain activation failed:', actError);
+			}
+			if (abilitySlotIndex >= 0) {
+				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
+			}
+			gameState = finalState;
+			const jiscaSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
+			const chainedName = Number.isInteger(jiscaChainedSlot)
+				? (CARD_LOOKUP[jiscaPlayer.piecieSlots[jiscaChainedSlot]?.cardId]?.name || 'a Piecie')
+				: null;
+			log.add('gain', jiscaRoll >= 5
+				? (chainedName ? `Perfect Combo: rolled ${jiscaRoll}, chained ${chainedName}.` : `Perfect Combo: rolled ${jiscaRoll} — no Piecie to chain.`)
+				: `Perfect Combo: rolled ${jiscaRoll} — no effect.`);
+			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${jiscaSlot?.name || mosjeId} ability`);
 			syncPush();
 			if (gameState.status === 'FINISHED') {
 				handleGameOver(gameState);
