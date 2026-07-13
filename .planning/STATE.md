@@ -8,6 +8,11 @@
 
 ## Accumulated Context
 
+### Pending Todos
+- 2026-07-12-alyssa-jisca-synergy-design.md — DUO_JISCA_ALYSSA's headline synergy is declared but has no effect text and no implementation; needs full design session.
+- 2026-07-12-ability-text-engine-reconciliation.md — 9 Mosje ability texts diverge from engine behavior; rule text-vs-code per card (AZN Cless precedent).
+- 2026-06-11-ts-bulldozer-comeback-reconcile.md (pre-existing)
+
 ### Roadmap Evolution
 - Phase 32 added (2026-06-14): On-field Mosje Info + Quest Dice Modal Redesign — own on-field Mosjes show Level/traits/ability + active-only synergy on card, remove "Active on field" text, full dice-modal redesign. UI-only.
 - Phase 32 extended (2026-06-20): win-clarity UX added on the same branch — instant Level-3 win (engine), plain-language win/defeat reason + battle-log recap in the end screen, "How to Win" panel, dice-modal Mosje stats.
