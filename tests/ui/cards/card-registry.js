@@ -322,9 +322,17 @@ export const ABILITY_REGISTRY = [
 		skipReason: 'Requires 3+ face-down Piecies pre-placed + a target-selector pick — see card-chains.spec.js',
 	},
 	{
+		// 2026-07-13 reconciliation: Headshot Precision is now a passive auto-trigger
+		// after a Physical/Technical Quest success (rolled inside resolveQuest via
+		// applyMosjeFieldEffectsOnQuest) — there's no manual button to click anymore
+		// (autoAbility:true), so the generic 'ability' runner can't drive it. Same
+		// pattern as Michelle/Jeffrey (also passive quest-hooks, never had a registry
+		// entry). Covered by the resolveQuest unit tests in
+		// ability-text-reconciliation.test.ts instead.
 		mosje: 'mosje_fps_coert', abilityMosjeId: 'mosje_fps_coert', playThen: 'ability',
 		setup: { ownMP: 40, opponentMP: 90 }, expectedEffect: 'ATTACK', oppDeltaMin: -25, oppDeltaMax: -25,
 		cardId: 'ability_fps_coert_headshot_precision', logMatch: /[Cc]oert|[Hh]eadshot/,
+		skipReason: 'Now a passive auto-trigger on Quest success, not a manual button — see ability-text-reconciliation.test.ts',
 	},
 ];
 

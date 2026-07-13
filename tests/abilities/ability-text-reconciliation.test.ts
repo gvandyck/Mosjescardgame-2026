@@ -6,7 +6,10 @@ import {
   ability_tuk_healer_healing_presence,
   ability_chris_perfect_setup,
   ability_jisca_perfect_combo,
+  ability_fps_coert_headshot_precision,
 } from "../../src/abilities/mosjeAbilities.js";
+// @ts-expect-error — JS module, no type declarations
+import { resolveQuest } from "../../src/abilities/questLogic.js";
 // @ts-expect-error — JS module, no type declarations
 import { MOSJES } from "../../src/data/mosjes.js";
 
@@ -512,5 +515,149 @@ describe("Jisca ability description", () => {
     const desc = jisca.abilityDescription.toLowerCase();
     expect(desc).not.toContain("opponent loses 15 mp");
     expect(desc).not.toContain("this mosje loses 10 mp");
+  });
+});
+
+// ─────────────────────────────────────────────────────────────
+// 2026-07-12 ability-text-engine-reconciliation todo — card 9/10
+// FPS Coert — Headshot Precision: TEXT WINS (the abilityDescription was already
+// correct — only the implementation was stale, a manual flat -25 MP to opponent).
+// Auto-trigger after a Physical/Technical Quest SUCCESS: roll 1d6, on 6 -> FPS
+// Coert +30 MP, opponent's first active Mosje -15 MP. Wired through
+// applyMosjeFieldEffectsOnQuest (questLogic.js), the same hook Michelle/Jeffrey use.
+// ─────────────────────────────────────────────────────────────
+
+function makeFpsCoertSlot(cardId: string, mp = 50) {
+  return {
+    cardId,
+    name: cardId,
+    mp,
+    level: 1,
+    isDefeated: false,
+    traits: {},
+    statusEffects: [],
+    abilityUsedThisTurn: false,
+  };
+}
+
+function makeFpsCoertState(mp = 50, oppMp = 100) {
+  return {
+    activePlayerId: "player_1",
+    turnNumber: 3,
+    sharedGeneralQuestDeck: [] as any[],
+    players: {
+      player_1: {
+        hand: [] as any[],
+        deck: [] as any[],
+        discard: [] as any[],
+        activeSlots: [makeFpsCoertSlot("mosje_fps_coert", mp), null],
+        piecieSlots: [null, null, null, null],
+        questsCompleted: 0,
+        questsCompletedThisTurn: 0,
+        questsAttemptedThisTurn: 0,
+        hasAttemptedQuestThisTurn: false,
+        pieciesPlayedThisTurn: 0,
+      },
+      player_2: {
+        hand: [] as any[],
+        deck: [] as any[],
+        discard: [] as any[],
+        activeSlots: [makeFpsCoertSlot("mosje_opponent", oppMp), null],
+        piecieSlots: [null, null, null, null],
+        questsCompleted: 0,
+        questsCompletedThisTurn: 0,
+        questsAttemptedThisTurn: 0,
+        hasAttemptedQuestThisTurn: false,
+        pieciesPlayedThisTurn: 0,
+      },
+    },
+  } as any;
+}
+
+function fpsQuestCard(extra: Record<string, any> = {}) {
+  return {
+    id: "quest_test",
+    requirementId: "quest_req_test",
+    successMP: 0,
+    failMP: 0,
+    ...extra,
+  };
+}
+
+describe("FPS Coert — Headshot Precision (auto quest-success trigger)", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("rolling a 6 after a Physical Quest success grants +30 MP and opponent -15 MP", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0.99); // rollDie(6) => 6
+    const state = makeFpsCoertState(50, 100);
+
+    const next = resolveQuest(state, "player_1", fpsQuestCard({ category: "Physical" }), true);
+
+    expect(next.players.player_1.activeSlots[0].mp).toBe(80);
+    expect(next.players.player_2.activeSlots[0].mp).toBe(85);
+  });
+
+  it("rolling a 6 after a Technical Quest success also fires", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0.99); // rollDie(6) => 6
+    const state = makeFpsCoertState(50, 100);
+
+    const next = resolveQuest(state, "player_1", fpsQuestCard({ category: "Technical" }), true);
+
+    expect(next.players.player_1.activeSlots[0].mp).toBe(80);
+    expect(next.players.player_2.activeSlots[0].mp).toBe(85);
+  });
+
+  it("does not fire for a non-Physical/Technical Quest category, even rolling a 6", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0.99); // rollDie(6) => 6
+    const state = makeFpsCoertState(50, 100);
+
+    const next = resolveQuest(state, "player_1", fpsQuestCard({ category: "Social" }), true);
+
+    expect(next.players.player_1.activeSlots[0].mp).toBe(50);
+    expect(next.players.player_2.activeSlots[0].mp).toBe(100);
+  });
+
+  it("does not fire on a Quest FAILURE, even rolling a 6", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0.99); // rollDie(6) => 6
+    const state = makeFpsCoertState(50, 100);
+
+    const next = resolveQuest(state, "player_1", fpsQuestCard({ category: "Physical" }), false);
+
+    expect(next.players.player_1.activeSlots[0].mp).toBe(50);
+    expect(next.players.player_2.activeSlots[0].mp).toBe(100);
+  });
+
+  it("rolling below 6 has no effect", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0); // rollDie(6) => 1
+    const state = makeFpsCoertState(50, 100);
+
+    const next = resolveQuest(state, "player_1", fpsQuestCard({ category: "Physical" }), true);
+
+    expect(next.players.player_1.activeSlots[0].mp).toBe(50);
+    expect(next.players.player_2.activeSlots[0].mp).toBe(100);
+  });
+
+  it("the manual ability entry is a no-op passthrough (mirrors ability_jeffrey_brute_force)", () => {
+    const state = makeFpsCoertState();
+    const result = ability_fps_coert_headshot_precision(state, "player_1");
+    expect(result).toBe(state);
+  });
+});
+
+describe("FPS Coert data", () => {
+  it("is flagged autoAbility (hides the manual-activate button, skipped by the bot's manual-ability loop)", () => {
+    const fpsCoert = MOSJES.find((m: any) => m.id === "mosje_fps_coert");
+    expect(fpsCoert).toBeTruthy();
+    expect(fpsCoert.autoAbility).toBe(true);
+  });
+
+  it("abilityDescription already matched the ruling and stays that way", () => {
+    const fpsCoert = MOSJES.find((m: any) => m.id === "mosje_fps_coert");
+    const desc = fpsCoert.abilityDescription.toLowerCase();
+    expect(desc).toContain("physical or technical quest success");
+    expect(desc).toContain("30 mp");
+    expect(desc).toContain("15 mp");
   });
 });

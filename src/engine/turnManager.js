@@ -51,6 +51,7 @@ const NO_DOUBLE_ABILITIES = new Set([
   'ability_michelle_tough_gamble',                // passive (auto, no manual trigger)
   'ability_jeffrey_brute_force',                  // passive (auto)
   'ability_coert_kasteluck_morning_luck',          // passive (auto, turn-start roll)
+  'ability_fps_coert_headshot_precision',           // passive (auto, quest-success roll)
   // Group B (2026-06-17): once-per-turn / cooldown / per-game-cap abilities.
   // The echo runs the fn directly, AFTER abilityUsedThisTurn is set, so it would
   // otherwise bypass the per-turn brake and fire twice. Redbull is a powerup

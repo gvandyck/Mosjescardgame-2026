@@ -605,22 +605,14 @@ export function ability_drainer_continuous_drain(gameState, playerId) {
 	return state;
 }
 
-// FPS Coert — headshot: opponent loses 25 MP.
-export function ability_fps_coert_headshot_precision(gameState, playerId) {
-	const state = cloneState(gameState);
-	const oppId = getOpponentId(state, playerId);
-	if (!oppId) return state;
-	const opp = state.players[oppId];
-	const osi = getFirstActiveSlotIndex(opp);
-	if (osi >= 0) {
-		// U8 — Entry Protection: ability unusable vs a freshly entered target.
-		if (opp.activeSlots[osi].entryProtected === true) {
-			throw new Error('Opponent Mosje just entered play — it is protected until their next turn');
-		}
-		applyDamage(opp.activeSlots[osi], 25);
-		console.log('[ABILITY] FPS Coert: headshot! opponent -25 MP');
-	}
-	return state;
+// FPS Coert — Headshot Precision is now an auto-trigger after Physical/Technical
+// Quest successes (2026-07-13 reconciliation): the real roll + MP effects live in
+// applyMosjeFieldEffectsOnQuest (questLogic.js), the same hook Michelle/Jeffrey use.
+// This manual entry is a no-op kept so useMosjeAbility does not crash if called
+// (mirrors ability_jeffrey_brute_force).
+export function ability_fps_coert_headshot_precision(gameState, _playerId) {
+	console.log('[ABILITY] FPS Coert Headshot Precision: passive auto-ability — no manual activation needed');
+	return gameState;
 }
 
 // FPS West — Tactical Analysis: guess a card type in the opponent's hand.
