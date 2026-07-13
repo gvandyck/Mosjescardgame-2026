@@ -188,7 +188,7 @@ export const MOSJES = [
     startMP: 10,
     traits: { mental: 3, technical: 2, creative: 2 },
     abilityId: "ability_ming_natural_lucky_draw",
-    abilityDescription: "Lucky Draw: When you draw a card, reveal it — if it's a Piecie, activate it for free or keep it in hand; if it's not, add it to your hand and this Mosje gains 15 MP.",
+    abilityDescription: "Lucky Draw: Activate to draw 1 card and reveal it — if it's a Piecie, activate it for free or keep it in hand; if not, add it to your hand and this Mosje gains 15 MP.",
     synergyWith: [],
     synergyEffect: null,
     petSynergy: null,

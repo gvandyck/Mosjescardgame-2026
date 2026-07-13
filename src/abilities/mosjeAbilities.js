@@ -325,16 +325,47 @@ export function ability_ronald_chef_strategic_insight(gameState, playerId) {
 	return next;
 }
 
-// Ming Natural — draw 1 card.
+// Ming Natural — Lucky Draw: draw 1 card and reveal it. The UI reveals the card
+// before calling this (peeking at the deck top is safe — it's about to be drawn
+// anyway) and, if it's a Piecie, asks the player to free-activate now or keep it
+// in hand, passing the choice via _pendingTargets.mingNaturalFreeActivate. If it's
+// not a Piecie, it's added to hand and this Mosje gains 15 MP.
 export function ability_ming_natural_lucky_draw(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
-	if (!player) return state;
-	if (player.deck.length > 0) {
-		player.hand.push(player.deck.shift());
-		console.log('[ABILITY] Ming Natural: drew 1 card');
+	if (!player) throw new Error('Player not found');
+	const slotIndex = player.activeSlots.findIndex(s => s && !s.isDefeated && String(s.cardId).includes('ming_natural'));
+	if (slotIndex < 0) throw new Error('Ming Natural not on field');
+	if (player.deck.length === 0) {
+		console.log('[ABILITY] Ming Natural: deck empty, nothing to draw');
+		return state;
 	}
-	return state;
+	const drawnCard = player.deck.shift();
+	const def = PIECIES.find(p => p.id === drawnCard.cardId);
+	if (def) {
+		const freeActivate = state._pendingTargets?.mingNaturalFreeActivate === true;
+		if (state._pendingTargets) delete state._pendingTargets.mingNaturalFreeActivate;
+		if (freeActivate && typeof piecieEffects[def.effectId] === 'function') {
+			const next = piecieEffects[def.effectId](state, playerId);
+			const np = next.players[playerId];
+			if (def.persistUntilEndOfTurn) {
+				const empty = np.piecieSlots.findIndex(s => s === null);
+				if (empty >= 0) np.piecieSlots[empty] = { cardId: drawnCard.cardId, type: 'PIECIE', faceDown: false, activated: true, persistUntilEoT: true, playedOnTurn: next.turnNumber };
+				else np.graveyard.push({ cardId: drawnCard.cardId, type: 'PIECIE' });
+			} else {
+				np.graveyard.push({ cardId: drawnCard.cardId, type: 'PIECIE' });
+			}
+			console.log('[ABILITY] Ming Natural: drew', drawnCard.cardId, 'and free-activated it');
+			return next;
+		}
+		player.hand.push(drawnCard);
+		console.log('[ABILITY] Ming Natural: drew', drawnCard.cardId, 'and kept it in hand');
+		return state;
+	}
+	player.hand.push(drawnCard);
+	const next = gainMP(state, playerId, slotIndex, 15, 'MING_NATURAL_DRAW', { allowLevelUp: false });
+	console.log('[ABILITY] Ming Natural: drew', drawnCard.cardId, '(not a Piecie), +15 MP');
+	return next;
 }
 
 // Ming Predictor — Future Sight: pay 10 MP, look at the top shared General Quest

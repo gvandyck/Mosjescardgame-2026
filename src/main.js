@@ -1639,6 +1639,7 @@ function initGamePage() {
 	const GANDOE_ELIMINATION_IDS = new Set(['mosje_gandoe_destroyer']);
 	const RONALD_MASTERMIND_IDS = new Set(['mosje_ronald_mastermind']);
 	const MING_FUTURE_SIGHT_IDS = new Set(['mosje_ming_predictor']);
+	const MING_NATURAL_LUCKY_DRAW_IDS = new Set(['mosje_ming_natural']);
 	const TUK_PERFECT_PLACEMENT_IDS = new Set(['mosje_tuk_architect']);
 	const FPS_WEST_TACTICAL_IDS = new Set(['mosje_fps_west']);
 	const RONALD_CHEF_INSIGHT_IDS = new Set(['mosje_ronald_chef']);
@@ -2058,6 +2059,61 @@ function initGamePage() {
 			const mingSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
 			log.add('loss', `Ming Future Sight: paid 10 MP to look at the top quest${choice === 'bottom' ? ' and sent it to the bottom' : ''}.`);
 			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${mingSlot?.name || mosjeId} ability`);
+			syncPush();
+			if (gameState.status === 'FINISHED') {
+				handleGameOver(gameState);
+			}
+			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
+			return;
+		}
+
+		// Ming Natural — Lucky Draw: reveal the top of your deck, then draw it. If it's a
+		// Piecie, choose to activate it for free or keep it in hand; otherwise +15 MP.
+		if (MING_NATURAL_LUCKY_DRAW_IDS.has(mosjeId)) {
+			const deck = gameState.players[localPlayerId].deck || [];
+			if (deck.length === 0) {
+				modal.showInfo('Cannot Use Ability', 'Your deck is empty — nothing to draw.');
+				return;
+			}
+			const topCard = deck[0];
+			const topDef = CARD_LOOKUP[topCard.cardId];
+			const topCardName = topDef?.name || topCard.cardId || '???';
+			const topCardType = topCard.type || topDef?.type || '???';
+			await modal.showRevealedCard('Lucky Draw — Card Revealed', topCardName, topCardType);
+			let freeActivate = false;
+			if (topCard.type === 'PIECIE') {
+				const choice = await modal.showOptionSelect({
+					title: 'Lucky Draw',
+					prompt: `Activate ${topCardName} for free now, or keep it in hand?`,
+					options: [
+						{ id: 'activate', label: 'Activate for free' },
+						{ id: 'keep', label: 'Keep in hand' },
+					],
+					allowCancel: true,
+				});
+				if (!choice) return;
+				freeActivate = choice === 'activate';
+			}
+			const stateWithTarget = JSON.parse(JSON.stringify(gameState));
+			stateWithTarget._pendingTargets = {
+				...(stateWithTarget._pendingTargets || {}),
+				mingNaturalFreeActivate: freeActivate,
+			};
+			const { state: newState, success, error } = useMosjeAbility(stateWithTarget, localPlayerId, mosjeId);
+			if (!success) {
+				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
+				return;
+			}
+			if (abilitySlotIndex >= 0) {
+				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
+			}
+			gameState = newState;
+			const mingNaturalSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
+			const resultDesc = freeActivate
+				? ' and activated it for free'
+				: (topCard.type === 'PIECIE' ? ' and kept it in hand' : ', +15 MP');
+			log.add('gain', `Ming Natural Lucky Draw: drew ${topCardName}${resultDesc}.`);
+			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${mingNaturalSlot?.name || mosjeId} ability`);
 			syncPush();
 			if (gameState.status === 'FINISHED') {
 				handleGameOver(gameState);
