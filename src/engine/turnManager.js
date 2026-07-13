@@ -2,7 +2,7 @@
 // Coordinates which engine functions run in which order.
 // The UI calls these functions; they return the updated game state.
 
-import { drawCards, shuffleDeck } from './deckEngine.js';
+import { drawCards, shuffleDeck, rollDie } from './deckEngine.js';
 import { gainMP, applyStatusEffectMP, getTotalMPForPlayer } from './mpManager.js';
 import { checkVictory, markMosjeDefeated } from './victoryChecker.js';
 import { getAllPlayerIds, setActivePlace, destroyActivePlace, clearReturnedMosjesAtTurnEnd } from './gameState.js';
@@ -50,6 +50,7 @@ const NO_DOUBLE_ABILITIES = new Set([
   'ability_binti_cutting_words',                  // once per turn + discard target
   'ability_michelle_tough_gamble',                // passive (auto, no manual trigger)
   'ability_jeffrey_brute_force',                  // passive (auto)
+  'ability_coert_kasteluck_morning_luck',          // passive (auto, turn-start roll)
   // Group B (2026-06-17): once-per-turn / cooldown / per-game-cap abilities.
   // The echo runs the fn directly, AFTER abilityUsedThisTurn is set, so it would
   // otherwise bypass the per-turn brake and fire twice. Redbull is a powerup
@@ -151,6 +152,7 @@ export function startTurn(gameState) {
   activePlayer.actionsThisTurn = [];
   activePlayer.freePiecieActivationAvailable = false;
   activePlayer.attackPieciePlayedThisTurn = false;
+  activePlayer.kasteLuckSameTurnActivation = false;
 
   // Dead-flag turn hygiene (Phase 18): clear stale single-turn effect flags so a
   // flag set but never triggered does not leak into a later turn. These live on
@@ -224,6 +226,23 @@ export function startTurn(gameState) {
     if (slot && !slot.isDefeated) {
       state = gainMP(state, playerId, i, 10, 'GAIN', { allowLevelUp: false }); // trickle caps at 100; only Quests level
       console.log(`[ENGINE] Turn trickle: ${slot.name} +10 MP → ${state.players[playerId].activeSlots[i].mp} MP`);
+    }
+  }
+
+  // Coert KasteLuck — Morning Luck: auto turn-start roll (2026-07-13 reconciliation
+  // ruling: TEXT WINS, but same-turn activation is granted via the ACTUALLY-working
+  // Chris+Youri mechanic in playPiecie, not the inert freePiecieActivationAvailable
+  // flag). On 4-6, the next Piecie this player plays this turn skips the "wait
+  // until next turn to activate" rule; consumed on that first play.
+  const kasteLuckPlayer = state.players[playerId];
+  const kasteLuckAlive = kasteLuckPlayer.activeSlots.some(s => s && !s.isDefeated && s.cardId === 'mosje_coert_kasteluck');
+  if (kasteLuckAlive) {
+    const kasteLuckRoll = rollDie(6);
+    if (kasteLuckRoll >= 4) {
+      kasteLuckPlayer.kasteLuckSameTurnActivation = true;
+      console.log(`[ABILITY] Coert KasteLuck: rolled ${kasteLuckRoll} (lucky!) — next Piecie played this turn activates instantly`);
+    } else {
+      console.log(`[ABILITY] Coert KasteLuck: rolled ${kasteLuckRoll} (no luck today)`);
     }
   }
 
@@ -520,13 +539,21 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
   if (chrisYouriSynergy) {
     console.log('[SYNERGY] Chris+Youri: Piecie placed with instant activation (canActivateOnTurn = ' + state.turnNumber + ')');
   }
+  // Coert KasteLuck's turn-start Morning Luck roll: one-shot same-turn-activation
+  // bonus on the FIRST Piecie played this turn, consumed here regardless of
+  // whether Chris+Youri synergy also would have granted it.
+  const kasteLuckBonus = player.kasteLuckSameTurnActivation === true;
+  if (kasteLuckBonus) {
+    console.log('[ABILITY] Coert KasteLuck: Morning Luck bonus consumed — Piecie placed with instant activation');
+    player.kasteLuckSameTurnActivation = false;
+  }
   player.piecieSlots[emptySlot] = {
     cardId: cardRef.cardId,
     type: 'PIECIE',
     faceDown: true,
     activated: false,
     playedOnTurn: state.turnNumber,
-    canActivateOnTurn: chrisYouriSynergy ? state.turnNumber : state.turnNumber + 1,
+    canActivateOnTurn: (chrisYouriSynergy || kasteLuckBonus) ? state.turnNumber : state.turnNumber + 1,
   };
 
   state.players[playerId].pieciesPlayedThisTurn = (state.players[playerId].pieciesPlayedThisTurn || 0) + 1;

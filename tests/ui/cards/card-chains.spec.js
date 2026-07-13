@@ -370,6 +370,55 @@ test('chain: Jisca Perfect Combo — rolling 5-6 free-activates the only face-do
 	expect(slot0).toBeNull();
 });
 
+// ── Chain: Coert KasteLuck's Morning Luck — auto turn-start roll grants the NEXT
+// Piecie played this turn same-turn activation (no test-only unlockPiecies call) ──
+// 2026-07-13 ability-text-engine-reconciliation ruling: TEXT WINS (auto-trigger,
+// not manual), but the grant is wired through the Chris+Youri canActivateOnTurn
+// mechanism instead of the inert freePiecieActivationAvailable flag. Proves the
+// full pipeline: startTurn's roll -> playPiecie's flag consumption -> the
+// Activate button being genuinely usable THIS turn, without the test-only
+// unlockPiecies escape hatch every other chain test relies on.
+test('chain: Coert KasteLuck Morning Luck — rolling 4-6 lets the next Piecie activate same-turn', async ({ page }) => {
+	test.setTimeout(60000);
+	await mockDiceRoll(page, 0.99); // Math.random→0.99 ⇒ d6 always rolls 6 (turn-start roll AND any other rolls)
+
+	await seedCustomDeck(page, {
+		id: 'custom_kasteluck_chain', name: 'KasteLuck Morning Luck Chain',
+		mosjes: ['mosje_coert_kasteluck'],
+		piecies: ['piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk'],
+		snellePiecies: ['snelle_jensen'], places: [], quests: [],
+	}, 'PHYSICAL_FORCE');
+	await page.goto(GAME_URL_TEST);
+	await waitForBoard(page);
+	await clearEntryProtection(page); // U8 — chains model an established board
+
+	const stateAfterStart = await getGameState(page);
+	expect(stateAfterStart?.players?.player_1?.kasteLuckSameTurnActivation).toBe(true);
+
+	await setMosjeMP(page, 'player_1', 0, 40);
+	await setHand(page, 'player_1', ['piecie_kannetje_melk']);
+	await page.waitForTimeout(150);
+
+	const before = await ownSlot(page, 0);
+
+	// Place the Piecie — no unlockPiecies call. If Morning Luck's grant works, the
+	// Activate button is already usable this same turn.
+	await playCardFromHand(page, 'piecie_kannetje_melk');
+	await page.waitForTimeout(300);
+
+	const stateAfterPlay = await getGameState(page);
+	expect(stateAfterPlay?.players?.player_1?.kasteLuckSameTurnActivation).toBe(false); // one-shot, consumed
+	const placedSlot = stateAfterPlay?.players?.player_1?.piecieSlots?.find(s => s !== null);
+	expect(placedSlot?.canActivateOnTurn).toBe(stateAfterPlay?.turnNumber); // same turn, not turnNumber+1
+
+	await activate(page, 'piecie_kannetje_melk'); // no prior unlockPiecies — proves it's genuinely activatable now
+	await ss(page, 'chain-kasteluck-morning-luck');
+
+	const after = await ownSlot(page, 0);
+	console.log(`Coert KasteLuck Morning Luck: MP ${before}→${after}`);
+	expect(after).toBe(before + 25); // Kannetje Melk's own effect ran
+});
+
 // ── Chain E: Piecie MP gain CAPS at 100 (no level-up) — Phase 31 ─────────────
 // Game rule (phase0-rulings.md): a Mosje's MP is always 0–100; piecies/abilities
 // NEVER permanently level up (only Quests do) and their gains cap at 100.

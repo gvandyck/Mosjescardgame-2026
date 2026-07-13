@@ -755,20 +755,13 @@ export function ability_tuk_healer_healing_presence(gameState, playerId) {
 }
 
 // Coert KasteLuck — morning luck: roll d6. Even → +15 MP.
-export function ability_coert_kasteluck_morning_luck(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
-	if (si < 0) return state;
-	const roll = rollDie(6);
-	if (roll % 2 === 0) {
-		player.activeSlots[si].mp += 15;
-		console.log(`[ABILITY] KasteLuck: rolled ${roll} (lucky!) → +15 MP`);
-	} else {
-		console.log(`[ABILITY] KasteLuck: rolled ${roll} (no luck today)`);
-	}
-	return state;
+// Coert KasteLuck — Morning Luck is now an auto-trigger at turn start (2026-07-13
+// reconciliation): the real roll + same-turn-activation grant live in
+// turnManager.js's startTurn() and playPiecie(). This manual entry is a no-op kept
+// so useMosjeAbility does not crash if called (mirrors ability_jeffrey_brute_force).
+export function ability_coert_kasteluck_morning_luck(gameState, _playerId) {
+	console.log('[ABILITY] Coert KasteLuck Morning Luck: passive auto-ability — no manual activation needed');
+	return gameState;
 }
 
 // Binti Creator — Quick Sketch: discard 2 FOOD Piecies from hand, then search your
