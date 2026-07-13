@@ -10,7 +10,9 @@
 
 ### Pending Todos
 - 2026-07-12-alyssa-jisca-synergy-design.md — DUO_JISCA_ALYSSA's headline synergy is declared but has no effect text and no implementation; needs full design session.
-- 2026-07-12-ability-text-engine-reconciliation.md — 9 Mosje ability texts diverge from engine behavior; rule text-vs-code per card (AZN Cless precedent).
+- 2026-07-12-ability-text-engine-reconciliation.md — 9 Mosje ability texts diverge from engine behavior; rule text-vs-code per card (AZN Cless precedent). READY TO IMPLEMENT 2026-07-13: all 10 rulings finalized (9 original + Chris DDR), full reuse-pattern map written into the todo file itself, suggested implementation order included. Nothing coded yet — start fresh session with Ming Natural.
+- 2026-07-13-coerts-caravan-binti-discount-mismatch.md — Coert's Caravan (Place) text promises a Binti Piecie MP-cost discount the code never implemented; found incidentally during the 9-Mosje reconciliation.
+- 2026-07-13-full-game-ability-text-audit.md — systematic text-vs-code pass needed across ALL Piecies/Places/remaining Mosjes, not just the 9 already flagged; triggered by the Caravan find above.
 - 2026-06-11-ts-bulldozer-comeback-reconcile.md (pre-existing)
 
 ### Roadmap Evolution
