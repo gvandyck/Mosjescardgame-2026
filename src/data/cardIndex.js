@@ -53,6 +53,6 @@ export function getCardsByType(type) {
  */
 export function getStarterEligible(type) {
   return ALL_CARDS.filter(
-    (card) => card.type === type && !card.isBoosterOnly
+    (card) => card.type === type && !card.isBoosterOnly && !card.disabled
   );
 }

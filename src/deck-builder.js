@@ -34,7 +34,7 @@ const ALL_CARDS = [
 	...SNELLE_PIECIES.map(c => ({ ...c, cardType: 'SNELLE_PIECIE' })),
 	...PLACES.map(c => ({ ...c, cardType: 'PLACE' })),
 	...QUESTS.filter(c => c.questType === 'PERSONAL').map(c => ({ ...c, cardType: 'QUEST' })),
-];
+].filter(c => !c.disabled); // hidden cards (e.g. Coert Kastelein, Drainer) filtered out entirely, not just greyed out
 
 const RARITY_COPY_LIMITS = { '★': 4, '★★': 3, '★★★': 2, '★★★★': 1 };
 const DECK_MIN = 16;

@@ -378,7 +378,12 @@ export const MOSJES = [
     flavourText: "",
     artPath: "assets/mosje-art/placeholder.png",
     rarity: "★★★",
-    isBoosterOnly: false
+    isBoosterOnly: false,
+    // 2026-07-13 reconciliation ruling: "too conceptual still" — hidden from all
+    // pools (booster, deck-builder, starter-eligible) but data kept, recoverable
+    // by flipping this flag. See src/data/boosterEngine.js, src/deck-builder.js,
+    // src/data/cardIndex.js for the 3 filter points.
+    disabled: true
   },
   {
     id: "mosje_fps_coert",
@@ -620,7 +625,12 @@ export const MOSJES = [
     flavourText: "Built like a closet — unmovable, unshakeable, unstoppable.",
     artPath: "assets/mosje-art/placeholder.png",
     rarity: "★★★★",
-    isBoosterOnly: false
+    isBoosterOnly: false,
+    // 2026-07-13 reconciliation ruling: "too conceptual still" — hidden from all
+    // pools (booster, deck-builder, starter-eligible) but data kept, recoverable
+    // by flipping this flag. See src/data/boosterEngine.js, src/deck-builder.js,
+    // src/data/cardIndex.js for the 3 filter points.
+    disabled: true
   },
   {
     id: "mosje_tuk_architect",
