@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   ability_ming_natural_lucky_draw,
   ability_jeffrey_gambler_high_stakes,
+  ability_tuk_healer_healing_presence,
 } from "../../src/abilities/mosjeAbilities.js";
 // @ts-expect-error — JS module, no type declarations
 import { MOSJES } from "../../src/data/mosjes.js";
@@ -197,5 +198,87 @@ describe("Jeffrey Gambler ability description", () => {
     const jeffrey = MOSJES.find((m: any) => m.id === "mosje_jeffrey_gambler");
     expect(jeffrey).toBeTruthy();
     expect(jeffrey.abilityDescription.toLowerCase()).not.toContain("wager");
+  });
+});
+
+// ─────────────────────────────────────────────────────────────
+// 2026-07-12 ability-text-engine-reconciliation todo — card 3/10
+// Tuk Healer — Healing Presence: was "heal ALL own Mosjes +15 MP" (wrong on every
+// axis vs. the card text). NEW DESIGN: once per turn, choose this Mosje OR another
+// own Mosje to gain 10 MP. No draw, no extra passive hook.
+// ─────────────────────────────────────────────────────────────
+
+function makeTukSlot(cardId: string, mp = 50) {
+  return {
+    cardId,
+    name: cardId,
+    mp,
+    level: 1,
+    isDefeated: false,
+    traits: {},
+    statusEffects: [],
+    abilityUsedThisTurn: false,
+  };
+}
+
+function makeTukState(slots: any[]) {
+  return {
+    activePlayerId: "player_1",
+    turnNumber: 3,
+    players: {
+      player_1: {
+        hand: [] as any[],
+        deck: [] as any[],
+        graveyard: [] as any[],
+        activeSlots: slots,
+        piecieSlots: [null, null, null, null],
+      },
+      player_2: {
+        hand: [] as any[],
+        deck: [] as any[],
+        graveyard: [] as any[],
+        activeSlots: [makeTukSlot("mosje_opponent", 100), null],
+        piecieSlots: [null, null, null, null],
+      },
+    },
+  } as any;
+}
+
+describe("Tuk Healer — Healing Presence", () => {
+  it("defaults to healing itself +10 MP when no target is given (e.g. solo on field)", () => {
+    const state = makeTukState([makeTukSlot("mosje_tuk_healer", 50), null]);
+
+    const next = ability_tuk_healer_healing_presence(state, "player_1");
+
+    expect(next.players.player_1.activeSlots[0].mp).toBe(60);
+  });
+
+  it("heals the chosen own Mosje +10 MP via _pendingTargets.own_slot_index, leaving itself untouched", () => {
+    const state = makeTukState([
+      makeTukSlot("mosje_tuk_healer", 50),
+      makeTukSlot("mosje_ally", 30),
+    ]);
+    state._pendingTargets = { own_slot_index: 1 };
+
+    const next = ability_tuk_healer_healing_presence(state, "player_1");
+
+    expect(next.players.player_1.activeSlots[0].mp).toBe(50); // Tuk Healer unchanged
+    expect(next.players.player_1.activeSlots[1].mp).toBe(40); // ally +10
+  });
+
+  it("throws when Tuk Healer is not on field", () => {
+    const state = makeTukState([makeTukSlot("mosje_other", 50), null]);
+
+    expect(() => ability_tuk_healer_healing_presence(state, "player_1")).toThrow();
+  });
+});
+
+describe("Tuk Healer ability description", () => {
+  it("no longer describes the old 25/15-MP split or the +10-extra passive hook", () => {
+    const tuk = MOSJES.find((m: any) => m.id === "mosje_tuk_healer");
+    expect(tuk).toBeTruthy();
+    const desc = tuk.abilityDescription.toLowerCase();
+    expect(desc).not.toContain("25 mp");
+    expect(desc).not.toContain("extra");
   });
 });

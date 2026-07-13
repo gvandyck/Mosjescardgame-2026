@@ -110,9 +110,12 @@ test('chain: MP Amplifier → next Kannetje Melk gains +40 (×1.5, 5-grid)', asy
 	expect(delta).toBe(40);
 });
 
-// ── Chain C: Tuk Healer heals BOTH active Mosjes +15 (two-Mosje scenario) ────
-// Uses setMosjeOnField to put a second Mosje on the field (engine starts with one).
-test('chain: Tuk Healer ability heals both active Mosjes +15', async ({ page }) => {
+// ── Chain C: Tuk Healer's Healing Presence targets ONE chosen Mosje +10 (two-Mosje
+// scenario, choosing the OTHER Mosje) ─────────────────────────────────────────
+// 2026-07-13 ability-text-engine-reconciliation ruling replaced "heal ALL +15" with
+// "choose this Mosje or another own Mosje, +10". Uses setMosjeOnField to put a
+// second Mosje on the field (engine starts with one).
+test('chain: Tuk Healer targets the chosen Mosje +10, leaves the other untouched', async ({ page }) => {
 	test.setTimeout(60000);
 	await seedCustomDeck(page, {
 		id: 'custom_tuk_chain', name: 'Tuk Chain',
@@ -134,19 +137,22 @@ test('chain: Tuk Healer ability heals both active Mosjes +15', async ({ page }) 
 	expect(before0).toBe(30);
 	expect(before1).toBe(20);
 
-	// Use Tuk Healer's ability (+15 to all active Mosjes)
+	// Use Tuk Healer's ability — two Mosjes on field, so a target picker appears.
 	const card = page.locator('.mosje-card--owned[data-card-id="mosje_tuk_healer"]');
 	const btn = card.locator('.mosje-ability-btn');
 	await btn.waitFor({ state: 'visible', timeout: 5000 });
 	await btn.click();
+	await page.waitForTimeout(400);
+	// Choose slot 1 (the OTHER Mosje, not Tuk Healer itself).
+	await page.locator('.target-option[data-id="player_1_slot_1"]').click();
 	await page.waitForTimeout(700);
-	await ss(page, 'chain-tuk-healer-both');
+	await ss(page, 'chain-tuk-healer-targeted');
 
 	const after0 = await ownSlot(page, 0);
 	const after1 = await ownSlot(page, 1);
 	console.log(`Tuk Healer: slot0 ${before0}→${after0}, slot1 ${before1}→${after1}`);
-	expect(after0).toBe(45); // 30 + 15
-	expect(after1).toBe(35); // 20 + 15
+	expect(after0).toBe(30); // Tuk Healer itself untouched — target was slot 1
+	expect(after1).toBe(30); // 20 + 10
 });
 
 // ── Chain D: Tactician transfers MP between two Mosjes (total preserved) ──────

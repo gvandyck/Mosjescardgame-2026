@@ -1640,6 +1640,7 @@ function initGamePage() {
 	const RONALD_MASTERMIND_IDS = new Set(['mosje_ronald_mastermind']);
 	const MING_FUTURE_SIGHT_IDS = new Set(['mosje_ming_predictor']);
 	const MING_NATURAL_LUCKY_DRAW_IDS = new Set(['mosje_ming_natural']);
+	const TUK_HEALER_PRESENCE_IDS = new Set(['mosje_tuk_healer']);
 	const TUK_PERFECT_PLACEMENT_IDS = new Set(['mosje_tuk_architect']);
 	const FPS_WEST_TACTICAL_IDS = new Set(['mosje_fps_west']);
 	const RONALD_CHEF_INSIGHT_IDS = new Set(['mosje_ronald_chef']);
@@ -2114,6 +2115,44 @@ function initGamePage() {
 				: (topCard.type === 'PIECIE' ? ' and kept it in hand' : ', +15 MP');
 			log.add('gain', `Ming Natural Lucky Draw: drew ${topCardName}${resultDesc}.`);
 			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${mingNaturalSlot?.name || mosjeId} ability`);
+			syncPush();
+			if (gameState.status === 'FINISHED') {
+				handleGameOver(gameState);
+			}
+			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
+			return;
+		}
+
+		// Tuk Healer — Healing Presence: choose this Mosje or another own Mosje to gain 10 MP.
+		// Only prompts when there's more than one own Mosje on the field.
+		if (TUK_HEALER_PRESENCE_IDS.has(mosjeId)) {
+			const ownTargets = getPlayerMosjes(gameState, localPlayerId);
+			let stateForHeal = gameState;
+			let targetLabel = null;
+			if (ownTargets.length > 1) {
+				const selectedId = await modal.showTargetSelector(ownTargets, 'Healing Presence — choose which Mosje gains 10 MP:');
+				if (!selectedId) return;
+				const targetSlotIndex = parseInt(String(selectedId).split('_slot_')[1], 10);
+				if (Number.isNaN(targetSlotIndex)) return;
+				stateForHeal = JSON.parse(JSON.stringify(gameState));
+				stateForHeal._pendingTargets = {
+					...(stateForHeal._pendingTargets || {}),
+					own_slot_index: targetSlotIndex,
+				};
+				targetLabel = gameState.players[localPlayerId].activeSlots[targetSlotIndex]?.name;
+			}
+			const { state: newState, success, error } = useMosjeAbility(stateForHeal, localPlayerId, mosjeId);
+			if (!success) {
+				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
+				return;
+			}
+			if (abilitySlotIndex >= 0) {
+				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
+			}
+			gameState = newState;
+			const healerSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
+			log.add('gain', `Healing Presence: ${targetLabel || healerSlot?.name || mosjeId} gained 10 MP.`);
+			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${healerSlot?.name || mosjeId} ability`);
 			syncPush();
 			if (gameState.status === 'FINISHED') {
 				handleGameOver(gameState);

@@ -678,16 +678,24 @@ export function ability_jisca_perfect_combo(gameState, playerId) {
 	return state;
 }
 
-// Tuk Healer — all active (non-defeated) Mosjes on your side gain 15 MP.
+// Tuk Healer — Healing Presence: once per turn, choose one own Mosje (this one or
+// another) to gain 10 MP. Target comes from the UI via _pendingTargets.own_slot_index
+// (same key Tikker/Kannetje Melk use), defaulting to Tuk Healer's own slot when
+// there's only one Mosje on the field.
 export function ability_tuk_healer_healing_presence(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
-	if (!player) return state;
-	for (const slot of player.activeSlots) {
-		if (slot && !slot.isDefeated) slot.mp += 15;
-	}
-	console.log('[ABILITY] Tuk Healer: all Mosjes +15 MP');
-	return state;
+	if (!player) throw new Error('Player not found');
+	const selfIndex = player.activeSlots.findIndex(s => s && !s.isDefeated && String(s.cardId).includes('tuk_healer'));
+	if (selfIndex < 0) throw new Error('Tuk Healer not on field');
+	const selected = state._pendingTargets?.own_slot_index;
+	const targetIndex = Number.isInteger(selected) ? selected : selfIndex;
+	if (state._pendingTargets) delete state._pendingTargets.own_slot_index;
+	const targetSlot = player.activeSlots[targetIndex];
+	if (!targetSlot || targetSlot.isDefeated) throw new Error('Target Mosje not on field');
+	const next = gainMP(state, playerId, targetIndex, 10, 'TUK_HEALER_PRESENCE', { allowLevelUp: false });
+	console.log('[ABILITY] Tuk Healer: +10 MP to', targetSlot.cardId);
+	return next;
 }
 
 // Coert KasteLuck — morning luck: roll d6. Even → +15 MP.

@@ -467,7 +467,7 @@ export const MOSJES = [
     startMP: 10,
     traits: { creative: 2, social: 2, resilient: 3 },
     abilityId: "ability_tuk_healer_healing_presence",
-    abilityDescription: "Healing Presence: Once per turn choose — this Mosje gains 25 MP, or another of your Mosjes gains 15 MP and you draw 1 card; whenever this Mosje gains MP, it gains +10 extra.",
+    abilityDescription: "Healing Presence: Once per turn, choose this Mosje or another of your Mosjes to gain 10 MP.",
     synergyWith: [],
     synergyEffect: null,
     petSynergy: "piecie_bowie_stormey",
