@@ -1641,6 +1641,7 @@ function initGamePage() {
 	const MING_FUTURE_SIGHT_IDS = new Set(['mosje_ming_predictor']);
 	const MING_NATURAL_LUCKY_DRAW_IDS = new Set(['mosje_ming_natural']);
 	const TUK_HEALER_PRESENCE_IDS = new Set(['mosje_tuk_healer']);
+	const CHRIS_PERFECT_SETUP_IDS = new Set(['mosje_chris']);
 	const TUK_PERFECT_PLACEMENT_IDS = new Set(['mosje_tuk_architect']);
 	const FPS_WEST_TACTICAL_IDS = new Set(['mosje_fps_west']);
 	const RONALD_CHEF_INSIGHT_IDS = new Set(['mosje_ronald_chef']);
@@ -2153,6 +2154,66 @@ function initGamePage() {
 			const healerSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
 			log.add('gain', `Healing Presence: ${targetLabel || healerSlot?.name || mosjeId} gained 10 MP.`);
 			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${healerSlot?.name || mosjeId} ability`);
+			syncPush();
+			if (gameState.status === 'FINISHED') {
+				handleGameOver(gameState);
+			}
+			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
+			return;
+		}
+
+		// Chris All-Rounder — Perfect Setup: 3+ face-down Piecies required; pick one and
+		// activate it for free. Mirrors Youri's two-step (engine unlocks the slot, then
+		// activatePiecie resolves it) but with no MP cost and no draw.
+		if (CHRIS_PERFECT_SETUP_IDS.has(mosjeId)) {
+			const chrisPlayer = gameState.players[localPlayerId];
+			const faceDownIndices = chrisPlayer.piecieSlots
+				.map((s, i) => (s && s.type === 'PIECIE' && s.faceDown && !s.activated) ? i : -1)
+				.filter(i => i >= 0);
+			if (faceDownIndices.length < 3) {
+				modal.showInfo('Cannot Use Ability', 'Perfect Setup requires 3+ face-down Piecies on the field.');
+				return;
+			}
+			const options = faceDownIndices.map(i => {
+				const slot = chrisPlayer.piecieSlots[i];
+				const def = slot?.cardId ? CARD_LOOKUP[slot.cardId] : null;
+				return { id: i, label: `Slot ${i + 1} — ${def?.name || slot?.cardId || 'Unknown'}` };
+			});
+			const chosen = await modal.showOptionSelect({
+				title: 'Perfect Setup',
+				prompt: 'Pick a face-down Piecie to activate for free:',
+				options,
+				allowCancel: true,
+			});
+			if (chosen === null || chosen === undefined) return;
+			const chrisSlotIndex = typeof chosen === 'object' ? chosen.id : chosen;
+			const activatedCardId = chrisPlayer.piecieSlots[chrisSlotIndex]?.cardId;
+			const stateWithTarget = JSON.parse(JSON.stringify(gameState));
+			stateWithTarget._pendingTargets = {
+				...(stateWithTarget._pendingTargets || {}),
+				chrisPerfectSetupSlotIndex: chrisSlotIndex,
+			};
+			const { state: abilityState, success, error } = useMosjeAbility(stateWithTarget, localPlayerId, mosjeId);
+			if (!success) {
+				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
+				return;
+			}
+			const { state: activatedState, success: actSuccess, error: actError } =
+				activatePiecie(abilityState, localPlayerId, chrisSlotIndex);
+			if (!actSuccess) {
+				modal.showInfo('Activation Failed', actError || 'Could not activate the Piecie.');
+				gameState = abilityState;
+				renderAndCheckWin();
+				return;
+			}
+			if (abilitySlotIndex >= 0) {
+				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
+			}
+			gameState = activatedState;
+			const chrisSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
+			const activatedName = CARD_LOOKUP[activatedCardId]?.name || 'Piecie';
+			log.add('gain', `Perfect Setup: activated ${activatedName} for free.`);
+			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${chrisSlot?.name || mosjeId} ability`);
 			syncPush();
 			if (gameState.status === 'FINISHED') {
 				handleGameOver(gameState);

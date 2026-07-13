@@ -4,6 +4,7 @@ import {
   ability_ming_natural_lucky_draw,
   ability_jeffrey_gambler_high_stakes,
   ability_tuk_healer_healing_presence,
+  ability_chris_perfect_setup,
 } from "../../src/abilities/mosjeAbilities.js";
 // @ts-expect-error — JS module, no type declarations
 import { MOSJES } from "../../src/data/mosjes.js";
@@ -280,5 +281,105 @@ describe("Tuk Healer ability description", () => {
     const desc = tuk.abilityDescription.toLowerCase();
     expect(desc).not.toContain("25 mp");
     expect(desc).not.toContain("extra");
+  });
+});
+
+// ─────────────────────────────────────────────────────────────
+// 2026-07-12 ability-text-engine-reconciliation todo — card 4/10
+// Chris All-Rounder — Perfect Setup: was an inert flag write (instantPiecieThisTurn,
+// never read anywhere). Ruling: TEXT WINS but drop the 15 MP gain. Gate: 3+
+// face-down Piecies required. Effect: pick one and unlock it for free same-turn
+// activation (mirrors Youri's two-step: this fn only sets canActivateOnTurn; the
+// UI calls the shared activatePiecie() to actually resolve it).
+// ─────────────────────────────────────────────────────────────
+
+function makeFaceDownPiecieSlot(cardId: string) {
+  return { cardId, type: "PIECIE", faceDown: true, activated: false };
+}
+
+function makeChrisState(piecieSlots: any[]) {
+  return {
+    activePlayerId: "player_1",
+    turnNumber: 5,
+    players: {
+      player_1: {
+        hand: [] as any[],
+        deck: [] as any[],
+        graveyard: [] as any[],
+        activeSlots: [makeTukSlot("mosje_chris", 50), null],
+        piecieSlots,
+      },
+      player_2: {
+        hand: [] as any[],
+        deck: [] as any[],
+        graveyard: [] as any[],
+        activeSlots: [makeTukSlot("mosje_opponent", 100), null],
+        piecieSlots: [null, null, null, null],
+      },
+    },
+  } as any;
+}
+
+describe("Chris All-Rounder — Perfect Setup", () => {
+  it("throws when fewer than 3 face-down Piecies are on the field", () => {
+    const state = makeChrisState([
+      makeFaceDownPiecieSlot("piecie_a"),
+      makeFaceDownPiecieSlot("piecie_b"),
+      null,
+      null,
+    ]);
+
+    expect(() => ability_chris_perfect_setup(state, "player_1")).toThrow();
+  });
+
+  it("unlocks the chosen slot (via _pendingTargets) for same-turn activation, leaving others untouched", () => {
+    const state = makeChrisState([
+      makeFaceDownPiecieSlot("piecie_a"),
+      makeFaceDownPiecieSlot("piecie_b"),
+      makeFaceDownPiecieSlot("piecie_c"),
+      null,
+    ]);
+    state._pendingTargets = { chrisPerfectSetupSlotIndex: 2 };
+
+    const next = ability_chris_perfect_setup(state, "player_1");
+
+    expect(next.players.player_1.piecieSlots[2].canActivateOnTurn).toBe(5);
+    expect(next.players.player_1.piecieSlots[0].canActivateOnTurn).toBeUndefined();
+    expect(next.players.player_1.piecieSlots[1].canActivateOnTurn).toBeUndefined();
+    // no MP gain — the old 15 MP bonus was dropped
+    expect(next.players.player_1.activeSlots[0].mp).toBe(50);
+  });
+
+  it("falls back to the first qualifying slot when no valid selection is given (bot-safe)", () => {
+    const state = makeChrisState([
+      makeFaceDownPiecieSlot("piecie_a"),
+      makeFaceDownPiecieSlot("piecie_b"),
+      makeFaceDownPiecieSlot("piecie_c"),
+      null,
+    ]);
+
+    const next = ability_chris_perfect_setup(state, "player_1");
+
+    expect(next.players.player_1.piecieSlots[0].canActivateOnTurn).toBe(5);
+  });
+
+  it("throws when Chris All-Rounder is not on field", () => {
+    const state = makeChrisState([
+      makeFaceDownPiecieSlot("piecie_a"),
+      makeFaceDownPiecieSlot("piecie_b"),
+      makeFaceDownPiecieSlot("piecie_c"),
+      null,
+    ]);
+    state.players.player_1.activeSlots[0].cardId = "mosje_other";
+
+    expect(() => ability_chris_perfect_setup(state, "player_1")).toThrow();
+  });
+});
+
+describe("Chris All-Rounder ability description", () => {
+  it("no longer promises a 15 MP gain", () => {
+    const chris = MOSJES.find((m: any) => m.id === "mosje_chris");
+    expect(chris).toBeTruthy();
+    expect(chris.abilityDescription.toLowerCase()).not.toContain("15 mp");
   });
 });

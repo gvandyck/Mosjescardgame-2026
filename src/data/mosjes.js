@@ -316,7 +316,7 @@ export const MOSJES = [
     startMP: 10,
     traits: { physical: 3, technical: 2, social: 2 },
     abilityId: "ability_chris_perfect_setup",
-    abilityDescription: "Perfect Setup: If you have 3+ face-down Piecies, activate 1 for free and gain 15 MP (once per turn).",
+    abilityDescription: "Perfect Setup: If you have 3+ face-down Piecies, choose one and activate it for free (once per turn).",
     synergyWith: ["mosje_youri"],
     synergyEffect: "While Youri the Speedrunner is also on your field: both of them may play Piecies directly to active state — no face-down waiting.",
     petSynergy: null,

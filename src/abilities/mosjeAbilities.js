@@ -489,13 +489,33 @@ export function ability_jeffrey_gambler_high_stakes(gameState, playerId) {
 	return state;
 }
 
-// Chris All-Rounder — set flag to allow playing one Piecie instantly from hand this turn.
+// Chris All-Rounder — Perfect Setup: if you have 3+ face-down Piecies on the field,
+// pick one and unlock it for free same-turn activation (once per turn — enforced
+// generically by useMosjeAbility's abilityUsedThisTurn gate, same as Ronald/Tuk).
+// No MP gain (ruled "free activation is strong enough"). Mirrors Youri Speed
+// Activate's two-step mechanism: this sets canActivateOnTurn on the chosen slot;
+// the UI then calls the shared activatePiecie() to actually flip and resolve it.
+// The chosen slot comes from _pendingTargets.chrisPerfectSetupSlotIndex; falls back
+// to the first qualifying slot when no valid selection is given (bot-safe).
 export function ability_chris_perfect_setup(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
-	if (!player) return state;
-	player.instantPiecieThisTurn = true;
-	console.log('[ABILITY] Chris: next Piecie played this turn activates instantly');
+	if (!player) throw new Error('Player not found');
+	const selfIndex = player.activeSlots.findIndex(s => s && !s.isDefeated && s.cardId === 'mosje_chris');
+	if (selfIndex < 0) throw new Error('Chris All-Rounder not on field');
+	const faceDownIndices = player.piecieSlots
+		.map((s, i) => (s && s.type === 'PIECIE' && s.faceDown && !s.activated) ? i : -1)
+		.filter(i => i >= 0);
+	if (faceDownIndices.length < 3) {
+		throw new Error('Perfect Setup requires 3+ face-down Piecies on the field');
+	}
+	const selected = state._pendingTargets?.chrisPerfectSetupSlotIndex;
+	const slotIndex = (Number.isInteger(selected) && faceDownIndices.includes(selected))
+		? selected
+		: faceDownIndices[0];
+	if (state._pendingTargets) delete state._pendingTargets.chrisPerfectSetupSlotIndex;
+	player.piecieSlots[slotIndex].canActivateOnTurn = state.turnNumber;
+	console.log('[ABILITY] Chris Perfect Setup: unlocked face-down Piecie at slot', slotIndex, 'for free activation');
 	return state;
 }
 
