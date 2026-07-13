@@ -872,16 +872,13 @@ export function ability_tuk_architect_perfect_placement(gameState, playerId) {
 	return state;
 }
 
-// Chris DDR — perfect combo chain: gain 5 MP per Piecie played this turn.
-export function ability_chris_ddr_perfect_combo_chain(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
-	if (si < 0) return state;
-	const count = player.pieciesPlayedThisTurn || 0;
-	const gain = count * 5;
-	if (gain > 0) player.activeSlots[si].mp += gain;
-	console.log(`[ABILITY] Chris DDR: ${count} Piecies played → +${gain} MP`);
-	return state;
+// Chris DDR — Perfect Combo Chain is now a passive auto-trigger (2026-07-13
+// reconciliation): the real roll + recursive hand-chain live in
+// maybeChainChrisDdrCombo (turnManager.js activatePiecie), the same place Chris
+// All-Rounder/Youri/Jisca's face-down-unlock mechanics live. This manual entry
+// is a no-op kept so useMosjeAbility does not crash if called (mirrors
+// ability_jeffrey_brute_force).
+export function ability_chris_ddr_perfect_combo_chain(gameState, _playerId) {
+	console.log('[ABILITY] Chris DDR Perfect Combo Chain: passive auto-ability — no manual activation needed');
+	return gameState;
 }

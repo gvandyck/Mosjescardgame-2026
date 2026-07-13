@@ -491,3 +491,50 @@ test('chain: Tikker QUEST_BLOCKED prevents a General Quest', async ({ page }) =>
 	expect(payModalVisible).toBe(false);            // quest refused — no pay-to-attempt modal
 	expect(mpAfter).toBe(mpBefore);                 // no MP spent on a blocked quest
 });
+
+// ── Chain: Chris DDR's Perfect Combo Chain — activating a Piecie auto-chains
+// another from hand (recursive, passive) ─────────────────────────────────────
+// 2026-07-13 ability-text-engine-reconciliation ruling: TEXT WINS, replacing a
+// "+5 MP per Piecie played" stub. After ANY Piecie activation, rolls 1d6; on 5-6,
+// activates another Piecie from hand for free. Dice forced to 6 so the chain
+// always fires; the recursive cap-at-3 and DJ 80/20 +2 synergy are pure engine
+// logic already covered by the unit tests in ability-text-reconciliation.test.ts.
+test('chain: Chris DDR Perfect Combo Chain — activating a Piecie auto-chains another from hand', async ({ page }) => {
+	test.setTimeout(60000);
+	await mockDiceRoll(page, 0.99); // Math.random→0.99 ⇒ d6 always rolls 6
+
+	await seedCustomDeck(page, {
+		id: 'custom_chrisddr_chain', name: 'Chris DDR Perfect Combo Chain',
+		mosjes: ['mosje_chris_ddr'],
+		piecies: ['piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk'],
+		snellePiecies: ['snelle_jensen'], places: [], quests: [],
+	}, 'PHYSICAL_FORCE');
+	await page.goto(GAME_URL_TEST);
+	await waitForBoard(page);
+	await clearEntryProtection(page); // U8 — chains model an established board
+
+	await setMosjeMP(page, 'player_1', 0, 40);
+	await setHand(page, 'player_1', ['piecie_kannetje_melk', 'piecie_kannetje_melk']);
+	await page.waitForTimeout(150);
+
+	// Place ONE face-down (the trigger); the other copy stays in hand as the chain target.
+	await playCardFromHand(page, 'piecie_kannetje_melk');
+	await page.waitForTimeout(300);
+	await unlockPiecies(page, 'player_1');
+
+	const before = await ownSlot0(page);
+	const handBefore = await getHandSize(page, 'player_1');
+
+	await activate(page, 'piecie_kannetje_melk');
+	await ss(page, 'chain-chrisddr-perfect-combo');
+
+	const after = await ownSlot0(page);
+	const handAfter = await getHandSize(page, 'player_1');
+	const state = await getGameState(page);
+	console.log(`Chris DDR Perfect Combo Chain: MP ${before}→${after}, hand ${handBefore}→${handAfter}, chainUses=${state?.players?.player_1?.chrisDdrChainUsesThisTurn}`);
+
+	// Original activation +25, chained Piecie +25 (both target Chris DDR himself)
+	expect(after).toBe(before + 50);
+	expect(handAfter).toBe(handBefore - 1); // chained Piecie consumed from hand
+	expect(state?.players?.player_1?.chrisDdrChainUsesThisTurn).toBe(1);
+});

@@ -11,6 +11,10 @@ import {
 // @ts-expect-error — JS module, no type declarations
 import { resolveQuest } from "../../src/abilities/questLogic.js";
 // @ts-expect-error — JS module, no type declarations
+import { ability_chris_ddr_perfect_combo_chain } from "../../src/abilities/mosjeAbilities.js";
+// @ts-expect-error — JS module, no type declarations
+import { activatePiecie } from "../../src/engine/turnManager.js";
+// @ts-expect-error — JS module, no type declarations
 import { MOSJES } from "../../src/data/mosjes.js";
 
 // ─────────────────────────────────────────────────────────────
@@ -659,5 +663,158 @@ describe("FPS Coert data", () => {
     expect(desc).toContain("physical or technical quest success");
     expect(desc).toContain("30 mp");
     expect(desc).toContain("15 mp");
+  });
+});
+
+// ─────────────────────────────────────────────────────────────
+// 2026-07-12 ability-text-engine-reconciliation todo — card 10/10
+// Chris DDR — Perfect Combo Chain: TEXT WINS, replacing a "+5 MP per Piecie
+// played" stub that matched neither the old text nor this ruling. After ANY
+// Piecie this player activates, roll 1d6 (DJ 80/20 synergy: +2 to the roll while
+// both are on the field). On 5-6, activate another Piecie from hand for free,
+// recursively, capped at 3 extra chains per turn (chrisDdrChainUsesThisTurn).
+// ─────────────────────────────────────────────────────────────
+
+function makeChrisDdrSlot(cardId: string, mp = 50) {
+  return {
+    cardId,
+    name: cardId,
+    mp,
+    level: 1,
+    isDefeated: false,
+    traits: {},
+    statusEffects: [],
+    abilityUsedThisTurn: false,
+  };
+}
+
+function makeChrisDdrState(opts: {
+  chrisDdrAlive?: boolean;
+  dj8020Alive?: boolean;
+  handPiecieCount?: number;
+  chrisDdrChainUsesThisTurn?: number;
+} = {}) {
+  const {
+    chrisDdrAlive = true,
+    dj8020Alive = false,
+    handPiecieCount = 1,
+    chrisDdrChainUsesThisTurn = 0,
+  } = opts;
+
+  const activeSlots = [
+    chrisDdrAlive ? makeChrisDdrSlot("mosje_chris_ddr", 50) : makeChrisDdrSlot("mosje_other", 50),
+    dj8020Alive ? makeChrisDdrSlot("mosje_dj_8020", 20) : null,
+  ];
+
+  return {
+    activePlayerId: "player_1",
+    turnNumber: 5,
+    players: {
+      player_1: {
+        hand: Array.from({ length: handPiecieCount }, () => ({ cardId: "piecie_kannetje_melk", type: "PIECIE" })),
+        deck: [] as any[],
+        graveyard: [] as any[],
+        activeSlots,
+        piecieSlots: [
+          { cardId: "piecie_kannetje_melk", type: "PIECIE", faceDown: true, activated: false, playedOnTurn: 4, canActivateOnTurn: 5 },
+          null, null, null,
+        ],
+        chrisDdrChainUsesThisTurn,
+        pieciesActivatedThisTurn: 0,
+      },
+      player_2: {
+        hand: [] as any[],
+        deck: [] as any[],
+        graveyard: [] as any[],
+        activeSlots: [makeChrisDdrSlot("mosje_opponent", 100), null],
+        piecieSlots: [null, null, null, null],
+      },
+    },
+  } as any;
+}
+
+describe("Chris DDR — Perfect Combo Chain", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("rolling 5-6 with a Piecie in hand chains it once, consuming a use", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0.99); // rollDie(6) => 6
+    const state = makeChrisDdrState({ handPiecieCount: 1 });
+
+    const result = activatePiecie(state, "player_1", 0);
+
+    expect(result.success).toBe(true);
+    // Chris DDR (slot 0): +25 from the original activation, +25 from the chain
+    expect(result.state.players.player_1.activeSlots[0].mp).toBe(100);
+    expect(result.state.players.player_1.hand.length).toBe(0); // chained Piecie consumed from hand
+    expect(result.state.players.player_1.chrisDdrChainUsesThisTurn).toBe(1);
+  });
+
+  it("chains recursively up to 3 times per turn, even with more Piecies available in hand", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0.99); // rollDie(6) => 6, every roll succeeds
+    const state = makeChrisDdrState({ handPiecieCount: 5 });
+
+    const result = activatePiecie(state, "player_1", 0);
+
+    expect(result.state.players.player_1.chrisDdrChainUsesThisTurn).toBe(3); // capped
+    expect(result.state.players.player_1.hand.length).toBe(2); // 5 - 3 chained
+  });
+
+  it("rolling below 5 does not chain", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0); // rollDie(6) => 1
+    const state = makeChrisDdrState({ handPiecieCount: 1 });
+
+    const result = activatePiecie(state, "player_1", 0);
+
+    expect(result.state.players.player_1.hand.length).toBe(1); // untouched
+    expect(result.state.players.player_1.chrisDdrChainUsesThisTurn).toBe(0);
+  });
+
+  it("does not chain when there's no Piecie in hand, even on a 5-6", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0.99); // rollDie(6) => 6
+    const state = makeChrisDdrState({ handPiecieCount: 0 });
+
+    const result = activatePiecie(state, "player_1", 0);
+
+    expect(result.state.players.player_1.chrisDdrChainUsesThisTurn).toBe(0); // no use spent — nothing to chain
+  });
+
+  it("does not chain at all when Chris DDR is not on the field", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0.99); // rollDie(6) => 6
+    const state = makeChrisDdrState({ chrisDdrAlive: false, handPiecieCount: 1 });
+
+    const result = activatePiecie(state, "player_1", 0);
+
+    expect(result.state.players.player_1.hand.length).toBe(1); // untouched
+    expect(result.state.players.player_1.chrisDdrChainUsesThisTurn ?? 0).toBe(0);
+  });
+
+  it("DJ 80/20 synergy: +2 to the roll lets a natural 3 chain (would not chain alone)", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0.4); // rollDie(6) => 3 (floor(0.4*6)+1)
+    const withoutDj = activatePiecie(makeChrisDdrState({ dj8020Alive: false, handPiecieCount: 1 }), "player_1", 0);
+    expect(withoutDj.state.players.player_1.chrisDdrChainUsesThisTurn).toBe(0); // natural 3, no bonus, no chain
+
+    const withDj = activatePiecie(makeChrisDdrState({ dj8020Alive: true, handPiecieCount: 1 }), "player_1", 0);
+    expect(withDj.state.players.player_1.chrisDdrChainUsesThisTurn).toBe(1); // 3 + 2 = 5, chains
+  });
+
+  it("the manual ability entry is a no-op passthrough (mirrors ability_jeffrey_brute_force)", () => {
+    const state = makeChrisDdrState();
+    const result = ability_chris_ddr_perfect_combo_chain(state, "player_1");
+    expect(result).toBe(state);
+  });
+});
+
+describe("Chris DDR data", () => {
+  it("is flagged autoAbility (hides the manual-activate button, skipped by the bot's manual-ability loop)", () => {
+    const chrisDdr = MOSJES.find((m: any) => m.id === "mosje_chris_ddr");
+    expect(chrisDdr).toBeTruthy();
+    expect(chrisDdr.autoAbility).toBe(true);
+  });
+
+  it("no longer describes a flat +5 MP per Piecie played", () => {
+    const chrisDdr = MOSJES.find((m: any) => m.id === "mosje_chris_ddr");
+    expect(chrisDdr.abilityDescription.toLowerCase()).not.toContain("5 mp");
   });
 });
