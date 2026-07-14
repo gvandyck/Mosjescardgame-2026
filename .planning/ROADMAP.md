@@ -777,3 +777,33 @@ Plans:
 - WIN-05: "How to Win" top-bar panel listing the 4 win conditions.
 - WIN-06: Dice-roll modal shows the attempting Mosje's stats (level/MP/trait stars, rolled trait highlighted).
 - Repro/guard tests: tests/engine/instant-win-level3.test.ts; full-game LEVEL_3 spec rewritten as a real instant-win + battle-log guard.
+
+---
+
+### Phase 35: Places Text-vs-Engine Reconciliation (Round 1)
+
+**Goal:** Reconcile all 21 Place cards so each card's text matches engine behavior. Round 1 of the full-game ability-text audit (Places first). Audit complete: 9 clean, 12 flagged and ruled interactively with Gandoe (5 bug fixes + 7 design reworks). This phase implements the 12 rulings, one card at a time (TDD), MP-touching cards re-run Ronald Kip + sim.
+
+**Requirements:**
+- PLACE-01 (Bank Chilling): loop all active slots — every Social ★★+ Mosje +15 at turn start (was first-slot only).
+- PLACE-02 (Obby #1): loop all active slots — every Physical/Resilient ★★+ Mosje +20 success / −10 fail.
+- PLACE-03 (Arcade): loop all active slots — every Technical ★★+ Mosje +15 on success.
+- PLACE-04 (De Box): +15 to any Michelle/Tuk Mosje (id includes 'michelle' or 'tuk'); extend both-together +10; fix "Toennoe" logs.
+- PLACE-05 (Drain Zone): implement "ATTACK Piecies deal +10 damage"; remove the untexted +5-to-all-gains (mpManager:38).
+- PLACE-06 (Delluft): implement "SUBSTANCE Piecies cost 0 MP this turn" (hook mpCost); keep draw-1.
+- PLACE-07 (Dierenasiel): implement "PET Piecies cost 0 MP" (hook mpCost); drop the +25% protection clause + its typo'd inert code.
+- PLACE-08 (Coert's Caravan): trigger → END_PHASE; all Mosjes −10 at end of turn except Coert variants; drop +15 buff + inert free-activation flag.
+- PLACE-09 (Digital Gaming Stop): DIGITAL-EQUIPMENT Piecies +10 MP while active; drop auto-succeed + dead questAutoSuccess.
+- PLACE-10 (Skiffa): trigger → ON_QUEST; Social quests +2 dice roll for all players; drop SUBSTANCE/discard theme.
+- PLACE-11 (Synergy Chamber): once/turn activate a synergy ability without its partner; drop the 3 undocumented bonuses + consumers.
+- PLACE-12 (The Void): new mechanic — while active, each player may activate only ONE card per turn; remove −15 drain + untexted quest-MP-nullify. Highest risk, implement last.
+
+**Success Criteria:**
+1. Each of the 12 cards' text matches its engine behavior; the 9 clean Places untouched.
+2. Per-card tests added (card-test-library and/or engine unit tests); npm test + test:cards green.
+3. node --check clean on any touched UI/main files.
+4. MP-touching changes: Ronald Kip stacking test green; simulation crash-free, timeout < 25%.
+5. The Void's one-activation-per-turn cap enforced across every play/activate path.
+
+**Context:** `.planning/phases/35-places-text-reconciliation/35-CONTEXT.md`
+**Ruling record:** `.planning/audits/2026-07-14-places-text-audit.md`
