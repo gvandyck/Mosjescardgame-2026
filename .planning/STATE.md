@@ -1,10 +1,19 @@
 # Project State
 
 **Last updated:** 2026-07-14
-**Current phase:** Phase 36 — Piecie/Snelle/Place/Personal Quest MP Cost Model Redesign: PAUSED Phase 35 to discuss this first
+**Current phase:** Phase 36 — Piecie/Snelle/Place/Personal Quest MP Cost Model Redesign: CONTEXT captured, ready to plan
 **Branch:** card/full-game-text-audit
 
-## ▶ RESUME HERE (2026-07-14 handoff, 2nd update today)
+## ▶ RESUME HERE (2026-07-14 handoff, 3rd update today)
+
+**Next command:** `/gsd:plan-phase 36` (context gathered — research will likely be light/skippable since Phase 35's research already proved the core technical premise; planner should still do the full-card-text audit as its first deliverable per D-03).
+
+**Phase 36 context locked** (`36-CONTEXT.md`, commit `f24e7ed`): every Piecie/Snelle Piecie/Place/Personal Quest defaults to 0 MP cost; tribute only where a card's printed text explicitly demands it (text wins over the current `mpCost` data field on any conflict). Full text audit across all 4 card types happens FIRST (one ruling table, same format as the Places audit), before any code. Key rulings: player picks which Mosje pays tribute when unnamed (needs a UI picker, reuse `SelectionModal`); unaffordable tribute blocks the action entirely (no MP flooring); `mpCost` data fields get corrected to match final rulings; Mosje ability costs (`abilityCost`) are explicitly OUT of scope (deferred, same underlying bug); one phase covers all 4 card types (no sub-phase splitting). Mosje ability costs and PLACE-05/12 (hidden Drain Zone/Void) full reworks remain deferred to later phases.
+
+**Phase 35 status (unblocked, no longer paused):** research done (`35-RESEARCH.md`, commit `bc218b1`) + scoping decisions locked (commits `6b97aec`, `f24e7ed`): PLACE-01-04 loop-all-slots + trigger fixes, PLACE-05 (Drain Zone) and PLACE-12 (The Void) DESCOPED/hidden from player-facing pools (dead-code bugs still cleaned up), PLACE-08-11 as originally ruled. **PLACE-06/07's mpCost self-charge work moved to Phase 36** (D-09 in `36-CONTEXT.md`) — Phase 35 keeps only Delluft's draw-1 and Dierenasiel's typo/dead-code cleanup. Nothing planned/executed yet for Phase 35 either. ROADMAP has Phase 36 formally `Depends on: Phase 35` — sequencing (which phase actually gets planned/executed first) is Gandoe's call; both are now equally ready for `/gsd:plan-phase`.
+
+<details>
+<summary>Prior handoff (2nd update, superseded)</summary>
 
 **Next command:** `/gsd:discuss-phase 36`.
 
@@ -13,6 +22,8 @@
 **Phase 35 status when paused:** research done (`35-RESEARCH.md`, commit `bc218b1`) + 3 post-research scoping decisions locked (commit `6b97aec`): PLACE-06/07 build a scoped self-charge-then-waive for the specific named Piecies (not a game-wide charge); PLACE-05 (Drain Zone) and PLACE-12 (The Void) are DESCOPED — hidden from all player-facing pools instead of implemented, with their untexted dead-code bugs still cleaned up. Nothing planned/executed yet. Resume with `/gsd:plan-phase 35` once Phase 36 is designed (Phase 36 now formally depends on Phase 35 in ROADMAP.md, so finish 35 first, or re-sequence if that dependency direction turns out to be backwards after discussion).
 
 **Phase 36 (NEW, added this session):** ROADMAP entry added (`.planning/ROADMAP.md`), goal/requirements TBD — needs `/gsd:discuss-phase 36` before planning. Core idea: mpCost fields already exist as data (`src/data/piecies.js` etc.) but are never charged anywhere in the engine (confirmed by Phase 35's research — see `35-RESEARCH.md` Critical Finding 1); this phase would build the actual charging mechanism, default it to 0, then go card-by-card to decide which ones require tribute and from whom.
+
+</details>
 
 <details>
 <summary>Prior handoff (superseded, kept for history)</summary>
