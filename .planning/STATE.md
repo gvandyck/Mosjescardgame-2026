@@ -1,10 +1,21 @@
 # Project State
 
 **Last updated:** 2026-07-14
-**Current phase:** Phase 35 — Places Text-vs-Engine Reconciliation (Round 1): CONTEXT captured, ready to plan
+**Current phase:** Phase 36 — Piecie/Snelle/Place/Personal Quest MP Cost Model Redesign: PAUSED Phase 35 to discuss this first
 **Branch:** card/full-game-text-audit
 
-## ▶ RESUME HERE (2026-07-14 handoff)
+## ▶ RESUME HERE (2026-07-14 handoff, 2nd update today)
+
+**Next command:** `/gsd:discuss-phase 36`.
+
+**Why Phase 35 is paused:** mid-research-followup on Phase 35, Gandoe proposed a bigger idea — flip the whole game's cost model so every Piecie/Snelle Piecie/Place/Personal Quest costs 0 MP by default, and only cards whose text explicitly demands "tribute" (from one named Mosje or all Mosjes, decided per-card) actually deduct MP. Cost display stays purely visual (reuse the Mosje's existing on-field MP number — no new cost-UI element). Explicitly chose to PAUSE Phase 35 (10 locked cards, not yet planned) and discuss/design this new phase FIRST, since it's a game-wide redesign, not a Places-only fix.
+
+**Phase 35 status when paused:** research done (`35-RESEARCH.md`, commit `bc218b1`) + 3 post-research scoping decisions locked (commit `6b97aec`): PLACE-06/07 build a scoped self-charge-then-waive for the specific named Piecies (not a game-wide charge); PLACE-05 (Drain Zone) and PLACE-12 (The Void) are DESCOPED — hidden from all player-facing pools instead of implemented, with their untexted dead-code bugs still cleaned up. Nothing planned/executed yet. Resume with `/gsd:plan-phase 35` once Phase 36 is designed (Phase 36 now formally depends on Phase 35 in ROADMAP.md, so finish 35 first, or re-sequence if that dependency direction turns out to be backwards after discussion).
+
+**Phase 36 (NEW, added this session):** ROADMAP entry added (`.planning/ROADMAP.md`), goal/requirements TBD — needs `/gsd:discuss-phase 36` before planning. Core idea: mpCost fields already exist as data (`src/data/piecies.js` etc.) but are never charged anywhere in the engine (confirmed by Phase 35's research — see `35-RESEARCH.md` Critical Finding 1); this phase would build the actual charging mechanism, default it to 0, then go card-by-card to decide which ones require tribute and from whom.
+
+<details>
+<summary>Prior handoff (superseded, kept for history)</summary>
 
 **Next command:** `/gsd:plan-phase 35` (was at the research gate — user deferred the research decision to a fresh chat).
 

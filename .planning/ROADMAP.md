@@ -778,8 +778,6 @@ Plans:
 - WIN-06: Dice-roll modal shows the attempting Mosje's stats (level/MP/trait stars, rolled trait highlighted).
 - Repro/guard tests: tests/engine/instant-win-level3.test.ts; full-game LEVEL_3 spec rewritten as a real instant-win + battle-log guard.
 
----
-
 ### Phase 35: Places Text-vs-Engine Reconciliation (Round 1)
 
 **Goal:** Reconcile all 21 Place cards so each card's text matches engine behavior. Round 1 of the full-game ability-text audit (Places first). Audit complete: 9 clean, 12 flagged and ruled interactively with Gandoe (5 bug fixes + 7 design reworks). This phase implements the 12 rulings, one card at a time (TDD), MP-touching cards re-run Ronald Kip + sim. **Post-research scope amendment (2026-07-14):** Drain Zone and The Void are not ready for gameplay this round — both are hidden from all player-facing pools instead of having their new mechanics implemented; see `35-CONTEXT.md` Plan-Phase Scope Amendments.
@@ -807,3 +805,15 @@ Plans:
 
 **Context:** `.planning/phases/35-places-text-reconciliation/35-CONTEXT.md`
 **Ruling record:** `.planning/audits/2026-07-14-places-text-audit.md`
+
+---
+
+### Phase 36: Piecie/Snelle Piecie/Place/Personal Quest MP Cost Model Redesign — default all costs to 0, add explicit tribute payment only for cards whose text requires it
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 35
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 36 to break down)
