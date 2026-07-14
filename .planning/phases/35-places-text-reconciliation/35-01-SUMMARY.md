@@ -120,3 +120,6 @@ Both tasks followed the mandatory RED → GREEN sequence, confirmed in git log:
 ---
 *Phase: 35-places-text-reconciliation*
 *Completed: 2026-07-14*
+
+## Self-Check: PASSED
+All created files verified present (2 test files, SUMMARY.md, deferred-items.md); all 5 commit hashes (485ca2f, 58a0133, 2506f27, 58261b5, 2aed649) verified present in git log.
