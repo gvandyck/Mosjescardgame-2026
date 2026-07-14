@@ -97,16 +97,15 @@ export function effect_bank_chilling(gameState, playerId) {
 	const player = state.players[playerId];
 	if (!player) return state;
 
-	const slotIndex = player.activeSlots.findIndex(slot => slot !== null && !slot.isDefeated);
-	if (slotIndex < 0) return state;
-
-	const mosje = player.activeSlots[slotIndex];
-	const social = mosje.traits?.social || 0;
-	if (social >= 2) {
-		mosje.mp += 15;
-		console.log('[ABILITY] Bank Chilling: +15 MP applied (Social 2+)');
-	} else {
-		console.log('[ABILITY] Bank Chilling: no bonus (social below 2)');
+	for (const mosje of player.activeSlots) {
+		if (!mosje || mosje.isDefeated) continue;
+		const social = mosje.traits?.social || 0;
+		if (social >= 2) {
+			mosje.mp += 15;
+			console.log('[ABILITY] Bank Chilling: +15 MP applied (Social 2+)');
+		} else {
+			console.log('[ABILITY] Bank Chilling: no bonus (social below 2)');
+		}
 	}
 
 	return state;
@@ -142,20 +141,20 @@ export function effect_obby_1(gameState, questCard, didSucceed) {
 	const state = cloneState(gameState);
 	const playerId = state.activePlayerId;
 	const player = state.players[playerId];
-	const slotIndex = player.activeSlots.findIndex(slot => slot !== null && !slot.isDefeated);
-	if (slotIndex < 0) return state;
 
-	const mosje = player.activeSlots[slotIndex];
-	const physical = mosje.traits?.physical || 0;
-	const resilient = mosje.traits?.resilient || 0;
+	for (const mosje of player.activeSlots) {
+		if (!mosje || mosje.isDefeated) continue;
+		const physical = mosje.traits?.physical || 0;
+		const resilient = mosje.traits?.resilient || 0;
 
-	if (physical >= 2 || resilient >= 2) {
-		if (didSucceed) {
-			mosje.mp += 20;
-			console.log('[ABILITY] Obby #1: +20 MP on successful Physical/Resilient quest');
-		} else {
-			applyDamage(mosje, 10);
-			console.log('[ABILITY] Obby #1: -10 MP on failed Physical/Resilient quest');
+		if (physical >= 2 || resilient >= 2) {
+			if (didSucceed) {
+				mosje.mp += 20;
+				console.log('[ABILITY] Obby #1: +20 MP on successful Physical/Resilient quest');
+			} else {
+				applyDamage(mosje, 10);
+				console.log('[ABILITY] Obby #1: -10 MP on failed Physical/Resilient quest');
+			}
 		}
 	}
 	return state;
