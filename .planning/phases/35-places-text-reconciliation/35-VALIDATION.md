@@ -66,7 +66,7 @@ Tasks 1-2 and 35-07-PLAN.md Task 1.
 
 ## Wave 0 Requirements
 
-- [x] `tests/ui/cards/card-registry.js` — add entries for the 10 in-scope Place cards (PLACE-01 through 04, 06-11) so card-behavior tests can drive them through the real dispatcher (`resolvePlaceEffect`/`startTurn`/`endTurn`), per CLAUDE.md's "test the REAL engine" rule and Success Criterion 5's dispatcher-level proof requirement. Planner may choose engine-unit tests instead per-card where dispatcher coverage isn't the natural shape (see RESEARCH.md "Wave 0 Gaps").
+- [x] `tests/engine/place-*.test.ts` — dispatcher-level tests for the 10 in-scope Place cards (PLACE-01 through 04, 06-11) driving them through the real dispatcher (`resolvePlaceEffect`/`startTurn`/`endTurn`), per CLAUDE.md's "test the REAL engine" rule and Success Criterion 5's dispatcher-level proof requirement. Chosen in place of `card-registry.js` entries per RESEARCH.md's "Wave 0 Gaps" note (dispatcher-level `tests/engine/` coverage is the natural shape for this reconciliation phase).
 - [x] Pool-visibility test for PLACE-05 (Drain Zone) and PLACE-12 (The Void) confirming both are unreachable from deck-building, boosters, and starter decks after the hide.
 
 ---
