@@ -168,15 +168,15 @@ export function effect_arcade(gameState, questCard, didSucceed) {
 	const state = cloneState(gameState);
 	const playerId = state.activePlayerId;
 	const player = state.players[playerId];
-	const slotIndex = player.activeSlots.findIndex(slot => slot !== null && !slot.isDefeated);
-	if (slotIndex < 0) return state;
 
-	const mosje = player.activeSlots[slotIndex];
-	const technical = mosje.traits?.technical || 0;
+	for (const mosje of player.activeSlots) {
+		if (!mosje || mosje.isDefeated) continue;
+		const technical = mosje.traits?.technical || 0;
 
-	if (technical >= 2 && didSucceed) {
-		mosje.mp += 15;
-		console.log('[ABILITY] Arcade: +15 MP on successful Technical quest');
+		if (technical >= 2 && didSucceed) {
+			mosje.mp += 15;
+			console.log('[ABILITY] Arcade: +15 MP on successful Technical quest');
+		}
 	}
 	return state;
 }
