@@ -6,8 +6,9 @@
  * calls the ability fn directly, AFTER the engine sets abilityUsedThisTurn, so it
  * bypasses the per-turn brake and doubles abilities it shouldn't ("Group B leak").
  *
- * Tuk Healer (Healing Presence: all your Mosjes +15 MP, once per turn) is the
- * clean canary: single = +15, leaked double = +30.
+ * Tuk Healer (Healing Presence: choose one own Mosje +10 MP, once per turn — with
+ * only one Mosje on the field it defaults to healing itself) is the clean canary:
+ * single = +10, leaked double = +20.
  *
  * Run: npx playwright test tests/ui/simulation/redbull-once-per-turn.spec.js
  */
@@ -29,12 +30,12 @@ async function armRedbull(page) {
 	expect((await getGameState(page))?.players?.player_1?.abilityDoubleTrigger).toBe(true);
 }
 
-test('Redbull does NOT double Tuk Healer (once-per-turn) — +15, not +30', async ({ page }) => {
+test('Redbull does NOT double Tuk Healer (once-per-turn) — +10, not +20', async ({ page }) => {
 	test.setTimeout(90000);
 
 	await seedCustomDeck(page, {
 		id: 'custom_rb_tuk_healer', name: 'Redbull + Tuk Healer',
-		mosjes: ['mosje_tuk_healer'],   // Healing Presence: all your Mosjes +15 MP (once/turn)
+		mosjes: ['mosje_tuk_healer'],   // Healing Presence: solo on field, defaults to self +10 MP (once/turn)
 		piecies: ['piecie_redbull', 'piecie_redbull',
 		          'piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk',
 		          'piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk'],
@@ -57,8 +58,8 @@ test('Redbull does NOT double Tuk Healer (once-per-turn) — +15, not +30', asyn
 	await ss(page, 'redbull-tuk-healer');
 
 	const after = (await readOwnedMosjes(page))[0]?.mp;
-	console.log(`Tuk Healer MP ${before}→${after} (gained ${after - before}; single should be 15)`);
+	console.log(`Tuk Healer MP ${before}→${after} (gained ${after - before}; single should be 10)`);
 
 	// Once-per-turn ability: Redbull must not echo it.
-	expect(after - before).toBe(15);
+	expect(after - before).toBe(10);
 });

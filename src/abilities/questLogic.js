@@ -435,7 +435,7 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 
 	// Mosje auto-abilities that react to quest outcomes (e.g. Michelle Tough Gamble).
 	// Fires before Place effects so the modified MP feeds into Quest Haven bonuses.
-	state = applyMosjeFieldEffectsOnQuest(state, playerId, slotIndex, questMpGained);
+	state = applyMosjeFieldEffectsOnQuest(state, playerId, slotIndex, questMpGained, questCard, didSucceed);
 
   if (didSucceed) {
 		state.players[playerId].questsCompleted += 1;
@@ -472,9 +472,11 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 // applyMosjeFieldEffectsOnQuest
 // Auto-abilities on the active Mosje that trigger after a quest resolves.
 // questMpGained: the raw successMP that was applied (0 on failure/void).
+// questCard/didSucceed: threaded through for abilities that need the quest's
+// category or a real success/failure gate (e.g. FPS Coert), not just the MP delta.
 // Attaches state._autoAbilityLog for the UI to surface in the battle log.
 // ─────────────────────────────────────────────────────────────
-function applyMosjeFieldEffectsOnQuest(gameState, playerId, slotIndex, questMpGained) {
+function applyMosjeFieldEffectsOnQuest(gameState, playerId, slotIndex, questMpGained, questCard, didSucceed) {
 	let state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player || slotIndex < 0) return state;
@@ -533,6 +535,42 @@ function applyMosjeFieldEffectsOnQuest(gameState, playerId, slotIndex, questMpGa
 				adjustment: 10,
 				label: `[Jeffrey] ${label}`,
 			};
+		}
+	}
+
+	// ── FPS Coert — Headshot Precision ──────────────────────────────────────
+	// Passive auto-trigger (2026-07-13 reconciliation: TEXT WINS): after a
+	// Physical or Technical Quest SUCCESS, roll 1d6. On 6: FPS Coert +30 MP,
+	// opponent's first active Mosje -15 MP.
+	if (
+		mosje.cardId === 'mosje_fps_coert' &&
+		didSucceed &&
+		['Physical', 'Technical'].includes(questCard?.category)
+	) {
+		const roll = rollDie(6);
+		if (roll === 6) {
+			mosje.mp += 30;
+			const oppId = Object.keys(state.players).find(id => id !== playerId);
+			const oppSlotIndex = oppId
+				? state.players[oppId].activeSlots.findIndex(s => s && !s.isDefeated)
+				: -1;
+			if (oppId && oppSlotIndex >= 0) {
+				state = loseMP(state, oppId, oppSlotIndex, 15, 'FPS_COERT_HEADSHOT');
+			}
+			const label = `Headshot Precision: rolled ${roll} — +30 MP, opponent -15 MP`;
+			console.log(`[ABILITY] FPS Coert ${label} | mp=${state.players[playerId].activeSlots[slotIndex].mp}`);
+			if (state._autoAbilityLog) {
+				state._autoAbilityLog.label += ` · [FPS Coert] ${label}`;
+			} else {
+				state._autoAbilityLog = {
+					mosje: mosje.name,
+					ability: 'Headshot Precision',
+					adjustment: 30,
+					label: `[FPS Coert] ${label}`,
+				};
+			}
+		} else {
+			console.log(`[ABILITY] FPS Coert Headshot Precision: rolled ${roll} — no effect`);
 		}
 	}
 

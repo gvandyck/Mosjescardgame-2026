@@ -72,7 +72,17 @@ export function hasSynergy(gameState, playerId, mosjeAId, mosjeBId) {
 // Specific helper for the Binti + Coert synergy:
 // FOOD cards give double MP.
 // Called by piecieEffects.js before applying FOOD card gains.
+// ALL Coert variants count (2026-07-12 ruling) — matches Binti's
+// synergyWith list in src/data/mosjes.js.
 // ─────────────────────────────────────────────────────────────
+const FOOD_SYNERGY_COERTS = [
+  'mosje_coert_tech',
+  'mosje_coert_kasteluck',
+  'mosje_coert_kastelein',
+];
+
 export function hasFoodDoubleSynergy(gameState, playerId) {
-  return hasSynergy(gameState, playerId, 'mosje_binti', 'mosje_coert_tech');
+  return FOOD_SYNERGY_COERTS.some(
+    coertId => hasSynergy(gameState, playerId, 'mosje_binti', coertId)
+  );
 }

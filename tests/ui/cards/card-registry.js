@@ -285,9 +285,14 @@ export const ABILITY_REGISTRY = [
 		cardId: 'ability_martin_driver_perfect_line', logMatch: /[Dd]river|[Pp]erfect [Ll]ine/,
 	},
 	{
+		// 2026-07-13 reconciliation: Lucky Draw now shows a reveal modal (#modal-continue)
+		// before optionally offering a free-activate/keep choice — the generic runner's
+		// dismiss loop doesn't know to click #modal-continue, so it hangs there. Covered
+		// instead by a dedicated test in card-chains.spec.js ("chain: Ming Natural Lucky Draw").
 		mosje: 'mosje_ming_natural', abilityMosjeId: 'mosje_ming_natural', playThen: 'ability',
 		setup: { ownMP: 40 }, expectedEffect: 'DRAW', handDelta: 1,
 		cardId: 'ability_ming_natural_lucky_draw', logMatch: /[Mm]ing|[Ll]ucky [Dd]raw/,
+		skipReason: 'Reveal modal (#modal-continue) blocks the generic ability runner — see card-chains.spec.js',
 	},
 	{
 		mosje: 'mosje_binti_creator', abilityMosjeId: 'mosje_binti_creator', playThen: 'ability',
@@ -307,15 +312,27 @@ export const ABILITY_REGISTRY = [
 		cardId: 'ability_coert_kastelein_immovable_object', logMatch: /[Kk]astelein|[Ii]mmovable/,
 	},
 	{
+		// 2026-07-13 reconciliation: Perfect Setup now requires 3+ face-down Piecies on
+		// the field (the generic runner's single-card setup can't drive that) and picks
+		// one via a target-selector modal — covered instead by a dedicated test in
+		// card-chains.spec.js ("chain: Chris All-Rounder Perfect Setup").
 		mosje: 'mosje_chris', abilityMosjeId: 'mosje_chris', playThen: 'ability',
 		setup: { ownMP: 40 }, expectedEffect: 'FIELD_EFFECT',
-		stateFlag: { path: 'players.player_1.instantPiecieThisTurn', equals: true },
 		cardId: 'ability_chris_perfect_setup', logMatch: /[Cc]hris|[Ss]etup/,
+		skipReason: 'Requires 3+ face-down Piecies pre-placed + a target-selector pick — see card-chains.spec.js',
 	},
 	{
+		// 2026-07-13 reconciliation: Headshot Precision is now a passive auto-trigger
+		// after a Physical/Technical Quest success (rolled inside resolveQuest via
+		// applyMosjeFieldEffectsOnQuest) — there's no manual button to click anymore
+		// (autoAbility:true), so the generic 'ability' runner can't drive it. Same
+		// pattern as Michelle/Jeffrey (also passive quest-hooks, never had a registry
+		// entry). Covered by the resolveQuest unit tests in
+		// ability-text-reconciliation.test.ts instead.
 		mosje: 'mosje_fps_coert', abilityMosjeId: 'mosje_fps_coert', playThen: 'ability',
 		setup: { ownMP: 40, opponentMP: 90 }, expectedEffect: 'ATTACK', oppDeltaMin: -25, oppDeltaMax: -25,
 		cardId: 'ability_fps_coert_headshot_precision', logMatch: /[Cc]oert|[Hh]eadshot/,
+		skipReason: 'Now a passive auto-trigger on Quest success, not a manual button — see ability-text-reconciliation.test.ts',
 	},
 ];
 

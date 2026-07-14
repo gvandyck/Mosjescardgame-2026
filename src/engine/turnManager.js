@@ -2,7 +2,7 @@
 // Coordinates which engine functions run in which order.
 // The UI calls these functions; they return the updated game state.
 
-import { drawCards, shuffleDeck } from './deckEngine.js';
+import { drawCards, shuffleDeck, rollDie } from './deckEngine.js';
 import { gainMP, applyStatusEffectMP, getTotalMPForPlayer } from './mpManager.js';
 import { checkVictory, markMosjeDefeated } from './victoryChecker.js';
 import { getAllPlayerIds, setActivePlace, destroyActivePlace, clearReturnedMosjesAtTurnEnd } from './gameState.js';
@@ -29,6 +29,61 @@ function hasBothChrisAndYouri(player) {
   return chrisAlive && youriAlive;
 }
 
+// Chris DDR — Perfect Combo Chain: after ANY Piecie this player activates, roll
+// 1d6 (mosje_dj_8020's synergy adds +2 to the roll while both are on the field).
+// On 5-6, activate another Piecie from hand for free (Ronald Master Plan's
+// direct-call bypass — it comes from hand, not a field slot, so activatePiecie's
+// slot-state checks don't apply) and roll again — up to 3 extra chains per turn
+// (chrisDdrChainUsesThisTurn, reset in startTurn()). Recursive: a successful
+// chain itself counts as "activated a Piecie" and rolls again.
+function maybeChainChrisDdrCombo(state, playerId) {
+  const player = state.players[playerId];
+  if (!player) return state;
+  const chrisDdrAlive = player.activeSlots.some(s => s && !s.isDefeated && s.cardId === 'mosje_chris_ddr');
+  if (!chrisDdrAlive) return state;
+  const usesSoFar = player.chrisDdrChainUsesThisTurn || 0;
+  if (usesSoFar >= 3) return state;
+
+  const dj8020Alive = player.activeSlots.some(s => s && !s.isDefeated && s.cardId === 'mosje_dj_8020');
+  const bonus = dj8020Alive ? 2 : 0;
+  const roll = rollDie(6) + bonus;
+  if (roll < 5) {
+    console.log(`[ABILITY] Chris DDR Perfect Combo Chain: rolled ${roll - bonus}${bonus ? ` (+${bonus} DJ 80/20) = ${roll}` : ''} — no chain`);
+    return state;
+  }
+
+  const handIndex = player.hand.findIndex(c => c.type === 'PIECIE');
+  if (handIndex < 0) {
+    console.log(`[ABILITY] Chris DDR Perfect Combo Chain: rolled ${roll} but no Piecie in hand to chain`);
+    return state;
+  }
+
+  const [chainedCard] = player.hand.splice(handIndex, 1);
+  player.chrisDdrChainUsesThisTurn = usesSoFar + 1;
+  const def = PIECIES.find(p => p.id === chainedCard.cardId);
+  console.log(`[ABILITY] Chris DDR Perfect Combo Chain: rolled ${roll} — chained ${chainedCard.cardId} from hand for free (use ${player.chrisDdrChainUsesThisTurn}/3)`);
+
+  let next = state;
+  if (def?.effectId && typeof piecieEffects[def.effectId] === 'function') {
+    next = piecieEffects[def.effectId](state, playerId);
+  }
+  const np = next.players[playerId];
+  if (!Array.isArray(np.graveyard)) np.graveyard = [];
+  if (def?.persistUntilEndOfTurn) {
+    const empty = np.piecieSlots.findIndex(s => s === null);
+    if (empty >= 0) {
+      np.piecieSlots[empty] = { cardId: chainedCard.cardId, type: 'PIECIE', faceDown: false, activated: true, persistUntilEoT: true, playedOnTurn: next.turnNumber };
+    } else {
+      np.graveyard.push(toGraveyardEntry(chainedCard.cardId, 'played'));
+    }
+  } else {
+    np.graveyard.push(toGraveyardEntry(chainedCard.cardId, 'played'));
+  }
+  np.pieciesActivatedThisTurn = (np.pieciesActivatedThisTurn || 0) + 1;
+
+  return maybeChainChrisDdrCombo(next, playerId); // recurse — the chained activation may chain again
+}
+
 const PIECIE_LOOKUP = Object.fromEntries(PIECIES.map(card => [card.id, card]));
 const SNELLE_PIECIE_LOOKUP = Object.fromEntries(SNELLE_PIECIES.map(card => [card.id, card]));
 const PLACE_LOOKUP = Object.fromEntries(PLACES.map(card => [card.id, card]));
@@ -50,6 +105,9 @@ const NO_DOUBLE_ABILITIES = new Set([
   'ability_binti_cutting_words',                  // once per turn + discard target
   'ability_michelle_tough_gamble',                // passive (auto, no manual trigger)
   'ability_jeffrey_brute_force',                  // passive (auto)
+  'ability_coert_kasteluck_morning_luck',          // passive (auto, turn-start roll)
+  'ability_fps_coert_headshot_precision',           // passive (auto, quest-success roll)
+  'ability_chris_ddr_perfect_combo_chain',          // passive (auto, roll after every Piecie activation)
   // Group B (2026-06-17): once-per-turn / cooldown / per-game-cap abilities.
   // The echo runs the fn directly, AFTER abilityUsedThisTurn is set, so it would
   // otherwise bypass the per-turn brake and fire twice. Redbull is a powerup
@@ -77,6 +135,7 @@ const REPROMPT_DOUBLE_ABILITIES = new Set([
   'ability_youri_speed_activate',                 // 20 MP + face-down target; 3/game cap
                                                   // is enforced inside the fn, so the
                                                   // second cast is denied once exhausted.
+  'ability_jisca_perfect_combo',                  // fresh d6 roll + Piecie target (when 5-6 rolled)
   'ability_binti_creator_quick_sketch',           // discard 2 FOOD + deck-search tutor
 ]);
 
@@ -150,6 +209,8 @@ export function startTurn(gameState) {
   activePlayer.actionsThisTurn = [];
   activePlayer.freePiecieActivationAvailable = false;
   activePlayer.attackPieciePlayedThisTurn = false;
+  activePlayer.kasteLuckSameTurnActivation = false;
+  activePlayer.chrisDdrChainUsesThisTurn = 0;
 
   // Dead-flag turn hygiene (Phase 18): clear stale single-turn effect flags so a
   // flag set but never triggered does not leak into a later turn. These live on
@@ -223,6 +284,23 @@ export function startTurn(gameState) {
     if (slot && !slot.isDefeated) {
       state = gainMP(state, playerId, i, 10, 'GAIN', { allowLevelUp: false }); // trickle caps at 100; only Quests level
       console.log(`[ENGINE] Turn trickle: ${slot.name} +10 MP → ${state.players[playerId].activeSlots[i].mp} MP`);
+    }
+  }
+
+  // Coert KasteLuck — Morning Luck: auto turn-start roll (2026-07-13 reconciliation
+  // ruling: TEXT WINS, but same-turn activation is granted via the ACTUALLY-working
+  // Chris+Youri mechanic in playPiecie, not the inert freePiecieActivationAvailable
+  // flag). On 4-6, the next Piecie this player plays this turn skips the "wait
+  // until next turn to activate" rule; consumed on that first play.
+  const kasteLuckPlayer = state.players[playerId];
+  const kasteLuckAlive = kasteLuckPlayer.activeSlots.some(s => s && !s.isDefeated && s.cardId === 'mosje_coert_kasteluck');
+  if (kasteLuckAlive) {
+    const kasteLuckRoll = rollDie(6);
+    if (kasteLuckRoll >= 4) {
+      kasteLuckPlayer.kasteLuckSameTurnActivation = true;
+      console.log(`[ABILITY] Coert KasteLuck: rolled ${kasteLuckRoll} (lucky!) — next Piecie played this turn activates instantly`);
+    } else {
+      console.log(`[ABILITY] Coert KasteLuck: rolled ${kasteLuckRoll} (no luck today)`);
     }
   }
 
@@ -519,13 +597,21 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
   if (chrisYouriSynergy) {
     console.log('[SYNERGY] Chris+Youri: Piecie placed with instant activation (canActivateOnTurn = ' + state.turnNumber + ')');
   }
+  // Coert KasteLuck's turn-start Morning Luck roll: one-shot same-turn-activation
+  // bonus on the FIRST Piecie played this turn, consumed here regardless of
+  // whether Chris+Youri synergy also would have granted it.
+  const kasteLuckBonus = player.kasteLuckSameTurnActivation === true;
+  if (kasteLuckBonus) {
+    console.log('[ABILITY] Coert KasteLuck: Morning Luck bonus consumed — Piecie placed with instant activation');
+    player.kasteLuckSameTurnActivation = false;
+  }
   player.piecieSlots[emptySlot] = {
     cardId: cardRef.cardId,
     type: 'PIECIE',
     faceDown: true,
     activated: false,
     playedOnTurn: state.turnNumber,
-    canActivateOnTurn: chrisYouriSynergy ? state.turnNumber : state.turnNumber + 1,
+    canActivateOnTurn: (chrisYouriSynergy || kasteLuckBonus) ? state.turnNumber : state.turnNumber + 1,
   };
 
   state.players[playerId].pieciesPlayedThisTurn = (state.players[playerId].pieciesPlayedThisTurn || 0) + 1;
@@ -818,6 +904,10 @@ export function activatePiecie(gameState, playerId, slotIndex) {
   if (state.activePlace === 'place_momentum_factory') {
     state = placeEffects.effect_momentum_factory(state);
   }
+
+  // Chris DDR — Perfect Combo Chain: may recursively activate more Piecies from
+  // hand (see maybeChainChrisDdrCombo above).
+  state = maybeChainChrisDdrCombo(state, playerId);
 
   // Piecie resolves — persistent cards stay in slot until end-of-turn sweep.
   player = state.players[playerId];

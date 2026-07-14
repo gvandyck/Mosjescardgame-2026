@@ -25,7 +25,9 @@ const POOL = [
 	...SNELLE_PIECIES.map(c => ({ ...c, cardType: 'SNELLE_PIECIE' })),
 	...PLACES.map(c => ({ ...c, cardType: 'PLACE' })),
 	...QUESTS.filter(c => c.questType === 'PERSONAL').map(c => ({ ...c, cardType: 'QUEST' })),
-].map(c => ({ card: c, weight: rarityToWeight(c.rarity) }));
+]
+	.filter(c => !c.disabled) // hidden cards (e.g. Coert Kastelein, Drainer) never drop
+	.map(c => ({ card: c, weight: rarityToWeight(c.rarity) }));
 
 const TOTAL_WEIGHT = POOL.reduce((s, e) => s + e.weight, 0);
 

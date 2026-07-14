@@ -1,12 +1,14 @@
 /**
  * redbull-gambler.spec.js — Redbull doubles Jeffrey Gambler's High Stakes.
  *
- * Group A, simplest case: High Stakes is self-contained (fixed 30 MP bet + fresh
- * d6, no stale _pendingTargets), so a plain re-run bets again and rolls again — a
- * true "triggers twice". Just needs removing from NO_DOUBLE_ABILITIES (like Coert).
+ * 2026-07-13 ability-text-engine-reconciliation ruling: the old fixed-30-MP wager
+ * mechanic was dropped entirely ("too OP"). NEW DESIGN: roll 1d6, no MP cost, no MP
+ * change either way. Rolls 1-5 → QUEST_BLOCKED this turn. Roll 6 → +3 Quest roll
+ * bonus (questPrepBonus). High Stakes is still self-contained (fresh d6, no stale
+ * _pendingTargets), so a plain re-run rolls again — a true "triggers twice".
  *
- * Dice mocked to always roll 6 (win): each fire = -30 bet +60 = net +30.
- * Single = +30, doubled = +60.
+ * Dice mocked to a fixed value so both the original cast and the Redbull echo land
+ * on the same outcome.
  *
  * Run: npx playwright test tests/ui/simulation/redbull-gambler.spec.js
  */
@@ -18,14 +20,14 @@ import {
 	getGameState, readOwnedMosjes, mockDiceRoll,
 } from '../helpers.js';
 
-test('Redbull doubles Jeffrey Gambler — two bets, two rolls (+60 net)', async ({ page }) => {
+test('Redbull doubles Jeffrey Gambler — jackpot twice (+6 Quest roll bonus, no MP change)', async ({ page }) => {
 	test.setTimeout(90000);
 
-	await mockDiceRoll(page, 0.9); // Math.random→0.9 ⇒ d6 always rolls 6 (win)
+	await mockDiceRoll(page, 0.9); // Math.random→0.9 ⇒ d6 always rolls 6 (jackpot)
 
 	await seedCustomDeck(page, {
 		id: 'custom_rb_gambler', name: 'Redbull + Gambler',
-		mosjes: ['mosje_jeffrey_gambler'],   // High Stakes: bet 30, d6 4+ → net +30
+		mosjes: ['mosje_jeffrey_gambler'],   // High Stakes: roll 1d6, 6 → +3 questPrepBonus
 		piecies: ['piecie_redbull', 'piecie_redbull',
 		          'piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk',
 		          'piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk'],
@@ -46,7 +48,6 @@ test('Redbull doubles Jeffrey Gambler — two bets, two rolls (+60 net)', async 
 	await page.waitForTimeout(500);
 	expect((await getGameState(page))?.players?.player_1?.abilityDoubleTrigger).toBe(true);
 
-	// 35 MP (on the 5-grid): bet 30 twice under always-win → 35→5→65→35→95.
 	await setMosjeMP(page, 'player_1', 0, 35);
 	await page.waitForTimeout(200);
 	const before = (await readOwnedMosjes(page))[0]?.mp;
@@ -56,19 +57,22 @@ test('Redbull doubles Jeffrey Gambler — two bets, two rolls (+60 net)', async 
 	await ss(page, 'redbull-gambler');
 
 	const after = (await readOwnedMosjes(page))[0]?.mp;
-	console.log(`Gambler MP ${before}→${after} (net ${after - before}; single +30, doubled +60)`);
+	const state = await getGameState(page);
+	console.log(`Gambler MP ${before}→${after} (should be unchanged); questPrepBonus=${state?.players?.player_1?.questPrepBonus}`);
 
-	expect(after - before).toBe(60);  // fired twice
-	expect((await getGameState(page))?.players?.player_1?.abilityDoubleTrigger).toBeFalsy();
+	expect(after - before).toBe(0);  // High Stakes never touches MP
+	expect(state?.players?.player_1?.questPrepBonus).toBe(6);  // two jackpot rolls: +3 +3
+	expect(state?.players?.player_1?.activeSlots?.[0]?.statusEffects ?? []).toEqual([]);
+	expect(state?.players?.player_1?.abilityDoubleTrigger).toBeFalsy();
 });
 
-test('Redbull doubles Jeffrey Gambler — both bets LOST (-60 net)', async ({ page }) => {
+test('Redbull doubles Jeffrey Gambler — QUEST_BLOCKED twice, no MP change', async ({ page }) => {
 	test.setTimeout(90000);
 
-	await mockDiceRoll(page, 0.1); // Math.random→0.1 ⇒ d6 always rolls 1 (loss, <4)
+	await mockDiceRoll(page, 0.1); // Math.random→0.1 ⇒ d6 always rolls 1 (QUEST_BLOCKED)
 
 	await seedCustomDeck(page, {
-		id: 'custom_rb_gambler_lose', name: 'Redbull + Gambler (lose)',
+		id: 'custom_rb_gambler_lose', name: 'Redbull + Gambler (blocked)',
 		mosjes: ['mosje_jeffrey_gambler'],
 		piecies: ['piecie_redbull', 'piecie_redbull',
 		          'piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk',
@@ -90,7 +94,6 @@ test('Redbull doubles Jeffrey Gambler — both bets LOST (-60 net)', async ({ pa
 	await page.waitForTimeout(500);
 	expect((await getGameState(page))?.players?.player_1?.abilityDoubleTrigger).toBe(true);
 
-	// 70 MP: enough to bet 30 twice (70→40→10), both bets lost (no +60 on a roll <4).
 	await setMosjeMP(page, 'player_1', 0, 70);
 	await page.waitForTimeout(200);
 	const before = (await readOwnedMosjes(page))[0]?.mp;
@@ -100,8 +103,13 @@ test('Redbull doubles Jeffrey Gambler — both bets LOST (-60 net)', async ({ pa
 	await ss(page, 'redbull-gambler-lose');
 
 	const after = (await readOwnedMosjes(page))[0]?.mp;
-	console.log(`Gambler MP ${before}→${after} (net ${after - before}; single -30, doubled -60)`);
+	const state = await getGameState(page);
+	const questBlockedCount = (state?.players?.player_1?.activeSlots?.[0]?.statusEffects ?? [])
+		.filter(e => e.type === 'QUEST_BLOCKED').length;
+	console.log(`Gambler MP ${before}→${after} (should be unchanged); QUEST_BLOCKED count=${questBlockedCount}`);
 
-	expect(after - before).toBe(-60);  // both bets lost — fired twice
-	expect((await getGameState(page))?.players?.player_1?.abilityDoubleTrigger).toBeFalsy();
+	expect(after - before).toBe(0);  // High Stakes never touches MP
+	expect(questBlockedCount).toBe(2);  // both fires pushed QUEST_BLOCKED
+	expect(state?.players?.player_1?.questPrepBonus ?? 0).toBe(0);
+	expect(state?.players?.player_1?.abilityDoubleTrigger).toBeFalsy();
 });

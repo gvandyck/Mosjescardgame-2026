@@ -1639,6 +1639,10 @@ function initGamePage() {
 	const GANDOE_ELIMINATION_IDS = new Set(['mosje_gandoe_destroyer']);
 	const RONALD_MASTERMIND_IDS = new Set(['mosje_ronald_mastermind']);
 	const MING_FUTURE_SIGHT_IDS = new Set(['mosje_ming_predictor']);
+	const MING_NATURAL_LUCKY_DRAW_IDS = new Set(['mosje_ming_natural']);
+	const TUK_HEALER_PRESENCE_IDS = new Set(['mosje_tuk_healer']);
+	const CHRIS_PERFECT_SETUP_IDS = new Set(['mosje_chris']);
+	const JISCA_PERFECT_COMBO_IDS = new Set(['mosje_jisca']);
 	const TUK_PERFECT_PLACEMENT_IDS = new Set(['mosje_tuk_architect']);
 	const FPS_WEST_TACTICAL_IDS = new Set(['mosje_fps_west']);
 	const RONALD_CHEF_INSIGHT_IDS = new Set(['mosje_ronald_chef']);
@@ -2058,6 +2062,222 @@ function initGamePage() {
 			const mingSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
 			log.add('loss', `Ming Future Sight: paid 10 MP to look at the top quest${choice === 'bottom' ? ' and sent it to the bottom' : ''}.`);
 			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${mingSlot?.name || mosjeId} ability`);
+			syncPush();
+			if (gameState.status === 'FINISHED') {
+				handleGameOver(gameState);
+			}
+			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
+			return;
+		}
+
+		// Ming Natural — Lucky Draw: reveal the top of your deck, then draw it. If it's a
+		// Piecie, choose to activate it for free or keep it in hand; otherwise +15 MP.
+		if (MING_NATURAL_LUCKY_DRAW_IDS.has(mosjeId)) {
+			const deck = gameState.players[localPlayerId].deck || [];
+			if (deck.length === 0) {
+				modal.showInfo('Cannot Use Ability', 'Your deck is empty — nothing to draw.');
+				return;
+			}
+			const topCard = deck[0];
+			const topDef = CARD_LOOKUP[topCard.cardId];
+			const topCardName = topDef?.name || topCard.cardId || '???';
+			const topCardType = topCard.type || topDef?.type || '???';
+			await modal.showRevealedCard('Lucky Draw — Card Revealed', topCardName, topCardType);
+			let freeActivate = false;
+			if (topCard.type === 'PIECIE') {
+				const choice = await modal.showOptionSelect({
+					title: 'Lucky Draw',
+					prompt: `Activate ${topCardName} for free now, or keep it in hand?`,
+					options: [
+						{ id: 'activate', label: 'Activate for free' },
+						{ id: 'keep', label: 'Keep in hand' },
+					],
+					allowCancel: true,
+				});
+				if (!choice) return;
+				freeActivate = choice === 'activate';
+			}
+			const stateWithTarget = JSON.parse(JSON.stringify(gameState));
+			stateWithTarget._pendingTargets = {
+				...(stateWithTarget._pendingTargets || {}),
+				mingNaturalFreeActivate: freeActivate,
+			};
+			const { state: newState, success, error } = useMosjeAbility(stateWithTarget, localPlayerId, mosjeId);
+			if (!success) {
+				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
+				return;
+			}
+			if (abilitySlotIndex >= 0) {
+				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
+			}
+			gameState = newState;
+			const mingNaturalSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
+			const resultDesc = freeActivate
+				? ' and activated it for free'
+				: (topCard.type === 'PIECIE' ? ' and kept it in hand' : ', +15 MP');
+			log.add('gain', `Ming Natural Lucky Draw: drew ${topCardName}${resultDesc}.`);
+			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${mingNaturalSlot?.name || mosjeId} ability`);
+			syncPush();
+			if (gameState.status === 'FINISHED') {
+				handleGameOver(gameState);
+			}
+			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
+			return;
+		}
+
+		// Tuk Healer — Healing Presence: choose this Mosje or another own Mosje to gain 10 MP.
+		// Only prompts when there's more than one own Mosje on the field.
+		if (TUK_HEALER_PRESENCE_IDS.has(mosjeId)) {
+			const ownTargets = getPlayerMosjes(gameState, localPlayerId);
+			let stateForHeal = gameState;
+			let targetLabel = null;
+			if (ownTargets.length > 1) {
+				const selectedId = await modal.showTargetSelector(ownTargets, 'Healing Presence — choose which Mosje gains 10 MP:');
+				if (!selectedId) return;
+				const targetSlotIndex = parseInt(String(selectedId).split('_slot_')[1], 10);
+				if (Number.isNaN(targetSlotIndex)) return;
+				stateForHeal = JSON.parse(JSON.stringify(gameState));
+				stateForHeal._pendingTargets = {
+					...(stateForHeal._pendingTargets || {}),
+					own_slot_index: targetSlotIndex,
+				};
+				targetLabel = gameState.players[localPlayerId].activeSlots[targetSlotIndex]?.name;
+			}
+			const { state: newState, success, error } = useMosjeAbility(stateForHeal, localPlayerId, mosjeId);
+			if (!success) {
+				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
+				return;
+			}
+			if (abilitySlotIndex >= 0) {
+				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
+			}
+			gameState = newState;
+			const healerSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
+			log.add('gain', `Healing Presence: ${targetLabel || healerSlot?.name || mosjeId} gained 10 MP.`);
+			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${healerSlot?.name || mosjeId} ability`);
+			syncPush();
+			if (gameState.status === 'FINISHED') {
+				handleGameOver(gameState);
+			}
+			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
+			return;
+		}
+
+		// Chris All-Rounder — Perfect Setup: 3+ face-down Piecies required; pick one and
+		// activate it for free. Mirrors Youri's two-step (engine unlocks the slot, then
+		// activatePiecie resolves it) but with no MP cost and no draw.
+		if (CHRIS_PERFECT_SETUP_IDS.has(mosjeId)) {
+			const chrisPlayer = gameState.players[localPlayerId];
+			const faceDownIndices = chrisPlayer.piecieSlots
+				.map((s, i) => (s && s.type === 'PIECIE' && s.faceDown && !s.activated) ? i : -1)
+				.filter(i => i >= 0);
+			if (faceDownIndices.length < 3) {
+				modal.showInfo('Cannot Use Ability', 'Perfect Setup requires 3+ face-down Piecies on the field.');
+				return;
+			}
+			const options = faceDownIndices.map(i => {
+				const slot = chrisPlayer.piecieSlots[i];
+				const def = slot?.cardId ? CARD_LOOKUP[slot.cardId] : null;
+				return { id: i, label: `Slot ${i + 1} — ${def?.name || slot?.cardId || 'Unknown'}` };
+			});
+			const chosen = await modal.showOptionSelect({
+				title: 'Perfect Setup',
+				prompt: 'Pick a face-down Piecie to activate for free:',
+				options,
+				allowCancel: true,
+			});
+			if (chosen === null || chosen === undefined) return;
+			const chrisSlotIndex = typeof chosen === 'object' ? chosen.id : chosen;
+			const activatedCardId = chrisPlayer.piecieSlots[chrisSlotIndex]?.cardId;
+			const stateWithTarget = JSON.parse(JSON.stringify(gameState));
+			stateWithTarget._pendingTargets = {
+				...(stateWithTarget._pendingTargets || {}),
+				chrisPerfectSetupSlotIndex: chrisSlotIndex,
+			};
+			const { state: abilityState, success, error } = useMosjeAbility(stateWithTarget, localPlayerId, mosjeId);
+			if (!success) {
+				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
+				return;
+			}
+			const { state: activatedState, success: actSuccess, error: actError } =
+				activatePiecie(abilityState, localPlayerId, chrisSlotIndex);
+			if (!actSuccess) {
+				modal.showInfo('Activation Failed', actError || 'Could not activate the Piecie.');
+				gameState = abilityState;
+				renderAndCheckWin();
+				return;
+			}
+			if (abilitySlotIndex >= 0) {
+				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
+			}
+			gameState = activatedState;
+			const chrisSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
+			const activatedName = CARD_LOOKUP[activatedCardId]?.name || 'Piecie';
+			log.add('gain', `Perfect Setup: activated ${activatedName} for free.`);
+			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${chrisSlot?.name || mosjeId} ability`);
+			syncPush();
+			if (gameState.status === 'FINISHED') {
+				handleGameOver(gameState);
+			}
+			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
+			return;
+		}
+
+		// Jisca — Perfect Combo: rolls 1d6 (1-4 no effect, 5-6 chains a Piecie). Eligibility
+		// doesn't depend on the roll, so the target is picked UP FRONT (like Chris) —
+		// a second useMosjeAbility call would re-roll and hit the once-per-turn gate.
+		if (JISCA_PERFECT_COMBO_IDS.has(mosjeId)) {
+			const jiscaPlayer = gameState.players[localPlayerId];
+			const eligibleIndices = jiscaPlayer.piecieSlots
+				.map((s, i) => (s && s.type === 'PIECIE') ? i : -1)
+				.filter(i => i >= 0);
+			let stateForCombo = gameState;
+			if (eligibleIndices.length > 1) {
+				const options = eligibleIndices.map(i => {
+					const slot = jiscaPlayer.piecieSlots[i];
+					const def = slot?.cardId ? CARD_LOOKUP[slot.cardId] : null;
+					const status = (slot.faceDown && !slot.activated) ? 'face-down' : 'active';
+					return { id: i, label: `Slot ${i + 1} — ${def?.name || slot?.cardId || 'Unknown'} (${status})` };
+				});
+				const chosen = await modal.showOptionSelect({
+					title: 'Perfect Combo',
+					prompt: 'If you roll 5-6, which Piecie should chain? (Rolls 1-4 have no effect.)',
+					options,
+					allowCancel: true,
+				});
+				if (chosen === null || chosen === undefined) return;
+				const jiscaSlotIndex = typeof chosen === 'object' ? chosen.id : chosen;
+				stateForCombo = JSON.parse(JSON.stringify(gameState));
+				stateForCombo._pendingTargets = {
+					...(stateForCombo._pendingTargets || {}),
+					jiscaComboSlotIndex: jiscaSlotIndex,
+				};
+			}
+			const { state: abilityState, success, error, jiscaRoll, jiscaChainedSlot, jiscaChainedFaceDown } =
+				useMosjeAbility(stateForCombo, localPlayerId, mosjeId);
+			if (!success) {
+				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
+				return;
+			}
+			let finalState = abilityState;
+			if (jiscaChainedFaceDown === true && Number.isInteger(jiscaChainedSlot)) {
+				const { state: activatedState, success: actSuccess, error: actError } =
+					activatePiecie(finalState, localPlayerId, jiscaChainedSlot);
+				if (actSuccess) finalState = activatedState;
+				else console.warn('[UI] Jisca chain activation failed:', actError);
+			}
+			if (abilitySlotIndex >= 0) {
+				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
+			}
+			gameState = finalState;
+			const jiscaSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
+			const chainedName = Number.isInteger(jiscaChainedSlot)
+				? (CARD_LOOKUP[jiscaPlayer.piecieSlots[jiscaChainedSlot]?.cardId]?.name || 'a Piecie')
+				: null;
+			log.add('gain', jiscaRoll >= 5
+				? (chainedName ? `Perfect Combo: rolled ${jiscaRoll}, chained ${chainedName}.` : `Perfect Combo: rolled ${jiscaRoll} — no Piecie to chain.`)
+				: `Perfect Combo: rolled ${jiscaRoll} — no effect.`);
+			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${jiscaSlot?.name || mosjeId} ability`);
 			syncPush();
 			if (gameState.status === 'FINISHED') {
 				handleGameOver(gameState);

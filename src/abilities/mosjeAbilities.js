@@ -325,16 +325,47 @@ export function ability_ronald_chef_strategic_insight(gameState, playerId) {
 	return next;
 }
 
-// Ming Natural — draw 1 card.
+// Ming Natural — Lucky Draw: draw 1 card and reveal it. The UI reveals the card
+// before calling this (peeking at the deck top is safe — it's about to be drawn
+// anyway) and, if it's a Piecie, asks the player to free-activate now or keep it
+// in hand, passing the choice via _pendingTargets.mingNaturalFreeActivate. If it's
+// not a Piecie, it's added to hand and this Mosje gains 15 MP.
 export function ability_ming_natural_lucky_draw(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
-	if (!player) return state;
-	if (player.deck.length > 0) {
-		player.hand.push(player.deck.shift());
-		console.log('[ABILITY] Ming Natural: drew 1 card');
+	if (!player) throw new Error('Player not found');
+	const slotIndex = player.activeSlots.findIndex(s => s && !s.isDefeated && String(s.cardId).includes('ming_natural'));
+	if (slotIndex < 0) throw new Error('Ming Natural not on field');
+	if (player.deck.length === 0) {
+		console.log('[ABILITY] Ming Natural: deck empty, nothing to draw');
+		return state;
 	}
-	return state;
+	const drawnCard = player.deck.shift();
+	const def = PIECIES.find(p => p.id === drawnCard.cardId);
+	if (def) {
+		const freeActivate = state._pendingTargets?.mingNaturalFreeActivate === true;
+		if (state._pendingTargets) delete state._pendingTargets.mingNaturalFreeActivate;
+		if (freeActivate && typeof piecieEffects[def.effectId] === 'function') {
+			const next = piecieEffects[def.effectId](state, playerId);
+			const np = next.players[playerId];
+			if (def.persistUntilEndOfTurn) {
+				const empty = np.piecieSlots.findIndex(s => s === null);
+				if (empty >= 0) np.piecieSlots[empty] = { cardId: drawnCard.cardId, type: 'PIECIE', faceDown: false, activated: true, persistUntilEoT: true, playedOnTurn: next.turnNumber };
+				else np.graveyard.push({ cardId: drawnCard.cardId, type: 'PIECIE' });
+			} else {
+				np.graveyard.push({ cardId: drawnCard.cardId, type: 'PIECIE' });
+			}
+			console.log('[ABILITY] Ming Natural: drew', drawnCard.cardId, 'and free-activated it');
+			return next;
+		}
+		player.hand.push(drawnCard);
+		console.log('[ABILITY] Ming Natural: drew', drawnCard.cardId, 'and kept it in hand');
+		return state;
+	}
+	player.hand.push(drawnCard);
+	const next = gainMP(state, playerId, slotIndex, 15, 'MING_NATURAL_DRAW', { allowLevelUp: false });
+	console.log('[ABILITY] Ming Natural: drew', drawnCard.cardId, '(not a Piecie), +15 MP');
+	return next;
 }
 
 // Ming Predictor — Future Sight: pay 10 MP, look at the top shared General Quest
@@ -438,36 +469,53 @@ export function ability_hacker_system_hack(gameState, playerId) {
 	return state;
 }
 
-// Jeffrey Gambler — bet 30 MP: roll d6. 4+ → gain 60 MP (net +30). Below 4 → lose 30 MP.
+// Jeffrey Gambler — High Stakes: roll 1d6. 1-5 → QUEST_BLOCKED this turn (no Quest
+// attempts). 6 → +3 Quest roll bonus (questPrepBonus). No MP cost, no MP gain/loss
+// either way (old wager mechanic dropped — ruled "too OP").
 export function ability_jeffrey_gambler_high_stakes(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
 	const si = getFirstActiveSlotIndex(player);
 	if (si < 0) return state;
-	const mosje = player.activeSlots[si];
-	if (mosje.mp < 30) {
-		console.log('[ABILITY] Jeffrey Gambler: not enough MP to bet (need 30)');
-		return state;
-	}
-	applyDamage(mosje, 30);
 	const roll = rollDie(6);
-	if (roll >= 4) {
-		mosje.mp += 60;
-		console.log(`[ABILITY] Jeffrey Gambler: rolled ${roll} (4+) → bet paid! Net +30 MP`);
+	if (roll === 6) {
+		player.questPrepBonus = (player.questPrepBonus || 0) + 3;
+		console.log(`[ABILITY] Jeffrey Gambler: rolled ${roll} (jackpot) → +3 Quest roll bonus`);
 	} else {
-		console.log(`[ABILITY] Jeffrey Gambler: rolled ${roll} (miss) → lost the bet`);
+		player.activeSlots[si].statusEffects.push({ type: 'QUEST_BLOCKED', value: 0, turnsLeft: 1 });
+		console.log(`[ABILITY] Jeffrey Gambler: rolled ${roll} → QUEST_BLOCKED this turn`);
 	}
 	return state;
 }
 
-// Chris All-Rounder — set flag to allow playing one Piecie instantly from hand this turn.
+// Chris All-Rounder — Perfect Setup: if you have 3+ face-down Piecies on the field,
+// pick one and unlock it for free same-turn activation (once per turn — enforced
+// generically by useMosjeAbility's abilityUsedThisTurn gate, same as Ronald/Tuk).
+// No MP gain (ruled "free activation is strong enough"). Mirrors Youri Speed
+// Activate's two-step mechanism: this sets canActivateOnTurn on the chosen slot;
+// the UI then calls the shared activatePiecie() to actually flip and resolve it.
+// The chosen slot comes from _pendingTargets.chrisPerfectSetupSlotIndex; falls back
+// to the first qualifying slot when no valid selection is given (bot-safe).
 export function ability_chris_perfect_setup(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
-	if (!player) return state;
-	player.instantPiecieThisTurn = true;
-	console.log('[ABILITY] Chris: next Piecie played this turn activates instantly');
+	if (!player) throw new Error('Player not found');
+	const selfIndex = player.activeSlots.findIndex(s => s && !s.isDefeated && s.cardId === 'mosje_chris');
+	if (selfIndex < 0) throw new Error('Chris All-Rounder not on field');
+	const faceDownIndices = player.piecieSlots
+		.map((s, i) => (s && s.type === 'PIECIE' && s.faceDown && !s.activated) ? i : -1)
+		.filter(i => i >= 0);
+	if (faceDownIndices.length < 3) {
+		throw new Error('Perfect Setup requires 3+ face-down Piecies on the field');
+	}
+	const selected = state._pendingTargets?.chrisPerfectSetupSlotIndex;
+	const slotIndex = (Number.isInteger(selected) && faceDownIndices.includes(selected))
+		? selected
+		: faceDownIndices[0];
+	if (state._pendingTargets) delete state._pendingTargets.chrisPerfectSetupSlotIndex;
+	player.piecieSlots[slotIndex].canActivateOnTurn = state.turnNumber;
+	console.log('[ABILITY] Chris Perfect Setup: unlocked face-down Piecie at slot', slotIndex, 'for free activation');
 	return state;
 }
 
@@ -557,22 +605,14 @@ export function ability_drainer_continuous_drain(gameState, playerId) {
 	return state;
 }
 
-// FPS Coert — headshot: opponent loses 25 MP.
-export function ability_fps_coert_headshot_precision(gameState, playerId) {
-	const state = cloneState(gameState);
-	const oppId = getOpponentId(state, playerId);
-	if (!oppId) return state;
-	const opp = state.players[oppId];
-	const osi = getFirstActiveSlotIndex(opp);
-	if (osi >= 0) {
-		// U8 — Entry Protection: ability unusable vs a freshly entered target.
-		if (opp.activeSlots[osi].entryProtected === true) {
-			throw new Error('Opponent Mosje just entered play — it is protected until their next turn');
-		}
-		applyDamage(opp.activeSlots[osi], 25);
-		console.log('[ABILITY] FPS Coert: headshot! opponent -25 MP');
-	}
-	return state;
+// FPS Coert — Headshot Precision is now an auto-trigger after Physical/Technical
+// Quest successes (2026-07-13 reconciliation): the real roll + MP effects live in
+// applyMosjeFieldEffectsOnQuest (questLogic.js), the same hook Michelle/Jeffrey use.
+// This manual entry is a no-op kept so useMosjeAbility does not crash if called
+// (mirrors ability_jeffrey_brute_force).
+export function ability_fps_coert_headshot_precision(gameState, _playerId) {
+	console.log('[ABILITY] FPS Coert Headshot Precision: passive auto-ability — no manual activation needed');
+	return gameState;
 }
 
 // FPS West — Tactical Analysis: guess a card type in the opponent's hand.
@@ -634,49 +674,86 @@ export function ability_ronald_mastermind_master_plan(gameState, playerId) {
 	return next;
 }
 
-// Jisca — perfect combo: if last card played was a Piecie, gain 20 MP.
+// Jisca — Perfect Combo: roll 1d6. 1-4 → no effect (the once-per-turn use is spent
+// either way, via useMosjeAbility's generic abilityUsedThisTurn gate). 5-6 → pick
+// ANY Piecie on your field (face-down OR already-active) and free-activate it.
+// Eligibility doesn't depend on the roll, so the UI resolves the choice UP FRONT
+// (like Chris) via _pendingTargets.jiscaComboSlotIndex — avoiding a second
+// useMosjeAbility call, which would re-roll and hit the once-per-turn gate.
+// Face-down: sets canActivateOnTurn only (same two-step as Chris/Youri: the UI
+// calls the shared activatePiecie() using the returned jiscaChainedSlot/
+// jiscaChainedFaceDown flags). Already-active: no re-trigger primitive exists, so
+// this calls the Piecie's effect fn directly (Ronald Master Plan's bypass
+// pattern), fully resolved here.
 export function ability_jisca_perfect_combo(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
-	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
-	if (si < 0) return state;
-	if (player.lastCardPlayedType === 'PIECIE' || player.lastCardPlayedType === 'SNELLE_PIECIE') {
-		player.activeSlots[si].mp += 20;
-		console.log('[ABILITY] Jisca: combo bonus! +20 MP');
-	} else {
-		console.log('[ABILITY] Jisca: no Piecie last played — no bonus');
+	if (!player) throw new Error('Player not found');
+	const selfIndex = player.activeSlots.findIndex(s => s && !s.isDefeated && s.cardId === 'mosje_jisca');
+	if (selfIndex < 0) throw new Error('Jisca not on field');
+	const roll = rollDie(6);
+	if (roll < 5) {
+		console.log(`[ABILITY] Jisca Perfect Combo: rolled ${roll} — no effect`);
+		return { state, success: true, jiscaRoll: roll };
 	}
-	return state;
+	const eligibleIndices = player.piecieSlots
+		.map((s, i) => (s && s.type === 'PIECIE') ? i : -1)
+		.filter(i => i >= 0);
+	if (eligibleIndices.length === 0) {
+		console.log(`[ABILITY] Jisca Perfect Combo: rolled ${roll} but no Piecie on the field to chain`);
+		return { state, success: true, jiscaRoll: roll };
+	}
+	const selected = state._pendingTargets?.jiscaComboSlotIndex;
+	const slotIndex = (Number.isInteger(selected) && eligibleIndices.includes(selected))
+		? selected
+		: eligibleIndices[0];
+	if (state._pendingTargets) delete state._pendingTargets.jiscaComboSlotIndex;
+	const slot = player.piecieSlots[slotIndex];
+	if (slot.faceDown && !slot.activated) {
+		slot.canActivateOnTurn = state.turnNumber;
+		console.log(`[ABILITY] Jisca Perfect Combo: rolled ${roll} — unlocked face-down Piecie at slot ${slotIndex}`);
+		return { state, success: true, jiscaRoll: roll, jiscaChainedSlot: slotIndex, jiscaChainedFaceDown: true };
+	}
+	const def = PIECIES.find(p => p.id === slot.cardId);
+	if (!def?.effectId || typeof piecieEffects[def.effectId] !== 'function') {
+		console.log(`[ABILITY] Jisca Perfect Combo: rolled ${roll} — chosen Piecie has no effect fn`);
+		return { state, success: true, jiscaRoll: roll };
+	}
+	console.log(`[ABILITY] Jisca Perfect Combo: rolled ${roll} — re-triggered active Piecie at slot ${slotIndex}`);
+	return {
+		state: piecieEffects[def.effectId](state, playerId),
+		success: true, jiscaRoll: roll, jiscaChainedSlot: slotIndex, jiscaChainedFaceDown: false,
+	};
 }
 
-// Tuk Healer — all active (non-defeated) Mosjes on your side gain 15 MP.
+// Tuk Healer — Healing Presence: once per turn, choose one own Mosje (this one or
+// another) to gain 10 MP. Target comes from the UI via _pendingTargets.own_slot_index
+// (same key Tikker/Kannetje Melk use), defaulting to Tuk Healer's own slot when
+// there's only one Mosje on the field.
 export function ability_tuk_healer_healing_presence(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
-	if (!player) return state;
-	for (const slot of player.activeSlots) {
-		if (slot && !slot.isDefeated) slot.mp += 15;
-	}
-	console.log('[ABILITY] Tuk Healer: all Mosjes +15 MP');
-	return state;
+	if (!player) throw new Error('Player not found');
+	const selfIndex = player.activeSlots.findIndex(s => s && !s.isDefeated && String(s.cardId).includes('tuk_healer'));
+	if (selfIndex < 0) throw new Error('Tuk Healer not on field');
+	const selected = state._pendingTargets?.own_slot_index;
+	const targetIndex = Number.isInteger(selected) ? selected : selfIndex;
+	if (state._pendingTargets) delete state._pendingTargets.own_slot_index;
+	const targetSlot = player.activeSlots[targetIndex];
+	if (!targetSlot || targetSlot.isDefeated) throw new Error('Target Mosje not on field');
+	const next = gainMP(state, playerId, targetIndex, 10, 'TUK_HEALER_PRESENCE', { allowLevelUp: false });
+	console.log('[ABILITY] Tuk Healer: +10 MP to', targetSlot.cardId);
+	return next;
 }
 
 // Coert KasteLuck — morning luck: roll d6. Even → +15 MP.
-export function ability_coert_kasteluck_morning_luck(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
-	if (si < 0) return state;
-	const roll = rollDie(6);
-	if (roll % 2 === 0) {
-		player.activeSlots[si].mp += 15;
-		console.log(`[ABILITY] KasteLuck: rolled ${roll} (lucky!) → +15 MP`);
-	} else {
-		console.log(`[ABILITY] KasteLuck: rolled ${roll} (no luck today)`);
-	}
-	return state;
+// Coert KasteLuck — Morning Luck is now an auto-trigger at turn start (2026-07-13
+// reconciliation): the real roll + same-turn-activation grant live in
+// turnManager.js's startTurn() and playPiecie(). This manual entry is a no-op kept
+// so useMosjeAbility does not crash if called (mirrors ability_jeffrey_brute_force).
+export function ability_coert_kasteluck_morning_luck(gameState, _playerId) {
+	console.log('[ABILITY] Coert KasteLuck Morning Luck: passive auto-ability — no manual activation needed');
+	return gameState;
 }
 
 // Binti Creator — Quick Sketch: discard 2 FOOD Piecies from hand, then search your
@@ -795,16 +872,13 @@ export function ability_tuk_architect_perfect_placement(gameState, playerId) {
 	return state;
 }
 
-// Chris DDR — perfect combo chain: gain 5 MP per Piecie played this turn.
-export function ability_chris_ddr_perfect_combo_chain(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
-	if (si < 0) return state;
-	const count = player.pieciesPlayedThisTurn || 0;
-	const gain = count * 5;
-	if (gain > 0) player.activeSlots[si].mp += gain;
-	console.log(`[ABILITY] Chris DDR: ${count} Piecies played → +${gain} MP`);
-	return state;
+// Chris DDR — Perfect Combo Chain is now a passive auto-trigger (2026-07-13
+// reconciliation): the real roll + recursive hand-chain live in
+// maybeChainChrisDdrCombo (turnManager.js activatePiecie), the same place Chris
+// All-Rounder/Youri/Jisca's face-down-unlock mechanics live. This manual entry
+// is a no-op kept so useMosjeAbility does not crash if called (mirrors
+// ability_jeffrey_brute_force).
+export function ability_chris_ddr_perfect_combo_chain(gameState, _playerId) {
+	console.log('[ABILITY] Chris DDR Perfect Combo Chain: passive auto-ability — no manual activation needed');
+	return gameState;
 }
