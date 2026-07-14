@@ -97,16 +97,15 @@ export function effect_bank_chilling(gameState, playerId) {
 	const player = state.players[playerId];
 	if (!player) return state;
 
-	const slotIndex = player.activeSlots.findIndex(slot => slot !== null && !slot.isDefeated);
-	if (slotIndex < 0) return state;
-
-	const mosje = player.activeSlots[slotIndex];
-	const social = mosje.traits?.social || 0;
-	if (social >= 2) {
-		mosje.mp += 15;
-		console.log('[ABILITY] Bank Chilling: +15 MP applied (Social 2+)');
-	} else {
-		console.log('[ABILITY] Bank Chilling: no bonus (social below 2)');
+	for (const mosje of player.activeSlots) {
+		if (!mosje || mosje.isDefeated) continue;
+		const social = mosje.traits?.social || 0;
+		if (social >= 2) {
+			mosje.mp += 15;
+			console.log('[ABILITY] Bank Chilling: +15 MP applied (Social 2+)');
+		} else {
+			console.log('[ABILITY] Bank Chilling: no bonus (social below 2)');
+		}
 	}
 
 	return state;

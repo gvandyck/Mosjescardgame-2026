@@ -28,7 +28,7 @@ export const PLACES = [
     id: "place_bank_chilling",
     type: "PLACE",
     name: "Bank Chilling",
-    trigger: "TURN_START",
+    trigger: "START_PHASE",
     effectId: "effect_bank_chilling",
     tags: ["SOCIAL"],
     description: "Turn Start: Social ★★+ Mosjes gain +15 MP.",
