@@ -1,8 +1,29 @@
 # Project State
 
-**Last updated:** 2026-07-04
-**Current phase:** Phase 34 COMPLETE — Account Starter-Deck Onboarding & Active Deck
-**Branch:** feature/phase-34-starter-deck-onboarding (ready to merge to main)
+**Last updated:** 2026-07-14
+**Current phase:** Phase 35 — Places Text-vs-Engine Reconciliation (Round 1): CONTEXT captured, ready to plan
+**Branch:** card/full-game-text-audit
+
+## ▶ RESUME HERE (2026-07-14 handoff)
+
+**Next command:** `/gsd:plan-phase 35` (was at the research gate — user deferred the research decision to a fresh chat).
+
+**What shipped to main earlier today:** the 10-ruling ability-text/engine reconciliation (Ming, Jeffrey, Chris ×2, Jisca, Tuk, Coert KasteLuck, FPS Coert, + Kastelein/Drainer hidden). Merged (`0618941`), version bumped to `ability-text-reconciled` (`c80683c`), pushed + deployed live (verified). 613 unit tests green.
+
+**Phase 35 state (on branch `card/full-game-text-audit`):**
+- Round 1 = **Places** audit DONE. All 21 audited: 9 clean, **12 flagged and RULED** interactively with Gandoe.
+- Ruling record: `.planning/audits/2026-07-14-places-text-audit.md` (per-card divergence + ruling + file:line reuse targets). **Read this first.**
+- Context: `.planning/phases/35-places-text-reconciliation/35-CONTEXT.md` (D-01..D-12).
+- ROADMAP Phase 35 added (PLACE-01..12).
+- Nothing implemented yet — plan-phase → execute-phase next.
+- ⚠ 2 novel mechanics need care: **The Void** (only 1 card-activation per turn — new cross-cutting cap, do LAST) and **Synergy Chamber** (once/turn use a synergy ability without its partner).
+- Corrected a stale assumption this session: **gsd-sdk IS installed** (v1.42.3) and a Piecie **mpCost system exists** — the Coert's Caravan todo's "no MP-cost concept" claim was false and has been fixed.
+
+**Deferred (not Phase 35):** audit rounds 2+ (Piecies/Snelle/remaining Mosjes), Alyssa↔Jisca synergy design.
+
+---
+
+**(prior)** Phase 34 COMPLETE — Account Starter-Deck Onboarding & Active Deck — branch feature/phase-34-starter-deck-onboarding (merged to main).
 
 > Note: STATE.md was not maintained during Phases 15–17 (tracked in their phase dirs / ROADMAP only). This header jumps from Phase 14 to Phase 18. Phase 33 (deckout recycle notice + deck-pile/board polish, merged via PR #2/#3) and the 5-duo-starter-deck data commit also landed on main without a STATE.md entry — tracked only in ROADMAP.md and their own commit history.
 
