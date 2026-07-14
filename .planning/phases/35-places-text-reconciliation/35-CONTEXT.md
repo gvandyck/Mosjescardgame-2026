@@ -89,4 +89,51 @@ RULINGS section. Planner/executor MUST read it.** Summary:
 ## Deferred Ideas (future phases, not this one)
 - Full audit rounds 2+: Piecies, Snelle Piecies, remaining Mosjes (`2026-07-13-full-game-ability-text-audit.md`).
 - Alyssa↔Jisca synergy design (`2026-07-12-alyssa-jisca-synergy-design.md`).
+- **Drain Zone (D-05) full rework** — deferred until a phase that touches Piecies (needs ~11 ATTACK effect function edits, see below).
+- **The Void (D-12) full rework** — deferred until the play-vs-activate cap question is resolved via a dedicated design pass.
 </canonical_refs>
+
+<plan_phase_amendments>
+## Plan-Phase Scope Amendments (2026-07-14, post-research)
+
+Research (`35-RESEARCH.md`) surfaced 3 ambiguities in the original rulings that required
+Gandoe's explicit decision before planning. All three are now resolved and locked:
+
+### D-06/D-07 mpCost clarification (not a scope change — a correction)
+Research initially found no generic Piecie MP-cost charging in the engine and flagged
+"hook mpCost" as infeasible as literally stated. Gandoe clarified: `mpCost` is a real field
+with an established self-charging pattern (Welloe Force pays its own 40 MP via `applyDamage`,
+`piecieEffects.js:811`) — the engine supports this by design. What research correctly found,
+though, is that the *specific* PET Piecies (Bowie & Stormey, Tony, Gekke Vogels, KatjeGang,
+ViannaPoes) and relevant SUBSTANCE Piecies never invoke that self-charge today — confirmed by
+reading their effect functions (`piecieEffects.js:839,854,866` — no `applyDamage` call).
+
+**Locked:** PLACE-06/07 add the missing self-charge (matching each named Piecie's own `mpCost`
+via `applyDamage`, Welloe Force's pattern) to *only* the specific PET/SUBSTANCE Piecies these
+2 cards name — not all ~35 non-zero-cost Piecies — then have Dierenasiel/Delluft's active-Place
+check waive that charge. Scoped, not a general cost-enforcement rollout.
+
+### D-05 Drain Zone — DESCOPED, hidden from play
+The "ATTACK Piecies deal +10 damage" rework requires editing ~11 separate ATTACK-tagged Piecie
+effect functions outside `placeEffects.js` (Drain Zone has no generic damage-interception point).
+**Locked:** not implemented this phase. Drain Zone is hidden from all player-facing pools
+(deck-building, boosters, starter decks — same filtering pattern as `getPlayerFacingDecks()`)
+until a future phase that touches Piecies can do the full rework. Card data and effect code
+stay in the codebase untouched/unreachable. The untexted +5-to-all-gains bug (`mpManager.js:38`)
+is still removed this phase — independent dead-code cleanup, not tied to the hide decision.
+
+### D-12 The Void — DESCOPED, hidden from play
+The "one card activation per turn" cap's exact gating scope (which of 9 play/activate functions,
+play-vs-activate split) is not resolvable without a dedicated design pass — genuinely ambiguous,
+not a research gap. **Locked:** not implemented this phase. The Void is hidden from all
+player-facing pools, same treatment as Drain Zone. The untexted quest-MP-nullify
+(`questLogic.js:338`) is still removed this phase — independent dead-code cleanup.
+
+### Hide mechanism (applies to both Drain Zone and The Void)
+Filter both cards out of deck-building, booster packs, and starter decks — same pattern as the
+existing `getPlayerFacingDecks()` filtering (`src/data/playerFacingDecks.js`). Card definitions
+and effect functions are NOT deleted, just made unreachable from any player-facing surface.
+
+**Effective requirement count this phase: 10 implemented (PLACE-01,02,03,04,06,07,08,09,10,11)
++ 2 hidden (PLACE-05, PLACE-12, dead-code-only).**
+</plan_phase_amendments>

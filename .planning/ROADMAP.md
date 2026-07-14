@@ -782,28 +782,28 @@ Plans:
 
 ### Phase 35: Places Text-vs-Engine Reconciliation (Round 1)
 
-**Goal:** Reconcile all 21 Place cards so each card's text matches engine behavior. Round 1 of the full-game ability-text audit (Places first). Audit complete: 9 clean, 12 flagged and ruled interactively with Gandoe (5 bug fixes + 7 design reworks). This phase implements the 12 rulings, one card at a time (TDD), MP-touching cards re-run Ronald Kip + sim.
+**Goal:** Reconcile all 21 Place cards so each card's text matches engine behavior. Round 1 of the full-game ability-text audit (Places first). Audit complete: 9 clean, 12 flagged and ruled interactively with Gandoe (5 bug fixes + 7 design reworks). This phase implements the 12 rulings, one card at a time (TDD), MP-touching cards re-run Ronald Kip + sim. **Post-research scope amendment (2026-07-14):** Drain Zone and The Void are not ready for gameplay this round — both are hidden from all player-facing pools instead of having their new mechanics implemented; see `35-CONTEXT.md` Plan-Phase Scope Amendments.
 
 **Requirements:**
-- PLACE-01 (Bank Chilling): loop all active slots — every Social ★★+ Mosje +15 at turn start (was first-slot only).
+- PLACE-01 (Bank Chilling): loop all active slots — every Social ★★+ Mosje +15 at turn start (was first-slot only); also fix the `trigger: "TURN_START"` → `"START_PHASE"` dispatch bug (card never fired at all in live play — found in research).
 - PLACE-02 (Obby #1): loop all active slots — every Physical/Resilient ★★+ Mosje +20 success / −10 fail.
 - PLACE-03 (Arcade): loop all active slots — every Technical ★★+ Mosje +15 on success.
 - PLACE-04 (De Box): +15 to any Michelle/Tuk Mosje (id includes 'michelle' or 'tuk'); extend both-together +10; fix "Toennoe" logs.
-- PLACE-05 (Drain Zone): implement "ATTACK Piecies deal +10 damage"; remove the untexted +5-to-all-gains (mpManager:38).
-- PLACE-06 (Delluft): implement "SUBSTANCE Piecies cost 0 MP this turn" (hook mpCost); keep draw-1.
-- PLACE-07 (Dierenasiel): implement "PET Piecies cost 0 MP" (hook mpCost); drop the +25% protection clause + its typo'd inert code.
+- PLACE-05 (Drain Zone): **DESCOPED — hide from player-facing pools** (deck-building, boosters, starter decks) instead of implementing "ATTACK Piecies deal +10 damage" (requires editing ~11 separate Piecie effect functions, out of scope for a Places-only phase). Still remove the untexted +5-to-all-gains bug (mpManager.js:38) since it's dead-code cleanup independent of the hide decision. Card data/effect code stays in the codebase for a future round to finish.
+- PLACE-06 (Delluft): implement "SUBSTANCE Piecies cost 0 MP this turn". Research found the relevant SUBSTANCE Piecies never self-charge their own `mpCost` today (no generic engine-level charge exists) — add the missing self-charge (`applyDamage` matching each Piecie's own `mpCost`, Welloe Force pattern) to the specific SUBSTANCE Piecies this card names, then have Delluft's active-Place check waive it. Keep draw-1.
+- PLACE-07 (Dierenasiel): implement "PET Piecies cost 0 MP" — same self-charge-then-waive approach as PLACE-06, scoped to the 5 PET Piecies (Bowie & Stormey, Tony, Gekke Vogels, KatjeGang, ViannaPoes). Drop the +25% protection clause + its typo'd inert code.
 - PLACE-08 (Coert's Caravan): trigger → END_PHASE; all Mosjes −10 at end of turn except Coert variants; drop +15 buff + inert free-activation flag.
 - PLACE-09 (Digital Gaming Stop): DIGITAL-EQUIPMENT Piecies +10 MP while active; drop auto-succeed + dead questAutoSuccess.
-- PLACE-10 (Skiffa): trigger → ON_QUEST; Social quests +2 dice roll for all players; drop SUBSTANCE/discard theme.
+- PLACE-10 (Skiffa): trigger → ON_QUEST; Social quests +2 dice roll for all players; drop SUBSTANCE/discard theme; also remove the undocumented `getSkiffaRerolls` mechanic (main.js) found in research — unrelated to the new design, would silently stack with it.
 - PLACE-11 (Synergy Chamber): once/turn activate a synergy ability without its partner; drop the 3 undocumented bonuses + consumers.
-- PLACE-12 (The Void): new mechanic — while active, each player may activate only ONE card per turn; remove −15 drain + untexted quest-MP-nullify. Highest risk, implement last.
+- PLACE-12 (The Void): **DESCOPED — hide from player-facing pools** instead of implementing the "one card activation per turn" cap (ambiguous which of 9 play/activate functions it should gate — not resolvable without a full design pass). Still remove the untexted quest-MP-nullify (questLogic.js:338) since it's dead-code cleanup independent of the hide decision. Card data/effect code stays in the codebase for a future round to finish.
 
 **Success Criteria:**
-1. Each of the 12 cards' text matches its engine behavior; the 9 clean Places untouched.
+1. Each of the 10 implemented cards' text matches its engine behavior; the 9 clean Places untouched; Drain Zone and The Void are unreachable from any player-facing deck/booster/starter pool.
 2. Per-card tests added (card-test-library and/or engine unit tests); npm test + test:cards green.
 3. node --check clean on any touched UI/main files.
 4. MP-touching changes: Ronald Kip stacking test green; simulation crash-free, timeout < 25%.
-5. The Void's one-activation-per-turn cap enforced across every play/activate path.
+5. PLACE-01/08/10 trigger-dispatch fixes proven through `resolvePlaceEffect`/`startTurn`/`endTurn`, not just the raw effect function (guards against the "TURN_START never fires" class of bug).
 
 **Context:** `.planning/phases/35-places-text-reconciliation/35-CONTEXT.md`
 **Ruling record:** `.planning/audits/2026-07-14-places-text-audit.md`
