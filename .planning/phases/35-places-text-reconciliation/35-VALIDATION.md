@@ -2,8 +2,8 @@
 phase: 35
 slug: places-text-reconciliation
 status: draft
-nyquist_compliant: false
-wave_0_complete: false
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-07-14
 ---
 
@@ -30,7 +30,7 @@ created: 2026-07-14
 ## Sampling Rate
 
 - **After every task commit:** `node --check` on touched files (extend CLAUDE.md's list with `src/abilities/placeEffects.js`, `src/data/places.js`, and any touched Piecie/quest file) + `npm test`
-- **After every MP-touching card (PLACE-01, 02, 03, 04, 08, 09):** additionally `npm run test:cards` (Ronald Kip stacking entry) + `npm run test:sim`
+- **After every MP-touching card (PLACE-01, 02, 03, 04, 05, 08, 09, 11):** additionally `npm run test:cards` (Ronald Kip stacking entry) + `npm run test:sim`
 - **After every plan wave:** full suite (`npm test && npm run test:cards && npm run test:sim`)
 - **Before `/gsd:verify-work`:** Full suite must be green
 - **Max feedback latency:** ~300 seconds (sim run is the slow path)
@@ -56,12 +56,18 @@ created: 2026-07-14
 
 *Task IDs above are placeholders — actual IDs assigned by the planner once plans are split into waves.*
 
+**Post-revision note (this session):** plans 35-06 (PLACE-11, Synergy Chamber) and 35-07 (PLACE-05
+Drain Zone, PLACE-12 The Void) are confirmed MP-touching and now carry the mandatory
+`npm run test:cards` (Ronald Kip stacking) + `npm run test:sim` gates on every task that changes
+live MP behavior, matching the pattern already used in 35-01/35-02/35-04/35-05. See 35-06-PLAN.md
+Tasks 1-2 and 35-07-PLAN.md Task 1.
+
 ---
 
 ## Wave 0 Requirements
 
-- [ ] `tests/ui/cards/card-registry.js` — add entries for the 10 in-scope Place cards (PLACE-01 through 04, 06-11) so card-behavior tests can drive them through the real dispatcher (`resolvePlaceEffect`/`startTurn`/`endTurn`), per CLAUDE.md's "test the REAL engine" rule and Success Criterion 5's dispatcher-level proof requirement. Planner may choose engine-unit tests instead per-card where dispatcher coverage isn't the natural shape (see RESEARCH.md "Wave 0 Gaps").
-- [ ] Pool-visibility test for PLACE-05 (Drain Zone) and PLACE-12 (The Void) confirming both are unreachable from deck-building, boosters, and starter decks after the hide.
+- [x] `tests/ui/cards/card-registry.js` — add entries for the 10 in-scope Place cards (PLACE-01 through 04, 06-11) so card-behavior tests can drive them through the real dispatcher (`resolvePlaceEffect`/`startTurn`/`endTurn`), per CLAUDE.md's "test the REAL engine" rule and Success Criterion 5's dispatcher-level proof requirement. Planner may choose engine-unit tests instead per-card where dispatcher coverage isn't the natural shape (see RESEARCH.md "Wave 0 Gaps").
+- [x] Pool-visibility test for PLACE-05 (Drain Zone) and PLACE-12 (The Void) confirming both are unreachable from deck-building, boosters, and starter decks after the hide.
 
 ---
 
@@ -75,11 +81,11 @@ created: 2026-07-14
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 300s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 300s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved (2026-07-14, post-revision — Ronald Kip stacking gates confirmed wired into every MP-touching plan, including 35-06 and 35-07)
