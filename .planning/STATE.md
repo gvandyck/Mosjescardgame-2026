@@ -1,16 +1,18 @@
 # Project State
 
 **Last updated:** 2026-07-14
-**Current phase:** Phase 36 — Piecie/Snelle/Place/Personal Quest MP Cost Model Redesign: CONTEXT captured, ready to plan
+**Current phase:** Phase 35 — Places Text-vs-Engine Reconciliation (Round 1): PLANNED (8 plans, checker-verified), ready to execute
 **Branch:** card/full-game-text-audit
 
-## ▶ RESUME HERE (2026-07-14 handoff, 3rd update today)
+## ▶ RESUME HERE (2026-07-14 handoff, 4th update today)
 
-**Next command:** `/gsd:plan-phase 36` (context gathered — research will likely be light/skippable since Phase 35's research already proved the core technical premise; planner should still do the full-card-text audit as its first deliverable per D-03).
+**Next command:** `/gsd:execute-phase 35`
 
-**Phase 36 context locked** (`36-CONTEXT.md`, commit `f24e7ed`): every Piecie/Snelle Piecie/Place/Personal Quest defaults to 0 MP cost; tribute only where a card's printed text explicitly demands it (text wins over the current `mpCost` data field on any conflict). Full text audit across all 4 card types happens FIRST (one ruling table, same format as the Places audit), before any code. Key rulings: player picks which Mosje pays tribute when unnamed (needs a UI picker, reuse `SelectionModal`); unaffordable tribute blocks the action entirely (no MP flooring); `mpCost` data fields get corrected to match final rulings; Mosje ability costs (`abilityCost`) are explicitly OUT of scope (deferred, same underlying bug); one phase covers all 4 card types (no sub-phase splitting). Mosje ability costs and PLACE-05/12 (hidden Drain Zone/Void) full reworks remain deferred to later phases.
+**Phase 35 planning complete this session:** resumed an interrupted `/gsd:plan-phase 35` run (pattern map existed on disk but was never committed and no PLAN.md had been generated). Spawned `gsd-planner` → 8 plans written across 8 waves (mostly sequential — nearly every plan touches `src/data/places.js`/`src/abilities/placeEffects.js`), all 12 PLACE-01..12 requirement IDs covered, commit `4cbb4e7`. `gsd-plan-checker` found 2 blockers (35-06 Synergy Chamber and 35-07 Drain Zone both touch live MP amounts but skipped the mandatory Ronald Kip stacking test in their verify blocks) — fixed via targeted planner revision (commit `c81ffcf`), re-verified clean (`## VERIFICATION PASSED`). Cleaned up 2 non-blocking checker warnings (stray `</output>` tags, stale VALIDATION.md checkbox wording) and committed the previously-uncommitted `35-PATTERNS.md` (commit `d21e2c7`).
 
-**Phase 35 status (unblocked, no longer paused):** research done (`35-RESEARCH.md`, commit `bc218b1`) + scoping decisions locked (commits `6b97aec`, `f24e7ed`): PLACE-01-04 loop-all-slots + trigger fixes, PLACE-05 (Drain Zone) and PLACE-12 (The Void) DESCOPED/hidden from player-facing pools (dead-code bugs still cleaned up), PLACE-08-11 as originally ruled. **PLACE-06/07's mpCost self-charge work moved to Phase 36** (D-09 in `36-CONTEXT.md`) — Phase 35 keeps only Delluft's draw-1 and Dierenasiel's typo/dead-code cleanup. Nothing planned/executed yet for Phase 35 either. ROADMAP has Phase 36 formally `Depends on: Phase 35` — sequencing (which phase actually gets planned/executed first) is Gandoe's call; both are now equally ready for `/gsd:plan-phase`.
+**Wave plan:** 35-01 (PLACE-01,02) → 35-02 (03,04) → 35-03 (06,07) → 35-04 (08,09) → 35-05 (10) → 35-06 (11, Synergy Chamber, has a `checkpoint:human-verify` gate) → 35-07 (05,12 — Drain Zone/Void dead-code cleanup + hide) → 35-08 (docs + full phase-gate verification). 35-VALIDATION.md sign-off is `approved`.
+
+**Phase 36 status (unchanged, still ready):** context locked (`36-CONTEXT.md`, commit `f24e7ed`) — game-wide MP cost model redesign (every Piecie/Snelle Piecie/Place/Personal Quest defaults to 0 MP; tribute only where card text explicitly demands it). ROADMAP has Phase 36 formally `Depends on: Phase 35`, so Phase 35 executing first is the natural sequencing. Resume with `/gsd:plan-phase 36` after Phase 35 ships. Mosje ability costs (`abilityCost`) remain explicitly out of scope for Phase 36.
 
 <details>
 <summary>Prior handoff (2nd update, superseded)</summary>
