@@ -500,17 +500,17 @@ export function effect_de_box(gameState) {
 			if (id.includes('gandoe')) {
 				mosje.mp += 20;
 				gandoeSlot = mosje;
-				console.log('[ABILITY] Toennoe: +20 MP (GANDOE)');
-			} else if (id.includes('michelle')) {
+				console.log('[ABILITY] De Box: +20 MP (GANDOE)');
+			} else if (id.includes('michelle') || id.includes('tuk')) {
 				mosje.mp += 15;
 				michelleSlot = mosje;
-				console.log('[ABILITY] Toennoe: +15 MP (MICHELLE/TUK)');
+				console.log('[ABILITY] De Box: +15 MP (MICHELLE/TUK)');
 			}
 		}
 		if (gandoeSlot && michelleSlot) {
 			gandoeSlot.mp += 10;
 			michelleSlot.mp += 10;
-			console.log('[ABILITY] Toennoe: +10 bonus each (Gandoe & Michelle together)');
+			console.log('[ABILITY] De Box: +10 bonus each (Gandoe & Michelle together)');
 		}
 	}
 	return state;
