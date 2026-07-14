@@ -99,7 +99,7 @@ RULINGS section. Planner/executor MUST read it.** Summary:
 Research (`35-RESEARCH.md`) surfaced 3 ambiguities in the original rulings that required
 Gandoe's explicit decision before planning. All three are now resolved and locked:
 
-### D-06/D-07 mpCost clarification (not a scope change — a correction)
+### D-06/D-07 mpCost clarification — SUPERSEDED, folded into Phase 36 (2026-07-14, later same session)
 Research initially found no generic Piecie MP-cost charging in the engine and flagged
 "hook mpCost" as infeasible as literally stated. Gandoe clarified: `mpCost` is a real field
 with an established self-charging pattern (Welloe Force pays its own 40 MP via `applyDamage`,
@@ -108,10 +108,17 @@ though, is that the *specific* PET Piecies (Bowie & Stormey, Tony, Gekke Vogels,
 ViannaPoes) and relevant SUBSTANCE Piecies never invoke that self-charge today — confirmed by
 reading their effect functions (`piecieEffects.js:839,854,866` — no `applyDamage` call).
 
-**Locked:** PLACE-06/07 add the missing self-charge (matching each named Piecie's own `mpCost`
-via `applyDamage`, Welloe Force's pattern) to *only* the specific PET/SUBSTANCE Piecies these
-2 cards name — not all ~35 non-zero-cost Piecies — then have Dierenasiel/Delluft's active-Place
-check waive that charge. Scoped, not a general cost-enforcement rollout.
+**Original decision (now superseded):** PLACE-06/07 add the missing self-charge to just these
+2 cards' named Piecies, then waive it.
+
+**Superseded by:** immediately after this was locked, Gandoe proposed a game-wide redesign
+(every Piecie/Snelle Piecie/Place/Personal Quest defaults to 0 MP cost; tribute only where a
+card's text explicitly demands it) — scoped as **Phase 36**
+(`.planning/phases/36-piecie-snelle-piecie-place-personal-quest-mp-cost-model-rede/36-CONTEXT.md`).
+Building PLACE-06/07's self-charge narrowly now would duplicate work Phase 36's full audit
+covers anyway. **Current ruling:** PLACE-06 keeps only its draw-1 (already correct); PLACE-07
+keeps only its +25%-clause removal + typo/dead-code cleanup. The "cost 0 MP" text/mechanism
+for both cards ships as part of Phase 36, not Phase 35.
 
 ### D-05 Drain Zone — DESCOPED, hidden from play
 The "ATTACK Piecies deal +10 damage" rework requires editing ~11 separate ATTACK-tagged Piecie
