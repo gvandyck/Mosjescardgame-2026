@@ -20,7 +20,7 @@ import { getOwnedCardCounts } from './multiplayer/collectionStore.js';
 import { MOSJES } from './data/mosjes.js';
 import { PIECIES } from './data/piecies.js';
 import { SNELLE_PIECIES } from './data/snellePiecies.js';
-import { PLACES } from './data/places.js';
+import { getPlayerFacingPlaces } from './data/playerFacingPlaces.js';
 import { QUESTS } from './data/quests.js';
 import { initModalManager } from './ui/modalManager.js';
 
@@ -32,7 +32,7 @@ const ALL_CARDS = [
 	...MOSJES.map(c => ({ ...c, cardType: 'MOSJE' })),
 	...PIECIES.map(c => ({ ...c, cardType: 'PIECIE' })),
 	...SNELLE_PIECIES.map(c => ({ ...c, cardType: 'SNELLE_PIECIE' })),
-	...PLACES.map(c => ({ ...c, cardType: 'PLACE' })),
+	...getPlayerFacingPlaces().map(c => ({ ...c, cardType: 'PLACE' })),
 	...QUESTS.filter(c => c.questType === 'PERSONAL').map(c => ({ ...c, cardType: 'QUEST' })),
 ].filter(c => !c.disabled); // hidden cards (e.g. Coert Kastelein, Drainer) filtered out entirely, not just greyed out
 

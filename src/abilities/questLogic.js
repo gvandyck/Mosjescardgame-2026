@@ -355,9 +355,6 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 		didSucceed = true;
 	}
 
-	// The Void nullifies direct Quest MP gain/loss; quest still resolves.
-	const baseQuestMpBlocked = state.activePlace === 'place_the_void';
-
 	// Perfect Sync defers gainMP to the UI layer (player picks target mosje after seeing opponent hand)
 	const defersMPToUI = questCard.id === 'quest_personal_perfect_sync' && didSucceed;
 
@@ -367,7 +364,7 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 	// Battle Concert: redirect Alyssa's quest-failure damage to an opponent's Mosje (once).
 	// When redirected, the normal failMP application below is skipped so Alyssa is not double-hit.
 	let failRedirected = false;
-	if (!didSucceed && !baseQuestMpBlocked && state._battleConcertActive === playerId) {
+	if (!didSucceed && state._battleConcertActive === playerId) {
 		const questingMosje = player.activeSlots[slotIndex];
 		const isAlyssa = questingMosje && String(questingMosje.cardId).includes('alyssa');
 		if (isAlyssa) {
@@ -385,7 +382,7 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 		}
 	}
 
-	if (!baseQuestMpBlocked && !defersMPToUI) {
+	if (!defersMPToUI) {
 		// Bonus MP sources that apply ONLY on success (U6 stack: step 2 —
 		// card-synergy bonus armed by a piecie this turn; step 4 — partner-
 		// synergy bonus from a live board-state pair). Read/consume the
@@ -447,7 +444,7 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 		console.log('[QUEST] drawOnSuccess: drew', questCard.drawOnSuccess);
 	}
 	// Elimination side-effect: opponent's first active Mosje loses MP on success (skipped under The Void).
-	if (didSucceed && !baseQuestMpBlocked && questCard.opponentLoseMP > 0) {
+	if (didSucceed && questCard.opponentLoseMP > 0) {
 		const oppId = Object.keys(state.players).find(id => id !== playerId);
 		const oppSlotIndex = oppId
 			? state.players[oppId].activeSlots.findIndex(s => s && !s.isDefeated)

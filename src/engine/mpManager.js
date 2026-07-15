@@ -34,10 +34,7 @@ export function gainMP(gameState, playerId, slotIndex, amount, source = 'GAIN', 
     return gameState;
   }
 
-  let gainAmount = amount;
-  if (placeId === 'place_drain_zone') {
-    gainAmount += 5;
-  }
+  const gainAmount = amount;
 
   const state = deepCloneState(gameState);
   const mosje = state.players[playerId].activeSlots[slotIndex];
