@@ -371,15 +371,7 @@ function makeAbilityState(mp: number, extraStateProps: Record<string, unknown> =
   };
 }
 
-describe("useMosjeAbility — Dierenasiel 0-MP guard (STUB-09)", () => {
-  it("Test 17: turnManager.js contains 'dierenasielWaiver' inside useMosjeAbility (artifact check)", async () => {
-    const fs = await import("fs");
-    const path = await import("path");
-    const filePath = path.resolve("src/engine/turnManager.js");
-    const content = fs.readFileSync(filePath, "utf-8");
-    expect(content).toContain("dierenasielWaiver");
-  });
-
+describe("useMosjeAbility — Dierenasiel 0-MP guard (STUB-09, dead waiver removed Phase 35-03)", () => {
   it("Test 18: useMosjeAbility() with Mosje at 0 MP and no engine cost gate — returns success:true (no regression)", () => {
     // Gandoe Wizard has no abilityCost, ability does not check mp
     // Confirms engine does not block activation at 0 MP

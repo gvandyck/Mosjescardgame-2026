@@ -160,8 +160,8 @@ This document is the final Phase 11 master card inventory, generated from the li
 | place_boxing_ring | Boxing Ring | PLACE | no | no | free | END_PHASE: FIGHTING +10 MP, non-FIGHTING -5 MP; ON_QUEST: Physical +15 MP (GANDOE: +25 MP) | implemented |
 | place_bank_chilling | Bank Chilling | PLACE | yes | no | free | turn_start, Social 2+, +15 MP | implemented |
 | place_coerts_caravan | Coert's Caravan | PLACE | yes | no | free | turn_start, Coert Mosje only, +15 MP | implemented |
-| place_delluft | Delluft | PLACE | no | no | free | turn_end, all draw 1 card; SUBSTANCE cost 0 (UI flag) | advanced |
-| place_dierenasiel | Dierenasiel | PLACE | no | no | free | 25% MP loss reduction wired in loseMP (plan 08-04); engine guard logged in useMosjeAbility (STUB-09); UI cantAffordAbility check for 0-MP PET deferred to UI phase | partial |
+| place_delluft | Delluft | PLACE | no | no | free | turn_end, all draw 1 card; SUBSTANCE cost-0 MP clause deferred to Phase 36 (game-wide MP cost model redesign) | advanced |
+| place_dierenasiel | Dierenasiel | PLACE | no | no | free | passive; +25% PET-protection clause removed 2026-07-14 (was permanently inert due to a setter/reader typo mismatch); PET cost-0 MP clause deferred to Phase 36 | advanced |
 | place_drain_zone | Drain Zone | PLACE | no | no | free | turn_end, lowest MP Mosje loses -10 MP | advanced |
 | place_momentum_factory | Momentum Factory | PLACE | no | no | free | piecie_activated, +10 MP (first-only enforced in UI) | advanced |
 | place_momentum_stabilizer | Momentum Stabilizer | PLACE | no | no | free | passive flag only; 30 MP loss cap enforced in UI | advanced |

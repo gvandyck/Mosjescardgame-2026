@@ -246,7 +246,7 @@ export const PLACES = [
     trigger: "PASSIVE",
     effectId: "effect_dierenasiel",
     tags: ["PET"],
-    description: "Passive: All PET Piecies cost 0 MP. PET protection bonuses +25%.",
+    description: "Passive: All PET Piecies cost 0 MP.",
     flavourText: "",
     artPath: "assets/place-art/Place- Dierenasiel.jpeg",
     goodFor: [],

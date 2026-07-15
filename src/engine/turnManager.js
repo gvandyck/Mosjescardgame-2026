@@ -1133,7 +1133,6 @@ function createMosjeSlotFromDefinition(mosjeDef) {
 // NOTE: the engine does NOT enforce abilityCost before calling fn(). Each individual
 // ability function is responsible for checking/deducting its own cost. The UI
 // cantAffordAbility display is the primary guard against insufficient-MP activations.
-// UI must also check dierenasielActive before disabling PET Mosje abilities (STUB-09).
 export function useMosjeAbility(gameState, playerId, mosjeId) {
   const player = gameState.players[playerId];
   if (!player) return { state: gameState, success: false, error: 'Player not found' };
@@ -1145,16 +1144,6 @@ export function useMosjeAbility(gameState, playerId, mosjeId) {
   // Was a double-trigger armed BEFORE this ability ran? Only then do we echo/consume it
   // below — so an ability that ARMS the flag itself (Amplifier) doesn't eat its own grant.
   const hadDoubleTrigger = player.abilityDoubleTrigger === true;
-
-  // Dierenasiel 0-MP PET cost-waiver: when Dierenasiel place is active, PET-tagged
-  // ability activations are allowed even at 0 MP. The individual ability function
-  // must not throw for 0 MP in this case.
-  // STUB-09: engine-level guard documented here. UI cantAffordAbility must also check
-  // dierenasielActive before displaying the disabled state for PET Mosjes (UI phase).
-  const dierenasielWaiver = gameState.dierenasielActive === true;
-  if (dierenasielWaiver) {
-    console.log('[ENGINE] Dierenasiel: 0-MP PET ability activation allowed for', mosjeId);
-  }
 
   if (slot.abilityUsedThisTurn) {
     return { state: gameState, success: false, error: 'Ability already used this turn' };

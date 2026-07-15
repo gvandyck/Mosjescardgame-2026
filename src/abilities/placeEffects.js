@@ -409,8 +409,6 @@ export function effect_delluft(gameState) {
 // ─────────────────────────────────────────
 export function effect_dierenasiel(gameState) {
 	const state = cloneState(gameState);
-	state.dienasielActive = true;
-	console.log('[ABILITY] Dierenasiel: PET Piecies free and protection bonuses +25%');
 	return state;
 }
 
