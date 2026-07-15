@@ -35,8 +35,9 @@ export function getActiveSynergies(gameState, playerId) {
       if (alreadyChecked.has(pairKey)) continue;
       alreadyChecked.add(pairKey);
 
-      // Synergy only triggers if the partner is also on the field
-      if (activeMosjeIds.includes(partnerId)) {
+      // Synergy triggers if the partner is on the field, OR if the acting
+      // player has activated Synergy Chamber's once-per-turn partner waiver.
+      if (activeMosjeIds.includes(partnerId) || player.synergyWaiverActive === true) {
         synergies.push({
           mosjeAId: mosjeId,
           mosjeBId: partnerId,

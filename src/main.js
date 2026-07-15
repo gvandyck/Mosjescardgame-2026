@@ -7,7 +7,7 @@ import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
 import { animateFieldActivation, animateStateDelta, showTurnTransition, setAbilityNameResolver, animateQuestResult, showInstantEffect, showDeckOutBanner, pulseDiscardPile } from './ui/actionAnimations.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes } from './engine/gameState.js';
-import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, playPersonalQuest, activatePersonalQuest } from './engine/turnManager.js';
+import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, playPersonalQuest, activatePersonalQuest, activateSynergyWaiver } from './engine/turnManager.js';
 import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold } from './abilities/questLogic.js';
 import { loseMP, gainMP } from './engine/mpManager.js';
 import { checkVictory } from './engine/victoryChecker.js';
@@ -1248,7 +1248,6 @@ function initGamePage() {
 
 		const diceBonus = gameState._snelleFlags?.questDiceBonus || 0;
 		const questPrepBonus = gameState.players[localPlayerId]?.questPrepBonus || 0;
-		const placeDiceBonus = gameState.activePlace === 'place_synergy_chamber' ? 1 : 0;
 		const skiffaDiceBonus = (gameState.activePlace === 'place_skiffa' && questDef.category === 'Social') ? 2 : 0;
 		const forceReroll = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
 
@@ -1471,7 +1470,7 @@ function initGamePage() {
 					console.log('[ABILITY-AUTO]', al.label, '| roll:', al.roll, '| adjustment:', al.adjustment);
 					delete gameState._autoAbilityLog;
 				}
-			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus + skiffaDiceBonus, forceReroll, skiffaRerolls: tweedeKansReroll, mosje: gameState.players[localPlayerId].activeSlots[targetSlotIndex] });
+			}, { diceBonus: diceBonus + questPrepBonus + skiffaDiceBonus, forceReroll, skiffaRerolls: tweedeKansReroll, mosje: gameState.players[localPlayerId].activeSlots[targetSlotIndex] });
 		}
 
 		function showQuestPreviewThenRoll(targetSlotIndex) {
@@ -1486,7 +1485,7 @@ function initGamePage() {
 				const thresholdForMosje = getQuestDiceThreshold(questDef, updatedMosje);
 				modal.showQuestAttemptPreview(updatedMosje, questDef, thresholdForMosje, () => {
 					runGeneralQuestDiceRoll(targetSlotIndex);
-				}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus + skiffaDiceBonus });
+				}, { diceBonus: diceBonus + questPrepBonus + skiffaDiceBonus });
 			} else {
 				runGeneralQuestDiceRoll(targetSlotIndex);
 			}
@@ -1497,6 +1496,23 @@ function initGamePage() {
 		} else {
 			showQuestPreviewThenRoll(gqSlots[0]?.slotIndex ?? 0);
 		}
+	});
+
+	document.getElementById('btn-synergy-waiver')?.addEventListener('click', () => {
+		if (!gameState) return;
+		if (gameState.activePlayerId !== localPlayerId) {
+			modal.showInfo('Not Your Turn', 'You can only activate the synergy waiver on your own turn.');
+			return;
+		}
+		const { state: newState, success, error } = activateSynergyWaiver(gameState, localPlayerId);
+		if (!success) {
+			modal.showInfo('Cannot Activate', error || 'The synergy waiver cannot be activated right now.');
+			return;
+		}
+		gameState = newState;
+		log.add('info', 'Synergy Chamber: partner requirement waived for one synergy this turn.');
+		syncPush();
+		renderFromState(gameState);
 	});
 
 	document.getElementById('btn-personal-quest')?.addEventListener('click', () => {
@@ -1632,6 +1648,14 @@ function initGamePage() {
 			btnPersonal.textContent = `Personal Quest ⭐${questBtnLabel}`;
 		}
 		if (btnEndTurn) btnEndTurn.disabled = !isLocalTurn || gameOver;
+
+		const btnSynergyWaiver = document.getElementById('btn-synergy-waiver');
+		if (btnSynergyWaiver) {
+			const waiverUsed = state.players[localPlayerId]?.synergyWaiverActive === true;
+			const waiverAvailable = state.activePlace === 'place_synergy_chamber' && isLocalTurn && !gameOver && !waiverUsed;
+			btnSynergyWaiver.hidden = state.activePlace !== 'place_synergy_chamber';
+			btnSynergyWaiver.disabled = !waiverAvailable;
+		}
 	}
 
 	const WEST_CALCULATED_GUESS_IDS = new Set(['mosje_martin_senor_west']);
@@ -2485,7 +2509,6 @@ function initGamePage() {
 		// Capture bonuses before any state mutation.
 		const diceBonus = gameState._snelleFlags?.questDiceBonus || 0;
 		const questPrepBonus = gameState.players[localPlayerId]?.questPrepBonus || 0;
-		const placeDiceBonus = gameState.activePlace === 'place_synergy_chamber' ? 1 : 0;
 		const skiffaDiceBonus = (gameState.activePlace === 'place_skiffa' && questDef.category === 'Social') ? 2 : 0;
 		const forceReroll = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
 
@@ -2555,7 +2578,7 @@ function initGamePage() {
 			const previewQuestDef = questDefForMosje(updatedMosje);
 			modal.showQuestAttemptPreview(updatedMosje, previewQuestDef, getQuestDiceThreshold(previewQuestDef, updatedMosje), () => {
 				runQuestDiceRoll(targetSlotIndex);
-			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus + skiffaDiceBonus });
+			}, { diceBonus: diceBonus + questPrepBonus + skiffaDiceBonus });
 		}
 
 		function runQuestDiceRoll(targetSlotIndex) {
@@ -2639,7 +2662,7 @@ function initGamePage() {
 				const rollLabel = rollInfo ? `rolled ${rollInfo.roll}, needed ${rollInfo.threshold}+ → ` : '';
 				log.add(didSucceed ? 'gain' : 'loss', `${questDef.name}: ${rollLabel}${didSucceed ? 'Success' : 'Failed'} (${sign}${mpDelta} MP)`);
 				logStateOutcome(log, beforeResolve, gameState, localPlayerId, `${questDef.name} resolution`);
-			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus + skiffaDiceBonus, forceReroll, skiffaRerolls: tweedeKansReroll, mosje: liveMosje });
+			}, { diceBonus: diceBonus + questPrepBonus + skiffaDiceBonus, forceReroll, skiffaRerolls: tweedeKansReroll, mosje: liveMosje });
 		}
 
 		log.add('quest', `Activating Personal Quest: ${questDef.name}`);

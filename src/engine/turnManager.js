@@ -211,6 +211,7 @@ export function startTurn(gameState) {
   activePlayer.attackPieciePlayedThisTurn = false;
   activePlayer.kasteLuckSameTurnActivation = false;
   activePlayer.chrisDdrChainUsesThisTurn = 0;
+  activePlayer.synergyWaiverActive = false;
 
   // Dead-flag turn hygiene (Phase 18): clear stale single-turn effect flags so a
   // flag set but never triggered does not leak into a later turn. These live on
@@ -709,6 +710,28 @@ export function activatePersonalQuest(gameState, playerId, slotIndex) {
   return { state, success: true, questCardId };
 }
 
+// ─────────────────────────────────────────────────────────────
+// activateSynergyWaiver — Synergy Chamber's headline mechanic.
+// Once per turn, while place_synergy_chamber is active, a player may
+// waive the partner-Mosje-on-field requirement for one synergy-gated
+// bonus (see synergyResolver.js getActiveSynergies and questLogic.js
+// getPartnerSynergyQuestBonus, both of which read this flag).
+// ─────────────────────────────────────────────────────────────
+export function activateSynergyWaiver(gameState, playerId) {
+  if (gameState.activePlace !== 'place_synergy_chamber') {
+    return { state: gameState, success: false, error: 'Synergy Chamber is not the active Place' };
+  }
+  const player = gameState.players[playerId];
+  if (!player) return { state: gameState, success: false, error: 'Player not found' };
+  if (player.synergyWaiverActive === true) {
+    return { state: gameState, success: false, error: 'Synergy waiver already used this turn' };
+  }
+  const state = JSON.parse(JSON.stringify(gameState));
+  state.players[playerId].synergyWaiverActive = true;
+  console.log('[ENGINE] Synergy Chamber: partner waiver activated for', playerId);
+  return { state, success: true };
+}
+
 export function activatePlace(gameState, playerId, slotIndex) {
   let state = JSON.parse(JSON.stringify(gameState));
   let player = state.players[playerId];
@@ -1154,21 +1177,10 @@ export function useMosjeAbility(gameState, playerId, mosjeId) {
   // Wrap in try/catch: some abilities require pending targets (e.g. Binti’s discard) that
   // are not present when called without UI interaction (e.g. from the bot driver).
   // In that case, treat the ability as unusable rather than crashing.
-  // Synergy Chamber: ability activation costs 5 fewer MP when place_synergy_chamber is active.
-  // Pre-adjust the Mosje MP so individual ability functions see the reduced effective cost.
-  const synergyDiscount = placeEffects.getSynergyChambercostReduction(gameState);
-  let stateForAbility = gameState;
-  if (synergyDiscount > 0 && mosjeDef.abilityCost > 0) {
-    stateForAbility = JSON.parse(JSON.stringify(gameState));
-    const s = stateForAbility.players[playerId].activeSlots[slotIndex];
-    s.mp += synergyDiscount; // grant the discount pre-payment
-    console.log('[ENGINE] Synergy Chamber: ability cost reduced by', synergyDiscount, 'for', mosjeId);
-  }
-
   let state;
   let extraFields = {};
   try {
-    const result = fn(stateForAbility, playerId, mosjeId);
+    const result = fn(gameState, playerId, mosjeId);
     // Ability functions may return either a raw state object OR a result envelope
     // { state, success, error, ...extras }. Unwrap the envelope if present.
     if (result && typeof result === 'object' && 'state' in result && 'success' in result) {

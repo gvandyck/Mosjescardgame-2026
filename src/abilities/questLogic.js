@@ -9,7 +9,6 @@ import { gainMP, loseMP } from '../engine/mpManager.js';
 import { checkVictory } from '../engine/victoryChecker.js';
 import { roundToFive } from '../engine/roundToFive.js';
 import { applyPlaceEffectsOnQuest } from '../engine/turnManager.js';
-import { getSynergyChamberDiceBonus } from './placeEffects.js';
 
 console.log('[ABILITY] questLogic.js loaded');
 
@@ -56,9 +55,13 @@ const PARTNER_QUEST_SYNERGIES = [
 export function getPartnerSynergyQuestBonus(gameState, playerId, category) {
 	if (!category) return 0;
 	const activeIds = new Set(getActiveMosjes(gameState?.players?.[playerId]).map(m => m.cardId));
+	const waiverActive = gameState?.players?.[playerId]?.synergyWaiverActive === true;
 	let bonus = 0;
 	for (const entry of PARTNER_QUEST_SYNERGIES) {
-		if (entry.category === category && entry.pair.every(id => activeIds.has(id))) {
+		if (entry.category !== category) continue;
+		const bothPresent = entry.pair.every(id => activeIds.has(id));
+		const waived = waiverActive && entry.pair.some(id => activeIds.has(id));
+		if (bothPresent || waived) {
 			bonus += entry.bonus;
 		}
 	}
@@ -977,8 +980,7 @@ export function quest_req_perfect_timing(questCard, mosje) {
 	}
 
 	// Roll exactly 6 (no threshold, must be exact match)
-	const raw = rollDie();
-	const roll = raw + getSynergyChamberDiceBonus(questCard?.gameState || null);
+	const roll = rollDie();
 	return { canAttempt: true, diceRoll: roll, threshold: 6, exact: true, success: roll === 6 };
 }
 
