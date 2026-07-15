@@ -152,31 +152,33 @@ This document is the final Phase 11 master card inventory, generated from the li
 | snelle_the_protector | The Protector | - | no | no | free | reduceMPLossBy; mpLossReduction snelle flag consolidated into loseMP() read point (STUB-02) | implemented |
 | momentum-rush | Momentum Rush | MOMENTUM-GAINING | no | no | free | gainMP+drawCards | advanced |
 
-## Place (16)
+## Place (19 of 21 — place_tesla and place_eendjes_voeren rows still missing, pre-existing gap outside Phase 35's scope)
 
 | ID | Name | Group | Starter | Booster | Cost | Effect (aligned) | Status |
 |---|---|---|---|---|---|---|---|
-| place_arcade | Arcade | PLACE | yes | no | free | quest_completed, Technical 2+, +15 MP | implemented |
+| place_arcade | Arcade | PLACE | yes | no | free | quest_completed, Technical 2+, +15 MP, ALL active slots (fixed 2026-07-14: was first-slot-only) | implemented |
 | place_boxing_ring | Boxing Ring | PLACE | no | no | free | END_PHASE: FIGHTING +10 MP, non-FIGHTING -5 MP; ON_QUEST: Physical +15 MP (GANDOE: +25 MP) | implemented |
-| place_bank_chilling | Bank Chilling | PLACE | yes | no | free | turn_start, Social 2+, +15 MP | implemented |
-| place_coerts_caravan | Coert's Caravan | PLACE | yes | no | free | turn_start, Coert Mosje only, +15 MP | implemented |
+| place_bank_chilling | Bank Chilling | PLACE | yes | no | free | turn_start (START_PHASE), Social 2+, +15 MP, ALL active slots (fixed 2026-07-14: was first-slot-only AND a dead trigger string — card had never fired in live play) | implemented |
+| place_coerts_caravan | Coert's Caravan | PLACE | yes | no | free | REPLACED 2026-07-14: end_phase (fixed dead turn_start trigger), all Mosjes -10 MP except Coert variants (was +15-Coert-only, never fired live due to the same dead trigger bug) | implemented |
+| place_de_box | De Box | PLACE | no | no | free | end_phase, GANDOE +20 MP, MICHELLE/TUK-family +15 MP (fixed 2026-07-14: widened id match to include all Tuk-family Mosjes, not just Michelle; fixed stale "Toennoe" log strings to say "De Box"), +10 bonus each if both present | implemented |
 | place_delluft | Delluft | PLACE | no | no | free | turn_end, all draw 1 card; SUBSTANCE cost-0 MP clause deferred to Phase 36 (game-wide MP cost model redesign) | advanced |
+| place_digital_gaming_stop | Digital Gaming Stop | PLACE | no | yes | free | REPLACED 2026-07-14: on_quest, DIGITAL-EQUIPMENT Piecie active → +10 MP to questing Mosje (dropped the old dead auto-succeed flag, which had zero consumers) | implemented |
 | place_dierenasiel | Dierenasiel | PLACE | no | no | free | passive; +25% PET-protection clause removed 2026-07-14 (was permanently inert due to a setter/reader typo mismatch); PET cost-0 MP clause deferred to Phase 36 | advanced |
-| place_drain_zone | Drain Zone | PLACE | no | no | free | turn_end, lowest MP Mosje loses -10 MP | advanced |
+| place_drain_zone | Drain Zone | PLACE | no | no | free | turn_end, lowest MP Mosje loses -10 MP; ATTACK Piecie +10 damage bonus DESCOPED to a future Piecie-touching phase; untexted +5-all-gains bug removed 2026-07-14; hidden from deck-building/boosters as of 2026-07-14 | advanced |
 | place_momentum_factory | Momentum Factory | PLACE | no | no | free | piecie_activated, +10 MP (first-only enforced in UI) | advanced |
 | place_momentum_stabilizer | Momentum Stabilizer | PLACE | no | no | free | passive flag only; 30 MP loss cap enforced in UI | advanced |
-| place_obby_1 | Obby #1 | PLACE | yes | no | free | quest_completed/failed, Physical 2+ or Resilient 2+, +20/-10 MP | implemented |
+| place_obby_1 | Obby #1 | PLACE | yes | no | free | quest_completed/failed, Physical 2+ or Resilient 2+, +20/-10 MP, ALL active slots (fixed 2026-07-14: was first-slot-only) | implemented |
 | place_quest_haven | Quest Haven | PLACE | yes | no | free | quest_completed, +10 MP; 2-quest bonus +25 MP (UI tracked) | implemented |
-| place_skiffa | Skiffa | PLACE | no | no | free | turn_end, -15 MP unless SUBSTANCE trait 1+ | advanced |
-| place_synergy_chamber | Synergy Chamber | PLACE | no | no | free | getSynergyChambercostReduction() wired in useMosjeAbility(); -5 MP pre-adjustment applied before ability dispatch (STUB-10); duration reduction deferred to UI phase | implemented |
+| place_skiffa | Skiffa | PLACE | no | no | free | REWORKED 2026-07-14: on_quest, Social quests +2 dice roll for all players (was turn_end discard/-15 MP, discard branch was never built; also removed the undocumented getSkiffaRerolls ARTISTIC-creative reroll grant) | implemented |
+| place_synergy_chamber | Synergy Chamber | PLACE | no | no | free | REWORKED 2026-07-14: once/turn, activate a synergy-gated bonus (Binti+Coert FOOD double, or Señor West+AZN Cless Physical-quest bonus) without the partner Mosje present; the old undocumented cost-5/dice+1/duration+1 bonuses are removed | implemented |
 | place_the_gym | The Gym | PLACE | yes | no | free | END_PHASE (fires per player-turn, both sides): Physical ★★★ +35 MP, Physical ★★ +25 MP, CLESS +20 MP, WEST neutral (2026-07-11 balance fix — was punished at -10 like any other non-Physical Mosje, draining WC's own team; now matches his no-op treatment at Obby #1), else -10 MP | implemented |
-| place_the_void | The Void | PLACE | no | no | free | turn_end, all -15 MP; RESTORE/FOOD restriction via void_active flag | advanced |
+| place_the_void | The Void | PLACE | no | no | free | turn_end, all -15 MP; RESTORE/FOOD restriction via activatePiecie guard (unchanged, already correctly wired); one-card-per-turn activation cap DESCOPED to a future dedicated design phase; untexted quest-MP-nullify gate removed 2026-07-14 (was fully redundant with mpManager.js's own place_the_void gates); hidden from deck-building/boosters as of 2026-07-14 | advanced |
 | place_welloe_graveyard | Welloe Graveyard | PLACE | no | no | free | mosje_defeated, +20 MP + draw 1 card for that player | advanced |
 | place_zo_is_natuur | Zo is Natuur | PLACE | yes | no | free | turn_end, Resilient 1+→+15 MP, else +10 MP | implemented |
 
 ### Place Design Notes
-- **Digital Gaming Stop**: hidden (booster-only flag set); no engine implementation.
-- **Dierenasiel**: TS stub registered with `dierenasiel_active` flag; PET cost/protection effects enforced in browser only. For Cless teacher / AZN Cless.
+- **Digital Gaming Stop**: (2026-07-14) fully implemented — see table row above; the old "hidden, no engine implementation" note is stale.
+- **Dierenasiel**: (2026-07-14) its +25% PET-protection clause was removed as permanently-dead code (setter/reader typo mismatch, never reachable); its remaining "PET Piecies cost 0 MP" clause is unimplemented and deferred to Phase 36 — see table row above.
 - **Quest Haven**: 2-quest-per-turn bonus (+25 MP) tracked in browser only via `questsCompletedThisTurn` counter; TS engine fires +10 MP per quest_completed event.
 - **Momentum Factory**: TS engine fires +10 MP per piecie_activated event; browser enforces "first Piecie only" restriction via `pieciesPlayedThisTurn` counter.
 
@@ -253,11 +255,11 @@ This document is the final Phase 11 master card inventory, generated from the li
 - quest_form_alliance requires caller-provided targetRef in multiplayer/UI layer.
 
 ### Phase 7 Questions
-- place_synergy_chamber keeps forced-synergy support; duration extension and ability-cost reduction remain deferred.
+- place_synergy_chamber keeps forced-synergy support; duration extension and ability-cost reduction remain deferred. **(2026-07-14 update, Phase 35: this framing is now stale — the cost/dice/duration bonuses described here were undocumented dead code and have been removed entirely; Synergy Chamber's real mechanic is now a once-per-turn synergy-partner waiver — see the Place table row above.)**
 
 ### Phase 8 Questions
 - Plans 08-01 through 08-04 resolved most partial cards (see ✅ notes above and in Phase 5 section).
-- Remaining partial/advanced cards: mosje_fps_west (UI peek reveal), ronald-the-master-chef (UI hand reveal), place_synergy_chamber (cost/duration reduction callers deferred), place_dierenasiel (PET cost-waiver deferred), dingetje-toch (requirement bypass UI), double-trigger (double-fire executor), snelle_frenssen (UI targetRef), snelle_jammertje_gepakt (send-to-bottom primitive), snelle_jensen (source-card discard), snelle_jeweetniet (force-reroll interception UI).
+- Remaining partial/advanced cards: mosje_fps_west (UI peek reveal), ronald-the-master-chef (UI hand reveal), place_synergy_chamber (2026-07-14: reworked into a once-per-turn synergy-partner waiver, no longer cost/duration-reduction — see Place table row above), place_dierenasiel (2026-07-14: PET cost-0 MP clause deferred to Phase 36, not a "cost-waiver deferred" framing — see Place table row above), dingetje-toch (requirement bypass UI), double-trigger (double-fire executor), snelle_frenssen (UI targetRef), snelle_jammertje_gepakt (send-to-bottom primitive), snelle_jensen (source-card discard), snelle_jeweetniet (force-reroll interception UI).
 - Quest section: see plan 08-06 for full quest audit and classification.
 
 ### Phase 10 Notes
@@ -273,14 +275,14 @@ This document is the final Phase 11 master card inventory, generated from the li
 - STUB-05: doubleNextPiecie confirmed already implemented in activatePiecie() — Dubbele Temminks functional
 - STUB-06: effect_ff_haaltje_nemen ReferenceError fixed; value restored (20/30)
 - STUB-08: Dead SNOEIERTJE_COST push removed from effect_snoeiertje
-- STUB-10: getSynergyChambercostReduction() wired in useMosjeAbility(); -5 MP pre-adjustment applied
+- STUB-10 (Synergy Chamber ability-cost pre-adjustment): **SUPERSEDED 2026-07-14 (Phase 35) — the wired mechanic this entry described was undocumented dead code with no basis in the card's text and has been fully removed. Synergy Chamber's real mechanic is now a once-per-turn synergy-partner waiver; see the Place table.**
 - STUB-11: Bagga of Greed — showCardChoice modal wired in main.js; full-hand discard picker after activation
 - STUB-14: Welloe Force — showOptionSelect modal + 3-turn engine-level damage redirect in loseMP()
 - STUB-15: MP Adjuster — showOptionSelect modal (20/40/60/80/100 MP); temporary, reverts at startTurn()
 
 **Partial (engine done, UI deferred):**
 - STUB-07: Dingetje Toch — engine flag set; UI consumption point documented in turnManager.js handleActivatePiecie()
-- STUB-09: Dierenasiel — engine guard logged; UI cantAffordAbility check for 0-MP PET deferred to UI phase
+- Dierenasiel engine guard (formerly tracked as a STUB entry): **SUPERSEDED 2026-07-14 (Phase 35) — the guard this referenced was dead code (typo'd setter/reader mismatch, never reachable) and has been removed. PET cost-0 MP is unimplemented and deferred to Phase 36.**
 
 **Deferred (requires named blocking primitive):**
 - STUB-16: FPS West — blocking primitive: opponent hand reveal UI in boardRenderer.js (opponentHandPeeked flag)
