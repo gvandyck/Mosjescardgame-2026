@@ -168,15 +168,15 @@ export function effect_arcade(gameState, questCard, didSucceed) {
 	const state = cloneState(gameState);
 	const playerId = state.activePlayerId;
 	const player = state.players[playerId];
-	const slotIndex = player.activeSlots.findIndex(slot => slot !== null && !slot.isDefeated);
-	if (slotIndex < 0) return state;
 
-	const mosje = player.activeSlots[slotIndex];
-	const technical = mosje.traits?.technical || 0;
+	for (const mosje of player.activeSlots) {
+		if (!mosje || mosje.isDefeated) continue;
+		const technical = mosje.traits?.technical || 0;
 
-	if (technical >= 2 && didSucceed) {
-		mosje.mp += 15;
-		console.log('[ABILITY] Arcade: +15 MP on successful Technical quest');
+		if (technical >= 2 && didSucceed) {
+			mosje.mp += 15;
+			console.log('[ABILITY] Arcade: +15 MP on successful Technical quest');
+		}
 	}
 	return state;
 }
@@ -500,17 +500,17 @@ export function effect_de_box(gameState) {
 			if (id.includes('gandoe')) {
 				mosje.mp += 20;
 				gandoeSlot = mosje;
-				console.log('[ABILITY] Toennoe: +20 MP (GANDOE)');
-			} else if (id.includes('michelle')) {
+				console.log('[ABILITY] De Box: +20 MP (GANDOE)');
+			} else if (id.includes('michelle') || id.includes('tuk')) {
 				mosje.mp += 15;
 				michelleSlot = mosje;
-				console.log('[ABILITY] Toennoe: +15 MP (MICHELLE/TUK)');
+				console.log('[ABILITY] De Box: +15 MP (MICHELLE/TUK)');
 			}
 		}
 		if (gandoeSlot && michelleSlot) {
 			gandoeSlot.mp += 10;
 			michelleSlot.mp += 10;
-			console.log('[ABILITY] Toennoe: +10 bonus each (Gandoe & Michelle together)');
+			console.log('[ABILITY] De Box: +10 bonus each (Gandoe & Michelle together)');
 		}
 	}
 	return state;

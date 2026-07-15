@@ -19,3 +19,12 @@ was last touched by an unrelated Chris DDR commit (`cd93c32`), not by this plan.
 
 Not fixed here — out of scope for phase 35 (Places). Flagging for a future
 ability-text-reconciliation pass.
+
+## 35-02: Same pre-existing failures reconfirmed
+
+Found during: Task 1/2 verification (`npm run test:cards`)
+
+Re-ran `npm run test:cards` for this plan (Arcade + De Box) — the identical 2
+pre-existing failures above recur (`mosje_amplifier`, `mosje_binti_creator`),
+still unrelated to `src/abilities/placeEffects.js`. No new failures introduced
+by this plan's changes. 51 passed / 9 skipped / 2 failed, same as 35-01.
