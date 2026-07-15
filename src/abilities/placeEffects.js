@@ -241,9 +241,7 @@ export function effect_momentum_factory(gameState) {
 }
 
 // ─────────────────────────────────────────
-// COERT'S CARAVAN — Turn Start: Coert Mosjes gain +15 MP. All Binti Piecies cost 5 less MP.
-// Design direction: exclusively for Coert. Hard requirement, good payoff.
-// Binti cost reduction requires UI validation during card play.
+// COERT'S CARAVAN — End of Turn: all Mosjes lose 10 MP. Coert Mosjes are immune.
 // ─────────────────────────────────────────
 export function effect_coerts_caravan(gameState) {
 	const state = cloneState(gameState);
@@ -251,21 +249,12 @@ export function effect_coerts_caravan(gameState) {
 		const player = state.players[pid];
 		if (!player) continue;
 
-		let hasCoert = false;
 		for (const mosje of player.activeSlots || []) {
 			if (!mosje || mosje.isDefeated) continue;
 			const id = String(mosje.cardId || mosje.mosjeId || '').toLowerCase();
-			const isCoert = id.includes('coert');
-			if (isCoert) {
-				hasCoert = true;
-				mosje.mp += 15;
-				console.log('[ABILITY] Coert\'s Caravan: +15 MP for Coert Mosje');
-			}
-		}
-
-		if (hasCoert) {
-			player.freePiecieActivationAvailable = true;
-			console.log(`[PLACE] Coert's Caravan — ${pid} gets 1 free Piecie activation this turn`);
+			if (id.includes('coert')) continue;
+			applyDamage(mosje, 10);
+			console.log('[ABILITY] Coert\'s Caravan: -10 MP end-of-turn drain');
 		}
 	}
 	return state;
@@ -413,22 +402,27 @@ export function effect_dierenasiel(gameState) {
 }
 
 // ─────────────────────────────────────────
-// DIGITAL GAMING STOP — On Quest: Technical Quests auto-succeed for DIGITAL.
-// DIGITAL-EQUIPMENT Piecies give +20 MP. Hidden/booster-only.
-// Note: Auto-succeed requires quest resolution integration.
+// DIGITAL GAMING STOP — On Quest: DIGITAL-EQUIPMENT Piecies give +10 MP while active.
+// Hidden/booster-only.
 // ─────────────────────────────────────────
-export function effect_digital_gaming_stop(gameState, questCard, mosje) {
-	const state = cloneState(gameState);
-	// Check if Mosje is DIGITAL and quest is TECHNICAL
-	const isDigital = mosje?.traits?.digital >= 2;
-	const isPhysicalQuest = questCard?.questRequirement?.includes('physical');
+export function effect_digital_gaming_stop(gameState, questCard, mosje, playerId) {
+	// Resolve the questing Mosje's slot index BEFORE cloning — `mosje` is a reference
+	// into the pre-clone state, so mutating it directly would not carry over to the
+	// freshly cloned state this function returns.
+	const preClonePlayer = gameState.players[playerId];
+	const slotIndex = preClonePlayer ? preClonePlayer.activeSlots.indexOf(mosje) : -1;
 
-	if (isDigital && !isPhysicalQuest) {
-		console.log('[ABILITY] Digital Gaming Stop: DIGITAL Mosje auto-succeeds technical quest');
-		// Return flag indicating auto-success
-		return { ...state, questAutoSuccess: true };
+	const state = cloneState(gameState);
+	const player = state.players[playerId];
+	const hasActiveDigitalEquipment = (player?.piecieSlots || []).some(slot => {
+		if (!slot || slot.activated !== true) return false;
+		return getCardById(slot.cardId)?.subtype === 'DIGITAL-EQUIPMENT';
+	});
+
+	if (hasActiveDigitalEquipment && slotIndex >= 0) {
+		player.activeSlots[slotIndex].mp += 10;
+		console.log('[ABILITY] Digital Gaming Stop: +10 MP for active DIGITAL-EQUIPMENT Piecie');
 	}
-	// Note: DIGITAL-EQUIPMENT Piecie +20 MP bonus requires validation during card play
 	return state;
 }
 
@@ -646,7 +640,7 @@ export function resolvePlaceEffect(gameState, triggerPhase, context = {}) {
 			break;
 
 		case 'place_digital_gaming_stop':
-			nextState = effect_digital_gaming_stop(state, questCard, mosje);
+			nextState = effect_digital_gaming_stop(state, questCard, mosje, playerId);
 			break;
 
 		case 'place_eendjes_voeren':

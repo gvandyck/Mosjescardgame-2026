@@ -794,15 +794,6 @@ export function activatePiecie(gameState, playerId, slotIndex) {
     return { state, success: false, error: 'Unknown Piecie definition' };
   }
 
-  if (
-    state.activePlace === 'place_coerts_caravan' &&
-    player.freePiecieActivationAvailable === true &&
-    player.activeSlots.some(s => s && !s.isDefeated && String(s.cardId || '').includes('coert'))
-  ) {
-    player.freePiecieActivationAvailable = false;
-    console.log('[PLACE] Coert\'s Caravan — free Piecie activation consumed');
-  }
-
   // Check The Void restriction (blocks RESTORE and FOOD Piecies)
   if (state.activePlace === 'place_the_void') {
     const blocked = ['RESTORE', 'FOOD'];
