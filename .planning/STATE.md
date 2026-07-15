@@ -1,28 +1,38 @@
 # Project State
 
 **Last updated:** 2026-07-15
-**Current phase:** Phase 35 — Places Text-vs-Engine Reconciliation (Round 1): EXECUTING (6/8 waves complete)
+**Current phase:** Phase 35 — Places Text-vs-Engine Reconciliation (Round 1): EXECUTING (7/8 waves complete)
 **Branch:** card/full-game-text-audit
 
-## ▶ RESUME HERE (2026-07-15 handoff, 4th update today)
+## ▶ RESUME HERE (2026-07-15 handoff, 5th update today)
 
-**Next command:** `/gsd:execute-phase 35` (continue with wave 7: 35-07, Drain Zone + The Void dead-code cleanup/hide — no checkpoint gate)
+**Next command:** `/gsd:execute-phase 35` (continue with wave 8: 35-08, docs update + full phase-gate verification — the FINAL wave of Phase 35)
+
+**Wave 7 (Drain Zone + The Void, commit `8e18352`) is done.** Removed Drain Zone's untexted +5-all-gains bonus (`mpManager.js`) and The Void's redundant `baseQuestMpBlocked` gate (`questLogic.js`); hid both cards from deck-building/boosters via new `getPlayerFacingPlaces()` (mirrors `getPlayerFacingDecks()`'s pattern) — card data/effects stay intact for any pre-existing instance. Full verification: 657/657 unit tests, `test:cards` clean (2 pre-existing unrelated failures), `test:sim` 152/160 (8 failures/5%, 0 crashes).
+
+**Design detour, live with Gandoe:** while verifying Task 2's "zero observable change" claim, found removing `baseQuestMpBlocked` lets 2 quest-arming charges (Snoeiertje-family's `questBonusMP`, Battle Concert's redirect flag) get silently consumed during a Void-active quest, even though the MP itself is still blocked deeper. Flagged it instead of assuming; Gandoe used it to give a **full design ruling for The Void's real mechanic**: it should NOT block Quests/abilities/other Piecies at all — ONLY the *activation* (not placement) of FOOD-tagged Piecies that actually gain/restore MP (e.g. Varkenspootjes, Kannetje Melk — NOT Controller/Keyboard, and NOT Warm Kannetje Melk since that one *loses* MP). This is a full reversal of the current blanket mpManager.js block. Deferred to a future phase (safe since Void is hidden from players this same wave regardless) — captured with a starting per-card MP-direction classification table in `.planning/todos/pending/2026-07-15-the-void-real-implementation-ruling.md`.
+
+**Wave plan:** 35-01 (PLACE-01,02) ✅ → 35-02 (03,04) ✅ → 35-03 (06,07) ✅ → 35-04 (08,09) ✅ → 35-05 (10) ✅ → 35-06 (11, Synergy Chamber) ✅ → 35-07 (05,12, Drain Zone/Void) ✅ → 35-08 (docs + full phase-gate verification — LAST WAVE). 35-VALIDATION.md sign-off is `approved`.
+
+**Note for future sessions:** merging an execute-phase worktree branch back into the feature branch requires explicit per-request user authorization (auto-mode blocks it otherwise, even outside `main`) — ask before merging each wave. Direct commits to the feature branch (no worktree) do not hit this gate and are the simpler default when not parallelizing across subagents.
+
+**`test:cards` + `test:sim` are not parallel-safe** — running both at once, OR leaving manual scratch Playwright browser windows open on the same dev server while running either, causes spurious failures/slowdowns unrelated to any real regression (confirmed multiple times this session). Always run them in isolation — close any manual browser windows first — or re-run solo before trusting a failure/hang.
+
+**When running a long background command (e.g. `test:sim`, ~25-40 min this session), do NOT pipe through `tail -N`** — it buffers all output until the process exits, so the output file looks empty/stuck the entire run even though it's progressing normally. Redirect straight to a file (or let the harness capture full output) so progress is checkable mid-run.
+
+<details>
+<summary>Prior handoff (4th update, superseded — wave 6 full detail)</summary>
 
 **Wave 6 (Synergy Chamber, commits `412ab30` + `0faacdd`) — the phase's highest-complexity card, with a `checkpoint:human-verify` gate — is done and APPROVED.** Tasks 1+2 (remove 3 dead bonuses, add the once-per-turn partner waiver) went in clean via TDD. The human-verify checkpoint then turned into an extended live session with Gandoe testing 3 seeded browser scenarios (Binti FOOD-double, Señor West + AZN Cless Physical-quest+15 from both sides of the pair), which produced real UX feedback beyond the original plan:
 - Waiver button moved from a top-bar control onto the Synergy Chamber card itself (reusing the existing Activate-button pattern).
 - Confusing "(50/70 MP with Coert/Binti synergy)" text removed from all 3 FOOD Piecies (Kannetje Melk, Broodje Döner, Ronald Kip).
 - New gold/purple pill system added (`buildActiveModifiers`) so a live synergy bonus is visible proactively, not just inferable from an MP delta.
-- Battle log now explicitly breaks out a partner-synergy quest bonus as its own line (was silently folded into one combined MP number) via a new transient `_questSynergyBonus` marker.
+- Battle log now explicitly breaks out a partner-synergy quest bonus as its own line via a new transient `_questSynergyBonus` marker.
 - Fixed a real pre-existing test-hook bug (`cardTypeFor` never mapped `mosje_`-prefixed ids → type `MOSJE`) and added `setActivePlace`/`setTurnNumber` test hooks for scenario seeding.
-- Deeper investigation (triggered by Gandoe's own questions) found the waiver only covers the 2 mechanisms that use the shared `getActiveSynergies`/`hasSynergy` utility — Chris+Youri and Chris DDR+DJ 8020 are real but use separate ad-hoc presence checks the waiver doesn't reach. Explicitly deferred (not fixed this wave) to a new todo: `.planning/todos/pending/2026-07-15-remaining-mosje-synergies-and-cless-teacher-fix.md` (also covers Michelle+Gandoe, FPS Coert+FPS West, and a Cless Teacher/AZN Cless text-vs-code divergence — Cless Teacher promises the same effect as AZN Cless but the engine table only recognizes AZN Cless).
-- Full verification: 646/646 unit tests, `test:cards` clean (2 pre-existing unrelated failures), `test:sim` 155/160 (5 failures/3.1%, 0 crashes).
+- Deeper investigation found the waiver only covers the 2 mechanisms using the shared `getActiveSynergies`/`hasSynergy` utility — Chris+Youri and Chris DDR+DJ 8020 use separate ad-hoc checks the waiver doesn't reach. Deferred to `.planning/todos/pending/2026-07-15-remaining-mosje-synergies-and-cless-teacher-fix.md`.
 - Full detail in `.planning/phases/35-places-text-reconciliation/35-06-SUMMARY.md`.
 
-**Wave plan:** 35-01 (PLACE-01,02) ✅ → 35-02 (03,04) ✅ → 35-03 (06,07) ✅ → 35-04 (08,09) ✅ → 35-05 (10) ✅ → 35-06 (11, Synergy Chamber) ✅ → 35-07 (05,12 — Drain Zone/Void dead-code cleanup + hide) → 35-08 (docs + full phase-gate verification). 35-VALIDATION.md sign-off is `approved`.
-
-**Note for future sessions:** merging an execute-phase worktree branch back into the feature branch requires explicit per-request user authorization (auto-mode blocks it otherwise, even outside `main`) — ask before merging each wave. Direct commits to the feature branch (no worktree) do not hit this gate and are the simpler default when not parallelizing across subagents.
-
-**`test:cards` + `test:sim` are not parallel-safe** — running both at once, OR leaving manual scratch Playwright browser windows open on the same dev server while running either, causes spurious failures/slowdowns unrelated to any real regression (confirmed multiple times this session). Always run them in isolation — close any manual browser windows first — or re-run solo before trusting a failure/hang.
+</details>
 
 <details>
 <summary>Prior handoff (3rd update, superseded — waves 3-5 detail)</summary>

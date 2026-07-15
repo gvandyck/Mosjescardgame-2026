@@ -803,7 +803,7 @@ Plans:
 4. MP-touching changes: Ronald Kip stacking test green; simulation crash-free, timeout < 25%.
 5. PLACE-01/08/10 trigger-dispatch fixes proven through `resolvePlaceEffect`/`startTurn`/`endTurn`, not just the raw effect function (guards against the "TURN_START never fires" class of bug).
 
-**Plans:** 6/8 plans executed
+**Plans:** 7/8 plans executed
 
 Plans:
 - [x] 35-01-PLAN.md — Bank Chilling (loop-all + trigger fix) + Obby #1 (loop-all)
@@ -812,7 +812,7 @@ Plans:
 - [x] 35-04-PLAN.md — Coert's Caravan (replace + trigger fix) + Digital Gaming Stop (rework)
 - [x] 35-05-PLAN.md — Skiffa (rework: Social +2 dice bonus, remove getSkiffaRerolls)
 - [x] 35-06-PLAN.md — Synergy Chamber (remove 3 dead bonuses, add once/turn partner waiver + UI) — human-verify checkpoint APPROVED
-- [ ] 35-07-PLAN.md — Drain Zone + The Void dead-code cleanup + hide both from player-facing pools
+- [x] 35-07-PLAN.md — Drain Zone + The Void dead-code cleanup + hide both from player-facing pools
 - [ ] 35-08-PLAN.md — docs/card-reference.md update + full-suite phase-gate verification
 
 **Context:** `.planning/phases/35-places-text-reconciliation/35-CONTEXT.md`
