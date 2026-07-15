@@ -68,6 +68,24 @@ export function getPartnerSynergyQuestBonus(gameState, playerId, category) {
 	return bonus;
 }
 
+// UI helper: which partner-quest-synergy bonuses are LIVE right now for this
+// player (real partner present, or waived via Synergy Chamber) — lets the UI
+// show a pill BEFORE a quest is attempted, rather than only revealing the
+// bonus after the fact in the MP delta.
+export function getActivePartnerSynergyBonuses(gameState, playerId) {
+	const activeIds = new Set(getActiveMosjes(gameState?.players?.[playerId]).map(m => m.cardId));
+	const waiverActive = gameState?.players?.[playerId]?.synergyWaiverActive === true;
+	const active = [];
+	for (const entry of PARTNER_QUEST_SYNERGIES) {
+		const bothPresent = entry.pair.every(id => activeIds.has(id));
+		const waived = waiverActive && entry.pair.some(id => activeIds.has(id));
+		if (bothPresent || waived) {
+			active.push({ category: entry.category, bonus: entry.bonus });
+		}
+	}
+	return active;
+}
+
 export function getMosjeTrait(gameState, playerId, activeMosjeId, traitName) {
 	const trait = String(traitName || '').toLowerCase();
 	const player = gameState?.players?.[playerId];
@@ -413,6 +431,10 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 			questMpGained += totalBonus;
 			state = gainMP(state, playerId, slotIndex, totalBonus, 'QUEST_BONUS');
 			console.log(`[QUEST] Bonus MP applied: +${totalBonus} (armed=${armedBonus}, partner-synergy=${synergyBonus})`);
+			// Surface the synergy portion to the player-facing battle log (consumed
+			// and cleared by main.js right after logging), so a partner-synergy
+			// bonus isn't silently folded into one combined MP number.
+			if (synergyBonus > 0) state._questSynergyBonus = synergyBonus;
 		}
 	}
 
