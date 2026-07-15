@@ -1,16 +1,18 @@
 # Project State
 
-**Last updated:** 2026-07-14
-**Current phase:** Phase 35 — Places Text-vs-Engine Reconciliation (Round 1): PLANNED (8 plans, checker-verified), ready to execute
+**Last updated:** 2026-07-15
+**Current phase:** Phase 35 — Places Text-vs-Engine Reconciliation (Round 1): EXECUTING (2/8 waves merged)
 **Branch:** card/full-game-text-audit
 
-## ▶ RESUME HERE (2026-07-14 handoff, 4th update today)
+## ▶ RESUME HERE (2026-07-15 handoff)
 
-**Next command:** `/gsd:execute-phase 35`
+**Next command:** `/gsd:execute-phase 35` (continue with wave 3: 35-03)
 
-**Phase 35 planning complete this session:** resumed an interrupted `/gsd:plan-phase 35` run (pattern map existed on disk but was never committed and no PLAN.md had been generated). Spawned `gsd-planner` → 8 plans written across 8 waves (mostly sequential — nearly every plan touches `src/data/places.js`/`src/abilities/placeEffects.js`), all 12 PLACE-01..12 requirement IDs covered, commit `4cbb4e7`. `gsd-plan-checker` found 2 blockers (35-06 Synergy Chamber and 35-07 Drain Zone both touch live MP amounts but skipped the mandatory Ronald Kip stacking test in their verify blocks) — fixed via targeted planner revision (commit `c81ffcf`), re-verified clean (`## VERIFICATION PASSED`). Cleaned up 2 non-blocking checker warnings (stray `</output>` tags, stale VALIDATION.md checkbox wording) and committed the previously-uncommitted `35-PATTERNS.md` (commit `d21e2c7`).
+**Wave 2 (35-02: Arcade + De Box) merged this session:** the prior session was interrupted (token exhaustion) mid-wave, with 35-02's implementation already committed to an executor worktree (`worktree-agent-a7c384a9bc2a5c327`) but not yet verified/merged. Resumed cold: re-ran the full verification sequence (`node --check`, `npm test` 626/626, `npm run test:cards` clean aside from the 2 pre-existing unrelated failures, `npm run test:sim` 0 crashes), wrote `35-02-SUMMARY.md`, committed, and merged into `card/full-game-text-audit` (commit `d7e99ea`) — **with explicit user authorization**, since the auto-mode permission classifier gates worktree merges per-request even on a non-main branch. Worktree removed after merge.
 
-**Wave plan:** 35-01 (PLACE-01,02) → 35-02 (03,04) → 35-03 (06,07) → 35-04 (08,09) → 35-05 (10) → 35-06 (11, Synergy Chamber, has a `checkpoint:human-verify` gate) → 35-07 (05,12 — Drain Zone/Void dead-code cleanup + hide) → 35-08 (docs + full phase-gate verification). 35-VALIDATION.md sign-off is `approved`.
+**Wave plan:** 35-01 (PLACE-01,02) ✅ → 35-02 (03,04) ✅ → 35-03 (06,07) → 35-04 (08,09) → 35-05 (10) → 35-06 (11, Synergy Chamber, has a `checkpoint:human-verify` gate) → 35-07 (05,12 — Drain Zone/Void dead-code cleanup + hide) → 35-08 (docs + full phase-gate verification). 35-VALIDATION.md sign-off is `approved`.
+
+**Note for future sessions:** merging an execute-phase worktree branch back into the feature branch requires explicit per-request user authorization (auto-mode blocks it otherwise, even outside `main`) — ask before merging each wave, don't assume standing consent from a prior wave's approval.
 
 **Phase 36 status (unchanged, still ready):** context locked (`36-CONTEXT.md`, commit `f24e7ed`) — game-wide MP cost model redesign (every Piecie/Snelle Piecie/Place/Personal Quest defaults to 0 MP; tribute only where card text explicitly demands it). ROADMAP has Phase 36 formally `Depends on: Phase 35`, so Phase 35 executing first is the natural sequencing. Resume with `/gsd:plan-phase 36` after Phase 35 ships. Mosje ability costs (`abilityCost`) remain explicitly out of scope for Phase 36.
 

@@ -803,11 +803,11 @@ Plans:
 4. MP-touching changes: Ronald Kip stacking test green; simulation crash-free, timeout < 25%.
 5. PLACE-01/08/10 trigger-dispatch fixes proven through `resolvePlaceEffect`/`startTurn`/`endTurn`, not just the raw effect function (guards against the "TURN_START never fires" class of bug).
 
-**Plans:** 1/8 plans executed
+**Plans:** 2/8 plans executed
 
 Plans:
 - [x] 35-01-PLAN.md — Bank Chilling (loop-all + trigger fix) + Obby #1 (loop-all)
-- [ ] 35-02-PLAN.md — Arcade (loop-all) + De Box (Tuk widen + log fix)
+- [x] 35-02-PLAN.md — Arcade (loop-all) + De Box (Tuk widen + log fix)
 - [ ] 35-03-PLAN.md — Delluft (regression test only) + Dierenasiel (drop +25% clause + typo cleanup)
 - [ ] 35-04-PLAN.md — Coert's Caravan (replace + trigger fix) + Digital Gaming Stop (rework)
 - [ ] 35-05-PLAN.md — Skiffa (rework: Social +2 dice bonus, remove getSkiffaRerolls)
