@@ -1,12 +1,24 @@
 # Project State
 
 **Last updated:** 2026-07-15
-**Current phase:** Phase 35 — Places Text-vs-Engine Reconciliation (Round 1): EXECUTING (7/8 waves complete)
+**Current phase:** Phase 35 — Places Text-vs-Engine Reconciliation (Round 1): EXECUTING (7/8 waves complete, wave 8 Task 1 of 2 done)
 **Branch:** card/full-game-text-audit
 
-## ▶ RESUME HERE (2026-07-15 handoff, 5th update today)
+## ▶ RESUME HERE (2026-07-15 handoff, 6th update today — session paused for the night)
 
-**Next command:** `/gsd:execute-phase 35` (continue with wave 8: 35-08, docs update + full phase-gate verification — the FINAL wave of Phase 35)
+**Next command:** `/gsd:execute-phase 35` (finish wave 8: 35-08 Task 2 — full phase-gate verification. Task 1, the docs update, is already committed.)
+
+**Wave 8 Task 1 (commit `38b9f7e`) is done:** `docs/card-reference.md` updated for all 12 Phase-35-ruled Places (added 2 previously-missing rows — De Box, Digital Gaming Stop — and rewrote stale STUB-09/STUB-10/Phase-7-8 notes that described now-removed mechanisms).
+
+**Wave 8 Task 2 (full-suite phase-gate verification) is IN PROGRESS, stopped mid-run for the night — resume from scratch, nothing is lost:**
+- `node --check` on all 10 touched files — ✅ done, clean
+- `npm test` (full suite) — ✅ done, 657/657 passing
+- Composed `main.js` dice-bonus sum (35-05 + 35-06 cross-plan edit) — ✅ verified: all 4 sites contain `skiffaDiceBonus`, none contain `placeDiceBonus`
+- `npm run test:cards` — ✅ done, clean (same 2 pre-existing unrelated failures as every prior wave)
+- `npm run test:sim` — ❌ **NOT done** — was mid-run (cancelled by request to end the session, not because of any problem) — **run this fresh next session** (`npm run test:sim`, redirect straight to a file rather than piping through `tail`, or just let the harness capture it — see note below) and confirm 0 crashes / timeout rate < 25% before writing `35-08-SUMMARY.md`
+- Once `test:sim` is clean, write `.planning/phases/35-places-text-reconciliation/35-08-SUMMARY.md`, commit, update ROADMAP.md (mark 35-08 done, 8/8), and Phase 35 is fully complete — hand off to whatever comes next (Phase 36 planning is already queued, see below).
+
+**Nothing else changed since commits `8e18352`/`e64d5af`/`38b9f7e`** — the working tree is clean aside from pre-existing unrelated files (`.claude/settings.json`, `CLAUDE.md`, `get-shit-done` submodule pointer, `sim-deck-matrix-results.md` — all untouched by this session, leave them alone).
 
 **Wave 7 (Drain Zone + The Void, commit `8e18352`) is done.** Removed Drain Zone's untexted +5-all-gains bonus (`mpManager.js`) and The Void's redundant `baseQuestMpBlocked` gate (`questLogic.js`); hid both cards from deck-building/boosters via new `getPlayerFacingPlaces()` (mirrors `getPlayerFacingDecks()`'s pattern) — card data/effects stay intact for any pre-existing instance. Full verification: 657/657 unit tests, `test:cards` clean (2 pre-existing unrelated failures), `test:sim` 152/160 (8 failures/5%, 0 crashes).
 
