@@ -1249,7 +1249,7 @@ function initGamePage() {
 		const diceBonus = gameState._snelleFlags?.questDiceBonus || 0;
 		const questPrepBonus = gameState.players[localPlayerId]?.questPrepBonus || 0;
 		const placeDiceBonus = gameState.activePlace === 'place_synergy_chamber' ? 1 : 0;
-		const skiffaRerolls = getSkiffaRerolls(gameState, localPlayerId);
+		const skiffaDiceBonus = (gameState.activePlace === 'place_skiffa' && questDef.category === 'Social') ? 2 : 0;
 		const forceReroll = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
 
 		// Phase 8 Rule 3: broadcast active quest so opponent can see it
@@ -1471,7 +1471,7 @@ function initGamePage() {
 					console.log('[ABILITY-AUTO]', al.label, '| roll:', al.roll, '| adjustment:', al.adjustment);
 					delete gameState._autoAbilityLog;
 				}
-			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus, forceReroll, skiffaRerolls: skiffaRerolls + tweedeKansReroll, mosje: gameState.players[localPlayerId].activeSlots[targetSlotIndex] });
+			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus + skiffaDiceBonus, forceReroll, skiffaRerolls: tweedeKansReroll, mosje: gameState.players[localPlayerId].activeSlots[targetSlotIndex] });
 		}
 
 		function showQuestPreviewThenRoll(targetSlotIndex) {
@@ -1486,7 +1486,7 @@ function initGamePage() {
 				const thresholdForMosje = getQuestDiceThreshold(questDef, updatedMosje);
 				modal.showQuestAttemptPreview(updatedMosje, questDef, thresholdForMosje, () => {
 					runGeneralQuestDiceRoll(targetSlotIndex);
-				}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus });
+				}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus + skiffaDiceBonus });
 			} else {
 				runGeneralQuestDiceRoll(targetSlotIndex);
 			}
@@ -2486,7 +2486,7 @@ function initGamePage() {
 		const diceBonus = gameState._snelleFlags?.questDiceBonus || 0;
 		const questPrepBonus = gameState.players[localPlayerId]?.questPrepBonus || 0;
 		const placeDiceBonus = gameState.activePlace === 'place_synergy_chamber' ? 1 : 0;
-		const skiffaRerolls = getSkiffaRerolls(gameState, localPlayerId);
+		const skiffaDiceBonus = (gameState.activePlace === 'place_skiffa' && questDef.category === 'Social') ? 2 : 0;
 		const forceReroll = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
 
 		// Build Mosje options from current state (quest card still on field at this point).
@@ -2555,7 +2555,7 @@ function initGamePage() {
 			const previewQuestDef = questDefForMosje(updatedMosje);
 			modal.showQuestAttemptPreview(updatedMosje, previewQuestDef, getQuestDiceThreshold(previewQuestDef, updatedMosje), () => {
 				runQuestDiceRoll(targetSlotIndex);
-			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus });
+			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus + skiffaDiceBonus });
 		}
 
 		function runQuestDiceRoll(targetSlotIndex) {
@@ -2639,7 +2639,7 @@ function initGamePage() {
 				const rollLabel = rollInfo ? `rolled ${rollInfo.roll}, needed ${rollInfo.threshold}+ → ` : '';
 				log.add(didSucceed ? 'gain' : 'loss', `${questDef.name}: ${rollLabel}${didSucceed ? 'Success' : 'Failed'} (${sign}${mpDelta} MP)`);
 				logStateOutcome(log, beforeResolve, gameState, localPlayerId, `${questDef.name} resolution`);
-			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus, forceReroll, skiffaRerolls: skiffaRerolls + tweedeKansReroll, mosje: liveMosje });
+			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus + skiffaDiceBonus, forceReroll, skiffaRerolls: tweedeKansReroll, mosje: liveMosje });
 		}
 
 		log.add('quest', `Activating Personal Quest: ${questDef.name}`);
@@ -3333,16 +3333,6 @@ function buildActiveModifiers(gameState, playerId, isLocalPlayer = false) {
 	if (flags.copyLastPiecie?.forPlayer === playerId) pills.push({ label: '📋 Copy Ready', color: 'purple' });
 
 	return pills;
-}
-
-function getSkiffaRerolls(gameState, playerId) {
-	if (gameState?.activePlace !== 'place_skiffa') return 0;
-	const activeMosje = gameState?.players?.[playerId]?.activeSlots?.find(s => s && !s.isDefeated);
-	if (!activeMosje) return 0;
-	const card = CARD_LOOKUP[activeMosje.cardId];
-	if (card?.subtype !== 'ARTISTIC') return 0;
-	const creative = Number(activeMosje?.traits?.creative || 0);
-	return creative >= 3 ? 2 : 1;
 }
 
 function toMosjeCards(activeSlots) {

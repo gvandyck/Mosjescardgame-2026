@@ -111,28 +111,10 @@ export function effect_bank_chilling(gameState, playerId) {
 	return state;
 }
 
-// ─────────────────────────────────────────
-// SKIFFA — End Phase: discard 1 card OR lose 15 MP. SUBSTANCE Mosjes immune.
-// Note: Requires player choice (UI prompt) to implement discard option.
-// For now, all non-SUBSTANCE Mosjes lose 15 MP.
-// ─────────────────────────────────────────
-export function effect_skiffa(gameState) {
-	const state = cloneState(gameState);
-	for (const playerId of Object.keys(state.players)) {
-		const player = state.players[playerId];
-		for (const mosje of player.activeSlots) {
-			if (!mosje || mosje.isDefeated) continue;
-			const hasSubstance = mosje.traits?.substance >= 1;
-			if (!hasSubstance) {
-				applyDamage(mosje, 15);
-				console.log('[ABILITY] Skiffa: -15 MP (no SUBSTANCE immunity)');
-			} else {
-				console.log('[ABILITY] Skiffa: immune due to SUBSTANCE trait');
-			}
-		}
-	}
-	return state;
-}
+// SKIFFA — Social Quests: all players get +2 to the dice roll. Implemented
+// as an inline main.js dice-bonus term (see the questDef.category === 'Social'
+// check at both quest-attempt call sites), not through this dispatcher —
+// mirrors how Synergy Chamber's own dice bonus is handled.
 
 // ─────────────────────────────────────────
 // OBBY #1 — On Quest: Physical ★★+/Resilient ★★+ Mosjes gain +20 MP on success, -10 MP on failure.
@@ -585,10 +567,6 @@ export function resolvePlaceEffect(gameState, triggerPhase, context = {}) {
 
 		case 'place_bank_chilling':
 			nextState = effect_bank_chilling(state, playerId);
-			break;
-
-		case 'place_skiffa':
-			nextState = effect_skiffa(state);
 			break;
 
 		case 'place_obby_1':
