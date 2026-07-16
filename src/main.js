@@ -1522,11 +1522,14 @@ function initGamePage() {
 			}
 		}
 
-		if (gqSlots.length > 1) {
-			modal.showMosjeSelect(gqSlots, showQuestPreviewThenRoll, questDef);
-		} else {
-			showQuestPreviewThenRoll(gqSlots[0]?.slotIndex ?? 0);
-		}
+		// D-06/GATE-03: always route through showMosjeSelect, even with a single
+		// active Mosje. showMosjeSelect always shows its modal regardless of count
+		// (modalManager.js:734) and already disables options with mp < 20 for quest
+		// attempts (D-02/D-03) — this closes the single-Mosje self-destruct gap
+		// (the Michelle Phase-36-UAT knockout) without touching the 20 MP charge,
+		// the upstream showConfirm intent dialog, or getGeneralQuestBlockReason
+		// (left untouched — see D-04 note at that gate's call site above).
+		modal.showMosjeSelect(gqSlots, showQuestPreviewThenRoll, questDef);
 	});
 
 	function handleActivateSynergyWaiver() {
