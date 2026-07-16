@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 36
 status: In Progress
-last_updated: "2026-07-16T16:36:00.000Z"
+last_updated: "2026-07-16T16:50:00.000Z"
 progress:
   total_phases: 28
   completed_phases: 17
   total_plans: 75
-  completed_plans: 65
-  percent: 61
+  completed_plans: 67
+  percent: 62
 ---
 
 # Project State
@@ -19,11 +19,40 @@ progress:
 **Current phase:** 36
 **Branch:** card/full-game-text-audit
 
-## ▶ RESUME HERE (2026-07-16 handoff — Plan 36-01 complete, 36-02/36-03 next)
+## ▶ RESUME HERE (2026-07-16 handoff — Plan 36-02 complete, 36-03 next)
 
-**Next command:** `/gsd:execute-phase 36` (resumes with Plan 36-02, the tribute-payer picker +
-Welloe Force rework — wave 2, depends on 36-01) and/or Plan 36-03 (`checkpoint:decision` on
-Delluft/Dierenasiel text fate — also wave 2, depends on 36-01, can run in parallel with 36-02).
+**Next command:** `/gsd:execute-phase 36` (resumes with Plan 36-03, the `checkpoint:decision` on
+Delluft/Dierenasiel text fate — wave 2, depends on 36-01, independent of 36-02).
+
+**Plan 36-02 (wave 2 — tribute-payer picker + Welloe Force rework) is COMPLETE.** Executed
+sequentially on the branch (no worktree). Added a new reusable `showTributePayerSelect` to
+`src/ui/modalManager.js` (generalizes `showMosjeSelect`'s green/red MP-affordability coloring,
+delegates to `showOptionSelect`, `allowCancel:false` per D-06). Reworked `effect_welloe_force`
+(`src/abilities/piecieEffects.js`, TDD RED→GREEN, commits `fbb5c36`→`ec13770`) to read
+`state._pendingTargets.welloeForcePayerSlot` instead of hardcoding the first active slot (D-05),
+with a safe no-op guard for missing/null/defeated slots (D-06). Wired a new
+`effect_welloe_force` pre-activation branch into `src/main.js`'s `handleActivatePiecie` — blocks
+activation entirely (no charge, "Cannot Activate" dialog) when zero on-field Mosjes can afford
+the 40 MP tribute, otherwise opens the picker and stashes the chosen payer before falling through
+to `activatePiecie`. The pre-existing post-hoc redirect-target branch was left completely
+untouched (diff-reviewed: 0 removed lines in `main.js`). New engine unit test
+(`tests/abilities/welloe-force-tribute.test.ts`, 3/3 passing) + new Playwright spec
+(`tests/ui/welloe-force-tribute.spec.js`, 2/2 passing — affordable-payer path and blocked path,
+both proven live in a real browser session). Full verification: `node --check` clean on all 3
+touched runtime files, `npm test` 664/664 passing (0 regressions, +3 new). Closes
+36-RESEARCH.md's Critical Finding 4. `.planning/phases/36-.../36-02-SUMMARY.md` written;
+`ROADMAP.md` updated (Phase 36 now 2/4 plans).
+
+**Plan 36-02 unblocks Plan 36-04** (docs + full phase-gate verification), which now depends only
+on 36-03 (Delluft/Dierenasiel decision) to complete wave 2 before its wave-3 run.
+
+<details>
+<summary>Prior handoff (2026-07-16, superseded — Plan 36-01 complete, 36-02/36-03 next)</summary>
+
+**Next command (superseded):** `/gsd:execute-phase 36` (resumes with Plan 36-02, the
+tribute-payer picker + Welloe Force rework — wave 2, depends on 36-01) and/or Plan 36-03
+(`checkpoint:decision` on Delluft/Dierenasiel text fate — also wave 2, depends on 36-01, can run
+in parallel with 36-02).
 
 **Plan 36-01 (wave 1 — full audit + mpCost data corrections) is COMPLETE.** Executed
 sequentially on the branch (no worktree). Full ruling audit at
@@ -106,6 +135,10 @@ mechanism lands in 36-02).
 **Phase 36 confirmed still unplanned (context-locked only) as of this session** — re-verified by reading `36-CONTEXT.md` directly (not from memory) mid-session per user request. Game-wide MP cost model redesign: every Piecie/Snelle Piecie/Place/Personal Quest defaults to 0 MP; tribute only where text explicitly demands it, payer chosen by the player. 0 plans executed. Phase 35's own "cost 0 MP" clauses (Dierenasiel, Delluft) are correctly deferred to Phase 36, not implemented here — confirmed consistent in 35-03's card-reference.md updates.
 
 **Phase 36 status (unchanged, still ready):** context locked (`36-CONTEXT.md`, commit `f24e7ed`) — game-wide MP cost model redesign (every Piecie/Snelle Piecie/Place/Personal Quest defaults to 0 MP; tribute only where card text explicitly demands it). ROADMAP has Phase 36 formally `Depends on: Phase 35`, so Phase 35 executing first is the natural sequencing. Resume with `/gsd:plan-phase 36` after Phase 35 ships. Mosje ability costs (`abilityCost`) remain explicitly out of scope for Phase 36.
+
+</details>
+
+</details>
 
 <details>
 <summary>Prior handoff (2nd update, superseded)</summary>
