@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 36
+current_phase: 36 (COMPLETE)
 status: Complete
-last_updated: "2026-07-16T17:35:00.000Z"
+last_updated: "2026-07-16T19:52:42.114Z"
 progress:
-  total_phases: 28
+  total_phases: 29
   completed_phases: 18
-  total_plans: 75
-  completed_plans: 69
-  percent: 64
+  total_plans: 74
+  completed_plans: 68
+  percent: 62
 ---
 
 # Project State
@@ -19,10 +19,35 @@ progress:
 **Current phase:** 36 (COMPLETE)
 **Branch:** card/full-game-text-audit
 
-## ▶ RESUME HERE (2026-07-16 handoff — Phase 36 COMPLETE, all 4 plans done)
+## ▶ RESUME HERE (2026-07-16 handoff — Phase 36 COMPLETE; Phase 37 discussed, ready to plan)
 
-**Next command:** pick the next phase to plan/execute (Phase 36 is fully closed out — no
-remaining work in this phase).
+**Next command:** `/gsd:plan-phase 37` (General Quest attempt affordability gate — context locked
+in `37-CONTEXT.md`).
+
+**Phase 36 UAT (partial):** cold-start test passed; a live-play finding spun off **Phase 37**.
+During the Phase 36 UAT smoke test, Michelle (10 MP, sole Mosje) attempted a 20-MP General Quest
+and self-destructed. Investigation confirmed this is PRE-EXISTING (not a Phase 36 regression): the
+20 MP quest-attempt fee + its lethality are canonical (`phase0-rulings.md:126`). The gap is that
+the human UI has no affordability gate on the **General Quest single-Mosje path**
+(`main.js:1525-1528` bypasses the picker → `showQuestPreviewThenRoll` charges 20 with no check).
+The multi-Mosje picker (`showMosjeSelect`) and Personal Quests already disable unaffordable Mosjes.
+A second UAT observation (Sleutelpuntje "+2 didn't work / dice showed 1+1") was investigated and is
+NOT a bug — Sleutelpuntje is +1; "1+1" = base d6 1 + bonus 1 = 2; the "6" in console was Michelle's
+separate Tough Gamble ability roll. Phase 36 UAT tests 2–6 (cost chips, Welloe Force picker,
+affordability block, Delluft/Dierenasiel text) remain pending — resume with `/gsd:verify-work 36`.
+
+**Phase 37 context locked (`37-CONTEXT.md`, commit `010346c`):** gate BOTH General + Personal
+Quests (D-01); grey/disable the attempt control rather than a post-click dialog (D-02); threshold
+`mp >= 20` (D-03); the multi-Mosje picker (D-04) and Personal-Quest picker (D-05) already gate
+correctly — the real fix is the General-Quest single-Mosje path (D-06). Reproduce-in-browser-first
+per CLAUDE.md. Resume with `/gsd:plan-phase 37`.
+
+<details>
+<summary>Phase 36 closeout (superseded resume note)</summary>
+
+**Phase 36 is fully closed out — no remaining work in this phase.**
+
+</details>
 
 **Plan 36-04 (wave 3 — docs sync + full phase-gate verification) is COMPLETE. Phase 36 is
 COMPLETE (4/4 plans).** Executed sequentially on the branch (no worktree). Applied Plan 36-03's
