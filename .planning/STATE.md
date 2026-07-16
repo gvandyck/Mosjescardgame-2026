@@ -2,26 +2,51 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 37 (PLANNED — ready to execute)
-status: Ready to execute
-last_updated: "2026-07-16T20:12:27.913Z"
+current_phase: 37 (IN PROGRESS — 1/2 plans complete)
+status: In Progress
+last_updated: "2026-07-16T20:25:13.559Z"
 progress:
   total_phases: 29
   completed_phases: 18
   total_plans: 76
-  completed_plans: 68
+  completed_plans: 69
   percent: 62
 ---
 
 # Project State
 
 **Last updated:** 2026-07-16
-**Current phase:** 37 (PLANNED — ready to execute)
+**Current phase:** 37 (IN PROGRESS — 1/2 plans complete)
 **Branch:** card/full-game-text-audit
 
-## ▶ RESUME HERE (2026-07-16 handoff — Phase 37 PLANNED, ready to execute)
+## ▶ RESUME HERE (2026-07-16 handoff — Plan 37-01 COMPLETE, 37-02 next)
 
-**Next command:** `/gsd:execute-phase 37`.
+**Next command:** `/gsd:execute-phase 37` (resumes with Plan 37-02, wave 2, depends on 37-01 — MP-gate phase verification).
+
+**Plan 37-01 (wave 1 — repro-first fix, GATE-01/02/03) is COMPLETE.** Executed sequentially
+on the branch (no worktree). Per CLAUDE.md's reproduce-first rule: `tests/ui/general-quest-affordability.spec.js`
+was written and confirmed FAILING on pre-fix code (Test A: single Mosje at 10 MP attempting
+`quest_leap_of_faith` was driven to 0 MP instead of staying at 10 — the live Michelle
+Phase-36-UAT self-destruct repro), committed (`1c647b9`), THEN the fix was applied
+(`0701c79`): collapsed the `gqSlots.length>1`/`else` branch at `src/main.js:1525-1528` so
+the single-Mosje General-Quest path also routes through the existing `showMosjeSelect`
+picker, which already disables `mp < 20` options (D-02/D-03) — closing the gap without
+any new gate code. `getGeneralQuestBlockReason`/`canAttemptGeneralQuest`
+(`src/abilities/questLogic.js`) confirmed byte-for-byte unchanged (D-04 preserved — the
+multi-Mosje picker is untouched). Test C (Personal-Quest single-Mosje regression, D-05)
+was already green pre-fix — no `src/` change needed there, confirming the Personal path
+was already correctly gated. Full spec now 3/3 passing; `npm test` 664/664, 0 regressions.
+`.planning/phases/37-.../37-01-SUMMARY.md` written; `ROADMAP.md` updated (Phase 37 now
+"In Progress", 1/2 plans).
+
+**Plan 37-01 unblocks Plan 37-02** (MP-gate phase verification — Ronald Kip stacking test,
+full `npm run test:sim`, node --check, docs sync), which depends only on 37-01's fix having
+landed.
+
+<details>
+<summary>Prior resume note (superseded — Phase 37 was 'ready to execute', 0 plans done)</summary>
+
+**Next command (superseded):** `/gsd:execute-phase 37`.
 
 **Phase 37 (General Quest attempt affordability gate) is fully planned — 2 plans, 2 waves,
 plan-checker PASSED, coverage gates green (D-01..D-06 6/6, GATE-01..04 all covered).** Skipped

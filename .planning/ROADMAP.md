@@ -898,12 +898,12 @@ Plans:
 **Goal:** A player can no longer START a General or Personal Quest attempt with a Mosje that cannot afford the flat 20 MP attempt fee — the attempt control is a disabled/greyed picker option (mp < 20), so no Mosje self-destructs from an unaffordable attempt. The single-Mosje General-Quest path (which bypassed the affordability-gating picker) is routed through `showMosjeSelect` like the multi-Mosje path already is. The 20 MP fee and its below-0 lethality stay canonical (phase0-rulings.md:126) — only the pre-attempt gate is added. Reproduced-in-browser-first per CLAUDE.md.
 **Requirements**: GATE-01 (General single-Mosje attempt affordability gate, mp >= 20, disabled control — D-02/D-03/D-06), GATE-02 (Personal-Quest gate verified + regression-tested, not regressed — D-01/D-05), GATE-03 (failing-first browser repro spec of the single-Mosje self-destruct — CLAUDE.md reproduce-first), GATE-04 (MP-gate phase verification — Ronald Kip stacking + full sim). Multi-Mosje General picker not regressed — D-04.
 **Depends on:** Phase 36
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 37-01-PLAN.md — Repro-first fix: failing browser spec -> route single-Mosje General-Quest path through showMosjeSelect -> make spec pass -> Personal-Quest regression test (GATE-01/02/03)
+- [x] 37-01-PLAN.md — Repro-first fix: failing browser spec -> route single-Mosje General-Quest path through showMosjeSelect -> make spec pass -> Personal-Quest regression test (GATE-01/02/03)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
