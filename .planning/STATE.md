@@ -2,26 +2,50 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 37 (IN PROGRESS — 1/2 plans complete)
-status: In Progress
-last_updated: "2026-07-16T20:25:13.559Z"
+current_phase: 37 (COMPLETE — 2/2 plans)
+status: Complete
+last_updated: "2026-07-16T23:20:00.000Z"
 progress:
   total_phases: 29
-  completed_phases: 18
+  completed_phases: 19
   total_plans: 76
-  completed_plans: 69
-  percent: 62
+  completed_plans: 70
+  percent: 63
 ---
 
 # Project State
 
 **Last updated:** 2026-07-16
-**Current phase:** 37 (IN PROGRESS — 1/2 plans complete)
+**Current phase:** 37 (COMPLETE — 2/2 plans)
 **Branch:** card/full-game-text-audit
 
-## ▶ RESUME HERE (2026-07-16 handoff — Plan 37-01 COMPLETE, 37-02 next)
+## ▶ RESUME HERE (2026-07-16 handoff — Phase 37 COMPLETE, both plans done)
 
-**Next command:** `/gsd:execute-phase 37` (resumes with Plan 37-02, wave 2, depends on 37-01 — MP-gate phase verification).
+**Next command:** `/gsd:verify-work 37` (optional UAT), or pick the next phase. Phase 37 is fully
+closed out.
+
+**Phase 37 (General Quest attempt affordability gate) is COMPLETE (2/2 plans).** Both executed
+sequentially on the branch. The General-Quest single-Mosje self-destruct is closed: the
+`if (gqSlots.length > 1)` branch at `src/main.js:1525-1528` was collapsed so the single-Mosje path
+also routes through `showMosjeSelect`, which always shows and already disables `mp < 20` quest
+options (green/red label). `src/abilities/questLogic.js` left byte-for-byte unchanged, preserving
+the multi-Mosje picker (D-04) and Personal-Quest path (D-05). The 20 MP fee + its canonical
+lethality (phase0-rulings.md:126) are unchanged — this phase added only the pre-attempt gate.
+
+**Verification (full MP-gate sequence, final committed tree):** `node --check` clean; `npm test`
+**664/664**; `npm run test:cards` clean (2 pre-existing unrelated `mosje_amplifier`/`mosje_binti_creator`
+failures, Ronald Kip stacking passes); `tests/ui/general-quest-affordability.spec.js` **3/3**
+(repro proven RED on pre-fix code — single Michelle @10 MP driven to 0/defeated — then GREEN after
+the fix); `npm run test:sim` **149/160, 0 crashes across all 160 games**, 6.9% timeout (the 11
+failures are `#reward-overlay` timeouts on slow seeds, identical to Phase 36's baseline).
+
+**Phase 36 UAT tests 2–6 (cost chips, Welloe Force picker, affordability block, Delluft/Dierenasiel
+text) remain pending** — resume anytime with `/gsd:verify-work 36`.
+
+<details>
+<summary>Prior resume note (superseded — Plan 37-01 complete, 37-02 next)</summary>
+
+**Next command (superseded):** `/gsd:execute-phase 37` (resumes with Plan 37-02, wave 2, depends on 37-01 — MP-gate phase verification).
 
 **Plan 37-01 (wave 1 — repro-first fix, GATE-01/02/03) is COMPLETE.** Executed sequentially
 on the branch (no worktree). Per CLAUDE.md's reproduce-first rule: `tests/ui/general-quest-affordability.spec.js`
@@ -42,6 +66,8 @@ was already correctly gated. Full spec now 3/3 passing; `npm test` 664/664, 0 re
 **Plan 37-01 unblocks Plan 37-02** (MP-gate phase verification — Ronald Kip stacking test,
 full `npm run test:sim`, node --check, docs sync), which depends only on 37-01's fix having
 landed.
+
+</details>
 
 <details>
 <summary>Prior resume note (superseded — Phase 37 was 'ready to execute', 0 plans done)</summary>
