@@ -822,10 +822,35 @@ Plans:
 
 ### Phase 36: Piecie/Snelle Piecie/Place/Personal Quest MP Cost Model Redesign — default all costs to 0, add explicit tribute payment only for cards whose text requires it
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Every Piecie and Snelle Piecie's `mpCost` matches what its own printed text actually
+promises — audited card-by-card against the existing "text wins" convention — with exactly one
+card (Welloe Force) keeping a real, player-chosen, affordability-gated tribute payment. Places and
+Personal Quests are confirmed (via full audit) to need no cost/tribute work of their own; the one
+narrow Place-text dependency (Delluft/Dierenasiel referencing now-corrected Piecie costs) is
+explicitly ruled, not silently left inconsistent.
+
+**Requirements:**
+- COST-01: Full text audit — all 70 Piecies, ruling table (36 currently nonzero-cost cards read in full; expected outcome 35 correct to `mpCost: 0`, 1 (Welloe Force) keeps its cost)
+- COST-02: Full text audit — all 20 Snelle Piecies, ruling table (10 currently nonzero-cost cards read in full; expected outcome all 10 correct to `mpCost: 0`, including an explicit ruling for `snelle_blensen`'s conditional-cost phrasing)
+- COST-03: Personal Quest audit closure — confirm (and document) that none of the 6 Personal Quests require tribute; no code change
+- COST-04: Resolve Delluft/Dierenasiel's Place-text dependency on the corrected Piecie costs (checkpoint decision + implementation)
+- COST-05: Build the reusable tribute-payer-picker + affordability-gate helper (generalizes `showMosjeSelect`)
+- COST-06: Rework Welloe Force (`piecie_welloe_force`) to use the new picker + affordability gate, fixing its hardcoded-payer and missing-affordability-check bugs
+- COST-07: Wire tribute into any additional cards the full audit confirms need it (expected: none beyond Welloe Force)
+- COST-08: Correct every Piecie/Snelle Piecie `mpCost` field to match the final ruling
+- COST-09: Full sim + Ronald Kip stacking test re-run + docs update (phase gate) after the combined data + engine changes land
+
 **Depends on:** Phase 35
-**Plans:** 0 plans
+**Plans:** 4 plans in 3 waves
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 36 to break down)
+- [ ] 36-01-PLAN.md — Full audit ruling doc + mpCost corrections (Piecies + Snelle Piecies) + regression test (COST-01, COST-02, COST-03, COST-07, COST-08)
+- [ ] 36-02-PLAN.md — Tribute-payer picker + Welloe Force rework + engine/browser test coverage (COST-05, COST-06)
+- [ ] 36-03-PLAN.md — Checkpoint: Delluft/Dierenasiel Place-text fate decision (COST-04)
+- [ ] 36-04-PLAN.md — Apply Delluft/Dierenasiel decision + docs/card-reference.md update + full phase-gate verification (COST-04, COST-09)
+
+**Success Criteria:**
+1. Every Piecie/Snelle Piecie's `mpCost` matches its own printed text; `piecie_welloe_force` is the sole nonzero-cost card
+2. Welloe Force lets the player choose the payer and blocks entirely when unaffordable — its two prior bugs (hardcoded payer, no affordability check) are fixed
+3. Personal Quest audit closed (no tribute found); Delluft/Dierenasiel's text matches an explicit, recorded ruling
+4. docs/card-reference.md fully current; full verification sequence (node --check, npm test, npm run test:cards incl. Ronald Kip, npm run test:sim) green with 0 crashes, timeout < 25%
