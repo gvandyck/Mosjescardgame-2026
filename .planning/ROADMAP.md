@@ -901,7 +901,12 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
+**Wave 1**
+
 - [ ] 37-01-PLAN.md — Repro-first fix: failing browser spec -> route single-Mosje General-Quest path through showMosjeSelect -> make spec pass -> Personal-Quest regression test (GATE-01/02/03)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 37-02-PLAN.md — MP-gate phase verification: node --check, npm test, Ronald Kip stacking, repro spec, full sim, docs sync (GATE-04)
 
 ---

@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 36 (COMPLETE)
-status: Complete
-last_updated: "2026-07-16T19:52:42.114Z"
+current_phase: 37 (PLANNED — ready to execute)
+status: Ready to execute
+last_updated: "2026-07-16T20:12:27.913Z"
 progress:
   total_phases: 29
   completed_phases: 18
-  total_plans: 74
+  total_plans: 76
   completed_plans: 68
   percent: 62
 ---
@@ -16,13 +16,45 @@ progress:
 # Project State
 
 **Last updated:** 2026-07-16
-**Current phase:** 36 (COMPLETE)
+**Current phase:** 37 (PLANNED — ready to execute)
 **Branch:** card/full-game-text-audit
 
-## ▶ RESUME HERE (2026-07-16 handoff — Phase 36 COMPLETE; Phase 37 discussed, ready to plan)
+## ▶ RESUME HERE (2026-07-16 handoff — Phase 37 PLANNED, ready to execute)
 
-**Next command:** `/gsd:plan-phase 37` (General Quest attempt affordability gate — context locked
-in `37-CONTEXT.md`).
+**Next command:** `/gsd:execute-phase 37`.
+
+**Phase 37 (General Quest attempt affordability gate) is fully planned — 2 plans, 2 waves,
+plan-checker PASSED, coverage gates green (D-01..D-06 6/6, GATE-01..04 all covered).** Skipped
+research (small well-scoped bugfix, code paths already verified in CONTEXT.md). UI-SPEC generated +
+approved 6/6 (reuses the existing showMosjeSelect green/red affordability-disable convention — no
+new visual surface). Pattern mapper confirmed everything needed exists in-repo.
+
+**Chosen fix mechanism (planner's D-06 discretion call):** collapse the `if (gqSlots.length > 1)`
+branch at `src/main.js:1525-1528` so the single-Mosje General-Quest path ALSO routes through
+`showMosjeSelect` — which always shows regardless of Mosje count and already disables `mp < 20`
+quest options (green/red label). The planner deliberately did NOT add an affordability reason to
+`getGeneralQuestBlockReason`/the upstream `main.js:1245` gate, because that gate evaluates
+`getFirstActiveMosje` BEFORE slot selection — an mp<20 check there would wrongly block the whole
+quest when the first Mosje is poor but another could afford it (a D-04 regression). 37-01 asserts
+`questLogic.js` stays byte-for-byte unchanged. 20 MP fee + its canonical lethality
+(phase0-rulings.md:126) are preserved — this phase adds ONLY the pre-attempt gate.
+
+**Plan waves:** 37-01 (wave 1, GATE-01/02/03) — Task 1: failing-first Playwright repro spec
+(`tests/ui/general-quest-affordability.spec.js`, single Michelle @10 MP attempting a 20-MP quest
+must fail/knockout on current code); Task 2: collapse the single-Mosje branch onto showMosjeSelect
+(make spec pass); Task 3: Personal-Quest regression test (already gated via unconditional
+showMosjeSelect at main.js:2701 — verify, no code change). 37-02 (wave 2, GATE-04, depends 37-01) —
+MP-gate phase verification: node --check, npm test, Ronald Kip stacking test, repro spec, full
+`npm run test:sim` (0 crashes / <25% timeout; redirect to file, don't tail), docs sync.
+
+**Phase 36 UAT tests 2–6 (cost chips, Welloe Force picker, affordability block, Delluft/Dierenasiel
+text) remain pending** — resume anytime with `/gsd:verify-work 36`.
+
+<details>
+<summary>Prior resume note (superseded — Phase 37 was 'ready to plan')</summary>
+
+**Next command (superseded):** `/gsd:plan-phase 37` (General Quest attempt affordability gate —
+context locked in `37-CONTEXT.md`).
 
 **Phase 36 UAT (partial):** cold-start test passed; a live-play finding spun off **Phase 37**.
 During the Phase 36 UAT smoke test, Michelle (10 MP, sole Mosje) attempted a 20-MP General Quest
@@ -41,6 +73,8 @@ Quests (D-01); grey/disable the attempt control rather than a post-click dialog 
 `mp >= 20` (D-03); the multi-Mosje picker (D-04) and Personal-Quest picker (D-05) already gate
 correctly — the real fix is the General-Quest single-Mosje path (D-06). Reproduce-in-browser-first
 per CLAUDE.md. Resume with `/gsd:plan-phase 37`.
+
+</details>
 
 <details>
 <summary>Phase 36 closeout (superseded resume note)</summary>
