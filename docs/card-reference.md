@@ -231,6 +231,9 @@ This document is the final Phase 11 master card inventory, generated from the li
 | quest_personal_perfect_sync | Perfect Sync | personal | no | yes | free | Quest success effects: gainMP | advanced |
 | quest_west_perfect_read | Perfect Read | personal | no | yes | free | Quest success effects: gainMP | advanced |
 
+### Quest Design Notes
+- **Attempt affordability gate (Phase 37, 2026-07-16):** attempting a General or Personal Quest in the human UI is affordability-gated — a Mosje with less than 20 MP cannot start an attempt (its picker option renders disabled), closing a self-destruct where a sub-20-MP Mosje could be charged the flat quest-attempt fee and driven below 0. The 20 MP fee itself and its lethality below 0 at Level 0 remain canonical (`docs/phase0-rulings.md:126`) and are unchanged — this phase adds only the pre-attempt gate.
+
 ## Deferred Features and Simplifications
 
 ### Phase 4 Questions
