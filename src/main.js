@@ -2764,6 +2764,32 @@ function initGamePage() {
 				leipeOppId: oppId,
 				leipeOppSlot: parseInt(String(oppPick).split('_slot_')[1], 10),
 			};
+		} else if (piecieCardDef?.effectId === 'effect_welloe_force') {
+			// D-05/D-06 — player picks which on-field Mosje pays the 40 MP tribute;
+			// blocked entirely (no charge, no activation) if none can afford it.
+			const mosjeSlots = gameState.players[localPlayerId].activeSlots
+				.map((slot, index) => ({ slot, index }))
+				.filter(({ slot }) => slot && !slot.isDefeated)
+				.map(({ slot, index }) => ({
+					slotIndex: index,
+					name: slot.name || CARD_LOOKUP[slot.cardId]?.name || slot.cardId || 'Mosje',
+					mp: slot.mp,
+				}));
+			const eligible = mosjeSlots.filter(s => s.mp >= 40);
+			if (eligible.length === 0) {
+				modal.showInfo('Cannot Activate', 'Not enough MP — Welloe Force requires 40 MP tribute from one Mosje (none of yours can afford it).');
+				return;
+			}
+			const payerSlotId = await modal.showTributePayerSelect({
+				title: 'Welloe Force — Pay Tribute',
+				prompt: 'Choose which Mosje pays the 40 MP tribute to activate Welloe Force.',
+				mosjeSlots,
+				amount: 40,
+			});
+			const payerSlotIndex = parseInt(String(payerSlotId), 10);
+			if (Number.isNaN(payerSlotIndex)) return;
+			stateForActivation = JSON.parse(JSON.stringify(gameState));
+			stateForActivation._pendingTargets = { welloeForcePayerSlot: payerSlotIndex };
 		} else if (piecieCardDef?.effectId === 'effect_kannetje_melk'
 				|| piecieCardDef?.effectId === 'effect_dikke_jonko'
 				|| piecieCardDef?.effectId === 'effect_tikker') {
