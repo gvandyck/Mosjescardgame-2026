@@ -3,26 +3,65 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 36
-status: In Progress
-last_updated: "2026-07-16T16:50:00.000Z"
+status: Complete
+last_updated: "2026-07-16T17:35:00.000Z"
 progress:
   total_phases: 28
-  completed_phases: 17
+  completed_phases: 18
   total_plans: 75
-  completed_plans: 67
-  percent: 62
+  completed_plans: 69
+  percent: 64
 ---
 
 # Project State
 
 **Last updated:** 2026-07-16
-**Current phase:** 36
+**Current phase:** 36 (COMPLETE)
 **Branch:** card/full-game-text-audit
 
-## ▶ RESUME HERE (2026-07-16 handoff — Plan 36-02 complete, 36-03 next)
+## ▶ RESUME HERE (2026-07-16 handoff — Phase 36 COMPLETE, all 4 plans done)
 
-**Next command:** `/gsd:execute-phase 36` (resumes with Plan 36-03, the `checkpoint:decision` on
-Delluft/Dierenasiel text fate — wave 2, depends on 36-01, independent of 36-02).
+**Next command:** pick the next phase to plan/execute (Phase 36 is fully closed out — no
+remaining work in this phase).
+
+**Plan 36-04 (wave 3 — docs sync + full phase-gate verification) is COMPLETE. Phase 36 is
+COMPLETE (4/4 plans).** Executed sequentially on the branch (no worktree). Applied Plan 36-03's
+recorded `trim-and-defer-todo` decision: `src/data/places.js` — `place_delluft`'s vacuous
+"SUBSTANCE Piecies cost 0 MP this turn" clause dropped (real draw-1 function untouched);
+`place_dierenasiel`'s text replaced with an honest `"Passive: currently no mechanical effect."`
+New pending todo `.planning/todos/pending/2026-07-16-dierenasiel-real-mechanic-needed.md` flags a
+future phase to design Dierenasiel a real passive mechanic. `docs/card-reference.md` brought fully
+current: Cost column corrected to `free`/`free, lvl N+` for all Piecie/Snelle Piecie rows this
+phase touched, `welloe-force`'s Summary rewritten to describe the tribute-payer picker +
+affordability gate, Delluft/Dierenasiel rows + 3 cross-referencing summary lines updated — `grep
+-c "deferred to Phase 36"` now returns 0.
+
+**Full phase-gate verification (all of 36-01+36-02+this plan's changes, combined):** `node
+--check` clean on all 6 touched runtime files; `npm test` 664/664 passing (0 regressions);
+`npm run test:cards` 51 passed / 2 failed (pre-existing, unrelated — same 2 `mosje-abilities.spec.js`
+failures documented in Phase 35's `deferred-items.md`, confirmed unrelated to any Phase 36 file) /
+9 skipped, Ronald Kip stacking entry passing; `npx playwright test
+tests/ui/welloe-force-tribute.spec.js` 2/2 passing; `npm run test:sim` (backgrounded ~39 min per
+this project's tail-buffering caution) — **149/160 passing, 0 crashes across all 160 logged
+games, 6.9% timeout rate** (well under the 25% threshold; the 11 failures are all
+`#reward-overlay` wait-selector timeouts on slower-resolving seeds, not crashes).
+`.planning/phases/36-.../36-04-SUMMARY.md` written; `ROADMAP.md` updated (Phase 36 marked
+Complete, 4/4 plans).
+
+**Phase 36 summary (all 4 plans):** 45 of 46 previously-nonzero-`mpCost` Piecies/Snelle Piecies
+corrected to `mpCost: 0` per the "text wins" convention (36-01); `piecie_welloe_force` — the sole
+tribute-charging card — reworked with a player-choice-driven, affordability-gated payment
+mechanism via a new reusable `showTributePayerSelect` (36-02); Delluft/Dierenasiel's now-vacuous
+cost-0 text trimmed to stay honest, with Dierenasiel's real-mechanic redesign deferred to a future
+phase via a tracked todo (36-03 decision + 36-04 implementation); `docs/card-reference.md` fully
+synced (36-04). Zero regressions across the combined change set.
+
+<details>
+<summary>Prior handoff (2026-07-16, superseded — Plan 36-02 complete, 36-03 next)</summary>
+
+**Next command (superseded):** `/gsd:execute-phase 36` (resumes with Plan 36-03, the
+`checkpoint:decision` on Delluft/Dierenasiel text fate — wave 2, depends on 36-01, independent of
+36-02).
 
 **Plan 36-02 (wave 2 — tribute-payer picker + Welloe Force rework) is COMPLETE.** Executed
 sequentially on the branch (no worktree). Added a new reusable `showTributePayerSelect` to
@@ -174,6 +213,8 @@ mechanism lands in 36-02).
 
 </details>
 
+</details>
+
 ---
 
 **(prior)** Phase 34 COMPLETE — Account Starter-Deck Onboarding & Active Deck — branch feature/phase-34-starter-deck-onboarding (merged to main).
@@ -189,6 +230,7 @@ mechanism lands in 36-02).
 - 2026-07-13-coerts-caravan-binti-discount-mismatch.md — Coert's Caravan (Place) text promises a Binti Piecie MP-cost discount the code never implemented; found incidentally during the 9-Mosje reconciliation.
 - 2026-07-13-full-game-ability-text-audit.md — systematic text-vs-code pass needed across ALL Piecies/Places/remaining Mosjes, not just the 9 already flagged; triggered by the Caravan find above.
 - 2026-06-11-ts-bulldozer-comeback-reconcile.md (pre-existing)
+- 2026-07-16-dierenasiel-real-mechanic-needed.md — Dierenasiel's `effect_dierenasiel` is a confirmed full no-op (both its prior clauses removed as dead/vacuous across Phase 35 + Phase 36); needs a real passive mechanic designed in a future phase.
 
 ### Roadmap Evolution
 

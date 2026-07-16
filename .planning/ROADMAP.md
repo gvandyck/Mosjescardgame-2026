@@ -917,7 +917,7 @@ explicitly ruled, not silently left inconsistent.
 - COST-09: Full sim + Ronald Kip stacking test re-run + docs update (phase gate) after the combined data + engine changes land
 
 **Depends on:** Phase 35
-**Plans:** 2/4 plans executed
+**Plans:** 4/4 plans complete
 
 Plans:
 **Wave 1**
@@ -927,11 +927,11 @@ Plans:
 **Wave 2** *(blocked on Wave 1 completion)*
 
 - [x] 36-02-PLAN.md — Tribute-payer picker + Welloe Force rework + engine/browser test coverage (COST-05, COST-06)
-- [ ] 36-03-PLAN.md — Checkpoint: Delluft/Dierenasiel Place-text fate decision (COST-04)
+- [x] 36-03-PLAN.md — Checkpoint: Delluft/Dierenasiel Place-text fate decision (COST-04)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 36-04-PLAN.md — Apply Delluft/Dierenasiel decision + docs/card-reference.md update + full phase-gate verification (COST-04, COST-09)
+- [x] 36-04-PLAN.md — Apply Delluft/Dierenasiel decision + docs/card-reference.md update + full phase-gate verification (COST-04, COST-09)
 
 **Success Criteria:**
 
