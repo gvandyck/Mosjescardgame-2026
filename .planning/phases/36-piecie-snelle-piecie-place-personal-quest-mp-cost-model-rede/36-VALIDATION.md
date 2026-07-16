@@ -1,9 +1,9 @@
 ---
 phase: 36
 slug: piecie-snelle-piecie-place-personal-quest-mp-cost-model-rede
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: approved
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-07-16
 ---
 
@@ -20,7 +20,7 @@ created: 2026-07-16
 | **Framework** | vitest (unit) + Playwright (`tests/ui/`) |
 | **Config file** | `vitest.config.js` / `playwright.config.js` |
 | **Quick run command** | `node --check src/main.js src/ui/modalManager.js src/ui/boardRenderer.js src/ui/handRenderer.js src/ui/logRenderer.js src/ui/actionAnimations.js` |
-| **Full suite command** | `npm test` (unit) then `npx tsx src/simulation/run-once.ts` (sim gate) |
+| **Full suite command** | `npm test` (unit) then `npm run test:sim` (sim gate — `src/simulation/run-once.ts` no longer exists post-SSOT-migration, per 36-RESEARCH.md) |
 | **Estimated runtime** | ~5s unit / ~25-40min sim (per STATE.md note: never pipe through `tail -N`, redirect to a file) |
 
 ---
@@ -56,11 +56,11 @@ created: 2026-07-16
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 10s (unit tier)
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 10s (unit tier)
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved 2026-07-16 (gsd-plan-checker verification pass — all Dimension 8 checks green across 36-01 through 36-04)
