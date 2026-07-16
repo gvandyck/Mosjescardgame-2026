@@ -2,26 +2,60 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: "Phase 36 — Piecie/Snelle Piecie/Place/Personal Quest MP Cost Model Redesign: PLANNED (4/4 plans, ready to execute)"
-status: "Ready to execute"
-last_updated: "2026-07-16T12:02:04.488Z"
+current_phase: 36
+status: In Progress
+last_updated: "2026-07-16T16:36:00.000Z"
 progress:
   total_phases: 28
   completed_phases: 17
-  total_plans: 78
-  completed_plans: 64
+  total_plans: 75
+  completed_plans: 65
   percent: 61
 ---
 
 # Project State
 
 **Last updated:** 2026-07-16
-**Current phase:** Phase 36 — Piecie/Snelle Piecie/Place/Personal Quest MP Cost Model Redesign: PLANNED (4/4 plans, ready to execute)
+**Current phase:** 36
 **Branch:** card/full-game-text-audit
 
-## ▶ RESUME HERE (2026-07-16 handoff — Phase 36 planned)
+## ▶ RESUME HERE (2026-07-16 handoff — Plan 36-01 complete, 36-02/36-03 next)
 
-**Next command:** `/gsd:execute-phase 36`.
+**Next command:** `/gsd:execute-phase 36` (resumes with Plan 36-02, the tribute-payer picker +
+Welloe Force rework — wave 2, depends on 36-01) and/or Plan 36-03 (`checkpoint:decision` on
+Delluft/Dierenasiel text fate — also wave 2, depends on 36-01, can run in parallel with 36-02).
+
+**Plan 36-01 (wave 1 — full audit + mpCost data corrections) is COMPLETE.** Executed
+sequentially on the branch (no worktree). Full ruling audit at
+`.planning/audits/2026-07-16-piecie-snelle-cost-audit.md`: 45 of 46 currently-nonzero-`mpCost`
+Piecies/Snelle Piecies corrected to `mpCost: 0` (35 Piecies + 10 Snelle Piecies); only
+`piecie_welloe_force` keeps its `mpCost: 40` (the sole card whose text explicitly says "Pay 40
+MP..."). `snelle_blensen`'s "Free if countering a Frenssen" text was ruled `0` (no stated base
+cost) but flagged explicitly for Gandoe as a judgment call, not silently resolved. Personal Quest
+audit (COST-03) closed as a no-op — zero tribute language found across all 6 Personal Quests.
+New regression test `tests/data/mp-cost-tribute-audit.test.ts` (TDD RED→GREEN, commits `2c0c1f3`
+→ `341c0c7`) guards against future drift back to a large uncharged-cost surface. Full
+verification: `node --check` clean, `npm test` 661/661 passing, diff-reviewed confirming only
+`mpCost` numeric literals changed (no other field touched on any of the 45 corrected cards).
+`.planning/phases/36-.../36-01-SUMMARY.md` written; `ROADMAP.md` updated (Phase 36 now "In
+Progress", 1/4 plans).
+
+**Plan 36-01 unblocks both remaining wave-2 plans:** 36-02 (Welloe Force rework + generalized
+tribute-payer picker, COST-05/06) now knows for certain it's the only tribute card in scope.
+36-03 (Delluft/Dierenasiel `checkpoint:decision`) can now proceed with the actual finished Piecie
+ruling in hand (all 7 SUBSTANCE/PET Piecies referenced by those 2 Places confirmed `mpCost: 0`),
+rather than a prediction — their "cost 0" text promises are about to become unconditionally true
+regardless of the Place being active, which is exactly the question 36-03 surfaces to Gandoe.
+36-04 (docs + full phase-gate verification, including the Ronald Kip stacking test + `test:sim`)
+depends on all three and is deliberately last, since this plan's mpCost correction alone has zero
+runtime behavior change (nothing in the engine charges `mpCost` generically today — confirmed by
+36-RESEARCH.md — so the full sim re-run belongs to 36-04 once Welloe Force's actual tribute
+mechanism lands in 36-02).
+
+<details>
+<summary>Prior handoff (2026-07-16, superseded — Phase 36 planned, 0 plans executed)</summary>
+
+**Next command (superseded):** `/gsd:execute-phase 36`.
 
 **Phase 36 fully planned this session.** Research (`36-RESEARCH.md`) substantially corrected the phase's original premise: Places (0/21) and Personal Quests (0/6) have no `mpCost` field at all, and of the 46 nonzero-cost Piecies/Snelle Piecies, only 1 (`piecie_welloe_force`, "Pay 40 MP...") states self-payment in its text — the other 44 correct to `mpCost: 0` under this project's "text wins" convention. UI-SPEC.md (approved 6/6, one non-blocking typography flag on pre-existing values) confirmed the only UI surface is a generalized `showTributePayerSelect` reusing the existing `showMosjeSelect` pattern — no new screens. 4 plans created (COST-01 through COST-09), plan-checker verification passed (3 non-blocking warnings, all fixed: a missed docs/card-reference.md line, a missing Playwright verify command, a stale VALIDATION.md sim-command reference). Decision-coverage gate initially reported 0/10 D-NN decisions covered — the gate parses `must_haves.truths` specifically, not plan body prose, so explicit `D-01`..`D-10` citations were added to plans 36-01/36-02's truths lists; gate now passes 10/10. Requirements-coverage confirmed COST-01 through COST-09 all present across the 4 plans' `requirements` frontmatter.
 
@@ -104,6 +138,8 @@ progress:
 - Corrected a stale assumption this session: **gsd-sdk IS installed** (v1.42.3) and a Piecie **mpCost system exists** — the Coert's Caravan todo's "no MP-cost concept" claim was false and has been fixed.
 
 **Deferred (not Phase 35):** audit rounds 2+ (Piecies/Snelle/remaining Mosjes), Alyssa↔Jisca synergy design.
+
+</details>
 
 ---
 
