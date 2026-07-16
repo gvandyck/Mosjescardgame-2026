@@ -917,12 +917,12 @@ explicitly ruled, not silently left inconsistent.
 - COST-09: Full sim + Ronald Kip stacking test re-run + docs update (phase gate) after the combined data + engine changes land
 
 **Depends on:** Phase 35
-**Plans:** 4 plans in 3 waves
+**Plans:** 1/4 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 36-01-PLAN.md — Full audit ruling doc + mpCost corrections (Piecies + Snelle Piecies) + regression test (COST-01, COST-02, COST-03, COST-07, COST-08)
+- [x] 36-01-PLAN.md — Full audit ruling doc + mpCost corrections (Piecies + Snelle Piecies) + regression test (COST-01, COST-02, COST-03, COST-07, COST-08)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
