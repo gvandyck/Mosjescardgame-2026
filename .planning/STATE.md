@@ -1,22 +1,14 @@
 # Project State
 
-**Last updated:** 2026-07-15
-**Current phase:** Phase 35 — Places Text-vs-Engine Reconciliation (Round 1): EXECUTING (7/8 waves complete, wave 8 Task 1 of 2 done)
+**Last updated:** 2026-07-16
+**Current phase:** Phase 35 — Places Text-vs-Engine Reconciliation (Round 1): COMPLETE (8/8 waves)
 **Branch:** card/full-game-text-audit
 
-## ▶ RESUME HERE (2026-07-15 handoff, 6th update today — session paused for the night)
+## ▶ RESUME HERE (2026-07-16 handoff — Phase 35 finished)
 
-**Next command:** `/gsd:execute-phase 35` (finish wave 8: 35-08 Task 2 — full phase-gate verification. Task 1, the docs update, is already committed.)
+**Next command:** `/gsd:plan-phase 36` (game-wide MP cost model redesign — context locked, ROADMAP has it formally depending on Phase 35).
 
-**Wave 8 Task 1 (commit `38b9f7e`) is done:** `docs/card-reference.md` updated for all 12 Phase-35-ruled Places (added 2 previously-missing rows — De Box, Digital Gaming Stop — and rewrote stale STUB-09/STUB-10/Phase-7-8 notes that described now-removed mechanisms).
-
-**Wave 8 Task 2 (full-suite phase-gate verification) is IN PROGRESS, stopped mid-run for the night — resume from scratch, nothing is lost:**
-- `node --check` on all 10 touched files — ✅ done, clean
-- `npm test` (full suite) — ✅ done, 657/657 passing
-- Composed `main.js` dice-bonus sum (35-05 + 35-06 cross-plan edit) — ✅ verified: all 4 sites contain `skiffaDiceBonus`, none contain `placeDiceBonus`
-- `npm run test:cards` — ✅ done, clean (same 2 pre-existing unrelated failures as every prior wave)
-- `npm run test:sim` — ❌ **NOT done** — was mid-run (cancelled by request to end the session, not because of any problem) — **run this fresh next session** (`npm run test:sim`, redirect straight to a file rather than piping through `tail`, or just let the harness capture it — see note below) and confirm 0 crashes / timeout rate < 25% before writing `35-08-SUMMARY.md`
-- Once `test:sim` is clean, write `.planning/phases/35-places-text-reconciliation/35-08-SUMMARY.md`, commit, update ROADMAP.md (mark 35-08 done, 8/8), and Phase 35 is fully complete — hand off to whatever comes next (Phase 36 planning is already queued, see below).
+**Phase 35 is fully complete.** Wave 8 Task 2 (full-suite phase-gate verification) finished this session: `test:sim` was re-run fresh (the prior session's run had been cancelled mid-flight, so it wasn't trusted as a result) — **152/160 passing, 8 failures (5%), 0 crashes** across all 52 logged games, well under the 25% timeout-rate target and numerically identical to wave 7's own solo run. All other Task 2 checks (node --check, npm test 657/657, test:cards, the `skiffaDiceBonus`/`placeDiceBonus` composition assertion) were already confirmed green in the prior session. `.planning/phases/35-places-text-reconciliation/35-08-SUMMARY.md` written; `ROADMAP.md` updated (Phase 35 marked COMPLETE, 8/8 plans, 35-08 checked off).
 
 **Nothing else changed since commits `8e18352`/`e64d5af`/`38b9f7e`** — the working tree is clean aside from pre-existing unrelated files (`.claude/settings.json`, `CLAUDE.md`, `get-shit-done` submodule pointer, `sim-deck-matrix-results.md` — all untouched by this session, leave them alone).
 

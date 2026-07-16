@@ -778,7 +778,7 @@ Plans:
 - WIN-06: Dice-roll modal shows the attempting Mosje's stats (level/MP/trait stars, rolled trait highlighted).
 - Repro/guard tests: tests/engine/instant-win-level3.test.ts; full-game LEVEL_3 spec rewritten as a real instant-win + battle-log guard.
 
-### Phase 35: Places Text-vs-Engine Reconciliation (Round 1)
+### Phase 35: Places Text-vs-Engine Reconciliation (Round 1) — COMPLETE
 
 **Goal:** Reconcile all 21 Place cards so each card's text matches engine behavior. Round 1 of the full-game ability-text audit (Places first). Audit complete: 9 clean, 12 flagged and ruled interactively with Gandoe (5 bug fixes + 7 design reworks). This phase implements the 12 rulings, one card at a time (TDD), MP-touching cards re-run Ronald Kip + sim. **Post-research scope amendment (2026-07-14):** Drain Zone and The Void are not ready for gameplay this round — both are hidden from all player-facing pools instead of having their new mechanics implemented; see `35-CONTEXT.md` Plan-Phase Scope Amendments.
 
@@ -803,7 +803,7 @@ Plans:
 4. MP-touching changes: Ronald Kip stacking test green; simulation crash-free, timeout < 25%.
 5. PLACE-01/08/10 trigger-dispatch fixes proven through `resolvePlaceEffect`/`startTurn`/`endTurn`, not just the raw effect function (guards against the "TURN_START never fires" class of bug).
 
-**Plans:** 7/8 plans executed
+**Plans:** 8/8 plans executed
 
 Plans:
 - [x] 35-01-PLAN.md — Bank Chilling (loop-all + trigger fix) + Obby #1 (loop-all)
@@ -813,7 +813,7 @@ Plans:
 - [x] 35-05-PLAN.md — Skiffa (rework: Social +2 dice bonus, remove getSkiffaRerolls)
 - [x] 35-06-PLAN.md — Synergy Chamber (remove 3 dead bonuses, add once/turn partner waiver + UI) — human-verify checkpoint APPROVED
 - [x] 35-07-PLAN.md — Drain Zone + The Void dead-code cleanup + hide both from player-facing pools
-- [ ] 35-08-PLAN.md — docs/card-reference.md update + full-suite phase-gate verification
+- [x] 35-08-PLAN.md — docs/card-reference.md update + full-suite phase-gate verification
 
 **Context:** `.planning/phases/35-places-text-reconciliation/35-CONTEXT.md`
 **Ruling record:** `.planning/audits/2026-07-14-places-text-audit.md`
