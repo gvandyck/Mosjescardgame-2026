@@ -237,6 +237,7 @@ mechanism lands in 36-02).
 - Phase 32 added (2026-06-14): On-field Mosje Info + Quest Dice Modal Redesign — own on-field Mosjes show Level/traits/ability + active-only synergy on card, remove "Active on field" text, full dice-modal redesign. UI-only.
 - Phase 32 extended (2026-06-20): win-clarity UX added on the same branch — instant Level-3 win (engine), plain-language win/defeat reason + battle-log recap in the end screen, "How to Win" panel, dice-modal Mosje stats.
 - Phase 34 added (2026-07-03): Account Starter-Deck Onboarding & Active Deck — turns the 5 duo starter decks into the backbone of account onboarding: blocking first-login deck picker, exact-multiset card grant, active-deck concept + lobby switcher, duo-only guest dropdown, duo-only bot pool.
+- Phase 37 added (2026-07-16): General Quest attempt affordability gate — block attempting a General Quest when the chosen Mosje can't afford the 20 MP attempt fee (mirror Phase 36's Welloe Force affordability gate). Surfaced during Phase 36's UAT: a Mosje at 10 MP could attempt a 20-MP quest and self-destruct. The 20 MP fee + lethality are canonical (phase0-rulings.md:126); this phase adds only the *attempt gate* the ruling permits. NOT yet discussed/planned.
 
 ## Phase 34 Progress — Account Starter-Deck Onboarding & Active Deck (COMPLETE)
 

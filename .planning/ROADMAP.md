@@ -893,6 +893,16 @@ Plans:
 **Context:** `.planning/phases/35-places-text-reconciliation/35-CONTEXT.md`
 **Ruling record:** `.planning/audits/2026-07-14-places-text-audit.md`
 
+### Phase 37: General Quest attempt affordability gate — block attempting a General Quest when the chosen Mosje cannot afford the 20 MP attempt fee (mirror Phase 36's Welloe Force affordability gate). Prevents a Mosje self-destructing by attempting a quest it can't pay for. Reproduce-in-browser first per project rules.
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 36
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 37 to break down)
+
 ---
 
 ### Phase 36: Piecie/Snelle Piecie/Place/Personal Quest MP Cost Model Redesign — default all costs to 0, add explicit tribute payment only for cards whose text requires it
