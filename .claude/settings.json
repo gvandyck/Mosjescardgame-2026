@@ -27,7 +27,20 @@
       "Read(//tmp/**)",
       "Read(//c/Users/Gandoe/.claude/projects/**)",
       "Bash(git commit -m ' *)",
-      "Bash"
+      "Bash",
+      "Bash(npm run *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:5500/index.html)",
+      "Bash(node -e ' *)",
+      "Bash(curl -s \"https://unpkg.com/css-doodle@0.32.0/\")",
+      "Bash(curl -s \"https://unpkg.com/css-doodle@0.32.0/?meta\")",
+      "Bash(curl -s http://localhost:5500/index.html)",
+      "Bash(tasklist //FI \"IMAGENAME eq node.exe\")",
+      "Bash(node \"C:\\\\Users\\\\Gandoe\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-Gandoe-Documents-GitHub-Mosjescardgame-2026\\\\35d097af-4b56-423c-80b0-e4a1a3c9b044\\\\scratchpad\\\\shoot-headline.js\")",
+      "Bash(start http://localhost:5500/index.html)",
+      "WebFetch(domain:rachsmith.com)",
+      "Bash(git commit -m 'ui\\(lobby\\): experiment — layered mouse-reactive MOSJES headline \\(parked\\) *)",
+      "Bash(git -C /c/Users/Gandoe/Documents/GitHub/Mosjescardgame-2026 checkout -b fix/quest-permosje-threshold-label)",
+      "Bash(git check-ignore *)"
     ],
     "deny": [
       "Bash(git push --force *)",

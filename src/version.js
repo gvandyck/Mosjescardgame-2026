@@ -1,2 +1,2 @@
 // Shared app version shown in UI so players can confirm they are on the same build.
-export const APP_VERSION = 'ability-text-reconciled';
+export const APP_VERSION = 'mp-cost-affordability-gates';

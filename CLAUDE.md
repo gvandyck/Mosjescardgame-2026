@@ -5,6 +5,13 @@ Never assume, guess, or work around missing information. If something is unclear
 
 ---
 
+## 🧩 New feature or bugfix? Start with `/gsd-discuss-phase` — don't wait to be told
+Whenever the user asks for a new feature, or a bugfix that isn't a trivial one-liner, **kick off the `gsd-discuss-phase` skill yourself before writing any code or making a plan.** Do not wait for the user to type `/gsd-discuss-phase` — they've asked for this to be automatic because they kept forgetting to invoke it manually. The skill asks adaptive, scoped, multiple-choice-style questions (via `AskUserQuestion`) that pin down intent before implementation starts, which has repeatedly produced clearer, higher-confidence scope than diving straight into code.
+
+Skip this step only for genuinely trivial changes (typo fixes, one-line tweaks, "just run X") where there's no real ambiguity to resolve — use judgment, but default to running it rather than skipping it.
+
+---
+
 ## 🐛 Reproduce every reported bug in a live browser BEFORE fixing it
 When the user reports a bug, **do not start coding a fix until you have reproduced it in a real browser** (Playwright, driving the actual `.js` game). Seeing the exact cause on a real board — not just reasoning from logs — is the whole point: it confirms the diagnosis for both of us before any code changes.
 

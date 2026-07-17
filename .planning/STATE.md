@@ -725,3 +725,5 @@ All 5 balance plans executed and verified (BAL-01 through BAL-05):
 - BAL-05: Deck-out reshuffle rule (empty deck → reshuffle discard, draw 1, skip next turn)
 
 653 tests passing. 0 simulation crashes. 0 timeouts.
+
+</details>
