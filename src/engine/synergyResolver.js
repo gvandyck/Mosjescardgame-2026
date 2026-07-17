@@ -87,3 +87,22 @@ export function hasFoodDoubleSynergy(gameState, playerId) {
     coertId => hasSynergy(gameState, playerId, 'mosje_binti', coertId)
   );
 }
+
+// ─────────────────────────────────────────────────────────────
+// hasAlyssaJiscaSynergy
+// Specific helper for the Alyssa + Jisca "party amplifier" synergy
+// (Phase 38, D-01..D-05): true when Jisca is paired with EITHER Alyssa
+// variant on the given player's field. Consumed by the wave-2 engine
+// wiring (Alyssa's +10/turn trickle bonus, Jisca's first-Piecie-per-turn
+// +10 bonus) — this file only detects the pair, it does not apply MP.
+// ─────────────────────────────────────────────────────────────
+const ALYSSA_IDS = [
+  'mosje_alyssa_bulldozer',
+  'mosje_alyssa_fissa',
+];
+
+export function hasAlyssaJiscaSynergy(gameState, playerId) {
+  return ALYSSA_IDS.some(
+    alyssaId => hasSynergy(gameState, playerId, 'mosje_jisca', alyssaId)
+  );
+}
