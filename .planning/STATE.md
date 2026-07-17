@@ -2,26 +2,52 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 37 (COMPLETE — 2/2 plans)
+current_phase: 38
 status: Complete
-last_updated: "2026-07-17T22:30:27.928Z"
+last_updated: "2026-07-17T23:22:11.320Z"
 progress:
   total_phases: 37
   completed_phases: 19
-  total_plans: 76
-  completed_plans: 70
+  total_plans: 78
+  completed_plans: 71
   percent: 51
 ---
 
 # Project State
 
-**Last updated:** 2026-07-16
-**Current phase:** 37 (COMPLETE — 2/2 plans)
-**Branch:** card/full-game-text-audit
+**Last updated:** 2026-07-18
+**Current phase:** 38
+**Branch:** plan/phase-38-alyssa-jisca-synergy
 
-## ▶ RESUME HERE (2026-07-16 handoff — Phase 37 COMPLETE, both plans done)
+## ▶ RESUME HERE (2026-07-18 handoff — Phase 38 Plan 01 COMPLETE, Plan 02 next)
 
-**Next command:** `/gsd:verify-work 37` (optional UAT), or pick the next phase. Phase 37 is fully
+**Next command:** `/gsd:execute-phase 38` (resumes with Plan 38-02 — engine wiring — once planned)
+or `/gsd:plan-phase 38` if 38-02 isn't broken out yet.
+
+**Plan 38-01 (repro-first foundation) is COMPLETE (3/3 tasks).** Executed sequentially on
+`plan/phase-38-alyssa-jisca-synergy` (no worktree). Per CLAUDE.md's reproduce-first rule:
+`tests/ui/cards/alyssa-jisca-synergy.spec.js` was written and confirmed RED on current code
+(Scenario A — Alyssa's +10/turn while Jisca is on field, D-02 — delta measured 10 instead of the
+expected 20; Scenario B — Jisca's +10 on the first Piecie played each turn while an Alyssa is on
+field, D-03 — deltaFirst measured 0 instead of the expected 10), proving both halves of the
+`DUO_JISCA_ALYSSA` starter deck's headline synergy are still live no-ops. `synergyEffect` text was
+then set on all 3 duo cards (`mosje_alyssa_bulldozer`, `mosje_alyssa_fissa`, `mosje_jisca`,
+convention-compliant, no cost-discount language per D-04) and `hasAlyssaJiscaSynergy(gameState,
+playerId)` was added to `src/engine/synergyResolver.js`, modeled on `hasFoodDoubleSynergy` — pure
+detection reuse via `hasSynergy`, no new slot-iteration logic. The browser repro spec is
+**intentionally still RED** — engine wiring (consuming the new helper to actually apply the MP) is
+deferred to Plan 38-02, not part of this plan.
+
+**Verification:** `node --check` clean on all touched runtime files; `npm test` **670/670** (664
+baseline + 6 new `hasAlyssaJiscaSynergy` unit tests, 0 regressions); `npm test -- synergy-text-clarity`
+3/3 green; `npx playwright test --project=cards tests/ui/cards/alyssa-jisca-synergy.spec.js` 2/2
+**RED as expected** (this is the plan's success criterion, not a bug — see
+`.planning/phases/38-alyssa-jisca-synergy-design-and-implementation-design-wire-t/38-01-SUMMARY.md`).
+
+<details>
+<summary>Prior resume note (superseded — Phase 37 COMPLETE, both plans done)</summary>
+
+**Next command (superseded):** `/gsd:verify-work 37` (optional UAT), or pick the next phase. Phase 37 is fully
 closed out.
 
 **Phase 37 (General Quest attempt affordability gate) is COMPLETE (2/2 plans).** Both executed
@@ -325,6 +351,8 @@ mechanism lands in 36-02).
 
 </details>
 
+</details>
+
 ---
 
 **(prior)** Phase 34 COMPLETE — Account Starter-Deck Onboarding & Active Deck — branch feature/phase-34-starter-deck-onboarding (merged to main).
@@ -398,6 +426,7 @@ Branch: `feature/phase-34-starter-deck-onboarding` — 3 plans executed sequenti
 - Deck onboarding is one-time: pick exactly one duo deck; more decks only via the deck builder + booster packs. No shop, no claiming multiple starters (explicit user decision).
 - Originals (PHYSICAL_FORCE/DIGITAL_CONTROL/ARTISTIC_RHYTHM) are never deleted from data — only filtered out of player-facing surfaces — so the pre-existing test suite (8+ files hardcoding those IDs) needed zero changes.
 - Bot deck selection is true-random over the duo pool, mirror matches allowed (explicit user decision, differs from the old "never mirror the human's deck" behavior).
+- Phase 38-01: opponent-field "harmless" test scenarios use a zero-piecie custom bot deck plus `mockDiceRoll(page, 0)` instead of nulling both opponent Mosje slots — nulling both would trip `victoryChecker.js`'s KNOCKOUT check (`activeSlots.every(slot => slot === null || slot.isDefeated)` is vacuously true for an all-null array) and end the game before the turn-boundary MP comparison could run.
 
 ## Phase 32 Progress — On-field Mosje Info + Quest Dice Modal + Win Clarity
 

@@ -914,10 +914,10 @@ Plans:
 **Goal:** The DUO_JISCA_ALYSSA starter deck's headline "party amplifier" synergy is live on-card and engine-wired: while Jisca is on your field each Alyssa (bulldozer + fissa) gains +10 MP at the start of each of your turns, and while an Alyssa is on your field Jisca's first Piecie played each turn gives +10 MP (once per turn). Convention-compliant card text, bot-aware, sim-verified.
 **Requirements**: D-01 (party-amplifier fantasy), D-02 (Alyssa +10/turn), D-03 (Jisca first-Piecie +10, once/turn), D-04 (play-reward NOT cost-discount), D-05 (~+15 in-line power)
 **Depends on:** None (independent - self-contained synergy design)
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
-- [ ] 38-01-PLAN.md - Repro-first RED card-test + synergyEffect text on 3 cards + hasAlyssaJiscaSynergy detection helper (wave 1)
+- [x] 38-01-PLAN.md - Repro-first RED card-test + synergyEffect text on 3 cards + hasAlyssaJiscaSynergy detection helper (wave 1)
 - [ ] 38-02-PLAN.md - Engine wiring: Alyssa start-of-turn +10 (turnManager) + Jisca first-Piecie +10 once/turn (piecieEffects) + full MP-gate verification (wave 2)
 
 ### Phase 39: Remaining unwired Mosje synergy pairs + Cless Teacher/AZN Cless shared-effect fix — wire the synergy pairs from the 2026-07-15 inventory that are declared but have no consuming engine code, and fix the Cless Teacher / AZN Cless shared-effect divergence. Per-pair interactive rulings.
