@@ -23,7 +23,7 @@ function getBoardModal() {
 	return _boardModal;
 }
 
-export function renderBoard(container, viewModel, onUseAbility = null, onReturnToHand = null, onActivatePiecie = null, onActivatePlace = null, onOpenDiscard = null, onPlayFromHand = null) {
+export function renderBoard(container, viewModel, onUseAbility = null, onReturnToHand = null, onActivatePiecie = null, onActivatePlace = null, onOpenDiscard = null, onPlayFromHand = null, onActivateSynergyWaiver = null) {
 	if (!container) return;
 	console.log('[UI] Rendering board view');
 
@@ -175,7 +175,28 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 				playerId: viewModel.myPlayerId,
 				cardId: viewModel.activePlace.cardId || viewModel.activePlace.id,
 			});
-			placePlayer.addEventListener('click', () => getBoardModal().showPlaceDetailModal(mergedPlace));
+			placePlayer.addEventListener('click', (e) => {
+				if (e.target.closest('button')) return;
+				getBoardModal().showPlaceDetailModal(mergedPlace);
+			});
+
+			// Synergy Chamber's once-per-turn partner waiver — same "Activate" button
+			// pattern used for face-down Piecies/Places/Personal Quests, placed on the
+			// card itself rather than as a separate top-bar control.
+			const isSynergyChamber = (mergedPlace.id || mergedPlace.cardId) === 'place_synergy_chamber';
+			const waiverAlreadyUsed = viewModel.gameState?.players?.[viewModel.myPlayerId]?.synergyWaiverActive === true;
+			if (onActivateSynergyWaiver && isSynergyChamber && !waiverAlreadyUsed) {
+				const btn = document.createElement('button');
+				btn.className = 'hand-card__play-btn';
+				btn.type = 'button';
+				btn.textContent = 'Activate (no partner)';
+				btn.addEventListener('click', (event) => {
+					event.stopPropagation();
+					onActivateSynergyWaiver();
+				});
+				placePlayer.appendChild(btn);
+			}
+
 			bottomPiecies?.appendChild(placePlayer);
 		}
 	}

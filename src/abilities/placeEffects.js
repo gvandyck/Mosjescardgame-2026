@@ -97,43 +97,24 @@ export function effect_bank_chilling(gameState, playerId) {
 	const player = state.players[playerId];
 	if (!player) return state;
 
-	const slotIndex = player.activeSlots.findIndex(slot => slot !== null && !slot.isDefeated);
-	if (slotIndex < 0) return state;
-
-	const mosje = player.activeSlots[slotIndex];
-	const social = mosje.traits?.social || 0;
-	if (social >= 2) {
-		mosje.mp += 15;
-		console.log('[ABILITY] Bank Chilling: +15 MP applied (Social 2+)');
-	} else {
-		console.log('[ABILITY] Bank Chilling: no bonus (social below 2)');
-	}
-
-	return state;
-}
-
-// ─────────────────────────────────────────
-// SKIFFA — End Phase: discard 1 card OR lose 15 MP. SUBSTANCE Mosjes immune.
-// Note: Requires player choice (UI prompt) to implement discard option.
-// For now, all non-SUBSTANCE Mosjes lose 15 MP.
-// ─────────────────────────────────────────
-export function effect_skiffa(gameState) {
-	const state = cloneState(gameState);
-	for (const playerId of Object.keys(state.players)) {
-		const player = state.players[playerId];
-		for (const mosje of player.activeSlots) {
-			if (!mosje || mosje.isDefeated) continue;
-			const hasSubstance = mosje.traits?.substance >= 1;
-			if (!hasSubstance) {
-				applyDamage(mosje, 15);
-				console.log('[ABILITY] Skiffa: -15 MP (no SUBSTANCE immunity)');
-			} else {
-				console.log('[ABILITY] Skiffa: immune due to SUBSTANCE trait');
-			}
+	for (const mosje of player.activeSlots) {
+		if (!mosje || mosje.isDefeated) continue;
+		const social = mosje.traits?.social || 0;
+		if (social >= 2) {
+			mosje.mp += 15;
+			console.log('[ABILITY] Bank Chilling: +15 MP applied (Social 2+)');
+		} else {
+			console.log('[ABILITY] Bank Chilling: no bonus (social below 2)');
 		}
 	}
+
 	return state;
 }
+
+// SKIFFA — Social Quests: all players get +2 to the dice roll. Implemented
+// as an inline main.js dice-bonus term (see the questDef.category === 'Social'
+// check at both quest-attempt call sites), not through this dispatcher —
+// mirrors how Synergy Chamber's own dice bonus is handled.
 
 // ─────────────────────────────────────────
 // OBBY #1 — On Quest: Physical ★★+/Resilient ★★+ Mosjes gain +20 MP on success, -10 MP on failure.
@@ -142,20 +123,20 @@ export function effect_obby_1(gameState, questCard, didSucceed) {
 	const state = cloneState(gameState);
 	const playerId = state.activePlayerId;
 	const player = state.players[playerId];
-	const slotIndex = player.activeSlots.findIndex(slot => slot !== null && !slot.isDefeated);
-	if (slotIndex < 0) return state;
 
-	const mosje = player.activeSlots[slotIndex];
-	const physical = mosje.traits?.physical || 0;
-	const resilient = mosje.traits?.resilient || 0;
+	for (const mosje of player.activeSlots) {
+		if (!mosje || mosje.isDefeated) continue;
+		const physical = mosje.traits?.physical || 0;
+		const resilient = mosje.traits?.resilient || 0;
 
-	if (physical >= 2 || resilient >= 2) {
-		if (didSucceed) {
-			mosje.mp += 20;
-			console.log('[ABILITY] Obby #1: +20 MP on successful Physical/Resilient quest');
-		} else {
-			applyDamage(mosje, 10);
-			console.log('[ABILITY] Obby #1: -10 MP on failed Physical/Resilient quest');
+		if (physical >= 2 || resilient >= 2) {
+			if (didSucceed) {
+				mosje.mp += 20;
+				console.log('[ABILITY] Obby #1: +20 MP on successful Physical/Resilient quest');
+			} else {
+				applyDamage(mosje, 10);
+				console.log('[ABILITY] Obby #1: -10 MP on failed Physical/Resilient quest');
+			}
 		}
 	}
 	return state;
@@ -169,15 +150,15 @@ export function effect_arcade(gameState, questCard, didSucceed) {
 	const state = cloneState(gameState);
 	const playerId = state.activePlayerId;
 	const player = state.players[playerId];
-	const slotIndex = player.activeSlots.findIndex(slot => slot !== null && !slot.isDefeated);
-	if (slotIndex < 0) return state;
 
-	const mosje = player.activeSlots[slotIndex];
-	const technical = mosje.traits?.technical || 0;
+	for (const mosje of player.activeSlots) {
+		if (!mosje || mosje.isDefeated) continue;
+		const technical = mosje.traits?.technical || 0;
 
-	if (technical >= 2 && didSucceed) {
-		mosje.mp += 15;
-		console.log('[ABILITY] Arcade: +15 MP on successful Technical quest');
+		if (technical >= 2 && didSucceed) {
+			mosje.mp += 15;
+			console.log('[ABILITY] Arcade: +15 MP on successful Technical quest');
+		}
 	}
 	return state;
 }
@@ -242,9 +223,7 @@ export function effect_momentum_factory(gameState) {
 }
 
 // ─────────────────────────────────────────
-// COERT'S CARAVAN — Turn Start: Coert Mosjes gain +15 MP. All Binti Piecies cost 5 less MP.
-// Design direction: exclusively for Coert. Hard requirement, good payoff.
-// Binti cost reduction requires UI validation during card play.
+// COERT'S CARAVAN — End of Turn: all Mosjes lose 10 MP. Coert Mosjes are immune.
 // ─────────────────────────────────────────
 export function effect_coerts_caravan(gameState) {
 	const state = cloneState(gameState);
@@ -252,21 +231,12 @@ export function effect_coerts_caravan(gameState) {
 		const player = state.players[pid];
 		if (!player) continue;
 
-		let hasCoert = false;
 		for (const mosje of player.activeSlots || []) {
 			if (!mosje || mosje.isDefeated) continue;
 			const id = String(mosje.cardId || mosje.mosjeId || '').toLowerCase();
-			const isCoert = id.includes('coert');
-			if (isCoert) {
-				hasCoert = true;
-				mosje.mp += 15;
-				console.log('[ABILITY] Coert\'s Caravan: +15 MP for Coert Mosje');
-			}
-		}
-
-		if (hasCoert) {
-			player.freePiecieActivationAvailable = true;
-			console.log(`[PLACE] Coert's Caravan — ${pid} gets 1 free Piecie activation this turn`);
+			if (id.includes('coert')) continue;
+			applyDamage(mosje, 10);
+			console.log('[ABILITY] Coert\'s Caravan: -10 MP end-of-turn drain');
 		}
 	}
 	return state;
@@ -279,40 +249,8 @@ export function effect_coerts_caravan(gameState) {
 // ─────────────────────────────────────────
 export function effect_synergy_chamber(gameState) {
 	const state = cloneState(gameState);
-	// Mark that synergy chamber is active so synergy resolver can apply effects
-	state.synergyChamberActive = true;
 	console.log('[ABILITY] Synergy Chamber: passive synergy triggers unlocked');
 	return state;
-}
-
-/**
- * Returns the MP cost reduction (5) granted by Synergy Chamber for ability activations.
- * Callers: Mosje ability activation cost deduction in mosjeAbilities.js / UI layer.
- * @param {object} gameState
- * @returns {number} 5 if Synergy Chamber active, 0 otherwise
- */
-export function getSynergyChambercostReduction(gameState) {
-	return gameState?.activePlace === 'place_synergy_chamber' ? 5 : 0;
-}
-
-/**
- * Returns the dice roll bonus (+1) granted by Synergy Chamber for quest rolls.
- * Already consumed in questLogic.js quest_req_perfect_timing.
- * @param {object} gameState
- * @returns {number} 1 if Synergy Chamber active, 0 otherwise
- */
-export function getSynergyChamberDiceBonus(gameState) {
-	return gameState?.activePlace === 'place_synergy_chamber' ? 1 : 0;
-}
-
-/**
- * Returns the duration bonus (+1 turn) granted by Synergy Chamber to buffs applied this turn.
- * Callers: applyBuff in effects layer — add this to turnsLeft when Synergy Chamber is active.
- * @param {object} gameState
- * @returns {number} 1 if Synergy Chamber active, 0 otherwise
- */
-export function getSynergyChamberDurationBonus(gameState) {
-	return gameState?.activePlace === 'place_synergy_chamber' ? 1 : 0;
 }
 
 export function triggerPlaceDestroyedEffects(gameState, destroyingPlayerId) {
@@ -410,28 +348,31 @@ export function effect_delluft(gameState) {
 // ─────────────────────────────────────────
 export function effect_dierenasiel(gameState) {
 	const state = cloneState(gameState);
-	state.dienasielActive = true;
-	console.log('[ABILITY] Dierenasiel: PET Piecies free and protection bonuses +25%');
 	return state;
 }
 
 // ─────────────────────────────────────────
-// DIGITAL GAMING STOP — On Quest: Technical Quests auto-succeed for DIGITAL.
-// DIGITAL-EQUIPMENT Piecies give +20 MP. Hidden/booster-only.
-// Note: Auto-succeed requires quest resolution integration.
+// DIGITAL GAMING STOP — On Quest: DIGITAL-EQUIPMENT Piecies give +10 MP while active.
+// Hidden/booster-only.
 // ─────────────────────────────────────────
-export function effect_digital_gaming_stop(gameState, questCard, mosje) {
-	const state = cloneState(gameState);
-	// Check if Mosje is DIGITAL and quest is TECHNICAL
-	const isDigital = mosje?.traits?.digital >= 2;
-	const isPhysicalQuest = questCard?.questRequirement?.includes('physical');
+export function effect_digital_gaming_stop(gameState, questCard, mosje, playerId) {
+	// Resolve the questing Mosje's slot index BEFORE cloning — `mosje` is a reference
+	// into the pre-clone state, so mutating it directly would not carry over to the
+	// freshly cloned state this function returns.
+	const preClonePlayer = gameState.players[playerId];
+	const slotIndex = preClonePlayer ? preClonePlayer.activeSlots.indexOf(mosje) : -1;
 
-	if (isDigital && !isPhysicalQuest) {
-		console.log('[ABILITY] Digital Gaming Stop: DIGITAL Mosje auto-succeeds technical quest');
-		// Return flag indicating auto-success
-		return { ...state, questAutoSuccess: true };
+	const state = cloneState(gameState);
+	const player = state.players[playerId];
+	const hasActiveDigitalEquipment = (player?.piecieSlots || []).some(slot => {
+		if (!slot || slot.activated !== true) return false;
+		return getCardById(slot.cardId)?.subtype === 'DIGITAL-EQUIPMENT';
+	});
+
+	if (hasActiveDigitalEquipment && slotIndex >= 0) {
+		player.activeSlots[slotIndex].mp += 10;
+		console.log('[ABILITY] Digital Gaming Stop: +10 MP for active DIGITAL-EQUIPMENT Piecie');
 	}
-	// Note: DIGITAL-EQUIPMENT Piecie +20 MP bonus requires validation during card play
 	return state;
 }
 
@@ -501,17 +442,17 @@ export function effect_de_box(gameState) {
 			if (id.includes('gandoe')) {
 				mosje.mp += 20;
 				gandoeSlot = mosje;
-				console.log('[ABILITY] Toennoe: +20 MP (GANDOE)');
-			} else if (id.includes('michelle')) {
+				console.log('[ABILITY] De Box: +20 MP (GANDOE)');
+			} else if (id.includes('michelle') || id.includes('tuk')) {
 				mosje.mp += 15;
 				michelleSlot = mosje;
-				console.log('[ABILITY] Toennoe: +15 MP (MICHELLE/TUK)');
+				console.log('[ABILITY] De Box: +15 MP (MICHELLE/TUK)');
 			}
 		}
 		if (gandoeSlot && michelleSlot) {
 			gandoeSlot.mp += 10;
 			michelleSlot.mp += 10;
-			console.log('[ABILITY] Toennoe: +10 bonus each (Gandoe & Michelle together)');
+			console.log('[ABILITY] De Box: +10 bonus each (Gandoe & Michelle together)');
 		}
 	}
 	return state;
@@ -596,10 +537,6 @@ export function resolvePlaceEffect(gameState, triggerPhase, context = {}) {
 			nextState = effect_bank_chilling(state, playerId);
 			break;
 
-		case 'place_skiffa':
-			nextState = effect_skiffa(state);
-			break;
-
 		case 'place_obby_1':
 			nextState = effect_obby_1(state, questCard, didSucceed);
 			break;
@@ -649,7 +586,7 @@ export function resolvePlaceEffect(gameState, triggerPhase, context = {}) {
 			break;
 
 		case 'place_digital_gaming_stop':
-			nextState = effect_digital_gaming_stop(state, questCard, mosje);
+			nextState = effect_digital_gaming_stop(state, questCard, mosje, playerId);
 			break;
 
 		case 'place_eendjes_voeren':

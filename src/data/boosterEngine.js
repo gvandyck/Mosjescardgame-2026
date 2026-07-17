@@ -9,7 +9,7 @@
 import { MOSJES }        from './mosjes.js';
 import { PIECIES }       from './piecies.js';
 import { SNELLE_PIECIES } from './snellePiecies.js';
-import { PLACES }        from './places.js';
+import { getPlayerFacingPlaces } from './playerFacingPlaces.js';
 import { QUESTS }        from './quests.js';
 
 function rarityToWeight(rarity) {
@@ -23,7 +23,7 @@ const POOL = [
 	...MOSJES.map(c => ({ ...c, cardType: 'MOSJE' })),
 	...PIECIES.map(c => ({ ...c, cardType: 'PIECIE' })),
 	...SNELLE_PIECIES.map(c => ({ ...c, cardType: 'SNELLE_PIECIE' })),
-	...PLACES.map(c => ({ ...c, cardType: 'PLACE' })),
+	...getPlayerFacingPlaces().map(c => ({ ...c, cardType: 'PLACE' })),
 	...QUESTS.filter(c => c.questType === 'PERSONAL').map(c => ({ ...c, cardType: 'QUEST' })),
 ]
 	.filter(c => !c.disabled) // hidden cards (e.g. Coert Kastelein, Drainer) never drop

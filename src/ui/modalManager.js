@@ -29,6 +29,10 @@ export function initModalManager(container) {
 				return Number(handSize) > 0 ? 0 : null;
 			},
 			showMosjeSelect: (_slots, onSelected, _questDef) => onSelected(0),
+			showTributePayerSelect: async (config = {}) => {
+				const slots = Array.isArray(config.mosjeSlots) ? config.mosjeSlots : [];
+				return slots[0] ? String(slots[0].slotIndex) : null;
+			},
 			showHandViewerModal: (_ids, _name, _lookup, onClose) => { if (onClose) onClose(); },
 			showCardPreview: () => {},
 			showCardPreviewModal: () => {},
@@ -764,6 +768,27 @@ export function initModalManager(container) {
 		});
 	}
 
+	// Tribute-payer picker — generalizes showMosjeSelect for effects that require the player to
+	// choose which on-field Mosje pays a flat MP tribute (e.g. Welloe Force's 40 MP self-charge).
+	// mosjeSlots — array of { slotIndex, name, mp }. amount — the flat MP tribute required.
+	// Every slot where mp < amount renders disabled (green/red MP label signals affordability).
+	// Resolves with the chosen slotIndex as a string, or null if cancelled (allowCancel is false
+	// here per D-06 — callers must pre-filter to at least 1 eligible slot before calling this).
+	function showTributePayerSelect({ title, prompt, mosjeSlots, amount } = {}) {
+		const safeSlots = Array.isArray(mosjeSlots) ? mosjeSlots : [];
+		const options = safeSlots.map(slot => {
+			const canAfford = Number(slot.mp) >= Number(amount);
+			const color = canAfford ? '#4ade80' : '#ef4444';
+			return {
+				id: String(slot.slotIndex),
+				label: slot.name,
+				metaLabel: `<span style="color: ${color};">${slot.mp} MP</span>`,
+				disabled: !canAfford,
+			};
+		});
+		return showOptionSelect({ title, prompt, options, allowCancel: false });
+	}
+
 	// Shows a card from the deck briefly so the player can see it.
 	// Resolves when the player clicks Continue.
 	async function showRevealedCard(title, cardName, cardType) {
@@ -992,6 +1017,7 @@ export function initModalManager(container) {
 		showPlaceDetailModal,
 		showOpponentHandRevealModal,
 		showMosjeSelect,
+		showTributePayerSelect,
 		showGraveyardModal,
 		showDiscardViewerModal: showGraveyardModal, // legacy alias — do not remove
 		showDiscardRecoveryModal,

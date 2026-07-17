@@ -34,10 +34,7 @@ export function gainMP(gameState, playerId, slotIndex, amount, source = 'GAIN', 
     return gameState;
   }
 
-  let gainAmount = amount;
-  if (placeId === 'place_drain_zone') {
-    gainAmount += 5;
-  }
+  const gainAmount = amount;
 
   const state = deepCloneState(gameState);
   const mosje = state.players[playerId].activeSlots[slotIndex];
@@ -194,11 +191,6 @@ export function loseMP(gameState, playerId, slotIndex, amount, source = 'DRAIN',
     delete state._snelleFlags.mpLossReduction[playerId];
   }
 
-  // Dierenasiel passive: PET protection reduces any incoming loss by 25%.
-  if (state.dierenasielActive) {
-    lossAmount = roundToFive(lossAmount * 0.75);  // game rule: MP stays on the 5-grid
-    console.log('[MP] Dierenasiel: PET protection — reduced loss to', lossAmount);
-  }
   // ── End snelle interception ───────────────────────────────────────────────
 
   mosje.mp -= lossAmount;

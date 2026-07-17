@@ -42,12 +42,14 @@
 **Goal:** Get all 4 Mosje abilities working (Physical Force: Alyssa + Jeffrey, Artistic Rhythm: DJ 80/20 + Jisca)
 
 **Requirements:**
+
 - IMPL-PF-M1: Alyssa the Bulldozer ability
 - IMPL-PF-M2: Jeffrey the Strongman ability
 - IMPL-AR-M1: DJ 80/20 ability
 - IMPL-AR-M2: Jisca the Maestro ability
 
 **Approach:**
+
 - Read card-spec.md for each Mosje's ability description
 - Implement ability function in `/src/cards/mosjes/[type]/[mosje-name].ts`
 - Use existing effect primitives (gainMP, drawCards, applyBuff, etc.)
@@ -55,6 +57,7 @@
 - Verify no existing tests break
 
 **Success Criteria:**
+
 1. All 4 abilities defined and exported
 2. Each ability resolves without errors
 3. Effect primitives called correctly
@@ -69,10 +72,12 @@
 **Goal:** Implement all 26 unique Piecies across both decks
 
 **Requirements:**
+
 - IMPL-PF-P1 through IMPL-PF-P12 (Physical Force Piecies)
 - IMPL-AR-P1 through IMPL-AR-P13 (Artistic Rhythm Piecies)
 
 **Approach:**
+
 - Group Piecies by effect type (momentum-gaining, attack, utility, substance, etc.)
 - Implement each Piecie in `/src/cards/piecies/[type]/[piecie-name].ts`
 - Use existing effect primitives
@@ -80,6 +85,7 @@
 - Verify registry properly exports all
 
 **Success Criteria:**
+
 1. All 26 Piecies defined and callable
 2. Each effect resolves correctly
 3. No card ID conflicts
@@ -94,16 +100,19 @@
 **Goal:** Implement all 6 unique instant response cards
 
 **Requirements:**
+
 - IMPL-PF-S1 through IMPL-PF-S4 (Physical Force Snelle)
 - IMPL-AR-S1 through IMPL-AR-S4 (Artistic Rhythm Snelle)
 
 **Approach:**
+
 - Implement in `/src/cards/snelle-piecies/[snelle-name].ts`
 - Ensure instant timing (no async delays)
 - Use existing effect primitives
 - Add unit tests
 
 **Success Criteria:**
+
 1. All 6 Snelle Piecies defined
 2. Instant execution (no timing delays)
 3. Tests pass
@@ -117,15 +126,18 @@
 **Goal:** Implement all 5 unique Place cards
 
 **Requirements:**
+
 - IMPL-PF-PL1 through IMPL-PF-PL3 (Physical Force Places)
 - IMPL-AR-PL1 through IMPL-AR-PL3 (Artistic Rhythm Places)
 
 **Approach:**
+
 - Implement in `/src/cards/places/[place-name].ts`
 - Handle passive effects and turn-end triggers
 - Add unit tests
 
 **Success Criteria:**
+
 1. All 5 Places defined
 2. Passive effects trigger correctly
 3. Tests pass
@@ -139,16 +151,19 @@
 **Goal:** Implement all 14 unique Quest cards with roll mechanics and rewards
 
 **Requirements:**
+
 - IMPL-PF-Q1 through IMPL-PF-Q7 (Physical Force Quests)
 - IMPL-AR-Q1 through IMPL-AR-Q5 (Artistic Rhythm Quests)
 
 **Approach:**
+
 - Implement in `/src/cards/quests/general/[quest-name].ts` or `/personal/` as needed
 - Handle roll conditions (trait requirements, success thresholds)
 - Calculate rewards based on success/failure
 - Add unit tests for each quest's logic
 
 **Success Criteria:**
+
 1. All 14 Quests defined
 2. Roll mechanics work correctly
 3. Trait bonuses applied
@@ -164,12 +179,14 @@
 **Goal:** Wire everything together, run full tests, enable in lobby
 
 **Requirements:**
+
 - IMPL-TEST: Full test suite passes (536+ tests)
 - IMPL-LOBBY: Both decks selectable in lobby
 - IMPL-SIM: Simulation runs without crashes
 - IMPL-REG: All cards properly registered
 
 **Approach:**
+
 - Add deck selector options to index.html (Physical Force, Artistic Rhythm)
 - Run full test suite
 - Run simulation (100 games each deck)
@@ -177,6 +194,7 @@
 - Create commit with integration
 
 **Success Criteria:**
+
 1. All tests pass
 2. Both decks appear in lobby dropdown
 3. Simulation completes without crashes
@@ -191,6 +209,7 @@
 **Goal:** Global player leaderboard showing ranked win/loss/streak stats, accessible from the lobby.
 
 **Requirements:**
+
 - LB-STATS: Track wins, losses, currentStreak, bestStreak per player in RTDB at users/{uid}/stats
 - LB-PAGE: Leaderboard HTML page showing ranked table (rank, name, wins, losses, win rate %, current streak)
 - LB-NAV: Nav button on index.html below Deck Builder / Store links
@@ -200,11 +219,13 @@
 **Plans:** 3 plans
 
 Plans:
+
 - [ ] 07-01-PLAN.md � Stats data layer: statsStore.js, leaderboardStore.js, matchRewards.js stats hook, accountSetup.js profile seeding, RTDB rules
 - [ ] 07-02-PLAN.md � Leaderboard UI: leaderboard.html, leaderboard.css, leaderboard.js, index.html nav button
 - [ ] 07-03-PLAN.md � Disconnect loss hook: registerDisconnectLoss + cancelDisconnectHooks in syncManager.js
 
 **Success Criteria:**
+
 1. Leaderboard page accessible from lobby nav
 2. Stats update after every completed match (win/loss/streak)
 3. Disconnect records a loss for the leaving player
@@ -218,6 +239,7 @@ Plans:
 **Goal:** Every card marked `partial` or with deferred behaviour in `docs/card-reference.md` is fully working in the live browser game (`src/abilities/piecieEffects.js`, `src/abilities/snelleEffects.js`, `src/abilities/mosjeAbilities.js`, `src/data/quests.js`).
 
 **Requirements:**
+
 - CARD-COMP-MOSJE: All partial Mosje abilities implemented (Binti, Cless, Coert, Martin, Tuk, Ronald, Chris variants, etc.)
 - CARD-COMP-SNELLE: All partial Snelle Piecies with deferred behaviours completed (blensen, counter-strikka, drain-reversal, frenssen, jammertje-gepakt, jantje-jantje, jensen, jeweetniet, perfect-dodge)
 - CARD-COMP-PIECIE: All partial Piecies with simplified/deferred logic completed (zie-je-die-dingetjes, call-of-the-welloes, dingetje-toch, double-trigger)
@@ -227,6 +249,7 @@ Plans:
 **Plans:** 6 plans
 
 Plans:
+
 - [ ] 08-01-PLAN.md � Mosje ability fixes: Tuk Architect deck reorder, Ronald Mastermind sort-to-top, Jeffrey quest-bonus fix, Ronald Chef/FPS West peek flags (src/abilities/mosjeAbilities.js)
 - [ ] 08-02-PLAN.md � Snelle bug fixes: Jantje�3 const/let crash, Blensen free-cost flag (src/abilities/snelleEffects.js)
 - [ ] 08-03-PLAN.md � Piecie stub completions: Zie Je Die Dingetjes two-call keep pattern, Dingetje Toch flag documentation (src/abilities/piecieEffects.js, src/engine/turnManager.js)
@@ -235,6 +258,7 @@ Plans:
 - [ ] 08-06-PLAN.md � Quest audit: classify all partial quests as implemented or deferred-with-reason; add DEFERRED comments in quests.js (src/data/quests.js, docs/card-reference.md)
 
 **Success Criteria:**
+
 1. No card function in any ability file returns early with a "pending UI" or "deferred" stub comment
 2. All cards in card-reference.md with status `partial` are updated to `implemented` or `advanced`
 3. Existing 588+ tests still pass
@@ -247,6 +271,7 @@ Plans:
 **Goal:** Fix 5 playtesting bugs found in the live browser game: quest roll threshold display, Dubbele Dosis Piecie card lifecycle, Senor West MP floor + level-degrade fallback, Lucky Coin activation guard, DJ Lucky Mixer turn modifier redesign.
 
 **Requirements:**
+
 - BUG-01: Quest roll threshold displays wrong tier � Strategy Puzzle shows 3+ instead of 2+ when player has Mental ??? (stat level 3)
 - BUG-02: Dubbele Dosis Piecie discards immediately after activation instead of persisting until end of turn
 - BUG-03: Senor West wrong-guess penalty drives MP to -10 when player is at 0 MP (floor not respected); should degrade level -1 or block activation if already at minimum level
@@ -256,6 +281,7 @@ Plans:
 **Plans:** 5/5 complete - 2026-05-25
 
 Plans:
+
 - [x] 09-01-PLAN.md -- BUG-03: Senor West MP floor fix + activation guard
 - [x] 09-02-PLAN.md -- BUG-04: Lucky Coin pre-flip slot guard
 - [x] 09-03-PLAN.md -- BUG-02 + BUG-05: Dubbele Dosis lifecycle + DJ Lucky Mixer quest modifier
@@ -263,6 +289,7 @@ Plans:
 - [x] 09-05-PLAN.md -- Verification: full test suite, simulation, card-reference.md updates
 
 **Success Criteria:**
+
 1. Quest roll modal shows the correct threshold tier for the player's stat level
 2. Dubbele Dosis Piecie stays in play until end of turn, then moves to discard
 3. Senor West cannot drive MP below 0; wrong-guess at 0 MP degrades level instead (or blocks if already min level)
@@ -277,6 +304,7 @@ Plans:
 **Goal:** Fix game stalling � insufficient MP generation across all 3 starter decks causes games to end in deck-out or stalemate before anyone reaches Level 3. Fix by reworking underused cards, adjusting deck compositions, and/or tweaking rules. Prefer reworking existing cards over adding new ones.
 
 **Requirements:**
+
 - BAL-01: Digital Control stalling � too many draw-only cards, not enough reliable MP gain; Coert's draw ability bleeds MP
 - BAL-02: Physical Force � adequate direct MP but lacks fallback when quests fail; emergency_healings only delays stalls
 - BAL-03: Artistic Rhythm � post-bug-fix state unknown; verify balance after Phase 8 fixes
@@ -284,6 +312,7 @@ Plans:
 - BAL-05: Deck-out vulnerability � 15-17 card decks run dry before game ends
 
 **Success Criteria:**
+
 1. Digital Control can reliably reach Level 3 without deck-out
 2. All 3 decks have at least 2 clear paths to MP generation per game
 3. Games end with a winner (Level 3) rather than stalemate/deck-out
@@ -293,6 +322,7 @@ Plans:
 **Plans:** 5 plans
 
 Plans:
+
 - [x] 10-01-PLAN.md � Prerequisite: add subtype to Mosje slots (turnManager.js) + test scaffolds
 - [x] 10-02-PLAN.md � Quest economy: all successMP +20, failMP capped at -20 (quests.js)
 - [x] 10-03-PLAN.md � Equipment effect scaling + Tikker bug fix (piecieEffects.js)
@@ -306,6 +336,7 @@ Plans:
 **Goal:** Add a basic AI opponent so players can practice or play offline without needing a second human. The bot uses simple heuristics (no ML, no tree search) and drives the same engine action functions a human player calls.
 
 **Requirements:**
+
 - BOT-01: Bot decision loop � on bot's turn, pick and execute actions using heuristics (play Piecies, activate Places, attempt Quests, use Mosje ability)
 - BOT-02: Offline room mode � "Play Offline" checkbox on the lobby form bypasses Firebase room creation and starts a local-only game immediately
 - BOT-03: Bot identity � bot gets a name, a starter deck selection, and a player slot (player_2) in the engine state
@@ -313,6 +344,7 @@ Plans:
 - BOT-05: Full game loop � offline game runs through win conditions (Level 3 / knockout) and shows the result screen
 
 **Success Criteria:**
+
 1. "Play Offline" checkbox appears in the lobby and starts a game without Firebase
 2. Bot takes valid turns (no engine errors, no infinite loops)
 3. Bot plays at least one Piecie, attempts at least one Quest, and uses its Mosje ability over the course of a game
@@ -322,6 +354,7 @@ Plans:
 **Plans:** 5 plans
 
 Plans:
+
 - [x] 11-01-PLAN.md -- botDriver.js: pure driveBotTurn function + unit tests
 - [x] 11-02-PLAN.md -- Offline lobby: Play Offline vs Bot checkbox + session storage
 - [x] 11-03-PLAN.md -- Offline game init: detect ?offline=true, skip Firebase, start game immediately
@@ -335,6 +368,7 @@ Plans:
 **Goal:** Eliminate all silent no-ops in the engine � status effects that are pushed but never read, stub functions that return early, snelle flags set but never consumed, and partial card mechanics deferred to UI. Every card that claims to protect, halve, or modify MP must actually do so.
 
 **Requirements:**
+
 - STUB-01: MP_LOSS_HALVED � wire into loseMP() in mpManager.js (5 cards: Bowie & Stormey, Tony, Gekke Vogels, KatjeGang, ViannaPoes)
 - STUB-02: MP_LOSS_REDUCTION � wire into loseMP() (3 consumers: Laat me chillen, FF Haaltje Nemen, The Protector snelle flag)
 - STUB-03: WELLOE_SHIELD � implement no-knockout protection check in victoryChecker.js (1 card: Mosje Shield)
@@ -353,6 +387,7 @@ Plans:
 - STUB-16: FPS West + Ronald Chef hand reveal � wire opponentHandPeeked flag to actual UI hand reveal
 
 **Success Criteria:**
+
 1. Every status effect type that is pushed to statusEffects is either checked in loseMP/turnManager/victoryChecker OR explicitly documented as deferred with a named blocking primitive
 2. No function in any ability file returns early with a silent no-op where real behaviour was intended � all are either implemented or tagged `// DEFERRED: <reason>`
 3. All snelle flags that are set have corresponding read-points in the engine
@@ -362,6 +397,7 @@ Plans:
 **Plans:** 5 plans
 
 Plans:
+
 - [x] 12-01-PLAN.md � Engine wiring: MP_LOSS_HALVED, MP_LOSS_REDUCTION, WELLOE_SHIELD checks wired into loseMP() and markMosjeDefeated(); fix FF Haaltje Nemen ReferenceError; restore push site values
 - [x] 12-02-PLAN.md � Flag wiring: negateNextSearch in phaseDrawCard, STUB-05 verification, dingetjeToch documentation, SNOEIERTJE_COST dead push removal
 - [x] 12-03-PLAN.md � Place mechanics: Dierenasiel 0-MP guard and Synergy Chamber cost reduction in useMosjeAbility
@@ -378,6 +414,7 @@ Plans:
 
 **Plans:** 1 plan
 Plans:
+
 - [x] 13-01-PLAN.md � Action animation system: actionAnimations.js module, boardRenderer wiring, CSS animations for MP gain/loss/attack/quest events
 
 ---
@@ -387,6 +424,7 @@ Plans:
 **Goal:** Add a Physical equipment Piecie suite (mirroring the Digital Keyboard/Mouse/Controller set), a new Boxing Ring place, and update The Gym to give CLESS-tagged Mosjes a bonus � giving Fighting/Physical decks a proper item identity and making Gandoe + Cless cards meaningfully stronger in themed setups.
 
 **Requirements:**
+
 - PHYS-01: Dumbbells (?, PHYSICAL-EQUIPMENT) � Physical Mosje on field: +20 MP; Physical ???: also draw 1 card
 - PHYS-02: Boxing Gloves (??, PHYSICAL-EQUIPMENT) � Physical ??+ Mosje: +25 MP; GANDOE tag: +40 MP + apply MP_LOSS_HALVED 1 turn
 - PHYS-03: Skipping Rope (?, PHYSICAL-EQUIPMENT) � Physical Mosje: +1 next Quest roll + draw 1 card; no Physical Mosje: draw 1 only
@@ -395,6 +433,7 @@ Plans:
 - PHYS-06: Gym update � Add CLESS-tag bonus: +20 MP at END_PHASE when any CLESS Mosje is on field (regardless of physical trait level)
 
 **Success Criteria:**
+
 1. All 4 PHYSICAL-EQUIPMENT Piecies have card definitions, effect functions, and tests
 2. Boxing Ring place has definition, effect function triggered at ON_QUEST and END_PHASE, and tests
 3. The Gym updated: CLESS-tagged Mosjes gain +20 MP at END_PHASE
@@ -406,6 +445,7 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
+
 - [x] 14-01-PLAN.md � Physical Equipment Piecies: Dumbbells, Boxing Gloves, Skipping Rope (data + effects + tests)
 - [x] 14-02-PLAN.md � Protein Shake + Boxing Ring place (data + effects + tests)
 - [x] 14-03-PLAN.md � Gym patch (CLESS bonus) + card-reference.md update + simulation check
@@ -437,12 +477,14 @@ Places: Quest Haven, Bank Chilling
 Quest: quest_improvise
 
 **New cards (4):**
+
 - DECK-NEW-01: place_toennoe � END_PHASE: GANDOE Mosje +20 MP, MICHELLE/TUK Mosje +15 MP, both active: +10 bonus each. New effect function in placeEffects.js.
 - DECK-NEW-02: quest_personal_kickboxing_bootcamp � requiredMosjeId: mosje_michelle. Physical roll 4+ alone, 2+ with Gandoe on field. If Gandoe active: questLogic adds +2 diceBonus. Success: +80 MP. Fail: -20 MP.
 - DECK-NEW-03: place_tesla � Requires Coert active to play (activation guard in main.js). TURN_START: COERT +20 MP, BINTI +20 MP, both active: +10 each. Coert defeated: Tesla destroyed ? sent to player discard (hook in victoryChecker.js).
 - DECK-NEW-04: quest_personal_winston_tijd � requiredMosjeId: mosje_binti. Requires place_tesla active. Tesla returns to player hand. Auto-succeed: +100 MP. Recover piecie_varkenspootjes from player discard if present. Logic in questLogic.js.
 
 **Requirements:**
+
 - DECK-01: Physical Force mosjes ? mosje_gandoe_destroyer + mosje_michelle
 - DECK-02: Physical Force piecies � full list as above (Boxing Gloves, Bowie & Stormey, etc.)
 - DECK-03: Physical Force places ? Boxing Ring + Toennoe (NEW)
@@ -465,6 +507,7 @@ Quest: quest_improvise
 - DECK-20: simulation/starter-decks.ts: align all three simulation decks with final compositions
 
 **Success Criteria:**
+
 1. All three starterDecks.js deck objects match the final compositions exactly
 2. place_toennoe and place_tesla exist in places.js with correct fields; effects implemented in placeEffects.js
 3. quest_personal_kickboxing_bootcamp and quest_personal_winston_tijd exist in quests.js; engine logic in questLogic.js
@@ -478,12 +521,12 @@ Quest: quest_improvise
 **Plans:** 3 plans
 
 Plans:
+
 - [ ] 15-01-PLAN.md � Physical Force rework: Gandoe+Michelle pair, deck composition, Toennoe place, Kickboxing quest + questLogic
 - [ ] 15-02-PLAN.md � Digital Control rework: Coert+Binti pair, deck composition, Tesla place + engine hooks, Winston quest + questLogic
 - [ ] 15-03-PLAN.md � Artistic Rhythm rework: Youri+Chris DDR pair, deck composition, synergyWith updates, isBoosterOnly fixes, simulation alignment, docs
 
 ---
-
 
 ---
 
@@ -492,6 +535,7 @@ Plans:
 **Goal:** Implement the full Call of the Welloes Piecie effect � summon a Mosje from the owner�s Welloe pile into a free active slot at restored MP/Level; the Piecie is the anchor, and when it leaves play the summoned Mosje returns to the Welloe pile. Two new tracking fields only (`piecieSlots[i].linkedMosjeCardId`, `activeSlots[i].summonedByPiecie`).
 
 **Requirements:**
+
 - CALLW-01: effect_call_of_welloes � silent cancel guards + welloe-pick pending flag
 - CALLW-02: returnMosjeToWelloe engine helper � push to welloe[] + null slot, no defeat side-effects
 - CALLW-03: End-of-turn sweep � return summoned Mosjes whose anchor Piecie has left play
@@ -500,6 +544,7 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
+
 - [x] 22-01-PLAN.md � Engine return path: returnMosjeToWelloe helper + endTurn sweep hook (TDD)
 - [x] 22-02-PLAN.md � Summon path: effect_call_of_welloes + confirmCallOfWelloes + description fix (TDD)
 - [x] 22-03-PLAN.md � UI wiring: main.js _callOfWelloesPending modal branch + card-reference.md (human-verify)
@@ -507,10 +552,12 @@ Plans:
 - [x] 22-05-PLAN.md � Gap closure: bidirectional destroy � Piecie discarded immediately when linked Mosje defeated (TDD)
 
 **Success Criteria:**
+
 1. effect_call_of_welloes functional; summon + return lifecycle correct
 2. Summoned Mosje restores welloe-recorded MP/Level (not Level 1 / 0 MP)
 3. Empty Welloe pile or no free slot ? effect silently cancelled (no UI, no error)
 4. All tests pass; 0 simulation crashes
+
 ---
 
 ### Phase 23: Graveyard System
@@ -518,6 +565,7 @@ Plans:
 **Goal:** Normalize the graveyard (discard pile) into a clean, modular system ready for graveyard-themed card mechanics. Fix silent-removal bugs in Klaar met Jou and Those Eyelashes. Standardize all entries as typed objects. Rename "discard pile" ? "Graveyard" in all UI labels and card descriptions.
 
 **Requirements:**
+
 - GRAV-01: Fix Klaar met Jou � discarded hand card must go to opponent's graveyard
 - GRAV-02: Fix Those Eyelashes � discarded hand cards must go to owner's graveyard
 - GRAV-03: Normalize graveyard entry format � all entries as `{ cardId, name, type, ...meta }` objects (no bare strings)
@@ -528,10 +576,12 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
+
 - [x] 23-01-PLAN.md — graveyardUtils.js + player.discard rename + Klaar met Jou + Those Eyelashes fixes (TDD) — COMPLETE: 912 tests pass
 - [x] 23-02-PLAN.md — UI rename (Graveyard label + modal) + card descriptions + docs — COMPLETE: 912 tests pass
 
 **Success Criteria:**
+
 1. No card removal bypasses the graveyard � every destroyed/discarded card is visible
 2. All graveyard entries are typed objects with at minimum `{ cardId, name, type }`
 3. UI label reads "Graveyard" everywhere; card descriptions updated
@@ -552,6 +602,7 @@ Plans:
 **Plans:** 3 plans\n\nPlans:\n- [ ] 25-01-PLAN.md � Quest result animations (CSS + boardRenderer + actionAnimations wiring)\n- [ ] 25-02-PLAN.md � Deck archetype identities (tagline field + lobby tagline div + change listener)\n- [ ] 25-03-PLAN.md � End-game stats screen (gameStats accumulator + rewardOverlay extension)
 
 **Success Criteria:**
+
 1. Quest success shows a green animated flash + floating MP number
 2. Quest fail shows a red shake animation
 3. Level-up has a visually distinct celebratory moment
@@ -566,6 +617,7 @@ Plans:
 **Goal:** Add a "Damage Interrupt" modal so the human player can react when the bot would damage or eliminate their Mosje. Three cards hook in: Not Today! (negateNextElimination reactive use), Emergency Healings (proactive interrupt heal), and Laat me chillen! (lifecycle fix + MP_LOSS_REDUCTION coverage). Also fix stale "Welloe pile" text in Not Today! description.
 
 **Requirements:**
+
 - INT-01: Interrupt modal fires before bot steps that eliminate or deal >= 30 MP damage to human Mosje
 - INT-02: After human plays a Snelle Piecie in the interrupt window, bot steps are re-computed from modified state
 - INT-03: Laat me chillen! stays on field (persistUntilEndOfTurn: true) until end of turn
@@ -575,10 +627,12 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
+
 - [ ] 24-01-PLAN.md -- Data fixes: persistUntilEndOfTurn, Not Today! text, Emergency Healings guard (TDD)
 - [ ] 24-02-PLAN.md -- Interrupt modal system: async playBotSteps, humanTakesDamageOrElimination, showDamageInterruptModal (human-verify)
 
 **Success Criteria:**
+
 1. Interrupt modal fires when bot would eliminate or deal >= 30 MP damage to human Mosje (offline mode)
 2. Not Today! and Emergency Healings are offered as options in the interrupt modal
 3. Playing Not Today! during interrupt prevents Mosje elimination
@@ -601,6 +655,7 @@ Plans:
 ## Code Organization
 
 **One file per card, pure functions:**
+
 ```
 src/cards/mosjes/fighting/alyssa-the-bulldozer.ts
 src/cards/piecies/attack/te-hard-gaan.ts
@@ -610,6 +665,7 @@ src/cards/quests/general/quest-endurance-test.ts
 ```
 
 **Each file exports:**
+
 - Card definition (metadata)
 - Ability/effect function (pure, no mutations)
 - Tests in `[card].test.ts`
@@ -629,6 +685,7 @@ src/cards/quests/general/quest-endurance-test.ts
 **Plans:** 3 plans\n\nPlans:\n- [ ] 27-01-PLAN.md � Fix ability_youri_speed_activate engine logic + youriAbilityUses counter\n- [ ] 27-02-PLAN.md � Wire Youri ability UI in main.js: slot selector modal + activatePiecie + card draw\n- [ ] 27-03-PLAN.md � Chris+Youri passive synergy in playPiecie + test suite
 
 **Success Criteria:**
+
 1. Youri ability costs 20 MP, activates a face-down piecie on field, then draws 1 card
 2. Youri ability is blocked if player has < 20 MP or no face-down piecies on field
 3. Youri ability use-count is tracked and capped at 3 per game
@@ -646,11 +703,13 @@ src/cards/quests/general/quest-endurance-test.ts
 **Plans:** 3 plans
 
 Plans:
+
 - [ ] 26-01-PLAN.md — MP source logging: add source-attributed log.add calls at quest cost and resolution sites in main.js
 - [ ] 26-02-PLAN.md — Level-up log type: patch logStateOutcome to emit 'level' type for level-change lines
 - [ ] 26-03-PLAN.md — Quest roll logging: extend showDiceRoll callback to pass roll+threshold, wire log entries at both call sites
 
 **Success Criteria:**
+
 1. MP changes show source in log panel (quest name, ability name)
 2. Level-ups display with ⬆️ icon and before/after level numbers
 3. Quest rolls display "rolled N, needed M+ → Success/Failed"
@@ -663,6 +722,7 @@ Plans:
 **Goal:** 10 Playwright tests covering the most historically buggy and mechanically complex areas of the game. Every test asserts MP before, during, and after an effect/ability/quest resolves, making regressions immediately visible in a real browser.
 
 **Requirements:**
+
 - VIS-01: Dubbele Dosis stays on field until end of turn, then moves to graveyard (+20 MP during, retained after)
 - VIS-02: Leipe Swap reverts MP at end of turn (own + opponent MP swap back; banked levels stick)
 - VIS-03: Quest success grants correct MP; log shows "rolled N, needed M+"
@@ -677,9 +737,11 @@ Plans:
 **Plans:** 1 plan
 
 Plans:
+
 - [ ] 28-01-PLAN.md — All 10 tests + helpers extraction
 
 **Success Criteria:**
+
 1. `tests/ui/helpers.js` contains all shared test utilities
 2. `tests/ui/mechanics.spec.js` contains 9 named tests (VIS-01 through VIS-09)
 3. Every test asserts MP before, during, and after the effect resolves
@@ -694,6 +756,7 @@ Plans:
 **Goal:** Implement the canonical ruling (phase0-rulings.md:118) that a Mosje dies when a damaging effect reduces its MP below 0 at Level 0. Currently the engine floors MP at 0 and Mosjes are effectively immortal. A Mosje never holds negative MP: Level>0 regresses a level (overflow carry), Level 0 is killed → discard/Welloe. Summoned-at-0 Mosjes and MP-cost payments are never lethal.
 
 **Requirements:**
+
 - DZ-01: loseMP + all 3 applyDamage copies flag `_pendingDefeat` on Lv0-below-0
 - DZ-02: `applyPendingDefeats` sweep in checkVictory routes flagged Mosjes via markMosjeDefeated
 - DZ-03: Summoned/placed-at-0 Mosjes survive (no reduction path = no flag)
@@ -705,9 +768,11 @@ Plans:
 **Plans:** 1 plan
 
 Plans:
+
 - [ ] 30-01-PLAN.md — Defeat-at-0 sweep + 4 reduction-site flags + test migration + sim
 
 **Success Criteria:**
+
 1. Lv0 Mosje reduced below 0 by any damaging effect → graveyard/Welloe via markMosjeDefeated; KNOCKOUT fires if last Mosje
 2. No Mosje ever holds negative MP; Lv>0 regression unchanged
 3. Mosjes summoned/placed at 0 MP are not killed on placement
@@ -722,6 +787,7 @@ Plans:
 **Goal:** Enforce that a Mosje's MP is always 0–100 (never exceeds 100). Only Quests permanently level up; piecies/places/abilities/snelles cap at 100 (some abilities/piecies may temporarily level — out of scope). Lower bound (defeat below 0) already done in Phase 30; this is the upper bound + quest-only-leveling.
 
 **Requirements:**
+
 - MPCAP-01: clampMosjeMp sweep in checkVictory caps every active Mosje at 100
 - MPCAP-02: applyMPGain caps at source (Math.min(100, ...))
 - MPCAP-03: audit gainMP callers — only Quests level; non-quest callers cap
@@ -731,9 +797,11 @@ Plans:
 **Plans:** 1 plan
 
 Plans:
+
 - [ ] 31-01-PLAN.md — central clamp sweep + source cap + leveling audit + tests + sim
 
 **Success Criteria:**
+
 1. No Mosje ever holds MP > 100 (or < 0) after any action
 2. Only Quests permanently level up; non-quest gains cap at 100
 3. Quest rewards still level correctly (≥100 → Level+1, MP resets)
@@ -748,6 +816,7 @@ Plans:
 **Goal:** Surface the meta info players need at a glance on their own on-field Mosjes (Level, traits, ability, active-only synergy) and fully redesign the Quest dice-roll/result modal for better UX. Pure UI/UX — no engine, MP, or quest-logic changes.
 
 **Requirements:**
+
 - ONFIELD-01: Own on-field Mosje cards show a compact info layer directly on the board card — Level badge, trait star-pips, and a short ability snippet — with full detail still available on click (detail modal).
 - ONFIELD-02: Synergy is displayed on a Mosje only when the synergy is currently ACTIVE (partner on field); hidden otherwise.
 - ONFIELD-03: Remove the useless "Active on field" description text from on-field Mosje cards (main.js toMosjeCards).
@@ -758,10 +827,12 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
+
 - [ ] 32-01-PLAN.md — on-field own-Mosje meta layer (Level/traits/ability/active-only synergy) + remove "Active on field" + detail-modal Level chip
 - [ ] 32-02-PLAN.md — full Quest dice-modal redesign (animated pip die, staged flow, themed success/fail + MP delta)
 
 **Success Criteria:**
+
 1. Own on-field Mosjes show Level + trait pips + ability snippet on the card; opponent Mosjes unchanged
 2. Synergy shows only when active; never shown inactive
 3. "Active on field" text no longer appears anywhere on-field
@@ -770,6 +841,7 @@ Plans:
 6. node --check clean on touched UI files; npm test + test:cards green; quest dice visual tests pass (no regressions)
 
 **Win-clarity UX (added on this branch, 2026-06-20 — beyond the original UI-only scope; commit a3fe3b3):**
+
 - WIN-01: Reaching Level 3 declares the win instantly (resolveQuest → checkVictory); checkLevelUp caps level at 3 so Mosjes never overshoot to Level 4. *(Engine change — the one exception to "UI-only".)*
 - WIN-02: Plain-language win/defeat reason (describeWin) replaces the raw enum in the battle log and reward overlay; `data-win-reason` attribute for tooling.
 - WIN-03: The win/defeat modal embeds the colour-coded battle log + a Copy Log button so the match can be reviewed before leaving.
@@ -777,3 +849,109 @@ Plans:
 - WIN-05: "How to Win" top-bar panel listing the 4 win conditions.
 - WIN-06: Dice-roll modal shows the attempting Mosje's stats (level/MP/trait stars, rolled trait highlighted).
 - Repro/guard tests: tests/engine/instant-win-level3.test.ts; full-game LEVEL_3 spec rewritten as a real instant-win + battle-log guard.
+
+### Phase 35: Places Text-vs-Engine Reconciliation (Round 1) — COMPLETE
+
+**Goal:** Reconcile all 21 Place cards so each card's text matches engine behavior. Round 1 of the full-game ability-text audit (Places first). Audit complete: 9 clean, 12 flagged and ruled interactively with Gandoe (5 bug fixes + 7 design reworks). This phase implements the 12 rulings, one card at a time (TDD), MP-touching cards re-run Ronald Kip + sim. **Post-research scope amendment (2026-07-14):** Drain Zone and The Void are not ready for gameplay this round — both are hidden from all player-facing pools instead of having their new mechanics implemented; see `35-CONTEXT.md` Plan-Phase Scope Amendments.
+
+**Requirements:**
+
+- PLACE-01 (Bank Chilling): loop all active slots — every Social ★★+ Mosje +15 at turn start (was first-slot only); also fix the `trigger: "TURN_START"` → `"START_PHASE"` dispatch bug (card never fired at all in live play — found in research).
+- PLACE-02 (Obby #1): loop all active slots — every Physical/Resilient ★★+ Mosje +20 success / −10 fail.
+- PLACE-03 (Arcade): loop all active slots — every Technical ★★+ Mosje +15 on success.
+- PLACE-04 (De Box): +15 to any Michelle/Tuk Mosje (id includes 'michelle' or 'tuk'); extend both-together +10; fix "Toennoe" logs.
+- PLACE-05 (Drain Zone): **DESCOPED — hide from player-facing pools** (deck-building, boosters, starter decks) instead of implementing "ATTACK Piecies deal +10 damage" (requires editing ~11 separate Piecie effect functions, out of scope for a Places-only phase). Still remove the untexted +5-to-all-gains bug (mpManager.js:38) since it's dead-code cleanup independent of the hide decision. Card data/effect code stays in the codebase for a future round to finish.
+- PLACE-06 (Delluft): **mpCost clause moved to Phase 36** (folded into the game-wide MP cost model redesign — see `.planning/phases/36-.../36-CONTEXT.md` D-09). This phase only keeps draw-1 (already correct, untouched).
+- PLACE-07 (Dierenasiel): **mpCost clause moved to Phase 36** (same fold as PLACE-06, D-09). This phase only drops the +25% protection clause + its typo'd inert code (`dienasielActive`/`dierenasielActive` mismatch).
+- PLACE-08 (Coert's Caravan): trigger → END_PHASE; all Mosjes −10 at end of turn except Coert variants; drop +15 buff + inert free-activation flag.
+- PLACE-09 (Digital Gaming Stop): DIGITAL-EQUIPMENT Piecies +10 MP while active; drop auto-succeed + dead questAutoSuccess.
+- PLACE-10 (Skiffa): trigger → ON_QUEST; Social quests +2 dice roll for all players; drop SUBSTANCE/discard theme; also remove the undocumented `getSkiffaRerolls` mechanic (main.js) found in research — unrelated to the new design, would silently stack with it.
+- PLACE-11 (Synergy Chamber): once/turn activate a synergy ability without its partner; drop the 3 undocumented bonuses + consumers.
+- PLACE-12 (The Void): **DESCOPED — hide from player-facing pools** instead of implementing the "one card activation per turn" cap (ambiguous which of 9 play/activate functions it should gate — not resolvable without a full design pass). Still remove the untexted quest-MP-nullify (questLogic.js:338) since it's dead-code cleanup independent of the hide decision. Card data/effect code stays in the codebase for a future round to finish.
+
+**Success Criteria:**
+
+1. Each of the 10 implemented cards' text matches its engine behavior; the 9 clean Places untouched; Drain Zone and The Void are unreachable from any player-facing deck/booster/starter pool.
+2. Per-card tests added (card-test-library and/or engine unit tests); npm test + test:cards green.
+3. node --check clean on any touched UI/main files.
+4. MP-touching changes: Ronald Kip stacking test green; simulation crash-free, timeout < 25%.
+5. PLACE-01/08/10 trigger-dispatch fixes proven through `resolvePlaceEffect`/`startTurn`/`endTurn`, not just the raw effect function (guards against the "TURN_START never fires" class of bug).
+
+**Plans:** 8/8 plans executed
+
+Plans:
+
+- [x] 35-01-PLAN.md — Bank Chilling (loop-all + trigger fix) + Obby #1 (loop-all)
+- [x] 35-02-PLAN.md — Arcade (loop-all) + De Box (Tuk widen + log fix)
+- [x] 35-03-PLAN.md — Delluft (regression test only) + Dierenasiel (drop +25% clause + typo cleanup)
+- [x] 35-04-PLAN.md — Coert's Caravan (replace + trigger fix) + Digital Gaming Stop (rework)
+- [x] 35-05-PLAN.md — Skiffa (rework: Social +2 dice bonus, remove getSkiffaRerolls)
+- [x] 35-06-PLAN.md — Synergy Chamber (remove 3 dead bonuses, add once/turn partner waiver + UI) — human-verify checkpoint APPROVED
+- [x] 35-07-PLAN.md — Drain Zone + The Void dead-code cleanup + hide both from player-facing pools
+- [x] 35-08-PLAN.md — docs/card-reference.md update + full-suite phase-gate verification
+
+**Context:** `.planning/phases/35-places-text-reconciliation/35-CONTEXT.md`
+**Ruling record:** `.planning/audits/2026-07-14-places-text-audit.md`
+
+### Phase 37: General Quest attempt affordability gate — block attempting a General Quest when the chosen Mosje cannot afford the 20 MP attempt fee (mirror Phase 36's Welloe Force affordability gate). Prevents a Mosje self-destructing by attempting a quest it can't pay for. Reproduce-in-browser first per project rules.
+
+**Goal:** A player can no longer START a General or Personal Quest attempt with a Mosje that cannot afford the flat 20 MP attempt fee — the attempt control is a disabled/greyed picker option (mp < 20), so no Mosje self-destructs from an unaffordable attempt. The single-Mosje General-Quest path (which bypassed the affordability-gating picker) is routed through `showMosjeSelect` like the multi-Mosje path already is. The 20 MP fee and its below-0 lethality stay canonical (phase0-rulings.md:126) — only the pre-attempt gate is added. Reproduced-in-browser-first per CLAUDE.md.
+**Requirements**: GATE-01 (General single-Mosje attempt affordability gate, mp >= 20, disabled control — D-02/D-03/D-06), GATE-02 (Personal-Quest gate verified + regression-tested, not regressed — D-01/D-05), GATE-03 (failing-first browser repro spec of the single-Mosje self-destruct — CLAUDE.md reproduce-first), GATE-04 (MP-gate phase verification — Ronald Kip stacking + full sim). Multi-Mosje General picker not regressed — D-04.
+**Depends on:** Phase 36
+**Plans:** 2/2 plans complete
+
+Plans:
+**Wave 1**
+
+- [x] 37-01-PLAN.md — Repro-first fix: failing browser spec -> route single-Mosje General-Quest path through showMosjeSelect -> make spec pass -> Personal-Quest regression test (GATE-01/02/03)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 37-02-PLAN.md — MP-gate phase verification: node --check, npm test, Ronald Kip stacking, repro spec, full sim, docs sync (GATE-04)
+
+---
+
+### Phase 36: Piecie/Snelle Piecie/Place/Personal Quest MP Cost Model Redesign — default all costs to 0, add explicit tribute payment only for cards whose text requires it
+
+**Goal:** Every Piecie and Snelle Piecie's `mpCost` matches what its own printed text actually
+promises — audited card-by-card against the existing "text wins" convention — with exactly one
+card (Welloe Force) keeping a real, player-chosen, affordability-gated tribute payment. Places and
+Personal Quests are confirmed (via full audit) to need no cost/tribute work of their own; the one
+narrow Place-text dependency (Delluft/Dierenasiel referencing now-corrected Piecie costs) is
+explicitly ruled, not silently left inconsistent.
+
+**Requirements:**
+
+- COST-01: Full text audit — all 70 Piecies, ruling table (36 currently nonzero-cost cards read in full; expected outcome 35 correct to `mpCost: 0`, 1 (Welloe Force) keeps its cost)
+- COST-02: Full text audit — all 20 Snelle Piecies, ruling table (10 currently nonzero-cost cards read in full; expected outcome all 10 correct to `mpCost: 0`, including an explicit ruling for `snelle_blensen`'s conditional-cost phrasing)
+- COST-03: Personal Quest audit closure — confirm (and document) that none of the 6 Personal Quests require tribute; no code change
+- COST-04: Resolve Delluft/Dierenasiel's Place-text dependency on the corrected Piecie costs (checkpoint decision + implementation)
+- COST-05: Build the reusable tribute-payer-picker + affordability-gate helper (generalizes `showMosjeSelect`)
+- COST-06: Rework Welloe Force (`piecie_welloe_force`) to use the new picker + affordability gate, fixing its hardcoded-payer and missing-affordability-check bugs
+- COST-07: Wire tribute into any additional cards the full audit confirms need it (expected: none beyond Welloe Force)
+- COST-08: Correct every Piecie/Snelle Piecie `mpCost` field to match the final ruling
+- COST-09: Full sim + Ronald Kip stacking test re-run + docs update (phase gate) after the combined data + engine changes land
+
+**Depends on:** Phase 35
+**Plans:** 4/4 plans complete
+
+Plans:
+**Wave 1**
+
+- [x] 36-01-PLAN.md — Full audit ruling doc + mpCost corrections (Piecies + Snelle Piecies) + regression test (COST-01, COST-02, COST-03, COST-07, COST-08)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 36-02-PLAN.md — Tribute-payer picker + Welloe Force rework + engine/browser test coverage (COST-05, COST-06)
+- [x] 36-03-PLAN.md — Checkpoint: Delluft/Dierenasiel Place-text fate decision (COST-04)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 36-04-PLAN.md — Apply Delluft/Dierenasiel decision + docs/card-reference.md update + full phase-gate verification (COST-04, COST-09)
+
+**Success Criteria:**
+
+1. Every Piecie/Snelle Piecie's `mpCost` matches its own printed text; `piecie_welloe_force` is the sole nonzero-cost card
+2. Welloe Force lets the player choose the payer and blocks entirely when unaffordable — its two prior bugs (hardcoded payer, no affordability check) are fixed
+3. Personal Quest audit closed (no tribute found); Delluft/Dierenasiel's text matches an explicit, recorded ruling
+4. docs/card-reference.md fully current; full verification sequence (node --check, npm test, npm run test:cards incl. Ronald Kip, npm run test:sim) green with 0 crashes, timeout < 25%

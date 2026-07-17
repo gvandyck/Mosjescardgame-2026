@@ -6,7 +6,6 @@ import { markMosjeDefeated } from "../../src/engine/victoryChecker.js";
 // @ts-expect-error — JS module, no type declarations
 import { phaseDrawCard, useMosjeAbility } from "../../src/engine/turnManager.js";
 // @ts-expect-error — JS module, no type declarations
-import { getSynergyChambercostReduction } from "../../src/abilities/placeEffects.js";
 // @ts-expect-error — JS module, no type declarations
 import { effect_laat_me_chillen } from "../../src/abilities/piecieEffects.js";
 // @ts-expect-error — JS module, no type declarations
@@ -371,15 +370,7 @@ function makeAbilityState(mp: number, extraStateProps: Record<string, unknown> =
   };
 }
 
-describe("useMosjeAbility — Dierenasiel 0-MP guard (STUB-09)", () => {
-  it("Test 17: turnManager.js contains 'dierenasielWaiver' inside useMosjeAbility (artifact check)", async () => {
-    const fs = await import("fs");
-    const path = await import("path");
-    const filePath = path.resolve("src/engine/turnManager.js");
-    const content = fs.readFileSync(filePath, "utf-8");
-    expect(content).toContain("dierenasielWaiver");
-  });
-
+describe("useMosjeAbility — Dierenasiel 0-MP guard (STUB-09, dead waiver removed Phase 35-03)", () => {
   it("Test 18: useMosjeAbility() with Mosje at 0 MP and no engine cost gate — returns success:true (no regression)", () => {
     // Gandoe Wizard has no abilityCost, ability does not check mp
     // Confirms engine does not block activation at 0 MP
@@ -442,24 +433,13 @@ function makeCoertAbilityState(mp: number, activePlace: string | null = null) {
   };
 }
 
-describe("getSynergyChambercostReduction — unit tests (STUB-10)", () => {
-  it("Test 22: getSynergyChambercostReduction with activePlace='place_synergy_chamber' returns 5", () => {
-    const result = getSynergyChambercostReduction({ activePlace: "place_synergy_chamber" });
-    expect(result).toBe(5);
-  });
-
-  it("Test 23: getSynergyChambercostReduction with activePlace=null returns 0", () => {
-    const result = getSynergyChambercostReduction({ activePlace: null });
-    expect(result).toBe(0);
-  });
-});
-
-describe("useMosjeAbility — Synergy Chamber cost reduction (STUB-10)", () => {
-  it("Test 20: Synergy Chamber active, Coert at 8 MP (cost 10, discount 5 → effective 5) — success:true", () => {
-    // Coert abilityCost=10, Synergy Chamber grants -5 discount. 8 >= 5 after discount.
+describe("useMosjeAbility — Synergy Chamber cost reduction removed (Phase 35-06)", () => {
+  it("Test 20: Synergy Chamber active, Coert at 8 MP (cost 10, no discount anymore) — success:false", () => {
+    // Phase 35-06 removed the undocumented -5 discount entirely — the card's real
+    // text never promised it. 8 MP is still not enough to pay the real 10 cost.
     const state = makeCoertAbilityState(8, "place_synergy_chamber");
     const result = (useMosjeAbility as any)(state, "p1", "mosje_coert_tech");
-    expect(result.success).toBe(true);
+    expect(result.success).toBe(false);
   });
 
   it("Test 21: No Synergy Chamber, Coert at 8 MP (cost 10, no discount) — success:false (not enough MP)", () => {

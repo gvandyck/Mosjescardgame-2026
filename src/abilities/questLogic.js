@@ -9,7 +9,6 @@ import { gainMP, loseMP } from '../engine/mpManager.js';
 import { checkVictory } from '../engine/victoryChecker.js';
 import { roundToFive } from '../engine/roundToFive.js';
 import { applyPlaceEffectsOnQuest } from '../engine/turnManager.js';
-import { getSynergyChamberDiceBonus } from './placeEffects.js';
 
 console.log('[ABILITY] questLogic.js loaded');
 
@@ -56,13 +55,35 @@ const PARTNER_QUEST_SYNERGIES = [
 export function getPartnerSynergyQuestBonus(gameState, playerId, category) {
 	if (!category) return 0;
 	const activeIds = new Set(getActiveMosjes(gameState?.players?.[playerId]).map(m => m.cardId));
+	const waiverActive = gameState?.players?.[playerId]?.synergyWaiverActive === true;
 	let bonus = 0;
 	for (const entry of PARTNER_QUEST_SYNERGIES) {
-		if (entry.category === category && entry.pair.every(id => activeIds.has(id))) {
+		if (entry.category !== category) continue;
+		const bothPresent = entry.pair.every(id => activeIds.has(id));
+		const waived = waiverActive && entry.pair.some(id => activeIds.has(id));
+		if (bothPresent || waived) {
 			bonus += entry.bonus;
 		}
 	}
 	return bonus;
+}
+
+// UI helper: which partner-quest-synergy bonuses are LIVE right now for this
+// player (real partner present, or waived via Synergy Chamber) — lets the UI
+// show a pill BEFORE a quest is attempted, rather than only revealing the
+// bonus after the fact in the MP delta.
+export function getActivePartnerSynergyBonuses(gameState, playerId) {
+	const activeIds = new Set(getActiveMosjes(gameState?.players?.[playerId]).map(m => m.cardId));
+	const waiverActive = gameState?.players?.[playerId]?.synergyWaiverActive === true;
+	const active = [];
+	for (const entry of PARTNER_QUEST_SYNERGIES) {
+		const bothPresent = entry.pair.every(id => activeIds.has(id));
+		const waived = waiverActive && entry.pair.some(id => activeIds.has(id));
+		if (bothPresent || waived) {
+			active.push({ category: entry.category, bonus: entry.bonus });
+		}
+	}
+	return active;
 }
 
 export function getMosjeTrait(gameState, playerId, activeMosjeId, traitName) {
@@ -334,9 +355,6 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 		didSucceed = true;
 	}
 
-	// The Void nullifies direct Quest MP gain/loss; quest still resolves.
-	const baseQuestMpBlocked = state.activePlace === 'place_the_void';
-
 	// Perfect Sync defers gainMP to the UI layer (player picks target mosje after seeing opponent hand)
 	const defersMPToUI = questCard.id === 'quest_personal_perfect_sync' && didSucceed;
 
@@ -346,7 +364,7 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 	// Battle Concert: redirect Alyssa's quest-failure damage to an opponent's Mosje (once).
 	// When redirected, the normal failMP application below is skipped so Alyssa is not double-hit.
 	let failRedirected = false;
-	if (!didSucceed && !baseQuestMpBlocked && state._battleConcertActive === playerId) {
+	if (!didSucceed && state._battleConcertActive === playerId) {
 		const questingMosje = player.activeSlots[slotIndex];
 		const isAlyssa = questingMosje && String(questingMosje.cardId).includes('alyssa');
 		if (isAlyssa) {
@@ -364,7 +382,7 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 		}
 	}
 
-	if (!baseQuestMpBlocked && !defersMPToUI) {
+	if (!defersMPToUI) {
 		// Bonus MP sources that apply ONLY on success (U6 stack: step 2 —
 		// card-synergy bonus armed by a piecie this turn; step 4 — partner-
 		// synergy bonus from a live board-state pair). Read/consume the
@@ -410,6 +428,10 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 			questMpGained += totalBonus;
 			state = gainMP(state, playerId, slotIndex, totalBonus, 'QUEST_BONUS');
 			console.log(`[QUEST] Bonus MP applied: +${totalBonus} (armed=${armedBonus}, partner-synergy=${synergyBonus})`);
+			// Surface the synergy portion to the player-facing battle log (consumed
+			// and cleared by main.js right after logging), so a partner-synergy
+			// bonus isn't silently folded into one combined MP number.
+			if (synergyBonus > 0) state._questSynergyBonus = synergyBonus;
 		}
 	}
 
@@ -422,7 +444,7 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 		console.log('[QUEST] drawOnSuccess: drew', questCard.drawOnSuccess);
 	}
 	// Elimination side-effect: opponent's first active Mosje loses MP on success (skipped under The Void).
-	if (didSucceed && !baseQuestMpBlocked && questCard.opponentLoseMP > 0) {
+	if (didSucceed && questCard.opponentLoseMP > 0) {
 		const oppId = Object.keys(state.players).find(id => id !== playerId);
 		const oppSlotIndex = oppId
 			? state.players[oppId].activeSlots.findIndex(s => s && !s.isDefeated)
@@ -977,8 +999,7 @@ export function quest_req_perfect_timing(questCard, mosje) {
 	}
 
 	// Roll exactly 6 (no threshold, must be exact match)
-	const raw = rollDie();
-	const roll = raw + getSynergyChamberDiceBonus(questCard?.gameState || null);
+	const roll = rollDie();
 	return { canAttempt: true, diceRoll: roll, threshold: 6, exact: true, success: roll === 6 };
 }
 

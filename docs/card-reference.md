@@ -59,18 +59,18 @@ This document is the final Phase 11 master card inventory, generated from the li
 
 | ID | Name | Group | Starter | Booster | Cost | Summary | Status |
 |---|---|---|---|---|---|---|---|
-| affoe | Affoe | ATTACK | no | no | 5 MP | loseMP+gainMP | advanced |
-| continuous-assault | Continuous Assault | ATTACK | no | no | 20 MP, lvl 2+ | loseMP+applyBuff | advanced |
-| dikke-taks | Dikke Taks | ATTACK | yes | no | 25 MP, lvl 2+ | forEachTarget+drawCards | implemented |
-| harde-didde | Harde Didde | ATTACK | no | no | 40 MP, lvl 2+ | sendToWelloe+drawCards | advanced |
-| klaar-met-jou | Klaar Met Jou | ATTACK | no | no | 25 MP, lvl 2+ | sendToWelloe+drawCards | advanced |
-| kleine-taks | Kleine Taks | ATTACK | no | no | 15 MP, lvl 1+ | loseMP+applyBuff | advanced |
-| momentum-diefje | Momentum Diefje | ATTACK | yes | no | 15 MP, lvl 1+ | drainMP | implemented |
-| mp-hemorrhage | MP Hemorrhage | ATTACK | no | no | 25 MP, lvl 2+ | loseMP+applyBuff | advanced |
+| affoe | Affoe | ATTACK | no | no | free | loseMP+gainMP; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | advanced |
+| continuous-assault | Continuous Assault | ATTACK | no | no | free, lvl 2+ | loseMP+applyBuff; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | advanced |
+| dikke-taks | Dikke Taks | ATTACK | yes | no | free, lvl 2+ | forEachTarget+drawCards; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
+| harde-didde | Harde Didde | ATTACK | no | no | free, lvl 2+ | sendToWelloe+drawCards; ruled free 2026-07-16 — "(0-40 MP)" is the target's eligible MP range, not a self-paid cost (COST-01/COST-02) | advanced |
+| klaar-met-jou | Klaar Met Jou | ATTACK | no | no | free, lvl 2+ | sendToWelloe+drawCards; ruled free 2026-07-16 — "(0-30 MP)" is the target's eligible MP range, not a self-paid cost (COST-01/COST-02) | advanced |
+| kleine-taks | Kleine Taks | ATTACK | no | no | free, lvl 1+ | loseMP+applyBuff; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | advanced |
+| momentum-diefje | Momentum Diefje | ATTACK | yes | no | free, lvl 1+ | drainMP; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
+| mp-hemorrhage | MP Hemorrhage | ATTACK | no | no | free, lvl 2+ | loseMP+applyBuff; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | advanced |
 | slecht-gezet | Slecht Gezet | ATTACK | no | no | free | destroyPlace | advanced |
 | snoeiertje | Snoeiertje | ATTACK | yes | no | free | loseMP+applyBuff; dead SNOEIERTJE_COST push removed; questBonusMP handles real logic (STUB-08) | implemented |
-| super-saiyan-mos | Super Saiyan Mos | ATTACK | no | no | 15 MP, lvl 1+ | applyBuff | advanced |
-| te-hard-gaan | Te Hard Gaan | ATTACK | yes | no | 15 MP | loseMP | implemented |
+| super-saiyan-mos | Super Saiyan Mos | ATTACK | no | no | free, lvl 1+ | applyBuff; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | advanced |
+| te-hard-gaan | Te Hard Gaan | ATTACK | yes | no | free | loseMP; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
 | controller | Controller | DIGITAL-EQUIPMENT | yes | no | free | gainMP+ifThenElse | implemented |
 | keyboard | Keyboard | DIGITAL-EQUIPMENT | yes | no | free | gainMP+drawCards | implemented |
 | mouse | Mouse | DIGITAL-EQUIPMENT | yes | no | free | gainMP+ifThenElse | implemented |
@@ -78,7 +78,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 | boxing-gloves | Boxing Gloves | PHYSICAL-EQUIPMENT | no | no | free | Physical ★★+: +25 MP; GANDOE: +40 MP + MP_LOSS_HALVED 1 turn | implemented |
 | skipping-rope | Skipping Rope | PHYSICAL-EQUIPMENT | no | no | free | FIGHTING: +1 quest roll + draw 1; else: draw 1 only | implemented |
 | protein-shake | Protein Shake | PHYSICAL-EQUIPMENT + FOOD | no | no | free | FIGHTING: +25 MP; Boxing Ring active: +35 MP | implemented |
-| chefs-special | Chef's Special | FOOD | no | no | 10 MP, lvl 1+ | ifThenElse | advanced |
+| chefs-special | Chef's Special | FOOD | no | no | free, lvl 1+ | ifThenElse; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | advanced |
 | dikke-jonko | Dikke Jonko | FOOD | no | no | free | gainMP+forEachTarget+drawCards+forEachTarget | advanced |
 | ronald-kip | Ronald Kip | FOOD | no | no | free | gainMP | advanced |
 | varkenspootjes | Varkenspootjes | FOOD | yes | no | free | ifThenElse | implemented |
@@ -89,43 +89,43 @@ This document is the final Phase 11 master card inventory, generated from the li
 | eendjes-voeren | Eendjes voeren | MOMENTUM-GAINING | yes | no | free | ifThenElse | implemented |
 | shoettoe | Shoettoe | MOMENTUM-GAINING | yes | no | free | gainMP | implemented |
 | warm-kannetje-melk | Warm Kannetje Melk | MOMENTUM-GAINING | yes | no | free | loseMP+drawCards | implemented |
-| bowie-stormey | Bowie & Stormey | PET | yes | no | 15 MP | applyBuff+gainMP; MP_LOSS_HALVED wired in loseMP() (STUB-01) | implemented |
-| gekke-vogels | Gekke Vogels | PET | yes | no | 15 MP | applyBuff+gainMP; MP_LOSS_HALVED wired in loseMP() via Jisca ability (STUB-01) | implemented |
-| katjegang | KatjeGang | PET | no | no | 15 MP | applyBuff+gainMP; MP_LOSS_HALVED wired in loseMP() via Alyssa ability (STUB-01) | implemented |
-| vianna-poes | ViannaPoes | PET | no | no | 15 MP | applyBuff+gainMP; MP_LOSS_HALVED wired in loseMP() via Cless ability (STUB-01) | implemented |
+| bowie-stormey | Bowie & Stormey | PET | yes | no | free | applyBuff+gainMP; MP_LOSS_HALVED wired in loseMP() (STUB-01); ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
+| gekke-vogels | Gekke Vogels | PET | yes | no | free | applyBuff+gainMP; MP_LOSS_HALVED wired in loseMP() via Jisca ability (STUB-01); ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
+| katjegang | KatjeGang | PET | no | no | free | applyBuff+gainMP; MP_LOSS_HALVED wired in loseMP() via Alyssa ability (STUB-01); ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
+| vianna-poes | ViannaPoes | PET | no | no | free | applyBuff+gainMP; MP_LOSS_HALVED wired in loseMP() via Cless ability (STUB-01); ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
 | grammetje-pieter | Grammetje Pieter | SUBSTANCE | yes | no | free | gainMP+loseMP | implemented |
 | larry-zegeltje | Larry Zegeltje | SUBSTANCE | no | no | free | gainMP+loseMP | advanced |
 | straffoe | Straffoe | SUBSTANCE | no | no | free | loseMP+ifThenElse | advanced |
 | stripje-bennies | Stripje Bennies | SUBSTANCE | no | no | free | loseMP+drawCards | advanced |
 | tikker | Tikker | SUBSTANCE | yes | no | free | gainMP+applyBuff | implemented |
-| afblijven | Afblijven! | UTILITY | yes | no | 10 MP | applyBuff | implemented |
+| afblijven | Afblijven! | UTILITY | yes | no | free | applyBuff; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
 | bagga-of-greed | Bagga of Greed | UTILITY | yes | no | free | drawCards+discardCards; showCardChoice modal wired in main.js — full-hand discard picker after activation (STUB-11) | implemented |
-| battle-concert | Battle Concert | UTILITY | no | no | 25 MP, lvl 2+ | loseMP+ifThenElse | advanced |
-| bong-hit-demolition | Bong Hit Demolition | UTILITY | no | no | 10 MP | destroyPlace+drawCards | advanced |
+| battle-concert | Battle Concert | UTILITY | no | no | free, lvl 2+ | loseMP+ifThenElse; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | advanced |
+| bong-hit-demolition | Bong Hit Demolition | UTILITY | no | no | free | destroyPlace+drawCards; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | advanced |
 | call-of-the-welloes | Call of the Welloes | UTILITY | no | no | free | Summon a Mosje from your Welloe pile to a free slot, restoring its recorded MP/Level. Piecie is the anchor — leaves play → Mosje returns to Welloe (end-of-turn sweep). | implemented |
 | chain-reaction | Chain Reaction | UTILITY | no | no | free | multiplyByCount | advanced |
 | dingetje-toch | Dingetje Toch | UTILITY | no | no | free | ifThenElse; DEFERRED to UI phase — consumption point documented in turnManager.js handleActivatePiecie() comment (STUB-07) | partial |
-| double-trigger | Double Trigger | UTILITY | no | no | 20 MP | applyBuff | implemented |
+| double-trigger | Double Trigger | UTILITY | no | no | free | applyBuff; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
 | dubbele-ding | Dubbele Ding | UTILITY | yes | no | free | applyBuff | implemented |
 | dubbele-dosis | Dubbele Dosis | UTILITY | yes | no | free | applyBuff; persists in slot until endTurn (BUG-02 fixed: no longer discards immediately) | implemented |
 | piecie_leipe_swap | Leipe Swap | UTILITY | no | yes | free, lvl 1+ | Swap one of your Mosjes' MP with an opponent Mosje's until end of turn; current MP swaps back and banked levels stay. Max rarity, 1 per deck. | implemented |
-| f1-telemetry-data | F1 Telemetry Data | UTILITY | yes | no | 10 MP | ifThenElse+lookAtTop | implemented |
+| f1-telemetry-data | F1 Telemetry Data | UTILITY | yes | no | free | ifThenElse+lookAtTop; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
 | huisbaas | Huisbaas | UTILITY | no | no | free | destroyPlace + return a Place from the owner's discard (Phase 17 rework — no deck-search-modal needed) | implemented |
-| jantje-jantje | Jantje Jantje | UTILITY | no | no | 15 MP | loseMP+applyBuff | advanced |
-| laat-me-chillen | Laat Me Chillen | UTILITY | yes | no | 10 MP | gainMP+applyBuff; MP_LOSS_REDUCTION wired in loseMP() (STUB-02) | implemented |
+| jantje-jantje | Jantje Jantje | UTILITY | no | no | free | loseMP+applyBuff; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | advanced |
+| laat-me-chillen | Laat Me Chillen | UTILITY | yes | no | free | gainMP+applyBuff; MP_LOSS_REDUCTION wired in loseMP() (STUB-02); ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
 | mosje-reborn | Mosje Reborn | UTILITY | no | no | free | returnToHand | advanced |
-| mosje-shield | Mosje Shield | UTILITY | yes | no | 10 MP | applyBuff; WELLOE_SHIELD wired in markMosjeDefeated() (STUB-03) | implemented |
+| mosje-shield | Mosje Shield | UTILITY | yes | no | free | applyBuff; WELLOE_SHIELD wired in markMosjeDefeated() (STUB-03); ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
 | mp-adjuster | MP Adjuster | UTILITY | no | no | free | ifThenElse; showOptionSelect modal wired in main.js (20/40/60/80/100 MP); temporary effect — reverts at next turn start via startTurn(); rarity ★★★★ (STUB-15) | implemented |
 | mp-amplifier | MP Amplifier | UTILITY | yes | no | free | multiplyNextMPGain | implemented |
 | perfect-setup | Perfect Setup | UTILITY | no | no | free | setMP | advanced |
-| redbull | Redbull | UTILITY | yes | no | 20 MP, lvl 1+ | applyBuff | implemented |
+| redbull | Redbull | UTILITY | yes | no | free, lvl 1+ | applyBuff; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
 | shhh-popo-komt | Shhh, popo komt! | UTILITY | no | no | free | destroyPlace+gainMP | advanced |
-| stookerino | Stookerino | UTILITY | no | no | 10 MP, lvl 1+ | applyBuff+loseMP | advanced |
-| synergy-field | Synergy Field | UTILITY | yes | no | 15 MP | applyBuff+gainMP | implemented |
-| tempiecie | TemPiecie | UTILITY | no | no | 15 MP, lvl 1+ | returnToHand+applyBuff | advanced |
-| those-eyelashes-tho | Those Eyelashes Tho... | UTILITY | no | no | 15 MP, lvl 1+ | gainMP+forEachTarget | advanced |
-| tweede-kans | Tweede Kans | UTILITY | no | no | 5 MP | rerollDie | advanced |
-| welloe-force | Welloe Force | UTILITY | no | no | 40 MP, lvl 1+ | forEachTarget+drawCards; showOptionSelect modal wired in main.js; 3-turn engine-level damage redirect in loseMP(); rarity ★★★★ (STUB-14) | implemented |
+| stookerino | Stookerino | UTILITY | no | no | free, lvl 1+ | applyBuff+loseMP; ruled free 2026-07-16 — "Gain MP = that card's cost" refers to the discarded opponent card's mpCost as a gain formula input, not a self-paid cost for playing Stookerino itself (COST-01/COST-02) | advanced |
+| synergy-field | Synergy Field | UTILITY | yes | no | free | applyBuff+gainMP; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
+| tempiecie | TemPiecie | UTILITY | no | no | free, lvl 1+ | returnToHand+applyBuff; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | advanced |
+| those-eyelashes-tho | Those Eyelashes Tho... | UTILITY | no | no | free, lvl 1+ | gainMP+forEachTarget; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | advanced |
+| tweede-kans | Tweede Kans | UTILITY | no | no | free | rerollDie; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | advanced |
+| welloe-force | Welloe Force | UTILITY | no | no | 40 MP, lvl 1+ | Pay 40 MP tribute — player picks which Mosje pays via showTributePayerSelect, blocked entirely if no Mosje can afford it; 3-turn damage redirect (reworked 2026-07-16, closes the prior hardcoded-first-slot + no-affordability-check bugs) | implemented |
 | zie-je-die-dingetjes | Zie Je Die Dingetjes | UTILITY | no | no | free | lookAtTop+drawCards | implemented |
 
 ## Snelle Piecie (19)
@@ -133,50 +133,52 @@ This document is the final Phase 11 master card inventory, generated from the li
 | ID | Name | Group | Starter | Booster | Cost | Summary | Status |
 |---|---|---|---|---|---|---|---|
 | snelle_bijna_welloe | Bijna Welloe | - | yes | no | free | negateEffect+ifThenElse | implemented |
-| snelle_blensen | Blensen! | - | no | no | variable | negateEffect+applyBuff | implemented |
-| snelle_counter_strikka | Counter Strikka | - | yes | no | 15 MP | negateEffect+ifThenElse | implemented |
-| snelle_drain_reversal | Drain Reversal | - | no | no | 15 MP | negateEffect+gainMP | implemented |
-| snelle_dubbele_temminks | Dubbele Temminks | - | yes | no | 20 MP | applyBuff; doubleNextPiecie confirmed implemented in activatePiecie() (STUB-05) | implemented |
+| snelle_blensen | Blensen! | - | no | no | free | negateEffect+applyBuff (ruled free 2026-07-16 — "Free if countering a Frenssen" never states an actual cost value or self-payment language elsewhere in its text) | implemented |
+| snelle_counter_strikka | Counter Strikka | - | yes | no | free | negateEffect+ifThenElse; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
+| snelle_drain_reversal | Drain Reversal | - | no | no | free | negateEffect+gainMP; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
+| snelle_dubbele_temminks | Dubbele Temminks | - | yes | no | free | applyBuff; doubleNextPiecie confirmed implemented in activatePiecie() (STUB-05); ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
 | snelle_emergency_healings | Emergency Healings | - | no | no | 10 MP | ifThenElse | advanced |
 | snelle_ff_haaltje_nemen | FF Haaltje Nemen | - | no | no | free | ifThenElse; ReferenceError fixed + MP_LOSS_REDUCTION value restored (20/30) + wired in loseMP() (STUB-02, STUB-06) | implemented |
-| snelle_frenssen | Frenssen! | - | no | no | 15 MP | negateEffect+loseMP | advanced |
+| snelle_frenssen | Frenssen! | - | no | no | free | negateEffect+loseMP; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | advanced |
 | snelle_gevalletje_klakkeloos | Gevalletje Klakkeloos | - | no | no | free | gainMP | advanced |
-| snelle_jammertje_gepakt | Jammertje Gepakt | - | no | no | 20 MP | negateEffect+sendToBottomOfDeck+ifThenElse; negateNextSearch guard wired in phaseDrawCard() (STUB-04) | implemented |
+| snelle_jammertje_gepakt | Jammertje Gepakt | - | no | no | free | negateEffect+sendToBottomOfDeck+ifThenElse; negateNextSearch guard wired in phaseDrawCard() (STUB-04); ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
 | snelle_jantje_jantje_jantje | Jantje Jantje Jantje… | - | no | no | discard 1 | negateEffect | implemented |
 | snelle_jensen | Jensen! | - | yes | no | 10 MP | negateEffect+discardSourceCard | advanced |
 | snelle_jeweetniet | Jeweetniet wie Ikben | - | no | no | 10 MP | applyBuff | advanced |
 | snelle_lucky_coin | Lucky Cóin | - | yes | no | 10 MP | ifThenElse; slot guard blocks activation when all 4 slots full (BUG-04 fixed) | implemented |
-| snelle_negate_elimination | Not Today | - | yes | no | 20 MP | negateEffect | implemented |
-| snelle_perfect_dodge | Perfect Dodge | - | no | no | 20 MP | ifThenElse | implemented |
-| snelle_sleutelpuntje | Sleutelpuntje | - | yes | no | 5 MP | choose | implemented |
+| snelle_negate_elimination | Not Today | - | yes | no | free | negateEffect; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
+| snelle_perfect_dodge | Perfect Dodge | - | no | no | free | ifThenElse; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
+| snelle_sleutelpuntje | Sleutelpuntje | - | yes | no | free | choose; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
 | snelle_the_protector | The Protector | - | no | no | free | reduceMPLossBy; mpLossReduction snelle flag consolidated into loseMP() read point (STUB-02) | implemented |
 | momentum-rush | Momentum Rush | MOMENTUM-GAINING | no | no | free | gainMP+drawCards | advanced |
 
-## Place (16)
+## Place (19 of 21 — place_tesla and place_eendjes_voeren rows still missing, pre-existing gap outside Phase 35's scope)
 
 | ID | Name | Group | Starter | Booster | Cost | Effect (aligned) | Status |
 |---|---|---|---|---|---|---|---|
-| place_arcade | Arcade | PLACE | yes | no | free | quest_completed, Technical 2+, +15 MP | implemented |
+| place_arcade | Arcade | PLACE | yes | no | free | quest_completed, Technical 2+, +15 MP, ALL active slots (fixed 2026-07-14: was first-slot-only) | implemented |
 | place_boxing_ring | Boxing Ring | PLACE | no | no | free | END_PHASE: FIGHTING +10 MP, non-FIGHTING -5 MP; ON_QUEST: Physical +15 MP (GANDOE: +25 MP) | implemented |
-| place_bank_chilling | Bank Chilling | PLACE | yes | no | free | turn_start, Social 2+, +15 MP | implemented |
-| place_coerts_caravan | Coert's Caravan | PLACE | yes | no | free | turn_start, Coert Mosje only, +15 MP | implemented |
-| place_delluft | Delluft | PLACE | no | no | free | turn_end, all draw 1 card; SUBSTANCE cost 0 (UI flag) | advanced |
-| place_dierenasiel | Dierenasiel | PLACE | no | no | free | 25% MP loss reduction wired in loseMP (plan 08-04); engine guard logged in useMosjeAbility (STUB-09); UI cantAffordAbility check for 0-MP PET deferred to UI phase | partial |
-| place_drain_zone | Drain Zone | PLACE | no | no | free | turn_end, lowest MP Mosje loses -10 MP | advanced |
+| place_bank_chilling | Bank Chilling | PLACE | yes | no | free | turn_start (START_PHASE), Social 2+, +15 MP, ALL active slots (fixed 2026-07-14: was first-slot-only AND a dead trigger string — card had never fired in live play) | implemented |
+| place_coerts_caravan | Coert's Caravan | PLACE | yes | no | free | REPLACED 2026-07-14: end_phase (fixed dead turn_start trigger), all Mosjes -10 MP except Coert variants (was +15-Coert-only, never fired live due to the same dead trigger bug) | implemented |
+| place_de_box | De Box | PLACE | no | no | free | end_phase, GANDOE +20 MP, MICHELLE/TUK-family +15 MP (fixed 2026-07-14: widened id match to include all Tuk-family Mosjes, not just Michelle; fixed stale "Toennoe" log strings to say "De Box"), +10 bonus each if both present | implemented |
+| place_delluft | Delluft | PLACE | no | no | free | turn_end, all draw 1 card (SUBSTANCE cost-0 MP clause trimmed 2026-07-16 — now vacuous since all referenced SUBSTANCE Piecies are unconditionally free per Phase 36's audit) | advanced |
+| place_digital_gaming_stop | Digital Gaming Stop | PLACE | no | yes | free | REPLACED 2026-07-14: on_quest, DIGITAL-EQUIPMENT Piecie active → +10 MP to questing Mosje (dropped the old dead auto-succeed flag, which had zero consumers) | implemented |
+| place_dierenasiel | Dierenasiel | PLACE | no | no | free | passive; +25% PET-protection clause removed 2026-07-14 (was permanently inert due to a setter/reader typo mismatch); PET cost-0 MP clause trimmed 2026-07-16 (now vacuous — all PET Piecies unconditionally free per Phase 36's audit); currently no mechanical effect, real passive mechanic deferred to a future phase | advanced |
+| place_drain_zone | Drain Zone | PLACE | no | no | free | turn_end, lowest MP Mosje loses -10 MP; ATTACK Piecie +10 damage bonus DESCOPED to a future Piecie-touching phase; untexted +5-all-gains bug removed 2026-07-14; hidden from deck-building/boosters as of 2026-07-14 | advanced |
 | place_momentum_factory | Momentum Factory | PLACE | no | no | free | piecie_activated, +10 MP (first-only enforced in UI) | advanced |
 | place_momentum_stabilizer | Momentum Stabilizer | PLACE | no | no | free | passive flag only; 30 MP loss cap enforced in UI | advanced |
-| place_obby_1 | Obby #1 | PLACE | yes | no | free | quest_completed/failed, Physical 2+ or Resilient 2+, +20/-10 MP | implemented |
+| place_obby_1 | Obby #1 | PLACE | yes | no | free | quest_completed/failed, Physical 2+ or Resilient 2+, +20/-10 MP, ALL active slots (fixed 2026-07-14: was first-slot-only) | implemented |
 | place_quest_haven | Quest Haven | PLACE | yes | no | free | quest_completed, +10 MP; 2-quest bonus +25 MP (UI tracked) | implemented |
-| place_skiffa | Skiffa | PLACE | no | no | free | turn_end, -15 MP unless SUBSTANCE trait 1+ | advanced |
-| place_synergy_chamber | Synergy Chamber | PLACE | no | no | free | getSynergyChambercostReduction() wired in useMosjeAbility(); -5 MP pre-adjustment applied before ability dispatch (STUB-10); duration reduction deferred to UI phase | implemented |
+| place_skiffa | Skiffa | PLACE | no | no | free | REWORKED 2026-07-14: on_quest, Social quests +2 dice roll for all players (was turn_end discard/-15 MP, discard branch was never built; also removed the undocumented getSkiffaRerolls ARTISTIC-creative reroll grant) | implemented |
+| place_synergy_chamber | Synergy Chamber | PLACE | no | no | free | REWORKED 2026-07-14: once/turn, activate a synergy-gated bonus (Binti+Coert FOOD double, or Señor West+AZN Cless Physical-quest bonus) without the partner Mosje present; the old undocumented cost-5/dice+1/duration+1 bonuses are removed | implemented |
 | place_the_gym | The Gym | PLACE | yes | no | free | END_PHASE (fires per player-turn, both sides): Physical ★★★ +35 MP, Physical ★★ +25 MP, CLESS +20 MP, WEST neutral (2026-07-11 balance fix — was punished at -10 like any other non-Physical Mosje, draining WC's own team; now matches his no-op treatment at Obby #1), else -10 MP | implemented |
-| place_the_void | The Void | PLACE | no | no | free | turn_end, all -15 MP; RESTORE/FOOD restriction via void_active flag | advanced |
+| place_the_void | The Void | PLACE | no | no | free | turn_end, all -15 MP; RESTORE/FOOD restriction via activatePiecie guard (unchanged, already correctly wired); one-card-per-turn activation cap DESCOPED to a future dedicated design phase; untexted quest-MP-nullify gate removed 2026-07-14 (was fully redundant with mpManager.js's own place_the_void gates); hidden from deck-building/boosters as of 2026-07-14 | advanced |
 | place_welloe_graveyard | Welloe Graveyard | PLACE | no | no | free | mosje_defeated, +20 MP + draw 1 card for that player | advanced |
 | place_zo_is_natuur | Zo is Natuur | PLACE | yes | no | free | turn_end, Resilient 1+→+15 MP, else +10 MP | implemented |
 
 ### Place Design Notes
-- **Digital Gaming Stop**: hidden (booster-only flag set); no engine implementation.
-- **Dierenasiel**: TS stub registered with `dierenasiel_active` flag; PET cost/protection effects enforced in browser only. For Cless teacher / AZN Cless.
+- **Digital Gaming Stop**: (2026-07-14) fully implemented — see table row above; the old "hidden, no engine implementation" note is stale.
+- **Dierenasiel**: (2026-07-14) its +25% PET-protection clause was removed as permanently-dead code (setter/reader typo mismatch, never reachable); its "PET Piecies cost 0 MP" clause was trimmed 2026-07-16 (Phase 36) as vacuous — see table row above. Dierenasiel currently has no mechanical effect; a real passive mechanic is deferred to a future phase (`.planning/todos/pending/2026-07-16-dierenasiel-real-mechanic-needed.md`).
 - **Quest Haven**: 2-quest-per-turn bonus (+25 MP) tracked in browser only via `questsCompletedThisTurn` counter; TS engine fires +10 MP per quest_completed event.
 - **Momentum Factory**: TS engine fires +10 MP per piecie_activated event; browser enforces "first Piecie only" restriction via `pieciesPlayedThisTurn` counter.
 
@@ -229,6 +231,9 @@ This document is the final Phase 11 master card inventory, generated from the li
 | quest_personal_perfect_sync | Perfect Sync | personal | no | yes | free | Quest success effects: gainMP | advanced |
 | quest_west_perfect_read | Perfect Read | personal | no | yes | free | Quest success effects: gainMP | advanced |
 
+### Quest Design Notes
+- **Attempt affordability gate (Phase 37, 2026-07-16):** attempting a General or Personal Quest in the human UI is affordability-gated — a Mosje with less than 20 MP cannot start an attempt (its picker option renders disabled), closing a self-destruct where a sub-20-MP Mosje could be charged the flat quest-attempt fee and driven below 0. The 20 MP fee itself and its lethality below 0 at Level 0 remain canonical (`docs/phase0-rulings.md:126`) and are unchanged — this phase adds only the pre-attempt gate.
+
 ## Deferred Features and Simplifications
 
 ### Phase 4 Questions
@@ -253,11 +258,11 @@ This document is the final Phase 11 master card inventory, generated from the li
 - quest_form_alliance requires caller-provided targetRef in multiplayer/UI layer.
 
 ### Phase 7 Questions
-- place_synergy_chamber keeps forced-synergy support; duration extension and ability-cost reduction remain deferred.
+- place_synergy_chamber keeps forced-synergy support; duration extension and ability-cost reduction remain deferred. **(2026-07-14 update, Phase 35: this framing is now stale — the cost/dice/duration bonuses described here were undocumented dead code and have been removed entirely; Synergy Chamber's real mechanic is now a once-per-turn synergy-partner waiver — see the Place table row above.)**
 
 ### Phase 8 Questions
 - Plans 08-01 through 08-04 resolved most partial cards (see ✅ notes above and in Phase 5 section).
-- Remaining partial/advanced cards: mosje_fps_west (UI peek reveal), ronald-the-master-chef (UI hand reveal), place_synergy_chamber (cost/duration reduction callers deferred), place_dierenasiel (PET cost-waiver deferred), dingetje-toch (requirement bypass UI), double-trigger (double-fire executor), snelle_frenssen (UI targetRef), snelle_jammertje_gepakt (send-to-bottom primitive), snelle_jensen (source-card discard), snelle_jeweetniet (force-reroll interception UI).
+- Remaining partial/advanced cards: mosje_fps_west (UI peek reveal), ronald-the-master-chef (UI hand reveal), place_synergy_chamber (2026-07-14: reworked into a once-per-turn synergy-partner waiver, no longer cost/duration-reduction — see Place table row above), place_dierenasiel (2026-07-16, Phase 36: PET cost-0 MP clause trimmed as vacuous, not implemented — currently no mechanical effect, real passive mechanic deferred to a future phase — see Place table row above), dingetje-toch (requirement bypass UI), double-trigger (double-fire executor), snelle_frenssen (UI targetRef), snelle_jammertje_gepakt (send-to-bottom primitive), snelle_jensen (source-card discard), snelle_jeweetniet (force-reroll interception UI).
 - Quest section: see plan 08-06 for full quest audit and classification.
 
 ### Phase 10 Notes
@@ -273,14 +278,14 @@ This document is the final Phase 11 master card inventory, generated from the li
 - STUB-05: doubleNextPiecie confirmed already implemented in activatePiecie() — Dubbele Temminks functional
 - STUB-06: effect_ff_haaltje_nemen ReferenceError fixed; value restored (20/30)
 - STUB-08: Dead SNOEIERTJE_COST push removed from effect_snoeiertje
-- STUB-10: getSynergyChambercostReduction() wired in useMosjeAbility(); -5 MP pre-adjustment applied
+- STUB-10 (Synergy Chamber ability-cost pre-adjustment): **SUPERSEDED 2026-07-14 (Phase 35) — the wired mechanic this entry described was undocumented dead code with no basis in the card's text and has been fully removed. Synergy Chamber's real mechanic is now a once-per-turn synergy-partner waiver; see the Place table.**
 - STUB-11: Bagga of Greed — showCardChoice modal wired in main.js; full-hand discard picker after activation
 - STUB-14: Welloe Force — showOptionSelect modal + 3-turn engine-level damage redirect in loseMP()
 - STUB-15: MP Adjuster — showOptionSelect modal (20/40/60/80/100 MP); temporary, reverts at startTurn()
 
 **Partial (engine done, UI deferred):**
 - STUB-07: Dingetje Toch — engine flag set; UI consumption point documented in turnManager.js handleActivatePiecie()
-- STUB-09: Dierenasiel — engine guard logged; UI cantAffordAbility check for 0-MP PET deferred to UI phase
+- Dierenasiel engine guard (formerly tracked as a STUB entry): **SUPERSEDED 2026-07-14 (Phase 35) — the guard this referenced was dead code (typo'd setter/reader mismatch, never reachable) and has been removed. PET cost-0 MP clause trimmed 2026-07-16 (Phase 36) as vacuous — Dierenasiel currently has no mechanical effect; real passive mechanic deferred to a future phase.**
 
 **Deferred (requires named blocking primitive):**
 - STUB-16: FPS West — blocking primitive: opponent hand reveal UI in boardRenderer.js (opponentHandPeeked flag)

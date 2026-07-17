@@ -6,9 +6,10 @@ import { createLogRenderer } from './ui/logRenderer.js';
 import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
 import { animateFieldActivation, animateStateDelta, showTurnTransition, setAbilityNameResolver, animateQuestResult, showInstantEffect, showDeckOutBanner, pulseDiscardPile } from './ui/actionAnimations.js';
-import { createInitialGameState, getOpponentMosjes, getPlayerMosjes } from './engine/gameState.js';
-import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, playPersonalQuest, activatePersonalQuest } from './engine/turnManager.js';
-import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold } from './abilities/questLogic.js';
+import { createInitialGameState, getOpponentMosjes, getPlayerMosjes, setActivePlace } from './engine/gameState.js';
+import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, playPersonalQuest, activatePersonalQuest, activateSynergyWaiver } from './engine/turnManager.js';
+import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold, getActivePartnerSynergyBonuses } from './abilities/questLogic.js';
+import { hasFoodDoubleSynergy } from './engine/synergyResolver.js';
 import { loseMP, gainMP } from './engine/mpManager.js';
 import { checkVictory } from './engine/victoryChecker.js';
 import { MOSJES } from './data/mosjes.js';
@@ -927,7 +928,8 @@ function initGamePage() {
 	// Test hooks — only active when URL contains ?testMode=true
 	if (urlParams.get('testMode') === 'true') {
 		const cardTypeFor = (cardId) =>
-			String(cardId).startsWith('snelle_') ? 'SNELLE_PIECIE'
+			String(cardId).startsWith('mosje_') ? 'MOSJE'
+			: String(cardId).startsWith('snelle_') ? 'SNELLE_PIECIE'
 			: String(cardId).startsWith('place_') ? 'PLACE'
 			: String(cardId).startsWith('quest_') ? 'QUEST'
 			: 'PIECIE';
@@ -1047,6 +1049,20 @@ function initGamePage() {
 			getGameState() { return JSON.parse(JSON.stringify(gameState)); },
 			getHandSize(playerId) { return gameState?.players?.[playerId]?.hand?.length ?? -1; },
 			getGraveyardSize(playerId) { return gameState?.players?.[playerId]?.graveyard?.length ?? -1; },
+			// Force a specific Place active without needing to draw/play it — for
+			// scenario setup (e.g. Synergy Chamber checkpoint verification).
+			setActivePlace(cardId, playedByPlayerId = localPlayerId) {
+				if (!gameState) return;
+				gameState = setActivePlace(gameState, cardId, playedByPlayerId);
+				renderFromState(gameState);
+			},
+			// Bump the turn counter directly — e.g. to sidestep the first-turn
+			// General Quest lock (U2-adjacent rule) during scenario setup.
+			setTurnNumber(n) {
+				if (!gameState) return;
+				gameState.turnNumber = n;
+				renderFromState(gameState);
+			},
 		};
 	}
 
@@ -1248,8 +1264,7 @@ function initGamePage() {
 
 		const diceBonus = gameState._snelleFlags?.questDiceBonus || 0;
 		const questPrepBonus = gameState.players[localPlayerId]?.questPrepBonus || 0;
-		const placeDiceBonus = gameState.activePlace === 'place_synergy_chamber' ? 1 : 0;
-		const skiffaRerolls = getSkiffaRerolls(gameState, localPlayerId);
+		const skiffaDiceBonus = (gameState.activePlace === 'place_skiffa' && questDef.category === 'Social') ? 2 : 0;
 		const forceReroll = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
 
 		// Phase 8 Rule 3: broadcast active quest so opponent can see it
@@ -1348,6 +1363,13 @@ function initGamePage() {
 				`Geen Raad: guessed ${guess}, was ${actualCardType} → ${didSucceed ? '+50 MP' : '-25 MP'}`
 			);
 			logStateOutcome(log, beforeResolve, gameState, localPlayerId, 'Geen Raad? Vraag Aad! resolution');
+
+			// Partner-synergy quest bonus — called out explicitly so it isn't
+			// silently folded into one combined MP number.
+			if (gameState._questSynergyBonus) {
+				log.add('gain', `🔗 Includes +${gameState._questSynergyBonus} MP from an active synergy bonus.`);
+				delete gameState._questSynergyBonus;
+			}
 
 			// Aad Recovery — each player who lost MP from this quest may discard 1 card to regain 40 MP
 			let recoveryHappened = false;
@@ -1464,6 +1486,14 @@ function initGamePage() {
 				);
 				logStateOutcome(log, beforeResolve, gameState, localPlayerId, `${questDef.name} resolution`);
 
+				// Partner-synergy quest bonus (e.g. Señor West + AZN Cless +15
+				// Physical) — called out explicitly so it isn't silently folded
+				// into one combined MP number.
+				if (gameState._questSynergyBonus) {
+					log.add('gain', `🔗 Includes +${gameState._questSynergyBonus} MP from an active synergy bonus.`);
+					delete gameState._questSynergyBonus;
+				}
+
 				// Drain auto-ability log (e.g. Michelle's Tough Gamble)
 				if (gameState._autoAbilityLog) {
 					const al = gameState._autoAbilityLog;
@@ -1471,7 +1501,7 @@ function initGamePage() {
 					console.log('[ABILITY-AUTO]', al.label, '| roll:', al.roll, '| adjustment:', al.adjustment);
 					delete gameState._autoAbilityLog;
 				}
-			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus, forceReroll, skiffaRerolls: skiffaRerolls + tweedeKansReroll, mosje: gameState.players[localPlayerId].activeSlots[targetSlotIndex] });
+			}, { diceBonus: diceBonus + questPrepBonus + skiffaDiceBonus, forceReroll, skiffaRerolls: tweedeKansReroll, mosje: gameState.players[localPlayerId].activeSlots[targetSlotIndex] });
 		}
 
 		function showQuestPreviewThenRoll(targetSlotIndex) {
@@ -1486,18 +1516,38 @@ function initGamePage() {
 				const thresholdForMosje = getQuestDiceThreshold(questDef, updatedMosje);
 				modal.showQuestAttemptPreview(updatedMosje, questDef, thresholdForMosje, () => {
 					runGeneralQuestDiceRoll(targetSlotIndex);
-				}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus });
+				}, { diceBonus: diceBonus + questPrepBonus + skiffaDiceBonus });
 			} else {
 				runGeneralQuestDiceRoll(targetSlotIndex);
 			}
 		}
 
-		if (gqSlots.length > 1) {
-			modal.showMosjeSelect(gqSlots, showQuestPreviewThenRoll, questDef);
-		} else {
-			showQuestPreviewThenRoll(gqSlots[0]?.slotIndex ?? 0);
-		}
+		// D-06/GATE-03: always route through showMosjeSelect, even with a single
+		// active Mosje. showMosjeSelect always shows its modal regardless of count
+		// (modalManager.js:734) and already disables options with mp < 20 for quest
+		// attempts (D-02/D-03) — this closes the single-Mosje self-destruct gap
+		// (the Michelle Phase-36-UAT knockout) without touching the 20 MP charge,
+		// the upstream showConfirm intent dialog, or getGeneralQuestBlockReason
+		// (left untouched — see D-04 note at that gate's call site above).
+		modal.showMosjeSelect(gqSlots, showQuestPreviewThenRoll, questDef);
 	});
+
+	function handleActivateSynergyWaiver() {
+		if (!gameState) return;
+		if (gameState.activePlayerId !== localPlayerId) {
+			modal.showInfo('Not Your Turn', 'You can only activate the synergy waiver on your own turn.');
+			return;
+		}
+		const { state: newState, success, error } = activateSynergyWaiver(gameState, localPlayerId);
+		if (!success) {
+			modal.showInfo('Cannot Activate', error || 'The synergy waiver cannot be activated right now.');
+			return;
+		}
+		gameState = newState;
+		log.add('info', 'Synergy Chamber: partner requirement waived for one synergy this turn.');
+		syncPush();
+		renderFromState(gameState);
+	}
 
 	document.getElementById('btn-personal-quest')?.addEventListener('click', () => {
 		if (!gameState) return;
@@ -1574,7 +1624,8 @@ function initGamePage() {
 		const onActivatePlace = (isLocalTurn && !gameOver) ? handleActivatePlace : null;
 		const onOpenDiscard = handleOpenDiscard;
 		const onPlayFromHand = (isLocalTurn && !gameOver) ? handlePlayCard : null;
-		renderBoard(boardRoot, uiState, onUseAbility, null, onActivatePiecie, onActivatePlace, onOpenDiscard, onPlayFromHand);
+		const onActivateSynergyWaiver = (isLocalTurn && !gameOver) ? handleActivateSynergyWaiver : null;
+		renderBoard(boardRoot, uiState, onUseAbility, null, onActivatePiecie, onActivatePlace, onOpenDiscard, onPlayFromHand, onActivateSynergyWaiver);
 		if (state._lastPlaceEffect?.placeName) {
 			showPlaceEffectBanner(state._lastPlaceEffect.placeName, state._lastPlaceEffect.description, state._lastPlaceEffect.phase);
 			delete state._lastPlaceEffect;
@@ -2485,8 +2536,7 @@ function initGamePage() {
 		// Capture bonuses before any state mutation.
 		const diceBonus = gameState._snelleFlags?.questDiceBonus || 0;
 		const questPrepBonus = gameState.players[localPlayerId]?.questPrepBonus || 0;
-		const placeDiceBonus = gameState.activePlace === 'place_synergy_chamber' ? 1 : 0;
-		const skiffaRerolls = getSkiffaRerolls(gameState, localPlayerId);
+		const skiffaDiceBonus = (gameState.activePlace === 'place_skiffa' && questDef.category === 'Social') ? 2 : 0;
 		const forceReroll = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
 
 		// Build Mosje options from current state (quest card still on field at this point).
@@ -2555,7 +2605,7 @@ function initGamePage() {
 			const previewQuestDef = questDefForMosje(updatedMosje);
 			modal.showQuestAttemptPreview(updatedMosje, previewQuestDef, getQuestDiceThreshold(previewQuestDef, updatedMosje), () => {
 				runQuestDiceRoll(targetSlotIndex);
-			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus });
+			}, { diceBonus: diceBonus + questPrepBonus + skiffaDiceBonus });
 		}
 
 		function runQuestDiceRoll(targetSlotIndex) {
@@ -2639,7 +2689,15 @@ function initGamePage() {
 				const rollLabel = rollInfo ? `rolled ${rollInfo.roll}, needed ${rollInfo.threshold}+ → ` : '';
 				log.add(didSucceed ? 'gain' : 'loss', `${questDef.name}: ${rollLabel}${didSucceed ? 'Success' : 'Failed'} (${sign}${mpDelta} MP)`);
 				logStateOutcome(log, beforeResolve, gameState, localPlayerId, `${questDef.name} resolution`);
-			}, { diceBonus: diceBonus + questPrepBonus + placeDiceBonus, forceReroll, skiffaRerolls: skiffaRerolls + tweedeKansReroll, mosje: liveMosje });
+
+				// Partner-synergy quest bonus (e.g. Señor West + AZN Cless +15
+				// Physical) — called out explicitly so it isn't silently folded
+				// into one combined MP number.
+				if (gameState._questSynergyBonus) {
+					log.add('gain', `🔗 Includes +${gameState._questSynergyBonus} MP from an active synergy bonus.`);
+					delete gameState._questSynergyBonus;
+				}
+			}, { diceBonus: diceBonus + questPrepBonus + skiffaDiceBonus, forceReroll, skiffaRerolls: tweedeKansReroll, mosje: liveMosje });
 		}
 
 		log.add('quest', `Activating Personal Quest: ${questDef.name}`);
@@ -2709,6 +2767,32 @@ function initGamePage() {
 				leipeOppId: oppId,
 				leipeOppSlot: parseInt(String(oppPick).split('_slot_')[1], 10),
 			};
+		} else if (piecieCardDef?.effectId === 'effect_welloe_force') {
+			// D-05/D-06 — player picks which on-field Mosje pays the 40 MP tribute;
+			// blocked entirely (no charge, no activation) if none can afford it.
+			const mosjeSlots = gameState.players[localPlayerId].activeSlots
+				.map((slot, index) => ({ slot, index }))
+				.filter(({ slot }) => slot && !slot.isDefeated)
+				.map(({ slot, index }) => ({
+					slotIndex: index,
+					name: slot.name || CARD_LOOKUP[slot.cardId]?.name || slot.cardId || 'Mosje',
+					mp: slot.mp,
+				}));
+			const eligible = mosjeSlots.filter(s => s.mp >= 40);
+			if (eligible.length === 0) {
+				modal.showInfo('Cannot Activate', 'Not enough MP — Welloe Force requires 40 MP tribute from one Mosje (none of yours can afford it).');
+				return;
+			}
+			const payerSlotId = await modal.showTributePayerSelect({
+				title: 'Welloe Force — Pay Tribute',
+				prompt: 'Choose which Mosje pays the 40 MP tribute to activate Welloe Force.',
+				mosjeSlots,
+				amount: 40,
+			});
+			const payerSlotIndex = parseInt(String(payerSlotId), 10);
+			if (Number.isNaN(payerSlotIndex)) return;
+			stateForActivation = JSON.parse(JSON.stringify(gameState));
+			stateForActivation._pendingTargets = { welloeForcePayerSlot: payerSlotIndex };
 		} else if (piecieCardDef?.effectId === 'effect_kannetje_melk'
 				|| piecieCardDef?.effectId === 'effect_dikke_jonko'
 				|| piecieCardDef?.effectId === 'effect_tikker') {
@@ -3332,17 +3416,20 @@ function buildActiveModifiers(gameState, playerId, isLocalPlayer = false) {
 	}
 	if (flags.copyLastPiecie?.forPlayer === playerId) pills.push({ label: '📋 Copy Ready', color: 'purple' });
 
-	return pills;
-}
+	// Synergy bonuses currently live for this player (real partner present, or
+	// waived via Synergy Chamber) — shown proactively so a synergy's effect is
+	// visible before it's exercised, not just inferable from an MP delta after.
+	if (hasFoodDoubleSynergy(gameState, playerId)) {
+		pills.push({ label: '🍔 FOOD Piecies ×2 (Synergy)', color: 'gold' });
+	}
+	for (const bonus of getActivePartnerSynergyBonuses(gameState, playerId)) {
+		pills.push({ label: `+${bonus.bonus} ${bonus.category} Quest (Synergy)`, color: 'gold' });
+	}
+	if (player?.synergyWaiverActive === true) {
+		pills.push({ label: '🔗 Synergy Active', color: 'purple' });
+	}
 
-function getSkiffaRerolls(gameState, playerId) {
-	if (gameState?.activePlace !== 'place_skiffa') return 0;
-	const activeMosje = gameState?.players?.[playerId]?.activeSlots?.find(s => s && !s.isDefeated);
-	if (!activeMosje) return 0;
-	const card = CARD_LOOKUP[activeMosje.cardId];
-	if (card?.subtype !== 'ARTISTIC') return 0;
-	const creative = Number(activeMosje?.traits?.creative || 0);
-	return creative >= 3 ? 2 : 1;
+	return pills;
 }
 
 function toMosjeCards(activeSlots) {
