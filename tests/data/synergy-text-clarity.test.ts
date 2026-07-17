@@ -32,6 +32,9 @@ const REQUIRED_PARTNER_MENTIONS: Record<string, string[]> = {
   mosje_cless_teacher: ['Martin Senor West'],
   mosje_coert_kastelein: ['Binti'],
   mosje_chris_ddr: ['Youri'],
+  mosje_alyssa_bulldozer: ['Jisca'],
+  mosje_alyssa_fissa: ['Jisca'],
+  mosje_jisca: ['Alyssa'],
 };
 
 const withSynergyText = (MOSJES as Mosje[]).filter(m => m.synergyEffect);
@@ -59,8 +62,9 @@ describe('synergy text clarity', () => {
   });
 
   it('no Mosje with a partner synergy is missing from the mention table (keeps this test honest)', () => {
-    // Alyssa x2 + Jisca declare partners but have no synergyEffect text yet —
-    // known design gap, tracked outside this test. Skip null-effect cards.
+    // Alyssa x2 + Jisca (Phase 38, D-01..D-05) now carry real synergyEffect
+    // text and are tracked in REQUIRED_PARTNER_MENTIONS above. Skip null-effect
+    // cards (any future declared-but-unwritten synergy pair).
     const untracked = (MOSJES as Mosje[])
       .filter(m => m.synergyWith?.length > 0 && m.synergyEffect && !REQUIRED_PARTNER_MENTIONS[m.id])
       .map(m => m.id);
