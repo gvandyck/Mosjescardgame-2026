@@ -6,7 +6,7 @@ current_phase: 37 (COMPLETE — 2/2 plans)
 status: Complete
 last_updated: "2026-07-16T23:20:00.000Z"
 progress:
-  total_phases: 29
+  total_phases: 37
   completed_phases: 19
   total_plans: 76
   completed_plans: 70
@@ -348,6 +348,15 @@ mechanism lands in 36-02).
 - Phase 32 extended (2026-06-20): win-clarity UX added on the same branch — instant Level-3 win (engine), plain-language win/defeat reason + battle-log recap in the end screen, "How to Win" panel, dice-modal Mosje stats.
 - Phase 34 added (2026-07-03): Account Starter-Deck Onboarding & Active Deck — turns the 5 duo starter decks into the backbone of account onboarding: blocking first-login deck picker, exact-multiset card grant, active-deck concept + lobby switcher, duo-only guest dropdown, duo-only bot pool.
 - Phase 37 added (2026-07-16): General Quest attempt affordability gate — block attempting a General Quest when the chosen Mosje can't afford the 20 MP attempt fee (mirror Phase 36's Welloe Force affordability gate). Surfaced during Phase 36's UAT: a Mosje at 10 MP could attempt a 20-MP quest and self-destruct. The 20 MP fee + lethality are canonical (phase0-rulings.md:126); this phase adds only the *attempt gate* the ruling permits. NOT yet discussed/planned.
+- Phases 38–45 added (2026-07-18): **backlog-review sweep** — promoted the 8 pending `.planning/todos/pending/` items into sequenced ROADMAP phases (card-fidelity theme). All independent except Phase 42. NONE discussed/planned yet.
+  - **38** — Alyssa↔Jisca synergy design + implement (DUO starter deck's null headline mechanic). Source: `2026-07-12-alyssa-jisca-synergy-design.md`.
+  - **39** — Remaining unwired Mosje synergy pairs + Cless Teacher/AZN Cless fix. Source: `2026-07-15-remaining-mosje-synergies-and-cless-teacher-fix.md`.
+  - **40** — 9-Mosje ability-text↔engine reconciliation (per-card rulings, no batch-fixing). Source: `2026-07-12-ability-text-engine-reconciliation.md`.
+  - **41** — Coert's Caravan Binti-discount fix (standalone quick fix, already diagnosed). Source: `2026-07-13-coerts-caravan-binti-discount-mismatch.md`.
+  - **42** — Full-game ability-text-vs-engine audit (all card types). **Depends on Phase 40.** Source: `2026-07-13-full-game-ability-text-audit.md`.
+  - **43** — Dierenasiel real mechanic ruling (confirmed no-op). Source: `2026-07-16-dierenasiel-real-mechanic-needed.md`.
+  - **44** — The Void real implementation ruling. Source: `2026-07-15-the-void-real-implementation-ruling.md`.
+  - **45** — TS Bulldozer Comeback reconciliation. Source: `2026-06-11-ts-bulldozer-comeback-reconcile.md`.
 
 ## Phase 34 Progress — Account Starter-Deck Onboarding & Active Deck (COMPLETE)
 

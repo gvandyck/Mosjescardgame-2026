@@ -909,6 +909,86 @@ Plans:
 
 - [x] 37-02-PLAN.md — MP-gate phase verification: node --check, npm test, Ronald Kip stacking, repro spec, full sim, docs sync (GATE-04)
 
+### Phase 38: Alyssa-Jisca synergy design and implementation — design + wire the DUO_JISCA_ALYSSA starter deck headline synergy (currently declared but null on all three cards). Interactive design session required. Add pair to synergy-text-clarity test table.
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** None (independent — self-contained synergy design)
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 38 to break down)
+
+### Phase 39: Remaining unwired Mosje synergy pairs + Cless Teacher/AZN Cless shared-effect fix — wire the synergy pairs from the 2026-07-15 inventory that are declared but have no consuming engine code, and fix the Cless Teacher / AZN Cless shared-effect divergence. Per-pair interactive rulings.
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** None (independent)
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 39 to break down)
+
+### Phase 40: 9-Mosje ability-text to engine reconciliation — resolve the 9 Mosjes (Ming Natural, Jeffrey Gambler, Chris All-Rounder, Jisca, etc.) whose card text describes a different effect than the engine performs. Per-card ruling with Gandoe (code wins / text wins / third design). No batch-fixing.
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** None (independent)
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 40 to break down)
+
+### Phase 41: Coert's Caravan Binti-discount text/engine mismatch fix — standalone quick fix for the single Place-card divergence found by accident during the 2026-07-13 audit (Binti discount clause). Already diagnosed.
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** None (independent — already diagnosed, ship anytime)
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 41 to break down)
+
+### Phase 42: Full-game ability-text vs engine audit — systematic pass over EVERY card's text vs actual effect across mosjes.js, piecies.js, snellePiecies.js, places.js. Per-card interactive rulings, reuse-pattern research first. DEPENDS ON Phase 40 (9-Mosje reconciliation) shipping first.
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 40 (9-Mosje reconciliation must ship first — this is the systematic sweep it seeds)
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 42 to break down)
+
+### Phase 43: Dierenasiel real mechanic ruling — place_dierenasiel is a confirmed full no-op (text honestly reads 'no mechanical effect'). Decide + implement a real passive mechanic for it. Interactive design decision required.
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** None (independent design ruling)
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 43 to break down)
+
+### Phase 44: The Void real implementation ruling — decide + implement the intended mechanic for The Void (per its pending todo). Interactive design decision required.
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** None (independent design ruling)
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 44 to break down)
+
+### Phase 45: TS Bulldozer Comeback text/engine reconciliation — resolve the ts-bulldozer-comeback divergence per its 2026-06-11 todo. Ruling from Gandoe (code wins / text wins / third design).
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** None (independent reconciliation ruling)
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 45 to break down)
+
 ---
 
 ### Phase 36: Piecie/Snelle Piecie/Place/Personal Quest MP Cost Model Redesign — default all costs to 0, add explicit tribute payment only for cards whose text requires it
