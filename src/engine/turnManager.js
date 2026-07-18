@@ -6,6 +6,7 @@ import { drawCards, shuffleDeck, rollDie } from './deckEngine.js';
 import { gainMP, applyStatusEffectMP, getTotalMPForPlayer } from './mpManager.js';
 import { checkVictory, markMosjeDefeated } from './victoryChecker.js';
 import { getAllPlayerIds, setActivePlace, destroyActivePlace, clearReturnedMosjesAtTurnEnd } from './gameState.js';
+import { hasAlyssaJiscaSynergy } from './synergyResolver.js';
 import * as placeEffects from '../abilities/placeEffects.js';
 import * as piecieEffects from '../abilities/piecieEffects.js';
 import * as snelleEffects from '../abilities/snelleEffects.js';
@@ -27,6 +28,44 @@ function hasBothChrisAndYouri(player) {
   const chrisAlive = slots.some(s => s && !s.isDefeated && CHRIS_IDS.has(s.cardId));
   const youriAlive = slots.some(s => s && !s.isDefeated && s.cardId === 'mosje_youri');
   return chrisAlive && youriAlive;
+}
+
+// Alyssa<->Jisca synergy (D-01..D-05, Phase 38): the Alyssa-side +10/turn bonus
+// applies to either Alyssa variant. Detection itself lives in hasAlyssaJiscaSynergy
+// (synergyResolver.js) — this list is only used to find which active slots are
+// "an Alyssa" once the pair is confirmed present.
+const ALYSSA_JISCA_SYNERGY_MOSJE_IDS = ['mosje_alyssa_bulldozer', 'mosje_alyssa_fissa'];
+
+// Alyssa<->Jisca synergy (D-03, Phase 38): while an Alyssa is also on the field,
+// the FIRST Piecie the controlling player plays each turn grants Jisca +10 MP,
+// once per turn (alyssaJiscaPiecieBonusUsedThisTurn, reset every turn in startTurn).
+// Gated on pieciesPlayedThisTurn === 1, mirroring effect_momentum_factory's
+// "first Piecie each turn" shape (src/abilities/placeEffects.js).
+//
+// Called from BOTH playPiecie (the actual "play" event D-03's card text refers
+// to, and the only trigger point the natural game flow reaches within a single
+// turn — a Piecie cannot normally be activated the same turn it is played) and
+// the activatePiecie dispatch (mirroring Momentum Factory's own activation-site
+// hook as a safety net for any path that reaches activation without this turn's
+// play-count having been the trigger). The once-per-turn flag makes the two
+// call sites mutually exclusive in practice — whichever fires first this turn
+// sets the flag and the other becomes a no-op.
+function applyAlyssaJiscaPiecieBonus(state, playerId) {
+  const player = state.players[playerId];
+  if (!player) return state;
+  if (player.alyssaJiscaPiecieBonusUsedThisTurn) return state;
+  if (player.pieciesPlayedThisTurn !== 1) return state;
+  if (!hasAlyssaJiscaSynergy(state, playerId)) return state;
+
+  const jiscaIndex = player.activeSlots.findIndex(
+    s => s && !s.isDefeated && s.cardId === 'mosje_jisca'
+  );
+  if (jiscaIndex < 0) return state;
+
+  state = gainMP(state, playerId, jiscaIndex, 10, 'GAIN', { allowLevelUp: false });
+  state.players[playerId].alyssaJiscaPiecieBonusUsedThisTurn = true;
+  console.log(`[SYNERGY] Alyssa+Jisca: first Piecie this turn → Jisca +10 MP → ${state.players[playerId].activeSlots[jiscaIndex].mp} MP`);
+  return state;
 }
 
 // Chris DDR — Perfect Combo Chain: after ANY Piecie this player activates, roll
@@ -212,6 +251,9 @@ export function startTurn(gameState) {
   activePlayer.kasteLuckSameTurnActivation = false;
   activePlayer.chrisDdrChainUsesThisTurn = 0;
   activePlayer.synergyWaiverActive = false;
+  // Alyssa<->Jisca synergy (D-03): Jisca's first-Piecie-per-turn bonus re-arms
+  // every turn so it is available again next turn.
+  activePlayer.alyssaJiscaPiecieBonusUsedThisTurn = false;
 
   // Dead-flag turn hygiene (Phase 18): clear stale single-turn effect flags so a
   // flag set but never triggered does not leak into a later turn. These live on
@@ -285,6 +327,21 @@ export function startTurn(gameState) {
     if (slot && !slot.isDefeated) {
       state = gainMP(state, playerId, i, 10, 'GAIN', { allowLevelUp: false }); // trickle caps at 100; only Quests level
       console.log(`[ENGINE] Turn trickle: ${slot.name} +10 MP → ${state.players[playerId].activeSlots[i].mp} MP`);
+    }
+  }
+
+  // Alyssa<->Jisca synergy (D-02): while Jisca is also on the field, each Alyssa
+  // (bulldozer or fissa) gets an EXTRA flat +10 MP at the start of each of her
+  // owner's turns, on top of the trickle above. Both Alyssas independently gain
+  // it if both are on field with Jisca (D-05 stacking default).
+  if (hasAlyssaJiscaSynergy(state, playerId)) {
+    const synergyPlayer = state.players[playerId];
+    for (let i = 0; i < synergyPlayer.activeSlots.length; i++) {
+      const slot = synergyPlayer.activeSlots[i];
+      if (slot && !slot.isDefeated && ALYSSA_JISCA_SYNERGY_MOSJE_IDS.includes(slot.cardId)) {
+        state = gainMP(state, playerId, i, 10, 'GAIN', { allowLevelUp: false });
+        console.log(`[SYNERGY] Alyssa+Jisca: ${slot.name} +10 MP (Jisca present) → ${state.players[playerId].activeSlots[i].mp} MP`);
+      }
     }
   }
 
@@ -621,6 +678,8 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
     state.players[playerId].attackPieciePlayedThisTurn = true;
   }
 
+  // Alyssa<->Jisca synergy (D-03): first Piecie played this turn → Jisca +10 MP
+  state = applyAlyssaJiscaPiecieBonus(state, playerId);
 
   state = checkVictory(state);
   return { state, success: true };
@@ -918,6 +977,13 @@ export function activatePiecie(gameState, playerId, slotIndex) {
   if (state.activePlace === 'place_momentum_factory') {
     state = placeEffects.effect_momentum_factory(state);
   }
+
+  // Alyssa<->Jisca synergy (D-03): first-Piecie-per-turn bonus safety net at the
+  // activatePiecie dispatch — normally already applied by playPiecie (the real
+  // "play" trigger); this is a no-op once the once-per-turn flag is set, and only
+  // fires here for a path that reaches activation without having gone through
+  // this turn's play-count increment.
+  state = applyAlyssaJiscaPiecieBonus(state, playerId);
 
   // Chris DDR — Perfect Combo Chain: may recursively activate more Piecies from
   // hand (see maybeChainChrisDdrCombo above).

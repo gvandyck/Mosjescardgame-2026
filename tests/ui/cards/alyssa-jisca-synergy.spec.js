@@ -2,23 +2,22 @@
  * alyssa-jisca-synergy.spec.js — Phase 38 (D-01..D-05) repro-first browser test.
  *
  * REPRO-FIRST per CLAUDE.md: this spec drives the REAL .js game via
- * window.__testHooks and is written to FAIL on current code, because
- * synergyEffect is null on all 3 duo cards and no engine effect exists yet
- * (engine wiring is Plan 38-02 — a separate wave). Both scenarios below are
- * EXPECTED RED until then. Do not "fix" this spec in this plan.
+ * window.__testHooks. It was written to FAIL on the Plan 38-01 code (synergyEffect
+ * null on all 3 duo cards, no engine hook) and now PASSES on Plan 38-02's engine
+ * wiring (src/engine/turnManager.js) — it is the permanent regression guard for
+ * both halves of the DUO_JISCA_ALYSSA headline synergy.
  *
  * Scenario A (D-02, Alyssa side): while Jisca is also on the field, Alyssa
  * gains +10 MP at the start of each of her owner's turns (on top of the
  * fixed +10 turn trickle every active Mosje already gets — src/engine/
- * turnManager.js:286). Total expected delta across one turn boundary once
- * wired: 20 MP. Today (RED): only the 10 MP trickle fires.
+ * turnManager.js). Total expected delta across one turn boundary: 20 MP
+ * (10 trickle + 10 synergy).
  *
  * Scenario B (D-03, Jisca side): while an Alyssa is also on the field, the
  * FIRST Piecie the owner plays each turn gives +10 MP (once-per-turn cap —
  * a second Piecie played the same turn grants no additional bonus). Uses
  * piecie_katjegang (STATUS_EFFECT, zero own MP effect) so the only possible
  * MP delta observed is the synergy bonus itself, not the Piecie's own effect.
- * Today (RED): no MP delta at all on either play.
  */
 
 import { test, expect } from '@playwright/test';
@@ -81,7 +80,7 @@ async function seedDuoScenario(page, playerDeck, botDeck) {
 	}, { playerDeck, botDeck });
 }
 
-test('Scenario A (D-02): Alyssa gains +10 MP at start of turn while Jisca is on field [EXPECTED RED — engine wiring is Plan 38-02]', async ({ page }) => {
+test('Scenario A (D-02): Alyssa gains +10 MP at start of turn while Jisca is on field', async ({ page }) => {
 	test.setTimeout(60000);
 	// Force all dice rolls to fail (roll 1) so the harmless bot's General Quest
 	// attempts (if any) never succeed a reward — Alyssa's MP stays isolated to
@@ -106,15 +105,15 @@ test('Scenario A (D-02): Alyssa gains +10 MP at start of turn while Jisca is on 
 
 	const after = (await getGameState(page)).players.player_1.activeSlots[0].mp;
 	const delta = after - before;
-	console.log(`Scenario A — Alyssa MP delta across turn boundary: ${delta} (expect 20 = 10 trickle + 10 synergy once wired; RED today = 10)`);
+	console.log(`Scenario A — Alyssa MP delta across turn boundary: ${delta} (expect 20 = 10 trickle + 10 synergy)`);
 	await ss(page, 'alyssa-jisca-scenario-a-after');
 
-	// EXPECTED RED on current code: synergyEffect is null and no engine hook
-	// exists, so the delta is only the fixed +10 turn trickle (10), not 20.
+	// GREEN on Plan 38-02 wiring: the fixed +10 turn trickle plus the +10
+	// Alyssa<->Jisca synergy bonus (turnManager.startTurn) sum to 20.
 	expect(delta).toBe(20);
 });
 
-test('Scenario B (D-03): first Piecie played each turn gives Jisca +10 MP while an Alyssa is on field; second Piecie grants no extra [EXPECTED RED — engine wiring is Plan 38-02]', async ({ page }) => {
+test('Scenario B (D-03): first Piecie played each turn gives Jisca +10 MP while an Alyssa is on field; second Piecie grants no extra', async ({ page }) => {
 	test.setTimeout(60000);
 	await mockDiceRoll(page, 0);
 	await seedDuoScenario(page, PLAYER_DECK, BOT_DECK_HARMLESS);
@@ -131,22 +130,21 @@ test('Scenario B (D-03): first Piecie played each turn gives Jisca +10 MP while 
 	await page.waitForTimeout(400);
 	const afterFirst = (await getGameState(page)).players.player_1.activeSlots[1].mp;
 	const deltaFirst = afterFirst - beforeFirst;
-	console.log(`Scenario B — Jisca MP delta after FIRST Piecie played: ${deltaFirst} (expect 10 once wired; RED today = 0)`);
+	console.log(`Scenario B — Jisca MP delta after FIRST Piecie played: ${deltaFirst} (expect 10)`);
 	await ss(page, 'alyssa-jisca-scenario-b-first-piecie');
 
 	await playCardFromHand(page, 'piecie_katjegang'); // 2nd Piecie this turn — once-per-turn cap
 	await page.waitForTimeout(400);
 	const afterSecond = (await getGameState(page)).players.player_1.activeSlots[1].mp;
 	const deltaSecond = afterSecond - afterFirst;
-	console.log(`Scenario B — Jisca MP delta after SECOND Piecie played: ${deltaSecond} (expect 0, once-per-turn cap; RED today = 0 — but for the wrong reason, no bonus exists at all yet)`);
+	console.log(`Scenario B — Jisca MP delta after SECOND Piecie played: ${deltaSecond} (expect 0, once-per-turn cap)`);
 	await ss(page, 'alyssa-jisca-scenario-b-second-piecie');
 
-	// EXPECTED RED on current code: piecie_katjegang has zero own MP effect
-	// (src/abilities/piecieEffects.js effect_katjegang) and no Jisca synergy
-	// hook exists, so deltaFirst is 0 today instead of the expected 10.
+	// GREEN on Plan 38-02 wiring: piecie_katjegang has zero own MP effect
+	// (src/abilities/piecieEffects.js effect_katjegang), so the +10 delta on the
+	// first play is purely the Jisca synergy bonus (applyAlyssaJiscaPiecieBonus).
 	expect(deltaFirst).toBe(10);
-	// This assertion is compatible with both RED (0 === 0, passes) and the
-	// wired GREEN behavior (0 === 0, cap correctly enforced) — deltaFirst's
-	// assertion above is the one that proves the RED/GREEN state honestly.
+	// Once-per-turn cap: the second Piecie played the same turn grants no extra
+	// (alyssaJiscaPiecieBonusUsedThisTurn already set) → delta 0.
 	expect(deltaSecond).toBe(0);
 });
