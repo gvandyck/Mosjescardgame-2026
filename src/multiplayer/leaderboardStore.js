@@ -13,7 +13,8 @@ async function getRtdbAPI() {
 /**
  * Fetches ranked leaderboard data from RTDB.
  * Returns array sorted descending by wins, ties broken by winRate.
- * Excludes players with no stats or no displayName.
+ * Includes every account with a displayName, even with 0 wins/losses.
+ * Excludes only accounts with no displayName set.
  *
  * @returns {Promise<Array<{uid, displayName, wins, losses, winRate, currentStreak, bestStreak}>>}
  */
@@ -28,10 +29,9 @@ export async function fetchLeaderboard() {
 		const usersData = snap.val();
 		const players = [];
 		for (const [uid, userData] of Object.entries(usersData)) {
-			if (!userData?.stats) continue;
 			const displayName = userData?.profile?.displayName;
 			if (!displayName) continue;
-			const { wins = 0, losses = 0, currentStreak = 0, bestStreak = 0 } = userData.stats;
+			const { wins = 0, losses = 0, currentStreak = 0, bestStreak = 0 } = userData?.stats || {};
 			const total = wins + losses;
 			const winRate = total === 0 ? 0 : Math.round((wins / total) * 1000) / 10;
 			players.push({ uid, displayName, wins, losses, winRate, currentStreak, bestStreak });
