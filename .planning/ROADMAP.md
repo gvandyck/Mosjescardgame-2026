@@ -921,6 +921,7 @@ player-facing deck. So the mechanism-phases are re-sequenced into a deck-first q
 are deferred.
 
 **Ordered deck-completion queue (do in this order):**
+
 1. **Phase 38** — Alyssa↔Jisca synergy (Jisca & Alyssa deck). *In verification.*
 2. **Phase 39** — Gandoe↔Michelle synergy (The Box deck). *Narrowed to this one deck item.*
 3. **Phase 40 (deck slice)** — Chris, Jisca, Coert KasteLuck abilities (3 of the 9). *Do these first.*
@@ -943,6 +944,7 @@ known gaps above are closed.
 **Plans:** 2/2 plans executed — COMPLETE
 
 Plans:
+
 - [x] 38-01-PLAN.md - Repro-first RED card-test + synergyEffect text on 3 cards + hasAlyssaJiscaSynergy detection helper (wave 1)
 - [x] 38-02-PLAN.md - Engine wiring: Alyssa start-of-turn +10 + Jisca first-Piecie +10 once/turn (turnManager) + full MP-gate verification (wave 2). Repro spec GREEN; sim 153/160, 0 crashes.
 
@@ -956,7 +958,12 @@ Plans:
 **Scope note (2026-07-18):** narrowed from the original "all remaining unwired synergy pairs" to the single deck-relevant pair. The non-deck remainder — Cless Teacher/AZN Cless shared-effect, FPS Coert/FPS West stale synergy, Chris DDR+DJ 8020 & Chris+Youri Synergy-Chamber-waiver reach — is **deferred to a later booster-card synergy-fidelity phase** (see Deck Completion Track above). Source inventory: `.planning/todos/pending/2026-07-15-remaining-mosje-synergies-and-cless-teacher-fix.md`.
 
 Plans:
+**Wave 1**
+
 - [ ] 39-01-PLAN.md — Repro-first RED: browser card-test + engine unit test proving both synergy directions are dead today (wave 1)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 39-02-PLAN.md — Wire both directions in questLogic.js (D-05 PARTNER_QUEST_SYNERGIES row + D-01..D-04 Tough Gamble +10 Gandoe kicker) → 39-01 tests GREEN + full MP-gate verification + docs (wave 2)
 
 ### Phase 40: 9-Mosje ability-text to engine reconciliation — resolve the 9 Mosjes (Ming Natural, Jeffrey Gambler, Chris All-Rounder, Jisca, etc.) whose card text describes a different effect than the engine performs. Per-card ruling with Gandoe (code wins / text wins / third design). No batch-fixing.
@@ -969,6 +976,7 @@ Plans:
 **Deck-completion ordering (2026-07-18):** do the **3 deck-Mosje abilities FIRST** — Chris All-Rounder "Perfect Setup" (dead flag `instantPiecieThisTurn` nothing reads → DUO_CHRIS_YOURI), Jisca "Perfect Combo" (divergent stub, redesign → DUO_JISCA_ALYSSA), Coert KasteLuck "Morning Luck" (text≠engine → DUO_COERT_BINTI). The other 6 (Ming Natural, Jeffrey Gambler, Tuk Healer, Coert Kastelein, FPS Coert + the Chris DDR note) are non-deck and deferred. All rulings + reuse-pattern map already captured in `.planning/todos/pending/2026-07-12-ability-text-engine-reconciliation.md`.
 
 Plans:
+
 - [ ] TBD (run /gsd-plan-phase 40 to break down)
 
 ### Phase 41: Coert's Caravan Binti-discount text/engine mismatch fix — standalone quick fix for the single Place-card divergence found by accident during the 2026-07-13 audit (Binti discount clause). Already diagnosed.
@@ -979,6 +987,7 @@ Plans:
 **Plans:** 0 plans
 
 Plans:
+
 - [ ] TBD (run /gsd-plan-phase 41 to break down)
 
 ### Phase 42: Full-game ability-text vs engine audit — systematic pass over EVERY card's text vs actual effect across mosjes.js, piecies.js, snellePiecies.js, places.js. Per-card interactive rulings, reuse-pattern research first. DEPENDS ON Phase 40 (9-Mosje reconciliation) shipping first.
@@ -989,6 +998,7 @@ Plans:
 **Plans:** 0 plans
 
 Plans:
+
 - [ ] TBD (run /gsd-plan-phase 42 to break down)
 
 ### Phase 43: Dierenasiel real mechanic ruling — place_dierenasiel is a confirmed full no-op (text honestly reads 'no mechanical effect'). Decide + implement a real passive mechanic for it. Interactive design decision required.
@@ -999,6 +1009,7 @@ Plans:
 **Plans:** 0 plans
 
 Plans:
+
 - [ ] TBD (run /gsd-plan-phase 43 to break down)
 
 ### Phase 44: The Void real implementation ruling — decide + implement the intended mechanic for The Void (per its pending todo). Interactive design decision required.
@@ -1009,6 +1020,7 @@ Plans:
 **Plans:** 0 plans
 
 Plans:
+
 - [ ] TBD (run /gsd-plan-phase 44 to break down)
 
 ### Phase 45: TS Bulldozer Comeback text/engine reconciliation — resolve the ts-bulldozer-comeback divergence per its 2026-06-11 todo. Ruling from Gandoe (code wins / text wins / third design).
@@ -1019,6 +1031,7 @@ Plans:
 **Plans:** 0 plans
 
 Plans:
+
 - [ ] TBD (run /gsd-plan-phase 45 to break down)
 
 ---
