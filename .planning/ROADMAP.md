@@ -909,6 +909,32 @@ Plans:
 
 - [x] 37-02-PLAN.md — MP-gate phase verification: node --check, npm test, Ronald Kip stacking, repro spec, full sim, docs sync (GATE-04)
 
+---
+
+## ▶ DECK COMPLETION TRACK (2026-07-18 — reprioritization)
+
+Driven by the five-deck functional audit (`.planning/audits/2026-07-18-five-deck-functional-audit.md`).
+**Goal: make all 5 player-facing duo decks demonstrably functional first.** The audit found the
+deck-relevant gaps are a small subset of phases 38–43, and that most of Phase 39's original scope
+(Cless Teacher, FPS Coert/West, Chris DDR+DJ 8020, Synergy Chamber waiver) touches cards in **no**
+player-facing deck. So the mechanism-phases are re-sequenced into a deck-first queue; non-deck items
+are deferred.
+
+**Ordered deck-completion queue (do in this order):**
+1. **Phase 38** — Alyssa↔Jisca synergy (Jisca & Alyssa deck). *In verification.*
+2. **Phase 39** — Gandoe↔Michelle synergy (The Box deck). *Narrowed to this one deck item.*
+3. **Phase 40 (deck slice)** — Chris, Jisca, Coert KasteLuck abilities (3 of the 9). *Do these first.*
+4. **Phase 41** — Coert's Caravan Binti-discount (Winston's Kitchen deck).
+5. **Phase 43** — Dierenasiel real mechanic (Jisca & Alyssa deck's dead Place).
+
+**Deferred (no player-facing deck — do after the decks ship):** Phase 39 remainder (Cless Teacher,
+FPS Coert/West, Chris DDR+DJ 8020, Synergy Chamber waiver); Phase 40 remainder (Ming Natural,
+Jeffrey Gambler, Tuk Healer, Coert Kastelein, FPS Coert). **Remaining unknown:** behavior-vs-text
+correctness of the 32 wired deck Piecies + 4 Quests — a deep behavioral pass, deferred until the
+known gaps above are closed.
+
+---
+
 ### Phase 38: Alyssa-Jisca synergy design and implementation — design + wire the DUO_JISCA_ALYSSA starter deck headline synergy (currently declared but null on all three cards). Interactive design session required. Add pair to synergy-text-clarity test table.
 
 **Goal:** The DUO_JISCA_ALYSSA starter deck's headline "party amplifier" synergy is live on-card and engine-wired: while Jisca is on your field each Alyssa (bulldozer + fissa) gains +10 MP at the start of each of your turns, and while an Alyssa is on your field Jisca's first Piecie played each turn gives +10 MP (once per turn). Convention-compliant card text, bot-aware, sim-verified.
@@ -920,12 +946,14 @@ Plans:
 - [x] 38-01-PLAN.md - Repro-first RED card-test + synergyEffect text on 3 cards + hasAlyssaJiscaSynergy detection helper (wave 1)
 - [ ] 38-02-PLAN.md - Engine wiring: Alyssa start-of-turn +10 (turnManager) + Jisca first-Piecie +10 once/turn (piecieEffects) + full MP-gate verification (wave 2)
 
-### Phase 39: Remaining unwired Mosje synergy pairs + Cless Teacher/AZN Cless shared-effect fix — wire the synergy pairs from the 2026-07-15 inventory that are declared but have no consuming engine code, and fix the Cless Teacher / AZN Cless shared-effect divergence. Per-pair interactive rulings.
+### Phase 39: Gandoe↔Michelle synergy (The Box deck) — wire the DUO_GANDOE_MICHELLE headline synergy, dead in BOTH directions. Deck-completion track item.
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** The Box deck's two-way Mosje synergy is live: while Gandoe the Destroyer is on your field, Michelle's Tough Gamble rolls that hit the synergy threshold also grant Gandoe +10 MP; while Michelle is on your field, Gandoe's Physical Quests give +15 bonus MP (wire into `PARTNER_QUEST_SYNERGIES`, mirroring West+AZN Cless). Resolve the card-text 5-6 vs engine 4-6 Tough-Gamble threshold mismatch as part of the ruling. Repro-first per CLAUDE.md, sim-verified.
+**Requirements**: TBD (interactive ruling — carry the 4-6/5-6 threshold decision)
 **Depends on:** None (independent)
 **Plans:** 0 plans
+
+**Scope note (2026-07-18):** narrowed from the original "all remaining unwired synergy pairs" to the single deck-relevant pair. The non-deck remainder — Cless Teacher/AZN Cless shared-effect, FPS Coert/FPS West stale synergy, Chris DDR+DJ 8020 & Chris+Youri Synergy-Chamber-waiver reach — is **deferred to a later booster-card synergy-fidelity phase** (see Deck Completion Track above). Source inventory: `.planning/todos/pending/2026-07-15-remaining-mosje-synergies-and-cless-teacher-fix.md`.
 
 Plans:
 - [ ] TBD (run /gsd-plan-phase 39 to break down)
@@ -936,6 +964,8 @@ Plans:
 **Requirements**: TBD
 **Depends on:** None (independent)
 **Plans:** 0 plans
+
+**Deck-completion ordering (2026-07-18):** do the **3 deck-Mosje abilities FIRST** — Chris All-Rounder "Perfect Setup" (dead flag `instantPiecieThisTurn` nothing reads → DUO_CHRIS_YOURI), Jisca "Perfect Combo" (divergent stub, redesign → DUO_JISCA_ALYSSA), Coert KasteLuck "Morning Luck" (text≠engine → DUO_COERT_BINTI). The other 6 (Ming Natural, Jeffrey Gambler, Tuk Healer, Coert Kastelein, FPS Coert + the Chris DDR note) are non-deck and deferred. All rulings + reuse-pattern map already captured in `.planning/todos/pending/2026-07-12-ability-text-engine-reconciliation.md`.
 
 Plans:
 - [ ] TBD (run /gsd-plan-phase 40 to break down)
