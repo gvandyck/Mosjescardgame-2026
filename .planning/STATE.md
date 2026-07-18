@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 38
 status: Complete
-last_updated: "2026-07-17T23:22:11.320Z"
+last_updated: "2026-07-18T00:00:00.000Z"
 progress:
   total_phases: 37
-  completed_phases: 19
+  completed_phases: 20
   total_plans: 78
-  completed_plans: 71
-  percent: 51
+  completed_plans: 72
+  percent: 53
 ---
 
 # Project State
@@ -19,7 +19,34 @@ progress:
 **Current phase:** 38
 **Branch:** plan/phase-38-alyssa-jisca-synergy
 
-## ▶ RESUME HERE (2026-07-18 handoff — Phase 38 Plan 01 COMPLETE, Plan 02 next)
+## ▶ RESUME HERE (2026-07-18 handoff — Phase 38 COMPLETE; roadmap reprioritized into a Deck Completion Track)
+
+**Next command:** `/gsd:plan-phase 39` (Gandoe↔Michelle synergy — the next deck-completion item).
+
+**Phase 38 (Alyssa↔Jisca synergy) is COMPLETE (2/2 plans).** Plan 38-02's engine wiring — which
+had been left uncommitted mid-flight when the prior session hit its chat limit — was verified and
+committed this session (`d9a3eda`). `applyAlyssaJiscaPiecieBonus` + the start-of-turn Alyssa +10
+loop in `src/engine/turnManager.js` consume `hasAlyssaJiscaSynergy`: each Alyssa gains +10 MP at
+turn start while Jisca is on field (D-02), and the first Piecie played each turn grants Jisca +10 MP
+once-per-turn while an Alyssa is present (D-03, hooked in playPiecie + activatePiecie, per-turn flag
+re-armed in startTurn). The repro spec `tests/ui/cards/alyssa-jisca-synergy.spec.js` flipped
+RED→GREEN and was retitled/cleaned as the permanent regression guard.
+**Verification:** node --check clean; `npm test` **670/670**; repro spec **2/2 GREEN**; Ronald Kip
+stacking pass (ownΔ=50); full `npm run test:sim` **153/160, 0 crashes, 4.4% timeout** (the 7 failures
+are pre-existing #reward-overlay/click timeouts on the archived original decks, unrelated).
+
+**MAJOR REPRIORITIZATION (2026-07-18):** Gandoe pivoted to "which of the 5 duo decks are actually
+fully functional?" A code-level audit (`.planning/audits/2026-07-18-five-deck-functional-audit.md`)
+found every deck card is *wired*; the real gaps are 6 dead/divergent cards, and most of Phase 39's
+original scope touches cards in NO player-facing deck. Roadmap re-sequenced into a **Deck Completion
+Track** (banner atop ROADMAP.md's 38–45 block): **38 → 39 → 40-deck-slice → 41 → 43.** Phase 39
+narrowed to Gandoe↔Michelle only; Phase 40 tagged to do its 3 deck Mosjes (Chris, Jisca, Coert
+KasteLuck) first; non-deck cards deferred. Deep behavior-vs-text pass on the 32 wired deck Piecies
+deferred until the known gaps close. See memory [[deck-completion-track]]. Commits this session:
+`d9a3eda` (38-02 wiring), `070d3f7` (roadmap + audit).
+
+<details>
+<summary>Prior resume note (superseded — Phase 38 Plan 01 COMPLETE, Plan 02 next)</summary>
 
 **Next command:** `/gsd:execute-phase 38` (resumes with Plan 38-02 — engine wiring — once planned)
 or `/gsd:plan-phase 38` if 38-02 isn't broken out yet.
@@ -43,6 +70,8 @@ baseline + 6 new `hasAlyssaJiscaSynergy` unit tests, 0 regressions); `npm test -
 3/3 green; `npx playwright test --project=cards tests/ui/cards/alyssa-jisca-synergy.spec.js` 2/2
 **RED as expected** (this is the plan's success criterion, not a bug — see
 `.planning/phases/38-alyssa-jisca-synergy-design-and-implementation-design-wire-t/38-01-SUMMARY.md`).
+
+</details>
 
 <details>
 <summary>Prior resume note (superseded — Phase 37 COMPLETE, both plans done)</summary>
