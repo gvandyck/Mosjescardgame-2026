@@ -951,12 +951,13 @@ Plans:
 **Goal:** The Box deck's two-way Mosje synergy is live: while Gandoe the Destroyer is on your field, Michelle's Tough Gamble rolls that hit the synergy threshold also grant Gandoe +10 MP; while Michelle is on your field, Gandoe's Physical Quests give +15 bonus MP (wire into `PARTNER_QUEST_SYNERGIES`, mirroring West+AZN Cless). Resolve the card-text 5-6 vs engine 4-6 Tough-Gamble threshold mismatch as part of the ruling. Repro-first per CLAUDE.md, sim-verified.
 **Requirements**: TBD (interactive ruling — carry the 4-6/5-6 threshold decision)
 **Depends on:** None (independent)
-**Plans:** 0 plans
+**Plans:** 2/2 plans planned (2 waves)
 
 **Scope note (2026-07-18):** narrowed from the original "all remaining unwired synergy pairs" to the single deck-relevant pair. The non-deck remainder — Cless Teacher/AZN Cless shared-effect, FPS Coert/FPS West stale synergy, Chris DDR+DJ 8020 & Chris+Youri Synergy-Chamber-waiver reach — is **deferred to a later booster-card synergy-fidelity phase** (see Deck Completion Track above). Source inventory: `.planning/todos/pending/2026-07-15-remaining-mosje-synergies-and-cless-teacher-fix.md`.
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 39 to break down)
+- [ ] 39-01-PLAN.md — Repro-first RED: browser card-test + engine unit test proving both synergy directions are dead today (wave 1)
+- [ ] 39-02-PLAN.md — Wire both directions in questLogic.js (D-05 PARTNER_QUEST_SYNERGIES row + D-01..D-04 Tough Gamble +10 Gandoe kicker) → 39-01 tests GREEN + full MP-gate verification + docs (wave 2)
 
 ### Phase 40: 9-Mosje ability-text to engine reconciliation — resolve the 9 Mosjes (Ming Natural, Jeffrey Gambler, Chris All-Rounder, Jisca, etc.) whose card text describes a different effect than the engine performs. Per-card ruling with Gandoe (code wins / text wins / third design). No batch-fixing.
 
