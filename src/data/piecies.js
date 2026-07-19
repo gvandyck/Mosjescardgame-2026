@@ -467,7 +467,7 @@ export const PIECIES = [
     requirement: "any",
     effectId: "effect_perfect_rhythm",
     tags: ["DRAW", "CHAIN"],
-    description: "Your next Piecie activation this turn also draws 1. Dancing/DDR Chris on field: also gain 10 MP.",
+    description: "Each later Piecie you activate this turn also draws 1. Dancing/DDR Chris on field: also gain 10 MP.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
     rarity: "★",

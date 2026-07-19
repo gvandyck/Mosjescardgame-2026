@@ -273,7 +273,7 @@ describe('Perfect Rhythm', () => {
     expect(result.state.players.player_1.hand).toHaveLength(0);
   });
 
-  it('draws exactly once on the next later Piecie activation', () => {
+  it('draws once for every later Piecie activation this turn', () => {
     const state = makeState({
       perfectRhythmDrawNextPiecie: true,
       deck: [
@@ -304,11 +304,12 @@ describe('Perfect Rhythm', () => {
 
     const first = activatePiecie(state, 'player_1', 0);
     expect(first.state.players.player_1.hand).toHaveLength(1);
-    expect(first.state.players.player_1.perfectRhythmDrawNextPiecie).toBe(false);
+    expect(first.state.players.player_1.perfectRhythmDrawNextPiecie).toBe(true);
+    expect(first.state.players.player_1.deck).toHaveLength(1);
 
     const second = activatePiecie(first.state, 'player_1', 1);
-    expect(second.state.players.player_1.hand).toHaveLength(1);
-    expect(second.state.players.player_1.deck).toHaveLength(1);
+    expect(second.state.players.player_1.hand).toHaveLength(2);
+    expect(second.state.players.player_1.deck).toHaveLength(0);
   });
 
   it('clears an unused flag at end of turn', () => {

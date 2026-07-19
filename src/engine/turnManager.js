@@ -958,11 +958,11 @@ export function activatePiecie(gameState, playerId, slotIndex) {
     state = applyPlaceEffectsOnDraw(state, playerId, piecieCardsDrawn);
   }
 
-  // Perfect Rhythm arms a one-shot draw for the next later Piecie activation.
-  // Its own activation sets the flag but deliberately does not consume it.
+  // Perfect Rhythm arms a per-activation draw for every later Piecie activation
+  // this turn; the flag persists until end of turn. Its own activation sets the
+  // flag but deliberately does not consume it (no self-trigger).
   const rhythmPlayer = state.players[playerId];
   if (slotCardId !== 'piecie_perfect_rhythm' && rhythmPlayer.perfectRhythmDrawNextPiecie) {
-    rhythmPlayer.perfectRhythmDrawNextPiecie = false;
     if (rhythmPlayer.deck.length > 0) {
       rhythmPlayer.hand.push(rhythmPlayer.deck.shift());
       state = applyPlaceEffectsOnDraw(state, playerId, 1);

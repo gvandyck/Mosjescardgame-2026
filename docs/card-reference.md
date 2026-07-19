@@ -120,7 +120,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 | mosje-shield | Mosje Shield | UTILITY | yes | no | free | applyBuff; WELLOE_SHIELD wired in markMosjeDefeated() (STUB-03); ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
 | mp-adjuster | MP Adjuster | UTILITY | no | no | free | ifThenElse; showOptionSelect modal wired in main.js (20/40/60/80/100 MP); temporary effect — reverts at next turn start via startTurn(); rarity ★★★★ (STUB-15) | implemented |
 | mp-amplifier | MP Amplifier | UTILITY | yes | no | free | multiplyNextMPGain | implemented |
-| piecie_perfect_rhythm | Perfect Rhythm | UTILITY | no | yes | free | Next later Piecie activation this turn draws 1; exact Dancing/DDR Chris also grants +10 MP | advanced |
+| piecie_perfect_rhythm | Perfect Rhythm | UTILITY | no | yes | free | Every later Piecie you activate this turn draws 1 card; exact Dancing/DDR Chris also grants +10 MP | advanced |
 | perfect-setup | Perfect Setup | UTILITY | no | no | free | setMP | advanced |
 | redbull | Redbull | UTILITY | yes | no | free, lvl 1+ | applyBuff; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
 | shhh-popo-komt | Shhh, popo komt! | UTILITY | no | no | free | destroyPlace+gainMP | advanced |
