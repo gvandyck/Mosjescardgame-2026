@@ -2,22 +2,83 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 38
+current_phase: 41
 status: Complete
-last_updated: "2026-07-18T19:03:58.718Z"
+last_updated: "2026-07-19T01:23:29.371Z"
 progress:
-  total_phases: 37
-  completed_phases: 19
-  total_plans: 80
-  completed_plans: 71
-  percent: 51
+  total_phases: 39
+  completed_phases: 22
+  total_plans: 82
+  completed_plans: 75
+  percent: 56
 ---
 
 # Project State
 
 **Last updated:** 2026-07-18
-**Current phase:** 38
-**Branch:** plan/phase-38-alyssa-jisca-synergy
+**Current phase:** 41
+**Branch:** plan/phase-40-deck-ability-reconciliation
+
+## RESUME HERE (2026-07-18 handoff - Phase 41 Coert's Caravan COMPLETE; plan Phase 42 next)
+
+**Next command:** `/gsd:plan-phase 42` (full-game ability-text vs engine audit), or resume any pending UAT lane the user chooses.
+
+**Phase 41 is COMPLETE (1/1 plan).** Discussion corrected the original stale Binti-discount prompt:
+the discount should not return, Tesla / Winston Jaaa / Varkenspootjes combo space stays booster-side,
+and Coert's Caravan should become a Coert-flavored defensive Place. Implemented final user ruling:
+while active, each Coert-family Mosje ignores up to 40 MP of Quest damage per turn. Quest attempt
+costs and non-Quest MP loss remain unshielded, and the old end-phase drain is removed.
+
+**Verification:** runtime syntax checks clean for `places.js`, `placeEffects.js`, and `mpManager.js`;
+focused `npm test -- place-coerts-caravan` **5/5 GREEN**; full `npm test` **678/678 GREEN**;
+`npm run validate` clean with the existing lint warning baseline only. `41-CONTEXT.md`,
+`41-01-PLAN.md`, and `41-01-SUMMARY.md` written. No commit, push, merge, or main update performed.
+
+<details>
+<summary>Prior resume note (superseded - Phase 40 deck slice COMPLETE; plan Phase 41 next)</summary>
+
+**Phase 40 deck slice is COMPLETE (1/1 plan).** The roadmap entry came from a stale todo status:
+the live implementations had already landed in commits `56fc3b4` (Chris All-Rounder Perfect Setup),
+`1de1ee5` (Jisca Perfect Combo), and `a28edce` (Coert KasteLuck Morning Luck). Plan 40-01 audited
+those commits against the settled rulings, confirmed all three are ancestors of the current branch,
+ran their existing engine and real-browser regression coverage, and replaced generic card-reference
+rows with the actual mechanics. No duplicate gameplay implementation was added.
+
+**Verification:** runtime syntax checks clean; focused Vitest **50/50 GREEN**; focused Playwright
+card chains **3/3 GREEN**; `npm run validate` clean with **676/676** tests and the existing lint
+warning baseline; `npm run test:cards` matched baseline at **57 passed / 9 skipped / 2 known unrelated
+failures** (`mosje_amplifier`, `mosje_binti_creator`), with Ronald Kip +50 MP passing. A fresh
+`npm run test:sim` attempt was terminated by the command's 15-minute ceiling after 15 scenarios
+(11 pass, 4 existing timeout-style failures, 0 crashes). The completed Phase 39 sim remains valid
+for the same runtime source state: **154/160, 0 crashes, 3.75% failures**. Deck matrix: CY 50%,
+JA 65% (balance-review flag), CB 40% (balance-review flag). `40-01-SUMMARY.md` written. No commit,
+push, merge, or main update performed.
+
+</details>
+
+<details>
+<summary>Prior resume note (superseded - Phase 39 COMPLETE; plan Phase 40 deck slice next)</summary>
+
+**Phase 39 (Gandoe/Michelle "The Box" synergy) is COMPLETE (2/2 plans).** Plan 39-01 added the
+RED browser + engine repro specs. Plan 39-02 wired both directions in `src/abilities/questLogic.js`:
+Michelle Tough Gamble rolls 5-6 grant `mosje_gandoe_destroyer` +10 MP with `allowLevelUp:false`,
+and successful Physical Quests by `mosje_gandoe_destroyer` gain +15 MP while Michelle is on field.
+The partner quest synergy helper now accepts the questing Mosje card id and supports an optional
+`appliesTo` scope so the Gandoe/Michelle Physical Quest bonus does not accidentally apply to
+Michelle. Bot quest-risk prediction now passes the Mosje card id into the same helper.
+
+**Verification:** node --check clean on touched runtime files; `npm test -- gandoe-michelle-synergy`
+**6/6 GREEN**; `npx playwright test tests/ui/cards/gandoe-michelle-synergy.spec.js` **4/4 GREEN**;
+full `npm test` **676/676**; `npm run lint` clean exit with existing warnings only; `npm run
+test:cards` completed with the 2 known unrelated card-test failures (`mosje_amplifier`, `mosje_binti_creator`);
+`npm run test:sim` completed **154/160**, 0 crashes observed, 3.75% timeout/click-overlay failures.
+Deck matrix regenerated: GM Gandoe & Michelle finished 23-17 / 57.5%, below the 60% UAT balance
+flag threshold. `39-02-SUMMARY.md` written. No commit or push performed.
+
+</details>
+
+<details>
+<summary>Prior resume note (superseded - Phase 38 COMPLETE; roadmap reprioritized into a Deck Completion Track)</summary>
 
 ## ▶ RESUME HERE (2026-07-18 handoff — Phase 38 COMPLETE; roadmap reprioritized into a Deck Completion Track)
 
@@ -44,6 +105,8 @@ narrowed to Gandoe↔Michelle only; Phase 40 tagged to do its 3 deck Mosjes (Chr
 KasteLuck) first; non-deck cards deferred. Deep behavior-vs-text pass on the 32 wired deck Piecies
 deferred until the known gaps close. See memory [[deck-completion-track]]. Commits this session:
 `d9a3eda` (38-02 wiring), `070d3f7` (roadmap + audit).
+
+</details>
 
 <details>
 <summary>Prior resume note (superseded — Phase 38 Plan 01 COMPLETE, Plan 02 next)</summary>
@@ -405,6 +468,7 @@ mechanism lands in 36-02).
 - Phase 32 extended (2026-06-20): win-clarity UX added on the same branch — instant Level-3 win (engine), plain-language win/defeat reason + battle-log recap in the end screen, "How to Win" panel, dice-modal Mosje stats.
 - Phase 34 added (2026-07-03): Account Starter-Deck Onboarding & Active Deck — turns the 5 duo starter decks into the backbone of account onboarding: blocking first-login deck picker, exact-multiset card grant, active-deck concept + lobby switcher, duo-only guest dropdown, duo-only bot pool.
 - Phase 37 added (2026-07-16): General Quest attempt affordability gate — block attempting a General Quest when the chosen Mosje can't afford the 20 MP attempt fee (mirror Phase 36's Welloe Force affordability gate). Surfaced during Phase 36's UAT: a Mosje at 10 MP could attempt a 20-MP quest and self-destruct. The 20 MP fee + lethality are canonical (phase0-rulings.md:126); this phase adds only the *attempt gate* the ruling permits. NOT yet discussed/planned.
+- Phase 46 added (2026-07-19): Thematic Piecie Cards for Specific Mosjes — new Piecies for Mosjes that currently lack a dedicated item: Jeffrey (Loaded Dice), Coert KasteLuck (Boosterpackkie), Chris DDR (Perfect Rhythm), DJ 80/20 (Dikke Plaat). Also documents Coert Hawaiian Tech Savant's existing Keyboard fit and confirms Coert Kast-elein stays hidden (already `disabled: true`) and Chris All-Rounder gets no item. Not yet discussed/planned.
 - Phases 38–45 added (2026-07-18): **backlog-review sweep** — promoted the 8 pending `.planning/todos/pending/` items into sequenced ROADMAP phases (card-fidelity theme). All independent except Phase 42. NONE discussed/planned yet.
   - **38** — Alyssa↔Jisca synergy design + implement (DUO starter deck's null headline mechanic). Source: `2026-07-12-alyssa-jisca-synergy-design.md`.
   - **39** — Remaining unwired Mosje synergy pairs + Cless Teacher/AZN Cless fix. Source: `2026-07-15-remaining-mosje-synergies-and-cless-teacher-fix.md`.
