@@ -50,15 +50,17 @@ function hasActiveMosjeCard(gameState, playerId, cardId) {
 // ─────────────────────────────────────────────────────────────
 const PARTNER_QUEST_SYNERGIES = [
 	{ pair: ['mosje_martin_senor_west', 'mosje_azn_cless'], category: 'Physical', bonus: 15 },
+	{ pair: ['mosje_gandoe_destroyer', 'mosje_michelle'], category: 'Physical', bonus: 15, appliesTo: ['mosje_gandoe_destroyer'] },
 ];
 
-export function getPartnerSynergyQuestBonus(gameState, playerId, category) {
+export function getPartnerSynergyQuestBonus(gameState, playerId, category, questerCardId = null) {
 	if (!category) return 0;
 	const activeIds = new Set(getActiveMosjes(gameState?.players?.[playerId]).map(m => m.cardId));
 	const waiverActive = gameState?.players?.[playerId]?.synergyWaiverActive === true;
 	let bonus = 0;
 	for (const entry of PARTNER_QUEST_SYNERGIES) {
 		if (entry.category !== category) continue;
+		if (questerCardId && Array.isArray(entry.appliesTo) && !entry.appliesTo.includes(questerCardId)) continue;
 		const bothPresent = entry.pair.every(id => activeIds.has(id));
 		const waived = waiverActive && entry.pair.some(id => activeIds.has(id));
 		if (bothPresent || waived) {
@@ -396,7 +398,8 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 		//   - partner-synergy bonus: live check, e.g. West+Cless "Physical
 		//     Quests give +15 bonus MP" — see getPartnerSynergyQuestBonus().
 		const armedBonus = didSucceed ? (player.questBonusMP || 0) : 0;
-		const synergyBonus = didSucceed ? getPartnerSynergyQuestBonus(state, playerId, questCard.category) : 0;
+		const questingMosje = player.activeSlots[slotIndex];
+		const synergyBonus = didSucceed ? getPartnerSynergyQuestBonus(state, playerId, questCard.category, questingMosje?.cardId) : 0;
 		if (didSucceed && player.questBonusMP) player.questBonusMP = 0;
 
 		// Support both old format (successMP/failMP) and new format (onSuccess/onFailure effects)
@@ -536,6 +539,18 @@ function applyMosjeFieldEffectsOnQuest(gameState, playerId, slotIndex, questMpGa
 			adjustment,
 			label: `[Michelle] Tough Gamble: ${label}`,
 		};
+
+		if (roll >= 5) {
+			const gandoeDestroyerIndex = player.activeSlots.findIndex(
+				s => s && !s.isDefeated && s.cardId === 'mosje_gandoe_destroyer'
+			);
+			if (gandoeDestroyerIndex >= 0) {
+				state = gainMP(state, playerId, gandoeDestroyerIndex, 10, 'GAIN', { allowLevelUp: false });
+				const gandoeSlot = state.players[playerId].activeSlots[gandoeDestroyerIndex];
+				state._autoAbilityLog.label += ` | [Gandoe] Destroyer synergy: roll ${roll} grants +10 MP`;
+				console.log(`[SYNERGY] Gandoe+Michelle: Tough Gamble roll ${roll} -> Gandoe Destroyer +10 MP -> ${gandoeSlot?.mp} MP`);
+			}
+		}
 	}
 
 	// ── Jeffrey The Strongman — Brute Force ────────────────────────────────────
