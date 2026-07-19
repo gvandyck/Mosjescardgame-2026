@@ -6,9 +6,10 @@ These instructions are for Codex and other coding agents working in this repo.
 
 - Do not work directly on `main` for feature or fix work.
 - Before making code changes, check the current branch and dirty worktree.
+- At session start, read `CODEX.md` after this file. Treat it as the Codex-specific continuation guide.
 - Treat uncommitted changes as user/previous-agent work. Do not revert or overwrite them unless the user explicitly asks.
 - Never push, merge, rebase, or delete branches without explicit user approval.
-- Never merge into `main` without asking the user first.
+- Never push or merge into `main` unless you first ask for confirmation and the user replies `yes` in the current conversation.
 - Do not run destructive commands such as `git reset --hard`, `git clean`, or recursive deletes unless the user explicitly requests them and the target is verified.
 
 ## Project Source Of Truth
@@ -23,6 +24,17 @@ Read these before changing game rules, cards, effects, quests, or MP behavior:
 - `docs/phase10-report.md`
 
 If a rule conflicts with code, `docs/phase0-rulings.md` wins. Fix code, not the ruling document. If card text conflicts with rulings, record the ambiguity and ask before guessing.
+
+## GSD Planning Habit
+
+- Official GSD for Codex is installed globally. Invoke its skills with `$gsd-discuss-phase`, `$gsd-plan-phase`, `$gsd-execute-phase`, `$gsd-verify-work`, and the other `$gsd-*` names.
+- For every non-trivial feature or bugfix, invoke `$gsd-discuss-phase` before planning or coding. Present phase-specific choices and wait for the user's answers; never silently choose defaults or skip the discussion checkpoint.
+- Do not add `--auto`, `--all`, `--chain`, or another non-interactive GSD flag unless the user explicitly requests that mode.
+- If Codex's rich question tool is unavailable, show concise numbered choices in plain text and stop for the user's reply.
+- If context or plans already exist, tell the user and ask whether to accept, review, or update them before continuing. Do not reopen settled decisions after the user accepts them.
+- This repository's Git rules override GSD's built-in commit, branch, merge, and push steps. Skip those steps unless the user explicitly asks for that exact Git action. In particular, do not make GSD's normal atomic commits automatically.
+- The local GSD SDK is expected to be available as `gsd-sdk`; verify with `gsd-sdk --version` before relying on it.
+- Do not scan, read, edit, or reason from `/_archive/` unless the user explicitly asks.
 
 ## Current Architecture
 
