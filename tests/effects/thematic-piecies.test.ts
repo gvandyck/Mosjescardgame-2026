@@ -184,7 +184,23 @@ describe('Boosterpackkie', () => {
     expect(random).toHaveBeenCalledTimes(1);
   });
 
-  it('draws a second card on rolls 5-6', () => {
+  it('draws a second card on rolls 5-6 with a COERT Mosje on field', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.99);
+    const result = effect_boosterpackkie(
+      makeState({
+        cardId: 'mosje_coert_kasteluck',
+        deck: [
+          { cardId: 'draw_1', type: 'PIECIE' },
+          { cardId: 'draw_2', type: 'PIECIE' },
+        ],
+      }),
+      'player_1',
+    );
+
+    expect(result.players.player_1.hand).toHaveLength(2);
+  });
+
+  it('does not draw a second card on 5-6 without a COERT Mosje', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0.99);
     const result = effect_boosterpackkie(
       makeState({
@@ -196,7 +212,7 @@ describe('Boosterpackkie', () => {
       'player_1',
     );
 
-    expect(result.players.player_1.hand).toHaveLength(2);
+    expect(result.players.player_1.hand).toHaveLength(1);
   });
 
   it('grants capped +10 MP with a COERT-tagged Mosje', () => {

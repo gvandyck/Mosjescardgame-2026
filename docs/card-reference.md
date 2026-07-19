@@ -102,7 +102,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 | bagga-of-greed | Bagga of Greed | UTILITY | yes | no | free | drawCards+discardCards; showCardChoice modal wired in main.js — full-hand discard picker after activation (STUB-11) | implemented |
 | battle-concert | Battle Concert | UTILITY | no | no | free, lvl 2+ | loseMP+ifThenElse; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | advanced |
 | bong-hit-demolition | Bong Hit Demolition | UTILITY | no | no | free | destroyPlace+drawCards; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | advanced |
-| piecie_boosterpackkie | Boosterpackkie | UTILITY | no | yes | free | Draw 1, roll 1d6, and draw 1 more on 5-6; a COERT-tagged Mosje also grants +10 MP | advanced |
+| piecie_boosterpackkie | Boosterpackkie | UTILITY | no | yes | free | Draw 1, roll 1d6, and on 5-6 draw 1 more only with a COERT Mosje on field; a COERT-tagged Mosje also grants +10 MP | advanced |
 | call-of-the-welloes | Call of the Welloes | UTILITY | no | no | free | Summon a Mosje from your Welloe pile to a free slot, restoring its recorded MP/Level. Piecie is the anchor — leaves play → Mosje returns to Welloe (end-of-turn sweep). | implemented |
 | chain-reaction | Chain Reaction | UTILITY | no | no | free | multiplyByCount | advanced |
 | dingetje-toch | Dingetje Toch | UTILITY | no | no | free | ifThenElse; DEFERRED to UI phase — consumption point documented in turnManager.js handleActivatePiecie() comment (STUB-07) | partial |

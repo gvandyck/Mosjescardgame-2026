@@ -531,18 +531,18 @@ export function effect_boosterpackkie(gameState, playerId) {
 	const player = state.players[playerId];
 	if (!player) return state;
 
+	const hasCoert = hasActiveMosjeTag(player, 'COERT');
 	let cardsDrawn = 0;
 	if (player.deck.length > 0) {
 		player.hand.push(player.deck.shift());
 		cardsDrawn += 1;
 	}
 	const roll = rollDie(6);
-	if (roll >= 5 && player.deck.length > 0) {
+	if (roll >= 5 && hasCoert && player.deck.length > 0) {
 		player.hand.push(player.deck.shift());
 		cardsDrawn += 1;
 	}
 
-	const hasCoert = hasActiveMosjeTag(player, 'COERT');
 	const si = getFirstActiveSlotIndex(player);
 	if (hasCoert && si >= 0) applyMPGain(player, si, 10, state, playerId);
 	console.log(`[ABILITY] Boosterpackkie: drew ${cardsDrawn}, rolled ${roll}${hasCoert ? ', +10 MP (COERT)' : ''}`);
