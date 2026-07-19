@@ -11,7 +11,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 
 ## Card Counts
 - Mosje: 34
-- Piecie: 68
+- Piecie: 74
 - Snelle Piecie: 19
 - Place: 17
 - Quest (General + Personal): 44
@@ -55,7 +55,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 | michelle-iron-tuk | Michelle Iron Tuk | FIGHTING | no | no | free | Tough Gamble auto-ability: quest rewards double on 4-6 / halve on 1-3; synergy with Gandoe the Destroyer: rolls of 5-6 also grant Gandoe +10 MP, and Gandoe's Physical Quest successes gain +15 MP while Michelle is on field | advanced |
 | parkour-west | Parkour West | FIGHTING | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
 
-## Piecie (64)
+## Piecie (74)
 
 | ID | Name | Group | Starter | Booster | Cost | Summary | Status |
 |---|---|---|---|---|---|---|---|
@@ -102,9 +102,11 @@ This document is the final Phase 11 master card inventory, generated from the li
 | bagga-of-greed | Bagga of Greed | UTILITY | yes | no | free | drawCards+discardCards; showCardChoice modal wired in main.js — full-hand discard picker after activation (STUB-11) | implemented |
 | battle-concert | Battle Concert | UTILITY | no | no | free, lvl 2+ | loseMP+ifThenElse; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | advanced |
 | bong-hit-demolition | Bong Hit Demolition | UTILITY | no | no | free | destroyPlace+drawCards; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | advanced |
+| piecie_boosterpackkie | Boosterpackkie | UTILITY | no | yes | free | Draw 1, roll 1d6, and draw 1 more on 5-6; a COERT-tagged Mosje also grants +10 MP | advanced |
 | call-of-the-welloes | Call of the Welloes | UTILITY | no | no | free | Summon a Mosje from your Welloe pile to a free slot, restoring its recorded MP/Level. Piecie is the anchor — leaves play → Mosje returns to Welloe (end-of-turn sweep). | implemented |
 | chain-reaction | Chain Reaction | UTILITY | no | no | free | multiplyByCount | advanced |
 | dingetje-toch | Dingetje Toch | UTILITY | no | no | free | ifThenElse; DEFERRED to UI phase — consumption point documented in turnManager.js handleActivatePiecie() comment (STUB-07) | partial |
+| piecie_dikke_plaat | Dikke Plaat | UTILITY | no | yes | free | Next Quest roll this turn +1, or +2 with a DJ-tagged Mosje; persists until end of turn | advanced |
 | double-trigger | Double Trigger | UTILITY | no | no | free | applyBuff; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
 | dubbele-ding | Dubbele Ding | UTILITY | yes | no | free | applyBuff | implemented |
 | dubbele-dosis | Dubbele Dosis | UTILITY | yes | no | free | applyBuff; persists in slot until endTurn (BUG-02 fixed: no longer discards immediately) | implemented |
@@ -113,10 +115,12 @@ This document is the final Phase 11 master card inventory, generated from the li
 | huisbaas | Huisbaas | UTILITY | no | no | free | destroyPlace + return a Place from the owner's discard (Phase 17 rework — no deck-search-modal needed) | implemented |
 | jantje-jantje | Jantje Jantje | UTILITY | no | no | free | loseMP+applyBuff; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | advanced |
 | laat-me-chillen | Laat Me Chillen | UTILITY | yes | no | free | gainMP+applyBuff; MP_LOSS_REDUCTION wired in loseMP() (STUB-02); ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
+| piecie_loaded_dice | Loaded Dice | UTILITY | no | yes | free | Next Quest roll this turn +1, or +2 with a JEFFREY-tagged Mosje; persists until end of turn | advanced |
 | mosje-reborn | Mosje Reborn | UTILITY | no | no | free | returnToHand | advanced |
 | mosje-shield | Mosje Shield | UTILITY | yes | no | free | applyBuff; WELLOE_SHIELD wired in markMosjeDefeated() (STUB-03); ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
 | mp-adjuster | MP Adjuster | UTILITY | no | no | free | ifThenElse; showOptionSelect modal wired in main.js (20/40/60/80/100 MP); temporary effect — reverts at next turn start via startTurn(); rarity ★★★★ (STUB-15) | implemented |
 | mp-amplifier | MP Amplifier | UTILITY | yes | no | free | multiplyNextMPGain | implemented |
+| piecie_perfect_rhythm | Perfect Rhythm | UTILITY | no | yes | free | Next later Piecie activation this turn draws 1; exact Dancing/DDR Chris also grants +10 MP | advanced |
 | perfect-setup | Perfect Setup | UTILITY | no | no | free | setMP | advanced |
 | redbull | Redbull | UTILITY | yes | no | free, lvl 1+ | applyBuff; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
 | shhh-popo-komt | Shhh, popo komt! | UTILITY | no | no | free | destroyPlace+gainMP | advanced |
@@ -127,6 +131,10 @@ This document is the final Phase 11 master card inventory, generated from the li
 | tweede-kans | Tweede Kans | UTILITY | no | no | free | rerollDie; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | advanced |
 | welloe-force | Welloe Force | UTILITY | no | no | 40 MP, lvl 1+ | Pay 40 MP tribute — player picks which Mosje pays via showTributePayerSelect, blocked entirely if no Mosje can afford it; 3-turn damage redirect (reworked 2026-07-16, closes the prior hardcoded-first-slot + no-affordability-check bugs) | implemented |
 | zie-je-die-dingetjes | Zie Je Die Dingetjes | UTILITY | no | no | free | lookAtTop+drawCards | implemented |
+
+### Thematic Item Notes
+- Coert The Hawaiian Tech Savant's thematic item is the existing Keyboard Piecie; no duplicate card is needed.
+- Coert Kast-elein remains disabled and hidden, and Chris The All-Rounder intentionally has no dedicated item.
 
 ## Snelle Piecie (19)
 

@@ -495,6 +495,7 @@ export function endTurn(gameState) {
 
   // Reset questPrepBonus at end of turn — same lifecycle as persistUntilEoT Piecies (BUG-05)
   state.players[playerId].questPrepBonus = 0;
+  state.players[playerId].perfectRhythmDrawNextPiecie = false;
 
   // Leipe Swap: at the end of the swapper's turn, swap the two slots' current MP back.
   if (state._leipeSwap && state._leipeSwap.byPlayerId === playerId) {
@@ -955,6 +956,20 @@ export function activatePiecie(gameState, playerId, slotIndex) {
   const piecieCardsDrawn = Math.max(0, state.players[playerId].hand.length - handSizeBeforeEffect);
   if (piecieCardsDrawn > 0) {
     state = applyPlaceEffectsOnDraw(state, playerId, piecieCardsDrawn);
+  }
+
+  // Perfect Rhythm arms a one-shot draw for the next later Piecie activation.
+  // Its own activation sets the flag but deliberately does not consume it.
+  const rhythmPlayer = state.players[playerId];
+  if (slotCardId !== 'piecie_perfect_rhythm' && rhythmPlayer.perfectRhythmDrawNextPiecie) {
+    rhythmPlayer.perfectRhythmDrawNextPiecie = false;
+    if (rhythmPlayer.deck.length > 0) {
+      rhythmPlayer.hand.push(rhythmPlayer.deck.shift());
+      state = applyPlaceEffectsOnDraw(state, playerId, 1);
+      console.log('[ABILITY] Perfect Rhythm: next Piecie activation drew 1 card');
+    } else {
+      console.log('[ABILITY] Perfect Rhythm: next Piecie activation had no card to draw');
+    }
   }
 
   // Track last played piecie for Gevalletje Klakkeloos
