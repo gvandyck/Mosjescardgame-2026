@@ -30,7 +30,15 @@ Also engine-only, no ruling yet: Chris DDR's Perfect Combo Chain text (roll-per-
 
 One interactive session per card (or small batches): Gandoe rules text-vs-code, then align the loser, update docs/card-reference.md notes (AZN Cless row is the format precedent), add/adjust card tests, and re-run sim for MP-touching changes.
 
-## STATUS 2026-07-13: All 10 rulings made. Ready to implement, none started yet.
+## STATUS 2026-07-18: Rulings made; implementation status corrected
+
+The original "none started yet" line became stale. Git history shows the ruled
+implementations landed on 2026-07-13. Phase 40's player-facing deck slice
+(Chris All-Rounder, Jisca, and Coert KasteLuck) is being independently verified
+and closed through
+`.planning/phases/40-9-mosje-ability-text-to-engine-reconciliation/40-01-PLAN.md`.
+The remaining non-deck items stay deferred by the Deck Completion Track and are
+not being re-scoped into that closeout.
 
 Every card below was ruled on interactively with Gandoe via AskUserQuestion (screenshare of exact text vs. exact code shown first). Implement one card at a time, TDD (failing test → implement → `node --check` + `npm test` → commit), per CLAUDE.md. Re-run sim after any MP-touching change (all of these touch MP except the two hidden cards).
 

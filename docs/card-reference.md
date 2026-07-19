@@ -23,9 +23,9 @@ This document is the final Phase 11 master card inventory, generated from the li
 | binti-the-creator | Binti The Creator | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
 | binti-the-sharp-tongue | Binti The Sharp Tongue | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
 | cless-the-teacher | Cless The Teacher | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
-| coert-kasteluck | Coert KasteLuck | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
+| coert-kasteluck | Coert KasteLuck | ARTISTIC | no | no | free | Morning Luck (passive): at turn start roll 1d6; on 4-6 the next Piecie played that turn may activate immediately (one-shot) | advanced |
 | dj-8020 | DJ 80/20 | ARTISTIC | yes | no | free | Mosje ability: +10 MP passive + questPrepBonus +2 (BUG-05 fixed: reroll redesigned as +2 Quest dice modifier) | implemented |
-| jisca-the-maestro | Jisca The Maestro | ARTISTIC | yes | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
+| jisca-the-maestro | Jisca The Maestro | ARTISTIC | yes | no | free | Perfect Combo: once per turn roll 1d6; on 5-6 choose any field Piecie and activate/re-trigger it for free; 1-4 has no effect | implemented |
 | mosje_amplifier | Placeholder 3 — The Amplifier | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
 | mosje_chris_ddr | Dancing/DDR Chris | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
 | mosje_coert_kastelein | Coert Kast-elein | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
@@ -33,7 +33,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 | mosje_tuk_architect | Tuk The Sims Architect | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
 | ronald-the-mastermind | Ronald The Mastermind | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
 | tuk-the-healing-spirit | Tuk The Healing Spirit | ARTISTIC | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
-| chris-the-all-rounder | Chris The All-Rounder | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
+| chris-the-all-rounder | Chris The All-Rounder | DIGITAL | no | no | free | Perfect Setup: once per turn with 3+ face-down Piecies, choose one and activate it for free; no MP gain | implemented |
 | coert-tech-savant | Coert The Hawaiian Tech Savant | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
 | jeffrey-the-silent-gambler | Jeffrey The Silent Gambler | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
 | martin-senor-west | Martin Senor West | DIGITAL | no | no | free | Mosje ability: Calculated Guess — wrong guess routes through loseMP(); blocked at level 0+MP 0 (BUG-03 fixed) | implemented |
@@ -49,10 +49,10 @@ This document is the final Phase 11 master card inventory, generated from the li
 | youri-the-speedrunner | Youri The Speedrunner | DIGITAL | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
 | alyssa-the-bulldozer | Alyssa The Bulldozer | FIGHTING | yes | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
 | azn-cless | AZN Cless | FIGHTING | no | no | free | Risk and Reward: manual activation, d6 even→+25 MP / odd→-15 MP, free, once/turn (2026-07-11: description previously said an auto end-of-turn 1/6-discard roll — code, not text, is the intended design; bot gates it via classifyLossSeverity, src/bot/strategy/assessQuestRisk.js). Synergy with West: Physical Quests +15 MP (wired 2026-07-11, see getPartnerSynergyQuestBonus in questLogic.js) | advanced |
-| gandoe-the-destroyer | Gandoe The Destroyer | FIGHTING | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
+| gandoe-the-destroyer | Gandoe The Destroyer | FIGHTING | no | no | free | Elimination Strike ability; synergy with Michelle: Gandoe's Physical Quest successes gain +15 MP while Michelle is on field; Michelle Tough Gamble rolls of 5-6 grant Gandoe +10 MP (MP-only, no level-up) | advanced |
 | gandoe-the-wizard | Gandoe The Wizard | FIGHTING | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
 | jeffrey-the-strongman | Jeffrey The Strongman | FIGHTING | yes | no | free | Mosje ability defined in execute-mosje-ability flow | implemented |
-| michelle-iron-tuk | Michelle Iron Tuk | FIGHTING | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
+| michelle-iron-tuk | Michelle Iron Tuk | FIGHTING | no | no | free | Tough Gamble auto-ability: quest rewards double on 4-6 / halve on 1-3; synergy with Gandoe the Destroyer: rolls of 5-6 also grant Gandoe +10 MP, and Gandoe's Physical Quest successes gain +15 MP while Michelle is on field | advanced |
 | parkour-west | Parkour West | FIGHTING | no | no | free | Mosje ability defined in execute-mosje-ability flow | advanced |
 
 ## Piecie (64)
@@ -159,7 +159,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 | place_arcade | Arcade | PLACE | yes | no | free | quest_completed, Technical 2+, +15 MP, ALL active slots (fixed 2026-07-14: was first-slot-only) | implemented |
 | place_boxing_ring | Boxing Ring | PLACE | no | no | free | END_PHASE: FIGHTING +10 MP, non-FIGHTING -5 MP; ON_QUEST: Physical +15 MP (GANDOE: +25 MP) | implemented |
 | place_bank_chilling | Bank Chilling | PLACE | yes | no | free | turn_start (START_PHASE), Social 2+, +15 MP, ALL active slots (fixed 2026-07-14: was first-slot-only AND a dead trigger string — card had never fired in live play) | implemented |
-| place_coerts_caravan | Coert's Caravan | PLACE | yes | no | free | REPLACED 2026-07-14: end_phase (fixed dead turn_start trigger), all Mosjes -10 MP except Coert variants (was +15-Coert-only, never fired live due to the same dead trigger bug) | implemented |
+| place_coerts_caravan | Coert's Caravan | PLACE | yes | no | free | REWORKED 2026-07-18: passive while active, Coert Mosjes ignore up to 40 MP of Quest damage each turn; quest attempt costs and non-Quest damage are not prevented | implemented |
 | place_de_box | De Box | PLACE | no | no | free | end_phase, GANDOE +20 MP, MICHELLE/TUK-family +15 MP (fixed 2026-07-14: widened id match to include all Tuk-family Mosjes, not just Michelle; fixed stale "Toennoe" log strings to say "De Box"), +10 bonus each if both present | implemented |
 | place_delluft | Delluft | PLACE | no | no | free | turn_end, all draw 1 card (SUBSTANCE cost-0 MP clause trimmed 2026-07-16 — now vacuous since all referenced SUBSTANCE Piecies are unconditionally free per Phase 36's audit) | advanced |
 | place_digital_gaming_stop | Digital Gaming Stop | PLACE | no | yes | free | REPLACED 2026-07-14: on_quest, DIGITAL-EQUIPMENT Piecie active → +10 MP to questing Mosje (dropped the old dead auto-succeed flag, which had zero consumers) | implemented |
