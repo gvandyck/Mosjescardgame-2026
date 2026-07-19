@@ -568,7 +568,10 @@ export function effect_dikke_plaat(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const bonus = hasActiveMosjeTag(player, 'DJ') ? 2 : 1;
+	const hasAlyssaFissa = player.activeSlots.some(
+		slot => slot && !slot.isDefeated && slot.cardId === 'mosje_alyssa_fissa'
+	);
+	const bonus = hasActiveMosjeTag(player, 'DJ') || hasAlyssaFissa ? 2 : 1;
 	player.questPrepBonus = (player.questPrepBonus || 0) + bonus;
 	console.log(`[ABILITY] Dikke Plaat: +${bonus} to next Quest roll`);
 	return state;

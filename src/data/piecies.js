@@ -482,7 +482,7 @@ export const PIECIES = [
     requirement: "any",
     effectId: "effect_dikke_plaat",
     tags: ["QUEST-BOOST", "MUSIC"],
-    description: "Your next Quest roll this turn gets +1. DJ Mosje on field: +2 instead.",
+    description: "Your next Quest roll this turn gets +1. DJ Mosje or [Alyssa] Fissa Fissa! on field: +2 instead.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
     rarity: "★★",

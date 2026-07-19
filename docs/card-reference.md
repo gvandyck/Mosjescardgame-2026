@@ -106,7 +106,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 | call-of-the-welloes | Call of the Welloes | UTILITY | no | no | free | Summon a Mosje from your Welloe pile to a free slot, restoring its recorded MP/Level. Piecie is the anchor — leaves play → Mosje returns to Welloe (end-of-turn sweep). | implemented |
 | chain-reaction | Chain Reaction | UTILITY | no | no | free | multiplyByCount | advanced |
 | dingetje-toch | Dingetje Toch | UTILITY | no | no | free | ifThenElse; DEFERRED to UI phase — consumption point documented in turnManager.js handleActivatePiecie() comment (STUB-07) | partial |
-| piecie_dikke_plaat | Dikke Plaat | UTILITY | no | yes | free | Next Quest roll this turn +1, or +2 with a DJ-tagged Mosje; persists until end of turn | advanced |
+| piecie_dikke_plaat | Dikke Plaat | UTILITY | no | yes | free | Next Quest roll this turn +1, or +2 with a DJ-tagged Mosje or [Alyssa] Fissa Fissa!; persists until end of turn | advanced |
 | double-trigger | Double Trigger | UTILITY | no | no | free | applyBuff; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
 | dubbele-ding | Dubbele Ding | UTILITY | yes | no | free | applyBuff | implemented |
 | dubbele-dosis | Dubbele Dosis | UTILITY | yes | no | free | applyBuff; persists in slot until endTurn (BUG-02 fixed: no longer discards immediately) | implemented |
@@ -135,6 +135,7 @@ This document is the final Phase 11 master card inventory, generated from the li
 ### Thematic Item Notes
 - Coert The Hawaiian Tech Savant's thematic item is the existing Keyboard Piecie; no duplicate card is needed.
 - Coert Kast-elein remains disabled and hidden, and Chris The All-Rounder intentionally has no dedicated item.
+- [Alyssa] Fissa Fissa! (mosje_alyssa_fissa) counts as a DJ for Dikke Plaat's +2 bonus; Alyssa Bulldozer does not qualify.
 
 ## Snelle Piecie (19)
 

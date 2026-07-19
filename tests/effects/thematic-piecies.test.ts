@@ -165,6 +165,16 @@ describe('Loaded Dice and Dikke Plaat', () => {
     const result = effect_dikke_plaat(makeState({ cardId: 'mosje_dj_8020' }), 'player_1');
     expect(result.players.player_1.questPrepBonus).toBe(2);
   });
+
+  it('Dikke Plaat gives +2 with [Alyssa] Fissa Fissa! on field', () => {
+    const result = effect_dikke_plaat(makeState({ cardId: 'mosje_alyssa_fissa' }), 'player_1');
+    expect(result.players.player_1.questPrepBonus).toBe(2);
+  });
+
+  it('Dikke Plaat stays +1 with Alyssa Bulldozer on field', () => {
+    const result = effect_dikke_plaat(makeState({ cardId: 'mosje_alyssa_bulldozer' }), 'player_1');
+    expect(result.players.player_1.questPrepBonus).toBe(1);
+  });
 });
 
 describe('Boosterpackkie', () => {
