@@ -4,7 +4,7 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 48
 status: in_progress
-last_updated: "2026-07-20T21:15:00.000Z"
+last_updated: "2026-07-20T18:53:43.010Z"
 progress:
   total_phases: 42
   completed_phases: 24
@@ -18,6 +18,43 @@ progress:
 **Last updated:** 2026-07-20
 **Current phase:** 48
 **Branch:** card/phase-48-requirement-verification
+
+## RESUME HERE (2026-07-20 handoff - Phase 48 Plan 02 COMPLETE, AR Piecie bucket)
+
+**Next command:** `/gsd:execute-phase 48` (resumes with the next Phase 48 plan —
+whichever bucket comes after the AR Piecie bucket: Mosje abilities, Snelle Piecies,
+Places, Quests, cross-cutting, or the Phase-9 BUG-01..05 backfill).
+
+**Plan 48-02 (AR Piecie requirement verification, IMPL-AR-P1..P13) is COMPLETE
+(2/2 tasks).** Executed sequentially on `card/phase-48-requirement-verification`
+(no worktree). Ran the two-pronged evidence-discovery method (card id string AND
+effect function name grep across `tests/`) against all 13 Artistic Rhythm Piecie
+requirements: 8 rows (P1 kannetje-melk [shared evidence with IMPL-PF-P1], P3
+broodje-doner, P6 bowie-stormey, P7 gekke-vogels, P8 synergy-field, P9
+dubbele-dosis→`piecie_quest_prep` [divergence, shared with BUG-02], P12
+laat-me-chillen, P13 shoettoe→`piecie_energy_surge` [shared with IMPL-PF-P10])
+already had qualifying real-assertion evidence in `tests/ui/cards/card-registry.js`'s
+browser card-test-library; P11 (`mosje-shield`) was correctly classified VERIFIED via
+the `effect_mosje_shield` function-name grep in `tests/engine/stub-engine-wiring.test.ts`
+(which never contains the id string — the exact false-GAP risk RESEARCH.md flagged);
+2 confirmed gaps (P2 `effect_warm_kannetje_melk`, P10 `effect_dubbele_ding`) were
+closed with a new focused Vitest file (`tests/effects/phase48-ar-piecie-verification.test.ts`,
+3/3 green) asserting concrete field deltas per D-02's false-green guard. P4
+(`nature-s-gift`) and P5 (`gun-een-piece`) confirmed absent from `src/` and
+`docs/card-reference.md` — same underlying absent cards as Plan 48-01's PF-P9/PF-P11
+— recorded GAP-DESCOPED, never ticked. Zero `src/` files touched (D-04 preserved).
+
+**Verification:** `npx vitest run tests/effects/phase48-ar-piecie-verification.test.ts`
+3/3 green; full `npm test` **712/712** (709 baseline + 3 new, 0 regressions);
+`git status --short` confirmed only the 2 new test/docs files touched, no `src/`
+changes. Full detail in `48-02-SUMMARY.md`.
+
+**Open follow-up for later Phase 48 waves:** `IMPL-AR-P9`'s `piecie_quest_prep`
+evidence is now available for whichever plan closes BUG-02's Phase 09 backfill row
+(same card, same name/id divergence).
+
+<details>
+<summary>Prior resume note (superseded - 2026-07-20, Phase 48 Plan 01 COMPLETE, PF Piecie bucket)</summary>
 
 ## RESUME HERE (2026-07-20 handoff - Phase 48 Plan 01 COMPLETE, PF Piecie bucket)
 

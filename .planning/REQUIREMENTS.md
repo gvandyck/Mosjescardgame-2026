@@ -49,19 +49,19 @@
 - [ ] **IMPL-AR-M2:** Jisca the Maestro — ability execution and effect resolution
 
 ### Piecies (13 unique)
-- [ ] **IMPL-AR-P1:** kannetje-melk — effect execution
-- [ ] **IMPL-AR-P2:** warm-kannetje-melk — effect execution
-- [ ] **IMPL-AR-P3:** broodje-doner — effect execution
-- [ ] **IMPL-AR-P4:** nature-s-gift — effect execution
-- [ ] **IMPL-AR-P5:** gun-een-piece — effect execution
-- [ ] **IMPL-AR-P6:** bowie-stormey — effect execution
-- [ ] **IMPL-AR-P7:** gekke-vogels — effect execution
-- [ ] **IMPL-AR-P8:** synergy-field — effect execution
-- [ ] **IMPL-AR-P9:** dubbele-dosis — effect execution
-- [ ] **IMPL-AR-P10:** dubbele-ding — effect execution
-- [ ] **IMPL-AR-P11:** mosje-shield — effect execution
-- [ ] **IMPL-AR-P12:** laat-me-chillen — effect execution
-- [ ] **IMPL-AR-P13:** shoettoe — effect execution
+- [x] **IMPL-AR-P1:** kannetje-melk — effect execution — VERIFIED (shared with IMPL-PF-P1): `tests/ui/cards/card-registry.js:17-21` (see `48-FRAGMENT-02-ar-piecies.md`)
+- [x] **IMPL-AR-P2:** warm-kannetje-melk — effect execution — VERIFIED (gap-filled 48-02): `tests/effects/phase48-ar-piecie-verification.test.ts::effect_warm_kannetje_melk`
+- [x] **IMPL-AR-P3:** broodje-doner — effect execution — VERIFIED: `tests/ui/cards/card-registry.js:141-145` (see `48-FRAGMENT-02-ar-piecies.md`)
+- [ ] **IMPL-AR-P4:** nature-s-gift — effect execution — GAP-DESCOPED: no live card exists in `src/` or `docs/card-reference.md` (confirmed absent, not renamed; same absent card as `IMPL-PF-P9`) — see `48-FRAGMENT-02-ar-piecies.md`
+- [ ] **IMPL-AR-P5:** gun-een-piece — effect execution — GAP-DESCOPED: no live card exists in `src/` or `docs/card-reference.md` (confirmed absent, not renamed; same absent card as `IMPL-PF-P11`) — see `48-FRAGMENT-02-ar-piecies.md`
+- [x] **IMPL-AR-P6:** bowie-stormey — effect execution — VERIFIED: `tests/ui/cards/card-registry.js:147-151` (see `48-FRAGMENT-02-ar-piecies.md`)
+- [x] **IMPL-AR-P7:** gekke-vogels — effect execution — VERIFIED: `tests/ui/cards/card-registry.js:234-238` (see `48-FRAGMENT-02-ar-piecies.md`)
+- [x] **IMPL-AR-P8:** synergy-field — effect execution — VERIFIED: `tests/ui/cards/card-registry.js:106-111` (see `48-FRAGMENT-02-ar-piecies.md`)
+- [x] **IMPL-AR-P9:** dubbele-dosis — effect execution — VERIFIED (as `piecie_quest_prep`, name/id divergence, shared evidence with BUG-02): `tests/ui/cards/card-registry.js:65-70` (see `48-FRAGMENT-02-ar-piecies.md`)
+- [x] **IMPL-AR-P10:** dubbele-ding — effect execution — VERIFIED (gap-filled 48-02): `tests/effects/phase48-ar-piecie-verification.test.ts::effect_dubbele_ding`
+- [x] **IMPL-AR-P11:** mosje-shield — effect execution — VERIFIED (found via effect_mosje_shield function grep, not string-only): `tests/engine/stub-engine-wiring.test.ts:206-216` (see `48-FRAGMENT-02-ar-piecies.md`)
+- [x] **IMPL-AR-P12:** laat-me-chillen — effect execution — VERIFIED: `tests/ui/cards/card-registry.js:93-97` (see `48-FRAGMENT-02-ar-piecies.md`)
+- [x] **IMPL-AR-P13:** shoettoe — effect execution — VERIFIED (as `piecie_energy_surge`, name/id divergence, shared with IMPL-PF-P10): `tests/ui/cards/card-registry.js:174-178` (see `48-FRAGMENT-02-ar-piecies.md`)
 
 ### Snelle Piecies (4 unique)
 - [ ] **IMPL-AR-S1:** snelle_jensen — instant effect execution
