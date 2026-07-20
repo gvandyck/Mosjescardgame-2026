@@ -2,26 +2,75 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 41
-status: Complete
-last_updated: "2026-07-19T01:23:29.371Z"
+current_phase: 48
+status: ready_to_plan
+last_updated: "2026-07-20T18:27:57.647Z"
 progress:
-  total_phases: 39
-  completed_phases: 22
-  total_plans: 82
-  completed_plans: 75
-  percent: 56
+  total_phases: 42
+  completed_phases: 24
+  total_plans: 92
+  completed_plans: 79
+  percent: 57
 ---
 
 # Project State
 
-**Last updated:** 2026-07-18
-**Current phase:** 41
-**Branch:** plan/phase-40-deck-ability-reconciliation
+**Last updated:** 2026-07-19
+**Current phase:** 48
+**Branch:** card/phase-46-thematic-piecies
 
-## RESUME HERE (2026-07-18 handoff - Phase 41 Coert's Caravan COMPLETE; plan Phase 42 next)
+## RESUME HERE (2026-07-19 handoff - Phase 46 COMPLETE, both plans)
 
-**Next command:** `/gsd:plan-phase 42` (full-game ability-text vs engine audit), or resume any pending UAT lane the user chooses.
+**Next command:** `$gsd-verify-work 46` for conversational UAT, or select the
+next pending roadmap phase.
+
+**Phase 46 is COMPLETE (2/2 plans).** Plan 46-01 added Loaded Dice, Boosterpackkie,
+Perfect Rhythm, and Dikke Plaat as free booster-only UTILITY Piecies. Plan 46-02
+closed the 3 UAT-reported design-change gaps against those cards: Boosterpackkie's
+5-6 bonus draw now requires a COERT-family Mosje on field (matching the existing
++10 MP gate — without COERT, only the single draw happens, no matter the roll);
+Perfect Rhythm's later-Piecie draw is now repeating (draws 1 for EVERY later
+Piecie activated this turn, not just the first — still never triggers off itself,
+still clears at end of turn); Dikke Plaat's +2 DJ bonus now also matches exact
+[Alyssa] Fissa Fissa! (`mosje_alyssa_fissa`, Alyssa Bulldozer excluded), with the
+exception named on the card text per the user's explicit request.
+`docs/card-reference.md` reflects all three reworked designs plus a new thematic
+note on the Alyssa Fissa/DJ pairing.
+
+**Verification (46-02):** `node --check` clean on the 3 touched runtime files;
+focused Vitest **23/23** (20 baseline + 3 new); full `npm test` **701/701**, 0
+regressions; focused browser card tests (Playwright) **4/4** for all Phase 46
+cards; Ronald Kip +50 MP stacking check **1/1** passed. Full `npm run test:sim`
+intentionally NOT run — none of the 3 changes touch MP math/costs/level
+thresholds/Quest-completion logic (draw-gating + a quest-bonus condition
+widening only), so the plan's escalation trigger to the full simulation was
+never hit. Details in `46-02-SUMMARY.md`. No commit to `main` performed; work
+stays on `card/phase-46-thematic-piecies`.
+
+<details>
+<summary>Prior resume note (superseded - Phase 46 Plan 01 only, before UAT gap closure)</summary>
+
+**Phase 46 was COMPLETE (1/1 plan) at this point.** Added Loaded Dice, Boosterpackkie, Perfect
+Rhythm, and Dikke Plaat as free booster-only UTILITY Piecies. Their generic
+effects and JEFFREY/COERT/DJ family kickers are wired, Perfect Rhythm's exact
+DDR Chris kicker and one-shot later-activation draw are turn-scoped, and all
+four cards are covered by focused tests and the browser card registry.
+`docs/card-reference.md` now reflects the live 74-card Piecie pool and records
+the Keyboard pairing; Coert Kast-elein remains hidden and Chris All-Rounder
+still has no dedicated item.
+
+**Verification:** runtime syntax checks passed; focused Vitest **20/20**;
+targeted browser cards **4/4**; `npm run validate` passed with **698/698** tests
+and the existing lint-warning baseline. Full cards: **60 passed / 9 skipped /
+3 failed** (two known failures plus one transient Ming Natural timeout that
+passed alone); all four new cards and Ronald Kip +50 passed. Full simulation:
+**153/160**, seven timeout-only reward-overlay failures (**4.4%**), **0
+crashes**. Details are in `46-01-SUMMARY.md`. No commit or push performed.
+
+</details>
+
+<details>
+<summary>Prior resume note (superseded - Phase 41 Coert's Caravan COMPLETE)</summary>
 
 **Phase 41 is COMPLETE (1/1 plan).** Discussion corrected the original stale Binti-discount prompt:
 the discount should not return, Tesla / Winston Jaaa / Varkenspootjes combo space stays booster-side,
@@ -33,6 +82,8 @@ costs and non-Quest MP loss remain unshielded, and the old end-phase drain is re
 focused `npm test -- place-coerts-caravan` **5/5 GREEN**; full `npm test` **678/678 GREEN**;
 `npm run validate` clean with the existing lint warning baseline only. `41-CONTEXT.md`,
 `41-01-PLAN.md`, and `41-01-SUMMARY.md` written. No commit, push, merge, or main update performed.
+
+</details>
 
 <details>
 <summary>Prior resume note (superseded - Phase 40 deck slice COMPLETE; plan Phase 41 next)</summary>
@@ -468,7 +519,7 @@ mechanism lands in 36-02).
 - Phase 32 extended (2026-06-20): win-clarity UX added on the same branch — instant Level-3 win (engine), plain-language win/defeat reason + battle-log recap in the end screen, "How to Win" panel, dice-modal Mosje stats.
 - Phase 34 added (2026-07-03): Account Starter-Deck Onboarding & Active Deck — turns the 5 duo starter decks into the backbone of account onboarding: blocking first-login deck picker, exact-multiset card grant, active-deck concept + lobby switcher, duo-only guest dropdown, duo-only bot pool.
 - Phase 37 added (2026-07-16): General Quest attempt affordability gate — block attempting a General Quest when the chosen Mosje can't afford the 20 MP attempt fee (mirror Phase 36's Welloe Force affordability gate). Surfaced during Phase 36's UAT: a Mosje at 10 MP could attempt a 20-MP quest and self-destruct. The 20 MP fee + lethality are canonical (phase0-rulings.md:126); this phase adds only the *attempt gate* the ruling permits. NOT yet discussed/planned.
-- Phase 46 added (2026-07-19): Thematic Piecie Cards for Specific Mosjes — new Piecies for Mosjes that currently lack a dedicated item: Jeffrey (Loaded Dice), Coert KasteLuck (Boosterpackkie), Chris DDR (Perfect Rhythm), DJ 80/20 (Dikke Plaat). Also documents Coert Hawaiian Tech Savant's existing Keyboard fit and confirms Coert Kast-elein stays hidden (already `disabled: true`) and Chris All-Rounder gets no item. Not yet discussed/planned.
+- Phase 46 completed (2026-07-19): Thematic Piecie Cards for Specific Mosjes — added Loaded Dice, Boosterpackkie, Perfect Rhythm, and Dikke Plaat as booster-only UTILITY Piecies; documented Coert Hawaiian Tech Savant's existing Keyboard fit; kept Coert Kast-elein hidden and Chris All-Rounder without a dedicated item. Focused/full validation passed; browser and simulation baseline caveats are recorded in `46-01-SUMMARY.md`.
 - Phases 38–45 added (2026-07-18): **backlog-review sweep** — promoted the 8 pending `.planning/todos/pending/` items into sequenced ROADMAP phases (card-fidelity theme). All independent except Phase 42. NONE discussed/planned yet.
   - **38** — Alyssa↔Jisca synergy design + implement (DUO starter deck's null headline mechanic). Source: `2026-07-12-alyssa-jisca-synergy-design.md`.
   - **39** — Remaining unwired Mosje synergy pairs + Cless Teacher/AZN Cless fix. Source: `2026-07-15-remaining-mosje-synergies-and-cless-teacher-fix.md`.
