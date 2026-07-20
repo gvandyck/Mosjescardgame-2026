@@ -21,10 +21,10 @@
 - [ ] **IMPL-PF-P12:** quest_tough_it_out — effect execution (if needed) — NOT TICKED: REQUIREMENTS.md filing duplicate of `IMPL-PF-Q7` (a Quest, mis-filed here); `IMPL-PF-Q7` itself has zero test evidence as of Plan 48-01 — see `48-FRAGMENT-01-pf-piecies.md`
 
 ### Snelle Piecies (4 unique)
-- [ ] **IMPL-PF-S1:** snelle_jensen — instant effect execution
-- [ ] **IMPL-PF-S2:** snelle_bijna_welloe — instant effect execution
-- [ ] **IMPL-PF-S3:** snelle_negate_elimination — instant effect execution
-- [ ] **IMPL-PF-S4:** snelle_lucky_coin — instant effect execution
+- [x] **IMPL-PF-S1:** snelle_jensen — instant effect execution — VERIFIED (shared with IMPL-AR-S1): `tests/ui/cards/card-registry.js:276-279` (see `48-FRAGMENT-03-snelle.md`)
+- [x] **IMPL-PF-S2:** snelle_bijna_welloe — instant effect execution — GAP CLOSED (shared with IMPL-AR-S2): `tests/effects/phase48-snelle-verification.test.ts` (see `48-FRAGMENT-03-snelle.md`)
+- [x] **IMPL-PF-S3:** snelle_negate_elimination — instant effect execution — VERIFIED: `tests/ui/simulation/chain-tests.spec.js:264-329` (chain-3, see `48-FRAGMENT-03-snelle.md`)
+- [x] **IMPL-PF-S4:** snelle_lucky_coin — instant effect execution — VERIFIED (shared with IMPL-AR-S3): `tests/engine/snelle-piecie-full-slots.test.ts:105-123` (see `48-FRAGMENT-03-snelle.md`)
 
 ### Places (3 unique)
 - [ ] **IMPL-PF-PL1:** place_the_gym — passive effect execution
@@ -64,10 +64,10 @@
 - [x] **IMPL-AR-P13:** shoettoe — effect execution — VERIFIED (as `piecie_energy_surge`, name/id divergence, shared with IMPL-PF-P10): `tests/ui/cards/card-registry.js:174-178` (see `48-FRAGMENT-02-ar-piecies.md`)
 
 ### Snelle Piecies (4 unique)
-- [ ] **IMPL-AR-S1:** snelle_jensen — instant effect execution
-- [ ] **IMPL-AR-S2:** snelle_bijna_welloe — instant effect execution
-- [ ] **IMPL-AR-S3:** snelle_lucky_coin — instant effect execution
-- [ ] **IMPL-AR-S4:** snelle_dubbele_temminks — instant effect execution
+- [x] **IMPL-AR-S1:** snelle_jensen — instant effect execution — VERIFIED (shared with IMPL-PF-S1): `tests/ui/cards/card-registry.js:276-279` (see `48-FRAGMENT-03-snelle.md`)
+- [x] **IMPL-AR-S2:** snelle_bijna_welloe — instant effect execution — GAP CLOSED (shared with IMPL-PF-S2): `tests/effects/phase48-snelle-verification.test.ts` (see `48-FRAGMENT-03-snelle.md`)
+- [x] **IMPL-AR-S3:** snelle_lucky_coin — instant effect execution — VERIFIED (shared with IMPL-PF-S4): `tests/engine/snelle-piecie-full-slots.test.ts:105-123` (see `48-FRAGMENT-03-snelle.md`)
+- [x] **IMPL-AR-S4:** snelle_dubbele_temminks — instant effect execution — GAP CLOSED: `tests/effects/phase48-snelle-verification.test.ts` (see `48-FRAGMENT-03-snelle.md`)
 
 ### Places (2 unique)
 - [ ] **IMPL-AR-PL1:** place_arcade — passive effect execution

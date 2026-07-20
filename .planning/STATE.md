@@ -4,12 +4,12 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 48
 status: in_progress
-last_updated: "2026-07-20T18:53:43.010Z"
+last_updated: "2026-07-20T20:57:10.000Z"
 progress:
   total_phases: 42
   completed_phases: 24
   total_plans: 92
-  completed_plans: 81
+  completed_plans: 83
   percent: 57
 ---
 
@@ -18,6 +18,37 @@ progress:
 **Last updated:** 2026-07-20
 **Current phase:** 48
 **Branch:** card/phase-48-requirement-verification
+
+## RESUME HERE (2026-07-20 handoff - Phase 48 Plan 03 COMPLETE, Snelle Piecie bucket)
+
+**Next command:** `/gsd:execute-phase 48` (resumes with the next Phase 48 plan —
+whichever bucket comes after the Snelle Piecie bucket: Mosje abilities, Places,
+Quests, cross-cutting, or the Phase-9 BUG-01..05 backfill).
+
+**Plan 48-03 (Snelle Piecie requirement verification, IMPL-PF-S1..S4/IMPL-AR-S1..S4)
+is COMPLETE (2/2 tasks).** Executed sequentially on `card/phase-48-requirement-verification`
+(no worktree). Ran the two-pronged evidence-discovery method against all 8 Snelle
+Piecie requirement rows (4 unique cards, each filed once per deck bucket):
+`snelle_jensen` (PF-S1/AR-S1) and `snelle_lucky_coin` (PF-S4/AR-S3) already had
+qualifying evidence (`tests/ui/cards/card-registry.js`'s `SNELLE_REGISTRY` +
+`tests/engine/snelle-piecie-full-slots.test.ts`'s BUG-04 slot-guard regression,
+respectively); `snelle_negate_elimination` (PF-S3, unique to PF) was checked
+against `tests/ui/simulation/chain-tests.spec.js` before any GAP verdict per
+RESEARCH.md's skipReason anti-pattern warning — confirmed VERIFIED via the
+chain-3 live-browser "Not Today!" assertion. 2 confirmed gaps
+(`effect_snelle_bijna_welloe` PF-S2/AR-S2, `effect_snelle_dubbele_temminks`
+AR-S4, unique to AR) closed with a new focused Vitest file
+(`tests/effects/phase48-snelle-verification.test.ts`, 4/4 green) asserting
+concrete field deltas per D-02's false-green guard. Zero `src/` files touched
+(D-04 preserved).
+
+**Verification:** `npx vitest run tests/effects/phase48-snelle-verification.test.ts`
+4/4 green; full `npm test` **716/716** (712 baseline + 4 new, 0 regressions);
+`git status --short` confirmed only the 2 new test/docs files touched, no
+`src/` changes. Full detail in `48-03-SUMMARY.md`.
+
+<details>
+<summary>Prior resume note (superseded - 2026-07-20, Phase 48 Plan 02 COMPLETE, AR Piecie bucket)</summary>
 
 ## RESUME HERE (2026-07-20 handoff - Phase 48 Plan 02 COMPLETE, AR Piecie bucket)
 
