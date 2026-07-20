@@ -180,7 +180,7 @@ Verification Commands section below.
 - `node --check src/main.js src/ui/modalManager.js src/ui/boardRenderer.js src/ui/handRenderer.js src/ui/logRenderer.js src/ui/actionAnimations.js` — clean, no output.
 - `npm test` — **77 files, 745/745 passed** (0 regressions; 705 Phase-46 baseline + 40 Phase-48 gap-fill tests across all five waves).
 - `git diff --stat -- src` — empty (D-04: zero `src/` files touched across the entire phase).
-- Ronald Kip +50 MP stacking check — passed (existing `card-registry.js` Ronald Kip entry unaffected; no MP-math/quest/level logic was touched this phase, so no re-run of the full simulation's behavior was required — see rationale below).
+- `npx playwright test --project=cards --workers=1 -g "piecie_ronald_kip"` — Ronald Kip +50 MP stacking check re-run live this session: **1 passed** (`ownΔ=50 oppΔ=0`, matching the base MP_GAIN value).
 - `npm run test:sim` — intentionally not re-run as a behavior check this phase, per the plan's own framing: D-04 forbids any `src/` change, so the simulation's *behavior* cannot have moved. The most recent recorded baseline (Phase 46, `152/160`, 8 timeout-only failures, 0 crashes) remains the valid confirmation for the current runtime source state, since Phase 48 added zero `src/` changes since that run.
 
 ## Human Verification Required
