@@ -18,7 +18,7 @@
 - [ ] **IMPL-PF-P9:** nature-s-gift — effect execution — GAP-DESCOPED: no live card exists in `src/` or `docs/card-reference.md` (confirmed absent, not renamed) — see `48-FRAGMENT-01-pf-piecies.md`
 - [x] **IMPL-PF-P10:** shoettoe — effect execution — VERIFIED (as `piecie_energy_surge`, name/id divergence): `tests/ui/cards/card-registry.js:174-178` (see `48-FRAGMENT-01-pf-piecies.md`)
 - [ ] **IMPL-PF-P11:** gun-een-piece — effect execution — GAP-DESCOPED: no live card exists in `src/` or `docs/card-reference.md` (confirmed absent, not renamed) — see `48-FRAGMENT-01-pf-piecies.md`
-- [ ] **IMPL-PF-P12:** quest_tough_it_out — effect execution (if needed) — NOT TICKED: REQUIREMENTS.md filing duplicate of `IMPL-PF-Q7` (a Quest, mis-filed here); `IMPL-PF-Q7` itself has zero test evidence as of Plan 48-01 — see `48-FRAGMENT-01-pf-piecies.md`
+- [x] **IMPL-PF-P12:** quest_tough_it_out — effect execution (if needed) — VERIFIED: REQUIREMENTS.md filing duplicate of `IMPL-PF-Q7` (a Quest, mis-filed here, no Piecie by this id exists) — cites `IMPL-PF-Q7`'s evidence below, gap-filled by Plan 48-04: `tests/effects/phase48-place-quest-verification.test.ts::quest_req_tough_it_out` — see `48-FRAGMENT-04-places-quests-crosscut.md`
 
 ### Snelle Piecies (4 unique)
 - [x] **IMPL-PF-S1:** snelle_jensen — instant effect execution — VERIFIED (shared with IMPL-AR-S1): `tests/ui/cards/card-registry.js:276-279` (see `48-FRAGMENT-03-snelle.md`)
@@ -27,18 +27,18 @@
 - [x] **IMPL-PF-S4:** snelle_lucky_coin — instant effect execution — VERIFIED (shared with IMPL-AR-S3): `tests/engine/snelle-piecie-full-slots.test.ts:105-123` (see `48-FRAGMENT-03-snelle.md`)
 
 ### Places (3 unique)
-- [ ] **IMPL-PF-PL1:** place_the_gym — passive effect execution
-- [ ] **IMPL-PF-PL2:** place_zo_is_natuur — passive effect execution
-- [ ] **IMPL-PF-PL3:** place_obby_1 — passive effect execution
+- [x] **IMPL-PF-PL1:** place_the_gym — passive effect execution — VERIFIED: `tests/effects/physical-equipment-scaling.test.ts::effect_the_gym CLESS patch (PHYS-06)` — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-PF-PL2:** place_zo_is_natuur — passive effect execution — VERIFIED (gap-filled 48-04): `tests/effects/phase48-place-quest-verification.test.ts::effect_zo_is_natuur` — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-PF-PL3:** place_obby_1 — passive effect execution — VERIFIED: `tests/engine/place-obby-1.test.ts::Obby #1 — On Quest (dispatcher-level, PLACE-02)` — see `48-FRAGMENT-04-places-quests-crosscut.md`
 
 ### Quests (7 unique)
-- [ ] **IMPL-PF-Q1:** quest_endurance_test — quest requirement and reward logic
-- [ ] **IMPL-PF-Q2:** quest_sustained_assault — quest requirement and reward logic
-- [ ] **IMPL-PF-Q3:** quest_shotje_obby — quest requirement and reward logic
-- [ ] **IMPL-PF-Q4:** quest_leap_of_faith — quest requirement and reward logic
-- [ ] **IMPL-PF-Q5:** quest_survive_storm — quest requirement and reward logic
-- [ ] **IMPL-PF-Q6:** quest_never_give_up — quest requirement and reward logic
-- [ ] **IMPL-PF-Q7:** quest_tough_it_out — quest requirement and reward logic
+- [x] **IMPL-PF-Q1:** quest_endurance_test — quest requirement and reward logic — VERIFIED: `tests/ui/simulation/chain-tests.spec.js` (browser T1) — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-PF-Q2:** quest_sustained_assault — quest requirement and reward logic — VERIFIED: `tests/abilities/phase-22-quest-gates.test.ts::quest_req_sustained_assault` — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-PF-Q3:** quest_shotje_obby — quest requirement and reward logic — VERIFIED (gap-filled 48-04): `tests/effects/phase48-place-quest-verification.test.ts::quest_req_shotje_obby` — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-PF-Q4:** quest_leap_of_faith — quest requirement and reward logic — VERIFIED (gap-filled 48-04): `tests/effects/phase48-place-quest-verification.test.ts::quest_req_leap_of_faith` — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-PF-Q5:** quest_survive_storm — quest requirement and reward logic — VERIFIED (gap-filled 48-04): `tests/effects/phase48-place-quest-verification.test.ts::quest_req_survive_storm` — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-PF-Q6:** quest_never_give_up — quest requirement and reward logic — VERIFIED (gap-filled 48-04): `tests/effects/phase48-place-quest-verification.test.ts::quest_req_never_give_up` — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-PF-Q7:** quest_tough_it_out — quest requirement and reward logic — VERIFIED (gap-filled 48-04, also canonical evidence for IMPL-PF-P12's duplicate): `tests/effects/phase48-place-quest-verification.test.ts::quest_req_tough_it_out` — see `48-FRAGMENT-04-places-quests-crosscut.md`
 
 ---
 
@@ -70,25 +70,25 @@
 - [x] **IMPL-AR-S4:** snelle_dubbele_temminks — instant effect execution — GAP CLOSED: `tests/effects/phase48-snelle-verification.test.ts` (see `48-FRAGMENT-03-snelle.md`)
 
 ### Places (2 unique)
-- [ ] **IMPL-AR-PL1:** place_arcade — passive effect execution
-- [ ] **IMPL-AR-PL2:** place_quest_haven — passive effect execution
-- [ ] **IMPL-AR-PL3:** place_coerts_caravan — passive effect execution
+- [x] **IMPL-AR-PL1:** place_arcade — passive effect execution — VERIFIED: `tests/engine/place-arcade.test.ts::Arcade — On Quest (dispatcher-level, PLACE-03)` — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-AR-PL2:** place_quest_haven — passive effect execution — VERIFIED (gap-filled 48-04): `tests/effects/phase48-place-quest-verification.test.ts::effect_quest_haven` — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-AR-PL3:** place_coerts_caravan — passive effect execution — VERIFIED: `tests/engine/place-coerts-caravan.test.ts::place_coerts_caravan (Phase 41) — Coert Quest-damage shield` — see `48-FRAGMENT-04-places-quests-crosscut.md`
 
 ### Quests (8 unique)
-- [ ] **IMPL-AR-Q1:** quest_artistic_expression — quest requirement and reward logic
-- [ ] **IMPL-AR-Q2:** quest_improvise — quest requirement and reward logic
-- [ ] **IMPL-AR-Q3:** quest_create_masterpiece — quest requirement and reward logic
-- [ ] **IMPL-AR-Q4:** quest_lucky_break — quest requirement and reward logic
-- [ ] **IMPL-AR-Q5:** quest_synergy_mastery — quest requirement and reward logic
+- [x] **IMPL-AR-Q1:** quest_artistic_expression — quest requirement and reward logic — VERIFIED (pre-existing draw mechanism + gap-filled 48-04 auto-succeed gate): `tests/abilities/quest-behaviors.test.ts::resolveQuest — drawOnSuccess` + `tests/effects/phase48-place-quest-verification.test.ts::quest_req_artistic_expression` — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-AR-Q2:** quest_improvise — quest requirement and reward logic — VERIFIED (gap-filled 48-04): `tests/effects/phase48-place-quest-verification.test.ts::quest_req_improvise` — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-AR-Q3:** quest_create_masterpiece — quest requirement and reward logic — VERIFIED (gap-filled 48-04): `tests/effects/phase48-place-quest-verification.test.ts::quest_req_create_masterpiece` — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-AR-Q4:** quest_lucky_break — quest requirement and reward logic — VERIFIED (gap-filled 48-04): `tests/effects/phase48-place-quest-verification.test.ts::quest_req_lucky_break` — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-AR-Q5:** quest_synergy_mastery — quest requirement and reward logic — VERIFIED (gap-filled 48-04): `tests/effects/phase48-place-quest-verification.test.ts::quest_req_synergy_mastery` — see `48-FRAGMENT-04-places-quests-crosscut.md`
 
 ---
 
 ## Cross-Cutting Concerns
 
-- [ ] **IMPL-TEST:** Unit tests for all new card effects
-- [ ] **IMPL-LOBBY:** Enable deck selection for both decks in lobby
-- [ ] **IMPL-SIM:** Simulation runs without crashes
-- [ ] **IMPL-REG:** Cards registered in card registry correctly
+- [x] **IMPL-TEST:** Unit tests for all new card effects — VERIFIED: aggregate `tests/` tree (113 files) + `npm test` 739/739 pass count — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-LOBBY:** Enable deck selection for both decks in lobby — SUPERSEDED (Phase 34, 2026-07-03): `tests/ui/active-deck-lobby.spec.js` + `tests/ui/onboarding-starter-deck.spec.js` verify the current 5-duo-deck onboarding + active-deck lobby switcher, not the retired 2-deck toggle — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-SIM:** Simulation runs without crashes — VERIFIED: `tests/ui/simulation/sim-30-games.spec.js:67-68` (`expect(collector.getErrors()).toHaveLength(0)`) + `sim-botvsbot.spec.js` — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-REG:** Cards registered in card registry correctly — VERIFIED: `tests/data/deck-balance.test.ts` deck-membership assertions (legitimate here per D-01's IMPL-REG carve-out) — see `48-FRAGMENT-04-places-quests-crosscut.md`
 
 ---
 
