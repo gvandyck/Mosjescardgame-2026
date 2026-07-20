@@ -70,3 +70,61 @@ as presented.
 
 - Thematic items for Ming, The Hacker, FPS Coert/FPS West, Youri (brainstormed:
   Crystal Ball, Backdoor.exe, 360 No-Scope, Speedrun Route Notes) — future phase.
+
+---
+
+## Post-implementation review closure
+
+**Date:** 2026-07-19
+**Areas discussed:** DDR chain draws, multiple Perfect Rhythm copies, Perfect
+Rhythm lifecycle, thematic MP recipient
+
+### DDR chain draws
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Every activation | Manual and DDR-chained activations each draw after their own effect resolves | ✓ |
+| Manual only | Chained activations do not count; card text would need an exception | |
+| One per chain | An entire automatic chain produces at most one draw | |
+
+**User's choice:** Every activation. The user separately selected
+"after that Piecie resolves" for draw timing.
+
+### Multiple Perfect Rhythm copies
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Pre-activation snapshot, non-stacking | A later copy draws from an earlier armed copy, never from its own newly armed flag; all copies together still yield one draw per later activation | ✓ |
+| Exclude all Rhythm copies | No Perfect Rhythm copy can ever trigger a prior one | |
+| Stack copies | Each armed copy adds another draw to every later activation | |
+
+**User's choice:** Delegated to Codex's recommendation.
+
+### Perfect Rhythm lifecycle
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Face-up until end of turn | Board state visibly represents the continuing effect and uses the existing persistent-card sweep | ✓ |
+| Immediate graveyard | Keep the invisible boolean flag as the only indicator | |
+
+**User's choice:** Delegated to Codex's recommendation.
+
+### Thematic MP recipient
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Qualifying thematic Mosje | First matching COERT receives Boosterpackkie; exact DDR Chris receives Perfect Rhythm | ✓ |
+| First active Mosje | Existing generic fallback may award an unrelated Mosje | |
+
+**User's choice:** Delegated to Codex's recommendation.
+
+## Codex's Discretion
+
+- The user said, "just go with what you recommend each time." Codex selected
+  the marked recommendations for all remaining review questions.
+- Helper naming and code extraction boundaries remain implementation details
+  for planning.
+
+## Deferred Ideas
+
+None — the review discussion stayed within Phase 46.

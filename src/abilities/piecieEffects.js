@@ -20,9 +20,9 @@ function getFirstActiveSlotIndex(player) {
 	return player.activeSlots.findIndex(slot => slot !== null && !slot.isDefeated);
 }
 
-function hasActiveMosjeTag(player, tag) {
+function getFirstActiveMosjeTagSlotIndex(player, tag) {
 	const wantedTag = String(tag).toUpperCase();
-	return player.activeSlots.some(slot => {
+	return player.activeSlots.findIndex(slot => {
 		if (!slot || slot.isDefeated) return false;
 		const mosjeDef = MOSJES.find(mosje => mosje.id === slot.cardId);
 		const slotTags = Array.isArray(slot.tags) ? slot.tags : [];
@@ -30,6 +30,10 @@ function hasActiveMosjeTag(player, tag) {
 		const tags = [...slotTags, ...definitionTags];
 		return tags.some(value => String(value).toUpperCase() === wantedTag);
 	});
+}
+
+function hasActiveMosjeTag(player, tag) {
+	return getFirstActiveMosjeTagSlotIndex(player, tag) >= 0;
 }
 
 function getOpponentId(state, playerId) {
@@ -543,8 +547,8 @@ export function effect_boosterpackkie(gameState, playerId) {
 		cardsDrawn += 1;
 	}
 
-	const si = getFirstActiveSlotIndex(player);
-	if (hasCoert && si >= 0) applyMPGain(player, si, 10, state, playerId);
+	const coertSlotIndex = getFirstActiveMosjeTagSlotIndex(player, 'COERT');
+	if (coertSlotIndex >= 0) applyMPGain(player, coertSlotIndex, 10, state, playerId);
 	console.log(`[ABILITY] Boosterpackkie: drew ${cardsDrawn}, rolled ${roll}${hasCoert ? ', +10 MP (COERT)' : ''}`);
 	return state;
 }
@@ -555,12 +559,12 @@ export function effect_perfect_rhythm(gameState, playerId) {
 	if (!player) return state;
 
 	player.perfectRhythmDrawNextPiecie = true;
-	const hasDdrChris = player.activeSlots.some(
+	const ddrChrisSlotIndex = player.activeSlots.findIndex(
 		slot => slot && !slot.isDefeated && slot.cardId === 'mosje_chris_ddr'
 	);
-	const si = getFirstActiveSlotIndex(player);
-	if (hasDdrChris && si >= 0) applyMPGain(player, si, 10, state, playerId);
-	console.log(`[ABILITY] Perfect Rhythm: next Piecie activation draws 1${hasDdrChris ? ', +10 MP (DDR Chris)' : ''}`);
+	const hasDdrChris = ddrChrisSlotIndex >= 0;
+	if (hasDdrChris) applyMPGain(player, ddrChrisSlotIndex, 10, state, playerId);
+	console.log(`[ABILITY] Perfect Rhythm: each later Piecie activation draws 1${hasDdrChris ? ', +10 MP (DDR Chris)' : ''}`);
 	return state;
 }
 

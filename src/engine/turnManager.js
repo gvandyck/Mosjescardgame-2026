@@ -36,6 +36,24 @@ function hasBothChrisAndYouri(player) {
 // "an Alyssa" once the pair is confirmed present.
 const ALYSSA_JISCA_SYNERGY_MOSJE_IDS = ['mosje_alyssa_bulldozer', 'mosje_alyssa_fissa'];
 
+// Perfect Rhythm checks whether its draw was already armed before the current
+// Piecie effect began. This prevents the first Rhythm from drawing off itself,
+// while allowing a later Rhythm copy and DDR-chained activations to benefit.
+function applyPerfectRhythmDraw(state, playerId, wasArmedBeforeActivation) {
+  if (!wasArmedBeforeActivation) return state;
+  const player = state.players[playerId];
+  if (!player) return state;
+
+  if (player.deck.length > 0) {
+    player.hand.push(player.deck.shift());
+    state = applyPlaceEffectsOnDraw(state, playerId, 1);
+    console.log('[ABILITY] Perfect Rhythm: later Piecie activation drew 1 card');
+  } else {
+    console.log('[ABILITY] Perfect Rhythm: later Piecie activation had no card to draw');
+  }
+  return state;
+}
+
 // Alyssa<->Jisca synergy (D-03, Phase 38): while an Alyssa is also on the field,
 // the FIRST Piecie the controlling player plays each turn grants Jisca +10 MP,
 // once per turn (alyssaJiscaPiecieBonusUsedThisTurn, reset every turn in startTurn).
@@ -103,9 +121,12 @@ function maybeChainChrisDdrCombo(state, playerId) {
   console.log(`[ABILITY] Chris DDR Perfect Combo Chain: rolled ${roll} — chained ${chainedCard.cardId} from hand for free (use ${player.chrisDdrChainUsesThisTurn}/3)`);
 
   let next = state;
+  const rhythmWasArmedBeforeEffect =
+    state.players[playerId].perfectRhythmDrawNextPiecie === true;
   if (def?.effectId && typeof piecieEffects[def.effectId] === 'function') {
     next = piecieEffects[def.effectId](state, playerId);
   }
+  next = applyPerfectRhythmDraw(next, playerId, rhythmWasArmedBeforeEffect);
   const np = next.players[playerId];
   if (!Array.isArray(np.graveyard)) np.graveyard = [];
   if (def?.persistUntilEndOfTurn) {
@@ -937,6 +958,8 @@ export function activatePiecie(gameState, playerId, slotIndex) {
   // Apply the effect function
   const effectFn = piecieEffects[knownCardDef.effectId];
   const handSizeBeforeEffect = state.players[playerId].hand.length;
+  const rhythmWasArmedBeforeEffect =
+    state.players[playerId].perfectRhythmDrawNextPiecie === true;
   if (typeof effectFn === 'function') {
     state = effectFn(state, playerId);
     // STUB-05 (doubleNextPiecie / Double Trigger) — IMPLEMENTED. Flag is set by
@@ -958,19 +981,10 @@ export function activatePiecie(gameState, playerId, slotIndex) {
     state = applyPlaceEffectsOnDraw(state, playerId, piecieCardsDrawn);
   }
 
-  // Perfect Rhythm arms a per-activation draw for every later Piecie activation
-  // this turn; the flag persists until end of turn. Its own activation sets the
-  // flag but deliberately does not consume it (no self-trigger).
-  const rhythmPlayer = state.players[playerId];
-  if (slotCardId !== 'piecie_perfect_rhythm' && rhythmPlayer.perfectRhythmDrawNextPiecie) {
-    if (rhythmPlayer.deck.length > 0) {
-      rhythmPlayer.hand.push(rhythmPlayer.deck.shift());
-      state = applyPlaceEffectsOnDraw(state, playerId, 1);
-      console.log('[ABILITY] Perfect Rhythm: next Piecie activation drew 1 card');
-    } else {
-      console.log('[ABILITY] Perfect Rhythm: next Piecie activation had no card to draw');
-    }
-  }
+  // Perfect Rhythm draws after every later activation this turn. Eligibility
+  // comes from the pre-effect snapshot, so a card cannot trigger the flag it
+  // just armed itself, but a later Perfect Rhythm copy can trigger an earlier one.
+  state = applyPerfectRhythmDraw(state, playerId, rhythmWasArmedBeforeEffect);
 
   // Track last played piecie for Gevalletje Klakkeloos
   state._lastPiecieEffect = { effectId: knownCardDef.effectId, byPlayer: playerId };

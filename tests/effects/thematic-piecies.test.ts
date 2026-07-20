@@ -19,9 +19,12 @@ type StateOptions = {
   cardId?: string;
   mp?: number;
   tags?: string[];
+  activeSlots?: Array<Record<string, unknown> | null>;
+  hand?: Array<{ cardId: string; type: string }>;
   deck?: Array<{ cardId: string; type: string }>;
   piecieSlots?: Array<Record<string, unknown> | null>;
   perfectRhythmDrawNextPiecie?: boolean;
+  chrisDdrChainUsesThisTurn?: number;
 };
 
 function makeMosje(cardId: string, mp = 50, tags?: string[]) {
@@ -43,10 +46,12 @@ function makeMosje(cardId: string, mp = 50, tags?: string[]) {
 function makePlayer(options: StateOptions = {}) {
   return {
     playerId: 'player_1',
-    hand: [],
+    hand: options.hand ?? [],
     deck: options.deck ?? [],
     graveyard: [],
-    activeSlots: [makeMosje(options.cardId ?? 'mosje_chris', options.mp, options.tags), null],
+    activeSlots:
+      options.activeSlots ??
+      [makeMosje(options.cardId ?? 'mosje_chris', options.mp, options.tags), null],
     piecieSlots: options.piecieSlots ?? [null, null, null, null],
     questPrepBonus: 0,
     questsCompleted: 0,
@@ -58,6 +63,7 @@ function makePlayer(options: StateOptions = {}) {
     actionsThisTurn: [],
     totalDamageTaken: 0,
     perfectRhythmDrawNextPiecie: options.perfectRhythmDrawNextPiecie ?? false,
+    chrisDdrChainUsesThisTurn: options.chrisDdrChainUsesThisTurn ?? 0,
   };
 }
 
@@ -93,7 +99,7 @@ describe('Phase 46 thematic Piecie definitions', () => {
   const expected = [
     ['piecie_loaded_dice', '★★', true],
     ['piecie_boosterpackkie', '★★', false],
-    ['piecie_perfect_rhythm', '★', false],
+    ['piecie_perfect_rhythm', '★', true],
     ['piecie_dikke_plaat', '★★', true],
   ] as const;
 
@@ -241,6 +247,22 @@ describe('Boosterpackkie', () => {
     const result = effect_boosterpackkie(makeState({ mp: 50 }), 'player_1');
     expect(result.players.player_1.activeSlots[0].mp).toBe(50);
   });
+
+  it('grants +10 MP to the qualifying COERT Mosje instead of an unrelated first slot', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    const result = effect_boosterpackkie(
+      makeState({
+        activeSlots: [
+          makeMosje('mosje_gandoe_destroyer', 40),
+          makeMosje('mosje_coert_kasteluck', 50),
+        ],
+      }),
+      'player_1',
+    );
+
+    expect(result.players.player_1.activeSlots[0].mp).toBe(40);
+    expect(result.players.player_1.activeSlots[1].mp).toBe(60);
+  });
 });
 
 describe('Perfect Rhythm', () => {
@@ -257,6 +279,21 @@ describe('Perfect Rhythm', () => {
     );
     expect(result.players.player_1.activeSlots[0].mp).toBe(100);
     expect(result.players.player_1.activeSlots[0].level).toBe(1);
+  });
+
+  it('grants +10 MP to exact DDR Chris instead of an unrelated first slot', () => {
+    const result = effect_perfect_rhythm(
+      makeState({
+        activeSlots: [
+          makeMosje('mosje_gandoe_destroyer', 40),
+          makeMosje('mosje_chris_ddr', 50),
+        ],
+      }),
+      'player_1',
+    );
+
+    expect(result.players.player_1.activeSlots[0].mp).toBe(40);
+    expect(result.players.player_1.activeSlots[1].mp).toBe(60);
   });
 
   it('does not consume its flag on its own activation', () => {
@@ -320,6 +357,98 @@ describe('Perfect Rhythm', () => {
     const second = activatePiecie(first.state, 'player_1', 1);
     expect(second.state.players.player_1.hand).toHaveLength(2);
     expect(second.state.players.player_1.deck).toHaveLength(0);
+  });
+
+  it('draws after a Piecie automatically chained by DDR Chris', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.99);
+    const state = makeState({
+      activeSlots: [makeMosje('mosje_chris_ddr'), null],
+      perfectRhythmDrawNextPiecie: true,
+      chrisDdrChainUsesThisTurn: 2,
+      hand: [{ cardId: 'piecie_redbull', type: 'PIECIE' }],
+      deck: [
+        { cardId: 'draw_1', type: 'PLACE' },
+        { cardId: 'draw_2', type: 'PLACE' },
+      ],
+      piecieSlots: [
+        {
+          cardId: 'piecie_mp_amplifier',
+          type: 'PIECIE',
+          faceDown: true,
+          activated: false,
+          playedOnTurn: 1,
+          canActivateOnTurn: 2,
+        },
+        null,
+        null,
+        null,
+      ],
+    });
+
+    const result = activatePiecie(state, 'player_1', 0);
+    expect(result.success).toBe(true);
+    expect(result.state.players.player_1.chrisDdrChainUsesThisTurn).toBe(3);
+    expect(
+      result.state.players.player_1.hand.map((card: { cardId: string }) => card.cardId),
+    ).toEqual(['draw_1', 'draw_2']);
+    expect(result.state.players.player_1.deck).toHaveLength(0);
+  });
+
+  it('lets a later Perfect Rhythm copy draw from the earlier non-stacking flag', () => {
+    const state = makeState({
+      deck: [
+        { cardId: 'draw_1', type: 'PLACE' },
+        { cardId: 'draw_2', type: 'PLACE' },
+      ],
+      piecieSlots: [
+        {
+          cardId: 'piecie_perfect_rhythm',
+          type: 'PIECIE',
+          faceDown: true,
+          activated: false,
+          playedOnTurn: 1,
+          canActivateOnTurn: 2,
+        },
+        {
+          cardId: 'piecie_perfect_rhythm',
+          type: 'PIECIE',
+          faceDown: true,
+          activated: false,
+          playedOnTurn: 1,
+          canActivateOnTurn: 2,
+        },
+        {
+          cardId: 'piecie_mp_amplifier',
+          type: 'PIECIE',
+          faceDown: true,
+          activated: false,
+          playedOnTurn: 1,
+          canActivateOnTurn: 2,
+        },
+        null,
+      ],
+    });
+
+    const first = activatePiecie(state, 'player_1', 0);
+    expect(first.state.players.player_1.hand).toHaveLength(0);
+    expect(first.state.players.player_1.piecieSlots[0]).toMatchObject({
+      cardId: 'piecie_perfect_rhythm',
+      faceDown: false,
+      persistUntilEoT: true,
+    });
+
+    const second = activatePiecie(first.state, 'player_1', 1);
+    expect(second.state.players.player_1.hand).toHaveLength(1);
+    expect(second.state.players.player_1.perfectRhythmDrawNextPiecie).toBe(true);
+    expect(second.state.players.player_1.piecieSlots[1]).toMatchObject({
+      cardId: 'piecie_perfect_rhythm',
+      faceDown: false,
+      persistUntilEoT: true,
+    });
+
+    const third = activatePiecie(second.state, 'player_1', 2);
+    expect(third.state.players.player_1.hand).toHaveLength(2);
+    expect(third.state.players.player_1.deck).toHaveLength(0);
   });
 
   it('clears an unused flag at end of turn', () => {

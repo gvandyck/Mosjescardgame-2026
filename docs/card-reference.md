@@ -102,11 +102,11 @@ This document is the final Phase 11 master card inventory, generated from the li
 | bagga-of-greed | Bagga of Greed | UTILITY | yes | no | free | drawCards+discardCards; showCardChoice modal wired in main.js — full-hand discard picker after activation (STUB-11) | implemented |
 | battle-concert | Battle Concert | UTILITY | no | no | free, lvl 2+ | loseMP+ifThenElse; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | advanced |
 | bong-hit-demolition | Bong Hit Demolition | UTILITY | no | no | free | destroyPlace+drawCards; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | advanced |
-| piecie_boosterpackkie | Boosterpackkie | UTILITY | no | yes | free | Draw 1, roll 1d6, and on 5-6 draw 1 more only with a COERT Mosje on field; a COERT-tagged Mosje also grants +10 MP | advanced |
+| boosterpackkie | Boosterpackkie | UTILITY | no | yes | free | Draw 1 and roll 1d6; with a COERT Mosje, 5-6 draws 1 more and the first qualifying COERT gains +10 MP regardless of the roll | advanced |
 | call-of-the-welloes | Call of the Welloes | UTILITY | no | no | free | Summon a Mosje from your Welloe pile to a free slot, restoring its recorded MP/Level. Piecie is the anchor — leaves play → Mosje returns to Welloe (end-of-turn sweep). | implemented |
 | chain-reaction | Chain Reaction | UTILITY | no | no | free | multiplyByCount | advanced |
 | dingetje-toch | Dingetje Toch | UTILITY | no | no | free | ifThenElse; DEFERRED to UI phase — consumption point documented in turnManager.js handleActivatePiecie() comment (STUB-07) | partial |
-| piecie_dikke_plaat | Dikke Plaat | UTILITY | no | yes | free | Next Quest roll this turn +1, or +2 with a DJ-tagged Mosje or [Alyssa] Fissa Fissa!; persists until end of turn | advanced |
+| dikke-plaat | Dikke Plaat | UTILITY | no | yes | free | Next Quest roll this turn +1, or +2 with a DJ-tagged Mosje or [Alyssa] Fissa Fissa!; persists until end of turn | advanced |
 | double-trigger | Double Trigger | UTILITY | no | no | free | applyBuff; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
 | dubbele-ding | Dubbele Ding | UTILITY | yes | no | free | applyBuff | implemented |
 | dubbele-dosis | Dubbele Dosis | UTILITY | yes | no | free | applyBuff; persists in slot until endTurn (BUG-02 fixed: no longer discards immediately) | implemented |
@@ -115,12 +115,12 @@ This document is the final Phase 11 master card inventory, generated from the li
 | huisbaas | Huisbaas | UTILITY | no | no | free | destroyPlace + return a Place from the owner's discard (Phase 17 rework — no deck-search-modal needed) | implemented |
 | jantje-jantje | Jantje Jantje | UTILITY | no | no | free | loseMP+applyBuff; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | advanced |
 | laat-me-chillen | Laat Me Chillen | UTILITY | yes | no | free | gainMP+applyBuff; MP_LOSS_REDUCTION wired in loseMP() (STUB-02); ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
-| piecie_loaded_dice | Loaded Dice | UTILITY | no | yes | free | Next Quest roll this turn +1, or +2 with a JEFFREY-tagged Mosje; persists until end of turn | advanced |
+| loaded-dice | Loaded Dice | UTILITY | no | yes | free | Next Quest roll this turn +1, or +2 with a JEFFREY-tagged Mosje; persists until end of turn | advanced |
 | mosje-reborn | Mosje Reborn | UTILITY | no | no | free | returnToHand | advanced |
 | mosje-shield | Mosje Shield | UTILITY | yes | no | free | applyBuff; WELLOE_SHIELD wired in markMosjeDefeated() (STUB-03); ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
 | mp-adjuster | MP Adjuster | UTILITY | no | no | free | ifThenElse; showOptionSelect modal wired in main.js (20/40/60/80/100 MP); temporary effect — reverts at next turn start via startTurn(); rarity ★★★★ (STUB-15) | implemented |
 | mp-amplifier | MP Amplifier | UTILITY | yes | no | free | multiplyNextMPGain | implemented |
-| piecie_perfect_rhythm | Perfect Rhythm | UTILITY | no | yes | free | Every later Piecie you activate this turn draws 1 card; exact Dancing/DDR Chris also grants +10 MP | advanced |
+| perfect-rhythm | Perfect Rhythm | UTILITY | no | yes | free | Every later manual or DDR-chained Piecie activation this turn draws 1; persists until end of turn; exact Dancing/DDR Chris gains +10 MP | advanced |
 | perfect-setup | Perfect Setup | UTILITY | no | no | free | setMP | advanced |
 | redbull | Redbull | UTILITY | yes | no | free, lvl 1+ | applyBuff; ruled free 2026-07-16, no self-payment language (COST-01/COST-02) | implemented |
 | shhh-popo-komt | Shhh, popo komt! | UTILITY | no | no | free | destroyPlace+gainMP | advanced |

@@ -1,6 +1,6 @@
 # Phase 46: Thematic Piecie Cards for Specific Mosjes - Context
 
-**Gathered:** 2026-07-19
+**Gathered:** 2026-07-19 (updated after post-implementation code review)
 **Status:** Ready for planning
 
 <domain>
@@ -59,14 +59,43 @@ shared design principle settled in discussion:
 - **D-08 — MP five-grid rule:** all MP values are multiples of 5 (10 MP kickers
   comply; see memory rule mp-five-grid-rule).
 
+### Post-review gap-closure rulings (user delegated recommended choices)
+
+- **D-09 — Every resolved Piecie activation counts for Perfect Rhythm.**
+  Manual field-slot activations and automatic Piecies chained from hand by
+  Chris DDR each draw 1 after that Piecie's own effect resolves. Draw-triggered
+  Place effects run normally for each card drawn.
+- **D-10 — Self-trigger is determined from the pre-activation state.** A
+  Perfect Rhythm cannot draw from the flag it arms itself. If a Rhythm was
+  already armed before a later Perfect Rhythm copy activates, that later copy
+  does draw 1 from the earlier effect. This applies equally inside a DDR chain.
+- **D-11 — Multiple Perfect Rhythm copies do not multiply the payoff.** The
+  effect remains a boolean turn flag: while one or more copies have armed it,
+  each later Piecie activation draws exactly 1, not 1 per copy.
+- **D-12 — Perfect Rhythm visibly persists until end of turn.** Add the same
+  `persistUntilEndOfTurn` lifecycle used by other turn-long Piecies. Each
+  activated copy stays face-up, then the normal end-turn sweep moves it to the
+  graveyard. Once armed, the turn flag remains active until the normal end-turn
+  clear even if the visible card leaves its slot early.
+- **D-13 — The thematic Mosje receives the +10 MP kicker.** Boosterpackkie
+  awards the first active, non-defeated COERT-tagged Mosje; Perfect Rhythm
+  awards exact active `mosje_chris_ddr`. Do not fall back to the first unrelated
+  active Mosje. Existing cap and `allowLevelUp: false` behavior remain; excess
+  does not spill to another Mosje.
+- **D-14 — Non-ruling review cleanup is approved.** Clarify Boosterpackkie's
+  description so the 5-6 gate applies only to its extra draw while COERT's
+  +10 MP is unconditional on the roll; change Perfect Rhythm logs from "next"
+  to "later"; normalize the four new documentation IDs to the existing
+  kebab-case convention; add focused regression tests for D-09 through D-13.
+
 ### Claude's Discretion
 - Exact wording of `description` strings (keep the existing terse house style,
   e.g. "Your next Quest roll this turn gets +1. JEFFREY Mosje on field: +2 instead.").
-- Whether Loaded Dice / Dikke Plaat need `persistUntilEndOfTurn: true` (follow
-  the Dubbele Dosis / Skipping Rope precedent for questPrepBonus cards).
+- Loaded Dice / Dikke Plaat continue using `persistUntilEndOfTurn: true`;
+  D-12 now locks the same lifecycle for Perfect Rhythm.
 - Flavour text (may be left empty like most Piecies).
-- Perfect Rhythm's "next Piecie activation also draws 1" flag naming/placement
-  (new one-shot player flag consumed in the Piecie activation path).
+- Helper names and extraction boundaries for sharing the Perfect Rhythm draw
+  hook between manual and DDR-chain activation paths.
 
 </decisions>
 
@@ -92,6 +121,12 @@ shared design principle settled in discussion:
 - `docs/card-reference.md` — add rows for all 4 new cards + Keyboard pairing note.
 - `.planning/phases/39-.../39-CONTEXT.md` — precedent for tag-family checks and
   MP five-grid compliance.
+
+### Post-review closure
+- `.planning/phases/46-thematic-piecie-cards-for-specific-mosjes-add-jeffrey-s-load/46-REVIEW.md`
+  — source of the three warnings and four informational cleanup findings.
+- `docs/phase0-rulings.md` — canonical game rules; code must conform where the
+  review closure touches MP and card lifecycle behavior.
 
 </canonical_refs>
 
@@ -119,9 +154,9 @@ shared design principle settled in discussion:
 - `src/abilities/piecieEffects.js` (4 new exported functions; effectId naming:
   `effect_loaded_dice`, `effect_boosterpackkie`, `effect_perfect_rhythm`,
   `effect_dikke_plaat`).
-- Perfect Rhythm's draw-on-next-activation flag: consumed where Piecie
-  activation resolves (main.js handleActivatePiecie / turnManager path — planner
-  to pick the single consumption point).
+- Perfect Rhythm's draw-on-later-activation flag must be observed from both
+  `activatePiecie` and `maybeChainChrisDdrCombo`; the planner should use one
+  shared helper so draw timing and Place-on-draw behavior cannot diverge.
 
 </code_context>
 
@@ -154,4 +189,4 @@ shared design principle settled in discussion:
 ---
 
 *Phase: 46-thematic-piecie-cards-for-specific-mosjes-add-jeffrey-s-load*
-*Context gathered: 2026-07-19*
+*Context gathered: 2026-07-19; review closure updated: 2026-07-19*
