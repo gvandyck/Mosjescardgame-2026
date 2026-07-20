@@ -3,8 +3,8 @@
 ## Physical Force Deck
 
 ### Mosje Abilities
-- [ ] **IMPL-PF-M1:** Alyssa the Bulldozer — ability execution and effect resolution
-- [ ] **IMPL-PF-M2:** Jeffrey the Strongman — ability execution and effect resolution
+- [x] **IMPL-PF-M1:** Alyssa the Bulldozer — ability execution and effect resolution — VERIFIED (gap-filled 48-05): `tests/abilities/phase48-mosje-ability-verification.test.ts::ability_alyssa_bulldozer_unstoppable` — see `48-FRAGMENT-05-mosje-bugs.md`
+- [x] **IMPL-PF-M2:** Jeffrey the Strongman — ability execution and effect resolution — VERIFIED (gap-filled 48-05, verified via the passive `applyMosjeFieldEffectsOnQuest` mechanic, not the no-op `ability_jeffrey_brute_force` stub): `tests/abilities/phase48-mosje-ability-verification.test.ts::Jeffrey Brute Force passive quest bonus` — see `48-FRAGMENT-05-mosje-bugs.md`
 
 ### Piecies (13 unique)
 - [x] **IMPL-PF-P1:** kannetje-melk — effect execution — VERIFIED: `tests/ui/cards/card-registry.js:17-21` (see `.planning/phases/48-.../48-FRAGMENT-01-pf-piecies.md`)
@@ -45,8 +45,8 @@
 ## Artistic Rhythm Deck
 
 ### Mosje Abilities
-- [ ] **IMPL-AR-M1:** DJ 80/20 — ability execution and effect resolution
-- [ ] **IMPL-AR-M2:** Jisca the Maestro — ability execution and effect resolution
+- [x] **IMPL-AR-M1:** DJ 80/20 — ability execution and effect resolution — VERIFIED (gap-filled 48-05, closes BUG-05 with the same test): `tests/abilities/phase48-mosje-ability-verification.test.ts::ability_dj_8020_lucky_beats` — see `48-FRAGMENT-05-mosje-bugs.md`
+- [x] **IMPL-AR-M2:** Jisca the Maestro — ability execution and effect resolution — VERIFIED: `tests/abilities/ability-text-reconciliation.test.ts:438-513` (Jisca — Perfect Combo) — see `48-FRAGMENT-05-mosje-bugs.md`
 
 ### Piecies (13 unique)
 - [x] **IMPL-AR-P1:** kannetje-melk — effect execution — VERIFIED (shared with IMPL-PF-P1): `tests/ui/cards/card-registry.js:17-21` (see `48-FRAGMENT-02-ar-piecies.md`)
@@ -96,11 +96,11 @@
 
 ## Phase 9 — UI & Engine Bug Fixes
 
-- [x] **BUG-01:** Quest roll threshold tier mismatch — both code paths agree; stale activeMosje suspected at runtime, debug log added
-- [x] **BUG-02:** Dubbele Dosis Piecie lifecycle — persistUntilEndOfTurn flag + endTurn sweep implemented
-- [x] **BUG-03:** Senor West MP floor — wrong-guess routes through loseMP(); activation blocked at level 0 + MP 0
-- [x] **BUG-04:** Lucky Coin activation guard — slot check runs before coin flip; blocks when all 4 slots full
-- [x] **BUG-05:** DJ Lucky Mixer turn modifier — redesigned as questPrepBonus +2, cleared at endTurn
+- [x] **BUG-01:** Quest roll threshold tier mismatch — both code paths agree; stale activeMosje suspected at runtime, debug log added — VERIFIED (48-05, residual runtime claim explicitly investigated and resolved, not silently ticked): `tests/engine/quest-threshold.test.ts` (dual-path agreement, tagged `(BUG-01)`) + `src/main.js:1244-1261`/`1452` closure-capture read confirming no second stale `activeMosje` fetch exists — see `48-FRAGMENT-05-mosje-bugs.md`
+- [x] **BUG-02:** Dubbele Dosis Piecie lifecycle — persistUntilEndOfTurn flag + endTurn sweep implemented — VERIFIED: `tests/engine/piecie-persist-eot.test.ts` — see `48-FRAGMENT-05-mosje-bugs.md`
+- [x] **BUG-03:** Senor West MP floor — wrong-guess routes through loseMP(); activation blocked at level 0 + MP 0 — VERIFIED: `tests/engine/west-calculated-guess.test.ts::West — MP floor behavior (BUG-03)` — see `48-FRAGMENT-05-mosje-bugs.md`
+- [x] **BUG-04:** Lucky Coin activation guard — slot check runs before coin flip; blocks when all 4 slots full — VERIFIED: `tests/engine/snelle-piecie-full-slots.test.ts::Lucky Coin — Full Slot Guard (BUG-04)` — see `48-FRAGMENT-05-mosje-bugs.md`
+- [x] **BUG-05:** DJ Lucky Mixer turn modifier — redesigned as questPrepBonus +2, cleared at endTurn — VERIFIED (gap-filled 48-05, closes IMPL-AR-M1 with the same test): `tests/abilities/phase48-mosje-ability-verification.test.ts::ability_dj_8020_lucky_beats` — see `48-FRAGMENT-05-mosje-bugs.md`
 
 ---
 
