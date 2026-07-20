@@ -1057,10 +1057,16 @@ Plans:
 - THEME-06: No-work confirmations — Coert Kast-elein stays hidden (`disabled: true` already set); Chris All-Rounder deliberately gets no item
 
 **Depends on:** Phase 45
-**Plans:** 0 plans
+**Plans:** 3/3 plans complete
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 46 to break down)
+**Wave 1**
+
+- [x] 46-01-PLAN.md - Added four thematic booster-only Piecies, effect wiring, Perfect Rhythm one-shot draw hook, focused tests, browser registry coverage, docs, and verification.
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 46-02-PLAN.md - Gap closure: gate Boosterpackkie 5-6 bonus draw behind a COERT Mosje, make Perfect Rhythm draw on every later Piecie activation this turn, and extend Dikke Plaat's DJ bonus to exact [Alyssa] Fissa Fissa! (3 UAT design changes).
 
 **Success Criteria:**
 
@@ -1070,6 +1076,44 @@ Plans:
 4. All 4 cards drop from boosters and appear in deck-builder; none added to starter decks
 5. card-reference.md updated (4 new rows + Keyboard pairing note)
 6. Full verification sequence green: node --check, npm test, Ronald Kip stacking, sim 0 crashes
+
+### Phase 47: Milestone planning ledger reconciliation and verification backfill routing
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 46
+**Plans:** 1/1 plans complete
+
+Plans:
+- [x] TBD (run /gsd-plan-phase 47 to break down) (completed 2026-07-20)
+
+### Phase 48: Original requirement verification backfill for Phases 01-06 and 09 using live code, tests, and honest traceability evidence
+
+**Goal:** Every one of the 64 original milestone requirements (28 IMPL-PF-*, 27 IMPL-AR-*, 4 cross-cutting IMPL-*, 5 Phase-9 BUG-*) has an honest, evidence-backed disposition (VERIFIED / SUPERSEDED / GAP-DESCOPED) in a single consolidated traceability matrix, backed by real passing tests that fail if the mechanic breaks — retiring the milestone audit's 0/64 traceability finding. Tests-only: no runtime/src changes (D-04).
+**Requirements**: 64 original ids — IMPL-PF-M1/M2, IMPL-PF-P1..P12, IMPL-PF-S1..S4, IMPL-PF-PL1..PL3, IMPL-PF-Q1..Q7, IMPL-AR-M1/M2, IMPL-AR-P1..P13, IMPL-AR-S1..S4, IMPL-AR-PL1..PL3, IMPL-AR-Q1..Q5, IMPL-TEST/LOBBY/SIM/REG, BUG-01..05
+**Depends on:** Phase 47
+**Plans:** 6 plans
+
+Plans:
+**Wave 1** *(parallel — each owns distinct test + fragment files)*
+- [ ] 48-01-PLAN.md — Physical Force Piecies map + gap-fill (IMPL-PF-P1..P12)
+- [ ] 48-02-PLAN.md — Artistic Rhythm Piecies map + gap-fill (IMPL-AR-P1..P13)
+- [ ] 48-03-PLAN.md — Snelle Piecies (both decks) map + gap-fill (IMPL-PF-S1..S4, IMPL-AR-S1..S4)
+- [ ] 48-04-PLAN.md — Places + Quests + cross-cutting map (6 Places, 12 Quests, IMPL-TEST/LOBBY/SIM/REG)
+- [ ] 48-05-PLAN.md — Mosje abilities + BUG-01..05 gap-fill + 09-VERIFICATION.md backfill (IMPL-*-M1/M2, BUG-01..05)
+
+**Wave 2** *(blocked on Wave 1)*
+- [ ] 48-06-PLAN.md — Consolidate 64-row 48-VERIFICATION.md, tick REQUIREMENTS.md with evidence, full phase-gate verification
+
+### Phase 49: Legacy execution evidence closure for plans without summaries and off-roadmap phase artifacts
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 48
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 49 to break down)
 
 ---
 
