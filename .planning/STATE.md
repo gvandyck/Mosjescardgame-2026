@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 48
 status: in_progress
-last_updated: "2026-07-20T19:06:41.758Z"
+last_updated: "2026-07-20T19:13:26.869Z"
 progress:
   total_phases: 42
   completed_phases: 24
   total_plans: 92
   completed_plans: 84
-  percent: 58
+  percent: 57
 ---
 
 # Project State
@@ -18,6 +18,40 @@ progress:
 **Last updated:** 2026-07-20
 **Current phase:** 48
 **Branch:** card/phase-48-requirement-verification
+
+## RESUME HERE (2026-07-20 handoff - Phase 48 Plan 05 COMPLETE, Mosje-ability + Phase-9 BUG backfill bucket)
+
+**Next command:** `/gsd:execute-phase 48` (resumes with Plan 48-06, wave 2 — depends
+on all five Wave 1 fragments including this plan's `48-FRAGMENT-05-mosje-bugs.md`;
+assembles the consolidated `48-VERIFICATION.md`).
+
+**Plan 48-05 (Mosje-ability gaps + Phase-9 BUG-01..05 backfill, IMPL-PF-M1/M2,
+IMPL-AR-M1/M2, BUG-01..05) is COMPLETE (3/3 tasks).** Executed sequentially on
+`card/phase-48-requirement-verification` (no worktree). Ran the two-pronged
+evidence-discovery method against all 9 rows: Jisca (IMPL-AR-M2) already had
+qualifying evidence in `tests/abilities/ability-text-reconciliation.test.ts`; 3
+confirmed gaps (Alyssa `ability_alyssa_bulldozer_unstoppable`, Jeffrey's real
+passive `applyMosjeFieldEffectsOnQuest` — NOT the no-op `ability_jeffrey_brute_force`
+stub, and DJ 80/20 `ability_dj_8020_lucky_beats`) closed with a new focused Vitest
+file (`tests/abilities/phase48-mosje-ability-verification.test.ts`, 6/6 green); the
+DJ 80/20 test asserts both its +10 MP and `questPrepBonus += 2` halves in one test,
+closing IMPL-AR-M1 AND BUG-05 simultaneously. BUG-01's residual "stale activeMosje"
+runtime claim was investigated directly in `src/main.js` (both Quest-attempt flows
+capture the active Mosje/threshold once into a closure variable, reused unchanged
+for both display and dice-roll — no second stale fetch exists anywhere) and recorded
+VERIFIED with that rationale, not silently ticked (D-08). Backfilled the previously
+missing `.planning/phases/09-ui-engine-bug-fixes/09-VERIFICATION.md`, scoped strictly
+to BUG-01..05 with real evidence citations, no fabricated Phase 01-06 legacy history
+(D-06). Zero `src/` files touched (D-04 preserved).
+
+**Verification:** `npx vitest run tests/abilities/phase48-mosje-ability-verification.test.ts`
+6/6 green; full `npm test` **745/745** (739 baseline + 6 new, 0 regressions);
+`git diff --stat` confirmed only the new test file, `09-VERIFICATION.md`, the
+fragment doc, and `REQUIREMENTS.md` touched, no `src/` changes. Full detail in
+`48-05-SUMMARY.md`.
+
+<details>
+<summary>Prior resume note (superseded - 2026-07-20, Phase 48 Plan 04 COMPLETE, Places/Quests/cross-cutting bucket)</summary>
 
 ## RESUME HERE (2026-07-20 handoff - Phase 48 Plan 04 COMPLETE, Places/Quests/cross-cutting bucket)
 
