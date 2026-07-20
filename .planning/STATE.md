@@ -3,21 +3,63 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 48
-status: ready_to_plan
-last_updated: "2026-07-20T18:27:57.647Z"
+status: in_progress
+last_updated: "2026-07-20T21:15:00.000Z"
 progress:
   total_phases: 42
   completed_phases: 24
   total_plans: 92
-  completed_plans: 79
+  completed_plans: 81
   percent: 57
 ---
 
 # Project State
 
-**Last updated:** 2026-07-19
+**Last updated:** 2026-07-20
 **Current phase:** 48
-**Branch:** card/phase-46-thematic-piecies
+**Branch:** card/phase-48-requirement-verification
+
+## RESUME HERE (2026-07-20 handoff - Phase 48 Plan 01 COMPLETE, PF Piecie bucket)
+
+**Next command:** `/gsd:execute-phase 48` (resumes with the next Phase 48 plan —
+the Artistic Rhythm Piecie bucket or whichever bucket 48-02 covers).
+
+**Plan 48-01 (PF Piecie requirement verification, IMPL-PF-P1..P12) is COMPLETE
+(2/2 tasks).** Executed sequentially on `card/phase-48-requirement-verification`
+(no worktree). Ran the two-pronged evidence-discovery method (card id string AND
+effect function name grep across `tests/`) against all 12 Physical Force Piecie
+requirements: 5 rows (P1 kannetje-melk, P2 te-hard-gaan, P6 grammetje-pieter, P8
+tikker, P10 shoettoe→`piecie_energy_surge`) already had qualifying real-assertion
+evidence in `tests/ui/cards/card-registry.js`'s browser card-test-library; 4
+confirmed gaps (P3 `effect_snoeiertje`, P4 `effect_momentum_diefje` happy-path
+steal, P5 `effect_dikke_taks`, P7 `effect_varkenspootjes` deferred-target flag)
+were closed with a new focused Vitest file
+(`tests/effects/phase48-pf-piecie-verification.test.ts`, 4/4 green) asserting
+concrete field deltas per D-02's false-green guard. P9 (`nature-s-gift`) and P11
+(`gun-een-piece`) confirmed absent from `src/` and `docs/card-reference.md` —
+recorded GAP-DESCOPED, never ticked. P12 (`quest_tough_it_out`) confirmed as a
+REQUIREMENTS.md filing duplicate of `IMPL-PF-Q7` (a Quest mis-filed under the
+Piecie section) — left unticked because a fresh grep found `IMPL-PF-Q7` itself
+has zero test evidence yet, so the plan's own "cite Q7's evidence" instruction
+could not be honestly followed as written; recorded the gap instead of
+fabricating a citation. Zero `src/` files touched (D-04 preserved).
+
+**Verification:** `npx vitest run tests/effects/phase48-pf-piecie-verification.test.ts`
+4/4 green; full `npm test` **709/709** (705 baseline + 4 new, 0 regressions);
+`git diff --stat` confirmed only the 2 new test/docs files touched, no `src/`
+changes. Full detail (including both Rule-1 honesty-correction deviations) in
+`48-01-SUMMARY.md`.
+
+**Open follow-up for later Phase 48 waves:** `IMPL-PF-Q7`'s own evidence (needed
+to properly close `IMPL-PF-P12`'s duplicate) is not yet verified — whichever
+plan covers the Quest bucket should confirm/gap-fill it. `IMPL-PF-P7`'s
+Varkenspootjes MP-swing (Binti +60 / other -30) has a residual unit-test-coverage
+gap: the real mutation happens in unexported UI (`main.js`) / bot
+(`botDriver.js`) logic, not a pure exported function — flagged in
+`48-FRAGMENT-01-pf-piecies.md`, not silently claimed as fully covered.
+
+<details>
+<summary>Prior resume note (superseded - 2026-07-19, Phase 46 COMPLETE, both plans)</summary>
 
 ## RESUME HERE (2026-07-19 handoff - Phase 46 COMPLETE, both plans)
 
@@ -496,6 +538,8 @@ mechanism lands in 36-02).
 
 </details>
 
+</details>
+
 ---
 
 **(prior)** Phase 34 COMPLETE — Account Starter-Deck Onboarding & Active Deck — branch feature/phase-34-starter-deck-onboarding (merged to main).
@@ -512,6 +556,8 @@ mechanism lands in 36-02).
 - 2026-07-13-full-game-ability-text-audit.md — systematic text-vs-code pass needed across ALL Piecies/Places/remaining Mosjes, not just the 9 already flagged; triggered by the Caravan find above.
 - 2026-06-11-ts-bulldozer-comeback-reconcile.md (pre-existing)
 - 2026-07-16-dierenasiel-real-mechanic-needed.md — Dierenasiel's `effect_dierenasiel` is a confirmed full no-op (both its prior clauses removed as dead/vacuous across Phase 35 + Phase 36); needs a real passive mechanic designed in a future phase.
+- (Phase 48 internal follow-up, not a separate todo file) `IMPL-PF-Q7` (`quest_tough_it_out`) has zero test evidence anywhere in `tests/` as of Plan 48-01 — needed to properly close `IMPL-PF-P12`'s REQUIREMENTS.md duplicate; pick up in whichever Phase 48 plan covers the Quest bucket.
+- (Phase 48 internal follow-up, not a separate todo file) `piecie_varkenspootjes`' actual MP-swing (Binti +60 / other -30) is resolved by unexported UI (`main.js`)/bot (`botDriver.js`) logic with no unit-test coverage; only the deferred pending-target flag is unit-tested. See `48-FRAGMENT-01-pf-piecies.md` for detail.
 
 ### Roadmap Evolution
 

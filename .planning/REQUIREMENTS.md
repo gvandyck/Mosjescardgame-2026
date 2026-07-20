@@ -7,18 +7,18 @@
 - [ ] **IMPL-PF-M2:** Jeffrey the Strongman — ability execution and effect resolution
 
 ### Piecies (13 unique)
-- [ ] **IMPL-PF-P1:** kannetje-melk — effect execution
-- [ ] **IMPL-PF-P2:** te-hard-gaan — effect execution
-- [ ] **IMPL-PF-P3:** snoeiertje — effect execution
-- [ ] **IMPL-PF-P4:** momentum-diefje — effect execution
-- [ ] **IMPL-PF-P5:** dikke-taks — effect execution
-- [ ] **IMPL-PF-P6:** grammetje-pieter — effect execution
-- [ ] **IMPL-PF-P7:** varkenspootjes — effect execution
-- [ ] **IMPL-PF-P8:** tikker — effect execution
-- [ ] **IMPL-PF-P9:** nature-s-gift — effect execution
-- [ ] **IMPL-PF-P10:** shoettoe — effect execution
-- [ ] **IMPL-PF-P11:** gun-een-piece — effect execution
-- [ ] **IMPL-PF-P12:** quest_tough_it_out — effect execution (if needed)
+- [x] **IMPL-PF-P1:** kannetje-melk — effect execution — VERIFIED: `tests/ui/cards/card-registry.js:17-21` (see `.planning/phases/48-.../48-FRAGMENT-01-pf-piecies.md`)
+- [x] **IMPL-PF-P2:** te-hard-gaan — effect execution — VERIFIED: `tests/ui/cards/card-registry.js:216-220` (see `48-FRAGMENT-01-pf-piecies.md`)
+- [x] **IMPL-PF-P3:** snoeiertje — effect execution — VERIFIED (gap-filled 48-01): `tests/effects/phase48-pf-piecie-verification.test.ts::effect_snoeiertje`
+- [x] **IMPL-PF-P4:** momentum-diefje — effect execution — VERIFIED (gap-filled 48-01): `tests/effects/phase48-pf-piecie-verification.test.ts::effect_momentum_diefje happy path` + pre-existing `tests/engine/entry-protection.test.ts` (fizzle branch)
+- [x] **IMPL-PF-P5:** dikke-taks — effect execution — VERIFIED (gap-filled 48-01): `tests/effects/phase48-pf-piecie-verification.test.ts::effect_dikke_taks`
+- [x] **IMPL-PF-P6:** grammetje-pieter — effect execution — VERIFIED: `tests/ui/cards/card-registry.js:29-33` (see `48-FRAGMENT-01-pf-piecies.md`)
+- [x] **IMPL-PF-P7:** varkenspootjes — effect execution — VERIFIED (gap-filled 48-01) WITH RESIDUAL NOTE: `tests/effects/phase48-pf-piecie-verification.test.ts::effect_varkenspootjes` covers the pending-target flag only; the +60/-30 MP swing itself is resolved by untested UI/bot logic — see `48-FRAGMENT-01-pf-piecies.md`
+- [x] **IMPL-PF-P8:** tikker — effect execution — VERIFIED: `tests/ui/cards/card-registry.js:135-139` (see `48-FRAGMENT-01-pf-piecies.md`)
+- [ ] **IMPL-PF-P9:** nature-s-gift — effect execution — GAP-DESCOPED: no live card exists in `src/` or `docs/card-reference.md` (confirmed absent, not renamed) — see `48-FRAGMENT-01-pf-piecies.md`
+- [x] **IMPL-PF-P10:** shoettoe — effect execution — VERIFIED (as `piecie_energy_surge`, name/id divergence): `tests/ui/cards/card-registry.js:174-178` (see `48-FRAGMENT-01-pf-piecies.md`)
+- [ ] **IMPL-PF-P11:** gun-een-piece — effect execution — GAP-DESCOPED: no live card exists in `src/` or `docs/card-reference.md` (confirmed absent, not renamed) — see `48-FRAGMENT-01-pf-piecies.md`
+- [ ] **IMPL-PF-P12:** quest_tough_it_out — effect execution (if needed) — NOT TICKED: REQUIREMENTS.md filing duplicate of `IMPL-PF-Q7` (a Quest, mis-filed here); `IMPL-PF-Q7` itself has zero test evidence as of Plan 48-01 — see `48-FRAGMENT-01-pf-piecies.md`
 
 ### Snelle Piecies (4 unique)
 - [ ] **IMPL-PF-S1:** snelle_jensen — instant effect execution
