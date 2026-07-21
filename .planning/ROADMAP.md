@@ -1107,13 +1107,14 @@ Plans:
 
 ### Phase 49: Legacy execution evidence closure for plans without summaries and off-roadmap phase artifacts
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Close the legacy execution-evidence debt catalogued by the Phase 47 reconciliation manifest — 9 historical plans that never got a SUMMARY.md, 9 off-roadmap phase directories (+2 duplicate-directory routes), and the stale pending todos — giving every item ONE honest, evidence-backed disposition (SUPERSEDED / INSUFFICIENT-EVIDENCE-PRESERVED / GENUINELY-UNFINISHED), without fabricating any historical SUMMARY.md and without deleting or renaming any legacy directory.
+**Requirements:** Docs/evidence-only; dispositions trace to 47-RECONCILIATION-MANIFEST.md rows + CONTEXT decisions D-01..D-08. No REQUIREMENTS.md ticks (that was Phase 48's scope); validate.health may legitimately remain "degraded" (D-01 forbids fabricating summaries).
 **Depends on:** Phase 48
-**Plans:** 0 plans
+**Plans:** 2 plans
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 49 to break down)
+- [ ] 49-01-PLAN.md — Evidence-verified closure ledger (49-VERIFICATION.md): 9 plans-without-summaries + 9 off-roadmap dirs + 2 duplicate routes + 8 todos, each disposition backed by a live git/test existence check
+- [ ] 49-02-PLAN.md — Discoverability closure markers (9) + honest todo hygiene (close 2 shipped, subset-record 2, leave 4 open-phase untouched) + post-closure health appendix
 
 ---
 
