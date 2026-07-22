@@ -49,3 +49,130 @@ authorizes creating a fictional historical `SUMMARY.md` (D-01).
 GENUINELY-UNFINISHED formally reclassified SUPERSEDED-BY-SCOPE (`29-01`, D-04). Every
 cited commit and every cited evidence file was confirmed present live, not assumed from
 the manifest — see Verification Commands.
+
+---
+
+## Off-Roadmap Phase Directories
+
+Nine phase directories exist on disk but are absent from `ROADMAP.md` (each surfaced by
+`gsd-sdk query validate.health` as a `W007` warning). None is deleted or renamed (D-02);
+none is re-added to the active roadmap. On-disk state was `ls`-confirmed live during this
+plan's execution. Directories `16` and `29` also appear in the Plans-Without-Summaries
+table above — their rows there carry the full plan-level disposition.
+
+| Phase | Directory | On-disk state | Disposition | Route |
+|---|---|---|---|---|
+| 16 | `16-eendjes-voeren-place/` | `16-01-PLAN.md` only (no summary) | Cross-references the SUPERSEDED `16-01` plan row above (commits `211703a`/`1171b60` + chain-tests) | Preserved — not deleted or renamed (D-02); not re-added to the active roadmap; closure recorded in the plan table above |
+| 17 | `17-place-recovery/` | `17-01`/`17-02` PLAN+SUMMARY pairs (self-complete) | Self-complete off-roadmap historical work, COMPLETE | Preserved — not deleted or renamed (D-02); not re-added to the active roadmap |
+| 18 | `18-dead-flag-fixes/` | `18-01`/`18-02` PLAN+SUMMARY pairs (self-complete) | Self-complete off-roadmap historical work, COMPLETE | Preserved — not deleted or renamed (D-02); not re-added to the active roadmap |
+| 19 | `19-ui-modal-completions/` | `19-01`/`19-02` PLAN+SUMMARY pairs (self-complete) | Self-complete off-roadmap historical work, COMPLETE | Preserved — not deleted or renamed (D-02); not re-added to the active roadmap |
+| 20 | `20-leipe-swap/` | `20-01` PLAN+SUMMARY + `CODEX-HANDOFF.md` (self-complete) | Self-complete off-roadmap historical work, COMPLETE | Preserved — not deleted or renamed (D-02); not re-added to the active roadmap |
+| 21 | `21-quest-behaviors-cleanup/` | `21-01` PLAN+SUMMARY (self-complete) | Self-complete off-roadmap historical work, COMPLETE | Preserved — not deleted or renamed (D-02); not re-added to the active roadmap |
+| 29 | `29-card-test-library/` | `29-01-PLAN.md` only (no summary) | Cross-references the SUPERSEDED-BY-SCOPE `29-01` plan row above (D-04) | Preserved — not deleted or renamed (D-02); not re-added to the active roadmap; closure recorded in the plan table above |
+| 33 | `33-deckout-recycle-notice/` | `33-01-SUMMARY.md` only (work recorded, no plan file) | Off-roadmap, work recorded via its summary | Preserved — not deleted or renamed (D-02); not re-added to the active roadmap |
+| 34 | `34-account-starter-deck-onboarding/` | `34-01`/`02`/`03` PLAN+SUMMARY pairs + `34-CONTEXT.md` (self-complete) | Self-complete; notably the source of Phase 48's `IMPL-LOBBY` SUPERSEDED evidence, COMPLETE | Preserved — not deleted or renamed (D-02); not re-added to the active roadmap |
+
+---
+
+## Duplicate-Directory Routes
+
+Two phase numbers each resolve to two on-disk directories. The canonical directory (the
+one that actually carries the executed work) is recorded as the route; both directories
+are preserved (D-02).
+
+| Phase | Canonical directory | Preserved duplicate | Evidence | Route |
+|---|---|---|---|---|
+| 02 | `02-piecies/` (`01-01-PLAN.md` + `02-DISCOVERY.md` + `CONTEXT.md`) | `02-design-decks/` (`CONTEXT.md` only — never executed) | Canonical dir holds the actual Piecie plan closed SUPERSEDED in the plan table above; the duplicate holds only a stray context stub | Route to `02-piecies/`; preserve both (D-02) |
+| 40 | `40-9-mosje-ability-text-to-engine-reconciliation/` (`40-01-PLAN.md` + `40-01-SUMMARY.md` + `40-CONTEXT.md`, COMPLETE) | `40-9-mosje-ability-text-to-engine-reconciliation-resolve-the-9-/` (EMPTY placeholder) | Canonical short dir has the completed PLAN+SUMMARY pair; the long placeholder is empty | Route to the completed short dir; preserve both (D-02) |
+
+---
+
+## Stale Todos
+
+Dispositions recorded here; the actual todo-file hygiene (annotate + `git mv` shipped
+todos to `completed/`, subset-annotate the partials in place, leave the open-phase todos
+byte-unchanged) is performed by Plan 49-02 (D-06). The four todos routed to still-open
+phases (42/43/44/45) are recorded UNTOUCHED and stay in `pending/` as inputs to those
+phases — closing them here would emit a false "done" signal for work that has not shipped.
+
+| Todo | Shipped in | Disposition | Route |
+|---|---|---|---|
+| `2026-07-12-alyssa-jisca-synergy-design.md` | Phase 38 (commits `d9a3eda`/`53be62d`) | CLOSEABLE — work fully shipped | Close in Plan 49-02 (annotate + `git mv` to `completed/`) |
+| `2026-07-13-coerts-caravan-binti-discount-mismatch.md` | Phase 41 (has summary) | CLOSEABLE — work fully shipped | Close in Plan 49-02 (annotate + `git mv` to `completed/`) |
+| `2026-07-12-ability-text-engine-reconciliation.md` | Deck slice verified Phase 40 | DELIVERED-SUBSET — deck slice shipped; remainder outstanding | Record subset in Plan 49-02; keep in `pending/`; remainder is backlog input for OPEN Phase 42 |
+| `2026-07-15-remaining-mosje-synergies-and-cless-teacher-fix.md` | Parts shipped Phases 38–39 | DELIVERED-SUBSET — Alyssa/Jisca + Gandoe/Michelle shipped; remainder (FPS West/Coert, waiver, Cless Teacher) outstanding | Record subset in Plan 49-02; keep in `pending/`; remainder is backlog input for OPEN Phase 42 |
+| `2026-06-11-ts-bulldozer-comeback-reconcile.md` | — (not shipped) | UNTOUCHED — routed to OPEN Phase 45 | Left byte-unchanged in `pending/` (D-06); input to Phase 45 |
+| `2026-07-13-full-game-ability-text-audit.md` | — (not shipped) | UNTOUCHED — routed to OPEN Phase 42 | Left byte-unchanged in `pending/` (D-06); input to Phase 42 |
+| `2026-07-15-the-void-real-implementation-ruling.md` | — (not shipped) | UNTOUCHED — routed to OPEN Phase 44 | Left byte-unchanged in `pending/` (D-06); input to Phase 44 |
+| `2026-07-16-dierenasiel-real-mechanic-needed.md` | — (not shipped) | UNTOUCHED — routed to OPEN Phase 43 | Left byte-unchanged in `pending/` (D-06); input to Phase 43 |
+
+---
+
+## Summary Tally
+
+Across all four legacy item classes catalogued by the Phase 47 manifest (28 items total):
+
+| Item class | Count | Dispositions |
+|---|---|---|
+| Plans Without Summaries | 9 | 6 SUPERSEDED, 2 INSUFFICIENT-EVIDENCE-PRESERVED, 1 GENUINELY-UNFINISHED→SUPERSEDED-BY-SCOPE |
+| Off-Roadmap Phase Directories | 9 | 9 PRESERVED / not re-added (2 cross-reference their plan rows) |
+| Duplicate-Directory Routes | 2 | 2 canonical route recorded, both dirs preserved |
+| Stale Todos | 8 | 2 CLOSEABLE, 2 DELIVERED-SUBSET, 4 UNTOUCHED (open-phase inputs) |
+
+No historical `SUMMARY.md` was fabricated (D-01); no directory was deleted or renamed
+(D-02); the only files written by this phase are closure documentation.
+
+---
+
+## Appendix A — Health Baseline (pre-closure)
+
+`gsd-sdk query validate.health` was run live during this plan's execution. It reports:
+
+```
+"status": "degraded"
+```
+
+The `degraded` status is expected and accepted for this phase (D-01). Contributing
+warnings relevant to the legacy ledger debt:
+
+- **`I001` "…has no SUMMARY.md"** — present for all **9** legacy plans in scope
+  (`02-piecies/01-01`, `06-integration/01-01`, `16-eendjes-voeren-place/16-01`,
+  `28-visual-ui-tests/28-01`, `29-card-test-library/29-01`, `30-defeat-at-zero-mp/30-01`,
+  `31-mp-cap-invariant/31-01`, `32-onfield-mosje-info-dice-modal/32-02`,
+  `38-…-design-wire-t/38-02`). This ledger closes those 9 items **by evidence**, NOT by
+  fabricating summaries (D-01), so the I001 warnings legitimately persist — that is the
+  correct honest outcome, not a failure. (This active phase's own `49-01`/`49-02` plans
+  also appear transiently and clear as their summaries land.)
+- **`W007` "…exists on disk but not in ROADMAP.md"** — present for all **9** off-roadmap
+  directories (16, 17, 18, 19, 20, 21, 29, 33, 34). D-02 forbids deleting or renaming
+  them, so these warnings also legitimately persist.
+
+The final post-closure health re-run — confirming the same warnings still stand after
+Plan 49-02's closure markers and todo hygiene land — is Plan 49-02's Task 3.
+
+---
+
+## Verification Commands
+
+Run from the repo root. All were executed live during this plan; results recorded inline.
+
+```bash
+# Every cited SUPERSEDED commit resolves (exit 0 = present):
+for c in 211703a 1171b60 a284d68 e23424c d9a3eda 53be62d 344ba69; do
+  git cat-file -e "${c}^{commit}" || echo "MISSING $c"; done          # → all present
+
+# Every cited live evidence file exists:
+for f in tests/ui/simulation/chain-tests.spec.js tests/engine/defeat-at-zero-mp.test.ts \
+         tests/engine/mp-cap.test.ts tests/ui/mechanics.spec.js \
+         tests/ui/cards/alyssa-jisca-synergy.spec.js tests/ui/cards/card-registry.js \
+         tests/ui/active-deck-lobby.spec.js .planning/phases/06-integration/02-COMPLETION.md \
+         .planning/phases/48-original-requirement-verification-backfill-for-phases-01-06-/48-VERIFICATION.md; do
+  test -f "$f" || echo "MISSING $f"; done                             # → all present
+
+# grep-confirmed test count for the 28-01 INSUFFICIENT-EVIDENCE row:
+grep -c "test(" tests/ui/mechanics.spec.js                            # → 11
+
+# Docs/evidence-only guarantee (D-07): zero src/ and zero test changes across this phase:
+git diff --stat -- src tests                                          # → empty
+```
+
