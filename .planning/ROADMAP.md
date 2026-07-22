@@ -1112,9 +1112,11 @@ Plans:
 **Depends on:** Phase 48
 **Plans:** 2 plans
 
+**Status:** Complete (2/2 plans)
+
 Plans:
-- [ ] 49-01-PLAN.md — Evidence-verified closure ledger (49-VERIFICATION.md): 9 plans-without-summaries + 9 off-roadmap dirs + 2 duplicate routes + 8 todos, each disposition backed by a live git/test existence check
-- [ ] 49-02-PLAN.md — Discoverability closure markers (9) + honest todo hygiene (close 2 shipped, subset-record 2, leave 4 open-phase untouched) + post-closure health appendix
+- [x] 49-01-PLAN.md — Evidence-verified closure ledger (49-VERIFICATION.md): 9 plans-without-summaries + 9 off-roadmap dirs + 2 duplicate routes + 8 todos, each disposition backed by a live git/test existence check
+- [x] 49-02-PLAN.md — Discoverability closure markers (9) + honest todo hygiene (close 2 shipped, subset-record 2, leave 4 open-phase untouched) + post-closure health appendix
 
 ---
 

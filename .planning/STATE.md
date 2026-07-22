@@ -2,22 +2,57 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 48
-status: in_progress
-last_updated: "2026-07-20T19:20:45.792Z"
+current_phase: 49
+status: complete
+last_updated: "2026-07-22T00:00:00.000Z"
 progress:
   total_phases: 42
-  completed_phases: 25
-  total_plans: 92
-  completed_plans: 85
-  percent: 60
+  completed_phases: 26
+  total_plans: 96
+  completed_plans: 87
+  percent: 62
 ---
 
 # Project State
 
-**Last updated:** 2026-07-20
-**Current phase:** 48
+**Last updated:** 2026-07-22
+**Current phase:** 49 (COMPLETE)
 **Branch:** card/phase-48-requirement-verification
+
+## RESUME HERE (2026-07-22 handoff - Phase 49 COMPLETE, both plans)
+
+**Next command:** select the next pending roadmap phase, or run the milestone
+audit / archive flow now that the legacy planning-ledger debt is honestly closed.
+
+**Phase 49 (legacy execution-evidence closure) is COMPLETE (2/2 plans).** This
+session finished the phase, which a prior session had left half-done: Plan 49-01's
+Task 1 (the 9 "Plans Without Summaries" ledger rows) had been committed, but Task 2
+and both plan summaries were never written.
+
+- **Plan 49-01 finished:** extended `49-VERIFICATION.md` with the missing sections —
+  **Off-Roadmap Phase Directories** (9, all preserved/not re-added, D-02),
+  **Duplicate-Directory Routes** (2, canonical route recorded), **Stale Todos** (8),
+  **Summary Tally**, **Appendix A** pre-closure health baseline, and **Verification
+  Commands**. Wrote the missing `49-01-SUMMARY.md`. Committed `e04936b`. Final ledger:
+  **6 SUPERSEDED, 2 INSUFFICIENT-EVIDENCE-PRESERVED, 1 GENUINELY-UNFINISHED→SUPERSEDED-BY-SCOPE**
+  across the 9 plans; every cited commit resolved via `git cat-file` and every cited
+  test file via `test -f` (both live gates exit 0).
+- **Plan 49-02 executed:** 9 `{plan}-CLOSURE.md` discoverability markers (each declares
+  itself a closure note, NOT a summary; `32-02` carries the D-05 un-captured-human-approval
+  residual). Todo hygiene (D-06): the 2 shipped todos (alyssa-jisca→P38, coerts-caravan→P41)
+  annotated + `git mv`'d to `todos/completed/`; the 2 partials subset-annotated in place
+  (remainder→OPEN Phase 42); the 4 open-phase todos (ts-bulldozer/45, full-game-audit/42,
+  the-void/44, dierenasiel/43) left byte-unchanged. Wrote `49-02-SUMMARY.md`.
+
+**Honesty guarantees held:** no historical `SUMMARY.md` fabricated (D-01) — `validate.health`
+still reads `degraded` with all 9 legacy I001 "no SUMMARY.md" warnings + 9 W007 off-roadmap
+warnings intact, which is the accepted, documented outcome; no directory deleted or renamed
+(D-02); `git diff --quiet HEAD -- src tests` passes — **zero `src/` and zero test changes
+across the entire phase (D-07)**. All three plan-02 gates passed (NINE_MARKERS_OK,
+TODO_HYGIENE_OK, HEALTH_HONESTLY_DEGRADED_NO_CODE_CHANGE).
+
+<details>
+<summary>Prior resume note (superseded - 2026-07-20, Phase 48 COMPLETE, all 6 plans)</summary>
 
 ## RESUME HERE (2026-07-20 handoff - Phase 48 COMPLETE, all 6 plans)
 
@@ -1129,5 +1164,7 @@ All 5 balance plans executed and verified (BAL-01 through BAL-05):
 - BAL-05: Deck-out reshuffle rule (empty deck → reshuffle discard, draw 1, skip next turn)
 
 653 tests passing. 0 simulation crashes. 0 timeouts.
+
+</details>
 
 </details>

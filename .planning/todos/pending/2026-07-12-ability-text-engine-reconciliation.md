@@ -1,3 +1,11 @@
+> **Phase 49 — DELIVERED SUBSET recorded (todo stays OPEN).** The deck-slice subset
+> was verified in **Phase 40** (3 deck Mosjes: Chris All-Rounder, Jisca, Coert
+> KasteLuck). The remainder (the rest of the 9-ability text↔engine reconciliation) is
+> NOT closed — it stays as backlog input for **OPEN Phase 42** (full-game ability-text
+> audit). Full record:
+> `.planning/phases/49-legacy-execution-evidence-closure-for-plans-without-summarie/49-VERIFICATION.md`
+> (Stale Todos table).
+
 ---
 created: 2026-07-12
 title: Reconcile 9 Mosje ability texts with engine behavior, one card at a time
