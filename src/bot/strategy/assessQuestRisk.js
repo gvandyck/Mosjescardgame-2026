@@ -100,7 +100,7 @@ export function assessQuestRisk({ questDef, mosje, slotIndex, gameState, playerI
 	// calls, so the two can never drift out of sync.
 	const successMP = questSuccessMP(questDef)
 		+ (gameState?.players?.[playerId]?.questBonusMP || 0)
-		+ getPartnerSynergyQuestBonus(gameState, playerId, questDef?.category);
+		+ getPartnerSynergyQuestBonus(gameState, playerId, questDef?.category, mosje.cardId);
 	const levelsUp = mpAtRoll + successMP >= 100;
 	const winsGame = levelsUp && (mosje.level || 0) >= 2;
 	if (odds.autoSuccess) {

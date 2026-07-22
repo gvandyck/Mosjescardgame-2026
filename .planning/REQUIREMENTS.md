@@ -3,92 +3,92 @@
 ## Physical Force Deck
 
 ### Mosje Abilities
-- [ ] **IMPL-PF-M1:** Alyssa the Bulldozer — ability execution and effect resolution
-- [ ] **IMPL-PF-M2:** Jeffrey the Strongman — ability execution and effect resolution
+- [x] **IMPL-PF-M1:** Alyssa the Bulldozer — ability execution and effect resolution — VERIFIED (gap-filled 48-05): `tests/abilities/phase48-mosje-ability-verification.test.ts::ability_alyssa_bulldozer_unstoppable` — see `48-FRAGMENT-05-mosje-bugs.md`
+- [x] **IMPL-PF-M2:** Jeffrey the Strongman — ability execution and effect resolution — VERIFIED (gap-filled 48-05, verified via the passive `applyMosjeFieldEffectsOnQuest` mechanic, not the no-op `ability_jeffrey_brute_force` stub): `tests/abilities/phase48-mosje-ability-verification.test.ts::Jeffrey Brute Force passive quest bonus` — see `48-FRAGMENT-05-mosje-bugs.md`
 
 ### Piecies (13 unique)
-- [ ] **IMPL-PF-P1:** kannetje-melk — effect execution
-- [ ] **IMPL-PF-P2:** te-hard-gaan — effect execution
-- [ ] **IMPL-PF-P3:** snoeiertje — effect execution
-- [ ] **IMPL-PF-P4:** momentum-diefje — effect execution
-- [ ] **IMPL-PF-P5:** dikke-taks — effect execution
-- [ ] **IMPL-PF-P6:** grammetje-pieter — effect execution
-- [ ] **IMPL-PF-P7:** varkenspootjes — effect execution
-- [ ] **IMPL-PF-P8:** tikker — effect execution
-- [ ] **IMPL-PF-P9:** nature-s-gift — effect execution
-- [ ] **IMPL-PF-P10:** shoettoe — effect execution
-- [ ] **IMPL-PF-P11:** gun-een-piece — effect execution
-- [ ] **IMPL-PF-P12:** quest_tough_it_out — effect execution (if needed)
+- [x] **IMPL-PF-P1:** kannetje-melk — effect execution — VERIFIED: `tests/ui/cards/card-registry.js:17-21` (see `.planning/phases/48-.../48-FRAGMENT-01-pf-piecies.md`)
+- [x] **IMPL-PF-P2:** te-hard-gaan — effect execution — VERIFIED: `tests/ui/cards/card-registry.js:216-220` (see `48-FRAGMENT-01-pf-piecies.md`)
+- [x] **IMPL-PF-P3:** snoeiertje — effect execution — VERIFIED (gap-filled 48-01): `tests/effects/phase48-pf-piecie-verification.test.ts::effect_snoeiertje`
+- [x] **IMPL-PF-P4:** momentum-diefje — effect execution — VERIFIED (gap-filled 48-01): `tests/effects/phase48-pf-piecie-verification.test.ts::effect_momentum_diefje happy path` + pre-existing `tests/engine/entry-protection.test.ts` (fizzle branch)
+- [x] **IMPL-PF-P5:** dikke-taks — effect execution — VERIFIED (gap-filled 48-01): `tests/effects/phase48-pf-piecie-verification.test.ts::effect_dikke_taks`
+- [x] **IMPL-PF-P6:** grammetje-pieter — effect execution — VERIFIED: `tests/ui/cards/card-registry.js:29-33` (see `48-FRAGMENT-01-pf-piecies.md`)
+- [x] **IMPL-PF-P7:** varkenspootjes — effect execution — VERIFIED (gap-filled 48-01) WITH RESIDUAL NOTE: `tests/effects/phase48-pf-piecie-verification.test.ts::effect_varkenspootjes` covers the pending-target flag only; the +60/-30 MP swing itself is resolved by untested UI/bot logic — see `48-FRAGMENT-01-pf-piecies.md`
+- [x] **IMPL-PF-P8:** tikker — effect execution — VERIFIED: `tests/ui/cards/card-registry.js:135-139` (see `48-FRAGMENT-01-pf-piecies.md`)
+- [ ] **IMPL-PF-P9:** nature-s-gift — effect execution — GAP-DESCOPED: no live card exists in `src/` or `docs/card-reference.md` (confirmed absent, not renamed) — see `48-FRAGMENT-01-pf-piecies.md`
+- [x] **IMPL-PF-P10:** shoettoe — effect execution — VERIFIED (as `piecie_energy_surge`, name/id divergence): `tests/ui/cards/card-registry.js:174-178` (see `48-FRAGMENT-01-pf-piecies.md`)
+- [ ] **IMPL-PF-P11:** gun-een-piece — effect execution — GAP-DESCOPED: no live card exists in `src/` or `docs/card-reference.md` (confirmed absent, not renamed) — see `48-FRAGMENT-01-pf-piecies.md`
+- [x] **IMPL-PF-P12:** quest_tough_it_out — effect execution (if needed) — VERIFIED: REQUIREMENTS.md filing duplicate of `IMPL-PF-Q7` (a Quest, mis-filed here, no Piecie by this id exists) — cites `IMPL-PF-Q7`'s evidence below, gap-filled by Plan 48-04: `tests/effects/phase48-place-quest-verification.test.ts::quest_req_tough_it_out` — see `48-FRAGMENT-04-places-quests-crosscut.md`
 
 ### Snelle Piecies (4 unique)
-- [ ] **IMPL-PF-S1:** snelle_jensen — instant effect execution
-- [ ] **IMPL-PF-S2:** snelle_bijna_welloe — instant effect execution
-- [ ] **IMPL-PF-S3:** snelle_negate_elimination — instant effect execution
-- [ ] **IMPL-PF-S4:** snelle_lucky_coin — instant effect execution
+- [x] **IMPL-PF-S1:** snelle_jensen — instant effect execution — VERIFIED (shared with IMPL-AR-S1): `tests/ui/cards/card-registry.js:276-279` (see `48-FRAGMENT-03-snelle.md`)
+- [x] **IMPL-PF-S2:** snelle_bijna_welloe — instant effect execution — GAP CLOSED (shared with IMPL-AR-S2): `tests/effects/phase48-snelle-verification.test.ts` (see `48-FRAGMENT-03-snelle.md`)
+- [x] **IMPL-PF-S3:** snelle_negate_elimination — instant effect execution — VERIFIED: `tests/ui/simulation/chain-tests.spec.js:264-329` (chain-3, see `48-FRAGMENT-03-snelle.md`)
+- [x] **IMPL-PF-S4:** snelle_lucky_coin — instant effect execution — VERIFIED (shared with IMPL-AR-S3): `tests/engine/snelle-piecie-full-slots.test.ts:105-123` (see `48-FRAGMENT-03-snelle.md`)
 
 ### Places (3 unique)
-- [ ] **IMPL-PF-PL1:** place_the_gym — passive effect execution
-- [ ] **IMPL-PF-PL2:** place_zo_is_natuur — passive effect execution
-- [ ] **IMPL-PF-PL3:** place_obby_1 — passive effect execution
+- [x] **IMPL-PF-PL1:** place_the_gym — passive effect execution — VERIFIED: `tests/effects/physical-equipment-scaling.test.ts::effect_the_gym CLESS patch (PHYS-06)` — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-PF-PL2:** place_zo_is_natuur — passive effect execution — VERIFIED (gap-filled 48-04): `tests/effects/phase48-place-quest-verification.test.ts::effect_zo_is_natuur` — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-PF-PL3:** place_obby_1 — passive effect execution — VERIFIED: `tests/engine/place-obby-1.test.ts::Obby #1 — On Quest (dispatcher-level, PLACE-02)` — see `48-FRAGMENT-04-places-quests-crosscut.md`
 
 ### Quests (7 unique)
-- [ ] **IMPL-PF-Q1:** quest_endurance_test — quest requirement and reward logic
-- [ ] **IMPL-PF-Q2:** quest_sustained_assault — quest requirement and reward logic
-- [ ] **IMPL-PF-Q3:** quest_shotje_obby — quest requirement and reward logic
-- [ ] **IMPL-PF-Q4:** quest_leap_of_faith — quest requirement and reward logic
-- [ ] **IMPL-PF-Q5:** quest_survive_storm — quest requirement and reward logic
-- [ ] **IMPL-PF-Q6:** quest_never_give_up — quest requirement and reward logic
-- [ ] **IMPL-PF-Q7:** quest_tough_it_out — quest requirement and reward logic
+- [x] **IMPL-PF-Q1:** quest_endurance_test — quest requirement and reward logic — VERIFIED: `tests/ui/simulation/chain-tests.spec.js` (browser T1) — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-PF-Q2:** quest_sustained_assault — quest requirement and reward logic — VERIFIED: `tests/abilities/phase-22-quest-gates.test.ts::quest_req_sustained_assault` — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-PF-Q3:** quest_shotje_obby — quest requirement and reward logic — VERIFIED (gap-filled 48-04): `tests/effects/phase48-place-quest-verification.test.ts::quest_req_shotje_obby` — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-PF-Q4:** quest_leap_of_faith — quest requirement and reward logic — VERIFIED (gap-filled 48-04): `tests/effects/phase48-place-quest-verification.test.ts::quest_req_leap_of_faith` — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-PF-Q5:** quest_survive_storm — quest requirement and reward logic — VERIFIED (gap-filled 48-04): `tests/effects/phase48-place-quest-verification.test.ts::quest_req_survive_storm` — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-PF-Q6:** quest_never_give_up — quest requirement and reward logic — VERIFIED (gap-filled 48-04): `tests/effects/phase48-place-quest-verification.test.ts::quest_req_never_give_up` — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-PF-Q7:** quest_tough_it_out — quest requirement and reward logic — VERIFIED (gap-filled 48-04, also canonical evidence for IMPL-PF-P12's duplicate): `tests/effects/phase48-place-quest-verification.test.ts::quest_req_tough_it_out` — see `48-FRAGMENT-04-places-quests-crosscut.md`
 
 ---
 
 ## Artistic Rhythm Deck
 
 ### Mosje Abilities
-- [ ] **IMPL-AR-M1:** DJ 80/20 — ability execution and effect resolution
-- [ ] **IMPL-AR-M2:** Jisca the Maestro — ability execution and effect resolution
+- [x] **IMPL-AR-M1:** DJ 80/20 — ability execution and effect resolution — VERIFIED (gap-filled 48-05, closes BUG-05 with the same test): `tests/abilities/phase48-mosje-ability-verification.test.ts::ability_dj_8020_lucky_beats` — see `48-FRAGMENT-05-mosje-bugs.md`
+- [x] **IMPL-AR-M2:** Jisca the Maestro — ability execution and effect resolution — VERIFIED: `tests/abilities/ability-text-reconciliation.test.ts:438-513` (Jisca — Perfect Combo) — see `48-FRAGMENT-05-mosje-bugs.md`
 
 ### Piecies (13 unique)
-- [ ] **IMPL-AR-P1:** kannetje-melk — effect execution
-- [ ] **IMPL-AR-P2:** warm-kannetje-melk — effect execution
-- [ ] **IMPL-AR-P3:** broodje-doner — effect execution
-- [ ] **IMPL-AR-P4:** nature-s-gift — effect execution
-- [ ] **IMPL-AR-P5:** gun-een-piece — effect execution
-- [ ] **IMPL-AR-P6:** bowie-stormey — effect execution
-- [ ] **IMPL-AR-P7:** gekke-vogels — effect execution
-- [ ] **IMPL-AR-P8:** synergy-field — effect execution
-- [ ] **IMPL-AR-P9:** dubbele-dosis — effect execution
-- [ ] **IMPL-AR-P10:** dubbele-ding — effect execution
-- [ ] **IMPL-AR-P11:** mosje-shield — effect execution
-- [ ] **IMPL-AR-P12:** laat-me-chillen — effect execution
-- [ ] **IMPL-AR-P13:** shoettoe — effect execution
+- [x] **IMPL-AR-P1:** kannetje-melk — effect execution — VERIFIED (shared with IMPL-PF-P1): `tests/ui/cards/card-registry.js:17-21` (see `48-FRAGMENT-02-ar-piecies.md`)
+- [x] **IMPL-AR-P2:** warm-kannetje-melk — effect execution — VERIFIED (gap-filled 48-02): `tests/effects/phase48-ar-piecie-verification.test.ts::effect_warm_kannetje_melk`
+- [x] **IMPL-AR-P3:** broodje-doner — effect execution — VERIFIED: `tests/ui/cards/card-registry.js:141-145` (see `48-FRAGMENT-02-ar-piecies.md`)
+- [ ] **IMPL-AR-P4:** nature-s-gift — effect execution — GAP-DESCOPED: no live card exists in `src/` or `docs/card-reference.md` (confirmed absent, not renamed; same absent card as `IMPL-PF-P9`) — see `48-FRAGMENT-02-ar-piecies.md`
+- [ ] **IMPL-AR-P5:** gun-een-piece — effect execution — GAP-DESCOPED: no live card exists in `src/` or `docs/card-reference.md` (confirmed absent, not renamed; same absent card as `IMPL-PF-P11`) — see `48-FRAGMENT-02-ar-piecies.md`
+- [x] **IMPL-AR-P6:** bowie-stormey — effect execution — VERIFIED: `tests/ui/cards/card-registry.js:147-151` (see `48-FRAGMENT-02-ar-piecies.md`)
+- [x] **IMPL-AR-P7:** gekke-vogels — effect execution — VERIFIED: `tests/ui/cards/card-registry.js:234-238` (see `48-FRAGMENT-02-ar-piecies.md`)
+- [x] **IMPL-AR-P8:** synergy-field — effect execution — VERIFIED: `tests/ui/cards/card-registry.js:106-111` (see `48-FRAGMENT-02-ar-piecies.md`)
+- [x] **IMPL-AR-P9:** dubbele-dosis — effect execution — VERIFIED (as `piecie_quest_prep`, name/id divergence, shared evidence with BUG-02): `tests/ui/cards/card-registry.js:65-70` (see `48-FRAGMENT-02-ar-piecies.md`)
+- [x] **IMPL-AR-P10:** dubbele-ding — effect execution — VERIFIED (gap-filled 48-02): `tests/effects/phase48-ar-piecie-verification.test.ts::effect_dubbele_ding`
+- [x] **IMPL-AR-P11:** mosje-shield — effect execution — VERIFIED (found via effect_mosje_shield function grep, not string-only): `tests/engine/stub-engine-wiring.test.ts:206-216` (see `48-FRAGMENT-02-ar-piecies.md`)
+- [x] **IMPL-AR-P12:** laat-me-chillen — effect execution — VERIFIED: `tests/ui/cards/card-registry.js:93-97` (see `48-FRAGMENT-02-ar-piecies.md`)
+- [x] **IMPL-AR-P13:** shoettoe — effect execution — VERIFIED (as `piecie_energy_surge`, name/id divergence, shared with IMPL-PF-P10): `tests/ui/cards/card-registry.js:174-178` (see `48-FRAGMENT-02-ar-piecies.md`)
 
 ### Snelle Piecies (4 unique)
-- [ ] **IMPL-AR-S1:** snelle_jensen — instant effect execution
-- [ ] **IMPL-AR-S2:** snelle_bijna_welloe — instant effect execution
-- [ ] **IMPL-AR-S3:** snelle_lucky_coin — instant effect execution
-- [ ] **IMPL-AR-S4:** snelle_dubbele_temminks — instant effect execution
+- [x] **IMPL-AR-S1:** snelle_jensen — instant effect execution — VERIFIED (shared with IMPL-PF-S1): `tests/ui/cards/card-registry.js:276-279` (see `48-FRAGMENT-03-snelle.md`)
+- [x] **IMPL-AR-S2:** snelle_bijna_welloe — instant effect execution — GAP CLOSED (shared with IMPL-PF-S2): `tests/effects/phase48-snelle-verification.test.ts` (see `48-FRAGMENT-03-snelle.md`)
+- [x] **IMPL-AR-S3:** snelle_lucky_coin — instant effect execution — VERIFIED (shared with IMPL-PF-S4): `tests/engine/snelle-piecie-full-slots.test.ts:105-123` (see `48-FRAGMENT-03-snelle.md`)
+- [x] **IMPL-AR-S4:** snelle_dubbele_temminks — instant effect execution — GAP CLOSED: `tests/effects/phase48-snelle-verification.test.ts` (see `48-FRAGMENT-03-snelle.md`)
 
 ### Places (2 unique)
-- [ ] **IMPL-AR-PL1:** place_arcade — passive effect execution
-- [ ] **IMPL-AR-PL2:** place_quest_haven — passive effect execution
-- [ ] **IMPL-AR-PL3:** place_coerts_caravan — passive effect execution
+- [x] **IMPL-AR-PL1:** place_arcade — passive effect execution — VERIFIED: `tests/engine/place-arcade.test.ts::Arcade — On Quest (dispatcher-level, PLACE-03)` — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-AR-PL2:** place_quest_haven — passive effect execution — VERIFIED (gap-filled 48-04): `tests/effects/phase48-place-quest-verification.test.ts::effect_quest_haven` — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-AR-PL3:** place_coerts_caravan — passive effect execution — VERIFIED: `tests/engine/place-coerts-caravan.test.ts::place_coerts_caravan (Phase 41) — Coert Quest-damage shield` — see `48-FRAGMENT-04-places-quests-crosscut.md`
 
 ### Quests (8 unique)
-- [ ] **IMPL-AR-Q1:** quest_artistic_expression — quest requirement and reward logic
-- [ ] **IMPL-AR-Q2:** quest_improvise — quest requirement and reward logic
-- [ ] **IMPL-AR-Q3:** quest_create_masterpiece — quest requirement and reward logic
-- [ ] **IMPL-AR-Q4:** quest_lucky_break — quest requirement and reward logic
-- [ ] **IMPL-AR-Q5:** quest_synergy_mastery — quest requirement and reward logic
+- [x] **IMPL-AR-Q1:** quest_artistic_expression — quest requirement and reward logic — VERIFIED (pre-existing draw mechanism + gap-filled 48-04 auto-succeed gate): `tests/abilities/quest-behaviors.test.ts::resolveQuest — drawOnSuccess` + `tests/effects/phase48-place-quest-verification.test.ts::quest_req_artistic_expression` — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-AR-Q2:** quest_improvise — quest requirement and reward logic — VERIFIED (gap-filled 48-04): `tests/effects/phase48-place-quest-verification.test.ts::quest_req_improvise` — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-AR-Q3:** quest_create_masterpiece — quest requirement and reward logic — VERIFIED (gap-filled 48-04): `tests/effects/phase48-place-quest-verification.test.ts::quest_req_create_masterpiece` — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-AR-Q4:** quest_lucky_break — quest requirement and reward logic — VERIFIED (gap-filled 48-04): `tests/effects/phase48-place-quest-verification.test.ts::quest_req_lucky_break` — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-AR-Q5:** quest_synergy_mastery — quest requirement and reward logic — VERIFIED (gap-filled 48-04): `tests/effects/phase48-place-quest-verification.test.ts::quest_req_synergy_mastery` — see `48-FRAGMENT-04-places-quests-crosscut.md`
 
 ---
 
 ## Cross-Cutting Concerns
 
-- [ ] **IMPL-TEST:** Unit tests for all new card effects
-- [ ] **IMPL-LOBBY:** Enable deck selection for both decks in lobby
-- [ ] **IMPL-SIM:** Simulation runs without crashes
-- [ ] **IMPL-REG:** Cards registered in card registry correctly
+- [x] **IMPL-TEST:** Unit tests for all new card effects — VERIFIED: aggregate `tests/` tree (113 files) + `npm test` 739/739 pass count — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-LOBBY:** Enable deck selection for both decks in lobby — SUPERSEDED (Phase 34, 2026-07-03): `tests/ui/active-deck-lobby.spec.js` + `tests/ui/onboarding-starter-deck.spec.js` verify the current 5-duo-deck onboarding + active-deck lobby switcher, not the retired 2-deck toggle — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-SIM:** Simulation runs without crashes — VERIFIED: `tests/ui/simulation/sim-30-games.spec.js:67-68` (`expect(collector.getErrors()).toHaveLength(0)`) + `sim-botvsbot.spec.js` — see `48-FRAGMENT-04-places-quests-crosscut.md`
+- [x] **IMPL-REG:** Cards registered in card registry correctly — VERIFIED: `tests/data/deck-balance.test.ts` deck-membership assertions (legitimate here per D-01's IMPL-REG carve-out) — see `48-FRAGMENT-04-places-quests-crosscut.md`
 
 ---
 
@@ -96,11 +96,11 @@
 
 ## Phase 9 — UI & Engine Bug Fixes
 
-- [x] **BUG-01:** Quest roll threshold tier mismatch — both code paths agree; stale activeMosje suspected at runtime, debug log added
-- [x] **BUG-02:** Dubbele Dosis Piecie lifecycle — persistUntilEndOfTurn flag + endTurn sweep implemented
-- [x] **BUG-03:** Senor West MP floor — wrong-guess routes through loseMP(); activation blocked at level 0 + MP 0
-- [x] **BUG-04:** Lucky Coin activation guard — slot check runs before coin flip; blocks when all 4 slots full
-- [x] **BUG-05:** DJ Lucky Mixer turn modifier — redesigned as questPrepBonus +2, cleared at endTurn
+- [x] **BUG-01:** Quest roll threshold tier mismatch — both code paths agree; stale activeMosje suspected at runtime, debug log added — VERIFIED (48-05, residual runtime claim explicitly investigated and resolved, not silently ticked): `tests/engine/quest-threshold.test.ts` (dual-path agreement, tagged `(BUG-01)`) + `src/main.js:1244-1261`/`1452` closure-capture read confirming no second stale `activeMosje` fetch exists — see `48-FRAGMENT-05-mosje-bugs.md`
+- [x] **BUG-02:** Dubbele Dosis Piecie lifecycle — persistUntilEndOfTurn flag + endTurn sweep implemented — VERIFIED: `tests/engine/piecie-persist-eot.test.ts` — see `48-FRAGMENT-05-mosje-bugs.md`
+- [x] **BUG-03:** Senor West MP floor — wrong-guess routes through loseMP(); activation blocked at level 0 + MP 0 — VERIFIED: `tests/engine/west-calculated-guess.test.ts::West — MP floor behavior (BUG-03)` — see `48-FRAGMENT-05-mosje-bugs.md`
+- [x] **BUG-04:** Lucky Coin activation guard — slot check runs before coin flip; blocks when all 4 slots full — VERIFIED: `tests/engine/snelle-piecie-full-slots.test.ts::Lucky Coin — Full Slot Guard (BUG-04)` — see `48-FRAGMENT-05-mosje-bugs.md`
+- [x] **BUG-05:** DJ Lucky Mixer turn modifier — redesigned as questPrepBonus +2, cleared at endTurn — VERIFIED (gap-filled 48-05, closes IMPL-AR-M1 with the same test): `tests/abilities/phase48-mosje-ability-verification.test.ts::ability_dj_8020_lucky_beats` — see `48-FRAGMENT-05-mosje-bugs.md`
 
 ---
 

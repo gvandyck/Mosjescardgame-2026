@@ -909,45 +909,86 @@ Plans:
 
 - [x] 37-02-PLAN.md — MP-gate phase verification: node --check, npm test, Ronald Kip stacking, repro spec, full sim, docs sync (GATE-04)
 
+---
+
+## ▶ DECK COMPLETION TRACK (2026-07-18 — reprioritization)
+
+Driven by the five-deck functional audit (`.planning/audits/2026-07-18-five-deck-functional-audit.md`).
+**Goal: make all 5 player-facing duo decks demonstrably functional first.** The audit found the
+deck-relevant gaps are a small subset of phases 38–43, and that most of Phase 39's original scope
+(Cless Teacher, FPS Coert/West, Chris DDR+DJ 8020, Synergy Chamber waiver) touches cards in **no**
+player-facing deck. So the mechanism-phases are re-sequenced into a deck-first queue; non-deck items
+are deferred.
+
+**Ordered deck-completion queue (do in this order):**
+
+1. **Phase 38** — Alyssa↔Jisca synergy (Jisca & Alyssa deck). *In verification.*
+2. **Phase 39** — Gandoe↔Michelle synergy (The Box deck). *Narrowed to this one deck item.*
+3. **Phase 40 (deck slice)** — Chris, Jisca, Coert KasteLuck abilities (3 of the 9). *Complete.*
+4. **Phase 41** — Coert's Caravan passive Quest-damage shield (Winston's Kitchen deck).
+5. **Phase 43** — Dierenasiel real mechanic (Jisca & Alyssa deck's dead Place).
+
+**Deferred (no player-facing deck — do after the decks ship):** Phase 39 remainder (Cless Teacher,
+FPS Coert/West, Chris DDR+DJ 8020, Synergy Chamber waiver); Phase 40 remainder (Ming Natural,
+Jeffrey Gambler, Tuk Healer, Coert Kastelein, FPS Coert). **Remaining unknown:** behavior-vs-text
+correctness of the 32 wired deck Piecies + 4 Quests — a deep behavioral pass, deferred until the
+known gaps above are closed.
+
+---
+
 ### Phase 38: Alyssa-Jisca synergy design and implementation — design + wire the DUO_JISCA_ALYSSA starter deck headline synergy (currently declared but null on all three cards). Interactive design session required. Add pair to synergy-text-clarity test table.
 
-**Goal:** [To be planned]
-**Requirements**: TBD
-**Depends on:** None (independent — self-contained synergy design)
-**Plans:** 0 plans
+**Goal:** The DUO_JISCA_ALYSSA starter deck's headline "party amplifier" synergy is live on-card and engine-wired: while Jisca is on your field each Alyssa (bulldozer + fissa) gains +10 MP at the start of each of your turns, and while an Alyssa is on your field Jisca's first Piecie played each turn gives +10 MP (once per turn). Convention-compliant card text, bot-aware, sim-verified.
+**Requirements**: D-01 (party-amplifier fantasy), D-02 (Alyssa +10/turn), D-03 (Jisca first-Piecie +10, once/turn), D-04 (play-reward NOT cost-discount), D-05 (~+15 in-line power)
+**Depends on:** None (independent - self-contained synergy design)
+**Plans:** 2/2 plans executed — COMPLETE
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 38 to break down)
 
-### Phase 39: Remaining unwired Mosje synergy pairs + Cless Teacher/AZN Cless shared-effect fix — wire the synergy pairs from the 2026-07-15 inventory that are declared but have no consuming engine code, and fix the Cless Teacher / AZN Cless shared-effect divergence. Per-pair interactive rulings.
+- [x] 38-01-PLAN.md - Repro-first RED card-test + synergyEffect text on 3 cards + hasAlyssaJiscaSynergy detection helper (wave 1)
+- [x] 38-02-PLAN.md - Engine wiring: Alyssa start-of-turn +10 + Jisca first-Piecie +10 once/turn (turnManager) + full MP-gate verification (wave 2). Repro spec GREEN; sim 153/160, 0 crashes.
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+### Phase 39: Gandoe↔Michelle synergy (The Box deck) — wire the DUO_GANDOE_MICHELLE headline synergy, dead in BOTH directions. Deck-completion track item.
+
+**Goal:** The Box deck's two-way Mosje synergy is live: while Gandoe the Destroyer is on your field, Michelle's Tough Gamble rolls that hit the synergy threshold also grant Gandoe +10 MP; while Michelle is on your field, Gandoe's Physical Quests give +15 bonus MP (wire into `PARTNER_QUEST_SYNERGIES`, mirroring West+AZN Cless). Resolve the card-text 5-6 vs engine 4-6 Tough-Gamble threshold mismatch as part of the ruling. Repro-first per CLAUDE.md, sim-verified.
+**Requirements**: TBD (interactive ruling — carry the 4-6/5-6 threshold decision)
 **Depends on:** None (independent)
-**Plans:** 0 plans
+**Plans:** 2/2 plans executed - COMPLETE
+
+**Scope note (2026-07-18):** narrowed from the original "all remaining unwired synergy pairs" to the single deck-relevant pair. The non-deck remainder — Cless Teacher/AZN Cless shared-effect, FPS Coert/FPS West stale synergy, Chris DDR+DJ 8020 & Chris+Youri Synergy-Chamber-waiver reach — is **deferred to a later booster-card synergy-fidelity phase** (see Deck Completion Track above). Source inventory: `.planning/todos/pending/2026-07-15-remaining-mosje-synergies-and-cless-teacher-fix.md`.
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 39 to break down)
+**Wave 1**
+
+- [x] 39-01-PLAN.md — Repro-first RED: browser card-test + engine unit test proving both synergy directions are dead today (wave 1). Browser spec RED as expected (2 failed, 2 passed); engine spec RED as expected (3 failed, 2 passed).
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 39-02-PLAN.md — Wire both directions in questLogic.js (D-05 PARTNER_QUEST_SYNERGIES row + D-01..D-04 Tough Gamble +10 Gandoe kicker). 39-01 specs GREEN; full MP-gate verification complete; docs synced. Sim 154/160, 0 crashes, 3.75% timeout/click-overlay failures.
 
 ### Phase 40: 9-Mosje ability-text to engine reconciliation — resolve the 9 Mosjes (Ming Natural, Jeffrey Gambler, Chris All-Rounder, Jisca, etc.) whose card text describes a different effect than the engine performs. Per-card ruling with Gandoe (code wins / text wins / third design). No batch-fixing.
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Verify and close the 3 player-facing deck Mosje reconciliations already landed in the live JS engine: Chris All-Rounder Perfect Setup, Jisca Perfect Combo, and Coert KasteLuck Morning Luck. Keep the non-deck remainder deferred.
+**Requirements**: D-01 (Chris gated free activation), D-02 (Jisca 5-6 free field activation), D-03 (KasteLuck turn-start same-turn allowance), D-04 (live-browser proof), D-05 (docs and GSD closeout)
 **Depends on:** None (independent)
-**Plans:** 0 plans
+**Plans:** 1/1 plans executed - COMPLETE
+
+**Deck-completion ordering (2026-07-18):** do the **3 deck-Mosje abilities FIRST** — Chris All-Rounder "Perfect Setup" (dead flag `instantPiecieThisTurn` nothing reads → DUO_CHRIS_YOURI), Jisca "Perfect Combo" (divergent stub, redesign → DUO_JISCA_ALYSSA), Coert KasteLuck "Morning Luck" (text≠engine → DUO_COERT_BINTI). The other 6 (Ming Natural, Jeffrey Gambler, Tuk Healer, Coert Kastelein, FPS Coert + the Chris DDR note) are non-deck and deferred. All rulings + reuse-pattern map already captured in `.planning/todos/pending/2026-07-12-ability-text-engine-reconciliation.md`.
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 40 to break down)
 
-### Phase 41: Coert's Caravan Binti-discount text/engine mismatch fix — standalone quick fix for the single Place-card divergence found by accident during the 2026-07-13 audit (Binti discount clause). Already diagnosed.
+- [x] 40-01-PLAN.md - Audited the already-landed implementation commits; focused engine/browser coverage and full validation are green; docs synced. The completed Phase 39 sim remains the broad baseline for the same runtime (154/160, 0 crashes).
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+### Phase 41: Coert's Caravan passive Quest-damage shield — standalone redesign for the Place-card divergence found by accident during the 2026-07-13 audit. The stale Binti discount is intentionally not restored.
+
+**Goal:** Rework Coert's Caravan into a passive Coert-family Quest-damage shield. The stale Binti discount does not return.
+**Requirements**: D-01 (passive place), D-02 (Coert-only shield), D-03 (prevent up to 40 MP Quest damage per Coert Mosje per turn), D-04 (Quest costs still paid), D-05 (non-Quest MP loss not prevented), D-06 (data/docs synced)
 **Depends on:** None (independent — already diagnosed, ship anytime)
-**Plans:** 0 plans
+**Plans:** 1/1 plans executed - COMPLETE
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 41 to break down)
+
+- [x] 41-01-PLAN.md - Reworked Coert's Caravan from end-phase drain to passive Quest-damage shield; focused and full validation are green.
 
 ### Phase 42: Full-game ability-text vs engine audit — systematic pass over EVERY card's text vs actual effect across mosjes.js, piecies.js, snellePiecies.js, places.js. Per-card interactive rulings, reuse-pattern research first. DEPENDS ON Phase 40 (9-Mosje reconciliation) shipping first.
 
@@ -957,6 +998,7 @@ Plans:
 **Plans:** 0 plans
 
 Plans:
+
 - [ ] TBD (run /gsd-plan-phase 42 to break down)
 
 ### Phase 43: Dierenasiel real mechanic ruling — place_dierenasiel is a confirmed full no-op (text honestly reads 'no mechanical effect'). Decide + implement a real passive mechanic for it. Interactive design decision required.
@@ -967,6 +1009,7 @@ Plans:
 **Plans:** 0 plans
 
 Plans:
+
 - [ ] TBD (run /gsd-plan-phase 43 to break down)
 
 ### Phase 44: The Void real implementation ruling — decide + implement the intended mechanic for The Void (per its pending todo). Interactive design decision required.
@@ -977,6 +1020,7 @@ Plans:
 **Plans:** 0 plans
 
 Plans:
+
 - [ ] TBD (run /gsd-plan-phase 44 to break down)
 
 ### Phase 45: TS Bulldozer Comeback text/engine reconciliation — resolve the ts-bulldozer-comeback divergence per its 2026-06-11 todo. Ruling from Gandoe (code wins / text wins / third design).
@@ -987,7 +1031,92 @@ Plans:
 **Plans:** 0 plans
 
 Plans:
+
 - [ ] TBD (run /gsd-plan-phase 45 to break down)
+
+### Phase 46: Thematic Piecie Cards for Specific Mosjes
+
+**Goal:** Add 4 new thematic Piecie cards, each tied to a Mosje that currently lacks a dedicated item. Shared design principle (locked in 46-CONTEXT.md): generic base effect anyone can use + a small kicker when the named Mosje's tag-family is on the field — nothing hard-gated, so future Mosjes in those families benefit automatically. All 4: `mpCost: 0`, `requirement: "any"`, UTILITY subtype, `isBoosterOnly: true` (booster pool only, no starter-deck slots), placeholder art.
+
+**Locked card specs (user-approved 2026-07-19):**
+
+| Card | Mosje | Rarity | Effect |
+|---|---|---|---|
+| Loaded Dice | Jeffrey | ★★ | Your next Quest roll this turn gets +1. JEFFREY-tagged Mosje on field: +2 instead. |
+| Boosterpackkie | Coert KasteLuck | ★★ | Draw 1 card, then roll 1d6 — on 5-6 draw 1 additional card. COERT-tagged Mosje on field: also gain 10 MP. |
+| Perfect Rhythm | Dancing/DDR Chris | ★ | Your next Piecie activation this turn also draws 1 card. `mosje_chris_ddr` on field: also gain 10 MP. |
+| Dikke Plaat | DJ 80/20 | ★★ | Your next Quest roll this turn gets +1. DJ-tagged Mosje on field: +2 instead. |
+
+**Requirements:**
+
+- THEME-01: Loaded Dice — data entry + `effect_loaded_dice` (questPrepBonus setter, JEFFREY tag scan)
+- THEME-02: Boosterpackkie — data entry + `effect_boosterpackkie` (draw + 1d6 bonus draw, COERT tag scan for +10 MP)
+- THEME-03: Perfect Rhythm — data entry + `effect_perfect_rhythm` (one-shot draw-on-next-Piecie-activation flag, DDR Chris check for +10 MP)
+- THEME-04: Dikke Plaat — data entry + `effect_dikke_plaat` (questPrepBonus setter, DJ tag scan)
+- THEME-05: Docs — card-reference.md rows for all 4 new cards + note that Keyboard is Coert Hawaiian Tech Savant's thematic item (existing card, no code change)
+- THEME-06: No-work confirmations — Coert Kast-elein stays hidden (`disabled: true` already set); Chris All-Rounder deliberately gets no item
+
+**Depends on:** Phase 45
+**Plans:** 3/3 plans complete
+
+Plans:
+**Wave 1**
+
+- [x] 46-01-PLAN.md - Added four thematic booster-only Piecies, effect wiring, Perfect Rhythm one-shot draw hook, focused tests, browser registry coverage, docs, and verification.
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 46-02-PLAN.md - Gap closure: gate Boosterpackkie 5-6 bonus draw behind a COERT Mosje, make Perfect Rhythm draw on every later Piecie activation this turn, and extend Dikke Plaat's DJ bonus to exact [Alyssa] Fissa Fissa! (3 UAT design changes).
+
+**Success Criteria:**
+
+1. All 4 Piecies defined in piecies.js with locked effects/rarities; effect functions in piecieEffects.js
+2. Kickers detect tag families (JEFFREY/COERT/DJ), not exact cardIds — except Perfect Rhythm's DDR-Chris check
+3. Existing passives (Perfect Combo Chain, Lucky Beats, Morning Luck, Brute Force) untouched
+4. All 4 cards drop from boosters and appear in deck-builder; none added to starter decks
+5. card-reference.md updated (4 new rows + Keyboard pairing note)
+6. Full verification sequence green: node --check, npm test, Ronald Kip stacking, sim 0 crashes
+
+### Phase 47: Milestone planning ledger reconciliation and verification backfill routing
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 46
+**Plans:** 1/1 plans complete
+
+Plans:
+- [x] TBD (run /gsd-plan-phase 47 to break down) (completed 2026-07-20)
+
+### Phase 48: Original requirement verification backfill for Phases 01-06 and 09 using live code, tests, and honest traceability evidence
+
+**Goal:** Every one of the 64 original milestone requirements (28 IMPL-PF-*, 27 IMPL-AR-*, 4 cross-cutting IMPL-*, 5 Phase-9 BUG-*) has an honest, evidence-backed disposition (VERIFIED / SUPERSEDED / GAP-DESCOPED) in a single consolidated traceability matrix, backed by real passing tests that fail if the mechanic breaks — retiring the milestone audit's 0/64 traceability finding. Tests-only: no runtime/src changes (D-04).
+**Requirements**: 64 original ids — IMPL-PF-M1/M2, IMPL-PF-P1..P12, IMPL-PF-S1..S4, IMPL-PF-PL1..PL3, IMPL-PF-Q1..Q7, IMPL-AR-M1/M2, IMPL-AR-P1..P13, IMPL-AR-S1..S4, IMPL-AR-PL1..PL3, IMPL-AR-Q1..Q5, IMPL-TEST/LOBBY/SIM/REG, BUG-01..05
+**Depends on:** Phase 47
+**Plans:** 6/6 plans complete
+
+Plans:
+**Wave 1** *(parallel — each owns distinct test + fragment files)*
+- [x] 48-01-PLAN.md — Physical Force Piecies map + gap-fill (IMPL-PF-P1..P12)
+- [x] 48-02-PLAN.md — Artistic Rhythm Piecies map + gap-fill (IMPL-AR-P1..P13)
+- [x] 48-03-PLAN.md — Snelle Piecies (both decks) map + gap-fill (IMPL-PF-S1..S4, IMPL-AR-S1..S4)
+- [x] 48-04-PLAN.md — Places + Quests + cross-cutting map (6 Places, 12 Quests, IMPL-TEST/LOBBY/SIM/REG)
+- [x] 48-05-PLAN.md — Mosje abilities + BUG-01..05 gap-fill + 09-VERIFICATION.md backfill (IMPL-*-M1/M2, BUG-01..05)
+
+**Wave 2** *(blocked on Wave 1)*
+- [x] 48-06-PLAN.md — Consolidate 64-row 48-VERIFICATION.md, tick REQUIREMENTS.md with evidence, full phase-gate verification
+
+### Phase 49: Legacy execution evidence closure for plans without summaries and off-roadmap phase artifacts
+
+**Goal:** Close the legacy execution-evidence debt catalogued by the Phase 47 reconciliation manifest — 9 historical plans that never got a SUMMARY.md, 9 off-roadmap phase directories (+2 duplicate-directory routes), and the stale pending todos — giving every item ONE honest, evidence-backed disposition (SUPERSEDED / INSUFFICIENT-EVIDENCE-PRESERVED / GENUINELY-UNFINISHED), without fabricating any historical SUMMARY.md and without deleting or renaming any legacy directory.
+**Requirements:** Docs/evidence-only; dispositions trace to 47-RECONCILIATION-MANIFEST.md rows + CONTEXT decisions D-01..D-08. No REQUIREMENTS.md ticks (that was Phase 48's scope); validate.health may legitimately remain "degraded" (D-01 forbids fabricating summaries).
+**Depends on:** Phase 48
+**Plans:** 2 plans
+
+**Status:** Complete (2/2 plans)
+
+Plans:
+- [x] 49-01-PLAN.md — Evidence-verified closure ledger (49-VERIFICATION.md): 9 plans-without-summaries + 9 off-roadmap dirs + 2 duplicate routes + 8 todos, each disposition backed by a live git/test existence check
+- [x] 49-02-PLAN.md — Discoverability closure markers (9) + honest todo hygiene (close 2 shipped, subset-record 2, leave 4 open-phase untouched) + post-closure health appendix
 
 ---
 

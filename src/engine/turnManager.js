@@ -6,6 +6,7 @@ import { drawCards, shuffleDeck, rollDie } from './deckEngine.js';
 import { gainMP, applyStatusEffectMP, getTotalMPForPlayer } from './mpManager.js';
 import { checkVictory, markMosjeDefeated } from './victoryChecker.js';
 import { getAllPlayerIds, setActivePlace, destroyActivePlace, clearReturnedMosjesAtTurnEnd } from './gameState.js';
+import { hasAlyssaJiscaSynergy } from './synergyResolver.js';
 import * as placeEffects from '../abilities/placeEffects.js';
 import * as piecieEffects from '../abilities/piecieEffects.js';
 import * as snelleEffects from '../abilities/snelleEffects.js';
@@ -27,6 +28,62 @@ function hasBothChrisAndYouri(player) {
   const chrisAlive = slots.some(s => s && !s.isDefeated && CHRIS_IDS.has(s.cardId));
   const youriAlive = slots.some(s => s && !s.isDefeated && s.cardId === 'mosje_youri');
   return chrisAlive && youriAlive;
+}
+
+// Alyssa<->Jisca synergy (D-01..D-05, Phase 38): the Alyssa-side +10/turn bonus
+// applies to either Alyssa variant. Detection itself lives in hasAlyssaJiscaSynergy
+// (synergyResolver.js) — this list is only used to find which active slots are
+// "an Alyssa" once the pair is confirmed present.
+const ALYSSA_JISCA_SYNERGY_MOSJE_IDS = ['mosje_alyssa_bulldozer', 'mosje_alyssa_fissa'];
+
+// Perfect Rhythm checks whether its draw was already armed before the current
+// Piecie effect began. This prevents the first Rhythm from drawing off itself,
+// while allowing a later Rhythm copy and DDR-chained activations to benefit.
+function applyPerfectRhythmDraw(state, playerId, wasArmedBeforeActivation) {
+  if (!wasArmedBeforeActivation) return state;
+  const player = state.players[playerId];
+  if (!player) return state;
+
+  if (player.deck.length > 0) {
+    player.hand.push(player.deck.shift());
+    state = applyPlaceEffectsOnDraw(state, playerId, 1);
+    console.log('[ABILITY] Perfect Rhythm: later Piecie activation drew 1 card');
+  } else {
+    console.log('[ABILITY] Perfect Rhythm: later Piecie activation had no card to draw');
+  }
+  return state;
+}
+
+// Alyssa<->Jisca synergy (D-03, Phase 38): while an Alyssa is also on the field,
+// the FIRST Piecie the controlling player plays each turn grants Jisca +10 MP,
+// once per turn (alyssaJiscaPiecieBonusUsedThisTurn, reset every turn in startTurn).
+// Gated on pieciesPlayedThisTurn === 1, mirroring effect_momentum_factory's
+// "first Piecie each turn" shape (src/abilities/placeEffects.js).
+//
+// Called from BOTH playPiecie (the actual "play" event D-03's card text refers
+// to, and the only trigger point the natural game flow reaches within a single
+// turn — a Piecie cannot normally be activated the same turn it is played) and
+// the activatePiecie dispatch (mirroring Momentum Factory's own activation-site
+// hook as a safety net for any path that reaches activation without this turn's
+// play-count having been the trigger). The once-per-turn flag makes the two
+// call sites mutually exclusive in practice — whichever fires first this turn
+// sets the flag and the other becomes a no-op.
+function applyAlyssaJiscaPiecieBonus(state, playerId) {
+  const player = state.players[playerId];
+  if (!player) return state;
+  if (player.alyssaJiscaPiecieBonusUsedThisTurn) return state;
+  if (player.pieciesPlayedThisTurn !== 1) return state;
+  if (!hasAlyssaJiscaSynergy(state, playerId)) return state;
+
+  const jiscaIndex = player.activeSlots.findIndex(
+    s => s && !s.isDefeated && s.cardId === 'mosje_jisca'
+  );
+  if (jiscaIndex < 0) return state;
+
+  state = gainMP(state, playerId, jiscaIndex, 10, 'GAIN', { allowLevelUp: false });
+  state.players[playerId].alyssaJiscaPiecieBonusUsedThisTurn = true;
+  console.log(`[SYNERGY] Alyssa+Jisca: first Piecie this turn → Jisca +10 MP → ${state.players[playerId].activeSlots[jiscaIndex].mp} MP`);
+  return state;
 }
 
 // Chris DDR — Perfect Combo Chain: after ANY Piecie this player activates, roll
@@ -64,9 +121,12 @@ function maybeChainChrisDdrCombo(state, playerId) {
   console.log(`[ABILITY] Chris DDR Perfect Combo Chain: rolled ${roll} — chained ${chainedCard.cardId} from hand for free (use ${player.chrisDdrChainUsesThisTurn}/3)`);
 
   let next = state;
+  const rhythmWasArmedBeforeEffect =
+    state.players[playerId].perfectRhythmDrawNextPiecie === true;
   if (def?.effectId && typeof piecieEffects[def.effectId] === 'function') {
     next = piecieEffects[def.effectId](state, playerId);
   }
+  next = applyPerfectRhythmDraw(next, playerId, rhythmWasArmedBeforeEffect);
   const np = next.players[playerId];
   if (!Array.isArray(np.graveyard)) np.graveyard = [];
   if (def?.persistUntilEndOfTurn) {
@@ -212,6 +272,9 @@ export function startTurn(gameState) {
   activePlayer.kasteLuckSameTurnActivation = false;
   activePlayer.chrisDdrChainUsesThisTurn = 0;
   activePlayer.synergyWaiverActive = false;
+  // Alyssa<->Jisca synergy (D-03): Jisca's first-Piecie-per-turn bonus re-arms
+  // every turn so it is available again next turn.
+  activePlayer.alyssaJiscaPiecieBonusUsedThisTurn = false;
 
   // Dead-flag turn hygiene (Phase 18): clear stale single-turn effect flags so a
   // flag set but never triggered does not leak into a later turn. These live on
@@ -285,6 +348,21 @@ export function startTurn(gameState) {
     if (slot && !slot.isDefeated) {
       state = gainMP(state, playerId, i, 10, 'GAIN', { allowLevelUp: false }); // trickle caps at 100; only Quests level
       console.log(`[ENGINE] Turn trickle: ${slot.name} +10 MP → ${state.players[playerId].activeSlots[i].mp} MP`);
+    }
+  }
+
+  // Alyssa<->Jisca synergy (D-02): while Jisca is also on the field, each Alyssa
+  // (bulldozer or fissa) gets an EXTRA flat +10 MP at the start of each of her
+  // owner's turns, on top of the trickle above. Both Alyssas independently gain
+  // it if both are on field with Jisca (D-05 stacking default).
+  if (hasAlyssaJiscaSynergy(state, playerId)) {
+    const synergyPlayer = state.players[playerId];
+    for (let i = 0; i < synergyPlayer.activeSlots.length; i++) {
+      const slot = synergyPlayer.activeSlots[i];
+      if (slot && !slot.isDefeated && ALYSSA_JISCA_SYNERGY_MOSJE_IDS.includes(slot.cardId)) {
+        state = gainMP(state, playerId, i, 10, 'GAIN', { allowLevelUp: false });
+        console.log(`[SYNERGY] Alyssa+Jisca: ${slot.name} +10 MP (Jisca present) → ${state.players[playerId].activeSlots[i].mp} MP`);
+      }
     }
   }
 
@@ -438,6 +516,7 @@ export function endTurn(gameState) {
 
   // Reset questPrepBonus at end of turn — same lifecycle as persistUntilEoT Piecies (BUG-05)
   state.players[playerId].questPrepBonus = 0;
+  state.players[playerId].perfectRhythmDrawNextPiecie = false;
 
   // Leipe Swap: at the end of the swapper's turn, swap the two slots' current MP back.
   if (state._leipeSwap && state._leipeSwap.byPlayerId === playerId) {
@@ -621,6 +700,8 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
     state.players[playerId].attackPieciePlayedThisTurn = true;
   }
 
+  // Alyssa<->Jisca synergy (D-03): first Piecie played this turn → Jisca +10 MP
+  state = applyAlyssaJiscaPiecieBonus(state, playerId);
 
   state = checkVictory(state);
   return { state, success: true };
@@ -877,6 +958,8 @@ export function activatePiecie(gameState, playerId, slotIndex) {
   // Apply the effect function
   const effectFn = piecieEffects[knownCardDef.effectId];
   const handSizeBeforeEffect = state.players[playerId].hand.length;
+  const rhythmWasArmedBeforeEffect =
+    state.players[playerId].perfectRhythmDrawNextPiecie === true;
   if (typeof effectFn === 'function') {
     state = effectFn(state, playerId);
     // STUB-05 (doubleNextPiecie / Double Trigger) — IMPLEMENTED. Flag is set by
@@ -898,6 +981,11 @@ export function activatePiecie(gameState, playerId, slotIndex) {
     state = applyPlaceEffectsOnDraw(state, playerId, piecieCardsDrawn);
   }
 
+  // Perfect Rhythm draws after every later activation this turn. Eligibility
+  // comes from the pre-effect snapshot, so a card cannot trigger the flag it
+  // just armed itself, but a later Perfect Rhythm copy can trigger an earlier one.
+  state = applyPerfectRhythmDraw(state, playerId, rhythmWasArmedBeforeEffect);
+
   // Track last played piecie for Gevalletje Klakkeloos
   state._lastPiecieEffect = { effectId: knownCardDef.effectId, byPlayer: playerId };
 
@@ -918,6 +1006,13 @@ export function activatePiecie(gameState, playerId, slotIndex) {
   if (state.activePlace === 'place_momentum_factory') {
     state = placeEffects.effect_momentum_factory(state);
   }
+
+  // Alyssa<->Jisca synergy (D-03): first-Piecie-per-turn bonus safety net at the
+  // activatePiecie dispatch — normally already applied by playPiecie (the real
+  // "play" trigger); this is a no-op once the once-per-turn flag is set, and only
+  // fires here for a path that reaches activation without having gone through
+  // this turn's play-count increment.
+  state = applyAlyssaJiscaPiecieBonus(state, playerId);
 
   // Chris DDR — Perfect Combo Chain: may recursively activate more Piecies from
   // hand (see maybeChainChrisDdrCombo above).

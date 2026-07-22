@@ -2,26 +2,448 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 37 (COMPLETE — 2/2 plans)
-status: Complete
-last_updated: "2026-07-16T23:20:00.000Z"
+current_phase: 49
+status: complete
+last_updated: "2026-07-22T00:00:00.000Z"
 progress:
-  total_phases: 37
-  completed_phases: 19
-  total_plans: 76
-  completed_plans: 70
-  percent: 63
+  total_phases: 42
+  completed_phases: 26
+  total_plans: 96
+  completed_plans: 87
+  percent: 62
 ---
 
 # Project State
 
-**Last updated:** 2026-07-16
-**Current phase:** 37 (COMPLETE — 2/2 plans)
-**Branch:** card/full-game-text-audit
+**Last updated:** 2026-07-22
+**Current phase:** 49 (COMPLETE)
+**Branch:** card/phase-48-requirement-verification
 
-## ▶ RESUME HERE (2026-07-16 handoff — Phase 37 COMPLETE, both plans done)
+## RESUME HERE (2026-07-22 handoff - Phase 49 COMPLETE, both plans)
 
-**Next command:** `/gsd:verify-work 37` (optional UAT), or pick the next phase. Phase 37 is fully
+**Next command:** select the next pending roadmap phase, or run the milestone
+audit / archive flow now that the legacy planning-ledger debt is honestly closed.
+
+**Phase 49 (legacy execution-evidence closure) is COMPLETE (2/2 plans).** This
+session finished the phase, which a prior session had left half-done: Plan 49-01's
+Task 1 (the 9 "Plans Without Summaries" ledger rows) had been committed, but Task 2
+and both plan summaries were never written.
+
+- **Plan 49-01 finished:** extended `49-VERIFICATION.md` with the missing sections —
+  **Off-Roadmap Phase Directories** (9, all preserved/not re-added, D-02),
+  **Duplicate-Directory Routes** (2, canonical route recorded), **Stale Todos** (8),
+  **Summary Tally**, **Appendix A** pre-closure health baseline, and **Verification
+  Commands**. Wrote the missing `49-01-SUMMARY.md`. Committed `e04936b`. Final ledger:
+  **6 SUPERSEDED, 2 INSUFFICIENT-EVIDENCE-PRESERVED, 1 GENUINELY-UNFINISHED→SUPERSEDED-BY-SCOPE**
+  across the 9 plans; every cited commit resolved via `git cat-file` and every cited
+  test file via `test -f` (both live gates exit 0).
+- **Plan 49-02 executed:** 9 `{plan}-CLOSURE.md` discoverability markers (each declares
+  itself a closure note, NOT a summary; `32-02` carries the D-05 un-captured-human-approval
+  residual). Todo hygiene (D-06): the 2 shipped todos (alyssa-jisca→P38, coerts-caravan→P41)
+  annotated + `git mv`'d to `todos/completed/`; the 2 partials subset-annotated in place
+  (remainder→OPEN Phase 42); the 4 open-phase todos (ts-bulldozer/45, full-game-audit/42,
+  the-void/44, dierenasiel/43) left byte-unchanged. Wrote `49-02-SUMMARY.md`.
+
+**Honesty guarantees held:** no historical `SUMMARY.md` fabricated (D-01) — `validate.health`
+still reads `degraded` with all 9 legacy I001 "no SUMMARY.md" warnings + 9 W007 off-roadmap
+warnings intact, which is the accepted, documented outcome; no directory deleted or renamed
+(D-02); `git diff --quiet HEAD -- src tests` passes — **zero `src/` and zero test changes
+across the entire phase (D-07)**. All three plan-02 gates passed (NINE_MARKERS_OK,
+TODO_HYGIENE_OK, HEALTH_HONESTLY_DEGRADED_NO_CODE_CHANGE).
+
+<details>
+<summary>Prior resume note (superseded - 2026-07-20, Phase 48 COMPLETE, all 6 plans)</summary>
+
+## RESUME HERE (2026-07-20 handoff - Phase 48 COMPLETE, all 6 plans)
+
+**Next command:** `$gsd-verify-work 48` for conversational UAT, or select the
+next pending roadmap phase.
+
+**Phase 48 (original requirement verification backfill for Phases 01-06 and 09)
+is COMPLETE (6/6 plans).** Plan 48-06 (wave 2, final) consolidated the five
+Wave-1 bucket fragments into a single honest `48-VERIFICATION.md` — a 64-row
+1:1 requirement traceability matrix (grep-confirmed exactly 64 unique ids, no
+blank dispositions): **58 VERIFIED**, **5 GAP-DESCOPED** (`IMPL-PF-P9`,
+`IMPL-PF-P11`, `IMPL-PF-P12`, `IMPL-AR-P4`, `IMPL-AR-P5` — 2 confirmed-absent
+card slugs filed under both decks + 1 filing duplicate of `IMPL-PF-Q7`), **1
+SUPERSEDED** (`IMPL-LOBBY`, cites Phase 34). `REQUIREMENTS.md` needed zero
+further edits — Waves 1-5 had already ticked/annotated every checkbox
+incrementally as each bucket closed, and this plan confirmed the ledger
+matches the consolidated matrix exactly. Ran the full CLAUDE.md phase-gate
+sequence live: `node --check` clean on 6 runtime files, `npm test` **745/745**
+(77 files, 0 regressions), `git diff --stat -- src` **empty** (D-04 preserved
+across the entire 6-plan phase — zero `src/` files touched anywhere), and the
+Ronald Kip `piecie_ronald_kip` MP-stacking Playwright check re-run fresh
+(**1 passed, ownΔ=50**). `npm run test:sim` was not re-run fresh — with zero
+`src/` changes anywhere in the phase, simulation behavior could not have
+moved since the Phase 46 baseline (152/160, 0 crashes), so the existing
+baseline was cited rather than re-running a 15-40 min browser suite to
+reconfirm an unchanged runtime. `48-VALIDATION.md` signed off with
+`nyquist_compliant: true`.
+
+**The milestone audit's "0/64 traceability" finding is now retired with real,
+honest evidence** — not cosmetic documentation. Two residual coverage notes
+were flagged for a future phase, never silently claimed closed: (1)
+Varkenspootjes' final +60/-30 MP swing lives in unexported UI/bot logic
+(`main.js`/`botDriver.js`) that can't be unit-tested without an architectural
+export change; (2) BUG-01's "stale activeMosje" diagnostic log was confirmed
+via direct closure-structure source read to have never found a real
+divergence. Full detail in `48-06-SUMMARY.md`.
+
+<details>
+<summary>Prior resume note (superseded - 2026-07-20, Phase 48 Plan 05 COMPLETE, Mosje-ability + Phase-9 BUG backfill bucket)</summary>
+
+## RESUME HERE (2026-07-20 handoff - Phase 48 Plan 05 COMPLETE, Mosje-ability + Phase-9 BUG backfill bucket)
+
+**Next command:** `/gsd:execute-phase 48` (resumes with Plan 48-06, wave 2 — depends
+on all five Wave 1 fragments including this plan's `48-FRAGMENT-05-mosje-bugs.md`;
+assembles the consolidated `48-VERIFICATION.md`).
+
+**Plan 48-05 (Mosje-ability gaps + Phase-9 BUG-01..05 backfill, IMPL-PF-M1/M2,
+IMPL-AR-M1/M2, BUG-01..05) is COMPLETE (3/3 tasks).** Executed sequentially on
+`card/phase-48-requirement-verification` (no worktree). Ran the two-pronged
+evidence-discovery method against all 9 rows: Jisca (IMPL-AR-M2) already had
+qualifying evidence in `tests/abilities/ability-text-reconciliation.test.ts`; 3
+confirmed gaps (Alyssa `ability_alyssa_bulldozer_unstoppable`, Jeffrey's real
+passive `applyMosjeFieldEffectsOnQuest` — NOT the no-op `ability_jeffrey_brute_force`
+stub, and DJ 80/20 `ability_dj_8020_lucky_beats`) closed with a new focused Vitest
+file (`tests/abilities/phase48-mosje-ability-verification.test.ts`, 6/6 green); the
+DJ 80/20 test asserts both its +10 MP and `questPrepBonus += 2` halves in one test,
+closing IMPL-AR-M1 AND BUG-05 simultaneously. BUG-01's residual "stale activeMosje"
+runtime claim was investigated directly in `src/main.js` (both Quest-attempt flows
+capture the active Mosje/threshold once into a closure variable, reused unchanged
+for both display and dice-roll — no second stale fetch exists anywhere) and recorded
+VERIFIED with that rationale, not silently ticked (D-08). Backfilled the previously
+missing `.planning/phases/09-ui-engine-bug-fixes/09-VERIFICATION.md`, scoped strictly
+to BUG-01..05 with real evidence citations, no fabricated Phase 01-06 legacy history
+(D-06). Zero `src/` files touched (D-04 preserved).
+
+**Verification:** `npx vitest run tests/abilities/phase48-mosje-ability-verification.test.ts`
+6/6 green; full `npm test` **745/745** (739 baseline + 6 new, 0 regressions);
+`git diff --stat` confirmed only the new test file, `09-VERIFICATION.md`, the
+fragment doc, and `REQUIREMENTS.md` touched, no `src/` changes. Full detail in
+`48-05-SUMMARY.md`.
+
+<details>
+<summary>Prior resume note (superseded - 2026-07-20, Phase 48 Plan 04 COMPLETE, Places/Quests/cross-cutting bucket)</summary>
+
+## RESUME HERE (2026-07-20 handoff - Phase 48 Plan 04 COMPLETE, Places/Quests/cross-cutting bucket)
+
+**Next command:** `/gsd:execute-phase 48` (resumes with the next Phase 48 plan —
+whichever bucket comes after Places/Quests/cross-cutting: Mosje abilities or the
+Phase-9 BUG-01..05 backfill).
+
+**Plan 48-04 (Places + Quests + cross-cutting requirement verification, IMPL-PF-PL1..3
+/IMPL-AR-PL1..3/IMPL-PF-Q1..7/IMPL-AR-Q1..5/IMPL-TEST/IMPL-LOBBY/IMPL-SIM/IMPL-REG) is
+COMPLETE (3/3 tasks).** Executed sequentially on `card/phase-48-requirement-verification`
+(no worktree). Ran the two-pronged evidence-discovery method against all 22 rows: 7
+already had qualifying evidence (`place_the_gym`, `place_obby_1`, `place_arcade`,
+`place_coerts_caravan`, `quest_endurance_test`, `quest_sustained_assault`, plus the 3
+cross-cutting VERIFIED rows IMPL-TEST/IMPL-SIM/IMPL-REG); `IMPL-LOBBY` recorded
+SUPERSEDED citing Phase 34. 10 confirmed GAPs (`place_zo_is_natuur`,
+`place_quest_haven`, `quest_shotje_obby`, `quest_leap_of_faith`, `quest_survive_storm`,
+`quest_never_give_up`, `quest_tough_it_out`, `quest_improvise`,
+`quest_create_masterpiece`, `quest_lucky_break`, `quest_synergy_mastery`) plus 1 PARTIAL
+(`quest_artistic_expression` — draw mechanism already proven, auto-succeed gate wasn't)
+closed with a new focused Vitest file
+(`tests/effects/phase48-place-quest-verification.test.ts`, 23/23 green). Caught 2
+Pitfall-2 false positives before ticking them VERIFIED: `quest_shotje_obby` and
+`quest_leap_of_faith` both had string hits, but those tests only reused the card as an
+inert fixture for unrelated features (Gandoe/Michelle synergy, General-Quest
+affordability) — never exercised their own requirement logic. `IMPL-PF-Q7`'s new
+evidence also closes the `IMPL-PF-P12` duplicate Plan 48-01 left open. Zero `src/`
+files touched (D-04 preserved).
+
+**Verification:** `npx vitest run tests/effects/phase48-place-quest-verification.test.ts`
+23/23 green; full `npm test` **739/739** (716 baseline + 23 new, 0 regressions);
+`git status --short` confirmed only the 3 new test/docs files + REQUIREMENTS.md ticks
+touched, no `src/` changes. Full detail in `48-04-SUMMARY.md`.
+
+<details>
+<summary>Prior resume note (superseded - 2026-07-20, Phase 48 Plan 03 COMPLETE, Snelle Piecie bucket)</summary>
+
+## RESUME HERE (2026-07-20 handoff - Phase 48 Plan 03 COMPLETE, Snelle Piecie bucket)
+
+**Next command:** `/gsd:execute-phase 48` (resumes with the next Phase 48 plan —
+whichever bucket comes after the Snelle Piecie bucket: Mosje abilities, Places,
+Quests, cross-cutting, or the Phase-9 BUG-01..05 backfill).
+
+**Plan 48-03 (Snelle Piecie requirement verification, IMPL-PF-S1..S4/IMPL-AR-S1..S4)
+is COMPLETE (2/2 tasks).** Executed sequentially on `card/phase-48-requirement-verification`
+(no worktree). Ran the two-pronged evidence-discovery method against all 8 Snelle
+Piecie requirement rows (4 unique cards, each filed once per deck bucket):
+`snelle_jensen` (PF-S1/AR-S1) and `snelle_lucky_coin` (PF-S4/AR-S3) already had
+qualifying evidence (`tests/ui/cards/card-registry.js`'s `SNELLE_REGISTRY` +
+`tests/engine/snelle-piecie-full-slots.test.ts`'s BUG-04 slot-guard regression,
+respectively); `snelle_negate_elimination` (PF-S3, unique to PF) was checked
+against `tests/ui/simulation/chain-tests.spec.js` before any GAP verdict per
+RESEARCH.md's skipReason anti-pattern warning — confirmed VERIFIED via the
+chain-3 live-browser "Not Today!" assertion. 2 confirmed gaps
+(`effect_snelle_bijna_welloe` PF-S2/AR-S2, `effect_snelle_dubbele_temminks`
+AR-S4, unique to AR) closed with a new focused Vitest file
+(`tests/effects/phase48-snelle-verification.test.ts`, 4/4 green) asserting
+concrete field deltas per D-02's false-green guard. Zero `src/` files touched
+(D-04 preserved).
+
+**Verification:** `npx vitest run tests/effects/phase48-snelle-verification.test.ts`
+4/4 green; full `npm test` **716/716** (712 baseline + 4 new, 0 regressions);
+`git status --short` confirmed only the 2 new test/docs files touched, no
+`src/` changes. Full detail in `48-03-SUMMARY.md`.
+
+<details>
+<summary>Prior resume note (superseded - 2026-07-20, Phase 48 Plan 02 COMPLETE, AR Piecie bucket)</summary>
+
+## RESUME HERE (2026-07-20 handoff - Phase 48 Plan 02 COMPLETE, AR Piecie bucket)
+
+**Next command:** `/gsd:execute-phase 48` (resumes with the next Phase 48 plan —
+whichever bucket comes after the AR Piecie bucket: Mosje abilities, Snelle Piecies,
+Places, Quests, cross-cutting, or the Phase-9 BUG-01..05 backfill).
+
+**Plan 48-02 (AR Piecie requirement verification, IMPL-AR-P1..P13) is COMPLETE
+(2/2 tasks).** Executed sequentially on `card/phase-48-requirement-verification`
+(no worktree). Ran the two-pronged evidence-discovery method (card id string AND
+effect function name grep across `tests/`) against all 13 Artistic Rhythm Piecie
+requirements: 8 rows (P1 kannetje-melk [shared evidence with IMPL-PF-P1], P3
+broodje-doner, P6 bowie-stormey, P7 gekke-vogels, P8 synergy-field, P9
+dubbele-dosis→`piecie_quest_prep` [divergence, shared with BUG-02], P12
+laat-me-chillen, P13 shoettoe→`piecie_energy_surge` [shared with IMPL-PF-P10])
+already had qualifying real-assertion evidence in `tests/ui/cards/card-registry.js`'s
+browser card-test-library; P11 (`mosje-shield`) was correctly classified VERIFIED via
+the `effect_mosje_shield` function-name grep in `tests/engine/stub-engine-wiring.test.ts`
+(which never contains the id string — the exact false-GAP risk RESEARCH.md flagged);
+2 confirmed gaps (P2 `effect_warm_kannetje_melk`, P10 `effect_dubbele_ding`) were
+closed with a new focused Vitest file (`tests/effects/phase48-ar-piecie-verification.test.ts`,
+3/3 green) asserting concrete field deltas per D-02's false-green guard. P4
+(`nature-s-gift`) and P5 (`gun-een-piece`) confirmed absent from `src/` and
+`docs/card-reference.md` — same underlying absent cards as Plan 48-01's PF-P9/PF-P11
+— recorded GAP-DESCOPED, never ticked. Zero `src/` files touched (D-04 preserved).
+
+**Verification:** `npx vitest run tests/effects/phase48-ar-piecie-verification.test.ts`
+3/3 green; full `npm test` **712/712** (709 baseline + 3 new, 0 regressions);
+`git status --short` confirmed only the 2 new test/docs files touched, no `src/`
+changes. Full detail in `48-02-SUMMARY.md`.
+
+**Open follow-up for later Phase 48 waves:** `IMPL-AR-P9`'s `piecie_quest_prep`
+evidence is now available for whichever plan closes BUG-02's Phase 09 backfill row
+(same card, same name/id divergence).
+
+<details>
+<summary>Prior resume note (superseded - 2026-07-20, Phase 48 Plan 01 COMPLETE, PF Piecie bucket)</summary>
+
+## RESUME HERE (2026-07-20 handoff - Phase 48 Plan 01 COMPLETE, PF Piecie bucket)
+
+**Next command:** `/gsd:execute-phase 48` (resumes with the next Phase 48 plan —
+the Artistic Rhythm Piecie bucket or whichever bucket 48-02 covers).
+
+**Plan 48-01 (PF Piecie requirement verification, IMPL-PF-P1..P12) is COMPLETE
+(2/2 tasks).** Executed sequentially on `card/phase-48-requirement-verification`
+(no worktree). Ran the two-pronged evidence-discovery method (card id string AND
+effect function name grep across `tests/`) against all 12 Physical Force Piecie
+requirements: 5 rows (P1 kannetje-melk, P2 te-hard-gaan, P6 grammetje-pieter, P8
+tikker, P10 shoettoe→`piecie_energy_surge`) already had qualifying real-assertion
+evidence in `tests/ui/cards/card-registry.js`'s browser card-test-library; 4
+confirmed gaps (P3 `effect_snoeiertje`, P4 `effect_momentum_diefje` happy-path
+steal, P5 `effect_dikke_taks`, P7 `effect_varkenspootjes` deferred-target flag)
+were closed with a new focused Vitest file
+(`tests/effects/phase48-pf-piecie-verification.test.ts`, 4/4 green) asserting
+concrete field deltas per D-02's false-green guard. P9 (`nature-s-gift`) and P11
+(`gun-een-piece`) confirmed absent from `src/` and `docs/card-reference.md` —
+recorded GAP-DESCOPED, never ticked. P12 (`quest_tough_it_out`) confirmed as a
+REQUIREMENTS.md filing duplicate of `IMPL-PF-Q7` (a Quest mis-filed under the
+Piecie section) — left unticked because a fresh grep found `IMPL-PF-Q7` itself
+has zero test evidence yet, so the plan's own "cite Q7's evidence" instruction
+could not be honestly followed as written; recorded the gap instead of
+fabricating a citation. Zero `src/` files touched (D-04 preserved).
+
+**Verification:** `npx vitest run tests/effects/phase48-pf-piecie-verification.test.ts`
+4/4 green; full `npm test` **709/709** (705 baseline + 4 new, 0 regressions);
+`git diff --stat` confirmed only the 2 new test/docs files touched, no `src/`
+changes. Full detail (including both Rule-1 honesty-correction deviations) in
+`48-01-SUMMARY.md`.
+
+**Open follow-up for later Phase 48 waves:** `IMPL-PF-Q7`'s own evidence (needed
+to properly close `IMPL-PF-P12`'s duplicate) is not yet verified — whichever
+plan covers the Quest bucket should confirm/gap-fill it. `IMPL-PF-P7`'s
+Varkenspootjes MP-swing (Binti +60 / other -30) has a residual unit-test-coverage
+gap: the real mutation happens in unexported UI (`main.js`) / bot
+(`botDriver.js`) logic, not a pure exported function — flagged in
+`48-FRAGMENT-01-pf-piecies.md`, not silently claimed as fully covered.
+
+<details>
+<summary>Prior resume note (superseded - 2026-07-19, Phase 46 COMPLETE, both plans)</summary>
+
+## RESUME HERE (2026-07-19 handoff - Phase 46 COMPLETE, both plans)
+
+**Next command:** `$gsd-verify-work 46` for conversational UAT, or select the
+next pending roadmap phase.
+
+**Phase 46 is COMPLETE (2/2 plans).** Plan 46-01 added Loaded Dice, Boosterpackkie,
+Perfect Rhythm, and Dikke Plaat as free booster-only UTILITY Piecies. Plan 46-02
+closed the 3 UAT-reported design-change gaps against those cards: Boosterpackkie's
+5-6 bonus draw now requires a COERT-family Mosje on field (matching the existing
++10 MP gate — without COERT, only the single draw happens, no matter the roll);
+Perfect Rhythm's later-Piecie draw is now repeating (draws 1 for EVERY later
+Piecie activated this turn, not just the first — still never triggers off itself,
+still clears at end of turn); Dikke Plaat's +2 DJ bonus now also matches exact
+[Alyssa] Fissa Fissa! (`mosje_alyssa_fissa`, Alyssa Bulldozer excluded), with the
+exception named on the card text per the user's explicit request.
+`docs/card-reference.md` reflects all three reworked designs plus a new thematic
+note on the Alyssa Fissa/DJ pairing.
+
+**Verification (46-02):** `node --check` clean on the 3 touched runtime files;
+focused Vitest **23/23** (20 baseline + 3 new); full `npm test` **701/701**, 0
+regressions; focused browser card tests (Playwright) **4/4** for all Phase 46
+cards; Ronald Kip +50 MP stacking check **1/1** passed. Full `npm run test:sim`
+intentionally NOT run — none of the 3 changes touch MP math/costs/level
+thresholds/Quest-completion logic (draw-gating + a quest-bonus condition
+widening only), so the plan's escalation trigger to the full simulation was
+never hit. Details in `46-02-SUMMARY.md`. No commit to `main` performed; work
+stays on `card/phase-46-thematic-piecies`.
+
+<details>
+<summary>Prior resume note (superseded - Phase 46 Plan 01 only, before UAT gap closure)</summary>
+
+**Phase 46 was COMPLETE (1/1 plan) at this point.** Added Loaded Dice, Boosterpackkie, Perfect
+Rhythm, and Dikke Plaat as free booster-only UTILITY Piecies. Their generic
+effects and JEFFREY/COERT/DJ family kickers are wired, Perfect Rhythm's exact
+DDR Chris kicker and one-shot later-activation draw are turn-scoped, and all
+four cards are covered by focused tests and the browser card registry.
+`docs/card-reference.md` now reflects the live 74-card Piecie pool and records
+the Keyboard pairing; Coert Kast-elein remains hidden and Chris All-Rounder
+still has no dedicated item.
+
+**Verification:** runtime syntax checks passed; focused Vitest **20/20**;
+targeted browser cards **4/4**; `npm run validate` passed with **698/698** tests
+and the existing lint-warning baseline. Full cards: **60 passed / 9 skipped /
+3 failed** (two known failures plus one transient Ming Natural timeout that
+passed alone); all four new cards and Ronald Kip +50 passed. Full simulation:
+**153/160**, seven timeout-only reward-overlay failures (**4.4%**), **0
+crashes**. Details are in `46-01-SUMMARY.md`. No commit or push performed.
+
+</details>
+
+<details>
+<summary>Prior resume note (superseded - Phase 41 Coert's Caravan COMPLETE)</summary>
+
+**Phase 41 is COMPLETE (1/1 plan).** Discussion corrected the original stale Binti-discount prompt:
+the discount should not return, Tesla / Winston Jaaa / Varkenspootjes combo space stays booster-side,
+and Coert's Caravan should become a Coert-flavored defensive Place. Implemented final user ruling:
+while active, each Coert-family Mosje ignores up to 40 MP of Quest damage per turn. Quest attempt
+costs and non-Quest MP loss remain unshielded, and the old end-phase drain is removed.
+
+**Verification:** runtime syntax checks clean for `places.js`, `placeEffects.js`, and `mpManager.js`;
+focused `npm test -- place-coerts-caravan` **5/5 GREEN**; full `npm test` **678/678 GREEN**;
+`npm run validate` clean with the existing lint warning baseline only. `41-CONTEXT.md`,
+`41-01-PLAN.md`, and `41-01-SUMMARY.md` written. No commit, push, merge, or main update performed.
+
+</details>
+
+<details>
+<summary>Prior resume note (superseded - Phase 40 deck slice COMPLETE; plan Phase 41 next)</summary>
+
+**Phase 40 deck slice is COMPLETE (1/1 plan).** The roadmap entry came from a stale todo status:
+the live implementations had already landed in commits `56fc3b4` (Chris All-Rounder Perfect Setup),
+`1de1ee5` (Jisca Perfect Combo), and `a28edce` (Coert KasteLuck Morning Luck). Plan 40-01 audited
+those commits against the settled rulings, confirmed all three are ancestors of the current branch,
+ran their existing engine and real-browser regression coverage, and replaced generic card-reference
+rows with the actual mechanics. No duplicate gameplay implementation was added.
+
+**Verification:** runtime syntax checks clean; focused Vitest **50/50 GREEN**; focused Playwright
+card chains **3/3 GREEN**; `npm run validate` clean with **676/676** tests and the existing lint
+warning baseline; `npm run test:cards` matched baseline at **57 passed / 9 skipped / 2 known unrelated
+failures** (`mosje_amplifier`, `mosje_binti_creator`), with Ronald Kip +50 MP passing. A fresh
+`npm run test:sim` attempt was terminated by the command's 15-minute ceiling after 15 scenarios
+(11 pass, 4 existing timeout-style failures, 0 crashes). The completed Phase 39 sim remains valid
+for the same runtime source state: **154/160, 0 crashes, 3.75% failures**. Deck matrix: CY 50%,
+JA 65% (balance-review flag), CB 40% (balance-review flag). `40-01-SUMMARY.md` written. No commit,
+push, merge, or main update performed.
+
+</details>
+
+<details>
+<summary>Prior resume note (superseded - Phase 39 COMPLETE; plan Phase 40 deck slice next)</summary>
+
+**Phase 39 (Gandoe/Michelle "The Box" synergy) is COMPLETE (2/2 plans).** Plan 39-01 added the
+RED browser + engine repro specs. Plan 39-02 wired both directions in `src/abilities/questLogic.js`:
+Michelle Tough Gamble rolls 5-6 grant `mosje_gandoe_destroyer` +10 MP with `allowLevelUp:false`,
+and successful Physical Quests by `mosje_gandoe_destroyer` gain +15 MP while Michelle is on field.
+The partner quest synergy helper now accepts the questing Mosje card id and supports an optional
+`appliesTo` scope so the Gandoe/Michelle Physical Quest bonus does not accidentally apply to
+Michelle. Bot quest-risk prediction now passes the Mosje card id into the same helper.
+
+**Verification:** node --check clean on touched runtime files; `npm test -- gandoe-michelle-synergy`
+**6/6 GREEN**; `npx playwright test tests/ui/cards/gandoe-michelle-synergy.spec.js` **4/4 GREEN**;
+full `npm test` **676/676**; `npm run lint` clean exit with existing warnings only; `npm run
+test:cards` completed with the 2 known unrelated card-test failures (`mosje_amplifier`, `mosje_binti_creator`);
+`npm run test:sim` completed **154/160**, 0 crashes observed, 3.75% timeout/click-overlay failures.
+Deck matrix regenerated: GM Gandoe & Michelle finished 23-17 / 57.5%, below the 60% UAT balance
+flag threshold. `39-02-SUMMARY.md` written. No commit or push performed.
+
+</details>
+
+<details>
+<summary>Prior resume note (superseded - Phase 38 COMPLETE; roadmap reprioritized into a Deck Completion Track)</summary>
+
+## ▶ RESUME HERE (2026-07-18 handoff — Phase 38 COMPLETE; roadmap reprioritized into a Deck Completion Track)
+
+**Next command:** `/gsd:plan-phase 39` (Gandoe↔Michelle synergy — the next deck-completion item).
+
+**Phase 38 (Alyssa↔Jisca synergy) is COMPLETE (2/2 plans).** Plan 38-02's engine wiring — which
+had been left uncommitted mid-flight when the prior session hit its chat limit — was verified and
+committed this session (`d9a3eda`). `applyAlyssaJiscaPiecieBonus` + the start-of-turn Alyssa +10
+loop in `src/engine/turnManager.js` consume `hasAlyssaJiscaSynergy`: each Alyssa gains +10 MP at
+turn start while Jisca is on field (D-02), and the first Piecie played each turn grants Jisca +10 MP
+once-per-turn while an Alyssa is present (D-03, hooked in playPiecie + activatePiecie, per-turn flag
+re-armed in startTurn). The repro spec `tests/ui/cards/alyssa-jisca-synergy.spec.js` flipped
+RED→GREEN and was retitled/cleaned as the permanent regression guard.
+**Verification:** node --check clean; `npm test` **670/670**; repro spec **2/2 GREEN**; Ronald Kip
+stacking pass (ownΔ=50); full `npm run test:sim` **153/160, 0 crashes, 4.4% timeout** (the 7 failures
+are pre-existing #reward-overlay/click timeouts on the archived original decks, unrelated).
+
+**MAJOR REPRIORITIZATION (2026-07-18):** Gandoe pivoted to "which of the 5 duo decks are actually
+fully functional?" A code-level audit (`.planning/audits/2026-07-18-five-deck-functional-audit.md`)
+found every deck card is *wired*; the real gaps are 6 dead/divergent cards, and most of Phase 39's
+original scope touches cards in NO player-facing deck. Roadmap re-sequenced into a **Deck Completion
+Track** (banner atop ROADMAP.md's 38–45 block): **38 → 39 → 40-deck-slice → 41 → 43.** Phase 39
+narrowed to Gandoe↔Michelle only; Phase 40 tagged to do its 3 deck Mosjes (Chris, Jisca, Coert
+KasteLuck) first; non-deck cards deferred. Deep behavior-vs-text pass on the 32 wired deck Piecies
+deferred until the known gaps close. See memory [[deck-completion-track]]. Commits this session:
+`d9a3eda` (38-02 wiring), `070d3f7` (roadmap + audit).
+
+</details>
+
+<details>
+<summary>Prior resume note (superseded — Phase 38 Plan 01 COMPLETE, Plan 02 next)</summary>
+
+**Next command:** `/gsd:execute-phase 38` (resumes with Plan 38-02 — engine wiring — once planned)
+or `/gsd:plan-phase 38` if 38-02 isn't broken out yet.
+
+**Plan 38-01 (repro-first foundation) is COMPLETE (3/3 tasks).** Executed sequentially on
+`plan/phase-38-alyssa-jisca-synergy` (no worktree). Per CLAUDE.md's reproduce-first rule:
+`tests/ui/cards/alyssa-jisca-synergy.spec.js` was written and confirmed RED on current code
+(Scenario A — Alyssa's +10/turn while Jisca is on field, D-02 — delta measured 10 instead of the
+expected 20; Scenario B — Jisca's +10 on the first Piecie played each turn while an Alyssa is on
+field, D-03 — deltaFirst measured 0 instead of the expected 10), proving both halves of the
+`DUO_JISCA_ALYSSA` starter deck's headline synergy are still live no-ops. `synergyEffect` text was
+then set on all 3 duo cards (`mosje_alyssa_bulldozer`, `mosje_alyssa_fissa`, `mosje_jisca`,
+convention-compliant, no cost-discount language per D-04) and `hasAlyssaJiscaSynergy(gameState,
+playerId)` was added to `src/engine/synergyResolver.js`, modeled on `hasFoodDoubleSynergy` — pure
+detection reuse via `hasSynergy`, no new slot-iteration logic. The browser repro spec is
+**intentionally still RED** — engine wiring (consuming the new helper to actually apply the MP) is
+deferred to Plan 38-02, not part of this plan.
+
+**Verification:** `node --check` clean on all touched runtime files; `npm test` **670/670** (664
+baseline + 6 new `hasAlyssaJiscaSynergy` unit tests, 0 regressions); `npm test -- synergy-text-clarity`
+3/3 green; `npx playwright test --project=cards tests/ui/cards/alyssa-jisca-synergy.spec.js` 2/2
+**RED as expected** (this is the plan's success criterion, not a bug — see
+`.planning/phases/38-alyssa-jisca-synergy-design-and-implementation-design-wire-t/38-01-SUMMARY.md`).
+
+</details>
+
+<details>
+<summary>Prior resume note (superseded — Phase 37 COMPLETE, both plans done)</summary>
+
+**Next command (superseded):** `/gsd:verify-work 37` (optional UAT), or pick the next phase. Phase 37 is fully
 closed out.
 
 **Phase 37 (General Quest attempt affordability gate) is COMPLETE (2/2 plans).** Both executed
@@ -325,6 +747,10 @@ mechanism lands in 36-02).
 
 </details>
 
+</details>
+
+</details>
+
 ---
 
 **(prior)** Phase 34 COMPLETE — Account Starter-Deck Onboarding & Active Deck — branch feature/phase-34-starter-deck-onboarding (merged to main).
@@ -341,6 +767,8 @@ mechanism lands in 36-02).
 - 2026-07-13-full-game-ability-text-audit.md — systematic text-vs-code pass needed across ALL Piecies/Places/remaining Mosjes, not just the 9 already flagged; triggered by the Caravan find above.
 - 2026-06-11-ts-bulldozer-comeback-reconcile.md (pre-existing)
 - 2026-07-16-dierenasiel-real-mechanic-needed.md — Dierenasiel's `effect_dierenasiel` is a confirmed full no-op (both its prior clauses removed as dead/vacuous across Phase 35 + Phase 36); needs a real passive mechanic designed in a future phase.
+- (Phase 48 internal follow-up, not a separate todo file) `IMPL-PF-Q7` (`quest_tough_it_out`) has zero test evidence anywhere in `tests/` as of Plan 48-01 — needed to properly close `IMPL-PF-P12`'s REQUIREMENTS.md duplicate; pick up in whichever Phase 48 plan covers the Quest bucket.
+- (Phase 48 internal follow-up, not a separate todo file) `piecie_varkenspootjes`' actual MP-swing (Binti +60 / other -30) is resolved by unexported UI (`main.js`)/bot (`botDriver.js`) logic with no unit-test coverage; only the deferred pending-target flag is unit-tested. See `48-FRAGMENT-01-pf-piecies.md` for detail.
 
 ### Roadmap Evolution
 
@@ -348,6 +776,7 @@ mechanism lands in 36-02).
 - Phase 32 extended (2026-06-20): win-clarity UX added on the same branch — instant Level-3 win (engine), plain-language win/defeat reason + battle-log recap in the end screen, "How to Win" panel, dice-modal Mosje stats.
 - Phase 34 added (2026-07-03): Account Starter-Deck Onboarding & Active Deck — turns the 5 duo starter decks into the backbone of account onboarding: blocking first-login deck picker, exact-multiset card grant, active-deck concept + lobby switcher, duo-only guest dropdown, duo-only bot pool.
 - Phase 37 added (2026-07-16): General Quest attempt affordability gate — block attempting a General Quest when the chosen Mosje can't afford the 20 MP attempt fee (mirror Phase 36's Welloe Force affordability gate). Surfaced during Phase 36's UAT: a Mosje at 10 MP could attempt a 20-MP quest and self-destruct. The 20 MP fee + lethality are canonical (phase0-rulings.md:126); this phase adds only the *attempt gate* the ruling permits. NOT yet discussed/planned.
+- Phase 46 completed (2026-07-19): Thematic Piecie Cards for Specific Mosjes — added Loaded Dice, Boosterpackkie, Perfect Rhythm, and Dikke Plaat as booster-only UTILITY Piecies; documented Coert Hawaiian Tech Savant's existing Keyboard fit; kept Coert Kast-elein hidden and Chris All-Rounder without a dedicated item. Focused/full validation passed; browser and simulation baseline caveats are recorded in `46-01-SUMMARY.md`.
 - Phases 38–45 added (2026-07-18): **backlog-review sweep** — promoted the 8 pending `.planning/todos/pending/` items into sequenced ROADMAP phases (card-fidelity theme). All independent except Phase 42. NONE discussed/planned yet.
   - **38** — Alyssa↔Jisca synergy design + implement (DUO starter deck's null headline mechanic). Source: `2026-07-12-alyssa-jisca-synergy-design.md`.
   - **39** — Remaining unwired Mosje synergy pairs + Cless Teacher/AZN Cless fix. Source: `2026-07-15-remaining-mosje-synergies-and-cless-teacher-fix.md`.
@@ -398,6 +827,7 @@ Branch: `feature/phase-34-starter-deck-onboarding` — 3 plans executed sequenti
 - Deck onboarding is one-time: pick exactly one duo deck; more decks only via the deck builder + booster packs. No shop, no claiming multiple starters (explicit user decision).
 - Originals (PHYSICAL_FORCE/DIGITAL_CONTROL/ARTISTIC_RHYTHM) are never deleted from data — only filtered out of player-facing surfaces — so the pre-existing test suite (8+ files hardcoding those IDs) needed zero changes.
 - Bot deck selection is true-random over the duo pool, mirror matches allowed (explicit user decision, differs from the old "never mirror the human's deck" behavior).
+- Phase 38-01: opponent-field "harmless" test scenarios use a zero-piecie custom bot deck plus `mockDiceRoll(page, 0)` instead of nulling both opponent Mosje slots — nulling both would trip `victoryChecker.js`'s KNOCKOUT check (`activeSlots.every(slot => slot === null || slot.isDefeated)` is vacuously true for an all-null array) and end the game before the turn-boundary MP comparison could run.
 
 ## Phase 32 Progress — On-field Mosje Info + Quest Dice Modal + Win Clarity
 
@@ -734,5 +1164,7 @@ All 5 balance plans executed and verified (BAL-01 through BAL-05):
 - BAL-05: Deck-out reshuffle rule (empty deck → reshuffle discard, draw 1, skip next turn)
 
 653 tests passing. 0 simulation crashes. 0 timeouts.
+
+</details>
 
 </details>

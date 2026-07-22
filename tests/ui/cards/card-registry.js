@@ -53,6 +53,12 @@ export const CARD_REGISTRY = [
 		expectedEffect: 'DRAW', handDelta: 2, // draws 2 cards
 		logMatch: /[Pp]ot of [Ww]eed|drew/,
 	},
+	{
+		cardId: 'piecie_boosterpackkie', cardType: 'PIECIE',
+		setup: { ownMP: 40 }, playThen: 'place-then-activate',
+		expectedEffect: 'DRAW', handDelta: 1,
+		logMatch: /[Bb]oosterpackkie/,
+	},
 
 	// ── STATUS / FIELD-effect piecies (no direct MP change) ──────────────────
 	{
@@ -61,6 +67,27 @@ export const CARD_REGISTRY = [
 		expectedEffect: 'FIELD_EFFECT',
 		stateFlag: { path: 'players.player_1.questPrepBonus', equals: 2 },
 		logMatch: /[Dd]ubbele|quest.prep/i,
+	},
+	{
+		cardId: 'piecie_loaded_dice', cardType: 'PIECIE',
+		setup: { ownMP: 40 }, playThen: 'place-then-activate',
+		expectedEffect: 'FIELD_EFFECT',
+		stateFlag: { path: 'players.player_1.questPrepBonus', equals: 1 },
+		logMatch: /[Ll]oaded [Dd]ice/,
+	},
+	{
+		cardId: 'piecie_dikke_plaat', cardType: 'PIECIE',
+		setup: { ownMP: 40 }, playThen: 'place-then-activate',
+		expectedEffect: 'FIELD_EFFECT',
+		stateFlag: { path: 'players.player_1.questPrepBonus', equals: 1 },
+		logMatch: /[Dd]ikke [Pp]laat/,
+	},
+	{
+		cardId: 'piecie_perfect_rhythm', cardType: 'PIECIE',
+		setup: { ownMP: 40 }, playThen: 'place-then-activate',
+		expectedEffect: 'FIELD_EFFECT',
+		stateFlag: { path: 'players.player_1.perfectRhythmDrawNextPiecie', equals: true },
+		logMatch: /[Pp]erfect [Rr]hythm/,
 	},
 	{
 		cardId: 'piecie_laat_me_chillen', cardType: 'PIECIE',

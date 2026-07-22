@@ -1,3 +1,9 @@
+> **CLOSED — Phase 49 evidence closure.** This work fully shipped in **Phase 38**
+> (commits `d9a3eda` "wire Alyssa<->Jisca synergy in engine (repro spec GREEN)" and
+> `53be62d`), covered by `tests/ui/cards/alyssa-jisca-synergy.spec.js`. Full record:
+> `.planning/phases/49-legacy-execution-evidence-closure-for-plans-without-summarie/49-VERIFICATION.md`
+> (Stale Todos table). Moved to `completed/` on 2026-07-22.
+
 ---
 created: 2026-07-12
 title: Design + implement the Alyssa↔Jisca synergy (currently declared but empty)

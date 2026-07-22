@@ -1,3 +1,9 @@
+> **CLOSED — Phase 49 evidence closure.** This work fully shipped in **Phase 41**
+> (Coert's Caravan text↔engine reconciliation, which has its own `41-01-SUMMARY.md`).
+> Full record:
+> `.planning/phases/49-legacy-execution-evidence-closure-for-plans-without-summarie/49-VERIFICATION.md`
+> (Stale Todos table). Moved to `completed/` on 2026-07-22.
+
 ---
 created: 2026-07-13
 title: Coert's Caravan text vs code — missing Binti Piecie discount

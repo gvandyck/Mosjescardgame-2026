@@ -1,3 +1,10 @@
+> **Phase 49 — DELIVERED SUBSET recorded (todo stays OPEN).** Parts shipped in
+> **Phases 38–39** (Alyssa↔Jisca in Phase 38; Gandoe↔Michelle in Phase 39). The
+> remainder (FPS West/Coert, the waiver pairs, the Cless Teacher/AZN Cless shared-effect
+> fix) is NOT closed — it stays as backlog input for **OPEN Phase 42**. Full record:
+> `.planning/phases/49-legacy-execution-evidence-closure-for-plans-without-summarie/49-VERIFICATION.md`
+> (Stale Todos table).
+
 ---
 created: 2026-07-15
 title: Remaining unwired Mosje synergy pairs + Cless Teacher/AZN Cless shared-effect fix

@@ -20,6 +20,22 @@ function getFirstActiveSlotIndex(player) {
 	return player.activeSlots.findIndex(slot => slot !== null && !slot.isDefeated);
 }
 
+function getFirstActiveMosjeTagSlotIndex(player, tag) {
+	const wantedTag = String(tag).toUpperCase();
+	return player.activeSlots.findIndex(slot => {
+		if (!slot || slot.isDefeated) return false;
+		const mosjeDef = MOSJES.find(mosje => mosje.id === slot.cardId);
+		const slotTags = Array.isArray(slot.tags) ? slot.tags : [];
+		const definitionTags = Array.isArray(mosjeDef?.tags) ? mosjeDef.tags : [];
+		const tags = [...slotTags, ...definitionTags];
+		return tags.some(value => String(value).toUpperCase() === wantedTag);
+	});
+}
+
+function hasActiveMosjeTag(player, tag) {
+	return getFirstActiveMosjeTagSlotIndex(player, tag) >= 0;
+}
+
 function getOpponentId(state, playerId) {
 	return Object.keys(state.players).find(id => id !== playerId) || null;
 }
@@ -501,6 +517,67 @@ export function effect_quest_prep(gameState, playerId) {
 	if (!player) return state;
 	player.questPrepBonus = (player.questPrepBonus || 0) + 2;
 	console.log('[ABILITY] Dubbele Dosis: +2 to next Quest roll');
+	return state;
+}
+
+export function effect_loaded_dice(gameState, playerId) {
+	const state = cloneState(gameState);
+	const player = state.players[playerId];
+	if (!player) return state;
+	const bonus = hasActiveMosjeTag(player, 'JEFFREY') ? 2 : 1;
+	player.questPrepBonus = (player.questPrepBonus || 0) + bonus;
+	console.log(`[ABILITY] Loaded Dice: +${bonus} to next Quest roll`);
+	return state;
+}
+
+export function effect_boosterpackkie(gameState, playerId) {
+	const state = cloneState(gameState);
+	const player = state.players[playerId];
+	if (!player) return state;
+
+	const hasCoert = hasActiveMosjeTag(player, 'COERT');
+	let cardsDrawn = 0;
+	if (player.deck.length > 0) {
+		player.hand.push(player.deck.shift());
+		cardsDrawn += 1;
+	}
+	const roll = rollDie(6);
+	if (roll >= 5 && hasCoert && player.deck.length > 0) {
+		player.hand.push(player.deck.shift());
+		cardsDrawn += 1;
+	}
+
+	const coertSlotIndex = getFirstActiveMosjeTagSlotIndex(player, 'COERT');
+	if (coertSlotIndex >= 0) applyMPGain(player, coertSlotIndex, 10, state, playerId);
+	console.log(`[ABILITY] Boosterpackkie: drew ${cardsDrawn}, rolled ${roll}${hasCoert ? ', +10 MP (COERT)' : ''}`);
+	return state;
+}
+
+export function effect_perfect_rhythm(gameState, playerId) {
+	const state = cloneState(gameState);
+	const player = state.players[playerId];
+	if (!player) return state;
+
+	player.perfectRhythmDrawNextPiecie = true;
+	const ddrChrisSlotIndex = player.activeSlots.findIndex(
+		slot => slot && !slot.isDefeated && slot.cardId === 'mosje_chris_ddr'
+	);
+	const hasDdrChris = ddrChrisSlotIndex >= 0;
+	if (hasDdrChris) applyMPGain(player, ddrChrisSlotIndex, 10, state, playerId);
+	console.log(`[ABILITY] Perfect Rhythm: each later Piecie activation draws 1${hasDdrChris ? ', +10 MP (DDR Chris)' : ''}`);
+	return state;
+}
+
+export function effect_dikke_plaat(gameState, playerId) {
+	const state = cloneState(gameState);
+	const player = state.players[playerId];
+	if (!player) return state;
+	const hasAlyssaFissa = player.activeSlots.some(
+		slot => slot && !slot.isDefeated && slot.cardId === 'mosje_alyssa_fissa'
+	);
+	const bonus = hasActiveMosjeTag(player, 'DJ') || hasAlyssaFissa ? 2 : 1;
+	player.questPrepBonus = (player.questPrepBonus || 0) + bonus;
+	console.log(`[ABILITY] Dikke Plaat: +${bonus} to next Quest roll`);
 	return state;
 }
 

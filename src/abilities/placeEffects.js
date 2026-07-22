@@ -223,22 +223,12 @@ export function effect_momentum_factory(gameState) {
 }
 
 // ─────────────────────────────────────────
-// COERT'S CARAVAN — End of Turn: all Mosjes lose 10 MP. Coert Mosjes are immune.
+// COERT'S CARAVAN — Passive marker. The actual Quest-damage shield is enforced
+// centrally in mpManager. Keeping this no-op lets PASSIVE dispatch stay harmless.
 // ─────────────────────────────────────────
 export function effect_coerts_caravan(gameState) {
 	const state = cloneState(gameState);
-	for (const pid of Object.keys(state.players || {})) {
-		const player = state.players[pid];
-		if (!player) continue;
-
-		for (const mosje of player.activeSlots || []) {
-			if (!mosje || mosje.isDefeated) continue;
-			const id = String(mosje.cardId || mosje.mosjeId || '').toLowerCase();
-			if (id.includes('coert')) continue;
-			applyDamage(mosje, 10);
-			console.log('[ABILITY] Coert\'s Caravan: -10 MP end-of-turn drain');
-		}
-	}
+	console.log('[ABILITY] Coert\'s Caravan: passive Quest-damage shield active');
 	return state;
 }
 

@@ -10,6 +10,15 @@ function getActivePlaceId(gameState) {
   return gameState?.activePlace || gameState?.sharedPlaceSlot?.cardId || null;
 }
 
+function isCoertMosje(mosje) {
+  return String(mosje?.cardId || mosje?.mosjeId || '').toLowerCase().includes('coert');
+}
+
+function isQuestDamageSource(source) {
+  const label = String(source || '');
+  return label.startsWith('QUEST') && !label.includes('COST');
+}
+
 // ─────────────────────────────────────────────────────────────
 // gainMP
 // Gives `amount` MP to a specific Mosje slot for a player.
@@ -130,6 +139,22 @@ export function loseMP(gameState, playerId, slotIndex, amount, source = 'DRAIN',
 
   if (placeId === 'place_zo_is_natuur' && (mosje.traits?.resilient || 0) >= 2) {
     lossAmount = Math.min(lossAmount, 25);
+  }
+
+  if (placeId === 'place_coerts_caravan' && isCoertMosje(mosje) && isQuestDamageSource(source)) {
+    const currentTurn = state.turnNumber ?? 0;
+    const shield = mosje._coertsCaravanQuestShield || { turnNumber: currentTurn, used: 0 };
+    const usedThisTurn = shield.turnNumber === currentTurn ? shield.used || 0 : 0;
+    const remainingShield = Math.max(0, 40 - usedThisTurn);
+    const prevented = Math.min(lossAmount, remainingShield);
+    if (prevented > 0) {
+      lossAmount = Math.max(0, lossAmount - prevented);
+      mosje._coertsCaravanQuestShield = {
+        turnNumber: currentTurn,
+        used: usedThisTurn + prevented,
+      };
+      console.log(`[MP] Coert's Caravan: prevented ${prevented} Quest damage for ${mosje.name} (${40 - (usedThisTurn + prevented)} shield left this turn)`);
+    }
   }
 
   // ── Snelle Piecie interception flags ─────────────────────────────────────
