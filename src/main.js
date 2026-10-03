@@ -3240,7 +3240,13 @@ function initGamePage() {
 			if (cardDef.description) log.add('info', `Effect: ${cardDef.description}`);
 			logStateOutcome(log, beforePlay, gameState, localPlayerId, `${cardDef.name} instant activation`);
 			syncPush();
-			renderAndAnimate(beforePlay, { actionLabel: 'play-snelle', placedCardId: cardDef.id });
+			renderAndAnimate(beforePlay, {
+				actionLabel: 'play-snelle',
+				placedCardId: cardDef.id,
+				extraEffects: cardDef.id === 'snelle_lucky_coin' && resultLog
+					? [{ text: resultLog.type === 'loss' ? '🪙 Tails' : '🪙 Heads', kind: resultLog.type === 'loss' ? 'loss' : 'info', sub: resultLog.msg.replace('Lucky Coin: ', '') }]
+					: [],
+			});
 			showInstantEffect('snelle');   // red burst — instant card
 			return;
 		}

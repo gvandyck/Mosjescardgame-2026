@@ -58,4 +58,23 @@ test('arena-style hand hover, field hover popup and action spotlight', async ({ 
 	await expect(page.locator('.spot-effect--shield')).toHaveCount(2);
 	await expect(page.locator('.spot-effect--gain')).toHaveCount(1);
 	await ss(page, 'arena-5-shield-heal');
+
+	// 5. Snelle instant: no field card — spotlight the card itself with draw + flag + heal rows
+	await page.waitForTimeout(2800);
+	await page.evaluate(async () => {
+		const m = await import('/src/ui/actionAnimations.js');
+		const before = JSON.parse(JSON.stringify(window.__testHooks.getGameState()));
+		const after = JSON.parse(JSON.stringify(before));
+		after.players.player_1.hand.pop();                                  // the Snelle leaves the hand…
+		after.players.player_1.hand.push(...before.players.player_1.hand.slice(0, 2)); // …and 2 cards are drawn
+		after.players.player_1.activeSlots[0].mp += 20;
+		after._snelleFlags = { ...(after._snelleFlags || {}), mpLossReduction: { player_1: 30 } };
+		m.animateStateDelta(before, after, { actionLabel: 'play-snelle', placedCardId: 'snelle_jensen', actorId: 'player_1', localPlayerId: 'player_1' });
+	});
+	await page.waitForTimeout(900);
+	await expect(page.locator('.card-spotlight')).toHaveCount(1);
+	await expect(page.locator('.spot-effect', { hasText: 'Draw 2' })).toHaveCount(1);
+	await expect(page.locator('.spot-effect--shield')).toHaveCount(1);
+	await expect(page.locator('.spot-effect--gain')).toHaveCount(1);
+	await ss(page, 'arena-6-snelle-spotlight');
 });

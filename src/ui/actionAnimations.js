@@ -21,17 +21,26 @@ export function animateStateDelta(beforeState, afterState, options = {}) {
 	if (prefersReducedMotion() || !beforeState || !afterState) return;
 
 	requestAnimationFrame(() => {
-		const effects = collectEffects(beforeState, afterState);
+		const effects = [...(options.extraEffects || []), ...collectEffects(beforeState, afterState, options)];
 		animateMosjeDeltas(beforeState, afterState, options);
 		animateNewFieldCards(beforeState, afterState, options);
-		spotlightDelta(beforeState, afterState, effects);
+		spotlightDelta(beforeState, afterState, effects, options);
 	});
 }
 
-const SHIELD_FLAG_LABELS = {
-	negateNextPiecie: 'Next Piecie negated',
-	negateNextAttack: 'Next attack negated',
-	negateNextSearch: 'Next search negated',
+// Snelle flags → spotlight row. kind 'shield' = defensive, 'info' = buff/utility.
+const FLAG_ROWS = {
+	negateNextPiecie:      { text: '🛡 Shield up', sub: 'Next Piecie negated', kind: 'shield' },
+	negateNextAttack:      { text: '🛡 Shield up', sub: 'Next attack negated', kind: 'shield' },
+	negateNextSearch:      { text: '🛡 Shield up', sub: 'Next search negated', kind: 'shield' },
+	negateNextElimination: { text: '🛡 Shield up', sub: 'Next elimination negated', kind: 'shield' },
+	drainReversal:         { text: '🛡 Reversal set', sub: 'Next drain is reversed', kind: 'shield' },
+	mpLossReduction:       { text: '🛡 Protected', sub: 'Next MP loss reduced', kind: 'shield' },
+	counterChain:          { text: '⛓ Counter!', sub: 'Counter chain started', kind: 'info' },
+	forceReroll:           { text: '🎲 Reroll', sub: 'Dice must be rerolled', kind: 'info' },
+	questDiceBonus:        { text: '🎲 +1 Quest roll', sub: 'Next Quest roll', kind: 'info' },
+	doubleNextPiecie:      { text: '✨ Double', sub: 'Next Piecie triggers twice', kind: 'info' },
+	copyLastPiecie:        { text: '✨ Copy', sub: 'Copies last Piecie', kind: 'info' },
 };
 
 function shortName(slot) {
@@ -40,16 +49,20 @@ function shortName(slot) {
 
 function flagKeys(state) {
 	const keys = new Set();
-	for (const [flag, byPlayer] of Object.entries(state._snelleFlags || {})) {
-		if (!flag.startsWith('negate')) continue;
-		for (const pid of Object.keys(byPlayer || {})) keys.add(`${flag}|${pid}`);
+	for (const [flag, value] of Object.entries(state._snelleFlags || {})) {
+		if (!FLAG_ROWS[flag] || !value) continue;
+		if (typeof value === 'object') {
+			for (const pid of Object.keys(value)) if (value[pid]) keys.add(`${flag}|${pid}`);
+		} else {
+			keys.add(`${flag}|${value}`);
+		}
 	}
 	return keys;
 }
 
 // State changes across every Mosje as spotlight rows: damage (MP lost), heal
 // (MP gained), shield (immunity / entry protection / prevented damage / negate flags).
-function collectEffects(beforeState, afterState) {
+function collectEffects(beforeState, afterState, options = {}) {
 	const effects = [];
 	for (const [playerId, afterPlayer] of Object.entries(afterState.players || {})) {
 		const beforePlayer = beforeState.players?.[playerId];
@@ -73,20 +86,38 @@ function collectEffects(beforeState, afterState) {
 	const after = flagKeys(afterState);
 	for (const key of after) {
 		if (before.has(key)) continue;
-		const [flag, pid] = key.split('|');
-		effects.push({ text: '🛡 Shield up', kind: 'shield', sub: SHIELD_FLAG_LABELS[flag] || flag, pid });
+		const row = FLAG_ROWS[key.split('|')[0]];
+		effects.push({ text: row.text, kind: row.kind, sub: row.sub });
 	}
 	for (const key of before) {
 		if (after.has(key)) continue;
-		const [flag] = key.split('|');
-		effects.push({ text: '🛡 Negated!', kind: 'shield', sub: SHIELD_FLAG_LABELS[flag] || flag });
+		const flag = key.split('|')[0];
+		if (FLAG_ROWS[flag].kind === 'shield') effects.push({ text: '🛡 Negated!', kind: 'shield', sub: FLAG_ROWS[flag].sub });
+	}
+
+	// Cards drawn / returned. A Snelle leaves the actor's hand, so add it back to the net change.
+	for (const [playerId, afterPlayer] of Object.entries(afterState.players || {})) {
+		const beforePlayer = beforeState.players?.[playerId];
+		if (!beforePlayer || !Array.isArray(afterPlayer.hand)) continue;
+		const playedFromHand = (options.actionLabel === 'play-snelle' && playerId === options.actorId) ? 1 : 0;
+		const handGain = afterPlayer.hand.length - beforePlayer.hand.length + playedFromHand;
+		const graveLoss = (beforePlayer.graveyard?.length || 0) - (afterPlayer.graveyard?.length || 0);
+		if (handGain <= 0) continue;
+		effects.push(graveLoss > 0
+			? { text: '♻ Returned to hand', kind: 'info', sub: `${handGain} card${handGain > 1 ? 's' : ''} from graveyard` }
+			: { text: `🃏 Draw ${handGain}`, kind: 'info', sub: playerId === options.actorId ? 'You' : 'Opponent' });
 	}
 	return effects;
 }
 
 // A newly placed card gets its own spotlight; otherwise effects join the one an
 // ability activation already opened.
-function spotlightDelta(beforeState, afterState, effects) {
+function spotlightDelta(beforeState, afterState, effects, options = {}) {
+	// Snelle instants leave no field card — spotlight the played card itself.
+	if (options.actionLabel === 'play-snelle' && options.placedCardId) {
+		showCardSpotlight({ cardId: options.placedCardId, source: null, effects });
+		return;
+	}
 	for (const [playerId, afterPlayer] of Object.entries(afterState.players || {})) {
 		const beforePlayer = beforeState.players?.[playerId];
 		if (!beforePlayer) continue;
