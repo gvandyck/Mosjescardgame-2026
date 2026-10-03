@@ -4,6 +4,7 @@ import {
 	animateLevelUp,
 	showMPFloat,
 } from './boardRenderer.js';
+import { showCardSpotlight, addSpotlightEffects } from './cardSpotlight.js';
 
 export function prefersReducedMotion() {
 	return window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches === true;
@@ -20,15 +21,60 @@ export function animateStateDelta(beforeState, afterState, options = {}) {
 	if (prefersReducedMotion() || !beforeState || !afterState) return;
 
 	requestAnimationFrame(() => {
+		const effects = collectEffects(beforeState, afterState);
 		animateMosjeDeltas(beforeState, afterState, options);
 		animateNewFieldCards(beforeState, afterState, options);
+		spotlightDelta(beforeState, afterState, effects);
 	});
+}
+
+// MP changes across every Mosje, as spotlight effect rows ("-15 MP" on Michelle).
+function collectEffects(beforeState, afterState) {
+	const effects = [];
+	for (const [playerId, afterPlayer] of Object.entries(afterState.players || {})) {
+		const beforePlayer = beforeState.players?.[playerId];
+		afterPlayer.activeSlots?.forEach((slot, i) => {
+			const prev = beforePlayer?.activeSlots?.[i];
+			if (!slot || !prev || slot.cardId !== prev.cardId) return;
+			const delta = Number(slot.mp || 0) - Number(prev.mp || 0);
+			if (delta === 0 || Number(slot.level || 0) > Number(prev.level || 0)) return;
+			effects.push({
+				text: `${delta > 0 ? '+' : '−'}${Math.abs(delta)} MP`,
+				kind: delta > 0 ? 'gain' : 'loss',
+				sub: String(slot.name || slot.cardId).replace(/^\[[^\]]*\]\s*/, ''),
+			});
+		});
+	}
+	return effects;
+}
+
+// A newly placed card gets its own spotlight; otherwise effects join the one an
+// ability activation already opened.
+function spotlightDelta(beforeState, afterState, effects) {
+	for (const [playerId, afterPlayer] of Object.entries(afterState.players || {})) {
+		const beforePlayer = beforeState.players?.[playerId];
+		if (!beforePlayer) continue;
+		const placed = [];
+		afterPlayer.activeSlots?.forEach((s, i) => {
+			if (s && !beforePlayer.activeSlots?.[i]) placed.push({ cardId: s.cardId, zone: 'mosje', slotIndex: i });
+		});
+		afterPlayer.piecieSlots?.forEach((s, i) => {
+			if (s && !beforePlayer.piecieSlots?.[i] && !s.faceDown) placed.push({ cardId: s.cardId, zone: 'piecie', slotIndex: i });
+		});
+		if (placed.length) {
+			const p = placed[0];
+			showCardSpotlight({ cardId: p.cardId, source: { zone: p.zone, playerId, slotIndex: p.slotIndex }, effects });
+			return;
+		}
+	}
+	if (effects.length) addSpotlightEffects(effects);
 }
 
 export function animateFieldActivation({ zone = 'piecie', playerId, slotIndex, cardId, colorCategory } = {}) {
 	if (prefersReducedMotion()) return;
 	const cardEl = selectFieldElement(zone, playerId, slotIndex) || selectByCardId(cardId, playerId);
 	if (!cardEl) return;
+	showCardSpotlight({ cardId, source: { el: cardEl, zone, playerId, slotIndex } });
 
 	// Mosje ability → a distinct, type-coloured "cast" (border + glow + ring + chip).
 	// Callers fire this BEFORE the board re-renders, which would wipe a class/child on
