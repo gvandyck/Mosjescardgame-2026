@@ -1,0 +1,24 @@
+{
+  "version": "card-frame-v1",
+  "referenceCard": { "width": 440, "height": 660, "radius": 24, "background": "#050505", "frameInset": { "top": 18, "left": 18, "right": 18, "bottom": 40 }, "windowRadius": 10 },
+  "referenceFieldTile": { "width": 240, "height": 176, "radius": 14, "background": "#050505", "inset": { "top": 8, "left": 8, "right": 8, "bottom": 14 }, "windowRadius": 7 },
+  "fonts": { "display": "Sora (600, 700, 800)", "body": "DM Sans (400, 600, 700, italic 400)" },
+  "typeColors": {
+    "Fighting": { "main": "#C2410C", "tint": "#FFEDD5" },
+    "Digital":  { "main": "#0E7490", "tint": "#CFFAFE" },
+    "Artistic": { "main": "#A21CAF", "tint": "#FAE8FF" },
+    "Piecie":   { "main": "#15803D", "tint": "#DCFCE7" },
+    "Place":    { "main": "#6D28D9", "tint": "#EDE9FE" },
+    "Snelle":   { "main": "#A16207", "tint": "#FEF9C3" }
+  },
+  "leftEdge": 42,
+  "name": { "first": { "size": 40, "weight": 800, "lineHeight": 1.05, "letterSpacing": "-0.01em" }, "title": { "size": 20, "weight": 600, "lineHeight": 1.2, "marginTop": 7 }, "top": 40 },
+  "ability": { "sizeDefault": 14.5, "sizeLong": 13, "lineHeight": 1.5, "paragraphGap": 10, "bottom": 114 },
+  "infoLine": { "size": 12.5, "weight": 600, "bottom": 72, "color": "#f4f4f5" },
+  "pill": { "height": 22, "radius": 5, "size": 12, "weight": 800, "letterSpacing": "0.08em", "bottom": 41, "textColor": "#ffffff" },
+  "borderText": { "size": 10.5, "weight": 700, "letterSpacing": "0.16em", "bottom": 12, "uppercase": true, "color": "type tint" },
+  "badge": { "size": 80, "radius": 16, "right": 10, "bottom": 12, "background": "#050505", "valueSize": 34, "valueWeight": 800, "labelSize": 10, "labelWeight": 800, "labelSpacing": "0.14em" },
+  "fades": { "topHeight": 150, "topGradient": "rgba(0,0,0,.88) -> 0", "bottomHeights": { "default": 380, "shortText": 250, "longText": 440 }, "bottomGradient": "0 -> .6 at 36% -> .9" },
+  "borderDecor": { "stripes": { "side": 5, "top": 296, "width": 8, "height": 64, "pattern": "2px line / 6px gap, rgba(255,255,255,.5)" }, "diamonds": { "top": 6, "lefts": [208, 218, 228], "size": 5, "rotate": 45, "middleColor": "type main", "otherColor": "rgba(255,255,255,.5)" } },
+  "field": { "nameSize": 17, "titleSize": 11, "titleMarginLeft": 6, "pillSize": 10.5, "badge": { "size": 50, "radius": 11, "right": 5, "bottom": 5, "valueSize": 20, "valueSizeFree": 14, "labelSize": 8 }, "fadeTop": 48, "fadeBottom": 44 }
+}
