@@ -20,6 +20,25 @@
 	/* The hand no longer eats ~270px of the screen, so give that back to the board. */
 	.game-board { max-height: calc(100vh - 120px); }
 
+	/* Smaller field cards — the hover popup carries the detail. */
+	.board-zone--player { --mosje-card-w: 170px; --mosje-slot-h: calc(170px * var(--card-height-ratio)); --piecie-cell-w: 140px; min-height: 0; }
+	.board-zone--opponent { --mosje-card-w: 130px; --mosje-slot-h: calc(130px * var(--card-height-ratio)); --piecie-cell-w: 110px; min-height: 0; }
+	.board-zone--player .card--mosje,
+	.board-zone--player .mosje-card--owned {
+		width: 170px; min-width: 170px; max-width: 170px;
+		height: calc(170px * var(--card-height-ratio));
+	}
+	.board-zone--opponent .card--mosje,
+	.board-zone--opponent .mosje-card--opponent {
+		width: 130px; min-width: 130px; max-width: 130px;
+		height: calc(130px * var(--card-height-ratio));
+	}
+
+	/* Snappy hand hover (was a 0.52s ease). */
+	.game-hand-panel .hand-strip .hand-card-wrap {
+		transition: transform 0.14s ease-out, margin 0.14s ease-out, z-index 0s;
+	}
+
 	/* Field: image first. Names/MP badge stay; text blocks live in the hover popup. */
 	.board-zone .card .uc-text,
 	.board-zone .card .uc-meta { display: none; }
