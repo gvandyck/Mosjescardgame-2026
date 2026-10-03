@@ -118,3 +118,10 @@
 .spot-effect--gain { color: #5be39a; }
 .spot-effect--info { color: #ffd166; }
 @keyframes spot-effect-pop { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
+.spot-effect--shield { color: #6ab7ff; }
+.card-spotlight .card.spot-flash--loss { animation: spot-flash-loss 0.7s ease-out; }
+.card-spotlight .card.spot-flash--gain { animation: spot-flash-gain 0.7s ease-out; }
+.card-spotlight .card.spot-flash--shield { animation: spot-flash-shield 0.7s ease-out; }
+@keyframes spot-flash-loss   { 0%, 100% { box-shadow: 0 0 0 0 transparent; } 25% { box-shadow: 0 0 60px 18px rgba(255, 70, 70, 0.85); transform: translateX(-6px); } 50% { transform: translateX(6px); } }
+@keyframes spot-flash-gain   { 0%, 100% { box-shadow: 0 0 0 0 transparent; } 30% { box-shadow: 0 0 60px 18px rgba(80, 255, 150, 0.8); } }
+@keyframes spot-flash-shield { 0%, 100% { box-shadow: 0 0 0 0 transparent; } 30% { box-shadow: 0 0 60px 18px rgba(100, 180, 255, 0.85), inset 0 0 40px rgba(100, 180, 255, 0.5); } }

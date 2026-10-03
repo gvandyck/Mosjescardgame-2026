@@ -86,6 +86,12 @@ export function addSpotlightEffects(effects) {
 		row.innerHTML = `${escapeText(fx.text)}${fx.sub ? `<small>${escapeText(fx.sub)}</small>` : ''}`;
 		spot.fx.appendChild(row);
 	}
+	// Flash the card in the effect's colour (damage red / heal green / shield blue).
+	const kind = effects[effects.length - 1].kind || 'info';
+	const cardEl = spot.el.querySelector('.card');
+	cardEl?.classList.remove('spot-flash--loss', 'spot-flash--gain', 'spot-flash--shield');
+	void cardEl?.offsetWidth;
+	cardEl?.classList.add(`spot-flash--${kind}`);
 	clearTimeout(spot.timer);
 	spot.timer = setTimeout(() => dismiss(spot), ENTER_MS + HOLD_MS);
 	return true;

@@ -42,4 +42,20 @@ test('arena-style hand hover, field hover popup and action spotlight', async ({ 
 	await ss(page, 'arena-4-spotlight');
 	await page.waitForTimeout(2800);
 	await expect(page.locator('.card-spotlight')).toHaveCount(0);
+
+	// 4. shield + heal rows
+	await page.evaluate(async () => {
+		const m = await import('/src/ui/actionAnimations.js');
+		const before = JSON.parse(JSON.stringify(window.__testHooks.getGameState()));
+		const after = JSON.parse(JSON.stringify(before));
+		after.players.player_1.activeSlots[0].immuneThisTurn = true;
+		after.players.player_1.activeSlots[0].mp += 20;
+		after._snelleFlags = { ...(after._snelleFlags || {}), negateNextAttack: { player_1: true } };
+		m.animateFieldActivation({ zone: 'mosje', playerId: 'player_1', slotIndex: 0, cardId: 'mosje_michelle' });
+		m.animateStateDelta(before, after, {});
+	});
+	await page.waitForTimeout(900);
+	await expect(page.locator('.spot-effect--shield')).toHaveCount(2);
+	await expect(page.locator('.spot-effect--gain')).toHaveCount(1);
+	await ss(page, 'arena-5-shield-heal');
 });

@@ -28,7 +28,27 @@ export function animateStateDelta(beforeState, afterState, options = {}) {
 	});
 }
 
-// MP changes across every Mosje, as spotlight effect rows ("-15 MP" on Michelle).
+const SHIELD_FLAG_LABELS = {
+	negateNextPiecie: 'Next Piecie negated',
+	negateNextAttack: 'Next attack negated',
+	negateNextSearch: 'Next search negated',
+};
+
+function shortName(slot) {
+	return String(slot.name || slot.cardId).replace(/^\[[^\]]*\]\s*/, '');
+}
+
+function flagKeys(state) {
+	const keys = new Set();
+	for (const [flag, byPlayer] of Object.entries(state._snelleFlags || {})) {
+		if (!flag.startsWith('negate')) continue;
+		for (const pid of Object.keys(byPlayer || {})) keys.add(`${flag}|${pid}`);
+	}
+	return keys;
+}
+
+// State changes across every Mosje as spotlight rows: damage (MP lost), heal
+// (MP gained), shield (immunity / entry protection / prevented damage / negate flags).
 function collectEffects(beforeState, afterState) {
 	const effects = [];
 	for (const [playerId, afterPlayer] of Object.entries(afterState.players || {})) {
@@ -36,14 +56,30 @@ function collectEffects(beforeState, afterState) {
 		afterPlayer.activeSlots?.forEach((slot, i) => {
 			const prev = beforePlayer?.activeSlots?.[i];
 			if (!slot || !prev || slot.cardId !== prev.cardId) return;
+			const sub = shortName(slot);
 			const delta = Number(slot.mp || 0) - Number(prev.mp || 0);
-			if (delta === 0 || Number(slot.level || 0) > Number(prev.level || 0)) return;
-			effects.push({
-				text: `${delta > 0 ? '+' : '−'}${Math.abs(delta)} MP`,
-				kind: delta > 0 ? 'gain' : 'loss',
-				sub: String(slot.name || slot.cardId).replace(/^\[[^\]]*\]\s*/, ''),
-			});
+			if (delta !== 0 && !(Number(slot.level || 0) > Number(prev.level || 0))) {
+				effects.push(delta > 0
+					? { text: `♥ +${delta} MP`, kind: 'gain', sub }
+					: { text: `⚔ −${Math.abs(delta)} MP`, kind: 'loss', sub });
+			}
+			if (slot.immuneThisTurn && !prev.immuneThisTurn) effects.push({ text: '🛡 Immune', kind: 'shield', sub });
+			if (slot.entryProtected && !prev.entryProtected) effects.push({ text: '🛡 Protected', kind: 'shield', sub });
+			const blocked = Number(slot._coertsCaravanQuestShield?.used || 0) - Number(prev._coertsCaravanQuestShield?.used || 0);
+			if (blocked > 0) effects.push({ text: `🛡 Blocked ${blocked}`, kind: 'shield', sub });
 		});
+	}
+	const before = flagKeys(beforeState);
+	const after = flagKeys(afterState);
+	for (const key of after) {
+		if (before.has(key)) continue;
+		const [flag, pid] = key.split('|');
+		effects.push({ text: '🛡 Shield up', kind: 'shield', sub: SHIELD_FLAG_LABELS[flag] || flag, pid });
+	}
+	for (const key of before) {
+		if (after.has(key)) continue;
+		const [flag] = key.split('|');
+		effects.push({ text: '🛡 Negated!', kind: 'shield', sub: SHIELD_FLAG_LABELS[flag] || flag });
 	}
 	return effects;
 }
