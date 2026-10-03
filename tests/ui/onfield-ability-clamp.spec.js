@@ -32,8 +32,12 @@ test.describe('On-field Mosje ability text clamp', () => {
 		expect(btnBox.y + btnBox.height, 'ability button must not overflow the card bottom')
 			.toBeLessThanOrEqual(cardBox.y + cardBox.height);
 
-		// The ability text itself must be clipped, not spill freely.
-		const overflow = await card.locator('.uc-ability').evaluate(el => getComputedStyle(el).overflow);
-		expect(overflow).toBe('hidden');
+		// Old (unified) face only: the ability text itself must be clipped, not spill
+		// freely. Card frame v1 field tiles carry no ability text at all.
+		const abilityText = card.locator('.uc-ability');
+		if (await abilityText.count()) {
+			const overflow = await abilityText.evaluate(el => getComputedStyle(el).overflow);
+			expect(overflow).toBe('hidden');
+		}
 	});
 });

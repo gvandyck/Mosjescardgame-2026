@@ -72,7 +72,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 	const bottomDeck = container.querySelector('#deck-player');
 
 	for (const mosje of viewModel.players.top.mosjes) {
-		const cardEl = renderCard(mosje, { compact: true });
+		const cardEl = renderCard(mosje, { compact: true, fieldMode: true });
 		const fullCard = getCardById(mosje.cardId) || mosje;
 		cardEl.classList.add('mosje-clickable', 'mosje-card--opponent');
 		if (mosje.summonedByPiecie === 'piecie_call_of_welloes') cardEl.classList.add('mosje--welloe-bound');
@@ -90,6 +90,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 	for (const mosje of viewModel.players.bottom.mosjes) {
 		const cardEl = renderCard(mosje, {
 			compact: true,
+			fieldMode: true,
 			owned: true,
 			gameState: viewModel.gameState || null,
 			viewingPlayerId: viewModel.myPlayerId || null,

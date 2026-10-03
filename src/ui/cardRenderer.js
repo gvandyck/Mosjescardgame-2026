@@ -8,6 +8,9 @@
 // Fully implemented in Phase 5. CSS classes defined in styles/cards.css.
 
 import { getCardById } from '../data/cardIndex.js';
+import { buildCardV1 } from './cardV1/buildCardV1.js';
+import { isCardV1Enabled } from './cardV1/isCardV1Enabled.js';
+import { parseMosjeName } from './cardV1/parseMosjeName.js';
 
 console.log('[UI] cardRenderer.js loaded');
 
@@ -59,6 +62,13 @@ export function renderCard(card, options = {}) {
   // description + rarity. Only the frame colour + art distinguish the type. The
   // verbose per-type info (traits, level, MP, trigger, affinity…) is hidden for now
   // and will return via an on-hover detail view.
+  // Card frame v1 (Mosje first; other types follow) replaces the unified face.
+  const v1 = isCardV1Enabled() ? buildCardV1(resolvedCard, { fieldMode: !!options.fieldMode }) : null;
+  if (v1) {
+    element.classList.add(...v1.className.split(' '));
+    element.innerHTML = v1.html;
+    return element;
+  }
   element.innerHTML = buildUnifiedCardHTML(resolvedCard, options);
   return element;
 }
@@ -154,22 +164,6 @@ function buildOnFieldMosjeMeta(card, options = {}) {
       ${abilityHTML}
       ${synergyHTML}
     </div>`;
-}
-
-function parseMosjeName(fullName) {
-  // Parse "[FirstName] Nickname" format into { firstName, nickname }
-  const match = String(fullName || '').match(/^\[(.+?)\]\s*(.*)/);
-  if (match) {
-    return {
-      firstName: match[1],
-      nickname: match[2] || '',
-    };
-  }
-  // Fallback if format doesn't match
-  return {
-    firstName: String(fullName || 'Mosje'),
-    nickname: '',
-  };
 }
 
 export function buildMosjeCardHTML(card, gameState = null, viewingPlayerId = null) {
