@@ -96,3 +96,8 @@ export function addSpotlightEffects(effects) {
 	spot.timer = setTimeout(() => dismiss(spot), ENTER_MS + HOLD_MS);
 	return true;
 }
+
+/** True while a spotlight is on screen (the bot loop waits so its plays can be read). */
+export function isSpotlightActive() {
+	return !!current && !current.closing;
+}

@@ -5,7 +5,7 @@ import { renderBoard, showPlaceEffectBanner } from './ui/boardRenderer.js';
 import { createLogRenderer } from './ui/logRenderer.js';
 import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
-import { animateFieldActivation, animateStateDelta, showTurnTransition, setAbilityNameResolver, animateQuestResult, showInstantEffect, showDeckOutBanner, pulseDiscardPile } from './ui/actionAnimations.js';
+import { animateFieldActivation, animateStateDelta, showTurnTransition, setAbilityNameResolver, animateQuestResult, showInstantEffect, showDeckOutBanner, pulseDiscardPile, isSpotlightActive } from './ui/actionAnimations.js';
 import { initHoverZoom } from './ui/hoverZoom.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes, setActivePlace } from './engine/gameState.js';
 import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, playPersonalQuest, activatePersonalQuest, activateSynergyWaiver } from './engine/turnManager.js';
@@ -723,9 +723,17 @@ function initGamePage() {
 		if (handIndex < 0) return false;
 		const cardDef = SNELLE_PIECIES.find(c => c.id === choice);
 		if (!cardDef) return false;
+		const beforeInterrupt = snapshotForAnimation();
 		const result = playSnellie(gameState, humanPlayerId, { id: choice, index: handIndex }, cardDef);
 		if (result.success) {
 			gameState = result.state;
+			animateStateDelta(beforeInterrupt, gameState, {
+				actorId: humanPlayerId,
+				localPlayerId: humanPlayerId,
+				actionLabel: 'play-snelle',
+				placedCardId: cardDef.id,
+			});
+			await new Promise(resolve => setTimeout(resolve, 1800));
 			log.add('gain', `Interrupt: played ${cardDef.name} before bot step.`);
 			return true;
 		}
@@ -774,7 +782,16 @@ function initGamePage() {
 		// Apply bot step
 		gameState = nextState;
 		renderFromState(gameState);
+		animateStateDelta(prevState, gameState, {
+			actorId: prevState.activePlayerId,
+			localPlayerId,
+			actionLabel: 'bot-step',
+			isBotStep: true,
+		});
 		log.add('quest', `${botName} ${label}`);
+		// Let a spotlighted bot play be read before the next step (rAF: spotlight opens next frame).
+		await new Promise(resolve => setTimeout(resolve, 60));
+		if (isSpotlightActive()) await new Promise(resolve => setTimeout(resolve, 1500));
 
 		if (gameState.status === 'FINISHED') {
 			handleGameOver(gameState);

@@ -4,7 +4,9 @@ import {
 	animateLevelUp,
 	showMPFloat,
 } from './boardRenderer.js';
-import { showCardSpotlight, addSpotlightEffects } from './cardSpotlight.js';
+import { showCardSpotlight, addSpotlightEffects, isSpotlightActive } from './cardSpotlight.js';
+
+export { isSpotlightActive };
 
 export function prefersReducedMotion() {
 	return window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches === true;
@@ -105,7 +107,7 @@ function collectEffects(beforeState, afterState, options = {}) {
 		if (handGain <= 0) continue;
 		effects.push(graveLoss > 0
 			? { text: '♻ Returned to hand', kind: 'info', sub: `${handGain} card${handGain > 1 ? 's' : ''} from graveyard` }
-			: { text: `🃏 Draw ${handGain}`, kind: 'info', sub: playerId === options.actorId ? 'You' : 'Opponent' });
+			: { text: `🃏 Draw ${handGain}`, kind: 'info', sub: playerId === options.localPlayerId ? 'You' : 'Opponent' });
 	}
 	return effects;
 }
@@ -128,6 +130,22 @@ function spotlightDelta(beforeState, afterState, effects, options = {}) {
 		afterPlayer.piecieSlots?.forEach((s, i) => {
 			if (s && !beforePlayer.piecieSlots?.[i] && !s.faceDown) placed.push({ cardId: s.cardId, zone: 'piecie', slotIndex: i });
 		});
+		// Bot actions never go through animateFieldActivation, so spot reveals/activations
+		// from the state diff (a face-down Piecie is only revealed once it activates).
+		if (!placed.length && options.isBotStep) {
+			afterPlayer.piecieSlots?.forEach((s, i) => {
+				const prev = beforePlayer.piecieSlots?.[i];
+				if (s && prev && s.activated && !prev.activated) placed.push({ cardId: s.cardId, zone: 'piecie', slotIndex: i });
+			});
+			afterPlayer.activeSlots?.forEach((s, i) => {
+				const prev = beforePlayer.activeSlots?.[i];
+				if (s && prev && s.abilityUsedThisTurn && !prev.abilityUsedThisTurn) placed.push({ cardId: s.cardId, zone: 'mosje', slotIndex: i });
+			});
+			if (afterState.activePlace && afterState.activePlace !== beforeState.activePlace
+				&& (afterState.activePlacePlayedBy || playerId) === playerId) {
+				placed.push({ cardId: afterState.activePlace, zone: 'place' });
+			}
+		}
 		if (placed.length) {
 			const p = placed[0];
 			showCardSpotlight({ cardId: p.cardId, source: { zone: p.zone, playerId, slotIndex: p.slotIndex }, effects });

@@ -254,6 +254,8 @@ export async function playCardFromHand(page, cardId) {
 	// Use .first() — multiple copies of the same card can be in hand
 	const wrap = page.locator(`.hand-card-wrap[data-card-id="${cardId}"]`).first();
 	await wrap.waitFor({ timeout: 5000 });
+	await wrap.hover({ position: { x: 100, y: 30 } }); // hand is sunk: hover lifts the card and reveals its Play button
+	await page.waitForTimeout(250);
 	const playBtn = wrap.locator('.hand-card__play-btn');
 	if (await playBtn.isVisible({ timeout: 300 }).catch(() => false)) {
 		await playBtn.click();

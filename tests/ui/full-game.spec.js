@@ -102,6 +102,8 @@ async function playActiveTurn(page, turnIndex) {
 	const piecie = hand.find(c => c.cardType === 'PIECIE');
 	if (piecie) {
 		const wrap = page.locator(`.hand-card-wrap[data-card-id="${piecie.cardId}"]`).first();
+		await wrap.hover({ position: { x: 100, y: 30 } }); // hand is sunk: hover lifts the card and reveals its Play button
+		await page.waitForTimeout(250);
 		const playBtn = wrap.locator('.hand-card__play-btn');
 		if (await playBtn.isVisible({ timeout: 300 }).catch(() => false)) {
 			await playBtn.click();
