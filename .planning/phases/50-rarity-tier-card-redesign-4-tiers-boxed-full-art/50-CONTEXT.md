@@ -18,7 +18,7 @@ Card faces show rarity as one of four visual tiers (star count of `card.rarity`)
 - **D-02:** Visual truth is the Tiers 8 board (`docs/design/rarity-tiers/tiers-8-piecie-place-snelle.png`) plus `.planning/RARITY-TIERS-DESIGN.md`. If they disagree the board wins; ask before deviating.
 
 ### Mosje look
-- **D-03:** The "Tiers 7" (Alyssa/Mosje) board is NOT available. Build Mosjes from the written spec (section 3.1 and 4/5 of the handoff), then show Gandalf the Mosje result for approval and fix from feedback.
+- **D-03:** The Tiers 7 (Alyssa/Mosje) board IS available as source: `docs/design/rarity-tiers/source/CardTiers7.dc.html` (board wins over handoff text per D-02). Build Mosjes against it, then show Gandalf the Mosje result for approval and fix from feedback.
 
 ### Build order and safety
 - **D-04:** Work on branch `ui/rarity-tiers` (cut from `ui/card-frame-v1`, which holds the unfinished E1 frame). Everything via git branches; small commits; nothing to `main` without Gandalf's explicit OK.
