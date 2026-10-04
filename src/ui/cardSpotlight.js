@@ -88,6 +88,9 @@ export function addSpotlightEffects(effects) {
 	}
 	// Effect rows replace the card's text block (it overlaps them); see arena.css.
 	spot.el.classList.add('spot-has-effects');
+	// Several targets at once: shrink the rows so they all fit on the card.
+	spot.fx.classList.toggle('spot-effects--many', spot.fx.children.length > 2);
+	spot.fx.classList.toggle('spot-effects--lots', spot.fx.children.length > 4);
 	// Flash the card in the effect's colour (damage red / heal green / shield blue).
 	const kind = effects[effects.length - 1].kind || 'info';
 	const cardEl = spot.el.querySelector('.card');

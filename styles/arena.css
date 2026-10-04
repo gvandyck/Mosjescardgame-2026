@@ -37,8 +37,8 @@
 .hover-zoom {
 	position: fixed;
 	z-index: 400;
-	width: 300px;
-	height: calc(300px * var(--card-height-ratio, 1.46));
+	width: var(--pop-w, 300px);
+	height: calc(var(--pop-w, 300px) * var(--card-height-ratio, 1.46));
 	pointer-events: none;
 	filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.7));
 	animation: hover-zoom-in 0.14s ease-out;
@@ -62,9 +62,10 @@
 	z-index: 500;
 	right: 5vw;
 	top: 50%;
-	width: 320px;
-	height: calc(320px * var(--card-height-ratio, 1.46));
-	margin-top: calc(320px * var(--card-height-ratio, 1.46) / -2);
+	--spot-w: clamp(240px, 33vh, 360px);
+	width: var(--spot-w);
+	height: calc(var(--spot-w) * var(--card-height-ratio, 1.46));
+	margin-top: calc(var(--spot-w) * var(--card-height-ratio, 1.46) / -2);
 	pointer-events: none;
 	filter: drop-shadow(0 24px 50px rgba(0, 0, 0, 0.75));
 }
@@ -117,10 +118,10 @@
 
 /* ── Card frame v1 inside the popup + spotlight ────────────────────────
    The v1 face scales from --cv1-w (2:3), so size the wrapper to match. */
-.hover-zoom:has(.card-v1) { height: calc(300px * 1.5); }
-.hover-zoom .card.card-v1 { --cv1-w: 300px; }
-.card-spotlight:has(.card-v1) { height: calc(320px * 1.5); margin-top: calc(320px * 1.5 / -2); }
-.card-spotlight .card.card-v1 { --cv1-w: 320px; }
+.hover-zoom:has(.card-v1) { height: calc(var(--pop-w, 300px) * 1.5); }
+.hover-zoom .card.card-v1 { --cv1-w: var(--pop-w, 300px); }
+.card-spotlight:has(.card-v1) { height: calc(var(--spot-w) * 1.5); margin-top: calc(var(--spot-w) * 1.5 / -2); }
+.card-spotlight .card.card-v1 { --cv1-w: var(--spot-w); }
 
 /* While the spotlight shows damage/heal/shield rows, hide the card's text block —
    the rows sit on top of it and the two overlap. Art and name stay. The badge is
@@ -132,3 +133,16 @@
 .card-spotlight.spot-has-effects .cv1-badge,
 .card-spotlight.spot-has-effects .uc-text,
 .card-spotlight.spot-has-effects .uc-meta { display: none !important; }
+
+/* Several effects at once (one card hitting several targets): smaller rows, still readable. */
+.spot-effects--many { gap: 4px; }
+.spot-effects--many .spot-effect { font-size: 1.45rem; padding: 3px 12px; }
+.spot-effects--many .spot-effect small { font-size: 0.72rem; }
+.spot-effects--lots .spot-effect { font-size: 1.1rem; padding: 2px 10px; }
+.spot-effects--lots .spot-effect small { font-size: 0.65rem; }
+
+/* In-place flashes on the board tile (damage keeps its shake). */
+.fx-flash--gain { animation: fx-flash-gain 0.8s ease-out; }
+.fx-flash--shield { animation: fx-flash-shield 0.8s ease-out; }
+@keyframes fx-flash-gain   { 0%, 100% { box-shadow: 0 0 0 0 transparent; } 30% { box-shadow: 0 0 28px 8px rgba(80, 255, 150, 0.85); } }
+@keyframes fx-flash-shield { 0%, 100% { box-shadow: 0 0 0 0 transparent; } 30% { box-shadow: 0 0 28px 8px rgba(100, 180, 255, 0.9), inset 0 0 18px rgba(100, 180, 255, 0.5); } }

@@ -45,6 +45,20 @@ const FLAG_ROWS = {
 	copyLastPiecie:        { text: '✨ Copy', sub: 'Copies last Piecie', kind: 'info' },
 };
 
+// A heart only means a heal; quest rewards and turn-start passives get their own label.
+function gainIcon(actionLabel = '') {
+	if (actionLabel.includes('quest')) return '★';
+	if (actionLabel.startsWith('turn')) return '✦';
+	return '♥';
+}
+function gainSub(actionLabel = '', name) {
+	if (actionLabel.includes('quest')) return `Quest reward · ${name}`;
+	if (actionLabel.startsWith('turn')) return `Passive · ${name}`;
+	return name;
+}
+
+const ACTIVATION_LABELS = new Set(['activate-piecie', 'activate-place', 'mosje-ability', 'play-snelle', 'play-piecie', 'play-place']);
+
 function shortName(slot) {
 	return String(slot.name || slot.cardId).replace(/^\[[^\]]*\]\s*/, '');
 }
@@ -75,7 +89,7 @@ function collectEffects(beforeState, afterState, options = {}) {
 			const delta = Number(slot.mp || 0) - Number(prev.mp || 0);
 			if (delta !== 0 && !(Number(slot.level || 0) > Number(prev.level || 0))) {
 				effects.push(delta > 0
-					? { text: `♥ +${delta} MP`, kind: 'gain', sub }
+					? { text: `${gainIcon(options.actionLabel)} +${delta} MP`, kind: 'gain', sub: gainSub(options.actionLabel, sub) }
 					: { text: `⚔ −${Math.abs(delta)} MP`, kind: 'loss', sub });
 			}
 			if (slot.immuneThisTurn && !prev.immuneThisTurn) effects.push({ text: '🛡 Immune', kind: 'shield', sub });
@@ -116,6 +130,9 @@ function collectEffects(beforeState, afterState, options = {}) {
 // ability activation already opened.
 function spotlightDelta(beforeState, afterState, effects, options = {}) {
 	// Snelle instants leave no field card — spotlight the played card itself.
+	if (!effects.length && ACTIVATION_LABELS.has(options.actionLabel)) {
+		effects = [{ text: '✨ Activated', kind: 'info', sub: 'Effect resolved' }];
+	}
 	if (options.actionLabel === 'play-snelle' && options.placedCardId) {
 		showCardSpotlight({ cardId: options.placedCardId, source: null, effects });
 		return;
@@ -319,6 +336,16 @@ function escapeText(s) {
 	return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+// Colour flash on the board tile itself (heal green / shield blue); damage keeps its shake.
+function flashBoardCard(cardEl, kind) {
+	if (!cardEl) return;
+	const cls = `fx-flash--${kind}`;
+	cardEl.classList.remove(cls);
+	void cardEl.offsetWidth;
+	cardEl.classList.add(cls);
+	cardEl.addEventListener('animationend', () => cardEl.classList.remove(cls), { once: true });
+}
+
 function animateMosjeDeltas(beforeState, afterState, options = {}) {
 	const isQuestOutcome = String(options.actionLabel || '').includes('quest');
 	for (const [playerId, afterPlayer] of Object.entries(afterState.players || {})) {
@@ -342,7 +369,12 @@ function animateMosjeDeltas(beforeState, afterState, options = {}) {
 			if (mpDelta !== 0 && !isLevelReset) {
 				showMPFloat(cardEl, mpDelta, { emphasis: isQuestOutcome && mpDelta > 0 ? 'huge' : undefined });
 				if (mpDelta < 0) animateCardDamage(cardEl);
+				else flashBoardCard(cardEl, 'gain');
 			}
+			const gotShield = (afterSlot.immuneThisTurn && !beforeSlot.immuneThisTurn)
+				|| (afterSlot.entryProtected && !beforeSlot.entryProtected)
+				|| Number(afterSlot._coertsCaravanQuestShield?.used || 0) > Number(beforeSlot._coertsCaravanQuestShield?.used || 0);
+			if (gotShield) flashBoardCard(cardEl, 'shield');
 
 			if (levelIncreased) {
 				animateLevelUp(cardEl);

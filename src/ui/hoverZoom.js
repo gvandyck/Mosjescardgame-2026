@@ -2,7 +2,7 @@ import { renderCard } from './cardRenderer.js';
 import { getCardById } from '../data/cardIndex.js';
 
 const FIELD_SELECTOR = '#board-root .card[data-card-id]';
-const POPUP_W = 300;
+const POPUP_W = Math.max(220, Math.min(300, Math.floor(window.innerHeight * 0.6 / 1.5)));
 const POPUP_H = POPUP_W * 1.5;
 let popup = null;
 let currentTarget = null;
@@ -62,6 +62,7 @@ export function initHoverZoom() {
 		currentTarget = target;
 		popup = document.createElement('div');
 		popup.className = 'hover-zoom';
+		popup.style.setProperty('--pop-w', `${POPUP_W}px`);
 		popup.appendChild(card);
 		document.body.appendChild(popup);
 		position(e);
