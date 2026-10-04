@@ -29,3 +29,53 @@ test('card frame v1 — hand is visible, has no hover popup, click opens the det
   await expect(page.locator('.card-detail')).toBeVisible();
   await page.screenshot({ path: `${OUT}/hand-click-modal.png` });
 });
+
+// Worst-case hand text: every real card rendered at hand width keeps readable text and
+// the description never runs into the name block.
+for (const width of [230, 180]) {
+  test(`card frame v1 — hand card text is readable and fits at ${width}px wide`, async ({ page }) => {
+    await seedOfflineSession(page);
+    await page.setViewportSize({ width: 2400, height: 2400 });
+    await page.goto(GAME_URL_TEST);
+    await page.waitForFunction(() => window.__testHooks, { timeout: 20000 });
+    const report = await page.evaluate(async (w) => {
+      const { renderCard } = await import('/src/ui/cardRenderer.js');
+      const { ALL_CARDS } = await import('/src/data/cardIndex.js');
+      const root = document.createElement('div');
+      root.className = 'hand-strip';
+      root.style.cssText = 'position:fixed;left:0;top:0;width:2400px;z-index:99999;background:#0d0b14;display:flex;flex-wrap:wrap;gap:16px;padding:16px;align-content:flex-start';
+      document.body.appendChild(root);
+      const rows = [];
+      for (const c of ALL_CARDS.filter(c => ['MOSJE', 'PIECIE', 'SNELLE_PIECIE', 'PLACE'].includes(c.type))) {
+        const el = renderCard(c, { compact: false });
+        el.classList.add('hand-card');
+        el.style.setProperty('--cv1-w', w + 'px');
+        root.appendChild(el);
+        rows.push([c.id, el]);
+      }
+      await document.fonts.ready;
+      await new Promise(r => setTimeout(r, 300));
+      return rows.map(([id, el]) => {
+        const card = el.getBoundingClientRect();
+        const q = (s) => el.querySelector(s);
+        const r = (s) => q(s)?.getBoundingClientRect();
+        const desc = r('.cv1-desc'), name = r('.cv1-name'), info = r('.cv1-info');
+        return {
+          id, descPx: parseFloat(getComputedStyle(q('.cv1-desc')).fontSize), infoPx: parseFloat(getComputedStyle(q('.cv1-info')).fontSize),
+          clipped: [...q('.cv1-desc').children].reduce((h, c) => h + c.getBoundingClientRect().height, 0) > q('.cv1-desc').clientHeight + 1,
+          descHitsName: desc.top < name.bottom - 1, descHitsInfo: desc.bottom > info.top + 1,
+          descInside: desc.left >= card.left && desc.right <= card.right,
+        };
+      });
+    }, width);
+    console.log(`width ${width}: ${report.filter(r => r.clipped).length} of ${report.length} descriptions are cut at the top (full text in the click modal)`);
+    const bad = report.filter(r => r.descHitsName || r.descHitsInfo || !r.descInside);
+    console.log(`width ${width}: ${report.length} cards, ${bad.length} collide:`, bad.map(b => b.id).join(', '));
+    for (const r of report) {
+      expect(r.descPx, `${r.id} desc size`).toBeGreaterThanOrEqual(11);
+      expect(r.infoPx, `${r.id} info size`).toBeGreaterThanOrEqual(10);
+    }
+    // 230px is the real hand card width; 180px is informational only (smaller windows).
+    if (width >= 230) expect(bad.map(b => b.id), 'cards whose text collides').toEqual([]);
+  });
+}
