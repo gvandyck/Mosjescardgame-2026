@@ -320,3 +320,6 @@
   .hand-card-wrap:hover .hand-card.card-v1--full .hand-card__play-btn,
   .hand-card-wrap:focus-within .hand-card.card-v1--full .hand-card__play-btn { opacity: 1; pointer-events: auto; }
 }
+
+/* Hand cards: no Play button; a click on the card plays it (handRenderer). */
+.hand-card.card-v1--full .hand-card__play-btn { display: none !important; }

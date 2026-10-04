@@ -4,7 +4,7 @@ import fs from 'fs';
 import { OUT } from './cardv1-helpers.js';
 import { seedOfflineSession, GAME_URL_TEST, waitForBoard, setHand } from '../helpers.js';
 
-test('card frame v1 — hand is visible, has no hover popup, click opens the detail modal', async ({ page }) => {
+test('card frame v1 — hand is visible, has no hover popup or Play button, click plays the card', async ({ page }) => {
   fs.mkdirSync(OUT, { recursive: true });
   await page.setViewportSize({ width: 1600, height: 900 });
   await seedOfflineSession(page);
@@ -31,10 +31,13 @@ test('card frame v1 — hand is visible, has no hover popup, click opens the det
   expect(await btn.evaluate(el => getComputedStyle(el).opacity)).toBe('1');
   expect((await wrapBox()).y + (await wrapBox()).height).toBeLessThanOrEqual(900 + 2);
 
-  // Clicking it opens the detail modal.
-  await page.locator('.hand-card[data-card-id="mosje_jisca"]').first().click({ position: { x: 40, y: 40 } });
-  await expect(page.locator('.card-detail')).toBeVisible();
-  await page.screenshot({ path: `${OUT}/hand-click-modal.png` });
+  // No Play button is shown; clicking a playable card plays it (here: a Piecie goes face-down to the field).
+  await expect(btn).toBeHidden();
+  await page.locator('.hand-card[data-card-id="piecie_kannetje_melk"]').first().hover({ position: { x: 40, y: 40 } });
+  await page.locator('.hand-card[data-card-id="piecie_kannetje_melk"]').first().click({ position: { x: 40, y: 40 } });
+  await expect(page.locator('.hand-card[data-card-id="piecie_kannetje_melk"]')).toHaveCount(0);
+  await expect(page.locator('.card-detail')).toHaveCount(0);
+  await page.screenshot({ path: `${OUT}/hand-click-plays.png` });
 });
 
 // Worst-case hand text: every real card rendered at hand width keeps readable text and

@@ -69,6 +69,9 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 		cardEl.classList.add('card--previewable');
 		cardEl.addEventListener('click', (e) => {
 			if (e.target.closest('button')) return;
+			// Card frame v1: the Play button is hidden; clicking a playable card plays it.
+			const playBtn = cardEl.classList.contains('card-v1') && cardEl.querySelector('.hand-card__play-btn');
+			if (playBtn && !playBtn.disabled) { playBtn.click(); return; }
 			showCardPreview(card);
 		});
 
