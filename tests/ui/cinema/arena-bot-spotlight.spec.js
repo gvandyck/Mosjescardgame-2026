@@ -12,7 +12,7 @@ test('bot playing a Mosje spotlights the card', async ({ page }) => {
 	await page.evaluate(() => {
 		window.__spotSeen = [];
 		new MutationObserver(() => {
-			const el = document.querySelector('.card-spotlight .uc-title');
+			const el = document.querySelector('.card-spotlight .uc-title, .card-spotlight .cv1-first');
 			if (el && !window.__spotSeen.includes(el.textContent)) window.__spotSeen.push(el.textContent);
 		}).observe(document.body, { childList: true, subtree: true });
 	});

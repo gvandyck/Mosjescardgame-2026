@@ -86,6 +86,8 @@ export function addSpotlightEffects(effects) {
 		row.innerHTML = `${escapeText(fx.text)}${fx.sub ? `<small>${escapeText(fx.sub)}</small>` : ''}`;
 		spot.fx.appendChild(row);
 	}
+	// Effect rows replace the card's text block (it overlaps them); see arena.css.
+	spot.el.classList.add('spot-has-effects');
 	// Flash the card in the effect's colour (damage red / heal green / shield blue).
 	const kind = effects[effects.length - 1].kind || 'info';
 	const cardEl = spot.el.querySelector('.card');

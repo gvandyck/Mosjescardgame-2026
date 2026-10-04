@@ -132,3 +132,14 @@
 .hover-zoom .card.card-v1 { --cv1-w: 300px; }
 .card-spotlight:has(.card-v1) { height: calc(320px * 1.5); margin-top: calc(320px * 1.5 / -2); }
 .card-spotlight .card.card-v1 { --cv1-w: 320px; }
+
+/* While the spotlight shows damage/heal/shield rows, hide the card's text block —
+   the rows sit on top of it and the two overlap. Art and name stay. The badge is
+   hidden too: the spotlight card is built from the definition, so it shows Start MP. */
+.card-spotlight.spot-has-effects .cv1-desc,
+.card-spotlight.spot-has-effects .cv1-info,
+.card-spotlight.spot-has-effects .cv1-pill-row,
+.card-spotlight.spot-has-effects .cv1-border-text,
+.card-spotlight.spot-has-effects .cv1-badge,
+.card-spotlight.spot-has-effects .uc-text,
+.card-spotlight.spot-has-effects .uc-meta { display: none !important; }
