@@ -1,0 +1,36 @@
+/* card-tiers.css — rarity-tier redesign (Phase 50, .planning/RARITY-TIERS-DESIGN.md).
+   Everything is scoped to .card-v1--full.card--tierlayout: that class is only
+   present when a tier's layout is switched on (isTierLayoutEnabled), so cards
+   on tiers that are not finished, and all field tiles, keep the E1 look.
+   Fonts (Sora / DM Sans) are loaded by card-v1.css. */
+
+.card.card-v1.card-v1--full.card--tierlayout {
+  --accent: var(--cv1-main);
+  --accent-tint: var(--cv1-tint);
+  --tier-radius: calc(24 * var(--u));
+  --tier-base: #050505;
+  background: var(--tier-base);
+  border-radius: var(--tier-radius);
+  /* Brief: no outer 1px outline on tier cards. */
+  box-shadow: 0 calc(24 * var(--u)) calc(50 * var(--u)) rgba(0, 0, 0, 0.7);
+}
+
+/* --accent lives on .cv1-face (inline --cv1-main), so map it there too. */
+.card-v1--full.card--tierlayout .cv1-face {
+  --accent: var(--cv1-main);
+  --accent-tint: var(--cv1-tint);
+}
+
+/* Animation hook (wired in 50-05): animations only run when the card has
+   .card--tier-anim or is hovered. */
+.card-v1--full.card--tierlayout.card--tier-anim,
+.card-v1--full.card--tierlayout:hover {
+  --tier-anim-state: running;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-v1--full.card--tierlayout,
+  .card-v1--full.card--tierlayout * {
+    --tier-anim-state: paused;
+  }
+}

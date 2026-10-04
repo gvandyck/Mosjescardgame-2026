@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mosjes - Rarity tier demo (6 types x 4 tiers)</title>
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/cards.css" />
+  <link rel="stylesheet" href="styles/card-v1.css" />
+  <link rel="stylesheet" href="styles/card-tiers.css" />
+  <style>
+    body { padding: 24px; background: #0a0e1a; color: #ddd; font-family: 'DM Sans', sans-serif; }
+    h1 { color: #e8b94f; margin: 0 0 8px; }
+    .note { color: #999; font-size: 0.9rem; margin: 4px 0; }
+    .controls { margin: 12px 0 20px; display: flex; gap: 8px; align-items: center; }
+    .controls button { padding: 6px 12px; cursor: pointer; }
+    .controls button.active { background: #e8b94f; color: #000; }
+    .tier-grid { display: grid; grid-template-columns: 140px repeat(4, max-content); gap: 20px; align-items: center; }
+    .tier-grid .head { font-weight: 700; color: #e8b94f; }
+    .tier-grid .row-label { font-weight: 700; }
+    .tier-grid .card.card-v1--full { --cv1-w: var(--demo-w, 240px); }
+  </style>
+</head>
+<body>
+  <h1>Rarity tier demo</h1>
+  <p class="note">Rows: card type. Columns: tier 1-4 (same card, rarity overridden). Page forces <code>?tiers=all</code>.</p>
+  <p class="note">Reduced motion: set your OS "reduce motion" option to check that tier animations pause (wired in 50-05).</p>
+  <div class="controls">Size:
+    <button data-w="440">440 px</button><button data-w="240" class="active">240 px</button><button data-w="160">160 px</button>
+  </div>
+  <div id="tier-grid" class="tier-grid"></div>
+  <script type="module" src="src/ui/cardTiersDemo.js"></script>
+</body>
+</html>
