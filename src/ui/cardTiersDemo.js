@@ -5,6 +5,7 @@ import { PIECIES } from '../data/piecies.js';
 import { PLACES } from '../data/places.js';
 import { SNELLE_PIECIES } from '../data/snellePiecies.js';
 import { renderCard } from './cardRenderer.js';
+import { parseMosjeName } from './cardV1/parseMosjeName.js';
 
 const params = new URLSearchParams(window.location.search);
 if (params.get('tiers') !== 'all') {
@@ -45,25 +46,29 @@ for (const [label, card] of ROWS) {
   }
 }
 
-// Edge cases at tier 4 (boxed tiers are added here in 50-03/04).
-const T4 = '★★★★';
+// Edge cases, each shown at tiers 1, 2 and 4 (tier 3 is added in 50-04).
+const EDGE_TIERS = [1, 2, 4];
 const descLen = (c) => String(c.abilityDescription || c.description || '').length + String(c.synergyEffect || '').length;
+const shownName = (c) => (String(c.type).toUpperCase() === 'MOSJE' ? parseMosjeName(c.name).firstName : String(c.name));
 const ALL = [...MOSJES, ...PIECIES, ...PLACES, ...SNELLE_PIECIES];
 const EDGE = [
   ['Mosje, 4 traits', MOSJES.find((c) => Object.keys(c.traits || {}).length >= 4) || MOSJES.reduce((a, b) => (Object.keys(b.traits || {}).length > Object.keys(a.traits || {}).length ? b : a))],
   ['Place', pick(PLACES)],
   ['Piecie without art', { ...pick(PIECIES), artPath: null }],
-  ['Mosje without nickname', MOSJES.find((c) => !/["“(]/.test(c.name))],
-  ['Very long name', ALL.reduce((a, b) => (String(b.name).length > String(a.name).length ? b : a))],
+  // Mosje names are "[First] Nickname": test the parsed parts, not the raw string.
+  ['Mosje without nickname', MOSJES.find((c) => !parseMosjeName(c.name).nickname)],
+  ['Very long name', ALL.reduce((a, b) => (shownName(b).length > shownName(a).length ? b : a))],
   ['Longest ability text', ALL.reduce((a, b) => (descLen(b) > descLen(a) ? b : a))],
 ];
 const edge = document.getElementById('edge-grid');
 for (const [label, card] of EDGE) {
   if (!card) continue;
-  const wrap = cell('edge-cell', '');
-  wrap.append(cell('row-label', `${label}
-${card.name}`), renderCard({ ...card, rarity: T4 }));
-  edge.append(wrap);
+  for (const tier of EDGE_TIERS) {
+    const wrap = cell('edge-cell', '');
+    wrap.append(cell('row-label', `${label} - tier ${tier}
+${card.name}`), renderCard({ ...card, rarity: '★'.repeat(tier) }));
+    edge.append(wrap);
+  }
 }
 const field = document.getElementById('field-grid');
 for (let tier = 1; tier <= 4; tier += 1) {
