@@ -9,6 +9,7 @@
 
 import { getCardById } from '../data/cardIndex.js';
 import { buildCardV1 } from './cardV1/buildCardV1.js';
+import { attachHoverPanel } from './cardV1/attachHoverPanel.js';
 import { isCardV1Enabled } from './cardV1/isCardV1Enabled.js';
 import { parseMosjeName } from './cardV1/parseMosjeName.js';
 
@@ -67,6 +68,7 @@ export function renderCard(card, options = {}) {
   if (v1) {
     element.classList.add(...v1.className.split(' '));
     element.innerHTML = v1.html;
+    if (!options.noHover) attachHoverPanel(element, resolvedCard);
     return element;
   }
   element.innerHTML = buildUnifiedCardHTML(resolvedCard, options);

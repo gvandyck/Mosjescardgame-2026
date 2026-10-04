@@ -22,7 +22,7 @@ field 240x176, hand size 130px wide, board size 150px wide.
 | 5 | Name block: no nickname / long first name / long nickname | PASS — FPS Coert, Dancing/DDR Chris (shrinks to 32.9px, one line), Gandoe "The Unpredictable Wizard" (longest nickname, one line). Field tile ellipsises long nicknames. |
 | 6 | Type colour on pill, border text, badge label, middle diamond | PASS (Fighting orange, Digital teal, Artistic magenta; visual) |
 | 7 | No blur, divider, brackets, wordmark, serif, flavour or rarity on the face | PASS (unit test asserts no flavour/"rarity"; fonts are Sora/DM Sans) |
-| 8 | Hover panel | NOT DONE YET — phase 5 (shared hover panel) |
+| 8 | Hover | PASS for Mosje — per Gandalf: hover shows the full card enlarged beside the hovered one (Arena style), live MP, click still opens the existing detail modal. The text-only "Hover / long-press" panel (flavour + rarity) was NOT built; flavour and rarity are not shown on hover. See verification/mosje-hover.png. |
 | 9 | Field mode: ellipsis, pill, badge | PASS (Place without badge: n/a, later) |
 | 10 | Missing-art fallback | PASS — FPS Coert, Parkour West, The Hacker have no art in the data and show the type-coloured fallback with readable text. Broken image is removed by `onerror`. |
 | 11 | Live values: MP and level follow game state | PASS — field tile showed 35 / L2, then 105 after `setMosjeMP`; hand/preview cards show Start MP and LVL 1 (see open question 2). |

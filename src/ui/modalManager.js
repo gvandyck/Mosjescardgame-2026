@@ -431,7 +431,7 @@ export function initModalManager(container) {
 	// ── Unified card preview — always two-col, card left at 240 px, info right ──
 	function showCardPreview(card) {
 		if (!card) return;
-		const previewEl = renderCard(card, { compact: true });
+		const previewEl = renderCard(card, { compact: true, noHover: true });
 		const type = String(card.type || card.cardType || '').toUpperCase();
 
 		const esc = escapeHtml;
@@ -536,7 +536,7 @@ export function initModalManager(container) {
 
 	function showQuestAttemptPreview(mosje, questDef, threshold, onConfirm, { diceBonus = 0 } = {}) {
 		if (!mosje || !questDef) return;
-		const previewEl = renderCard(mosje, { compact: true });
+		const previewEl = renderCard(mosje, { compact: true, noHover: true });
 		previewEl.classList.add('modal-mosje-preview-card');
 		const traitRows = Object.entries(mosje.traits || {})
 			.filter(([, value]) => Number(value) > 0)
