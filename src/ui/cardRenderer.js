@@ -93,10 +93,6 @@ function buildUnifiedCardHTML(card, options = {}) {
     title = String(card.name || 'Unnamed');
   }
   const desc = String(card.description || card.abilityDescription || card.flavourText || '');
-  const rarity = String(card.rarity || '★')
-    .split('')
-    .map((d) => `<span class="uc-rarity-dot">${escapeHtml(d)}</span>`)
-    .join('');
 
   // Minimal MP/Level badge — only for Mosjes that are ON THE FIELD (slot has a live
   // numeric mp). Hand Mosjes are definitions (no .mp) and stay clean. Everything else
@@ -131,7 +127,6 @@ function buildUnifiedCardHTML(card, options = {}) {
       </div>
       <div class="uc-foot">
         ${enrichedMeta || (footText ? `<p class="uc-text">${escapeHtml(footText)}</p>` : '')}
-        <div class="uc-rarity">${rarity}</div>
       </div>
     </div>
   `;

@@ -7,6 +7,7 @@ import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
 import { animateFieldActivation, animateStateDelta, showTurnTransition, setAbilityNameResolver, animateQuestResult, showInstantEffect, showDeckOutBanner, pulseDiscardPile, isSpotlightActive } from './ui/actionAnimations.js';
 import { initHoverZoom } from './ui/hoverZoom.js';
+import { initCardTierMotion } from './ui/cardTierMotion.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes, setActivePlace } from './engine/gameState.js';
 import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, playPersonalQuest, activatePersonalQuest, activateSynergyWaiver } from './engine/turnManager.js';
 import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold, getActivePartnerSynergyBonuses } from './abilities/questLogic.js';
@@ -56,6 +57,7 @@ let _testStubUser = null;
 // Feed the ability-cast chip the real ability name: the part before ":" in the
 // description, minus qualifiers like "(comeback)"/"(passive)".
 initHoverZoom();
+initCardTierMotion();
 
 setAbilityNameResolver((mosjeId) => {
 	const desc = CARD_LOOKUP[mosjeId]?.abilityDescription || '';
