@@ -26,7 +26,7 @@ Card faces show rarity as one of four visual tiers (star count of `card.rarity`)
 
 - **D-06 (Gandalf, 2026-10-04):** Footer text needs MORE bottom space than the handoff numbers: category label at bottom 30 (spec 22), MP/cost number at bottom 22 (spec 12), pill 54 (spec 46), traits line 85 (spec 77), ability text 122 (spec 114). Applies to ALL tiers and overrides handoff section 3.1 positions; already applied in styles/card-v1.css. Plans 50-02..50-05 must use these values, not the handoff's.
 
-- **D-07 (Gandalf, 2026-10-04):** Show REAL rarity stars (1-4 ★) at the top-centre of the card face, overriding the handoff's "no stars on the face". Default: stars replace the 4 diamonds in the same spot (top ~22, centred), lit stars = tier in the type accent colour, unlit ones dim; must be clearly readable. Show Gandalf the look and adjust. Applies to all tiers; implement after plan 50-03 lands.
+- **D-07 (Gandalf, 2026-10-04) REVERSED:** Real stars were tried and rejected; Gandalf prefers the 4 small square diamonds from the design (first N lit). Keep diamonds, no stars on the face.
 
 ### Claude's Discretion (Gandalf: "no preference" - Claude decides, defaults below)
 - **Where tiers show:** big pop-up/detail card and hand cards get tier layouts. Field tile keeps current behaviour (not designed yet per handoff). Opponent/small renders drop side text and glints below a size threshold.
