@@ -254,3 +254,8 @@
 .hand-strip .card-v1--full .cv1-nick { font-size: max(12px, calc(20 * var(--u))); margin-top: 3px; }
 .hand-cards .card-v1--full .cv1-name,
 .hand-strip .card-v1--full .cv1-name { left: max(10px, calc(42 * var(--u))); right: max(10px, calc(40 * var(--u))); top: max(8px, calc(40 * var(--u))); }
+
+/* -- Click-detail modal: show the card large enough to read -- */
+.card-detail:has(.card-v1) { width: min(96vw, 900px); max-width: 900px; }
+.card-detail .cd-preview .card.card-v1--full { --cv1-w: min(340px, 40vw); }
+.card-detail:has(.card-v1) .cd-info { min-height: 0; }
