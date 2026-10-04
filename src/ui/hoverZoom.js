@@ -1,7 +1,7 @@
 import { renderCard } from './cardRenderer.js';
 import { getCardById } from '../data/cardIndex.js';
 
-const FIELD_SELECTOR = '#board-root .card[data-card-id], #hand-root .hand-card[data-card-id]';
+const FIELD_SELECTOR = '#board-root .card[data-card-id]';
 const POPUP_W = 300;
 const POPUP_H = POPUP_W * 1.5;
 let popup = null;

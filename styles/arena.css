@@ -4,21 +4,8 @@
    3. Played/activated cards are spotlighted on the right with their effect (cardSpotlight.js). */
 
 @media (hover: hover) {
-	.game-hand-panel { --hand-sink: 205px; }
-
-	.game-hand-panel .hand-strip .hand-card-wrap {
-		transform: translateY(calc(var(--fan-lift, 0px) + var(--hand-sink))) rotate(var(--fan-rot, 0deg));
-		transform-origin: center bottom;
-	}
-
-	.game-hand-panel .hand-strip .hand-card-wrap:hover,
-	.game-hand-panel .hand-strip .hand-card-wrap:focus-within {
-		z-index: 60;
-		transform: translateY(-8px) rotate(0deg) scale(1.28);
-	}
-
-	/* The hand no longer eats ~270px of the screen, so give that back to the board. */
-	.game-board { max-height: calc(100vh - 120px); }
+	/* Hand: cards stay fully visible in the hand (no sinking, no hover-lift); a click opens the
+	   detail modal. Only the field uses the hover popup. */
 
 	/* Smaller field cards — the hover popup carries the detail. */
 	.board-zone--player { --mosje-card-w: 170px; --mosje-slot-h: calc(170px * var(--card-height-ratio)); --piecie-cell-w: 140px; min-height: 0; }

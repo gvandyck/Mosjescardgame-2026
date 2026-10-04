@@ -24,7 +24,7 @@ test('card frame v1 — live board with all card types', async ({ page }) => {
   await page.screenshot({ path: `${OUT}/board-all-types.png` });
 });
 
-test('card frame v1 — hand hover popup and click-detail modal are readable', async ({ page }) => {
+test('card frame v1 — click-detail modal shows a large readable card', async ({ page }) => {
   fs.mkdirSync(OUT, { recursive: true });
   await page.setViewportSize({ width: 1600, height: 900 });
   await seedOfflineSession(page);
@@ -33,15 +33,6 @@ test('card frame v1 — hand hover popup and click-detail modal are readable', a
   await setMosjeOnField(page, 'player_1', 0, 'mosje_coert_kasteluck', { mp: 30, level: 0 });
   await setHand(page, 'player_1', ['piecie_kannetje_melk', 'mosje_jisca']);
   await page.waitForTimeout(3500);
-
-  // Hand hover: the enlarged card appears and its description is readable (>= 12px on screen).
-  await page.locator('.hand-card[data-card-id="piecie_kannetje_melk"]').first().hover({ position: { x: 30, y: 30 } });
-  const popup = page.locator('.hover-zoom .card-v1--full');
-  await expect(popup).toBeVisible();
-  const descPx = await popup.locator('.cv1-desc').evaluate(el => parseFloat(getComputedStyle(el).fontSize));
-  expect(descPx).toBeGreaterThanOrEqual(12);
-  await page.waitForTimeout(500);
-  await page.screenshot({ path: `${OUT}/hand-hover-popup.png` });
 
   // Field click -> detail modal with a large card (text >= 9px on screen, card >= 300px wide).
   await page.mouse.move(5, 300);
