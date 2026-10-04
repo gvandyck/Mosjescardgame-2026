@@ -79,3 +79,16 @@
 /* Small renders (class set in 50-05): no side text, no glints. */
 .card-v1--full.card--tierlayout.card--tier-small .ct-side,
 .card-v1--full.card--tierlayout.card--tier-small .ct-glint { display: none; }
+
+/* -- Only the lit diamonds are shown (count = tier), centred -- */
+.card-v1--full.card--tierlayout .ct-diamond:not(.ct-diamond--lit) { display: none; }
+.card-v1--full.card--tierlayout[data-tier="1"] .ct-diamond--1 { left: calc(217.5 * var(--u)); }
+.card-v1--full.card--tierlayout[data-tier="2"] .ct-diamond--1 { left: calc(212.5 * var(--u)); }
+.card-v1--full.card--tierlayout[data-tier="2"] .ct-diamond--2 { left: calc(222.5 * var(--u)); }
+.card-v1--full.card--tierlayout[data-tier="3"] .ct-diamond--1 { left: calc(207.5 * var(--u)); }
+.card-v1--full.card--tierlayout[data-tier="3"] .ct-diamond--2 { left: calc(217.5 * var(--u)); }
+.card-v1--full.card--tierlayout[data-tier="3"] .ct-diamond--3 { left: calc(227.5 * var(--u)); }
+.card-v1--full.card--tierlayout[data-tier="4"] .ct-diamond--1 { left: calc(202.5 * var(--u)); }
+.card-v1--full.card--tierlayout[data-tier="4"] .ct-diamond--2 { left: calc(212.5 * var(--u)); }
+.card-v1--full.card--tierlayout[data-tier="4"] .ct-diamond--3 { left: calc(222.5 * var(--u)); }
+.card-v1--full.card--tierlayout[data-tier="4"] .ct-diamond--4 { left: calc(232.5 * var(--u)); }
