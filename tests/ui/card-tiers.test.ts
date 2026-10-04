@@ -41,10 +41,9 @@ describe('isFullArt', () => {
 });
 
 describe('isTierLayoutEnabled', () => {
-  it('tiers 1, 2 and 4 are implemented so far (tier 3 in 50-04)', () => {
+  it('all four tiers are implemented', () => {
     setSearch('');
-    expect(isTierLayoutEnabled(3)).toBe(false);
-    for (const t of [1, 2, 4]) expect(isTierLayoutEnabled(t)).toBe(true);
+    for (const t of [1, 2, 3, 4]) expect(isTierLayoutEnabled(t)).toBe(true);
   });
   it('?tiers=all forces on, ?tiers=off forces off', () => {
     setSearch('?tiers=all');
@@ -79,8 +78,8 @@ describe('buildCardV1 tier attributes', () => {
       expect(r.className).toContain(fieldMode ? 'card-v1--field' : 'card-v1--full');
     }
   });
-  it('face html is identical to the pre-tier face builder for tier 3', () => {
-    setSearch('');
+  it('face html is identical to the pre-tier face builder with ?tiers=off', () => {
+    setSearch('?tiers=off');
     const c = { ...card, rarity: '★★★' };
     const spec = buildMosjeSpecV1(c);
     expect((buildCardV1(c) as any).html).toBe(buildFaceV1(spec));
@@ -171,13 +170,6 @@ describe('tier 4 face', () => {
       }
     }
   });
-  it('tier 3 with layout forced on still renders the E1 face (until 50-04)', () => {
-    setSearch('?tiers=all');
-    for (const tier of [3]) {
-      const c = { ...base, rarity: '★'.repeat(tier) };
-      expect((buildCardV1(c) as any).html).toBe(buildFaceV1(buildMosjeSpecV1(c)));
-    }
-  });
 });
 
 describe('getAbilityTextSize (boxed)', () => {
@@ -226,5 +218,42 @@ describe('boxed face (tiers 1 and 2)', () => {
     setSearch('?tiers=off');
     const c = { ...base, rarity: '★★' };
     expect((buildCardV1(c) as any).html).toBe(buildFaceV1(buildMosjeSpecV1(c)));
+  });
+});
+
+describe('boxed face tier 3 (foil)', () => {
+  const base = MOSJES.find((m: any) => m.artPath) as any;
+  const t3 = { ...base, rarity: '★★★' };
+  it('waves wrap with tint, foil inner line, foil art ring, cosmos + rainbow in window', () => {
+    setSearch('');
+    const r = buildCardV1(t3) as any;
+    expect(r.className).toContain('card--boxed');
+    const html = r.html;
+    expect(html).toMatch(/<i class="ct-waves-wrap"><i class="ct-waves"><\/i><i class="ct-rb ct-foil-anim"><\/i><\/i>/);
+    expect(html).toMatch(/<i class="ct-inner ct-inner--t3"><i class="ct-ring ct-foil ct-foil-anim"><\/i><\/i>/);
+    expect(count(html, 'ct-art-ring')).toBe(1);
+    expect(html).toMatch(/class="ct-art-ring ct-ring ct-foil ct-foil-anim"/);
+    expect(count(html, 'ct-plate-waves')).toBe(0);
+    expect(count(html, 'ct-diamond--lit')).toBe(3);
+    const kids = classesIn(windowOf(html)).map((c) => c.split(' ')[0]);
+    expect(kids).toEqual(['cv1-art', 'ct-cosmos', 'ct-rainbow']);
+    expect(count(html, 'ct-art-ring')).toBe(1);
+    expect(windowOf(html)).not.toContain('ct-art-ring');
+  });
+  it('art-less tier 3 keeps cosmos and rainbow over the placeholder', () => {
+    setSearch('');
+    const w = windowOf((buildCardV1({ ...PIECIES[0], artPath: undefined, rarity: '★★★' }) as any).html);
+    expect(w).not.toContain('<img');
+    expect(count(w, 'ct-cosmos')).toBe(1);
+    expect(count(w, 'ct-rainbow')).toBe(1);
+  });
+  it('tiers 1/2 have no foil; field mode has no ct- markup', () => {
+    setSearch('');
+    for (const tier of [1, 2]) {
+      const html = (buildCardV1({ ...base, rarity: '★'.repeat(tier) }) as any).html;
+      expect(html).not.toContain('ct-foil');
+      expect(html).not.toContain('ct-waves-wrap');
+    }
+    expect((buildCardV1(t3, { fieldMode: true }) as any).html).not.toContain('ct-');
   });
 });
