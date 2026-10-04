@@ -31,7 +31,7 @@
 
 /* -- Shine: direct children of .cv1-window so the blend modes hit the art -- */
 .card-v1--full.card--tierlayout.card--fullart .ct-holo {
-  inset: 0; mix-blend-mode: overlay; opacity: 0.75;
+  inset: 0; mix-blend-mode: overlay; opacity: 0.4;
   background: linear-gradient(115deg, #ff5fc4, #ffd36e, #6dffc9, #62a0ff, #c58bff, #ff5fc4, #ffd36e, #6dffc9);
   background-size: 230% 230%; background-position: 0% 25%;
   animation: holoshift 9s ease-in-out infinite alternate paused;
