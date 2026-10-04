@@ -7,6 +7,7 @@ import { buildMosjeSpecV1 } from './buildMosjeSpecV1.js';
 import { buildPiecieSpecV1 } from './buildPiecieSpecV1.js';
 import { buildSnelleSpecV1 } from './buildSnelleSpecV1.js';
 import { buildPlaceSpecV1 } from './buildPlaceSpecV1.js';
+import { getTierAttributes } from './getTierAttributes.js';
 
 const SPEC_BUILDERS = {
   MOSJE: buildMosjeSpecV1,
@@ -19,8 +20,11 @@ export function buildCardV1(card, { fieldMode = false } = {}) {
   const buildSpec = SPEC_BUILDERS[String(card.type || '').toUpperCase()];
   if (!buildSpec) return null;
   const spec = buildSpec(card);
+  const tierAttrs = getTierAttributes(card);
   return {
     html: fieldMode ? buildFieldFaceV1(spec) : buildFaceV1(spec),
-    className: `card-v1 ${fieldMode ? 'card-v1--field' : 'card-v1--full'}`,
+    className: `card-v1 ${fieldMode ? 'card-v1--field' : 'card-v1--full'} ${tierAttrs.classes}`,
+    tier: tierAttrs.tier,
+    dataTier: String(tierAttrs.tier),
   };
 }

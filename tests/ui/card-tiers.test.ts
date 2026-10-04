@@ -63,7 +63,6 @@ describe('getTierAttributes', () => {
 describe('buildCardV1 tier attributes', () => {
   const card = MOSJES.find((m: any) => m.rarity) as any;
   it('adds tier classes in full and field mode', () => {
-    setSearch('');
     for (const fieldMode of [false, true]) {
       const r = buildCardV1(card, { fieldMode }) as any;
       const tier = getRarityTier(card);
@@ -74,7 +73,6 @@ describe('buildCardV1 tier attributes', () => {
     }
   });
   it('face html is identical to the pre-tier face builders', () => {
-    setSearch('');
     const spec = buildMosjeSpecV1(card);
     expect((buildCardV1(card) as any).html).toBe(buildFaceV1(spec));
     expect((buildCardV1(card, { fieldMode: true }) as any).html).toBe(buildFieldFaceV1(buildMosjeSpecV1(card)));

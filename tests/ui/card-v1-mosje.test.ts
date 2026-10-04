@@ -130,8 +130,8 @@ describe('card frame v1 — Mosje face data mapping', () => {
     expect(buildCardV1({ ...byName('[Alyssa] The Bulldozer'), artPath: 'assets/x/placeholder.png' }, {})!.html).not.toContain('<img');
   });
   it('buildCardV1 handles Mosje, Piecie, Snelle and Place; Quest falls through to the old renderer', () => {
-    expect(buildCardV1({ type: 'MOSJE', name: '[A] B', subtype: 'DIGITAL' }, {})?.className).toBe('card-v1 card-v1--full');
-    expect(buildCardV1({ type: 'MOSJE', name: '[A] B' }, { fieldMode: true })?.className).toBe('card-v1 card-v1--field');
+    expect(buildCardV1({ type: 'MOSJE', name: '[A] B', subtype: 'DIGITAL' }, {})?.className).toBe('card-v1 card-v1--full card--tier-1 card--boxed');
+    expect(buildCardV1({ type: 'MOSJE', name: '[A] B' }, { fieldMode: true })?.className).toBe('card-v1 card-v1--field card--tier-1 card--boxed');
     for (const type of ['QUEST']) expect(buildCardV1({ type }, {})).toBeNull();
   });
 });
