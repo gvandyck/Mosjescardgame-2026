@@ -225,3 +225,21 @@
   position: absolute; left: calc(18 * var(--u)); right: calc(18 * var(--u)); bottom: calc(8 * var(--u));
   width: auto; height: 30px; min-height: 30px; margin: 0; padding: 0 8px; font-size: 12px; z-index: 5;
 }
+
+/* -- Field tiles: text never scales below a readable size -- */
+.card-v1--field .cv1-first { font-size: max(14px, calc(17 * var(--u))); }
+.card-v1--field .cv1-nick { font-size: max(11px, calc(11 * var(--u))); }
+.card-v1--field .cv1-name { top: calc(5 * var(--u)); }
+.card-v1--field .cv1-pill {
+  height: max(18px, calc(18 * var(--u))); padding: 0 max(6px, calc(7 * var(--u)));
+  font-size: max(10.5px, calc(10.5 * var(--u)));
+}
+.card.card-v1--field .cv1-badge {
+  width: max(44px, calc(50 * var(--u))); height: max(44px, calc(50 * var(--u)));
+  border-radius: max(10px, calc(11 * var(--u)));
+}
+.card-v1--field .cv1-badge-val { font-size: max(18px, calc(20 * var(--u))); }
+.card-v1--field .cv1-badge-val--word { font-size: max(14px, calc(14 * var(--u))); }
+.card-v1--field .cv1-badge-label { font-size: max(8.5px, calc(8 * var(--u))); }
+.card.card-v1--field .mosje-ability-btn,
+.card.card-v1--field .hand-card__play-btn { left: max(56px, calc(46 * var(--u))); right: max(54px, calc(62 * var(--u))); }
