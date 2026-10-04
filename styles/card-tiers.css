@@ -79,3 +79,20 @@
 /* Small renders (class set in 50-05): no side text, no glints. */
 .card-v1--full.card--tierlayout.card--tier-small .ct-side,
 .card-v1--full.card--tierlayout.card--tier-small .ct-glint { display: none; }
+
+/* -- Rarity stars (D-07): the 4 tier markers render as stars, first N lit -- */
+.card-v1--full.card--tierlayout .ct-diamond {
+  top: calc(10 * var(--u)); width: calc(26 * var(--u)); height: calc(26 * var(--u));
+  transform: none; background: none; box-shadow: none; z-index: 5;
+  display: flex; align-items: center; justify-content: center;
+  font-size: calc(25 * var(--u)); line-height: 1; color: rgba(255, 255, 255, 0.28);
+}
+.card-v1--full.card--tierlayout .ct-diamond::before { content: "\2605"; }
+.card-v1--full.card--tierlayout .ct-diamond--1 { left: calc(168 * var(--u)); }
+.card-v1--full.card--tierlayout .ct-diamond--2 { left: calc(194 * var(--u)); }
+.card-v1--full.card--tierlayout .ct-diamond--3 { left: calc(220 * var(--u)); }
+.card-v1--full.card--tierlayout .ct-diamond--4 { left: calc(246 * var(--u)); }
+.card-v1--full.card--tierlayout .ct-diamond--lit {
+  background: none; color: var(--accent-tint);
+  text-shadow: 0 0 calc(6 * var(--u)) var(--accent), 0 1px 3px rgba(0, 0, 0, 0.8);
+}
