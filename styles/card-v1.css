@@ -182,12 +182,12 @@
 .card-v1--field .cv1-badge-label { font-size: calc(8 * var(--u)); margin-top: calc(1 * var(--u)); letter-spacing: 0.12em; }
 
 /* ── Existing action button inside the field tile ──────────
-   Sits in the art window between the level pill and the MP badge, at a fixed
+   Sits in the art window on its own row above the kind/level pill (left of the MP badge), at a fixed
    readable size (it is an interactive control, so it does not scale with the card). */
 .card.card-v1--field .mosje-ability-btn,
 .card.card-v1--field .hand-card__play-btn {
-  position: absolute; left: calc(46 * var(--u)); right: calc(62 * var(--u)); bottom: calc(10 * var(--u));
-  width: auto; height: 22px; min-height: 22px; padding: 0 6px; margin: 0;
+  position: absolute; left: calc(10 * var(--u)); right: max(54px, calc(62 * var(--u))); bottom: calc(18 * var(--u) + 29px);
+  width: auto; height: 22px; min-height: 22px; padding: 0 6px; margin: 0; white-space: nowrap;
   font-size: 11px; border-radius: 6px; z-index: 5;
 }
 
@@ -241,8 +241,6 @@
 .card-v1--field .cv1-badge-val { font-size: max(18px, calc(20 * var(--u))); }
 .card-v1--field .cv1-badge-val--word { font-size: max(14px, calc(14 * var(--u))); }
 .card-v1--field .cv1-badge-label { font-size: max(8.5px, calc(8 * var(--u))); }
-.card.card-v1--field .mosje-ability-btn,
-.card.card-v1--field .hand-card__play-btn { left: max(56px, calc(46 * var(--u))); right: max(54px, calc(62 * var(--u))); }
 
 /* -- Hand cards: titles stay readable (wrap to two lines instead of shrinking) -- */
 .hand-cards .card-v1--full .cv1-first,

@@ -7,18 +7,15 @@
 	/* Hand: cards stay fully visible in the hand (no sinking, no hover-lift); a click opens the
 	   detail modal. Only the field uses the hover popup. */
 
-	/* Smaller field cards — the hover popup carries the detail. */
-	.board-zone--player { --mosje-card-w: 170px; --mosje-slot-h: calc(170px * var(--card-height-ratio)); --piecie-cell-w: 140px; min-height: 0; }
-	.board-zone--opponent { --mosje-card-w: 130px; --mosje-slot-h: calc(130px * var(--card-height-ratio)); --piecie-cell-w: 110px; min-height: 0; }
+	/* Field tiles: one size for every card type and both sides (Mosje, Piecie, Place). */
+	.board-zone--player,
+	.board-zone--opponent { --field-tile-w: 212px; --mosje-card-w: var(--field-tile-w); --mosje-slot-h: calc(var(--field-tile-w) * var(--card-height-ratio)); --piecie-cell-w: var(--field-tile-w); min-height: 0; }
 	.board-zone--player .card--mosje,
-	.board-zone--player .mosje-card--owned {
-		width: 170px; min-width: 170px; max-width: 170px;
-		height: calc(170px * var(--card-height-ratio));
-	}
+	.board-zone--player .mosje-card--owned,
 	.board-zone--opponent .card--mosje,
 	.board-zone--opponent .mosje-card--opponent {
-		width: 130px; min-width: 130px; max-width: 130px;
-		height: calc(130px * var(--card-height-ratio));
+		width: var(--field-tile-w); min-width: var(--field-tile-w); max-width: var(--field-tile-w);
+		height: calc(var(--field-tile-w) * var(--card-height-ratio));
 	}
 
 	/* The strip itself is a transparent box over the lower board: let clicks fall through
