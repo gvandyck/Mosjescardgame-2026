@@ -26,6 +26,13 @@ function buildPopupCard(srcEl) {
 		const lvl = mpEl.querySelector('.uc-mp-lvl')?.textContent.match(/\d+/);
 		if (lvl) merged.level = Number(lvl[0]) - 1;
 	}
+	// Card frame v1 field tile: live MP + level come from its badge and L<n> pill.
+	const v1Mp = srcEl.querySelector('[data-cv1-mp]');
+	if (v1Mp) {
+		merged.mp = Number(v1Mp.textContent);
+		const lvl = srcEl.querySelector('.cv1-pill')?.textContent.match(/\d+/);
+		if (lvl) merged.level = Number(lvl[0]) - 1;
+	}
 	return renderCard(merged, { compact: false });
 }
 

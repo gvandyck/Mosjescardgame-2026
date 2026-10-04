@@ -164,7 +164,7 @@ test.describe('card frame v1 — Mosje', () => {
     await page.screenshot({ path: `${OUT}/mosje-live-preview.png` });
   });
 
-  test('hover on a field Mosje shows the enlarged full card beside it; click still opens the modal', async ({ page }) => {
+  test('hover on a field Mosje shows the enlarged full card (arena hover popup); click still opens the modal', async ({ page }) => {
     await page.setViewportSize({ width: 1600, height: 1000 });
     await page.waitForSelector('.mosje-card--owned', { timeout: 15000 });
     await page.evaluate(() => {
@@ -174,7 +174,7 @@ test.describe('card frame v1 — Mosje', () => {
     await page.waitForTimeout(4000);
     const tile = page.locator('.mosje-card--owned.card-v1--field').first();
     await tile.hover();
-    const big = page.locator('.cv1-hover-panel');
+    const big = page.locator('.hover-zoom');
     await expect(big).toBeVisible();
     await expect(big.locator('.cv1-first')).toHaveText('Alyssa');
     await expect(big.locator('[data-cv1-mp]')).toHaveText('35'); // live state, not Start MP
@@ -182,13 +182,12 @@ test.describe('card frame v1 — Mosje', () => {
     const t = await tile.boundingBox();
     const b = await big.boundingBox();
     expect(b.height).toBeGreaterThan(t.height * 2);
-    expect(b.x >= t.x + t.width || b.x + b.width <= t.x).toBe(true); // beside, not over, the tile
     await page.waitForTimeout(800);
     await page.screenshot({ path: `${OUT}/mosje-hover.png` });
     await page.mouse.move(5, 500);
     await expect(big).toHaveCount(0);
     await tile.click();
     await expect(page.locator('.modal-card.card-detail').first()).toBeVisible();
-    await expect(page.locator('.cv1-hover-panel')).toHaveCount(0);
+    await expect(page.locator('.hover-zoom')).toHaveCount(0);
   });
 });

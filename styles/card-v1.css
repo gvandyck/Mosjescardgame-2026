@@ -189,9 +189,3 @@
   width: auto; height: 22px; min-height: 22px; padding: 0 6px; margin: 0;
   font-size: 11px; border-radius: 6px; z-index: 5;
 }
-
-/* ── Hover: enlarged card beside the hovered one ───────────── */
-.card.card-v1.cv1-hover-panel {
-  position: fixed; z-index: 100000; pointer-events: none; margin: 0;
-  transform: none; cursor: default;
-}

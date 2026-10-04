@@ -125,3 +125,10 @@
 @keyframes spot-flash-loss   { 0%, 100% { box-shadow: 0 0 0 0 transparent; } 25% { box-shadow: 0 0 60px 18px rgba(255, 70, 70, 0.85); transform: translateX(-6px); } 50% { transform: translateX(6px); } }
 @keyframes spot-flash-gain   { 0%, 100% { box-shadow: 0 0 0 0 transparent; } 30% { box-shadow: 0 0 60px 18px rgba(80, 255, 150, 0.8); } }
 @keyframes spot-flash-shield { 0%, 100% { box-shadow: 0 0 0 0 transparent; } 30% { box-shadow: 0 0 60px 18px rgba(100, 180, 255, 0.85), inset 0 0 40px rgba(100, 180, 255, 0.5); } }
+
+/* ── Card frame v1 inside the popup + spotlight ────────────────────────
+   The v1 face scales from --cv1-w (2:3), so size the wrapper to match. */
+.hover-zoom:has(.card-v1) { height: calc(300px * 1.5); }
+.hover-zoom .card.card-v1 { --cv1-w: 300px; }
+.card-spotlight:has(.card-v1) { height: calc(320px * 1.5); margin-top: calc(320px * 1.5 / -2); }
+.card-spotlight .card.card-v1 { --cv1-w: 320px; }
