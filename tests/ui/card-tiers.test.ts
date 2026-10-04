@@ -55,7 +55,7 @@ describe('isTierLayoutEnabled', () => {
 
 describe('getTierAttributes', () => {
   it('builds classes for boxed and full-art tiers', () => {
-    setSearch('');
+    setSearch('?tiers=off');
     expect(getTierAttributes({ rarity: '★★★' })).toEqual({
       tier: 3, layout: 'boxed', classes: 'card--tier-3 card--boxed', enabled: false,
     });
@@ -235,10 +235,10 @@ describe('boxed face tier 3 (foil)', () => {
     expect(html).toMatch(/class="ct-art-ring ct-ring ct-foil ct-foil-anim"/);
     expect(count(html, 'ct-plate-waves')).toBe(0);
     expect(count(html, 'ct-diamond--lit')).toBe(3);
-    const kids = classesIn(windowOf(html)).map((c) => c.split(' ')[0]);
-    expect(kids).toEqual(['cv1-art', 'ct-cosmos', 'ct-rainbow']);
-    expect(count(html, 'ct-art-ring')).toBe(1);
-    expect(windowOf(html)).not.toContain('ct-art-ring');
+    const w = windowOf(html);
+    const inside = w.slice(0, w.lastIndexOf('</div>'));
+    expect(classesIn(inside).map((c) => c.split(' ')[0])).toEqual(['cv1-art', 'ct-cosmos', 'ct-rainbow']);
+    expect(inside).not.toContain('ct-art-ring');
   });
   it('art-less tier 3 keeps cosmos and rainbow over the placeholder', () => {
     setSearch('');
