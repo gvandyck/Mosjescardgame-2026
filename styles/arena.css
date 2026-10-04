@@ -1,0 +1,127 @@
+/* Arena-style card handling (MTG Arena feel) — additive, desktop only.
+   1. Hand sits low on screen; hover lifts + enlarges the card to full readability.
+   2. Field cards are art-first (text hidden); hover pops a full card (hoverZoom.js).
+   3. Played/activated cards are spotlighted on the right with their effect (cardSpotlight.js). */
+
+@media (hover: hover) {
+	.game-hand-panel { --hand-sink: 205px; }
+
+	.game-hand-panel .hand-strip .hand-card-wrap {
+		transform: translateY(calc(var(--fan-lift, 0px) + var(--hand-sink))) rotate(var(--fan-rot, 0deg));
+		transform-origin: center bottom;
+	}
+
+	.game-hand-panel .hand-strip .hand-card-wrap:hover,
+	.game-hand-panel .hand-strip .hand-card-wrap:focus-within {
+		z-index: 60;
+		transform: translateY(-8px) rotate(0deg) scale(1.28);
+	}
+
+	/* The hand no longer eats ~270px of the screen, so give that back to the board. */
+	.game-board { max-height: calc(100vh - 120px); }
+
+	/* Smaller field cards � the hover popup carries the detail. */
+	.board-zone--player { --mosje-card-w: 170px; --mosje-slot-h: calc(170px * var(--card-height-ratio)); --piecie-cell-w: 140px; min-height: 0; }
+	.board-zone--opponent { --mosje-card-w: 130px; --mosje-slot-h: calc(130px * var(--card-height-ratio)); --piecie-cell-w: 110px; min-height: 0; }
+	.board-zone--player .card--mosje,
+	.board-zone--player .mosje-card--owned {
+		width: 170px; min-width: 170px; max-width: 170px;
+		height: calc(170px * var(--card-height-ratio));
+	}
+	.board-zone--opponent .card--mosje,
+	.board-zone--opponent .mosje-card--opponent {
+		width: 130px; min-width: 130px; max-width: 130px;
+		height: calc(130px * var(--card-height-ratio));
+	}
+
+	/* Snappy hand hover (was a 0.52s ease). */
+	.game-hand-panel .hand-strip .hand-card-wrap {
+		transition: transform 0.14s ease-out, margin 0.14s ease-out, z-index 0s;
+	}
+
+	/* Field: image first. Names/MP badge stay; text blocks live in the hover popup. */
+	.board-zone .card .uc-text,
+	.board-zone .card .uc-meta { display: none; }
+}
+
+/* ── Field hover popup ─────────────────────────────────────────────── */
+.hover-zoom {
+	position: fixed;
+	z-index: 400;
+	width: 300px;
+	height: calc(300px * var(--card-height-ratio, 1.46));
+	pointer-events: none;
+	filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.7));
+	animation: hover-zoom-in 0.14s ease-out;
+}
+.hover-zoom .card {
+	width: 100% !important;
+	height: 100% !important;
+	min-width: 0 !important;
+	max-width: none !important;
+	max-height: none !important;
+	margin: 0 !important;
+	transform: none !important;
+}
+.hover-zoom .card .uc-text,
+.hover-zoom .card .uc-meta { display: block; }
+@keyframes hover-zoom-in { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
+
+/* ── Action spotlight (right side of screen) ───────────────────────── */
+.card-spotlight {
+	position: fixed;
+	z-index: 500;
+	right: 5vw;
+	top: 50%;
+	width: 320px;
+	height: calc(320px * var(--card-height-ratio, 1.46));
+	margin-top: calc(320px * var(--card-height-ratio, 1.46) / -2);
+	pointer-events: none;
+	filter: drop-shadow(0 24px 50px rgba(0, 0, 0, 0.75));
+}
+.card-spotlight .card {
+	width: 100% !important;
+	height: 100% !important;
+	min-width: 0 !important;
+	max-width: none !important;
+	max-height: none !important;
+	margin: 0 !important;
+	transform: none !important;
+}
+.card-spotlight .card .uc-text,
+.card-spotlight .card .uc-meta { display: block; }
+
+.spot-effects {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	z-index: 5;
+}
+.spot-effect {
+	padding: 4px 16px;
+	border-radius: 10px;
+	font-size: 2.1rem;
+	font-weight: 900;
+	letter-spacing: 0.02em;
+	color: #fff;
+	text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+	background: rgba(8, 10, 20, 0.62);
+	border: 2px solid currentColor;
+	animation: spot-effect-pop 0.32s cubic-bezier(0.2, 1.6, 0.4, 1) both;
+}
+.spot-effect small { display: block; font-size: 0.8rem; font-weight: 600; opacity: 0.85; text-align: center; }
+.spot-effect--loss { color: #ff6b6b; }
+.spot-effect--gain { color: #5be39a; }
+.spot-effect--info { color: #ffd166; }
+@keyframes spot-effect-pop { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
+.spot-effect--shield { color: #6ab7ff; }
+.card-spotlight .card.spot-flash--loss { animation: spot-flash-loss 0.7s ease-out; }
+.card-spotlight .card.spot-flash--gain { animation: spot-flash-gain 0.7s ease-out; }
+.card-spotlight .card.spot-flash--shield { animation: spot-flash-shield 0.7s ease-out; }
+@keyframes spot-flash-loss   { 0%, 100% { box-shadow: 0 0 0 0 transparent; } 25% { box-shadow: 0 0 60px 18px rgba(255, 70, 70, 0.85); transform: translateX(-6px); } 50% { transform: translateX(6px); } }
+@keyframes spot-flash-gain   { 0%, 100% { box-shadow: 0 0 0 0 transparent; } 30% { box-shadow: 0 0 60px 18px rgba(80, 255, 150, 0.8); } }
+@keyframes spot-flash-shield { 0%, 100% { box-shadow: 0 0 0 0 transparent; } 30% { box-shadow: 0 0 60px 18px rgba(100, 180, 255, 0.85), inset 0 0 40px rgba(100, 180, 255, 0.5); } }
