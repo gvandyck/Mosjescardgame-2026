@@ -34,3 +34,48 @@
     --tier-anim-state: paused;
   }
 }
+
+/* -- Shared tier chrome (all tier-layout cards) --
+   4 tier diamonds + OBBY CARD GAME side labels replace the E1 stripes and
+   3 diamonds (the E1 markup is not rendered on tier-layout cards). */
+.card-v1--full.card--tierlayout .ct-diamond {
+  top: calc(22 * var(--u)); width: calc(5 * var(--u)); height: calc(5 * var(--u));
+  transform: rotate(45deg); background: rgba(255, 255, 255, 0.2);
+}
+.card-v1--full.card--tierlayout .ct-diamond--1 { left: calc(202 * var(--u)); }
+.card-v1--full.card--tierlayout .ct-diamond--2 { left: calc(212 * var(--u)); }
+.card-v1--full.card--tierlayout .ct-diamond--3 { left: calc(222 * var(--u)); }
+.card-v1--full.card--tierlayout .ct-diamond--4 { left: calc(232 * var(--u)); }
+.card-v1--full.card--tierlayout .ct-diamond--lit {
+  background: var(--accent); box-shadow: 0 0 calc(5 * var(--u)) var(--accent);
+}
+.card-v1--full.card--tierlayout .ct-side {
+  top: calc(268 * var(--u)); width: calc(10 * var(--u)); height: calc(124 * var(--u));
+  box-sizing: border-box; padding-top: 0.32em;
+  display: flex; align-items: center; justify-content: center;
+  writing-mode: vertical-rl; white-space: nowrap;
+  font-family: 'Sora', sans-serif; font-weight: 700; font-size: calc(6.5 * var(--u));
+  letter-spacing: 0.32em; text-transform: uppercase; color: rgba(255, 255, 255, 0.55);
+}
+.card-v1--full.card--tierlayout .ct-side--l { left: calc(4 * var(--u)); transform: rotate(180deg); }
+.card-v1--full.card--tierlayout .ct-side--r { right: calc(4 * var(--u)); }
+
+/* -- MP / cost number: no box at all, just the number with a soft shadow.
+   Position/size (right 10, bottom 22 per D-06, 80x80) come from card-v1.css
+   so the hand-strip sizing there keeps working; this only strips the box. -- */
+.card.card-v1--full.card--tierlayout .cv1-badge {
+  background: none; border: 0; border-radius: 0; box-shadow: none;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+}
+/* Value Sora 800 34u / Free 26u, label 10u 800 .14em tint: already in card-v1.css. */
+/* The hand strip gives the badge a 12px radius; tier cards have no box there either. */
+.hand-cards .card.card-v1--full.card--tierlayout .cv1-badge,
+.hand-strip .card.card-v1--full.card--tierlayout .cv1-badge { border-radius: 0; background: none; }
+
+/* Traits line: left 42 / right 110 / bottom 85 (D-06), and right 42 when there
+   is no badge (Place) - both already set in card-v1.css, not repeated here. */
+
+/* Small renders (class set in 50-05): no side text, no glints. */
+.card-v1--full.card--tierlayout.card--tier-small .ct-side,
+.card-v1--full.card--tierlayout.card--tier-small .ct-glint { display: none; }

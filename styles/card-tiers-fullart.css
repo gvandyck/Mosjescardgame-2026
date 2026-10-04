@@ -1,0 +1,76 @@
+/* card-tiers-fullart.css - tier 4 (full art + holographic shine).
+   Source: CardTiers7/8.dc.html tier-4 card; footer positions per D-06.
+   Scoped to .card-v1--full.card--tierlayout.card--fullart only. */
+
+.card.card-v1--full.card--tierlayout.card--fullart {
+  box-shadow: 0 calc(24 * var(--u)) calc(50 * var(--u)) rgba(0, 0, 0, 0.7); /* no 1px outline */
+}
+
+/* Uniform 18px frame on all four sides, radius 6, clipped (no corner wedges). */
+.card-v1--full.card--tierlayout.card--fullart .cv1-window {
+  left: calc(18 * var(--u)); right: calc(18 * var(--u));
+  top: calc(18 * var(--u)); bottom: calc(18 * var(--u));
+  border-radius: calc(6 * var(--u));
+  overflow: hidden; isolation: isolate;
+  -webkit-clip-path: inset(0 round calc(6 * var(--u)));
+  clip-path: inset(0 round calc(6 * var(--u)));
+  background: linear-gradient(160deg, var(--cv1-main), #050505 78%);
+}
+.card-v1--full.card--tierlayout.card--fullart .cv1-art { left: 0; top: 0; width: 100%; height: 100%; }
+.card-v1--full.card--tierlayout.card--fullart .cv1-fade--bottom {
+  left: 0; right: 0; bottom: 0; height: calc(var(--cv1-fade, 270) * var(--u));
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6) 36%, rgba(0, 0, 0, 0.9));
+}
+.card-v1--full.card--tierlayout.card--fullart .cv1-fade--top {
+  left: 0; right: 0; top: 0; height: calc(150 * var(--u));
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.88), rgba(0, 0, 0, 0));
+}
+
+/* Ability text: left/right 42, bottom 122 (D-06) and the triple text-shadow are
+   inherited from card-v1.css so hand-strip overrides there keep working. */
+
+/* -- Shine: direct children of .cv1-window so the blend modes hit the art -- */
+.card-v1--full.card--tierlayout.card--fullart .ct-holo {
+  inset: 0; mix-blend-mode: overlay; opacity: 0.75;
+  background: linear-gradient(115deg, #ff5fc4, #ffd36e, #6dffc9, #62a0ff, #c58bff, #ff5fc4, #ffd36e, #6dffc9);
+  background-size: 230% 230%; background-position: 0% 25%;
+  animation: holoshift 9s ease-in-out infinite alternate paused;
+}
+.card-v1--full.card--tierlayout.card--fullart .ct-sweep {
+  top: -10%; bottom: -10%; left: 0; width: 30%; mix-blend-mode: screen;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.3) 50%, rgba(255, 255, 255, 0));
+  transform: translateX(-160%) skewX(-18deg);
+  animation: shinesweep 6s ease-in-out infinite paused;
+}
+.card-v1--full.card--tierlayout.card--fullart .ct-glint {
+  width: calc(30 * var(--u)); height: calc(30 * var(--u)); opacity: 0;
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.95) 0 calc(2 * var(--u)), rgba(255, 255, 255, 0) calc(3 * var(--u))),
+    linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.9) 50%, rgba(255, 255, 255, 0)) center / 100% 1px no-repeat,
+    linear-gradient(0deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.9) 50%, rgba(255, 255, 255, 0)) center / 1px 100% no-repeat;
+  animation: twinkle 3.2s ease-in-out infinite paused;
+}
+.card-v1--full.card--tierlayout.card--fullart .ct-glint--1 { left: 22%; top: 16%; animation-delay: 0s; }
+.card-v1--full.card--tierlayout.card--fullart .ct-glint--2 { right: 12%; top: 30%; animation-delay: 1.1s; }
+.card-v1--full.card--tierlayout.card--fullart .ct-glint--3 { left: 55%; top: 8%; animation-delay: 2.1s; }
+
+/* Animations run only when flagged (.card--tier-anim) or hovered; static otherwise. */
+.card-v1--full.card--tierlayout.card--fullart.card--tier-anim :is(.ct-holo, .ct-sweep, .ct-glint),
+.card-v1--full.card--tierlayout.card--fullart:hover :is(.ct-holo, .ct-sweep, .ct-glint) {
+  animation-play-state: running;
+}
+
+@keyframes holoshift { from { background-position: 0% 25%; } to { background-position: 100% 75%; } }
+@keyframes shinesweep {
+  0%, 55% { transform: translateX(-160%) skewX(-18deg); }
+  100% { transform: translateX(420%) skewX(-18deg); }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0; transform: scale(0.4); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-v1--full.card--tierlayout.card--fullart :is(.ct-holo, .ct-sweep, .ct-glint) { animation: none; }
+  .card-v1--full.card--tierlayout.card--fullart .ct-glint { opacity: 0.8; transform: none; }
+}
