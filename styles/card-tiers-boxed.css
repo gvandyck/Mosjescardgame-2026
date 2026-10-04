@@ -11,7 +11,7 @@
 
 /* 2. Wave pattern (static asset), group opacity .16 */
 .card-v1--full.card--tierlayout.card--boxed .ct-waves {
-  inset: 0; opacity: 0.16; pointer-events: none;
+  inset: 0; opacity: 0.08; pointer-events: none;
   background: url('../assets/patterns/seigaiha.svg') 0 0 / 100% 100% no-repeat;
 }
 
@@ -68,7 +68,7 @@
 
 /* 10. Description plate (see-through) + the extra clipped wave copy (tiers 1-2) */
 .card-v1--full.card--tierlayout.card--boxed .ct-plate-waves {
-  inset: 0; opacity: 0.2; mix-blend-mode: screen; pointer-events: none;
+  inset: 0; opacity: 0.1; mix-blend-mode: screen; pointer-events: none;
   background: url('../assets/patterns/seigaiha.svg') 0 0 / 100% 100% no-repeat;
   -webkit-clip-path: inset(calc(366 * var(--u)) calc(24 * var(--u)) calc(108 * var(--u)) calc(24 * var(--u)) round calc(6 * var(--u)));
   clip-path: inset(calc(366 * var(--u)) calc(24 * var(--u)) calc(108 * var(--u)) calc(24 * var(--u)) round calc(6 * var(--u)));
