@@ -1,0 +1,92 @@
+/* card-tiers-foil.css - tier 3 (rare): rainbow foil inner line + art ring,
+   rainbow-tinted waves, cosmos dots + rainbow sheen in the art window.
+   Source: tier-3 card in CardTiers7/8.dc.html; RARITY-TIERS-DESIGN.md sec. 6.
+   Own animated angle --foil-a (the holo angle var is NOT reused: the 'playable' glow in
+   cards.css already animates). Tint/sheen are toned DOWN from the board on
+   purpose (Gandalf: keep it faint). Scoped to boxed tier-3 tier-layout cards;
+   field tiles are never matched. Linked after card-tiers-boxed.css. */
+
+@property --foil-a { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+@keyframes foilturn { to { --foil-a: 360deg; } }
+
+.card.card-v1--full.card--tierlayout.card--boxed.card--tier-3 {
+  box-shadow: 0 calc(24 * var(--u)) calc(50 * var(--u)) rgba(0, 0, 0, 0.7),
+    0 0 calc(30 * var(--u)) rgba(255, 190, 120, 0.12);
+}
+
+/* Shared foil: conic rainbow, static unless the card animates */
+.card-v1--full.card--tierlayout.card--boxed.card--tier-3 .ct-foil-anim {
+  animation: foilturn 10s linear infinite;
+  animation-play-state: var(--tier-anim-state, paused);
+}
+.card-v1--full.card--tierlayout.card--boxed.card--tier-3 .ct-foil {
+  background: conic-gradient(from var(--foil-a), #f6d36a, #ff8fb4, #86c9ff, #9cf0c2, #f6d36a);
+}
+
+/* Ring = 2u foil band: content-box cut out of the full box */
+.card-v1--full.card--tierlayout.card--boxed.card--tier-3 .ct-ring {
+  box-sizing: border-box; padding: calc(2 * var(--u)); pointer-events: none;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+
+/* 2. Waves: wrapper isolates a black backdrop + wave lines tinted by .ct-rb */
+.card-v1--full.card--tierlayout.card--boxed.card--tier-3 .ct-waves-wrap {
+  inset: 0; isolation: isolate; background: #050505; pointer-events: none;
+}
+.card-v1--full.card--tierlayout.card--boxed.card--tier-3 .ct-waves-wrap > i { position: absolute; inset: 0; }
+.card-v1--full.card--tierlayout.card--boxed.card--tier-3 .ct-waves-wrap .ct-waves { opacity: 0.22; }
+.card-v1--full.card--tierlayout.card--boxed.card--tier-3 .ct-rb {
+  background: conic-gradient(from var(--foil-a) at 30% 20%, #f6d36a, #ff8fb4, #86c9ff, #9cf0c2, #f6d36a);
+  mix-blend-mode: color; opacity: 0.6;
+}
+
+/* 6. Inner line: the .ct-inner wrapper carries the side-text break mask
+   (y 262-386), the foil ring inside it carries the ring mask. Nesting keeps
+   the two masks separate (no mask compositing needed). */
+.card-v1--full.card--tierlayout.card--boxed .ct-inner--t3 {
+  inset: calc(6 * var(--u)); border-radius: calc(18 * var(--u));
+  -webkit-mask-image: linear-gradient(180deg, #000 0, #000 calc(262 * var(--u)), transparent calc(262 * var(--u)), transparent calc(386 * var(--u)), #000 calc(386 * var(--u)));
+  mask-image: linear-gradient(180deg, #000 0, #000 calc(262 * var(--u)), transparent calc(262 * var(--u)), transparent calc(386 * var(--u)), #000 calc(386 * var(--u)));
+}
+.card-v1--full.card--tierlayout.card--boxed.card--tier-3 .ct-inner--t3 > .ct-ring {
+  position: absolute; inset: 0; border-radius: calc(18 * var(--u));
+}
+
+/* 8/9. Art ring around the window (outer rect 19 / 119, 234 high) */
+.card-v1--full.card--tierlayout.card--boxed.card--tier-3 .ct-art-ring {
+  left: calc(19 * var(--u)); right: calc(19 * var(--u));
+  top: calc(119 * var(--u)); bottom: auto; height: calc(234 * var(--u));
+  border-radius: calc(11 * var(--u));
+}
+/* Window: plain black gap to the ring, no grey outline */
+.card-v1--full.card--tierlayout.card--boxed.card--tier-3 .cv1-window {
+  box-shadow: 0 0 0 calc(3 * var(--u)) #050505;
+}
+
+/* Cosmos dots + rainbow sheen over the art (faint) */
+.card-v1--full.card--tierlayout.card--boxed.card--tier-3 .ct-cosmos {
+  inset: 0; mix-blend-mode: screen; opacity: 0.24; pointer-events: none;
+  background-image:
+    radial-gradient(circle, rgba(255, 255, 255, 0.9) 0 calc(2 * var(--u)), transparent calc(2.5 * var(--u))),
+    radial-gradient(circle, rgba(255, 255, 255, 0.9) 0 calc(4 * var(--u)), transparent calc(4.5 * var(--u))),
+    radial-gradient(circle, rgba(255, 255, 255, 0.9) 0 calc(1.5 * var(--u)), transparent calc(2 * var(--u)));
+  background-size: calc(41 * var(--u)) calc(41 * var(--u)), calc(83 * var(--u)) calc(83 * var(--u)), calc(29 * var(--u)) calc(29 * var(--u));
+  background-position: calc(6 * var(--u)) calc(9 * var(--u)), calc(31 * var(--u)) calc(52 * var(--u)), calc(17 * var(--u)) calc(3 * var(--u));
+}
+.card-v1--full.card--tierlayout.card--boxed.card--tier-3 .ct-rainbow {
+  inset: 0; mix-blend-mode: color-dodge; opacity: 0.1; pointer-events: none;
+  background: conic-gradient(from var(--foil-a) at 30% 20%, #f6d36a, #ff8fb4, #86c9ff, #9cf0c2, #f6d36a);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-v1--full.card--tierlayout.card--boxed.card--tier-3 .ct-foil-anim { animation: none; }
+}
+
+/* Plate: tier 3 has no extra plate wave copy (board), so lift the backdrop a
+   little to keep the plate texture as visible as on tier 2 (50-04 check). */
+.card-v1--full.card--tierlayout.card--boxed.card--tier-3 .ct-plate {
+  -webkit-backdrop-filter: blur(calc(4 * var(--u))) brightness(2.5) contrast(1.15);
+  backdrop-filter: blur(calc(4 * var(--u))) brightness(2.5) contrast(1.15);
+}

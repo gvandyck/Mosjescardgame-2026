@@ -46,8 +46,8 @@ for (const [label, card] of ROWS) {
   }
 }
 
-// Edge cases, each shown at tiers 1, 2 and 4 (tier 3 is added in 50-04).
-const EDGE_TIERS = [1, 2, 4];
+// Edge cases, each shown at tiers 1-4 (tier 3 added in 50-04).
+const EDGE_TIERS = [1, 2, 3, 4];
 const descLen = (c) => String(c.abilityDescription || c.description || '').length + String(c.synergyEffect || '').length;
 const shownName = (c) => (String(c.type).toUpperCase() === 'MOSJE' ? parseMosjeName(c.name).firstName : String(c.name));
 const ALL = [...MOSJES, ...PIECIES, ...PLACES, ...SNELLE_PIECIES];

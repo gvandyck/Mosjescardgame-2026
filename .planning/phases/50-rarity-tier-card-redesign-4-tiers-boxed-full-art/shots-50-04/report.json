@@ -1,0 +1,199 @@
+{
+ "boxes": {
+  "fighting-mosje": {
+   "maxDiffExclDiamonds": 0,
+   "diffs": [
+    "diamonds t2 idx0 5",
+    "diamonds t3 idx0 10",
+    "diamonds t4 idx0 15"
+   ]
+  },
+  "digital-mosje": {
+   "maxDiffExclDiamonds": 0,
+   "diffs": [
+    "diamonds t2 idx0 5",
+    "diamonds t3 idx0 10",
+    "diamonds t4 idx0 15"
+   ]
+  },
+  "artistic-mosje": {
+   "maxDiffExclDiamonds": 0,
+   "diffs": [
+    "diamonds t2 idx0 5",
+    "diamonds t3 idx0 10",
+    "diamonds t4 idx0 15"
+   ]
+  },
+  "piecie": {
+   "maxDiffExclDiamonds": 0,
+   "diffs": [
+    "diamonds t2 idx0 5",
+    "diamonds t3 idx0 10",
+    "diamonds t4 idx0 15"
+   ]
+  },
+  "place": {
+   "maxDiffExclDiamonds": 0,
+   "diffs": [
+    "diamonds t2 idx0 5",
+    "diamonds t3 idx0 10",
+    "diamonds t4 idx0 15"
+   ]
+  },
+  "snelle": {
+   "maxDiffExclDiamonds": 0,
+   "diffs": [
+    "diamonds t2 idx0 5",
+    "diamonds t3 idx0 10",
+    "diamonds t4 idx0 15"
+   ]
+  }
+ },
+ "plate": {
+  "fighting-mosje-t2": {
+   "mean": 39.7,
+   "sd": 3.8
+  },
+  "fighting-mosje-t3": {
+   "mean": 40.34,
+   "sd": 3.78
+  },
+  "piecie-t2": {
+   "mean": 39.53,
+   "sd": 3.95
+  },
+  "piecie-t3": {
+   "mean": 40.11,
+   "sd": 3.91
+  },
+  "snelle-t2": {
+   "mean": 39.53,
+   "sd": 3.95
+  },
+  "snelle-t3": {
+   "mean": 40.11,
+   "sd": 3.91
+  }
+ },
+ "busy": [
+  {
+   "row": "fighting-mosje",
+   "art": {
+    "mean": 95.64,
+    "sd": 50.27
+   }
+  },
+  {
+   "row": "artistic-mosje",
+   "art": {
+    "mean": 61.61,
+    "sd": 40.38
+   }
+  },
+  {
+   "row": "piecie",
+   "art": {
+    "mean": 80.46,
+    "sd": 33.42
+   }
+  },
+  {
+   "row": "place",
+   "art": {
+    "mean": 63.77,
+    "sd": 32.8
+   }
+  },
+  {
+   "row": "snelle",
+   "art": {
+    "mean": 37.08,
+    "sd": 31.48
+   }
+  },
+  {
+   "row": "digital-mosje",
+   "art": {
+    "mean": 62.77,
+    "sd": 28.03
+   }
+  }
+ ],
+ "ring": {
+  "ring": [
+   19,
+   119,
+   402,
+   234
+  ],
+  "window": [
+   24,
+   124,
+   392,
+   224
+  ],
+  "inner": [
+   6,
+   6,
+   428,
+   648
+  ],
+  "plate": [
+   24,
+   366,
+   392,
+   186
+  ]
+ },
+ "edge": [
+  {
+   "lab": "Mosje, 4 traits - tier 3",
+   "plateOverflow": false,
+   "hasImg": true,
+   "cosmos": true,
+   "traitsVsBadge": 20
+  },
+  {
+   "lab": "Place - tier 3",
+   "plateOverflow": false,
+   "hasImg": true,
+   "cosmos": true,
+   "traitsVsBadge": null
+  },
+  {
+   "lab": "Piecie without art - tier 3",
+   "plateOverflow": false,
+   "hasImg": false,
+   "cosmos": true,
+   "traitsVsBadge": 20
+  },
+  {
+   "lab": "Mosje without nickname - tier 3",
+   "plateOverflow": false,
+   "hasImg": false,
+   "cosmos": true,
+   "traitsVsBadge": 20
+  },
+  {
+   "lab": "Very long name - tier 3",
+   "plateOverflow": false,
+   "hasImg": false,
+   "cosmos": true,
+   "traitsVsBadge": 20
+  },
+  {
+   "lab": "Longest ability text - tier 3",
+   "plateOverflow": false,
+   "hasImg": true,
+   "cosmos": true,
+   "traitsVsBadge": 20
+  }
+ ],
+ "fieldCt": [
+  false,
+  false,
+  false,
+  false
+ ],
+ "alyssa": "[Alyssa] The Bulldozer"
+}
