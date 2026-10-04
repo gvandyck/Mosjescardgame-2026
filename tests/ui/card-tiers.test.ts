@@ -41,10 +41,10 @@ describe('isFullArt', () => {
 });
 
 describe('isTierLayoutEnabled', () => {
-  it('only tier 4 is implemented so far', () => {
+  it('tiers 1, 2 and 4 are implemented so far (tier 3 in 50-04)', () => {
     setSearch('');
-    for (const t of [1, 2, 3]) expect(isTierLayoutEnabled(t)).toBe(false);
-    expect(isTierLayoutEnabled(4)).toBe(true);
+    expect(isTierLayoutEnabled(3)).toBe(false);
+    for (const t of [1, 2, 4]) expect(isTierLayoutEnabled(t)).toBe(true);
   });
   it('?tiers=all forces on, ?tiers=off forces off', () => {
     setSearch('?tiers=all');
@@ -57,8 +57,8 @@ describe('isTierLayoutEnabled', () => {
 describe('getTierAttributes', () => {
   it('builds classes for boxed and full-art tiers', () => {
     setSearch('');
-    expect(getTierAttributes({ rarity: '★★' })).toEqual({
-      tier: 2, layout: 'boxed', classes: 'card--tier-2 card--boxed', enabled: false,
+    expect(getTierAttributes({ rarity: '★★★' })).toEqual({
+      tier: 3, layout: 'boxed', classes: 'card--tier-3 card--boxed', enabled: false,
     });
     setSearch('?tiers=all');
     expect(getTierAttributes({ rarity: '★★★★' })).toEqual({
@@ -79,9 +79,9 @@ describe('buildCardV1 tier attributes', () => {
       expect(r.className).toContain(fieldMode ? 'card-v1--field' : 'card-v1--full');
     }
   });
-  it('face html is identical to the pre-tier face builders for tiers 1-3', () => {
+  it('face html is identical to the pre-tier face builder for tier 3', () => {
     setSearch('');
-    const c = { ...card, rarity: '★★' };
+    const c = { ...card, rarity: '★★★' };
     const spec = buildMosjeSpecV1(c);
     expect((buildCardV1(c) as any).html).toBe(buildFaceV1(spec));
     expect((buildCardV1(card, { fieldMode: true }) as any).html).toBe(buildFieldFaceV1(buildMosjeSpecV1(card)));
@@ -171,11 +171,60 @@ describe('tier 4 face', () => {
       }
     }
   });
-  it('tiers 1-3 with layout forced on still render the E1 face', () => {
+  it('tier 3 with layout forced on still renders the E1 face (until 50-04)', () => {
     setSearch('?tiers=all');
-    for (const tier of [1, 2, 3]) {
+    for (const tier of [3]) {
       const c = { ...base, rarity: '★'.repeat(tier) };
       expect((buildCardV1(c) as any).html).toBe(buildFaceV1(buildMosjeSpecV1(c)));
     }
+  });
+});
+
+describe('getAbilityTextSize (boxed)', () => {
+  it('one-sentence Piecie/Snelle 17, Mosje 14, 3-line Place 15, very long 13', () => {
+    expect(getAbilityTextSize({ lines: ['Gain 25 MP to your active Mosje.'], typeKey: 'PIECIE', layout: 'boxed' })).toBe(17);
+    expect(getAbilityTextSize({ lines: ['Gain 25 MP.'], typeKey: 'SNELLE_PIECIE', layout: 'boxed' })).toBe(17);
+    expect(getAbilityTextSize({ lines: ['a. b.', 'c.', 'd.'], typeKey: 'MOSJE', layout: 'boxed' })).toBe(14);
+    expect(getAbilityTextSize({ lines: ['Gain 10 MP.', 'Draw 1 card.', 'Lose 5 MP.'], typeKey: 'PLACE', layout: 'boxed' })).toBe(15);
+    expect(getAbilityTextSize({ lines: ['x'.repeat(400)], typeKey: 'MOSJE', layout: 'boxed' })).toBe(13);
+  });
+});
+
+describe('boxed face (tiers 1 and 2)', () => {
+  const base = MOSJES.find((m: any) => m.artPath) as any;
+  for (const tier of [1, 2]) {
+    it(`tier ${tier}: layers, plate, diamonds, side labels, window`, () => {
+      setSearch('');
+      const r = buildCardV1({ ...base, rarity: '★'.repeat(tier) }) as any;
+      expect(r.className).toContain('card--boxed');
+      expect(r.className).toContain('card--tierlayout');
+      const html = r.html;
+      const order = classesIn(html).map((c) => c.split(' ')[0])
+        .filter((c) => ['ct-waves', 'ct-calm', 'ct-grain', 'ct-light', 'ct-inner', 'cv1-window', 'ct-plate-waves', 'ct-plate'].includes(c));
+      expect(order).toEqual(['ct-waves', 'ct-calm', 'ct-calm', 'ct-grain', 'ct-light', 'ct-inner', 'cv1-window', 'ct-plate-waves', 'ct-plate']);
+      expect(count(html, `ct-inner--t${tier}`)).toBe(1);
+      expect(count(html, 'ct-diamond')).toBe(4);
+      expect(count(html, 'ct-diamond--lit')).toBe(tier);
+      expect(count(html, 'ct-side')).toBe(2);
+      expect(count(html, 'cv1-stripe')).toBe(0);
+      expect(html).toMatch(/<div class="ct-plate">\s*<div class="cv1-desc">/);
+      const w = windowOf(html);
+      expect(w).toContain('<img');
+      expect(count(w, 'ct-holo')).toBe(0);
+      const style = html.match(/class="cv1-face[^"]*" style="([^"]+)"/)![1];
+      const spec = buildMosjeSpecV1(base);
+      expect(style).toContain(`--cv1-desc-size:${getAbilityTextSize({ lines: spec.lines, typeKey: 'MOSJE', layout: 'boxed' })};`);
+    });
+  }
+  it('art-less boxed card keeps the window with no img', () => {
+    setSearch('');
+    const html = (buildCardV1({ ...PIECIES[0], artPath: undefined, rarity: '★' }) as any).html;
+    expect(count(html, 'cv1-window')).toBe(1);
+    expect(windowOf(html)).not.toContain('<img');
+  });
+  it('?tiers=off keeps the E1 face on tier 1/2', () => {
+    setSearch('?tiers=off');
+    const c = { ...base, rarity: '★★' };
+    expect((buildCardV1(c) as any).html).toBe(buildFaceV1(buildMosjeSpecV1(c)));
   });
 });
