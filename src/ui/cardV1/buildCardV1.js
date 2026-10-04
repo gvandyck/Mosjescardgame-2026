@@ -22,7 +22,9 @@ export function buildCardV1(card, { fieldMode = false } = {}) {
   const spec = buildSpec(card);
   const tierAttrs = getTierAttributes(card);
   return {
-    html: fieldMode ? buildFieldFaceV1(spec) : buildFaceV1(spec),
+    html: fieldMode
+      ? buildFieldFaceV1(spec)
+      : buildFaceV1(spec, { tier: tierAttrs.tier, layoutEnabled: tierAttrs.enabled }),
     className: `card-v1 ${fieldMode ? 'card-v1--field' : 'card-v1--full'} ${tierAttrs.classes}`,
     tier: tierAttrs.tier,
     dataTier: String(tierAttrs.tier),

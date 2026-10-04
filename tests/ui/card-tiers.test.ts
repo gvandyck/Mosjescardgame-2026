@@ -7,9 +7,15 @@ import { getTierAttributes } from '../../src/ui/cardV1/getTierAttributes.js';
 import { buildCardV1 } from '../../src/ui/cardV1/buildCardV1.js';
 import { buildFaceV1 } from '../../src/ui/cardV1/buildFaceV1.js';
 import { buildFieldFaceV1 } from '../../src/ui/cardV1/buildFieldFaceV1.js';
+import { PIECIES } from '../../src/data/piecies.js';
+import { PLACES } from '../../src/data/places.js';
+import { buildTierChrome } from '../../src/ui/cardV1/buildTierChrome.js';
+import { buildShineLayers } from '../../src/ui/cardV1/buildShineLayers.js';
+import { getAbilityTextSize } from '../../src/ui/cardV1/getAbilityTextSize.js';
+import { getTierFadeHeight } from '../../src/ui/cardV1/getTierFadeHeight.js';
 import { buildMosjeSpecV1 } from '../../src/ui/cardV1/buildMosjeSpecV1.js';
 
-const setSearch = (search: string) => vi.stubGlobal('window', { location: { search } });
+const setSearch = (search: string) => vi.stubGlobal('window', { location: { search, origin: 'http://localhost', href: 'http://localhost/' } });
 afterEach(() => vi.unstubAllGlobals());
 
 describe('getRarityTier', () => {
@@ -35,9 +41,10 @@ describe('isFullArt', () => {
 });
 
 describe('isTierLayoutEnabled', () => {
-  it('no tier is implemented yet', () => {
+  it('only tier 4 is implemented so far', () => {
     setSearch('');
-    for (const t of [1, 2, 3, 4]) expect(isTierLayoutEnabled(t)).toBe(false);
+    for (const t of [1, 2, 3]) expect(isTierLayoutEnabled(t)).toBe(false);
+    expect(isTierLayoutEnabled(4)).toBe(true);
   });
   it('?tiers=all forces on, ?tiers=off forces off', () => {
     setSearch('?tiers=all');
@@ -72,9 +79,103 @@ describe('buildCardV1 tier attributes', () => {
       expect(r.className).toContain(fieldMode ? 'card-v1--field' : 'card-v1--full');
     }
   });
-  it('face html is identical to the pre-tier face builders', () => {
-    const spec = buildMosjeSpecV1(card);
-    expect((buildCardV1(card) as any).html).toBe(buildFaceV1(spec));
+  it('face html is identical to the pre-tier face builders for tiers 1-3', () => {
+    setSearch('');
+    const c = { ...card, rarity: '★★' };
+    const spec = buildMosjeSpecV1(c);
+    expect((buildCardV1(c) as any).html).toBe(buildFaceV1(spec));
     expect((buildCardV1(card, { fieldMode: true }) as any).html).toBe(buildFieldFaceV1(buildMosjeSpecV1(card)));
+  });
+});
+
+// No DOM in this vitest env: read class lists in document order from the html string.
+const classesIn = (html: string) => [...html.matchAll(/<(?:div|i|img) [^>]*class="([^"]+)"/g)].map((m) => m[1]);
+const windowOf = (html: string) => html.slice(html.indexOf('<div class="cv1-window">') + 24, html.indexOf('<div class="cv1-name">'));
+const count = (html: string, cls: string) => classesIn(html).filter((c) => c.split(' ').includes(cls)).length;
+
+describe('buildTierChrome', () => {
+  it('4 diamonds, first `tier` lit, plus two OBBY side labels', () => {
+    for (const tier of [1, 2, 3, 4]) {
+      const html = buildTierChrome(tier);
+      const cls = classesIn(html);
+      const diamonds = cls.filter((c) => c.split(' ').includes('ct-diamond'));
+      expect(diamonds.length).toBe(4);
+      expect(diamonds.map((c) => c.includes('ct-diamond--lit'))).toEqual([0, 1, 2, 3].map((i) => i < tier));
+      const sides = cls.filter((c) => c.split(' ').includes('ct-side'));
+      expect(sides.length).toBe(2);
+      expect(sides[0]).toContain('ct-side--l');
+      expect(html.match(/>OBBY CARD GAME</g)!.length).toBe(2);
+    }
+  });
+});
+
+describe('buildShineLayers', () => {
+  it('holo, sweep, 3 glints in order', () => {
+    const kids = classesIn(buildShineLayers()).map((c) => c.split(' ')[0]);
+    expect(kids).toEqual(['ct-holo', 'ct-sweep', 'ct-glint', 'ct-glint', 'ct-glint']);
+  });
+});
+
+describe('getAbilityTextSize (full art)', () => {
+  it('Mosje 14, 3-line Place 15, one-sentence Piecie/Snelle 18', () => {
+    expect(getAbilityTextSize({ lines: ['a. b.', 'c.', 'd.'], typeKey: 'MOSJE', layout: 'fullart' })).toBe(14);
+    expect(getAbilityTextSize({ lines: ['Gain 10 MP.', 'Draw 1 card.', 'Lose 5 MP.'], typeKey: 'PLACE', layout: 'fullart' })).toBe(15);
+    expect(getAbilityTextSize({ lines: ['Gain 10 MP.'], typeKey: 'PIECIE', layout: 'fullart' })).toBe(18);
+    expect(getAbilityTextSize({ lines: ['Gain 10 MP.'], typeKey: 'SNELLE_PIECIE', layout: 'fullart' })).toBe(18);
+    expect(getAbilityTextSize({ lines: ['x'.repeat(300)], typeKey: 'PIECIE', layout: 'fullart' })).toBe(14);
+  });
+});
+
+describe('getTierFadeHeight', () => {
+  it('380 for long Mosje text, 250-300 otherwise', () => {
+    expect(getTierFadeHeight({ typeKey: 'MOSJE', lines: ['a', 'b', 'c'] })).toBe(380);
+    expect(getTierFadeHeight({ typeKey: 'MOSJE', lines: ['x'.repeat(250)] })).toBe(380);
+    for (const v of [getTierFadeHeight({ typeKey: 'MOSJE', lines: ['short'] }), getTierFadeHeight({ typeKey: 'PIECIE', lines: ['a', 'b', 'c'] })]) {
+      expect(v).toBeGreaterThanOrEqual(250);
+      expect(v).toBeLessThanOrEqual(300);
+    }
+  });
+});
+
+describe('tier 4 face', () => {
+  const base = MOSJES.find((m: any) => m.artPath) as any;
+  const t4 = { ...base, rarity: '★★★★' };
+  it('window layers follow CardTiers7/8 order: art, fades, holo, sweep, glints', () => {
+    setSearch('');
+    const html = (buildCardV1(t4) as any).html;
+    const kids = classesIn(windowOf(html)).map((c) => c.split(' ').pop());
+    expect(kids).toEqual(['cv1-art', 'cv1-fade--bottom', 'cv1-fade--top', 'ct-holo', 'ct-sweep', 'ct-glint--1', 'ct-glint--2', 'ct-glint--3']);
+    expect(count(html, 'cv1-stripe')).toBe(0);
+    expect(count(html, 'cv1-diamond')).toBe(0);
+    expect(count(html, 'ct-diamond--lit')).toBe(4);
+    const spec = buildMosjeSpecV1(t4);
+    const style = html.match(/class="cv1-face[^"]*" style="([^"]+)"/)![1];
+    expect(style).toContain(`--cv1-desc-size:${getAbilityTextSize({ lines: spec.lines, typeKey: 'MOSJE', layout: 'fullart' })};`);
+    expect(style).toContain(`--cv1-fade:${getTierFadeHeight({ typeKey: 'MOSJE', lines: spec.lines })}`);
+  });
+  it('art-less tier 4 card keeps window, shine and fades, no img', () => {
+    setSearch('');
+    const w = windowOf((buildCardV1({ ...t4, artPath: undefined }) as any).html);
+    expect(w).not.toContain('<img');
+    expect(count(w, 'ct-holo')).toBe(1);
+    expect(count(w, 'ct-sweep')).toBe(1);
+    expect(count(w, 'ct-glint')).toBe(3);
+    expect(count(w, 'cv1-fade--bottom')).toBe(1);
+    expect(count(w, 'cv1-fade--top')).toBe(1);
+  });
+  it('field mode is unchanged for every tier', () => {
+    for (const c of [base, PIECIES[0], PLACES[0]] as any[]) {
+      for (const tier of [1, 2, 3, 4]) {
+        const r = buildCardV1({ ...c, rarity: '★'.repeat(tier) }, { fieldMode: true }) as any;
+        expect(r.html).not.toContain('ct-');
+      }
+    }
+  });
+  it('tiers 1-3 with layout forced on still render the E1 face', () => {
+    setSearch('?tiers=all');
+    for (const tier of [1, 2, 3]) {
+      const c = { ...base, rarity: '★'.repeat(tier) };
+      expect((buildCardV1(c) as any).html).toBe(buildFaceV1(buildMosjeSpecV1(c)));
+    }
   });
 });
