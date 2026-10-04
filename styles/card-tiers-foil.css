@@ -36,7 +36,7 @@
   inset: 0; isolation: isolate; background: #050505; pointer-events: none;
 }
 .card-v1--full.card--tierlayout.card--boxed.card--tier-3 .ct-waves-wrap > i { position: absolute; inset: 0; }
-.card-v1--full.card--tierlayout.card--boxed.card--tier-3 .ct-waves-wrap .ct-waves { opacity: 0.11; }
+.card-v1--full.card--tierlayout.card--boxed.card--tier-3 .ct-waves-wrap .ct-waves { opacity: 0.055; }
 .card-v1--full.card--tierlayout.card--boxed.card--tier-3 .ct-rb {
   background: conic-gradient(from var(--foil-a) at 30% 20%, #f6d36a, #ff8fb4, #86c9ff, #9cf0c2, #f6d36a);
   mix-blend-mode: color; opacity: 0.6;
