@@ -7,8 +7,6 @@ import { formatAbilityLine } from '../../src/ui/cardV1/formatAbilityLine.js';
 import { fitFirstName } from '../../src/ui/cardV1/fitFirstName.js';
 import { getDescriptionLayout } from '../../src/ui/cardV1/getDescriptionLayout.js';
 import { getMosjeTypeKey } from '../../src/ui/cardV1/getMosjeTypeKey.js';
-import { buildMosjeFaceV1 } from '../../src/ui/cardV1/buildMosjeFaceV1.js';
-import { buildMosjeFieldV1 } from '../../src/ui/cardV1/buildMosjeFieldV1.js';
 import { buildCardV1 } from '../../src/ui/cardV1/buildCardV1.js';
 
 const byName = (name: string) => MOSJES.find((m: any) => m.name === name) as any;
@@ -94,7 +92,7 @@ describe('card frame v1 — Mosje face data mapping', () => {
 
   it('full face: name, nickname, LVL pill, live MP, type label, traits (Alyssa)', () => {
     const alyssa = { ...byName('[Alyssa] The Bulldozer'), mp: 35, level: 1 };
-    const html = buildMosjeFaceV1(alyssa);
+    const html = buildCardV1(alyssa, {})!.html;
     expect(html).toContain('>Alyssa<');
     expect(html).toContain('>The Bulldozer<');
     expect(html).toContain('LVL 2'); // internal level 1 -> displayed Level 2
@@ -104,36 +102,36 @@ describe('card frame v1 — Mosje face data mapping', () => {
     expect(html).toContain('Physical ★★★');
   });
   it('full face uses printed Start MP and LVL 1 for a hand card with no live state', () => {
-    const html = buildMosjeFaceV1(byName('[FPS Coert]'));
+    const html = buildCardV1(byName('[FPS Coert]'), {})!.html;
     expect(html).toContain('LVL 1');
     expect(html).toMatch(/data-cv1-mp>\d+</);
     expect(html).not.toContain('cv1-nick'); // no nickname, no second line
   });
   it('full face never shows flavour text or rarity', () => {
     const jisca = byName('[Jisca] The Maestro');
-    const html = buildMosjeFaceV1(jisca);
+    const html = buildCardV1(jisca, {})!.html;
     expect(html).not.toContain(jisca.flavourText);
     expect(html.toLowerCase()).not.toContain('rarity'); // stars on the face are traits only
   });
   it('MP badge can show 0, 5, 100+', () => {
     for (const mp of [0, 5, 105]) {
-      expect(buildMosjeFaceV1({ ...byName('[Alyssa] The Bulldozer'), mp })).toMatch(new RegExp(`data-cv1-mp>${mp}<`));
+      expect(buildCardV1({ ...byName('[Alyssa] The Bulldozer'), mp }, {})!.html).toMatch(new RegExp(`data-cv1-mp>${mp}<`));
     }
   });
   it('field tile: single-line name, L<level> pill, badge, no description', () => {
-    const html = buildMosjeFieldV1({ ...byName('[Alyssa] The Bulldozer'), mp: 20, level: 2 });
+    const html = buildCardV1({ ...byName('[Alyssa] The Bulldozer'), mp: 20, level: 2 }, { fieldMode: true })!.html;
     expect(html).toContain('>L3<');
     expect(html).toMatch(/data-cv1-mp>20</);
     expect(html).not.toContain('cv1-desc');
     expect(html).not.toContain('cv1-info');
   });
   it('card art falls back cleanly: no <img> when art is missing or a placeholder', () => {
-    expect(buildMosjeFaceV1({ ...byName('[Alyssa] The Bulldozer'), artPath: '' })).not.toContain('<img');
-    expect(buildMosjeFaceV1({ ...byName('[Alyssa] The Bulldozer'), artPath: 'assets/x/placeholder.png' })).not.toContain('<img');
+    expect(buildCardV1({ ...byName('[Alyssa] The Bulldozer'), artPath: '' }, {})!.html).not.toContain('<img');
+    expect(buildCardV1({ ...byName('[Alyssa] The Bulldozer'), artPath: 'assets/x/placeholder.png' }, {})!.html).not.toContain('<img');
   });
-  it('buildCardV1 handles Mosje only; other card types fall through to the old renderer', () => {
+  it('buildCardV1 handles Mosje, Piecie, Snelle and Place; Quest falls through to the old renderer', () => {
     expect(buildCardV1({ type: 'MOSJE', name: '[A] B', subtype: 'DIGITAL' }, {})?.className).toBe('card-v1 card-v1--full');
     expect(buildCardV1({ type: 'MOSJE', name: '[A] B' }, { fieldMode: true })?.className).toBe('card-v1 card-v1--field');
-    for (const type of ['PIECIE', 'SNELLE_PIECIE', 'PLACE', 'QUEST']) expect(buildCardV1({ type }, {})).toBeNull();
+    for (const type of ['QUEST']) expect(buildCardV1({ type }, {})).toBeNull();
   });
 });

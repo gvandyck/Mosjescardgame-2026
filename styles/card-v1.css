@@ -152,7 +152,7 @@
   border-radius: calc(7 * var(--u)); overflow: hidden;
   background: linear-gradient(160deg, var(--cv1-main), #050505 78%);
 }
-.card-v1--field .cv1-art { object-position: 50% 24%; }
+.card-v1--field .cv1-art { object-position: var(--cv1-field-art-pos, 50% 24%); }
 .card-v1--field .cv1-fade--top {
   left: 0; right: 0; top: 0; height: calc(48 * var(--u));
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0));
@@ -184,8 +184,44 @@
 /* ── Existing action button inside the field tile ──────────
    Sits in the art window between the level pill and the MP badge, at a fixed
    readable size (it is an interactive control, so it does not scale with the card). */
-.card.card-v1--field .mosje-ability-btn {
+.card.card-v1--field .mosje-ability-btn,
+.card.card-v1--field .hand-card__play-btn {
   position: absolute; left: calc(46 * var(--u)); right: calc(62 * var(--u)); bottom: calc(10 * var(--u));
   width: auto; height: 22px; min-height: 22px; padding: 0 6px; margin: 0;
   font-size: 11px; border-radius: 6px; z-index: 5;
+}
+
+/* ── Piecie / Snelle / Place sizing + variants ─────────────── */
+.board-zone__piecies .card.card-v1--field { --cv1-w: var(--piecie-cell-w, 110px); }
+.hand-cards .card.card-v1--full.card--piecie,
+.hand-strip .card.card-v1--full.card--piecie,
+.hand-cards .card.card-v1--full.card--snelle,
+.hand-strip .card.card-v1--full.card--snelle,
+.hand-cards .card.card-v1--full.card--place,
+.hand-strip .card.card-v1--full.card--place { --cv1-w: var(--piecie-card-w-hand, 96px); }
+
+.card-v1--full .cv1-badge-val--word { font-size: calc(26 * var(--u)); }
+.card-v1--field .cv1-badge-val--word { font-size: calc(14 * var(--u)); }
+/* No badge (Place): the info line may run the full width. */
+.card-v1--full .cv1-face--no-badge .cv1-info { right: calc(42 * var(--u)); }
+
+/* -- Piecie / Snelle / Place sizing + variants -- */
+.board-zone__piecies .card.card-v1--field { --cv1-w: var(--piecie-cell-w, 110px); }
+.hand-cards .card.card-v1--full.card--piecie,
+.hand-strip .card.card-v1--full.card--piecie,
+.hand-cards .card.card-v1--full.card--snelle,
+.hand-strip .card.card-v1--full.card--snelle,
+.hand-cards .card.card-v1--full.card--place,
+.hand-strip .card.card-v1--full.card--place { --cv1-w: var(--piecie-card-w-hand, 96px); }
+
+.card-v1--full .cv1-badge-val--word { font-size: calc(26 * var(--u)); }
+.card-v1--field .cv1-badge-val--word { font-size: calc(14 * var(--u)); }
+/* No badge (Place): the info line may run the full width. */
+.card-v1--full .cv1-face--no-badge .cv1-info { right: calc(42 * var(--u)); }
+
+/* Existing hand action button (Play / PLACE / Play (Instant)) on the full face:
+   a fixed-size control along the bottom edge. */
+.card.card-v1--full .hand-card__play-btn {
+  position: absolute; left: calc(18 * var(--u)); right: calc(18 * var(--u)); bottom: calc(8 * var(--u));
+  width: auto; height: 30px; min-height: 30px; margin: 0; padding: 0 8px; font-size: 12px; z-index: 5;
 }

@@ -63,6 +63,9 @@ export default defineConfig({
       use: {
         baseURL: 'http://localhost:5500',
         headless: true,
+        // The Arena hand strip sits low and covers the field at 1280x720; the Arena
+        // specs use 1600x900, so the card library does too.
+        viewport: { width: 1600, height: 900 },
         // Auto-slow when watching (--headed); fast (0) for headless CI. Override via SLOWMO.
         slowMo: Number(process.env.SLOWMO) || (process.argv.includes('--headed') ? 400 : 0),
         screenshot: 'only-on-failure',

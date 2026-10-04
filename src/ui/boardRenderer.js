@@ -159,7 +159,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		const mergedPlace = { ...fullPlace, ...viewModel.activePlace };
 
 		if (viewModel.activePlacePlayedBy === opponentId) {
-			const placeOpponent = renderCard(viewModel.activePlace, { compact: true });
+			const placeOpponent = renderCard(viewModel.activePlace, { compact: true, fieldMode: true });
 			placeOpponent.classList.add('field-piecie-card', 'place-card-in-slot', 'card--previewable');
 			tagBoardElement(placeOpponent, {
 				zone: 'place',
@@ -169,7 +169,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 			placeOpponent.addEventListener('click', () => getBoardModal().showPlaceDetailModal(mergedPlace));
 			topPiecies?.appendChild(placeOpponent);
 		} else if (viewModel.activePlacePlayedBy === viewModel.myPlayerId) {
-			const placePlayer = renderCard(viewModel.activePlace, { compact: true });
+			const placePlayer = renderCard(viewModel.activePlace, { compact: true, fieldMode: true });
 			placePlayer.classList.add('field-piecie-card', 'place-card-in-slot', 'card--previewable');
 			tagBoardElement(placePlayer, {
 				zone: 'place',
@@ -215,7 +215,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 			topPiecies?.appendChild(slot);
 			continue;
 		}
-		const piecieEl = renderCard(piecie, { compact: true });
+		const piecieEl = renderCard(piecie, { compact: true, fieldMode: true });
 		piecieEl.classList.add('field-piecie-card', 'card--previewable');
 		if (piecie.linkedMosjeCardId) piecieEl.classList.add('piecie--welloe-anchor');
 		tagBoardElement(piecieEl, {
@@ -249,7 +249,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 			bottomPiecies?.appendChild(slot);
 			continue;
 		}
-		const piecieEl = renderCard(piecie, { compact: true });
+		const piecieEl = renderCard(piecie, { compact: true, fieldMode: true });
 		piecieEl.classList.add('field-piecie-card', 'card--previewable');
 		if (piecie.linkedMosjeCardId) piecieEl.classList.add('piecie--welloe-anchor');
 		tagBoardElement(piecieEl, {
