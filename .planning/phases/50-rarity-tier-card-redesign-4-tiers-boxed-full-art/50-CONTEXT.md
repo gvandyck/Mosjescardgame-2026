@@ -24,6 +24,8 @@ Card faces show rarity as one of four visual tiers (star count of `card.rarity`)
 - **D-04:** Work on branch `ui/rarity-tiers` (cut from `ui/card-frame-v1`, which holds the unfinished E1 frame). Everything via git branches; small commits; nothing to `main` without Gandalf's explicit OK.
 - **D-05:** Implement tier 4 (full art) first, then boxed layout for tiers 1, 2, 3; stop for Gandalf's visual approval after each.
 
+- **D-06 (Gandalf, 2026-10-04):** Footer text needs MORE bottom space than the handoff numbers: category label at bottom 30 (spec 22), MP/cost number at bottom 22 (spec 12), pill 54 (spec 46), traits line 85 (spec 77), ability text 122 (spec 114). Applies to ALL tiers and overrides handoff section 3.1 positions; already applied in styles/card-v1.css. Plans 50-02..50-05 must use these values, not the handoff's.
+
 ### Claude's Discretion (Gandalf: "no preference" - Claude decides, defaults below)
 - **Where tiers show:** big pop-up/detail card and hand cards get tier layouts. Field tile keeps current behaviour (not designed yet per handoff). Opponent/small renders drop side text and glints below a size threshold.
 - **Rollout in game while building:** cards of tiers not yet implemented keep the current E1 look, so the game never looks half-broken. Use the existing `isCardV1Enabled` switch rather than a new mechanism.
