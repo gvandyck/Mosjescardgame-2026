@@ -7,13 +7,13 @@
   font-family: 'Sora';
   font-weight: 600 800;
   font-display: swap;
-  src: local('Sora'), url('../assets/fonts/Sora-Variable.woff2') format('woff2');
+  src: url('../assets/fonts/Sora-Variable.woff2') format('woff2');
 }
 @font-face {
   font-family: 'DM Sans';
   font-weight: 400 800;
   font-display: swap;
-  src: local('DM Sans'), url('../assets/fonts/DMSans-Variable.woff2') format('woff2');
+  src: url('../assets/fonts/DMSans-Variable.woff2') format('woff2');
 }
 
 .card.card-v1 {

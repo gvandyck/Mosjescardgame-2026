@@ -21,8 +21,6 @@ const TEST_CARDS = [
 
 async function openGame(page) {
   await seedOfflineSession(page);
-  // seedOfflineSession blocks all gstatic (Firebase); the card fonts also come from there.
-  await page.route('**fonts.gstatic.com/**', route => route.continue());
   await page.setViewportSize({ width: 2400, height: 2200 });
   await page.goto(GAME_URL_TEST);
   await page.waitForFunction(() => window.__testHooks, { timeout: 20000 });
@@ -105,6 +103,8 @@ test.describe('card frame v1 — Mosje', () => {
       }
       return rows;
     });
+    // fonts must come from the self-hosted files (gstatic is blocked in this suite)
+    expect(await page.evaluate(() => [...document.fonts].filter(f => f.status === 'loaded').map(f => f.family.replace(/"/g, '')))).toEqual(expect.arrayContaining(['Sora', 'DM Sans']));
     fs.writeFileSync(`${OUT}/mosje-popup-metrics.json`, JSON.stringify(report, null, 2));
     await page.locator('#cv1-gallery').screenshot({ path: `${OUT}/mosje-popup.png` });
 

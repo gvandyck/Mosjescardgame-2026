@@ -36,11 +36,10 @@ library suite 64 passed, see below). Hand click still opens the existing preview
    ability + one synergy line ("Unstoppable (comeback): ..."). Card text was NOT changed.
 2. Trait order: reference "Physical · Social · Resilient"; game follows data order "Physical ·
    Resilient · Social". Not reordered (no reordering of card data).
-3. Synergy text ("While [Jisca] ...") is rendered as an extra description paragraph. HANDOFF
-   does not say where synergy goes. Open question.
+3. Synergy text ("While [Jisca] ...") is rendered as an extra description paragraph (confirmed by Gandalf).
 4. Description block sits ~10px lower in the game than the reference because of the line count (4 vs 5 rows); the bottom anchor (114px) is identical.
 5. Field tile: matches the reference; at board size (150px wide) the tile is 110px tall, much shorter than the old portrait field card.
-6. Fonts load from Google Fonts for now (see open question 5).
+6. Fonts are self-hosted (assets/fonts/Sora-Variable.woff2, DMSans-Variable.woff2, latin subset from fontsource via jsDelivr). The ★ glyph is not in either font and falls back to the system font, as in the reference.
 
 ### Tests
 - `npm test`: 766 passed (21 new in `tests/ui/card-v1-mosje.test.ts`).
