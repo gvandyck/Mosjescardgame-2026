@@ -301,3 +301,22 @@
 /* The Play button sits in the reserved bottom strip. */
 .hand-cards .card.card-v1--full .hand-card__play-btn,
 .hand-strip .card.card-v1--full .hand-card__play-btn { height: 22px; min-height: 22px; bottom: 4px; left: 6px; right: 6px; font-size: 11px; }
+
+/* -- Hand: sunk a little (the bottom of each card, with its description, is cut off the
+      screen), Play button hidden. Hovering lifts the full card and shows the button. -- */
+@media (hover: hover) {
+  .game-hand-panel { --hand-sink: 105px; }
+  .game-hand-panel .hand-strip .hand-card-wrap {
+    transform: translateY(calc(var(--fan-lift, 0px) + var(--hand-sink))) rotate(var(--fan-rot, 0deg));
+    transform-origin: center bottom;
+    transition: transform 0.14s ease-out, z-index 0s;
+  }
+  .game-hand-panel .hand-strip .hand-card-wrap:hover,
+  .game-hand-panel .hand-strip .hand-card-wrap:focus-within {
+    z-index: 60;
+    transform: translateY(-6px) rotate(0deg) scale(1.08);
+  }
+  .hand-card.card-v1--full .hand-card__play-btn { opacity: 0; pointer-events: none; transition: opacity 0.12s; }
+  .hand-card-wrap:hover .hand-card.card-v1--full .hand-card__play-btn,
+  .hand-card-wrap:focus-within .hand-card.card-v1--full .hand-card__play-btn { opacity: 1; pointer-events: auto; }
+}

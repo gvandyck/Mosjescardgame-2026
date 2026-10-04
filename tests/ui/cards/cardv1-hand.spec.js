@@ -16,13 +16,20 @@ test('card frame v1 — hand is visible, has no hover popup, click opens the det
   // Every hand card sits fully inside the viewport (nothing sunk below the fold).
   const boxes = await page.locator('.hand-card').evaluateAll(els => els.map(e => { const r = e.getBoundingClientRect(); return { top: r.top, bottom: r.bottom }; }));
   expect(boxes.length).toBe(4);
-  for (const b of boxes) expect(b.bottom).toBeLessThanOrEqual(900 + 2);
+  // The hand is sunk a little: the bottom of each card is below the screen, the title is not.
+  for (const b of boxes) expect(b.top).toBeLessThan(900 - 120);
   await page.screenshot({ path: `${OUT}/hand-visible.png` });
 
+  // The Play button is hidden until the card is hovered, then the card lifts fully into view.
+  const wrapBox = async () => page.locator('.hand-card[data-card-id="mosje_jisca"]').first().boundingBox();
+  const btn = page.locator('.hand-card[data-card-id="mosje_jisca"] .hand-card__play-btn').first();
+  expect(await btn.evaluate(el => getComputedStyle(el).opacity)).toBe('0');
   // Hovering a hand card does not open the enlarged popup.
   await page.locator('.hand-card[data-card-id="mosje_jisca"]').first().hover({ position: { x: 40, y: 40 } });
   await page.waitForTimeout(400);
   await expect(page.locator('.hover-zoom')).toHaveCount(0);
+  expect(await btn.evaluate(el => getComputedStyle(el).opacity)).toBe('1');
+  expect((await wrapBox()).y + (await wrapBox()).height).toBeLessThanOrEqual(900 + 2);
 
   // Clicking it opens the detail modal.
   await page.locator('.hand-card[data-card-id="mosje_jisca"]').first().click({ position: { x: 40, y: 40 } });
