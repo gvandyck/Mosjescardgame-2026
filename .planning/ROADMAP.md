@@ -1164,3 +1164,12 @@ Plans:
 2. Welloe Force lets the player choose the payer and blocks entirely when unaffordable — its two prior bugs (hardcoded payer, no affordability check) are fixed
 3. Personal Quest audit closed (no tribute found); Delluft/Dierenasiel's text matches an explicit, recorded ruling
 4. docs/card-reference.md fully current; full verification sequence (node --check, npm test, npm run test:cards incl. Ronald Kip, npm run test:sim) green with 0 crashes, timeout < 25%
+
+### Phase 50: Rarity-tier card redesign (4 tiers: boxed ★–★★★, full-art ★★★★)
+
+**Goal:** Card faces show rarity as a visual tier (star count of `card.rarity`): tiers 1–3 boxed art with escalating frame (soft line / type-colour line / rainbow foil + cosmos dots), tier 4 full art with holographic shine. Every card type can be any tier. Built on the card-frame-v1 branch work.
+**Requirements:** Spec in `.planning/RARITY-TIERS-DESIGN.md`; reference board in `docs/design/rarity-tiers/`. No changes to Quest cards, game logic, drop weights or copy limits. 745-test suite stays green.
+**Depends on:** card-frame-v1 (unmerged, branch ui/card-frame-v1)
+**Plans:** TBD — implement tier 4 first, then tiers 1–3, with a visual approval gate after each.
+
+**Status:** Discuss/plan pending
