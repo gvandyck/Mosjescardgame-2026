@@ -179,3 +179,8 @@
 .card.card-v1--full.card--tierlayout.card--fullart .cv1-badge,
 .hand-cards .card.card-v1--full.card--tierlayout.card--fullart .cv1-badge,
 .hand-strip .card.card-v1--full.card--tierlayout.card--fullart .cv1-badge { right: calc(28 * var(--u)); }
+
+/* Nickname (e.g. "The Unpredictable Wizard"): a bit smaller and a bit closer to the name. */
+.card-v1--full.card--tierlayout .cv1-nick,
+.hand-cards .card.card-v1--full.card--tierlayout .cv1-nick,
+.hand-strip .card.card-v1--full.card--tierlayout .cv1-nick { font-size: calc(17 * var(--u)); margin-top: calc(-3 * var(--u)); line-height: 1.2; }
