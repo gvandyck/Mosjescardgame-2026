@@ -1027,6 +1027,14 @@ function initGamePage() {
 				};
 				renderFromState(gameState);
 			},
+			// Put a Piecie face-up in one of a player's 4 Piecie slots (visual checks, card layout tests).
+			// Pass cardId=null to clear the slot.
+			setPiecieOnField(playerId, slotIndex, cardId) {
+				const player = gameState?.players?.[playerId];
+				if (!player) return;
+				player.piecieSlots[slotIndex] = cardId == null ? null : { cardId, type: 'PIECIE', faceDown: false, activated: true };
+				renderFromState(gameState);
+			},
 			// U8 — strip entry protection from every Mosje on the board. Card tests
 			// call this once after seeding so turn-1 attack effects test the CARD,
 			// not the protection rule (which has its own spec).
