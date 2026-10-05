@@ -9,7 +9,7 @@
 
 	/* Field tiles: one size for every card type and both sides (Mosje, Piecie, Place). */
 	.board-zone--player,
-	.board-zone--opponent { --field-tile-w: 212px; --mosje-card-w: var(--field-tile-w); --mosje-slot-h: calc(var(--field-tile-w) * var(--card-height-ratio)); --piecie-cell-w: var(--field-tile-w); min-height: 0; }
+	.board-zone--opponent { --field-tile-w: 290px; --mosje-card-w: var(--field-tile-w); --mosje-slot-h: calc(var(--field-tile-w) * var(--card-height-ratio)); --piecie-cell-w: var(--field-tile-w); min-height: 0; }
 	.board-zone--player .card--mosje,
 	.board-zone--player .mosje-card--owned,
 	.board-zone--opponent .card--mosje,
