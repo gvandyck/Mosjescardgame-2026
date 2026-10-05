@@ -728,10 +728,6 @@
    margin-left: 0;
 }
 
-.hand-cards:hover .card--mosje,
-.hand-strip:hover .card--mosje {
-   margin-left: 6px;
-}
 
 .hand-cards .card--mosje:hover,
 .hand-strip .card--mosje:hover {

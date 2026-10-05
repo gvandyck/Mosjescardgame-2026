@@ -43,7 +43,8 @@
 
 	/* Snappy hand hover (was a 0.52s ease). */
 	.game-hand-panel .hand-strip .hand-card-wrap {
-		transition: transform 0.14s ease-out, margin 0.14s ease-out, z-index 0s;
+		transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), z-index 0s;
+		will-change: transform;
 	}
 
 	/* Field: image first. Names/MP badge stay; text blocks live in the hover popup. */
