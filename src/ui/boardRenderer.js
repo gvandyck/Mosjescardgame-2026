@@ -117,7 +117,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 
 			const btn = document.createElement('button');
 			btn.className = 'mosje-ability-btn' + (isUsed ? ' mosje-ability-btn--used' : '');
-			btn.textContent = `⚡${costLabel}`;
+			btn.textContent = `⚡ Activate${costLabel ? ` · ${mosje.abilityCost} MP` : ''}`;
 			btn.title = tooltip;
 			btn.setAttribute('aria-label', tooltip);
 			btn.disabled = isUsed || (mosje.cantAffordAbility ?? false);
