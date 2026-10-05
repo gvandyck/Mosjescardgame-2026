@@ -2147,11 +2147,11 @@
    :root {
       --mosje-card-w: 150px;
       --mosje-card-h: calc(var(--mosje-card-w) * var(--card-height-ratio));
-      --mosje-card-w-hand: 130px;
+      --mosje-card-w-hand: 260px;
       --mosje-card-h-hand: calc(var(--mosje-card-w-hand) * var(--card-height-ratio));
       --piecie-card-w: 100px;
       --piecie-card-h: calc(var(--piecie-card-w) * var(--card-height-ratio));
-      --piecie-card-w-hand: 96px;
+      --piecie-card-w-hand: 192px;
       --piecie-card-h-hand: calc(var(--piecie-card-w-hand) * var(--card-height-ratio));
    }
 
