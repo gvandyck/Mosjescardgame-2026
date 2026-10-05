@@ -1173,3 +1173,12 @@ Plans:
 **Plans:** TBD — implement tier 4 first, then tiers 1–3, with a visual approval gate after each.
 
 **Status:** Discuss/plan pending
+
+### Phase 51: Card refinement — hand cards, field tiles and remaining card sizes in the tier style
+
+**Goal:** Refine how the rarity-tier card design (Phase 50) looks at hand size, as field tiles on the board, and in any other place cards render (opponent area, graveyard, deck builder, detail views), so each size reads well and feels like the same card family.
+**Requirements:** Scope and details to be set in discuss-phase. Builds on Phase 50 (branch ui/rarity-tiers). No changes to game logic, drop weights or copy limits.
+**Depends on:** Phase 50
+**Plans:** TBD
+
+**Status:** Discuss pending
