@@ -339,3 +339,11 @@
 .card-v1--field .cv1-fdesc strong { font-weight: 800; }
 .card-v1--field .cv1-window:has(.cv1-fdesc) .cv1-fade--bottom { height: calc(86 * var(--u)); }
 .card.card-v1--field:has(.mosje-ability-btn, .hand-card__play-btn) .cv1-fdesc { display: none; }
+
+/* Hand glow ring: the card must sit exactly inside its wrapper (equal gap on every side).
+   The older Mosje spacing margins (-14px / 6px on hover) pushed the card sideways inside the
+   wrapper, so the rainbow ring did not wrap the left side evenly. Spacing is handled by the wrapper. */
+.hand-strip .hand-card-wrap .card.card-v1--full,
+.hand-cards .hand-card-wrap .card.card-v1--full,
+.hand-strip:hover .hand-card-wrap .card.card-v1--full,
+.hand-cards:hover .hand-card-wrap .card.card-v1--full { margin-left: 0; }
