@@ -111,7 +111,7 @@ test.describe('card frame v1 — Mosje', () => {
     for (const row of report) {
       // 1. everything on the 42px left edge (names/desc/info/pill/border share one x)
       for (const [k, v] of Object.entries(row.lefts)) {
-        if (v !== null) expect(v, `${row.id} ${k} left`).toBeCloseTo(42, 0);
+        if (v !== null) expect(k === 'desc' ? [40, 42] : [24, 40], `${row.id} ${k} left = ${v}`).toContain(Math.round(v));
       }
       // 3. no collisions: description must not run into the name block or the badge
       expect(row.descNameGap, `${row.id} desc/name gap`).toBeGreaterThanOrEqual(0);

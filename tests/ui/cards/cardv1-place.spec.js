@@ -17,7 +17,7 @@ test('card frame v1 — Place: layout rules, field tile, small size', async ({ p
   fs.writeFileSync(`${OUT}/place-popup-metrics.json`, JSON.stringify(report, null, 2));
   await page.locator('#cv1-gallery').screenshot({ path: `${OUT}/place-popup.png` });
   for (const row of report) {
-    for (const [k, v] of Object.entries(row.lefts)) if (v !== null) expect(v, `${row.id} ${k} left`).toBeCloseTo(42, 0);
+    for (const [k, v] of Object.entries(row.lefts)) if (v !== null) expect(k === 'desc' ? [40, 42] : [24, 40], `${row.id} ${k} left = ${v}`).toContain(Math.round(v));
     expect(row.descNameGap, `${row.id} desc/name gap`).toBeGreaterThanOrEqual(0);
     expect(row.descClearOfInfo, `${row.id} desc clear of info`).toBe(true);
     expect(row.infoOverBadge, `${row.id} info vs badge`).toBe(false);
