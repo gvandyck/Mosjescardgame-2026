@@ -9,7 +9,7 @@
 
 	/* Field tiles: one size for every card type and both sides (Mosje, Piecie, Place). */
 	.board-zone--player,
-	.board-zone--opponent { --field-tile-w: 290px; --mosje-card-w: var(--field-tile-w); --mosje-slot-h: calc(var(--field-tile-w) * var(--card-height-ratio)); --piecie-cell-w: var(--field-tile-w); min-height: 0; }
+	.board-zone--opponent { --field-tile-w: clamp(170px, calc((100vw - 380px) / 7), 290px); --mosje-card-w: var(--field-tile-w); --mosje-slot-h: calc(var(--field-tile-w) * var(--card-height-ratio)); --piecie-cell-w: var(--field-tile-w); min-height: 0; }
 	.board-zone--player .card--mosje,
 	.board-zone--player .mosje-card--owned,
 	.board-zone--opponent .card--mosje,
@@ -20,6 +20,13 @@
 
 	/* The strip itself is a transparent box over the lower board: let clicks fall through
 	   to the field (ability buttons) and keep only the cards themselves clickable. */
+	/* One row per player: Mosjes, Piecies, Place and the piles sit side by side (no wrapping
+	   to a second row). Tiles shrink with the screen so the whole row fits. */
+	.board-zone--player .board-zone__row,
+	.board-zone--opponent .board-zone__row { flex-wrap: nowrap; }
+	.board-zone--player .board-zone__piecies,
+	.board-zone--opponent .board-zone__piecies { flex-wrap: nowrap; max-width: none; min-height: 0; }
+
 	.game-hand-panel .hand-strip { pointer-events: none; }
 	.game-hand-panel .hand-strip .hand-card-wrap { pointer-events: auto; }
 
