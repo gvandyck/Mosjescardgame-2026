@@ -27,6 +27,11 @@
 	.board-zone--player .board-zone__piecies,
 	.board-zone--opponent .board-zone__piecies { flex-wrap: nowrap; max-width: none; min-height: 0; }
 
+	/* Field tiles are exactly as tall as the deck / graveyard stack beside them
+	   (pile cell 110px wide x the card height ratio). */
+	.board-zone--player .card.card-v1.card-v1--field,
+	.board-zone--opponent .card.card-v1.card-v1--field { height: calc(110px * var(--card-height-ratio)); }
+
 	.game-hand-panel .hand-strip { pointer-events: none; }
 	.game-hand-panel .hand-strip .hand-card-wrap { pointer-events: auto; }
 
