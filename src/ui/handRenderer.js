@@ -3,6 +3,7 @@
 // Filled in Phase 5.
 
 import { renderCard } from './cardRenderer.js';
+import { markEnteringCards } from './markEnteringCards.js';
 import { initModalManager } from './modalManager.js';
 import { getCardById } from '../data/cardIndex.js';
 
@@ -152,6 +153,7 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 
 	const handCards = Array.from(container.querySelectorAll('.hand-card-wrap'));
 	applyFanLayout(container);
+	markEnteringCards(container);
 
 	handCards.forEach((cardEl, index) => {
 		cardEl.addEventListener('mouseenter', () => {

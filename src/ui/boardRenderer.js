@@ -3,6 +3,7 @@
 // Filled in Phase 5.
 
 import { renderCard } from './cardRenderer.js';
+import { markEnteringCards } from './markEnteringCards.js';
 import { getCardById } from '../data/cardIndex.js';
 import { initModalManager } from './modalManager.js';
 
@@ -341,6 +342,10 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 	// Initialize drag-to-scroll handlers for horizontal overflow areas
 	const rows = container.querySelectorAll('.board-zone__row');
 	rows.forEach(initDragScroll);
+	markEnteringCards(container);
+	// Tiles grow when the busiest row has few cards and shrink as it fills (arena.css reads --field-slots).
+	const rowSizes = [...container.querySelectorAll('.board-zone__row')].map((r) => r.querySelectorAll('.card').length);
+	container.style.setProperty('--field-slots', String(Math.max(4, ...rowSizes)));
 }
 
 function initBoardDropZones(container, onPlayFromHand) {

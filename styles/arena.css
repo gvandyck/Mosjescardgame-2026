@@ -9,7 +9,7 @@
 
 	/* Field tiles: one size for every card type and both sides (Mosje, Piecie, Place). */
 	.board-zone--player,
-	.board-zone--opponent { --field-tile-w: clamp(170px, calc((100vw - 380px) / 7), 290px); --mosje-card-w: var(--field-tile-w); --mosje-slot-h: calc(var(--field-tile-w) * var(--card-height-ratio)); --piecie-cell-w: var(--field-tile-w); min-height: 0; }
+	.board-zone--opponent { --field-tile-w: clamp(170px, calc((100vw - 640px) / var(--field-slots, 7)), 300px); --field-tile-h: clamp(160px, 20vh, 200px); --mosje-card-w: var(--field-tile-w); --mosje-slot-h: calc(var(--field-tile-w) * var(--card-height-ratio)); --piecie-cell-w: var(--field-tile-w); --piecie-cell-h: var(--field-tile-h); min-height: 0; }
 	.board-zone--player .card--mosje,
 	.board-zone--player .mosje-card--owned,
 	.board-zone--opponent .card--mosje,
@@ -36,7 +36,11 @@
 	/* Field tiles are exactly as tall as the deck / graveyard stack beside them
 	   (pile cell 110px wide x the card height ratio). */
 	.board-zone--player .card.card-v1.card-v1--field,
-	.board-zone--opponent .card.card-v1.card-v1--field { --cv1-fh: calc(110px * var(--card-height-ratio)); height: var(--cv1-fh); }
+	.board-zone--opponent .card.card-v1.card-v1--field { --cv1-fh: var(--field-tile-h); height: var(--cv1-fh); }
+	/* The deck / graveyard stack beside the tiles grows with them. */
+	.board-zone--player .pile-column,
+	.board-zone--opponent .pile-column { --piecie-cell-w: calc(var(--field-tile-h) / var(--card-height-ratio)); --piecie-cell-h: var(--field-tile-h); flex-direction: row; }
+	.board-zone--opponent .pile-column { flex-direction: row-reverse; }
 
 	.game-hand-panel .hand-strip { pointer-events: none; }
 	.game-hand-panel .hand-strip .hand-card-wrap { pointer-events: auto; }
