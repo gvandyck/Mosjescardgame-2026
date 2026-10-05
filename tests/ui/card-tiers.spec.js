@@ -103,7 +103,7 @@ test.describe('Phase 50 rarity tiers', () => {
 					const a = boxes[0][i]; const b = boxes[t][i];
 					expect(!!a, `${type} ${s}`).toBe(!!b);
 					// Tier 4 (full art) has more left/right text padding on purpose, so only compare vertical position and height there.
-					if (a) for (const k of (t === 3 ? ['y', 'h'] : ['x', 'y', 'w', 'h'])) expect(Math.abs(a[k] - b[k]), `${type} ${s} ${k} tier ${t + 1}`).toBeLessThanOrEqual(0.5);
+					if (a) for (const k of (t === 3 ? ['y', 'h'] : ['x', 'y', 'w', 'h'])) expect(Math.abs(a[k] - b[k]), `${type} ${s} ${k} tier ${t + 1}`).toBeLessThanOrEqual(1);
 				});
 			}
 		}

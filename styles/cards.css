@@ -9,7 +9,7 @@
 
   --piecie-card-w: 130px;
   --piecie-card-h: calc(var(--piecie-card-w) * var(--card-height-ratio));
-  --piecie-card-w-hand: 230px;
+  --piecie-card-w-hand: var(--mosje-card-w-hand);
   --piecie-card-h-hand: calc(var(--piecie-card-w-hand) * var(--card-height-ratio));
 
   --support-card-w: 110px;

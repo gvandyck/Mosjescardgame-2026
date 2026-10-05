@@ -2040,6 +2040,10 @@
 .game-hand-panel {
    --hand-card-width: 225px;
    --hand-card-height: calc(var(--hand-card-width) * var(--card-height-ratio));
+   /* Card faces size their text from --cv1-w; keep it equal to the real hand card width so
+      text is never laid out for a different size than the card is drawn at. */
+   --mosje-card-w-hand: var(--hand-card-width);
+   --piecie-card-w-hand: var(--hand-card-width);
 }
 
 .game-hand-panel .hand-strip .hand-card,
@@ -2151,7 +2155,7 @@
       --mosje-card-h-hand: calc(var(--mosje-card-w-hand) * var(--card-height-ratio));
       --piecie-card-w: 100px;
       --piecie-card-h: calc(var(--piecie-card-w) * var(--card-height-ratio));
-      --piecie-card-w-hand: 192px;
+      --piecie-card-w-hand: var(--mosje-card-w-hand);
       --piecie-card-h-hand: calc(var(--piecie-card-w-hand) * var(--card-height-ratio));
    }
 
