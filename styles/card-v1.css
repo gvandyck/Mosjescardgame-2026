@@ -42,7 +42,9 @@
 
 .card.card-v1--field {
   --cv1-w: var(--mosje-card-w, 150px);
-  --u: calc(var(--cv1-w) / 240);
+  /* Text scale follows the smaller of width and height, so a tile that is wide but not tall (the Arena
+     field tiles are as tall as the deck stack) never lays its text out for room it does not have. */
+  --u: min(calc(var(--cv1-w) / 240), calc(var(--cv1-fh, calc(var(--cv1-w) * 176 / 240)) / 176));
   height: calc(var(--cv1-w) * 176 / 240);
   border-radius: calc(14 * var(--u));
   box-shadow: 0 calc(12 * var(--u)) calc(26 * var(--u)) rgba(0, 0, 0, 0.55);
