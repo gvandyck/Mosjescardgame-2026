@@ -26,6 +26,12 @@ export default defineConfig({
   reporter: [['html', { open: 'never' }], ['list']],
   projects: [
     {
+      // Phase 50: rarity-tier card faces in WebKit (Safari engine).
+      name: 'tiers-webkit',
+      testMatch: ['**/card-tiers.spec.js'],
+      use: { browserName: 'webkit', baseURL: 'http://localhost:5500', headless: true, screenshot: 'only-on-failure' },
+    },
+    {
       name: 'visual',
       testIgnore: ['**/sim-30-games.spec.js', '**/sim-botvsbot.spec.js', '**/sim-deck-matrix.spec.js', '**/cards/**'],
       use: {
