@@ -321,3 +321,16 @@
 
 /* Hand cards: no Play button; a click on the card plays it (handRenderer). */
 .hand-card.card-v1--full .hand-card__play-btn { display: none !important; }
+
+/* ── Field tile: short ability line (first sentence, two lines max) ──
+   Sits above the type pill over a taller bottom fade. A tile with an Activate
+   button hides it, since the button already takes that row. */
+.card-v1--field .cv1-fdesc {
+  left: calc(10 * var(--u)); right: max(54px, calc(62 * var(--u))); bottom: max(40px, calc(52 * var(--u)));
+  font-size: max(9px, calc(11 * var(--u))); line-height: 1.2; color: #fff;
+  text-shadow: 0 1px 3px #000, 0 0 6px #000;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+}
+.card-v1--field .cv1-fdesc strong { font-weight: 800; }
+.card-v1--field .cv1-window:has(.cv1-fdesc) .cv1-fade--bottom { height: calc(86 * var(--u)); }
+.card.card-v1--field:has(.mosje-ability-btn, .hand-card__play-btn) .cv1-fdesc { display: none; }
