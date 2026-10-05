@@ -135,7 +135,8 @@
   bottom: calc(122 * var(--u)); top: auto; overflow: visible; display: block;
 }
 
-/* Name + nickname start at the artwork's left edge (boxed tiers 1-3: art window left = 24). */
-.card-v1--full.card--tierlayout.card--boxed .cv1-name,
-.hand-cards .card.card-v1--full.card--tierlayout.card--boxed .cv1-name,
-.hand-strip .card.card-v1--full.card--tierlayout.card--boxed .cv1-name { left: calc(24 * var(--u)); }
+/* Name + nickname start at the artwork's left edge (art window left = 24 on boxed tiers;
+   tier 4 uses the same 24 so names sit in the same place on every tier). */
+.card-v1--full.card--tierlayout .cv1-name,
+.hand-cards .card.card-v1--full.card--tierlayout .cv1-name,
+.hand-strip .card.card-v1--full.card--tierlayout .cv1-name { left: calc(24 * var(--u)); }
