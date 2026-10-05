@@ -92,3 +92,46 @@
 .card-v1--full.card--tierlayout[data-tier="4"] .ct-diamond--2 { left: calc(212.5 * var(--u)); }
 .card-v1--full.card--tierlayout[data-tier="4"] .ct-diamond--3 { left: calc(222.5 * var(--u)); }
 .card-v1--full.card--tierlayout[data-tier="4"] .ct-diamond--4 { left: calc(232.5 * var(--u)); }
+
+/* ── Hand-size cards (Phase 51): compact face — name, art, type pill, MP ──
+   At 96-150px wide the ability text and traits line cannot be read and used
+   to collide with each other. They are hidden here; the click-detail modal
+   shows everything. Applies to every tier and type. */
+.hand-cards .card.card-v1--full.card--tierlayout .cv1-desc,
+.hand-strip .card.card-v1--full.card--tierlayout .cv1-desc,
+.hand-cards .card.card-v1--full.card--tierlayout .cv1-info,
+.hand-strip .card.card-v1--full.card--tierlayout .cv1-info,
+.hand-cards .card.card-v1--full.card--tierlayout .ct-plate,
+.hand-strip .card.card-v1--full.card--tierlayout .ct-plate,
+.hand-cards .card.card-v1--full.card--tierlayout .ct-plate-waves,
+.hand-strip .card.card-v1--full.card--tierlayout .ct-plate-waves { display: none; }
+
+/* Art fills the space the text used to take (boxed tiers). */
+.hand-cards .card.card-v1--full.card--tierlayout.card--boxed .cv1-window,
+.hand-strip .card.card-v1--full.card--tierlayout.card--boxed .cv1-window {
+  top: max(50px, calc(124 * var(--u))); height: auto; bottom: calc(max(50px, calc(70 * var(--u))) + var(--lift));
+}
+/* Name: at most two lines, readable minimum. */
+.hand-cards .card.card-v1--full.card--tierlayout .cv1-first,
+.hand-strip .card.card-v1--full.card--tierlayout .cv1-first {
+  font-size: max(12px, calc(var(--cv1-name-size, 40) * var(--u)));
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+}
+.hand-cards .card.card-v1--full.card--tierlayout .cv1-nick,
+.hand-strip .card.card-v1--full.card--tierlayout .cv1-nick { display: none; }
+/* Smaller pill and MP number so they do not crowd a 96px card. */
+.hand-cards .card.card-v1--full.card--tierlayout .cv1-pill,
+.hand-strip .card.card-v1--full.card--tierlayout .cv1-pill { height: 16px; font-size: 9px; padding: 0 6px; }
+.hand-cards .card.card-v1--full.card--tierlayout .cv1-pill-row,
+.hand-strip .card.card-v1--full.card--tierlayout .cv1-pill-row { bottom: calc(22px + var(--lift)); left: max(10px, calc(24 * var(--u))); }
+.hand-cards .card.card-v1--full.card--tierlayout .cv1-border-text,
+.hand-strip .card.card-v1--full.card--tierlayout .cv1-border-text { font-size: 8px; bottom: 8px; left: max(10px, calc(24 * var(--u))); letter-spacing: 0.1em;
+  max-width: calc(100% - 64px); overflow: hidden; text-overflow: ellipsis; display: none; }
+.hand-cards .card.card-v1--full.card--tierlayout .cv1-badge,
+.hand-strip .card.card-v1--full.card--tierlayout .cv1-badge { width: 40px; height: 40px; right: 6px; bottom: calc(6px + var(--lift)); }
+.hand-cards .card.card-v1--full.card--tierlayout .cv1-badge-val,
+.hand-strip .card.card-v1--full.card--tierlayout .cv1-badge-val { font-size: 17px; }
+.hand-cards .card.card-v1--full.card--tierlayout .cv1-badge-val--word,
+.hand-strip .card.card-v1--full.card--tierlayout .cv1-badge-val--word { font-size: 13px; }
+.hand-cards .card.card-v1--full.card--tierlayout .cv1-badge-label,
+.hand-strip .card.card-v1--full.card--tierlayout .cv1-badge-label { font-size: 7px; margin-top: 1px; }

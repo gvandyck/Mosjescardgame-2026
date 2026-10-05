@@ -21,6 +21,8 @@
     .hand .card.card-v1--full { --cv1-w: 150px; }
     .field .card.card-v1--field { position: relative; }
     .hand-strip-sim { display: block; }
+      .hand-strip .card.card-v1--full { --cv1-w: 130px !important; }
+    .field .card.card-v1--field { --cv1-w: 150px !important; }
   </style>
 </head>
 <body>
@@ -45,7 +47,7 @@
       if (!c) { console.warn('missing', id); continue; }
       const card = tier ? { ...c, rarity: '★'.repeat(tier) } : c;
       const l = document.createElement('div'); l.className = 'lbl'; l.textContent = `${label}\n${c.name}\n${c.rarity || ''}`; grid.append(l);
-      const piecieLike = c.cardType !== 'MOSJE' && c.type !== 'MOSJE';
+      const piecieLike = false;
       for (const [cls, opts] of [['hand-strip', {}], ['field', { fieldMode: true }]]) {
         const cell = document.createElement('div'); cell.className = cls + (cls === 'field' && piecieLike ? ' board-zone__piecies' : ''); cell.style.zoom = zoom;
         const el = renderCard(card, opts);
