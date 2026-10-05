@@ -23,7 +23,13 @@
 	/* One row per player: Mosjes, Piecies, Place and the piles sit side by side (no wrapping
 	   to a second row). Tiles shrink with the screen so the whole row fits. */
 	.board-zone--player .board-zone__row,
-	.board-zone--opponent .board-zone__row { flex-wrap: nowrap; }
+	.board-zone--opponent .board-zone__row { flex-wrap: nowrap; justify-content: flex-start; }
+	/* "Safe" centring: auto margins centre the row when it fits, but when it is wider than the
+	   screen it starts at the left edge so every card can be reached by drag-scrolling. */
+	.board-zone--player .board-zone__row > :first-child,
+	.board-zone--opponent .board-zone__row > :first-child { margin-left: auto; }
+	.board-zone--player .board-zone__row > :last-child,
+	.board-zone--opponent .board-zone__row > :last-child { margin-right: auto; }
 	.board-zone--player .board-zone__piecies,
 	.board-zone--opponent .board-zone__piecies { flex-wrap: nowrap; max-width: none; min-height: 0; }
 
