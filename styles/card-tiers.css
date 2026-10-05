@@ -140,3 +140,18 @@
 .card-v1--full.card--tierlayout .cv1-name,
 .hand-cards .card.card-v1--full.card--tierlayout .cv1-name,
 .hand-strip .card.card-v1--full.card--tierlayout .cv1-name { left: calc(24 * var(--u)); }
+
+/* Everything on the left edge starts at the art's left edge (24): traits/requirements,
+   type pill, type label, and the full-art ability text. */
+.card-v1--full.card--tierlayout .cv1-info,
+.hand-cards .card.card-v1--full.card--tierlayout .cv1-info,
+.hand-strip .card.card-v1--full.card--tierlayout .cv1-info,
+.card-v1--full.card--tierlayout .cv1-pill-row,
+.hand-cards .card.card-v1--full.card--tierlayout .cv1-pill-row,
+.hand-strip .card.card-v1--full.card--tierlayout .cv1-pill-row,
+.card-v1--full.card--tierlayout .cv1-border-text,
+.hand-cards .card.card-v1--full.card--tierlayout .cv1-border-text,
+.hand-strip .card.card-v1--full.card--tierlayout .cv1-border-text { left: calc(24 * var(--u)); }
+.card-v1--full.card--tierlayout.card--fullart .cv1-desc,
+.hand-cards .card.card-v1--full.card--tierlayout.card--fullart .cv1-desc,
+.hand-strip .card.card-v1--full.card--tierlayout.card--fullart .cv1-desc { left: calc(24 * var(--u)); }
