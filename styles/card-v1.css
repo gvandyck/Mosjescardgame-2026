@@ -359,3 +359,9 @@
 
 /* No box behind the MP / cost number on field tiles either (same rule as the big cards). */
 .card.card-v1.card-v1--field .cv1-badge { background: none; border-radius: 0; box-shadow: none; text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9); }
+
+/* Field tile names may wrap to two lines (Mosjes with a nickname keep one line). */
+.card-v1--field .cv1-name:not(:has(.cv1-nick)) { white-space: normal; overflow: visible; text-overflow: clip; }
+.card-v1--field .cv1-name:not(:has(.cv1-nick)) .cv1-first {
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; line-height: 1.08;
+}
