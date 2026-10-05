@@ -155,3 +155,27 @@
 .card-v1--full.card--tierlayout.card--fullart .cv1-desc,
 .hand-cards .card.card-v1--full.card--tierlayout.card--fullart .cv1-desc,
 .hand-strip .card.card-v1--full.card--tierlayout.card--fullart .cv1-desc { left: calc(24 * var(--u)); }
+
+/* Tier 4 (full art): the black frame is 18 thick and the text sits on the art, so text gets
+   more room from the left/right edges than on the boxed tiers (left 40, right 40). */
+.card-v1--full.card--tierlayout.card--fullart .cv1-name,
+.hand-cards .card.card-v1--full.card--tierlayout.card--fullart .cv1-name,
+.hand-strip .card.card-v1--full.card--tierlayout.card--fullart .cv1-name,
+.card-v1--full.card--tierlayout.card--fullart .cv1-info,
+.hand-cards .card.card-v1--full.card--tierlayout.card--fullart .cv1-info,
+.hand-strip .card.card-v1--full.card--tierlayout.card--fullart .cv1-info,
+.card-v1--full.card--tierlayout.card--fullart .cv1-pill-row,
+.hand-cards .card.card-v1--full.card--tierlayout.card--fullart .cv1-pill-row,
+.hand-strip .card.card-v1--full.card--tierlayout.card--fullart .cv1-pill-row,
+.card-v1--full.card--tierlayout.card--fullart .cv1-border-text,
+.hand-cards .card.card-v1--full.card--tierlayout.card--fullart .cv1-border-text,
+.hand-strip .card.card-v1--full.card--tierlayout.card--fullart .cv1-border-text,
+.card-v1--full.card--tierlayout.card--fullart .cv1-desc,
+.hand-cards .card.card-v1--full.card--tierlayout.card--fullart .cv1-desc,
+.hand-strip .card.card-v1--full.card--tierlayout.card--fullart .cv1-desc { left: calc(40 * var(--u)); }
+.card-v1--full.card--tierlayout.card--fullart .cv1-desc,
+.hand-cards .card.card-v1--full.card--tierlayout.card--fullart .cv1-desc,
+.hand-strip .card.card-v1--full.card--tierlayout.card--fullart .cv1-desc { right: calc(40 * var(--u)); }
+.card.card-v1--full.card--tierlayout.card--fullart .cv1-badge,
+.hand-cards .card.card-v1--full.card--tierlayout.card--fullart .cv1-badge,
+.hand-strip .card.card-v1--full.card--tierlayout.card--fullart .cv1-badge { right: calc(28 * var(--u)); }
