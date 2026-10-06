@@ -116,12 +116,11 @@ describe('buildShineLayers', () => {
 });
 
 describe('getAbilityTextSize (full art)', () => {
-  it('Mosje 14, 3-line Place 15, one-sentence Piecie/Snelle 18', () => {
-    expect(getAbilityTextSize({ lines: ['a. b.', 'c.', 'd.'], typeKey: 'MOSJE', layout: 'fullart' })).toBe(16);
-    expect(getAbilityTextSize({ lines: ['Gain 10 MP.', 'Draw 1 card.', 'Lose 5 MP.'], typeKey: 'PLACE', layout: 'fullart' })).toBe(17);
-    expect(getAbilityTextSize({ lines: ['Gain 10 MP.'], typeKey: 'PIECIE', layout: 'fullart' })).toBe(17);
-    expect(getAbilityTextSize({ lines: ['Gain 10 MP.'], typeKey: 'SNELLE_PIECIE', layout: 'fullart' })).toBe(17);
-    expect(getAbilityTextSize({ lines: ['x'.repeat(300)], typeKey: 'PIECIE', layout: 'fullart' })).toBe(16);
+  it('is one size (16) for every card type and length', () => {
+    for (const typeKey of ['MOSJE', 'PIECIE', 'SNELLE_PIECIE', 'PLACE', 'QUEST']) {
+      expect(getAbilityTextSize({ lines: ['Gain 10 MP.'], typeKey, layout: 'fullart' })).toBe(16);
+      expect(getAbilityTextSize({ lines: ['x'.repeat(400)], typeKey, layout: 'fullart' })).toBe(16);
+    }
   });
 });
 
@@ -173,12 +172,12 @@ describe('tier 4 face', () => {
 });
 
 describe('getAbilityTextSize (boxed)', () => {
-  it('one-sentence Piecie/Snelle 17, Mosje 14, 3-line Place 15, very long 13', () => {
-    expect(getAbilityTextSize({ lines: ['Gain 25 MP to your active Mosje.'], typeKey: 'PIECIE', layout: 'boxed' })).toBe(17);
-    expect(getAbilityTextSize({ lines: ['Gain 25 MP.'], typeKey: 'SNELLE_PIECIE', layout: 'boxed' })).toBe(17);
-    expect(getAbilityTextSize({ lines: ['a. b.', 'c.', 'd.'], typeKey: 'MOSJE', layout: 'boxed' })).toBe(16);
-    expect(getAbilityTextSize({ lines: ['Gain 10 MP.', 'Draw 1 card.', 'Lose 5 MP.'], typeKey: 'PLACE', layout: 'boxed' })).toBe(17);
-    expect(getAbilityTextSize({ lines: ['x'.repeat(400)], typeKey: 'MOSJE', layout: 'boxed' })).toBe(15);
+  it('is 16 for every card type, stepping down only for long text in the fixed-height plate', () => {
+    for (const typeKey of ['MOSJE', 'PIECIE', 'SNELLE_PIECIE', 'PLACE', 'QUEST']) {
+      expect(getAbilityTextSize({ lines: ['Gain 10 MP.'], typeKey, layout: 'boxed' })).toBe(16);
+    }
+    expect(getAbilityTextSize({ lines: ['x'.repeat(230)], layout: 'boxed' })).toBe(15);
+    expect(getAbilityTextSize({ lines: ['x'.repeat(330)], layout: 'boxed' })).toBe(14);
   });
 });
 

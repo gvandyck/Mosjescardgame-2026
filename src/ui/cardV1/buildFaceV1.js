@@ -30,7 +30,7 @@ export function buildFaceV1(spec, { tier = 0, layoutEnabled = false } = {}) {
   const layout = getDescriptionLayout(lines, { allowLarge, minFade: allowLarge ? 250 : 380 });
   const typeKey = String(card?.type || '').toUpperCase();
   const tierLayout = fullArt ? 'fullart' : boxed ? 'boxed' : null;
-  const size = tierLayout ? getAbilityTextSize({ lines, typeKey, layout: tierLayout }) : layout.size;
+  const size = tierLayout ? getAbilityTextSize({ lines, layout: tierLayout }) : layout.size;
   const fade = fullArt ? getTierFadeHeight({ typeKey, lines }) : layout.fade;
   const vars = `--cv1-main:${colors.main};--cv1-tint:${colors.tint};--cv1-name-size:${fitFirstName(name.first)};--cv1-desc-size:${size};--cv1-fade:${fade}`;
   const badgeHtml = badge
