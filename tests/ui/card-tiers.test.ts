@@ -116,10 +116,10 @@ describe('buildShineLayers', () => {
 });
 
 describe('getAbilityTextSize (full art)', () => {
-  it('is one size (16) for every card type and length', () => {
+  it('is one size (18) for every card type and length', () => {
     for (const typeKey of ['MOSJE', 'PIECIE', 'SNELLE_PIECIE', 'PLACE', 'QUEST']) {
-      expect(getAbilityTextSize({ lines: ['Gain 10 MP.'], typeKey, layout: 'fullart' })).toBe(16);
-      expect(getAbilityTextSize({ lines: ['x'.repeat(400)], typeKey, layout: 'fullart' })).toBe(16);
+      expect(getAbilityTextSize({ lines: ['Gain 10 MP.'], typeKey, layout: 'fullart' })).toBe(18);
+      expect(getAbilityTextSize({ lines: ['x'.repeat(400)], typeKey, layout: 'fullart' })).toBe(18);
     }
   });
 });
@@ -172,12 +172,12 @@ describe('tier 4 face', () => {
 });
 
 describe('getAbilityTextSize (boxed)', () => {
-  it('is 16 for every card type, stepping down only for long text in the fixed-height plate', () => {
+  it('is 18 for every card type, stepping down only for long text in the fixed-height plate', () => {
     for (const typeKey of ['MOSJE', 'PIECIE', 'SNELLE_PIECIE', 'PLACE', 'QUEST']) {
-      expect(getAbilityTextSize({ lines: ['Gain 10 MP.'], typeKey, layout: 'boxed' })).toBe(16);
+      expect(getAbilityTextSize({ lines: ['Gain 10 MP.'], typeKey, layout: 'boxed' })).toBe(18);
     }
-    expect(getAbilityTextSize({ lines: ['x'.repeat(230)], layout: 'boxed' })).toBe(15);
-    expect(getAbilityTextSize({ lines: ['x'.repeat(330)], layout: 'boxed' })).toBe(14);
+    expect(getAbilityTextSize({ lines: ['x'.repeat(200)], layout: 'boxed' })).toBe(17);
+    expect(getAbilityTextSize({ lines: ['x'.repeat(300)], layout: 'boxed' })).toBe(16);
   });
 });
 

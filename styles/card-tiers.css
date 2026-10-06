@@ -127,11 +127,11 @@
 .hand-strip .card.card-v1--full.card--tierlayout .cv1-badge-label { font-size: calc(10 * var(--u)); }
 /* Boxed plate text: proportional, no px minimum. */
 .hand-cards .card.card-v1--full.card--tierlayout.card--boxed .ct-plate .cv1-desc,
-.hand-strip .card.card-v1--full.card--tierlayout.card--boxed .ct-plate .cv1-desc { font-size: calc(var(--cv1-desc-size, 14) * var(--u)); line-height: 1.42; }
+.hand-strip .card.card-v1--full.card--tierlayout.card--boxed .ct-plate .cv1-desc { font-size: calc(var(--cv1-desc-size, 14) * var(--u)); line-height: 1.26; }
 /* Full-art text: same place as the pop-up. */
 .hand-cards .card.card-v1--full.card--tierlayout.card--fullart .cv1-desc,
 .hand-strip .card.card-v1--full.card--tierlayout.card--fullart .cv1-desc {
-  font-size: calc(var(--cv1-desc-size, 14) * var(--u)); line-height: 1.5; left: calc(42 * var(--u)); right: calc(42 * var(--u));
+  font-size: calc(var(--cv1-desc-size, 14) * var(--u)); line-height: 1.28; left: calc(42 * var(--u)); right: calc(42 * var(--u));
   bottom: calc(122 * var(--u)); top: auto; overflow: visible; display: block;
 }
 

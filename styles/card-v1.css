@@ -116,7 +116,7 @@
   font-size: calc(var(--cv1-desc-size, 14.5) * var(--u)); line-height: 1.5;
   text-shadow: 0 calc(1 * var(--u)) calc(3 * var(--u)) #000, 0 0 calc(8 * var(--u)) #000, 0 0 calc(14 * var(--u)) #000;
 }
-.card-v1--full .cv1-desc > div + div { margin-top: calc(10 * var(--u)); }
+.card-v1--full .cv1-desc > div + div { margin-top: calc(7 * var(--u)); }
 .card-v1--full .cv1-info {
   left: calc(42 * var(--u)); right: calc(110 * var(--u)); bottom: calc(85 * var(--u));
   font-size: calc(12.5 * var(--u)); font-weight: 600; color: #f4f4f5;
