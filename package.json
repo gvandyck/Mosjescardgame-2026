@@ -13,6 +13,7 @@
     "validate": "npm run lint && npm test",
     "lint": "eslint \"tests/**/*.ts\"",
     "format": "prettier --write \"**/*.{ts,js,json,md}\"",
+    "card-editor": "node scripts/card-editor/server.mjs",
     "test:ui": "playwright test --project=visual",
     "test:ui:headed": "playwright test --project=visual --headed",
     "test:sim": "playwright test --project=sim --workers=1",
