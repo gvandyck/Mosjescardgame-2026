@@ -16,6 +16,9 @@ jobs:
           FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
         run: printf '%s' "$FIREBASE_CONFIG" > firebase-config.js
 
+      - name: Cache-bust local scripts and styles
+        run: node scripts/cache-bust.mjs . "${GITHUB_SHA::8}"
+
       - name: Sync to FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -36,3 +39,4 @@ jobs:
             **/jest.config.*
             **/get-shit-done/**
             **/.github/**
+            **/scripts/**

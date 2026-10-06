@@ -1027,12 +1027,12 @@ function initGamePage() {
 				};
 				renderFromState(gameState);
 			},
-			// Put a Piecie face-up in one of a player's 4 Piecie slots (visual checks, card layout tests).
-			// Pass cardId=null to clear the slot.
-			setPiecieOnField(playerId, slotIndex, cardId) {
+			// Put a Piecie in one of a player's 4 Piecie slots (visual checks, card layout tests).
+			// Face-up and activated by default; { faceDown: true } sets it face-down. cardId=null clears the slot.
+			setPiecieOnField(playerId, slotIndex, cardId, { faceDown = false } = {}) {
 				const player = gameState?.players?.[playerId];
 				if (!player) return;
-				player.piecieSlots[slotIndex] = cardId == null ? null : { cardId, type: 'PIECIE', faceDown: false, activated: true };
+				player.piecieSlots[slotIndex] = cardId == null ? null : { cardId, type: 'PIECIE', faceDown, activated: !faceDown };
 				renderFromState(gameState);
 			},
 			// U8 — strip entry protection from every Mosje on the board. Card tests
