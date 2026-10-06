@@ -194,3 +194,17 @@
   display: block; max-width: 100%;
 }
 .card-v1--full.card--tierlayout .cv1-name { overflow: hidden; }
+
+/* -- Quest cards: category/difficulty on the pill row (below the plate), +MP badge right-aligned. -- */
+.card .cv1-face--info-row .cv1-pill-row { display: flex; align-items: center; gap: calc(10 * var(--u)); right: calc(110 * var(--u)); }
+.card .cv1-face--info-row .cv1-pill-row > .cv1-info--row {
+  position: static !important; inset: auto !important; width: auto; white-space: nowrap;
+  font-size: calc(12.5 * var(--u)); font-weight: 600; color: #f4f4f5; text-shadow: 0 1px 4px #000;
+}
+.hand-cards .card .cv1-face--info-row .cv1-pill-row > .cv1-info--row,
+.hand-strip .card .cv1-face--info-row .cv1-pill-row > .cv1-info--row { font-size: max(10.5px, calc(12.5 * var(--u))); }
+.card .cv1-face--info-row .cv1-badge {
+  width: auto !important; min-width: calc(80 * var(--u)); right: calc(24 * var(--u)) !important;
+  align-items: flex-end; text-align: right; white-space: nowrap;
+}
+.card .cv1-face--info-row .cv1-badge > * { text-align: right; align-self: flex-end; }

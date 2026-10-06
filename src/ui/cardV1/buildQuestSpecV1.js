@@ -21,6 +21,7 @@ export function buildQuestSpecV1(card) {
     borderText: Number.isFinite(fail) && fail !== 0 ? `Fail: ${fail < 0 ? '−' : '+'}${Math.abs(fail)} MP` : 'Quest',
     badge: Number.isFinite(Number(card.successMP)) ? { value: `+${Number(card.successMP)}`, label: 'SUCCESS', fieldLabel: 'MP' } : null,
     card,
+    infoInRow: true, // category/difficulty sits on the pill row, clear of the description plate
     allowLarge: true,
     fieldArtPos: '50% 50%',
   };

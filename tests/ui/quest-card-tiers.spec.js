@@ -52,3 +52,28 @@ test.describe('Quest cards in the tier design', () => {
 		});
 	}
 });
+
+test('quest card in the real hand: info on the pill row, badge right-aligned inside the card', async ({ page }) => {
+	const { seedOfflineSession, GAME_URL_TEST } = await import('./helpers.js');
+	await seedOfflineSession(page);
+	await page.goto(GAME_URL_TEST);
+	await page.waitForFunction(() => window.__testHooks?.getGameState?.()?.players, null, { timeout: 30000 });
+	await page.evaluate(() => window.__testHooks.setHand('player_1', ['quest_personal_kickboxing_bootcamp']));
+	const card = page.locator('#hand-root .card').first();
+	await expect(card).toBeVisible();
+	await page.waitForTimeout(400);
+	const m = await card.evaluate((c) => {
+		const r = (s) => c.querySelector(s).getBoundingClientRect();
+		const a = c.getBoundingClientRect();
+		const plate = c.querySelector('.ct-plate')?.getBoundingClientRect();
+		const info = r('.cv1-info'); const badge = r('.cv1-badge'); const val = r('.cv1-badge-val');
+		return { infoBelowPlate: plate ? info.top >= plate.bottom : null, infoInside: info.right <= a.right && info.bottom <= a.bottom, badgeRightGap: a.right - val.right };
+	});
+	expect(m.infoBelowPlate).toBe(true);
+	expect(m.infoInside).toBe(true);
+	expect(m.badgeRightGap).toBeGreaterThanOrEqual(0);
+	await card.hover();
+	await page.waitForTimeout(700);
+	const box = await card.boundingBox();
+	await page.screenshot({ path: 'test-results/quest-card-hand.png', clip: { x: Math.max(0, box.x - 20), y: Math.max(0, box.y - 20), width: box.width + 40, height: box.height + 40 } });
+});

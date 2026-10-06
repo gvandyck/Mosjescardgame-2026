@@ -43,13 +43,13 @@ export function buildFaceV1(spec, { tier = 0, layoutEnabled = false } = {}) {
   const descHtml = `<div class="cv1-desc">${lines.map((l) => `<div>${formatAbilityLine(l)}</div>`).join('')}</div>`;
 
   return `
-    <div class="cv1-face${badge ? '' : ' cv1-face--no-badge'}" style="${vars}"${layout.overflow ? ' data-cv1-overflow="true"' : ''}>
+    <div class="cv1-face${badge ? '' : ' cv1-face--no-badge'}${spec.infoInRow ? ' cv1-face--info-row' : ''}" style="${vars}"${layout.overflow ? ' data-cv1-overflow="true"' : ''}>
       ${chrome}
       <div class="cv1-window">${windowInner}</div>${foil ? foil.frame : ''}
       <div class="cv1-name"><div class="cv1-first">${escapeHtml(name.first)}</div>${name.nick ? `<div class="cv1-nick">${escapeHtml(name.nick)}</div>` : ''}</div>
       ${boxed ? buildBoxedPlate(tier, descHtml) : descHtml}
-      <div class="cv1-info">${escapeHtml(info)}</div>
-      <div class="cv1-pill-row"><span class="cv1-pill">${escapeHtml(pill)}</span></div>
+      ${spec.infoInRow ? '' : `<div class="cv1-info">${escapeHtml(info)}</div>`}
+      <div class="cv1-pill-row"><span class="cv1-pill">${escapeHtml(pill)}</span>${spec.infoInRow ? `<span class="cv1-info cv1-info--row">${escapeHtml(info)}</span>` : ''}</div>
       <div class="cv1-border-text">${escapeHtml(borderText)}</div>
       ${badgeHtml}
     </div>`;
