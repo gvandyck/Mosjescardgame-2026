@@ -60,12 +60,13 @@ describe('patchCardSource', () => {
 });
 
 describe('validateEdit', () => {
-  it('accepts only strict ids, 1-4 stars and "x% y%" focus values', () => {
+  it('accepts only strict ids, 1-5 stars and "x% y%" focus values', () => {
     expect(validateEdit({ id: 'card_a', rarity: '★★' })).toBeNull();
     expect(validateEdit({ id: 'card_a', artFocus: '50% 12.5%' })).toBeNull();
     expect(validateEdit({ id: 'card_a', artFocus: '' })).toBeNull();
     expect(validateEdit({ id: '../x', rarity: '★' })).not.toBeNull();
-    expect(validateEdit({ id: 'a', rarity: '★★★★★' })).not.toBeNull();
+    expect(validateEdit({ id: 'a', rarity: '★★★★★' })).toBeNull();
+    expect(validateEdit({ id: 'a', rarity: '★★★★★★' })).not.toBeNull();
     expect(validateEdit({ id: 'a', artFocus: 'url(x)' })).not.toBeNull();
     expect(validateEdit({ id: 'a' })).not.toBeNull();
   });

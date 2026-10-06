@@ -492,7 +492,7 @@ export function initModalManager(container) {
 			sections.push(['Effect', esc(card.description)]);
 		}
 
-		const copyLimit = card.rarity ? ({ '★': 4, '★★': 3, '★★★': 2, '★★★★': 1 }[card.rarity] ?? 1) : null;
+		const copyLimit = card.rarity ? ({ '★': 4, '★★': 3, '★★★': 2, '★★★★': 2, '★★★★★': 1 }[card.rarity] ?? 1) : null;
 		const chipsHTML = chips.length ? `<div class="cd-chips">${chips.map(c => `<span class="cd-chip">${c}</span>`).join('')}</div>` : '';
 		const sectionsHTML = sections.map(([label, body, raw]) =>
 			`<section class="cd-sec"><h4 class="cd-sec-label">${esc(label)}</h4>${raw ? body : `<p class="cd-sec-text">${body}</p>`}</section>`).join('');

@@ -23,7 +23,7 @@ export const MOSJES = [
     tags: ["GANDOE"],
     flavourText: "Is it a healing spell? A fireball? Not even he knows until it happens!",
     artPath: "assets/mosje-art/Gandoe The Unpredictable Wizard.jpeg",
-    rarity: "★★",
+    rarity: "★★★★★",
     isBoosterOnly: false
   },
   {
@@ -41,6 +41,7 @@ export const MOSJES = [
     petSynergy: null,
     tags: ["JEFFREY"],
     flavourText: "Why heal when you can just hit harder?",
+    artFocus: "50% 25.9%",
     artPath: "assets/mosje-art/Jeffrey-The-Strongman.JPG",
     rarity: "★★",
     isBoosterOnly: false
@@ -59,8 +60,9 @@ export const MOSJES = [
     petSynergy: "piecie_katjegang",
     tags: ["ALYSSA"],
     flavourText: "She charges into battle with a laugh, getting stronger with every hit she takes.",
+    artFocus: "50% 8.4%",
     artPath: "assets/mosje-art/Alyssa The Bulldozer.png",
-    rarity: "★★★",
+    rarity: "★★★★★",
     isBoosterOnly: false
   },
   {
@@ -152,7 +154,7 @@ export const MOSJES = [
     tags: ["GANDOE"],
     flavourText: "",
     artPath: "assets/mosje-art/gandoe-the-destroyer.jpg",
-    rarity: "★★★★",
+    rarity: "★★★★★",
     isBoosterOnly: false
   },
 
@@ -607,7 +609,7 @@ export const MOSJES = [
     tags: ["PLACEHOLDER"],
     flavourText: "",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "★★★★",
+    rarity: "★★★★★",
     isBoosterOnly: false
   },
   {
@@ -625,7 +627,7 @@ export const MOSJES = [
     tags: ["COERT"],
     flavourText: "Built like a closet — unmovable, unshakeable, unstoppable.",
     artPath: "assets/mosje-art/placeholder.png",
-    rarity: "★★★★",
+    rarity: "★★★★★",
     isBoosterOnly: false,
     // 2026-07-13 reconciliation ruling: "too conceptual still" — hidden from all
     // pools (booster, deck-builder, starter-eligible) but data kept, recoverable

@@ -176,7 +176,7 @@ export const PLACES = [
     artPath: "assets/places/placeholder.png",
     goodFor: [],
     badFor: [],
-    rarity: "★★★★",
+    rarity: "★★★★★",
     isBoosterOnly: false
   },
   {

@@ -19,12 +19,13 @@ const setSearch = (search: string) => vi.stubGlobal('window', { location: { sear
 afterEach(() => vi.unstubAllGlobals());
 
 describe('getRarityTier', () => {
-  it('counts stars 1..4, capped at 4', () => {
+  it('counts stars 1..5, capped at 5', () => {
     expect(getRarityTier({ rarity: '★' })).toBe(1);
     expect(getRarityTier({ rarity: '★★' })).toBe(2);
     expect(getRarityTier({ rarity: '★★★' })).toBe(3);
     expect(getRarityTier({ rarity: '★★★★' })).toBe(4);
-    expect(getRarityTier({ rarity: '★★★★★' })).toBe(4);
+    expect(getRarityTier({ rarity: '★★★★★' })).toBe(5);
+    expect(getRarityTier({ rarity: '★★★★★★' })).toBe(5);
     expect(getRarityTier({ rarity: '★ ★' })).toBe(2);
   });
   it('falls back to 1 for missing/malformed', () => {
@@ -34,22 +35,23 @@ describe('getRarityTier', () => {
 });
 
 describe('isFullArt', () => {
-  it('only tier 4 is full art', () => {
+  it('tiers 4 and 5 are full art', () => {
     expect(isFullArt(4)).toBe(true);
+    expect(isFullArt(5)).toBe(true);
     for (const t of [1, 2, 3]) expect(isFullArt(t)).toBe(false);
   });
 });
 
 describe('isTierLayoutEnabled', () => {
-  it('all four tiers are implemented', () => {
+  it('all five tiers are implemented', () => {
     setSearch('');
-    for (const t of [1, 2, 3, 4]) expect(isTierLayoutEnabled(t)).toBe(true);
+    for (const t of [1, 2, 3, 4, 5]) expect(isTierLayoutEnabled(t)).toBe(true);
   });
   it('?tiers=all forces on, ?tiers=off forces off', () => {
     setSearch('?tiers=all');
-    for (const t of [1, 2, 3, 4]) expect(isTierLayoutEnabled(t)).toBe(true);
+    for (const t of [1, 2, 3, 4, 5]) expect(isTierLayoutEnabled(t)).toBe(true);
     setSearch('?tiers=off');
-    for (const t of [1, 2, 3, 4]) expect(isTierLayoutEnabled(t)).toBe(false);
+    for (const t of [1, 2, 3, 4, 5]) expect(isTierLayoutEnabled(t)).toBe(false);
   });
 });
 
@@ -62,6 +64,9 @@ describe('getTierAttributes', () => {
     setSearch('?tiers=all');
     expect(getTierAttributes({ rarity: '★★★★' })).toEqual({
       tier: 4, layout: 'fullart', classes: 'card--tier-4 card--fullart card--tierlayout', enabled: true,
+    });
+    expect(getTierAttributes({ rarity: '★★★★★' })).toEqual({
+      tier: 5, layout: 'fullart', classes: 'card--tier-5 card--fullart card--tierlayout', enabled: true,
     });
   });
 });
@@ -93,13 +98,13 @@ const windowOf = (html: string) => html.slice(html.indexOf('<div class="cv1-wind
 const count = (html: string, cls: string) => classesIn(html).filter((c) => c.split(' ').includes(cls)).length;
 
 describe('buildTierChrome', () => {
-  it('4 diamonds, first `tier` lit, plus two OBBY side labels', () => {
-    for (const tier of [1, 2, 3, 4]) {
+  it('5 diamonds, first `tier` lit, plus two OBBY side labels', () => {
+    for (const tier of [1, 2, 3, 4, 5]) {
       const html = buildTierChrome(tier);
       const cls = classesIn(html);
       const diamonds = cls.filter((c) => c.split(' ').includes('ct-diamond'));
-      expect(diamonds.length).toBe(4);
-      expect(diamonds.map((c) => c.includes('ct-diamond--lit'))).toEqual([0, 1, 2, 3].map((i) => i < tier));
+      expect(diamonds.length).toBe(5);
+      expect(diamonds.map((c) => c.includes('ct-diamond--lit'))).toEqual([0, 1, 2, 3, 4].map((i) => i < tier));
       const sides = cls.filter((c) => c.split(' ').includes('ct-side'));
       expect(sides.length).toBe(2);
       expect(sides[0]).toContain('ct-side--l');
@@ -135,9 +140,24 @@ describe('getTierFadeHeight', () => {
   });
 });
 
-describe('tier 4 face', () => {
+describe('tier 4 face (full art, no foil)', () => {
   const base = MOSJES.find((m: any) => m.artPath) as any;
   const t4 = { ...base, rarity: '★★★★' };
+  it('same full-art window as tier 5 but without holo, sweep or glints; 4 diamonds lit', () => {
+    setSearch('');
+    const r = buildCardV1(t4) as any;
+    expect(r.className).toContain('card--fullart');
+    expect(r.className).toContain('card--tier-4');
+    const kids = classesIn(windowOf(r.html)).map((c) => c.split(' ').pop());
+    expect(kids).toEqual(['cv1-art', 'cv1-fade--bottom', 'cv1-fade--top']);
+    expect(count(r.html, 'ct-diamond--lit')).toBe(4);
+    expect(count(r.html, 'ct-diamond')).toBe(5);
+  });
+});
+
+describe('tier 5 face (full foil)', () => {
+  const base = MOSJES.find((m: any) => m.artPath) as any;
+  const t4 = { ...base, rarity: '★★★★★' };
   it('window layers follow CardTiers7/8 order: art, fades, holo, sweep, glints', () => {
     setSearch('');
     const html = (buildCardV1(t4) as any).html;
@@ -145,13 +165,13 @@ describe('tier 4 face', () => {
     expect(kids).toEqual(['cv1-art', 'cv1-fade--bottom', 'cv1-fade--top', 'ct-holo', 'ct-sweep', 'ct-glint--1', 'ct-glint--2', 'ct-glint--3']);
     expect(count(html, 'cv1-stripe')).toBe(0);
     expect(count(html, 'cv1-diamond')).toBe(0);
-    expect(count(html, 'ct-diamond--lit')).toBe(4);
+    expect(count(html, 'ct-diamond--lit')).toBe(5);
     const spec = buildMosjeSpecV1(t4);
     const style = html.match(/class="cv1-face[^"]*" style="([^"]+)"/)![1];
     expect(style).toContain(`--cv1-desc-size:${getAbilityTextSize({ lines: spec.lines, typeKey: 'MOSJE', layout: 'fullart' })};`);
     expect(style).toContain(`--cv1-fade:${getTierFadeHeight({ typeKey: 'MOSJE', lines: spec.lines })}`);
   });
-  it('art-less tier 4 card keeps window, shine and fades, no img', () => {
+  it('art-less tier 5 card keeps window, shine and fades, no img', () => {
     setSearch('');
     const w = windowOf((buildCardV1({ ...t4, artPath: undefined }) as any).html);
     expect(w).not.toContain('<img');
@@ -163,7 +183,7 @@ describe('tier 4 face', () => {
   });
   it('field mode is unchanged for every tier', () => {
     for (const c of [base, PIECIES[0], PLACES[0]] as any[]) {
-      for (const tier of [1, 2, 3, 4]) {
+      for (const tier of [1, 2, 3, 4, 5]) {
         const r = buildCardV1({ ...c, rarity: '★'.repeat(tier) }, { fieldMode: true }) as any;
         expect(r.html).not.toContain('ct-');
       }
@@ -194,7 +214,7 @@ describe('boxed face (tiers 1 and 2)', () => {
         .filter((c) => ['ct-waves', 'ct-calm', 'ct-grain', 'ct-light', 'ct-inner', 'cv1-window', 'ct-plate-waves', 'ct-plate'].includes(c));
       expect(order).toEqual(['ct-waves', 'ct-calm', 'ct-calm', 'ct-grain', 'ct-light', 'ct-inner', 'cv1-window', 'ct-plate-waves', 'ct-plate']);
       expect(count(html, `ct-inner--t${tier}`)).toBe(1);
-      expect(count(html, 'ct-diamond')).toBe(4);
+      expect(count(html, 'ct-diamond')).toBe(5);
       expect(count(html, 'ct-diamond--lit')).toBe(tier);
       expect(count(html, 'ct-side')).toBe(2);
       expect(count(html, 'cv1-stripe')).toBe(0);

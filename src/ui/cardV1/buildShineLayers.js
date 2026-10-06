@@ -1,4 +1,4 @@
-// buildShineLayers.js — holographic shine for full-art (tier 4) cards: holo
+// buildShineLayers.js — holographic shine for full-foil (tier 5) cards; tier 4 is the same full art without it: holo
 // colour wash, light sweep and 3 glints. Must stay DIRECT children of
 // .cv1-window so mix-blend-mode blends with the art (never wrap them).
 export function buildShineLayers() {

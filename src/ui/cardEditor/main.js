@@ -6,7 +6,7 @@ import { saveEdit } from './saveEdit.js';
 import { enableArtDrag, parseFocus, formatFocus } from './enableArtDrag.js';
 
 const $ = (id) => document.getElementById(id);
-const RARITIES = ['★', '★★', '★★★', '★★★★'];
+const RARITIES = ['★', '★★', '★★★', '★★★★', '★★★★★'];
 const state = { card: null, type: 'all', query: '', edited: new Set() };
 const allEntries = CARD_GROUPS.flatMap(([group, cards]) => cards.map((card) => ({ group, card })));
 

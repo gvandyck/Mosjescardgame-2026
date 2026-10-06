@@ -25,7 +25,7 @@ const FADES = '<div class="cv1-fade cv1-fade--bottom"></div><div class="cv1-fade
 
 export function buildFaceV1(spec, { tier = 0, layoutEnabled = false } = {}) {
   const { colors, name, lines, info, pill, borderText, badge, card, allowLarge } = spec;
-  const fullArt = layoutEnabled && tier === 4;
+  const fullArt = layoutEnabled && tier >= 4;
   const boxed = layoutEnabled && BOXED_TIERS.has(tier);
   const layout = getDescriptionLayout(lines, { allowLarge, minFade: allowLarge ? 250 : 380 });
   const typeKey = String(card?.type || '').toUpperCase();
@@ -38,8 +38,8 @@ export function buildFaceV1(spec, { tier = 0, layoutEnabled = false } = {}) {
     : '';
   // Layer order follows CardTiers7/8: art, fades, then shine on top.
   const foil = boxed && tier === 3 ? buildFoilLayers() : null;
-  const windowInner = fullArt ? `${buildArtLayer(card)}${FADES}${buildShineLayers()}` : boxed ? `${buildArtLayer(card)}${foil ? foil.window : ''}` : `${buildArtLayer(card)}${FADES}`;
-  const chrome = fullArt ? buildTierChrome(4) : boxed ? buildBoxedLayers(tier) : E1_CHROME;
+  const windowInner = fullArt ? `${buildArtLayer(card)}${FADES}${tier === 5 ? buildShineLayers() : ''}` : boxed ? `${buildArtLayer(card)}${foil ? foil.window : ''}` : `${buildArtLayer(card)}${FADES}`;
+  const chrome = fullArt ? buildTierChrome(tier) : boxed ? buildBoxedLayers(tier) : E1_CHROME;
   const descHtml = `<div class="cv1-desc">${lines.map((l) => `<div>${formatAbilityLine(l)}</div>`).join('')}</div>`;
 
   return `

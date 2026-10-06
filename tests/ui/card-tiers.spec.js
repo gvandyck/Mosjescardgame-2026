@@ -10,10 +10,10 @@ const ACCENT = {
 	PIECIE: 'rgb(21, 128, 61)', PLACE: 'rgb(109, 40, 217)', SNELLE: 'rgb(161, 98, 7)',
 };
 const TYPES = ['FIGHTING', 'DIGITAL', 'ARTISTIC', 'PIECIE', 'PLACE', 'SNELLE'];
-const COMBOS = TYPES.flatMap((type) => [1, 2, 3, 4].map((tier) => ({
+const COMBOS = TYPES.flatMap((type) => [1, 2, 3, 4, 5].map((tier) => ({
 	type, tier, accent: ACCENT[type],
 	pill: ['FIGHTING', 'DIGITAL', 'ARTISTIC'].includes(type) ? /^LVL \d+$/ : new RegExp(`^${type}$`),
-	layout: tier === 4 ? 'card--fullart' : 'card--boxed',
+	layout: tier >= 4 ? 'card--fullart' : 'card--boxed',
 	badge: type !== 'PLACE',
 })));
 
@@ -79,13 +79,15 @@ test.describe('Phase 50 rarity tiers', () => {
 		});
 	}
 
-	test('tier 4 window: even 18u frame at 440/240/160', async ({ page }) => {
+	test('tier 4+5 window: even 18u frame at 440/240/160', async ({ page }) => {
 		for (const type of TYPES) {
 			for (const w of [440, 240, 160]) {
-				const card = await mount(page, { type, tier: 4, width: w });
+				for (const tier of [4, 5]) {
+				const card = await mount(page, { type, tier, width: w });
 				const r = await rel(card, '.cv1-window');
 				const u = 18 * w / 440;
 				for (const v of [r.x, r.y, r.r, r.b]) expect(Math.abs(v - u)).toBeLessThanOrEqual(0.6);
+				}
 			}
 		}
 	});
@@ -94,23 +96,23 @@ test.describe('Phase 50 rarity tiers', () => {
 		const SELS = ['.cv1-name', '.cv1-nick', '.cv1-info', '.cv1-pill', '.cv1-border-text', '.cv1-badge'];
 		for (const type of TYPES) {
 			const boxes = [];
-			for (let tier = 1; tier <= 4; tier += 1) {
+			for (let tier = 1; tier <= 5; tier += 1) {
 				const card = await mount(page, { type, tier });
 				boxes.push(await Promise.all(SELS.map((s) => rel(card, s))));
 			}
-			for (let t = 1; t < 4; t += 1) {
+			for (let t = 1; t < 5; t += 1) {
 				SELS.forEach((s, i) => {
 					const a = boxes[0][i]; const b = boxes[t][i];
 					expect(!!a, `${type} ${s}`).toBe(!!b);
 					// Tier 4 (full art) has more left/right text padding on purpose, so only compare vertical position and height there.
-					if (a) for (const k of (t === 3 ? ['y', 'h'] : ['x', 'y', 'w', 'h'])) expect(Math.abs(a[k] - b[k]), `${type} ${s} ${k} tier ${t + 1}`).toBeLessThanOrEqual(1);
+					if (a) for (const k of (t >= 3 ? ['y', 'h'] : ['x', 'y', 'w', 'h'])) expect(Math.abs(a[k] - b[k]), `${type} ${s} ${k} tier ${t + 1}`).toBeLessThanOrEqual(1);
 				});
 			}
 		}
 	});
 
 	test('edge cases: 4-trait Mosje, Place info, art-less card', async ({ page }) => {
-		for (const tier of [1, 2, 3, 4]) {
+		for (const tier of [1, 2, 3, 4, 5]) {
 			let card = await mount(page, { type: 'FIGHTING', tier, patch: { __fourTraits: true } });
 			const info = await rel(card, '.cv1-info');
 			const badge = await rel(card, '.cv1-badge');
@@ -130,7 +132,7 @@ test.describe('Phase 50 rarity tiers', () => {
 		const ref = await mount(page, { type: 'FIGHTING', tier: 1, opts: { fieldMode: true }, patch: { rarity: undefined } });
 		await ref.evaluate((e) => e.style.removeProperty('--cv1-w'));
 		const refBox = await ref.boundingBox();
-		for (const tier of [1, 2, 3, 4]) {
+		for (const tier of [1, 2, 3, 4, 5]) {
 			const card = await mount(page, { type: 'FIGHTING', tier, opts: { fieldMode: true } });
 			await card.evaluate((e) => e.style.removeProperty('--cv1-w'));
 			await expect(card.locator('[class*="ct-"]')).toHaveCount(0);
@@ -142,7 +144,7 @@ test.describe('Phase 50 rarity tiers', () => {
 
 	test('small renders (<120px) hide side text and glints', async ({ page }) => {
 		await page.evaluate(async () => (await import('/src/ui/cardTierMotion.js')).initCardTierMotion());
-		const card = await mount(page, { type: 'PIECIE', tier: 4, width: 100 });
+		const card = await mount(page, { type: 'PIECIE', tier: 5, width: 100 });
 		await expect(card).toHaveClass(/card--tier-small/);
 		await expect(card.locator('.ct-side').first()).toBeHidden();
 		await expect(card.locator('.ct-glint').first()).toBeHidden();
@@ -194,7 +196,7 @@ test('in-game hand: tier cards are static', async ({ page }) => {
 	const ids = await page.evaluate(async () => {
 		const [{ MOSJES }, { PIECIES }] = await Promise.all([import('/src/data/mosjes.js'), import('/src/data/piecies.js')]);
 		const all = [...MOSJES, ...PIECIES];
-		return [1, 2, 3, 4].map((t) => all.find((c) => String(c.rarity || '').length === t)?.id).filter(Boolean);
+		return [1, 2, 3, 4, 5].map((t) => all.find((c) => String(c.rarity || '').length === t)?.id).filter(Boolean);
 	});
 	await page.evaluate((list) => window.__testHooks.setHand('player_1', list), ids);
 	const cards = page.locator('#hand-root .card');
@@ -202,7 +204,7 @@ test('in-game hand: tier cards are static', async ({ page }) => {
 	await page.waitForTimeout(300);
 	const tiers = await cards.evaluateAll((els) => els.map((e) => e.dataset.tier));
 	expect(tiers.length).toBeGreaterThan(0);
-	for (const t of tiers) expect(t).toMatch(/[1-4]/);
+	for (const t of tiers) expect(t).toMatch(/[1-5]/);
 	await expect(page.locator('#hand-root .card--tier-anim')).toHaveCount(0);
 	await page.screenshot({ path: '.planning/phases/50-rarity-tier-card-redesign-4-tiers-boxed-full-art/shots-50-05/in-game-hand.png' });
 });

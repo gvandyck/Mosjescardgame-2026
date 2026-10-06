@@ -174,7 +174,7 @@ export const QUESTS = [
     description: "Success: +90 MP. Failure: -20 MP.",
     difficulty: "HIGH",
     isBoosterOnly: false,
-    rarity: "★★★★",
+    rarity: "★★★★★",
     flavourText: "",
     artPath: "assets/quests/placeholder.png"
   },
@@ -318,7 +318,7 @@ export const QUESTS = [
     description: "Success: +85 MP. Failure: -20 MP.",
     difficulty: "HIGH",
     isBoosterOnly: false,
-    rarity: "★★★★",
+    rarity: "★★★★★",
     flavourText: "",
     artPath: "assets/quests/placeholder.png"
   },
@@ -337,7 +337,7 @@ export const QUESTS = [
     description: "Roll 1-2: -20 MP. Roll 3-4: +20 MP. Roll 5-6: +75 MP.",
     difficulty: "HIGH",
     isBoosterOnly: false,
-    rarity: "★★★★",
+    rarity: "★★★★★",
     flavourText: "",
     artPath: "assets/quests/placeholder.png"
   },
@@ -380,7 +380,7 @@ export const QUESTS = [
     description: "Success: +90 MP. Failure: -20 MP.",
     difficulty: "HIGH",
     isBoosterOnly: false,
-    rarity: "★★★★",
+    rarity: "★★★★★",
     flavourText: "",
     artPath: "assets/quests/placeholder.png"
   },
@@ -542,7 +542,7 @@ export const QUESTS = [
     description: "Success: +80 MP. Failure: -20 MP.",
     difficulty: "HARD",
     isBoosterOnly: false,
-    rarity: "★★★★",
+    rarity: "★★★★★",
     flavourText: "",
     artPath: "assets/quests/placeholder.png"
   },
@@ -561,7 +561,7 @@ export const QUESTS = [
     description: "Success: +100 MP. Failure: -20 MP.",
     difficulty: "HIGH",
     isBoosterOnly: false,
-    rarity: "★★★★",
+    rarity: "★★★★★",
     flavourText: "",
     artPath: "assets/quests/placeholder.png"
   },
@@ -580,7 +580,7 @@ export const QUESTS = [
     description: "Success: +120 MP. Failure: -20 MP.",
     difficulty: "HIGH",
     isBoosterOnly: false,
-    rarity: "★★★★",
+    rarity: "★★★★★",
     flavourText: "",
     artPath: "assets/quests/placeholder.png"
   },
@@ -618,7 +618,7 @@ export const QUESTS = [
     description: "Success: +70 MP. Failure: -20 MP.",
     difficulty: "MEDIUM",
     isBoosterOnly: false,
-    rarity: "★★★★",
+    rarity: "★★★★★",
     flavourText: "",
     artPath: "assets/quests/placeholder.png"
   },
@@ -637,7 +637,7 @@ export const QUESTS = [
     description: "Roll exactly 6: +110 MP. Otherwise: no penalty.",
     difficulty: "HIGH",
     isBoosterOnly: false,
-    rarity: "★★★★",
+    rarity: "★★★★★",
     flavourText: "",
     artPath: "assets/quests/placeholder.png"
   },
@@ -657,7 +657,7 @@ export const QUESTS = [
     description: "Success: Drain opponent 30 MP, gain 50 MP. Failure: -20 MP.",
     difficulty: "HIGH",
     isBoosterOnly: false,
-    rarity: "★★★★",
+    rarity: "★★★★★",
     flavourText: "",
     artPath: "assets/quests/placeholder.png"
   },
@@ -676,7 +676,7 @@ export const QUESTS = [
     description: "Success: +85 MP. Failure: -20 MP.",
     difficulty: "MEDIUM",
     isBoosterOnly: false,
-    rarity: "★★★★",
+    rarity: "★★★★★",
     flavourText: "",
     artPath: "assets/quests/placeholder.png"
   },
@@ -695,7 +695,7 @@ export const QUESTS = [
     description: "Success: +80 MP. Failure: -20 MP.",
     difficulty: "MEDIUM",
     isBoosterOnly: false,
-    rarity: "★★★★",
+    rarity: "★★★★★",
     flavourText: "",
     artPath: "assets/quests/placeholder.png"
   },
@@ -719,7 +719,7 @@ export const QUESTS = [
     description: "Success: +70 MP. Failure: -20 MP.",
     difficulty: "MEDIUM",
     isBoosterOnly: false,
-    rarity: "★★★★",
+    rarity: "★★★★★",
     flavourText: "",
     artPath: "assets/quests/placeholder.png"
   },
@@ -758,7 +758,7 @@ export const QUESTS = [
     description: "Roll 5+: +60 MP and opponent -20 MP. Failure: -20 MP.",
     difficulty: "MEDIUM",
     isBoosterOnly: false,
-    rarity: "★★★★",
+    rarity: "★★★★★",
     flavourText: "",
     artPath: "assets/quests/placeholder.png"
   },
@@ -779,7 +779,7 @@ export const QUESTS = [
     description: "Correct guess: +70 MP. Wrong guess: -20 MP.",
     difficulty: "MEDIUM",
     isBoosterOnly: false,
-    rarity: "★★★★",
+    rarity: "★★★★★",
     flavourText: "",
     artPath: "assets/quests/placeholder.png"
   },
@@ -817,7 +817,7 @@ export const QUESTS = [
     description: "Success: +65 MP. Failure: -20 MP.",
     difficulty: "MEDIUM",
     isBoosterOnly: false,
-    rarity: "★★★★",
+    rarity: "★★★★★",
     flavourText: "",
     artPath: "assets/quests/placeholder.png"
   },
@@ -841,7 +841,7 @@ export const QUESTS = [
     description: "Success: +100 MP. Failure: -20 MP.",
     difficulty: "HIGH",
     isBoosterOnly: true,
-    rarity: "★★★★",
+    rarity: "★★★★★",
     flavourText: "Hij wist het al voor je het zei.",
     artPath: "assets/quests/placeholder.png"
   },
@@ -860,7 +860,7 @@ export const QUESTS = [
     description: "Requires [Jeffrey] The Strongman on field. You must have taken 40 or more total MP damage this game. Roll 4 or higher: gain 110 MP. Failure: -20 MP.",
     difficulty: "HIGH",
     isBoosterOnly: true,
-    rarity: "★★★★",
+    rarity: "★★★★★",
     flavourText: "Pain is just weakness leaving the body.",
     artPath: "assets/quests/placeholder.png"
   },
@@ -879,7 +879,7 @@ export const QUESTS = [
     description: "Requires [Martin] Señor West and [Coert] The Tech Savant both active on your field simultaneously. Look at the opponent's full hand. Gain +90 MP.",
     difficulty: "HIGH",
     isBoosterOnly: true,
-    rarity: "★★★★",
+    rarity: "★★★★★",
     flavourText: "When information meets efficiency, nothing is hidden.",
     artPath: "assets/quests/placeholder.png"
   },
@@ -898,7 +898,7 @@ export const QUESTS = [
     description: "Requires [DJ 80/20] active and the Skiffa Place card active. Roll 1d6. Roll 5 or higher to succeed: gain 100 MP. All opponents lose 20 MP on success.",
     difficulty: "MEDIUM",
     isBoosterOnly: true,
-    rarity: "★★★★",
+    rarity: "★★★★★",
     flavourText: "The crowd goes silent. The beat drops. Everything lands perfectly.",
     artPath: "assets/quests/placeholder.png"
   },
@@ -919,7 +919,7 @@ export const QUESTS = [
     description: "Tesla must be active. Tesla returns to hand. Auto-succeed: +100 MP. Recover Varkenspootjes from discard if present.",
     difficulty: "HIGH",
     isBoosterOnly: false,
-    rarity: "★★★★",
+    rarity: "★★★★★",
     flavourText: "Winston wacht niet op iemand. Maar hij wacht wel op de Tesla.",
     artPath: "assets/quests/placeholder.png"
   },
