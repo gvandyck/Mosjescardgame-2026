@@ -7,6 +7,7 @@ import { buildMosjeSpecV1 } from './buildMosjeSpecV1.js';
 import { buildPiecieSpecV1 } from './buildPiecieSpecV1.js';
 import { buildSnelleSpecV1 } from './buildSnelleSpecV1.js';
 import { buildPlaceSpecV1 } from './buildPlaceSpecV1.js';
+import { buildQuestSpecV1 } from './buildQuestSpecV1.js';
 import { getTierAttributes } from './getTierAttributes.js';
 
 const SPEC_BUILDERS = {
@@ -14,6 +15,7 @@ const SPEC_BUILDERS = {
   PIECIE: buildPiecieSpecV1,
   SNELLE_PIECIE: buildSnelleSpecV1,
   PLACE: buildPlaceSpecV1,
+  QUEST: buildQuestSpecV1,
 };
 
 export function buildCardV1(card, { fieldMode = false } = {}) {

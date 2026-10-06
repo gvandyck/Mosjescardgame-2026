@@ -1,4 +1,4 @@
-// cardTiersDemo.js — debug grid for card-tiers-demo.html: 6 card types x 4
+// cardTiersDemo.js — debug grid for card-tiers-demo.html: 6 card types x 5
 // rarity tiers, rendered through the real renderCard. Forces ?tiers=all.
 import { MOSJES } from '../data/mosjes.js';
 import { PIECIES } from '../data/piecies.js';
@@ -36,18 +36,18 @@ function cell(className, text) {
 }
 
 grid.append(cell('head', ''));
-for (let tier = 1; tier <= 4; tier += 1) grid.append(cell('head', `Tier ${tier} (${'★'.repeat(tier)})`));
+for (let tier = 1; tier <= 5; tier += 1) grid.append(cell('head', `Tier ${tier} (${'★'.repeat(tier)})`));
 
 for (const [label, card] of ROWS) {
   grid.append(cell('row-label', card ? `${label}\n${card.name}` : `${label} (missing)`));
-  for (let tier = 1; tier <= 4; tier += 1) {
+  for (let tier = 1; tier <= 5; tier += 1) {
     if (!card) { grid.append(cell('', '-')); continue; }
     grid.append(renderCard({ ...card, rarity: '★'.repeat(tier) }));
   }
 }
 
-// Edge cases, each shown at tiers 1-4 (tier 3 added in 50-04).
-const EDGE_TIERS = [1, 2, 3, 4];
+// Edge cases, each shown at tiers 1-5 (tier 3 added in 50-04, tier 5 = old tier 4).
+const EDGE_TIERS = [1, 2, 3, 4, 5];
 const descLen = (c) => String(c.abilityDescription || c.description || '').length + String(c.synergyEffect || '').length;
 const shownName = (c) => (String(c.type).toUpperCase() === 'MOSJE' ? parseMosjeName(c.name).firstName : String(c.name));
 const ALL = [...MOSJES, ...PIECIES, ...PLACES, ...SNELLE_PIECIES];
@@ -71,7 +71,7 @@ ${card.name}`), renderCard({ ...card, rarity: '★'.repeat(tier) }));
   }
 }
 const field = document.getElementById('field-grid');
-for (let tier = 1; tier <= 4; tier += 1) {
+for (let tier = 1; tier <= 5; tier += 1) {
   const wrap = cell('edge-cell', '');
   wrap.append(cell('row-label', `Field tile, tier ${tier}`), renderCard({ ...mosje('FIGHTING'), rarity: '★'.repeat(tier) }, { fieldMode: true }));
   field.append(wrap);

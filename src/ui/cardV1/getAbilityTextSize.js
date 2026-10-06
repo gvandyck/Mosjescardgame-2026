@@ -1,21 +1,13 @@
 // getAbilityTextSize.js — ability text size (reference px at 440 wide) for
-// tier-layout cards. Length/line-count rule, never per card:
-// Maximum is 15 (Call of the Welloes' size, Gandalf's pick): short texts no longer grow bigger.
-// full art: Mosje 14; up to 3 short lines 15; else 14.
-// boxed: same, and very long text 13 (the plate has
-// a fixed height; brief: shrink to 13 before clipping).
-const ONE_SENTENCE_MAX = 110;
-const SHORT_TOTAL_MAX = 240;
-const BOXED_LONG_MIN = 360;
+// tier-layout cards. ONE size for every card type (16), so descriptions read the same everywhere.
+// Only long text in a boxed plate (fixed height) steps down, before it would clip:
+// 200+ chars -> 17, 300+ chars -> 16.
+const BASE_SIZE = 18;
+const BOXED_STEPS = [[300, 16], [200, 17]];
 
-export function getAbilityTextSize({ lines = [], typeKey = '', layout = 'fullart' } = {}) {
-  const type = String(typeKey).toUpperCase();
+export function getAbilityTextSize({ lines = [], layout = 'fullart' } = {}) {
+  if (layout !== 'boxed') return BASE_SIZE;
   const total = lines.reduce((sum, l) => sum + String(l).length, 0);
-  const boxed = layout === 'boxed';
-  if (layout !== 'fullart' && !boxed) return 14;
-  if (boxed && total >= BOXED_LONG_MIN) return 13;
-  if (type === 'MOSJE') return 14;
-  if (lines.length <= 1 && total <= ONE_SENTENCE_MAX) return 15;
-  if (lines.length <= 3 && total <= SHORT_TOTAL_MAX) return 15;
-  return 14;
+  const step = BOXED_STEPS.find(([min]) => total >= min);
+  return step ? step[1] : BASE_SIZE;
 }

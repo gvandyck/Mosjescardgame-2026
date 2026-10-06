@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mosjes - Card editor (rarity + art position)</title>
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/cards.css" />
+  <link rel="stylesheet" href="styles/card-v1.css" />
+  <link rel="stylesheet" href="styles/card-tiers.css" />
+  <link rel="stylesheet" href="styles/card-tiers-fullart.css" />
+  <link rel="stylesheet" href="styles/card-tiers-boxed.css" />
+  <link rel="stylesheet" href="styles/card-tiers-foil.css" />
+  <style>
+    html, body { height: 100% !important; overflow: hidden !important; }
+    body { margin: 0; background: #0a0e1a; color: #ddd; font-family: 'DM Sans', sans-serif; display: grid; grid-template-columns: 360px 1fr 300px; }
+    #list-pane { overflow-y: auto; border-right: 1px solid #2a3350; padding: 10px; }
+    #list-pane input[type=search] { width: 100%; box-sizing: border-box; padding: 7px; margin-bottom: 8px; }
+    #type-filter { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+    button { cursor: pointer; padding: 6px 10px; border: 1px solid #3a4468; background: #161c30; color: #ddd; border-radius: 5px; font: inherit; }
+    button.active { background: #e8b94f; color: #000; border-color: #e8b94f; }
+    .row { display: flex; justify-content: space-between; gap: 8px; padding: 6px 8px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+    .row:hover { background: #161c30; }
+    .row.sel { background: #26304f; }
+    .row .stars { color: #e8b94f; white-space: nowrap; }
+    .row.edited .nm::after { content: ' •'; color: #6ee7a0; }
+    .group-h { color: #e8b94f; font-weight: 700; margin: 12px 0 4px; }
+    #stage { display: flex; align-items: center; justify-content: center; overflow: auto; }
+    #stage .card.card-v1--full { --cv1-w: 520px; }
+    #stage .cv1-window { cursor: grab; touch-action: none; }
+    #stage .cv1-window.dragging { cursor: grabbing; }
+    #ctrl-pane { border-left: 1px solid #2a3350; padding: 14px; overflow-y: auto; }
+    #ctrl-pane h3 { margin: 14px 0 6px; color: #e8b94f; }
+    #ctrl-pane .btns { display: flex; flex-wrap: wrap; gap: 6px; }
+    #ctrl-pane label { display: block; margin: 6px 0; }
+    #ctrl-pane input[type=number] { width: 70px; padding: 4px; }
+    #status { margin-top: 14px; font-size: 13px; min-height: 18px; }
+    #status.ok { color: #6ee7a0; } #status.err { color: #ff7b7b; }
+    .hint { color: #9aa; font-size: 13px; line-height: 1.4; }
+  </style>
+</head>
+<body>
+  <div id="list-pane">
+    <input type="search" id="search" placeholder="Search cards..." />
+    <div id="type-filter"></div>
+    <div id="card-list"></div>
+  </div>
+  <div id="stage"></div>
+  <div id="ctrl-pane">
+    <h2 id="card-title" style="margin:0">Pick a card</h2>
+    <div id="card-sub" class="hint"></div>
+    <h3>Rarity</h3>
+    <div class="btns" id="rarity-btns"></div>
+    <p class="hint">★ to ★★★ = boxed art. ★★★★ = full art, no foil. ★★★★★ = full art with holo shine.</p>
+    <h3>Artwork position</h3>
+    <p class="hint">Drag the artwork on the card to move it. Or type exact values:</p>
+    <label>X <input type="number" id="fx" min="0" max="100" step="1" /> %</label>
+    <label>Y <input type="number" id="fy" min="0" max="100" step="1" /> %</label>
+    <button id="reset-focus">Reset to centre</button>
+    <div id="status"></div>
+    <p class="hint">Changes save automatically into the card data files. Use ↑ ↓ to go to the next card.</p>
+  </div>
+  <script type="module" src="src/ui/cardEditor/main.js"></script>
+</body>
+</html>

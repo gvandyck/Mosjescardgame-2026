@@ -145,7 +145,7 @@ export const SNELLE_PIECIES = [
     description: "Play when your Mosje would be sent to the graveyard: negate. Mosje stays at 5 MP instead.",
     flavourText: "",
     artPath: "assets/snelle-piecies/placeholder.png",
-    rarity: "★★★★",
+    rarity: "★★★★★",
     isBoosterOnly: false,
   },
   {
@@ -300,7 +300,7 @@ export const SNELLE_PIECIES = [
     description: "Ultimate counter-chain card. Counters any Snelle Piecie. Free if countering a Frenssen.",
     flavourText: "",
     artPath: "assets/snelle-piecies/placeholder.png",
-    rarity: "★★★★",
+    rarity: "★★★★★",
     isBoosterOnly: false,
   },
   {

@@ -25,12 +25,12 @@ const FADES = '<div class="cv1-fade cv1-fade--bottom"></div><div class="cv1-fade
 
 export function buildFaceV1(spec, { tier = 0, layoutEnabled = false } = {}) {
   const { colors, name, lines, info, pill, borderText, badge, card, allowLarge } = spec;
-  const fullArt = layoutEnabled && tier === 4;
+  const fullArt = layoutEnabled && tier >= 4;
   const boxed = layoutEnabled && BOXED_TIERS.has(tier);
   const layout = getDescriptionLayout(lines, { allowLarge, minFade: allowLarge ? 250 : 380 });
   const typeKey = String(card?.type || '').toUpperCase();
   const tierLayout = fullArt ? 'fullart' : boxed ? 'boxed' : null;
-  const size = tierLayout ? getAbilityTextSize({ lines, typeKey, layout: tierLayout }) : layout.size;
+  const size = tierLayout ? getAbilityTextSize({ lines, layout: tierLayout }) : layout.size;
   const fade = fullArt ? getTierFadeHeight({ typeKey, lines }) : layout.fade;
   const vars = `--cv1-main:${colors.main};--cv1-tint:${colors.tint};--cv1-name-size:${fitFirstName(name.first)};--cv1-desc-size:${size};--cv1-fade:${fade}`;
   const badgeHtml = badge
@@ -38,18 +38,18 @@ export function buildFaceV1(spec, { tier = 0, layoutEnabled = false } = {}) {
     : '';
   // Layer order follows CardTiers7/8: art, fades, then shine on top.
   const foil = boxed && tier === 3 ? buildFoilLayers() : null;
-  const windowInner = fullArt ? `${buildArtLayer(card)}${FADES}${buildShineLayers()}` : boxed ? `${buildArtLayer(card)}${foil ? foil.window : ''}` : `${buildArtLayer(card)}${FADES}`;
-  const chrome = fullArt ? buildTierChrome(4) : boxed ? buildBoxedLayers(tier) : E1_CHROME;
+  const windowInner = fullArt ? `${buildArtLayer(card)}${FADES}${tier === 5 ? buildShineLayers() : ''}` : boxed ? `${buildArtLayer(card)}${foil ? foil.window : ''}` : `${buildArtLayer(card)}${FADES}`;
+  const chrome = fullArt ? buildTierChrome(tier) : boxed ? buildBoxedLayers(tier) : E1_CHROME;
   const descHtml = `<div class="cv1-desc">${lines.map((l) => `<div>${formatAbilityLine(l)}</div>`).join('')}</div>`;
 
   return `
-    <div class="cv1-face${badge ? '' : ' cv1-face--no-badge'}" style="${vars}"${layout.overflow ? ' data-cv1-overflow="true"' : ''}>
+    <div class="cv1-face${badge ? '' : ' cv1-face--no-badge'}${spec.infoInRow ? ' cv1-face--info-row' : ''}" style="${vars}"${layout.overflow ? ' data-cv1-overflow="true"' : ''}>
       ${chrome}
       <div class="cv1-window">${windowInner}</div>${foil ? foil.frame : ''}
       <div class="cv1-name"><div class="cv1-first">${escapeHtml(name.first)}</div>${name.nick ? `<div class="cv1-nick">${escapeHtml(name.nick)}</div>` : ''}</div>
       ${boxed ? buildBoxedPlate(tier, descHtml) : descHtml}
-      <div class="cv1-info">${escapeHtml(info)}</div>
-      <div class="cv1-pill-row"><span class="cv1-pill">${escapeHtml(pill)}</span></div>
+      ${spec.infoInRow ? '' : `<div class="cv1-info">${escapeHtml(info)}</div>`}
+      <div class="cv1-pill-row"><span class="cv1-pill">${escapeHtml(pill)}</span>${spec.infoInRow ? `<span class="cv1-info cv1-info--row">${escapeHtml(info)}</span>` : ''}</div>
       <div class="cv1-border-text">${escapeHtml(borderText)}</div>
       ${badgeHtml}
     </div>`;

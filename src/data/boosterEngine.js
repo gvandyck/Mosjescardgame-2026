@@ -3,8 +3,8 @@
 // Pool: all Mosjes, Piecies, Snelle Piecies, Places, and Personal Quests.
 // General Quests are excluded — they belong to the shared game deck, not player collections.
 //
-// Rarity → drop weight mapping (4-tier star system):
-//   ★=60  ★★=30  ★★★=10  ★★★★=4
+// Rarity → drop weight mapping (5-tier star system):
+//   ★=60  ★★=30  ★★★=10  ★★★★=10 (same as ★★★, visual-only tier for now)  ★★★★★=4
 
 import { MOSJES }        from './mosjes.js';
 import { PIECIES }       from './piecies.js';
@@ -15,7 +15,7 @@ import { QUESTS }        from './quests.js';
 function rarityToWeight(rarity) {
 	if (!rarity) return 30;
 	const stars = (rarity.match(/★/g) || []).length;
-	return { 1: 60, 2: 30, 3: 10, 4: 4 }[stars] ?? 30;
+	return { 1: 60, 2: 30, 3: 10, 4: 10, 5: 4 }[stars] ?? 30;
 }
 
 // Full weighted pool — built once at module load.

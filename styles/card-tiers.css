@@ -46,6 +46,7 @@
 .card-v1--full.card--tierlayout .ct-diamond--2 { left: calc(212 * var(--u)); }
 .card-v1--full.card--tierlayout .ct-diamond--3 { left: calc(222 * var(--u)); }
 .card-v1--full.card--tierlayout .ct-diamond--4 { left: calc(232 * var(--u)); }
+.card-v1--full.card--tierlayout .ct-diamond--5 { left: calc(242 * var(--u)); }
 .card-v1--full.card--tierlayout .ct-diamond--lit {
   background: var(--accent); box-shadow: 0 0 calc(5 * var(--u)) var(--accent);
 }
@@ -92,6 +93,11 @@
 .card-v1--full.card--tierlayout[data-tier="4"] .ct-diamond--2 { left: calc(212.5 * var(--u)); }
 .card-v1--full.card--tierlayout[data-tier="4"] .ct-diamond--3 { left: calc(222.5 * var(--u)); }
 .card-v1--full.card--tierlayout[data-tier="4"] .ct-diamond--4 { left: calc(232.5 * var(--u)); }
+.card-v1--full.card--tierlayout[data-tier="5"] .ct-diamond--1 { left: calc(197.5 * var(--u)); }
+.card-v1--full.card--tierlayout[data-tier="5"] .ct-diamond--2 { left: calc(207.5 * var(--u)); }
+.card-v1--full.card--tierlayout[data-tier="5"] .ct-diamond--3 { left: calc(217.5 * var(--u)); }
+.card-v1--full.card--tierlayout[data-tier="5"] .ct-diamond--4 { left: calc(227.5 * var(--u)); }
+.card-v1--full.card--tierlayout[data-tier="5"] .ct-diamond--5 { left: calc(237.5 * var(--u)); }
 
 /* ── Hand cards = the tier design, purely scaled ──
    card-v1.css gives hand cards px minimums (max(Npx, ...)) from the old E1
@@ -127,11 +133,11 @@
 .hand-strip .card.card-v1--full.card--tierlayout .cv1-badge-label { font-size: calc(10 * var(--u)); }
 /* Boxed plate text: proportional, no px minimum. */
 .hand-cards .card.card-v1--full.card--tierlayout.card--boxed .ct-plate .cv1-desc,
-.hand-strip .card.card-v1--full.card--tierlayout.card--boxed .ct-plate .cv1-desc { font-size: calc(var(--cv1-desc-size, 14) * var(--u)); line-height: 1.42; }
+.hand-strip .card.card-v1--full.card--tierlayout.card--boxed .ct-plate .cv1-desc { font-size: calc(var(--cv1-desc-size, 14) * var(--u)); line-height: 1.26; }
 /* Full-art text: same place as the pop-up. */
 .hand-cards .card.card-v1--full.card--tierlayout.card--fullart .cv1-desc,
 .hand-strip .card.card-v1--full.card--tierlayout.card--fullart .cv1-desc {
-  font-size: calc(var(--cv1-desc-size, 14) * var(--u)); line-height: 1.5; left: calc(42 * var(--u)); right: calc(42 * var(--u));
+  font-size: calc(var(--cv1-desc-size, 14) * var(--u)); line-height: 1.28; left: calc(42 * var(--u)); right: calc(42 * var(--u));
   bottom: calc(122 * var(--u)); top: auto; overflow: visible; display: block;
 }
 
@@ -194,3 +200,28 @@
   display: block; max-width: 100%;
 }
 .card-v1--full.card--tierlayout .cv1-name { overflow: hidden; }
+
+/* -- Quest cards: category/difficulty on the pill row (below the plate). -- */
+.card .cv1-face--info-row .cv1-pill-row { display: flex; align-items: center; gap: calc(10 * var(--u)); right: calc(110 * var(--u)); }
+.card .cv1-face--info-row .cv1-pill-row > .cv1-info--row {
+  position: static !important; inset: auto !important; width: auto; white-space: nowrap;
+  font-size: calc(12.5 * var(--u)); font-weight: 600; color: #f4f4f5; text-shadow: 0 1px 4px #000;
+}
+.hand-cards .card .cv1-face--info-row .cv1-pill-row > .cv1-info--row,
+.hand-strip .card .cv1-face--info-row .cv1-pill-row > .cv1-info--row { font-size: max(10.5px, calc(12.5 * var(--u))); }
+
+/* -- MP / cost / payout badge, every full card: right-aligned to the plate's right edge (24u),
+   label pinned to the same bottom line, value stacked above it, so numbers of any length
+   (and the smaller "Free") always line up on the right. -- */
+.card.card-v1--full.card--tierlayout .cv1-badge {
+  width: auto !important; min-width: calc(80 * var(--u)); right: calc(24 * var(--u)) !important;
+  align-items: flex-end; justify-content: flex-end; text-align: right; white-space: nowrap;
+}
+.card.card-v1--full.card--tierlayout .cv1-badge > * { text-align: right; align-self: flex-end; }
+
+/* -- Field tiles: same rule - badge right-aligned to one fixed edge, label on one bottom line. -- */
+.card.card-v1.card-v1--field .cv1-badge {
+  width: auto !important; min-width: 0; right: max(19px, calc(21 * var(--u))) !important; bottom: max(15px, calc(18 * var(--u))) !important;
+  align-items: flex-end; justify-content: flex-end; text-align: right; white-space: nowrap;
+}
+.card.card-v1.card-v1--field .cv1-badge > * { text-align: right; align-self: flex-end; }

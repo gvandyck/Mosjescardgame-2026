@@ -21,7 +21,7 @@ export function initCardTierMotion(root = document.body) {
 		for (const e of entries) {
 			const el = e.target;
 			el.classList.toggle('card--tier-small', e.boundingClientRect.width > 0 && e.boundingClientRect.width < SMALL_PX);
-			const canAnim = /^[34]$/.test(el.dataset.tier || '') && !el.closest(HAND) && !!el.closest(ANIM_CONTAINERS);
+			const canAnim = /^[35]$/.test(el.dataset.tier || '') && !el.closest(HAND) && !!el.closest(ANIM_CONTAINERS);
 			el.classList.toggle('card--tier-anim', canAnim && e.isIntersecting);
 		}
 	});

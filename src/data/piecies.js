@@ -593,7 +593,7 @@ export const PIECIES = [
     description: "Swap one of your Mosjes' MP with an opponent Mosje's for the rest of your turn; at end of turn the current MP swaps back (levels you gained stay).",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★★",
+    rarity: "★★★★★",
     isBoosterOnly: true,
     persistUntilEndOfTurn: true,
   },
@@ -640,7 +640,7 @@ export const PIECIES = [
     description: "Universal wildcard — substitutes for any named card, Piecie requirement, or trait check.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★★",
+    rarity: "★★★★★",
     isBoosterOnly: false,
   },
   {
@@ -731,7 +731,7 @@ export const PIECIES = [
     description: "Set active Mosje's MP to any value (20–100). Reverts at start of your next turn.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★★",
+    rarity: "★★★★★",
     isBoosterOnly: false,
   },
   {
@@ -792,7 +792,7 @@ export const PIECIES = [
     description: "Pay 40 MP. For 3 turns, all damage your Mosje would take is redirected to a chosen opponent Mosje instead.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★★",
+    rarity: "★★★★★",
     isBoosterOnly: false,
   },
   {
@@ -1132,7 +1132,7 @@ export const PIECIES = [
     description: "Send target Mosje (0–40 MP) to Welloe pile permanently.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★★",
+    rarity: "★★★★★",
     isBoosterOnly: true,
   },
   {
@@ -1162,7 +1162,7 @@ export const PIECIES = [
     description: "Send target Mosje (0–30 MP) to Welloe pile permanently. Draw 1 card.",
     flavourText: "",
     artPath: "assets/piecies/placeholder.png",
-    rarity: "★★★★",
+    rarity: "★★★★★",
     isBoosterOnly: true,
   },
 ];
