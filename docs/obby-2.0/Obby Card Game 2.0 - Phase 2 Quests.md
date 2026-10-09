@@ -9,9 +9,9 @@ Done 2026-10-09. Uses `Obby Card Game 2.0 - Core Numbers.md` (§6 Quests). Sourc
 - **Win** = the MP on the card. **Lose** = the MP on the card. At 0 MP any loss makes the Mosje getemt.
 - **Trained Quests** (one per stack): the Mosje needs the trait at ★★ or more. No roll, can't fail. A ★ Mosje can't try it.
 - **Failed Quest:** put a used die/token on the Quest card. A Quest is replaced by the next card of its stack when it is **won, or when it has 2 tokens** (anyone's failures count).
-- **Jab** (your call: "a little jab, not a big one"): on a win only, one opponent Mosje (your choice) loses **10 MP**. It is MP loss, so a Mosje at 0 MP is getemt by it (your ruling). It is not taksen. 6 Quests have one.
+- **Jab** (your call: "a little jab, not a big one"): on a win only, one opponent Mosje (your choice) loses **10 MP**. It is MP loss, so a Mosje at 0 MP is getemt by it (your ruling). It is not taksen. 6 Quests have one. A fresh Mosje can't be jabbed (Phase 3 ruling: fresh Mosjes are off-limits to all opponent effects).
 - **Named bonus** = +10 MP extra on a win, for the named Mosje or card. Each stack has at least one for a Mosje of its own type (Gandoe / Youri / Coert).
-- **Piecie tags used:** food, pet, substance, gear. Phase 3 must make sure each tag has enough cards (see flags).
+- **Piecie tags used:** food, pet, substance, gear. Settled in Phase 3: food 7, substance 9, gear 6 cards; pet has only 5, so Endure Pain was loosened to "a Piecie of yours that stays in play" (your call).
 - **Quests give MP only**, never trait stars. One exception for now: the Digital Quest "Cheat code" also draws 1 card on a win (your choice). Dutch/in-joke names are kept; the 4 removed Quests are listed below.
 
 ## Bands and odds
@@ -43,7 +43,7 @@ Piecie or Place needed: **5 of 13** in Fighting, **5 of 13** in Digital, **4 of 
 | 6 | Never Give Up | Skilled | Resilient | Level 1 Mosje only | +40 / −30 | — | 0 / 25 / 50 | |
 | 7 | Parkour Challenge | Prepared | Physical | Discard 1 ready Piecie | +50 / −30 | — | 50 / 75 / 88 | ✔ |
 | 8 | Endurance Test | Prepared | Physical | Discard 1 ready food Piecie | +50 / −30 | — | 50 / 75 / 88 | ✔ |
-| 9 | Endure Pain | Gated | Resilient | A pet Piecie of yours is active in play | +35 / −20 | — | 50 / 75 / 88 | ✔ |
+| 9 | Endure Pain | Gated | Resilient | A Piecie of yours stays in play (any "Stays" card, e.g. a pet) | +35 / −20 | — | 50 / 75 / 88 | ✔ |
 | 10 | Momentum Master | Gated | Physical | Mosje has 80 MP or more | +35 / −20 | — | 50 / 75 / 88 | |
 | 11 | Ultimate Challenge | Heroic | Mosje's best trait | A Place is in play | +60 / −25 | — | 0 / 11 / 26 | ✔ |
 | 12 | Geen Raad? Vraag Aad! | Coin flip | no trait | — | +50 / −25 | Gandoe: +10 on a win. "Vraag Aad": a failing Mosje may discard 1 card to lose only 10 instead of 25. | 50 / 50 / 50 | |
@@ -91,7 +91,7 @@ Piecie or Place needed: **5 of 13** in Fighting, **5 of 13** in Digital, **4 of 
 | Parkour Challenge | pay 10 MP + 4+, +50 / −70 | Prepared: discard a ready Piecie instead of MP. |
 | Endurance Test | 60+ MP or Phys ★★★ | Prepared: discard a ready food Piecie (matches the sample card in Rules). |
 | Survive Storm | Resilient ★★ or under 30 MP | Steady Resilient, +1 die at 30 MP or less. |
-| Endure Pain | "lost 25+ MP this turn" (can't be seen on a table) | Gated on an active pet Piecie. |
+| Endure Pain | "lost 25+ MP this turn" (can't be seen on a table) | Gated on a Piecie of yours that stays in play (was "an active pet Piecie"; loosened in Phase 3 because there are only 5 pets). |
 | Never Give Up | Resilient ★★★ + Level 1, +40 / −60 | Skilled Resilient, Level 1 only. |
 | Tough It Out | roll Res, +80 / −80 | Steady Resilient, +25 / −15. |
 | Momentum Master | 80–100 MP, +60 / −40 | Gated 80+ MP, +35 / −20 (80 MP is already 20 from a level-up). |
@@ -130,7 +130,9 @@ Dutch / in-joke names kept: Regelaar, Larry Temmen Niemand Zeggen, Geen Raad? Vr
 
 ## Flags for later phases
 
-> ### ⚠ IMPORTANT FOR PHASE 3: Piecie tags must exist, and there must be enough of them
+> ### ✅ RESOLVED IN PHASE 3: Piecie tags must exist, and there must be enough of them
+> **Outcome (Phase 3 doc, "Tags"):** food 7, substance 9, gear 6 cards. Pet has 5, so Endure Pain now needs "a Piecie of yours that stays in play" instead of a pet. The box below is kept as the original brief.
+>
 > Phase 3 has to **tag every Piecie** and make sure these tags have enough cards, or these Quests are unplayable in most decks.
 >
 > | Tag | Quest that needs it | Need | V4 cards that could carry the tag (to confirm in Phase 3) |
@@ -149,7 +151,7 @@ Dutch / in-joke names kept: Regelaar, Larry Temmen Niemand Zeggen, Geen Raad? Vr
 
 1. **Quest jabs vs getemt at 0 MP.** Your ruling: jabs count. A Mosje that just levelled to 0 MP can be knocked back by a win on Sustained Assault, Late Night Questing, Regelaar, Shotje Obby, Larry or Dutch courage. 6 of 38 Quests (the new Dutch courage Quest included). Watch in Phase 5; fix if needed is "jabs skip Mosjes at 0 MP".
 2. **Artistic is richer, so Fighting and Digital each get one more Quest (your call, names pending).** Artistic has 3 Prepared and 1 Skilled; Fighting/Digital have 2 and 2. Average EV per attempt at ★★ is about +15 vs +12. Fix (done): one new **Prepared** Quest each in Fighting ("Dutch courage": discard a substance Piecie, Physical, win jabs) and Digital ("Cheat code": discard a Snelle, Mental, win draws 1). Gandalf accepted the working names as final for now. Stacks are 13 / 13 / 12. Re-check EV in Phase 5; stacks of 13 with 3 Prepared now match Artistic.
-3. **⚠ PHASE 3 MUST DO: tag supply.** Four Quests are dead cards unless there are enough Piecies with the right tag. See the box at the top of this section.
+3. ~~**⚠ PHASE 3 MUST DO: tag supply.**~~ Done in Phase 3 (see the box at the top of this section).
 4. **Parkeren Delft thins discard piles** (up to 3 cards from the game). That speeds up deck-outs (cooldown turn). Check the cooldown turn in Phase 5.
 5. **Place hook for Phase 4.** Ultimate Challenge needs a Place in play. Phase 4 can also give Places a "+1 die on Physical/Technical/Creative Quests".
 6. **Trained Quests have no ★ route.** A Mosje with ★ in the stack's trait has 3 of 12 Quests it can't try; Phase 5 should check that still leaves a real choice among the 3 open Quests.

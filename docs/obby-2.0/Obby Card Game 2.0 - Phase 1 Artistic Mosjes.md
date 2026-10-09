@@ -34,7 +34,7 @@ V4 holds **13** Artistic Mosjes (not 14 as the Progress note said). Three were t
 | Jisca, The Maestro | **Perfect Combo** — once per turn, after you activate a Piecie, roll a die: 4–6 activate another ready Piecie of yours for free (no Energy) and one opponent Mosje loses 15 MP; 1–3 Jisca loses 10 MP (ignored if she is at 0 MP). | — |
 | Tuk, The Healing Spirit | **Healing Hands** — once per turn, one of your Mosjes (herself included) gains 20 MP. | — |
 | DJ 80/20, The Lucky Mixer | **Lucky Beats** — once per turn, reroll any one die (yours or your opponent's). | — |
-| Coert, KasteLuck | **Morning Luck** — at the start of your turn roll a die: 4–6 draw 1 card and this Mosje gains 5 MP. | — |
+| Coert, KasteLuck | **Morning Luck** — at the start of your turn roll a die: 4–6 draw 1 card and this Mosje gains 5 MP. | Synergy: Tony (added in Phase 3) |
 | Binti, The Sharp Tongue | **Cutting Words** — once per turn, pay 1 Energy and discard 1 Piecie from your hand: one opponent Mosje loses 10 MP and the opponent discards 1 card of their choice. | holds the Coert Savant text (below) |
 | Cless, The Teacher | **Teaching Moment** — when you activate a Piecie, roll a die: 5–6 draw 1 card and one of your Mosjes gains 5 MP. | Synergy: Martin, The Historian, ViannaPoes |
 | Martin, The Precision Driver | **Perfect Line** — whenever this Mosje succeeds at a Quest it gains 15 MP extra.<br>**Pit Stop** — once per turn, pay 1 Energy and discard 2 cards from your hand: draw 3 cards and gain 10 MP. | — |
@@ -87,8 +87,8 @@ Written on **Digital** cards because of Artistic calls in this phase (see "Digit
 3. **Master Plan back to discard** means a finisher can be replayed every turn for 2 Energy. Check in Phase 5 (Harde Didde, Klaar Met Jou, Dikke Taks). A "Welloe pile after use" fallback was offered.
 4. **Chain engine:** Jisca (1 chain), DDR Chris (2 chains), Ming Natural and Master Plan all give free activations. With the "chained activations don't chain" rule the max per turn is bounded, but one self-activated Piecie can still start Jisca + DDR together. Test on paper.
 5. **Teaching Moment at +1:** the Teacher/Historian text makes the roll 50% (4–6). Check it isn't too much draw with Time Control's end-of-turn "draw 2".
-6. **Bowie & Stormey (Phase 3):** must list Tuk (Healing), Tuk (Sims Architect), Michelle, DJ 80/20 and Gandoe (V4 text names Gandoe/DJ/Tuk/Michelle). Binti Sharp Tongue/KasteLuck/Cless Teacher/DDR need no pet Piecie.
-7. **ViannaPoes (Phase 3):** Cless Teacher joins AZN Cless and Hayabusa as a named user.
+6. ~~**Bowie & Stormey (Phase 3)**~~ written in the Phase 3 doc (pets). Was: must list Tuk (Healing), Tuk (Sims Architect), Michelle, DJ 80/20 and Gandoe (V4 text names Gandoe/DJ/Tuk/Michelle). Binti Sharp Tongue/KasteLuck/Cless Teacher/DDR need no pet Piecie.
+7. ~~**ViannaPoes (Phase 3)**~~ written in the Phase 3 doc: names AZN Cless and Cless, The Teacher (Hayabusa isn't a 2.0 Mosje). Tony (pet) now names Coert, KasteLuck.
 8. **Artistic stack lean:** Creative is already ★★★ on 6 of 10 Mosjes, so L2/L3 climbs go to Soc/Men/Res. Phase 2 must give Social real Quests or those climbs are wasted (same issue as Mental in the Digital doc).
 9. **Getemt at 0:** Jisca is the only exception. Precision Driver's Pit Stop is safe, Cutting Words and the Binti-Sharp targets are not.
 10. **Rarity column is a proposal** from the Core Numbers guide, ignoring the web game's current re-tiering.

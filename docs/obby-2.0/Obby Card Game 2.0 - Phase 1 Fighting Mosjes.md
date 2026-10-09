@@ -52,4 +52,4 @@ Digital and Artistic Mosjes follow in their own sessions and use the same format
 3. **Gandoe Wizard's Chaos Roll** at 0 MP: a 1–2 makes him getemt. Chaos is on-brand, but it's a 33% self-sabotage per turn at 0 MP.
 4. **Rarity column is a proposal** from the Core Numbers guide, ignoring the web game's current re-tiering.
 5. ~~Labels name multiple Wests~~ — settled in the Digital phase: only Senor West pairs with Cless.
-6. **Synergy text owed** (to write on the named cards): ~~Senor West ↔ Cless~~ written in the Digital doc; ViannaPoes (Cless/Hayabusa −50% MP loss, Phase 3), Bowie & Stormey (Michelle/Gandoe/Tuk/DJ, Phase 3).
+6. ~~**Synergy text owed**~~ all written: Senor West ↔ Cless in the Digital doc; ViannaPoes and Bowie & Stormey in the Phase 3 doc (flat "20 less" instead of −50%).

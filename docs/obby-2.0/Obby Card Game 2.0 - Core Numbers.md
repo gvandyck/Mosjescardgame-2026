@@ -12,6 +12,9 @@ Locked 2026-10-09. Every later phase uses these numbers. Change a number here fi
 | Deck | **Minimum 30 cards.** Deck empty → shuffle your discard pile into a new deck, and that turn is a **cooldown turn** (see §1a). Welloe pile is never shuffled back. |
 | Quest traits | One main trait per Mosje type (see §6). Mental/Social/Resilient are optional side requirements, filled out in Phase 2. |
 | MP → Energy | Rounded, gentle table (see §5). |
+| Shields (Phase 3) | Cards reduce MP loss ("loses X less"), they never stop it. A loss reduced to 0 is no loss: no getemt, also at 0 MP. |
+| Fresh Mosje (Phase 3) | Off-limits to all opponent cards, Quest jabs and abilities until the start of its owner's next turn, not only to attacks. |
+| Snelle slot (Phase 3) | A Snelle needs a free Piecie slot: it goes into the slot, resolves, then goes to the discard pile. |
 
 ### 1a. Cooldown turn (deck-out)
 When you must draw and your deck is empty: shuffle your discard pile into a new deck, draw as normal, and that whole turn is a cooldown turn:

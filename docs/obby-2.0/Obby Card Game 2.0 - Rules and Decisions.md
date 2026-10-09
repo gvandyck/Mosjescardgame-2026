@@ -86,5 +86,6 @@ A number on a card is its cost: the Energy it takes from your pool. Mosjes never
 - Trait list (Physical, Mental, Social, Creative, Technical, Resilient) vs. 3 Mosje types: which traits each type's Quests use.
 
 ## Cleanup backlog
+Done in Phase 3 (`Obby Card Game 2.0 - Phase 3 Piecies and Snelle.md`); MP Adjuster was cut.
 - Reword "your active Mosje" → "one of your Mosjes": Broodje Döner, Ronald Kip, Nature's Gift, Perfect Setup, MP Adjuster, Emergency Swap.
 - Mosje Reborn mentions Level 0, which no longer exists.
