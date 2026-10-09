@@ -4,9 +4,9 @@ Source docs: `Obby Card Game 2.0 - Rules and Decisions`, `Obby Card Game 2.0 - R
 Docs for this rework live in `docs/obby-2.0/` (design only, no engine code touched).
 
 ## Status
-- **Current phase:** Phase 0 DONE → next is Phase 1 (Mosjes, Fighting first)
-- **Done:** Phase 0 — `Obby Card Game 2.0 - Core Numbers.md`
-- **Next:** Phase 1 (Mosjes), Fighting first. Start a fresh chat and say "start on phase 1"; `README.md` in this folder tells it what to read.
+- **Current phase:** Phase 1 in progress — Fighting DONE, Digital next, then Artistic
+- **Done:** Phase 0 — `Obby Card Game 2.0 - Core Numbers.md`; Phase 1 Fighting — `Obby Card Game 2.0 - Phase 1 Fighting Mosjes.md`
+- **Next:** Phase 1 Digital Mosjes (15 cards, many with synergies). Start a fresh chat and say "start on phase 1, Digital"; `README.md` tells it what to read.
 
 ## Decisions made
 - Summoning costs the printed Energy; the first Mosje at setup is free.
@@ -17,7 +17,11 @@ Docs for this rework live in `docs/obby-2.0/` (design only, no engine code touch
 - Deck: minimum 30 cards. Empty deck = shuffle discard into deck, then a cooldown turn: that player may only place cards (no Quests, attacks, summons or activations).
 - Quests: one main trait per Mosje type (Fighting=Physical, Digital=Technical, Artistic=Creative). Mental/Social/Resilient are optional side requirements; Phase 2 reworks/adds Quests to cover them.
 
+- **Synergies are labels:** a Mosje prints only `Synergy: <card name>`; the named card explains the effect while both are on the field (Phase 1).
+- **Getemt trigger:** any MP loss at 0 MP counts (failed Quests and own ability costs too), not only opponent attacks (Phase 1).
+
 ## Small things I decided myself (check these)
+- Phase 1 Fighting: level paths (one trait +1 star per level, V4 traits = LVL 1), rarity proposals, start-MP changes for Cless (30), Michelle (10), Jeffrey/Fissa costs, Destroyer's Strike limited to "lowest-level Mosje", on your turn only, cost 4 Energy.
 - Docs are stored in the repo at `docs/obby-2.0/`; Card List V4 on Drive is read-only source.
 - Minimum 1 die on a Quest even with 0 stars in the trait; max 4 dice.
 - Power is +10 per level (L1 10–30, L3 up to 50); Power in multiples of 10; MP always multiples of 5.
