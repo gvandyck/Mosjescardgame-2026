@@ -44,7 +44,7 @@ V4 holds **14** Digital Mosjes, not 15 (the Progress note counted one too many).
 | Jeffrey, The Silent Gambler | **High Stakes** — once per turn, stake 1 or 2 Energy and roll a die: 1–2 the Energy is lost; 3–4 you get it back; 5–6 you get it back, draw 1 card and gain 10 MP per Energy staked, and your next Quest success this turn gives +15 MP extra. | — |
 | Chris, The All-Rounder | **Perfect Setup** — once per turn, if all 3 of your Piecie slots hold face-down Piecies: activate one of them for free (no Energy) and gain 15 MP. | Synergy: Youri |
 | Youri, The Speedrunner | **Speed Activate** — once per turn, pay 1 Energy: activate a Piecie the same turn you placed it (still pay its cost), then draw 1 card. | holds the Chris text (below) |
-| Placeholder 1, The Tactician | **MP Manipulation** — once per turn, pay 2 Energy: choose one Mosje with 30–90 MP; its MP becomes exactly 60. | — |
+| Placeholder 1, The Tactician | **MP Manipulation** — once per turn, pay 2 Energy: choose one Mosje (yours or an opponent's) and set its MP to any value under 80 until the end of the turn. Any MP it gains or loses this turn is kept: at the end of the turn it goes back to its old MP plus those gains and losses. | — |
 | Placeholder 4, The Drainer | **Continuous Drain** — at the start of each opponent's turn, one of their Mosjes of your choice loses 5 MP (a Mosje at 0 MP can't be chosen). | — |
 | FPS Coert | **Headshot Precision** — when this Mosje succeeds at a Physical or Technical Quest, roll a die: on a 6 it gains 30 MP and one opponent's Mosje loses 15 MP. | Synergy: FPS West |
 | FPS West | **Tactical Analysis** — once per turn, pay 1 Energy: look at your opponent's hand and name the card type they will play next (Mosje, Piecie, Snelle or Place). Correct: gain 20 MP. Wrong: lose 10 MP. | holds the FPS Coert text (below) |
@@ -71,7 +71,7 @@ Text must start "While <partner> is also on your field:".
 | Jeffrey Silent Gambler | MP stake → Energy stake (1 or 2). Win pays 10 MP per Energy + a card. Next-Quest bonus +25 → +15. Start MP 0 → 10. |
 | Chris | "3+ face-down Piecies" is now "all 3 slots", because 3 is the maximum. Free activation now means no Energy. |
 | Youri | 20 MP + "3 per game" → 1 Energy once per turn (no tracker). Synergy: the holder text above removes the Energy and any limit. Start MP 0 → 10, ★★★★ because it breaks the face-down wait every turn. |
-| Tactician | "Set any Mosje to exactly 60 for 15 MP" could add 60 MP for free or wipe a Level-up. Now 2 Energy and only Mosjes with 30–90 MP (swing ≤ 30). |
+| Tactician | Your ruling: "set MP to exactly 60 for 15 MP" became a temporary set to any value under 80 (multiple of 5) for 2 Energy, with gains and losses kept when it snaps back. Under 80 so it can never cause a level-up. |
 | Drainer | "All opponents lose 5 MP" would make a Mosje at 0 MP getemt every turn. Now one Mosje of your choice, never at 0 MP. |
 | FPS Coert | Synergy text moved to FPS West. "+30 bonus MP" kept on a 6 only. Start 15 → 20. |
 | FPS West | Pays 1 Energy instead of 10 MP. Both V4 synergies: the Cless one dropped (decision: Senor West only); the FPS Coert text lives on this card. |
@@ -81,7 +81,7 @@ Text must start "While <partner> is also on your field:".
 2. **Ronald has Technical ★ only from L2.** At L1 he rolls 1 die (minimum) on Digital Quests.
 3. **Names owed:** "[...] The Hacker", "Placeholder 1 The Tactician", "Placeholder 4 The Drainer" need real names.
 4. **Info abilities** (Ronald, FPS West, FPS Coert synergy, Senor West) all look at hidden info; test on paper that checking hands doesn't slow the table.
-5. **Tactician** is game-warping on paper even at 2 Energy (swing 30, once per turn). Watch if it dominates; the 30–90 window can narrow.
+5. **Tactician combo:** set an opponent's Mosje to 0, then any MP loss to it counts as getemt (a level drop) — 2 Energy plus a cheap attack. Check on paper whether getemt at a temporary 0 should count, or whether temporary MP is immune to getemt. Also needs a table marker for "old MP" (e.g. leave the real MP marker, slide a second one).
 6. **Getemt at 0:** Senor West wrong guess, FPS West wrong guess and Gandoe's own rolls hurt at 0 MP. Same risk as the Fighting flag 1.
 7. **Synergy text owed on Artistic cards:** Binti, The Sharp Tongue ↔ Coert Savant (Food Piecie bonus; also KasteLuck and Kast-elein name Binti); Cless, The Teacher ↔ West (Teacher still names "West"; point it at Senor West); Dancing/DDR Chris ↔ Youri (uses the Youri text above). FPS West no longer pairs with Cless.
 8. **Youri's per-game limit is gone:** with 1 Energy per use it can fire every turn. Check against the Snelle slot rule in Phase 3.
