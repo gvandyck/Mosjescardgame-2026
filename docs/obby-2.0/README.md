@@ -30,6 +30,8 @@ Git: work on a branch (`docs/obby-2.0-...`), never commit straight to `main`.
 | 7 | Visual production | not started | — |
 
 ## Reminders for later phases
+- **⚠ Phase 3 MUST tag Piecies (food / pet / substance / gear) with at least 6 cards per hard tag**, or Endurance Test, Endure Pain and Larry Temmen are dead Quests. Details: Phase 2 doc, "Flags for later phases".
+- **Two new Quests need Dutch names** (Fighting "Dutch courage", Digital "Cheat code", both placeholders in the Phase 2 doc); see `Progress.md`.
 - Parked Mosjes (Binti The Creator, The Amplifier, Kast-elein) come back only if you ask; see the Artistic doc.
 - Cleanup backlog: reword "your active Mosje" in Broodje Döner, Ronald Kip, Nature's Gift, Perfect Setup, MP Adjuster, Emergency Swap; Mosje Reborn mentions Level 0.
 - Phase 5 balance checks: levelling leaves you at 0 MP (any hit drops it), Prepared-band Quests too strong, player 1 advantage, cooldown turn strength (see Core Numbers §7).
