@@ -1,6 +1,6 @@
 # Obby Card Game 2.0 — Phase 2: Quests
 
-Done 2026-10-09. Uses `Obby Card Game 2.0 - Core Numbers.md` (§6 Quests). Source: V4 Quest list (40 Quests in 7 groups). Result: **38 Quests in 3 typed stacks (Fighting 13, Digital 13, Artistic 12)**. The two newest Quests (one each for Fighting and Digital) are placeholders until Gandalf gives them Dutch names.
+Done 2026-10-09. Uses `Obby Card Game 2.0 - Core Numbers.md` (§6 Quests). Source: V4 Quest list (40 Quests in 7 groups). Result: **38 Quests in 3 typed stacks (Fighting 13, Digital 13, Artistic 12)**. The two newest Quests (one each for Fighting and Digital) keep their working names "Dutch courage" and "Cheat code"; Gandalf accepted these as they are (a Dutch name can still replace them later).
 
 ## Rules used in this doc (your calls this phase)
 - **3 typed stacks** (12 at first; Fighting and Digital got a 13th Quest to balance Artistic). Fighting tests **Physical**, Digital tests **Technical**, Artistic tests **Creative**. About a third of each stack rolls the side trait instead: **Resilient** (Fighting), **Mental** (Digital), **Social** (Artistic). Any Mosje may attempt any Quest.
@@ -12,7 +12,7 @@ Done 2026-10-09. Uses `Obby Card Game 2.0 - Core Numbers.md` (§6 Quests). Sourc
 - **Jab** (your call: "a little jab, not a big one"): on a win only, one opponent Mosje (your choice) loses **10 MP**. It is MP loss, so a Mosje at 0 MP is getemt by it (your ruling). It is not taksen. 6 Quests have one.
 - **Named bonus** = +10 MP extra on a win, for the named Mosje or card. Each stack has at least one for a Mosje of its own type (Gandoe / Youri / Coert).
 - **Piecie tags used:** food, pet, substance, gear. Phase 3 must make sure each tag has enough cards (see flags).
-- **Quests give MP only**, never trait stars. One exception for now: the Digital placeholder "Cheat code" also draws 1 card on a win (your choice). Dutch/in-joke names are kept; the 4 removed Quests are listed below.
+- **Quests give MP only**, never trait stars. One exception for now: the Digital Quest "Cheat code" also draws 1 card on a win (your choice). Dutch/in-joke names are kept; the 4 removed Quests are listed below.
 
 ## Bands and odds
 Odds are the chance to win; EV is the average MP per attempt (win% × win − lose% × lose), before any cost.
@@ -47,7 +47,7 @@ Piecie or Place needed: **5 of 13** in Fighting, **5 of 13** in Digital, **4 of 
 | 10 | Momentum Master | Gated | Physical | Mosje has 80 MP or more | +35 / −20 | — | 50 / 75 / 88 | |
 | 11 | Ultimate Challenge | Heroic | Mosje's best trait | A Place is in play | +60 / −25 | — | 0 / 11 / 26 | ✔ |
 | 12 | Geen Raad? Vraag Aad! | Coin flip | no trait | — | +50 / −25 | Gandoe: +10 on a win. "Vraag Aad": a failing Mosje may discard 1 card to lose only 10 instead of 25. | 50 / 50 / 50 | |
-| 13 | **[Name TBD]** (placeholder: "Dutch courage") | Prepared | Physical | Discard 1 substance Piecie | +50 / −30 | Win: jab. | 50 / 75 / 88 | ✔ |
+| 13 | **Dutch courage** | Prepared | Physical | Discard 1 substance Piecie | +50 / −30 | Win: jab. | 50 / 75 / 88 | ✔ |
 
 ## Digital stack (Technical; side trait Mental)
 | # | Quest | Band | Rolls | First you must… | Win / Lose | Also | Odds ★ / ★★ / ★★★ | Piecie/ Place |
@@ -64,7 +64,7 @@ Piecie or Place needed: **5 of 13** in Fighting, **5 of 13** in Digital, **4 of 
 | 10 | Master Plan | Gated | Mental | 3 of your Piecies are face-down | +35 / −20 | — | 50 / 75 / 88 | ✔ |
 | 11 | Regelaar | Gated | Technical | You have more Piecies in play than your opponent | +35 / −20 | Win: jab. | 50 / 75 / 88 | ✔ |
 | 12 | Perfect Timing | Coin flip | no trait | Mosje has 70 to 80 MP | +50 / −25 | — | 50 / 50 / 50 | |
-| 13 | **[Name TBD]** (placeholder: "Cheat code") | Prepared | Mental | Discard 1 Snelle from your hand | +50 / −30 | Win: also draw 1 card. | 50 / 75 / 88 | ✔ |
+| 13 | **Cheat code** | Prepared | Mental | Discard 1 Snelle from your hand | +50 / −30 | Win: also draw 1 card. | 50 / 75 / 88 | ✔ |
 
 ## Artistic stack (Creative; side trait Social)
 | # | Quest | Band | Rolls | First you must… | Win / Lose | Also | Odds ★ / ★★ / ★★★ | Piecie/ Place |
@@ -137,18 +137,18 @@ Dutch / in-joke names kept: Regelaar, Larry Temmen Niemand Zeggen, Geen Raad? Vr
 > |---|---|---|---|
 > | **food** | Endurance Test (Fighting) | hard: discard a ready food Piecie | Kannetje Melk, Broodje Döner, Ronald Kip, Varkensoortjes, (Chef's Special, Nature's Gift?) |
 > | **pet** | Endure Pain (Fighting) | hard: a pet Piecie active in play | Bowie & Stormey, Gekke Vogels, KatjeGang, ViannaPoes (Tony is empty) |
-> | **substance** | Larry Temmen Niemand Zeggen (Artistic) and the new Fighting placeholder "Dutch courage" | hard: discard a substance Piecie (2 Quests) | Grammetje Pieter, Dikke Jonko, Affoe, Stripje Bennies, Tikker, Straffoe, Larry / Zegeltje |
+> | **substance** | Larry Temmen Niemand Zeggen (Artistic) and the new Fighting Quest "Dutch courage" | hard: discard a substance Piecie (2 Quests) | Grammetje Pieter, Dikke Jonko, Affoe, Stripje Bennies, Tikker, Straffoe, Larry / Zegeltje |
 > | **gear** | Late Night Questing (Digital) | soft: +1 die | Keyboard, Mouse, Controller (only 3) |
 >
 > **Proposed minimum:** at least **6 Piecies per hard tag** in the whole pool, and every starter deck (Phase 5) holds at least 2 of the tags its Quests lean on. If a tag can't reach 6, change that Quest's cost to "discard any ready Piecie" instead of keeping a dead tag.
 > Pet (4 real cards) is the shortest hard tag. Also check that a **pet Piecie stays "active in play"** long enough (they last 2 turns) for Endure Pain to be usable.
 >
-> The new Digital placeholder "Cheat code" discards a **Snelle from hand**; Snelle must have enough copies in a Digital deck (Phase 3 / 5).
+> The new Digital Quest "Cheat code" discards a **Snelle from hand**; Snelle must have enough copies in a Digital deck (Phase 3 / 5).
 >
 > Quests that just need "a ready Piecie" (any tag) are fine: Parkour Challenge, Build Gadget, Speed Run, Negotiation, Parkeren Delft.
 
 1. **Quest jabs vs getemt at 0 MP.** Your ruling: jabs count. A Mosje that just levelled to 0 MP can be knocked back by a win on Sustained Assault, Late Night Questing, Regelaar, Shotje Obby, Larry or Dutch courage. 6 of 38 Quests (the new Dutch courage Quest included). Watch in Phase 5; fix if needed is "jabs skip Mosjes at 0 MP".
-2. **Artistic is richer, so Fighting and Digital each get one more Quest (your call, names pending).** Artistic has 3 Prepared and 1 Skilled; Fighting/Digital have 2 and 2. Average EV per attempt at ★★ is about +15 vs +12. Fix (done as placeholders): one new **Prepared** Quest each in Fighting ("Dutch courage": discard a substance Piecie, Physical, win jabs) and Digital ("Cheat code": discard a Snelle, Mental, win draws 1). **Both still need a Dutch fun name from Gandalf.** Stacks are 13 / 13 / 12. Re-check EV in Phase 5; stacks of 13 with 3 Prepared now match Artistic.
+2. **Artistic is richer, so Fighting and Digital each get one more Quest (your call, names pending).** Artistic has 3 Prepared and 1 Skilled; Fighting/Digital have 2 and 2. Average EV per attempt at ★★ is about +15 vs +12. Fix (done): one new **Prepared** Quest each in Fighting ("Dutch courage": discard a substance Piecie, Physical, win jabs) and Digital ("Cheat code": discard a Snelle, Mental, win draws 1). Gandalf accepted the working names as final for now. Stacks are 13 / 13 / 12. Re-check EV in Phase 5; stacks of 13 with 3 Prepared now match Artistic.
 3. **⚠ PHASE 3 MUST DO: tag supply.** Four Quests are dead cards unless there are enough Piecies with the right tag. See the box at the top of this section.
 4. **Parkeren Delft thins discard piles** (up to 3 cards from the game). That speeds up deck-outs (cooldown turn). Check the cooldown turn in Phase 5.
 5. **Place hook for Phase 4.** Ultimate Challenge needs a Place in play. Phase 4 can also give Places a "+1 die on Physical/Technical/Creative Quests".

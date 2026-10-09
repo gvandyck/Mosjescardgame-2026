@@ -11,11 +11,11 @@ Docs for this rework live in `docs/obby-2.0/` (design only, no engine code touch
 ## ⚠ Must not forget (carried into Phase 3)
 - **Piecie tags are a hard dependency of Phase 2.** Phase 3 must tag every Piecie (food / pet / substance / gear) and reach the proposed minimum of **6 Piecies per hard tag**, or Endurance Test (food), Endure Pain (pet) and Larry Temmen (substance) are dead Quests. Gear (Late Night Questing) is soft. Full table with candidate cards: `Obby Card Game 2.0 - Phase 2 Quests.md`, "Flags for later phases". Pet is shortest (4 real cards). If a tag can't reach 6, loosen that Quest's cost to "any ready Piecie".
 
-## Open: names for two new Quests (Fighting and Digital)
-Artistic ended up slightly richer (3 Prepared, EV about +15 at ★★ vs +12), so Fighting and Digital each got one new **Prepared** Quest. Both are in the Phase 2 doc as placeholders and **still need a Dutch fun name from Gandalf**:
-- **Fighting 13:** "Dutch courage": discard 1 substance Piecie, Physical, +50 / −30, win: jab.
-- **Digital 13:** "Cheat code": discard 1 Snelle from hand, Mental, +50 / −30, win: also draw 1 card (an exception to 'Quests give MP only', your pick).
-Stacks are now 13 / 13 / 12 = 38 Quests. Update the Phase 2 doc table when the names come in.
+## Two new Quests (Fighting and Digital): settled
+Artistic ended up slightly richer (3 Prepared, EV about +15 at ★★ vs +12), so Fighting and Digital each got one new **Prepared** Quest. Gandalf accepted the working names as they are (a Dutch name can still replace them later):
+- **Fighting 13, "Dutch courage":** discard 1 substance Piecie, Physical, +50 / −30, win: jab.
+- **Digital 13, "Cheat code":** discard 1 Snelle from hand, Mental, +50 / −30, win: also draw 1 card (an exception to 'Quests give MP only', your pick).
+Stacks are 13 / 13 / 12 = 38 Quests.
 
 ## Decisions made
 - Summoning costs the printed Energy; the first Mosje at setup is free.
@@ -48,7 +48,7 @@ Stacks are now 13 / 13 / 12 = 38 Quests. Update the Phase 2 doc table when the n
 - **Special Quests reworked into bands**, no unique-text cards. Named bonuses: Gandoe (Geen Raad), Youri (Speed Run), Coert / Cless (Parkeren Delft), Larry/Zegeltje (Larry Temmen).
 - **Form Alliance** (confirmed by you): success gives an opponent Mosje +10 MP. Quests may be a bit crazy; attacks remain the main damage source.
 - **MP-state Quests** stay as Gated with round thresholds (Momentum Master 80+, Perfect Timing 70–80).
-- **Two new Quests** (Fighting: Dutch courage, Digital: Cheat code), names TBD. Cheat code draws a card on a win.
+- **Two new Quests** (Fighting: Dutch courage, Digital: Cheat code), names accepted as is. Cheat code draws a card on a win.
 - **Removed (4):** Elimination Challenge, The Gauntlet, Chain Master (merged into Speed Run), Precision Work.
 
 ## Small things I decided myself (check these)
