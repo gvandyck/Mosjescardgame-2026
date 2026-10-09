@@ -9,7 +9,7 @@ This is a **design** rework. Do not touch the web game engine until Phase 6.
 ## When the user says "start on phase N"
 1. Read the files above. Check `Progress.md` says phases before N are done; if one was skipped, say so and ask before proceeding.
 2. Do only that phase, in the order of the Rework Plan.
-3. Ask only real decisions: one question at a time, with a recommendation (use AskUserQuestion). Decide small things yourself and list them in Progress.md under "Small things I decided myself".
+3. Ask real decisions, and ask more than feels necessary: use AskUserQuestion with a recommendation, 2–4 questions per round. Anything that changes how a card plays (cost, who it can target, a new limit, a rule that interacts with getemt/level-ups, a rework of a placeholder card) is a question, not a "small thing". Gandalf asked for this explicitly after the Digital phase, where only 1 of ~10 real calls was asked. Before writing the doc, do a round of questions on the 3–5 most debatable cards. Only truly cosmetic choices (wording, column order, rarity proposals) go in Progress.md under "Small things I decided myself".
 4. Rework existing cards and keep names. Don't invent new cards unless there is no other way.
 5. Everything must be playable on a real table. Explain things simply.
 6. At the end of the phase: save the output as its own doc in this folder, update `Progress.md` (done, decisions, next), tick the roadmap below, commit, push, and give a short summary.
