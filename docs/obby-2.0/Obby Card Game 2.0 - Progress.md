@@ -4,9 +4,9 @@ Source docs: `Obby Card Game 2.0 - Rules and Decisions`, `Obby Card Game 2.0 - R
 Docs for this rework live in `docs/obby-2.0/` (design only, no engine code touched).
 
 ## Status
-- **Current phase:** Phase 1 in progress — Fighting DONE, Digital DONE, Artistic next
-- **Done:** Phase 0 — `Obby Card Game 2.0 - Core Numbers.md`; Phase 1 Fighting — `Obby Card Game 2.0 - Phase 1 Fighting Mosjes.md`; Phase 1 Digital — `Obby Card Game 2.0 - Phase 1 Digital Mosjes.md`
-- **Next:** Phase 1 Artistic Mosjes (14 cards; Binti hub synergy, Cless Teacher/West, DDR Chris ↔ Youri owed). Start a fresh chat and say "start on phase 1, Artistic"; `README.md` tells it what to read.
+- **Current phase:** Phase 1 DONE (Fighting, Digital, Artistic). Phase 2 next.
+- **Done:** Phase 0 — `Obby Card Game 2.0 - Core Numbers.md`; Phase 1 Fighting — `Obby Card Game 2.0 - Phase 1 Fighting Mosjes.md`; Phase 1 Digital — `Obby Card Game 2.0 - Phase 1 Digital Mosjes.md`; Phase 1 Artistic — `Obby Card Game 2.0 - Phase 1 Artistic Mosjes.md`
+- **Next:** Phase 2 Quests (3 typed stacks; add Quests so Mental/Social/Resilient have a home; Social is now the biggest gap on Artistic). Start a fresh chat and say "start on phase 2"; `README.md` tells it what to read.
 
 ## Decisions made
 - Summoning costs the printed Energy; the first Mosje at setup is free.
@@ -23,7 +23,16 @@ Docs for this rework live in `docs/obby-2.0/` (design only, no engine code touch
 - **Tactician (Digital):** 2 Energy, once per turn, set any Mosje's MP to any value under 80 until end of turn; gains and losses are kept.
 - **West synergy (Digital):** only Senor West pairs with Cless; FPS West keeps FPS Coert only.
 
+- **Binti hub (Artistic):** Binti, The Sharp Tongue ↔ Coert Savant only (KasteLuck and Kast-elein dropped); bonus is a flat +10 MP per Food Piecie, not double.
+- **Parked Artistic cards:** Binti, The Creator (cut), Placeholder 3 The Amplifier (no name yet), Coert Kast-elein (you refine it first). Artistic roster = 10.
+- **Pairings:** Cless Teacher ↔ Martin, The Historian (holder: Historian); Youri ↔ Dancing/DDR Chris only (Chris, The All-Rounder lost its Youri label); Senor West ↔ AZN Cless and FPS West ↔ FPS Coert unchanged.
+- **Chains:** a Piecie activated for free by Jisca, DDR Chris, Ming Natural or Master Plan never starts another chain roll or Teaching Moment roll.
+- **Master Plan** (Ronald Mastermind): once per turn, 2 Energy, replay a discard Piecie, it returns to the discard pile.
+- **Tuk Healing, DJ 80/20, KasteLuck:** your calls to simplify (heal 20 once per turn / reroll only / draw 1 + 5 MP).
+- **Parkeren Delft weakness** moves to the Quest (Phase 2).
+
 ## Small things I decided myself (check these)
+- Phase 1 Artistic: level paths (Creative first, then side trait), rarity proposals, start-MP/cost for all 10 cards, Tuk Healing's 20 MP and Power 10, Teacher+Historian text (Teaching Moment on 4–6, take 1 of the 5 into hand), Sims Architect cut of "place free" because placing is already free, Binti's opponent-chooses discard, Jisca keeps V4's "ignore damage at 0 MP".
 - Phase 1 Digital: Technical climbs first in level paths; activated abilities pay Energy not MP; "once every 5 turns / 3 per game" limits became once per turn + Energy; one holder card per synergy pair (Senor West, Youri, FPS West); Ming Natural cost 3;  Drainer never hits 0 MP Mosjes; Coert extra draws capped at 2; Digital roster is 14 cards, not 15.
 - Phase 1 Fighting: level paths (one trait +1 star per level, V4 traits = LVL 1), rarity proposals, start-MP changes for Cless (30), Michelle (10), Jeffrey/Fissa costs, Destroyer's Strike limited to "lowest-level Mosje", on your turn only, cost 4 Energy.
 - Docs are stored in the repo at `docs/obby-2.0/`; Card List V4 on Drive is read-only source.
@@ -40,5 +49,5 @@ Docs for this rework live in `docs/obby-2.0/` (design only, no engine code touch
 See §7 of the Core Numbers (level-up at 0 MP; no-star Quests; Prepared band strength; player 1 advantage with no compensation; cooldown turn strength).
 
 ## Notes
-- Card List V4 has 8 Fighting, 15 Digital, 14 Artistic Mosjes (some are placeholders), ~100 Piecies/Snelle, 16 Places, ~50 Quests in 7 trait groups (regroup into 3 stacks in Phase 2).
+- Card List V4 has 8 Fighting, 14 Digital, 13 Artistic Mosjes (some are placeholders); 2.0 roster: 8 / 14 / 10, ~100 Piecies/Snelle, 16 Places, ~50 Quests in 7 trait groups (regroup into 3 stacks in Phase 2).
 - The web game (engine) is untouched; handoff comes in Phase 6.

@@ -21,7 +21,7 @@ Git: work on a branch (`docs/obby-2.0-...`), never commit straight to `main`.
 | Phase | What | Status | Output doc |
 |---|---|---|---|
 | 0 | Lock the numbers | **DONE** 2026-10-09 | `Obby Card Game 2.0 - Core Numbers.md` |
-| 1 | Mosjes: Fighting → Digital → Artistic (stat block, 3 level rows, ability) | Fighting **DONE** 2026-10-09; Digital **DONE** 2026-10-09; Artistic next | `Obby Card Game 2.0 - Phase 1 Fighting Mosjes.md`, `Obby Card Game 2.0 - Phase 1 Digital Mosjes.md` |
+| 1 | Mosjes: Fighting → Digital → Artistic (stat block, 3 level rows, ability) | **DONE** 2026-10-09 (Fighting, Digital, Artistic) | `Obby Card Game 2.0 - Phase 1 Fighting Mosjes.md`, `... Digital Mosjes.md`, `... Artistic Mosjes.md` |
 | 2 | Quests: 3 typed stacks, odds for ★/★★/★★★, ≥1/3 need a Piecie or Place; add Quests so Mental/Social/Resilient have a home | not started | — |
 | 3 | Piecies & Snelle: MP → Energy, Power-based attacks, tags (food/gear/substance/pet), reword "active Mosje" cards | not started | — |
 | 4 | Places: each changes combat or Quests; good-for / bad-for | not started | — |
@@ -30,6 +30,7 @@ Git: work on a branch (`docs/obby-2.0-...`), never commit straight to `main`.
 | 7 | Visual production | not started | — |
 
 ## Reminders for later phases
+- Parked Mosjes (Binti The Creator, The Amplifier, Kast-elein) come back only if you ask; see the Artistic doc.
 - Cleanup backlog: reword "your active Mosje" in Broodje Döner, Ronald Kip, Nature's Gift, Perfect Setup, MP Adjuster, Emergency Swap; Mosje Reborn mentions Level 0.
 - Phase 5 balance checks: levelling leaves you at 0 MP (any hit drops it), Prepared-band Quests too strong, player 1 advantage, cooldown turn strength (see Core Numbers §7).
 - Phase 6 handoff must include: Energy pool, Power + attack action, level path, getemt/sideways, fresh-Mosje protection, Snelle slot rule, 3 typed Quest slots, cooldown turn on deck-out, new board layout.

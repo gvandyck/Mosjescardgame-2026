@@ -37,13 +37,13 @@ V4 holds **14** Digital Mosjes, not 15 (the Progress note counted one too many).
 | Ronald, The Master Chef | **Strategic Insight** — once per turn, pay 2 Energy: look at your opponent's hand and choose 1 card. They set it face-down beside their field; it returns to their hand at the end of their next turn. | Synergy: Ronald Kip, Chef's Special |
 | Ming, The Natural | **Lucky Draw** — once per turn, reveal the top card of your deck. A Piecie: activate it for free (no Energy, no face-down wait) or add it to your hand. Anything else: draw it and gain 15 MP. | — |
 | Ming, The Predictor | **Future Sight** — once per turn, look at the top card of one Quest stack. You may pay 1 Energy to put it on the bottom of that stack. | — |
-| Martin, The Historian | **Time Control** — once per turn, instead of your normal draw, look at the top 5 cards of any deck, put them back in any order and gain 15 MP. At the end of your turn, draw 2 cards. | — |
+| Martin, The Historian | **Time Control** — once per turn, instead of your normal draw, look at the top 5 cards of any deck, put them back in any order and gain 15 MP. At the end of your turn, draw 2 cards. | holds the Cless, The Teacher text (below) |
 | Martin, Senor West | **Calculated Guess** — once per turn: name a card type (Mosje, Piecie, Snelle, Place or Quest), then reveal the top card of any deck and put it back. Correct: draw 2 cards and gain 10 MP. Wrong: lose 10 MP. | holds the Cless text (below) |
 | Coert, The Hawaiian Tech Savant | **Extra Resources** — during your draw, pay 1 Energy to draw 1 extra card (up to 2 times per turn). | Synergy: Binti, The Sharp Tongue |
 | [...], The Hacker | **System Hack** — once per turn, pay 1 Energy: look at the top 3 cards of any deck, put them back in any order and gain 10 MP. | — |
 | Jeffrey, The Silent Gambler | **High Stakes** — once per turn, stake 1 or 2 Energy and roll a die: 1–2 the Energy is lost; 3–4 you get it back; 5–6 you get it back, draw 1 card and gain 10 MP per Energy staked, and your next Quest success this turn gives +15 MP extra. | — |
-| Chris, The All-Rounder | **Perfect Setup** — once per turn, if all 3 of your Piecie slots hold face-down Piecies: activate one of them for free (no Energy) and gain 15 MP. | Synergy: Youri |
-| Youri, The Speedrunner | **Speed Activate** — once per turn, pay 1 Energy: activate a Piecie the same turn you placed it (still pay its cost), then draw 1 card. | holds the Chris text (below) |
+| Chris, The All-Rounder | **Perfect Setup** — once per turn, if all 3 of your Piecie slots hold face-down Piecies: activate one of them for free (no Energy) and gain 15 MP. | — (Youri label removed in the Artistic phase) |
+| Youri, The Speedrunner | **Speed Activate** — once per turn, pay 1 Energy: activate a Piecie the same turn you placed it (still pay its cost), then draw 1 card. | holds the Dancing/DDR Chris text (below) |
 | Placeholder 1, The Tactician | **MP Manipulation** — once per turn, pay 2 Energy: choose one Mosje (yours or an opponent's) and set its MP to any value under 80 until the end of the turn. Any MP it gains or loses this turn is kept: at the end of the turn it goes back to its old MP plus those gains and losses. | — |
 | Placeholder 4, The Drainer | **Continuous Drain** — at the start of each opponent's turn, one of their Mosjes of your choice loses 5 MP (a Mosje at 0 MP can't be chosen). | — |
 | FPS Coert | **Headshot Precision** — when this Mosje succeeds at a Physical or Technical Quest, roll a die: on a 6 it gains 30 MP and one opponent's Mosje loses 15 MP. | Synergy: FPS West |
@@ -55,7 +55,8 @@ Text must start "While <partner> is also on your field:".
 | Holder | Partner | Text |
 |---|---|---|
 | Martin, Senor West | AZN Cless, The Wild Card | While AZN Cless is also on your field: when your Mosjes succeed at Physical Quests they gain +15 MP extra, and once per turn you may look at the top card of a Quest stack before attempting. |
-| Youri, The Speedrunner | Chris, The All-Rounder | While Chris, The All-Rounder is also on your field: you may activate Piecies the turn you place them, without paying for Speed Activate (still pay their Energy cost). |
+| Youri, The Speedrunner | Dancing/DDR Chris | While Dancing/DDR Chris is also on your field: you may activate Piecies the turn you place them, without paying for Speed Activate (still pay their Energy cost). |
+| Martin, The Historian | Cless, The Teacher | While Cless, The Teacher is also on your field: Teaching Moment draws on a 4–6 instead of 5–6, and when Time Control looks at your own deck you may put 1 of those 5 cards into your hand. |
 | FPS West | FPS Coert | While FPS Coert is also on your field: when either of them succeeds at a Quest, both gain 10 MP. Once per turn you may make your opponent reveal their hand. |
 
 ## Change notes (V4 → 2.0)
@@ -83,6 +84,6 @@ Text must start "While <partner> is also on your field:".
 4. **Info abilities** (Ronald, FPS West, FPS Coert synergy, Senor West) all look at hidden info; test on paper that checking hands doesn't slow the table.
 5. **Tactician combo:** set an opponent's Mosje to 0, then any MP loss to it counts as getemt (a level drop) — 2 Energy plus a cheap attack. Check on paper whether getemt at a temporary 0 should count, or whether temporary MP is immune to getemt. Also needs a table marker for "old MP" (e.g. leave the real MP marker, slide a second one).
 6. **Getemt at 0:** Senor West wrong guess, FPS West wrong guess and Gandoe's own rolls hurt at 0 MP. Same risk as the Fighting flag 1.
-7. **Synergy text owed on Artistic cards:** Binti, The Sharp Tongue ↔ Coert Savant (Food Piecie bonus; also KasteLuck and Kast-elein name Binti); Cless, The Teacher ↔ West (Teacher still names "West"; point it at Senor West); Dancing/DDR Chris ↔ Youri (uses the Youri text above). FPS West no longer pairs with Cless.
+7. ~~Synergy text owed on Artistic cards~~ — settled in `Phase 1 Artistic Mosjes`: Binti, The Sharp Tongue holds the Coert Savant text only (KasteLuck and Kast-elein dropped it); Cless, The Teacher pairs with Martin, The Historian (text above); Youri pairs with Dancing/DDR Chris only and Chris, The All-Rounder lost the Youri label. FPS West no longer pairs with Cless.
 8. **Youri's per-game limit is gone:** with 1 Energy per use it can fire every turn. Check against the Snelle slot rule in Phase 3.
 9. **Rarity column is a proposal** from the Core Numbers guide, ignoring the web game's current re-tiering.
