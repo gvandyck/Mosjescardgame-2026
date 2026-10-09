@@ -4,9 +4,9 @@ Source docs: `Obby Card Game 2.0 - Rules and Decisions`, `Obby Card Game 2.0 - R
 Docs for this rework live in `docs/obby-2.0/` (design only, no engine code touched).
 
 ## Status
-- **Current phase:** Phase 1 in progress — Fighting DONE, Digital next, then Artistic
-- **Done:** Phase 0 — `Obby Card Game 2.0 - Core Numbers.md`; Phase 1 Fighting — `Obby Card Game 2.0 - Phase 1 Fighting Mosjes.md`
-- **Next:** Phase 1 Digital Mosjes (15 cards, many with synergies). Start a fresh chat and say "start on phase 1, Digital"; `README.md` tells it what to read.
+- **Current phase:** Phase 1 in progress — Fighting DONE, Digital DONE, Artistic next
+- **Done:** Phase 0 — `Obby Card Game 2.0 - Core Numbers.md`; Phase 1 Fighting — `Obby Card Game 2.0 - Phase 1 Fighting Mosjes.md`; Phase 1 Digital — `Obby Card Game 2.0 - Phase 1 Digital Mosjes.md`
+- **Next:** Phase 1 Artistic Mosjes (14 cards; Binti hub synergy, Cless Teacher/West, DDR Chris ↔ Youri owed). Start a fresh chat and say "start on phase 1, Artistic"; `README.md` tells it what to read.
 
 ## Decisions made
 - Summoning costs the printed Energy; the first Mosje at setup is free.
@@ -20,7 +20,10 @@ Docs for this rework live in `docs/obby-2.0/` (design only, no engine code touch
 - **Synergies are labels:** a Mosje prints only `Synergy: <card name>`; the named card explains the effect while both are on the field (Phase 1).
 - **Getemt trigger:** any MP loss at 0 MP counts (failed Quests and own ability costs too), not only opponent attacks (Phase 1).
 
+- **West synergy (Digital):** only Senor West pairs with Cless; FPS West keeps FPS Coert only.
+
 ## Small things I decided myself (check these)
+- Phase 1 Digital: Technical climbs first in level paths; activated abilities pay Energy not MP; "once every 5 turns / 3 per game" limits became once per turn + Energy; one holder card per synergy pair (Senor West, Youri, FPS West); Ming Natural cost 3; Tactician 2 Energy and only 30–90 MP targets; Drainer never hits 0 MP Mosjes; Coert extra draws capped at 2; Digital roster is 14 cards, not 15.
 - Phase 1 Fighting: level paths (one trait +1 star per level, V4 traits = LVL 1), rarity proposals, start-MP changes for Cless (30), Michelle (10), Jeffrey/Fissa costs, Destroyer's Strike limited to "lowest-level Mosje", on your turn only, cost 4 Energy.
 - Docs are stored in the repo at `docs/obby-2.0/`; Card List V4 on Drive is read-only source.
 - Minimum 1 die on a Quest even with 0 stars in the trait; max 4 dice.

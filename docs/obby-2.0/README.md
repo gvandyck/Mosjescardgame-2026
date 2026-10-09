@@ -21,7 +21,7 @@ Git: work on a branch (`docs/obby-2.0-...`), never commit straight to `main`.
 | Phase | What | Status | Output doc |
 |---|---|---|---|
 | 0 | Lock the numbers | **DONE** 2026-10-09 | `Obby Card Game 2.0 - Core Numbers.md` |
-| 1 | Mosjes: Fighting → Digital → Artistic (stat block, 3 level rows, ability) | Fighting **DONE** 2026-10-09; Digital next, then Artistic | `Obby Card Game 2.0 - Phase 1 Fighting Mosjes.md` |
+| 1 | Mosjes: Fighting → Digital → Artistic (stat block, 3 level rows, ability) | Fighting **DONE** 2026-10-09; Digital **DONE** 2026-10-09; Artistic next | `Obby Card Game 2.0 - Phase 1 Fighting Mosjes.md`, `Obby Card Game 2.0 - Phase 1 Digital Mosjes.md` |
 | 2 | Quests: 3 typed stacks, odds for ★/★★/★★★, ≥1/3 need a Piecie or Place; add Quests so Mental/Social/Resilient have a home | not started | — |
 | 3 | Piecies & Snelle: MP → Energy, Power-based attacks, tags (food/gear/substance/pet), reword "active Mosje" cards | not started | — |
 | 4 | Places: each changes combat or Quests; good-for / bad-for | not started | — |

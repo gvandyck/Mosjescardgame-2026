@@ -29,7 +29,7 @@ Digital and Artistic Mosjes follow in their own sessions and use the same format
 | Jeffrey, The Strongman | **Brute Force** — whenever one of your Mosjes succeeds at a Quest, it gets +10 MP extra. While Jeffrey is on your field, you can't activate Piecies that give MP. | — |
 | Alyssa, The Bulldozer | **Unstoppable** — when she is taksed for 30 or more MP in one turn, she gains 25 MP and has +10 Power this turn. | — |
 | Alyssa, Fissa Fissa! | **Party Power** — when a Place is destroyed by a card you activated, this Mosje gains 20 MP (once per turn). | — |
-| AZN Cless, The Wild Card | **Risk & Reward** — at the end of your turn roll a die: 1 discard a card from your hand; 6 draw 2 cards and this Mosje gains 10 MP. | Synergy: Senor West, FPS West, ViannaPoes |
+| AZN Cless, The Wild Card | **Risk & Reward** — at the end of your turn roll a die: 1 discard a card from your hand; 6 draw 2 cards and this Mosje gains 10 MP. | Synergy: Senor West, ViannaPoes |
 | Michelle, Iron Tuk | **Tough Gamble** — when this Mosje succeeds at a Quest, roll a die: 1–3 it gets half the MP, 4–6 it gets double. | Synergy: Bowie & Stormey |
 | Parkour West, The Flow Fighter | **Flow** — when this Mosje succeeds at a Quest it gains 20 MP. Once per turn, when it is taksed for 30 or more MP, it loses 20 less. | — |
 | Gandoe, The Destroyer | **Elimination Strike** — once per game, pay 4 Energy: send your opponent's lowest-level Mosje to the Welloe pile (you choose if tied). | — |
@@ -51,5 +51,5 @@ Digital and Artistic Mosjes follow in their own sessions and use the same format
 2. **0-MP starters** (Alyssa Bulldozer, Gandoe Destroyer) are getemt on their first failed Quest. That's the cost of their Power 30; test it.
 3. **Gandoe Wizard's Chaos Roll** at 0 MP: a 1–2 makes him getemt. Chaos is on-brand, but it's a 33% self-sabotage per turn at 0 MP.
 4. **Rarity column is a proposal** from the Core Numbers guide, ignoring the web game's current re-tiering.
-5. **Labels name multiple Wests** (Senor West, FPS West). If we want fewer, pick one in the Digital phase.
-6. **Synergy text owed** (to write on the named cards): Senor West and FPS West ↔ Cless (Physical Quests +15 MP, look at top Quest), ViannaPoes (Cless/Hayabusa −50% MP loss, Phase 3), Bowie & Stormey (Michelle/Gandoe/Tuk/DJ, Phase 3).
+5. ~~Labels name multiple Wests~~ — settled in the Digital phase: only Senor West pairs with Cless.
+6. **Synergy text owed** (to write on the named cards): ~~Senor West ↔ Cless~~ written in the Digital doc; ViannaPoes (Cless/Hayabusa −50% MP loss, Phase 3), Bowie & Stormey (Michelle/Gandoe/Tuk/DJ, Phase 3).
