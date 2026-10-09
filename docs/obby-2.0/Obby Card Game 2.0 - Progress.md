@@ -41,7 +41,7 @@ Stacks are now 13 / 13 / 12 = 38 Quests. Update the Phase 2 doc table when the n
 - **Parkeren Delft weakness** moves to the Quest (Phase 2).
 
 ### Phase 2 decisions (Quests)
-- **36 Quests, 3 stacks of 12**; Fighting = Physical (side Resilient), Digital = Technical (side Mental), Artistic = Creative (side Social). About 1/3 of each stack rolls the side trait.
+- **38 Quests in 3 stacks (Fighting 13, Digital 13, Artistic 12)**; Fighting = Physical (side Resilient), Digital = Technical (side Mental), Artistic = Creative (side Social). About 1/3 of each stack rolls the side trait.
 - **Failed Quests:** a Quest is replaced when won or after **2 failed attempts by anyone** (token/die on the card).
 - **Jabs:** a few Quests may make one opponent Mosje lose 10 MP on a win. It counts as MP loss, so it can getemt a 0-MP Mosje (your ruling). 6 Quests have one.
 - **Trained Quests:** one per stack, ★★ needed, no roll, +25, can't fail (Sprint Race, Debug System, Team Building).
