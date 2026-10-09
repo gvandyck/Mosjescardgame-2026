@@ -15,6 +15,9 @@ Locked 2026-10-09. Every later phase uses these numbers. Change a number here fi
 | Shields (Phase 3) | Cards reduce MP loss ("loses X less"), they never stop it. A loss reduced to 0 is no loss: no getemt, also at 0 MP. |
 | Fresh Mosje (Phase 3) | Off-limits to all opponent cards, Quest jabs and abilities until the start of its owner's next turn, not only to attacks. |
 | Snelle slot (Phase 3) | A Snelle needs a free Piecie slot: it goes into the slot, resolves, then goes to the discard pile. |
+| Playing a Place (Phase 4) | On your turn, from your hand, only when no Place is in play: pay its cost (2–4 Energy) and put it in the middle. It works at once and needs no slot. It stays until destroyed and belongs to whoever played it. |
+| Places and fresh Mosjes (Phase 4) | A Place's text applies to every Mosje on the table, except fresh Mosjes: they ignore Places (good and bad side) until the start of their owner's next turn. |
+| Power floor (Phase 4) | Power never goes below 0. An attack with 0 Power does nothing. |
 
 ### 1a. Cooldown turn (deck-out)
 When you must draw and your deck is empty: shuffle your discard pile into a new deck, draw as normal, and that whole turn is a cooldown turn:

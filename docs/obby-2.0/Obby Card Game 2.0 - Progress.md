@@ -4,14 +4,17 @@ Source docs: `Obby Card Game 2.0 - Rules and Decisions`, `Obby Card Game 2.0 - R
 Docs for this rework live in `docs/obby-2.0/` (design only, no engine code touched).
 
 ## Status
-- **Current phase:** Phase 3 DONE (Piecies & Snelle). Phase 4 next.
-- **Done:** Phase 0 — `Obby Card Game 2.0 - Core Numbers.md`; Phase 1 Fighting — `Obby Card Game 2.0 - Phase 1 Fighting Mosjes.md`; Phase 1 Digital — `Obby Card Game 2.0 - Phase 1 Digital Mosjes.md`; Phase 1 Artistic — `Obby Card Game 2.0 - Phase 1 Artistic Mosjes.md`; Phase 2 — `Obby Card Game 2.0 - Phase 2 Quests.md`; Phase 3 — `Obby Card Game 2.0 - Phase 3 Piecies and Snelle.md`
-- **Next:** Phase 4 Places (each Place changes combat or Quests; good for / bad for). Start a fresh chat and say "start on phase 4".
+- **Current phase:** Phase 4 DONE (Places). Phase 5 next.
+- **Done:** Phase 0 — `Obby Card Game 2.0 - Core Numbers.md`; Phase 1 Fighting — `Obby Card Game 2.0 - Phase 1 Fighting Mosjes.md`; Phase 1 Digital — `Obby Card Game 2.0 - Phase 1 Digital Mosjes.md`; Phase 1 Artistic — `Obby Card Game 2.0 - Phase 1 Artistic Mosjes.md`; Phase 2 — `Obby Card Game 2.0 - Phase 2 Quests.md`; Phase 3 — `Obby Card Game 2.0 - Phase 3 Piecies and Snelle.md`; Phase 4 — `Obby Card Game 2.0 - Phase 4 Places.md`
+- **Next:** Phase 5 Starter decks (min 30 cards) + paper playtests. Start a fresh chat and say "start on phase 5".
 
-## Carried into Phase 4
-- **Card source for Places:** Phase 3 used V4 **plus** the web game's cards (`src/data/piecies.js`, `src/data/snellePiecies.js`), with web names and mostly web texts. The web game also has its own Places (`src/data/places.js`, e.g. Boxing Ring). Ask Gandalf at the start of Phase 4 whether to treat Places the same way.
-- **Place hooks left by Phase 3:** Boxing Ring (Protein Shake's old bonus), Bank Chilling (Jantje Jantje... Jantje?), Dierenasiel (pets), Digital Gaming Stop (gear is now 6 cards, sport gear included), Delluft (Parkeren Delft), Coert's Explosive Caravan. Four Place destroyers exist (Slecht Gezet, Bong Hit Demolition, Shhh popo komt!, Huisbaas) plus Chillingsvoorbij! to get one back.
-- **Ultimate Challenge** (Fighting Quest) needs a Place in play; Phase 2 suggested Places that give "+1 die" on a stack's Quests.
+## Carried into Phase 5
+- **Places in decks:** 20 Places, only one in play at a time and it stays until destroyed. Give each starter deck 1–3 Places and 1–2 destroyers (Slecht Gezet, Bong Hit Demolition, Shhh, popo komt!, Huisbaas; Chillingsvoorbij! gets one back).
+- **Phase 4 flags to test on paper:** The Gym's 10 MP drain can getemt a 0-MP Mosje (left as is, "ignore for now"); the first Place locking the table; The Void; Momentum Stabilizer vs Level 3 holds; Delluft vs Cless decks; Eendjes Voeren making Resilient Quests easy. Details in the Phase 4 doc, "Flags".
+- **Digital decks** need a few Snelle for Cheat code (Phase 3 flag 11) and gear if they want Digital Gaming Stop.
+
+## Phase 4 outcome: Place hooks — settled
+Boxing Ring is in the pool and Protein Shake's Boxing Ring bonus is back. Bank Chilling still exists for Jantje Jantje... Jantje?. Dierenasiel makes pets cost 0. Digital Gaming Stop counts all 6 gear cards (sport gear too). Delluft gives Parkeren Delft +20. Coert's Caravan lets a Coert player activate 1 Piecie a turn for 0 Energy. Ultimate Challenge works with any of the 20 Places.
 
 ## Phase 3 outcome: tags (the Phase 2 dependency) — settled
 food 7, substance 9, gear 6 cards. Pet has 5, so **Endure Pain now needs "a Piecie of yours that stays in play"** instead of a pet (your call). The Phase 2 doc is updated.
@@ -57,7 +60,7 @@ Stacks are 13 / 13 / 12 = 38 Quests.
 - **Removed (4):** Elimination Challenge, The Gauntlet, Chain Master (merged into Speed Run), Precision Work.
 
 ### Phase 3 decisions (Piecies & Snelle)
-- **Card pool:** V4 + 9 web-only Piecies + Chillingsvoorbij! = **73 Piecies + 20 Snelle**. **Web names** for renamed cards (Eendjes voeren, Shoettoe, Pot of Weed, Dubbele Dosis, Leipe Swap, Not Today!, Je Weet Niet…).
+- **Card pool:** V4 + 9 web-only Piecies + Chillingsvoorbij! = **73 Piecies + 20 Snelle**. **Web names** for renamed cards (Shoettoe, Pot of Weed, Dubbele Dosis, Leipe Swap, Not Today!, Je Weet Niet…). Nature's Gift was also renamed ("Eendjes voeren") but got its V4 name back in Phase 4.
 - **Text base:** web text, except V4 for Lucky Cóin, Jammertje Gepakt!, Perfect Dodge, the Jensen!/Frenssen!/Blensen! chain and Counter Strikka (redirect, so it isn't a twin of Jammertje).
 - **Attacks are mostly Power boosts** ("+X Power this turn"); only a few small direct hits (10–15 MP) remain.
 - **Shields reduce, never stop** ("loses X less"). **A loss reduced to 0 is no loss**: no getemt, also at 0 MP. Added to Core Numbers §1.
@@ -74,7 +77,21 @@ Stacks are 13 / 13 / 12 = 38 Quests.
 - **Blensen!** = no opponent cards can target your Mosjes this turn (attacks still can). **Welloe Force** = thorns (attackers lose 15). **Drain Reversal** = 20 less + one opponent Mosje loses 10.
 - **Buurvrouw** left out (empty in V4, not in the web game).
 
+### Phase 4 decisions (Places)
+- **Card pool:** V4's 17 Places + the 4 web-only Places (Boxing Ring, Tesla, Eendjes Voeren, De Box) − Momentum Factory = **20 Places**.
+- **Momentum Factory parked** ("remove the card for now, I don't like it").
+- **Names stay**, Dutch included; shorter web spelling where V4 and web differ slightly (Coert's Caravan, Obby #1, Drain Zone, Synergy Chamber).
+- **Eendjes Voeren is the Place**; the Piecie goes back to its V4 name **Nature's Gift** (Phase 3 doc updated).
+- **V4 or web effect:** Claude picks per card, simpler effects preferred, several Places may share an effect ("you decide, I trust you"). The other version is in each change note.
+- **Playing a Place:** from hand on your turn, pay, works at once, no slot. Not on a cooldown turn. Rule 9 kept: it stays until destroyed.
+- **Fresh Mosjes ignore Places**, good and bad side, until the start of their owner's next turn. Added to Core Numbers §1.
+- **Good for / bad for:** anything goes (type, trait, named Mosje or play style), no balance target.
+- **MP drains:** no ruling this phase ("ignore for now"). Only The Gym keeps one (the Rules-doc sample); flagged for Phase 5.
+- **Delluft:** the parking fee is Energy: the first time a player pays Energy on their own turn they pay 1 more; Coert or Binti on your field = no fee, Cless = 2 more. Parkeren Delft wins +20.
+- **Protein Shake:** Boxing Ring bonus back (gains 35 with Physical ★★★ or while the Place is Boxing Ring).
+
 ## Small things I decided myself (check these)
+- Phase 4 Places: every card's choice between the V4 and web effect (you delegated it); all costs (★★ 2, ★★★ 2–3, ★★★★ 3, ★★★★★ 4) and rarities; Power never below 0 (Core Numbers §1); Gym text unchanged from the Rules doc; De Box names Gandoe, Michelle and Tuk (web grouping) and dropped the pair bonus; Tesla gives +1 die instead of MP and keeps its Coert requirement and self-destroy; Coert's Caravan dropped "+20 MP a turn"; Dierenasiel dropped the Cless bonus; Delluft: Coert/Binti beats Cless when both are on a field, Hayabusa dropped; Quest Haven dropped "2 Quests in a turn +25"; Obby #1 is +10 / −10 more; Drain Zone is +10 Power for all; Momentum Stabilizer uses the web cap (30 at once); The Void blocks MP gains from Piecies and Snelle; Welloe Graveyard 1 Energy cheaper kills + no revives; Synergy Chamber uses the web idea; "Good for / Bad for" may be printed small on the card.
 - Phase 3 Piecies & Snelle: all costs and rarities (from the table and budget; deviations noted per card: TweedeKANs 0, Pot of Weed 1, Bong Hit 2, Super Saiyan 3, Dubbele Ding 2, Ff Haaltje Nemen 2, Kleine Taks 1, pets 1); Power numbers on attack cards; default lasting time "until the end of your next turn"; Kleine Taks 2 ticks at the end of your turns; MP Hemorrhage bleed 10; pet synergy bonuses (+10 / +15) and Tony's "Morning Luck on 3–6"; Boxing Gloves gives Power instead of MP; Protein Shake's Boxing Ring bonus → Physical ★★★; Kan het?! 5–6 +40 / 1–4 −10; Shoettoe "20 or less: +30"; Chef's Special cap 45; Stookerino 10 MP per Energy; F1 Telemetry names only the Precision Driver; Battle Concert flat 15; Huisbaas checks the top of a discard pile; MP Amplifier doubles (max +40); Mosje Reborn +30 for 2 Energy; Call of the Welloes at starting MP; Jammertje's need lowered to Mental ★★; Emergency Healings uses V4's +25 because the web text was a full save; Dingetje toch?! meets requirements but adds no dice; Not Today! leaves at least 5 MP; one tag per card (Protein Shake = food); Lucky Cóin keeps its sample spelling.
 - Phase 2 Quests: which Quest got which band; Geen Raad's discard safety net; DJ 80/20's bonus dropped from Geen Raad; Parkeren Delft cost 'discard a ready Piecie' and 'remove up to 3 cards'; Parkour Challenge pays a Piecie instead of 10 MP; Sustained Assault became Steady with +1 die; Perfect Timing is a Coin flip with an MP window; Core Numbers EV typos fixed (Heroic ★★ −16, Gated ★★ +21).
 - Phase 1 Artistic: level paths (Creative first, then side trait), rarity proposals, start-MP/cost for all 10 cards, Tuk Healing's 20 MP and Power 10, Teacher+Historian text (Teaching Moment on 4–6, take 1 of the 5 into hand), Sims Architect cut of "place free" because placing is already free, Binti's opponent-chooses discard, Jisca keeps V4's "ignore damage at 0 MP".
@@ -93,7 +110,8 @@ Stacks are 13 / 13 / 12 = 38 Quests.
 ## Balance flags carried forward
 See §7 of the Core Numbers (level-up at 0 MP; no-star Quests; Prepared band strength; player 1 advantage with no compensation; cooldown turn strength).
 Phase 3 adds (details in its "Flags" section): Ronald Kip without a Level 2 gate; shield stacking on a Level 3; Jensen! cancelling kill cards; full Piecie rows blocking Snelle; 28 zero-cost Piecies; Leipe Swap + attack; MP Amplifier + Ronald Kip.
+Phase 4 adds (details in its "Flags" section): The Gym's drain can getemt a 0-MP Mosje; the first Place locks the table; The Void; Momentum Stabilizer vs Level 3; Delluft vs Cless; Eendjes Voeren and Resilient Quests; fresh Mosjes ignoring Places.
 
 ## Notes
-- Card List V4 has 8 Fighting, 14 Digital, 13 Artistic Mosjes (some are placeholders); 2.0 roster: 8 / 14 / 10, 73 Piecies + 20 Snelle (Phase 3), 16 Places, 38 Quests in 3 typed stacks of 13 / 13 / 12 (Phase 2).
+- Card List V4 has 8 Fighting, 14 Digital, 13 Artistic Mosjes (some are placeholders); 2.0 roster: 8 / 14 / 10, 73 Piecies + 20 Snelle (Phase 3), 20 Places (Phase 4; V4 has 17, not 16), 38 Quests in 3 typed stacks of 13 / 13 / 12 (Phase 2).
 - The web game (engine) is untouched; handoff comes in Phase 6.

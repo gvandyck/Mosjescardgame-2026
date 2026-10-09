@@ -45,9 +45,9 @@ Dingetje toch?! can count as any tag.
 | 4 | Ronald Kip | food | 2 | ★★★ | One of your Mosjes gains 50 MP. **While Ronald, The Master Chef is also on your field:** it gains 60 instead, and you draw 1 card. | Free + Lvl 2+ → 2 Energy, no gate. Holds Ronald Master Chef's synergy (his label). Cleanup reworded. |
 | 5 | Chef's Special | food | 1 | ★★★ | One of your Mosjes gains 15 MP. **While Ronald, The Master Chef is also on your field:** look at your opponent's hand instead; that Mosje gains 15 MP for each Piecie in it (at least 15, at most 45). | 10 MP → 1. V4 "30 MP per Piecie" had no cap. |
 | 6 | Varkenspootjes | food | 1 | ★★★ | Choose any Mosje that isn't fresh (yours or your opponent's). A Binti gains 40 MP. Any other Mosje loses 15 MP. | Your call: +60 / −30 → +40 / −15. Free → 1. With Coert Savant's food bonus Binti gains 50. V4 typo "Varkensoortjes" fixed. |
-| 7 | Protein Shake | food | 0 | ★★ | One of your Mosjes with Physical ★ or more gains 25 MP; with Physical ★★★ it gains 35. | Web-only. "+35 if Boxing Ring is the Place" → Physical ★★★ (Boxing Ring isn't a V4 Place; Phase 4 can add the hook back). Web had gear + food; one tag per card, so food. |
+| 7 | Protein Shake | food | 0 | ★★ | One of your Mosjes with Physical ★ or more gains 25 MP; with Physical ★★★, or while the Place is Boxing Ring, it gains 35. | Web-only. "+35 if Boxing Ring is the Place" first became Physical ★★★; Phase 4 added the Boxing Ring hook back (your call). Web had gear + food; one tag per card, so food. |
 | 8 | Momentum Boost | — | 0 | ★★ | One of your Mosjes gains 15 MP. If it wins a Quest this turn, it gains 10 MP more. | "Next Quest" → this turn. |
-| 9 | Eendjes voeren | — | 1 | ★★ | One of your Mosjes gains 30 MP; with Resilient ★★ or more it gains 40. | V4 "Nature's Gift" (web name). Free → 1. Cleanup reworded. |
+| 9 | Nature's Gift | — | 1 | ★★ | One of your Mosjes gains 30 MP; with Resilient ★★ or more it gains 40. | V4 name (Phase 4: the web name "Eendjes voeren" now belongs to the Place only). Free → 1. Cleanup reworded. |
 | 10 | Shoettoe | — | 0 | ★ | Only if one of your Mosjes has 20 MP or less: it gains 30 MP. | V4 "Energy Surge" (web name). "Under 30 MP: +20" → "20 or less: +30", so it beats Kannetje Melk when you're low. |
 
 ## B. Attack Piecies (Power) — 11
@@ -187,7 +187,6 @@ The Jensen → Frenssen → Blensen chain keeps V4's text (your exception).
 ## Renamed (web names, your call)
 | V4 name | 2.0 name |
 |---|---|
-| Nature's Gift | Eendjes voeren |
 | Energy Surge | Shoettoe |
 | Gun een Piece | Pot of Weed |
 | Quest Prep | Dubbele Dosis |
@@ -200,7 +199,7 @@ The Jensen → Frenssen → Blensen chain keeps V4's text (your exception).
 | Varkensoortjes | Varkenspootjes (V4 typo) |
 
 ## Cleanup backlog (from the Rules doc): done
-- "Your active Mosje" → "one of your Mosjes": Broodje Döner, Ronald Kip, Nature's Gift (Eendjes voeren), Perfect Setup, Emergency Swap (Leipe Swap). MP Adjuster is cut.
+- "Your active Mosje" → "one of your Mosjes": Broodje Döner, Ronald Kip, Nature's Gift, Perfect Setup, Emergency Swap (Leipe Swap). MP Adjuster is cut.
 - Mosje Reborn no longer mentions Level 0.
 
 ## Energy curve
@@ -223,7 +222,7 @@ Most Piecies are cheap on purpose: they already pay with a slot and a turn of wa
 6. **Leipe Swap + attack:** swap your 0-MP Mosje with their 95, then attack their 0-MP Mosje and it is getemt. Limit 1 per deck; watch it.
 7. **MP Amplifier + Ronald Kip** = +90 MP from two cards (3 Energy), +100 with Ronald, The Master Chef. The Coert Savant food bonus was made flat to stop a jump like this; this combo needs 2 slots and 2 turns of setup. Watch it.
 8. **Kill cards:** Harde Didde, Klaar Met Jou (1 per deck each) and Gandoe, The Destroyer. Answers: Not Today!, Mosje Shield, Jensen! and Counter Strikka.
-9. **Phase 4 hooks:** Boxing Ring (old Protein Shake bonus), Bank Chilling (Jantje Jantje... Jantje?), Dierenasiel (pets), Digital Gaming Stop (gear; check whether it should count sport gear too), Delluft, Coert's Explosive Caravan. Four Place destroyers exist (Slecht Gezet, Bong Hit Demolition, Shhh popo komt!, Huisbaas), which feeds Alyssa, Fissa Fissa!.
+9. **Phase 4 hooks** (done in the Phase 4 doc; Protein Shake's Boxing Ring bonus is back): Boxing Ring (old Protein Shake bonus), Bank Chilling (Jantje Jantje... Jantje?), Dierenasiel (pets), Digital Gaming Stop (gear; check whether it should count sport gear too), Delluft, Coert's Explosive Caravan. Four Place destroyers exist (Slecht Gezet, Bong Hit Demolition, Shhh popo komt!, Huisbaas), which feeds Alyssa, Fissa Fissa!.
 10. **Phase 2 wording to settle:** Dutch courage and Larry Temmen say "discard 1 substance Piecie" without "ready" or "from your hand"; Endurance Test says "ready". Pick one wording in Phase 5 or 6.
 11. **Cheat code** (Digital Quest) discards a Snelle; Digital starter decks need a few (Phase 5).
 12. **Web game drift:** the web game already has tags (FOOD, PET, SUBSTANCE, DIGITAL-EQUIPMENT, PHYSICAL-EQUIPMENT). In the Phase 6 handoff the two equipment tags become one `gear` tag, and every text in this doc replaces the web text.

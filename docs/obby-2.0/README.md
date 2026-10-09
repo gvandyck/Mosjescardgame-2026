@@ -24,13 +24,13 @@ Git: work on a branch (`docs/obby-2.0-...`), never commit straight to `main`.
 | 1 | Mosjes: Fighting → Digital → Artistic (stat block, 3 level rows, ability) | **DONE** 2026-10-09 (Fighting, Digital, Artistic) | `Obby Card Game 2.0 - Phase 1 Fighting Mosjes.md`, `... Digital Mosjes.md`, `... Artistic Mosjes.md` |
 | 2 | Quests: 3 typed stacks, odds for ★/★★/★★★, ≥1/3 need a Piecie or Place; add Quests so Mental/Social/Resilient have a home | **DONE** 2026-10-10 | `Obby Card Game 2.0 - Phase 2 Quests.md` |
 | 3 | Piecies & Snelle: MP → Energy, Power-based attacks, tags (food/gear/substance/pet), reword "active Mosje" cards | **DONE** 2026-10-10 | `Obby Card Game 2.0 - Phase 3 Piecies and Snelle.md` |
-| 4 | Places: each changes combat or Quests; good-for / bad-for | not started | — |
+| 4 | Places: each changes combat or Quests; good-for / bad-for | **DONE** 2026-10-10 | `Obby Card Game 2.0 - Phase 4 Places.md` |
 | 5 | Starter decks (min 30 cards) + paper playtests | not started | — |
 | 6 | Card List 2.0, Example Decks 2.0, Claude Code handoff for the web game | not started | — |
 | 7 | Visual production | not started | — |
 
 ## Reminders for later phases
-- **Phase 4:** ask first whether the web game's Places (`src/data/places.js`) join the pool, like the web Piecies did in Phase 3. Place hooks waiting: Boxing Ring, Bank Chilling, Dierenasiel, Digital Gaming Stop, Delluft (list in `Progress.md`, "Carried into Phase 4").
+- Parked Place: Momentum Factory comes back only if you ask (Phase 4 doc).
 - Parked Mosjes (Binti The Creator, The Amplifier, Kast-elein) come back only if you ask; see the Artistic doc.
-- Phase 5 balance checks: levelling leaves you at 0 MP (any hit drops it), Prepared-band Quests too strong, player 1 advantage, cooldown turn strength (see Core Numbers §7); plus the Phase 3 flags (shield stacking on a Level 3, Ronald Kip without a gate, full Piecie rows blocking Snelle, Leipe Swap).
-- Phase 6 handoff must include: Energy pool, Power + attack action, level path, getemt/sideways, fresh-Mosje protection (off-limits to all opponent effects), Snelle slot rule, 3 typed Quest slots, cooldown turn on deck-out, new board layout, Piecie tags (one `gear` tag replaces the web's two equipment tags), "Stays" cards in their slot, "a loss reduced to 0 is no loss".
+- Phase 5 balance checks: levelling leaves you at 0 MP (any hit drops it), Prepared-band Quests too strong, player 1 advantage, cooldown turn strength (see Core Numbers §7); plus the Phase 3 flags (shield stacking on a Level 3, Ronald Kip without a gate, full Piecie rows blocking Snelle, Leipe Swap) and the Phase 4 flags (The Gym's drain and getemt, the first Place locking the table, The Void, Delluft vs Cless). Each starter deck gets 1–3 Places and 1–2 Place destroyers.
+- Phase 6 handoff must include: Energy pool, Power + attack action, level path, getemt/sideways, fresh-Mosje protection (off-limits to all opponent effects), Snelle slot rule, 3 typed Quest slots, cooldown turn on deck-out, new board layout, Piecie tags (one `gear` tag replaces the web's two equipment tags), "Stays" cards in their slot, "a loss reduced to 0 is no loss", Places 2.0 (play from hand and work at once, fresh Mosjes ignore Places, Power never below 0, unhide Drain Zone and The Void, drop Momentum Factory, rename the web Piecie "Eendjes voeren" back to Nature's Gift).

@@ -113,7 +113,7 @@ Piecie or Place needed: **5 of 13** in Fighting, **5 of 13** in Digital, **4 of 
 | Form Alliance | Social ★★ + give opponent 10 MP | Skilled Social; the opponent's 10 MP is now a win side effect. |
 | Negotiation | Social ★★★ or discard a Piecie | Prepared: discard a Piecie. |
 | Larry Temmen Niemand Zeggen | needs Larry; opponent guesses Hand/Field; +70 / −60 | Prepared: discard a substance Piecie; Larry/Zegeltje gives the jab. No guessing step. |
-| Parkeren Delft | −60 self-damage, remove 5 cards; Coert/Cless/Delluft rules | Prepared; Coert +10, Cless −10 more on failure, remove up to 3 cards. Delluft is Phase 4. |
+| Parkeren Delft | −60 self-damage, remove 5 cards; Coert/Cless/Delluft rules | Prepared; Coert +10, Cless −10 more on failure, remove up to 3 cards. Delluft (Phase 4) adds +20 on a win; that line is on the Place. |
 | Shotje Obby | highest total loses, middle gets +20, lowest +60 | Gated: only the player behind may attempt it; jab hits the leader. |
 | Create Masterpiecie | Creative ★★ + 3 Piecies in play | Gated Creative. |
 | Artistic Expression / Improvise! / Lucky Break / Inspire Crowd / Leap of Faith | various | Steady / Steady (+1 die for 1 Energy) / Heroic / Steady / Coin flip. |
