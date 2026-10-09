@@ -106,9 +106,9 @@ Expected MP of each attempt (success% × S − fail% × F):
 |---|---|---|---|---|
 | Steady | +5 | +15 | +20 | +22 |
 | Skilled | −30 | −13 | +5 | +18 |
-| Heroic | −25 | −9 | −3 | +10 |
+| Heroic | −25 | −16 | −3 | +10 |
 | Prepared | +10 | +30 | +39 | +43 |
-| Gated | +7 | +23 | +29 | +31 |
+| Gated | +8 | +21 | +28 | +32 |
 
 How to read it: Skilled and Heroic are bad bets until you have stars or a Place helping, which is the point. Prepared is strongest on purpose; it costs a card.
 Target mix per 10-Quest stack: 3 Steady, 2 Skilled, 1–2 Heroic, 2 Prepared, 1 Gated or Coin flip; at least 1/3 must need a Piecie or Place.
