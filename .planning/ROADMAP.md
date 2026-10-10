@@ -28,7 +28,7 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 | # | Phase | Goal | Requirements | Success Criteria |
 |---|-------|------|--------------|------------------|
 | 53 | 2.0 Card Data and Example Decks | 7/7 | Complete    | 2026-10-10 |
-| 54 | Energy, Levels and Getemt | Mosjes level, getemt, win and lose by 2.0 rules; Energy is the only currency | RULE-01, 02, 03, 04, 09 | 5 |
+| 54 | Energy, Levels and Getemt | 1/16 | In Progress|  |
 | 55 | Turn Flow, Setup and Protection | A game sets up and runs turn by turn under 2.0 flow | RULE-05, 06, 07, 08, 10, TABLE-01 | 5 |
 | 56 | Attacking and Quests | Each Mosje's one action (attack or Quest) works by 2.0 rules | PLAY-01..07 | 5 |
 | 57 | Piecies, Snelle, Places and Reaction Windows | Table cards follow 2.0 lifecycles; the engine offers reaction Snelle | TABLE-02..06, SHELL-04 | 5 |
@@ -79,7 +79,7 @@ Plans:
 **Notes**: MP-touching phase: run the full CLAUDE.md verification including the sim. The old Ronald Kip stacking test is replaced in Phase 59.
 **Plans**: 16 plans (12 waves)
 Plans:
-- [ ] 54-01-PLAN.md — Energy pool (start 2, +1/turn, max 6), payEnergy/canPay/gainEnergy, welloePile state, E1, test builder + setEnergy hook
+- [x] 54-01-PLAN.md — Energy pool (start 2, +1/turn, max 6), payEnergy/canPay/gainEnergy, welloePile state, E1, test builder + setEnergy hook
 - [ ] 54-02-PLAN.md — Energy pays Piecie activations, Snelle and Places; Welloe Force stops spending MP
 - [ ] 54-03-PLAN.md — Ability Energy costs in src/rules/abilityEnergyCosts.js; useMosjeAbility charges on success; Ronald/Youri/Gandoe stop taking MP
 - [ ] 54-04-PLAN.md — 20 MP Quest cost and MP gates removed from UI/bot, Energy labels, no-MP-currency guard (RULE-01 complete)
