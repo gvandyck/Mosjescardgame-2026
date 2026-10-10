@@ -4,11 +4,11 @@ Source docs: `Obby Card Game 2.0 - Rules and Decisions`, `Obby Card Game 2.0 - R
 Docs for this rework live in `docs/obby-2.0/` (design only, no engine code touched).
 
 ## Status
-- **Current phase:** Phase 5 IN PROGRESS (starter decks built + desk-tested, R1–R6 adopted; paper games still to play).
+- **Current phase:** Phase 5 DONE (starter decks + desk test, R1–R6 adopted). Balancing and paper games parked for later (your call). Phase 6 next.
 - **Done:** Phase 0 — `Obby Card Game 2.0 - Core Numbers.md`; Phase 1 Fighting — `Obby Card Game 2.0 - Phase 1 Fighting Mosjes.md`; Phase 1 Digital — `Obby Card Game 2.0 - Phase 1 Digital Mosjes.md`; Phase 1 Artistic — `Obby Card Game 2.0 - Phase 1 Artistic Mosjes.md`; Phase 2 — `Obby Card Game 2.0 - Phase 2 Quests.md`; Phase 3 — `Obby Card Game 2.0 - Phase 3 Piecies and Snelle.md`; Phase 4 — `Obby Card Game 2.0 - Phase 4 Places.md`
-- **Next:** play the 9 paper games with the score sheet in `Obby Card Game 2.0 - Phase 5 Starter Decks.md`. Phase 5 is done when those games meet its "Done when". Then Phase 6.
+- **Next:** Phase 6: Card List 2.0, Example Decks 2.0 and the Claude Code handoff for the web game. Balancing (paper games, Phase 5 score sheet) comes back later when you ask.
 
-## Phase 5 so far (2026-10-10, no questions asked by request)
+## Phase 5 outcome (2026-10-10, no questions asked by request)
 - **3 starter decks, 30 cards each:** Fighting "Taksen", Digital "Regelaars", Artistic "Creatievelingen". 6 Mosjes, 2 Places, 2 destroyers, 18 Piecies, 4 Snelle each; max 2 copies; the starting Mosje is one of the 30.
 - **Desk test:** `tools/obby_desk_sim.py` (Python, bots, 2,700 games per rule set). As written: median 21 rounds, 20% stall at 30 rounds, 78% attacks, seat 1 wins 65%, Level 3 holds 45%, Digital 13% deck win rate. Deck-outs, Energy and Places look fine.
 - **Adopted (your OK, "do all your suggestions"):** R1 empty field = free cheapest Mosje, lose with no Mosjes left; R2 level-up protection; R3 every Mosje −10 Power on every level, no floor (Power-10 Mosjes now 0 at Level 1); R4 Tuk's Healing Hands costs 1 Energy; R5 player 1 skips their first draw; R6 Digital deck: Mouse + Loaded Dice → 2nd Broodje Döner + Super Saiyan Mos. Written into Core Numbers §1/§4/§7 and the Phase 1 docs.

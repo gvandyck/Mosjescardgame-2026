@@ -25,11 +25,12 @@ Git: work on a branch (`docs/obby-2.0-...`), never commit straight to `main`.
 | 2 | Quests: 3 typed stacks, odds for ★/★★/★★★, ≥1/3 need a Piecie or Place; add Quests so Mental/Social/Resilient have a home | **DONE** 2026-10-10 | `Obby Card Game 2.0 - Phase 2 Quests.md` |
 | 3 | Piecies & Snelle: MP → Energy, Power-based attacks, tags (food/gear/substance/pet), reword "active Mosje" cards | **DONE** 2026-10-10 | `Obby Card Game 2.0 - Phase 3 Piecies and Snelle.md` |
 | 4 | Places: each changes combat or Quests; good-for / bad-for | **DONE** 2026-10-10 | `Obby Card Game 2.0 - Phase 4 Places.md` |
-| 5 | Starter decks (min 30 cards) + paper playtests | **IN PROGRESS** 2026-10-10: decks + desk test done, R1–R6 adopted; paper games open | `Obby Card Game 2.0 - Phase 5 Starter Decks.md` |
+| 5 | Starter decks (min 30 cards) + paper playtests | **DONE** 2026-10-10: decks + desk test, R1–R6 adopted. Paper games and balancing parked for later (your call) | `Obby Card Game 2.0 - Phase 5 Starter Decks.md` |
 | 6 | Card List 2.0, Example Decks 2.0, Claude Code handoff for the web game | not started | — |
 | 7 | Visual production | not started | — |
 
 ## Reminders for later phases
+- **Balancing is parked (your call after Phase 5):** paper games with the Phase 5 score sheet, game length (median 15 rounds in the desk test, target 8–10), attack share (74%), Fighting 63% vs Digital 20%. Next levers: Quest wins +10 or start MP +10. Come back to it when you ask.
 - Parked Place: Momentum Factory comes back only if you ask (Phase 4 doc).
 - Parked Mosjes (Binti The Creator, The Amplifier, Kast-elein) come back only if you ask; see the Artistic doc.
 - Phase 5 balance checks: levelling leaves you at 0 MP (any hit drops it), Prepared-band Quests too strong, player 1 advantage, cooldown turn strength (see Core Numbers §7); plus the Phase 3 flags (shield stacking on a Level 3, Ronald Kip without a gate, full Piecie rows blocking Snelle, Leipe Swap) and the Phase 4 flags (The Gym's drain and getemt, the first Place locking the table, The Void, Delluft vs Cless). Each starter deck gets 1–3 Places and 1–2 Place destroyers.

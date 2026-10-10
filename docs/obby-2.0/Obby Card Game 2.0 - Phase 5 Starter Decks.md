@@ -1,6 +1,6 @@
 # Obby Card Game 2.0 — Phase 5: Starter decks + playtest
 
-Started 2026-10-10. Uses every earlier phase doc. **Status: decks built and desk-tested, R1–R6 adopted; the paper games are still to play** (they need people at a table). The "done when" from the Rework Plan (sensible game length, no deck-outs, both actions used) is **not met yet**: see Findings.
+Started 2026-10-10. Uses every earlier phase doc. **Status: DONE for now. Decks built and desk-tested, R1–R6 adopted. The paper games and further balancing are parked for later (your call: "balancing will be done later")** (they need people at a table). The "done when" from the Rework Plan (sensible game length, no deck-outs, both actions used) is **not met yet**: see Findings.
 
 You asked me not to ask questions this phase, so I made every call myself. The rule and card changes R1–R6 were first proposed, then **adopted on your OK** ("do all your suggestions") and written into the Core Numbers, the Phase 1 docs and the decks below.
 
