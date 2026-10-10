@@ -11,7 +11,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 - [ ] **SHELL-04**: V4-rule tests are rewritten or deleted on `obby-2.0`, never left failing (§6).
 
 ### Card data (DATA)
-- [ ] **DATA-01**: Every Card List card (32 Mosjes, 38 Quests, 73 Piecies, 20 Snelle, 20 Places) exists in `src/data/*.js` with its Card List name, text, Energy cost and rarity; existing ids kept, renames applied (§3a).
+- [x] **DATA-01**: Every Card List card (32 Mosjes, 38 Quests, 73 Piecies, 20 Snelle, 20 Places) exists in `src/data/*.js` with its Card List name, text, Energy cost and rarity; existing ids kept, renames applied (§3a).
 - [x] **DATA-02**: Mosjes carry `startMP`, `levels[3]` (Power + traits per level), ability text, synergy label/holder text and `limitPerDeck` (§3b).
 - [x] **DATA-03**: Piecies/Snelle carry `tag` (food 7, pet 5, substance 9, gear 6, max one), `stays`, `levelGate`, `limitPerDeck`, `givesMP` (§2g, §3b).
 - [x] **DATA-04**: Quests carry `stack`, `band`, `rollTrait`, cost, win/lose and extras; new `quest_dutch_courage` and `quest_cheat_code` exist (§3a–b).
@@ -96,7 +96,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 | SHELL-02 | Phase 64 | Pending |
 | SHELL-03 | Phase 64 | Pending |
 | SHELL-04 | Phase 57 | Pending |
-| DATA-01 | Phase 53 | Pending |
+| DATA-01 | Phase 53 | Complete |
 | DATA-02 | Phase 53 | Complete |
 | DATA-03 | Phase 53 | Complete |
 | DATA-04 | Phase 53 | Complete |
