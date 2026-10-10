@@ -17,6 +17,7 @@ files:
   - src/engine/turnManager.js:22-30 (hasBothChrisAndYouri)
   - src/engine/turnManager.js:39-70 (maybeChainChrisDdrCombo / DJ 8020 bonus)
   - src/engine/synergyResolver.js (getActiveSynergies, synergyWaiverActive gate)
+resolves_phase: 58
 ---
 
 ## Problem

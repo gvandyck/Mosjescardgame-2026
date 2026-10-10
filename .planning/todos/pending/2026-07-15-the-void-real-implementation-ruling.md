@@ -8,6 +8,7 @@ files:
   - src/engine/turnManager.js:820-827 (current activatePiecie RESTORE/FOOD tag block — too broad, to be narrowed)
   - src/abilities/questLogic.js (baseQuestMpBlocked — removed in Phase 35-07 as dead code; quests should NOT be Void-blocked per this ruling anyway)
   - src/data/piecies.js (every FOOD/RESTORE-tagged Piecie — needs per-card MP-direction classification)
+resolves_phase: 60
 ---
 
 ## Context
