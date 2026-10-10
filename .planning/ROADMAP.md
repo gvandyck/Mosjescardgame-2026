@@ -10,7 +10,7 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 
 ### Phases
 
-- [ ] **Phase 53: 2.0 Card Data and Example Decks** - All 183 Card List cards in `src/data/*.js` with 2.0 fields; hidden cards kept out; the 3 Example Decks ship
+- [x] **Phase 53: 2.0 Card Data and Example Decks** - All 183 Card List cards in `src/data/*.js` with 2.0 fields; hidden cards kept out; the 3 Example Decks ship (completed 2026-10-10)
 - [ ] **Phase 54: Energy, Levels and Getemt** - Energy pays for everything; 2.0 level-up, getemt, MP/Power grid and hold-Level-3 win/lose
 - [ ] **Phase 55: Turn Flow, Setup and Protection** - 2.0 setup, turn steps, R1/R2/R5, cooldown turn, summoning, fresh protection; V4 leftovers removed
 - [ ] **Phase 56: Attacking and Quests** - One action per Mosje: attack by Power, or try one of 3 typed Quests with dice, bands, fail tokens and jabs
@@ -27,7 +27,7 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 
 | # | Phase | Goal | Requirements | Success Criteria |
 |---|-------|------|--------------|------------------|
-| 53 | 2.0 Card Data and Example Decks | 6/7 | In Progress|  |
+| 53 | 2.0 Card Data and Example Decks | 7/7 | Complete   | 2026-10-10 |
 | 54 | Energy, Levels and Getemt | Mosjes level, getemt, win and lose by 2.0 rules; Energy is the only currency | RULE-01, 02, 03, 04, 09 | 5 |
 | 55 | Turn Flow, Setup and Protection | A game sets up and runs turn by turn under 2.0 flow | RULE-05, 06, 07, 08, 10, TABLE-01 | 5 |
 | 56 | Attacking and Quests | Each Mosje's one action (attack or Quest) works by 2.0 rules | PLAY-01..07 | 5 |
@@ -61,7 +61,7 @@ Plans:
 - [x] 53-04-PLAN.md — 73 Piecies + 20 Snelle (tag/stays/levelGate/limitPerDeck/givesMP), E28 tags, E29 part
 - [x] 53-05-PLAN.md — 38 Quests (Card List `text`, incl. Dutch courage, Cheat code) + 20 Places, Drain Zone/The Void unhidden
 - [x] 53-06-PLAN.md — Hide 15 parked/cut cards (disabled flag), un-hide Drainer, E29 umbrella bijection + exclusion
-- [ ] 53-07-PLAN.md — 3 Example Decks + E30, old decks hidden, deck surfaces/tests/specs, phase gate (npm test + sim)
+- [x] 53-07-PLAN.md — 3 Example Decks + E30, old decks hidden, deck surfaces/tests/specs, phase gate (npm test + sim)
 
 **Quest rarity note**: the 2.0 Card List prints no Quest rarity (Quests are framed by stack colour, Phase 7 §A7). The V4 Quest `rarity` is kept unchanged in Phase 53 (V4 only); per Phase 7 §A7 Quests use the tier 1 boxed frame (`getFrameTier` returns 1).
 
