@@ -27,7 +27,7 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 
 | # | Phase | Goal | Requirements | Success Criteria |
 |---|-------|------|--------------|------------------|
-| 53 | 2.0 Card Data and Example Decks | 7/7 | Complete   | 2026-10-10 |
+| 53 | 2.0 Card Data and Example Decks | 7/7 | Complete    | 2026-10-10 |
 | 54 | Energy, Levels and Getemt | Mosjes level, getemt, win and lose by 2.0 rules; Energy is the only currency | RULE-01, 02, 03, 04, 09 | 5 |
 | 55 | Turn Flow, Setup and Protection | A game sets up and runs turn by turn under 2.0 flow | RULE-05, 06, 07, 08, 10, TABLE-01 | 5 |
 | 56 | Attacking and Quests | Each Mosje's one action (attack or Quest) works by 2.0 rules | PLAY-01..07 | 5 |
