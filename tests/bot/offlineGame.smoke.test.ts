@@ -91,6 +91,26 @@ describe('Offline game smoke test', () => {
     expect(['player_1', 'player_2']).toContain(finalState!.winnerId);
   });
 
+  // Obby 2.0: V4 rules with 2.0 cards on the Example Decks. No FINISHED assertion
+  // (V4 engine + DEFAULT_BOT_PROFILE; 2.0 full-game specs are Phase 64).
+  it('EXAMPLE_TAKSEN vs EXAMPLE_REGELAARS runs without throwing', () => {
+    let finalState: GameState | undefined;
+    expect(() => {
+      finalState = runOfflineGame('EXAMPLE_TAKSEN', 'EXAMPLE_REGELAARS');
+    }).not.toThrow();
+    expect(Array.isArray(finalState!.players.player_1.activeSlots)).toBe(true);
+    expect(Array.isArray(finalState!.players.player_2.activeSlots)).toBe(true);
+  });
+
+  it('EXAMPLE_CREATIEVELINGEN vs EXAMPLE_TAKSEN runs without throwing', () => {
+    let finalState: GameState | undefined;
+    expect(() => {
+      finalState = runOfflineGame('EXAMPLE_CREATIEVELINGEN', 'EXAMPLE_TAKSEN');
+    }).not.toThrow();
+    expect(Array.isArray(finalState!.players.player_1.activeSlots)).toBe(true);
+    expect(Array.isArray(finalState!.players.player_2.activeSlots)).toBe(true);
+  });
+
   it('game state integrity: no player loses their activeSlots array', () => {
     const finalState = runOfflineGame('DIGITAL_CONTROL', 'ARTISTIC_RHYTHM');
     expect(Array.isArray(finalState.players.player_1.activeSlots)).toBe(true);

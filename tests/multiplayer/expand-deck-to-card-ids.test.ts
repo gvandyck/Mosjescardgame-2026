@@ -42,9 +42,9 @@ describe('expandDeckToCardIds()', () => {
     ]);
   });
 
-  it('every duo deck expands to 19 cards', () => {
+  it('every player-facing Example Deck expands to 30 cards', () => {
     for (const deck of getPlayerFacingDecks() as DeckDef[]) {
-      expect(expandDeckToCardIds(deck)).toHaveLength(19);
+      expect(expandDeckToCardIds(deck)).toHaveLength(30);
     }
   });
 

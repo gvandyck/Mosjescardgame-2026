@@ -1,15 +1,14 @@
 // ONBOARD-06: pickBotDeck — the bot/opponent deck is a TRUE-RANDOM pick from
 // the provided pool (mirror allowed — the player's own deck is never excluded).
 // Every call site passes getPlayerFacingDecks(), so the bot can only ever play
-// one of the 5 duo decks and never an original (PHYSICAL_FORCE /
-// DIGITAL_CONTROL / ARTISTIC_RHYTHM).
+// one of the 3 Example Decks and never a disabled deck.
 import { afterEach, describe, expect, it, vi } from 'vitest';
 // @ts-expect-error — JS module, no type declarations
 import { pickBotDeck } from '../../src/bot/pickBotDeck.js';
 // @ts-expect-error — JS module, no type declarations
 import { getPlayerFacingDecks } from '../../src/data/playerFacingDecks.js';
 
-const ORIGINALS = ['PHYSICAL_FORCE', 'DIGITAL_CONTROL', 'ARTISTIC_RHYTHM'];
+const HIDDEN = ['PHYSICAL_FORCE', 'DIGITAL_CONTROL', 'ARTISTIC_RHYTHM', 'DUO_COERT_BINTI', 'DUO_GANDOE_MICHELLE', 'DUO_CHRIS_YOURI', 'DUO_JISCA_ALYSSA', 'DUO_WEST_CLESS'];
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -32,30 +31,30 @@ describe('pickBotDeck()', () => {
 
   it('only ever returns one of the provided decks, and reaches ALL of them (uniform-ish sweep)', () => {
     const decks: Array<{ id: string }> = getPlayerFacingDecks();
-    const duoIds = decks.map(d => d.id);
+    const exampleIds = decks.map(d => d.id);
     const spy = vi.spyOn(Math, 'random');
     const seen = new Set<string>();
 
     for (let i = 0; i < 100; i++) {
       spy.mockReturnValue(i / 100);
       const picked = pickBotDeck(decks);
-      expect(duoIds).toContain(picked.id);
+      expect(exampleIds).toContain(picked.id);
       seen.add(picked.id);
     }
 
-    // True-random over the whole pool: every duo deck must be reachable.
-    expect(seen).toEqual(new Set(duoIds));
+    // True-random over the whole pool: every Example Deck must be reachable.
+    expect(seen).toEqual(new Set(exampleIds));
   });
 
-  it('never returns an original deck id from the player-facing pool', () => {
+  it('never returns a disabled deck id from the player-facing pool', () => {
     const decks = getPlayerFacingDecks();
     const spy = vi.spyOn(Math, 'random');
 
     for (let i = 0; i < 50; i++) {
       spy.mockReturnValue(i / 50);
       const picked = pickBotDeck(decks);
-      expect(ORIGINALS).not.toContain(picked.id);
-      expect(picked.id.startsWith('DUO_')).toBe(true);
+      expect(HIDDEN).not.toContain(picked.id);
+      expect(picked.id.startsWith('EXAMPLE_')).toBe(true);
     }
   });
 

@@ -206,7 +206,7 @@ function initLobbyPage() {
 				roomCode: roomCodeInput,
 				playerId: 'player_2',
 				opponentName: opponentData.name || 'Opponent',
-				opponentDeckId: opponentData.deckId || 'PHYSICAL_FORCE',
+				opponentDeckId: opponentData.deckId || 'EXAMPLE_TAKSEN',
 				opponentUid: opponentData.uid || null,
 			}));
 			console.log('[UI] Joined room:', roomCodeInput);

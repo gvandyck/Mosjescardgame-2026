@@ -124,9 +124,12 @@ describe('Phase 46 thematic Piecie definitions', () => {
     for (const [id] of expected) {
       const card = PIECIES.find((entry: { id: string }) => entry.id === id);
       expect(card?.disabled).not.toBe(true);
-      expect(
-        STARTER_DECKS.some((deck: { piecies?: string[] }) => deck.piecies?.includes(id)),
-      ).toBe(false);
+      // Obby 2.0: Boosterpackkie is a Regelaars Example Deck card (Example Decks doc),
+      // so it is the one exception to the "not in a starter deck" rule.
+      const inDecks = STARTER_DECKS
+        .filter((deck: { piecies?: string[] }) => deck.piecies?.includes(id))
+        .map((deck: { id: string }) => deck.id);
+      expect(inDecks).toEqual(id === 'piecie_boosterpackkie' ? ['EXAMPLE_REGELAARS'] : []);
     }
   });
 

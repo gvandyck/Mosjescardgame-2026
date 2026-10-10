@@ -1,6 +1,5 @@
-// ONBOARD-02 regression guard: every card ID in the 5 player-facing duo decks
-// must resolve against the real card data. If a future deck edit introduces an
-// unresolvable id, this suite fails.
+// ONBOARD-02 regression guard (file name kept; retargeted for Obby 2.0): every card id
+// in the 3 player-facing Example Decks must resolve against the real card data.
 import { describe, expect, it } from 'vitest';
 // @ts-expect-error — JS module, no type declarations
 import { getPlayerFacingDecks } from '../../src/data/playerFacingDecks.js';
@@ -30,11 +29,11 @@ type DeckDef = {
   quests: string[];
 };
 
-describe('duo-deck validity — all card ids resolve against real card data', () => {
+describe('example-deck validity — all card ids resolve against real card data', () => {
   const decks: DeckDef[] = getPlayerFacingDecks();
 
-  it('has 5 duo decks to validate', () => {
-    expect(decks).toHaveLength(5);
+  it('has 3 example decks to validate', () => {
+    expect(decks).toHaveLength(3);
   });
 
   for (const deck of decks) {
