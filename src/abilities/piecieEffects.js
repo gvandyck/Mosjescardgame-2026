@@ -882,18 +882,10 @@ export function effect_welloe_force(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	// D-05: player chooses which on-field Mosje pays tribute — never an
-	// automatic first-slot pick. D-06: no-op (no charge, no redirect) unless
-	// a valid payer was pre-selected via the tribute-payer picker (main.js
-	// stashes the choice into _pendingTargets.welloeForcePayerSlot before
-	// calling activatePiecie).
-	const si = state._pendingTargets?.welloeForcePayerSlot;
-	if (typeof si !== 'number' || !player.activeSlots[si] || player.activeSlots[si].isDefeated) return state;
-	// Pay 40 MP activation cost from the chosen active Mosje
-	applyDamage(player.activeSlots[si], 40);
+	// Energy is paid by activatePiecie (Phase 54); no MP tribute.
 	// Set 3-turn damage redirect. UI picks the target opponent Mosje.
 	state._welloeForceActive = { ownerId: playerId, turnsRemaining: 3, targetSlotId: null };
-	console.log('[ABILITY] Welloe Force: paid 40 MP, 3-turn redirect active, target pending UI');
+	console.log('[ABILITY] Welloe Force: 3-turn redirect active, target pending UI');
 	return state;
 }
 
