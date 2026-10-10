@@ -1,8 +1,8 @@
 # Obby Card Game 2.0 — Phase 5: Starter decks + playtest
 
-Started 2026-10-10. Uses every earlier phase doc. **Status: decks built and desk-tested; the paper games are still to play** (they need people at a table). The "done when" from the Rework Plan (sensible game length, no deck-outs, both actions used) is **not met yet**: see Findings.
+Started 2026-10-10. Uses every earlier phase doc. **Status: decks built and desk-tested, R1–R6 adopted; the paper games are still to play** (they need people at a table). The "done when" from the Rework Plan (sensible game length, no deck-outs, both actions used) is **not met yet**: see Findings.
 
-You asked me not to ask questions this phase, so I made every call myself. Deck choices are listed as decided. Anything that changes a rule or a card is listed as a **recommendation waiting for your OK**, not applied to the Core Numbers or the card docs.
+You asked me not to ask questions this phase, so I made every call myself. The rule and card changes R1–R6 were first proposed, then **adopted on your OK** ("do all your suggestions") and written into the Core Numbers, the Phase 1 docs and the decks below.
 
 ## Deck-building rules used
 - **30 cards exactly** (the minimum), Quests not included: Quests are the 3 shared stacks in the middle.
@@ -15,16 +15,16 @@ You asked me not to ask questions this phase, so I made every call myself. Deck 
 - One type per deck, so the decks teach the three types. Named cards only if their named Mosje is in the deck.
 
 ## Deck 1: Fighting, "Taksen"
-Plan: hit hard with Power 20–30, keep your Mosjes healthy with food, push Physical Quests at The Gym.
+Plan: hit hard with Power 10–20 (20–30 after a level-up), keep your Mosjes healthy with food, push Physical Quests at The Gym.
 
 | Card | # | Kind | Cost | Why it's here |
 |---|---|---|---|---|
-| **Alyssa, Fissa Fissa!** (start) | 1 | Mosje | 2 | Cheap, 20 MP, Power 20. Gains 20 when your destroyers hit a Place. |
+| **Alyssa, Fissa Fissa!** (start) | 1 | Mosje | 2 | Cheap, 20 MP, Power 10. Gains 20 when your destroyers hit a Place. |
 | Gandoe, The Unpredictable Wizard | 1 | Mosje | 3 | Chaos Roll; Gandoe bonus on De Box, Boxing Gloves, Geen Raad. |
 | Michelle, Iron Tuk | 1 | Mosje | 3 | Quest doubler; Bowie & Stormey pair with Gandoe. |
 | AZN Cless, The Wild Card | 1 | Mosje | 2 | 30 MP buffer, card draw; ViannaPoes. |
 | Parkour West, The Flow Fighter | 1 | Mosje | 3 | Quest Mosje, soaks big hits. |
-| Alyssa, The Bulldozer | 1 | Mosje | 4 | Power 30 finisher; 0 MP so play her when you can protect her. |
+| Alyssa, The Bulldozer | 1 | Mosje | 4 | Power 20 finisher (the deck's hardest hitter); 0 MP so play her when you can protect her. |
 | The Gym | 1 | Place | 3 | Home Place: +10 Power, +1 die on Physical. |
 | De Box | 1 | Place | 2 | Cheap second Place for Gandoe and Michelle. |
 | Kannetje Melk | 2 | Piecie · food | 0 | Endurance Test fuel and +25. |
@@ -59,20 +59,19 @@ Plan: the Coerts and the FPS pair, cheap gear for cards and MP, dice help on Tec
 | [...], The Hacker | 1 | Mosje | 2 | 30 MP, steady +10 for 1 Energy. |
 | FPS Coert | 1 | Mosje | 3 | Synergy: FPS West. |
 | FPS West | 1 | Mosje | 3 | Holds the FPS pair text. |
-| Placeholder 4, The Drainer | 1 | Mosje | 2 | Power 20 for 2; chips 5 a turn. |
+| Placeholder 4, The Drainer | 1 | Mosje | 2 | Power 10 for 2; chips 5 a turn. |
 | Chris, The All-Rounder | 1 | Mosje | 3 | Perfect Setup with 3 face-down Piecies. |
 | Arcade | 1 | Place | 3 | Home Place: +1 die on Technical, Fighting −10 Power. |
 | Coert's Caravan | 1 | Place | 3 | One free Piecie a turn with a Coert. |
 | Keyboard | 1 | Piecie · gear | 0 | +10, draw 1. |
-| Mouse | 1 | Piecie · gear | 0 | +10, sort a deck. |
 | Controller | 1 | Piecie · gear | 0 | +10, +1 die. |
 | Kannetje Melk | 2 | Piecie · food | 0 | +25. |
-| Broodje Döner | 1 | Piecie · food | 1 | +35. |
+| Broodje Döner | 2 | Piecie · food | 1 | +35 (2nd copy added by R6). |
 | Boosterpackkie | 2 | Piecie | 0 | Draw; Coert +10. |
 | Momentum Boost | 1 | Piecie | 0 | +15 (+10 on a Quest win). |
 | Dubbele Dosis | 1 | Piecie | 1 | +1 die and a reroll. |
-| Loaded Dice | 1 | Piecie | 0 | +1 die. |
 | Te Hard Gaan | 2 | Piecie | 2 | +20 Power. |
+| Super Saiyan Mos | 1 | Piecie | 3 | +30 Power (added by R6). |
 | Momentum Diefje | 1 | Piecie | 2 | +10 Power, steal 20. |
 | Afblijven! | 1 | Piecie | 1 | Shield; Stays. |
 | Klaar Met Jou | 1 | Piecie | 4 | ★★★★★ kill, needs Level 2+. |
@@ -83,19 +82,19 @@ Plan: the Coerts and the FPS pair, cheap gear for cards and MP, dice help on Tec
 | Momentum Rush | 1 | Snelle | 0 | +15 any time. |
 | **Total** | **30** | 6 Mosjes · 2 Places · 18 Piecies · 4 Snelle | | |
 
-Tags: gear 3 (Late Night Questing wants 2 in your discard), 4 Snelle for Cheat code, 6 Piecies for Build Gadget / Speed Run.
+Tags: gear 2 (Late Night Questing wants 2 in your discard; R6 cut Mouse), 4 Snelle for Cheat code, 6 Piecies for Build Gadget / Speed Run.
 
 ## Deck 3: Artistic, "Creatievelingen"
 Plan: Tuk heals, Bank Chilling feeds the Social Mosjes, chains off Jisca and DDR Chris, Binti's food and discard tricks.
 
 | Card | # | Kind | Cost | Why it's here |
 |---|---|---|---|---|
-| **Tuk, The Healing Spirit** (start) | 1 | Mosje | 2 | 30 MP, heals 20 a turn. |
+| **Tuk, The Healing Spirit** (start) | 1 | Mosje | 2 | 30 MP, heals 20 a turn for 1 Energy (R4). |
 | Jisca, The Maestro | 1 | Mosje | 3 | Chain combos. |
 | Cless, The Teacher | 1 | Mosje | 2 | Teaching Moment draws; ViannaPoes. |
 | Binti, The Sharp Tongue | 1 | Mosje | 2 | Varkenspootjes +40, Stookerino +10. |
 | DJ 80/20, The Lucky Mixer | 1 | Mosje | 2 | Reroll any die once a turn. |
-| Dancing/DDR Chris | 1 | Mosje | 3 | Power 20, second chain. |
+| Dancing/DDR Chris | 1 | Mosje | 3 | Power 10, second chain. |
 | Skiffa | 1 | Place | 3 | Home Place: Artistic rerolls, Digital −10 Power. |
 | Bank Chilling | 1 | Place | 2 | Social ★★+ gain 10 a turn; turns on Jantje. |
 | Kannetje Melk | 2 | Piecie · food | 0 | +25. |
@@ -128,7 +127,7 @@ I can't sit at a table, so I wrote a small simulator (`docs/obby-2.0/tools/obby_
 **What it models:** Energy, Power attacks, MP, levels, getemt / sideways / Welloe, the 3 Quest stacks with their bands, costs, fail tokens and jabs, the 6 Places in these decks, cooldown turn, fresh Mosjes, and most Piecies and Snelle as written.
 **What it doesn't:** hidden-info and counter cards (Jammertje, Jensen!, Ronald-style peeks), chains (Jisca, DDR Chris, Chain Reaction), most Digital abilities, and real players' judgement. The bot picks attack or Quest by expected MP. Treat the numbers as **direction, not truth**; the Digital deck is the most under-rated by this (its strength is in exactly the cards the bot can't play).
 
-### Results with the rules as written (final decks)
+### Results with the rules as written (before R1–R6)
 | What | Result | Target |
 |---|---|---|
 | Rounds per game (median) | **21** (10% of games ≤ 9, 10% ≥ 28) | 8–10 (Core Numbers §4) |
@@ -166,23 +165,43 @@ Other levers I tried and dropped: "a sideways Mosje can't be taksed" stalls game
 7. **Digital is weakest** (13%). Partly the simulator (it can't play Jammertje, peeks or most Digital abilities), but the deck also has less Power and fewer heals than the other two. Top of the paper-test list.
 8. **Fine as is:** deck-outs (~1 per game, cooldown turn not a problem), Energy (rarely stuck at 6, so 28 zero-cost Piecies are fine), Places (about 2 played and 1 destroyed per game, so the first Place doesn't lock the table with 2 destroyers per deck).
 
-## Recommendations (waiting for your OK; nothing is changed yet)
-| # | Change | Evidence | Where it would go |
+## Changes adopted (R1–R6, your OK on 2026-10-10)
+| # | Change | Written into |
+|---|---|---|
+| R1 | **Empty field:** at the start of your turn, if you have no Mosje on your field, put the cheapest Mosje from your hand or deck on your field for free (fresh), then shuffle. **You lose** when you have no Mosje left outside the Welloe pile. | Core Numbers §1 |
+| R2 | **Level-up protection:** a Mosje that levelled up this turn can't be taksed until the start of its owner's next turn (cards, jabs and Places still work on it). | Core Numbers §1 and §7.1 |
+| R3 | **Every Mosje has 10 less Power on every level.** No floor: Mosjes that had Power 10 now have 0 at Level 1 (they can't hurt anyone until they level up). | Phase 1 Fighting / Digital / Artistic (Power column), Core Numbers §4 |
+| R4 | **Tuk, The Healing Spirit:** Healing Hands costs 1 Energy. | Phase 1 Artistic |
+| R5 | **Player 1 skips their draw on their first turn.** (Of the two options, it tested slightly better than "player 1 can't attack on turn 1": seat 1 wins 55% vs 57%.) | Core Numbers §1 and §7.4 |
+| R6 | **Digital deck:** Mouse and Loaded Dice out, a 2nd Broodje Döner and Super Saiyan Mos in. | Deck 2 above |
+
+**Two calls I made while applying them:**
+- **R3 has no Power floor.** My first write-up said "never below 10", but that version barely helped in the test (attacks stayed at 79%, Digital fell to 9%). The plain −10 is what produced the good numbers, so that's what went in.
+- **R5 picked "skip the first draw"** over "no attack on turn 1".
+
+### Desk test with all six changes (3,600 games)
+| What | As written | With R1–R6 | Target |
 |---|---|---|---|
-| R1 | **Empty field:** at the start of your turn, if you have no Mosje on your field, put the cheapest Mosje from your hand or deck on your field for free (fresh), then shuffle. **You lose** if you have no Mosje anywhere outside the Welloe pile. | empty-field turns 8.9 → 1.6 | Core Numbers §1, Rules 2 and 13 |
-| R2 | **Level-up protection** (the fix already proposed in Core Numbers §7.1): a Mosje that levelled up this turn can't be taksed until the start of its owner's next turn. | Level 3 held 45% → 89%; median 21 → 14 rounds | Core Numbers §1 |
-| R3 | **Mosje Power −10 at every level** (Power 10–20 at Level 1, never below 10). Makes Quests the main plan again. A rework of all Mosje rows, so a big call. Alternative to test on paper first: start MP +10 for every Mosje. | with R1+R2: median 16 → 11 rounds, attacks 80% → 73%, seat 1 64% → 58% | Phase 1 docs |
-| R4 | **Tuk Healing Hands costs 1 Energy.** | Artistic 66% → 33% (too far on its own; pair with R3) | Phase 1 Artistic |
-| R5 | **Seat 1:** don't add Energy for player 2 (no effect). Try instead: player 1 skips their first draw, or player 1 can't attack on their first turn. Test on paper. | +1 Energy: 65% → 63% | Core Numbers §1 |
-| R6 | **Digital deck:** if paper games agree it's weakest, swap Mouse and Loaded Dice for a second Broodje Döner and Super Saiyan Mos. | 13% deck win rate | this doc |
+| Rounds per game (median) | 21 | **15** | 8–10 |
+| Games that hit 30 rounds | 20% | **17%** | ~0 |
+| How games end (Level 3 / no Mosjes / timeout) | 44% / 37% / 20% | **54% / 29% / 17%** | mostly Level 3 |
+| Attacks vs Quests | 78% attacks | **74%** attacks | 40–60% |
+| Level 3 held | 45% | **86%** | — |
+| Seat 1 win rate | 65% | **55%** | ~50% |
+| Turns with an empty field (per game) | 8.9 | **1.1** | 0 |
+| Deck win rate (Fighting / Artistic / Digital) | 57 / 54 / 13% | **63 / 46 / 20%** | ~50% each |
+
+**Better, not solved.** The empty field, Level 3 holds and the seat-1 edge are fixed or close. Still open, for the paper games:
+- **Games are still too long** (median 15 rounds) and attacks are still ~3 in 4 actions. The next levers to try on paper: Quest wins +10 MP, or start MP +10 for every Mosje.
+- **Fighting is now the strongest deck (63%)** and Digital the weakest (20%). Digital is under-rated by the simulator, so check this on paper before changing cards.
 
 ## Earlier flags: where they stand
 | Flag | From | Status after the desk test |
 |---|---|---|
-| Levelling leaves you at 0 MP | Core §7.1 | **Confirmed** → R2 |
+| Levelling leaves you at 0 MP | Core §7.1 | **Confirmed**, fixed by R2 |
 | Minimum 1 die / no-star Quests | Core §7.2 | Not visible; paper |
 | Prepared band too strong | Core §7.3 | Not seen: Quests are the weaker action, not the stronger one |
-| Player 1 advantage | Core §7.4 | **Confirmed** (~64%) → R5 |
+| Player 1 advantage | Core §7.4 | **Confirmed** (~65%), R5 brings it to ~55% |
 | Cooldown turn strength | Core §7.5 | Fine (~1 per game) |
 | Getemt at 0 MP from own costs and jabs | Phase 1–2 | Part of finding 2; paper |
 | Shield stacking on a Level 3 | Phase 3 | Not seen; Level 3 holds fail on attacks, not on shields |
@@ -195,17 +214,17 @@ Other levers I tried and dropped: "a sideways Mosje can't be taksed" stalls game
 | The Void / Momentum Stabilizer / Delluft | Phase 4 | Not in the starter decks |
 
 ## Paper playtest kit
-**Games:** 9 at least: each pairing 3 times (Fighting–Digital, Fighting–Artistic, Digital–Artistic), swap seats every game. Play the rules as written for the first 3, then add R1 + R2 for the rest so you feel the difference.
+**Games:** 9 at least: each pairing 3 times (Fighting–Digital, Fighting–Artistic, Digital–Artistic), swap seats every game. Play with R1–R6 (the current rules).
 **You need:** the 3 decks, the 38 Quests in 3 stacks, per Mosje an MP dial and a level marker, 6 Energy tokens per player, a few fail tokens, a d6 each.
 
 **Score sheet (one line per game):**
 | Game | Decks (seat 1 vs 2) | Rules | Winner | How (Level 3 / no Mosjes) | Rounds | Attacks | Quests | Level 3 reached / held | Deck-outs | Places played / destroyed | Notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | | as written | | | | | | | | | |
+| 1 | | R1–R6 | | | | | | | | | |
 
 Tally attacks and Quests with a stripe per action. Under Notes write any card that felt broken, dead or confusing, and any moment the rules didn't answer.
 
-**Watch especially:** Digital vs the others; Tuk's heal; the turn right after a level-up; the Gym drain on a 0-MP Mosje; whether you ever keep a slot free for a Snelle; Jammertje vs kill cards.
+**Watch especially:** Digital vs the others; Fighting vs the others; whether Power 0 Mosjes feel useless at Level 1; Tuk's heal for 1 Energy; the turn right after a level-up; the Gym drain on a 0-MP Mosje; whether you ever keep a slot free for a Snelle; Jammertje vs kill cards.
 
 **Done when** (Rework Plan): most games end with a Level 3 win in 8–12 rounds, no deck-out decides a game, and both attacks and Quests get used (aim for 40–60% attacks).
 

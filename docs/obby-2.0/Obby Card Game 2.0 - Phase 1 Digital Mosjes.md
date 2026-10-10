@@ -3,6 +3,8 @@
 Done 2026-10-09. Uses `Obby Card Game 2.0 - Core Numbers.md` (§4 Mosje stat ranges) and the same format as `Obby Card Game 2.0 - Phase 1 Fighting Mosjes.md`.
 Artistic Mosjes follow in their own session.
 
+> **Phase 5 update (2026-10-10):** every Mosje got **10 less Power on every level** (Phase 5 doc, R3). The Power column below is already updated; Power numbers inside the change notes are the old ones.
+
 ## Rules used in this doc
 - **Summon cost** is Energy. Power at LVL 1; +10 per level. LVL 3 = hold to win.
 - **Traits** printed per level row; V4 traits are the LVL 1 row. Digital main trait is **Technical**, so Technical climbs first wherever it is below ★★★; after that the side trait the Mosje already leans on.
@@ -16,20 +18,20 @@ V4 holds **14** Digital Mosjes, not 15 (the Progress note counted one too many).
 
 | # | Mosje | Cost | Rarity | Power L1 / L2 / L3 | Start MP | Traits L1 → L2 → L3 |
 |---|---|---|---|---|---|---|
-| 1 | Ronald, The Master Chef | 3 | ★★★ | 20 / 30 / 40 | 10 | Men ★★★ · Soc ★★★ · Phys ★ → Tech ★ → Tech ★★ |
-| 2 | Ming, The Natural | 3 | ★★★ | 20 / 30 / 40 | 10 | Men ★★★ · Tech ★★ · Cre ★★ → Tech ★★★ → Cre ★★★ |
-| 3 | Ming, The Predictor | 2 | ★★ | 20 / 30 / 40 | 20 | Men ★★★ · Tech ★★ → Tech ★★★ → Soc ★ |
-| 4 | Martin, The Historian | 3 | ★★★ | 20 / 30 / 40 | 10 | Men ★★★ · Tech ★ · Res ★★ → Tech ★★ → Tech ★★★ |
-| 5 | Martin, Senor West | 2 | ★★ | 10 / 20 / 30 | 20 | Men ★★★ · Tech ★ → Tech ★★ → Tech ★★★ |
-| 6 | Coert, The Hawaiian Tech Savant | 3 | ★★★ | 20 / 30 / 40 | 20 | Men ★★ · Tech ★★★ · Soc ★ → Men ★★★ → Soc ★★ |
-| 7 | [...], The Hacker | 2 | ★★ | 10 / 20 / 30 | 30 | Men ★★★ · Tech ★★ → Tech ★★★ → Soc ★ |
-| 8 | Jeffrey, The Silent Gambler | 3 | ★★★ | 20 / 30 / 40 | 10 | Phys ★★★ · Tech ★★ · Men ★★ → Tech ★★★ → Men ★★★ |
-| 9 | Chris, The All-Rounder | 3 | ★★★ | 20 / 30 / 40 | 20 | Phys ★★★ · Tech ★★ · Soc ★★ → Tech ★★★ → Soc ★★★ |
-| 10 | Youri, The Speedrunner | 3 | ★★★★ | 20 / 30 / 40 | 10 | Tech ★★★ · Men ★★ · Res ★ → Men ★★★ → Res ★★ |
-| 11 | Placeholder 1, The Tactician | 3 | ★★★★ | 20 / 30 / 40 | 10 | Men ★★★ · Soc ★★ · Tech ★ → Tech ★★ → Tech ★★★ |
-| 12 | Placeholder 4, The Drainer | 2 | ★★ | 20 / 30 / 40 | 20 | Men ★★ · Tech ★★★ · Res ★ → Res ★★ → Men ★★★ |
-| 13 | FPS Coert | 3 | ★★★ | 20 / 30 / 40 | 20 | Tech ★★★ · Phys ★★ · Men ★★ → Phys ★★★ → Men ★★★ |
-| 14 | FPS West | 3 | ★★★★ | 20 / 30 / 40 | 10 | Tech ★★★ · Men ★★★ · Phys ★ → Phys ★★ → Phys ★★★ |
+| 1 | Ronald, The Master Chef | 3 | ★★★ | 10 / 20 / 30 | 10 | Men ★★★ · Soc ★★★ · Phys ★ → Tech ★ → Tech ★★ |
+| 2 | Ming, The Natural | 3 | ★★★ | 10 / 20 / 30 | 10 | Men ★★★ · Tech ★★ · Cre ★★ → Tech ★★★ → Cre ★★★ |
+| 3 | Ming, The Predictor | 2 | ★★ | 10 / 20 / 30 | 20 | Men ★★★ · Tech ★★ → Tech ★★★ → Soc ★ |
+| 4 | Martin, The Historian | 3 | ★★★ | 10 / 20 / 30 | 10 | Men ★★★ · Tech ★ · Res ★★ → Tech ★★ → Tech ★★★ |
+| 5 | Martin, Senor West | 2 | ★★ | 0 / 10 / 20 | 20 | Men ★★★ · Tech ★ → Tech ★★ → Tech ★★★ |
+| 6 | Coert, The Hawaiian Tech Savant | 3 | ★★★ | 10 / 20 / 30 | 20 | Men ★★ · Tech ★★★ · Soc ★ → Men ★★★ → Soc ★★ |
+| 7 | [...], The Hacker | 2 | ★★ | 0 / 10 / 20 | 30 | Men ★★★ · Tech ★★ → Tech ★★★ → Soc ★ |
+| 8 | Jeffrey, The Silent Gambler | 3 | ★★★ | 10 / 20 / 30 | 10 | Phys ★★★ · Tech ★★ · Men ★★ → Tech ★★★ → Men ★★★ |
+| 9 | Chris, The All-Rounder | 3 | ★★★ | 10 / 20 / 30 | 20 | Phys ★★★ · Tech ★★ · Soc ★★ → Tech ★★★ → Soc ★★★ |
+| 10 | Youri, The Speedrunner | 3 | ★★★★ | 10 / 20 / 30 | 10 | Tech ★★★ · Men ★★ · Res ★ → Men ★★★ → Res ★★ |
+| 11 | Placeholder 1, The Tactician | 3 | ★★★★ | 10 / 20 / 30 | 10 | Men ★★★ · Soc ★★ · Tech ★ → Tech ★★ → Tech ★★★ |
+| 12 | Placeholder 4, The Drainer | 2 | ★★ | 10 / 20 / 30 | 20 | Men ★★ · Tech ★★★ · Res ★ → Res ★★ → Men ★★★ |
+| 13 | FPS Coert | 3 | ★★★ | 10 / 20 / 30 | 20 | Tech ★★★ · Phys ★★ · Men ★★ → Phys ★★★ → Men ★★★ |
+| 14 | FPS West | 3 | ★★★★ | 10 / 20 / 30 | 10 | Tech ★★★ · Men ★★★ · Phys ★ → Phys ★★ → Phys ★★★ |
 
 ## Abilities (table text)
 | Mosje | Ability (2.0 text) | Label |

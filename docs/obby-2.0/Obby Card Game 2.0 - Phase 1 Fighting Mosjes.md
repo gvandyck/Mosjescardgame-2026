@@ -3,6 +3,8 @@
 Done 2026-10-09. Uses the numbers in `Obby Card Game 2.0 - Core Numbers.md` (§4 Mosje stat ranges).
 Digital and Artistic Mosjes follow in their own sessions and use the same format and rules as here.
 
+> **Phase 5 update (2026-10-10):** every Mosje got **10 less Power on every level** (Phase 5 doc, R3). The Power column below is already updated; Power numbers inside the change notes are the old ones.
+
 ## Rules used in this doc
 - **Summon cost** is Energy. Power at LVL 1; +10 per level. LVL 3 = hold to win.
 - **Traits** printed per level row; V4 traits are the LVL 1 row, one trait climbs one star per level.
@@ -13,14 +15,14 @@ Digital and Artistic Mosjes follow in their own sessions and use the same format
 ## The 8 Fighting Mosjes
 | # | Mosje | Cost | Rarity | Power L1 / L2 / L3 | Start MP | Traits L1 → L2 → L3 |
 |---|---|---|---|---|---|---|
-| 1 | Gandoe, The Unpredictable Wizard | 3 | ★★★ | 20 / 30 / 40 | 10 | Phys ★★ · Res ★ · Cre ★★ → Phys ★★★ → Res ★★ |
-| 2 | Jeffrey, The Strongman | 3 | ★★ | 20 / 30 / 40 | 20 | Phys ★★★ · Res ★ → Res ★★ → Res ★★★ |
-| 3 | Alyssa, The Bulldozer | 4 | ★★★★ | 30 / 40 / 50 | 0 | Phys ★★★ · Res ★★ · Soc ★★★ → Res ★★★ → (no change) |
-| 4 | Alyssa, Fissa Fissa! | 2 | ★★ | 20 / 30 / 40 | 20 | Phys ★★ · Soc ★★★ · Res ★ → Phys ★★★ → Res ★★ |
-| 5 | AZN Cless, The Wild Card | 2 | ★ | 10 / 20 / 30 | 30 | Phys ★★ · Soc ★★ · Cre ★ → Phys ★★★ → Cre ★★ |
-| 6 | Michelle, Iron Tuk | 3 | ★★★ | 20 / 30 / 40 | 10 | Phys ★★ · Soc ★ · Res ★★ → Res ★★★ → Soc ★★ |
-| 7 | Parkour West, The Flow Fighter | 3 | ★★★★ | 20 / 30 / 40 | 10 | Phys ★★★ · Cre ★★ · Res ★★ → Cre ★★★ → Res ★★★ |
-| 8 | Gandoe, The Destroyer | 4 | ★★★★★ | 30 / 40 / 50 | 0 | Phys ★★★ · Res ★★ → Res ★★★ → (no change) |
+| 1 | Gandoe, The Unpredictable Wizard | 3 | ★★★ | 10 / 20 / 30 | 10 | Phys ★★ · Res ★ · Cre ★★ → Phys ★★★ → Res ★★ |
+| 2 | Jeffrey, The Strongman | 3 | ★★ | 10 / 20 / 30 | 20 | Phys ★★★ · Res ★ → Res ★★ → Res ★★★ |
+| 3 | Alyssa, The Bulldozer | 4 | ★★★★ | 20 / 30 / 40 | 0 | Phys ★★★ · Res ★★ · Soc ★★★ → Res ★★★ → (no change) |
+| 4 | Alyssa, Fissa Fissa! | 2 | ★★ | 10 / 20 / 30 | 20 | Phys ★★ · Soc ★★★ · Res ★ → Phys ★★★ → Res ★★ |
+| 5 | AZN Cless, The Wild Card | 2 | ★ | 0 / 10 / 20 | 30 | Phys ★★ · Soc ★★ · Cre ★ → Phys ★★★ → Cre ★★ |
+| 6 | Michelle, Iron Tuk | 3 | ★★★ | 10 / 20 / 30 | 10 | Phys ★★ · Soc ★ · Res ★★ → Res ★★★ → Soc ★★ |
+| 7 | Parkour West, The Flow Fighter | 3 | ★★★★ | 10 / 20 / 30 | 10 | Phys ★★★ · Cre ★★ · Res ★★ → Cre ★★★ → Res ★★★ |
+| 8 | Gandoe, The Destroyer | 4 | ★★★★★ | 20 / 30 / 40 | 0 | Phys ★★★ · Res ★★ → Res ★★★ → (no change) |
 
 ## Abilities (table text)
 | Mosje | Ability (2.0 text) | Label |

@@ -2,6 +2,8 @@
 
 Done 2026-10-09. Uses `Obby Card Game 2.0 - Core Numbers.md` (§4 Mosje stat ranges) and the same format as the Fighting and Digital docs.
 
+> **Phase 5 update (2026-10-10):** every Mosje got **10 less Power on every level** (Phase 5 doc, R3). The Power column below is already updated; Power numbers inside the change notes are the old ones.
+
 ## Rules used in this doc
 - **Summon cost** is Energy. Power at LVL 1; +10 per level. LVL 3 = hold to win.
 - **Traits** printed per level row; V4 traits are the LVL 1 row. Artistic main trait is **Creative**, so Creative climbs first wherever it is below ★★★; when Creative is already ★★★ the Mosje climbs on its side trait, or gains a new one.
@@ -16,23 +18,23 @@ V4 holds **13** Artistic Mosjes (not 14 as the Progress note said). Three were t
 
 | # | Mosje | Cost | Rarity | Power L1 / L2 / L3 | Start MP | Traits L1 → L2 → L3 |
 |---|---|---|---|---|---|---|
-| 1 | Ronald, The Mastermind | 3 | ★★★ | 20 / 30 / 40 | 10 | Cre ★★★ · Men ★★★ → Soc ★ → Soc ★★ |
-| 2 | Jisca, The Maestro | 3 | ★★★ | 20 / 30 / 40 | 10 | Cre ★★★ · Soc ★★ · Men ★★ → Soc ★★★ → Men ★★★ |
-| 3 | Tuk, The Healing Spirit | 2 | ★★ | 10 / 20 / 30 | 30 | Cre ★★ · Soc ★★ · Res ★★★ → Cre ★★★ → Soc ★★★ |
-| 4 | DJ 80/20, The Lucky Mixer | 2 | ★★ | 10 / 20 / 30 | 30 | Cre ★★★ · Res ★★ → Res ★★★ → Soc ★ |
-| 5 | Coert, KasteLuck | 2 | ★ | 10 / 20 / 30 | 30 | Cre ★★ · Soc ★★ · Res ★ → Cre ★★★ → Res ★★ |
-| 6 | Binti, The Sharp Tongue | 2 | ★★ | 10 / 20 / 30 | 20 | Cre ★★ · Soc ★★★ → Cre ★★★ → Res ★ |
-| 7 | Cless, The Teacher | 2 | ★★ | 10 / 20 / 30 | 30 | Cre ★★★ · Men ★★ → Men ★★★ → Soc ★ |
-| 8 | Martin, The Precision Driver | 3 | ★★★ | 20 / 30 / 40 | 15 | Cre ★★★ · Tech ★★ · Men ★★ → Tech ★★★ → Men ★★★ |
-| 9 | Tuk "The Builder", The Sims Architect | 3 | ★★★ | 20 / 30 / 40 | 10 | Tech ★★★ · Cre ★★★ · Men ★★ → Men ★★★ → Soc ★ |
-| 10 | Dancing/DDR Chris | 3 | ★★★ | 20 / 30 / 40 | 15 | Phys ★★★ · Cre ★★★ · Soc ★★ → Soc ★★★ → Res ★ |
+| 1 | Ronald, The Mastermind | 3 | ★★★ | 10 / 20 / 30 | 10 | Cre ★★★ · Men ★★★ → Soc ★ → Soc ★★ |
+| 2 | Jisca, The Maestro | 3 | ★★★ | 10 / 20 / 30 | 10 | Cre ★★★ · Soc ★★ · Men ★★ → Soc ★★★ → Men ★★★ |
+| 3 | Tuk, The Healing Spirit | 2 | ★★ | 0 / 10 / 20 | 30 | Cre ★★ · Soc ★★ · Res ★★★ → Cre ★★★ → Soc ★★★ |
+| 4 | DJ 80/20, The Lucky Mixer | 2 | ★★ | 0 / 10 / 20 | 30 | Cre ★★★ · Res ★★ → Res ★★★ → Soc ★ |
+| 5 | Coert, KasteLuck | 2 | ★ | 0 / 10 / 20 | 30 | Cre ★★ · Soc ★★ · Res ★ → Cre ★★★ → Res ★★ |
+| 6 | Binti, The Sharp Tongue | 2 | ★★ | 0 / 10 / 20 | 20 | Cre ★★ · Soc ★★★ → Cre ★★★ → Res ★ |
+| 7 | Cless, The Teacher | 2 | ★★ | 0 / 10 / 20 | 30 | Cre ★★★ · Men ★★ → Men ★★★ → Soc ★ |
+| 8 | Martin, The Precision Driver | 3 | ★★★ | 10 / 20 / 30 | 15 | Cre ★★★ · Tech ★★ · Men ★★ → Tech ★★★ → Men ★★★ |
+| 9 | Tuk "The Builder", The Sims Architect | 3 | ★★★ | 10 / 20 / 30 | 10 | Tech ★★★ · Cre ★★★ · Men ★★ → Men ★★★ → Soc ★ |
+| 10 | Dancing/DDR Chris | 3 | ★★★ | 10 / 20 / 30 | 15 | Phys ★★★ · Cre ★★★ · Soc ★★ → Soc ★★★ → Res ★ |
 
 ## Abilities (table text)
 | Mosje | Ability (2.0 text) | Label |
 |---|---|---|
 | Ronald, The Mastermind | **Master Plan** — once per turn, pay 2 Energy: activate a Piecie from your discard pile as if it were ready (this replaces its own Energy cost). It goes back to the discard pile afterwards. | — |
 | Jisca, The Maestro | **Perfect Combo** — once per turn, after you activate a Piecie, roll a die: 4–6 activate another ready Piecie of yours for free (no Energy) and one opponent Mosje loses 15 MP; 1–3 Jisca loses 10 MP (ignored if she is at 0 MP). | — |
-| Tuk, The Healing Spirit | **Healing Hands** — once per turn, one of your Mosjes (herself included) gains 20 MP. | — |
+| Tuk, The Healing Spirit | **Healing Hands** — once per turn, pay 1 Energy: one of your Mosjes (herself included) gains 20 MP. *(1 Energy added in Phase 5, R4.)* | — |
 | DJ 80/20, The Lucky Mixer | **Lucky Beats** — once per turn, reroll any one die (yours or your opponent's). | — |
 | Coert, KasteLuck | **Morning Luck** — at the start of your turn roll a die: 4–6 draw 1 card and this Mosje gains 5 MP. | Synergy: Tony (added in Phase 3) |
 | Binti, The Sharp Tongue | **Cutting Words** — once per turn, pay 1 Energy and discard 1 Piecie from your hand: one opponent Mosje loses 10 MP and the opponent discards 1 card of their choice. | holds the Coert Savant text (below) |

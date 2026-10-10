@@ -133,6 +133,8 @@ DECKS_V2 = copy.deepcopy(DECKS)
 swap('Digital', ['Ff Haaltje Nemen', 'Zie je die Dingetjes', 'Kleine Taks'], ['Momentum Rush', 'Momentum Boost', 'Te Hard Gaan'])
 DECKS['Digital']['start'] = 'Coert Savant'
 DECKS_V3 = copy.deepcopy(DECKS)
+swap('Digital', ['Mouse', 'Loaded Dice'], ['Broodje Döner', 'Super Saiyan Mos'])
+DECKS_V4 = copy.deepcopy(DECKS)
 for d in DECKS_V2.values(): assert len(d['cards']) == 30, len(d['cards'])
 for d in DECKS_V1.values(): assert len(d['cards']) == 30, len(d['cards'])
 
@@ -177,7 +179,10 @@ class Mos:
         for i in range(s.level): t.update(s.d['path'][i])
         return t
     def power(s, g):
-        p = s.d['power'] + 10 * (s.level - 1) + s.pbonus - (10 if 'lowpower' in g.variant else 0)
+        base = s.d['power']
+        if 'lowpower10' in g.variant: base = max(10, base - 10)
+        elif 'lowpower' in g.variant: base = base - 10
+        p = base + 10 * (s.level - 1) + s.pbonus
         pl = g.place[0] if g.place else None
         if not s.fresh and pl:
             if pl == 'The Gym' and s.d['typ'] == 'F': p += 10
@@ -493,7 +498,7 @@ class Game:
         pl.slots = [(c, r) for c, r in pl.slots if not (r == 'on' and pl.stats[('stays_until', c)] <= s.turn)]
         for c, r in list(pl.slots): pass
         pl.energy = min(6, pl.energy + 1)
-        pl.draw(s)
+        if not ('p1nodraw' in s.variant and s.turn == 1): pl.draw(s)
         cool = s.cooldown
         if cool: s.log['cooldowns'] += 1
         # ready piecies
@@ -605,7 +610,7 @@ class Game:
                     if best_q is None or ev > best_q[0]: best_q = (ev, qi, extra)
             # attack options
             best_a = None
-            if not m.fresh:
+            if not m.fresh and not ('p1noattack' in s.variant and s.turn == 1):
                 pw = m.power(s)
                 boost = 0; bk = None
                 if ready_power:
@@ -667,7 +672,7 @@ class Game:
 
 def run(n, variant):
     global DECKSET
-    DECKSET = DECKS_V3 if 'v3' in variant else DECKS_V2 if 'v2' in variant else DECKS_V1
+    DECKSET = DECKS_V4 if 'v4' in variant else DECKS_V3 if 'v3' in variant else DECKS_V2 if 'v2' in variant else DECKS_V1
     names = list(DECKS)
     res = {}
     allstats = Counter(); rounds = []; seatwins = Counter(); timeouts = 0; l3r = []; plc = []; cool = []

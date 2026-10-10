@@ -8,7 +8,7 @@ Locked 2026-10-09. Every later phase uses these numbers. Change a number here fi
 | Summoning a Mosje | Costs its printed Energy. The first Mosje at setup is free. |
 | Getemt | Keeps the name **Getemt** (attacking is "taksen"; being knocked down is "getemt"). |
 | Level-up MP | Reaching 100 MP levels you up and MP resets to **0**: L1 at 100 → L2 at 0; L2 at 100 → L3 at 0, then hold L3 until the start of your next turn to win. Dropping a level (getemt) lands on **50**. |
-| Turn order | Highest die goes first. No compensation: both players start with 2 Energy and gain +1 per turn like normal. |
+| Turn order | Highest die goes first. Both players start with 2 Energy and gain +1 per turn like normal. Phase 5: player 1 skips their first draw (see below). |
 | Deck | **Minimum 30 cards.** Deck empty → shuffle your discard pile into a new deck, and that turn is a **cooldown turn** (see §1a). Welloe pile is never shuffled back. |
 | Quest traits | One main trait per Mosje type (see §6). Mental/Social/Resilient are optional side requirements, filled out in Phase 2. |
 | MP → Energy | Rounded, gentle table (see §5). |
@@ -18,6 +18,9 @@ Locked 2026-10-09. Every later phase uses these numbers. Change a number here fi
 | Playing a Place (Phase 4) | On your turn, from your hand, only when no Place is in play: pay its cost (2–4 Energy) and put it in the middle. It works at once and needs no slot. It stays until destroyed and belongs to whoever played it. |
 | Places and fresh Mosjes (Phase 4) | A Place's text applies to every Mosje on the table, except fresh Mosjes: they ignore Places (good and bad side) until the start of their owner's next turn. |
 | Power floor (Phase 4) | Power never goes below 0. An attack with 0 Power does nothing. |
+| Empty field (Phase 5) | At the start of your turn, if you have no Mosje on your field, put the cheapest Mosje from your hand or deck on your field for free (it is fresh), then shuffle your deck if you searched it. You **lose** when you have no Mosje left outside the Welloe pile. |
+| Level-up protection (Phase 5) | A Mosje that levelled up this turn can't be taksed until the start of its owner's next turn. Cards, jabs and Places still affect it. |
+| Player 1 (Phase 5) | Player 1 skips their draw on their first turn. Replaces "no compensation". |
 
 ### 1a. Cooldown turn (deck-out)
 When you must draw and your deck is empty: shuffle your discard pile into a new deck, draw as normal, and that whole turn is a cooldown turn:
@@ -52,12 +55,14 @@ Piecies also pay a "slot tax" (one of 3 slots, 1 turn wait), so a 0-Energy Pieci
 ## 4. Mosje stat ranges
 | Summon cost | Power (LVL 1) | Starting MP | Ability strength |
 |---|---|---|---|
-| 2 | 10–20 | 20–40 | light (small passive, once-per-turn trick) |
-| 3 | 20 | 10–30 | medium |
-| 4 | 30 | 0–20 | strong or game-warping |
+| 2 | 0–10 | 20–40 | light (small passive, once-per-turn trick) |
+| 3 | 10 | 10–30 | medium |
+| 4 | 20 | 0–20 | strong or game-warping |
+
+Phase 5 (R3): every Mosje lost 10 Power on every level, because attacks beat Quests too easily. A Mosje with Power 0 at Level 1 can't hurt anyone until it levels up; it is a Quester.
 
 - Power goes **+10 per level** (LVL 2 = +10, LVL 3 = +10 again). LVL 3 is the win condition; Power there only matters if you attack while holding.
-- Rule: High Power or strong ability ⇒ low starting MP. Never both a high start MP and Power 30.
+- Rule: High Power or strong ability ⇒ low starting MP. Never both a high start MP and Power 20 (was 30 before Phase 5).
 - Each level row prints traits (★–★★★) + Power. Traits grow by levelling only; typical path: one trait goes up one star per level.
 - Rarity guide for Mosjes: ★ → cost 2, ★★ → 2–3, ★★★ → 3, ★★★★ → 3–4, ★★★★★ → 4.
 - Pace check: one Mosje needs 200 MP to go L1 → L3, and acts once per turn, so the fastest legal game is ~7 turns even with free MP Piecies; expect 8–10.
@@ -120,8 +125,8 @@ How to read it: Skilled and Heroic are bad bets until you have stars or a Place 
 Target mix per 10-Quest stack: 3 Steady, 2 Skilled, 1–2 Heroic, 2 Prepared, 1 Gated or Coin flip; at least 1/3 must need a Piecie or Place.
 
 ## 7. Balance flags (watch in Phase 5)
-1. **Levelling leaves you at 0 MP.** Any hit drops you a level. Level 3 can only be held if the opponent can't or won't taksen you. Possible fix if paper tests show it never lands: a Mosje that levelled this turn can't be taksed until its owner's next turn.
+1. **Levelling leaves you at 0 MP.** Any hit drops you a level. Level 3 can only be held if the opponent can't or won't taksen you. **Fixed in Phase 5:** level-up protection (§1).
 2. **Minimum 1 die** means a no-star Mosje still has a 50% shot at a Steady Quest. Intended, but check Quests that care about "no stars".
 3. **Prepared band EV (+30–43)** is high. If Quests start dominating attacks, lower to +45 / −30.
-4. **Going first with no compensation** may favour player 1. Track win rate by seat in Phase 5; compensation is the first thing to try if it shows.
+4. **Going first with no compensation** may favour player 1. **Phase 5:** the desk test showed ~65% for seat 1; player 1 now skips their first draw (§1). Keep tracking it on paper.
 5. **Cooldown turn** (§1a) may hit too hard or too soft. Check how often it triggers in Phase 5.
