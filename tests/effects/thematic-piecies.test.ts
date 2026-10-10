@@ -46,6 +46,7 @@ function makeMosje(cardId: string, mp = 50, tags?: string[]) {
 function makePlayer(options: StateOptions = {}) {
   return {
     playerId: 'player_1',
+    energy: 6,
     hand: options.hand ?? [],
     deck: options.deck ?? [],
     graveyard: [],
@@ -368,6 +369,7 @@ describe('Perfect Rhythm', () => {
       activeSlots: [makeMosje('mosje_chris_ddr'), null],
       perfectRhythmDrawNextPiecie: true,
       chrisDdrChainUsesThisTurn: 2,
+      energy: 6,
       hand: [{ cardId: 'piecie_redbull', type: 'PIECIE' }],
       deck: [
         { cardId: 'draw_1', type: 'PLACE' },

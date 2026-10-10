@@ -23,6 +23,7 @@ function makeSnellieState() {
     turnNumber: 1,
     players: {
       player_1: {
+        energy: 6,
         hand: [{ cardId: "snelle_test", type: "SNELLE_PIECIE" }],
         deck: [],
         discard: [],
@@ -46,6 +47,7 @@ function makeSnellieState() {
         pieciesPlayedThisTurn: 0,
       },
       player_2: {
+        energy: 6,
         hand: [],
         deck: [],
         discard: [],
@@ -144,6 +146,7 @@ function makeBattleConcertState(questingCardId: string) {
     activePlace: null,
     players: {
       player_1: {
+        energy: 6,
         hand: [],
         deck: [],
         discard: [],
@@ -168,6 +171,7 @@ function makeBattleConcertState(questingCardId: string) {
         pieciesPlayedThisTurn: 0,
       },
       player_2: {
+        energy: 6,
         hand: [],
         deck: [],
         discard: [],

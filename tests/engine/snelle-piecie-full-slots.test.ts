@@ -20,6 +20,7 @@ function makeState(filledPiecieSlots: number = 0) {
     turnNumber: 1,
     players: {
       player_1: {
+        energy: 6,
         hand: [
           { cardId: "snelle_test", type: "SNELLE_PIECIE" },
         ],

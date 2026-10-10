@@ -94,6 +94,7 @@ function makeState({
     _snelleFlags: {},
     players: {
       player_1: {
+        energy: 6,
         hand: [] as HandCard[],
         piecieSlots: [null, null, null, null] as (PiecieSlot | null)[],
         activeSlots: [makeMosjeSlot('mosje_jeffrey', 50)],
@@ -118,6 +119,7 @@ function makeState({
         hasRerolledDieThisTurn: false,
       },
       player_2: {
+        energy: 6,
         hand,
         piecieSlots,
         activeSlots,

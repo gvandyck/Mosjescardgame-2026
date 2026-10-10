@@ -661,11 +661,11 @@ function resolvePersonalQuestSideEffects(gameState, questCard, playerId) {
 		state.activePlace = null;
 		state.players[playerId].hand.push({ cardId: 'place_tesla' });
 		// Recover Varkenspootjes from discard if present
-		const vi = state.players[playerId].discard.findIndex(
+		const vi = (state.players[playerId].graveyard || []).findIndex(
 			c => (c.cardId || c) === 'piecie_varkenspootjes'
 		);
 		if (vi >= 0) {
-			const [recovered] = state.players[playerId].discard.splice(vi, 1);
+			const [recovered] = state.players[playerId].graveyard.splice(vi, 1);
 			state.players[playerId].hand.push(recovered);
 			console.log('[QUEST] Winston: Varkenspootjes recovered from discard');
 		}

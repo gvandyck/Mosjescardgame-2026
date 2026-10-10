@@ -39,6 +39,7 @@ function makeSlot(cardId: string, mp = 50) {
 
 function makePlayer(slotCardId: string, mp = 50) {
   return {
+    energy: 6,
     hand: [] as any[],
     deck: [] as any[],
     graveyard: [] as any[],
@@ -155,6 +156,7 @@ function makeJeffreyState(mp = 50) {
     turnNumber: 3,
     players: {
       player_1: {
+        energy: 6,
         hand: [] as any[],
         deck: [] as any[],
         graveyard: [] as any[],
@@ -162,6 +164,7 @@ function makeJeffreyState(mp = 50) {
         piecieSlots: [null, null, null, null],
       },
       player_2: {
+        energy: 6,
         hand: [] as any[],
         deck: [] as any[],
         graveyard: [] as any[],
@@ -236,6 +239,7 @@ function makeTukState(slots: any[]) {
     turnNumber: 3,
     players: {
       player_1: {
+        energy: 6,
         hand: [] as any[],
         deck: [] as any[],
         graveyard: [] as any[],
@@ -243,6 +247,7 @@ function makeTukState(slots: any[]) {
         piecieSlots: [null, null, null, null],
       },
       player_2: {
+        energy: 6,
         hand: [] as any[],
         deck: [] as any[],
         graveyard: [] as any[],
@@ -311,6 +316,7 @@ function makeChrisState(piecieSlots: any[]) {
     turnNumber: 5,
     players: {
       player_1: {
+        energy: 6,
         hand: [] as any[],
         deck: [] as any[],
         graveyard: [] as any[],
@@ -318,6 +324,7 @@ function makeChrisState(piecieSlots: any[]) {
         piecieSlots,
       },
       player_2: {
+        energy: 6,
         hand: [] as any[],
         deck: [] as any[],
         graveyard: [] as any[],
@@ -421,6 +428,7 @@ function makeJiscaState(piecieSlots: any[]) {
     turnNumber: 7,
     players: {
       player_1: {
+        energy: 6,
         hand: [] as any[],
         deck: [] as any[],
         graveyard: [] as any[],
@@ -428,6 +436,7 @@ function makeJiscaState(piecieSlots: any[]) {
         piecieSlots,
       },
       player_2: {
+        energy: 6,
         hand: [] as any[],
         deck: [] as any[],
         graveyard: [] as any[],
@@ -554,6 +563,7 @@ function makeFpsCoertState(mp = 50, oppMp = 100) {
     sharedGeneralQuestDeck: [] as any[],
     players: {
       player_1: {
+        energy: 6,
         hand: [] as any[],
         deck: [] as any[],
         discard: [] as any[],
@@ -566,6 +576,7 @@ function makeFpsCoertState(mp = 50, oppMp = 100) {
         pieciesPlayedThisTurn: 0,
       },
       player_2: {
+        energy: 6,
         hand: [] as any[],
         deck: [] as any[],
         discard: [] as any[],
@@ -714,6 +725,7 @@ function makeChrisDdrState(opts: {
     turnNumber: 5,
     players: {
       player_1: {
+        energy: 6,
         hand: Array.from({ length: handPiecieCount }, () => ({ cardId: "piecie_kannetje_melk", type: "PIECIE" })),
         deck: [] as any[],
         graveyard: [] as any[],
@@ -726,6 +738,7 @@ function makeChrisDdrState(opts: {
         pieciesActivatedThisTurn: 0,
       },
       player_2: {
+        energy: 6,
         hand: [] as any[],
         deck: [] as any[],
         graveyard: [] as any[],

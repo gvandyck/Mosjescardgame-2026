@@ -18,6 +18,7 @@ function makeState(overrides: { mp?: number; turnNumber?: number } = {}) {
     sharedGeneralQuestDiscard: [],
     players: {
       player_1: {
+        energy: 6,
         hand: [],
         deck: [],
         graveyard: [],
@@ -58,6 +59,7 @@ function makeState(overrides: { mp?: number; turnNumber?: number } = {}) {
         ],
       },
       player_2: {
+        energy: 6,
         hand: [],
         deck: [],
         graveyard: [],

@@ -18,6 +18,7 @@ import { SNELLE_PIECIES } from '../data/snellePiecies.js';
 import { QUESTS } from '../data/quests.js';
 import { toGraveyardEntry } from './graveyardUtils.js';
 import { gainEnergy } from './energy/gainEnergy.js';
+import { payEnergy } from './energy/payEnergy.js';
 
 console.log('[ENGINE] turnManager.js loaded');
 
@@ -848,6 +849,10 @@ export function activatePlace(gameState, playerId, slotIndex) {
   const cardDef = PLACE_LOOKUP[cardId];
   if (!cardDef) return { state, success: false, error: 'Card definition not found' };
 
+  // Phase 57 moves Places to direct play from hand; the cost is paid when the Place starts working.
+  const placePay = payEnergy(state, playerId, Number(cardDef.cost) || 0);
+  if (!placePay.success) return { state: gameState, success: false, error: placePay.error || 'Not enough Energy' };
+
   // Remove from piecieSlots
   player.piecieSlots[slotIndex] = null;
 
@@ -933,6 +938,12 @@ export function activatePiecie(gameState, playerId, slotIndex) {
   const flags = state._snelleFlags || {};
   const oppId = Object.keys(state.players).find(id => id !== playerId);
   const isAttack = knownCardDef.tags?.includes('ATTACK');
+
+  // Energy: pay the card's cost after validation, before any mutation (free chains never reach here)
+  const piecieEnergyPay = payEnergy(state, playerId, Number(knownCardDef.cost) || 0);
+  if (!piecieEnergyPay.success) {
+    return { state: gameState, success: false, error: piecieEnergyPay.error || 'Not enough Energy' };
+  }
 
   // Flip face-up when activation starts
   slot.faceDown = false;
@@ -1085,6 +1096,8 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
   // Remove from hand and place face-up in a piecie slot (swept to discard at end of turn)
   const handIndex = player.hand.findIndex(c => c.cardId === cardRef.cardId);
   if (handIndex === -1) return { state, success: false, error: 'Card not in hand' };
+  const snellePay = payEnergy(state, playerId, Number(cardDef.cost) || 0);
+  if (!snellePay.success) return { state: gameState, success: false, error: snellePay.error || 'Not enough Energy' };
   const [playedCard] = player.hand.splice(handIndex, 1);
 
   normalizePiecieSlots(player, 4);
