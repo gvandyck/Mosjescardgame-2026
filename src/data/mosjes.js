@@ -500,12 +500,7 @@ export const MOSJES = [
     foil: false,
     artPath: "assets/mosje-art/placeholder.png",
     rarity: "★★",
-    isBoosterOnly: false,
-    // 2026-07-13 reconciliation ruling: "too conceptual still" — hidden from all
-    // pools (booster, deck-builder, starter-eligible) but data kept, recoverable
-    // by flipping this flag. See src/data/boosterEngine.js, src/deck-builder.js,
-    // src/data/cardIndex.js for the 3 filter points.
-    disabled: true
+    isBoosterOnly: false
   },
   {
     id: "mosje_fps_coert",
@@ -726,7 +721,8 @@ export const MOSJES = [
     flavourText: "",
     artPath: "assets/mosje-art/Binti The Creator.jpg",
     rarity: "★★★★",
-    isBoosterOnly: false
+    isBoosterOnly: false,
+    disabled: true
   },
   {
     id: "mosje_cless_teacher",
@@ -793,7 +789,8 @@ export const MOSJES = [
     foil: true,
     artPath: "assets/mosje-art/placeholder.png",
     rarity: "★★★★★",
-    isBoosterOnly: false
+    isBoosterOnly: false,
+    disabled: true
   },
   {
     id: "mosje_coert_kastelein",

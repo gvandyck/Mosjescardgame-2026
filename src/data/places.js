@@ -163,7 +163,8 @@ export const PLACES = [
     goodFor: [],
     badFor: [],
     rarity: "★★★",
-    isBoosterOnly: false
+    isBoosterOnly: false,
+    disabled: true
   },
   {
     id: "place_coerts_caravan",

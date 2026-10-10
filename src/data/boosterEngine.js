@@ -26,7 +26,7 @@ const POOL = [
 	...getPlayerFacingPlaces().map(c => ({ ...c, cardType: 'PLACE' })),
 	...QUESTS.filter(c => c.questType === 'PERSONAL').map(c => ({ ...c, cardType: 'QUEST' })),
 ]
-	.filter(c => !c.disabled) // hidden cards (e.g. Coert Kastelein, Drainer) never drop
+	.filter(c => !c.disabled) // 2.0 parked/cut cards and Personal Quests (disabled) never drop
 	.map(c => ({ card: c, weight: rarityToWeight(c.rarity) }));
 
 const TOTAL_WEIGHT = POOL.reduce((s, e) => s + e.weight, 0);

@@ -1055,6 +1055,7 @@ export const PIECIES = [
     artPath: "assets/piecies/placeholder.png",
     rarity: "★★★★★",
     isBoosterOnly: false,
+    disabled: true
   },
   {
     id: "piecie_chain_reaction",

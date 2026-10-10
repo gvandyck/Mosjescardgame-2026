@@ -591,7 +591,8 @@ export const QUESTS = [
     isBoosterOnly: false,
     rarity: "★★★",
     flavourText: "",
-    artPath: "assets/quests/placeholder.png"
+    artPath: "assets/quests/placeholder.png",
+    disabled: true
   },
 
   // ─────────────────────────────────────────
@@ -788,7 +789,8 @@ export const QUESTS = [
     isBoosterOnly: false,
     rarity: "★★★★★",
     flavourText: "",
-    artPath: "assets/quests/placeholder.png"
+    artPath: "assets/quests/placeholder.png",
+    disabled: true
   },
   {
     id: "quest_ultimate_challenge",
@@ -920,7 +922,8 @@ export const QUESTS = [
     isBoosterOnly: false,
     rarity: "★★★★★",
     flavourText: "",
-    artPath: "assets/quests/placeholder.png"
+    artPath: "assets/quests/placeholder.png",
+    disabled: true
   },
   {
     id: "quest_chain_master",
@@ -939,7 +942,8 @@ export const QUESTS = [
     isBoosterOnly: false,
     rarity: "★★★★★",
     flavourText: "",
-    artPath: "assets/quests/placeholder.png"
+    artPath: "assets/quests/placeholder.png",
+    disabled: true
   },
   {
     id: "quest_synergy_mastery",
@@ -1167,7 +1171,8 @@ export const QUESTS = [
     isBoosterOnly: true,
     rarity: "★★★★★",
     flavourText: "Hij wist het al voor je het zei.",
-    artPath: "assets/quests/placeholder.png"
+    artPath: "assets/quests/placeholder.png",
+    disabled: true
   },
   {
     id: "quest_personal_iron_will",
@@ -1186,7 +1191,8 @@ export const QUESTS = [
     isBoosterOnly: true,
     rarity: "★★★★★",
     flavourText: "Pain is just weakness leaving the body.",
-    artPath: "assets/quests/placeholder.png"
+    artPath: "assets/quests/placeholder.png",
+    disabled: true
   },
   {
     id: "quest_personal_perfect_sync",
@@ -1205,7 +1211,8 @@ export const QUESTS = [
     isBoosterOnly: true,
     rarity: "★★★★★",
     flavourText: "When information meets efficiency, nothing is hidden.",
-    artPath: "assets/quests/placeholder.png"
+    artPath: "assets/quests/placeholder.png",
+    disabled: true
   },
   {
     id: "quest_personal_lucky_crescendo",
@@ -1224,7 +1231,8 @@ export const QUESTS = [
     isBoosterOnly: true,
     rarity: "★★★★★",
     flavourText: "The crowd goes silent. The beat drops. Everything lands perfectly.",
-    artPath: "assets/quests/placeholder.png"
+    artPath: "assets/quests/placeholder.png",
+    disabled: true
   },
 
   // ─── PHASE 15 NEW PERSONAL QUESTS ───
@@ -1245,7 +1253,8 @@ export const QUESTS = [
     isBoosterOnly: false,
     rarity: "★★★★★",
     flavourText: "Winston wacht niet op iemand. Maar hij wacht wel op de Tesla.",
-    artPath: "assets/quests/placeholder.png"
+    artPath: "assets/quests/placeholder.png",
+    disabled: true
   },
   {
     id: "quest_personal_kickboxing_bootcamp",
@@ -1268,7 +1277,8 @@ export const QUESTS = [
     isBoosterOnly: false,
     rarity: "★★★",
     flavourText: "Één, twee! Hoofd omlaag. De boksring is het bewijs.",
-    artPath: "assets/quests/placeholder.png"
+    artPath: "assets/quests/placeholder.png",
+    disabled: true
   },
   {
     id: "quest_dutch_courage",
