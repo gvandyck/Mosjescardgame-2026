@@ -5,6 +5,10 @@ import { parseCardList } from '../../scripts/obby2/parseCardList.mjs';
 // @ts-ignore JS module
 import { parseExampleDecks } from '../../scripts/obby2/parseExampleDecks.mjs';
 // @ts-ignore JS module
+import { CARD_ID_MAP } from '../../scripts/obby2/cardIdMap.mjs';
+// @ts-ignore JS module
+import { ALL_CARDS } from '../../src/data/cardIndex.js';
+// @ts-ignore JS module
 import { readDoc } from '../../scripts/obby2/readDoc.mjs';
 
 const list = parseCardList(readDoc('Obby Card Game 2.0 - Card List.md'));
@@ -74,6 +78,25 @@ describe('parseCardList', () => {
     const pets = list.piecies.filter((p: any) => p.tag === 'pet');
     expect(pets).toHaveLength(5);
     for (const p of pets) expect(p.text.startsWith('Stays until the end of your next turn.')).toBe(true);
+  });
+});
+
+describe('CARD_ID_MAP', () => {
+  const types = [['mosjes', 32], ['quests', 38], ['piecies', 73], ['snelle', 20], ['places', 20]] as const;
+
+  it('has an entry for every parsed row and the right sizes', () => {
+    for (const [t, n] of types) {
+      expect(Object.keys(CARD_ID_MAP[t]), t).toHaveLength(n);
+      for (const row of list[t]) expect(CARD_ID_MAP[t][row.name], `${t}: ${row.name}`).toBeTruthy();
+    }
+  });
+
+  it('has 183 unique ids; only the 2 new quests are missing from ALL_CARDS', () => {
+    const ids = types.flatMap(([t]) => Object.values(CARD_ID_MAP[t]) as string[]);
+    expect(new Set(ids).size).toBe(183);
+    const live = new Set(ALL_CARDS.map((c: any) => c.id));
+    // plan 53-05 adds these two; it must then update this to "all exist"
+    expect(ids.filter((id) => !live.has(id)).sort()).toEqual(['quest_cheat_code', 'quest_dutch_courage']);
   });
 });
 
