@@ -9,29 +9,29 @@ import fs from "fs";
 import path from "path";
 
 // ─────────────────────────────────────────────────────────────
-// Phase 35-07 (PLACE-05, PLACE-12) — hide Drain Zone + The Void
-// Both cards are DESCOPED this phase (see 35-CONTEXT.md) — their untexted
-// dead code is cleaned up, but the real cross-cutting mechanics their text
-// promises are out of scope. Hidden from deck-building/boosters via the
-// same whitelist/blacklist-filter pattern already used for player-facing
-// decks, until a future phase implements them properly.
+// Phase 53-05 (DATA-05) — Obby 2.0: Drain Zone + The Void are playable.
+// The accessor filters only on the shared `disabled` flag.
 // ─────────────────────────────────────────────────────────────
 
-describe("getPlayerFacingPlaces (PLACE-05, PLACE-12) — Drain Zone + The Void hidden", () => {
-  it("filters out exactly Drain Zone and The Void, keeping all other Places", () => {
-    const facing = getPlayerFacingPlaces();
-    expect(facing.length).toBe(PLACES.length - 2);
+describe("getPlayerFacingPlaces — Drain Zone + The Void unhidden (Obby 2.0)", () => {
+  it("returns exactly the Places that are not disabled", () => {
+    expect(getPlayerFacingPlaces()).toEqual(PLACES.filter((p: any) => !p.disabled));
   });
 
-  it("Drain Zone is not present in the player-facing list", () => {
-    expect(getPlayerFacingPlaces().find((p: any) => p.id === "place_drain_zone")).toBeUndefined();
+  it("Drain Zone is in the player-facing list", () => {
+    expect(getPlayerFacingPlaces().find((p: any) => p.id === "place_drain_zone")).toBeDefined();
   });
 
-  it("The Void is not present in the player-facing list", () => {
-    expect(getPlayerFacingPlaces().find((p: any) => p.id === "place_the_void")).toBeUndefined();
+  it("The Void is in the player-facing list", () => {
+    expect(getPlayerFacingPlaces().find((p: any) => p.id === "place_the_void")).toBeDefined();
   });
 
-  it("both cards remain fully defined in the raw PLACES data (not deleted, just hidden)", () => {
+  it("no returned Place is disabled", () => {
+    expect(getPlayerFacingPlaces().some((p: any) => p.disabled)).toBe(false);
+  });
+
+  it("raw PLACES still contains every Place (engine importers unfiltered)", () => {
+    expect(PLACES.length).toBeGreaterThanOrEqual(20); // Momentum Factory (V4-only) is hidden in 53-06
     expect(PLACES.find((p: any) => p.id === "place_drain_zone")).toBeDefined();
     expect(PLACES.find((p: any) => p.id === "place_the_void")).toBeDefined();
   });
