@@ -31,7 +31,8 @@ describe("getPlayerFacingPlaces — Drain Zone + The Void unhidden (Obby 2.0)", 
   });
 
   it("raw PLACES still contains every Place (engine importers unfiltered)", () => {
-    expect(PLACES.length).toBeGreaterThanOrEqual(20); // Momentum Factory (V4-only) is hidden in 53-06
+    expect(PLACES.length).toBe(21); // 20 Card List Places + hidden V4-only Momentum Factory
+    expect(PLACES.filter((p: any) => !p.disabled)).toHaveLength(20);
     expect(PLACES.find((p: any) => p.id === "place_drain_zone")).toBeDefined();
     expect(PLACES.find((p: any) => p.id === "place_the_void")).toBeDefined();
   });
