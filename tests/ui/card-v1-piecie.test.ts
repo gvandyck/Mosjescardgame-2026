@@ -46,7 +46,7 @@ describe('card frame v1 — Piecie data mapping', () => {
     expect(html).toContain('Momentum-Gaining');
     expect(html).toMatch(/data-cv1-mp>Free</);
     expect(html).toContain('#15803D');
-    expect(html).toContain('Gain 25 MP to your active Mosje.');
+    expect(html).toContain('One of your Mosjes gains 25 MP.');
   });
   it('paid Piecie shows the MP cost; description text is unchanged', () => {
     const force = byName('Welloe Force');
@@ -71,7 +71,7 @@ describe('card frame v1 — Piecie data mapping', () => {
     expect(html).not.toContain('cv1-desc');
   });
   it('short text is set larger, long text steps down, nothing exceeds the card', () => {
-    expect(getDescriptionLayout(['Gain 25 MP to your active Mosje.'], { allowLarge: true, minFade: 250 })).toMatchObject({ size: 18, fade: 250, overflow: false });
+    expect(getDescriptionLayout(['One of your Mosjes gains 25 MP.'], { allowLarge: true, minFade: 250 })).toMatchObject({ size: 18, fade: 250, overflow: false });
     const long = getDescriptionLayout(Array.from({ length: 5 }, () => 'A long sentence about what happens. '.repeat(4)), { allowLarge: true, minFade: 250 });
     expect(long.size).toBeLessThan(16);
     expect(long.size).toBeGreaterThanOrEqual(12.5);

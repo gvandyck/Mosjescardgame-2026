@@ -237,11 +237,12 @@ describe("confirmCallOfWelloes — summon executor", () => {
 });
 
 describe("piecies.js — piecie_call_of_welloes description (revised)", () => {
-  it("J: description contains 'Level 1, 50 MP' and 'summoned Mosje is also defeated', does NOT contain 'restoring its MP'", () => {
+  it("J: 2.0 description: Welloe pile summon at Level 1, discards when the Mosje leaves play, no 'restoring its MP'", () => {
     const def = (PIECIES as any[]).find((p: any) => p.id === "piecie_call_of_welloes");
     expect(def).toBeDefined();
-    expect(def.description).toContain("Level 1, 50 MP");
-    expect(def.description).toContain("summoned Mosje is also defeated");
+    expect(def.description).toContain("Summon a Mosje from your Welloe pile");
+    expect(def.description).toContain("at Level 1 with its starting MP");
+    expect(def.description).toContain("if the Mosje leaves play, discard this card");
     expect(def.description).not.toContain("restoring its MP");
   });
 });

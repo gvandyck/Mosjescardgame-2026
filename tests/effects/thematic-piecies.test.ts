@@ -97,10 +97,10 @@ afterEach(() => {
 
 describe('Phase 46 thematic Piecie definitions', () => {
   const expected = [
-    ['piecie_loaded_dice', '★★', true],
+    ['piecie_loaded_dice', '★', true],
     ['piecie_boosterpackkie', '★★', false],
-    ['piecie_perfect_rhythm', '★', true],
-    ['piecie_dikke_plaat', '★★', true],
+    ['piecie_perfect_rhythm', '★★', true],
+    ['piecie_dikke_plaat', '★', true],
   ] as const;
 
   for (const [id, rarity, persists] of expected) {

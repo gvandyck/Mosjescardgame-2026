@@ -43,12 +43,12 @@ describe("Phase 24-01 — Interrupt data fixes", () => {
     expect(def.persistUntilEndOfTurn).toBe(true);
   });
 
-  // ── Test 2: Not Today! description uses "graveyard" ───────────────────────
-  it("snelle_negate_elimination description contains 'graveyard' and not 'Welloe pile'", () => {
+  // ── Test 2: Not Today! description uses Welloe pile ───────────────────────
+  it("snelle_negate_elimination description uses the 2.0 'Welloe pile' wording, not 'graveyard'", () => {
     const def = SNELLE_PIECIES.find((p: any) => p.id === "snelle_negate_elimination");
     expect(def).toBeDefined();
-    expect(def.description).toContain("graveyard");
-    expect(def.description).not.toContain("Welloe pile");
+    expect(def.description).toContain("Welloe pile");
+    expect(def.description).not.toContain("graveyard");
   });
 
   // ── Test 3: unconditional heal when mp > 0 ────────────────────────────────

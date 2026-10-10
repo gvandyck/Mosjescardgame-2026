@@ -6,9 +6,9 @@ import { buildCardV1 } from '../../src/ui/cardV1/buildCardV1.js';
 const byName = (name: string) => (SNELLE_PIECIES as any[]).find((p) => p.name === name);
 
 describe('card frame v1 — Snelle data mapping', () => {
-  it('Lucky Coin face: name, SNELLE pill, Requires line, instant border text, Free badge, gold', () => {
-    const html = buildCardV1(byName('Lucky Coin'), {})!.html;
-    expect(html).toContain('>Lucky Coin<');
+  it('Lucky Cóin face: name, SNELLE pill, Requires line, instant border text, Free badge, gold', () => {
+    const html = buildCardV1(byName('Lucky Cóin'), {})!.html;
+    expect(html).toContain('>Lucky Cóin<');
     expect(html).not.toContain('cv1-nick');
     expect(html).toContain('>SNELLE<');
     expect(html).toContain('Requires: Any');
@@ -26,12 +26,12 @@ describe('card frame v1 — Snelle data mapping', () => {
     expect(texts).toContain('Requires: Lvl 1+');
   });
   it('paid Snelle (none in the data today) would show the MP cost', () => {
-    const html = buildCardV1({ ...byName('Lucky Coin'), mpCost: 10 }, {})!.html;
+    const html = buildCardV1({ ...byName('Lucky Cóin'), mpCost: 10 }, {})!.html;
     expect(html).toMatch(/data-cv1-mp>10</);
     expect(html).toContain('MP COST');
   });
   it('field tile shows name, SNELLE pill and COST badge only', () => {
-    const html = buildCardV1(byName('Lucky Coin'), { fieldMode: true })!.html;
+    const html = buildCardV1(byName('Lucky Cóin'), { fieldMode: true })!.html;
     expect(html).toContain('>SNELLE<');
     expect(html).toContain('>COST<');
     expect(html).not.toContain('cv1-desc');
