@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-current_phase: 49
-status: complete
-last_updated: "2026-07-22T00:00:00.000Z"
+milestone: v2.0
+milestone_name: Obby Card Game 2.0 — slice A (offline vs bot)
+status: planning
+last_updated: "2026-10-10T17:40:14.479Z"
+last_activity: 2026-10-10
 progress:
-  total_phases: 42
-  completed_phases: 26
-  total_plans: 96
-  completed_plans: 87
-  percent: 62
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -37,6 +37,7 @@ and both plan summaries were never written.
   **6 SUPERSEDED, 2 INSUFFICIENT-EVIDENCE-PRESERVED, 1 GENUINELY-UNFINISHED→SUPERSEDED-BY-SCOPE**
   across the 9 plans; every cited commit resolved via `git cat-file` and every cited
   test file via `test -f` (both live gates exit 0).
+
 - **Plan 49-02 executed:** 9 `{plan}-CLOSURE.md` discoverability markers (each declares
   itself a closure note, NOT a summary; `32-02` carries the D-05 un-captured-human-approval
   residual). Todo hygiene (D-06): the 2 shipped todos (alyssa-jisca→P38, coerts-caravan→P41)
@@ -1168,3 +1169,10 @@ All 5 balance plans executed and verified (BAL-01 through BAL-05):
 </details>
 
 </details>
+
+## Current Position
+
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-10-10 — Milestone v2.0 started
