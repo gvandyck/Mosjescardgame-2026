@@ -26,6 +26,11 @@ If a bug genuinely can't be reproduced in the browser (e.g. it lives in pure-eng
 
 ---
 
+## 🃏 Obby Card Game 2.0 rework (design work, not engine code)
+If the user says "start on phase N" (or mentions Obby 2.0 / the 2.0 rework), read `docs/obby-2.0/README.md` first. It holds the roadmap, the working rules and the reading order. Don't touch the engine for it until Phase 6.
+
+---
+
 ## What this project is
 A card game engine for the Mosjes Card Game — a friend-group trading card game where players race to Level 3 by earning Momentum Points (MP) through Quests. **This is a digital prototype used to playtest the rules, card interactions, chains, and multiplayer before printing a physical card game.** Priorities: a clean prototype, easy editing of cards/abilities, working multiplayer (P2P + bot), and tests that verify *real* card behavior (not hallucinated).
 
