@@ -6,7 +6,11 @@ Docs for this rework live in `docs/obby-2.0/` (design only, no engine code touch
 ## Status
 - **Current phase:** Phase 5 DONE (starter decks + desk test, R1–R6 adopted). Balancing and paper games parked for later (your call). Phase 6 next.
 - **Done:** Phase 0 — `Obby Card Game 2.0 - Core Numbers.md`; Phase 1 Fighting — `Obby Card Game 2.0 - Phase 1 Fighting Mosjes.md`; Phase 1 Digital — `Obby Card Game 2.0 - Phase 1 Digital Mosjes.md`; Phase 1 Artistic — `Obby Card Game 2.0 - Phase 1 Artistic Mosjes.md`; Phase 2 — `Obby Card Game 2.0 - Phase 2 Quests.md`; Phase 3 — `Obby Card Game 2.0 - Phase 3 Piecies and Snelle.md`; Phase 4 — `Obby Card Game 2.0 - Phase 4 Places.md`
-- **Next:** Phase 6: Card List 2.0, Example Decks 2.0 and the Claude Code handoff for the web game. Balancing (paper games, Phase 5 score sheet) comes back later when you ask.
+- **Next:** Phase 6 in a fresh chat ("start on phase 6"). Scope already decided (2026-10-10):
+  - **Card List 2.0** = one markdown doc in this folder with every 2.0 card (Mosjes, Quests, Piecies, Snelle, Places), table text only, no change notes. The phase docs stay as the "why".
+  - **Example Decks 2.0** = only the 3 Phase 5 starter decks, in their final format (the web game's 5 duo decks are not reworked now).
+  - **Claude Code handoff** = a written spec in the repo only (rule changes, card data changes, board layout, tests to add). No GSD roadmap and no engine changes in Phase 6; engine work starts later in its own milestone.
+  - Balancing stays parked.
 
 ## Phase 5 outcome (2026-10-10, no questions asked by request)
 - **3 starter decks, 30 cards each:** Fighting "Taksen", Digital "Regelaars", Artistic "Creatievelingen". 6 Mosjes, 2 Places, 2 destroyers, 18 Piecies, 4 Snelle each; max 2 copies; the starting Mosje is one of the 30.
