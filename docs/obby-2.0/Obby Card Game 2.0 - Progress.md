@@ -4,9 +4,30 @@ Source docs: `Obby Card Game 2.0 - Rules and Decisions`, `Obby Card Game 2.0 - R
 Docs for this rework live in `docs/obby-2.0/` (design only, no engine code touched).
 
 ## Status
-- **Current phase:** Phase 6 DONE (Card List 2.0, Example Decks 2.0, Claude Code handoff). Phase 7 (visual production) next. Balancing still parked.
-- **Done:** Phase 0 — `Obby Card Game 2.0 - Core Numbers.md`; Phase 1 — `... Phase 1 Fighting / Digital / Artistic Mosjes.md`; Phase 2 — `... Phase 2 Quests.md`; Phase 3 — `... Phase 3 Piecies and Snelle.md`; Phase 4 — `... Phase 4 Places.md`; Phase 5 — `... Phase 5 Starter Decks.md`; Phase 6 — `... Card List.md`, `... Example Decks.md`, `... Claude Code Handoff.md`
-- **Next:** Phase 7 in a fresh chat ("start on phase 7"), or the engine milestone when you want the web game built: tell Claude Code "build Obby 2.0 from the handoff" and it starts from `Obby Card Game 2.0 - Claude Code Handoff.md`. Before online play works you need to make the second Firebase project (handoff §1).
+- **Current phase:** Phase 7 DONE (card frame spec + missing-art list). All roadmap phases are done. Balancing still parked.
+- **Done:** Phase 0 — `Obby Card Game 2.0 - Core Numbers.md`; Phase 1 — `... Phase 1 Fighting / Digital / Artistic Mosjes.md`; Phase 2 — `... Phase 2 Quests.md`; Phase 3 — `... Phase 3 Piecies and Snelle.md`; Phase 4 — `... Phase 4 Places.md`; Phase 5 — `... Phase 5 Starter Decks.md`; Phase 6 — `... Card List.md`, `... Example Decks.md`, `... Claude Code Handoff.md`; Phase 7 — `... Phase 7 Card Frames and Art.md`
+- **Next:** the engine milestone when you want the web game built, or new art from the Phase 7 list (starter decks first). For the engine: tell Claude Code "build Obby 2.0 from the handoff" and it starts from `Obby Card Game 2.0 - Claude Code Handoff.md`. Before online play works you need to make the second Firebase project (handoff §1).
+
+## Phase 7 outcome (2026-10-10)
+- **Scope cut (your call):** paper cards and print sheets are out of scope. Phase 7 = a digital **card frame spec** + a **missing-art list**, in `Obby Card Game 2.0 - Phase 7 Card Frames and Art.md`.
+- The spec builds on the rarity-tier design already on `main` (5 tiers, Quest cards, card editor) and lists only what 2.0 changes.
+- **Missing art:** 78 cards without art + 2 borrowing another card's art = 80 (34 in the starter decks); the 38 Quests are optional.
+
+### Phase 7 decisions (your calls)
+- **5 tiers:** ★–★★★ boxed art; ★★★★ full art, regular; ★★★★★ full art with shine/foil.
+- **Mosjes always full art;** foil on ★★★★★ or a `foil` flag set in the card editor. The Card List rarity still drives the rules. (Your 6 Oct re-tier put every Mosje at ★★★★/★★★★★ on `main`; that stays a looks-only choice.)
+- **Level rows:** all 3 on the face, the current level lit.
+- **Text box frosted / blurred** (overrides the old "no blur" rule from card-frame-v1).
+- **Quests:** new 2.0 face in the same frame family, the whole card in the stack colour (Fighting orange / Digital teal / Artistic purple); rose dropped.
+- **Cost:** big number + "COST", no box or crystal.
+- **Art list:** starter decks first. **Piecie label:** tag first (Food/Gear/Substance/Pet), else MP/Attack/Utility.
+
+### Small things I decided myself (Phase 7, check these)
+- 0-cost cards show "0", not "Free"; no "Needs" line without a requirement; "STAYS" chip; "LVL 3 · HOLD" chip; Fresh/Protected badges on field tiles.
+- Quest top-left shows the dice need ("2× 4+"); Quests use the tier-1 frame; 2 fail-token pips.
+- Proposal: the 12 Mosjes you set to ★★★★★ on 6 Oct keep foil through the `foil` flag.
+- The Eendjes Voeren Place keeps the shared "Eendjes voeren" image, so Nature's Gift needs new art; Dancing/DDR Chris needs its own art (it borrows Chris's alt).
+- The art briefs are only suggestions.
 
 ## Phase 6 outcome (2026-10-10)
 - **Card List 2.0** (`Obby Card Game 2.0 - Card List.md`): all 183 cards, table text only: 32 Mosjes with full level rows (Power + traits per level), 38 Quests, 73 Piecies, 20 Snelle, 20 Places. It wins over the phase docs where they differ.

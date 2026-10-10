@@ -4,7 +4,7 @@ Entry point for any new chat. Reading order: this file → `Obby Card Game 2.0 -
 
 Card source: Card List V4 on Google Drive, "Mosjes Card List Momentum Edition V4" (file id `1E1ZYPim6x4oWVrhplapufDeetP5gzsTJAzP8EcRHZnc`). Read it with the Drive connector; it is not in the repo. From Phase 3 on, the web game's card data (`src/data/*.js`) is a second source: it has newer texts, renamed cards and web-only cards. Read it, never edit it, and ask how to use it (Phase 3: V4 + web extras, web names, mostly web text).
 
-This is a **design** rework. Phase 6 wrote the handoff but changed no engine code. The engine work is its own milestone on branch `obby-2.0` (see the handoff); Phase 7 is visual production.
+This is a **design** rework. Phase 6 wrote the handoff but changed no engine code. The engine work is its own milestone on branch `obby-2.0` (see the handoff); Phase 7 wrote the 2.0 card frame spec and the missing-art list it builds from.
 
 ## When the user says "start on phase N"
 1. Read the files above. Check `Progress.md` says phases before N are done; if one was skipped, say so and ask before proceeding.
@@ -27,7 +27,7 @@ Git: work on a branch (`docs/obby-2.0-...`), never commit straight to `main`.
 | 4 | Places: each changes combat or Quests; good-for / bad-for | **DONE** 2026-10-10 | `Obby Card Game 2.0 - Phase 4 Places.md` |
 | 5 | Starter decks (min 30 cards) + paper playtests | **DONE** 2026-10-10: decks + desk test, R1–R6 adopted. Paper games and balancing parked for later (your call) | `Obby Card Game 2.0 - Phase 5 Starter Decks.md` |
 | 6 | Card List 2.0, Example Decks 2.0, Claude Code handoff for the web game | **DONE** 2026-10-10 | `Obby Card Game 2.0 - Card List.md`, `... Example Decks.md`, `... Claude Code Handoff.md` |
-| 7 | Visual production | not started | — |
+| 7 | Visual production (digital only: card frame spec + missing-art list; paper/print out of scope) | **DONE** 2026-10-10 | `Obby Card Game 2.0 - Phase 7 Card Frames and Art.md` |
 
 ## Reminders for later phases
 - **Balancing is parked (your call after Phase 5):** paper games with the Phase 5 score sheet, game length (median 15 rounds in the desk test, target 8–10), attack share (74%), Fighting 63% vs Digital 20%. Next levers: Quest wins +10 or start MP +10. Come back to it when you ask.

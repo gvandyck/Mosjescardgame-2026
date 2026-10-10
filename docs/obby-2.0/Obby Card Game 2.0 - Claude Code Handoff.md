@@ -141,7 +141,7 @@ From the Rules doc ("Board (web UI)" and "Card face layout"). Design references:
 - **Hand** at the bottom with real card frames (3 cards at the start).
 - **Energy:** 6 crystals per player, filled = available.
 - **Mosje tile:** Power bottom-left, LVL chip + type centre, MP bottom-right (field mode drops the cost). Sideways = rotated 90°. Badges for fresh and level-up protected. The Tactician shows the temporary MP with the real MP small next to it.
-- **Card faces:** cost top-left with label "COST", name next to it; frosted description box; few colours (black, white, one type colour).
+- **Card faces:** cost top-left with label "COST", name next to it; frosted description box; few colours (black, white, one type colour). **Full spec: `Obby Card Game 2.0 - Phase 7 Card Frames and Art.md` §A** (Mosjes always full art, 3 level rows, Quests in stack colours).
 - Judge the UI at **1920×1080 or larger**. The unmerged UI branches (`ui/arena-hover-spotlight`, `ui/card-frame-v1`, `ui/rarity-tiers`) hold frame and hover work that 2.0 can build on; decide per branch whether to merge it into `obby-2.0` first.
 
 ## 5. Bot
@@ -225,4 +225,4 @@ Update the engine sim (`npm run test:sim`) to the 2.0 rules and the 3 Example De
 3. **Quest stack runs out:** reshuffle that stack's discarded Quests (proposal, §2e).
 4. **Names owed:** The Hacker, The Tactician, The Drainer still have placeholder names.
 5. **Balancing is parked:** game length (target 8–10 rounds), attack share, Fighting strong / Digital weak. Levers for later: Quest wins +10, or start MP +10. Don't tune numbers in the engine milestone without Gandalf.
-6. **Art:** new cards (Dutch courage, Cheat code) and the Places without art; Phase 7 (visual production) handles frames and print sheets.
+6. **Art and frames:** done in Phase 7, `Obby Card Game 2.0 - Phase 7 Card Frames and Art.md`: the 2.0 card face per type (build it from §A, add its tests from §A10) and the 80 cards that still need art (starter decks first). Paper / print sheets are out of scope.
