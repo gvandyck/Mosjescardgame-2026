@@ -117,11 +117,12 @@ describe("FPS West Tactical Analysis — requires a guess", () => {
 });
 
 describe("FPS West ability description — guessing game text", () => {
-  it("contains 'Guess' and '70', and drops the legacy 'predict' / 'Pay 10 MP' wording", () => {
+  it("uses the Card List 2.0 Tactical Analysis text (name the card type; correct +20, wrong -10) and drops the legacy wording", () => {
     const west = MOSJES.find((m: any) => m.id === "mosje_fps_west");
     expect(west).toBeTruthy();
-    expect(west.abilityDescription).toContain("Guess");
-    expect(west.abilityDescription).toContain("70");
+    expect(west.abilityDescription).toContain("Tactical Analysis");
+    expect(west.abilityDescription).toContain("name the card type");
+    expect(west.abilityDescription).toContain("Correct: gain 20 MP");
     expect(west.abilityDescription).not.toContain("predict");
     expect(west.abilityDescription).not.toContain("Pay 10 MP");
   });

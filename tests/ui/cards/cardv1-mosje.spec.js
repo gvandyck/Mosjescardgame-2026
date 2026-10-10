@@ -10,13 +10,13 @@ const OUT = 'tests/ui/screenshots/cardv1';
 
 // name fragment -> why it is in the set
 const TEST_CARDS = [
-  ['[Alyssa] The Bulldozer', '3-effect card'],
-  ['[Ronald] The Master Chef', '2-effect card'],
-  ['[Jisca] The Maestro', 'longest text stress test'],
-  ['[FPS Coert]', 'no nickname'],
-  ['[Dancing/DDR Chris]', 'long first name, no nickname'],
-  ['[Parkour West] The Flow Fighter', 'long first name + nickname'],
-  ['[The Hacker]', 'placeholder first name, no nickname'],
+  ['Alyssa, The Bulldozer', '3-effect card'],
+  ['Ronald, The Master Chef', '2-effect card'],
+  ['Jisca, The Maestro', 'longest text stress test'],
+  ['FPS Coert', 'no nickname'],
+  ['Dancing/DDR Chris', 'long first name, no nickname'],
+  ['Parkour West, The Flow Fighter', 'long first name + nickname'],
+  ['[...], The Hacker', 'placeholder first name + nickname'],
 ];
 
 async function openGame(page) {
@@ -61,7 +61,7 @@ test.describe('card frame v1 — Mosje', () => {
         if (c) out.push(c.id);
       }
       // longest nickname
-      const nick = (c) => (c.name.match(/^\[.+?\]\s*(.*)/) || [])[1] || '';
+      const nick = (c) => (c.name.match(/^\[.+?\],?\s*(.*)/) || c.name.match(/^[^,]*,\s*(.*)/) || [])[1] || '';
       out.push([...mosjes].sort((a, b) => nick(b).length - nick(a).length)[0].id);
       return out;
     }, TEST_CARDS);

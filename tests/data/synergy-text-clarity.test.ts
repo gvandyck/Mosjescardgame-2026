@@ -17,24 +17,14 @@ type Mosje = {
 // For each Mosje with a partner synergy, the text must contain these
 // partner-identifying substrings (derived from the partner cards' names).
 const REQUIRED_PARTNER_MENTIONS: Record<string, string[]> = {
-  mosje_azn_cless: ['Martin Senor West'],
-  mosje_michelle: ['Gandoe'],
-  mosje_gandoe_destroyer: ['Michelle'],
+  // Card List 2.0: exactly 5 Mosjes carry a synergy text.
+  mosje_martin_historian: ['Cless, The Teacher'],
   mosje_martin_senor_west: ['AZN Cless'],
-  mosje_coert_tech: ['Binti'],
-  mosje_chris: ['Youri'],
-  mosje_youri: ['Chris'],
-  mosje_fps_coert: ['FPS West'],
-  mosje_fps_west: ['FPS Coert', 'AZN Cless'],
-  mosje_dj_8020: ['Chris'],
-  mosje_coert_kasteluck: ['Binti'],
-  mosje_binti: ['Coert'],
-  mosje_cless_teacher: ['Martin Senor West'],
+  mosje_youri: ['Dancing/DDR Chris'],
+  mosje_binti: ['Coert, The Hawaiian Tech Savant'],
+  mosje_fps_west: ['FPS Coert'],
+  // Not in Card List 2.0 (still V4 data, untouched until its own plan):
   mosje_coert_kastelein: ['Binti'],
-  mosje_chris_ddr: ['Youri'],
-  mosje_alyssa_bulldozer: ['Jisca'],
-  mosje_alyssa_fissa: ['Jisca'],
-  mosje_jisca: ['Alyssa'],
 };
 
 const withSynergyText = (MOSJES as Mosje[]).filter(m => m.synergyEffect);

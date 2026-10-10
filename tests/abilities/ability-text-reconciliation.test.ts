@@ -385,10 +385,13 @@ describe("Chris All-Rounder — Perfect Setup", () => {
 });
 
 describe("Chris All-Rounder ability description", () => {
-  it("no longer promises a 15 MP gain", () => {
+  it("uses the Card List 2.0 Perfect Setup text (3 face-down Piecies gate, free activation)", () => {
     const chris = MOSJES.find((m: any) => m.id === "mosje_chris");
     expect(chris).toBeTruthy();
-    expect(chris.abilityDescription.toLowerCase()).not.toContain("15 mp");
+    // NOTE: the 2.0 text promises "gain 15 MP"; the engine still grants none (V4 ruling,
+    // asserted above). That text<->engine gap is tracked, not asserted here.
+    expect(chris.abilityDescription).toContain("Perfect Setup");
+    expect(chris.abilityDescription.toLowerCase()).toContain("face-down piecies");
   });
 });
 
@@ -657,10 +660,10 @@ describe("FPS Coert data", () => {
     expect(fpsCoert.autoAbility).toBe(true);
   });
 
-  it("abilityDescription already matched the ruling and stays that way", () => {
+  it("abilityDescription matches the Card List 2.0 text and the ruling", () => {
     const fpsCoert = MOSJES.find((m: any) => m.id === "mosje_fps_coert");
     const desc = fpsCoert.abilityDescription.toLowerCase();
-    expect(desc).toContain("physical or technical quest success");
+    expect(desc).toContain("succeeds at a physical or technical quest");
     expect(desc).toContain("30 mp");
     expect(desc).toContain("15 mp");
   });

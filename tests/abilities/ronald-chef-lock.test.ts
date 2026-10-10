@@ -152,18 +152,15 @@ describe("startTurn hygiene — cooldown tick + lock expiry", () => {
 });
 
 describe("Ronald Chef ability description", () => {
-  it("describes the lock + 20 MP cost and drops the old predict/deck wording", () => {
+  it("describes the 2.0 Strategic Insight text: choose a card from the opponent's hand, set face-down, returns to hand", () => {
     const ronald = MOSJES.find((m: any) => m.id === "mosje_ronald_chef");
     expect(ronald).toBeTruthy();
     const desc = ronald.abilityDescription.toLowerCase();
-    expect(desc).toContain("lock");
-    expect(desc).toContain("20 mp");
+    expect(desc).toContain("strategic insight");
+    expect(desc).toContain("look at your opponent's hand and choose 1 card");
+    expect(desc).toContain("face-down");
+    expect(desc).toContain("returns to their hand");
     expect(desc).not.toContain("predict");
-    expect(desc).not.toContain("deck");
-    // The reworked text PICKS a card to lock — the old stub "view opponent hand"
-    // (the dead deck-peek behaviour) must be gone. This is what makes the
-    // description test fail against the legacy text (which already had "lock"/"20 MP").
-    expect(desc).toContain("pick a card in your opponent's hand");
     expect(desc).not.toContain("view opponent hand");
   });
 });
