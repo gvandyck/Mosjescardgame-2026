@@ -77,7 +77,24 @@ Plans:
   5. After any gain, loss, halving or doubling, MP is a multiple of 5 and never below 0, Power is a multiple of 10 and never below 0, and one loss resolves in the §2g order (base → reductions → Stabilizer cap → round/floor → no-loss check).
 **Tests to add**: E1, E3, E4, E5, E6, E7, E7b, E8, E14, E27.
 **Notes**: MP-touching phase: run the full CLAUDE.md verification including the sim. The old Ronald Kip stacking test is replaced in Phase 59.
-**Plans**: TBD
+**Plans**: 16 plans (12 waves)
+Plans:
+- [ ] 54-01-PLAN.md — Energy pool (start 2, +1/turn, max 6), payEnergy/canPay/gainEnergy, welloePile state, E1, test builder + setEnergy hook
+- [ ] 54-02-PLAN.md — Energy pays Piecie activations, Snelle and Places; Welloe Force stops spending MP
+- [ ] 54-03-PLAN.md — Ability Energy costs in src/rules/abilityEnergyCosts.js; useMosjeAbility charges on success; Ronald/Youri/Gandoe stop taking MP
+- [ ] 54-04-PLAN.md — 20 MP Quest cost and MP gates removed from UI/bot, Energy labels, no-MP-currency guard (RULE-01 complete)
+- [ ] 54-05-PLAN.md — Levels stored 1-3, single createMosjeSlot factory, traits from level rows, bot level semantics
+- [ ] 54-06-PLAN.md — Level display 1-3 (no +1/-1 adaptors), factory-based test hook, ability-test fixtures
+- [ ] 54-07-PLAN.md — Gain pipeline: level-up resets to 0, L3 cap 95, getPower, 2.0 normaliser, allowLevelUp deleted (E3, E7b, E14, E27 gain)
+- [ ] 54-08-PLAN.md — Engine-test fixtures to Level 1 + no-Level-0 guard
+- [ ] 54-09-PLAN.md — One-loss pipeline in §2g order (registrable steps, Stabilizer after reducers, reduced-to-0 = no loss)
+- [ ] 54-10-PLAN.md — Getemt (L2-3 -> -1 @50, L1 sideways, again -> Welloe pile), separate Welloe pile, Reborn/Call re-pointed (E4, E6)
+- [ ] 54-11-PLAN.md — Sideways lifecycle per Mosje (skip owner's next turn, stand up at its end), UI/bot gates (E5)
+- [ ] 54-12-PLAN.md — Hold-Level-3 win at turn start, no-Mosje-left loss (field+hand+deck), V4 wins removed (E7, E8; RULE-04 complete)
+- [ ] 54-13-PLAN.md — Funnel Piecie effect MP writes + static funnel guard
+- [ ] 54-14-PLAN.md — Funnel Mosje ability, Quest and Snelle MP writes
+- [ ] 54-15-PLAN.md — Funnel Places/turnManager/bot/UI, Ronald Kip stacking under 2.0, smoke invariants (RULE-02/03/09 complete)
+- [ ] 54-16-PLAN.md — Playwright specs aligned (no Level 0, getemt, hold-L3) + phase gate (Node smoke stands in for the sim)
 
 ### Phase 55: Turn Flow, Setup and Protection
 **Goal**: A 2.0 game sets up and runs turn by turn under the 2.0 flow, with every V4 leftover rule gone.
@@ -220,7 +237,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 53. 2.0 Card Data and Example Decks | 0/TBD | Not started | - |
-| 54. Energy, Levels and Getemt | 0/TBD | Not started | - |
+| 54. Energy, Levels and Getemt | 0/16 | Planned | - |
 | 55. Turn Flow, Setup and Protection | 0/TBD | Not started | - |
 | 56. Attacking and Quests | 0/TBD | Not started | - |
 | 57. Piecies, Snelle, Places and Reaction Windows | 0/TBD | Not started | - |
