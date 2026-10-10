@@ -1,5 +1,233 @@
 # Card Implementation Roadmap
 
+## Milestone v2.0 — Obby Card Game 2.0, slice A (offline vs bot)
+
+**12 phases (53–64)** | **55 requirements** | **Branch `obby-2.0`** | **Sequential execution**
+
+Spec: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§ refs below) and `Obby Card Game 2.0 - Phase 7 Card Frames and Art.md` (§A). Card texts: the Card List (wins over phase docs). Rules: Core Numbers. One `.js` engine, 2.0 replaces V4 in place on `obby-2.0`; V4 on `main` stays untouched. Every phase ends with `npm test` green (V4-rule tests are rewritten or deleted in the phase that replaces the rule, never left failing).
+
+Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI specs (handoff §6c), **A10** = Phase 7 frame tests.
+
+### Phases
+
+- [ ] **Phase 53: 2.0 Card Data and Example Decks** - All 183 Card List cards in `src/data/*.js` with 2.0 fields; hidden cards kept out; the 3 Example Decks ship
+- [ ] **Phase 54: Energy, Levels and Getemt** - Energy pays for everything; 2.0 level-up, getemt, MP/Power grid and hold-Level-3 win/lose
+- [ ] **Phase 55: Turn Flow, Setup and Protection** - 2.0 setup, turn steps, R1/R2/R5, cooldown turn, summoning, fresh protection; V4 leftovers removed
+- [ ] **Phase 56: Attacking and Quests** - One action per Mosje: attack by Power, or try one of 3 typed Quests with dice, bands, fail tokens and jabs
+- [ ] **Phase 57: Piecies, Snelle, Places and Reaction Windows** - 3 slots, Stays, Snelle timing, Place rules, Welloe pile and engine reaction windows; no V4-rule test left
+- [ ] **Phase 58: Mosje Abilities and Synergies** - All 32 Mosje abilities, 2.0 synergy pairs, chain rule and The Tactician (Example Deck Mosjes first)
+- [ ] **Phase 59: Piecie Effects** - All 73 Piecie effects per the Card List (Example Deck Piecies first)
+- [ ] **Phase 60: Snelle, Places and Hidden Information** - All 20 Snelle and 20 Place effects, hidden-info cards; every card has a card test
+- [ ] **Phase 61: Bot 2.0** - The bot plays legal, sensible 2.0 games: attack-or-Quest, Energy, reactions, no cheating
+- [ ] **Phase 62: 2.0 Card Faces** - Card frames per Phase 7 §A for Mosjes, Piecies, Snelle, Places and Quests
+- [ ] **Phase 63: 2.0 Board and Player Actions** - The 2.0 board, Energy crystals, field tiles, and attack/Quest/Place/reaction controls
+- [ ] **Phase 64: Lobby, Full Games, Simulation and Deploy** - Bot-only lobby with 3 decks, full-game specs, 2.0 sim, separate deploy to /obbycardgame2
+
+### Phase Overview
+
+| # | Phase | Goal | Requirements | Success Criteria |
+|---|-------|------|--------------|------------------|
+| 53 | 2.0 Card Data and Example Decks | Card data matches the 2.0 Card List; the 3 Example Decks load | DATA-01..07 | 4 |
+| 54 | Energy, Levels and Getemt | Mosjes level, getemt, win and lose by 2.0 rules; Energy is the only currency | RULE-01, 02, 03, 04, 09 | 5 |
+| 55 | Turn Flow, Setup and Protection | A game sets up and runs turn by turn under 2.0 flow | RULE-05, 06, 07, 08, 10, TABLE-01 | 5 |
+| 56 | Attacking and Quests | Each Mosje's one action (attack or Quest) works by 2.0 rules | PLAY-01..07 | 5 |
+| 57 | Piecies, Snelle, Places and Reaction Windows | Table cards follow 2.0 lifecycles; the engine offers reaction Snelle | TABLE-02..06, SHELL-04 | 5 |
+| 58 | Mosje Abilities and Synergies | Every Mosje does what its Card List text says | EFX-01, EFX-05, EFX-06, TEST-01 | 5 |
+| 59 | Piecie Effects | Every Piecie does what its Card List text says | EFX-02 | 4 |
+| 60 | Snelle, Places and Hidden Information | Every Snelle and Place works; hidden info stays hidden; every card tested | EFX-03, EFX-04, EFX-07, TEST-02 | 4 |
+| 61 | Bot 2.0 | The bot plays legal, sensible 2.0 games without cheating | BOT-01..04 | 4 |
+| 62 | 2.0 Card Faces | Every card face follows the Phase 7 §A spec | UI-04, TEST-04 | 5 |
+| 63 | 2.0 Board and Player Actions | A human can play a full 2.0 turn on the 2.0 board | UI-01, 02, 03, 05 | 4 |
+| 64 | Lobby, Full Games, Simulation and Deploy | Anyone can play 2.0 vs the bot at eightytwenty.nl/obbycardgame2 | SHELL-01, 02, 03, TEST-03, TEST-05 | 5 |
+
+### Phase Details
+
+### Phase 53: 2.0 Card Data and Example Decks
+**Goal**: The game's card data is the 2.0 Card List, and the 3 Example Decks can be loaded from it.
+**Depends on**: Nothing (first phase of v2.0)
+**Requirements**: DATA-01, DATA-02, DATA-03, DATA-04, DATA-05, DATA-06, DATA-07
+**Success Criteria** (what must be TRUE):
+  1. Every Card List card (32 Mosjes, 38 Quests, 73 Piecies, 20 Snelle, 20 Places) can be looked up by its existing id and shows its Card List name, text, Energy cost and rarity; the handoff §3a renames are applied and `quest_dutch_courage` and `quest_cheat_code` exist.
+  2. Mosjes carry `startMP`, 3 level rows (Power + traits), ability and synergy texts and `limitPerDeck`; Piecies/Snelle carry `tag` (food 7, pet 5, substance 9, gear 6, at most one per card), `stays`, `levelGate`, `limitPerDeck`, `givesMP`; Quests carry `stack`, `band`, `rollTrait`, cost, win/lose and extras; Places carry `cost`, `goodFor`, `badFor`, `limitPerDeck`.
+  3. Parked/cut cards, Personal Quests, the duo decks and the old starter decks never show up in a deck, booster, deck builder list or bot card pool, while their data is still in `src/data/`; Drain Zone and The Void are playable.
+  4. Each of the 3 Example Decks loads as 30 cards, max 2 copies, ★★★★★ max 1, with its starting Mosje inside.
+**Tests to add**: E28 (tags), E29 (data + hidden exclusion), E30 (decks).
+**Notes**: Keep every card id. Split rules `rarity` from a derived `frameTier` and add the editor `foil` flag (Phase 7 §A1/§A9) here so later UI work only reads data. V4 fields (`mpCost`, `roll.thresholds`, `successMP`/`failMP`, `requirement: "level1"`, …) are dropped as their consumers are rewritten in Phases 54–57.
+**Plans**: TBD
+
+### Phase 54: Energy, Levels and Getemt
+**Goal**: Mosjes gain levels, get getemt, win and lose by the 2.0 rules, and Energy (never MP) pays for everything.
+**Depends on**: Phase 53
+**Requirements**: RULE-01, RULE-02, RULE-03, RULE-04, RULE-09
+**Success Criteria** (what must be TRUE):
+  1. A player starts with 2 Energy, gains 1 at the start of each own turn up to 6, keeps unspent Energy, and can't pay more than they have; no card or ability spends MP.
+  2. A Mosje at 95 MP that gains 10 from any source (a Piecie as well as a Quest) goes up one Level at 0 MP; a Level 3 Mosje at 90 that gains 25 ends at 95.
+  3. A loss that leaves a Level 2–3 Mosje at 0 MP or less drops it one Level at 50 MP; at Level 1 it goes sideways at 0 MP, skips its owner's next turn and stands up at the end of that turn; getemt again while sideways sends it to the Welloe pile; a loss reduced to 0 by a shield causes no getemt, even at 0 MP.
+  4. A player whose Mosje reaches Level 3 wins only if it is still Level 3 at the start of their next turn; a player with no Mosje left outside their Welloe pile loses.
+  5. After any gain, loss, halving or doubling, MP is a multiple of 5 and never below 0, Power is a multiple of 10 and never below 0, and one loss resolves in the §2g order (base → reductions → Stabilizer cap → round/floor → no-loss check).
+**Tests to add**: E1, E3, E4, E5, E6, E7, E7b, E8, E14, E27.
+**Notes**: MP-touching phase: run the full CLAUDE.md verification including the sim. The old Ronald Kip stacking test is replaced in Phase 59.
+**Plans**: TBD
+
+### Phase 55: Turn Flow, Setup and Protection
+**Goal**: A 2.0 game sets up and runs turn by turn under the 2.0 flow, with every V4 leftover rule gone.
+**Depends on**: Phase 54
+**Requirements**: RULE-05, RULE-06, RULE-07, RULE-08, RULE-10, TABLE-01
+**Success Criteria** (what must be TRUE):
+  1. A new game puts each deck's starting Mosje on the field free and fresh, deals 3 cards and 2 Energy to each player, turns 3 Quests face-up and lets the highest die go first; player 1 has 3 cards after their first draw step, player 2 has 4.
+  2. A player can summon a Mosje from hand on their turn by paying its Energy cost (it arrives fresh), never above 2 Mosjes per field; a player who starts a turn with an empty field gets their cheapest Mosje from hand or deck placed free and fresh, and the deck is shuffled after a search.
+  3. Drawing from an empty deck shuffles the discard pile (never the Welloe pile) into a new deck, and that whole turn only allows placing Piecies face-down.
+  4. A fresh Mosje can't attack, can't be chosen or hit by any opponent card or ability, and ignores Places until its owner's next turn; a just-levelled Mosje is marked level-up protected until its owner's next turn; start-/end-of-turn triggers fire and "this turn" boosts expire.
+  5. Level 0, MP costs, the first-turn Quest lock, the 4th Piecie slot, the 6-card opening hand and the "active Mosje" concept are gone from the engine (every "your Mosje" effect asks which of your Mosjes).
+**Tests to add**: E2, E9, E11, E21.
+**Notes**: Extend today's U8 `entryProtected` into 2.0 fresh. Rewrite `docs/phase0-rulings.md`, `docs/card-reference.md`, `docs/developer-handoff.md`, `src/rules/card-specific-rulings.md` to point at the 2.0 docs (handoff §7) so the CLAUDE.md "read these first" list stays true on this branch.
+**Plans**: TBD
+
+### Phase 56: Attacking and Quests
+**Goal**: Each Mosje can take its one action per turn: attack an opponent Mosje with its Power, or try one of the 3 typed Quests.
+**Depends on**: Phase 55
+**Requirements**: PLAY-01, PLAY-02, PLAY-03, PLAY-04, PLAY-05, PLAY-06, PLAY-07
+**Success Criteria** (what must be TRUE):
+  1. A non-fresh, upright Mosje attacks one opponent Mosje and the target loses MP equal to the attacker's current Power (Power 0 does nothing); fresh and just-levelled targets can't be chosen; attack triggers fire.
+  2. A Mosje that attacked can't try a Quest that turn, and a Mosje that tried a Quest can't attack.
+  3. The middle shows one face-up Quest from each of the Fighting (13), Digital (13) and Artistic (12) stacks; any Mosje may try any of them, rolling 1 d6 per ★ of the Quest's trait (min 1, max 4, also with +1 die effects) and resolving by its band's need and win/lose MP; Trained refuses a ★ Mosje and wins +25 for ★★ without a roll.
+  4. A Quest's "First you must…" cost is paid before the roll and never refunded ("hand or a ready one" accepts both); a fail adds a token, and a win or a second token replaces the Quest from its stack, which reshuffles its own discards when it runs out.
+  5. A won Quest's jab makes one non-fresh opponent Mosje (the winner's choice) lose 10 MP and can getemt it, and also hits a level-up-protected Mosje; named bonuses, +1 die rules, Vraag Aad, Cheat code's draw, Debug System and Parkeren Delft work.
+**Tests to add**: E10, E12, E13, E15, E16, E17, E18, E19, E20.
+**Notes**: Use `docs/obby-2.0/tools/obby_desk_sim.py` as a reference for turn order and getemt, not as code. Old General/Personal Quest tests are rewritten or deleted here.
+**Plans**: TBD
+
+### Phase 57: Piecies, Snelle, Places and Reaction Windows
+**Goal**: Piecies, Snelle, Places and the Welloe pile follow the 2.0 table rules, and the engine pauses to offer reaction Snelle at the right moments.
+**Depends on**: Phase 56
+**Requirements**: TABLE-02, TABLE-03, TABLE-04, TABLE-05, TABLE-06, SHELL-04
+**Success Criteria** (what must be TRUE):
+  1. A Piecie placed face-down for free is not ready that turn, is ready on its owner's next turn and activates by paying its cost; a 4th Piecie can't be placed; a Stays card stays face-up in its slot until its end time, then goes to the discard pile.
+  2. A Snelle can be played from hand on either player's turn with saved Energy, only into a free slot; it resolves and is discarded (Blensen! stays until end of turn); no Snelle on a cooldown turn.
+  3. At each of the 7 reaction moments (targeted, would lose MP, attacked, to the Welloe pile, after a Quest roll, after a Piecie activation, Jensen! played) the engine pauses and offers the defending player or bot their eligible Snelle, only when they have a free slot and enough Energy.
+  4. A Place can be played from hand on your turn only when none is in play; it works at once without a slot, stays until destroyed and goes to its owner's discard pile.
+  5. The Welloe pile is separate from the discard pile and never shuffled back, and only Mosje Reborn and Call of the Welloes take Mosjes out (not under Welloe Graveyard); no test anywhere still encodes a V4 rule and `npm test` is green.
+**Tests to add**: E22, E23, E24, E25.
+**Notes**: This phase builds the reaction-window framework and the table rules; the individual Snelle and Place effects come in Phase 60. SHELL-04 closes here because this is the last phase that replaces a V4 rule.
+**Plans**: TBD
+
+### Phase 58: Mosje Abilities and Synergies
+**Goal**: Every Mosje does what its Card List ability and synergy texts say, with activated abilities paid in Energy.
+**Depends on**: Phase 57
+**Requirements**: EFX-01, EFX-05, EFX-06, TEST-01
+**Success Criteria** (what must be TRUE):
+  1. The 18 Mosjes of the 3 Example Decks, then all 32 Mosjes, do exactly what their Card List ability text says, each shown by a card test that boots the real game and asserts on-screen MP / Power / Energy / hand.
+  2. Activated abilities cost Energy and are refused when the player can't pay.
+  3. Synergy holder texts work with their 2.0 partner on the field and not without, and work without the partner while Synergy Chamber is in play; a Piecie activated for free never starts another chain (Jisca + DDR Chris on one activation).
+  4. The Tactician sets a Mosje's MP to 10–75 until end of turn, then snaps back to the real MP plus that turn's changes; getemt during the turn works normally.
+  5. Engine tests E1–E30 all pass in `npm test`.
+**Tests to add**: E26; card-test-library entries for all 32 Mosjes (Example Deck Mosjes first); §6b chain and Synergy Chamber edge cases.
+**Notes**: Synergy texts keep the test-guarded "While <partner> is also on your field:" convention; re-wire `synergyResolver` (and turnManager/questLogic hooks) to the 2.0 pairs.
+**Plans**: TBD
+
+### Phase 59: Piecie Effects
+**Goal**: Every Piecie does what its Card List text says.
+**Depends on**: Phase 58
+**Requirements**: EFX-02
+**Success Criteria** (what must be TRUE):
+  1. Every Piecie in the 3 Example Decks works as its Card List text says, each shown by a card test on the real game, before the rest of the 73.
+  2. Power boosts last "this turn" unless the card Stays, reductions shrink a loss instead of stopping it, and dice boosts add +1 die without going above 4 dice.
+  3. Harde Didde, Klaar Met Jou and Dikke Taks can only be activated with one of your Mosjes at Level 2+; ★★★★★ cards, The Protector and Mosje Reborn are limited to 1 per deck.
+  4. Ronald Kip with Ronald, The Master Chef gives 60 + a draw, Ronald Kip + MP Amplifier stacks as the Card List says, and Leipe Swap never causes a level-up or a getemt.
+**Tests to add**: card-test-library entries for all 73 Piecies (Example Deck Piecies first); §6b Ronald Kip, Harde Didde / Klaar Met Jou gate and Leipe Swap edge cases.
+**Notes**: MP-touching phase: the new Ronald Kip test replaces the old stacking test; run the sim.
+**Plans**: TBD
+
+### Phase 60: Snelle, Places and Hidden Information
+**Goal**: Every Snelle and Place works as the Card List says, hidden-info cards only reveal to the right player, and every card in the game has a card test.
+**Depends on**: Phase 59
+**Requirements**: EFX-03, EFX-04, EFX-07, TEST-02
+**Success Criteria** (what must be TRUE):
+  1. All 20 Snelle work as their Card List text says (Example Deck Snelle first), including Jensen! → Frenssen! → Blensen! with Blensen! free after a Jensen!, and Harde Didde / Klaar Met Jou answered by Not Today! and Jensen!.
+  2. All 20 Places work as their Card List text says (Example Deck Places first); Momentum Stabilizer caps a 40 hit at 30; fresh Mosjes ignore both sides of a Place.
+  3. Ronald, FPS West, Stookerino, Jantje, Chef's Special and Those Eyelashes reveal cards only to the player entitled to see them; the other side's hand is never exposed.
+  4. Every Card List card has a card-test-library entry, including all §6b must-have edge cases, and the card suite is green.
+**Tests to add**: card-test-library entries for all 20 Snelle and 20 Places; §6b Jensen chain and Momentum Stabilizer edge cases.
+**Plans**: TBD
+
+### Phase 61: Bot 2.0
+**Goal**: The bot plays legal, sensible 2.0 games against a human or another bot.
+**Depends on**: Phase 60
+**Requirements**: BOT-01, BOT-02, BOT-03, BOT-04
+**Success Criteria** (what must be TRUE):
+  1. Each bot Mosje chooses to attack or try a Quest by best expected MP swing, finishes a getemt when it can and protects a Level 3 Mosje.
+  2. Across bot-vs-bot games with all 3 Example Decks, the bot pays Energy, plays Piecies, Snelle, Places and summons only when legal and never targets a fresh or level-up-protected Mosje.
+  3. A bot holding a reaction Snelle keeps a slot free and plays it when a matching reaction window opens.
+  4. Bot decisions read only what a player at a real table would know (no opponent hand, no deck order), guarded by a test.
+**Tests to add**: bot strategy unit tests in `src/bot/strategy/` coverage; a legality check over seeded bot-vs-bot games.
+**Notes**: Adapt the existing strategy layer; port the desk sim bot's ideas, not its code.
+**Plans**: TBD
+
+### Phase 62: 2.0 Card Faces
+**Goal**: Every card face follows the Phase 7 §A frame spec.
+**Depends on**: Phase 53 (data); builds on the rarity-tier card design on `main` (`src/ui/cardV1/`)
+**Requirements**: UI-04, TEST-04
+**Success Criteria** (what must be TRUE):
+  1. Every card shows its Energy cost top-left as a big number with "COST" under it (0 shows "0"; Blensen! shows "4" with "or free") and a frosted text box with readable contrast.
+  2. Mosjes are always full art, with foil only on ★★★★★ or the `foil` flag, and show 3 level rows with the current Level lit (L1 in hand and deck builder).
+  3. Piecies show their tag first (Food / Gear / Substance / Pet, else MP / Attack / Utility), a STAYS chip and a "Needs:" line only when they have a requirement; Snelle show "Instant · any turn"; Places show cost and "Good for · Bad for".
+  4. Quests use their stack colour with the dice need top-left, "Rolls:" + band, WIN / LOSE in the footer and 2 fail pips on the field tile.
+  5. The Phase 7 §A10 unit tests and Playwright screenshots at 1920×1080 pass.
+**Tests to add**: A10 unit tests (frame tier, foil, Piecie label, cost 0) and A10 Playwright screenshots.
+**Notes**: Decide per unmerged UI branch (`ui/arena-hover-spotlight`, `ui/card-frame-v1`, `ui/rarity-tiers`) whether to bring it into `obby-2.0` first.
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 63: 2.0 Board and Player Actions
+**Goal**: A human player can play every part of a 2.0 turn on the 2.0 board.
+**Depends on**: Phase 62 (and the engine phases 54–60)
+**Requirements**: UI-01, UI-02, UI-03, UI-05
+**Success Criteria** (what must be TRUE):
+  1. At 1920×1080, each player has one row of 3 Piecie slots + 2 Mosjes, the middle shows the Place, the 3 Quests with their stacks and fail tokens, and End Turn, and the hand sits at the bottom.
+  2. Each player shows 6 Energy crystals that fill each turn, drop on payment and cap at 6.
+  3. Field Mosje tiles show Power, LVL chip and MP; sideways Mosjes are rotated 90°; Fresh and Protected badges appear at the right times; Level 3 reads "LVL 3 · HOLD"; a Tactician-set MP shows the temporary MP with the real MP small.
+  4. The player can attack (pick attacker, then target, invalid targets disabled), try Quests, play Places and answer reaction prompts, and a cooldown-turn banner blocks everything except placing Piecies.
+**Tests to add**: U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U12 (plus the A10 badge / level-row screenshots on the live board).
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 64: Lobby, Full Games, Simulation and Deploy
+**Goal**: Anyone can open eightytwenty.nl/obbycardgame2 and play a full 2.0 game against the bot with one of the 3 Example Decks.
+**Depends on**: Phase 61, Phase 63
+**Requirements**: SHELL-01, SHELL-02, SHELL-03, TEST-03, TEST-05
+**Success Criteria** (what must be TRUE):
+  1. The 2.0 lobby offers only "Play vs bot" with a picker of the 3 Example Decks; online play, login, collection, store and deck builder are hidden (code kept).
+  2. Bot-vs-bot games for every pairing of the 3 decks play to an end with no console errors, and Playwright specs U1–U12 all pass.
+  3. `npm run test:sim` runs the 2.0 rules with the 3 Example Decks with 0 crashes and a timeout rate under 25%.
+  4. A push to `obby-2.0` deploys to eightytwenty.nl/obbycardgame2 through its own workflow (same FTP secrets), a push to `main` still deploys only V4, and the 2.0 site shows an `APP_VERSION` starting with `2.0-`, bumped per shipped change.
+**Tests to add**: U11 (`full-game-2.0.spec.js`); 2.0 sim scenarios.
+**Notes**: Compare sim shape with the desk sim (median ~15 rounds, ~74% attacks, seat 1 ~55%) as a rules sanity check only; balancing is parked. Firebase is not needed for slice A. Never merge `obby-2.0` into `main` (Gandalf's call).
+**Plans**: TBD
+**UI hint**: yes
+
+### Progress (v2.0)
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 53. 2.0 Card Data and Example Decks | 0/TBD | Not started | - |
+| 54. Energy, Levels and Getemt | 0/TBD | Not started | - |
+| 55. Turn Flow, Setup and Protection | 0/TBD | Not started | - |
+| 56. Attacking and Quests | 0/TBD | Not started | - |
+| 57. Piecies, Snelle, Places and Reaction Windows | 0/TBD | Not started | - |
+| 58. Mosje Abilities and Synergies | 0/TBD | Not started | - |
+| 59. Piecie Effects | 0/TBD | Not started | - |
+| 60. Snelle, Places and Hidden Information | 0/TBD | Not started | - |
+| 61. Bot 2.0 | 0/TBD | Not started | - |
+| 62. 2.0 Card Faces | 0/TBD | Not started | - |
+| 63. 2.0 Board and Player Actions | 0/TBD | Not started | - |
+| 64. Lobby, Full Games, Simulation and Deploy | 0/TBD | Not started | - |
+
+---
+
+## Milestone v1.0 (previous)
+
+Everything below is the v1.0 roadmap (Phases 1–52), kept as history. Requirements archived at `.planning/milestones/v1.0-REQUIREMENTS.md`.
+
 **22 phases** | **~43 unique cards + multiplayer features + deck reworks** | **Sequential execution**
 
 ---

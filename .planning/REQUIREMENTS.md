@@ -92,4 +92,60 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 ## Traceability
 | Requirement | Phase | Status |
 |---|---|---|
-| (filled by the roadmap) | | |
+| SHELL-01 | Phase 64 | Pending |
+| SHELL-02 | Phase 64 | Pending |
+| SHELL-03 | Phase 64 | Pending |
+| SHELL-04 | Phase 57 | Pending |
+| DATA-01 | Phase 53 | Pending |
+| DATA-02 | Phase 53 | Pending |
+| DATA-03 | Phase 53 | Pending |
+| DATA-04 | Phase 53 | Pending |
+| DATA-05 | Phase 53 | Pending |
+| DATA-06 | Phase 53 | Pending |
+| DATA-07 | Phase 53 | Pending |
+| RULE-01 | Phase 54 | Pending |
+| RULE-02 | Phase 54 | Pending |
+| RULE-03 | Phase 54 | Pending |
+| RULE-04 | Phase 54 | Pending |
+| RULE-05 | Phase 55 | Pending |
+| RULE-06 | Phase 55 | Pending |
+| RULE-07 | Phase 55 | Pending |
+| RULE-08 | Phase 55 | Pending |
+| RULE-09 | Phase 54 | Pending |
+| RULE-10 | Phase 55 | Pending |
+| PLAY-01 | Phase 56 | Pending |
+| PLAY-02 | Phase 56 | Pending |
+| PLAY-03 | Phase 56 | Pending |
+| PLAY-04 | Phase 56 | Pending |
+| PLAY-05 | Phase 56 | Pending |
+| PLAY-06 | Phase 56 | Pending |
+| PLAY-07 | Phase 56 | Pending |
+| TABLE-01 | Phase 55 | Pending |
+| TABLE-02 | Phase 57 | Pending |
+| TABLE-03 | Phase 57 | Pending |
+| TABLE-04 | Phase 57 | Pending |
+| TABLE-05 | Phase 57 | Pending |
+| TABLE-06 | Phase 57 | Pending |
+| EFX-01 | Phase 58 | Pending |
+| EFX-02 | Phase 59 | Pending |
+| EFX-03 | Phase 60 | Pending |
+| EFX-04 | Phase 60 | Pending |
+| EFX-05 | Phase 58 | Pending |
+| EFX-06 | Phase 58 | Pending |
+| EFX-07 | Phase 60 | Pending |
+| BOT-01 | Phase 61 | Pending |
+| BOT-02 | Phase 61 | Pending |
+| BOT-03 | Phase 61 | Pending |
+| BOT-04 | Phase 61 | Pending |
+| UI-01 | Phase 63 | Pending |
+| UI-02 | Phase 63 | Pending |
+| UI-03 | Phase 63 | Pending |
+| UI-04 | Phase 62 | Pending |
+| UI-05 | Phase 63 | Pending |
+| TEST-01 | Phase 58 | Pending |
+| TEST-02 | Phase 60 | Pending |
+| TEST-03 | Phase 64 | Pending |
+| TEST-04 | Phase 62 | Pending |
+| TEST-05 | Phase 64 | Pending |
+
+**Coverage:** 55/55 v2.0 requirements mapped to exactly one phase (53–64). No orphans, no duplicates.
