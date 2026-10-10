@@ -26,6 +26,16 @@ describe('card frame v1 — Mosje name parsing', () => {
       nickname: 'The Sims Architect',
     });
   });
+  it('splits the 2.0 comma form at the first ", "', () => {
+    expect(parseMosjeName('Alyssa, The Bulldozer')).toEqual({ firstName: 'Alyssa', nickname: 'The Bulldozer' });
+    expect(parseMosjeName('[...], The Hacker')).toEqual({ firstName: '...', nickname: 'The Hacker' });
+    expect(parseMosjeName('Tuk "The Builder", The Sims Architect')).toEqual({
+      firstName: 'Tuk "The Builder"',
+      nickname: 'The Sims Architect',
+    });
+    expect(parseMosjeName('DJ 80/20, The Lucky Mixer')).toEqual({ firstName: 'DJ 80/20', nickname: 'The Lucky Mixer' });
+    expect(parseMosjeName('FPS Coert')).toEqual({ firstName: 'FPS Coert', nickname: '' });
+  });
   it('falls back when the name has no brackets', () => {
     expect(parseMosjeName('Plain Name')).toEqual({ firstName: 'Plain Name', nickname: '' });
     expect(parseMosjeName('')).toEqual({ firstName: 'Mosje', nickname: '' });
@@ -91,7 +101,7 @@ describe('card frame v1 — Mosje face data mapping', () => {
   });
 
   it('full face: name, nickname, LVL pill, live MP, type label, traits (Alyssa)', () => {
-    const alyssa = { ...byName('[Alyssa] The Bulldozer'), mp: 35, level: 1 };
+    const alyssa = { ...byName('Alyssa, The Bulldozer'), mp: 35, level: 1 };
     const html = buildCardV1(alyssa, {})!.html;
     expect(html).toContain('>Alyssa<');
     expect(html).toContain('>The Bulldozer<');
@@ -102,32 +112,32 @@ describe('card frame v1 — Mosje face data mapping', () => {
     expect(html).toContain('Physical ★★★');
   });
   it('full face uses printed Start MP and LVL 1 for a hand card with no live state', () => {
-    const html = buildCardV1(byName('[FPS Coert]'), {})!.html;
+    const html = buildCardV1(byName('FPS Coert'), {})!.html;
     expect(html).toContain('LVL 1');
     expect(html).toMatch(/data-cv1-mp>\d+</);
     expect(html).not.toContain('cv1-nick'); // no nickname, no second line
   });
   it('full face never shows flavour text or rarity', () => {
-    const jisca = byName('[Jisca] The Maestro');
+    const jisca = byName('Jisca, The Maestro');
     const html = buildCardV1(jisca, {})!.html;
     expect(html).not.toContain(jisca.flavourText);
     expect(html.toLowerCase()).not.toContain('rarity'); // stars on the face are traits only
   });
   it('MP badge can show 0, 5, 100+', () => {
     for (const mp of [0, 5, 105]) {
-      expect(buildCardV1({ ...byName('[Alyssa] The Bulldozer'), mp }, {})!.html).toMatch(new RegExp(`data-cv1-mp>${mp}<`));
+      expect(buildCardV1({ ...byName('Alyssa, The Bulldozer'), mp }, {})!.html).toMatch(new RegExp(`data-cv1-mp>${mp}<`));
     }
   });
   it('field tile: single-line name, L<level> pill, badge, no description', () => {
-    const html = buildCardV1({ ...byName('[Alyssa] The Bulldozer'), mp: 20, level: 2 }, { fieldMode: true })!.html;
+    const html = buildCardV1({ ...byName('Alyssa, The Bulldozer'), mp: 20, level: 2 }, { fieldMode: true })!.html;
     expect(html).toContain('>L3<');
     expect(html).toMatch(/data-cv1-mp>20</);
     expect(html).not.toContain('cv1-desc');
     expect(html).not.toContain('cv1-info');
   });
   it('card art falls back cleanly: no <img> when art is missing or a placeholder', () => {
-    expect(buildCardV1({ ...byName('[Alyssa] The Bulldozer'), artPath: '' }, {})!.html).not.toContain('<img');
-    expect(buildCardV1({ ...byName('[Alyssa] The Bulldozer'), artPath: 'assets/x/placeholder.png' }, {})!.html).not.toContain('<img');
+    expect(buildCardV1({ ...byName('Alyssa, The Bulldozer'), artPath: '' }, {})!.html).not.toContain('<img');
+    expect(buildCardV1({ ...byName('Alyssa, The Bulldozer'), artPath: 'assets/x/placeholder.png' }, {})!.html).not.toContain('<img');
   });
   it('buildCardV1 handles Mosje, Piecie, Snelle and Place and Quest; unknown types fall through to the old renderer', () => {
     expect(buildCardV1({ type: 'MOSJE', name: '[A] B', subtype: 'DIGITAL' }, {})?.className).toBe('card-v1 card-v1--full card--tier-1 card--boxed card--tierlayout');
