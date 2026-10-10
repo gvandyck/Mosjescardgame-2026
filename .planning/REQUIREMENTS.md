@@ -14,8 +14,8 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 - [ ] **DATA-01**: Every Card List card (32 Mosjes, 38 Quests, 73 Piecies, 20 Snelle, 20 Places) exists in `src/data/*.js` with its Card List name, text, Energy cost and rarity; existing ids kept, renames applied (§3a).
 - [x] **DATA-02**: Mosjes carry `startMP`, `levels[3]` (Power + traits per level), ability text, synergy label/holder text and `limitPerDeck` (§3b).
 - [x] **DATA-03**: Piecies/Snelle carry `tag` (food 7, pet 5, substance 9, gear 6, max one), `stays`, `levelGate`, `limitPerDeck`, `givesMP` (§2g, §3b).
-- [ ] **DATA-04**: Quests carry `stack`, `band`, `rollTrait`, cost, win/lose and extras; new `quest_dutch_courage` and `quest_cheat_code` exist (§3a–b).
-- [ ] **DATA-05**: Places carry `cost`, `goodFor`, `badFor`, `limitPerDeck`; Drain Zone and The Void are unhidden (§3a).
+- [x] **DATA-04**: Quests carry `stack`, `band`, `rollTrait`, cost, win/lose and extras; new `quest_dutch_courage` and `quest_cheat_code` exist (§3a–b).
+- [x] **DATA-05**: Places carry `cost`, `goodFor`, `badFor`, `limitPerDeck`; Drain Zone and The Void are unhidden (§3a).
 - [ ] **DATA-06**: Parked/cut cards, Personal Quests, duo decks and old starter decks are hidden (data kept) and never reach decks, boosters or the bot (§3a).
 - [ ] **DATA-07**: The 3 Example Decks ship as 30-card decks (max 2 copies, ★★★★★ max 1, starting Mosje inside).
 
@@ -99,8 +99,8 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 | DATA-01 | Phase 53 | Pending |
 | DATA-02 | Phase 53 | Complete |
 | DATA-03 | Phase 53 | Complete |
-| DATA-04 | Phase 53 | Pending |
-| DATA-05 | Phase 53 | Pending |
+| DATA-04 | Phase 53 | Complete |
+| DATA-05 | Phase 53 | Complete |
 | DATA-06 | Phase 53 | Pending |
 | DATA-07 | Phase 53 | Pending |
 | RULE-01 | Phase 54 | Pending |
