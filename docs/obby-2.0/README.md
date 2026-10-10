@@ -25,7 +25,7 @@ Git: work on a branch (`docs/obby-2.0-...`), never commit straight to `main`.
 | 2 | Quests: 3 typed stacks, odds for ★/★★/★★★, ≥1/3 need a Piecie or Place; add Quests so Mental/Social/Resilient have a home | **DONE** 2026-10-10 | `Obby Card Game 2.0 - Phase 2 Quests.md` |
 | 3 | Piecies & Snelle: MP → Energy, Power-based attacks, tags (food/gear/substance/pet), reword "active Mosje" cards | **DONE** 2026-10-10 | `Obby Card Game 2.0 - Phase 3 Piecies and Snelle.md` |
 | 4 | Places: each changes combat or Quests; good-for / bad-for | **DONE** 2026-10-10 | `Obby Card Game 2.0 - Phase 4 Places.md` |
-| 5 | Starter decks (min 30 cards) + paper playtests | not started | — |
+| 5 | Starter decks (min 30 cards) + paper playtests | **IN PROGRESS** 2026-10-10: decks + desk test done; paper games and R1–R6 calls open | `Obby Card Game 2.0 - Phase 5 Starter Decks.md` |
 | 6 | Card List 2.0, Example Decks 2.0, Claude Code handoff for the web game | not started | — |
 | 7 | Visual production | not started | — |
 
