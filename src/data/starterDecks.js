@@ -1,3 +1,5 @@
+import { EXAMPLE_DECKS } from './exampleDecks.js';
+
 // starterDecks.js — The 3 prebuilt deck configurations players can pick
 // in the lobby. Each deck has 2 Mosjes + a set of Piecies, Snelle Piecies,
 // Places, and Quests. Card IDs here must match IDs in the other data files.
@@ -5,6 +7,7 @@
 export const STARTER_DECKS = [
   {
     id: "PHYSICAL_FORCE",
+    disabled: true,
     name: "Physical Force",
     description: "Couple power: Gandoe and Michelle's boxing chemistry. Physical quests, place synergies, and the Toennoe hangout.",
     mosjes: ["mosje_gandoe_destroyer", "mosje_michelle"],
@@ -36,6 +39,7 @@ export const STARTER_DECKS = [
   },
   {
     id: "DIGITAL_CONTROL",
+    disabled: true,
     name: "Digital Control",
     description: "Coert and Binti's Tesla loop: FOOD synergy, quest economy, and the Winston Jaaa auto-quest combo.",
     mosjes: ["mosje_coert_tech", "mosje_binti"],
@@ -68,6 +72,7 @@ export const STARTER_DECKS = [
   },
   {
     id: "ARTISTIC_RHYTHM",
+    disabled: true,
     name: "Artistic Rhythm",
     description: "Youri and Chris DDR: speedrun combos, piecie chains, and creative quest pressure.",
     mosjes: ["mosje_youri", "mosje_chris_ddr"],
@@ -105,6 +110,7 @@ export const STARTER_DECKS = [
 
   {
     id: "DUO_COERT_BINTI",
+    disabled: true,
     name: "Coert & Binti — Winston's Kitchen",
     description: "Coert KasteLuck + Binti double every FOOD Piecie. Stack Kannetjes, feed Binti Varkenspootjes for +60, and let Coert's Caravan keep the momentum coming.",
     mosjes: ["mosje_coert_kasteluck", "mosje_binti"],
@@ -136,6 +142,7 @@ export const STARTER_DECKS = [
   },
   {
     id: "DUO_GANDOE_MICHELLE",
+    disabled: true,
     name: "Gandoe & Michelle — The Box",
     description: "Boxing chemistry: De Box and the Boxing Ring pump both fighters every turn, Tony & Bowie halve the hits, and Kickboxing Bootcamp pays out big when they train together.",
     mosjes: ["mosje_gandoe_destroyer", "mosje_michelle"],
@@ -167,6 +174,7 @@ export const STARTER_DECKS = [
   },
   {
     id: "DUO_CHRIS_YOURI",
+    disabled: true,
     name: "Chris & Youri — Instant Setup",
     description: "Their synergy skips the face-down wait, so Piecies fire the turn they land. Youri speed-activates, Chris cashes in the setup, and the Digital gear keeps the chain rolling.",
     mosjes: ["mosje_chris", "mosje_youri"],
@@ -198,6 +206,7 @@ export const STARTER_DECKS = [
   },
   {
     id: "DUO_JISCA_ALYSSA",
+    disabled: true,
     name: "Jisca & Alyssa — Encore Bulldozer",
     description: "Jisca chains Piecie after Piecie while Alyssa turns every hit into a comeback. Both pets on the field cut damage up to 80%, and Battle Concert bounces Alyssa's failures onto the enemy.",
     mosjes: ["mosje_jisca", "mosje_alyssa_bulldozer"],
@@ -229,6 +238,7 @@ export const STARTER_DECKS = [
   },
   {
     id: "DUO_WEST_CLESS",
+    disabled: true,
     name: "West & Cless — Calculated Chaos",
     description: "Señor West's reads and Cless's wild rolls both cash in Physical Quests for +15. The Gym and Obby reward the muscle, ViannaPoes guards Cless, and F1 Telemetry + Those Eyelashes punish the opponent's hand.",
     mosjes: ["mosje_martin_senor_west", "mosje_azn_cless"],
@@ -257,5 +267,6 @@ export const STARTER_DECKS = [
     quests: [
       "quest_arm_wrestling"
     ]
-  }
+  },
+  ...EXAMPLE_DECKS,
 ];
