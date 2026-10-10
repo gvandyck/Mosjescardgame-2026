@@ -91,12 +91,11 @@ describe('CARD_ID_MAP', () => {
     }
   });
 
-  it('has 183 unique ids; only the 2 new quests are missing from ALL_CARDS', () => {
+  it('has 183 unique ids and all of them exist in ALL_CARDS', () => {
     const ids = types.flatMap(([t]) => Object.values(CARD_ID_MAP[t]) as string[]);
     expect(new Set(ids).size).toBe(183);
     const live = new Set(ALL_CARDS.map((c: any) => c.id));
-    // plan 53-05 adds these two; it must then update this to "all exist"
-    expect(ids.filter((id) => !live.has(id)).sort()).toEqual(['quest_cheat_code', 'quest_dutch_courage']);
+    expect(ids.filter((id) => !live.has(id))).toEqual([]);
   });
 });
 

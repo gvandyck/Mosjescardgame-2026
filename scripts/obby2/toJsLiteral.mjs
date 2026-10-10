@@ -6,7 +6,7 @@ export function toJsLiteral(value) {
   if (Array.isArray(value)) return `[${value.map(toJsLiteral).join(', ')}]`;
   if (value && typeof value === 'object') {
     const parts = Object.entries(value).map(([k, v]) => {
-      if (!/^[A-Za-z_$][\w$]*$/.test(k)) throw new Error(`toJsLiteral: non-identifier key ${k}`);
+      if (!/^([A-Za-z_$][\w$]*|\d+)$/.test(k)) throw new Error(`toJsLiteral: non-identifier key ${k}`);
       return `${k}: ${toJsLiteral(v)}`;
     });
     return parts.length ? `{ ${parts.join(', ')} }` : '{}';
