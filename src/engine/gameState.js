@@ -6,6 +6,7 @@ import { MOSJES } from '../data/mosjes.js';
 import { STARTER_DECKS } from '../data/starterDecks.js';
 import { QUESTS } from '../data/quests.js';
 import { shuffleDeck, buildDeck } from './deckEngine.js';
+import { ENERGY_START } from './energy/energyRules.js';
 
 console.log('[ENGINE] gameState.js loaded');
 
@@ -92,6 +93,8 @@ function createPlayerState(config) {
     hand,
     deck,
     graveyard: [],        // all defeated/discarded/destroyed cards end up here (typed entries)
+    welloePile: [],       // Welloe pile — separate from graveyard, never shuffled back (handoff §2f)
+    energy: ENERGY_START, // Obby 2.0 Energy pool (Core Numbers §1-2)
 
     activeSlots,          // [mosjeSlot, mosjeSlot] — up to 2 active Mosjes
     piecieSlots: [null, null, null, null],  // 4 face-down Piecie positions

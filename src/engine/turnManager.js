@@ -17,6 +17,7 @@ import { PLACES } from '../data/places.js';
 import { SNELLE_PIECIES } from '../data/snellePiecies.js';
 import { QUESTS } from '../data/quests.js';
 import { toGraveyardEntry } from './graveyardUtils.js';
+import { gainEnergy } from './energy/gainEnergy.js';
 
 console.log('[ENGINE] turnManager.js loaded');
 
@@ -235,6 +236,10 @@ export function startTurn(gameState) {
 
   // Reset per-turn trackers for the active player
   const activePlayer = state.players[playerId];
+
+  // Obby 2.0 Core Numbers §1a: +1 Energy at the start of each own turn (max 6),
+  // granted BEFORE the skip branch so a cooldown/skipped turn still gets +1.
+  gainEnergy(state, playerId);
 
   // Deck-out penalty: skip this entire turn (per D-06)
   if (activePlayer.skipNextTurn === true) {
