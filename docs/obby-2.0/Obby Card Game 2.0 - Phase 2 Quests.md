@@ -42,12 +42,12 @@ Piecie or Place needed: **5 of 13** in Fighting, **5 of 13** in Digital, **4 of 
 | 5 | Survive Storm | Steady | Resilient | — | +25 / −15 | +1 die while the Mosje has 30 MP or less | 50 / 75 / 88 (75 / 88 / 94 at ≤30) | |
 | 6 | Never Give Up | Skilled | Resilient | Level 1 Mosje only | +40 / −30 | — | 0 / 25 / 50 | |
 | 7 | Parkour Challenge | Prepared | Physical | Discard 1 ready Piecie | +50 / −30 | — | 50 / 75 / 88 | ✔ |
-| 8 | Endurance Test | Prepared | Physical | Discard 1 ready food Piecie | +50 / −30 | — | 50 / 75 / 88 | ✔ |
+| 8 | Endurance Test | Prepared | Physical | Discard 1 food Piecie (from your hand or a ready one) | +50 / −30 | — | 50 / 75 / 88 | ✔ |
 | 9 | Endure Pain | Gated | Resilient | A Piecie of yours stays in play (any "Stays" card, e.g. a pet) | +35 / −20 | — | 50 / 75 / 88 | ✔ |
 | 10 | Momentum Master | Gated | Physical | Mosje has 80 MP or more | +35 / −20 | — | 50 / 75 / 88 | |
 | 11 | Ultimate Challenge | Heroic | Mosje's best trait | A Place is in play | +60 / −25 | — | 0 / 11 / 26 | ✔ |
 | 12 | Geen Raad? Vraag Aad! | Coin flip | no trait | — | +50 / −25 | Gandoe: +10 on a win. "Vraag Aad": a failing Mosje may discard 1 card to lose only 10 instead of 25. | 50 / 50 / 50 | |
-| 13 | **Dutch courage** | Prepared | Physical | Discard 1 substance Piecie | +50 / −30 | Win: jab. | 50 / 75 / 88 | ✔ |
+| 13 | **Dutch courage** | Prepared | Physical | Discard 1 substance Piecie (from your hand or a ready one) | +50 / −30 | Win: jab. | 50 / 75 / 88 | ✔ |
 
 ## Digital stack (Technical; side trait Mental)
 | # | Quest | Band | Rolls | First you must… | Win / Lose | Also | Odds ★ / ★★ / ★★★ | Piecie/ Place |
@@ -76,7 +76,7 @@ Piecie or Place needed: **5 of 13** in Fighting, **5 of 13** in Digital, **4 of 
 | 5 | Form Alliance | Skilled | Social | — | +40 / −30 | Win: one opponent Mosje also gains 10 MP ("an alliance helps both"). | 0 / 25 / 50 | |
 | 6 | Lucky Break | Heroic | Creative | — | +60 / −25 | — | 0 / 11 / 26 | |
 | 7 | Negotiation | Prepared | Social | Discard 1 Piecie from your hand | +50 / −30 | — | 50 / 75 / 88 | ✔ |
-| 8 | Larry Temmen Niemand Zeggen | Prepared | Social | Discard 1 substance Piecie | +50 / −30 | Discard Larry or Zegeltje specifically: win also jabs. | 50 / 75 / 88 | ✔ |
+| 8 | Larry Temmen Niemand Zeggen | Prepared | Social | Discard 1 substance Piecie (from your hand or a ready one) | +50 / −30 | Discard Larry or Zegeltje specifically: win also jabs. | 50 / 75 / 88 | ✔ |
 | 9 | Parkeren Delft | Prepared | Creative | Discard 1 ready Piecie ("park" it) | +50 / −30 | Win: remove up to 3 cards from any discard pile(s) from the game. Coert: +10 on a win. Cless: loses 10 more on a failure (parking anxiety). | 50 / 75 / 88 | ✔ |
 | 10 | Create Masterpiecie | Gated | Creative | 3 or more Piecies of yours are in play | +35 / −20 | — | 50 / 75 / 88 | ✔ |
 | 11 | Shotje Obby | Gated | Social | Your Mosjes' total MP is lower than your opponent's | +35 / −20 | Win: jab on the opponent's Mosje with the most MP ("the leader buys the round"). | 50 / 75 / 88 | |

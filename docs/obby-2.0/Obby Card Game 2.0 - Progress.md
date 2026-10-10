@@ -4,13 +4,27 @@ Source docs: `Obby Card Game 2.0 - Rules and Decisions`, `Obby Card Game 2.0 - R
 Docs for this rework live in `docs/obby-2.0/` (design only, no engine code touched).
 
 ## Status
-- **Current phase:** Phase 5 DONE (starter decks + desk test, R1–R6 adopted). Balancing and paper games parked for later (your call). Phase 6 next.
-- **Done:** Phase 0 — `Obby Card Game 2.0 - Core Numbers.md`; Phase 1 Fighting — `Obby Card Game 2.0 - Phase 1 Fighting Mosjes.md`; Phase 1 Digital — `Obby Card Game 2.0 - Phase 1 Digital Mosjes.md`; Phase 1 Artistic — `Obby Card Game 2.0 - Phase 1 Artistic Mosjes.md`; Phase 2 — `Obby Card Game 2.0 - Phase 2 Quests.md`; Phase 3 — `Obby Card Game 2.0 - Phase 3 Piecies and Snelle.md`; Phase 4 — `Obby Card Game 2.0 - Phase 4 Places.md`
-- **Next:** Phase 6 in a fresh chat ("start on phase 6"). Scope already decided (2026-10-10):
-  - **Card List 2.0** = one markdown doc in this folder with every 2.0 card (Mosjes, Quests, Piecies, Snelle, Places), table text only, no change notes. The phase docs stay as the "why".
-  - **Example Decks 2.0** = only the 3 Phase 5 starter decks, in their final format (the web game's 5 duo decks are not reworked now).
-  - **Claude Code handoff** = a written spec in the repo only (rule changes, card data changes, board layout, tests to add). No GSD roadmap and no engine changes in Phase 6; engine work starts later in its own milestone.
-  - Balancing stays parked.
+- **Current phase:** Phase 6 DONE (Card List 2.0, Example Decks 2.0, Claude Code handoff). Phase 7 (visual production) next. Balancing still parked.
+- **Done:** Phase 0 — `Obby Card Game 2.0 - Core Numbers.md`; Phase 1 — `... Phase 1 Fighting / Digital / Artistic Mosjes.md`; Phase 2 — `... Phase 2 Quests.md`; Phase 3 — `... Phase 3 Piecies and Snelle.md`; Phase 4 — `... Phase 4 Places.md`; Phase 5 — `... Phase 5 Starter Decks.md`; Phase 6 — `... Card List.md`, `... Example Decks.md`, `... Claude Code Handoff.md`
+- **Next:** Phase 7 in a fresh chat ("start on phase 7"), or the engine milestone when you want the web game built: tell Claude Code "build Obby 2.0 from the handoff" and it starts from `Obby Card Game 2.0 - Claude Code Handoff.md`. Before online play works you need to make the second Firebase project (handoff §1).
+
+## Phase 6 outcome (2026-10-10)
+- **Card List 2.0** (`Obby Card Game 2.0 - Card List.md`): all 183 cards, table text only: 32 Mosjes with full level rows (Power + traits per level), 38 Quests, 73 Piecies, 20 Snelle, 20 Places. It wins over the phase docs where they differ.
+- **Example Decks 2.0** (`Obby Card Game 2.0 - Example Decks.md`): the 3 Phase 5 decks in final form with setup steps and a short "playing it" tip each.
+- **Claude Code handoff** (`Obby Card Game 2.0 - Claude Code Handoff.md`): where 2.0 lives, every rule change web → 2.0, card data changes (ids, renames, hidden cards, new fields), board layout, bot, **30 engine tests + card tests + 12 Playwright specs**, docs to update, open items.
+
+### Phase 6 decisions (your calls)
+- **V4 stays online as it is.** 2.0 is built on its own long-lived branch `obby-2.0` and goes online at **eightytwenty.nl/obbycardgame2** (its own deploy). It replaces V4 only when you say so. ("I'm not a coder, you decide": I picked the branch + second URL setup.)
+- **A second Firebase project** for 2.0, so 2.0 accounts, collections and leaderboard never touch V4's data (your idea). Suggested order: bot table → online rooms → accounts/collections/boosters.
+- **Leftover web content is hidden, data kept:** the 5 duo decks, the 6 Personal Quests, the parked and cut cards.
+- **"Discard 1 substance/food Piecie"** on Endurance Test, Dutch courage and Larry Temmen = **from your hand or a ready one** (Phase 3 flag 10 closed). Phase 2 doc updated.
+- **Tactician:** sets MP to **10–75** (was "under 80"), for every Mosje. A Mosje set to 10 can still be getemt by a 10+ hit. Phase 1 Digital doc updated.
+- **Placeholder names stay** (The Hacker, The Tactician, The Drainer), marked "name owed".
+
+### Small things I decided myself (Phase 6, check these)
+- Card List: Mosje names without the web's `[Name]` brackets; level rows written out in full per level; chain rule wording now names every free-activation card and says Coert's Caravan's 0-Energy activation is a normal one (matches the Phase 4 note).
+- Handoff: keep every existing card id (only names/texts change); new ids `quest_dutch_courage`, `quest_cheat_code`; Quest names follow the Phase 2 spelling; 4 gameplay tags in a single `tag` field; a `givesMP` flag for Jeffrey and The Void; a proposed MP-loss order (base → reductions → Momentum Stabilizer cap → round → no-loss check); a Quest stack that runs out reshuffles its own discards (proposal); Level 3 MP cap at 95 left as an open question for you.
+- Getemt written as "a loss that leaves the Mosje at 0 or less" (the desk sim's reading of rule 16 + the Phase 1 ruling).
 
 ## Phase 5 outcome (2026-10-10, no questions asked by request)
 - **3 starter decks, 30 cards each:** Fighting "Taksen", Digital "Regelaars", Artistic "Creatievelingen". 6 Mosjes, 2 Places, 2 destroyers, 18 Piecies, 4 Snelle each; max 2 copies; the starting Mosje is one of the 30.
