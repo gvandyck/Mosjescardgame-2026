@@ -19,6 +19,7 @@ Locked 2026-10-09. Every later phase uses these numbers. Change a number here fi
 | Places and fresh Mosjes (Phase 4) | A Place's text applies to every Mosje on the table, except fresh Mosjes: they ignore Places (good and bad side) until the start of their owner's next turn. |
 | Power floor (Phase 4) | Power never goes below 0. An attack with 0 Power does nothing. |
 | Empty field (Phase 5) | At the start of your turn, if you have no Mosje on your field, put the cheapest Mosje from your hand or deck on your field for free (it is fresh), then shuffle your deck if you searched it. You **lose** when you have no Mosje left outside the Welloe pile. |
+| Level 3 MP (Phase 6) | At Level 3, MP can't go above 95 (there is no Level 4). |
 | Level-up protection (Phase 5) | A Mosje that levelled up this turn can't be taksed until the start of its owner's next turn. Cards, jabs and Places still affect it. |
 | Player 1 (Phase 5) | Player 1 skips their draw on their first turn. Replaces "no compensation". |
 

@@ -51,7 +51,7 @@ Gandalf's call: **keep V4 exactly as it is, online too, until 2.0 replaces it.**
 |---|---|---|
 | Starting level | Level 0 | **Level 1** at the Mosje's starting MP. There is no Level 0 anywhere. |
 | Level-up | 100+ → level up, leftover MP carries over (`checkLevelUp`) | Reaching 100 MP: level +1, **MP resets to 0** (no carry-over). L1 → L2 → L3. Leipe Swap is never a gain; the Tactician's 10–75 can never reach 100. |
-| Level 3 | win at Level 3 | **Hold Level 3 until the start of your next turn** to win. |
+| Level 3 | win at Level 3 | **Hold Level 3 until the start of your next turn** to win. At Level 3, MP can't go above **95** (there is no Level 4; decided 2026-10-10). |
 | Getemt | MP below 0 → lose a level, remainder carried into 100 MP | After any MP loss (attack, card, own ability or cost, failed Quest, Quest jab, Place) whose final amount is more than 0 and leaves the Mosje at **0 MP or less**: **Level 2–3:** level −1, MP = 50. **Level 1:** MP = 0, the card turns **sideways** and skips its owner's next turn (upright at the end of that turn). **Getemt again while sideways → Welloe pile** (out of the game). |
 | No loss | — | **A loss reduced to 0 is no loss:** no getemt, also at 0 MP. |
 | Level-up protection (R2) | — | A Mosje that levelled up this turn **can't be taksed** until the start of its owner's next turn. Cards, jabs and Places still affect it. |
@@ -161,6 +161,7 @@ All in the normal suites so `npm test` / Playwright run them. Engine tests impor
 | E4 | Getemt L2/L3 | a loss to ≤ 0 → level −1, MP 50 |
 | E5 | Getemt L1 | a loss to ≤ 0 → sideways, MP 0, skips next turn, upright at the end of it; a second getemt → Welloe pile |
 | E6 | No loss | a loss reduced to 0 by a shield → no getemt at 0 MP |
+| E7b | Level 3 cap | a Level 3 Mosje at 90 gains 25 → 95 |
 | E7 | Win | Level 3 reached → no win yet; still Level 3 at the start of the owner's next turn → win |
 | E8 | Lose | last Mosje to the Welloe pile with none in hand or deck → that player loses |
 | E9 | Empty field (R1) | no Mosje on field at turn start → cheapest from hand/deck placed free and fresh; deck shuffled after a search |
@@ -219,7 +220,7 @@ Update the engine sim (`npm run test:sim`) to the 2.0 rules and the 3 Example De
 `docs/phase0-rulings.md`, `docs/card-reference.md`, `docs/developer-handoff.md` and `src/rules/card-specific-rulings.md` describe V4. On `obby-2.0`, rewrite them to point at the 2.0 docs (or replace their content), so the repo `CLAUDE.md` "read these first" list stays true for that branch. The memories about V4 rules (defeat-at-zero, MP cost model, first-turn Quest lock, entry protection U8) are V4-only from then on.
 
 ## 8. Open items for the engine milestone
-1. **MP above 100 at Level 3:** nothing says what happens. Recommendation: stop at 95 (the desk sim did this; there's no Level 4). Ask Gandalf.
+1. ~~MP above 100 at Level 3~~ **Decided:** a Level 3 Mosje's MP stops at 95 (§2b).
 2. **Modifier order** (§2g): a proposal. Confirm when a card disagrees.
 3. **Quest stack runs out:** reshuffle that stack's discarded Quests (proposal, §2e).
 4. **Names owed:** The Hacker, The Tactician, The Drainer still have placeholder names.

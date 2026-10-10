@@ -19,11 +19,12 @@ Docs for this rework live in `docs/obby-2.0/` (design only, no engine code touch
 - **Leftover web content is hidden, data kept:** the 5 duo decks, the 6 Personal Quests, the parked and cut cards.
 - **"Discard 1 substance/food Piecie"** on Endurance Test, Dutch courage and Larry Temmen = **from your hand or a ready one** (Phase 3 flag 10 closed). Phase 2 doc updated.
 - **Tactician:** sets MP to **10–75** (was "under 80"), for every Mosje. A Mosje set to 10 can still be getemt by a 10+ hit. Phase 1 Digital doc updated.
+- **Level 3 MP stops at 95** (no Level 4). Added to Core Numbers §1 and the handoff.
 - **Placeholder names stay** (The Hacker, The Tactician, The Drainer), marked "name owed".
 
 ### Small things I decided myself (Phase 6, check these)
 - Card List: Mosje names without the web's `[Name]` brackets; level rows written out in full per level; chain rule wording now names every free-activation card and says Coert's Caravan's 0-Energy activation is a normal one (matches the Phase 4 note).
-- Handoff: keep every existing card id (only names/texts change); new ids `quest_dutch_courage`, `quest_cheat_code`; Quest names follow the Phase 2 spelling; 4 gameplay tags in a single `tag` field; a `givesMP` flag for Jeffrey and The Void; a proposed MP-loss order (base → reductions → Momentum Stabilizer cap → round → no-loss check); a Quest stack that runs out reshuffles its own discards (proposal); Level 3 MP cap at 95 left as an open question for you.
+- Handoff: keep every existing card id (only names/texts change); new ids `quest_dutch_courage`, `quest_cheat_code`; Quest names follow the Phase 2 spelling; 4 gameplay tags in a single `tag` field; a `givesMP` flag for Jeffrey and The Void; a proposed MP-loss order (base → reductions → Momentum Stabilizer cap → round → no-loss check); a Quest stack that runs out reshuffles its own discards (proposal).
 - Getemt written as "a loss that leaves the Mosje at 0 or less" (the desk sim's reading of rule 16 + the Phase 1 ruling).
 
 ## Phase 5 outcome (2026-10-10, no questions asked by request)
