@@ -40,8 +40,10 @@ export default defineConfig({
         slowMo: 600,
         // Open maximized (fills the screen) instead of the 1280x720 default — looks
         // tiny on a 4K panel. viewport:null lets the page match the window size.
+        // Opens on the right-hand monitor (x=2560) so it doesn't cover the screen
+        // you're playing on; override with PW_WINDOW_POS="x,y".
         viewport: null,
-        launchOptions: { args: ['--start-maximized'] },
+        launchOptions: { args: [`--window-position=${process.env.PW_WINDOW_POS || '2560,0'}`, '--start-maximized'] },
         screenshot: 'on',
         video: 'retain-on-failure',
       },

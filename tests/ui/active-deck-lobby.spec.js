@@ -7,12 +7,10 @@
 // the 34-02 onboarding spec's pattern.
 import { test, expect } from '@playwright/test';
 
-const DUO_IDS = [
-	'DUO_COERT_BINTI',
-	'DUO_GANDOE_MICHELLE',
-	'DUO_CHRIS_YOURI',
-	'DUO_JISCA_ALYSSA',
-	'DUO_WEST_CLESS',
+const DECK_IDS = [
+	'EXAMPLE_TAKSEN',
+	'EXAMPLE_REGELAARS',
+	'EXAMPLE_CREATIEVELINGEN',
 ];
 const ORIGINALS = ['PHYSICAL_FORCE', 'DIGITAL_CONTROL', 'ARTISTIC_RHYTHM'];
 
@@ -23,14 +21,14 @@ async function blockFirebase(page) {
 
 test.describe('Lobby: guest dropdown (duo-only)', () => {
 
-	test('guest #deck-select lists exactly the 5 duo decks, no originals', async ({ page }) => {
+	test('guest #deck-select lists exactly the 3 Example Decks, no originals', async ({ page }) => {
 		await blockFirebase(page);
 		await page.goto('/?testGuestDeck=1');
 
 		const options = page.locator('#deck-select option');
-		await expect(options).toHaveCount(5);
+		await expect(options).toHaveCount(3);
 		const values = await options.evaluateAll(els => els.map(el => el.value));
-		expect(values).toEqual(DUO_IDS);
+		expect(values).toEqual(DECK_IDS);
 		for (const original of ORIGINALS) expect(values).not.toContain(original);
 
 		// Guest keeps the (now duo-only) dropdown, not the active-deck panel.
@@ -47,14 +45,14 @@ test.describe('Lobby: signed-in active-deck panel + Change-deck switcher (live)'
 		await expect(page.locator('#deck-select')).toBeHidden();
 		const panel = page.locator('#active-deck-panel');
 		await expect(panel).toBeVisible();
-		await expect(panel.locator('.active-deck-panel__name')).toHaveText("Coert & Binti — Winston's Kitchen");
+		await expect(panel.locator('.active-deck-panel__name')).toHaveText("Taksen");
 		// Deck contents are intentionally NOT shown — the name is plenty.
 		await expect(panel.locator('.active-deck-panel__mosjes')).toHaveCount(0);
 
 		// The tracked signed-in deck id (what game-start would read) matches
 		// the seeded active deck.
 		const trackedId = await page.evaluate(() => window.__testActiveDeckHook.signedInDeckId);
-		expect(trackedId).toBe('DUO_COERT_BINTI');
+		expect(trackedId).toBe('EXAMPLE_TAKSEN');
 	});
 
 	test('Change deck opens a switcher listing the seeded decks; picking a different one re-renders the panel and updates the tracked active id', async ({ page }) => {
@@ -68,19 +66,19 @@ test.describe('Lobby: signed-in active-deck panel + Change-deck switcher (live)'
 		const buttons = page.locator('.modal-mosje-select-btn');
 		await expect(buttons).toHaveCount(2);
 		const ids = await buttons.evaluateAll(els => els.map(el => el.dataset.id));
-		expect(ids).toEqual(['DUO_COERT_BINTI', 'DUO_GANDOE_MICHELLE']);
+		expect(ids).toEqual(['EXAMPLE_TAKSEN', 'EXAMPLE_REGELAARS']);
 
 		// Pick the OTHER seeded deck.
-		await page.locator('.modal-mosje-select-btn[data-id="DUO_GANDOE_MICHELLE"]').click();
+		await page.locator('.modal-mosje-select-btn[data-id="EXAMPLE_REGELAARS"]').click();
 
 		// Modal closes; panel re-renders to the newly picked deck.
 		await expect(page.locator('#modal-root .modal-card')).toHaveCount(0);
 		const panel = page.locator('#active-deck-panel');
-		await expect(panel.locator('.active-deck-panel__name')).toHaveText('Gandoe & Michelle — The Box');
+		await expect(panel.locator('.active-deck-panel__name')).toHaveText('Regelaars');
 
 		// The new active id is exactly what game-start would read.
 		const trackedId = await page.evaluate(() => window.__testActiveDeckHook.signedInDeckId);
-		expect(trackedId).toBe('DUO_GANDOE_MICHELLE');
+		expect(trackedId).toBe('EXAMPLE_REGELAARS');
 	});
 
 	test('Cancelling the switcher leaves the active deck unchanged', async ({ page }) => {
@@ -93,8 +91,8 @@ test.describe('Lobby: signed-in active-deck panel + Change-deck switcher (live)'
 
 		await expect(page.locator('#modal-root .modal-card')).toHaveCount(0);
 		const panel = page.locator('#active-deck-panel');
-		await expect(panel.locator('.active-deck-panel__name')).toHaveText("Coert & Binti — Winston's Kitchen");
+		await expect(panel.locator('.active-deck-panel__name')).toHaveText("Taksen");
 		const trackedId = await page.evaluate(() => window.__testActiveDeckHook.signedInDeckId);
-		expect(trackedId).toBe('DUO_COERT_BINTI');
+		expect(trackedId).toBe('EXAMPLE_TAKSEN');
 	});
 });
