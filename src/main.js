@@ -1006,6 +1006,16 @@ function initGamePage() {
 				player.hand = cardIds.map(cardId => ({ cardId, type: cardTypeFor(cardId) }));
 				renderFromState(gameState);
 			},
+			// Obby 2.0 — set a player's Energy pool (clamped 0..6).
+			setEnergy(playerId, n) {
+				const player = gameState?.players?.[playerId];
+				if (!player) return;
+				player.energy = Math.max(0, Math.min(6, Math.trunc(Number(n) || 0)));
+				renderFromState(gameState);
+			},
+			getEnergy(playerId) {
+				return gameState?.players?.[playerId]?.energy;
+			},
 			// Place a specific Mosje into a slot with custom MP/level — lets a scenario
 			// set up exactly the board it needs (e.g. two Mosjes for Tuk Healer/Tactician,
 			// or a specific opponent Mosje for a defeat chain). slotIndex 0 or 1.

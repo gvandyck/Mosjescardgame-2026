@@ -35,6 +35,7 @@ import {
 	isPiecieOnField, setMosjeMP, getGameState, getHandSize,
 	playCardFromHand, unlockPiecies, setHand, setMosjeOnField,
 	clearEntryProtection,
+	setEnergy,
 } from '../helpers.js';
 
 // Generous filler so the deck never exhausts mid-test (DRAW cards like Pot of Weed
@@ -136,6 +137,9 @@ export async function runCardTest(page, spec, test) {
 	// protection so turn-1 attack effects test the card, not the protection
 	// rule (tests/ui/entry-protection.spec.js covers U8 itself).
 	await clearEntryProtection(page);
+	// Obby 2.0: card tests model an established board with a full Energy pool (54-01)
+	await setEnergy(page, 'player_1', 6);
+	await setEnergy(page, 'player_2', 6);
 
 	// 2. Apply MP setup. If a level is needed (e.g. Ronald Kip requires Lv2), re-place
 	// the starter Mosje at that level (setMosjeMP only touches MP, not level).

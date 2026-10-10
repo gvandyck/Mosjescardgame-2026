@@ -160,6 +160,12 @@ export async function clearEntryProtection(page) {
 	await page.waitForTimeout(100);
 }
 
+/** Obby 2.0 — set a player's Energy pool (testMode=true). */
+export async function setEnergy(page, playerId, n) {
+	await page.evaluate(({ pid, v }) => window.__testHooks?.setEnergy(pid, v), { pid: playerId, v: n });
+	await page.waitForTimeout(100);
+}
+
 /** Replace a player's hand with exactly the given cardIds (keeps the hand small). */
 export async function setHand(page, playerId, cardIds) {
 	await page.evaluate(({ pid, ids }) => window.__testHooks?.setHand(pid, ids), { pid: playerId, ids: cardIds });
