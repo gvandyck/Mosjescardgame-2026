@@ -3,14 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Obby Card Game 2.0 — slice A (offline vs bot)
 status: planning
-last_updated: "2026-10-10T18:00:00.000Z"
-last_activity: 2026-10-10
+stopped_at: Completed 53-01-PLAN.md
+last_updated: "2026-10-10T18:24:17.713Z"
+last_activity: 2026-10-10 — v2.0 roadmap created (12 phases, 55/55 requirements mapped)
 progress:
-  total_phases: 12
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_phases: 54
+  completed_phases: 27
+  total_plans: 107
+  completed_plans: 93
+  percent: 50
 ---
 
 # Project State
@@ -32,11 +33,11 @@ See: `.planning/PROJECT.md` (updated 2026-10-10)
 ## Current Position
 
 Phase: 53 of 64 (2.0 Card Data and Example Decks) — first of 12 phases in v2.0 (53–64)
-Plan: none yet
-Status: Not started (roadmap created, ready to plan)
-Last activity: 2026-10-10 — v2.0 roadmap created (12 phases, 55/55 requirements mapped)
+Plan: 1 of 7 complete (53-01 done)
+Status: Executing phase 53
+Last activity: 2026-10-10 — completed 53-01 (parsers, id map, helpers)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [█████████░] 87%
 
 **Next command:** `/gsd:plan-phase 53`
 
@@ -47,6 +48,7 @@ Progress: [░░░░░░░░░░] 0%
 ## Performance Metrics
 
 **Velocity:**
+
 - Total plans completed (v2.0): 0
 - Average duration: -
 - Total execution time: -
@@ -62,6 +64,7 @@ Progress: [░░░░░░░░░░] 0%
 ### Decisions
 
 Milestone decisions (Gandalf, 2026-10-10, from PROJECT.md):
+
 - Slice A only: offline vs bot. Online rooms = slice B, accounts/collections = slice C (later milestones).
 - Hide unsupported V4 menus (online, login, collection, store, deck builder); keep their code.
 - Adapt the existing strategy bot in `src/bot/strategy/`, using `docs/obby-2.0/tools/obby_desk_sim.py` as a reference (ideas, not code).
@@ -73,6 +76,7 @@ Milestone decisions (Gandalf, 2026-10-10, from PROJECT.md):
 - Mosjes always full art; foil on ★★★★★ or `foil` flag; rules `rarity` separate from frame tier (Phase 7 §A1).
 
 Roadmap decisions (2026-10-10):
+
 - Engine first (data → core rules → actions → table/reactions → effects by card type → bot), then UI (faces → board), then lobby/sim/deploy.
 - Within each effect phase (58–60) the Example Deck cards go first.
 - V4-rule tests are rewritten or deleted in the phase that replaces the rule; SHELL-04 closes in Phase 57 (last V4-replacing phase).
@@ -91,6 +95,6 @@ None for v2.0 yet.
 
 ## Session Continuity
 
-Last session: 2026-10-10
+Last session: 2026-10-10T18:24:17.696Z
 Stopped at: v2.0 roadmap written (ROADMAP.md v2.0 section, REQUIREMENTS.md traceability, this file)
 Resume file: None

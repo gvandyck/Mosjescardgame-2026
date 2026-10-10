@@ -27,7 +27,7 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 
 | # | Phase | Goal | Requirements | Success Criteria |
 |---|-------|------|--------------|------------------|
-| 53 | 2.0 Card Data and Example Decks | Card data matches the 2.0 Card List; the 3 Example Decks load | DATA-01..07 | 4 |
+| 53 | 2.0 Card Data and Example Decks | 1/7 | In Progress|  |
 | 54 | Energy, Levels and Getemt | Mosjes level, getemt, win and lose by 2.0 rules; Energy is the only currency | RULE-01, 02, 03, 04, 09 | 5 |
 | 55 | Turn Flow, Setup and Protection | A game sets up and runs turn by turn under 2.0 flow | RULE-05, 06, 07, 08, 10, TABLE-01 | 5 |
 | 56 | Attacking and Quests | Each Mosje's one action (attack or Quest) works by 2.0 rules | PLAY-01..07 | 5 |
@@ -55,7 +55,7 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 **Notes**: Keep every card id. Split rules `rarity` from a derived `frameTier` and add the editor `foil` flag (Phase 7 §A1/§A9) here so later UI work only reads data. V4 fields (`mpCost`, `roll.thresholds`, `successMP`/`failMP`, `requirement: "level1"`, …) are dropped as their consumers are rewritten in Phases 54–57.
 **Plans**: 7 plans (7 sequential waves)
 Plans:
-- [ ] 53-01-PLAN.md — Shared Card List / Example Decks parsers, 183-entry id map, QUEST_BANDS, getFrameTier, getCopyLimit
+- [x] 53-01-PLAN.md — Shared Card List / Example Decks parsers, 183-entry id map, QUEST_BANDS, getFrameTier, getCopyLimit
 - [ ] 53-02-PLAN.md — Idempotent text-patch generator + 32 Mosjes (2.0 fields); lists expected V4 failures for 53-03
 - [ ] 53-03-PLAN.md — parseMosjeName comma form + bounded rewrite of V4 Mosje-text tests (suite green again)
 - [ ] 53-04-PLAN.md — 73 Piecies + 20 Snelle (tag/stays/levelGate/limitPerDeck/givesMP), E28 tags, E29 part
