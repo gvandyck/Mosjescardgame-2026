@@ -53,7 +53,17 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
   4. Each of the 3 Example Decks loads as 30 cards, max 2 copies, ★★★★★ max 1, with its starting Mosje inside.
 **Tests to add**: E28 (tags), E29 (data + hidden exclusion), E30 (decks).
 **Notes**: Keep every card id. Split rules `rarity` from a derived `frameTier` and add the editor `foil` flag (Phase 7 §A1/§A9) here so later UI work only reads data. V4 fields (`mpCost`, `roll.thresholds`, `successMP`/`failMP`, `requirement: "level1"`, …) are dropped as their consumers are rewritten in Phases 54–57.
-**Plans**: TBD
+**Plans**: 7 plans (7 sequential waves)
+Plans:
+- [ ] 53-01-PLAN.md — Shared Card List / Example Decks parsers, 183-entry id map, QUEST_BANDS, getFrameTier, getCopyLimit
+- [ ] 53-02-PLAN.md — Idempotent text-patch generator + 32 Mosjes (2.0 fields); lists expected V4 failures for 53-03
+- [ ] 53-03-PLAN.md — parseMosjeName comma form + bounded rewrite of V4 Mosje-text tests (suite green again)
+- [ ] 53-04-PLAN.md — 73 Piecies + 20 Snelle (tag/stays/levelGate/limitPerDeck/givesMP), E28 tags, E29 part
+- [ ] 53-05-PLAN.md — 38 Quests (Card List `text`, incl. Dutch courage, Cheat code) + 20 Places, Drain Zone/The Void unhidden
+- [ ] 53-06-PLAN.md — Hide 15 parked/cut cards (disabled flag), un-hide Drainer, E29 umbrella bijection + exclusion
+- [ ] 53-07-PLAN.md — 3 Example Decks + E30, old decks hidden, deck surfaces/tests/specs, phase gate (npm test + sim)
+
+**Quest rarity note**: the 2.0 Card List prints no Quest rarity (Quests are framed by stack colour, Phase 7 §A7). The V4 Quest `rarity` is kept unchanged in Phase 53 (V4 only); per Phase 7 §A7 Quests use the tier 1 boxed frame (`getFrameTier` returns 1).
 
 ### Phase 54: Energy, Levels and Getemt
 **Goal**: Mosjes gain levels, get getemt, win and lose by the 2.0 rules, and Energy (never MP) pays for everything.

@@ -27,7 +27,7 @@ This matches `main` (`getRarityTier` 1–5, shine only at tier 5).
 - Proposal: carry your 6 Oct re-tier over as that flag, so the 12 Mosjes you set to ★★★★★ on `main` keep their foil (Gandoe Wizard, Alyssa Fissa, Gandoe Destroyer, Ronald Chef, Ming Natural, Martin Historian, Coert Tech Savant, Jeffrey Gambler, FPS West, Dancing/DDR Chris; plus the parked Amplifier and Kast-elein).
 - Engine note: split "rules rarity" (`rarity`, from the Card List) from "frame tier" (`frameTier`, derived) so rarity can never accidentally change a copy limit.
 
-Piecies, Snelle, Places and Quests use their 2.0 rarity for the frame as normal.
+Piecies, Snelle and Places use their 2.0 rarity for the frame as normal; Quests use tier 1 (§A7).
 
 ### A2. Shared face layout (all card types)
 Taken from your approved 2.0 mock-up ("0c · Alyssa with Power + Energie" on the Board & Combat canvas) and the Rules doc's card-face section.
