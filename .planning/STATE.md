@@ -33,9 +33,9 @@ See: `.planning/PROJECT.md` (updated 2026-10-10)
 ## Current Position
 
 Phase: 54 of 64 (energy, levels and getemt)
-Plan: 14 of 16 (54-01..54-14 done; 54-15, 54-16 pending)
+Plan: 15 of 16 (54-01..54-15 done; 54-16 pending)
 Status: Executing
-Last activity: 2026-10-11 — 54-14 complete (Mosje ability, Quest and Snelle MP funnel)
+Last activity: 2026-10-11 — 54-15 complete (last MP funnels, V4 defeat flag removed, Ronald Kip + smoke invariants)
 
 Progress (v2.0): Phase 53 done; Phase 54 5/16 plans
 

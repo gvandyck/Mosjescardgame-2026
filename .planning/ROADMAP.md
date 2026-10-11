@@ -93,7 +93,7 @@ Plans:
 - [x] 54-12-PLAN.md — Hold-Level-3 win at turn start, no-Mosje-left loss (field+hand+deck), V4 wins removed (E7, E8; RULE-04 complete)
 - [x] 54-13-PLAN.md — Funnel Piecie effect MP writes + static funnel guard
 - [x] 54-14-PLAN.md — Funnel Mosje ability, Quest and Snelle MP writes
-- [ ] 54-15-PLAN.md — Funnel Places/turnManager/bot/UI, Ronald Kip stacking under 2.0, smoke invariants (RULE-02/03/09 complete)
+- [x] 54-15-PLAN.md — Funnel Places/turnManager/bot/UI, Ronald Kip stacking under 2.0, smoke invariants (RULE-02/03/09 complete)
 - [ ] 54-16-PLAN.md — Playwright specs aligned (no Level 0, getemt, hold-L3) + phase gate (Node smoke stands in for the sim)
 
 ### Phase 55: Turn Flow, Setup and Protection

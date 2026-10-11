@@ -21,14 +21,14 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 
 ### Core rules: Energy, levels, turns (RULE)
 - [x] **RULE-01**: Each player has an Energy pool: start 2, +1 at the start of own turn, max 6, carries over; it pays for summons, Piecie activations, Snelle, Places and activated abilities; MP is never spent (§2a).
-- [ ] **RULE-02**: Mosjes start at Level 1 with their starting MP; reaching 100 MP raises the level and resets MP to 0 from any MP gain; a Level 3 Mosje's MP stops at 95 (§2b).
-- [ ] **RULE-03**: A loss that leaves a Mosje at 0 MP or less getemts it: Level 2–3 → level −1 at 50 MP; Level 1 → MP 0, sideways, skips its owner's next turn; getemt while sideways → Welloe pile. A loss reduced to 0 is no loss (§2b).
+- [x] **RULE-02**: Mosjes start at Level 1 with their starting MP; reaching 100 MP raises the level and resets MP to 0 from any MP gain; a Level 3 Mosje's MP stops at 95 (§2b).
+- [x] **RULE-03**: A loss that leaves a Mosje at 0 MP or less getemts it: Level 2–3 → level −1 at 50 MP; Level 1 → MP 0, sideways, skips its owner's next turn; getemt while sideways → Welloe pile. A loss reduced to 0 is no loss (§2b).
 - [x] **RULE-04**: A player wins when one of their Mosjes is still at Level 3 at the start of their next turn, and loses when no Mosje is left outside their Welloe pile (§2b).
 - [ ] **RULE-05**: Setup and turn flow follow §2c: starting Mosje free and fresh, draw 3, 3 face-up Quests, highest die first, player 1 skips the first draw (R5), start-/end-of-turn triggers, "this turn" boosts expire.
 - [ ] **RULE-06**: Empty field at turn start → the cheapest Mosje from hand or deck is placed free and fresh (R1); deck shuffled after a search.
 - [ ] **RULE-07**: Deck-out: the discard pile (never the Welloe pile) is shuffled into a new deck and that turn is a cooldown turn (only face-down placing) (§2c).
 - [ ] **RULE-08**: Fresh Mosjes can't attack, can't be chosen or hit by any opponent card, ability or jab, and ignore Places until their owner's next turn; a just-levelled Mosje can't be taksed until its owner's next turn (R2) (§2b, §2f).
-- [ ] **RULE-09**: MP stays a multiple of 5 and never persists below 0; Power is a multiple of 10 and never below 0; one loss resolves in the §2g order (base → reductions → Stabilizer cap → round/floor → no-loss check).
+- [x] **RULE-09**: MP stays a multiple of 5 and never persists below 0; Power is a multiple of 10 and never below 0; one loss resolves in the §2g order (base → reductions → Stabilizer cap → round/floor → no-loss check).
 - [ ] **RULE-10**: V4 leftovers are removed: Level 0, MP costs, first-turn Quest lock, 4th Piecie slot, 6-card opening hand, the "active Mosje" concept (§2c).
 
 ### Attacking and Quests (PLAY)
@@ -104,14 +104,14 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 | DATA-06 | Phase 53 | Complete |
 | DATA-07 | Phase 53 | Complete |
 | RULE-01 | Phase 54 | Complete |
-| RULE-02 | Phase 54 | Pending |
-| RULE-03 | Phase 54 | Pending |
+| RULE-02 | Phase 54 | Complete |
+| RULE-03 | Phase 54 | Complete |
 | RULE-04 | Phase 54 | Complete |
 | RULE-05 | Phase 55 | Pending |
 | RULE-06 | Phase 55 | Pending |
 | RULE-07 | Phase 55 | Pending |
 | RULE-08 | Phase 55 | Pending |
-| RULE-09 | Phase 54 | Pending |
+| RULE-09 | Phase 54 | Complete |
 | RULE-10 | Phase 55 | Pending |
 | PLAY-01 | Phase 56 | Pending |
 | PLAY-02 | Phase 56 | Pending |
