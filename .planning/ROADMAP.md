@@ -108,7 +108,15 @@ Plans:
   5. Level 0, MP costs, the first-turn Quest lock, the 4th Piecie slot, the 6-card opening hand and the "active Mosje" concept are gone from the engine (every "your Mosje" effect asks which of your Mosjes).
 **Tests to add**: E2, E9, E11, E21.
 **Notes**: Extend today's U8 `entryProtected` into 2.0 fresh. Rewrite `docs/phase0-rulings.md`, `docs/card-reference.md`, `docs/developer-handoff.md`, `src/rules/card-specific-rulings.md` to point at the 2.0 docs (handoff §7) so the CLAUDE.md "read these first" list stays true on this branch.
-**Plans**: TBD
+**Plans**: 7 plans (7 waves, sequential)
+Plans:
+- [ ] 55-01-PLAN.md — Setup: starting Mosje free+fresh, 3-card hand, 3 typed Quest stacks face-up, opening die, R5 first-draw skip (E11)
+- [ ] 55-02-PLAN.md — Turn loop order, R1 empty field (E9), trickle removed, level-up protection flag, this-turn expiry (RULE-05, RULE-06)
+- [ ] 55-03-PLAN.md — Cooldown turn replaces deck-out skip (E21), summon pays Energy (E2), bot/UI (RULE-07, TABLE-01)
+- [ ] 55-04-PLAN.md — Fresh 2.0: opponent-proof by source, AoE skip, ignores Places, COST bypass gone (RULE-08)
+- [ ] 55-05-PLAN.md — First-turn Quest lock and 4th Piecie slot removed, V4-leftover static guard
+- [ ] 55-06-PLAN.md — "Active Mosje" removed: own/opp target resolvers, UI picker, bot choice (RULE-10)
+- [ ] 55-07-PLAN.md — Playwright alignment + 2.0 turn-flow spec (headless), pointer docs, phase gate
 
 ### Phase 56: Attacking and Quests
 **Goal**: Each Mosje can take its one action per turn: attack an opponent Mosje with its Power, or try one of the 3 typed Quests.
