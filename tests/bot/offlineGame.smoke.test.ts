@@ -32,7 +32,28 @@ import { startTurn, endTurn } from '../../src/engine/turnManager.js';
 // @ts-expect-error JS module without type declarations
 import { driveBotTurn } from '../../src/bot/botDriver.js';
 
+// @ts-expect-error JS module without type declarations
+import { getPower } from '../../src/engine/mp/getPower.js';
+
 const MAX_TURNS = 60;
+
+// 2.0 per-turn invariants (54-15): this Node smoke stands in for the full simulation
+// (npm run test:sim is not run in Phase 54).
+function assertInvariants(state: any, turn: number): void {
+  for (const pid of Object.keys(state.players)) {
+    const p = state.players[pid];
+    expect(Number.isInteger(p.energy) && p.energy >= 0 && p.energy <= 6, `turn ${turn} ${pid} energy=${p.energy}`).toBe(true);
+    for (const [i, s] of (p.activeSlots as any[]).entries()) {
+      if (!s) continue;
+      const tag = `turn ${turn} ${pid} slot ${i} (${s.cardId})`;
+      expect(Number.isInteger(s.mp) && s.mp % 5 === 0 && s.mp >= 0, `${tag} mp=${s.mp}`).toBe(true);
+      expect(s.mp < 100 && (s.level < 3 || s.mp <= 95), `${tag} mp=${s.mp} level=${s.level}`).toBe(true);
+      expect([1, 2, 3], `${tag} level=${s.level}`).toContain(s.level);
+      const pw = getPower(s);
+      expect(pw % 10 === 0 && pw >= 0, `${tag} power=${pw}`).toBe(true);
+    }
+  }
+}
 
 interface GameState {
   status: string;
@@ -53,6 +74,7 @@ function runOfflineGame(p1DeckId: string, p2DeckId: string): GameState {
 
   for (let turn = 0; turn < MAX_TURNS; turn++) {
     if (state.status === 'FINISHED') break;
+    assertInvariants(state, turn);
 
     const active = (state as unknown as { activePlayerId: string }).activePlayerId;
 
@@ -68,6 +90,7 @@ function runOfflineGame(p1DeckId: string, p2DeckId: string): GameState {
       if (state.status === 'FINISHED') break;
       state = startTurn(state);
     }
+    assertInvariants(state, turn);
   }
 
   return state;
@@ -92,6 +115,14 @@ describe('Offline game smoke test', () => {
     }).not.toThrow();
     expect(Array.isArray(finalState!.players.player_1.activeSlots)).toBe(true);
     expect(Array.isArray(finalState!.players.player_2.activeSlots)).toBe(true);
+  });
+
+  it('EXAMPLE_REGELAARS vs EXAMPLE_CREATIEVELINGEN runs without throwing', () => {
+    let finalState: GameState | undefined;
+    expect(() => {
+      finalState = runOfflineGame('EXAMPLE_REGELAARS', 'EXAMPLE_CREATIEVELINGEN');
+    }).not.toThrow();
+    expect(Array.isArray(finalState!.players.player_1.activeSlots)).toBe(true);
   });
 
   it('game state integrity: no player loses their activeSlots array', () => {
