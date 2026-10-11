@@ -10,6 +10,7 @@ import { initHoverZoom } from './ui/hoverZoom.js';
 import { initCardTierMotion } from './ui/cardTierMotion.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes, setActivePlace } from './engine/gameState.js';
 import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, playPersonalQuest, activatePersonalQuest, activateSynergyWaiver } from './engine/turnManager.js';
+import { OWN_TARGET_EFFECT_IDS } from './engine/targets/ownTargetEffects.js';
 import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold, getActivePartnerSynergyBonuses } from './abilities/questLogic.js';
 import { PIECIE_SLOT_COUNT } from './engine/table/tableRules.js';
 import { hasFoodDoubleSynergy } from './engine/synergyResolver.js';
@@ -2804,12 +2805,10 @@ function initGamePage() {
 				leipeOppId: oppId,
 				leipeOppSlot: parseInt(String(oppPick).split('_slot_')[1], 10),
 			};
-		} else if (piecieCardDef?.effectId === 'effect_kannetje_melk'
-				|| piecieCardDef?.effectId === 'effect_dikke_jonko'
-				|| piecieCardDef?.effectId === 'effect_tikker') {
+		} else if (OWN_TARGET_EFFECT_IDS.includes(piecieCardDef?.effectId)) {
 			const ownTargets = getPlayerMosjes(gameState, localPlayerId);
 			if (ownTargets.length > 1) {
-				const selectedId = await modal.showTargetSelector(ownTargets, 'Choose your Mosje to receive MP:');
+				const selectedId = await modal.showTargetSelector(ownTargets, 'Choose which of your Mosjes:');
 				if (!selectedId) return;
 				const mosjeSlotIndex = parseInt(selectedId.split('_slot_')[1], 10);
 				if (!Number.isNaN(mosjeSlotIndex)) {

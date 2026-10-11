@@ -29,7 +29,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 - [x] **RULE-07**: Deck-out: the discard pile (never the Welloe pile) is shuffled into a new deck and that turn is a cooldown turn (only face-down placing) (§2c).
 - [x] **RULE-08**: Fresh Mosjes can't attack, can't be chosen or hit by any opponent card, ability or jab, and ignore Places until their owner's next turn; a just-levelled Mosje can't be taksed until its owner's next turn (R2) (§2b, §2f).
 - [x] **RULE-09**: MP stays a multiple of 5 and never persists below 0; Power is a multiple of 10 and never below 0; one loss resolves in the §2g order (base → reductions → Stabilizer cap → round/floor → no-loss check).
-- [ ] **RULE-10**: V4 leftovers are removed: Level 0, MP costs, first-turn Quest lock, 4th Piecie slot, 6-card opening hand, the "active Mosje" concept (§2c).
+- [x] **RULE-10**: V4 leftovers are removed: Level 0, MP costs, first-turn Quest lock, 4th Piecie slot, 6-card opening hand, the "active Mosje" concept (§2c).
 
 ### Attacking and Quests (PLAY)
 - [ ] **PLAY-01**: Each Mosje takes at most one action per turn: attack OR Quest (§2c).
@@ -112,7 +112,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 | RULE-07 | Phase 55 | Complete |
 | RULE-08 | Phase 55 | Complete (attack gates read these flags in Phase 56) |
 | RULE-09 | Phase 54 | Complete |
-| RULE-10 | Phase 55 | Pending |
+| RULE-10 | Phase 55 | Complete |
 | PLAY-01 | Phase 56 | Pending |
 | PLAY-02 | Phase 56 | Pending |
 | PLAY-03 | Phase 56 | Pending |

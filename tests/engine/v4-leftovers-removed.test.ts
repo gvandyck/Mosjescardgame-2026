@@ -8,7 +8,7 @@ import { createInitialGameState } from '../../src/engine/gameState.js';
 import { startTurn } from '../../src/engine/turnManager.js';
 
 const SRC = join(__dirname, '..', '..', 'src');
-const BANNED = ['skipNextTurn', 'Turn trickle', 'TURN TRICKLE', 'splice(0, 6)', 'first-turn-lock', '[null, null, null, null]', "includes('COST')"];
+const BANNED = ['skipNextTurn', 'Turn trickle', 'TURN TRICKLE', 'splice(0, 6)', 'first-turn-lock', '[null, null, null, null]', "includes('COST')", 'getFirstActiveSlotIndex', 'getFirstActiveMosjeTagSlotIndex'];
 
 function walk(dir: string): string[] {
   return readdirSync(dir).flatMap((n) => {

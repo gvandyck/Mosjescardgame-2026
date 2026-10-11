@@ -36,6 +36,8 @@ import { PLACES } from '../data/places.js';
 import { QUESTS } from '../data/quests.js';
 import { MOSJES } from '../data/mosjes.js';
 import { getBotProfile } from './strategy/botProfiles.js';
+import { pickBotOwnTarget } from './strategy/pickBotOwnTarget.js';
+import { OWN_TARGET_EFFECT_IDS } from '../engine/targets/ownTargetEffects.js';
 import { planPiecieActivations } from './strategy/planPiecieActivations.js';
 import { getAbilityEnergyCost } from '../engine/energy/getAbilityEnergyCost.js';
 import { canPay } from '../engine/energy/canPay.js';
@@ -380,6 +382,11 @@ export function driveBotTurnSteps(gameState, botPlayerId) {
       s && s.type === 'PIECIE' && !s.activated && s.cardId === entry.cardId);
     if (idx < 0) continue;
     if (state.turnNumber < (slots[idx].canActivateOnTurn ?? Infinity)) continue;
+    const botEffectId = PIECIE_LOOKUP[slots[idx].cardId]?.effectId;
+    if (OWN_TARGET_EFFECT_IDS.includes(botEffectId)) {
+      const own = pickBotOwnTarget(state, botPlayerId, botEffectId);
+      if (own >= 0) state = { ...state, _pendingTargets: { ...(state._pendingTargets || {}), own_slot_index: own } };
+    }
     const result = activatePiecie(state, botPlayerId, idx);
     if (result.success) {
       state = result.state;
