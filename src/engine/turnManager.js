@@ -19,6 +19,7 @@ import { QUESTS } from '../data/quests.js';
 import { toGraveyardEntry } from './graveyardUtils.js';
 import { createMosjeSlot } from './mp/createMosjeSlot.js';
 import { gainEnergy } from './energy/gainEnergy.js';
+import { checkWin } from './winLose/checkWin.js';
 import { payEnergy } from './energy/payEnergy.js';
 import { canPay } from './energy/canPay.js';
 import { canMosjeAct } from './mp/canMosjeAct.js';
@@ -237,6 +238,9 @@ function isHandCardLocked(gameState, playerId, cardRef) {
 export function startTurn(gameState) {
   let state = JSON.parse(JSON.stringify(gameState));
   const playerId = state.activePlayerId;
+  // Obby 2.0 §2b: the win check is the FIRST thing at turn start (hold Level 3).
+  state = checkWin(state, playerId);
+  if (state.status === 'FINISHED') return state;
   console.log(`[ENGINE] â”€â”€ Turn ${state.turnNumber} START â€” Player: ${playerId} â”€â”€`);
 
   // Reset per-turn trackers for the active player
@@ -344,10 +348,7 @@ export function startTurn(gameState) {
     }
   }
 
-  // Momentum Domination check happens at TURN START
-  state.momentumCheckPhase = true;
   state = checkVictory(state);
-  state.momentumCheckPhase = false;
   if (state.status === 'FINISHED') return state;
 
   // START PHASE — fire active Place effects (START_PHASE trigger only)

@@ -2,23 +2,21 @@
 // Call checkVictory() after every state change.
 // Returns the updated gameState with winnerId set if someone won.
 
-import { getTotalMPForPlayer } from './mpManager.js';
+import { checkLoss } from './winLose/checkLoss.js';
 import { getAllPlayerIds } from './gameState.js';
 import { normalizeSlotMp } from './mp/normalizeSlotMp.js';
 
 console.log('[ENGINE] victoryChecker.js loaded');
 
 // ─────────────────────────────────────────────────────────────
-// WIN CONDITIONS:
-//   1. LEVEL_3        — A player's Mosje reaches Level 3
-//   2. KNOCKOUT       — All of the opponent's Mosjes are defeated
-//   3. QUEST_MASTER   — A player completes 7 total Quests
-//   4. MOMENTUM_DOM   — A player has 250+ combined MP at turn start
+// WIN / LOSE (Obby 2.0):
+//   KNOCKOUT — an opponent has no Mosje left on field, in hand or in deck.
+//   LEVEL_3 is decided at turn start by winLose/checkWin.js (hold Level 3).
 // ─────────────────────────────────────────────────────────────
 
 // ─────────────────────────────────────────────────────────────
 // checkVictory
-// Runs all 4 checks. Sets gameState.winnerId and gameState.status
+// Runs the KNOCKOUT check. Sets gameState.winnerId and gameState.status
 // if a win condition is met. Returns updated gameState.
 // ─────────────────────────────────────────────────────────────
 export function checkVictory(gameState) {
@@ -116,38 +114,14 @@ export function normalizeMosjeMp(gameState) {
 
 // ─────────────────────────────────────────────────────────────
 // getWinReason
-// Returns a win reason string if the player has won, else null.
+// Obby 2.0: the only instant end is KNOCKOUT (an opponent has no Mosje left on
+// field, in hand or in deck). The Level 3 win is checked at turn start (checkWin).
 // ─────────────────────────────────────────────────────────────
 function getWinReason(gameState, playerId) {
-  // ── 1. LEVEL 3 ──────────────────────────────────────────────
-  const player = gameState.players[playerId];
-  const hasLevel3 = player.activeSlots.some(
-    slot => slot !== null && slot.level >= 3
-  );
-  if (hasLevel3) return 'LEVEL_3';
-
-  // ── 2. KNOCKOUT ─────────────────────────────────────────────
-  // Check if ALL of every opponent's Mosjes are defeated
   const opponentIds = getAllPlayerIds(gameState).filter(id => id !== playerId);
-  const allOpponentsKnockedOut = opponentIds.every(opponentId => {
-    const opponent = gameState.players[opponentId];
-    return opponent.activeSlots.every(
-      slot => slot === null || slot.isDefeated
-    );
-  });
-  if (opponentIds.length > 0 && allOpponentsKnockedOut) return 'KNOCKOUT';
-
-  // ── 3. QUEST MASTER ─────────────────────────────────────────
-  if (player.questsCompleted >= 7) return 'QUEST_MASTER';
-
-  // ── 4. MOMENTUM DOMINATION ──────────────────────────────────
-  // Only checked at TURN START — the turnManager calls checkVictory
-  // with a momentumCheckPhase flag to avoid firing mid-turn.
-  if (gameState.momentumCheckPhase === true) {
-    const totalMP = getTotalMPForPlayer(gameState, playerId);
-    if (totalMP >= 250) return 'MOMENTUM_DOMINATION';
+  if (opponentIds.length > 0 && opponentIds.every(id => checkLoss(gameState.players[id]))) {
+    return 'KNOCKOUT';
   }
-
   return null;
 }
 
