@@ -94,7 +94,7 @@ Plans:
 - [x] 54-13-PLAN.md — Funnel Piecie effect MP writes + static funnel guard
 - [x] 54-14-PLAN.md — Funnel Mosje ability, Quest and Snelle MP writes
 - [x] 54-15-PLAN.md — Funnel Places/turnManager/bot/UI, Ronald Kip stacking under 2.0, smoke invariants (RULE-02/03/09 complete)
-- [ ] 54-16-PLAN.md — Playwright specs aligned (no Level 0, getemt, hold-L3) + phase gate (Node smoke stands in for the sim)
+- [x] 54-16-PLAN.md — Playwright specs aligned (no Level 0, getemt, hold-L3) + phase gate (Node smoke stands in for the sim)
 
 ### Phase 55: Turn Flow, Setup and Protection
 **Goal**: A 2.0 game sets up and runs turn by turn under the 2.0 flow, with every V4 leftover rule gone.
