@@ -86,7 +86,7 @@ Plans:
 - [x] 54-05-PLAN.md — Levels stored 1-3, single createMosjeSlot factory, traits from level rows, bot level semantics
 - [x] 54-06-PLAN.md — Level display 1-3 (no +1/-1 adaptors), factory-based test hook, ability-test fixtures
 - [x] 54-07-PLAN.md — Gain pipeline: level-up resets to 0, L3 cap 95, getPower, 2.0 normaliser, allowLevelUp deleted (E3, E7b, E14, E27 gain)
-- [ ] 54-08-PLAN.md — Engine-test fixtures to Level 1 + no-Level-0 guard
+- [x] 54-08-PLAN.md — Engine-test fixtures to Level 1 + no-Level-0 guard
 - [ ] 54-09-PLAN.md — One-loss pipeline in §2g order (registrable steps, Stabilizer after reducers, reduced-to-0 = no loss)
 - [ ] 54-10-PLAN.md — Getemt (L2-3 -> -1 @50, L1 sideways, again -> Welloe pile), separate Welloe pile, Reborn/Call re-pointed (E4, E6)
 - [ ] 54-11-PLAN.md — Sideways lifecycle per Mosje (skip owner's next turn, stand up at its end), UI/bot gates (E5)
