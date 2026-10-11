@@ -12,7 +12,7 @@ describe('General Quest — Mosje Selection Modal', () => {
 			{ playerId: 'player_1', name: 'Player One', deckId: 'DIGITAL_CONTROL' },
 			{ playerId: 'player_2', name: 'Player Two', deckId: 'ARTISTIC_RHYTHM' },
 		];
-		gameState = createInitialGameState(players, 'TEST_ROOM');
+		gameState = createInitialGameState(players, 'TEST_ROOM', { firstPlayerId: 'player_1' }); // 2.0: deterministic first player
 		gameState = startTurn(gameState);
 	});
 

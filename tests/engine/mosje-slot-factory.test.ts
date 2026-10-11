@@ -60,6 +60,7 @@ describe("creators use the factory", () => {
         { playerId: "p2", name: "B", deckId: "PHYSICAL_FORCE" },
       ],
       "T",
+      { firstPlayerId: "p1" }, // 2.0: deterministic first player
     );
     for (const p of Object.values(st.players) as any[]) {
       for (const s of p.activeSlots) if (s) expect(s.level).toBe(1);
@@ -72,6 +73,7 @@ describe("creators use the factory", () => {
         { playerId: "p2", name: "B", deckId: "PHYSICAL_FORCE" },
       ],
       "T",
+      { firstPlayerId: "p1" }, // 2.0: deterministic first player
     );
     const p = st.players.p1;
     p.activeSlots = [null, null];

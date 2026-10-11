@@ -1110,11 +1110,19 @@ function initGamePage() {
 			{ playerId: 'player_1', name: p1Name, deckId: p1Deck, deckDef: resolveCustomDeckDef(p1Deck) },
 			{ playerId: 'player_2', name: p2Name, deckId: p2Deck, deckDef: resolveCustomDeckDef(p2Deck) },
 		];
-		gameState = createInitialGameState(players, roomCode);
+		// T-55-01: the firstPlayer override is only honoured in testMode.
+		const setupOptions = urlParams.get('testMode') === 'true'
+			? { firstPlayerId: urlParams.get('firstPlayer') || 'player_1' }
+			: {};
+		gameState = createInitialGameState(players, roomCode, setupOptions);
 		gameState = startTurn(gameState);
 		renderFromState(gameState);
 		log.add('quest', `${localPlayerName} entered room ${roomCode}.`);
 		log.add('gain', `Turn ${gameState.turnNumber} started for ${gameState.players[gameState.activePlayerId].name}.`);
+		if ((gameState.openingRolls || []).length) {
+			const rollText = gameState.openingRolls.map(r => `${gameState.players[r.playerId].name} rolls ${r.value}`).join(', ');
+			log.add('quest', `${rollText} - ${gameState.players[gameState.firstPlayerId].name} goes first.`);
+		}
 		logTurnTrickle(gameState.activePlayerId);
 		// Register ongoing remote handler for when opponent acts
 		eventBus.on('mp:remote-state', onRemoteState);

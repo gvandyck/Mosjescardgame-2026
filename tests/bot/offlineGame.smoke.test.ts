@@ -69,7 +69,7 @@ function runOfflineGame(p1DeckId: string, p2DeckId: string): GameState {
     { playerId: 'player_1', name: 'Human', deckId: p1DeckId },
     { playerId: 'player_2', name: 'Bot',   deckId: p2DeckId },
   ];
-  let state: GameState = createInitialGameState(players, 'OFFLINE_TEST');
+  let state: GameState = createInitialGameState(players, 'OFFLINE_TEST', { firstPlayerId: players[0].playerId }); // 2.0: deterministic
   state = startTurn(state);
 
   for (let turn = 0; turn < MAX_TURNS; turn++) {
@@ -143,7 +143,7 @@ describe('Offline game smoke test', () => {
     // 54-05: levels are 1-3 now, so the shared 0xC0FFEE game ends by a Level-3 win before any
     // deck-out; this test uses its own fixed seed so the skip path is reached deterministically.
     Math.random = mulberry32(0xC0FFEE);
-    let state: any = createInitialGameState(players, 'DECKOUT_TEST');
+    let state: any = createInitialGameState(players, 'DECKOUT_TEST', { firstPlayerId: players[0].playerId }); // 2.0: deterministic
     // Trim both decks to 3 cards so deck-out (and the skip path) triggers within a few turns.
     state.players.player_1.deck = state.players.player_1.deck.slice(0, 3);
     state.players.player_2.deck = state.players.player_2.deck.slice(0, 3);

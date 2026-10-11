@@ -93,7 +93,8 @@ describe("createInitialGameState — firstPlayerId", () => {
         { playerId: "player_1", name: "Alice", deckId: "DUO_WEST_CLESS" },
         { playerId: "player_2", name: "Bob", deckId: "DUO_GANDOE_MICHELLE" },
       ],
-      "TEST_ROOM"
+      "TEST_ROOM",
+      { firstPlayerId: "player_1" } // 2.0: the opening die picks the first player; override for determinism
     );
     expect(state.firstPlayerId).toBe("player_1");
     expect(state.activePlayerId).toBe("player_1");
@@ -105,7 +106,8 @@ describe("createInitialGameState — firstPlayerId", () => {
         { playerId: "player_2", name: "Bob", deckId: "DUO_GANDOE_MICHELLE" },
         { playerId: "player_1", name: "Alice", deckId: "DUO_WEST_CLESS" },
       ],
-      "TEST_ROOM"
+      "TEST_ROOM",
+      { firstPlayerId: "player_2" } // 2.0: the opening die picks the first player; override for determinism
     );
     expect(state.firstPlayerId).toBe("player_2");
   });

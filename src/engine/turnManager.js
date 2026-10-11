@@ -3,6 +3,7 @@
 // The UI calls these functions; they return the updated game state.
 
 import { drawCards, shuffleDeck, rollDie } from './deckEngine.js';
+import { getNextPlayerId } from './turn/getNextPlayerId.js';
 import { gainMP, applyStatusEffectMP, getTotalMPForPlayer } from './mpManager.js';
 import { checkVictory, markMosjeDefeated } from './victoryChecker.js';
 import { getAllPlayerIds, setActivePlace, destroyActivePlace, clearReturnedMosjesAtTurnEnd } from './gameState.js';
@@ -256,11 +257,9 @@ export function startTurn(gameState) {
   if (activePlayer.skipNextTurn === true) {
     activePlayer.skipNextTurn = false;
     console.log(`[ENGINE] startTurn: ${playerId} skips turn (deck-out penalty)`);
-    const playerIds = getAllPlayerIds(state);
-    const currentIndex = playerIds.indexOf(playerId);
-    const nextIndex = (currentIndex + 1) % playerIds.length;
-    state.activePlayerId = playerIds[nextIndex];
-    if (nextIndex === 0) {
+    const skipNext = getNextPlayerId(state, playerId);
+    state.activePlayerId = skipNext.nextPlayerId;
+    if (skipNext.wrapsRound) {
       state.turnNumber += 1;
       console.log(`[ENGINE] Round complete during skip. Turn ${state.turnNumber} begins.`);
     }
@@ -400,9 +399,20 @@ export function startTurn(gameState) {
   }
 
   // DRAW PHASE â€” draw 1 card
-  state = phaseDrawCard(state, playerId);
-  // ON_DRAW Place effects — fires if active Place has trigger 'ON_DRAW'
-  state = applyPlaceEffectsOnDraw(state, playerId, 1);
+  if (state.firstTurnDrawSkipPending) {
+    // R5: the first player skips their very first draw (the flag is one-shot).
+    const skipDraw = playerId === state.firstPlayerId;
+    delete state.firstTurnDrawSkipPending;
+    if (skipDraw) console.log(`[ENGINE] R5: ${playerId} skips the first draw`);
+    else {
+      state = phaseDrawCard(state, playerId);
+      state = applyPlaceEffectsOnDraw(state, playerId, 1);
+    }
+  } else {
+    state = phaseDrawCard(state, playerId);
+    // ON_DRAW Place effects — fires if active Place has trigger 'ON_DRAW'
+    state = applyPlaceEffectsOnDraw(state, playerId, 1);
+  }
   // Passive turn-start MP (e.g. DJ 80/20 gains 10 MP automatically)
   // Ability functions will hook into this in Phase 4.
   console.log('[ENGINE] DRAW phase complete');
@@ -561,13 +571,11 @@ export function endTurn(gameState) {
   if (state.status === 'FINISHED') return state;
 
   // Advance to next player
-  const playerIds = getAllPlayerIds(state);
-  const currentIndex = playerIds.indexOf(playerId);
-  const nextIndex = (currentIndex + 1) % playerIds.length;
-  state.activePlayerId = playerIds[nextIndex];
+  const next = getNextPlayerId(state, playerId);
+  state.activePlayerId = next.nextPlayerId;
 
-  // Increment turn number when we cycle back to the first player
-  if (nextIndex === 0) {
+  // Increment turn number when play wraps back to the first player
+  if (next.wrapsRound) {
     state.turnNumber += 1;
     console.log(`[ENGINE] Round complete. Turn ${state.turnNumber} begins.`);
   }

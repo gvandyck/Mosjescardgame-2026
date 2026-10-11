@@ -18,6 +18,7 @@ function newGame() {
       { playerId: "player_2", name: "Two", deckId: "EXAMPLE_TAKSEN" },
     ],
     "TEST",
+    { firstPlayerId: "player_1" }, // 2.0: opening die otherwise decides
   );
 }
 
