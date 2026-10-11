@@ -25,6 +25,8 @@ import { createRoom, joinRoom } from './multiplayer/roomManager.js';
 import { pushState, listenToState, stopListening, registerDisconnectLoss, cancelDisconnectHooks } from './multiplayer/syncManager.js';
 import { eventBus } from './multiplayer/eventBus.js';
 import { APP_VERSION } from './version.js';
+import { applyGainToSlot } from './engine/mp/applyGainToSlot.js';
+import { applyMpLossToSlot } from './engine/mp/applyMpLossToSlot.js';
 import {
 	onAuthStateChanged,
 	signOut,
@@ -956,7 +958,7 @@ function initGamePage() {
 		window.__testHooks = {
 			setMosjeMP(playerId, slotIndex, mp) {
 				const slot = gameState?.players?.[playerId]?.activeSlots?.[slotIndex];
-				if (slot) { slot.mp = mp; renderFromState(gameState); }
+				if (slot) { slot.mp = mp; renderFromState(gameState); } // mp-direct-ok: test hook, absolute set
 			},
 			// Make every face-down piecie/place immediately activatable THIS turn so a
 			// card test can place + activate without ending the turn (avoids the bot's
@@ -1439,7 +1441,7 @@ function initGamePage() {
 				}
 				const slotIdx = gameState.players[pid].activeSlots.findIndex(s => s && !s.isDefeated);
 				if (slotIdx >= 0) {
-					gameState.players[pid].activeSlots[slotIdx].mp += 40;
+					applyGainToSlot(gameState.players[pid].activeSlots[slotIdx], 40, { turnNumber: gameState.turnNumber });
 				}
 				log.add('gain', `${pName} — Aad Recovery: discarded ${discarded.name}, regained 40 MP`);
 				recoveryHappened = true;
@@ -2913,7 +2915,7 @@ function initGamePage() {
 					{ id: '40', label: '40 MP' },
 					{ id: '60', label: '60 MP' },
 					{ id: '80', label: '80 MP' },
-					{ id: '100', label: '100 MP' },
+					{ id: '95', label: '95 MP' },
 				],
 				allowCancel: false,
 			});
@@ -2921,7 +2923,7 @@ function initGamePage() {
 			const slot = gameState.players[mpPlayerId].activeSlots[mpSlotIndex];
 			const delta = mpValue - slot.mp;
 			slot._mpAdjustDelta = delta;
-			slot.mp = mpValue;
+			slot.mp = mpValue; // mp-direct-ok: MP Adjuster absolute set (on-grid options, < 100), reverted next turn start
 			delete gameState._mpAdjusterPending;
 			console.log('[UI] MP Adjuster: set to', mpValue, 'MP (delta', delta, ', reverts next turn start)');
 		}
@@ -2953,10 +2955,10 @@ function initGamePage() {
 				const [pid, sidx] = allSlots[0].id.split('_slot_').map((v, i) => i === 1 ? Number(v) : v);
 				const slot = gameState.players[pid].activeSlots[sidx];
 				if (String(slot.cardId).startsWith('mosje_binti')) {
-					slot.mp += 60;
+					applyGainToSlot(slot, 60, { turnNumber: gameState.turnNumber });
 					log.add('gain', `Varkenspootjes: Binti loves it! +60 MP.`);
 				} else {
-					slot.mp = Math.max(0, slot.mp - 30);
+					applyMpLossToSlot({ state: gameState, playerId: pid, slot, amount: 30, source: 'PIECIE' });
 					log.add('loss', `Varkenspootjes: ${slot.name} hates the taste — -30 MP.`);
 				}
 			} else if (allSlots.length > 1) {
@@ -2973,10 +2975,10 @@ function initGamePage() {
 					const slot = gameState.players[targetPid].activeSlots[targetIdx];
 					if (slot) {
 						if (String(slot.cardId).startsWith('mosje_binti')) {
-							slot.mp += 60;
+							applyGainToSlot(slot, 60, { turnNumber: gameState.turnNumber });
 							log.add('gain', `Varkenspootjes: Binti loves it! +60 MP.`);
 						} else {
-							slot.mp = Math.max(0, slot.mp - 30);
+							applyMpLossToSlot({ state: gameState, playerId: targetPid, slot, amount: 30, source: 'PIECIE' });
 							log.add('loss', `Varkenspootjes: ${slot.name} hates the taste — -30 MP.`);
 						}
 					}

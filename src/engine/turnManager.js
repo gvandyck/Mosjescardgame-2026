@@ -18,6 +18,8 @@ import { SNELLE_PIECIES } from '../data/snellePiecies.js';
 import { QUESTS } from '../data/quests.js';
 import { toGraveyardEntry } from './graveyardUtils.js';
 import { createMosjeSlot } from './mp/createMosjeSlot.js';
+import { applyGainToSlot } from './mp/applyGainToSlot.js';
+import { roundToFive } from './roundToFive.js';
 import { gainEnergy } from './energy/gainEnergy.js';
 import { checkWin } from './winLose/checkWin.js';
 import { payEnergy } from './energy/payEnergy.js';
@@ -330,7 +332,8 @@ export function startTurn(gameState) {
       }
       // MP Adjuster: reverse the temporary delta applied last turn
       if (slot._mpAdjustDelta !== undefined) {
-        slot.mp = Math.max(0, slot.mp - slot._mpAdjustDelta);
+        // Restore of a temporary absolute set: floor 0, on the 5-grid, never levels or getemts.
+        slot.mp = roundToFive(Math.max(0, slot.mp - slot._mpAdjustDelta)); // mp-direct-ok: reverting a temporary MP Adjuster set
         console.log(`[ENGINE] MP Adjuster: reverted ${slot._mpAdjustDelta} MP delta for ${playerId}`);
         delete slot._mpAdjustDelta;
       }
@@ -547,8 +550,8 @@ export function endTurn(gameState) {
     const b = state.players[rec.oppId]?.activeSlots?.[rec.oppSlotIndex];
     if (a && b) {
       const tmp = a.mp;
-      a.mp = b.mp;
-      b.mp = tmp;
+      a.mp = b.mp; // mp-direct-ok: Leipe Swap exchanges two existing on-grid values, no gain or loss
+      b.mp = tmp; // mp-direct-ok: Leipe Swap swap-back
       console.log('[PIECIE] Leipe Swap: end-of-turn swap-back');
     }
     delete state._leipeSwap;
@@ -979,7 +982,7 @@ export function activatePiecie(gameState, playerId, slotIndex) {
     delete state._snelleFlags.negateNextAttack[oppId];
     const oppPlayer = state.players[oppId];
     const si = oppPlayer.activeSlots.findIndex(s => s && !s.isDefeated);
-    if (si >= 0) oppPlayer.activeSlots[si].mp += 15;
+    if (si >= 0) applyGainToSlot(oppPlayer.activeSlots[si], 15, { turnNumber: state.turnNumber });
     console.log('[ENGINE] Perfect Dodge negated ATTACK + granted 15 MP to opponent');
     player.graveyard.push(toGraveyardEntry(slotCardId, 'played'));
     player.piecieSlots[safeSlotIndex] = null;

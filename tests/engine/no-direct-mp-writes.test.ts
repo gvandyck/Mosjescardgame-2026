@@ -3,15 +3,24 @@
 // inline `mp-direct-ok: <reason>` marker (absolute sets, Leipe Swap, V4 clamps).
 // 54-14 added the ability/Quest/Snelle files; 54-15 extends FUNNELLED_FILES.
 import { describe, expect, it } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
+// 54-15: every MP-writing file outside the funnel modules (src/engine/mp/**, mpManager.js).
+function listJs(dir: string): string[] {
+  const abs = join(__dirname, '..', '..', dir);
+  return readdirSync(abs, { withFileTypes: true }).flatMap((e) =>
+    e.isDirectory() ? listJs(`${dir}/${e.name}`) : e.name.endsWith('.js') ? [`${dir}/${e.name}`] : [],
+  );
+}
+
 const FUNNELLED_FILES = [
-  'src/abilities/piecieEffects.js',
-  'src/abilities/mosjeAbilities.js',
-  'src/abilities/questLogic.js',
-  'src/abilities/snelleEffects.js',
-  'src/abilities/placeEffects.js',
+  ...listJs('src/abilities'),
+  ...listJs('src/bot'),
+  'src/engine/turnManager.js',
+  'src/engine/gameState.js',
+  'src/engine/victoryChecker.js',
+  'src/main.js',
 ];
 
 const PATTERNS = [/\.mp\s*[+-]=/, /\.mp\s*=\s*[^=;]*\.mp\b/];

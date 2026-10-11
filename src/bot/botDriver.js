@@ -42,6 +42,8 @@ import { assessQuestRisk, classifyLossSeverity, getRequiredConfidence } from './
 import { rollBotQuestDice } from './strategy/rollBotQuestDice.js';
 import { getCardTags } from './strategy/comboTags.js';
 import { canMosjeAct } from '../engine/mp/canMosjeAct.js';
+import { applyGainToSlot } from '../engine/mp/applyGainToSlot.js';
+import { applyMpLossToSlot } from '../engine/mp/applyMpLossToSlot.js';
 import { getAbilityTiming } from './strategy/abilityTiming.js';
 import { emitBotMetric } from './strategy/emitBotMetric.js';
 
@@ -107,10 +109,10 @@ function resolveBotVarkenspootjesPending(state, botPlayerId) {
 
   const slot = state.players[targetPid].activeSlots[targetIdx];
   if (String(slot.cardId).startsWith('mosje_binti')) {
-    slot.mp += 60;
+    applyGainToSlot(slot, 60, { turnNumber: state.turnNumber });
     console.log(`[BOT] Varkenspootjes resolved: Binti +60 MP`);
   } else {
-    slot.mp = Math.max(0, slot.mp - 30);
+    applyMpLossToSlot({ state, playerId: targetPid, slot, amount: 30, source: 'PIECIE' });
     console.log(`[BOT] Varkenspootjes resolved: ${slot.name} -30 MP`);
   }
   return state;
