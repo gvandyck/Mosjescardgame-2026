@@ -3603,7 +3603,7 @@ function summarizeStateOutcome(beforeState, afterState, actorId) {
 				lines.push(`${prefix} ${a.name || a.cardId}: ${sign}${delta} MP (now ${afterMp}).`);
 			}
 
-			if ((b.level || 0) !== (a.level || 0)) {
+			if ((b.level || 1) !== (a.level || 1)) {
 				const beforeLevel = b.level || 1;
 				const afterLevel = a.level || 1;
 				lines.push(`${prefix} ${a.name || a.cardId}: level ${beforeLevel} -> ${afterLevel}.`);

@@ -87,7 +87,7 @@ function collectEffects(beforeState, afterState, options = {}) {
 			if (!slot || !prev || slot.cardId !== prev.cardId) return;
 			const sub = shortName(slot);
 			const delta = Number(slot.mp || 0) - Number(prev.mp || 0);
-			if (delta !== 0 && !(Number(slot.level || 0) > Number(prev.level || 0))) {
+			if (delta !== 0 && !(Number(slot.level || 1) > Number(prev.level || 1))) {
 				effects.push(delta > 0
 					? { text: `${gainIcon(options.actionLabel)} +${delta} MP`, kind: 'gain', sub: gainSub(options.actionLabel, sub) }
 					: { text: `⚔ −${Math.abs(delta)} MP`, kind: 'loss', sub });
@@ -363,7 +363,7 @@ function animateMosjeDeltas(beforeState, afterState, options = {}) {
 				return;
 			}
 
-			const levelIncreased = Number(afterSlot.level || 0) > Number(beforeSlot.level || 0);
+			const levelIncreased = Number(afterSlot.level || 1) > Number(beforeSlot.level || 1);
 			const mpDelta = Number(afterSlot.mp || 0) - Number(beforeSlot.mp || 0);
 			const isLevelReset = levelIncreased && mpDelta < 0;
 			if (mpDelta !== 0 && !isLevelReset) {

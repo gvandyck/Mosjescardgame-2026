@@ -202,7 +202,7 @@ export function initModalManager(container) {
 	function renderDiceMosje(mosje, rollTrait) {
 		if (!mosje) return '';
 		const name = mosje.name || mosje.cardId || 'Mosje';
-		const lvl = Number(mosje.level || 0);
+		const lvl = Number(mosje.level || 1);
 		const mp = Number(mosje.mp || 0);
 		const trait = String(rollTrait || '').toLowerCase();
 		const chips = Object.entries(mosje.traits || {})

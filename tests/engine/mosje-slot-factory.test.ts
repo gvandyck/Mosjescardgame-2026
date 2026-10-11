@@ -30,7 +30,7 @@ describe("createMosjeSlot", () => {
     expect(s.traits).toEqual(def.levels[1].traits);
   });
   it("clamps level into 1..3", () => {
-    expect(createMosjeSlot(def, { level: 0 }).level).toBe(1);
+    expect(createMosjeSlot(def, { level: 0 }).level).toBe(1); // level0-ok: Level 0 input is normalised to 1
     expect(createMosjeSlot(def, { level: 7 }).level).toBe(3);
   });
   it("floors mp at 0 and rounds to the 5-grid", () => {
