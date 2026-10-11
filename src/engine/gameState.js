@@ -8,6 +8,10 @@ import { QUESTS } from '../data/quests.js';
 import { shuffleDeck, buildDeck } from './deckEngine.js';
 import { ENERGY_START } from './energy/energyRules.js';
 import { createMosjeSlot } from './mp/createMosjeSlot.js';
+import { OPENING_HAND_SIZE } from './setup/setupRules.js';
+import { rollOpeningDice } from './setup/rollOpeningDice.js';
+import { pickStartingMosje } from './setup/pickStartingMosje.js';
+import { buildQuestStacks } from './setup/buildQuestStacks.js';
 
 console.log('[ENGINE] gameState.js loaded');
 
@@ -21,7 +25,7 @@ console.log('[ENGINE] gameState.js loaded');
 //
 // Returns the full initial game state object.
 // ─────────────────────────────────────────────────────────────
-export function createInitialGameState(playerConfigs, roomCode) {
+export function createInitialGameState(playerConfigs, roomCode, options = {}) {
   console.log('[ENGINE] Creating initial game state for room:', roomCode);
 
   // Build the shared General Quest deck (shuffle all GENERAL quests)
@@ -35,21 +39,35 @@ export function createInitialGameState(playerConfigs, roomCode) {
     players[config.playerId] = createPlayerState(config);
   }
 
+  // Opening die: highest goes first (ties reroll); firstPlayerId option skips the roll.
+  let firstPlayerId = options.firstPlayerId;
+  let openingRolls = [];
+  if (!firstPlayerId) {
+    const result = rollOpeningDice(playerConfigs.map(c => c.playerId), options.roll);
+    firstPlayerId = result.firstPlayerId;
+    openingRolls = result.rolls;
+  }
+
   return {
     roomCode,
     status: 'PLAYING',
     turnNumber: 1,
-    activePlayerId: playerConfigs[0].playerId,
+    activePlayerId: firstPlayerId,
     // Fixed for the whole game — turnNumber is a ROUND counter (increments
     // only when play wraps back to the first player), so turnNumber===1 is
     // true for BOTH players' opening turns. This field is how
     // canAttemptGeneralQuest tells P1's literal first turn apart from P2's.
-    firstPlayerId: playerConfigs[0].playerId,
+    firstPlayerId,
+    openingRolls,
+    // R5: the first player skips their first draw (consumed in startTurn).
+    firstTurnDrawSkipPending: true,
     currentPhase: 'MAIN',
     winnerId: null,
 
     // Shared zones
-    sharedGeneralQuestDeck,
+    // 2.0 typed Quest stacks (Phase 56 resolves them)
+    questStacks: buildQuestStacks(QUESTS),
+    sharedGeneralQuestDeck, // KNOWN GAP (fix in Phase 56)
     sharedGeneralQuestDiscard: [],
     activePlace: null,           // string card id e.g. 'place_the_gym', or null
     activePlacePlayedBy: null,   // playerId who played the current Place
@@ -73,18 +91,18 @@ function createPlayerState(config) {
   const deckDef = config.deckDef || STARTER_DECKS.find(d => d.id === config.deckId);
   if (!deckDef) throw new Error(`[ENGINE] Unknown deckId: ${config.deckId}`);
 
-  const starterMosjeId = pickRandomMosjeId(deckDef.mosjes || []);
+  const starterMosjeId = pickStartingMosje(deckDef);
   const starterMosjeData = MOSJES.find(m => m.id === starterMosjeId);
   if (!starterMosjeData) throw new Error(`[ENGINE] Unknown starter mosjeId: ${starterMosjeId}`);
 
-  // Start with exactly one random Mosje on field; second slot remains empty.
+  // Starting Mosje goes on the field free and fresh; second slot remains empty.
   const activeSlots = [createMosjeSlot(starterMosjeData), null];
 
   // Build personal draw deck, including non-starting Mosjes from the chosen deck.
-  const deck = buildDeck(deckDef, { excludeCardIds: [starterMosjeId] });
+  const deck = removeOneCopy(buildDeck(deckDef), starterMosjeId);
 
-  // Draw opening hand of 6 cards (players draw 1 more on their first turn = 7 in hand during play)
-  const hand = deck.splice(0, 6);
+  // 2.0: 3-card opening hand (R5: the first player skips their first draw)
+  const hand = deck.splice(0, OPENING_HAND_SIZE);
 
   return {
     playerId: config.playerId,
@@ -124,13 +142,11 @@ function createPlayerState(config) {
   };
 }
 
-function pickRandomMosjeId(mosjeIds) {
-  const pool = Array.isArray(mosjeIds) ? mosjeIds.filter(Boolean) : [];
-  if (pool.length === 0) {
-    throw new Error('[ENGINE] Starter deck has no Mosjes');
-  }
-  const index = Math.floor(Math.random() * pool.length);
-  return pool[index];
+// Remove exactly ONE copy of the starting Mosje (handoff §2c).
+function removeOneCopy(deck, cardId) {
+  const idx = deck.findIndex(c => c.cardId === cardId);
+  if (idx >= 0) deck.splice(idx, 1);
+  return deck;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -162,7 +178,7 @@ export function getOpponentIds(gameState, playerId) {
 // initializeGame
 // Called once after createInitialGameState to deal starting hands.
 // Currently a verification/logging function since createInitialGameState
-// already deals 6 cards. Can be called for explicit initialization.
+// already deals the opening hand. Can be called for explicit initialization.
 // ─────────────────────────────────────────────────────────────
 export function initializeGame(gameState, starterDeckConfigs = null) {
   console.log('[ENGINE] Initializing game');
@@ -189,8 +205,9 @@ export function initializeGame(gameState, starterDeckConfigs = null) {
       const starterOnField = (existing.activeSlots || [])
         .filter(slot => slot && slot.cardId)
         .map(slot => slot.cardId);
-      const deck = buildDeck(cfg, { excludeCardIds: starterOnField });
-      const hand = deck.splice(0, 6);
+      let deck = buildDeck(cfg);
+      for (const id of starterOnField) deck = removeOneCopy(deck, id);
+      const hand = deck.splice(0, OPENING_HAND_SIZE);
       state.players[playerId].deck = deck;
       state.players[playerId].hand = hand;
     }
@@ -199,8 +216,8 @@ export function initializeGame(gameState, starterDeckConfigs = null) {
   for (const playerId of Object.keys(state.players)) {
     const hand = state.players[playerId].hand;
     console.log(`[ENGINE] ${playerId} hand: ${hand.length} cards | deck: ${state.players[playerId].deck.length}`);
-    if (hand.length !== 6) {
-      console.warn(`[ENGINE] Warning: expected 6 cards for ${playerId}, got ${hand.length}`);
+    if (hand.length !== OPENING_HAND_SIZE) {
+      console.warn(`[ENGINE] Warning: expected ${OPENING_HAND_SIZE} cards for ${playerId}, got ${hand.length}`);
     }
   }
 
