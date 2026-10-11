@@ -131,7 +131,17 @@ Plans:
 **Tests to add**: E10, E12, E13, E15, E16, E17, E18, E19, E20.
 **Known gap from Phase 54 (54-11)**: `attemptGeneralQuest`/`attemptPersonalQuest` don't know the acting Mosje, so sideways Mosjes are blocked from Quests only by the UI picker and bot. The new Quest and attack actions must take the acting Mosje and call `canMosjeAct` (engine-level gate + test).
 **Notes**: Use `docs/obby-2.0/tools/obby_desk_sim.py` as a reference for turn order and getemt, not as code. Old General/Personal Quest tests are rewritten or deleted here.
-**Plans**: TBD
+**Plans**: 9 plans (7 waves)
+Plans:
+- [ ] 56-01-PLAN.md — One-action gate (canMosjeAct), attackMosje by Power, attack trigger registry (E12, E10 attack side; PLAY-02)
+- [ ] 56-02-PLAN.md — Quest dice count/seeded roll, bands, stack tokens/replace/reshuffle (E15, E16, E17 unit)
+- [ ] 56-03-PLAN.md — Quest attempt: conditions, costs, +1 die rules, roll/resolve, one action (E13, E17, E18, E20; PLAY-01/03/04/05/06)
+- [ ] 56-04-PLAN.md — Quest extras: jab, named bonuses, Vraag Aad, Cheat code, Debug System, Parkeren Delft, Form Alliance (E19; PLAY-07)
+- [ ] 56-05-PLAN.md — Bot: per-Mosje attack-or-Quest by expected MP swing, V4 quest-risk helpers replaced
+- [ ] 56-06-PLAN.md — UI: 3 face-up Quests panel, Attack / Quest flows on existing modals, V4 Quest UI removed, test hooks
+- [ ] 56-07-PLAN.md — resolveQuest consumers moved to the 2.0 attempt; resolveQuest deleted
+- [ ] 56-08-PLAN.md — Rest of V4 Quest system deleted (shared deck, Personal, thresholds) + static guard
+- [ ] 56-09-PLAN.md — Playwright headless: attack-and-quest-2-0 spec, 55-07 Quest fixmes re-enabled, specs off V4 UI, phase gate
 
 ### Phase 57: Piecies, Snelle, Places and Reaction Windows
 **Goal**: Piecies, Snelle, Places and the Welloe pile follow the 2.0 table rules, and the engine pauses to offer reaction Snelle at the right moments.
