@@ -141,6 +141,9 @@ describe("Gandoe <-> Michelle synergy", () => {
     const michelle = result.players.player_1.activeSlots[1];
 
     expect(michelle.level).toBe(2);
-    expect(michelle.mp).toBe(65); // 2.0: no carry-over past the level-up
+    // KNOWN GAP (fix in Phase 58, Michelle's Tough Gamble rewrite): V4 wiring applies the
+    // doubled reward as two separate gains (65 levels her up and resets to 0, then +65).
+    // 2.0 rule: the doubled reward is ONE gain of 130 -> Level 2 at 0 MP. Change to 0 then.
+    expect(michelle.mp).toBe(65);
   });
 });

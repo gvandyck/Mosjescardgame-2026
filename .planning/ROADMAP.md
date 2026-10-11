@@ -149,6 +149,7 @@ Plans:
   4. The Tactician sets a Mosje's MP to 10–75 until end of turn, then snaps back to the real MP plus that turn's changes; getemt during the turn works normally.
   5. Engine tests E1–E30 all pass in `npm test`.
 **Tests to add**: E26; card-test-library entries for all 32 Mosjes (Example Deck Mosjes first); §6b chain and Synergy Chamber edge cases.
+**Known gap from Phase 54 (54-07)**: Michelle's Tough Gamble double is applied as two gains, so 40 + 65×2 ends at Level 2 / 65 MP; under 2.0 it must be one gain → Level 2 / 0 MP. Fix the wiring and the assertion in `tests/engine/gandoe-michelle-synergy.test.ts`.
 **Notes**: Synergy texts keep the test-guarded "While <partner> is also on your field:" convention; re-wire `synergyResolver` (and turnManager/questLogic hooks) to the 2.0 pairs.
 **Plans**: TBD
 
