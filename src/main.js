@@ -879,18 +879,14 @@ function initGamePage() {
 			case 'LEVEL_3': {
 				const champ = (winner?.activeSlots || []).find(s => s && s.level >= 3);
 				const who = champ?.name || `${winnerName}'s Mosje`;
-				return `Level 3 — ${who} maxed out and won the game.`;
+				return `${who} held Level 3 until their turn — victory!`;
 			}
 			case 'KNOCKOUT': {
 				const lastDefeated = [...(opponent?.welloePile || [])].reverse()
 					.find(c => c?.type === 'MOSJE');
 				const tail = lastDefeated?.name ? ` (last to fall: ${lastDefeated.name})` : '';
-				return `Knockout — all of ${opponentName}'s Mosjes were defeated${tail}.`;
+				return `${opponentName} has no Mosje left outside the Welloe pile${tail}.`;
 			}
-			case 'QUEST_MASTER':
-				return `Quest Master — ${winnerName} completed 7 Quests.`;
-			case 'MOMENTUM_DOMINATION':
-				return `Momentum Domination — ${winnerName} held 250+ total MP at turn start.`;
 			default:
 				return String(gs.winReason || 'Game over');
 		}

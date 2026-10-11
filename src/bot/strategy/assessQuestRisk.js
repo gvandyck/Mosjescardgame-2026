@@ -90,7 +90,9 @@ export function assessQuestRisk({ questDef, mosje, slotIndex, gameState, playerI
 		+ (gameState?.players?.[playerId]?.questBonusMP || 0)
 		+ getPartnerSynergyQuestBonus(gameState, playerId, questDef?.category, mosje.cardId);
 	const levelsUp = mpAtRoll + successMP >= 100;
-	const winsGame = levelsUp && (mosje.level || 1) >= 2;
+	// Obby 2.0: reaching Level 3 never wins on the spot (you must hold it to your next
+	// turn), so a Quest never 'wins the game'. Phase 61 (BOT-01 'protect a Level 3') adds the real signal.
+	const winsGame = false;
 	if (odds.autoSuccess) {
 		return { ...base, attempt: true, reason: 'auto-success', pSuccess: 1, levelsUp, winsGame };
 	}

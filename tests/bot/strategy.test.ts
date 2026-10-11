@@ -367,4 +367,14 @@ describe('getRequiredConfidence', () => {
     expect(levels).toBeLessThan(plain);
     expect(wins).toBeLessThan(levels);
   });
+
+  it('Obby 2.0: a Quest that levels a Mosje to Level 3 is never flagged as winning the game', () => {
+    const mosje = makeMosje({ mp: 95, level: 2 });
+    const d = assessQuestRisk({
+      questDef: ARM_WRESTLING, mosje, slotIndex: 0,
+      gameState: makeState({ activeSlots: [mosje] }), playerId: 'player_2', profile: DEFAULT_BOT_PROFILE,
+    });
+    expect(d.levelsUp).toBe(true);
+    expect(d.winsGame).toBe(false);
+  });
 });
