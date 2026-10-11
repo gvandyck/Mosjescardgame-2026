@@ -88,7 +88,7 @@ Plans:
 - [x] 54-07-PLAN.md — Gain pipeline: level-up resets to 0, L3 cap 95, getPower, 2.0 normaliser, allowLevelUp deleted (E3, E7b, E14, E27 gain)
 - [x] 54-08-PLAN.md — Engine-test fixtures to Level 1 + no-Level-0 guard
 - [x] 54-09-PLAN.md — One-loss pipeline in §2g order (registrable steps, Stabilizer after reducers, reduced-to-0 = no loss)
-- [ ] 54-10-PLAN.md — Getemt (L2-3 -> -1 @50, L1 sideways, again -> Welloe pile), separate Welloe pile, Reborn/Call re-pointed (E4, E6)
+- [x] 54-10-PLAN.md — Getemt (L2-3 -> -1 @50, L1 sideways, again -> Welloe pile), separate Welloe pile, Reborn/Call re-pointed (E4, E6)
 - [ ] 54-11-PLAN.md — Sideways lifecycle per Mosje (skip owner's next turn, stand up at its end), UI/bot gates (E5)
 - [ ] 54-12-PLAN.md — Hold-Level-3 win at turn start, no-Mosje-left loss (field+hand+deck), V4 wins removed (E7, E8; RULE-04 complete)
 - [ ] 54-13-PLAN.md — Funnel Piecie effect MP writes + static funnel guard
