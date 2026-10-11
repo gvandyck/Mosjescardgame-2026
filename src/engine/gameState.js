@@ -7,6 +7,7 @@ import { STARTER_DECKS } from '../data/starterDecks.js';
 import { QUESTS } from '../data/quests.js';
 import { shuffleDeck, buildDeck } from './deckEngine.js';
 import { ENERGY_START } from './energy/energyRules.js';
+import { createMosjeSlot } from './mp/createMosjeSlot.js';
 
 console.log('[ENGINE] gameState.js loaded');
 
@@ -120,37 +121,6 @@ function createPlayerState(config) {
     mpAmplifierActive: false,         // 50% bonus on next MP gain (mp_amplifier piecie)
     chainReactionActive: false,       // free second piecie this turn
     opponentHandPeeked: false,        // stookerino / fps_west peek flag
-  };
-}
-
-// ─────────────────────────────────────────────────────────────
-// createMosjeSlot — wraps a Mosje card definition into a live
-// field slot that tracks its current MP and level.
-// ─────────────────────────────────────────────────────────────
-function createMosjeSlot(mosjeData) {
-  // Rule: starting MP of 1–9 rounds UP to 10
-  let mp = mosjeData.startMP;
-  if (mp > 0 && mp < 10) mp = 10;
-
-  console.log('[ENGINE] Placing Mosje on field:', mosjeData.name, '| starting MP:', mp);
-
-  return {
-    cardId: mosjeData.id,
-    name: mosjeData.name,
-    subtype: mosjeData.subtype || 'UNKNOWN',
-    traits: { ...mosjeData.traits },
-    mp,
-    level: 0,               // 0, 1, 2 — reach 3 to win
-    isDefeated: false,
-    statusEffects: [],      // e.g. [{ type: 'MP_LOSS_PER_TURN', value: 10, turnsLeft: 4 }]
-    abilityUsedThisTurn: false,
-    immuneThisTurn: false,
-    mpLostThisTurn: 0,
-    // U8 — Entry Protection: a Mosje that enters play cannot be targeted or
-    // harmed by opponents until its owner's next turn starts (cleared in
-    // startTurn). Game-start Mosjes get it here; played/summoned Mosjes get
-    // it via createMosjeSlotFromDefinition in turnManager.js.
-    entryProtected: true,
   };
 }
 

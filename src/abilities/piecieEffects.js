@@ -7,6 +7,7 @@ import { hasFoodDoubleSynergy } from '../engine/synergyResolver.js';
 import { destroyActivePlace } from '../engine/gameState.js';
 import { triggerPlaceDestroyedEffects } from './placeEffects.js';
 import { MOSJES } from '../data/mosjes.js';
+import { createMosjeSlot } from '../engine/mp/createMosjeSlot.js';
 import { PIECIES } from '../data/piecies.js';
 import { getGraveyardByType, addToGraveyard } from '../engine/graveyardUtils.js';
 
@@ -136,7 +137,6 @@ export function effect_ronald_kip(gameState, playerId) {
 	const si = getFirstActiveSlotIndex(player);
 	if (si < 0) return state;
 	const mosje = player.activeSlots[si];
-	if (mosje.level < 2) { console.log('[ABILITY] Ronald Kip: level 2 required'); return state; }
 	const hasRonald = player.activeSlots.some(s => s && !s.isDefeated && s.cardId === 'mosje_ronald_chef');
 	const base = hasFoodDoubleSynergy(state, playerId) ? 100 : (hasRonald ? 60 : 50);
 	applyMPGain(player, si, base, state, playerId);
@@ -271,9 +271,7 @@ export function effect_super_saiyan_mos(gameState, playerId) {
 	const player = state.players[playerId];
 	if (!player) return state;
 	const si = getFirstActiveSlotIndex(player);
-	if (si < 0 || player.activeSlots[si].level < 1) {
-		console.log('[ABILITY] Super Saiyan Mos: level 1 required'); return state;
-	}
+	if (si < 0) return state;
 	player.questBonusMP = (player.questBonusMP || 0) + 25;
 	console.log('[ABILITY] Super Saiyan Mos: next quest drains +25 from opponent');
 	return state;
@@ -607,12 +605,20 @@ export function effect_mosje_reborn(gameState, playerId) {
 	const [revived] = player.graveyard.splice(reviveIdx, 1);
 	const mosjeDef = MOSJES.find(m => m.id === revived.cardId);
 	const startMP = mosjeDef?.startMP ?? 0;
-	revived.isDefeated = false;
-	revived.mp = startMP + 40;
-	revived.abilityUsedThisTurn = false;
-	revived.immuneThisTurn = false;
-	revived.mpLostThisTurn = 0;
-	player.activeSlots[emptySlot] = revived;
+	if (mosjeDef) {
+		// Revived at Level 1 through the single slot factory (Card List: "at Level 1")
+		const slot = createMosjeSlot(mosjeDef, { level: 1, mp: startMP + 40 });
+		player.activeSlots[emptySlot] = slot;
+		revived.mp = slot.mp;
+	} else {
+		revived.isDefeated = false;
+		revived.mp = startMP + 40;
+		revived.level = 1;
+		revived.abilityUsedThisTurn = false;
+		revived.immuneThisTurn = false;
+		revived.mpLostThisTurn = 0;
+		player.activeSlots[emptySlot] = revived;
+	}
 	console.log(`[ABILITY] Mosje Reborn: revived ${revived.name} at ${revived.mp} MP (${startMP} base + 40)`);
 	return state;
 }

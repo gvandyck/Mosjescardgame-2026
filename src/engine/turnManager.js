@@ -17,6 +17,7 @@ import { PLACES } from '../data/places.js';
 import { SNELLE_PIECIES } from '../data/snellePiecies.js';
 import { QUESTS } from '../data/quests.js';
 import { toGraveyardEntry } from './graveyardUtils.js';
+import { createMosjeSlot } from './mp/createMosjeSlot.js';
 import { gainEnergy } from './energy/gainEnergy.js';
 import { payEnergy } from './energy/payEnergy.js';
 import { canPay } from './energy/canPay.js';
@@ -1167,10 +1168,8 @@ export function confirmCallOfWelloes(gameState, playerId, mosjeCardId) {
 
   const [record] = player.graveyard.splice(gIdx, 1);
   const mosjeDef = MOSJES.find(m => m.id === record.cardId);
-  const slot = mosjeDef ? createMosjeSlotFromDefinition(mosjeDef) : { ...record };
   // Fresh summon at Level 1, 50 MP — NOT restored from welloe record (D-05/D-06)
-  slot.mp = 50;
-  slot.level = 1;
+  const slot = mosjeDef ? createMosjeSlot(mosjeDef, { level: 1, mp: 50 }) : { ...record, mp: 50, level: 1 };
   slot.entryProtected = true; // U8 — also on the raw-record fallback path
   // traits and statusEffects are not restored — fresh summon per D-05/D-06
   slot.summonedByPiecie = 'piecie_call_of_welloes';
@@ -1217,9 +1216,10 @@ export function playMosje(gameState, playerId, cardRef) {
   }
 
   const saved = removed.savedState || {};
-  const slot = createMosjeSlotFromDefinition(mosjeDef);
-  if (typeof saved.mp === 'number') slot.mp = saved.mp;
-  if (typeof saved.level === 'number') slot.level = saved.level;
+  const slot = createMosjeSlot(mosjeDef, {
+    level: typeof saved.level === 'number' ? saved.level : 1,
+    mp: typeof saved.mp === 'number' ? saved.mp : undefined,
+  });
   if (saved.traits && typeof saved.traits === 'object') slot.traits = { ...saved.traits };
   if (Array.isArray(saved.statusEffects)) slot.statusEffects = [...saved.statusEffects];
   if (typeof saved.abilityUsedThisTurn === 'boolean') slot.abilityUsedThisTurn = saved.abilityUsedThisTurn;
@@ -1228,28 +1228,6 @@ export function playMosje(gameState, playerId, cardRef) {
 
   state = checkVictory(state);
   return { state, success: true, slotIndex: openSlotIndex };
-}
-
-function createMosjeSlotFromDefinition(mosjeDef) {
-  let mp = Number(mosjeDef.startMP || 0);
-  if (mp > 0 && mp < 10) mp = 10;
-  return {
-    cardId: mosjeDef.id,
-    name: mosjeDef.name,
-    subtype: mosjeDef.subtype,
-    traits: { ...(mosjeDef.traits || {}) },
-    mp,
-    level: 0,
-    isDefeated: false,
-    statusEffects: [],
-    abilityUsedThisTurn: false,
-    immuneThisTurn: false,
-    mpLostThisTurn: 0,
-    // U8 — Entry Protection: fresh Mosjes (played from hand, summoned or
-    // revived) are safe from opponent effects until their owner's next turn
-    // starts (cleared in startTurn).
-    entryProtected: true,
-  };
 }
 
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
