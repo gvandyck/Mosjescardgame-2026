@@ -19,15 +19,24 @@ import { seedOfflineSession, waitForBoard, GAME_URL_TEST, ss } from './helpers.j
 
 const getState = (page) => page.evaluate(() => window.__testHooks?.getGameState() ?? null);
 
-async function waitForHumanControl(page, timeout) {
+async function waitForHumanControl(page, timeout, minTurn = 0) {
+	// minTurn guards a headless race: right after End Turn the button is still enabled for a moment.
 	// Control is genuinely back with the human only when BOTH: it's player_1's turn
 	// AND the End Turn button is enabled. (Pre-fix the button re-enabled while it was
 	// still the bot's turn — so we must check activePlayerId too, not just the button.)
-	await page.waitForFunction(() => {
+	await page.waitForFunction((minTurn) => {
 		const gs = window.__testHooks?.getGameState();
 		const btn = document.getElementById('btn-end-turn');
-		return gs && gs.activePlayerId === 'player_1' && btn && btn.disabled === false;
-	}, null, { timeout });
+		return gs && gs.turnNumber >= minTurn && gs.activePlayerId === 'player_1' && btn && btn.disabled === false;
+	}, minTurn, { timeout });
+	// Settle: the bot's last step ends its turn a moment BEFORE the human's startTurn runs
+	// (draw / deck-out). Let that finish, then confirm control is still the human's.
+	await page.waitForTimeout(1500);
+	await page.waitForFunction((m) => {
+		const gs = window.__testHooks?.getGameState();
+		const btn = document.getElementById('btn-end-turn');
+		return gs && gs.turnNumber >= m && gs.activePlayerId === 'player_1' && btn && btn.disabled === false;
+	}, minTurn, { timeout });
 }
 
 test('deck-out turn-skip does not freeze offline play (Binti vs DDR Chris)', async ({ page }) => {
@@ -63,7 +72,7 @@ test('deck-out turn-skip does not freeze offline play (Binti vs DDR Chris)', asy
 	// Turn 1 → End Turn. Bot plays turn 1, then the human's turn 2 begins: deck-out
 	// reshuffle fires and arms skipNextTurn for the human's FOLLOWING turn.
 	await page.click('#btn-end-turn');
-	await waitForHumanControl(page, 30000);
+	await waitForHumanControl(page, 30000, 2);
 
 	const armed = await getState(page);
 	expect(armed.players.player_1.skipNextTurn).toBe(true); // deck-out penalty armed
@@ -74,7 +83,7 @@ test('deck-out turn-skip does not freeze offline play (Binti vs DDR Chris)', asy
 	await page.click('#btn-end-turn');
 
 	// THE ASSERTION THAT FREEZES PRE-FIX: control must return to the human.
-	await waitForHumanControl(page, 30000);
+	await waitForHumanControl(page, 30000, turnBefore + 1);
 
 	const after = await getState(page);
 	expect(after.activePlayerId).toBe('player_1');          // human is active again

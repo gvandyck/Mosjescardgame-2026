@@ -67,10 +67,16 @@ async function playActiveTurn(page, turnIndex) {
 		await questBtn.click();
 		await page.waitForTimeout(400);
 
-		// Stage 1: payment confirm
+		// Stage 1: confirm
 		const yesBtn = page.locator('#modal-yes');
 		if (await yesBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
 			await yesBtn.click();
+			await page.waitForTimeout(300);
+		}
+		// Stage 1b: choose the Mosje that attempts the Quest (2.0 picker, no MP cost)
+		const pickBtn = page.locator('.modal-mosje-select-btn:not(:disabled)').first();
+		if (await pickBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+			await pickBtn.click();
 			await page.waitForTimeout(300);
 		}
 		// Stage 2: attempt preview
