@@ -81,7 +81,7 @@ describe("loseMP — level regression", () => {
     expect(result.players.p1.activeSlots[0].level).toBe(1);
   });
 
-  it("mpLostThisTurn accumulates raw damage amount", () => {
+  it("mpLostThisTurn accumulates the final damage amount", () => {
     const state = makeState(50, 2);
     const result = loseMP(state, "p1", 0, 30);
     expect(result.players.p1.activeSlots[0].mpLostThisTurn).toBe(30);
@@ -93,9 +93,17 @@ describe("loseMP — level regression", () => {
     expect(result.players.p1.activeSlots[0].mpLostThisTurn).toBe(20);
   });
 
-  it("totalDamageTaken accumulates raw damage", () => {
+  it("totalDamageTaken accumulates the final damage", () => {
     const state = makeState(50, 2);
     const result = loseMP(state, "p1", 0, 30);
     expect(result.players.p1.totalDamageTaken).toBe(30);
+  });
+
+  it("tracking records the FINAL amount when a reducer applies (30 halved -> 15)", () => {
+    const state = makeState(50, 2);
+    state.players.p1.activeSlots[0].statusEffects = [{ type: "MP_LOSS_HALVED", value: 1, turnsLeft: 1 }];
+    const result = loseMP(state, "p1", 0, 30);
+    expect(result.players.p1.activeSlots[0].mpLostThisTurn).toBe(15);
+    expect(result.players.p1.totalDamageTaken).toBe(15);
   });
 });

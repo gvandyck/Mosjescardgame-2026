@@ -2,23 +2,15 @@
 // Pure logic — no visuals, no Firebase.
 // All functions return an updated copy of gameState (never mutate directly).
 
-import { roundToFive } from './roundToFive.js';
 import { applyGainToSlot } from './mp/applyGainToSlot.js';
 import { normalizeSlotMp } from './mp/normalizeSlotMp.js';
+import { LOSS_STEPS } from './mp/lossSteps.js';
+import { resolveMpLoss } from './mp/resolveMpLoss.js';
 
 console.log('[ENGINE] mpManager.js loaded');
 
 function getActivePlaceId(gameState) {
   return gameState?.activePlace || gameState?.sharedPlaceSlot?.cardId || null;
-}
-
-function isCoertMosje(mosje) {
-  return String(mosje?.cardId || mosje?.mosjeId || '').toLowerCase().includes('coert');
-}
-
-function isQuestDamageSource(source) {
-  const label = String(source || '');
-  return label.startsWith('QUEST') && !label.includes('COST');
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -110,42 +102,11 @@ export function loseMP(gameState, playerId, slotIndex, amount, source = 'DRAIN',
     return gameState;
   }
 
-  let lossAmount = amount;
-
-  if (placeId === 'place_drain_zone' && source === 'DRAIN') {
-    lossAmount += 10;
-  }
-
-  // Momentum Stabilizer: cap MP loss at 30 per single effect
-  if (placeId === 'place_momentum_stabilizer') {
-    lossAmount = Math.min(lossAmount, 30);
-  }
-
   const state = deepCloneState(gameState);
   const mosje = state.players[playerId].activeSlots[slotIndex];
   if (!mosje || mosje.isDefeated) {
     console.log('[ENGINE] loseMP: no active Mosje at slot', slotIndex, 'for', playerId);
     return state;
-  }
-
-  if (placeId === 'place_zo_is_natuur' && (mosje.traits?.resilient || 0) >= 2) {
-    lossAmount = Math.min(lossAmount, 25);
-  }
-
-  if (placeId === 'place_coerts_caravan' && isCoertMosje(mosje) && isQuestDamageSource(source)) {
-    const currentTurn = state.turnNumber ?? 0;
-    const shield = mosje._coertsCaravanQuestShield || { turnNumber: currentTurn, used: 0 };
-    const usedThisTurn = shield.turnNumber === currentTurn ? shield.used || 0 : 0;
-    const remainingShield = Math.max(0, 40 - usedThisTurn);
-    const prevented = Math.min(lossAmount, remainingShield);
-    if (prevented > 0) {
-      lossAmount = Math.max(0, lossAmount - prevented);
-      mosje._coertsCaravanQuestShield = {
-        turnNumber: currentTurn,
-        used: usedThisTurn + prevented,
-      };
-      console.log(`[MP] Coert's Caravan: prevented ${prevented} Quest damage for ${mosje.name} (${40 - (usedThisTurn + prevented)} shield left this turn)`);
-    }
   }
 
   // ── Snelle Piecie interception flags ─────────────────────────────────────
@@ -173,41 +134,24 @@ export function loseMP(gameState, playerId, slotIndex, amount, source = 'DRAIN',
       const opp = state.players[oppId];
       const osi = opp.activeSlots.findIndex(s => s && !s.isDefeated);
       if (osi >= 0) {
-        opp.activeSlots[osi].mp = Math.max(0, opp.activeSlots[osi].mp - lossAmount);
-        console.log('[MP] Drain Reversal: reflected', lossAmount, 'drain to opponent');
+        opp.activeSlots[osi].mp = Math.max(0, opp.activeSlots[osi].mp - amount);
+        console.log('[MP] Drain Reversal: reflected', amount, 'drain to opponent');
       }
     }
     delete state._snelleFlags.drainReversal[playerId];
     return state;
   }
 
-  // MP_LOSS_HALVED: statusEffect pushed by Bowie & Stormey, Tony, Gekke Vogels, KatjeGang, ViannaPoes
-  const halvingEffect = mosje.statusEffects?.find(
-    e => e.type === 'MP_LOSS_HALVED' && e.turnsLeft > 0
-  );
-  if (halvingEffect) {
-    lossAmount = roundToFive(lossAmount / 2);  // game rule: MP stays on the 5-grid
-    halvingEffect.turnsLeft -= 1;
-    console.log('[MP] MP_LOSS_HALVED: loss halved to', lossAmount);
-  }
-
-  // MP_LOSS_REDUCTION: pushed by Laat me chillen (value:20), FF Haaltje Nemen (value:20/30)
-  const reductionEffect = mosje.statusEffects?.find(
-    e => e.type === 'MP_LOSS_REDUCTION' && e.turnsLeft > 0
-  );
-  if (reductionEffect) {
-    lossAmount = Math.max(0, lossAmount - reductionEffect.value);
-    reductionEffect.turnsLeft -= 1;
-    console.log('[MP] MP_LOSS_REDUCTION: loss reduced by', reductionEffect.value, '→', lossAmount);
-  }
-  // Consolidate The Protector snelle flag into same read point
-  if (snelleFlags.mpLossReduction?.[playerId]) {
-    lossAmount = Math.max(0, lossAmount - snelleFlags.mpLossReduction[playerId]);
-    console.log('[MP] Snelle Protector: loss reduced by', snelleFlags.mpLossReduction[playerId]);
-    delete state._snelleFlags.mpLossReduction[playerId];
-  }
-
   // ── End snelle interception ───────────────────────────────────────────────
+
+  // Obby 2.0 §2g loss order: base -> reductions -> Stabilizer cap -> round/floor.
+  const ctx = { state, playerId, slot: mosje, slotIndex, amount, source, placeId };
+  for (const step of LOSS_STEPS.beforeLoss) step(ctx);
+  const lossAmount = resolveMpLoss(ctx);
+  if (lossAmount <= 0) {
+    console.log('[MP] loss reduced to 0 — no loss (§2g)');
+    return state;
+  }
 
   mosje.mp -= lossAmount;
 
