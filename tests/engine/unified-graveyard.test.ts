@@ -76,12 +76,13 @@ describe('Unified graveyard — Mosje graveyard write (PLACE-REC-ENGINE-03)', ()
     };
   }
 
-  it('markMosjeDefeated pushes full slot with type:MOSJE to player.graveyard', () => {
+  it('markMosjeDefeated pushes full slot with type:MOSJE to player.welloePile (not graveyard)', () => {
     const state = makeStateWithMosje();
     const result = markMosjeDefeated(state, 'player_2', 0);
-    expect(result.players.player_2.graveyard).toContainEqual(
-      expect.objectContaining({ cardId: 'mosje_binti', type: 'MOSJE', source: 'defeated', isDefeated: true })
+    expect((result.players.player_2 as any).welloePile).toContainEqual(
+      expect.objectContaining({ cardId: 'mosje_binti', type: 'MOSJE', source: 'welloe', isDefeated: true })
     );
+    expect(result.players.player_2.graveyard).toHaveLength(0);
   });
 
   it('markMosjeDefeated does NOT write to player.welloe', () => {

@@ -7,7 +7,7 @@ const mosjeGraveyardEntry = {
   cardId: 'mosje_jeffrey',
   name: 'Jeffrey',
   type: 'MOSJE',
-  source: 'defeated',
+  source: 'welloe',
   level: 1,
   mp: 50,
   statusEffects: [] as unknown[],
@@ -15,14 +15,15 @@ const mosjeGraveyardEntry = {
   traits: {},
 };
 
-function makeState(graveyard: unknown[] = [], activeSlots: unknown[] = [null, null]) {
+function makeState(welloePile: unknown[] = [], activeSlots: unknown[] = [null, null]) {
   return {
     activePlayerId: 'player_1',
     players: {
       player_1: {
         id: 'player_1',
         hand: [] as unknown[],
-        graveyard,
+        graveyard: [] as unknown[],
+        welloePile,
         activeSlots,
         deck: [] as unknown[],
         piecieSlots: [null, null, null, null] as unknown[],
@@ -31,20 +32,20 @@ function makeState(graveyard: unknown[] = [], activeSlots: unknown[] = [null, nu
   };
 }
 
-describe('effect_mosje_reborn — reads from graveyard', () => {
-  it('revives first MOSJE entry from graveyard into empty active slot', () => {
+describe('effect_mosje_reborn — reads from the Welloe pile', () => {
+  it('revives first MOSJE entry from the Welloe pile into empty active slot', () => {
     const state = makeState([{ ...mosjeGraveyardEntry }], [null, null]);
     const result = effect_mosje_reborn(state, 'player_1');
     const slots = result.players.player_1.activeSlots as any[];
     const revived = slots.find((s: any) => s && s.cardId === 'mosje_jeffrey');
     expect(revived).toBeDefined();
     expect(revived.isDefeated).toBe(false);
-    // Graveyard entry removed
-    const remaining = (result.players.player_1.graveyard as any[]).filter((e: any) => e.type === 'MOSJE');
+    // Welloe pile entry removed
+    const remaining = ((result.players.player_1 as any).welloePile as any[]).filter((e: any) => e.type === 'MOSJE');
     expect(remaining).toHaveLength(0);
   });
 
-  it('returns state unchanged when graveyard has no MOSJE entries', () => {
+  it('returns state unchanged when the Welloe pile has no MOSJE entries', () => {
     const state = makeState([], [null, null]);
     const result = effect_mosje_reborn(state, 'player_1');
     const slots = result.players.player_1.activeSlots as any[];

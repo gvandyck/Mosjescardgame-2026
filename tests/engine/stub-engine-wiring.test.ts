@@ -191,7 +191,8 @@ describe("markMosjeDefeated — WELLOE_SHIELD status effect", () => {
     const result = markMosjeDefeated(state, "p1", 0);
     // Normal defeat: slot set to null, Mosje in graveyard
     expect(result.players.p1.activeSlots[0]).toBeNull();
-    const gravMosjes = (result.players.p1.graveyard as any[]).filter((e: any) => e.type === 'MOSJE'); expect(gravMosjes).toHaveLength(1);
+    const welloeMosjes = ((result.players.p1 as any).welloePile as any[]).filter((e: any) => e.type === 'MOSJE'); expect(welloeMosjes).toHaveLength(1); // 2.0: Welloe pile, not discard
+    expect((result.players.p1.graveyard as any[]).filter((e: any) => e.type === 'MOSJE')).toHaveLength(0);
   });
 
   it("Test 10: WELLOE_SHIELD AND negateNextElimination both set — WELLOE_SHIELD fires first", () => {

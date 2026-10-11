@@ -882,7 +882,7 @@ function initGamePage() {
 				return `Level 3 — ${who} maxed out and won the game.`;
 			}
 			case 'KNOCKOUT': {
-				const lastDefeated = [...(opponent?.graveyard || [])].reverse()
+				const lastDefeated = [...(opponent?.welloePile || [])].reverse()
 					.find(c => c?.type === 'MOSJE');
 				const tail = lastDefeated?.name ? ` (last to fall: ${lastDefeated.name})` : '';
 				return `Knockout — all of ${opponentName}'s Mosjes were defeated${tail}.`;

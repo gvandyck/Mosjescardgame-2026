@@ -54,8 +54,8 @@ export function checkVictory(gameState) {
 // ─────────────────────────────────────────────────────────────
 // applyPendingDefeats
 // Sweeps every player's active slots and defeats any Mosje flagged
-// `_pendingDefeat` (set by loseMP/applyDamage when a damaging effect
-// would push MP below 0 at Level 0). Routes each through
+// `_pendingWelloe` (getemt while sideways, set by applyGetemt) or the legacy
+// `_pendingDefeat` (still set by the 54-05 interim effect-file copies until 54-13..15). Routes each through
 // markMosjeDefeated, which honors WELLOE_SHIELD + Not Today! and
 // re-checks victory. The flag is cleared BEFORE markMosjeDefeated so
 // a shield/Not-Today save (which keeps the Mosje on field) does not
@@ -70,11 +70,12 @@ export function applyPendingDefeats(gameState) {
       const slots = state.players[pid]?.activeSlots || [];
       for (let i = 0; i < slots.length; i++) {
         const slot = slots[i];
-        if (slot && !slot.isDefeated && slot._pendingDefeat === true) {
+        if (slot && !slot.isDefeated && (slot._pendingWelloe === true || slot._pendingDefeat === true)) {
           // Clear the flag first (on a fresh clone) so a shielded/Not-Today
           // save can't loop forever on the same flagged slot.
           state = JSON.parse(JSON.stringify(state));
           delete state.players[pid].activeSlots[i]._pendingDefeat;
+          delete state.players[pid].activeSlots[i]._pendingWelloe;
           state = markMosjeDefeated(state, pid, i);
           acted = true;
           break;
@@ -190,10 +191,12 @@ export function markMosjeDefeated(gameState, playerId, slotIndex) {
     console.log('[ENGINE] Tesla: Coert defeated — Tesla destroyed, sent to graveyard');
   }
 
-  console.log(`[ENGINE] ${mosje.name} has been defeated — sent to graveyard`);
+  // Obby 2.0: a defeated Mosje goes to the separate Welloe pile (never the discard pile,
+  // never shuffled back). Decision 6: battle-log line only until the Phase 63 pile UI.
+  console.log(`[ENGINE] ${mosje.name} getemt while sideways -> Welloe pile`);
   mosje.isDefeated = true;
-  if (!Array.isArray(state.players[playerId].graveyard)) state.players[playerId].graveyard = [];
-  state.players[playerId].graveyard.push({ ...mosje, type: 'MOSJE', source: 'defeated' });
+  if (!Array.isArray(state.players[playerId].welloePile)) state.players[playerId].welloePile = [];
+  state.players[playerId].welloePile.push({ ...mosje, type: 'MOSJE', source: 'welloe' });
   state.players[playerId].activeSlots[slotIndex] = null;
 
   // Call of the Welloes: if this Mosje was summoned by the Piecie, clear the anchor link (D-17)

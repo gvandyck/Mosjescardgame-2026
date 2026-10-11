@@ -1162,11 +1162,11 @@ export function confirmCallOfWelloes(gameState, playerId, mosjeCardId) {
     player.activeSlots[rightmost] = null;
   }
   const openSlot = rightmost;
-  if (!Array.isArray(player.graveyard)) return { state, success: false, error: 'No graveyard' };
-  const gIdx = player.graveyard.findIndex(e => e.cardId === mosjeCardId && e.type === 'MOSJE');
-  if (gIdx < 0) return { state, success: false, error: 'Mosje not in graveyard' };
+  if (!Array.isArray(player.welloePile)) return { state, success: false, error: 'No Welloe pile' };
+  const gIdx = player.welloePile.findIndex(e => e.cardId === mosjeCardId && e.type === 'MOSJE');
+  if (gIdx < 0) return { state, success: false, error: 'Mosje not in Welloe pile' };
 
-  const [record] = player.graveyard.splice(gIdx, 1);
+  const [record] = player.welloePile.splice(gIdx, 1);
   const mosjeDef = MOSJES.find(m => m.id === record.cardId);
   // Fresh summon at Level 1, 50 MP — NOT restored from welloe record (D-05/D-06)
   const slot = mosjeDef ? createMosjeSlot(mosjeDef, { level: 1, mp: 50 }) : { ...record, mp: 50, level: 1 };

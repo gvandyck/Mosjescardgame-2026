@@ -9,7 +9,7 @@ import { triggerPlaceDestroyedEffects } from './placeEffects.js';
 import { MOSJES } from '../data/mosjes.js';
 import { createMosjeSlot } from '../engine/mp/createMosjeSlot.js';
 import { PIECIES } from '../data/piecies.js';
-import { getGraveyardByType, addToGraveyard } from '../engine/graveyardUtils.js';
+import { addToGraveyard } from '../engine/graveyardUtils.js';
 
 console.log('[ABILITY] piecieEffects.js loaded');
 
@@ -591,9 +591,10 @@ export function effect_mp_amplifier(gameState, playerId) {
 export function effect_mosje_reborn(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
-	const mosjesToRevive = getGraveyardByType(player, 'MOSJE');
-	if (!player || mosjesToRevive.length === 0) {
-		console.log('[ABILITY] Mosje Reborn: no defeated Mosjes in graveyard');
+	if (!player) return state;
+	const mosjesToRevive = (player.welloePile || []).filter(e => e.type === 'MOSJE');
+	if (mosjesToRevive.length === 0) {
+		console.log('[ABILITY] Mosje Reborn: no Mosjes in the Welloe pile');
 		return state;
 	}
 	const emptySlot = player.activeSlots.findIndex(s => s === null);
@@ -601,8 +602,8 @@ export function effect_mosje_reborn(gameState, playerId) {
 		console.log('[ABILITY] Mosje Reborn: no empty slot available');
 		return state;
 	}
-	const reviveIdx = player.graveyard.findIndex(e => e.type === 'MOSJE');
-	const [revived] = player.graveyard.splice(reviveIdx, 1);
+	const reviveIdx = player.welloePile.findIndex(e => e.type === 'MOSJE');
+	const [revived] = player.welloePile.splice(reviveIdx, 1);
 	const mosjeDef = MOSJES.find(m => m.id === revived.cardId);
 	const startMP = mosjeDef?.startMP ?? 0;
 	if (mosjeDef) {
@@ -867,7 +868,7 @@ export function effect_call_of_welloes(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const mosjeEntries = getGraveyardByType(player, 'MOSJE');
+	const mosjeEntries = (player.welloePile || []).filter(e => e.type === 'MOSJE');
 	if (mosjeEntries.length === 0) {
 		return { ...state, _callOfWelloesCancel: true };
 	}

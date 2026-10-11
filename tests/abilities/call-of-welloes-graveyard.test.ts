@@ -1,21 +1,22 @@
-// Phase 23 — Task 1 RED: effect_call_of_welloes + confirmCallOfWelloes read from graveyard
+// Phase 23 — effect_call_of_welloes + confirmCallOfWelloes read from the Welloe pile (54-10)
 import { describe, it, expect } from 'vitest';
 // @ts-expect-error — JS module, no type declarations
 import { effect_call_of_welloes } from '../../src/abilities/piecieEffects.js';
 // @ts-expect-error — JS module, no type declarations
 import { confirmCallOfWelloes } from '../../src/engine/turnManager.js';
 
-const mosjeEntry1 = { cardId: 'mosje_jeffrey', name: 'Jeffrey', type: 'MOSJE', source: 'defeated', level: 1, mp: 50, statusEffects: [] as unknown[], isDefeated: true, traits: {} };
-const mosjeEntry2 = { cardId: 'mosje_binti', name: 'Binti', type: 'MOSJE', source: 'defeated', level: 2, mp: 80, statusEffects: [] as unknown[], isDefeated: true, traits: {} };
+const mosjeEntry1 = { cardId: 'mosje_jeffrey', name: 'Jeffrey', type: 'MOSJE', source: 'welloe', level: 1, mp: 50, statusEffects: [] as unknown[], isDefeated: true, traits: {} };
+const mosjeEntry2 = { cardId: 'mosje_binti', name: 'Binti', type: 'MOSJE', source: 'welloe', level: 2, mp: 80, statusEffects: [] as unknown[], isDefeated: true, traits: {} };
 
-function makeState(graveyard: unknown[] = [], activeSlots: unknown[] = [null, null], piecieSlots: unknown[] = [null, null, null, null]) {
+function makeState(welloePile: unknown[] = [], activeSlots: unknown[] = [null, null], piecieSlots: unknown[] = [null, null, null, null]) {
   return {
     activePlayerId: 'player_1',
     players: {
       player_1: {
         id: 'player_1',
         hand: [] as unknown[],
-        graveyard,
+        graveyard: [] as unknown[],
+        welloePile,
         activeSlots,
         deck: [] as unknown[],
         piecieSlots,
@@ -30,8 +31,8 @@ function makeState(graveyard: unknown[] = [], activeSlots: unknown[] = [null, nu
   } as any;
 }
 
-describe('effect_call_of_welloes — reads from graveyard', () => {
-  it('sets _callOfWelloesPending with welloeOptions from graveyard MOSJE entries', () => {
+describe('effect_call_of_welloes — reads from the Welloe pile', () => {
+  it('sets _callOfWelloesPending with welloeOptions from Welloe pile MOSJE entries', () => {
     const state = makeState(
       [{ ...mosjeEntry1 }, { ...mosjeEntry2 }],
       [{ cardId: 'mosje_a', name: 'A', mp: 80, level: 1, isDefeated: false, traits: {}, statusEffects: [] }, null]
@@ -45,9 +46,9 @@ describe('effect_call_of_welloes — reads from graveyard', () => {
     expect(opts.map((o: any) => o.cardId)).toContain('mosje_binti');
   });
 
-  it('returns _callOfWelloesCancel when no MOSJE entries in graveyard', () => {
+  it('returns _callOfWelloesCancel when no MOSJE entries in the Welloe pile', () => {
     const state = makeState(
-      [{ cardId: 'piecie_foo', name: 'Foo', type: 'PIECIE', source: 'played' }],
+      [],
       [null, null]
     );
     const result = effect_call_of_welloes(state, 'player_1');
@@ -55,8 +56,8 @@ describe('effect_call_of_welloes — reads from graveyard', () => {
   });
 });
 
-describe('confirmCallOfWelloes — splices from graveyard', () => {
-  it('places Mosje in active slot and removes it from graveyard', () => {
+describe('confirmCallOfWelloes — splices from the Welloe pile', () => {
+  it('places Mosje in active slot and removes it from the Welloe pile', () => {
     const state = makeState(
       [{ ...mosjeEntry1 }],
       [{ cardId: 'mosje_a', name: 'A', mp: 80, level: 1, isDefeated: false, traits: {}, statusEffects: [], abilityUsedThisTurn: false }, null],
@@ -66,8 +67,8 @@ describe('confirmCallOfWelloes — splices from graveyard', () => {
     expect(success).toBe(true);
     const placed = (s.players.player_1.activeSlots as any[]).find((sl: any) => sl && sl.cardId === 'mosje_jeffrey');
     expect(placed).toBeDefined();
-    // Removed from graveyard
-    const gravMosjes = (s.players.player_1.graveyard as any[]).filter((e: any) => e.type === 'MOSJE');
+    // Removed from the Welloe pile
+    const gravMosjes = ((s.players.player_1 as any).welloePile as any[]).filter((e: any) => e.type === 'MOSJE');
     expect(gravMosjes).toHaveLength(0);
   });
 });

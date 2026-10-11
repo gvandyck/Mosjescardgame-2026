@@ -103,7 +103,7 @@ describe('U8 — loseMP guard', () => {
     );
     const after = loseMP(state, 'player_2', 0, 10, 'ABILITY');
     expect(after.players.player_2.activeSlots[0].mp).toBe(0);
-    expect(after.players.player_2.activeSlots[0]._pendingDefeat).toBeUndefined();
+    expect(after.players.player_2.activeSlots[0].sideways).not.toBe(true);
   });
 
   it('the same loss applies once protection is gone', () => {
@@ -113,8 +113,9 @@ describe('U8 — loseMP guard', () => {
       'player_1',
     );
     const after = loseMP(state, 'player_2', 0, 10, 'ABILITY');
-    // 0 MP - 10 → below 0 at Level 0 → pending defeat (defeat-below-0 rule)
-    expect(after.players.player_2.activeSlots[0]._pendingDefeat).toBe(true);
+    // 2.0 getemt: a real loss at 0 MP on an upright Level 1 Mosje turns it sideways
+    // (the second getemt would send it to the Welloe pile).
+    expect(after.players.player_2.activeSlots[0].sideways).toBe(true);
   });
 
   it('own-turn losses (e.g. quest failure) still apply to a protected Mosje', () => {

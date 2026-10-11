@@ -26,6 +26,7 @@ function makePlayer(overrides: Record<string, any> = {}) {
     hand: [] as any[],
     deck: [] as any[],
     graveyard: [] as any[],
+    welloePile: [] as any[],
     activeSlots: [
       {
         cardId: "mosje_self",
@@ -89,9 +90,9 @@ describe("endTurn — Call of the Welloes: defeat when Piecie is gone", () => {
     const result = endTurn(state);
     // Mosje is defeated: slot nulled
     expect(result.players.player_1.activeSlots[0]).toBeNull();
-    // Graveyard receives the defeated Mosje (type: MOSJE, isDefeated: true)
-    const graveyard = result.players.player_1.graveyard as any[];
-    const defeated = graveyard.find((e: any) => e.cardId === "mosje_test" && e.type === "MOSJE");
+    // Welloe pile receives the defeated Mosje (type: MOSJE, isDefeated: true)
+    const welloePile = (result.players.player_1 as any).welloePile as any[];
+    const defeated = welloePile.find((e: any) => e.cardId === "mosje_test" && e.type === "MOSJE");
     expect(defeated).toBeDefined();
     expect(defeated.isDefeated).toBe(true);
   });
@@ -114,8 +115,8 @@ describe("endTurn — Call of the Welloes: Mosje stays when Piecie is present", 
     const result = endTurn(state);
     expect(result.players.player_1.activeSlots[0]).not.toBeNull();
     expect(result.players.player_1.activeSlots[0]?.cardId).toBe("mosje_test");
-    const graveyard = result.players.player_1.graveyard as any[];
-    expect(graveyard.some((e: any) => e.cardId === "mosje_test" && e.type === "MOSJE")).toBe(false);
+    const welloePile = (result.players.player_1 as any).welloePile as any[];
+    expect(welloePile.some((e: any) => e.cardId === "mosje_test" && e.type === "MOSJE")).toBe(false);
   });
 });
 
@@ -152,7 +153,7 @@ describe("endTurn — piecie_call_of_welloes persistence guard", () => {
 // ─────────────────────────────────────────────────────────────
 
 describe("effect_call_of_welloes — cancel guards", () => {
-  it("F: returns _callOfWelloesCancel === true when graveyard has no MOSJE entries", () => {
+  it("F: returns _callOfWelloesCancel === true when the Welloe pile has no MOSJE entries", () => {
     const state = makeState({
       graveyard: [],
       activeSlots: [null, null],
@@ -165,7 +166,7 @@ describe("effect_call_of_welloes — cancel guards", () => {
   it("G: returns _callOfWelloesCancel === true when both activeSlots are occupied", () => {
     const occupied = { cardId: "mosje_a", name: "A", mp: 80, level: 1 };
     const state = makeState({
-      graveyard: [{ cardId: "mosje_x", name: "X", type: "MOSJE", source: "defeated", mp: 50, level: 1 }],
+      welloePile: [{ cardId: "mosje_x", name: "X", type: "MOSJE", source: "welloe", mp: 50, level: 1 }],
       activeSlots: [occupied, { ...occupied, cardId: "mosje_b" }],
     });
     const result = effect_call_of_welloes(state, "player_1");
@@ -177,7 +178,7 @@ describe("effect_call_of_welloes — cancel guards", () => {
 describe("effect_call_of_welloes — pending flag", () => {
   it("H: sets _callOfWelloesPending with playerId and welloeOptions when activatable", () => {
     const state = makeState({
-      graveyard: [{ cardId: "mosje_x", name: "X", type: "MOSJE", source: "defeated", mp: 60, level: 2 }],
+      welloePile: [{ cardId: "mosje_x", name: "X", type: "MOSJE", source: "welloe", mp: 60, level: 2 }],
       activeSlots: [{ cardId: "mosje_a", name: "A", mp: 80, level: 1 }, null],
     });
     const result = effect_call_of_welloes(state, "player_1");
@@ -193,12 +194,12 @@ describe("effect_call_of_welloes — pending flag", () => {
 });
 
 describe("confirmCallOfWelloes — summon executor", () => {
-  it("I: places Mosje in free activeSlot at Level 1, 50 MP (NOT restored stats), sets summonedByPiecie, sets linkedMosjeCardId, removes from graveyard", () => {
+  it("I: places Mosje in free activeSlot at Level 1, 50 MP (NOT restored stats), sets summonedByPiecie, sets linkedMosjeCardId, removes from Welloe pile", () => {
     const gravEntry = {
       cardId: "mosje_x",
       name: "X",
       type: "MOSJE",
-      source: "defeated",
+      source: "welloe",
       subtype: "FIGHTING",
       traits: { physical: 2 },
       mp: 60,
@@ -207,7 +208,7 @@ describe("confirmCallOfWelloes — summon executor", () => {
       isDefeated: true,
     };
     const state = makeState({
-      graveyard: [gravEntry],
+      welloePile: [gravEntry],
       activeSlots: [{ cardId: "mosje_a", name: "A", mp: 80, level: 1 }, null],
       piecieSlots: [{ cardId: "piecie_call_of_welloes", type: "PIECIE" }, null, null, null],
     });
@@ -224,9 +225,9 @@ describe("confirmCallOfWelloes — summon executor", () => {
     expect(placed.level).toBe(1);
     expect(placed.summonedByPiecie).toBe("piecie_call_of_welloes");
 
-    // Removed from graveyard
-    const graveyard = s.players.player_1.graveyard as any[];
-    expect(graveyard.some((e: any) => e.cardId === "mosje_x" && e.type === "MOSJE")).toBe(false);
+    // Removed from the Welloe pile
+    const welloePile = (s.players.player_1 as any).welloePile as any[];
+    expect(welloePile.some((e: any) => e.cardId === "mosje_x" && e.type === "MOSJE")).toBe(false);
 
     // Anchor link on piecieSlot
     const pSlot = (s.players.player_1.piecieSlots as any[]).find(
