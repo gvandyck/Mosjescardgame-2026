@@ -172,3 +172,25 @@ describe("Piecie losses (54-13)", () => {
     expect(r.state.players.player_1.welloePile).toHaveLength(0);
   });
 });
+
+// 54-14: ability and Quest losses run the pipeline and getemt.
+// @ts-expect-error — JS module, no type declarations
+import { resolveQuest } from "../../src/abilities/questLogic.js";
+// @ts-expect-error — JS module, no type declarations
+import { ability_coert_extra_resources } from "../../src/abilities/mosjeAbilities.js";
+
+describe("ability / Quest losses (54-14)", () => {
+  it("failed Quest taking an L2 Mosje to 0 -> L1 at 50", () => {
+    const quest = { id: "q", type: "QUEST", questType: "GENERAL", successMP: 20, failMP: -20 };
+    const st = resolveQuest(build(2, 20), "player_1", quest, false, 0);
+    expect([slotOf(st).level, slotOf(st).mp]).toEqual([1, 50]);
+  });
+  it("ability cost (Coert pays 10) taking an L2 Mosje at 10 to 0 -> L1 at 50 (getemt)", () => {
+    const st = ability_coert_extra_resources(build(2, 10), "player_1");
+    expect([slotOf(st).level, slotOf(st).mp]).toEqual([1, 50]);
+  });
+  it("ability cost taking a Level 1 Mosje at 10 to 0 -> sideways at 0", () => {
+    const st = ability_coert_extra_resources(build(1, 10), "player_1");
+    expect([slotOf(st).level, slotOf(st).mp, slotOf(st).sideways]).toEqual([1, 0, true]);
+  });
+});

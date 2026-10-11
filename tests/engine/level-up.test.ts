@@ -142,3 +142,48 @@ describe("Piecie gains (54-13)", () => {
     expect([s.level, s.mp]).toEqual([3, 95]);
   });
 });
+
+// 54-14: ability, Quest and Snelle gains go through applyGainToSlot (RULE-02/03).
+// @ts-expect-error — JS module, no type declarations
+import { makeEngineState } from "../helpers/makeEngineState.js";
+// @ts-expect-error — JS module, no type declarations
+import { resolveQuest } from "../../src/abilities/questLogic.js";
+// @ts-expect-error — JS module, no type declarations
+import { ability_alyssa_fissa_party_power } from "../../src/abilities/mosjeAbilities.js";
+// @ts-expect-error — JS module, no type declarations
+import { effect_snelle_momentum_rush } from "../../src/abilities/snelleEffects.js";
+
+function abilityState(level: number, mp: number, defId = "mosje_gandoe_wizard") {
+  const d = MOSJES.find((m: any) => m.id === defId);
+  const s = createMosjeSlot(d, { level, mp });
+  s.entryProtected = false;
+  return makeEngineState({
+    turnNumber: 5,
+    players: { player_1: { activeSlots: [s, null], hand: [{ cardId: "x" }, { cardId: "y" }] } },
+  });
+}
+const mine = (st: any) => st.players.player_1.activeSlots[0];
+
+describe("ability / Quest / Snelle gains (54-14)", () => {
+  it("E3 from a Quest: success taking L1 at 95 over 100 -> L2 at 0 MP", () => {
+    const quest = { id: "q", type: "QUEST", questType: "GENERAL", successMP: 20, failMP: -20 };
+    const st = resolveQuest(abilityState(1, 95), "player_1", quest, true, 0);
+    expect([mine(st).level, mine(st).mp]).toEqual([2, 0]);
+  });
+  it("Jeffrey Brute Force (+10 after a Quest) can level: L1 at 90 + Quest 5 -> L2 at 0", () => {
+    const quest = { id: "q", type: "QUEST", questType: "GENERAL", successMP: 5, failMP: -5 };
+    const st = resolveQuest(abilityState(1, 90, "mosje_jeffrey"), "player_1", quest, true, 0);
+    // 90 + 5 = 95, then Brute Force +10 = 105 -> L2 at 0
+    expect([mine(st).level, mine(st).mp]).toEqual([2, 0]);
+  });
+  it("Alyssa Fissa (bare ability): 2 cards in hand = +10, L1 at 95 -> L2 at 0", () => {
+    const st = ability_alyssa_fissa_party_power(abilityState(1, 95), "player_1");
+    expect([mine(st).level, mine(st).mp]).toEqual([2, 0]);
+  });
+  it("Momentum Rush (Snelle, bare effect): L1 at 95 -> L2 at 0; L3 at 90 caps at 95", () => {
+    const a = effect_snelle_momentum_rush(abilityState(1, 95), "player_1");
+    expect([mine(a).level, mine(a).mp]).toEqual([2, 0]);
+    const b = effect_snelle_momentum_rush(abilityState(3, 90), "player_1");
+    expect([mine(b).level, mine(b).mp]).toEqual([3, 95]);
+  });
+});
