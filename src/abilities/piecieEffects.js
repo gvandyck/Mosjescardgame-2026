@@ -11,6 +11,9 @@ import { createMosjeSlot } from '../engine/mp/createMosjeSlot.js';
 import { applyGainToSlot } from '../engine/mp/applyGainToSlot.js';
 import { applyMpLossToSlot } from '../engine/mp/applyMpLossToSlot.js';
 import { isFresh } from '../engine/fresh/isFresh.js';
+import { resolveOwnTargetSlot } from '../engine/targets/resolveOwnTargetSlot.js';
+import { resolveOppTargetSlot } from '../engine/targets/resolveOppTargetSlot.js';
+import { findTagSlot } from '../engine/targets/findTagSlot.js';
 import { PIECIES } from '../data/piecies.js';
 import { addToGraveyard } from '../engine/graveyardUtils.js';
 
@@ -20,24 +23,8 @@ function cloneState(state) {
 	return JSON.parse(JSON.stringify(state));
 }
 
-function getFirstActiveSlotIndex(player) {
-	return player.activeSlots.findIndex(slot => slot !== null && !slot.isDefeated);
-}
-
-function getFirstActiveMosjeTagSlotIndex(player, tag) {
-	const wantedTag = String(tag).toUpperCase();
-	return player.activeSlots.findIndex(slot => {
-		if (!slot || slot.isDefeated) return false;
-		const mosjeDef = MOSJES.find(mosje => mosje.id === slot.cardId);
-		const slotTags = Array.isArray(slot.tags) ? slot.tags : [];
-		const definitionTags = Array.isArray(mosjeDef?.tags) ? mosjeDef.tags : [];
-		const tags = [...slotTags, ...definitionTags];
-		return tags.some(value => String(value).toUpperCase() === wantedTag);
-	});
-}
-
-function hasActiveMosjeTag(player, tag) {
-	return getFirstActiveMosjeTagSlotIndex(player, tag) >= 0;
+function hasMosjeTag(player, tag) {
+	return findTagSlot(player, tag) >= 0;
 }
 
 function getOpponentId(state, playerId) {
@@ -99,12 +86,10 @@ export function effect_kannetje_melk(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const selected = state._pendingTargets?.own_slot_index;
-	const si = Number.isInteger(selected) ? selected : getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si < 0) return state;
 	const base = hasFoodDoubleSynergy(state, playerId) ? 50 : 25;
 	applyMPGain(player, si, base, state, playerId);
-	if (state._pendingTargets) delete state._pendingTargets.own_slot_index;
 	console.log(`[ABILITY] Kannetje Melk: +${base} MP`);
 	return state;
 }
@@ -113,7 +98,7 @@ export function effect_broodje_doner(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si < 0) return state;
 	const base = hasFoodDoubleSynergy(state, playerId) ? 70 : 35;
 	applyMPGain(player, si, base, state, playerId);
@@ -125,7 +110,7 @@ export function effect_ronald_kip(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si < 0) return state;
 	const mosje = player.activeSlots[si];
 	const hasRonald = player.activeSlots.some(s => s && !s.isDefeated && s.cardId === 'mosje_ronald_chef');
@@ -140,7 +125,7 @@ export function effect_chefs_special(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si < 0) return state;
 	const hasRonald = player.activeSlots.some(s => s && !s.isDefeated && s.cardId?.startsWith('mosje_ronald'));
 	const oppId = getOpponentId(state, playerId);
@@ -158,7 +143,7 @@ export function effect_momentum_boost(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si < 0) return state;
 	applyMPGain(player, si, 15, state, playerId);
 	player.questBonusMP = (player.questBonusMP || 0) + 10;
@@ -170,7 +155,7 @@ export function effect_eendjes_voeren(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si < 0) return state;
 	const mosje = player.activeSlots[si];
 	const gain = (mosje.traits?.resilient || 0) >= 2 ? 40 : 30;
@@ -192,7 +177,7 @@ export function effect_energy_surge(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si < 0) return state;
 	if (player.activeSlots[si].mp >= 30) {
 		console.log('[ABILITY] Shoettoe: blocked (MP >= 30)');
@@ -207,7 +192,7 @@ export function effect_warm_kannetje_melk(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si >= 0) applyDamage(state, playerId, player.activeSlots[si], 10);
 	const drawCount = Math.min(2, player.deck.length);
 	player.hand.push(...player.deck.splice(0, drawCount));
@@ -235,13 +220,13 @@ export function effect_affoe(gameState, playerId) {
 		const drainParts = targets.affoe_drain.split('_slot_');
 		osi = parseInt(drainParts[1], 10);
 	} else {
-		osi = getFirstActiveSlotIndex(state.players[oppId]);
+		osi = resolveOppTargetSlot(state, oppId);
 	}
 	if (targets?.affoe_gain != null) {
 		const gainParts = targets.affoe_gain.split('_slot_');
 		si = parseInt(gainParts[1], 10);
 	} else {
-		si = getFirstActiveSlotIndex(player);
+		si = resolveOwnTargetSlot(state, playerId);
 	}
 
 	// U8 — whole effect fizzles when the drain target just entered play.
@@ -261,7 +246,7 @@ export function effect_super_saiyan_mos(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si < 0) return state;
 	player.questBonusMP = (player.questBonusMP || 0) + 25;
 	console.log('[ABILITY] Super Saiyan Mos: next quest drains +25 from opponent');
@@ -272,7 +257,7 @@ export function effect_te_hard_gaan(gameState, playerId) {
 	const state = cloneState(gameState);
 	const oppId = getOpponentId(state, playerId);
 	if (!oppId) return state;
-	const osi = getFirstActiveSlotIndex(state.players[oppId]);
+	const osi = resolveOppTargetSlot(state, oppId);
 	if (osi >= 0 && applyHostileDamage(state, oppId, state.players[oppId].activeSlots[osi], 25)) {
 		console.log('[ABILITY] Te Hard Gaan: opponent -25 MP');
 	}
@@ -284,8 +269,8 @@ export function effect_momentum_diefje(gameState, playerId) {
 	const player = state.players[playerId];
 	const oppId = getOpponentId(state, playerId);
 	if (!player || !oppId) return state;
-	const si = getFirstActiveSlotIndex(player);
-	const osi = getFirstActiveSlotIndex(state.players[oppId]);
+	const si = resolveOwnTargetSlot(state, playerId);
+	const osi = resolveOppTargetSlot(state, oppId);
 	if (si >= 0 && osi >= 0) {
 		// U8 — whole steal fizzles (no damage, no gain) vs a protected target.
 		if (isFresh(state.players[oppId].activeSlots[osi])) {
@@ -304,7 +289,7 @@ export function effect_snoeiertje(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si < 0) return state;
 	// questBonusMP handles the real logic (+15 MP on quest success this turn).
 	// STUB-08: SNOEIERTJE_COST status effect push removed — it was never consumed anywhere.
@@ -324,7 +309,7 @@ export function effect_dikke_taks(gameState, playerId) {
 	const opponents = Object.keys(state.players).filter(id => id !== playerId);
 	const damage = opponents.length >= 3 ? 40 : 35;
 	for (const oppId of opponents) {
-		const osi = getFirstActiveSlotIndex(state.players[oppId]);
+		const osi = resolveOppTargetSlot(state, oppId);
 		if (osi >= 0) applyHostileDamage(state, oppId, state.players[oppId].activeSlots[osi], damage);
 	}
 	const player = state.players[playerId];
@@ -337,7 +322,7 @@ export function effect_kleine_taks(gameState, playerId) {
 	const state = cloneState(gameState);
 	const oppId = getOpponentId(state, playerId);
 	if (!oppId) return state;
-	const osi = getFirstActiveSlotIndex(state.players[oppId]);
+	const osi = resolveOppTargetSlot(state, oppId);
 	if (osi >= 0) {
 		pushHostileStatus(
 			state.players[oppId].activeSlots[osi],
@@ -513,7 +498,7 @@ export function effect_loaded_dice(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const bonus = hasActiveMosjeTag(player, 'JEFFREY') ? 2 : 1;
+	const bonus = hasMosjeTag(player, 'JEFFREY') ? 2 : 1;
 	player.questPrepBonus = (player.questPrepBonus || 0) + bonus;
 	console.log(`[ABILITY] Loaded Dice: +${bonus} to next Quest roll`);
 	return state;
@@ -524,7 +509,7 @@ export function effect_boosterpackkie(gameState, playerId) {
 	const player = state.players[playerId];
 	if (!player) return state;
 
-	const hasCoert = hasActiveMosjeTag(player, 'COERT');
+	const hasCoert = hasMosjeTag(player, 'COERT');
 	let cardsDrawn = 0;
 	if (player.deck.length > 0) {
 		player.hand.push(player.deck.shift());
@@ -536,7 +521,7 @@ export function effect_boosterpackkie(gameState, playerId) {
 		cardsDrawn += 1;
 	}
 
-	const coertSlotIndex = getFirstActiveMosjeTagSlotIndex(player, 'COERT');
+	const coertSlotIndex = resolveOwnTargetSlot(state, playerId, { tag: 'COERT' });
 	if (coertSlotIndex >= 0) applyMPGain(player, coertSlotIndex, 10, state, playerId);
 	console.log(`[ABILITY] Boosterpackkie: drew ${cardsDrawn}, rolled ${roll}${hasCoert ? ', +10 MP (COERT)' : ''}`);
 	return state;
@@ -564,7 +549,7 @@ export function effect_dikke_plaat(gameState, playerId) {
 	const hasAlyssaFissa = player.activeSlots.some(
 		slot => slot && !slot.isDefeated && slot.cardId === 'mosje_alyssa_fissa'
 	);
-	const bonus = hasActiveMosjeTag(player, 'DJ') || hasAlyssaFissa ? 2 : 1;
+	const bonus = hasMosjeTag(player, 'DJ') || hasAlyssaFissa ? 2 : 1;
 	player.questPrepBonus = (player.questPrepBonus || 0) + bonus;
 	console.log(`[ABILITY] Dikke Plaat: +${bonus} to next Quest roll`);
 	return state;
@@ -619,7 +604,7 @@ export function effect_afblijven(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si >= 0) player.activeSlots[si].immuneThisTurn = true;
 	console.log('[ABILITY] Afblijven: cannot lose MP until next turn');
 	return state;
@@ -629,7 +614,7 @@ export function effect_laat_me_chillen(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si >= 0) {
 		player.activeSlots[si].statusEffects.push({ type: 'MP_LOSS_REDUCTION', value: 20, turnsLeft: 1 });
 	}
@@ -649,7 +634,7 @@ export function effect_mosje_shield(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si >= 0) {
 		player.activeSlots[si].statusEffects.push({ type: 'WELLOE_SHIELD', value: 1, turnsLeft: 2 });
 		console.log('[ABILITY] Mosje Shield: protected from Welloe for 2 turns');
@@ -704,7 +689,7 @@ export function effect_stookerino(gameState, playerId) {
 	const discardedId = discarded?.cardId ?? discarded;
 	opp.graveyard.push({ cardId: discardedId, name: discardedId, type: 'HAND_CARD', source: 'discarded' });
 	const player = state.players[playerId];
-	const si = getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si >= 0) applyGainToSlot(player.activeSlots[si], discarded.mpCost || 0, { turnNumber: state.turnNumber });  // mpcost-read-ok: gain amount, effect text rewritten in Phase 59
 	console.log('[ABILITY] Stookerino: discarded', discarded.cardId);
 	return state;
@@ -763,7 +748,7 @@ export function effect_those_eyelashes(gameState, playerId) {
 		console.log('[ABILITY] Those Eyelashes: no Martin/West on field');
 		return state;
 	}
-	const si = getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si >= 0) applyGainToSlot(player.activeSlots[si], 20, { turnNumber: state.turnNumber });
 	const oppIds = Object.keys(state.players).filter(id => id !== playerId);
 	for (const oppId of oppIds) {
@@ -785,7 +770,7 @@ export function effect_f1_telemetry(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si < 0) return state;
 	const hasMartin = player.activeSlots.some(s => s && !s.isDefeated &&
 		(s.cardId?.includes('martin') || s.cardId?.includes('west')));
@@ -811,7 +796,7 @@ export function effect_perfect_setup(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si < 0) return state;
 	const mosje = player.activeSlots[si];
 	if (mosje.mp < 60) mosje.mp = 60; // mp-direct-ok: V4 clamp effect, Phase 59
@@ -829,7 +814,7 @@ export function effect_mp_adjuster(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si >= 0) {
 		state._mpAdjusterPending = { playerId, slotIndex: si };
 	}
@@ -891,7 +876,7 @@ export function effect_kan_het(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si < 0) return state;
 	const roll = rollDie(6);
 	if (roll === 6) {
@@ -979,7 +964,7 @@ export function effect_grammetje_pieter(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si < 0) return state;
 	const roll = rollDie(6);
 	if (roll >= 4) {
@@ -996,14 +981,12 @@ export function effect_dikke_jonko(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const selected = state._pendingTargets?.own_slot_index;
-	const si = Number.isInteger(selected) ? selected : getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si >= 0) applyGainToSlot(player.activeSlots[si], 25, { turnNumber: state.turnNumber });
-	if (state._pendingTargets) delete state._pendingTargets.own_slot_index;
 	const oppIds = Object.keys(state.players).filter(id => id !== playerId);
 	for (const oppId of oppIds) {
 		const opp = state.players[oppId];
-		const osi = getFirstActiveSlotIndex(opp);
+		const osi = resolveOppTargetSlot(state, oppId);
 		if (osi >= 0) applyGainToSlot(opp.activeSlots[osi], 10, { turnNumber: state.turnNumber });
 		if (opp.deck.length > 0) opp.hand.push(opp.deck.shift());
 	}
@@ -1016,7 +999,7 @@ export function effect_stripje_bennies(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si >= 0) applyDamage(state, playerId, player.activeSlots[si], 20);
 	player.hand.push(...player.deck.splice(0, Math.min(3, player.deck.length)));
 	console.log('[ABILITY] Stripje Bennies: draw 3, -20 MP');
@@ -1027,10 +1010,8 @@ export function effect_tikker(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const selected = state._pendingTargets?.own_slot_index;
-	const si = Number.isInteger(selected) ? selected : getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si < 0) return state;
-	if (state._pendingTargets) delete state._pendingTargets.own_slot_index;
 	applyGainToSlot(player.activeSlots[si], 40, { turnNumber: state.turnNumber });
 	player.activeSlots[si].statusEffects.push({ type: 'QUEST_BLOCKED', value: 0, turnsLeft: 1 });
 	console.log('[ABILITY] Tikker: +40 MP, QUEST_BLOCKED next turn');
@@ -1041,7 +1022,7 @@ export function effect_straffoe(gameState, playerId) {
 	const state = cloneState(gameState);
 	const oppId = getOpponentId(state, playerId);
 	if (!oppId) return state;
-	const osi = getFirstActiveSlotIndex(state.players[oppId]);
+	const osi = resolveOppTargetSlot(state, oppId);
 	if (osi >= 0 && applyHostileDamage(state, oppId, state.players[oppId].activeSlots[osi], 30)) {
 		console.log('[ABILITY] Straffoe: opponent -30 MP');
 	}
@@ -1052,7 +1033,7 @@ export function effect_larry_zegeltje(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si >= 0) applyGainToSlot(player.activeSlots[si], 20, { turnNumber: state.turnNumber });
 	player.questPrepBonus = (player.questPrepBonus || 0) + 1;
 	console.log('[ABILITY] Larry Zegeltje: +20 MP, +1 quest roll bonus');
@@ -1075,7 +1056,7 @@ export function effect_keyboard(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si < 0) return state;
 	const mosje = player.activeSlots[si];
 	const mp = getDigitalMP(mosje);
@@ -1090,7 +1071,7 @@ export function effect_mouse(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si < 0) return state;
 	const mosje = player.activeSlots[si];
 	const mp = getDigitalMP(mosje);
@@ -1105,7 +1086,7 @@ export function effect_controller(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si < 0) return state;
 	const mosje = player.activeSlots[si];
 	const mp = getDigitalMP(mosje);
@@ -1124,7 +1105,7 @@ export function effect_dumbbells(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si < 0) return state;
 	const mosje = player.activeSlots[si];
 	const isPhysical = mosje.subtype === 'FIGHTING';
@@ -1144,7 +1125,7 @@ export function effect_boxing_gloves(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si < 0) return state;
 	const mosje = player.activeSlots[si];
 	const physical = mosje.traits?.physical || 0;
@@ -1172,7 +1153,7 @@ export function effect_skipping_rope(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si < 0) return state;
 	const mosje = player.activeSlots[si];
 	const isPhysical = mosje.subtype === 'FIGHTING';
@@ -1188,7 +1169,7 @@ export function effect_protein_shake(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = resolveOwnTargetSlot(state, playerId);
 	if (si < 0) return state;
 	const mosje = player.activeSlots[si];
 	if (mosje.subtype !== 'FIGHTING') {
@@ -1210,7 +1191,7 @@ export function effect_continuous_assault(gameState, playerId) {
 	const state = cloneState(gameState);
 	const oppId = getOpponentId(state, playerId);
 	if (!oppId) return state;
-	const osi = getFirstActiveSlotIndex(state.players[oppId]);
+	const osi = resolveOppTargetSlot(state, oppId);
 	if (osi >= 0) {
 		pushHostileStatus(
 			state.players[oppId].activeSlots[osi],
@@ -1225,7 +1206,7 @@ export function effect_harde_didde(gameState, playerId) {
 	const state = cloneState(gameState);
 	const oppId = getOpponentId(state, playerId);
 	if (!oppId) return state;
-	const osi = getFirstActiveSlotIndex(state.players[oppId]);
+	const osi = resolveOppTargetSlot(state, oppId);
 	if (osi >= 0 && applyHostileDamage(state, oppId, state.players[oppId].activeSlots[osi], 50)) {
 		console.log('[ABILITY] Harde Didde: opponent -50 MP');
 	}
@@ -1236,7 +1217,7 @@ export function effect_mp_hemorrhage(gameState, playerId) {
 	const state = cloneState(gameState);
 	const oppId = getOpponentId(state, playerId);
 	if (!oppId) return state;
-	const osi = getFirstActiveSlotIndex(state.players[oppId]);
+	const osi = resolveOppTargetSlot(state, oppId);
 	if (osi >= 0) {
 		pushHostileStatus(
 			state.players[oppId].activeSlots[osi],
@@ -1252,7 +1233,7 @@ export function effect_klaar_met_jou(gameState, playerId) {
 	const oppId = getOpponentId(state, playerId);
 	if (!oppId) return state;
 	let opp = state.players[oppId];
-	const osi = getFirstActiveSlotIndex(opp);
+	const osi = resolveOppTargetSlot(state, oppId);
 	if (osi >= 0) {
 		// U8 — whole effect fizzles (no damage, no discard) vs a protected target.
 		if (isFresh(opp.activeSlots[osi])) {

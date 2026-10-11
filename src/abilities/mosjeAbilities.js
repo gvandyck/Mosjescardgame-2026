@@ -10,6 +10,7 @@ import { PIECIES } from '../data/piecies.js';
 import { applyGainToSlot } from '../engine/mp/applyGainToSlot.js';
 import { applyMpLossToSlot } from '../engine/mp/applyMpLossToSlot.js';
 import { isFresh } from '../engine/fresh/isFresh.js';
+import { resolveOppTargetSlot } from '../engine/targets/resolveOppTargetSlot.js';
 
 console.log('[ABILITY] mosjeAbilities.js loaded');
 
@@ -34,18 +35,16 @@ function applyGain(state, mosje, amount) {
 	return applyGainToSlot(mosje, amount, { turnNumber: state.turnNumber });
 }
 
-function getFirstActiveSlotIndex(player) {
-	return player.activeSlots.findIndex(slot => slot !== null && !slot.isDefeated);
-}
-
-function getActiveSlotIndexForMosje(player, preferredCardId = null) {
-	if (preferredCardId) {
-		const explicitIndex = player.activeSlots.findIndex(
-			slot => slot !== null && !slot.isDefeated && slot.cardId === preferredCardId
-		);
-		if (explicitIndex >= 0) return explicitIndex;
+// Slot of the acting Mosje (by cardId). Without an id (legacy/test callers) the only
+// non-defeated Mosje is used; with several, the first plus a warning.
+function getActiveSlotIndexForMosje(player, mosjeId = null) {
+	const slots = player.activeSlots;
+	if (mosjeId) {
+		return slots.findIndex(slot => slot !== null && !slot.isDefeated && slot.cardId === mosjeId);
 	}
-	return getFirstActiveSlotIndex(player);
+	const alive = slots.map((s, i) => (s && !s.isDefeated ? i : -1)).filter(i => i >= 0);
+	if (alive.length > 1) console.warn('[TARGET] ability called without its Mosje id');
+	return alive.length ? alive[0] : -1;
 }
 
 function getOpponentId(state, playerId) {
@@ -53,12 +52,12 @@ function getOpponentId(state, playerId) {
 }
 
 // DJ 80/20 passive: gain 10 MP at turn start, +2 to next Quest roll this turn.
-export function ability_dj_8020_lucky_beats(gameState, playerId) {
+export function ability_dj_8020_lucky_beats(gameState, playerId, mosjeId = null) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
 
-	const slotIndex = getFirstActiveSlotIndex(player);
+	const slotIndex = getActiveSlotIndexForMosje(player, mosjeId);
 	if (slotIndex < 0) return state;
 
 	applyGain(state, player.activeSlots[slotIndex], 10);
@@ -81,7 +80,7 @@ export function ability_binti_cutting_words(gameState, playerId, discardedCardId
 	{
 		const oppIdForGuard = getOpponentId(state, playerId);
 		const oppForGuard = oppIdForGuard ? state.players[oppIdForGuard] : null;
-		const guardSlotIndex = oppForGuard ? getFirstActiveSlotIndex(oppForGuard) : -1;
+		const guardSlotIndex = oppForGuard ? resolveOppTargetSlot(state, oppIdForGuard) : -1;
 		if (guardSlotIndex >= 0 && isFresh(oppForGuard.activeSlots[guardSlotIndex])) {
 			throw new Error('Opponent Mosje just entered play — it is protected until their next turn');
 		}
@@ -100,7 +99,7 @@ export function ability_binti_cutting_words(gameState, playerId, discardedCardId
 	if (!opponentId) return state;
 	const opponent = state.players[opponentId];
 
-	const oppSlotIndex = getFirstActiveSlotIndex(opponent);
+	const oppSlotIndex = resolveOppTargetSlot(state, opponentId);
 	let finalState = state;
 	if (oppSlotIndex >= 0) {
 		finalState = loseMP(state, opponentId, oppSlotIndex, 10, 'ABILITY', false, playerId);
@@ -142,11 +141,11 @@ export function ability_coert_extra_resources(gameState, playerId, sourceMosjeId
 // FIGHTING MOSJES
 
 // Gandoe Wizard — roll d6: 1-2 lose 10 MP, 3-4 gain 20 MP, 5 gain 30 MP, 6 gain 50 MP.
-export function ability_gandoe_wizard_chaos_roll(gameState, playerId) {
+export function ability_gandoe_wizard_chaos_roll(gameState, playerId, mosjeId = null) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = getActiveSlotIndexForMosje(player, mosjeId);
 	if (si < 0) return state;
 	const roll = rollDie(6);
 	let delta = 0;
@@ -170,11 +169,11 @@ export function ability_jeffrey_brute_force(gameState, _playerId) {
 }
 
 // Alyssa Bulldozer — gains 5 MP for every 10 MP she lost this turn (comeback).
-export function ability_alyssa_bulldozer_unstoppable(gameState, playerId) {
+export function ability_alyssa_bulldozer_unstoppable(gameState, playerId, mosjeId = null) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = getActiveSlotIndexForMosje(player, mosjeId);
 	if (si < 0) return state;
 	const mosje = player.activeSlots[si];
 	const lost = mosje.mpLostThisTurn || 0;
@@ -185,11 +184,11 @@ export function ability_alyssa_bulldozer_unstoppable(gameState, playerId) {
 }
 
 // Alyssa Fissa — gain 5 MP per card in hand.
-export function ability_alyssa_fissa_party_power(gameState, playerId) {
+export function ability_alyssa_fissa_party_power(gameState, playerId, mosjeId = null) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = getActiveSlotIndexForMosje(player, mosjeId);
 	if (si < 0) return state;
 	const gain = player.hand.length * 5;
 	applyGain(state, player.activeSlots[si], gain);
@@ -198,11 +197,11 @@ export function ability_alyssa_fissa_party_power(gameState, playerId) {
 }
 
 // AZN Cless — risk/reward: roll d6. Even → +25 MP. Odd → -15 MP.
-export function ability_azn_cless_risk_reward(gameState, playerId) {
+export function ability_azn_cless_risk_reward(gameState, playerId, mosjeId = null) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = getActiveSlotIndexForMosje(player, mosjeId);
 	if (si < 0) return state;
 	const roll = rollDie(6);
 	if (roll % 2 === 0) {
@@ -224,11 +223,11 @@ export function ability_michelle_tough_gamble(gameState, _playerId) {
 }
 
 // Parkour West — adaptive: if Mosje lost MP last turn, gain 20 MP. Otherwise gain 10 MP.
-export function ability_parkour_west_adaptive_combat(gameState, playerId) {
+export function ability_parkour_west_adaptive_combat(gameState, playerId, mosjeId = null) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = getActiveSlotIndexForMosje(player, mosjeId);
 	if (si < 0) return state;
 	const mosje = player.activeSlots[si];
 	const gain = (mosje.mpLostThisTurn || 0) > 0 ? 20 : 10;
@@ -407,7 +406,7 @@ export function ability_martin_senor_west_calculated_guess(gameState, playerId, 
 	const westIds = new Set(['mosje_martin_senor_west']);
 	const si = mosjeId && westIds.has(mosjeId)
 		? player.activeSlots.findIndex(s => s && s.cardId === mosjeId && !s.isDefeated)
-		: getFirstActiveSlotIndex(player);
+		: getActiveSlotIndexForMosje(player, mosjeId);
 	if (si < 0) return state;
 
 	const guess = state._pendingTargets?.west_guess;
@@ -463,11 +462,11 @@ export function ability_hacker_system_hack(gameState, playerId) {
 // Jeffrey Gambler — High Stakes: roll 1d6. 1-5 → QUEST_BLOCKED this turn (no Quest
 // attempts). 6 → +3 Quest roll bonus (questPrepBonus). No MP cost, no MP gain/loss
 // either way (old wager mechanic dropped — ruled "too OP").
-export function ability_jeffrey_gambler_high_stakes(gameState, playerId) {
+export function ability_jeffrey_gambler_high_stakes(gameState, playerId, mosjeId = null) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = getActiveSlotIndexForMosje(player, mosjeId);
 	if (si < 0) return state;
 	const roll = rollDie(6);
 	if (roll === 6) {
@@ -578,7 +577,7 @@ export function ability_drainer_continuous_drain(gameState, playerId) {
 	const oppId = getOpponentId(state, playerId);
 	if (!oppId) return state;
 	const opp = state.players[oppId];
-	const osi = getFirstActiveSlotIndex(opp);
+	const osi = resolveOppTargetSlot(state, oppId);
 	if (osi < 0) return state;
 	// U8 — Entry Protection: whole ability fizzles (unusable, no cost) when the
 	// auto-target just entered play. The throw is caught by useMosjeAbility.
@@ -785,11 +784,11 @@ export function ability_cless_teacher_teaching_moment(gameState, playerId) {
 }
 
 // Martin Driver — level-scaled MP: L0 → 15 MP, L1 → 25 MP, L2 → 35 MP.
-export function ability_martin_driver_perfect_line(gameState, playerId) {
+export function ability_martin_driver_perfect_line(gameState, playerId, mosjeId = null) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = getActiveSlotIndexForMosje(player, mosjeId);
 	if (si < 0) return state;
 	const mosje = player.activeSlots[si];
 	const gain = [15, 25, 35][Math.min(3, Math.max(1, mosje.level || 1)) - 1];
@@ -818,11 +817,11 @@ export function ability_amplifier_power_boost(gameState, playerId) {
 }
 
 // Coert Kastelein — immovable object: this Mosje cannot lose MP this turn.
-export function ability_coert_kastelein_immovable_object(gameState, playerId) {
+export function ability_coert_kastelein_immovable_object(gameState, playerId, mosjeId = null) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const si = getFirstActiveSlotIndex(player);
+	const si = getActiveSlotIndexForMosje(player, mosjeId);
 	if (si < 0) return state;
 	player.activeSlots[si].immuneThisTurn = true;
 	console.log('[ABILITY] Coert Kastelein: immune to MP loss this turn');
