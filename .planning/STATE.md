@@ -33,7 +33,7 @@ See: `.planning/PROJECT.md` (updated 2026-10-10)
 ## Current Position
 
 Phase: 54 of 64 (energy, levels and getemt)
-Plan: 12 of 16 (54-01..54-11 and 54-13 done; 54-12 pending)
+Plan: 13 of 16 (54-01..54-13 done; 54-14, 54-15, 54-16 pending)
 Status: Executing
 Last activity: 2026-10-11 — 54-13 complete (Piecie MP funnel + static guard)
 

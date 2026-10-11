@@ -90,7 +90,7 @@ Plans:
 - [x] 54-09-PLAN.md — One-loss pipeline in §2g order (registrable steps, Stabilizer after reducers, reduced-to-0 = no loss)
 - [x] 54-10-PLAN.md — Getemt (L2-3 -> -1 @50, L1 sideways, again -> Welloe pile), separate Welloe pile, Reborn/Call re-pointed (E4, E6)
 - [x] 54-11-PLAN.md — Sideways lifecycle per Mosje (skip owner's next turn, stand up at its end), UI/bot gates (E5)
-- [ ] 54-12-PLAN.md — Hold-Level-3 win at turn start, no-Mosje-left loss (field+hand+deck), V4 wins removed (E7, E8; RULE-04 complete)
+- [x] 54-12-PLAN.md — Hold-Level-3 win at turn start, no-Mosje-left loss (field+hand+deck), V4 wins removed (E7, E8; RULE-04 complete)
 - [x] 54-13-PLAN.md — Funnel Piecie effect MP writes + static funnel guard
 - [ ] 54-14-PLAN.md — Funnel Mosje ability, Quest and Snelle MP writes
 - [ ] 54-15-PLAN.md — Funnel Places/turnManager/bot/UI, Ronald Kip stacking under 2.0, smoke invariants (RULE-02/03/09 complete)
