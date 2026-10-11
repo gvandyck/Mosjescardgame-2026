@@ -4,8 +4,7 @@
 
 import { applyGainToSlot } from './mp/applyGainToSlot.js';
 import { normalizeSlotMp } from './mp/normalizeSlotMp.js';
-import { LOSS_STEPS } from './mp/lossSteps.js';
-import { resolveMpLoss } from './mp/resolveMpLoss.js';
+import { applyMpLossToSlot } from './mp/applyMpLossToSlot.js';
 
 console.log('[ENGINE] mpManager.js loaded');
 
@@ -49,11 +48,9 @@ export function gainMP(gameState, playerId, slotIndex, amount, source = 'GAIN') 
 
 // ─────────────────────────────────────────────────────────────
 // loseMP
-// Removes `amount` MP from a Mosje. MP is clamped to 0 — it cannot go negative.
-// If overflow would push below 0, the Mosje loses one level and carries the
-// remainder into 100 MP (level regression). At level 0 excess damage is ignored.
-// Defeat occurs only when a level-0 Mosje is sent to the Welloe pile via
-// explicit game rules; see victoryChecker.
+// Removes `amount` MP from a Mosje through the loss pipeline. MP never goes
+// negative. A real loss (final > 0) leaving 0 MP triggers getemt (applyGetemt):
+// Level 2-3 drops a Level at 50 MP, Level 1 turns sideways, sideways -> Welloe pile.
 //
 // Returns updated gameState.
 // ─────────────────────────────────────────────────────────────
@@ -144,47 +141,13 @@ export function loseMP(gameState, playerId, slotIndex, amount, source = 'DRAIN',
 
   // ── End snelle interception ───────────────────────────────────────────────
 
-  // Obby 2.0 §2g loss order: base -> reductions -> Stabilizer cap -> round/floor.
-  const ctx = { state, playerId, slot: mosje, slotIndex, amount, source, placeId };
-  for (const step of LOSS_STEPS.beforeLoss) step(ctx);
-  const lossAmount = resolveMpLoss(ctx);
-  if (lossAmount <= 0) {
+  // Obby 2.0: pipeline (§2g) -> subtract -> track -> getemt (§2b), all in one slot-level funnel.
+  const { final, getemt } = applyMpLossToSlot({ state, playerId, slot: mosje, amount, source });
+  if (final <= 0) {
     console.log('[MP] loss reduced to 0 — no loss (§2g)');
     return state;
   }
-
-  mosje.mp -= lossAmount;
-
-  // Level regression — MP floor is 0.
-  // Overflow below 0 costs one level and carries the remainder into 100 MP.
-  // At Level 0, dropping below 0 from a damaging effect DEFEATS the Mosje
-  // (canonical ruling phase0-rulings.md:118). The slot is flagged here and
-  // swept by applyPendingDefeats() inside checkVictory(). Guarded MP-cost
-  // payments never reach below 0, so they never trigger this.
-  while (mosje.mp < 0) {
-    if (mosje.level <= 1) { // 54-05 interim: Level 1 is the bottom level; replaced by applyGetemt in 54-10
-      mosje.mp = 0;
-      mosje._pendingDefeat = true;
-      console.log(`[ENGINE] 💀 ${mosje.name} reduced below 0 at Level 0 → pending defeat`);
-      break;
-    }
-    const overflow = -mosje.mp;
-    mosje.level -= 1;
-    mosje.mp = 100 - overflow;
-    console.log(`[ENGINE] ⬇️ ${mosje.name} level regression → Level ${mosje.level} | MP: ${mosje.mp}`);
-  }
-
-  // Safety clamp: ensure MP is never negative (should be caught by while loop above)
-  mosje.mp = Math.max(0, mosje.mp);
-
-  // Track cumulative damage taken for Personal Quest requirements (Iron Will).
-  state.players[playerId].totalDamageTaken =
-    (state.players[playerId].totalDamageTaken || 0) + lossAmount;
-
-  // Track per-turn damage for abilities that react to it (Alyssa, Parkour West).
-  mosje.mpLostThisTurn = (mosje.mpLostThisTurn || 0) + lossAmount;
-
-  console.log(`[ENGINE] 📉 ${mosje.name} loses ${lossAmount} MP (${source}) → now Level ${mosje.level} | ${mosje.mp} MP`);
+  console.log(`[ENGINE] 📉 ${mosje.name} loses ${final} (${source}) → L${mosje.level} | ${mosje.mp} MP${getemt ? ' — getemt: ' + getemt : ''}`);
 
   return state;
 }
