@@ -26,7 +26,7 @@ function makeState(pieciesPlayed: number, mp = 30) {
             cardId: "mosje_martin_senor_west",
             name: "West",
             mp,
-            level: 0,
+            level: 1,
             isDefeated: false,
             traits: { mental: 3, technical: 1 },
             statusEffects: [],

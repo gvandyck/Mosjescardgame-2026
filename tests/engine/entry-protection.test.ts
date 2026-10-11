@@ -32,7 +32,7 @@ function makeMosje(cardId: string, mp = 50, extra: Partial<MosjeSlot> = {}): Mos
     cardId,
     name: cardId,
     mp,
-    level: 0,
+    level: 1,
     isDefeated: false,
     abilityUsedThisTurn: false,
     immuneThisTurn: false,

@@ -12,7 +12,7 @@ import { hasAlyssaJiscaSynergy } from "../../src/engine/synergyResolver.js";
 
 function makeSlot(cardId: string, mp = 20) {
   return {
-    cardId, name: cardId, subtype: "ARTISTIC", traits: {}, mp, level: 0,
+    cardId, name: cardId, subtype: "ARTISTIC", traits: {}, mp, level: 1,
     isDefeated: false, statusEffects: [] as any[], abilityUsedThisTurn: false,
   };
 }

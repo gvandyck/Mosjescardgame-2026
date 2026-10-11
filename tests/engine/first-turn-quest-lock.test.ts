@@ -31,13 +31,13 @@ function makeState(overrides: Record<string, unknown> = {}) {
     players: {
       player_1: {
         activeSlots: [
-          { cardId: "mosje_gandoe_destroyer", name: "Gandoe", mp: 50, level: 0, isDefeated: false, traits: {}, statusEffects: [] },
+          { cardId: "mosje_gandoe_destroyer", name: "Gandoe", mp: 50, level: 1, isDefeated: false, traits: {}, statusEffects: [] },
           null,
         ],
       },
       player_2: {
         activeSlots: [
-          { cardId: "mosje_michelle", name: "Michelle", mp: 50, level: 0, isDefeated: false, traits: {}, statusEffects: [] },
+          { cardId: "mosje_michelle", name: "Michelle", mp: 50, level: 1, isDefeated: false, traits: {}, statusEffects: [] },
           null,
         ],
       },
@@ -76,7 +76,7 @@ describe("First-seat tempo fix — canAttemptGeneralQuest turn-1 lock", () => {
       players: {
         player_1: {
           activeSlots: [
-            { cardId: "mosje_gandoe_destroyer", name: "Gandoe", mp: 50, level: 0, isDefeated: false, traits: {}, statusEffects: [] },
+            { cardId: "mosje_gandoe_destroyer", name: "Gandoe", mp: 50, level: 1, isDefeated: false, traits: {}, statusEffects: [] },
             null,
           ],
         },

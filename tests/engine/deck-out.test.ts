@@ -80,7 +80,7 @@ function makeState(
 // empty board (KNOCKOUT fires when a player has no active Mosjes).
 function giveLiveMosjes(state: any) {
   const slot = (cardId: string) => ({
-    cardId, name: cardId, subtype: "FIGHTING", traits: {}, mp: 50, level: 0,
+    cardId, name: cardId, subtype: "FIGHTING", traits: {}, mp: 50, level: 1,
     isDefeated: false, statusEffects: [], abilityUsedThisTurn: false,
   });
   state.players.p1.activeSlots = [slot("mosje_p1"), null, null, null];

@@ -30,7 +30,7 @@ function makeState(filledPiecieSlots: number = 0) {
           {
             cardId: "mosje_test",
             mp: 50,
-            level: 0,
+            level: 1,
             isDefeated: false,
             traits: {},
             statusEffects: [],

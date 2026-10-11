@@ -37,7 +37,7 @@ function makeMosje(mental: number) {
     cardId: "mosje_test",
     name: "Test Mosje",
     mp: 50,
-    level: 0,
+    level: 1,
     isDefeated: false,
     traits: mental > 0 ? { mental } : {},
     statusEffects: [],

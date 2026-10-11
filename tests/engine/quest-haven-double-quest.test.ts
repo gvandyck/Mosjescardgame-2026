@@ -19,7 +19,7 @@ function makeState(overrides: Record<string, unknown> = {}) {
             cardId: "mosje_martin_senor_west",
             name: "West",
             mp: 50,
-            level: 0,
+            level: 1,
             isDefeated: false,
             traits: {},
             statusEffects: [],
