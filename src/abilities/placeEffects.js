@@ -3,6 +3,8 @@
 
 import { PLACES } from '../data/places.js';
 import { getCardById } from '../data/cardIndex.js';
+import { applyGainToSlot } from '../engine/mp/applyGainToSlot.js';
+import { applyMpLossToSlot } from '../engine/mp/applyMpLossToSlot.js';
 
 console.log('[ABILITY] placeEffects.js loaded');
 
@@ -10,25 +12,21 @@ function cloneState(state) {
 	return JSON.parse(JSON.stringify(state));
 }
 
-function applyDamage(mosje, amount) {
-	if (!mosje || mosje.isDefeated || amount <= 0) return;
-	// U8 — Entry Protection: effect damage fizzles against a freshly entered
-	// Mosje (until its owner's next turn starts — cleared in startTurn).
+// Thin wrapper over the 2.0 loss funnel. `playerId` is the OWNER of the slot being hit.
+function applyDamage(state, playerId, mosje, amount) {
+	if (!mosje || mosje.isDefeated || !(amount > 0)) return;
+	// U8 - Entry Protection: effect damage fizzles against a freshly entered
+	// Mosje (until its owner's next turn starts - cleared in startTurn).
 	if (mosje.entryProtected === true) {
-		console.log(`[ABILITY] 🛡️ Entry protection: ${mosje.name} just entered play — ${amount} damage fizzled`);
+		console.log(`[ABILITY] Entry protection: ${mosje.name} just entered play - ${amount} damage fizzled`);
 		return;
 	}
-	mosje.mp -= amount;
-	while (mosje.mp < 0) {
-		// Defeat-at-0: Level 0 below 0 from a damaging effect → pending defeat
-		// (swept by applyPendingDefeats in checkVictory). Ruling phase0-rulings.md:118.
-		if (mosje.level <= 1) { mosje.mp = 0; mosje._pendingDefeat = true; break; } // 54-05 interim: Level 1 is the bottom level; replaced by applyGetemt in 54-10
-		const overflow = -mosje.mp;
-		mosje.level -= 1;
-		mosje.mp = 100 - overflow;
-	}
-	mosje.mp = Math.max(0, mosje.mp);
-	mosje.mpLostThisTurn = (mosje.mpLostThisTurn || 0) + amount;
+	applyMpLossToSlot({ state, playerId, slot: mosje, amount, source: 'PLACE' });
+}
+
+// Thin wrapper over the 2.0 gain funnel (100+ levels up, Level 3 caps at 95).
+function applyGain(state, mosje, amount) {
+	return applyGainToSlot(mosje, amount, { turnNumber: state.turnNumber });
 }
 
 export function effect_the_gym(gameState) {
@@ -48,11 +46,11 @@ export function effect_the_gym(gameState) {
 			// (physical<2 and resilient<2 → neither bonus nor penalty there either)
 			// — WC balance fix, see docs/card-reference.md.
 			const isWest = id.includes('martin') || id.includes('west');
-			if (physical >= 3) mosje.mp += 35;
-			else if (physical >= 2) mosje.mp += 25;
-			else if (isCless) mosje.mp += 20;
+			if (physical >= 3) applyGain(state, mosje, 35);
+			else if (physical >= 2) applyGain(state, mosje, 25);
+			else if (isCless) applyGain(state, mosje, 20);
 			else if (isWest) { /* neutral — no gain, no loss */ }
-			else applyDamage(mosje, 10);
+			else applyDamage(state, playerId, mosje, 10);
 		}
 	}
 	console.log('[ABILITY] The Gym end phase effect applied');
@@ -76,12 +74,12 @@ export function effect_quest_haven(gameState, didSucceed, questsCompletedThisTur
 	if (slotIndex < 0) return state;
 
 	// +10 MP for every quest success
-	player.activeSlots[slotIndex].mp += 10;
+	applyGain(state, player.activeSlots[slotIndex], 10);
 	console.log('[ABILITY] Quest Haven +10 MP → slot', slotIndex);
 
 	// +25 MP bonus when 2 quests completed in one turn
 	if (questsCompletedThisTurn >= 2) {
-		player.activeSlots[slotIndex].mp += 25;
+		applyGain(state, player.activeSlots[slotIndex], 25);
 		console.log('[ABILITY] Quest Haven +25 MP bonus (2 quests this turn) → slot', slotIndex);
 	}
 
@@ -101,7 +99,7 @@ export function effect_bank_chilling(gameState, playerId) {
 		if (!mosje || mosje.isDefeated) continue;
 		const social = mosje.traits?.social || 0;
 		if (social >= 2) {
-			mosje.mp += 15;
+			applyGain(state, mosje, 15);
 			console.log('[ABILITY] Bank Chilling: +15 MP applied (Social 2+)');
 		} else {
 			console.log('[ABILITY] Bank Chilling: no bonus (social below 2)');
@@ -131,10 +129,10 @@ export function effect_obby_1(gameState, questCard, didSucceed) {
 
 		if (physical >= 2 || resilient >= 2) {
 			if (didSucceed) {
-				mosje.mp += 20;
+				applyGain(state, mosje, 20);
 				console.log('[ABILITY] Obby #1: +20 MP on successful Physical/Resilient quest');
 			} else {
-				applyDamage(mosje, 10);
+				applyDamage(state, playerId, mosje, 10);
 				console.log('[ABILITY] Obby #1: -10 MP on failed Physical/Resilient quest');
 			}
 		}
@@ -156,7 +154,7 @@ export function effect_arcade(gameState, questCard, didSucceed) {
 		const technical = mosje.traits?.technical || 0;
 
 		if (technical >= 2 && didSucceed) {
-			mosje.mp += 15;
+			applyGain(state, mosje, 15);
 			console.log('[ABILITY] Arcade: +15 MP on successful Technical quest');
 		}
 	}
@@ -174,7 +172,7 @@ export function effect_zo_is_natuur(gameState) {
 		for (const mosje of player.activeSlots) {
 			if (!mosje || mosje.isDefeated) continue;
 			const bonus = (mosje.traits?.resilient || 0) >= 1 ? 15 : 10;
-			mosje.mp += bonus;
+			applyGain(state, mosje, bonus);
 			console.log(`[ABILITY] Zo is Natuur: +${bonus} MP`);
 		}
 	}
@@ -191,7 +189,7 @@ export function effect_the_void(gameState) {
 		const player = state.players[playerId];
 		for (const mosje of player.activeSlots) {
 			if (!mosje || mosje.isDefeated) continue;
-			applyDamage(mosje, 15);
+			applyDamage(state, playerId, mosje, 15);
 			console.log('[ABILITY] The Void: -15 MP drain');
 		}
 	}
@@ -215,7 +213,7 @@ export function effect_momentum_factory(gameState) {
 	if (player.pieciesPlayedThisTurn === 1) {
 		const slotIndex = player.activeSlots.findIndex(slot => slot !== null && !slot.isDefeated);
 		if (slotIndex >= 0) {
-			player.activeSlots[slotIndex].mp += 10;
+			applyGain(state, player.activeSlots[slotIndex], 10);
 			console.log('[ABILITY] Momentum Factory: +10 MP on first Piecie this turn');
 		}
 	}
@@ -262,7 +260,7 @@ export function effect_welloe_graveyard(gameState, welloePlayerId, newMosjeSlotI
 
 	const newMosje = player.activeSlots[newMosjeSlotIndex];
 	if (newMosje && !newMosje.isDefeated) {
-		newMosje.mp += 20;
+		applyGain(state, newMosje, 20);
 		console.log('[ABILITY] Welloe Graveyard: +20 MP to swapped-in Mosje');
 	}
 	return state;
@@ -293,7 +291,7 @@ export function effect_drain_zone(gameState) {
 	}
 
 	if (lowestPlayerId !== null && lowestSlotIndex >= 0) {
-		applyDamage(state.players[lowestPlayerId].activeSlots[lowestSlotIndex], 10);
+		applyDamage(state, lowestPlayerId, state.players[lowestPlayerId].activeSlots[lowestSlotIndex], 10);
 		console.log('[ABILITY] Drain Zone: -10 extra MP to Mosje with lowest MP');
 	}
 	// Note: ATTACK Piecie +10 damage bonus requires validation during card play
@@ -360,7 +358,7 @@ export function effect_digital_gaming_stop(gameState, questCard, mosje, playerId
 	});
 
 	if (hasActiveDigitalEquipment && slotIndex >= 0) {
-		player.activeSlots[slotIndex].mp += 10;
+		applyGain(state, player.activeSlots[slotIndex], 10);
 		console.log('[ABILITY] Digital Gaming Stop: +10 MP for active DIGITAL-EQUIPMENT Piecie');
 	}
 	return state;
@@ -384,10 +382,10 @@ export function effect_boxing_ring(gameState, playerId) {
 	for (const mosje of player.activeSlots) {
 		if (!mosje || mosje.isDefeated) continue;
 		if (mosje.subtype === 'FIGHTING') {
-			mosje.mp += 10;
+			applyGain(state, mosje, 10);
 			console.log('[ABILITY] Boxing Ring: +10 MP (FIGHTING)');
 			if (String(mosje.cardId).toLowerCase().includes('gandoe')) {
-				mosje.mp += 10;
+				applyGain(state, mosje, 10);
 				console.log('[ABILITY] Boxing Ring: +10 MP extra (GANDOE)');
 			}
 		}
@@ -408,7 +406,7 @@ export function effect_eendjes_voeren(gameState) {
 			if (!mosje || mosje.isDefeated) continue;
 			const id = String(mosje.cardId).toLowerCase();
 			if (id.includes('michelle')) {
-				mosje.mp += 10;
+				applyGain(state, mosje, 10);
 				console.log('[ABILITY] Eendjes Voeren: +10 MP (MICHELLE)');
 			}
 		}
@@ -430,18 +428,18 @@ export function effect_de_box(gameState) {
 			if (!mosje || mosje.isDefeated) continue;
 			const id = String(mosje.cardId).toLowerCase();
 			if (id.includes('gandoe')) {
-				mosje.mp += 20;
+				applyGain(state, mosje, 20);
 				gandoeSlot = mosje;
 				console.log('[ABILITY] De Box: +20 MP (GANDOE)');
 			} else if (id.includes('michelle') || id.includes('tuk')) {
-				mosje.mp += 15;
+				applyGain(state, mosje, 15);
 				michelleSlot = mosje;
 				console.log('[ABILITY] De Box: +15 MP (MICHELLE/TUK)');
 			}
 		}
 		if (gandoeSlot && michelleSlot) {
-			gandoeSlot.mp += 10;
-			michelleSlot.mp += 10;
+			applyGain(state, gandoeSlot, 10);
+			applyGain(state, michelleSlot, 10);
 			console.log('[ABILITY] De Box: +10 bonus each (Gandoe & Michelle together)');
 		}
 	}
@@ -469,14 +467,14 @@ export function effect_tesla(gameState, playerId) {
 	for (const mosje of player.activeSlots) {
 		if (!mosje || mosje.isDefeated) continue;
 		const id = String(mosje.cardId).toLowerCase();
-		if (id.includes('coert')) mosje.mp += 20;
-		if (id.includes('binti')) { mosje.mp += 20; bintiActive = true; }
+		if (id.includes('coert')) applyGain(state, mosje, 20);
+		if (id.includes('binti')) { applyGain(state, mosje, 20); bintiActive = true; }
 	}
 	if (bintiActive) {
 		for (const mosje of player.activeSlots) {
 			if (!mosje || mosje.isDefeated) continue;
 			const id = String(mosje.cardId).toLowerCase();
-			if (id.includes('coert') || id.includes('binti')) mosje.mp += 10;
+			if (id.includes('coert') || id.includes('binti')) applyGain(state, mosje, 10);
 		}
 		console.log('[PLACE] Tesla: road trip bonus — Coert & Binti together +10 each');
 	}
