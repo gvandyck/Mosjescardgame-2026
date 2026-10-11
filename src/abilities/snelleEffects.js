@@ -2,6 +2,7 @@
 // Filled in Phase 4.
 
 import { loseMP } from '../engine/mpManager.js';
+import { applyGainToSlot } from '../engine/mp/applyGainToSlot.js';
 
 console.log('[ABILITY] snelleEffects.js loaded');
 
@@ -16,7 +17,7 @@ export function effect_emergency_healings(gameState, playerId) {
 	const mosje = player.activeSlots[slotIndex];
 	const resilient = mosje.traits?.resilient || 0;
 	const healAmount = resilient >= 2 ? 35 : 25;
-	mosje.mp += healAmount;
+	applyGainToSlot(mosje, healAmount, { turnNumber: state.turnNumber });
 
 	console.log('[ABILITY] Emergency Healings:', `+${healAmount} MP`);
 	return state;
@@ -53,7 +54,7 @@ export function effect_snelle_jensen(gameState, playerId) {
 		? selected
 		: player.activeSlots.findIndex(s => s !== null && !s.isDefeated);
 	if (slotIndex >= 0 && player.activeSlots[slotIndex] && !player.activeSlots[slotIndex].isDefeated) {
-		player.activeSlots[slotIndex].mp += 20;
+		applyGainToSlot(player.activeSlots[slotIndex], 20, { turnNumber: state.turnNumber });
 	}
 	if (state._pendingTargets) delete state._pendingTargets.jensen_slot_index;
 	console.log('[ABILITY] Jensen: +20 MP');
@@ -69,7 +70,7 @@ export function effect_snelle_emergency_healings(gameState, playerId) {
 		const mosje = player.activeSlots[slotIndex];
 		const resilient = mosje.traits?.resilient || 0;
 		const healAmount = resilient >= 2 ? 35 : 25;
-		mosje.mp += healAmount;
+		applyGainToSlot(mosje, healAmount, { turnNumber: state.turnNumber });
 	}
 	console.log('[ABILITY] Emergency Healings (snelle): unconditional heal');
 	return state;
@@ -151,7 +152,7 @@ export function effect_snelle_momentum_rush(gameState, playerId) {
 	const player = state.players?.[playerId];
 	if (!player) return state;
 	const slotIndex = player.activeSlots.findIndex(s => s !== null && !s.isDefeated);
-	if (slotIndex >= 0) player.activeSlots[slotIndex].mp += 15;
+	if (slotIndex >= 0) applyGainToSlot(player.activeSlots[slotIndex], 15, { turnNumber: state.turnNumber });
 	console.log('[ABILITY] Momentum Rush: +15 MP');
 	return state;
 }
@@ -206,7 +207,7 @@ export function effect_snelle_bijna_welloe(gameState, playerId) {
 	if (!player) return state;
 	const slotIndex = player.activeSlots.findIndex(s => s !== null && !s.isDefeated);
 	if (slotIndex >= 0 && player.activeSlots[slotIndex].mp <= 10) {
-		player.activeSlots[slotIndex].mp += 20;
+		applyGainToSlot(player.activeSlots[slotIndex], 20, { turnNumber: state.turnNumber });
 		console.log('[ABILITY] Bijna Welloe: +20 MP');
 	}
 	return state;
@@ -232,7 +233,7 @@ export function effect_snelle_jantje_jantje_jantje(gameState, playerId) {
 	const oppSlot = opp.activeSlots.findIndex(s => s !== null && !s.isDefeated);
 	const ownSlot = player.activeSlots.findIndex(s => s !== null && !s.isDefeated);
 	if (oppSlot >= 0) state = loseMP(state, oppId, oppSlot, 30, 'DRAIN');
-	if (ownSlot >= 0) state.players[playerId].activeSlots[ownSlot].mp += 30;
+	if (ownSlot >= 0) applyGainToSlot(state.players[playerId].activeSlots[ownSlot], 30, { turnNumber: state.turnNumber });
 	console.log('[ABILITY] Jantje Jantje Jantje: stole 30 MP from opponent');
 	return state;
 }

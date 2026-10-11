@@ -7,6 +7,8 @@ import { gainMP, loseMP } from '../engine/mpManager.js';
 import { markMosjeDefeated } from '../engine/victoryChecker.js';
 import * as piecieEffects from './piecieEffects.js';
 import { PIECIES } from '../data/piecies.js';
+import { applyGainToSlot } from '../engine/mp/applyGainToSlot.js';
+import { applyMpLossToSlot } from '../engine/mp/applyMpLossToSlot.js';
 
 console.log('[ABILITY] mosjeAbilities.js loaded');
 
@@ -19,19 +21,16 @@ function cloneState(state) {
 // opponent-targeting abilities enforce U8 themselves by throwing when the
 // target just entered play (the throw is caught by useMosjeAbility, so the
 // ability is simply unusable — no cost, no once-per-turn consumed).
-function applyDamage(mosje, amount) {
-	if (!mosje || mosje.isDefeated || amount <= 0) return;
-	mosje.mp -= amount;
-	while (mosje.mp < 0) {
-		// Defeat-at-0: Level 0 below 0 from a damaging effect → pending defeat
-		// (swept by applyPendingDefeats in checkVictory). Ruling phase0-rulings.md:118.
-		if (mosje.level <= 1) { mosje.mp = 0; mosje._pendingDefeat = true; break; } // 54-05 interim: Level 1 is the bottom level; replaced by applyGetemt in 54-10
-		const overflow = -mosje.mp;
-		mosje.level -= 1;
-		mosje.mp = 100 - overflow;
-	}
-	mosje.mp = Math.max(0, mosje.mp);
-	mosje.mpLostThisTurn = (mosje.mpLostThisTurn || 0) + amount;
+// Thin wrapper over the 2.0 loss funnel (pipeline -> subtract -> track -> getemt).
+// `playerId` is the OWNER of the slot being hit.
+function applyDamage(state, playerId, mosje, amount, source = 'ABILITY') {
+	if (!mosje || mosje.isDefeated || !(amount > 0)) return { final: 0, getemt: null };
+	return applyMpLossToSlot({ state, playerId, slot: mosje, amount, source });
+}
+
+// applyGain — thin wrapper over the 2.0 gain funnel (100+ levels up, L3 caps at 95).
+function applyGain(state, mosje, amount) {
+	return applyGainToSlot(mosje, amount, { turnNumber: state.turnNumber });
 }
 
 function getFirstActiveSlotIndex(player) {
@@ -61,7 +60,7 @@ export function ability_dj_8020_lucky_beats(gameState, playerId) {
 	const slotIndex = getFirstActiveSlotIndex(player);
 	if (slotIndex < 0) return state;
 
-	player.activeSlots[slotIndex].mp += 10;
+	applyGain(state, player.activeSlots[slotIndex], 10);
 	// BUG-05: DJ Lucky Mixer — add +2 to next Quest roll this turn.
 	// questPrepBonus is consumed at quest resolution in main.js and reset to 0 at endTurn.
 	player.questPrepBonus = (player.questPrepBonus || 0) + 2;
@@ -127,7 +126,7 @@ export function ability_coert_extra_resources(gameState, playerId, sourceMosjeId
 
 	const mosje = player.activeSlots[slotIndex];
 	if (mosje.mp < 10) throw new Error('Not enough MP for Coert ability');
-	applyDamage(mosje, 10);
+	applyDamage(state, playerId, mosje, 10);
 
 	const { drawn, remaining } = drawCards(player.deck, 1);
 	player.deck = remaining;
@@ -156,7 +155,8 @@ export function ability_gandoe_wizard_chaos_roll(gameState, playerId) {
 	else if (roll <= 4) delta = 20;
 	else if (roll === 5) delta = 30;
 	else delta = 50;
-	player.activeSlots[si].mp += delta;
+	if (delta < 0) applyDamage(state, playerId, player.activeSlots[si], -delta);
+	else applyGain(state, player.activeSlots[si], delta);
 	console.log(`[ABILITY] Gandoe Wizard: rolled ${roll} → ${delta > 0 ? '+' : ''}${delta} MP`);
 	return state;
 }
@@ -180,7 +180,7 @@ export function ability_alyssa_bulldozer_unstoppable(gameState, playerId) {
 	const mosje = player.activeSlots[si];
 	const lost = mosje.mpLostThisTurn || 0;
 	const bonus = Math.floor(lost / 10) * 5;
-	if (bonus > 0) mosje.mp += bonus;
+	if (bonus > 0) applyGain(state, mosje, bonus);
 	console.log(`[ABILITY] Alyssa Bulldozer: ${lost} MP lost this turn → +${bonus} comeback MP`);
 	return state;
 }
@@ -193,7 +193,7 @@ export function ability_alyssa_fissa_party_power(gameState, playerId) {
 	const si = getFirstActiveSlotIndex(player);
 	if (si < 0) return state;
 	const gain = player.hand.length * 5;
-	player.activeSlots[si].mp += gain;
+	applyGain(state, player.activeSlots[si], gain);
 	console.log(`[ABILITY] Alyssa Fissa: ${player.hand.length} cards in hand → +${gain} MP`);
 	return state;
 }
@@ -207,10 +207,10 @@ export function ability_azn_cless_risk_reward(gameState, playerId) {
 	if (si < 0) return state;
 	const roll = rollDie(6);
 	if (roll % 2 === 0) {
-		player.activeSlots[si].mp += 25;
+		applyGain(state, player.activeSlots[si], 25);
 		console.log(`[ABILITY] AZN Cless: rolled ${roll} (even) → +25 MP`);
 	} else {
-		applyDamage(player.activeSlots[si], 15);
+		applyDamage(state, playerId, player.activeSlots[si], 15);
 		console.log(`[ABILITY] AZN Cless: rolled ${roll} (odd) → -15 MP`);
 	}
 	return state;
@@ -233,7 +233,7 @@ export function ability_parkour_west_adaptive_combat(gameState, playerId) {
 	if (si < 0) return state;
 	const mosje = player.activeSlots[si];
 	const gain = (mosje.mpLostThisTurn || 0) > 0 ? 20 : 10;
-	mosje.mp += gain;
+	applyGain(state, mosje, gain);
 	console.log(`[ABILITY] Parkour West: adaptive +${gain} MP`);
 	return state;
 }
@@ -371,7 +371,7 @@ export function ability_ming_predictor_future_sight(gameState, playerId) {
 	const slotIndex = player.activeSlots.findIndex(s => s && !s.isDefeated && String(s.cardId).includes('ming'));
 	if (slotIndex < 0) throw new Error('Ming not on field');
 	if (player.activeSlots[slotIndex].mp < 10) throw new Error('Not enough MP — Future Sight costs 10 MP');
-	player.activeSlots[slotIndex].mp -= 10;
+	applyDamage(state, playerId, player.activeSlots[slotIndex], 10);
 	const deck = state.sharedGeneralQuestDeck || [];
 	if (deck.length === 0) { console.log('[ABILITY] Ming: quest deck empty'); return state; }
 	// Move-to-bottom decision comes from _pendingTargets.mingSendToBottom (set by UI)
@@ -422,7 +422,7 @@ export function ability_martin_senor_west_calculated_guess(gameState, playerId, 
 
 	const isCorrect = guess === topCardType;
 	if (isCorrect) {
-		player.activeSlots[si].mp += 10;
+		applyGain(state, player.activeSlots[si], 10);
 		const drawn = player.deck.splice(0, 2);
 		player.hand.push(...drawn);
 		console.log(`[ABILITY] Senor West: correct guess (${guess}) → +10 MP, drew ${drawn.length} card(s)`);
@@ -455,7 +455,7 @@ export function ability_hacker_system_hack(gameState, playerId) {
 	if ((slot.systemHackCooldown || 0) > 0) {
 		throw new Error(`System Hack is on cooldown (${slot.systemHackCooldown} turn(s) left)`);
 	}
-	slot.mp += 10;
+	applyGain(state, slot, 10);
 	if (player.deck.length > 0) player.hand.push(player.deck.shift());
 	slot.systemHackCooldown = 5;
 	console.log('[ABILITY] Hacker System Hack: +10 MP, drew 1 card, cooldown 5');
@@ -568,8 +568,8 @@ export function ability_tactician_mp_manipulation(gameState, playerId) {
 	}
 	const [high, low] = slots[0].mp >= slots[1].mp ? [slots[0], slots[1]] : [slots[1], slots[0]];
 	const transfer = Math.min(20, high.mp);
-	applyDamage(high, transfer);
-	low.mp += transfer;
+	applyDamage(state, playerId, high, transfer);
+	applyGain(state, low, transfer);
 	console.log(`[ABILITY] Tactician: transferred ${transfer} MP from ${high.name} → ${low.name}`);
 	return state;
 }
@@ -795,7 +795,7 @@ export function ability_martin_driver_perfect_line(gameState, playerId) {
 	if (si < 0) return state;
 	const mosje = player.activeSlots[si];
 	const gain = [15, 25, 35][Math.min(3, Math.max(1, mosje.level || 1)) - 1];
-	mosje.mp += gain;
+	applyGain(state, mosje, gain);
 	console.log(`[ABILITY] Martin Driver: level ${mosje.level} → +${gain} MP`);
 	return state;
 }
@@ -812,7 +812,7 @@ export function ability_amplifier_power_boost(gameState, playerId) {
 	if (si < 0) throw new Error('Amplifier not on field');
 	const mosje = player.activeSlots[si];
 	if (mosje.mp < 30) throw new Error('Not enough MP — Power Boost costs 30 MP');
-	applyDamage(mosje, 30);
+	applyDamage(state, playerId, mosje, 30);
 	player.amplifierUses = (player.amplifierUses || 0) + 1;
 	player.abilityDoubleTrigger = true;
 	console.log('[ABILITY] Amplifier Power Boost: paid 30 MP, double-trigger armed (use', player.amplifierUses, 'of 2)');
@@ -843,7 +843,7 @@ export function ability_tuk_architect_perfect_placement(gameState, playerId) {
 	if (player.activeSlots[slotIndex].mp < 15) throw new Error('Not enough MP — Perfect Placement costs 15 MP');
 	const chosen = state._pendingTargets?.tukChosenCardIds; // array of up to 2 cardIds from top 5
 	if (!Array.isArray(chosen) || chosen.length === 0) throw new Error('Perfect Placement requires card selection');
-	player.activeSlots[slotIndex].mp -= 15;
+	applyDamage(state, playerId, player.activeSlots[slotIndex], 15);
 	const top5 = player.deck.slice(0, 5);
 	const rest = player.deck.slice(5);
 	const taken = [];

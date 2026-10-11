@@ -8,6 +8,8 @@ import { rollDie } from '../engine/deckEngine.js';
 import { gainMP, loseMP } from '../engine/mpManager.js';
 import { checkVictory } from '../engine/victoryChecker.js';
 import { roundToFive } from '../engine/roundToFive.js';
+import { applyGainToSlot } from '../engine/mp/applyGainToSlot.js';
+import { applyMpLossToSlot } from '../engine/mp/applyMpLossToSlot.js';
 import { applyPlaceEffectsOnQuest } from '../engine/turnManager.js';
 
 console.log('[ABILITY] questLogic.js loaded');
@@ -125,17 +127,6 @@ export function checkTraitRoll(gameState, playerId, activeMosjeId, traitName, th
 
 function getTraitFromMosje(mosje, traitName) {
 	return Number(mosje?.traits?.[traitName] || 0);
-}
-
-function applyQuestMpResult(mosje, questCard, didSucceed) {
-  if (didSucceed) {
-    mosje.mp += questCard.successMP;
-    return;
-  }
-  const failValue = typeof questCard.failMP === 'number'
-    ? questCard.failMP
-    : (typeof questCard.failureMP === 'number' ? questCard.failureMP : 0);
-  mosje.mp += failValue;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -519,11 +510,13 @@ function applyMosjeFieldEffectsOnQuest(gameState, playerId, slotIndex, questMpGa
 		if (questMpGained > 0) {
 			if (roll >= 4) {
 				adjustment = questMpGained;           // add same amount again → 2× total
-				mosje.mp += adjustment;
+				applyGainToSlot(mosje, adjustment, { turnNumber: state.turnNumber });
 				label = `rolled ${roll} (4+) ✦ DOUBLED! +${adjustment} extra MP (total +${questMpGained * 2})`;
 			} else {
 				adjustment = -roundToFive(questMpGained / 2);  // take back half → ½ total (5-grid)
-				mosje.mp = Math.max(0, mosje.mp + adjustment);  // clamp: level-up may have reset mp to 0 before this fires
+				// Take back half the reward as a loss through the 2.0 funnel. A level-up may already
+				// have reset MP to 0 before this fires: nothing is left to take back, so skip (no getemt).
+				if (mosje.mp > 0) applyMpLossToSlot({ state, playerId, slot: mosje, amount: -adjustment, source: 'ABILITY' });
 				label = `rolled ${roll} (1-3) ✦ Halved. ${adjustment} MP (total +${questMpGained + adjustment})`;
 			}
 		} else {
@@ -558,7 +551,7 @@ function applyMosjeFieldEffectsOnQuest(gameState, playerId, slotIndex, questMpGa
 	// on field — no manual activation needed. FOOD/RESTORE block is enforced
 	// separately in playPiecie (turnManager.js) also without needing activation.
 	if (mosje.cardId === 'mosje_jeffrey' && questMpGained > 0) {
-		mosje.mp += 10;
+		applyGainToSlot(mosje, 10, { turnNumber: state.turnNumber });
 		const label = `Brute Force: +10 MP bonus (total quest gain ${questMpGained + 10})`;
 		console.log(`[ABILITY] Jeffrey ${label} | mp=${mosje.mp}`);
 		// Append to existing auto-ability log if Michelle also fired (edge case),
@@ -586,7 +579,7 @@ function applyMosjeFieldEffectsOnQuest(gameState, playerId, slotIndex, questMpGa
 	) {
 		const roll = rollDie(6);
 		if (roll === 6) {
-			mosje.mp += 30;
+			applyGainToSlot(mosje, 30, { turnNumber: state.turnNumber });
 			const oppId = Object.keys(state.players).find(id => id !== playerId);
 			const oppSlotIndex = oppId
 				? state.players[oppId].activeSlots.findIndex(s => s && !s.isDefeated)
