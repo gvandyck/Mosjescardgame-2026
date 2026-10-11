@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Obby Card Game 2.0 — slice A (offline vs bot)
-status: verifying
-stopped_at: v2.0 roadmap written (ROADMAP.md v2.0 section, REQUIREMENTS.md traceability, this file)
+status: executing
+stopped_at: Phase 55 plan 03 complete
 last_updated: "2026-10-11T15:21:16.877Z"
 last_activity: 2026-10-11
 progress:
