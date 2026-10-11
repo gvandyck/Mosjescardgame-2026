@@ -121,6 +121,7 @@ Plans:
   4. A Quest's "First you must…" cost is paid before the roll and never refunded ("hand or a ready one" accepts both); a fail adds a token, and a win or a second token replaces the Quest from its stack, which reshuffles its own discards when it runs out.
   5. A won Quest's jab makes one non-fresh opponent Mosje (the winner's choice) lose 10 MP and can getemt it, and also hits a level-up-protected Mosje; named bonuses, +1 die rules, Vraag Aad, Cheat code's draw, Debug System and Parkeren Delft work.
 **Tests to add**: E10, E12, E13, E15, E16, E17, E18, E19, E20.
+**Known gap from Phase 54 (54-11)**: `attemptGeneralQuest`/`attemptPersonalQuest` don't know the acting Mosje, so sideways Mosjes are blocked from Quests only by the UI picker and bot. The new Quest and attack actions must take the acting Mosje and call `canMosjeAct` (engine-level gate + test).
 **Notes**: Use `docs/obby-2.0/tools/obby_desk_sim.py` as a reference for turn order and getemt, not as code. Old General/Personal Quest tests are rewritten or deleted here.
 **Plans**: TBD
 
