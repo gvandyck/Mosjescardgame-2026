@@ -65,7 +65,7 @@ function makeMosjeSlot(cardId: string, mp = 50): MosjeSlot {
     cardId,
     name: def?.name ?? cardId,
     mp,
-    level: 0,
+    level: 1,
     isDefeated: false,
     abilityUsedThisTurn: false,
     immuneThisTurn: false,
@@ -370,7 +370,7 @@ describe('driveBotTurn — AZN Cless Risk and Reward gating', () => {
     // a neutral risk profile, so the gate should hold here too — proving the
     // gate is genuinely severity-graduated, not just a defeat/no-defeat check.
     const state = makeState({
-      activeSlots: [{ ...makeMosjeSlot('mosje_azn_cless', 10), level: 1 }],
+      activeSlots: [{ ...makeMosjeSlot('mosje_azn_cless', 10), level: 2 }],
     });
     const result = driveBotTurn(state, 'player_2');
     const clessAfter = (result.players.player_2.activeSlots as MosjeSlot[])[0];

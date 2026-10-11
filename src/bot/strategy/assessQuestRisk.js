@@ -52,7 +52,7 @@ function hasBackupMosje(gameState, playerId, slotIndex) {
 export function classifyLossSeverity({ mpBefore, level, lossAmount, gameState, playerId, slotIndex }) {
 	if (lossAmount <= 0) return 'none';
 	if (mpBefore - lossAmount >= 0) return 'safe';
-	if ((level || 0) > 0) return 'regress';
+	if ((level || 1) > 1) return 'regress';
 	return hasBackupMosje(gameState, playerId, slotIndex) ? 'defeat' : 'fatal';
 }
 
@@ -97,7 +97,7 @@ export function assessQuestRisk({ questDef, mosje, slotIndex, gameState, playerI
 		+ (gameState?.players?.[playerId]?.questBonusMP || 0)
 		+ getPartnerSynergyQuestBonus(gameState, playerId, questDef?.category, mosje.cardId);
 	const levelsUp = mpAtRoll + successMP >= 100;
-	const winsGame = levelsUp && (mosje.level || 0) >= 2;
+	const winsGame = levelsUp && (mosje.level || 1) >= 2;
 	if (odds.autoSuccess) {
 		return { ...base, attempt: true, reason: 'auto-success', pSuccess: 1, levelsUp, winsGame };
 	}

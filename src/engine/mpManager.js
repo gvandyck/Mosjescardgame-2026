@@ -227,7 +227,7 @@ export function loseMP(gameState, playerId, slotIndex, amount, source = 'DRAIN',
   // swept by applyPendingDefeats() inside checkVictory(). Guarded MP-cost
   // payments never reach below 0, so they never trigger this.
   while (mosje.mp < 0) {
-    if (mosje.level === 0) {
+    if (mosje.level <= 1) { // 54-05 interim: Level 1 is the bottom level; replaced by applyGetemt in 54-10
       mosje.mp = 0;
       mosje._pendingDefeat = true;
       console.log(`[ENGINE] 💀 ${mosje.name} reduced below 0 at Level 0 → pending defeat`);

@@ -126,6 +126,9 @@ describe('Offline game smoke test', () => {
       { playerId: 'player_1', name: 'Human', deckId: 'PHYSICAL_FORCE' },
       { playerId: 'player_2', name: 'Bot',   deckId: 'DIGITAL_CONTROL' },
     ];
+    // 54-05: levels are 1-3 now, so the shared 0xC0FFEE game ends by a Level-3 win before any
+    // deck-out; this test uses its own fixed seed so the skip path is reached deterministically.
+    Math.random = mulberry32(99);
     let state: any = createInitialGameState(players, 'DECKOUT_TEST');
     // Trim both decks to 3 cards so deck-out (and the skip path) triggers within a few turns.
     state.players.player_1.deck = state.players.player_1.deck.slice(0, 3);

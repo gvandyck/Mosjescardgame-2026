@@ -49,7 +49,7 @@ function applyDamage(mosje, amount) {
 	while (mosje.mp < 0) {
 		// Defeat-at-0: Level 0 below 0 from a damaging effect → pending defeat
 		// (swept by applyPendingDefeats in checkVictory). Ruling phase0-rulings.md:118.
-		if (mosje.level === 0) { mosje.mp = 0; mosje._pendingDefeat = true; break; }
+		if (mosje.level <= 1) { mosje.mp = 0; mosje._pendingDefeat = true; break; } // 54-05 interim: Level 1 is the bottom level; replaced by applyGetemt in 54-10
 		const overflow = -mosje.mp;
 		mosje.level -= 1;
 		mosje.mp = 100 - overflow;

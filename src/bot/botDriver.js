@@ -149,7 +149,7 @@ function getOpponentPressure(state, botPlayerId) {
   const oppId = Object.keys(state.players).find(id => id !== botPlayerId);
   const active = (state.players[oppId]?.activeSlots || []).filter(s => s && !s.isDefeated);
   const lethalPressure = active.length === 1
-    && (active[0].level || 0) === 0
+    && (active[0].level || 1) === 1
     && (active[0].mp || 0) <= 30
     && active[0].entryProtected !== true; // U8 — no lethal window vs protected
   // U8 — attacks fizzle while every opponent Mosje is entry-protected; the
@@ -237,10 +237,10 @@ function shouldUseEliminationStrike(state, botPlayerId, slot, cost) {
   // U8 — the strike auto-targets the lowest-level Mosje (no redirect). If that
   // target just entered play, the ability would throw — don't attempt it.
   const target = [...oppActive].sort((a, b) =>
-    (a.level || 0) - (b.level || 0) || (a.mp || 0) - (b.mp || 0))[0];
+    (a.level || 1) - (b.level || 1) || (a.mp || 0) - (b.mp || 0))[0];
   if (target?.entryProtected === true) return false;
   const setsUpKnockout = oppActive.length === 1;
-  const removesLeveledThreat = oppActive.some(s => (s.level || 0) >= 1);
+  const removesLeveledThreat = oppActive.some(s => (s.level || 1) >= 2);
   if (setsUpKnockout || removesLeveledThreat) {
     emitBotMetric('elimination-strike', { knockout: setsUpKnockout });
     return true;

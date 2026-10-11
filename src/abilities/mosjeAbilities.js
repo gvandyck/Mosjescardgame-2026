@@ -25,7 +25,7 @@ function applyDamage(mosje, amount) {
 	while (mosje.mp < 0) {
 		// Defeat-at-0: Level 0 below 0 from a damaging effect → pending defeat
 		// (swept by applyPendingDefeats in checkVictory). Ruling phase0-rulings.md:118.
-		if (mosje.level === 0) { mosje.mp = 0; mosje._pendingDefeat = true; break; }
+		if (mosje.level <= 1) { mosje.mp = 0; mosje._pendingDefeat = true; break; } // 54-05 interim: Level 1 is the bottom level; replaced by applyGetemt in 54-10
 		const overflow = -mosje.mp;
 		mosje.level -= 1;
 		mosje.mp = 100 - overflow;
@@ -794,7 +794,7 @@ export function ability_martin_driver_perfect_line(gameState, playerId) {
 	const si = getFirstActiveSlotIndex(player);
 	if (si < 0) return state;
 	const mosje = player.activeSlots[si];
-	const gain = [15, 25, 35][mosje.level] ?? 35;
+	const gain = [15, 25, 35][Math.min(3, Math.max(1, mosje.level || 1)) - 1];
 	mosje.mp += gain;
 	console.log(`[ABILITY] Martin Driver: level ${mosje.level} → +${gain} MP`);
 	return state;

@@ -25,7 +25,7 @@ function makeMosje(overrides: Record<string, unknown> = {}) {
     cardId: 'mosje_test',
     name: 'Test Mosje',
     mp: 50,
-    level: 0,
+    level: 1,
     isDefeated: false,
     statusEffects: [],
     traits: { physical: 3 },
@@ -296,12 +296,12 @@ describe('classifyLossSeverity', () => {
   });
 
   it('none — zero loss is never a risk', () => {
-    expect(classifyLossSeverity({ mpBefore: 5, level: 0, lossAmount: 0 })).toBe('none');
+    expect(classifyLossSeverity({ mpBefore: 5, level: 1, lossAmount: 0 })).toBe('none');
   });
 
   it('safe — MP stays at or above 0 after the loss', () => {
     const sev = classifyLossSeverity({
-      mpBefore: 30, level: 0, lossAmount: 15,
+      mpBefore: 30, level: 1, lossAmount: 15,
       gameState: state([makeMosje({ mp: 30 })]), playerId: 'player_2', slotIndex: 0,
     });
     expect(sev).toBe('safe');
@@ -309,26 +309,26 @@ describe('classifyLossSeverity', () => {
 
   it('regress — would drop below 0 but the Mosje has a level to lose', () => {
     const sev = classifyLossSeverity({
-      mpBefore: 10, level: 1, lossAmount: 15,
-      gameState: state([makeMosje({ mp: 10, level: 1 })]), playerId: 'player_2', slotIndex: 0,
+      mpBefore: 10, level: 2, lossAmount: 15,
+      gameState: state([makeMosje({ mp: 10, level: 2 })]), playerId: 'player_2', slotIndex: 0,
     });
     expect(sev).toBe('regress');
   });
 
-  it('defeat — Level-0 and would be defeated, but a backup Mosje exists', () => {
+  it('defeat — Level-1 (bottom) and would be defeated, but a backup Mosje exists', () => {
     const mosje = makeMosje({ mp: 10 });
     const backup = makeMosje({ cardId: 'mosje_backup', mp: 40 });
     const sev = classifyLossSeverity({
-      mpBefore: 10, level: 0, lossAmount: 15,
+      mpBefore: 10, level: 1, lossAmount: 15,
       gameState: state([mosje, backup]), playerId: 'player_2', slotIndex: 0,
     });
     expect(sev).toBe('defeat');
   });
 
-  it('fatal — Level-0, would be defeated, and no backup Mosje anywhere', () => {
+  it('fatal — Level-1 (bottom), would be defeated, and no backup Mosje anywhere', () => {
     const mosje = makeMosje({ mp: 10 });
     const sev = classifyLossSeverity({
-      mpBefore: 10, level: 0, lossAmount: 15,
+      mpBefore: 10, level: 1, lossAmount: 15,
       gameState: state([mosje], []), playerId: 'player_2', slotIndex: 0,
     });
     expect(sev).toBe('fatal');
