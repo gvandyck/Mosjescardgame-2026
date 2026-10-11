@@ -6,7 +6,7 @@
  * helpers from the chain tests: authoritative getGameState reads (DOM lags when
  * the opponent has 2 Mosjes), game-over guards, and auto-dismiss of target
  * selectors. The MP delta is snapshotted JUST before the activation so it
- * isolates the card's effect from the turn-start trickle.
+ * isolates the card's effect from the turn-start Energy/draw.
  *
  * CardTestSpec fields:
  *   cardId         — e.g. 'piecie_kannetje_melk'
@@ -61,7 +61,7 @@ function buildDeck(spec) {
 	const isPiecie = spec.cardType === 'PIECIE';
 	const isSnelle = spec.cardType === 'SNELLE_PIECIE';
 	const isPlace = spec.cardType === 'PLACE';
-	// Generous filler so the deck never empties (opening hand is 6 + a turn-start draw;
+	// Generous filler so the deck never empties (opening hand is 3 + a turn-start draw;
 	// DRAW cards/abilities need cards LEFT in the deck to draw).
 	const baseFiller = [...FILLER, ...FILLER, 'piecie_affoe', 'piecie_affoe'];
 	return {

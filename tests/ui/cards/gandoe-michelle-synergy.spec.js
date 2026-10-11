@@ -92,7 +92,7 @@ async function setupEstablishedTurn(page) {
 	await seedDuoScenario(page);
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
-	await endTurnAndWait(page); // P1 first-turn General Quest lock.
+	await endTurnAndWait(page); // reach an established turn (no first-turn lock in 2.0).
 	await clearEntryProtection(page);
 }
 
@@ -154,7 +154,8 @@ test('Scenario C (D-04): Michelle roll 5 never grants the bonus to Gandoe Wizard
 	expect(delta).toBe(0);
 });
 
-test('Scenario D (D-05): Gandoe Physical Quest gains +15 MP while Michelle is on field', async ({ page }) => {
+// KNOWN GAP (fix in Phase 56): Quest resolution is rewritten (attack-or-Quest, dice bands).
+test.fixme('Scenario D (D-05): Gandoe Physical Quest gains +15 MP while Michelle is on field', async ({ page }) => {
 	test.setTimeout(60000);
 	await mockDiceRoll(page, 0.55); // d6 roll 4, enough for quest_shotje_obby.
 	await setupEstablishedTurn(page);

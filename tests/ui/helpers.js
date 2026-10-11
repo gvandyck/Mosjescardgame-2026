@@ -78,8 +78,8 @@ export async function readOwnedMosjes(page) {
 export async function readOpponentMosjes(page) {
 	return page.evaluate(() =>
 		[...document.querySelectorAll('.mosje-card--opponent')].map(card => ({
-			name: card.querySelector('.mosje-name-v2')?.textContent?.trim() ?? '?',
-			mp:   Number(card.querySelector('.mosje-mp-header')?.textContent?.trim() ?? '-1'),
+			name: card.querySelector('.cv1-first, .uc-title, .mosje-name-v2')?.textContent?.trim() ?? '?',
+			mp:   Number(card.querySelector('[data-cv1-mp], .uc-mp-val, .mosje-mp-header')?.textContent?.trim() ?? '-1'),
 		}))
 	);
 }

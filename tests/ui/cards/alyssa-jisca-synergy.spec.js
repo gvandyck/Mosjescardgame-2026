@@ -8,10 +8,8 @@
  * both halves of the DUO_JISCA_ALYSSA headline synergy.
  *
  * Scenario A (D-02, Alyssa side): while Jisca is also on the field, Alyssa
- * gains +10 MP at the start of each of her owner's turns (on top of the
- * fixed +10 turn trickle every active Mosje already gets — src/engine/
- * turnManager.js). Total expected delta across one turn boundary: 20 MP
- * (10 trickle + 10 synergy).
+ * gains +10 MP at the start of each of her owner's turns (2.0 has no turn-start
+ * trickle, so the expected delta across one turn boundary is 10 MP).
  *
  * Scenario B (D-03, Jisca side): while an Alyssa is also on the field, the
  * FIRST Piecie the owner plays each turn gives +10 MP (once-per-turn cap —
@@ -84,7 +82,7 @@ test('Scenario A (D-02): Alyssa gains +10 MP at start of turn while Jisca is on 
 	test.setTimeout(60000);
 	// Force all dice rolls to fail (roll 1) so the harmless bot's General Quest
 	// attempts (if any) never succeed a reward — Alyssa's MP stays isolated to
-	// the trickle + synergy under test.
+	// the synergy under test.
 	await mockDiceRoll(page, 0);
 	await seedDuoScenario(page, PLAYER_DECK, BOT_DECK_HARMLESS);
 	await page.goto(GAME_URL_TEST);
@@ -99,18 +97,17 @@ test('Scenario A (D-02): Alyssa gains +10 MP at start of turn while Jisca is on 
 	await ss(page, 'alyssa-jisca-scenario-a-before');
 
 	// Advance through the bot's turn back to the owner's next turn — this is
-	// where the turn-start trickle (+10, always) and the Alyssa synergy bonus
-	// (+10, once wired) both fire (src/engine/turnManager.js startTurn).
+	// where the Alyssa synergy bonus (+10) fires; 2.0 has no turn-start trickle (src/engine/turnManager.js startTurn).
 	await endTurnAndWait(page);
 
 	const after = (await getGameState(page)).players.player_1.activeSlots[0].mp;
 	const delta = after - before;
-	console.log(`Scenario A — Alyssa MP delta across turn boundary: ${delta} (expect 20 = 10 trickle + 10 synergy)`);
+	console.log(`Scenario A — Alyssa MP delta across turn boundary: ${delta} (expect 10 = synergy only, no 2.0 trickle)`);
 	await ss(page, 'alyssa-jisca-scenario-a-after');
 
-	// GREEN on Plan 38-02 wiring: the fixed +10 turn trickle plus the +10
-	// Alyssa<->Jisca synergy bonus (turnManager.startTurn) sum to 20.
-	expect(delta).toBe(20);
+	// 2.0 (RULE-10): the V4 +10 turn-start trickle is gone; only the +10 Alyssa<->Jisca
+	// synergy bonus (turnManager.startTurn) remains, so the delta is 10 (was 20).
+	expect(delta).toBe(10);
 });
 
 test('Scenario B (D-03): first Piecie played each turn gives Jisca +10 MP while an Alyssa is on field; second Piecie grants no extra', async ({ page }) => {

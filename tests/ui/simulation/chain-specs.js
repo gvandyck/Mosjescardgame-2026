@@ -244,7 +244,7 @@ export const CHAIN_EENDJES_VOEREN_MICHELLE = {
 	assertions: [
 		{
 			// After the END_PHASE turn, Michelle's MP should be higher than before end-turn
-			// by at least +10 (the place bonus). May be higher due to trickle too.
+			// by at least +10 (the place bonus). May be higher due to other effects too.
 			after: 'after-end-phase',
 			michelleGainedAtLeast: 10,  // place bonus fires
 			logMatch: /Eendjes|MICHELLE|\+10/i,

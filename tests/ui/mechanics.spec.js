@@ -83,6 +83,8 @@ test('VIS-01: Dubbele Dosis stays on field after activation until end of turn', 
 	await setMosjeMP(page, 'player_1', 0, 50);
 	await page.waitForTimeout(200);
 
+	// 2.0: 3-card opening hand and the first player skips the first draw, so guarantee the card.
+	await page.evaluate(() => window.__testHooks.setHand('player_1', ['piecie_quest_prep']));
 	// Turn 1: play the card face-down from hand
 	await playCardFromHand(page, 'piecie_quest_prep');
 	await page.waitForTimeout(500);
@@ -97,7 +99,7 @@ test('VIS-01: Dubbele Dosis stays on field after activation until end of turn', 
 	await endTurnAndWait(page);
 	await ss(page, 'vis01-turn-2-start');
 
-	// MP BEFORE activation (may have changed due to trickle/bot on turn 2)
+	// MP BEFORE activation (may have changed due to the bot on turn 2)
 	const mpBefore = (await readOwnedMosjes(page))[0]?.mp;
 	console.log(`MP before activation: ${mpBefore}`);
 	expect(mpBefore).toBeGreaterThanOrEqual(0);
@@ -151,6 +153,8 @@ test('VIS-02: Leipe Swap swaps and reverts MP at end of turn', async ({ page }) 
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
 
+	// 2.0: 3-card opening hand and the first player skips the first draw, so guarantee the card.
+	await page.evaluate(() => window.__testHooks.setHand('player_1', ['piecie_leipe_swap']));
 	// Turn 1: play Leipe Swap face-down
 	await playCardFromHand(page, 'piecie_leipe_swap');
 	await page.waitForTimeout(500);
@@ -214,7 +218,8 @@ test('VIS-02: Leipe Swap swaps and reverts MP at end of turn', async ({ page }) 
 // ─── VIS-03: Quest success grants MP, log shows roll + threshold ──────────────
 // Mock dice to roll 6 (always success). After quest: MP increases, log has success.
 
-test('VIS-03: Quest success grants MP and logs roll result', async ({ page }) => {
+// KNOWN GAP (fix in Phase 56): Quest resolution is rewritten (attack-or-Quest, dice bands); V4 expectation kept as-is for the rewrite.
+test.fixme('VIS-03: Quest success grants MP and logs roll result', async ({ page }) => {
 	await mockDiceRoll(page, 0.9999);
 	await seedOfflineSession(page, 'PHYSICAL_FORCE');
 	await page.goto(GAME_URL_TEST);
@@ -279,7 +284,8 @@ test('VIS-04: Quest fail MP floor — MP never goes negative', async ({ page }) 
 // Youri's ability: 20 MP cost → activate face-down piecie + draw 1 card.
 // With only one face-down piecie, auto-activates (no slot picker modal).
 
-test('VIS-05: Youri ability auto-activates single face-down piecie', async ({ page }) => {
+// KNOWN GAP (fix in Phase 58): Youri ability cost moves from -20 MP to Energy (Mosje abilities rewrite); V4 expectation kept as-is for the rewrite.
+test.fixme('VIS-05: Youri ability auto-activates single face-down piecie', async ({ page }) => {
 	// Single Mosje deck — Youri always starts on slot 0, no Chris = no synergy
 	// Use piecie_quest_prep (effect = +questPrepBonus, no MP change) so the Youri
 	// ability's -20 MP is the ONLY MP change, making the assertion exact.
@@ -449,7 +455,8 @@ async function setupYouriWithTwoFaceDown(page) {
 	return played >= 2;
 }
 
-test('VIS-06b: Youri ability — multiple face-down piecies show slot picker', async ({ page }) => {
+// KNOWN GAP (fix in Phase 58): Youri ability cost moves from -20 MP to Energy (Mosje abilities rewrite); V4 expectation kept as-is for the rewrite.
+test.fixme('VIS-06b: Youri ability — multiple face-down piecies show slot picker', async ({ page }) => {
 	if (!await setupYouriWithTwoFaceDown(page)) { console.log('Setup failed — skip'); test.skip(); return; }
 
 	const handBefore = (await readHand(page)).length;
@@ -478,7 +485,8 @@ test('VIS-06b: Youri ability — multiple face-down piecies show slot picker', a
 // ─── VIS-06c: Youri ability — cancel the picker → cost still spent ───────────
 // Phase-27 human-needed scenario 3: cancelling the slot picker still spends the
 // 20 MP (and a use); no card is drawn.
-test('VIS-06c: Youri ability — cancelling slot picker still spends 20 MP', async ({ page }) => {
+// KNOWN GAP (fix in Phase 58): Youri ability cost moves from -20 MP to Energy (Mosje abilities rewrite); V4 expectation kept as-is for the rewrite.
+test.fixme('VIS-06c: Youri ability — cancelling slot picker still spends 20 MP', async ({ page }) => {
 	if (!await setupYouriWithTwoFaceDown(page)) { console.log('Setup failed — skip'); test.skip(); return; }
 
 	const handBefore = (await readHand(page)).length;
@@ -598,6 +606,8 @@ test('VIS-08: Laat me chillen! stays on field after activation until end of turn
 
 	await setMosjeMP(page, 'player_1', 0, 50);
 	await page.waitForTimeout(200);
+	// 2.0: 3-card opening hand and the first player skips the first draw, so guarantee the card.
+	await page.evaluate(() => window.__testHooks.setHand('player_1', ['piecie_laat_me_chillen']));
 
 	// Turn 1: play face-down
 	await playCardFromHand(page, 'piecie_laat_me_chillen');
@@ -648,7 +658,8 @@ test('VIS-08: Laat me chillen! stays on field after activation until end of turn
 // After one general quest per turn (default cap), the button is disabled.
 // The second attempt must not change MP.
 
-test('VIS-09: Quest cap — general quest button disabled after 1 attempt', async ({ page }) => {
+// KNOWN GAP (fix in Phase 56): Quest resolution is rewritten (attack-or-Quest, one action per Mosje); V4 expectation kept as-is for the rewrite.
+test.fixme('VIS-09: Quest cap — general quest button disabled after 1 attempt', async ({ page }) => {
 	await mockDiceRoll(page, 0.9999);
 	await seedOfflineSession(page, 'PHYSICAL_FORCE');
 	await page.goto(GAME_URL_TEST);

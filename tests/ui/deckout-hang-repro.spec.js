@@ -1,17 +1,10 @@
 /**
- * deckout-hang-repro.spec.js — Reproduces the deck-out turn-skip freeze in a REAL browser.
+ * deckout-hang-repro.spec.js - Deck-out must never freeze offline play (Binti vs DDR Chris).
  *
- * Mirrors the reported game: Binti The Sharp Tongue (DIGITAL_CONTROL, human/player_1)
- * vs Dancing/DDR Chris (ARTISTIC_RHYTHM, bot/player_2), offline single-player.
- *
- * The freeze: when the human decks out (D-06 sets skipNextTurn), the human's next
- * startTurn was skipped and control bounced back to the bot — but the offline UI
- * re-enabled End Turn and handed back to the human. It was then the bot's turn with
- * nothing driving it, and every human action was rejected as "not your turn". Frozen.
- *
- * This test forces the deck-out, plays through the skipped turn, and asserts control
- * returns to the human. Before the fix this hangs (the assertion below times out);
- * after the fix the bot auto-takes the skipped turn and control comes back.
+ * Obby 2.0 (RULE-07): drawing from an empty deck reshuffles the discard and makes that
+ * player's turn a COOLDOWN turn (only face-down Piecies). The original V4 freeze was a
+ * skipped human turn the bot never drove; this guards the 2.0 equivalent: after the
+ * cooldown turn control must come back to the human, who can act again.
  */
 
 import { test, expect } from '@playwright/test';
@@ -39,7 +32,7 @@ async function waitForHumanControl(page, timeout, minTurn = 0) {
 	}, minTurn, { timeout });
 }
 
-test('deck-out turn-skip does not freeze offline play (Binti vs DDR Chris)', async ({ page }) => {
+test('deck-out cooldown turn does not freeze offline play (Binti vs DDR Chris)', async ({ page }) => {
 	test.setTimeout(90000);
 
 	// Same matchup as the bug report.
@@ -62,33 +55,31 @@ test('deck-out turn-skip does not freeze offline play (Binti vs DDR Chris)', asy
 	expect(board.players.player_2.activeSlots[0].cardId).toBe('mosje_chris_ddr');
 
 	// Arm the deck-out: empty the human's deck and seed the discard so the next draw
-	// phase reshuffles (which is what sets skipNextTurn).
+	// phase reshuffles (which sets cooldownTurn).
 	await page.evaluate(() => {
 		window.__testHooks.emptyDeck('player_1');
 		window.__testHooks.injectGraveyardCard('player_1', 'piecie_affoe');
 		window.__testHooks.injectGraveyardCard('player_1', 'piecie_affoe');
 	});
 
-	// Turn 1 → End Turn. Bot plays turn 1, then the human's turn 2 begins: deck-out
-	// reshuffle fires and arms skipNextTurn for the human's FOLLOWING turn.
+	// Turn 1 → End Turn. Bot plays, then the human's next turn begins: the empty-deck draw
+	// reshuffles the discard and makes this turn a cooldown turn.
 	await page.click('#btn-end-turn');
 	await waitForHumanControl(page, 30000, 2);
 
 	const armed = await getState(page);
-	expect(armed.players.player_1.skipNextTurn).toBe(true); // deck-out penalty armed
+	expect(armed.players.player_1.cooldownTurn).toBe(true); // 2.0 cooldown turn (no skip)
+	expect(armed.players.player_1.skipNextTurn).toBeUndefined(); // V4 skip is gone
 
-	// Turn 2 → End Turn. This is the critical transition: bot plays turn 2, then the
-	// human's turn 3 is SKIPPED. The bot must auto-take that turn and hand back control.
+	// End the cooldown turn: the bot plays and control MUST return to the human.
 	const turnBefore = armed.turnNumber;
 	await page.click('#btn-end-turn');
-
-	// THE ASSERTION THAT FREEZES PRE-FIX: control must return to the human.
 	await waitForHumanControl(page, 30000, turnBefore + 1);
 
 	const after = await getState(page);
-	expect(after.activePlayerId).toBe('player_1');          // human is active again
-	expect(after.players.player_1.skipNextTurn).toBe(false); // skip was consumed
-	expect(after.turnNumber).toBeGreaterThan(turnBefore);    // play advanced past the skip
+	expect(after.activePlayerId).toBe('player_1');            // human is active again
+	expect(after.players.player_1.cooldownTurn).toBeFalsy();  // cooldown ended with the turn
+	expect(after.turnNumber).toBeGreaterThan(turnBefore);      // play advanced
 
 	await ss(page, 'deckout-hang-repro-recovered');
 });
