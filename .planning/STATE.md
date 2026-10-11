@@ -33,9 +33,9 @@ See: `.planning/PROJECT.md` (updated 2026-10-10)
 ## Current Position
 
 Phase: 54 of 64 (energy, levels and getemt)
-Plan: 9 of 16 (54-01..54-08 done)
+Plan: 10 of 16 (54-01..54-09 done)
 Status: Executing
-Last activity: 2026-10-11 — 54-08 complete (engine fixtures at Level 1, no-Level-0 guard)
+Last activity: 2026-10-11 — 54-09 complete (MP loss pipeline in §2g order)
 
 Progress (v2.0): Phase 53 done; Phase 54 5/16 plans
 
