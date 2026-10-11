@@ -188,6 +188,7 @@ Plans:
   3. A bot holding a reaction Snelle keeps a slot free and plays it when a matching reaction window opens.
   4. Bot decisions read only what a player at a real table would know (no opponent hand, no deck order), guarded by a test.
 **Tests to add**: bot strategy unit tests in `src/bot/strategy/` coverage; a legality check over seeded bot-vs-bot games.
+**Known gap from Phase 54 (54-09)**: Drain Reversal's reflect now uses the raw incoming loss, not the post-reduction amount; set it per the Card List text when Drain Reversal is rewritten.
 **Notes**: Adapt the existing strategy layer; port the desk sim bot's ideas, not its code.
 **Plans**: TBD
 
