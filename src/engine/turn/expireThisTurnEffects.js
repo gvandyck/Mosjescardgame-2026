@@ -5,6 +5,11 @@ export function expireThisTurnEffects(state) {
 		for (const slot of player.activeSlots || []) {
 			if (!slot) continue;
 			delete slot.powerBoostThisTurn;
+			for (const k of ['actedThisTurn', 'attackedThisTurn', 'takenByAttacksThisTurn', 'unstoppableFired', 'flowFired']) delete slot[k];
+			// Unstoppable: lasts until the end of the OWNER's next turn.
+			if (slot.powerBoostUntilOwnerTurnEnd?.ownerId === state.activePlayerId) {
+				delete slot.powerBoostUntilOwnerTurnEnd;
+			}
 			slot.immuneThisTurn = false;
 		}
 	}
