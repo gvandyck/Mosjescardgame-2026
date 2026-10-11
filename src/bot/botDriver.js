@@ -38,6 +38,7 @@ import { MOSJES } from '../data/mosjes.js';
 import { getBotProfile } from './strategy/botProfiles.js';
 import { planPiecieActivations } from './strategy/planPiecieActivations.js';
 import { getAbilityEnergyCost } from '../engine/energy/getAbilityEnergyCost.js';
+import { canPay } from '../engine/energy/canPay.js';
 import { assessQuestRisk, classifyLossSeverity, getRequiredConfidence } from './strategy/assessQuestRisk.js';
 import { rollBotQuestDice } from './strategy/rollBotQuestDice.js';
 import { getCardTags } from './strategy/comboTags.js';
@@ -267,6 +268,7 @@ export function driveBotTurnSteps(gameState, botPlayerId) {
   let setupActivations = 0; // multipliers/MP/prep fired before the quest — metric
   const push = (label) => steps.push({ state, label });
   const finished = () => state.status === 'FINISHED';
+  const onCooldown = state.players[botPlayerId]?.cooldownTurn === true;
 
   // ── Ability helper: use each eligible Mosje's ability in the given phase ──
   const useAbilitiesFor = (timing) => {
@@ -305,7 +307,12 @@ export function driveBotTurnSteps(gameState, botPlayerId) {
   // play it: extra turn trickle, ability access, and quest-risk backup have
   // no real downside, so this needs no risk model (unlike quests/gambles).
   {
-    const mosjeCardRef = (state.players[botPlayerId]?.hand || []).find(c => c.type === 'MOSJE');
+    // 2.0 TABLE-01: summoning costs Energy, so pick the cheapest Mosje the bot can afford.
+    // 2.0 RULE-07: nothing but face-down Piecies on a cooldown turn.
+    const botPlayer = state.players[botPlayerId];
+    const mosjeCardRef = onCooldown ? undefined : (botPlayer?.hand || [])
+      .filter(c => c.type === 'MOSJE' && canPay(botPlayer, MOSJE_LOOKUP[c.cardId]?.cost ?? 0))
+      .sort((a, b) => (MOSJE_LOOKUP[a.cardId]?.cost ?? 0) - (MOSJE_LOOKUP[b.cardId]?.cost ?? 0))[0];
     const hasFreeSlot = (state.players[botPlayerId]?.activeSlots || []).some(s => s === null);
     if (mosjeCardRef && hasFreeSlot) {
       const result = playMosje(state, botPlayerId, mosjeCardRef);
@@ -325,7 +332,7 @@ export function driveBotTurnSteps(gameState, botPlayerId) {
   const handSnapshot = [...(state.players[botPlayerId]?.hand || [])];
   const playable = handSnapshot
     .filter(c => c.type === 'PIECIE'
-      || (c.type === 'QUEST'
+      || (!onCooldown && c.type === 'QUEST'
         && QUEST_LOOKUP[c.cardId]?.questType === 'PERSONAL'
         && canAttemptPersonalQuest(QUEST_LOOKUP[c.cardId], state, botPlayerId)))
     .sort((a, b) => playPriority(a) - playPriority(b));
@@ -350,6 +357,15 @@ export function driveBotTurnSteps(gameState, botPlayerId) {
     } else if (result.error && /slot|full/i.test(result.error)) {
       break; // No more room — stop trying
     }
+  }
+
+  // 2.0 RULE-07: a cooldown turn is only face-down Piecie placing - end it here.
+  if (onCooldown) {
+    if (!finished()) {
+      state = endTurn(state);
+      push('ends turn (cooldown)');
+    }
+    return steps;
   }
 
   // ── Phase C: activate ready Piecies in strategic order ───────────────────

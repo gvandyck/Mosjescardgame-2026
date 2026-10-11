@@ -26,7 +26,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 - [x] **RULE-04**: A player wins when one of their Mosjes is still at Level 3 at the start of their next turn, and loses when no Mosje is left outside their Welloe pile (§2b).
 - [x] **RULE-05**: Setup and turn flow follow §2c: starting Mosje free and fresh, draw 3, 3 face-up Quests, highest die first, player 1 skips the first draw (R5), start-/end-of-turn triggers, "this turn" boosts expire.
 - [x] **RULE-06**: Empty field at turn start → the cheapest Mosje from hand or deck is placed free and fresh (R1); deck shuffled after a search.
-- [ ] **RULE-07**: Deck-out: the discard pile (never the Welloe pile) is shuffled into a new deck and that turn is a cooldown turn (only face-down placing) (§2c).
+- [x] **RULE-07**: Deck-out: the discard pile (never the Welloe pile) is shuffled into a new deck and that turn is a cooldown turn (only face-down placing) (§2c).
 - [ ] **RULE-08**: Fresh Mosjes can't attack, can't be chosen or hit by any opponent card, ability or jab, and ignore Places until their owner's next turn; a just-levelled Mosje can't be taksed until its owner's next turn (R2) (§2b, §2f).
 - [x] **RULE-09**: MP stays a multiple of 5 and never persists below 0; Power is a multiple of 10 and never below 0; one loss resolves in the §2g order (base → reductions → Stabilizer cap → round/floor → no-loss check).
 - [ ] **RULE-10**: V4 leftovers are removed: Level 0, MP costs, first-turn Quest lock, 4th Piecie slot, 6-card opening hand, the "active Mosje" concept (§2c).
@@ -41,7 +41,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 - [ ] **PLAY-07**: Quest extras work: jab (10 MP, non-fresh, can getemt), named bonuses, +1 die rules, Vraag Aad, Cheat code draw, Debug System, Parkeren Delft (§2e).
 
 ### Cards on the table (TABLE)
-- [ ] **TABLE-01**: Max 2 Mosjes per field; summoning from hand on your turn pays the cost and makes the Mosje fresh (§2f).
+- [x] **TABLE-01**: Max 2 Mosjes per field; summoning from hand on your turn pays the cost and makes the Mosje fresh (§2f).
 - [ ] **TABLE-02**: Piecies use 3 slots, are placed face-down for free, become ready on the owner's next turn and are activated by paying their cost; Stays cards remain face-up in their slot until their end time (§2f).
 - [ ] **TABLE-03**: Snelle are played from hand at any time with saved Energy, need a free slot, resolve and are discarded (Blensen! stays until end of turn); not on a cooldown turn (§2f).
 - [ ] **TABLE-04**: The engine opens reaction windows (targeted, would lose MP, attacked, to the Welloe pile, after a Quest roll, after a Piecie activation, Jensen! played) and offers eligible Snelle to the defending player or bot (§3c).
@@ -109,7 +109,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 | RULE-04 | Phase 54 | Complete |
 | RULE-05 | Phase 55 | Complete |
 | RULE-06 | Phase 55 | Complete |
-| RULE-07 | Phase 55 | Pending |
+| RULE-07 | Phase 55 | Complete |
 | RULE-08 | Phase 55 | Pending |
 | RULE-09 | Phase 54 | Complete |
 | RULE-10 | Phase 55 | Pending |
@@ -120,7 +120,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 | PLAY-05 | Phase 56 | Pending |
 | PLAY-06 | Phase 56 | Pending |
 | PLAY-07 | Phase 56 | Pending |
-| TABLE-01 | Phase 55 | Pending |
+| TABLE-01 | Phase 55 | Complete |
 | TABLE-02 | Phase 57 | Pending |
 | TABLE-03 | Phase 57 | Pending |
 | TABLE-04 | Phase 57 | Pending |

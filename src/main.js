@@ -1630,7 +1630,7 @@ function initGamePage() {
 		_lastDeckOutShownId = id;
 
 		const name = state.players?.[evt.playerId]?.name || 'A player';
-		log.add('quest', `♻ ${name}'s deck ran out — discard reshuffled into deck. ${name} skips their next turn (1-turn cooldown).`);
+		log.add('quest', `♻ ${name}'s deck ran out — discard reshuffled into deck. Cooldown turn: only face-down Piecies.`);
 		showDeckOutBanner({
 			playerName: name,
 			onPileHighlight: () => pulseDiscardPile(evt.playerId, localPlayerId),

@@ -444,3 +444,34 @@ describe('driveBotTurn — sideways Mosje takes no action (2.0, 54-11)', () => {
     expect(after.mp).toBe(80);
   });
 });
+
+describe('driveBotTurn - summon cost and cooldown (2.0, 55-03)', () => {
+  it('summons nothing when Energy is below every hand Mosje cost', () => {
+    const state: any = makeState({
+      hand: [{ cardId: 'mosje_azn_cless', type: 'MOSJE' }],
+      activeSlots: [makeMosjeSlot('mosje_martin_senor_west', 50), null as unknown as MosjeSlot],
+    });
+    state.players.player_2.energy = 0;
+    const result = driveBotTurn(state, 'player_2');
+    expect((result.players.player_2.hand as HandCard[]).some((c) => c.cardId === 'mosje_azn_cless')).toBe(true);
+    expect((result.players.player_2.activeSlots as any[])[1]).toBeNull();
+  });
+
+  it('on a cooldown turn the bot only places Piecies (no summon, no activation, no Quest)', () => {
+    const state: any = makeState({
+      hand: [
+        { cardId: 'mosje_azn_cless', type: 'MOSJE' },
+        { cardId: 'piecie_kannetje_melk', type: 'PIECIE' },
+      ],
+      activeSlots: [makeMosjeSlot('mosje_martin_senor_west', 50), null as unknown as MosjeSlot],
+      questDeck: [{ cardId: 'quest_arm_wrestling', type: 'QUEST' }],
+    });
+    state.players.player_2.cooldownTurn = true;
+    const result = driveBotTurn(state, 'player_2');
+    const p2 = result.players.player_2;
+    expect((p2.activeSlots as any[])[1]).toBeNull();
+    expect(p2.questsAttemptedThisTurn).toBe(0);
+    expect((p2.piecieSlots as any[]).some((s) => s?.cardId === 'piecie_kannetje_melk')).toBe(true);
+    expect(result.activePlayerId).toBe('player_1');
+  });
+});
