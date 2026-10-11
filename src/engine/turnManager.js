@@ -2,6 +2,7 @@
 // Coordinates which engine functions run in which order.
 // The UI calls these functions; they return the updated game state.
 
+import { PIECIE_SLOT_COUNT } from './table/tableRules.js';
 import { drawCards, shuffleDeck, rollDie } from './deckEngine.js';
 import { placeEmptyFieldMosje } from './turn/placeEmptyFieldMosje.js';
 import { clearOwnerProtections } from './turn/clearOwnerProtections.js';
@@ -213,7 +214,7 @@ const REPROMPT_DOUBLE_ABILITIES = new Set([
   'ability_binti_creator_quick_sketch',           // discard 2 FOOD + deck-search tutor
 ]);
 
-function normalizePiecieSlots(player, slotCount = 4) {
+function normalizePiecieSlots(player, slotCount = PIECIE_SLOT_COUNT) {
   let source;
   if (Array.isArray(player?.piecieSlots)) {
     source = player.piecieSlots;
@@ -484,7 +485,7 @@ export function endTurn(gameState) {
   }
 
   // Sweep Snelle Piecies and persistent regular Piecies from field to discard at end of turn
-  normalizePiecieSlots(state.players[playerId], 4);
+  normalizePiecieSlots(state.players[playerId]);
   for (let i = 0; i < state.players[playerId].piecieSlots.length; i++) {
     const slot = state.players[playerId].piecieSlots[i];
     // Call of the Welloes persistence: do not sweep this Piecie while its linked Mosje is alive (D-16)
@@ -662,7 +663,7 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
   }
 
   // Defensive normalization for synced multiplayer states
-  normalizePiecieSlots(player, 4);
+  normalizePiecieSlots(player);
   if (!Array.isArray(player.hand)) player.hand = [];
   if (!Array.isArray(player.graveyard)) player.graveyard = [];
 
@@ -674,7 +675,7 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
   const filledSlots = player.piecieSlots.filter(slot => slot !== null && slot !== undefined).length;
   const activePlaceCount = (state.activePlace && state.activePlacePlayedBy === playerId) ? 1 : 0;
   const totalSlots = filledSlots + activePlaceCount;
-  if (totalSlots >= 4) {
+  if (totalSlots >= PIECIE_SLOT_COUNT) {
     return { state, success: false, error: 'You can place up to 4 Piecies/Places total' };
   }
 
@@ -682,7 +683,7 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
 
   // Place Piecie face-down on the field.
   // It can be activated starting next turn by the owner.
-  normalizePiecieSlots(player, 4);
+  normalizePiecieSlots(player);
   const emptySlot = player.piecieSlots.findIndex(s => s === null);
   if (emptySlot < 0) {
     // Restore card to hand if placement fails.
@@ -738,7 +739,7 @@ export function playPersonalQuest(gameState, playerId, cardRef) {
     return { state, success: false, error: 'You can only place quests on your own turn' };
   }
 
-  normalizePiecieSlots(player, 4);
+  normalizePiecieSlots(player);
   if (!Array.isArray(player.hand)) player.hand = [];
 
   const handIndex = player.hand.findIndex(c => c.cardId === cardRef.cardId);
@@ -746,7 +747,7 @@ export function playPersonalQuest(gameState, playerId, cardRef) {
 
   const filledSlots = player.piecieSlots.filter(s => s !== null).length;
   const activePlaceCount = (state.activePlace && state.activePlacePlayedBy === playerId) ? 1 : 0;
-  if (filledSlots + activePlaceCount >= 4) {
+  if (filledSlots + activePlaceCount >= PIECIE_SLOT_COUNT) {
     return { state, success: false, error: 'No slot available — field is full' };
   }
 
@@ -780,7 +781,7 @@ export function activatePersonalQuest(gameState, playerId, slotIndex) {
     return { state, success: false, error: 'You can only activate quests on your own turn' };
   }
 
-  normalizePiecieSlots(player, 4);
+  normalizePiecieSlots(player);
   const slot = player.piecieSlots[slotIndex];
   if (!slot || slot.type !== 'QUEST') {
     return { state, success: false, error: 'No Personal Quest in that slot' };
@@ -841,7 +842,7 @@ export function activatePlace(gameState, playerId, slotIndex) {
     return { state, success: false, error: 'You can only activate Places on your own turn' };
   }
 
-  normalizePiecieSlots(player, 4);
+  normalizePiecieSlots(player);
   const slot = player.piecieSlots[slotIndex];
   if (!slot || slot.type !== 'PLACE') {
     return { state, success: false, error: 'No Place in this slot' };
@@ -892,7 +893,7 @@ export function activatePiecie(gameState, playerId, slotIndex) {
     return { state, success: false, error: 'You can only activate Piecies on your own turn' };
   }
 
-  normalizePiecieSlots(player, 4);
+  normalizePiecieSlots(player);
   if (!Array.isArray(player.graveyard)) {
     player.graveyard = [];
   }
@@ -1051,7 +1052,7 @@ export function activatePiecie(gameState, playerId, slotIndex) {
   // Piecie resolves — persistent cards stay in slot until end-of-turn sweep.
   player = state.players[playerId];
   if (!Array.isArray(player.graveyard)) player.graveyard = [];
-  normalizePiecieSlots(player, 4);
+  normalizePiecieSlots(player);
   if (knownCardDef.persistUntilEndOfTurn === true) {
     // Mark slot as persistent — will be swept to discard in endTurn()
     player.piecieSlots[safeSlotIndex].persistUntilEoT = true;
@@ -1096,14 +1097,14 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
   }
 
   // Defensive normalization for synced multiplayer states
-  normalizePiecieSlots(player, 4);
+  normalizePiecieSlots(player);
   if (!Array.isArray(player.hand)) player.hand = [];
 
-  // Check if all 4 Piecie/Place slots are full — cannot play Snelle Piecie if board is full
+  // Check if all 3 Piecie/Place slots are full — cannot play Snelle Piecie if board is full
   const filledSlots = player.piecieSlots.filter(slot => slot !== null && slot !== undefined).length;
   const activePlaceCount = state.activePlace ? 1 : 0;
   const totalSlots = filledSlots + activePlaceCount;
-  if (totalSlots >= 4) {
+  if (totalSlots >= PIECIE_SLOT_COUNT) {
     return { state, success: false, error: 'Cannot play Snelle Piecie — all Piecie/Place slots are full.' };
   }
   if (!Array.isArray(player.graveyard)) player.graveyard = [];
@@ -1115,7 +1116,7 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
   if (!snellePay.success) return { state: gameState, success: false, error: snellePay.error || 'Not enough Energy' };
   const [playedCard] = player.hand.splice(handIndex, 1);
 
-  normalizePiecieSlots(player, 4);
+  normalizePiecieSlots(player);
   const snelleSlot = player.piecieSlots.findIndex(s => s === null);
   if (snelleSlot >= 0) {
     player.piecieSlots[snelleSlot] = {
@@ -1483,13 +1484,13 @@ export function playPlace(gameState, playerId, cardRef, cardDef) {
   }
 
   // Defensive normalization — ensures piecieSlots is always 4 elements with null for empty
-  normalizePiecieSlots(player, 4);
+  normalizePiecieSlots(player);
   if (!Array.isArray(player.hand)) player.hand = [];
   if (!Array.isArray(player.graveyard)) player.graveyard = [];
 
-  // Check if all 4 slots are full
+  // Check if all 3 slots are full
   const filledSlots = player.piecieSlots.filter(slot => slot !== null && slot !== undefined).length;
-  if (filledSlots >= 4) {
+  if (filledSlots >= PIECIE_SLOT_COUNT) {
     return { state, success: false, error: 'Cannot place a Place — all Piecie slots are full.' };
   }
 

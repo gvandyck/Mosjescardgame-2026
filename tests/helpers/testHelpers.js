@@ -80,7 +80,7 @@ export function mockState(overrides = {}) {
         discard: [],
         welloe: [],
         activeSlots: ['inst_west', null],
-        piecieSlots: [null, null, null, null, null],
+        piecieSlots: [null, null, null],
         activePlaceId: null,
         questsCompleted: 0
       },
@@ -90,7 +90,7 @@ export function mockState(overrides = {}) {
         discard: [],
         welloe: [],
         activeSlots: ['inst_jeffrey', null],
-        piecieSlots: [null, null, null, null, null],
+        piecieSlots: [null, null, null],
         activePlaceId: null,
         questsCompleted: 0
       }
@@ -172,7 +172,7 @@ export function createEngineState(overrides = {}) {
           },
           null
         ],
-        piecieSlots: [null, null, null, null, null],
+        piecieSlots: [null, null, null],
         questsCompleted: 0,
         questsCompletedThisTurn: 0,
         questsAttemptedThisTurn: 0,
@@ -204,7 +204,7 @@ export function createEngineState(overrides = {}) {
           },
           null
         ],
-        piecieSlots: [null, null, null, null, null],
+        piecieSlots: [null, null, null],
         questsCompleted: 0,
         questsCompletedThisTurn: 0,
         questsAttemptedThisTurn: 0,

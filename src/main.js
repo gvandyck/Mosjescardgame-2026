@@ -11,6 +11,7 @@ import { initCardTierMotion } from './ui/cardTierMotion.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes, setActivePlace } from './engine/gameState.js';
 import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, playPersonalQuest, activatePersonalQuest, activateSynergyWaiver } from './engine/turnManager.js';
 import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold, getActivePartnerSynergyBonuses } from './abilities/questLogic.js';
+import { PIECIE_SLOT_COUNT } from './engine/table/tableRules.js';
 import { hasFoodDoubleSynergy } from './engine/synergyResolver.js';
 import { loseMP, gainMP } from './engine/mpManager.js';
 import { getAbilityEnergyCost } from './engine/energy/getAbilityEnergyCost.js';
@@ -1092,8 +1093,7 @@ function initGamePage() {
 				gameState = setActivePlace(gameState, cardId, playedByPlayerId);
 				renderFromState(gameState);
 			},
-			// Bump the turn counter directly — e.g. to sidestep the first-turn
-			// General Quest lock (U2-adjacent rule) during scenario setup.
+			// Bump the turn counter directly during scenario setup.
 			setTurnNumber(n) {
 				if (!gameState) return;
 				gameState.turnNumber = n;
@@ -3659,12 +3659,12 @@ function sanitizeQuestCardsInPlayerZones(rawState) {
 
 	for (const player of Object.values(state.players || {})) {
 		// Firebase RTDB strips null array values, converting piecieSlots to an object
-		// with integer keys. Re-hydrate to a proper 4-element array before any engine
+		// with integer keys. Re-hydrate to a proper 3-element array before any engine
 		// function touches it, so no cards are silently lost from the field.
 		if (player.piecieSlots && !Array.isArray(player.piecieSlots)) {
-			player.piecieSlots = Array.from({ length: 4 }, (_, i) => player.piecieSlots[i] ?? null);
+			player.piecieSlots = Array.from({ length: PIECIE_SLOT_COUNT }, (_, i) => player.piecieSlots[i] ?? null);
 		} else if (!player.piecieSlots) {
-			player.piecieSlots = [null, null, null, null];
+			player.piecieSlots = Array(PIECIE_SLOT_COUNT).fill(null);
 		}
 
 		for (const zoneName of ['hand', 'deck', 'discard']) {

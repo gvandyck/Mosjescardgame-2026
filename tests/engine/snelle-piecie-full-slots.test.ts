@@ -11,7 +11,7 @@ function makeState(filledPiecieSlots: number = 0) {
       canActivate: false,
     });
   }
-  while (piecieSlots.length < 4) {
+  while (piecieSlots.length < 3) {
     piecieSlots.push(null);
   }
 
@@ -62,8 +62,8 @@ describe("Snelle Piecie — Full Slots Rule", () => {
     }
   });
 
-  it("allows playing Snelle Piecie when 1-3 Piecies are on field", () => {
-    for (let i = 1; i <= 3; i++) {
+  it("allows playing Snelle Piecie when 1-2 Piecies are on field", () => {
+    for (let i = 1; i <= 2; i++) {
       const state = makeState(i);
       const cardRef = { cardId: "snelle_test", type: "SNELLE_PIECIE" };
       const cardDef = { name: "Test Snelle", effectId: "effect_test" };
@@ -76,8 +76,8 @@ describe("Snelle Piecie — Full Slots Rule", () => {
     }
   });
 
-  it("blocks playing Snelle Piecie when all 4 slots are full", () => {
-    const state = makeState(4);
+  it("blocks playing Snelle Piecie when all 3 slots are full", () => {
+    const state = makeState(3);
     const cardRef = { cardId: "snelle_test", type: "SNELLE_PIECIE" };
     const cardDef = { name: "Test Snelle", effectId: "effect_test" };
 
@@ -86,26 +86,26 @@ describe("Snelle Piecie — Full Slots Rule", () => {
     expect(error).toBe("Cannot play Snelle Piecie — all Piecie/Place slots are full.");
   });
 
-  it("blocks at exactly 4 slots, not before", () => {
-    const state3 = makeState(3);
-    const state4 = makeState(4);
+  it("blocks at exactly 3 slots, not before", () => {
+    const state3 = makeState(2);
+    const state4 = makeState(3);
     const cardRef = { cardId: "snelle_test", type: "SNELLE_PIECIE" };
     const cardDef = { name: "Test Snelle", effectId: "effect_test" };
 
     const result3 = playSnellie(state3, "player_1", cardRef, cardDef);
     const result4 = playSnellie(state4, "player_1", cardRef, cardDef);
 
-    // With 3 slots, should not be blocked by full slots rule
+    // With 2 slots, should not be blocked by full slots rule
     expect(result3.success === true || (result3.error && !result3.error.includes("all Piecie slots are full"))).toBe(true);
-    // With 4 slots, should be blocked by full slots rule
+    // With 3 slots, should be blocked by full slots rule
     expect(result4.success).toBe(false);
     expect(result4.error).toBe("Cannot play Snelle Piecie — all Piecie/Place slots are full.");
   });
 });
 
 describe("Lucky Coin — Full Slot Guard (BUG-04)", () => {
-  it("playSnellie with Lucky Coin and 4 full slots returns slot-full error", () => {
-    const state = makeState(4);
+  it("playSnellie with Lucky Coin and 3 full slots returns slot-full error", () => {
+    const state = makeState(3);
     const cardRef = { cardId: "snelle_lucky_coin", type: "SNELLE_PIECIE" };
     const cardDef = { name: "Lucky Coin", effectId: "effect_snelle_lucky_coin" };
 
@@ -114,8 +114,8 @@ describe("Lucky Coin — Full Slot Guard (BUG-04)", () => {
     expect(error).toBe("Cannot play Snelle Piecie — all Piecie/Place slots are full.");
   });
 
-  it("playSnellie with Lucky Coin and 3 full slots succeeds (slot available)", () => {
-    const state = makeState(3);
+  it("playSnellie with Lucky Coin and 2 full slots succeeds (slot available)", () => {
+    const state = makeState(2);
     const cardRef = { cardId: "snelle_lucky_coin", type: "SNELLE_PIECIE" };
     const cardDef = { name: "Lucky Coin", effectId: "effect_snelle_lucky_coin" };
 

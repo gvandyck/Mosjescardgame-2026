@@ -23,7 +23,7 @@ function basePlayer(playerId, name) {
     welloePile: [],
     energy: 6,
     activeSlots: [null, null],
-    piecieSlots: [null, null, null, null],
+    piecieSlots: [null, null, null],
     totalDamageTaken: 0,
   };
 }

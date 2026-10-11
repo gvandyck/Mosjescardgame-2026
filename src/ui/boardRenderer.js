@@ -7,6 +7,8 @@ import { markEnteringCards } from './markEnteringCards.js';
 import { getCardById } from '../data/cardIndex.js';
 import { initModalManager } from './modalManager.js';
 
+const PIECIE_SLOTS = 3; // 2.0: 3 Piecie slots per player (mirrors tableRules)
+
 console.log('[UI] boardRenderer.js loaded');
 
 let _boardModal = null;
@@ -203,7 +205,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		}
 	}
 
-	for (const piecie of (viewModel.players.top.piecies || []).slice(0, 4)) {
+	for (const piecie of (viewModel.players.top.piecies || []).slice(0, PIECIE_SLOTS)) {
 		if (piecie.faceDown) {
 			const slot = document.createElement('div');
 			slot.className = 'piecie-slot face-down-piecie has-card';
@@ -234,7 +236,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		topPiecies?.appendChild(piecieEl);
 	}
 
-	for (const piecie of (viewModel.players.bottom.piecies || []).slice(0, 4)) {
+	for (const piecie of (viewModel.players.bottom.piecies || []).slice(0, PIECIE_SLOTS)) {
 		if (piecie.faceDown) {
 			const slot = document.createElement('div');
 			slot.className = 'piecie-slot face-down-piecie has-card';

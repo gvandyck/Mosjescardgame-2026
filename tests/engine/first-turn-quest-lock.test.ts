@@ -46,13 +46,16 @@ function makeState(overrides: Record<string, unknown> = {}) {
   };
 }
 
-describe("First-seat tempo fix — canAttemptGeneralQuest turn-1 lock", () => {
-  it("blocks the game's first player from attempting a General Quest on turn 1", () => {
+// 2.0 (RULE-10): the V4 first-turn General Quest lock is removed. The old
+// assertion ("first player blocked on turn 1") encoded a V4 rule and is inverted.
+describe("2.0 - no first-turn General Quest lock", () => {
+  it("lets the game's first player attempt a General Quest on turn 1", () => {
     const state = makeState();
-    expect(canAttemptGeneralQuest(QUEST, state, "player_1")).toBe(false);
+    expect(canAttemptGeneralQuest(QUEST, state, "player_1")).toBe(true);
+    expect(getGeneralQuestBlockReason(QUEST, state, "player_1")).not.toBe("first-turn-lock");
   });
 
-  it("does NOT block the second player on their own opening turn (still turnNumber===1)", () => {
+  it("does not block the second player on their own opening turn", () => {
     const state = makeState({ activePlayerId: "player_2" });
     expect(canAttemptGeneralQuest(QUEST, state, "player_2")).toBe(true);
   });
@@ -126,9 +129,9 @@ describe("createInitialGameState — firstPlayerId", () => {
 describe("getGeneralQuestBlockReason — specific reasons behind requirement-not-met", () => {
   const MOMENTUM_QUEST = { id: "quest_momentum_master", requirementId: "quest_req_momentum_master", successMP: 60, failMP: -40 };
 
-  it("'first-turn-lock' — the game's first player on turn 1", () => {
+  it("null (attemptable) — the game's first player on turn 1 (2.0: lock removed)", () => {
     const state = makeState();
-    expect(getGeneralQuestBlockReason(QUEST, state, "player_1")).toBe("first-turn-lock");
+    expect(getGeneralQuestBlockReason(QUEST, state, "player_1")).toBeNull();
   });
 
   it("null (attemptable) — second player on their own opening turn", () => {
@@ -168,6 +171,7 @@ describe("getGeneralQuestBlockReason — specific reasons behind requirement-not
 
   it("canAttemptGeneralQuest stays a thin boolean wrapper over the same checks", () => {
     const blocked = makeState();
+    blocked.players.player_1.activeSlots[0].mp = -5; // 2.0: no turn-1 lock; negative MP is the block here
     const clear = makeState({ turnNumber: 2 });
     expect(canAttemptGeneralQuest(QUEST, blocked, "player_1")).toBe(false);
     expect(canAttemptGeneralQuest(QUEST, clear, "player_1")).toBe(true);

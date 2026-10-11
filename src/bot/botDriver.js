@@ -551,7 +551,7 @@ export function driveBotTurnSteps(gameState, botPlayerId) {
     }
     if (!canAttemptGeneralQuest(questDef, state, botPlayerId)) {
       discardQuest();
-      // Specific reason (first-turn-lock / negative-mp / momentum-master-range /
+      // Specific reason (negative-mp / momentum-master-range /
       // quest-blocked-status / no-active-mosje) rather than one generic bucket —
       // canAttemptGeneralQuest and getGeneralQuestBlockReason run the exact same
       // checks in the exact same order, so this can't drift out of sync with it.

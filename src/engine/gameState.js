@@ -9,6 +9,7 @@ import { shuffleDeck, buildDeck } from './deckEngine.js';
 import { ENERGY_START } from './energy/energyRules.js';
 import { createMosjeSlot } from './mp/createMosjeSlot.js';
 import { isFresh } from './fresh/isFresh.js';
+import { PIECIE_SLOT_COUNT } from './table/tableRules.js';
 import { OPENING_HAND_SIZE } from './setup/setupRules.js';
 import { rollOpeningDice } from './setup/rollOpeningDice.js';
 import { pickStartingMosje } from './setup/pickStartingMosje.js';
@@ -117,7 +118,7 @@ function createPlayerState(config) {
     energy: ENERGY_START, // Obby 2.0 Energy pool (Core Numbers §1-2)
 
     activeSlots,          // [mosjeSlot, mosjeSlot] — up to 2 active Mosjes
-    piecieSlots: [null, null, null, null],  // 4 face-down Piecie positions
+    piecieSlots: Array(PIECIE_SLOT_COUNT).fill(null),  // 3 face-down Piecie positions
 
     questsCompleted: 0,
     questsCompletedThisTurn: 0,

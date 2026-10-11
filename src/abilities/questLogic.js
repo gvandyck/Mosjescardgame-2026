@@ -141,18 +141,6 @@ function getTraitFromMosje(mosje, traitName) {
 export function getGeneralQuestBlockReason(questCard, gameState, playerId) {
   const player = gameState.players[playerId];
   if (!player) return 'no-player';
-  // First-seat tempo fix (2026-07-12): the very first player of the game
-  // could otherwise attempt a General Quest before their opponent has had
-  // any turn at all — General Quests have no "wait a turn" delay the way
-  // Piecies/Places/Personal Quests do (U2), so this was P1's only
-  // completely unopposed action. Deliberately asymmetric: P2's own first
-  // turn (also turnNumber===1, since turnNumber is a round counter) is NOT
-  // restricted — narrowing the gap requires P2 to have MORE access on
-  // their opening turn than P1 had, not the same restriction shifted by
-  // one turn for both (which would leave the relative gap unchanged).
-  if (gameState.turnNumber === 1 && playerId === gameState.firstPlayerId) {
-    return 'first-turn-lock';
-  }
   const activeMosje = getFirstActiveMosje(player);
   if (!activeMosje) {
     return 'no-active-mosje';
