@@ -28,7 +28,7 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 | # | Phase | Goal | Requirements | Success Criteria |
 |---|-------|------|--------------|------------------|
 | 53 | 2.0 Card Data and Example Decks | 7/7 | Complete    | 2026-10-10 |
-| 54 | Energy, Levels and Getemt | 2/16 | In Progress|  |
+| 54 | Energy, Levels and Getemt | 3/16 | In Progress|  |
 | 55 | Turn Flow, Setup and Protection | A game sets up and runs turn by turn under 2.0 flow | RULE-05, 06, 07, 08, 10, TABLE-01 | 5 |
 | 56 | Attacking and Quests | Each Mosje's one action (attack or Quest) works by 2.0 rules | PLAY-01..07 | 5 |
 | 57 | Piecies, Snelle, Places and Reaction Windows | Table cards follow 2.0 lifecycles; the engine offers reaction Snelle | TABLE-02..06, SHELL-04 | 5 |
@@ -81,7 +81,7 @@ Plans:
 Plans:
 - [x] 54-01-PLAN.md — Energy pool (start 2, +1/turn, max 6), payEnergy/canPay/gainEnergy, welloePile state, E1, test builder + setEnergy hook
 - [x] 54-02-PLAN.md — Energy pays Piecie activations, Snelle and Places; Welloe Force stops spending MP
-- [ ] 54-03-PLAN.md — Ability Energy costs in src/rules/abilityEnergyCosts.js; useMosjeAbility charges on success; Ronald/Youri/Gandoe stop taking MP
+- [x] 54-03-PLAN.md — Ability Energy costs in src/rules/abilityEnergyCosts.js; useMosjeAbility charges on success; Ronald/Youri/Gandoe stop taking MP
 - [ ] 54-04-PLAN.md — 20 MP Quest cost and MP gates removed from UI/bot, Energy labels, no-MP-currency guard (RULE-01 complete)
 - [ ] 54-05-PLAN.md — Levels stored 1-3, single createMosjeSlot factory, traits from level rows, bot level semantics
 - [ ] 54-06-PLAN.md — Level display 1-3 (no +1/-1 adaptors), factory-based test hook, ability-test fixtures
