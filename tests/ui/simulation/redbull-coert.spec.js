@@ -14,6 +14,8 @@
  * Run: npx playwright test tests/ui/simulation/redbull-coert.spec.js --headed
  */
 
+// KNOWN GAP (fix in Phase 59, Redbull rewrite): these specs encode the V4 rule that Coert pays 10 MP per
+// activation. In 2.0 MP is never spent (Coert pays 1 Energy). Rewrite against Energy when Redbull is rebuilt.
 import { test, expect } from '@playwright/test';
 import {
 	GAME_URL_TEST,
@@ -32,7 +34,7 @@ async function activatePiecie(page, cardId) {
 	await page.waitForTimeout(600);
 }
 
-test('Redbull makes Coert Extra Resources trigger TWICE — pay 20 MP, draw 2', async ({ page }) => {
+test.fixme('Redbull makes Coert Extra Resources trigger TWICE — pay 20 MP, draw 2', async ({ page }) => {
 	test.setTimeout(90000);
 
 	const deck = {
@@ -90,7 +92,7 @@ test('Redbull makes Coert Extra Resources trigger TWICE — pay 20 MP, draw 2', 
 	expect(stateAfter?.players?.player_1?.abilityDoubleTrigger).toBeFalsy();
 });
 
-test('Redbull + Coert at 15 MP — second trigger fizzles, Redbull stays armed', async ({ page }) => {
+test.fixme('Redbull + Coert at 15 MP — second trigger fizzles, Redbull stays armed', async ({ page }) => {
 	test.setTimeout(90000);
 
 	const deck = {

@@ -185,12 +185,12 @@ describe("ability / Quest losses (54-14)", () => {
     const st = resolveQuest(build(2, 20), "player_1", quest, false, 0);
     expect([slotOf(st).level, slotOf(st).mp]).toEqual([1, 50]);
   });
-  it("ability cost (Coert pays 10) taking an L2 Mosje at 10 to 0 -> L1 at 50 (getemt)", () => {
+  it("2.0: Coert Extra Resources spends no MP (1 Energy is charged by useMosjeAbility) — L2 at 10 stays L2 at 10", () => {
     const st = ability_coert_extra_resources(build(2, 10), "player_1");
-    expect([slotOf(st).level, slotOf(st).mp]).toEqual([1, 50]);
+    expect([slotOf(st).level, slotOf(st).mp, slotOf(st).sideways ?? false]).toEqual([2, 10, false]);
   });
-  it("ability cost taking a Level 1 Mosje at 10 to 0 -> sideways at 0", () => {
-    const st = ability_coert_extra_resources(build(1, 10), "player_1");
-    expect([slotOf(st).level, slotOf(st).mp, slotOf(st).sideways]).toEqual([1, 0, true]);
+  it("2.0: Coert Extra Resources at Level 1 / 0 MP causes no loss and no getemt", () => {
+    const st = ability_coert_extra_resources(build(1, 0), "player_1");
+    expect([slotOf(st).level, slotOf(st).mp, slotOf(st).sideways ?? false]).toEqual([1, 0, false]);
   });
 });

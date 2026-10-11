@@ -115,7 +115,7 @@ export function ability_binti_cutting_words(gameState, playerId, discardedCardId
 	return finalState;
 }
 
-// Coert active: pay 10 MP to draw 1 card.
+// Coert active: draw 1 card. Cost is 1 Energy, charged by useMosjeAbility (abilityEnergyCosts.js); MP is never spent (2.0).
 export function ability_coert_extra_resources(gameState, playerId, sourceMosjeId = null) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
@@ -125,8 +125,6 @@ export function ability_coert_extra_resources(gameState, playerId, sourceMosjeId
 	if (slotIndex < 0) throw new Error('No active Mosje for Coert ability');
 
 	const mosje = player.activeSlots[slotIndex];
-	if (mosje.mp < 10) throw new Error('Not enough MP for Coert ability');
-	applyDamage(state, playerId, mosje, 10);
 
 	const { drawn, remaining } = drawCards(player.deck, 1);
 	player.deck = remaining;
@@ -370,8 +368,7 @@ export function ability_ming_predictor_future_sight(gameState, playerId) {
 	if (!player) throw new Error('Player not found');
 	const slotIndex = player.activeSlots.findIndex(s => s && !s.isDefeated && String(s.cardId).includes('ming'));
 	if (slotIndex < 0) throw new Error('Ming not on field');
-	if (player.activeSlots[slotIndex].mp < 10) throw new Error('Not enough MP — Future Sight costs 10 MP');
-	applyDamage(state, playerId, player.activeSlots[slotIndex], 10);
+	// 2.0: no MP cost. The optional 1 Energy (put on bottom) is paid inside the effect — Phase 58 (ABILITY_IN_EFFECT_ENERGY).
 	const deck = state.sharedGeneralQuestDeck || [];
 	if (deck.length === 0) { console.log('[ABILITY] Ming: quest deck empty'); return state; }
 	// Move-to-bottom decision comes from _pendingTargets.mingSendToBottom (set by UI)
@@ -438,7 +435,7 @@ export function ability_west_calculated_guess(gameState, playerId, mosjeId) {
 	return ability_martin_senor_west_calculated_guess(gameState, playerId, mosjeId);
 }
 
-// Coert Tech — alias of coert_extra_resources: pay 10 MP, draw 1 card.
+// Coert Tech — alias of coert_extra_resources: draw 1 card (1 Energy via abilityEnergyCosts.js).
 export function ability_coert_tech_extra_resources(gameState, playerId, sourceMosjeId = null) {
 	return ability_coert_extra_resources(gameState, playerId, sourceMosjeId);
 }
@@ -840,10 +837,9 @@ export function ability_tuk_architect_perfect_placement(gameState, playerId) {
 	if (!player) throw new Error('Player not found');
 	const slotIndex = player.activeSlots.findIndex(s => s && !s.isDefeated && String(s.cardId).includes('tuk'));
 	if (slotIndex < 0) throw new Error('Tuk not on field');
-	if (player.activeSlots[slotIndex].mp < 15) throw new Error('Not enough MP — Perfect Placement costs 15 MP');
 	const chosen = state._pendingTargets?.tukChosenCardIds; // array of up to 2 cardIds from top 5
 	if (!Array.isArray(chosen) || chosen.length === 0) throw new Error('Perfect Placement requires card selection');
-	applyDamage(state, playerId, player.activeSlots[slotIndex], 15);
+	// 2.0: no MP cost; 1 Energy is charged by useMosjeAbility (abilityEnergyCosts.js).
 	const top5 = player.deck.slice(0, 5);
 	const rest = player.deck.slice(5);
 	const taken = [];

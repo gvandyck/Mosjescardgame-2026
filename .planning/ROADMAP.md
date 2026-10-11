@@ -164,6 +164,7 @@ Plans:
   3. Harde Didde, Klaar Met Jou and Dikke Taks can only be activated with one of your Mosjes at Level 2+; ★★★★★ cards, The Protector and Mosje Reborn are limited to 1 per deck.
   4. Ronald Kip with Ronald, The Master Chef gives 60 + a draw, Ronald Kip + MP Amplifier stacks as the Card List says, and Leipe Swap never causes a level-up or a getemt.
 **Tests to add**: card-test-library entries for all 73 Piecies (Example Deck Piecies first); §6b Ronald Kip, Harde Didde / Klaar Met Jou gate and Leipe Swap edge cases.
+**Known gap from Phase 54**: `tests/ui/simulation/redbull-coert.spec.js` (2 specs, now `test.fixme`) and the Coert part of `tests/ui/cinema/redbull-abilities-cinema.spec.js` encode the V4 "Coert pays 10 MP" rule; rewrite them against Energy when Redbull is rebuilt (decide whether a Redbull re-use pays the Energy again — Card List says "pay its cost again").
 **Notes**: MP-touching phase: the new Ronald Kip test replaces the old stacking test; run the sim.
 **Plans**: TBD
 

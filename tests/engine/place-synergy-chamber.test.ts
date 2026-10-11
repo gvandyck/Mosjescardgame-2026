@@ -27,11 +27,9 @@ afterEach(() => {
 });
 
 describe("place_synergy_chamber (PLACE-11) — Task 1: dead bonuses removed", () => {
-  it("useMosjeAbility no longer pre-adjusts MP by +5 when Synergy Chamber is active", () => {
-    // mosje_coert_tech's ability costs a flat 10 MP and throws below that
-    // threshold. With 5 MP and the OLD +5 pre-payment discount, the ability
-    // would have observed 10 MP and succeeded; post-fix it must see the real
-    // 5 MP and fail — a genuine behavioral probe for the discount's removal.
+  it("useMosjeAbility does not touch MP when Synergy Chamber is active (no +5 pre-adjust; 2.0 costs Energy)", () => {
+    // 2.0: Coert's ability costs 1 Energy, never MP. The removed V4 +5 "discount"
+    // pre-adjusted MP; this probes that Synergy Chamber leaves MP exactly as it was.
     const state = createEngineState({
       activePlace: "place_synergy_chamber",
       activePlayerId: "player_1",
@@ -54,7 +52,8 @@ describe("place_synergy_chamber (PLACE-11) — Task 1: dead bonuses removed", ()
       },
     });
     const result = useMosjeAbility(state, "player_1", "mosje_coert_tech");
-    expect(result.success).toBe(false);
+    expect(result.success).toBe(true);
+    expect(result.state.players.player_1.activeSlots[0].mp).toBe(5);
   });
 
   it("quest_req_perfect_timing's roll is no longer offset by a Synergy-Chamber bonus", () => {

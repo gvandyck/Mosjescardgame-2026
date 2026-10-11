@@ -48,6 +48,12 @@ describe('no MP currency guard', () => {
     expect(hits.map((h) => `${h.file}:${h.n}`)).toEqual([]);
   });
 
+  it('no ability or UI gate asks for MP as a cost ("Not enough MP")', () => {
+    // Allow-list: Amplifier (mosje_amplifier) is a parked, disabled card that can't be played in 2.0.
+    const hits = codeLines().filter(({ line }) => /Not enough MP/.test(line) && !/Power Boost/.test(line));
+    expect(hits.map((h) => `${h.file}:${h.n}`)).toEqual([]);
+  });
+
   it('the mpCost data field still exists for card faces (decision 5)', () => {
     expect((PIECIES as { mpCost?: number }[]).some((c) => 'mpCost' in c)).toBe(true);
   });

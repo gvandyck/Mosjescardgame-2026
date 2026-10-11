@@ -438,18 +438,21 @@ function makeCoertAbilityState(mp: number, activePlace: string | null = null) {
 }
 
 describe("useMosjeAbility — Synergy Chamber cost reduction removed (Phase 35-06)", () => {
-  it("Test 20: Synergy Chamber active, Coert at 8 MP (cost 10, no discount anymore) — success:false", () => {
-    // Phase 35-06 removed the undocumented -5 discount entirely — the card's real
-    // text never promised it. 8 MP is still not enough to pay the real 10 cost.
+  it("Test 20: Synergy Chamber active, Coert with 0 Energy (cost 1 Energy, no discount) — success:false", () => {
+    // 2.0: the ability costs 1 Energy; Synergy Chamber gives no discount. MP is never spent.
     const state = makeCoertAbilityState(8, "place_synergy_chamber");
+    state.players.p1.energy = 0;
     const result = (useMosjeAbility as any)(state, "p1", "mosje_coert_tech");
     expect(result.success).toBe(false);
   });
 
-  it("Test 21: No Synergy Chamber, Coert at 8 MP (cost 10, no discount) — success:false (not enough MP)", () => {
-    // Without chamber discount, Coert at 8 MP cannot pay 10 cost.
-    const state = makeCoertAbilityState(8, null);
+  it("Test 21: Coert at 10 MP with 1 Energy — success, pays 1 Energy, MP unchanged", () => {
+    // 2.0: low MP no longer blocks the ability; Energy pays, MP is untouched (10 is on the 5-grid).
+    const state = makeCoertAbilityState(10, null);
+    state.players.p1.energy = 1;
     const result = (useMosjeAbility as any)(state, "p1", "mosje_coert_tech");
-    expect(result.success).toBe(false);
+    expect(result.success).toBe(true);
+    expect(result.state.players.p1.energy).toBe(0);
+    expect(result.state.players.p1.activeSlots[0].mp).toBe(10);
   });
 });

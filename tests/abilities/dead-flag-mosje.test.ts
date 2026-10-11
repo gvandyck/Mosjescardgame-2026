@@ -62,7 +62,7 @@ function makeState(slotCardId: string, mp = 100) {
 // Ming — Future Sight: pay 10 MP, peek top shared quest, optionally bottom it
 // ─────────────────────────────────────────────────────────────
 describe("Ming Future Sight — top General Quest peek + optional send-to-bottom", () => {
-  it("charges 10 MP and moves the top quest to the bottom when mingSendToBottom is true", () => {
+  it("2.0: spends no MP and moves the top quest to the bottom when mingSendToBottom is true", () => {
     const state = makeState("mosje_ming_predictor", 50);
     state.sharedGeneralQuestDeck = [
       { cardId: "quest_a" },
@@ -74,7 +74,7 @@ describe("Ming Future Sight — top General Quest peek + optional send-to-bottom
     const next = ability_ming_predictor_future_sight(state, "player_1");
 
     // 10 MP charged
-    expect(next.players.player_1.activeSlots[0].mp).toBe(40);
+    expect(next.players.player_1.activeSlots[0].mp).toBe(50); // 2.0: MP is never spent
     // top moved to bottom
     expect(next.sharedGeneralQuestDeck.map((c: any) => c.cardId)).toEqual([
       "quest_b",
@@ -83,7 +83,7 @@ describe("Ming Future Sight — top General Quest peek + optional send-to-bottom
     ]);
   });
 
-  it("charges 10 MP but leaves quest order unchanged when mingSendToBottom is false", () => {
+  it("2.0: spends no MP and leaves quest order unchanged when mingSendToBottom is false", () => {
     const state = makeState("mosje_ming_predictor", 50);
     state.sharedGeneralQuestDeck = [
       { cardId: "quest_a" },
@@ -93,7 +93,7 @@ describe("Ming Future Sight — top General Quest peek + optional send-to-bottom
 
     const next = ability_ming_predictor_future_sight(state, "player_1");
 
-    expect(next.players.player_1.activeSlots[0].mp).toBe(40);
+    expect(next.players.player_1.activeSlots[0].mp).toBe(50); // 2.0: MP is never spent
     expect(next.sharedGeneralQuestDeck.map((c: any) => c.cardId)).toEqual([
       "quest_a",
       "quest_b",
@@ -105,7 +105,7 @@ describe("Ming Future Sight — top General Quest peek + optional send-to-bottom
 // Tuk — Perfect Placement: pay 15 MP, peek top 5, take 2 to hand, bottom 3
 // ─────────────────────────────────────────────────────────────
 describe("Tuk Perfect Placement — peek 5, take 2 to hand, bottom 3", () => {
-  it("charges 15 MP, moves 2 chosen cards to hand, bottoms the other 3 of the top 5", () => {
+  it("2.0: spends no MP, moves 2 chosen cards to hand, bottoms the other 3 of the top 5", () => {
     const state = makeState("mosje_tuk_architect", 50);
     state.players.player_1.deck = [
       { cardId: "c1" },
@@ -120,7 +120,7 @@ describe("Tuk Perfect Placement — peek 5, take 2 to hand, bottom 3", () => {
     const next = ability_tuk_architect_perfect_placement(state, "player_1");
 
     // 15 MP charged
-    expect(next.players.player_1.activeSlots[0].mp).toBe(35);
+    expect(next.players.player_1.activeSlots[0].mp).toBe(50); // 2.0: 1 Energy via useMosjeAbility, never MP
     // chosen 2 in hand
     expect(next.players.player_1.hand.map((c: any) => c.cardId)).toEqual(["c2", "c4"]);
     // deck = original rest (c6) followed by the 3 bottomed (c1, c3, c5)

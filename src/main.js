@@ -2008,7 +2008,7 @@ function initGamePage() {
 			return;
 		}
 
-		// Gandoe — Elimination Strike: confirm before firing (once per game, 80 MP cost)
+		// Gandoe — Elimination Strike: confirm before firing (once per game, 4 Energy)
 		if (GANDOE_ELIMINATION_IDS.has(mosjeId)) {
 			const gandoeSlot = gameState.players[localPlayerId].activeSlots
 				.find(s => s && !s.isDefeated && String(s.cardId).includes('gandoe_destroyer'));
@@ -2016,10 +2016,11 @@ function initGamePage() {
 				modal.showInfo('Already Used', 'Elimination Strike can only be used once per game.');
 				return;
 			}
-			if (!gandoeSlot || gandoeSlot.mp < 80) {
-				modal.showInfo('Cannot Use Ability', `Not enough MP — Elimination Strike costs 80 MP (Gandoe has ${gandoeSlot?.mp ?? 0} MP).`);
+			if (!gandoeSlot) {
+				modal.showInfo('Cannot Use Ability', 'Gandoe, The Destroyer is not on your field.');
 				return;
 			}
+			// 2.0: costs 4 Energy (abilityEnergyCosts.js), never MP; the Energy check happens in useMosjeAbility.
 			// Find target: opponent's lowest-level Mosje
 			const oppId = Object.keys(gameState.players).find(id => id !== localPlayerId);
 			const oppSlots = oppId ? gameState.players[oppId].activeSlots : [];
