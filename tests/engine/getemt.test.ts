@@ -194,3 +194,18 @@ describe("ability / Quest losses (54-14)", () => {
     expect([slotOf(st).level, slotOf(st).mp, slotOf(st).sideways ?? false]).toEqual([1, 0, false]);
   });
 });
+
+// 54-15: Place effects run the same pipeline.
+// @ts-expect-error — JS module, no type declarations
+import { effect_drain_zone, effect_zo_is_natuur } from "../../src/abilities/placeEffects.js";
+
+describe("Place effect losses and gains (54-15)", () => {
+  it("Drain Zone taking the lowest L2 Mosje (10 MP) to 0 -> L1 at 50", () => {
+    const st = effect_drain_zone(build(2, 10));
+    expect([slotOf(st).level, slotOf(st).mp]).toEqual([1, 50]);
+  });
+  it("Zo is Natuur gain past 100 levels up (L1 at 95 -> L2 at 0)", () => {
+    const st = effect_zo_is_natuur(build(1, 95));
+    expect([slotOf(st).level, slotOf(st).mp]).toEqual([2, 0]);
+  });
+});

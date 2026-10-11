@@ -11,6 +11,7 @@ const FUNNELLED_FILES = [
   'src/abilities/mosjeAbilities.js',
   'src/abilities/questLogic.js',
   'src/abilities/snelleEffects.js',
+  'src/abilities/placeEffects.js',
 ];
 
 const PATTERNS = [/\.mp\s*[+-]=/, /\.mp\s*=\s*[^=;]*\.mp\b/];
