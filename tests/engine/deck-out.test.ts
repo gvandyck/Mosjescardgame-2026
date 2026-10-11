@@ -1,12 +1,12 @@
 // BAL-05: Deck-out engine behavior
 // @ts-expect-error — JS module, no type declarations
-import { phaseDrawCard, startTurn } from "../../src/engine/turnManager.js";
+import { phaseDrawCard, startTurn, endTurn } from "../../src/engine/turnManager.js";
 import { describe, expect, it } from "vitest";
 
 function makeState(
   p1Deck: string[],
   p1Discard: string[],
-  p1SkipNextTurn = false
+  p1CooldownTurn = false
 ) {
   return {
     activePlayerId: "p1",
@@ -42,7 +42,7 @@ function makeState(
         freePiecieActivationAvailable: false,
         mpAmplifierActive: false,
         questPrepBonus: 0,
-        skipNextTurn: p1SkipNextTurn,
+        cooldownTurn: p1CooldownTurn,
         totalDamageTaken: 0,
         activeSlots: [null, null, null, null],
         piecieSlots: [null, null, null, null],
@@ -67,7 +67,7 @@ function makeState(
         freePiecieActivationAvailable: false,
         mpAmplifierActive: false,
         questPrepBonus: 0,
-        skipNextTurn: false,
+        cooldownTurn: false,
         totalDamageTaken: 0,
         activeSlots: [null, null, null, null],
         piecieSlots: [null, null, null, null],
@@ -95,10 +95,10 @@ describe("deck-out behavior (BAL-05)", () => {
     expect(result.players.p1.hand.length).toBe(1);
   });
 
-  it("phaseDrawCard sets player.skipNextTurn = true after reshuffle", () => {
+  it("phaseDrawCard sets player.cooldownTurn = true after reshuffle (2.0 RULE-07)", () => {
     const state = makeState([], ["c1", "c2", "c3"]);
     const result = phaseDrawCard(state, "p1");
-    expect(result.players.p1.skipNextTurn).toBe(true);
+    expect(result.players.p1.cooldownTurn).toBe(true);
   });
 
   it("phaseDrawCard draws 1 card from the reshuffled deck", () => {
@@ -112,49 +112,38 @@ describe("deck-out behavior (BAL-05)", () => {
     const state = makeState([], []);
     const result = phaseDrawCard(state, "p1");
     expect(result.players.p1.hand.length).toBe(0);
-    expect(result.players.p1.skipNextTurn).not.toBe(true);
+    expect(result.players.p1.cooldownTurn).not.toBe(true);
   });
 
-  it("startTurn skips the entire turn when skipNextTurn is true", () => {
-    const state = makeState(["c1"], [], true);
-    const result = startTurn(state);
-    expect(result.activePlayerId).toBe("p2");
-  });
-
-  it("startTurn clears skipNextTurn flag after skipping", () => {
-    const state = makeState(["c1"], [], true);
-    const result = startTurn(state);
-    expect(result.players.p1.skipNextTurn).toBe(false);
-  });
-
-  it("startTurn advances activePlayerId to next player on skip", () => {
-    const state = makeState(["c1"], [], true);
-    const result = startTurn(state);
-    expect(result.activePlayerId).not.toBe("p1");
-    expect(result.activePlayerId).toBe("p2");
-  });
-
-  // Regression: a skipped turn used to return without starting the next player's
-  // turn, leaving activePlayerId pointed at a player whose turn was never set up.
-  // Offline play then froze (bot's turn never driven, human locked out).
-  it("startTurn actually STARTS the next player's turn after a skip (draws a card)", () => {
-    const state = makeState(["c1"], [], true);
-    giveLiveMosjes(state); // avoid instant KNOCKOUT on an empty board
-    const deckBefore = state.players.p2.deck.length;
-    const result = startTurn(state);
-    expect(result.players.p2.hand.length).toBe(1);
-    expect(result.players.p2.deck.length).toBe(deckBefore - 1);
-  });
-
-  it("startTurn resolves chained skips (both players decked out) and lands on a started turn", () => {
+  // 2.0 replaces the V4 skip: a deck-out turn is NOT skipped, it is a cooldown turn.
+  it("startTurn does NOT skip a cooldown player's turn (V4 skip removed)", () => {
     const state = makeState(["c1"], [], true);
     giveLiveMosjes(state);
-    state.players.p2.skipNextTurn = true;
     const result = startTurn(state);
-    // p1 skipped -> p2 skipped -> back to p1, whose turn is actually started
     expect(result.activePlayerId).toBe("p1");
-    expect(result.players.p1.skipNextTurn).toBe(false);
-    expect(result.players.p2.skipNextTurn).toBe(false);
     expect(result.players.p1.hand.length).toBe(1);
+  });
+
+  it("startTurn keeps cooldownTurn set for the whole turn; endTurn clears it", () => {
+    const state = makeState(["c1"], [], true);
+    giveLiveMosjes(state);
+    const started = startTurn(state);
+    expect(started.players.p1.cooldownTurn).toBe(true);
+    const ended = endTurn(started);
+    expect(ended.players.p1.cooldownTurn).toBe(false);
+    expect(ended.activePlayerId).toBe("p2");
+  });
+
+  it("both players on cooldown still alternate normally", () => {
+    const state = makeState(["c1"], [], true);
+    giveLiveMosjes(state);
+    state.players.p2.cooldownTurn = true;
+    let s = endTurn(startTurn(state));
+    expect(s.activePlayerId).toBe("p2");
+    s = startTurn(s);
+    expect(s.players.p2.cooldownTurn).toBe(true);
+    s = endTurn(s);
+    expect(s.activePlayerId).toBe("p1");
+    expect(s.players.p1.cooldownTurn).toBe(false);
   });
 });

@@ -89,12 +89,12 @@ describe("sideways lifecycle (E5, decision 1)", () => {
     expect(s.players.player_2.welloePile.length).toBe(1);
   });
 
-  it("V4 skipNextTurn is never set by sideways", () => {
+  it("sideways never sets a cooldown turn (V4 skip is gone)", () => {
     let s = loseMP(build("player_1"), "player_2", 0, 20, "DRAIN");
     s = startTurn(endTurn(s));
-    expect(s.players.player_2.skipNextTurn).toBeFalsy();
+    expect(s.players.player_2.cooldownTurn).toBeFalsy();
     s = endTurn(s);
-    expect(s.players.player_2.skipNextTurn).toBeFalsy();
+    expect(s.players.player_2.cooldownTurn).toBeFalsy();
   });
 
   it("player still gets Energy on the sideways turn", () => {

@@ -78,6 +78,7 @@ describe("creators use the factory", () => {
     const p = st.players.p1;
     p.activeSlots = [null, null];
     p.hand = [{ cardId: def.id, type: "MOSJE" }];
+    p.energy = 6; // 2.0 TABLE-01: summoning costs Energy
     const r = playMosje(st, "p1", { cardId: def.id });
     expect(r.success).toBe(true);
     const slot = r.state.players.p1.activeSlots[r.slotIndex];

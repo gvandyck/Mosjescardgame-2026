@@ -61,9 +61,9 @@ describe("hold Level 3 to win (Obby 2.0 §2b)", () => {
     expect(s.status).toBe("PLAYING");
   });
 
-  it("E7 skip: a V4 skipNextTurn does not stop the win check", () => {
+  it("E7 cooldown: a cooldown turn does not stop the win check", () => {
     let s = build(3, 50);
-    s.players.player_1.skipNextTurn = true;
+    s.players.player_1.cooldownTurn = true;
     s = startTurn(s);
     expect(s.status).toBe("FINISHED");
     expect(s.winnerId).toBe("player_1");

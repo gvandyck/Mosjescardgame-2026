@@ -106,10 +106,10 @@ describe("E1 Energy", () => {
     expect(s.players.player_1.energy).toBe(6);
   });
 
-  it("a skipped (cooldown) turn still receives +1 Energy", () => {
+  it("a cooldown turn still receives +1 Energy", () => {
     const s = newGame();
     s.activePlayerId = "player_1";
-    s.players.player_1.skipNextTurn = true;
+    s.players.player_1.cooldownTurn = true;
     const out = startTurn(s);
     expect(out.players.player_1.energy).toBe(3);
   });

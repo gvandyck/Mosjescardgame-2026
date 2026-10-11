@@ -132,16 +132,16 @@ describe('Offline game smoke test', () => {
   });
 
   // Regression for the deck-out hang: with tiny decks both players deck-out early
-  // and get skipNextTurn set repeatedly. A skipped startTurn must keep advancing to a
+  // and get cooldownTurn set repeatedly. A cooldown startTurn must keep advancing to a
   // properly-started turn so the loop keeps advancing instead of stalling. (Before the
   // fix, startTurn returned an un-started, un-routed turn — offline play froze.)
-  it('keeps advancing turns when both players repeatedly deck-out (skip turns)', () => {
+  it('keeps advancing turns when both players repeatedly deck-out (cooldown turns)', () => {
     const players = [
       { playerId: 'player_1', name: 'Human', deckId: 'PHYSICAL_FORCE' },
       { playerId: 'player_2', name: 'Bot',   deckId: 'DIGITAL_CONTROL' },
     ];
     // 54-05: levels are 1-3 now, so the shared 0xC0FFEE game ends by a Level-3 win before any
-    // deck-out; this test uses its own fixed seed so the skip path is reached deterministically.
+    // deck-out; this test uses its own fixed seed so the cooldown path is reached deterministically.
     Math.random = mulberry32(0xC0FFEE);
     let state: any = createInitialGameState(players, 'DECKOUT_TEST', { firstPlayerId: players[0].playerId }); // 2.0: deterministic
     // Trim both decks to 3 cards so deck-out (and the skip path) triggers within a few turns.
@@ -149,12 +149,12 @@ describe('Offline game smoke test', () => {
     state.players.player_2.deck = state.players.player_2.deck.slice(0, 3);
     state = startTurn(state);
 
-    let sawSkipFlag = false;
+    let sawCooldownFlag = false;
     expect(() => {
       for (let turn = 0; turn < 120; turn++) {
         if (state.status === 'FINISHED') break;
-        if (state.players.player_1.skipNextTurn || state.players.player_2.skipNextTurn) {
-          sawSkipFlag = true;
+        if (state.players.player_1.cooldownTurn || state.players.player_2.cooldownTurn) {
+          sawCooldownFlag = true;
         }
         const active = state.activePlayerId;
         if (active === 'player_2') {
@@ -164,13 +164,13 @@ describe('Offline game smoke test', () => {
         }
         if (state.status === 'FINISHED') break;
         // startTurn must always hand back a properly-started, correctly-routed turn —
-        // even when it has to skip a deck-out player.
+        // even for a cooldown (deck-out) player.
         state = startTurn(state);
         expect(['player_1', 'player_2']).toContain(state.activePlayerId);
       }
     }).not.toThrow();
 
-    expect(sawSkipFlag).toBe(true);     // the deck-out skip path was actually exercised
+    expect(sawCooldownFlag).toBe(true);     // the deck-out cooldown path was actually exercised
     expect(state.turnNumber).toBeGreaterThan(1); // the loop kept advancing rather than hanging (no FINISHED assert in 2.0)
   });
 });

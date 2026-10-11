@@ -7,6 +7,7 @@ import { placeEmptyFieldMosje } from './turn/placeEmptyFieldMosje.js';
 import { clearOwnerProtections } from './turn/clearOwnerProtections.js';
 import { expireThisTurnEffects } from './turn/expireThisTurnEffects.js';
 import { getNextPlayerId } from './turn/getNextPlayerId.js';
+import { isCooldownBlocked, COOLDOWN_ERROR } from './turn/isCooldownBlocked.js';
 import { gainMP, applyStatusEffectMP, getTotalMPForPlayer } from './mpManager.js';
 import { checkVictory, markMosjeDefeated } from './victoryChecker.js';
 import { getAllPlayerIds, setActivePlace, destroyActivePlace, clearReturnedMosjesAtTurnEnd } from './gameState.js';
@@ -253,25 +254,8 @@ export function startTurn(gameState) {
   const activePlayer = state.players[playerId];
 
   // Obby 2.0 Core Numbers §1a: +1 Energy at the start of each own turn (max 6),
-  // granted BEFORE the skip branch so a cooldown/skipped turn still gets +1.
+  // a cooldown turn still gets +1.
   gainEnergy(state, playerId);
-
-  // Deck-out penalty: skip this entire turn (per D-06)
-  if (activePlayer.skipNextTurn === true) {
-    activePlayer.skipNextTurn = false;
-    console.log(`[ENGINE] startTurn: ${playerId} skips turn (deck-out penalty)`);
-    const skipNext = getNextPlayerId(state, playerId);
-    state.activePlayerId = skipNext.nextPlayerId;
-    if (skipNext.wrapsRound) {
-      state.turnNumber += 1;
-      console.log(`[ENGINE] Round complete during skip. Turn ${state.turnNumber} begins.`);
-    }
-    // Actually START the next player's turn (draw, trackers, victory check).
-    // Returning here without this leaves activePlayerId pointed at a player whose turn
-    // was never set up — the UI then freezes because it assumes a fixed turn order.
-    // Recursion also resolves chained skips (e.g. both players decked out).
-    return startTurn(state);
-  }
 
   activePlayer.questsCompletedThisTurn = 0;
   activePlayer.questsAttemptedThisTurn = 0;
@@ -418,7 +402,7 @@ export function startTurn(gameState) {
 // phaseDrawCard
 // Draws 1 card from the player's personal deck into their hand.
 // If the deck is empty but the discard has cards, reshuffle it into a new deck, draw 1,
-// and set skipNextTurn (D-06 deck-out penalty) — also stamping a one-shot _deckOutEvent
+// and set cooldownTurn (2.0 RULE-07) — also stamping a one-shot _deckOutEvent
 // marker for the UI. If deck AND discard are both empty, no draw and no penalty.
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export function phaseDrawCard(gameState, playerId, count = 1, isOpponentTriggered = false) {
@@ -448,7 +432,7 @@ export function phaseDrawCard(gameState, playerId, count = 1, isOpponentTriggere
     player.deck = remaining;
     player.hand.push(...drawn);
     player.drawsThisTurn = (player.drawsThisTurn || 0) + drawn.length;
-    player.skipNextTurn = true;
+    player.cooldownTurn = true; // Obby 2.0 RULE-07: this player's next own turn is a cooldown turn
     // One-shot marker for the UI: rides the existing gameState sync so BOTH clients can
     // show the deck-out notice. Not cleared here — each client de-dupes on its own.
     state._deckOutEvent = {
@@ -456,7 +440,7 @@ export function phaseDrawCard(gameState, playerId, count = 1, isOpponentTriggere
       turnNumber: state.turnNumber,
       reshuffledCount: player.deck.length + drawn.length, // cards recycled from discard
     };
-    console.log(`[ENGINE] Draw phase: deck-out — reshuffled ${player.deck.length + 1} cards, drew ${drawn.length}, skipNextTurn set`);
+    console.log(`[ENGINE] Draw phase: deck-out — reshuffled ${player.deck.length + 1} cards, drew ${drawn.length}, cooldown turn set`);
     return state;
   }
 
@@ -481,6 +465,8 @@ export function endTurn(gameState) {
 
   // Returned Mosjes become replayable on the player's next turn.
   state = clearReturnedMosjesAtTurnEnd(state, playerId);
+  // RULE-07: the cooldown turn ends with this turn.
+  if (state.players[playerId]) state.players[playerId].cooldownTurn = false;
 
   // END PHASE — fire active Place effects (END_PHASE trigger only)
   state = applyPlaceEffectsOnEnd(state);
@@ -590,6 +576,7 @@ export function endTurn(gameState) {
 export function attemptGeneralQuest(gameState) {
   let state = JSON.parse(JSON.stringify(gameState));
   const playerId = state.activePlayerId;
+  if (isCooldownBlocked(state, playerId)) return { state, success: false, questCard: null, error: COOLDOWN_ERROR };
   const player = state.players[playerId];
 
   const questHavenActive = state.activePlace === 'place_quest_haven';
@@ -631,6 +618,7 @@ export function attemptGeneralQuest(gameState) {
 export function attemptPersonalQuest(gameState, questCardId) {
   let state = JSON.parse(JSON.stringify(gameState));
   const playerId = state.activePlayerId;
+  if (isCooldownBlocked(state, playerId)) return { state, success: false, questCard: null, eligible: false, error: COOLDOWN_ERROR };
   const player = state.players[playerId];
 
   const questHavenActive = state.activePlace === 'place_quest_haven';
@@ -786,6 +774,7 @@ export function activatePersonalQuest(gameState, playerId, slotIndex) {
   let state = JSON.parse(JSON.stringify(gameState));
   const player = state.players[playerId];
   if (!player) return { state, success: false, error: 'Player not found' };
+  if (isCooldownBlocked(state, playerId)) return { state, success: false, error: COOLDOWN_ERROR };
 
   if (state.activePlayerId !== playerId) {
     return { state, success: false, error: 'You can only activate quests on your own turn' };
@@ -846,6 +835,7 @@ export function activatePlace(gameState, playerId, slotIndex) {
   let state = JSON.parse(JSON.stringify(gameState));
   let player = state.players[playerId];
   if (!player) return { state, success: false, error: 'Player not found' };
+  if (isCooldownBlocked(state, playerId)) return { state, success: false, error: COOLDOWN_ERROR };
 
   if (state.activePlayerId !== playerId) {
     return { state, success: false, error: 'You can only activate Places on your own turn' };
@@ -896,6 +886,7 @@ export function activatePiecie(gameState, playerId, slotIndex) {
   let state = JSON.parse(JSON.stringify(gameState));
   let player = state.players[playerId];
   if (!player) return { state, success: false, error: 'Player not found' };
+  if (isCooldownBlocked(state, playerId)) return { state, success: false, error: COOLDOWN_ERROR };
 
   if (state.activePlayerId !== playerId) {
     return { state, success: false, error: 'You can only activate Piecies on your own turn' };
@@ -1093,6 +1084,7 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
   let state = JSON.parse(JSON.stringify(gameState));
   let player = state.players[playerId];
   if (!player) return { state, success: false, error: 'Player not found' };
+  if (isCooldownBlocked(state, playerId)) return { state, success: false, error: COOLDOWN_ERROR };
 
   if (isHandCardLocked(state, playerId, cardRef)) {
     return { state, success: false, error: 'That card is locked by Ronald Strategic Insight — you cannot play it this turn.' };
@@ -1211,6 +1203,8 @@ export function playMosje(gameState, playerId, cardRef) {
   let state = JSON.parse(JSON.stringify(gameState));
   const player = state.players[playerId];
   if (!player) return { state, success: false, error: 'Player not found' };
+  if (isCooldownBlocked(state, playerId)) return { state, success: false, error: COOLDOWN_ERROR };
+  if (state.activePlayerId !== playerId) return { state, success: false, error: 'Not your turn' };
 
   if (isHandCardLocked(state, playerId, cardRef)) {
     return { state, success: false, error: 'That card is locked by Ronald Strategic Insight — you cannot play it this turn.' };
@@ -1235,6 +1229,13 @@ export function playMosje(gameState, playerId, cardRef) {
     return { state, success: false, error: 'Unknown Mosje definition' };
   }
 
+  // Obby 2.0 TABLE-01: summoning from hand costs the Mosje's Energy cost (setup Mosje is free, placed elsewhere).
+  const paid = payEnergy(state, playerId, mosjeDef.cost ?? 0);
+  if (!paid.success) {
+    player.hand.splice(handIndex, 0, removed);
+    return { state, success: false, error: paid.error };
+  }
+
   const saved = removed.savedState || {};
   const slot = createMosjeSlot(mosjeDef, {
     level: typeof saved.level === 'number' ? saved.level : 1,
@@ -1244,6 +1245,7 @@ export function playMosje(gameState, playerId, cardRef) {
   if (Array.isArray(saved.statusEffects)) slot.statusEffects = [...saved.statusEffects];
   if (typeof saved.abilityUsedThisTurn === 'boolean') slot.abilityUsedThisTurn = saved.abilityUsedThisTurn;
 
+  slot.entryProtected = true; // fresh on arrival, also for savedState returns
   player.activeSlots[openSlotIndex] = slot;
 
   state = checkVictory(state);
@@ -1261,6 +1263,7 @@ export function playMosje(gameState, playerId, cardRef) {
 export function useMosjeAbility(gameState, playerId, mosjeId) {
   const player = gameState.players[playerId];
   if (!player) return { state: gameState, success: false, error: 'Player not found' };
+  if (isCooldownBlocked(gameState, playerId)) return { state: gameState, success: false, error: COOLDOWN_ERROR };
 
   const slotIndex = player.activeSlots.findIndex(s => s && s.cardId === mosjeId && !s.isDefeated);
   if (slotIndex < 0) return { state: gameState, success: false, error: 'Mosje not on field or is defeated' };
@@ -1473,6 +1476,7 @@ export function playPlace(gameState, playerId, cardRef, cardDef) {
   let state = JSON.parse(JSON.stringify(gameState));
   const player = state.players[playerId];
   if (!player) return { state, success: false, error: 'Player not found' };
+  if (isCooldownBlocked(state, playerId)) return { state, success: false, error: COOLDOWN_ERROR };
 
   if (isHandCardLocked(state, playerId, cardRef)) {
     return { state, success: false, error: 'That card is locked by Ronald Strategic Insight — you cannot play it this turn.' };
