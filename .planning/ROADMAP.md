@@ -116,7 +116,7 @@ Plans:
 - [x] 55-04-PLAN.md — Fresh 2.0: opponent-proof by source, AoE skip, ignores Places, COST bypass gone (RULE-08)
 - [x] 55-05-PLAN.md — First-turn Quest lock and 4th Piecie slot removed, V4-leftover static guard
 - [x] 55-06-PLAN.md — "Active Mosje" removed: own/opp target resolvers, UI picker, bot choice (RULE-10)
-- [ ] 55-07-PLAN.md — Playwright alignment + 2.0 turn-flow spec (headless), pointer docs, phase gate
+- [x] 55-07-PLAN.md — Playwright alignment + 2.0 turn-flow spec (headless), pointer docs, phase gate
 
 ### Phase 56: Attacking and Quests
 **Goal**: Each Mosje can take its one action per turn: attack an opponent Mosje with its Power, or try one of the 3 typed Quests.
