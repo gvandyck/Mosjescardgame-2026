@@ -21,6 +21,7 @@ import { createMosjeSlot } from './mp/createMosjeSlot.js';
 import { gainEnergy } from './energy/gainEnergy.js';
 import { payEnergy } from './energy/payEnergy.js';
 import { canPay } from './energy/canPay.js';
+import { canMosjeAct } from './mp/canMosjeAct.js';
 import { getAbilityEnergyCost } from './energy/getAbilityEnergyCost.js';
 
 console.log('[ENGINE] turnManager.js loaded');
@@ -313,6 +314,8 @@ export function startTurn(gameState) {
     if (slot) {
       slot.abilityUsedThisTurn = false;
       slot.immuneThisTurn = false;
+      // decision 1 (54-11): sideways = this Mosje skips this owner turn
+      if (slot.sideways) slot.sidewaysArmed = true;
       slot.mpLostThisTurn = 0;
       // U8 — Entry Protection ends the moment the owner's turn starts: the
       // owner has now "had a turn" with the Mosje, so opponents may target it
@@ -520,6 +523,15 @@ export function endTurn(gameState) {
         state = markMosjeDefeated(state, playerId, i);
         console.log('[ENGINE] endTurn sweep: summoned Mosje defeated — anchor Piecie no longer on field');
       }
+    }
+  }
+
+  // decision 1 (54-11): Mosjes that sat out this turn stand up at its end
+  for (const s of state.players[playerId].activeSlots) {
+    if (s?.sideways && s.sidewaysArmed) {
+      s.sideways = false;
+      delete s.sidewaysArmed;
+      console.log(`[ENGINE] ${s.name} stands up (end of ${playerId}'s turn)`);
     }
   }
 
@@ -1246,6 +1258,7 @@ export function useMosjeAbility(gameState, playerId, mosjeId) {
   if (slotIndex < 0) return { state: gameState, success: false, error: 'Mosje not on field or is defeated' };
 
   const slot = player.activeSlots[slotIndex];
+  if (!canMosjeAct(slot)) return { state: gameState, success: false, error: 'This Mosje is sideways' };
   // Was a double-trigger armed BEFORE this ability ran? Only then do we echo/consume it
   // below — so an ability that ARMS the flag itself (Amplifier) doesn't eat its own grant.
   const hadDoubleTrigger = player.abilityDoubleTrigger === true;
