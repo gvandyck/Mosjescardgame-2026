@@ -12,7 +12,7 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 
 - [x] **Phase 53: 2.0 Card Data and Example Decks** - All 183 Card List cards in `src/data/*.js` with 2.0 fields; hidden cards kept out; the 3 Example Decks ship (completed 2026-10-10)
 - [x] **Phase 54: Energy, Levels and Getemt** - Energy pays for everything; 2.0 level-up, getemt, MP/Power grid and hold-Level-3 win/lose (completed 2026-10-11)
-- [ ] **Phase 55: Turn Flow, Setup and Protection** - 2.0 setup, turn steps, R1/R2/R5, cooldown turn, summoning, fresh protection; V4 leftovers removed
+- [x] **Phase 55: Turn Flow, Setup and Protection** - 2.0 setup, turn steps, R1/R2/R5, cooldown turn, summoning, fresh protection; V4 leftovers removed (completed 2026-10-11)
 - [ ] **Phase 56: Attacking and Quests** - One action per Mosje: attack by Power, or try one of 3 typed Quests with dice, bands, fail tokens and jabs
 - [ ] **Phase 57: Piecies, Snelle, Places and Reaction Windows** - 3 slots, Stays, Snelle timing, Place rules, Welloe pile and engine reaction windows; no V4-rule test left
 - [ ] **Phase 58: Mosje Abilities and Synergies** - All 32 Mosje abilities, 2.0 synergy pairs, chain rule and The Tactician (Example Deck Mosjes first)
@@ -29,7 +29,7 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 |---|-------|------|--------------|------------------|
 | 53 | 2.0 Card Data and Example Decks | 7/7 | Complete    | 2026-10-10 |
 | 54 | Energy, Levels and Getemt | 16/16 | Complete    | 2026-10-11 |
-| 55 | Turn Flow, Setup and Protection | 3/7 | In Progress|  |
+| 55 | Turn Flow, Setup and Protection | 7/7 | Complete    | 2026-10-11 |
 | 56 | Attacking and Quests | Each Mosje's one action (attack or Quest) works by 2.0 rules | PLAY-01..07 | 5 |
 | 57 | Piecies, Snelle, Places and Reaction Windows | Table cards follow 2.0 lifecycles; the engine offers reaction Snelle | TABLE-02..06, SHELL-04 | 5 |
 | 58 | Mosje Abilities and Synergies | Every Mosje does what its Card List text says | EFX-01, EFX-05, EFX-06, TEST-01 | 5 |
@@ -213,6 +213,7 @@ Plans:
   4. Quests use their stack colour with the dice need top-left, "Rolls:" + band, WIN / LOSE in the footer and 2 fail pips on the field tile.
   5. The Phase 7 §A10 unit tests and Playwright screenshots at 1920×1080 pass.
 **Tests to add**: A10 unit tests (frame tier, foil, Piecie label, cost 0) and A10 Playwright screenshots.
+**Known gap (pre-existing, found in Phase 55)**: `tests/ui/cards/cardv1-hand.spec.js` 230px text-collision check fails for mosje_martin_historian, mosje_martin_senor_west, piecie_bowie_stormey, piecie_tony, piecie_gekke_vogels (long 2.0 texts); fix with the 2.0 card faces.
 **Notes**: Decide per unmerged UI branch (`ui/arena-hover-spotlight`, `ui/card-frame-v1`, `ui/rarity-tiers`) whether to bring it into `obby-2.0` first.
 **Plans**: TBD
 **UI hint**: yes
