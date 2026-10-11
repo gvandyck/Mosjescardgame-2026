@@ -78,7 +78,7 @@ describe("instant win on reaching Level 3", () => {
 
     const mosje = next.players.player_1.activeSlots[0];
     expect(mosje.level).toBe(3);
-    expect(mosje.mp).toBe(70); // leftover MP is kept, per the ruling
+    expect(mosje.mp).toBe(0); // 2.0: level-up resets MP to 0, no carry-over
 
     // The win must be finalised in the same call — not deferred to end of turn.
     expect(next.status).toBe("FINISHED");
@@ -87,7 +87,7 @@ describe("instant win on reaching Level 3", () => {
   });
 
   it("checkLevelUp never lets a Mosje exceed Level 3, even on a huge gain", () => {
-    // Lvl 2 / 90 MP, then dumped with 250 MP at once.
+    // Lvl 2 / 90 MP, then dumped with 250 MP at once (raw write; backstop levels it).
     const state = makeState(makeSlot(90, 2));
     state.players.player_1.activeSlots[0].mp = 90 + 250; // pre-add raw MP
     const next = checkLevelUp(state, "player_1", 0);

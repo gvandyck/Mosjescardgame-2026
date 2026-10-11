@@ -85,7 +85,7 @@ function applyAlyssaJiscaPiecieBonus(state, playerId) {
   );
   if (jiscaIndex < 0) return state;
 
-  state = gainMP(state, playerId, jiscaIndex, 10, 'GAIN', { allowLevelUp: false });
+  state = gainMP(state, playerId, jiscaIndex, 10, 'GAIN');
   state.players[playerId].alyssaJiscaPiecieBonusUsedThisTurn = true;
   console.log(`[SYNERGY] Alyssa+Jisca: first Piecie this turn → Jisca +10 MP → ${state.players[playerId].activeSlots[jiscaIndex].mp} MP`);
   return state;
@@ -355,7 +355,7 @@ export function startTurn(gameState) {
   for (let i = 0; i < tricklePlayer.activeSlots.length; i++) {
     const slot = tricklePlayer.activeSlots[i];
     if (slot && !slot.isDefeated) {
-      state = gainMP(state, playerId, i, 10, 'GAIN', { allowLevelUp: false }); // trickle caps at 100; only Quests level
+      state = gainMP(state, playerId, i, 10, 'GAIN'); // 2.0: every gain can level (handoff §2a)
       console.log(`[ENGINE] Turn trickle: ${slot.name} +10 MP → ${state.players[playerId].activeSlots[i].mp} MP`);
     }
   }
@@ -369,7 +369,7 @@ export function startTurn(gameState) {
     for (let i = 0; i < synergyPlayer.activeSlots.length; i++) {
       const slot = synergyPlayer.activeSlots[i];
       if (slot && !slot.isDefeated && ALYSSA_JISCA_SYNERGY_MOSJE_IDS.includes(slot.cardId)) {
-        state = gainMP(state, playerId, i, 10, 'GAIN', { allowLevelUp: false });
+        state = gainMP(state, playerId, i, 10, 'GAIN');
         console.log(`[SYNERGY] Alyssa+Jisca: ${slot.name} +10 MP (Jisca present) → ${state.players[playerId].activeSlots[i].mp} MP`);
       }
     }

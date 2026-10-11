@@ -3,6 +3,8 @@
 // All functions return an updated copy of gameState (never mutate directly).
 
 import { roundToFive } from './roundToFive.js';
+import { applyGainToSlot } from './mp/applyGainToSlot.js';
+import { normalizeSlotMp } from './mp/normalizeSlotMp.js';
 
 console.log('[ENGINE] mpManager.js loaded');
 
@@ -22,7 +24,8 @@ function isQuestDamageSource(source) {
 // ─────────────────────────────────────────────────────────────
 // gainMP
 // Gives `amount` MP to a specific Mosje slot for a player.
-// Automatically calls checkLevelUp after gaining MP.
+// Obby 2.0: every gain can level. 100+ MP raises one Level and resets MP to 0
+// (no carry-over); a Level 3 Mosje is capped at 95. See applyGainToSlot.
 //
 // gameState  — full game state object
 // playerId   — which player's Mosje gains MP
@@ -31,10 +34,7 @@ function isQuestDamageSource(source) {
 //
 // Returns updated gameState.
 // ─────────────────────────────────────────────────────────────
-// `allowLevelUp` — only Quest rewards permanently level a Mosje. Non-quest gains
-// (turn trickle, ability/piecie rewards) pass allowLevelUp:false → MP is capped at
-// 100 with NO level-up. Quest callers omit it (defaults true) to keep leveling.
-export function gainMP(gameState, playerId, slotIndex, amount, source = 'GAIN', { allowLevelUp = true } = {}) {
+export function gainMP(gameState, playerId, slotIndex, amount, source = 'GAIN') {
   if (amount <= 0) return gameState;
 
   const placeId = getActivePlaceId(gameState);
@@ -43,8 +43,6 @@ export function gainMP(gameState, playerId, slotIndex, amount, source = 'GAIN', 
     return gameState;
   }
 
-  const gainAmount = amount;
-
   const state = deepCloneState(gameState);
   const mosje = state.players[playerId].activeSlots[slotIndex];
   if (!mosje || mosje.isDefeated) {
@@ -52,15 +50,8 @@ export function gainMP(gameState, playerId, slotIndex, amount, source = 'GAIN', 
     return state;
   }
 
-  if (allowLevelUp) {
-    // Quest path: add then convert ≥100 into Level(s) (mp resets < 100).
-    mosje.mp += gainAmount;
-    console.log(`[ENGINE] 💥 ${mosje.name} gains ${gainAmount} MP (${source}) → now ${mosje.mp} MP`);
-    return checkLevelUp(state, playerId, slotIndex);
-  }
-  // Non-quest path: cap at 100, never level up.
-  mosje.mp = Math.min(100, mosje.mp + gainAmount);
-  console.log(`[ENGINE] 💥 ${mosje.name} gains ${gainAmount} MP (${source}, capped) → now ${mosje.mp} MP`);
+  const { gained } = applyGainToSlot(mosje, amount, { turnNumber: state.turnNumber });
+  console.log(`[ENGINE] 💥 ${mosje.name} gains ${gained} MP (${source}) → now Level ${mosje.level} | ${mosje.mp} MP`);
   return state;
 }
 
@@ -256,9 +247,8 @@ export function loseMP(gameState, playerId, slotIndex, amount, source = 'DRAIN',
 
 // ─────────────────────────────────────────────────────────────
 // checkLevelUp
-// Called automatically after every gainMP.
-// If a Mosje reaches 100+ MP: level increases by 1, MP resets to 0.
-// Logs a ⬆️ level-up event.
+// Normalises a Mosje's MP after a direct write: 100+ MP raises one Level and
+// resets MP to 0, Level 3 is capped at 95, MP is snapped to the 5-grid.
 //
 // Returns updated gameState.
 // ─────────────────────────────────────────────────────────────
@@ -266,24 +256,7 @@ export function checkLevelUp(gameState, playerId, slotIndex) {
   const state = deepCloneState(gameState);
   const mosje = state.players[playerId].activeSlots[slotIndex];
   if (!mosje || mosje.isDefeated) return state;
-
-  // Level 3 is the ceiling — reaching it is an instant win (finalised by the
-  // checkVictory call that follows every quest/MP change). A Mosje can never
-  // exceed Level 3: the loop stops the moment it lands on 3, keeping the
-  // leftover MP (e.g. Lvl 2 / 90 MP + 80 → Lvl 3 / 70 MP). The `level < 3`
-  // guard also prevents a second gain in the same turn from rolling 3 → 4.
-  while (mosje.mp >= 100 && mosje.level < 3) {
-    mosje.mp -= 100;
-    mosje.level += 1;
-    console.log(`[ENGINE] ⬆️ ${mosje.name} levelled up! Now Level ${mosje.level} | MP carried over: ${mosje.mp}`);
-
-    if (mosje.level >= 3) {
-      console.log(`[ENGINE] 🏆 ${mosje.name} reached Level 3 — victory condition met!`);
-      // victoryChecker.js will detect and finalise the win.
-      break;
-    }
-  }
-
+  normalizeSlotMp(mosje, { turnNumber: state.turnNumber });
   return state;
 }
 

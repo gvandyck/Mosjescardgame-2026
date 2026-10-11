@@ -99,7 +99,7 @@ describe("Gandoe <-> Michelle synergy", () => {
     expect(result.players.player_1.activeSlots[0].mp).toBe(40);
   });
 
-  it("Michelle -> Gandoe: roll 5 kicker is MP-only and does not level Gandoe", () => {
+  it("Michelle -> Gandoe: roll 5 kicker is MP-only (95 + 10 -> 2.0 level-up is the only level)", () => {
     vi.spyOn(Math, "random").mockReturnValue(0.7);
     const state = makeState([
       makeSlot("mosje_gandoe_destroyer", 95, 1),
@@ -109,8 +109,9 @@ describe("Gandoe <-> Michelle synergy", () => {
     const result = resolveQuest(state, "player_1", PHYSICAL_QUEST, true, 1);
     const gandoe = result.players.player_1.activeSlots[0];
 
-    expect(gandoe.mp).toBe(100);
-    expect(gandoe.level).toBe(1);
+    // 2.0: the +10 kicker takes 95 to 100, which levels Gandoe and resets MP to 0.
+    expect(gandoe.mp).toBe(0);
+    expect(gandoe.level).toBe(2);
   });
 
   it("Gandoe -> Michelle: Physical Quest has +15 partner-synergy bonus when Michelle is on field", () => {
@@ -140,6 +141,6 @@ describe("Gandoe <-> Michelle synergy", () => {
     const michelle = result.players.player_1.activeSlots[1];
 
     expect(michelle.level).toBe(2);
-    expect(michelle.mp).toBe(70);
+    expect(michelle.mp).toBe(65); // 2.0: no carry-over past the level-up
   });
 });

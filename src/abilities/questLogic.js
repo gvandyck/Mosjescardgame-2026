@@ -545,7 +545,7 @@ function applyMosjeFieldEffectsOnQuest(gameState, playerId, slotIndex, questMpGa
 				s => s && !s.isDefeated && s.cardId === 'mosje_gandoe_destroyer'
 			);
 			if (gandoeDestroyerIndex >= 0) {
-				state = gainMP(state, playerId, gandoeDestroyerIndex, 10, 'GAIN', { allowLevelUp: false });
+				state = gainMP(state, playerId, gandoeDestroyerIndex, 10, 'GAIN');
 				const gandoeSlot = state.players[playerId].activeSlots[gandoeDestroyerIndex];
 				state._autoAbilityLog.label += ` | [Gandoe] Destroyer synergy: roll ${roll} grants +10 MP`;
 				console.log(`[SYNERGY] Gandoe+Michelle: Tough Gamble roll ${roll} -> Gandoe Destroyer +10 MP -> ${gandoeSlot?.mp} MP`);

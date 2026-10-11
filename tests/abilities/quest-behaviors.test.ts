@@ -123,19 +123,19 @@ describe("resolveQuest — opponentLoseMP", () => {
   });
 
   it("does NOT drain on failure", () => {
-    const state = makeState({ p2mp: 100 });
+    const state = makeState({ p2mp: 90 });
 
     const next = resolveQuest(state, "player_1", questCard({ opponentLoseMP: 30 }), false);
 
-    expect(next.players.player_2.activeSlots[0].mp).toBe(100);
+    expect(next.players.player_2.activeSlots[0].mp).toBe(90);
   });
 
   it("skips the drain under The Void", () => {
-    const state = makeState({ p2mp: 100, activePlace: "place_the_void" });
+    const state = makeState({ p2mp: 90, activePlace: "place_the_void" });
 
     const next = resolveQuest(state, "player_1", questCard({ opponentLoseMP: 30 }), true);
 
-    expect(next.players.player_2.activeSlots[0].mp).toBe(100);
+    expect(next.players.player_2.activeSlots[0].mp).toBe(90);
   });
 });
 

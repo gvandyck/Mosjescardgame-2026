@@ -423,7 +423,7 @@ test('chain: Coert KasteLuck Morning Luck — rolling 4-6 lets the next Piecie a
 // Game rule (phase0-rulings.md): a Mosje's MP is always 0–100; piecies/abilities
 // NEVER permanently level up (only Quests do) and their gains cap at 100.
 // A Lv0/80 Mosje gaining +25 from Kannetje Melk lands at Lv0/100 (capped) — not
-// Lv0/105 and not a level-up. Enforced by applyMPGain cap + clampMosjeMp sweep.
+// Lv0/105 and not a level-up. Enforced by applyMPGain cap + normalizeMosjeMp sweep (V4 note, superseded by 2.0 levelling).
 test('chain: piecie MP gain caps at 100 (no level-up)', async ({ page }) => {
 	test.setTimeout(60000);
 	await seedCustomDeck(page, {

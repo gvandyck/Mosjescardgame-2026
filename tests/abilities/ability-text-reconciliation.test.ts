@@ -629,32 +629,32 @@ describe("FPS Coert — Headshot Precision (auto quest-success trigger)", () => 
 
   it("does not fire for a non-Physical/Technical Quest category, even rolling a 6", () => {
     vi.spyOn(Math, "random").mockReturnValue(0.99); // rollDie(6) => 6
-    const state = makeFpsCoertState(50, 100);
+    const state = makeFpsCoertState(50, 90);
 
     const next = resolveQuest(state, "player_1", fpsQuestCard({ category: "Social" }), true);
 
     expect(next.players.player_1.activeSlots[0].mp).toBe(50);
-    expect(next.players.player_2.activeSlots[0].mp).toBe(100);
+    expect(next.players.player_2.activeSlots[0].mp).toBe(90);
   });
 
   it("does not fire on a Quest FAILURE, even rolling a 6", () => {
     vi.spyOn(Math, "random").mockReturnValue(0.99); // rollDie(6) => 6
-    const state = makeFpsCoertState(50, 100);
+    const state = makeFpsCoertState(50, 90);
 
     const next = resolveQuest(state, "player_1", fpsQuestCard({ category: "Physical" }), false);
 
     expect(next.players.player_1.activeSlots[0].mp).toBe(50);
-    expect(next.players.player_2.activeSlots[0].mp).toBe(100);
+    expect(next.players.player_2.activeSlots[0].mp).toBe(90);
   });
 
   it("rolling below 6 has no effect", () => {
     vi.spyOn(Math, "random").mockReturnValue(0); // rollDie(6) => 1
-    const state = makeFpsCoertState(50, 100);
+    const state = makeFpsCoertState(50, 90);
 
     const next = resolveQuest(state, "player_1", fpsQuestCard({ category: "Physical" }), true);
 
     expect(next.players.player_1.activeSlots[0].mp).toBe(50);
-    expect(next.players.player_2.activeSlots[0].mp).toBe(100);
+    expect(next.players.player_2.activeSlots[0].mp).toBe(90);
   });
 
   it("the manual ability entry is a no-op passthrough (mirrors ability_jeffrey_brute_force)", () => {
@@ -761,8 +761,9 @@ describe("Chris DDR — Perfect Combo Chain", () => {
     const result = activatePiecie(state, "player_1", 0);
 
     expect(result.success).toBe(true);
-    // Chris DDR (slot 0): +25 from the original activation, +25 from the chain
-    expect(result.state.players.player_1.activeSlots[0].mp).toBe(100);
+    // Chris DDR (slot 0): 50 +25 from the activation, +25 from the chain = 100 -> 2.0 level-up
+    expect(result.state.players.player_1.activeSlots[0].level).toBe(2);
+    expect(result.state.players.player_1.activeSlots[0].mp).toBe(0);
     expect(result.state.players.player_1.hand.length).toBe(0); // chained Piecie consumed from hand
     expect(result.state.players.player_1.chrisDdrChainUsesThisTurn).toBe(1);
   });

@@ -356,7 +356,7 @@ export function ability_ming_natural_lucky_draw(gameState, playerId) {
 		return state;
 	}
 	player.hand.push(drawnCard);
-	const next = gainMP(state, playerId, slotIndex, 15, 'MING_NATURAL_DRAW', { allowLevelUp: false });
+	const next = gainMP(state, playerId, slotIndex, 15, 'MING_NATURAL_DRAW');
 	console.log('[ABILITY] Ming Natural: drew', drawnCard.cardId, '(not a Piecie), +15 MP');
 	return next;
 }
@@ -614,7 +614,7 @@ export function ability_fps_west_tactical_analysis(gameState, playerId) {
 	const correct = state._pendingTargets?.fpsWestGuessCorrect;
 	if (correct === undefined) throw new Error('Tactical Analysis requires a guess');
 	let next = correct === true
-		? gainMP(state, playerId, slotIndex, 70, 'FPS_WEST_GUESS', { allowLevelUp: false }) // ability gain caps at 100
+		? gainMP(state, playerId, slotIndex, 70, 'FPS_WEST_GUESS')
 		: loseMP(state, playerId, slotIndex, 20, 'FPS_WEST_GUESS');
 	if (next._pendingTargets) delete next._pendingTargets.fpsWestGuessCorrect;
 	console.log('[ABILITY] FPS West Tactical Analysis:', correct ? '+70 MP (correct)' : '-20 MP (wrong)');
@@ -728,7 +728,7 @@ export function ability_tuk_healer_healing_presence(gameState, playerId) {
 	if (state._pendingTargets) delete state._pendingTargets.own_slot_index;
 	const targetSlot = player.activeSlots[targetIndex];
 	if (!targetSlot || targetSlot.isDefeated) throw new Error('Target Mosje not on field');
-	const next = gainMP(state, playerId, targetIndex, 10, 'TUK_HEALER_PRESENCE', { allowLevelUp: false });
+	const next = gainMP(state, playerId, targetIndex, 10, 'TUK_HEALER_PRESENCE');
 	console.log('[ABILITY] Tuk Healer: +10 MP to', targetSlot.cardId);
 	return next;
 }

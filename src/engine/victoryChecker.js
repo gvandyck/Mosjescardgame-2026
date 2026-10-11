@@ -4,7 +4,7 @@
 
 import { getTotalMPForPlayer } from './mpManager.js';
 import { getAllPlayerIds } from './gameState.js';
-import { roundToFive } from './roundToFive.js';
+import { normalizeSlotMp } from './mp/normalizeSlotMp.js';
 
 console.log('[ENGINE] victoryChecker.js loaded');
 
@@ -30,10 +30,8 @@ export function checkVictory(gameState) {
   let state = applyPendingDefeats(gameState);
   if (state.status === 'FINISHED') return state;
 
-  // MP ceiling: a Mosje's MP is always 0–100. Quest rewards convert ≥100 into a
-  // Level during resolveQuest (checkLevelUp resets mp < 100 first), so this only
-  // clamps non-quest overshoots (piecie/place/ability gains that don't level).
-  state = clampMosjeMp(state);
+  // 2.0 MP normaliser: levels any >=100 Mosje, caps L3 at 95, snaps to the 5-grid.
+  state = normalizeMosjeMp(state);
 
   const playerIds = getAllPlayerIds(state);
 
@@ -90,40 +88,26 @@ export function applyPendingDefeats(gameState) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// clampMosjeMp
-// Enforces the MP ceiling: every active (non-defeated) Mosje is clamped to a
-// maximum of 100 MP. Only Quests permanently level up (resolveQuest →
-// checkLevelUp converts ≥100 into a Level and resets MP < 100 BEFORE this runs),
-// so this only caps non-quest overshoots from piecies/places/abilities/snelles.
-// The floor (0 / defeat) is handled by loseMP + applyPendingDefeats.
+// normalizeMosjeMp
+// 2.0 safety net behind the per-effect gains: every live Mosje with MP >= 100
+// is levelled (MP 0), Level 3 is capped at 95, MP is snapped to the 5-grid and
+// floored at 0. Clones only when something needs changing.
 // ─────────────────────────────────────────────────────────────
-export function clampMosjeMp(gameState) {
-  // Needs work if any live Mosje is above 100 OR off the 5-grid (game rule: MP is
-  // always a multiple of 5 — this is the safety net behind the per-effect rounding).
+export function normalizeMosjeMp(gameState) {
+  const needsWork = (slot) => slot && !slot.isDefeated
+    && (!Number.isFinite(slot.mp) || slot.mp >= 100 || slot.mp % 5 !== 0 || slot.mp < 0
+      || (slot.level === 3 && slot.mp > 95));
   let mutated = false;
   for (const playerId of getAllPlayerIds(gameState)) {
     const slots = gameState.players[playerId]?.activeSlots || [];
-    for (const slot of slots) {
-      if (slot && !slot.isDefeated && (slot.mp > 100 || slot.mp % 5 !== 0)) { mutated = true; break; }
-    }
-    if (mutated) break;
+    if (slots.some(needsWork)) { mutated = true; break; }
   }
-  if (!mutated) return gameState; // common case: nothing above 100 and all on the 5-grid
+  if (!mutated) return gameState;
 
   const state = JSON.parse(JSON.stringify(gameState));
   for (const playerId of getAllPlayerIds(state)) {
-    const slots = state.players[playerId]?.activeSlots || [];
-    for (const slot of slots) {
-      if (!slot || slot.isDefeated) continue;
-      if (slot.mp > 100) {
-        console.log(`[ENGINE] MP clamp: ${slot.name} ${slot.mp} → 100`);
-        slot.mp = 100;
-      }
-      if (slot.mp % 5 !== 0) {
-        const snapped = roundToFive(slot.mp);
-        console.log(`[ENGINE] MP 5-grid snap: ${slot.name} ${slot.mp} → ${snapped}`);
-        slot.mp = snapped;
-      }
+    for (const slot of state.players[playerId]?.activeSlots || []) {
+      if (slot && !slot.isDefeated) normalizeSlotMp(slot, { turnNumber: state.turnNumber });
     }
   }
   return state;
