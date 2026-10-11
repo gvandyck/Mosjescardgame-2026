@@ -84,8 +84,8 @@ Plans:
 - [x] 54-03-PLAN.md — Ability Energy costs in src/rules/abilityEnergyCosts.js; useMosjeAbility charges on success; Ronald/Youri/Gandoe stop taking MP
 - [x] 54-04-PLAN.md — 20 MP Quest cost and MP gates removed from UI/bot, Energy labels, no-MP-currency guard (RULE-01 complete)
 - [x] 54-05-PLAN.md — Levels stored 1-3, single createMosjeSlot factory, traits from level rows, bot level semantics
-- [ ] 54-06-PLAN.md — Level display 1-3 (no +1/-1 adaptors), factory-based test hook, ability-test fixtures
-- [ ] 54-07-PLAN.md — Gain pipeline: level-up resets to 0, L3 cap 95, getPower, 2.0 normaliser, allowLevelUp deleted (E3, E7b, E14, E27 gain)
+- [x] 54-06-PLAN.md — Level display 1-3 (no +1/-1 adaptors), factory-based test hook, ability-test fixtures
+- [x] 54-07-PLAN.md — Gain pipeline: level-up resets to 0, L3 cap 95, getPower, 2.0 normaliser, allowLevelUp deleted (E3, E7b, E14, E27 gain)
 - [ ] 54-08-PLAN.md — Engine-test fixtures to Level 1 + no-Level-0 guard
 - [ ] 54-09-PLAN.md — One-loss pipeline in §2g order (registrable steps, Stabilizer after reducers, reduced-to-0 = no loss)
 - [ ] 54-10-PLAN.md — Getemt (L2-3 -> -1 @50, L1 sideways, again -> Welloe pile), separate Welloe pile, Reborn/Call re-pointed (E4, E6)
