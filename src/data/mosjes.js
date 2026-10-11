@@ -66,7 +66,7 @@ export const MOSJES = [
     startMP: 0,
     traits: { physical: 3, resilient: 2, social: 3 },
     abilityId: "ability_alyssa_bulldozer_unstoppable",
-    abilityDescription: "Unstoppable: when she is taksed for 30 or more MP in one turn, she gains 25 MP and has +10 Power this turn.",
+    abilityDescription: "Unstoppable: when she is taksed for 30 or more MP in one turn, she gains 25 MP and has +10 Power until the end of your next turn.",
     synergyWith: ["mosje_jisca"],
     synergyEffect: null,
     petSynergy: "piecie_katjegang",

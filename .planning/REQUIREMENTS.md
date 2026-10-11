@@ -33,7 +33,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 
 ### Attacking and Quests (PLAY)
 - [ ] **PLAY-01**: Each Mosje takes at most one action per turn: attack OR Quest (§2c).
-- [ ] **PLAY-02**: A non-fresh, upright Mosje can attack one valid opponent Mosje, which loses MP equal to the attacker's current Power (Power 0 = nothing); attack triggers fire (§2d).
+- [x] **PLAY-02**: A non-fresh, upright Mosje can attack one valid opponent Mosje, which loses MP equal to the attacker's current Power (Power 0 = nothing); attack triggers fire (§2d).
 - [ ] **PLAY-03**: Three typed Quest stacks (Fighting 13 / Digital 13 / Artistic 12) each show one face-up Quest; any Mosje may attempt any of them (§2e).
 - [ ] **PLAY-04**: A Quest rolls 1 d6 per ★ of its trait (min 1, max 4) and resolves by its band's need and win/lose MP; Trained needs ★★ and doesn't roll (§2e).
 - [ ] **PLAY-05**: Quest costs are paid before the roll and never refunded; "hand or a ready one" discards accept both (§2e).
@@ -114,7 +114,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 | RULE-09 | Phase 54 | Complete |
 | RULE-10 | Phase 55 | Complete |
 | PLAY-01 | Phase 56 | Pending |
-| PLAY-02 | Phase 56 | Pending |
+| PLAY-02 | Phase 56 | Complete |
 | PLAY-03 | Phase 56 | Pending |
 | PLAY-04 | Phase 56 | Pending |
 | PLAY-05 | Phase 56 | Pending |
