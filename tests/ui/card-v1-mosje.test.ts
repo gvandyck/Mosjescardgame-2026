@@ -101,11 +101,11 @@ describe('card frame v1 — Mosje face data mapping', () => {
   });
 
   it('full face: name, nickname, LVL pill, live MP, type label, traits (Alyssa)', () => {
-    const alyssa = { ...byName('Alyssa, The Bulldozer'), mp: 35, level: 1 };
+    const alyssa = { ...byName('Alyssa, The Bulldozer'), mp: 35, level: 2 };
     const html = buildCardV1(alyssa, {})!.html;
     expect(html).toContain('>Alyssa<');
     expect(html).toContain('>The Bulldozer<');
-    expect(html).toContain('LVL 2'); // internal level 1 -> displayed Level 2
+    expect(html).toContain('LVL 2'); // stored level 2 is shown as-is
     expect(html).toMatch(/data-cv1-mp>35</);
     expect(html).toContain('Fighting Mosje');
     expect(html).toContain('#C2410C');
@@ -129,7 +129,7 @@ describe('card frame v1 — Mosje face data mapping', () => {
     }
   });
   it('field tile: single-line name, L<level> pill, badge, no description', () => {
-    const html = buildCardV1({ ...byName('Alyssa, The Bulldozer'), mp: 20, level: 2 }, { fieldMode: true })!.html;
+    const html = buildCardV1({ ...byName('Alyssa, The Bulldozer'), mp: 20, level: 3 }, { fieldMode: true })!.html;
     expect(html).toContain('>L3<');
     expect(html).toMatch(/data-cv1-mp>20</);
     expect(html).not.toContain('cv1-desc');

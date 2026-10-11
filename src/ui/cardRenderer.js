@@ -100,7 +100,7 @@ function buildUnifiedCardHTML(card, options = {}) {
   const isMosje = String(card.type || '').toUpperCase() === 'MOSJE';
   const mpBadge = (isMosje && Number.isFinite(card.mp))
     ? `<div class="uc-mp" data-mp="${card.mp}">
-         ${Number.isFinite(card.level) ? `<span class="uc-mp-lvl">Lv ${(Number(card.level) || 0) + 1}</span>` : ''}
+         ${Number.isFinite(card.level) ? `<span class="uc-mp-lvl">Lv ${Math.max(1, Math.min(3, Number(card.level) || 1))}</span>` : ''}
          <span class="uc-mp-val">${card.mp}</span>
        </div>`
     : '';
@@ -236,8 +236,8 @@ export function buildMosjeCardHTML(card, gameState = null, viewingPlayerId = nul
     .map((dot) => `<span class="rarity-dot">${escapeHtml(dot)}</span>`)
     .join('');
 
-  const internalLevel = Number.isFinite(Number(card.level)) ? Number(card.level) : 0;
-  const displayLevel = Math.max(1, Math.min(3, internalLevel + 1));
+  const storedLevel = Number.isFinite(Number(card.level)) ? Number(card.level) : 1;
+  const displayLevel = Math.max(1, Math.min(3, storedLevel));
   const levelText = ['', 'one', 'two', 'three'][displayLevel] || 'unknown';
   const rarityText = String(card.rarity || '').length;
 
@@ -415,7 +415,7 @@ export function getQuestCssClass(card) {
 
 function renderMpMeta(card) {
   if (typeof card.mp === 'number' || typeof card.level === 'number') {
-    return `<div class="card__meta">MP ${Number(card.mp || 0)} • LVL ${Number(card.level || 0)}</div>`;
+    return `<div class="card__meta">MP ${Number(card.mp || 0)} • LVL ${Number(card.level || 1)}</div>`;
   }
   return '';
 }

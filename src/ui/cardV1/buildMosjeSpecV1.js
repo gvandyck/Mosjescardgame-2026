@@ -11,7 +11,7 @@ export function buildMosjeSpecV1(card) {
   const { firstName, nickname } = parseMosjeName(card.name);
   const lines = splitSentences(card.abilityDescription || card.description || '');
   if (card.synergyEffect) lines.push(String(card.synergyEffect));
-  const level = (Number.isFinite(Number(card.level)) ? Number(card.level) : 0) + 1;
+  const level = Math.max(1, Math.min(3, Number.isFinite(Number(card.level)) ? Number(card.level) : 1));
   const mp = Number(card.mp ?? card.startMP ?? 0);
   return {
     colors: TYPE_COLORS[key],

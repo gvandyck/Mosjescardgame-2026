@@ -401,7 +401,7 @@ export function initModalManager(container) {
 					${opt.protected ? 'disabled aria-disabled="true" style="opacity:0.45;cursor:not-allowed;"' : ''}>
 					<span class="target-name">${opt.protected ? '🛡️ ' : ''}${escapeHtml(opt.label)}</span>
 					<span class="target-mp">${opt.mpValue} MP</span>
-					<span class="target-level">${opt.protected ? 'PROTECTED' : `LV.${Number(opt.level || 0) + 1}`}</span>
+					<span class="target-level">${opt.protected ? 'PROTECTED' : `LV.${Number(opt.level || 1)}`}</span>
 				</button>`
 			).join('');
 
@@ -452,7 +452,7 @@ export function initModalManager(container) {
 		const sections = []; // [label, bodyHTML, isRaw]
 
 		if (type === 'MOSJE') {
-			if (Number.isFinite(card.level)) chips.push(`Level ${Number(card.level) + 1}`);
+			if (Number.isFinite(card.level)) chips.push(`Level ${Number(card.level)}`);
 			if (Number.isFinite(card.mp)) chips.push(`${card.mp} MP`);
 			if (card.abilityDescription) sections.push(['Ability', esc(card.abilityDescription)]);
 			if (card.synergyEffect) sections.push(['Synergy', esc(card.synergyEffect)]);

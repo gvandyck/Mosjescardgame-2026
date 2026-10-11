@@ -14,6 +14,7 @@ import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuest
 import { hasFoodDoubleSynergy } from './engine/synergyResolver.js';
 import { loseMP, gainMP } from './engine/mpManager.js';
 import { getAbilityEnergyCost } from './engine/energy/getAbilityEnergyCost.js';
+import { createMosjeSlot } from './engine/mp/createMosjeSlot.js';
 import { checkVictory } from './engine/victoryChecker.js';
 import { MOSJES } from './data/mosjes.js';
 import { PIECIES } from './data/piecies.js';
@@ -1021,21 +1022,17 @@ function initGamePage() {
 			// set up exactly the board it needs (e.g. two Mosjes for Tuk Healer/Tactician,
 			// or a specific opponent Mosje for a defeat chain). slotIndex 0 or 1.
 			// Pass cardId=null to clear the slot.
-			setMosjeOnField(playerId, slotIndex, cardId, { mp = 10, level = 0, entryProtected = false } = {}) {
+			setMosjeOnField(playerId, slotIndex, cardId, { mp = 10, level = 1, entryProtected = false } = {}) {
 				const player = gameState?.players?.[playerId];
 				if (!player) return;
 				if (cardId == null) { player.activeSlots[slotIndex] = null; renderFromState(gameState); return; }
 				const def = MOSJES.find(m => m.id === cardId);
 				if (!def) { console.warn('[TESTHOOK] setMosjeOnField: unknown Mosje', cardId); return; }
-				player.activeSlots[slotIndex] = {
-					cardId: def.id, name: def.name, subtype: def.subtype || 'UNKNOWN',
-					traits: { ...def.traits }, mp, level,
-					isDefeated: false, statusEffects: [],
-					abilityUsedThisTurn: false, immuneThisTurn: false, mpLostThisTurn: 0,
-					// U8 — seeded test Mosjes are UNPROTECTED by default (card tests
-					// model an established board); pass entryProtected:true to test U8.
-					...(entryProtected ? { entryProtected: true } : {}),
-				};
+				const seeded = createMosjeSlot(def, { level, mp });
+				// U8 — seeded test Mosjes are UNPROTECTED by default (card tests
+				// model an established board); pass entryProtected:true to test U8.
+				if (!entryProtected) delete seeded.entryProtected;
+				player.activeSlots[slotIndex] = seeded;
 				renderFromState(gameState);
 			},
 			// Put a Piecie in one of a player's 4 Piecie slots (visual checks, card layout tests).
@@ -1769,7 +1766,7 @@ function initGamePage() {
 
 			const westSlot = gameState.players[localPlayerId].activeSlots
 				.find(s => s && s.cardId === mosjeId && !s.isDefeated);
-			if (westSlot && westSlot.level === 0 && westSlot.mp === 0) {
+			if (westSlot && westSlot.level === 1 && westSlot.mp === 0) {
 				modal.showInfo('Cannot Use Ability', 'Senor West is at Level 0 with 0 MP — Calculated Guess cannot be used.');
 				return;
 			}
@@ -3607,8 +3604,8 @@ function summarizeStateOutcome(beforeState, afterState, actorId) {
 			}
 
 			if ((b.level || 0) !== (a.level || 0)) {
-				const beforeLevel = (b.level || 0) + 1;
-				const afterLevel = (a.level || 0) + 1;
+				const beforeLevel = b.level || 1;
+				const afterLevel = a.level || 1;
 				lines.push(`${prefix} ${a.name || a.cardId}: level ${beforeLevel} -> ${afterLevel}.`);
 			}
 			if (!b.isDefeated && a.isDefeated) {

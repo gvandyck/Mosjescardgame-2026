@@ -531,7 +531,7 @@ export function updateMPBar(mosjeInstanceId, mp, level) {
 
 	const levelEl = bar.closest('.mp-bar-container')?.querySelector('.mp-bar-level');
 	if (levelEl) {
-		const displayLevel = (Number.isFinite(level) ? Number(level) : 0) + 1;
+		const displayLevel = Math.max(1, Math.min(3, Number.isFinite(level) ? Number(level) : 1));
 		levelEl.textContent = `LV.${displayLevel}`;
 	}
 }
