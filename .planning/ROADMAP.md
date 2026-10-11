@@ -110,7 +110,7 @@ Plans:
 **Notes**: Extend today's U8 `entryProtected` into 2.0 fresh. Rewrite `docs/phase0-rulings.md`, `docs/card-reference.md`, `docs/developer-handoff.md`, `src/rules/card-specific-rulings.md` to point at the 2.0 docs (handoff §7) so the CLAUDE.md "read these first" list stays true on this branch.
 **Plans**: 7 plans (7 waves, sequential)
 Plans:
-- [ ] 55-01-PLAN.md — Setup: starting Mosje free+fresh, 3-card hand, 3 typed Quest stacks face-up, opening die, R5 first-draw skip (E11)
+- [x] 55-01-PLAN.md — Setup: starting Mosje free+fresh, 3-card hand, 3 typed Quest stacks face-up, opening die, R5 first-draw skip (E11)
 - [ ] 55-02-PLAN.md — Turn loop order, R1 empty field (E9), trickle removed, level-up protection flag, this-turn expiry (RULE-05, RULE-06)
 - [ ] 55-03-PLAN.md — Cooldown turn replaces deck-out skip (E21), summon pays Energy (E2), bot/UI (RULE-07, TABLE-01)
 - [ ] 55-04-PLAN.md — Fresh 2.0: opponent-proof by source, AoE skip, ignores Places, COST bypass gone (RULE-08)
