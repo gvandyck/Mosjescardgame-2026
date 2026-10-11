@@ -31,14 +31,14 @@ import {
   endTurn,
 } from '../engine/turnManager.js';
 import { canAttemptGeneralQuest, getGeneralQuestBlockReason, canAttemptPersonalQuest, resolveQuest } from '../abilities/questLogic.js';
-import { loseMP } from '../engine/mpManager.js';
 import { PIECIES } from '../data/piecies.js';
 import { PLACES } from '../data/places.js';
 import { QUESTS } from '../data/quests.js';
 import { MOSJES } from '../data/mosjes.js';
 import { getBotProfile } from './strategy/botProfiles.js';
 import { planPiecieActivations } from './strategy/planPiecieActivations.js';
-import { assessQuestRisk, QUEST_ATTEMPT_COST, classifyLossSeverity, getRequiredConfidence } from './strategy/assessQuestRisk.js';
+import { getAbilityEnergyCost } from '../engine/energy/getAbilityEnergyCost.js';
+import { assessQuestRisk, classifyLossSeverity, getRequiredConfidence } from './strategy/assessQuestRisk.js';
 import { rollBotQuestDice } from './strategy/rollBotQuestDice.js';
 import { getCardTags } from './strategy/comboTags.js';
 import { getAbilityTiming } from './strategy/abilityTiming.js';
@@ -194,15 +194,15 @@ function questDefWithPerMosje(questDef, mosje, player) {
 
 // Gate costly/situational abilities so the bot doesn't burn its quest MP.
 function shouldUseAbility(state, botPlayerId, slot, def, profile) {
-  const cost = def.abilityCost || 0;
+  const cost = getAbilityEnergyCost(def.abilityId);
   if (def.abilityId === 'ability_gandoe_destroyer_elimination_strike') {
     return shouldUseEliminationStrike(state, botPlayerId, slot, cost);
   }
   if (def.abilityId === 'ability_azn_cless_risk_reward') {
     return shouldUseRiskReward(state, botPlayerId, slot, profile);
   }
-  // Keep enough MP after the ability to still afford a quest attempt.
-  if (cost > 0 && (slot.mp || 0) < cost + QUEST_ATTEMPT_COST) return false;
+  // 2.0: abilities cost Energy, never MP.
+  if (cost > (state.players[botPlayerId]?.energy ?? 0)) return false;
   return true;
 }
 
@@ -445,7 +445,6 @@ export function driveBotTurnSteps(gameState, botPlayerId) {
   }
 
   function attemptQuestWithRoll(questDef, targetSlotIndex, kind) {
-    state = loseMP(state, botPlayerId, targetSlotIndex, QUEST_ATTEMPT_COST, 'QUEST_COST');
     const player = state.players[botPlayerId];
     const resolveDef = questDefWithPerMosje(questDef, player.activeSlots[targetSlotIndex], player);
     const rollRes = rollBotQuestDice(state, botPlayerId, resolveDef, targetSlotIndex);
@@ -509,12 +508,10 @@ export function driveBotTurnSteps(gameState, botPlayerId) {
       return;
     }
 
-    // E2: General Quest — revealing consumes the attempt, so only reveal
-    // when at least one Mosje can pay the 20 MP cost.
-    const anyAffordable = (player.activeSlots || [])
-      .some(s => s && !s.isDefeated && (s.mp || 0) >= QUEST_ATTEMPT_COST);
-    if (!anyAffordable) {
-      emitBotMetric('quest-skip', { kind: 'general', deck: profile.deckId, reason: 'cannot-afford-cost' });
+    // 2.0: trying a Quest costs no MP; any living Mosje can attempt.
+    const anyAttempter = (player.activeSlots || []).some(s => s && !s.isDefeated);
+    if (!anyAttempter) {
+      emitBotMetric('quest-skip', { kind: 'general', deck: profile.deckId, reason: 'no-mosje' });
       return;
     }
     const revealed = attemptGeneralQuest(state);

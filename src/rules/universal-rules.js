@@ -57,7 +57,8 @@ export const U6_MP_MODIFIER_ORDER = Object.freeze([
 
 export const U7_COST_PAYMENT_RULE = Object.freeze({
   id: "U7",
-  title: "Cost payment is not effect damage",
+  // 2.0: MP is never a cost (handoff §2a); the COST source-label bypass in loseMP stays until Phase 55 rewrites U8
+  title: "Energy payment is not an MP loss",
   costPaymentCountsAsEffectLoss: false,
 });
 

@@ -728,33 +728,29 @@ export function initModalManager(container) {
 	}
 
 	// Mosje selector — uses showOptionSelect; always shows modal regardless of Mosje count.
-	// questDef is optional: when provided, requires 20 MP to attempt quest.
+	// questDef is optional: when provided, no MP cost to attempt.
 	// overrides is optional: { title, prompt } to replace default heading/text.
 	function showMosjeSelect(mosjeSlots, onSelected, questDef, overrides = {}) {
 		const isQuestAttempt = Boolean(questDef);
-		const questCost = 20;
 
 		function getMpLabel(mosjeSlot) {
 			if (mosjeSlot.disabled) return `<span style="color: #ef4444;">Not eligible</span>`;
-			const hasEnoughMp = mosjeSlot.mp >= questCost;
-			const color = hasEnoughMp ? '#4ade80' : '#ef4444';
-			return `<span style="color: ${color};">${mosjeSlot.mp} MP</span>`;
+			return `<span style="color: #4ade80;">${mosjeSlot.mp} MP</span>`;
 		}
 
 		const options = mosjeSlots.map(mosjeSlot => {
-			const hasEnoughMp = mosjeSlot.mp >= questCost;
 			return {
 				id: String(mosjeSlot.slotIndex),
 				label: mosjeSlot.name,
 				metaLabel: isQuestAttempt ? getMpLabel(mosjeSlot) : undefined,
-				disabled: mosjeSlot.disabled || (isQuestAttempt && !hasEnoughMp),
+				disabled: mosjeSlot.disabled,
 				slotIndex: mosjeSlot.slotIndex,
 				mp: mosjeSlot.mp,
 			};
 		});
 		showOptionSelect({
 			title: overrides.title ?? 'Choose Mosje for Quest',
-			prompt: overrides.prompt ?? (isQuestAttempt ? `Select Mosje to attempt quest (costs 20 MP).` : 'Select which Mosje will attempt the quest.'),
+			prompt: overrides.prompt ?? (isQuestAttempt ? `Select Mosje to attempt quest (no MP cost).` : 'Select which Mosje will attempt the quest.'),
 			options,
 			allowCancel: true,
 		}).then(selected => {

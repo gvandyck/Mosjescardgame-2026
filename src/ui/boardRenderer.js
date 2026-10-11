@@ -110,15 +110,15 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 
 		if (onUseAbility && !mosje.isDefeated && mosje.cardId && !fullCard.autoAbility) {
 			const isUsed = mosje.abilityUsedThisTurn;
-			const costLabel = mosje.abilityCost > 0 ? ` ${mosje.abilityCost} MP` : '';
+			const costLabel = mosje.abilityCost > 0 ? ` ${mosje.abilityCost} Energy` : '';
 			let tooltip;
-			if (!isUsed && mosje.cantAffordAbility) tooltip = `Not enough MP (need ${mosje.abilityCost})`;
+			if (!isUsed && mosje.cantAffordAbility) tooltip = `Not enough Energy (need ${mosje.abilityCost})`;
 			else if (isUsed) tooltip = 'Ability already used this turn';
-			else tooltip = `Use ability${costLabel ? ` (costs ${mosje.abilityCost} MP)` : ''}`;
+			else tooltip = `Use ability${costLabel ? ` (costs ${mosje.abilityCost} Energy)` : ''}`;
 
 			const btn = document.createElement('button');
 			btn.className = 'mosje-ability-btn' + (isUsed ? ' mosje-ability-btn--used' : '');
-			btn.textContent = `⚡ Activate${costLabel ? ` · ${mosje.abilityCost} MP` : ''}`;
+			btn.textContent = `⚡ Activate${costLabel ? ` · ${mosje.abilityCost} Energy` : ''}`;
 			btn.title = tooltip;
 			btn.setAttribute('aria-label', tooltip);
 			btn.disabled = isUsed || (mosje.cantAffordAbility ?? false);

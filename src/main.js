@@ -13,6 +13,7 @@ import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiec
 import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold, getActivePartnerSynergyBonuses } from './abilities/questLogic.js';
 import { hasFoodDoubleSynergy } from './engine/synergyResolver.js';
 import { loseMP, gainMP } from './engine/mpManager.js';
+import { getAbilityEnergyCost } from './engine/energy/getAbilityEnergyCost.js';
 import { checkVictory } from './engine/victoryChecker.js';
 import { MOSJES } from './data/mosjes.js';
 import { PIECIES } from './data/piecies.js';
@@ -1547,11 +1548,6 @@ function initGamePage() {
 		function showQuestPreviewThenRoll(targetSlotIndex) {
 			const targetMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
 			if (targetMosje) {
-				// Deduct 20 MP quest cost immediately upon selection
-				const costState = loseMP(gameState, localPlayerId, targetSlotIndex, 20, 'QUEST_COST');
-				gameState = costState;
-				log.add('loss', `Quest cost: ${questDef.name} -20 MP`);
-
 				const updatedMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
 				const thresholdForMosje = getQuestDiceThreshold(questDef, updatedMosje);
 				modal.showQuestAttemptPreview(updatedMosje, questDef, thresholdForMosje, () => {
@@ -1564,8 +1560,7 @@ function initGamePage() {
 
 		// D-06/GATE-03: always route through showMosjeSelect, even with a single
 		// active Mosje. showMosjeSelect always shows its modal regardless of count
-		// (modalManager.js:734) and already disables options with mp < 20 for quest
-		// attempts (D-02/D-03) — this closes the single-Mosje self-destruct gap
+		// (modalManager.js:734) and (no MP gate in 2.0) — this closes the single-Mosje self-destruct gap
 		// (the Michelle Phase-36-UAT knockout) without touching the 20 MP charge,
 		// the upstream showConfirm intent dialog, or getGeneralQuestBlockReason
 		// (left untouched — see D-04 note at that gate's call site above).
@@ -2047,9 +2042,9 @@ function initGamePage() {
 			}
 			const confirmed = await modal.showOptionSelect({
 				title: 'Elimination Strike',
-				prompt: `Pay 80 MP to send ${targetSlot.name} (Level ${targetSlot.level}, ${targetSlot.mp} MP) to the Welloe pile? This cannot be undone and can only be used once.`,
+				prompt: `Pay 4 Energy to send ${targetSlot.name} (Level ${targetSlot.level}, ${targetSlot.mp} MP) to the Welloe pile? This cannot be undone and can only be used once.`,
 				options: [
-					{ id: 'confirm', label: '💀 Execute — Pay 80 MP' },
+					{ id: 'confirm', label: '💀 Execute — Pay 4 Energy' },
 					{ id: 'cancel', label: 'Cancel' },
 				],
 				allowCancel: true,
@@ -2620,10 +2615,6 @@ function initGamePage() {
 			const { state: activatedState, success, error } = activatePersonalQuest(gameState, localPlayerId, slotIndex);
 			if (!success) { modal.showInfo('Cannot Activate', error || 'Quest cannot be activated now.'); return; }
 			gameState = activatedState;
-
-			// Deduct 20 MP from the chosen Mosje.
-			gameState = loseMP(gameState, localPlayerId, targetSlotIndex, 20, 'QUEST_COST');
-			log.add('loss', 'Quest attempt cost: -20 MP');
 
 			const chosenMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
 			const chosenQuestDef = questDefForMosje(chosenMosje);
@@ -3374,7 +3365,7 @@ function toBoardViewModel(gameState, localPlayerId) {
 			top: {
 				id: opponentId,
 				name: opponent.name,
-				mosjes: toMosjeCards(opponent.activeSlots),
+				mosjes: toMosjeCards(opponent.activeSlots, opponent.energy),
 				activeModifiers: buildActiveModifiers(gameState, opponentId, false),
 				piecies: toPiecieCards(opponent.piecieSlots, {
 					ownerId: opponentId,
@@ -3389,7 +3380,7 @@ function toBoardViewModel(gameState, localPlayerId) {
 			bottom: {
 				id: localPlayerId,
 				name: localPlayer.name,
-				mosjes: toMosjeCards(localPlayer.activeSlots),
+				mosjes: toMosjeCards(localPlayer.activeSlots, localPlayer.energy),
 				activeModifiers: buildActiveModifiers(gameState, localPlayerId, true),
 				piecies: toPiecieCards(localPlayer.piecieSlots, {
 					ownerId: localPlayerId,
@@ -3452,13 +3443,13 @@ function buildActiveModifiers(gameState, playerId, isLocalPlayer = false) {
 	return pills;
 }
 
-function toMosjeCards(activeSlots) {
+function toMosjeCards(activeSlots, ownerEnergy = 0) {
 	return activeSlots
 		.map((slot, slotIndex) => ({ slot, slotIndex }))
 		.filter(({ slot }) => slot !== null)
 		.map(({ slot, slotIndex }) => {
 			const mosjeDef = MOSJES.find(m => m.id === slot.cardId);
-			const cost = mosjeDef?.abilityCost ?? null;
+			const cost = getAbilityEnergyCost(mosjeDef?.abilityId);
 			return {
 				cardId: slot.cardId,
 				slotIndex,
@@ -3470,7 +3461,7 @@ function toMosjeCards(activeSlots) {
 				traits: slot.traits ?? {},
 				abilityUsedThisTurn: slot.abilityUsedThisTurn,
 				abilityCost: cost,
-				cantAffordAbility: cost != null && cost > 0 && slot.mp < cost,
+				cantAffordAbility: cost > (ownerEnergy ?? 0),
 				description: slot.isDefeated ? 'Defeated' : '',
 				summonedByPiecie: slot.summonedByPiecie || null,
 				entryProtected: slot.entryProtected === true, // U8 — board shows 🛡️

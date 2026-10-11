@@ -2,7 +2,7 @@
 // Combines the odds estimate with what failure/success would actually mean
 // for the game, shifted by the deck profile's risk tolerance.
 //
-// Severity of a failed roll (after the 20 MP attempt cost is paid):
+// Severity of a failed roll (trying a Quest costs no MP in 2.0):
 //   'none'    — quest has no failure penalty.
 //   'safe'    — penalty lands but MP stays at 0 or above (exactly-0 survives).
 //   'regress' — Mosje would drop below 0 but has a Level to lose.
@@ -12,8 +12,6 @@
 
 import { estimateQuestOdds } from './questOdds.js';
 import { getPartnerSynergyQuestBonus } from '../../abilities/questLogic.js';
-
-export const QUEST_ATTEMPT_COST = 20;
 
 // Minimum success chance demanded per failure severity (neutral profile).
 const REQUIRED_P = { none: 0.15, safe: 0.35, regress: 0.55, defeat: 0.7, fatal: 0.85 };
@@ -82,12 +80,9 @@ export function assessQuestRisk({ questDef, mosje, slotIndex, gameState, playerI
 	if (!questDef || !mosje || mosje.isDefeated) {
 		return { ...base, attempt: false, reason: 'no-mosje' };
 	}
-	if ((mosje.mp ?? 0) < QUEST_ATTEMPT_COST) {
-		return { ...base, attempt: false, reason: 'cannot-afford-cost' };
-	}
 
 	// Evaluate on the MP the Mosje will hold when the die is rolled.
-	const mpAtRoll = mosje.mp - QUEST_ATTEMPT_COST;
+	const mpAtRoll = mosje.mp;
 	const odds = estimateQuestOdds(questDef, { ...mosje, mp: mpAtRoll }, gameState, playerId);
 	if (!odds.canAttempt) {
 		return { ...base, attempt: false, reason: odds.gateReason || 'requirement-not-met' };

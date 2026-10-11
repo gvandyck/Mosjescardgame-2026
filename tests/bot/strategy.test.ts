@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest';
 // @ts-expect-error JS module without type declarations
 import { estimateQuestOdds } from '../../src/bot/strategy/questOdds.js';
 // @ts-expect-error JS module without type declarations
-import { assessQuestRisk, QUEST_ATTEMPT_COST, classifyLossSeverity, getRequiredConfidence } from '../../src/bot/strategy/assessQuestRisk.js';
+import { assessQuestRisk, classifyLossSeverity, getRequiredConfidence } from '../../src/bot/strategy/assessQuestRisk.js';
 // @ts-expect-error JS module without type declarations
 import { planPiecieActivations } from '../../src/bot/strategy/planPiecieActivations.js';
 // @ts-expect-error JS module without type declarations
@@ -117,14 +117,13 @@ describe('estimateQuestOdds', () => {
 describe('assessQuestRisk', () => {
   const neutral = DEFAULT_BOT_PROFILE;
 
-  it('skips when the Mosje cannot pay the 20 MP attempt cost', () => {
-    const mosje = makeMosje({ mp: QUEST_ATTEMPT_COST - 5 });
+  it('does not refuse a low-MP Mosje for cost (trying a Quest is free in 2.0)', () => {
+    const mosje = makeMosje({ mp: 5 });
     const d = assessQuestRisk({
       questDef: ARM_WRESTLING, mosje, slotIndex: 0,
       gameState: makeState({ activeSlots: [mosje] }), playerId: 'player_2', profile: neutral,
     });
-    expect(d.attempt).toBe(false);
-    expect(d.reason).toBe('cannot-afford-cost');
+    expect(d.reason).not.toBe('cannot-afford-cost');
   });
 
   it('propagates the specific gate name instead of a generic "requirement-not-met"', () => {
@@ -149,8 +148,8 @@ describe('assessQuestRisk', () => {
   });
 
   it('refuses a quest that could defeat the LAST Mosje unless odds are excellent', () => {
-    // mp 30 → 10 at roll; failMP -20 would drive it below 0 at Level 0.
-    const mosje = makeMosje({ mp: 30, traits: { physical: 3 } }); // p = 5/6 ≈ 0.83
+    // mp 10 at roll (2.0: no attempt cost); failMP -20 would drive it below 0 at Level 0.
+    const mosje = makeMosje({ mp: 10, traits: { physical: 3 } }); // p = 5/6 ≈ 0.83
     const d = assessQuestRisk({
       questDef: ARM_WRESTLING, mosje, slotIndex: 0,
       gameState: makeState({ activeSlots: [mosje], hand: [] }), playerId: 'player_2', profile: neutral,
@@ -160,7 +159,7 @@ describe('assessQuestRisk', () => {
   });
 
   it('same spot with a backup Mosje on field is only "defeat" severity → attempts', () => {
-    const mosje = makeMosje({ mp: 30, traits: { physical: 3 } });
+    const mosje = makeMosje({ mp: 10, traits: { physical: 3 } });
     const backup = makeMosje({ cardId: 'mosje_backup', mp: 40 });
     const d = assessQuestRisk({
       questDef: ARM_WRESTLING, mosje, slotIndex: 0,
@@ -173,7 +172,7 @@ describe('assessQuestRisk', () => {
   it('risk tolerance separates the decks: GM gambles where CY holds back', () => {
     // Physical ★★ → threshold 3 → p = 4/6 ≈ 0.667; severity 'defeat' base 0.7.
     const scenario = () => {
-      const mosje = makeMosje({ mp: 30, traits: { physical: 2 } });
+      const mosje = makeMosje({ mp: 10, traits: { physical: 2 } });
       const backup = makeMosje({ cardId: 'mosje_backup', mp: 40 });
       return {
         questDef: ARM_WRESTLING, mosje, slotIndex: 0,
@@ -187,8 +186,8 @@ describe('assessQuestRisk', () => {
   });
 
   it('a success that levels up lowers the required confidence', () => {
-    const base = makeMosje({ mp: 30, traits: { physical: 2 } });
-    const nearLevel = makeMosje({ mp: 62, traits: { physical: 2 } }); // 42 at roll + 60 = 102 → levels
+    const base = makeMosje({ mp: 10, traits: { physical: 2 } });
+    const nearLevel = makeMosje({ mp: 42, traits: { physical: 2 } }); // 42 + 60 = 102 → levels
     const backup = makeMosje({ cardId: 'mosje_backup', mp: 40 });
     const dBase = assessQuestRisk({
       questDef: ARM_WRESTLING, mosje: base, slotIndex: 0,
@@ -203,8 +202,8 @@ describe('assessQuestRisk', () => {
   });
 
   it('folds the West+Cless Physical-quest partner-synergy bonus into the levels-up prediction', () => {
-    // mp 50 -> 30 at roll; base successMP 60 -> 90 (no level). +15 synergy -> 105 (levels).
-    const west = makeMosje({ cardId: 'mosje_martin_senor_west', mp: 50, traits: { physical: 3 } });
+    // mp 30 at roll; base successMP 60 -> 90 (no level). +15 synergy -> 105 (levels).
+    const west = makeMosje({ cardId: 'mosje_martin_senor_west', mp: 30, traits: { physical: 3 } });
     const cless = makeMosje({ cardId: 'mosje_azn_cless', mp: 50 });
     const withPartner = assessQuestRisk({
       questDef: ARM_WRESTLING, mosje: west, slotIndex: 0,
