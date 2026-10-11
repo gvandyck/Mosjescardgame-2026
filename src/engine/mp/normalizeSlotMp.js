@@ -12,6 +12,7 @@ export function normalizeSlotMp(slot, { turnNumber } = {}) {
 		slot.mp = 0;
 		refreshLevelTraits(slot);
 		if (Number.isInteger(turnNumber)) slot.levelledUpTurn = turnNumber;
+		slot.levelUpProtected = true; // R2
 		console.log(`[ENGINE] ⬆️ ${slot.name} levelled up -> Level ${slot.level} | MP 0`);
 	}
 	if (slot.level === 3 && slot.mp > 95) slot.mp = 95;

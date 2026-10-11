@@ -15,6 +15,7 @@ export function applyGainToSlot(slot, amount, { turnNumber } = {}) {
 		slot.mp = 0;
 		refreshLevelTraits(slot);
 		if (Number.isInteger(turnNumber)) slot.levelledUpTurn = turnNumber;
+		slot.levelUpProtected = true; // R2
 		leveled = true;
 		console.log(`[ENGINE] ⬆️ ${slot.name} levelled up -> Level ${slot.level} | MP 0`);
 	}
