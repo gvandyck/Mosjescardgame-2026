@@ -23,7 +23,7 @@ Phase 6 output, 2026-10-10. This is every 2.0 card with the text that goes on it
 |---|---|---|---|---|---|---|
 | Gandoe, The Unpredictable Wizard | 3 | ★★★ | 10 | L1: Power 10 · Phys ★★ · Res ★ · Cre ★★<br>L2: Power 20 · Phys ★★★ · Res ★ · Cre ★★<br>L3: Power 30 · Phys ★★★ · Res ★★ · Cre ★★ | **Chaos Roll** — at the start of your turn roll a die: 1–2 this Mosje loses 10 MP; 3–4 nothing; 5–6 +10 Power this turn. | — |
 | Jeffrey, The Strongman | 3 | ★★ | 20 | L1: Power 10 · Phys ★★★ · Res ★<br>L2: Power 20 · Phys ★★★ · Res ★★<br>L3: Power 30 · Phys ★★★ · Res ★★★ | **Brute Force** — whenever one of your Mosjes succeeds at a Quest, it gets +10 MP extra. While Jeffrey is on your field, you can't activate Piecies that give MP. | — |
-| Alyssa, The Bulldozer | 4 | ★★★★ | 0 | L1: Power 20 · Phys ★★★ · Res ★★ · Soc ★★★<br>L2: Power 30 · Phys ★★★ · Res ★★★ · Soc ★★★<br>L3: Power 40 · Phys ★★★ · Res ★★★ · Soc ★★★ | **Unstoppable** — when she is taksed for 30 or more MP in one turn, she gains 25 MP and has +10 Power this turn. | — |
+| Alyssa, The Bulldozer | 4 | ★★★★ | 0 | L1: Power 20 · Phys ★★★ · Res ★★ · Soc ★★★<br>L2: Power 30 · Phys ★★★ · Res ★★★ · Soc ★★★<br>L3: Power 40 · Phys ★★★ · Res ★★★ · Soc ★★★ | **Unstoppable** — when she is taksed for 30 or more MP in one turn, she gains 25 MP and has +10 Power until the end of your next turn. | — |
 | Alyssa, Fissa Fissa! | 2 | ★★ | 20 | L1: Power 10 · Phys ★★ · Soc ★★★ · Res ★<br>L2: Power 20 · Phys ★★★ · Soc ★★★ · Res ★<br>L3: Power 30 · Phys ★★★ · Soc ★★★ · Res ★★ | **Party Power** — when a Place is destroyed by a card you activated, this Mosje gains 20 MP (once per turn). | — |
 | AZN Cless, The Wild Card | 2 | ★ | 30 | L1: Power 0 · Phys ★★ · Soc ★★ · Cre ★<br>L2: Power 10 · Phys ★★★ · Soc ★★ · Cre ★<br>L3: Power 20 · Phys ★★★ · Soc ★★ · Cre ★★ | **Risk & Reward** — at the end of your turn roll a die: 1 discard a card from your hand; 6 draw 2 cards and this Mosje gains 10 MP. | Senor West, ViannaPoes |
 | Michelle, Iron Tuk | 3 | ★★★ | 10 | L1: Power 10 · Phys ★★ · Soc ★ · Res ★★<br>L2: Power 20 · Phys ★★ · Soc ★ · Res ★★★<br>L3: Power 30 · Phys ★★ · Soc ★★ · Res ★★★ | **Tough Gamble** — when this Mosje succeeds at a Quest, roll a die: 1–3 it gets half the MP, 4–6 it gets double. | Bowie & Stormey |
@@ -290,6 +290,15 @@ Play from your hand on your turn, only when no Place is in play. Pay its cost an
 | Dierenasiel | 2 | ★★★ | Pet Piecies cost 0 Energy. A player with no pet Piecie staying in play gives all their Mosjes −10 Power. | Pet decks | Decks without pets |
 
 ---
+
+## Rulings (2026-10-11, Phase 56)
+- **Mid-turn draws:** a draw from an empty deck outside your normal draw step (Cheat code, Bagga of Greed, …) draws nothing. Deck-out (reshuffle + cooldown turn) only happens at your normal draw step.
+- **Build Gadget / Speed Run:** "activate N ready Piecies this turn" is a condition: you must already have activated that many this turn (paid normally) before you attempt.
+- **Calculate Odds:** "the same card type" = Mosje / Piecie / Snelle / Place.
+- **Form Alliance:** the winner picks which opponent Mosje gains 10 MP (not a fresh one).
+- **Shotje Obby:** the jab hits the opponent's highest-MP Mosje that isn't fresh; on a tie the winner picks.
+- **Quests you can't attempt:** if a Gated/Trained condition isn't met or the cost can't be paid, there is no attempt: no fail token, no action used, nothing paid.
+- **Fresh Mosjes may attempt Quests** (only attacking is blocked). Place bonus dice don't apply to them (fresh Mosjes ignore Places).
 
 ## Not in 2.0 (parked or cut)
 Parked cards can come back only if you ask: Binti, The Creator · Placeholder 3, The Amplifier · Coert, Kast-elein (Mosjes) · Momentum Factory (Place). Cut: MP Adjuster, Buurvrouw (Piecies) · Elimination Challenge, The Gauntlet, Chain Master, Precision Work (Quests). The web game's 6 Personal Quests aren't part of 2.0.

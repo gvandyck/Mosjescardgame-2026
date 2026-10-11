@@ -28,6 +28,7 @@ When you must draw and your deck is empty: shuffle your discard pile into a new 
 - you still get your +1 Energy;
 - you may only **place** cards (face-down Piecies, into free slots);
 - you may **not** attempt Quests, attack, summon a Mosje, activate a Place or activate any card (also no Snelle until your next turn begins).
+- A draw from an empty deck outside the normal draw step (a card effect) draws nothing; deck-out and the cooldown turn only come from the normal draw (ruling 2026-10-11).
 
 ## 2. The numbers at a glance
 | Thing | Value |
