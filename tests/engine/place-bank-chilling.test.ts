@@ -98,9 +98,9 @@ describe("Bank Chilling — Turn Start (dispatcher-level, PLACE-01)", () => {
     const next = startTurn(state);
 
     const [slotA, slotB] = next.players.player_1.activeSlots;
-    // +20 turn trickle already applies to every active slot; Bank Chilling adds +15 on top.
-    expect(slotA.mp).toBe(20 + 10 + 15);
-    expect(slotB.mp).toBe(30 + 10 + 15);
+    // 2.0 (55-02): no turn trickle any more; only Bank Chilling's +15 applies.
+    expect(slotA.mp).toBe(20 + 15);
+    expect(slotB.mp).toBe(30 + 15);
   });
 
   it("proves the dispatcher actually reached effect_bank_chilling (closes the dead-dispatch bug)", () => {
@@ -118,7 +118,7 @@ describe("Bank Chilling — Turn Start (dispatcher-level, PLACE-01)", () => {
     const next = startTurn(state);
 
     const [social, nonSocial] = next.players.player_1.activeSlots;
-    expect(social.mp).toBe(20 + 10 + 15);
-    expect(nonSocial.mp).toBe(20 + 10); // trickle only, no Bank Chilling bonus
+    expect(social.mp).toBe(20 + 15);
+    expect(nonSocial.mp).toBe(20); // 2.0: no trickle, no Bank Chilling bonus
   });
 });

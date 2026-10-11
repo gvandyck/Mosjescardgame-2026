@@ -100,11 +100,14 @@ describe("engine wrappers", () => {
     const s = checkVictory(st).players.player_1.activeSlots[0];
     expect([s.level, s.mp]).toEqual([2, 0]);
   });
-  it("turn trickle can level a Mosje at 95", () => {
+  // 2.0 (55-02): the V4 +10 turn trickle is gone, so a Mosje at 95 no longer
+  // levels at turn start; it stays Level 1 at 95 MP.
+  it("no turn trickle: a Mosje at 95 does not level at turn start", () => {
     const st = makeState(95, 1);
     st.players.player_1.deck = [];
     const out = startTurn(st, "player_1");
-    expect(out.players.player_1.activeSlots[0].level).toBe(2);
+    expect(out.players.player_1.activeSlots[0].level).toBe(1);
+    expect(out.players.player_1.activeSlots[0].mp).toBe(95);
   });
 });
 

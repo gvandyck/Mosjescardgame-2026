@@ -661,15 +661,12 @@ function initGamePage() {
 		playBotSteps(steps, botName, 0, botStepDelay);
 	}
 
-	// Log the +10 MP trickle that startTurn() just applied for the given player.
-	function logTurnTrickle(activePlayerId) {
-		const player = gameState.players[activePlayerId];
-		if (!player) return;
-		for (const slot of player.activeSlots) {
-			if (slot && !slot.isDefeated) {
-				log.add('gain', `Turn trickle: ${slot.name} +10 MP`);
-			}
-		}
+	// Log the R1 free Mosje that startTurn() just placed for an empty field (one-shot marker).
+	function logR1Placement() {
+		const ev = gameState._r1Event;
+		if (!ev) return;
+		delete gameState._r1Event;
+		log.add('gain', `R1: ${ev.name} placed free and fresh (empty field)`);
 	}
 
 	// Returns info about whether a bot step would damage or eliminate the human Mosje.
@@ -812,7 +809,7 @@ function initGamePage() {
 				gameState = startTurn(gameState);
 				renderFromState(gameState);
 				if (gameState.status === 'FINISHED') { handleGameOver(gameState); return; }
-				logTurnTrickle(gameState.activePlayerId);
+				logR1Placement();
 				runBotVsBotLoop();
 			}
 			return;
@@ -854,7 +851,7 @@ function initGamePage() {
 				actionLabel: 'turn-start',
 			});
 			log.add('gain', `Now active: ${gameState.players[gameState.activePlayerId]?.name}. Turn ${gameState.turnNumber}.`);
-			logTurnTrickle(gameState.activePlayerId);
+			logR1Placement();
 			showTurnTransition({
 				playerName: gameState.players[gameState.activePlayerId]?.name,
 				turnNumber: gameState.turnNumber,
@@ -1123,7 +1120,7 @@ function initGamePage() {
 			const rollText = gameState.openingRolls.map(r => `${gameState.players[r.playerId].name} rolls ${r.value}`).join(', ');
 			log.add('quest', `${rollText} - ${gameState.players[gameState.firstPlayerId].name} goes first.`);
 		}
-		logTurnTrickle(gameState.activePlayerId);
+		logR1Placement();
 		// Register ongoing remote handler for when opponent acts
 		eventBus.on('mp:remote-state', onRemoteState);
 		if (isOnline && localPlayerId === 'player_1') syncPush();
@@ -1243,7 +1240,7 @@ function initGamePage() {
 
 		const activeName = gameState.players[gameState.activePlayerId].name;
 		log.add('gain', `Now active: ${activeName}. Turn ${gameState.turnNumber}.`);
-		logTurnTrickle(gameState.activePlayerId);
+		logR1Placement();
 		showTurnTransition({ playerName: activeName, turnNumber: gameState.turnNumber, type: 'start' });
 
 		// Bot vs Bot mode: current player was already advanced by endTurn/startTurn above — kick off next bot

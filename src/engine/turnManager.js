@@ -3,6 +3,9 @@
 // The UI calls these functions; they return the updated game state.
 
 import { drawCards, shuffleDeck, rollDie } from './deckEngine.js';
+import { placeEmptyFieldMosje } from './turn/placeEmptyFieldMosje.js';
+import { clearOwnerProtections } from './turn/clearOwnerProtections.js';
+import { expireThisTurnEffects } from './turn/expireThisTurnEffects.js';
 import { getNextPlayerId } from './turn/getNextPlayerId.js';
 import { gainMP, applyStatusEffectMP, getTotalMPForPlayer } from './mpManager.js';
 import { checkVictory, markMosjeDefeated } from './victoryChecker.js';
@@ -263,7 +266,7 @@ export function startTurn(gameState) {
       state.turnNumber += 1;
       console.log(`[ENGINE] Round complete during skip. Turn ${state.turnNumber} begins.`);
     }
-    // Actually START the next player's turn (draw, trickle, trackers, victory check).
+    // Actually START the next player's turn (draw, trackers, victory check).
     // Returning here without this leaves activePlayerId pointed at a player whose turn
     // was never set up — the UI then freezes because it assumes a fixed turn order.
     // Recursion also resolves chained skips (e.g. both players decked out).
@@ -322,13 +325,6 @@ export function startTurn(gameState) {
       // decision 1 (54-11): sideways = this Mosje skips this owner turn
       if (slot.sideways) slot.sidewaysArmed = true;
       slot.mpLostThisTurn = 0;
-      // U8 — Entry Protection ends the moment the owner's turn starts: the
-      // owner has now "had a turn" with the Mosje, so opponents may target it
-      // from their next turn onward.
-      if (slot.entryProtected) {
-        delete slot.entryProtected;
-        console.log(`[ENGINE] 🛡️ Entry protection ended for ${slot.name} (${playerId}'s turn started)`);
-      }
       // MP Adjuster: reverse the temporary delta applied last turn
       if (slot._mpAdjustDelta !== undefined) {
         // Restore of a temporary absolute set: floor 0, on the 5-grid, never levels or getemts.
@@ -338,6 +334,26 @@ export function startTurn(gameState) {
       }
     }
   }
+
+  // DRAW PHASE â€” draw 1 card
+  if (state.firstTurnDrawSkipPending) {
+    // R5: the first player skips their very first draw (the flag is one-shot).
+    const skipDraw = playerId === state.firstPlayerId;
+    delete state.firstTurnDrawSkipPending;
+    if (skipDraw) console.log(`[ENGINE] R5: ${playerId} skips the first draw`);
+    else {
+      state = phaseDrawCard(state, playerId);
+      state = applyPlaceEffectsOnDraw(state, playerId, 1);
+    }
+  } else {
+    state = phaseDrawCard(state, playerId);
+    // ON_DRAW Place effects — fires if active Place has trigger 'ON_DRAW'
+    state = applyPlaceEffectsOnDraw(state, playerId, 1);
+  }
+  // R1 (Obby 2.0): an empty field gets the cheapest Mosje free and fresh.
+  const r1 = placeEmptyFieldMosje(state, playerId);
+  state = r1.state;
+  if (r1.r1Event) state._r1Event = r1.r1Event;
 
   // Welloe Force: decrement turn counter when the card owner's turn starts
   if (state._welloeForceActive?.ownerId === playerId) {
@@ -356,19 +372,9 @@ export function startTurn(gameState) {
   // START PHASE — fire active Place effects (START_PHASE trigger only)
   state = applyPlaceEffectsOnStart(state, playerId);
 
-  // TURN TRICKLE — every active Mosje of the active player gains +10 MP at turn start
-  const tricklePlayer = state.players[playerId];
-  for (let i = 0; i < tricklePlayer.activeSlots.length; i++) {
-    const slot = tricklePlayer.activeSlots[i];
-    if (slot && !slot.isDefeated) {
-      state = gainMP(state, playerId, i, 10, 'GAIN'); // 2.0: every gain can level (handoff §2a)
-      console.log(`[ENGINE] Turn trickle: ${slot.name} +10 MP → ${state.players[playerId].activeSlots[i].mp} MP`);
-    }
-  }
-
   // Alyssa<->Jisca synergy (D-02): while Jisca is also on the field, each Alyssa
   // (bulldozer or fissa) gets an EXTRA flat +10 MP at the start of each of her
-  // owner's turns, on top of the trickle above. Both Alyssas independently gain
+  // owner's turns, as a flat bonus. Both Alyssas independently gain
   // it if both are on field with Jisca (D-05 stacking default).
   if (hasAlyssaJiscaSynergy(state, playerId)) {
     const synergyPlayer = state.players[playerId];
@@ -398,24 +404,12 @@ export function startTurn(gameState) {
     }
   }
 
-  // DRAW PHASE â€” draw 1 card
-  if (state.firstTurnDrawSkipPending) {
-    // R5: the first player skips their very first draw (the flag is one-shot).
-    const skipDraw = playerId === state.firstPlayerId;
-    delete state.firstTurnDrawSkipPending;
-    if (skipDraw) console.log(`[ENGINE] R5: ${playerId} skips the first draw`);
-    else {
-      state = phaseDrawCard(state, playerId);
-      state = applyPlaceEffectsOnDraw(state, playerId, 1);
-    }
-  } else {
-    state = phaseDrawCard(state, playerId);
-    // ON_DRAW Place effects — fires if active Place has trigger 'ON_DRAW'
-    state = applyPlaceEffectsOnDraw(state, playerId, 1);
-  }
   // Passive turn-start MP (e.g. DJ 80/20 gains 10 MP automatically)
   // Ability functions will hook into this in Phase 4.
   console.log('[ENGINE] DRAW phase complete');
+
+  // R2/U8: this player's fresh and level-up flags end now (the R1 Mosje stays fresh, E9).
+  clearOwnerProtections(state.players[playerId], r1.placedSlotIndex >= 0 ? [r1.placedSlotIndex] : []);
 
   return state;
 }
@@ -566,6 +560,8 @@ export function endTurn(gameState) {
     }
     delete state._leipeSwap;
   }
+
+  expireThisTurnEffects(state);
 
   state = checkVictory(state);
   if (state.status === 'FINISHED') return state;
