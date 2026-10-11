@@ -29,7 +29,7 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 |---|-------|------|--------------|------------------|
 | 53 | 2.0 Card Data and Example Decks | 7/7 | Complete    | 2026-10-10 |
 | 54 | Energy, Levels and Getemt | 16/16 | Complete    | 2026-10-11 |
-| 55 | Turn Flow, Setup and Protection | A game sets up and runs turn by turn under 2.0 flow | RULE-05, 06, 07, 08, 10, TABLE-01 | 5 |
+| 55 | Turn Flow, Setup and Protection | 3/7 | In Progress|  |
 | 56 | Attacking and Quests | Each Mosje's one action (attack or Quest) works by 2.0 rules | PLAY-01..07 | 5 |
 | 57 | Piecies, Snelle, Places and Reaction Windows | Table cards follow 2.0 lifecycles; the engine offers reaction Snelle | TABLE-02..06, SHELL-04 | 5 |
 | 58 | Mosje Abilities and Synergies | Every Mosje does what its Card List text says | EFX-01, EFX-05, EFX-06, TEST-01 | 5 |
@@ -112,7 +112,7 @@ Plans:
 Plans:
 - [x] 55-01-PLAN.md — Setup: starting Mosje free+fresh, 3-card hand, 3 typed Quest stacks face-up, opening die, R5 first-draw skip (E11)
 - [x] 55-02-PLAN.md — Turn loop order, R1 empty field (E9), trickle removed, level-up protection flag, this-turn expiry (RULE-05, RULE-06)
-- [ ] 55-03-PLAN.md — Cooldown turn replaces deck-out skip (E21), summon pays Energy (E2), bot/UI (RULE-07, TABLE-01)
+- [x] 55-03-PLAN.md — Cooldown turn replaces deck-out skip (E21), summon pays Energy (E2), bot/UI (RULE-07, TABLE-01)
 - [ ] 55-04-PLAN.md — Fresh 2.0: opponent-proof by source, AoE skip, ignores Places, COST bypass gone (RULE-08)
 - [ ] 55-05-PLAN.md — First-turn Quest lock and 4th Piecie slot removed, V4-leftover static guard
 - [ ] 55-06-PLAN.md — "Active Mosje" removed: own/opp target resolvers, UI picker, bot choice (RULE-10)

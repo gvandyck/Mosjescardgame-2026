@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Obby Card Game 2.0 — slice A (offline vs bot)
-status: ready_to_plan
-stopped_at: Phase 54 complete (16/16) — ready to discuss Phase 55
-last_updated: 2026-10-11T15:03:26.721Z
-last_activity: 2026-10-10
+status: verifying
+stopped_at: v2.0 roadmap written (ROADMAP.md v2.0 section, REQUIREMENTS.md traceability, this file)
+last_updated: "2026-10-11T15:21:16.877Z"
+last_activity: 2026-10-11
 progress:
   total_phases: 54
-  completed_phases: 28
-  total_plans: 123
-  completed_plans: 127
-  percent: 52
+  completed_phases: 29
+  total_plans: 130
+  completed_plans: 118
+  percent: 54
 ---
 
 # Project State
@@ -34,7 +34,7 @@ See: `.planning/PROJECT.md` (updated 2026-10-10)
 
 Phase: 55 of 64 (turn flow, setup and protection)
 Plan: 55-02 complete (2 of 7)
-Status: Ready to plan
+Status: Phase complete — ready for verification
 Last activity: 2026-10-11
 
 Progress (v2.0): Phase 53 done; Phase 54 5/16 plans
