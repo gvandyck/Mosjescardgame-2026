@@ -269,6 +269,8 @@ export function startTurn(gameState) {
   activePlayer.abilityDoubleTrigger = false;
   activePlayer.drawsThisTurn = 0;
   activePlayer.pieciesActivatedThisTurn = 0;
+  activePlayer.piecieActivationsThisTurn = 0; // Build Gadget / Speed Run conditions (56-03)
+  activePlayer.cardsDrawnThisTurn = 0; // Artistic Expression (56-03)
   activePlayer.actionsThisTurn = [];
   activePlayer.freePiecieActivationAvailable = false;
   activePlayer.attackPieciePlayedThisTurn = false;
@@ -433,6 +435,7 @@ export function phaseDrawCard(gameState, playerId, count = 1, isOpponentTriggere
     player.deck = remaining;
     player.hand.push(...drawn);
     player.drawsThisTurn = (player.drawsThisTurn || 0) + drawn.length;
+    player.cardsDrawnThisTurn = (player.cardsDrawnThisTurn || 0) + drawn.length;
     player.cooldownTurn = true; // Obby 2.0 RULE-07: this player's next own turn is a cooldown turn
     // One-shot marker for the UI: rides the existing gameState sync so BOTH clients can
     // show the deck-out notice. Not cleared here — each client de-dupes on its own.
@@ -449,6 +452,7 @@ export function phaseDrawCard(gameState, playerId, count = 1, isOpponentTriggere
   player.deck = remaining;
   player.hand.push(...drawn);
   player.drawsThisTurn = (player.drawsThisTurn || 0) + drawn.length;
+  player.cardsDrawnThisTurn = (player.cardsDrawnThisTurn || 0) + drawn.length;
   console.log(`[ENGINE] ${playerId} drew ${drawn.length} card(s). Hand size: ${player.hand.length}`);
   return state;
 }
@@ -1064,6 +1068,7 @@ export function activatePiecie(gameState, playerId, slotIndex) {
   }
   console.log(`[ENGINE] piecieSlots after activation:`, player.piecieSlots.map((s, i) => s ? `[${i}] ${s.cardId} (${s.type})` : `[${i}] null`).join(' | '));
 
+  player.piecieActivationsThisTurn = (player.piecieActivationsThisTurn || 0) + 1;
   state = checkVictory(state);
   return { state, success: true, cardDef: knownCardDef };
 }
