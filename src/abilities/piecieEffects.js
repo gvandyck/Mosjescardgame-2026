@@ -8,6 +8,8 @@ import { destroyActivePlace } from '../engine/gameState.js';
 import { triggerPlaceDestroyedEffects } from './placeEffects.js';
 import { MOSJES } from '../data/mosjes.js';
 import { createMosjeSlot } from '../engine/mp/createMosjeSlot.js';
+import { applyGainToSlot } from '../engine/mp/applyGainToSlot.js';
+import { applyMpLossToSlot } from '../engine/mp/applyMpLossToSlot.js';
 import { PIECIES } from '../data/piecies.js';
 import { addToGraveyard } from '../engine/graveyardUtils.js';
 
@@ -41,34 +43,24 @@ function getOpponentId(state, playerId) {
 	return Object.keys(state.players).find(id => id !== playerId) || null;
 }
 
-// applyDamage — mutates a Mosje slot with clamp + level-regression (mirrors loseMP in mpManager).
-// Use instead of direct `slot.mp -= X` to prevent negative MP and handle level overflow.
-function applyDamage(mosje, amount) {
-	if (!mosje || mosje.isDefeated || amount <= 0) return;
-	mosje.mp -= amount;
-	while (mosje.mp < 0) {
-		// Defeat-at-0: Level 0 below 0 from a damaging effect → pending defeat
-		// (swept by applyPendingDefeats in checkVictory). Ruling phase0-rulings.md:118.
-		if (mosje.level <= 1) { mosje.mp = 0; mosje._pendingDefeat = true; break; } // 54-05 interim: Level 1 is the bottom level; replaced by applyGetemt in 54-10
-		const overflow = -mosje.mp;
-		mosje.level -= 1;
-		mosje.mp = 100 - overflow;
-	}
-	mosje.mp = Math.max(0, mosje.mp);
-	mosje.mpLostThisTurn = (mosje.mpLostThisTurn || 0) + amount;
+// applyDamage — thin wrapper over the 2.0 loss funnel (applyMpLossToSlot): §2g pipeline,
+// subtract, tracking, getemt. `playerId` is the OWNER of the slot being hit.
+function applyDamage(state, playerId, mosje, amount, source = 'DRAIN') {
+	if (!mosje || mosje.isDefeated || !(amount > 0)) return { final: 0, getemt: null };
+	return applyMpLossToSlot({ state, playerId, slot: mosje, amount, source });
 }
 
 // U8 — Entry Protection: hostile effect damage fizzles against a freshly
 // entered Mosje (until its owner's next turn starts). Use for OPPONENT-
 // targeted damage only — self-effects, gambles and cost payments keep
 // calling applyDamage directly (costs are never blocked, see U7).
-function applyHostileDamage(mosje, amount) {
+function applyHostileDamage(state, playerId, mosje, amount) {
 	if (!mosje) return false;
 	if (mosje.entryProtected === true) {
 		console.log(`[ABILITY] 🛡️ Entry protection: ${mosje.name} just entered play — ${amount} damage fizzled`);
 		return false;
 	}
-	applyDamage(mosje, amount);
+	applyDamage(state, playerId, mosje, amount);
 	return true;
 }
 
@@ -93,10 +85,8 @@ function applyMPGain(player, si, amount, state, playerId) {
 		player.mpAmplifierActive = false;
 		console.log(`[ABILITY] MP Amplifier applied: ${amount} \u2192 ${total}`);
 	}
-	// MP ceiling 100 — piecie/ability gains never permanently level up (only Quests
-	// do). The checkVictory sweep enforces this globally too; capping here keeps the
-	// in-effect mp truthful for any effect that reads it immediately after.
-	player.activeSlots[si].mp = Math.min(100, player.activeSlots[si].mp + total);
+	// 2.0: 100+ levels the Mosje up to 0 MP, Level 3 stops at 95 (applyGainToSlot).
+	applyGainToSlot(player.activeSlots[si], total, { turnNumber: state.turnNumber });
 	return total;
 }
 
@@ -217,7 +207,7 @@ export function effect_warm_kannetje_melk(gameState, playerId) {
 	const player = state.players[playerId];
 	if (!player) return state;
 	const si = getFirstActiveSlotIndex(player);
-	if (si >= 0) applyDamage(player.activeSlots[si], 10);
+	if (si >= 0) applyDamage(state, playerId, player.activeSlots[si], 10);
 	const drawCount = Math.min(2, player.deck.length);
 	player.hand.push(...player.deck.splice(0, drawCount));
 	console.log(`[ABILITY] Warm Kannetje Melk: -10 MP, drew ${drawCount}`);
@@ -259,7 +249,7 @@ export function effect_affoe(gameState, playerId) {
 		delete state._pendingTargets;
 		return state;
 	}
-	if (osi >= 0) applyDamage(state.players[oppId].activeSlots[osi], 15);
+	if (osi >= 0) applyDamage(state, oppId, state.players[oppId].activeSlots[osi], 15);
 	if (si >= 0) applyMPGain(player, si, 10, state, playerId);
 	delete state._pendingTargets;
 	console.log('[ABILITY] Affoe: opponent -15 MP, self +10 MP');
@@ -282,7 +272,7 @@ export function effect_te_hard_gaan(gameState, playerId) {
 	const oppId = getOpponentId(state, playerId);
 	if (!oppId) return state;
 	const osi = getFirstActiveSlotIndex(state.players[oppId]);
-	if (osi >= 0 && applyHostileDamage(state.players[oppId].activeSlots[osi], 25)) {
+	if (osi >= 0 && applyHostileDamage(state, oppId, state.players[oppId].activeSlots[osi], 25)) {
 		console.log('[ABILITY] Te Hard Gaan: opponent -25 MP');
 	}
 	return state;
@@ -302,8 +292,8 @@ export function effect_momentum_diefje(gameState, playerId) {
 			return state;
 		}
 		const stolen = Math.min(20, state.players[oppId].activeSlots[osi].mp);
-		applyDamage(state.players[oppId].activeSlots[osi], stolen);
-		player.activeSlots[si].mp += stolen;
+		applyDamage(state, oppId, state.players[oppId].activeSlots[osi], stolen);
+		applyGainToSlot(player.activeSlots[si], stolen, { turnNumber: state.turnNumber });
 		console.log(`[ABILITY] Momentum Diefje: stole ${stolen} MP`);
 	}
 	return state;
@@ -334,7 +324,7 @@ export function effect_dikke_taks(gameState, playerId) {
 	const damage = opponents.length >= 3 ? 40 : 35;
 	for (const oppId of opponents) {
 		const osi = getFirstActiveSlotIndex(state.players[oppId]);
-		if (osi >= 0) applyHostileDamage(state.players[oppId].activeSlots[osi], damage);
+		if (osi >= 0) applyHostileDamage(state, oppId, state.players[oppId].activeSlots[osi], damage);
 	}
 	const player = state.players[playerId];
 	if (player.deck.length > 0) player.hand.push(...player.deck.splice(0, Math.min(2, player.deck.length)));
@@ -610,7 +600,7 @@ export function effect_mosje_reborn(gameState, playerId) {
 		// Revived at Level 1 through the single slot factory (Card List: "at Level 1")
 		const slot = createMosjeSlot(mosjeDef, { level: 1, mp: startMP + 40 });
 		player.activeSlots[emptySlot] = slot;
-		revived.mp = slot.mp;
+		revived.mp = slot.mp; // mp-direct-ok: record copy of the fresh slot, no change to a Mosje
 	} else {
 		revived.isDefeated = false;
 		revived.mp = startMP + 40;
@@ -679,8 +669,8 @@ export function effect_leipe_swap(gameState, playerId) {
 	const oppSlot = opp.activeSlots?.[oppSlotIndex];
 	if (!yourSlot || !oppSlot || yourSlot.isDefeated || oppSlot.isDefeated) return state;
 	const tmp = yourSlot.mp;
-	yourSlot.mp = oppSlot.mp;
-	oppSlot.mp = tmp;
+	yourSlot.mp = oppSlot.mp; // mp-direct-ok: swap is never a gain or loss, handoff §2b
+	oppSlot.mp = tmp; // mp-direct-ok: swap is never a gain or loss, handoff §2b
 	state._leipeSwap = { byPlayerId: playerId, yourSlotIndex, oppId, oppSlotIndex };
 	if (state._pendingTargets) {
 		delete state._pendingTargets.leipeYourSlot;
@@ -714,7 +704,7 @@ export function effect_stookerino(gameState, playerId) {
 	opp.graveyard.push({ cardId: discardedId, name: discardedId, type: 'HAND_CARD', source: 'discarded' });
 	const player = state.players[playerId];
 	const si = getFirstActiveSlotIndex(player);
-	if (si >= 0) player.activeSlots[si].mp += discarded.mpCost || 0;  // mpcost-read-ok: gain amount, effect text rewritten in Phase 59
+	if (si >= 0) applyGainToSlot(player.activeSlots[si], discarded.mpCost || 0, { turnNumber: state.turnNumber });  // mpcost-read-ok: gain amount, effect text rewritten in Phase 59
 	console.log('[ABILITY] Stookerino: discarded', discarded.cardId);
 	return state;
 }
@@ -773,7 +763,7 @@ export function effect_those_eyelashes(gameState, playerId) {
 		return state;
 	}
 	const si = getFirstActiveSlotIndex(player);
-	if (si >= 0) player.activeSlots[si].mp += 20;
+	if (si >= 0) applyGainToSlot(player.activeSlots[si], 20, { turnNumber: state.turnNumber });
 	const oppIds = Object.keys(state.players).filter(id => id !== playerId);
 	for (const oppId of oppIds) {
 		let opp = state.players[oppId];
@@ -799,12 +789,12 @@ export function effect_f1_telemetry(gameState, playerId) {
 	const hasMartin = player.activeSlots.some(s => s && !s.isDefeated &&
 		(s.cardId?.includes('martin') || s.cardId?.includes('west')));
 	if (hasMartin) {
-		player.activeSlots[si].mp += 40;
+		applyGainToSlot(player.activeSlots[si], 40, { turnNumber: state.turnNumber });
 		player.hand.push(...player.deck.splice(0, Math.min(2, player.deck.length)));
 		player.questBonusMP = (player.questBonusMP || 0) + 20;
 		console.log('[ABILITY] F1 Telemetry: +40 MP, drew 2, +20 quest bonus');
 	} else {
-		player.activeSlots[si].mp += 15;
+		applyGainToSlot(player.activeSlots[si], 15, { turnNumber: state.turnNumber });
 		player.hand.push(...player.deck.splice(0, Math.min(1, player.deck.length)));
 		console.log('[ABILITY] F1 Telemetry: +15 MP, drew 1');
 	}
@@ -823,8 +813,8 @@ export function effect_perfect_setup(gameState, playerId) {
 	const si = getFirstActiveSlotIndex(player);
 	if (si < 0) return state;
 	const mosje = player.activeSlots[si];
-	if (mosje.mp < 60) mosje.mp = 60;
-	if (mosje.mp > 90) mosje.mp = 90;
+	if (mosje.mp < 60) mosje.mp = 60; // mp-direct-ok: V4 clamp effect, Phase 59
+	if (mosje.mp > 90) mosje.mp = 90; // mp-direct-ok: V4 clamp effect, Phase 59
 	console.log(`[ABILITY] Perfect Setup: MP set to ${mosje.mp}`);
 	return state;
 }
@@ -907,7 +897,7 @@ export function effect_kan_het(gameState, playerId) {
 		applyMPGain(player, si, 50, state, playerId);
 		console.log(`[ABILITY] Kan het?!: rolled ${roll} → KAN HET! +50 MP`);
 	} else {
-		applyDamage(player.activeSlots[si], 10);
+		applyDamage(state, playerId, player.activeSlots[si], 10);
 		console.log(`[ABILITY] Kan het?!: rolled ${roll} → nope, -10 MP`);
 	}
 	return state;
@@ -992,10 +982,10 @@ export function effect_grammetje_pieter(gameState, playerId) {
 	if (si < 0) return state;
 	const roll = rollDie(6);
 	if (roll >= 4) {
-		player.activeSlots[si].mp += 30;
+		applyGainToSlot(player.activeSlots[si], 30, { turnNumber: state.turnNumber });
 		console.log(`[ABILITY] Grammetje Pieter: rolled ${roll} \u2192 +30 MP`);
 	} else {
-		applyDamage(player.activeSlots[si], 15);
+		applyDamage(state, playerId, player.activeSlots[si], 15);
 		console.log(`[ABILITY] Grammetje Pieter: rolled ${roll} \u2192 -15 MP`);
 	}
 	return state;
@@ -1007,13 +997,13 @@ export function effect_dikke_jonko(gameState, playerId) {
 	if (!player) return state;
 	const selected = state._pendingTargets?.own_slot_index;
 	const si = Number.isInteger(selected) ? selected : getFirstActiveSlotIndex(player);
-	if (si >= 0) player.activeSlots[si].mp += 25;
+	if (si >= 0) applyGainToSlot(player.activeSlots[si], 25, { turnNumber: state.turnNumber });
 	if (state._pendingTargets) delete state._pendingTargets.own_slot_index;
 	const oppIds = Object.keys(state.players).filter(id => id !== playerId);
 	for (const oppId of oppIds) {
 		const opp = state.players[oppId];
 		const osi = getFirstActiveSlotIndex(opp);
-		if (osi >= 0) opp.activeSlots[osi].mp += 10;
+		if (osi >= 0) applyGainToSlot(opp.activeSlots[osi], 10, { turnNumber: state.turnNumber });
 		if (opp.deck.length > 0) opp.hand.push(opp.deck.shift());
 	}
 	if (player.deck.length > 0) player.hand.push(player.deck.shift());
@@ -1026,7 +1016,7 @@ export function effect_stripje_bennies(gameState, playerId) {
 	const player = state.players[playerId];
 	if (!player) return state;
 	const si = getFirstActiveSlotIndex(player);
-	if (si >= 0) applyDamage(player.activeSlots[si], 20);
+	if (si >= 0) applyDamage(state, playerId, player.activeSlots[si], 20);
 	player.hand.push(...player.deck.splice(0, Math.min(3, player.deck.length)));
 	console.log('[ABILITY] Stripje Bennies: draw 3, -20 MP');
 	return state;
@@ -1040,7 +1030,7 @@ export function effect_tikker(gameState, playerId) {
 	const si = Number.isInteger(selected) ? selected : getFirstActiveSlotIndex(player);
 	if (si < 0) return state;
 	if (state._pendingTargets) delete state._pendingTargets.own_slot_index;
-	player.activeSlots[si].mp += 40;
+	applyGainToSlot(player.activeSlots[si], 40, { turnNumber: state.turnNumber });
 	player.activeSlots[si].statusEffects.push({ type: 'QUEST_BLOCKED', value: 0, turnsLeft: 1 });
 	console.log('[ABILITY] Tikker: +40 MP, QUEST_BLOCKED next turn');
 	return state;
@@ -1051,7 +1041,7 @@ export function effect_straffoe(gameState, playerId) {
 	const oppId = getOpponentId(state, playerId);
 	if (!oppId) return state;
 	const osi = getFirstActiveSlotIndex(state.players[oppId]);
-	if (osi >= 0 && applyHostileDamage(state.players[oppId].activeSlots[osi], 30)) {
+	if (osi >= 0 && applyHostileDamage(state, oppId, state.players[oppId].activeSlots[osi], 30)) {
 		console.log('[ABILITY] Straffoe: opponent -30 MP');
 	}
 	return state;
@@ -1062,7 +1052,7 @@ export function effect_larry_zegeltje(gameState, playerId) {
 	const player = state.players[playerId];
 	if (!player) return state;
 	const si = getFirstActiveSlotIndex(player);
-	if (si >= 0) player.activeSlots[si].mp += 20;
+	if (si >= 0) applyGainToSlot(player.activeSlots[si], 20, { turnNumber: state.turnNumber });
 	player.questPrepBonus = (player.questPrepBonus || 0) + 1;
 	console.log('[ABILITY] Larry Zegeltje: +20 MP, +1 quest roll bonus');
 	return state;
@@ -1235,7 +1225,7 @@ export function effect_harde_didde(gameState, playerId) {
 	const oppId = getOpponentId(state, playerId);
 	if (!oppId) return state;
 	const osi = getFirstActiveSlotIndex(state.players[oppId]);
-	if (osi >= 0 && applyHostileDamage(state.players[oppId].activeSlots[osi], 50)) {
+	if (osi >= 0 && applyHostileDamage(state, oppId, state.players[oppId].activeSlots[osi], 50)) {
 		console.log('[ABILITY] Harde Didde: opponent -50 MP');
 	}
 	return state;
@@ -1268,7 +1258,7 @@ export function effect_klaar_met_jou(gameState, playerId) {
 			console.log('[ABILITY] 🛡️ Entry protection: Klaar met jou fizzled — target just entered play');
 			return state;
 		}
-		applyDamage(opp.activeSlots[osi], 40);
+		applyDamage(state, oppId, opp.activeSlots[osi], 40);
 		if (opp.hand.length > 0) {
 			const [removed] = opp.hand.splice(opp.hand.length - 1, 1);
 			const cardId = removed?.cardId ?? removed;

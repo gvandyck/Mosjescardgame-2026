@@ -235,15 +235,15 @@ describe('Boosterpackkie', () => {
     expect(result.players.player_1.hand).toHaveLength(1);
   });
 
-  it('grants capped +10 MP with a COERT-tagged Mosje', () => {
+  it('grants +10 MP (95 + 10 levels up, 2.0) with a COERT-tagged Mosje', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0);
     const result = effect_boosterpackkie(
       makeState({ cardId: 'mosje_coert_kasteluck', mp: 95 }),
       'player_1',
     );
 
-    expect(result.players.player_1.activeSlots[0].mp).toBe(100);
-    expect(result.players.player_1.activeSlots[0].level).toBe(1);
+    expect(result.players.player_1.activeSlots[0].mp).toBe(0);
+    expect(result.players.player_1.activeSlots[0].level).toBe(2);
   });
 
   it('does not grant MP without a COERT-tagged Mosje', () => {
@@ -276,13 +276,13 @@ describe('Perfect Rhythm', () => {
     expect(result.players.player_1.activeSlots[0].mp).toBe(50);
   });
 
-  it('grants capped +10 MP only for exact mosje_chris_ddr', () => {
+  it('grants +10 MP (95 + 10 levels up, 2.0) only for exact mosje_chris_ddr', () => {
     const result = effect_perfect_rhythm(
       makeState({ cardId: 'mosje_chris_ddr', mp: 95 }),
       'player_1',
     );
-    expect(result.players.player_1.activeSlots[0].mp).toBe(100);
-    expect(result.players.player_1.activeSlots[0].level).toBe(1);
+    expect(result.players.player_1.activeSlots[0].mp).toBe(0);
+    expect(result.players.player_1.activeSlots[0].level).toBe(2);
   });
 
   it('grants +10 MP to exact DDR Chris instead of an unrelated first slot', () => {
