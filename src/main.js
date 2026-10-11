@@ -1463,6 +1463,7 @@ function initGamePage() {
 				name: slot.name || CARD_LOOKUP[slot.cardId]?.name || slot.cardId || 'Mosje',
 				mp: slot.mp,
 				traits: slot.traits || CARD_LOOKUP[slot.cardId]?.traits || {},
+				sideways: slot.sideways === true,
 			}));
 
 		// Check if player wants to pay 20 MP to attempt the quest
@@ -2583,6 +2584,7 @@ function initGamePage() {
 					name: slot.name || CARD_LOOKUP[slot.cardId]?.name || slot.cardId || 'Mosje',
 					mp: slot.mp,
 					traits: slot.traits || CARD_LOOKUP[slot.cardId]?.traits || {},
+					sideways: slot.sideways === true,
 					disabled: !eligible,
 				};
 			});

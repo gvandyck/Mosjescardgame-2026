@@ -147,30 +147,42 @@ describe('assessQuestRisk', () => {
     expect(d.severity).toBe('safe');
   });
 
-  it('refuses a quest that could defeat the LAST Mosje unless odds are excellent', () => {
-    // mp 10 at roll (2.0: no attempt cost); failMP -20 would drive it below 0 at Level 0.
+  it('refuses a quest with a sideways Mosje as the actor (2.0: it takes no action)', () => {
+    const mosje = makeMosje({ mp: 80, traits: { physical: 3 }, sideways: true });
+    const d = assessQuestRisk({
+      questDef: ARM_WRESTLING, mosje, slotIndex: 0,
+      gameState: makeState({ activeSlots: [mosje] }), playerId: 'player_2', profile: neutral,
+    });
+    expect(d.attempt).toBe(false);
+    expect(d.reason).toBe('sideways');
+  });
+
+  it('upright Level 1 whose failure would getemt it is "sideways" severity (not fatal in 2.0)', () => {
+    // mp 10 at roll (2.0: no attempt cost); failMP -20 would getemt a Level 1 Mosje.
     const mosje = makeMosje({ mp: 10, traits: { physical: 3 } }); // p = 5/6 ≈ 0.83
     const d = assessQuestRisk({
       questDef: ARM_WRESTLING, mosje, slotIndex: 0,
       gameState: makeState({ activeSlots: [mosje], hand: [] }), playerId: 'player_2', profile: neutral,
     });
-    expect(d.severity).toBe('fatal');
-    expect(d.attempt).toBe(false); // 0.83 < 0.85 required for fatal risks
+    // WHY changed: V4 treated a lone Level-1 Mosje at risk as 'fatal' (defeat = lose the
+    // game). Under 2.0 getemt of an upright L1 only turns it sideways (MP 0), so the bar is 0.7.
+    expect(d.severity).toBe('sideways');
+    expect(d.attempt).toBe(true); // 0.83 >= 0.7
   });
 
-  it('same spot with a backup Mosje on field is only "defeat" severity → attempts', () => {
+  it('a backup Mosje no longer changes the severity (2.0 getemt is not a defeat)', () => {
     const mosje = makeMosje({ mp: 10, traits: { physical: 3 } });
     const backup = makeMosje({ cardId: 'mosje_backup', mp: 40 });
     const d = assessQuestRisk({
       questDef: ARM_WRESTLING, mosje, slotIndex: 0,
       gameState: makeState({ activeSlots: [mosje, backup] }), playerId: 'player_2', profile: neutral,
     });
-    expect(d.severity).toBe('defeat');
+    expect(d.severity).toBe('sideways');
     expect(d.attempt).toBe(true); // 0.83 >= 0.7 required
   });
 
   it('risk tolerance separates the decks: GM gambles where CY holds back', () => {
-    // Physical ★★ → threshold 3 → p = 4/6 ≈ 0.667; severity 'defeat' base 0.7.
+    // Physical ★★ → threshold 3 → p = 4/6 ≈ 0.667; severity 'sideways' base 0.7.
     const scenario = () => {
       const mosje = makeMosje({ mp: 10, traits: { physical: 2 } });
       const backup = makeMosje({ cardId: 'mosje_backup', mp: 40 });
@@ -299,7 +311,7 @@ describe('classifyLossSeverity', () => {
     expect(classifyLossSeverity({ mpBefore: 5, level: 1, lossAmount: 0 })).toBe('none');
   });
 
-  it('safe — MP stays at or above 0 after the loss', () => {
+  it('safe — MP stays above 0 after the loss', () => {
     const sev = classifyLossSeverity({
       mpBefore: 30, level: 1, lossAmount: 15,
       gameState: state([makeMosje({ mp: 30 })]), playerId: 'player_2', slotIndex: 0,
@@ -315,22 +327,18 @@ describe('classifyLossSeverity', () => {
     expect(sev).toBe('regress');
   });
 
-  it('defeat — Level-1 (bottom) and would be defeated, but a backup Mosje exists', () => {
-    const mosje = makeMosje({ mp: 10 });
-    const backup = makeMosje({ cardId: 'mosje_backup', mp: 40 });
-    const sev = classifyLossSeverity({
-      mpBefore: 10, level: 1, lossAmount: 15,
-      gameState: state([mosje, backup]), playerId: 'player_2', slotIndex: 0,
-    });
-    expect(sev).toBe('defeat');
+  it('landing exactly on 0 is getemt in 2.0 (E4)', () => {
+    expect(classifyLossSeverity({ mpBefore: 15, level: 1, lossAmount: 15 })).toBe('sideways');
+    expect(classifyLossSeverity({ mpBefore: 15, level: 2, lossAmount: 15 })).toBe('regress');
   });
 
-  it('fatal — Level-1 (bottom), would be defeated, and no backup Mosje anywhere', () => {
-    const mosje = makeMosje({ mp: 10 });
-    const sev = classifyLossSeverity({
-      mpBefore: 10, level: 1, lossAmount: 15,
-      gameState: state([mosje], []), playerId: 'player_2', slotIndex: 0,
-    });
+  it('sideways — upright Level 1 would be getemt (MP 0, sits out a turn)', () => {
+    const sev = classifyLossSeverity({ mpBefore: 10, level: 1, lossAmount: 15, sideways: false });
+    expect(sev).toBe('sideways');
+  });
+
+  it('fatal — an already-sideways Mosje would be getemt again (Welloe pile)', () => {
+    const sev = classifyLossSeverity({ mpBefore: 0, level: 1, lossAmount: 15, sideways: true });
     expect(sev).toBe('fatal');
   });
 });
@@ -345,9 +353,9 @@ describe('getRequiredConfidence', () => {
   });
 
   it('higher risk tolerance lowers the bar; lower tolerance raises it', () => {
-    const cautious = getRequiredConfidence('defeat', { riskTolerance: 0.3 });
-    const neutral = getRequiredConfidence('defeat', { riskTolerance: 0.5 });
-    const bold = getRequiredConfidence('defeat', { riskTolerance: 0.7 });
+    const cautious = getRequiredConfidence('sideways', { riskTolerance: 0.3 });
+    const neutral = getRequiredConfidence('sideways', { riskTolerance: 0.5 });
+    const bold = getRequiredConfidence('sideways', { riskTolerance: 0.7 });
     expect(cautious).toBeGreaterThan(neutral);
     expect(bold).toBeLessThan(neutral);
   });

@@ -4,17 +4,16 @@
 //
 // Severity of a failed roll (trying a Quest costs no MP in 2.0):
 //   'none'    — quest has no failure penalty.
-//   'safe'    — penalty lands but MP stays at 0 or above (exactly-0 survives).
-//   'regress' — Mosje would drop below 0 but has a Level to lose.
-//   'defeat'  — Level-0 Mosje would be defeated, but the bot has a backup.
-//   'fatal'   — losing this Mosje likely loses the game (no backup on field
-//               or in own hand — own hand is the bot's legal knowledge).
+//   'safe'    — penalty lands but MP stays above 0 (2.0: reaching 0 is getemt).
+//   'regress' — getemt of a Level 2-3 Mosje: drops one Level, back to 50 MP.
+//   'sideways'— getemt of an upright Level 1 Mosje: MP 0, sits out a turn.
+//   'fatal'   — getemt of an already-sideways Mosje: it goes to the Welloe pile.
 
 import { estimateQuestOdds } from './questOdds.js';
 import { getPartnerSynergyQuestBonus } from '../../abilities/questLogic.js';
 
 // Minimum success chance demanded per failure severity (neutral profile).
-const REQUIRED_P = { none: 0.15, safe: 0.35, regress: 0.55, defeat: 0.7, fatal: 0.85 };
+const REQUIRED_P = { none: 0.15, safe: 0.35, regress: 0.55, sideways: 0.7, fatal: 0.85 };
 
 function questFailAmount(questDef) {
 	const effects = questDef?.onFailure || [];
@@ -34,26 +33,17 @@ function questSuccessMP(questDef) {
 	return questDef?.successMP ?? 0;
 }
 
-function hasBackupMosje(gameState, playerId, slotIndex) {
-	const player = gameState?.players?.[playerId];
-	if (!player) return false;
-	const otherActive = (player.activeSlots || [])
-		.some((s, i) => i !== slotIndex && s && !s.isDefeated);
-	if (otherActive) return true;
-	return (player.hand || []).some(c => c.type === 'MOSJE');
-}
-
 /**
  * classifyLossSeverity — how bad would losing `lossAmount` MP be for a Mosje
  * currently holding `mpBefore` MP at `level`? Shared by quest-risk assessment
  * and any other "should I take this MP risk" decision (e.g. a gamble ability)
  * — same five-tier vocabulary as the module docstring above.
  */
-export function classifyLossSeverity({ mpBefore, level, lossAmount, gameState, playerId, slotIndex }) {
+export function classifyLossSeverity({ mpBefore, level, lossAmount, sideways = false }) {
 	if (lossAmount <= 0) return 'none';
-	if (mpBefore - lossAmount >= 0) return 'safe';
+	if (mpBefore - lossAmount > 0) return 'safe';
 	if ((level || 1) > 1) return 'regress';
-	return hasBackupMosje(gameState, playerId, slotIndex) ? 'defeat' : 'fatal';
+	return sideways === true ? 'fatal' : 'sideways';
 }
 
 /**
@@ -80,6 +70,9 @@ export function assessQuestRisk({ questDef, mosje, slotIndex, gameState, playerI
 	if (!questDef || !mosje || mosje.isDefeated) {
 		return { ...base, attempt: false, reason: 'no-mosje' };
 	}
+	if (mosje.sideways === true) {
+		return { ...base, attempt: false, reason: 'sideways' };
+	}
 
 	// Evaluate on the MP the Mosje will hold when the die is rolled.
 	const mpAtRoll = mosje.mp;
@@ -104,7 +97,7 @@ export function assessQuestRisk({ questDef, mosje, slotIndex, gameState, playerI
 
 	const failAmount = questFailAmount(questDef);
 	const severity = classifyLossSeverity({
-		mpBefore: mpAtRoll, level: mosje.level, lossAmount: failAmount, gameState, playerId, slotIndex,
+		mpBefore: mpAtRoll, level: mosje.level, lossAmount: failAmount, sideways: mosje.sideways,
 	});
 	const requiredP = getRequiredConfidence(severity, profile, { winsGame, levelsUp });
 

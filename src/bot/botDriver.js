@@ -41,6 +41,7 @@ import { getAbilityEnergyCost } from '../engine/energy/getAbilityEnergyCost.js';
 import { assessQuestRisk, classifyLossSeverity, getRequiredConfidence } from './strategy/assessQuestRisk.js';
 import { rollBotQuestDice } from './strategy/rollBotQuestDice.js';
 import { getCardTags } from './strategy/comboTags.js';
+import { canMosjeAct } from '../engine/mp/canMosjeAct.js';
 import { getAbilityTiming } from './strategy/abilityTiming.js';
 import { emitBotMetric } from './strategy/emitBotMetric.js';
 
@@ -211,7 +212,7 @@ function shouldUseAbility(state, botPlayerId, slot, def, profile) {
 // end-of-turn roll, but it is a real ability-button activation with no MP
 // cost, so the generic cost gate above never applies). Fixed 50% odds either
 // way; reuse the same severity/confidence vocabulary as quest risk (U8-safe:
-// classifyLossSeverity already treats a Level-0, no-backup Mosje as fatal)
+// classifyLossSeverity reads 2.0 getemt: L1 upright = sideways, sideways = fatal)
 // so the bot only skips the flip when a real loss would be a real problem.
 const RISK_REWARD_LOSS = 15;
 function shouldUseRiskReward(state, botPlayerId, slot, profile) {
@@ -219,9 +220,7 @@ function shouldUseRiskReward(state, botPlayerId, slot, profile) {
     mpBefore: slot.mp || 0,
     level: slot.level,
     lossAmount: RISK_REWARD_LOSS,
-    gameState: state,
-    playerId: botPlayerId,
-    slotIndex: state.players[botPlayerId]?.activeSlots?.indexOf(slot) ?? -1,
+    sideways: slot.sideways,
   });
   const requiredP = getRequiredConfidence(severity, profile);
   return 0.5 >= requiredP; // fixed odds — either side of the coin is equally likely
@@ -273,7 +272,7 @@ export function driveBotTurnSteps(gameState, botPlayerId) {
     for (let i = 0; i < slotCount; i++) {
       if (finished()) return;
       const slot = state.players[botPlayerId]?.activeSlots?.[i];
-      if (!slot || slot.isDefeated || slot.abilityUsedThisTurn) continue;
+      if (!canMosjeAct(slot) || slot.abilityUsedThisTurn) continue;
       const def = MOSJE_LOOKUP[slot.cardId];
       if (!def?.abilityId || def.autoAbility) continue;
       if (getAbilityTiming(slot.cardId) !== timing) continue;
@@ -428,7 +427,7 @@ export function driveBotTurnSteps(gameState, botPlayerId) {
     const perMosjeIds = questDef.perMosjeConfig ? Object.keys(questDef.perMosjeConfig) : null;
     let best = { targetSlotIndex: -1, decision: null };
     (player.activeSlots || []).forEach((slot, i) => {
-      if (!slot || slot.isDefeated) return;
+      if (!canMosjeAct(slot)) return;
       if (requiredId && slot.cardId !== requiredId) return;
       if (perMosjeIds && !perMosjeIds.includes(slot.cardId)) return;
       const decision = assessQuestRisk({

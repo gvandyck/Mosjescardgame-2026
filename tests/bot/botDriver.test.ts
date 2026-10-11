@@ -280,18 +280,19 @@ describe('driveBotTurn', () => {
 describe('driveBotTurn — quest MP safety margin', () => {
   const ARM_WRESTLING_ID = 'quest_arm_wrestling'; // GENERAL, failMP: -20
 
-  it('active Mosje below the safety threshold (mp=10 < 40) — quest attempt is skipped, MP unchanged', () => {
+  it('low-MP Level 1 Mosje (mp=10): a failure now only makes it sideways, so the quest is attempted (2.0)', () => {
     const state = makeState({
       questDeck: [{ cardId: ARM_WRESTLING_ID, type: 'QUEST' }],
       activeSlots: [makeMosjeSlot('mosje_jeffrey', 10)],
     });
     const result = driveBotTurn(state, 'player_2');
     const mosjeAfter = (result.players.player_2.activeSlots as MosjeSlot[])[0];
-    // No other card in hand/field can touch MP here, so an unchanged value
-    // proves resolveQuest was never called — the guard held regardless of
-    // the (unmocked) dice roll's outcome.
-    expect(mosjeAfter.mp).toBe(10);
+    // WHY changed: V4 skipped this (fatal = defeat of the last Mosje). Under 2.0 a failure
+    // getemts an upright L1 Mosje -> MP 0, sideways (required odds 0.7, not 0.85), so the
+    // bot attempts. Either outcome moves MP; failure must leave it sideways, never defeated.
+    expect(mosjeAfter.mp).not.toBe(10);
     expect(mosjeAfter.isDefeated).toBe(false);
+    if (mosjeAfter.mp === 0) expect((mosjeAfter as any).sideways).toBe(true);
   });
 
   it('active Mosje exactly at the safety threshold (mp=40 = 2x failMP) — quest attempt proceeds', () => {
@@ -315,18 +316,17 @@ describe('driveBotTurn — quest MP safety margin', () => {
     expect(mosjeAfter.mp).not.toBe(50);
   });
 
-  it('never drives a Level-0 Mosje into a below-threshold quest that could defeat it', () => {
-    // mp=15 is above 0 (so the OLD mp>=0 gate alone would have allowed it) but
-    // below the 40 safety threshold — this is exactly the "dies too often at
-    // low MP" scenario the guard exists to prevent.
+  it('a Level-1 Mosje below the old threshold may quest; failure is sideways, not defeat (2.0)', () => {
     const state = makeState({
       questDeck: [{ cardId: ARM_WRESTLING_ID, type: 'QUEST' }],
       activeSlots: [makeMosjeSlot('mosje_jeffrey', 15)],
     });
     const result = driveBotTurn(state, 'player_2');
     const mosjeAfter = (result.players.player_2.activeSlots as MosjeSlot[])[0];
-    expect(mosjeAfter.mp).toBe(15);
+    // WHY changed: see the mp=10 case above (V4 'fatal' -> 2.0 'sideways').
+    expect(mosjeAfter.mp).not.toBe(15);
     expect(mosjeAfter.isDefeated).toBe(false);
+    if (mosjeAfter.mp === 0) expect((mosjeAfter as any).sideways).toBe(true);
   });
 });
 
@@ -429,5 +429,18 @@ describe('driveBotTurn — plays a 2nd Mosje from hand', () => {
     const result = driveBotTurn(state, 'player_2');
     const bonus = getPartnerSynergyQuestBonus(result, 'player_2', 'Physical');
     expect(bonus).toBe(15);
+  });
+});
+
+describe('driveBotTurn — sideways Mosje takes no action (2.0, 54-11)', () => {
+  it('never picks a sideways Mosje for a Quest', () => {
+    const sideways = { ...makeMosjeSlot('mosje_jeffrey', 80), sideways: true } as any;
+    const state = makeState({
+      questDeck: [{ cardId: 'quest_arm_wrestling', type: 'QUEST' }],
+      activeSlots: [sideways],
+    });
+    const result = driveBotTurn(state, 'player_2');
+    const after = (result.players.player_2.activeSlots as MosjeSlot[])[0];
+    expect(after.mp).toBe(80);
   });
 });

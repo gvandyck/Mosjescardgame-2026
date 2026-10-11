@@ -734,6 +734,7 @@ export function initModalManager(container) {
 		const isQuestAttempt = Boolean(questDef);
 
 		function getMpLabel(mosjeSlot) {
+			if (mosjeSlot.sideways) return `<span style="color: #f59e0b;">(sideways)</span>`;
 			if (mosjeSlot.disabled) return `<span style="color: #ef4444;">Not eligible</span>`;
 			return `<span style="color: #4ade80;">${mosjeSlot.mp} MP</span>`;
 		}
@@ -743,7 +744,7 @@ export function initModalManager(container) {
 				id: String(mosjeSlot.slotIndex),
 				label: mosjeSlot.name,
 				metaLabel: isQuestAttempt ? getMpLabel(mosjeSlot) : undefined,
-				disabled: mosjeSlot.disabled,
+				disabled: mosjeSlot.disabled || mosjeSlot.sideways === true,
 				slotIndex: mosjeSlot.slotIndex,
 				mp: mosjeSlot.mp,
 			};
