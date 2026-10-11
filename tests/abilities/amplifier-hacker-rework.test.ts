@@ -55,8 +55,8 @@ describe("Amplifier Power Boost — pay 30, arm double-trigger, cap 2/game", () 
       players: {
         player_1: {
           activeSlots: [
-            { cardId: "mosje_alyssa_fissa", name: "Alyssa", mp: 0, level: 0, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
-            { cardId: "mosje_amplifier", name: "Amplifier", mp: 50, level: 0, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
+            { cardId: "mosje_alyssa_fissa", name: "Alyssa", mp: 0, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
+            { cardId: "mosje_amplifier", name: "Amplifier", mp: 50, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
           ],
           hand: [{ cardId: "piecie_kannetje_melk" }, { cardId: "piecie_kannetje_melk" }],
         },

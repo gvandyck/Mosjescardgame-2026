@@ -173,7 +173,7 @@ export async function setHand(page, playerId, cardIds) {
 }
 
 /**
- * Place a specific Mosje into a slot with custom MP/level (testMode=true).
+ * Place a specific Mosje into a slot with custom MP/level (testMode=true). Levels are 1-3 (Level 1 default); built by the engine createMosjeSlot factory.
  * Enables two-Mosje and precise-board scenarios. Pass cardId=null to clear.
  *   setMosjeOnField(page, 'player_1', 1, 'mosje_michelle', { mp: 30, level: 1 })
  */

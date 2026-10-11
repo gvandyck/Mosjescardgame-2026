@@ -141,7 +141,7 @@ export async function runCardTest(page, spec, test) {
 	await setEnergy(page, 'player_1', 6);
 	await setEnergy(page, 'player_2', 6);
 
-	// 2. Apply MP setup. If a level is needed (e.g. Ronald Kip requires Lv2), re-place
+	// 2. Apply MP setup. Levels are 1-3 (2.0); use ownLevel only for cards that read the level. Re-place
 	// the starter Mosje at that level (setMosjeMP only touches MP, not level).
 	if (spec.setup?.ownLevel != null) {
 		await setMosjeOnField(page, 'player_1', 0, spec.mosje || 'mosje_gandoe_destroyer',

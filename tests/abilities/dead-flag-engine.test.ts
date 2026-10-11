@@ -31,7 +31,7 @@ function makeSnellieState() {
           {
             cardId: "mosje_test",
             mp: 50,
-            level: 0,
+            level: 1,
             isDefeated: false,
             traits: {},
             statusEffects: [],
@@ -55,7 +55,7 @@ function makeSnellieState() {
           {
             cardId: "mosje_opponent",
             mp: 50,
-            level: 0,
+            level: 1,
             isDefeated: false,
             traits: {},
             statusEffects: [],
@@ -107,7 +107,7 @@ describe("Those Eyelashes — effect stores opponent id (not boolean true)", () 
     state.players.player_1.activeSlots[0] = {
       cardId: "mosje_martin",
       mp: 50,
-      level: 0,
+      level: 1,
       isDefeated: false,
       traits: {},
       statusEffects: [],

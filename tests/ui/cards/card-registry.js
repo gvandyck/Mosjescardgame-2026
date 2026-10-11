@@ -190,7 +190,7 @@ export const CARD_REGISTRY = [
 	},
 	{
 		cardId: 'piecie_ronald_kip', cardType: 'PIECIE',
-		setup: { ownMP: 40, ownLevel: 2 }, playThen: 'place-then-activate', // requires Level 2
+		setup: { ownMP: 40 }, playThen: 'place-then-activate',
 		expectedEffect: 'MP_GAIN', mpDeltaMin: 50, mpDeltaMax: 100, // 50 base / 60 Ronald / 100 FOOD-double
 		logMatch: /[Rr]onald|[Kk]ip/,
 	},
