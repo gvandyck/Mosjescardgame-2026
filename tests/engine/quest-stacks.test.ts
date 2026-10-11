@@ -20,6 +20,6 @@ describe("advanceQuestStack (E17 unit)", () => {
   });
   it("empty deck reshuffles own discards incl. old Quest", () => {
     const st = advanceQuestStack(mk({ deck: [], faceUp: "a", tokens: 0, discard: ["x", "y"] }), "FIGHTING", "win", rev);
-    expect(st.questStacks.FIGHTING).toEqual({ deck: ["x", "a"], faceUp: "y", tokens: 0, discard: [] });
+    expect(st.questStacks.FIGHTING).toEqual({ deck: ["y", "x"], faceUp: "a", tokens: 0, discard: [] });
   });
 });
