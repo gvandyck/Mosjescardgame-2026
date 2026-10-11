@@ -47,8 +47,8 @@ function ronaldState(ronaldMp = 50): any {
   });
 }
 
-describe("Ronald Chef Strategic Insight — charge 20 MP + lock an opponent hand card", () => {
-  it("charges 20 MP (via loseMP) and locks the chosen opponent card on the opponent", () => {
+describe("Ronald Chef Strategic Insight — charge no MP + lock an opponent hand card", () => {
+  it("takes no MP (Energy is charged by useMosjeAbility) and locks the chosen opponent card on the opponent", () => {
     const state = ronaldState(50);
     // Give the opponent a hand card and target it for the lock.
     state.players.player_2.hand = [{ cardId: "piecie_kannetje_melk", type: "PIECIE" }];
@@ -56,8 +56,8 @@ describe("Ronald Chef Strategic Insight — charge 20 MP + lock an opponent hand
 
     const next = ability_ronald_chef_strategic_insight(state, "player_1");
 
-    // 20 MP charged on the Ronald slot (50 → 30; no level change, no active place).
-    expect(next.players.player_1.activeSlots[0].mp).toBe(30);
+    // No MP cost in 2.0 (the 2 Energy is paid in useMosjeAbility).
+    expect(next.players.player_1.activeSlots[0].mp).toBe(50);
     // Lock recorded on the opponent, attributed to player_1.
     expect(next.players.player_2._lockedCard).toEqual({
       cardId: "piecie_kannetje_melk",
@@ -67,12 +67,13 @@ describe("Ronald Chef Strategic Insight — charge 20 MP + lock an opponent hand
     expect(next._pendingTargets?.ronaldLockCardId).toBeUndefined();
   });
 
-  it("throws when the Ronald slot has fewer than 20 MP", () => {
+  it("works with low MP (no MP cost)", () => {
     const state = ronaldState(15);
     state.players.player_2.hand = [{ cardId: "piecie_kannetje_melk", type: "PIECIE" }];
     state._pendingTargets = { ronaldLockCardId: "piecie_kannetje_melk" };
 
-    expect(() => ability_ronald_chef_strategic_insight(state, "player_1")).toThrow();
+    const next = ability_ronald_chef_strategic_insight(state, "player_1");
+    expect(next.players.player_1.activeSlots[0].mp).toBe(15);
   });
 
   it("throws when strategicInsightCooldown is still active", () => {

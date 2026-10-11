@@ -19,6 +19,8 @@ import { QUESTS } from '../data/quests.js';
 import { toGraveyardEntry } from './graveyardUtils.js';
 import { gainEnergy } from './energy/gainEnergy.js';
 import { payEnergy } from './energy/payEnergy.js';
+import { canPay } from './energy/canPay.js';
+import { getAbilityEnergyCost } from './energy/getAbilityEnergyCost.js';
 
 console.log('[ENGINE] turnManager.js loaded');
 
@@ -1257,9 +1259,7 @@ function createMosjeSlotFromDefinition(mosjeDef) {
 // Each Mosje can only use its ability once per turn (abilityUsedThisTurn).
 // Returns { state, success, error? }
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// NOTE: the engine does NOT enforce abilityCost before calling fn(). Each individual
-// ability function is responsible for checking/deducting its own cost. The UI
-// cantAffordAbility display is the primary guard against insufficient-MP activations.
+// NOTE: Energy cost from src/rules/abilityEnergyCosts.js is checked before and paid after a successful ability (54-03); MP is never a cost.
 export function useMosjeAbility(gameState, playerId, mosjeId) {
   const player = gameState.players[playerId];
   if (!player) return { state: gameState, success: false, error: 'Player not found' };
@@ -1286,6 +1286,11 @@ export function useMosjeAbility(gameState, playerId, mosjeId) {
     return { state: gameState, success: false, error: `Ability not implemented: ${mosjeDef.abilityId}` };
   }
 
+  const energyCost = getAbilityEnergyCost(mosjeDef.abilityId);
+  if (!canPay(player, energyCost)) {
+    return { state: gameState, success: false, error: 'Not enough Energy' };
+  }
+
   // Dispatch â€” ability functions clone the state internally and return a new state
   // Wrap in try/catch: some abilities require pending targets (e.g. Binti’s discard) that
   // are not present when called without UI interaction (e.g. from the bot driver).
@@ -1310,6 +1315,9 @@ export function useMosjeAbility(gameState, playerId, mosjeId) {
     console.warn(`[ENGINE] useMosjeAbility: ability ${mosjeDef.abilityId} threw — needs UI input:`, err.message);
     return { state: gameState, success: false, error: err.message };
   }
+
+  // Pay the printed Energy cost now that the ability succeeded.
+  if (energyCost > 0) payEnergy(state, playerId, energyCost);
 
   // Mark ability as used — skip for unlimited-use abilities (e.g. Coert)
   if (!mosjeDef.unlimitedAbility) {

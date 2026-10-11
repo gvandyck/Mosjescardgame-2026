@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 // @ts-expect-error - JS module, no type declarations
-import { activatePiecie, playSnellie, activatePlace, playPlace } from "../../src/engine/turnManager.js";
+import { activatePiecie, playSnellie, activatePlace, playPlace, useMosjeAbility } from "../../src/engine/turnManager.js";
 // @ts-expect-error - JS module, no type declarations
 import { makeEngineState } from "../helpers/makeEngineState.js";
 
@@ -93,5 +93,64 @@ describe("Energy charging", () => {
     expect(res.success).toBe(true);
     expect(res.state.players.player_1.hand).toHaveLength(0); // chain fired
     expect(res.state.players.player_1.energy).toBe(4);
+  });
+});
+
+describe("Ability Energy charging", () => {
+  const withMosje = (energy: number, id: string, extra: any = {}, mp = 60) => {
+    const s = build(energy, [null, null, null, null], [], extra);
+    s.players.player_1.activeSlots[0] = mosje(id, mp);
+    return s;
+  };
+
+  it("refuses Tuk Healer (cost 1) with 0 Energy and changes nothing", () => {
+    const res = useMosjeAbility(withMosje(0, "mosje_tuk_healer"), "player_1", "mosje_tuk_healer");
+    expect(res.success).toBe(false);
+    expect(res.error).toBe("Not enough Energy");
+    expect(res.state.players.player_1.activeSlots[0].mp).toBe(60);
+    expect(res.state.players.player_1.activeSlots[0].abilityUsedThisTurn).toBe(false);
+  });
+
+  it("charges Tuk Healer 1 Energy on success", () => {
+    const res = useMosjeAbility(withMosje(3, "mosje_tuk_healer"), "player_1", "mosje_tuk_healer");
+    expect(res.success).toBe(true);
+    expect(res.state.players.player_1.energy).toBe(2);
+  });
+
+  it("a throwing ability (needs UI input) costs no Energy", () => {
+    const res = useMosjeAbility(withMosje(6, "mosje_ronald_chef"), "player_1", "mosje_ronald_chef");
+    expect(res.success).toBe(false);
+    expect(res.state.players.player_1.energy).toBe(6);
+  });
+
+  it("Ronald Strategic Insight costs 2 Energy and no MP", () => {
+    const s = withMosje(6, "mosje_ronald_chef");
+    s._pendingTargets = { ronaldLockCardId: "piecie_kannetje_melk" };
+    const res = useMosjeAbility(s, "player_1", "mosje_ronald_chef");
+    expect(res.success).toBe(true);
+    expect(res.state.players.player_1.activeSlots[0].mp).toBe(60);
+    expect(res.state.players.player_1.energy).toBe(4);
+  });
+
+  it("Youri Speed Activate costs exactly 1 Energy and no MP", () => {
+    const s = withMosje(6, "mosje_youri");
+    s.players.player_1.piecieSlots = [slotOf("piecie_kannetje_melk", "PIECIE"), null, null, null];
+    const res = useMosjeAbility(s, "player_1", "mosje_youri");
+    expect(res.success).toBe(true);
+    expect(res.state.players.player_1.activeSlots[0].mp).toBe(60);
+    expect(res.state.players.player_1.energy).toBe(5);
+  });
+
+  it("Gandoe Destroyer Elimination Strike costs 4 Energy and no MP", () => {
+    const s = withMosje(6, "mosje_gandoe_destroyer");
+    const res = useMosjeAbility(s, "player_1", "mosje_gandoe_destroyer");
+    expect(res.success).toBe(true);
+    expect(res.state.players.player_1.activeSlots[0].mp).toBe(60);
+    expect(res.state.players.player_1.energy).toBe(2);
+  });
+
+  it("an ability without a cost leaves Energy unchanged", () => {
+    const res = useMosjeAbility(withMosje(3, "mosje_ming_predictor"), "player_1", "mosje_ming_predictor");
+    expect(res.state.players.player_1.energy).toBe(3);
   });
 });

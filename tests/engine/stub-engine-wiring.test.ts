@@ -29,6 +29,7 @@ function makeState(mp: number, level: number, statusEffects: unknown[] = []) {
     _snelleFlags: {},
     players: {
       p1: {
+        energy: 6,
         totalDamageTaken: 0,
         activeSlots: [
           {
@@ -337,6 +338,7 @@ function makeAbilityState(mp: number, extraStateProps: Record<string, unknown> =
     _pendingTargets: {},
     players: {
       p1: {
+        energy: 6,
         totalDamageTaken: 0,
         hand: [],
         deck: [{ cardId: "test_card_1" }, { cardId: "test_card_2" }],
@@ -401,6 +403,7 @@ function makeCoertAbilityState(mp: number, activePlace: string | null = null) {
     _pendingTargets: {},
     players: {
       p1: {
+        energy: 6,
         totalDamageTaken: 0,
         hand: [],
         deck: [{ cardId: "test_card_1" }, { cardId: "test_card_2" }],

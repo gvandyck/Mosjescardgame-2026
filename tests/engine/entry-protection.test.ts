@@ -45,6 +45,7 @@ function makeMosje(cardId: string, mp = 50, extra: Partial<MosjeSlot> = {}): Mos
 
 function makePlayer(activeSlots: (MosjeSlot | null)[], overrides: Record<string, unknown> = {}) {
   return {
+    energy: 6,
     name: 'P',
     hand: [] as { cardId: string; type: string }[],
     deck: [{ cardId: 'piecie_kannetje_melk', type: 'PIECIE' }, { cardId: 'piecie_kannetje_melk', type: 'PIECIE' }],
@@ -217,7 +218,7 @@ describe('U8 — hostile effects fizzle', () => {
     expect(result.state.players.player_2.activeSlots[0].isDefeated).toBe(false);
   });
 
-  it('Elimination Strike is unusable vs a protected target — the 80 MP is kept', () => {
+  it('Elimination Strike is unusable vs a protected target — no Energy is spent', () => {
     const state = makeState(
       [makeMosje('mosje_gandoe_destroyer', 90)],
       [makeMosje('mosje_youri', 20, { entryProtected: true })],
@@ -226,7 +227,8 @@ describe('U8 — hostile effects fizzle', () => {
     const result = useMosjeAbility(state, 'player_1', 'mosje_gandoe_destroyer');
     expect(result.success).toBe(false);
     expect(String(result.error)).toMatch(/protected/i);
-    expect(result.state.players.player_1.activeSlots[0].mp).toBe(90); // cost refunded
+    expect(result.state.players.player_1.activeSlots[0].mp).toBe(90);
+    expect(result.state.players.player_1.energy).toBe(6); // thrown ability costs no Energy
     expect(result.state.players.player_2.activeSlots[0].isDefeated).toBe(false);
   });
 });

@@ -256,13 +256,7 @@ export function ability_gandoe_destroyer_elimination_strike(gameState, playerId)
 		throw new Error('Elimination Strike already used this game');
 	}
 
-	// MP cost check
-	if (gandoeSlot.mp < 80) {
-		throw new Error('Not enough MP — Elimination Strike costs 80 MP');
-	}
-
-	// Deduct 80 MP
-	gandoeSlot.mp -= 80;
+	// Cost is 4 Energy, charged by useMosjeAbility (54-03) — no MP.
 
 	// Find opponent's lowest-level active Mosje (tiebreak: lowest MP)
 	const oppId = getOpponentId(state, playerId);
@@ -299,7 +293,7 @@ export function ability_gandoe_destroyer_elimination_strike(gameState, playerId)
 
 // DIGITAL MOSJES
 
-// Ronald Chef — Strategic Insight: pay 20 MP, lock a card in the opponent's hand
+// Ronald Chef — Strategic Insight: pay 2 Energy, lock a card in the opponent's hand
 // (chosen via the UI -> _pendingTargets.ronaldLockCardId) until this player's next
 // turn. Once per turn (abilityUsedThisTurn) + a 3-turn cooldown on the slot.
 export function ability_ronald_chef_strategic_insight(gameState, playerId) {
@@ -312,12 +306,11 @@ export function ability_ronald_chef_strategic_insight(gameState, playerId) {
 	if ((slot.strategicInsightCooldown || 0) > 0) {
 		throw new Error(`Strategic Insight is on cooldown (${slot.strategicInsightCooldown} turn(s) left)`);
 	}
-	if (slot.mp < 20) throw new Error('Not enough MP — Strategic Insight costs 20 MP');
 	const lockCardId = state._pendingTargets?.ronaldLockCardId;
 	if (!lockCardId) throw new Error('Strategic Insight requires an opponent card to lock');
 	const oppId = getOpponentId(state, playerId);
 	if (!oppId) throw new Error('No opponent on field');
-	let next = loseMP(state, playerId, slotIndex, 20, 'RONALD_INSIGHT');
+	const next = state;
 	next.players[oppId]._lockedCard = { cardId: lockCardId, byPlayer: playerId };
 	next.players[playerId].activeSlots[slotIndex].strategicInsightCooldown = 3;
 	if (next._pendingTargets) delete next._pendingTargets.ronaldLockCardId;
@@ -519,7 +512,7 @@ export function ability_chris_perfect_setup(gameState, playerId) {
 	return state;
 }
 
-// Youri Speedrunner — pay 20 MP → activate a face-down Piecie on field → draw 1 card (max 3/game).
+// Youri Speedrunner — pay 1 Energy → activate a face-down Piecie on field → draw 1 card (max 3/game).
 export function ability_youri_speed_activate(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
@@ -536,11 +529,6 @@ export function ability_youri_speed_activate(gameState, playerId) {
 		return { state, success: false, error: 'Youri is not active on the field' };
 	}
 
-	// MP check
-	if (youriSlot.mp < 20) {
-		return { state, success: false, error: 'Not enough MP on Youri (need 20)' };
-	}
-
 	// Find face-down non-activated PIECIE slots
 	const faceDownIndices = player.piecieSlots
 		.map((s, i) => (s && s.type === 'PIECIE' && s.faceDown && !s.activated) ? i : -1)
@@ -549,8 +537,7 @@ export function ability_youri_speed_activate(gameState, playerId) {
 		return { state, success: false, error: 'No face-down Piecies on the field to activate' };
 	}
 
-	// Deduct 20 MP and increment use counter
-	youriSlot.mp -= 20;
+	// Cost is 1 Energy, charged by useMosjeAbility (54-03) — no MP.
 	player.youriAbilityUses = (player.youriAbilityUses || 0) + 1;
 
 	if (faceDownIndices.length === 1) {
@@ -559,12 +546,12 @@ export function ability_youri_speed_activate(gameState, playerId) {
 		if (player.deck.length > 0) {
 			player.hand.push(player.deck.shift());
 		}
-		console.log('[ABILITY] Youri: 20 MP paid, auto-activated piecie at slot ' + faceDownIndices[0] + ', drew 1 card');
+		console.log('[ABILITY] Youri: auto-activated piecie at slot ' + faceDownIndices[0] + ', drew 1 card');
 		return { state, success: true };
 	} else {
 		// Multiple face-down piecies — signal UI to pick
 		state._pendingYouriActivation = { playerId, faceDownSlots: faceDownIndices };
-		console.log('[ABILITY] Youri: 20 MP paid, awaiting piecie selection from ' + faceDownIndices.length + ' slots');
+		console.log('[ABILITY] Youri: awaiting piecie selection from ' + faceDownIndices.length + ' slots');
 		return { state, success: true, pendingYouriActivation: true };
 	}
 }

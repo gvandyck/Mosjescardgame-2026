@@ -93,11 +93,11 @@ describe('ability_youri_speed_activate', () => {
     expect(result.error).toMatch(/3 times/i);
   });
 
-  it('blocks when Youri slot has < 20 MP', () => {
+  it('needs no MP (cost is Energy, charged by useMosjeAbility)', () => {
     const state = buildYouriState({ youriMP: 10, faceDownPiecies: 1 });
     const result = ability_youri_speed_activate(state, 'player_1');
-    expect(result.success).toBe(false);
-    expect(result.error).toMatch(/not enough mp/i);
+    expect(result.success).toBe(true);
+    expect(result.state.players.player_1.activeSlots[0].mp).toBe(10);
   });
 
   it('blocks when no face-down piecies on field', () => {
@@ -114,8 +114,8 @@ describe('ability_youri_speed_activate', () => {
     expect(result.success).toBe(true);
     expect(result.pendingYouriActivation).toBeFalsy();
     const p = result.state.players.player_1;
-    // MP deducted
-    expect(p.activeSlots[0].mp).toBe(30);
+    // MP untouched (2.0: abilities pay Energy, never MP)
+    expect(p.activeSlots[0].mp).toBe(50);
     // use counter incremented
     expect(p.youriAbilityUses).toBe(1);
     // piecie unlocked
@@ -131,8 +131,8 @@ describe('ability_youri_speed_activate', () => {
     expect(result.success).toBe(true);
     expect(result.pendingYouriActivation).toBe(true);
     const p = result.state.players.player_1;
-    // MP deducted
-    expect(p.activeSlots[0].mp).toBe(30);
+    // MP untouched (2.0: abilities pay Energy, never MP)
+    expect(p.activeSlots[0].mp).toBe(50);
     // counter incremented
     expect(p.youriAbilityUses).toBe(1);
     // pending signal on state
