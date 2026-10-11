@@ -141,14 +141,14 @@ test.describe('card frame v1 — Mosje', () => {
     await page.evaluate(() => {
       window.__testHooks.clearEntryProtection();
       window.__testHooks.setMosjeOnField('player_1', 0, 'mosje_alyssa_bulldozer', { mp: 35, level: 1 });
-      window.__testHooks.setMosjeOnField('player_1', 1, 'mosje_ronald_chef', { mp: 60, level: 0 });
+      window.__testHooks.setMosjeOnField('player_1', 1, 'mosje_ronald_chef', { mp: 60, level: 1 });
       window.__testHooks.setHand('player_1', ['mosje_jisca', 'mosje_fps_coert', 'mosje_chris_ddr']);
     });
     const tile = page.locator('.mosje-card--owned.card-v1--field').first();
     await expect(tile).toBeVisible();
     // 11. live values: MP and level come from game state, not the printed Start MP
     await expect(tile.locator('[data-cv1-mp]')).toHaveText('35');
-    await expect(tile.locator('.cv1-pill')).toHaveText('L2');
+    await expect(tile.locator('.cv1-pill')).toHaveText('L1');
     await page.evaluate(() => window.__testHooks.setMosjeMP('player_1', 0, 105));
     await expect(page.locator('.mosje-card--owned.card-v1--field [data-cv1-mp]').first()).toHaveText('105');
     // existing interactions survive: ability button still attached to the owned tile

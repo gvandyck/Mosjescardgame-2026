@@ -288,11 +288,10 @@ for (const matchup of DECK_MATCHUPS) {
 
 // ─── VIS-GAME-04: Accelerated game — force near-win, assert exact win reason ─
 
-test('full game: LEVEL_3 win fires INSTANTLY when a quest tips a Mosje over — no end-turn needed', async ({ page }) => {
-	// Regression guard for the "games go to Lvl 4 / no instant You-Won" bug
-	// (2026-06-20). resolveQuest now calls checkVictory, so crossing into Level 3
-	// declares the win in the SAME action — not deferred to the next end-of-turn.
-	test.setTimeout(60000);
+test('full game: reaching Level 3 is NOT an instant win - held Level 3 wins at the next turn start of its owner', async ({ page }) => {
+	// 2.0 hold-Level-3 rule (E7): a quest that lifts a Mosje to Level 3 shows no win;
+	// if it is still Level 3 when its owner's next turn starts, that player wins.
+	test.setTimeout(90000);
 
 	// Guaranteed dice success (roll 6) so the quest always passes its threshold.
 	await mockDiceRoll(page, 0.9999);
@@ -300,22 +299,22 @@ test('full game: LEVEL_3 win fires INSTANTLY when a quest tips a Mosje over — 
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
 
-	// Put the human's Mosje one quest away from winning: Level 2 / 90 MP.
-	// After the 20 MP attempt cost (→70) a +60 quest reward crosses 100 → Level 3.
+	// Put the human's Mosje one quest away from Level 3: Level 2 / 90 MP, a winning quest pushes it past 100.
 	const cardId = await page.evaluate(() => {
 		const gs = window.__testHooks.getGameState();
 		return gs.players.player_1.activeSlots[0]?.cardId;
 	});
 	await page.evaluate((cid) => {
-		window.__testHooks.setMosjeOnField('player_1', 0, cid, { mp: 90, level: 2 });
-		window.__testHooks.injectQuestToTopOfDeck('quest_arm_wrestling'); // +60 MP on success
+		window.__testHooks.setMosjeOnField('player_1', 0, 'mosje_gandoe_destroyer', { mp: 90, level: 2 }); // no quest-success ability (Michelle's Tough Gamble would randomise the MP)
+		window.__testHooks.injectQuestToTopOfDeck('quest_arm_wrestling'); // win +40 MP (>= 10 needed for Level 3)
+		window.__testHooks.setTurnNumber(3); // sidestep the first-turn General Quest lock
 	}, cardId);
 
 	// Attempt the General Quest through the real UI flow.
 	await page.click('#btn-general-quest');
 	await page.waitForTimeout(400);
-	for (const sel of ['#modal-yes', '#modal-attempt', '#modal-roll', '#modal-done']) {
-		const btn = page.locator(sel);
+	for (const sel of ['#modal-yes', '.modal-mosje-select-btn:not(:disabled)', '#modal-attempt', '#modal-roll', '#modal-done']) {
+		const btn = page.locator(sel).first();
 		if (await btn.isVisible({ timeout: 3000 }).catch(() => false)) {
 			// The dice modal must show the attempting Mosje's stats (name + traits).
 			if (sel === '#modal-roll') {
@@ -329,26 +328,33 @@ test('full game: LEVEL_3 win fires INSTANTLY when a quest tips a Mosje over — 
 		}
 	}
 
-	// The win overlay must already be on screen — we have NOT clicked End Turn.
-	await page.waitForSelector('#reward-overlay', { timeout: 5000 });
-	const { title, reason } = await waitForGameOver(page, 3000);
-	await ss(page, 'full-game-instant-level3-win');
+	// Reached Level 3 this turn: NO win overlay yet.
+	await page.waitForTimeout(800);
+	const lvlNow = await page.evaluate(() => window.__testHooks.getGameState().players.player_1.activeSlots[0]?.level);
+	expect(lvlNow).toBe(3);
+	expect(await page.locator('#reward-overlay').count()).toBe(0);
+	await ss(page, 'full-game-level3-no-instant-win');
 
-	// Instant victory for the human, won by reaching Level 3.
+	// Shield the Level 3 Mosje from the bot's random plays (entry protection lasts until
+	// our next turn) so the hold-Level-3 check is deterministic; Level 3 itself was reached via the real quest.
+	await page.evaluate(() => {
+		const sl = window.__testHooks.getGameState().players.player_1.activeSlots[0];
+		window.__testHooks.setMosjeOnField('player_1', 0, sl.cardId, { mp: sl.mp, level: sl.level, entryProtected: true });
+	});
+
+	// End the turn; the bot plays; at the human's next turn start the held Level 3 wins.
+	await page.click('#btn-end-turn');
+	await page.waitForSelector('#reward-overlay', { timeout: 40000 });
+	const { title, reason } = await waitForGameOver(page, 3000);
+	await ss(page, 'full-game-held-level3-win');
 	expect(title).toBe('Victory!');
-	expect(reason.toUpperCase()).toContain('LEVEL 3');
+	expect(reason.toLowerCase()).toContain('held level 3');
 
 	// The end screen embeds the battle log (colour-coded rows) + a Copy Log button.
+	await page.locator('#reward-overlay .reward-log-summary').click(); // log is a collapsed <details>
 	await expect(page.locator('#reward-overlay .reward-log')).toBeVisible();
 	const logRows = await page.locator('#reward-overlay .reward-log .log-row').count();
 	expect(logRows).toBeGreaterThan(3);
 	await expect(page.locator('#reward-copy-btn')).toBeVisible();
 	await ss(page, 'reward-overlay-battle-log');
-
-	// And the Mosje is exactly Level 3 (never overshot to Level 4).
-	const winnerLevel = await page.evaluate(() => {
-		const gs = window.__testHooks.getGameState();
-		return gs.players.player_1.activeSlots[0]?.level;
-	});
-	expect(winnerLevel).toBe(3);
 });

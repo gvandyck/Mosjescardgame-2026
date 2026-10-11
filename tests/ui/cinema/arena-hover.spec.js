@@ -8,7 +8,7 @@ test('arena-style hand hover, field hover popup and action spotlight', async ({ 
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
 	await setMosjeOnField(page, 'player_1', 0, 'mosje_michelle', { mp: 30, level: 1 });
-	await setMosjeOnField(page, 'player_2', 0, 'mosje_michelle', { mp: 20, level: 0 });
+	await setMosjeOnField(page, 'player_2', 0, 'mosje_michelle', { mp: 20, level: 1 });
 	await page.mouse.move(5, 5);
 	await page.waitForTimeout(700);
 	await ss(page, 'arena-1-base');

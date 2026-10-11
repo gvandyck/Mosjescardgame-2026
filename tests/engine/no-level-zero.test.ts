@@ -1,5 +1,5 @@
 // No-Level-0 guard (Phase 54-08, RULE-02): the 2.0 rules have Levels 1-3 only.
-// Static scan of src/**/*.js, tests/**/*.ts and tests/helpers/*.js.
+// Static scan of src/**/*.js, tests/**/*.ts, tests/helpers/*.js and tests/ui/**/*.js.
 // A line may opt out with a `level0-ok` marker (e.g. a test proving Level 0 input is normalised to 1).
 import { describe, expect, it } from 'vitest';
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
@@ -39,6 +39,7 @@ describe('no Level 0 guard', () => {
       ...walk(join(ROOT, 'src'), ['.js']),
       ...walk(join(ROOT, 'tests'), ['.ts']),
       ...walk(join(ROOT, 'tests', 'helpers'), ['.js']),
+      ...walk(join(ROOT, 'tests', 'ui'), ['.js']),
     ];
     const hits = [...new Set(files)].flatMap((file) =>
       readFileSync(file, 'utf8').split('\n')

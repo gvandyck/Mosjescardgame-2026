@@ -30,7 +30,7 @@ test('card frame v1 — click-detail modal shows a large readable card', async (
   await seedOfflineSession(page);
   await page.goto(GAME_URL_TEST);
   await waitForBoard(page);
-  await setMosjeOnField(page, 'player_1', 0, 'mosje_coert_kasteluck', { mp: 30, level: 0 });
+  await setMosjeOnField(page, 'player_1', 0, 'mosje_coert_kasteluck', { mp: 30, level: 1 });
   await setHand(page, 'player_1', ['piecie_kannetje_melk', 'mosje_jisca']);
   await page.waitForTimeout(3500);
 

@@ -45,8 +45,8 @@ test('deck-out turn-skip does not freeze offline play (Binti vs DDR Chris)', asy
 	// contain these Mosjes; here we field them directly. Binti gets a healthy MP buffer
 	// so the bot can't KO her before we reach the skip.
 	await page.evaluate(() => {
-		window.__testHooks.setMosjeOnField('player_1', 0, 'mosje_binti', { mp: 95, level: 0 });
-		window.__testHooks.setMosjeOnField('player_2', 0, 'mosje_chris_ddr', { mp: 50, level: 0 });
+		window.__testHooks.setMosjeOnField('player_1', 0, 'mosje_binti', { mp: 95, level: 1 });
+		window.__testHooks.setMosjeOnField('player_2', 0, 'mosje_chris_ddr', { mp: 50, level: 1 });
 	});
 	const board = await getState(page);
 	expect(board.players.player_1.activeSlots[0].cardId).toBe('mosje_binti');

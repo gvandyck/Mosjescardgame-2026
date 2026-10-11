@@ -30,8 +30,8 @@ test('🎬 Deck-out cinema — discard reshuffles, "DECK RECYCLED" notice plays'
 	await beat('Scene 1 — Binti (you) vs DDR Chris (bot)');
 
 	await page.evaluate(() => {
-		window.__testHooks.setMosjeOnField('player_1', 0, 'mosje_binti', { mp: 95, level: 0 });
-		window.__testHooks.setMosjeOnField('player_2', 0, 'mosje_chris_ddr', { mp: 50, level: 0 });
+		window.__testHooks.setMosjeOnField('player_1', 0, 'mosje_binti', { mp: 95, level: 1 });
+		window.__testHooks.setMosjeOnField('player_2', 0, 'mosje_chris_ddr', { mp: 50, level: 1 });
 	});
 	await ss(page, 'cinema-deckout-1-board');
 	await beat('Binti is healthy at 95 MP — but her deck is about to run dry…');

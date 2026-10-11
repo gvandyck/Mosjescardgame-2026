@@ -16,7 +16,7 @@ test.describe('On-field Mosje ability text clamp', () => {
 		await waitForBoard(page);
 
 		// Force the worst-case long-ability Mosje into the player's slot 0.
-		await setMosjeOnField(page, 'player_1', 0, 'mosje_parkour_west', { mp: 20, level: 0 });
+		await setMosjeOnField(page, 'player_1', 0, 'mosje_parkour_west', { mp: 20, level: 1 });
 
 		const card = page.locator('.mosje-card--owned').first();
 		const btn = card.locator('.mosje-ability-btn');

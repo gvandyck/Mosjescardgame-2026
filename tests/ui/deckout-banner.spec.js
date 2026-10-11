@@ -22,8 +22,8 @@ test('deck-out shows a recycle banner + log line + discard pulse', async ({ page
 
 	// Keep the human alive long enough to reach the reshuffle draw, and arm the deck-out.
 	await page.evaluate(() => {
-		window.__testHooks.setMosjeOnField('player_1', 0, 'mosje_binti', { mp: 95, level: 0 });
-		window.__testHooks.setMosjeOnField('player_2', 0, 'mosje_chris_ddr', { mp: 50, level: 0 });
+		window.__testHooks.setMosjeOnField('player_1', 0, 'mosje_binti', { mp: 95, level: 1 });
+		window.__testHooks.setMosjeOnField('player_2', 0, 'mosje_chris_ddr', { mp: 50, level: 1 });
 		window.__testHooks.emptyDeck('player_1');
 		window.__testHooks.injectGraveyardCard('player_1', 'piecie_affoe');
 		window.__testHooks.injectGraveyardCard('player_1', 'piecie_affoe');

@@ -3,7 +3,7 @@
  *
  * These go beyond single-card assertions: they wire up a precise board with the
  * custom-scenario testHooks (setHand, setMosjeOnField, setMosjeMP, unlockPiecies)
- * and verify interactions — defeat-at-0 KNOCKOUT, MP-amplifier scaling, multi-Mosje
+ * and verify interactions — getemt (sideways, Welloe pile), MP-amplifier scaling, multi-Mosje
  * abilities, MP transfer. Runs in the `cards` project (single browser, gentle).
  *
  * Run: npm run test:cards   (or SLOWMO=400 npm run test:cards:watch to watch)
@@ -36,10 +36,12 @@ async function ownSlot0(page) { return (await getGameState(page))?.players?.play
 async function ownSlot(page, i) { return (await getGameState(page))?.players?.player_1?.activeSlots?.[i]?.mp ?? null; }
 async function ownSlotObj(page, i) { return (await getGameState(page))?.players?.player_1?.activeSlots?.[i] ?? null; }
 
-// ── Chain A: Defeat-at-0 KNOCKOUT (validates Phase 30 in a real win) ─────────
-// Opponent's lone Mosje at 5 MP (Lv0). Affoe drains -15 → below 0 → defeated →
-// all opponent Mosjes gone → KNOCKOUT victory.
-test('chain: Affoe drains opponent below 0 → KNOCKOUT win', async ({ page }) => {
+// ── Chain A: 2.0 getemt (sideways, then Welloe pile) ──────────────────────────
+// Opponent's Level 1 Mosje at 5 MP. Affoe -15 drains it to 0 -> getemt: it turns
+// sideways (stays on the field, takes no action). A second hit sends it to the
+// Welloe pile. It is the opponent's only Mosje on the field, but the game is NOT
+// over: their hand/deck still hold Mosjes (2.0 has no instant defeat-at-0).
+test('chain: Affoe getemt — first hit sideways at 0 MP, second hit to the Welloe pile', async ({ page }) => {
 	test.setTimeout(60000);
 	await seedCustomDeck(page, {
 		id: 'custom_ko_chain', name: 'KO Chain',
@@ -49,25 +51,41 @@ test('chain: Affoe drains opponent below 0 → KNOCKOUT win', async ({ page }) =
 	}, 'PHYSICAL_FORCE');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
-	await clearEntryProtection(page); // U8 — chains model an established board
+	await clearEntryProtection(page); // U8 - chains model an established board
 
 	await setMosjeMP(page, 'player_1', 0, 50);
-	await setMosjeOnField(page, 'player_2', 1, null);   // ensure opponent has only ONE Mosje
-	await setMosjeMP(page, 'player_2', 0, 5);           // lone opponent Mosje at 5 MP, Lv0
+	await setMosjeOnField(page, 'player_2', 1, null);   // opponent has only ONE Mosje on the field
+	await setMosjeMP(page, 'player_2', 0, 5);           // lone opponent Mosje at 5 MP, Level 1
 	await setHand(page, 'player_1', ['piecie_affoe']);
 
 	await playCardFromHand(page, 'piecie_affoe');
 	await page.waitForTimeout(300);
 	await unlockPiecies(page, 'player_1');
-	await activate(page, 'piecie_affoe');               // opp 5 - 15 = below 0 → defeat → KNOCKOUT
+	await activate(page, 'piecie_affoe');               // opp 5 - 15 -> 0, getemt: sideways
+	await page.waitForTimeout(600);
 
-	await page.waitForSelector('#reward-overlay', { timeout: 10000 });
-	const title = (await page.locator('.reward-title').textContent().catch(() => '')).trim();
-	const reason = (await page.locator('.reward-reason').textContent().catch(() => '')).trim();
-	console.log('KO chain result:', title, '|', reason);
-	await ss(page, 'chain-defeat-at-0-knockout');
-	expect(title).toBe('Victory!');
-	expect(reason.toUpperCase()).toContain('KNOCKOUT');
+	let st = await getGameState(page);
+	const oppSlot = st.players.player_2.activeSlots[0];
+	console.log('after hit 1:', JSON.stringify({ mp: oppSlot?.mp, sideways: oppSlot?.sideways, pile: st.players.player_2.welloePile?.length }));
+	expect(oppSlot.mp).toBe(0);
+	expect(oppSlot.sideways).toBe(true);
+	expect(st.players.player_2.welloePile?.length ?? 0).toBe(0);
+	expect(await page.locator('#reward-overlay').count()).toBe(0);   // not a win
+
+	// Second hit on the sideways Mosje -> Welloe pile.
+	await setHand(page, 'player_1', ['piecie_affoe']);
+	await playCardFromHand(page, 'piecie_affoe');
+	await page.waitForTimeout(300);
+	await unlockPiecies(page, 'player_1');
+	await activate(page, 'piecie_affoe');
+	await page.waitForTimeout(800);
+
+	st = await getGameState(page);
+	console.log('after hit 2:', JSON.stringify({ pile: st.players.player_2.welloePile?.length, slot0: st.players.player_2.activeSlots[0]?.cardId ?? null }));
+	expect((st.players.player_2.welloePile ?? []).length).toBeGreaterThanOrEqual(1);
+	await ss(page, 'chain-getemt-welloe-pile');
+	// Opponent still has Mosjes in hand/deck, so the game continues.
+	expect(await page.locator('#reward-overlay').count()).toBe(0);
 });
 
 // ── Chain B: MP Amplifier scales the NEXT gain ×1.5 ──────────────────────────
@@ -128,8 +146,8 @@ test('chain: Tuk Healer targets the chosen Mosje +10, leaves the other untouched
 	await clearEntryProtection(page); // U8 — chains model an established board
 
 	// Ensure Tuk Healer is slot 0, and place a second Mosje in slot 1.
-	await setMosjeOnField(page, 'player_1', 0, 'mosje_tuk_healer', { mp: 30, level: 0 });
-	await setMosjeOnField(page, 'player_1', 1, 'mosje_michelle', { mp: 20, level: 0 });
+	await setMosjeOnField(page, 'player_1', 0, 'mosje_tuk_healer', { mp: 30, level: 1 });
+	await setMosjeOnField(page, 'player_1', 1, 'mosje_michelle', { mp: 20, level: 1 });
 	await page.waitForTimeout(150);
 
 	const before0 = await ownSlot(page, 0);
@@ -168,8 +186,8 @@ test('chain: Tactician moves MP from high Mosje to low (total unchanged)', async
 	await waitForBoard(page);
 	await clearEntryProtection(page); // U8 — chains model an established board
 
-	await setMosjeOnField(page, 'player_1', 0, 'mosje_tactician', { mp: 60, level: 0 });
-	await setMosjeOnField(page, 'player_1', 1, 'mosje_michelle', { mp: 10, level: 0 });
+	await setMosjeOnField(page, 'player_1', 0, 'mosje_tactician', { mp: 60, level: 1 });
+	await setMosjeOnField(page, 'player_1', 1, 'mosje_michelle', { mp: 10, level: 1 });
 	await page.waitForTimeout(150);
 
 	const totalBefore = (await ownSlot(page, 0)) + (await ownSlot(page, 1));
@@ -419,12 +437,11 @@ test('chain: Coert KasteLuck Morning Luck — rolling 4-6 lets the next Piecie a
 	expect(after).toBe(before + 25); // Kannetje Melk's own effect ran
 });
 
-// ── Chain E: Piecie MP gain CAPS at 100 (no level-up) — Phase 31 ─────────────
-// Game rule (phase0-rulings.md): a Mosje's MP is always 0–100; piecies/abilities
-// NEVER permanently level up (only Quests do) and their gains cap at 100.
-// A Lv0/80 Mosje gaining +25 from Kannetje Melk lands at Lv0/100 (capped) — not
-// Lv0/105 and not a level-up. Enforced by applyMPGain cap + normalizeMosjeMp sweep (V4 note, superseded by 2.0 levelling).
-test('chain: piecie MP gain caps at 100 (no level-up)', async ({ page }) => {
+// ── Chain E: Piecie MP gain crossing 100 raises ONE Level (2.0) ───────────────
+// 2.0 rule (applyGainToSlot): reaching 100 MP raises the Mosje one Level and
+// resets MP to 0 (no carry-over). A Level 1 / 80 MP Mosje gaining +25 from
+// Kannetje Melk lands at Level 2 / 0 MP - not 105 MP and not a double level-up.
+test('chain: piecie MP gain crossing 100 raises one Level and resets MP to 0', async ({ page }) => {
 	test.setTimeout(60000);
 	await seedCustomDeck(page, {
 		id: 'custom_levelup_chain', name: 'MP-cap Chain',
@@ -436,7 +453,7 @@ test('chain: piecie MP gain caps at 100 (no level-up)', async ({ page }) => {
 	await waitForBoard(page);
 	await clearEntryProtection(page); // U8 — chains model an established board
 
-	await setMosjeOnField(page, 'player_1', 0, 'mosje_gandoe_destroyer', { mp: 80, level: 0 });
+	await setMosjeOnField(page, 'player_1', 0, 'mosje_gandoe_destroyer', { mp: 80, level: 1 });
 	await setHand(page, 'player_1', ['piecie_kannetje_melk']);
 
 	await playCardFromHand(page, 'piecie_kannetje_melk');
@@ -445,10 +462,10 @@ test('chain: piecie MP gain caps at 100 (no level-up)', async ({ page }) => {
 	await activate(page, 'piecie_kannetje_melk');   // +25 on 80 → should CAP at 100
 
 	const after = await ownSlotObj(page, 0);
-	console.log(`MP-cap chain: → Lv${after.level}/${after.mp} (expected Lv0/100)`);
+	console.log(`MP-cap chain: → Lv${after.level}/${after.mp} (expected Lv2/0)`);
 	await ss(page, 'chain-mp-cap');
-	expect(after.level).toBe(0);                    // piecies never permanently level up
-	expect(after.mp).toBe(100);                     // +25 on 80 capped at 100 (not 105)
+	expect(after.level).toBe(2);                    // exactly one Level up
+	expect(after.mp).toBe(0);                       // MP resets, no carry-over
 });
 
 // ── Chain F: Tikker grants QUEST_BLOCKED → General Quest is blocked ──────────

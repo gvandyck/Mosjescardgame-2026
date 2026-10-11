@@ -811,6 +811,7 @@ function initGamePage() {
 				// bot vs bot: start next player's turn and keep the loop going
 				gameState = startTurn(gameState);
 				renderFromState(gameState);
+				if (gameState.status === 'FINISHED') { handleGameOver(gameState); return; }
 				logTurnTrickle(gameState.activePlayerId);
 				runBotVsBotLoop();
 			}
@@ -845,6 +846,8 @@ function initGamePage() {
 			const beforeHumanTurn = snapshotForAnimation();
 			gameState = startTurn(gameState);
 			renderFromState(gameState);
+			// 2.0: startTurn can end the game (held Level 3) - show the end screen.
+			if (gameState.status === 'FINISHED') { handleGameOver(gameState); return; }
 			animateStateDelta(beforeHumanTurn, gameState, {
 				actorId: localPlayerId,
 				localPlayerId,
