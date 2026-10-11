@@ -20,7 +20,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 - [x] **DATA-07**: The 3 Example Decks ship as 30-card decks (max 2 copies, ★★★★★ max 1, starting Mosje inside).
 
 ### Core rules: Energy, levels, turns (RULE)
-- [ ] **RULE-01**: Each player has an Energy pool: start 2, +1 at the start of own turn, max 6, carries over; it pays for summons, Piecie activations, Snelle, Places and activated abilities; MP is never spent (§2a).
+- [x] **RULE-01**: Each player has an Energy pool: start 2, +1 at the start of own turn, max 6, carries over; it pays for summons, Piecie activations, Snelle, Places and activated abilities; MP is never spent (§2a).
 - [ ] **RULE-02**: Mosjes start at Level 1 with their starting MP; reaching 100 MP raises the level and resets MP to 0 from any MP gain; a Level 3 Mosje's MP stops at 95 (§2b).
 - [ ] **RULE-03**: A loss that leaves a Mosje at 0 MP or less getemts it: Level 2–3 → level −1 at 50 MP; Level 1 → MP 0, sideways, skips its owner's next turn; getemt while sideways → Welloe pile. A loss reduced to 0 is no loss (§2b).
 - [ ] **RULE-04**: A player wins when one of their Mosjes is still at Level 3 at the start of their next turn, and loses when no Mosje is left outside their Welloe pile (§2b).
@@ -103,7 +103,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 | DATA-05 | Phase 53 | Complete |
 | DATA-06 | Phase 53 | Complete |
 | DATA-07 | Phase 53 | Complete |
-| RULE-01 | Phase 54 | Pending |
+| RULE-01 | Phase 54 | Complete |
 | RULE-02 | Phase 54 | Pending |
 | RULE-03 | Phase 54 | Pending |
 | RULE-04 | Phase 54 | Pending |
