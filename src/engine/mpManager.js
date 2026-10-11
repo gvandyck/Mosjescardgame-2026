@@ -1,3 +1,5 @@
+import { isFresh } from './fresh/isFresh.js';
+import { isOpponentSourced } from './fresh/isOpponentSourced.js';
 // mpManager.js — All MP gain, loss, and level-up calculations.
 // Pure logic — no visuals, no Firebase.
 // All functions return an updated copy of gameState (never mutate directly).
@@ -54,7 +56,7 @@ export function gainMP(gameState, playerId, slotIndex, amount, source = 'GAIN') 
 //
 // Returns updated gameState.
 // ─────────────────────────────────────────────────────────────
-export function loseMP(gameState, playerId, slotIndex, amount, source = 'DRAIN', _redirected = false) {
+export function loseMP(gameState, playerId, slotIndex, amount, source = 'DRAIN', _redirected = false, byPlayerId = null) {
   if (amount <= 0) return gameState;
 
   // Welloe Force: if the target is the card owner's Mosje, redirect to stored opponent target.
@@ -67,22 +69,17 @@ export function loseMP(gameState, playerId, slotIndex, amount, source = 'DRAIN',
     const tMosje = gameState.players[tPlayerId]?.activeSlots[tSlotIndex];
     if (tMosje && !tMosje.isDefeated) {
       console.log(`[MP] Welloe Force: redirecting ${amount} damage from ${playerId}_slot_${slotIndex} → ${targetSlotId}`);
-      return loseMP(gameState, tPlayerId, tSlotIndex, amount, source, true);
+      return loseMP(gameState, tPlayerId, tSlotIndex, amount, source, true, byPlayerId);
     }
   }
 
-  // U8 — Entry Protection: a freshly entered Mosje cannot lose MP to effects
-  // inflicted outside its owner's turn (i.e. by opponents) until the owner's
-  // next turn starts. Own-turn losses (quest failMP, self-effects) and cost
-  // payments (U7 — sources containing 'COST') are never blocked.
+  // Fresh (2.0): a fresh Mosje cannot lose MP to anything opponent-sourced
+  // (by byPlayerId, else inferred from whose turn it is). Own losses always apply;
+  // there is no COST bypass (MP is never a cost).
   {
     const targetSlot = gameState.players[playerId]?.activeSlots?.[slotIndex];
-    if (
-      targetSlot?.entryProtected === true
-      && gameState.activePlayerId !== playerId
-      && !String(source).includes('COST')
-    ) {
-      console.log(`[MP] 🛡️ Entry protection: ${targetSlot.name} just entered play — ${amount} MP loss (${source}) fizzled`);
+    if (isFresh(targetSlot) && isOpponentSourced(gameState, playerId, byPlayerId)) {
+      console.log(`[MP] 🛡️ Fresh: ${targetSlot.name} just entered play — ${amount} MP loss (${source}) fizzled`);
       return gameState;
     }
   }
@@ -142,7 +139,7 @@ export function loseMP(gameState, playerId, slotIndex, amount, source = 'DRAIN',
   // ── End snelle interception ───────────────────────────────────────────────
 
   // Obby 2.0: pipeline (§2g) -> subtract -> track -> getemt (§2b), all in one slot-level funnel.
-  const { final, getemt } = applyMpLossToSlot({ state, playerId, slot: mosje, amount, source });
+  const { final, getemt } = applyMpLossToSlot({ state, playerId, slot: mosje, amount, source, byPlayerId });
   if (final <= 0) {
     console.log('[MP] loss reduced to 0 — no loss (§2g)');
     return state;

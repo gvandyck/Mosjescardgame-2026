@@ -8,6 +8,7 @@ import { QUESTS } from '../data/quests.js';
 import { shuffleDeck, buildDeck } from './deckEngine.js';
 import { ENERGY_START } from './energy/energyRules.js';
 import { createMosjeSlot } from './mp/createMosjeSlot.js';
+import { isFresh } from './fresh/isFresh.js';
 import { OPENING_HAND_SIZE } from './setup/setupRules.js';
 import { rollOpeningDice } from './setup/rollOpeningDice.js';
 import { pickStartingMosje } from './setup/pickStartingMosje.js';
@@ -244,7 +245,7 @@ export function getOpponentMosjes(gameState, playerId) {
           owner: pid,
           slotIndex: index,
           // U8 — Entry Protection: target selectors render these disabled.
-          protected: slot.entryProtected === true,
+          protected: isFresh(slot),
         });
       }
     });

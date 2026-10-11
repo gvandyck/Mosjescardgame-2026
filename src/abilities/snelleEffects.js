@@ -232,7 +232,7 @@ export function effect_snelle_jantje_jantje_jantje(gameState, playerId) {
 
 	const oppSlot = opp.activeSlots.findIndex(s => s !== null && !s.isDefeated);
 	const ownSlot = player.activeSlots.findIndex(s => s !== null && !s.isDefeated);
-	if (oppSlot >= 0) state = loseMP(state, oppId, oppSlot, 30, 'DRAIN');
+	if (oppSlot >= 0) state = loseMP(state, oppId, oppSlot, 30, 'DRAIN', false, playerId);
 	if (ownSlot >= 0) applyGainToSlot(state.players[playerId].activeSlots[ownSlot], 30, { turnNumber: state.turnNumber });
 	console.log('[ABILITY] Jantje Jantje Jantje: stole 30 MP from opponent');
 	return state;

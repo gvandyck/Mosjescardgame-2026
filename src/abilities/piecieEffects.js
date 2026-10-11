@@ -10,6 +10,7 @@ import { MOSJES } from '../data/mosjes.js';
 import { createMosjeSlot } from '../engine/mp/createMosjeSlot.js';
 import { applyGainToSlot } from '../engine/mp/applyGainToSlot.js';
 import { applyMpLossToSlot } from '../engine/mp/applyMpLossToSlot.js';
+import { isFresh } from '../engine/fresh/isFresh.js';
 import { PIECIES } from '../data/piecies.js';
 import { addToGraveyard } from '../engine/graveyardUtils.js';
 
@@ -45,9 +46,9 @@ function getOpponentId(state, playerId) {
 
 // applyDamage — thin wrapper over the 2.0 loss funnel (applyMpLossToSlot): §2g pipeline,
 // subtract, tracking, getemt. `playerId` is the OWNER of the slot being hit.
-function applyDamage(state, playerId, mosje, amount, source = 'DRAIN') {
+function applyDamage(state, playerId, mosje, amount, source = 'DRAIN', byPlayerId = null) {
 	if (!mosje || mosje.isDefeated || !(amount > 0)) return { final: 0, getemt: null };
-	return applyMpLossToSlot({ state, playerId, slot: mosje, amount, source });
+	return applyMpLossToSlot({ state, playerId, slot: mosje, amount, source, byPlayerId });
 }
 
 // U8 — Entry Protection: hostile effect damage fizzles against a freshly
@@ -56,11 +57,11 @@ function applyDamage(state, playerId, mosje, amount, source = 'DRAIN') {
 // calling applyDamage directly (costs are never blocked, see U7).
 function applyHostileDamage(state, playerId, mosje, amount) {
 	if (!mosje) return false;
-	if (mosje.entryProtected === true) {
+	if (isFresh(mosje)) {
 		console.log(`[ABILITY] 🛡️ Entry protection: ${mosje.name} just entered play — ${amount} damage fizzled`);
 		return false;
 	}
-	applyDamage(state, playerId, mosje, amount);
+	applyDamage(state, playerId, mosje, amount, 'DRAIN', getOpponentId(state, playerId));
 	return true;
 }
 
@@ -68,7 +69,7 @@ function applyHostileDamage(state, playerId, mosje, amount) {
 // a freshly entered Mosje fizzles. Use for OPPONENT-targeting pushes only —
 // buffs on your own Mosjes are always allowed.
 function pushHostileStatus(mosje, effect, label) {
-	if (mosje.entryProtected === true) {
+	if (isFresh(mosje)) {
 		console.log(`[ABILITY] 🛡️ Entry protection: ${mosje.name} just entered play — ${effect.type} fizzled`);
 		return false;
 	}
@@ -244,7 +245,7 @@ export function effect_affoe(gameState, playerId) {
 	}
 
 	// U8 — whole effect fizzles when the drain target just entered play.
-	if (osi >= 0 && state.players[oppId].activeSlots[osi]?.entryProtected === true) {
+	if (osi >= 0 && isFresh(state.players[oppId].activeSlots[osi])) {
 		console.log('[ABILITY] 🛡️ Entry protection: Affoe fizzled — target just entered play');
 		delete state._pendingTargets;
 		return state;
@@ -287,7 +288,7 @@ export function effect_momentum_diefje(gameState, playerId) {
 	const osi = getFirstActiveSlotIndex(state.players[oppId]);
 	if (si >= 0 && osi >= 0) {
 		// U8 — whole steal fizzles (no damage, no gain) vs a protected target.
-		if (state.players[oppId].activeSlots[osi].entryProtected === true) {
+		if (isFresh(state.players[oppId].activeSlots[osi])) {
 			console.log('[ABILITY] 🛡️ Entry protection: Momentum Diefje fizzled — target just entered play');
 			return state;
 		}
@@ -1254,7 +1255,7 @@ export function effect_klaar_met_jou(gameState, playerId) {
 	const osi = getFirstActiveSlotIndex(opp);
 	if (osi >= 0) {
 		// U8 — whole effect fizzles (no damage, no discard) vs a protected target.
-		if (opp.activeSlots[osi].entryProtected === true) {
+		if (isFresh(opp.activeSlots[osi])) {
 			console.log('[ABILITY] 🛡️ Entry protection: Klaar met jou fizzled — target just entered play');
 			return state;
 		}

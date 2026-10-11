@@ -3,8 +3,14 @@
 import { LOSS_STEPS } from './lossSteps.js';
 import { resolveMpLoss } from './resolveMpLoss.js';
 import { applyGetemt } from './applyGetemt.js';
+import { isFresh } from '../fresh/isFresh.js';
+import { isOpponentSourced } from '../fresh/isOpponentSourced.js';
 
-export function applyMpLossToSlot({ state, playerId, slot, amount, source }) {
+export function applyMpLossToSlot({ state, playerId, slot, amount, source, byPlayerId = null }) {
+  if (isFresh(slot) && isOpponentSourced(state, playerId, byPlayerId)) {
+    console.log(`[MP] 🛡️ Fresh: ${slot.name} — ${amount} MP loss (${source}) fizzled`);
+    return { final: 0, getemt: null };
+  }
   const slotIndex = state.players[playerId].activeSlots.indexOf(slot);
   const ctx = { state, playerId, slot, slotIndex, amount, source, placeId: state.activePlace };
   for (const step of LOSS_STEPS.beforeLoss) step(ctx);

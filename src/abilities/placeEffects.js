@@ -5,6 +5,7 @@ import { PLACES } from '../data/places.js';
 import { getCardById } from '../data/cardIndex.js';
 import { applyGainToSlot } from '../engine/mp/applyGainToSlot.js';
 import { applyMpLossToSlot } from '../engine/mp/applyMpLossToSlot.js';
+import { isFresh } from '../engine/fresh/isFresh.js';
 
 console.log('[ABILITY] placeEffects.js loaded');
 
@@ -14,18 +15,15 @@ function cloneState(state) {
 
 // Thin wrapper over the 2.0 loss funnel. `playerId` is the OWNER of the slot being hit.
 function applyDamage(state, playerId, mosje, amount) {
-	if (!mosje || mosje.isDefeated || !(amount > 0)) return;
+	if (!mosje || mosje.isDefeated || isFresh(mosje) || !(amount > 0)) return;
 	// U8 - Entry Protection: effect damage fizzles against a freshly entered
 	// Mosje (until its owner's next turn starts - cleared in startTurn).
-	if (mosje.entryProtected === true) {
-		console.log(`[ABILITY] Entry protection: ${mosje.name} just entered play - ${amount} damage fizzled`);
-		return;
-	}
 	applyMpLossToSlot({ state, playerId, slot: mosje, amount, source: 'PLACE' });
 }
 
 // Thin wrapper over the 2.0 gain funnel (100+ levels up, Level 3 caps at 95).
 function applyGain(state, mosje, amount) {
+	if (!mosje || isFresh(mosje)) return;
 	return applyGainToSlot(mosje, amount, { turnNumber: state.turnNumber });
 }
 
@@ -34,7 +32,7 @@ export function effect_the_gym(gameState) {
 	for (const playerId of Object.keys(state.players)) {
 		const player = state.players[playerId];
 		for (const mosje of player.activeSlots) {
-			if (!mosje || mosje.isDefeated) continue;
+			if (!mosje || mosje.isDefeated || isFresh(mosje)) continue;
 			const physical = mosje.traits?.physical || 0;
 			const id = String(mosje.cardId || '').toLowerCase();
 			const isCless = id.includes('cless');
@@ -96,7 +94,7 @@ export function effect_bank_chilling(gameState, playerId) {
 	if (!player) return state;
 
 	for (const mosje of player.activeSlots) {
-		if (!mosje || mosje.isDefeated) continue;
+		if (!mosje || mosje.isDefeated || isFresh(mosje)) continue;
 		const social = mosje.traits?.social || 0;
 		if (social >= 2) {
 			applyGain(state, mosje, 15);
@@ -123,7 +121,7 @@ export function effect_obby_1(gameState, questCard, didSucceed) {
 	const player = state.players[playerId];
 
 	for (const mosje of player.activeSlots) {
-		if (!mosje || mosje.isDefeated) continue;
+		if (!mosje || mosje.isDefeated || isFresh(mosje)) continue;
 		const physical = mosje.traits?.physical || 0;
 		const resilient = mosje.traits?.resilient || 0;
 
@@ -150,7 +148,7 @@ export function effect_arcade(gameState, questCard, didSucceed) {
 	const player = state.players[playerId];
 
 	for (const mosje of player.activeSlots) {
-		if (!mosje || mosje.isDefeated) continue;
+		if (!mosje || mosje.isDefeated || isFresh(mosje)) continue;
 		const technical = mosje.traits?.technical || 0;
 
 		if (technical >= 2 && didSucceed) {
@@ -170,7 +168,7 @@ export function effect_zo_is_natuur(gameState) {
 	for (const playerId of Object.keys(state.players)) {
 		const player = state.players[playerId];
 		for (const mosje of player.activeSlots) {
-			if (!mosje || mosje.isDefeated) continue;
+			if (!mosje || mosje.isDefeated || isFresh(mosje)) continue;
 			const bonus = (mosje.traits?.resilient || 0) >= 1 ? 15 : 10;
 			applyGain(state, mosje, bonus);
 			console.log(`[ABILITY] Zo is Natuur: +${bonus} MP`);
@@ -188,7 +186,7 @@ export function effect_the_void(gameState) {
 	for (const playerId of Object.keys(state.players)) {
 		const player = state.players[playerId];
 		for (const mosje of player.activeSlots) {
-			if (!mosje || mosje.isDefeated) continue;
+			if (!mosje || mosje.isDefeated || isFresh(mosje)) continue;
 			applyDamage(state, playerId, mosje, 15);
 			console.log('[ABILITY] The Void: -15 MP drain');
 		}
@@ -281,7 +279,7 @@ export function effect_drain_zone(gameState) {
 		const player = state.players[playerId];
 		for (let i = 0; i < player.activeSlots.length; i++) {
 			const mosje = player.activeSlots[i];
-			if (!mosje || mosje.isDefeated) continue;
+			if (!mosje || mosje.isDefeated || isFresh(mosje)) continue;
 			if (mosje.mp < lowestMp) {
 				lowestMp = mosje.mp;
 				lowestPlayerId = playerId;
@@ -380,7 +378,7 @@ export function effect_boxing_ring(gameState, playerId) {
 	const player = state.players[playerId];
 	if (!player) return state;
 	for (const mosje of player.activeSlots) {
-		if (!mosje || mosje.isDefeated) continue;
+		if (!mosje || mosje.isDefeated || isFresh(mosje)) continue;
 		if (mosje.subtype === 'FIGHTING') {
 			applyGain(state, mosje, 10);
 			console.log('[ABILITY] Boxing Ring: +10 MP (FIGHTING)');
@@ -403,7 +401,7 @@ export function effect_eendjes_voeren(gameState) {
 	for (const playerId of Object.keys(state.players)) {
 		const player = state.players[playerId];
 		for (const mosje of player.activeSlots) {
-			if (!mosje || mosje.isDefeated) continue;
+			if (!mosje || mosje.isDefeated || isFresh(mosje)) continue;
 			const id = String(mosje.cardId).toLowerCase();
 			if (id.includes('michelle')) {
 				applyGain(state, mosje, 10);
@@ -425,7 +423,7 @@ export function effect_de_box(gameState) {
 		let gandoeSlot = null;
 		let michelleSlot = null;
 		for (const mosje of player.activeSlots) {
-			if (!mosje || mosje.isDefeated) continue;
+			if (!mosje || mosje.isDefeated || isFresh(mosje)) continue;
 			const id = String(mosje.cardId).toLowerCase();
 			if (id.includes('gandoe')) {
 				applyGain(state, mosje, 20);
@@ -465,14 +463,14 @@ export function effect_tesla(gameState, playerId) {
 	}
 	let bintiActive = false;
 	for (const mosje of player.activeSlots) {
-		if (!mosje || mosje.isDefeated) continue;
+		if (!mosje || mosje.isDefeated || isFresh(mosje)) continue;
 		const id = String(mosje.cardId).toLowerCase();
 		if (id.includes('coert')) applyGain(state, mosje, 20);
 		if (id.includes('binti')) { applyGain(state, mosje, 20); bintiActive = true; }
 	}
 	if (bintiActive) {
 		for (const mosje of player.activeSlots) {
-			if (!mosje || mosje.isDefeated) continue;
+			if (!mosje || mosje.isDefeated || isFresh(mosje)) continue;
 			const id = String(mosje.cardId).toLowerCase();
 			if (id.includes('coert') || id.includes('binti')) applyGain(state, mosje, 10);
 		}

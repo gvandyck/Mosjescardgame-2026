@@ -128,14 +128,15 @@ describe('U8 — loseMP guard', () => {
     expect(after.players.player_1.activeSlots[0].mp).toBe(30);
   });
 
-  it('cost payments are never blocked, even during the opponent turn (U7)', () => {
+  // 2.0 (Phase 55): the COST source-label bypass is gone (MP is never a cost); fresh is source-based.
+  it('a QUEST_COST-labelled loss from the opponent side no longer bypasses fresh', () => {
     const state = makeState(
       [makeMosje('mosje_binti', 50)],
       [makeMosje('mosje_gandoe_destroyer', 50, { entryProtected: true })],
       'player_1',
     );
     const after = loseMP(state, 'player_2', 0, 20, 'QUEST_COST');
-    expect(after.players.player_2.activeSlots[0].mp).toBe(30);
+    expect(after.players.player_2.activeSlots[0].mp).toBe(50);
   });
 });
 

@@ -9,6 +9,7 @@ import * as piecieEffects from './piecieEffects.js';
 import { PIECIES } from '../data/piecies.js';
 import { applyGainToSlot } from '../engine/mp/applyGainToSlot.js';
 import { applyMpLossToSlot } from '../engine/mp/applyMpLossToSlot.js';
+import { isFresh } from '../engine/fresh/isFresh.js';
 
 console.log('[ABILITY] mosjeAbilities.js loaded');
 
@@ -81,7 +82,7 @@ export function ability_binti_cutting_words(gameState, playerId, discardedCardId
 		const oppIdForGuard = getOpponentId(state, playerId);
 		const oppForGuard = oppIdForGuard ? state.players[oppIdForGuard] : null;
 		const guardSlotIndex = oppForGuard ? getFirstActiveSlotIndex(oppForGuard) : -1;
-		if (guardSlotIndex >= 0 && oppForGuard.activeSlots[guardSlotIndex].entryProtected === true) {
+		if (guardSlotIndex >= 0 && isFresh(oppForGuard.activeSlots[guardSlotIndex])) {
 			throw new Error('Opponent Mosje just entered play — it is protected until their next turn');
 		}
 	}
@@ -102,7 +103,7 @@ export function ability_binti_cutting_words(gameState, playerId, discardedCardId
 	const oppSlotIndex = getFirstActiveSlotIndex(opponent);
 	let finalState = state;
 	if (oppSlotIndex >= 0) {
-		finalState = loseMP(state, opponentId, oppSlotIndex, 10, 'ABILITY');
+		finalState = loseMP(state, opponentId, oppSlotIndex, 10, 'ABILITY', false, playerId);
 		console.log('[ABILITY] Binti Cutting Words: opponent loses 10 MP');
 	}
 
@@ -276,7 +277,7 @@ export function ability_gandoe_destroyer_elimination_strike(gameState, playerId)
 	// U8 — Entry Protection: the locked target (lowest level, no redirect per
 	// U1) just entered play → the whole ability is unusable. The throw is
 	// caught by useMosjeAbility, so the 80 MP cost is not spent.
-	if (opp.activeSlots[targetIndex].entryProtected === true) {
+	if (isFresh(opp.activeSlots[targetIndex])) {
 		throw new Error('Target Mosje just entered play — it is protected until their next turn');
 	}
 
@@ -581,7 +582,7 @@ export function ability_drainer_continuous_drain(gameState, playerId) {
 	if (osi < 0) return state;
 	// U8 — Entry Protection: whole ability fizzles (unusable, no cost) when the
 	// auto-target just entered play. The throw is caught by useMosjeAbility.
-	if (opp.activeSlots[osi].entryProtected === true) {
+	if (isFresh(opp.activeSlots[osi])) {
 		throw new Error('Opponent Mosje just entered play — it is protected until their next turn');
 	}
 	opp.activeSlots[osi].statusEffects.push({ type: 'DRAIN', value: -5, turnsLeft: 3 });
