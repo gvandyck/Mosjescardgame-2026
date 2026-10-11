@@ -134,7 +134,7 @@ Plans:
 **Plans**: 9 plans (7 waves)
 Plans:
 - [x] 56-01-PLAN.md — One-action gate (canMosjeAct), attackMosje by Power, attack trigger registry (E12, E10 attack side; PLAY-02)
-- [ ] 56-02-PLAN.md — Quest dice count/seeded roll, bands, stack tokens/replace/reshuffle (E15, E16, E17 unit)
+- [x] 56-02-PLAN.md — Quest dice count/seeded roll, bands, stack tokens/replace/reshuffle (E15, E16, E17 unit)
 - [ ] 56-03-PLAN.md — Quest attempt: conditions, costs, +1 die rules, roll/resolve, one action (E13, E17, E18, E20; PLAY-01/03/04/05/06)
 - [ ] 56-04-PLAN.md — Quest extras: jab, named bonuses, Vraag Aad, Cheat code, Debug System, Parkeren Delft, Form Alliance (E19; PLAY-07)
 - [ ] 56-05-PLAN.md — Bot: per-Mosje attack-or-Quest by expected MP swing, V4 quest-risk helpers replaced
