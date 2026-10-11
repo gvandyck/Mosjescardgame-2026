@@ -145,3 +145,30 @@ describe("getemt (Obby 2.0 §2b)", () => {
     expect(applyGetemt({ cardId: def.id, level: 1, mp: 0, sideways: true })).toBe("welloe");
   });
 });
+
+// 54-13: Piecie MP losses go through applyMpLossToSlot (T-54-30: right owner).
+// @ts-expect-error — JS module, no type declarations
+import { activatePiecie } from "../../src/engine/turnManager.js";
+// @ts-expect-error — JS module, no type declarations
+import { makePiecieState } from "../helpers/makePiecieState.js";
+
+describe("Piecie losses (54-13)", () => {
+  it("Affoe on an opponent L2 at 10 -> opponent L1 at 50 (getemt)", () => {
+    const st = makePiecieState({ piecieId: "piecie_affoe", foe: { level: 2, mp: 10 } });
+    const r = activatePiecie(st, "player_1", 0);
+    expect(r.success).toBe(true);
+    const foe = r.state.players.player_2.activeSlots[0];
+    expect([foe.level, foe.mp]).toEqual([1, 50]);
+  });
+  it("Affoe on a sideways L1 opponent at 10 -> opponent's Welloe pile", () => {
+    const st = makePiecieState({
+      piecieId: "piecie_affoe",
+      foe: { level: 1, mp: 10 },
+      foeMod: (sl: any) => { sl.sideways = true; },
+    });
+    const r = activatePiecie(st, "player_1", 0);
+    expect(r.state.players.player_2.activeSlots[0]).toBeNull();
+    expect(r.state.players.player_2.welloePile).toHaveLength(1);
+    expect(r.state.players.player_1.welloePile).toHaveLength(0);
+  });
+});

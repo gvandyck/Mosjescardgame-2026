@@ -107,3 +107,38 @@ describe("engine wrappers", () => {
     expect(out.players.player_1.activeSlots[0].level).toBe(2);
   });
 });
+
+// 54-13: Piecie MP gains go through applyGainToSlot (RULE-02/03).
+// @ts-expect-error — JS module, no type declarations
+import { activatePiecie } from "../../src/engine/turnManager.js";
+// @ts-expect-error — JS module, no type declarations
+import { makePiecieState } from "../helpers/makePiecieState.js";
+
+// @ts-expect-error — JS module, no type declarations
+import { effect_kannetje_melk } from "../../src/abilities/piecieEffects.js";
+
+describe("Piecie gains (54-13)", () => {
+  // Called on the bare effect (no checkVictory) so the normaliser backstop cannot mask a missing funnel.
+  it("effect alone: Kannetje Melk on L1 at 95 -> L2 at 0 MP", () => {
+    const st = makePiecieState({ piecieId: "piecie_kannetje_melk", own: { level: 1, mp: 95 } });
+    const s = effect_kannetje_melk(st, "player_1").players.player_1.activeSlots[0];
+    expect([s.level, s.mp]).toEqual([2, 0]);
+  });
+  it("effect alone: Kannetje Melk at L3 90 caps at 95", () => {
+    const st = makePiecieState({ piecieId: "piecie_kannetje_melk", own: { level: 3, mp: 90 } });
+    const s = effect_kannetje_melk(st, "player_1").players.player_1.activeSlots[0];
+    expect([s.level, s.mp]).toEqual([3, 95]);
+  });
+  it("E3 via Piecie: Kannetje Melk on L1 at 95 -> L2 at 0 MP", () => {
+    const st = makePiecieState({ piecieId: "piecie_kannetje_melk", own: { level: 1, mp: 95 } });
+    const r = activatePiecie(st, "player_1", 0);
+    expect(r.success).toBe(true);
+    const s = r.state.players.player_1.activeSlots[0];
+    expect([s.level, s.mp]).toEqual([2, 0]);
+  });
+  it("E7b via Piecie: Kannetje Melk at L3 90 caps at 95", () => {
+    const st = makePiecieState({ piecieId: "piecie_kannetje_melk", own: { level: 3, mp: 90 } });
+    const s = activatePiecie(st, "player_1", 0).state.players.player_1.activeSlots[0];
+    expect([s.level, s.mp]).toEqual([3, 95]);
+  });
+});
