@@ -32,12 +32,12 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 - [x] **RULE-10**: V4 leftovers are removed: Level 0, MP costs, first-turn Quest lock, 4th Piecie slot, 6-card opening hand, the "active Mosje" concept (§2c).
 
 ### Attacking and Quests (PLAY)
-- [ ] **PLAY-01**: Each Mosje takes at most one action per turn: attack OR Quest (§2c).
+- [x] **PLAY-01**: Each Mosje takes at most one action per turn: attack OR Quest (§2c).
 - [x] **PLAY-02**: A non-fresh, upright Mosje can attack one valid opponent Mosje, which loses MP equal to the attacker's current Power (Power 0 = nothing); attack triggers fire (§2d).
-- [ ] **PLAY-03**: Three typed Quest stacks (Fighting 13 / Digital 13 / Artistic 12) each show one face-up Quest; any Mosje may attempt any of them (§2e).
-- [ ] **PLAY-04**: A Quest rolls 1 d6 per ★ of its trait (min 1, max 4) and resolves by its band's need and win/lose MP; Trained needs ★★ and doesn't roll (§2e).
-- [ ] **PLAY-05**: Quest costs are paid before the roll and never refunded; "hand or a ready one" discards accept both (§2e).
-- [ ] **PLAY-06**: Failed attempts add a fail token; a won Quest or one with 2 tokens is replaced from its stack, which reshuffles its own discards when empty (§2e).
+- [x] **PLAY-03**: Three typed Quest stacks (Fighting 13 / Digital 13 / Artistic 12) each show one face-up Quest; any Mosje may attempt any of them (§2e).
+- [x] **PLAY-04**: A Quest rolls 1 d6 per ★ of its trait (min 1, max 4) and resolves by its band's need and win/lose MP; Trained needs ★★ and doesn't roll (§2e).
+- [x] **PLAY-05**: Quest costs are paid before the roll and never refunded; "hand or a ready one" discards accept both (§2e).
+- [x] **PLAY-06**: Failed attempts add a fail token; a won Quest or one with 2 tokens is replaced from its stack, which reshuffles its own discards when empty (§2e).
 - [ ] **PLAY-07**: Quest extras work: jab (10 MP, non-fresh, can getemt), named bonuses, +1 die rules, Vraag Aad, Cheat code draw, Debug System, Parkeren Delft (§2e).
 
 ### Cards on the table (TABLE)
@@ -113,12 +113,12 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 | RULE-08 | Phase 55 | Complete (attack gates read these flags in Phase 56) |
 | RULE-09 | Phase 54 | Complete |
 | RULE-10 | Phase 55 | Complete |
-| PLAY-01 | Phase 56 | Pending |
+| PLAY-01 | Phase 56 | Complete |
 | PLAY-02 | Phase 56 | Complete |
-| PLAY-03 | Phase 56 | Pending |
-| PLAY-04 | Phase 56 | Pending |
-| PLAY-05 | Phase 56 | Pending |
-| PLAY-06 | Phase 56 | Pending |
+| PLAY-03 | Phase 56 | Complete |
+| PLAY-04 | Phase 56 | Complete |
+| PLAY-05 | Phase 56 | Complete |
+| PLAY-06 | Phase 56 | Complete |
 | PLAY-07 | Phase 56 | Pending |
 | TABLE-01 | Phase 55 | Complete |
 | TABLE-02 | Phase 57 | Pending |

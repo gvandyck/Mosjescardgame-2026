@@ -364,22 +364,7 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 	}
 
 	if (!defersMPToUI) {
-		// Bonus MP sources that apply ONLY on success (U6 stack: step 2 —
-		// card-synergy bonus armed by a piecie this turn; step 4 — partner-
-		// synergy bonus from a live board-state pair). Read/consume the
-		// one-shot armed bonus BEFORE any gainMP/loseMP call below reassigns
-		// `state` to a new clone — `player` is only a valid mutation target
-		// on the CURRENT state up until that first reassignment.
-		//   - questBonusMP: armed by snoeiertje/super_saiyan_mos/momentum_boost/
-		//     f1_telemetry ("next successful Quest gives bonus MP"); consumed
-		//     (reset to 0) only when it actually applies, so a FAILED attempt
-		//     leaves it armed for the next try.
-		//   - partner-synergy bonus: live check, e.g. West+Cless "Physical
-		//     Quests give +15 bonus MP" — see getPartnerSynergyQuestBonus().
-		const armedBonus = didSucceed ? (player.questBonusMP || 0) : 0;
-		const questingMosje = player.activeSlots[slotIndex];
-		const synergyBonus = didSucceed ? getPartnerSynergyQuestBonus(state, playerId, questCard.category, questingMosje?.cardId) : 0;
-		if (didSucceed && player.questBonusMP) player.questBonusMP = 0;
+		// Armed/partner-synergy bonus MP is applied by runQuestOutcomeHooks below.
 
 		// Support both old format (successMP/failMP) and new format (onSuccess/onFailure effects)
 		const effects = didSucceed ? (questCard.onSuccess || []) : (questCard.onFailure || []);
@@ -404,17 +389,6 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 				state = loseMP(state, playerId, slotIndex, failValue, 'QUEST');
 			}
 		}
-
-		const totalBonus = armedBonus + synergyBonus;
-		if (totalBonus > 0) {
-			questMpGained += totalBonus;
-			state = gainMP(state, playerId, slotIndex, totalBonus, 'QUEST_BONUS');
-			console.log(`[QUEST] Bonus MP applied: +${totalBonus} (armed=${armedBonus}, partner-synergy=${synergyBonus})`);
-			// Surface the synergy portion to the player-facing battle log (consumed
-			// and cleared by main.js right after logging), so a partner-synergy
-			// bonus isn't silently folded into one combined MP number.
-			if (synergyBonus > 0) state._questSynergyBonus = synergyBonus;
-		}
 	}
 
 	// Draw-on-success (quest-def driven). Use FRESH state — gainMP/loseMP above reassigned `state`.
@@ -437,39 +411,56 @@ export function resolveQuest(gameState, playerId, questCard, didSucceed, targetS
 		}
 	}
 
-	// Mosje auto-abilities that react to quest outcomes (e.g. Michelle Tough Gamble).
-	// Fires before Place effects so the modified MP feeds into Quest Haven bonuses.
-	state = applyMosjeFieldEffectsOnQuest(state, playerId, slotIndex, questMpGained, questCard, didSucceed);
-
-  if (didSucceed) {
-		state.players[playerId].questsCompleted += 1;
-		state.players[playerId].questsCompletedThisTurn += 1;
-
-		// Apply active Place bonuses/penalties for quest success.
-		// Pass slotIndex so Quest Haven (and other places) award the bonus to the
-		// correct Mosje — the one that actually completed the quest.
-		state = applyPlaceEffectsOnQuest(state, playerId, questCard, true, slotIndex);
-
-		// Placeholder hook for persistent Piecies that react to quest outcomes.
-		state = applyPiecieFieldEffectsOnQuest(state, playerId, true);
-
+	state = runQuestOutcomeHooks(state, playerId, slotIndex, questCard, didSucceed, questMpGained, { skipBonus: defersMPToUI });
+	if (didSucceed) {
 		// Personal quest side effects.
 		state = resolvePersonalQuestSideEffects(state, questCard, playerId);
-
-		const liveMosje = state.players[playerId].activeSlots[slotIndex];
-		console.log('[QUEST] Quest success:', questCard.id, '| MP now:', liveMosje?.mp);
-  } else {
-		// Apply active Place bonuses/penalties for quest failure.
-		state = applyPlaceEffectsOnQuest(state, playerId, questCard, false);
-
-		const liveMosje = state.players[playerId].activeSlots[slotIndex];
-		console.log('[QUEST] Quest failed:', questCard.id, '| MP now:', liveMosje?.mp);
-  }
+		console.log('[QUEST] Quest success:', questCard.id, '| MP now:', state.players[playerId].activeSlots[slotIndex]?.mp);
+	} else {
+		console.log('[QUEST] Quest failed:', questCard.id, '| MP now:', state.players[playerId].activeSlots[slotIndex]?.mp);
+	}
 
   // Finalise win conditions in the SAME call so reaching Level 3 (or any other
   // win) is declared instantly — not deferred to the next end-of-turn check.
   // "Call checkVictory() after every state change." — victoryChecker.js
   return checkVictory(state);
+}
+
+// runQuestOutcomeHooks — everything that reacts to a resolved Quest AFTER its base MP was applied:
+// armed questBonusMP + partner-synergy bonus (success only), Mosje auto-abilities, quest counters,
+// Place and Piecie quest effects. Shared by the V4 resolveQuest and the 2.0 resolveQuestAttempt.
+export function runQuestOutcomeHooks(gameState, playerId, slotIndex, questCard, didSucceed, mpGained = 0, { skipBonus = false } = {}) {
+	let state = cloneState(gameState);
+	const player = state.players[playerId];
+	let questMpGained = mpGained;
+	if (!skipBonus) {
+		// questBonusMP is armed by snoeiertje/super_saiyan_mos/momentum_boost/f1_telemetry; consumed only when it applies.
+		const armedBonus = didSucceed ? (player.questBonusMP || 0) : 0;
+		const questingMosje = player.activeSlots[slotIndex];
+		const synergyBonus = didSucceed ? getPartnerSynergyQuestBonus(state, playerId, questCard.category, questingMosje?.cardId) : 0;
+		if (didSucceed && player.questBonusMP) player.questBonusMP = 0;
+		const totalBonus = armedBonus + synergyBonus;
+		if (totalBonus > 0) {
+			questMpGained += totalBonus;
+			state = gainMP(state, playerId, slotIndex, totalBonus, 'QUEST_BONUS');
+			console.log(`[QUEST] Bonus MP applied: +${totalBonus} (armed=${armedBonus}, partner-synergy=${synergyBonus})`);
+			if (synergyBonus > 0) state._questSynergyBonus = synergyBonus;
+		}
+	}
+
+	// Fires before Place effects so the modified MP feeds into Quest Haven bonuses.
+	state = applyMosjeFieldEffectsOnQuest(state, playerId, slotIndex, questMpGained, questCard, didSucceed);
+
+	if (didSucceed) {
+		state.players[playerId].questsCompleted += 1;
+		state.players[playerId].questsCompletedThisTurn += 1;
+		// slotIndex so Quest Haven awards the bonus to the Mosje that completed the quest.
+		state = applyPlaceEffectsOnQuest(state, playerId, questCard, true, slotIndex);
+		state = applyPiecieFieldEffectsOnQuest(state, playerId, true);
+	} else {
+		state = applyPlaceEffectsOnQuest(state, playerId, questCard, false);
+	}
+	return state;
 }
 
 // ─────────────────────────────────────────────────────────────

@@ -1,7 +1,9 @@
 // @ts-nocheck
 // E21 - Obby 2.0 RULE-07 cooldown turn (replaces the V4 deck-out skip).
 import { describe, it, expect } from "vitest";
-import { startTurn, endTurn, phaseDrawCard, playMosje, playPlace, playPiecie, activatePiecie, playSnellie, useMosjeAbility, attemptGeneralQuest, attemptPersonalQuest, activatePersonalQuest, activatePlace } from "../../src/engine/turnManager.js";
+import { startTurn, endTurn, phaseDrawCard, playMosje, playPlace, playPiecie, activatePiecie, playSnellie, useMosjeAbility, activatePersonalQuest, activatePlace } from "../../src/engine/turnManager.js";
+import { rollQuestAttempt } from "../../src/engine/quests/rollQuestAttempt.js";
+import { attackMosje } from "../../src/engine/actions/attackMosje.js";
 import { isCooldownBlocked } from "../../src/engine/turn/isCooldownBlocked.js";
 import { createMosjeSlot } from "../../src/engine/mp/createMosjeSlot.js";
 import { MOSJES } from "../../src/data/mosjes.js";
@@ -43,13 +45,18 @@ describe("E21 - cooldown turn", () => {
       activatePiecie(s, "player_1", 0),
       playSnellie(s, "player_1", { cardId: "x" }, {}),
       useMosjeAbility(s, "player_1", MOSJES[0].id),
-      attemptGeneralQuest(s),
-      attemptPersonalQuest(s, "x"),
       activatePersonalQuest(s, "player_1", 0),
       activatePlace(s, "player_1", 0),
     ];
     for (const r of checks) {
       expect(r.success).toBe(false);
+      expect(r.error).toBe(ERR);
+    }
+    // 2.0 actions (Phase 56) report { ok:false } through the shared canMosjeTakeAction gate.
+    const quest = rollQuestAttempt(s, "player_1", { slotIndex: 0, stackId: "FIGHTING" });
+    const attack = attackMosje(s, "player_1", { attackerSlotIndex: 0, targetPlayerId: "player_2", targetSlotIndex: 0 });
+    for (const r of [quest, attack]) {
+      expect(r.ok).toBe(false);
       expect(r.error).toBe(ERR);
     }
     s.players.player_1.hand = [{ cardId: "piecie_kannetje_melk", type: "PIECIE" }];
