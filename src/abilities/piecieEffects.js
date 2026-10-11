@@ -707,7 +707,7 @@ export function effect_stookerino(gameState, playerId) {
 	opp.graveyard.push({ cardId: discardedId, name: discardedId, type: 'HAND_CARD', source: 'discarded' });
 	const player = state.players[playerId];
 	const si = getFirstActiveSlotIndex(player);
-	if (si >= 0) player.activeSlots[si].mp += discarded.mpCost || 0;
+	if (si >= 0) player.activeSlots[si].mp += discarded.mpCost || 0;  // mpcost-read-ok: gain amount, effect text rewritten in Phase 59
 	console.log('[ABILITY] Stookerino: discarded', discarded.cardId);
 	return state;
 }

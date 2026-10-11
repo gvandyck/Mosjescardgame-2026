@@ -1,41 +1,54 @@
-// mpCost tribute audit ruling regression guard (Phase 36-01).
-// Per the 2026-07-16 ruling audit (.planning/audits/2026-07-16-piecie-snelle-cost-audit.md):
-// every Piecie/Snelle Piecie's mpCost must match what its own printed text actually promises.
-// Only piecie_welloe_force ("Pay 40 MP...") states first-person self-payment; every other
-// currently-nonzero-mpCost card corrects to 0. This test guards against future drift back to
-// a large uncharged-cost surface.
+// No-MP-currency guard (Phase 54-04, RULE-01): MP is never spent. Static scan of the
+// engine, abilities, bot and main.js so no stray path charges MP again.
+// (File name kept from the V4 tribute audit it replaces.)
 import { describe, expect, it } from 'vitest';
+import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { join } from 'node:path';
 // @ts-expect-error — JS module, no type declarations
 import { PIECIES } from '../../src/data/piecies.js';
-// @ts-expect-error — JS module, no type declarations
-import { SNELLE_PIECIES } from '../../src/data/snellePiecies.js';
 
-type Card = { id: string; mpCost: number };
+const ROOT = join(__dirname, '..', '..');
 
-describe('mpCost tribute audit ruling', () => {
-  it('every Piecie except piecie_welloe_force has mpCost === 0', () => {
-    const violations = (PIECIES as Card[])
-      .filter((c) => c.id !== 'piecie_welloe_force' && c.mpCost !== 0)
-      .map((c) => `${c.id}: mpCost=${c.mpCost}`);
-    expect(violations).toEqual([]);
+function walk(dir: string): string[] {
+  return readdirSync(dir).flatMap((name) => {
+    const p = join(dir, name);
+    return statSync(p).isDirectory() ? walk(p) : p.endsWith('.js') ? [p] : [];
+  });
+}
+
+const files = [
+  ...walk(join(ROOT, 'src', 'engine')),
+  ...readdirSync(join(ROOT, 'src', 'abilities')).filter((f) => f.endsWith('.js')).map((f) => join(ROOT, 'src', 'abilities', f)),
+  ...walk(join(ROOT, 'src', 'bot')),
+  join(ROOT, 'src', 'main.js'),
+];
+
+function codeLines(): { file: string; n: number; line: string }[] {
+  return files.flatMap((file) =>
+    readFileSync(file, 'utf8').split('\n')
+      .map((line, i) => ({ file: file.replace(ROOT, ''), n: i + 1, line }))
+      .filter(({ line }) => !line.trim().startsWith('//'))
+  );
+}
+
+describe('no MP currency guard', () => {
+  it('nothing reads .mpCost without the mpcost-read-ok marker', () => {
+    const hits = codeLines().filter(({ line }) => /\.mpCost\b/.test(line) && !line.includes('// mpcost-read-ok:'));
+    expect(hits.map((h) => `${h.file}:${h.n}`)).toEqual([]);
   });
 
-  it('piecie_welloe_force has mpCost === 40', () => {
-    const card = (PIECIES as Card[]).find((c) => c.id === 'piecie_welloe_force');
-    expect(card?.mpCost).toBe(40);
+  it('nothing reads .abilityCost', () => {
+    const hits = codeLines().filter(({ line }) => /\.abilityCost\b/.test(line));
+    expect(hits.map((h) => `${h.file}:${h.n}`)).toEqual([]);
   });
 
-  it('every Snelle Piecie has mpCost === 0', () => {
-    const violations = (SNELLE_PIECIES as Card[])
-      .filter((c) => c.mpCost !== 0)
-      .map((c) => `${c.id}: mpCost=${c.mpCost}`);
-    expect(violations).toEqual([]);
+  it('no loseMP call passes a COST source outside mpManager.js', () => {
+    const hits = codeLines().filter(({ file, line }) =>
+      !file.split('\\').join('/').endsWith('/src/engine/mpManager.js') && /loseMP\(.*COST/.test(line));
+    expect(hits.map((h) => `${h.file}:${h.n}`)).toEqual([]);
   });
 
-  it('exactly 1 card across PIECIES+SNELLE_PIECIES has mpCost > 0', () => {
-    const nonZero = [...(PIECIES as Card[]), ...(SNELLE_PIECIES as Card[])].filter(
-      (c) => c.mpCost > 0
-    );
-    expect(nonZero.map((c) => c.id)).toEqual(['piecie_welloe_force']);
+  it('the mpCost data field still exists for card faces (decision 5)', () => {
+    expect((PIECIES as { mpCost?: number }[]).some((c) => 'mpCost' in c)).toBe(true);
   });
 });

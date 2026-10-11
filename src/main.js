@@ -708,7 +708,7 @@ function initGamePage() {
 			...playableCards.map(def => ({
 				id: def.id,
 				label: def.name,
-				metaLabel: `Cost: ${def.mpCost} MP — ${def.description}`,
+				metaLabel: `Cost: ${def.cost ?? 0} Energy — ${def.description}`,
 			})),
 			{ id: '__pass__', label: 'Pass — take the damage' },
 		];
