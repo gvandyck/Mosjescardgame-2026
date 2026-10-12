@@ -178,7 +178,20 @@ Plans:
 **Tests to add**: E26; card-test-library entries for all 32 Mosjes (Example Deck Mosjes first); §6b chain and Synergy Chamber edge cases.
 **Known gap from Phase 54 (54-07)**: Michelle's Tough Gamble double is applied as two gains, so 40 + 65×2 ends at Level 2 / 65 MP; under 2.0 it must be one gain → Level 2 / 0 MP. Fix the wiring and the assertion in `tests/engine/gandoe-michelle-synergy.test.ts`.
 **Notes**: Synergy texts keep the test-guarded "While <partner> is also on your field:" convention; re-wire `synergyResolver` (and turnManager/questLogic hooks) to the 2.0 pairs.
-**Plans**: TBD
+**Plans**: 12 plans (12 waves, sequential)
+Plans:
+- [ ] 58-01-PLAN.md — Synergy 2.0: isHolderTextActive, passive Synergy Chamber, V4 pairs removed, Senor West / FPS West / Binti / Youri holder texts (EFX-05 part)
+- [ ] 58-02-PLAN.md — Ability framework: rules data, trigger registry, pendingChoice, draw-step pause, chain-safe free activation, one-gain Quest win, dice queue
+- [ ] 58-03-PLAN.md — One data-driven ability UI flow + prompts, ability button from rules, bot defaults (no peeking)
+- [ ] 58-04-PLAN.md — Example Deck 1 Fighting Mosjes; Michelle double = one gain (known gap)
+- [ ] 58-05-PLAN.md — Example Deck 2 Digital Mosjes; FPS West 1 Energy +20/-10, Chris +15, Coert draw step
+- [ ] 58-06-PLAN.md — Jisca, DDR Chris, Cless Teacher on the chain rule; §6b engine chain cases
+- [ ] 58-07-PLAN.md — Tuk Healer, Binti, DJ 80/20 reroll at the Quest after-roll pause
+- [ ] 58-08-PLAN.md — The Tactician (E26, EFX-06), Jeffrey Strongman, Gandoe Destroyer, Martin Driver
+- [ ] 58-09-PLAN.md — Ming Natural, Ming Predictor, Jeffrey Gambler, Youri, Ronald Mastermind (in-effect Energy, free activation)
+- [ ] 58-10-PLAN.md — Ronald Chef, Martin Historian (+ holder), Senor West (+ holder), Coert KasteLuck, Tuk Architect (EFX-05 complete)
+- [ ] 58-11-PLAN.md — Card-test-library: 18 Example-Deck Mosjes headless; Michelle and bulldozer specs
+- [ ] 58-12-PLAN.md — Card tests for the other 14, §6b chain + Synergy Chamber headless, Phase 58 fixmes closed, E1-E30 guard (EFX-01, TEST-01)
 
 ### Phase 59: Piecie Effects
 **Goal**: Every Piecie does what its Card List text says.

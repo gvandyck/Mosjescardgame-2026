@@ -1,0 +1,22 @@
+# Phase 58 - Validation Map
+
+Gate after every plan: `for f in src/main.js src/ui/modalManager.js src/ui/boardRenderer.js src/ui/handRenderer.js src/ui/logRenderer.js src/ui/actionAnimations.js src/ui/actions/*.js; do node --check "$f"; done`, then `npm test` green. Never `npm run test:sim`. Playwright only headless via a temporary `playwright.headless.tmp.config.js` (copy of `playwright.config.js` with `headless: true`, deleted after the run). Never weaken a test; a V4-rule test is rewritten to the Card List text or deleted when the rule is gone (named in the SUMMARY). Every fixme/skip names Phase 59 or 60 and a reason (meta guard).
+
+| Req / test | What it proves | Test file | Command | Plan |
+|---|---|---|---|---|
+| EFX-05 synergy | Holder text works with its 2.0 partner, not without, and without it while Synergy Chamber is in play (fresh holder ignores the Chamber); V4 pairs gone | tests/engine/synergy-2-0.test.ts | `npx vitest run tests/engine/synergy-2-0.test.ts` | 58-01 |
+| Framework | Trigger hooks fire at the right moment; pendingChoice pause/resolve; draw-step pause; dice queue; useMosjeAbility gates (own turn, per game, max per turn, kind) | tests/engine/mosje-triggers.test.ts | `npx vitest run tests/engine/mosje-triggers.test.ts` | 58-02 |
+| EFX-05 chain rule (engine) | A free activation pays no Energy and starts no chain roll or Teaching Moment roll; a normal activation does | tests/engine/free-activation-chain.test.ts | `npx vitest run tests/engine/free-activation-chain.test.ts` | 58-02, 58-06 |
+| Ability data | Every 2.0 Mosje abilityId has a rules entry; activated costs match ABILITY_ENERGY_COSTS | tests/data/mosje-ability-rules.test.ts | `npx vitest run tests/data/mosje-ability-rules.test.ts` | 58-02 |
+| UI flow | Ability button -> data-driven inputs -> engine; pendingChoice and draw-step prompts; opponent hand shown only in the acting player's modal | tests/ui/mosje-ability-flow.spec.js | headless Playwright | 58-03 |
+| EFX-01 Deck 1 | 6 Fighting Mosjes per Card List; Michelle double = one gain (40 + 80 -> Level 2 / 0 MP) | tests/abilities/mosjes-deck1.test.ts, tests/engine/gandoe-michelle-synergy.test.ts | `npx vitest run tests/abilities/mosjes-deck1.test.ts tests/engine/gandoe-michelle-synergy.test.ts` | 58-04 |
+| EFX-01 Deck 2 | 6 Digital Mosjes; FPS West 1 Energy +20/-10; Chris +15 | tests/abilities/mosjes-deck2.test.ts | `npx vitest run tests/abilities/mosjes-deck2.test.ts` | 58-05 |
+| EFX-01 Deck 3 / §6b | Jisca, DDR Chris, Cless; Jisca + DDR on one activation, free Piecie never chains | tests/abilities/mosjes-deck3-chain.test.ts | `npx vitest run tests/abilities/mosjes-deck3-chain.test.ts` | 58-06 |
+| EFX-01 Deck 3 rest | Tuk Healer, Binti (+ food holder), DJ reroll at the Quest after-roll pause | tests/abilities/mosjes-deck3-rest.test.ts | `npx vitest run tests/abilities/mosjes-deck3-rest.test.ts` | 58-07 |
+| E26 / EFX-06 | Tactician 10-75 only; snap-back = real MP + this turn's changes; getemt during the turn works | tests/engine/tactician.test.ts | `npx vitest run tests/engine/tactician.test.ts` | 58-08 |
+| EFX-01 rest A | Jeffrey Strongman, Gandoe Destroyer, Martin Driver | tests/abilities/mosjes-rest-a.test.ts | `npx vitest run tests/abilities/mosjes-rest-a.test.ts` | 58-08 |
+| EFX-01 rest B | Ming Natural, Ming Predictor (stack choice, in-effect Energy), Jeffrey Gambler (stake), Youri (+ DDR holder), Ronald Mastermind | tests/abilities/mosjes-rest-b.test.ts | `npx vitest run tests/abilities/mosjes-rest-b.test.ts` | 58-09 |
+| EFX-01 rest C | Ronald Chef, Martin Historian (+ Cless holder), Senor West, Coert KasteLuck, Tuk Architect | tests/abilities/mosjes-rest-c.test.ts | `npx vitest run tests/abilities/mosjes-rest-c.test.ts` | 58-10 |
+| Card tests ED | 18 Example-Deck Mosjes boot the real game, assert on-screen MP + Energy/hand/Power | tests/ui/cards/mosje-cards-2-0.spec.js (deck entries) | `npx playwright test -c playwright.headless.tmp.config.js tests/ui/cards/mosje-cards-2-0.spec.js` | 58-11 |
+| Card tests rest + §6b | Other 14 Mosjes; Jisca + DDR chain; Synergy Chamber holder without partner; Youri fixmes re-enabled | tests/ui/cards/mosje-cards-2-0.spec.js, tests/ui/cards/mosje-chains-2-0.spec.js, tests/ui/mechanics.spec.js, tests/ui/simulation/chain-tests.spec.js | headless Playwright | 58-12 |
+| TEST-01 | E1-E30 (+E7b) each present in a test title and green | tests/meta/e-tests-index.test.ts | `npm test` | 58-12 |
