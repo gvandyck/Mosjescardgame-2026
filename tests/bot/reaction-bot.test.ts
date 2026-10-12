@@ -80,6 +80,9 @@ describe("driver", () => {
     let s = createInitialGameState(decks, "T", { firstPlayerId: "player_2" });
     s = startTurn(s);
     s.turnNumber = 5;
+    // Deterministic: createInitialGameState deals random face-up Quests; if one was playable the bot
+    // quested instead of attacking (flaky). Pin every stack to an unplayable filler so the attack is the only play.
+    for (const id of ["FIGHTING", "DIGITAL", "ARTISTIC"]) s.questStacks[id] = { deck: ["quest_filler"], faceUp: "quest_filler", tokens: 0, discard: [] };
     s.players.player_2.activeSlots = [mk(50, attackerDef), null];
     s.players.player_2.hand = [];
     s.players.player_1.activeSlots = [mk(50), null];
