@@ -15,9 +15,10 @@ peeking.
 | `botProfiles.js` | Per-duo-deck personality: `riskTolerance`, `comboPatience`, `preferAttack`. Resolved via `player.deckId`; unknown decks get the balanced default. |
 | `comboTags.js` | Card role tags (`multiplier`, `mp-gain`, `quest-prep`, `attack`, `payoff`, …) that drive play/activation ordering. Tuning data, not rules. |
 | `planPiecieActivations.js` | Orders ready Piecie activations: multipliers → MP gains → quest-prep → attacks → rest. Skips quest-prep when no quest follows (the bonus resets at end of turn); patient profiles hold lone `payoff` cards. |
-| `questOdds.js` | Success-chance estimate mirroring the human roll: `d6 + diceBonus >= getQuestDiceThreshold(...)`, plus requirement gates (Speed Run, Chain Master, Momentum Master, …). |
-| `assessQuestRisk.js` | Attempt-or-skip decision. Classifies failure severity (`none/safe/regress/defeat/fatal`), demands higher confidence for worse downsides, leans in when success levels up or wins, shifts by profile `riskTolerance`. Trying a Quest costs no MP in 2.0. |
-| `rollBotQuestDice.js` | The actual roll, identical to the human path: threshold + snelle/prep/Synergy-Chamber bonuses, consumes one-shot flags, spends Skiffa/Tweede-Kans rerolls on failures. |
+| `chooseMosjeAction.js` | Per Mosje: attack OR Quest by best expected MP swing (attack = Power, +bonus on getemt; Quest = p*win - (1-p)*lose, +jab). Legality via the engine (`canMosjeTakeAction`, dry-run `rollQuestAttempt`); never targets fresh/level-up-protected Mosjes. Null = do nothing. |
+| `questWinChance.js` | Exact binomial win chance per band and dice count. |
+| `chooseQuestCostChoice.js` / `chooseQuestChoices.js` | Cheapest legal cost discard; jab target (lowest MP), Vraag Aad, Parkeren Delft picks. |
+| `assessQuestRisk.js` | Only `classifyLossSeverity` / `getRequiredConfidence` remain (fixed-odds gamble judging). Full strategy is Phase 61. |
 | `abilityTiming.js` | When each Mosje ability is worth firing: `early` (Coert KasteLuck, Jisca), `preQuest` (Chris, Youri), `late` (default), `skip` (auto-abilities like Michelle). |
 | `emitBotMetric.js` | `[BOT] METRIC {json}` console lines. Parsed by `tests/ui/simulation/game-collector.js` into the deck-matrix report's **Bot quality** section. |
 

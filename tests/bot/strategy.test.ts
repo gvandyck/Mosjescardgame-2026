@@ -6,19 +6,12 @@
 import { describe, expect, it } from 'vitest';
 
 // @ts-expect-error JS module without type declarations
-import { estimateQuestOdds } from '../../src/bot/strategy/questOdds.js';
-// @ts-expect-error JS module without type declarations
-import { assessQuestRisk, classifyLossSeverity, getRequiredConfidence } from '../../src/bot/strategy/assessQuestRisk.js';
+import { classifyLossSeverity, getRequiredConfidence } from '../../src/bot/strategy/assessQuestRisk.js';
 // @ts-expect-error JS module without type declarations
 import { planPiecieActivations } from '../../src/bot/strategy/planPiecieActivations.js';
 // @ts-expect-error JS module without type declarations
 import { getBotProfile, BOT_PROFILES, DEFAULT_BOT_PROFILE } from '../../src/bot/strategy/botProfiles.js';
-// @ts-expect-error JS module without type declarations
-import { QUESTS } from '../../src/data/quests.js';
 
-const ARM_WRESTLING = (QUESTS as any[]).find(q => q.id === 'quest_arm_wrestling');
-const SPEED_RUN = (QUESTS as any[]).find(q => q.requirementId === 'quest_req_speed_run');
-const MOMENTUM_MASTER = (QUESTS as any[]).find(q => q.requirementId === 'quest_req_momentum_master');
 
 function makeMosje(overrides: Record<string, unknown> = {}) {
   return {
@@ -53,183 +46,6 @@ function makeState(playerOverrides: Record<string, unknown> = {}, stateOverrides
     ...stateOverrides,
   };
 }
-
-// ─────────────────────────────────────────────────────────────
-// estimateQuestOdds
-// ─────────────────────────────────────────────────────────────
-
-describe('estimateQuestOdds', () => {
-  it('uses the real trait threshold: Physical ★★★ on Arm Wrestling → 2+ → 5/6', () => {
-    const state = makeState();
-    const odds = estimateQuestOdds(ARM_WRESTLING, makeMosje({ traits: { physical: 3 } }), state, 'player_2');
-    expect(odds.canAttempt).toBe(true);
-    expect(odds.threshold).toBe(2);
-    expect(odds.pSuccess).toBeCloseTo(5 / 6, 5);
-  });
-
-  it('weak trait raises the threshold: Physical ★ on Arm Wrestling → 5+ → 2/6', () => {
-    const state = makeState();
-    const odds = estimateQuestOdds(ARM_WRESTLING, makeMosje({ traits: { physical: 1 } }), state, 'player_2');
-    expect(odds.threshold).toBe(5);
-    expect(odds.pSuccess).toBeCloseTo(2 / 6, 5);
-  });
-
-  it('questPrepBonus improves the effective odds', () => {
-    const state = makeState({ questPrepBonus: 2 });
-    const weak = makeMosje({ traits: { physical: 1 } }); // base threshold 5
-    const odds = estimateQuestOdds(ARM_WRESTLING, weak, state, 'player_2');
-    expect(odds.diceBonus).toBe(2);
-    expect(odds.pSuccess).toBeCloseTo(4 / 6, 5); // effectively needs 3+
-  });
-
-  it('Speed Run gate blocks after 2 Piecies were played this turn', () => {
-    expect(SPEED_RUN).toBeDefined();
-    const blocked = estimateQuestOdds(
-      SPEED_RUN, makeMosje(), makeState({ pieciesPlayedThisTurn: 2 }), 'player_2');
-    expect(blocked.canAttempt).toBe(false);
-    // gateReason surfaces WHICH named requirement blocked it (2026-07-12) —
-    // this used to flatten into one generic 'requirement-not-met' bucket in
-    // assessQuestRisk's reason field, hiding which of 6 different quest
-    // gates (speed_run/chain_master/sustained_assault/ultimate_challenge/
-    // artistic_expression/momentum_master) was actually firing.
-    expect(blocked.gateReason).toBe('speed-run');
-    const open = estimateQuestOdds(
-      SPEED_RUN, makeMosje(), makeState({ pieciesPlayedThisTurn: 0 }), 'player_2');
-    expect(open.canAttempt).toBe(true);
-    expect(open.gateReason).toBeUndefined();
-  });
-
-  it('Momentum Master: auto-success in the 80-100 MP window, blocked outside it', () => {
-    expect(MOMENTUM_MASTER).toBeDefined();
-    const inWindow = estimateQuestOdds(MOMENTUM_MASTER, makeMosje({ mp: 90 }), makeState(), 'player_2');
-    expect(inWindow.canAttempt).toBe(true);
-    expect(inWindow.autoSuccess).toBe(true);
-    expect(inWindow.pSuccess).toBe(1);
-    const outside = estimateQuestOdds(MOMENTUM_MASTER, makeMosje({ mp: 50 }), makeState(), 'player_2');
-    expect(outside.canAttempt).toBe(false);
-  });
-});
-
-// ─────────────────────────────────────────────────────────────
-// assessQuestRisk
-// ─────────────────────────────────────────────────────────────
-
-describe('assessQuestRisk', () => {
-  const neutral = DEFAULT_BOT_PROFILE;
-
-  it('does not refuse a low-MP Mosje for cost (trying a Quest is free in 2.0)', () => {
-    const mosje = makeMosje({ mp: 5 });
-    const d = assessQuestRisk({
-      questDef: ARM_WRESTLING, mosje, slotIndex: 0,
-      gameState: makeState({ activeSlots: [mosje] }), playerId: 'player_2', profile: neutral,
-    });
-    expect(d.reason).not.toBe('cannot-afford-cost');
-  });
-
-  it('propagates the specific gate name instead of a generic "requirement-not-met"', () => {
-    const mosje = makeMosje({ mp: 50 });
-    const d = assessQuestRisk({
-      questDef: SPEED_RUN, mosje, slotIndex: 0,
-      gameState: makeState({ activeSlots: [mosje], pieciesPlayedThisTurn: 2 }),
-      playerId: 'player_2', profile: neutral,
-    });
-    expect(d.attempt).toBe(false);
-    expect(d.reason).toBe('speed-run');
-  });
-
-  it('attempts a safe, high-odds quest (Physical ★★★, plenty of MP)', () => {
-    const mosje = makeMosje({ mp: 80 });
-    const d = assessQuestRisk({
-      questDef: ARM_WRESTLING, mosje, slotIndex: 0,
-      gameState: makeState({ activeSlots: [mosje] }), playerId: 'player_2', profile: neutral,
-    });
-    expect(d.attempt).toBe(true);
-    expect(d.severity).toBe('safe');
-  });
-
-  it('refuses a quest with a sideways Mosje as the actor (2.0: it takes no action)', () => {
-    const mosje = makeMosje({ mp: 80, traits: { physical: 3 }, sideways: true });
-    const d = assessQuestRisk({
-      questDef: ARM_WRESTLING, mosje, slotIndex: 0,
-      gameState: makeState({ activeSlots: [mosje] }), playerId: 'player_2', profile: neutral,
-    });
-    expect(d.attempt).toBe(false);
-    expect(d.reason).toBe('sideways');
-  });
-
-  it('upright Level 1 whose failure would getemt it is "sideways" severity (not fatal in 2.0)', () => {
-    // mp 10 at roll (2.0: no attempt cost); failMP -20 would getemt a Level 1 Mosje.
-    const mosje = makeMosje({ mp: 10, traits: { physical: 3 } }); // p = 5/6 ≈ 0.83
-    const d = assessQuestRisk({
-      questDef: ARM_WRESTLING, mosje, slotIndex: 0,
-      gameState: makeState({ activeSlots: [mosje], hand: [] }), playerId: 'player_2', profile: neutral,
-    });
-    // WHY changed: V4 treated a lone Level-1 Mosje at risk as 'fatal' (defeat = lose the
-    // game). Under 2.0 getemt of an upright L1 only turns it sideways (MP 0), so the bar is 0.7.
-    expect(d.severity).toBe('sideways');
-    expect(d.attempt).toBe(true); // 0.83 >= 0.7
-  });
-
-  it('a backup Mosje no longer changes the severity (2.0 getemt is not a defeat)', () => {
-    const mosje = makeMosje({ mp: 10, traits: { physical: 3 } });
-    const backup = makeMosje({ cardId: 'mosje_backup', mp: 40 });
-    const d = assessQuestRisk({
-      questDef: ARM_WRESTLING, mosje, slotIndex: 0,
-      gameState: makeState({ activeSlots: [mosje, backup] }), playerId: 'player_2', profile: neutral,
-    });
-    expect(d.severity).toBe('sideways');
-    expect(d.attempt).toBe(true); // 0.83 >= 0.7 required
-  });
-
-  it('risk tolerance separates the decks: GM gambles where CY holds back', () => {
-    // Physical ★★ → threshold 3 → p = 4/6 ≈ 0.667; severity 'sideways' base 0.7.
-    const scenario = () => {
-      const mosje = makeMosje({ mp: 10, traits: { physical: 2 } });
-      const backup = makeMosje({ cardId: 'mosje_backup', mp: 40 });
-      return {
-        questDef: ARM_WRESTLING, mosje, slotIndex: 0,
-        gameState: makeState({ activeSlots: [mosje, backup] }), playerId: 'player_2',
-      };
-    };
-    const gm = assessQuestRisk({ ...scenario(), profile: BOT_PROFILES.DUO_GANDOE_MICHELLE });
-    const cy = assessQuestRisk({ ...scenario(), profile: BOT_PROFILES.DUO_CHRIS_YOURI });
-    expect(gm.attempt).toBe(true);   // required ≈ 0.655
-    expect(cy.attempt).toBe(false);  // required ≈ 0.715
-  });
-
-  it('a success that levels up lowers the required confidence', () => {
-    const base = makeMosje({ mp: 10, traits: { physical: 2 } });
-    const nearLevel = makeMosje({ mp: 42, traits: { physical: 2 } }); // 42 + 60 = 102 → levels
-    const backup = makeMosje({ cardId: 'mosje_backup', mp: 40 });
-    const dBase = assessQuestRisk({
-      questDef: ARM_WRESTLING, mosje: base, slotIndex: 0,
-      gameState: makeState({ activeSlots: [base, backup] }), playerId: 'player_2', profile: neutral,
-    });
-    const dLevel = assessQuestRisk({
-      questDef: ARM_WRESTLING, mosje: nearLevel, slotIndex: 0,
-      gameState: makeState({ activeSlots: [nearLevel, backup] }), playerId: 'player_2', profile: neutral,
-    });
-    expect(dLevel.levelsUp).toBe(true);
-    expect(dLevel.requiredP).toBeLessThan(dBase.requiredP as number);
-  });
-
-  it('folds the West+Cless Physical-quest partner-synergy bonus into the levels-up prediction', () => {
-    // mp 30 at roll; base successMP 60 -> 90 (no level). +15 synergy -> 105 (levels).
-    const west = makeMosje({ cardId: 'mosje_martin_senor_west', mp: 30, traits: { physical: 3 } });
-    const cless = makeMosje({ cardId: 'mosje_azn_cless', mp: 50 });
-    const withPartner = assessQuestRisk({
-      questDef: ARM_WRESTLING, mosje: west, slotIndex: 0,
-      gameState: makeState({ activeSlots: [west, cless] }), playerId: 'player_2', profile: neutral,
-    });
-    const withoutPartner = assessQuestRisk({
-      questDef: ARM_WRESTLING, mosje: west, slotIndex: 0,
-      gameState: makeState({ activeSlots: [west] }), playerId: 'player_2', profile: neutral,
-    });
-    expect(withPartner.levelsUp).toBe(true);
-    expect(withoutPartner.levelsUp).toBe(false);
-    expect(withPartner.requiredP).toBeLessThan(withoutPartner.requiredP as number);
-  });
-});
 
 // ─────────────────────────────────────────────────────────────
 // planPiecieActivations
@@ -368,13 +184,4 @@ describe('getRequiredConfidence', () => {
     expect(wins).toBeLessThan(levels);
   });
 
-  it('Obby 2.0: a Quest that levels a Mosje to Level 3 is never flagged as winning the game', () => {
-    const mosje = makeMosje({ mp: 95, level: 2 });
-    const d = assessQuestRisk({
-      questDef: ARM_WRESTLING, mosje, slotIndex: 0,
-      gameState: makeState({ activeSlots: [mosje] }), playerId: 'player_2', profile: DEFAULT_BOT_PROFILE,
-    });
-    expect(d.levelsUp).toBe(true);
-    expect(d.winsGame).toBe(false);
-  });
 });
