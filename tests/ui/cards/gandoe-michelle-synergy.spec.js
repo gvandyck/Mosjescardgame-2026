@@ -13,13 +13,14 @@ import {
 	setMosjeOnField,
 	clearEntryProtection,
 	getGameState,
-	injectQuestToTopOfDeck,
+	setQuestFaceUp,
+	questViaUi,
 	endTurnAndWait,
 	mockDiceRoll,
 	ss,
 } from '../helpers.js';
 
-const PHYSICAL_QUEST_ID = 'quest_shotje_obby'; // Physical, roll 4+, success +65 MP.
+const PHYSICAL_QUEST_ID = 'quest_arm_wrestling'; // 2.0 FIGHTING stack, Skilled (two 4+), category Physical, win +40 / lose -30.
 
 const PLAYER_DECK = {
 	id: 'custom_gandoe_michelle_synergy_player',
@@ -55,37 +56,9 @@ async function seedDuoScenario(page, playerDeck = PLAYER_DECK, botDeck = BOT_DEC
 	}, { playerDeck, botDeck });
 }
 
-async function startGeneralQuestAttempt(page) {
-	await page.click('#btn-general-quest');
-	const yesBtn = page.locator('#modal-yes');
-	await yesBtn.waitFor({ state: 'visible', timeout: 5000 });
-	await yesBtn.click();
-	await page.waitForTimeout(400);
-}
-
 async function attemptPhysicalQuestWithSlot(page, slotIndex) {
-	await injectQuestToTopOfDeck(page, PHYSICAL_QUEST_ID);
-	await startGeneralQuestAttempt(page);
-	await page.locator(`.modal-mosje-select-btn[data-id="${slotIndex}"]`).click();
-	await page.waitForTimeout(400);
-
-	const attemptBtn = page.locator('#modal-attempt');
-	await attemptBtn.waitFor({ state: 'visible', timeout: 5000 });
-	await attemptBtn.click();
-	await page.waitForTimeout(300);
-
-	const rollBtn = page.locator('#modal-roll');
-	if (await rollBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
-		await rollBtn.click();
-		await page.waitForTimeout(1800);
-	}
-
-	const doneBtn = page.locator('#modal-done');
-	if (await doneBtn.isVisible({ timeout: 4000 }).catch(() => false)) {
-		await doneBtn.click();
-	}
-
-	await page.waitForTimeout(400);
+	await setQuestFaceUp(page, 'FIGHTING', PHYSICAL_QUEST_ID);
+	await questViaUi(page, { slot: slotIndex, stackId: 'FIGHTING' });
 }
 
 async function setupEstablishedTurn(page) {
@@ -154,10 +127,9 @@ test('Scenario C (D-04): Michelle roll 5 never grants the bonus to Gandoe Wizard
 	expect(delta).toBe(0);
 });
 
-// KNOWN GAP (fix in Phase 56): Quest resolution is rewritten (attack-or-Quest, dice bands).
-test.fixme('Scenario D (D-05): Gandoe Physical Quest gains +15 MP while Michelle is on field', async ({ page }) => {
+test('Scenario D (D-05): Gandoe Physical Quest gains +15 MP while Michelle is on field', async ({ page }) => {
 	test.setTimeout(60000);
-	await mockDiceRoll(page, 0.55); // d6 roll 4, enough for quest_shotje_obby.
+	await mockDiceRoll(page, 0.55); // d6 roll 4, enough for the Skilled Quest (two 4+; Gandoe rolls 3 dice).
 	await setupEstablishedTurn(page);
 
 	await setMosjeOnField(page, 'player_1', 0, 'mosje_gandoe_destroyer', { mp: 30, level: 1 });
@@ -167,9 +139,9 @@ test.fixme('Scenario D (D-05): Gandoe Physical Quest gains +15 MP while Michelle
 	await attemptPhysicalQuestWithSlot(page, 0); // Gandoe quests.
 
 	const after = (await getGameState(page)).players.player_1.activeSlots[0].mp;
-	console.log(`Scenario D - Gandoe MP after Physical quest with Michelle present: ${after} (expect 90)`);
+	console.log(`Scenario D - Gandoe MP after Physical quest with Michelle present: ${after} (expect 85)`);
 	await ss(page, 'gandoe-michelle-scenario-d-after');
 
-	// 30 start - 20 quest cost + 65 quest reward + 15 partner synergy = 90.
-	expect(after).toBe(90);
+	// 30 start + 40 Skilled win + 15 partner synergy = 85 (2.0 Quests have no MP entry cost).
+	expect(after).toBe(85);
 });

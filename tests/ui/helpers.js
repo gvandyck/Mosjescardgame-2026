@@ -242,14 +242,61 @@ export async function getGameState(page) {
 }
 
 /**
- * Put a specific quest at the top of the shared general quest deck.
- * Use before clicking General Quest to guarantee a known quest is drawn.
- * questId: e.g. 'quest_arm_wrestling', 'quest_parkour_challenge'
+ * 2.0: put a Quest face-up on its stack (testMode hook). stackId: FIGHTING | DIGITAL | ARTISTIC.
  */
-export async function injectQuestToTopOfDeck(page, questId) {
-	await page.evaluate((id) => {
-		window.__testHooks?.injectQuestToTopOfDeck(id);
-	}, questId);
+export async function setQuestFaceUp(page, stackId, questId) {
+	await page.evaluate(({ s, q }) => window.__testHooks?.setQuestFaceUp(s, q), { s: stackId, q: questId });
+}
+
+/** 2.0: the next Quest dice come from this list (6 = max), then Math.random. */
+export async function setNextDice(page, values) {
+	await page.evaluate((v) => window.__testHooks?.setNextDice(v), values);
+}
+
+/** Click one option (by data-id) in the option-select modal opened by the Attack/Quest flows. */
+export async function clickModalOption(page, id) {
+	const btn = page.locator(`.modal-mosje-select-btn[data-id="${id}"]`);
+	await btn.waitFor({ state: 'visible', timeout: 5000 });
+	await btn.click();
+}
+
+/**
+ * Drive #btn-quest: pick the acting Mosje (slot), pick the Quest stack, then click through the
+ * remaining option modals (cost/die/result screens) by taking `picks` in order, else the first enabled option.
+ */
+export async function questViaUi(page, { slot = 0, stackId = 'FIGHTING', picks = [] } = {}) {
+	await page.click('#btn-quest');
+	await clickModalOption(page, String(slot));
+	await clickModalOption(page, stackId);
+	const queue = [...picks];
+	for (let i = 0; i < 8; i++) {
+		const btn = page.locator('.modal-mosje-select-btn:not([disabled])').first();
+		if (!(await btn.isVisible({ timeout: 800 }).catch(() => false))) break;
+		const want = queue.shift();
+		if (want != null) await clickModalOption(page, want); else await btn.click();
+		await page.waitForTimeout(150);
+	}
+	await page.waitForTimeout(300);
+}
+
+/** Generic Quest attempt for loops/bots: #btn-quest, then the first enabled option in every modal until none is left. */
+export async function questFirstAvailable(page) {
+	await page.click('#btn-quest');
+	for (let i = 0; i < 10; i++) {
+		const btn = page.locator('.modal-mosje-select-btn:not([disabled])').first();
+		if (!(await btn.isVisible({ timeout: 800 }).catch(() => false))) break;
+		await btn.click();
+		await page.waitForTimeout(150);
+	}
+	await page.waitForTimeout(300);
+}
+
+/** Drive #btn-attack: pick the acting Mosje slot, then the target "playerId:slot". */
+export async function attackViaUi(page, { slot = 0, target = 'player_2:0' } = {}) {
+	await page.click('#btn-attack');
+	await clickModalOption(page, String(slot));
+	await clickModalOption(page, target);
+	await page.waitForTimeout(500);
 }
 
 /**

@@ -26,11 +26,12 @@ import {
 	setMosjeMP,
 	playCardFromHand,
 	readHand,
-	mockDiceRoll,
+	mockDiceRoll, questFirstAvailable, questViaUi,
 } from './helpers.js';
 
 // Valid win reasons the overlay must show
-const WIN_REASONS = ['LEVEL_3', 'KNOCKOUT', 'QUEST_MASTER', 'MOMENTUM_DOMINATION'];
+// 2.0 overlay texts: "has no Mosje left outside the Welloe pile" (knockout) and "held Level 3 until their turn"; the V4 ids stay for old logs.
+const WIN_REASONS = ['LEVEL_3', 'KNOCKOUT', 'QUEST_MASTER', 'MOMENTUM_DOMINATION', 'NO_MOSJE_LEFT', 'HELD_LEVEL_3'];
 
 // ─── Shared helpers ───────────────────────────────────────────────────────────
 
@@ -60,44 +61,10 @@ async function playActiveTurn(page, turnIndex) {
 	const overlayAlready = await page.locator('#reward-overlay').isVisible({ timeout: 200 }).catch(() => false);
 	if (overlayAlready) return false;
 
-	// Attempt general quest if button is enabled
-	const questBtn = page.locator('#btn-general-quest');
+	// Attempt a Quest with the first Mosje that can act (2.0: pick Mosje, pick Quest, click through)
+	const questBtn = page.locator('#btn-quest');
 	const questEnabled = await questBtn.evaluate(el => !el.disabled).catch(() => false);
-	if (questEnabled) {
-		await questBtn.click();
-		await page.waitForTimeout(400);
-
-		// Stage 1: confirm
-		const yesBtn = page.locator('#modal-yes');
-		if (await yesBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
-			await yesBtn.click();
-			await page.waitForTimeout(300);
-		}
-		// Stage 1b: choose the Mosje that attempts the Quest (2.0 picker, no MP cost)
-		const pickBtn = page.locator('.modal-mosje-select-btn:not(:disabled)').first();
-		if (await pickBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
-			await pickBtn.click();
-			await page.waitForTimeout(300);
-		}
-		// Stage 2: attempt preview
-		const attemptBtn = page.locator('#modal-attempt');
-		if (await attemptBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-			await attemptBtn.click();
-			await page.waitForTimeout(300);
-		}
-		// Stage 3: dice roll
-		const rollBtn = page.locator('#modal-roll');
-		if (await rollBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-			await rollBtn.click();
-			await page.waitForTimeout(1600);
-		}
-		// Stage 4: continue
-		const doneBtn = page.locator('#modal-done');
-		if (await doneBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-			await doneBtn.click();
-			await page.waitForTimeout(400);
-		}
-	}
+	if (questEnabled) await questFirstAvailable(page);
 
 	// Check if game ended during quest resolution
 	const overlayAfterQuest = await page.locator('#reward-overlay').isVisible({ timeout: 200 }).catch(() => false);
@@ -207,9 +174,7 @@ test('full game: passive — human ends turns until game over (PHYSICAL_FORCE)',
 
 // ─── VIS-GAME-02: Active game — DIGITAL_CONTROL vs PHYSICAL_FORCE ────────────
 
-// KNOWN GAP (fix in Phase 56): the V4 General Quest modal flow (confirm/attempt/roll) is replaced by the
-// attack-or-Quest action; a quest modal stays open and blocks the Piecie play.
-test.fixme('full game: active — human plays quests + piecies each turn (DIGITAL_CONTROL)', async ({ page }) => {
+test('full game: active — human plays quests + piecies each turn (DIGITAL_CONTROL)', async ({ page }) => {
 	test.setTimeout(180000);
 
 	// Mock dice to 0.5 so quest rolls are 4 (boundary success for most quests)
@@ -301,8 +266,6 @@ test('full game: reaching Level 3 is NOT an instant win - held Level 3 wins at t
 	// if it is still Level 3 when its owner's next turn starts, that player wins.
 	test.setTimeout(90000);
 
-	// Guaranteed dice success (roll 6) so the quest always passes its threshold.
-	await mockDiceRoll(page, 0.9999);
 	await seedOfflineSession(page, 'PHYSICAL_FORCE', 'DIGITAL_CONTROL');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
@@ -314,27 +277,13 @@ test('full game: reaching Level 3 is NOT an instant win - held Level 3 wins at t
 	});
 	await page.evaluate((cid) => {
 		window.__testHooks.setMosjeOnField('player_1', 0, 'mosje_gandoe_destroyer', { mp: 90, level: 2 }); // no quest-success ability (Michelle's Tough Gamble would randomise the MP)
-		window.__testHooks.injectQuestToTopOfDeck('quest_arm_wrestling'); // win +40 MP (>= 10 needed for Level 3)
+		window.__testHooks.setQuestFaceUp('FIGHTING', 'quest_tough_it_out'); // Steady win +25 MP (>= 10 needed for Level 3)
+		window.__testHooks.setNextDice([6, 6, 6]); // guaranteed success
 		window.__testHooks.setTurnNumber(3);
 	}, cardId);
 
-	// Attempt the General Quest through the real UI flow.
-	await page.click('#btn-general-quest');
-	await page.waitForTimeout(400);
-	for (const sel of ['#modal-yes', '.modal-mosje-select-btn:not(:disabled)', '#modal-attempt', '#modal-roll', '#modal-done']) {
-		const btn = page.locator(sel).first();
-		if (await btn.isVisible({ timeout: 3000 }).catch(() => false)) {
-			// The dice modal must show the attempting Mosje's stats (name + traits).
-			if (sel === '#modal-roll') {
-				await expect(page.locator('.dice-mosje-name')).toBeVisible();
-				await ss(page, 'dice-modal-mosje-stats');
-				const traitChips = await page.locator('.dice-mosje-trait').count();
-				expect(traitChips).toBeGreaterThan(0);
-			}
-			await btn.click();
-			await page.waitForTimeout(sel === '#modal-roll' ? 1600 : 400);
-		}
-	}
+	// Attempt the Quest through the real 2.0 UI flow (Mosje pick -> Quest pick -> dice screen).
+	await questViaUi(page, { slot: 0, stackId: 'FIGHTING' });
 
 	// Reached Level 3 this turn: NO win overlay yet.
 	await page.waitForTimeout(800);
