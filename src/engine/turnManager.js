@@ -260,7 +260,6 @@ export function startTurn(gameState) {
 
   activePlayer.questsCompletedThisTurn = 0;
   activePlayer.questsAttemptedThisTurn = 0;
-  activePlayer.hasAttemptedQuestThisTurn = false;
   activePlayer.hasRerolledDieThisTurn = false;
   activePlayer.pieciesPlayedThisTurn = 0;
   activePlayer.lastCardPlayedType = null;
@@ -572,85 +571,6 @@ export function endTurn(gameState) {
 }
 
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// attemptGeneralQuest
-// Option A of the Quest Phase.
-// Draws the top card from sharedGeneralQuestDeck.
-// Returns { state, questCard } so the UI can show the quest to the player.
-// The UI will then call confirmQuestResult() to resolve it.
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-export function attemptGeneralQuest(gameState) {
-  let state = JSON.parse(JSON.stringify(gameState));
-  const playerId = state.activePlayerId;
-  if (isCooldownBlocked(state, playerId)) return { state, success: false, questCard: null, error: COOLDOWN_ERROR };
-  const player = state.players[playerId];
-
-  const questHavenActive = state.activePlace === 'place_quest_haven';
-  const maxQuestsThisTurn = questHavenActive ? 2 : 1;
-  const questsAttempted = player.questsAttemptedThisTurn ?? (player.hasAttemptedQuestThisTurn ? 1 : 0);
-
-  if (questsAttempted >= maxQuestsThisTurn) {
-    console.log('[ENGINE] Quest already attempted the maximum times this turn');
-    return { state, questCard: null };
-  }
-
-  if (state.sharedGeneralQuestDeck.length === 0) {
-    if (state.sharedGeneralQuestDiscard.length === 0) {
-      console.log('[ENGINE] General Quest deck and discard are empty');
-      return { state, questCard: null };
-    }
-    console.log('[ENGINE] Shared Quest deck empty — recycling discard pile into deck');
-    state.sharedGeneralQuestDeck = shuffleDeck([...state.sharedGeneralQuestDiscard]);
-    state.sharedGeneralQuestDiscard = [];
-    console.log(`[ENGINE] Recycled ${state.sharedGeneralQuestDeck.length} General Quests back into deck`);
-  }
-
-  const questCard = state.sharedGeneralQuestDeck.shift();
-  console.log('[ENGINE] General Quest drawn:', questCard.cardId);
-
-  player.questsAttemptedThisTurn = questsAttempted + 1;
-  player.hasAttemptedQuestThisTurn = true;
-
-  return { state, questCard };
-}
-
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// attemptPersonalQuest
-// Option B of the Quest Phase.
-// Plays a Personal Quest card from the player's hand.
-// Requires the named Mosje to be on the field (checked by questLogic.js).
-// Returns { state, questCard, eligible }
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-export function attemptPersonalQuest(gameState, questCardId) {
-  let state = JSON.parse(JSON.stringify(gameState));
-  const playerId = state.activePlayerId;
-  if (isCooldownBlocked(state, playerId)) return { state, success: false, questCard: null, eligible: false, error: COOLDOWN_ERROR };
-  const player = state.players[playerId];
-
-  const questHavenActive = state.activePlace === 'place_quest_haven';
-  const maxQuestsThisTurn = questHavenActive ? 2 : 1;
-  const questsAttempted = player.questsAttemptedThisTurn ?? (player.hasAttemptedQuestThisTurn ? 1 : 0);
-
-  if (questsAttempted >= maxQuestsThisTurn) {
-    console.log('[ENGINE] Quest already attempted the maximum times this turn');
-    return { state, questCard: null, eligible: false };
-  }
-
-  const cardIndex = player.hand.findIndex(c => c.cardId === questCardId);
-  if (cardIndex === -1) {
-    console.log('[ENGINE] Personal Quest card not in hand:', questCardId);
-    return { state, questCard: null, eligible: false };
-  }
-
-  const [questCard] = player.hand.splice(cardIndex, 1);
-  player.graveyard.push(toGraveyardEntry(questCard.cardId, 'played'));
-  player.questsAttemptedThisTurn = questsAttempted + 1;
-  player.hasAttemptedQuestThisTurn = true;
-  console.log('[ENGINE] Personal Quest played from hand and moved to discard:', questCardId);
-
-  return { state, questCard, eligible: true };
-}
-
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // playPiecie
 // Places a Piecie card from the active player's hand face-down on the field.
 // cardRef â€” the hand reference object { cardId, type }
@@ -727,91 +647,6 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
 
   state = checkVictory(state);
   return { state, success: true };
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// playPersonalQuest
-// Places a Personal Quest card face-down on the field (like a Piecie).
-// Player must wait one turn before activating (attempting) it.
-// ─────────────────────────────────────────────────────────────────────────────
-export function playPersonalQuest(gameState, playerId, cardRef) {
-  let state = JSON.parse(JSON.stringify(gameState));
-  const player = state.players[playerId];
-  if (!player) return { state, success: false, error: 'Player not found' };
-
-  if (state.activePlayerId !== playerId) {
-    return { state, success: false, error: 'You can only place quests on your own turn' };
-  }
-
-  normalizePiecieSlots(player);
-  if (!Array.isArray(player.hand)) player.hand = [];
-
-  const handIndex = player.hand.findIndex(c => c.cardId === cardRef.cardId);
-  if (handIndex === -1) return { state, success: false, error: 'Card not in hand' };
-
-  const filledSlots = player.piecieSlots.filter(s => s !== null).length;
-  const activePlaceCount = (state.activePlace && state.activePlacePlayedBy === playerId) ? 1 : 0;
-  if (filledSlots + activePlaceCount >= PIECIE_SLOT_COUNT) {
-    return { state, success: false, error: 'No slot available — field is full' };
-  }
-
-  player.hand.splice(handIndex, 1);
-  const emptySlot = player.piecieSlots.findIndex(s => s === null);
-  player.piecieSlots[emptySlot] = {
-    cardId: cardRef.cardId,
-    type: 'QUEST',
-    faceDown: true,
-    activated: false,
-    playedOnTurn: state.turnNumber,
-    canActivateOnTurn: state.turnNumber + 1,
-  };
-
-  console.log(`[ENGINE] Personal Quest placed face-down: ${cardRef.cardId} by ${playerId}`);
-  return { state, success: true };
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// activatePersonalQuest
-// Removes the quest from its piecie slot and marks the attempt so the UI
-// can run the dice-roll flow.
-// ─────────────────────────────────────────────────────────────────────────────
-export function activatePersonalQuest(gameState, playerId, slotIndex) {
-  let state = JSON.parse(JSON.stringify(gameState));
-  const player = state.players[playerId];
-  if (!player) return { state, success: false, error: 'Player not found' };
-  if (isCooldownBlocked(state, playerId)) return { state, success: false, error: COOLDOWN_ERROR };
-
-  if (state.activePlayerId !== playerId) {
-    return { state, success: false, error: 'You can only activate quests on your own turn' };
-  }
-
-  normalizePiecieSlots(player);
-  const slot = player.piecieSlots[slotIndex];
-  if (!slot || slot.type !== 'QUEST') {
-    return { state, success: false, error: 'No Personal Quest in that slot' };
-  }
-
-  const canActivateOnTurn = Number.isFinite(slot.canActivateOnTurn) ? slot.canActivateOnTurn : 0;
-  if (state.turnNumber < canActivateOnTurn) {
-    return { state, success: false, error: 'This Quest can be activated starting next turn' };
-  }
-
-  const questHavenActive = state.activePlace === 'place_quest_haven';
-  const maxQuestsThisTurn = questHavenActive ? 2 : 1;
-  const questsAttempted = player.questsAttemptedThisTurn ?? 0;
-  if (questsAttempted >= maxQuestsThisTurn) {
-    return { state, success: false, error: 'You have already attempted a quest this turn' };
-  }
-
-  const questCardId = slot.cardId;
-  player.piecieSlots[slotIndex] = null;
-  if (!Array.isArray(player.graveyard)) player.graveyard = [];
-  player.graveyard.push(toGraveyardEntry(questCardId, 'played'));
-  player.questsAttemptedThisTurn = questsAttempted + 1;
-  player.hasAttemptedQuestThisTurn = true;
-
-  console.log(`[ENGINE] Personal Quest activated from field: ${questCardId} by ${playerId}`);
-  return { state, success: true, questCardId };
 }
 
 // ─────────────────────────────────────────────────────────────

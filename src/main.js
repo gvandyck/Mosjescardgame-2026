@@ -9,12 +9,13 @@ import { animateFieldActivation, animateStateDelta, showTurnTransition, setAbili
 import { initHoverZoom } from './ui/hoverZoom.js';
 import { initCardTierMotion } from './ui/cardTierMotion.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes, setActivePlace } from './engine/gameState.js';
-import { startTurn, endTurn, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, playPersonalQuest, activatePersonalQuest, activateSynergyWaiver } from './engine/turnManager.js';
+import { startTurn, endTurn, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, activateSynergyWaiver } from './engine/turnManager.js';
 import { OWN_TARGET_EFFECT_IDS } from './engine/targets/ownTargetEffects.js';
 import { runAttackFlow } from './ui/actions/runAttackFlow.js';
 import { runQuestFlow } from './ui/actions/runQuestFlow.js';
 import { isCooldownBlocked } from './engine/turn/isCooldownBlocked.js';
 import { getActivePartnerSynergyBonuses } from './abilities/questLogic.js';
+import { getMingPeekStack } from './abilities/getMingPeekStack.js';
 import { PIECIE_SLOT_COUNT } from './engine/table/tableRules.js';
 import { hasFoodDoubleSynergy } from './engine/synergyResolver.js';
 import { loseMP, gainMP } from './engine/mpManager.js';
@@ -1782,10 +1783,10 @@ function initGamePage() {
 
 		// Ming Predictor — Future Sight: reveal top General Quest, optionally send it to the bottom
 		if (MING_FUTURE_SIGHT_IDS.has(mosjeId)) {
-			const questDeck = gameState.sharedGeneralQuestDeck || [];
-			const topQuest = questDeck[0];
+			const mingStackId = getMingPeekStack(gameState);
+			const topQuest = mingStackId ? gameState.questStacks[mingStackId].deck[0] : null;
 			if (!topQuest) {
-				modal.showInfo('Cannot Use Ability', 'The General Quest deck is empty — nothing to look at.');
+				modal.showInfo('Cannot Use Ability', 'All Quest stacks are empty — nothing to look at.');
 				return;
 			}
 			const topQuestId = topQuest.cardId ?? topQuest;
@@ -1805,6 +1806,7 @@ function initGamePage() {
 			stateWithTarget._pendingTargets = {
 				...(stateWithTarget._pendingTargets || {}),
 				mingSendToBottom: choice === 'bottom',
+				mingStackId,
 			};
 			const { state: newState, success, error } = useMosjeAbility(stateWithTarget, localPlayerId, mosjeId);
 			if (!success) {
@@ -2717,25 +2719,8 @@ function initGamePage() {
 		}
 
 		if (cardType === 'QUEST') {
-			if (gameState.activePlayerId !== localPlayerId) {
-				modal.showInfo('Not Your Turn', 'You can only place quests on your own turn.');
-				return;
-			}
-			if (cardDef.questType !== 'PERSONAL') {
-				modal.showInfo('Cannot Play', 'Only Personal Quests can be placed from your hand.');
-				return;
-			}
-
-			const beforePlay = snapshotForAnimation();
-			const { state: newState, success, error } = playPersonalQuest(gameState, localPlayerId, cardRef);
-			if (!success) {
-				modal.showInfo('Cannot Place', error || 'Cannot place this Quest right now.');
-				return;
-			}
-			gameState = newState;
-			log.add('quest', `Placed ${cardDef.name} face-down. Activate it next turn.`);
-			syncPush();
-			renderAndAnimate(beforePlay, { actionLabel: 'play-personal-quest', placedCardId: cardDef.id });
+			// Obby 2.0: Quests live in the 3 stacks on the table; they are never played from hand.
+			modal.showInfo('Cannot Play', 'Quests are attempted from the Quest stacks, not played from hand.');
 			return;
 		}
 
@@ -3145,8 +3130,7 @@ function sanitizeQuestCardsInPlayerZones(rawState) {
 	}
 
 	if (movedToSharedDiscard.length > 0) {
-		if (!Array.isArray(state.sharedGeneralQuestDiscard)) state.sharedGeneralQuestDiscard = [];
-		state.sharedGeneralQuestDiscard.unshift(...movedToSharedDiscard);
+		// Legacy V4 saves only: stray Quest cards are dropped from player zones (2.0 has no shared Quest discard).
 		console.log(`[UI] Sanitized ${movedToSharedDiscard.length} legacy GENERAL quest card(s) from player zones`);
 	}
 

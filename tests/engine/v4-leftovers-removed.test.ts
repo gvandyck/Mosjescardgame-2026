@@ -8,7 +8,12 @@ import { createInitialGameState } from '../../src/engine/gameState.js';
 import { startTurn } from '../../src/engine/turnManager.js';
 
 const SRC = join(__dirname, '..', '..', 'src');
-const BANNED = ['skipNextTurn', 'Turn trickle', 'TURN TRICKLE', 'splice(0, 6)', 'first-turn-lock', '[null, null, null, null]', "includes('COST')", 'getFirstActiveSlotIndex', 'getFirstActiveMosjeTagSlotIndex'];
+const BANNED = ['skipNextTurn', 'Turn trickle', 'TURN TRICKLE', 'splice(0, 6)', 'first-turn-lock', '[null, null, null, null]', "includes('COST')", 'getFirstActiveSlotIndex', 'getFirstActiveMosjeTagSlotIndex',
+  // Phase 56-08: V4 Quest system (replaced by questStacks / checkQuestCondition / getQuestDiceCount / rollQuestAttempt).
+  // questsAttemptedThisTurn is NOT banned: rollQuestAttempt keeps it as the 2.0 per-turn attempt counter.
+  'sharedGeneralQuest', 'attemptGeneralQuest', 'attemptPersonalQuest', 'playPersonalQuest', 'activatePersonalQuest',
+  'hasAttemptedQuestThisTurn', 'getQuestDiceThreshold', 'checkTraitRoll', 'canAttemptGeneralQuest', 'canAttemptPersonalQuest',
+  'getGeneralQuestBlockReason', 'getFirstActiveMosje(', 'quest_req_'];
 
 function walk(dir: string): string[] {
   return readdirSync(dir).flatMap((n) => {

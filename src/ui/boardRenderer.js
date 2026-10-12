@@ -297,18 +297,6 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 			piecieEl.appendChild(btn);
 		}
 
-		// Add activate button for Personal Quests
-		if (onActivatePiecie && piecie.canActivate && piecie.type === 'QUEST') {
-			const btn = document.createElement('button');
-			btn.className = 'hand-card__play-btn';
-			btn.type = 'button';
-			btn.textContent = 'Activate';
-			btn.addEventListener('click', (event) => {
-				event.stopPropagation();
-				onActivatePiecie(piecie.slotIndex);
-			});
-			piecieEl.appendChild(btn);
-		}
 		bottomPiecies?.appendChild(piecieEl);
 	}
 

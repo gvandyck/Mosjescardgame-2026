@@ -5,7 +5,7 @@
 import { MOSJES } from '../data/mosjes.js';
 import { STARTER_DECKS } from '../data/starterDecks.js';
 import { QUESTS } from '../data/quests.js';
-import { shuffleDeck, buildDeck } from './deckEngine.js';
+import { buildDeck } from './deckEngine.js';
 import { ENERGY_START } from './energy/energyRules.js';
 import { createMosjeSlot } from './mp/createMosjeSlot.js';
 import { isFresh } from './fresh/isFresh.js';
@@ -30,12 +30,6 @@ console.log('[ENGINE] gameState.js loaded');
 export function createInitialGameState(playerConfigs, roomCode, options = {}) {
   console.log('[ENGINE] Creating initial game state for room:', roomCode);
 
-  // Build the shared General Quest deck (shuffle all GENERAL quests)
-  const generalQuests = QUESTS.filter(q => q.questType === 'GENERAL');
-  const sharedGeneralQuestDeck = shuffleDeck(
-    generalQuests.map(q => ({ cardId: q.id, type: 'QUEST' }))
-  );
-
   const players = {};
   for (const config of playerConfigs) {
     players[config.playerId] = createPlayerState(config);
@@ -58,7 +52,7 @@ export function createInitialGameState(playerConfigs, roomCode, options = {}) {
     // Fixed for the whole game — turnNumber is a ROUND counter (increments
     // only when play wraps back to the first player), so turnNumber===1 is
     // true for BOTH players' opening turns. This field is how
-    // canAttemptGeneralQuest tells P1's literal first turn apart from P2's.
+    // the bot/UI tell P1's literal first turn apart from P2's.
     firstPlayerId,
     openingRolls,
     // R5: the first player skips their first draw (consumed in startTurn).
@@ -69,8 +63,6 @@ export function createInitialGameState(playerConfigs, roomCode, options = {}) {
     // Shared zones
     // 2.0 typed Quest stacks (Phase 56 resolves them)
     questStacks: buildQuestStacks(QUESTS),
-    sharedGeneralQuestDeck, // KNOWN GAP (fix in Phase 56)
-    sharedGeneralQuestDiscard: [],
     activePlace: null,           // string card id e.g. 'place_the_gym', or null
     activePlacePlayedBy: null,   // playerId who played the current Place
     activePlaceTurnsActive: 0,   // how many full end-phases have passed since Place was set
@@ -122,12 +114,11 @@ function createPlayerState(config) {
 
     questsCompleted: 0,
     questsCompletedThisTurn: 0,
-    questsAttemptedThisTurn: 0,   // counter; Quest Haven allows up to 2 per turn
+    questsAttemptedThisTurn: 0,   // 2.0: Quest attempts this turn (rollQuestAttempt)
     youriAbilityUses: 0,           // Youri Speed Activate — blocked at 3 per game
     totalDamageTaken: 0,
     questPrepBonus: 0,       // added to next Quest roll by Dubbele Dosis piecie
     questBonusMP: 0,         // next successful Quest gives this bonus MP (momentum_boost etc.)
-    hasAttemptedQuestThisTurn: false,
     hasRerolledDieThisTurn: false,    // DJ 80/20 free reroll tracker
     pieciesPlayedThisTurn: 0,         // chris_ddr combo chain counter
     lastCardPlayedType: null,         // 'PIECIE' | 'SNELLE_PIECIE' | 'QUEST' | null — for jisca
@@ -185,14 +176,6 @@ export function getOpponentIds(gameState, playerId) {
 export function initializeGame(gameState, starterDeckConfigs = null) {
   console.log('[ENGINE] Initializing game');
   const state = JSON.parse(JSON.stringify(gameState));
-
-  // Rebuild shared General Quest deck from all GENERAL quests.
-  // This keeps the center stack canonical and independent from player decks.
-  const generalQuests = QUESTS
-    .filter(q => q.questType === 'GENERAL')
-    .map(q => ({ cardId: q.id, type: 'QUEST' }));
-  state.sharedGeneralQuestDeck = shuffleDeck(generalQuests);
-  state.sharedGeneralQuestDiscard = [];
 
   if (starterDeckConfigs) {
     const cfgByPlayerId = Array.isArray(starterDeckConfigs)

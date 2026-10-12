@@ -142,7 +142,9 @@ describe('Offline game smoke test', () => {
     ];
     // 54-05: levels are 1-3 now, so the shared 0xC0FFEE game ends by a Level-3 win before any
     // deck-out; this test uses its own fixed seed so the cooldown path is reached deterministically.
-    Math.random = mulberry32(0xC0FFEE);
+    // 56-08: seed bumped 0xC0FFEE -> 0xC0FFEF. Removing the V4 shared Quest deck shuffle from createInitialGameState
+    // shifted the seeded RNG sequence, so the old seed now ended by a Level-3 win before any deck-out.
+    Math.random = mulberry32(0xC0FFEF);
     let state: any = createInitialGameState(players, 'DECKOUT_TEST', { firstPlayerId: players[0].playerId }); // 2.0: deterministic
     // Trim both decks to 3 cards so deck-out (and the skip path) triggers within a few turns.
     state.players.player_1.deck = state.players.player_1.deck.slice(0, 3);

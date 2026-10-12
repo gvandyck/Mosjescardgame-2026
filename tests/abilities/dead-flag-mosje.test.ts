@@ -50,7 +50,6 @@ function makeState(slotCardId: string, mp = 100) {
   return {
     activePlayerId: "player_1",
     turnNumber: 3,
-    sharedGeneralQuestDeck: [] as any[],
     players: {
       player_1: makePlayer(slotCardId, mp),
       player_2: makePlayer("mosje_opponent", 100),
@@ -59,16 +58,12 @@ function makeState(slotCardId: string, mp = 100) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Ming — Future Sight: pay 10 MP, peek top shared quest, optionally bottom it
+// Ming — Future Sight: pay 10 MP, peek top Quest of the first non-empty stack (2.0 questStacks), optionally bottom it
 // ─────────────────────────────────────────────────────────────
 describe("Ming Future Sight — top General Quest peek + optional send-to-bottom", () => {
   it("2.0: spends no MP and moves the top quest to the bottom when mingSendToBottom is true", () => {
     const state = makeState("mosje_ming_predictor", 50);
-    state.sharedGeneralQuestDeck = [
-      { cardId: "quest_a" },
-      { cardId: "quest_b" },
-      { cardId: "quest_c" },
-    ];
+    state.questStacks = { FIGHTING: { deck: [{ cardId: "quest_a" }, { cardId: "quest_b" }, { cardId: "quest_c" }], faceUp: null, tokens: 0, discard: [] } };
     state._pendingTargets = { mingSendToBottom: true };
 
     const next = ability_ming_predictor_future_sight(state, "player_1");
@@ -76,7 +71,7 @@ describe("Ming Future Sight — top General Quest peek + optional send-to-bottom
     // 10 MP charged
     expect(next.players.player_1.activeSlots[0].mp).toBe(50); // 2.0: MP is never spent
     // top moved to bottom
-    expect(next.sharedGeneralQuestDeck.map((c: any) => c.cardId)).toEqual([
+    expect(next.questStacks.FIGHTING.deck.map((c: any) => c.cardId)).toEqual([
       "quest_b",
       "quest_c",
       "quest_a",
@@ -85,16 +80,13 @@ describe("Ming Future Sight — top General Quest peek + optional send-to-bottom
 
   it("2.0: spends no MP and leaves quest order unchanged when mingSendToBottom is false", () => {
     const state = makeState("mosje_ming_predictor", 50);
-    state.sharedGeneralQuestDeck = [
-      { cardId: "quest_a" },
-      { cardId: "quest_b" },
-    ];
+    state.questStacks = { FIGHTING: { deck: [{ cardId: "quest_a" }, { cardId: "quest_b" }], faceUp: null, tokens: 0, discard: [] } };
     state._pendingTargets = { mingSendToBottom: false };
 
     const next = ability_ming_predictor_future_sight(state, "player_1");
 
     expect(next.players.player_1.activeSlots[0].mp).toBe(50); // 2.0: MP is never spent
-    expect(next.sharedGeneralQuestDeck.map((c: any) => c.cardId)).toEqual([
+    expect(next.questStacks.FIGHTING.deck.map((c: any) => c.cardId)).toEqual([
       "quest_a",
       "quest_b",
     ]);

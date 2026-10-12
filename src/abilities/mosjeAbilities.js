@@ -2,6 +2,7 @@
 // Each function receives the game state and returns the updated state.
 // Filled in Phase 4.
 
+import { getMingPeekStack } from './getMingPeekStack.js';
 import { drawCards, rollDie } from '../engine/deckEngine.js';
 import { gainMP, loseMP } from '../engine/mpManager.js';
 import { markMosjeDefeated } from '../engine/victoryChecker.js';
@@ -369,8 +370,9 @@ export function ability_ming_predictor_future_sight(gameState, playerId) {
 	const slotIndex = player.activeSlots.findIndex(s => s && !s.isDefeated && String(s.cardId).includes('ming'));
 	if (slotIndex < 0) throw new Error('Ming not on field');
 	// 2.0: no MP cost. The optional 1 Energy (put on bottom) is paid inside the effect — Phase 58 (ABILITY_IN_EFFECT_ENERGY).
-	const deck = state.sharedGeneralQuestDeck || [];
-	if (deck.length === 0) { console.log('[ABILITY] Ming: quest deck empty'); return state; }
+	const stackId = getMingPeekStack(state, state._pendingTargets?.mingStackId);
+	if (!stackId) { console.log('[ABILITY] Ming: all Quest stacks empty'); return state; }
+	const deck = state.questStacks[stackId].deck;
 	// Move-to-bottom decision comes from _pendingTargets.mingSendToBottom (set by UI)
 	if (state._pendingTargets?.mingSendToBottom === true) {
 		const [top] = deck.splice(0, 1);
