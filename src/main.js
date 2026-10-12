@@ -12,6 +12,7 @@ import { createInitialGameState, getOpponentMosjes, getPlayerMosjes, setActivePl
 import { startTurn, endTurn, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, playMosje, useMosjeAbility, canPlayerActNow, activateSynergyWaiver } from './engine/turnManager.js';
 import { OWN_TARGET_EFFECT_IDS } from './engine/targets/ownTargetEffects.js';
 import { isPiecieReady } from './engine/table/isPiecieReady.js';
+import { attackMosje } from './engine/actions/attackMosje.js';
 import { settleReactions } from './ui/actions/settleReactions.js';
 import { runAttackFlow } from './ui/actions/runAttackFlow.js';
 import { runQuestFlow } from './ui/actions/runQuestFlow.js';
@@ -1008,6 +1009,14 @@ function initGamePage() {
 			},
 			// 56-06: the next Quest dice come from this list (6 = max); falls back to Math.random once empty.
 			setNextDice(values) { nextDice = Array.isArray(values) ? [...values] : []; },
+			// Phase 57 (U6): the bot attacks through the real playBotSteps path, so the human reaction window is shown.
+			botAttack(attackerSlotIndex = 0, targetSlotIndex = 0) {
+				gameState.activePlayerId = 'player_2';
+				const res = attackMosje(gameState, 'player_2', { attackerSlotIndex, targetPlayerId: localPlayerId, targetSlotIndex });
+				if (!res.ok) return res.error;
+				playBotSteps([{ state: res.state, label: 'attacks (test)' }], 'Bot', 0, 0, () => {});
+				return 'ok';
+			},
 			getGameState() { return JSON.parse(JSON.stringify(gameState)); },
 			getHandSize(playerId) { return gameState?.players?.[playerId]?.hand?.length ?? -1; },
 			getGraveyardSize(playerId) { return gameState?.players?.[playerId]?.graveyard?.length ?? -1; },

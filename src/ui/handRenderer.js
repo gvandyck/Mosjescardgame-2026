@@ -119,6 +119,13 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 				if (card.type === 'MOSJE') btn.textContent = 'Play';
 				else if (card.type === 'PLACE') btn.textContent = 'Play Place';
 				else btn.textContent = 'PLACE';
+				// Only one Place may be in play: say so on the card instead of failing in a modal.
+				if (isPlace && gameState?.activePlace) {
+					btn.disabled = true;
+					btn.title = 'A Place is already in play';
+					cardEl.classList.add('hand-card--not-playable');
+					cardEl.title = 'A Place is already in play';
+				}
 				btn.addEventListener('click', (e) => {
 					e.stopPropagation();
 					onPlay(card.cardId, card.type);
