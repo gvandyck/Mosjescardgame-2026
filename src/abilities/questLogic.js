@@ -6,7 +6,6 @@
 
 import { rollDie } from '../engine/deckEngine.js';
 import { gainMP, loseMP } from '../engine/mpManager.js';
-import { checkVictory } from '../engine/victoryChecker.js';
 import { roundToFive } from '../engine/roundToFive.js';
 import { applyGainToSlot } from '../engine/mp/applyGainToSlot.js';
 import { applyMpLossToSlot } from '../engine/mp/applyMpLossToSlot.js';
@@ -18,12 +17,9 @@ function cloneState(state) {
   return JSON.parse(JSON.stringify(state));
 }
 
-function getFirstActiveMosjeSlotIndex(player) {
-  return player.activeSlots.findIndex(slot => slot !== null && !slot.isDefeated);
-}
-
+// V4 gate helper, kept only for canAttemptGeneralQuest/canAttemptPersonalQuest (their own tests still use it; cleanup later).
 function getFirstActiveMosje(player) {
-  const idx = getFirstActiveMosjeSlotIndex(player);
+  const idx = player.activeSlots.findIndex(slot => slot !== null && !slot.isDefeated);
   return idx >= 0 ? player.activeSlots[idx] : null;
 }
 
@@ -303,132 +299,9 @@ export function getQuestDiceThreshold(questCard, activeMosje) {
   return roll.thresholds?.[1] ?? 4;
 }
 
-// Resolves the MP result of a quest and updates completion counters.
-// The caller provides didSucceed after rolling/checking requirements.
-export function resolveQuest(gameState, playerId, questCard, didSucceed, targetSlotIndex = -1) {
-	let state = cloneState(gameState);
-	const player = state.players[playerId];
-  if (!player) {
-    console.log('[QUEST] resolveQuest: player not found:', playerId);
-    return state;
-  }
-
-  const firstActive = getFirstActiveMosjeSlotIndex(player);
-  if (firstActive < 0) {
-    console.log('[QUEST] resolveQuest: no active Mosje found for player:', playerId);
-    return state;
-  }
-  const isValidTarget = (
-    typeof targetSlotIndex === 'number' &&
-    targetSlotIndex >= 0 &&
-    player.activeSlots[targetSlotIndex] &&
-    !player.activeSlots[targetSlotIndex].isDefeated
-  );
-  const slotIndex = isValidTarget ? targetSlotIndex : firstActive;
-
-	// Perfect Sync auto-succeeds when requirement gate passed.
-	if (questCard.requirementId === 'quest_req_perfect_sync') {
-		didSucceed = true;
-	}
-
-	// Winston Tijd auto-succeeds — Tesla presence already enforced by canAttemptPersonalQuest
-	if (questCard.id === 'quest_personal_winston_tijd') {
-		didSucceed = true;
-	}
-
-	// Perfect Sync defers gainMP to the UI layer (player picks target mosje after seeing opponent hand)
-	const defersMPToUI = questCard.id === 'quest_personal_perfect_sync' && didSucceed;
-
-	// Track how much MP was actually gained on success — used by Mosje auto-abilities (e.g. Michelle).
-	let questMpGained = 0;
-
-	// Battle Concert: redirect Alyssa's quest-failure damage to an opponent's Mosje (once).
-	// When redirected, the normal failMP application below is skipped so Alyssa is not double-hit.
-	let failRedirected = false;
-	if (!didSucceed && state._battleConcertActive === playerId) {
-		const questingMosje = player.activeSlots[slotIndex];
-		const isAlyssa = questingMosje && String(questingMosje.cardId).includes('alyssa');
-		if (isAlyssa) {
-			const oppId = Object.keys(state.players).find(id => id !== playerId);
-			const oppSlotIndex = oppId
-				? state.players[oppId].activeSlots.findIndex(s => s && !s.isDefeated)
-				: -1;
-			const failAmount = Math.abs(questCard.failMP || 0);
-			if (oppId && oppSlotIndex >= 0 && failAmount > 0) {
-				state = loseMP(state, oppId, oppSlotIndex, failAmount, 'BATTLE_CONCERT');
-				delete state._battleConcertActive;
-				failRedirected = true;
-				console.log('[QUEST] Battle Concert: Alyssa quest-failure damage redirected to opponent');
-			}
-		}
-	}
-
-	if (!defersMPToUI) {
-		// Armed/partner-synergy bonus MP is applied by runQuestOutcomeHooks below.
-
-		// Support both old format (successMP/failMP) and new format (onSuccess/onFailure effects)
-		const effects = didSucceed ? (questCard.onSuccess || []) : (questCard.onFailure || []);
-
-		if (effects.length > 0) {
-			// Extract MP amounts from effect expressions (new format)
-			for (const effect of effects) {
-				if (effect.primitive === 'gainMP' && effect.params?.amount) {
-					if (didSucceed) questMpGained += effect.params.amount;
-					state = gainMP(state, playerId, slotIndex, effect.params.amount);
-				} else if (effect.primitive === 'loseMP' && effect.params?.amount && !failRedirected) {
-					state = loseMP(state, playerId, slotIndex, effect.params.amount, 'QUEST');
-				}
-			}
-		} else {
-			// Fall back to old format (successMP/failMP)
-			if (didSucceed) {
-				questMpGained = questCard.successMP ?? 0;
-				state = gainMP(state, playerId, slotIndex, questCard.successMP);
-			} else if (!failRedirected) {
-				const failValue = Math.abs(typeof questCard.failMP === 'number' ? questCard.failMP : 0);
-				state = loseMP(state, playerId, slotIndex, failValue, 'QUEST');
-			}
-		}
-	}
-
-	// Draw-on-success (quest-def driven). Use FRESH state — gainMP/loseMP above reassigned `state`.
-	if (didSucceed && questCard.drawOnSuccess > 0) {
-		const p = state.players[playerId];
-		for (let i = 0; i < questCard.drawOnSuccess && p.deck.length > 0; i++) {
-			p.hand.push(p.deck.shift());
-		}
-		console.log('[QUEST] drawOnSuccess: drew', questCard.drawOnSuccess);
-	}
-	// Elimination side-effect: opponent's first active Mosje loses MP on success (skipped under The Void).
-	if (didSucceed && questCard.opponentLoseMP > 0) {
-		const oppId = Object.keys(state.players).find(id => id !== playerId);
-		const oppSlotIndex = oppId
-			? state.players[oppId].activeSlots.findIndex(s => s && !s.isDefeated)
-			: -1;
-		if (oppId && oppSlotIndex >= 0) {
-			state = loseMP(state, oppId, oppSlotIndex, questCard.opponentLoseMP, 'QUEST_ELIMINATION');
-			console.log('[QUEST] Elimination Challenge: opponent loses', questCard.opponentLoseMP, 'MP');
-		}
-	}
-
-	state = runQuestOutcomeHooks(state, playerId, slotIndex, questCard, didSucceed, questMpGained, { skipBonus: defersMPToUI });
-	if (didSucceed) {
-		// Personal quest side effects.
-		state = resolvePersonalQuestSideEffects(state, questCard, playerId);
-		console.log('[QUEST] Quest success:', questCard.id, '| MP now:', state.players[playerId].activeSlots[slotIndex]?.mp);
-	} else {
-		console.log('[QUEST] Quest failed:', questCard.id, '| MP now:', state.players[playerId].activeSlots[slotIndex]?.mp);
-	}
-
-  // Finalise win conditions in the SAME call so reaching Level 3 (or any other
-  // win) is declared instantly — not deferred to the next end-of-turn check.
-  // "Call checkVictory() after every state change." — victoryChecker.js
-  return checkVictory(state);
-}
-
 // runQuestOutcomeHooks — everything that reacts to a resolved Quest AFTER its base MP was applied:
 // armed questBonusMP + partner-synergy bonus (success only), Mosje auto-abilities, quest counters,
-// Place and Piecie quest effects. Shared by the V4 resolveQuest and the 2.0 resolveQuestAttempt.
+// Place and Piecie quest effects. Called by the 2.0 resolveQuestAttempt.
 export function runQuestOutcomeHooks(gameState, playerId, slotIndex, questCard, didSucceed, mpGained = 0, { skipBonus = false } = {}) {
 	let state = cloneState(gameState);
 	const player = state.players[playerId];
@@ -600,53 +473,6 @@ function applyPiecieFieldEffectsOnQuest(gameState, playerId, didSucceed) {
 	return state;
 }
 
-function resolvePersonalQuestSideEffects(gameState, questCard, playerId) {
-	let state = cloneState(gameState);
-
-	if (questCard.id === 'quest_personal_perfect_sync' && state.activeQuest) {
-		const opponentId = Object.keys(state.players || {}).find(pid => pid !== playerId);
-		const revealedOpponentHandNames = opponentId
-			? (state.players[opponentId]?.hand || []).map(card => card.cardId || card.id || 'Unknown card')
-			: [];
-		state.activeQuest = {
-			...state.activeQuest,
-			revealOpponentHand: true,
-			revealedOpponentHandNames,
-		};
-		console.log('[QUEST] Perfect Sync side effect — opponent hand revealed');
-	}
-
-	if (questCard.id === 'quest_personal_lucky_crescendo') {
-		for (const [pid, player] of Object.entries(state.players)) {
-			if (pid === playerId) continue;
-			player.activeSlots.forEach((slot, slotIndex) => {
-				if (slot && !slot.isDefeated) {
-					state = loseMP(state, pid, slotIndex, 20);
-				}
-			});
-		}
-		console.log('[QUEST] Lucky Crescendo side effect — all opponents lose 20 MP');
-	}
-
-	if (questCard.id === 'quest_personal_winston_tijd') {
-		// Tesla returns to the player's hand
-		state.activePlace = null;
-		state.players[playerId].hand.push({ cardId: 'place_tesla' });
-		// Recover Varkenspootjes from discard if present
-		const vi = (state.players[playerId].graveyard || []).findIndex(
-			c => (c.cardId || c) === 'piecie_varkenspootjes'
-		);
-		if (vi >= 0) {
-			const [recovered] = state.players[playerId].graveyard.splice(vi, 1);
-			state.players[playerId].hand.push(recovered);
-			console.log('[QUEST] Winston: Varkenspootjes recovered from discard');
-		}
-		console.log('[QUEST] Winston: Tesla returned to hand');
-	}
-
-	return state;
-}
-
 // ─────────────────────────────────────────
 // QUEST REQUIREMENT IMPLEMENTATIONS
 // All return { canAttempt: true/false, diceRoll: number?, threshold: number?, success: true/false? }
@@ -791,7 +617,7 @@ export function quest_req_team_building(questCard, mosje) {
 export function quest_req_artistic_expression(questCard, mosje) {
 	const creative = mosje.traits?.creative || 0;
 	// Auto-succeed for Creative ★★+.
-	// Draw-on-success (2 cards) is wired via the quest-def `drawOnSuccess` field, consumed by resolveQuest.
+	// Draw-on-success (2 cards) is wired via the quest-def `drawOnSuccess` field, (V4 field, no longer consumed).
 	const canAttempt = creative >= 2;
 	return { canAttempt, success: canAttempt };
 }
@@ -991,7 +817,7 @@ export function quest_req_perfect_timing(questCard, mosje) {
 }
 
 export function quest_req_elimination_challenge(questCard, mosje) {
-	// Roll 4+. The opponent-loses-30-MP side effect is driven by the quest-def `opponentLoseMP` field, consumed by resolveQuest on success.
+	// Roll 4+. The opponent-loses-30-MP side effect is driven by the quest-def `opponentLoseMP` field, (V4 field, no longer consumed) on success.
 	const roll = rollDie();
 	return { canAttempt: true, diceRoll: roll, threshold: 4, success: roll >= 4, isElimination: true };
 }
@@ -1025,7 +851,7 @@ export function quest_req_regelaar(questCard, mosje) {
 }
 
 export function quest_req_late_night_questing(questCard, mosje) {
-	// Roll 3+. The draw-2-on-success side effect is driven by the quest-def `drawOnSuccess` field, consumed by resolveQuest.
+	// Roll 3+. The draw-2-on-success side effect is driven by the quest-def `drawOnSuccess` field, (V4 field, no longer consumed).
 	const roll = rollDie();
 	return { canAttempt: true, diceRoll: roll, threshold: 3, success: roll >= 3, drawExtra: 2 };
 }
@@ -1034,14 +860,14 @@ export function quest_req_larry_temmen(questCard, mosje) {
 	// SIMPLIFIED: collapsed 3-way outcome (1-2 lose, 3-4 nothing, 5-6 gain) to standard 2-way roll.
 	// The 3-way variant required resolveQuest to handle a "nothing" middle tier which it doesn't support.
 	// Rolls 5+ = success (gain 40 MP). Rolls 1-4 = fail (standard failMP applies).
-	// DEFERRED: restore 3-way outcome (rolls 3-4 = no effect) once resolveQuest supports a neutral tier.
+	// DEFERRED: restore 3-way outcome (rolls 3-4 = no effect) once the V4 resolver supports a neutral tier.
 	const roll = rollDie();
 	return { canAttempt: true, diceRoll: roll, threshold: 5, success: roll >= 5 };
 }
 
 export function quest_req_geen_raad_vraag_aad(questCard, mosje) {
 	// SIMPLIFIED: replaced UI-prompt guess with a straight roll 4+.
-	// The original requiresUIPrompt return is not handled by resolveQuest, so the quest never resolved.
+	// The original requiresUIPrompt return is not handled by the V4 resolver, so the quest never resolved.
 	// DEFERRED: restore card-guess mechanic (opponent hand reveal + player input) once UI layer supports GUESS_CARD prompts.
 	const roll = rollDie();
 	return { canAttempt: true, diceRoll: roll, threshold: 4, success: roll >= 4 };
