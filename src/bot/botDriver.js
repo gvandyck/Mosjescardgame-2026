@@ -22,7 +22,6 @@ import {
   playPiecie,
   activatePiecie,
   playPlace,
-  activatePlace,
   useMosjeAbility,
   endTurn,
 } from '../engine/turnManager.js';
@@ -360,8 +359,8 @@ export function driveBotTurnSteps(gameState, botPlayerId) {
   // ── Phase E: action phase ──────────────────────────────────────────────────
   if (!finished()) runActionPhase();
 
-  // ── Phase F: play a Place, then activate a face-down Place ───────────────
-  if (!finished()) {
+  // ── Phase F: play a Place from hand (only when none is in play) ───────────────
+  if (!finished() && !state.activePlace) {
     for (const cardRef of [...(state.players[botPlayerId]?.hand || [])]) {
       if (cardRef.type !== 'PLACE') continue;
       const cardDef = PLACE_LOOKUP[cardRef.cardId];
@@ -370,18 +369,6 @@ export function driveBotTurnSteps(gameState, botPlayerId) {
       if (result.success) {
         state = result.state;
         push(`plays Place: ${cardDef.name}`);
-        break;
-      }
-    }
-    const slotsForPlace = state.players[botPlayerId]?.piecieSlots || [];
-    for (let i = 0; i < slotsForPlace.length; i++) {
-      const slot = slotsForPlace[i];
-      if (!slot || slot.type !== 'PLACE' || slot.activated) continue;
-      if (state.turnNumber < (slot.canActivateOnTurn ?? Infinity)) continue;
-      const result = activatePlace(state, botPlayerId, i);
-      if (result.success) {
-        state = result.state;
-        push(`activates Place: ${slot.cardId.replace('place_', '').replace(/_/g, ' ')}`);
         break;
       }
     }

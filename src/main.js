@@ -9,7 +9,7 @@ import { animateFieldActivation, animateStateDelta, showTurnTransition, setAbili
 import { initHoverZoom } from './ui/hoverZoom.js';
 import { initCardTierMotion } from './ui/cardTierMotion.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes, setActivePlace } from './engine/gameState.js';
-import { startTurn, endTurn, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, activateSynergyWaiver } from './engine/turnManager.js';
+import { startTurn, endTurn, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, playMosje, useMosjeAbility, canPlayerActNow, activateSynergyWaiver } from './engine/turnManager.js';
 import { OWN_TARGET_EFFECT_IDS } from './engine/targets/ownTargetEffects.js';
 import { isPiecieReady } from './engine/table/isPiecieReady.js';
 import { runAttackFlow } from './ui/actions/runAttackFlow.js';
@@ -1078,7 +1078,7 @@ function initGamePage() {
 				const before = snap.players?.[playerId]?.activeSlots?.[0]?.mp ?? -1;
 				const after_state = endTurn(snap);
 				const after = after_state.players?.[playerId]?.activeSlots?.[0]?.mp ?? -1;
-				return { before, after, delta: after - before, turnNumber: snap.turnNumber, canActivateOnTurn: snap.activePlaceCanActivateOnTurn };
+				return { before, after, delta: after - before, turnNumber: snap.turnNumber };
 			},
 			// 56-06: put a specific Quest face-up on its stack (testMode only).
 			setQuestFaceUp(stackId, questId) {
@@ -1341,11 +1341,10 @@ function initGamePage() {
 
 		const onUseAbility = (isLocalTurn && !gameOver) ? handleUseAbility : null;
 		const onActivatePiecie = (isLocalTurn && !gameOver) ? handleActivatePiecie : null;
-		const onActivatePlace = (isLocalTurn && !gameOver) ? handleActivatePlace : null;
 		const onOpenDiscard = handleOpenDiscard;
 		const onPlayFromHand = (isLocalTurn && !gameOver) ? handlePlayCard : null;
 		const onActivateSynergyWaiver = (isLocalTurn && !gameOver) ? handleActivateSynergyWaiver : null;
-		renderBoard(boardRoot, uiState, onUseAbility, null, onActivatePiecie, onActivatePlace, onOpenDiscard, onPlayFromHand, onActivateSynergyWaiver);
+		renderBoard(boardRoot, uiState, onUseAbility, null, onActivatePiecie, onOpenDiscard, onPlayFromHand, onActivateSynergyWaiver);
 		if (state._lastPlaceEffect?.placeName) {
 			showPlaceEffectBanner(state._lastPlaceEffect.placeName, state._lastPlaceEffect.description, state._lastPlaceEffect.phase);
 			delete state._lastPlaceEffect;
@@ -2467,37 +2466,6 @@ function initGamePage() {
 		renderAndAnimate(beforeActivate, { actionLabel: 'activate-piecie' });
 	}
 
-	function handleActivatePlace(slotIndex) {
-		if (!gameState || gameState.status === 'FINISHED') return;
-		const beforeActivate = snapshotForAnimation();
-
-		const slots = gameState.players[localPlayerId]?.piecieSlots;
-		console.log(`[UI] handleActivatePlace: slotIndex=${slotIndex}`);
-		console.log(`[UI] piecieSlots at place activation:`, Array.isArray(slots)
-			? slots.map((s, i) => s ? `[${i}] ${s.cardId} (${s.type})` : `[${i}] null`).join(' | ')
-			: String(slots));
-		const { state: newState, success, error, cardDef } = activatePlace(gameState, localPlayerId, slotIndex);
-		if (!success) {
-			modal.showInfo('Cannot Activate', error || 'That Place cannot be activated right now.');
-			return;
-		}
-		animateFieldActivation({
-			zone: 'piecie',
-			playerId: localPlayerId,
-			slotIndex,
-			cardId: slots?.[slotIndex]?.cardId,
-			colorCategory: 'place',   // green — a Place is being activated
-		});
-		gameState = newState;
-
-		const activatedName = cardDef?.name || 'Place';
-		log.add('gain', `Activated ${activatedName}.`);
-		if (cardDef?.description) log.add('info', cardDef.description);
-		logStateOutcome(log, beforeActivate, gameState, localPlayerId, `${activatedName} activation`);
-		syncPush();
-		renderAndAnimate(beforeActivate, { actionLabel: 'activate-place' });
-	}
-
 	function handleOpenDiscard(playerId, isOwned) {
 		try {
 			console.log('[UI] handleOpenDiscard called for player:', playerId, 'isOwned:', isOwned);
@@ -2751,8 +2719,7 @@ function initGamePage() {
 				handleGameOver(gameState);
 			}
 			renderAndAnimate(beforePlay, { actionLabel: 'play-place', placedCardId: cardDef.id });
-			// (Green burst fires on ACTIVATION — see handleActivatePlace — since a Place
-			//  is played face-down and only renders as active once activated.)
+			// A Place works at once when played from hand (E24); 'play-place' is an activation label.
 		}
 	}
 }

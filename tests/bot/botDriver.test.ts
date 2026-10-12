@@ -225,18 +225,30 @@ describe('driveBotTurn', () => {
     expect((result.players.player_2.activeSlots as any[])[0].actedThisTurn).toBe(true);
   });
 
-  // Test 5: hand has one PLACE, slot available — piecieSlots contains a PLACE type entry (face-down)
-  it('hand has one PLACE, slot available — piecieSlots has a PLACE entry', () => {
-    const placeId = (PLACES as { id: string }[])[0].id; // place_the_gym
+  // Test 5 (2.0): a Place in hand is played straight onto the table, no slot, only if none is in play
+  it('hand has one PLACE — it becomes the active Place and no Piecie slot is used', () => {
+    const placeDef = (PLACES as { id: string; cost: number }[]).find((p) => p.cost <= 2)!;
     const state = makeState({
-      hand: [{ cardId: placeId, type: 'PLACE' }],
+      hand: [{ cardId: placeDef.id, type: 'PLACE' }],
       activeSlots: [makeMosjeSlot('mosje_jeffrey', 50)],
     });
+    (state.players.player_2 as any).energy = 6;
     const result = driveBotTurn(state, 'player_2');
+    expect(result.activePlace).toBe(placeDef.id);
     const slotsAfter = result.players.player_2.piecieSlots as (PiecieSlot | null)[];
-    const placedSlot = slotsAfter.find((s) => s?.type === 'PLACE');
-    expect(placedSlot).toBeDefined();
-    expect(placedSlot?.cardId).toBe(placeId);
+    expect(slotsAfter.some((s) => s?.type === 'PLACE')).toBe(false);
+  });
+
+  it('does not play a second Place while one is in play', () => {
+    const placeDef = (PLACES as { id: string; cost: number }[]).find((p) => p.cost <= 2)!;
+    const state = makeState({
+      hand: [{ cardId: placeDef.id, type: 'PLACE' }],
+      activeSlots: [makeMosjeSlot('mosje_jeffrey', 50)],
+    });
+    (state.players.player_2 as any).energy = 6;
+    (state as any).activePlace = 'place_boxing_ring';
+    const result = driveBotTurn(state, 'player_2');
+    expect(result.activePlace).toBe('place_boxing_ring');
   });
 
   // Test 6: Input state is not mutated

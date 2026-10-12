@@ -13,7 +13,7 @@ const BANNED = ['skipNextTurn', 'Turn trickle', 'TURN TRICKLE', 'splice(0, 6)', 
   // questsAttemptedThisTurn is NOT banned: rollQuestAttempt keeps it as the 2.0 per-turn attempt counter.
   'sharedGeneralQuest', 'attemptGeneralQuest', 'attemptPersonalQuest', 'playPersonalQuest', 'activatePersonalQuest',
   'hasAttemptedQuestThisTurn', 'getQuestDiceThreshold', 'checkTraitRoll', 'canAttemptGeneralQuest', 'canAttemptPersonalQuest',
-  'getGeneralQuestBlockReason', 'getFirstActiveMosje(', 'quest_req_'];
+  'getGeneralQuestBlockReason', 'activatePlace', 'activePlaceCanActivateOnTurn', 'getFirstActiveMosje(', 'quest_req_'];
 
 function walk(dir: string): string[] {
   return readdirSync(dir).flatMap((n) => {
