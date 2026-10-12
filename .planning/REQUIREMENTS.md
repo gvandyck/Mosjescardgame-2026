@@ -43,10 +43,10 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 ### Cards on the table (TABLE)
 - [x] **TABLE-01**: Max 2 Mosjes per field; summoning from hand on your turn pays the cost and makes the Mosje fresh (§2f).
 - [x] **TABLE-02**: Piecies use 3 slots, are placed face-down for free, become ready on the owner's next turn and are activated by paying their cost; Stays cards remain face-up in their slot until their end time (§2f).
-- [ ] **TABLE-03**: Snelle are played from hand at any time with saved Energy, need a free slot, resolve and are discarded (Blensen! stays until end of turn); not on a cooldown turn (§2f).
+- [x] **TABLE-03**: Snelle are played from hand at any time with saved Energy, need a free slot, resolve and are discarded (Blensen! stays until end of turn); not on a cooldown turn (§2f).
 - [ ] **TABLE-04**: The engine opens reaction windows (targeted, would lose MP, attacked, to the Welloe pile, after a Quest roll, after a Piecie activation, Jensen! played) and offers eligible Snelle to the defending player or bot (§3c).
 - [ ] **TABLE-05**: A Place is played from hand on your turn only when none is in play, works at once without a slot, stays until destroyed and goes to its owner's discard pile (§2f).
-- [ ] **TABLE-06**: The Welloe pile is separate from the discard pile and never shuffled back; only Mosje Reborn and Call of the Welloes take Mosjes out (not under Welloe Graveyard) (§2f).
+- [x] **TABLE-06**: The Welloe pile is separate from the discard pile and never shuffled back; only Mosje Reborn and Call of the Welloes take Mosjes out (not under Welloe Graveyard) (§2f).
 
 ### Card effects (EFX)
 - [ ] **EFX-01**: All 32 Mosje abilities and synergy texts work as the Card List says, with activated abilities paying Energy (§3c).
@@ -122,10 +122,10 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 | PLAY-07 | Phase 56 | Complete |
 | TABLE-01 | Phase 55 | Complete |
 | TABLE-02 | Phase 57 | Complete |
-| TABLE-03 | Phase 57 | Pending |
+| TABLE-03 | Phase 57 | Complete |
 | TABLE-04 | Phase 57 | Pending |
 | TABLE-05 | Phase 57 | Pending |
-| TABLE-06 | Phase 57 | Pending |
+| TABLE-06 | Phase 57 | Complete |
 | EFX-01 | Phase 58 | Pending |
 | EFX-02 | Phase 59 | Pending |
 | EFX-03 | Phase 60 | Pending |

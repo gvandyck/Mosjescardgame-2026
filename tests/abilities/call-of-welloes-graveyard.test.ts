@@ -72,3 +72,16 @@ describe('confirmCallOfWelloes — splices from the Welloe pile', () => {
     expect(gravMosjes).toHaveLength(0);
   });
 });
+
+describe('Call of the Welloes — Welloe Graveyard gate', () => {
+  it('cancels and leaves the pile alone while Welloe Graveyard is in play', () => {
+    const state = makeState([{ ...mosjeEntry1 }], [null, null]);
+    state.activePlace = 'place_welloe_graveyard';
+    const result = effect_call_of_welloes(state, 'player_1');
+    expect(result._callOfWelloesCancel).toBe(true);
+    expect(result.players.player_1.welloePile).toHaveLength(1);
+    const c = confirmCallOfWelloes(state, 'player_1', 'mosje_jeffrey');
+    expect(c.success).toBe(false);
+    expect(c.state.players.player_1.welloePile).toHaveLength(1);
+  });
+});

@@ -6,6 +6,7 @@ import { PIECIE_SLOT_COUNT } from './table/tableRules.js';
 import { isPiecieReady } from './table/isPiecieReady.js';
 import { finishPiecieActivation } from './table/finishPiecieActivation.js';
 import { sweepStaysSlots } from './table/sweepStaysSlots.js';
+import { canLeaveWelloePile } from './table/canLeaveWelloePile.js';
 import { drawCards, shuffleDeck, rollDie } from './deckEngine.js';
 import { placeEmptyFieldMosje } from './turn/placeEmptyFieldMosje.js';
 import { clearOwnerProtections } from './turn/clearOwnerProtections.js';
@@ -972,6 +973,7 @@ export function confirmCallOfWelloes(gameState, playerId, mosjeCardId) {
   const state = JSON.parse(JSON.stringify(gameState));
   const player = state.players[playerId];
   if (!player) return { state, success: false, error: 'Player not found' };
+  if (!canLeaveWelloePile(state)) return { state, success: false, error: 'Mosjes cannot leave the Welloe pile while Welloe Graveyard is in play' };
   if (!Array.isArray(player.activeSlots)) player.activeSlots = [null, null];
   // Always summon into the rightmost slot so the Mosje appears next to the Piecie zone.
   // If rightmost is occupied, shift that Mosje left to the first free slot first.

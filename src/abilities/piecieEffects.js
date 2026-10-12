@@ -16,6 +16,7 @@ import { resolveOppTargetSlot } from '../engine/targets/resolveOppTargetSlot.js'
 import { findTagSlot } from '../engine/targets/findTagSlot.js';
 import { PIECIES } from '../data/piecies.js';
 import { addToGraveyard } from '../engine/graveyardUtils.js';
+import { canLeaveWelloePile } from '../engine/table/canLeaveWelloePile.js';
 
 console.log('[ABILITY] piecieEffects.js loaded');
 
@@ -568,6 +569,10 @@ export function effect_mosje_reborn(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
+	if (!canLeaveWelloePile(state)) {
+		console.log('[ABILITY] Mosje Reborn: blocked by Welloe Graveyard');
+		return state;
+	}
 	const mosjesToRevive = (player.welloePile || []).filter(e => e.type === 'MOSJE');
 	if (mosjesToRevive.length === 0) {
 		console.log('[ABILITY] Mosje Reborn: no Mosjes in the Welloe pile');
@@ -844,6 +849,7 @@ export function effect_call_of_welloes(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
+	if (!canLeaveWelloePile(state)) return { ...state, _callOfWelloesCancel: true };
 	const mosjeEntries = (player.welloePile || []).filter(e => e.type === 'MOSJE');
 	if (mosjeEntries.length === 0) {
 		return { ...state, _callOfWelloesCancel: true };

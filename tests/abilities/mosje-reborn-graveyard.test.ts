@@ -52,4 +52,12 @@ describe('effect_mosje_reborn — reads from the Welloe pile', () => {
     expect(slots[0]).toBeNull();
     expect(slots[1]).toBeNull();
   });
+
+  it('does nothing while Welloe Graveyard is the active Place', () => {
+    const state: any = makeState([{ ...mosjeGraveyardEntry }], [null, null]);
+    state.activePlace = 'place_welloe_graveyard';
+    const result = effect_mosje_reborn(state, 'player_1');
+    expect(result.players.player_1.activeSlots).toEqual([null, null]);
+    expect(result.players.player_1.welloePile).toHaveLength(1);
+  });
 });
