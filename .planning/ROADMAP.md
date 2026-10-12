@@ -13,7 +13,7 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 - [x] **Phase 53: 2.0 Card Data and Example Decks** - All 183 Card List cards in `src/data/*.js` with 2.0 fields; hidden cards kept out; the 3 Example Decks ship (completed 2026-10-10)
 - [x] **Phase 54: Energy, Levels and Getemt** - Energy pays for everything; 2.0 level-up, getemt, MP/Power grid and hold-Level-3 win/lose (completed 2026-10-11)
 - [x] **Phase 55: Turn Flow, Setup and Protection** - 2.0 setup, turn steps, R1/R2/R5, cooldown turn, summoning, fresh protection; V4 leftovers removed (completed 2026-10-11)
-- [ ] **Phase 56: Attacking and Quests** - One action per Mosje: attack by Power, or try one of 3 typed Quests with dice, bands, fail tokens and jabs
+- [x] **Phase 56: Attacking and Quests** - One action per Mosje: attack by Power, or try one of 3 typed Quests with dice, bands, fail tokens and jabs (completed 2026-10-12)
 - [ ] **Phase 57: Piecies, Snelle, Places and Reaction Windows** - 3 slots, Stays, Snelle timing, Place rules, Welloe pile and engine reaction windows; no V4-rule test left
 - [ ] **Phase 58: Mosje Abilities and Synergies** - All 32 Mosje abilities, 2.0 synergy pairs, chain rule and The Tactician (Example Deck Mosjes first)
 - [ ] **Phase 59: Piecie Effects** - All 73 Piecie effects per the Card List (Example Deck Piecies first)
@@ -30,7 +30,7 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 | 53 | 2.0 Card Data and Example Decks | 7/7 | Complete    | 2026-10-10 |
 | 54 | Energy, Levels and Getemt | 16/16 | Complete    | 2026-10-11 |
 | 55 | Turn Flow, Setup and Protection | 7/7 | Complete    | 2026-10-11 |
-| 56 | Attacking and Quests | Each Mosje's one action (attack or Quest) works by 2.0 rules | PLAY-01..07 | 5 |
+| 56 | Attacking and Quests | 9/9 | Complete    | 2026-10-12 |
 | 57 | Piecies, Snelle, Places and Reaction Windows | Table cards follow 2.0 lifecycles; the engine offers reaction Snelle | TABLE-02..06, SHELL-04 | 5 |
 | 58 | Mosje Abilities and Synergies | Every Mosje does what its Card List text says | EFX-01, EFX-05, EFX-06, TEST-01 | 5 |
 | 59 | Piecie Effects | Every Piecie does what its Card List text says | EFX-02 | 4 |
@@ -209,6 +209,7 @@ Plans:
   4. Bot decisions read only what a player at a real table would know (no opponent hand, no deck order), guarded by a test.
 **Tests to add**: bot strategy unit tests in `src/bot/strategy/` coverage; a legality check over seeded bot-vs-bot games.
 **Known gap from Phase 54 (54-09)**: Drain Reversal's reflect now uses the raw incoming loss, not the post-reduction amount; set it per the Card List text when Drain Reversal is rewritten.
+**Known gap from Phase 56 (56-06)**: Skiffa's Social +2 dice and Tweede Kans reroll aren't wired into the 2.0 Quest roll; two `place-skiffa.test.ts` cases are `it.skip` until then.
 **Notes**: Adapt the existing strategy layer; port the desk sim bot's ideas, not its code.
 **Plans**: TBD
 
