@@ -103,3 +103,27 @@ describe('renderQuestStacks', () => {
     expect(container.innerHTML).toContain('Artistic: empty');
   });
 });
+
+describe('reaction windows through the injected settle', () => {
+  // player_2 holds The Protector (free slot + Energy): the human attack opens a window the settle callback answers.
+  const withProtector = (energy: number) => {
+    const s = makeEngineState({
+      questStacks: stacks({}),
+      players: { player_1: { activeSlots: [mkSlot({ mp: 30 })] }, player_2: { activeSlots: [mkSlot({ mp: 40 })] } },
+    });
+    s.players.player_2.hand = [{ cardId: 'snelle_the_protector', type: 'SNELLE_PIECIE' }];
+    s.players.player_2.energy = energy;
+    return s;
+  };
+  it('settle is called with the paused state and its result is returned', async () => {
+    let seen: any = null;
+    const out = await runAttackFlow({ state: withProtector(5), playerId: 'player_1', modal: stubModal(), settle: async (st: any) => { seen = st; return st; } });
+    if (seen) expect(seen.pendingReaction.responderId).toBe('player_2');
+    expect(out.log).toHaveLength(1);
+  });
+  it('without a holder the flow never calls settle', async () => {
+    let called = false;
+    await runAttackFlow({ state: withProtector(0), playerId: 'player_1', modal: stubModal(), settle: async (st: any) => { called = true; return st; } });
+    expect(called).toBe(false);
+  });
+});

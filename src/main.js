@@ -12,6 +12,7 @@ import { createInitialGameState, getOpponentMosjes, getPlayerMosjes, setActivePl
 import { startTurn, endTurn, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, playMosje, useMosjeAbility, canPlayerActNow, activateSynergyWaiver } from './engine/turnManager.js';
 import { OWN_TARGET_EFFECT_IDS } from './engine/targets/ownTargetEffects.js';
 import { isPiecieReady } from './engine/table/isPiecieReady.js';
+import { settleReactions } from './ui/actions/settleReactions.js';
 import { runAttackFlow } from './ui/actions/runAttackFlow.js';
 import { runQuestFlow } from './ui/actions/runQuestFlow.js';
 import { isCooldownBlocked } from './engine/turn/isCooldownBlocked.js';
@@ -661,7 +662,7 @@ function initGamePage() {
 		const botName = gameState.players[botId]?.name ?? botId;
 		let steps;
 		try {
-			steps = driveBotTurnSteps(gameState, botId);
+			steps = driveBotTurnSteps(gameState, botId, { humanIds: [localPlayerId] });
 		} catch (err) {
 			console.error('[BOT] driveBotTurnSteps threw:', err);
 			return;
@@ -677,79 +678,8 @@ function initGamePage() {
 		log.add('gain', `R1: ${ev.name} placed free and fresh (empty field)`);
 	}
 
-	// Returns info about whether a bot step would damage or eliminate the human Mosje.
-	// prevState: state before the step, nextState: state after the step.
-	function humanTakesDamageOrElimination(prevState, nextState, humanPlayerId) {
-		const noResult = { isDamage: false, isElimination: false, affectedSlotIndex: -1, mpDelta: 0 };
-		const prevPlayer = prevState?.players?.[humanPlayerId];
-		const nextPlayer = nextState?.players?.[humanPlayerId];
-		if (!prevPlayer || !nextPlayer) return noResult;
-		for (let i = 0; i < prevPlayer.activeSlots.length; i++) {
-			const prevSlot = prevPlayer.activeSlots[i];
-			if (!prevSlot || prevSlot.isDefeated) continue;
-			const prevMp = prevSlot.mp;
-			const nextSlot = nextPlayer.activeSlots[i];
-			if (nextSlot === null || nextSlot === undefined || nextSlot.isDefeated === true) {
-				return { isDamage: true, isElimination: true, affectedSlotIndex: i, mpDelta: prevMp };
-			}
-			if (nextSlot.mp < prevMp && (prevMp - nextSlot.mp) >= 30) {
-				return { isDamage: true, isElimination: false, affectedSlotIndex: i, mpDelta: prevMp - nextSlot.mp };
-			}
-		}
-		return noResult;
-	}
-
-	// Shows a modal that lets the human play a PROTECT-tagged Snelle Piecie before a damaging bot step.
-	// Returns true if the human played a card (gameState was mutated to reflect the play), false otherwise.
-	async function showDamageInterruptModal(prevState, nextState, humanPlayerId) {
-		const damageInfo = humanTakesDamageOrElimination(prevState, nextState, humanPlayerId);
-		const humanHand = prevState?.players?.[humanPlayerId]?.hand ?? [];
-		// Find PROTECT-tagged Snelle Piecies in hand
-		const playableCards = humanHand
-			.filter(handCard => {
-				const def = SNELLE_PIECIES.find(c => c.id === handCard.id);
-				return def && Array.isArray(def.tags) && def.tags.includes('PROTECT');
-			})
-			.map(handCard => SNELLE_PIECIES.find(c => c.id === handCard.id));
-		if (playableCards.length === 0) return false;
-		const options = [
-			...playableCards.map(def => ({
-				id: def.id,
-				label: def.name,
-				metaLabel: `Cost: ${def.cost ?? 0} Energy — ${def.description}`,
-			})),
-			{ id: '__pass__', label: 'Pass — take the damage' },
-		];
-		const promptStr = damageInfo.isElimination
-			? "The bot's next action would eliminate your Mosje. Play a card to react?"
-			: `The bot's next action would deal ${damageInfo.mpDelta} MP damage. Play a card to react?`;
-		const choice = await modal.showOptionSelect({
-			title: 'Damage Interrupt',
-			prompt: promptStr,
-			options,
-			allowCancel: false,
-		});
-		if (!choice || choice === '__pass__') return false;
-		const handIndex = gameState.players[humanPlayerId].hand.findIndex(c => c.id === choice);
-		if (handIndex < 0) return false;
-		const cardDef = SNELLE_PIECIES.find(c => c.id === choice);
-		if (!cardDef) return false;
-		const beforeInterrupt = snapshotForAnimation();
-		const result = playSnellie(gameState, humanPlayerId, { id: choice, index: handIndex }, cardDef);
-		if (result.success) {
-			gameState = result.state;
-			animateStateDelta(beforeInterrupt, gameState, {
-				actorId: humanPlayerId,
-				localPlayerId: humanPlayerId,
-				actionLabel: 'play-snelle',
-				placedCardId: cardDef.id,
-			});
-			await new Promise(resolve => setTimeout(resolve, 1800));
-			log.add('gain', `Interrupt: played ${cardDef.name} before bot step.`);
-			return true;
-		}
-		return false;
-	}
+	// Reaction windows (Phase 57): the human is prompted, a bot answers at once. Returns the settled state.
+	const reactionCtx = () => ({ localPlayerId, isOffline, modal, onLog: msg => log.add('info', msg) });
 
 	// delay: ms between each step. onComplete: called after the final step instead of
 	// advancing to the next bot (used by offline single-player to hand back to the human).
@@ -762,34 +692,6 @@ function initGamePage() {
 		const prevState = gameState;
 		const { state: nextState, label } = steps[index];
 
-		// Interrupt check: pause before applying a damage/elimination step (offline only)
-		if (isOffline) {
-			const damageInfo = humanTakesDamageOrElimination(prevState, nextState, localPlayerId);
-			if (damageInfo.isDamage) {
-				const humanPlayed = await showDamageInterruptModal(prevState, nextState, localPlayerId);
-				if (humanPlayed) {
-					// Human played a reactive card — gameState now has the flag set.
-					// Re-run bot step computation from the updated gameState so the engine
-					// consumes the flag correctly (e.g. negateNextElimination).
-					let freshSteps;
-					try {
-						freshSteps = driveBotTurnSteps(gameState, 'player_2');
-					} catch (err) {
-						console.error('[BOT] re-run driveBotTurnSteps after interrupt threw:', err);
-						freshSteps = steps.slice(index); // fallback: use remaining original steps
-					}
-					// If fresh steps are empty, hand control back
-					if (!freshSteps || freshSteps.length === 0) {
-						if (onComplete) onComplete();
-						return;
-					}
-					// Continue from the beginning of fresh steps (step 0)
-					await playBotSteps(freshSteps, botName, 0, delay, onComplete);
-					return;
-				}
-			}
-		}
-
 		// Apply bot step
 		gameState = nextState;
 		renderFromState(gameState);
@@ -800,6 +702,19 @@ function initGamePage() {
 			isBotStep: true,
 		});
 		log.add('quest', `${botName} ${label}`);
+		// A bot action opened a window for the human: prompt, then resume the bot turn from the new state.
+		if (isOffline && gameState.pendingReaction?.responderId === localPlayerId) {
+			const botId = gameState.pendingReaction.actorId;
+			gameState = await settleReactions(gameState, reactionCtx());
+			renderFromState(gameState);
+			if (gameState.status === 'FINISHED') { handleGameOver(gameState); return; }
+			let freshSteps;
+			try { freshSteps = driveBotTurnSteps(gameState, botId, { humanIds: [localPlayerId] }); }
+			catch (err) { console.error('[BOT] resume after reaction threw:', err); freshSteps = []; }
+			if (!freshSteps || freshSteps.length === 0) { if (onComplete) onComplete(); return; }
+			await playBotSteps(freshSteps, botName, 0, delay, onComplete);
+			return;
+		}
 		// Let a spotlighted bot play be read before the next step (rAF: spotlight opens next frame).
 		await new Promise(resolve => setTimeout(resolve, 60));
 		if (isSpotlightActive()) await new Promise(resolve => setTimeout(resolve, 1500));
@@ -839,7 +754,7 @@ function initGamePage() {
 		const botName = gameState.players['player_2']?.name ?? 'Bot';
 		let steps;
 		try {
-			steps = driveBotTurnSteps(gameState, 'player_2');
+			steps = driveBotTurnSteps(gameState, 'player_2', { humanIds: [localPlayerId] });
 		} catch (err) {
 			console.error('[BOT] driveBotTurnSteps threw:', err);
 			if (endTurnBtn) endTurnBtn.disabled = false;
@@ -1292,7 +1207,7 @@ function initGamePage() {
 		}
 		const before = snapshotForAnimation();
 		const rng = () => (nextDice.length ? (nextDice.shift() - 1) / 6 + 0.001 : Math.random());
-		const out = await flow({ state: gameState, playerId: localPlayerId, modal, rng });
+		const out = await flow({ state: gameState, playerId: localPlayerId, modal, rng, settle: st => settleReactions(st, reactionCtx()) });
 		if (out.state === gameState) return;
 		gameState = out.state;
 		out.log.forEach(line => log.add('quest', line));
@@ -2289,7 +2204,7 @@ function initGamePage() {
 			slotIndex,
 			cardId: piecieCardDef?.id || piecieSlot?.cardId,
 		});
-		gameState = newState;
+		gameState = newState.pendingReaction ? await settleReactions(newState, reactionCtx()) : newState;
 
 		// ── STUB-11: Bagga of Greed — discard 1 from entire hand ─────────────────
 		if (gameState._baggaDiscard) {
@@ -2670,7 +2585,7 @@ function initGamePage() {
 				modal.showInfo('Cannot Play', error || 'That card cannot be played right now.');
 				return;
 			}
-			gameState = newState;
+			gameState = newState.pendingReaction ? await settleReactions(newState, reactionCtx()) : newState;
 			log.add('gain', `Played ${cardDef.name} (instant).`);
 			if (resultLog) log.add(resultLog.type, resultLog.msg);
 			if (cardDef.description) log.add('info', `Effect: ${cardDef.description}`);

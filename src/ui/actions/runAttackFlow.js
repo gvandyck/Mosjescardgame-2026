@@ -5,7 +5,7 @@ import { isFresh } from '../../engine/fresh/isFresh.js';
 import { pickActingMosje } from './pickActingMosje.js';
 import { escapeMeta } from './escapeMeta.js';
 
-export async function runAttackFlow({ state, playerId, modal }) {
+export async function runAttackFlow({ state, playerId, modal, settle = async s => s }) {
 	const none = { state, log: [] };
 	const slotIndex = await pickActingMosje({ state, playerId, modal, purpose: 'attack' });
 	if (slotIndex == null) return none;
@@ -34,5 +34,9 @@ export async function runAttackFlow({ state, playerId, modal }) {
 	}
 	const attacker = state.players[playerId].activeSlots[slotIndex].name;
 	const target = state.players[targetPlayerId].activeSlots[Number(idx)].name;
+	if (res.reactionPending) {
+		const settled = await settle(res.state);
+		return { state: settled, log: [`${attacker} attacks ${target}`] };
+	}
 	return { state: res.state, log: [`${attacker} attacks ${target}: Power ${res.power}, -${res.final} MP`] };
 }
