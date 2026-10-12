@@ -2569,3 +2569,11 @@
   .dice-modal--win .dice-result-mp, .dice-burst span { animation: none !important; }
   .dice-burst span { opacity: 0; }
 }
+
+/* ── Quest stacks (Obby 2.0, Phase 56) ───────────────────────────── */
+.quest-stacks { display: flex; gap: 10px; justify-content: center; padding: 6px 0; }
+.quest-stack { background: rgba(16, 22, 48, 0.92); border: 1px solid var(--quest-purple); border-radius: 10px; padding: 8px 12px; color: #e6ebff; min-width: 180px; display: grid; gap: 2px; font-size: 0.8rem; }
+.quest-stack--empty { opacity: 0.5; }
+.quest-stack__kind { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--quest-purple); }
+.quest-stack__name { font-weight: 700; }
+.quest-stack__cost { font-style: italic; }

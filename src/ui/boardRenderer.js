@@ -6,6 +6,7 @@ import { renderCard } from './cardRenderer.js';
 import { markEnteringCards } from './markEnteringCards.js';
 import { getCardById } from '../data/cardIndex.js';
 import { initModalManager } from './modalManager.js';
+import { renderQuestStacks } from './renderQuestStacks.js';
 
 const PIECIE_SLOTS = 3; // 2.0: 3 Piecie slots per player (mirrors tableRules)
 
@@ -45,6 +46,8 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 				</div>
 			</div>
 		</section>
+
+		<section class="quest-stacks" id="quest-stacks"></section>
 
 		<section class="board-zone board-zone--player">
 			<header class="board-zone__header">
@@ -322,14 +325,8 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 	renderDiscardPile(topDiscard, topPlayer, viewModel.myPlayerId === opponentPlayerId, onOpenDiscard);
 	renderDiscardPile(bottomDiscard, bottomPlayer, viewModel.myPlayerId === bottomPlayer.id, onOpenDiscard);
 
-	// Render active quest panel (Phase 8 Rule 3 — shared quest visibility)
-	if (viewModel.activeQuest) {
-		renderActiveQuestInto(
-			container.querySelector('#active-quest-display'),
-			viewModel.activeQuest,
-			viewModel.myPlayerId
-		);
-	}
+	// 2.0: the 3 face-up Quests in the middle of the board
+	renderQuestStacks(container.querySelector('#quest-stacks'), { questStacks: viewModel.questStacks });
 
 	if (viewModel.activeQuest?.revealOpponentHand && Array.isArray(viewModel.activeQuest?.revealedOpponentHandNames)) {
 		getBoardModal().showOpponentHandRevealModal(viewModel.activeQuest.revealedOpponentHandNames);
@@ -424,42 +421,6 @@ function initDragScroll(element) {
 		const walk = (x - startX) * 1.5;
 		element.scrollLeft = scrollLeft - walk;
 	});
-}
-
-// Populates the active-quest-display panel with the current quest details.
-// questData — { questName, questType, cardName, attacker, mpRequired, currentMp, msjPower, rolledValue }
-// myPlayerId — used to label whose quest attempt it is
-function renderActiveQuestInto(panel, questData, myPlayerId) {
-	if (!panel || !questData) return;
-	panel.classList.remove('active-quest-panel--hidden');
-
-	const isMyQuest = questData.attacker === myPlayerId;
-	const role = isMyQuest ? 'YOUR' : "OPPONENT'S";
-	const mosjeInfo = questData.currentMp != null
-		? `Mosje at ${questData.currentMp} MP`
-		: '';
-	const stakes = questData.successMP != null
-		? `Win: +${questData.successMP} MP  |  Fail: ${questData.failMP} MP`
-		: '';
-	const diceInfo = questData.rolledValue != null
-		? `<span class="quest-dice">🎲 Rolled: ${questData.rolledValue}</span>`
-		: '';
-
-	panel.innerHTML = `
-		<div class="quest-badge">${escapeHtml(role)} QUEST</div>
-		<div class="quest-name">${escapeHtml(questData.questName || questData.cardName || 'Quest')}</div>
-		${questData.questType ? `<div class="quest-type">${escapeHtml(questData.questType)}</div>` : ''}
-		${mosjeInfo ? `<div class="quest-progress">${escapeHtml(mosjeInfo)}</div>` : ''}
-		${stakes ? `<div class="quest-type">${escapeHtml(stakes)}</div>` : ''}
-		${diceInfo}
-	`;
-}
-
-// Build a quest viewModel snippet from raw gameState for use in renderBoard viewModel.
-// Returns null when no quest is active.
-export function buildActiveQuestViewModel(gameState, myPlayerId) {
-	if (!gameState?.activeQuest) return null;
-	return { ...gameState.activeQuest, attacker: gameState.activeQuest.attacker ?? gameState.activePlayerId };
 }
 
 // Shows a floating MP number above a card.
