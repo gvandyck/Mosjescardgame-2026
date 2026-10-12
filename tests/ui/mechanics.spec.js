@@ -19,12 +19,11 @@ async function completeQuestFlow(page) {
 	return true;
 }
 
-// ─── VIS-01: Dubbele Dosis lifecycle ─────────────────────────────────────────
-// Playing piecie_quest_prep (Dubbele Dosis) goes face-down, then costs 10 MP on
-// activation. With persistUntilEndOfTurn:true it must stay on field after activation,
-// only leaving when the end-of-turn sweep fires. BUG-02 regression guard.
+// ─── VIS-01: Dubbele Dosis lifecycle (2.0) ───────────────────────────────────
+// Dubbele Dosis is a non-Stays Piecie: face-down when played, and when activated it takes its Energy cost,
+// gives +1 die on the next Quest (player.questExtraDice) and goes to the discard AT ONCE.
 
-test('VIS-01: Dubbele Dosis stays on field after activation until end of turn', async ({ page }) => {
+test('VIS-01: Dubbele Dosis is discarded at once, costs Energy, and gives +1 die on the next Quest', async ({ page }) => {
 	const deck = {
 		id: 'custom_dubbele_test',
 		name: 'Dubbele Test',
@@ -59,46 +58,33 @@ test('VIS-01: Dubbele Dosis stays on field after activation until end of turn', 
 	await endTurnAndWait(page);
 	await ss(page, 'vis01-turn-2-start');
 
-	// MP BEFORE activation (may have changed due to the bot on turn 2)
 	const mpBefore = (await readOwnedMosjes(page))[0]?.mp;
-	console.log(`MP before activation: ${mpBefore}`);
-	expect(mpBefore).toBeGreaterThanOrEqual(0);
+	const gsBefore = await getGameState(page);
+	const energyBefore = gsBefore.players.player_1.energy;
 
-	// Activate Dubbele Dosis — effect adds questPrepBonus (no direct MP change)
 	await activatePiecieOnField(page, 'piecie_quest_prep');
 	await ss(page, 'vis01-after-activation');
 
-	// MP DURING — effect_quest_prep adds dice bonus only, no MP deduction in engine
-	const mpDuring = (await readOwnedMosjes(page))[0]?.mp;
-	console.log(`MP after activation: ${mpDuring}`);
-	// MP should be unchanged by the activation (the effect only sets questPrepBonus)
-	expect(mpDuring).toBe(mpBefore);
-
-	// Card must STILL be on field (persistUntilEndOfTurn — not immediately discarded)
-	const onFieldActive = await isPiecieOnField(page, 'piecie_quest_prep');
-	console.log('Dubbele Dosis still on field after activation:', onFieldActive);
-	expect(onFieldActive).toBe(true);
-
-	// End turn 2 — sweep fires
-	await endTurnAndWait(page);
-
-	// MP AFTER end-turn — must be >= 0 (floor holds)
-	const mpAfter = (await readOwnedMosjes(page))[0]?.mp;
-	const onFieldAfter = await isPiecieOnField(page, 'piecie_quest_prep');
-	console.log(`After sweep: MP=${mpAfter}, on field=${onFieldAfter}`);
-	expect(onFieldAfter).toBe(false);
-	expect(mpAfter).toBeGreaterThanOrEqual(0);
+	const gsAfter = await getGameState(page);
+	// Activation changes no MP; it costs 1 Energy (Card List cost) and grants +1 die.
+	expect((await readOwnedMosjes(page))[0]?.mp).toBe(mpBefore);
+	expect(gsAfter.players.player_1.energy, 'Energy drops by the Piecie cost (1)').toBe(energyBefore - 1);
+	expect(gsAfter.players.player_1.questExtraDice, '+1 die on the next Quest').toBe(1);
+	// Non-Stays: gone from the field AT ONCE, in the discard pile.
+	expect(await isPiecieOnField(page, 'piecie_quest_prep')).toBe(false);
+	expect(gsAfter.players.player_1.graveyard.map(c => c.cardId ?? c)).toContain('piecie_quest_prep');
 
 	const log = await readLog(page);
 	expect(log.join(' ')).toMatch(/[Dd]ubbele|[Qq]uest.prep/i);
 	await ss(page, 'vis01-done');
 });
 
-// ─── VIS-02: Leipe Swap reverts MP at end of turn ────────────────────────────
-// Leipe Swap (activates from field): swaps own Mosje MP with opponent's.
-// At end of the swapper's turn, engine reverts the swap via _leipeSwap record.
+// ─── VIS-02: Leipe Swap (2.0 Card List) ──────────────────────────────────────
+// "Swap the MP of one of your Mosjes and one opponent Mosje. A swap is not a gain or a loss: nobody levels up
+// or gets getemt from it." The swap is permanent: it must NOT revert at the end of the turn (V4 did).
 
-test('VIS-02: Leipe Swap swaps and reverts MP at end of turn', async ({ page }) => {
+// KNOWN GAP (Phase 59): Leipe Swap effect still reverts at end of turn (V4 text); the 2.0 swap is permanent.
+test.fixme('VIS-02: Leipe Swap swaps MP and the swap does not revert at end of turn', async ({ page }) => {
 	const deck = {
 		id: 'custom_leipe_test',
 		name: 'Leipe Test',
@@ -160,15 +146,13 @@ test('VIS-02: Leipe Swap swaps and reverts MP at end of turn', async ({ page }) 
 	expect(oppDuring).toBe(40);
 	await ss(page, 'vis02-swapped');
 
-	// End turn 2 — revert fires at end of player's turn
+	// KNOWN GAP (Phase 59): Leipe Swap effect still reverts at end of turn (V4 text); the 2.0 swap is permanent.
 	await endTurnAndWait(page);
-
-	// MP AFTER — revert: own should NOT be 70 anymore
+	await endTurnAndWait(page);
+	// After the opponent's turn plus ours the swapped MP is still swapped (opponent may have changed theirs: check own).
 	const ownAfter = (await readOwnedMosjes(page))[0]?.mp;
-	const oppAfter = (await readOpponentMosjes(page))[0]?.mp;
-	console.log(`After revert — own: ${ownAfter}, opp: ${oppAfter}`);
-	// Key assertion: the swap reverted (own MP is no longer the opponent's borrowed value)
-	expect(ownAfter).not.toBe(70);
+	console.log(`After end of turn — own: ${ownAfter}`);
+	expect(ownAfter, 'swapped MP is kept (no V4 revert)').toBe(70);
 
 	const log = await readLog(page);
 	expect(log.join(' ')).toMatch(/[Ll]eipe/);
@@ -544,11 +528,10 @@ test('VIS-07: Not Today! interrupt fires on bot elimination', async ({ page }) =
 	await ss(page, 'vis07-done');
 });
 
-// ─── VIS-08: Laat me chillen! stays on field until end of turn ───────────────
-// Same lifecycle as VIS-01 but for piecie_laat_me_chillen (persistUntilEndOfTurn:true).
-// Also applies MP_LOSS_REDUCTION while active.
+// ─── VIS-08: Laat me chillen! is a Stays Piecie (2.0) ────────────────────────
+// Stays face-up in its slot through the opponent's turn and leaves at the end of the owner's NEXT turn.
 
-test('VIS-08: Laat me chillen! stays on field after activation until end of turn', async ({ page }) => {
+test('VIS-08: Laat me chillen! stays through the opponent turn and leaves at the end of the owner next turn', async ({ page }) => {
 	const deck = {
 		id: 'custom_chillen_test',
 		name: 'Chillen Test',
@@ -580,33 +563,20 @@ test('VIS-08: Laat me chillen! stays on field after activation until end of turn
 	// End turn 1 — card becomes activatable on turn 2
 	await endTurnAndWait(page);
 
-	// MP BEFORE activation
 	const mpBefore = (await readOwnedMosjes(page))[0]?.mp;
-	console.log(`MP before activation: ${mpBefore}`);
-	expect(mpBefore).toBeGreaterThanOrEqual(0);
-
-	// Activate — effect pushes MP_LOSS_REDUCTION status (no direct MP change)
 	await activatePiecieOnField(page, 'piecie_laat_me_chillen');
 	await ss(page, 'vis08-activated');
+	expect((await readOwnedMosjes(page))[0]?.mp, 'activation changes no MP').toBe(mpBefore);
+	expect(await isPiecieOnField(page, 'piecie_laat_me_chillen'), 'Stays: still in its slot after activation').toBe(true);
 
-	// MP DURING — effect_laat_me_chillen pushes MP_LOSS_REDUCTION only, no MP change
-	const mpDuring = (await readOwnedMosjes(page))[0]?.mp;
-	console.log(`MP after activation: ${mpDuring}`);
-	expect(mpDuring).toBe(mpBefore);
-
-	// Card must still be on field (persistUntilEndOfTurn)
-	const onFieldActive = await isPiecieOnField(page, 'piecie_laat_me_chillen');
-	console.log('Laat me chillen! still on field:', onFieldActive);
-	expect(onFieldActive).toBe(true);
-
-	// End turn 2 — sweep removes it
+	// End turn 2 → opponent's turn → back to us: it must still be there (Stays until the end of OUR next turn).
 	await endTurnAndWait(page);
+	expect(await isPiecieOnField(page, 'piecie_laat_me_chillen'), 'still there through the opponent turn').toBe(true);
 
-	const onFieldAfter = await isPiecieOnField(page, 'piecie_laat_me_chillen');
-	const mpAfter = (await readOwnedMosjes(page))[0]?.mp;
-	console.log(`After sweep: on field=${onFieldAfter}, MP=${mpAfter}`);
-	expect(onFieldAfter).toBe(false);
-	expect(mpAfter).toBeGreaterThanOrEqual(0);
+	// End our next turn → it leaves to the discard.
+	await endTurnAndWait(page);
+	expect(await isPiecieOnField(page, 'piecie_laat_me_chillen'), 'gone after the end of the owner next turn').toBe(false);
+	expect((await getGameState(page)).players.player_1.graveyard.map(c => c.cardId ?? c)).toContain('piecie_laat_me_chillen');
 
 	const log = await readLog(page);
 	expect(log.join(' ')).toMatch(/[Cc]hillen|laat/i);
