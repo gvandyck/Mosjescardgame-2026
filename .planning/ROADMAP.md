@@ -155,7 +155,15 @@ Plans:
   5. The Welloe pile is separate from the discard pile and never shuffled back, and only Mosje Reborn and Call of the Welloes take Mosjes out (not under Welloe Graveyard); no test anywhere still encodes a V4 rule and `npm test` is green.
 **Tests to add**: E22, E23, E24, E25.
 **Notes**: This phase builds the reaction-window framework and the table rules; the individual Snelle and Place effects come in Phase 60. SHELL-04 closes here because this is the last phase that replaces a V4 rule.
-**Plans**: TBD
+**Plans**: 7 plans (7 waves, sequential)
+Plans:
+- [ ] 57-01-PLAN.md — Piecie readiness (isPiecieReady, no playedOnTurn+1 fallback), 3 Piecie-only slots, headless Activate-button repro + fix (E22)
+- [ ] 57-02-PLAN.md — Stays lifecycle (end times, discard at once otherwise), V4 persistence removed (E25; TABLE-02)
+- [ ] 57-03-PLAN.md — Snelle slot rule + immediate discard, Blensen! until end of turn; Welloe pile exit gate (E23; TABLE-03, TABLE-06)
+- [ ] 57-04-PLAN.md — Places from hand, one in play, works at once, no slot; activatePlace removed from engine/bot/UI (E24)
+- [ ] 57-05-PLAN.md — Reaction-window engine (7 defender + 3 acting-player moments, window queue, pendingReaction + resolveReaction, Snelle reactionMoments data) + bot responder
+- [ ] 57-06-PLAN.md — Human reaction prompt on the generic modal, V4 interrupt removed; Playwright U6 + U7 (TABLE-04, TABLE-05)
+- [ ] 57-07-PLAN.md — +1 die Piecies on questExtraDice (chain-1/6), VIS-01/02/08 on 2.0, fixme-reason guard, V4 audit, phase gate (SHELL-04)
 
 ### Phase 58: Mosje Abilities and Synergies
 **Goal**: Every Mosje does what its Card List ability and synergy texts say, with activated abilities paid in Energy.
