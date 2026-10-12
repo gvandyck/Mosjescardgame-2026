@@ -174,3 +174,36 @@ describe('Offline game smoke test', () => {
     expect(state.turnNumber).toBeGreaterThan(1); // the loop kept advancing rather than hanging (no FINISHED assert in 2.0)
   });
 });
+
+// 56-05: both seats driven by the 2.0 bot (attack OR Quest per Mosje). Asserts invariants every turn.
+function runBotVsBot(p1DeckId: string, p2DeckId: string): { state: any; turns: number } {
+  const players = [
+    { playerId: 'player_1', name: 'BotA', deckId: p1DeckId },
+    { playerId: 'player_2', name: 'BotB', deckId: p2DeckId },
+  ];
+  let state: any = createInitialGameState(players, 'BVB_TEST', { firstPlayerId: 'player_1' });
+  state = startTurn(state);
+  let turns = 0;
+  for (; turns < 200 && state.status !== 'FINISHED'; turns++) {
+    assertInvariants(state, turns);
+    state = driveBotTurn(state, state.activePlayerId);
+    if (state.status === 'FINISHED') break;
+    state = startTurn(state);
+  }
+  return { state, turns };
+}
+
+describe('Bot vs bot (2.0 attack/Quest) on the Example Decks', () => {
+  const PAIRS: [string, string][] = [
+    ['EXAMPLE_TAKSEN', 'EXAMPLE_REGELAARS'],
+    ['EXAMPLE_CREATIEVELINGEN', 'EXAMPLE_TAKSEN'],
+    ['EXAMPLE_REGELAARS', 'EXAMPLE_CREATIEVELINGEN'],
+  ];
+  for (const [a, b] of PAIRS) {
+    it(`${a} vs ${b} finishes without throwing`, () => {
+      const { state, turns } = runBotVsBot(a, b);
+      console.info(`[BVB] ${a} vs ${b}: ${state.status} after ${turns} bot turns, winner=${state.winnerId}, reason=${state.winReason}`);
+      expect(state.status).toBe('FINISHED');
+    }, 60000);
+  }
+});

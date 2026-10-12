@@ -8,12 +8,11 @@
 //   0. Play a 2nd Mosje from hand if a field slot is free — unlocks board-
 //      state synergies (e.g. West+Cless) and abilities on the SAME turn.
 //   A. 'early' Mosje abilities (arm per-Piecie triggers / extra plays)
-//   B. Play Piecies + place Personal Quests face-down (tag-priority order)
+//   B. Play Piecies (tag-priority order)
 //   C. Activate ready Piecies in strategic order (multipliers → MP → prep …)
 //   D. 'preQuest' Mosje abilities (setup conversions)
-//   E. Quest phase — ready Personal Quest if worth it, else reveal a General
-//      Quest, risk-assess it per Mosje slot, pay the 20 MP attempt cost and
-//      roll exactly like the human path — or discard it as too risky
+//   E. Action phase — each Mosje takes at most one action (attack OR Quest),
+//      picked by chooseMosjeAction (best expected MP swing); engine-legal only
 //   F. Play a Place, activate a face-down Place
 //   G. 'late' Mosje abilities
 //   H. End turn
@@ -24,16 +23,18 @@ import {
   activatePiecie,
   playPlace,
   activatePlace,
-  attemptGeneralQuest,
-  playPersonalQuest,
-  activatePersonalQuest,
   useMosjeAbility,
   endTurn,
 } from '../engine/turnManager.js';
-import { canAttemptGeneralQuest, getGeneralQuestBlockReason, canAttemptPersonalQuest, resolveQuest } from '../abilities/questLogic.js';
+import { attackMosje } from '../engine/actions/attackMosje.js';
+import { rollQuestAttempt } from '../engine/quests/rollQuestAttempt.js';
+import { resolveQuestAttempt } from '../engine/quests/resolveQuestAttempt.js';
+import { getQuestDef } from '../engine/quests/getQuestDef.js';
+import { chooseMosjeAction } from './strategy/chooseMosjeAction.js';
+import { chooseQuestChoices } from './strategy/chooseQuestChoices.js';
+import { canMosjeTakeAction } from '../engine/actions/canMosjeTakeAction.js';
 import { PIECIES } from '../data/piecies.js';
 import { PLACES } from '../data/places.js';
-import { QUESTS } from '../data/quests.js';
 import { MOSJES } from '../data/mosjes.js';
 import { getBotProfile } from './strategy/botProfiles.js';
 import { pickBotOwnTarget } from './strategy/pickBotOwnTarget.js';
@@ -41,8 +42,7 @@ import { OWN_TARGET_EFFECT_IDS } from '../engine/targets/ownTargetEffects.js';
 import { planPiecieActivations } from './strategy/planPiecieActivations.js';
 import { getAbilityEnergyCost } from '../engine/energy/getAbilityEnergyCost.js';
 import { canPay } from '../engine/energy/canPay.js';
-import { assessQuestRisk, classifyLossSeverity, getRequiredConfidence } from './strategy/assessQuestRisk.js';
-import { rollBotQuestDice } from './strategy/rollBotQuestDice.js';
+import { classifyLossSeverity, getRequiredConfidence } from './strategy/assessQuestRisk.js';
 import { getCardTags } from './strategy/comboTags.js';
 import { canMosjeAct } from '../engine/mp/canMosjeAct.js';
 import { applyGainToSlot } from '../engine/mp/applyGainToSlot.js';
@@ -52,7 +52,6 @@ import { emitBotMetric } from './strategy/emitBotMetric.js';
 
 const PIECIE_LOOKUP = Object.fromEntries(PIECIES.map(c => [c.id, c]));
 const PLACE_LOOKUP = Object.fromEntries(PLACES.map(c => [c.id, c]));
-const QUEST_LOOKUP = Object.fromEntries(QUESTS.map(c => [c.id, c]));
 const MOSJE_LOOKUP = Object.fromEntries(MOSJES.map(m => [m.id, m]));
 
 /**
@@ -165,37 +164,10 @@ function getOpponentPressure(state, botPlayerId) {
   return { oppId, lethalPressure, opponentFullyProtected };
 }
 
-// Will the bot (probably) attempt a quest this turn? Optimistic on MP — the
-// answer gates quest-prep activations, and MP boosters may still lift MP.
+// Will any Mosje act this turn? Optimistic - gates quest-prep activations.
 function computeQuestIntent(state, botPlayerId) {
-  const player = state.players[botPlayerId];
-  if (!player) return false;
-  const maxQuests = state.activePlace === 'place_quest_haven' ? 2 : 1;
-  if ((player.questsAttemptedThisTurn ?? 0) >= maxQuests) return false;
-  const firstActive = (player.activeSlots || []).find(s => s && !s.isDefeated);
-  if (!firstActive) return false;
-  if (firstActive.statusEffects?.some(e => e.type === 'QUEST_BLOCKED')) return false;
-  const generalAvailable = (state.sharedGeneralQuestDeck?.length || 0) > 0
-    || (state.sharedGeneralQuestDiscard?.length || 0) > 0;
-  const personalReady = (player.piecieSlots || []).some(s =>
-    s && s.type === 'QUEST' && state.turnNumber >= (s.canActivateOnTurn ?? Infinity));
-  return generalAvailable || personalReady;
-}
-
-// Kickboxing Bootcamp-style per-Mosje reward override (mirrors main.js
-// questDefForMosje): resolve with the configured successMP, +20 when both
-// Gandoe and Michelle train together.
-function questDefWithPerMosje(questDef, mosje, player) {
-  const perCfg = questDef.perMosjeConfig?.[mosje?.cardId];
-  if (!perCfg) return questDef;
-  let successMP = perCfg.successMP;
-  if (questDef.id === 'quest_personal_kickboxing_bootcamp') {
-    const active = (player?.activeSlots || []).filter(s => s && !s.isDefeated);
-    const bothActive = active.some(s => String(s.cardId).includes('gandoe'))
-      && active.some(s => s.cardId === 'mosje_michelle');
-    if (bothActive) successMP += 20;
-  }
-  return { ...questDef, successMP };
+  const slots = state.players[botPlayerId]?.activeSlots || [];
+  return slots.some((_, i) => canMosjeTakeAction(state, botPlayerId, i).ok);
 }
 
 // Gate costly/situational abilities so the bot doesn't burn its quest MP.
@@ -267,7 +239,6 @@ export function driveBotTurnSteps(gameState, botPlayerId) {
   // Defensive clone: some engine functions mutate the state they receive.
   let state = JSON.parse(JSON.stringify(gameState));
   const profile = getBotProfile(state, botPlayerId);
-  let setupActivations = 0; // multipliers/MP/prep fired before the quest — metric
   const push = (label) => steps.push({ state, label });
   const finished = () => state.status === 'FINISHED';
   const onCooldown = state.players[botPlayerId]?.cooldownTurn === true;
@@ -333,23 +304,10 @@ export function driveBotTurnSteps(gameState, botPlayerId) {
   // ── Phase B: play Piecies + place Personal Quests, best cards first ──────
   const handSnapshot = [...(state.players[botPlayerId]?.hand || [])];
   const playable = handSnapshot
-    .filter(c => c.type === 'PIECIE'
-      || (!onCooldown && c.type === 'QUEST'
-        && QUEST_LOOKUP[c.cardId]?.questType === 'PERSONAL'
-        && canAttemptPersonalQuest(QUEST_LOOKUP[c.cardId], state, botPlayerId)))
+    .filter(c => c.type === 'PIECIE')
     .sort((a, b) => playPriority(a) - playPriority(b));
   for (const cardRef of playable) {
     if (finished()) break;
-    if (cardRef.type === 'QUEST') {
-      const result = playPersonalQuest(state, botPlayerId, cardRef);
-      if (result.success) {
-        state = result.state;
-        push(`places Personal Quest face-down: ${QUEST_LOOKUP[cardRef.cardId]?.name ?? cardRef.cardId}`);
-      } else if (result.error && /slot|full/i.test(result.error)) {
-        break;
-      }
-      continue;
-    }
     const cardDef = PIECIE_LOOKUP[cardRef.cardId];
     if (!cardDef) continue;
     const result = playPiecie(state, botPlayerId, cardRef, cardDef);
@@ -391,9 +349,6 @@ export function driveBotTurnSteps(gameState, botPlayerId) {
     if (result.success) {
       state = result.state;
       state = resolveBotVarkenspootjesPending(state, botPlayerId);
-      if (entry.tags.some(t => t === 'multiplier' || t === 'mp-gain' || t === 'quest-prep')) {
-        setupActivations += 1;
-      }
       push(`activates ${entry.cardId.replace('piecie_', '').replace(/_/g, ' ')}`);
     }
   }
@@ -401,8 +356,8 @@ export function driveBotTurnSteps(gameState, botPlayerId) {
   // ── Phase D: preQuest abilities ───────────────────────────────────────────
   if (!finished()) useAbilitiesFor('preQuest');
 
-  // ── Phase E: quest phase ──────────────────────────────────────────────────
-  if (!finished()) runQuestPhase();
+  // ── Phase E: action phase ──────────────────────────────────────────────────
+  if (!finished()) runActionPhase();
 
   // ── Phase F: play a Place, then activate a face-down Place ───────────────
   if (!finished()) {
@@ -442,150 +397,36 @@ export function driveBotTurnSteps(gameState, botPlayerId) {
 
   return steps;
 
-  // ── Quest phase internals (closures over state/steps/profile) ────────────
+  // ── Action phase internals (closures over state/steps/profile) ───────────
 
-  // Pick the best Mosje slot to attempt questDef with. Returns
-  // { targetSlotIndex, decision } — decision may say attempt:false.
-  function bestQuestSlot(questDef) {
-    const player = state.players[botPlayerId];
-    const requiredId = questDef.requiredMosjeId || null;
-    const perMosjeIds = questDef.perMosjeConfig ? Object.keys(questDef.perMosjeConfig) : null;
-    let best = { targetSlotIndex: -1, decision: null };
-    (player.activeSlots || []).forEach((slot, i) => {
-      if (!canMosjeAct(slot)) return;
-      if (requiredId && slot.cardId !== requiredId) return;
-      if (perMosjeIds && !perMosjeIds.includes(slot.cardId)) return;
-      const decision = assessQuestRisk({
-        questDef, mosje: slot, slotIndex: i, gameState: state, playerId: botPlayerId, profile,
-      });
-      const better = !best.decision
-        || (decision.attempt && !best.decision.attempt)
-        || (decision.attempt === best.decision.attempt
-          && (decision.pSuccess > best.decision.pSuccess
-            || (decision.pSuccess === best.decision.pSuccess && slot.mp > (player.activeSlots[best.targetSlotIndex]?.mp || 0))));
-      if (better) best = { targetSlotIndex: i, decision };
-    });
-    return best;
-  }
-
-  function attemptQuestWithRoll(questDef, targetSlotIndex, kind) {
-    const player = state.players[botPlayerId];
-    const resolveDef = questDefWithPerMosje(questDef, player.activeSlots[targetSlotIndex], player);
-    const rollRes = rollBotQuestDice(state, botPlayerId, resolveDef, targetSlotIndex);
-    state = rollRes.state;
-    state = resolveQuest(state, botPlayerId, resolveDef, rollRes.didSucceed, targetSlotIndex);
-    let label = `quests "${questDef.name}" — roll ${rollRes.roll}`
-      + (rollRes.diceBonus ? `+${rollRes.diceBonus}` : '')
-      + ` vs ${rollRes.threshold}+ → ${rollRes.didSucceed ? '✓ success' : '✗ failed'}`;
-    if (state._autoAbilityLog) {
-      label += ` · ${state._autoAbilityLog.label}`;
-      delete state._autoAbilityLog;
+  function runActionPhase() {
+    const slotCount = (state.players[botPlayerId]?.activeSlots || []).length;
+    for (let i = 0; i < slotCount && !finished(); i++) {
+      const slot = state.players[botPlayerId].activeSlots[i];
+      const action = chooseMosjeAction(state, botPlayerId, i);
+      if (!action) {
+        if (slot) emitBotMetric('action-skip', { deck: profile.deckId, reason: canMosjeTakeAction(state, botPlayerId, i).error || 'no-positive-swing' });
+        continue;
+      }
+      if (action.kind === 'attack') {
+        const res = attackMosje(state, botPlayerId, { attackerSlotIndex: i, targetPlayerId: action.targetPlayerId, targetSlotIndex: action.targetSlotIndex });
+        if (!res.ok) { emitBotMetric('action-skip', { deck: profile.deckId, reason: res.error }); continue; }
+        const targetName = state.players[action.targetPlayerId].activeSlots[action.targetSlotIndex]?.name;
+        state = res.state;
+        emitBotMetric('attack', { deck: profile.deckId, power: res.power, final: res.final });
+        push(`${slot.name} attacks ${targetName} for ${res.final}`);
+        continue;
+      }
+      const roll = rollQuestAttempt(state, botPlayerId, { slotIndex: i, stackId: action.stackId, costChoice: action.costChoice, dieChoices: action.dieChoices });
+      if (!roll.ok) { emitBotMetric('action-skip', { deck: profile.deckId, reason: roll.error }); continue; }
+      const questName = getQuestDef(roll.pending.questId)?.name ?? roll.pending.questId;
+      const choices = chooseQuestChoices(roll.state, botPlayerId, roll.pending);
+      const done = resolveQuestAttempt(roll.state, roll.pending, choices);
+      if (!done.ok) { emitBotMetric('action-skip', { deck: profile.deckId, reason: done.error }); continue; }
+      state = done.state;
+      emitBotMetric('quest-roll', { deck: profile.deckId, quest: roll.pending.questId, dice: roll.pending.dice.length, success: done.win });
+      push(`${slot.name} tries ${questName}: dice [${roll.pending.dice.join(',')}] ${done.win ? 'WIN' : 'FAIL'}`);
     }
-    emitBotMetric('quest-roll', {
-      kind,
-      deck: profile.deckId,
-      quest: questDef.id,
-      roll: rollRes.roll,
-      bonus: rollRes.diceBonus,
-      threshold: rollRes.threshold,
-      success: rollRes.didSucceed,
-    });
-    return label;
-  }
-
-  function runQuestPhase() {
-    const player = state.players[botPlayerId];
-    if (!player) return;
-    const firstActive = (player.activeSlots || []).find(s => s && !s.isDefeated);
-    if (!firstActive) return;
-    if (firstActive.statusEffects?.some(e => e.type === 'QUEST_BLOCKED')) {
-      emitBotMetric('quest-skip', { kind: 'blocked', deck: profile.deckId, reason: 'quest-blocked' });
-      return;
-    }
-
-    // E1: a ready Personal Quest on the field beats a blind General draw.
-    const fieldSlots = player.piecieSlots || [];
-    for (let i = 0; i < fieldSlots.length; i++) {
-      const s = fieldSlots[i];
-      if (!s || s.type !== 'QUEST') continue;
-      if (state.turnNumber < (s.canActivateOnTurn ?? Infinity)) continue;
-      const questDef = QUEST_LOOKUP[s.cardId];
-      if (!questDef || !canAttemptPersonalQuest(questDef, state, botPlayerId)) continue;
-      const { targetSlotIndex, decision } = bestQuestSlot(questDef);
-      emitBotMetric('quest-decision', {
-        kind: 'personal',
-        deck: profile.deckId,
-        quest: questDef.id,
-        attempt: !!decision?.attempt,
-        reason: decision?.reason ?? 'no-slot',
-        p: decision?.pSuccess ?? 0,
-        need: decision?.requiredP,
-        mp: player.activeSlots[targetSlotIndex]?.mp ?? null,
-        setupActs: setupActivations,
-      });
-      if (!decision?.attempt) continue; // leave face-down for a better turn
-      const act = activatePersonalQuest(state, botPlayerId, i);
-      if (!act.success) continue;
-      state = act.state;
-      const label = attemptQuestWithRoll(questDef, targetSlotIndex, 'personal');
-      push(label);
-      return;
-    }
-
-    // 2.0: trying a Quest costs no MP; any living Mosje can attempt.
-    const anyAttempter = (player.activeSlots || []).some(s => s && !s.isDefeated);
-    if (!anyAttempter) {
-      emitBotMetric('quest-skip', { kind: 'general', deck: profile.deckId, reason: 'no-mosje' });
-      return;
-    }
-    const revealed = attemptGeneralQuest(state);
-    state = revealed.state;
-    const questCard = revealed.questCard;
-    if (!questCard) return;
-    const questDef = QUEST_LOOKUP[questCard.cardId];
-    const discardQuest = () => {
-      state = {
-        ...state,
-        sharedGeneralQuestDiscard: [...(state.sharedGeneralQuestDiscard || []), questCard],
-      };
-    };
-    if (!questDef) {
-      discardQuest();
-      emitBotMetric('quest-skip', {
-        kind: 'general', deck: profile.deckId, quest: questCard.cardId, reason: 'unknown-quest-def',
-      });
-      return;
-    }
-    if (!canAttemptGeneralQuest(questDef, state, botPlayerId)) {
-      discardQuest();
-      // Specific reason (negative-mp / momentum-master-range /
-      // quest-blocked-status / no-active-mosje) rather than one generic bucket —
-      // canAttemptGeneralQuest and getGeneralQuestBlockReason run the exact same
-      // checks in the exact same order, so this can't drift out of sync with it.
-      const reason = getGeneralQuestBlockReason(questDef, state, botPlayerId) || 'requirement-not-met';
-      emitBotMetric('quest-skip', { kind: 'general', deck: profile.deckId, quest: questCard.cardId, reason });
-      return;
-    }
-    const { targetSlotIndex, decision } = bestQuestSlot(questDef);
-    emitBotMetric('quest-decision', {
-      kind: 'general',
-      deck: profile.deckId,
-      quest: questDef.id,
-      attempt: !!decision?.attempt,
-      reason: decision?.reason ?? 'no-slot',
-      p: decision?.pSuccess ?? 0,
-      need: decision?.requiredP,
-      mp: player.activeSlots[targetSlotIndex]?.mp ?? null,
-      setupActs: setupActivations,
-    });
-    if (!decision?.attempt) {
-      discardQuest();
-      push(`skips quest "${questDef.name}" (${Math.round((decision?.pSuccess ?? 0) * 100)}% chance, needs ${Math.round((decision?.requiredP ?? 1) * 100)}%)`);
-      return;
-    }
-    const label = attemptQuestWithRoll(questDef, targetSlotIndex, 'general');
-    discardQuest();
-    push(label);
   }
 }
 

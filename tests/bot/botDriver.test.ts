@@ -7,12 +7,11 @@
 import { describe, expect, it } from 'vitest';
 
 // @ts-expect-error JS module without type declarations
-import { driveBotTurn } from '../../src/bot/botDriver.js';
+import { driveBotTurn, driveBotTurnSteps } from '../../src/bot/botDriver.js';
 // @ts-expect-error JS module without type declarations
 import { getPartnerSynergyQuestBonus } from '../../src/abilities/questLogic.js';
 import { PIECIES } from '../../src/data/piecies.js';
 import { PLACES } from '../../src/data/places.js';
-import { QUESTS } from '../../src/data/quests.js';
 import { MOSJES } from '../../src/data/mosjes.js';
 
 // ─────────────────────────────────────────────────────────────
@@ -55,6 +54,7 @@ interface MakeStateOptions {
   piecieSlots?: (PiecieSlot | null)[];
   activeSlots?: MosjeSlot[];
   questDeck?: HandCard[];
+  opponentSlots?: (MosjeSlot | null)[];
 }
 
 function makeMosjeSlot(cardId: string, mp = 50): MosjeSlot {
@@ -81,12 +81,17 @@ function makeState({
   piecieSlots = [null, null, null, null],
   activeSlots = [],
   questDeck = [],
+  opponentSlots,
 }: MakeStateOptions = {}) {
   return {
     activePlayerId: 'player_2',
     turnNumber: 5,
-    sharedGeneralQuestDeck: questDeck,
-    sharedGeneralQuestDiscard: [] as HandCard[],
+    // 2.0: three typed Quest stacks. `questDeck[0]` (if any) is the face-up Quest of FIGHTING.
+    questStacks: {
+      FIGHTING: { deck: [] as string[], faceUp: questDeck[0]?.cardId ?? null, tokens: 0, discard: [] as string[] },
+      DIGITAL: { deck: [] as string[], faceUp: null, tokens: 0, discard: [] as string[] },
+      ARTISTIC: { deck: [] as string[], faceUp: null, tokens: 0, discard: [] as string[] },
+    },
     activePlace: null,
     activePlacePlayedBy: null,
     activePlaceTurnsActive: 0,
@@ -97,7 +102,7 @@ function makeState({
         energy: 6,
         hand: [] as HandCard[],
         piecieSlots: [null, null, null, null] as (PiecieSlot | null)[],
-        activeSlots: [makeMosjeSlot('mosje_jeffrey', 50)],
+        activeSlots: opponentSlots ?? [makeMosjeSlot('mosje_jeffrey', 50)],
         deck: [] as HandCard[],
         discard: [] as string[],
         questsAttemptedThisTurn: 0,
@@ -150,6 +155,8 @@ function makeState({
 // ─────────────────────────────────────────────────────────────
 // Tests
 // ─────────────────────────────────────────────────────────────
+
+const QUEST_ID = 'quest_tough_it_out'; // steady, FIGHTING, resilient, no cost
 
 describe('driveBotTurn', () => {
   // Test 1: No-op game — driveBotTurn does not throw, returns a state
@@ -205,19 +212,18 @@ describe('driveBotTurn', () => {
     }
   });
 
-  // Test 4: sharedGeneralQuestDeck is non-empty, bot has active Mosje — questsAttemptedThisTurn increments
-  it('sharedGeneralQuestDeck non-empty, active Mosje with mp=50 — questsAttemptedThisTurn increments', () => {
-    const questId = (QUESTS as { id: string; questType: string }[]).find(
-      (q) => q.questType === 'GENERAL'
-    )!.id;
+  // Test 4: a face-up Quest and no attack target - the bot Quests (one action) and the attempt is counted
+  it('face-up Quest, no attack target, Mosje with mp=50 - questsAttemptedThisTurn increments', () => {
     const state = makeState({
-      questDeck: [{ cardId: questId, type: 'QUEST' }],
+      questDeck: [{ cardId: QUEST_ID, type: 'QUEST' }],
       activeSlots: [makeMosjeSlot('mosje_jeffrey', 50)],
+      opponentSlots: [null, null],
     });
     const beforeAttempts = state.players.player_2.questsAttemptedThisTurn;
     const result = driveBotTurn(state, 'player_2');
     const afterAttempts = result.players.player_2.questsAttemptedThisTurn as number;
     expect(afterAttempts).toBeGreaterThan(beforeAttempts);
+    expect((result.players.player_2.activeSlots as any[])[0].actedThisTurn).toBe(true);
   });
 
   // Test 5: hand has one PLACE, slot available — piecieSlots contains a PLACE type entry (face-down)
@@ -273,60 +279,52 @@ describe('driveBotTurn', () => {
 });
 
 // ─────────────────────────────────────────────────────────────
-// Bot MP safety margin — skip a risky General Quest attempt
-// (arm_wrestling: failMP -20 → safety threshold is 2x = 40 MP)
+// Bot Quest-or-nothing by expected MP swing (2.0, 56-05)
+// tough_it_out: steady band, +25 / -15. A fail that reaches 0 MP is getemt.
 // ─────────────────────────────────────────────────────────────
 
-describe('driveBotTurn — quest MP safety margin', () => {
-  const ARM_WRESTLING_ID = 'quest_arm_wrestling'; // GENERAL, failMP: -20
+describe('driveBotTurn - Quest risk (2.0, 56-05)', () => {
+  const quest = (mp: number) => makeState({
+    questDeck: [{ cardId: QUEST_ID, type: 'QUEST' }],
+    activeSlots: [makeMosjeSlot('mosje_jeffrey', mp)],
+    opponentSlots: [null, null],
+  });
+  const slotAfter = (st: any) => (st.players.player_2.activeSlots as any[])[0];
 
-  it('low-MP Level 1 Mosje (mp=10): a failure now only makes it sideways, so the quest is attempted (2.0)', () => {
-    const state = makeState({
-      questDeck: [{ cardId: ARM_WRESTLING_ID, type: 'QUEST' }],
-      activeSlots: [makeMosjeSlot('mosje_jeffrey', 10)],
-    });
-    const result = driveBotTurn(state, 'player_2');
-    const mosjeAfter = (result.players.player_2.activeSlots as MosjeSlot[])[0];
-    // WHY changed: V4 skipped this (fatal = defeat of the last Mosje). Under 2.0 a failure
-    // getemts an upright L1 Mosje -> MP 0, sideways (required odds 0.7, not 0.85), so the
-    // bot attempts. Either outcome moves MP; failure must leave it sideways, never defeated.
-    expect(mosjeAfter.mp).not.toBe(10);
-    expect(mosjeAfter.isDefeated).toBe(false);
-    if (mosjeAfter.mp === 0) expect((mosjeAfter as any).sideways).toBe(true);
+  // WHY changed (was: V4 'skips below 2x failMP', later 'attempts at 10 MP'): the 2.0 bot weighs
+  // getemt. At 10 or 15 MP the -15 fail reaches 0 (getemt), so the swing is negative and it holds back.
+  it('mp=10: a fail would getemt it, so the bot does not Quest', () => {
+    const after = slotAfter(driveBotTurn(quest(10), 'player_2'));
+    expect(after.mp).toBe(10);
+    expect(after.actedThisTurn).not.toBe(true);
+    expect(after.isDefeated).toBe(false);
   });
 
-  it('active Mosje exactly at the safety threshold (mp=40 = 2x failMP) — quest attempt proceeds', () => {
-    const state = makeState({
-      questDeck: [{ cardId: ARM_WRESTLING_ID, type: 'QUEST' }],
-      activeSlots: [makeMosjeSlot('mosje_jeffrey', 40)],
-    });
-    const result = driveBotTurn(state, 'player_2');
-    const mosjeAfter = (result.players.player_2.activeSlots as MosjeSlot[])[0];
-    // Success (+60) or failure (-20) both move MP away from the starting 40.
-    expect(mosjeAfter.mp).not.toBe(40);
+  it('mp=15: failing lands exactly on 0 (getemt), so the bot does not Quest', () => {
+    expect(slotAfter(driveBotTurn(quest(15), 'player_2')).mp).toBe(15);
   });
 
-  it('active Mosje comfortably above the threshold (mp=50) — quest attempt proceeds (existing behavior)', () => {
-    const state = makeState({
-      questDeck: [{ cardId: ARM_WRESTLING_ID, type: 'QUEST' }],
-      activeSlots: [makeMosjeSlot('mosje_jeffrey', 50)],
-    });
+  it('mp=40 and mp=50: safe to try - the Quest is attempted (MP moves)', () => {
+    expect(slotAfter(driveBotTurn(quest(40), 'player_2')).mp).not.toBe(40);
+    expect(slotAfter(driveBotTurn(quest(50), 'player_2')).mp).not.toBe(50);
+  });
+});
+
+describe('driveBotTurn - attacks (2.0, 56-05)', () => {
+  it('attacks a non-fresh opponent Mosje (target loses MP, attacker acted once)', () => {
+    const state: any = makeState({ activeSlots: [makeMosjeSlot('mosje_jeffrey', 50)] });
+    state.players.player_1.activeSlots = [{ ...makeMosjeSlot('mosje_gandoe_wizard', 80), entryProtected: false }];
+    state.players.player_2.activeSlots[0].entryProtected = false;
     const result = driveBotTurn(state, 'player_2');
-    const mosjeAfter = (result.players.player_2.activeSlots as MosjeSlot[])[0];
-    expect(mosjeAfter.mp).not.toBe(50);
+    expect(driveBotTurnSteps(state, 'player_2').filter((st: any) => /attacks/.test(st.label))).toHaveLength(1);
+    expect(result.players.player_1.activeSlots[0].mp).toBeLessThan(80);
   });
 
-  it('a Level-1 Mosje below the old threshold may quest; failure is sideways, not defeat (2.0)', () => {
-    const state = makeState({
-      questDeck: [{ cardId: ARM_WRESTLING_ID, type: 'QUEST' }],
-      activeSlots: [makeMosjeSlot('mosje_jeffrey', 15)],
-    });
+  it('never attacks a fresh opponent Mosje', () => {
+    const state: any = makeState({ activeSlots: [makeMosjeSlot('mosje_jeffrey', 50)] });
+    state.players.player_1.activeSlots = [{ ...makeMosjeSlot('mosje_gandoe_wizard', 80), entryProtected: true }];
     const result = driveBotTurn(state, 'player_2');
-    const mosjeAfter = (result.players.player_2.activeSlots as MosjeSlot[])[0];
-    // WHY changed: see the mp=10 case above (V4 'fatal' -> 2.0 'sideways').
-    expect(mosjeAfter.mp).not.toBe(15);
-    expect(mosjeAfter.isDefeated).toBe(false);
-    if (mosjeAfter.mp === 0) expect((mosjeAfter as any).sideways).toBe(true);
+    expect(result.players.player_1.activeSlots[0].mp).toBe(80);
   });
 });
 
@@ -436,7 +434,7 @@ describe('driveBotTurn — sideways Mosje takes no action (2.0, 54-11)', () => {
   it('never picks a sideways Mosje for a Quest', () => {
     const sideways = { ...makeMosjeSlot('mosje_jeffrey', 80), sideways: true } as any;
     const state = makeState({
-      questDeck: [{ cardId: 'quest_arm_wrestling', type: 'QUEST' }],
+      questDeck: [{ cardId: QUEST_ID, type: 'QUEST' }],
       activeSlots: [sideways],
     });
     const result = driveBotTurn(state, 'player_2');
@@ -464,7 +462,7 @@ describe('driveBotTurn - summon cost and cooldown (2.0, 55-03)', () => {
         { cardId: 'piecie_kannetje_melk', type: 'PIECIE' },
       ],
       activeSlots: [makeMosjeSlot('mosje_martin_senor_west', 50), null as unknown as MosjeSlot],
-      questDeck: [{ cardId: 'quest_arm_wrestling', type: 'QUEST' }],
+      questDeck: [{ cardId: QUEST_ID, type: 'QUEST' }],
     });
     state.players.player_2.cooldownTurn = true;
     const result = driveBotTurn(state, 'player_2');
