@@ -4,6 +4,8 @@
 
 import { PIECIE_SLOT_COUNT } from './table/tableRules.js';
 import { isPiecieReady } from './table/isPiecieReady.js';
+import { finishPiecieActivation } from './table/finishPiecieActivation.js';
+import { sweepStaysSlots } from './table/sweepStaysSlots.js';
 import { drawCards, shuffleDeck, rollDie } from './deckEngine.js';
 import { placeEmptyFieldMosje } from './turn/placeEmptyFieldMosje.js';
 import { clearOwnerProtections } from './turn/clearOwnerProtections.js';
@@ -145,17 +147,15 @@ function maybeChainChrisDdrCombo(state, playerId) {
   next = applyPerfectRhythmDraw(next, playerId, rhythmWasArmedBeforeEffect);
   const np = next.players[playerId];
   if (!Array.isArray(np.graveyard)) np.graveyard = [];
-  if (def?.persistUntilEndOfTurn) {
-    const empty = np.piecieSlots.findIndex(s => s === null);
-    if (empty >= 0) {
-      np.piecieSlots[empty] = { cardId: chainedCard.cardId, type: 'PIECIE', faceDown: false, activated: true, persistUntilEoT: true, playedOnTurn: next.turnNumber };
-    } else {
-      np.graveyard.push(toGraveyardEntry(chainedCard.cardId, 'played'));
-    }
+  const emptyChain = np.piecieSlots.findIndex(s => s === null);
+  if (def?.stays && emptyChain >= 0) {
+    np.piecieSlots[emptyChain] = { cardId: chainedCard.cardId, type: 'PIECIE', faceDown: false, activated: true, playedOnTurn: next.turnNumber };
+    next = finishPiecieActivation(next, playerId, emptyChain, def);
   } else {
     np.graveyard.push(toGraveyardEntry(chainedCard.cardId, 'played'));
   }
-  np.pieciesActivatedThisTurn = (np.pieciesActivatedThisTurn || 0) + 1;
+  const np2 = next.players[playerId];
+  np2.pieciesActivatedThisTurn = (np2.pieciesActivatedThisTurn || 0) + 1;
 
   return maybeChainChrisDdrCombo(next, playerId); // recurse — the chained activation may chain again
 }
@@ -250,6 +250,7 @@ export function startTurn(gameState) {
   // Obby 2.0 §2b: the win check is the FIRST thing at turn start (hold Level 3).
   state = checkWin(state, playerId);
   if (state.status === 'FINISHED') return state;
+  state = sweepStaysSlots(state, playerId, 'start'); // startOfNextTurn Stays leave now
   console.log(`[ENGINE] â”€â”€ Turn ${state.turnNumber} START â€” Player: ${playerId} â”€â”€`);
 
   // Reset per-turn trackers for the active player
@@ -492,25 +493,14 @@ export function endTurn(gameState) {
   normalizePiecieSlots(state.players[playerId]);
   for (let i = 0; i < state.players[playerId].piecieSlots.length; i++) {
     const slot = state.players[playerId].piecieSlots[i];
-    // Call of the Welloes persistence: do not sweep this Piecie while its linked Mosje is alive (D-16)
-    if (slot?.cardId === 'piecie_call_of_welloes' && slot.linkedMosjeCardId) {
-      const linkedAlive = state.players[playerId].activeSlots.some(
-        s => s?.cardId === slot.linkedMosjeCardId && s?.summonedByPiecie === 'piecie_call_of_welloes'
-      );
-      if (linkedAlive) continue;
-    }
     if (slot?.type === 'SNELLE_PIECIE') {
       if (!Array.isArray(state.players[playerId].graveyard)) state.players[playerId].graveyard = [];
       state.players[playerId].graveyard.push(toGraveyardEntry(slot.cardId, 'played'));
       state.players[playerId].piecieSlots[i] = null;
       console.log(`[ENGINE] Snelle Piecie swept to discard: ${slot.cardId}`);
-    } else if (slot?.persistUntilEoT === true) {
-      if (!Array.isArray(state.players[playerId].graveyard)) state.players[playerId].graveyard = [];
-      state.players[playerId].graveyard.push(toGraveyardEntry(slot.cardId, 'played'));
-      state.players[playerId].piecieSlots[i] = null;
-      console.log(`[ENGINE] Persistent Piecie swept to discard at EoT: ${slot.cardId}`);
     }
   }
+  state = sweepStaysSlots(state, playerId, 'end');
   // Call of the Welloes: if anchor Piecie has left play, defeat the summoned Mosje (D-12/D-14)
   for (let i = 0; i < state.players[playerId].activeSlots.length; i++) {
     const aSlot = state.players[playerId].activeSlots[i];
@@ -534,7 +524,7 @@ export function endTurn(gameState) {
     }
   }
 
-  // Reset questPrepBonus at end of turn — same lifecycle as persistUntilEoT Piecies (BUG-05)
+  // Reset questPrepBonus at end of turn — per-turn bonus (BUG-05)
   state.players[playerId].questPrepBonus = 0;
   state.players[playerId].perfectRhythmDrawNextPiecie = false;
 
@@ -888,15 +878,8 @@ export function activatePiecie(gameState, playerId, slotIndex) {
   player = state.players[playerId];
   if (!Array.isArray(player.graveyard)) player.graveyard = [];
   normalizePiecieSlots(player);
-  if (knownCardDef.persistUntilEndOfTurn === true) {
-    // Mark slot as persistent — will be swept to discard in endTurn()
-    player.piecieSlots[safeSlotIndex].persistUntilEoT = true;
-    player.piecieSlots[safeSlotIndex].faceDown = false;
-    console.log(`[ENGINE] Piecie persisting until EoT: ${knownCardDef.name}`);
-  } else {
-    player.graveyard.push(toGraveyardEntry(slotCardId, 'played'));
-    player.piecieSlots[safeSlotIndex] = null;
-  }
+  state = finishPiecieActivation(state, playerId, safeSlotIndex, knownCardDef);
+  player = state.players[playerId];
   console.log(`[ENGINE] piecieSlots after activation:`, player.piecieSlots.map((s, i) => s ? `[${i}] ${s.cardId} (${s.type})` : `[${i}] null`).join(' | '));
 
   player.piecieActivationsThisTurn = (player.piecieActivationsThisTurn || 0) + 1;

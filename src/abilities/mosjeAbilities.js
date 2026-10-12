@@ -8,6 +8,7 @@ import { gainMP, loseMP } from '../engine/mpManager.js';
 import { markMosjeDefeated } from '../engine/victoryChecker.js';
 import * as piecieEffects from './piecieEffects.js';
 import { PIECIES } from '../data/piecies.js';
+import { finishPiecieActivation } from '../engine/table/finishPiecieActivation.js';
 import { applyGainToSlot } from '../engine/mp/applyGainToSlot.js';
 import { applyMpLossToSlot } from '../engine/mp/applyMpLossToSlot.js';
 import { isFresh } from '../engine/fresh/isFresh.js';
@@ -338,12 +339,14 @@ export function ability_ming_natural_lucky_draw(gameState, playerId) {
 		const freeActivate = state._pendingTargets?.mingNaturalFreeActivate === true;
 		if (state._pendingTargets) delete state._pendingTargets.mingNaturalFreeActivate;
 		if (freeActivate && typeof piecieEffects[def.effectId] === 'function') {
-			const next = piecieEffects[def.effectId](state, playerId);
+			let next = piecieEffects[def.effectId](state, playerId);
 			const np = next.players[playerId];
-			if (def.persistUntilEndOfTurn) {
+			if (def.stays) {
 				const empty = np.piecieSlots.findIndex(s => s === null);
-				if (empty >= 0) np.piecieSlots[empty] = { cardId: drawnCard.cardId, type: 'PIECIE', faceDown: false, activated: true, persistUntilEoT: true, playedOnTurn: next.turnNumber };
-				else np.graveyard.push({ cardId: drawnCard.cardId, type: 'PIECIE' });
+				if (empty >= 0) {
+					np.piecieSlots[empty] = { cardId: drawnCard.cardId, type: 'PIECIE', faceDown: false, activated: true, playedOnTurn: next.turnNumber };
+					next = finishPiecieActivation(next, playerId, empty, def);
+				} else np.graveyard.push({ cardId: drawnCard.cardId, type: 'PIECIE' });
 			} else {
 				np.graveyard.push({ cardId: drawnCard.cardId, type: 'PIECIE' });
 			}
@@ -646,11 +649,14 @@ export function ability_ronald_mastermind_master_plan(gameState, playerId) {
 		next = piecieEffects[def.effectId](state, playerId);
 	}
 	// Persist on field or send to discard
-	const np = next.players[playerId];
-	if (def?.persistUntilEndOfTurn) {
+	let np = next.players[playerId];
+	if (def?.stays) {
 		const empty = np.piecieSlots.findIndex(s => s === null);
-		if (empty >= 0) np.piecieSlots[empty] = { cardId: chosenCardId, type: 'PIECIE', faceDown: false, activated: true, persistUntilEoT: true, playedOnTurn: next.turnNumber };
-		else np.graveyard.push({ cardId: chosenCardId });
+		if (empty >= 0) {
+			np.piecieSlots[empty] = { cardId: chosenCardId, type: 'PIECIE', faceDown: false, activated: true, playedOnTurn: next.turnNumber };
+			next = finishPiecieActivation(next, playerId, empty, def);
+			np = next.players[playerId];
+		} else np.graveyard.push({ cardId: chosenCardId });
 	} else {
 		np.graveyard.push({ cardId: chosenCardId });
 	}

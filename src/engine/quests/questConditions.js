@@ -1,5 +1,4 @@
 // QUEST_CONDITIONS — costId -> (ctx) => bool. ctx = { state, playerId, slot, quest }. Pure.
-import { PIECIES } from '../../data/piecies.js';
 
 const own = ({ state, playerId }) => state.players[playerId];
 const opp = ({ state, playerId }) => state.players[Object.keys(state.players).find(id => id !== playerId)];
@@ -7,13 +6,7 @@ const filled = (p) => (p?.piecieSlots || []).filter(Boolean);
 const trait2 = (t) => ({ slot }) => (Number(slot?.traits?.[t]) || 0) >= 2;
 const totalMp = (p) => (p?.activeSlots || []).reduce((n, s) => n + (s && !s.isDefeated ? Math.max(0, s.mp) : 0), 0);
 
-// KNOWN GAP (Phase 57): piecie entries get an explicit `stays` flag; until then fall back to the card def.
-function staysPiecie(entry) {
-	if (entry.stays === true) return true;
-	if (entry.faceDown !== false) return false;
-	const def = PIECIES.find(p => p.id === entry.cardId);
-	return !!def && (!!def.stays || /\bStays\b/.test(def.text || ''));
-}
+const staysPiecie = (entry) => entry.stays === true;
 
 export const QUEST_CONDITIONS = {
 	physical_2: trait2('physical'),
