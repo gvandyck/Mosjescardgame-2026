@@ -163,7 +163,7 @@ Plans:
 - [x] 57-04-PLAN.md — Places from hand, one in play, works at once, no slot; activatePlace removed from engine/bot/UI (E24)
 - [x] 57-05-PLAN.md — Reaction-window engine (7 defender + 3 acting-player moments, window queue, pendingReaction + resolveReaction, Snelle reactionMoments data) + bot responder
 - [x] 57-06-PLAN.md — Human reaction prompt on the generic modal, V4 interrupt removed; Playwright U6 + U7 (TABLE-04, TABLE-05)
-- [ ] 57-07-PLAN.md — +1 die Piecies on questExtraDice (chain-1/6), VIS-01/02/08 on 2.0, fixme-reason guard, V4 audit, phase gate (SHELL-04)
+- [x] 57-07-PLAN.md — +1 die Piecies on questExtraDice (chain-1/6), VIS-01/02/08 on 2.0, fixme-reason guard, V4 audit, phase gate (SHELL-04)
 
 ### Phase 58: Mosje Abilities and Synergies
 **Goal**: Every Mosje does what its Card List ability and synergy texts say, with activated abilities paid in Energy.

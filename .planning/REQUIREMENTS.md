@@ -8,7 +8,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 - [ ] **SHELL-01**: Pushing to `obby-2.0` deploys the game to eightytwenty.nl/obbycardgame2 through its own workflow (same FTP secrets); pushes to `main` still deploy V4 only (§1).
 - [ ] **SHELL-02**: The 2.0 site shows an `APP_VERSION` starting with `2.0-`, bumped per shipped change.
 - [ ] **SHELL-03**: The 2.0 lobby offers only "Play vs bot" with a picker of the 3 Example Decks (free for everyone); online play, login, collection, store and deck builder are hidden (code kept).
-- [ ] **SHELL-04**: V4-rule tests are rewritten or deleted on `obby-2.0`, never left failing (§6).
+- [x] **SHELL-04**: V4-rule tests are rewritten or deleted on `obby-2.0`, never left failing (§6).
 
 ### Card data (DATA)
 - [x] **DATA-01**: Every Card List card (32 Mosjes, 38 Quests, 73 Piecies, 20 Snelle, 20 Places) exists in `src/data/*.js` with its Card List name, text, Energy cost and rarity; existing ids kept, renames applied (§3a).
@@ -95,7 +95,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 | SHELL-01 | Phase 64 | Pending |
 | SHELL-02 | Phase 64 | Pending |
 | SHELL-03 | Phase 64 | Pending |
-| SHELL-04 | Phase 57 | Pending |
+| SHELL-04 | Phase 57 | Complete |
 | DATA-01 | Phase 53 | Complete |
 | DATA-02 | Phase 53 | Complete |
 | DATA-03 | Phase 53 | Complete |
