@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest";
 // @ts-expect-error — JS module, no type declarations
 import { ability_alyssa_bulldozer_unstoppable, ability_dj_8020_lucky_beats } from "../../src/abilities/mosjeAbilities.js";
-// @ts-expect-error — JS module, no type declarations
-import { resolveQuest } from "../../src/abilities/questLogic.js";
+import { forceQuestResult } from "../helpers/forceQuestResult.js";
 // @ts-expect-error — JS module, no type declarations
 import { createEngineState } from "../helpers/testHelpers.js";
 
@@ -67,7 +66,7 @@ describe("Alyssa Bulldozer — Unstoppable comeback math (IMPL-PF-M1)", () => {
 
 describe("Jeffrey The Strongman — Brute Force passive quest bonus (IMPL-PF-M2)", () => {
   // Verified against the PASSIVE mechanic (applyMosjeFieldEffectsOnQuest, fired
-  // internally by resolveQuest) — NOT the no-op manual ability_jeffrey_brute_force
+  // internally by runQuestOutcomeHooks) — NOT the no-op manual ability_jeffrey_brute_force
   // stub, per D-02/T-48-SC.
   const generalQuest = {
     id: "quest_arm_wrestling",
@@ -138,16 +137,17 @@ describe("Jeffrey The Strongman — Brute Force passive quest bonus (IMPL-PF-M2)
   it("quest success -> Jeffrey's own MP includes the base gain + the +10 Brute Force passive bonus", () => {
     const state = makeJeffreyState();
 
-    const result = resolveQuest(state, "player_1", generalQuest, true, 0);
+    const result = forceQuestResult(state, "player_1", { questId: "quest_quick_thinking", win: true });
 
-    // Base successMP(40) + passive +10 = 50 on top of the starting 30 MP.
-    expect(result.players.player_1.activeSlots[0].mp).toBe(30 + 40 + 10);
+    // 2.0 Quick Thinking win (+25, Card List) + passive +10 on the starting 30 MP.
+    // (V4 used Arm Wrestling successMP 40; the passive +10 is what this test pins.)
+    expect(result.players.player_1.activeSlots[0].mp).toBe(30 + 25 + 10);
   });
 
   it("quest failure -> no Brute Force bonus (questMpGained is 0)", () => {
     const state = makeJeffreyState();
 
-    const result = resolveQuest(state, "player_1", generalQuest, false, 0);
+    const result = forceQuestResult(state, "player_1", { questId: "quest_quick_thinking", win: false });
 
     expect(result.players.player_1.activeSlots[0].mp).toBe(30 - 15);
   });

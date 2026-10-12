@@ -9,7 +9,7 @@ import {
   ability_fps_coert_headshot_precision,
 } from "../../src/abilities/mosjeAbilities.js";
 // @ts-expect-error — JS module, no type declarations
-import { resolveQuest } from "../../src/abilities/questLogic.js";
+import { forceQuestResult } from "../helpers/forceQuestResult.js";
 // @ts-expect-error — JS module, no type declarations
 import { ability_chris_ddr_perfect_combo_chain } from "../../src/abilities/mosjeAbilities.js";
 // @ts-expect-error — JS module, no type declarations
@@ -550,7 +550,7 @@ function makeFpsCoertSlot(cardId: string, mp = 50) {
     mp,
     level: 1,
     isDefeated: false,
-    traits: {},
+    traits: { physical: 2, technical: 2, social: 2 }, // 2 stars => 2 dice, so the Skilled Quests can be won
     statusEffects: [],
     abilityUsedThisTurn: false,
   };
@@ -592,14 +592,15 @@ function makeFpsCoertState(mp = 50, oppMp = 100) {
   } as any;
 }
 
-function fpsQuestCard(extra: Record<string, any> = {}) {
-  return {
-    id: "quest_test",
-    requirementId: "quest_req_test",
-    successMP: 0,
-    failMP: 0,
-    ...extra,
-  };
+// 2.0 Quests (Card List): Physical = Arm Wrestling (win +40 / lose -30), Technical = Hack Mainframe (+40 / -30),
+// Social = Inspire the Crowd (+25 / -15). forceQuestResult rolls the real 2.0 attempt with forced dice.
+const FPS_QUEST: Record<string, string> = {
+  Physical: "quest_arm_wrestling",
+  Technical: "quest_hack_mainframe",
+  Social: "quest_inspire_crowd",
+};
+function fpsQuest(state: any, category: string, win: boolean) {
+  return forceQuestResult(state, "player_1", { questId: FPS_QUEST[category], win });
 }
 
 describe("FPS Coert — Headshot Precision (auto quest-success trigger)", () => {
@@ -609,9 +610,9 @@ describe("FPS Coert — Headshot Precision (auto quest-success trigger)", () => 
 
   it("rolling a 6 after a Physical Quest success grants +30 MP and opponent -15 MP", () => {
     vi.spyOn(Math, "random").mockReturnValue(0.99); // rollDie(6) => 6
-    const state = makeFpsCoertState(50, 100);
+    const state = makeFpsCoertState(10, 100); // 10 + Arm Wrestling win 40 + Headshot 30 = 80
 
-    const next = resolveQuest(state, "player_1", fpsQuestCard({ category: "Physical" }), true);
+    const next = fpsQuest(state, "Physical", true);
 
     expect(next.players.player_1.activeSlots[0].mp).toBe(80);
     expect(next.players.player_2.activeSlots[0].mp).toBe(85);
@@ -619,9 +620,9 @@ describe("FPS Coert — Headshot Precision (auto quest-success trigger)", () => 
 
   it("rolling a 6 after a Technical Quest success also fires", () => {
     vi.spyOn(Math, "random").mockReturnValue(0.99); // rollDie(6) => 6
-    const state = makeFpsCoertState(50, 100);
+    const state = makeFpsCoertState(10, 100); // 10 + Hack Mainframe win 40 + Headshot 30 = 80
 
-    const next = resolveQuest(state, "player_1", fpsQuestCard({ category: "Technical" }), true);
+    const next = fpsQuest(state, "Technical", true);
 
     expect(next.players.player_1.activeSlots[0].mp).toBe(80);
     expect(next.players.player_2.activeSlots[0].mp).toBe(85);
@@ -631,9 +632,9 @@ describe("FPS Coert — Headshot Precision (auto quest-success trigger)", () => 
     vi.spyOn(Math, "random").mockReturnValue(0.99); // rollDie(6) => 6
     const state = makeFpsCoertState(50, 90);
 
-    const next = resolveQuest(state, "player_1", fpsQuestCard({ category: "Social" }), true);
+    const next = fpsQuest(state, "Social", true);
 
-    expect(next.players.player_1.activeSlots[0].mp).toBe(50);
+    expect(next.players.player_1.activeSlots[0].mp).toBe(75); // 50 + Inspire win 25, no Headshot
     expect(next.players.player_2.activeSlots[0].mp).toBe(90);
   });
 
@@ -641,19 +642,19 @@ describe("FPS Coert — Headshot Precision (auto quest-success trigger)", () => 
     vi.spyOn(Math, "random").mockReturnValue(0.99); // rollDie(6) => 6
     const state = makeFpsCoertState(50, 90);
 
-    const next = resolveQuest(state, "player_1", fpsQuestCard({ category: "Physical" }), false);
+    const next = fpsQuest(state, "Physical", false);
 
-    expect(next.players.player_1.activeSlots[0].mp).toBe(50);
+    expect(next.players.player_1.activeSlots[0].mp).toBe(20); // 50 - Arm Wrestling lose 30, no Headshot
     expect(next.players.player_2.activeSlots[0].mp).toBe(90);
   });
 
   it("rolling below 6 has no effect", () => {
     vi.spyOn(Math, "random").mockReturnValue(0); // rollDie(6) => 1
-    const state = makeFpsCoertState(50, 90);
+    const state = makeFpsCoertState(10, 90);
 
-    const next = resolveQuest(state, "player_1", fpsQuestCard({ category: "Physical" }), true);
+    const next = fpsQuest(state, "Physical", true);
 
-    expect(next.players.player_1.activeSlots[0].mp).toBe(50);
+    expect(next.players.player_1.activeSlots[0].mp).toBe(50); // 10 + Arm Wrestling win 40, no Headshot
     expect(next.players.player_2.activeSlots[0].mp).toBe(90);
   });
 

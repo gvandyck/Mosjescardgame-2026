@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
-// @ts-expect-error — JS module, no type declarations
-import { resolveQuest } from "../../src/abilities/questLogic.js";
+import { forceQuestResult } from "../helpers/forceQuestResult.js";
 
 const GEEN_RAAD_QUEST = {
   id: "quest_geen_raad_vraag_aad",
@@ -62,43 +61,43 @@ function makeState(mp = 30) {
   };
 }
 
-describe("Geen Raad Vraag Aad — resolveQuest", () => {
+describe("Geen Raad Vraag Aad — 2.0 coin flip attempt", () => {
   it("correct guess: active player gains 50 MP", () => {
     const state = makeState(30);
-    const result = resolveQuest(state, "player_1", GEEN_RAAD_QUEST, true, 0);
+    const result = forceQuestResult(state, "player_1", { questId: GEEN_RAAD_QUEST.id, win: true });
     expect(result.players.player_1.activeSlots[0].mp).toBe(80);
   });
 
   it("wrong guess: active player loses 25 MP", () => {
     const state = makeState(30);
-    const result = resolveQuest(state, "player_1", GEEN_RAAD_QUEST, false, 0);
+    const result = forceQuestResult(state, "player_1", { questId: GEEN_RAAD_QUEST.id, win: false });
     expect(result.players.player_1.activeSlots[0].mp).toBe(5);
   });
 
   it("correct guess increments questsCompleted", () => {
     const state = makeState(30);
-    const result = resolveQuest(state, "player_1", GEEN_RAAD_QUEST, true, 0);
+    const result = forceQuestResult(state, "player_1", { questId: GEEN_RAAD_QUEST.id, win: true });
     expect(result.players.player_1.questsCompleted).toBe(1);
   });
 
   it("wrong guess does not increment questsCompleted", () => {
     const state = makeState(30);
-    const result = resolveQuest(state, "player_1", GEEN_RAAD_QUEST, false, 0);
+    const result = forceQuestResult(state, "player_1", { questId: GEEN_RAAD_QUEST.id, win: false });
     expect(result.players.player_1.questsCompleted).toBe(0);
   });
 
   it("opponent MP is unaffected during resolution", () => {
     const state = makeState(30);
-    const result = resolveQuest(state, "player_1", GEEN_RAAD_QUEST, true, 0);
+    const result = forceQuestResult(state, "player_1", { questId: GEEN_RAAD_QUEST.id, win: true });
     expect(result.players.player_2.activeSlots[0].mp).toBe(40);
   });
 });
 
-describe("Geen Raad Vraag Aad — no dice roll involved", () => {
-  it("resolveQuest can be called with any boolean for didSucceed (no internal roll)", () => {
+describe("Geen Raad Vraag Aad — coin flip is one die, 4+", () => {
+  it("win and fail both resolve from the same state (forced 6 vs forced 1 on the single die)", () => {
     const state = makeState(30);
-    const successResult = resolveQuest(state, "player_1", GEEN_RAAD_QUEST, true, 0);
-    const failResult = resolveQuest(state, "player_1", GEEN_RAAD_QUEST, false, 0);
+    const successResult = forceQuestResult(state, "player_1", { questId: GEEN_RAAD_QUEST.id, win: true });
+    const failResult = forceQuestResult(state, "player_1", { questId: GEEN_RAAD_QUEST.id, win: false });
     expect(successResult.players.player_1.activeSlots[0].mp).toBe(80);
     expect(failResult.players.player_1.activeSlots[0].mp).toBe(5);
   });

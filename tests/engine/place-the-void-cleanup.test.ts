@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
-// @ts-expect-error — JS module, no type declarations
-import { resolveQuest } from "../../src/abilities/questLogic.js";
+import { forceQuestResult } from "../helpers/forceQuestResult.js";
 // @ts-expect-error — JS module, no type declarations
 import { createEngineState } from "../helpers/testHelpers.js";
 // @ts-expect-error — JS module, no type declarations
@@ -10,7 +9,7 @@ import path from "path";
 
 // ─────────────────────────────────────────────────────────────
 // Phase 35-07 (PLACE-12) — The Void dead-code cleanup
-// baseQuestMpBlocked in questLogic.js's resolveQuest is a REDUNDANT gate:
+// baseQuestMpBlocked in questLogic.js's (V4) resolveQuest was a REDUNDANT gate:
 // mpManager.js's own gainMP/loseMP already unconditionally no-op whenever
 // activePlace === 'place_the_void' (untouched by this plan). Removing the
 // questLogic.js copy changes zero observable MP outcomes.
@@ -56,15 +55,13 @@ describe("place_the_void (PLACE-12) — redundant baseQuestMpBlocked gate remove
 
   it("resolving a quest with The Void active leaves the questing Mosje's MP unchanged (same as before this change)", () => {
     const state = buildQuestState("place_the_void");
-    const questDef = { id: "quest_test", category: "Physical", successMP: 60, failMP: -20 };
-    const after = resolveQuest(state, "player_1", questDef, true, 0);
+    const after = forceQuestResult(state, "player_1", { questId: "quest_quick_thinking", win: true });
     expect(after.players.player_1.activeSlots[0].mp).toBe(20);
   });
 
   it("resolving a quest with NO active Place applies MP gain/loss normally", () => {
     const state = buildQuestState(null);
-    const questDef = { id: "quest_test", category: "Physical", successMP: 60, failMP: -20 };
-    const after = resolveQuest(state, "player_1", questDef, true, 0);
-    expect(after.players.player_1.activeSlots[0].mp).toBe(80);
+    const after = forceQuestResult(state, "player_1", { questId: "quest_quick_thinking", win: true });
+    expect(after.players.player_1.activeSlots[0].mp).toBe(45); // 20 + Quick Thinking win 25 (V4 test used successMP 60)
   });
 });

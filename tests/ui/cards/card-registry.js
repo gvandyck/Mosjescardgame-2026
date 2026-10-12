@@ -350,11 +350,11 @@ export const ABILITY_REGISTRY = [
 	},
 	{
 		// 2026-07-13 reconciliation: Headshot Precision is now a passive auto-trigger
-		// after a Physical/Technical Quest success (rolled inside resolveQuest via
+		// after a Physical/Technical Quest success (rolled inside runQuestOutcomeHooks via
 		// applyMosjeFieldEffectsOnQuest) — there's no manual button to click anymore
 		// (autoAbility:true), so the generic 'ability' runner can't drive it. Same
 		// pattern as Michelle/Jeffrey (also passive quest-hooks, never had a registry
-		// entry). Covered by the resolveQuest unit tests in
+		// entry). Covered by the 2.0 Quest-attempt unit tests in
 		// ability-text-reconciliation.test.ts instead.
 		mosje: 'mosje_fps_coert', abilityMosjeId: 'mosje_fps_coert', playThen: 'ability',
 		setup: { ownMP: 40, opponentMP: 90 }, expectedEffect: 'ATTACK', oppDeltaMin: -25, oppDeltaMax: -25,

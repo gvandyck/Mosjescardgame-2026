@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
-// @ts-expect-error — JS module, no type declarations
-import { resolveQuest } from "../../src/abilities/questLogic.js";
+import { forceQuestResult } from "../helpers/forceQuestResult.js";
 
 const GEEN_RAAD_QUEST = {
   id: "quest_geen_raad_vraag_aad",
@@ -67,7 +66,7 @@ function makeState(p1Mp = 50, p2Mp = 50) {
 describe("Aad Recovery — eligibility", () => {
   it("active player who failed loses MP and is eligible for recovery", () => {
     const before = makeState(50, 50);
-    const after = resolveQuest(before, "player_1", GEEN_RAAD_QUEST, false, 0);
+    const after = forceQuestResult(before, "player_1", { questId: GEEN_RAAD_QUEST.id, win: false });
     // player_1 lost 25 MP
     expect(after.players.player_1.activeSlots[0].mp).toBe(25);
     // player_2 is unchanged
@@ -80,14 +79,14 @@ describe("Aad Recovery — eligibility", () => {
   it("active player who succeeded gains MP and is NOT eligible for recovery", () => {
     // Use starting MP low enough that +50 won't trigger a level-up
     const before = makeState(20, 50);
-    const after = resolveQuest(before, "player_1", GEEN_RAAD_QUEST, true, 0);
+    const after = forceQuestResult(before, "player_1", { questId: GEEN_RAAD_QUEST.id, win: true });
     const mpDelta = after.players.player_1.activeSlots[0].mp - before.players.player_1.activeSlots[0].mp;
     expect(mpDelta).toBeGreaterThan(0); // gained MP
   });
 
   it("opponent is unaffected by Geen Raad — not eligible for recovery", () => {
     const before = makeState(50, 50);
-    const after = resolveQuest(before, "player_1", GEEN_RAAD_QUEST, false, 0);
+    const after = forceQuestResult(before, "player_1", { questId: GEEN_RAAD_QUEST.id, win: false });
     const opponentMpDelta = after.players.player_2.activeSlots[0].mp - before.players.player_2.activeSlots[0].mp;
     expect(opponentMpDelta).toBe(0); // no change
   });
@@ -96,7 +95,7 @@ describe("Aad Recovery — eligibility", () => {
 describe("Aad Recovery — discard-for-MP logic", () => {
   it("after simulated recovery: removing 1 card from hand and adding 40 MP works", () => {
     const before = makeState(50, 50);
-    const afterQuest = resolveQuest(before, "player_1", GEEN_RAAD_QUEST, false, 0);
+    const afterQuest = forceQuestResult(before, "player_1", { questId: GEEN_RAAD_QUEST.id, win: false });
     // Simulate Aad Recovery: discard 1 card, gain 40 MP
     const state = JSON.parse(JSON.stringify(afterQuest));
     const player = state.players.player_1;
@@ -114,7 +113,7 @@ describe("Aad Recovery — discard-for-MP logic", () => {
 
   it("recovery is optional — skipping it leaves state unchanged", () => {
     const before = makeState(50, 50);
-    const after = resolveQuest(before, "player_1", GEEN_RAAD_QUEST, false, 0);
+    const after = forceQuestResult(before, "player_1", { questId: GEEN_RAAD_QUEST.id, win: false });
     // Simulate skipping recovery
     expect(after.players.player_1.hand.length).toBe(2); // hand unchanged
     expect(after.players.player_1.activeSlots[0].mp).toBe(25);
@@ -123,7 +122,7 @@ describe("Aad Recovery — discard-for-MP logic", () => {
   it("player with empty hand cannot recover even if they lost MP", () => {
     const state = makeState(50, 50);
     state.players.player_1.hand = [];
-    const after = resolveQuest(state, "player_1", GEEN_RAAD_QUEST, false, 0);
+    const after = forceQuestResult(state, "player_1", { questId: GEEN_RAAD_QUEST.id, win: false });
     // hand is still empty — recovery would not be offered
     expect(after.players.player_1.hand.length).toBe(0);
   });

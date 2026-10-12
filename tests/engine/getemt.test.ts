@@ -174,15 +174,14 @@ describe("Piecie losses (54-13)", () => {
 });
 
 // 54-14: ability and Quest losses run the pipeline and getemt.
-// @ts-expect-error — JS module, no type declarations
-import { resolveQuest } from "../../src/abilities/questLogic.js";
+import { forceQuestResult } from "../helpers/forceQuestResult.js";
 // @ts-expect-error — JS module, no type declarations
 import { ability_coert_extra_resources } from "../../src/abilities/mosjeAbilities.js";
 
 describe("ability / Quest losses (54-14)", () => {
   it("failed Quest taking an L2 Mosje to 0 -> L1 at 50", () => {
-    const quest = { id: "q", type: "QUEST", questType: "GENERAL", successMP: 20, failMP: -20 };
-    const st = resolveQuest(build(2, 20), "player_1", quest, false, 0);
+    // 2.0: Arm Wrestling lose is -30 (Card List), so the L2 Mosje starts at 30 to reach exactly 0.
+    const st = forceQuestResult(build(2, 30), "player_1", { questId: "quest_arm_wrestling", win: false });
     expect([slotOf(st).level, slotOf(st).mp]).toEqual([1, 50]);
   });
   it("2.0: Coert Extra Resources spends no MP (1 Energy is charged by useMosjeAbility) — L2 at 10 stays L2 at 10", () => {

@@ -149,8 +149,7 @@ describe("Piecie gains (54-13)", () => {
 // 54-14: ability, Quest and Snelle gains go through applyGainToSlot (RULE-02/03).
 // @ts-expect-error — JS module, no type declarations
 import { makeEngineState } from "../helpers/makeEngineState.js";
-// @ts-expect-error — JS module, no type declarations
-import { resolveQuest } from "../../src/abilities/questLogic.js";
+import { forceQuestResult } from "../helpers/forceQuestResult.js";
 // @ts-expect-error — JS module, no type declarations
 import { ability_alyssa_fissa_party_power } from "../../src/abilities/mosjeAbilities.js";
 // @ts-expect-error — JS module, no type declarations
@@ -169,14 +168,13 @@ const mine = (st: any) => st.players.player_1.activeSlots[0];
 
 describe("ability / Quest / Snelle gains (54-14)", () => {
   it("E3 from a Quest: success taking L1 at 95 over 100 -> L2 at 0 MP", () => {
-    const quest = { id: "q", type: "QUEST", questType: "GENERAL", successMP: 20, failMP: -20 };
-    const st = resolveQuest(abilityState(1, 95), "player_1", quest, true, 0);
+    // 2.0 Quick Thinking win is +25 (Card List): 95 + 25 = 120 -> L2 at 0.
+    const st = forceQuestResult(abilityState(1, 95), "player_1", { questId: "quest_quick_thinking", win: true });
     expect([mine(st).level, mine(st).mp]).toEqual([2, 0]);
   });
-  it("Jeffrey Brute Force (+10 after a Quest) can level: L1 at 90 + Quest 5 -> L2 at 0", () => {
-    const quest = { id: "q", type: "QUEST", questType: "GENERAL", successMP: 5, failMP: -5 };
-    const st = resolveQuest(abilityState(1, 90, "mosje_jeffrey"), "player_1", quest, true, 0);
-    // 90 + 5 = 95, then Brute Force +10 = 105 -> L2 at 0
+  it("Jeffrey Brute Force (+10 after a Quest) can level: L1 at 70 + Quest 25 -> L2 at 0", () => {
+    // Start 70 (was 90 with a V4 +5 Quest): 70 + 25 = 95 stays L1, then Brute Force +10 = 105 -> L2 at 0
+    const st = forceQuestResult(abilityState(1, 70, "mosje_jeffrey"), "player_1", { questId: "quest_quick_thinking", win: true });
     expect([mine(st).level, mine(st).mp]).toEqual([2, 0]);
   });
   it("Alyssa Fissa (bare ability): 2 cards in hand = +10, L1 at 95 -> L2 at 0", () => {

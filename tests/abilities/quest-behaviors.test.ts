@@ -1,18 +1,16 @@
 import { describe, expect, it } from "vitest";
 // @ts-expect-error — JS module, no type declarations
-import { resolveQuest, quest_req_hack_mainframe, getPartnerSynergyQuestBonus } from "../../src/abilities/questLogic.js";
+import { quest_req_hack_mainframe, getPartnerSynergyQuestBonus } from "../../src/abilities/questLogic.js";
+import { forceQuestResult } from "../helpers/forceQuestResult.js";
+import { build, finish } from "../helpers/quest56.js";
 // @ts-expect-error — JS module, no type declarations
 import { QUESTS } from "../../src/data/quests.js";
 
 // ─────────────────────────────────────────────────────────────
 // Phase 21 Plan 01 — wire 3 engine-doable quest behaviors that were
 // previously DEFERRED to a UI hook (they are pure state changes):
-//   1. drawOnSuccess  — resolveQuest draws N cards from the questing
-//      player's deck into their hand on success (Artistic Expression,
-//      Late Night Questing).
-//   2. opponentLoseMP — resolveQuest drains an opponent's first active
-//      Mosje on success (Elimination Challenge), via loseMP, skipped
-//      under The Void.
+//   1. drawOnSuccess  — V4 resolveQuest draw-2; replaced in 2.0 by Cheat code (win draws 1).
+//   2. opponentLoseMP — V4 Elimination Challenge (now disabled); replaced in 2.0 by the win jab (quest-jab.test.ts).
 //   3. quest_req_hack_mainframe — the Hacker/FPS -1 threshold bonus must
 //      read the populated id field (cardId), not the always-undefined
 //      mosje.mosjeId.
@@ -59,83 +57,19 @@ function makeState(opts: { p1mp?: number; p2mp?: number; activePlace?: any } = {
   } as any;
 }
 
-// A bare questCard literal so the resolveQuest behavior tests do not depend
-// on the real quest definitions (those are asserted separately below).
-function questCard(extra: Record<string, any> = {}) {
-  return {
-    id: "quest_test",
-    requirementId: "quest_req_test",
-    successMP: 0,
-    failMP: 0,
-    ...extra,
-  };
-}
-
 // ─────────────────────────────────────────────────────────────
-// drawOnSuccess
+// drawOnSuccess -> 2.0 Cheat code (win draws 1 card; a fail draws nothing)
+// V4 "draw 2 on success" (Artistic Expression / Late Night Questing) is gone from the Card List.
+// 2.0 counterparts: quest-extras.test.ts "Cheat code win draws 1; empty deck ...".
+// The V4 "opponentLoseMP" block (Elimination Challenge, now disabled) is covered by the 2.0 win
+// jab in quest-jab.test.ts. Both V4 describes were removed with resolveQuest.
 // ─────────────────────────────────────────────────────────────
-describe("resolveQuest — drawOnSuccess", () => {
-  it("draws N cards to the questing player's hand on success", () => {
-    const state = makeState();
-    state.players.player_1.deck = [
-      { cardId: "c1" },
-      { cardId: "c2" },
-      { cardId: "c3" },
-    ];
-
-    const next = resolveQuest(state, "player_1", questCard({ drawOnSuccess: 2 }), true);
-
-    expect(next.players.player_1.hand.map((c: any) => c.cardId)).toEqual(["c1", "c2"]);
-    expect(next.players.player_1.deck.map((c: any) => c.cardId)).toEqual(["c3"]);
-  });
-
-  it("does NOT draw on failure", () => {
-    const state = makeState();
-    state.players.player_1.deck = [{ cardId: "c1" }, { cardId: "c2" }];
-
-    const next = resolveQuest(state, "player_1", questCard({ drawOnSuccess: 2 }), false);
-
-    expect(next.players.player_1.hand.length).toBe(0);
-    expect(next.players.player_1.deck.length).toBe(2);
-  });
-
-  it("does not draw when the deck is empty (no crash, hand unchanged)", () => {
-    const state = makeState();
-    state.players.player_1.deck = [];
-
-    const next = resolveQuest(state, "player_1", questCard({ drawOnSuccess: 2 }), true);
-
-    expect(next.players.player_1.hand.length).toBe(0);
-    expect(next.players.player_1.deck.length).toBe(0);
-  });
-});
-
-// ─────────────────────────────────────────────────────────────
-// opponentLoseMP (Elimination Challenge)
-// ─────────────────────────────────────────────────────────────
-describe("resolveQuest — opponentLoseMP", () => {
-  it("drains the opponent's first active Mosje on success", () => {
-    const state = makeState({ p2mp: 100 });
-
-    const next = resolveQuest(state, "player_1", questCard({ opponentLoseMP: 30 }), true);
-
-    expect(next.players.player_2.activeSlots[0].mp).toBe(70);
-  });
-
-  it("does NOT drain on failure", () => {
-    const state = makeState({ p2mp: 90 });
-
-    const next = resolveQuest(state, "player_1", questCard({ opponentLoseMP: 30 }), false);
-
-    expect(next.players.player_2.activeSlots[0].mp).toBe(90);
-  });
-
-  it("skips the drain under The Void", () => {
-    const state = makeState({ p2mp: 90, activePlace: "place_the_void" });
-
-    const next = resolveQuest(state, "player_1", questCard({ opponentLoseMP: 30 }), true);
-
-    expect(next.players.player_2.activeSlots[0].mp).toBe(90);
+describe("2.0 Quest draw on win (Cheat code)", () => {
+  it("a failed Cheat code attempt draws nothing", () => {
+    const { s, q } = build("cheat_code", { p1: { deck: [{ cardId: "a" }, { cardId: "b" }], hand: [] } });
+    const out = finish(s, q, false).players.player_1;
+    expect(out.hand).toHaveLength(0);
+    expect(out.deck).toHaveLength(2);
   });
 });
 
@@ -228,21 +162,25 @@ describe("getPartnerSynergyQuestBonus", () => {
 });
 
 // ─────────────────────────────────────────────────────────────
-// resolveQuest — bonus MP application (armed questBonusMP + live
-// partner-synergy), both gated to success only.
+// 2.0 attempt (rollQuestAttempt + resolveQuestAttempt) — bonus MP application (armed questBonusMP + live
+// partner-synergy), both gated to success only. Base amounts come from the Card List:
+// Quick Thinking (Steady, Mental) +25 / -15, Arm Wrestling (Skilled, Physical) +40 / -30.
 // ─────────────────────────────────────────────────────────────
-describe("resolveQuest — bonus MP application", () => {
-  // Every case below stays comfortably under the 100 MP level-up threshold —
-  // resolveQuest applies successMP and the bonus as TWO separate gainMP
-  // calls, so crossing 100 between them would pull in checkLevelUp's carry-
-  // over math, which isn't what these tests are about.
+describe("2.0 Quest attempt — bonus MP application", () => {
+  // Every case stays under the 100 MP level-up threshold (gain and bonus are separate gainMP calls).
+  function withPhysical(state: any) {
+    // Arm Wrestling is Skilled (2 dice): 2 Physical stars give the dice to win it.
+    for (const s of state.players.player_1.activeSlots) if (s) s.traits = { physical: 2 };
+    return state;
+  }
+
   it("applies and resets the one-shot questBonusMP flag on success", () => {
     const state = makeState({ p1mp: 20 });
     state.players.player_1.questBonusMP = 10;
 
-    const next = resolveQuest(state, "player_1", questCard({ successMP: 30 }), true);
+    const next = forceQuestResult(state, "player_1", { questId: "quest_quick_thinking", win: true });
 
-    expect(next.players.player_1.activeSlots[0].mp).toBe(60); // 20 + 30 + 10
+    expect(next.players.player_1.activeSlots[0].mp).toBe(55); // 20 + 25 + 10
     expect(next.players.player_1.questBonusMP).toBe(0);
   });
 
@@ -250,25 +188,22 @@ describe("resolveQuest — bonus MP application", () => {
     const state = makeState({ p1mp: 50 });
     state.players.player_1.questBonusMP = 10;
 
-    const next = resolveQuest(state, "player_1", questCard({ failMP: -10 }), false);
+    const next = forceQuestResult(state, "player_1", { questId: "quest_quick_thinking", win: false });
 
     expect(next.players.player_1.questBonusMP).toBe(10);
   });
 
   it("applies the West+Cless Physical-quest synergy bonus on success", () => {
-    const state = makeState({ p1mp: 50 });
+    const state = withPhysical(makeState({ p1mp: 50 }));
     state.players.player_1.activeSlots = [
       makeSlot("mosje_martin_senor_west", 30),
       makeSlot("mosje_azn_cless", 30),
     ];
+    withPhysical(state);
 
-    const next = resolveQuest(
-      state, "player_1",
-      questCard({ id: "quest_test_physical", category: "Physical", successMP: 30 }),
-      true, 0
-    );
+    const next = forceQuestResult(state, "player_1", { questId: "quest_arm_wrestling", win: true });
 
-    expect(next.players.player_1.activeSlots[0].mp).toBe(75); // 30 + 30 + 15
+    expect(next.players.player_1.activeSlots[0].mp).toBe(85); // 30 + 40 + 15
   });
 
   it("does NOT apply the synergy bonus for a non-Physical quest", () => {
@@ -278,13 +213,9 @@ describe("resolveQuest — bonus MP application", () => {
       makeSlot("mosje_azn_cless", 30),
     ];
 
-    const next = resolveQuest(
-      state, "player_1",
-      questCard({ id: "quest_test_mental", category: "Mental", successMP: 30 }),
-      true, 0
-    );
+    const next = forceQuestResult(state, "player_1", { questId: "quest_quick_thinking", win: true });
 
-    expect(next.players.player_1.activeSlots[0].mp).toBe(60); // 30 + 30, no synergy
+    expect(next.players.player_1.activeSlots[0].mp).toBe(55); // 30 + 25, no synergy
   });
 
   it("stacks the armed bonus AND the partner synergy together", () => {
@@ -294,13 +225,10 @@ describe("resolveQuest — bonus MP application", () => {
       makeSlot("mosje_martin_senor_west", 20),
       makeSlot("mosje_azn_cless", 20),
     ];
+    withPhysical(state);
 
-    const next = resolveQuest(
-      state, "player_1",
-      questCard({ id: "quest_test_physical2", category: "Physical", successMP: 20 }),
-      true, 0
-    );
+    const next = forceQuestResult(state, "player_1", { questId: "quest_arm_wrestling", win: true });
 
-    expect(next.players.player_1.activeSlots[0].mp).toBe(65); // 20 + 20 + 10 + 15
+    expect(next.players.player_1.activeSlots[0].mp).toBe(85); // 20 + 40 + 10 + 15
   });
 });
