@@ -7,8 +7,36 @@ import { QUEST_EXTRAS } from './questExtras.js';
 import { getQuestDiceCount } from './getQuestDiceCount.js';
 import { rollQuestDice } from './rollQuestDice.js';
 import { isBandWin } from './isBandWin.js';
+import { getEligibleReactions } from '../reactions/getEligibleReactions.js';
+import { buildPendingReaction } from '../reactions/buildPendingReaction.js';
+import { REACTION_MOMENTS as M } from '../reactions/reactionMoments.js';
 
-export function rollQuestAttempt(state, playerId, { slotIndex, stackId, costChoice, dieChoices = {}, rng = Math.random }) {
+export function rollQuestAttempt(state, playerId, options) {
+	if (options.skipReactions || state.pendingReaction) return rollCore(state, playerId, options);
+	const other = Object.keys(state.players).find(id => id !== playerId);
+	if (!options.skipBeforeRoll) {
+		const dry = rollCore(state, playerId, { ...options, rng: () => 0.5 });
+		const eligible = dry.ok ? getEligibleReactions(state, playerId, [M.BEFORE_OWN_QUEST_ROLL]) : [];
+		if (eligible.length) {
+			const { rng, ...args } = options;
+			const w = { responderId: playerId, moments: [M.BEFORE_OWN_QUEST_ROLL], eligible };
+			return { ok: true, state: buildPendingReaction(state, playerId, { type: 'quest', args: [playerId, args] }, [w]), reactionPending: true };
+		}
+	}
+	const res = rollCore(state, playerId, options);
+	if (!res.ok) return res;
+	const windows = [];
+	for (const [who, moments] of [[other, [M.AFTER_QUEST_ROLL]], [playerId, [M.AFTER_OWN_QUEST_ROLL]]]) {
+		const eligible = who ? getEligibleReactions(res.state, who, moments) : [];
+		if (eligible.length) windows.push({ responderId: who, moments, eligible });
+	}
+	if (!windows.length) return res;
+	const held = JSON.parse(JSON.stringify(res.state));
+	held.pendingQuestRoll = res.pending;
+	return { ...res, state: buildPendingReaction(held, playerId, { type: 'continueQuest', args: [] }, windows), reactionPending: true };
+}
+
+function rollCore(state, playerId, { slotIndex, stackId, costChoice, dieChoices = {}, rng = Math.random }) {
 	const fail = (error) => ({ ok: false, state, error });
 	const gate = canMosjeTakeAction(state, playerId, slotIndex);
 	if (!gate.ok) return fail(gate.error);

@@ -43,7 +43,7 @@ export function resolveReaction(state, responderId, cardId = null) {
 		if (!eligible.length) continue;
 		s.pendingReaction = { ...p, id: `${p.id}+`, moments: w.moments, responderId: w.responderId, eligible, queue,
 			preview: { getemt: [], toWelloe: false, mpLoss: {} } };
-		return { state: s, ok: true, success: true, pending: true };
+		return { state: s, ok: true, success: true, reactionPending: true };
 	}
 	const res = replay(s, p.action);
 	return { ...res, ok: res.ok ?? res.success, success: res.success ?? res.ok };

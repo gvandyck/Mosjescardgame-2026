@@ -161,3 +161,71 @@ describe("data map", () => {
     expect(get("snelle_momentum_rush")).toEqual([]);
   });
 });
+
+// ---- Quest windows: beforeOwnQuestRoll, afterQuestRoll, afterOwnQuestRoll ----
+// @ts-expect-error
+import { rollQuestAttempt } from "../../src/engine/quests/rollQuestAttempt.js";
+// @ts-expect-error
+import { resolveQuestAttempt } from "../../src/engine/quests/resolveQuestAttempt.js";
+// @ts-expect-error
+import { getQuestDef } from "../../src/engine/quests/getQuestDef.js";
+
+describe("Quest windows", () => {
+  const q = getQuestDef("quest_tough_it_out");
+  function qBoard(h1: string[], h2: string[]) {
+    const stacks: any = {};
+    for (const id of ["FIGHTING", "DIGITAL", "ARTISTIC"]) stacks[id] = { deck: ["quest_filler"], faceUp: "quest_filler", tokens: 0, discard: [] };
+    stacks[q.stack] = { deck: ["quest_filler"], faceUp: q.id, tokens: 0, discard: [] };
+    const slot = () => mk(30, plain, 1, { traits: { physical: 1, mental: 1, creative: 1, technical: 1, resilient: 1, social: 1 } });
+    return makeEngineState({
+      turnNumber: 3, questStacks: stacks,
+      players: { player_1: { hand: H(...h1), activeSlots: [slot(), null] }, player_2: { hand: H(...h2), activeSlots: [slot(), null] } },
+    });
+  }
+  const opts = { slotIndex: 0, stackId: q.stack, rng: () => 0.7 };
+
+  it("beforeOwnQuestRoll: window before any payment/roll; Sleutelpuntje adds a die; no second before-window", () => {
+    const s = qBoard(["snelle_sleutelpuntje"], []);
+    const w = rollQuestAttempt(s, "player_1", opts);
+    expect(w.ok).toBe(true);
+    expect(w.pending).toBeUndefined();
+    expect(w.state.pendingReaction.moments).toEqual(["beforeOwnQuestRoll"]);
+    expect(w.state.pendingReaction.action.type).toBe("quest");
+    expect(w.state.players.player_1.activeSlots[0].actedThisTurn).toBeFalsy();
+    const r = resolveReaction(w.state, "player_1", "snelle_sleutelpuntje");
+    expect(r.ok).toBe(true);
+    expect(r.state.pendingReaction).toBeUndefined();
+    expect(r.pending.diceCount).toBe(2);
+    const pass = resolveReaction(w.state, "player_1", null);
+    expect(pass.pending.diceCount).toBe(1);
+  });
+  it("afterQuestRoll (defender) then afterOwnQuestRoll (actor); pendingQuestRoll feeds resolveQuestAttempt", () => {
+    const s = qBoard(["snelle_lucky_coin"], ["snelle_jeweetniet"]);
+    const w = rollQuestAttempt(s, "player_1", opts);
+    expect(w.state.pendingReaction.responderId).toBe("player_2");
+    expect(w.state.pendingReaction.moments).toEqual(["afterQuestRoll"]);
+    expect(w.state.pendingReaction.action.type).toBe("continueQuest");
+    expect(w.state.pendingQuestRoll.dice).toEqual([5]);
+    expect(resolveQuestAttempt(w.state, w.pending).ok).toBe(false);
+    const n = resolveReaction(w.state, "player_2", null);
+    expect(n.state.pendingReaction.responderId).toBe("player_1");
+    expect(n.state.pendingReaction.moments).toEqual(["afterOwnQuestRoll"]);
+    const e = resolveReaction(n.state, "player_1", null);
+    expect(e.state.pendingReaction).toBeUndefined();
+    const out = resolveQuestAttempt(e.state, undefined as any);
+    expect(out.ok).toBe(true);
+    expect(out.state.pendingQuestRoll).toBeUndefined();
+    expect(out.win).toBe(true);
+  });
+  it("Lucky Coin is eligible after the opponent's roll and after the owner's own roll", () => {
+    const opp = rollQuestAttempt(qBoard([], ["snelle_lucky_coin"]), "player_1", opts);
+    expect(opp.state.pendingReaction.moments).toEqual(["afterQuestRoll"]);
+    const own = rollQuestAttempt(qBoard(["snelle_lucky_coin"], []), "player_1", opts);
+    expect(own.state.pendingReaction.moments).toEqual(["afterOwnQuestRoll"]);
+  });
+  it("skipReactions never opens a window", () => {
+    const r = rollQuestAttempt(qBoard(["snelle_sleutelpuntje", "snelle_lucky_coin"], ["snelle_jeweetniet"]), "player_1", { ...opts, skipReactions: true });
+    expect(r.state.pendingReaction).toBeUndefined();
+    expect(r.pending.dice).toEqual([5]);
+  });
+});

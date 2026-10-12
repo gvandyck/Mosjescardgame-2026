@@ -20,5 +20,5 @@ export function withReactionWindow(state, actorId, action, run) {
 		if (e.length) windows.push({ responderId: actorId, moments: own, eligible: e, preview: { getemt: [], toWelloe: false, mpLoss: {} } });
 	}
 	if (!windows.length) return res;
-	return { state: buildPendingReaction(state, actorId, action, windows), ok: true, success: true, pending: true };
+	return { state: buildPendingReaction(state, actorId, action, windows), ok: true, success: true, reactionPending: true };
 }

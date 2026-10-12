@@ -9,6 +9,12 @@ import { applyQuestJab } from './applyQuestJab.js';
 import { advanceQuestStack } from './advanceQuestStack.js';
 
 export function resolveQuestAttempt(state, pending, choices = {}) {
+	if (state.pendingReaction) return { ok: false, state, error: 'A reaction window is still open' };
+	if (state.pendingQuestRoll) {
+		pending = state.pendingQuestRoll;
+		state = JSON.parse(JSON.stringify(state));
+		delete state.pendingQuestRoll;
+	}
 	const { playerId, slotIndex, stackId, questId, win, dice } = pending;
 	const quest = getQuestDef(questId);
 	if (!quest || state.questStacks?.[stackId]?.faceUp !== questId) {
