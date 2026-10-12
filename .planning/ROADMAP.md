@@ -160,7 +160,7 @@ Plans:
 - [x] 57-01-PLAN.md — Piecie readiness (isPiecieReady, no playedOnTurn+1 fallback), 3 Piecie-only slots, headless Activate-button repro + fix (E22)
 - [x] 57-02-PLAN.md — Stays lifecycle (end times, discard at once otherwise), V4 persistence removed (E25; TABLE-02)
 - [x] 57-03-PLAN.md — Snelle slot rule + immediate discard, Blensen! until end of turn; Welloe pile exit gate (E23; TABLE-03, TABLE-06)
-- [ ] 57-04-PLAN.md — Places from hand, one in play, works at once, no slot; activatePlace removed from engine/bot/UI (E24)
+- [x] 57-04-PLAN.md — Places from hand, one in play, works at once, no slot; activatePlace removed from engine/bot/UI (E24)
 - [ ] 57-05-PLAN.md — Reaction-window engine (7 defender + 3 acting-player moments, window queue, pendingReaction + resolveReaction, Snelle reactionMoments data) + bot responder
 - [ ] 57-06-PLAN.md — Human reaction prompt on the generic modal, V4 interrupt removed; Playwright U6 + U7 (TABLE-04, TABLE-05)
 - [ ] 57-07-PLAN.md — +1 die Piecies on questExtraDice (chain-1/6), VIS-01/02/08 on 2.0, fixme-reason guard, V4 audit, phase gate (SHELL-04)
