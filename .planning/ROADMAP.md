@@ -260,6 +260,7 @@ Plans:
   3. `npm run test:sim` runs the 2.0 rules with the 3 Example Decks with 0 crashes and a timeout rate under 25%.
   4. A push to `obby-2.0` deploys to eightytwenty.nl/obbycardgame2 through its own workflow (same FTP secrets), a push to `main` still deploys only V4, and the 2.0 site shows an `APP_VERSION` starting with `2.0-`, bumped per shipped change.
 **Tests to add**: U11 (`full-game-2.0.spec.js`); 2.0 sim scenarios.
+**Known gap from Phase 57 (57-07)**: below 1920 wide (e.g. 1280) the hand overlay covers the Piecie Activate button (place-play spec fails at 1280). Fix with the 2.0 board layout; judge at ≥1920×1080 but don't break smaller windows.
 **Notes**: Compare sim shape with the desk sim (median ~15 rounds, ~74% attacks, seat 1 ~55%) as a rules sanity check only; balancing is parked. Firebase is not needed for slice A. Never merge `obby-2.0` into `main` (Gandalf's call).
 **Plans**: TBD
 **UI hint**: yes
