@@ -29,6 +29,7 @@ import { attackMosje } from '../engine/actions/attackMosje.js';
 import { rollQuestAttempt } from '../engine/quests/rollQuestAttempt.js';
 import { resolveQuestAttempt } from '../engine/quests/resolveQuestAttempt.js';
 import { getQuestDef } from '../engine/quests/getQuestDef.js';
+import { settleReactions } from './settleReactions.js';
 import { chooseMosjeAction } from './strategy/chooseMosjeAction.js';
 import { chooseQuestChoices } from './strategy/chooseQuestChoices.js';
 import { canMosjeTakeAction } from '../engine/actions/canMosjeTakeAction.js';
@@ -234,14 +235,40 @@ function shouldUseEliminationStrike(state, botPlayerId, slot, cost) {
  * @param {string} botPlayerId — must equal gameState.activePlayerId
  * @returns {Array<{state: object, label: string}>}
  */
-export function driveBotTurnSteps(gameState, botPlayerId) {
+export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}) {
   const steps = [];
   // Defensive clone: some engine functions mutate the state they receive.
   let state = JSON.parse(JSON.stringify(gameState));
   const profile = getBotProfile(state, botPlayerId);
   const push = (label) => steps.push({ state, label });
-  const finished = () => state.status === 'FINISHED';
+  let halted = false; // a human must answer a reaction window first
+  const finished = () => state.status === 'FINISHED' || halted;
+  // Answer bot-side windows; stop (and show the window) when a human must answer.
+  const settle = () => {
+    const r = settleReactions(state, humanIds);
+    state = r.state;
+    if (r.waiting) { halted = true; push('waits for your reaction'); }
+    return !halted;
+  };
+  // Resolve a bot Quest roll that was held back by reaction windows.
+  const finishHeldQuest = () => {
+    const held = state.pendingQuestRoll;
+    if (!held || held.playerId !== botPlayerId || state.pendingReaction) return;
+    const choices = chooseQuestChoices(state, botPlayerId, held);
+    const done = resolveQuestAttempt(state, held, choices);
+    if (!done.ok) { state = { ...state }; delete state.pendingQuestRoll; return; }
+    state = done.state;
+    const slotName = state.players[botPlayerId].activeSlots[held.slotIndex]?.name;
+    emitBotMetric('quest-roll', { deck: profile.deckId, quest: held.questId, dice: held.dice.length, success: done.win });
+    push(`${slotName} tries ${getQuestDef(held.questId)?.name ?? held.questId}: dice [${held.dice.join(',')}] ${done.win ? 'WIN' : 'FAIL'}`);
+  };
   const onCooldown = state.players[botPlayerId]?.cooldownTurn === true;
+
+  // Resume: answer an open window / finish a held Quest roll before anything else.
+  if (state.pendingReaction || state.pendingQuestRoll) {
+    if (settle()) finishHeldQuest();
+    if (halted) return steps;
+  }
 
   // ── Ability helper: use each eligible Mosje's ability in the given phase ──
   const useAbilitiesFor = (timing) => {
@@ -348,6 +375,7 @@ export function driveBotTurnSteps(gameState, botPlayerId) {
     const result = activatePiecie(state, botPlayerId, idx);
     if (result.success) {
       state = result.state;
+      if (result.reactionPending && !settle()) return steps;
       state = resolveBotVarkenspootjesPending(state, botPlayerId);
       push(`activates ${entry.cardId.replace('piecie_', '').replace(/_/g, ' ')}`);
     }
@@ -401,12 +429,22 @@ export function driveBotTurnSteps(gameState, botPlayerId) {
         if (!res.ok) { emitBotMetric('action-skip', { deck: profile.deckId, reason: res.error }); continue; }
         const targetName = state.players[action.targetPlayerId].activeSlots[action.targetSlotIndex]?.name;
         state = res.state;
+        if (res.reactionPending) {
+          if (!settle()) return;
+          push(`${slot.name} attacks ${targetName}`);
+          continue;
+        }
         emitBotMetric('attack', { deck: profile.deckId, power: res.power, final: res.final });
         push(`${slot.name} attacks ${targetName} for ${res.final}`);
         continue;
       }
       const roll = rollQuestAttempt(state, botPlayerId, { slotIndex: i, stackId: action.stackId, costChoice: action.costChoice, dieChoices: action.dieChoices });
       if (!roll.ok) { emitBotMetric('action-skip', { deck: profile.deckId, reason: roll.error }); continue; }
+      if (roll.reactionPending) {
+        state = roll.state;
+        if (settle()) finishHeldQuest();
+        continue;
+      }
       const questName = getQuestDef(roll.pending.questId)?.name ?? roll.pending.questId;
       const choices = chooseQuestChoices(roll.state, botPlayerId, roll.pending);
       const done = resolveQuestAttempt(roll.state, roll.pending, choices);

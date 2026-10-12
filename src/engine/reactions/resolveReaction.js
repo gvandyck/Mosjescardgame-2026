@@ -14,7 +14,11 @@ function replay(state, action) {
 		case 'attack': return attackMosje(state, a[0], a[1], SKIP);
 		case 'activatePiecie': return activatePiecie(state, a[0], a[1], SKIP);
 		case 'playSnelle': return playSnellie(state, a[0], a[1], a[2], SKIP);
-		case 'quest': return rollQuestAttempt(state, a[0], { ...a[1], skipBeforeRoll: true });
+		case 'quest': {
+			const r = rollQuestAttempt(state, a[0], { ...a[1], skipBeforeRoll: true });
+			if (r.ok && r.pending && !r.state.pendingQuestRoll) r.state = { ...r.state, pendingQuestRoll: r.pending };
+			return r;
+		}
 		default: return { state, ok: true, success: true };
 	}
 }

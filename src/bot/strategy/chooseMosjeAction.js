@@ -37,7 +37,7 @@ function bestQuest(state, botId, slotIndex, slot) {
 		if (!quest) continue;
 		const paid = chooseQuestCostChoice(state, botId, slotIndex, quest);
 		if (!paid.ok) continue;
-		const dry = rollQuestAttempt(state, botId, { slotIndex, stackId, costChoice: paid.choice, rng: () => 0 });
+		const dry = rollQuestAttempt(state, botId, { slotIndex, stackId, costChoice: paid.choice, rng: () => 0, skipReactions: true });
 		if (!dry.ok) continue;
 		const p = questWinChance(quest.band, getQuestDiceCount(state, botId, slot, quest));
 		const lose = Math.abs(quest.lose || 0);
