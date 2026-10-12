@@ -1,7 +1,7 @@
 // @ts-nocheck
 // E21 - Obby 2.0 RULE-07 cooldown turn (replaces the V4 deck-out skip).
 import { describe, it, expect } from "vitest";
-import { startTurn, endTurn, phaseDrawCard, playMosje, playPlace, playPiecie, activatePiecie, playSnellie, useMosjeAbility, activatePlace } from "../../src/engine/turnManager.js";
+import { startTurn, endTurn, phaseDrawCard, playMosje, playPlace, playPiecie, activatePiecie, playSnellie, useMosjeAbility } from "../../src/engine/turnManager.js";
 import { rollQuestAttempt } from "../../src/engine/quests/rollQuestAttempt.js";
 import { attackMosje } from "../../src/engine/actions/attackMosje.js";
 import { isCooldownBlocked } from "../../src/engine/turn/isCooldownBlocked.js";
@@ -45,7 +45,6 @@ describe("E21 - cooldown turn", () => {
       activatePiecie(s, "player_1", 0),
       playSnellie(s, "player_1", { cardId: "x" }, {}),
       useMosjeAbility(s, "player_1", MOSJES[0].id),
-      activatePlace(s, "player_1", 0),
     ];
     for (const r of checks) {
       expect(r.success).toBe(false);

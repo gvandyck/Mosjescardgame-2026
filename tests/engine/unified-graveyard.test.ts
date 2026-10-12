@@ -11,7 +11,6 @@ function makeState(overrides: Record<string, unknown> = {}) {
     activePlace: null as string | null,
     activePlacePlayedBy: null as string | null,
     activePlaceTurnsActive: 0,
-    activePlaceCanActivateOnTurn: 0,
     activePlayerId: 'player_1',
     turnNumber: 1,
     status: 'ACTIVE',

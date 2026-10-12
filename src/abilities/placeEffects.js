@@ -497,11 +497,6 @@ export function resolvePlaceEffect(gameState, triggerPhase, context = {}) {
 
 	if (!placeDef || placeDef.trigger !== triggerPhase) return gameState;
 
-	const canActivateOnTurn = Number.isFinite(gameState.activePlaceCanActivateOnTurn)
-		? gameState.activePlaceCanActivateOnTurn
-		: 0;
-	if (gameState.turnNumber < canActivateOnTurn) return gameState;
-
 	const state = gameState;
 	let nextState = state;
 	const { playerId, questCard, didSucceed, mosje, questsCompletedThisTurn, newMosjeSlotIndex } = context;

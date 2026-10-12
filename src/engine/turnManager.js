@@ -652,57 +652,6 @@ export function activateSynergyWaiver(gameState, playerId) {
   return { state, success: true };
 }
 
-export function activatePlace(gameState, playerId, slotIndex) {
-  let state = JSON.parse(JSON.stringify(gameState));
-  let player = state.players[playerId];
-  if (!player) return { state, success: false, error: 'Player not found' };
-  if (isCooldownBlocked(state, playerId)) return { state, success: false, error: COOLDOWN_ERROR };
-
-  if (state.activePlayerId !== playerId) {
-    return { state, success: false, error: 'You can only activate Places on your own turn' };
-  }
-
-  normalizePiecieSlots(player);
-  const slot = player.piecieSlots[slotIndex];
-  if (!slot || slot.type !== 'PLACE') {
-    return { state, success: false, error: 'No Place in this slot' };
-  }
-
-  if (slot.activated) {
-    return { state, success: false, error: 'This Place is already activated' };
-  }
-
-  const canActivateOnTurn = Number.isFinite(slot.canActivateOnTurn)
-    ? slot.canActivateOnTurn
-    : 0;
-  if (state.turnNumber < canActivateOnTurn) {
-    return { state, success: false, error: `This Place cannot be activated until turn ${canActivateOnTurn}` };
-  }
-
-  const cardId = slot.cardId;
-  const cardDef = PLACE_LOOKUP[cardId];
-  if (!cardDef) return { state, success: false, error: 'Card definition not found' };
-
-  // Phase 57 moves Places to direct play from hand; the cost is paid when the Place starts working.
-  const placePay = payEnergy(state, playerId, Number(cardDef.cost) || 0);
-  if (!placePay.success) return { state: gameState, success: false, error: placePay.error || 'Not enough Energy' };
-
-  // Remove from piecieSlots
-  player.piecieSlots[slotIndex] = null;
-
-  // Set as active Place
-  state = setActivePlace(state, cardId, playerId);
-
-  // Apply PASSIVE effects on activation
-  if (cardDef.trigger === 'PASSIVE') {
-    state = placeEffects.resolvePlaceEffect(state, 'PASSIVE');
-  }
-
-  console.log(`[ENGINE] Place activated: ${cardDef.name} by ${playerId}`);
-  state = checkVictory(state);
-  return { state, success: true, cardDef };
-}
-
 export function activatePiecie(gameState, playerId, slotIndex) {
   let state = JSON.parse(JSON.stringify(gameState));
   let player = state.players[playerId];
@@ -1289,45 +1238,28 @@ export function playPlace(gameState, playerId, cardRef, cardDef) {
   const player = state.players[playerId];
   if (!player) return { state, success: false, error: 'Player not found' };
   if (isCooldownBlocked(state, playerId)) return { state, success: false, error: COOLDOWN_ERROR };
-
+  if (state.activePlayerId !== playerId) {
+    return { state, success: false, error: 'You can only play a Place on your own turn' };
+  }
   if (isHandCardLocked(state, playerId, cardRef)) {
     return { state, success: false, error: 'That card is locked by Ronald Strategic Insight — you cannot play it this turn.' };
   }
-
-  // Defensive normalization — ensures piecieSlots is always 4 elements with null for empty
-  normalizePiecieSlots(player);
+  if (state.activePlace) return { state, success: false, error: 'A Place is already in play' };
   if (!Array.isArray(player.hand)) player.hand = [];
-  if (!Array.isArray(player.graveyard)) player.graveyard = [];
-
-  // Check if all 3 slots are full
-  const filledSlots = player.piecieSlots.filter(slot => slot !== null && slot !== undefined).length;
-  if (filledSlots >= PIECIE_SLOT_COUNT) {
-    return { state, success: false, error: 'Cannot place a Place — all Piecie slots are full.' };
-  }
-
-  // Remove from hand
   const handIndex = player.hand.findIndex(c => c.cardId === cardRef.cardId);
   if (handIndex === -1) return { state, success: false, error: 'Card not in hand' };
-  player.hand.splice(handIndex, 1);
 
-  // Find empty slot and place face-down (like a Piecie)
-  const emptySlot = player.piecieSlots.findIndex(slot => slot === null);
-  if (emptySlot === -1) {
-    player.hand.splice(handIndex, 0, cardRef);
-    return { state, success: false, error: 'No empty Piecie slot available' };
+  const def = cardDef || PLACE_LOOKUP[cardRef.cardId] || {};
+  const pay = payEnergy(state, playerId, Number(def.cost) || 0);
+  if (!pay.success) return { state: gameState, success: false, error: pay.error || 'Not enough Energy' };
+  state = pay.state;
+  state.players[playerId].hand.splice(handIndex, 1);
+
+  state = setActivePlace(state, cardRef.cardId, playerId);
+  if (def.trigger === 'PASSIVE') {
+    state = placeEffects.resolvePlaceEffect(state, 'PASSIVE');
   }
-
-  player.piecieSlots[emptySlot] = {
-    cardId: cardRef.cardId,
-    type: 'PLACE',
-    faceDown: true,
-    activated: false,
-    playedOnTurn: state.turnNumber,
-    canActivateOnTurn: state.turnNumber + 1,
-    slotIndex: emptySlot,
-  };
-
-  console.log(`[ENGINE] Place played face-down: ${cardDef.name} by ${playerId}`);
+  console.log(`[ENGINE] Place played: ${def.name} by ${playerId}`);
   state = checkVictory(state);
-  return { state, success: true };
+  return { state, success: true, cardDef: def };
 }

@@ -66,7 +66,6 @@ export function createInitialGameState(playerConfigs, roomCode, options = {}) {
     activePlace: null,           // string card id e.g. 'place_the_gym', or null
     activePlacePlayedBy: null,   // playerId who played the current Place
     activePlaceTurnsActive: 0,   // how many full end-phases have passed since Place was set
-    activePlaceCanActivateOnTurn: 0, // earliest turn number when Place can be activated
 
     // Active Quest — visible to all players once revealed
     activeQuest: null,
@@ -262,7 +261,7 @@ export function getPlayerMosjes(gameState, playerId) {
 // ─────────────────────────────────────────────────────────────
 // setActivePlace
 // Places a Place card onto the shared field.
-// Moves any existing Place to its owner's personal discard, then sets the new Place.
+// Defensive: moves any existing Place to its owner's discard (playPlace refuses before this).
 // playedByPlayerId — the player who played this Place card.
 // Returns updated gameState.
 // ─────────────────────────────────────────────────────────────
@@ -280,7 +279,6 @@ export function setActivePlace(gameState, cardId, playedByPlayerId) {
   state.activePlace = cardId;
   state.activePlacePlayedBy = playedByPlayerId || null;
   state.activePlaceTurnsActive = 0;
-  state.activePlaceCanActivateOnTurn = state.turnNumber + 1;
   console.log(`[ENGINE] Place set: ${cardId} (played by ${playedByPlayerId})`);
   return state;
 }
