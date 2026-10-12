@@ -2,7 +2,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 // @ts-expect-error — JS module, no type declarations
 import { useMosjeAbility, startTurn, activateSynergyWaiver } from "../../src/engine/turnManager.js";
 // @ts-expect-error — JS module, no type declarations
-import { quest_req_perfect_timing, getPartnerSynergyQuestBonus } from "../../src/abilities/questLogic.js";
+// @ts-expect-error - JS module
+import { getQuestDiceCount } from "../../src/engine/quests/getQuestDiceCount.js";
+import { getPartnerSynergyQuestBonus } from "../../src/abilities/questLogic.js";
 // @ts-expect-error — JS module, no type declarations
 import { getActiveSynergies, hasFoodDoubleSynergy } from "../../src/engine/synergyResolver.js";
 // @ts-expect-error — JS module, no type declarations
@@ -56,10 +58,12 @@ describe("place_synergy_chamber (PLACE-11) — Task 1: dead bonuses removed", ()
     expect(result.state.players.player_1.activeSlots[0].mp).toBe(5);
   });
 
-  it("quest_req_perfect_timing's roll is no longer offset by a Synergy-Chamber bonus", () => {
-    vi.spyOn(Math, "random").mockReturnValue(0.5); // rollDie(6) => 4
-    const result = quest_req_perfect_timing({ activePlace: "place_synergy_chamber" }, null);
-    expect(result.diceRoll).toBe(4);
+  it("Synergy Chamber adds no Quest die (2.0 getQuestDiceCount; replaces V4 perfect_timing roll offset check)", () => {
+    const slot = { name: "T", traits: { technical: 2 }, entryProtected: false };
+    const q = { rollTrait: "technical", band: "steady" };
+    const base = getQuestDiceCount({ activePlace: null, players: { p1: {} } }, "p1", slot, q);
+    const chamber = getQuestDiceCount({ activePlace: "place_synergy_chamber", players: { p1: {} } }, "p1", slot, q);
+    expect(chamber).toBe(base);
   });
 
   it("getSynergyChambercostReduction and getSynergyChamberDiceBonus no longer exist as exports", () => {

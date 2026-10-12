@@ -1,10 +1,8 @@
 import { describe, expect, it } from "vitest";
 // @ts-expect-error — JS module, no type declarations
-import {
-  quest_req_chain_master,
-  quest_req_speed_run,
-  quest_req_sustained_assault,
-} from "../../src/abilities/questLogic.js";
+import { checkQuestCondition } from "../../src/engine/quests/checkQuestCondition.js";
+// @ts-expect-error — JS module, no type declarations
+import { getQuestDef } from "../../src/engine/quests/getQuestDef.js";
 // @ts-expect-error — JS module, no type declarations
 import { QUESTS } from "../../src/data/quests.js";
 // @ts-expect-error — JS module, no type declarations
@@ -13,11 +11,12 @@ import { playPiecie } from "../../src/engine/turnManager.js";
 import { startTurn } from "../../src/engine/turnManager.js";
 
 // ─────────────────────────────────────────────────────────────
-// Phase 22 — Bucket D quest gate fixes:
-//   1. Chain Master  — uses pieciesPlayedThisTurn (not all-time discard)
-//   2. Speed Run     — gates on pieciesPlayedThisTurn >= 2 (total discard proxy)
-//   3. Sustained Assault — gates on attackPieciePlayedThisTurn flag
-//   4. Larry Temmen  — description matches binary 2-way system
+// Phase 22 quest gates, rewritten for Obby 2.0 (Phase 56):
+//   1. Speed Run gate (Chain Master is disabled in 2.0) on the 2.0 condition table (checkQuestCondition)
+//      - V4 pieciesPlayedThisTurn / all-time-discard gates are gone; counterpart: quest-costs.test.ts
+//   2. Sustained Assault has no gate in 2.0 (V4 attackPieciePlayedThisTurn gate removed)
+//   3. attackPieciePlayedThisTurn tracking in playPiecie / startTurn (engine flag, unchanged)
+//   4. Larry Temmen — description matches binary 2-way system
 // ─────────────────────────────────────────────────────────────
 
 function makePlayer(overrides: Record<string, any> = {}) {
@@ -38,137 +37,57 @@ function makePlayer(overrides: Record<string, any> = {}) {
       },
       null,
     ],
-    piecieSlots: [null, null, null, null],
+    piecieSlots: [null, null, null],
     questsCompleted: 0,
     questsCompletedThisTurn: 0,
-    questsAttemptedThisTurn: 0,
-    hasAttemptedQuestThisTurn: false,
     pieciesPlayedThisTurn: 0,
     attackPieciePlayedThisTurn: false,
     ...overrides,
   };
 }
 
-function makeState(playerOverrides: Record<string, any> = {}) {
+function makeState(playerOverrides: Record<string, any> = {}, slotOverrides: Record<string, any> = {}) {
+  const p1 = makePlayer(playerOverrides);
+  Object.assign(p1.activeSlots[0] as any, slotOverrides);
   return {
     activePlayerId: "player_1",
     activePlace: null,
     turnNumber: 3,
-    players: {
-      player_1: makePlayer(playerOverrides),
-      player_2: makePlayer(),
-    },
+    players: { player_1: p1, player_2: makePlayer() },
   } as any;
 }
 
-const BASE_MOSJE = { traits: { physical: 1, technical: 1 } };
-const TECHNICAL_3_MOSJE = { traits: { physical: 1, technical: 3 } };
-const PHYSICAL_3_MOSJE = { traits: { physical: 3, technical: 1 } };
+const ok = (state: any, id: string) => checkQuestCondition(state, "player_1", 0, getQuestDef(id)).ok;
 
-// ─────────────────────────────────────────────────────────────
-// 1. Chain Master — pieciesPlayedThisTurn gate
-// ─────────────────────────────────────────────────────────────
-describe("quest_req_chain_master", () => {
-  it("blocks attempt when pieciesPlayedThisTurn < 3", () => {
-    const state = makeState({ pieciesPlayedThisTurn: 2 });
-    const result = quest_req_chain_master(null, BASE_MOSJE, state);
-    expect(result.canAttempt).toBe(false);
+describe("Chain Master — disabled in 2.0 (V4 pieciesPlayedThisTurn gate removed)", () => {
+  it("is disabled in the Card List data", () => {
+    expect(getQuestDef("quest_chain_master").disabled).toBe(true);
   });
+});
 
-  it("blocks attempt when pieciesPlayedThisTurn = 0 even with Piecies in all-time discard", () => {
-    const state = makeState({
-      pieciesPlayedThisTurn: 0,
-      discard: [
-        { cardId: "p1", type: "PIECIE" },
-        { cardId: "p2", type: "PIECIE" },
-        { cardId: "p3", type: "PIECIE" },
-        { cardId: "p4", type: "PIECIE" },
-      ],
-    });
-    const result = quest_req_chain_master(null, BASE_MOSJE, state);
-    expect(result.canAttempt).toBe(false);
+describe("Speed Run — 2.0 gate: activate 2 ready Piecies this turn", () => {
+  it("blocks with 0 or 1 activations", () => {
+    expect(ok(makeState({ piecieActivationsThisTurn: 0 }), "quest_speed_run")).toBe(false);
+    expect(ok(makeState({ piecieActivationsThisTurn: 1 }), "quest_speed_run")).toBe(false);
   });
-
-  it("allows attempt when pieciesPlayedThisTurn >= 3", () => {
-    const state = makeState({ pieciesPlayedThisTurn: 3 });
-    const result = quest_req_chain_master(null, BASE_MOSJE, state);
-    expect(result.canAttempt).toBe(true);
-    expect(result.threshold).toBe(3);
-    expect(typeof result.diceRoll).toBe("number");
+  it("allows with 2 activations", () => {
+    expect(ok(makeState({ piecieActivationsThisTurn: 2 }), "quest_speed_run")).toBe(true);
   });
+});
 
-  it("allows attempt when pieciesPlayedThisTurn = 5 (more than needed)", () => {
-    const state = makeState({ pieciesPlayedThisTurn: 5 });
-    const result = quest_req_chain_master(null, BASE_MOSJE, state);
-    expect(result.canAttempt).toBe(true);
+describe("Sustained Assault — 2.0: steady band, no condition (V4 attack-Piecie gate removed)", () => {
+  it("has no costId and is not disabled", () => {
+    const q = getQuestDef("quest_sustained_assault");
+    expect(q.costId).toBeNull();
+    expect(q.disabled).toBeUndefined();
+  });
+  it("attackPieciePlayedThisTurn no longer gates it", () => {
+    expect(ok(makeState({ attackPieciePlayedThisTurn: false }), "quest_sustained_assault")).toBe(true);
   });
 });
 
 // ─────────────────────────────────────────────────────────────
-// 2. Speed Run — pieciesPlayedThisTurn >= 2 gate (early-turn proxy)
-// ─────────────────────────────────────────────────────────────
-describe("quest_req_speed_run", () => {
-  it("blocks attempt when pieciesPlayedThisTurn >= 2 (not early in turn)", () => {
-    const state = makeState({ pieciesPlayedThisTurn: 2 });
-    const result = quest_req_speed_run(null, BASE_MOSJE, state);
-    expect(result.canAttempt).toBe(false);
-  });
-
-  it("allows attempt when pieciesPlayedThisTurn = 0 (early in turn)", () => {
-    const state = makeState({ pieciesPlayedThisTurn: 0 });
-    const result = quest_req_speed_run(null, BASE_MOSJE, state);
-    expect(result.canAttempt).toBe(true);
-    expect(result.threshold).toBe(5);
-  });
-
-  it("allows attempt when pieciesPlayedThisTurn = 1 (still early)", () => {
-    const state = makeState({ pieciesPlayedThisTurn: 1 });
-    const result = quest_req_speed_run(null, BASE_MOSJE, state);
-    expect(result.canAttempt).toBe(true);
-  });
-
-  it("Technical ★★★ reduces threshold to 3", () => {
-    const state = makeState({ pieciesPlayedThisTurn: 0 });
-    const result = quest_req_speed_run(null, TECHNICAL_3_MOSJE, state);
-    expect(result.canAttempt).toBe(true);
-    expect(result.threshold).toBe(3);
-  });
-});
-
-// ─────────────────────────────────────────────────────────────
-// 3. Sustained Assault — attackPieciePlayedThisTurn flag gate
-// ─────────────────────────────────────────────────────────────
-describe("quest_req_sustained_assault", () => {
-  it("blocks attempt when attackPieciePlayedThisTurn is false", () => {
-    const state = makeState({ attackPieciePlayedThisTurn: false });
-    const result = quest_req_sustained_assault(null, BASE_MOSJE, state);
-    expect(result.canAttempt).toBe(false);
-  });
-
-  it("allows attempt when attackPieciePlayedThisTurn is true", () => {
-    const state = makeState({ attackPieciePlayedThisTurn: true });
-    const result = quest_req_sustained_assault(null, BASE_MOSJE, state);
-    expect(result.canAttempt).toBe(true);
-    expect(typeof result.diceRoll).toBe("number");
-  });
-
-  it("Physical ★★★ reduces threshold to 2", () => {
-    const state = makeState({ attackPieciePlayedThisTurn: true });
-    const result = quest_req_sustained_assault(null, PHYSICAL_3_MOSJE, state);
-    expect(result.canAttempt).toBe(true);
-    expect(result.threshold).toBe(2);
-  });
-
-  it("Physical ★ uses threshold 4", () => {
-    const state = makeState({ attackPieciePlayedThisTurn: true });
-    const result = quest_req_sustained_assault(null, BASE_MOSJE, state);
-    expect(result.canAttempt).toBe(true);
-    expect(result.threshold).toBe(4);
-  });
-});
-
-// ─────────────────────────────────────────────────────────────
-// 4. attackPieciePlayedThisTurn — set by playPiecie for ATTACK subtype
+// 3. attackPieciePlayedThisTurn — set by playPiecie for ATTACK subtype
 // ─────────────────────────────────────────────────────────────
 describe("playPiecie — attackPieciePlayedThisTurn tracking", () => {
   function makePlayableState() {
@@ -225,7 +144,7 @@ describe("playPiecie — attackPieciePlayedThisTurn tracking", () => {
 });
 
 // ─────────────────────────────────────────────────────────────
-// 5. startTurn — resets attackPieciePlayedThisTurn
+// 3b. startTurn — resets attackPieciePlayedThisTurn
 // ─────────────────────────────────────────────────────────────
 describe("startTurn — attackPieciePlayedThisTurn reset", () => {
   it("resets attackPieciePlayedThisTurn to false at start of turn", () => {
@@ -276,7 +195,7 @@ describe("startTurn — attackPieciePlayedThisTurn reset", () => {
 });
 
 // ─────────────────────────────────────────────────────────────
-// 6. Larry Temmen — description matches binary 2-way system
+// 4. Larry Temmen — description matches binary 2-way system
 // ─────────────────────────────────────────────────────────────
 describe("Larry Temmen quest definition", () => {
   const larryTemmen = QUESTS.find((q: any) => q.id === "quest_larry_temmen");

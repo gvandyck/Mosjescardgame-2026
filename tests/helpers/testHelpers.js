@@ -118,8 +118,6 @@ export function mockState(overrides = {}) {
       }
     },
     piecieStates: {},
-    sharedGeneralQuestDeck: ['quest_arm_wrestling', 'quest_quick_thinking'],
-    sharedGeneralQuestDiscard: [],
     sharedPlaceSlot: null,
     log: [],
     winner: null
@@ -139,11 +137,6 @@ export function createEngineState(overrides = {}) {
     winnerId: null,
     winReason: null,
     momentumCheckPhase: false,
-    sharedGeneralQuestDeck: [
-      { cardId: 'quest_arm_wrestling', type: 'QUEST' },
-      { cardId: 'quest_quick_thinking', type: 'QUEST' }
-    ],
-    sharedGeneralQuestDiscard: [],
     activePlace: null,
     activePlacePlayedBy: null,
     activePlaceTurnsActive: 0,
@@ -178,7 +171,6 @@ export function createEngineState(overrides = {}) {
         questsAttemptedThisTurn: 0,
         totalDamageTaken: 0,
         questPrepBonus: 0,
-        hasAttemptedQuestThisTurn: false,
         hasRerolledDieThisTurn: false
       },
       player_2: {
@@ -210,7 +202,6 @@ export function createEngineState(overrides = {}) {
         questsAttemptedThisTurn: 0,
         totalDamageTaken: 0,
         questPrepBonus: 0,
-        hasAttemptedQuestThisTurn: false,
         hasRerolledDieThisTurn: false
       }
     }

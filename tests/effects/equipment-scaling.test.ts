@@ -4,7 +4,9 @@ import { describe, expect, it } from 'vitest';
 // @ts-expect-error — JS module, no type declarations
 import { effect_keyboard, effect_mouse, effect_controller, effect_tikker } from '../../src/abilities/piecieEffects.js';
 // @ts-expect-error — JS module, no type declarations
-import { canAttemptGeneralQuest, canAttemptPersonalQuest } from '../../src/abilities/questLogic.js';
+import { checkQuestCondition } from '../../src/engine/quests/checkQuestCondition.js';
+// @ts-expect-error - JavaScript module has no type declarations
+import { getQuestDef } from '../../src/engine/quests/getQuestDef.js';
 
 function makeState(overrides: {
   subtype?: string;
@@ -178,33 +180,19 @@ describe('Equipment MP scaling (BAL-01)', () => {
   });
 
   describe('QUEST_BLOCKED enforcement', () => {
-    const GENERAL_QUEST = {
-      id: 'quest_arm_wrestling',
-      requirementId: 'quest_req_arm_wrestling',
-      successMP: 30,
-      failMP: 0,
-    };
+    // 2.0: checkQuestCondition is the single gate (V4 canAttemptGeneralQuest/canAttemptPersonalQuest are gone;
+    // Personal Quests no longer exist, so the Personal case folds into this one).
+    const QUEST = getQuestDef('quest_arm_wrestling');
 
-    const PERSONAL_QUEST = {
-      id: 'quest_west_perfect_read',
-      requiredMosjeId: 'mosje_coert_tech',
-      requirementId: 'quest_req_coert',
-      successMP: 50,
-      failMP: -10,
-    };
-
-    it('canAttemptGeneralQuest returns false when QUEST_BLOCKED is active', () => {
+    it('checkQuestCondition refuses a Quest when QUEST_BLOCKED is active', () => {
       const state = makeState({
         statusEffects: [{ type: 'QUEST_BLOCKED', value: 0, turnsLeft: 1 }],
       });
-      expect(canAttemptGeneralQuest(GENERAL_QUEST, state, 'player_1')).toBe(false);
+      expect(checkQuestCondition(state, 'player_1', 0, QUEST).ok).toBe(false);
     });
 
-    it('canAttemptPersonalQuest returns false when QUEST_BLOCKED is active', () => {
-      const state = makeState({
-        statusEffects: [{ type: 'QUEST_BLOCKED', value: 0, turnsLeft: 1 }],
-      });
-      expect(canAttemptPersonalQuest(PERSONAL_QUEST, state, 'player_1')).toBe(false);
+    it('checkQuestCondition allows the same Quest without QUEST_BLOCKED', () => {
+      expect(checkQuestCondition(makeState({}), 'player_1', 0, QUEST).ok).toBe(true);
     });
   });
 });

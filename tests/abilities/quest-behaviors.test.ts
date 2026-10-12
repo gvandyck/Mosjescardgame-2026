@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 // @ts-expect-error — JS module, no type declarations
-import { quest_req_hack_mainframe, getPartnerSynergyQuestBonus } from "../../src/abilities/questLogic.js";
+import { getPartnerSynergyQuestBonus } from "../../src/abilities/questLogic.js";
 import { forceQuestResult } from "../helpers/forceQuestResult.js";
 import { build, finish } from "../helpers/quest56.js";
 // @ts-expect-error — JS module, no type declarations
@@ -11,9 +11,8 @@ import { QUESTS } from "../../src/data/quests.js";
 // previously DEFERRED to a UI hook (they are pure state changes):
 //   1. drawOnSuccess  — V4 resolveQuest draw-2; replaced in 2.0 by Cheat code (win draws 1).
 //   2. opponentLoseMP — V4 Elimination Challenge (now disabled); replaced in 2.0 by the win jab (quest-jab.test.ts).
-//   3. quest_req_hack_mainframe — the Hacker/FPS -1 threshold bonus must
-//      read the populated id field (cardId), not the always-undefined
-//      mosje.mosjeId.
+//   3. V4 quest_req_hack_mainframe (Hacker/FPS -1 threshold) deleted with the V4 thresholds;
+//      2.0 counterpart: quest-dice.test.ts (dice = stars of the rolled trait).
 // ─────────────────────────────────────────────────────────────
 
 function makeSlot(cardId: string, mp = 100, level = 1) {
@@ -70,24 +69,6 @@ describe("2.0 Quest draw on win (Cheat code)", () => {
     const out = finish(s, q, false).players.player_1;
     expect(out.hand).toHaveLength(0);
     expect(out.deck).toHaveLength(2);
-  });
-});
-
-// ─────────────────────────────────────────────────────────────
-// quest_req_hack_mainframe — Hacker/FPS -1 threshold via cardId
-// ─────────────────────────────────────────────────────────────
-describe("quest_req_hack_mainframe — FPS/Hacker threshold bonus", () => {
-  it("gives the -1 threshold for a Mosje whose cardId includes 'fps'", () => {
-    // technical < 2 → base threshold 6; FPS bonus → 5.
-    const mosje = { cardId: "mosje_fps_west", traits: { technical: 0 } };
-    const result = quest_req_hack_mainframe({}, mosje);
-    expect(result.threshold).toBe(5);
-  });
-
-  it("does NOT give the bonus for a non-FPS / non-Hacker cardId", () => {
-    const mosje = { cardId: "mosje_gandoe", traits: { technical: 0 } };
-    const result = quest_req_hack_mainframe({}, mosje);
-    expect(result.threshold).toBe(6);
   });
 });
 
