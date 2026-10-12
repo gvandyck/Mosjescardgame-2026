@@ -30,6 +30,7 @@ function discarding(accepts, zones = ['ready', 'hand']) {
 			if (p.zone === 'ready') ctx.player.piecieSlots[p.index] = null;
 			else ctx.player.hand.splice(p.index, 1);
 			ctx.player.graveyard.push(toGraveyardEntry(p.cardId, 'discarded'));
+			ctx.discarded = [...(ctx.discarded || []), p.cardId];
 		},
 	};
 }

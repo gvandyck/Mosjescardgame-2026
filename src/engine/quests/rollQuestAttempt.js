@@ -38,6 +38,6 @@ export function rollQuestAttempt(state, playerId, { slotIndex, stackId, costChoi
 	return {
 		ok: true,
 		state: s,
-		pending: { playerId, slotIndex, stackId, questId, dice, diceCount: trained ? 0 : diceCount, win, revealed: paid.revealed || null },
+		pending: { playerId, slotIndex, stackId, questId, dice, diceCount: trained ? 0 : diceCount, win, revealed: paid.revealed || null, discardedCardIds: paid.discardedCardIds || [] },
 	};
 }

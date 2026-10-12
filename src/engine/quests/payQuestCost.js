@@ -8,5 +8,5 @@ export function payQuestCost(state, playerId, slotIndex, quest, costChoice) {
 	const ctx = { state: s, playerId, player: s.players[playerId], slot: s.players[playerId].activeSlots[slotIndex], quest };
 	if (!cost.canPay(ctx, costChoice)) return { ok: false, state, error: `Cannot pay: ${quest.costText || quest.costId}` };
 	cost.pay(ctx, costChoice);
-	return { ok: true, state: s, revealed: ctx.revealed };
+	return { ok: true, state: s, revealed: ctx.revealed, discardedCardIds: ctx.discarded || [] };
 }
