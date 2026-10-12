@@ -173,7 +173,7 @@ export async function runCardTest(page, spec, test) {
 async function runPlaceThenActivateFlow(page, spec, test) {
 	await playCardFromHand(page, spec.cardId);
 	await page.waitForTimeout(400);
-	if (!(await isPiecieOnField(page, spec.cardId))) { console.log(`${spec.cardId} not on field after play`); test.skip(); return; }
+	if (!(await isPiecieOnField(page, spec.cardId))) { throw new Error(`Setup failed: ${spec.cardId} not on field after play`); }
 
 	// Unlock the just-placed piecie so it can activate THIS turn — no end-turn,
 	// no bot turn (which, post defeat-at-0, would often KO the lone test Mosje).

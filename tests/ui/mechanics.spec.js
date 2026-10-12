@@ -250,7 +250,7 @@ test.fixme('VIS-05: Youri ability auto-activates single face-down piecie', async
 
 	// Verify Youri is actually on field (confirms custom deck loaded)
 	const youriOnField = await page.locator('.mosje-card--owned[data-card-id="mosje_youri"]').isVisible({ timeout: 2000 }).catch(() => false);
-	if (!youriOnField) { console.log('Youri not on field — custom deck may not have loaded — skip'); test.skip(); return; }
+	if (!youriOnField) { throw new Error('Setup failed: Youri not on field — custom deck may not have loaded'); }
 
 	// Give Youri 60 MP (ability costs 20)
 	await setMosjeMP(page, 'player_1', 0, 60);
@@ -263,13 +263,13 @@ test.fixme('VIS-05: Youri ability auto-activates single face-down piecie', async
 	// Play one piecie face-down
 	const hand = await readHand(page);
 	const piecie = hand.find(c => c.cardType === 'PIECIE');
-	if (!piecie) { test.skip(); return; }
+	if (!piecie) { throw new Error('Setup failed: Youri face-down Piecie not in hand'); }
 
 	await playCardFromHand(page, piecie.cardId);
 	await page.waitForTimeout(600);
 
 	const onField = await isPiecieOnField(page, piecie.cardId);
-	if (!onField) { console.log('Piecie not on field — skip'); test.skip(); return; }
+	if (!onField) { throw new Error('Setup failed: Piecie not on field'); }
 
 	// Measure hand size AFTER playing the piecie (this is the baseline before Youri draws)
 	const handSizeBefore = (await readHand(page)).length;
@@ -334,7 +334,7 @@ test.fixme('VIS-06: Youri ability 3-use cap — blocked on 4th attempt', async (
 	// Verify testHooks worked (Youri should have 80 MP)
 	const mpBefore = (await readOwnedMosjes(page))[0]?.mp;
 	console.log(`Youri MP before blocked attempt: ${mpBefore}`);
-	if (mpBefore !== 80) { console.log('TestHooks not applied — skip'); test.skip(); return; }
+	if (mpBefore !== 80) { throw new Error('Setup failed: TestHooks not applied'); }
 
 	// Click Youri's ability button — should be blocked
 	const youriCard = page.locator('.mosje-card--owned[data-card-id="mosje_youri"]');
@@ -400,7 +400,7 @@ async function setupYouriWithTwoFaceDown(page) {
 
 // KNOWN GAP (fix in Phase 58): Youri ability cost moves from -20 MP to Energy (Mosje abilities rewrite); V4 expectation kept as-is for the rewrite.
 test.fixme('VIS-06b: Youri ability — multiple face-down piecies show slot picker', async ({ page }) => {
-	if (!await setupYouriWithTwoFaceDown(page)) { console.log('Setup failed — skip'); test.skip(); return; }
+	if (!await setupYouriWithTwoFaceDown(page)) { throw new Error('Setup failed: Setup failed'); }
 
 	const handBefore = (await readHand(page)).length;
 	const mpBefore = (await readOwnedMosjes(page))[0]?.mp;
@@ -430,7 +430,7 @@ test.fixme('VIS-06b: Youri ability — multiple face-down piecies show slot pick
 // 20 MP (and a use); no card is drawn.
 // KNOWN GAP (fix in Phase 58): Youri ability cost moves from -20 MP to Energy (Mosje abilities rewrite); V4 expectation kept as-is for the rewrite.
 test.fixme('VIS-06c: Youri ability — cancelling slot picker still spends 20 MP', async ({ page }) => {
-	if (!await setupYouriWithTwoFaceDown(page)) { console.log('Setup failed — skip'); test.skip(); return; }
+	if (!await setupYouriWithTwoFaceDown(page)) { throw new Error('Setup failed: Setup failed'); }
 
 	const handBefore = (await readHand(page)).length;
 	const mpBefore = (await readOwnedMosjes(page))[0]?.mp;
@@ -478,7 +478,7 @@ test('VIS-07: Not Today! interrupt fires on bot elimination', async ({ page }) =
 	// Verify Not Today! is in hand
 	const hand = await readHand(page);
 	const notToday = hand.find(c => c.cardId === 'snelle_negate_elimination');
-	if (!notToday) { console.log('Not Today! not in hand'); test.skip(); return; }
+	if (!notToday) { throw new Error('Setup failed: Not Today! not in hand'); }
 
 	// Set Mosje to 1 MP so any bot damage triggers elimination
 	await setMosjeMP(page, 'player_1', 0, 1);

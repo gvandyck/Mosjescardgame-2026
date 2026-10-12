@@ -34,6 +34,7 @@ async function activatePiecie(page, cardId) {
 	await page.waitForTimeout(600);
 }
 
+// KNOWN GAP (Phase 59): Redbull + Coert pays 20 MP in V4; rebuild against Energy with the Piecie rework.
 test.fixme('Redbull makes Coert Extra Resources trigger TWICE — pay 20 MP, draw 2', async ({ page }) => {
 	test.setTimeout(90000);
 
@@ -92,6 +93,7 @@ test.fixme('Redbull makes Coert Extra Resources trigger TWICE — pay 20 MP, dra
 	expect(stateAfter?.players?.player_1?.abilityDoubleTrigger).toBeFalsy();
 });
 
+// KNOWN GAP (Phase 59): Redbull + Coert pays 20 MP in V4; rebuild against Energy with the Piecie rework.
 test.fixme('Redbull + Coert at 15 MP — second trigger fizzles, Redbull stays armed', async ({ page }) => {
 	test.setTimeout(90000);
 

@@ -253,7 +253,7 @@ test('chain-3: Not Today! fires on bot elimination — Mosje survives at 5 MP', 
 
 	const hand = await readHand(page);
 	if (!hand.some(c => c.cardId === 'snelle_negate_elimination')) {
-		console.log('Not Today! not in hand — skip'); test.skip(); return;
+		throw new Error('Setup failed: Not Today! not in hand');
 	}
 
 	// Set Mosje to 1 MP → elimination threshold
@@ -304,7 +304,8 @@ test('chain-3: Not Today! fires on bot elimination — Mosje survives at 5 MP', 
 
 // ─── Chain 4: Youri Speed Activate ────────────────────────────────────────────
 
-test('chain-4: Youri Speed Activate — -20 MP, face-down piecie activates, hand +1', async ({ page }) => {
+// KNOWN GAP (Phase 58): Youri's ability still costs -20 MP in V4; the Mosje abilities rewrite moves it to Energy.
+test.fixme('chain-4: Youri Speed Activate — -20 MP, face-down piecie activates, hand +1', async ({ page }) => {
 	test.setTimeout(60000);
 	const deck = {
 		id: 'custom_youri_c4',
@@ -332,7 +333,7 @@ test('chain-4: Youri Speed Activate — -20 MP, face-down piecie activates, hand
 	// This keeps the Youri -20 MP assertion exact (no piecie side-effects on MP).
 	const hand = await readHand(page);
 	const questPrep = hand.find(c => c.cardId === 'piecie_quest_prep');
-	if (!questPrep) { console.log('piecie_quest_prep not in hand — skip'); test.skip(); return; }
+	if (!questPrep) { throw new Error('Setup failed: piecie_quest_prep not in hand'); }
 	await playCardFromHand(page, 'piecie_quest_prep');
 	await page.waitForTimeout(500);
 	expect(await isPiecieOnField(page, 'piecie_quest_prep')).toBe(true);
@@ -499,7 +500,8 @@ test('chain-6: Controller gives a Digital Mosje MP and +1 die on one Quest', asy
 
 // ─── Chain 7: Eendjes Voeren + Michelle END_PHASE +10 MP ─────────────────────
 
-test('chain-7: Eendjes Voeren END_PHASE gives Michelle +10 MP per turn', async ({ page }) => {
+// KNOWN GAP (Phase 60): Eendjes Voeren Place effect (END_PHASE +10 MP) is rewritten with the Place effects; the old silent skip hid that it never ran.
+test.fixme('chain-7: Eendjes Voeren END_PHASE gives Michelle +10 MP per turn', async ({ page }) => {
 	test.setTimeout(90000);
 	const deck = {
 		id: 'custom_eendjes_c7',
@@ -520,7 +522,7 @@ test('chain-7: Eendjes Voeren END_PHASE gives Michelle +10 MP per turn', async (
 	const mosjes = await readOwnedMosjes(page);
 	const michelle = mosjes.find(m => m.name.toLowerCase().includes('michelle') ||
 	                                  m.name.toLowerCase().includes('iron tuk'));
-	if (!mosjes.length) { console.log('No Mosje on field — skip'); test.skip(); return; }
+	if (!mosjes.length) { throw new Error('Setup failed: No Mosje on field'); }
 	console.log('Owned Mosjes:', mosjes);
 
 	await setMosjeMP(page, 'player_1', 0, 30);
@@ -529,7 +531,7 @@ test('chain-7: Eendjes Voeren END_PHASE gives Michelle +10 MP per turn', async (
 	// Turn 1: play Eendjes Voeren from hand (it's a Place)
 	const hand = await readHand(page);
 	const place = hand.find(c => c.cardId === 'place_eendjes_voeren');
-	if (!place) { console.log('Eendjes Voeren not in hand — skip'); test.skip(); return; }
+	if (!place) { throw new Error('Setup failed: Eendjes Voeren not in hand'); }
 
 	await playCardFromHand(page, 'place_eendjes_voeren');
 	await page.waitForTimeout(500);

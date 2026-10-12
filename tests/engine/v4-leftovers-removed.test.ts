@@ -13,7 +13,9 @@ const BANNED = ['skipNextTurn', 'Turn trickle', 'TURN TRICKLE', 'splice(0, 6)', 
   // questsAttemptedThisTurn is NOT banned: rollQuestAttempt keeps it as the 2.0 per-turn attempt counter.
   'sharedGeneralQuest', 'attemptGeneralQuest', 'attemptPersonalQuest', 'playPersonalQuest', 'activatePersonalQuest',
   'hasAttemptedQuestThisTurn', 'getQuestDiceThreshold', 'checkTraitRoll', 'canAttemptGeneralQuest', 'canAttemptPersonalQuest',
-  'getGeneralQuestBlockReason', 'activatePlace', 'activePlaceCanActivateOnTurn', 'getFirstActiveMosje(', 'quest_req_'];
+  'getGeneralQuestBlockReason', 'activatePlace', 'activePlaceCanActivateOnTurn', 'getFirstActiveMosje(', 'quest_req_',
+  // Phase 57-07: V4 persistence, Place slots and the V4 damage-interrupt modal.
+  'persistUntilEoT', 'showDamageInterruptModal', 'humanTakesDamageOrElimination'];
 
 function walk(dir: string): string[] {
   return readdirSync(dir).flatMap((n) => {
@@ -38,6 +40,18 @@ describe('RULE-10 V4 leftovers removed', () => {
         if (f.endsWith('coertsCaravanShield.js')) return;
         if (t.startsWith('*') || t.startsWith('/*')) return;
         for (const b of BANNED) if (code.includes(b)) hits.push(`${f}:${i + 1} ${b}`);
+      });
+    }
+    expect(hits).toEqual([]);
+  });
+
+  it('src/data has no persistUntilEndOfTurn (Piecies use stays / staysEnd)', () => {
+    const hits: string[] = [];
+    const dir = join(SRC, 'data');
+    for (const n of readdirSync(dir)) {
+      if (!n.endsWith('.js')) continue;
+      readFileSync(join(dir, n), 'utf8').split(/\r?\n/).forEach((line, i) => {
+        if (stripComment(line).includes('persistUntilEndOfTurn')) hits.push(`${n}:${i + 1}`);
       });
     }
     expect(hits).toEqual([]);
