@@ -8,7 +8,7 @@ import { effect_snelle_emergency_healings } from "../../src/abilities/snelleEffe
 
 // ─────────────────────────────────────────────────────────────
 // Phase 24 — Plan 01: Interrupt data fixes
-//   Test 1: piecie_laat_me_chillen has persistUntilEndOfTurn: true
+//   Test 1: piecie_laat_me_chillen Stays until endOfNextTurn (2.0)
 //   Test 2: snelle_negate_elimination description contains "graveyard", not "Welloe pile"
 //   Test 3: effect_snelle_emergency_healings heals +25 even when mp > 0 (no guard)
 //   Test 4: effect_snelle_emergency_healings heals +35 when resilient >= 2
@@ -37,10 +37,11 @@ function makeState(mpStart: number, resilient = 0) {
 
 describe("Phase 24-01 — Interrupt data fixes", () => {
   // ── Test 1: piecie_laat_me_chillen lifecycle ──────────────────────────────
-  it("piecie_laat_me_chillen has persistUntilEndOfTurn: true", () => {
+  it("piecie_laat_me_chillen has stays: endOfNextTurn (V4: persistUntilEndOfTurn)", () => {
     const def = PIECIES.find((p: any) => p.id === "piecie_laat_me_chillen");
     expect(def).toBeDefined();
-    expect(def.persistUntilEndOfTurn).toBe(true);
+    expect(def.stays).toBe("endOfNextTurn");
+    expect(def.persistUntilEndOfTurn).toBeUndefined();
   });
 
   // ── Test 2: Not Today! description uses Welloe pile ───────────────────────

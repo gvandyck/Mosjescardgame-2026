@@ -141,12 +141,12 @@ describe("Tuk Perfect Placement — peek 5, take 2 to hand, bottom 3", () => {
 
 // ─────────────────────────────────────────────────────────────
 // Ronald — Master Plan: play a Piecie from graveyard for free, resolve it,
-// persist if persistUntilEndOfTurn else send to discard; once per game.
+// Stays Piecies keep their slot; others go to discard; once per game.
 // ─────────────────────────────────────────────────────────────
 describe("Ronald Master Plan — play a Piecie from graveyard for free", () => {
   it("plays a non-persistent Piecie from graveyard (removed from graveyard, effect ran), sets masterPlanUsed", () => {
     const state = makeState("mosje_ronald_mastermind", 50);
-    // kannetje_melk has NO persistUntilEndOfTurn; its effect grants +25 MP to the active Mosje
+    // kannetje_melk has no Stays; its effect grants +25 MP to the active Mosje
     state.players.player_1.graveyard = [{ cardId: "piecie_kannetje_melk" }];
     state._pendingTargets = { masterPlanCardId: "piecie_kannetje_melk" };
 
@@ -167,24 +167,21 @@ describe("Ronald Master Plan — play a Piecie from graveyard for free", () => {
     ).toBe(false);
   });
 
-  it("keeps a persistUntilEndOfTurn Piecie on the field after playing it", () => {
+  it("a non-Stays Piecie (redbull) goes to discard after Master Plan (V4 kept it in the slot)", () => {
     const state = makeState("mosje_ronald_mastermind", 50);
-    // redbull HAS persistUntilEndOfTurn true
+    // 2.0: redbull has no Stays
     state.players.player_1.graveyard = [{ cardId: "piecie_redbull" }];
     state._pendingTargets = { masterPlanCardId: "piecie_redbull" };
 
     const next = ability_ronald_mastermind_master_plan(state, "player_1");
 
-    // landed in a piecie slot with persistUntilEoT true
-    const placed = next.players.player_1.piecieSlots.find(
-      (s: any) => s && s.cardId === "piecie_redbull"
-    );
-    expect(placed).toBeTruthy();
-    expect(placed.persistUntilEoT).toBe(true);
-    // removed from graveyard
+    // V4: landed in a slot with persistUntilEoT. 2.0: back in discard, no slot.
+    expect(
+      next.players.player_1.piecieSlots.some((s: any) => s && s.cardId === "piecie_redbull")
+    ).toBe(false);
     expect(
       next.players.player_1.graveyard.some((c: any) => (c.cardId ?? c) === "piecie_redbull")
-    ).toBe(false);
+    ).toBe(true);
     expect(next.players.player_1.activeSlots[0].masterPlanUsed).toBe(true);
   });
 

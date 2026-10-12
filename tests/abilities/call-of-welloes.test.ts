@@ -125,7 +125,7 @@ describe("endTurn — Call of the Welloes: Mosje stays when Piecie is present", 
 // ─────────────────────────────────────────────────────────────
 describe("endTurn — piecie_call_of_welloes persistence guard", () => {
   it("C: piecie_call_of_welloes is NOT removed from piecieSlots when its linked Mosje is in activeSlots", () => {
-    // Regular Piecies without persistUntilEoT are swept each turn.
+    // Only a custom Stays Piecie is exempt from the end-of-turn sweep.
     // piecie_call_of_welloes must be exempt while linkedMosjeCardId is live.
     const state = makeState({
       activeSlots: [{ ...summonedSlot }, null],

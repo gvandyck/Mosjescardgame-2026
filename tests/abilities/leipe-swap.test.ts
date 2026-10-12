@@ -139,6 +139,6 @@ describe("Leipe Swap", () => {
     expect(card.mpCost).toBe(0);
     expect(card.rarity).toBe("★★★★★");
     expect(card.effectId).toBe("effect_leipe_swap");
-    expect(card.persistUntilEndOfTurn).toBe(true);
+    expect(card.persistUntilEndOfTurn).toBeUndefined(); // V4 flag gone (57-02)
   });
 });

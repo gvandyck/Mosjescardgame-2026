@@ -27,7 +27,6 @@ interface PiecieSlot {
   activated: boolean;
   playedOnTurn: number;
   canActivateOnTurn: number;
-  persistUntilEoT?: boolean;
 }
 
 interface MosjeSlot {

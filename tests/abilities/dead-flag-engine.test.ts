@@ -122,19 +122,19 @@ describe("Those Eyelashes — effect stores opponent id (not boolean true)", () 
   });
 });
 
-describe("Persistence — three dead-flag Piecies persist until end of turn", () => {
+describe("Persistence — three dead-flag Piecies carry no V4 persist flag (2.0: discard on activation)", () => {
   const find = (id: string) => PIECIES.find((p: any) => p.id === id);
 
-  it("piecie_tweede_kans has persistUntilEndOfTurn true", () => {
-    expect(find("piecie_tweede_kans")?.persistUntilEndOfTurn).toBe(true);
+  it("piecie_tweede_kans has no Stays (discarded on activation)", () => {
+    expect(find("piecie_tweede_kans")?.stays).toBeNull();
   });
 
-  it("piecie_battle_concert has persistUntilEndOfTurn true", () => {
-    expect(find("piecie_battle_concert")?.persistUntilEndOfTurn).toBe(true);
+  it("piecie_battle_concert has no Stays (discarded on activation)", () => {
+    expect(find("piecie_battle_concert")?.stays).toBeNull();
   });
 
-  it("piecie_those_eyelashes has persistUntilEndOfTurn true", () => {
-    expect(find("piecie_those_eyelashes")?.persistUntilEndOfTurn).toBe(true);
+  it("piecie_those_eyelashes has no Stays (discarded on activation)", () => {
+    expect(find("piecie_those_eyelashes")?.stays).toBeNull();
   });
 });
 

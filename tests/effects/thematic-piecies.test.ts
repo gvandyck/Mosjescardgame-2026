@@ -98,10 +98,10 @@ afterEach(() => {
 
 describe('Phase 46 thematic Piecie definitions', () => {
   const expected = [
-    ['piecie_loaded_dice', '★', true],
+    ['piecie_loaded_dice', '★', false],
     ['piecie_boosterpackkie', '★★', false],
-    ['piecie_perfect_rhythm', '★★', true],
-    ['piecie_dikke_plaat', '★', true],
+    ['piecie_perfect_rhythm', '★★', false],
+    ['piecie_dikke_plaat', '★', false],
   ] as const;
 
   for (const [id, rarity, persists] of expected) {
@@ -117,7 +117,8 @@ describe('Phase 46 thematic Piecie definitions', () => {
         rarity,
         isBoosterOnly: true,
       });
-      expect(card?.persistUntilEndOfTurn === true).toBe(persists);
+      expect(card?.persistUntilEndOfTurn).toBeUndefined(); // V4 field gone (57-02)
+      expect(persists).toBe(false); // 2.0: none of these Stay
     });
   }
 
@@ -436,20 +437,14 @@ describe('Perfect Rhythm', () => {
 
     const first = activatePiecie(state, 'player_1', 0);
     expect(first.state.players.player_1.hand).toHaveLength(0);
-    expect(first.state.players.player_1.piecieSlots[0]).toMatchObject({
-      cardId: 'piecie_perfect_rhythm',
-      faceDown: false,
-      persistUntilEoT: true,
-    });
+    // V4: stayed in slot until end of turn. 2.0: non-Stays Piecie goes to discard at once.
+    expect(first.state.players.player_1.piecieSlots[0]).toBeNull();
+    expect(first.state.players.player_1.graveyard.map((g: any) => g.cardId)).toContain('piecie_perfect_rhythm');
 
     const second = activatePiecie(first.state, 'player_1', 1);
     expect(second.state.players.player_1.hand).toHaveLength(1);
     expect(second.state.players.player_1.perfectRhythmDrawNextPiecie).toBe(true);
-    expect(second.state.players.player_1.piecieSlots[1]).toMatchObject({
-      cardId: 'piecie_perfect_rhythm',
-      faceDown: false,
-      persistUntilEoT: true,
-    });
+    expect(second.state.players.player_1.piecieSlots[1]).toBeNull(); // V4: stayed; 2.0: discarded
 
     const third = activatePiecie(second.state, 'player_1', 2);
     expect(third.state.players.player_1.hand).toHaveLength(2);

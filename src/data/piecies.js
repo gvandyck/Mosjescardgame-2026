@@ -502,7 +502,6 @@ export const PIECIES = [
     artPath: "assets/piecie-art/Redbull.jpeg",
     rarity: "★★",
     isBoosterOnly: false,
-    persistUntilEndOfTurn: true,
   },
   {
     id: "piecie_tweede_kans",
@@ -525,7 +524,6 @@ export const PIECIES = [
     artPath: "assets/piecies/placeholder.png",
     rarity: "★",
     isBoosterOnly: false,
-    persistUntilEndOfTurn: true,
   },
   {
     id: "piecie_bagga_of_greed",
@@ -613,8 +611,7 @@ export const PIECIES = [
     givesMP: false,
     artPath: "assets/piecie-art/dubbele-dosis.jpeg",
     rarity: "★★",
-    isBoosterOnly: false,
-    persistUntilEndOfTurn: true    // BUG-02: card stays in slot until end-of-turn sweep
+    isBoosterOnly: false
   },
   {
     id: "piecie_loaded_dice",
@@ -637,7 +634,6 @@ export const PIECIES = [
     artPath: "assets/piecies/placeholder.png",
     rarity: "★",
     isBoosterOnly: true,
-    persistUntilEndOfTurn: true,
   },
   {
     id: "piecie_boosterpackkie",
@@ -682,7 +678,6 @@ export const PIECIES = [
     artPath: "assets/piecies/placeholder.png",
     rarity: "★★",
     isBoosterOnly: true,
-    persistUntilEndOfTurn: true,
   },
   {
     id: "piecie_dikke_plaat",
@@ -705,7 +700,6 @@ export const PIECIES = [
     artPath: "assets/piecies/placeholder.png",
     rarity: "★",
     isBoosterOnly: true,
-    persistUntilEndOfTurn: true,
   },
   {
     id: "piecie_mp_amplifier",
@@ -794,7 +788,6 @@ export const PIECIES = [
     artPath: "assets/piecies/placeholder.png",
     rarity: "★",
     isBoosterOnly: false,
-    persistUntilEndOfTurn: true,
   },
   {
     id: "piecie_synergy_field",
@@ -861,7 +854,6 @@ export const PIECIES = [
     artPath: "assets/piecies/placeholder.png",
     rarity: "★★★★★",
     isBoosterOnly: true,
-    persistUntilEndOfTurn: true,
   },
   {
     id: "piecie_battle_concert",
@@ -884,7 +876,6 @@ export const PIECIES = [
     artPath: "assets/piecies/placeholder.png",
     rarity: "★★★",
     isBoosterOnly: false,
-    persistUntilEndOfTurn: true,
   },
   {
     id: "piecie_stookerino",
@@ -995,7 +986,6 @@ export const PIECIES = [
     artPath: "assets/piecies/placeholder.png",
     rarity: "★★★",
     isBoosterOnly: false,
-    persistUntilEndOfTurn: true,
   },
   {
     id: "piecie_f1_telemetry",
@@ -1122,7 +1112,6 @@ export const PIECIES = [
     artPath: "assets/piecie-art/Call of the Welloes.jpeg",
     rarity: "★★★",
     isBoosterOnly: false,
-    persistUntilEndOfTurn: true,
   },
   {
     id: "piecie_welloe_force",
