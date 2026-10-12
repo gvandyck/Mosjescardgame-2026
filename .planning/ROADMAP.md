@@ -138,7 +138,7 @@ Plans:
 - [x] 56-03-PLAN.md — Quest attempt: conditions, costs, +1 die rules, roll/resolve, one action (E13, E17, E18, E20; PLAY-01/03/04/05/06)
 - [x] 56-04-PLAN.md — Quest extras: jab, named bonuses, Vraag Aad, Cheat code, Debug System, Parkeren Delft, Form Alliance (E19; PLAY-07)
 - [x] 56-05-PLAN.md — Bot: per-Mosje attack-or-Quest by expected MP swing, V4 quest-risk helpers replaced
-- [ ] 56-06-PLAN.md — UI: 3 face-up Quests panel, Attack / Quest flows on existing modals, V4 Quest UI removed, test hooks
+- [x] 56-06-PLAN.md — UI: 3 face-up Quests panel, Attack / Quest flows on existing modals, V4 Quest UI removed, test hooks
 - [ ] 56-07-PLAN.md — resolveQuest consumers moved to the 2.0 attempt; resolveQuest deleted
 - [ ] 56-08-PLAN.md — Rest of V4 Quest system deleted (shared deck, Personal, thresholds) + static guard
 - [ ] 56-09-PLAN.md — Playwright headless: attack-and-quest-2-0 spec, 55-07 Quest fixmes re-enabled, specs off V4 UI, phase gate
