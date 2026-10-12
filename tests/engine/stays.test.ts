@@ -77,12 +77,13 @@ describe("Stays lifecycle (E25)", () => {
       card("piecie_kannetje_melk"), card("piecie_redbull"),
     ];
     s.players.player_1.hand = [{ cardId: "piecie_quest_prep" }];
-    let refused = false;
-    try {
-      const r = playPiecie(s, "player_1", { cardId: "piecie_quest_prep" }, { id: "piecie_quest_prep", type: "PIECIE" });
-      refused = r?.success === false || r === s || r?.error != null;
-    } catch { refused = true; }
-    expect(refused).toBe(true);
+    const before = JSON.stringify(s);
+    const r = playPiecie(s, "player_1", { cardId: "piecie_quest_prep" }, { id: "piecie_quest_prep", type: "PIECIE" });
+    expect(r.success).toBe(false);
+    expect(r.error).toBe("You can place up to 3 Piecies");
+    expect(JSON.stringify(r.state.players.player_1.piecieSlots)).toBe(JSON.stringify(s.players.player_1.piecieSlots));
+    expect(r.state.players.player_1.hand).toEqual([{ cardId: "piecie_quest_prep" }]);
+    expect(JSON.stringify(s)).toBe(before);
   });
 
   it("piecie_stays condition reads the slot flag only", () => {
