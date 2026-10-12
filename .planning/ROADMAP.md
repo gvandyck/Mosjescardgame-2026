@@ -141,7 +141,7 @@ Plans:
 - [x] 56-06-PLAN.md — UI: 3 face-up Quests panel, Attack / Quest flows on existing modals, V4 Quest UI removed, test hooks
 - [x] 56-07-PLAN.md — resolveQuest consumers moved to the 2.0 attempt; resolveQuest deleted
 - [x] 56-08-PLAN.md — Rest of V4 Quest system deleted (shared deck, Personal, thresholds) + static guard
-- [ ] 56-09-PLAN.md — Playwright headless: attack-and-quest-2-0 spec, 55-07 Quest fixmes re-enabled, specs off V4 UI, phase gate
+- [x] 56-09-PLAN.md — Playwright headless: attack-and-quest-2-0 spec, 55-07 Quest fixmes re-enabled, specs off V4 UI, phase gate
 
 ### Phase 57: Piecies, Snelle, Places and Reaction Windows
 **Goal**: Piecies, Snelle, Places and the Welloe pile follow the 2.0 table rules, and the engine pauses to offer reaction Snelle at the right moments.
