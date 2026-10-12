@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Obby Card Game 2.0 — slice A (offline vs bot)
 status: executing
-stopped_at: Phase 56 complete
-last_updated: 2026-10-12T16:03:06.068Z
+stopped_at: Phase 57 complete
+last_updated: 2026-10-12T20:42:09.956Z
 last_activity: 2026-10-11
 progress:
   total_phases: 54
   completed_phases: 29
   total_plans: 130
-  completed_plans: 143
+  completed_plans: 150
   percent: 54
 ---
 
@@ -26,14 +26,14 @@ See: `.planning/PROJECT.md` (updated 2026-10-10)
 
 **Core value:** On branch `obby-2.0`, the web game plays by the full 2.0 rules on one table against the bot, with the 3 Example Decks, deployed separately to eightytwenty.nl/obbycardgame2. V4 on `main` stays untouched.
 
-**Current focus:** Phase 57 — piecies, snelle, places and reaction windows
+**Current focus:** Phase 58 — mosje abilities and synergies
 
 **Sources of truth:** `docs/obby-2.0/` — Claude Code Handoff (spec), Card List (card texts; wins over phase docs), Core Numbers (rules), Example Decks, Phase 7 Card Frames and Art.
 
 ## Current Position
 
-Phase: 57 of 64 (piecies, snelle, places and reaction windows)
-Plan: 57-07 complete (7 of 7 in Phase 57)
+Phase: 58 of 64 (mosje abilities and synergies)
+Plan: Not started
 Status: Ready to plan
 Last activity: 2026-10-12
 
@@ -61,6 +61,7 @@ Progress (v2.0): Phase 53 done; Phase 54 5/16 plans
 | 54 | 16 | - | - |
 | 55 | 7 | - | - |
 | 56 | 9 | - | - |
+| 57 | 7 | - | - |
 
 ## Accumulated Context
 

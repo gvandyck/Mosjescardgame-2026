@@ -14,7 +14,7 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 - [x] **Phase 54: Energy, Levels and Getemt** - Energy pays for everything; 2.0 level-up, getemt, MP/Power grid and hold-Level-3 win/lose (completed 2026-10-11)
 - [x] **Phase 55: Turn Flow, Setup and Protection** - 2.0 setup, turn steps, R1/R2/R5, cooldown turn, summoning, fresh protection; V4 leftovers removed (completed 2026-10-11)
 - [x] **Phase 56: Attacking and Quests** - One action per Mosje: attack by Power, or try one of 3 typed Quests with dice, bands, fail tokens and jabs (completed 2026-10-12)
-- [ ] **Phase 57: Piecies, Snelle, Places and Reaction Windows** - 3 slots, Stays, Snelle timing, Place rules, Welloe pile and engine reaction windows; no V4-rule test left
+- [x] **Phase 57: Piecies, Snelle, Places and Reaction Windows** - 3 slots, Stays, Snelle timing, Place rules, Welloe pile and engine reaction windows; no V4-rule test left (completed 2026-10-12)
 - [ ] **Phase 58: Mosje Abilities and Synergies** - All 32 Mosje abilities, 2.0 synergy pairs, chain rule and The Tactician (Example Deck Mosjes first)
 - [ ] **Phase 59: Piecie Effects** - All 73 Piecie effects per the Card List (Example Deck Piecies first)
 - [ ] **Phase 60: Snelle, Places and Hidden Information** - All 20 Snelle and 20 Place effects, hidden-info cards; every card has a card test
@@ -31,7 +31,7 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 | 54 | Energy, Levels and Getemt | 16/16 | Complete    | 2026-10-11 |
 | 55 | Turn Flow, Setup and Protection | 7/7 | Complete    | 2026-10-11 |
 | 56 | Attacking and Quests | 9/9 | Complete    | 2026-10-12 |
-| 57 | Piecies, Snelle, Places and Reaction Windows | Table cards follow 2.0 lifecycles; the engine offers reaction Snelle | TABLE-02..06, SHELL-04 | 5 |
+| 57 | Piecies, Snelle, Places and Reaction Windows | 7/7 | Complete    | 2026-10-12 |
 | 58 | Mosje Abilities and Synergies | Every Mosje does what its Card List text says | EFX-01, EFX-05, EFX-06, TEST-01 | 5 |
 | 59 | Piecie Effects | Every Piecie does what its Card List text says | EFX-02 | 4 |
 | 60 | Snelle, Places and Hidden Information | Every Snelle and Place works; hidden info stays hidden; every card tested | EFX-03, EFX-04, EFX-07, TEST-02 | 4 |
