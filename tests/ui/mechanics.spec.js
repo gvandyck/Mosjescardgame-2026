@@ -9,6 +9,7 @@ import {
 	playCardFromHand, dismissModal, endTurnAndWait,
 	mockDiceRoll, setQuestFaceUp, setNextDice, questViaUi, getGameState, setMosjeOnField,
 } from './helpers.js';
+import { activatePiecieOnField } from '../helpers/piecieUi.js';
 
 // ─── Quest flow helper ────────────────────────────────────────────────────────
 // Full modal sequence for completing a general quest attempt.
@@ -18,25 +19,12 @@ async function completeQuestFlow(page) {
 	return true;
 }
 
-// ─── Activate a piecie on field that is ready to activate ────────────────────
-// Own piecies render as full card elements (faceDown:false in viewModel for own piecies).
-// The Activate button appears on the card when canActivate === true.
-async function activatePiecieOnField(page, cardId) {
-	const piecieEl = page.locator(`#piecies-player [data-card-id="${cardId}"]`).first();
-	await piecieEl.waitFor({ state: 'visible', timeout: 8000 });
-	const activateBtn = piecieEl.locator('button:has-text("Activate")');
-	await activateBtn.waitFor({ state: 'visible', timeout: 5000 });
-	await activateBtn.click();
-	await page.waitForTimeout(600);
-}
-
 // ─── VIS-01: Dubbele Dosis lifecycle ─────────────────────────────────────────
 // Playing piecie_quest_prep (Dubbele Dosis) goes face-down, then costs 10 MP on
 // activation. With persistUntilEndOfTurn:true it must stay on field after activation,
 // only leaving when the end-of-turn sweep fires. BUG-02 regression guard.
 
-// KNOWN GAP (fix in Phase 57): Piecie Activate button / Snelle flow is rewritten; fails headless on the 2.0 board, unrelated to Quests (found in 56-09).
-test.fixme('VIS-01: Dubbele Dosis stays on field after activation until end of turn', async ({ page }) => {
+test('VIS-01: Dubbele Dosis stays on field after activation until end of turn', async ({ page }) => {
 	const deck = {
 		id: 'custom_dubbele_test',
 		name: 'Dubbele Test',
@@ -110,8 +98,7 @@ test.fixme('VIS-01: Dubbele Dosis stays on field after activation until end of t
 // Leipe Swap (activates from field): swaps own Mosje MP with opponent's.
 // At end of the swapper's turn, engine reverts the swap via _leipeSwap record.
 
-// KNOWN GAP (fix in Phase 57): Piecie Activate button / Snelle flow is rewritten; fails headless on the 2.0 board, unrelated to Quests (found in 56-09).
-test.fixme('VIS-02: Leipe Swap swaps and reverts MP at end of turn', async ({ page }) => {
+test('VIS-02: Leipe Swap swaps and reverts MP at end of turn', async ({ page }) => {
 	const deck = {
 		id: 'custom_leipe_test',
 		name: 'Leipe Test',
@@ -561,8 +548,7 @@ test('VIS-07: Not Today! interrupt fires on bot elimination', async ({ page }) =
 // Same lifecycle as VIS-01 but for piecie_laat_me_chillen (persistUntilEndOfTurn:true).
 // Also applies MP_LOSS_REDUCTION while active.
 
-// KNOWN GAP (fix in Phase 57): Piecie Activate button is not reliably rendered on the 2.0 board (passed 1 of 3 headless runs); unrelated to Quests (found in 56-09).
-test.fixme('VIS-08: Laat me chillen! stays on field after activation until end of turn', async ({ page }) => {
+test('VIS-08: Laat me chillen! stays on field after activation until end of turn', async ({ page }) => {
 	const deck = {
 		id: 'custom_chillen_test',
 		name: 'Chillen Test',
