@@ -4,7 +4,7 @@
  * The game engine emits structured console lines like:
  *   [ENGINE] Piecie activated: Kannetje Melk (effect_kannetje_melk)
  *   [ABILITY] Redbull: active Mosje ability triggers twice this turn
- *   [QUEST] TestPlayer is attempting General Quest: Arm Wrestling
+ *   <Mosje> won|failed <Quest> (dice 6, 4)   (2.0 Quest log line)
  *   [ENGINE] Victory! Player player_1 wins by: LEVEL_3
  *
  * This module attaches a console listener and returns a structured GameRecord.
@@ -96,8 +96,8 @@ export async function buildGameRecord(page, collector, meta) {
 
 	// Count from logs
 	const pieciesActivated = logs.filter(l => l.includes('Piecie activated:')).length;
-	const questsAttempted = logs.filter(l => l.includes('is attempting') || l.includes('Arm Wrestling') || l.includes('General Quest:')).length;
-	const questsSucceeded = logs.filter(l => l.includes('→ Success') || l.includes('success') && l.includes('MP')).length;
+	const questsAttempted = logs.filter(l => /(won|failed) .+ \(dice /.test(l)).length;
+	const questsSucceeded = logs.filter(l => /won .+ \(dice /.test(l)).length;
 	const abilitiesUsed = logs.filter(l => l.startsWith('[ABILITY]') && !l.includes('passive')).length;
 	const botActions = logs.filter(l => l.startsWith('[BOT]')).length;
 	const crashes = errors.length;

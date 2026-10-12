@@ -10,7 +10,7 @@
  * Returns 'gameover' if the reward overlay appeared, 'turn' if control returned normally.
  */
 
-import { readHand } from '../helpers.js';
+import { readHand, questFirstAvailable } from '../helpers.js';
 
 /**
  * Returns true if a modal is currently open.
@@ -82,54 +82,6 @@ async function autoDismissAll(page, maxRounds = 10) {
 	}
 }
 
-/**
- * Walk the general-quest modal sequence explicitly:
- *   confirm pay (#modal-yes) → attempt (#modal-attempt) → roll (#modal-roll)
- *   → wait for dice animation → continue (#modal-done).
- * Some quests need a target/type pick first (Geen Raad) — handled by autoDismissAll
- * for those branches. Returns when the quest resolves or the flow can't proceed.
- */
-async function runQuestFlow(page) {
-	// Stage 1: confirm payment
-	const yes = page.locator('#modal-yes');
-	if (await yes.isVisible({ timeout: 2000 }).catch(() => false)) {
-		await yes.click().catch(() => {});
-		await page.waitForTimeout(300);
-	}
-	// Some quests (Geen Raad) pop an opponent-hand picker / type picker instead of attempt.
-	// Resolve any such selector before the attempt button.
-	const earlyPick = page.locator('.modal-mosje-select-btn:not(:disabled), .target-option').first();
-	if (await earlyPick.isVisible({ timeout: 500 }).catch(() => false)) {
-		await earlyPick.click().catch(() => {});
-		await page.waitForTimeout(300);
-	}
-	// Stage 2: attempt (skip if disabled = impossible quest → close via backdrop)
-	const attempt = page.locator('#modal-attempt');
-	if (await attempt.isVisible({ timeout: 2000 }).catch(() => false)) {
-		const disabled = await attempt.evaluate(e => e.disabled === true).catch(() => false);
-		if (disabled) {
-			// Impossible quest — close the modal and bail
-			await autoDismissAll(page);
-			return;
-		}
-		await attempt.click().catch(() => {});
-		await page.waitForTimeout(300);
-	}
-	// Stage 3: roll the dice
-	const roll = page.locator('#modal-roll');
-	if (await roll.isVisible({ timeout: 2000 }).catch(() => false)) {
-		await roll.click().catch(() => {});
-		await page.waitForTimeout(1800);  // let the dice animation finish
-	}
-	// Stage 4: continue past the result
-	const done = page.locator('#modal-done');
-	if (await done.isVisible({ timeout: 3000 }).catch(() => false)) {
-		await done.click().catch(() => {});
-		await page.waitForTimeout(400);
-	}
-	// Any trailing modal (recovery prompts, reveals) — clean up generically
-	await autoDismissAll(page);
-}
 
 /**
  * Play one automated human turn.
@@ -156,14 +108,12 @@ export async function playAutoTurn(page) {
 
 	if (await page.locator('#reward-overlay').isVisible({ timeout: 100 }).catch(() => false)) return 'gameover';
 
-	// 2. Attempt general quest if available — use EXPLICIT staged flow so the dice
-	//    animation isn't interrupted by the generic backdrop-dismiss fallback.
-	const questBtn = page.locator('#btn-general-quest');
+	// 2. Quest with the first Mosje that can act (2.0: #btn-quest -> pick Mosje -> pick Quest -> click through).
+	const questBtn = page.locator('#btn-quest');
 	const questEnabled = await questBtn.evaluate(el => !el.disabled).catch(() => false);
 	if (questEnabled) {
-		await questBtn.click();
-		await page.waitForTimeout(400);
-		await runQuestFlow(page);
+		await questFirstAvailable(page);
+		await autoDismissAll(page);
 	}
 
 	if (await page.locator('#reward-overlay').isVisible({ timeout: 100 }).catch(() => false)) return 'gameover';

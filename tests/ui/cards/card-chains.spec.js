@@ -497,15 +497,16 @@ test('chain: Tikker QUEST_BLOCKED prevents a General Quest', async ({ page }) =>
 	console.log('QUEST_BLOCKED present:', blocked, '| MP after Tikker:', st?.mp);
 	expect(blocked).toBe(true);
 
-	// Attempt a General Quest — should be refused (no payment modal appears)
+	// 2.0: try to Quest — the Mosje can be picked but every Quest is disabled (QUEST_BLOCKED)
 	const mpBefore = await ownSlot0(page);
-	await page.click('#btn-general-quest').catch(() => {});
-	await page.waitForTimeout(800);
-	const payModalVisible = await page.locator('#modal-yes').isVisible({ timeout: 800 }).catch(() => false);
+	await page.click('#btn-quest');
+	await page.locator('.modal-mosje-select-btn[data-id="0"]').click();
+	await page.waitForTimeout(500);
+	const refused = await page.locator('.modal-card').filter({ hasText: 'No Quest available' }).isVisible({ timeout: 1000 }).catch(() => false);
 	await ss(page, 'chain-tikker-questblock');
 	const mpAfter = await ownSlot0(page);
-	console.log(`Quest-block: payment modal visible=${payModalVisible}, MP ${mpBefore}→${mpAfter}`);
-	expect(payModalVisible).toBe(false);            // quest refused — no pay-to-attempt modal
+	console.log(`Quest-block: refused=${refused}, MP ${mpBefore}→${mpAfter}`);
+	expect(refused).toBe(true);                     // quest refused — "No Quest available"
 	expect(mpAfter).toBe(mpBefore);                 // no MP spent on a blocked quest
 });
 
