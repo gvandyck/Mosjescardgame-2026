@@ -9,9 +9,12 @@ import { animateFieldActivation, animateStateDelta, showTurnTransition, setAbili
 import { initHoverZoom } from './ui/hoverZoom.js';
 import { initCardTierMotion } from './ui/cardTierMotion.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes, setActivePlace } from './engine/gameState.js';
-import { startTurn, endTurn, attemptGeneralQuest, attemptPersonalQuest, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, playPersonalQuest, activatePersonalQuest, activateSynergyWaiver } from './engine/turnManager.js';
+import { startTurn, endTurn, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, playPersonalQuest, activatePersonalQuest, activateSynergyWaiver } from './engine/turnManager.js';
 import { OWN_TARGET_EFFECT_IDS } from './engine/targets/ownTargetEffects.js';
-import { resolveQuest, canAttemptGeneralQuest, canAttemptPersonalQuest, getQuestDiceThreshold, getActivePartnerSynergyBonuses } from './abilities/questLogic.js';
+import { runAttackFlow } from './ui/actions/runAttackFlow.js';
+import { runQuestFlow } from './ui/actions/runQuestFlow.js';
+import { isCooldownBlocked } from './engine/turn/isCooldownBlocked.js';
+import { getActivePartnerSynergyBonuses } from './abilities/questLogic.js';
 import { PIECIE_SLOT_COUNT } from './engine/table/tableRules.js';
 import { hasFoodDoubleSynergy } from './engine/synergyResolver.js';
 import { loseMP, gainMP } from './engine/mpManager.js';
@@ -575,6 +578,7 @@ function initGamePage() {
 	const isOnline = roomCode !== 'LOCAL';
 
 	let gameState = null;
+	let nextDice = []; // testMode setNextDice queue (Quest rolls)
 
 	// Stats accumulator — local player game summary for end-screen
 	let gameStats = {
@@ -1074,16 +1078,19 @@ function initGamePage() {
 				const after = after_state.players?.[playerId]?.activeSlots?.[0]?.mp ?? -1;
 				return { before, after, delta: after - before, turnNumber: snap.turnNumber, canActivateOnTurn: snap.activePlaceCanActivateOnTurn };
 			},
-			injectQuestToTopOfDeck(questId) {
-				// Put a specific quest at the front of the shared general quest deck.
-				// Removes any existing copy first to avoid duplicates.
-				if (!gameState) return;
-				const deck = gameState.sharedGeneralQuestDeck;
-				if (!Array.isArray(deck)) return;
-				const existing = deck.findIndex(q => (q.cardId ?? q) === questId);
-				if (existing >= 0) deck.splice(existing, 1);
-				deck.unshift({ cardId: questId });
+			// 56-06: put a specific Quest face-up on its stack (testMode only).
+			setQuestFaceUp(stackId, questId) {
+				const stack = gameState?.questStacks?.[stackId];
+				if (!stack) return;
+				stack.deck = stack.deck.filter(id => id !== questId);
+				stack.discard = stack.discard.filter(id => id !== questId);
+				if (stack.faceUp && stack.faceUp !== questId) stack.deck.unshift(stack.faceUp);
+				stack.faceUp = questId;
+				stack.tokens = 0;
+				renderFromState(gameState);
 			},
+			// 56-06: the next Quest dice come from this list (6 = max); falls back to Math.random once empty.
+			setNextDice(values) { nextDice = Array.isArray(values) ? [...values] : []; },
 			getGameState() { return JSON.parse(JSON.stringify(gameState)); },
 			getHandSize(playerId) { return gameState?.players?.[playerId]?.hand?.length ?? -1; },
 			getGraveyardSize(playerId) { return gameState?.players?.[playerId]?.graveyard?.length ?? -1; },
@@ -1257,321 +1264,6 @@ function initGamePage() {
 		}
 	});
 
-	document.getElementById('btn-general-quest')?.addEventListener('click', async () => {
-		if (!gameState) return;
-		if (gameState.activePlayerId !== localPlayerId) {
-			modal.showInfo('Not Your Turn', 'You can only attempt quests on your own turn.');
-			return;
-		}
-		const maxQGAttempts = gameState.activePlace === 'place_quest_haven' ? 2 : 1;
-		if ((gameState.players[localPlayerId].questsAttemptedThisTurn || 0) >= maxQGAttempts) {
-			modal.showInfo('Already Attempted', 'You have already attempted a quest this turn.');
-			return;
-		}
-
-		const { state: newState, questCard: questRef } = attemptGeneralQuest(gameState);
-		gameState = newState;
-
-
-		if (!questRef) {
-			log.add('quest', 'General Quest deck is empty!');
-			renderAndCheckWin();
-			return;
-		}
-
-		const questDef = CARD_LOOKUP[questRef.cardId];
-		if (!questDef) {
-			log.add('quest', `Unknown quest card: ${questRef.cardId}`);
-			renderFromState(gameState);
-			return;
-		}
-
-		const activeMosje = gameState.players[localPlayerId].activeSlots.find(s => s && !s.isDefeated);
-		if (!canAttemptGeneralQuest(questDef, gameState, localPlayerId)) {
-			const isQuestBlocked = activeMosje?.statusEffects?.some(e => e.type === 'QUEST_BLOCKED');
-			const blockReason = isQuestBlocked
-				? `quest blocked this turn (Tikker effect — cannot attempt Quests).`
-				: `active Mosje has negative MP.`;
-			log.add('quest', `Cannot attempt ${questDef.name} — ${blockReason}`);
-			gameState.sharedGeneralQuestDiscard.push(questRef);
-			renderAndCheckWin();
-			return;
-		}
-
-		const threshold = getQuestDiceThreshold(questDef, activeMosje);
-		// BUG-01 diagnostic: log computed threshold vs requirement description.
-		// If the modal ever shows a wrong threshold, compare this log output to the
-		// actual roll result. A mismatch means activeMosje here is stale (different
-		// object than the one received by the requirement function).
-		console.log(`[QUEST-DEBUG] ${questDef.name}: computed threshold=${threshold}, requirementDesc="${questDef.requirementDescription}", mosje=${activeMosje?.name}, mental=${activeMosje?.traits?.mental}`);
-		log.add('quest', `${localPlayerName} is attempting General Quest: ${questDef.name}`);
-		if (questDef.description) log.add('info', `Effect: ${questDef.description}`);
-
-		const diceBonus = gameState._snelleFlags?.questDiceBonus || 0;
-		const questPrepBonus = gameState.players[localPlayerId]?.questPrepBonus || 0;
-		const skiffaDiceBonus = (gameState.activePlace === 'place_skiffa' && questDef.category === 'Social') ? 2 : 0;
-		const forceReroll = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
-
-		// Phase 8 Rule 3: broadcast active quest so opponent can see it
-		gameState.activeQuest = {
-			questName: questDef.name,
-			cardName: questDef.name,
-			questType: questDef.questType || 'GENERAL',
-			attacker: localPlayerId,
-			successMP: questDef.successMP,
-			failMP: questDef.failMP,
-			currentMp: activeMosje?.mp ?? null,
-		};
-		// Render BEFORE consuming flags so modifier pills (e.g. +2 Quest Roll) stay visible
-		renderFromState(gameState);
-		// Consume the flags after rendering so the pill shows during quest prep
-		if (diceBonus) delete gameState._snelleFlags.questDiceBonus;
-		if (questPrepBonus) gameState.players[localPlayerId].questPrepBonus = 0;
-		if (forceReroll) delete gameState._snelleFlags.forceReroll[localPlayerId];
-		syncPush();
-
-		// Geen Raad Vraag Aad — no dice; interactive card-type guess against opponent's hand
-		if (questDef.id === 'quest_geen_raad_vraag_aad') {
-			const opponentPlayer = gameState.players[opponentId];
-			const opponentHand = opponentPlayer?.hand ?? [];
-			const firstSlotIndex = gameState.players[localPlayerId].activeSlots
-				.findIndex(s => s && !s.isDefeated);
-
-			if (opponentHand.length === 0) {
-				log.add('quest', 'Geen Raad: opponent hand is empty — quest cannot resolve.');
-				gameState.activeQuest = null;
-				if (!Array.isArray(gameState.sharedGeneralQuestDiscard)) gameState.sharedGeneralQuestDiscard = [];
-				gameState.sharedGeneralQuestDiscard.push(questRef);
-				renderAndCheckWin();
-				syncPush();
-				return;
-			}
-
-			const pickedIndex = await modal.showOpponentHandCardSelect({
-				title: 'Geen Raad? Vraag Aad! — Pick a card',
-				prompt: "Pick one of your opponent's face-down cards.",
-				handSize: opponentHand.length,
-				allowCancel: true,
-			});
-			if (pickedIndex === null) {
-				gameState.activeQuest = null;
-				gameState.sharedGeneralQuestDiscard.push(questRef);
-				renderAndCheckWin();
-				syncPush();
-				return;
-			}
-
-			const guess = await modal.showCardTypeSelect({ title: 'Geen Raad: What type is this card?' });
-			if (!guess) {
-				gameState.activeQuest = null;
-				gameState.sharedGeneralQuestDiscard.push(questRef);
-				renderAndCheckWin();
-				syncPush();
-				return;
-			}
-
-			const actualCard = opponentHand[pickedIndex];
-			const actualCardDef = CARD_LOOKUP[actualCard?.cardId];
-			const actualCardType = actualCard?.type || actualCardDef?.type || 'UNKNOWN';
-			const actualCardName = actualCardDef?.name || actualCard?.cardId || '???';
-
-			await modal.showRevealedCard('Geen Raad — Card Revealed', actualCardName, actualCardType);
-
-			const didSucceed = guess === actualCardType;
-			const beforeResolve = snapshotForAnimation();
-			gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed, firstSlotIndex);
-			gameState.activeQuest = null;
-			if (!Array.isArray(gameState.sharedGeneralQuestDiscard)) gameState.sharedGeneralQuestDiscard = [];
-			gameState.sharedGeneralQuestDiscard.push(questRef);
-
-			// Stats: Geen Raad quest outcome
-			gameStats.questsAttempted += 1;
-			if (didSucceed) {
-				gameStats.questsSucceeded += 1;
-				const localBefore = beforeResolve.players?.[localPlayerId];
-				const localAfter = gameState.players?.[localPlayerId];
-				if (localBefore && localAfter) {
-					(localAfter.activeSlots || []).forEach((afterSlot, i) => {
-						const beforeSlot = (localBefore.activeSlots || [])[i];
-						if (!afterSlot || !beforeSlot) return;
-						const gain = Number(afterSlot.mp || 0) - Number(beforeSlot.mp || 0);
-						if (gain > gameStats.biggestSingleGain) gameStats.biggestSingleGain = gain;
-					});
-				}
-			}
-
-			renderAndAnimate(beforeResolve, { actionLabel: 'quest-resolution' });
-			animateQuestResult({ playerId: localPlayerId, slotIndex: firstSlotIndex, success: didSucceed });
-			syncPush();
-
-			log.add(didSucceed ? 'gain' : 'loss',
-				`Geen Raad: guessed ${guess}, was ${actualCardType} → ${didSucceed ? '+50 MP' : '-25 MP'}`
-			);
-			logStateOutcome(log, beforeResolve, gameState, localPlayerId, 'Geen Raad? Vraag Aad! resolution');
-
-			// Partner-synergy quest bonus — called out explicitly so it isn't
-			// silently folded into one combined MP number.
-			if (gameState._questSynergyBonus) {
-				log.add('gain', `🔗 Includes +${gameState._questSynergyBonus} MP from an active synergy bonus.`);
-				delete gameState._questSynergyBonus;
-			}
-
-			// Aad Recovery — each player who lost MP from this quest may discard 1 card to regain 40 MP
-			let recoveryHappened = false;
-			for (const pid of [localPlayerId, opponentId]) {
-				const beforeSlot = beforeResolve.players[pid]?.activeSlots?.find(s => s && !s.isDefeated);
-				const afterSlot = gameState.players[pid]?.activeSlots?.find(s => s && !s.isDefeated);
-				if (!beforeSlot || !afterSlot || afterSlot.mp >= beforeSlot.mp) continue;
-
-				const hand = gameState.players[pid]?.hand ?? [];
-				if (hand.length === 0) continue;
-
-				const pName = gameState.players[pid]?.name ?? pid;
-				const mpLost = beforeSlot.mp - afterSlot.mp;
-				const wantsRecovery = await modal.showConfirm(
-					`${pName} — Aad Recovery`,
-					`You lost ${mpLost} MP from Geen Raad. Discard 1 card to regain 40 MP?`
-				);
-				if (!wantsRecovery) continue;
-
-				const handCards = hand.map(c => ({
-					cardId: c.cardId,
-					name: CARD_LOOKUP[c.cardId]?.name || c.cardId,
-					description: c.type || CARD_LOOKUP[c.cardId]?.type || '',
-				}));
-				const discarded = await modal.showCardChoice(`${pName} — Pick a card to discard`, handCards);
-				if (!discarded) continue;
-
-				const cardIdx = gameState.players[pid].hand.findIndex(c => c.cardId === discarded.cardId);
-				if (cardIdx !== -1) {
-					const [removed] = gameState.players[pid].hand.splice(cardIdx, 1);
-					if (!Array.isArray(gameState.players[pid].graveyard)) gameState.players[pid].graveyard = [];
-					gameState.players[pid].graveyard.push({ cardId: removed.cardId ?? removed, name: removed.name ?? CARD_LOOKUP[removed.cardId ?? removed]?.name ?? removed.cardId ?? removed, type: 'HAND_CARD', source: 'discarded' });
-				}
-				const slotIdx = gameState.players[pid].activeSlots.findIndex(s => s && !s.isDefeated);
-				if (slotIdx >= 0) {
-					applyGainToSlot(gameState.players[pid].activeSlots[slotIdx], 40, { turnNumber: gameState.turnNumber });
-				}
-				log.add('gain', `${pName} — Aad Recovery: discarded ${discarded.name}, regained 40 MP`);
-				recoveryHappened = true;
-			}
-			if (recoveryHappened) {
-				renderAndAnimate(beforeResolve, { actionLabel: 'quest-recovery' });
-				syncPush();
-			}
-			return;
-		}
-
-		const gqSlots = gameState.players[localPlayerId].activeSlots
-			.map((slot, index) => ({ slot, index }))
-			.filter(({ slot }) => slot && !slot.isDefeated)
-			.map(({ slot, index }) => ({
-				slotIndex: index,
-				name: slot.name || CARD_LOOKUP[slot.cardId]?.name || slot.cardId || 'Mosje',
-				mp: slot.mp,
-				traits: slot.traits || CARD_LOOKUP[slot.cardId]?.traits || {},
-				sideways: slot.sideways === true,
-			}));
-
-		// Check if player wants to pay 20 MP to attempt the quest
-		const confirmPayment = await modal.showConfirm(
-			`Attempt ${questDef.name}?`,
-			'Pay 20 MP to attempt this quest?'
-		);
-		if (!confirmPayment) {
-			// Player declined — return quest to discard and exit
-			gameState.activeQuest = null;
-			if (!Array.isArray(gameState.sharedGeneralQuestDiscard)) gameState.sharedGeneralQuestDiscard = [];
-			gameState.sharedGeneralQuestDiscard.push(questRef);
-			renderAndCheckWin();
-			syncPush();
-			return;
-		}
-
-		function runGeneralQuestDiceRoll(targetSlotIndex) {
-			// Tweede Kans: consume the granted reroll into this quest's dice roll.
-			let tweedeKansReroll = 0;
-			if (gameState._rerollGranted) {
-				tweedeKansReroll = 1;
-				delete gameState._rerollGranted;
-			}
-			modal.showDiceRoll(questDef, threshold, (didSucceed, rollInfo) => {
-				const beforeResolve = snapshotForAnimation();
-				gameState = resolveQuest(gameState, localPlayerId, questDef, didSucceed, targetSlotIndex);
-				gameState.activeQuest = null;
-				if (!Array.isArray(gameState.sharedGeneralQuestDiscard)) {
-					gameState.sharedGeneralQuestDiscard = [];
-				}
-				gameState.sharedGeneralQuestDiscard.push(questRef);
-
-				// Stats: general quest outcome
-				gameStats.questsAttempted += 1;
-				if (didSucceed) {
-					gameStats.questsSucceeded += 1;
-					const localBefore = beforeResolve.players?.[localPlayerId];
-					const localAfter = gameState.players?.[localPlayerId];
-					if (localBefore && localAfter) {
-						(localAfter.activeSlots || []).forEach((afterSlot, i) => {
-							const beforeSlot = (localBefore.activeSlots || [])[i];
-							if (!afterSlot || !beforeSlot) return;
-							const gain = Number(afterSlot.mp || 0) - Number(beforeSlot.mp || 0);
-							if (gain > gameStats.biggestSingleGain) gameStats.biggestSingleGain = gain;
-						});
-					}
-				}
-
-				renderAndAnimate(beforeResolve, { actionLabel: 'quest-resolution' });
-				animateQuestResult({ playerId: localPlayerId, slotIndex: targetSlotIndex, success: didSucceed });
-				syncPush();
-
-				const mpDelta = didSucceed ? questDef.successMP : questDef.failMP;
-				const sign = mpDelta >= 0 ? '+' : '';
-				const rollLabel = rollInfo ? `rolled ${rollInfo.roll}, needed ${rollInfo.threshold}+ → ` : '';
-				log.add(didSucceed ? 'gain' : 'loss',
-					`${questDef.name}: ${rollLabel}${didSucceed ? 'Success' : 'Failed'} (${sign}${mpDelta} MP)`
-				);
-				logStateOutcome(log, beforeResolve, gameState, localPlayerId, `${questDef.name} resolution`);
-
-				// Partner-synergy quest bonus (e.g. Señor West + AZN Cless +15
-				// Physical) — called out explicitly so it isn't silently folded
-				// into one combined MP number.
-				if (gameState._questSynergyBonus) {
-					log.add('gain', `🔗 Includes +${gameState._questSynergyBonus} MP from an active synergy bonus.`);
-					delete gameState._questSynergyBonus;
-				}
-
-				// Drain auto-ability log (e.g. Michelle's Tough Gamble)
-				if (gameState._autoAbilityLog) {
-					const al = gameState._autoAbilityLog;
-					log.add(al.adjustment >= 0 ? 'gain' : 'loss', al.label);
-					console.log('[ABILITY-AUTO]', al.label, '| roll:', al.roll, '| adjustment:', al.adjustment);
-					delete gameState._autoAbilityLog;
-				}
-			}, { diceBonus: diceBonus + questPrepBonus + skiffaDiceBonus, forceReroll, skiffaRerolls: tweedeKansReroll, mosje: gameState.players[localPlayerId].activeSlots[targetSlotIndex] });
-		}
-
-		function showQuestPreviewThenRoll(targetSlotIndex) {
-			const targetMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
-			if (targetMosje) {
-				const updatedMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
-				const thresholdForMosje = getQuestDiceThreshold(questDef, updatedMosje);
-				modal.showQuestAttemptPreview(updatedMosje, questDef, thresholdForMosje, () => {
-					runGeneralQuestDiceRoll(targetSlotIndex);
-				}, { diceBonus: diceBonus + questPrepBonus + skiffaDiceBonus });
-			} else {
-				runGeneralQuestDiceRoll(targetSlotIndex);
-			}
-		}
-
-		// D-06/GATE-03: always route through showMosjeSelect, even with a single
-		// active Mosje. showMosjeSelect always shows its modal regardless of count
-		// (modalManager.js:734) and (no MP gate in 2.0) — this closes the single-Mosje self-destruct gap
-		// (the Michelle Phase-36-UAT knockout) without touching the 20 MP charge,
-		// the upstream showConfirm intent dialog, or getGeneralQuestBlockReason
-		// (left untouched — see D-04 note at that gate's call site above).
-		modal.showMosjeSelect(gqSlots, showQuestPreviewThenRoll, questDef);
-	});
-
 	function handleActivateSynergyWaiver() {
 		if (!gameState) return;
 		if (gameState.activePlayerId !== localPlayerId) {
@@ -1589,36 +1281,24 @@ function initGamePage() {
 		renderFromState(gameState);
 	}
 
-	document.getElementById('btn-personal-quest')?.addEventListener('click', () => {
-		if (!gameState) return;
+	// 56-06: Attack / Quest buttons — the flows own all picking; main.js only assigns state, logs, syncs and renders.
+	async function runMosjeAction(flow, actionLabel) {
+		if (!gameState || gameState.status === 'FINISHED') return;
 		if (gameState.activePlayerId !== localPlayerId) {
-			modal.showInfo('Not Your Turn', 'You can only place quests on your own turn.');
+			modal.showInfo('Not Your Turn', 'You can only act on your own turn.');
 			return;
 		}
-
-		const personalQuestsInHand = gameState.players[localPlayerId].hand.filter(
-			c => CARD_LOOKUP[c.cardId]?.questType === 'PERSONAL'
-		);
-
-		if (personalQuestsInHand.length === 0) {
-			modal.showInfo('No Personal Quests', 'You have no Personal Quest cards in your hand.');
-			return;
-		}
-
-		const handCard = personalQuestsInHand[0];
-		const questDef = CARD_LOOKUP[handCard.cardId];
-
-		const beforePlay = snapshotForAnimation();
-		const { state: newState, success, error } = playPersonalQuest(gameState, localPlayerId, handCard);
-		if (!success) {
-			modal.showInfo('Cannot Place', error || 'Cannot place this Quest right now.');
-			return;
-		}
-		gameState = newState;
-		log.add('quest', `Placed ${questDef?.name || 'Personal Quest'} face-down. Activate it next turn.`);
+		const before = snapshotForAnimation();
+		const rng = () => (nextDice.length ? (nextDice.shift() - 1) / 6 + 0.001 : Math.random());
+		const out = await flow({ state: gameState, playerId: localPlayerId, modal, rng });
+		if (out.state === gameState) return;
+		gameState = out.state;
+		out.log.forEach(line => log.add('quest', line));
 		syncPush();
-		renderAndAnimate(beforePlay, { actionLabel: 'play-personal-quest', placedCardId: questDef?.id });
-	});
+		renderAndAnimate(before, { actionLabel });
+	}
+	document.getElementById('btn-attack')?.addEventListener('click', () => runMosjeAction(runAttackFlow, 'attack'));
+	document.getElementById('btn-quest')?.addEventListener('click', () => runMosjeAction(runQuestFlow, 'quest'));
 
 	// Deck-out recycle notice: when the engine stamps _deckOutEvent (D-06 reshuffle), show a
 	// banner + battle-log line + discard-pile pulse. Runs on both the local action path and
@@ -1642,8 +1322,6 @@ function initGamePage() {
 		const uiState = toBoardViewModel(state, localPlayerId);
 
 		const isLocalTurn = state.activePlayerId === localPlayerId;
-		const maxQuestAttempts = state.activePlace === 'place_quest_haven' ? 2 : 1;
-		const alreadyAttempted = (state.players[localPlayerId].questsAttemptedThisTurn || 0) >= maxQuestAttempts;
 		const gameOver = state.status === 'FINISHED';
 
 		// Regular cards only on local turn; Snelle Piecies always available
@@ -1673,18 +1351,12 @@ function initGamePage() {
 		// Board is rendered (discard containers now exist) — announce any deck-out recycle.
 		maybeAnnounceDeckOut(state);
 
-		const questBtnsEnabled = isLocalTurn && !alreadyAttempted && !gameOver;
-		const questsUsed = state.players[localPlayerId].questsAttemptedThisTurn || 0;
-		const questHavenActive = state.activePlace === 'place_quest_haven';
+		const actionBtnsEnabled = isLocalTurn && !gameOver && !isCooldownBlocked(state, localPlayerId);
 
 		const phaseLabel = gameOver
 			? 'Game Over'
 			: isLocalTurn
-				? (alreadyAttempted
-					? 'MAIN Phase'
-					: questHavenActive
-						? `MAIN / QUEST Phase (${questsUsed}/2 quests used)`
-						: 'MAIN / QUEST Phase')
+				? 'MAIN Phase'
 				: `${uiState.activePlayerName}'s Turn`;
 
 		if (turnLabel) {
@@ -1709,19 +1381,11 @@ function initGamePage() {
 			}
 		}
 
-		const btnGeneral = document.getElementById('btn-general-quest');
-		const btnPersonal = document.getElementById('btn-personal-quest');
+		const btnAttack = document.getElementById('btn-attack');
+		const btnQuest = document.getElementById('btn-quest');
 		const btnEndTurn = document.getElementById('btn-end-turn');
-
-		const questBtnLabel = questHavenActive && questsUsed === 1 ? ' (2nd)' : '';
-		if (btnGeneral) {
-			btnGeneral.disabled = !questBtnsEnabled;
-			btnGeneral.textContent = `General Quest 🎯${questBtnLabel}`;
-		}
-		if (btnPersonal) {
-			btnPersonal.disabled = !questBtnsEnabled;
-			btnPersonal.textContent = `Personal Quest ⭐${questBtnLabel}`;
-		}
+		if (btnAttack) btnAttack.disabled = !actionBtnsEnabled;
+		if (btnQuest) btnQuest.disabled = !actionBtnsEnabled;
 		if (btnEndTurn) btnEndTurn.disabled = !isLocalTurn || gameOver;
 	}
 
@@ -2541,207 +2205,6 @@ function initGamePage() {
 		renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
 	}
 
-	async function handleActivatePersonalQuestFromField(slotIndex) {
-		if (!gameState || gameState.status === 'FINISHED') return;
-
-		const piecieSlot = gameState.players[localPlayerId]?.piecieSlots?.[slotIndex];
-		const questDef = piecieSlot?.cardId ? CARD_LOOKUP[piecieSlot.cardId] : null;
-		if (!questDef) { modal.showInfo('Error', 'Quest card not found.'); return; }
-
-		if (!canAttemptPersonalQuest(questDef, gameState, localPlayerId)) {
-			const player = gameState.players[localPlayerId];
-			const activeMosjeForBlock = player?.activeSlots?.find(s => s && !s.isDefeated);
-			const isQuestBlockedP = activeMosjeForBlock?.statusEffects?.some(e => e.type === 'QUEST_BLOCKED');
-			const pBlockReason = isQuestBlockedP
-				? `Quest blocked this turn (Tikker effect — cannot attempt Quests).`
-				: `${questDef.name} requires its Mosje to be on the field.`;
-			modal.showInfo('Cannot Activate', pBlockReason);
-			return;
-		}
-
-		// Read-only guard checks (mirrors activatePersonalQuest) before showing any modal.
-		const player = gameState.players[localPlayerId];
-		const questSlotData = player?.piecieSlots?.[slotIndex];
-		const canActivateOnTurn = Number.isFinite(questSlotData?.canActivateOnTurn) ? questSlotData.canActivateOnTurn : 0;
-		if (gameState.turnNumber < canActivateOnTurn) {
-			modal.showInfo('Cannot Activate', 'This Quest can be activated starting next turn.');
-			return;
-		}
-		const questHavenActive = gameState.activePlace === 'place_quest_haven';
-		const maxQuestsThisTurn = questHavenActive ? 2 : 1;
-		if ((player.questsAttemptedThisTurn ?? 0) >= maxQuestsThisTurn) {
-			modal.showInfo('Cannot Activate', 'You have already attempted a quest this turn.');
-			return;
-		}
-
-		// Capture bonuses before any state mutation.
-		const diceBonus = gameState._snelleFlags?.questDiceBonus || 0;
-		const questPrepBonus = gameState.players[localPlayerId]?.questPrepBonus || 0;
-		const skiffaDiceBonus = (gameState.activePlace === 'place_skiffa' && questDef.category === 'Social') ? 2 : 0;
-		const forceReroll = gameState._snelleFlags?.forceReroll?.[localPlayerId] ?? false;
-
-		// Build Mosje options from current state (quest card still on field at this point).
-		const isKickboxing = questDef.id === 'quest_personal_kickboxing_bootcamp';
-		const questSlots = gameState.players[localPlayerId].activeSlots
-			.map((slot, index) => ({ slot, index }))
-			.filter(({ slot }) => slot && !slot.isDefeated)
-			.map(({ slot, index }) => {
-				const eligible = !isKickboxing || (String(slot.cardId).includes('gandoe') || slot.cardId === 'mosje_michelle');
-				return {
-					slotIndex: index,
-					name: slot.name || CARD_LOOKUP[slot.cardId]?.name || slot.cardId || 'Mosje',
-					mp: slot.mp,
-					traits: slot.traits || CARD_LOOKUP[slot.cardId]?.traits || {},
-					sideways: slot.sideways === true,
-					disabled: !eligible,
-				};
-			});
-
-		// Per-Mosje quests (Kickboxing Bootcamp): fold the chosen Mosje's reward —
-		// including the +20 both-Kickboxers bonus — into one quest def, so the
-		// preview modal, the dice popup, and the resolution all use the same MP.
-		function questDefForMosje(mosje) {
-			const perCfg = questDef.perMosjeConfig?.[mosje?.cardId];
-			if (!perCfg) return questDef;
-			const p = gameState.players[localPlayerId];
-			const bothActive = isKickboxing
-				&& p.activeSlots.some(s => s && !s.isDefeated && String(s.cardId).includes('gandoe'))
-				&& p.activeSlots.some(s => s && !s.isDefeated && s.cardId === 'mosje_michelle');
-			return { ...questDef, successMP: perCfg.successMP + (bothActive ? 20 : 0) };
-		}
-
-		// Fires only after the player confirms a Mosje in the selection modal.
-		function onMosjeSelected(targetSlotIndex) {
-			animateFieldActivation({
-				zone: 'piecie',
-				playerId: localPlayerId,
-				slotIndex,
-				cardId: questDef.id,
-			});
-			// Commit: remove quest from field, discard, increment attempt counter.
-			const { state: activatedState, success, error } = activatePersonalQuest(gameState, localPlayerId, slotIndex);
-			if (!success) { modal.showInfo('Cannot Activate', error || 'Quest cannot be activated now.'); return; }
-			gameState = activatedState;
-
-			const chosenMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
-			const chosenQuestDef = questDefForMosje(chosenMosje);
-			gameState.activeQuest = {
-				questName: questDef.name, cardName: questDef.name,
-				questType: questDef.questType || 'PERSONAL', attacker: localPlayerId,
-				successMP: chosenQuestDef.successMP, failMP: questDef.failMP,
-				currentMp: chosenMosje?.mp ?? null,
-			};
-			renderFromState(gameState);
-			if (diceBonus) delete gameState._snelleFlags.questDiceBonus;
-			if (questPrepBonus) gameState.players[localPlayerId].questPrepBonus = 0;
-			if (forceReroll) delete gameState._snelleFlags.forceReroll[localPlayerId];
-			syncPush();
-
-			// Show quest detail preview (modal-card--mosje-detail).
-			// "Attempt Quest" → dice roll. "Cancel" → close with no MP refund.
-			const updatedMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
-			const previewQuestDef = questDefForMosje(updatedMosje);
-			modal.showQuestAttemptPreview(updatedMosje, previewQuestDef, getQuestDiceThreshold(previewQuestDef, updatedMosje), () => {
-				runQuestDiceRoll(targetSlotIndex);
-			}, { diceBonus: diceBonus + questPrepBonus + skiffaDiceBonus });
-		}
-
-		function runQuestDiceRoll(targetSlotIndex) {
-			const liveMosje = gameState.players[localPlayerId].activeSlots[targetSlotIndex];
-			const mosjePerCfg = questDef.perMosjeConfig?.[liveMosje?.cardId];
-			const threshold = mosjePerCfg ? mosjePerCfg.threshold : getQuestDiceThreshold(questDef, liveMosje);
-			// Tweede Kans: consume the granted reroll into this quest's dice roll.
-			let tweedeKansReroll = 0;
-			if (gameState._rerollGranted) {
-				tweedeKansReroll = 1;
-				delete gameState._rerollGranted;
-			}
-			// One def for the popup AND the resolution — the shown MP is the awarded MP.
-			// (successMP is only consumed on success, so folding the both-active bonus
-			// in unconditionally is behaviour-identical to the old didSucceed check.)
-			const resolveQuestDef = questDefForMosje(liveMosje);
-			modal.showDiceRoll(resolveQuestDef, threshold, (didSucceed, rollInfo) => {
-				const beforeResolve = snapshotForAnimation();
-				gameState = resolveQuest(gameState, localPlayerId, resolveQuestDef, didSucceed, targetSlotIndex);
-				gameState.activeQuest = null;
-
-				// Stats: personal quest outcome
-				gameStats.questsAttempted += 1;
-				if (didSucceed) {
-					gameStats.questsSucceeded += 1;
-					const localBefore = beforeResolve.players?.[localPlayerId];
-					const localAfter = gameState.players?.[localPlayerId];
-					if (localBefore && localAfter) {
-						(localAfter.activeSlots || []).forEach((afterSlot, i) => {
-							const beforeSlot = (localBefore.activeSlots || [])[i];
-							if (!afterSlot || !beforeSlot) return;
-							const gain = Number(afterSlot.mp || 0) - Number(beforeSlot.mp || 0);
-							if (gain > gameStats.biggestSingleGain) gameStats.biggestSingleGain = gain;
-						});
-					}
-				}
-
-				// Perfect Sync: show opponent hand, then let player pick mosje for +70 MP.
-				if (questDef.id === 'quest_personal_perfect_sync' && didSucceed) {
-					const opponentId = Object.keys(gameState.players).find(pid => pid !== localPlayerId);
-					const opponent = gameState.players[opponentId];
-					const handCardIds = (opponent?.hand || []).map(c => c.cardId || c.id || 'Unknown');
-					const opponentName = opponent?.name || 'Opponent';
-					renderFromState(gameState);
-					animateStateDelta(beforeResolve, gameState, {
-						actorId: localPlayerId,
-						localPlayerId,
-						actionLabel: 'quest-resolution',
-					});
-					syncPush();
-					modal.showHandViewerModal(handCardIds, opponentName, CARD_LOOKUP, () => {
-						const liveMosjeSlots = gameState.players[localPlayerId].activeSlots
-							.map((slot, index) => ({ slot, index }))
-							.filter(({ slot }) => slot && !slot.isDefeated)
-							.map(({ slot, index }) => ({
-								slotIndex: index,
-								name: slot.name || CARD_LOOKUP[slot.cardId]?.name || slot.cardId || 'Mosje',
-								mp: slot.mp,
-								traits: slot.traits || CARD_LOOKUP[slot.cardId]?.traits || {},
-							}));
-						modal.showMosjeSelect(liveMosjeSlots, (selectedSlotIndex) => {
-							const beforePerfectGain = snapshotForAnimation();
-							gameState = gainMP(gameState, localPlayerId, selectedSlotIndex, 70);
-							// Perfect Sync's +70 can cross into Level 3 — finalise the win now so
-							// the modal fires instantly instead of waiting for end of turn.
-							gameState = checkVictory(gameState);
-							renderAndAnimate(beforePerfectGain, { actionLabel: 'quest-resolution' });
-							syncPush();
-							log.add('gain', `Perfect Sync: Success → +70 MP`);
-							logStateOutcome(log, beforeResolve, gameState, localPlayerId, 'Perfect Sync resolution');
-						}, null, { title: 'Perfect Sync', prompt: 'Select Mosje to receive +70 MP.' });
-					});
-					return;
-				}
-
-				renderAndAnimate(beforeResolve, { actionLabel: 'quest-resolution' });
-				animateQuestResult({ playerId: localPlayerId, slotIndex: targetSlotIndex, success: didSucceed });
-				syncPush();
-				const mpDelta = didSucceed ? resolveQuestDef.successMP : resolveQuestDef.failMP;
-				const sign = mpDelta >= 0 ? '+' : '';
-				const rollLabel = rollInfo ? `rolled ${rollInfo.roll}, needed ${rollInfo.threshold}+ → ` : '';
-				log.add(didSucceed ? 'gain' : 'loss', `${questDef.name}: ${rollLabel}${didSucceed ? 'Success' : 'Failed'} (${sign}${mpDelta} MP)`);
-				logStateOutcome(log, beforeResolve, gameState, localPlayerId, `${questDef.name} resolution`);
-
-				// Partner-synergy quest bonus (e.g. Señor West + AZN Cless +15
-				// Physical) — called out explicitly so it isn't silently folded
-				// into one combined MP number.
-				if (gameState._questSynergyBonus) {
-					log.add('gain', `🔗 Includes +${gameState._questSynergyBonus} MP from an active synergy bonus.`);
-					delete gameState._questSynergyBonus;
-				}
-			}, { diceBonus: diceBonus + questPrepBonus + skiffaDiceBonus, forceReroll, skiffaRerolls: tweedeKansReroll, mosje: liveMosje });
-		}
-
-		log.add('quest', `Activating Personal Quest: ${questDef.name}`);
-		modal.showMosjeSelect(questSlots, onMosjeSelected, questDef);
-	}
-
 	async function handleActivatePiecie(slotIndex) {
 		if (!gameState || gameState.status === 'FINISHED') return;
 		const beforeActivate = snapshotForAnimation();
@@ -2754,11 +2217,6 @@ function initGamePage() {
 		const piecieSlot = slots?.[slotIndex];
 		const piecieCardDef = piecieSlot?.cardId ? CARD_LOOKUP[piecieSlot.cardId] : null;
 
-		// Route Personal Quest activation to its own handler
-		if (piecieSlot?.type === 'QUEST') {
-			await handleActivatePersonalQuestFromField(slotIndex);
-			return;
-		}
 
 		let stateForActivation = gameState;
 		if (piecieCardDef?.effectId === 'effect_affoe') {
@@ -3363,6 +2821,7 @@ function toBoardViewModel(gameState, localPlayerId) {
 		activePlace: activePlaceCard,
 		activePlacePlayedBy: gameState.activePlacePlayedBy || null,
 		activeQuest: gameState.activeQuest ?? null,
+		questStacks: gameState.questStacks ?? null,
 		activePlaceTurns: gameState.activePlaceTurnsActive || 0,
 		gameState,
 		myPlayerId: localPlayerId,
