@@ -157,7 +157,7 @@ Plans:
 **Notes**: This phase builds the reaction-window framework and the table rules; the individual Snelle and Place effects come in Phase 60. SHELL-04 closes here because this is the last phase that replaces a V4 rule.
 **Plans**: 7 plans (7 waves, sequential)
 Plans:
-- [ ] 57-01-PLAN.md — Piecie readiness (isPiecieReady, no playedOnTurn+1 fallback), 3 Piecie-only slots, headless Activate-button repro + fix (E22)
+- [x] 57-01-PLAN.md — Piecie readiness (isPiecieReady, no playedOnTurn+1 fallback), 3 Piecie-only slots, headless Activate-button repro + fix (E22)
 - [ ] 57-02-PLAN.md — Stays lifecycle (end times, discard at once otherwise), V4 persistence removed (E25; TABLE-02)
 - [ ] 57-03-PLAN.md — Snelle slot rule + immediate discard, Blensen! until end of turn; Welloe pile exit gate (E23; TABLE-03, TABLE-06)
 - [ ] 57-04-PLAN.md — Places from hand, one in play, works at once, no slot; activatePlace removed from engine/bot/UI (E24)
