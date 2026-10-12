@@ -38,7 +38,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 - [x] **PLAY-04**: A Quest rolls 1 d6 per ★ of its trait (min 1, max 4) and resolves by its band's need and win/lose MP; Trained needs ★★ and doesn't roll (§2e).
 - [x] **PLAY-05**: Quest costs are paid before the roll and never refunded; "hand or a ready one" discards accept both (§2e).
 - [x] **PLAY-06**: Failed attempts add a fail token; a won Quest or one with 2 tokens is replaced from its stack, which reshuffles its own discards when empty (§2e).
-- [ ] **PLAY-07**: Quest extras work: jab (10 MP, non-fresh, can getemt), named bonuses, +1 die rules, Vraag Aad, Cheat code draw, Debug System, Parkeren Delft (§2e).
+- [x] **PLAY-07**: Quest extras work: jab (10 MP, non-fresh, can getemt), named bonuses, +1 die rules, Vraag Aad, Cheat code draw, Debug System, Parkeren Delft (§2e).
 
 ### Cards on the table (TABLE)
 - [x] **TABLE-01**: Max 2 Mosjes per field; summoning from hand on your turn pays the cost and makes the Mosje fresh (§2f).
@@ -119,7 +119,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 | PLAY-04 | Phase 56 | Complete |
 | PLAY-05 | Phase 56 | Complete |
 | PLAY-06 | Phase 56 | Complete |
-| PLAY-07 | Phase 56 | Pending |
+| PLAY-07 | Phase 56 | Complete |
 | TABLE-01 | Phase 55 | Complete |
 | TABLE-02 | Phase 57 | Pending |
 | TABLE-03 | Phase 57 | Pending |
