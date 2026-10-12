@@ -148,44 +148,28 @@ describe('Phase 46 thematic Piecie definitions', () => {
   });
 });
 
+// 2.0 Card List: both give "+1 die on one Quest this turn" (player.questExtraDice). The Jeffrey / DJ / Alyssa
+// Fissa Fissa! "reroll 1 die" half is a KNOWN GAP (Phase 59), so the die count never depends on those Mosjes.
 describe('Loaded Dice and Dikke Plaat', () => {
-  it('Loaded Dice gives +1 without a JEFFREY Mosje', () => {
-    const result = effect_loaded_dice(makeState(), 'player_1');
-    expect(result.players.player_1.questPrepBonus).toBe(1);
-  });
-
-  it('Loaded Dice gives +2 from canonical JEFFREY card data', () => {
-    const result = effect_loaded_dice(makeState({ cardId: 'mosje_jeffrey_gambler' }), 'player_1');
-    expect(result.players.player_1.questPrepBonus).toBe(2);
-  });
-
-  it('Loaded Dice supports future JEFFREY family members via slot tags', () => {
-    const result = effect_loaded_dice(
-      makeState({ cardId: 'mosje_future_jeffrey', tags: ['JEFFREY'] }),
-      'player_1',
-    );
-    expect(result.players.player_1.questPrepBonus).toBe(2);
-  });
-
-  it('Dikke Plaat gives +1 without a DJ Mosje', () => {
-    const result = effect_dikke_plaat(makeState(), 'player_1');
-    expect(result.players.player_1.questPrepBonus).toBe(1);
-  });
-
-  it('Dikke Plaat gives +2 from canonical DJ card data', () => {
-    const result = effect_dikke_plaat(makeState({ cardId: 'mosje_dj_8020' }), 'player_1');
-    expect(result.players.player_1.questPrepBonus).toBe(2);
-  });
-
-  it('Dikke Plaat gives +2 with [Alyssa] Fissa Fissa! on field', () => {
-    const result = effect_dikke_plaat(makeState({ cardId: 'mosje_alyssa_fissa' }), 'player_1');
-    expect(result.players.player_1.questPrepBonus).toBe(2);
-  });
-
-  it('Dikke Plaat stays +1 with Alyssa Bulldozer on field', () => {
-    const result = effect_dikke_plaat(makeState({ cardId: 'mosje_alyssa_bulldozer' }), 'player_1');
-    expect(result.players.player_1.questPrepBonus).toBe(1);
-  });
+  const cases: Array<[string, any]> = [
+    ['no special Mosje', undefined],
+    ['a Jeffrey (Gambler)', { cardId: 'mosje_jeffrey_gambler' }],
+    ['a JEFFREY-tagged Mosje', { cardId: 'mosje_future_jeffrey', tags: ['JEFFREY'] }],
+    ['DJ 80/20', { cardId: 'mosje_dj_8020' }],
+    ['Alyssa, Fissa Fissa!', { cardId: 'mosje_alyssa_fissa' }],
+  ];
+  for (const [label, opts] of cases) {
+    it(`Loaded Dice gives exactly +1 die with ${label}`, () => {
+      const result = effect_loaded_dice(makeState(opts), 'player_1');
+      expect(result.players.player_1.questExtraDice).toBe(1);
+      expect(result.players.player_1.questPrepBonus).toBe(0);
+    });
+    it(`Dikke Plaat gives exactly +1 die with ${label}`, () => {
+      const result = effect_dikke_plaat(makeState(opts), 'player_1');
+      expect(result.players.player_1.questExtraDice).toBe(1);
+      expect(result.players.player_1.questPrepBonus).toBe(0);
+    });
+  }
 });
 
 describe('Boosterpackkie', () => {

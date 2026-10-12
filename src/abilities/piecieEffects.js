@@ -490,8 +490,9 @@ export function effect_quest_prep(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	player.questPrepBonus = (player.questPrepBonus || 0) + 2;
-	console.log('[ABILITY] Dubbele Dosis: +2 to next Quest roll');
+	// KNOWN GAP (Phase 59): "you may reroll 1 die of that Quest" not implemented.
+	player.questExtraDice = (player.questExtraDice || 0) + 1;
+	console.log('[ABILITY] Dubbele Dosis: +1 die on the next Quest');
 	return state;
 }
 
@@ -499,9 +500,9 @@ export function effect_loaded_dice(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
 	if (!player) return state;
-	const bonus = hasMosjeTag(player, 'JEFFREY') ? 2 : 1;
-	player.questPrepBonus = (player.questPrepBonus || 0) + bonus;
-	console.log(`[ABILITY] Loaded Dice: +${bonus} to next Quest roll`);
+	// KNOWN GAP (Phase 59): the Jeffrey "reroll 1 die" part is not implemented.
+	player.questExtraDice = (player.questExtraDice || 0) + 1;
+	console.log('[ABILITY] Loaded Dice: +1 die on the next Quest');
 	return state;
 }
 
@@ -550,9 +551,10 @@ export function effect_dikke_plaat(gameState, playerId) {
 	const hasAlyssaFissa = player.activeSlots.some(
 		slot => slot && !slot.isDefeated && slot.cardId === 'mosje_alyssa_fissa'
 	);
-	const bonus = hasMosjeTag(player, 'DJ') || hasAlyssaFissa ? 2 : 1;
-	player.questPrepBonus = (player.questPrepBonus || 0) + bonus;
-	console.log(`[ABILITY] Dikke Plaat: +${bonus} to next Quest roll`);
+	// KNOWN GAP (Phase 59): the DJ / Alyssa Fissa Fissa "reroll 1 die" part is not implemented.
+	void hasAlyssaFissa;
+	player.questExtraDice = (player.questExtraDice || 0) + 1;
+	console.log('[ABILITY] Dikke Plaat: +1 die on the next Quest');
 	return state;
 }
 
@@ -1041,6 +1043,7 @@ export function effect_larry_zegeltje(gameState, playerId) {
 	if (!player) return state;
 	const si = resolveOwnTargetSlot(state, playerId);
 	if (si >= 0) applyGainToSlot(player.activeSlots[si], 20, { turnNumber: state.turnNumber });
+	// KNOWN GAP (Phase 59): effect does not match the Card List text (dice roll); questPrepBonus is V4 and unread by 2.0.
 	player.questPrepBonus = (player.questPrepBonus || 0) + 1;
 	console.log('[ABILITY] Larry Zegeltje: +20 MP, +1 quest roll bonus');
 	return state;
@@ -1097,8 +1100,7 @@ export function effect_controller(gameState, playerId) {
 	const mosje = player.activeSlots[si];
 	const mp = getDigitalMP(mosje);
 	applyMPGain(player, si, mp, state, playerId);
-	// Flavor bonus: +1 quest roll this turn
-	player.questPrepBonus = (player.questPrepBonus || 0) + 1;
+	player.questExtraDice = (player.questExtraDice || 0) + 1;
 	console.log(`[ABILITY] Controller: +${mp} MP${mosje.subtype === 'DIGITAL' ? ' (Digital Lv' + (mosje.level||1) + ')' : ' (base)'}, +1 quest bonus`);
 	return state;
 }
@@ -1164,7 +1166,7 @@ export function effect_skipping_rope(gameState, playerId) {
 	const mosje = player.activeSlots[si];
 	const isPhysical = mosje.subtype === 'FIGHTING';
 	if (isPhysical) {
-		player.questPrepBonus = (player.questPrepBonus || 0) + 1;
+		player.questExtraDice = (player.questExtraDice || 0) + 1;
 	}
 	if (player.deck.length > 0) player.hand.push(player.deck.shift());
 	console.log(`[ABILITY] Skipping Rope:${isPhysical ? ' +1 quest bonus,' : ''} drew 1`);

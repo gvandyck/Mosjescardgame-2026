@@ -162,10 +162,10 @@ describe('Physical Equipment cards (PHYS-01/02/03)', () => {
   });
 
   describe('effect_skipping_rope', () => {
-    it('gives +1 questPrepBonus with FIGHTING Mosje', () => {
+    it('gives +1 questExtraDice with FIGHTING Mosje', () => {
       const state = makeState({ subtype: 'FIGHTING' });
       const result = effect_skipping_rope(state, 'player_1');
-      expect(result.players.player_1.questPrepBonus).toBe(1);
+      expect(result.players.player_1.questExtraDice).toBe(1);
     });
 
     it('draws 1 card with FIGHTING Mosje', () => {
@@ -174,10 +174,10 @@ describe('Physical Equipment cards (PHYS-01/02/03)', () => {
       expect(result.players.player_1.hand.length).toBe(1);
     });
 
-    it('gives 0 questPrepBonus with non-FIGHTING Mosje', () => {
+    it('gives no extra die with non-FIGHTING Mosje', () => {
       const state = makeState({ subtype: 'DIGITAL' });
       const result = effect_skipping_rope(state, 'player_1');
-      expect(result.players.player_1.questPrepBonus).toBe(0);
+      expect(result.players.player_1.questExtraDice ?? 0).toBe(0);
     });
 
     it('still draws 1 card with non-FIGHTING Mosje', () => {

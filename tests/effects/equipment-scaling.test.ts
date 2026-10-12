@@ -154,10 +154,10 @@ describe('Equipment MP scaling (BAL-01)', () => {
       expect(result.players.player_1.activeSlots[0].mp).toBe(5);
     });
 
-    it('sets questPrepBonus +1 as flavor bonus', () => {
+    it('gives +1 die on the next Quest (questExtraDice)', () => {
       const state = makeState({ subtype: 'DIGITAL', level: 1 });
       const result = effect_controller(state, 'player_1');
-      expect(result.players.player_1.questPrepBonus).toBe(1);
+      expect(result.players.player_1.questExtraDice).toBe(1);
     });
   });
 

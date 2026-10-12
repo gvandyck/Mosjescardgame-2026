@@ -65,21 +65,21 @@ export const CARD_REGISTRY = [
 		cardId: 'piecie_quest_prep', cardType: 'PIECIE', // "Dubbele Dosis"
 		setup: { ownMP: 40 }, playThen: 'place-then-activate',
 		expectedEffect: 'FIELD_EFFECT',
-		stateFlag: { path: 'players.player_1.questPrepBonus', equals: 2 },
+		stateFlag: { path: 'players.player_1.questExtraDice', equals: 1 },
 		logMatch: /[Dd]ubbele|quest.prep/i,
 	},
 	{
 		cardId: 'piecie_loaded_dice', cardType: 'PIECIE',
 		setup: { ownMP: 40 }, playThen: 'place-then-activate',
 		expectedEffect: 'FIELD_EFFECT',
-		stateFlag: { path: 'players.player_1.questPrepBonus', equals: 1 },
+		stateFlag: { path: 'players.player_1.questExtraDice', equals: 1 },
 		logMatch: /[Ll]oaded [Dd]ice/,
 	},
 	{
 		cardId: 'piecie_dikke_plaat', cardType: 'PIECIE',
 		setup: { ownMP: 40 }, playThen: 'place-then-activate',
 		expectedEffect: 'FIELD_EFFECT',
-		stateFlag: { path: 'players.player_1.questPrepBonus', equals: 1 },
+		stateFlag: { path: 'players.player_1.questExtraDice', equals: 1 },
 		logMatch: /[Dd]ikke [Pp]laat/,
 	},
 	{
@@ -165,7 +165,7 @@ export const CARD_REGISTRY = [
 	{
 		cardId: 'piecie_skipping_rope', cardType: 'PIECIE',
 		setup: { ownMP: 40 }, playThen: 'place-then-activate',
-		expectedEffect: 'DRAW', handDelta: 1, // questPrepBonus +1 and draws 1
+		expectedEffect: 'DRAW', handDelta: 1, // +1 die (questExtraDice) and draws 1
 		logMatch: /[Ss]kipping|[Rr]ope/,
 	},
 
@@ -329,7 +329,7 @@ export const ABILITY_REGISTRY = [
 	{
 		mosje: 'mosje_cless_teacher', abilityMosjeId: 'mosje_cless_teacher', playThen: 'ability',
 		setup: { ownMP: 40 }, expectedEffect: 'FIELD_EFFECT',
-		stateFlag: { path: 'players.player_1.questPrepBonus', equals: 3 },
+		stateFlag: { path: 'players.player_1.questPrepBonus', equals: 3 }, // Mosje ability: Phase 58 owns the 2.0 rewrite (V4 questPrepBonus until then)
 		cardId: 'ability_cless_teacher_teaching_moment', logMatch: /[Cc]less|[Tt]eaching/,
 	},
 	{
