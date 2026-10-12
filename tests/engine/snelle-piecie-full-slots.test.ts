@@ -83,7 +83,7 @@ describe("Snelle Piecie — Full Slots Rule", () => {
 
     const { success, error } = playSnellie(state, "player_1", cardRef, cardDef);
     expect(success).toBe(false);
-    expect(error).toBe("Cannot play Snelle Piecie — all Piecie/Place slots are full.");
+    expect(error).toBe("Cannot play a Snelle: all 3 Piecie slots are full.");
   });
 
   it("blocks at exactly 3 slots, not before", () => {
@@ -99,7 +99,7 @@ describe("Snelle Piecie — Full Slots Rule", () => {
     expect(result3.success === true || (result3.error && !result3.error.includes("all Piecie slots are full"))).toBe(true);
     // With 3 slots, should be blocked by full slots rule
     expect(result4.success).toBe(false);
-    expect(result4.error).toBe("Cannot play Snelle Piecie — all Piecie/Place slots are full.");
+    expect(result4.error).toBe("Cannot play a Snelle: all 3 Piecie slots are full.");
   });
 });
 
@@ -111,7 +111,7 @@ describe("Lucky Coin — Full Slot Guard (BUG-04)", () => {
 
     const { success, error } = playSnellie(state, "player_1", cardRef, cardDef);
     expect(success).toBe(false);
-    expect(error).toBe("Cannot play Snelle Piecie — all Piecie/Place slots are full.");
+    expect(error).toBe("Cannot play a Snelle: all 3 Piecie slots are full.");
   });
 
   it("playSnellie with Lucky Coin and 2 full slots succeeds (slot available)", () => {

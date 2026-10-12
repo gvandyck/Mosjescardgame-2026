@@ -491,15 +491,6 @@ export function endTurn(gameState) {
 
   // Sweep Snelle Piecies and persistent regular Piecies from field to discard at end of turn
   normalizePiecieSlots(state.players[playerId]);
-  for (let i = 0; i < state.players[playerId].piecieSlots.length; i++) {
-    const slot = state.players[playerId].piecieSlots[i];
-    if (slot?.type === 'SNELLE_PIECIE') {
-      if (!Array.isArray(state.players[playerId].graveyard)) state.players[playerId].graveyard = [];
-      state.players[playerId].graveyard.push(toGraveyardEntry(slot.cardId, 'played'));
-      state.players[playerId].piecieSlots[i] = null;
-      console.log(`[ENGINE] Snelle Piecie swept to discard: ${slot.cardId}`);
-    }
-  }
   state = sweepStaysSlots(state, playerId, 'end');
   // Call of the Welloes: if anchor Piecie has left play, defeat the summoned Mosje (D-12/D-14)
   for (let i = 0; i < state.players[playerId].activeSlots.length; i++) {
@@ -919,12 +910,10 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
   normalizePiecieSlots(player);
   if (!Array.isArray(player.hand)) player.hand = [];
 
-  // Check if all 3 Piecie/Place slots are full — cannot play Snelle Piecie if board is full
+  // 2.0 (E23): only filled Piecie slots count; an active Place never occupies one.
   const filledSlots = player.piecieSlots.filter(slot => slot !== null && slot !== undefined).length;
-  const activePlaceCount = state.activePlace ? 1 : 0;
-  const totalSlots = filledSlots + activePlaceCount;
-  if (totalSlots >= PIECIE_SLOT_COUNT) {
-    return { state, success: false, error: 'Cannot play Snelle Piecie — all Piecie/Place slots are full.' };
+  if (filledSlots >= PIECIE_SLOT_COUNT) {
+    return { state, success: false, error: 'Cannot play a Snelle: all 3 Piecie slots are full.' };
   }
   if (!Array.isArray(player.graveyard)) player.graveyard = [];
 
@@ -937,17 +926,13 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
 
   normalizePiecieSlots(player);
   const snelleSlot = player.piecieSlots.findIndex(s => s === null);
-  if (snelleSlot >= 0) {
-    player.piecieSlots[snelleSlot] = {
-      cardId: playedCard.cardId,
-      type: 'SNELLE_PIECIE',
-      faceDown: false,
-      activated: true,
-      playedOnTurn: state.turnNumber,
-    };
-  } else {
-    player.graveyard.push(toGraveyardEntry(playedCard.cardId, 'played'));
-  }
+  player.piecieSlots[snelleSlot] = {
+    cardId: playedCard.cardId,
+    type: 'SNELLE_PIECIE',
+    faceDown: false,
+    activated: true,
+    playedOnTurn: state.turnNumber,
+  };
 
   // Apply the effect function
   const effectFn = snelleEffects[cardDef.effectId];
@@ -973,6 +958,11 @@ export function playSnellie(gameState, playerId, cardRef, cardDef) {
     }
     delete state._snelleFlags.copyLastPiecie;
   }
+
+  // Resolved: slot is freed at once, except Stays cards (Blensen!) which sweep at end of turn.
+  const doneSlots = state.players[playerId].piecieSlots;
+  const doneIdx = doneSlots.findIndex(s => s?.cardId === playedCard.cardId && s?.type === 'SNELLE_PIECIE');
+  if (doneIdx >= 0) state = finishPiecieActivation(state, playerId, doneIdx, cardDef);
 
   state = checkVictory(state);
   return { state, success: true };
