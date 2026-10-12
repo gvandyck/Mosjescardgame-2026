@@ -252,7 +252,7 @@ Play straight from your hand at any time, also on your opponent's turn, with you
 | Sleutelpuntje | 1 | ★ | Play just before a Quest roll: +1 die on that Quest. |
 | Je Weet Niet | 1 | ★★ | Play right after your opponent rolls for a Quest: they reroll all those dice and keep the new roll. |
 | Counter Strikka | 2 | ★★★ | Needs: one of your Mosjes has Mental ★★. Play when an opponent's Piecie or Snelle targets a Mosje: choose another Mosje it can legally target instead. Mental ★★★: also draw 1 card. |
-| Jammertje Gepakt! | 2 | ★★★ | Needs: one of your Mosjes has Mental ★★. Play when your opponent activates a Piecie or plays a Snelle: cancel it and put it on the bottom of their deck (their Energy stays spent). Mental ★★★: also draw 1 card. |
+| Jammertje Gepakt! | 2 | ★★★ | Needs: one of your Mosjes has Mental ★★. Play when your opponent activates a Piecie: cancel it and put it on the bottom of their deck (their Energy stays spent). Mental ★★★: also draw 1 card. |
 | Dubbele Temminks | 2 | ★★★ | Play right after you activate a Piecie: its effect happens a second time (same or new targets). Not on a ★★★★★ card. |
 | Gevalletje Klakkeloos | 2 | ★★★ | Play right after your opponent activates a Piecie: you get the same effect too (choose your own targets). Not on a ★★★★★ card. |
 | Jantje Jantje... Jantje? | 0 | ★★★ | Only while the Place is Bank Chilling: one opponent Mosje loses 15 MP and one of your Mosjes gains 15 MP. |
@@ -298,6 +298,8 @@ Play from your hand on your turn, only when no Place is in play. Pay its cost an
 - **Form Alliance:** the winner picks which opponent Mosje gains 10 MP (not a fresh one).
 - **Shotje Obby:** the jab hits the opponent's highest-MP Mosje that isn't fresh; on a tie the winner picks.
 - **Quests you can't attempt:** if a Gated/Trained condition isn't met or the cost can't be paid, there is no attempt: no fail token, no action used, nothing paid.
+- **Reaction moments (Phase 57):** the game pauses for BOTH players when they hold a fitting Snelle (free slot + enough Energy): the defender when targeted, about to lose MP, attacked, about to go to the Welloe pile, after an opponent's Quest roll, after an opponent's Piecie activation, or when a Jensen! is played; the acting player before and after their own Quest roll and after they activate a Piecie (Sleutelpuntje, Lucky Cóin, Dubbele Temminks).
+- **Jammertje Gepakt!** reacts to Piecie activations only (not to Snelle).
 - **Fresh Mosjes may attempt Quests** (only attacking is blocked). Place bonus dice don't apply to them (fresh Mosjes ignore Places).
 
 ## Not in 2.0 (parked or cut)
