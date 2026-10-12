@@ -1,4 +1,5 @@
 // attackMosje — "taksen": the attacker's Power is an MP loss on the target (can getemt).
+import { withReactionWindow } from '../reactions/withReactionWindow.js';
 import { loseMP } from '../mpManager.js';
 import { checkVictory } from '../victoryChecker.js';
 import { getPower } from '../mp/getPower.js';
@@ -7,7 +8,12 @@ import { canMosjeTakeAction } from './canMosjeTakeAction.js';
 import { isValidAttackTarget } from './isValidAttackTarget.js';
 import { ATTACK_TRIGGERS } from '../attack/attackTriggers.js';
 
-export function attackMosje(state, playerId, { attackerSlotIndex, targetPlayerId, targetSlotIndex }) {
+export function attackMosje(state, playerId, params, opts = {}) {
+  return withReactionWindow(state, playerId, { type: 'attack', args: [playerId, params], skipReactions: opts.skipReactions },
+    (st) => attackCore(st, playerId, params));
+}
+
+function attackCore(state, playerId, { attackerSlotIndex, targetPlayerId, targetSlotIndex }) {
   const fail = (error) => ({ state, ok: false, error });
   const gate = canMosjeTakeAction(state, playerId, attackerSlotIndex);
   if (!gate.ok) return fail(gate.error);

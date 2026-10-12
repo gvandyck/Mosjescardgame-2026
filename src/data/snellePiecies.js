@@ -10,6 +10,7 @@ export const SNELLE_PIECIES = [
 
   {
     id: "snelle_jensen",
+    reactionMoments: ["targeted"],
     type: "SNELLE_PIECIE",
     subtype: "INSTANT",
     name: "Jensen!",
@@ -32,6 +33,7 @@ export const SNELLE_PIECIES = [
   },
   {
     id: "snelle_emergency_healings",
+    reactionMoments: ["wouldLoseMp"],
     type: "SNELLE_PIECIE",
     subtype: "INSTANT",
     name: "Emergency Healings",
@@ -54,6 +56,7 @@ export const SNELLE_PIECIES = [
   },
   {
     id: "snelle_lucky_coin",
+    reactionMoments: ["afterQuestRoll", "afterOwnQuestRoll"],
     type: "SNELLE_PIECIE",
     subtype: "INSTANT",
     name: "Lucky Cóin",
@@ -76,6 +79,7 @@ export const SNELLE_PIECIES = [
   },
   {
     id: "snelle_ff_haaltje_nemen",
+    reactionMoments: [],
     type: "SNELLE_PIECIE",
     subtype: "INSTANT",
     name: "Ff Haaltje Nemen",
@@ -103,6 +107,7 @@ export const SNELLE_PIECIES = [
 
   {
     id: "snelle_counter_strikka",
+    reactionMoments: ["targeted"],
     type: "SNELLE_PIECIE",
     subtype: "INSTANT",
     name: "Counter Strikka",
@@ -125,6 +130,7 @@ export const SNELLE_PIECIES = [
   },
   {
     id: "snelle_perfect_dodge",
+    reactionMoments: ["attacked"],
     type: "SNELLE_PIECIE",
     subtype: "INSTANT",
     name: "Perfect Dodge",
@@ -147,6 +153,7 @@ export const SNELLE_PIECIES = [
   },
   {
     id: "snelle_jammertje_gepakt",
+    reactionMoments: ["afterPiecieActivation"],
     type: "SNELLE_PIECIE",
     subtype: "INSTANT",
     name: "Jammertje Gepakt!",
@@ -169,6 +176,7 @@ export const SNELLE_PIECIES = [
   },
   {
     id: "snelle_momentum_rush",
+    reactionMoments: [],
     type: "SNELLE_PIECIE",
     subtype: "INSTANT",
     name: "Momentum Rush",
@@ -191,6 +199,7 @@ export const SNELLE_PIECIES = [
   },
   {
     id: "snelle_negate_elimination",
+    reactionMoments: ["toWelloe"],
     type: "SNELLE_PIECIE",
     subtype: "INSTANT",
     name: "Not Today!",
@@ -213,6 +222,7 @@ export const SNELLE_PIECIES = [
   },
   {
     id: "snelle_drain_reversal",
+    reactionMoments: ["wouldLoseMp"],
     type: "SNELLE_PIECIE",
     subtype: "INSTANT",
     name: "Drain Reversal",
@@ -235,6 +245,7 @@ export const SNELLE_PIECIES = [
   },
   {
     id: "snelle_the_protector",
+    reactionMoments: ["wouldLoseMp"],
     type: "SNELLE_PIECIE",
     subtype: "INSTANT",
     name: "The Protector",
@@ -257,6 +268,7 @@ export const SNELLE_PIECIES = [
   },
   {
     id: "snelle_jeweetniet",
+    reactionMoments: ["afterQuestRoll"],
     type: "SNELLE_PIECIE",
     subtype: "INSTANT",
     name: "Je Weet Niet",
@@ -279,6 +291,7 @@ export const SNELLE_PIECIES = [
   },
   {
     id: "snelle_bijna_welloe",
+    reactionMoments: [],
     type: "SNELLE_PIECIE",
     subtype: "INSTANT",
     name: "Bijna Welloe",
@@ -301,6 +314,7 @@ export const SNELLE_PIECIES = [
   },
   {
     id: "snelle_jantje_jantje_jantje",
+    reactionMoments: [],
     type: "SNELLE_PIECIE",
     subtype: "INSTANT",
     name: "Jantje Jantje... Jantje?",
@@ -323,6 +337,7 @@ export const SNELLE_PIECIES = [
   },
   {
     id: "snelle_sleutelpuntje",
+    reactionMoments: ["beforeOwnQuestRoll"],
     type: "SNELLE_PIECIE",
     subtype: "INSTANT",
     name: "Sleutelpuntje",
@@ -345,6 +360,7 @@ export const SNELLE_PIECIES = [
   },
   {
     id: "snelle_dubbele_temminks",
+    reactionMoments: ["afterOwnPiecieActivation"],
     type: "SNELLE_PIECIE",
     subtype: "INSTANT",
     name: "Dubbele Temminks",
@@ -367,6 +383,7 @@ export const SNELLE_PIECIES = [
   },
   {
     id: "snelle_gevalletje_klakkeloos",
+    reactionMoments: ["afterPiecieActivation"],
     type: "SNELLE_PIECIE",
     subtype: "INSTANT",
     name: "Gevalletje Klakkeloos",
@@ -394,6 +411,7 @@ export const SNELLE_PIECIES = [
 
   {
     id: "snelle_frenssen",
+    reactionMoments: ["jensenPlayed"],
     type: "SNELLE_PIECIE",
     subtype: "COUNTER-CHAIN",
     name: "Frenssen!",
@@ -416,6 +434,7 @@ export const SNELLE_PIECIES = [
   },
   {
     id: "snelle_blensen",
+    reactionMoments: [],
     type: "SNELLE_PIECIE",
     subtype: "COUNTER-CHAIN",
     name: "Blensen!",
@@ -438,6 +457,7 @@ export const SNELLE_PIECIES = [
   },
   {
     id: "snelle_chillingsvoorbij",
+    reactionMoments: [],
     type: "SNELLE_PIECIE",
     subtype: "UTILITY",
     name: "Chillingsvoorbij!",

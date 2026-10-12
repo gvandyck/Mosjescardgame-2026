@@ -2,6 +2,7 @@
 // Coordinates which engine functions run in which order.
 // The UI calls these functions; they return the updated game state.
 
+import { withReactionWindow } from './reactions/withReactionWindow.js';
 import { PIECIE_SLOT_COUNT } from './table/tableRules.js';
 import { isPiecieReady } from './table/isPiecieReady.js';
 import { finishPiecieActivation } from './table/finishPiecieActivation.js';
@@ -652,7 +653,12 @@ export function activateSynergyWaiver(gameState, playerId) {
   return { state, success: true };
 }
 
-export function activatePiecie(gameState, playerId, slotIndex) {
+export function activatePiecie(gameState, playerId, slotIndex, opts = {}) {
+  return withReactionWindow(gameState, playerId, { type: 'activatePiecie', args: [playerId, slotIndex], skipReactions: opts.skipReactions },
+    (st) => activatePiecieCore(st, playerId, slotIndex));
+}
+
+function activatePiecieCore(gameState, playerId, slotIndex) {
   let state = JSON.parse(JSON.stringify(gameState));
   let player = state.players[playerId];
   if (!player) return { state, success: false, error: 'Player not found' };
@@ -841,7 +847,12 @@ function cardDefLookup(cardId) {
 // cardDef â€” full card definition from SNELLE_PIECIES data (has effectId)
 // Returns { state, success, error? }
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-export function playSnellie(gameState, playerId, cardRef, cardDef) {
+export function playSnellie(gameState, playerId, cardRef, cardDef, opts = {}) {
+  return withReactionWindow(gameState, playerId, { type: 'playSnelle', args: [playerId, cardRef, cardDef], skipReactions: opts.skipReactions },
+    (st) => playSnellieCore(st, playerId, cardRef, cardDef));
+}
+
+function playSnellieCore(gameState, playerId, cardRef, cardDef) {
   let state = JSON.parse(JSON.stringify(gameState));
   let player = state.players[playerId];
   if (!player) return { state, success: false, error: 'Player not found' };
