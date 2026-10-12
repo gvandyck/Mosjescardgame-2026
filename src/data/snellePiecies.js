@@ -154,7 +154,7 @@ export const SNELLE_PIECIES = [
     requirement: "mental3",
     effectId: "effect_snelle_jammertje_gepakt",
     tags: ["COUNTER", "REVEAL"],
-    description: "Needs: one of your Mosjes has Mental ★★. Play when your opponent activates a Piecie or plays a Snelle: cancel it and put it on the bottom of their deck (their Energy stays spent). Mental ★★★: also draw 1 card.",
+    description: "Needs: one of your Mosjes has Mental ★★. Play when your opponent activates a Piecie: cancel it and put it on the bottom of their deck (their Energy stays spent). Mental ★★★: also draw 1 card.",
     flavourText: "",
     cost: 2,
     costText: null,

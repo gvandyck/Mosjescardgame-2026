@@ -13,8 +13,8 @@ import { QUEST_CONDITIONS } from "../../src/engine/quests/questConditions.js";
 import { QUEST_COSTS } from "../../src/engine/quests/questCosts.js";
 
 const q = (name) => getQuestDef("quest_" + name);
-const ready = (cardId) => ({ cardId, faceDown: true, activated: false, playedOnTurn: 1, canActivateOnTurn: 2 });
-const fresh = (cardId) => ({ cardId, faceDown: true, activated: false, playedOnTurn: 5, canActivateOnTurn: 6 });
+const ready = (cardId) => ({ cardId, type: 'PIECIE', faceDown: true, activated: false, playedOnTurn: 1, canActivateOnTurn: 2 });
+const fresh = (cardId) => ({ cardId, type: 'PIECIE', faceDown: true, activated: false, playedOnTurn: 5, canActivateOnTurn: 6 });
 const food = PIECIES.find(p => p.tag === "food").id;
 const sub = PIECIES.find(p => p.tag === "substance").id;
 const hand = (cardId, type) => ({ cardId, type });

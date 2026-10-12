@@ -11,6 +11,7 @@ import { initCardTierMotion } from './ui/cardTierMotion.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes, setActivePlace } from './engine/gameState.js';
 import { startTurn, endTurn, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, activatePlace, playMosje, useMosjeAbility, canPlayerActNow, activateSynergyWaiver } from './engine/turnManager.js';
 import { OWN_TARGET_EFFECT_IDS } from './engine/targets/ownTargetEffects.js';
+import { isPiecieReady } from './engine/table/isPiecieReady.js';
 import { runAttackFlow } from './ui/actions/runAttackFlow.js';
 import { runQuestFlow } from './ui/actions/runQuestFlow.js';
 import { isCooldownBlocked } from './engine/turn/isCooldownBlocked.js';
@@ -2937,10 +2938,7 @@ function toPiecieCards(piecieSlots, options = {}) {
 		.filter(({ slot }) => slot !== null)
 		.map(({ slot, slotIndex }) => {
 			const isPlacedFaceDown = slot.faceDown !== false;
-			const canActivateOnTurn = Number.isFinite(slot.canActivateOnTurn)
-				? slot.canActivateOnTurn
-				: ((Number.isFinite(slot.playedOnTurn) ? slot.playedOnTurn : turnNumber) + 1);
-			const canActivateNow = canActivateForViewer && !slot.activated && turnNumber >= canActivateOnTurn;
+			const canActivateNow = canActivateForViewer && isPiecieReady(slot, turnNumber);
 
 			if (!viewerOwns && isPlacedFaceDown) {
 				return {

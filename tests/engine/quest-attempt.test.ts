@@ -95,7 +95,7 @@ describe("Quest attempt end to end (E17)", () => {
   });
 
   it("a cost is paid before the roll and not refunded on a fail", () => {
-    const { s, q } = build("parkour_challenge", { p1: { piecieSlots: [{ cardId: gear, faceDown: true, canActivateOnTurn: 1 }, null, null] } });
+    const { s, q } = build("parkour_challenge", { p1: { piecieSlots: [{ cardId: gear, type: 'PIECIE', faceDown: true, canActivateOnTurn: 1 }, null, null] } });
     const r = go(s, q, { rng: rngOf(LOW), costChoice: { zone: "ready", index: 0 } });
     expect(r.ok).toBe(true);
     const out = resolveQuestAttempt(r.state, r.pending);

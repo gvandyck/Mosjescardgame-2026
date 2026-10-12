@@ -3,6 +3,7 @@
 // The UI calls these functions; they return the updated game state.
 
 import { PIECIE_SLOT_COUNT } from './table/tableRules.js';
+import { isPiecieReady } from './table/isPiecieReady.js';
 import { drawCards, shuffleDeck, rollDie } from './deckEngine.js';
 import { placeEmptyFieldMosje } from './turn/placeEmptyFieldMosje.js';
 import { clearOwnerProtections } from './turn/clearOwnerProtections.js';
@@ -595,12 +596,10 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
   const handIndex = player.hand.findIndex(c => c.cardId === cardRef.cardId);
   if (handIndex === -1) return { state, success: false, error: 'Card not in hand' };
 
-  // Check if field already has 4 Piecies/Places (count activePlace as 1 slot, but only if player played it)
+  // 2.0: 3 Piecie-only slots; an active Place never occupies one.
   const filledSlots = player.piecieSlots.filter(slot => slot !== null && slot !== undefined).length;
-  const activePlaceCount = (state.activePlace && state.activePlacePlayedBy === playerId) ? 1 : 0;
-  const totalSlots = filledSlots + activePlaceCount;
-  if (totalSlots >= PIECIE_SLOT_COUNT) {
-    return { state, success: false, error: 'You can place up to 4 Piecies/Places total' };
+  if (filledSlots >= PIECIE_SLOT_COUNT) {
+    return { state, success: false, error: 'You can place up to 3 Piecies' };
   }
 
   player.hand.splice(handIndex, 1);
@@ -749,10 +748,7 @@ export function activatePiecie(gameState, playerId, slotIndex) {
   if (slot.activated) return { state, success: false, error: 'Piecie already activated' };
   const slotCardId = slot.cardId;
 
-  const canActivateOnTurn = Number.isFinite(slot.canActivateOnTurn)
-    ? slot.canActivateOnTurn
-    : ((Number.isFinite(slot.playedOnTurn) ? slot.playedOnTurn : state.turnNumber) + 1);
-  if (state.turnNumber < canActivateOnTurn) {
+  if (!isPiecieReady(slot, state.turnNumber)) {
     return { state, success: false, error: 'This Piecie can be activated starting next turn' };
   }
 

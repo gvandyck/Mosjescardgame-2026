@@ -1,3 +1,4 @@
+import { isPiecieReady } from '../../engine/table/isPiecieReady.js';
 // planPiecieActivations.js — Orders the bot's READY Piecie activations by
 // strategic role instead of slot position:
 //   multipliers → MP gains → quest-prep → attacks → draw/defense → payoffs.
@@ -34,8 +35,7 @@ export function planPiecieActivations(gameState, playerId, profile, intent = {})
 	const ready = [];
 	for (let i = 0; i < slots.length; i++) {
 		const slot = slots[i];
-		if (!slot || slot.type !== 'PIECIE' || slot.activated) continue;
-		if (turnNumber < (slot.canActivateOnTurn ?? Infinity)) continue;
+		if (!isPiecieReady(slot, turnNumber)) continue;
 		ready.push({ slotIndex: i, cardId: slot.cardId, tags: getCardTags(slot.cardId) });
 	}
 

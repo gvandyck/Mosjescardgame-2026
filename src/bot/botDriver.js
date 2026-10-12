@@ -42,6 +42,7 @@ import { OWN_TARGET_EFFECT_IDS } from '../engine/targets/ownTargetEffects.js';
 import { planPiecieActivations } from './strategy/planPiecieActivations.js';
 import { getAbilityEnergyCost } from '../engine/energy/getAbilityEnergyCost.js';
 import { canPay } from '../engine/energy/canPay.js';
+import { isPiecieReady } from '../engine/table/isPiecieReady.js';
 import { classifyLossSeverity, getRequiredConfidence } from './strategy/assessQuestRisk.js';
 import { getCardTags } from './strategy/comboTags.js';
 import { canMosjeAct } from '../engine/mp/canMosjeAct.js';
@@ -339,7 +340,7 @@ export function driveBotTurnSteps(gameState, botPlayerId) {
     const idx = slots.findIndex(s =>
       s && s.type === 'PIECIE' && !s.activated && s.cardId === entry.cardId);
     if (idx < 0) continue;
-    if (state.turnNumber < (slots[idx].canActivateOnTurn ?? Infinity)) continue;
+    if (!isPiecieReady(slots[idx], state.turnNumber)) continue;
     const botEffectId = PIECIE_LOOKUP[slots[idx].cardId]?.effectId;
     if (OWN_TARGET_EFFECT_IDS.includes(botEffectId)) {
       const own = pickBotOwnTarget(state, botPlayerId, botEffectId);
