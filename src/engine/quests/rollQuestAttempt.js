@@ -27,7 +27,7 @@ export function rollQuestAttempt(state, playerId, options) {
 	if (!res.ok) return res;
 	const windows = [];
 	for (const [who, moments] of [[other, [M.AFTER_QUEST_ROLL]], [playerId, [M.AFTER_OWN_QUEST_ROLL]]]) {
-		const eligible = who ? getEligibleReactions(res.state, who, moments) : [];
+		const eligible = who ? getEligibleReactions(res.state, who, moments, { dice: res.pending.dice }) : [];
 		if (eligible.length) windows.push({ responderId: who, moments, eligible });
 	}
 	if (!windows.length) return res;

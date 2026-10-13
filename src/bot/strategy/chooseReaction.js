@@ -3,6 +3,7 @@
 import { SNELLE_PIECIES } from '../../data/snellePiecies.js';
 import { getQuestDef } from '../../engine/quests/getQuestDef.js';
 import { getQuestDiceCount } from '../../engine/quests/getQuestDiceCount.js';
+import { pickDjRerollDie } from './pickDjRerollDie.js';
 
 const costOf = (id) => Number(SNELLE_PIECIES.find(d => d.id === id)?.cost) || 0;
 
@@ -16,6 +17,10 @@ export function chooseReaction(state, responderId) {
 		const quest = getQuestDef(state.questStacks?.[stackId]?.faceUp);
 		if (has('snelle_sleutelpuntje') && slot && quest && getQuestDiceCount(state, responderId, slot, quest) < 4) return 'snelle_sleutelpuntje';
 		return null;
+	}
+	if (p.moments.includes('afterOwnQuestRoll') || p.moments.includes('afterQuestRoll')) {
+		const dj = pickDjRerollDie(state, responderId, p.eligible);
+		if (dj) return dj;
 	}
 	if (p.moments.includes('afterOwnQuestRoll')) {
 		return has('snelle_lucky_coin') && state.pendingQuestRoll?.win === false ? 'snelle_lucky_coin' : null;

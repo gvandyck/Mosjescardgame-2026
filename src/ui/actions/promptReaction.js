@@ -17,12 +17,17 @@ const MOMENT_TEXT = {
 
 export async function promptReaction(modal, state, responderId) {
 	const p = state.pendingReaction;
+	const dice = state.pendingQuestRoll?.dice || [];
 	const options = p.eligible.map(id => {
+		if (id.startsWith('djReroll:')) {
+			const i = Number(id.slice(9));
+			return { id, label: `Lucky Beats: reroll die ${i + 1}`, metaLabel: escapeMeta(`DJ 80/20 - the die shows ${dice[i]}; once per turn`) };
+		}
 		const def = SNELLE_PIECIES.find(c => c.id === id);
 		return { id, label: def?.name ?? id, metaLabel: escapeMeta(`Cost: ${def?.cost ?? 0} Energy - ${def?.description ?? ''}`) };
 	});
 	options.push({ id: '__pass__', label: 'Pass' });
-	const prompt = p.moments.map(m => MOMENT_TEXT[m] ?? m).join(' / ') + '. Play a Snelle?';
+	const prompt = p.moments.map(m => MOMENT_TEXT[m] ?? m).join(' / ') + (dice.length && p.eligible.some(id => id.startsWith('djReroll:')) ? '. Play a Snelle or use Lucky Beats?' : '. Play a Snelle?');
 	const choice = await modal.showOptionSelect({ title: 'Reaction', prompt, options, allowCancel: false });
 	return !choice || choice === '__pass__' ? null : choice;
 }

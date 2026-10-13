@@ -116,7 +116,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 
 		// 2.0: the button comes from the ability rules (activated, not a draw-step one); hidden V4 Mosjes keep the old rule.
 		const abilityRule = MOSJE_ABILITY_RULES[fullCard.abilityId];
-		const showAbilityBtn = abilityRule ? (abilityRule.kind === 'activated' && !abilityRule.drawStep) : !fullCard.autoAbility;
+		const showAbilityBtn = abilityRule ? (abilityRule.kind === 'activated' && !abilityRule.drawStep && !abilityRule.reactive) : !fullCard.autoAbility;
 		if (onUseAbility && !mosje.isDefeated && mosje.cardId && showAbilityBtn) {
 			const wrongTurn = abilityRule?.ownTurnOnly !== false && viewModel.gameState?.activePlayerId !== viewModel.myPlayerId;
 			const isUsed = mosje.abilityUsedThisTurn || (abilityRule?.per === 'game' && mosje.abilityUsedThisGame);

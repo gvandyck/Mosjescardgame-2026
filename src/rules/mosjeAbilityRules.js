@@ -1,4 +1,5 @@
 // mosjeAbilityRules — per-ability rules for the 32 Obby 2.0 Mosjes (data only).
+// reactive: true = an activated ability used inside a reaction window (no Activate button; DJ 80/20).
 // kind: 'activated' (button, Energy) | 'trigger' (fires by itself) | 'passive' (always on).
 // per: 'turn' | 'game'; maxPerTurn defaults to 1; ownTurnOnly defaults to true.
 // inputs: what the player (or bot) must supply -> state.players[pid]._pendingTargets[key].
@@ -41,7 +42,7 @@ export const MOSJE_ABILITY_RULES = Object.freeze({
 	ability_ronald_mastermind_master_plan: act([{ key: 'discard_card', kind: 'discardCard', filter: 'PIECIE' }]),
 	ability_jisca_perfect_combo: trig(),
 	ability_tuk_healer_healing_presence: act([{ key: 'own_slot_index', kind: 'ownMosje' }]),
-	ability_dj_8020_lucky_beats: act([{ key: 'die', kind: 'choice', options: ['mine', 'opponent'] }], { ownTurnOnly: false }),
+	ability_dj_8020_lucky_beats: act([], { ownTurnOnly: false, reactive: true }),
 	ability_coert_kasteluck_morning_luck: trig(),
 	ability_binti_cutting_words: act([{ key: 'hand_card', kind: 'handCard', filter: 'PIECIE' }, { key: 'opp_slot_index', kind: 'oppMosje' }]),
 	ability_cless_teacher_teaching_moment: trig(),
