@@ -3,6 +3,9 @@
 // Values have the same shape the UI flow writes to _pendingTargets.
 // Hidden info: the opponent's hand is read ONLY for abilities whose card text lets the player look at it.
 import { MOSJE_ABILITY_RULES } from '../../rules/mosjeAbilityRules.js';
+import { PIECIES } from '../../data/piecies.js';
+
+const PIECIE_IDS = new Set(PIECIES.map(p => p.id));
 
 const HAND_PEEK_ABILITIES = new Set(['ability_ronald_chef_strategic_insight', 'ability_fps_west_tactical_analysis']);
 const live = (state, pid) => (state.players[pid]?.activeSlots || []).map((s, slotIndex) => ({ s, slotIndex })).filter(({ s }) => s && !s.isDefeated);
@@ -28,10 +31,13 @@ export function defaultAbilityInputs(state, botId, abilityId) {
 			case 'questStack': v = Object.keys(state.questStacks || {})[0]; break;
 			case 'ownPiecieSlot': {
 				const i = (me.piecieSlots || []).findIndex(s => s && s.type === 'PIECIE' && !s.activated && (input.filter !== 'faceDown' || s.faceDown)
-					&& (input.filter !== 'placedThisTurn' || s.canActivateOnTurn === state.turnNumber + 1 || s.canActivateOnTurn === state.turnNumber));
+					&& (input.filter !== 'placedThisTurn' || (s.playedOnTurn === state.turnNumber && s.canActivateOnTurn > state.turnNumber)));
 				v = i >= 0 ? i : undefined; break;
 			}
-			case 'discardCard':
+			case 'discardCard': { // a card in the discard pile (Master Plan): the first Piecie there
+				const i = (me.graveyard || []).findIndex(c => PIECIE_IDS.has(c.cardId ?? c));
+				v = i >= 0 ? i : undefined; break;
+			}
 			case 'handCard': {
 				const idx = (me.hand || []).map((c, i) => ({ c, i })).filter(({ c }) => !input.filter || c.type === input.filter).map(({ i }) => i);
 				const n = input.count || 1;

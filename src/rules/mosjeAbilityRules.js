@@ -26,7 +26,7 @@ export const MOSJE_ABILITY_RULES = Object.freeze({
 	// Digital
 	ability_ronald_chef_strategic_insight: act([{ key: 'locked_card', kind: 'oppHandCard' }]),
 	ability_ming_natural_lucky_draw: act([{ key: 'choice', kind: 'choice', options: ['activate', 'hand'] }]),
-	ability_ming_predictor_future_sight: act([{ key: 'stack_id', kind: 'questStack' }, { key: 'bottom', kind: 'confirm' }]),
+	ability_ming_predictor_future_sight: act([{ key: 'stack_id', kind: 'questStack' }, { key: 'bottom', kind: 'confirm', peekStack: 'stack_id' }]),
 	ability_martin_historian_time_control: act(deckPick(5), { drawStep: true }),
 	ability_martin_senor_west_calculated_guess: act([{ key: 'card_type', kind: 'choice', options: TYPES }, { key: 'deck_owner', kind: 'deckOwner' }]),
 	ability_coert_tech_extra_resources: act([{ key: 'extra', kind: 'number', min: 1, max: 2, step: 1 }], { maxPerTurn: 2, drawStep: true }),

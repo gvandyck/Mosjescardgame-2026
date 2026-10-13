@@ -2,6 +2,7 @@
 // Returns { title, options:[{ id, label, value, metaLabel?, disabled? }] }; `value` is what the ability reads
 // from _pendingTargets[key]. List kinds only (orderTopN / pickFromTopN go through pickCardOrder).
 // Hidden info: oppHandCard lists the opponent's hand, so this must only run in the acting player's client.
+import { getQuestDef } from '../../engine/quests/getQuestDef.js';
 import { toGraveyardEntry } from '../../engine/graveyardUtils.js';
 
 const nameOf = (cardId) => toGraveyardEntry(cardId, 'x').name;
@@ -32,8 +33,13 @@ export function buildAbilityInputOptions(state, playerId, input, collected = {})
 		}
 		case 'choice':
 			return { title: input.title || 'Choose', options: withIds(input.options.map(o => ({ label: String(o).replace(/^./, c => c.toUpperCase()), value: o }))) };
-		case 'confirm':
-			return { title: input.title || 'Confirm', options: withIds([{ label: 'Yes', value: true }, { label: 'No', value: false }]) };
+		case 'confirm': {
+			// Future Sight: the player sees the top Quest of the chosen stack before deciding (peekStack = the input key).
+			const top = input.peekStack ? state.questStacks?.[collected[input.peekStack]]?.deck?.[0] : null;
+			const topId = top && typeof top === 'object' ? top.cardId : top;
+			const peek = topId ? `Top of ${collected[input.peekStack]}: ${getQuestDef(topId)?.name || topId}. ` : '';
+			return { title: peek ? `${peek}Put it on the bottom? (1 Energy)` : (input.title || 'Confirm'), options: withIds([{ label: 'Yes', value: true }, { label: 'No', value: false }]) };
+		}
 		case 'number': {
 			const rows = [];
 			for (let v = input.min; v <= input.max; v += input.step || 1) rows.push({ label: String(v), value: v });
@@ -48,11 +54,16 @@ export function buildAbilityInputOptions(state, playerId, input, collected = {})
 		case 'ownPiecieSlot': {
 			const rows = (me.piecieSlots || []).map((s, i) => ({ s, i })).filter(({ s }) => s && s.type === 'PIECIE' && !s.activated
 				&& (input.filter !== 'faceDown' || s.faceDown)
-				&& (input.filter !== 'placedThisTurn' || s.canActivateOnTurn === state.turnNumber + 1 || s.canActivateOnTurn === state.turnNumber))
+				&& (input.filter !== 'placedThisTurn' || (s.playedOnTurn === state.turnNumber && s.canActivateOnTurn > state.turnNumber)))
 				.map(({ s, i }) => ({ label: s.faceDown ? `Face-down Piecie (slot ${i + 1})` : nameOf(s.cardId), value: i }));
 			return { title: 'Choose one of your Piecies', options: withIds(rows) };
 		}
-		case 'discardCard':
+		case 'discardCard': {
+			const rows = (me.graveyard || []).map((c, i) => ({ c, i }))
+				.filter(({ c }) => !input.filter || typeOf(c.cardId ?? c) === input.filter)
+				.map(({ c, i }) => ({ label: nameOf(c.cardId ?? c), value: i }));
+			return { title: 'Choose a card from your discard pile', options: withIds(rows) };
+		}
 		case 'handCard': {
 			const rows = (me.hand || []).map((c, i) => ({ c, i }))
 				.filter(({ c }) => !input.filter || (c.type || typeOf(c.cardId)) === input.filter)
