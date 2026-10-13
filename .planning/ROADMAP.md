@@ -189,7 +189,7 @@ Plans:
 - [x] 58-07-PLAN.md — Tuk Healer, Binti, DJ 80/20 reroll at the Quest after-roll pause
 - [x] 58-08-PLAN.md — The Tactician (E26, EFX-06), Jeffrey Strongman, Gandoe Destroyer, Martin Driver
 - [x] 58-09-PLAN.md — Ming Natural, Ming Predictor, Jeffrey Gambler, Youri, Ronald Mastermind (in-effect Energy, free activation)
-- [ ] 58-10-PLAN.md — Ronald Chef, Martin Historian (+ holder), Senor West (+ holder), Coert KasteLuck, Tuk Architect (EFX-05 complete)
+- [x] 58-10-PLAN.md — Ronald Chef, Martin Historian (+ holder), Senor West (+ holder), Coert KasteLuck, Tuk Architect (EFX-05 complete)
 - [ ] 58-11-PLAN.md — Card-test-library: 18 Example-Deck Mosjes headless; Michelle and bulldozer specs
 - [ ] 58-12-PLAN.md — Card tests for the other 14, §6b chain + Synergy Chamber headless, Phase 58 fixmes closed, E1-E30 guard (EFX-01, TEST-01)
 
