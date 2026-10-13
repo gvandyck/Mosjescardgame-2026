@@ -44,9 +44,9 @@ describe("Ronald Kip stacking under 2.0 MP rules", () => {
     expect(s.mp % 5).toBe(0);
   });
 
-  it("Binti + Coert FOOD-double (+100) on a Level 1 Mosje at 10 -> Level 2 at 0 (no carry-over)", () => {
+  it("Binti holder text with Coert Tech (50 + 10 = +60) on a Level 1 Mosje at 10 -> 70 (was the V4 FOOD double +100 -> Level 2; changed in 58-01)", () => {
     const s = kip(slot("mosje_binti", 1, 10), slot("mosje_coert_tech", 1, 50));
-    expect([s.level, s.mp]).toEqual([2, 0]);
+    expect([s.level, s.mp]).toEqual([1, 70]);
   });
 
   it("a gain that crosses 100 on Level 1 -> Level 2 at 0 MP", () => {

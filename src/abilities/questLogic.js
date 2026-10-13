@@ -7,6 +7,7 @@ import { roundToFive } from '../engine/roundToFive.js';
 import { applyGainToSlot } from '../engine/mp/applyGainToSlot.js';
 import { applyMpLossToSlot } from '../engine/mp/applyMpLossToSlot.js';
 import { applyPlaceEffectsOnQuest } from '../engine/turnManager.js';
+import { isHolderTextActive } from '../engine/synergy/isHolderTextActive.js';
 
 console.log('[ABILITY] questLogic.js loaded');
 
@@ -19,58 +20,21 @@ function getActiveMosjes(player) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// getPartnerSynergyQuestBonus
-// U6 stack step 4 — "Partner-synergy bonus (from synergy partner being on
-// field)". Data-driven lookup so a future duo's category-wide quest synergy
-// is one table entry, not a new hardcoded branch. Only mosje.js pairs whose
-// synergyEffect text ties to a Quest CATEGORY belong here — a bonus scoped
-// to one specific quest card (e.g. Kickboxing Bootcamp's both-active +20)
-// stays as a perMosjeConfig override where it already lives, since that's a
-// different mechanic (one card, not "every Physical quest").
-//
-// [Martin] Señor West + [AZN Cless]: "Physical Quests give +15 bonus MP"
-// (src/data/mosjes.js) — both Mosjes declare this synergyEffect, but nothing
-// consumed it until this lookup; getActiveSynergies()/hasSynergy() in
-// synergyResolver.js only ever drove the Binti+Coert FOOD-double check.
+// Holder-text quest bonuses (2.0). Live only through isHolderTextActive.
+// Senor West holder: your Mosjes' Physical Quest wins gain +15 extra.
 // ─────────────────────────────────────────────────────────────
-const PARTNER_QUEST_SYNERGIES = [
-	{ pair: ['mosje_martin_senor_west', 'mosje_azn_cless'], category: 'Physical', bonus: 15 },
-	{ pair: ['mosje_gandoe_destroyer', 'mosje_michelle'], category: 'Physical', bonus: 15, appliesTo: ['mosje_gandoe_destroyer'] },
-];
+const SENOR_WEST_PHYSICAL_BONUS = 15;
 
-export function getPartnerSynergyQuestBonus(gameState, playerId, category, questerCardId = null) {
-	if (!category) return 0;
-	const activeIds = new Set(getActiveMosjes(gameState?.players?.[playerId]).map(m => m.cardId));
-	const waiverActive = gameState?.players?.[playerId]?.synergyWaiverActive === true;
-	let bonus = 0;
-	for (const entry of PARTNER_QUEST_SYNERGIES) {
-		if (entry.category !== category) continue;
-		if (questerCardId && Array.isArray(entry.appliesTo) && !entry.appliesTo.includes(questerCardId)) continue;
-		const bothPresent = entry.pair.every(id => activeIds.has(id));
-		const waived = waiverActive && entry.pair.some(id => activeIds.has(id));
-		if (bothPresent || waived) {
-			bonus += entry.bonus;
-		}
-	}
-	return bonus;
+export function getPartnerSynergyQuestBonus(gameState, playerId, category) {
+	if (category !== 'Physical') return 0;
+	return isHolderTextActive(gameState, playerId, 'mosje_martin_senor_west') ? SENOR_WEST_PHYSICAL_BONUS : 0;
 }
 
-// UI helper: which partner-quest-synergy bonuses are LIVE right now for this
-// player (real partner present, or waived via Synergy Chamber) — lets the UI
-// show a pill BEFORE a quest is attempted, rather than only revealing the
-// bonus after the fact in the MP delta.
+// UI helper: which quest bonuses are live right now (pill before a Quest is attempted).
 export function getActivePartnerSynergyBonuses(gameState, playerId) {
-	const activeIds = new Set(getActiveMosjes(gameState?.players?.[playerId]).map(m => m.cardId));
-	const waiverActive = gameState?.players?.[playerId]?.synergyWaiverActive === true;
-	const active = [];
-	for (const entry of PARTNER_QUEST_SYNERGIES) {
-		const bothPresent = entry.pair.every(id => activeIds.has(id));
-		const waived = waiverActive && entry.pair.some(id => activeIds.has(id));
-		if (bothPresent || waived) {
-			active.push({ category: entry.category, bonus: entry.bonus });
-		}
-	}
-	return active;
+	return getPartnerSynergyQuestBonus(gameState, playerId, 'Physical') > 0
+		? [{ category: 'Physical', bonus: SENOR_WEST_PHYSICAL_BONUS }]
+		: [];
 }
 
 export function getMosjeTrait(gameState, playerId, activeMosjeId, traitName) {
@@ -96,7 +60,7 @@ export function runQuestOutcomeHooks(gameState, playerId, slotIndex, questCard, 
 		// questBonusMP is armed by snoeiertje/super_saiyan_mos/momentum_boost/f1_telemetry; consumed only when it applies.
 		const armedBonus = didSucceed ? (player.questBonusMP || 0) : 0;
 		const questingMosje = player.activeSlots[slotIndex];
-		const synergyBonus = didSucceed ? getPartnerSynergyQuestBonus(state, playerId, questCard.category, questingMosje?.cardId) : 0;
+		const synergyBonus = didSucceed ? getPartnerSynergyQuestBonus(state, playerId, questCard.category) : 0;
 		if (didSucceed && player.questBonusMP) player.questBonusMP = 0;
 		const totalBonus = armedBonus + synergyBonus;
 		if (totalBonus > 0) {
@@ -105,6 +69,17 @@ export function runQuestOutcomeHooks(gameState, playerId, slotIndex, questCard, 
 			console.log(`[QUEST] Bonus MP applied: +${totalBonus} (armed=${armedBonus}, partner-synergy=${synergyBonus})`);
 			if (synergyBonus > 0) state._questSynergyBonus = synergyBonus;
 		}
+	}
+
+	// FPS West holder text: when FPS West or FPS Coert wins a Quest, both gain 10.
+	const winnerId = player.activeSlots[slotIndex]?.cardId;
+	if (didSucceed && (winnerId === 'mosje_fps_west' || winnerId === 'mosje_fps_coert') && isHolderTextActive(state, playerId, 'mosje_fps_west')) {
+		state.players[playerId].activeSlots.forEach((slot, idx) => {
+			if (slot && !slot.isDefeated && (slot.cardId === 'mosje_fps_west' || slot.cardId === 'mosje_fps_coert')) {
+				state = gainMP(state, playerId, idx, 10, 'GAIN');
+			}
+		});
+		console.log('[SYNERGY] FPS West holder text: both FPS Mosjes gain 10 MP');
 	}
 
 	// Fires before Place effects so the modified MP feeds into Quest Haven bonuses.
@@ -170,18 +145,6 @@ function applyMosjeFieldEffectsOnQuest(gameState, playerId, slotIndex, questMpGa
 			adjustment,
 			label: `[Michelle] Tough Gamble: ${label}`,
 		};
-
-		if (roll >= 5) {
-			const gandoeDestroyerIndex = player.activeSlots.findIndex(
-				s => s && !s.isDefeated && s.cardId === 'mosje_gandoe_destroyer'
-			);
-			if (gandoeDestroyerIndex >= 0) {
-				state = gainMP(state, playerId, gandoeDestroyerIndex, 10, 'GAIN');
-				const gandoeSlot = state.players[playerId].activeSlots[gandoeDestroyerIndex];
-				state._autoAbilityLog.label += ` | [Gandoe] Destroyer synergy: roll ${roll} grants +10 MP`;
-				console.log(`[SYNERGY] Gandoe+Michelle: Tough Gamble roll ${roll} -> Gandoe Destroyer +10 MP -> ${gandoeSlot?.mp} MP`);
-			}
-		}
 	}
 
 	// ── Jeffrey The Strongman — Brute Force ────────────────────────────────────

@@ -220,13 +220,13 @@ function buildSynergyState(chris: string | null, youriAlive: boolean, chrisDefea
   });
 }
 
-describe('Chris+Youri passive synergy', () => {
-  it('sets canActivateOnTurn to turnNumber when mosje_chris and mosje_youri both active', () => {
+describe('Youri holder text (needs DDR Chris, 2.0)', () => {
+  it('Chris The All-Rounder is no longer the Youri partner (2.0): canActivateOnTurn is turnNumber+1', () => {
     const state = buildSynergyState('mosje_chris', true);
     const result = playPiecie(state, 'player_1', { cardId: 'piecie_kannetje_melk', type: 'PIECIE' });
     expect(result.success).toBe(true);
     const placed = result.state.players.player_1.piecieSlots.find((s: any) => s !== null);
-    expect(placed.canActivateOnTurn).toBe(state.turnNumber);
+    expect(placed.canActivateOnTurn).toBe(state.turnNumber + 1);
   });
 
   it('sets canActivateOnTurn to turnNumber when mosje_chris_ddr and mosje_youri both active', () => {

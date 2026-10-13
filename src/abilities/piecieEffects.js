@@ -3,7 +3,7 @@
 
 import { rollDie } from '../engine/deckEngine.js';
 import { roundToFive } from '../engine/roundToFive.js';
-import { hasFoodDoubleSynergy } from '../engine/synergyResolver.js';
+import { isHolderTextActive } from '../engine/synergy/isHolderTextActive.js';
 import { destroyActivePlace } from '../engine/gameState.js';
 import { triggerPlaceDestroyedEffects } from './placeEffects.js';
 import { MOSJES } from '../data/mosjes.js';
@@ -66,6 +66,11 @@ function pushHostileStatus(mosje, effect, label) {
 	return true;
 }
 
+// Binti holder text (Coert Tech on field): each food Piecie you activate gives its Mosje +10 extra.
+function bintiFoodExtra(state, playerId) {
+	return isHolderTextActive(state, playerId, 'mosje_binti') ? 10 : 0;
+}
+
 function applyMPGain(player, si, amount, state, playerId) {
 	// Apply mpAmplifier 50% bonus if active
 	let total = amount;
@@ -89,7 +94,7 @@ export function effect_kannetje_melk(gameState, playerId) {
 	if (!player) return state;
 	const si = resolveOwnTargetSlot(state, playerId);
 	if (si < 0) return state;
-	const base = hasFoodDoubleSynergy(state, playerId) ? 50 : 25;
+	const base = 25 + bintiFoodExtra(state, playerId);
 	applyMPGain(player, si, base, state, playerId);
 	console.log(`[ABILITY] Kannetje Melk: +${base} MP`);
 	return state;
@@ -101,7 +106,7 @@ export function effect_broodje_doner(gameState, playerId) {
 	if (!player) return state;
 	const si = resolveOwnTargetSlot(state, playerId);
 	if (si < 0) return state;
-	const base = hasFoodDoubleSynergy(state, playerId) ? 70 : 35;
+	const base = 35 + bintiFoodExtra(state, playerId);
 	applyMPGain(player, si, base, state, playerId);
 	console.log(`[ABILITY] Broodje Doner: +${base} MP`);
 	return state;
@@ -115,7 +120,7 @@ export function effect_ronald_kip(gameState, playerId) {
 	if (si < 0) return state;
 	const mosje = player.activeSlots[si];
 	const hasRonald = player.activeSlots.some(s => s && !s.isDefeated && s.cardId === 'mosje_ronald_chef');
-	const base = hasFoodDoubleSynergy(state, playerId) ? 100 : (hasRonald ? 60 : 50);
+	const base = (hasRonald ? 60 : 50) + bintiFoodExtra(state, playerId);
 	applyMPGain(player, si, base, state, playerId);
 	if (hasRonald && player.deck.length > 0) player.hand.push(player.deck.shift());
 	console.log(`[ABILITY] Ronald Kip: +${base} MP`);
@@ -135,6 +140,7 @@ export function effect_chefs_special(gameState, playerId) {
 		const oppPieciesInHand = state.players[oppId].hand.filter(c => c.type === 'PIECIE').length;
 		gain = oppPieciesInHand * 30;
 	}
+	gain += bintiFoodExtra(state, playerId);
 	applyMPGain(player, si, gain, state, playerId);
 	console.log(`[ABILITY] Chef's Special: +${gain} MP`);
 	return state;

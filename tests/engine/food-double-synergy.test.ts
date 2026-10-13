@@ -1,10 +1,9 @@
-// FOOD-double synergy: ALL Coert variants count (2026-07-12 ruling).
-// hasFoodDoubleSynergy previously only checked Binti + Coert Tech, while
-// Binti's synergyWith (and card text) claims all three Coerts. Now every
-// Coert variant on the field alongside Binti doubles FOOD Piecie MP.
+// 2.0 Binti holder text (Phase 58-01): "While Coert, The Hawaiian Tech Savant is also on your field:
+// every food Piecie you activate gives its Mosje +10 MP extra." Replaces the V4 FOOD double
+// (and the 2026-07-12 "all Coert variants" ruling): only Coert Tech is Binti's partner now.
 import { describe, expect, it } from "vitest";
 // @ts-expect-error - JS module, no type declarations
-import { hasFoodDoubleSynergy } from "../../src/engine/synergyResolver.js";
+import { isHolderTextActive } from "../../src/engine/synergy/isHolderTextActive.js";
 // @ts-expect-error - JS module, no type declarations
 import { effect_kannetje_melk } from "../../src/abilities/piecieEffects.js";
 
@@ -24,41 +23,32 @@ function makeState(p1Mosjes: (ReturnType<typeof makeSlot> | null)[]) {
   } as any;
 }
 
-describe("FOOD-double synergy — all Coert variants count", () => {
-  it.each([
-    "mosje_coert_tech",
-    "mosje_coert_kasteluck",
-    "mosje_coert_kastelein",
-  ])("Binti + %s activates the FOOD double", (coertId) => {
+describe("Binti holder text: food Piecies +10 with Coert Tech", () => {
+  it("Binti + Coert Tech is live", () => {
+    const state = makeState([makeSlot("mosje_binti"), makeSlot("mosje_coert_tech")]);
+    expect(isHolderTextActive(state, "player_1", "mosje_binti")).toBe(true);
+  });
+
+  it.each(["mosje_coert_kasteluck", "mosje_coert_kastelein"])("%s is not a partner any more", (coertId) => {
     const state = makeState([makeSlot("mosje_binti"), makeSlot(coertId)]);
-    expect(hasFoodDoubleSynergy(state, "player_1")).toBe(true);
+    expect(isHolderTextActive(state, "player_1", "mosje_binti")).toBe(false);
   });
 
-  it("Binti alone does NOT activate it", () => {
-    const state = makeState([makeSlot("mosje_binti"), null]);
-    expect(hasFoodDoubleSynergy(state, "player_1")).toBe(false);
+  it("a defeated Coert Tech does not count", () => {
+    const dead = { ...makeSlot("mosje_coert_tech"), isDefeated: true };
+    const state = makeState([makeSlot("mosje_binti"), dead]);
+    expect(isHolderTextActive(state, "player_1", "mosje_binti")).toBe(false);
   });
 
-  it("a Coert alone does NOT activate it", () => {
-    const state = makeState([makeSlot("mosje_coert_kasteluck"), null]);
-    expect(hasFoodDoubleSynergy(state, "player_1")).toBe(false);
-  });
-
-  it("a defeated Coert does NOT activate it", () => {
-    const deadCoert = { ...makeSlot("mosje_coert_kastelein"), isDefeated: true };
-    const state = makeState([makeSlot("mosje_binti"), deadCoert]);
-    expect(hasFoodDoubleSynergy(state, "player_1")).toBe(false);
-  });
-
-  it("Kannetje Melk pays out doubled (50 instead of 25) with Binti + Coert KasteLuck", () => {
-    const state = makeState([makeSlot("mosje_binti", 20), makeSlot("mosje_coert_kasteluck")]);
+  it("Kannetje Melk gives 25 + 10 with Binti + Coert Tech", () => {
+    const state = makeState([makeSlot("mosje_binti", 20), makeSlot("mosje_coert_tech")]);
     const out = effect_kannetje_melk(state, "player_1");
-    expect(out.players.player_1.activeSlots[0].mp).toBe(70); // 20 + 50 doubled
+    expect(out.players.player_1.activeSlots[0].mp).toBe(55);
   });
 
-  it("Kannetje Melk stays at base 25 without a Coert", () => {
+  it("Kannetje Melk stays at base 25 without Coert Tech", () => {
     const state = makeState([makeSlot("mosje_binti", 20), null]);
     const out = effect_kannetje_melk(state, "player_1");
-    expect(out.players.player_1.activeSlots[0].mp).toBe(45); // 20 + 25 base
+    expect(out.players.player_1.activeSlots[0].mp).toBe(45);
   });
 });
