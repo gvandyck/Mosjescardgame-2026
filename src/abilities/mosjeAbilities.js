@@ -15,6 +15,7 @@ import { isFresh } from '../engine/fresh/isFresh.js';
 import { hackerSystemHack } from './mosje/hackerSystemHack.js';
 import { chrisPerfectSetup } from './mosje/chrisPerfectSetup.js';
 import { fpsWestGuess } from './mosje/fpsWestGuess.js';
+import { tacticianMpManipulation } from './mosje/tacticianMpManipulation.js';
 import { tukHealingHands } from './mosje/tukHealingHands.js';
 import { bintiCuttingWords } from './mosje/bintiCuttingWords.js';
 
@@ -399,22 +400,9 @@ export function ability_youri_speed_activate(gameState, playerId) {
 	}
 }
 
-// Tactician — transfer up to 20 MP from slot 1 to slot 0 (or vice versa, picks the lower-MP slot).
+// Tactician — MP Manipulation: see abilities/mosje/tacticianMpManipulation.js (2 Energy via abilityEnergyCosts.js).
 export function ability_tactician_mp_manipulation(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const slots = player.activeSlots.filter(s => s && !s.isDefeated);
-	if (slots.length < 2) {
-		console.log('[ABILITY] Tactician: need 2 Mosjes on field');
-		return state;
-	}
-	const [high, low] = slots[0].mp >= slots[1].mp ? [slots[0], slots[1]] : [slots[1], slots[0]];
-	const transfer = Math.min(20, high.mp);
-	applyDamage(state, playerId, high, transfer);
-	applyGain(state, low, transfer);
-	console.log(`[ABILITY] Tactician: transferred ${transfer} MP from ${high.name} → ${low.name}`);
-	return state;
+	return tacticianMpManipulation(gameState, playerId);
 }
 
 // Drainer (start of each opponent turn) and FPS Coert (Quest win) are registered Mosje triggers

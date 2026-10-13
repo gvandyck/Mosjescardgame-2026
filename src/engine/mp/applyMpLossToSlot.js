@@ -25,5 +25,10 @@ export function applyMpLossToSlot({ state, playerId, slot, amount, source, byPla
   let getemt = null;
   if (slot.mp <= 0) getemt = applyGetemt(slot);
   slot.mp = Math.max(0, slot.mp);
+  // Tactician set: a loss is kept (subtracted via the delta); a getemt ends the set early.
+  if (slot.tacticianSet) {
+    if (getemt) delete slot.tacticianSet;
+    else slot.tacticianSet.delta -= final;
+  }
   return { final, getemt };
 }

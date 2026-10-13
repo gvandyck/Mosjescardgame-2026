@@ -12,6 +12,7 @@ import { drawCards, shuffleDeck, rollDie } from './deckEngine.js';
 import { placeEmptyFieldMosje } from './turn/placeEmptyFieldMosje.js';
 import { clearOwnerProtections } from './turn/clearOwnerProtections.js';
 import { expireThisTurnEffects } from './turn/expireThisTurnEffects.js';
+import { snapBackTacticianSet } from './mp/snapBackTacticianSet.js';
 import { getNextPlayerId } from './turn/getNextPlayerId.js';
 import { isCooldownBlocked, COOLDOWN_ERROR } from './turn/isCooldownBlocked.js';
 import { applyStatusEffectMP, getTotalMPForPlayer } from './mpManager.js';
@@ -435,6 +436,7 @@ export function endTurn(gameState) {
   }
 
   state = runMosjeTriggers(state, 'endOfTurn', { playerId });
+  snapBackTacticianSet(state);
   expireThisTurnEffects(state);
 
   state = checkVictory(state);

@@ -54,7 +54,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 - [ ] **EFX-03**: All 20 Snelle effects work as the Card List says, including the Jensen! / Frenssen! / Blensen! chain (§3c).
 - [ ] **EFX-04**: All 20 Place effects work as the Card List says, including fresh Mosjes ignoring them (§3c).
 - [ ] **EFX-05**: Synergies are re-wired to the 2.0 pairs; Synergy Chamber makes holder texts work without the partner; free activations never chain again (§2g).
-- [ ] **EFX-06**: The Tactician sets MP to 10–75 until end of turn and snaps back to real MP plus that turn's changes (§2g).
+- [x] **EFX-06**: The Tactician sets MP to 10–75 until end of turn and snaps back to real MP plus that turn's changes (§2g).
 - [ ] **EFX-07**: Hidden-info cards (Ronald, FPS West, Stookerino, Jantje, Chef's Special, Those Eyelashes) reveal only to the player entitled to see (§3c).
 
 ### Bot (BOT)
@@ -131,7 +131,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 | EFX-03 | Phase 60 | Pending |
 | EFX-04 | Phase 60 | Pending |
 | EFX-05 | Phase 58 | Pending |
-| EFX-06 | Phase 58 | Pending |
+| EFX-06 | Phase 58 | Complete |
 | EFX-07 | Phase 60 | Pending |
 | BOT-01 | Phase 61 | Pending |
 | BOT-02 | Phase 61 | Pending |

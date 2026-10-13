@@ -20,5 +20,10 @@ export function applyGainToSlot(slot, amount, { turnNumber } = {}) {
 		console.log(`[ENGINE] ⬆️ ${slot.name} levelled up -> Level ${slot.level} | MP 0`);
 	}
 	if (slot.level === 3 && slot.mp > 95) slot.mp = 95;
+	// Tactician set: a gain is kept (added to the delta); a level-up ends the set early (real result stays).
+	if (slot.tacticianSet) {
+		if (leveled) delete slot.tacticianSet;
+		else slot.tacticianSet.delta += n;
+	}
 	return { gained: n, leveled };
 }
