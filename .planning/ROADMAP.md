@@ -182,7 +182,7 @@ Plans:
 Plans:
 - [x] 58-01-PLAN.md — Synergy 2.0: isHolderTextActive, passive Synergy Chamber, V4 pairs removed, Senor West / FPS West / Binti / Youri holder texts (EFX-05 part)
 - [x] 58-02-PLAN.md — Ability framework: rules data, trigger registry, pendingChoice, draw-step pause, chain-safe free activation, one-gain Quest win, dice queue
-- [ ] 58-03-PLAN.md — One data-driven ability UI flow + prompts, ability button from rules, bot defaults (no peeking)
+- [x] 58-03-PLAN.md — One data-driven ability UI flow + prompts, ability button from rules, bot defaults (no peeking)
 - [ ] 58-04-PLAN.md — Example Deck 1 Fighting Mosjes; Michelle double = one gain (known gap)
 - [ ] 58-05-PLAN.md — Example Deck 2 Digital Mosjes; FPS West 1 Energy +20/-10, Chris +15, Coert draw step
 - [ ] 58-06-PLAN.md — Jisca, DDR Chris, Cless Teacher on the chain rule; §6b engine chain cases
