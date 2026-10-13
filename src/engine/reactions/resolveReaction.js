@@ -1,6 +1,7 @@
 // resolveReaction — answer state.pendingReaction with a Snelle cardId or null (pass); then next window or replay.
 import { attackMosje } from '../actions/attackMosje.js';
 import { activatePiecie, playSnellie } from '../turnManager.js';
+import { activatePiecieFree } from '../table/activatePiecieFree.js';
 import { rollQuestAttempt } from '../quests/rollQuestAttempt.js';
 import { SNELLE_PIECIES } from '../../data/snellePiecies.js';
 import { getEligibleReactions } from './getEligibleReactions.js';
@@ -13,6 +14,7 @@ function replay(state, action) {
 	switch (action.type) {
 		case 'attack': return attackMosje(state, a[0], a[1], SKIP);
 		case 'activatePiecie': return activatePiecie(state, a[0], a[1], SKIP);
+		case 'activatePiecieFree': return activatePiecieFree(state, a[0], a[1], { ...a[2], ...SKIP });
 		case 'playSnelle': return playSnellie(state, a[0], a[1], a[2], SKIP);
 		case 'quest': {
 			const r = rollQuestAttempt(state, a[0], { ...a[1], skipBeforeRoll: true });

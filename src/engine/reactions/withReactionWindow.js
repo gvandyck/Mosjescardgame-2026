@@ -14,7 +14,7 @@ export function withReactionWindow(state, actorId, action, run) {
 	const { moments, preview } = detectReactionMoments(state, res.state, { actorId, responderId, actionType: action.type });
 	const eligible = getEligibleReactions(state, responderId, moments);
 	if (eligible.length) windows.push({ responderId, moments, eligible, preview });
-	if (action.type === 'activatePiecie') {
+	if (action.type === 'activatePiecie' || action.type === 'activatePiecieFree') {
 		const own = [M.AFTER_OWN_PIECIE_ACTIVATION];
 		const e = getEligibleReactions(state, actorId, own);
 		if (e.length) windows.push({ responderId: actorId, moments: own, eligible: e, preview: { getemt: [], toWelloe: false, mpLoss: {} } });

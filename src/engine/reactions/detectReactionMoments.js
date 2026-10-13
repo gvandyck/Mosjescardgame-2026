@@ -5,7 +5,7 @@ export function detectReactionMoments(before, after, { actorId, responderId, act
 	const moments = [];
 	const preview = { getemt: [], toWelloe: false, mpLoss: {} };
 	if (actionType === 'attack') moments.push(M.ATTACKED);
-	if (actionType === 'activatePiecie') moments.push(M.AFTER_PIECIE_ACTIVATION);
+	if (actionType === 'activatePiecie' || actionType === 'activatePiecieFree') moments.push(M.AFTER_PIECIE_ACTIVATION);
 	const b = before.players[responderId], a = after.players[responderId];
 	let changed = false, lowers = false;
 	(b.activeSlots || []).forEach((bs, i) => {
@@ -17,7 +17,7 @@ export function detectReactionMoments(before, after, { actorId, responderId, act
 		if (as.level < bs.level || (as.sideways && !bs.sideways)) preview.getemt.push(i);
 	});
 	if ((a.welloePile || []).length > (b.welloePile || []).length) { preview.toWelloe = true; lowers = true; }
-	if ((actionType === 'activatePiecie' || actionType === 'playSnelle') && changed) moments.push(M.TARGETED);
+	if ((actionType === 'activatePiecie' || actionType === 'activatePiecieFree' || actionType === 'playSnelle') && changed) moments.push(M.TARGETED);
 	if (lowers) moments.push(M.WOULD_LOSE_MP);
 	if (preview.toWelloe) moments.push(M.TO_WELLOE);
 	return { moments, preview };

@@ -37,6 +37,7 @@ import { payEnergy } from './energy/payEnergy.js';
 import { canPay } from './energy/canPay.js';
 import { canMosjeAct } from './mp/canMosjeAct.js';
 import { getAbilityEnergyCost } from './energy/getAbilityEnergyCost.js';
+import { piecieActivationGate } from './table/piecieActivationGate.js';
 import { runMosjeTriggers } from './mosje/runMosjeTriggers.js';
 import { getDrawStepOptions } from './mosje/getDrawStepOptions.js';
 import { MOSJE_ABILITY_RULES } from '../rules/mosjeAbilityRules.js';
@@ -626,23 +627,11 @@ function activatePiecieCore(gameState, playerId, slotIndex) {
     return { state, success: false, error: 'Unknown Piecie definition' };
   }
 
-  // Check The Void restriction (blocks RESTORE and FOOD Piecies)
-  if (state.activePlace === 'place_the_void') {
-    const blocked = ['RESTORE', 'FOOD'];
-    if (knownCardDef.tags?.some(t => blocked.includes(t))) {
-      console.log('[ENGINE] The Void blocks RESTORE/FOOD Piecies');
-      return { state, success: false, error: 'The Void blocks RESTORE and FOOD Piecies' };
-    }
-  }
-
-  // Jeffrey The Strongman: cannot use FOOD or RESTORE Piecies
-  const jeffreyActive = player.activeSlots.some(s => s && !s.isDefeated && s.cardId === 'mosje_jeffrey');
-  if (jeffreyActive) {
-    const blocked = ['FOOD', 'RESTORE'];
-    if (knownCardDef.tags?.some(t => blocked.includes(t))) {
-      console.log('[ENGINE] Jeffrey The Strongman blocks FOOD/RESTORE Piecies');
-      return { state, success: false, error: 'Jeffrey The Strongman cannot use FOOD or RESTORE Piecies' };
-    }
+  // Rules that block the activation outright (The Void, Jeffrey) - shared with free activations.
+  const gateError = piecieActivationGate(state, playerId, knownCardDef);
+  if (gateError) {
+    console.log('[ENGINE] Piecie activation blocked:', gateError);
+    return { state, success: false, error: gateError };
   }
 
   // Dingetje Toch wildcard: if state._dingetjeTochActive is true, the UI layer must bypass
@@ -652,27 +641,41 @@ function activatePiecieCore(gameState, playerId, slotIndex) {
   // delete state._dingetjeTochActive before passing state to activatePiecie.
   // STUB-07: UI-side implementation deferred to UI wiring phase.
 
-  // Check reactive negation flags set by opponent's Snelle Piecies
-  const flags = state._snelleFlags || {};
-  const oppId = Object.keys(state.players).find(id => id !== playerId);
-  const isAttack = knownCardDef.tags?.includes('ATTACK');
-
   // Energy: pay the card's cost after validation, before any mutation (free chains never reach here)
   const piecieEnergyPay = payEnergy(state, playerId, Number(knownCardDef.cost) || 0);
   if (!piecieEnergyPay.success) {
     return { state: gameState, success: false, error: piecieEnergyPay.error || 'Not enough Energy' };
   }
 
+  return resolvePiecieActivation(state, playerId, safeSlotIndex, knownCardDef, { free: false });
+}
+
+// Everything after the Energy payment, shared by activatePiecie and activatePiecieFree.
+// slotIndex -1 = the Piecie is not in a slot (free activation from deck/discard/hand).
+// opts.free: ctx.free for the piecieActivated triggers; a free activation never starts a DDR chain.
+export function resolvePiecieActivation(state, playerId, safeSlotIndex, knownCardDef, opts = {}) {
+  const free = opts.free === true;
+  const hasSlot = safeSlotIndex >= 0;
+  let player = state.players[playerId];
+  const slot = hasSlot ? player.piecieSlots[safeSlotIndex] : null;
+  const slotCardId = knownCardDef.id;
+  const flags = state._snelleFlags || {};
+  const oppId = Object.keys(state.players).find(id => id !== playerId);
+  const isAttack = knownCardDef.tags?.includes('ATTACK');
+  if (!Array.isArray(player.graveyard)) player.graveyard = [];
+
   // Flip face-up when activation starts
-  slot.faceDown = false;
-  slot.activated = true;
+  if (slot) {
+    slot.faceDown = false;
+    slot.activated = true;
+  }
 
   // Counter Strikka: negate any Piecie
   if (oppId && flags.negateNextPiecie?.[oppId]) {
     delete state._snelleFlags.negateNextPiecie[oppId];
     console.log('[ENGINE] Counter Strikka negated:', knownCardDef.name);
     player.graveyard.push(toGraveyardEntry(slotCardId, 'played'));
-    player.piecieSlots[safeSlotIndex] = null;
+    if (hasSlot) player.piecieSlots[safeSlotIndex] = null;
     state = checkVictory(state);
     return { state, success: true, negated: true, cardDef: knownCardDef };
   }
@@ -684,7 +687,7 @@ function activatePiecieCore(gameState, playerId, slotIndex) {
     if (si >= 0) applyGainToSlot(oppPlayer.activeSlots[si], 15, { turnNumber: state.turnNumber });
     console.log('[ENGINE] Perfect Dodge negated ATTACK + granted 15 MP to opponent');
     player.graveyard.push(toGraveyardEntry(slotCardId, 'played'));
-    player.piecieSlots[safeSlotIndex] = null;
+    if (hasSlot) player.piecieSlots[safeSlotIndex] = null;
     state = checkVictory(state);
     return { state, success: true, negated: true, cardDef: knownCardDef };
   }
@@ -743,15 +746,15 @@ function activatePiecieCore(gameState, playerId, slotIndex) {
 
   // Chris DDR — Perfect Combo Chain: may recursively activate more Piecies from
   // hand (see maybeChainChrisDdrCombo above).
-  state = maybeChainChrisDdrCombo(state, playerId);
+  if (!free) state = maybeChainChrisDdrCombo(state, playerId);
 
-  state = runMosjeTriggers(state, 'piecieActivated', { playerId, free: false, cardDef: knownCardDef, slotIndex: safeSlotIndex });
+  state = runMosjeTriggers(state, 'piecieActivated', { playerId, free, cardDef: knownCardDef, slotIndex: safeSlotIndex });
 
   // Piecie resolves — persistent cards stay in slot until end-of-turn sweep.
   player = state.players[playerId];
   if (!Array.isArray(player.graveyard)) player.graveyard = [];
   normalizePiecieSlots(player);
-  state = finishPiecieActivation(state, playerId, safeSlotIndex, knownCardDef);
+  if (hasSlot) state = finishPiecieActivation(state, playerId, safeSlotIndex, knownCardDef);
   player = state.players[playerId];
   console.log(`[ENGINE] piecieSlots after activation:`, player.piecieSlots.map((s, i) => s ? `[${i}] ${s.cardId} (${s.type})` : `[${i}] null`).join(' | '));
 
