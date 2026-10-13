@@ -33,7 +33,7 @@ See: `.planning/PROJECT.md` (updated 2026-10-10)
 ## Current Position
 
 Phase: 58 of 64 (mosje abilities and synergies)
-Plan: 58-07 complete (7 of 12 in Phase 58)
+Plan: 58-08 complete (8 of 12 in Phase 58)
 Status: Ready to plan
 Last activity: 2026-10-12
 

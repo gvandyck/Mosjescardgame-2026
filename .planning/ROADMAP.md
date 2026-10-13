@@ -187,7 +187,7 @@ Plans:
 - [x] 58-05-PLAN.md — Example Deck 2 Digital Mosjes; FPS West 1 Energy +20/-10, Chris +15, Coert draw step
 - [x] 58-06-PLAN.md — Jisca, DDR Chris, Cless Teacher on the chain rule; §6b engine chain cases
 - [x] 58-07-PLAN.md — Tuk Healer, Binti, DJ 80/20 reroll at the Quest after-roll pause
-- [ ] 58-08-PLAN.md — The Tactician (E26, EFX-06), Jeffrey Strongman, Gandoe Destroyer, Martin Driver
+- [x] 58-08-PLAN.md — The Tactician (E26, EFX-06), Jeffrey Strongman, Gandoe Destroyer, Martin Driver
 - [ ] 58-09-PLAN.md — Ming Natural, Ming Predictor, Jeffrey Gambler, Youri, Ronald Mastermind (in-effect Energy, free activation)
 - [ ] 58-10-PLAN.md — Ronald Chef, Martin Historian (+ holder), Senor West (+ holder), Coert KasteLuck, Tuk Architect (EFX-05 complete)
 - [ ] 58-11-PLAN.md — Card-test-library: 18 Example-Deck Mosjes headless; Michelle and bulldozer specs
