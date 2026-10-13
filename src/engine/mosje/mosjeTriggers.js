@@ -10,6 +10,7 @@ import { drainerContinuousDrain } from '../../abilities/mosje/drainerContinuousD
 import { jiscaPerfectCombo } from '../../abilities/mosje/jiscaPerfectCombo.js';
 import { ddrChrisComboChain } from '../../abilities/mosje/ddrChrisComboChain.js';
 import { clessTeachingMoment } from '../../abilities/mosje/clessTeachingMoment.js';
+import { bintiDiscardChoice } from '../../abilities/mosje/bintiDiscardChoice.js';
 // MOSJE_TRIGGERS — push-only registry of 2.0 Mosje trigger hooks (like ATTACK_TRIGGERS).
 // Entry: { mosjeId, run(state, ctx), available?(state, playerId) } (see runMosjeTriggers).
 // startOfTurn/endOfTurn/questSuccess/piecieActivated/placeDestroyed/cardPlayedFromHand return state
@@ -26,4 +27,6 @@ export const MOSJE_TRIGGERS = {
 	placeDestroyed: [alyssaFissaPartyPower],
 	cardPlayedFromHand: [fpsWestTacticalAnalysis],
 	drawStep: [coertTechExtraResources],
+	// Binti's Cutting Words fires this directly (not from runMosjeTriggers) so the opponent's discard pick can pause.
+	bintiDiscard: [bintiDiscardChoice],
 };

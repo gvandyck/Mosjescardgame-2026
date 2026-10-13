@@ -24,8 +24,8 @@ test.describe('Mosje ability flow (58-03)', () => {
 		await btn.click();
 		await expect.poll(async () => (await getGameState(page)).players.player_1.energy).toBe(2);
 		const after = await getGameState(page);
-		// Expected gain comes from the engine data (V4 +10 until 58-07 tightens it to +20): the preset target gained, the healer did not.
-		expect(after.players.player_1.activeSlots[1].mp).toBeGreaterThan(before.players.player_1.activeSlots[1].mp);
+		// Card List 2.0: Healing Hands gives exactly +20 to the chosen Mosje, the healer herself gains nothing.
+		expect(after.players.player_1.activeSlots[1].mp).toBe(before.players.player_1.activeSlots[1].mp + 20);
 		expect(after.players.player_1.activeSlots[0].mp).toBe(before.players.player_1.activeSlots[0].mp);
 		await expect(page.locator('.modal-root--open')).toHaveCount(0); // no prompt was shown
 		await expect(btn).toBeDisabled(); // used this turn

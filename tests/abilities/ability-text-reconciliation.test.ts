@@ -259,15 +259,15 @@ function makeTukState(slots: any[]) {
 }
 
 describe("Tuk Healer — Healing Presence", () => {
-  it("defaults to healing itself +10 MP when no target is given (e.g. solo on field)", () => {
+  it("defaults to healing itself +20 MP when no target is given (e.g. solo on field)", () => {
     const state = makeTukState([makeTukSlot("mosje_tuk_healer", 50), null]);
 
     const next = ability_tuk_healer_healing_presence(state, "player_1");
 
-    expect(next.players.player_1.activeSlots[0].mp).toBe(60);
+    expect(next.players.player_1.activeSlots[0].mp).toBe(70); // 2.0 Card List: +20
   });
 
-  it("heals the chosen own Mosje +10 MP via _pendingTargets.own_slot_index, leaving itself untouched", () => {
+  it("heals the chosen own Mosje +20 MP via _pendingTargets.own_slot_index, leaving itself untouched", () => {
     const state = makeTukState([
       makeTukSlot("mosje_tuk_healer", 50),
       makeTukSlot("mosje_ally", 30),
@@ -277,7 +277,7 @@ describe("Tuk Healer — Healing Presence", () => {
     const next = ability_tuk_healer_healing_presence(state, "player_1");
 
     expect(next.players.player_1.activeSlots[0].mp).toBe(50); // Tuk Healer unchanged
-    expect(next.players.player_1.activeSlots[1].mp).toBe(40); // ally +10
+    expect(next.players.player_1.activeSlots[1].mp).toBe(50); // ally +20
   });
 
   it("throws when Tuk Healer is not on field", () => {

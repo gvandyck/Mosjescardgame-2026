@@ -49,12 +49,12 @@ describe("Amplifier Power Boost — pay 30, arm double-trigger, cap 2/game", () 
   });
 
   it("the armed double actually makes the NEXT ability fire twice", () => {
-    // DJ 80/20 in slot 0 (Alyssa Fissa became a trigger in 2.0; V4 Lucky Beats gains 10 MP on the first slot), Amplifier in slot 1.
+    // Martin Driver in slot 0 (level-scaled gain, repeatable; DJ 80/20 became a reaction in 2.0), Amplifier in slot 1.
     const state = createEngineState({
       players: {
         player_1: {
           activeSlots: [
-            { cardId: "mosje_dj_8020", name: "DJ", mp: 0, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
+            { cardId: "mosje_martin_driver", name: "Driver", mp: 0, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
             { cardId: "mosje_amplifier", name: "Amplifier", mp: 50, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
           ],
           hand: [{ cardId: "piecie_kannetje_melk" }, { cardId: "piecie_kannetje_melk" }],
@@ -64,10 +64,10 @@ describe("Amplifier Power Boost — pay 30, arm double-trigger, cap 2/game", () 
     const armed = ability_amplifier_power_boost(state, "player_1");
     expect(armed.players.player_1.abilityDoubleTrigger).toBe(true);
 
-    const res = useMosjeAbility(armed, "player_1", "mosje_dj_8020");
+    const res = useMosjeAbility(armed, "player_1", "mosje_martin_driver");
     expect(res.success).toBe(true);
-    // +10 single; doubled = +20 (on slot 0).
-    expect(res.state.players.player_1.activeSlots[0].mp).toBe(20);
+    // Level 1 = +15 single; doubled = +30 (on slot 0).
+    expect(res.state.players.player_1.activeSlots[0].mp).toBe(30);
     expect(res.state.players.player_1.abilityDoubleTrigger).toBeFalsy(); // consumed
   });
 });

@@ -282,6 +282,8 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
       if (result.success) {
         state = result.state;
         push(`uses ${slot.name}'s ability`);
+        // A new pause (Binti: the opponent's discard pick) must never stall a bot; a human's pause is answered by the UI.
+        state = settleMosjePauses(state, humanIds).state;
         if (result.reactionPending && !settle()) return; // Chris: the free activation opens a reaction window
       }
     }

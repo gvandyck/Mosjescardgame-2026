@@ -212,7 +212,7 @@ describe('U8 — hostile effects fizzle', () => {
       'player_1',
     );
     state.players.player_1.hand = [{ cardId: 'piecie_kannetje_melk', type: 'PIECIE' }];
-    (state as any)._pendingTargets = { binti_discard: 'piecie_kannetje_melk' };
+    (state as any)._pendingTargets = { hand_card: 0 };
     const result = useMosjeAbility(state, 'player_1', 'mosje_binti');
     expect(result.success).toBe(false);
     expect(String(result.error)).toMatch(/protected/i);

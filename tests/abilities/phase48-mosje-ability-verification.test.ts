@@ -102,57 +102,12 @@ describe("Jeffrey The Strongman — Brute Force passive quest bonus (IMPL-PF-M2)
   });
 });
 
-describe("DJ 80/20 — Lucky Beats passive (IMPL-AR-M1, closes BUG-05)", () => {
-  it("grants +10 MP to the active slot AND +2 questPrepBonus in one call", () => {
-    const state = createEngineState({
-      players: {
-        player_1: {
-          activeSlots: [
-            {
-              cardId: "mosje_dj_8020",
-              name: "[DJ] 80/20",
-              mp: 40,
-              level: 1,
-              isDefeated: false,
-              statusEffects: [],
-              abilityUsedThisTurn: false,
-            },
-            null,
-          ],
-          questPrepBonus: 0,
-        },
-      },
-    });
-
-    const result = ability_dj_8020_lucky_beats(state, "player_1");
-
-    expect(result.players.player_1.activeSlots[0].mp).toBe(50);
-    expect(result.players.player_1.questPrepBonus).toBe(2);
-  });
-
-  it("stacks questPrepBonus across repeated calls (BUG-05 modifier is additive, not overwritten)", () => {
-    const state = createEngineState({
-      players: {
-        player_1: {
-          activeSlots: [
-            {
-              cardId: "mosje_dj_8020",
-              name: "[DJ] 80/20",
-              mp: 40,
-              level: 1,
-              isDefeated: false,
-              statusEffects: [],
-              abilityUsedThisTurn: false,
-            },
-            null,
-          ],
-          questPrepBonus: 2,
-        },
-      },
-    });
-
-    const result = ability_dj_8020_lucky_beats(state, "player_1");
-
-    expect(result.players.player_1.questPrepBonus).toBe(4);
+describe("DJ 80/20 — Lucky Beats (2.0: reaction, not the V4 +10 MP / +2 dice passive)", () => {
+  // BUG-05's V4 passive (+10 MP, +2 questPrepBonus) is gone: Lucky Beats is a once-per-turn die reroll at the Quest
+  // after-roll pause. The reroll itself is covered in tests/abilities/mosjes-deck3-rest.test.ts.
+  it("has no manual activation: the manual entry refuses and adds no Quest dice modifier", () => {
+    const state = createEngineState({ players: { player_1: { questPrepBonus: 0 } } });
+    expect(() => ability_dj_8020_lucky_beats(state, "player_1")).toThrow(/Quest roll/);
+    expect(state.players.player_1.questPrepBonus).toBe(0);
   });
 });

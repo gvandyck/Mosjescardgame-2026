@@ -59,8 +59,9 @@ describe('own-target choice', () => {
 
   it('an ability acts on its own Mosje (slot 1), not slot 0', () => {
     const s = twoMosjes();
-    const out = (abilities as any).ability_dj_8020_lucky_beats(s, 'player_1', 'mosje_b');
+    // Tuk's ability (2.0: +20 to the chosen Mosje, herself by default) resolves its own slot by Mosje id.
+    const out = (abilities as any).ability_tuk_healer_healing_presence(s, 'player_1', 'mosje_b');
     expect(out.players.player_1.activeSlots[0].mp).toBe(50);
-    expect(out.players.player_1.activeSlots[1].mp).toBeGreaterThan(50);
+    expect(out.players.player_1.activeSlots[1].mp).toBe(70);
   });
 });

@@ -15,7 +15,8 @@ import { isFresh } from '../engine/fresh/isFresh.js';
 import { hackerSystemHack } from './mosje/hackerSystemHack.js';
 import { chrisPerfectSetup } from './mosje/chrisPerfectSetup.js';
 import { fpsWestGuess } from './mosje/fpsWestGuess.js';
-import { resolveOppTargetSlot } from '../engine/targets/resolveOppTargetSlot.js';
+import { tukHealingHands } from './mosje/tukHealingHands.js';
+import { bintiCuttingWords } from './mosje/bintiCuttingWords.js';
 
 console.log('[ABILITY] mosjeAbilities.js loaded');
 
@@ -56,68 +57,15 @@ function getOpponentId(state, playerId) {
 	return Object.keys(state.players).find(id => id !== playerId) || null;
 }
 
-// DJ 80/20 passive: gain 10 MP at turn start, +2 to next Quest roll this turn.
-export function ability_dj_8020_lucky_beats(gameState, playerId, mosjeId = null) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-
-	const slotIndex = getActiveSlotIndexForMosje(player, mosjeId);
-	if (slotIndex < 0) return state;
-
-	applyGain(state, player.activeSlots[slotIndex], 10);
-	// BUG-05: DJ Lucky Mixer — add +2 to next Quest roll this turn.
-	// questPrepBonus is consumed at quest resolution in main.js and reset to 0 at endTurn.
-	player.questPrepBonus = (player.questPrepBonus || 0) + 2;
-	console.log('[ABILITY] DJ 80/20 passive applied +10 MP and +2 Quest dice modifier');
-	return state;
+// DJ 80/20 — Lucky Beats is a reaction at the Quest after-roll pause (abilities/mosje/djLuckyBeats.js,
+// offered by getEligibleReactions); there is no manual activation. Kept so the dispatch map resolves.
+export function ability_dj_8020_lucky_beats() {
+	throw new Error('Lucky Beats is used at the pause after a Quest roll');
 }
 
-// Binti active: discard 1 card from hand, opponent loses 10 MP and discards 1 if possible.
-export function ability_binti_cutting_words(gameState, playerId, discardedCardId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) throw new Error('Player not found');
-
-	// U8 — Entry Protection: whole ability fizzles (unusable — no discard cost,
-	// no once-per-turn) when the auto-target just entered play. This closes the
-	// turn-1 kill of 0-MP starters. Throw is caught by useMosjeAbility.
-	{
-		const oppIdForGuard = getOpponentId(state, playerId);
-		const oppForGuard = oppIdForGuard ? state.players[oppIdForGuard] : null;
-		const guardSlotIndex = oppForGuard ? resolveOppTargetSlot(state, oppIdForGuard) : -1;
-		if (guardSlotIndex >= 0 && isFresh(oppForGuard.activeSlots[guardSlotIndex])) {
-			throw new Error('Opponent Mosje just entered play — it is protected until their next turn');
-		}
-	}
-
-	// Always read from _pendingTargets.binti_discard (set by UI pre-pick or bot driver).
-	// discardedCardId arg is the mosjeId passed by useMosjeAbility — not a card to discard.
-	const cardId = state._pendingTargets?.binti_discard;
-	if (state._pendingTargets?.binti_discard) delete state._pendingTargets.binti_discard;
-
-	const handIndex = player.hand.findIndex(card => (card.cardId ?? card) === cardId);
-	if (handIndex < 0) throw new Error('Binti ability requires discarding a card from hand');
-	player.hand.splice(handIndex, 1);
-
-	const opponentId = getOpponentId(state, playerId);
-	if (!opponentId) return state;
-	const opponent = state.players[opponentId];
-
-	const oppSlotIndex = resolveOppTargetSlot(state, opponentId);
-	let finalState = state;
-	if (oppSlotIndex >= 0) {
-		finalState = loseMP(state, opponentId, oppSlotIndex, 10, 'ABILITY', false, playerId);
-		console.log('[ABILITY] Binti Cutting Words: opponent loses 10 MP');
-	}
-
-	if (finalState.players[opponentId].hand.length > 0) {
-		const discarded = finalState.players[opponentId].hand.shift();
-		finalState.players[opponentId].graveyard.push(discarded);
-	}
-
-	console.log('[ABILITY] Binti Cutting Words resolved');
-	return finalState;
+// Binti — Cutting Words: see abilities/mosje/bintiCuttingWords.js (1 Energy via abilityEnergyCosts.js).
+export function ability_binti_cutting_words(gameState, playerId, mosjeId) {
+	return bintiCuttingWords(gameState, playerId, mosjeId);
 }
 
 // Coert Tech — Extra Resources is a draw-step option (abilities/mosje/coertTechExtraResources.js, finishDrawStep);
@@ -531,24 +479,9 @@ export function ability_jisca_perfect_combo(gameState) {
 	return gameState;
 }
 
-// Tuk Healer — Healing Presence: once per turn, choose one own Mosje (this one or
-// another) to gain 10 MP. Target comes from the UI via _pendingTargets.own_slot_index
-// (same key Tikker/Kannetje Melk use), defaulting to Tuk Healer's own slot when
-// there's only one Mosje on the field.
-export function ability_tuk_healer_healing_presence(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) throw new Error('Player not found');
-	const selfIndex = player.activeSlots.findIndex(s => s && !s.isDefeated && String(s.cardId).includes('tuk_healer'));
-	if (selfIndex < 0) throw new Error('Tuk Healer not on field');
-	const selected = state._pendingTargets?.own_slot_index;
-	const targetIndex = Number.isInteger(selected) ? selected : selfIndex;
-	if (state._pendingTargets) delete state._pendingTargets.own_slot_index;
-	const targetSlot = player.activeSlots[targetIndex];
-	if (!targetSlot || targetSlot.isDefeated) throw new Error('Target Mosje not on field');
-	const next = gainMP(state, playerId, targetIndex, 10, 'TUK_HEALER_PRESENCE');
-	console.log('[ABILITY] Tuk Healer: +10 MP to', targetSlot.cardId);
-	return next;
+// Tuk Healer — Healing Hands: see abilities/mosje/tukHealingHands.js (1 Energy via abilityEnergyCosts.js).
+export function ability_tuk_healer_healing_presence(gameState, playerId, mosjeId) {
+	return tukHealingHands(gameState, playerId, mosjeId);
 }
 
 // Coert KasteLuck — morning luck: roll d6. Even → +15 MP.
