@@ -24,7 +24,7 @@ afterEach(() => {
 
 describe("place_synergy_chamber (PLACE-11) — Task 1: dead bonuses removed", () => {
   it("useMosjeAbility does not touch MP when Synergy Chamber is active (no +5 pre-adjust; 2.0 costs Energy)", () => {
-    // 2.0: Coert's ability costs 1 Energy, never MP. The removed V4 +5 "discount"
+    // 2.0: FPS West's ability costs 1 Energy, never MP. The removed V4 +5 "discount"
     // pre-adjusted MP; this probes that Synergy Chamber leaves MP exactly as it was.
     const state = createEngineState({
       activePlace: "place_synergy_chamber",
@@ -33,7 +33,7 @@ describe("place_synergy_chamber (PLACE-11) — Task 1: dead bonuses removed", ()
         player_1: {
           activeSlots: [
             {
-              cardId: "mosje_coert_tech",
+              cardId: "mosje_fps_west",
               name: "Coert Tech",
               traits: {},
               mp: 5,
@@ -47,7 +47,8 @@ describe("place_synergy_chamber (PLACE-11) — Task 1: dead bonuses removed", ()
         player_2: { activeSlots: [] },
       },
     });
-    const result = useMosjeAbility(state, "player_1", "mosje_coert_tech");
+    state._pendingTargets = { card_type: "PIECIE" };
+    const result = useMosjeAbility(state, "player_1", "mosje_fps_west");
     expect(result.success).toBe(true);
     expect(result.state.players.player_1.activeSlots[0].mp).toBe(5);
   });

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 // @ts-expect-error — JS module, no type declarations
-import { ability_amplifier_power_boost, ability_hacker_system_hack } from "../../src/abilities/mosjeAbilities.js";
+import { ability_amplifier_power_boost } from "../../src/abilities/mosjeAbilities.js";
 // @ts-expect-error — JS module, no type declarations
 import { startTurn, useMosjeAbility } from "../../src/engine/turnManager.js";
 // @ts-expect-error — JS module, no type declarations
@@ -72,27 +72,43 @@ describe("Amplifier Power Boost — pay 30, arm double-trigger, cap 2/game", () 
   });
 });
 
-describe("Hacker System Hack — +10 MP, draw 1, 5-turn cooldown", () => {
-  it("gains 10 MP, draws a card, and sets the cooldown to 5", () => {
+describe("Hacker System Hack (Card List 2.0) — 1 Energy, top 3 of any deck, +10 MP, once per turn", () => {
+  const deck = (...ids: string[]) => ids.map(cardId => ({ cardId }));
+  it("reorders the top 3 of the chosen deck, gains 10 MP, pays 1 Energy, no cooldown fields", () => {
     const state = oneMosjeState("mosje_hacker", 20);
-    state.players.player_1.deck = [{ cardId: "piecie_kannetje_melk" }, { cardId: "piecie_pot_of_weed" }];
-    state.players.player_1.hand = [];
-    const next = ability_hacker_system_hack(state, "player_1");
-    expect(next.players.player_1.activeSlots[0].mp).toBe(30);          // +10
-    expect(next.players.player_1.hand.length).toBe(1);                 // drew 1
-    expect(next.players.player_1.deck.length).toBe(1);
-    expect(next.players.player_1.activeSlots[0].systemHackCooldown).toBe(5);
+    state.players.player_1.energy = 3;
+    state.players.player_2.deck = deck("a", "b", "c", "d");
+    state._pendingTargets = { deck_owner: "player_2", order: [2, 0, 1] };
+    const res = useMosjeAbility(state, "player_1", "mosje_hacker");
+    expect(res.success).toBe(true);
+    expect(res.state.players.player_2.deck.map((c: any) => c.cardId)).toEqual(["c", "a", "b", "d"]);
+    expect(res.state.players.player_1.activeSlots[0].mp).toBe(30);
+    expect(res.state.players.player_1.energy).toBe(2);
+    expect(res.state.players.player_1.activeSlots[0].systemHackCooldown).toBeUndefined();
   });
-
-  it("throws while on cooldown", () => {
-    const state = oneMosjeState("mosje_hacker", 20, { systemHackCooldown: 3 });
-    expect(() => ability_hacker_system_hack(state, "player_1")).toThrow();
+  it("works on your own deck and keeps the order when none is given", () => {
+    const state = oneMosjeState("mosje_hacker", 20);
+    state.players.player_1.deck = deck("a", "b");
+    const res = useMosjeAbility(state, "player_1", "mosje_hacker");
+    expect(res.success).toBe(true);
+    expect(res.state.players.player_1.deck.map((c: any) => c.cardId)).toEqual(["a", "b"]);
   });
-
-  it("startTurn ticks systemHackCooldown down on the starting player's slot", () => {
+  it("refuses a second use in the same turn and without Energy; refuses a bad order", () => {
+    const state = oneMosjeState("mosje_hacker", 20);
+    state.players.player_1.deck = deck("a", "b", "c");
+    const first = useMosjeAbility(state, "player_1", "mosje_hacker");
+    expect(useMosjeAbility(first.state, "player_1", "mosje_hacker").error).toBe("Ability already used this turn");
+    const broke = oneMosjeState("mosje_hacker", 20);
+    broke.players.player_1.energy = 0;
+    expect(useMosjeAbility(broke, "player_1", "mosje_hacker").error).toBe("Not enough Energy");
+    const bad = oneMosjeState("mosje_hacker", 20);
+    bad.players.player_1.deck = deck("a", "b", "c");
+    bad._pendingTargets = { order: [0, 0, 1] };
+    expect(useMosjeAbility(bad, "player_1", "mosje_hacker").success).toBe(false);
+  });
+  it("startTurn no longer ticks a cooldown", () => {
     const state = oneMosjeState("mosje_hacker", 20, { systemHackCooldown: 5 });
     state.activePlayerId = "player_1";
-    const next = startTurn(state);
-    expect(next.players.player_1.activeSlots[0].systemHackCooldown).toBe(4);
+    expect(startTurn(state).players.player_1.activeSlots[0].systemHackCooldown).toBe(5);
   });
 });

@@ -173,12 +173,10 @@ describe("useMosjeAbility gates", () => {
   it("refuses a sideways Mosje", () => {
     expect(useMosjeAbility(withE("mosje_tuk_healer", { sideways: true }), "player_1", "mosje_tuk_healer").error).toBe("This Mosje is sideways");
   });
-  it("Coert Tech may be used twice per turn, not three times", () => {
-    const a = useMosjeAbility(withE("mosje_coert_tech"), "player_1", "mosje_coert_tech");
-    expect(a.success).toBe(true);
-    const b = useMosjeAbility(a.state, "player_1", "mosje_coert_tech");
-    expect(b.success).toBe(true);
-    expect(useMosjeAbility(b.state, "player_1", "mosje_coert_tech").error).toBe("Ability already used this turn");
+  it("Coert Tech has no Activate button: Extra Resources is a draw-step option (see coert-tech-draw-step.test.ts)", () => {
+    const r = useMosjeAbility(withE("mosje_coert_tech"), "player_1", "mosje_coert_tech");
+    expect(r.success).toBe(false);
+    expect(r.error).toBe("Extra Resources is used during your draw step");
   });
 });
 

@@ -282,6 +282,7 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
       if (result.success) {
         state = result.state;
         push(`uses ${slot.name}'s ability`);
+        if (result.reactionPending && !settle()) return; // Chris: the free activation opens a reaction window
       }
     }
   };

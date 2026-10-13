@@ -28,7 +28,7 @@ export const MOSJE_ABILITY_RULES = Object.freeze({
 	ability_ming_predictor_future_sight: act([{ key: 'stack_id', kind: 'questStack' }, { key: 'bottom', kind: 'confirm' }]),
 	ability_martin_historian_time_control: act(deckPick(5), { drawStep: true }),
 	ability_martin_senor_west_calculated_guess: act([{ key: 'card_type', kind: 'choice', options: TYPES }, { key: 'deck_owner', kind: 'deckOwner' }]),
-	ability_coert_tech_extra_resources: act([], { maxPerTurn: 2, drawStep: true }),
+	ability_coert_tech_extra_resources: act([{ key: 'extra', kind: 'number', min: 1, max: 2, step: 1 }], { maxPerTurn: 2, drawStep: true }),
 	ability_hacker_system_hack: act(deckPick(3)),
 	ability_jeffrey_gambler_high_stakes: act([{ key: 'stake', kind: 'number', min: 1, max: 2, step: 1 }]),
 	ability_chris_perfect_setup: act([{ key: 'piecie_slot', kind: 'ownPiecieSlot', filter: 'faceDown' }]),

@@ -176,7 +176,8 @@ describe("Piecie losses (54-13)", () => {
 // 54-14: ability and Quest losses run the pipeline and getemt.
 import { forceQuestResult } from "../helpers/forceQuestResult.js";
 // @ts-expect-error — JS module, no type declarations
-import { ability_coert_extra_resources } from "../../src/abilities/mosjeAbilities.js";
+import { coertTechExtraResources } from "../../src/abilities/mosje/coertTechExtraResources.js";
+const coertDraw = (st: any) => coertTechExtraResources.run(JSON.parse(JSON.stringify(st)), { playerId: "player_1", choices: { extra: 1 } });
 
 describe("ability / Quest losses (54-14)", () => {
   it("failed Quest taking an L2 Mosje to 0 -> L1 at 50", () => {
@@ -184,12 +185,12 @@ describe("ability / Quest losses (54-14)", () => {
     const st = forceQuestResult(build(2, 30), "player_1", { questId: "quest_arm_wrestling", win: false });
     expect([slotOf(st).level, slotOf(st).mp]).toEqual([1, 50]);
   });
-  it("2.0: Coert Extra Resources spends no MP (1 Energy is charged by useMosjeAbility) — L2 at 10 stays L2 at 10", () => {
-    const st = ability_coert_extra_resources(build(2, 10), "player_1");
+  it("2.0: Coert Extra Resources spends no MP (Energy only, at the draw step) — L2 at 10 stays L2 at 10", () => {
+    const st = coertDraw(build(2, 10));
     expect([slotOf(st).level, slotOf(st).mp, slotOf(st).sideways ?? false]).toEqual([2, 10, false]);
   });
   it("2.0: Coert Extra Resources at Level 1 / 0 MP causes no loss and no getemt", () => {
-    const st = ability_coert_extra_resources(build(1, 0), "player_1");
+    const st = coertDraw(build(1, 0));
     expect([slotOf(st).level, slotOf(st).mp, slotOf(st).sideways ?? false]).toEqual([1, 0, false]);
   });
 });

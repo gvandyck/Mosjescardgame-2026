@@ -247,9 +247,6 @@ export function startTurn(gameState) {
     if (s && typeof s.strategicInsightCooldown === 'number' && s.strategicInsightCooldown > 0) {
       s.strategicInsightCooldown -= 1;
     }
-    if (s && typeof s.systemHackCooldown === 'number' && s.systemHackCooldown > 0) {
-      s.systemHackCooldown -= 1;
-    }
   }
   // a lock expires when the player who set it begins their next turn
   for (const pid of Object.keys(state.players)) {

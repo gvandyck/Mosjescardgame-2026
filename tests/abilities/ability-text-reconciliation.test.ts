@@ -13,7 +13,7 @@ import { forceQuestResult } from "../helpers/forceQuestResult.js";
 // @ts-expect-error — JS module, no type declarations
 import { ability_chris_ddr_perfect_combo_chain } from "../../src/abilities/mosjeAbilities.js";
 // @ts-expect-error — JS module, no type declarations
-import { activatePiecie } from "../../src/engine/turnManager.js";
+import { activatePiecie, useMosjeAbility } from "../../src/engine/turnManager.js";
 // @ts-expect-error — JS module, no type declarations
 import { MOSJES } from "../../src/data/mosjes.js";
 
@@ -347,35 +347,35 @@ describe("Chris All-Rounder — Perfect Setup", () => {
     expect(() => ability_chris_perfect_setup(state, "player_1")).toThrow();
   });
 
-  it("unlocks the chosen slot (via _pendingTargets) for same-turn activation, leaving others untouched", () => {
-    const state = makeChrisState([
-      makeFaceDownPiecieSlot("piecie_a"),
-      makeFaceDownPiecieSlot("piecie_b"),
-      makeFaceDownPiecieSlot("piecie_c"),
-      null,
-    ]);
-    state._pendingTargets = { chrisPerfectSetupSlotIndex: 2 };
+  it("activates the chosen face-down Piecie for free (no Energy, even placed this turn) and Chris gains 15 MP", () => {
+    const placedNow = (cardId: string) => ({ ...makeFaceDownPiecieSlot(cardId), playedOnTurn: 5, canActivateOnTurn: 6 });
+    const state = makeChrisState([placedNow("piecie_broodje_doner"), placedNow("piecie_te_hard_gaan"), placedNow("piecie_kannetje_melk")]);
+    state._pendingTargets = { piecie_slot: 1 };
 
-    const next = ability_chris_perfect_setup(state, "player_1");
+    const res = useMosjeAbility(state, "player_1", "mosje_chris");
 
-    expect(next.players.player_1.piecieSlots[2].canActivateOnTurn).toBe(5);
-    expect(next.players.player_1.piecieSlots[0].canActivateOnTurn).toBeUndefined();
-    expect(next.players.player_1.piecieSlots[1].canActivateOnTurn).toBeUndefined();
-    // no MP gain — the old 15 MP bonus was dropped
-    expect(next.players.player_1.activeSlots[0].mp).toBe(50);
+    expect(res.success).toBe(true);
+    expect(res.state.players.player_1.activeSlots[0].mp).toBe(65); // 50 + 15
+    expect(res.state.players.player_1.energy).toBe(6); // free: nothing paid
+    expect(res.state.players.player_1.piecieSlots[1]?.cardId).not.toBe("piecie_te_hard_gaan");
+    expect(res.state.players.player_1.piecieSlots[0]?.cardId).toBe("piecie_broodje_doner"); // others untouched
   });
 
-  it("falls back to the first qualifying slot when no valid selection is given (bot-safe)", () => {
-    const state = makeChrisState([
-      makeFaceDownPiecieSlot("piecie_a"),
-      makeFaceDownPiecieSlot("piecie_b"),
-      makeFaceDownPiecieSlot("piecie_c"),
-      null,
-    ]);
+  it("falls back to the first slot when no selection is given (bot-safe)", () => {
+    const state = makeChrisState([makeFaceDownPiecieSlot("piecie_broodje_doner"), makeFaceDownPiecieSlot("piecie_te_hard_gaan"), makeFaceDownPiecieSlot("piecie_kannetje_melk")]);
+    const res = useMosjeAbility(state, "player_1", "mosje_chris");
+    expect(res.success).toBe(true);
+    expect(res.state.players.player_1.piecieSlots[0]?.cardId).not.toBe("piecie_broodje_doner");
+  });
 
-    const next = ability_chris_perfect_setup(state, "player_1");
-
-    expect(next.players.player_1.piecieSlots[0].canActivateOnTurn).toBe(5);
+  it("is refused (nothing spent, no MP) with only 2 face-down Piecies, and works once per turn", () => {
+    const two = makeChrisState([makeFaceDownPiecieSlot("piecie_broodje_doner"), makeFaceDownPiecieSlot("piecie_te_hard_gaan"), null]);
+    const r = useMosjeAbility(two, "player_1", "mosje_chris");
+    expect(r.success).toBe(false);
+    expect(two.players.player_1.activeSlots[0].mp).toBe(50);
+    const three = makeChrisState([makeFaceDownPiecieSlot("piecie_broodje_doner"), makeFaceDownPiecieSlot("piecie_te_hard_gaan"), makeFaceDownPiecieSlot("piecie_kannetje_melk")]);
+    const once = useMosjeAbility(three, "player_1", "mosje_chris");
+    expect(useMosjeAbility(once.state, "player_1", "mosje_chris").success).toBe(false);
   });
 
   it("throws when Chris All-Rounder is not on field", () => {

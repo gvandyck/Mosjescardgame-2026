@@ -3,19 +3,23 @@ import { aznClessRiskReward } from '../../abilities/mosje/aznClessRiskReward.js'
 import { alyssaFissaPartyPower } from '../../abilities/mosje/alyssaFissaPartyPower.js';
 import { michelleToughGamble } from '../../abilities/mosje/michelleToughGamble.js';
 import { parkourWestFlowQuest } from '../../abilities/mosje/parkourWestFlowQuest.js';
+import { coertTechExtraResources } from '../../abilities/mosje/coertTechExtraResources.js';
+import { fpsCoertHeadshot } from '../../abilities/mosje/fpsCoertHeadshot.js';
+import { fpsWestTacticalAnalysis } from '../../abilities/mosje/fpsWestTacticalAnalysis.js';
+import { drainerContinuousDrain } from '../../abilities/mosje/drainerContinuousDrain.js';
 // MOSJE_TRIGGERS — push-only registry of 2.0 Mosje trigger hooks (like ATTACK_TRIGGERS).
 // Entry: { mosjeId, run(state, ctx), available?(state, playerId) } (see runMosjeTriggers).
 // startOfTurn/endOfTurn/questSuccess/piecieActivated/placeDestroyed/cardPlayedFromHand return state
 // (or { needChoice }); questWinAmount returns the running number; oppStartOfTurn runs for the
-// NON-active player's field; drawStep entries use available() to offer a draw-step option.
+// NON-active player's field; an entry with onOpponent:true runs for the player(s) who did NOT act (FPS West); drawStep entries use available() to offer a draw-step option.
 export const MOSJE_TRIGGERS = {
 	startOfTurn: [gandoeWizardChaosRoll],
-	oppStartOfTurn: [],
-	endOfTurn: [aznClessRiskReward],
+	oppStartOfTurn: [drainerContinuousDrain],
+	endOfTurn: [aznClessRiskReward, fpsWestTacticalAnalysis],
 	questWinAmount: [michelleToughGamble],
-	questSuccess: [parkourWestFlowQuest],
+	questSuccess: [parkourWestFlowQuest, fpsCoertHeadshot],
 	piecieActivated: [],
 	placeDestroyed: [alyssaFissaPartyPower],
-	cardPlayedFromHand: [],
-	drawStep: [],
+	cardPlayedFromHand: [fpsWestTacticalAnalysis],
+	drawStep: [coertTechExtraResources],
 };

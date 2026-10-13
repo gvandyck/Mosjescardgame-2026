@@ -1,129 +1,92 @@
 import { describe, expect, it } from "vitest";
 // @ts-expect-error — JS module, no type declarations
-import { ability_fps_west_tactical_analysis } from "../../src/abilities/mosjeAbilities.js";
+import { useMosjeAbility } from "../../src/engine/turnManager.js";
+// @ts-expect-error — JS module, no type declarations
+import { runMosjeTriggers } from "../../src/engine/mosje/runMosjeTriggers.js";
 // @ts-expect-error — JS module, no type declarations
 import { MOSJES } from "../../src/data/mosjes.js";
+// @ts-expect-error — JS module, no type declarations
+import { makeEngineState } from "../helpers/makeEngineState.js";
 
 // ─────────────────────────────────────────────────────────────
-// Phase 19 Plan 01 — FPS West "Tactical Analysis" reworked into a
-// card-type guessing game against the opponent's hand.
-//   Correct guess (_pendingTargets.fpsWestGuessCorrect === true):  +70 MP
-//   Wrong guess   (_pendingTargets.fpsWestGuessCorrect === false): -20 MP
-// The ±MP MUST route through gainMP/loseMP (visible + logged).
-// The old behavior (draw 1 card + set opponentHandPeeked) is dropped.
-//
-// NOTE on MP values: gainMP runs checkLevelUp (level-up at mp >= 100). To keep
-// the assertions about the +70 / -20 delta unambiguous, FPS West starts at
-// mp = 25 so neither branch crosses a level-up (100) or clamp (0) boundary:
-//   correct: 25 + 70 = 95   (no level-up)
-//   wrong:   25 - 20 =  5   (no clamp)
-// (The plan's <action> illustrated 120/30 from a mp=50 start, but that start
-//  triggers a level-up via gainMP — 50+70=120 → level up → mp 20. Using mp=25
-//  tests the same +70/-20 contract without the level-up edge.)
+// FPS West "Tactical Analysis" (Card List 2.0): once per turn, pay 1 Energy, look at the opponent's
+// hand and name the card type they will play next (Mosje / Piecie / Snelle / Place).
+// Settled by the opponent's next card played from hand: correct +20 MP, wrong -10 MP.
 // ─────────────────────────────────────────────────────────────
 
-function makeSlot(cardId: string, mp = 25, level = 1) {
-  return {
-    cardId,
-    name: cardId,
-    mp,
-    level,
-    isDefeated: false,
-    traits: {},
-    statusEffects: [],
-    abilityUsedThisTurn: false,
-  };
-}
+const west = (extra: any = {}) => ({ cardId: "mosje_fps_west", name: "FPS West", mp: 25, level: 1, isDefeated: false, traits: {}, statusEffects: [], abilityUsedThisTurn: false, ...extra });
+const foe = () => ({ cardId: "mosje_x", name: "X", mp: 40, level: 1, isDefeated: false, traits: {}, statusEffects: [] });
 
-function makePlayer(slotCardId: string, mp = 25, hand: any[] = []) {
-  return {
-    hand,
-    deck: [] as any[],
-    discard: [] as any[],
-    activeSlots: [makeSlot(slotCardId, mp), null],
-    piecieSlots: [null, null, null, null],
-    questsCompleted: 0,
-    questsCompletedThisTurn: 0,
-    questsAttemptedThisTurn: 0,
-    hasAttemptedQuestThisTurn: false,
-    pieciesPlayedThisTurn: 0,
-  };
-}
-
-function makeState(fpsWestMP = 25) {
-  return {
-    activePlayerId: "player_1",
+function guessState(card_type: string | undefined, energy = 3) {
+  const s: any = makeEngineState({
     turnNumber: 3,
-    players: {
-      player_1: makePlayer("mosje_fps_west", fpsWestMP, [
-        { cardId: "piecie_kannetje_melk" },
-      ]),
-      player_2: makePlayer("mosje_opponent", 100, [
-        { cardId: "piecie_kannetje_melk" },
-      ]),
-    },
-  } as any;
+    players: { player_1: { energy, activeSlots: [west(), null] }, player_2: { activeSlots: [foe(), null] } },
+  });
+  if (card_type) s._pendingTargets = { card_type };
+  return s;
 }
+const mine = (s: any) => s.players.player_1.activeSlots[0];
 
-describe("FPS West Tactical Analysis — correct guess rewards +70 MP", () => {
-  it("gives FPS West's own slot +70 MP when fpsWestGuessCorrect is true", () => {
-    const state = makeState(25);
-    state._pendingTargets = { fpsWestGuessCorrect: true };
-
-    const next = ability_fps_west_tactical_analysis(state, "player_1");
-
-    // 25 + 70 = 95 (no level-up)
-    expect(next.players.player_1.activeSlots[0].mp).toBe(95);
-    expect(next.players.player_1.activeSlots[0].level).toBe(1);
-    // flag consumed so it cannot be re-read
-    expect(next._pendingTargets?.fpsWestGuessCorrect).toBeUndefined();
+describe("FPS West Tactical Analysis (activated half)", () => {
+  it("pays 1 Energy, stores the guess on FPS West and shows the opponent's hand to the acting player only", () => {
+    const res = useMosjeAbility(guessState("PIECIE"), "player_1", "mosje_fps_west");
+    expect(res.success).toBe(true);
+    expect(res.state.players.player_1.energy).toBe(2);
+    expect(mine(res.state).fpsWestGuess).toBe("PIECIE");
+    expect(res.state.revealedHandTo).toEqual({ viewerId: "player_1", turnNumber: 3 });
+    expect(mine(res.state).mp).toBe(25);
+  });
+  it("is refused with 0 Energy and without a valid type", () => {
+    expect(useMosjeAbility(guessState("PIECIE", 0), "player_1", "mosje_fps_west").error).toBe("Not enough Energy");
+    expect(useMosjeAbility(guessState(undefined), "player_1", "mosje_fps_west").success).toBe(false);
+    expect(useMosjeAbility(guessState("QUEST"), "player_1", "mosje_fps_west").success).toBe(false);
+  });
+  it("once per turn", () => {
+    const res = useMosjeAbility(guessState("MOSJE"), "player_1", "mosje_fps_west");
+    expect(useMosjeAbility(res.state, "player_1", "mosje_fps_west").error).toBe("Ability already used this turn");
   });
 });
 
-describe("FPS West Tactical Analysis — wrong guess penalises -20 MP", () => {
-  it("removes 20 MP from FPS West's own slot when fpsWestGuessCorrect is false", () => {
-    const state = makeState(25);
-    state._pendingTargets = { fpsWestGuessCorrect: false };
+describe("FPS West Tactical Analysis (settling half)", () => {
+  const guessed = (type: string) => useMosjeAbility(guessState(type), "player_1", "mosje_fps_west").state;
+  const played = (s: any, cardType: string) => runMosjeTriggers(s, "cardPlayedFromHand", { playerId: "player_2", cardType });
 
-    const next = ability_fps_west_tactical_analysis(state, "player_1");
-
-    // 25 - 20 = 5
-    expect(next.players.player_1.activeSlots[0].mp).toBe(5);
-    expect(next.players.player_1.activeSlots[0].level).toBe(1);
-    expect(next._pendingTargets?.fpsWestGuessCorrect).toBeUndefined();
+  it.each([["MOSJE", "MOSJE"], ["PIECIE", "PIECIE"], ["SNELLE", "SNELLE_PIECIE"], ["PLACE", "PLACE"]])("guess %s correct when the opponent plays %s: +20", (guess, played_) => {
+    expect(mine(played(guessed(guess), played_)).mp).toBe(45);
   });
-});
-
-describe("FPS West Tactical Analysis — dead flags removed", () => {
-  it("does NOT draw a card (hand length unchanged) and does NOT set opponentHandPeeked", () => {
-    const state = makeState(25);
-    state._pendingTargets = { fpsWestGuessCorrect: true };
-    const handBefore = state.players.player_1.hand.length;
-
-    const next = ability_fps_west_tactical_analysis(state, "player_1");
-
-    expect(next.players.player_1.hand.length).toBe(handBefore);
-    expect(next.players.player_1.opponentHandPeeked).not.toBe(true);
+  it("wrong guess: -10, and the guess resolves only once", () => {
+    const once = played(guessed("PIECIE"), "SNELLE_PIECIE");
+    expect(mine(once).mp).toBe(15);
+    expect(mine(once).fpsWestGuess).toBeUndefined();
+    expect(mine(played(once, "PIECIE")).mp).toBe(15);
   });
-});
-
-describe("FPS West Tactical Analysis — requires a guess", () => {
-  it("throws when no fpsWestGuessCorrect is provided", () => {
-    const state = makeState(25);
-    state._pendingTargets = {};
-
-    expect(() => ability_fps_west_tactical_analysis(state, "player_1")).toThrow();
+  it("the owner's own plays do not settle it", () => {
+    const s = guessed("PIECIE");
+    expect(mine(runMosjeTriggers(s, "cardPlayedFromHand", { playerId: "player_1", cardType: "PIECIE" })).fpsWestGuess).toBe("PIECIE");
+  });
+  it("no card played by the end of the opponent's turn counts as wrong (-10)", () => {
+    const s = runMosjeTriggers(guessed("PIECIE"), "endOfTurn", { playerId: "player_2" });
+    expect(mine(s).mp).toBe(15);
+    expect(mine(s).fpsWestGuess).toBeUndefined();
+  });
+  it("the owner's own end of turn does not expire the guess", () => {
+    expect(mine(runMosjeTriggers(guessed("PIECIE"), "endOfTurn", { playerId: "player_1" })).fpsWestGuess).toBe("PIECIE");
+  });
+  it("a sideways FPS West settles nothing", () => {
+    const s = guessed("PIECIE");
+    mine(s).sideways = true;
+    expect(mine(played(s, "SNELLE_PIECIE")).mp).toBe(25);
   });
 });
 
 describe("FPS West ability description — guessing game text", () => {
   it("uses the Card List 2.0 Tactical Analysis text (name the card type; correct +20, wrong -10) and drops the legacy wording", () => {
-    const west = MOSJES.find((m: any) => m.id === "mosje_fps_west");
-    expect(west).toBeTruthy();
-    expect(west.abilityDescription).toContain("Tactical Analysis");
-    expect(west.abilityDescription).toContain("name the card type");
-    expect(west.abilityDescription).toContain("Correct: gain 20 MP");
-    expect(west.abilityDescription).not.toContain("predict");
-    expect(west.abilityDescription).not.toContain("Pay 10 MP");
+    const w = MOSJES.find((m: any) => m.id === "mosje_fps_west");
+    expect(w).toBeTruthy();
+    expect(w.abilityDescription).toContain("Tactical Analysis");
+    expect(w.abilityDescription).toContain("name the card type");
+    expect(w.abilityDescription).toContain("Correct: gain 20 MP");
+    expect(w.abilityDescription).not.toContain("predict");
+    expect(w.abilityDescription).not.toContain("Pay 10 MP");
   });
 });

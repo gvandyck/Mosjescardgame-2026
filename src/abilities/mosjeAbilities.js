@@ -12,6 +12,9 @@ import { finishPiecieActivation } from '../engine/table/finishPiecieActivation.j
 import { applyGainToSlot } from '../engine/mp/applyGainToSlot.js';
 import { applyMpLossToSlot } from '../engine/mp/applyMpLossToSlot.js';
 import { isFresh } from '../engine/fresh/isFresh.js';
+import { hackerSystemHack } from './mosje/hackerSystemHack.js';
+import { chrisPerfectSetup } from './mosje/chrisPerfectSetup.js';
+import { fpsWestGuess } from './mosje/fpsWestGuess.js';
 import { resolveOppTargetSlot } from '../engine/targets/resolveOppTargetSlot.js';
 
 console.log('[ABILITY] mosjeAbilities.js loaded');
@@ -117,23 +120,10 @@ export function ability_binti_cutting_words(gameState, playerId, discardedCardId
 	return finalState;
 }
 
-// Coert active: draw 1 card. Cost is 1 Energy, charged by useMosjeAbility (abilityEnergyCosts.js); MP is never spent (2.0).
-export function ability_coert_extra_resources(gameState, playerId, sourceMosjeId = null) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) throw new Error('Player not found');
-
-	const slotIndex = getActiveSlotIndexForMosje(player, sourceMosjeId);
-	if (slotIndex < 0) throw new Error('No active Mosje for Coert ability');
-
-	const mosje = player.activeSlots[slotIndex];
-
-	const { drawn, remaining } = drawCards(player.deck, 1);
-	player.deck = remaining;
-	if (drawn.length > 0) player.hand.push(drawn[0]);
-
-	console.log('[ABILITY] Coert Extra Resources resolved');
-	return state;
+// Coert Tech — Extra Resources is a draw-step option (abilities/mosje/coertTechExtraResources.js, finishDrawStep);
+// there is no Activate button. Kept so a stray useMosjeAbility call is refused instead of crashing.
+export function ability_coert_extra_resources() {
+	throw new Error('Extra Resources is used during your draw step');
 }
 
 // ────────────────────────────────────────────────────────────────────────────────
@@ -383,28 +373,13 @@ export function ability_west_calculated_guess(gameState, playerId, mosjeId) {
 	return ability_martin_senor_west_calculated_guess(gameState, playerId, mosjeId);
 }
 
-// Coert Tech — alias of coert_extra_resources: draw 1 card (1 Energy via abilityEnergyCosts.js).
-export function ability_coert_tech_extra_resources(gameState, playerId, sourceMosjeId = null) {
-	return ability_coert_extra_resources(gameState, playerId, sourceMosjeId);
+export function ability_coert_tech_extra_resources() {
+	return ability_coert_extra_resources();
 }
 
-// Hacker — System Hack: gain 10 MP and draw 1 card. Once every 5 turns
-// (slot.systemHackCooldown, ticked down at startTurn like Ronald Chef's cooldown).
-export function ability_hacker_system_hack(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) throw new Error('Player not found');
-	const si = player.activeSlots.findIndex(s => s && !s.isDefeated && String(s.cardId).includes('hacker'));
-	if (si < 0) throw new Error('Hacker not on field');
-	const slot = player.activeSlots[si];
-	if ((slot.systemHackCooldown || 0) > 0) {
-		throw new Error(`System Hack is on cooldown (${slot.systemHackCooldown} turn(s) left)`);
-	}
-	applyGain(state, slot, 10);
-	if (player.deck.length > 0) player.hand.push(player.deck.shift());
-	slot.systemHackCooldown = 5;
-	console.log('[ABILITY] Hacker System Hack: +10 MP, drew 1 card, cooldown 5');
-	return state;
+// Hacker — System Hack: see abilities/mosje/hackerSystemHack.js (1 Energy via abilityEnergyCosts.js).
+export function ability_hacker_system_hack(gameState, playerId, mosjeId) {
+	return hackerSystemHack(gameState, playerId, mosjeId);
 }
 
 // Jeffrey Gambler — High Stakes: roll 1d6. 1-5 → QUEST_BLOCKED this turn (no Quest
@@ -427,34 +402,9 @@ export function ability_jeffrey_gambler_high_stakes(gameState, playerId, mosjeId
 	return state;
 }
 
-// Chris All-Rounder — Perfect Setup: if you have 3+ face-down Piecies on the field,
-// pick one and unlock it for free same-turn activation (once per turn — enforced
-// generically by useMosjeAbility's abilityUsedThisTurn gate, same as Ronald/Tuk).
-// No MP gain (ruled "free activation is strong enough"). Mirrors Youri Speed
-// Activate's two-step mechanism: this sets canActivateOnTurn on the chosen slot;
-// the UI then calls the shared activatePiecie() to actually flip and resolve it.
-// The chosen slot comes from _pendingTargets.chrisPerfectSetupSlotIndex; falls back
-// to the first qualifying slot when no valid selection is given (bot-safe).
-export function ability_chris_perfect_setup(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) throw new Error('Player not found');
-	const selfIndex = player.activeSlots.findIndex(s => s && !s.isDefeated && s.cardId === 'mosje_chris');
-	if (selfIndex < 0) throw new Error('Chris All-Rounder not on field');
-	const faceDownIndices = player.piecieSlots
-		.map((s, i) => (s && s.type === 'PIECIE' && s.faceDown && !s.activated) ? i : -1)
-		.filter(i => i >= 0);
-	if (faceDownIndices.length < 3) {
-		throw new Error('Perfect Setup requires 3+ face-down Piecies on the field');
-	}
-	const selected = state._pendingTargets?.chrisPerfectSetupSlotIndex;
-	const slotIndex = (Number.isInteger(selected) && faceDownIndices.includes(selected))
-		? selected
-		: faceDownIndices[0];
-	if (state._pendingTargets) delete state._pendingTargets.chrisPerfectSetupSlotIndex;
-	player.piecieSlots[slotIndex].canActivateOnTurn = state.turnNumber;
-	console.log('[ABILITY] Chris Perfect Setup: unlocked face-down Piecie at slot', slotIndex, 'for free activation');
-	return state;
+// Chris All-Rounder — Perfect Setup: see abilities/mosje/chrisPerfectSetup.js (free activation + 15 MP).
+export function ability_chris_perfect_setup(gameState, playerId, mosjeId) {
+	return chrisPerfectSetup(gameState, playerId, mosjeId);
 }
 
 // Youri Speedrunner — pay 1 Energy → activate a face-down Piecie on field → draw 1 card (max 3/game).
@@ -519,51 +469,18 @@ export function ability_tactician_mp_manipulation(gameState, playerId) {
 	return state;
 }
 
-// Drainer — add continuous drain status: opponent loses 5 MP per turn for 3 turns.
-export function ability_drainer_continuous_drain(gameState, playerId) {
-	const state = cloneState(gameState);
-	const oppId = getOpponentId(state, playerId);
-	if (!oppId) return state;
-	const opp = state.players[oppId];
-	const osi = resolveOppTargetSlot(state, oppId);
-	if (osi < 0) return state;
-	// U8 — Entry Protection: whole ability fizzles (unusable, no cost) when the
-	// auto-target just entered play. The throw is caught by useMosjeAbility.
-	if (isFresh(opp.activeSlots[osi])) {
-		throw new Error('Opponent Mosje just entered play — it is protected until their next turn');
-	}
-	opp.activeSlots[osi].statusEffects.push({ type: 'DRAIN', value: -5, turnsLeft: 3 });
-	console.log('[ABILITY] Drainer: -5 MP/turn for 3 turns applied to opponent');
-	return state;
+// Drainer (start of each opponent turn) and FPS Coert (Quest win) are registered Mosje triggers
+// (abilities/mosje/drainerContinuousDrain.js, fpsCoertHeadshot.js); no manual activation.
+export function ability_drainer_continuous_drain(gameState) {
+	return gameState;
 }
-
-// FPS Coert — Headshot Precision is now an auto-trigger after Physical/Technical
-// Quest successes (2026-07-13 reconciliation): the real roll + MP effects live in
-// applyMosjeFieldEffectsOnQuest (questLogic.js), the same hook Michelle/Jeffrey use.
-// This manual entry is a no-op kept so useMosjeAbility does not crash if called
-// (mirrors ability_jeffrey_brute_force).
-export function ability_fps_coert_headshot_precision(gameState, _playerId) {
-	console.log('[ABILITY] FPS Coert Headshot Precision: passive auto-ability — no manual activation needed');
+export function ability_fps_coert_headshot_precision(gameState) {
 	return gameState;
 }
 
-// FPS West — Tactical Analysis: guess a card type in the opponent's hand.
-// The UI (main.js) runs the pick/guess/reveal flow and passes the outcome via
-// _pendingTargets.fpsWestGuessCorrect. Correct: +70 MP. Wrong: -20 MP.
-export function ability_fps_west_tactical_analysis(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) throw new Error('Player not found');
-	const slotIndex = player.activeSlots.findIndex(s => s && !s.isDefeated && String(s.cardId).includes('fps_west'));
-	if (slotIndex < 0) throw new Error('FPS West not on field');
-	const correct = state._pendingTargets?.fpsWestGuessCorrect;
-	if (correct === undefined) throw new Error('Tactical Analysis requires a guess');
-	let next = correct === true
-		? gainMP(state, playerId, slotIndex, 70, 'FPS_WEST_GUESS')
-		: loseMP(state, playerId, slotIndex, 20, 'FPS_WEST_GUESS');
-	if (next._pendingTargets) delete next._pendingTargets.fpsWestGuessCorrect;
-	console.log('[ABILITY] FPS West Tactical Analysis:', correct ? '+70 MP (correct)' : '-20 MP (wrong)');
-	return next;
+// FPS West — Tactical Analysis: see abilities/mosje/fpsWestGuess.js (1 Energy via abilityEnergyCosts.js).
+export function ability_fps_west_tactical_analysis(gameState, playerId, mosjeId) {
+	return fpsWestGuess(gameState, playerId, mosjeId);
 }
 
 // ARTISTIC MOSJES
