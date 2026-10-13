@@ -78,7 +78,9 @@ const QUEST_LOOKUP = Object.fromEntries(QUESTS.map(card => [card.id, card]));
 // are intentionally NOT listed here. Only un-repeatable abilities below.
 const NO_DOUBLE_ABILITIES = new Set([
   'ability_gandoe_destroyer_elimination_strike',  // once per game
-  'ability_ronald_mastermind_master_plan',        // once per game + discard target
+  'ability_ronald_mastermind_master_plan',        // once per turn + discard target
+  'ability_jeffrey_gambler_high_stakes',          // once per turn + stake
+  'ability_youri_speed_activate',                 // once per turn + placed-this-turn target
   'ability_ronald_chef_strategic_insight',        // cooldown + target
   'ability_ming_predictor_future_sight',          // once per turn + quest target
   'ability_binti_cutting_words',                  // once per turn + discard target
@@ -112,9 +114,6 @@ const REPROMPT_DOUBLE_ABILITIES = new Set([
   'ability_west_calculated_guess',                // alias of the above
   'ability_fps_west_tactical_analysis',           // opponent-hand card-type guess
   'ability_tuk_architect_perfect_placement',      // 15 MP + top-5 selection
-  'ability_youri_speed_activate',                 // 20 MP + face-down target; 3/game cap
-                                                  // is enforced inside the fn, so the
-                                                  // second cast is denied once exhausted.
   'ability_jisca_perfect_combo',                  // fresh d6 roll + Piecie target (when 5-6 rolled)
   'ability_binti_creator_quick_sketch',           // discard 2 FOOD + deck-search tutor
 ]);

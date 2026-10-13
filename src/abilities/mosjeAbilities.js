@@ -3,12 +3,8 @@
 // Filled in Phase 4.
 
 import { getMingPeekStack } from './getMingPeekStack.js';
-import { drawCards, rollDie } from '../engine/deckEngine.js';
 import { gainMP, loseMP } from '../engine/mpManager.js';
 import { markMosjeDefeated } from '../engine/victoryChecker.js';
-import * as piecieEffects from './piecieEffects.js';
-import { PIECIES } from '../data/piecies.js';
-import { finishPiecieActivation } from '../engine/table/finishPiecieActivation.js';
 import { applyGainToSlot } from '../engine/mp/applyGainToSlot.js';
 import { applyMpLossToSlot } from '../engine/mp/applyMpLossToSlot.js';
 import { isFresh } from '../engine/fresh/isFresh.js';
@@ -18,6 +14,11 @@ import { fpsWestGuess } from './mosje/fpsWestGuess.js';
 import { tacticianMpManipulation } from './mosje/tacticianMpManipulation.js';
 import { gandoeDestroyerEliminationStrike } from './mosje/gandoeDestroyerEliminationStrike.js';
 import { martinDriverPitStop } from './mosje/martinDriverPitStop.js';
+import { mingNaturalLuckyDraw } from './mosje/mingNaturalLuckyDraw.js';
+import { mingPredictorFutureSight } from './mosje/mingPredictorFutureSight.js';
+import { jeffreyGamblerHighStakes } from './mosje/jeffreyGamblerHighStakes.js';
+import { youriSpeedActivate } from './mosje/youriSpeedActivate.js';
+import { ronaldMastermindMasterPlan } from './mosje/ronaldMastermindMasterPlan.js';
 import { tukHealingHands } from './mosje/tukHealingHands.js';
 import { bintiCuttingWords } from './mosje/bintiCuttingWords.js';
 
@@ -152,72 +153,14 @@ export function ability_ronald_chef_strategic_insight(gameState, playerId) {
 	return next;
 }
 
-// Ming Natural — Lucky Draw: draw 1 card and reveal it. The UI reveals the card
-// before calling this (peeking at the deck top is safe — it's about to be drawn
-// anyway) and, if it's a Piecie, asks the player to free-activate now or keep it
-// in hand, passing the choice via _pendingTargets.mingNaturalFreeActivate. If it's
-// not a Piecie, it's added to hand and this Mosje gains 15 MP.
-export function ability_ming_natural_lucky_draw(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) throw new Error('Player not found');
-	const slotIndex = player.activeSlots.findIndex(s => s && !s.isDefeated && String(s.cardId).includes('ming_natural'));
-	if (slotIndex < 0) throw new Error('Ming Natural not on field');
-	if (player.deck.length === 0) {
-		console.log('[ABILITY] Ming Natural: deck empty, nothing to draw');
-		return state;
-	}
-	const drawnCard = player.deck.shift();
-	const def = PIECIES.find(p => p.id === drawnCard.cardId);
-	if (def) {
-		const freeActivate = state._pendingTargets?.mingNaturalFreeActivate === true;
-		if (state._pendingTargets) delete state._pendingTargets.mingNaturalFreeActivate;
-		if (freeActivate && typeof piecieEffects[def.effectId] === 'function') {
-			let next = piecieEffects[def.effectId](state, playerId);
-			const np = next.players[playerId];
-			if (def.stays) {
-				const empty = np.piecieSlots.findIndex(s => s === null);
-				if (empty >= 0) {
-					np.piecieSlots[empty] = { cardId: drawnCard.cardId, type: 'PIECIE', faceDown: false, activated: true, playedOnTurn: next.turnNumber };
-					next = finishPiecieActivation(next, playerId, empty, def);
-				} else np.graveyard.push({ cardId: drawnCard.cardId, type: 'PIECIE' });
-			} else {
-				np.graveyard.push({ cardId: drawnCard.cardId, type: 'PIECIE' });
-			}
-			console.log('[ABILITY] Ming Natural: drew', drawnCard.cardId, 'and free-activated it');
-			return next;
-		}
-		player.hand.push(drawnCard);
-		console.log('[ABILITY] Ming Natural: drew', drawnCard.cardId, 'and kept it in hand');
-		return state;
-	}
-	player.hand.push(drawnCard);
-	const next = gainMP(state, playerId, slotIndex, 15, 'MING_NATURAL_DRAW');
-	console.log('[ABILITY] Ming Natural: drew', drawnCard.cardId, '(not a Piecie), +15 MP');
-	return next;
+// Ming Natural — Lucky Draw: see abilities/mosje/mingNaturalLuckyDraw.js (free activation or hand, else draw + 15 MP).
+export function ability_ming_natural_lucky_draw(gameState, playerId, mosjeId) {
+	return mingNaturalLuckyDraw(gameState, playerId, mosjeId);
 }
 
-// Ming Predictor — Future Sight: pay 10 MP, look at the top shared General Quest
-// card and optionally move it to the bottom (decision comes from the UI via
-// _pendingTargets.mingSendToBottom). Once per turn (abilityUsedThisTurn handles that).
-export function ability_ming_predictor_future_sight(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) throw new Error('Player not found');
-	const slotIndex = player.activeSlots.findIndex(s => s && !s.isDefeated && String(s.cardId).includes('ming'));
-	if (slotIndex < 0) throw new Error('Ming not on field');
-	// 2.0: no MP cost. The optional 1 Energy (put on bottom) is paid inside the effect — Phase 58 (ABILITY_IN_EFFECT_ENERGY).
-	const stackId = getMingPeekStack(state, state._pendingTargets?.mingStackId);
-	if (!stackId) { console.log('[ABILITY] Ming: all Quest stacks empty'); return state; }
-	const deck = state.questStacks[stackId].deck;
-	// Move-to-bottom decision comes from _pendingTargets.mingSendToBottom (set by UI)
-	if (state._pendingTargets?.mingSendToBottom === true) {
-		const [top] = deck.splice(0, 1);
-		deck.push(top);
-		console.log('[ABILITY] Ming Future Sight: top quest sent to bottom');
-	}
-	if (state._pendingTargets) delete state._pendingTargets.mingSendToBottom;
-	return state;
+// Ming Predictor — Future Sight: see abilities/mosje/mingPredictorFutureSight.js (1 Energy paid inside the effect).
+export function ability_ming_predictor_future_sight(gameState, playerId, mosjeId) {
+	return mingPredictorFutureSight(gameState, playerId, mosjeId);
 }
 
 // Martin Historian — retrieve top card from own discard pile to hand.
@@ -283,24 +226,9 @@ export function ability_hacker_system_hack(gameState, playerId, mosjeId) {
 	return hackerSystemHack(gameState, playerId, mosjeId);
 }
 
-// Jeffrey Gambler — High Stakes: roll 1d6. 1-5 → QUEST_BLOCKED this turn (no Quest
-// attempts). 6 → +3 Quest roll bonus (questPrepBonus). No MP cost, no MP gain/loss
-// either way (old wager mechanic dropped — ruled "too OP").
-export function ability_jeffrey_gambler_high_stakes(gameState, playerId, mosjeId = null) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = getActiveSlotIndexForMosje(player, mosjeId);
-	if (si < 0) return state;
-	const roll = rollDie(6);
-	if (roll === 6) {
-		player.questPrepBonus = (player.questPrepBonus || 0) + 3;
-		console.log(`[ABILITY] Jeffrey Gambler: rolled ${roll} (jackpot) → +3 Quest roll bonus`);
-	} else {
-		player.activeSlots[si].statusEffects.push({ type: 'QUEST_BLOCKED', value: 0, turnsLeft: 1 });
-		console.log(`[ABILITY] Jeffrey Gambler: rolled ${roll} → QUEST_BLOCKED this turn`);
-	}
-	return state;
+// Jeffrey Gambler — High Stakes: see abilities/mosje/jeffreyGamblerHighStakes.js (stake paid inside the effect).
+export function ability_jeffrey_gambler_high_stakes(gameState, playerId, mosjeId) {
+	return jeffreyGamblerHighStakes(gameState, playerId, mosjeId);
 }
 
 // Chris All-Rounder — Perfect Setup: see abilities/mosje/chrisPerfectSetup.js (free activation + 15 MP).
@@ -308,48 +236,9 @@ export function ability_chris_perfect_setup(gameState, playerId, mosjeId) {
 	return chrisPerfectSetup(gameState, playerId, mosjeId);
 }
 
-// Youri Speedrunner — pay 1 Energy → activate a face-down Piecie on field → draw 1 card (max 3/game).
-export function ability_youri_speed_activate(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return { state, success: false, error: 'Player not found' };
-
-	// Use-cap check
-	if ((player.youriAbilityUses || 0) >= 3) {
-		return { state, success: false, error: 'Youri Speed Activate has already been used 3 times this game' };
-	}
-
-	// Youri must be on the field
-	const youriSlot = player.activeSlots.find(s => s && !s.isDefeated && s.cardId === 'mosje_youri');
-	if (!youriSlot) {
-		return { state, success: false, error: 'Youri is not active on the field' };
-	}
-
-	// Find face-down non-activated PIECIE slots
-	const faceDownIndices = player.piecieSlots
-		.map((s, i) => (s && s.type === 'PIECIE' && s.faceDown && !s.activated) ? i : -1)
-		.filter(i => i >= 0);
-	if (faceDownIndices.length === 0) {
-		return { state, success: false, error: 'No face-down Piecies on the field to activate' };
-	}
-
-	// Cost is 1 Energy, charged by useMosjeAbility (54-03) — no MP.
-	player.youriAbilityUses = (player.youriAbilityUses || 0) + 1;
-
-	if (faceDownIndices.length === 1) {
-		// Auto-pick the only face-down piecie
-		player.piecieSlots[faceDownIndices[0]].canActivateOnTurn = state.turnNumber;
-		if (player.deck.length > 0) {
-			player.hand.push(player.deck.shift());
-		}
-		console.log('[ABILITY] Youri: auto-activated piecie at slot ' + faceDownIndices[0] + ', drew 1 card');
-		return { state, success: true };
-	} else {
-		// Multiple face-down piecies — signal UI to pick
-		state._pendingYouriActivation = { playerId, faceDownSlots: faceDownIndices };
-		console.log('[ABILITY] Youri: awaiting piecie selection from ' + faceDownIndices.length + ' slots');
-		return { state, success: true, pendingYouriActivation: true };
-	}
+// Youri Speedrunner — Speed Activate: see abilities/mosje/youriSpeedActivate.js (1 Energy via abilityEnergyCosts.js).
+export function ability_youri_speed_activate(gameState, playerId, mosjeId) {
+	return youriSpeedActivate(gameState, playerId, mosjeId);
 }
 
 // Tactician — MP Manipulation: see abilities/mosje/tacticianMpManipulation.js (2 Energy via abilityEnergyCosts.js).
@@ -373,45 +262,9 @@ export function ability_fps_west_tactical_analysis(gameState, playerId, mosjeId)
 
 // ARTISTIC MOSJES
 
-// Ronald Mastermind — Master Plan: once per game, activate any Piecie directly
-// from your discard for free and resolve it immediately. The chosen Piecie comes
-// from the UI via _pendingTargets.masterPlanCardId. If the Piecie persists until
-// end of turn it stays on the field; otherwise it returns to discard.
-export function ability_ronald_mastermind_master_plan(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) throw new Error('Player not found');
-	const slotIndex = player.activeSlots.findIndex(s => s && !s.isDefeated && String(s.cardId).includes('ronald'));
-	if (slotIndex < 0) throw new Error('Ronald not on field');
-	if (player.activeSlots[slotIndex].masterPlanUsed) throw new Error('Master Plan already used this game');
-	const chosenCardId = state._pendingTargets?.masterPlanCardId;
-	if (!chosenCardId) throw new Error('Master Plan requires a Piecie selection from discard');
-	// Pull the chosen Piecie out of discard
-	const di = player.graveyard.findIndex(c => (c.cardId ?? c) === chosenCardId);
-	if (di < 0) throw new Error('Chosen Piecie not in discard');
-	player.graveyard.splice(di, 1);
-	// Run its effect for free
-	const def = PIECIES.find(p => p.id === chosenCardId);
-	let next = state;
-	if (def?.effectId && typeof piecieEffects[def.effectId] === 'function') {
-		next = piecieEffects[def.effectId](state, playerId);
-	}
-	// Persist on field or send to discard
-	let np = next.players[playerId];
-	if (def?.stays) {
-		const empty = np.piecieSlots.findIndex(s => s === null);
-		if (empty >= 0) {
-			np.piecieSlots[empty] = { cardId: chosenCardId, type: 'PIECIE', faceDown: false, activated: true, playedOnTurn: next.turnNumber };
-			next = finishPiecieActivation(next, playerId, empty, def);
-			np = next.players[playerId];
-		} else np.graveyard.push({ cardId: chosenCardId });
-	} else {
-		np.graveyard.push({ cardId: chosenCardId });
-	}
-	np.activeSlots[slotIndex].masterPlanUsed = true;
-	if (next._pendingTargets) delete next._pendingTargets.masterPlanCardId;
-	console.log('[ABILITY] Ronald Master Plan: played', chosenCardId, 'free from discard');
-	return next;
+// Ronald Mastermind — Master Plan: see abilities/mosje/ronaldMastermindMasterPlan.js (2 Energy via abilityEnergyCosts.js).
+export function ability_ronald_mastermind_master_plan(gameState, playerId, mosjeId) {
+	return ronaldMastermindMasterPlan(gameState, playerId, mosjeId);
 }
 
 // 2.0: Jisca Perfect Combo is a trigger/passive (src/abilities/mosje/*, MOSJE_TRIGGERS). No manual ability; kept so the dispatch map resolves.

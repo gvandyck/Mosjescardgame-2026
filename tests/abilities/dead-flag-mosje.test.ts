@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest";
 // @ts-expect-error — JS module, no type declarations
 import {
-  ability_ronald_mastermind_master_plan,
-  ability_ming_predictor_future_sight,
   ability_tuk_architect_perfect_placement,
 } from "../../src/abilities/mosjeAbilities.js";
 // @ts-expect-error — JS module, no type declarations
@@ -57,41 +55,8 @@ function makeState(slotCardId: string, mp = 100) {
   } as any;
 }
 
-// ─────────────────────────────────────────────────────────────
-// Ming — Future Sight: pay 10 MP, peek top Quest of the first non-empty stack (2.0 questStacks), optionally bottom it
-// ─────────────────────────────────────────────────────────────
-describe("Ming Future Sight — top General Quest peek + optional send-to-bottom", () => {
-  it("2.0: spends no MP and moves the top quest to the bottom when mingSendToBottom is true", () => {
-    const state = makeState("mosje_ming_predictor", 50);
-    state.questStacks = { FIGHTING: { deck: [{ cardId: "quest_a" }, { cardId: "quest_b" }, { cardId: "quest_c" }], faceUp: null, tokens: 0, discard: [] } };
-    state._pendingTargets = { mingSendToBottom: true };
-
-    const next = ability_ming_predictor_future_sight(state, "player_1");
-
-    // 10 MP charged
-    expect(next.players.player_1.activeSlots[0].mp).toBe(50); // 2.0: MP is never spent
-    // top moved to bottom
-    expect(next.questStacks.FIGHTING.deck.map((c: any) => c.cardId)).toEqual([
-      "quest_b",
-      "quest_c",
-      "quest_a",
-    ]);
-  });
-
-  it("2.0: spends no MP and leaves quest order unchanged when mingSendToBottom is false", () => {
-    const state = makeState("mosje_ming_predictor", 50);
-    state.questStacks = { FIGHTING: { deck: [{ cardId: "quest_a" }, { cardId: "quest_b" }], faceUp: null, tokens: 0, discard: [] } };
-    state._pendingTargets = { mingSendToBottom: false };
-
-    const next = ability_ming_predictor_future_sight(state, "player_1");
-
-    expect(next.players.player_1.activeSlots[0].mp).toBe(50); // 2.0: MP is never spent
-    expect(next.questStacks.FIGHTING.deck.map((c: any) => c.cardId)).toEqual([
-      "quest_a",
-      "quest_b",
-    ]);
-  });
-});
+// Ming Future Sight (stack choice, 1 Energy) and Ronald Master Plan (free activation from discard, 2 Energy, once per turn)
+// are covered in tests/abilities/mosjes-rest-b.test.ts (Card List 2.0).
 
 // ─────────────────────────────────────────────────────────────
 // Tuk — Perfect Placement: pay 15 MP, peek top 5, take 2 to hand, bottom 3
@@ -136,62 +101,6 @@ describe("Tuk Perfect Placement — peek 5, take 2 to hand, bottom 3", () => {
     state._pendingTargets = {};
 
     expect(() => ability_tuk_architect_perfect_placement(state, "player_1")).toThrow();
-  });
-});
-
-// ─────────────────────────────────────────────────────────────
-// Ronald — Master Plan: play a Piecie from graveyard for free, resolve it,
-// Stays Piecies keep their slot; others go to discard; once per game.
-// ─────────────────────────────────────────────────────────────
-describe("Ronald Master Plan — play a Piecie from graveyard for free", () => {
-  it("plays a non-persistent Piecie from graveyard (removed from graveyard, effect ran), sets masterPlanUsed", () => {
-    const state = makeState("mosje_ronald_mastermind", 50);
-    // kannetje_melk has no Stays; its effect grants +25 MP to the active Mosje
-    state.players.player_1.graveyard = [{ cardId: "piecie_kannetje_melk" }];
-    state._pendingTargets = { masterPlanCardId: "piecie_kannetje_melk" };
-
-    const next = ability_ronald_mastermind_master_plan(state, "player_1");
-
-    // Effect ran: Ronald (active Mosje) gained 25 MP (50 → 75)
-    expect(next.players.player_1.activeSlots[0].mp).toBe(75);
-    // once-per-game flag set
-    expect(next.players.player_1.activeSlots[0].masterPlanUsed).toBe(true);
-    // non-persistent → ends in graveyard, NOT on the field
-    expect(
-      next.players.player_1.graveyard.some((c: any) => (c.cardId ?? c) === "piecie_kannetje_melk")
-    ).toBe(true);
-    expect(
-      next.players.player_1.piecieSlots.some(
-        (s: any) => s && s.cardId === "piecie_kannetje_melk"
-      )
-    ).toBe(false);
-  });
-
-  it("a non-Stays Piecie (redbull) goes to discard after Master Plan (V4 kept it in the slot)", () => {
-    const state = makeState("mosje_ronald_mastermind", 50);
-    // 2.0: redbull has no Stays
-    state.players.player_1.graveyard = [{ cardId: "piecie_redbull" }];
-    state._pendingTargets = { masterPlanCardId: "piecie_redbull" };
-
-    const next = ability_ronald_mastermind_master_plan(state, "player_1");
-
-    // V4: landed in a slot with persistUntilEoT. 2.0: back in discard, no slot.
-    expect(
-      next.players.player_1.piecieSlots.some((s: any) => s && s.cardId === "piecie_redbull")
-    ).toBe(false);
-    expect(
-      next.players.player_1.graveyard.some((c: any) => (c.cardId ?? c) === "piecie_redbull")
-    ).toBe(true);
-    expect(next.players.player_1.activeSlots[0].masterPlanUsed).toBe(true);
-  });
-
-  it("throws when masterPlanUsed is already true", () => {
-    const state = makeState("mosje_ronald_mastermind", 50);
-    state.players.player_1.activeSlots[0].masterPlanUsed = true;
-    state.players.player_1.graveyard = [{ cardId: "piecie_kannetje_melk" }];
-    state._pendingTargets = { masterPlanCardId: "piecie_kannetje_melk" };
-
-    expect(() => ability_ronald_mastermind_master_plan(state, "player_1")).toThrow();
   });
 });
 

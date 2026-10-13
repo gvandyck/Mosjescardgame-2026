@@ -1,7 +1,5 @@
 import { describe, it, expect } from 'vitest';
 // @ts-expect-error — JS module, no type declarations
-import { ability_youri_speed_activate } from '../../src/abilities/mosjeAbilities.js';
-// @ts-expect-error — JS module, no type declarations
 import { playPiecie } from '../../src/engine/turnManager.js';
 // @ts-expect-error — JS module, no type declarations
 import { createEngineState } from '../helpers/testHelpers.js';
@@ -82,64 +80,7 @@ function buildYouriState(opts: {
   return state;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ability_youri_speed_activate
-// ─────────────────────────────────────────────────────────────────────────────
-describe('ability_youri_speed_activate', () => {
-  it('blocks when youriAbilityUses >= 3', () => {
-    const state = buildYouriState({ youriAbilityUses: 3, faceDownPiecies: 1 });
-    const result = ability_youri_speed_activate(state, 'player_1');
-    expect(result.success).toBe(false);
-    expect(result.error).toMatch(/3 times/i);
-  });
-
-  it('needs no MP (cost is Energy, charged by useMosjeAbility)', () => {
-    const state = buildYouriState({ youriMP: 10, faceDownPiecies: 1 });
-    const result = ability_youri_speed_activate(state, 'player_1');
-    expect(result.success).toBe(true);
-    expect(result.state.players.player_1.activeSlots[0].mp).toBe(10);
-  });
-
-  it('blocks when no face-down piecies on field', () => {
-    const state = buildYouriState({ faceDownPiecies: 0 });
-    const result = ability_youri_speed_activate(state, 'player_1');
-    expect(result.success).toBe(false);
-    expect(result.error).toMatch(/no face-down/i);
-  });
-
-  it('auto-activates single face-down piecie: sets canActivateOnTurn, draws 1 card, increments counter', () => {
-    const state = buildYouriState({ youriMP: 50, faceDownPiecies: 1 });
-    const before = state.players.player_1.deck.length;
-    const result = ability_youri_speed_activate(state, 'player_1');
-    expect(result.success).toBe(true);
-    expect(result.pendingYouriActivation).toBeFalsy();
-    const p = result.state.players.player_1;
-    // MP untouched (2.0: abilities pay Energy, never MP)
-    expect(p.activeSlots[0].mp).toBe(50);
-    // use counter incremented
-    expect(p.youriAbilityUses).toBe(1);
-    // piecie unlocked
-    expect(p.piecieSlots[0].canActivateOnTurn).toBe(result.state.turnNumber);
-    // card drawn
-    expect(p.hand.length).toBe(2); // started with 1 in hand
-    expect(p.deck.length).toBe(before - 1);
-  });
-
-  it('returns pendingYouriActivation: true when multiple face-down piecies', () => {
-    const state = buildYouriState({ youriMP: 50, faceDownPiecies: 2 });
-    const result = ability_youri_speed_activate(state, 'player_1');
-    expect(result.success).toBe(true);
-    expect(result.pendingYouriActivation).toBe(true);
-    const p = result.state.players.player_1;
-    // MP untouched (2.0: abilities pay Energy, never MP)
-    expect(p.activeSlots[0].mp).toBe(50);
-    // counter incremented
-    expect(p.youriAbilityUses).toBe(1);
-    // pending signal on state
-    expect(result.state._pendingYouriActivation).toBeDefined();
-    expect(result.state._pendingYouriActivation.faceDownSlots).toHaveLength(2);
-  });
-});
+// ability_youri_speed_activate (1 Energy, a Piecie placed this turn, draw 1, no cap): see tests/abilities/mosjes-rest-b.test.ts.
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Chris+Youri passive synergy in playPiecie

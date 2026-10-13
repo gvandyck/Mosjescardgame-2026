@@ -71,48 +71,7 @@ describe("Ming Natural — Lucky Draw", () => {
     expect(next.players.player_1.activeSlots[0].mp).toBe(65);
   });
 
-  it("free-activates a drawn Piecie when mingNaturalFreeActivate is true (non-persistent effect resolves, ends in graveyard)", () => {
-    const state = makeState("mosje_ming_natural", 50);
-    state.players.player_1.deck = [{ cardId: "piecie_kannetje_melk", type: "PIECIE" }];
-    state._pendingTargets = { mingNaturalFreeActivate: true };
-
-    const next = ability_ming_natural_lucky_draw(state, "player_1");
-
-    // effect_kannetje_melk ran: +25 MP to the active Mosje (Ming Natural itself)
-    expect(next.players.player_1.activeSlots[0].mp).toBe(75);
-    // not added to hand, not a level-up MP gain (no 15 MP bonus for the Piecie branch)
-    expect(next.players.player_1.hand).toEqual([]);
-    // non-persistent Piecie ends in graveyard, not on the field
-    expect(
-      next.players.player_1.graveyard.some((c: any) => (c.cardId ?? c) === "piecie_kannetje_melk")
-    ).toBe(true);
-    expect(
-      next.players.player_1.piecieSlots.some((s: any) => s && s.cardId === "piecie_kannetje_melk")
-    ).toBe(false);
-  });
-
-  it("keeps a drawn Piecie in hand when mingNaturalFreeActivate is false (or absent)", () => {
-    const state = makeState("mosje_ming_natural", 50);
-    state.players.player_1.deck = [{ cardId: "piecie_kannetje_melk", type: "PIECIE" }];
-
-    const next = ability_ming_natural_lucky_draw(state, "player_1");
-
-    expect(next.players.player_1.hand.map((c: any) => c.cardId)).toEqual(["piecie_kannetje_melk"]);
-    expect(next.players.player_1.deck).toEqual([]);
-    // no MP change — the 15 MP bonus only applies to the non-Piecie branch
-    expect(next.players.player_1.activeSlots[0].mp).toBe(50);
-  });
-
-  it("is a no-op when the deck is empty", () => {
-    const state = makeState("mosje_ming_natural", 50);
-    state.players.player_1.deck = [];
-
-    const next = ability_ming_natural_lucky_draw(state, "player_1");
-
-    expect(next.players.player_1.hand).toEqual([]);
-    expect(next.players.player_1.activeSlots[0].mp).toBe(50);
-  });
-
+  // Piecie top card (activate free / add to hand) and the empty deck: see tests/abilities/mosjes-rest-b.test.ts (Card List 2.0).
   it("throws when Ming Natural is not on field", () => {
     const state = makeState("mosje_opponent", 50);
     state.players.player_1.deck = [{ cardId: "quest_something", type: "QUEST" }];
@@ -175,35 +134,7 @@ function makeJeffreyState(mp = 50) {
   } as any;
 }
 
-describe("Jeffrey Gambler — High Stakes", () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it("rolling a 6 grants +3 questPrepBonus, no status effect, no MP change", () => {
-    vi.spyOn(Math, "random").mockReturnValue(0.999999); // rollDie(6) => 6
-    const state = makeJeffreyState(50);
-
-    const next = ability_jeffrey_gambler_high_stakes(state, "player_1");
-
-    expect(next.players.player_1.questPrepBonus).toBe(3);
-    expect(next.players.player_1.activeSlots[0].statusEffects).toEqual([]);
-    expect(next.players.player_1.activeSlots[0].mp).toBe(50);
-  });
-
-  it("rolling below 6 applies QUEST_BLOCKED this turn, no questPrepBonus, no MP change", () => {
-    vi.spyOn(Math, "random").mockReturnValue(0); // rollDie(6) => 1
-    const state = makeJeffreyState(50);
-
-    const next = ability_jeffrey_gambler_high_stakes(state, "player_1");
-
-    expect(next.players.player_1.questPrepBonus).toBeUndefined();
-    expect(next.players.player_1.activeSlots[0].statusEffects).toEqual([
-      { type: "QUEST_BLOCKED", value: 0, turnsLeft: 1 },
-    ]);
-    expect(next.players.player_1.activeSlots[0].mp).toBe(50);
-  });
-});
+// High Stakes (1-2 Energy stake, d6 1-2 / 3-4 / 5-6) is covered in tests/abilities/mosjes-rest-b.test.ts (Card List 2.0).
 
 describe("Jeffrey Gambler ability description", () => {
   it("no longer describes a wager/bet mechanic", () => {

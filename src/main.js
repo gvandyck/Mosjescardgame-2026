@@ -916,10 +916,6 @@ function initGamePage() {
 				}
 				renderFromState(gameState);
 			},
-			setYouriUses(playerId, count) {
-				const player = gameState?.players?.[playerId];
-				if (player) player.youriAbilityUses = count;
-			},
 			setMpLostThisTurn(playerId, slotIndex, amount) {
 				const slot = gameState?.players?.[playerId]?.activeSlots?.[slotIndex];
 				if (slot) slot.mpLostThisTurn = amount;

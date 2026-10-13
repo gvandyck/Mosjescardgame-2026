@@ -114,7 +114,6 @@ function createPlayerState(config) {
     questsCompleted: 0,
     questsCompletedThisTurn: 0,
     questsAttemptedThisTurn: 0,   // 2.0: Quest attempts this turn (rollQuestAttempt)
-    youriAbilityUses: 0,           // Youri Speed Activate — blocked at 3 per game
     totalDamageTaken: 0,
     questPrepBonus: 0,       // added to next Quest roll by Dubbele Dosis piecie
     questBonusMP: 0,         // next successful Quest gives this bonus MP (momentum_boost etc.)

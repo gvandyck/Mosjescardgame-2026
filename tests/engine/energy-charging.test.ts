@@ -130,7 +130,8 @@ describe("Ability Energy charging", () => {
 
   it("Youri Speed Activate costs exactly 1 Energy and no MP", () => {
     const s = withMosje(6, "mosje_youri");
-    s.players.player_1.piecieSlots = [slotOf("piecie_kannetje_melk", "PIECIE"), null, null, null];
+    s.players.player_1.piecieSlots = [slotOf("piecie_kannetje_melk", "PIECIE", { playedOnTurn: 3, canActivateOnTurn: 4 }), null, null, null];
+    s._pendingTargets = { piecie_slot: 0 }; // Speed Activate: a Piecie placed this turn
     const res = useMosjeAbility(s, "player_1", "mosje_youri");
     expect(res.success).toBe(true);
     expect(res.state.players.player_1.activeSlots[0].mp).toBe(60);

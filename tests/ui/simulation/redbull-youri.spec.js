@@ -38,7 +38,8 @@ const DECK = {
 	snellePiecies: ['snelle_jensen'], places: [], quests: [],
 };
 
-test('Redbull re-fires Youri — pay 20 + activate a Piecie TWICE (uses 0→2)', async ({ page }) => {
+// KNOWN GAP (fix in Phase 58): Youri Speed Activate is now once per turn for 1 Energy with no 3-per-game cap (58-09); the 58-12 card tests re-cover it, old expectation kept.
+test.fixme('Redbull re-fires Youri — pay 20 + activate a Piecie TWICE (uses 0→2)', async ({ page }) => {
 	test.setTimeout(90000);
 
 	await seedCustomDeck(page, DECK, 'PHYSICAL_FORCE');
@@ -75,7 +76,8 @@ test('Redbull re-fires Youri — pay 20 + activate a Piecie TWICE (uses 0→2)',
 	expect(st?.players?.player_1?.abilityDoubleTrigger).toBeFalsy();
 });
 
-test('Redbull + Youri at 2 uses — first fire is the 3rd use, second is DENIED (cap)', async ({ page }) => {
+// KNOWN GAP (fix in Phase 58): Youri has no use cap any more (58-09); the 58-12 card tests re-cover it, old expectation kept.
+test.fixme('Redbull + Youri at 2 uses — first fire is the 3rd use, second is DENIED (cap)', async ({ page }) => {
 	test.setTimeout(90000);
 
 	await seedCustomDeck(page, DECK, 'PHYSICAL_FORCE');
