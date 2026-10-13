@@ -472,7 +472,7 @@ describe("Jisca ability description", () => {
 // correct — only the implementation was stale, a manual flat -25 MP to opponent).
 // Auto-trigger after a Physical/Technical Quest SUCCESS: roll 1d6, on 6 -> FPS
 // Coert +30 MP, opponent's first active Mosje -15 MP. Wired through
-// applyMosjeFieldEffectsOnQuest (questLogic.js), the same hook Michelle/Jeffrey use.
+// the questSuccess trigger registry.
 // ─────────────────────────────────────────────────────────────
 
 function makeFpsCoertSlot(cardId: string, mp = 50) {

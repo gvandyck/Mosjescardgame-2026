@@ -42,6 +42,7 @@ import { getBotProfile } from './strategy/botProfiles.js';
 import { pickBotOwnTarget } from './strategy/pickBotOwnTarget.js';
 import { OWN_TARGET_EFFECT_IDS } from '../engine/targets/ownTargetEffects.js';
 import { planPiecieActivations } from './strategy/planPiecieActivations.js';
+import { getStrikeCandidates } from '../abilities/mosje/getStrikeCandidates.js';
 import { getAbilityEnergyCost } from '../engine/energy/getAbilityEnergyCost.js';
 import { canPay } from '../engine/energy/canPay.js';
 import { isPiecieReady } from '../engine/table/isPiecieReady.js';
@@ -191,18 +192,15 @@ function shouldUseRiskReward(state, botPlayerId, slot, profile) {
   return 0.5 >= requiredP; // fixed odds — either side of the coin is equally likely
 }
 
-// Elimination Strike (80 MP, once per game): only when it sets up the
+// Elimination Strike (4 Energy, once per game): only when it sets up the
 // knockout (opponent down to one Mosje) or removes a leveled threat.
 function shouldUseEliminationStrike(state, botPlayerId, slot, cost) {
-  if ((slot.mp || 0) < cost) return false;
+  if (cost > (state.players[botPlayerId]?.energy ?? 0) || slot.abilityUsedThisGame) return false;
   const oppId = Object.keys(state.players).find(id => id !== botPlayerId);
   const oppActive = (state.players[oppId]?.activeSlots || []).filter(s => s && !s.isDefeated);
   if (oppActive.length === 0) return false;
-  // U8 — the strike auto-targets the lowest-level Mosje (no redirect). If that
-  // target just entered play, the ability would throw — don't attempt it.
-  const target = [...oppActive].sort((a, b) =>
-    (a.level || 1) - (b.level || 1) || (a.mp || 0) - (b.mp || 0))[0];
-  if (target?.entryProtected === true) return false;
+  // The strike takes the lowest-level non-fresh Mosje (a tie is settled by the bot's first pick); none = it would be refused.
+  if (getStrikeCandidates(state, oppId).length === 0) return false;
   const setsUpKnockout = oppActive.length === 1;
   const removesLeveledThreat = oppActive.some(s => (s.level || 1) >= 2);
   if (setsUpKnockout || removesLeveledThreat) {

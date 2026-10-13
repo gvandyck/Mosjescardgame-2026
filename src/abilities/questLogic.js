@@ -81,9 +81,6 @@ export function runQuestOutcomeHooks(gameState, playerId, slotIndex, questCard, 
 		console.log('[SYNERGY] FPS West holder text: both FPS Mosjes gain 10 MP');
 	}
 
-	// Fires before Place effects so the modified MP feeds into Quest Haven bonuses.
-	state = applyMosjeFieldEffectsOnQuest(state, playerId, slotIndex, questMpGained, questCard, didSucceed);
-
 	if (didSucceed) {
 		state.players[playerId].questsCompleted += 1;
 		state.players[playerId].questsCompletedThisTurn += 1;
@@ -93,46 +90,6 @@ export function runQuestOutcomeHooks(gameState, playerId, slotIndex, questCard, 
 	} else {
 		state = applyPlaceEffectsOnQuest(state, playerId, questCard, false);
 	}
-	return state;
-}
-
-// ─────────────────────────────────────────────────────────────
-// applyMosjeFieldEffectsOnQuest
-// Auto-abilities on the active Mosje that trigger after a quest resolves.
-// questMpGained: the raw successMP that was applied (0 on failure/void).
-// questCard/didSucceed: threaded through for abilities that need the quest's
-// category or a real success/failure gate (e.g. FPS Coert), not just the MP delta.
-// Attaches state._autoAbilityLog for the UI to surface in the battle log.
-// ─────────────────────────────────────────────────────────────
-function applyMosjeFieldEffectsOnQuest(gameState, playerId, slotIndex, questMpGained, questCard, didSucceed) {
-	let state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player || slotIndex < 0) return state;
-	const mosje = player.activeSlots[slotIndex];
-	if (!mosje || mosje.isDefeated) return state;
-
-	// ── Jeffrey The Strongman — Brute Force ────────────────────────────────────
-	// Passive: every quest success gives +10 MP. Always active while Jeffrey is
-	// on field — no manual activation needed. FOOD/RESTORE block is enforced
-	// separately in playPiecie (turnManager.js) also without needing activation.
-	if (mosje.cardId === 'mosje_jeffrey' && questMpGained > 0) {
-		applyGainToSlot(mosje, 10, { turnNumber: state.turnNumber });
-		const label = `Brute Force: +10 MP bonus (total quest gain ${questMpGained + 10})`;
-		console.log(`[ABILITY] Jeffrey ${label} | mp=${mosje.mp}`);
-		// Append to existing auto-ability log if Michelle also fired (edge case),
-		// otherwise start a new entry.
-		if (state._autoAbilityLog) {
-			state._autoAbilityLog.label += ` · [Jeffrey] ${label}`;
-		} else {
-			state._autoAbilityLog = {
-				mosje: mosje.name,
-				ability: 'Brute Force',
-				adjustment: 10,
-				label: `[Jeffrey] ${label}`,
-			};
-		}
-	}
-
 	return state;
 }
 

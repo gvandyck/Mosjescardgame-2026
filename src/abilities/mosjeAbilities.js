@@ -16,6 +16,8 @@ import { hackerSystemHack } from './mosje/hackerSystemHack.js';
 import { chrisPerfectSetup } from './mosje/chrisPerfectSetup.js';
 import { fpsWestGuess } from './mosje/fpsWestGuess.js';
 import { tacticianMpManipulation } from './mosje/tacticianMpManipulation.js';
+import { gandoeDestroyerEliminationStrike } from './mosje/gandoeDestroyerEliminationStrike.js';
+import { martinDriverPitStop } from './mosje/martinDriverPitStop.js';
 import { tukHealingHands } from './mosje/tukHealingHands.js';
 import { bintiCuttingWords } from './mosje/bintiCuttingWords.js';
 
@@ -86,10 +88,8 @@ export function ability_gandoe_wizard_chaos_roll(gameState) {
 	return gameState;
 }
 
-// Jeffrey Strongman — Brute Force is a passive auto-ability (see questLogic.js).
-// +10 MP per quest fires in applyMosjeFieldEffectsOnQuest.
-// FOOD/RESTORE block fires in playPiecie (turnManager.js) whenever Jeffrey is on field.
-// This manual entry is a no-op kept so useMosjeAbility does not crash if called.
+// Jeffrey Strongman — Brute Force is a questSuccess trigger (abilities/mosje/jeffreyBruteForce.js) plus the MP-Piecie gate
+// (engine/table/piecieActivationGate.js). This manual entry is a no-op kept so the dispatch map resolves.
 export function ability_jeffrey_brute_force(gameState, _playerId) {
 	console.log('[ABILITY] Jeffrey Brute Force: passive auto-ability — no manual activation needed');
 	return gameState;
@@ -120,57 +120,9 @@ export function ability_parkour_west_adaptive_combat(gameState) {
 	return gameState;
 }
 
-// Gandoe Destroyer — elimination strike: deal 45 MP damage to opponent.
-export function ability_gandoe_destroyer_elimination_strike(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) throw new Error('Player not found');
-
-	// Find Gandoe's slot
-	const gandoeSlotIndex = player.activeSlots.findIndex(
-		s => s && !s.isDefeated && String(s.cardId).includes('gandoe_destroyer')
-	);
-	if (gandoeSlotIndex < 0) throw new Error('Gandoe not on field');
-	const gandoeSlot = player.activeSlots[gandoeSlotIndex];
-
-	// Once per game guard
-	if (gandoeSlot.eliminationStrikeUsed) {
-		throw new Error('Elimination Strike already used this game');
-	}
-
-	// Cost is 4 Energy, charged by useMosjeAbility (54-03) — no MP.
-
-	// Find opponent's lowest-level active Mosje (tiebreak: lowest MP)
-	const oppId = getOpponentId(state, playerId);
-	if (!oppId) throw new Error('No opponent found');
-	const opp = state.players[oppId];
-	let targetIndex = -1;
-	let lowestLevel = Infinity;
-	let lowestMP = Infinity;
-	opp.activeSlots.forEach((slot, idx) => {
-		if (!slot || slot.isDefeated) return;
-		if (slot.level < lowestLevel || (slot.level === lowestLevel && slot.mp < lowestMP)) {
-			lowestLevel = slot.level;
-			lowestMP = slot.mp;
-			targetIndex = idx;
-		}
-	});
-	if (targetIndex < 0) throw new Error('No opponent Mosje to target');
-
-	// U8 — Entry Protection: the locked target (lowest level, no redirect per
-	// U1) just entered play → the whole ability is unusable. The throw is
-	// caught by useMosjeAbility, so the 80 MP cost is not spent.
-	if (isFresh(opp.activeSlots[targetIndex])) {
-		throw new Error('Target Mosje just entered play — it is protected until their next turn');
-	}
-
-	// Mark once-per-game before calling markMosjeDefeated (which clones state internally)
-	gandoeSlot.eliminationStrikeUsed = true;
-
-	// Send target to Welloe pile — respects WELLOE_SHIELD and Not Today!
-	const finalState = markMosjeDefeated(state, oppId, targetIndex);
-	console.log(`[ABILITY] Gandoe Elimination Strike: ${opp.activeSlots[targetIndex]?.name} sent to Welloe`);
-	return finalState;
+// Gandoe Destroyer — Elimination Strike: see abilities/mosje/gandoeDestroyerEliminationStrike.js (4 Energy, once per game).
+export function ability_gandoe_destroyer_elimination_strike(gameState, playerId, mosjeId) {
+	return gandoeDestroyerEliminationStrike(gameState, playerId, mosjeId);
 }
 
 // DIGITAL MOSJES
@@ -520,18 +472,9 @@ export function ability_cless_teacher_teaching_moment(gameState) {
 	return gameState;
 }
 
-// Martin Driver — level-scaled MP: L0 → 15 MP, L1 → 25 MP, L2 → 35 MP.
-export function ability_martin_driver_perfect_line(gameState, playerId, mosjeId = null) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = getActiveSlotIndexForMosje(player, mosjeId);
-	if (si < 0) return state;
-	const mosje = player.activeSlots[si];
-	const gain = [15, 25, 35][Math.min(3, Math.max(1, mosje.level || 1)) - 1];
-	applyGain(state, mosje, gain);
-	console.log(`[ABILITY] Martin Driver: level ${mosje.level} → +${gain} MP`);
-	return state;
+// Martin Driver — Pit Stop: see abilities/mosje/martinDriverPitStop.js (Perfect Line, the Quest bonus, is a questSuccess trigger).
+export function ability_martin_driver_perfect_line(gameState, playerId, mosjeId) {
+	return martinDriverPitStop(gameState, playerId, mosjeId);
 }
 
 // Amplifier — Power Boost: pay 30 MP, arm a double-trigger so your active Mosje's next

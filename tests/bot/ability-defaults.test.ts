@@ -26,7 +26,7 @@ describe('defaultAbilityInputs', () => {
 		expect(defaultAbilityInputs(state(), 'bot', 'ability_tuk_healer_healing_presence')).toEqual({ own_slot_index: 1 });
 	});
 	it('opponent Mosje = highest-MP non-fresh', () => {
-		expect(defaultAbilityInputs(state(), 'bot', 'ability_gandoe_destroyer_elimination_strike')).toEqual({ opp_slot_index: 1 });
+		expect(defaultAbilityInputs(state(), 'bot', 'ability_binti_cutting_words')).toEqual({ hand_card: 0, opp_slot_index: 1 });
 	});
 	it('skips (null) when an input has no legal answer', () => {
 		const s = state(); s.players.bot.hand = [];

@@ -22,7 +22,7 @@ export const MOSJE_ABILITY_RULES = Object.freeze({
 	ability_azn_cless_risk_reward: trig(),
 	ability_michelle_tough_gamble: trig(),
 	ability_parkour_west_adaptive_combat: pass(),
-	ability_gandoe_destroyer_elimination_strike: act([{ key: 'opp_slot_index', kind: 'oppMosje' }], { per: 'game' }),
+	ability_gandoe_destroyer_elimination_strike: act([], { per: 'game' }),
 	// Digital
 	ability_ronald_chef_strategic_insight: act([{ key: 'locked_card', kind: 'oppHandCard' }]),
 	ability_ming_natural_lucky_draw: act([{ key: 'choice', kind: 'choice', options: ['activate', 'hand'] }]),

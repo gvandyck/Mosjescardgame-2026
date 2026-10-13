@@ -93,6 +93,7 @@ const NO_DOUBLE_ABILITIES = new Set([
   // "within bounds" — these stay single. (Some cooldowns/caps are not yet
   // enforced inside the fn either; tracked in the rework todo.)
   'ability_tuk_healer_healing_presence',          // once per turn
+  'ability_martin_driver_perfect_line',           // Pit Stop: once per turn + discard cost
   'ability_chris_perfect_setup',                  // once per turn
   'ability_tactician_mp_manipulation',            // once per turn
   'ability_martin_historian_time_control',        // once per turn (draw-phase skip)

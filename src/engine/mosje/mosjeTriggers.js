@@ -10,6 +10,9 @@ import { drainerContinuousDrain } from '../../abilities/mosje/drainerContinuousD
 import { jiscaPerfectCombo } from '../../abilities/mosje/jiscaPerfectCombo.js';
 import { ddrChrisComboChain } from '../../abilities/mosje/ddrChrisComboChain.js';
 import { clessTeachingMoment } from '../../abilities/mosje/clessTeachingMoment.js';
+import { jeffreyBruteForce } from '../../abilities/mosje/jeffreyBruteForce.js';
+import { martinDriverPerfectLine } from '../../abilities/mosje/martinDriverPerfectLine.js';
+import { gandoeDestroyerStrikeChoice } from '../../abilities/mosje/gandoeDestroyerStrikeChoice.js';
 import { bintiDiscardChoice } from '../../abilities/mosje/bintiDiscardChoice.js';
 // MOSJE_TRIGGERS — push-only registry of 2.0 Mosje trigger hooks (like ATTACK_TRIGGERS).
 // Entry: { mosjeId, run(state, ctx), available?(state, playerId) } (see runMosjeTriggers).
@@ -21,7 +24,7 @@ export const MOSJE_TRIGGERS = {
 	oppStartOfTurn: [drainerContinuousDrain],
 	endOfTurn: [aznClessRiskReward, fpsWestTacticalAnalysis],
 	questWinAmount: [michelleToughGamble],
-	questSuccess: [parkourWestFlowQuest, fpsCoertHeadshot],
+	questSuccess: [parkourWestFlowQuest, fpsCoertHeadshot, jeffreyBruteForce, martinDriverPerfectLine],
 	// piecieActivated order on one activation (Card List ruling): Jisca, then Dancing/DDR Chris, then Cless, The Teacher.
 	piecieActivated: [jiscaPerfectCombo, ddrChrisComboChain, clessTeachingMoment],
 	placeDestroyed: [alyssaFissaPartyPower],
@@ -29,4 +32,6 @@ export const MOSJE_TRIGGERS = {
 	drawStep: [coertTechExtraResources],
 	// Binti's Cutting Words fires this directly (not from runMosjeTriggers) so the opponent's discard pick can pause.
 	bintiDiscard: [bintiDiscardChoice],
+	// Gandoe, The Destroyer's Elimination Strike resolves here so a tie can pause for the owner's pick.
+	destroyerStrike: [gandoeDestroyerStrikeChoice],
 };

@@ -49,24 +49,25 @@ describe("Amplifier Power Boost — pay 30, arm double-trigger, cap 2/game", () 
   });
 
   it("the armed double actually makes the NEXT ability fire twice", () => {
-    // Martin Driver in slot 0 (level-scaled gain, repeatable; DJ 80/20 became a reaction in 2.0), Amplifier in slot 1.
+    // Ming Natural in slot 0 (Lucky Draw: a non-Piecie top card = +15, repeatable; Tuk's Healing Hands and Martin's Pit Stop are once-per-turn and never double), Amplifier in slot 1.
     const state = createEngineState({
       players: {
         player_1: {
           activeSlots: [
-            { cardId: "mosje_martin_driver", name: "Driver", mp: 0, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
+            { cardId: "mosje_ming_natural", name: "Ming", mp: 0, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
             { cardId: "mosje_amplifier", name: "Amplifier", mp: 50, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
           ],
           hand: [{ cardId: "piecie_kannetje_melk" }, { cardId: "piecie_kannetje_melk" }],
+          deck: [{ cardId: "mosje_jeffrey" }, { cardId: "mosje_jeffrey" }],
         },
       },
     });
     const armed = ability_amplifier_power_boost(state, "player_1");
     expect(armed.players.player_1.abilityDoubleTrigger).toBe(true);
 
-    const res = useMosjeAbility(armed, "player_1", "mosje_martin_driver");
+    const res = useMosjeAbility(armed, "player_1", "mosje_ming_natural");
     expect(res.success).toBe(true);
-    // Level 1 = +15 single; doubled = +30 (on slot 0).
+    // Lucky Draw non-Piecie = +15 single; doubled = +30 (on slot 0).
     expect(res.state.players.player_1.activeSlots[0].mp).toBe(30);
     expect(res.state.players.player_1.abilityDoubleTrigger).toBeFalsy(); // consumed
   });
