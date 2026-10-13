@@ -32,6 +32,7 @@ import { getQuestDef } from '../engine/quests/getQuestDef.js';
 import { settleMosjePauses } from './settleMosjePauses.js';
 import { settleReactions } from './settleReactions.js';
 import { chooseMosjeAction } from './strategy/chooseMosjeAction.js';
+import { defaultAbilityInputs } from './strategy/defaultAbilityInputs.js';
 import { chooseQuestChoices } from './strategy/chooseQuestChoices.js';
 import { canMosjeTakeAction } from '../engine/actions/canMosjeTakeAction.js';
 import { PIECIES } from '../data/piecies.js';
@@ -122,21 +123,6 @@ function resolveBotVarkenspootjesPending(state, botPlayerId) {
   return state;
 }
 
-// Cheapest hand card to feed discard costs (Binti's Cutting Words).
-function pickDiscardFodder(hand) {
-  const score = (cardRef) => {
-    if (cardRef.type === 'MOSJE') return 100;
-    if (cardRef.type === 'QUEST') return 90;
-    if (cardRef.type === 'PLACE') return 60;
-    const tags = getCardTags(cardRef.cardId);
-    if (tags.includes('multiplier') || tags.includes('mp-gain')) return 50;
-    if (tags.includes('quest-prep') || tags.includes('attack')) return 40;
-    if (tags.includes('draw') || tags.includes('defense')) return 30;
-    return 10;
-  };
-  const ranked = [...(hand || [])].sort((a, b) => score(a) - score(b));
-  return ranked.length ? (ranked[0].cardId || ranked[0]) : null;
-}
 
 // Priority for PLAYING cards face-down (slot competition): multipliers and
 // MP gains claim slots first, Personal Quests early too (high payoff later).
@@ -288,14 +274,10 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
 
       // Clone before calling: useMosjeAbility mutates the state it receives.
       const stateForAbility = JSON.parse(JSON.stringify(state));
-      if (def.abilityId === 'ability_binti_cutting_words') {
-        const fodder = pickDiscardFodder(state.players[botPlayerId].hand);
-        if (!fodder) continue;
-        stateForAbility._pendingTargets = {
-          ...(stateForAbility._pendingTargets || {}),
-          binti_discard: fodder,
-        };
-      }
+      // Inputs come from MOSJE_ABILITY_RULES (same data the human UI uses); no sensible answer -> skip.
+      const inputs = defaultAbilityInputs(state, botPlayerId, def.abilityId);
+      if (inputs === null) continue;
+      stateForAbility._pendingTargets = { ...(stateForAbility._pendingTargets || {}), ...inputs };
       const result = useMosjeAbility(stateForAbility, botPlayerId, slot.cardId);
       if (result.success) {
         state = result.state;
