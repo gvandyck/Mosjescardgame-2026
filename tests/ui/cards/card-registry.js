@@ -297,72 +297,7 @@ export const SNELLE_REGISTRY = [
 	{ cardId: 'snelle_lucky_coin',         cardType: 'SNELLE_PIECIE', expectedEffect: 'GAMBLE',        skipReason: 'slot-guard + coin flip needs specific board state' },
 ];
 
-// ── Mosje abilities (clicked via the Mosje's ability button) ─────────────────
-// Each runs a single-Mosje deck so the named Mosje is the starter; the runner's
-// 'ability' flow clicks its .mosje-ability-btn and asserts the outcome.
-export const ABILITY_REGISTRY = [
-	{
-		mosje: 'mosje_amplifier', abilityMosjeId: 'mosje_amplifier', playThen: 'ability',
-		setup: { ownMP: 50 }, expectedEffect: 'MP_GAIN', mpDeltaMin: 10, mpDeltaMax: 10, // all own Mosjes +10
-		cardId: 'ability_amplifier_power_boost', logMatch: /[Aa]mplifier/,
-	},
-	{
-		mosje: 'mosje_martin_driver', abilityMosjeId: 'mosje_martin_driver', playThen: 'ability',
-		setup: { ownMP: 40 }, expectedEffect: 'MP_GAIN', mpDeltaMin: 15, mpDeltaMax: 15, // Lv0 → +15
-		cardId: 'ability_martin_driver_perfect_line', logMatch: /[Dd]river|[Pp]erfect [Ll]ine/,
-	},
-	{
-		// 2026-07-13 reconciliation: Lucky Draw now shows a reveal modal (#modal-continue)
-		// before optionally offering a free-activate/keep choice — the generic runner's
-		// dismiss loop doesn't know to click #modal-continue, so it hangs there. Covered
-		// instead by a dedicated test in card-chains.spec.js ("chain: Ming Natural Lucky Draw").
-		mosje: 'mosje_ming_natural', abilityMosjeId: 'mosje_ming_natural', playThen: 'ability',
-		setup: { ownMP: 40 }, expectedEffect: 'DRAW', handDelta: 1,
-		cardId: 'ability_ming_natural_lucky_draw', logMatch: /[Mm]ing|[Ll]ucky [Dd]raw/,
-		skipReason: 'Reveal modal (#modal-continue) blocks the generic ability runner — see card-chains.spec.js',
-	},
-	{
-		mosje: 'mosje_binti_creator', abilityMosjeId: 'mosje_binti_creator', playThen: 'ability',
-		setup: { ownMP: 40 }, expectedEffect: 'DRAW', handDelta: 1,
-		cardId: 'ability_binti_creator_quick_sketch', logMatch: /[Bb]inti|[Ss]ketch/,
-	},
-	{
-		mosje: 'mosje_cless_teacher', abilityMosjeId: 'mosje_cless_teacher', playThen: 'ability',
-		setup: { ownMP: 40 }, expectedEffect: 'FIELD_EFFECT',
-		stateFlag: { path: 'players.player_1.questPrepBonus', equals: 3 }, // Mosje ability: Phase 58 owns the 2.0 rewrite (V4 questPrepBonus until then)
-		cardId: 'ability_cless_teacher_teaching_moment', logMatch: /[Cc]less|[Tt]eaching/,
-	},
-	{
-		mosje: 'mosje_coert_kastelein', abilityMosjeId: 'mosje_coert_kastelein', playThen: 'ability',
-		setup: { ownMP: 40 }, expectedEffect: 'FIELD_EFFECT',
-		stateFlag: { path: 'players.player_1.activeSlots.0.immuneThisTurn', equals: true },
-		cardId: 'ability_coert_kastelein_immovable_object', logMatch: /[Kk]astelein|[Ii]mmovable/,
-	},
-	{
-		// 2026-07-13 reconciliation: Perfect Setup now requires 3+ face-down Piecies on
-		// the field (the generic runner's single-card setup can't drive that) and picks
-		// one via a target-selector modal — covered instead by a dedicated test in
-		// card-chains.spec.js ("chain: Chris All-Rounder Perfect Setup").
-		mosje: 'mosje_chris', abilityMosjeId: 'mosje_chris', playThen: 'ability',
-		setup: { ownMP: 40 }, expectedEffect: 'FIELD_EFFECT',
-		cardId: 'ability_chris_perfect_setup', logMatch: /[Cc]hris|[Ss]etup/,
-		skipReason: 'Requires 3+ face-down Piecies pre-placed + a target-selector pick — see card-chains.spec.js',
-	},
-	{
-		// 2026-07-13 reconciliation: Headshot Precision is now a passive auto-trigger
-		// after a Physical/Technical Quest success (rolled inside runQuestOutcomeHooks via
-		// applyMosjeFieldEffectsOnQuest) — there's no manual button to click anymore
-		// (autoAbility:true), so the generic 'ability' runner can't drive it. Same
-		// pattern as Michelle/Jeffrey (also passive quest-hooks, never had a registry
-		// entry). Covered by the 2.0 Quest-attempt unit tests in
-		// ability-text-reconciliation.test.ts instead.
-		mosje: 'mosje_fps_coert', abilityMosjeId: 'mosje_fps_coert', playThen: 'ability',
-		setup: { ownMP: 40, opponentMP: 90 }, expectedEffect: 'ATTACK', oppDeltaMin: -25, oppDeltaMax: -25,
-		cardId: 'ability_fps_coert_headshot_precision', logMatch: /[Cc]oert|[Hh]eadshot/,
-		skipReason: 'Now a passive auto-trigger on Quest success, not a manual button — see ability-text-reconciliation.test.ts',
-	},
-];
+// Mosje ability tests moved to mosje-registry-2-0.js (Phase 58-11); the other 14 Mosjes follow in 58-12.
 
 export const PIECIE_SPECS = CARD_REGISTRY.filter(c => c.cardType === 'PIECIE');
 export const SNELLE_SPECS = SNELLE_REGISTRY;
-export const ABILITY_SPECS = ABILITY_REGISTRY;

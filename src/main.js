@@ -1025,6 +1025,20 @@ function initGamePage() {
 			// 56-06: the next Quest dice come from this list (6 = max); falls back to Math.random once empty.
 			// 58-03: scripted d6 results for Mosje abilities / triggers (engine test dice queue).
 			setNextAbilityDice(values) { pushTestDice(Array.isArray(values) ? values : []); },
+			// 58-11: run ONE turn boundary for a player (kind 'start' = startTurn, 'end' = endTurn) with no bot steps,
+			// then give the turn back to player_1. Lets a card test fire start/end-of-turn triggers on the real engine.
+			runTurnBoundary(kind, playerId = localPlayerId) {
+				if (!gameState) return;
+				gameState.activePlayerId = playerId;
+				if (kind === 'start') {
+					gameState = settleBotMosjePauses(startTurn(gameState));
+				} else {
+					gameState = endTurn(gameState);
+				}
+				if (gameState.status !== 'FINISHED') gameState.activePlayerId = localPlayerId;
+				renderFromState(gameState);
+				settleLocalMosjePauses();
+			},
 			setNextDice(values) { nextDice = Array.isArray(values) ? [...values] : []; },
 			// Phase 57 (U6): the bot attacks through the real playBotSteps path, so the human reaction window is shown.
 			botAttack(attackerSlotIndex = 0, targetSlotIndex = 0) {
@@ -1033,6 +1047,19 @@ function initGamePage() {
 				if (!res.ok) return res.error;
 				playBotSteps([{ state: res.state, label: 'attacks (test)' }], 'Bot', 0, 0, () => {});
 				return 'ok';
+			},
+			// 58-11: the bot places a Piecie from hand (engine playPiecie), so "opponent plays a card" triggers
+			// (FPS West's Tactical Analysis) can be proven without the bot's own turn logic.
+			botPlayPiecie(cardId) {
+				const def = PIECIES.find(p => p.id === cardId);
+				if (!gameState || !def) return 'unknown piecie';
+				gameState.players.player_2.hand.push({ cardId, type: 'PIECIE' });
+				gameState.activePlayerId = 'player_2';
+				const res = playPiecie(gameState, 'player_2', { cardId, type: 'PIECIE' }, def);
+				if (res.success) gameState = res.state;
+				gameState.activePlayerId = localPlayerId;
+				renderFromState(gameState);
+				return res.success ? 'ok' : res.error;
 			},
 			getGameState() { return JSON.parse(JSON.stringify(gameState)); },
 			getHandSize(playerId) { return gameState?.players?.[playerId]?.hand?.length ?? -1; },
@@ -1618,6 +1645,8 @@ function initGamePage() {
 		logStateOutcome(log, beforeActivate, gameState, localPlayerId, `${activatedName} activation`);
 		syncPush();
 		renderAndAnimate(beforeActivate, { actionLabel: 'activate-piecie' });
+		// A chain Mosje (Jisca, DDR Chris, Cless the Teacher) may have paused for the owner's pick: ask for it now.
+		settleLocalMosjePauses();
 	}
 
 	function handleOpenDiscard(playerId, isOwned) {
