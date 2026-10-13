@@ -48,6 +48,6 @@ export const MOSJE_ABILITY_RULES = Object.freeze({
 	ability_cless_teacher_teaching_moment: trig(),
 	// Martin Driver: Perfect Line (quest gain) is handled as a quest hook; the activated part is Pit Stop.
 	ability_martin_driver_perfect_line: act([{ key: 'discard_cards', kind: 'handCard', count: 2 }]),
-	ability_tuk_architect_perfect_placement: act([{ key: 'pick', kind: 'pickFromTopN', n: 5, count: 2 }, { key: 'order', kind: 'orderTopN', n: 3, deckKey: 'own' }]),
+	ability_tuk_architect_perfect_placement: act([{ key: 'pick', kind: 'pickFromTopN', n: 5, count: 2 }, { key: 'order', kind: 'orderTopN', n: 3, deckKey: 'own', afterPick: 'pick' }]),
 	ability_chris_ddr_perfect_combo_chain: trig(),
 });

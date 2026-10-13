@@ -1,167 +1,82 @@
+// Ronald, The Master Chef - Strategic Insight (Card List 2.0): "once per turn, pay 2 Energy: look at your opponent's hand
+// and choose 1 card. They set it face-down beside their field; it returns to their hand at the end of their next turn."
 import { describe, expect, it } from "vitest";
-// @ts-expect-error — JS module, no type declarations
-import { ability_ronald_chef_strategic_insight } from "../../src/abilities/mosjeAbilities.js";
-// @ts-expect-error — JS module, no type declarations
-import { startTurn, playPiecie } from "../../src/engine/turnManager.js";
-// @ts-expect-error — JS module, no type declarations
+// @ts-expect-error - JS module
+import { useMosjeAbility, startTurn, endTurn } from "../../src/engine/turnManager.js";
+// @ts-expect-error - JS module
 import { MOSJES } from "../../src/data/mosjes.js";
-// @ts-expect-error — JS module, no type declarations
-import { createEngineState } from "../helpers/testHelpers.js";
+// @ts-expect-error - JS module
+import { makeEngineState } from "../helpers/makeEngineState.js";
+// @ts-expect-error - JS module
+import { mkSlot, byName } from "../helpers/quest56.js";
 
-// ─────────────────────────────────────────────────────────────
-// Phase 19 Plan 02 — Ronald Chef "Strategic Insight" reworked into a hand-card lock.
-//   Pay 20 MP (via loseMP) to pick a card in the opponent's hand and lock it until
-//   your next turn — they can't play it. Once per turn, 3-turn cooldown on the slot.
-//   - The chosen opponent card id arrives via state._pendingTargets.ronaldLockCardId.
-//   - The ability sets state.players[oppId]._lockedCard = { cardId, byPlayer }.
-//   - The play-from-hand functions (playPiecie/Snellie/Mosje/Place) reject a card
-//     whose id matches the playing player's _lockedCard.cardId.
-//   - startTurn ticks strategicInsightCooldown on the starting player's slots and
-//     clears any _lockedCard whose byPlayer is the starting player (lock expires when
-//     the locker's turn comes back around).
-//   - The old _ronaldPeek deck-peek behaviour is gone; the description is updated.
-// ─────────────────────────────────────────────────────────────
+const RONALD = byName(/Ronald, The Master Chef/);
+const card = (cardId: string, type = "PIECIE") => ({ cardId, type });
 
-// Build a state whose player_1 active slot is Ronald Chef (so the ability finds it
-// via String(cardId).includes('ronald_chef')). createEngineState gives a full,
-// startTurn-safe engine state; we only override what each test needs.
-function ronaldState(ronaldMp = 50): any {
-  return createEngineState({
-    players: {
-      player_1: {
-        activeSlots: [
-          {
-            cardId: "mosje_ronald_chef",
-            name: "[Ronald] The Master Chef",
-            traits: { mental: 3, social: 3, physical: 1 },
-            mp: ronaldMp,
-            level: 1,
-            isDefeated: false,
-            statusEffects: [],
-            abilityUsedThisTurn: false,
-          },
-          null,
-        ],
-      },
-    },
-  });
-}
-
-describe("Ronald Chef Strategic Insight — charge no MP + lock an opponent hand card", () => {
-  it("takes no MP (Energy is charged by useMosjeAbility) and locks the chosen opponent card on the opponent", () => {
-    const state = ronaldState(50);
-    // Give the opponent a hand card and target it for the lock.
-    state.players.player_2.hand = [{ cardId: "piecie_kannetje_melk", type: "PIECIE" }];
-    state._pendingTargets = { ronaldLockCardId: "piecie_kannetje_melk" };
-
-    const next = ability_ronald_chef_strategic_insight(state, "player_1");
-
-    // No MP cost in 2.0 (the 2 Energy is paid in useMosjeAbility).
-    expect(next.players.player_1.activeSlots[0].mp).toBe(50);
-    // Lock recorded on the opponent, attributed to player_1.
-    expect(next.players.player_2._lockedCard).toEqual({
-      cardId: "piecie_kannetje_melk",
-      byPlayer: "player_1",
-    });
-    // The pending target is consumed.
-    expect(next._pendingTargets?.ronaldLockCardId).toBeUndefined();
-  });
-
-  it("works with low MP (no MP cost)", () => {
-    const state = ronaldState(15);
-    state.players.player_2.hand = [{ cardId: "piecie_kannetje_melk", type: "PIECIE" }];
-    state._pendingTargets = { ronaldLockCardId: "piecie_kannetje_melk" };
-
-    const next = ability_ronald_chef_strategic_insight(state, "player_1");
-    expect(next.players.player_1.activeSlots[0].mp).toBe(15);
-  });
-
-  it("throws when strategicInsightCooldown is still active", () => {
-    const state = ronaldState(50);
-    state.players.player_1.activeSlots[0].strategicInsightCooldown = 2;
-    state.players.player_2.hand = [{ cardId: "piecie_kannetje_melk", type: "PIECIE" }];
-    state._pendingTargets = { ronaldLockCardId: "piecie_kannetje_melk" };
-
-    expect(() => ability_ronald_chef_strategic_insight(state, "player_1")).toThrow();
-  });
-
-  it("sets strategicInsightCooldown = 3 after a successful use", () => {
-    const state = ronaldState(50);
-    state.players.player_2.hand = [{ cardId: "piecie_kannetje_melk", type: "PIECIE" }];
-    state._pendingTargets = { ronaldLockCardId: "piecie_kannetje_melk" };
-
-    const next = ability_ronald_chef_strategic_insight(state, "player_1");
-
-    expect(next.players.player_1.activeSlots[0].strategicInsightCooldown).toBe(3);
-  });
-
-  it("no longer sets the legacy _ronaldPeek deck-peek flag", () => {
-    const state = ronaldState(50);
-    state.players.player_2.hand = [{ cardId: "piecie_kannetje_melk", type: "PIECIE" }];
-    state._pendingTargets = { ronaldLockCardId: "piecie_kannetje_melk" };
-
-    const next = ability_ronald_chef_strategic_insight(state, "player_1");
-
-    expect(next._ronaldPeek).toBeUndefined();
-    expect(next._ronaldPeekPlayerId).toBeUndefined();
-  });
+const board = () => makeEngineState({
+  turnNumber: 5,
+  players: {
+    player_1: { energy: 6, activeSlots: [mkSlot({ mp: 50 }, RONALD), null], deck: [card("piecie_affoe")] },
+    player_2: { hand: [card("piecie_kannetje_melk"), card("snelle_jensen", "SNELLE_PIECIE")], deck: [card("piecie_affoe")], activeSlots: [mkSlot({ mp: 40 }), null] },
+  },
 });
+const use = (s: any, index: number) => { s._pendingTargets = { locked_card: index }; return useMosjeAbility(s, "player_1", RONALD.id); };
 
-describe("Ronald lock enforcement — a locked hand card cannot be played", () => {
-  it("playPiecie rejects a card whose id matches the playing player's _lockedCard.cardId", () => {
-    const state = ronaldState(50);
-    // player_2 is locked out of piecie_kannetje_melk by player_1.
-    state.players.player_2._lockedCard = {
-      cardId: "piecie_kannetje_melk",
-      byPlayer: "player_1",
-    };
-    state.players.player_2.hand = [{ cardId: "piecie_kannetje_melk", type: "PIECIE" }];
-
-    const result = playPiecie(
-      state,
-      "player_2",
-      { cardId: "piecie_kannetje_melk", type: "PIECIE" },
-      { id: "piecie_kannetje_melk", name: "Kannetje Melk" }
-    );
-
-    expect(result.success).toBe(false);
-    // The locked card must remain in hand (not consumed by the rejected play).
-    expect(
-      result.state.players.player_2.hand.some(
-        (c: any) => (c.cardId ?? c) === "piecie_kannetje_melk"
-      )
-    ).toBe(true);
+describe("Ronald Chef: Strategic Insight", () => {
+  it("pays 2 Energy, no MP; the chosen card leaves the opponent's hand and is set aside", () => {
+    const res = use(board(), 1);
+    expect(res.success).toBe(true);
+    const { player_1: me, player_2: opp } = res.state.players;
+    expect(me.energy).toBe(4);
+    expect(me.activeSlots[0].mp).toBe(50);
+    expect(opp.hand.map((c: any) => c.cardId)).toEqual(["piecie_kannetje_melk"]);
+    expect(opp.setAside.map((e: any) => e.card.cardId)).toEqual(["snelle_jensen"]);
   });
-});
 
-describe("startTurn hygiene — cooldown tick + lock expiry", () => {
-  it("decrements strategicInsightCooldown on the starting player's slot and clears a lock it set", () => {
-    const state = ronaldState(50);
-    state.activePlayerId = "player_1";
-    state.players.player_1.activeSlots[0].strategicInsightCooldown = 3;
-    // player_1 locked a card on player_2 last turn; it expires now that player_1 starts.
-    state.players.player_2._lockedCard = {
-      cardId: "piecie_kannetje_melk",
-      byPlayer: "player_1",
-    };
+  it("the card stays away through the rest of the current turn, then returns at the end of the opponent's NEXT turn", () => {
+    let s = use(board(), 0).state;
+    s = endTurn(s); // end of Ronald's own turn: nothing comes back
+    expect(s.players.player_2.setAside).toHaveLength(1);
+    expect(s.players.player_2.hand.map((c: any) => c.cardId)).toEqual(["snelle_jensen"]);
+    s = startTurn(s); // the opponent's turn begins; the card is still away
+    expect(s.players.player_2.hand.map((c: any) => c.cardId)).not.toContain("piecie_kannetje_melk");
+    s = endTurn(s); // end of the opponent's turn: it returns
+    expect(s.players.player_2.setAside).toBeUndefined();
+    expect(s.players.player_2.hand.map((c: any) => c.cardId)).toContain("piecie_kannetje_melk");
+  });
 
-    const next = startTurn(state);
+  it("is once per turn, and refused without a legal pick or with an empty opponent hand", () => {
+    const first = use(board(), 0);
+    const second = use(first.state, 0);
+    expect(second.success).toBe(false);
+    expect(second.error).toMatch(/already used/);
+    expect(use(board(), 9).success).toBe(false);
+    const empty = board(); empty.players.player_2.hand = [];
+    const res = use(empty, 0);
+    expect(res.success).toBe(false);
+    expect(res.state.players.player_1.energy).toBe(6);
+  });
 
-    expect(next.players.player_1.activeSlots[0].strategicInsightCooldown).toBe(2);
-    expect(next.players.player_2._lockedCard).toBeUndefined();
+  it("refused with 1 Energy and changes nothing", () => {
+    const s = board(); s.players.player_1.energy = 1;
+    const res = use(s, 0);
+    expect(res.success).toBe(false);
+    expect(res.state.players.player_2.hand).toHaveLength(2);
+  });
+
+  it("the V4 lock fields are gone (no _lockedCard, no cooldown)", () => {
+    const res = use(board(), 0);
+    expect(res.state.players.player_2._lockedCard).toBeUndefined();
+    expect(res.state.players.player_1.activeSlots[0].strategicInsightCooldown).toBeUndefined();
   });
 });
 
 describe("Ronald Chef ability description", () => {
-  it("describes the 2.0 Strategic Insight text: choose a card from the opponent's hand, set face-down, returns to hand", () => {
-    const ronald = MOSJES.find((m: any) => m.id === "mosje_ronald_chef");
-    expect(ronald).toBeTruthy();
-    const desc = ronald.abilityDescription.toLowerCase();
+  it("is the 2.0 Strategic Insight text", () => {
+    const desc = MOSJES.find((m: any) => m.id === "mosje_ronald_chef").abilityDescription.toLowerCase();
     expect(desc).toContain("strategic insight");
     expect(desc).toContain("look at your opponent's hand and choose 1 card");
     expect(desc).toContain("face-down");
     expect(desc).toContain("returns to their hand");
-    expect(desc).not.toContain("predict");
-    expect(desc).not.toContain("view opponent hand");
   });
 });

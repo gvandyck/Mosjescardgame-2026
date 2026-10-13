@@ -46,7 +46,8 @@ export function defaultAbilityInputs(state, botId, abilityId) {
 			case 'orderTopN':
 			case 'pickFromTopN': {
 				const owner = input.deckKey && input.deckKey !== 'own' ? out[input.deckKey] : botId;
-				const size = Math.min(input.n, (state.players[owner || botId]?.deck || []).length);
+				let size = Math.min(input.n, (state.players[owner || botId]?.deck || []).length);
+				if (input.afterPick) size = Math.max(0, Math.min(5, (state.players[botId]?.deck || []).length) - (out[input.afterPick]?.length || 0));
 				const want = input.kind === 'pickFromTopN' ? Math.min(input.count, size) : size;
 				v = Array.from({ length: want }, (_, i) => i); break;
 			}

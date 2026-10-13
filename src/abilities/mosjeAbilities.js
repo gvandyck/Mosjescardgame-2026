@@ -21,6 +21,9 @@ import { youriSpeedActivate } from './mosje/youriSpeedActivate.js';
 import { ronaldMastermindMasterPlan } from './mosje/ronaldMastermindMasterPlan.js';
 import { tukHealingHands } from './mosje/tukHealingHands.js';
 import { bintiCuttingWords } from './mosje/bintiCuttingWords.js';
+import { ronaldChefStrategicInsight } from './mosje/ronaldChefStrategicInsight.js';
+import { senorWestCalculatedGuess } from './mosje/senorWestCalculatedGuess.js';
+import { tukArchitectPerfectPlacement } from './mosje/tukArchitectPerfectPlacement.js';
 
 console.log('[ABILITY] mosjeAbilities.js loaded');
 
@@ -128,29 +131,9 @@ export function ability_gandoe_destroyer_elimination_strike(gameState, playerId,
 
 // DIGITAL MOSJES
 
-// Ronald Chef — Strategic Insight: pay 2 Energy, lock a card in the opponent's hand
-// (chosen via the UI -> _pendingTargets.ronaldLockCardId) until this player's next
-// turn. Once per turn (abilityUsedThisTurn) + a 3-turn cooldown on the slot.
-export function ability_ronald_chef_strategic_insight(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) throw new Error('Player not found');
-	const slotIndex = player.activeSlots.findIndex(s => s && !s.isDefeated && String(s.cardId).includes('ronald_chef'));
-	if (slotIndex < 0) throw new Error('Ronald Chef not on field');
-	const slot = player.activeSlots[slotIndex];
-	if ((slot.strategicInsightCooldown || 0) > 0) {
-		throw new Error(`Strategic Insight is on cooldown (${slot.strategicInsightCooldown} turn(s) left)`);
-	}
-	const lockCardId = state._pendingTargets?.ronaldLockCardId;
-	if (!lockCardId) throw new Error('Strategic Insight requires an opponent card to lock');
-	const oppId = getOpponentId(state, playerId);
-	if (!oppId) throw new Error('No opponent on field');
-	const next = state;
-	next.players[oppId]._lockedCard = { cardId: lockCardId, byPlayer: playerId };
-	next.players[playerId].activeSlots[slotIndex].strategicInsightCooldown = 3;
-	if (next._pendingTargets) delete next._pendingTargets.ronaldLockCardId;
-	console.log('[ABILITY] Ronald Strategic Insight: locked', lockCardId, 'on', oppId, '(cooldown 3)');
-	return next;
+// Ronald Chef — Strategic Insight: see abilities/mosje/ronaldChefStrategicInsight.js (2 Energy via abilityEnergyCosts.js).
+export function ability_ronald_chef_strategic_insight(gameState, playerId, mosjeId) {
+	return ronaldChefStrategicInsight(gameState, playerId, mosjeId);
 }
 
 // Ming Natural — Lucky Draw: see abilities/mosje/mingNaturalLuckyDraw.js (free activation or hand, else draw + 15 MP).
@@ -163,53 +146,15 @@ export function ability_ming_predictor_future_sight(gameState, playerId, mosjeId
 	return mingPredictorFutureSight(gameState, playerId, mosjeId);
 }
 
-// Martin Historian — retrieve top card from own discard pile to hand.
-export function ability_martin_historian_time_control(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player || player.graveyard.length === 0) {
-		console.log('[ABILITY] Martin Historian: discard empty');
-		return state;
-	}
-	const retrieved = player.graveyard.shift();
-	player.hand.push(retrieved);
-	console.log('[ABILITY] Martin Historian: retrieved', retrieved.cardId, 'from discard');
-	return state;
+// Martin Historian — Time Control is a draw-step option (abilities/mosje/martinHistorianTimeControl.js, finishDrawStep);
+// there is no Activate button. Kept so a stray useMosjeAbility call is refused instead of crashing.
+export function ability_martin_historian_time_control() {
+	throw new Error('Time Control is used during your draw step');
 }
 
-// Martin Senor West — Tactical Calculated Guess.
-// Expects state._pendingTargets.west_guess (card type string) and
-// state._pendingTargets.west_top_card_type (type of the top deck card).
-// Correct guess → draw 2 cards + gain 10 MP. Wrong → lose 10 MP.
+// Martin Senor West — Calculated Guess: see abilities/mosje/senorWestCalculatedGuess.js (free; holder peek in senorWestPeekQuestStack.js).
 export function ability_martin_senor_west_calculated_guess(gameState, playerId, mosjeId) {
-	let state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const westIds = new Set(['mosje_martin_senor_west']);
-	const si = mosjeId && westIds.has(mosjeId)
-		? player.activeSlots.findIndex(s => s && s.cardId === mosjeId && !s.isDefeated)
-		: getActiveSlotIndexForMosje(player, mosjeId);
-	if (si < 0) return state;
-
-	const guess = state._pendingTargets?.west_guess;
-	const topCardType = state._pendingTargets?.west_top_card_type;
-
-	if (!guess || !topCardType) {
-		console.warn('[ABILITY] Senor West: missing guess or top card type — no effect');
-		return state;
-	}
-
-	const isCorrect = guess === topCardType;
-	if (isCorrect) {
-		applyGain(state, player.activeSlots[si], 10);
-		const drawn = player.deck.splice(0, 2);
-		player.hand.push(...drawn);
-		console.log(`[ABILITY] Senor West: correct guess (${guess}) → +10 MP, drew ${drawn.length} card(s)`);
-	} else {
-		state = loseMP(state, playerId, si, 10, 'ABILITY');
-		console.log(`[ABILITY] Senor West: wrong guess (${guess}, was ${topCardType}) → -10 MP via loseMP`);
-	}
-	return state;
+	return senorWestCalculatedGuess(gameState, playerId, mosjeId);
 }
 
 // West (legacy alias) — delegates to the full implementation.
@@ -277,13 +222,9 @@ export function ability_tuk_healer_healing_presence(gameState, playerId, mosjeId
 	return tukHealingHands(gameState, playerId, mosjeId);
 }
 
-// Coert KasteLuck — morning luck: roll d6. Even → +15 MP.
-// Coert KasteLuck — Morning Luck is now an auto-trigger at turn start (2026-07-13
-// reconciliation): the real roll + same-turn-activation grant live in
-// turnManager.js's startTurn() and playPiecie(). This manual entry is a no-op kept
-// so useMosjeAbility does not crash if called (mirrors ability_jeffrey_brute_force).
-export function ability_coert_kasteluck_morning_luck(gameState, _playerId) {
-	console.log('[ABILITY] Coert KasteLuck Morning Luck: passive auto-ability — no manual activation needed');
+// Coert KasteLuck — Morning Luck is a startOfTurn trigger (abilities/mosje/coertKasteLuckMorningLuck.js, MOSJE_TRIGGERS).
+// This manual entry is a no-op kept so the dispatch map resolves.
+export function ability_coert_kasteluck_morning_luck(gameState) {
 	return gameState;
 }
 
@@ -361,31 +302,9 @@ export function ability_coert_kastelein_immovable_object(gameState, playerId, mo
 	return state;
 }
 
-// Tuk Architect — Perfect Placement: pay 15 MP, look at the top 5 cards of your
-// deck, take 2 into your hand, and send the other 3 to the bottom. The 2 chosen
-// cardIds come from the UI via _pendingTargets.tukChosenCardIds. No face-down placement.
-export function ability_tuk_architect_perfect_placement(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) throw new Error('Player not found');
-	const slotIndex = player.activeSlots.findIndex(s => s && !s.isDefeated && String(s.cardId).includes('tuk'));
-	if (slotIndex < 0) throw new Error('Tuk not on field');
-	const chosen = state._pendingTargets?.tukChosenCardIds; // array of up to 2 cardIds from top 5
-	if (!Array.isArray(chosen) || chosen.length === 0) throw new Error('Perfect Placement requires card selection');
-	// 2.0: no MP cost; 1 Energy is charged by useMosjeAbility (abilityEnergyCosts.js).
-	const top5 = player.deck.slice(0, 5);
-	const rest = player.deck.slice(5);
-	const taken = [];
-	const bottomed = [];
-	for (const c of top5) {
-		if (taken.length < 2 && chosen.includes(c.cardId)) taken.push(c);
-		else bottomed.push(c);
-	}
-	player.hand.push(...taken);
-	player.deck = [...rest, ...bottomed];
-	if (state._pendingTargets) delete state._pendingTargets.tukChosenCardIds;
-	console.log('[ABILITY] Tuk Perfect Placement: took', taken.map(c => c.cardId), 'bottomed', bottomed.map(c => c.cardId));
-	return state;
+// Tuk Architect — Perfect Placement: see abilities/mosje/tukArchitectPerfectPlacement.js (1 Energy via abilityEnergyCosts.js).
+export function ability_tuk_architect_perfect_placement(gameState, playerId, mosjeId) {
+	return tukArchitectPerfectPlacement(gameState, playerId, mosjeId);
 }
 
 // 2.0: Dancing/DDR Chris Perfect Combo Chain is a trigger/passive (src/abilities/mosje/*, MOSJE_TRIGGERS). No manual ability; kept so the dispatch map resolves.

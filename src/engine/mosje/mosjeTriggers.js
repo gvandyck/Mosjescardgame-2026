@@ -14,6 +14,9 @@ import { jeffreyBruteForce } from '../../abilities/mosje/jeffreyBruteForce.js';
 import { jeffreyGamblerQuestBonus } from '../../abilities/mosje/jeffreyGamblerQuestBonus.js';
 import { martinDriverPerfectLine } from '../../abilities/mosje/martinDriverPerfectLine.js';
 import { gandoeDestroyerStrikeChoice } from '../../abilities/mosje/gandoeDestroyerStrikeChoice.js';
+import { coertKasteLuckMorningLuck } from '../../abilities/mosje/coertKasteLuckMorningLuck.js';
+import { martinHistorianTimeControl } from '../../abilities/mosje/martinHistorianTimeControl.js';
+import { martinHistorianEndDraw } from '../../abilities/mosje/martinHistorianEndDraw.js';
 import { bintiDiscardChoice } from '../../abilities/mosje/bintiDiscardChoice.js';
 // MOSJE_TRIGGERS — push-only registry of 2.0 Mosje trigger hooks (like ATTACK_TRIGGERS).
 // Entry: { mosjeId, run(state, ctx), available?(state, playerId) } (see runMosjeTriggers).
@@ -21,16 +24,16 @@ import { bintiDiscardChoice } from '../../abilities/mosje/bintiDiscardChoice.js'
 // (or { needChoice }); questWinAmount returns the running number; oppStartOfTurn runs for the
 // NON-active player's field; an entry with onOpponent:true runs for the player(s) who did NOT act (FPS West); drawStep entries use available() to offer a draw-step option.
 export const MOSJE_TRIGGERS = {
-	startOfTurn: [gandoeWizardChaosRoll],
+	startOfTurn: [gandoeWizardChaosRoll, coertKasteLuckMorningLuck],
 	oppStartOfTurn: [drainerContinuousDrain],
-	endOfTurn: [aznClessRiskReward, fpsWestTacticalAnalysis],
+	endOfTurn: [aznClessRiskReward, fpsWestTacticalAnalysis, martinHistorianEndDraw],
 	questWinAmount: [michelleToughGamble],
 	questSuccess: [parkourWestFlowQuest, fpsCoertHeadshot, jeffreyBruteForce, martinDriverPerfectLine, jeffreyGamblerQuestBonus],
 	// piecieActivated order on one activation (Card List ruling): Jisca, then Dancing/DDR Chris, then Cless, The Teacher.
 	piecieActivated: [jiscaPerfectCombo, ddrChrisComboChain, clessTeachingMoment],
 	placeDestroyed: [alyssaFissaPartyPower],
 	cardPlayedFromHand: [fpsWestTacticalAnalysis],
-	drawStep: [coertTechExtraResources],
+	drawStep: [coertTechExtraResources, martinHistorianTimeControl],
 	// Binti's Cutting Words fires this directly (not from runMosjeTriggers) so the opponent's discard pick can pause.
 	bintiDiscard: [bintiDiscardChoice],
 	// Gandoe, The Destroyer's Elimination Strike resolves here so a tie can pause for the owner's pick.

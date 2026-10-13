@@ -8,7 +8,7 @@ import { isPiecieReady } from './table/isPiecieReady.js';
 import { finishPiecieActivation } from './table/finishPiecieActivation.js';
 import { sweepStaysSlots } from './table/sweepStaysSlots.js';
 import { canLeaveWelloePile } from './table/canLeaveWelloePile.js';
-import { drawCards, shuffleDeck, rollDie } from './deckEngine.js';
+import { drawCards, shuffleDeck } from './deckEngine.js';
 import { placeEmptyFieldMosje } from './turn/placeEmptyFieldMosje.js';
 import { clearOwnerProtections } from './turn/clearOwnerProtections.js';
 import { expireThisTurnEffects } from './turn/expireThisTurnEffects.js';
@@ -41,6 +41,8 @@ import { getAbilityEnergyCost } from './energy/getAbilityEnergyCost.js';
 import { piecieActivationGate } from './table/piecieActivationGate.js';
 import { runMosjeTriggers } from './mosje/runMosjeTriggers.js';
 import { getDrawStepOptions } from './mosje/getDrawStepOptions.js';
+import { armSetAside } from './mosje/armSetAside.js';
+import { returnSetAside } from './mosje/returnSetAside.js';
 import { MOSJE_ABILITY_RULES } from '../rules/mosjeAbilityRules.js';
 
 console.log('[ENGINE] turnManager.js loaded');
@@ -86,7 +88,7 @@ const NO_DOUBLE_ABILITIES = new Set([
   'ability_binti_cutting_words',                  // once per turn + discard target
   'ability_michelle_tough_gamble',                // passive (auto, no manual trigger)
   'ability_jeffrey_brute_force',                  // passive (auto)
-  'ability_coert_kasteluck_morning_luck',          // passive (auto, turn-start roll)
+  'ability_coert_kasteluck_morning_luck',          // trigger (startOfTurn roll)
   'ability_fps_coert_headshot_precision',           // passive (auto, quest-success roll)
   'ability_chris_ddr_perfect_combo_chain',          // passive (auto, roll after every Piecie activation)
   // Group B (2026-06-17): once-per-turn / cooldown / per-game-cap abilities.
@@ -135,12 +137,6 @@ function normalizePiecieSlots(player, slotCount = PIECIE_SLOT_COUNT) {
   player.piecieSlots = normalized;
 }
 
-// Ronald Strategic Insight: a hand card locked by an opponent cannot be played.
-function isHandCardLocked(gameState, playerId, cardRef) {
-  const playedId = cardRef?.cardId ?? cardRef;
-  return gameState.players?.[playerId]?._lockedCard?.cardId === playedId;
-}
-
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // startTurn
 // Called at the beginning of a player's turn.
@@ -178,7 +174,6 @@ export function startTurn(gameState) {
   activePlayer.actionsThisTurn = [];
   activePlayer.freePiecieActivationAvailable = false;
   activePlayer.attackPieciePlayedThisTurn = false;
-  activePlayer.kasteLuckSameTurnActivation = false;
   activePlayer.ddrChainsThisTurn = 0; // Dancing/DDR Chris: max 2 free chains per turn
   activePlayer.jiscaRolledThisTurn = false; // Jisca: once per turn
 
@@ -189,19 +184,8 @@ export function startTurn(gameState) {
   delete state._battleConcertActive;
   delete state._rerollGranted;
 
-  // Phase 19 — Ronald Strategic Insight hygiene:
-  // tick the cooldown on the starting player's slots
-  for (const s of activePlayer.activeSlots) {
-    if (s && typeof s.strategicInsightCooldown === 'number' && s.strategicInsightCooldown > 0) {
-      s.strategicInsightCooldown -= 1;
-    }
-  }
-  // a lock expires when the player who set it begins their next turn
-  for (const pid of Object.keys(state.players)) {
-    if (state.players[pid]._lockedCard?.byPlayer === playerId) {
-      delete state.players[pid]._lockedCard;
-    }
-  }
+  // Ronald, The Master Chef: cards set aside from this player's hand return at the end of THIS turn.
+  armSetAside(state, playerId);
 
   for (const slot of activePlayer.activeSlots) {
     if (slot) {
@@ -270,23 +254,6 @@ export function finishStartTurn(state, playerId, opts = {}) {
 
   // START PHASE — fire active Place effects (START_PHASE trigger only)
   state = applyPlaceEffectsOnStart(state, playerId);
-
-  // Coert KasteLuck — Morning Luck: auto turn-start roll (2026-07-13 reconciliation
-  // ruling: TEXT WINS, but same-turn activation is granted via the ACTUALLY-working
-  // Chris+Youri mechanic in playPiecie, not the inert freePiecieActivationAvailable
-  // flag). On 4-6, the next Piecie this player plays this turn skips the "wait
-  // until next turn to activate" rule; consumed on that first play.
-  const kasteLuckPlayer = state.players[playerId];
-  const kasteLuckAlive = kasteLuckPlayer.activeSlots.some(s => s && !s.isDefeated && s.cardId === 'mosje_coert_kasteluck');
-  if (kasteLuckAlive) {
-    const kasteLuckRoll = rollDie(6);
-    if (kasteLuckRoll >= 4) {
-      kasteLuckPlayer.kasteLuckSameTurnActivation = true;
-      console.log(`[ABILITY] Coert KasteLuck: rolled ${kasteLuckRoll} (lucky!) — next Piecie played this turn activates instantly`);
-    } else {
-      console.log(`[ABILITY] Coert KasteLuck: rolled ${kasteLuckRoll} (no luck today)`);
-    }
-  }
 
   // 2.0 Mosje triggers: own start-of-turn, then each opponent-start-of-turn (before fresh flags clear).
   state = runMosjeTriggers(state, 'startOfTurn', { playerId });
@@ -436,6 +403,7 @@ export function endTurn(gameState) {
   }
 
   state = runMosjeTriggers(state, 'endOfTurn', { playerId });
+  returnSetAside(state, playerId); // Ronald's Strategic Insight: set-aside cards come back now
   snapBackTacticianSet(state);
   expireThisTurnEffects(state);
 
@@ -468,9 +436,6 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
   const player = state.players[playerId];
   if (!player) return { state, success: false, error: 'Player not found' };
 
-  if (isHandCardLocked(state, playerId, cardRef)) {
-    return { state, success: false, error: 'That card is locked by Ronald Strategic Insight — you cannot play it this turn.' };
-  }
 
   // Defensive normalization for synced multiplayer states
   normalizePiecieSlots(player);
@@ -503,21 +468,13 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
   if (chrisYouriSynergy) {
     console.log('[SYNERGY] Youri holder text: Piecie placed with instant activation (canActivateOnTurn = ' + state.turnNumber + ')');
   }
-  // Coert KasteLuck's turn-start Morning Luck roll: one-shot same-turn-activation
-  // bonus on the FIRST Piecie played this turn, consumed here regardless of
-  // whether Chris+Youri synergy also would have granted it.
-  const kasteLuckBonus = player.kasteLuckSameTurnActivation === true;
-  if (kasteLuckBonus) {
-    console.log('[ABILITY] Coert KasteLuck: Morning Luck bonus consumed — Piecie placed with instant activation');
-    player.kasteLuckSameTurnActivation = false;
-  }
   player.piecieSlots[emptySlot] = {
     cardId: cardRef.cardId,
     type: 'PIECIE',
     faceDown: true,
     activated: false,
     playedOnTurn: state.turnNumber,
-    canActivateOnTurn: (chrisYouriSynergy || kasteLuckBonus) ? state.turnNumber : state.turnNumber + 1,
+    canActivateOnTurn: chrisYouriSynergy ? state.turnNumber : state.turnNumber + 1,
   };
 
   state.players[playerId].pieciesPlayedThisTurn = (state.players[playerId].pieciesPlayedThisTurn || 0) + 1;
@@ -729,9 +686,6 @@ function playSnellieCore(gameState, playerId, cardRef, cardDef) {
   if (!player) return { state, success: false, error: 'Player not found' };
   if (isCooldownBlocked(state, playerId)) return { state, success: false, error: COOLDOWN_ERROR };
 
-  if (isHandCardLocked(state, playerId, cardRef)) {
-    return { state, success: false, error: 'That card is locked by Ronald Strategic Insight — you cannot play it this turn.' };
-  }
 
   // Those Eyelashes: this player's Snelles are blocked this turn
   if (state._snelleBlocked === playerId) {
@@ -850,9 +804,6 @@ export function playMosje(gameState, playerId, cardRef) {
   if (isCooldownBlocked(state, playerId)) return { state, success: false, error: COOLDOWN_ERROR };
   if (state.activePlayerId !== playerId) return { state, success: false, error: 'Not your turn' };
 
-  if (isHandCardLocked(state, playerId, cardRef)) {
-    return { state, success: false, error: 'That card is locked by Ronald Strategic Insight — you cannot play it this turn.' };
-  }
 
   if (!Array.isArray(player.hand)) player.hand = [];
   if (!Array.isArray(player.activeSlots)) player.activeSlots = [null, null];
@@ -1138,9 +1089,6 @@ export function playPlace(gameState, playerId, cardRef, cardDef) {
   if (isCooldownBlocked(state, playerId)) return { state, success: false, error: COOLDOWN_ERROR };
   if (state.activePlayerId !== playerId) {
     return { state, success: false, error: 'You can only play a Place on your own turn' };
-  }
-  if (isHandCardLocked(state, playerId, cardRef)) {
-    return { state, success: false, error: 'That card is locked by Ronald Strategic Insight — you cannot play it this turn.' };
   }
   if (state.activePlace) return { state, success: false, error: 'A Place is already in play' };
   if (!Array.isArray(player.hand)) player.hand = [];

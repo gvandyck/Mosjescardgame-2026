@@ -72,7 +72,7 @@ describe("Tuk Perfect Placement — peek 5, take 2 to hand, bottom 3", () => {
       { cardId: "c5" },
       { cardId: "c6" }, // 6th stays put (not in top 5)
     ];
-    state._pendingTargets = { tukChosenCardIds: ["c2", "c4"] };
+    state._pendingTargets = { pick: [1, 3] }; // 2.0: indices into the top 5
 
     const next = ability_tuk_architect_perfect_placement(state, "player_1");
 

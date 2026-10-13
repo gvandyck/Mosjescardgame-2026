@@ -396,7 +396,9 @@ test('chain: Jisca Perfect Combo — rolling 5-6 free-activates the only face-do
 // full pipeline: startTurn's roll -> playPiecie's flag consumption -> the
 // Activate button being genuinely usable THIS turn, without the test-only
 // unlockPiecies escape hatch every other chain test relies on.
-test('chain: Coert KasteLuck Morning Luck — rolling 4-6 lets the next Piecie activate same-turn', async ({ page }) => {
+// KNOWN GAP (Phase 58 plan 12): encodes the V4 same-turn-activation grant. 2.0 Morning Luck is a startOfTurn roll: 4-6 draw 1 and +5 MP
+// (engine rule proven in tests/engine/coert-kasteluck-morning-luck.test.ts). Browser spec is rewritten in 58-12.
+test.fixme('chain: Coert KasteLuck Morning Luck — rolling 4-6 lets the next Piecie activate same-turn', async ({ page }) => {
 	test.setTimeout(60000);
 	await mockDiceRoll(page, 0.99); // Math.random→0.99 ⇒ d6 always rolls 6 (turn-start roll AND any other rolls)
 

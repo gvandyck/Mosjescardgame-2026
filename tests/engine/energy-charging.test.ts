@@ -121,7 +121,8 @@ describe("Ability Energy charging", () => {
 
   it("Ronald Strategic Insight costs 2 Energy and no MP", () => {
     const s = withMosje(6, "mosje_ronald_chef");
-    s._pendingTargets = { ronaldLockCardId: "piecie_kannetje_melk" };
+    s.players.player_2.hand = [{ cardId: "piecie_kannetje_melk", type: "PIECIE" }];
+    s._pendingTargets = { locked_card: 0 };
     const res = useMosjeAbility(s, "player_1", "mosje_ronald_chef");
     expect(res.success).toBe(true);
     expect(res.state.players.player_1.activeSlots[0].mp).toBe(60);

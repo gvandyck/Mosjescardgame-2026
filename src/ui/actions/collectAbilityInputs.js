@@ -10,7 +10,13 @@ export async function collectAbilityInputs({ state, playerId, modal, inputs, pre
 		if (preset[input.key] !== undefined) { collected[input.key] = preset[input.key]; continue; }
 		if (input.kind === 'orderTopN' || input.kind === 'pickFromTopN') {
 			const owner = input.deckKey && input.deckKey !== 'own' ? collected[input.deckKey] : playerId;
-			const deck = state.players[owner || playerId]?.deck || [];
+			let deck = state.players[owner || playerId]?.deck || [];
+			// afterPick (Tuk Architect): order only the cards left in the top N once the picked ones are taken out.
+			if (input.afterPick && Array.isArray(collected[input.afterPick])) {
+				const picked = collected[input.afterPick];
+				const top = deck.slice(0, 5).filter((_, i) => !picked.includes(i));
+				deck = [...top, ...deck.slice(5)];
+			}
 			const value = await pickCardOrder({
 				modal, deck, n: Math.min(input.n, deck.length),
 				mode: input.kind === 'pickFromTopN' ? 'pick' : 'order', count: input.count,
