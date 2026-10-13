@@ -448,79 +448,11 @@ function makeJiscaState(piecieSlots: any[]) {
 }
 
 describe("Jisca — Perfect Combo", () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it("rolling 1-4 has no effect and doesn't touch any Piecie slot", () => {
-    vi.spyOn(Math, "random").mockReturnValue(0); // rollDie(6) => 1
+  // 58-06: the V4 manual button (roll, unlock a face-down Piecie, +flags) is gone. The real behaviour is the
+  // piecieActivated trigger, covered in tests/abilities/mosjes-deck3-chain.test.ts and free-activation-chain.test.ts.
+  it("the manual ability entry is a no-op passthrough (Perfect Combo is a trigger now)", () => {
     const state = makeJiscaState([makeFaceDownPiecieSlot("piecie_a"), null, null, null]);
-
-    const result = ability_jisca_perfect_combo(state, "player_1");
-
-    expect(result.success).toBe(true);
-    expect(result.jiscaRoll).toBe(1);
-    expect(result.state.players.player_1.piecieSlots[0].canActivateOnTurn).toBeUndefined();
-  });
-
-  it("rolling 5-6 with a single face-down Piecie unlocks it (canActivateOnTurn set, not yet flipped)", () => {
-    vi.spyOn(Math, "random").mockReturnValue(0.99); // rollDie(6) => 6
-    const state = makeJiscaState([makeFaceDownPiecieSlot("piecie_a"), null, null, null]);
-
-    const result = ability_jisca_perfect_combo(state, "player_1");
-
-    expect(result.jiscaRoll).toBe(6);
-    expect(result.jiscaChainedFaceDown).toBe(true);
-    expect(result.jiscaChainedSlot).toBe(0);
-    expect(result.state.players.player_1.piecieSlots[0].canActivateOnTurn).toBe(7);
-    expect(result.state.players.player_1.piecieSlots[0].faceDown).toBe(true); // step 2 (activatePiecie) is the UI's job
-  });
-
-  it("rolling 5-6 with a single already-active Piecie runs its effect fn directly", () => {
-    vi.spyOn(Math, "random").mockReturnValue(0.99); // rollDie(6) => 6
-    const activeSlot = { cardId: "piecie_kannetje_melk", type: "PIECIE", faceDown: false, activated: true };
-    const state = makeJiscaState([activeSlot, null, null, null]);
-
-    const result = ability_jisca_perfect_combo(state, "player_1");
-
-    expect(result.jiscaChainedFaceDown).toBe(false);
-    expect(result.jiscaChainedSlot).toBe(0);
-    // effect_kannetje_melk ran: +25 MP to the active Mosje (Jisca itself)
-    expect(result.state.players.player_1.activeSlots[0].mp).toBe(75);
-  });
-
-  it("with multiple eligible Piecies, honors _pendingTargets.jiscaComboSlotIndex", () => {
-    vi.spyOn(Math, "random").mockReturnValue(0.99); // rollDie(6) => 6
-    const state = makeJiscaState([
-      makeFaceDownPiecieSlot("piecie_a"),
-      makeFaceDownPiecieSlot("piecie_b"),
-      null,
-      null,
-    ]);
-    state._pendingTargets = { jiscaComboSlotIndex: 1 };
-
-    const result = ability_jisca_perfect_combo(state, "player_1");
-
-    expect(result.jiscaChainedSlot).toBe(1);
-    expect(result.state.players.player_1.piecieSlots[1].canActivateOnTurn).toBe(7);
-    expect(result.state.players.player_1.piecieSlots[0].canActivateOnTurn).toBeUndefined();
-  });
-
-  it("rolling 5-6 with no Piecie on the field has no effect beyond the roll", () => {
-    vi.spyOn(Math, "random").mockReturnValue(0.99); // rollDie(6) => 6
-    const state = makeJiscaState([null, null, null, null]);
-
-    const result = ability_jisca_perfect_combo(state, "player_1");
-
-    expect(result.jiscaRoll).toBe(6);
-    expect(result.jiscaChainedSlot).toBeUndefined();
-  });
-
-  it("throws when Jisca is not on field", () => {
-    const state = makeJiscaState([makeFaceDownPiecieSlot("piecie_a"), null, null, null]);
-    state.players.player_1.activeSlots[0].cardId = "mosje_other";
-
-    expect(() => ability_jisca_perfect_combo(state, "player_1")).toThrow();
+    expect(ability_jisca_perfect_combo(state, "player_1")).toBe(state);
   });
 });
 
@@ -706,13 +638,11 @@ function makeChrisDdrState(opts: {
   chrisDdrAlive?: boolean;
   dj8020Alive?: boolean;
   handPiecieCount?: number;
-  chrisDdrChainUsesThisTurn?: number;
 } = {}) {
   const {
     chrisDdrAlive = true,
     dj8020Alive = false,
     handPiecieCount = 1,
-    chrisDdrChainUsesThisTurn = 0,
   } = opts;
 
   const activeSlots = [
@@ -734,7 +664,6 @@ function makeChrisDdrState(opts: {
           { cardId: "piecie_kannetje_melk", type: "PIECIE", faceDown: true, activated: false, playedOnTurn: 4, canActivateOnTurn: 5 },
           null, null, null,
         ],
-        chrisDdrChainUsesThisTurn,
         pieciesActivatedThisTurn: 0,
       },
       player_2: {
@@ -754,30 +683,8 @@ describe("Chris DDR — Perfect Combo Chain", () => {
     vi.restoreAllMocks();
   });
 
-  it("rolling 5-6 with a Piecie in hand chains it once, consuming a use", () => {
-    vi.spyOn(Math, "random").mockReturnValue(0.99); // rollDie(6) => 6
-    const state = makeChrisDdrState({ handPiecieCount: 1 });
-
-    const result = activatePiecie(state, "player_1", 0);
-
-    expect(result.success).toBe(true);
-    // Chris DDR (slot 0): 50 +25 from the activation, +25 from the chain = 100 -> 2.0 level-up
-    expect(result.state.players.player_1.activeSlots[0].level).toBe(2);
-    expect(result.state.players.player_1.activeSlots[0].mp).toBe(0);
-    expect(result.state.players.player_1.hand.length).toBe(0); // chained Piecie consumed from hand
-    expect(result.state.players.player_1.chrisDdrChainUsesThisTurn).toBe(1);
-  });
-
-  it("chains recursively up to 3 times per turn, even with more Piecies available in hand", () => {
-    vi.spyOn(Math, "random").mockReturnValue(0.99); // rollDie(6) => 6, every roll succeeds
-    const state = makeChrisDdrState({ handPiecieCount: 5 });
-
-    const result = activatePiecie(state, "player_1", 0);
-
-    expect(result.state.players.player_1.chrisDdrChainUsesThisTurn).toBe(3); // capped
-    expect(result.state.players.player_1.hand.length).toBe(2); // 5 - 3 chained
-  });
-
+  // 58-06: the V4 hand-chain (3/turn, from hand) is gone; the 2.0 chain (ready Piecie on the field, 2/turn)
+  // is covered in tests/abilities/mosjes-deck3-chain.test.ts.
   it("rolling below 5 does not chain", () => {
     vi.spyOn(Math, "random").mockReturnValue(0); // rollDie(6) => 1
     const state = makeChrisDdrState({ handPiecieCount: 1 });
@@ -785,16 +692,17 @@ describe("Chris DDR — Perfect Combo Chain", () => {
     const result = activatePiecie(state, "player_1", 0);
 
     expect(result.state.players.player_1.hand.length).toBe(1); // untouched
-    expect(result.state.players.player_1.chrisDdrChainUsesThisTurn).toBe(0);
+    expect(result.state.players.player_1.ddrChainsThisTurn || 0).toBe(0);
   });
 
-  it("does not chain when there's no Piecie in hand, even on a 5-6", () => {
+  it("a 6 never pulls a Piecie out of the hand any more (2.0: ready Piecies on the field only)", () => {
     vi.spyOn(Math, "random").mockReturnValue(0.99); // rollDie(6) => 6
-    const state = makeChrisDdrState({ handPiecieCount: 0 });
+    const state = makeChrisDdrState({ handPiecieCount: 1 });
 
     const result = activatePiecie(state, "player_1", 0);
 
-    expect(result.state.players.player_1.chrisDdrChainUsesThisTurn).toBe(0); // no use spent — nothing to chain
+    expect(result.state.players.player_1.hand.length).toBe(1);
+    expect(result.state.players.player_1.ddrChainsThisTurn || 0).toBe(0); // no other ready Piecie: no use spent
   });
 
   it("does not chain at all when Chris DDR is not on the field", () => {
@@ -804,7 +712,7 @@ describe("Chris DDR — Perfect Combo Chain", () => {
     const result = activatePiecie(state, "player_1", 0);
 
     expect(result.state.players.player_1.hand.length).toBe(1); // untouched
-    expect(result.state.players.player_1.chrisDdrChainUsesThisTurn ?? 0).toBe(0);
+    expect(result.state.players.player_1.ddrChainsThisTurn ?? 0).toBe(0);
   });
 
   // DJ 80/20 +2 to the roll removed in 2.0 (Phase 58-01): not a Card List synergy.

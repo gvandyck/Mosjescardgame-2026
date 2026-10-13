@@ -7,6 +7,9 @@ import { coertTechExtraResources } from '../../abilities/mosje/coertTechExtraRes
 import { fpsCoertHeadshot } from '../../abilities/mosje/fpsCoertHeadshot.js';
 import { fpsWestTacticalAnalysis } from '../../abilities/mosje/fpsWestTacticalAnalysis.js';
 import { drainerContinuousDrain } from '../../abilities/mosje/drainerContinuousDrain.js';
+import { jiscaPerfectCombo } from '../../abilities/mosje/jiscaPerfectCombo.js';
+import { ddrChrisComboChain } from '../../abilities/mosje/ddrChrisComboChain.js';
+import { clessTeachingMoment } from '../../abilities/mosje/clessTeachingMoment.js';
 // MOSJE_TRIGGERS — push-only registry of 2.0 Mosje trigger hooks (like ATTACK_TRIGGERS).
 // Entry: { mosjeId, run(state, ctx), available?(state, playerId) } (see runMosjeTriggers).
 // startOfTurn/endOfTurn/questSuccess/piecieActivated/placeDestroyed/cardPlayedFromHand return state
@@ -18,7 +21,8 @@ export const MOSJE_TRIGGERS = {
 	endOfTurn: [aznClessRiskReward, fpsWestTacticalAnalysis],
 	questWinAmount: [michelleToughGamble],
 	questSuccess: [parkourWestFlowQuest, fpsCoertHeadshot],
-	piecieActivated: [],
+	// piecieActivated order on one activation (Card List ruling): Jisca, then Dancing/DDR Chris, then Cless, The Teacher.
+	piecieActivated: [jiscaPerfectCombo, ddrChrisComboChain, clessTeachingMoment],
 	placeDestroyed: [alyssaFissaPartyPower],
 	cardPlayedFromHand: [fpsWestTacticalAnalysis],
 	drawStep: [coertTechExtraResources],

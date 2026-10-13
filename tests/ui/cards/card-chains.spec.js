@@ -517,7 +517,9 @@ test('chain: Tikker QUEST_BLOCKED prevents a General Quest', async ({ page }) =>
 // activates another Piecie from hand for free. Dice forced to 6 so the chain
 // always fires; the recursive cap-at-3 and DJ 80/20 +2 synergy are pure engine
 // logic already covered by the unit tests in ability-text-reconciliation.test.ts.
-test('chain: Chris DDR Perfect Combo Chain — activating a Piecie auto-chains another from hand', async ({ page }) => {
+// KNOWN GAP (Phase 58 plan 12): encodes the V4 hand-chain (3/turn, from hand). 2.0 DDR Chris chains a READY Piecie on the field
+// for free (2/turn, owner picks); the engine rule is proven in tests/abilities/mosjes-deck3-chain.test.ts. Browser spec is rewritten in 58-12.
+test.fixme('chain: Chris DDR Perfect Combo Chain — activating a Piecie auto-chains another from hand', async ({ page }) => {
 	test.setTimeout(60000);
 	await mockDiceRoll(page, 0.99); // Math.random→0.99 ⇒ d6 always rolls 6
 

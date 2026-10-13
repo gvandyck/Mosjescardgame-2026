@@ -4,7 +4,12 @@ import { activatePiecie } from "../../src/engine/turnManager.js";
 // @ts-expect-error - JS module
 import { activatePiecieFree } from "../../src/engine/table/activatePiecieFree.js";
 // @ts-expect-error - JS module
+import { resolvePendingChoice } from "../../src/engine/mosje/resolvePendingChoice.js";
+// @ts-expect-error - JS module
 import { MOSJE_TRIGGERS } from "../../src/engine/mosje/mosjeTriggers.js";
+// @ts-expect-error - JS module
+// @ts-expect-error - JS module
+import { pushTestDice, clearTestDice, shiftTestDie } from "../../src/engine/dice/testDiceQueue.js";
 // @ts-expect-error - JS module
 import { makeEngineState } from "../helpers/makeEngineState.js";
 
@@ -27,6 +32,7 @@ function build(p1: any = {}, extra: any = {}) {
 const seen: any[] = [];
 const spy = { mosjeId: "mosje_a", run: (s: any, ctx: any) => { seen.push({ free: ctx.free, slotIndex: ctx.slotIndex, id: ctx.cardDef?.id }); return s; } };
 afterEach(() => {
+  clearTestDice();
   seen.length = 0;
   const i = MOSJE_TRIGGERS.piecieActivated.indexOf(spy);
   if (i >= 0) MOSJE_TRIGGERS.piecieActivated.splice(i, 1);
@@ -66,13 +72,15 @@ describe("activatePiecieFree", () => {
     vi.spyOn(Math, "random").mockReturnValue(0.99); // every die = 6
     const mk = () => build({
       activeSlots: [mosje("mosje_chris_ddr"), null],
-      hand: [{ cardId: DONER, type: "PIECIE" }],
+      piecieSlots: [placed(TE_HARD), placed(DONER), placed(DONER)],
     });
-    const normal = activatePiecie(mk(), "player_1", 0);
-    expect(normal.state.players.player_1.hand.length).toBe(0); // chained the hand Piecie
+    let normal: any = activatePiecie(mk(), "player_1", 0);
+    while (normal.state.pendingChoice) normal = resolvePendingChoice(normal.state, normal.state.pendingChoice.options[0]);
+    expect(normal.state.players.player_1.ddrChainsThisTurn).toBe(1); // one roll per paid activation: one ready Piecie chained for free
+    expect(normal.state.players.player_1.piecieSlots.filter((s: any) => s === null).length).toBe(2);
     const free = activatePiecieFree(mk(), "player_1", { slotIndex: 0 });
-    expect(free.state.players.player_1.hand.length).toBe(1); // no chain
-    expect(free.state.players.player_1.chrisDdrChainUsesThisTurn || 0).toBe(0);
+    expect(free.state.players.player_1.ddrChainsThisTurn || 0).toBe(0); // no chain
+    expect(free.state.players.player_1.piecieSlots[1]?.activated).toBe(false);
   });
 
   it("the gates still apply (Jeffrey blocks a FOOD Piecie, free or not)", () => {
@@ -109,5 +117,52 @@ describe("activatePiecieFree", () => {
     const ok = activatePiecieFree(roomy, "player_1", { card: "piecie_kleine_taks", from: "discard" });
     expect(ok.success).toBe(true);
     expect(ok.state.players.player_1.piecieSlots.some((s: any) => s?.cardId === "piecie_kleine_taks" && s.stays)).toBe(true);
+  });
+});
+
+// Handoff 6b: the chain rule, proven with the dice queue (leftover dice = no extra roll happened).
+const rest = () => { const out: number[] = []; for (let d = shiftTestDie(); d !== null; d = shiftTestDie()) out.push(d); return out; };
+const world = (mosjes: string[], slots: any[]) => build({
+  activeSlots: [mosje(mosjes[0]), mosjes[1] ? mosje(mosjes[1]) : null],
+  piecieSlots: slots,
+}, {});
+// a sturdier foe so TE_HARD's own damage and Jisca's -15 do not defeat it
+const sturdy = (s: any) => { s.players.player_2.activeSlots[0].mp = 80; return s; };
+
+describe("chain rule: a free activation never starts a roll", () => {
+  it("Jisca + DDR on one activation: each rolls once, Energy is paid once, the freed Piecies roll nothing", () => {
+    pushTestDice([5, 6, 1, 1]); // Jisca 5, DDR 6, then two leftovers that must stay unread
+    const s = sturdy(world(["mosje_jisca", "mosje_chris_ddr"], [placed(TE_HARD), placed(DONER), placed(DONER)]));
+    let res: any = activatePiecie(s, "player_1", 0);
+    expect(res.state.pendingChoice.key).toBe("jisca_piecie"); // two ready Piecies: Jisca's owner picks
+    res = resolvePendingChoice(res.state, res.state.pendingChoice.options[0]); // slot 1; the foe target is automatic
+    const p = res.state.players.player_1;
+    expect(res.state.pendingChoice).toBeUndefined();
+    expect(p.energy).toBe(4); // only the paid Piecie (2) cost Energy
+    expect(p.ddrChainsThisTurn).toBe(1);
+    expect(p.piecieSlots.every((x: any) => x === null)).toBe(true); // all three Piecies resolved
+    expect(res.state.players.player_2.activeSlots[0].mp).toBe(40); // 80 - 25 (Te Hard Gaan) - 15 (Jisca)
+    expect(rest()).toEqual([1, 1]); // the two freed Piecies rolled nothing
+  });
+
+  it("Jisca + DDR + Cless: Cless rolls once, for the paid activation only", () => {
+    pushTestDice([5, 6, 5, 1, 1]); // Jisca, DDR, Cless, leftovers
+    const s = world(["mosje_jisca", "mosje_chris_ddr"], [placed(TE_HARD), placed(DONER), placed(DONER)]);
+    s.players.player_1.activeSlots.push(mosje("mosje_cless_teacher"));
+    s.players.player_1.deck = [{ cardId: "x", type: "PLACE" }];
+    let res: any = activatePiecie(s, "player_1", 0);
+    while (res.state.pendingChoice) res = resolvePendingChoice(res.state, res.state.pendingChoice.options[0]);
+    expect(res.state.players.player_1.hand.some((c: any) => c.cardId === "x")).toBe(true); // Cless drew once
+    expect(rest()).toEqual([1, 1]);
+  });
+
+  it("a direct free activation (Ming Natural / Master Plan style) rolls nothing", () => {
+    pushTestDice([6, 6]);
+    const s = world(["mosje_jisca", "mosje_chris_ddr"], [placed(TE_HARD), placed(DONER), null]);
+    const res = activatePiecieFree(s, "player_1", { slotIndex: 0 });
+    expect(res.success).toBe(true);
+    expect(res.state.pendingChoice).toBeUndefined();
+    expect(res.state.players.player_1.piecieSlots[1].activated).toBe(false);
+    expect(rest()).toEqual([6, 6]);
   });
 });

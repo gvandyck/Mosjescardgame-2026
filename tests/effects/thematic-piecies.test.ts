@@ -24,7 +24,6 @@ type StateOptions = {
   deck?: Array<{ cardId: string; type: string }>;
   piecieSlots?: Array<Record<string, unknown> | null>;
   perfectRhythmDrawNextPiecie?: boolean;
-  chrisDdrChainUsesThisTurn?: number;
 };
 
 function makeMosje(cardId: string, mp = 50, tags?: string[]) {
@@ -64,7 +63,6 @@ function makePlayer(options: StateOptions = {}) {
     actionsThisTurn: [],
     totalDamageTaken: 0,
     perfectRhythmDrawNextPiecie: options.perfectRhythmDrawNextPiecie ?? false,
-    chrisDdrChainUsesThisTurn: options.chrisDdrChainUsesThisTurn ?? 0,
   };
 }
 
@@ -348,14 +346,12 @@ describe('Perfect Rhythm', () => {
     expect(second.state.players.player_1.deck).toHaveLength(0);
   });
 
-  it('draws after a Piecie automatically chained by DDR Chris', () => {
+  it('draws after a ready Piecie chained for free by DDR Chris', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0.99);
     const state = makeState({
       activeSlots: [makeMosje('mosje_chris_ddr'), null],
       perfectRhythmDrawNextPiecie: true,
-      chrisDdrChainUsesThisTurn: 2,
       energy: 6,
-      hand: [{ cardId: 'piecie_redbull', type: 'PIECIE' }],
       deck: [
         { cardId: 'draw_1', type: 'PLACE' },
         { cardId: 'draw_2', type: 'PLACE' },
@@ -369,7 +365,7 @@ describe('Perfect Rhythm', () => {
           playedOnTurn: 1,
           canActivateOnTurn: 2,
         },
-        null,
+        { cardId: 'piecie_redbull', type: 'PIECIE', faceDown: true, activated: false, playedOnTurn: 1, canActivateOnTurn: 2 },
         null,
         null,
       ],
@@ -377,7 +373,7 @@ describe('Perfect Rhythm', () => {
 
     const result = activatePiecie(state, 'player_1', 0);
     expect(result.success).toBe(true);
-    expect(result.state.players.player_1.chrisDdrChainUsesThisTurn).toBe(3);
+    expect(result.state.players.player_1.ddrChainsThisTurn).toBe(1); // slot 1 was chained for free (2.0: from the field)
     expect(
       result.state.players.player_1.hand.map((card: { cardId: string }) => card.cardId),
     ).toEqual(['draw_1', 'draw_2']);

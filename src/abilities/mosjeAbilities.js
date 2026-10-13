@@ -526,56 +526,9 @@ export function ability_ronald_mastermind_master_plan(gameState, playerId) {
 	return next;
 }
 
-// Jisca — Perfect Combo: roll 1d6. 1-4 → no effect (the once-per-turn use is spent
-// either way, via useMosjeAbility's generic abilityUsedThisTurn gate). 5-6 → pick
-// ANY Piecie on your field (face-down OR already-active) and free-activate it.
-// Eligibility doesn't depend on the roll, so the UI resolves the choice UP FRONT
-// (like Chris) via _pendingTargets.jiscaComboSlotIndex — avoiding a second
-// useMosjeAbility call, which would re-roll and hit the once-per-turn gate.
-// Face-down: sets canActivateOnTurn only (same two-step as Chris/Youri: the UI
-// calls the shared activatePiecie() using the returned jiscaChainedSlot/
-// jiscaChainedFaceDown flags). Already-active: no re-trigger primitive exists, so
-// this calls the Piecie's effect fn directly (Ronald Master Plan's bypass
-// pattern), fully resolved here.
-export function ability_jisca_perfect_combo(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) throw new Error('Player not found');
-	const selfIndex = player.activeSlots.findIndex(s => s && !s.isDefeated && s.cardId === 'mosje_jisca');
-	if (selfIndex < 0) throw new Error('Jisca not on field');
-	const roll = rollDie(6);
-	if (roll < 5) {
-		console.log(`[ABILITY] Jisca Perfect Combo: rolled ${roll} — no effect`);
-		return { state, success: true, jiscaRoll: roll };
-	}
-	const eligibleIndices = player.piecieSlots
-		.map((s, i) => (s && s.type === 'PIECIE') ? i : -1)
-		.filter(i => i >= 0);
-	if (eligibleIndices.length === 0) {
-		console.log(`[ABILITY] Jisca Perfect Combo: rolled ${roll} but no Piecie on the field to chain`);
-		return { state, success: true, jiscaRoll: roll };
-	}
-	const selected = state._pendingTargets?.jiscaComboSlotIndex;
-	const slotIndex = (Number.isInteger(selected) && eligibleIndices.includes(selected))
-		? selected
-		: eligibleIndices[0];
-	if (state._pendingTargets) delete state._pendingTargets.jiscaComboSlotIndex;
-	const slot = player.piecieSlots[slotIndex];
-	if (slot.faceDown && !slot.activated) {
-		slot.canActivateOnTurn = state.turnNumber;
-		console.log(`[ABILITY] Jisca Perfect Combo: rolled ${roll} — unlocked face-down Piecie at slot ${slotIndex}`);
-		return { state, success: true, jiscaRoll: roll, jiscaChainedSlot: slotIndex, jiscaChainedFaceDown: true };
-	}
-	const def = PIECIES.find(p => p.id === slot.cardId);
-	if (!def?.effectId || typeof piecieEffects[def.effectId] !== 'function') {
-		console.log(`[ABILITY] Jisca Perfect Combo: rolled ${roll} — chosen Piecie has no effect fn`);
-		return { state, success: true, jiscaRoll: roll };
-	}
-	console.log(`[ABILITY] Jisca Perfect Combo: rolled ${roll} — re-triggered active Piecie at slot ${slotIndex}`);
-	return {
-		state: piecieEffects[def.effectId](state, playerId),
-		success: true, jiscaRoll: roll, jiscaChainedSlot: slotIndex, jiscaChainedFaceDown: false,
-	};
+// 2.0: Jisca Perfect Combo is a trigger/passive (src/abilities/mosje/*, MOSJE_TRIGGERS). No manual ability; kept so the dispatch map resolves.
+export function ability_jisca_perfect_combo(gameState) {
+	return gameState;
 }
 
 // Tuk Healer — Healing Presence: once per turn, choose one own Mosje (this one or
@@ -641,14 +594,9 @@ export function ability_binti_creator_quick_sketch(gameState, playerId) {
 	return state;
 }
 
-// Cless Teacher — teaching moment: next Quest roll +3 bonus.
-export function ability_cless_teacher_teaching_moment(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	player.questPrepBonus = (player.questPrepBonus || 0) + 3;
-	console.log('[ABILITY] Cless Teacher: +3 to next Quest roll');
-	return state;
+// 2.0: Cless Teacher Teaching Moment is a trigger/passive (src/abilities/mosje/*, MOSJE_TRIGGERS). No manual ability; kept so the dispatch map resolves.
+export function ability_cless_teacher_teaching_moment(gameState) {
+	return gameState;
 }
 
 // Martin Driver — level-scaled MP: L0 → 15 MP, L1 → 25 MP, L2 → 35 MP.
@@ -723,13 +671,7 @@ export function ability_tuk_architect_perfect_placement(gameState, playerId) {
 	return state;
 }
 
-// Chris DDR — Perfect Combo Chain is now a passive auto-trigger (2026-07-13
-// reconciliation): the real roll + recursive hand-chain live in
-// maybeChainChrisDdrCombo (turnManager.js activatePiecie), the same place Chris
-// All-Rounder/Youri/Jisca's face-down-unlock mechanics live. This manual entry
-// is a no-op kept so useMosjeAbility does not crash if called (mirrors
-// ability_jeffrey_brute_force).
-export function ability_chris_ddr_perfect_combo_chain(gameState, _playerId) {
-	console.log('[ABILITY] Chris DDR Perfect Combo Chain: passive auto-ability — no manual activation needed');
+// 2.0: Dancing/DDR Chris Perfect Combo Chain is a trigger/passive (src/abilities/mosje/*, MOSJE_TRIGGERS). No manual ability; kept so the dispatch map resolves.
+export function ability_chris_ddr_perfect_combo_chain(gameState) {
 	return gameState;
 }

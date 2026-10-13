@@ -80,14 +80,14 @@ describe("Energy charging", () => {
   });
 
   it("a Chris DDR free chain charges only the activated Piecie", () => {
-    // Chain fires from hand; the chained Piecie must cost no Energy.
+    // The chain activates a second READY Piecie on the field (2.0); that one must cost no Energy.
     vi.spyOn(Math, "random").mockReturnValue(0.99);
-    const s = build(6, pieSlots("piecie_te_hard_gaan"), [{ cardId: "piecie_te_hard_gaan", type: "PIECIE" }]);
+    const s = build(6, [slotOf("piecie_te_hard_gaan", "PIECIE"), slotOf("piecie_te_hard_gaan", "PIECIE"), null, null]);
     s.players.player_1.activeSlots[0] = mosje("mosje_chris_ddr");
     const res = activatePiecie(s, "player_1", 0);
     vi.restoreAllMocks();
     expect(res.success).toBe(true);
-    expect(res.state.players.player_1.hand).toHaveLength(0); // chain fired
+    expect(res.state.players.player_1.piecieSlots[1]).toBeNull(); // chain fired on slot 1
     expect(res.state.players.player_1.energy).toBe(4);
   });
 });

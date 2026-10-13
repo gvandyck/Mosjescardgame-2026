@@ -62,60 +62,6 @@ function applyPerfectRhythmDraw(state, playerId, wasArmedBeforeActivation) {
   return state;
 }
 
-// Chris DDR — Perfect Combo Chain: after ANY Piecie this player activates, roll
-// 1d6.
-// On 5-6, activate another Piecie from hand for free (Ronald Master Plan's
-// direct-call bypass — it comes from hand, not a field slot, so activatePiecie's
-// slot-state checks don't apply) and roll again — up to 3 extra chains per turn
-// (chrisDdrChainUsesThisTurn, reset in startTurn()). Recursive: a successful
-// chain itself counts as "activated a Piecie" and rolls again.
-function maybeChainChrisDdrCombo(state, playerId) {
-  const player = state.players[playerId];
-  if (!player) return state;
-  const chrisDdrAlive = player.activeSlots.some(s => s && !s.isDefeated && s.cardId === 'mosje_chris_ddr');
-  if (!chrisDdrAlive) return state;
-  const usesSoFar = player.chrisDdrChainUsesThisTurn || 0;
-  if (usesSoFar >= 3) return state;
-
-  const roll = rollDie(6);
-  if (roll < 5) {
-    console.log(`[ABILITY] Chris DDR Perfect Combo Chain: rolled ${roll} — no chain`);
-    return state;
-  }
-
-  const handIndex = player.hand.findIndex(c => c.type === 'PIECIE');
-  if (handIndex < 0) {
-    console.log(`[ABILITY] Chris DDR Perfect Combo Chain: rolled ${roll} but no Piecie in hand to chain`);
-    return state;
-  }
-
-  const [chainedCard] = player.hand.splice(handIndex, 1);
-  player.chrisDdrChainUsesThisTurn = usesSoFar + 1;
-  const def = PIECIES.find(p => p.id === chainedCard.cardId);
-  console.log(`[ABILITY] Chris DDR Perfect Combo Chain: rolled ${roll} — chained ${chainedCard.cardId} from hand for free (use ${player.chrisDdrChainUsesThisTurn}/3)`);
-
-  let next = state;
-  const rhythmWasArmedBeforeEffect =
-    state.players[playerId].perfectRhythmDrawNextPiecie === true;
-  if (def?.effectId && typeof piecieEffects[def.effectId] === 'function') {
-    next = piecieEffects[def.effectId](state, playerId);
-  }
-  next = applyPerfectRhythmDraw(next, playerId, rhythmWasArmedBeforeEffect);
-  const np = next.players[playerId];
-  if (!Array.isArray(np.graveyard)) np.graveyard = [];
-  const emptyChain = np.piecieSlots.findIndex(s => s === null);
-  if (def?.stays && emptyChain >= 0) {
-    np.piecieSlots[emptyChain] = { cardId: chainedCard.cardId, type: 'PIECIE', faceDown: false, activated: true, playedOnTurn: next.turnNumber };
-    next = finishPiecieActivation(next, playerId, emptyChain, def);
-  } else {
-    np.graveyard.push(toGraveyardEntry(chainedCard.cardId, 'played'));
-  }
-  const np2 = next.players[playerId];
-  np2.pieciesActivatedThisTurn = (np2.pieciesActivatedThisTurn || 0) + 1;
-
-  return maybeChainChrisDdrCombo(next, playerId); // recurse — the chained activation may chain again
-}
-
 const PIECIE_LOOKUP = Object.fromEntries(PIECIES.map(card => [card.id, card]));
 const SNELLE_PIECIE_LOOKUP = Object.fromEntries(SNELLE_PIECIES.map(card => [card.id, card]));
 const PLACE_LOOKUP = Object.fromEntries(PLACES.map(card => [card.id, card]));
@@ -232,7 +178,8 @@ export function startTurn(gameState) {
   activePlayer.freePiecieActivationAvailable = false;
   activePlayer.attackPieciePlayedThisTurn = false;
   activePlayer.kasteLuckSameTurnActivation = false;
-  activePlayer.chrisDdrChainUsesThisTurn = 0;
+  activePlayer.ddrChainsThisTurn = 0; // Dancing/DDR Chris: max 2 free chains per turn
+  activePlayer.jiscaRolledThisTurn = false; // Jisca: once per turn
 
   // Dead-flag turn hygiene (Phase 18): clear stale single-turn effect flags so a
   // flag set but never triggered does not leak into a later turn. These live on
@@ -649,7 +596,7 @@ function activatePiecieCore(gameState, playerId, slotIndex) {
 
 // Everything after the Energy payment, shared by activatePiecie and activatePiecieFree.
 // slotIndex -1 = the Piecie is not in a slot (free activation from deck/discard/hand).
-// opts.free: ctx.free for the piecieActivated triggers; a free activation never starts a DDR chain.
+// opts.free: ctx.free for the piecieActivated triggers; a free activation never starts a chain roll (Jisca / DDR Chris / Teaching Moment).
 export function resolvePiecieActivation(state, playerId, safeSlotIndex, knownCardDef, opts = {}) {
   const free = opts.free === true;
   const hasSlot = safeSlotIndex >= 0;
@@ -740,10 +687,6 @@ export function resolvePiecieActivation(state, playerId, safeSlotIndex, knownCar
   if (state.activePlace === 'place_momentum_factory') {
     state = placeEffects.effect_momentum_factory(state);
   }
-
-  // Chris DDR — Perfect Combo Chain: may recursively activate more Piecies from
-  // hand (see maybeChainChrisDdrCombo above).
-  if (!free) state = maybeChainChrisDdrCombo(state, playerId);
 
   state = runMosjeTriggers(state, 'piecieActivated', { playerId, free, cardDef: knownCardDef, slotIndex: safeSlotIndex });
 
