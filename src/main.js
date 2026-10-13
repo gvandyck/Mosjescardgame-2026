@@ -9,7 +9,7 @@ import { animateFieldActivation, animateStateDelta, showTurnTransition, setAbili
 import { initHoverZoom } from './ui/hoverZoom.js';
 import { initCardTierMotion } from './ui/cardTierMotion.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes, setActivePlace } from './engine/gameState.js';
-import { startTurn, endTurn, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, playMosje, useMosjeAbility, canPlayerActNow, activateSynergyWaiver } from './engine/turnManager.js';
+import { startTurn, endTurn, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, playMosje, useMosjeAbility, canPlayerActNow } from './engine/turnManager.js';
 import { OWN_TARGET_EFFECT_IDS } from './engine/targets/ownTargetEffects.js';
 import { isPiecieReady } from './engine/table/isPiecieReady.js';
 import { attackMosje } from './engine/actions/attackMosje.js';
@@ -20,7 +20,6 @@ import { isCooldownBlocked } from './engine/turn/isCooldownBlocked.js';
 import { getActivePartnerSynergyBonuses } from './abilities/questLogic.js';
 import { getMingPeekStack } from './abilities/getMingPeekStack.js';
 import { PIECIE_SLOT_COUNT } from './engine/table/tableRules.js';
-import { hasFoodDoubleSynergy } from './engine/synergyResolver.js';
 import { loseMP, gainMP } from './engine/mpManager.js';
 import { getAbilityEnergyCost } from './engine/energy/getAbilityEnergyCost.js';
 import { createMosjeSlot } from './engine/mp/createMosjeSlot.js';
@@ -1190,23 +1189,6 @@ function initGamePage() {
 		}
 	});
 
-	function handleActivateSynergyWaiver() {
-		if (!gameState) return;
-		if (gameState.activePlayerId !== localPlayerId) {
-			modal.showInfo('Not Your Turn', 'You can only activate the synergy waiver on your own turn.');
-			return;
-		}
-		const { state: newState, success, error } = activateSynergyWaiver(gameState, localPlayerId);
-		if (!success) {
-			modal.showInfo('Cannot Activate', error || 'The synergy waiver cannot be activated right now.');
-			return;
-		}
-		gameState = newState;
-		log.add('info', 'Synergy Chamber: partner requirement waived for one synergy this turn.');
-		syncPush();
-		renderFromState(gameState);
-	}
-
 	// 56-06: Attack / Quest buttons — the flows own all picking; main.js only assigns state, logs, syncs and renders.
 	async function runMosjeAction(flow, actionLabel) {
 		if (!gameState || gameState.status === 'FINISHED') return;
@@ -1267,8 +1249,7 @@ function initGamePage() {
 		const onActivatePiecie = (isLocalTurn && !gameOver) ? handleActivatePiecie : null;
 		const onOpenDiscard = handleOpenDiscard;
 		const onPlayFromHand = (isLocalTurn && !gameOver) ? handlePlayCard : null;
-		const onActivateSynergyWaiver = (isLocalTurn && !gameOver) ? handleActivateSynergyWaiver : null;
-		renderBoard(boardRoot, uiState, onUseAbility, null, onActivatePiecie, onOpenDiscard, onPlayFromHand, onActivateSynergyWaiver);
+		renderBoard(boardRoot, uiState, onUseAbility, null, onActivatePiecie, onOpenDiscard, onPlayFromHand);
 		if (state._lastPlaceEffect?.placeName) {
 			showPlaceEffectBanner(state._lastPlaceEffect.placeName, state._lastPlaceEffect.description, state._lastPlaceEffect.phase);
 			delete state._lastPlaceEffect;
@@ -2771,14 +2752,8 @@ function buildActiveModifiers(gameState, playerId, isLocalPlayer = false) {
 	// Synergy bonuses currently live for this player (real partner present, or
 	// waived via Synergy Chamber) — shown proactively so a synergy's effect is
 	// visible before it's exercised, not just inferable from an MP delta after.
-	if (hasFoodDoubleSynergy(gameState, playerId)) {
-		pills.push({ label: '🍔 FOOD Piecies ×2 (Synergy)', color: 'gold' });
-	}
 	for (const bonus of getActivePartnerSynergyBonuses(gameState, playerId)) {
 		pills.push({ label: `+${bonus.bonus} ${bonus.category} Quest (Synergy)`, color: 'gold' });
-	}
-	if (player?.synergyWaiverActive === true) {
-		pills.push({ label: '🔗 Synergy Active', color: 'purple' });
 	}
 
 	return pills;

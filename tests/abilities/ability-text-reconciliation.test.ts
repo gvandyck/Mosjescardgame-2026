@@ -685,8 +685,7 @@ describe("FPS Coert data", () => {
 // 2026-07-12 ability-text-engine-reconciliation todo — card 10/10
 // Chris DDR — Perfect Combo Chain: TEXT WINS, replacing a "+5 MP per Piecie
 // played" stub that matched neither the old text nor this ruling. After ANY
-// Piecie this player activates, roll 1d6 (DJ 80/20 synergy: +2 to the roll while
-// both are on the field). On 5-6, activate another Piecie from hand for free,
+// Piecie this player activates, roll 1d6. On 5-6, activate another Piecie from hand for free,
 // recursively, capped at 3 extra chains per turn (chrisDdrChainUsesThisTurn).
 // ─────────────────────────────────────────────────────────────
 
@@ -808,14 +807,7 @@ describe("Chris DDR — Perfect Combo Chain", () => {
     expect(result.state.players.player_1.chrisDdrChainUsesThisTurn ?? 0).toBe(0);
   });
 
-  it("DJ 80/20 synergy: +2 to the roll lets a natural 3 chain (would not chain alone)", () => {
-    vi.spyOn(Math, "random").mockReturnValue(0.4); // rollDie(6) => 3 (floor(0.4*6)+1)
-    const withoutDj = activatePiecie(makeChrisDdrState({ dj8020Alive: false, handPiecieCount: 1 }), "player_1", 0);
-    expect(withoutDj.state.players.player_1.chrisDdrChainUsesThisTurn).toBe(0); // natural 3, no bonus, no chain
-
-    const withDj = activatePiecie(makeChrisDdrState({ dj8020Alive: true, handPiecieCount: 1 }), "player_1", 0);
-    expect(withDj.state.players.player_1.chrisDdrChainUsesThisTurn).toBe(1); // 3 + 2 = 5, chains
-  });
+  // DJ 80/20 +2 to the roll removed in 2.0 (Phase 58-01): not a Card List synergy.
 
   it("the manual ability entry is a no-op passthrough (mirrors ability_jeffrey_brute_force)", () => {
     const state = makeChrisDdrState();

@@ -230,8 +230,8 @@ export function effect_coerts_caravan(gameState) {
 
 // ─────────────────────────────────────────
 // SYNERGY CHAMBER — Passive: synergy effects trigger without paired Mosje.
-// Note: This requires deep integration with synergy resolver.
-// For now, this is a flag that UI/synergy logic can check.
+// No effect here: holder texts read state.activePlace through isHolderTextActive
+// (src/engine/synergy/isHolderTextActive.js).
 // ─────────────────────────────────────────
 export function effect_synergy_chamber(gameState) {
 	const state = cloneState(gameState);
