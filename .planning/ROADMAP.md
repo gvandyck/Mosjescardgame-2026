@@ -180,7 +180,7 @@ Plans:
 **Notes**: Synergy texts keep the test-guarded "While <partner> is also on your field:" convention; re-wire `synergyResolver` (and turnManager/questLogic hooks) to the 2.0 pairs.
 **Plans**: 12 plans (12 waves, sequential)
 Plans:
-- [ ] 58-01-PLAN.md — Synergy 2.0: isHolderTextActive, passive Synergy Chamber, V4 pairs removed, Senor West / FPS West / Binti / Youri holder texts (EFX-05 part)
+- [x] 58-01-PLAN.md — Synergy 2.0: isHolderTextActive, passive Synergy Chamber, V4 pairs removed, Senor West / FPS West / Binti / Youri holder texts (EFX-05 part)
 - [ ] 58-02-PLAN.md — Ability framework: rules data, trigger registry, pendingChoice, draw-step pause, chain-safe free activation, one-gain Quest win, dice queue
 - [ ] 58-03-PLAN.md — One data-driven ability UI flow + prompts, ability button from rules, bot defaults (no peeking)
 - [ ] 58-04-PLAN.md — Example Deck 1 Fighting Mosjes; Michelle double = one gain (known gap)
