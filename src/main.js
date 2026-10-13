@@ -52,6 +52,7 @@ import { renderActiveDeckPanel } from './ui/activeDeckPanel.js';
 import { claimMatchReward } from './multiplayer/matchRewards.js';
 import { showRewardOverlay } from './ui/rewardOverlay.js';
 import { driveBotTurn, driveBotTurnSteps } from './bot/botDriver.js';
+import { settleMosjePauses } from './bot/settleMosjePauses.js';
 import { pickBotDeck } from './bot/pickBotDeck.js';
 
 console.log('[UI] App bootstrapping...');
@@ -679,6 +680,11 @@ function initGamePage() {
 	}
 
 	// Reaction windows (Phase 57): the human is prompted, a bot answers at once. Returns the settled state.
+	// Mosje pauses that belong to the bot (offline / bot-vs-bot only) are answered at once so play never stalls.
+	function settleBotMosjePauses(state) {
+		if (!isOffline && !isBotVsBot) return state;
+		return settleMosjePauses(state, isBotVsBot ? [] : [localPlayerId]).state;
+	}
 	const reactionCtx = () => ({ localPlayerId, isOffline, modal, onLog: msg => log.add('info', msg) });
 
 	// delay: ms between each step. onComplete: called after the final step instead of
@@ -729,7 +735,7 @@ function initGamePage() {
 				onComplete();
 			} else {
 				// bot vs bot: start next player's turn and keep the loop going
-				gameState = startTurn(gameState);
+				gameState = settleBotMosjePauses(startTurn(gameState));
 				renderFromState(gameState);
 				if (gameState.status === 'FINISHED') { handleGameOver(gameState); return; }
 				logR1Placement();
@@ -764,7 +770,7 @@ function initGamePage() {
 		playBotSteps(steps, botName, 0, 400, () => {
 			if (gameState.status === 'FINISHED') return;
 			const beforeHumanTurn = snapshotForAnimation();
-			gameState = startTurn(gameState);
+			gameState = settleBotMosjePauses(startTurn(gameState));
 			renderFromState(gameState);
 			// 2.0: startTurn can end the game (held Level 3) - show the end screen.
 			if (gameState.status === 'FINISHED') { handleGameOver(gameState); return; }
@@ -1045,7 +1051,7 @@ function initGamePage() {
 			? { firstPlayerId: urlParams.get('firstPlayer') || 'player_1' }
 			: {};
 		gameState = createInitialGameState(players, roomCode, setupOptions);
-		gameState = startTurn(gameState);
+		gameState = settleBotMosjePauses(startTurn(gameState));
 		renderFromState(gameState);
 		log.add('quest', `${localPlayerName} entered room ${roomCode}.`);
 		log.add('gain', `Turn ${gameState.turnNumber} started for ${gameState.players[gameState.activePlayerId].name}.`);
@@ -1158,7 +1164,7 @@ function initGamePage() {
 		const previousPlayerName = gameState.players[gameState.activePlayerId].name;
 		gameState = endTurn(gameState);
 		if (gameState.status !== 'FINISHED') {
-			gameState = startTurn(gameState);
+			gameState = settleBotMosjePauses(startTurn(gameState));
 		}
 
 		renderAndAnimate(beforeTurnChange, { actionLabel: 'turn-change' });

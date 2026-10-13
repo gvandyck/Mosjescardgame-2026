@@ -6,6 +6,7 @@ import { getCardById } from '../data/cardIndex.js';
 import { applyGainToSlot } from '../engine/mp/applyGainToSlot.js';
 import { applyMpLossToSlot } from '../engine/mp/applyMpLossToSlot.js';
 import { isFresh } from '../engine/fresh/isFresh.js';
+import { runMosjeTriggers } from '../engine/mosje/runMosjeTriggers.js';
 
 console.log('[ABILITY] placeEffects.js loaded');
 
@@ -240,10 +241,9 @@ export function effect_synergy_chamber(gameState) {
 }
 
 export function triggerPlaceDestroyedEffects(gameState, destroyingPlayerId) {
-	// Extension point for "on Place-card destroyed" passives.
-	// (Alyssa Fissa's +15 passive was removed — her Party Power is now the
-	//  activated hand-size ability in mosjeAbilities.js. No passives active here.)
-	return cloneState(gameState);
+	// 2.0: Mosje placeDestroyed triggers (Alyssa Fissa Party Power) fire for the player whose card destroyed the Place.
+	const next = runMosjeTriggers(cloneState(gameState), 'placeDestroyed', { destroyingPlayerId });
+	return next;
 }
 
 // ─────────────────────────────────────────

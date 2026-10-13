@@ -7,6 +7,7 @@ import { QUEST_EXTRAS } from './questExtras.js';
 import { getJabTargets } from './getJabTargets.js';
 import { applyQuestJab } from './applyQuestJab.js';
 import { advanceQuestStack } from './advanceQuestStack.js';
+import { runMosjeTriggers } from '../mosje/runMosjeTriggers.js';
 
 export function resolveQuestAttempt(state, pending, choices = {}) {
 	if (state.pendingReaction) return { ok: false, state, error: 'A reaction window is still open' };
@@ -31,9 +32,15 @@ export function resolveQuestAttempt(state, pending, choices = {}) {
 		if (v?.base != null) amount = v.base;
 		amount += extras.failBonus?.(ctx) || 0;
 	}
-	if (win) s = gainMP(s, playerId, slotIndex, amount, 'QUEST');
-	else s = loseMP(s, playerId, slotIndex, amount, 'QUEST', false, playerId);
+	if (win) {
+		// 2.0: every questWinAmount modifier first, then ONE gain (Michelle double, Jeffrey +10, ...).
+		const mod = runMosjeTriggers(s, 'questWinAmount', { playerId, slotIndex, quest, amount });
+		s = mod.state;
+		amount = mod.amount;
+		s = gainMP(s, playerId, slotIndex, amount, 'QUEST');
+	} else s = loseMP(s, playerId, slotIndex, amount, 'QUEST', false, playerId);
 	s = runQuestOutcomeHooks(s, playerId, slotIndex, quest, win, win ? quest.win : 0);
+	if (win) s = runMosjeTriggers(s, 'questSuccess', { playerId, slotIndex, quest, amount });
 	if (win) {
 		if (extras.jab) {
 			const targets = getJabTargets(s, playerId, questId, pending);

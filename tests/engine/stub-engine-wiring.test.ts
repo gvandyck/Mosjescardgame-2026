@@ -333,6 +333,7 @@ describe("phaseDrawCard — negateNextSearch (STUB-04)", () => {
 
 function makeAbilityState(mp: number, extraStateProps: Record<string, unknown> = {}) {
   return {
+    activePlayerId: "p1",
     activePlace: null,
     dierenasielActive: false,
     _snelleFlags: {},
@@ -353,7 +354,7 @@ function makeAbilityState(mp: number, extraStateProps: Record<string, unknown> =
         graveyard: [],
         activeSlots: [
           {
-            cardId: "mosje_gandoe_wizard",
+            cardId: "mosje_tuk_healer",
             name: "[Gandoe] The Unpredictable Wizard",
             subtype: "FIGHTING",
             traits: { physical: 2, resilient: 1, creative: 2 },
@@ -375,10 +376,10 @@ function makeAbilityState(mp: number, extraStateProps: Record<string, unknown> =
 
 describe("useMosjeAbility — Dierenasiel 0-MP guard (STUB-09, dead waiver removed Phase 35-03)", () => {
   it("Test 18: useMosjeAbility() with Mosje at 0 MP and no engine cost gate — returns success:true (no regression)", () => {
-    // Gandoe Wizard has no abilityCost, ability does not check mp
+    // Tuk Healer (Gandoe Wizard became a trigger in 2.0) has no MP cost, ability does not check mp
     // Confirms engine does not block activation at 0 MP
     const state = makeAbilityState(0);
-    const result = (useMosjeAbility as any)(state, "p1", "mosje_gandoe_wizard");
+    const result = (useMosjeAbility as any)(state, "p1", "mosje_tuk_healer");
     expect(result.success).toBe(true);
   });
 
@@ -386,7 +387,7 @@ describe("useMosjeAbility — Dierenasiel 0-MP guard (STUB-09, dead waiver remov
     const state = makeAbilityState(0, { dierenasielActive: true });
     let result: any;
     expect(() => {
-      result = (useMosjeAbility as any)(state, "p1", "mosje_gandoe_wizard");
+      result = (useMosjeAbility as any)(state, "p1", "mosje_tuk_healer");
     }).not.toThrow();
     expect(result.success).toBe(true);
   });
@@ -398,6 +399,7 @@ describe("useMosjeAbility — Dierenasiel 0-MP guard (STUB-09, dead waiver remov
 
 function makeCoertAbilityState(mp: number, activePlace: string | null = null) {
   return {
+    activePlayerId: "p1",
     activePlace,
     dierenasielActive: false,
     _snelleFlags: {},

@@ -29,6 +29,7 @@ import { attackMosje } from '../engine/actions/attackMosje.js';
 import { rollQuestAttempt } from '../engine/quests/rollQuestAttempt.js';
 import { resolveQuestAttempt } from '../engine/quests/resolveQuestAttempt.js';
 import { getQuestDef } from '../engine/quests/getQuestDef.js';
+import { settleMosjePauses } from './settleMosjePauses.js';
 import { settleReactions } from './settleReactions.js';
 import { chooseMosjeAction } from './strategy/chooseMosjeAction.js';
 import { chooseQuestChoices } from './strategy/chooseQuestChoices.js';
@@ -263,6 +264,9 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
     push(`${slotName} tries ${getQuestDef(held.questId)?.name ?? held.questId}: dice [${held.dice.join(',')}] ${done.win ? 'WIN' : 'FAIL'}`);
   };
   const onCooldown = state.players[botPlayerId]?.cooldownTurn === true;
+
+  // A bot's own turn-start pause (draw step / trigger choice) is answered first, so it can never stall.
+  state = settleMosjePauses(state, humanIds).state;
 
   // Resume: answer an open window / finish a held Quest roll before anything else.
   if (state.pendingReaction || state.pendingQuestRoll) {

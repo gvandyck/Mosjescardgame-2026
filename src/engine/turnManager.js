@@ -37,6 +37,9 @@ import { payEnergy } from './energy/payEnergy.js';
 import { canPay } from './energy/canPay.js';
 import { canMosjeAct } from './mp/canMosjeAct.js';
 import { getAbilityEnergyCost } from './energy/getAbilityEnergyCost.js';
+import { runMosjeTriggers } from './mosje/runMosjeTriggers.js';
+import { getDrawStepOptions } from './mosje/getDrawStepOptions.js';
+import { MOSJE_ABILITY_RULES } from '../rules/mosjeAbilityRules.js';
 
 console.log('[ENGINE] turnManager.js loaded');
 
@@ -257,6 +260,7 @@ export function startTurn(gameState) {
   for (const slot of activePlayer.activeSlots) {
     if (slot) {
       slot.abilityUsedThisTurn = false;
+      slot.abilityUsesThisTurn = 0;
       slot.immuneThisTurn = false;
       // decision 1 (54-11): sideways = this Mosje skips this owner turn
       if (slot.sideways) slot.sidewaysArmed = true;
@@ -272,7 +276,20 @@ export function startTurn(gameState) {
   }
 
   // DRAW PHASE â€” draw 1 card
-  if (state.firstTurnDrawSkipPending) {
+  // Draw-step abilities (Coert Tech, Martin Historian) pause here until finishDrawStep settles them.
+  const drawOptions = getDrawStepOptions(state, playerId);
+  if (drawOptions.length) {
+    state.pendingDrawStep = { playerId, options: drawOptions };
+    return state;
+  }
+  return finishStartTurn(state, playerId, {});
+}
+
+// The rest of startTurn: draw (unless a draw-step ability replaced it), R1, Places, Mosje triggers.
+export function finishStartTurn(state, playerId, opts = {}) {
+  if (opts.skipDraw) {
+    delete state.firstTurnDrawSkipPending;
+  } else if (state.firstTurnDrawSkipPending) {
     // R5: the first player skips their very first draw (the flag is one-shot).
     const skipDraw = playerId === state.firstPlayerId;
     delete state.firstTurnDrawSkipPending;
@@ -324,6 +341,12 @@ export function startTurn(gameState) {
       console.log(`[ABILITY] Coert KasteLuck: rolled ${kasteLuckRoll} (no luck today)`);
     }
   }
+
+  // 2.0 Mosje triggers: own start-of-turn, then each opponent-start-of-turn (before fresh flags clear).
+  state = runMosjeTriggers(state, 'startOfTurn', { playerId });
+  if (!state.pendingChoice) state = runMosjeTriggers(state, 'oppStartOfTurn', { playerId });
+  state = checkVictory(state);
+  if (state.status === 'FINISHED') return state;
 
   // Passive turn-start MP (e.g. DJ 80/20 gains 10 MP automatically)
   // Ability functions will hook into this in Phase 4.
@@ -466,6 +489,7 @@ export function endTurn(gameState) {
     delete state._leipeSwap;
   }
 
+  state = runMosjeTriggers(state, 'endOfTurn', { playerId });
   expireThisTurnEffects(state);
 
   state = checkVictory(state);
@@ -555,6 +579,7 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
     state.players[playerId].attackPieciePlayedThisTurn = true;
   }
 
+  state = runMosjeTriggers(state, 'cardPlayedFromHand', { playerId, cardType: 'PIECIE' });
   state = checkVictory(state);
   return { state, success: true };
 }
@@ -720,6 +745,8 @@ function activatePiecieCore(gameState, playerId, slotIndex) {
   // hand (see maybeChainChrisDdrCombo above).
   state = maybeChainChrisDdrCombo(state, playerId);
 
+  state = runMosjeTriggers(state, 'piecieActivated', { playerId, free: false, cardDef: knownCardDef, slotIndex: safeSlotIndex });
+
   // Piecie resolves — persistent cards stay in slot until end-of-turn sweep.
   player = state.players[playerId];
   if (!Array.isArray(player.graveyard)) player.graveyard = [];
@@ -824,6 +851,7 @@ function playSnellieCore(gameState, playerId, cardRef, cardDef) {
   const doneIdx = doneSlots.findIndex(s => s?.cardId === playedCard.cardId && s?.type === 'SNELLE_PIECIE');
   if (doneIdx >= 0) state = finishPiecieActivation(state, playerId, doneIdx, cardDef);
 
+  state = runMosjeTriggers(state, 'cardPlayedFromHand', { playerId, cardType: 'SNELLE_PIECIE' });
   state = checkVictory(state);
   return { state, success: true };
 }
@@ -919,6 +947,7 @@ export function playMosje(gameState, playerId, cardRef) {
   slot.entryProtected = true; // fresh on arrival, also for savedState returns
   player.activeSlots[openSlotIndex] = slot;
 
+  state = runMosjeTriggers(state, 'cardPlayedFromHand', { playerId, cardType: 'MOSJE' });
   state = checkVictory(state);
   return { state, success: true, slotIndex: openSlotIndex };
 }
@@ -945,13 +974,26 @@ export function useMosjeAbility(gameState, playerId, mosjeId) {
   // below — so an ability that ARMS the flag itself (Amplifier) doesn't eat its own grant.
   const hadDoubleTrigger = player.abilityDoubleTrigger === true;
 
-  if (slot.abilityUsedThisTurn) {
-    return { state: gameState, success: false, error: 'Ability already used this turn' };
-  }
-
   const mosjeDef = MOSJES.find(m => m.id === mosjeId);
   if (!mosjeDef?.abilityId) {
     return { state: gameState, success: false, error: 'This Mosje has no ability' };
+  }
+
+  // 2.0 rules data decides who may use an ability, when, and how often (hidden V4 Mosjes: legacy defaults).
+  const rule = MOSJE_ABILITY_RULES[mosjeDef.abilityId] || { kind: 'activated', per: 'turn', maxPerTurn: 1, ownTurnOnly: false };
+  if (rule.kind !== 'activated') {
+    return { state: gameState, success: false, error: 'This ability works on its own' };
+  }
+  if (rule.ownTurnOnly !== false && gameState.activePlayerId !== playerId) {
+    return { state: gameState, success: false, error: 'You can only use this ability on your own turn' };
+  }
+  if (rule.per === 'game' && slot.abilityUsedThisGame) {
+    return { state: gameState, success: false, error: 'Ability already used this game' };
+  }
+  const maxPerTurn = rule.maxPerTurn ?? 1;
+  const usesThisTurn = slot.abilityUsesThisTurn ?? (slot.abilityUsedThisTurn ? 1 : 0);
+  if (usesThisTurn >= maxPerTurn) {
+    return { state: gameState, success: false, error: 'Ability already used this turn' };
   }
 
   const fn = mosjeAbilities[mosjeDef.abilityId];
@@ -992,10 +1034,11 @@ export function useMosjeAbility(gameState, playerId, mosjeId) {
   // Pay the printed Energy cost now that the ability succeeded.
   if (energyCost > 0) payEnergy(state, playerId, energyCost);
 
-  // Mark ability as used — skip for unlimited-use abilities (e.g. Coert)
-  if (!mosjeDef.unlimitedAbility) {
-    state.players[playerId].activeSlots[slotIndex].abilityUsedThisTurn = true;
-  }
+  // Record the use (per turn counter, per game flag).
+  const usedSlot = state.players[playerId].activeSlots[slotIndex];
+  usedSlot.abilityUsesThisTurn = usesThisTurn + 1;
+  usedSlot.abilityUsedThisTurn = usedSlot.abilityUsesThisTurn >= maxPerTurn;
+  if (rule.per === 'game') usedSlot.abilityUsedThisGame = true;
 
   // Redbull free-echo: if abilityDoubleTrigger is set, run the ability EFFECT once
   // more at no extra cost (mirrors the doubleNextPiecie pattern for piecies). Skip
@@ -1170,6 +1213,7 @@ export function playPlace(gameState, playerId, cardRef, cardDef) {
     state = placeEffects.resolvePlaceEffect(state, 'PASSIVE');
   }
   console.log(`[ENGINE] Place played: ${def.name} by ${playerId}`);
+  state = runMosjeTriggers(state, 'cardPlayedFromHand', { playerId, cardType: 'PLACE' });
   state = checkVictory(state);
   return { state, success: true, cardDef: def };
 }
