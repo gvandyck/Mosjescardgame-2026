@@ -184,7 +184,7 @@ Plans:
 - [x] 58-02-PLAN.md — Ability framework: rules data, trigger registry, pendingChoice, draw-step pause, chain-safe free activation, one-gain Quest win, dice queue
 - [x] 58-03-PLAN.md — One data-driven ability UI flow + prompts, ability button from rules, bot defaults (no peeking)
 - [x] 58-04-PLAN.md — Example Deck 1 Fighting Mosjes; Michelle double = one gain (known gap)
-- [ ] 58-05-PLAN.md — Example Deck 2 Digital Mosjes; FPS West 1 Energy +20/-10, Chris +15, Coert draw step
+- [x] 58-05-PLAN.md — Example Deck 2 Digital Mosjes; FPS West 1 Energy +20/-10, Chris +15, Coert draw step
 - [ ] 58-06-PLAN.md — Jisca, DDR Chris, Cless Teacher on the chain rule; §6b engine chain cases
 - [ ] 58-07-PLAN.md — Tuk Healer, Binti, DJ 80/20 reroll at the Quest after-roll pause
 - [ ] 58-08-PLAN.md — The Tactician (E26, EFX-06), Jeffrey Strongman, Gandoe Destroyer, Martin Driver
