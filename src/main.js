@@ -53,6 +53,9 @@ import { claimMatchReward } from './multiplayer/matchRewards.js';
 import { showRewardOverlay } from './ui/rewardOverlay.js';
 import { driveBotTurn, driveBotTurnSteps } from './bot/botDriver.js';
 import { settleMosjePauses } from './bot/settleMosjePauses.js';
+import { runMosjeAbilityFlow } from './ui/actions/runMosjeAbilityFlow.js';
+import { settlePendingChoice } from './ui/actions/settlePendingChoice.js';
+import { pushTestDice } from './engine/dice/testDiceQueue.js';
 import { pickBotDeck } from './bot/pickBotDeck.js';
 
 console.log('[UI] App bootstrapping...');
@@ -685,6 +688,16 @@ function initGamePage() {
 		if (!isOffline && !isBotVsBot) return state;
 		return settleMosjePauses(state, isBotVsBot ? [] : [localPlayerId]).state;
 	}
+	// The local human's own pauses (trigger choice, draw-step abilities): prompt, then render the settled state.
+	function settleLocalMosjePauses() {
+		if (!gameState || (!gameState.pendingChoice && !gameState.pendingDrawStep)) return;
+		const humanIds = isOffline ? [localPlayerId] : Object.keys(gameState.players);
+		settlePendingChoice({ state: gameState, localPlayerId, modal, humanIds }).then(st => {
+			gameState = st;
+			syncPush();
+			renderFromState(gameState);
+		});
+	}
 	const reactionCtx = () => ({ localPlayerId, isOffline, modal, onLog: msg => log.add('info', msg) });
 
 	// delay: ms between each step. onComplete: called after the final step instead of
@@ -772,6 +785,7 @@ function initGamePage() {
 			const beforeHumanTurn = snapshotForAnimation();
 			gameState = settleBotMosjePauses(startTurn(gameState));
 			renderFromState(gameState);
+			settleLocalMosjePauses();
 			// 2.0: startTurn can end the game (held Level 3) - show the end screen.
 			if (gameState.status === 'FINISHED') { handleGameOver(gameState); return; }
 			animateStateDelta(beforeHumanTurn, gameState, {
@@ -1013,6 +1027,8 @@ function initGamePage() {
 				renderFromState(gameState);
 			},
 			// 56-06: the next Quest dice come from this list (6 = max); falls back to Math.random once empty.
+			// 58-03: scripted d6 results for Mosje abilities / triggers (engine test dice queue).
+			setNextAbilityDice(values) { pushTestDice(Array.isArray(values) ? values : []); },
 			setNextDice(values) { nextDice = Array.isArray(values) ? [...values] : []; },
 			// Phase 57 (U6): the bot attacks through the real playBotSteps path, so the human reaction window is shown.
 			botAttack(attackerSlotIndex = 0, targetSlotIndex = 0) {
@@ -1053,6 +1069,7 @@ function initGamePage() {
 		gameState = createInitialGameState(players, roomCode, setupOptions);
 		gameState = settleBotMosjePauses(startTurn(gameState));
 		renderFromState(gameState);
+		settleLocalMosjePauses();
 		log.add('quest', `${localPlayerName} entered room ${roomCode}.`);
 		log.add('gain', `Turn ${gameState.turnNumber} started for ${gameState.players[gameState.activePlayerId].name}.`);
 		if ((gameState.openingRolls || []).length) {
@@ -1168,6 +1185,7 @@ function initGamePage() {
 		}
 
 		renderAndAnimate(beforeTurnChange, { actionLabel: 'turn-change' });
+		settleLocalMosjePauses();
 		syncPush();
 		log.add('quest', `${previousPlayerName} ended their turn.`);
 		showTurnTransition({ playerName: previousPlayerName, type: 'end' });
@@ -1251,7 +1269,7 @@ function initGamePage() {
 			state
 		);
 
-		const onUseAbility = (isLocalTurn && !gameOver) ? handleUseAbility : null;
+		const onUseAbility = !gameOver ? handleUseAbility : null; // the board disables buttons that are not usable now
 		const onActivatePiecie = (isLocalTurn && !gameOver) ? handleActivatePiecie : null;
 		const onOpenDiscard = handleOpenDiscard;
 		const onPlayFromHand = (isLocalTurn && !gameOver) ? handlePlayCard : null;
@@ -1301,21 +1319,6 @@ function initGamePage() {
 		if (btnEndTurn) btnEndTurn.disabled = !isLocalTurn || gameOver;
 	}
 
-	const WEST_CALCULATED_GUESS_IDS = new Set(['mosje_martin_senor_west']);
-	const BINTI_CUTTING_WORDS_IDS = new Set(['mosje_binti']);
-	const GANDOE_ELIMINATION_IDS = new Set(['mosje_gandoe_destroyer']);
-	const RONALD_MASTERMIND_IDS = new Set(['mosje_ronald_mastermind']);
-	const MING_FUTURE_SIGHT_IDS = new Set(['mosje_ming_predictor']);
-	const MING_NATURAL_LUCKY_DRAW_IDS = new Set(['mosje_ming_natural']);
-	const TUK_HEALER_PRESENCE_IDS = new Set(['mosje_tuk_healer']);
-	const CHRIS_PERFECT_SETUP_IDS = new Set(['mosje_chris']);
-	const JISCA_PERFECT_COMBO_IDS = new Set(['mosje_jisca']);
-	const TUK_PERFECT_PLACEMENT_IDS = new Set(['mosje_tuk_architect']);
-	const FPS_WEST_TACTICAL_IDS = new Set(['mosje_fps_west']);
-	const RONALD_CHEF_INSIGHT_IDS = new Set(['mosje_ronald_chef']);
-	const YOURI_SPEED_ACTIVATE_IDS = new Set(['mosje_youri']);
-	const BINTI_CREATOR_IDS = new Set(['mosje_binti_creator']);
-
 	// Redbull "triggers twice" for input abilities that need a fresh prompt
 	// (Calculated Guess, Tactical Analysis, Perfect Placement). The engine signals
 	// state._redbullAwaitingReprompt instead of echoing; we re-run the activation
@@ -1335,787 +1338,31 @@ function initGamePage() {
 
 	async function runAbilityActivation(mosjeId) {
 		if (!gameState || gameState.status === 'FINISHED') return;
-
-		const beforeAbility = snapshotForAnimation();
-		const abilitySlotIndex = gameState.players[localPlayerId]?.activeSlots
+		const before = snapshotForAnimation();
+		const slotIndex = gameState.players[localPlayerId]?.activeSlots
 			?.findIndex(slot => slot && slot.cardId === mosjeId && !slot.isDefeated);
-
-		// West — Tactical Calculated Guess: pick card type → reveal top of deck → resolve
-		if (WEST_CALCULATED_GUESS_IDS.has(mosjeId)) {
-			const deck = gameState.players[localPlayerId]?.deck ?? [];
-			if (deck.length === 0) {
-				modal.showInfo('Cannot Use Ability', 'Your deck is empty — Calculated Guess cannot be used.');
-				return;
-			}
-
-			const westSlot = gameState.players[localPlayerId].activeSlots
-				.find(s => s && s.cardId === mosjeId && !s.isDefeated);
-			if (westSlot && westSlot.level === 1 && westSlot.mp === 0) {
-				modal.showInfo('Cannot Use Ability', 'Senor West is at Level 0 with 0 MP — Calculated Guess cannot be used.');
-				return;
-			}
-
-			const guess = await modal.showCardTypeSelect({ title: 'West: Name a card type' });
-			if (!guess) return;
-
-			const topCard = deck[0];
-			const topCardDef = CARD_LOOKUP[topCard?.cardId];
-			const topCardType = topCard?.type || topCardDef?.type || 'UNKNOWN';
-			const topCardName = topCardDef?.name || topCard?.cardId || '???';
-
-			await modal.showRevealedCard('Revealed: Top of Your Deck', topCardName, topCardType);
-
-			const stateForAbility = JSON.parse(JSON.stringify(gameState));
-			stateForAbility._pendingTargets = {
-				...(stateForAbility._pendingTargets || {}),
-				west_guess: guess,
-				west_top_card_type: topCardType,
-			};
-
-			const { state: newState, success, error } = useMosjeAbility(stateForAbility, localPlayerId, mosjeId);
-			if (!success) {
-				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
-				return;
-			}
-			if (abilitySlotIndex >= 0) {
-				animateFieldActivation({
-					zone: 'mosje',
-					playerId: localPlayerId,
-					slotIndex: abilitySlotIndex,
-					cardId: mosjeId,
-				});
-			}
-			gameState = newState;
-
-			const slot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
-			const isCorrect = guess === topCardType;
-			log.add(isCorrect ? 'gain' : 'loss',
-				`West Calculated Guess: guessed ${guess}, was ${topCardType} → ${isCorrect ? '+10 MP + draw 2' : '-10 MP'}`
-			);
-			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${slot?.name || mosjeId} ability`);
-			syncPush();
-			if (gameState.status === 'FINISHED') {
-				handleGameOver(gameState);
-			}
-			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
+		const out = await runMosjeAbilityFlow({
+			state: gameState, playerId: localPlayerId, mosjeId, modal,
+			settle: st => settleReactions(st, reactionCtx()),
+			settlePauses: st => settlePendingChoice({ state: st, localPlayerId, modal, humanIds: isOffline ? [localPlayerId] : Object.keys(st.players) }),
+		});
+		if (out.cancelled) return;
+		if (!out.ok) {
+			modal.showInfo('Cannot Use Ability', out.error || 'This ability cannot be used right now.');
 			return;
 		}
-
-		// Binti — Cutting Words: discard a card from hand first
-		if (BINTI_CUTTING_WORDS_IDS.has(mosjeId)) {
-			const hand = gameState.players[localPlayerId].hand;
-			if (hand.length === 0) {
-				modal.showInfo('Cannot Use Ability', 'Your hand is empty — Binti needs a card to discard.');
-				return;
-			}
-			// U8 — Entry Protection: block BEFORE the discard picker so the player
-			// doesn't pick a card only to see the ability fizzle (engine throws too).
-			const cwOppId = localPlayerId === 'player_1' ? 'player_2' : 'player_1';
-			const cwTarget = (gameState.players[cwOppId]?.activeSlots || []).find(s => s && !s.isDefeated);
-			if (cwTarget?.entryProtected === true) {
-				modal.showInfo('Cannot Use Ability', `${cwTarget.name} just entered play — it is protected until your opponent's next turn.`);
-				return;
-			}
-			const handCards = hand.map(c => {
-				const id = c.cardId ?? c;
-				const def = CARD_LOOKUP[id] || {};
-				return { cardId: id, name: def.name || id, description: def.description || '' };
-			});
-			const chosen = await modal.showCardChoice('Binti — Cutting Words: discard a card', handCards);
-			if (!chosen) return;
-			const stateWithTarget = JSON.parse(JSON.stringify(gameState));
-			stateWithTarget._pendingTargets = {
-				...(stateWithTarget._pendingTargets || {}),
-				binti_discard: chosen.cardId,
-			};
-			const { state: newState, success, error } = useMosjeAbility(stateWithTarget, localPlayerId, mosjeId);
-			if (!success) {
-				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
-				return;
-			}
-			if (abilitySlotIndex >= 0) {
-				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
-			}
-			gameState = newState;
-			const bintiSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
-			log.add('loss', `Binti Cutting Words: discarded ${chosen.name || chosen.cardId} — opponent loses 10 MP and discards a card.`);
-			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${bintiSlot?.name || mosjeId} ability`);
-			syncPush();
-			if (gameState.status === 'FINISHED') {
-				handleGameOver(gameState);
-			}
-			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
-			return;
-		}
-
-		// Binti Creator — Quick Sketch: discard 2 FOOD Piecies, then tutor a card from deck to hand
-		if (BINTI_CREATOR_IDS.has(mosjeId)) {
-			const hand = gameState.players[localPlayerId].hand;
-			const isFood = (id) => (CARD_LOOKUP[id]?.tags || []).includes('FOOD');
-			const foodPool = hand
-				.map(c => c.cardId ?? c)
-				.filter(isFood)
-				.map(id => ({ cardId: id, name: CARD_LOOKUP[id]?.name || id, description: CARD_LOOKUP[id]?.description || '' }));
-			if (foodPool.length < 2) {
-				modal.showInfo('Cannot Use Ability', 'Quick Sketch needs 2 FOOD Piecies in your hand to discard.');
-				return;
-			}
-			const first = await modal.showCardChoice('Quick Sketch — discard 1st FOOD Piecie', foodPool);
-			if (!first) return;
-			foodPool.splice(foodPool.findIndex(c => c.cardId === first.cardId), 1); // remove one instance (handles duplicates)
-			const second = await modal.showCardChoice('Quick Sketch — discard 2nd FOOD Piecie', foodPool);
-			if (!second) return;
-
-			const deck = gameState.players[localPlayerId].deck;
-			if (deck.length === 0) {
-				modal.showInfo('Cannot Use Ability', 'Your deck is empty — nothing to search.');
-				return;
-			}
-			const deckCards = deck.map(c => {
-				const id = c.cardId ?? c;
-				return { cardId: id, name: CARD_LOOKUP[id]?.name || id, description: CARD_LOOKUP[id]?.description || '' };
-			});
-			const tutor = await modal.showCardChoice('Quick Sketch — search your deck for a card', deckCards);
-			if (!tutor) return;
-
-			const stateWithTarget = JSON.parse(JSON.stringify(gameState));
-			stateWithTarget._pendingTargets = {
-				...(stateWithTarget._pendingTargets || {}),
-				bintiCreatorDiscard: [first.cardId, second.cardId],
-				bintiCreatorTutor: tutor.cardId,
-			};
-			const { state: newState, success, error } = useMosjeAbility(stateWithTarget, localPlayerId, mosjeId);
-			if (!success) {
-				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
-				return;
-			}
-			if (abilitySlotIndex >= 0) {
-				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
-			}
-			gameState = newState;
-			const bcSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
-			log.add('gain', `Quick Sketch: discarded ${first.name} + ${second.name}, fetched ${tutor.name} to hand.`);
-			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${bcSlot?.name || mosjeId} ability`);
-			syncPush();
-			if (gameState.status === 'FINISHED') {
-				handleGameOver(gameState);
-			}
-			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
-			return;
-		}
-
-		// Ronald Chef — Strategic Insight: pick an opponent hand card to lock
-		if (RONALD_CHEF_INSIGHT_IDS.has(mosjeId)) {
-			const oppId = Object.keys(gameState.players).find(id => id !== localPlayerId);
-			const oppHand = gameState.players[oppId]?.hand ?? [];
-			if (oppHand.length === 0) {
-				modal.showInfo('Cannot Use Ability', "Your opponent's hand is empty — nothing to lock.");
-				return;
-			}
-			const pickedIndex = await modal.showOpponentHandCardSelect({
-				title: 'Strategic Insight — Lock a card',
-				prompt: "Pick one of your opponent's face-down cards to lock until your next turn.",
-				handSize: oppHand.length,
-				allowCancel: true,
-			});
-			if (pickedIndex === null) return;
-			const lockCard = oppHand[pickedIndex];
-			const lockCardId = lockCard?.cardId ?? lockCard;
-			const stateWithTarget = JSON.parse(JSON.stringify(gameState));
-			stateWithTarget._pendingTargets = {
-				...(stateWithTarget._pendingTargets || {}),
-				ronaldLockCardId: lockCardId,
-			};
-			const { state: newState, success, error } = useMosjeAbility(stateWithTarget, localPlayerId, mosjeId);
-			if (!success) {
-				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
-				return;
-			}
-			if (abilitySlotIndex >= 0) {
-				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
-			}
-			gameState = newState;
-			const lockName = CARD_LOOKUP[lockCardId]?.name || lockCardId;
-			log.add('loss', `Ronald Strategic Insight: paid 20 MP and locked ${lockName} in the opponent's hand until your next turn.`);
-			logStateOutcome(log, beforeAbility, gameState, localPlayerId, 'Ronald Strategic Insight');
-			syncPush();
-			if (gameState.status === 'FINISHED') {
-				handleGameOver(gameState);
-			}
-			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
-			return;
-		}
-
-		// FPS West — Tactical Analysis: guess a card type in the opponent's hand
-		if (FPS_WEST_TACTICAL_IDS.has(mosjeId)) {
-			const oppId = Object.keys(gameState.players).find(id => id !== localPlayerId);
-			const oppHand = gameState.players[oppId]?.hand ?? [];
-			if (oppHand.length === 0) {
-				modal.showInfo('Cannot Use Ability', "Your opponent's hand is empty — nothing to analyze.");
-				return;
-			}
-			const pickedIndex = await modal.showOpponentHandCardSelect({
-				title: 'Tactical Analysis — Pick a card',
-				prompt: "Pick one of your opponent's face-down cards.",
-				handSize: oppHand.length,
-				allowCancel: true,
-			});
-			if (pickedIndex === null) return;
-			const guess = await modal.showCardTypeSelect({ title: 'Tactical Analysis: What type is this card?' });
-			if (!guess) return;
-			const actualCard = oppHand[pickedIndex];
-			const actualId = actualCard?.cardId ?? actualCard;
-			const actualDef = CARD_LOOKUP[actualId] || {};
-			const actualType = actualCard?.type || actualDef.type || 'UNKNOWN';
-			await modal.showRevealedCard('Tactical Analysis — Card Revealed', actualDef.name || actualId, actualType);
-			const didSucceed = guess === actualType;
-			const stateWithTarget = JSON.parse(JSON.stringify(gameState));
-			stateWithTarget._pendingTargets = {
-				...(stateWithTarget._pendingTargets || {}),
-				fpsWestGuessCorrect: didSucceed,
-			};
-			const { state: newState, success, error } = useMosjeAbility(stateWithTarget, localPlayerId, mosjeId);
-			if (!success) {
-				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
-				return;
-			}
-			if (abilitySlotIndex >= 0) {
-				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
-			}
-			gameState = newState;
-			log.add(didSucceed ? 'gain' : 'loss', didSucceed
-				? 'FPS West Tactical Analysis: correct guess — +70 MP!'
-				: 'FPS West Tactical Analysis: wrong guess — -20 MP.');
-			logStateOutcome(log, beforeAbility, gameState, localPlayerId, 'FPS West Tactical Analysis');
-			syncPush();
-			if (gameState.status === 'FINISHED') {
-				handleGameOver(gameState);
-			}
-			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
-			return;
-		}
-
-		// Gandoe — Elimination Strike: confirm before firing (once per game, 4 Energy)
-		if (GANDOE_ELIMINATION_IDS.has(mosjeId)) {
-			const gandoeSlot = gameState.players[localPlayerId].activeSlots
-				.find(s => s && !s.isDefeated && String(s.cardId).includes('gandoe_destroyer'));
-			if (gandoeSlot?.eliminationStrikeUsed) {
-				modal.showInfo('Already Used', 'Elimination Strike can only be used once per game.');
-				return;
-			}
-			if (!gandoeSlot) {
-				modal.showInfo('Cannot Use Ability', 'Gandoe, The Destroyer is not on your field.');
-				return;
-			}
-			// 2.0: costs 4 Energy (abilityEnergyCosts.js), never MP; the Energy check happens in useMosjeAbility.
-			// Find target: opponent's lowest-level Mosje
-			const oppId = Object.keys(gameState.players).find(id => id !== localPlayerId);
-			const oppSlots = oppId ? gameState.players[oppId].activeSlots : [];
-			let targetSlot = null;
-			oppSlots.forEach(s => {
-				if (!s || s.isDefeated) return;
-				if (!targetSlot || s.level < targetSlot.level || (s.level === targetSlot.level && s.mp < targetSlot.mp)) {
-					targetSlot = s;
-				}
-			});
-			if (!targetSlot) {
-				modal.showInfo('Cannot Use Ability', 'No opponent Mosje on field to target.');
-				return;
-			}
-			const confirmed = await modal.showOptionSelect({
-				title: 'Elimination Strike',
-				prompt: `Pay 4 Energy to send ${targetSlot.name} (Level ${targetSlot.level}, ${targetSlot.mp} MP) to the Welloe pile? This cannot be undone and can only be used once.`,
-				options: [
-					{ id: 'confirm', label: '💀 Execute — Pay 4 Energy' },
-					{ id: 'cancel', label: 'Cancel' },
-				],
-				allowCancel: true,
-			});
-			if (!confirmed || confirmed === 'cancel') return;
-			const { state: newState, success, error } = useMosjeAbility(gameState, localPlayerId, mosjeId);
-			if (!success) {
-				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
-				return;
-			}
-			if (abilitySlotIndex >= 0) {
-				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
-			}
-			gameState = newState;
-			log.add('loss', `Gandoe Elimination Strike: ${targetSlot.name} sent to the Welloe pile. (-80 MP)`);
-			logStateOutcome(log, beforeAbility, gameState, localPlayerId, 'Gandoe Elimination Strike');
-			syncPush();
-			if (gameState.status === 'FINISHED') {
-				handleGameOver(gameState);
-			}
-			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
-			return;
-		}
-
-		// Ronald Mastermind — Master Plan: pick a Piecie from your discard to play for free
-		if (RONALD_MASTERMIND_IDS.has(mosjeId)) {
-			const discard = gameState.players[localPlayerId].graveyard || [];
-			const piecieCards = discard
-				.map(c => {
-					const id = c.cardId ?? c;
-					const def = CARD_LOOKUP[id] || {};
-					return { cardId: id, type: def.type, name: def.name || id, description: def.description || '' };
-				})
-				.filter(c => c.type !== 'MOSJE' && c.type !== 'PLACE' && String(c.cardId).startsWith('piecie_'));
-			if (piecieCards.length === 0) {
-				modal.showInfo('Cannot Use Ability', 'No Piecie in your discard to play with Master Plan.');
-				return;
-			}
-			const chosen = await modal.showCardChoice('Master Plan — play a Piecie from discard', piecieCards);
-			if (!chosen) return;
-			const stateWithTarget = JSON.parse(JSON.stringify(gameState));
-			stateWithTarget._pendingTargets = {
-				...(stateWithTarget._pendingTargets || {}),
-				masterPlanCardId: chosen.cardId,
-			};
-			const { state: newState, success, error } = useMosjeAbility(stateWithTarget, localPlayerId, mosjeId);
-			if (!success) {
-				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
-				return;
-			}
-			if (abilitySlotIndex >= 0) {
-				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
-			}
-			gameState = newState;
-			const ronaldSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
-			log.add('gain', `Ronald Master Plan: played ${chosen.name || chosen.cardId} for free from discard.`);
-			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${ronaldSlot?.name || mosjeId} ability`);
-			syncPush();
-			if (gameState.status === 'FINISHED') {
-				handleGameOver(gameState);
-			}
-			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
-			return;
-		}
-
-		// Ming Predictor — Future Sight: reveal top General Quest, optionally send it to the bottom
-		if (MING_FUTURE_SIGHT_IDS.has(mosjeId)) {
-			const mingStackId = getMingPeekStack(gameState);
-			const topQuest = mingStackId ? gameState.questStacks[mingStackId].deck[0] : null;
-			if (!topQuest) {
-				modal.showInfo('Cannot Use Ability', 'All Quest stacks are empty — nothing to look at.');
-				return;
-			}
-			const topQuestId = topQuest.cardId ?? topQuest;
-			const topQuestName = CARD_LOOKUP[topQuestId]?.name || topQuestId || '???';
-			await modal.showRevealedCard('Future Sight — Top Quest', topQuestName, 'QUEST');
-			const choice = await modal.showOptionSelect({
-				title: 'Future Sight',
-				prompt: 'Move this quest to the bottom?',
-				options: [
-					{ id: 'bottom', label: 'Send to bottom' },
-					{ id: 'leave', label: 'Leave on top' },
-				],
-				allowCancel: true,
-			});
-			if (!choice) return;
-			const stateWithTarget = JSON.parse(JSON.stringify(gameState));
-			stateWithTarget._pendingTargets = {
-				...(stateWithTarget._pendingTargets || {}),
-				mingSendToBottom: choice === 'bottom',
-				mingStackId,
-			};
-			const { state: newState, success, error } = useMosjeAbility(stateWithTarget, localPlayerId, mosjeId);
-			if (!success) {
-				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
-				return;
-			}
-			if (abilitySlotIndex >= 0) {
-				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
-			}
-			gameState = newState;
-			const mingSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
-			log.add('loss', `Ming Future Sight: paid 10 MP to look at the top quest${choice === 'bottom' ? ' and sent it to the bottom' : ''}.`);
-			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${mingSlot?.name || mosjeId} ability`);
-			syncPush();
-			if (gameState.status === 'FINISHED') {
-				handleGameOver(gameState);
-			}
-			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
-			return;
-		}
-
-		// Ming Natural — Lucky Draw: reveal the top of your deck, then draw it. If it's a
-		// Piecie, choose to activate it for free or keep it in hand; otherwise +15 MP.
-		if (MING_NATURAL_LUCKY_DRAW_IDS.has(mosjeId)) {
-			const deck = gameState.players[localPlayerId].deck || [];
-			if (deck.length === 0) {
-				modal.showInfo('Cannot Use Ability', 'Your deck is empty — nothing to draw.');
-				return;
-			}
-			const topCard = deck[0];
-			const topDef = CARD_LOOKUP[topCard.cardId];
-			const topCardName = topDef?.name || topCard.cardId || '???';
-			const topCardType = topCard.type || topDef?.type || '???';
-			await modal.showRevealedCard('Lucky Draw — Card Revealed', topCardName, topCardType);
-			let freeActivate = false;
-			if (topCard.type === 'PIECIE') {
-				const choice = await modal.showOptionSelect({
-					title: 'Lucky Draw',
-					prompt: `Activate ${topCardName} for free now, or keep it in hand?`,
-					options: [
-						{ id: 'activate', label: 'Activate for free' },
-						{ id: 'keep', label: 'Keep in hand' },
-					],
-					allowCancel: true,
-				});
-				if (!choice) return;
-				freeActivate = choice === 'activate';
-			}
-			const stateWithTarget = JSON.parse(JSON.stringify(gameState));
-			stateWithTarget._pendingTargets = {
-				...(stateWithTarget._pendingTargets || {}),
-				mingNaturalFreeActivate: freeActivate,
-			};
-			const { state: newState, success, error } = useMosjeAbility(stateWithTarget, localPlayerId, mosjeId);
-			if (!success) {
-				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
-				return;
-			}
-			if (abilitySlotIndex >= 0) {
-				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
-			}
-			gameState = newState;
-			const mingNaturalSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
-			const resultDesc = freeActivate
-				? ' and activated it for free'
-				: (topCard.type === 'PIECIE' ? ' and kept it in hand' : ', +15 MP');
-			log.add('gain', `Ming Natural Lucky Draw: drew ${topCardName}${resultDesc}.`);
-			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${mingNaturalSlot?.name || mosjeId} ability`);
-			syncPush();
-			if (gameState.status === 'FINISHED') {
-				handleGameOver(gameState);
-			}
-			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
-			return;
-		}
-
-		// Tuk Healer — Healing Presence: choose this Mosje or another own Mosje to gain 10 MP.
-		// Only prompts when there's more than one own Mosje on the field.
-		if (TUK_HEALER_PRESENCE_IDS.has(mosjeId)) {
-			const ownTargets = getPlayerMosjes(gameState, localPlayerId);
-			let stateForHeal = gameState;
-			let targetLabel = null;
-			if (ownTargets.length > 1) {
-				const selectedId = await modal.showTargetSelector(ownTargets, 'Healing Presence — choose which Mosje gains 10 MP:');
-				if (!selectedId) return;
-				const targetSlotIndex = parseInt(String(selectedId).split('_slot_')[1], 10);
-				if (Number.isNaN(targetSlotIndex)) return;
-				stateForHeal = JSON.parse(JSON.stringify(gameState));
-				stateForHeal._pendingTargets = {
-					...(stateForHeal._pendingTargets || {}),
-					own_slot_index: targetSlotIndex,
-				};
-				targetLabel = gameState.players[localPlayerId].activeSlots[targetSlotIndex]?.name;
-			}
-			const { state: newState, success, error } = useMosjeAbility(stateForHeal, localPlayerId, mosjeId);
-			if (!success) {
-				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
-				return;
-			}
-			if (abilitySlotIndex >= 0) {
-				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
-			}
-			gameState = newState;
-			const healerSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
-			log.add('gain', `Healing Presence: ${targetLabel || healerSlot?.name || mosjeId} gained 10 MP.`);
-			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${healerSlot?.name || mosjeId} ability`);
-			syncPush();
-			if (gameState.status === 'FINISHED') {
-				handleGameOver(gameState);
-			}
-			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
-			return;
-		}
-
-		// Chris All-Rounder — Perfect Setup: 3+ face-down Piecies required; pick one and
-		// activate it for free. Mirrors Youri's two-step (engine unlocks the slot, then
-		// activatePiecie resolves it) but with no MP cost and no draw.
-		if (CHRIS_PERFECT_SETUP_IDS.has(mosjeId)) {
-			const chrisPlayer = gameState.players[localPlayerId];
-			const faceDownIndices = chrisPlayer.piecieSlots
-				.map((s, i) => (s && s.type === 'PIECIE' && s.faceDown && !s.activated) ? i : -1)
-				.filter(i => i >= 0);
-			if (faceDownIndices.length < 3) {
-				modal.showInfo('Cannot Use Ability', 'Perfect Setup requires 3+ face-down Piecies on the field.');
-				return;
-			}
-			const options = faceDownIndices.map(i => {
-				const slot = chrisPlayer.piecieSlots[i];
-				const def = slot?.cardId ? CARD_LOOKUP[slot.cardId] : null;
-				return { id: i, label: `Slot ${i + 1} — ${def?.name || slot?.cardId || 'Unknown'}` };
-			});
-			const chosen = await modal.showOptionSelect({
-				title: 'Perfect Setup',
-				prompt: 'Pick a face-down Piecie to activate for free:',
-				options,
-				allowCancel: true,
-			});
-			if (chosen === null || chosen === undefined) return;
-			const chrisSlotIndex = typeof chosen === 'object' ? chosen.id : chosen;
-			const activatedCardId = chrisPlayer.piecieSlots[chrisSlotIndex]?.cardId;
-			const stateWithTarget = JSON.parse(JSON.stringify(gameState));
-			stateWithTarget._pendingTargets = {
-				...(stateWithTarget._pendingTargets || {}),
-				chrisPerfectSetupSlotIndex: chrisSlotIndex,
-			};
-			const { state: abilityState, success, error } = useMosjeAbility(stateWithTarget, localPlayerId, mosjeId);
-			if (!success) {
-				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
-				return;
-			}
-			const { state: activatedState, success: actSuccess, error: actError } =
-				activatePiecie(abilityState, localPlayerId, chrisSlotIndex);
-			if (!actSuccess) {
-				modal.showInfo('Activation Failed', actError || 'Could not activate the Piecie.');
-				gameState = abilityState;
-				renderAndCheckWin();
-				return;
-			}
-			if (abilitySlotIndex >= 0) {
-				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
-			}
-			gameState = activatedState;
-			const chrisSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
-			const activatedName = CARD_LOOKUP[activatedCardId]?.name || 'Piecie';
-			log.add('gain', `Perfect Setup: activated ${activatedName} for free.`);
-			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${chrisSlot?.name || mosjeId} ability`);
-			syncPush();
-			if (gameState.status === 'FINISHED') {
-				handleGameOver(gameState);
-			}
-			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
-			return;
-		}
-
-		// Jisca — Perfect Combo: rolls 1d6 (1-4 no effect, 5-6 chains a Piecie). Eligibility
-		// doesn't depend on the roll, so the target is picked UP FRONT (like Chris) —
-		// a second useMosjeAbility call would re-roll and hit the once-per-turn gate.
-		if (JISCA_PERFECT_COMBO_IDS.has(mosjeId)) {
-			const jiscaPlayer = gameState.players[localPlayerId];
-			const eligibleIndices = jiscaPlayer.piecieSlots
-				.map((s, i) => (s && s.type === 'PIECIE') ? i : -1)
-				.filter(i => i >= 0);
-			let stateForCombo = gameState;
-			if (eligibleIndices.length > 1) {
-				const options = eligibleIndices.map(i => {
-					const slot = jiscaPlayer.piecieSlots[i];
-					const def = slot?.cardId ? CARD_LOOKUP[slot.cardId] : null;
-					const status = (slot.faceDown && !slot.activated) ? 'face-down' : 'active';
-					return { id: i, label: `Slot ${i + 1} — ${def?.name || slot?.cardId || 'Unknown'} (${status})` };
-				});
-				const chosen = await modal.showOptionSelect({
-					title: 'Perfect Combo',
-					prompt: 'If you roll 5-6, which Piecie should chain? (Rolls 1-4 have no effect.)',
-					options,
-					allowCancel: true,
-				});
-				if (chosen === null || chosen === undefined) return;
-				const jiscaSlotIndex = typeof chosen === 'object' ? chosen.id : chosen;
-				stateForCombo = JSON.parse(JSON.stringify(gameState));
-				stateForCombo._pendingTargets = {
-					...(stateForCombo._pendingTargets || {}),
-					jiscaComboSlotIndex: jiscaSlotIndex,
-				};
-			}
-			const { state: abilityState, success, error, jiscaRoll, jiscaChainedSlot, jiscaChainedFaceDown } =
-				useMosjeAbility(stateForCombo, localPlayerId, mosjeId);
-			if (!success) {
-				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
-				return;
-			}
-			let finalState = abilityState;
-			if (jiscaChainedFaceDown === true && Number.isInteger(jiscaChainedSlot)) {
-				const { state: activatedState, success: actSuccess, error: actError } =
-					activatePiecie(finalState, localPlayerId, jiscaChainedSlot);
-				if (actSuccess) finalState = activatedState;
-				else console.warn('[UI] Jisca chain activation failed:', actError);
-			}
-			if (abilitySlotIndex >= 0) {
-				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
-			}
-			gameState = finalState;
-			const jiscaSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
-			const chainedName = Number.isInteger(jiscaChainedSlot)
-				? (CARD_LOOKUP[jiscaPlayer.piecieSlots[jiscaChainedSlot]?.cardId]?.name || 'a Piecie')
-				: null;
-			log.add('gain', jiscaRoll >= 5
-				? (chainedName ? `Perfect Combo: rolled ${jiscaRoll}, chained ${chainedName}.` : `Perfect Combo: rolled ${jiscaRoll} — no Piecie to chain.`)
-				: `Perfect Combo: rolled ${jiscaRoll} — no effect.`);
-			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${jiscaSlot?.name || mosjeId} ability`);
-			syncPush();
-			if (gameState.status === 'FINISHED') {
-				handleGameOver(gameState);
-			}
-			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
-			return;
-		}
-
-		// Tuk Architect — Perfect Placement: peek top 5, take 2 to hand, bottom the other 3
-		if (TUK_PERFECT_PLACEMENT_IDS.has(mosjeId)) {
-			const deck = gameState.players[localPlayerId].deck || [];
-			if (deck.length === 0) {
-				modal.showInfo('Cannot Use Ability', 'Your deck is empty — Perfect Placement cannot be used.');
-				return;
-			}
-			const top5 = deck.slice(0, 5).map(c => {
-				const id = c.cardId ?? c;
-				const def = CARD_LOOKUP[id] || {};
-				return { cardId: id, name: def.name || id, description: def.description || '' };
-			});
-			// Two sequential single picks (showCardChoice does not support multi-select).
-			const first = await modal.showCardChoice('Perfect Placement — take 1st card to hand', top5);
-			if (!first) return;
-			const remaining = top5.filter(c => c.cardId !== first.cardId);
-			const second = remaining.length > 0
-				? await modal.showCardChoice('Perfect Placement — take 2nd card to hand', remaining)
-				: null;
-			if (remaining.length > 0 && !second) return;
-			const tukChosenCardIds = second ? [first.cardId, second.cardId] : [first.cardId];
-			const stateWithTarget = JSON.parse(JSON.stringify(gameState));
-			stateWithTarget._pendingTargets = {
-				...(stateWithTarget._pendingTargets || {}),
-				tukChosenCardIds,
-			};
-			const { state: newState, success, error } = useMosjeAbility(stateWithTarget, localPlayerId, mosjeId);
-			if (!success) {
-				modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
-				return;
-			}
-			if (abilitySlotIndex >= 0) {
-				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
-			}
-			gameState = newState;
-			const tukSlot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
-			const takenNames = tukChosenCardIds.map(id => CARD_LOOKUP[id]?.name || id).join(', ');
-			log.add('loss', `Tuk Perfect Placement: paid 15 MP, took ${takenNames} to hand, bottomed the rest.`);
-			logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${tukSlot?.name || mosjeId} ability`);
-			syncPush();
-			if (gameState.status === 'FINISHED') {
-				handleGameOver(gameState);
-			}
-			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
-			return;
-		}
-
-		if (YOURI_SPEED_ACTIVATE_IDS.has(mosjeId)) {
-			const { state: abilityState, success, error, pendingYouriActivation } =
-				useMosjeAbility(gameState, localPlayerId, mosjeId);
-			if (!success) {
-				modal.showInfo('Cannot Use Ability', error || 'Youri ability cannot be used right now.');
-				return;
-			}
-
-			let stateAfterAbility = abilityState;
-
-			if (pendingYouriActivation) {
-				// Multiple face-down piecies — show slot selector
-				const pending = stateAfterAbility._pendingYouriActivation;
-				const player = stateAfterAbility.players[localPlayerId];
-				const options = pending.faceDownSlots.map(i => {
-					const slot = player.piecieSlots[i];
-					const def = slot?.cardId ? CARD_LOOKUP[slot.cardId] : null;
-					return { id: i, label: `Slot ${i + 1} — ${def?.name || slot?.cardId || 'Unknown'}` };
-				});
-				const chosen = await modal.showOptionSelect({
-					title: 'Youri — Speed Activate',
-					prompt: 'Pick a face-down Piecie to activate:',
-					options,
-					allowCancel: true,
-				});
-				delete stateAfterAbility._pendingYouriActivation;
-				if (chosen === null || chosen === undefined) {
-					// Cost already spent — commit partial state and inform player
-					modal.showInfo('Ability Used', 'Youri paid 20 MP but no Piecie was selected. The cost is still spent.');
-					gameState = stateAfterAbility;
-					renderAndCheckWin();
-					syncPush();
-					return;
-				}
-				const slotIndex = typeof chosen === 'object' ? chosen.id : chosen;
-				// Set canActivateOnTurn so the activatePiecie guard passes
-				stateAfterAbility = JSON.parse(JSON.stringify(stateAfterAbility));
-				stateAfterAbility.players[localPlayerId].piecieSlots[slotIndex].canActivateOnTurn =
-					stateAfterAbility.turnNumber;
-
-				const { state: activatedState, success: actSuccess, error: actError } =
-					activatePiecie(stateAfterAbility, localPlayerId, slotIndex);
-				if (!actSuccess) {
-					modal.showInfo('Activation Failed', actError || 'Could not activate the Piecie.');
-					gameState = stateAfterAbility;
-					renderAndCheckWin();
-					return;
-				}
-				stateAfterAbility = activatedState;
-				// Draw 1 card after activation
-				if (stateAfterAbility.players[localPlayerId].deck.length > 0) {
-					stateAfterAbility = JSON.parse(JSON.stringify(stateAfterAbility));
-					stateAfterAbility.players[localPlayerId].hand.push(
-						stateAfterAbility.players[localPlayerId].deck.shift()
-					);
-				}
-			} else {
-				// Single-piecie auto-path: engine already set canActivateOnTurn and drew the card
-				// Find the unlocked slot (canActivateOnTurn === turnNumber, face-down, not activated)
-				const player = stateAfterAbility.players[localPlayerId];
-				const autoSlotIndex = player.piecieSlots.findIndex(
-					s => s && s.type === 'PIECIE' && s.faceDown && !s.activated &&
-						s.canActivateOnTurn === stateAfterAbility.turnNumber
-				);
-				if (autoSlotIndex >= 0) {
-					const { state: activatedState, success: actSuccess } =
-						activatePiecie(stateAfterAbility, localPlayerId, autoSlotIndex);
-					if (actSuccess) stateAfterAbility = activatedState;
-				}
-			}
-
-			if (abilitySlotIndex >= 0) {
-				animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex: abilitySlotIndex, cardId: mosjeId });
-			}
-			gameState = stateAfterAbility;
-			// Log the ability cost against beforeAbility (shows -20 MP on Youri)
-			log.add('loss', `Youri Speed Activate: paid 20 MP, activated face-down Piecie, drew 1 card.`);
-			logStateOutcome(log, beforeAbility, abilityState, localPlayerId, 'Youri Speed Activate');
-			// Log the piecie effect against the post-cost state (shows piecie's full MP gain correctly)
-			logStateOutcome(log, abilityState, gameState, localPlayerId, 'Piecie effect');
-			syncPush();
-			renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
-			return;
-		}
-
-		const { state: newState, success, error } = useMosjeAbility(gameState, localPlayerId, mosjeId);
-		if (!success) {
-			modal.showInfo('Cannot Use Ability', error || 'This ability cannot be used right now.');
-			return;
-		}
-		if (abilitySlotIndex >= 0) {
-			animateFieldActivation({
-				zone: 'mosje',
-				playerId: localPlayerId,
-				slotIndex: abilitySlotIndex,
-				cardId: mosjeId,
-			});
-		}
-		gameState = newState;
-
-		const slot = gameState.players[localPlayerId].activeSlots.find(s => s?.cardId === mosjeId);
-		log.add('gain', `Used ability: ${slot?.name || mosjeId}.`);
+		if (slotIndex >= 0) animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex, cardId: mosjeId });
+		gameState = out.state;
+		log.add('gain', `Used ability: ${out.name}.`);
 		const abilityDef = CARD_LOOKUP[mosjeId];
 		if (abilityDef?.abilityDescription) log.add('info', `Effect: ${abilityDef.abilityDescription}`);
-		logStateOutcome(log, beforeAbility, gameState, localPlayerId, `${slot?.name || mosjeId} ability`);
+		logStateOutcome(log, before, gameState, localPlayerId, `${out.name} ability`);
 		if (gameState._redbullEchoFizzled) {
 			log.add('info', `Redbull: not enough MP for the second trigger — Redbull stays active this turn.`);
 		}
 		syncPush();
-
-		if (gameState.status === 'FINISHED') {
-			handleGameOver(gameState);
-		}
-		renderAndAnimate(beforeAbility, { actionLabel: 'mosje-ability' });
+		if (gameState.status === 'FINISHED') handleGameOver(gameState);
+		renderAndAnimate(before, { actionLabel: 'mosje-ability' });
 	}
 
 	async function handleActivatePiecie(slotIndex) {
@@ -2782,6 +2029,7 @@ function toMosjeCards(activeSlots, ownerEnergy = 0) {
 				isDefeated: slot.isDefeated,
 				traits: slot.traits ?? {},
 				abilityUsedThisTurn: slot.abilityUsedThisTurn,
+				abilityUsedThisGame: slot.abilityUsedThisGame === true,
 				abilityCost: cost,
 				cantAffordAbility: cost > (ownerEnergy ?? 0),
 				description: slot.isDefeated ? 'Defeated' : '',

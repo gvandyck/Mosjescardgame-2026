@@ -1,6 +1,7 @@
 // onfield-ability-clamp.spec.js — Long ability text must not push the ability
 // button out of an on-field owned Mosje card.
 //
+// (58-03: Parkour West is a passive ability in 2.0 and has no button, so the layout check uses Ronald Chef, an activated Mosje.)
 // Bug report (2026-07-06): Parkour West's long ability ("Adaptive Combat
 // Flow: …") rendered un-clamped on the board card and shoved the ability
 // button past the card's bottom edge. The text is now clamped to 4 lines
@@ -16,7 +17,7 @@ test.describe('On-field Mosje ability text clamp', () => {
 		await waitForBoard(page);
 
 		// Force the worst-case long-ability Mosje into the player's slot 0.
-		await setMosjeOnField(page, 'player_1', 0, 'mosje_parkour_west', { mp: 20, level: 1 });
+		await setMosjeOnField(page, 'player_1', 0, 'mosje_ronald_chef', { mp: 20, level: 1 });
 
 		const card = page.locator('.mosje-card--owned').first();
 		const btn = card.locator('.mosje-ability-btn');

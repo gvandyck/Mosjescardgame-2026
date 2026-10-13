@@ -7,6 +7,7 @@ import { markEnteringCards } from './markEnteringCards.js';
 import { getCardById } from '../data/cardIndex.js';
 import { initModalManager } from './modalManager.js';
 import { renderQuestStacks } from './renderQuestStacks.js';
+import { MOSJE_ABILITY_RULES } from '../rules/mosjeAbilityRules.js';
 
 const PIECIE_SLOTS = 3; // 2.0: 3 Piecie slots per player (mirrors tableRules)
 
@@ -113,11 +114,16 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		});
 		cardEl.addEventListener('click', () => getBoardModal().showMosjeDetailModal({ ...fullCard, ...mosje }));
 
-		if (onUseAbility && !mosje.isDefeated && mosje.cardId && !fullCard.autoAbility) {
-			const isUsed = mosje.abilityUsedThisTurn;
+		// 2.0: the button comes from the ability rules (activated, not a draw-step one); hidden V4 Mosjes keep the old rule.
+		const abilityRule = MOSJE_ABILITY_RULES[fullCard.abilityId];
+		const showAbilityBtn = abilityRule ? (abilityRule.kind === 'activated' && !abilityRule.drawStep) : !fullCard.autoAbility;
+		if (onUseAbility && !mosje.isDefeated && mosje.cardId && showAbilityBtn) {
+			const wrongTurn = abilityRule?.ownTurnOnly !== false && viewModel.gameState?.activePlayerId !== viewModel.myPlayerId;
+			const isUsed = mosje.abilityUsedThisTurn || (abilityRule?.per === 'game' && mosje.abilityUsedThisGame);
 			const costLabel = mosje.abilityCost > 0 ? ` ${mosje.abilityCost} Energy` : '';
 			let tooltip;
-			if (!isUsed && mosje.cantAffordAbility) tooltip = `Not enough Energy (need ${mosje.abilityCost})`;
+			if (wrongTurn) tooltip = 'You can only use this on your own turn';
+			else if (!isUsed && mosje.cantAffordAbility) tooltip = `Not enough Energy (need ${mosje.abilityCost})`;
 			else if (isUsed) tooltip = 'Ability already used this turn';
 			else tooltip = `Use ability${costLabel ? ` (costs ${mosje.abilityCost} Energy)` : ''}`;
 
@@ -126,7 +132,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 			btn.textContent = `⚡ Activate${costLabel ? ` · ${mosje.abilityCost} Energy` : ''}`;
 			btn.title = tooltip;
 			btn.setAttribute('aria-label', tooltip);
-			btn.disabled = isUsed || (mosje.cantAffordAbility ?? false);
+			btn.disabled = wrongTurn || isUsed || (mosje.cantAffordAbility ?? false);
 			btn.addEventListener('click', (event) => {
 				event.stopPropagation();
 				onUseAbility(mosje.cardId);
