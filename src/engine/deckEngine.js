@@ -3,6 +3,7 @@
 // All functions return new arrays (they do not mutate the originals).
 
 import { getCardById } from '../data/cardIndex.js';
+import { shiftTestDie } from './dice/testDiceQueue.js';
 
 console.log('[ENGINE] deckEngine.js loaded');
 
@@ -75,7 +76,8 @@ export function removeFromHand(hand, cardId) {
 // Returns an integer 1 to sides.
 // ─────────────────────────────────────────────────────────────
 export function rollDie(sides = 6) {
-  const result = Math.floor(Math.random() * sides) + 1;
+  const queued = shiftTestDie(); // test-only scripted result; null in real play
+  const result = queued != null ? queued : Math.floor(Math.random() * sides) + 1;
   console.log(`[ENGINE] Rolled d${sides}: ${result}`);
   return result;
 }
