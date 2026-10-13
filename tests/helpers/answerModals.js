@@ -1,5 +1,5 @@
 // answerModals — click through the option / target modals a Mosje ability opens.
-// picks: [string | RegExp] consumed in order (matched on the button text); with no pick left the first enabled option is taken.
+// picks: [string | RegExp | { index }] consumed in order (matched on the button text, or the nth enabled option); with no pick left the first enabled option is taken.
 // Stops when no modal shows for a short moment. Returns the labels that were clicked (for debugging).
 const OPTION = '.modal-mosje-select-btn:not([disabled]), .target-option:not([disabled]), #modal-continue';
 
@@ -11,7 +11,10 @@ export async function answerModals(page, picks = [], { max = 14, wait = 700 } = 
 		if (!(await first.isVisible({ timeout: wait }).catch(() => false))) break;
 		let btn = first;
 		const want = queue[0];
-		if (want !== undefined) {
+		if (want !== undefined && typeof want === 'object' && 'index' in want) {
+			btn = page.locator(OPTION).nth(want.index);
+			queue.shift();
+		} else if (want !== undefined) {
 			const match = page.locator(OPTION).filter({ hasText: want });
 			if (await match.count()) { btn = match.first(); queue.shift(); }
 		}

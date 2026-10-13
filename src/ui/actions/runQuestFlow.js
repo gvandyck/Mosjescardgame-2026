@@ -9,11 +9,16 @@ import { pickActingMosje } from './pickActingMosje.js';
 import { pickQuestChoices } from './pickQuestChoices.js';
 import { legalCostChoices } from './legalCostChoices.js';
 import { escapeMeta } from './escapeMeta.js';
+import { offerWestPeek } from './offerWestPeek.js';
 
-export async function runQuestFlow({ state, playerId, modal, rng = Math.random, settle = async s => s }) {
-	const none = { state, log: [] };
+export async function runQuestFlow({ state: startState, playerId, modal, rng = Math.random, settle = async s => s }) {
+	let state = startState;
+	let none = { state, log: [] };
 	const slotIndex = await pickActingMosje({ state, playerId, modal, purpose: 'quest' });
 	if (slotIndex == null) return none;
+	// Senor West (holder text): an optional look at a Quest stack; the once-per-turn flag stays even if the attempt is cancelled.
+	state = await offerWestPeek({ state, playerId, modal });
+	none = { state, log: [] };
 
 	const options = [];
 	for (const stackId of QUEST_STACK_IDS) {

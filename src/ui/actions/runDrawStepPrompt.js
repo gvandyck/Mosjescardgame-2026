@@ -4,6 +4,7 @@ import { finishDrawStep } from '../../engine/mosje/finishDrawStep.js';
 import { MOSJE_ABILITY_RULES } from '../../rules/mosjeAbilityRules.js';
 import { MOSJES } from '../../data/mosjes.js';
 import { collectAbilityInputs } from './collectAbilityInputs.js';
+import { offerHistorianKeep } from './offerHistorianKeep.js';
 
 export async function runDrawStepPrompt({ state, localPlayerId, modal }) {
 	const pending = state.pendingDrawStep;
@@ -23,6 +24,10 @@ export async function runDrawStepPrompt({ state, localPlayerId, modal }) {
 		const inputs = MOSJE_ABILITY_RULES[abilityId]?.inputs || [];
 		const collected = await collectAbilityInputs({ state, playerId: localPlayerId, modal, inputs });
 		if (collected == null) continue; // cancelled: back to the list
+		if (id === 'mosje_martin_historian') {
+			const keepCardId = await offerHistorianKeep({ state, playerId: localPlayerId, modal, collected });
+			if (keepCardId) collected.keepCardId = keepCardId;
+		}
 		use.push(id);
 		choices[id] = collected;
 	}
