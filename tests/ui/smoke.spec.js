@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import {
-	GAME_URL,
+	GAME_URL_TEST,
 	seedOfflineSession,
 	waitForBoard,
 	ss,
@@ -15,7 +15,7 @@ import {
 
 test('board loads in offline mode', async ({ page }) => {
 	await seedOfflineSession(page);
-	await page.goto(GAME_URL);
+	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
 	await ss(page, '01-board-loaded');
 
@@ -30,7 +30,7 @@ test('board loads in offline mode', async ({ page }) => {
 
 test('Mosje cards render with MP values', async ({ page }) => {
 	await seedOfflineSession(page);
-	await page.goto(GAME_URL);
+	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
 
 	const mosjes = await readOwnedMosjes(page);
@@ -53,7 +53,7 @@ test('Mosje cards render with MP values', async ({ page }) => {
 
 test('hand contains cards with known IDs', async ({ page }) => {
 	await seedOfflineSession(page);
-	await page.goto(GAME_URL);
+	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
 
 	const hand = await readHand(page);
@@ -70,7 +70,7 @@ test('hand contains cards with known IDs', async ({ page }) => {
 
 test('end turn — bot takes its turn and returns control', async ({ page }) => {
 	await seedOfflineSession(page);
-	await page.goto(GAME_URL);
+	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
 
 	const logBefore   = await readLog(page);
@@ -95,7 +95,7 @@ test('end turn — bot takes its turn and returns control', async ({ page }) => 
 
 test('play a Piecie from hand — appears on field', async ({ page }) => {
 	await seedOfflineSession(page);
-	await page.goto(GAME_URL);
+	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
 
 	const hand = await readHand(page);
@@ -135,7 +135,7 @@ test('play a Piecie from hand — appears on field', async ({ page }) => {
 
 test('two full turns — log grows and no crash', async ({ page }) => {
 	await seedOfflineSession(page);
-	await page.goto(GAME_URL);
+	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
 
 	for (let turn = 1; turn <= 2; turn++) {
