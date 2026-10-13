@@ -61,10 +61,10 @@ describe("Gandoe <-> Michelle synergy", () => {
   // V4 Gandoe<->Michelle kicker and +15 partner bonus removed in 2.0 (Phase 58-01): no such synergy in the Card List.
   it("Michelle gets no Gandoe partner bonus on a Physical Quest", () => {
     vi.spyOn(Math, "random").mockReturnValue(0.55);
-    // Michelle starts at 70 so the base win (+40) levels her up first, as in the V4 test (65 on 40).
+    // Michelle starts at 40 MP; Arm Wrestling +40 doubled by Tough Gamble = one gain of 80.
     const state = makeState([
       makeSlot("mosje_gandoe_destroyer", 40, 1),
-      makeSlot("mosje_michelle", 70, 1),
+      makeSlot("mosje_michelle", 40, 1),
     ]);
 
     expect(getPartnerSynergyQuestBonus(state, "player_1", "Physical")).toBe(0);
@@ -73,9 +73,7 @@ describe("Gandoe <-> Michelle synergy", () => {
     const michelle = result.players.player_1.activeSlots[1];
 
     expect(michelle.level).toBe(2);
-    // KNOWN GAP (fix in Phase 58, Michelle's Tough Gamble rewrite): V4 wiring applies the
-    // doubled reward as two separate gains (the 40 win levels her up and resets to 0, then the doubling adds +40).
-    // 2.0 rule: the doubled reward is ONE gain of 80 -> Level 2 at 0 MP. Change to 0 then.
-    expect(michelle.mp).toBe(40);
+    // 2.0: Tough Gamble (die 4 = double) is a questWinAmount modifier: ONE gain of 80 -> Level 2 at 0 MP.
+    expect(michelle.mp).toBe(0);
   });
 });

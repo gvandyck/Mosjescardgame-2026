@@ -142,23 +142,9 @@ export function ability_coert_extra_resources(gameState, playerId, sourceMosjeId
 
 // FIGHTING MOSJES
 
-// Gandoe Wizard — roll d6: 1-2 lose 10 MP, 3-4 gain 20 MP, 5 gain 30 MP, 6 gain 50 MP.
-export function ability_gandoe_wizard_chaos_roll(gameState, playerId, mosjeId = null) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = getActiveSlotIndexForMosje(player, mosjeId);
-	if (si < 0) return state;
-	const roll = rollDie(6);
-	let delta = 0;
-	if (roll <= 2) delta = -10;
-	else if (roll <= 4) delta = 20;
-	else if (roll === 5) delta = 30;
-	else delta = 50;
-	if (delta < 0) applyDamage(state, playerId, player.activeSlots[si], -delta);
-	else applyGain(state, player.activeSlots[si], delta);
-	console.log(`[ABILITY] Gandoe Wizard: rolled ${roll} → ${delta > 0 ? '+' : ''}${delta} MP`);
-	return state;
+// 2.0: Gandoe Wizard Chaos Roll is a trigger/passive (src/abilities/mosje/*, MOSJE_TRIGGERS). No manual ability; kept so the dispatch map resolves.
+export function ability_gandoe_wizard_chaos_roll(gameState) {
+	return gameState;
 }
 
 // Jeffrey Strongman — Brute Force is a passive auto-ability (see questLogic.js).
@@ -170,72 +156,29 @@ export function ability_jeffrey_brute_force(gameState, _playerId) {
 	return gameState;
 }
 
-// Alyssa Bulldozer — gains 5 MP for every 10 MP she lost this turn (comeback).
-export function ability_alyssa_bulldozer_unstoppable(gameState, playerId, mosjeId = null) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = getActiveSlotIndexForMosje(player, mosjeId);
-	if (si < 0) return state;
-	const mosje = player.activeSlots[si];
-	const lost = mosje.mpLostThisTurn || 0;
-	const bonus = Math.floor(lost / 10) * 5;
-	if (bonus > 0) applyGain(state, mosje, bonus);
-	console.log(`[ABILITY] Alyssa Bulldozer: ${lost} MP lost this turn → +${bonus} comeback MP`);
-	return state;
-}
-
-// Alyssa Fissa — gain 5 MP per card in hand.
-export function ability_alyssa_fissa_party_power(gameState, playerId, mosjeId = null) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = getActiveSlotIndexForMosje(player, mosjeId);
-	if (si < 0) return state;
-	const gain = player.hand.length * 5;
-	applyGain(state, player.activeSlots[si], gain);
-	console.log(`[ABILITY] Alyssa Fissa: ${player.hand.length} cards in hand → +${gain} MP`);
-	return state;
-}
-
-// AZN Cless — risk/reward: roll d6. Even → +25 MP. Odd → -15 MP.
-export function ability_azn_cless_risk_reward(gameState, playerId, mosjeId = null) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = getActiveSlotIndexForMosje(player, mosjeId);
-	if (si < 0) return state;
-	const roll = rollDie(6);
-	if (roll % 2 === 0) {
-		applyGain(state, player.activeSlots[si], 25);
-		console.log(`[ABILITY] AZN Cless: rolled ${roll} (even) → +25 MP`);
-	} else {
-		applyDamage(state, playerId, player.activeSlots[si], 15);
-		console.log(`[ABILITY] AZN Cless: rolled ${roll} (odd) → -15 MP`);
-	}
-	return state;
-}
-
-// Michelle — Tough Gamble fires automatically after each quest (see questLogic.js).
-// This manual-ability entry is kept so useMosjeAbility does not crash if called,
-// but it does nothing — the real logic lives in applyMosjeFieldEffectsOnQuest.
-export function ability_michelle_tough_gamble(gameState, _playerId) {
-	console.log('[ABILITY] Michelle Tough Gamble: auto-ability — fires after quest, not manually');
+// 2.0: Alyssa Bulldozer Unstoppable is a trigger/passive (src/abilities/mosje/*, MOSJE_TRIGGERS). No manual ability; kept so the dispatch map resolves.
+export function ability_alyssa_bulldozer_unstoppable(gameState) {
 	return gameState;
 }
 
-// Parkour West — adaptive: if Mosje lost MP last turn, gain 20 MP. Otherwise gain 10 MP.
-export function ability_parkour_west_adaptive_combat(gameState, playerId, mosjeId = null) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = getActiveSlotIndexForMosje(player, mosjeId);
-	if (si < 0) return state;
-	const mosje = player.activeSlots[si];
-	const gain = (mosje.mpLostThisTurn || 0) > 0 ? 20 : 10;
-	applyGain(state, mosje, gain);
-	console.log(`[ABILITY] Parkour West: adaptive +${gain} MP`);
-	return state;
+// 2.0: Alyssa Fissa Party Power is a trigger/passive (src/abilities/mosje/*, MOSJE_TRIGGERS). No manual ability; kept so the dispatch map resolves.
+export function ability_alyssa_fissa_party_power(gameState) {
+	return gameState;
+}
+
+// 2.0: AZN Cless Risk & Reward is a trigger/passive (src/abilities/mosje/*, MOSJE_TRIGGERS). No manual ability; kept so the dispatch map resolves.
+export function ability_azn_cless_risk_reward(gameState) {
+	return gameState;
+}
+
+// 2.0: Michelle Tough Gamble is a trigger/passive (src/abilities/mosje/*, MOSJE_TRIGGERS). No manual ability; kept so the dispatch map resolves.
+export function ability_michelle_tough_gamble(gameState) {
+	return gameState;
+}
+
+// 2.0: Parkour West Flow is a trigger/passive (src/abilities/mosje/*, MOSJE_TRIGGERS). No manual ability; kept so the dispatch map resolves.
+export function ability_parkour_west_adaptive_combat(gameState) {
+	return gameState;
 }
 
 // Gandoe Destroyer — elimination strike: deal 45 MP damage to opponent.

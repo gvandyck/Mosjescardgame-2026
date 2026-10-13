@@ -4,7 +4,9 @@
  * NOTE: Test file uses .ts extension (vitest.config.js only picks up tests/**\/*.ts).
  * The source file remains .js as specified by the plan.
  */
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+// @ts-expect-error JS module without type declarations
+import { pushTestDice, clearTestDice } from '../../src/engine/dice/testDiceQueue.js';
 
 // @ts-expect-error JS module without type declarations
 import { driveBotTurn, driveBotTurnSteps } from '../../src/bot/botDriver.js';
@@ -349,7 +351,10 @@ describe('driveBotTurn - attacks (2.0, 56-05)', () => {
 // ─────────────────────────────────────────────────────────────
 
 describe('driveBotTurn — AZN Cless Risk and Reward gating', () => {
-  // KNOWN GAP (fix in Phase 58, AZN Cless rewrite): Risk & Reward is now an end-of-turn trigger, not a bot-pressed button; the engine refuses useMosjeAbility on it.
+  // Risk & Reward is an end-of-turn trigger now (see mosjes-deck1.test.ts): script its die to a neutral 3 so MP assertions are deterministic.
+  beforeEach(() => pushTestDice([3, 3, 3, 3, 3, 3]));
+  afterEach(() => clearTestDice());
+  // KNOWN GAP (fix in Phase 58, AZN Cless rewrite) Risk & Reward is now an end-of-turn trigger, not a bot-pressed button; the engine refuses useMosjeAbility on it.
   it.skip('gambles when the -15 MP outcome is merely "safe" (plenty of MP)', () => {
     const state = makeState({
       activeSlots: [makeMosjeSlot('mosje_azn_cless', 60)],

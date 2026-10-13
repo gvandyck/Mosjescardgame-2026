@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 // @ts-expect-error — JS module, no type declarations
-import { ability_alyssa_bulldozer_unstoppable, ability_dj_8020_lucky_beats } from "../../src/abilities/mosjeAbilities.js";
+import { ability_dj_8020_lucky_beats } from "../../src/abilities/mosjeAbilities.js";
 import { forceQuestResult } from "../helpers/forceQuestResult.js";
 // @ts-expect-error — JS module, no type declarations
 import { createEngineState } from "../helpers/testHelpers.js";
@@ -10,59 +10,8 @@ import { createEngineState } from "../helpers/testHelpers.js";
 // IMPL-AR-M2 (Jisca Perfect Combo) already has qualifying evidence in
 // tests/abilities/ability-text-reconciliation.test.ts — not duplicated here.
 
-describe("Alyssa Bulldozer — Unstoppable comeback math (IMPL-PF-M1)", () => {
-  it("mpLostThisTurn=20 -> +10 MP (floor(20/10)*5)", () => {
-    const state = createEngineState({
-      players: {
-        player_1: {
-          activeSlots: [
-            {
-              cardId: "mosje_alyssa_bulldozer",
-              name: "[Alyssa] The Bulldozer",
-              mp: 40,
-              level: 1,
-              isDefeated: false,
-              statusEffects: [],
-              abilityUsedThisTurn: false,
-              mpLostThisTurn: 20,
-            },
-            null,
-          ],
-        },
-      },
-    });
-
-    const result = ability_alyssa_bulldozer_unstoppable(state, "player_1");
-
-    expect(result.players.player_1.activeSlots[0].mp).toBe(50);
-  });
-
-  it("mpLostThisTurn=0 -> no bonus applied", () => {
-    const state = createEngineState({
-      players: {
-        player_1: {
-          activeSlots: [
-            {
-              cardId: "mosje_alyssa_bulldozer",
-              name: "[Alyssa] The Bulldozer",
-              mp: 40,
-              level: 1,
-              isDefeated: false,
-              statusEffects: [],
-              abilityUsedThisTurn: false,
-              mpLostThisTurn: 0,
-            },
-            null,
-          ],
-        },
-      },
-    });
-
-    const result = ability_alyssa_bulldozer_unstoppable(state, "player_1");
-
-    expect(result.players.player_1.activeSlots[0].mp).toBe(40);
-  });
-});
+// Alyssa Bulldozer comeback math (V4 manual ability: +5 per 10 MP lost) removed in 58-04: the 2.0 Card List
+// Unstoppable is an attack trigger (covered in the attack trigger tests), not a manual ability.
 
 describe("Jeffrey The Strongman — Brute Force passive quest bonus (IMPL-PF-M2)", () => {
   // Verified against the PASSIVE mechanic (applyMosjeFieldEffectsOnQuest, fired

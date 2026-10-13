@@ -3,6 +3,7 @@ import { describe, it, expect } from "vitest";
 import { startTurn, endTurn } from "../../src/engine/turnManager.js";
 import { createMosjeSlot } from "../../src/engine/mp/createMosjeSlot.js";
 import { MOSJES } from "../../src/data/mosjes.js";
+import { pushTestDice } from "../../src/engine/dice/testDiceQueue.js";
 import { makeEngineState } from "../helpers/makeEngineState.js";
 
 const m = MOSJES[0];
@@ -40,6 +41,7 @@ describe("2.0 turn steps", () => {
     st.players.player_2.activeSlots[0] = createMosjeSlot(m);
     st.players.player_1.activeSlots[0] = createMosjeSlot(m, { mp: 20 });
     st.players.player_1.deck = [filler];
+    pushTestDice([3]); // Chaos Roll at turn start (Gandoe Wizard): 3-4 = nothing
     expect(startTurn(st).players.player_1.activeSlots[0].mp).toBe(20);
   });
 

@@ -1,3 +1,5 @@
+// @ts-expect-error — JS module, no type declarations
+import { pushTestDice } from "../../src/engine/dice/testDiceQueue.js";
 import { describe, expect, it } from "vitest";
 // @ts-expect-error — JS module, no type declarations
 import { createMosjeSlot } from "../../src/engine/mp/createMosjeSlot.js";
@@ -105,6 +107,7 @@ describe("engine wrappers", () => {
   it("no turn trickle: a Mosje at 95 does not level at turn start", () => {
     const st = makeState(95, 1);
     st.players.player_1.deck = [];
+    pushTestDice([3]); // Gandoe Wizard's Chaos Roll (start of turn): 3-4 = nothing
     const out = startTurn(st, "player_1");
     expect(out.players.player_1.activeSlots[0].level).toBe(1);
     expect(out.players.player_1.activeSlots[0].mp).toBe(95);
@@ -151,7 +154,6 @@ describe("Piecie gains (54-13)", () => {
 import { makeEngineState } from "../helpers/makeEngineState.js";
 import { forceQuestResult } from "../helpers/forceQuestResult.js";
 // @ts-expect-error — JS module, no type declarations
-import { ability_alyssa_fissa_party_power } from "../../src/abilities/mosjeAbilities.js";
 // @ts-expect-error — JS module, no type declarations
 import { effect_snelle_momentum_rush } from "../../src/abilities/snelleEffects.js";
 
@@ -175,10 +177,6 @@ describe("ability / Quest / Snelle gains (54-14)", () => {
   it("Jeffrey Brute Force (+10 after a Quest) can level: L1 at 70 + Quest 25 -> L2 at 0", () => {
     // Start 70 (was 90 with a V4 +5 Quest): 70 + 25 = 95 stays L1, then Brute Force +10 = 105 -> L2 at 0
     const st = forceQuestResult(abilityState(1, 70, "mosje_jeffrey"), "player_1", { questId: "quest_quick_thinking", win: true });
-    expect([mine(st).level, mine(st).mp]).toEqual([2, 0]);
-  });
-  it("Alyssa Fissa (bare ability): 2 cards in hand = +10, L1 at 95 -> L2 at 0", () => {
-    const st = ability_alyssa_fissa_party_power(abilityState(1, 95), "player_1");
     expect([mine(st).level, mine(st).mp]).toEqual([2, 0]);
   });
   it("Momentum Rush (Snelle, bare effect): L1 at 95 -> L2 at 0; L3 at 90 caps at 95", () => {

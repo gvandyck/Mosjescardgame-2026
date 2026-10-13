@@ -112,41 +112,6 @@ function applyMosjeFieldEffectsOnQuest(gameState, playerId, slotIndex, questMpGa
 	const mosje = player.activeSlots[slotIndex];
 	if (!mosje || mosje.isDefeated) return state;
 
-	// ── Michelle — Tough Gamble ─────────────────────────────────────────────
-	// After each quest: roll d6. 4-6 → double the quest reward. 1-3 → half it.
-	// Only modifies success rewards (questMpGained > 0); failure is unaffected.
-	if (mosje.cardId === 'mosje_michelle') {
-		const roll = rollDie(6);
-		let adjustment = 0;
-		let label = '';
-
-		if (questMpGained > 0) {
-			if (roll >= 4) {
-				adjustment = questMpGained;           // add same amount again → 2× total
-				applyGainToSlot(mosje, adjustment, { turnNumber: state.turnNumber });
-				label = `rolled ${roll} (4+) ✦ DOUBLED! +${adjustment} extra MP (total +${questMpGained * 2})`;
-			} else {
-				adjustment = -roundToFive(questMpGained / 2);  // take back half → ½ total (5-grid)
-				// Take back half the reward as a loss through the 2.0 funnel. A level-up may already
-				// have reset MP to 0 before this fires: nothing is left to take back, so skip (no getemt).
-				if (mosje.mp > 0) applyMpLossToSlot({ state, playerId, slot: mosje, amount: -adjustment, source: 'ABILITY' });
-				label = `rolled ${roll} (1-3) ✦ Halved. ${adjustment} MP (total +${questMpGained + adjustment})`;
-			}
-		} else {
-			label = `rolled ${roll} — no success reward to modify`;
-		}
-
-		console.log(`[ABILITY] Michelle Tough Gamble: ${label} | base=${questMpGained} adj=${adjustment} mp=${mosje.mp}`);
-		mosje.abilityUsedThisTurn = true;
-		state._autoAbilityLog = {
-			mosje: mosje.name,
-			ability: 'Tough Gamble',
-			roll,
-			adjustment,
-			label: `[Michelle] Tough Gamble: ${label}`,
-		};
-	}
-
 	// ── Jeffrey The Strongman — Brute Force ────────────────────────────────────
 	// Passive: every quest success gives +10 MP. Always active while Jeffrey is
 	// on field — no manual activation needed. FOOD/RESTORE block is enforced
