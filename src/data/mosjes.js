@@ -316,7 +316,7 @@ export const MOSJES = [
     startMP: 20,
     traits: { mental: 3, technical: 1 },
     abilityId: "ability_martin_senor_west_calculated_guess",
-    abilityDescription: "Calculated Guess: once per turn: name a card type (Mosje, Piecie, Snelle, Place or Quest), then reveal the top card of any deck and put it back. Correct: draw 2 cards and gain 10 MP. Wrong: lose 10 MP.",
+    abilityDescription: "Calculated Guess: once per turn: name a card type (Mosje, Piecie, Snelle or Place), then reveal the top card of any deck and put it back. Correct: draw 2 cards and gain 10 MP. Wrong: lose 10 MP.",
     synergyWith: ["mosje_azn_cless"],
     synergyEffect: "While AZN Cless is also on your field: when your Mosjes succeed at Physical Quests they gain +15 MP extra, and once per turn you may look at the top card of a Quest stack before attempting.",
     petSynergy: null,
