@@ -39,7 +39,8 @@ describe('no active-Mosje concept', () => {
   });
 
   it('UI and bot use the registry', () => {
-    expect(read('main.js')).toContain('OWN_TARGET_EFFECT_IDS');
+    expect(read('main.js')).toContain('PIECIE_TARGETS'); // 59-01: the generic picker reads the target table
+    expect(read('bot/botDriver.js')).toContain('OWN_TARGET_EFFECT_IDS');
     expect(read('bot/botDriver.js')).toContain('pickBotOwnTarget(');
   });
 });

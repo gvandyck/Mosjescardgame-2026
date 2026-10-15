@@ -1,4 +1,4 @@
-// Dev-only data: `stays` per card id (14 non-null). Everything else is null.
+// Dev-only data: `stays` per card id (16 non-null). Everything else is null.
 export const STAYS_BY_ID = {
   piecie_continuous_assault: 'endOfNextTurn',
   piecie_synergy_field: 'endOfNextTurn',
@@ -14,5 +14,6 @@ export const STAYS_BY_ID = {
   piecie_katjegang: 'endOfNextTurn',
   piecie_vianna_poes: 'endOfNextTurn',
   snelle_blensen: 'endOfTurn',
-  // Tikker and MP Hemorrhage deliberately stay null (TODO(phase 59): confirm).
+  piecie_tikker: 'custom', // Phase 59 ruling: Stays until its effect ends
+  piecie_mp_hemorrhage: 'custom',
 };

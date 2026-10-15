@@ -37,9 +37,23 @@ import { resolvePiecieActivation, activatePiecie } from '../../src/engine/turnMa
 // @ts-ignore
 import { resolvePendingChoice } from '../../src/engine/mosje/resolvePendingChoice.js';
 // @ts-ignore
+import { activatePiecieFree } from '../../src/engine/table/activatePiecieFree.js';
+// @ts-ignore
 import { makePiecieState } from '../helpers/makePiecieState.js';
 // @ts-ignore
 import { PIECIES } from '../../src/data/piecies.js';
+// @ts-ignore
+import { PIECIE_TARGETS } from '../../src/rules/piecieTargets.js';
+// @ts-ignore
+import { PIECIE_CONDITIONS } from '../../src/rules/piecieConditions.js';
+// @ts-ignore
+import { piecieTargetOptions } from '../../src/engine/targets/piecieTargetOptions.js';
+// @ts-ignore
+import { GIVES_MP_PIECIES } from '../../src/rules/givesMpPiecies.js';
+// @ts-ignore
+import { createMosjeSlot } from '../../src/engine/mp/createMosjeSlot.js';
+// @ts-ignore
+import { MOSJES } from '../../src/data/mosjes.js';
 
 const fake = (effectId: string, extra: any = {}) => ({
   id: 'piecie_kannetje_melk', name: 'Test', effectId, cost: 0, tags: ['TEST'], stays: null, ...extra,
@@ -106,3 +120,104 @@ describe('Piecie choice pause and resume', () => {
   });
 });
 
+describe('Level 2+ gate and Only-if conditions', () => {
+  const gated = ['piecie_harde_didde', 'piecie_klaar_met_jou', 'piecie_dikke_taks'];
+  for (const id of gated) {
+    it(`${id}: refused at Level 1 (nothing paid), allowed with a Level 2 Mosje`, () => {
+      const s = makePiecieState({ piecieId: id });
+      s.players.player_1.energy = 10;
+      const no = activatePiecie(s, 'player_1', 0);
+      expect(no.success).toBe(false);
+      expect(no.error).toBe('Needs: one of your Mosjes at Level 2+');
+      expect(s.players.player_1.energy).toBe(10);
+      const s2 = makePiecieState({ piecieId: id, own: { level: 2, mp: 100 } });
+      s2.players.player_1.energy = 10;
+      const ok = activatePiecie(s2, 'player_1', 0);
+      expect(ok.error).not.toBe('Needs: one of your Mosjes at Level 2+');
+      const free = activatePiecieFree(s, 'player_1', { slotIndex: 0 }, { ignoreReadiness: true });
+      expect(free.success).toBe(false);
+      expect(free.error).toBe('Needs: one of your Mosjes at Level 2+');
+    });
+  }
+
+  it('Keyboard / Mouse / Controller without a Digital Mosje are refused, nothing paid; with one allowed', () => {
+    for (const id of ['piecie_keyboard', 'piecie_mouse', 'piecie_controller']) {
+      const s = makePiecieState({ piecieId: id });
+      s.players.player_1.activeSlots[0].subtype = 'FIGHTING';
+      s.players.player_1.energy = 10;
+      const r = activatePiecie(s, 'player_1', 0);
+      expect(r.success, id).toBe(false);
+      expect(r.error).toBe('Only if a Digital Mosje is on your field');
+      expect(s.players.player_1.energy).toBe(10);
+      expect(s.players.player_1.piecieSlots[0].activated).toBe(false);
+      s.players.player_1.activeSlots[0].subtype = 'DIGITAL';
+      expect(activatePiecie(s, 'player_1', 0).success, id).toBe(true);
+    }
+  });
+
+  it('Those Eyelashes needs Martin/West, Battle Concert an Alyssa, Mosje Reborn a Welloe Mosje + free spot', () => {
+    const s = makePiecieState({ piecieId: 'piecie_those_eyelashes' });
+    expect(PIECIE_CONDITIONS.piecie_those_eyelashes(s, 'player_1')).not.toBe(true);
+    s.players.player_1.activeSlots[0].cardId = 'mosje_parkour_west';
+    expect(PIECIE_CONDITIONS.piecie_those_eyelashes(s, 'player_1')).toBe(true);
+    expect(PIECIE_CONDITIONS.piecie_battle_concert(s, 'player_1')).not.toBe(true);
+    s.players.player_1.activeSlots[0].cardId = 'mosje_alyssa_fissa';
+    expect(PIECIE_CONDITIONS.piecie_battle_concert(s, 'player_1')).toBe(true);
+    expect(PIECIE_CONDITIONS.piecie_mosje_reborn(s, 'player_1')).not.toBe(true);
+    s.players.player_1.welloePile = [{ cardId: 'mosje_jeffrey', type: 'MOSJE' }];
+    expect(PIECIE_CONDITIONS.piecie_mosje_reborn(s, 'player_1')).toBe(true);
+    s.activePlace = 'place_welloe_graveyard';
+    expect(PIECIE_CONDITIONS.piecie_call_of_welloes(s, 'player_1')).not.toBe(true);
+    s.activePlace = null;
+    s.players.player_1.activeSlots[1] = s.players.player_1.activeSlots[0];
+    expect(PIECIE_CONDITIONS.piecie_call_of_welloes(s, 'player_1')).not.toBe(true);
+  });
+
+  it('Shhh popo komt! needs 3 Mosjes; Shoettoe needs a Mosje at 20 MP or less', () => {
+    const s = makePiecieState({ piecieId: 'piecie_popo_komt' });
+    expect(PIECIE_CONDITIONS.piecie_popo_komt(s, 'player_1')).not.toBe(true);
+    const sh = makePiecieState({ piecieId: 'piecie_energy_surge', own: { mp: 50 } });
+    expect(PIECIE_CONDITIONS.piecie_energy_surge(sh, 'player_1')).not.toBe(true);
+    const low = makePiecieState({ piecieId: 'piecie_energy_surge', own: { mp: 20 } });
+    expect(PIECIE_CONDITIONS.piecie_energy_surge(low, 'player_1')).toBe(true);
+  });
+
+  it('Huisbaas needs a substance Piecie on top of a discard pile', () => {
+    const s = makePiecieState({ piecieId: 'piecie_huisbaas' });
+    expect(PIECIE_CONDITIONS.piecie_huisbaas(s, 'player_1')).not.toBe(true);
+    s.players.player_2.graveyard = [{ cardId: 'piecie_tikker', type: 'PIECIE' }];
+    expect(PIECIE_CONDITIONS.piecie_huisbaas(s, 'player_1')).toBe(true);
+  });
+});
+
+describe('Piecie target table', () => {
+  const real = (PIECIES as any[]).filter((p) => p.id !== 'piecie_mp_adjuster');
+  it('has an entry for every Piecie id', () => {
+    expect(real.length).toBe(73);
+    for (const p of real) expect(PIECIE_TARGETS[p.id], p.id).toBeTruthy();
+  });
+  it('options exclude fresh opponent Mosjes', () => {
+    const s = makePiecieState({ piecieId: 'piecie_energy_surge' });
+    const slots = s.players.player_2.activeSlots;
+    const second = createMosjeSlot((MOSJES as any[])[3], { level: 1, mp: 50 });
+    second.entryProtected = true;
+    slots[1] = second;
+    const entry = PIECIE_TARGETS.piecie_leipe_swap || PIECIE_TARGETS.piecie_affoe;
+    expect(entry.some((t: any) => t.who === 'opp')).toBe(true);
+    const opts = piecieTargetOptions(s, 'player_1', 'piecie_affoe');
+    const opp = opts.find((o: any) => o.who === 'opp');
+    expect(opp.options.map((o: any) => o.slotIndex)).toEqual([0]);
+  });
+});
+
+describe('Phase 59 data rulings', () => {
+  const get = (id: string) => (PIECIES as any[]).find((p) => p.id === id);
+  it('Tikker and MP Hemorrhage Stay; Amplifier and Synergy Field do not give MP', () => {
+    expect(get('piecie_tikker').stays).toBeTruthy();
+    expect(get('piecie_mp_hemorrhage').stays).toBeTruthy();
+    expect(get('piecie_mp_amplifier').givesMP).toBe(false);
+    expect(get('piecie_synergy_field').givesMP).toBe(false);
+    expect(GIVES_MP_PIECIES.has('piecie_mp_amplifier')).toBe(false);
+    expect(GIVES_MP_PIECIES.has('piecie_synergy_field')).toBe(false);
+  });
+});

@@ -45,10 +45,10 @@ describe('Card List 2.0 Piecies and Snelle', () => {
       else expect(c.tag).toBeNull();
     }
   });
-  it('stays is set on exactly the 14 Stays cards', () => {
-    expect(Object.keys(STAYS_BY_ID)).toHaveLength(14);
+  it('stays is set on exactly the 16 Stays cards', () => {
+    expect(Object.keys(STAYS_BY_ID)).toHaveLength(16);
     for (const { id } of rows) expect(get(id).stays, id).toBe(STAYS_BY_ID[id] ?? null);
-    expect(rows.filter(({ id }) => get(id).stays !== null)).toHaveLength(14);
+    expect(rows.filter(({ id }) => get(id).stays !== null)).toHaveLength(16);
   });
   it('levelGate 2 only on Harde Didde, Klaar Met Jou, Dikke Taks', () => {
     const gated = rows.filter(({ id }) => get(id).levelGate === 2).map(({ id }) => id).sort();
@@ -75,8 +75,8 @@ describe('Card List 2.0 Piecies and Snelle', () => {
     expect((PLACES as any[]).find((p) => p.id === 'place_eendjes_voeren').name).toBe('Eendjes Voeren');
     expect(get('snelle_lucky_coin').name).toBe('Lucky Cóin');
   });
-  it('has exactly 4 open-rules TODO markers in piecies.js', () => {
+  it('has no open-rules TODO markers left in piecies.js', () => {
     const src = fs.readFileSync(new URL('../../src/data/piecies.js', import.meta.url), 'utf8');
-    expect(src.split('TODO(phase 59): confirm').length - 1).toBe(4);
+    expect(src.split('TODO(phase 59)').length - 1).toBe(0);
   });
 });

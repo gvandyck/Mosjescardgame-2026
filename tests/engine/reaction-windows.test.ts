@@ -107,7 +107,8 @@ describe("defender windows", () => {
 
 describe("Piecie activation windows", () => {
   const mkp = (hand2: string[], hand1: string[] = []) =>
-    board({ hand: H(...hand2) }, { hand: H(...hand1), energy: 10, piecieSlots: [{ ...ready }, null, null] });
+    board({ hand: H(...hand2) }, { // Dikke Taks needs one of your Mosjes at Level 2+ (second Mosje is Level 2)
+      activeSlots: [mk(50, attackerDef), mk(50, plain, 2)], hand: H(...hand1), energy: 10, piecieSlots: [{ ...ready }, null, null] });
   it("defender: afterPiecieActivation + targeted + wouldLoseMp; Jammertje offered", () => {
     const r = activatePiecie(mkp(["snelle_jammertje_gepakt", "snelle_counter_strikka", "snelle_jensen"]), "player_1", 0);
     expect(r.success).toBe(true);

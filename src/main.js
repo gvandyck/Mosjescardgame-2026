@@ -10,7 +10,8 @@ import { initHoverZoom } from './ui/hoverZoom.js';
 import { initCardTierMotion } from './ui/cardTierMotion.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes, setActivePlace } from './engine/gameState.js';
 import { startTurn, endTurn, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, playMosje, useMosjeAbility, canPlayerActNow } from './engine/turnManager.js';
-import { OWN_TARGET_EFFECT_IDS } from './engine/targets/ownTargetEffects.js';
+import { PIECIE_TARGETS } from './rules/piecieTargets.js';
+import { piecieTargetOptions } from './engine/targets/piecieTargetOptions.js';
 import { isPiecieReady } from './engine/table/isPiecieReady.js';
 import { attackMosje } from './engine/actions/attackMosje.js';
 import { settleReactions } from './ui/actions/settleReactions.js';
@@ -692,7 +693,9 @@ function initGamePage() {
 	function settleLocalMosjePauses() {
 		if (!gameState || (!gameState.pendingChoice && !gameState.pendingDrawStep)) return;
 		const humanIds = isOffline ? [localPlayerId] : Object.keys(gameState.players);
-		settlePendingChoice({ state: gameState, localPlayerId, modal, humanIds }).then(st => {
+		settlePendingChoice({ state: gameState, localPlayerId, modal, humanIds }).then(async st => {
+			// A paused Piecie opens its after-activation reaction window when the last answer comes in.
+			if (st.pendingReaction) st = await settleReactions(st, reactionCtx());
 			gameState = st;
 			syncPush();
 			renderFromState(gameState);
@@ -1453,16 +1456,28 @@ function initGamePage() {
 				leipeOppId: oppId,
 				leipeOppSlot: parseInt(String(oppPick).split('_slot_')[1], 10),
 			};
-		} else if (OWN_TARGET_EFFECT_IDS.includes(piecieCardDef?.effectId)) {
-			const ownTargets = getPlayerMosjes(gameState, localPlayerId);
-			if (ownTargets.length > 1) {
-				const selectedId = await modal.showTargetSelector(ownTargets, 'Choose which of your Mosjes:');
-				if (!selectedId) return;
-				const mosjeSlotIndex = parseInt(selectedId.split('_slot_')[1], 10);
-				if (!Number.isNaN(mosjeSlotIndex)) {
-					stateForActivation = JSON.parse(JSON.stringify(gameState));
-					stateForActivation._pendingTargets = { own_slot_index: mosjeSlotIndex };
-				}
+		} else if (PIECIE_TARGETS[piecieCardDef?.id]?.length) {
+			// One generic picker over the Piecie target table (own / opp / any + eligibility rule).
+			const specs = piecieTargetOptions(gameState, localPlayerId, piecieCardDef.id);
+			for (const spec of specs) {
+				if (spec.options.length < 2) continue; // 0 = effect fizzles, 1 = the only choice is taken automatically
+				const picked = await modal.showOptionSelect({
+					title: piecieCardDef.name,
+					prompt: spec.who === 'opp' ? 'Choose an opponent Mosje:' : spec.who === 'own' ? 'Choose which of your Mosjes:' : 'Choose a Mosje:',
+					options: spec.options.map((o, i) => ({
+						id: String(i),
+						label: spec.who === 'any' ? `${o.label} (${o.playerId === localPlayerId ? 'yours' : 'opponent'})` : o.label,
+						metaLabel: `${gameState.players[o.playerId].activeSlots[o.slotIndex].mp} MP`,
+					})),
+					allowCancel: true,
+				});
+				if (picked === null || picked === undefined) return;
+				const chosen = spec.options[Number(picked)];
+				if (stateForActivation === gameState) stateForActivation = JSON.parse(JSON.stringify(gameState));
+				stateForActivation._pendingTargets = {
+					...(stateForActivation._pendingTargets || {}),
+					[spec.key]: spec.key === 'any_target' ? { playerId: chosen.playerId, slotIndex: chosen.slotIndex } : chosen.slotIndex,
+				};
 			}
 		}
 

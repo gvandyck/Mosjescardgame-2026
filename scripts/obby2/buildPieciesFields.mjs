@@ -17,7 +17,5 @@ export function buildPieciesFields(row, id) {
     givesMP: GIVES_MP_IDS.includes(id),
   };
   const comments = {};
-  if (id === 'piecie_tikker' || id === 'piecie_mp_hemorrhage') comments.stays = 'TODO(phase 59): confirm';
-  if (id === 'piecie_mp_amplifier' || id === 'piecie_synergy_field') comments.givesMP = 'TODO(phase 59): confirm';
   return { fields, comments };
 }

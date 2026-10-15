@@ -718,7 +718,7 @@ export const PIECIES = [
     stays: null,
     levelGate: null,
     limitPerDeck: 2,
-    givesMP: false, // TODO(phase 59): confirm
+    givesMP: false,
     artPath: "assets/piecies/placeholder.png",
     rarity: "★★",
     isBoosterOnly: false,
@@ -806,7 +806,7 @@ export const PIECIES = [
     stays: "endOfNextTurn",
     levelGate: null,
     limitPerDeck: 2,
-    givesMP: false, // TODO(phase 59): confirm
+    givesMP: false,
     artPath: "assets/piecies/placeholder.png",
     rarity: "★★",
     isBoosterOnly: false,
@@ -1357,7 +1357,7 @@ export const PIECIES = [
     cost: 0,
     tag: "substance",
     group: null,
-    stays: null, // TODO(phase 59): confirm
+    stays: "custom",
     levelGate: null,
     limitPerDeck: 2,
     givesMP: true,
@@ -1636,7 +1636,7 @@ export const PIECIES = [
     cost: 3,
     tag: null,
     group: "attack",
-    stays: null, // TODO(phase 59): confirm
+    stays: "custom",
     levelGate: null,
     limitPerDeck: 2,
     givesMP: false,

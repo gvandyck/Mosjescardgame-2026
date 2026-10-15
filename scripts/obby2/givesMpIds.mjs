@@ -1,5 +1,5 @@
 // Dev-only data: cards whose text makes a Mosje gain MP (31 ids).
-// MP Amplifier and Synergy Field are deliberately excluded (TODO(phase 59): confirm).
+// MP Amplifier and Synergy Field are deliberately excluded (Phase 59 ruling 2026-10-15).
 export const GIVES_MP_IDS = [
   'piecie_kannetje_melk', 'piecie_broodje_doner', 'piecie_ronald_kip', 'piecie_chefs_special',
   'piecie_varkenspootjes', 'piecie_protein_shake', 'piecie_momentum_boost', 'piecie_eendjes_voeren',

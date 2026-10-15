@@ -362,7 +362,10 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
     const result = activatePiecie(state, botPlayerId, idx);
     if (result.success) {
       state = result.state;
-      if (result.reactionPending && !settle()) return steps;
+      // A Piecie that paused on a choice must never stall a bot; a human's pick is answered by the UI.
+      state = settleMosjePauses(state, humanIds).state;
+      if (state.pendingChoice) { halted = true; push('waits for your choice'); return steps; }
+      if ((result.reactionPending || state.pendingReaction) && !settle()) return steps;
       state = resolveBotVarkenspootjesPending(state, botPlayerId);
       push(`activates ${entry.cardId.replace('piecie_', '').replace(/_/g, ' ')}`);
     }
