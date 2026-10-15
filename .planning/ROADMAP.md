@@ -16,7 +16,8 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 - [x] **Phase 56: Attacking and Quests** - One action per Mosje: attack by Power, or try one of 3 typed Quests with dice, bands, fail tokens and jabs (completed 2026-10-12)
 - [x] **Phase 57: Piecies, Snelle, Places and Reaction Windows** - 3 slots, Stays, Snelle timing, Place rules, Welloe pile and engine reaction windows; no V4-rule test left
  (completed 2026-10-12)
-- [x] **Phase 58: Mosje Abilities and Synergies** - All 32 Mosje abilities, 2.0 synergy pairs, chain rule and The Tactician (Example Deck Mosjes first) (completed 2026-10-15)
+- [x] **Phase 58: Mosje Abilities and Synergies** - All 32 Mosje abilities, 2.0 synergy pairs, chain rule and The Tactician (Example Deck Mosjes first)
+ (completed 2026-10-15)
 - [ ] **Phase 59: Piecie Effects** - All 73 Piecie effects per the Card List (Example Deck Piecies first)
 - [ ] **Phase 60: Snelle, Places and Hidden Information** - All 20 Snelle and 20 Place effects, hidden-info cards; every card has a card test
 - [ ] **Phase 61: Bot 2.0** - The bot plays legal, sensible 2.0 games: attack-or-Quest, Energy, reactions, no cheating
@@ -206,8 +207,17 @@ Plans:
 **Tests to add**: card-test-library entries for all 73 Piecies (Example Deck Piecies first); §6b Ronald Kip, Harde Didde / Klaar Met Jou gate and Leipe Swap edge cases.
 **Known gap from Phase 54**: `tests/ui/simulation/redbull-coert.spec.js` (2 specs, now `test.fixme`) and the Coert part of `tests/ui/cinema/redbull-abilities-cinema.spec.js` encode the V4 "Coert pays 10 MP" rule; rewrite them against Energy when Redbull is rebuilt (decide whether a Redbull re-use pays the Energy again — Card List says "pay its cost again").
 **Known gap (found in 58-12)**: the Affoe-getemt case in `tests/ui/cards/card-chains.spec.js` is flaky (~3/8 fail, also on pre-58-12 code); find the cause (reproduce, then fix) when Affoe is rewritten.
-**Notes**: MP-touching phase: the new Ronald Kip test replaces the old stacking test; run the sim.
-**Plans**: TBD
+**Notes**: MP-touching phase: the new Ronald Kip test replaces the old stacking test (the Node bot-vs-bot smoke in `npm test` stands in for the sim). Piecie effects live in one file per Card List section (Gandalf, 2026-10-15).
+**Plans**: 8 plans (8 waves)
+Plans:
+- [ ] 59-01-PLAN.md — Framework: Piecie choice pause/resume, Level 2+ gate + Only-if/Needs conditions, target table for all 73 + generic picker, Tikker/Hemorrhage Stays, V4 Piecie runner retired
+- [ ] 59-02-PLAN.md — Example Decks MP / Substance / Gear (16), Binti food extra, 2.0 Piecie card-test library, Affoe-getemt flake fixed
+- [ ] 59-03-PLAN.md — Example Decks Attack / Pet / protection (10), end-of-turn losses, Dikke Taks double hit, Stays bound to a Mosje
+- [ ] 59-04-PLAN.md — Example Decks Utility (8), reroll grant, Chain Reaction free path (all Example-Deck Piecies done)
+- [ ] 59-05-PLAN.md — MP / Substance / Gear / Pet rest + MP Amplifier + Synergy Field (14), section 6b Ronald Kip test
+- [ ] 59-06-PLAN.md — Attack rest, dice rest, draw rest (16), Battle Concert, TemPiecie lock
+- [ ] 59-07-PLAN.md — Redbull, Double Trigger, Dubbele Ding, Leipe Swap; Redbull + VIS-02 specs live
+- [ ] 59-08-PLAN.md — Mosje Shield, Welloe Force, Mosje Reborn, Call of the Welloes, Dingetje toch?!; 73-Piecie coverage guard, full headless run, EFX-02 tick
 
 ### Phase 60: Snelle, Places and Hidden Information
 **Goal**: Every Snelle and Place works as the Card List says, hidden-info cards only reveal to the right player, and every card in the game has a card test.
