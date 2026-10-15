@@ -39,6 +39,8 @@ import { canPay } from './energy/canPay.js';
 import { canMosjeAct } from './mp/canMosjeAct.js';
 import { getAbilityEnergyCost } from './energy/getAbilityEnergyCost.js';
 import { piecieActivationGate } from './table/piecieActivationGate.js';
+import { runPiecieEffect } from './piecies/runPiecieEffect.js';
+import { afterPiecieEffect } from './piecies/afterPiecieEffect.js';
 import { runMosjeTriggers } from './mosje/runMosjeTriggers.js';
 import { getDrawStepOptions } from './mosje/getDrawStepOptions.js';
 import { armSetAside } from './mosje/armSetAside.js';
@@ -50,7 +52,7 @@ console.log('[ENGINE] turnManager.js loaded');
 // Perfect Rhythm checks whether its draw was already armed before the current
 // Piecie effect began. This prevents the first Rhythm from drawing off itself,
 // while allowing a later Rhythm copy and DDR-chained activations to benefit.
-function applyPerfectRhythmDraw(state, playerId, wasArmedBeforeActivation) {
+export function applyPerfectRhythmDraw(state, playerId, wasArmedBeforeActivation) {
   if (!wasArmedBeforeActivation) return state;
   const player = state.players[playerId];
   if (!player) return state;
@@ -120,7 +122,7 @@ const REPROMPT_DOUBLE_ABILITIES = new Set([
   'ability_binti_creator_quick_sketch',           // discard 2 FOOD + deck-search tutor
 ]);
 
-function normalizePiecieSlots(player, slotCount = PIECIE_SLOT_COUNT) {
+export function normalizePiecieSlots(player, slotCount = PIECIE_SLOT_COUNT) {
   let source;
   if (Array.isArray(player?.piecieSlots)) {
     source = player.piecieSlots;
@@ -595,71 +597,19 @@ export function resolvePiecieActivation(state, playerId, safeSlotIndex, knownCar
     return { state, success: true, negated: true, cardDef: knownCardDef };
   }
 
-  // Apply the effect function
-  const effectFn = piecieEffects[knownCardDef.effectId];
-  const handSizeBeforeEffect = state.players[playerId].hand.length;
-  const rhythmWasArmedBeforeEffect =
-    state.players[playerId].perfectRhythmDrawNextPiecie === true;
-  if (typeof effectFn === 'function') {
-    state = effectFn(state, playerId);
-    // STUB-05 (doubleNextPiecie / Double Trigger) — IMPLEMENTED. Flag is set by
-    // effect_snelle_dubbele_temminks in snelleEffects.js and consumed here.
-    // Dubbele Temminks: double-trigger
-    if (flags.doubleNextPiecie?.[playerId]) {
-      delete state._snelleFlags.doubleNextPiecie[playerId];
-      state = effectFn(state, playerId);
-      console.log('[ENGINE] Dubbele Temminks: effect triggered twice');
-    }
-    console.log(`[ENGINE] Piecie activated: ${knownCardDef.name} (${knownCardDef.effectId})`);
-  } else {
-    console.warn(`[ENGINE] No effect function found for: ${knownCardDef.effectId}`);
-  }
+  // Apply the effect (it may pause on a choice; resumePiecieChoice then finishes the activation)
+  const after = {
+    handSizeBefore: state.players[playerId].hand.length,
+    rhythmWasArmed: state.players[playerId].perfectRhythmDrawNextPiecie === true,
+  };
+  const run = runPiecieEffect(state, playerId, knownCardDef, { slotIndex: safeSlotIndex, free }, { after });
+  state = run.state;
+  console.log(`[ENGINE] Piecie activated: ${knownCardDef.name} (${knownCardDef.effectId})`);
+  if (run.paused) return { state, success: true, paused: true, cardDef: knownCardDef };
 
-  // Fire ON_DRAW place effect for cards drawn by this Piecie (e.g. Bank Chilling)
-  const piecieCardsDrawn = Math.max(0, state.players[playerId].hand.length - handSizeBeforeEffect);
-  if (piecieCardsDrawn > 0) {
-    state = applyPlaceEffectsOnDraw(state, playerId, piecieCardsDrawn);
-  }
-
-  // Perfect Rhythm draws after every later activation this turn. Eligibility
-  // comes from the pre-effect snapshot, so a card cannot trigger the flag it
-  // just armed itself, but a later Perfect Rhythm copy can trigger an earlier one.
-  state = applyPerfectRhythmDraw(state, playerId, rhythmWasArmedBeforeEffect);
-
-  // Track last played piecie for Gevalletje Klakkeloos
-  state._lastPiecieEffect = { effectId: knownCardDef.effectId, byPlayer: playerId };
-
-  // Track activation counters
-  state.players[playerId].pieciesActivatedThisTurn = (state.players[playerId].pieciesActivatedThisTurn || 0) + 1;
-  const actions = Array.isArray(state.players[playerId].actionsThisTurn)
-    ? state.players[playerId].actionsThisTurn
-    : [];
-  if (!actions.includes('PIECIE_ACTIVATED')) {
-    state.players[playerId].actionsThisTurn = [...actions, 'PIECIE_ACTIVATED'];
-  }
-  const primaryTag = knownCardDef.tags?.[0] || null;
-  state.players[playerId].lastCardPlayedType = primaryTag;
-
-  state = applyPlaceEffectsOnPiecieActivate(state, playerId, slotCardId);
-
-  // Apply Momentum Factory bonus if active (first Piecie each turn gets +10 MP)
-  if (state.activePlace === 'place_momentum_factory') {
-    state = placeEffects.effect_momentum_factory(state);
-  }
-
-  state = runMosjeTriggers(state, 'piecieActivated', { playerId, free, cardDef: knownCardDef, slotIndex: safeSlotIndex });
-
-  // Piecie resolves — persistent cards stay in slot until end-of-turn sweep.
-  player = state.players[playerId];
-  if (!Array.isArray(player.graveyard)) player.graveyard = [];
-  normalizePiecieSlots(player);
-  if (hasSlot) state = finishPiecieActivation(state, playerId, safeSlotIndex, knownCardDef);
-  player = state.players[playerId];
-  console.log(`[ENGINE] piecieSlots after activation:`, player.piecieSlots.map((s, i) => s ? `[${i}] ${s.cardId} (${s.type})` : `[${i}] null`).join(' | '));
-
-  player.piecieActivationsThisTurn = (player.piecieActivationsThisTurn || 0) + 1;
-  state = checkVictory(state);
-  return { state, success: true, cardDef: knownCardDef };
+  const done = afterPiecieEffect(state, playerId, safeSlotIndex, knownCardDef, after, { free });
+  console.log(`[ENGINE] piecieSlots after activation:`, done.state.players[playerId].piecieSlots.map((s, i) => s ? `[${i}] ${s.cardId} (${s.type})` : `[${i}] null`).join(' | '));
+  return done;
 }
 
 function cardDefLookup(cardId) {

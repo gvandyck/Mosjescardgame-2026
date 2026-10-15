@@ -8,6 +8,7 @@ export function withReactionWindow(state, actorId, action, run) {
 	if (action.skipReactions || state.pendingReaction) return run(state);
 	const res = run(state);
 	if (!(res.ok || res.success) || res.negated) return res;
+	if (res.state?.pendingChoice?.hook === 'piecie') return res; // paused Piecie: the window opens when it finishes
 	const responderId = Object.keys(state.players).find(id => id !== actorId);
 	if (!responderId || !res.state?.players?.[responderId]) return res;
 	const windows = [];
