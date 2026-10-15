@@ -14,7 +14,8 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 - [x] **Phase 54: Energy, Levels and Getemt** - Energy pays for everything; 2.0 level-up, getemt, MP/Power grid and hold-Level-3 win/lose (completed 2026-10-11)
 - [x] **Phase 55: Turn Flow, Setup and Protection** - 2.0 setup, turn steps, R1/R2/R5, cooldown turn, summoning, fresh protection; V4 leftovers removed (completed 2026-10-11)
 - [x] **Phase 56: Attacking and Quests** - One action per Mosje: attack by Power, or try one of 3 typed Quests with dice, bands, fail tokens and jabs (completed 2026-10-12)
-- [x] **Phase 57: Piecies, Snelle, Places and Reaction Windows** - 3 slots, Stays, Snelle timing, Place rules, Welloe pile and engine reaction windows; no V4-rule test left (completed 2026-10-12)
+- [x] **Phase 57: Piecies, Snelle, Places and Reaction Windows** - 3 slots, Stays, Snelle timing, Place rules, Welloe pile and engine reaction windows; no V4-rule test left
+ (completed 2026-10-12)
 - [ ] **Phase 58: Mosje Abilities and Synergies** - All 32 Mosje abilities, 2.0 synergy pairs, chain rule and The Tactician (Example Deck Mosjes first)
 - [ ] **Phase 59: Piecie Effects** - All 73 Piecie effects per the Card List (Example Deck Piecies first)
 - [ ] **Phase 60: Snelle, Places and Hidden Information** - All 20 Snelle and 20 Place effects, hidden-info cards; every card has a card test
@@ -204,6 +205,7 @@ Plans:
   4. Ronald Kip with Ronald, The Master Chef gives 60 + a draw, Ronald Kip + MP Amplifier stacks as the Card List says, and Leipe Swap never causes a level-up or a getemt.
 **Tests to add**: card-test-library entries for all 73 Piecies (Example Deck Piecies first); §6b Ronald Kip, Harde Didde / Klaar Met Jou gate and Leipe Swap edge cases.
 **Known gap from Phase 54**: `tests/ui/simulation/redbull-coert.spec.js` (2 specs, now `test.fixme`) and the Coert part of `tests/ui/cinema/redbull-abilities-cinema.spec.js` encode the V4 "Coert pays 10 MP" rule; rewrite them against Energy when Redbull is rebuilt (decide whether a Redbull re-use pays the Energy again — Card List says "pay its cost again").
+**Known gap (found in 58-12)**: the Affoe-getemt case in `tests/ui/cards/card-chains.spec.js` is flaky (~3/8 fail, also on pre-58-12 code); find the cause (reproduce, then fix) when Affoe is rewritten.
 **Notes**: MP-touching phase: the new Ronald Kip test replaces the old stacking test; run the sim.
 **Plans**: TBD
 
