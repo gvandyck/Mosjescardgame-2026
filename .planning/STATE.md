@@ -33,8 +33,8 @@ See: `.planning/PROJECT.md` (updated 2026-10-10)
 ## Current Position
 
 Phase: 59 of 64 (piecie effects)
-Plan: Not started
-Status: Ready to plan
+Plan: 1 of 8 done (59-01 framework); next 59-02
+Status: Executing phase 59
 Last activity: 2026-10-15
 
 Progress (v2.0): Phase 53 done; Phase 54 5/16 plans
