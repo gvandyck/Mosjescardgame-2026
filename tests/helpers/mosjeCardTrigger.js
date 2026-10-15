@@ -1,5 +1,5 @@
 // mosjeCardTrigger — fire a Mosje ability the way the Card List says, through the real UI where one exists.
-import { questViaUi } from '../ui/helpers.js';
+import { questViaUi, playCardFromHand } from '../ui/helpers.js';
 import { answerModals } from './answerModals.js';
 
 async function activateFieldPiecie(page, cardId) {
@@ -20,6 +20,7 @@ export async function mosjeCardTrigger(page, entry, c) {
 		case 'button':
 			await page.locator(`.mosje-card--owned[data-card-id="${t.mosje || entry.mosje}"] .mosje-ability-btn`).click();
 			break;
+		case 'playFromHand': await playCardFromHand(page, t.cardId); await page.waitForTimeout(400); break;
 		case 'turnStart': await boundary(page, 'start', t.player || 'player_1'); break;
 		case 'turnEnd': await boundary(page, 'end', t.player || 'player_1'); break;
 		case 'activatePiecie': await activateFieldPiecie(page, t.cardId); break;

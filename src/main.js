@@ -996,6 +996,13 @@ function initGamePage() {
 				const player = gameState?.players?.[playerId];
 				if (player) { player.graveyard.unshift({ cardId, name: cardId, type: 'PIECIE', source: 'played' }); }
 			},
+			// 58-12: put exactly these cards on top of a player's deck (in order), so a card test can fix what Lucky Draw /
+			// Calculated Guess / Time Control will see. Cards already in the deck are kept below them.
+			setDeckTop(playerId, cardIds) {
+				const player = gameState?.players?.[playerId];
+				if (!player || !Array.isArray(cardIds)) return;
+				player.deck = [...cardIds.map(cardId => ({ cardId, type: cardTypeFor(cardId) })), ...player.deck];
+			},
 			// Empty a player's draw deck to force the deck-out penalty (D-06) on their next
 			// draw phase — used to reproduce the deck-out turn-skip path.
 			emptyDeck(playerId) {

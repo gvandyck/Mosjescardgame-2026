@@ -29,17 +29,19 @@ export async function mosjeCardSetup(page, entry, c) {
 	await setHand(page, 'player_1', s.hand || []);
 	await setHand(page, 'player_2', s.oppHand || []);
 
-	await page.evaluate(({ piecies, place, turn }) => {
+	await page.evaluate(({ piecies, place, turn, graveyard, noUnlock }) => {
 		const h = window.__testHooks;
 		for (const p of piecies || []) h.setPiecieOnField('player_1', p.slot, p.id, { faceDown: p.faceDown !== false });
 		if (place) h.setActivePlace(place.id, place.by || 'player_2');
 		if (turn) h.setTurnNumber(turn);
-		h.unlockPiecies('player_1');
-	}, { piecies: s.piecies, place: s.place, turn: s.turn });
+		for (const id of graveyard || []) h.injectGraveyardCard('player_1', id);
+		if (!noUnlock) h.unlockPiecies('player_1');
+	}, { piecies: s.piecies, place: s.place, turn: s.turn, graveyard: s.graveyard, noUnlock: s.noUnlock });
 
 	if (s.quest) await setQuestFaceUp(page, s.quest.stack, s.quest.id);
 	if (s.dice) await setNextDice(page, s.dice);
 	if (s.abilityDice) await page.evaluate((v) => window.__testHooks.setNextAbilityDice(v), s.abilityDice);
+	if (s.deckTop) await page.evaluate(({ id, cards }) => window.__testHooks.setDeckTop(id, cards), { id: 'player_1', cards: s.deckTop });
 	if (s.pendingTargets) await page.evaluate((t) => window.__testHooks.setPendingTargets(t), s.pendingTargets);
 	await page.waitForTimeout(150);
 }

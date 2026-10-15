@@ -5,6 +5,8 @@
  * "milk" = Kannetje Melk (one of your Mosjes gains 25 MP, costs 0 Energy): a plain paid Piecie activation.
  * trigger.then = a second trigger fired after the first (FPS West: guess first, then the opponent plays).
  */
+import { MOSJE_REGISTRY_REST } from './mosje-registry-2-0-rest.js';
+
 const MILK = 'piecie_kannetje_melk';
 const milk = (...slots) => slots.map(slot => ({ slot, id: MILK }));
 const OPP40 = [{ id: 'mosje_ming_predictor', mp: 40 }]; // a plain, non-fresh opponent target
@@ -153,4 +155,6 @@ export const MOSJE_REGISTRY = [
 			setup: { field: [{ id: 'mosje_chris_ddr', mp: 15 }], oppField: OPP40, piecies: milk(0, 1, 2), abilityDice: [4] },
 			trigger: { kind: 'activatePiecie', cardId: MILK }, expect: { mp: { 'own.0': 40 }, state: [['players.player_1.ddrChainsThisTurn', 0]] } },
 	] },
+	// -- The other 14 (no Example Deck): mosje-registry-2-0-rest.js --
+	...MOSJE_REGISTRY_REST,
 ];

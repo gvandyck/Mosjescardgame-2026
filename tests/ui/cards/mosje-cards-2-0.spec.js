@@ -9,7 +9,7 @@ import { runMosjeCardTest } from '../../helpers/mosjeCardTest.js';
 
 for (const entry of MOSJE_REGISTRY) {
 	for (const c of entry.cases) {
-		test(`mosje: ${entry.mosje} (deck ${entry.deck}) - ${c.name}`, async ({ page }) => {
+		test(`mosje: ${entry.mosje} (deck ${entry.deck ?? "none"}) - ${c.name}`, async ({ page }) => {
 			test.setTimeout(60000);
 			await runMosjeCardTest(page, entry, c);
 		});
