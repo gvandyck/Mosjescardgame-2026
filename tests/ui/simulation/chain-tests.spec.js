@@ -142,7 +142,9 @@ test('chain-2: Affoe (-15 opp, +10 own) then Kannetje Melk (+20 own) — net +30
 	expect(ownBase).toBe(50);
 	expect(oppSlot0Base).toBe(30);
 
-	// Turn 1: play Affoe face-down
+	// Turn 1: play Affoe face-down (hand pinned: the opening draw is random)
+	await setHand(page, 'player_1', ['piecie_affoe', 'piecie_kannetje_melk']);
+	await page.waitForTimeout(150);
 	await playCardFromHand(page, 'piecie_affoe');
 	await page.waitForTimeout(500);
 	const r1 = await endTurnGuarded(page);
@@ -304,8 +306,9 @@ test('chain-3: Not Today! fires on bot elimination — Mosje survives at 5 MP', 
 
 // ─── Chain 4: Youri Speed Activate ────────────────────────────────────────────
 
-// KNOWN GAP (Phase 58): Youri's ability still costs -20 MP in V4; the Mosje abilities rewrite moves it to Energy.
-test.fixme('chain-4: Youri Speed Activate — -20 MP, face-down piecie activates, hand +1', async ({ page }) => {
+// 2.0: Speed Activate = once per turn, 1 Energy: a Piecie placed this turn can be activated now (it still pays its own
+// Energy), then draw 1. MP is never a cost. Chain: place Piecie -> Youri ability -> Activate the Piecie.
+test('chain-4: Youri Speed Activate - 1 Energy, same-turn Piecie activates, hand +1', async ({ page }) => {
 	test.setTimeout(60000);
 	const deck = {
 		id: 'custom_youri_c4',
@@ -323,54 +326,45 @@ test.fixme('chain-4: Youri Speed Activate — -20 MP, face-down piecie activates
 	await waitForBoard(page);
 
 	await setMosjeMP(page, 'player_1', 0, 60);
+	await page.evaluate(() => {
+		window.__testHooks.setEnergy('player_1', 6);
+		window.__testHooks.setHand('player_1', ['piecie_quest_prep', 'piecie_affoe', 'piecie_affoe']);
+	});
 	await page.waitForTimeout(200);
+	const energyOf = async () => (await getGameState(page)).players.player_1.energy;
 
-	const mpBefore = (await readOwnedMosjes(page))[0]?.mp;
-	console.log(`Youri MP before: ${mpBefore}`);
-	expect(mpBefore).toBe(60);
-
-	// Play piecie_quest_prep face-down — effect is +questPrepBonus only (zero MP change).
-	// This keeps the Youri -20 MP assertion exact (no piecie side-effects on MP).
-	const hand = await readHand(page);
-	const questPrep = hand.find(c => c.cardId === 'piecie_quest_prep');
-	if (!questPrep) { throw new Error('Setup failed: piecie_quest_prep not in hand'); }
 	await playCardFromHand(page, 'piecie_quest_prep');
 	await page.waitForTimeout(500);
 	expect(await isPiecieOnField(page, 'piecie_quest_prep')).toBe(true);
+	const activateBtn = page.locator('#piecies-player [data-card-id="piecie_quest_prep"] button:has-text("Activate")');
+	expect(await activateBtn.isVisible({ timeout: 300 }).catch(() => false), 'not ready the turn it is placed').toBe(false);
 
 	const handSizeBefore = await getHandSize(page, 'player_1');
-	console.log(`Hand size before ability: ${handSizeBefore}`);
+	const energyBefore = await energyOf();
 
-	// Use Youri's ability
-	const youriCard = page.locator('.mosje-card--owned[data-card-id="mosje_youri"]');
-	const abilityBtn = youriCard.locator('.mosje-ability-btn');
-	await abilityBtn.waitFor({ state: 'visible', timeout: 5000 });
-	await abilityBtn.click();
+	await page.locator('.mosje-card--owned[data-card-id="mosje_youri"] .mosje-ability-btn').click();
+	await page.locator('.modal-mosje-select-btn').first().click();
 	await page.waitForTimeout(1000);
 	await ss(page, 'chain4-after-ability');
 
-	// MP -20
-	const mpAfter = (await readOwnedMosjes(page))[0]?.mp;
-	console.log(`Youri MP after ability: ${mpAfter} (expected ${mpBefore - 20})`);
-	expect(mpAfter).toBe(mpBefore - 20);
+	expect((await readOwnedMosjes(page))[0]?.mp, 'MP is never a cost').toBe(60);
+	expect(await energyOf(), 'Speed Activate costs 1 Energy').toBe(energyBefore - 1);
+	expect(await getHandSize(page, 'player_1'), 'draws 1').toBe(handSizeBefore + 1);
 
-	// Face-down piecie activated (Activate button gone)
-	const activateBtn = page.locator(`#piecies-player [data-card-id="piecie_quest_prep"] button:has-text("Activate")`);
-	expect(await activateBtn.isVisible({ timeout: 300 }).catch(() => false)).toBe(false);
-
-	// Hand +1 (drew a card)
-	const handSizeAfter = await getHandSize(page, 'player_1');
-	console.log(`Hand size after ability: ${handSizeBefore} → ${handSizeAfter}`);
-	expect(handSizeAfter).toBe(handSizeBefore + 1);
+	// The Piecie is now ready: activating it works the same turn and pays its own cost.
+	await activateBtn.waitFor({ state: 'visible', timeout: 4000 });
+	await activateBtn.click();
+	await page.waitForTimeout(800);
+	expect(await activateBtn.isVisible({ timeout: 300 }).catch(() => false), 'activated').toBe(false);
 
 	const log = await readLog(page);
-	expect(log.join(' ')).toMatch(/[Yy]ouri|[Ss]peed|20 MP/);
-	console.log('Youri Speed Activate chain: PASS ✅');
+	expect(log.join(' ')).toMatch(/[Yy]ouri|[Ss]peed/);
 });
 
 // ─── Chain 5: Redbull + Ability — EXPECTED FAILURE (bug documented) ───────────
 
-test('chain-5: Redbull double-triggers a Mosje ability (free echo)', async ({ page }) => {
+// KNOWN GAP (Phase 59): Redbull is a Piecie (2.0: one Mosje may use its once-per-turn ability one more time, paying its cost again); the abilityDoubleTrigger re-fire is rebuilt with the Piecie effects; Alyssa Fissa's Party Power is a passive trigger now (no ability button), so this V4 setup cannot run.
+test.fixme('chain-5: Redbull double-triggers a Mosje ability (free echo)', async ({ page }) => {
 	// Redbull sets player.abilityDoubleTrigger; useMosjeAbility now re-runs the ability
 	// EFFECT once more at no extra cost (free echo). Alyssa Fissa gains +5 per card in
 	// hand, so with Redbull active her ability gains 2 × (5 × handSize).
@@ -450,7 +444,7 @@ test('chain-6: Controller gives a Digital Mosje MP and +1 die on one Quest', asy
 	const deck = {
 		id: 'custom_controller_c6',
 		name: 'Controller Chain',
-		mosjes: ['mosje_coert_tech'],  // DIGITAL subtype → +15 MP from Controller
+		mosjes: ['mosje_ming_predictor'],  // DIGITAL subtype; no draw-step prompt (Coert Tech's Extra Resources asks one every turn start since 58-06)
 		piecies: ['piecie_controller', 'piecie_controller', 'piecie_controller',
 		          'piecie_quest_prep', 'piecie_quest_prep', 'piecie_quest_prep',
 		          'piecie_kannetje_melk', 'piecie_kannetje_melk'],

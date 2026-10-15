@@ -49,7 +49,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 - [x] **TABLE-06**: The Welloe pile is separate from the discard pile and never shuffled back; only Mosje Reborn and Call of the Welloes take Mosjes out (not under Welloe Graveyard) (§2f).
 
 ### Card effects (EFX)
-- [ ] **EFX-01**: All 32 Mosje abilities and synergy texts work as the Card List says, with activated abilities paying Energy (§3c).
+- [x] **EFX-01**: All 32 Mosje abilities and synergy texts work as the Card List says, with activated abilities paying Energy (§3c).
 - [ ] **EFX-02**: All 73 Piecie effects work as the Card List says (Power boosts, reductions, dice boosts, tags, gates, Stays, limits) (§3c).
 - [ ] **EFX-03**: All 20 Snelle effects work as the Card List says, including the Jensen! / Frenssen! / Blensen! chain (§3c).
 - [ ] **EFX-04**: All 20 Place effects work as the Card List says, including fresh Mosjes ignoring them (§3c).
@@ -71,7 +71,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 - [ ] **UI-05**: The player can attack (pick attacker → target, invalid targets disabled), attempt Quests, play Places and answer reaction prompts from the UI; a cooldown-turn banner blocks everything but placing.
 
 ### Verification (TEST)
-- [ ] **TEST-01**: Engine unit tests E1–E30 from handoff §6a pass in `npm test`.
+- [x] **TEST-01**: Engine unit tests E1–E30 from handoff §6a pass in `npm test`.
 - [ ] **TEST-02**: Every Card List card has a card-test-library entry (Example Deck cards first), including the §6b must-have edge cases.
 - [ ] **TEST-03**: Playwright specs U1–U12 from handoff §6c pass.
 - [ ] **TEST-04**: Phase 7 §A10 frame tests pass (unit + Playwright screenshots at 1920×1080).
@@ -126,7 +126,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 | TABLE-04 | Phase 57 | Complete |
 | TABLE-05 | Phase 57 | Complete |
 | TABLE-06 | Phase 57 | Complete |
-| EFX-01 | Phase 58 | Pending |
+| EFX-01 | Phase 58 | Complete |
 | EFX-02 | Phase 59 | Pending |
 | EFX-03 | Phase 60 | Pending |
 | EFX-04 | Phase 60 | Pending |
@@ -142,7 +142,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 | UI-03 | Phase 63 | Pending |
 | UI-04 | Phase 62 | Pending |
 | UI-05 | Phase 63 | Pending |
-| TEST-01 | Phase 58 | Pending |
+| TEST-01 | Phase 58 | Complete |
 | TEST-02 | Phase 60 | Pending |
 | TEST-03 | Phase 64 | Pending |
 | TEST-04 | Phase 62 | Pending |

@@ -27,7 +27,7 @@ async function activate(page, cardId) {
 	await page.waitForTimeout(400);
 	for (let i = 0; i < 2; i++) {
 		const t = page.locator('.target-option, .modal-mosje-select-btn:not(:disabled)').first();
-		if (await t.isVisible({ timeout: 600 }).catch(() => false)) { await t.click(); await page.waitForTimeout(350); }
+		if (await t.isVisible({ timeout: 1500 }).catch(() => false)) { await t.click(); await page.waitForTimeout(350); }
 		else break;
 	}
 }
@@ -55,7 +55,9 @@ test('chain: Affoe getemt — first hit sideways at 0 MP, second hit to the Well
 
 	await setMosjeMP(page, 'player_1', 0, 50);
 	await setMosjeOnField(page, 'player_2', 1, null);   // opponent has only ONE Mosje on the field
-	await setMosjeMP(page, 'player_2', 0, 5);           // lone opponent Mosje at 5 MP, Level 1
+	// A plain opponent Mosje (the bot's deck is random; abilities like Flow or Unstoppable would change the numbers).
+	await setMosjeOnField(page, 'player_2', 0, 'mosje_ming_predictor', { mp: 5, level: 1 });
+	await clearEntryProtection(page);
 	await setHand(page, 'player_1', ['piecie_affoe']);
 
 	await playCardFromHand(page, 'piecie_affoe');
@@ -128,315 +130,39 @@ test('chain: MP Amplifier → next Kannetje Melk gains +40 (×1.5, 5-grid)', asy
 	expect(delta).toBe(40);
 });
 
-// ── Chain C: Tuk Healer's Healing Presence targets ONE chosen Mosje +10 (two-Mosje
-// scenario, choosing the OTHER Mosje) ─────────────────────────────────────────
-// 2026-07-13 ability-text-engine-reconciliation ruling replaced "heal ALL +15" with
-// "choose this Mosje or another own Mosje, +10". Uses setMosjeOnField to put a
-// second Mosje on the field (engine starts with one).
-test('chain: Tuk Healer targets the chosen Mosje +10, leaves the other untouched', async ({ page }) => {
+// Removed in 58-12: the V4 single-Mosje chains for Tuk Healer (+10 chosen Mosje), Tactician (MP transfer), Ming Natural
+// (reveal modal, keep/activate), Chris All-Rounder (+25 on a Piecie) and Jisca (5-6 free activation of the only Piecie).
+// Their rules changed in the 2.0 Card List; each Mosje is now proven with the 2.0 numbers in
+// mosje-registry-2-0.js / mosje-registry-2-0-rest.js (card-test-library) and mosje-chains-2-0.spec.js (chain rule).
+
+// ── Chain: Coert KasteLuck's Morning Luck (2.0) ───────────────────────────────
+// Card List: "at the start of your turn roll a die: 4-6 draw 1 card and this Mosje gains 5 MP." No same-turn
+// activation any more (that was V4). Start-of-turn goes through the real engine via the runTurnBoundary hook.
+test('chain: Coert KasteLuck Morning Luck - start of turn, 4-6 draws 1 card and gains 5 MP', async ({ page }) => {
 	test.setTimeout(60000);
-	await seedCustomDeck(page, {
-		id: 'custom_tuk_chain', name: 'Tuk Chain',
-		mosjes: ['mosje_tuk_healer'],
-		piecies: ['piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk'],
-		snellePiecies: ['snelle_jensen'], places: [], quests: [],
-	}, 'PHYSICAL_FORCE');
-	await page.goto(GAME_URL_TEST);
-	await waitForBoard(page);
-	await clearEntryProtection(page); // U8 — chains model an established board
-
-	// Ensure Tuk Healer is slot 0, and place a second Mosje in slot 1.
-	await setMosjeOnField(page, 'player_1', 0, 'mosje_tuk_healer', { mp: 30, level: 1 });
-	await setMosjeOnField(page, 'player_1', 1, 'mosje_michelle', { mp: 20, level: 1 });
-	await page.waitForTimeout(150);
-
-	const before0 = await ownSlot(page, 0);
-	const before1 = await ownSlot(page, 1);
-	expect(before0).toBe(30);
-	expect(before1).toBe(20);
-
-	// Use Tuk Healer's ability — two Mosjes on field, so a target picker appears.
-	const card = page.locator('.mosje-card--owned[data-card-id="mosje_tuk_healer"]');
-	const btn = card.locator('.mosje-ability-btn');
-	await btn.waitFor({ state: 'visible', timeout: 5000 });
-	await btn.click();
-	await page.waitForTimeout(400);
-	// Choose slot 1 (the OTHER Mosje, not Tuk Healer itself).
-	await page.locator('.target-option[data-id="player_1_slot_1"]').click();
-	await page.waitForTimeout(700);
-	await ss(page, 'chain-tuk-healer-targeted');
-
-	const after0 = await ownSlot(page, 0);
-	const after1 = await ownSlot(page, 1);
-	console.log(`Tuk Healer: slot0 ${before0}→${after0}, slot1 ${before1}→${after1}`);
-	expect(after0).toBe(30); // Tuk Healer itself untouched — target was slot 1
-	expect(after1).toBe(30); // 20 + 10
-});
-
-// ── Chain D: Tactician transfers MP between two Mosjes (total preserved) ──────
-test('chain: Tactician moves MP from high Mosje to low (total unchanged)', async ({ page }) => {
-	test.setTimeout(60000);
-	await seedCustomDeck(page, {
-		id: 'custom_tact_chain', name: 'Tactician Chain',
-		mosjes: ['mosje_tactician'],
-		piecies: ['piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk'],
-		snellePiecies: ['snelle_jensen'], places: [], quests: [],
-	}, 'PHYSICAL_FORCE');
-	await page.goto(GAME_URL_TEST);
-	await waitForBoard(page);
-	await clearEntryProtection(page); // U8 — chains model an established board
-
-	await setMosjeOnField(page, 'player_1', 0, 'mosje_tactician', { mp: 60, level: 1 });
-	await setMosjeOnField(page, 'player_1', 1, 'mosje_michelle', { mp: 10, level: 1 });
-	await page.waitForTimeout(150);
-
-	const totalBefore = (await ownSlot(page, 0)) + (await ownSlot(page, 1));
-
-	const card = page.locator('.mosje-card--owned[data-card-id="mosje_tactician"]');
-	const btn = card.locator('.mosje-ability-btn');
-	await btn.waitFor({ state: 'visible', timeout: 5000 });
-	await btn.click();
-	await page.waitForTimeout(700);
-	// auto-dismiss any target picker
-	const t = page.locator('.target-option, .modal-mosje-select-btn:not(:disabled)').first();
-	if (await t.isVisible({ timeout: 600 }).catch(() => false)) { await t.click(); await page.waitForTimeout(300); }
-	await ss(page, 'chain-tactician-transfer');
-
-	const s0 = await ownSlot(page, 0);
-	const s1 = await ownSlot(page, 1);
-	const totalAfter = s0 + s1;
-	console.log(`Tactician: slot0=${s0}, slot1=${s1}, total ${totalBefore}→${totalAfter}`);
-	// Transfer moves up to 20 MP from the higher (60) to the lower (10); total preserved.
-	expect(totalAfter).toBe(totalBefore);
-	expect(s1).toBeGreaterThan(10);      // low Mosje received MP
-	expect(s0).toBeLessThan(60);         // high Mosje gave MP
-});
-
-// ── Chain: Ming Natural's Lucky Draw — reveal modal, then (if a Piecie) a
-// free-activate/keep choice; otherwise straight to hand +15 MP ─────────────
-// 2026-07-13 ability-text-engine-reconciliation ruling: TEXT WINS, as a manual
-// activation. Two deterministic decks (all-Piecie / all-SNELLE_PIECIE filler) drive
-// each real branch instead of relying on shuffleDeck's RNG — a thin deck also
-// drains to 0 on the 6-card opening draw alone, which would silently block Lucky
-// Draw before the test even starts, so both decks use generous filler.
-test('chain: Ming Natural Lucky Draw — draws a Piecie, choice modal appears, keep in hand', async ({ page }) => {
-	test.setTimeout(60000);
-	await seedCustomDeck(page, {
-		id: 'custom_ming_chain_piecie', name: 'Ming Natural Chain (Piecie draw)',
-		mosjes: ['mosje_ming_natural'],
-		piecies: Array(12).fill('piecie_kannetje_melk'),
-		snellePiecies: ['snelle_jensen'], places: [], quests: [],
-	}, 'PHYSICAL_FORCE');
-	await page.goto(GAME_URL_TEST);
-	await waitForBoard(page);
-	await clearEntryProtection(page); // U8 — chains model an established board
-
-	await setMosjeMP(page, 'player_1', 0, 40);
-	await page.waitForTimeout(150);
-	const handBefore = await getHandSize(page, 'player_1');
-	const mpBefore = await ownSlot(page, 0);
-
-	const card = page.locator('.mosje-card--owned[data-card-id="mosje_ming_natural"]');
-	const btn = card.locator('.mosje-ability-btn');
-	await btn.waitFor({ state: 'visible', timeout: 5000 });
-	await btn.click();
-	await page.waitForTimeout(400);
-	await page.locator('#modal-continue').click(); // reveal modal
-	await page.waitForTimeout(400);
-	await page.locator('.modal-mosje-select-btn[data-id="keep"]').click(); // choice modal
-	await page.waitForTimeout(500);
-	await ss(page, 'chain-ming-natural-piecie-keep');
-
-	const handAfter = await getHandSize(page, 'player_1');
-	const mpAfter = await ownSlot(page, 0);
-	console.log(`Ming Natural (Piecie, kept): hand ${handBefore}→${handAfter}, MP ${mpBefore}→${mpAfter}`);
-	expect(handAfter - handBefore).toBe(1); // kept, not activated
-	expect(mpAfter).toBe(mpBefore); // no MP change on the Piecie/keep branch
-});
-
-test('chain: Ming Natural Lucky Draw — draws a non-Piecie, no choice modal, +15 MP', async ({ page }) => {
-	test.setTimeout(60000);
-	await seedCustomDeck(page, {
-		id: 'custom_ming_chain_nonpiecie', name: 'Ming Natural Chain (non-Piecie draw)',
-		mosjes: ['mosje_ming_natural'],
-		piecies: [], snellePiecies: Array(12).fill('snelle_jensen'), places: [], quests: [],
-	}, 'PHYSICAL_FORCE');
-	await page.goto(GAME_URL_TEST);
-	await waitForBoard(page);
-	await clearEntryProtection(page); // U8 — chains model an established board
-
-	await setMosjeMP(page, 'player_1', 0, 40);
-	await page.waitForTimeout(150);
-	const handBefore = await getHandSize(page, 'player_1');
-	const mpBefore = await ownSlot(page, 0);
-
-	const card = page.locator('.mosje-card--owned[data-card-id="mosje_ming_natural"]');
-	const btn = card.locator('.mosje-ability-btn');
-	await btn.waitFor({ state: 'visible', timeout: 5000 });
-	await btn.click();
-	await page.waitForTimeout(400);
-	await page.locator('#modal-continue').click(); // reveal modal — no choice modal follows
-	await page.waitForTimeout(500);
-	await ss(page, 'chain-ming-natural-nonpiecie');
-
-	const handAfter = await getHandSize(page, 'player_1');
-	const mpAfter = await ownSlot(page, 0);
-	console.log(`Ming Natural (non-Piecie): hand ${handBefore}→${handAfter}, MP ${mpBefore}→${mpAfter}`);
-	expect(handAfter - handBefore).toBe(1);
-	expect(mpAfter - mpBefore).toBe(15);
-});
-
-// ── Chain: Chris All-Rounder's Perfect Setup — 3+ face-down Piecies required,
-// picks ONE via a target picker and free-activates it (no MP gain) ───────────
-// 2026-07-13 ability-text-engine-reconciliation ruling: TEXT WINS (the 3+ gate)
-// but drops the old 15 MP bonus. Not in card-registry.js because the generic
-// runner can't pre-place 3 face-down Piecies before clicking the ability.
-test('chain: Chris All-Rounder Perfect Setup — free-activates the chosen face-down Piecie', async ({ page }) => {
-	test.setTimeout(60000);
-	await seedCustomDeck(page, {
-		id: 'custom_chris_chain', name: 'Chris Perfect Setup Chain',
-		mosjes: ['mosje_chris'],
-		piecies: ['piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk'],
-		snellePiecies: ['snelle_jensen'], places: [], quests: [],
-	}, 'PHYSICAL_FORCE');
-	await page.goto(GAME_URL_TEST);
-	await waitForBoard(page);
-	await clearEntryProtection(page); // U8 — chains model an established board
-
-	await setMosjeMP(page, 'player_1', 0, 40);
-	await setHand(page, 'player_1', ['piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk']);
-	await page.waitForTimeout(150);
-
-	// Place all 3 face-down — Perfect Setup's gate needs 3+ on the field, none activated.
-	await playCardFromHand(page, 'piecie_kannetje_melk');
-	await page.waitForTimeout(300);
-	await playCardFromHand(page, 'piecie_kannetje_melk');
-	await page.waitForTimeout(300);
-	await playCardFromHand(page, 'piecie_kannetje_melk');
-	await page.waitForTimeout(300);
-
-	const before = await ownSlot(page, 0);
-
-	// Use Chris's ability — a target picker (modal-mosje-select-btn) appears for the 3 slots.
-	const card = page.locator('.mosje-card--owned[data-card-id="mosje_chris"]');
-	const btn = card.locator('.mosje-ability-btn');
-	await btn.waitFor({ state: 'visible', timeout: 5000 });
-	await btn.click();
-	await page.waitForTimeout(400);
-	await page.locator('.modal-mosje-select-btn[data-id="0"]').click();
-	await page.waitForTimeout(700);
-	await ss(page, 'chain-chris-perfect-setup');
-
-	const after = await ownSlot(page, 0);
-	const state = await getGameState(page);
-	const slot0 = state?.players?.player_1?.piecieSlots?.[0];
-	const inGraveyard = state?.players?.player_1?.graveyard?.some(c => (c.cardId ?? c) === 'piecie_kannetje_melk');
-	console.log(`Chris Perfect Setup: MP ${before}→${after}; slot0=${JSON.stringify(slot0)}`);
-
-	// Kannetje Melk's own effect ran (+25 MP) — NOT the old 15 MP bonus Chris used to grant.
-	expect(after).toBe(before + 25);
-	// Non-persistent Piecie: activatePiecie sweeps it to graveyard, clearing the slot.
-	expect(slot0).toBeNull();
-	expect(inGraveyard).toBe(true);
-});
-
-// ── Chain: Jisca's Perfect Combo — rolling 5-6 free-activates the only eligible
-// face-down Piecie (engine unlocks it, UI's step 2 calls activatePiecie) ────────
-// 2026-07-13 ability-text-engine-reconciliation ruling: NEW DESIGN entirely
-// replacing the old "+20 MP if last card was a Piecie" stub. Dice mocked to
-// guarantee the 5-6 branch; the already-active/multi-choice branches are pure
-// engine logic already covered by the unit tests in ability-text-reconciliation.test.ts.
-test('chain: Jisca Perfect Combo — rolling 5-6 free-activates the only face-down Piecie', async ({ page }) => {
-	test.setTimeout(60000);
-	await mockDiceRoll(page, 0.99); // Math.random→0.99 ⇒ d6 always rolls 6
-
-	await seedCustomDeck(page, {
-		id: 'custom_jisca_chain', name: 'Jisca Perfect Combo Chain',
-		mosjes: ['mosje_jisca'],
-		piecies: ['piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk'],
-		snellePiecies: ['snelle_jensen'], places: [], quests: [],
-	}, 'PHYSICAL_FORCE');
-	await page.goto(GAME_URL_TEST);
-	await waitForBoard(page);
-	await clearEntryProtection(page); // U8 — chains model an established board
-
-	await setMosjeMP(page, 'player_1', 0, 40);
-	await setHand(page, 'player_1', ['piecie_kannetje_melk']);
-	await page.waitForTimeout(150);
-
-	// Place exactly ONE face-down Piecie — single eligible slot, no target picker.
-	await playCardFromHand(page, 'piecie_kannetje_melk');
-	await page.waitForTimeout(300);
-
-	const before = await ownSlot(page, 0);
-
-	const card = page.locator('.mosje-card--owned[data-card-id="mosje_jisca"]');
-	const btn = card.locator('.mosje-ability-btn');
-	await btn.waitFor({ state: 'visible', timeout: 5000 });
-	await btn.click();
-	await page.waitForTimeout(900);
-	await ss(page, 'chain-jisca-perfect-combo');
-
-	const after = await ownSlot(page, 0);
-	const state = await getGameState(page);
-	const slot0 = state?.players?.player_1?.piecieSlots?.[0];
-	console.log(`Jisca Perfect Combo: MP ${before}→${after}; slot0=${JSON.stringify(slot0)}`);
-
-	// Kannetje Melk's own effect ran (+25 MP) via the free chain-activation.
-	expect(after).toBe(before + 25);
-	// Non-persistent Piecie: activatePiecie sweeps it to graveyard, clearing the slot.
-	expect(slot0).toBeNull();
-});
-
-// ── Chain: Coert KasteLuck's Morning Luck — auto turn-start roll grants the NEXT
-// Piecie played this turn same-turn activation (no test-only unlockPiecies call) ──
-// 2026-07-13 ability-text-engine-reconciliation ruling: TEXT WINS (auto-trigger,
-// not manual), but the grant is wired through the Chris+Youri canActivateOnTurn
-// mechanism instead of the inert freePiecieActivationAvailable flag. Proves the
-// full pipeline: startTurn's roll -> playPiecie's flag consumption -> the
-// Activate button being genuinely usable THIS turn, without the test-only
-// unlockPiecies escape hatch every other chain test relies on.
-// KNOWN GAP (Phase 58 plan 12): encodes the V4 same-turn-activation grant. 2.0 Morning Luck is a startOfTurn roll: 4-6 draw 1 and +5 MP
-// (engine rule proven in tests/engine/coert-kasteluck-morning-luck.test.ts). Browser spec is rewritten in 58-12.
-test.fixme('chain: Coert KasteLuck Morning Luck — rolling 4-6 lets the next Piecie activate same-turn', async ({ page }) => {
-	test.setTimeout(60000);
-	await mockDiceRoll(page, 0.99); // Math.random→0.99 ⇒ d6 always rolls 6 (turn-start roll AND any other rolls)
-
 	await seedCustomDeck(page, {
 		id: 'custom_kasteluck_chain', name: 'KasteLuck Morning Luck Chain',
 		mosjes: ['mosje_coert_kasteluck'],
-		piecies: ['piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk'],
+		piecies: ['piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_affoe', 'piecie_affoe', 'piecie_affoe'],
 		snellePiecies: ['snelle_jensen'], places: [], quests: [],
 	}, 'PHYSICAL_FORCE');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
-	await clearEntryProtection(page); // U8 — chains model an established board
-
-	const stateAfterStart = await getGameState(page);
-	expect(stateAfterStart?.players?.player_1?.kasteLuckSameTurnActivation).toBe(true);
+	await clearEntryProtection(page); // U8 - chains model an established board
 
 	await setMosjeMP(page, 'player_1', 0, 40);
-	await setHand(page, 'player_1', ['piecie_kannetje_melk']);
 	await page.waitForTimeout(150);
-
-	const before = await ownSlot(page, 0);
-
-	// Place the Piecie — no unlockPiecies call. If Morning Luck's grant works, the
-	// Activate button is already usable this same turn.
-	await playCardFromHand(page, 'piecie_kannetje_melk');
-	await page.waitForTimeout(300);
-
-	const stateAfterPlay = await getGameState(page);
-	expect(stateAfterPlay?.players?.player_1?.kasteLuckSameTurnActivation).toBe(false); // one-shot, consumed
-	const placedSlot = stateAfterPlay?.players?.player_1?.piecieSlots?.find(s => s !== null);
-	expect(placedSlot?.canActivateOnTurn).toBe(stateAfterPlay?.turnNumber); // same turn, not turnNumber+1
-
-	await activate(page, 'piecie_kannetje_melk'); // no prior unlockPiecies — proves it's genuinely activatable now
+	for (const [roll, mpGain, cardGain] of [[3, 0, 1], [5, 5, 2]]) {
+		const mpBefore = await ownSlot(page, 0);
+		const handBefore = await getHandSize(page, 'player_1');
+		await page.evaluate((v) => window.__testHooks.setNextAbilityDice([v]), roll);
+		await page.evaluate(() => window.__testHooks.runTurnBoundary('start', 'player_1'));
+		await page.waitForTimeout(300);
+		expect(await ownSlot(page, 0), `roll ${roll}: MP`).toBe(mpBefore + mpGain);
+		// the normal turn-start draw is +1 either way; Morning Luck adds 1 more on 4-6
+		expect((await getHandSize(page, 'player_1')) - handBefore, `roll ${roll}: hand`).toBe(cardGain);
+	}
 	await ss(page, 'chain-kasteluck-morning-luck');
-
-	const after = await ownSlot(page, 0);
-	console.log(`Coert KasteLuck Morning Luck: MP ${before}→${after}`);
-	expect(after).toBe(before + 25); // Kannetje Melk's own effect ran
 });
 
 // ── Chain E: Piecie MP gain crossing 100 raises ONE Level (2.0) ───────────────
@@ -512,19 +238,11 @@ test('chain: Tikker QUEST_BLOCKED prevents a General Quest', async ({ page }) =>
 	expect(mpAfter).toBe(mpBefore);                 // no MP spent on a blocked quest
 });
 
-// ── Chain: Chris DDR's Perfect Combo Chain — activating a Piecie auto-chains
-// another from hand (recursive, passive) ─────────────────────────────────────
-// 2026-07-13 ability-text-engine-reconciliation ruling: TEXT WINS, replacing a
-// "+5 MP per Piecie played" stub. After ANY Piecie activation, rolls 1d6; on 5-6,
-// activates another Piecie from hand for free. Dice forced to 6 so the chain
-// always fires; the recursive cap-at-3 and DJ 80/20 +2 synergy are pure engine
-// logic already covered by the unit tests in ability-text-reconciliation.test.ts.
-// KNOWN GAP (Phase 58 plan 12): encodes the V4 hand-chain (3/turn, from hand). 2.0 DDR Chris chains a READY Piecie on the field
-// for free (2/turn, owner picks); the engine rule is proven in tests/abilities/mosjes-deck3-chain.test.ts. Browser spec is rewritten in 58-12.
-test.fixme('chain: Chris DDR Perfect Combo Chain — activating a Piecie auto-chains another from hand', async ({ page }) => {
+// ── Chain: Chris DDR's Perfect Combo Chain (2.0) ──────────────────────────────
+// Card List: "whenever you activate a Piecie, roll a die: 5-6 activate another READY Piecie of yours for free
+// (no Energy). Up to 2 times per turn." The chained Piecie never starts another chain roll (chain rule).
+test('chain: Chris DDR Perfect Combo Chain - activating a Piecie chains another ready Piecie for free', async ({ page }) => {
 	test.setTimeout(60000);
-	await mockDiceRoll(page, 0.99); // Math.random→0.99 ⇒ d6 always rolls 6
-
 	await seedCustomDeck(page, {
 		id: 'custom_chrisddr_chain', name: 'Chris DDR Perfect Combo Chain',
 		mosjes: ['mosje_chris_ddr'],
@@ -533,30 +251,26 @@ test.fixme('chain: Chris DDR Perfect Combo Chain — activating a Piecie auto-ch
 	}, 'PHYSICAL_FORCE');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
-	await clearEntryProtection(page); // U8 — chains model an established board
+	await clearEntryProtection(page); // U8 - chains model an established board
 
-	await setMosjeMP(page, 'player_1', 0, 40);
-	await setHand(page, 'player_1', ['piecie_kannetje_melk', 'piecie_kannetje_melk']);
+	await setMosjeMP(page, 'player_1', 0, 15);
+	await page.evaluate(() => {
+		const h = window.__testHooks;
+		h.setEnergy('player_1', 3);
+		for (const slot of [0, 1, 2]) h.setPiecieOnField('player_1', slot, 'piecie_kannetje_melk', { faceDown: true });
+		h.unlockPiecies('player_1');
+		h.setNextAbilityDice([5, 1]);
+	});
 	await page.waitForTimeout(150);
 
-	// Place ONE face-down (the trigger); the other copy stays in hand as the chain target.
-	await playCardFromHand(page, 'piecie_kannetje_melk');
-	await page.waitForTimeout(300);
-	await unlockPiecies(page, 'player_1');
-
 	const before = await ownSlot0(page);
-	const handBefore = await getHandSize(page, 'player_1');
-
 	await activate(page, 'piecie_kannetje_melk');
 	await ss(page, 'chain-chrisddr-perfect-combo');
 
 	const after = await ownSlot0(page);
-	const handAfter = await getHandSize(page, 'player_1');
 	const state = await getGameState(page);
-	console.log(`Chris DDR Perfect Combo Chain: MP ${before}→${after}, hand ${handBefore}→${handAfter}, chainUses=${state?.players?.player_1?.chrisDdrChainUsesThisTurn}`);
-
-	// Original activation +25, chained Piecie +25 (both target Chris DDR himself)
-	expect(after).toBe(before + 50);
-	expect(handAfter).toBe(handBefore - 1); // chained Piecie consumed from hand
-	expect(state?.players?.player_1?.chrisDdrChainUsesThisTurn).toBe(1);
+	console.log(`Chris DDR Perfect Combo Chain: MP ${before}->${after}, chains=${state?.players?.player_1?.ddrChainsThisTurn}`);
+	expect(after, 'paid activation +25 and one free chained activation +25').toBe(before + 50);
+	expect(state?.players?.player_1?.ddrChainsThisTurn).toBe(1);
+	expect(state?.players?.player_1?.energy, 'only the first activation was paid for').toBe(3);
 });

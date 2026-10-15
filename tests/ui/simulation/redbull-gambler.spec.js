@@ -20,7 +20,7 @@ import {
 	getGameState, readOwnedMosjes, mockDiceRoll,
 } from '../helpers.js';
 
-// KNOWN GAP (fix in Phase 58): High Stakes is now a 1-2 Energy stake with a 1-6 die and no QUEST_BLOCKED (58-09); the 58-12 card tests re-cover it, old expectation kept.
+// KNOWN GAP (Phase 59): Redbull is a Piecie (2.0: one Mosje may use its once-per-turn ability one more time, paying its cost again); the abilityDoubleTrigger re-fire is rebuilt with the Piecie effects; High Stakes is now a 1-2 Energy stake with a 1-6 die (58-09), no +6 Quest roll bonus.
 test.fixme('Redbull doubles Jeffrey Gambler — jackpot twice (+6 Quest roll bonus, no MP change)', async ({ page }) => {
 	test.setTimeout(90000);
 
@@ -67,7 +67,7 @@ test.fixme('Redbull doubles Jeffrey Gambler — jackpot twice (+6 Quest roll bon
 	expect(state?.players?.player_1?.abilityDoubleTrigger).toBeFalsy();
 });
 
-// KNOWN GAP (fix in Phase 58): High Stakes no longer blocks Quests (58-09); the 58-12 card tests re-cover it, old expectation kept.
+// KNOWN GAP (Phase 59): Redbull is a Piecie (2.0: one Mosje may use its once-per-turn ability one more time, paying its cost again); the abilityDoubleTrigger re-fire is rebuilt with the Piecie effects; High Stakes no longer blocks Quests (58-09).
 test.fixme('Redbull doubles Jeffrey Gambler — QUEST_BLOCKED twice, no MP change', async ({ page }) => {
 	test.setTimeout(90000);
 

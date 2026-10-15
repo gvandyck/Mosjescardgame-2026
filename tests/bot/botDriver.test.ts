@@ -354,16 +354,15 @@ describe('driveBotTurn — AZN Cless Risk and Reward gating', () => {
   // Risk & Reward is an end-of-turn trigger now (see mosjes-deck1.test.ts): script its die to a neutral 3 so MP assertions are deterministic.
   beforeEach(() => pushTestDice([3, 3, 3, 3, 3, 3]));
   afterEach(() => clearTestDice());
-  // KNOWN GAP (fix in Phase 58, AZN Cless rewrite) Risk & Reward is now an end-of-turn trigger, not a bot-pressed button; the engine refuses useMosjeAbility on it.
-  it.skip('gambles when the -15 MP outcome is merely "safe" (plenty of MP)', () => {
+  // 2.0: Risk & Reward is an end-of-turn trigger, not a button, so the bot never "gambles" with it; the die is scripted to a neutral 3.
+  it('does not press Risk & Reward (an end-of-turn trigger) and leaves MP alone', () => {
     const state = makeState({
       activeSlots: [makeMosjeSlot('mosje_azn_cless', 60)],
     });
     const result = driveBotTurn(state, 'player_2');
     const mosjeAfter = (result.players.player_2.activeSlots as MosjeSlot[])[0];
-    // Fixed 50/50 outcome: either +25 (85) or -15 (45) — either way it moved.
-    expect([85, 45]).toContain(mosjeAfter.mp);
-    expect(mosjeAfter.abilityUsedThisTurn).toBe(true);
+    expect(mosjeAfter.mp).toBe(60);
+    expect(mosjeAfter.abilityUsedThisTurn).toBeFalsy();
   });
 
   it('skips the gamble when it would be FATAL — Level 0, no backup Mosje, low MP', () => {

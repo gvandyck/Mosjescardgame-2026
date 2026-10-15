@@ -202,7 +202,7 @@ function makeBattleConcertState(questingCardId: string) {
 const FAIL_QUEST = "quest_quick_thinking";
 
 describe("Battle Concert — redirect Alyssa's quest-failure MP to opponent", () => {
-  // KNOWN GAP (fix in Phase 58): V4 resolveQuest redirected the fail to the opponent; the 2.0 attempt
+  // KNOWN GAP (Phase 59): Battle Concert is a Piecie, so its 2.0 flat-15 redirect is built with the Piecie effects. V4 resolveQuest redirected the fail to the opponent; the 2.0 attempt
   // (resolveQuestAttempt) does not read _battleConcertActive yet, and 2.0 Battle Concert is a flat 15 (Card List).
   it.skip("redirects the Quest fail to opponent when _battleConcertActive set and Mosje is Alyssa", () => {
     const state = makeBattleConcertState("mosje_alyssa_bulldozer");

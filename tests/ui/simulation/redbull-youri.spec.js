@@ -38,7 +38,7 @@ const DECK = {
 	snellePiecies: ['snelle_jensen'], places: [], quests: [],
 };
 
-// KNOWN GAP (fix in Phase 58): Youri Speed Activate is now once per turn for 1 Energy with no 3-per-game cap (58-09); the 58-12 card tests re-cover it, old expectation kept.
+// KNOWN GAP (Phase 59): Redbull is a Piecie (2.0: one Mosje may use its once-per-turn ability one more time, paying its cost again); the abilityDoubleTrigger re-fire is rebuilt with the Piecie effects; Youri has no use counter any more (58-09), so the old 'uses 0->2' count cannot be asserted.
 test.fixme('Redbull re-fires Youri — pay 20 + activate a Piecie TWICE (uses 0→2)', async ({ page }) => {
 	test.setTimeout(90000);
 
@@ -76,7 +76,7 @@ test.fixme('Redbull re-fires Youri — pay 20 + activate a Piecie TWICE (uses 0�
 	expect(st?.players?.player_1?.abilityDoubleTrigger).toBeFalsy();
 });
 
-// KNOWN GAP (fix in Phase 58): Youri has no use cap any more (58-09); the 58-12 card tests re-cover it, old expectation kept.
+// KNOWN GAP (Phase 59): the 3-per-game cap is gone in 2.0 (58-09); how Redbull re-fires the once-per-turn Speed Activate is decided with the Redbull Piecie rewrite.
 test.fixme('Redbull + Youri at 2 uses — first fire is the 3rd use, second is DENIED (cap)', async ({ page }) => {
 	test.setTimeout(90000);
 

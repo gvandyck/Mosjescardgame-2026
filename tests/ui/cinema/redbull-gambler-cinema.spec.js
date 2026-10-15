@@ -12,6 +12,7 @@
  */
 
 import { test, expect } from '@playwright/test';
+import { answerModals } from '../../helpers/answerModals.js';
 import {
 	GAME_URL_TEST, seedCustomDeck, waitForBoard, ss,
 	setHand, setMosjeMP, unlockPiecies, playCardFromHand,
@@ -35,34 +36,38 @@ const questBlockedCount = async (page) => {
 		.filter(e => e.type === 'QUEST_BLOCKED').length;
 };
 
-// KNOWN GAP (fix in Phase 58): High Stakes no longer blocks Quests (58-09); the 58-12 card tests re-cover it, old expectation kept.
-test.fixme('🎬 High Stakes rolled ONCE — QUEST_BLOCKED, MP untouched (70 → 70)', async ({ page }, testInfo) => {
+// 2.0 High Stakes: once per turn stake 1 or 2 Energy and roll a die: 1-2 the Energy is lost, 3-4 you get it back,
+// 5-6 you get it back, draw 1 and gain 10 MP per Energy staked. MP is never staked. Scene 1: stake 1, roll a 1.
+test('🎬 High Stakes stake 1, roll a 1 - the Energy is lost, MP untouched (70 -> 70)', async ({ page }, testInfo) => {
 	test.setTimeout(120000);
 	const beat = makeBeat(page, testInfo);
-	await mockDiceRoll(page, 0.1);  // d6 → 1
+	await mockDiceRoll(page, 0.1);  // d6 -> 1
 
 	await seedCustomDeck(page, DECK, 'PHYSICAL_FORCE');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
 	await setHand(page, 'player_1', ['piecie_kannetje_melk', 'piecie_kannetje_melk']);
 	await setMosjeMP(page, 'player_1', 0, 70);
+	await page.evaluate(() => window.__testHooks.setEnergy('player_1', 4));
 	await page.waitForTimeout(200);
 	await ss(page, 'gambler-1-start');
-	await beat(`Scene 1 — Jeffrey starts at ${await jefMp(page)} MP. No Redbull.`);
-	await beat('High Stakes: no cost, no wager anymore — rolls 1d6 and gets a 1 → QUEST_BLOCKED this turn.');
+	await beat(`Scene 1 - Jeffrey starts at ${await jefMp(page)} MP with 4 Energy. No Redbull.`);
+	await beat('High Stakes: stake 1 Energy, the die shows a 1 -> the Energy is lost.');
 
 	await page.locator('.mosje-card--owned[data-card-id="mosje_jeffrey_gambler"] .mosje-ability-btn').click();
+	await page.waitForTimeout(500);
+	await answerModals(page, [/1/]);
 	await page.waitForTimeout(900);
 	await ss(page, 'gambler-1-after');
 	const after = await jefMp(page);
-	const blocked = await questBlockedCount(page);
-	console.log(`🎬 RESULT — Jeffrey stays at ${after} MP; QUEST_BLOCKED count=${blocked}`);
-	await beat(`No MP lost: still ${after}. But QUEST_BLOCKED means no Quest attempts this turn.`);
+	const energy = (await getGameState(page)).players.player_1.energy;
+	console.log(`RESULT - Jeffrey stays at ${after} MP; Energy ${energy}`);
+	await beat(`No MP lost: still ${after}. Energy 4 -> ${energy}.`);
 	expect(after).toBe(70);
-	expect(blocked).toBe(1);
+	expect(energy, 'stake of 1 lost').toBe(3);
 });
 
-// KNOWN GAP (fix in Phase 58): High Stakes no longer blocks Quests (58-09); the 58-12 card tests re-cover it, old expectation kept.
+// KNOWN GAP (Phase 59): Redbull is a Piecie (2.0: one Mosje may use its once-per-turn ability one more time, paying its cost again); the abilityDoubleTrigger re-fire is rebuilt with the Piecie effects. QUEST_BLOCKED is gone from High Stakes (58-09).
 test.fixme('🎬 Redbull doubles the roll — two QUEST_BLOCKED entries stack, MP still untouched (70 → 70)', async ({ page }, testInfo) => {
 	test.setTimeout(120000);
 	const beat = makeBeat(page, testInfo);

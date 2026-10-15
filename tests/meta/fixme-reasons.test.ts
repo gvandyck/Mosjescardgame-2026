@@ -1,4 +1,4 @@
-// SHELL-04 guard: every test.fixme / test.skip / it.skip / describe.skip names the later card phase (58-60) and a reason.
+// SHELL-04 guard: every test.fixme / test.skip / it.skip / describe.skip names the later card phase (59-60) and a reason.
 import { describe, expect, it } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
@@ -17,7 +17,7 @@ function walk(dir: string): string[] {
   });
 }
 
-describe('SHELL-04: every fixme/skip names Phase 58-60 and a reason', () => {
+describe('SHELL-04: every fixme/skip names Phase 59 or 60 and a reason', () => {
   it('no un-owned fixme or skip in tests/', () => {
     const offenders: string[] = [];
     for (const f of walk(TESTS)) {
@@ -28,7 +28,7 @@ describe('SHELL-04: every fixme/skip names Phase 58-60 and a reason', () => {
         // the registry reasons are checked in the second test.
         if (/process\.env/.test(line) || /spec\.skipReason\)/.test(line)) return;
         const window = lines.slice(Math.max(0, i - 3), i + 1).join('\n');
-        const m = window.match(/Phase (58|59|60)\b[^\n]*?[:,)\s-]+\s*([^\n]*)/);
+        const m = window.match(/Phase (59|60)\b[^\n]*?[:,)\s-]+\s*([^\n]*)/);
         const reason = m ? m[2].trim() : '';
         if (!m || reason.length < 10) offenders.push(`${f.replace(TESTS, 'tests')}:${i + 1}  ${line.trim().slice(0, 90)}`);
       });

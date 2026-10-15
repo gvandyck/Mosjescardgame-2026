@@ -5,7 +5,7 @@ import {
 	waitForBoard, ss,
 	readLog, readOwnedMosjes, readOpponentMosjes, readHand,
 	isPiecieOnField,
-	setMosjeMP, setYouriUses,
+	setMosjeMP,
 	playCardFromHand, dismissModal, endTurnAndWait,
 	mockDiceRoll, setQuestFaceUp, setNextDice, questViaUi, getGameState, setMosjeOnField,
 } from './helpers.js';
@@ -221,239 +221,126 @@ test('VIS-04: Quest fail MP floor — MP never goes negative', async ({ page }) 
 	expect(log.join(' ')).toMatch(/failed/i);
 });
 
-// ─── VIS-05: Youri ability — single face-down piecie auto-activates ───────────
-// Single-Mosje deck (Youri only, no Chris) → no synergy → piecies go face-down.
-// Youri's ability: 20 MP cost → activate face-down piecie + draw 1 card.
-// With only one face-down piecie, auto-activates (no slot picker modal).
+// ─── VIS-05/06: Youri, The Speedrunner (2.0 Speed Activate) ───────────────────
+// 2.0 Card List: "once per turn, pay 1 Energy: activate a Piecie the same turn you placed it (still pay its cost),
+// then draw 1 card." The Piecie becomes ready (Activate button appears); activating it still pays its own Energy.
+// MP is never a cost. One Piecie waiting = auto-picked; two = a slot picker; refused when the player can't pay.
 
-// KNOWN GAP (fix in Phase 58): Youri ability cost moves from -20 MP to Energy (Mosje abilities rewrite); V4 expectation kept as-is for the rewrite.
-test.fixme('VIS-05: Youri ability auto-activates single face-down piecie', async ({ page }) => {
-	// Single Mosje deck — Youri always starts on slot 0, no Chris = no synergy
-	// Use piecie_quest_prep (effect = +questPrepBonus, no MP change) so the Youri
-	// ability's -20 MP is the ONLY MP change, making the assertion exact.
-	const deck = {
-		id: 'custom_youri_solo',
-		name: 'Youri Solo',
-		mosjes: ['mosje_youri'],
-		// 9 piecies + 1 snelle = 10 cards. Opening hand=6, turn-start draw=1 → 7 in hand,
-		// 3 remain in deck. After playing 1 face-down → 6 in hand. Youri draws 1 → 7 in hand.
-		piecies: ['piecie_quest_prep', 'piecie_quest_prep', 'piecie_quest_prep',
-		          'piecie_quest_prep', 'piecie_quest_prep', 'piecie_quest_prep',
-		          'piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk'],
-		snellePiecies: ['snelle_jensen'],
-		places: [],
-		quests: [],
-	};
-	await seedCustomDeck(page, deck, 'PHYSICAL_FORCE');
-	await page.goto(GAME_URL_TEST);
-	await waitForBoard(page);
+const YOURI_DECK = {
+	id: 'custom_youri_2_0',
+	name: 'Youri 2.0',
+	mosjes: ['mosje_youri'],
+	piecies: ['piecie_quest_prep', 'piecie_quest_prep', 'piecie_quest_prep',
+	          'piecie_quest_prep', 'piecie_quest_prep', 'piecie_quest_prep',
+	          'piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk'],
+	snellePiecies: ['snelle_jensen'], places: [], quests: [],
+};
+const energyOf = async (page) => (await getGameState(page)).players.player_1.energy;
+const youriBtn = (page) => page.locator('.mosje-card--owned[data-card-id="mosje_youri"] .mosje-ability-btn');
+const activateBtnOf = (page, cardId) => page.locator(`#piecies-player [data-card-id="${cardId}"] button:has-text("Activate")`).first();
 
-	// Verify Youri is actually on field (confirms custom deck loaded)
-	const youriOnField = await page.locator('.mosje-card--owned[data-card-id="mosje_youri"]').isVisible({ timeout: 2000 }).catch(() => false);
-	if (!youriOnField) { throw new Error('Setup failed: Youri not on field — custom deck may not have loaded'); }
-
-	// Give Youri 60 MP (ability costs 20)
-	await setMosjeMP(page, 'player_1', 0, 60);
-	await page.waitForTimeout(200);
-
-	const mpBefore = (await readOwnedMosjes(page))[0]?.mp;
-	console.log(`Youri MP before: ${mpBefore}`);
-	expect(mpBefore).toBe(60);
-
-	// Play one piecie face-down
-	const hand = await readHand(page);
-	const piecie = hand.find(c => c.cardType === 'PIECIE');
-	if (!piecie) { throw new Error('Setup failed: Youri face-down Piecie not in hand'); }
-
-	await playCardFromHand(page, piecie.cardId);
-	await page.waitForTimeout(600);
-
-	const onField = await isPiecieOnField(page, piecie.cardId);
-	if (!onField) { throw new Error('Setup failed: Piecie not on field'); }
-
-	// Measure hand size AFTER playing the piecie (this is the baseline before Youri draws)
-	const handSizeBefore = (await readHand(page)).length;
-	console.log(`Hand size after play (before ability): ${handSizeBefore}`);
-	await ss(page, 'vis05-face-down');
-
-	// Use Youri's ability button
-	const youriCard = page.locator('.mosje-card--owned[data-card-id="mosje_youri"]');
-	const abilityBtn = youriCard.locator('.mosje-ability-btn');
-	await abilityBtn.waitFor({ state: 'visible', timeout: 5000 });
-	await abilityBtn.click();
-	await page.waitForTimeout(1000);
-	await ss(page, 'vis05-after-ability');
-
-	// MP DURING — must have dropped by 20
-	const mpDuring = (await readOwnedMosjes(page))[0]?.mp;
-	console.log(`Youri MP after ability: ${mpDuring}`);
-	expect(mpDuring).toBe(mpBefore - 20);
-
-	// Piecie must now be ACTIVE (canActivate=false after activation, no more Activate button)
-	// The card stays on field but loses its Activate button once activated
-	const activateBtn = page.locator(`#piecies-player [data-card-id="${piecie.cardId}"] button:has-text("Activate")`);
-	const activateBtnVisible = await activateBtn.isVisible({ timeout: 300 }).catch(() => false);
-	console.log('Activate button still visible after ability:', activateBtnVisible);
-	// After Youri ability activates the piecie, the Activate button should be gone
-	expect(activateBtnVisible).toBe(false);
-
-	// Hand +1 (card drawn by ability)
-	const handSizeAfter = (await readHand(page)).length;
-	console.log(`Hand size: ${handSizeBefore} → ${handSizeAfter}`);
-	expect(handSizeAfter).toBe(handSizeBefore + 1);
-
-	// MP AFTER is stable (no further automatic cost)
-	const mpAfter = (await readOwnedMosjes(page))[0]?.mp;
-	expect(mpAfter).toBe(mpDuring);
-	await ss(page, 'vis05-done');
-});
-
-// ─── VIS-06: Youri ability — 3-use cap blocks 4th attempt ────────────────────
-// After 3 uses, the ability shows an error modal and deducts no MP.
-
-// KNOWN GAP (fix in Phase 58): Youri ability button moves to the 2.0 ability flow; fails headless on the 2.0 board, unrelated to Quests (found in 56-09).
-test.fixme('VIS-06: Youri ability 3-use cap — blocked on 4th attempt', async ({ page }) => {
-	const deck = {
-		id: 'custom_youri_cap',
-		name: 'Youri Cap',
-		mosjes: ['mosje_youri'],
-		piecies: ['piecie_affoe', 'piecie_affoe', 'piecie_kannetje_melk',
-		          'piecie_kannetje_melk', 'piecie_quest_prep'],
-		snellePiecies: ['snelle_jensen'],
-		places: [],
-		quests: [],
-	};
-	await seedCustomDeck(page, deck, 'PHYSICAL_FORCE');
-	await page.goto(GAME_URL_TEST);
-	await waitForBoard(page);
-
-	await setMosjeMP(page, 'player_1', 0, 80);
-	await setYouriUses(page, 'player_1', 3);
-	await page.waitForTimeout(200);
-
-	// Verify testHooks worked (Youri should have 80 MP)
-	const mpBefore = (await readOwnedMosjes(page))[0]?.mp;
-	console.log(`Youri MP before blocked attempt: ${mpBefore}`);
-	if (mpBefore !== 80) { throw new Error('Setup failed: TestHooks not applied'); }
-
-	// Click Youri's ability button — should be blocked
-	const youriCard = page.locator('.mosje-card--owned[data-card-id="mosje_youri"]');
-	const abilityBtn = youriCard.locator('.mosje-ability-btn');
-	await abilityBtn.waitFor({ state: 'visible', timeout: 5000 });
-	await abilityBtn.click();
-	await page.waitForTimeout(800);
-	await ss(page, 'vis06-blocked');
-
-	// Error modal must appear
-	const modalCard = page.locator('.modal-card');
-	await modalCard.waitFor({ state: 'visible', timeout: 3000 });
-	const modalText = await modalCard.textContent().catch(() => '');
-	console.log('Modal text:', modalText?.slice(0, 200));
-	expect(modalText).toMatch(/3 times|cap|limit|already|[Cc]annot|[Cc]an't/i);
-
-	// Dismiss modal
-	const okBtn = page.locator('#modal-continue, button:has-text("OK"), button:has-text("Close")').first();
-	if (await okBtn.isVisible({ timeout: 1000 }).catch(() => false)) await okBtn.click();
-	await page.waitForTimeout(200);
-
-	// MP AFTER — unchanged (no cost deducted on blocked attempt)
-	const mpAfter = (await readOwnedMosjes(page))[0]?.mp;
-	console.log(`Youri MP after blocked: ${mpAfter}`);
-	expect(mpAfter).toBe(mpBefore);
-	await ss(page, 'vis06-done');
-});
-
-// ─── VIS-06b: Youri ability — multiple face-down piecies → slot picker ───────
-// Phase-27 human-needed scenario 2: with 2+ face-down piecies, a slot picker
-// modal appears; selecting a slot activates that piecie, Youri pays 20 MP, draws 1.
-async function setupYouriWithTwoFaceDown(page) {
-	const deck = {
-		id: 'custom_youri_multi',
-		name: 'Youri Multi',
-		// quest_prep activates with NO MP change, so Youri's -20 is the only MP delta.
-		mosjes: ['mosje_youri'],
-		piecies: ['piecie_quest_prep', 'piecie_quest_prep', 'piecie_quest_prep',
-		          'piecie_quest_prep', 'piecie_quest_prep', 'piecie_quest_prep',
-		          'piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk'],
-		snellePiecies: ['snelle_jensen'], places: [], quests: [],
-	};
-	await seedCustomDeck(page, deck, 'PHYSICAL_FORCE');
+async function setupYouri(page, count) {
+	await seedCustomDeck(page, YOURI_DECK, 'PHYSICAL_FORCE');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
 	if (!await page.locator('.mosje-card--owned[data-card-id="mosje_youri"]').isVisible({ timeout: 2000 }).catch(() => false)) {
-		return false;
+		throw new Error('Setup failed: Youri not on field - custom deck may not have loaded');
 	}
 	await setMosjeMP(page, 'player_1', 0, 60);
+	await page.evaluate(() => window.__testHooks.setEnergy('player_1', 6));
+	await page.evaluate(() => window.__testHooks.setHand('player_1', ['piecie_quest_prep', 'piecie_quest_prep', 'piecie_affoe', 'piecie_affoe', 'piecie_affoe']));
 	await page.waitForTimeout(200);
-	// Play TWO quest_prep piecies face-down.
 	let played = 0;
-	for (let i = 0; i < 5 && played < 2; i++) {
-		const hand = await readHand(page);
-		const qp = hand.find(c => c.cardId === 'piecie_quest_prep');
-		if (!qp) break;
+	for (let i = 0; i < 6 && played < count; i++) {
+		if (!(await readHand(page)).some(c => c.cardId === 'piecie_quest_prep')) break;
 		await playCardFromHand(page, 'piecie_quest_prep');
 		await page.waitForTimeout(500);
 		played++;
 	}
-	return played >= 2;
+	if (played < count) throw new Error(`Setup failed: only ${played} Piecies placed`);
 }
 
-// KNOWN GAP (fix in Phase 58): Youri ability cost moves from -20 MP to Energy (Mosje abilities rewrite); V4 expectation kept as-is for the rewrite.
-test.fixme('VIS-06b: Youri ability — multiple face-down piecies show slot picker', async ({ page }) => {
-	if (!await setupYouriWithTwoFaceDown(page)) { throw new Error('Setup failed: Setup failed'); }
-
+test('VIS-05: Youri Speed Activate - 1 Energy, the Piecie placed this turn becomes activatable, draw 1', async ({ page }) => {
+	await setupYouri(page, 1);
 	const handBefore = (await readHand(page)).length;
+	const energyBefore = await energyOf(page);
 	const mpBefore = (await readOwnedMosjes(page))[0]?.mp;
 	expect(mpBefore).toBe(60);
+	// Placed this turn: not activatable yet.
+	expect(await activateBtnOf(page, 'piecie_quest_prep').isVisible({ timeout: 300 }).catch(() => false)).toBe(false);
+	await ss(page, 'vis05-face-down');
 
-	await page.locator('.mosje-card--owned[data-card-id="mosje_youri"] .mosje-ability-btn').click();
+	await youriBtn(page).waitFor({ state: 'visible', timeout: 5000 });
+	await youriBtn(page).click();
+	// The slot picker also shows for a single waiting Piecie.
+	await page.locator('.modal-mosje-select-btn').first().click();
+	await page.waitForTimeout(1000);
+	await ss(page, 'vis05-after-ability');
 
-	// Slot-picker modal must appear with 2 options.
-	const list = page.locator('.modal-mosje-select-list');
-	await list.waitFor({ state: 'visible', timeout: 4000 });
-	const options = page.locator('.modal-mosje-select-btn');
-	expect(await options.count()).toBe(2);
-	await ss(page, 'vis06b-picker');
-
-	// Pick the first slot.
-	await options.first().click();
-	await page.waitForTimeout(900);
-
-	// Youri paid 20, drew 1.
-	expect((await readOwnedMosjes(page))[0]?.mp).toBe(mpBefore - 20);
-	expect((await readHand(page)).length).toBe(handBefore + 1);
-	await ss(page, 'vis06b-done');
+	expect(await energyOf(page), 'Speed Activate costs 1 Energy').toBe(energyBefore - 1);
+	expect((await readOwnedMosjes(page))[0]?.mp, 'MP is never a cost').toBe(mpBefore);
+	expect((await readHand(page)).length, 'draws 1').toBe(handBefore + 1);
+	await activateBtnOf(page, 'piecie_quest_prep').waitFor({ state: 'visible', timeout: 4000 });
 });
 
-// ─── VIS-06c: Youri ability — cancel the picker → cost still spent ───────────
-// Phase-27 human-needed scenario 3: cancelling the slot picker still spends the
-// 20 MP (and a use); no card is drawn.
-// KNOWN GAP (fix in Phase 58): Youri ability cost moves from -20 MP to Energy (Mosje abilities rewrite); V4 expectation kept as-is for the rewrite.
-test.fixme('VIS-06c: Youri ability — cancelling slot picker still spends 20 MP', async ({ page }) => {
-	if (!await setupYouriWithTwoFaceDown(page)) { throw new Error('Setup failed: Setup failed'); }
+// Once per turn: a second use the same turn is refused, nothing is paid.
+test('VIS-06: Youri Speed Activate is once per turn - the second use is refused and costs nothing', async ({ page }) => {
+	await setupYouri(page, 2);
+	const energyBeforeFirst = await energyOf(page);
+	await youriBtn(page).click();
+	await page.waitForTimeout(500);
+	await page.locator('.modal-mosje-select-btn').first().click();
+	await page.waitForTimeout(900);
+	const energyAfterFirst = await energyOf(page);
+	expect(energyAfterFirst, 'the first use paid 1 Energy').toBe(energyBeforeFirst - 1);
+	const handAfterFirst = (await readHand(page)).length;
 
+	const again = youriBtn(page);
+	if (await again.isVisible({ timeout: 1000 }).catch(() => false) && await again.isEnabled().catch(() => false)) {
+		await again.click();
+		await page.waitForTimeout(800);
+		const ok = page.locator('#modal-continue, #modal-ok, button:has-text("OK"), button:has-text("Close")').first();
+		if (await ok.isVisible({ timeout: 800 }).catch(() => false)) await ok.click();
+	}
+	expect(await energyOf(page), 'no second payment').toBe(energyAfterFirst);
+	expect((await readHand(page)).length, 'no second draw').toBe(handAfterFirst);
+});
+
+// VIS-06b: two Piecies waiting -> a slot picker; the chosen one becomes ready, the other stays face-down.
+test('VIS-06b: Youri Speed Activate - two Piecies placed this turn show a slot picker', async ({ page }) => {
+	await setupYouri(page, 2);
 	const handBefore = (await readHand(page)).length;
-	const mpBefore = (await readOwnedMosjes(page))[0]?.mp;
-	expect(mpBefore).toBe(60);
+	const energyBefore = await energyOf(page);
 
-	await page.locator('.mosje-card--owned[data-card-id="mosje_youri"] .mosje-ability-btn').click();
+	await youriBtn(page).click();
 	await page.locator('.modal-mosje-select-list').waitFor({ state: 'visible', timeout: 4000 });
+	expect(await page.locator('.modal-mosje-select-btn').count()).toBe(2);
+	await ss(page, 'vis06b-picker');
+	await page.locator('.modal-mosje-select-btn').first().click();
+	await page.waitForTimeout(900);
 
-	// Cancel.
+	expect(await energyOf(page)).toBe(energyBefore - 1);
+	expect((await readHand(page)).length).toBe(handBefore + 1);
+	expect(await page.locator('#piecies-player button:has-text("Activate")').count(), 'only the chosen Piecie is ready').toBe(1);
+});
+
+// VIS-06c: cancelling the picker pays nothing in 2.0 (Energy is only spent when the ability resolves).
+test('VIS-06c: Youri Speed Activate - cancelling the slot picker pays nothing', async ({ page }) => {
+	await setupYouri(page, 2);
+	const handBefore = (await readHand(page)).length;
+	const energyBefore = await energyOf(page);
+
+	await youriBtn(page).click();
+	await page.locator('.modal-mosje-select-list').waitFor({ state: 'visible', timeout: 4000 });
 	await page.locator('#modal-option-cancel').click();
-	await page.waitForTimeout(400);
+	await page.waitForTimeout(500);
+	const ok = page.locator('#modal-ok, #modal-continue').first();
+	if (await ok.isVisible({ timeout: 500 }).catch(() => false)) await ok.click();
+	await page.waitForTimeout(300);
 
-	// Info modal: cost still spent.
-	const info = page.locator('.modal-card');
-	await info.waitFor({ state: 'visible', timeout: 3000 });
-	expect(await info.textContent()).toMatch(/cost is still spent|paid 20 MP/i);
-	await page.locator('#modal-ok').click().catch(() => {});
-	await page.waitForTimeout(200);
-	await ss(page, 'vis06c-cancelled');
-
-	// MP dropped 20 (cost spent); no card drawn.
-	expect((await readOwnedMosjes(page))[0]?.mp).toBe(mpBefore - 20);
-	expect((await readHand(page)).length).toBe(handBefore);
+	expect(await energyOf(page), 'nothing paid').toBe(energyBefore);
+	expect((await readHand(page)).length, 'no card drawn').toBe(handBefore);
+	expect((await readOwnedMosjes(page))[0]?.mp).toBe(60);
 });
 
 // ─── VIS-07: Not Today! interrupt fires on bot elimination ───────────────────
