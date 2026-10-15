@@ -32,7 +32,8 @@ describe('own-target choice', () => {
   it('every registry effect leaves the unchosen Mosje alone', () => {
     expect(OWN_TARGET_EFFECT_IDS.length).toBeGreaterThan(20);
     for (const id of OWN_TARGET_EFFECT_IDS) {
-      const out = (piecie as any)[id](twoMosjes({ own_slot_index: 1 }), 'player_1');
+      const res = (piecie as any)[id](twoMosjes({ own_slot_index: 1 }), 'player_1');
+      const out = res.needChoice ? res.state : res; // a pause hands back { state, needChoice }
       expect(out.players.player_1.activeSlots[0].mp, id).toBe(50);
     }
   });

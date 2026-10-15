@@ -1412,27 +1412,7 @@ function initGamePage() {
 
 
 		let stateForActivation = gameState;
-		if (piecieCardDef?.effectId === 'effect_affoe') {
-			const oppTargets = getOpponentMosjes(gameState, localPlayerId);
-			const ownTargets = getPlayerMosjes(gameState, localPlayerId);
-			if (oppTargets.length === 0) {
-				modal.showInfo('No Targets', 'No valid opponent targets.');
-				return;
-			}
-			// U8 — all opponent Mosjes just entered play → nothing selectable.
-			if (oppTargets.every(t => t.protected)) {
-				modal.showInfo('No Targets', 'All opponent Mosjes just entered play — they are protected until their next turn.');
-				return;
-			}
-			const drainId = await modal.showTargetSelector(oppTargets, 'Choose an opponent Mosje to drain:');
-			if (!drainId) return;
-			let gainId = null;
-			if (ownTargets.length > 0) {
-				gainId = await modal.showTargetSelector(ownTargets, 'Choose your Mosje to receive MP:');
-			}
-			stateForActivation = JSON.parse(JSON.stringify(gameState));
-			stateForActivation._pendingTargets = { affoe_drain: drainId, affoe_gain: gainId };
-		} else if (piecieCardDef?.effectId === 'effect_leipe_swap') {
+		if (piecieCardDef?.effectId === 'effect_leipe_swap') {
 			const ownTargets = getPlayerMosjes(gameState, localPlayerId);
 			const oppTargets = getOpponentMosjes(gameState, localPlayerId);
 			if (ownTargets.length === 0 || oppTargets.length === 0) {
@@ -1598,65 +1578,6 @@ function initGamePage() {
 			console.log('[UI] MP Adjuster: set to', mpValue, 'MP (delta', delta, ', reverts next turn start)');
 		}
 
-		// ── Varkenspootjes — pick any active Mosje (own or opponent) ─────────────
-		// Guard: if pending belongs to the bot (not local player), the bot should
-		// have already resolved it in botDriver.js. Clear stale flag and skip.
-		if (gameState._varkenspootjesPending && gameState._varkenspootjesPending.activatingPlayerId !== localPlayerId) {
-			console.warn('[UI] Stale _varkenspootjesPending from bot — clearing without resolving');
-			delete gameState._varkenspootjesPending;
-		}
-		if (gameState._varkenspootjesPending) {
-			const { activatingPlayerId } = gameState._varkenspootjesPending;
-			const allSlots = [];
-			for (const [pid, player] of Object.entries(gameState.players)) {
-				player.activeSlots.forEach((slot, idx) => {
-					if (slot && !slot.isDefeated) {
-						const isBinti = String(slot.cardId).startsWith('mosje_binti');
-						const owner = pid === localPlayerId ? 'Your' : 'Opponent';
-						allSlots.push({
-							id: `${pid}_slot_${idx}`,
-							label: `${slot.name} (${owner})`,
-							metaLabel: isBinti ? '+60 MP 🍖' : '-30 MP',
-						});
-					}
-				});
-			}
-			if (allSlots.length === 1) {
-				const [pid, sidx] = allSlots[0].id.split('_slot_').map((v, i) => i === 1 ? Number(v) : v);
-				const slot = gameState.players[pid].activeSlots[sidx];
-				if (String(slot.cardId).startsWith('mosje_binti')) {
-					applyGainToSlot(slot, 60, { turnNumber: gameState.turnNumber });
-					log.add('gain', `Varkenspootjes: Binti loves it! +60 MP.`);
-				} else {
-					applyMpLossToSlot({ state: gameState, playerId: pid, slot, amount: 30, source: 'PIECIE' });
-					log.add('loss', `Varkenspootjes: ${slot.name} hates the taste — -30 MP.`);
-				}
-			} else if (allSlots.length > 1) {
-				const chosen = await modal.showOptionSelect({
-					title: 'Varkenspootjes',
-					prompt: 'Choose a Mosje to serve the dish to.',
-					options: allSlots,
-					allowCancel: false,
-				});
-				if (chosen) {
-					const parts = chosen.split('_slot_');
-					const targetPid = parts[0];
-					const targetIdx = Number(parts[1]);
-					const slot = gameState.players[targetPid].activeSlots[targetIdx];
-					if (slot) {
-						if (String(slot.cardId).startsWith('mosje_binti')) {
-							applyGainToSlot(slot, 60, { turnNumber: gameState.turnNumber });
-							log.add('gain', `Varkenspootjes: Binti loves it! +60 MP.`);
-						} else {
-							applyMpLossToSlot({ state: gameState, playerId: targetPid, slot, amount: 30, source: 'PIECIE' });
-							log.add('loss', `Varkenspootjes: ${slot.name} hates the taste — -30 MP.`);
-						}
-					}
-				}
-			}
-			delete gameState._varkenspootjesPending;
-		}
-
 		const activatedName = cardDef?.name || 'Piecie';
 		if (negated) {
 			log.add('loss', `Activated ${activatedName}, but it was negated.`);
@@ -1704,59 +1625,6 @@ function initGamePage() {
 		if (!canPlayerActNow(gameState, localPlayerId, cardType)) {
 			modal.showInfo('Not Your Turn', 'You can only play regular cards on your own turn.');
 			return;
-		}
-
-		// Targeting cards: show selector, then dispatch with resolved targets
-		async function resolveTargetingCard(def, ref) {
-			const beforePlay = snapshotForAnimation();
-			const oppTargets = getOpponentMosjes(gameState, localPlayerId);
-			const ownTargets = getPlayerMosjes(gameState, localPlayerId);
-
-			if (oppTargets.length === 0) {
-				modal.showInfo('No Targets', 'No valid opponent targets.');
-				return;
-			}
-			// U8 — all opponent Mosjes just entered play → nothing selectable.
-			if (oppTargets.every(t => t.protected)) {
-				modal.showInfo('No Targets', 'All opponent Mosjes just entered play — they are protected until their next turn.');
-				return;
-			}
-
-			const drainId = await modal.showTargetSelector(
-				oppTargets,
-				'Choose an opponent Mosje to drain:'
-			);
-			if (!drainId) return;
-
-			let gainId = null;
-			if (ownTargets.length > 0) {
-				gainId = await modal.showTargetSelector(
-					ownTargets,
-					'Choose your Mosje to receive MP:'
-				);
-			}
-
-			// Store targets on state for the effect to read
-			const stateWithTargets = JSON.parse(JSON.stringify(gameState));
-			stateWithTargets._pendingTargets = {
-				affoe_drain: drainId,
-				affoe_gain: gainId,
-			};
-
-			const { state: newState, success, error } = playPiecie(stateWithTargets, localPlayerId, ref, def);
-			if (!success) {
-				modal.showInfo('Cannot Play', error || 'That card cannot be played right now.');
-				return;
-			}
-			gameState = newState;
-			log.add('gain', `Played ${def.name}.`);
-			if (def.description) log.add('info', `Effect: ${def.description}`);
-			logStateOutcome(log, beforePlay, gameState, localPlayerId, `${def.name} activation`);
-			syncPush();
-			if (gameState.status === 'FINISHED') {
-				handleGameOver(gameState);
-			}
-			renderAndAnimate(beforePlay, { actionLabel: 'play-piecie', placedCardId: def.id });
 		}
 
 		// Some cards target one of your own active Mosjes (e.g. Kannetje Melk, Jensen)
@@ -2025,7 +1893,7 @@ function buildActiveModifiers(gameState, playerId, isLocalPlayer = false) {
 
 	// Quest dice bonuses — only show on the local player's zone (they're the ones questing)
 	if (isLocalPlayer) {
-		const questBonus = (flags.questDiceBonus || 0) + (player?.questPrepBonus || 0);
+		const questBonus = (flags.questDiceBonus || 0) + (player?.questExtraDice || 0);
 		if (questBonus > 0) pills.push({ label: `+${questBonus} Quest Roll`, color: 'gold' });
 	}
 

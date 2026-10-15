@@ -55,143 +55,77 @@ function makeState(overrides: {
   };
 }
 
-describe('Equipment MP scaling (BAL-01)', () => {
+describe('Gear Piecies on the Card List 2.0 (replaces the V4 BAL-01 scaling)', () => {
   describe('effect_keyboard', () => {
-    it('gives 15 MP with Digital Mosje at level 1', () => {
-      const state = makeState({ subtype: 'DIGITAL', level: 1, mp: 0 });
-      const result = effect_keyboard(state, 'player_1');
-      expect(result.players.player_1.activeSlots[0].mp).toBe(15);
+    it('gives a flat 10 MP at any level (Card List: no scaling)', () => {
+      for (const level of [1, 2, 3]) {
+        const result = effect_keyboard(makeState({ subtype: 'DIGITAL', level, mp: 0 }), 'player_1');
+        expect(result.players.player_1.activeSlots[0].mp).toBe(10);
+      }
     });
 
-    it('gives 25 MP with Digital Mosje at level 2', () => {
-      const state = makeState({ subtype: 'DIGITAL', level: 2, mp: 0 });
-      const result = effect_keyboard(state, 'player_1');
-      expect(result.players.player_1.activeSlots[0].mp).toBe(25);
-    });
-
-    it('gives 40 MP with Digital Mosje at level 3', () => {
-      const state = makeState({ subtype: 'DIGITAL', level: 3, mp: 0 });
-      const result = effect_keyboard(state, 'player_1');
-      expect(result.players.player_1.activeSlots[0].mp).toBe(40);
-    });
-
-    it('gives 5 MP base with non-Digital Mosje', () => {
-      const state = makeState({ subtype: 'FIGHTING', level: 1, mp: 0 });
-      const result = effect_keyboard(state, 'player_1');
-      expect(result.players.player_1.activeSlots[0].mp).toBe(5);
-    });
-
-    it('draws 1 card as flavor bonus with Digital Mosje', () => {
+    it('draws 1 card', () => {
       const state = makeState({ subtype: 'DIGITAL', level: 1, deckCards: ['piecie_pot_of_weed'] });
-      const handBefore = state.players.player_1.hand.length;
       const result = effect_keyboard(state, 'player_1');
-      expect(result.players.player_1.hand.length).toBe(handBefore + 1);
-    });
-
-    it('draws 1 card as flavor bonus with non-Digital Mosje', () => {
-      const state = makeState({ subtype: 'FIGHTING', level: 1, deckCards: ['piecie_pot_of_weed'] });
-      const handBefore = state.players.player_1.hand.length;
-      const result = effect_keyboard(state, 'player_1');
-      expect(result.players.player_1.hand.length).toBe(handBefore + 1);
+      expect(result.players.player_1.hand.length).toBe(1);
     });
   });
 
-  describe('effect_mouse', () => {
-    it('gives 15 MP with Digital Mosje at level 1', () => {
-      const state = makeState({ subtype: 'DIGITAL', level: 1, mp: 0 });
-      const result = effect_mouse(state, 'player_1');
-      expect(result.players.player_1.activeSlots[0].mp).toBe(15);
-    });
-
-    it('gives 25 MP with Digital Mosje at level 2', () => {
-      const state = makeState({ subtype: 'DIGITAL', level: 2, mp: 0 });
-      const result = effect_mouse(state, 'player_1');
-      expect(result.players.player_1.activeSlots[0].mp).toBe(25);
-    });
-
-    it('gives 40 MP with Digital Mosje at level 3', () => {
-      const state = makeState({ subtype: 'DIGITAL', level: 3, mp: 0 });
-      const result = effect_mouse(state, 'player_1');
-      expect(result.players.player_1.activeSlots[0].mp).toBe(40);
-    });
-
-    it('gives 5 MP base with non-Digital Mosje', () => {
-      const state = makeState({ subtype: 'FIGHTING', level: 1, mp: 0 });
-      const result = effect_mouse(state, 'player_1');
-      expect(result.players.player_1.activeSlots[0].mp).toBe(5);
-    });
-
-    it('draws 1 card as flavor bonus', () => {
-      const state = makeState({ subtype: 'DIGITAL', level: 1, deckCards: ['piecie_pot_of_weed'] });
-      const handBefore = state.players.player_1.hand.length;
-      const result = effect_mouse(state, 'player_1');
-      expect(result.players.player_1.hand.length).toBe(handBefore + 1);
+  describe('effect_mouse (interim: the deck peek comes with 59-05)', () => {
+    it('gives a flat 10 MP', () => {
+      const result = effect_mouse(makeState({ subtype: 'DIGITAL', level: 2, mp: 0 }), 'player_1');
+      expect(result.players.player_1.activeSlots[0].mp).toBe(10);
     });
   });
 
   describe('effect_controller', () => {
-    it('gives 15 MP with Digital Mosje at level 1', () => {
-      const state = makeState({ subtype: 'DIGITAL', level: 1, mp: 0 });
-      const result = effect_controller(state, 'player_1');
-      expect(result.players.player_1.activeSlots[0].mp).toBe(15);
+    it('gives a flat 10 MP at any level', () => {
+      for (const level of [1, 2, 3]) {
+        const result = effect_controller(makeState({ subtype: 'DIGITAL', level, mp: 0 }), 'player_1');
+        expect(result.players.player_1.activeSlots[0].mp).toBe(10);
+      }
     });
 
-    it('gives 25 MP with Digital Mosje at level 2', () => {
-      const state = makeState({ subtype: 'DIGITAL', level: 2, mp: 0 });
-      const result = effect_controller(state, 'player_1');
-      expect(result.players.player_1.activeSlots[0].mp).toBe(25);
-    });
-
-    it('gives 40 MP with Digital Mosje at level 3', () => {
-      const state = makeState({ subtype: 'DIGITAL', level: 3, mp: 0 });
-      const result = effect_controller(state, 'player_1');
-      expect(result.players.player_1.activeSlots[0].mp).toBe(40);
-    });
-
-    it('gives 5 MP base with non-Digital Mosje', () => {
-      const state = makeState({ subtype: 'ARTISTIC', level: 1, mp: 0 });
-      const result = effect_controller(state, 'player_1');
-      expect(result.players.player_1.activeSlots[0].mp).toBe(5);
-    });
-
-    it('gives +1 die on the next Quest (questExtraDice)', () => {
-      const state = makeState({ subtype: 'DIGITAL', level: 1 });
-      const result = effect_controller(state, 'player_1');
+    it('gives +1 die on one Quest this turn (questExtraDice)', () => {
+      const result = effect_controller(makeState({ subtype: 'DIGITAL', level: 1 }), 'player_1');
       expect(result.players.player_1.questExtraDice).toBe(1);
     });
   });
 
   describe('effect_tikker', () => {
     it('gains exactly 40 MP flat (no dice roll)', () => {
-      const state = makeState({ subtype: 'DIGITAL', level: 1, mp: 0 });
-      const result = effect_tikker(state, 'player_1');
+      const result = effect_tikker(makeState({ subtype: 'DIGITAL', level: 1, mp: 0 }), 'player_1', { slotIndex: -1 });
       expect(result.players.player_1.activeSlots[0].mp).toBe(40);
     });
 
-    it('pushes QUEST_BLOCKED status effect with turnsLeft=1 and value=0', () => {
-      const state = makeState({ subtype: 'DIGITAL', level: 1 });
-      const result = effect_tikker(state, 'player_1');
-      const statusEffects = result.players.player_1.activeSlots[0].statusEffects;
-      const blocked = statusEffects.find((e: { type: string }) => e.type === 'QUEST_BLOCKED');
-      expect(blocked).toBeDefined();
-      expect(blocked.turnsLeft).toBe(1);
-      expect(blocked.value).toBe(0);
+    it('marks the Staying Tikker slot with the Mosje it blocks', () => {
+      const state: any = makeState({ subtype: 'DIGITAL', level: 1 });
+      state.players.player_1.piecieSlots[2] = { cardId: 'piecie_tikker', type: 'PIECIE' };
+      const result = effect_tikker(state, 'player_1', { slotIndex: 2 });
+      expect(result.players.player_1.piecieSlots[2].blockedMosjeSlot).toBe(0);
     });
   });
 
-  describe('QUEST_BLOCKED enforcement', () => {
-    // 2.0: checkQuestCondition is the single gate (V4 canAttemptGeneralQuest/canAttemptPersonalQuest are gone;
-    // Personal Quests no longer exist, so the Personal case folds into this one).
+  describe('Tikker quest block (checkQuestCondition)', () => {
     const QUEST = getQuestDef('quest_arm_wrestling');
+    const withTikker = (activatedRound: number) => {
+      const state: any = makeState({});
+      state.turnNumber = 5;
+      state.players.player_1.piecieSlots[0] = {
+        cardId: 'piecie_tikker', type: 'PIECIE', stays: true, staysEnd: 'custom', blockedMosjeSlot: 0, activatedRound,
+      };
+      return state;
+    };
 
-    it('checkQuestCondition refuses a Quest when QUEST_BLOCKED is active', () => {
-      const state = makeState({
-        statusEffects: [{ type: 'QUEST_BLOCKED', value: 0, turnsLeft: 1 }],
-      });
-      expect(checkQuestCondition(state, 'player_1', 0, QUEST).ok).toBe(false);
+    it('refuses a Quest on the next turn of the owner while the Tikker still Stays', () => {
+      expect(checkQuestCondition(withTikker(4), 'player_1', 0, QUEST).ok).toBe(false);
     });
 
-    it('checkQuestCondition allows the same Quest without QUEST_BLOCKED', () => {
+    it('does not block on the turn the Tikker was played', () => {
+      expect(checkQuestCondition(withTikker(5), 'player_1', 0, QUEST).ok).toBe(true);
+    });
+
+    it('allows the same Quest without a Tikker', () => {
       expect(checkQuestCondition(makeState({}), 'player_1', 0, QUEST).ok).toBe(true);
     });
   });

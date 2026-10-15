@@ -33,5 +33,6 @@ export const OWN_TARGET_EFFECT_IDS = [
 	'effect_boxing_gloves',
 	'effect_skipping_rope',
 	'effect_protein_shake',
+	'effect_straffoe',
 ];
 export const OWN_TARGET_ABILITY_IDS = [];

@@ -30,10 +30,16 @@ describe('no active-Mosje concept', () => {
   });
 
   it('registry matches the effects that call resolveOwnTargetSlot', () => {
-    const src = strip(read('abilities/piecieEffects.js'));
     const used: string[] = [];
-    for (const m of src.matchAll(/export function (effect_\w+)\([\s\S]*?\r?\n\}\r?\n/g)) {
-      if (m[0].includes('resolveOwnTargetSlot(') && !EXEMPT.includes(m[1])) used.push(m[1]);
+    // V4 bodies still in piecieEffects.js, plus the Card List 2.0 section files (piecie/*.js) that pick through
+    // resolvePiecieOwnSlot (directly or via gainOwnMosje / ownMosje).
+    const files = ['abilities/piecieEffects.js', ...readdirSync(join(SRC, 'abilities', 'piecie'))
+      .filter((n) => n.endsWith('Piecies.js')).map((n) => 'abilities/piecie/' + n)];
+    for (const file of files) {
+      for (const part of strip(read(file)).split(/^export /m)) {
+        const name = part.match(/^(?:function|const) (effect_\w+)/)?.[1];
+        if (name && /resolveOwnTargetSlot\(|resolvePiecieOwnSlot\(|gainOwnMosje\(|ownMosje\(/.test(part) && !EXEMPT.includes(name)) used.push(name);
+      }
     }
     expect([...used].sort()).toEqual([...OWN_TARGET_EFFECT_IDS].sort());
   });

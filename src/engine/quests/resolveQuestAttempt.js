@@ -8,6 +8,7 @@ import { getJabTargets } from './getJabTargets.js';
 import { applyQuestJab } from './applyQuestJab.js';
 import { advanceQuestStack } from './advanceQuestStack.js';
 import { runMosjeTriggers } from '../mosje/runMosjeTriggers.js';
+import { applyMomentumBoostWin } from './applyMomentumBoostWin.js';
 
 export function resolveQuestAttempt(state, pending, choices = {}) {
 	if (state.pendingReaction) return { ok: false, state, error: 'A reaction window is still open' };
@@ -41,6 +42,7 @@ export function resolveQuestAttempt(state, pending, choices = {}) {
 	} else s = loseMP(s, playerId, slotIndex, amount, 'QUEST', false, playerId);
 	s = runQuestOutcomeHooks(s, playerId, slotIndex, quest, win, win ? quest.win : 0);
 	if (win) s = runMosjeTriggers(s, 'questSuccess', { playerId, slotIndex, quest, amount });
+	if (win) s = applyMomentumBoostWin(s, playerId, slotIndex);
 	if (win) {
 		if (extras.jab) {
 			const targets = getJabTargets(s, playerId, questId, pending);

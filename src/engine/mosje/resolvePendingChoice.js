@@ -18,7 +18,7 @@ export function resolvePendingChoice(state, value) {
 	target._pendingTargets = { ...(target._pendingTargets || {}), [pc.key]: value };
 	if (pc.hook === 'piecie') {
 		const type = pc.piecie?.free ? 'activatePiecieFree' : 'activatePiecie';
-		const out = withReactionWindow(s, pc.actorId, { type }, (st) => ({ state: resumePiecieChoice(st, pc), success: true }));
+		const out = withReactionWindow(s, pc.actorId, { type, hold: true }, (st) => ({ state: resumePiecieChoice(st, pc), success: true }));
 		return { ok: true, success: true, state: out.state, reactionPending: out.reactionPending };
 	}
 	const out = runTriggerJobs(s, pc.hook, pc.jobs, pc.jobIndex, pc.ctx, { key: pc.key, playerId: pc.playerId });

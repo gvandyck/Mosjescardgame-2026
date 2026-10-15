@@ -18,6 +18,11 @@ import { PIECIES } from '../data/piecies.js';
 import { addToGraveyard } from '../engine/graveyardUtils.js';
 import { canLeaveWelloePile } from '../engine/table/canLeaveWelloePile.js';
 
+// Card List 2.0 section files (one file per section; same effect_* names, so data effectIds stay).
+export * from './piecie/mpPiecies.js';
+export * from './piecie/substancePiecies.js';
+export * from './piecie/gearPiecies.js';
+
 console.log('[ABILITY] piecieEffects.js loaded');
 
 function cloneState(state) {
@@ -88,30 +93,6 @@ function applyMPGain(player, si, amount, state, playerId) {
 // MOMENTUM-GAINING
 // ─────────────────────────────────────────
 
-export function effect_kannetje_melk(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si < 0) return state;
-	const base = 25 + bintiFoodExtra(state, playerId);
-	applyMPGain(player, si, base, state, playerId);
-	console.log(`[ABILITY] Kannetje Melk: +${base} MP`);
-	return state;
-}
-
-export function effect_broodje_doner(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si < 0) return state;
-	const base = 35 + bintiFoodExtra(state, playerId);
-	applyMPGain(player, si, base, state, playerId);
-	console.log(`[ABILITY] Broodje Doner: +${base} MP`);
-	return state;
-}
-
 export function effect_ronald_kip(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
@@ -146,40 +127,6 @@ export function effect_chefs_special(gameState, playerId) {
 	return state;
 }
 
-export function effect_momentum_boost(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si < 0) return state;
-	applyMPGain(player, si, 15, state, playerId);
-	player.questBonusMP = (player.questBonusMP || 0) + 10;
-	console.log('[ABILITY] Momentum Boost: +15 MP, next quest +10 bonus');
-	return state;
-}
-
-export function effect_eendjes_voeren(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si < 0) return state;
-	const mosje = player.activeSlots[si];
-	const gain = (mosje.traits?.resilient || 0) >= 2 ? 40 : 30;
-	applyMPGain(player, si, gain, state, playerId);
-	console.log(`[ABILITY] Eendjes voeren: +${gain} MP`);
-	return state;
-}
-
-export function effect_varkenspootjes(gameState, playerId) {
-	const state = cloneState(gameState);
-	// Defer to UI: player picks any active Mosje (own or opponent).
-	// If Binti: +60 MP. Anyone else: -30 MP. Resolved in main.js handleActivatePiecie.
-	state._varkenspootjesPending = { activatingPlayerId: playerId };
-	console.log('[ABILITY] Varkenspootjes: waiting for Mosje target selection');
-	return state;
-}
-
 export function effect_energy_surge(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
@@ -210,44 +157,6 @@ export function effect_warm_kannetje_melk(gameState, playerId) {
 // ─────────────────────────────────────────
 // ATTACK
 // ─────────────────────────────────────────
-
-export function effect_affoe(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const oppId = getOpponentId(state, playerId);
-	if (!oppId) return state;
-
-	// Target selection: use explicitly chosen targets if provided by UI (via _pendingTargets),
-	// otherwise fall back to first active slot (used in tests and AI turns)
-	let osi, si;
-	const targets = state._pendingTargets;
-	if (targets?.affoe_drain != null) {
-		// Targets are encoded as "playerId_slot_index"
-		const drainParts = targets.affoe_drain.split('_slot_');
-		osi = parseInt(drainParts[1], 10);
-	} else {
-		osi = resolveOppTargetSlot(state, oppId);
-	}
-	if (targets?.affoe_gain != null) {
-		const gainParts = targets.affoe_gain.split('_slot_');
-		si = parseInt(gainParts[1], 10);
-	} else {
-		si = resolveOwnTargetSlot(state, playerId);
-	}
-
-	// U8 — whole effect fizzles when the drain target just entered play.
-	if (osi >= 0 && isFresh(state.players[oppId].activeSlots[osi])) {
-		console.log('[ABILITY] 🛡️ Entry protection: Affoe fizzled — target just entered play');
-		delete state._pendingTargets;
-		return state;
-	}
-	if (osi >= 0) applyDamage(state, oppId, state.players[oppId].activeSlots[osi], 15);
-	if (si >= 0) applyMPGain(player, si, 10, state, playerId);
-	delete state._pendingTargets;
-	console.log('[ABILITY] Affoe: opponent -15 MP, self +10 MP');
-	return state;
-}
 
 export function effect_super_saiyan_mos(gameState, playerId) {
 	const state = cloneState(gameState);
@@ -426,18 +335,6 @@ export function effect_slecht_gezet(gameState) {
 	next = triggerPlaceDestroyedEffects(next, activePlayer);
 	console.log('[ABILITY] Slecht Gezet: opponent Place destroyed');
 	return next;
-}
-
-export function effect_bong_hit_demolition(gameState, playerId) {
-	let state = cloneState(gameState);
-	if (state.activePlace) {
-		state = destroyActivePlace(state);
-		state = triggerPlaceDestroyedEffects(state, playerId);
-	}
-	const player = state.players[playerId];
-	if (player) player.hand.push(...player.deck.splice(0, Math.min(2, player.deck.length)));
-	console.log('[ABILITY] Bong Hit Demolition: Place destroyed + drew 2');
-	return state;
 }
 
 export function effect_redbull(gameState, playerId) {
@@ -974,41 +871,6 @@ export function effect_vianna_poes(gameState, playerId) {
 // SUBSTANCE
 // ─────────────────────────────────────────
 
-export function effect_grammetje_pieter(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si < 0) return state;
-	const roll = rollDie(6);
-	if (roll >= 4) {
-		applyGainToSlot(player.activeSlots[si], 30, { turnNumber: state.turnNumber });
-		console.log(`[ABILITY] Grammetje Pieter: rolled ${roll} \u2192 +30 MP`);
-	} else {
-		applyDamage(state, playerId, player.activeSlots[si], 15);
-		console.log(`[ABILITY] Grammetje Pieter: rolled ${roll} \u2192 -15 MP`);
-	}
-	return state;
-}
-
-export function effect_dikke_jonko(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si >= 0) applyGainToSlot(player.activeSlots[si], 25, { turnNumber: state.turnNumber });
-	const oppIds = Object.keys(state.players).filter(id => id !== playerId);
-	for (const oppId of oppIds) {
-		const opp = state.players[oppId];
-		const osi = resolveOppTargetSlot(state, oppId);
-		if (osi >= 0) applyGainToSlot(opp.activeSlots[osi], 10, { turnNumber: state.turnNumber });
-		if (opp.deck.length > 0) opp.hand.push(opp.deck.shift());
-	}
-	if (player.deck.length > 0) player.hand.push(player.deck.shift());
-	console.log('[ABILITY] Dikke Jonko: +25 MP self, +10 MP + draw for all');
-	return state;
-}
-
 export function effect_stripje_bennies(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
@@ -1020,96 +882,9 @@ export function effect_stripje_bennies(gameState, playerId) {
 	return state;
 }
 
-export function effect_tikker(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si < 0) return state;
-	applyGainToSlot(player.activeSlots[si], 40, { turnNumber: state.turnNumber });
-	player.activeSlots[si].statusEffects.push({ type: 'QUEST_BLOCKED', value: 0, turnsLeft: 1 });
-	console.log('[ABILITY] Tikker: +40 MP, QUEST_BLOCKED next turn');
-	return state;
-}
-
-export function effect_straffoe(gameState, playerId) {
-	const state = cloneState(gameState);
-	const oppId = getOpponentId(state, playerId);
-	if (!oppId) return state;
-	const osi = resolveOppTargetSlot(state, oppId);
-	if (osi >= 0 && applyHostileDamage(state, oppId, state.players[oppId].activeSlots[osi], 30)) {
-		console.log('[ABILITY] Straffoe: opponent -30 MP');
-	}
-	return state;
-}
-
-export function effect_larry_zegeltje(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si >= 0) applyGainToSlot(player.activeSlots[si], 20, { turnNumber: state.turnNumber });
-	// KNOWN GAP (Phase 59): effect does not match the Card List text (dice roll); questPrepBonus is V4 and unread by 2.0.
-	player.questPrepBonus = (player.questPrepBonus || 0) + 1;
-	console.log('[ABILITY] Larry Zegeltje: +20 MP, +1 quest roll bonus');
-	return state;
-}
-
 // ─────────────────────────────────────────
 // DIGITAL EQUIPMENT
 // ─────────────────────────────────────────
-
-function getDigitalMP(mosje) {
-	if (mosje.subtype !== 'DIGITAL') return 5;
-	const level = mosje.level || 1;
-	if (level >= 3) return 40;
-	if (level === 2) return 25;
-	return 15;
-}
-
-export function effect_keyboard(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si < 0) return state;
-	const mosje = player.activeSlots[si];
-	const mp = getDigitalMP(mosje);
-	applyMPGain(player, si, mp, state, playerId);
-	// Flavor bonus: draw 1 card
-	if (player.deck.length > 0) player.hand.push(player.deck.shift());
-	console.log(`[ABILITY] Keyboard: +${mp} MP${mosje.subtype === 'DIGITAL' ? ' (Digital Lv' + (mosje.level||1) + ')' : ' (base)'}, drew 1`);
-	return state;
-}
-
-export function effect_mouse(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si < 0) return state;
-	const mosje = player.activeSlots[si];
-	const mp = getDigitalMP(mosje);
-	applyMPGain(player, si, mp, state, playerId);
-	// Flavor bonus: draw 1 card (peek UI for "look at top 2" deferred to UI phase)
-	if (player.deck.length > 0) player.hand.push(player.deck.shift());
-	console.log(`[ABILITY] Mouse: +${mp} MP${mosje.subtype === 'DIGITAL' ? ' (Digital Lv' + (mosje.level||1) + ')' : ' (base)'}, drew 1`);
-	return state;
-}
-
-export function effect_controller(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si < 0) return state;
-	const mosje = player.activeSlots[si];
-	const mp = getDigitalMP(mosje);
-	applyMPGain(player, si, mp, state, playerId);
-	player.questExtraDice = (player.questExtraDice || 0) + 1;
-	console.log(`[ABILITY] Controller: +${mp} MP${mosje.subtype === 'DIGITAL' ? ' (Digital Lv' + (mosje.level||1) + ')' : ' (base)'}, +1 quest bonus`);
-	return state;
-}
 
 // ─────────────────────────────────────────
 // PHYSICAL EQUIPMENT
@@ -1135,34 +910,6 @@ export function effect_dumbbells(gameState, playerId) {
 	return state;
 }
 
-export function effect_boxing_gloves(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si < 0) return state;
-	const mosje = player.activeSlots[si];
-	const physical = mosje.traits?.physical || 0;
-	if (physical < 2) {
-		console.log('[ABILITY] Boxing Gloves: no effect (Physical trait < 2)');
-		return state;
-	}
-	const id = String(mosje.cardId || '').toLowerCase();
-	const isGandoe = id.includes('gandoe');
-	const mp = isGandoe ? 40 : 25;
-	applyMPGain(player, si, mp, state, playerId);
-	if (isGandoe) {
-		for (const slot of player.activeSlots) {
-			if (!slot || slot.isDefeated) continue;
-			slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 1, turnsLeft: 1 });
-		}
-		console.log(`[ABILITY] Boxing Gloves: +${mp} MP (GANDOE), MP loss halved 1 turn`);
-	} else {
-		console.log(`[ABILITY] Boxing Gloves: +${mp} MP (Physical ★★+)`);
-	}
-	return state;
-}
-
 export function effect_skipping_rope(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
@@ -1176,24 +923,6 @@ export function effect_skipping_rope(gameState, playerId) {
 	}
 	if (player.deck.length > 0) player.hand.push(player.deck.shift());
 	console.log(`[ABILITY] Skipping Rope:${isPhysical ? ' +1 quest bonus,' : ''} drew 1`);
-	return state;
-}
-
-export function effect_protein_shake(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si < 0) return state;
-	const mosje = player.activeSlots[si];
-	if (mosje.subtype !== 'FIGHTING') {
-		console.log('[ABILITY] Protein Shake: no effect (no Physical Mosje)');
-		return state;
-	}
-	const isBoxingRing = state.activePlace === 'place_boxing_ring';
-	const mp = isBoxingRing ? 35 : 25;
-	applyMPGain(player, si, mp, state, playerId);
-	console.log(`[ABILITY] Protein Shake: +${mp} MP (Physical${isBoxingRing ? ', Boxing Ring bonus' : ''})`);
 	return state;
 }
 

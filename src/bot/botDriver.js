@@ -49,81 +49,12 @@ import { isPiecieReady } from '../engine/table/isPiecieReady.js';
 import { classifyLossSeverity, getRequiredConfidence } from './strategy/assessQuestRisk.js';
 import { getCardTags } from './strategy/comboTags.js';
 import { canMosjeAct } from '../engine/mp/canMosjeAct.js';
-import { applyGainToSlot } from '../engine/mp/applyGainToSlot.js';
-import { applyMpLossToSlot } from '../engine/mp/applyMpLossToSlot.js';
 import { getAbilityTiming } from './strategy/abilityTiming.js';
 import { emitBotMetric } from './strategy/emitBotMetric.js';
 
 const PIECIE_LOOKUP = Object.fromEntries(PIECIES.map(c => [c.id, c]));
 const PLACE_LOOKUP = Object.fromEntries(PLACES.map(c => [c.id, c]));
 const MOSJE_LOOKUP = Object.fromEntries(MOSJES.map(m => [m.id, m]));
-
-/**
- * If Varkenspootjes left a pending target selection, resolve it for the bot:
- * prefer targeting Binti (for +60 MP), else target the opponent's first Mosje (-30 MP),
- * else fall back to own first Mosje. Always clears the flag.
- */
-function resolveBotVarkenspootjesPending(state, botPlayerId) {
-  if (!state._varkenspootjesPending) return state;
-  const allPlayers = Object.entries(state.players);
-  const opponentId = allPlayers.find(([pid]) => pid !== botPlayerId)?.[0];
-
-  let targetPid = null;
-  let targetIdx = -1;
-
-  // Prefer Binti (own or opponent) for the +60
-  outer: for (const [pid, player] of allPlayers) {
-    for (let i = 0; i < (player.activeSlots || []).length; i++) {
-      const slot = player.activeSlots[i];
-      if (slot && !slot.isDefeated && String(slot.cardId).startsWith('mosje_binti')) {
-        targetPid = pid;
-        targetIdx = i;
-        break outer;
-      }
-    }
-  }
-
-  // Otherwise target opponent's first Mosje (-30 damage to them).
-  // U8 — skip entry-protected Mosjes: damage would fizzle anyway.
-  if (targetIdx === -1 && opponentId) {
-    const opp = state.players[opponentId];
-    for (let i = 0; i < (opp?.activeSlots || []).length; i++) {
-      const oppSlot = opp.activeSlots[i];
-      if (oppSlot && !oppSlot.isDefeated && oppSlot.entryProtected !== true) {
-        targetPid = opponentId;
-        targetIdx = i;
-        break;
-      }
-    }
-  }
-
-  // Fallback: own first Mosje
-  if (targetIdx === -1) {
-    const own = state.players[botPlayerId];
-    for (let i = 0; i < (own?.activeSlots || []).length; i++) {
-      if (own.activeSlots[i] && !own.activeSlots[i].isDefeated) {
-        targetPid = botPlayerId;
-        targetIdx = i;
-        break;
-      }
-    }
-  }
-
-  delete state._varkenspootjesPending;
-
-  if (targetIdx === -1) return state;
-
-  const slot = state.players[targetPid].activeSlots[targetIdx];
-  if (String(slot.cardId).startsWith('mosje_binti')) {
-    applyGainToSlot(slot, 60, { turnNumber: state.turnNumber });
-    console.log(`[BOT] Varkenspootjes resolved: Binti +60 MP`);
-  } else {
-    applyMpLossToSlot({ state, playerId: targetPid, slot, amount: 30, source: 'PIECIE' });
-    console.log(`[BOT] Varkenspootjes resolved: ${slot.name} -30 MP`);
-  }
-  return state;
-}
-
 
 // Priority for PLAYING cards face-down (slot competition): multipliers and
 // MP gains claim slots first, Personal Quests early too (high payoff later).
@@ -366,7 +297,6 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
       state = settleMosjePauses(state, humanIds).state;
       if (state.pendingChoice) { halted = true; push('waits for your choice'); return steps; }
       if ((result.reactionPending || state.pendingReaction) && !settle()) return steps;
-      state = resolveBotVarkenspootjesPending(state, botPlayerId);
       push(`activates ${entry.cardId.replace('piecie_', '').replace(/_/g, ' ')}`);
     }
   }

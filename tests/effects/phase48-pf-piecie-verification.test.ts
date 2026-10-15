@@ -143,11 +143,26 @@ describe('Phase 48 gap-fill — effect_momentum_diefje happy path (IMPL-PF-P4)',
   });
 });
 
-describe('Phase 48 gap-fill — effect_varkenspootjes deferred target selection (IMPL-PF-P7)', () => {
-  it('sets a pending Varkenspootjes target-selection flag for the activating player', () => {
-    const state = makeState();
-    const result = effect_varkenspootjes(state, 'player_1');
+describe('Phase 59 — effect_varkenspootjes resolves in the engine (Card List 2.0)', () => {
+  const pick = (playerId: string, slotIndex: number) => {
+    const state: any = makeState();
+    state._pendingTargets = { any_target: { playerId, slotIndex } };
+    return state;
+  };
 
-    expect(result._varkenspootjesPending).toEqual({ activatingPlayerId: 'player_1' });
+  it('a Binti gains 40 MP', () => {
+    const state: any = makeState();
+    state.players.player_1.activeSlots[0] = makeMosje('mosje_binti', 20);
+    state._pendingTargets = { any_target: { playerId: 'player_1', slotIndex: 0 } };
+    expect(effect_varkenspootjes(state, 'player_1').players.player_1.activeSlots[0].mp).toBe(60);
+  });
+
+  it('any other Mosje loses 15 MP', () => {
+    const result = effect_varkenspootjes(pick('player_1', 0), 'player_1');
+    expect(result.players.player_1.activeSlots[0].mp).toBe(35);
+  });
+
+  it('leaves no pending flag behind', () => {
+    expect(effect_varkenspootjes(pick('player_1', 0), 'player_1')._varkenspootjesPending).toBeUndefined();
   });
 });

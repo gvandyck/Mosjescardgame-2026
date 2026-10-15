@@ -2,10 +2,12 @@
 // "This turn" keys today: powerBoostThisTurn, immuneThisTurn (Phase 58-60 add more here).
 export function expireThisTurnEffects(state) {
 	for (const player of Object.values(state.players || {})) {
+		if (player === state.players?.[state.activePlayerId]) player.questExtraDice = 0; // Controller / gear: +1 die lasts this turn
 		delete player.gamblerQuestBonusTurn; // Jeffrey, The Silent Gambler: the +15 lasts this turn only
 		for (const slot of player.activeSlots || []) {
 			if (!slot) continue;
 			delete slot.powerBoostThisTurn;
+			delete slot.momentumBoostWin; // Momentum Boost: the Quest-win bonus lasts this turn only
 			for (const k of ['actedThisTurn', 'attackedThisTurn', 'takenByAttacksThisTurn', 'unstoppableFired', 'flowFired']) delete slot[k];
 			// Unstoppable: lasts until the end of the OWNER's next turn.
 			if (slot.powerBoostUntilOwnerTurnEnd?.ownerId === state.activePlayerId) {

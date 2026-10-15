@@ -21,5 +21,7 @@ export function withReactionWindow(state, actorId, action, run) {
 		if (e.length) windows.push({ responderId: actorId, moments: own, eligible: e, preview: { getemt: [], toWelloe: false, mpLoss: {} } });
 	}
 	if (!windows.length) return res;
+	// hold: a resumed (paused) activation is already finished - the window keeps its result instead of replaying it.
+	if (action.hold) return { state: buildPendingReaction(res.state, actorId, { type: 'heldResult', args: [] }, windows), ok: true, success: true, reactionPending: true };
 	return { state: buildPendingReaction(state, actorId, action, windows), ok: true, success: true, reactionPending: true };
 }

@@ -107,57 +107,22 @@ describe('Physical Equipment cards (PHYS-01/02/03)', () => {
   });
 
   describe('effect_boxing_gloves', () => {
-    it('gives 25 MP to Physical ★★+ Mosje (no GANDOE)', () => {
-      const state = makeState({ subtype: 'FIGHTING', level: 1, mp: 0, traits: { physical: 2 } });
-      const result = effect_boxing_gloves(state, 'player_1');
-      expect(result.players.player_1.activeSlots[0].mp).toBe(25);
-    });
+    const boxer = (over: any) => makeState({ subtype: 'FIGHTING', level: 1, mp: 0, ...over });
 
-    it('gives 0 MP when Physical trait < 2', () => {
-      const state = makeState({ subtype: 'FIGHTING', level: 1, mp: 0, traits: { physical: 1 } });
-      const result = effect_boxing_gloves(state, 'player_1');
+    it('gives +10 Power this turn to a Physical 2 stars Mosje (no MP)', () => {
+      const result = effect_boxing_gloves(boxer({ traits: { physical: 2 } }), 'player_1');
+      expect(result.players.player_1.activeSlots[0].powerBoostThisTurn).toBe(10);
       expect(result.players.player_1.activeSlots[0].mp).toBe(0);
     });
 
-    it('gives 40 MP when GANDOE-tagged Mosje', () => {
-      const state = makeState({
-        cardId: 'mosje_gandoe_destroyer',
-        subtype: 'FIGHTING',
-        level: 1,
-        mp: 0,
-        traits: { physical: 3 },
-      });
-      const result = effect_boxing_gloves(state, 'player_1');
-      expect(result.players.player_1.activeSlots[0].mp).toBe(40);
+    it('does nothing when Physical is below 2 stars', () => {
+      const result = effect_boxing_gloves(boxer({ traits: { physical: 1 } }), 'player_1');
+      expect(result.players.player_1.activeSlots[0].powerBoostThisTurn).toBeUndefined();
     });
 
-    it('pushes MP_LOSS_HALVED turnsLeft:1 when GANDOE', () => {
-      const state = makeState({
-        cardId: 'mosje_gandoe_destroyer',
-        subtype: 'FIGHTING',
-        level: 1,
-        mp: 0,
-        traits: { physical: 3 },
-      });
-      const result = effect_boxing_gloves(state, 'player_1');
-      const statusEffects = result.players.player_1.activeSlots[0].statusEffects;
-      const halved = statusEffects.find((e: { type: string }) => e.type === 'MP_LOSS_HALVED');
-      expect(halved).toBeDefined();
-      expect(halved.turnsLeft).toBe(1);
-    });
-
-    it('does not push MP_LOSS_HALVED for non-GANDOE Physical', () => {
-      const state = makeState({
-        cardId: 'mosje_azn_cless',
-        subtype: 'FIGHTING',
-        level: 1,
-        mp: 0,
-        traits: { physical: 2 },
-      });
-      const result = effect_boxing_gloves(state, 'player_1');
-      const statusEffects = result.players.player_1.activeSlots[0].statusEffects;
-      const halved = statusEffects.find((e: { type: string }) => e.type === 'MP_LOSS_HALVED');
-      expect(halved).toBeUndefined();
+    it('gives a Gandoe +20 Power instead', () => {
+      const result = effect_boxing_gloves(boxer({ cardId: 'mosje_gandoe_destroyer', traits: { physical: 3 } }), 'player_1');
+      expect(result.players.player_1.activeSlots[0].powerBoostThisTurn).toBe(20);
     });
   });
 
@@ -197,26 +162,28 @@ describe('Physical Equipment cards (PHYS-01/02/03)', () => {
 describe('Physical Equipment: Protein Shake + Boxing Ring (PHYS-04/05)', () => {
 
   describe('effect_protein_shake', () => {
-    it('gives 25 MP to FIGHTING Mosje (no Boxing Ring)', () => {
-      const state = makeState({ subtype: 'FIGHTING', level: 1, mp: 0 });
-      const result = effect_protein_shake(state, 'player_1');
-      expect(result.players.player_1.activeSlots[0].mp).toBe(25);
+    const fighter = (physical: number, extra: any = {}) =>
+      ({ ...makeState({ subtype: 'FIGHTING', level: 1, mp: 0, traits: { physical } }), ...extra });
+
+    it('gives 25 MP with Physical 1 star', () => {
+      expect(effect_protein_shake(fighter(1), 'player_1').players.player_1.activeSlots[0].mp).toBe(25);
     });
 
-    it('gives 35 MP to FIGHTING Mosje when Boxing Ring is active place', () => {
-      const state = { ...makeState({ subtype: 'FIGHTING', level: 1, mp: 0 }), activePlace: 'place_boxing_ring' };
-      const result = effect_protein_shake(state, 'player_1');
-      expect(result.players.player_1.activeSlots[0].mp).toBe(35);
+    it('gives 35 MP with Physical 3 stars', () => {
+      expect(effect_protein_shake(fighter(3), 'player_1').players.player_1.activeSlots[0].mp).toBe(35);
     });
 
-    it('gives 0 MP to non-FIGHTING Mosje', () => {
-      const state = makeState({ subtype: 'DIGITAL', level: 1, mp: 0 });
-      const result = effect_protein_shake(state, 'player_1');
-      expect(result.players.player_1.activeSlots[0].mp).toBe(0);
+    it('gives 35 MP while the Place is Boxing Ring', () => {
+      const state = fighter(1, { activePlace: 'place_boxing_ring' });
+      expect(effect_protein_shake(state, 'player_1').players.player_1.activeSlots[0].mp).toBe(35);
+    });
+
+    it('gives nothing without Physical 1 star', () => {
+      expect(effect_protein_shake(fighter(0), 'player_1').players.player_1.activeSlots[0].mp).toBe(0);
     });
 
     it('does not mutate input state', () => {
-      const state = makeState({ subtype: 'FIGHTING', level: 1, mp: 0 });
+      const state = fighter(1);
       effect_protein_shake(state, 'player_1');
       expect(state.players.player_1.activeSlots[0].mp).toBe(0);
     });
