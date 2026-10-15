@@ -7,7 +7,7 @@
 import { test, expect } from '@playwright/test';
 import { runMosjeCardTest } from '../../helpers/mosjeCardTest.js';
 import { mosjeCardSetup } from '../../helpers/mosjeCardSetup.js';
-import { getGameState } from '../helpers.js';
+import { getGameState, setQuestFaceUp } from '../helpers.js';
 import { QUESTS } from '../../../src/data/quests.js';
 
 const OPP = [{ id: 'mosje_ming_predictor', mp: 40 }];
@@ -36,6 +36,9 @@ test('Martin, Senor West (AZN Cless on the field): look at the top of a Quest st
 	await mosjeCardSetup(page, { mosje: 'mosje_martin_senor_west' }, {
 		setup: { field: [{ id: 'mosje_martin_senor_west', mp: 30 }, { id: 'mosje_azn_cless', mp: 30, slot: 1 }], oppField: OPP },
 	});
+	// Pin a plain Steady Quest face-up so "Attempt which Quest?" always has a choice
+	// (random face-up Quests could all be un-attemptable -> "No Quest available" flake).
+	await setQuestFaceUp(page, 'FIGHTING', 'quest_tough_it_out');
 	const state = await getGameState(page);
 	const top = state.questStacks.FIGHTING.deck[0];
 	const topName = QUESTS.find(q => q.id === (typeof top === 'object' ? top.cardId : top)).name;

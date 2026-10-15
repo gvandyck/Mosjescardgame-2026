@@ -1,7 +1,7 @@
 ---
 phase: 58-mosje-abilities-and-synergies
 verified: 2026-10-15T00:00:00Z
-status: human_needed
+status: passed
 score: 5/5 must-haves verified (automated)
 ---
 
@@ -22,3 +22,6 @@ score: 5/5 must-haves verified (automated)
 ## Human verification
 - Run the Playwright mosje-*-2-0 specs (card tests boot the real game; not run here).
 - Known flaky Affoe-getemt spec is tracked for Phase 59, not a Phase 58 gap.
+
+## Human check resolved (orchestrator, 2026-10-15)
+Ran the Mosje card specs headless (cards project): 57 passed, 1 flaky (Senor West Quest-stack peek: random face-up Quests could all be un-attemptable). Fixed by pinning a plain Quest face-up; the spec then passed 10/10. Status -> passed.
