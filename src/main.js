@@ -965,7 +965,7 @@ function initGamePage() {
 			// set up exactly the board it needs (e.g. two Mosjes for Tuk Healer/Tactician,
 			// or a specific opponent Mosje for a defeat chain). slotIndex 0 or 1.
 			// Pass cardId=null to clear the slot.
-			setMosjeOnField(playerId, slotIndex, cardId, { mp = 10, level = 1, entryProtected = false } = {}) {
+			setMosjeOnField(playerId, slotIndex, cardId, { mp = 10, level = 1, entryProtected = false, sideways = false } = {}) {
 				const player = gameState?.players?.[playerId];
 				if (!player) return;
 				if (cardId == null) { player.activeSlots[slotIndex] = null; renderFromState(gameState); return; }
@@ -975,6 +975,7 @@ function initGamePage() {
 				// U8 — seeded test Mosjes are UNPROTECTED by default (card tests
 				// model an established board); pass entryProtected:true to test U8.
 				if (!entryProtected) delete seeded.entryProtected;
+				if (sideways) seeded.sideways = true;
 				player.activeSlots[slotIndex] = seeded;
 				renderFromState(gameState);
 			},

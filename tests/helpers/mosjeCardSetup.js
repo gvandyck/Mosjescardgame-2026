@@ -21,7 +21,7 @@ export async function mosjeCardSetup(page, entry, c) {
 	await waitForBoard(page);
 
 	for (const pid of ['player_1', 'player_2']) for (let i = 0; i < 3; i++) await setMosjeOnField(page, pid, i, null);
-	for (const f of s.field || []) await setMosjeOnField(page, 'player_1', f.slot ?? 0, f.id, { mp: f.mp, level: f.level ?? 1 });
+	for (const f of s.field || []) await setMosjeOnField(page, 'player_1', f.slot ?? 0, f.id, { mp: f.mp, level: f.level ?? 1, sideways: f.sideways });
 	for (const f of s.oppField || []) await setMosjeOnField(page, 'player_2', f.slot ?? 0, f.id, { mp: f.mp, level: f.level ?? 1 });
 	await clearEntryProtection(page);
 	await setEnergy(page, 'player_1', s.energy ?? 3);

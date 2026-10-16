@@ -6,6 +6,7 @@ import { checkQuestCondition } from './checkQuestCondition.js';
 import { payQuestCost } from './payQuestCost.js';
 import { QUEST_EXTRAS } from './questExtras.js';
 import { getQuestDiceCount } from './getQuestDiceCount.js';
+import { queuedRng } from '../dice/queuedRng.js';
 import { rollQuestDice } from './rollQuestDice.js';
 import { isBandWin } from './isBandWin.js';
 import { getEligibleReactions } from '../reactions/getEligibleReactions.js';
@@ -37,7 +38,7 @@ export function rollQuestAttempt(state, playerId, options) {
 	return { ...res, state: buildPendingReaction(held, playerId, { type: 'continueQuest', args: [] }, windows), reactionPending: true };
 }
 
-function rollCore(state, playerId, { slotIndex, stackId, costChoice, dieChoices = {}, rng = Math.random }) {
+function rollCore(state, playerId, { slotIndex, stackId, costChoice, dieChoices = {}, rng = queuedRng }) {
 	const fail = (error) => ({ ok: false, state, error });
 	const gate = canMosjeTakeAction(state, playerId, slotIndex);
 	if (!gate.ok) return fail(gate.error);

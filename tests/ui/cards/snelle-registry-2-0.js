@@ -8,6 +8,9 @@
 const MING = 'mosje_ming_predictor';
 const MICHELLE = 'mosje_michelle';
 const OPP40 = [{ id: MING, mp: 40 }];
+const ATTACKER = [{ id: 'mosje_jeffrey', mp: 50, level: 3 }]; // 30 Power, non-fresh
+const ARM = { stack: 'FIGHTING', id: 'quest_arm_wrestling' };
+const QUICK = { stack: 'DIGITAL', id: 'quest_quick_thinking' };
 const BANK = { id: 'place_bank_chilling', by: 'player_2' };
 
 export const SNELLE_REGISTRY = [
@@ -54,5 +57,54 @@ export const SNELLE_REGISTRY = [
 		{ name: 'Only while Bank Chilling: no Place -> refused',
 			setup: { field: [{ id: MING, mp: 20 }], oppField: OPP40, hand: ['snelle_jantje_jantje_jantje'] },
 			trigger: { kind: 'playSnelle', cardId: 'snelle_jantje_jantje_jantje' }, expect: { mp: { 'own.0': 20, 'opp.0': 40 }, handDelta: 0 } },
+	] },
+
+	// -- 60-02: protection + dice Snelle. The bot (Jeffrey L3, 30 Power) taksed the first Mosje; the human answers the Reaction prompt. --
+	{ snelle: 'snelle_emergency_healings', deck: 'example', cases: [
+		{ name: 'taksed for 30 at 40 MP: +35 first (Resilient 2), then -30 -> 45',
+			setup: { field: [{ id: MICHELLE, mp: 40 }], oppField: ATTACKER, hand: ['snelle_emergency_healings'] },
+			trigger: { kind: 'attacked', picks: [/Emergency Healings/] }, expect: { mp: { 'own.0': 45 }, energy: 2, handDelta: -1 } },
+	] },
+	{ snelle: 'snelle_the_protector', deck: 'example', cases: [
+		{ name: 'taksed for 30: loses 30 less -> no loss, for 0 Energy',
+			setup: { field: [{ id: MING, mp: 80 }], oppField: ATTACKER, hand: ['snelle_the_protector'] },
+			trigger: { kind: 'attacked', picks: [/The Protector/] }, expect: { mp: { 'own.0': 80 }, energy: 3, handDelta: -1 } },
+	] },
+	{ snelle: 'snelle_perfect_dodge', deck: 'example', cases: [
+		{ name: 'Needs Physical 2: taksed for 30 -> loses 20 less (80 - 10)',
+			setup: { field: [{ id: MICHELLE, mp: 80 }], oppField: ATTACKER, hand: ['snelle_perfect_dodge'] },
+			trigger: { kind: 'attacked', picks: [/Perfect Dodge/] }, expect: { mp: { 'own.0': 70 }, energy: 1, handDelta: -1 } },
+	] },
+	{ snelle: 'snelle_drain_reversal', deck: 'example', cases: [
+		{ name: 'taksed for 30: loses 20 less (70), one opponent Mosje loses a fixed 10 (40)',
+			setup: { field: [{ id: MING, mp: 80 }], oppField: ATTACKER, hand: ['snelle_drain_reversal'] },
+			trigger: { kind: 'attacked', picks: [/Drain Reversal/] }, expect: { mp: { 'own.0': 70, 'opp.0': 40 }, energy: 1, handDelta: -1 } },
+	] },
+	{ snelle: 'snelle_negate_elimination', deck: 'example', cases: [
+		{ name: 'sideways Mosje taksed to the Welloe pile: stays sideways at 5 MP, Welloe pile empty',
+			setup: { field: [{ id: MING, mp: 5, sideways: true }], oppField: ATTACKER, hand: ['snelle_negate_elimination'] },
+			trigger: { kind: 'attacked', picks: [/Not Today/] },
+			expect: { mp: { 'own.0': 5 }, energy: 1, state: [['players.player_1.welloePile.length', 0], ['players.player_1.activeSlots.0.sideways', true]] } },
+	] },
+	{ snelle: 'snelle_sleutelpuntje', deck: 'example', cases: [
+		{ name: 'before the Quest roll: +1 die (Jeffrey 3 dice would fail [5,2,2]; 4 dice [5,2,2,5] win a Skilled Quest)',
+			setup: { field: [{ id: 'mosje_jeffrey', mp: 20 }], oppField: OPP40, hand: ['snelle_sleutelpuntje'], quest: ARM, abilityDice: [5, 2, 2, 5] },
+			trigger: { kind: 'quest', stack: 'FIGHTING', picks: [/Arm Wrestling/, /Sleutelpuntje/] }, expect: { mp: { 'own.0': 70 }, energy: 2, handDelta: -1 } }, // 20 + 40 + Jeffrey Brute Force 10
+	] },
+	{ snelle: 'snelle_lucky_coin', deck: 'example', cases: [
+		{ name: 'Creative 2: reroll one chosen die once ([5,2] -> [5,6] wins Arm Wrestling)',
+			setup: { field: [{ id: 'mosje_gandoe_wizard', mp: 20 }], oppField: OPP40, hand: ['snelle_lucky_coin'], quest: ARM, dice: [5, 2], abilityDice: [6] },
+			trigger: { kind: 'quest', stack: 'FIGHTING', picks: [/Arm Wrestling/, /Lucky/, /Die 2/, /Done/] }, expect: { mp: { 'own.0': 60 }, energy: 2, handDelta: -1 } },
+		{ name: 'Creative 3: choose the result (Quick Thinking [2,2,2] -> die 1 set to 6 wins)',
+			setup: { field: [{ id: 'mosje_ronald_mastermind', mp: 20 }], oppField: OPP40, hand: ['snelle_lucky_coin'], quest: QUICK, dice: [2, 2, 2] },
+			trigger: { kind: 'quest', stack: 'DIGITAL', picks: [/Quick Thinking/, /Lucky/, /Die 1/, /^6$/, /Done/] }, expect: { mp: { 'own.0': 45 }, energy: 2, handDelta: -1 } },
+		{ name: 'Needs Creative: no Creative Mosje -> not offered, nothing paid',
+			setup: { field: [{ id: MICHELLE, mp: 20 }], oppField: OPP40, hand: ['snelle_lucky_coin'], quest: ARM, dice: [5, 5], abilityDice: [2] },
+			trigger: { kind: 'quest', stack: 'FIGHTING' }, expect: { energy: 3, handDelta: 0 } },
+	] },
+	{ snelle: 'snelle_jeweetniet', deck: 'example', cases: [
+		{ name: 'opponent rolls [5,5,5] (win), reroll all -> [1,1,1] fails: -15 instead of +25',
+			setup: { field: [{ id: MING, mp: 20 }], oppField: [{ id: 'mosje_ronald_mastermind', mp: 40 }], hand: ['snelle_jeweetniet'], quest: QUICK, abilityDice: [5, 5, 5, 1, 1, 1] },
+			trigger: { kind: 'botQuest', stack: 'DIGITAL', picks: [/Je Weet Niet/] }, expect: { mp: { 'opp.0': 25 }, energy: 2, handDelta: -1 } },
 	] },
 ];
