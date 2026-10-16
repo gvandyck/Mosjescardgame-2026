@@ -12,6 +12,12 @@ const ATTACKER = [{ id: 'mosje_jeffrey', mp: 50, level: 3 }]; // 30 Power, non-f
 const ARM = { stack: 'FIGHTING', id: 'quest_arm_wrestling' };
 const QUICK = { stack: 'DIGITAL', id: 'quest_quick_thinking' };
 const BANK = { id: 'place_bank_chilling', by: 'player_2' };
+const AFFOE = 'piecie_affoe'; // 1 star: the opponent Mosje loses 15 MP, one of the activator's Mosjes gains 10
+const MILK = 'piecie_kannetje_melk'; // 0 Energy, one of your Mosjes gains 25
+const JISCA = 'mosje_jisca'; // Mental 2 (Counter Strikka / Jammertje 'Needs')
+const inBotDiscard = (id) => (before, after) => {
+	if (!after.players.player_2.graveyard.some(c => c.cardId === id)) throw new Error(`${id} is not in the bot's discard pile`);
+};
 
 export const SNELLE_REGISTRY = [
 	{ snelle: 'snelle_momentum_rush', deck: 'example', cases: [
@@ -106,5 +112,58 @@ export const SNELLE_REGISTRY = [
 		{ name: 'opponent rolls [5,5,5] (win), reroll all -> [1,1,1] fails: -15 instead of +25',
 			setup: { field: [{ id: MING, mp: 20 }], oppField: [{ id: 'mosje_ronald_mastermind', mp: 40 }], hand: ['snelle_jeweetniet'], quest: QUICK, abilityDice: [5, 5, 5, 1, 1, 1] },
 			trigger: { kind: 'botQuest', stack: 'DIGITAL', picks: [/Je Weet Niet/] }, expect: { mp: { 'opp.0': 25 }, energy: 2, handDelta: -1 } },
+	] },
+	// -- 60-03: cancel / redirect / copy Snelle. The bot activates Affoe (the human's Mosje -15, the bot's own +10); the human answers. --
+	{ snelle: 'snelle_jensen', deck: 'example', cases: [
+		{ name: 'Affoe on my Mosje is cancelled: no loss, Affoe in the bot discard pile, its Energy stays spent',
+			setup: { field: [{ id: MING, mp: 40 }], oppField: OPP40, hand: ['snelle_jensen'] },
+			trigger: { kind: 'botActivatePiecie', cardId: AFFOE, picks: [/Jensen/] },
+			expect: { mp: { 'own.0': 40, 'opp.0': 40 }, energy: 2, handDelta: -1, state: [['players.player_2.energy', 5]], check: inBotDiscard(AFFOE) } },
+	] },
+	{ snelle: 'snelle_jammertje_gepakt', deck: 'example', cases: [
+		{ name: 'Mental 2: the Piecie goes to the bottom of the bot deck, no effect, no draw',
+			setup: { field: [{ id: JISCA, mp: 40 }], oppField: OPP40, hand: ['snelle_jammertje_gepakt'] },
+			trigger: { kind: 'botActivatePiecie', cardId: AFFOE, picks: [/Jammertje/] },
+			expect: { mp: { 'own.0': 40, 'opp.0': 40 }, energy: 1, handDelta: -1,
+				check: (b, a) => { const d = a.players.player_2.deck; if (d[d.length - 1]?.cardId !== AFFOE) throw new Error('Affoe is not the bottom card of the bot deck'); } } },
+		{ name: 'Mental 3: also draws 1 card',
+			setup: { field: [{ id: MING, mp: 40 }], oppField: OPP40, hand: ['snelle_jammertje_gepakt'] },
+			trigger: { kind: 'botActivatePiecie', cardId: AFFOE, picks: [/Jammertje/] }, expect: { mp: { 'own.0': 40 }, energy: 1, handDelta: 0 } },
+		{ name: 'Needs Mental 2: no such Mosje -> not offered, Affoe resolves',
+			setup: { field: [{ id: MICHELLE, mp: 40 }], oppField: OPP40, hand: ['snelle_jammertje_gepakt'] },
+			trigger: { kind: 'botActivatePiecie', cardId: AFFOE }, expect: { mp: { 'own.0': 25, 'opp.0': 50 }, energy: 3, handDelta: 0 } },
+	] },
+	{ snelle: 'snelle_counter_strikka', deck: 'example', cases: [
+		{ name: 'Affoe aimed at slot 0 hits the other Mosje instead (slot 1: -15)',
+			setup: { field: [{ slot: 0, id: JISCA, mp: 40 }, { slot: 1, id: MICHELLE, mp: 40 }], oppField: OPP40, hand: ['snelle_counter_strikka'] },
+			trigger: { kind: 'botActivatePiecie', cardId: AFFOE, targets: { opp_slot_index: 0 }, picks: [/Counter Strikka/] },
+			expect: { mp: { 'own.0': 40, 'own.1': 25, 'opp.0': 50 }, energy: 1, handDelta: -1 } },
+	] },
+	{ snelle: 'snelle_dubbele_temminks', deck: 'example', cases: [
+		{ name: 'my Kannetje Melk (+25) happens twice: 20 -> 70',
+			setup: { field: [{ id: MING, mp: 20 }], oppField: OPP40, hand: ['snelle_dubbele_temminks'], piecies: [{ slot: 0, id: MILK }] },
+			trigger: { kind: 'activatePiecie', cardId: MILK, picks: [/Dubbele/] }, expect: { mp: { 'own.0': 70 }, energy: 1, handDelta: -1 } },
+		{ name: 'not on a five-star Piecie (Klaar Met Jou): not offered, only Klaar Met Jou resolves',
+			setup: { field: [{ id: MING, mp: 40, level: 2 }], oppField: [{ id: MING, mp: 30 }], hand: ['snelle_dubbele_temminks'], energy: 6, piecies: [{ slot: 0, id: 'piecie_klaar_met_jou' }] },
+			trigger: { kind: 'activatePiecie', cardId: 'piecie_klaar_met_jou' },
+			expect: { energy: 2, handDelta: 1, state: [['players.player_2.welloePile.length', 1]] } }, // 4 Energy; the draw of Klaar Met Jou; Dubbele Temminks stays in hand
+	] },
+	{ snelle: 'snelle_gevalletje_klakkeloos', deck: 'example', cases: [
+		{ name: 'bot Affoe hits me (-15), I get the same effect with my own targets (+10 me, -15 bot)',
+			setup: { field: [{ id: MING, mp: 40 }], oppField: OPP40, hand: ['snelle_gevalletje_klakkeloos'] },
+			trigger: { kind: 'botActivatePiecie', cardId: AFFOE, picks: [/Gevalletje/] },
+			expect: { mp: { 'own.0': 35, 'opp.0': 35 }, energy: 1, handDelta: -1, state: [['players.player_1.pieciesActivatedThisTurn', 0]] } },
+	] },
+	{ snelle: 'snelle_frenssen', deck: 'example', cases: [
+		{ name: 'my Affoe: the bot Jensen! is cancelled, the Affoe resolves and a bot Mosje also loses 10 (40 - 10 - 15)',
+			setup: { field: [{ id: MING, mp: 20 }], oppField: OPP40, hand: ['snelle_frenssen'], oppHand: ['snelle_jensen'], energy: 6, piecies: [{ slot: 0, id: AFFOE }] },
+			trigger: { kind: 'activatePiecie', cardId: AFFOE, picks: [/Frenssen/] },
+			expect: { mp: { 'own.0': 30, 'opp.0': 15 }, energy: 3, handDelta: -1, state: [['players.player_2.energy', 5]] } },
+	] },
+	{ snelle: 'snelle_blensen', deck: 'example', cases: [
+		{ name: 'costs 4 without a Jensen!/Frenssen!; afterwards the bot Affoe cannot target my Mosje',
+			setup: { field: [{ id: MING, mp: 40 }], oppField: OPP40, hand: ['snelle_blensen'], energy: 6 },
+			trigger: { kind: 'playSnelle', cardId: 'snelle_blensen', then: { kind: 'botActivatePiecie', cardId: AFFOE } },
+			expect: { mp: { 'own.0': 40, 'opp.0': 40 }, energy: 2, handDelta: -1, state: [['blensenShield.playerId', 'player_1']] } },
 	] },
 ];

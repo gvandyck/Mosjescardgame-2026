@@ -67,5 +67,5 @@ export function effect_snelle_drain_reversal(gameState, pid, ctx = {}) {
 export function effect_snelle_negate_elimination(gameState, pid, ctx = {}) {
 	return onThreatened(gameState, pid, ctx, 'save_slot', 'Not Today!: which Mosje stays out of the Welloe pile?', (state, _slot, i) => {
 		addReactionMod(state, { kind: 'save', playerId: pid, slotIndex: i });
-	}, (m) => m.sideways === true);
+	}, (m, i) => m.sideways === true || (ctx?.reaction?.preview?.welloeSlots || []).includes(i)); // also a Mosje a Piecie sends straight to the Welloe pile
 }

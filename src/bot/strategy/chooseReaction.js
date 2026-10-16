@@ -27,6 +27,8 @@ export function chooseReaction(state, responderId) {
 	if (p.moments.includes('afterOwnQuestRoll')) {
 		return has('snelle_lucky_coin') && state.pendingQuestRoll?.win === false ? 'snelle_lucky_coin' : null;
 	}
+	// Targeted and about to lose MP: cancel the card (Jensen!). Phase 61 makes this smarter.
+	if (p.moments.includes('targeted') && p.moments.includes('wouldLoseMp') && has('snelle_jensen')) return 'snelle_jensen';
 	if (p.moments.includes('jensenPlayed')) return has('snelle_frenssen') ? 'snelle_frenssen' : null;
 	if (p.moments.includes('afterOwnPiecieActivation') || p.moments.includes('afterQuestRoll')) return null;
 	if (p.preview?.getemt?.length || p.preview?.toWelloe) {

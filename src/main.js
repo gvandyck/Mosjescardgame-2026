@@ -733,6 +733,13 @@ function initGamePage() {
 			gameState = await settleReactions(gameState, reactionCtx());
 			renderFromState(gameState);
 			if (gameState.status === 'FINISHED') { handleGameOver(gameState); return; }
+			if (gameState._testNoBotResume) { // test hook botActivatePiecie: the single activation is the whole bot turn
+				delete gameState._testNoBotResume;
+				gameState.activePlayerId = localPlayerId;
+				renderFromState(gameState);
+				if (onComplete) onComplete();
+				return;
+			}
 			let freshSteps;
 			try { freshSteps = driveBotTurnSteps(gameState, botId, { humanIds: [localPlayerId] }); }
 			catch (err) { console.error('[BOT] resume after reaction threw:', err); freshSteps = []; }
@@ -1080,6 +1087,20 @@ function initGamePage() {
 				gameState.activePlayerId = localPlayerId;
 				renderFromState(gameState);
 				return res.success ? 'ok' : res.error;
+			},
+			// 60-03: the bot ACTIVATES a ready Piecie on its field (targets = state._pendingTargets, e.g. { opp_slot_index: 0 }),
+			// so the human reaction windows (Jensen!, Counter Strikka, Jammertje, Gevalletje ...) open on the real path.
+			botActivatePiecie(cardId, targets = {}) {
+				const def = PIECIES.find(p => p.id === cardId);
+				if (!gameState || !def) return 'unknown piecie';
+				gameState.players.player_2.piecieSlots[0] = { cardId, type: 'PIECIE', faceDown: true, activated: false, canActivateOnTurn: 0 };
+				gameState.activePlayerId = 'player_2';
+				gameState._pendingTargets = { ...targets };
+				gameState._testNoBotResume = true;
+				const res = activatePiecie(gameState, 'player_2', 0);
+				if (!res.success) { gameState.activePlayerId = localPlayerId; return res.error; }
+				playBotSteps([{ state: res.state, label: `activates ${def.name} (test)` }], 'Bot', 0, 0, () => {});
+				return 'ok';
 			},
 			// 60-01: the bot plays a Snelle from hand (reaction windows open for the human), or attempts a Quest, so the
 			// reaction Snelle (Je Weet Niet, Jammertje ...) can be proven without the bot's own turn logic.

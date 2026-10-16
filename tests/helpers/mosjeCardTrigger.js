@@ -33,6 +33,7 @@ export async function mosjeCardTrigger(page, entry, c) {
 		case 'playSnelle': await playCardFromHand(page, t.cardId); await page.waitForTimeout(400); break;
 		case 'botPlaySnelle': await page.evaluate((id) => window.__testHooks.botPlaySnelle(id), t.cardId); break;
 		case 'botQuest': await page.evaluate(({ s, k }) => window.__testHooks.botQuest(s, k), { s: t.slot ?? 0, k: t.stack }); break;
+		case 'botActivatePiecie': await page.evaluate(({ id, tg }) => window.__testHooks.botActivatePiecie(id, tg), { id: t.cardId, tg: t.targets || {} }); break;
 		case 'botPlayPiecie': await page.evaluate((id) => window.__testHooks.botPlayPiecie(id), t.cardId); break;
 		default: throw new Error(`Unknown trigger kind: ${t.kind}`);
 	}
