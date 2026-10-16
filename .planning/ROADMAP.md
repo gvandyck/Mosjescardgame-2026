@@ -211,7 +211,7 @@ Plans:
 **Plans**: 8 plans (8 waves)
 Plans:
 - [x] 59-01-PLAN.md — Framework: Piecie choice pause/resume, Level 2+ gate + Only-if/Needs conditions, target table for all 73 + generic picker, Tikker/Hemorrhage Stays, V4 Piecie runner retired
-- [ ] 59-02-PLAN.md — Example Decks MP / Substance / Gear (16), Binti food extra, 2.0 Piecie card-test library, Affoe-getemt flake fixed
+- [x] 59-02-PLAN.md — Example Decks MP / Substance / Gear (16), Binti food extra, 2.0 Piecie card-test library, Affoe-getemt flake fixed
 - [ ] 59-03-PLAN.md — Example Decks Attack / Pet / protection (10), end-of-turn losses, Dikke Taks double hit, Stays bound to a Mosje
 - [ ] 59-04-PLAN.md — Example Decks Utility (8), reroll grant, Chain Reaction free path (all Example-Deck Piecies done)
 - [ ] 59-05-PLAN.md — MP / Substance / Gear / Pet rest + MP Amplifier + Synergy Field (14), section 6b Ronald Kip test
