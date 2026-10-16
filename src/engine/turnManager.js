@@ -80,56 +80,6 @@ const SNELLE_PIECIE_LOOKUP = Object.fromEntries(SNELLE_PIECIES.map(card => [card
 const PLACE_LOOKUP = Object.fromEntries(PLACES.map(card => [card.id, card]));
 const QUEST_LOOKUP = Object.fromEntries(QUESTS.map(card => [card.id, card]));
 
-// Redbull (abilityDoubleTrigger) does NOT echo these abilities — re-running them
-// would bypass a once-per-game/use-cap/cooldown guard, fizzle (needs a fresh
-// target/guess that isn't available without UI), or no-op (passive).
-// Ruling: "triggers twice". The echo re-runs the ability function verbatim, so
-// the cost is whatever the function charges itself: cost-free abilities double for
-// free, and SELF-CHARGING cost abilities (e.g. Coert: pay 10 MP, draw 1) re-pay on
-// the echo — "triggers twice" = pay twice, draw twice. Those are SAFE to echo and
-// are intentionally NOT listed here. Only un-repeatable abilities below.
-const NO_DOUBLE_ABILITIES = new Set([
-  'ability_gandoe_destroyer_elimination_strike',  // once per game
-  'ability_ronald_mastermind_master_plan',        // once per turn + discard target
-  'ability_jeffrey_gambler_high_stakes',          // once per turn + stake
-  'ability_youri_speed_activate',                 // once per turn + placed-this-turn target
-  'ability_ronald_chef_strategic_insight',        // cooldown + target
-  'ability_ming_predictor_future_sight',          // once per turn + quest target
-  'ability_binti_cutting_words',                  // once per turn + discard target
-  'ability_michelle_tough_gamble',                // passive (auto, no manual trigger)
-  'ability_jeffrey_brute_force',                  // passive (auto)
-  'ability_coert_kasteluck_morning_luck',          // trigger (startOfTurn roll)
-  'ability_fps_coert_headshot_precision',           // passive (auto, quest-success roll)
-  'ability_chris_ddr_perfect_combo_chain',          // passive (auto, roll after every Piecie activation)
-  // Group B (2026-06-17): once-per-turn / cooldown / per-game-cap abilities.
-  // The echo runs the fn directly, AFTER abilityUsedThisTurn is set, so it would
-  // otherwise bypass the per-turn brake and fire twice. Redbull is a powerup
-  // "within bounds" — these stay single. (Some cooldowns/caps are not yet
-  // enforced inside the fn either; tracked in the rework todo.)
-  'ability_tuk_healer_healing_presence',          // once per turn
-  'ability_martin_driver_perfect_line',           // Pit Stop: once per turn + discard cost
-  'ability_chris_perfect_setup',                  // once per turn
-  'ability_tactician_mp_manipulation',            // once per turn
-  'ability_martin_historian_time_control',        // once per turn (draw-phase skip)
-  'ability_hacker_system_hack',                   // once / 5 turns (cooldown)
-  'ability_amplifier_power_boost',                // max 2 uses per game (cap)
-]);
-
-// Group A (2026-06-17): input abilities Redbull SHOULD double, but only with a
-// FRESH prompt — they record a guess/selection in _pendingTargets that goes stale
-// on a headless re-run. For these the engine does NOT echo and does NOT consume
-// the Redbull flag; it sets state._redbullAwaitingReprompt so the UI (main.js)
-// re-runs the activation flow once with new input, then consumes the flag.
-// (No once-per-turn / once-per-game bound on these — they are repeatable in spirit.)
-const REPROMPT_DOUBLE_ABILITIES = new Set([
-  'ability_martin_senor_west_calculated_guess',   // card-type guess + top-card reveal
-  'ability_west_calculated_guess',                // alias of the above
-  'ability_fps_west_tactical_analysis',           // opponent-hand card-type guess
-  'ability_tuk_architect_perfect_placement',      // 15 MP + top-5 selection
-  'ability_jisca_perfect_combo',                  // fresh d6 roll + Piecie target (when 5-6 rolled)
-  'ability_binti_creator_quick_sketch',           // discard 2 FOOD + deck-search tutor
-]);
-
 export function normalizePiecieSlots(player, slotCount = PIECIE_SLOT_COUNT) {
   let source;
   if (Array.isArray(player?.piecieSlots)) {
@@ -174,10 +124,8 @@ export function startTurn(gameState) {
   activePlayer.hasRerolledDieThisTurn = false;
   activePlayer.pieciesPlayedThisTurn = 0;
   activePlayer.lastCardPlayedType = null;
-  activePlayer.instantPiecieThisTurn = false;
   activePlayer.chainReactionFree = 0;
   activePlayer.chainReactionOffer = 0;
-  activePlayer.abilityDoubleTrigger = false;
   activePlayer.drawsThisTurn = 0;
   activePlayer.pieciesActivatedThisTurn = 0;
   activePlayer.piecieActivationsThisTurn = 0; // Build Gadget / Speed Run conditions (56-03)
@@ -203,6 +151,7 @@ export function startTurn(gameState) {
     if (slot) {
       slot.abilityUsedThisTurn = false;
       slot.abilityUsesThisTurn = 0;
+      delete slot.extraAbilityUses; // Redbull / Double Trigger end with the turn
       slot.immuneThisTurn = false;
       // decision 1 (54-11): sideways = this Mosje skips this owner turn
       if (slot.sideways) slot.sidewaysArmed = true;
@@ -400,20 +349,6 @@ export function endTurn(gameState) {
   state.players[playerId].questPrepBonus = 0;
   state.players[playerId].perfectRhythmDrawNextPiecie = false;
   state.players[playerId].perfectRhythmDraws = 0;
-
-  // Leipe Swap: at the end of the swapper's turn, swap the two slots' current MP back.
-  if (state._leipeSwap && state._leipeSwap.byPlayerId === playerId) {
-    const rec = state._leipeSwap;
-    const a = state.players[rec.byPlayerId]?.activeSlots?.[rec.yourSlotIndex];
-    const b = state.players[rec.oppId]?.activeSlots?.[rec.oppSlotIndex];
-    if (a && b) {
-      const tmp = a.mp;
-      a.mp = b.mp; // mp-direct-ok: Leipe Swap exchanges two existing on-grid values, no gain or loss
-      b.mp = tmp; // mp-direct-ok: Leipe Swap swap-back
-      console.log('[PIECIE] Leipe Swap: end-of-turn swap-back');
-    }
-    delete state._leipeSwap;
-  }
 
   state = runMosjeTriggers(state, 'endOfTurn', { playerId });
   returnSetAside(state, playerId); // Ronald's Strategic Insight: set-aside cards come back now
@@ -837,9 +772,6 @@ export function useMosjeAbility(gameState, playerId, mosjeId) {
 
   const slot = player.activeSlots[slotIndex];
   if (!canMosjeAct(slot)) return { state: gameState, success: false, error: 'This Mosje is sideways' };
-  // Was a double-trigger armed BEFORE this ability ran? Only then do we echo/consume it
-  // below — so an ability that ARMS the flag itself (Amplifier) doesn't eat its own grant.
-  const hadDoubleTrigger = player.abilityDoubleTrigger === true;
 
   const mosjeDef = MOSJES.find(m => m.id === mosjeId);
   if (!mosjeDef?.abilityId) {
@@ -859,7 +791,8 @@ export function useMosjeAbility(gameState, playerId, mosjeId) {
   }
   const maxPerTurn = rule.maxPerTurn ?? 1;
   const usesThisTurn = slot.abilityUsesThisTurn ?? (slot.abilityUsedThisTurn ? 1 : 0);
-  if (usesThisTurn >= maxPerTurn) {
+  const useLimit = maxPerTurn + (slot.extraAbilityUses || 0); // Redbull / Double Trigger add paid extra uses
+  if (usesThisTurn >= useLimit) {
     return { state: gameState, success: false, error: 'Ability already used this turn' };
   }
 
@@ -904,53 +837,8 @@ export function useMosjeAbility(gameState, playerId, mosjeId) {
   // Record the use (per turn counter, per game flag).
   const usedSlot = state.players[playerId].activeSlots[slotIndex];
   usedSlot.abilityUsesThisTurn = usesThisTurn + 1;
-  usedSlot.abilityUsedThisTurn = usedSlot.abilityUsesThisTurn >= maxPerTurn;
+  usedSlot.abilityUsedThisTurn = usedSlot.abilityUsesThisTurn >= useLimit;
   if (rule.per === 'game') usedSlot.abilityUsedThisGame = true;
-
-  // Redbull free-echo: if abilityDoubleTrigger is set, run the ability EFFECT once
-  // more at no extra cost (mirrors the doubleNextPiecie pattern for piecies). Skip
-  // abilities that can't safely repeat (NO_DOUBLE_ABILITIES). The flag is consumed
-  // after the active Mosje's ability whether or not it actually doubled.
-  delete state._redbullEchoFizzled;
-  delete state._redbullAwaitingReprompt;
-  if (hadDoubleTrigger) {
-    if (REPROMPT_DOUBLE_ABILITIES.has(mosjeDef.abilityId)) {
-      // Needs a fresh UI prompt to fire again. Do NOT echo (headless re-run would
-      // reuse stale input) and do NOT consume the flag — signal the UI to re-run
-      // the activation flow, which consumes the flag before the second cast.
-      state._redbullAwaitingReprompt = mosjeId;
-      console.log('[ENGINE] Redbull: ability needs a second prompt (UI re-fire) —', mosjeDef.abilityId);
-    } else if (NO_DOUBLE_ABILITIES.has(mosjeDef.abilityId)) {
-      // Cannot echo by design (once-per-game / target / passive). Spend Redbull.
-      console.log('[ENGINE] Redbull: ability cannot double-trigger —', mosjeDef.abilityId);
-      state.players[playerId].abilityDoubleTrigger = false;
-    } else {
-      let echoFired = false;
-      try {
-        const echo = fn(state, playerId, mosjeId);
-        const echoState = (echo && typeof echo === 'object' && 'state' in echo && 'success' in echo)
-          ? (echo.success ? echo.state : null)
-          : echo;
-        if (echoState) {
-          state = echoState;
-          echoFired = true;
-          console.log('[ENGINE] Redbull: ability double-triggered —', mosjeDef.abilityId);
-        }
-      } catch (err) {
-        console.log('[ENGINE] Redbull: second trigger could not fire —', err.message);
-      }
-      if (echoFired) {
-        // Doubled successfully — spend Redbull.
-        state.players[playerId].abilityDoubleTrigger = false;
-      } else {
-        // Couldn't afford / fire the second trigger. Keep Redbull armed — it persists
-        // to end of turn, so the player can gain MP and cash it in later (or use it on
-        // another ability). Flag the fizzle so the UI can surface it.
-        state._redbullEchoFizzled = true;
-        console.log('[ENGINE] Redbull: second trigger skipped (e.g. not enough MP) — Redbull stays active this turn');
-      }
-    }
-  }
 
   state = checkVictory(state);
   return { state, success: true, ...extraFields };

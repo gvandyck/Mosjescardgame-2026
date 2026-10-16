@@ -4,6 +4,7 @@
 // is consumed and the post-effect half runs exactly once. Returns the new state.
 import { runPiecieEffect } from './runPiecieEffect.js';
 import { afterPiecieEffect } from './afterPiecieEffect.js';
+import { continueDubbeleDing } from './continueDubbeleDing.js';
 
 export function resumePiecieChoice(state, pc) {
 	const { cardDef, slotIndex, free, after, autoKeys } = pc.piecie;
@@ -11,5 +12,6 @@ export function resumePiecieChoice(state, pc) {
 	const run = runPiecieEffect(state, pc.actorId, cardDef, ctx, { after, autoKeys });
 	if (run.paused) return run.state;
 	delete run.state.players[pc.playerId]?._pendingTargets?.[pc.key];
-	return afterPiecieEffect(run.state, pc.actorId, slotIndex, cardDef, after || {}, { free }).state;
+	const done = afterPiecieEffect(run.state, pc.actorId, slotIndex, cardDef, after || {}, { free }).state;
+	return continueDubbeleDing(done); // Dubbele Ding: the next queued hand Piecie, if any
 }

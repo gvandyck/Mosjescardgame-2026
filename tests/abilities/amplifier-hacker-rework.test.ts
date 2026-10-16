@@ -10,7 +10,7 @@ import { createEngineState } from "../helpers/testHelpers.js";
 // 2026-06-17 card-text reconciliation:
 //   Amplifier Power Boost — was a +10-MP stub; reworked to "pay 30 MP, arm a
 //   double-trigger (your active Mosje's next ability fires twice), max 2/game"
-//   reusing the Redbull abilityDoubleTrigger flag.
+//   (59-07: now the Redbull extra use, slot.extraAbilityUses, instead of the V4 echo flag).
 //   Hacker System Hack — was "force a card into the opponent's hand" (helped them);
 //   reworked to "+10 MP, draw 1, once / 5 turns" (slot.systemHackCooldown).
 // ─────────────────────────────────────────────────────────────
@@ -28,12 +28,13 @@ function oneMosjeState(cardId: string, mp = 50, extra: any = {}): any {
   });
 }
 
-describe("Amplifier Power Boost — pay 30, arm double-trigger, cap 2/game", () => {
-  it("pays 30 MP, arms abilityDoubleTrigger, and counts the use", () => {
+describe("Amplifier Power Boost — pay 30, grant one extra ability use, cap 2/game", () => {
+  it("pays 30 MP, counts the use and gives the other Mosje (with an activated ability) one extra use", () => {
     const state = oneMosjeState("mosje_amplifier", 50);
+    state.players.player_1.activeSlots[1] = { cardId: "mosje_ming_natural", name: "Ming", mp: 0, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false };
     const next = ability_amplifier_power_boost(state, "player_1");
     expect(next.players.player_1.activeSlots[0].mp).toBe(20);          // 50 − 30
-    expect(next.players.player_1.abilityDoubleTrigger).toBe(true);
+    expect(next.players.player_1.activeSlots[1].extraAbilityUses).toBe(1);
     expect(next.players.player_1.amplifierUses).toBe(1);
   });
 
@@ -48,28 +49,26 @@ describe("Amplifier Power Boost — pay 30, arm double-trigger, cap 2/game", () 
     expect(() => ability_amplifier_power_boost(state, "player_1")).toThrow();
   });
 
-  it("the armed double actually makes the NEXT ability fire twice", () => {
-    // Ming Natural in slot 0 (Lucky Draw: a non-Piecie top card = +15, repeatable; Tuk's Healing Hands and Martin's Pit Stop are once-per-turn and never double), Amplifier in slot 1.
+  it("the extra use lets the other Mosje use its ability a second time (Energy paid again), not a third", () => {
     const state = createEngineState({
       players: {
         player_1: {
+          energy: 6,
           activeSlots: [
             { cardId: "mosje_ming_natural", name: "Ming", mp: 0, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
             { cardId: "mosje_amplifier", name: "Amplifier", mp: 50, level: 1, isDefeated: false, statusEffects: [], abilityUsedThisTurn: false },
           ],
           hand: [{ cardId: "piecie_kannetje_melk" }, { cardId: "piecie_kannetje_melk" }],
-          deck: [{ cardId: "mosje_jeffrey" }, { cardId: "mosje_jeffrey" }],
+          deck: [{ cardId: "mosje_jeffrey" }, { cardId: "mosje_jeffrey" }, { cardId: "mosje_jeffrey" }],
         },
       },
     });
     const armed = ability_amplifier_power_boost(state, "player_1");
-    expect(armed.players.player_1.abilityDoubleTrigger).toBe(true);
-
-    const res = useMosjeAbility(armed, "player_1", "mosje_ming_natural");
-    expect(res.success).toBe(true);
-    // Lucky Draw non-Piecie = +15 single; doubled = +30 (on slot 0).
-    expect(res.state.players.player_1.activeSlots[0].mp).toBe(30);
-    expect(res.state.players.player_1.abilityDoubleTrigger).toBeFalsy(); // consumed
+    const first = useMosjeAbility(armed, "player_1", "mosje_ming_natural");
+    expect(first.success).toBe(true);
+    const second = useMosjeAbility(first.state, "player_1", "mosje_ming_natural");
+    expect(second.success).toBe(true);
+    expect(useMosjeAbility(second.state, "player_1", "mosje_ming_natural").success).toBe(false);
   });
 });
 

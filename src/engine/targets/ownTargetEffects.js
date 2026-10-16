@@ -1,7 +1,8 @@
 // Data only: Piecie effects whose "you / your Mosje" target the player (or bot) must choose.
-// Affoe and Leipe Swap have their own dedicated pickers and are intentionally absent.
+// Affoe and Leipe Swap (own + opponent pick) are intentionally absent.
 export const OWN_TARGET_EFFECT_IDS = [
 	'effect_kannetje_melk',
+	'effect_redbull',
 	'effect_broodje_doner',
 	'effect_ronald_kip',
 	'effect_chefs_special',

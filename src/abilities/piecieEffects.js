@@ -41,25 +41,6 @@ function cloneState(state) {
 // UTILITY
 // ─────────────────────────────────────────
 
-export function effect_redbull(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	player.abilityDoubleTrigger = true;
-	console.log('[ABILITY] Redbull: active Mosje ability triggers twice this turn');
-	return state;
-}
-
-export function effect_dubbele_ding(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	player.instantPiecieThisTurn = true;
-	player.dubbeleActivations = 2;  // UI uses this counter
-	console.log('[ABILITY] Dubbele Ding: 2 instant Piecies from hand');
-	return state;
-}
-
 export function effect_mosje_reborn(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
@@ -112,31 +93,6 @@ export function effect_mosje_shield(gameState, playerId) {
 	return state;
 }
 
-export function effect_leipe_swap(gameState, playerId) {
-	const state = cloneState(gameState);
-	const t = state._pendingTargets || {};
-	const yourSlotIndex = t.leipeYourSlot;
-	const oppId = t.leipeOppId;
-	const oppSlotIndex = t.leipeOppSlot;
-	const me = state.players[playerId];
-	const opp = oppId ? state.players[oppId] : null;
-	if (!me || !opp || yourSlotIndex == null || oppSlotIndex == null) return state;
-	const yourSlot = me.activeSlots?.[yourSlotIndex];
-	const oppSlot = opp.activeSlots?.[oppSlotIndex];
-	if (!yourSlot || !oppSlot || yourSlot.isDefeated || oppSlot.isDefeated) return state;
-	const tmp = yourSlot.mp;
-	yourSlot.mp = oppSlot.mp; // mp-direct-ok: swap is never a gain or loss, handoff §2b
-	oppSlot.mp = tmp; // mp-direct-ok: swap is never a gain or loss, handoff §2b
-	state._leipeSwap = { byPlayerId: playerId, yourSlotIndex, oppId, oppSlotIndex };
-	if (state._pendingTargets) {
-		delete state._pendingTargets.leipeYourSlot;
-		delete state._pendingTargets.leipeOppId;
-		delete state._pendingTargets.leipeOppSlot;
-	}
-	console.log('[PIECIE] Leipe Swap: swapped MP', `${playerId}#${yourSlotIndex}`, '<->', `${oppId}#${oppSlotIndex}`);
-	return state;
-}
-
 export function effect_dingetje_toch(gameState, playerId) {
 	// Wildcard — substitution flag; engine checks this when resolving requirements
 	const state = cloneState(gameState);
@@ -159,15 +115,6 @@ export function effect_mp_adjuster(gameState, playerId) {
 		state._mpAdjusterPending = { playerId, slotIndex: si };
 	}
 	console.log('[ABILITY] MP Adjuster: value selection pending UI');
-	return state;
-}
-
-export function effect_double_trigger(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	player.abilityDoubleTrigger = true;
-	console.log('[ABILITY] Double Trigger: ability triggers twice this turn');
 	return state;
 }
 

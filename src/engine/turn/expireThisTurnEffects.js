@@ -13,6 +13,7 @@ export function expireThisTurnEffects(state) {
 		for (const slot of player.activeSlots || []) {
 			if (!slot) continue;
 			delete slot.powerBoostThisTurn;
+			delete slot.extraAbilityUses; // Redbull / Double Trigger: an unused extra use ends with the turn
 			delete slot.mpHemorrhageArmed; // MP Hemorrhage: an attack-less turn ends it (the card is discarded)
 			delete slot.questMpOverride; // Perfect Setup: the counted MP lasts this turn only
 			delete slot.momentumDiefjeThisTurn; // Momentum Diefje: the +20 on a successful attack lasts this turn only

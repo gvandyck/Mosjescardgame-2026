@@ -129,12 +129,12 @@ describe('Phase 48 gap-fill — effect_warm_kannetje_melk (IMPL-AR-P2)', () => {
 });
 
 describe('Phase 48 gap-fill — effect_dubbele_ding (IMPL-AR-P10)', () => {
-  it('grants instantPiecieThisTurn and 2 instant Piecie activations from hand', () => {
+  it('2.0: with nothing activatable in hand it does nothing (the real flow is covered in piecies-chain-swap.test.ts)', () => {
     const state = makeState();
 
     const result = effect_dubbele_ding(state, 'player_1');
 
-    expect(result.players.player_1.instantPiecieThisTurn).toBe(true);
-    expect(result.players.player_1.dubbeleActivations).toBe(2);
+    expect(result.players.player_1.instantPiecieThisTurn).toBeUndefined(); // V4 flag is gone
+    expect(result.players.player_1.hand).toEqual(state.players.player_1.hand);
   });
 });

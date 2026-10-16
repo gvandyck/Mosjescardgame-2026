@@ -1,12 +1,14 @@
 // piecieTargetOptions - the eligible Mosje slots for each pick a Piecie asks for (PIECIE_TARGETS).
 // Returns [{ key, who, options: [{ playerId, slotIndex, label }] }]. Fresh opponent Mosjes are never offered.
 import { PIECIE_TARGETS } from '../../rules/piecieTargets.js';
+import { canTakeExtraUse } from '../abilities/canTakeExtraUse.js';
 import { isFresh } from '../fresh/isFresh.js';
 
 const MP_MAX = { mpMax20: 20, mpMax30: 30, mpMax40: 40 };
 const STARS = { physical1: 1, physical2: 2 };
 
 function passes(slot, rule) {
+	if (rule === 'activatedAbility') return canTakeExtraUse(slot); // Redbull: an activated once-per-turn ability
 	if (MP_MAX[rule] !== undefined) return slot.mp <= MP_MAX[rule];
 	if (STARS[rule] !== undefined) return (slot.traits?.physical || 0) >= STARS[rule];
 	return true;

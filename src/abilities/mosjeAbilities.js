@@ -17,6 +17,7 @@ import { martinDriverPitStop } from './mosje/martinDriverPitStop.js';
 import { mingNaturalLuckyDraw } from './mosje/mingNaturalLuckyDraw.js';
 import { mingPredictorFutureSight } from './mosje/mingPredictorFutureSight.js';
 import { jeffreyGamblerHighStakes } from './mosje/jeffreyGamblerHighStakes.js';
+import { grantExtraAbilityUse } from '../engine/abilities/grantExtraAbilityUse.js';
 import { youriSpeedActivate } from './mosje/youriSpeedActivate.js';
 import { ronaldMastermindMasterPlan } from './mosje/ronaldMastermindMasterPlan.js';
 import { tukHealingHands } from './mosje/tukHealingHands.js';
@@ -271,8 +272,8 @@ export function ability_martin_driver_perfect_line(gameState, playerId, mosjeId)
 	return martinDriverPitStop(gameState, playerId, mosjeId);
 }
 
-// Amplifier — Power Boost: pay 30 MP, arm a double-trigger so your active Mosje's next
-// ability triggers twice this turn (reuses the Redbull abilityDoubleTrigger mechanic).
+// Amplifier — Power Boost: pay 30 MP; your first other Mosje with an activated once-per-turn ability may use it
+// one more time this turn (the Redbull extra use: that ability's Energy is paid again).
 // Max 2 uses per game (player.amplifierUses).
 export function ability_amplifier_power_boost(gameState, playerId) {
 	const state = cloneState(gameState);
@@ -285,8 +286,8 @@ export function ability_amplifier_power_boost(gameState, playerId) {
 	if (mosje.mp < 30) throw new Error('Not enough MP — Power Boost costs 30 MP');
 	applyDamage(state, playerId, mosje, 30);
 	player.amplifierUses = (player.amplifierUses || 0) + 1;
-	player.abilityDoubleTrigger = true;
-	console.log('[ABILITY] Amplifier Power Boost: paid 30 MP, double-trigger armed (use', player.amplifierUses, 'of 2)');
+	const other = player.activeSlots.find(s => s && s !== mosje && grantExtraAbilityUse(s));
+	console.log('[ABILITY] Amplifier Power Boost: paid 30 MP, extra use for', other ? other.name : 'nobody', '(use', player.amplifierUses, 'of 2)');
 	return state;
 }
 

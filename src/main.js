@@ -1352,21 +1352,9 @@ function initGamePage() {
 		if (btnEndTurn) btnEndTurn.disabled = !isLocalTurn || gameOver;
 	}
 
-	// Redbull "triggers twice" for input abilities that need a fresh prompt
-	// (Calculated Guess, Tactical Analysis, Perfect Placement). The engine signals
-	// state._redbullAwaitingReprompt instead of echoing; we re-run the activation
-	// flow once with new input, then the Redbull flag is consumed.
+	// Redbull / Double Trigger: the engine allows a second paid use (slot.extraAbilityUses), so a use is just one activation.
 	async function handleUseAbility(mosjeId) {
 		await runAbilityActivation(mosjeId);
-		if (gameState && gameState._redbullAwaitingReprompt === mosjeId) {
-			delete gameState._redbullAwaitingReprompt;
-			const player = gameState.players[localPlayerId];
-			const slot = player?.activeSlots?.find(s => s?.cardId === mosjeId);
-			if (slot) slot.abilityUsedThisTurn = false;     // allow the second cast
-			if (player) player.abilityDoubleTrigger = false; // consume Redbull
-			log.add('gain', 'Redbull: ability triggers TWICE — activate again!');
-			await runAbilityActivation(mosjeId);
-		}
 	}
 
 	async function runAbilityActivation(mosjeId) {
@@ -1390,9 +1378,6 @@ function initGamePage() {
 		const abilityDef = CARD_LOOKUP[mosjeId];
 		if (abilityDef?.abilityDescription) log.add('info', `Effect: ${abilityDef.abilityDescription}`);
 		logStateOutcome(log, before, gameState, localPlayerId, `${out.name} ability`);
-		if (gameState._redbullEchoFizzled) {
-			log.add('info', `Redbull: not enough MP for the second trigger — Redbull stays active this turn.`);
-		}
 		syncPush();
 		if (gameState.status === 'FINISHED') handleGameOver(gameState);
 		renderAndAnimate(before, { actionLabel: 'mosje-ability' });
@@ -1412,31 +1397,7 @@ function initGamePage() {
 
 
 		let stateForActivation = gameState;
-		if (piecieCardDef?.effectId === 'effect_leipe_swap') {
-			const ownTargets = getPlayerMosjes(gameState, localPlayerId);
-			const oppTargets = getOpponentMosjes(gameState, localPlayerId);
-			if (ownTargets.length === 0 || oppTargets.length === 0) {
-				modal.showInfo('No Targets', 'Leipe Swap needs one of your Mosjes and an opponent Mosje on the field.');
-				return;
-			}
-			// U8 — all opponent Mosjes just entered play → nothing selectable.
-			if (oppTargets.every(t => t.protected)) {
-				modal.showInfo('No Targets', 'All opponent Mosjes just entered play — they are protected until their next turn.');
-				return;
-			}
-			const yourPick = await modal.showTargetSelector(ownTargets, 'Leipe Swap - choose YOUR Mosje to swap MP:');
-			if (!yourPick) return;
-			const oppPick = await modal.showTargetSelector(oppTargets, 'Leipe Swap - choose the OPPONENT Mosje to swap with:');
-			if (!oppPick) return;
-			const oppId = String(oppPick).split('_slot_')[0];
-			stateForActivation = JSON.parse(JSON.stringify(gameState));
-			stateForActivation._pendingTargets = {
-				...(stateForActivation._pendingTargets || {}),
-				leipeYourSlot: parseInt(String(yourPick).split('_slot_')[1], 10),
-				leipeOppId: oppId,
-				leipeOppSlot: parseInt(String(oppPick).split('_slot_')[1], 10),
-			};
-		} else if (PIECIE_TARGETS[piecieCardDef?.id]?.length) {
+		if (PIECIE_TARGETS[piecieCardDef?.id]?.length) {
 			// One generic picker over the Piecie target table (own / opp / any + eligibility rule).
 			const specs = piecieTargetOptions(gameState, localPlayerId, piecieCardDef.id);
 			for (const spec of specs) {
