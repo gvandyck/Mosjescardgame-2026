@@ -33,7 +33,7 @@ See: `.planning/PROJECT.md` (updated 2026-10-10)
 ## Current Position
 
 Phase: 60 of 64 (snelle, places and hidden information)
-Plan: 60-03 complete (next: 60-04)
+Plan: 60-04 complete (next: 60-05)
 Status: Ready to plan
 Last activity: 2026-10-16
 

@@ -234,7 +234,7 @@ Plans:
 - [x] 60-01-PLAN.md — Snelle framework (context, Needs/Only-if, pick pause, Protector limit) + Momentum Rush, Bijna Welloe, Ff Haaltje Nemen, Chillingsvoorbij!, Jantje Snelle; 2.0 Snelle registry
 - [x] 60-02-PLAN.md — Protect + dice Snelle (Emergency Healings, Protector, Perfect Dodge, Drain Reversal, Not Today!, Lucky Cóin, Sleutelpuntje, Je Weet Niet); V4 loss interceptions gone
 - [x] 60-03-PLAN.md — Cancel / copy Snelle (Jensen!, Frenssen!, Blensen!, Counter Strikka, Jammertje, Dubbele Temminks, Gevalletje); §6b Jensen chain + Harde Didde / Klaar Met Jou answers (EFX-03 done)
-- [ ] 60-04-PLAN.md — Place Power in getPower (8 Places), Drain Zone gap, getMosjePower hook, 2.0 Place registry
+- [x] 60-04-PLAN.md — Place Power in getPower (8 Places), Drain Zone gap, getMosjePower hook, 2.0 Place registry
 - [ ] 60-05-PLAN.md — Turn-start / dice / Quest Places (Gym, Bank Chilling, Eendjes, Skiffa, Tesla, Quest Haven, Obby #1, Parkeren +20, DGS); V4 Place hooks + questBonusMP retired
 - [ ] 60-06-PLAN.md — Cost / loss Places (Coert's Caravan, Delluft fee, Dierenasiel, Welloe Graveyard, Momentum Stabilizer §6b, Zo is Natuur, The Void, Synergy Chamber) (EFX-04 done)
 - [ ] 60-07-PLAN.md — Hidden info: per-viewer state.revealed, reveal modal, bot limited to reveals (6 cards); V4 Snelle UI removed (EFX-07)
