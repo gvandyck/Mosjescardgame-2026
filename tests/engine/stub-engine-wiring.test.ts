@@ -149,47 +149,50 @@ describe("piecieEffects — push site value checks for Task 1", () => {
 // TASK 2: WELLOE_SHIELD in markMosjeDefeated() + ff_haaltje_nemen fix
 // ─────────────────────────────────────────────────────────────
 
-describe("markMosjeDefeated — WELLOE_SHIELD status effect", () => {
-  it("Test 8: WELLOE_SHIELD active (turnsLeft:1) — Mosje NOT sent to Welloe; mp set to 5, turnsLeft decrements", () => {
-    const state = makeState(0, 1, [{ type: "WELLOE_SHIELD", value: 1, turnsLeft: 1 }]);
+const shieldEntry = (cardId = "mosje_gandoe_wizard") => ({
+  cardId: "piecie_mosje_shield", type: "PIECIE", stays: true, staysEnd: "endOfNextTurn",
+  boundTo: [{ playerId: "p1", slotIndex: 0, cardId, reduce: 0, shield: true }],
+});
+
+describe("markMosjeDefeated - Mosje Shield (bound Stays entry)", () => {
+  it("Test 8: a staying Mosje Shield bound to the Mosje - NOT sent to Welloe; mp set to 5, card stays", () => {
+    const state = makeState(0, 1);
+    const id = state.players.p1.activeSlots[0].cardId;
+    (state.players.p1 as any).piecieSlots = [shieldEntry(id)];
     const result = markMosjeDefeated(state, "p1", 0);
-    // Slot still exists (not set to null)
     expect(result.players.p1.activeSlots[0]).not.toBeNull();
-    expect(result.players.p1.activeSlots[0].mp).toBe(5);  // game rule: survive on the 5-grid
-    const effect = result.players.p1.activeSlots[0].statusEffects.find(
-      (e: any) => e.type === "WELLOE_SHIELD"
-    );
-    expect(effect?.turnsLeft).toBe(0);
+    expect(result.players.p1.activeSlots[0].mp).toBe(5);
+    expect((result.players.p1 as any).piecieSlots[0]?.cardId).toBe("piecie_mosje_shield");
   });
 
-  it("Test 9: WELLOE_SHIELD at turnsLeft:0 — Mosje IS sent to Welloe (normal defeat)", () => {
-    const state = makeState(0, 1, [{ type: "WELLOE_SHIELD", value: 1, turnsLeft: 0 }]);
+  it("Test 9: no shield (or one bound to another Mosje) - Mosje IS sent to the Welloe pile", () => {
+    const state = makeState(0, 1);
+    (state.players.p1 as any).piecieSlots = [shieldEntry("mosje_someone_else")];
     const result = markMosjeDefeated(state, "p1", 0);
-    // Normal defeat: slot set to null, Mosje in graveyard
     expect(result.players.p1.activeSlots[0]).toBeNull();
-    const welloeMosjes = ((result.players.p1 as any).welloePile as any[]).filter((e: any) => e.type === 'MOSJE'); expect(welloeMosjes).toHaveLength(1); // 2.0: Welloe pile, not discard
+    const welloeMosjes = ((result.players.p1 as any).welloePile as any[]).filter((e: any) => e.type === 'MOSJE'); expect(welloeMosjes).toHaveLength(1);
     expect((result.players.p1.graveyard as any[]).filter((e: any) => e.type === 'MOSJE')).toHaveLength(0);
   });
 
-  it("Test 10: WELLOE_SHIELD AND negateNextElimination both set — WELLOE_SHIELD fires first", () => {
-    const state = makeState(0, 1, [{ type: "WELLOE_SHIELD", value: 1, turnsLeft: 1 }]);
+  it("Test 10: Mosje Shield AND negateNextElimination both set - the shield fires first, the flag is kept", () => {
+    const state = makeState(0, 1);
+    (state.players.p1 as any).piecieSlots = [shieldEntry(state.players.p1.activeSlots[0].cardId)];
     (state as any)._snelleFlags = { negateNextElimination: { p1: true } };
     const result = markMosjeDefeated(state, "p1", 0);
-    // WELLOE_SHIELD fires first: mp set to 5, negate flag still present
     expect(result.players.p1.activeSlots[0]).not.toBeNull();
     expect(result.players.p1.activeSlots[0].mp).toBe(5);
+    expect((result as any)._snelleFlags.negateNextElimination.p1).toBe(true);
   });
 });
 
-describe("piecieEffects — effect_mosje_shield push site value", () => {
-  it("Test 13: effect_mosje_shield — pushed WELLOE_SHIELD has value:1, not 0", () => {
-    const state = makeState(100, 1);
-    const result = effect_mosje_shield(state, "p1");
-    const effect = result.players.p1.activeSlots[0].statusEffects.find(
-      (e: any) => e.type === "WELLOE_SHIELD"
-    );
-    expect(effect).toBeDefined();
-    expect(effect?.value).toBe(1);
+describe("piecieEffects - effect_mosje_shield", () => {
+  it("Test 13: binds the staying card to the chosen Mosje (no status effect)", () => {
+    const state: any = makeState(100, 1);
+    state.players.p1.piecieSlots = [{ cardId: "piecie_mosje_shield", type: "PIECIE" }];
+    const result = effect_mosje_shield(state, "p1", { slotIndex: 0 });
+    const b = result.players.p1.piecieSlots[0].boundTo[0];
+    expect(b).toMatchObject({ playerId: "p1", slotIndex: 0, shield: true });
+    expect(result.players.p1.activeSlots[0].statusEffects.some((e: any) => e.type === "WELLOE_SHIELD")).toBe(false);
   });
 });
 

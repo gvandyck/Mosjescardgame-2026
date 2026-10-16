@@ -5,7 +5,7 @@ import { join } from "node:path";
 // @ts-expect-error — JS modules
 import { effect_mosje_reborn, effect_call_of_welloes } from "../../src/abilities/piecieEffects.js";
 // @ts-expect-error
-import { confirmCallOfWelloes, startTurn } from "../../src/engine/turnManager.js";
+import { startTurn } from "../../src/engine/turnManager.js";
 // @ts-expect-error
 import { createMosjeSlot } from "../../src/engine/mp/createMosjeSlot.js";
 // @ts-expect-error
@@ -22,23 +22,26 @@ function make(place: string | null) {
 }
 
 describe("Welloe pile exit (TABLE-06)", () => {
-  it("under Welloe Graveyard both cards and the confirm step leave pile and field unchanged", () => {
+  it("under Welloe Graveyard both cards leave pile and field unchanged (and ask nothing)", () => {
     const s = make("place_welloe_graveyard");
     for (const fn of [effect_mosje_reborn, effect_call_of_welloes]) {
-      const r = fn(s, "player_1");
+      const r = fn(s, "player_1", { slotIndex: 0 });
+      expect(r.needChoice).toBeUndefined();
       expect(r.players.player_1.welloePile).toHaveLength(1);
       expect(r.players.player_1.activeSlots).toEqual([null, null]);
     }
-    const c = confirmCallOfWelloes(s, "player_1", "mosje_jeffrey");
-    expect(c.success).toBe(false);
-    expect(c.state.players.player_1.welloePile).toHaveLength(1);
   });
 
-  it("without that Place both still take a Mosje out", () => {
-    const r = effect_mosje_reborn(make(null), "player_1");
-    expect(r.players.player_1.welloePile).toHaveLength(0);
-    expect(r.players.player_1.activeSlots.some((x: any) => x?.cardId === "mosje_jeffrey")).toBe(true);
-    expect(effect_call_of_welloes(make(null), "player_1")._callOfWelloesPending).toBeDefined();
+  it("without that Place both pause for the pick, then take that Mosje out", () => {
+    for (const fn of [effect_mosje_reborn, effect_call_of_welloes]) {
+      const asked = fn(make(null), "player_1", { slotIndex: 0 });
+      expect(asked.needChoice.options).toHaveLength(1);
+      const st = asked.state;
+      st.players.player_1._pendingTargets = { [asked.needChoice.key]: asked.needChoice.options[0] };
+      const r = fn(st, "player_1", { slotIndex: 0 });
+      expect(r.players.player_1.welloePile).toHaveLength(0);
+      expect(r.players.player_1.activeSlots.some((x: any) => x?.cardId === "mosje_jeffrey")).toBe(true);
+    }
   });
 
   it("deck-out reshuffle uses the graveyard only; Welloe pile length unchanged", () => {
@@ -53,7 +56,7 @@ describe("Welloe pile exit (TABLE-06)", () => {
 
   it("static: only the sanctioned files write welloePile", () => {
     const SRC = join(__dirname, "..", "..", "src");
-    const ALLOWED = ["victoryChecker.js", "gameState.js", "piecieEffects.js", "turnManager.js"];
+    const ALLOWED = ["victoryChecker.js", "gameState.js", "piecieEffects.js", "turnManager.js", "summonFromWelloe.js", "callMosjeBackToWelloe.js"];
     const walk = (d: string): string[] => readdirSync(d).flatMap((n) => {
       const p = join(d, n);
       if (statSync(p).isDirectory()) return n === "data" ? [] : walk(p);

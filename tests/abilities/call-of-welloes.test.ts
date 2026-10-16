@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest";
 // @ts-expect-error — JS module, no type declarations
-import { endTurn, confirmCallOfWelloes } from "../../src/engine/turnManager.js";
-// @ts-expect-error — JS module, no type declarations
-import { effect_call_of_welloes } from "../../src/abilities/piecieEffects.js";
+import { endTurn } from "../../src/engine/turnManager.js";
 // @ts-expect-error — JS module, no type declarations
 import { PIECIES } from "../../src/data/piecies.js";
 // @ts-expect-error — JS module, no type declarations
@@ -140,100 +138,6 @@ describe("endTurn — piecie_call_of_welloes persistence guard", () => {
     const pSlots = result.players.player_1.piecieSlots as any[];
     const piecieStillPresent = pSlots.some((p: any) => p?.cardId === "piecie_call_of_welloes");
     expect(piecieStillPresent).toBe(true);
-  });
-});
-
-// ─────────────────────────────────────────────────────────────
-// Wave 2: effect_call_of_welloes + confirmCallOfWelloes + description
-//   F. empty-welloe cancel
-//   G. no-free-slot cancel
-//   H. pending flag set with welloeOptions
-//   I. summon at Level 1, 50 MP (NOT restored stats)
-//   J. piecies.js description corrected
-// ─────────────────────────────────────────────────────────────
-
-describe("effect_call_of_welloes — cancel guards", () => {
-  it("F: returns _callOfWelloesCancel === true when the Welloe pile has no MOSJE entries", () => {
-    const state = makeState({
-      graveyard: [],
-      activeSlots: [null, null],
-    });
-    const result = effect_call_of_welloes(state, "player_1");
-    expect(result._callOfWelloesCancel).toBe(true);
-    expect(result._callOfWelloesPending).toBeUndefined();
-  });
-
-  it("G: returns _callOfWelloesCancel === true when both activeSlots are occupied", () => {
-    const occupied = { cardId: "mosje_a", name: "A", mp: 80, level: 1 };
-    const state = makeState({
-      welloePile: [{ cardId: "mosje_x", name: "X", type: "MOSJE", source: "welloe", mp: 50, level: 1 }],
-      activeSlots: [occupied, { ...occupied, cardId: "mosje_b" }],
-    });
-    const result = effect_call_of_welloes(state, "player_1");
-    expect(result._callOfWelloesCancel).toBe(true);
-    expect(result._callOfWelloesPending).toBeUndefined();
-  });
-});
-
-describe("effect_call_of_welloes — pending flag", () => {
-  it("H: sets _callOfWelloesPending with playerId and welloeOptions when activatable", () => {
-    const state = makeState({
-      welloePile: [{ cardId: "mosje_x", name: "X", type: "MOSJE", source: "welloe", mp: 60, level: 2 }],
-      activeSlots: [{ cardId: "mosje_a", name: "A", mp: 80, level: 1 }, null],
-    });
-    const result = effect_call_of_welloes(state, "player_1");
-    expect(result._callOfWelloesCancel).toBeUndefined();
-    expect(result._callOfWelloesPending).toBeDefined();
-    expect(result._callOfWelloesPending.playerId).toBe("player_1");
-    const opts = result._callOfWelloesPending.welloeOptions as any[];
-    expect(opts.length).toBe(1);
-    expect(opts[0].cardId).toBe("mosje_x");
-    expect(opts[0].mp).toBe(60);
-    expect(opts[0].level).toBe(2);
-  });
-});
-
-describe("confirmCallOfWelloes — summon executor", () => {
-  it("I: places Mosje in free activeSlot at Level 1, 50 MP (NOT restored stats), sets summonedByPiecie, sets linkedMosjeCardId, removes from Welloe pile", () => {
-    const gravEntry = {
-      cardId: "mosje_x",
-      name: "X",
-      type: "MOSJE",
-      source: "welloe",
-      subtype: "FIGHTING",
-      traits: { physical: 2 },
-      mp: 60,
-      level: 2,
-      statusEffects: [] as any[],
-      isDefeated: true,
-    };
-    const state = makeState({
-      welloePile: [gravEntry],
-      activeSlots: [{ cardId: "mosje_a", name: "A", mp: 80, level: 1 }, null],
-      piecieSlots: [{ cardId: "piecie_call_of_welloes", type: "PIECIE" }, null, null, null],
-    });
-
-    const { state: s, success } = confirmCallOfWelloes(state, "player_1", "mosje_x");
-
-    expect(success).toBe(true);
-
-    // Mosje placed in a free slot at Level 1, 50 MP (fresh summon, NOT restored stats)
-    const slots = s.players.player_1.activeSlots as any[];
-    const placed = slots.find((sl: any) => sl?.cardId === "mosje_x");
-    expect(placed).toBeDefined();
-    expect(placed.mp).toBe(50);
-    expect(placed.level).toBe(1);
-    expect(placed.summonedByPiecie).toBe("piecie_call_of_welloes");
-
-    // Removed from the Welloe pile
-    const welloePile = (s.players.player_1 as any).welloePile as any[];
-    expect(welloePile.some((e: any) => e.cardId === "mosje_x" && e.type === "MOSJE")).toBe(false);
-
-    // Anchor link on piecieSlot
-    const pSlot = (s.players.player_1.piecieSlots as any[]).find(
-      (p: any) => p?.cardId === "piecie_call_of_welloes"
-    );
-    expect(pSlot?.linkedMosjeCardId).toBe("mosje_x");
   });
 });
 

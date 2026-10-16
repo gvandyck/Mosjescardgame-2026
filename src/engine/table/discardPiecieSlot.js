@@ -1,5 +1,6 @@
 // discardPiecieSlot — move a Piecie slot's card to its owner's discard pile. Returns new state.
 import { toGraveyardEntry } from '../graveyardUtils.js';
+import { callMosjeBackToWelloe } from './callMosjeBackToWelloe.js';
 import { releaseBoundPower } from './releaseBoundPower.js';
 
 export function discardPiecieSlot(state, playerId, slotIndex) {
@@ -10,5 +11,6 @@ export function discardPiecieSlot(state, playerId, slotIndex) {
 	piecieSlots[slotIndex] = null;
 	const graveyard = [...(p.graveyard || []), toGraveyardEntry(entry.cardId, 'played')];
 	const players = releaseBoundPower(state.players, entry);
-	return { ...state, players: { ...players, [playerId]: { ...players[playerId], piecieSlots, graveyard } } };
+	const next = { ...state, players: { ...players, [playerId]: { ...players[playerId], piecieSlots, graveyard } } };
+	return callMosjeBackToWelloe(next, playerId, entry);
 }

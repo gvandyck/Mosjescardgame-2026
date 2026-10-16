@@ -53,7 +53,7 @@ export function checkVictory(gameState) {
 // applyPendingDefeats
 // Sweeps every player's active slots and defeats any Mosje flagged
 // `_pendingWelloe` (getemt while sideways, set by applyGetemt). Routes each through
-// markMosjeDefeated, which honors WELLOE_SHIELD + Not Today! and
+// markMosjeDefeated, which honors Mosje Shield + Not Today! and
 // re-checks victory. The flag is cleared BEFORE markMosjeDefeated so
 // a shield/Not-Today save (which keeps the Mosje on field) does not
 // re-trigger the sweep on the same slot. A guard caps iterations.
@@ -134,15 +134,15 @@ export function markMosjeDefeated(gameState, playerId, slotIndex) {
   const mosje = state.players[playerId].activeSlots[slotIndex];
   if (!mosje) return state;
 
-  // WELLOE_SHIELD: pushed by Mosje Shield Piecie. Protects from Welloe pile for turnsLeft turns.
-  const shieldEffect = mosje.statusEffects?.find(
-    e => e.type === 'WELLOE_SHIELD' && e.turnsLeft > 0
+  // Mosje Shield: a staying piecie_mosje_shield bound to this Mosje keeps it out of the Welloe pile.
+  // It survives at 5 MP (the minimum), like "Not Today!"; the card stays until its own end.
+  const shielded = (state.players[playerId].piecieSlots || []).some(
+    e => e?.stays === true && e.cardId === 'piecie_mosje_shield'
+      && (e.boundTo || []).some(b => b.playerId === playerId && b.slotIndex === slotIndex && b.cardId === mosje.cardId)
   );
-  if (shieldEffect) {
-    shieldEffect.turnsLeft -= 1;
-    // Game rule: MP stays on the 5-grid — survive at 5 MP (the minimum), like "Not Today!".
-    state.players[playerId].activeSlots[slotIndex].mp = 5;
-    console.log(`[ENGINE] WELLOE_SHIELD: ${mosje.name} protected — restored to 5 MP`);
+  if (shielded) {
+    mosje.mp = 5;
+    console.log(`[ENGINE] Mosje Shield: ${mosje.name} protected - restored to 5 MP`);
     return state;
   }
 

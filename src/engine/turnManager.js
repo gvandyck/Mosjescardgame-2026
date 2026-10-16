@@ -199,17 +199,6 @@ export function finishStartTurn(state, playerId, opts = {}) {
   state = r1.state;
   if (r1.r1Event) state._r1Event = r1.r1Event;
 
-  // Welloe Force: decrement turn counter when the card owner's turn starts
-  if (state._welloeForceActive?.ownerId === playerId) {
-    state._welloeForceActive.turnsRemaining -= 1;
-    if (state._welloeForceActive.turnsRemaining <= 0) {
-      delete state._welloeForceActive;
-      console.log('[ENGINE] Welloe Force: 3-turn redirect expired');
-    } else {
-      console.log(`[ENGINE] Welloe Force: ${state._welloeForceActive.turnsRemaining} turn(s) remaining`);
-    }
-  }
-
   state = checkVictory(state);
   if (state.status === 'FINISHED') return state;
 
@@ -487,13 +476,6 @@ function activatePiecieCore(gameState, playerId, slotIndex) {
     return { state, success: false, error: gateError };
   }
 
-  // Dingetje Toch wildcard: if state._dingetjeTochActive is true, the UI layer must bypass
-  // any single failing trait/type requirement before calling activatePiecie, then clear the flag.
-  // Consumption point: in main.js handleActivatePiecie(), before the activatePiecie() call,
-  // check state._dingetjeTochActive — if set, skip the single failing requirement check and
-  // delete state._dingetjeTochActive before passing state to activatePiecie.
-  // STUB-07: UI-side implementation deferred to UI wiring phase.
-
   // Chain Reaction offer: this activation is free (no Energy, no chain roll); the offer is used up (T-59-06).
   if (player.chainReactionOffer > 0) {
     player.chainReactionOffer = 0;
@@ -658,48 +640,6 @@ function playSnellieCore(gameState, playerId, cardRef, cardDef) {
   state = runMosjeTriggers(state, 'cardPlayedFromHand', { playerId, cardType: 'SNELLE_PIECIE' });
   state = checkVictory(state);
   return { state, success: true };
-}
-
-export function confirmCallOfWelloes(gameState, playerId, mosjeCardId) {
-  const state = JSON.parse(JSON.stringify(gameState));
-  const player = state.players[playerId];
-  if (!player) return { state, success: false, error: 'Player not found' };
-  if (!canLeaveWelloePile(state)) return { state, success: false, error: 'Mosjes cannot leave the Welloe pile while Welloe Graveyard is in play' };
-  if (!Array.isArray(player.activeSlots)) player.activeSlots = [null, null];
-  // Always summon into the rightmost slot so the Mosje appears next to the Piecie zone.
-  // If rightmost is occupied, shift that Mosje left to the first free slot first.
-  const hasFreeSlot = player.activeSlots.some(s => s === null);
-  if (!hasFreeSlot) return { state, success: false, error: 'No free slot' };
-  const rightmost = player.activeSlots.length - 1;
-  if (player.activeSlots[rightmost] !== null) {
-    const leftFree = player.activeSlots.findIndex(s => s === null);
-    player.activeSlots[leftFree] = player.activeSlots[rightmost];
-    player.activeSlots[rightmost] = null;
-  }
-  const openSlot = rightmost;
-  if (!Array.isArray(player.welloePile)) return { state, success: false, error: 'No Welloe pile' };
-  const gIdx = player.welloePile.findIndex(e => e.cardId === mosjeCardId && e.type === 'MOSJE');
-  if (gIdx < 0) return { state, success: false, error: 'Mosje not in Welloe pile' };
-
-  const [record] = player.welloePile.splice(gIdx, 1);
-  const mosjeDef = MOSJES.find(m => m.id === record.cardId);
-  // Fresh summon at Level 1, 50 MP — NOT restored from welloe record (D-05/D-06)
-  const slot = mosjeDef ? createMosjeSlot(mosjeDef, { level: 1, mp: 50 }) : { ...record, mp: 50, level: 1 };
-  slot.entryProtected = true; // U8 — also on the raw-record fallback path
-  // traits and statusEffects are not restored — fresh summon per D-05/D-06
-  slot.summonedByPiecie = 'piecie_call_of_welloes';
-  slot.isDefeated = false;
-
-  player.activeSlots[openSlot] = slot;
-  const piecieSlotIdx = player.piecieSlots
-    ? player.piecieSlots.findIndex(s => s?.cardId === 'piecie_call_of_welloes')
-    : -1;
-  if (piecieSlotIdx >= 0) {
-    player.piecieSlots[piecieSlotIdx].linkedMosjeCardId = mosjeCardId;
-  }
-  console.log(`[ENGINE] confirmCallOfWelloes: summoned ${slot.name} at 50 MP / Lvl 1`);
-  const finalState = checkVictory(state);
-  return { state: finalState, success: true, slotIndex: openSlot };
 }
 
 export function playMosje(gameState, playerId, cardRef) {

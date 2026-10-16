@@ -18,26 +18,28 @@ function setup(energy: number) {
   return makeEngineState({
     turnNumber: 3,
     players: {
-      player_1: { energy, activeSlots: [mosje("mosje_coert", 80), mosje("mosje_jeffrey", 60)], piecieSlots: slots },
+      player_1: { energy, hand: [{ cardId: "piecie_pot_of_weed", type: "PIECIE" }], activeSlots: [mosje("mosje_coert", 80), mosje("mosje_jeffrey", 60)], piecieSlots: slots },
       player_2: { activeSlots: [mosje("mosje_binti", 80), null] },
     },
   });
 }
 
 describe("Welloe Force spends Energy, not MP", () => {
-  it("leaves every own Mosje's MP unchanged, sets the redirect and charges the card cost", () => {
+  it("leaves every own Mosje's MP unchanged, stays (no redirect), discards the hand card and charges the card cost", () => {
     const res = activatePiecie(setup(6), "player_1", 0);
     expect(res.success).toBe(true);
     expect(res.state.players.player_1.activeSlots[0].mp).toBe(80);
     expect(res.state.players.player_1.activeSlots[1].mp).toBe(60);
-    expect(res.state._welloeForceActive).toEqual({ ownerId: "player_1", turnsRemaining: 3, targetSlotId: null });
+    const e = res.state.players.player_1.piecieSlots[0];
+    expect(e).toMatchObject({ cardId: "piecie_welloe_force", stays: true, staysEnd: "startOfNextTurn" });
+    expect(res.state.players.player_1.hand).toHaveLength(0);
     expect(res.state.players.player_1.energy).toBe(6 - COST);
   });
 
   it("is refused with too little Energy and sets no redirect", () => {
     const res = activatePiecie(setup(COST - 1), "player_1", 0);
     expect(res.success).toBe(false);
-    expect(res.state._welloeForceActive).toBeUndefined();
+    expect(res.state.players.player_1.piecieSlots[0].stays).not.toBe(true);
     expect(res.state.players.player_1.energy).toBe(COST - 1);
   });
 });

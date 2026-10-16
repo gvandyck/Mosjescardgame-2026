@@ -35,6 +35,8 @@ export const PIECIE_CONDITIONS = {
 		const top = (p.graveyard || [])[(p.graveyard || []).length - 1];
 		return top && SUBSTANCE.has(top.cardId);
 	}) || 'Only if the top card of any discard pile is a substance Piecie',
+	piecie_welloe_force: (state, pid) => (state.players[pid]?.hand || []).length > 0
+		|| 'Needs a card in your hand to discard',
 	piecie_mosje_reborn: welloeReturn,
 	piecie_call_of_welloes: welloeReturn,
 };

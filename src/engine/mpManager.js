@@ -64,20 +64,6 @@ export function gainMP(gameState, playerId, slotIndex, amount, source = 'GAIN') 
 export function loseMP(gameState, playerId, slotIndex, amount, source = 'DRAIN', _redirected = false, byPlayerId = null) {
   if (amount <= 0) return gameState;
 
-  // Welloe Force: if the target is the card owner's Mosje, redirect to stored opponent target.
-  // _redirected flag prevents infinite loops if the target also has a redirect active.
-  if (!_redirected && gameState._welloeForceActive?.ownerId === playerId && gameState._welloeForceActive.targetSlotId) {
-    const targetSlotId = gameState._welloeForceActive.targetSlotId;
-    const lastSlot = targetSlotId.lastIndexOf('_slot_');
-    const tPlayerId = targetSlotId.slice(0, lastSlot);
-    const tSlotIndex = parseInt(targetSlotId.slice(lastSlot + 6), 10);
-    const tMosje = gameState.players[tPlayerId]?.activeSlots[tSlotIndex];
-    if (tMosje && !tMosje.isDefeated) {
-      console.log(`[MP] Welloe Force: redirecting ${amount} damage from ${playerId}_slot_${slotIndex} → ${targetSlotId}`);
-      return loseMP(gameState, tPlayerId, tSlotIndex, amount, source, true, byPlayerId);
-    }
-  }
-
   // Fresh (2.0): a fresh Mosje cannot lose MP to anything opponent-sourced
   // (by byPlayerId, else inferred from whose turn it is). Own losses always apply;
   // there is no COST bypass (MP is never a cost).

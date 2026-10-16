@@ -63,7 +63,8 @@ describe("attack triggers", () => {
     expect(getPower(t0(s))).toBe(getPower(mk(bull)));
   });
   it("Welloe Force: attacker loses 15", () => {
-    const s = game(attacker(10), mk(plain, 50), { _welloeForceActive: { ownerId: "player_2" } });
+    const s = game(attacker(10), mk(plain, 50));
+    s.players.player_2.piecieSlots = [{ cardId: "piecie_welloe_force", type: "PIECIE", stays: true, staysEnd: "startOfNextTurn" }, null, null, null];
     const r = hit(s);
     expect(a0(r.state).mp).toBe(35);
   });

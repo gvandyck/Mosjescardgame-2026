@@ -9,7 +9,7 @@ import { animateFieldActivation, animateStateDelta, showTurnTransition, setAbili
 import { initHoverZoom } from './ui/hoverZoom.js';
 import { initCardTierMotion } from './ui/cardTierMotion.js';
 import { createInitialGameState, getOpponentMosjes, getPlayerMosjes, setActivePlace } from './engine/gameState.js';
-import { startTurn, endTurn, playPiecie, activatePiecie, confirmCallOfWelloes, playSnellie, playPlace, playMosje, useMosjeAbility, canPlayerActNow } from './engine/turnManager.js';
+import { startTurn, endTurn, playPiecie, activatePiecie, playSnellie, playPlace, playMosje, useMosjeAbility, canPlayerActNow } from './engine/turnManager.js';
 import { PIECIE_TARGETS } from './rules/piecieTargets.js';
 import { piecieTargetOptions } from './engine/targets/piecieTargetOptions.js';
 import { isPiecieReady } from './engine/table/isPiecieReady.js';
@@ -1435,64 +1435,6 @@ function initGamePage() {
 		});
 		gameState = newState.pendingReaction ? await settleReactions(newState, reactionCtx()) : newState;
 
-		// ── STUB-14: Welloe Force — pick opponent Mosje as redirect target ────────
-		if (gameState._welloeForceActive?.targetSlotId === null) {
-			const oppId = Object.keys(gameState.players).find(id => id !== localPlayerId);
-			const oppSlots = [];
-			if (oppId) {
-				gameState.players[oppId].activeSlots.forEach((slot, idx) => {
-					// U8 — entry-protected Mosjes cannot be redirect targets.
-					if (slot && !slot.isDefeated && slot.entryProtected !== true) {
-						oppSlots.push({ id: `${oppId}_slot_${idx}`, label: slot.name, metaLabel: `${slot.mp} MP` });
-					}
-				});
-			}
-			if (oppSlots.length === 1) {
-				gameState._welloeForceActive.targetSlotId = oppSlots[0].id;
-				console.log('[UI] Welloe Force: auto-selected only target', oppSlots[0].id);
-			} else if (oppSlots.length > 1) {
-				const targetId = await modal.showOptionSelect({
-					title: 'Welloe Force — Redirect Damage',
-					prompt: 'Choose a Mosje to redirect all incoming damage to (3 turns).',
-					options: oppSlots,
-					allowCancel: false,
-				});
-				gameState._welloeForceActive.targetSlotId = targetId;
-				console.log('[UI] Welloe Force: redirect target set to', targetId);
-			} else {
-				// No opponent Mosjes on field — cancel the effect
-				delete gameState._welloeForceActive;
-				console.log('[UI] Welloe Force: no opponent targets, effect cancelled');
-			}
-		}
-
-		// ── Call of the Welloes — pick Mosje from Welloe pile to summon ──────────
-		if (gameState._callOfWelloesPending) {
-			const { welloeOptions } = gameState._callOfWelloesPending;
-			const options = (welloeOptions || []).map(w => ({
-				id: w.cardId,
-				label: w.name,
-				// Summon always enters at 50 MP / Level 1 regardless of welloe record (D-05/D-06)
-				metaLabel: `50 MP · Lvl 1`,
-			}));
-			const chosen = await modal.showOptionSelect({
-				title: 'Call of the Welloes',
-				prompt: 'Choose a Mosje from your Welloe pile to summon.',
-				options,
-				allowCancel: false,
-			});
-			delete gameState._callOfWelloesPending;
-			if (!chosen) {
-				// Player did not pick (modal cancelled or no options). The Piecie was already
-				// moved to discard by activatePiecie, so state is consistent — just bail out.
-				renderAndCheckWin();
-				syncPush();
-				return;
-			}
-			const { state: confirmedState } = confirmCallOfWelloes(gameState, localPlayerId, chosen);
-			gameState = confirmedState;
-		}
-		if (gameState._callOfWelloesCancel) { delete gameState._callOfWelloesCancel; }
 
 		// ── STUB-15: MP Adjuster — choose exact MP value (temporary until next turn) ──
 		if (gameState._mpAdjusterPending) {

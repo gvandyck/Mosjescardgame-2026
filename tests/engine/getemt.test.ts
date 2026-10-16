@@ -86,11 +86,10 @@ describe("getemt (Obby 2.0 §2b)", () => {
     expect(slotOf(s).mp).toBe(0);
   });
 
-  it("WELLOE_SHIELD saves a sideways getemt Mosje (5 MP, on field, no Welloe pile)", () => {
-    let s = build(1, 0, (sl) => {
-      sl.sideways = true;
-      sl.statusEffects.push({ type: "WELLOE_SHIELD", turnsLeft: 1 });
-    });
+  it("Mosje Shield saves a sideways getemt Mosje (5 MP, on field, no Welloe pile)", () => {
+    let s = build(1, 0, (sl) => { sl.sideways = true; });
+    s.players.player_1.piecieSlots = [{ cardId: "piecie_mosje_shield", type: "PIECIE", stays: true, staysEnd: "endOfNextTurn",
+      boundTo: [{ playerId: "player_1", slotIndex: 0, cardId: slotOf(s).cardId, reduce: 0, shield: true }] }, null, null, null];
     s = loseMP(s, "player_1", 0, 10, "DRAIN");
     s = checkVictory(s);
     expect(slotOf(s)).not.toBeNull();

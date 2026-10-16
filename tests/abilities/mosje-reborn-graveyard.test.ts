@@ -35,7 +35,9 @@ function makeState(welloePile: unknown[] = [], activeSlots: unknown[] = [null, n
 describe('effect_mosje_reborn — reads from the Welloe pile', () => {
   it('revives first MOSJE entry from the Welloe pile into empty active slot', () => {
     const state = makeState([{ ...mosjeGraveyardEntry }], [null, null]);
-    const result = effect_mosje_reborn(state, 'player_1');
+    const asked = effect_mosje_reborn(state, 'player_1');
+    asked.state.players.player_1._pendingTargets = { [asked.needChoice.key]: asked.needChoice.options[0] };
+    const result = effect_mosje_reborn(asked.state, 'player_1');
     const slots = result.players.player_1.activeSlots as any[];
     const revived = slots.find((s: any) => s && s.cardId === 'mosje_jeffrey');
     expect(revived).toBeDefined();
