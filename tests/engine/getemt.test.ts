@@ -100,7 +100,7 @@ describe("getemt (Obby 2.0 §2b)", () => {
 
   it("Not Today! saves a sideways getemt Mosje (5 MP, on field)", () => {
     let s = build(1, 0, (sl) => { sl.sideways = true; });
-    s._snelleFlags = { negateNextElimination: { player_1: true } };
+    (s as any).reactionMods = [{ kind: "save", playerId: "player_1", slotIndex: 0 }];
     s = loseMP(s, "player_1", 0, 10, "DRAIN");
     s = checkVictory(s);
     expect(slotOf(s)).not.toBeNull();

@@ -2,6 +2,7 @@
 // Call checkVictory() after every state change.
 // Returns the updated gameState with winnerId set if someone won.
 
+import { takeReactionMod } from './reactions/takeReactionMod.js';
 import { discardBoundStays } from './table/discardBoundStays.js';
 import { checkLoss } from './winLose/checkLoss.js';
 import { getAllPlayerIds } from './gameState.js';
@@ -146,12 +147,11 @@ export function markMosjeDefeated(gameState, playerId, slotIndex) {
     return state;
   }
 
-  // "Not Today!" — negate_elimination flag: stay at 5 MP instead of being sent to Welloe
-  const negateFlag = state._snelleFlags?.negateNextElimination;
-  if (negateFlag?.[playerId]) {
-    delete state._snelleFlags.negateNextElimination[playerId];
-    state.players[playerId].activeSlots[slotIndex].mp = 5;
-    console.log(`[ENGINE] Not Today! saved ${mosje.name} — restored to 5 MP`);
+  // Not Today! (Snelle): a one-shot 'save' reaction entry keeps the Mosje where it is (sideways stays), at 5 MP minimum.
+  if (takeReactionMod(state, 'save', playerId, slotIndex)) {
+    mosje.mp = Math.max(mosje.mp, 5); // mp-direct-ok: Not Today! 5 MP floor
+    delete mosje._pendingWelloe;
+    console.log(`[ENGINE] Not Today! saved ${mosje.name} - stays on the field at ${mosje.mp} MP`);
     return state;
   }
 

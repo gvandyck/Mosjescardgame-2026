@@ -94,41 +94,6 @@ export function loseMP(gameState, playerId, slotIndex, amount, source = 'DRAIN',
     return state;
   }
 
-  // ── Snelle Piecie interception flags ─────────────────────────────────────
-  const snelleFlags = state._snelleFlags || {};
-
-  // Counter Strikka: negate next Piecie-sourced MP loss (DRAIN) for this player.
-  if (snelleFlags.negateNextPiecie?.[playerId] && source === 'DRAIN') {
-    console.log('[MP] Counter Strikka: Piecie/DRAIN damage negated for', playerId);
-    delete state._snelleFlags.negateNextPiecie[playerId];
-    return state;
-  }
-
-  // Perfect Dodge: negate next ATTACK source + gain 15 MP for the defender.
-  if (snelleFlags.negateNextAttack?.[playerId] && source === 'ATTACK') {
-    console.log('[MP] Perfect Dodge: ATTACK negated for', playerId, '— +15 MP refund');
-    mosje.mp += 15;
-    delete state._snelleFlags.negateNextAttack[playerId];
-    return state;
-  }
-
-  // Drain Reversal: reflect incoming DRAIN to the opponent (direct mutation — bypass stack to avoid recursion).
-  if (snelleFlags.drainReversal?.[playerId] && source === 'DRAIN') {
-    const oppId = Object.keys(state.players).find(id => id !== playerId);
-    if (oppId) {
-      const opp = state.players[oppId];
-      const osi = opp.activeSlots.findIndex(s => s && !s.isDefeated);
-      if (osi >= 0) {
-        opp.activeSlots[osi].mp = Math.max(0, opp.activeSlots[osi].mp - amount);
-        console.log('[MP] Drain Reversal: reflected', amount, 'drain to opponent');
-      }
-    }
-    delete state._snelleFlags.drainReversal[playerId];
-    return state;
-  }
-
-  // ── End snelle interception ───────────────────────────────────────────────
-
   // Obby 2.0: pipeline (§2g) -> subtract -> track -> getemt (§2b), all in one slot-level funnel.
   const { final, getemt } = applyMpLossToSlot({ state, playerId, slot: mosje, amount, source, byPlayerId });
   if (final <= 0) {

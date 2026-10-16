@@ -5,6 +5,16 @@ import { PIECIES } from "../../src/data/piecies.js";
 import { SNELLE_PIECIES } from "../../src/data/snellePiecies.js";
 // @ts-expect-error — JS module, no type declarations
 import { effect_snelle_emergency_healings } from "../../src/abilities/snelleEffects.js";
+// @ts-expect-error — JS module, no type declarations
+import { emergencyHealingsStep } from "../../src/engine/mp/lossSteps/emergencyHealingsStep.js";
+
+// 2.0: the effect queues a gain-first entry on the threatened slot; the loss pipeline applies it before the loss lands.
+function heal(state: any) {
+  const out = effect_snelle_emergency_healings(state, "player_1", { reaction: { preview: { getemt: [], mpLoss: { 0: 10 } } } });
+  const slot = out.players.player_1.activeSlots[0];
+  emergencyHealingsStep({ state: out, playerId: "player_1", slotIndex: 0, slot });
+  return out;
+}
 
 // ─────────────────────────────────────────────────────────────
 // Phase 24 — Plan 01: Interrupt data fixes
@@ -55,21 +65,21 @@ describe("Phase 24-01 — Interrupt data fixes", () => {
   // ── Test 3: unconditional heal when mp > 0 ────────────────────────────────
   it("effect_snelle_emergency_healings heals +25 MP when Mosje has mp=50 (no mp<=0 guard)", () => {
     const state = makeState(50);
-    const result = effect_snelle_emergency_healings(state, "player_1");
+    const result = heal(state);
     expect(result.players.player_1.activeSlots[0].mp).toBe(75);
   });
 
   // ── Test 4: resilient >= 2 heals +35 ─────────────────────────────────────
   it("effect_snelle_emergency_healings heals +35 MP when Mosje has resilient >= 2", () => {
     const state = makeState(50, 2);
-    const result = effect_snelle_emergency_healings(state, "player_1");
+    const result = heal(state);
     expect(result.players.player_1.activeSlots[0].mp).toBe(85);
   });
 
   // ── Test 5: heals at mp=0 (gain not set) ─────────────────────────────────
   it("effect_snelle_emergency_healings heals +25 when mp=0 (gain, not set-to-30)", () => {
     const state = makeState(0);
-    const result = effect_snelle_emergency_healings(state, "player_1");
+    const result = heal(state);
     // Should be 0 + 25 = 25, NOT 30 (which was the old set behavior)
     expect(result.players.player_1.activeSlots[0].mp).toBe(25);
   });

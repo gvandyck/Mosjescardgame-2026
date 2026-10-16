@@ -3,6 +3,7 @@
 import { LOSS_STEPS } from './lossSteps.js';
 import { resolveMpLoss } from './resolveMpLoss.js';
 import { applyGetemt } from './applyGetemt.js';
+import { takeReactionMod } from '../reactions/takeReactionMod.js';
 import { isFresh } from '../fresh/isFresh.js';
 import { isOpponentSourced } from '../fresh/isOpponentSourced.js';
 
@@ -25,6 +26,12 @@ export function applyMpLossToSlot({ state, playerId, slot, amount, source, byPla
   let getemt = null;
   if (slot.mp <= 0) getemt = applyGetemt(slot);
   slot.mp = Math.max(0, slot.mp);
+  // Not Today! (Snelle): the Mosje that would go to the Welloe pile stays, at 5 MP minimum (sideways stays sideways).
+  if (getemt === 'welloe' && takeReactionMod(state, 'save', playerId, slotIndex)) {
+    slot.mp = Math.max(slot.mp, 5);
+    delete slot._pendingWelloe;
+    getemt = null;
+  }
   // Tactician set: a loss is kept (subtracted via the delta); a getemt ends the set early.
   if (slot.tacticianSet) {
     if (getemt) delete slot.tacticianSet;

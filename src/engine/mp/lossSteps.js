@@ -8,12 +8,13 @@ import { coertsCaravanShield } from './lossSteps/coertsCaravanShield.js';
 import { halvedLossReducer } from './lossSteps/halvedLossReducer.js';
 import { statusReductionReducer } from './lossSteps/statusReductionReducer.js';
 import { staysBoundReducer } from './lossSteps/staysBoundReducer.js';
-import { protectorSnelleReducer } from './lossSteps/protectorSnelleReducer.js';
+import { snelleReactionReducer } from './lossSteps/snelleReactionReducer.js';
+import { emergencyHealingsStep } from './lossSteps/emergencyHealingsStep.js';
 import { momentumStabilizerCap } from './lossSteps/momentumStabilizerCap.js';
 
 export const LOSS_STEPS = {
-  beforeLoss: [],
+  beforeLoss: [emergencyHealingsStep],
   base: [drainZoneBonus],
-  reducers: [zoIsNatuurReducer, coertsCaravanShield, halvedLossReducer, statusReductionReducer, staysBoundReducer, protectorSnelleReducer],
+  reducers: [zoIsNatuurReducer, coertsCaravanShield, halvedLossReducer, statusReductionReducer, staysBoundReducer, snelleReactionReducer],
   caps: [momentumStabilizerCap],
 };

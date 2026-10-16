@@ -7,7 +7,7 @@ export function mosjeOptions(state, playerId, who, filter = () => true) {
 	const pid = who === 'own' ? playerId : oppId;
 	const out = [];
 	(state.players[pid]?.activeSlots || []).forEach((slot, slotIndex) => {
-		if (!slot || slot.isDefeated || !filter(slot)) return;
+		if (!slot || slot.isDefeated || !filter(slot, slotIndex)) return;
 		if (who === 'opp' && isFresh(slot)) return;
 		out.push({ playerId: pid, slotIndex, label: slot.name });
 	});

@@ -108,8 +108,8 @@ describe("resolveMpLoss — §2g order", () => {
     expect(resolveMpLoss(ctxFor(build(), 15))).toBe(0);
   });
 
-  it("beforeLoss exists and is empty by default", () => {
-    expect(LOSS_STEPS.beforeLoss).toEqual([]);
+  it("beforeLoss holds only the Emergency Healings step by default", () => {
+    expect(LOSS_STEPS.beforeLoss).toHaveLength(1);
   });
 });
 

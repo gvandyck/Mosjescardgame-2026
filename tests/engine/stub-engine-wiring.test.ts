@@ -96,14 +96,14 @@ describe("loseMP — MP_LOSS_REDUCTION status effect", () => {
   });
 });
 
-describe("loseMP — snelleFlags.mpLossReduction (Protector flag)", () => {
-  it("Test 5: snelleFlags.mpLossReduction[playerId]=30 — loss reduced by 30, flag deleted after use", () => {
+describe("loseMP — reactionMods reduce entry (The Protector)", () => {
+  it("Test 5: a reduce entry of 30 on the slot — loss reduced by 30, entry consumed", () => {
     const state = makeState(100, 1);
-    (state as any)._snelleFlags = { mpLossReduction: { p1: 30 } };
+    (state as any).reactionMods = [{ kind: "reduce", playerId: "p1", slotIndex: 0, amount: 30 }];
     const result = loseMP(state, "p1", 0, 50);
     // 50 - 30 = 20 subtracted, 100 - 20 = 80
     expect(result.players.p1.activeSlots[0].mp).toBe(80);
-    expect((result as any)._snelleFlags?.mpLossReduction?.p1).toBeUndefined();
+    expect((result as any).reactionMods).toHaveLength(0);
   });
 });
 
@@ -174,14 +174,14 @@ describe("markMosjeDefeated - Mosje Shield (bound Stays entry)", () => {
     expect((result.players.p1.graveyard as any[]).filter((e: any) => e.type === 'MOSJE')).toHaveLength(0);
   });
 
-  it("Test 10: Mosje Shield AND negateNextElimination both set - the shield fires first, the flag is kept", () => {
+  it("Test 10: Mosje Shield AND a Not Today! save entry - the shield fires first, the entry is kept", () => {
     const state = makeState(0, 1);
     (state.players.p1 as any).piecieSlots = [shieldEntry(state.players.p1.activeSlots[0].cardId)];
-    (state as any)._snelleFlags = { negateNextElimination: { p1: true } };
+    (state as any).reactionMods = [{ kind: "save", playerId: "p1", slotIndex: 0 }];
     const result = markMosjeDefeated(state, "p1", 0);
     expect(result.players.p1.activeSlots[0]).not.toBeNull();
     expect(result.players.p1.activeSlots[0].mp).toBe(5);
-    expect((result as any)._snelleFlags.negateNextElimination.p1).toBe(true);
+    expect((result as any).reactionMods).toHaveLength(1);
   });
 });
 

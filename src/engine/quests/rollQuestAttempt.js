@@ -59,7 +59,6 @@ function rollCore(state, playerId, { slotIndex, stackId, costChoice, dieChoices 
 	const extra = QUEST_EXTRAS[quest.id]?.extraDice?.(
 		{ state: s, playerId, player, slot, slotIndex, quest, revealed: paid.revealed }, dieChoices) || 0;
 	const diceCount = getQuestDiceCount(s, playerId, slot, quest, { extra });
-	if (s._snelleFlags?.questDiceBonus) delete s._snelleFlags.questDiceBonus;
 	player.questExtraDice = 0;
 	for (const g of player.rerollGrants || []) if (g.scope === 'ownQuest') g.forRoll = true; // Dubbele Dosis: reroll belongs to this Quest
 

@@ -16,12 +16,8 @@ function placeDice({ state, slot, quest }) {
 	}
 }
 
-function snelleFlagDice({ state }) {
-	return state?._snelleFlags?.questDiceBonus || 0;
-}
-
 function playerExtraDice({ state, playerId }) {
 	return state?.players?.[playerId]?.questExtraDice || 0;
 }
 
-export const QUEST_DICE_SOURCES = [placeDice, snelleFlagDice, playerExtraDice];
+export const QUEST_DICE_SOURCES = [placeDice, playerExtraDice];

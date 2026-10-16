@@ -73,5 +73,6 @@ export function continueReaction(s, p, queue) {
 		return { state: s, ok: true, success: true, reactionPending: true };
 	}
 	const res = replay(s, p.action);
+	if (res.state) delete res.state.reactionMods; // one-shot reaction entries never outlive the held action (T-60-03)
 	return { ...res, ok: res.ok ?? res.success, success: res.success ?? res.ok };
 }

@@ -8,6 +8,8 @@ console.log('[ABILITY] snelleEffects.js loaded');
 
 // Rewritten Snelle live in section files under ./snelle/ (Phase 60); V4 bodies of the others stay here until their plan.
 export * from './snelle/snelleMpEffects.js';
+export * from './snelle/snelleProtectEffects.js';
+export * from './snelle/snelleDiceEffects.js';
 
 export function effect_emergency_healings(gameState, playerId) {
 	const state = JSON.parse(JSON.stringify(gameState));
@@ -65,46 +67,6 @@ export function effect_snelle_jensen(gameState, playerId) {
 	return state;
 }
 
-export function effect_snelle_emergency_healings(gameState, playerId) {
-	const state = JSON.parse(JSON.stringify(gameState));
-	const player = state.players?.[playerId];
-	if (!player) return state;
-	const slotIndex = player.activeSlots.findIndex(s => s !== null && !s.isDefeated);
-	if (slotIndex >= 0) {
-		const mosje = player.activeSlots[slotIndex];
-		const resilient = mosje.traits?.resilient || 0;
-		const healAmount = resilient >= 2 ? 35 : 25;
-		applyGainToSlot(mosje, healAmount, { turnNumber: state.turnNumber });
-	}
-	console.log('[ABILITY] Emergency Healings (snelle): unconditional heal');
-	return state;
-}
-
-export function effect_snelle_lucky_coin(gameState, playerId) {
-	let state = JSON.parse(JSON.stringify(gameState));
-	const result = state._pendingTargets?.lucky_coin_result;
-
-	if (result === 'heads') {
-		if (!state._snelleFlags) state._snelleFlags = {};
-		if (!state._snelleFlags.forceReroll) state._snelleFlags.forceReroll = {};
-		state._snelleFlags.forceReroll[playerId] = true;
-		console.log('[ABILITY] Lucky Coin: heads → reroll token granted');
-	} else if (result === 'tails') {
-		const slotIndex = state._pendingTargets?.lucky_coin_tails_slot;
-		const player = state.players[playerId];
-		if (player && Number.isInteger(slotIndex) && player.activeSlots[slotIndex]) {
-			state = loseMP(state, playerId, slotIndex, 10, 'DRAIN');
-			console.log(`[ABILITY] Lucky Coin: tails → -10 MP to slot ${slotIndex}`);
-		}
-	}
-
-	if (state._pendingTargets) {
-		delete state._pendingTargets.lucky_coin_result;
-		delete state._pendingTargets.lucky_coin_tails_slot;
-	}
-	return state;
-}
-
 // ─────────────────────────────────────────
 // STUBS — implement in future phases
 // ─────────────────────────────────────────
@@ -119,16 +81,6 @@ export function effect_snelle_counter_strikka(gameState, playerId) {
 	return state;
 }
 
-// Perfect Dodge — negate the next ATTACK Piecie targeting you + gain 15 MP
-export function effect_snelle_perfect_dodge(gameState, playerId) {
-	const state = JSON.parse(JSON.stringify(gameState));
-	state._snelleFlags = state._snelleFlags || {};
-	state._snelleFlags.negateNextAttack = state._snelleFlags.negateNextAttack || {};
-	state._snelleFlags.negateNextAttack[playerId] = true;
-	console.log('[ABILITY] Perfect Dodge: next ATTACK Piecie negated; +15 MP on trigger');
-	return state;
-}
-
 // Jammertje Gepakt — negate next opponent search/draw action + reveal 1 random hand card
 export function effect_snelle_jammertje_gepakt(gameState, playerId) {
 	const state = JSON.parse(JSON.stringify(gameState));
@@ -136,58 +88,6 @@ export function effect_snelle_jammertje_gepakt(gameState, playerId) {
 	state._snelleFlags.negateNextSearch = state._snelleFlags.negateNextSearch || {};
 	state._snelleFlags.negateNextSearch[playerId] = true;
 	console.log('[ABILITY] Jammertje Gepakt: next opponent search/draw action will be negated');
-	return state;
-}
-
-// Not Today! — negate next Mosje elimination for this player; stay at 5 MP instead
-export function effect_snelle_negate_elimination(gameState, playerId) {
-	const state = JSON.parse(JSON.stringify(gameState));
-	state._snelleFlags = state._snelleFlags || {};
-	state._snelleFlags.negateNextElimination = state._snelleFlags.negateNextElimination || {};
-	state._snelleFlags.negateNextElimination[playerId] = true;
-	console.log('[ABILITY] Not Today!: next Mosje elimination negated — stays at 5 MP');
-	return state;
-}
-
-// Drain Reversal — negate next incoming drain + reflect that damage to opponent
-export function effect_snelle_drain_reversal(gameState, playerId) {
-	const state = JSON.parse(JSON.stringify(gameState));
-	state._snelleFlags = state._snelleFlags || {};
-	state._snelleFlags.drainReversal = state._snelleFlags.drainReversal || {};
-	state._snelleFlags.drainReversal[playerId] = true;
-	console.log('[ABILITY] Drain Reversal: next incoming drain will be reversed');
-	return state;
-}
-
-// The Protector — reduce next ally MP loss by 30
-export function effect_snelle_the_protector(gameState, playerId) {
-	const state = JSON.parse(JSON.stringify(gameState));
-	state._snelleFlags = state._snelleFlags || {};
-	state._snelleFlags.mpLossReduction = state._snelleFlags.mpLossReduction || {};
-	state._snelleFlags.mpLossReduction[playerId] = 30;
-	console.log('[ABILITY] The Protector: next MP loss reduced by 30');
-	return state;
-}
-
-// Je Weet Niet — force opponent to reroll their next quest die
-export function effect_snelle_jeweetniet(gameState, playerId) {
-	const state = JSON.parse(JSON.stringify(gameState));
-	state._snelleFlags = state._snelleFlags || {};
-	const oppId = Object.keys(state.players).find(id => id !== playerId);
-	if (oppId) {
-		state._snelleFlags.forceReroll = state._snelleFlags.forceReroll || {};
-		state._snelleFlags.forceReroll[oppId] = true;
-	}
-	console.log('[ABILITY] Je Weet Niet: opponent must reroll next quest die');
-	return state;
-}
-
-// Sleutelpuntje — +1 bonus on next quest dice roll
-export function effect_snelle_sleutelpuntje(gameState, playerId) {
-	const state = JSON.parse(JSON.stringify(gameState));
-	state._snelleFlags = state._snelleFlags || {};
-	state._snelleFlags.questDiceBonus = (state._snelleFlags.questDiceBonus || 0) + 1;
-	console.log('[ABILITY] Sleutelpuntje: +1 on next quest dice roll');
 	return state;
 }
 

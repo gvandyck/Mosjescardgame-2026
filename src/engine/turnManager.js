@@ -33,7 +33,6 @@ import { SNELLE_PIECIES } from '../data/snellePiecies.js';
 import { QUESTS } from '../data/quests.js';
 import { toGraveyardEntry } from './graveyardUtils.js';
 import { createMosjeSlot } from './mp/createMosjeSlot.js';
-import { applyGainToSlot } from './mp/applyGainToSlot.js';
 import { roundToFive } from './roundToFive.js';
 import { gainEnergy } from './energy/gainEnergy.js';
 import { checkWin } from './winLose/checkWin.js';
@@ -504,7 +503,6 @@ export function resolvePiecieActivation(state, playerId, safeSlotIndex, knownCar
   const slotCardId = knownCardDef.id;
   const flags = state._snelleFlags || {};
   const oppId = Object.keys(state.players).find(id => id !== playerId);
-  const isAttack = knownCardDef.tags?.includes('ATTACK');
   if (!Array.isArray(player.graveyard)) player.graveyard = [];
 
   // Flip face-up when activation starts
@@ -522,19 +520,6 @@ export function resolvePiecieActivation(state, playerId, safeSlotIndex, knownCar
     state = checkVictory(state);
     return { state, success: true, negated: true, cardDef: knownCardDef };
   }
-  // Perfect Dodge: negate ATTACK Piecies + grant 15 MP
-  if (oppId && isAttack && flags.negateNextAttack?.[oppId]) {
-    delete state._snelleFlags.negateNextAttack[oppId];
-    const oppPlayer = state.players[oppId];
-    const si = oppPlayer.activeSlots.findIndex(s => s && !s.isDefeated);
-    if (si >= 0) applyGainToSlot(oppPlayer.activeSlots[si], 15, { turnNumber: state.turnNumber });
-    console.log('[ENGINE] Perfect Dodge negated ATTACK + granted 15 MP to opponent');
-    player.graveyard.push(toGraveyardEntry(slotCardId, 'played'));
-    if (hasSlot) player.piecieSlots[safeSlotIndex] = null;
-    state = checkVictory(state);
-    return { state, success: true, negated: true, cardDef: knownCardDef };
-  }
-
   // Apply the effect (it may pause on a choice; resumePiecieChoice then finishes the activation)
   const after = {
     handSizeBefore: state.players[playerId].hand.length,
