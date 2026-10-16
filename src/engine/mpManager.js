@@ -7,6 +7,8 @@ import { isOpponentSourced } from './fresh/isOpponentSourced.js';
 import { applyGainToSlot } from './mp/applyGainToSlot.js';
 import { normalizeSlotMp } from './mp/normalizeSlotMp.js';
 import { applyMpLossToSlot } from './mp/applyMpLossToSlot.js';
+import { applyMpAmplifier } from './mp/applyMpAmplifier.js';
+import { synergyFieldBonus } from './mp/synergyFieldBonus.js';
 
 console.log('[ENGINE] mpManager.js loaded');
 
@@ -43,7 +45,10 @@ export function gainMP(gameState, playerId, slotIndex, amount, source = 'GAIN') 
     return state;
   }
 
-  const { gained } = applyGainToSlot(mosje, amount, { turnNumber: state.turnNumber });
+  // Synergy Field: +10 per staying copy on an ability gain; then MP Amplifier doubles the next gain (max +40 extra).
+  let total = amount + (source === 'ABILITY' ? synergyFieldBonus(state, playerId) : 0);
+  total = applyMpAmplifier(state, playerId, total);
+  const { gained } = applyGainToSlot(mosje, total, { turnNumber: state.turnNumber });
   console.log(`[ENGINE] 💥 ${mosje.name} gains ${gained} MP (${source}) → now Level ${mosje.level} | ${mosje.mp} MP`);
   return state;
 }

@@ -93,10 +93,9 @@ test('chain: Affoe getemt — first hit sideways at 0 MP, second hit to the Well
 	expect(await page.locator('#reward-overlay').count()).toBe(0);
 });
 
-// ── Chain B: MP Amplifier scales the NEXT gain ×1.5 ──────────────────────────
-// Activate MP Amplifier (sets mpAmplifierActive), then Kannetje Melk (+25 base).
-// Amplified + 5-grid rule: roundToFive(25 × 1.5) = roundToFive(37.5) = 40.
-test('chain: MP Amplifier → next Kannetje Melk gains +40 (×1.5, 5-grid)', async ({ page }) => {
+// ── Chain B: MP Amplifier doubles the NEXT gain (max +40 extra) ──────────────────────────
+// Activate MP Amplifier (sets mpAmplifierThisTurn), then Kannetje Melk (+25 base): doubled = +50.
+test('chain: MP Amplifier → next Kannetje Melk gains +50 (doubled)', async ({ page }) => {
 	test.setTimeout(60000);
 	await seedCustomDeck(page, {
 		id: 'custom_amp_chain', name: 'Amplifier Chain',
@@ -118,9 +117,9 @@ test('chain: MP Amplifier → next Kannetje Melk gains +40 (×1.5, 5-grid)', asy
 	await activate(page, 'piecie_mp_amplifier');
 
 	const flagged = await getGameState(page);
-	expect(flagged?.players?.player_1?.mpAmplifierActive).toBe(true);
+	expect(flagged?.players?.player_1?.mpAmplifierThisTurn).toBe(true);
 
-	// Now play + activate Kannetje Melk — gain should be amplified to 40 (5-grid)
+	// Now play + activate Kannetje Melk — gain should be doubled to 50
 	const before = await ownSlot0(page);
 	await playCardFromHand(page, 'piecie_kannetje_melk');
 	await page.waitForTimeout(300);
@@ -128,9 +127,9 @@ test('chain: MP Amplifier → next Kannetje Melk gains +40 (×1.5, 5-grid)', asy
 	await activate(page, 'piecie_kannetje_melk');
 	const after = await ownSlot0(page);
 	const delta = after - before;
-	console.log(`Amplifier chain: Kannetje gain = ${delta} (expected 40 = roundToFive(25×1.5))`);
+	console.log(`Amplifier chain: Kannetje gain = ${delta} (expected 50 = 25 doubled)`);
 	await ss(page, 'chain-mp-amplifier');
-	expect(delta).toBe(40);
+	expect(delta).toBe(50);
 });
 
 // Removed in 58-12: the V4 single-Mosje chains for Tuk Healer (+10 chosen Mosje), Tactician (MP transfer), Ming Natural

@@ -98,3 +98,11 @@ export function effect_bong_hit_demolition(gameState, playerId) {
 	}
 	return drawFromEffect(state, playerId, 2);
 }
+
+// Stripje Bennies: draw 3 cards, one of your Mosjes loses 20 MP.
+export function effect_stripje_bennies(gameState, playerId) {
+	const state = drawFromEffect(cloneState(gameState), playerId, 3);
+	return ownMosje(state, playerId, 'piecie_stripje_bennies', 20, 0);
+}
+
+export const effect_pot_of_weed = (gameState, playerId) => drawFromEffect(cloneState(gameState), playerId, 2);

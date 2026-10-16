@@ -2,7 +2,7 @@
 // Filled in Phase 4.
 
 import { rollDie } from '../engine/deckEngine.js';
-import { roundToFive } from '../engine/roundToFive.js';
+import { applyMpAmplifier } from '../engine/mp/applyMpAmplifier.js';
 import { isHolderTextActive } from '../engine/synergy/isHolderTextActive.js';
 import { MOSJES } from '../data/mosjes.js';
 import { createMosjeSlot } from '../engine/mp/createMosjeSlot.js';
@@ -71,20 +71,9 @@ function pushHostileStatus(mosje, effect, label) {
 	return true;
 }
 
-// Binti holder text (Coert Tech on field): each food Piecie you activate gives its Mosje +10 extra.
-function bintiFoodExtra(state, playerId) {
-	return isHolderTextActive(state, playerId, 'mosje_binti') ? 10 : 0;
-}
-
 function applyMPGain(player, si, amount, state, playerId) {
-	// Apply mpAmplifier 50% bonus if active
-	let total = amount;
-	if (player.mpAmplifierActive) {
-		total = roundToFive(amount * 1.5);  // game rule: MP stays on the 5-grid
-		player.mpAmplifierActive = false;
-		console.log(`[ABILITY] MP Amplifier applied: ${amount} \u2192 ${total}`);
-	}
-	// 2.0: 100+ levels the Mosje up to 0 MP, Level 3 stops at 95 (applyGainToSlot).
+	// MP Amplifier doubles the next gain this turn (max +40 extra); 2.0: 100+ levels up, Level 3 stops at 95.
+	const total = applyMpAmplifier(state, playerId, amount);
 	applyGainToSlot(player.activeSlots[si], total, { turnNumber: state.turnNumber });
 	return total;
 }
@@ -92,67 +81,6 @@ function applyMPGain(player, si, amount, state, playerId) {
 // ─────────────────────────────────────────
 // MOMENTUM-GAINING
 // ─────────────────────────────────────────
-
-export function effect_ronald_kip(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si < 0) return state;
-	const mosje = player.activeSlots[si];
-	const hasRonald = player.activeSlots.some(s => s && !s.isDefeated && s.cardId === 'mosje_ronald_chef');
-	const base = (hasRonald ? 60 : 50) + bintiFoodExtra(state, playerId);
-	applyMPGain(player, si, base, state, playerId);
-	if (hasRonald && player.deck.length > 0) player.hand.push(player.deck.shift());
-	console.log(`[ABILITY] Ronald Kip: +${base} MP`);
-	return state;
-}
-
-export function effect_chefs_special(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si < 0) return state;
-	const hasRonald = player.activeSlots.some(s => s && !s.isDefeated && s.cardId?.startsWith('mosje_ronald'));
-	const oppId = getOpponentId(state, playerId);
-	let gain = 15;
-	if (hasRonald && oppId) {
-		const oppPieciesInHand = state.players[oppId].hand.filter(c => c.type === 'PIECIE').length;
-		gain = oppPieciesInHand * 30;
-	}
-	gain += bintiFoodExtra(state, playerId);
-	applyMPGain(player, si, gain, state, playerId);
-	console.log(`[ABILITY] Chef's Special: +${gain} MP`);
-	return state;
-}
-
-export function effect_energy_surge(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si < 0) return state;
-	if (player.activeSlots[si].mp >= 30) {
-		console.log('[ABILITY] Shoettoe: blocked (MP >= 30)');
-		return state;
-	}
-	applyMPGain(player, si, 20, state, playerId);
-	console.log('[ABILITY] Shoettoe: +20 MP');
-	return state;
-}
-
-export function effect_warm_kannetje_melk(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si >= 0) applyDamage(state, playerId, player.activeSlots[si], 10);
-	const drawCount = Math.min(2, player.deck.length);
-	player.hand.push(...player.deck.splice(0, drawCount));
-	console.log(`[ABILITY] Warm Kannetje Melk: -10 MP, drew ${drawCount}`);
-	return state;
-}
 
 // ─────────────────────────────────────────
 // ATTACK
@@ -195,16 +123,6 @@ export function effect_kleine_taks(gameState, playerId) {
 // ─────────────────────────────────────────
 // UTILITY
 // ─────────────────────────────────────────
-
-export function effect_pot_of_weed(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const drawn = Math.min(2, player.deck.length);
-	player.hand.push(...player.deck.splice(0, drawn));
-	console.log(`[ABILITY] Pot of Weed: drew ${drawn} card(s)`);
-	return state;
-}
 
 export function effect_redbull(gameState, playerId) {
 	const state = cloneState(gameState);
@@ -297,15 +215,6 @@ export function effect_dikke_plaat(gameState, playerId) {
 	return state;
 }
 
-export function effect_mp_amplifier(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	player.mpAmplifierActive = true;
-	console.log('[ABILITY] MP Amplifier: next MP gain +50%');
-	return state;
-}
-
 export function effect_mosje_reborn(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
@@ -343,14 +252,6 @@ export function effect_mosje_reborn(gameState, playerId) {
 		player.activeSlots[emptySlot] = revived;
 	}
 	console.log(`[ABILITY] Mosje Reborn: revived ${revived.name} at ${revived.mp} MP (${startMP} base + 40)`);
-	return state;
-}
-
-export function effect_synergy_field(gameState, playerId) {
-	const state = cloneState(gameState);
-	state.synergyFieldTurnsLeft = 3;
-	state.synergyFieldOwner = playerId;
-	console.log('[ABILITY] Synergy Field: +10 to all restore gains for 3 turns');
 	return state;
 }
 
@@ -555,56 +456,9 @@ export function effect_kan_het(gameState, playerId) {
 // PET PROTECTION
 // ─────────────────────────────────────────
 
-export function effect_tony(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	for (const slot of player.activeSlots) {
-		if (!slot || slot.isDefeated) continue;
-		slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 1, turnsLeft: 2 });
-	}
-	console.log('[ABILITY] Tony: MP loss halved for 2 turns');
-	return state;
-}
-
-export function effect_gekke_vogels(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	for (const slot of player.activeSlots) {
-		if (!slot || slot.isDefeated) continue;
-		slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 1, turnsLeft: 2 });
-	}
-	console.log('[ABILITY] Gekke Vogels: MP loss halved for 2 turns (Jisca)');
-	return state;
-}
-
-export function effect_katjegang(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	for (const slot of player.activeSlots) {
-		if (!slot || slot.isDefeated) continue;
-		slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 1, turnsLeft: 2 });
-	}
-	console.log('[ABILITY] KatjeGang: MP loss halved for 2 turns (Alyssa)');
-	return state;
-}
-
 // ─────────────────────────────────────────
 // SUBSTANCE
 // ─────────────────────────────────────────
-
-export function effect_stripje_bennies(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si >= 0) applyDamage(state, playerId, player.activeSlots[si], 20);
-	player.hand.push(...player.deck.splice(0, Math.min(3, player.deck.length)));
-	console.log('[ABILITY] Stripje Bennies: draw 3, -20 MP');
-	return state;
-}
 
 // ─────────────────────────────────────────
 // DIGITAL EQUIPMENT
@@ -613,42 +467,6 @@ export function effect_stripje_bennies(gameState, playerId) {
 // ─────────────────────────────────────────
 // PHYSICAL EQUIPMENT
 // ─────────────────────────────────────────
-
-export function effect_dumbbells(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si < 0) return state;
-	const mosje = player.activeSlots[si];
-	const isPhysical = mosje.subtype === 'FIGHTING';
-	const mp = isPhysical ? 20 : 5;
-	applyMPGain(player, si, mp, state, playerId);
-	// Flavor bonus: draw 1 card only at Physical ★★★ (level >= 3)
-	if (isPhysical && (mosje.level || 1) >= 3 && player.deck.length > 0) {
-		player.hand.push(player.deck.shift());
-		console.log(`[ABILITY] Dumbbells: +${mp} MP (Physical Lv${mosje.level}), drew 1`);
-	} else {
-		console.log(`[ABILITY] Dumbbells: +${mp} MP${isPhysical ? ' (Physical)' : ' (base)'}`);
-	}
-	return state;
-}
-
-export function effect_skipping_rope(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si < 0) return state;
-	const mosje = player.activeSlots[si];
-	const isPhysical = mosje.subtype === 'FIGHTING';
-	if (isPhysical) {
-		player.questExtraDice = (player.questExtraDice || 0) + 1;
-	}
-	if (player.deck.length > 0) player.hand.push(player.deck.shift());
-	console.log(`[ABILITY] Skipping Rope:${isPhysical ? ' +1 quest bonus,' : ''} drew 1`);
-	return state;
-}
 
 // ─────────────────────────────────────────
 // BOOSTER-ONLY ATTACK

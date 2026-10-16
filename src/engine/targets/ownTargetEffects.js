@@ -17,6 +17,9 @@ export const OWN_TARGET_EFFECT_IDS = [
 	'effect_dikke_taks',
 	'effect_bowie_stormey',
 	'effect_vianna_poes',
+	'effect_tony',
+	'effect_gekke_vogels',
+	'effect_katjegang',
 	'effect_mosje_shield',
 	'effect_stookerino',
 	'effect_those_eyelashes',
@@ -34,7 +37,6 @@ export const OWN_TARGET_EFFECT_IDS = [
 	'effect_controller',
 	'effect_dumbbells',
 	'effect_boxing_gloves',
-	'effect_skipping_rope',
 	'effect_protein_shake',
 	'effect_straffoe',
 ];

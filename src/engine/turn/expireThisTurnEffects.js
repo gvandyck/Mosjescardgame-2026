@@ -7,6 +7,7 @@ export function expireThisTurnEffects(state) {
 			delete player.rerollGrants; // Dubbele Dosis: an unused reroll ends with the turn
 			player.chainReactionFree = 0; // Chain Reaction: an unarmed / unused free activation ends with the turn
 			player.chainReactionOffer = 0;
+			player.mpAmplifierThisTurn = false; // MP Amplifier: an unused boost ends with the turn
 		}
 		delete player.gamblerQuestBonusTurn; // Jeffrey, The Silent Gambler: the +15 lasts this turn only
 		for (const slot of player.activeSlots || []) {
