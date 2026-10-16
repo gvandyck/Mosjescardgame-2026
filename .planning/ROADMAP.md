@@ -35,7 +35,7 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 | 56 | Attacking and Quests | 9/9 | Complete    | 2026-10-12 |
 | 57 | Piecies, Snelle, Places and Reaction Windows | 7/7 | Complete    | 2026-10-12 |
 | 58 | Mosje Abilities and Synergies | 12/12 | Complete    | 2026-10-15 |
-| 59 | Piecie Effects | Every Piecie does what its Card List text says | EFX-02 | 4 |
+| 59 | Piecie Effects | 8/8 | Complete    | 2026-10-16 |
 | 60 | Snelle, Places and Hidden Information | Every Snelle and Place works; hidden info stays hidden; every card tested | EFX-03, EFX-04, EFX-07, TEST-02 | 4 |
 | 61 | Bot 2.0 | The bot plays legal, sensible 2.0 games without cheating | BOT-01..04 | 4 |
 | 62 | 2.0 Card Faces | Every card face follows the Phase 7 §A spec | UI-04, TEST-04 | 5 |
