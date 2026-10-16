@@ -123,8 +123,15 @@ describe("Piecie activation windows", () => {
     const r = playSnellie(s, "player_1", { cardId: "snelle_momentum_rush", type: "SNELLE_PIECIE" }, def);
     expect(r.state.pendingReaction).toBeUndefined();
   });
+  // Dubbele Temminks is refused on a five-star Piecie (Klaar Met Jou), so these two use the one-star Affoe on single-Mosje fields (no pick).
+  const affoe = (s: any) => {
+    s.players.player_1.piecieSlots[0] = { ...ready, cardId: "piecie_affoe" };
+    s.players.player_1.activeSlots[1] = null;
+    s.players.player_2.activeSlots[1] = null;
+    return s;
+  };
   it("afterOwnPiecieActivation: actor window opens after the defender window, or directly", () => {
-    const both = activatePiecie(mkp(["snelle_counter_strikka"], ["snelle_dubbele_temminks"]), "player_1", 0).state;
+    const both = activatePiecie(affoe(mkp(["snelle_counter_strikka"], ["snelle_dubbele_temminks"])), "player_1", 0).state;
     expect(both.pendingReaction.responderId).toBe("player_2");
     expect(both.pendingReaction.queue).toEqual([{ responderId: "player_1", moments: ["afterOwnPiecieActivation"] }]);
     const next = resolveReaction(both, "player_2", null);
@@ -132,7 +139,7 @@ describe("Piecie activation windows", () => {
     expect(next.state.pendingReaction.moments).toEqual(["afterOwnPiecieActivation"]);
     const end = resolveReaction(next.state, "player_1", null);
     expect(end.state.pendingReaction).toBeUndefined();
-    const direct = activatePiecie(mkp([], ["snelle_dubbele_temminks"]), "player_1", 0).state;
+    const direct = activatePiecie(affoe(mkp([], ["snelle_dubbele_temminks"])), "player_1", 0).state;
     expect(direct.pendingReaction.responderId).toBe("player_1");
   });
   it("jensenPlayed: Jensen! in a targeted window opens Frenssen! for the other player", () => {

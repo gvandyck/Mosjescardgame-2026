@@ -1,5 +1,5 @@
 // withReactionWindow — runs an action; if a player holds a fitting Snelle, pauses on state.pendingReaction instead.
-import { detectReactionMoments } from './detectReactionMoments.js';
+import { detectReactionMoments, PIECIE_ACTIONS } from './detectReactionMoments.js';
 import { getEligibleReactions } from './getEligibleReactions.js';
 import { buildPendingReaction } from './buildPendingReaction.js';
 import { REACTION_MOMENTS as M } from './reactionMoments.js';
@@ -15,13 +15,11 @@ export function withReactionWindow(state, actorId, action, run) {
 	const { moments, preview } = detectReactionMoments(state, res.state, { actorId, responderId, actionType: action.type });
 	const eligible = getEligibleReactions(state, responderId, moments, { action, preview, actorId });
 	if (eligible.length) windows.push({ responderId, moments, eligible, preview });
-	if (action.type === 'activatePiecie' || action.type === 'activatePiecieFree') {
+	if (PIECIE_ACTIONS.includes(action.type)) {
 		const own = [M.AFTER_OWN_PIECIE_ACTIVATION];
 		const e = getEligibleReactions(state, actorId, own, { action, actorId });
 		if (e.length) windows.push({ responderId: actorId, moments: own, eligible: e, preview: { getemt: [], toWelloe: false, mpLoss: {} } });
 	}
 	if (!windows.length) return res;
-	// hold: a resumed (paused) activation is already finished - the window keeps its result instead of replaying it.
-	if (action.hold) return { state: buildPendingReaction(res.state, actorId, { type: 'heldResult', args: [] }, windows), ok: true, success: true, reactionPending: true };
 	return { state: buildPendingReaction(state, actorId, action, windows), ok: true, success: true, reactionPending: true };
 }

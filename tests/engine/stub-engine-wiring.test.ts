@@ -277,31 +277,15 @@ function makeDrawState() {
   };
 }
 
-describe("phaseDrawCard — negateNextSearch (STUB-04)", () => {
-  it("Test 14: isOpponentTriggered=true with negateNextSearch[p2] set — draw does NOT happen; flag deleted; hand unchanged", () => {
-    const state = makeDrawState();
-    (state as any)._snelleFlags = { negateNextSearch: { p2: true } };
-    const result = phaseDrawCard(state, "p1", 1, true);
-    // Hand should still be empty — draw was negated
-    expect(result.players.p1.hand).toHaveLength(0);
-    // Flag should be consumed
-    expect((result as any)._snelleFlags?.negateNextSearch?.p2).toBeUndefined();
-  });
-
-  it("Test 15: natural turn draw (isOpponentTriggered NOT passed) — draw happens normally even when negateNextSearch is set", () => {
-    const state = makeDrawState();
-    (state as any)._snelleFlags = { negateNextSearch: { p2: true } };
-    // Called without isOpponentTriggered (natural turn draw)
-    const result = phaseDrawCard(state, "p1", 1);
-    // Natural draws are never negated
+describe("phaseDrawCard — opponent-triggered draws (STUB-04)", () => {
+  // The V4 negateNextSearch flag is gone (Phase 60: Jammertje Gepakt! now cancels a Piecie, see snelle-cancel-copy.test.ts).
+  it("Test 15: natural turn draw draws normally", () => {
+    const result = phaseDrawCard(makeDrawState(), "p1", 1);
     expect(result.players.p1.hand).toHaveLength(1);
   });
 
-  it("Test 16: isOpponentTriggered=true but NO negateNextSearch flag — draw happens normally", () => {
-    const state = makeDrawState();
-    // No negateNextSearch flag at all
-    const result = phaseDrawCard(state, "p1", 1, true);
-    // Draw proceeds because flag is not set
+  it("Test 16: an opponent-triggered draw happens normally", () => {
+    const result = phaseDrawCard(makeDrawState(), "p1", 1, true);
     expect(result.players.p1.hand).toHaveLength(1);
   });
 });

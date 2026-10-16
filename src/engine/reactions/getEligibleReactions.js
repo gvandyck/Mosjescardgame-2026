@@ -5,6 +5,7 @@
 import { SNELLE_PIECIES } from '../../data/snellePiecies.js';
 import { PIECIE_SLOT_COUNT } from '../table/tableRules.js';
 import { canPay } from '../energy/canPay.js';
+import { getSnelleCost } from '../energy/getSnelleCost.js';
 import { isCooldownBlocked } from '../turn/isCooldownBlocked.js';
 import { canDjReroll } from '../../abilities/mosje/canDjReroll.js';
 import { findRerollGrant } from '../quests/findRerollGrant.js';
@@ -40,7 +41,7 @@ function snelleReactions(state, responderId, player, moments, reaction) {
 		if (!def || out.includes(card.cardId)) continue;
 		if (!def.reactionMoments?.some(m => moments.includes(m))) continue;
 		if (snelleConditionMet(state, responderId, def, reaction) !== true) continue; // Needs / Only if: before Energy
-		if (!canPay(player, Number(def.cost) || 0)) continue;
+		if (!canPay(player, getSnelleCost(state, responderId, def))) continue;
 		out.push(card.cardId);
 	}
 	return out;

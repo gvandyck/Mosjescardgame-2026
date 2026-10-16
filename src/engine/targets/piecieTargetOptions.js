@@ -3,6 +3,7 @@
 import { PIECIE_TARGETS } from '../../rules/piecieTargets.js';
 import { canTakeExtraUse } from '../abilities/canTakeExtraUse.js';
 import { isFresh } from '../fresh/isFresh.js';
+import { isShielded } from './isShielded.js';
 
 const MP_MAX = { mpMax20: 20, mpMax30: 30, mpMax40: 40 };
 const STARS = { physical1: 1, physical2: 2 };
@@ -22,6 +23,7 @@ export function piecieTargetOptions(state, playerId, cardId) {
 		for (const pid of sides) {
 			(state.players[pid]?.activeSlots || []).forEach((slot, slotIndex) => {
 				if (!slot || slot.isDefeated || !passes(slot, spec.rule)) return;
+				if (isShielded(state, pid, playerId)) return; // Blensen!: opponent cards can't target these Mosjes
 				if (isFresh(slot) && (pid !== playerId || spec.rule === 'notFresh')) return;
 				options.push({ playerId: pid, slotIndex, label: slot.name });
 			});

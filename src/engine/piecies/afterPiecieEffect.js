@@ -21,9 +21,6 @@ export function afterPiecieEffect(state, playerId, slotIndex, cardDef, after = {
 	// Perfect Rhythm: eligibility comes from the pre-effect snapshot.
 	state = applyPerfectRhythmDraw(state, playerId, after.rhythmWasArmed === true);
 
-	// Track last played piecie for Gevalletje Klakkeloos
-	state._lastPiecieEffect = { effectId: cardDef.effectId, byPlayer: playerId };
-
 	// Chain Reaction: after a paid activation (not its own) the armed owner may activate one more Piecie for free.
 	const owner = state.players[playerId];
 	if (!free && owner.chainReactionFree > 0 && cardDef.effectId !== 'effect_chain_reaction') {

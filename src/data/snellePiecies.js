@@ -434,7 +434,7 @@ export const SNELLE_PIECIES = [
   },
   {
     id: "snelle_blensen",
-    reactionMoments: [],
+    reactionMoments: ["targeted", "jensenPlayed"],
     type: "SNELLE_PIECIE",
     subtype: "COUNTER-CHAIN",
     name: "Blensen!",

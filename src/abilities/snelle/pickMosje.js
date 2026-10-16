@@ -1,6 +1,7 @@
 // pickMosje - the Mosje a Snelle pick asks for. Returns { slot } (chosen or the only option), { none: true } (no legal
 // Mosje) or { needChoice } for the runner to pause on. Opponent picks never offer fresh Mosjes.
 import { isFresh } from '../../engine/fresh/isFresh.js';
+import { isShielded } from '../../engine/targets/isShielded.js';
 
 export function mosjeOptions(state, playerId, who, filter = () => true) {
 	const oppId = Object.keys(state.players).find(id => id !== playerId);
@@ -8,7 +9,7 @@ export function mosjeOptions(state, playerId, who, filter = () => true) {
 	const out = [];
 	(state.players[pid]?.activeSlots || []).forEach((slot, slotIndex) => {
 		if (!slot || slot.isDefeated || !filter(slot, slotIndex)) return;
-		if (who === 'opp' && isFresh(slot)) return;
+		if (who === 'opp' && (isFresh(slot) || isShielded(state, pid, playerId))) return;
 		out.push({ playerId: pid, slotIndex, label: slot.name });
 	});
 	return out;

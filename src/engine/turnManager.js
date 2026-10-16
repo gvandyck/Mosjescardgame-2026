@@ -3,6 +3,9 @@
 // The UI calls these functions; they return the updated game state.
 
 import { withReactionWindow } from './reactions/withReactionWindow.js';
+import { takeHeldMod } from './reactions/takeHeldMod.js';
+import { cancelHeldCard } from './reactions/cancelHeldCard.js';
+import { getSnelleCost } from './energy/getSnelleCost.js';
 import { PIECIE_SLOT_COUNT } from './table/tableRules.js';
 import { isPiecieReady } from './table/isPiecieReady.js';
 import { finishPiecieActivation } from './table/finishPiecieActivation.js';
@@ -232,17 +235,6 @@ export function finishStartTurn(state, playerId, opts = {}) {
 export function phaseDrawCard(gameState, playerId, count = 1, isOpponentTriggered = false) {
   const state = JSON.parse(JSON.stringify(gameState));
   const player = state.players[playerId];
-
-  // negateNextSearch: Jammertje Gepakt flag — negate opponent-triggered search/draw only.
-  // Regular turn draw (isOpponentTriggered=false) is NOT negated.
-  if (isOpponentTriggered) {
-    const oppId = Object.keys(state.players).find(id => id !== playerId);
-    if (oppId && state._snelleFlags?.negateNextSearch?.[oppId]) {
-      delete state._snelleFlags.negateNextSearch[oppId];
-      console.log('[ENGINE] Jammertje Gepakt: opponent search/draw negated for', playerId);
-      return state;
-    }
-  }
 
   if (player.deck.length === 0) {
     if (player.graveyard.length === 0) {
@@ -501,8 +493,6 @@ export function resolvePiecieActivation(state, playerId, safeSlotIndex, knownCar
   let player = state.players[playerId];
   const slot = hasSlot ? player.piecieSlots[safeSlotIndex] : null;
   const slotCardId = knownCardDef.id;
-  const flags = state._snelleFlags || {};
-  const oppId = Object.keys(state.players).find(id => id !== playerId);
   if (!Array.isArray(player.graveyard)) player.graveyard = [];
 
   // Flip face-up when activation starts
@@ -511,13 +501,10 @@ export function resolvePiecieActivation(state, playerId, safeSlotIndex, knownCar
     slot.activated = true;
   }
 
-  // Counter Strikka: negate any Piecie
-  if (oppId && flags.negateNextPiecie?.[oppId]) {
-    delete state._snelleFlags.negateNextPiecie[oppId];
-    console.log('[ENGINE] Counter Strikka negated:', knownCardDef.name);
-    player.graveyard.push(toGraveyardEntry(slotCardId, 'played'));
-    if (hasSlot) player.piecieSlots[safeSlotIndex] = null;
-    state = checkVictory(state);
+  // Jensen! / Jammertje Gepakt! (held replay): the Piecie never resolves; its Energy stays spent.
+  const cancel = takeHeldMod(state, 'cancel', playerId);
+  if (cancel) {
+    state = checkVictory(cancelHeldCard(state, playerId, safeSlotIndex, cancel.dest, knownCardDef));
     return { state, success: true, negated: true, cardDef: knownCardDef };
   }
   // Apply the effect (it may pause on a choice; resumePiecieChoice then finishes the activation)
@@ -583,7 +570,7 @@ function playSnellieCore(gameState, playerId, cardRef, cardDef, opts = {}) {
   if (handIndex === -1) return { state, success: false, error: found.error };
   const condition = snelleConditionMet(state, playerId, cardDef, opts.reaction || null);
   if (condition !== true) return { state: gameState, success: false, error: condition };
-  const snellePay = payEnergy(state, playerId, Number(cardDef.cost) || 0);
+  const snellePay = payEnergy(state, playerId, getSnelleCost(state, playerId, cardDef));
   if (!snellePay.success) return { state: gameState, success: false, error: snellePay.error || 'Not enough Energy' };
   const [playedCard] = player.hand.splice(handIndex, 1);
 
@@ -596,6 +583,10 @@ function playSnellieCore(gameState, playerId, cardRef, cardDef, opts = {}) {
     activated: true,
     playedOnTurn: state.turnNumber,
   };
+
+  // Jensen! (held replay): a cancelled Snelle never resolves; its Energy stays spent.
+  const cancel = takeHeldMod(state, 'cancel', playerId);
+  if (cancel) return { state: cancelHeldCard(state, playerId, snelleSlot, cancel.dest, cardDef), success: true, negated: true };
 
   // Apply the effect; a pick pauses on pendingChoice (hook 'snelle'), the card stays in its slot until resumeSnelleChoice.
   if (opts.picks) player._pendingTargets = { ...(player._pendingTargets || {}), ...opts.picks };

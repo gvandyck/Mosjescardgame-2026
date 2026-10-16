@@ -1,6 +1,8 @@
 // snelleConditions - "Needs / Only if" per Snelle id (Card List 2.0). Each entry: (state, playerId, reaction) => true | error text.
 // snelleConditionMet runs BEFORE Energy is paid, both when offering a Snelle in a reaction window and when playing it.
 // reaction = { moments, preview, action, actorId } of the open window, or null when played freely.
+import { heldPiecieDef } from './heldPiecieDef.js';
+
 const alive = (s) => s && !s.isDefeated;
 const mosjes = (state, pid) => (state.players[pid]?.activeSlots || []).filter(alive);
 const stars = (s, trait) => s.traits?.[trait] || 0;
@@ -15,7 +17,16 @@ function perfectDodge(state, pid, reaction) {
 	return stars(slot, 'physical') >= 2 || 'Needs: the attacked Mosje has Physical ★★';
 }
 
+// Dubbele Temminks / Gevalletje Klakkeloos: a Piecie was just activated, and it is not a five-star card.
+function copyablePiecie(state, _pid, reaction) {
+	const def = heldPiecieDef(state, reaction?.action);
+	if (!def) return 'Needs: a Piecie was just activated';
+	return def.rarity === '★★★★★' ? 'Not on a ★★★★★ card' : true;
+}
+
 export const SNELLE_CONDITIONS = {
+	snelle_dubbele_temminks: copyablePiecie,
+	snelle_gevalletje_klakkeloos: copyablePiecie,
 	snelle_perfect_dodge: perfectDodge,
 	snelle_lucky_coin: (s, p) => hasStars('creative', 1)(s, p) || 'Needs: one of your Mosjes has Creative ★',
 	snelle_counter_strikka: (s, p) => hasStars('mental', 2)(s, p) || 'Needs: one of your Mosjes has Mental ★★',

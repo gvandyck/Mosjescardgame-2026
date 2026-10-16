@@ -85,16 +85,16 @@ describe('effect_snelle_bijna_welloe (IMPL-PF-S2 / IMPL-AR-S2 gap-fill)', () => 
   });
 });
 
-describe('effect_snelle_dubbele_temminks (IMPL-AR-S4 gap-fill)', () => {
-  it('sets the doubleNextPiecie flag for the acting player', () => {
+describe('effect_snelle_dubbele_temminks (Phase 60: reactionMods entry)', () => {
+  it('queues a one-shot double entry for the acting player', () => {
     const state = makeState([makeMosje('mosje_chris', 50), null]);
     const result = effect_snelle_dubbele_temminks(state, 'player_1');
-    expect(result._snelleFlags.doubleNextPiecie.player_1).toBe(true);
+    expect(result.reactionMods).toEqual([{ kind: 'double', playerId: 'player_1', slotIndex: null }]);
   });
 
-  it('does not set the flag for the opponent', () => {
+  it('does not queue anything for the opponent', () => {
     const state = makeState([makeMosje('mosje_chris', 50), null]);
     const result = effect_snelle_dubbele_temminks(state, 'player_1');
-    expect(result._snelleFlags.doubleNextPiecie.player_2).toBeUndefined();
+    expect(result.reactionMods.some((m: any) => m.playerId === 'player_2')).toBe(false);
   });
 });

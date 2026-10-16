@@ -19,19 +19,24 @@ export function resolvePendingChoice(state, value) {
 	const target = s.players[pc.playerId];
 	target._pendingTargets = { ...(target._pendingTargets || {}), [pc.key]: value };
 	if (pc.hook === 'piecie') {
-		const type = pc.piecie?.free ? 'activatePiecieFree' : 'activatePiecie';
-		const out = withReactionWindow(s, pc.actorId, { type, hold: true }, (st) => ({ state: resumePiecieChoice(st, pc), success: true }));
+		// A copy (Gevalletje Klakkeloos) is not an activation: no reaction window.
+		if (pc.piecie?.copy) return { ok: true, success: true, state: resumePiecieChoice(s, pc) };
+		// The resume itself is the held action, so a Jensen! / Counter Strikka / Dubbele Temminks can still act on it.
+		const out = withReactionWindow(s, pc.actorId, { type: 'resumePiecie', args: [pc] }, (st) => ({ state: resumePiecieChoice(st, pc), success: true }));
 		return { ok: true, success: true, state: out.state, reactionPending: out.reactionPending };
 	}
 	if (pc.hook === 'snelle') {
 		// A Snelle pick resumes the same play; inside a reaction window the other windows and the held action follow.
-		const run = resumeSnelleChoice(s, pc);
-		if (run.paused) return { ok: true, success: true, state: run.state };
 		if (pc.after) {
+			const run = resumeSnelleChoice(s, pc);
+			if (run.paused) return { ok: true, success: true, state: run.state };
 			const res = continueReaction(run.state, pc.after.p, pc.after.queue);
 			return { ...res, ok: res.ok ?? res.success, success: res.success ?? res.ok, reactionPending: !!res.state?.pendingReaction };
 		}
-		const out = withReactionWindow(s, pc.actorId, { type: 'playSnelle', hold: true }, () => ({ state: run.state, success: true }));
+		const out = withReactionWindow(s, pc.actorId, { type: 'resumeSnelle', args: [pc] }, (st) => {
+			const run = resumeSnelleChoice(st, pc);
+			return { state: run.state, success: true, paused: run.paused };
+		});
 		return { ok: true, success: true, state: out.state, reactionPending: out.reactionPending };
 	}
 	const out = runTriggerJobs(s, pc.hook, pc.jobs, pc.jobIndex, pc.ctx, { key: pc.key, playerId: pc.playerId });
