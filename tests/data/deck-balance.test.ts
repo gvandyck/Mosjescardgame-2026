@@ -10,7 +10,7 @@ import { PLACES } from '../../src/data/places.js';
 // @ts-expect-error — JS module, no type declarations
 import { MOSJES } from '../../src/data/mosjes.js';
 // @ts-expect-error — JS module, no type declarations
-import { effect_de_box, effect_tesla, effect_eendjes_voeren } from '../../src/abilities/placeEffects.js';
+import { effect_tesla, effect_eendjes_voeren } from '../../src/abilities/placeEffects.js';
 // @ts-expect-error — JS module, no type declarations
 import { getMosjeTrait } from '../../src/abilities/questLogic.js';
 // @ts-expect-error — JS module, no type declarations
@@ -150,50 +150,6 @@ describe('Phase 15 — quest_personal_kickboxing_bootcamp definition (DECK-04)',
   });
   it('quest_personal_kickboxing_bootcamp has isBoosterOnly false', () => {
     expect(kb()?.isBoosterOnly).toBe(false);
-  });
-});
-
-describe('Phase 15 — effect_de_box (DECK-16)', () => {
-  function makeState(mosjes: Array<{ cardId: string; isDefeated?: boolean }>) {
-    return {
-      players: {
-        player_1: {
-          activeSlots: mosjes.map(m => ({
-            cardId: m.cardId,
-            isDefeated: m.isDefeated ?? false,
-            mp: 0,
-          })),
-        },
-      },
-    };
-  }
-
-  it('gives GANDOE Mosje +20 MP at END_PHASE', () => {
-    const state = makeState([{ cardId: 'mosje_gandoe_destroyer' }]);
-    const result = effect_de_box(state);
-    expect(result.players.player_1.activeSlots[0].mp).toBe(20);
-  });
-
-  it('gives MICHELLE Mosje +15 MP at END_PHASE', () => {
-    const state = makeState([{ cardId: 'mosje_michelle' }]);
-    const result = effect_de_box(state);
-    expect(result.players.player_1.activeSlots[0].mp).toBe(15);
-  });
-
-  it('gives +10 bonus to BOTH when both are simultaneously active', () => {
-    const state = makeState([
-      { cardId: 'mosje_gandoe_destroyer' },
-      { cardId: 'mosje_michelle' },
-    ]);
-    const result = effect_de_box(state);
-    expect(result.players.player_1.activeSlots[0].mp).toBe(30); // 20 + 10
-    expect(result.players.player_1.activeSlots[1].mp).toBe(25); // 15 + 10
-  });
-
-  it('gives 0 MP change to non-GANDOE non-MICHELLE Mosje', () => {
-    const state = makeState([{ cardId: 'mosje_jeffrey' }]);
-    const result = effect_de_box(state);
-    expect(result.players.player_1.activeSlots[0].mp).toBe(0);
   });
 });
 

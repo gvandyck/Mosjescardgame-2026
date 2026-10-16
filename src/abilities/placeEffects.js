@@ -140,27 +140,6 @@ export function effect_obby_1(gameState, questCard, didSucceed) {
 }
 
 // ─────────────────────────────────────────
-// ARCADE — On Quest: Technical ★★+ Mosjes gain +15 MP on success.
-// Design direction: for Martin, Chris, Youri. Technical-focused.
-// ─────────────────────────────────────────
-export function effect_arcade(gameState, questCard, didSucceed) {
-	const state = cloneState(gameState);
-	const playerId = state.activePlayerId;
-	const player = state.players[playerId];
-
-	for (const mosje of player.activeSlots) {
-		if (!mosje || mosje.isDefeated || isFresh(mosje)) continue;
-		const technical = mosje.traits?.technical || 0;
-
-		if (technical >= 2 && didSucceed) {
-			applyGain(state, mosje, 15);
-			console.log('[ABILITY] Arcade: +15 MP on successful Technical quest');
-		}
-	}
-	return state;
-}
-
-// ─────────────────────────────────────────
 // ZO IS NATUUR — End Phase: all Mosjes gain 10 MP.
 // Resilient Mosjes gain 15 MP instead.
 // ─────────────────────────────────────────
@@ -265,38 +244,6 @@ export function effect_welloe_graveyard(gameState, welloePlayerId, newMosjeSlotI
 }
 
 // ─────────────────────────────────────────
-// DRAIN ZONE — End Phase: Mosje with lowest MP (across all players) loses another 10 MP.
-// ATTACK Piecies +10 damage enforced via UI validation.
-// ─────────────────────────────────────────
-export function effect_drain_zone(gameState) {
-	const state = cloneState(gameState);
-	// Find the Mosje with the lowest MP across all players
-	let lowestPlayerId = null;
-	let lowestSlotIndex = -1;
-	let lowestMp = Infinity;
-
-	for (const playerId of Object.keys(state.players)) {
-		const player = state.players[playerId];
-		for (let i = 0; i < player.activeSlots.length; i++) {
-			const mosje = player.activeSlots[i];
-			if (!mosje || mosje.isDefeated || isFresh(mosje)) continue;
-			if (mosje.mp < lowestMp) {
-				lowestMp = mosje.mp;
-				lowestPlayerId = playerId;
-				lowestSlotIndex = i;
-			}
-		}
-	}
-
-	if (lowestPlayerId !== null && lowestSlotIndex >= 0) {
-		applyDamage(state, lowestPlayerId, state.players[lowestPlayerId].activeSlots[lowestSlotIndex], 10);
-		console.log('[ABILITY] Drain Zone: -10 extra MP to Mosje with lowest MP');
-	}
-	// Note: ATTACK Piecie +10 damage bonus requires validation during card play
-	return state;
-}
-
-// ─────────────────────────────────────────
 // MOMENTUM STABILIZER — Passive: no Mosje loses more than 30 MP in single effect.
 // Note: Requires integration into loseMP function.
 // For now, this is a flag that the MP manager can check.
@@ -363,35 +310,6 @@ export function effect_digital_gaming_stop(gameState, questCard, mosje, playerId
 }
 
 // ─────────────────────────────────────────
-// BOXING RING — End Phase + On Quest
-// End Phase: FIGHTING Mosjes +10 MP; non-FIGHTING -5 MP.
-// On Quest: active Mosje +15 MP (GANDOE: +25 MP), any outcome.
-// ─────────────────────────────────────────
-// ─────────────────────────────────────────
-// BOXING RING — Turn Start (START_PHASE):
-// Active player's FIGHTING Mosjes +10 MP.
-// GANDOE Mosje: additional +10 MP (20 total from place).
-// Combined with the +10 trickle: FIGHTING = 20 MP/turn, GANDOE = 30 MP/turn.
-// ─────────────────────────────────────────
-export function effect_boxing_ring(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	for (const mosje of player.activeSlots) {
-		if (!mosje || mosje.isDefeated || isFresh(mosje)) continue;
-		if (mosje.subtype === 'FIGHTING') {
-			applyGain(state, mosje, 10);
-			console.log('[ABILITY] Boxing Ring: +10 MP (FIGHTING)');
-			if (String(mosje.cardId).toLowerCase().includes('gandoe')) {
-				applyGain(state, mosje, 10);
-				console.log('[ABILITY] Boxing Ring: +10 MP extra (GANDOE)');
-			}
-		}
-	}
-	return state;
-}
-
-// ─────────────────────────────────────────
 // EENDJES VOEREN — End Phase: MICHELLE Mosje +10 MP.
 // Resilience aura (always-on while active): getMosjeTrait in questLogic.js
 // returns 3 for 'resilient' whenever activePlace === 'place_eendjes_voeren'.
@@ -407,38 +325,6 @@ export function effect_eendjes_voeren(gameState) {
 				applyGain(state, mosje, 10);
 				console.log('[ABILITY] Eendjes Voeren: +10 MP (MICHELLE)');
 			}
-		}
-	}
-	return state;
-}
-
-// ─────────────────────────────────────────
-// DE BOX — End Phase: GANDOE Mosje +20 MP; MICHELLE/TUK Mosje +15 MP.
-// Both active simultaneously on same player's field: +10 bonus each.
-// ─────────────────────────────────────────
-export function effect_de_box(gameState) {
-	const state = cloneState(gameState);
-	for (const playerId of Object.keys(state.players)) {
-		const player = state.players[playerId];
-		let gandoeSlot = null;
-		let michelleSlot = null;
-		for (const mosje of player.activeSlots) {
-			if (!mosje || mosje.isDefeated || isFresh(mosje)) continue;
-			const id = String(mosje.cardId).toLowerCase();
-			if (id.includes('gandoe')) {
-				applyGain(state, mosje, 20);
-				gandoeSlot = mosje;
-				console.log('[ABILITY] De Box: +20 MP (GANDOE)');
-			} else if (id.includes('michelle') || id.includes('tuk')) {
-				applyGain(state, mosje, 15);
-				michelleSlot = mosje;
-				console.log('[ABILITY] De Box: +15 MP (MICHELLE/TUK)');
-			}
-		}
-		if (gandoeSlot && michelleSlot) {
-			applyGain(state, gandoeSlot, 10);
-			applyGain(state, michelleSlot, 10);
-			console.log('[ABILITY] De Box: +10 bonus each (Gandoe & Michelle together)');
 		}
 	}
 	return state;
@@ -502,10 +388,6 @@ export function resolvePlaceEffect(gameState, triggerPhase, context = {}) {
 	const { playerId, questCard, didSucceed, mosje, questsCompletedThisTurn, newMosjeSlotIndex } = context;
 
 	switch (placeId) {
-		case 'place_boxing_ring':
-			nextState = effect_boxing_ring(state, playerId);
-			break;
-
 		case 'place_the_gym':
 			nextState = effect_the_gym(state);
 			break;
@@ -520,10 +402,6 @@ export function resolvePlaceEffect(gameState, triggerPhase, context = {}) {
 
 		case 'place_obby_1':
 			nextState = effect_obby_1(state, questCard, didSucceed);
-			break;
-
-		case 'place_arcade':
-			nextState = effect_arcade(state, questCard, didSucceed);
 			break;
 
 		case 'place_zo_is_natuur':
@@ -550,10 +428,6 @@ export function resolvePlaceEffect(gameState, triggerPhase, context = {}) {
 			nextState = effect_welloe_graveyard(state, playerId, newMosjeSlotIndex ?? -1);
 			break;
 
-		case 'place_drain_zone':
-			nextState = effect_drain_zone(state);
-			break;
-
 		case 'place_momentum_stabilizer':
 			nextState = effect_momentum_stabilizer(state);
 			break;
@@ -574,13 +448,16 @@ export function resolvePlaceEffect(gameState, triggerPhase, context = {}) {
 			nextState = effect_eendjes_voeren(state);
 			break;
 
-		case 'place_de_box':
-			nextState = effect_de_box(state);
-			break;
-
 		case 'place_tesla':
 			nextState = effect_tesla(state, playerId);
 			break;
+
+		// Power-only Places (Place Power lives in getPower): nothing to resolve here.
+		case 'place_boxing_ring':
+		case 'place_arcade':
+		case 'place_drain_zone':
+		case 'place_de_box':
+			return state;
 
 		default:
 			console.warn('[ABILITY] resolvePlaceEffect: unknown place id', placeId);

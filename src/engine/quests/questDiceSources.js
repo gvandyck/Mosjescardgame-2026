@@ -1,7 +1,7 @@
 // QUEST_DICE_SOURCES — each (ctx) => extra dice; ctx = { state, playerId, slot, quest }. Pure.
 import { isFresh } from '../fresh/isFresh.js';
 
-const hasWord = (slot, word) => String(slot?.name || '').split(/\s+/).includes(word);
+const hasWord = (slot, word) => String(slot?.name || '').split(/[^A-Za-z]+/).includes(word);
 
 function placeDice({ state, slot, quest }) {
 	if (isFresh(slot)) return 0;

@@ -24,7 +24,7 @@ function attackCore(state, playerId, { attackerSlotIndex, targetPlayerId, target
   const attacker = s.players[playerId].activeSlots[attackerSlotIndex];
   attacker.actedThisTurn = true;
   attacker.attackedThisTurn = true;
-  const power = getPower(attacker);
+  const power = getPower(attacker, state, playerId);
   let final = 0;
   const hitBoth = attacker.hitBothOpponents === true; // Dikke Taks: its next attack this turn
   delete attacker.hitBothOpponents;

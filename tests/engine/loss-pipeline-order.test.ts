@@ -68,18 +68,9 @@ describe("resolveMpLoss — §2g order", () => {
     expect(resolveMpLoss(ctxFor(build({ status: reduce20() }), 15))).toBe(0);
   });
 
-  it("Drain Zone adds 10 to DRAIN, then Stabilizer caps", () => {
-    expect(resolveMpLoss(ctxFor(build({ place: "place_drain_zone" }), 20))).toBe(30);
+  it("Drain Zone no longer adds 10 to a DRAIN loss (Power only)", () => {
+    expect(resolveMpLoss(ctxFor(build({ place: "place_drain_zone" }), 20))).toBe(20);
     expect(resolveMpLoss(ctxFor(build({ place: "place_drain_zone" }), 20, "ATTACK"))).toBe(20);
-  });
-
-  it("Drain Zone + Stabilizer: the cap is applied after the bonus", () => {
-    // only one place can be active; emulate by registering the cap step on a Drain Zone state
-    const s = build({ place: "place_drain_zone" });
-    const cap = (c: any) => Math.min(c.amount, 30);
-    LOSS_STEPS.caps.push(cap);
-    added.push(["caps", cap]);
-    expect(resolveMpLoss(ctxFor(s, 25))).toBe(30);
   });
 
   it("a pushed reducer runs after built-in reducers and before caps", () => {

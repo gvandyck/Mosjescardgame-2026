@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 // @ts-expect-error — JS module, no type declarations
-import { gainMP } from "../../src/engine/mpManager.js";
+import { gainMP, loseMP } from "../../src/engine/mpManager.js";
 // @ts-expect-error — JS module, no type declarations
 import { createEngineState } from "../helpers/testHelpers.js";
 
@@ -48,5 +48,12 @@ describe("place_drain_zone (PLACE-05) — untexted +5-all-gains bonus removed", 
     const withDrainZone = gainMP(buildDrainZoneState("place_drain_zone"), "player_1", 0, 25, "GAIN");
     const withNoPlace = gainMP(buildDrainZoneState(null), "player_1", 0, 25, "GAIN");
     expect(withDrainZone.players.player_1.activeSlots[0].mp).toBe(withNoPlace.players.player_1.activeSlots[0].mp);
+  });
+});
+
+describe("place_drain_zone — no loss bonus (Power only, 2.0)", () => {
+  it("a 20 DRAIN loss costs exactly 20", () => {
+    const after = loseMP(buildDrainZoneState("place_drain_zone"), "player_1", 0, 20, "DRAIN");
+    expect(after.players.player_1.activeSlots[0].mp).toBe(0);
   });
 });

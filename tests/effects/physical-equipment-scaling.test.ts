@@ -9,7 +9,7 @@ import {
   effect_protein_shake,
 } from '../../src/abilities/piecieEffects.js';
 // @ts-expect-error — JS module, no type declarations
-import { effect_boxing_ring, effect_the_gym } from '../../src/abilities/placeEffects.js';
+import { effect_the_gym } from '../../src/abilities/placeEffects.js';
 
 function makeState(overrides: {
   subtype?: string;
@@ -158,33 +158,6 @@ describe('Physical Equipment: Protein Shake + Boxing Ring (PHYS-04/05)', () => {
       const state = fighter(1);
       effect_protein_shake(state, 'player_1');
       expect(state.players.player_1.activeSlots[0].mp).toBe(0);
-    });
-  });
-
-  describe('effect_boxing_ring (START_PHASE)', () => {
-    it('gives FIGHTING Mosje +10 MP at turn start', () => {
-      const state = makeState({ subtype: 'FIGHTING', level: 1, mp: 50 });
-      const result = effect_boxing_ring(state, 'player_1');
-      expect(result.players.player_1.activeSlots[0].mp).toBe(60);
-    });
-
-    it('gives GANDOE FIGHTING Mosje +20 MP at turn start', () => {
-      const state = makeState({ subtype: 'FIGHTING', level: 1, mp: 50, cardId: 'mosje_gandoe_destroyer' });
-      const result = effect_boxing_ring(state, 'player_1');
-      expect(result.players.player_1.activeSlots[0].mp).toBe(70);
-    });
-
-    it('gives 0 MP to non-FIGHTING Mosje', () => {
-      const state = makeState({ subtype: 'DIGITAL', level: 1, mp: 50 });
-      const result = effect_boxing_ring(state, 'player_1');
-      expect(result.players.player_1.activeSlots[0].mp).toBe(50);
-    });
-
-    it('skips defeated Mosjes', () => {
-      const state = makeState({ subtype: 'FIGHTING', level: 1, mp: 50 });
-      state.players.player_1.activeSlots[0].isDefeated = true;
-      const result = effect_boxing_ring(state, 'player_1');
-      expect(result.players.player_1.activeSlots[0].mp).toBe(50);
     });
   });
 

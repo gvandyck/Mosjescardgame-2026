@@ -16,7 +16,7 @@ const JAB = 10;
 
 function bestAttack(state, botId, slot) {
 	if (isFresh(slot)) return null;
-	const power = getPower(slot);
+	const power = getPower(slot, state, botId);
 	if (power <= 0) return null;
 	let best = null;
 	for (const [targetPlayerId, p] of Object.entries(state.players)) {
