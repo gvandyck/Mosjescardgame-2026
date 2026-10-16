@@ -2,7 +2,6 @@
 // Filled in Phase 4.
 
 import { PLACES } from '../data/places.js';
-import { getCardById } from '../data/cardIndex.js';
 import { applyGainToSlot } from '../engine/mp/applyGainToSlot.js';
 import { applyMpLossToSlot } from '../engine/mp/applyMpLossToSlot.js';
 import { isFresh } from '../engine/fresh/isFresh.js';
@@ -28,116 +27,14 @@ function applyGain(state, mosje, amount) {
 	return applyGainToSlot(mosje, amount, { turnNumber: state.turnNumber });
 }
 
-export function effect_the_gym(gameState) {
-	const state = cloneState(gameState);
-	for (const playerId of Object.keys(state.players)) {
-		const player = state.players[playerId];
-		for (const mosje of player.activeSlots) {
-			if (!mosje || mosje.isDefeated || isFresh(mosje)) continue;
-			const physical = mosje.traits?.physical || 0;
-			const id = String(mosje.cardId || '').toLowerCase();
-			const isCless = id.includes('cless');
-			// West is Cless's synergy partner (same "martin"/"west" identity check
-			// used by his own deck's F1 Telemetry / Those Eyelashes) — exempt him
-			// from the punishing branch rather than let his own team's Place drain
-			// him every END_PHASE (twice per round) for having no physical trait.
-			// He stays NEUTRAL here, same as his no-op treatment at Obby #1 below
-			// (physical<2 and resilient<2 → neither bonus nor penalty there either)
-			// — WC balance fix, see docs/card-reference.md.
-			const isWest = id.includes('martin') || id.includes('west');
-			if (physical >= 3) applyGain(state, mosje, 35);
-			else if (physical >= 2) applyGain(state, mosje, 25);
-			else if (isCless) applyGain(state, mosje, 20);
-			else if (isWest) { /* neutral — no gain, no loss */ }
-			else applyDamage(state, playerId, mosje, 10);
-		}
-	}
-	console.log('[ABILITY] The Gym end phase effect applied');
-	return state;
-}
 
-export function effect_quest_haven(gameState, didSucceed, questsCompletedThisTurn = 0, targetSlotIndex = -1) {
-	const state = cloneState(gameState);
 
-	if (!didSucceed) return state;
-
-	const playerId = state.activePlayerId;
-	const player = state.players[playerId];
-
-	// Use the slot of the Mosje that completed the quest; fall back to first active.
-	const fallback = player.activeSlots.findIndex(slot => slot !== null && !slot.isDefeated);
-	const slotIndex = (targetSlotIndex >= 0 && player.activeSlots[targetSlotIndex] && !player.activeSlots[targetSlotIndex].isDefeated)
-		? targetSlotIndex
-		: fallback;
-
-	if (slotIndex < 0) return state;
-
-	// +10 MP for every quest success
-	applyGain(state, player.activeSlots[slotIndex], 10);
-	console.log('[ABILITY] Quest Haven +10 MP → slot', slotIndex);
-
-	// +25 MP bonus when 2 quests completed in one turn
-	if (questsCompletedThisTurn >= 2) {
-		applyGain(state, player.activeSlots[slotIndex], 25);
-		console.log('[ABILITY] Quest Haven +25 MP bonus (2 quests this turn) → slot', slotIndex);
-	}
-
-	return state;
-}
-
-// ─────────────────────────────────────────
-// BANK CHILLING — Turn Start: Social ★★+ Mosjes gain +15 MP.
-// Design direction: bank chilling is a social thing.
-// ─────────────────────────────────────────
-export function effect_bank_chilling(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-
-	for (const mosje of player.activeSlots) {
-		if (!mosje || mosje.isDefeated || isFresh(mosje)) continue;
-		const social = mosje.traits?.social || 0;
-		if (social >= 2) {
-			applyGain(state, mosje, 15);
-			console.log('[ABILITY] Bank Chilling: +15 MP applied (Social 2+)');
-		} else {
-			console.log('[ABILITY] Bank Chilling: no bonus (social below 2)');
-		}
-	}
-
-	return state;
-}
 
 // SKIFFA — Social Quests: all players get +2 to the dice roll. Implemented
 // as an inline main.js dice-bonus term (see the questDef.category === 'Social'
 // check at both quest-attempt call sites), not through this dispatcher —
 // mirrors how Synergy Chamber's own dice bonus is handled.
 
-// ─────────────────────────────────────────
-// OBBY #1 — On Quest: Physical ★★+/Resilient ★★+ Mosjes gain +20 MP on success, -10 MP on failure.
-// ─────────────────────────────────────────
-export function effect_obby_1(gameState, questCard, didSucceed) {
-	const state = cloneState(gameState);
-	const playerId = state.activePlayerId;
-	const player = state.players[playerId];
-
-	for (const mosje of player.activeSlots) {
-		if (!mosje || mosje.isDefeated || isFresh(mosje)) continue;
-		const physical = mosje.traits?.physical || 0;
-		const resilient = mosje.traits?.resilient || 0;
-
-		if (physical >= 2 || resilient >= 2) {
-			if (didSucceed) {
-				applyGain(state, mosje, 20);
-				console.log('[ABILITY] Obby #1: +20 MP on successful Physical/Resilient quest');
-			} else {
-				applyDamage(state, playerId, mosje, 10);
-				console.log('[ABILITY] Obby #1: -10 MP on failed Physical/Resilient quest');
-			}
-		}
-	}
-	return state;
-}
 
 // ─────────────────────────────────────────
 // ZO IS NATUUR — End Phase: all Mosjes gain 10 MP.
@@ -284,86 +181,8 @@ export function effect_dierenasiel(gameState) {
 	return state;
 }
 
-// ─────────────────────────────────────────
-// DIGITAL GAMING STOP — On Quest: DIGITAL-EQUIPMENT Piecies give +10 MP while active.
-// Hidden/booster-only.
-// ─────────────────────────────────────────
-export function effect_digital_gaming_stop(gameState, questCard, mosje, playerId) {
-	// Resolve the questing Mosje's slot index BEFORE cloning — `mosje` is a reference
-	// into the pre-clone state, so mutating it directly would not carry over to the
-	// freshly cloned state this function returns.
-	const preClonePlayer = gameState.players[playerId];
-	const slotIndex = preClonePlayer ? preClonePlayer.activeSlots.indexOf(mosje) : -1;
 
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	const hasActiveDigitalEquipment = (player?.piecieSlots || []).some(slot => {
-		if (!slot || slot.activated !== true) return false;
-		return getCardById(slot.cardId)?.subtype === 'DIGITAL-EQUIPMENT';
-	});
 
-	if (hasActiveDigitalEquipment && slotIndex >= 0) {
-		applyGain(state, player.activeSlots[slotIndex], 10);
-		console.log('[ABILITY] Digital Gaming Stop: +10 MP for active DIGITAL-EQUIPMENT Piecie');
-	}
-	return state;
-}
-
-// ─────────────────────────────────────────
-// EENDJES VOEREN — End Phase: MICHELLE Mosje +10 MP.
-// Resilience aura (always-on while active): getMosjeTrait in questLogic.js
-// returns 3 for 'resilient' whenever activePlace === 'place_eendjes_voeren'.
-// ─────────────────────────────────────────
-export function effect_eendjes_voeren(gameState) {
-	const state = cloneState(gameState);
-	for (const playerId of Object.keys(state.players)) {
-		const player = state.players[playerId];
-		for (const mosje of player.activeSlots) {
-			if (!mosje || mosje.isDefeated || isFresh(mosje)) continue;
-			const id = String(mosje.cardId).toLowerCase();
-			if (id.includes('michelle')) {
-				applyGain(state, mosje, 10);
-				console.log('[ABILITY] Eendjes Voeren: +10 MP (MICHELLE)');
-			}
-		}
-	}
-	return state;
-}
-
-// ─────────────────────────────────────────
-// TESLA — Turn Start: COERT Mosje +20 MP; BINTI Mosje +20 MP.
-// Both active simultaneously: +10 bonus each.
-// No-op when Coert is not active (car is parked).
-// Coert defeat hook: handled in victoryChecker.js markMosjeDefeated.
-// ─────────────────────────────────────────
-export function effect_tesla(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const coertSlot = player.activeSlots.find(
-		s => s && !s.isDefeated && String(s.cardId).toLowerCase().includes('coert')
-	);
-	if (!coertSlot) {
-		console.log('[PLACE] Tesla: Coert not active — car parked');
-		return state;
-	}
-	let bintiActive = false;
-	for (const mosje of player.activeSlots) {
-		if (!mosje || mosje.isDefeated || isFresh(mosje)) continue;
-		const id = String(mosje.cardId).toLowerCase();
-		if (id.includes('coert')) applyGain(state, mosje, 20);
-		if (id.includes('binti')) { applyGain(state, mosje, 20); bintiActive = true; }
-	}
-	if (bintiActive) {
-		for (const mosje of player.activeSlots) {
-			if (!mosje || mosje.isDefeated || isFresh(mosje)) continue;
-			const id = String(mosje.cardId).toLowerCase();
-			if (id.includes('coert') || id.includes('binti')) applyGain(state, mosje, 10);
-		}
-		console.log('[PLACE] Tesla: road trip bonus — Coert & Binti together +10 each');
-	}
-	return state;
-}
 
 // ─────────────────────────────────────────────────────────────
 // resolvePlaceEffect — central dispatcher
@@ -388,22 +207,6 @@ export function resolvePlaceEffect(gameState, triggerPhase, context = {}) {
 	const { playerId, questCard, didSucceed, mosje, questsCompletedThisTurn, newMosjeSlotIndex } = context;
 
 	switch (placeId) {
-		case 'place_the_gym':
-			nextState = effect_the_gym(state);
-			break;
-
-		case 'place_quest_haven':
-			nextState = effect_quest_haven(state, didSucceed, questsCompletedThisTurn || 0, context.targetSlotIndex ?? -1);
-			break;
-
-		case 'place_bank_chilling':
-			nextState = effect_bank_chilling(state, playerId);
-			break;
-
-		case 'place_obby_1':
-			nextState = effect_obby_1(state, questCard, didSucceed);
-			break;
-
 		case 'place_zo_is_natuur':
 			nextState = effect_zo_is_natuur(state);
 			break;
@@ -438,18 +241,6 @@ export function resolvePlaceEffect(gameState, triggerPhase, context = {}) {
 
 		case 'place_dierenasiel':
 			nextState = effect_dierenasiel(state);
-			break;
-
-		case 'place_digital_gaming_stop':
-			nextState = effect_digital_gaming_stop(state, questCard, mosje, playerId);
-			break;
-
-		case 'place_eendjes_voeren':
-			nextState = effect_eendjes_voeren(state);
-			break;
-
-		case 'place_tesla':
-			nextState = effect_tesla(state, playerId);
 			break;
 
 		// Power-only Places (Place Power lives in getPower): nothing to resolve here.

@@ -2,21 +2,17 @@
 // on-draw Place effects, Perfect Rhythm draw, counters, Mosje piecieActivated triggers, discard or Stays.
 // after: { handSizeBefore, rhythmWasArmed } snapshot taken before the effect. Returns { state, success, cardDef }.
 import {
-	applyPlaceEffectsOnDraw, applyPlaceEffectsOnPiecieActivate, applyPerfectRhythmDraw, normalizePiecieSlots,
+	applyPerfectRhythmDraw, normalizePiecieSlots,
 } from '../turnManager.js';
 import { finishPiecieActivation } from '../table/finishPiecieActivation.js';
 import { runMosjeTriggers } from '../mosje/runMosjeTriggers.js';
 import { checkVictory } from '../victoryChecker.js';
 import * as placeEffects from '../../abilities/placeEffects.js';
+import { placeGearDraw } from '../../abilities/place/placeTurnQuestEffects.js';
 
 export function afterPiecieEffect(state, playerId, slotIndex, cardDef, after = {}, opts = {}) {
 	const free = opts.free === true;
 	const hasSlot = slotIndex >= 0;
-	const slotCardId = cardDef.id;
-
-	// Fire ON_DRAW place effect for cards drawn by this Piecie (e.g. Bank Chilling)
-	const drawn = Math.max(0, state.players[playerId].hand.length - (after.handSizeBefore ?? state.players[playerId].hand.length));
-	if (drawn > 0) state = applyPlaceEffectsOnDraw(state, playerId, drawn);
 
 	// Perfect Rhythm: eligibility comes from the pre-effect snapshot.
 	state = applyPerfectRhythmDraw(state, playerId, after.rhythmWasArmed === true);
@@ -33,7 +29,7 @@ export function afterPiecieEffect(state, playerId, slotIndex, cardDef, after = {
 	if (!actions.includes('PIECIE_ACTIVATED')) state.players[playerId].actionsThisTurn = [...actions, 'PIECIE_ACTIVATED'];
 	state.players[playerId].lastCardPlayedType = cardDef.tags?.[0] || null;
 
-	state = applyPlaceEffectsOnPiecieActivate(state, playerId, slotCardId);
+	state = placeGearDraw(state, playerId, cardDef);
 
 	// Momentum Factory bonus (first Piecie each turn)
 	if (state.activePlace === 'place_momentum_factory') state = placeEffects.effect_momentum_factory(state);

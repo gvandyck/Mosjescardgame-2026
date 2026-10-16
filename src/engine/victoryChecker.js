@@ -6,6 +6,7 @@ import { takeReactionMod } from './reactions/takeReactionMod.js';
 import { discardBoundStays } from './table/discardBoundStays.js';
 import { checkLoss } from './winLose/checkLoss.js';
 import { getAllPlayerIds } from './gameState.js';
+import { placeTeslaCheck } from '../abilities/place/placeTurnQuestEffects.js';
 import { normalizeSlotMp } from './mp/normalizeSlotMp.js';
 
 console.log('[ENGINE] victoryChecker.js loaded');
@@ -26,7 +27,7 @@ export function checkVictory(gameState) {
   if (gameState.status === 'FINISHED') return gameState;
 
   // Getemt-while-sideways: any Mosje flagged `_pendingWelloe` is sent to the Welloe pile before win checks.
-  let state = applyPendingDefeats(gameState);
+  let state = placeTeslaCheck(applyPendingDefeats(gameState));
   if (state.status === 'FINISHED') return state;
 
   // 2.0 MP normaliser: levels any >=100 Mosje, caps L3 at 95, snaps to the 5-grid.
@@ -153,14 +154,6 @@ export function markMosjeDefeated(gameState, playerId, slotIndex) {
     delete mosje._pendingWelloe;
     console.log(`[ENGINE] Not Today! saved ${mosje.name} - stays on the field at ${mosje.mp} MP`);
     return state;
-  }
-
-  // Tesla destruction: Coert sent to graveyard while Tesla is active → destroy Tesla.
-  if (String(mosje.cardId).includes('coert') && state.activePlace === 'place_tesla') {
-    state.activePlace = null;
-    if (!Array.isArray(state.players[playerId].graveyard)) state.players[playerId].graveyard = [];
-    state.players[playerId].graveyard.push({ cardId: 'place_tesla', name: 'Tesla', type: 'PLACE', source: 'destroyed' });
-    console.log('[ENGINE] Tesla: Coert defeated — Tesla destroyed, sent to graveyard');
   }
 
   // Obby 2.0: a defeated Mosje goes to the separate Welloe pile (never the discard pile,

@@ -1,7 +1,5 @@
 import { describe, expect, it } from "vitest";
 // @ts-expect-error — JS module, no type declarations
-import { applyPlaceEffectsOnEnd } from "../../src/engine/turnManager.js";
-// @ts-expect-error — JS module, no type declarations
 import { createEngineState } from "../helpers/testHelpers.js";
 // @ts-expect-error — JS module, no type declarations
 import { loseMP } from "../../src/engine/mpManager.js";
@@ -49,14 +47,6 @@ function buildCaravanState(overrides = {}) {
 }
 
 describe("place_coerts_caravan (Phase 41) — Coert Quest-damage shield", () => {
-  it("no longer drains Mosjes at end phase", () => {
-    const state = buildCaravanState();
-    const after = applyPlaceEffectsOnEnd(state);
-
-    expect(after.players.player_1.activeSlots[0].mp).toBe(50);
-    expect(after.players.player_1.activeSlots[1].mp).toBe(40);
-  });
-
   it("prevents up to 40 MP of Quest damage to a Coert Mosje each turn", () => {
     const state = buildCaravanState();
 
@@ -86,10 +76,4 @@ describe("place_coerts_caravan (Phase 41) — Coert Quest-damage shield", () => 
     expect(after.players.player_1.activeSlots[1].mp).toBe(20);
   });
 
-  it("dispatcher-level proof: END_PHASE no longer reaches the Caravan effect", () => {
-    const state = buildCaravanState();
-    const after = applyPlaceEffectsOnEnd(state);
-
-    expect(after._lastPlaceEffect?.placeId).not.toBe("place_coerts_caravan");
-  });
 });

@@ -12,6 +12,7 @@ import { isBandWin } from './isBandWin.js';
 import { getEligibleReactions } from '../reactions/getEligibleReactions.js';
 import { buildPendingReaction } from '../reactions/buildPendingReaction.js';
 import { REACTION_MOMENTS as M } from '../reactions/reactionMoments.js';
+import { placeSkiffaGrant } from '../../abilities/place/placeTurnQuestEffects.js';
 
 export function rollQuestAttempt(state, playerId, options) {
 	if (options.skipReactions || state.pendingReaction) return rollCore(state, playerId, options);
@@ -62,6 +63,7 @@ function rollCore(state, playerId, { slotIndex, stackId, costChoice, dieChoices 
 	const diceCount = getQuestDiceCount(s, playerId, slot, quest, { extra });
 	player.questExtraDice = 0;
 	for (const g of player.rerollGrants || []) if (g.scope === 'ownQuest') g.forRoll = true; // Dubbele Dosis: reroll belongs to this Quest
+	placeSkiffaGrant(s, player, slot); // Skiffa: an Artistic roller may reroll 1 die
 
 	const trained = quest.band === 'trained';
 	const dice = trained ? [] : rollQuestDice(diceCount, rng);

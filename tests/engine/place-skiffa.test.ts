@@ -4,25 +4,16 @@ import { resolvePlaceEffect } from "../../src/abilities/placeEffects.js";
 // @ts-expect-error — JS module, no type declarations
 import { createEngineState } from "../helpers/testHelpers.js";
 // @ts-expect-error — JS module, no type declarations
+import { placeSkiffaGrant } from "../../src/abilities/place/placeTurnQuestEffects.js";
+// @ts-expect-error — JS module, no type declarations
+import { createMosjeSlot } from "../../src/engine/mp/createMosjeSlot.js";
+// @ts-expect-error — JS module, no type declarations
+import { MOSJES } from "../../src/data/mosjes.js";
+// @ts-expect-error — JS module, no type declarations
 import { PLACES } from "../../src/data/places.js";
-// @ts-expect-error — JS module, no type declarations
-import fs from "fs";
-// @ts-expect-error — JS module, no type declarations
-import path from "path";
 
 // ─────────────────────────────────────────────────────────────
-// Phase 35-05 (PLACE-10) — Skiffa reconciliation
-// Old theme ("discard 1 OR lose 15 MP") was never actually built as a
-// choice — the engine always applied -15 to non-SUBSTANCE Mosjes.
-// Replaced per the locked ruling with a flat +2 dice-roll bonus for
-// Social-category quests, implemented as an inline main.js dice-bonus
-// term (matching Synergy Chamber's own precedent) rather than a
-// dispatcher-routed state mutation — so effect_skiffa is deleted
-// outright, not replaced with a new dispatcher body.
-// Task 1 (this file, first describe block): places.js/placeEffects.js.
-// Task 2 (second describe block): main.js dice-bonus wiring, verified
-// via source assertion since main.js is a browser-only entry point the
-// unit suite never imports (per CLAUDE.md).
+// Skiffa (Obby 2.0): an Artistic Mosje may reroll 1 die on its own Quest roll; the Digital -10 Power is in places-power.test.ts.
 // ─────────────────────────────────────────────────────────────
 
 describe("place_skiffa (PLACE-10) — Task 1: dead discard/-15 mechanic removed", () => {
@@ -59,23 +50,26 @@ describe("place_skiffa (PLACE-10) — Task 1: dead discard/-15 mechanic removed"
   });
 });
 
-describe("place_skiffa (PLACE-10) — Task 2: main.js +2 Social dice bonus, getSkiffaRerolls removed", () => {
-  const mainJsSource = fs.readFileSync(path.resolve("src/main.js"), "utf-8");
-
-  it("getSkiffaRerolls no longer exists anywhere in main.js", () => {
-    expect(mainJsSource).not.toContain("getSkiffaRerolls");
+describe("place_skiffa (2.0) — Artistic reroll grant", () => {
+  const mk = (subtype: string, fresh = false) => {
+    const s = createMosjeSlot(MOSJES.find((m: any) => m.id === "mosje_ming_natural"), { level: 1, mp: 40 });
+    s.subtype = subtype; s.entryProtected = fresh;
+    return s;
+  };
+  const grant = (slot: any, place = "place_skiffa") => {
+    const state = createEngineState({ activePlace: place, turnNumber: 4, activePlayerId: "player_1", players: { player_1: { activeSlots: [slot] }, player_2: { activeSlots: [] } } });
+    const player = state.players.player_1;
+    placeSkiffaGrant(state, player, slot);
+    return player.rerollGrants || [];
+  };
+  it("an Artistic roller gets exactly one reroll, for that roll only", () => {
+    const g = grant(mk("ARTISTIC"));
+    expect(g).toHaveLength(1);
+    expect(g[0]).toMatchObject({ scope: "ownQuest", uses: 1, forRoll: true });
   });
-
-  // KNOWN GAP (fix in Phase 60): V4 Quest handlers were removed from main.js in 56-06; Skiffa's Social +2 dice and the Tweede Kans reroll return with the 2.0 Place effects.
-  it.skip("the modal's skiffaRerolls parameter is now sourced only from tweedeKansReroll (Tweede Kans preserved)", () => {
-    const matches = mainJsSource.match(/skiffaRerolls: tweedeKansReroll/g) || [];
-    expect(matches.length).toBe(2);
-  });
-
-  // KNOWN GAP (fix in Phase 60): V4 Quest handlers were removed from main.js in 56-06; Skiffa's Social +2 dice and the Tweede Kans reroll return with the 2.0 Place effects.
-  it.skip("both quest-attempt call sites gate a Social-quest +2 bonus on place_skiffa", () => {
-    const matches = mainJsSource.match(/questDef\.category === 'Social'/g) || [];
-    expect(matches.length).toBeGreaterThanOrEqual(2);
-    expect(mainJsSource).toContain("place_skiffa");
+  it("a Digital roller, a fresh Artistic roller and another Place give none", () => {
+    expect(grant(mk("DIGITAL"))).toHaveLength(0);
+    expect(grant(mk("ARTISTIC", true))).toHaveLength(0);
+    expect(grant(mk("ARTISTIC"), "place_the_gym")).toHaveLength(0);
   });
 });

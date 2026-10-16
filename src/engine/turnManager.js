@@ -24,6 +24,7 @@ import { checkVictory, markMosjeDefeated } from './victoryChecker.js';
 import { getAllPlayerIds, setActivePlace, destroyActivePlace, clearReturnedMosjesAtTurnEnd } from './gameState.js';
 import { isHolderTextActive } from './synergy/isHolderTextActive.js';
 import * as placeEffects from '../abilities/placeEffects.js';
+import { placeTurnStart, hasCoert } from '../abilities/place/placeTurnQuestEffects.js';
 import * as piecieEffects from '../abilities/piecieEffects.js';
 import { snelleConditionMet } from '../rules/snelleConditions.js';
 import { runSnelleEffect } from './snelle/runSnelleEffect.js';
@@ -69,9 +70,7 @@ export function applyPerfectRhythmDraw(state, playerId, wasArmedBeforeActivation
   const left = player.perfectRhythmDraws ?? 2;
   if (left <= 0) return state;
   player.perfectRhythmDraws = left - 1;
-  const handBefore = player.hand.length;
   state = drawFromEffect(state, playerId, 1);
-  if (state.players[playerId].hand.length > handBefore) state = applyPlaceEffectsOnDraw(state, playerId, 1);
   // Dancing/DDR Chris on the field: it also gains 10 MP each time.
   const ddr = state.players[playerId].activeSlots.findIndex(s => s && !s.isDefeated && s.cardId === 'mosje_chris_ddr');
   if (ddr >= 0) state = gainFromPiecie(state, playerId, ddr, 10, PIECIES.find(c => c.id === 'piecie_perfect_rhythm'));
@@ -191,12 +190,9 @@ export function finishStartTurn(state, playerId, opts = {}) {
     if (skipDraw) console.log(`[ENGINE] R5: ${playerId} skips the first draw`);
     else {
       state = phaseDrawCard(state, playerId);
-      state = applyPlaceEffectsOnDraw(state, playerId, 1);
     }
   } else {
     state = phaseDrawCard(state, playerId);
-    // ON_DRAW Place effects — fires if active Place has trigger 'ON_DRAW'
-    state = applyPlaceEffectsOnDraw(state, playerId, 1);
   }
   // R1 (Obby 2.0): an empty field gets the cheapest Mosje free and fresh.
   const r1 = placeEmptyFieldMosje(state, playerId);
@@ -207,7 +203,7 @@ export function finishStartTurn(state, playerId, opts = {}) {
   if (state.status === 'FINISHED') return state;
 
   // START PHASE — fire active Place effects (START_PHASE trigger only)
-  state = applyPlaceEffectsOnStart(state, playerId);
+  state = placeTurnStart(state, playerId);
 
   // 2.0 Mosje triggers: own start-of-turn, then each opponent-start-of-turn (before fresh flags clear).
   state = runMosjeTriggers(state, 'startOfTurn', { playerId });
@@ -287,7 +283,7 @@ export function endTurn(gameState) {
   if (state.players[playerId]) state.players[playerId].cooldownTurn = false;
 
   // END PHASE — fire active Place effects (END_PHASE trigger only)
-  state = applyPlaceEffectsOnEnd(state);
+  if (state.activePlace) state.activePlaceTurnsActive = (state.activePlaceTurnsActive || 0) + 1;
 
   // END PHASE â€” tick down status effects on all active Mosjes for all players
   const allPlayerIds = getAllPlayerIds(state);
@@ -768,65 +764,6 @@ export function canPlayerActNow(gameState, playerId, cardType) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Place trigger dispatch helpers
-// Called by startTurn / endTurn / playPiecie / quest resolution / draw.
-// Each only fires when the active Place's trigger matches.
-// ─────────────────────────────────────────────────────────────
-
-export function applyPlaceEffectsOnEnd(gameState) {
-  let state = JSON.parse(JSON.stringify(gameState));
-  if (!state.activePlace) return state;
-  state = placeEffects.resolvePlaceEffect(state, 'END_PHASE');
-  // Increment turns-active counter each end phase
-  state.activePlaceTurnsActive = (state.activePlaceTurnsActive || 0) + 1;
-  console.log(`[ENGINE] End-phase Place effect resolved (turns active: ${state.activePlaceTurnsActive})`);
-  return state;
-}
-
-export function applyPlaceEffectsOnStart(gameState, playerId) {
-  let state = JSON.parse(JSON.stringify(gameState));
-  if (!state.activePlace) return state;
-  state = placeEffects.resolvePlaceEffect(state, 'START_PHASE', { playerId });
-  return state;
-}
-
-export function applyPlaceEffectsOnDraw(gameState, playerId, cardsDrawn) {
-  let state = JSON.parse(JSON.stringify(gameState));
-  if (!state.activePlace) return state;
-  state = placeEffects.resolvePlaceEffect(state, 'ON_DRAW', { playerId, cardsDrawn });
-  return state;
-}
-
-export function applyPlaceEffectsOnQuest(gameState, playerId, questCard, didSucceed, targetSlotIndex = -1) {
-  let state = JSON.parse(JSON.stringify(gameState));
-  if (!state.activePlace) return state;
-  const player = state.players[playerId];
-  // Use the caller-supplied slot when available; fall back to first active Mosje.
-  const fallbackSlot = player?.activeSlots.findIndex(s => s && !s.isDefeated) ?? -1;
-  const slotIndex = (targetSlotIndex >= 0) ? targetSlotIndex : fallbackSlot;
-  const mosje = slotIndex >= 0 ? player.activeSlots[slotIndex] : null;
-  const questsCompletedThisTurn = player?.questsCompletedThisTurn || 0;
-  state = placeEffects.resolvePlaceEffect(state, 'ON_QUEST', {
-    playerId, questCard, didSucceed, mosje, questsCompletedThisTurn, targetSlotIndex: slotIndex,
-  });
-  return state;
-}
-
-export function applyPlaceEffectsOnPiecieActivate(gameState, playerId, piecieCardId) {
-  let state = JSON.parse(JSON.stringify(gameState));
-  if (!state.activePlace) return state;
-  state = placeEffects.resolvePlaceEffect(state, 'ON_PIECIE_ACTIVATE', { playerId, piecieCardId });
-  return state;
-}
-
-export function applyPlaceEffectsOnWelloe(gameState, playerId, newMosjeSlotIndex) {
-  let state = JSON.parse(JSON.stringify(gameState));
-  if (!state.activePlace) return state;
-  state = placeEffects.resolvePlaceEffect(state, 'ON_WELLOE', { playerId, newMosjeSlotIndex });
-  return state;
-}
-
-// ─────────────────────────────────────────────────────────────
 // playPlace
 // Plays a Place card from the active player's hand onto the shared field.
 // Destroys any currently active Place first (moves it to its owner's discard pile).
@@ -844,6 +781,7 @@ export function playPlace(gameState, playerId, cardRef, cardDef) {
     return { state, success: false, error: 'You can only play a Place on your own turn' };
   }
   if (state.activePlace) return { state, success: false, error: 'A Place is already in play' };
+  if (cardRef.cardId === 'place_tesla' && !hasCoert(player)) return { state, success: false, error: 'Tesla needs a Coert on your field' };
   if (!Array.isArray(player.hand)) player.hand = [];
   const found = findPlayableHandIndex(state, player.hand, c => c.cardId === cardRef.cardId);
   const handIndex = found.index;

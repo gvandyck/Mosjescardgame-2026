@@ -10,8 +10,6 @@ import { PLACES } from '../../src/data/places.js';
 // @ts-expect-error — JS module, no type declarations
 import { MOSJES } from '../../src/data/mosjes.js';
 // @ts-expect-error — JS module, no type declarations
-import { effect_tesla, effect_eendjes_voeren } from '../../src/abilities/placeEffects.js';
-// @ts-expect-error — JS module, no type declarations
 import { getMosjeTrait } from '../../src/abilities/questLogic.js';
 // @ts-expect-error — JS module, no type declarations
 import { effect_slecht_gezet, effect_huisbaas } from '../../src/abilities/piecieEffects.js';
@@ -260,48 +258,6 @@ describe('Phase 15 — quest_personal_winston_tijd definition (DECK-08)', () => 
   });
 });
 
-describe('Phase 15 — effect_tesla (DECK-17)', () => {
-  function makeState(mosjes: Array<{ cardId: string; isDefeated?: boolean }>) {
-    return {
-      players: {
-        player_1: {
-          activeSlots: mosjes.map(m => ({
-            cardId: m.cardId,
-            isDefeated: m.isDefeated ?? false,
-            mp: 0,
-          })),
-        },
-      },
-    };
-  }
-
-  it('gives COERT Mosje +20 MP when Coert is active', () => {
-    const state = makeState([{ cardId: 'mosje_coert_tech' }]);
-    const result = effect_tesla(state, 'player_1');
-    expect(result.players.player_1.activeSlots[0].mp).toBe(20);
-  });
-
-  it('gives BINTI Mosje +20 MP base when Binti is active alongside Coert', () => {
-    // When both are active the +10 road-trip bonus also applies → total 30 MP
-    const state = makeState([{ cardId: 'mosje_coert_tech' }, { cardId: 'mosje_binti' }]);
-    const result = effect_tesla(state, 'player_1');
-    expect(result.players.player_1.activeSlots[1].mp).toBe(30);
-  });
-
-  it('gives +10 bonus each when both Coert and Binti active', () => {
-    const state = makeState([{ cardId: 'mosje_coert_tech' }, { cardId: 'mosje_binti' }]);
-    const result = effect_tesla(state, 'player_1');
-    expect(result.players.player_1.activeSlots[0].mp).toBe(30); // 20 + 10
-    expect(result.players.player_1.activeSlots[1].mp).toBe(30); // 20 + 10
-  });
-
-  it('gives 0 MP change when Coert is not active', () => {
-    const state = makeState([{ cardId: 'mosje_binti' }]);
-    const result = effect_tesla(state, 'player_1');
-    expect(result.players.player_1.activeSlots[0].mp).toBe(0);
-  });
-});
-
 describe('Phase 15 — Artistic Rhythm rework (DECK-09/10/11)', () => {
   const ar = () => STARTER_DECKS.find((d: { id: string }) => d.id === 'ARTISTIC_RHYTHM');
 
@@ -391,35 +347,6 @@ describe('Phase 16 — Physical Force deck update (EEV-05)', () => {
   });
   it('piecies contains piecie_dikke_jonko', () => {
     expect(pf()?.piecies).toContain('piecie_dikke_jonko');
-  });
-});
-
-describe('Phase 16 — effect_eendjes_voeren (EEV-02)', () => {
-  function makeState(mosjes: Array<{ cardId: string; isDefeated?: boolean }>) {
-    return {
-      activePlace: 'place_eendjes_voeren',
-      players: {
-        player_1: {
-          activeSlots: mosjes.map(m => ({
-            cardId: m.cardId,
-            isDefeated: m.isDefeated ?? false,
-            mp: 0,
-          })),
-        },
-      },
-    };
-  }
-
-  it('gives MICHELLE Mosje +10 MP at END_PHASE', () => {
-    const state = makeState([{ cardId: 'mosje_michelle' }]);
-    const result = effect_eendjes_voeren(state);
-    expect(result.players.player_1.activeSlots[0].mp).toBe(10);
-  });
-
-  it('gives 0 MP to non-MICHELLE Mosje', () => {
-    const state = makeState([{ cardId: 'mosje_gandoe_destroyer' }]);
-    const result = effect_eendjes_voeren(state);
-    expect(result.players.player_1.activeSlots[0].mp).toBe(0);
   });
 });
 
