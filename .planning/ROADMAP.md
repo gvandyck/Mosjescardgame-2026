@@ -216,7 +216,7 @@ Plans:
 - [x] 59-04-PLAN.md — Example Decks Utility (8), reroll grant, Chain Reaction free path (all Example-Deck Piecies done)
 - [x] 59-05-PLAN.md — MP / Substance / Gear / Pet rest + MP Amplifier + Synergy Field (14), section 6b Ronald Kip test
 - [x] 59-06-PLAN.md — Attack rest, dice rest, draw rest (16), Battle Concert, TemPiecie lock
-- [ ] 59-07-PLAN.md — Redbull, Double Trigger, Dubbele Ding, Leipe Swap; Redbull + VIS-02 specs live
+- [x] 59-07-PLAN.md — Redbull, Double Trigger, Dubbele Ding, Leipe Swap; Redbull + VIS-02 specs live
 - [ ] 59-08-PLAN.md — Mosje Shield, Welloe Force, Mosje Reborn, Call of the Welloes, Dingetje toch?!; 73-Piecie coverage guard, full headless run, EFX-02 tick
 
 ### Phase 60: Snelle, Places and Hidden Information
