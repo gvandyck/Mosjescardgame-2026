@@ -515,4 +515,35 @@ export const PIECIE_REGISTRY = [
 		setup: { field: [{ id: MING, mp: 20, level: 2 }], oppField: OPP40, piecies: on('piecie_dubbele_ding'), hand: [], energy: 6 },
 		trigger: { kind: 'activatePiecie', cardId: 'piecie_dubbele_ding' }, expect: { energy: 4 },
 	}] },
+	// -- Protect / Welloe / wildcard (59-08) --------------------------------
+	{ piecie: 'piecie_mosje_shield', deck: 'rest', section: 'Utility', cases: [{
+		name: 'Stays bound to your Mosje (2 Energy); it cannot be sent to the Welloe pile',
+		setup: { field: own(MING, 20), oppField: OPP40, piecies: on('piecie_mosje_shield'), energy: 5 },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_mosje_shield', picks: [{ index: 0 }] },
+		expect: { energy: 3, state: [['players.player_1.piecieSlots.0.cardId', 'piecie_mosje_shield'], ['players.player_1.piecieSlots.0.boundTo.0.shield', true]] },
+	}] },
+	{ piecie: 'piecie_welloe_force', deck: 'rest', section: 'Utility', cases: [{
+		name: 'discards 1 hand card as part of the cost (2 Energy) and Stays until the start of your next turn',
+		setup: { field: own(MING, 20), oppField: OPP40, piecies: on('piecie_welloe_force'), energy: 5, hand: ['piecie_kannetje_melk'] },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_welloe_force' },
+		expect: { energy: 3, handDelta: -1, state: [['players.player_1.piecieSlots.0.stays', true], ['players.player_1.piecieSlots.0.staysEnd', 'startOfNextTurn']] },
+	}] },
+	{ piecie: 'piecie_mosje_reborn', deck: 'rest', section: 'Utility', cases: [{
+		name: 'a Welloe-pile Mosje comes back at Level 1 with starting MP 20 + 30 (2 Energy)',
+		setup: { field: own(MING, 20), oppField: OPP40, piecies: on('piecie_mosje_reborn'), energy: 5, welloe: ['mosje_jeffrey'] },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_mosje_reborn', picks: [{ index: 0 }] },
+		expect: { energy: 3, mp: { 'own.1': 50 }, level: { 'own.1': 1 }, state: [['players.player_1.welloePile.length', 0], ['players.player_1.activeSlots.1.cardId', 'mosje_jeffrey']] },
+	}] },
+	{ piecie: 'piecie_call_of_welloes', deck: 'rest', section: 'Utility', cases: [{
+		name: 'a Welloe-pile Mosje comes back at Level 1 with starting MP 20; card and Mosje are linked (1 Energy)',
+		setup: { field: own(MING, 20), oppField: OPP40, piecies: on('piecie_call_of_welloes'), energy: 5, welloe: ['mosje_jeffrey'] },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_call_of_welloes', picks: [{ index: 0 }] },
+		expect: { energy: 4, mp: { 'own.1': 20 }, level: { 'own.1': 1 }, state: [['players.player_1.piecieSlots.0.linkedMosjeCardId', 'mosje_jeffrey'], ['players.player_1.activeSlots.1.summonedByPiecie', 'piecie_call_of_welloes']] },
+	}] },
+	{ piecie: 'piecie_dingetje_toch', deck: 'rest', section: 'Utility', cases: [{
+		name: 'played by itself it is just discarded (0 Energy); the wildcard use is covered by the engine tests',
+		setup: { field: own(MING, 20), oppField: OPP40, piecies: on('piecie_dingetje_toch'), energy: 3 },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_dingetje_toch' },
+		expect: { energy: 3, state: [['players.player_1.piecieSlots.0', null]] },
+	}] },
 ];

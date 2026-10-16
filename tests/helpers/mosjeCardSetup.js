@@ -29,14 +29,15 @@ export async function mosjeCardSetup(page, entry, c) {
 	await setHand(page, 'player_1', s.hand || []);
 	await setHand(page, 'player_2', s.oppHand || []);
 
-	await page.evaluate(({ piecies, place, turn, graveyard, noUnlock }) => {
+	await page.evaluate(({ piecies, place, turn, graveyard, noUnlock, welloe }) => {
 		const h = window.__testHooks;
+		for (const id of welloe || []) h.injectWelloeMosje('player_1', id);
 		for (const p of piecies || []) h.setPiecieOnField('player_1', p.slot, p.id, { faceDown: p.faceDown !== false });
 		if (place) h.setActivePlace(place.id, place.by || 'player_2');
 		if (turn) h.setTurnNumber(turn);
 		for (const id of graveyard || []) h.injectGraveyardCard('player_1', id);
 		if (!noUnlock) h.unlockPiecies('player_1');
-	}, { piecies: s.piecies, place: s.place, turn: s.turn, graveyard: s.graveyard, noUnlock: s.noUnlock });
+	}, { piecies: s.piecies, place: s.place, turn: s.turn, graveyard: s.graveyard, noUnlock: s.noUnlock, welloe: s.welloe });
 
 	if (s.quest) await setQuestFaceUp(page, s.quest.stack, s.quest.id);
 	if (s.dice) await setNextDice(page, s.dice);

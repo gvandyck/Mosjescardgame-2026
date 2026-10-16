@@ -995,6 +995,12 @@ function initGamePage() {
 				}
 				renderFromState(gameState);
 			},
+			// 59-08: put a defeated Mosje into the Welloe pile (Mosje Reborn / Call of the Welloes card tests).
+			injectWelloeMosje(playerId, mosjeId) {
+				const player = gameState?.players?.[playerId];
+				if (!player) return;
+				Object.assign(player, { welloePile: [...(player.welloePile || []), { cardId: mosjeId, name: mosjeId, type: 'MOSJE', source: 'welloe', isDefeated: true }] });
+			},
 			injectGraveyardCard(playerId, cardId) {
 				const player = gameState?.players?.[playerId];
 				if (player) { player.graveyard.unshift({ cardId, name: cardId, type: 'PIECIE', source: 'played' }); }
