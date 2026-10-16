@@ -1,6 +1,7 @@
 // rollQuestAttempt — step 1 of a 2.0 Quest attempt: gate, condition, cost, dice, roll. Refusals never mutate.
 import { canMosjeTakeAction } from '../actions/canMosjeTakeAction.js';
 import { getQuestDef } from './getQuestDef.js';
+import { discardDingetje } from './dingetjeForTrait.js';
 import { checkQuestCondition } from './checkQuestCondition.js';
 import { payQuestCost } from './payQuestCost.js';
 import { QUEST_EXTRAS } from './questExtras.js';
@@ -43,13 +44,14 @@ function rollCore(state, playerId, { slotIndex, stackId, costChoice, dieChoices 
 	const questId = state.questStacks?.[stackId]?.faceUp;
 	const quest = questId ? getQuestDef(questId) : null;
 	if (!quest) return fail('No face-up Quest in that stack');
-	const cond = checkQuestCondition(state, playerId, slotIndex, quest);
+	const cond = checkQuestCondition(state, playerId, slotIndex, quest, costChoice);
 	if (!cond.ok) return fail(cond.error);
 	const paid = payQuestCost(state, playerId, slotIndex, quest, costChoice);
 	if (!paid.ok) return fail(paid.error);
 
 	const s = paid.state === state ? JSON.parse(JSON.stringify(state)) : paid.state;
 	const player = s.players[playerId];
+	if (cond.dingetje) discardDingetje(s, playerId, cond.dingetje);
 	const slot = player.activeSlots[slotIndex];
 	slot.actedThisTurn = true;
 	player.questsAttemptedThisTurn = (player.questsAttemptedThisTurn || 0) + 1;

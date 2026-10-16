@@ -3,6 +3,7 @@
 // Michelle (or a Tuk) are both covered (20 less) and each gains 10 MP at the start of the owner's next turn.
 import { cloneState } from './cloneState.js';
 import { resolvePiecieOwnSlot } from './resolvePiecieOwnSlot.js';
+import { dingetjeAsKatje } from './dingetjeAsKatje.js';
 
 const GANDOES = ['mosje_gandoe_wizard', 'mosje_gandoe_destroyer'];
 const PARTNERS = ['mosje_michelle', 'mosje_tuk_healer', 'mosje_tuk_architect'];
@@ -60,14 +61,19 @@ export function effect_tony(gameState, playerId, ctx = {}) {
 // each of them gains 15 MP at the start of your next turn (entry.startGain, paid by sweepStaysSlots).
 export function effect_gekke_vogels(gameState, playerId, ctx = {}) {
 	const state = cloneState(gameState);
-	const si = resolvePiecieOwnSlot(state, playerId, 'piecie_gekke_vogels');
+	const si = ctx.gekkeSlot ?? resolvePiecieOwnSlot(state, playerId, 'piecie_gekke_vogels');
 	if (si < 0) return state;
+	const slotsNow = state.players[playerId].activeSlots;
+	const pairHere = liveIndexes(state, playerId, JISCA).length > 0 && slotsNow.some(x => x && !x.isDefeated && isAlyssa(x.cardId));
+	const katjeIn = (state.players[playerId].piecieSlots || []).some(e => e?.stays === true && e.cardId === 'piecie_katjegang');
+	const wild = dingetjeAsKatje(state, playerId, pairHere && !katjeIn);
+	if (wild.ask) return { state, needChoice: { playerId, choiceKind: 'dingetje', key: wild.key, options: wild.options, prompt: 'Discard Dingetje toch?! to count as KatjeGang?', ctx: { gekkeSlot: si } } };
 	cover(state, playerId, ctx, si, JISCA);
 	const entry = ctx.slotIndex >= 0 ? state.players[playerId].piecieSlots?.[ctx.slotIndex] : null;
 	const slots = state.players[playerId].activeSlots;
 	const jisca = liveIndexes(state, playerId, JISCA);
 	const alyssa = slots.findIndex(s => s && !s.isDefeated && isAlyssa(s.cardId));
-	const katje = (state.players[playerId].piecieSlots || []).some(e => e?.stays === true && e.cardId === 'piecie_katjegang');
+	const katje = wild.counts || (state.players[playerId].piecieSlots || []).some(e => e?.stays === true && e.cardId === 'piecie_katjegang');
 	if (entry && jisca.length && alyssa >= 0 && katje) {
 		entry.startGain = [jisca[0], alyssa].map(i => ({ slotIndex: i, cardId: slots[i].cardId, amount: 15 }));
 	}

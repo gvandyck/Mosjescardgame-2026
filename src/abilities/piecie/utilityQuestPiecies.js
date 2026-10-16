@@ -33,3 +33,9 @@ export function effect_battle_concert(gameState, playerId) {
 	if (slotIndex >= 0) state._battleConcertTarget = { playerId: oppId, slotIndex, cardId: state.players[oppId].activeSlots[slotIndex].cardId };
 	return state;
 }
+
+// Dingetje toch?!: played by itself it is just discarded. Its power is as a wildcard: Quest costs, one trait
+// requirement (checkQuestCondition) and Gekke Vogels' KatjeGang requirement accept it (it never adds Quest dice).
+export function effect_dingetje_toch(gameState) {
+	return cloneState(gameState);
+}

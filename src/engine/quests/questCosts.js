@@ -23,7 +23,7 @@ function discarding(accepts, zones = ['ready', 'hand']) {
 	return {
 		canPay(ctx, choice) {
 			const p = pick(ctx, choice);
-			return !!p && zones.includes(p.zone) && accepts(p);
+			return !!p && zones.includes(p.zone) && (accepts(p) || p.cardId === 'piecie_dingetje_toch'); // Dingetje toch?! counts as any card
 		},
 		pay(ctx, choice) {
 			const p = pick(ctx, choice);
