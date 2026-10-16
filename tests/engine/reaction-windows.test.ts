@@ -37,7 +37,7 @@ function board(p2: any = {}, p1: any = {}, top: any = {}) {
     },
   });
 }
-const ready = { cardId: "piecie_dikke_taks", type: "PIECIE", faceDown: true, activated: false, canActivateOnTurn: 1 };
+const ready = { cardId: "piecie_klaar_met_jou", type: "PIECIE", faceDown: true, activated: false, canActivateOnTurn: 1 };
 const mp2 = (s: any, i = 0) => s.players.player_2.activeSlots[i].mp;
 
 describe("defender windows", () => {
@@ -107,7 +107,7 @@ describe("defender windows", () => {
 
 describe("Piecie activation windows", () => {
   const mkp = (hand2: string[], hand1: string[] = []) =>
-    board({ hand: H(...hand2) }, { // Dikke Taks needs one of your Mosjes at Level 2+ (second Mosje is Level 2)
+    board({ hand: H(...hand2), activeSlots: [mk(30), mk(50)] }, { // Klaar Met Jou: Level 2+ gate (second Mosje is Level 2); foe Mosje at 30 MP goes to the Welloe pile
       activeSlots: [mk(50, attackerDef), mk(50, plain, 2)], hand: H(...hand1), energy: 10, piecieSlots: [{ ...ready }, null, null] });
   it("defender: afterPiecieActivation + targeted + wouldLoseMp; Jammertje offered", () => {
     const r = activatePiecie(mkp(["snelle_jammertje_gepakt", "snelle_counter_strikka", "snelle_jensen"]), "player_1", 0);

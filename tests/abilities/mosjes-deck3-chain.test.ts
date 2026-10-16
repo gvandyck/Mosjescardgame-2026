@@ -51,7 +51,7 @@ describe("Jisca: Perfect Combo", () => {
     pushTestDice([5]);
     const res = activatePiecie(board([placed(), placed("piecie_te_hard_gaan"), null]), "player_1", 0);
     expect(p1(res).energy).toBe(6); // Te Hard Gaan (cost 2) came free
-    expect(res.state.players.player_2.activeSlots[0].mp).toBe(10); // 50 - 25 (Te Hard Gaan) - 15
+    expect(res.state.players.player_2.activeSlots[0].mp).toBe(35); // 50 - 15 (Jisca); Te Hard Gaan is +20 Power on Jisca now, no damage
   });
 
   it("die 2: Jisca loses 10; at 0 MP nothing is lost", () => {

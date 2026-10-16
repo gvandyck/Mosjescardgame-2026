@@ -22,6 +22,9 @@ import { canLeaveWelloePile } from '../engine/table/canLeaveWelloePile.js';
 export * from './piecie/mpPiecies.js';
 export * from './piecie/substancePiecies.js';
 export * from './piecie/gearPiecies.js';
+export * from './piecie/attackPiecies.js';
+export * from './piecie/utilityProtectPiecies.js';
+export * from './piecie/petPiecies.js';
 
 console.log('[ABILITY] piecieEffects.js loaded');
 
@@ -158,49 +161,6 @@ export function effect_warm_kannetje_melk(gameState, playerId) {
 // ATTACK
 // ─────────────────────────────────────────
 
-export function effect_super_saiyan_mos(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si < 0) return state;
-	player.questBonusMP = (player.questBonusMP || 0) + 25;
-	console.log('[ABILITY] Super Saiyan Mos: next quest drains +25 from opponent');
-	return state;
-}
-
-export function effect_te_hard_gaan(gameState, playerId) {
-	const state = cloneState(gameState);
-	const oppId = getOpponentId(state, playerId);
-	if (!oppId) return state;
-	const osi = resolveOppTargetSlot(state, oppId);
-	if (osi >= 0 && applyHostileDamage(state, oppId, state.players[oppId].activeSlots[osi], 25)) {
-		console.log('[ABILITY] Te Hard Gaan: opponent -25 MP');
-	}
-	return state;
-}
-
-export function effect_momentum_diefje(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	const oppId = getOpponentId(state, playerId);
-	if (!player || !oppId) return state;
-	const si = resolveOwnTargetSlot(state, playerId);
-	const osi = resolveOppTargetSlot(state, oppId);
-	if (si >= 0 && osi >= 0) {
-		// U8 — whole steal fizzles (no damage, no gain) vs a protected target.
-		if (isFresh(state.players[oppId].activeSlots[osi])) {
-			console.log('[ABILITY] 🛡️ Entry protection: Momentum Diefje fizzled — target just entered play');
-			return state;
-		}
-		const stolen = Math.min(20, state.players[oppId].activeSlots[osi].mp);
-		applyDamage(state, oppId, state.players[oppId].activeSlots[osi], stolen);
-		applyGainToSlot(player.activeSlots[si], stolen, { turnNumber: state.turnNumber });
-		console.log(`[ABILITY] Momentum Diefje: stole ${stolen} MP`);
-	}
-	return state;
-}
-
 export function effect_snoeiertje(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
@@ -218,20 +178,6 @@ export function effect_jantje_jantje(gameState, playerId) {
 	// Needs UI: player must name a card. For now: just log as pending.
 	console.log('[ABILITY] Jantje Jantje: requires UI input \u2014 skipped');
 	return gameState;
-}
-
-export function effect_dikke_taks(gameState, playerId) {
-	const state = cloneState(gameState);
-	const opponents = Object.keys(state.players).filter(id => id !== playerId);
-	const damage = opponents.length >= 3 ? 40 : 35;
-	for (const oppId of opponents) {
-		const osi = resolveOppTargetSlot(state, oppId);
-		if (osi >= 0) applyHostileDamage(state, oppId, state.players[oppId].activeSlots[osi], damage);
-	}
-	const player = state.players[playerId];
-	if (player.deck.length > 0) player.hand.push(...player.deck.splice(0, Math.min(2, player.deck.length)));
-	console.log(`[ABILITY] Dikke Taks: all opponents -${damage} MP, drew 2`);
-	return state;
 }
 
 export function effect_kleine_taks(gameState, playerId) {
@@ -510,28 +456,6 @@ export function effect_mosje_reborn(gameState, playerId) {
 	return state;
 }
 
-export function effect_afblijven(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si >= 0) player.activeSlots[si].immuneThisTurn = true;
-	console.log('[ABILITY] Afblijven: cannot lose MP until next turn');
-	return state;
-}
-
-export function effect_laat_me_chillen(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si >= 0) {
-		player.activeSlots[si].statusEffects.push({ type: 'MP_LOSS_REDUCTION', value: 20, turnsLeft: 1 });
-	}
-	console.log('[ABILITY] Laat me chillen: -20 MP loss reduction (one-time)');
-	return state;
-}
-
 export function effect_synergy_field(gameState, playerId) {
 	const state = cloneState(gameState);
 	state.synergyFieldTurnsLeft = 3;
@@ -804,21 +728,6 @@ export function effect_kan_het(gameState, playerId) {
 // PET PROTECTION
 // ─────────────────────────────────────────
 
-export function effect_bowie_stormey(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const petTags = ['GANDOE', 'DJ', 'TUK', 'MICHELLE'];
-	for (const slot of player.activeSlots) {
-		if (!slot || slot.isDefeated) continue;
-		const cardTags = slot.traits ? Object.keys(slot.traits) : [];
-		// Apply to Mosjes matching pet synergy tags
-		slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 1, turnsLeft: 2 });
-	}
-	console.log('[ABILITY] Bowie & Stormey: MP loss halved for 2 turns');
-	return state;
-}
-
 export function effect_tony(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
@@ -852,18 +761,6 @@ export function effect_katjegang(gameState, playerId) {
 		slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 1, turnsLeft: 2 });
 	}
 	console.log('[ABILITY] KatjeGang: MP loss halved for 2 turns (Alyssa)');
-	return state;
-}
-
-export function effect_vianna_poes(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	for (const slot of player.activeSlots) {
-		if (!slot || slot.isDefeated) continue;
-		slot.statusEffects.push({ type: 'MP_LOSS_HALVED', value: 1, turnsLeft: 2 });
-	}
-	console.log('[ABILITY] ViannaPoes: MP loss halved for 2 turns (Cless)');
 	return state;
 }
 
@@ -945,17 +842,6 @@ export function effect_continuous_assault(gameState, playerId) {
 	return state;
 }
 
-export function effect_harde_didde(gameState, playerId) {
-	const state = cloneState(gameState);
-	const oppId = getOpponentId(state, playerId);
-	if (!oppId) return state;
-	const osi = resolveOppTargetSlot(state, oppId);
-	if (osi >= 0 && applyHostileDamage(state, oppId, state.players[oppId].activeSlots[osi], 50)) {
-		console.log('[ABILITY] Harde Didde: opponent -50 MP');
-	}
-	return state;
-}
-
 export function effect_mp_hemorrhage(gameState, playerId) {
 	const state = cloneState(gameState);
 	const oppId = getOpponentId(state, playerId);
@@ -971,26 +857,3 @@ export function effect_mp_hemorrhage(gameState, playerId) {
 	return state;
 }
 
-export function effect_klaar_met_jou(gameState, playerId) {
-	let state = cloneState(gameState);
-	const oppId = getOpponentId(state, playerId);
-	if (!oppId) return state;
-	let opp = state.players[oppId];
-	const osi = resolveOppTargetSlot(state, oppId);
-	if (osi >= 0) {
-		// U8 — whole effect fizzles (no damage, no discard) vs a protected target.
-		if (isFresh(opp.activeSlots[osi])) {
-			console.log('[ABILITY] 🛡️ Entry protection: Klaar met jou fizzled — target just entered play');
-			return state;
-		}
-		applyDamage(state, oppId, opp.activeSlots[osi], 40);
-		if (opp.hand.length > 0) {
-			const [removed] = opp.hand.splice(opp.hand.length - 1, 1);
-			const cardId = removed?.cardId ?? removed;
-			state = addToGraveyard(state, oppId, cardId, 'discarded');
-			opp = state.players[oppId];
-		}
-		console.log('[ABILITY] Klaar met jou: opponent -40 MP, discard 1 to graveyard');
-	}
-	return state;
-}

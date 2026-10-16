@@ -112,8 +112,8 @@ describe('Phase 48 gap-fill — effect_snoeiertje (IMPL-PF-P3)', () => {
   });
 });
 
-describe('Phase 48 gap-fill — effect_dikke_taks (IMPL-PF-P5)', () => {
-  it('deals 35 MP to the single opponent (below the 3+ opponent threshold) and draws 2 cards', () => {
+describe('Phase 59 - effect_dikke_taks (Card List 2.0)', () => {
+  it('+10 Power, flags the double hit, draws 1 card (no MP loss on its own)', () => {
     const state = makeState({
       deck: [
         { cardId: 'piecie_kannetje_melk', type: 'PIECIE' },
@@ -121,25 +121,25 @@ describe('Phase 48 gap-fill — effect_dikke_taks (IMPL-PF-P5)', () => {
       ],
     }, { mp: 80 });
     const result = effect_dikke_taks(state, 'player_1');
+    const mine = result.players.player_1.activeSlots[0];
 
-    expect(result.players.player_2.activeSlots[0].mp).toBe(45); // 80 - 35
-    expect(result.players.player_1.hand).toHaveLength(2);
-    expect(result.players.player_1.deck).toHaveLength(0);
+    expect(result.players.player_2.activeSlots[0].mp).toBe(80);
+    expect(mine.powerBoostThisTurn).toBe(10);
+    expect(mine.hitBothOpponents).toBe(true);
+    expect(result.players.player_1.hand).toHaveLength(1);
+    expect(result.players.player_1.deck).toHaveLength(1);
   });
 });
 
-describe('Phase 48 gap-fill — effect_momentum_diefje happy path (IMPL-PF-P4)', () => {
-  it('steals 20 MP from an UNPROTECTED opponent target and adds it to the activating Mosje', () => {
+describe('Phase 59 - effect_momentum_diefje (Card List 2.0)', () => {
+  it('+10 Power and the attack flag; steals nothing by itself', () => {
     const state = makeState({ mp: 50 }, { mp: 40 });
-    // Ensure the target is not entry-protected (default undefined already satisfies
-    // this, but state it explicitly since the fizzle branch this test complements
-    // relies on the opposite value).
-    state.players.player_2.activeSlots[0].entryProtected = false;
-
     const result = effect_momentum_diefje(state, 'player_1');
-
-    expect(result.players.player_2.activeSlots[0].mp).toBe(20); // 40 - 20 stolen
-    expect(result.players.player_1.activeSlots[0].mp).toBe(70); // 50 + 20 gained
+    const mine = result.players.player_1.activeSlots[0];
+    expect(mine.powerBoostThisTurn).toBe(10);
+    expect(mine.momentumDiefjeThisTurn).toBe(true);
+    expect(result.players.player_2.activeSlots[0].mp).toBe(40);
+    expect(mine.mp).toBe(50);
   });
 });
 

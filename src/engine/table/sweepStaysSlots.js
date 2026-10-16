@@ -1,5 +1,7 @@
 // sweepStaysSlots — discard Stays Piecies whose end time has come. when: 'start' | 'end' (of playerId's turn).
 import { discardPiecieSlot } from './discardPiecieSlot.js';
+import { staysBoundGone } from './staysBoundGone.js';
+import { payStaysStartGain } from './payStaysStartGain.js';
 
 function linkedGone(state, playerId, e) {
 	if (e.cardId !== 'piecie_call_of_welloes' || !e.linkedMosjeCardId) return false;
@@ -16,6 +18,8 @@ export function sweepStaysSlots(state, playerId, when) {
 		(state.players[pid].piecieSlots || []).forEach((e, i) => {
 			if (!e || e.stays !== true) return;
 			const own = pid === playerId;
+			if (staysBoundGone(next, e)) { next = discardPiecieSlot(next, pid, i); return; }
+			if (when === 'start' && own && e.startGain?.length && (e.activatedRound ?? 0) < state.turnNumber) next = payStaysStartGain(next, pid, i);
 			const older = (e.activatedRound ?? 0) < state.turnNumber;
 			const gone =
 				(when === 'start' && own && e.staysEnd === 'startOfNextTurn' && older) ||

@@ -2,6 +2,7 @@
 // Call checkVictory() after every state change.
 // Returns the updated gameState with winnerId set if someone won.
 
+import { discardBoundStays } from './table/discardBoundStays.js';
 import { checkLoss } from './winLose/checkLoss.js';
 import { getAllPlayerIds } from './gameState.js';
 import { normalizeSlotMp } from './mp/normalizeSlotMp.js';
@@ -187,5 +188,5 @@ export function markMosjeDefeated(gameState, playerId, slotIndex) {
     }
   }
 
-  return checkVictory(state);
+  return checkVictory(discardBoundStays(state)); // a Stays Piecie bound to this Mosje ends with it
 }

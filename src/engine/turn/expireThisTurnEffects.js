@@ -7,6 +7,8 @@ export function expireThisTurnEffects(state) {
 		for (const slot of player.activeSlots || []) {
 			if (!slot) continue;
 			delete slot.powerBoostThisTurn;
+			delete slot.momentumDiefjeThisTurn; // Momentum Diefje: the +20 on a successful attack lasts this turn only
+			delete slot.hitBothOpponents; // Dikke Taks: an unused double hit ends with the turn
 			delete slot.momentumBoostWin; // Momentum Boost: the Quest-win bonus lasts this turn only
 			for (const k of ['actedThisTurn', 'attackedThisTurn', 'takenByAttacksThisTurn', 'unstoppableFired', 'flowFired']) delete slot[k];
 			// Unstoppable: lasts until the end of the OWNER's next turn.

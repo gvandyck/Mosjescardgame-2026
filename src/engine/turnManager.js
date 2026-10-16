@@ -7,6 +7,7 @@ import { PIECIE_SLOT_COUNT } from './table/tableRules.js';
 import { isPiecieReady } from './table/isPiecieReady.js';
 import { finishPiecieActivation } from './table/finishPiecieActivation.js';
 import { sweepStaysSlots } from './table/sweepStaysSlots.js';
+import { runEndOfTurnLosses } from './turn/runEndOfTurnLosses.js';
 import { canLeaveWelloePile } from './table/canLeaveWelloePile.js';
 import { drawCards, shuffleDeck } from './deckEngine.js';
 import { placeEmptyFieldMosje } from './turn/placeEmptyFieldMosje.js';
@@ -407,6 +408,7 @@ export function endTurn(gameState) {
   state = runMosjeTriggers(state, 'endOfTurn', { playerId });
   returnSetAside(state, playerId); // Ronald's Strategic Insight: set-aside cards come back now
   snapBackTacticianSet(state);
+  state = runEndOfTurnLosses(state, playerId); // "at the end of the turn it loses N MP" (Te Hard Gaan ...)
   expireThisTurnEffects(state);
 
   state = checkVictory(state);

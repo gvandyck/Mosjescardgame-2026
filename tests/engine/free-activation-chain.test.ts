@@ -141,7 +141,7 @@ describe("chain rule: a free activation never starts a roll", () => {
     expect(p.energy).toBe(4); // only the paid Piecie (2) cost Energy
     expect(p.ddrChainsThisTurn).toBe(1);
     expect(p.piecieSlots.every((x: any) => x === null)).toBe(true); // all three Piecies resolved
-    expect(res.state.players.player_2.activeSlots[0].mp).toBe(40); // 80 - 25 (Te Hard Gaan) - 15 (Jisca)
+    expect(res.state.players.player_2.activeSlots[0].mp).toBe(65); // 80 - 15 (Jisca); Te Hard Gaan is +20 Power (Card List 2.0), no damage
     expect(rest()).toEqual([1, 1]); // the two freed Piecies rolled nothing
   });
 

@@ -1,5 +1,5 @@
 // Momentum Diefje: if the boosted attacker made a Mosje lose MP this turn, it gains 20.
-// KNOWN GAP (fix in Phase 59): the 2.0 Piecie effect that sets momentumDiefjeThisTurn.
+// effect_momentum_diefje sets slot.momentumDiefjeThisTurn (cleared by expireThisTurnEffects).
 import { gainMP } from '../mpManager.js';
 
 export function momentumDiefjeGain(ctx) {

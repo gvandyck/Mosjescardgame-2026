@@ -1,12 +1,12 @@
 // attackMosje — "taksen": the attacker's Power is an MP loss on the target (can getemt).
 import { withReactionWindow } from '../reactions/withReactionWindow.js';
-import { loseMP } from '../mpManager.js';
+import { hitOneTarget } from '../attack/hitOneTarget.js';
+import { otherHitTarget } from '../attack/otherHitTarget.js';
 import { checkVictory } from '../victoryChecker.js';
 import { getPower } from '../mp/getPower.js';
 import { isFresh } from '../fresh/isFresh.js';
 import { canMosjeTakeAction } from './canMosjeTakeAction.js';
 import { isValidAttackTarget } from './isValidAttackTarget.js';
-import { ATTACK_TRIGGERS } from '../attack/attackTriggers.js';
 
 export function attackMosje(state, playerId, params, opts = {}) {
   return withReactionWindow(state, playerId, { type: 'attack', args: [playerId, params], skipReactions: opts.skipReactions },
@@ -26,16 +26,15 @@ function attackCore(state, playerId, { attackerSlotIndex, targetPlayerId, target
   attacker.attackedThisTurn = true;
   const power = getPower(attacker);
   let final = 0;
+  const hitBoth = attacker.hitBothOpponents === true; // Dikke Taks: its next attack this turn
+  delete attacker.hitBothOpponents;
   if (power > 0) {
-    const ctx = { state: s, attackerPlayerId: playerId, attackerSlotIndex, targetPlayerId, targetSlotIndex, amount: power };
-    let amount = power;
-    for (const step of ATTACK_TRIGGERS.modifyAmount) amount = step({ ...ctx, amount });
-    const before = s.players[targetPlayerId].activeSlots[targetSlotIndex].mpLostThisTurn || 0;
-    s = loseMP(s, targetPlayerId, targetSlotIndex, amount, 'ATTACK', false, playerId);
-    final = (s.players[targetPlayerId].activeSlots[targetSlotIndex].mpLostThisTurn || 0) - before;
-    for (const step of ATTACK_TRIGGERS.afterLoss) {
-      s = step({ state: s, attackerPlayerId: playerId, attackerSlotIndex, targetPlayerId, targetSlotIndex, final });
-    }
+    const base = { attackerPlayerId: playerId, attackerSlotIndex, targetPlayerId, power };
+    const first = hitOneTarget(s, { ...base, targetSlotIndex });
+    s = first.state;
+    final = first.final;
+    const other = hitBoth ? otherHitTarget(s, targetPlayerId, targetSlotIndex) : -1;
+    if (other >= 0) s = hitOneTarget(s, { ...base, targetSlotIndex: other }).state;
   }
   console.log(`[ATTACK] ${attacker.name} taksed ${s.players[targetPlayerId].activeSlots[targetSlotIndex]?.name} for ${final}`);
   s = checkVictory(s);
