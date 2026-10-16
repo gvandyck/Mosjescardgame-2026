@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 // @ts-expect-error - JavaScript module has no type declarations
-import { effect_zo_is_natuur, effect_quest_haven } from '../../src/abilities/placeEffects.js';
+import { effect_zo_is_natuur } from '../../src/abilities/placeEffects.js';
 
 // Phase 48-04 gap-fill for the two Place effects below.
 // Phase 56-08: the ten V4 quest_req_* describes that used to follow (shotje_obby, leap_of_faith,
@@ -83,29 +83,5 @@ describe('effect_zo_is_natuur (IMPL-PF-PL2 gap-fill)', () => {
     const state = makeState([makeMosje('mosje_chris', 40, { resilient: 2 }), null]);
     const result = effect_zo_is_natuur(state);
     expect(result.players.player_1.activeSlots[0].mp).toBe(55);
-  });
-});
-
-// ─────────────────────────────────────────────────────────────
-// IMPL-AR-PL2 — place_quest_haven (effect_quest_haven)
-// ─────────────────────────────────────────────────────────────
-describe('effect_quest_haven (IMPL-AR-PL2 gap-fill)', () => {
-  it('grants +10 MP to the questing slot on a successful quest', () => {
-    const state = makeState([makeMosje('mosje_chris', 40), null]);
-    const result = effect_quest_haven(state, true, 1, 0);
-    expect(result.players.player_1.activeSlots[0].mp).toBe(50);
-  });
-
-  it('does nothing on a failed quest', () => {
-    const state = makeState([makeMosje('mosje_chris', 40), null]);
-    const result = effect_quest_haven(state, false, 1, 0);
-    expect(result.players.player_1.activeSlots[0].mp).toBe(40);
-  });
-
-  it('grants an extra +25 MP bonus when 2 quests were completed this turn', () => {
-    const state = makeState([makeMosje('mosje_chris', 40), null]);
-    const result = effect_quest_haven(state, true, 2, 0);
-    // +10 base reward, +25 double-quest bonus = +35 total
-    expect(result.players.player_1.activeSlots[0].mp).toBe(75);
   });
 });

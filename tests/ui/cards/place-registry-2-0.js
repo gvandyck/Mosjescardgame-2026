@@ -15,6 +15,9 @@ const at = (place, id, extra = {}) => ({ field: [{ id, mp: 50, ...extra.f }], op
 const power = (name, place, id, n, extra) => ({ name, setup: at(place, id, extra), trigger: NONE, expect: { power: { 'own.0': n } } });
 const fresh = (place, id, n) => ({ name: 'a fresh Mosje ignores it', setup: at(place, id, { f: { fresh: true } }), trigger: NONE, expect: { power: { 'own.0': n } } });
 
+const turn = (place, name, id, mp, after, f = {}) => ({ name, setup: { field: [{ id, mp, ...f }], oppField: OPP, place: { id: place, by: 'player_2' } }, trigger: { kind: 'turnStart' }, expect: { mp: { 'own.0': after } } });
+const quest = (place, name, dice, after) => ({ name, setup: { field: [{ id: DIG, mp: 40 }], oppField: OPP, place: { id: place, by: 'player_2' }, quest: { stack: 'DIGITAL', id: 'quest_quick_thinking' }, dice }, trigger: { kind: 'quest', stack: 'DIGITAL' }, expect: { mp: { 'own.0': after } } });
+
 export const PLACE_REGISTRY = [
 	{ place: 'place_the_gym', deck: 'example', cases: [
 		power('Fighting Power 20 -> 30', 'place_the_gym', BULL, 30),
@@ -62,5 +65,50 @@ export const PLACE_REGISTRY = [
 		power('no staying pet Piecie: -10 (20 -> 10)', 'place_dierenasiel', BULL, 10),
 		power('a staying pet Piecie: no change', 'place_dierenasiel', BULL, 20, { s: { piecies: [{ slot: 0, id: 'piecie_vianna_poes', faceDown: false, stays: 'endOfNextTurn' }] } }),
 		fresh('place_dierenasiel', BULL, 20),
+	] },
+	// Phase 60-05 (EFX-04 part 2): turn-start, dice and Quest-MP Places. Fresh Mosjes are laid out with fresh:true.
+	{ place: 'place_the_gym', deck: 'example', part: 'turn start', cases: [
+		turn('place_the_gym', 'a non-Fighting Mosje loses 10 at its owner turn start (40 -> 30)', DIG, 40, 30),
+		turn('place_the_gym', 'a Fighting Mosje is unchanged (40)', BULL, 40, 40),
+		turn('place_the_gym', 'a fresh Mosje is unchanged (40)', DIG, 40, 40, { fresh: true }),
+	] },
+	{ place: 'place_bank_chilling', deck: 'rest', part: 'turn start', cases: [
+		turn('place_bank_chilling', 'a Social 2+ Mosje gains 10 (40 -> 50)', ART, 40, 50),
+		turn('place_bank_chilling', 'a Mosje without Social stars gains nothing (40)', DIG, 40, 40),
+		turn('place_bank_chilling', 'a fresh Social Mosje gains nothing (40)', ART, 40, 40, { fresh: true }),
+	] },
+	{ place: 'place_eendjes_voeren', deck: 'example', part: 'turn start', cases: [
+		turn('place_eendjes_voeren', 'a Michelle gains 10 (30 -> 40)', 'mosje_michelle', 30, 40),
+		turn('place_eendjes_voeren', 'another Mosje gains nothing (40)', BULL, 40, 40),
+		turn('place_eendjes_voeren', 'a fresh Michelle gains nothing (30)', 'mosje_michelle', 30, 30, { fresh: true }),
+	] },
+	{ place: 'place_skiffa', deck: 'example', part: 'reroll', cases: [{
+		name: 'an Artistic Mosje may reroll 1 die on its Quest roll (1,1 fails; reroll die 1 -> 6 wins +25)',
+		setup: { field: [{ id: ART, mp: 50 }], oppField: OPP, place: { id: 'place_skiffa', by: 'player_2' }, quest: { stack: 'ARTISTIC', id: 'quest_inspire_crowd' }, dice: [1, 1], abilityDice: [6] },
+		trigger: { kind: 'quest', stack: 'ARTISTIC', picks: [/Reroll die 1/] }, expect: { mp: { 'own.0': 75 } },
+	}] },
+	{ place: 'place_tesla', deck: 'example', part: 'play', cases: [
+		{ name: 'cannot be played without a Coert on your field',
+			setup: { field: [{ id: DIG, mp: 40 }], oppField: OPP, hand: ['place_tesla'] },
+			trigger: { kind: 'playFromHand', cardId: 'place_tesla' }, expect: { energy: 3, handDelta: 0, state: [['activePlace', null]] } },
+		{ name: 'can be played with a Coert on your field (3 Energy)',
+			setup: { field: [{ id: 'mosje_coert_kasteluck', mp: 40 }], oppField: OPP, hand: ['place_tesla'] },
+			trigger: { kind: 'playFromHand', cardId: 'place_tesla' }, expect: { energy: 0, handDelta: -1, state: [['activePlace', 'place_tesla']] } },
+	] },
+	{ place: 'place_quest_haven', deck: 'rest', part: 'quest', cases: [
+		quest('place_quest_haven', 'a Quest win gives 10 more (+25 -> 40 + 35 = 75)', [5, 5, 5], 75),
+		quest('place_quest_haven', 'a Quest loss is unchanged (-15 -> 25)', [1, 1, 1], 25),
+	] },
+	{ place: 'place_obby_1', deck: 'rest', part: 'quest', cases: [
+		quest('place_obby_1', 'a Quest win gives 10 more (40 + 35 = 75)', [5, 5, 5], 75),
+		quest('place_obby_1', 'a Quest loss costs 10 more (-25 -> 15)', [1, 1, 1], 15),
+	] },
+	{ place: 'place_digital_gaming_stop', deck: 'rest', part: 'gear', cases: [
+		{ name: 'activating a gear Piecie also draws 1 card (Skipping Rope 1 + Place 1)',
+			setup: { field: [{ id: 'mosje_michelle', mp: 20 }], oppField: OPP, piecies: [{ slot: 0, id: 'piecie_skipping_rope' }], place: { id: 'place_digital_gaming_stop', by: 'player_2' } },
+			trigger: { kind: 'activatePiecie', cardId: 'piecie_skipping_rope' }, expect: { handDelta: 2 } },
+		{ name: 'a non-gear Piecie draws nothing extra',
+			setup: { field: [{ id: 'mosje_michelle', mp: 20 }], oppField: OPP, piecies: [{ slot: 0, id: 'piecie_broodje_doner' }], place: { id: 'place_digital_gaming_stop', by: 'player_2' }, energy: 3 },
+			trigger: { kind: 'activatePiecie', cardId: 'piecie_broodje_doner' }, expect: { handDelta: 0 } },
 	] },
 ];

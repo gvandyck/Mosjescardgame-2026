@@ -5,7 +5,6 @@ import { gainMP } from '../engine/mpManager.js';
 import { roundToFive } from '../engine/roundToFive.js';
 import { applyGainToSlot } from '../engine/mp/applyGainToSlot.js';
 import { applyMpLossToSlot } from '../engine/mp/applyMpLossToSlot.js';
-import { applyPlaceEffectsOnQuest } from '../engine/turnManager.js';
 import { isHolderTextActive } from '../engine/synergy/isHolderTextActive.js';
 
 console.log('[ABILITY] questLogic.js loaded');
@@ -49,23 +48,20 @@ export function getMosjeTrait(gameState, playerId, activeMosjeId, traitName) {
 }
 
 // runQuestOutcomeHooks — everything that reacts to a resolved Quest AFTER its base MP was applied:
-// armed questBonusMP + partner-synergy bonus (success only), Mosje auto-abilities, quest counters,
+// partner-synergy bonus (success only), Mosje auto-abilities, quest counters,
 // Place and Piecie quest effects. Called by the 2.0 resolveQuestAttempt.
 export function runQuestOutcomeHooks(gameState, playerId, slotIndex, questCard, didSucceed, mpGained = 0, { skipBonus = false } = {}) {
 	let state = cloneState(gameState);
 	const player = state.players[playerId];
 	let questMpGained = mpGained;
 	if (!skipBonus) {
-		// questBonusMP: a one-shot bonus flag (no 2.0 Piecie arms it any more); consumed only on a success.
-		const armedBonus = didSucceed ? (player.questBonusMP || 0) : 0;
 		const questingMosje = player.activeSlots[slotIndex];
 		const synergyBonus = didSucceed ? getPartnerSynergyQuestBonus(state, playerId, questCard.category) : 0;
-		if (didSucceed && player.questBonusMP) player.questBonusMP = 0;
-		const totalBonus = armedBonus + synergyBonus;
+		const totalBonus = synergyBonus;
 		if (totalBonus > 0) {
 			questMpGained += totalBonus;
 			state = gainMP(state, playerId, slotIndex, totalBonus, 'QUEST_BONUS');
-			console.log(`[QUEST] Bonus MP applied: +${totalBonus} (armed=${armedBonus}, partner-synergy=${synergyBonus})`);
+			console.log(`[QUEST] Bonus MP applied: +${totalBonus} (partner-synergy=${synergyBonus})`);
 			if (synergyBonus > 0) state._questSynergyBonus = synergyBonus;
 		}
 	}
@@ -84,11 +80,7 @@ export function runQuestOutcomeHooks(gameState, playerId, slotIndex, questCard, 
 	if (didSucceed) {
 		state.players[playerId].questsCompleted += 1;
 		state.players[playerId].questsCompletedThisTurn += 1;
-		// slotIndex so Quest Haven awards the bonus to the Mosje that completed the quest.
-		state = applyPlaceEffectsOnQuest(state, playerId, questCard, true, slotIndex);
-		state = applyPiecieFieldEffectsOnQuest(state, playerId, true);
-	} else {
-		state = applyPlaceEffectsOnQuest(state, playerId, questCard, false);
+				state = applyPiecieFieldEffectsOnQuest(state, playerId, true);
 	}
 	return state;
 }

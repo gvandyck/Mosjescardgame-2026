@@ -10,6 +10,7 @@ import { advanceQuestStack } from './advanceQuestStack.js';
 import { runMosjeTriggers } from '../mosje/runMosjeTriggers.js';
 import { applyMomentumBoostWin } from './applyMomentumBoostWin.js';
 import { battleConcertRedirect } from './battleConcertRedirect.js';
+import { placeQuestBonus } from '../../abilities/place/placeTurnQuestEffects.js';
 
 export function resolveQuestAttempt(state, pending, choices = {}) {
 	if (state.pendingReaction) return { ok: false, state, error: 'A reaction window is still open' };
@@ -35,12 +36,13 @@ export function resolveQuestAttempt(state, pending, choices = {}) {
 		const v = extras.failBase?.(s, ctx, choices);
 		if (v?.base != null) amount = v.base;
 		amount += extras.failBonus?.(ctx) || 0;
+		amount += placeQuestBonus(s, slot, questId, false);
 	}
 	if (win) {
 		// 2.0: every questWinAmount modifier first, then ONE gain (Michelle double, Jeffrey +10, ...).
 		const mod = runMosjeTriggers(s, 'questWinAmount', { playerId, slotIndex, quest, amount });
 		s = mod.state;
-		amount = mod.amount;
+		amount = mod.amount + placeQuestBonus(s, slot, questId, true); // Place bonus comes after Michelle's double
 		s = gainMP(s, playerId, slotIndex, amount, 'QUEST');
 	} else s = battleConcertRedirect(s, playerId, slot) || loseMP(s, playerId, slotIndex, amount, 'QUEST', false, playerId);
 	s = runQuestOutcomeHooks(s, playerId, slotIndex, quest, win, win ? quest.win : 0);

@@ -143,8 +143,7 @@ describe("getPartnerSynergyQuestBonus", () => {
 });
 
 // ─────────────────────────────────────────────────────────────
-// 2.0 attempt (rollQuestAttempt + resolveQuestAttempt) — bonus MP application (armed questBonusMP + live
-// partner-synergy), both gated to success only. Base amounts come from the Card List:
+// 2.0 attempt (rollQuestAttempt + resolveQuestAttempt) — bonus MP application (live partner-synergy), both gated to success only. Base amounts come from the Card List:
 // Quick Thinking (Steady, Mental) +25 / -15, Arm Wrestling (Skilled, Physical) +40 / -30.
 // ─────────────────────────────────────────────────────────────
 describe("2.0 Quest attempt — bonus MP application", () => {
@@ -154,25 +153,6 @@ describe("2.0 Quest attempt — bonus MP application", () => {
     for (const s of state.players.player_1.activeSlots) if (s) s.traits = { physical: 2 };
     return state;
   }
-
-  it("applies and resets the one-shot questBonusMP flag on success", () => {
-    const state = makeState({ p1mp: 20 });
-    state.players.player_1.questBonusMP = 10;
-
-    const next = forceQuestResult(state, "player_1", { questId: "quest_quick_thinking", win: true });
-
-    expect(next.players.player_1.activeSlots[0].mp).toBe(55); // 20 + 25 + 10
-    expect(next.players.player_1.questBonusMP).toBe(0);
-  });
-
-  it("leaves questBonusMP ARMED (unconsumed) after a failed attempt", () => {
-    const state = makeState({ p1mp: 50 });
-    state.players.player_1.questBonusMP = 10;
-
-    const next = forceQuestResult(state, "player_1", { questId: "quest_quick_thinking", win: false });
-
-    expect(next.players.player_1.questBonusMP).toBe(10);
-  });
 
   it("applies the West+Cless Physical-quest synergy bonus on success", () => {
     const state = withPhysical(makeState({ p1mp: 50 }));
@@ -199,17 +179,4 @@ describe("2.0 Quest attempt — bonus MP application", () => {
     expect(next.players.player_1.activeSlots[0].mp).toBe(55); // 30 + 25, no synergy
   });
 
-  it("stacks the armed bonus AND the partner synergy together", () => {
-    const state = makeState({ p1mp: 50 });
-    state.players.player_1.questBonusMP = 10;
-    state.players.player_1.activeSlots = [
-      makeSlot("mosje_martin_senor_west", 20),
-      makeSlot("mosje_azn_cless", 20),
-    ];
-    withPhysical(state);
-
-    const next = forceQuestResult(state, "player_1", { questId: "quest_arm_wrestling", win: true });
-
-    expect(next.players.player_1.activeSlots[0].mp).toBe(85); // 20 + 40 + 10 + 15
-  });
 });
