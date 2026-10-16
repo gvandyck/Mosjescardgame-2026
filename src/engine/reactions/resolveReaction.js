@@ -45,17 +45,28 @@ export function resolveReaction(state, responderId, cardId = null) {
 			if (!useRerollGrant(s, responderId, Number(cardId.slice(PIECIE_REROLL_PREFIX.length)))) return fail('That reroll cannot be used now');
 		} else {
 			const def = SNELLE_PIECIES.find(d => d.id === cardId);
-			const r = playSnellie(s, responderId, { cardId, type: 'SNELLE_PIECIE' }, def, SKIP);
+			const reaction = { moments: p.moments, preview: p.preview, action: p.action, actorId: p.actorId };
+			const r = playSnellie(s, responderId, { cardId, type: 'SNELLE_PIECIE' }, def, { ...SKIP, reaction });
 			if (!r.success) return fail(r.error);
 			s = r.state;
 			if (cardId === 'snelle_jensen' && !p.moments.includes(M.JENSEN_PLAYED)) {
 				queue.unshift({ responderId: p.actorId === responderId ? Object.keys(s.players).find(id => id !== responderId) : p.actorId, moments: [M.JENSEN_PLAYED] });
 			}
+			// A Snelle that needs a pick pauses here; the rest of the windows and the held action resume after the answer.
+			if (r.paused && s.pendingChoice) {
+				s.pendingChoice.after = { p: JSON.parse(JSON.stringify({ ...p, queue: undefined })), queue };
+				return { state: s, ok: true, success: true, paused: true };
+			}
 		}
 	}
+	return continueReaction(s, p, queue);
+}
+
+// The remaining windows of a held action, then the held action itself (also called after a paused Snelle resumed).
+export function continueReaction(s, p, queue) {
 	while (queue.length) {
 		const w = queue.shift();
-		const eligible = getEligibleReactions(s, w.responderId, w.moments);
+		const eligible = getEligibleReactions(s, w.responderId, w.moments, { action: p.action, actorId: p.actorId });
 		if (!eligible.length) continue;
 		s.pendingReaction = { ...p, id: `${p.id}+`, moments: w.moments, responderId: w.responderId, eligible, queue,
 			preview: { getemt: [], toWelloe: false, mpLoss: {} } };

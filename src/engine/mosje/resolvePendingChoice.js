@@ -4,6 +4,8 @@
 // reaction window opens as it would have without the pause.
 import { runTriggerJobs } from './runTriggerJobs.js';
 import { resumePiecieChoice } from '../piecies/resumePiecieChoice.js';
+import { resumeSnelleChoice } from '../snelle/resumeSnelleChoice.js';
+import { continueReaction } from '../reactions/resolveReaction.js';
 import { withReactionWindow } from '../reactions/withReactionWindow.js';
 
 export function resolvePendingChoice(state, value) {
@@ -19,6 +21,17 @@ export function resolvePendingChoice(state, value) {
 	if (pc.hook === 'piecie') {
 		const type = pc.piecie?.free ? 'activatePiecieFree' : 'activatePiecie';
 		const out = withReactionWindow(s, pc.actorId, { type, hold: true }, (st) => ({ state: resumePiecieChoice(st, pc), success: true }));
+		return { ok: true, success: true, state: out.state, reactionPending: out.reactionPending };
+	}
+	if (pc.hook === 'snelle') {
+		// A Snelle pick resumes the same play; inside a reaction window the other windows and the held action follow.
+		const run = resumeSnelleChoice(s, pc);
+		if (run.paused) return { ok: true, success: true, state: run.state };
+		if (pc.after) {
+			const res = continueReaction(run.state, pc.after.p, pc.after.queue);
+			return { ...res, ok: res.ok ?? res.success, success: res.success ?? res.ok, reactionPending: !!res.state?.pendingReaction };
+		}
+		const out = withReactionWindow(s, pc.actorId, { type: 'playSnelle', hold: true }, () => ({ state: run.state, success: true }));
 		return { ok: true, success: true, state: out.state, reactionPending: out.reactionPending };
 	}
 	const out = runTriggerJobs(s, pc.hook, pc.jobs, pc.jobIndex, pc.ctx, { key: pc.key, playerId: pc.playerId });

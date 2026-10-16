@@ -6,6 +6,9 @@ import { applyGainToSlot } from '../engine/mp/applyGainToSlot.js';
 
 console.log('[ABILITY] snelleEffects.js loaded');
 
+// Rewritten Snelle live in section files under ./snelle/ (Phase 60); V4 bodies of the others stay here until their plan.
+export * from './snelle/snelleMpEffects.js';
+
 export function effect_emergency_healings(gameState, playerId) {
 	const state = JSON.parse(JSON.stringify(gameState));
 	const player = state.players[playerId];
@@ -23,6 +26,8 @@ export function effect_emergency_healings(gameState, playerId) {
 	return state;
 }
 
+// New starter-compatible aliases (data now uses these ids)
+// V4 body, kept because a legacy test still imports it (the live Ff Haaltje Nemen is effect_snelle_ff_haaltje_nemen).
 export function effect_ff_haaltje_nemen(gameState, playerId) {
 	const state = JSON.parse(JSON.stringify(gameState));
 	const player = state.players[playerId];
@@ -44,7 +49,6 @@ export function effect_ff_haaltje_nemen(gameState, playerId) {
 	return state;
 }
 
-// New starter-compatible aliases (data now uses these ids)
 export function effect_snelle_jensen(gameState, playerId) {
 	const state = JSON.parse(JSON.stringify(gameState));
 	const player = state.players?.[playerId];
@@ -101,17 +105,6 @@ export function effect_snelle_lucky_coin(gameState, playerId) {
 	return state;
 }
 
-export function effect_snelle_ff_haaltje_nemen(gameState, playerId) {
-	const state = JSON.parse(JSON.stringify(gameState));
-	const player = state.players?.[playerId];
-	if (!player) return state;
-	const { drawCards } = { drawCards: (deck, n) => ({ drawn: deck.splice(0, n), remaining: deck }) };
-	const drawn = player.deck.splice(0, 2);
-	player.hand.push(...drawn);
-	console.log('[ABILITY] Ff Haaltje Nemen: draw 2');
-	return state;
-}
-
 // ─────────────────────────────────────────
 // STUBS — implement in future phases
 // ─────────────────────────────────────────
@@ -143,17 +136,6 @@ export function effect_snelle_jammertje_gepakt(gameState, playerId) {
 	state._snelleFlags.negateNextSearch = state._snelleFlags.negateNextSearch || {};
 	state._snelleFlags.negateNextSearch[playerId] = true;
 	console.log('[ABILITY] Jammertje Gepakt: next opponent search/draw action will be negated');
-	return state;
-}
-
-// Momentum Rush — already implemented above
-export function effect_snelle_momentum_rush(gameState, playerId) {
-	const state = JSON.parse(JSON.stringify(gameState));
-	const player = state.players?.[playerId];
-	if (!player) return state;
-	const slotIndex = player.activeSlots.findIndex(s => s !== null && !s.isDefeated);
-	if (slotIndex >= 0) applyGainToSlot(player.activeSlots[slotIndex], 15, { turnNumber: state.turnNumber });
-	console.log('[ABILITY] Momentum Rush: +15 MP');
 	return state;
 }
 
@@ -197,44 +179,6 @@ export function effect_snelle_jeweetniet(gameState, playerId) {
 		state._snelleFlags.forceReroll[oppId] = true;
 	}
 	console.log('[ABILITY] Je Weet Niet: opponent must reroll next quest die');
-	return state;
-}
-
-// Bijna Welloe — +20 MP when active Mosje is at 10 MP or less (already implemented above)
-export function effect_snelle_bijna_welloe(gameState, playerId) {
-	const state = JSON.parse(JSON.stringify(gameState));
-	const player = state.players?.[playerId];
-	if (!player) return state;
-	const slotIndex = player.activeSlots.findIndex(s => s !== null && !s.isDefeated);
-	if (slotIndex >= 0 && player.activeSlots[slotIndex].mp <= 10) {
-		applyGainToSlot(player.activeSlots[slotIndex], 20, { turnNumber: state.turnNumber });
-		console.log('[ABILITY] Bijna Welloe: +20 MP');
-	}
-	return state;
-}
-
-// Jantje Jantje Jantje — steal 30 MP from opponent (Bank Chilling must be active, checked by playSnellie requirement guard)
-export function effect_snelle_jantje_jantje_jantje(gameState, playerId) {
-	let state = JSON.parse(JSON.stringify(gameState));
-	const player = state.players?.[playerId];
-	if (!player) return state;
-
-	// Validate Bank Chilling requirement
-	const activePlace = state.activePlace?.id || state.activePlace;
-	if (activePlace !== 'place_bank_chilling') {
-		console.log('[ABILITY] Jantje Jantje Jantje: Bank Chilling not active — no effect');
-		return state;
-	}
-
-	const oppId = Object.keys(state.players).find(id => id !== playerId);
-	const opp = state.players[oppId];
-	if (!opp) return state;
-
-	const oppSlot = opp.activeSlots.findIndex(s => s !== null && !s.isDefeated);
-	const ownSlot = player.activeSlots.findIndex(s => s !== null && !s.isDefeated);
-	if (oppSlot >= 0) state = loseMP(state, oppId, oppSlot, 30, 'DRAIN', false, playerId);
-	if (ownSlot >= 0) applyGainToSlot(state.players[playerId].activeSlots[ownSlot], 30, { turnNumber: state.turnNumber });
-	console.log('[ABILITY] Jantje Jantje Jantje: stole 30 MP from opponent');
 	return state;
 }
 
@@ -298,26 +242,6 @@ export function effect_snelle_blensen(gameState, playerId) {
 
 	chain.push({ playerId, card: 'blensen' });
 	console.log('[ABILITY] Blensen: ultimate counter-chain stack entry added');
-	return state;
-}
-
-// Chillingsvoorbij! — instant: return most recently lost Place from player's discard to hand.
-export function effect_snelle_chillingsvoorbij(gameState, playerId) {
-	const state = JSON.parse(JSON.stringify(gameState));
-	const player = state.players?.[playerId];
-	if (!player) return state;
-	if (!Array.isArray(player.graveyard)) player.graveyard = [];
-	const placeIndex = player.graveyard.findIndex(
-		c => c?.type === 'PLACE' || (c?.cardId && String(c.cardId).startsWith('place_'))
-	);
-	if (placeIndex < 0) {
-		console.log('[SNELLE] Chillingsvoorbij: no Place cards in discard');
-		return state;
-	}
-	const [recovered] = player.graveyard.splice(placeIndex, 1);
-	if (!Array.isArray(player.hand)) player.hand = [];
-	player.hand.push({ cardId: recovered.cardId ?? recovered, type: 'PLACE' });
-	console.log('[SNELLE] Chillingsvoorbij!: recovered', recovered.cardId ?? recovered, 'to hand');
 	return state;
 }
 

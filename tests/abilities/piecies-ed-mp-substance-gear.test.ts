@@ -127,6 +127,7 @@ describe('Substance Piecies', () => {
   it('a paused Piecie finished by a pick opens its reaction window on the finished result (no replay, no double effect)', () => {
     const two = board('piecie_dikke_jonko');
     two.players.player_2.activeSlots[1] = { ...createMosjeSlot(MOSJES[0], { level: 1, mp: 10 }), entryProtected: false };
+    two.players.player_2.activeSlots[0].traits = { ...two.players.player_2.activeSlots[0].traits, mental: 2 }; // Jammertje Needs Mental 2 stars
     two.players.player_2.hand = [{ cardId: 'snelle_jammertje_gepakt', type: 'SNELLE_PIECIE' }];
     const paused = run(two);
     const out = resolvePendingChoice(paused, paused.pendingChoice.options[0]);

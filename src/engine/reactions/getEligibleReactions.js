@@ -8,15 +8,16 @@ import { canPay } from '../energy/canPay.js';
 import { isCooldownBlocked } from '../turn/isCooldownBlocked.js';
 import { canDjReroll } from '../../abilities/mosje/canDjReroll.js';
 import { findRerollGrant } from '../quests/findRerollGrant.js';
+import { snelleConditionMet } from '../../rules/snelleConditions.js';
 import { REACTION_MOMENTS as M } from './reactionMoments.js';
 
 export const DJ_REROLL_PREFIX = 'djReroll:';
 export const PIECIE_REROLL_PREFIX = 'piecieReroll:';
 
-export function getEligibleReactions(state, responderId, moments, { dice } = {}) {
+export function getEligibleReactions(state, responderId, moments, { dice, action, preview, actorId } = {}) {
 	const player = state?.players?.[responderId];
 	if (!player || !Array.isArray(moments) || moments.length === 0) return [];
-	const out = snelleReactions(state, responderId, player, moments);
+	const out = snelleReactions(state, responderId, player, moments, { moments, action, preview, actorId });
 	const rolled = dice ?? state.pendingQuestRoll?.dice ?? [];
 	const afterRoll = moments.includes(M.AFTER_QUEST_ROLL) || moments.includes(M.AFTER_OWN_QUEST_ROLL);
 	if (afterRoll && !isCooldownBlocked(state, responderId) && canDjReroll(state, responderId) >= 0) {
@@ -29,7 +30,7 @@ export function getEligibleReactions(state, responderId, moments, { dice } = {})
 	return out;
 }
 
-function snelleReactions(state, responderId, player, moments) {
+function snelleReactions(state, responderId, player, moments, reaction) {
 	if (isCooldownBlocked(state, responderId) || state._snelleBlocked === responderId) return [];
 	const filled = (player.piecieSlots || []).filter(Boolean).length;
 	if (filled >= PIECIE_SLOT_COUNT) return [];
@@ -38,6 +39,7 @@ function snelleReactions(state, responderId, player, moments) {
 		const def = SNELLE_PIECIES.find(d => d.id === card.cardId);
 		if (!def || out.includes(card.cardId)) continue;
 		if (!def.reactionMoments?.some(m => moments.includes(m))) continue;
+		if (snelleConditionMet(state, responderId, def, reaction) !== true) continue; // Needs / Only if: before Energy
 		if (!canPay(player, Number(def.cost) || 0)) continue;
 		out.push(card.cardId);
 	}

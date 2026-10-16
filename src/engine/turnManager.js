@@ -22,7 +22,9 @@ import { getAllPlayerIds, setActivePlace, destroyActivePlace, clearReturnedMosje
 import { isHolderTextActive } from './synergy/isHolderTextActive.js';
 import * as placeEffects from '../abilities/placeEffects.js';
 import * as piecieEffects from '../abilities/piecieEffects.js';
-import * as snelleEffects from '../abilities/snelleEffects.js';
+import { snelleConditionMet } from '../rules/snelleConditions.js';
+import { runSnelleEffect } from './snelle/runSnelleEffect.js';
+import { finishSnelle } from './snelle/finishSnelle.js';
 import * as mosjeAbilities from '../abilities/mosjeAbilities.js';
 import { MOSJES } from '../data/mosjes.js';
 import { PIECIES } from '../data/piecies.js';
@@ -563,10 +565,11 @@ function cardDefLookup(cardId) {
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export function playSnellie(gameState, playerId, cardRef, cardDef, opts = {}) {
   return withReactionWindow(gameState, playerId, { type: 'playSnelle', args: [playerId, cardRef, cardDef], skipReactions: opts.skipReactions },
-    (st) => playSnellieCore(st, playerId, cardRef, cardDef));
+    (st) => playSnellieCore(st, playerId, cardRef, cardDef, opts));
 }
 
-function playSnellieCore(gameState, playerId, cardRef, cardDef) {
+// opts.reaction = the open window { moments, preview, action, actorId } (ctx.reaction for the effect), opts.picks = { key: option }.
+function playSnellieCore(gameState, playerId, cardRef, cardDef, opts = {}) {
   let state = JSON.parse(JSON.stringify(gameState));
   let player = state.players[playerId];
   if (!player) return { state, success: false, error: 'Player not found' };
@@ -593,6 +596,8 @@ function playSnellieCore(gameState, playerId, cardRef, cardDef) {
   const found = findPlayableHandIndex(state, player.hand, c => c.cardId === cardRef.cardId);
   const handIndex = found.index;
   if (handIndex === -1) return { state, success: false, error: found.error };
+  const condition = snelleConditionMet(state, playerId, cardDef, opts.reaction || null);
+  if (condition !== true) return { state: gameState, success: false, error: condition };
   const snellePay = payEnergy(state, playerId, Number(cardDef.cost) || 0);
   if (!snellePay.success) return { state: gameState, success: false, error: snellePay.error || 'Not enough Energy' };
   const [playedCard] = player.hand.splice(handIndex, 1);
@@ -607,39 +612,12 @@ function playSnellieCore(gameState, playerId, cardRef, cardDef) {
     playedOnTurn: state.turnNumber,
   };
 
-  // Apply the effect function
-  const effectFn = snelleEffects[cardDef.effectId];
-  if (typeof effectFn === 'function') {
-    state = effectFn(state, playerId);
-    console.log(`[ENGINE] Snelle Piecie played: ${cardDef.name} (${cardDef.effectId})`);
-  } else {
-    console.warn(`[ENGINE] No snelle effect function found for: ${cardDef.effectId}`);
-  }
-
-  // Rebind player reference because effect functions return a cloned state
-  player = state.players[playerId];
-  if (!Array.isArray(player.hand)) player.hand = [];
-  if (!Array.isArray(player.graveyard)) player.graveyard = [];
-
-  // Gevalletje Klakkeloos: resolve copy flag — run the copied effect immediately
-  const copyFlag = state._snelleFlags?.copyLastPiecie;
-  if (copyFlag?.forPlayer === playerId && copyFlag.effectId) {
-    const copiedFn = piecieEffects[copyFlag.effectId];
-    if (typeof copiedFn === 'function') {
-      state = copiedFn(state, playerId);
-      console.log('[ENGINE] Gevalletje Klakkeloos: copied effect', copyFlag.effectId);
-    }
-    delete state._snelleFlags.copyLastPiecie;
-  }
-
-  // Resolved: slot is freed at once, except Stays cards (Blensen!) which sweep at end of turn.
-  const doneSlots = state.players[playerId].piecieSlots;
-  const doneIdx = doneSlots.findIndex(s => s?.cardId === playedCard.cardId && s?.type === 'SNELLE_PIECIE');
-  if (doneIdx >= 0) state = finishPiecieActivation(state, playerId, doneIdx, cardDef);
-
-  state = runMosjeTriggers(state, 'cardPlayedFromHand', { playerId, cardType: 'SNELLE_PIECIE' });
-  state = checkVictory(state);
-  return { state, success: true };
+  // Apply the effect; a pick pauses on pendingChoice (hook 'snelle'), the card stays in its slot until resumeSnelleChoice.
+  if (opts.picks) player._pendingTargets = { ...(player._pendingTargets || {}), ...opts.picks };
+  const run = runSnelleEffect(state, playerId, cardDef, { reaction: opts.reaction || null }, playedCard.cardId);
+  console.log(`[ENGINE] Snelle Piecie played: ${cardDef.name} (${cardDef.effectId})`);
+  if (run.paused) return { state: run.state, success: true, paused: true };
+  return { state: finishSnelle(run.state, playerId, cardDef, playedCard.cardId), success: true };
 }
 
 export function playMosje(gameState, playerId, cardRef) {

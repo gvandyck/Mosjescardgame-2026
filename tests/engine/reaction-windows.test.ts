@@ -107,7 +107,8 @@ describe("defender windows", () => {
 
 describe("Piecie activation windows", () => {
   const mkp = (hand2: string[], hand1: string[] = []) =>
-    board({ hand: H(...hand2), activeSlots: [mk(30), mk(50)] }, { // Klaar Met Jou: Level 2+ gate (second Mosje is Level 2); foe Mosje at 30 MP goes to the Welloe pile
+    board({ hand: H(...hand2), activeSlots: [mk(30, plain, 1, { traits: { mental: 2 } }), mk(50)] }, { // Jammertje / Counter Strikka need Mental 2 stars (Card List)
+      // Klaar Met Jou: Level 2+ gate (second Mosje is Level 2); foe Mosje at 30 MP goes to the Welloe pile
       activeSlots: [mk(50, attackerDef), mk(50, plain, 2)], hand: H(...hand1), energy: 10, piecieSlots: [{ ...ready }, null, null] });
   it("defender: afterPiecieActivation + targeted + wouldLoseMp; Jammertje offered", () => {
     const r = activatePiecie(mkp(["snelle_jammertje_gepakt", "snelle_counter_strikka", "snelle_jensen"]), "player_1", 0);
