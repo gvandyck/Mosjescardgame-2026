@@ -252,6 +252,7 @@ Plans:
 **Tests to add**: bot strategy unit tests in `src/bot/strategy/` coverage; a legality check over seeded bot-vs-bot games.
 **Known gap from Phase 54 (54-09)**: Drain Reversal's reflect now uses the raw incoming loss, not the post-reduction amount; set it per the Card List text when Drain Reversal is rewritten.
 **Known gap from Phase 56 (56-06)**: Skiffa's Social +2 dice and Tweede Kans reroll aren't wired into the 2.0 Quest roll; two `place-skiffa.test.ts` cases are `it.skip` until then.
+**Known gap from Phase 60 (60-06)**: the bot's affordability check uses printed costs without the Delluft parking fee (engine refuses safely); include fees in bot Energy planning.
 **Notes**: Adapt the existing strategy layer; port the desk sim bot's ideas, not its code.
 **Plans**: TBD
 
