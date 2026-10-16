@@ -23,6 +23,8 @@ export function resolveQuestAttempt(state, pending, choices = {}) {
 		return { ok: false, state, error: 'That Quest is no longer face-up' };
 	}
 	let s = JSON.parse(JSON.stringify(state));
+	const roller = s.players[playerId];
+	if (roller?.rerollGrants) roller.rerollGrants = roller.rerollGrants.filter(g => !g.forRoll); // that Quest is over
 	const name = s.players[playerId].activeSlots[slotIndex]?.name;
 	const extras = QUEST_EXTRAS[questId] || {};
 	const slot = s.players[playerId].activeSlots[slotIndex];

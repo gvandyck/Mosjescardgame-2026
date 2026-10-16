@@ -4,8 +4,6 @@
 import { rollDie } from '../engine/deckEngine.js';
 import { roundToFive } from '../engine/roundToFive.js';
 import { isHolderTextActive } from '../engine/synergy/isHolderTextActive.js';
-import { destroyActivePlace } from '../engine/gameState.js';
-import { triggerPlaceDestroyedEffects } from './placeEffects.js';
 import { MOSJES } from '../data/mosjes.js';
 import { createMosjeSlot } from '../engine/mp/createMosjeSlot.js';
 import { applyGainToSlot } from '../engine/mp/applyGainToSlot.js';
@@ -13,7 +11,6 @@ import { applyMpLossToSlot } from '../engine/mp/applyMpLossToSlot.js';
 import { isFresh } from '../engine/fresh/isFresh.js';
 import { resolveOwnTargetSlot } from '../engine/targets/resolveOwnTargetSlot.js';
 import { resolveOppTargetSlot } from '../engine/targets/resolveOppTargetSlot.js';
-import { findTagSlot } from '../engine/targets/findTagSlot.js';
 import { PIECIES } from '../data/piecies.js';
 import { addToGraveyard } from '../engine/graveyardUtils.js';
 import { canLeaveWelloePile } from '../engine/table/canLeaveWelloePile.js';
@@ -25,15 +22,15 @@ export * from './piecie/gearPiecies.js';
 export * from './piecie/attackPiecies.js';
 export * from './piecie/utilityProtectPiecies.js';
 export * from './piecie/petPiecies.js';
+export * from './piecie/utilityDrawPiecies.js';
+export * from './piecie/utilityDicePiecies.js';
+export * from './piecie/utilityChainPiecies.js';
+export * from './piecie/utilityPlacePiecies.js';
 
 console.log('[ABILITY] piecieEffects.js loaded');
 
 function cloneState(state) {
 	return JSON.parse(JSON.stringify(state));
-}
-
-function hasMosjeTag(player, tag) {
-	return findTagSlot(player, tag) >= 0;
 }
 
 function getOpponentId(state, playerId) {
@@ -209,80 +206,6 @@ export function effect_pot_of_weed(gameState, playerId) {
 	return state;
 }
 
-// Zie Je Die Dingetjes — Look at top 3 cards, keep 1 in hand, put the other 2 back.
-// Two-call pattern:
-//   Call 1: no chosenCardId → peeks top 3, stores _dingetjesPeek, deck unchanged
-//   Call 2: chosenCardId + optional orderedRemainder[] → moves chosen card to hand,
-//            puts the other 2 back (in orderedRemainder order if provided, else original order)
-export function effect_zie_je_die_dingetjes(gameState, playerId, chosenCardId = null, orderedRemainder = null) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player || player.deck.length === 0) return state;
-
-	if (!chosenCardId) {
-		// Call 1: peek only
-		const top3 = player.deck.slice(0, 3);
-		state._dingetjesPeek = { playerId, cards: top3.map(c => c.cardId) };
-		console.log('[ABILITY] Zie je die dingetjes: peeked top 3:', state._dingetjesPeek.cards);
-		return state;
-	}
-
-	// Call 2: resolve
-	const top3 = player.deck.splice(0, 3);
-	const chosen = top3.find(c => c.cardId === chosenCardId);
-	if (chosen) {
-		player.hand.push(chosen);
-	}
-	const remaining = top3.filter(c => c.cardId !== chosenCardId);
-
-	// Reorder the 2 remaining cards if caller provided a preferred order
-	let finalRemaining = remaining;
-	if (Array.isArray(orderedRemainder) && orderedRemainder.length > 0) {
-		const ordered = orderedRemainder
-			.map(id => remaining.find(c => c.cardId === id))
-			.filter(Boolean);
-		const unordered = remaining.filter(c => !orderedRemainder.includes(c.cardId));
-		finalRemaining = [...ordered, ...unordered];
-	}
-
-	// Put remaining 2 back at top of deck
-	player.deck.unshift(...finalRemaining);
-
-	delete state._dingetjesPeek;
-	console.log('[ABILITY] Zie je die dingetjes: kept', chosenCardId, '— other 2 put back');
-	return state;
-}
-
-export function effect_slecht_gezet(gameState) {
-	if (!gameState.activePlace) {
-		console.log('[ABILITY] Slecht Gezet: no active Place');
-		return gameState;
-	}
-	const state = cloneState(gameState);
-	const activePlayer = state.activePlayerId;
-	const placeOwner = state.activePlacePlayedBy;
-
-	if (placeOwner === activePlayer) {
-		// Your own Place → return directly to hand (not via discard)
-		const player = state.players[activePlayer];
-		if (player) {
-			if (!Array.isArray(player.hand)) player.hand = [];
-			player.hand.push({ cardId: state.activePlace, type: 'PLACE' });
-		}
-		state.activePlace = null;
-		state.activePlacePlayedBy = null;
-		state.activePlaceTurnsActive = 0;
-		console.log('[ABILITY] Slecht Gezet: returned own Place to hand');
-		return state;
-	}
-
-	// Opponent's Place (or null owner) → destroy it (routes to owner's discard)
-	let next = destroyActivePlace(state);
-	next = triggerPlaceDestroyedEffects(next, activePlayer);
-	console.log('[ABILITY] Slecht Gezet: opponent Place destroyed');
-	return next;
-}
-
 export function effect_redbull(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
@@ -335,16 +258,6 @@ export function effect_tempiecie(gameState, playerId) {
 	return state;
 }
 
-export function effect_quest_prep(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	// KNOWN GAP (Phase 59): "you may reroll 1 die of that Quest" not implemented.
-	player.questExtraDice = (player.questExtraDice || 0) + 1;
-	console.log('[ABILITY] Dubbele Dosis: +1 die on the next Quest');
-	return state;
-}
-
 export function effect_loaded_dice(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
@@ -352,29 +265,6 @@ export function effect_loaded_dice(gameState, playerId) {
 	// KNOWN GAP (Phase 59): the Jeffrey "reroll 1 die" part is not implemented.
 	player.questExtraDice = (player.questExtraDice || 0) + 1;
 	console.log('[ABILITY] Loaded Dice: +1 die on the next Quest');
-	return state;
-}
-
-export function effect_boosterpackkie(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-
-	const hasCoert = hasMosjeTag(player, 'COERT');
-	let cardsDrawn = 0;
-	if (player.deck.length > 0) {
-		player.hand.push(player.deck.shift());
-		cardsDrawn += 1;
-	}
-	const roll = rollDie(6);
-	if (roll >= 5 && hasCoert && player.deck.length > 0) {
-		player.hand.push(player.deck.shift());
-		cardsDrawn += 1;
-	}
-
-	const coertSlotIndex = resolveOwnTargetSlot(state, playerId, { tag: 'COERT' });
-	if (coertSlotIndex >= 0) applyMPGain(player, coertSlotIndex, 10, state, playerId);
-	console.log(`[ABILITY] Boosterpackkie: drew ${cardsDrawn}, rolled ${roll}${hasCoert ? ', +10 MP (COERT)' : ''}`);
 	return state;
 }
 
@@ -510,65 +400,11 @@ export function effect_battle_concert(gameState, playerId) {
 	return state;
 }
 
-export function effect_stookerino(gameState, playerId) {
-	// Needs UI: which card to discard from opponent's hand. For now: discard random.
-	const state = cloneState(gameState);
-	const oppId = getOpponentId(state, playerId);
-	if (!oppId) return state;
-	const opp = state.players[oppId];
-	if (opp.hand.length === 0) return state;
-	const idx = Math.floor(Math.random() * opp.hand.length);
-	const discarded = opp.hand.splice(idx, 1)[0];
-	if (!Array.isArray(opp.graveyard)) opp.graveyard = [];
-	const discardedId = discarded?.cardId ?? discarded;
-	opp.graveyard.push({ cardId: discardedId, name: discardedId, type: 'HAND_CARD', source: 'discarded' });
-	const player = state.players[playerId];
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si >= 0) applyGainToSlot(player.activeSlots[si], discarded.mpCost || 0, { turnNumber: state.turnNumber });  // mpcost-read-ok: gain amount, effect text rewritten in Phase 59
-	console.log('[ABILITY] Stookerino: discarded', discarded.cardId);
-	return state;
-}
-
 export function effect_dingetje_toch(gameState, playerId) {
 	// Wildcard — substitution flag; engine checks this when resolving requirements
 	const state = cloneState(gameState);
 	state._dingetjeTochActive = true;
 	console.log('[ABILITY] Dingetje Toch: universal wildcard active');
-	return state;
-}
-
-export function effect_popo_komt(gameState, playerId) {
-	const state = cloneState(gameState);
-	const totalMosjes = Object.values(state.players)
-		.flatMap(p => p.activeSlots)
-		.filter(s => s && !s.isDefeated).length;
-	if (totalMosjes >= 3) {
-		const afterDestroy = state.activePlace ? destroyActivePlace(state) : state;
-		console.log('[ABILITY] Popo Komt: 3+ Mosjes \u2014 Place destroyed!');
-		return triggerPlaceDestroyedEffects(afterDestroy, playerId);
-	} else {
-		console.log('[ABILITY] Popo Komt: not enough Mosjes on field');
-	}
-	return state;
-}
-
-export function effect_huisbaas(gameState, playerId) {
-	// Return the most recently lost Place from this player's own discard pile to hand.
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	if (!Array.isArray(player.graveyard)) player.graveyard = [];
-	const placeIndex = player.graveyard.findIndex(
-		c => c?.type === 'PLACE' || (c?.cardId && String(c.cardId).startsWith('place_'))
-	);
-	if (placeIndex < 0) {
-		console.log('[ABILITY] Huisbaas: no Place cards in graveyard');
-		return state;
-	}
-	const [recovered] = player.graveyard.splice(placeIndex, 1);
-	if (!Array.isArray(player.hand)) player.hand = [];
-	player.hand.push({ cardId: recovered.cardId ?? recovered, type: 'PLACE' });
-	console.log('[ABILITY] Huisbaas: recovered', recovered.cardId ?? recovered, 'from graveyard to hand');
 	return state;
 }
 
@@ -653,15 +489,6 @@ export function effect_mp_adjuster(gameState, playerId) {
 		state._mpAdjusterPending = { playerId, slotIndex: si };
 	}
 	console.log('[ABILITY] MP Adjuster: value selection pending UI');
-	return state;
-}
-
-export function effect_chain_reaction(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	player.chainReactionActive = true;
-	console.log('[ABILITY] Chain Reaction: free Piecie activation this turn');
 	return state;
 }
 

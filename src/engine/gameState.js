@@ -121,15 +121,15 @@ function createPlayerState(config) {
     pieciesPlayedThisTurn: 0,         // chris_ddr combo chain counter
     lastCardPlayedType: null,         // 'PIECIE' | 'SNELLE_PIECIE' | 'QUEST' | null — for jisca
     mpAmplifierActive: false,         // 50% bonus on next MP gain (mp_amplifier piecie)
-    chainReactionActive: false,       // free second piecie this turn
-    opponentHandPeeked: false,        // stookerino / fps_west peek flag
+    chainReactionFree: 0,             // Chain Reaction armed this turn (Piecie effect)
+    chainReactionOffer: 0,            // one more Piecie activation is free
     returnedMosjesThisTurn: [],       // cardIds returned this turn (cannot replay until next turn)
     hasRerolledDieThisTurn: false,    // DJ 80/20 free reroll tracker
     pieciesPlayedThisTurn: 0,         // chris_ddr combo chain counter
     lastCardPlayedType: null,         // 'PIECIE' | 'SNELLE_PIECIE' | 'QUEST' | null — for jisca
     mpAmplifierActive: false,         // 50% bonus on next MP gain (mp_amplifier piecie)
-    chainReactionActive: false,       // free second piecie this turn
-    opponentHandPeeked: false,        // stookerino / fps_west peek flag
+    chainReactionFree: 0,
+    chainReactionOffer: 0,
   };
 }
 

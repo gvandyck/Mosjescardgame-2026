@@ -21,6 +21,8 @@ export function chooseReaction(state, responderId) {
 	if (p.moments.includes('afterOwnQuestRoll') || p.moments.includes('afterQuestRoll')) {
 		const dj = pickDjRerollDie(state, responderId, p.eligible);
 		if (dj) return dj;
+		const piecieReroll = pickDjRerollDie(state, responderId, p.eligible, 'piecieReroll:'); // Piecie reroll grant (Dubbele Dosis)
+		if (piecieReroll) return piecieReroll;
 	}
 	if (p.moments.includes('afterOwnQuestRoll')) {
 		return has('snelle_lucky_coin') && state.pendingQuestRoll?.win === false ? 'snelle_lucky_coin' : null;

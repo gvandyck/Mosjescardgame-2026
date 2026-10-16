@@ -4,7 +4,7 @@
 import { getQuestDef } from '../../engine/quests/getQuestDef.js';
 import { isBandWin } from '../../engine/quests/isBandWin.js';
 
-export function pickDjRerollDie(state, responderId, eligible) {
+export function pickDjRerollDie(state, responderId, eligible, prefix = 'djReroll:') {
 	const roll = state.pendingQuestRoll;
 	const quest = roll && getQuestDef(roll.questId);
 	if (!quest || quest.band === 'trained') return null;
@@ -13,7 +13,7 @@ export function pickDjRerollDie(state, responderId, eligible) {
 	const swing = own ? 6 : 1;
 	const order = roll.dice.map((d, i) => ({ d, i })).sort((a, b) => a.d - b.d);
 	for (const { i } of order) {
-		const id = `djReroll:${i}`;
+		const id = `${prefix}${i}`;
 		if (!eligible.includes(id)) continue;
 		const test = roll.dice.map((d, j) => (j === i ? swing : d));
 		if (isBandWin(quest.band, test) !== roll.win) return id;

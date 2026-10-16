@@ -24,6 +24,13 @@ export function afterPiecieEffect(state, playerId, slotIndex, cardDef, after = {
 	// Track last played piecie for Gevalletje Klakkeloos
 	state._lastPiecieEffect = { effectId: cardDef.effectId, byPlayer: playerId };
 
+	// Chain Reaction: after a paid activation (not its own) the armed owner may activate one more Piecie for free.
+	const owner = state.players[playerId];
+	if (!free && owner.chainReactionFree > 0 && cardDef.effectId !== 'effect_chain_reaction') {
+		owner.chainReactionFree = 0;
+		owner.chainReactionOffer = 1;
+	}
+
 	state.players[playerId].pieciesActivatedThisTurn = (state.players[playerId].pieciesActivatedThisTurn || 0) + 1;
 	const actions = Array.isArray(state.players[playerId].actionsThisTurn) ? state.players[playerId].actionsThisTurn : [];
 	if (!actions.includes('PIECIE_ACTIVATED')) state.players[playerId].actionsThisTurn = [...actions, 'PIECIE_ACTIVATED'];

@@ -515,21 +515,21 @@ describe('Phase 17 — effect_slecht_gezet ownership-aware (PLACE-REC-01)', () =
 
   it('returns own Place to hand when activePlacePlayedBy === activePlayerId', () => {
     const state = makeState('player_1', 'player_1');
-    const result = effect_slecht_gezet(state);
+    const result = effect_slecht_gezet(state, 'player_1');
     expect(result.players.player_1.hand).toContainEqual({ cardId: 'place_boxing_ring', type: 'PLACE' });
     expect(result.activePlace).toBeNull();
   });
 
   it('does NOT push to any graveyard when returning own Place', () => {
     const state = makeState('player_1', 'player_1');
-    const result = effect_slecht_gezet(state);
+    const result = effect_slecht_gezet(state, 'player_1');
     expect(result.players.player_1.graveyard).toHaveLength(0);
     expect(result.players.player_2.graveyard).toHaveLength(0);
   });
 
   it('destroys opponent Place and pushes to opponent graveyard', () => {
     const state = makeState('player_1', 'player_2');
-    const result = effect_slecht_gezet(state);
+    const result = effect_slecht_gezet(state, 'player_1');
     expect(result.activePlace).toBeNull();
     expect(result.players.player_2.graveyard[0]?.cardId).toBe('place_boxing_ring');
     expect(result.players.player_1.hand).toHaveLength(0);
@@ -537,38 +537,19 @@ describe('Phase 17 — effect_slecht_gezet ownership-aware (PLACE-REC-01)', () =
 
   it('does nothing when no active Place', () => {
     const state = { ...makeState('player_1', 'player_1'), activePlace: null };
-    const result = effect_slecht_gezet(state);
+    const result = effect_slecht_gezet(state, 'player_1');
     expect(result.players.player_1.hand).toHaveLength(0);
   });
 });
 
-describe('Phase 17 — effect_huisbaas from player graveyard (PLACE-REC-02)', () => {
-  function makeState(graveyardContents: unknown[]) {
-    return {
-      players: { player_1: { hand: [] as unknown[], graveyard: graveyardContents } },
-    };
-  }
-
-  it('returns most recent PLACE entry from player graveyard to hand', () => {
-    const state = makeState([{ cardId: 'place_de_box', type: 'PLACE' }]);
+// Huisbaas searches the deck since Phase 59 (Card List 2.0); its behaviour is covered in tests/abilities/piecies-ed-utility.test.ts.
+describe('Phase 17 — effect_huisbaas no longer recovers from the graveyard (Phase 59)', () => {
+  it('leaves a Place in the graveyard alone', () => {
+    const state: any = { activePlace: null, players: { player_1: { hand: [] as unknown[], deck: [] as unknown[], energy: 6, graveyard: [{ cardId: 'place_de_box', type: 'PLACE' }] } } };
     const result = effect_huisbaas(state, 'player_1');
-    expect(result.players.player_1.hand).toContainEqual({ cardId: 'place_de_box', type: 'PLACE' });
-    expect(result.players.player_1.graveyard).toHaveLength(0);
-  });
-
-  it('finds PLACE card even when piecie entries are on top of discard', () => {
-    const state = makeState([
-      'piecie_affoe',
-      { cardId: 'place_boxing_ring', type: 'PLACE' },
-    ]);
-    const result = effect_huisbaas(state, 'player_1');
-    expect(result.players.player_1.hand).toContainEqual({ cardId: 'place_boxing_ring', type: 'PLACE' });
-  });
-
-  it('does nothing when no PLACE cards in graveyard', () => {
-    const state = makeState(['piecie_affoe', 'piecie_kannetje_melk']);
-    const result = effect_huisbaas(state, 'player_1');
-    expect(result.players.player_1.hand).toHaveLength(0);
+    const out = result.state ?? result;
+    expect(out.players.player_1.hand).toHaveLength(0);
+    expect(out.players.player_1.graveyard).toHaveLength(1);
   });
 });
 

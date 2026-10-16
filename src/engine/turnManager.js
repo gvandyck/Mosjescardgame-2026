@@ -168,7 +168,8 @@ export function startTurn(gameState) {
   activePlayer.pieciesPlayedThisTurn = 0;
   activePlayer.lastCardPlayedType = null;
   activePlayer.instantPiecieThisTurn = false;
-  activePlayer.chainReactionActive = false;
+  activePlayer.chainReactionFree = 0;
+  activePlayer.chainReactionOffer = 0;
   activePlayer.abilityDoubleTrigger = false;
   activePlayer.drawsThisTurn = 0;
   activePlayer.pieciesActivatedThisTurn = 0;
@@ -547,6 +548,12 @@ function activatePiecieCore(gameState, playerId, slotIndex) {
   // check state._dingetjeTochActive — if set, skip the single failing requirement check and
   // delete state._dingetjeTochActive before passing state to activatePiecie.
   // STUB-07: UI-side implementation deferred to UI wiring phase.
+
+  // Chain Reaction offer: this activation is free (no Energy, no chain roll); the offer is used up (T-59-06).
+  if (player.chainReactionOffer > 0) {
+    player.chainReactionOffer = 0;
+    return resolvePiecieActivation(state, playerId, safeSlotIndex, knownCardDef, { free: true });
+  }
 
   // Energy: pay the card's cost after validation, before any mutation (free chains never reach here)
   const piecieEnergyPay = payEnergy(state, playerId, Number(knownCardDef.cost) || 0);

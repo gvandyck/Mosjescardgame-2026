@@ -171,10 +171,11 @@ describe('Loaded Dice and Dikke Plaat', () => {
 });
 
 describe('Boosterpackkie', () => {
-  it('draws one card on rolls 1-4 and rolls exactly once', () => {
+  it('draws one card on rolls 1-4 and rolls exactly once (with a Coert; without one it does not roll)', () => {
     const random = vi.spyOn(Math, 'random').mockReturnValue(0);
     const result = effect_boosterpackkie(
       makeState({
+        cardId: 'mosje_coert_kasteluck',
         deck: [
           { cardId: 'draw_1', type: 'PIECIE' },
           { cardId: 'draw_2', type: 'PIECIE' },
