@@ -14,6 +14,7 @@ import { PIECIE_TARGETS } from './rules/piecieTargets.js';
 import { piecieTargetOptions } from './engine/targets/piecieTargetOptions.js';
 import { isPiecieReady } from './engine/table/isPiecieReady.js';
 import { attackMosje } from './engine/actions/attackMosje.js';
+import { getPower } from './engine/mp/getPower.js';
 import { rollQuestAttempt } from './engine/quests/rollQuestAttempt.js';
 import { resolveQuestAttempt } from './engine/quests/resolveQuestAttempt.js';
 import { chooseQuestChoices } from './bot/strategy/chooseQuestChoices.js';
@@ -988,10 +989,10 @@ function initGamePage() {
 			},
 			// Put a Piecie in one of a player's 4 Piecie slots (visual checks, card layout tests).
 			// Face-up and activated by default; { faceDown: true } sets it face-down. cardId=null clears the slot.
-			setPiecieOnField(playerId, slotIndex, cardId, { faceDown = false } = {}) {
+			setPiecieOnField(playerId, slotIndex, cardId, { faceDown = false, stays } = {}) {
 				const player = gameState?.players?.[playerId];
 				if (!player) return;
-				player.piecieSlots[slotIndex] = cardId == null ? null : { cardId, type: 'PIECIE', faceDown, activated: !faceDown };
+				player.piecieSlots[slotIndex] = cardId == null ? null : { cardId, type: 'PIECIE', faceDown, activated: !faceDown, ...(stays ? { stays: true, staysEnd: stays, activatedRound: gameState.turnNumber } : {}) };
 				renderFromState(gameState);
 			},
 			// U8 — strip entry protection from every Mosje on the board. Card tests
@@ -1128,6 +1129,8 @@ function initGamePage() {
 				return 'ok';
 			},
 			getGameState() { return JSON.parse(JSON.stringify(gameState)); },
+			// Obby 2.0 (60-04): a Mosje's effective Power (level row + boosts + active Place), read-only.
+			getMosjePower(playerId, slotIndex) { return getPower(gameState?.players?.[playerId]?.activeSlots?.[slotIndex], gameState, playerId); },
 			getHandSize(playerId) { return gameState?.players?.[playerId]?.hand?.length ?? -1; },
 			getGraveyardSize(playerId) { return gameState?.players?.[playerId]?.graveyard?.length ?? -1; },
 			// Force a specific Place active without needing to draw/play it — for

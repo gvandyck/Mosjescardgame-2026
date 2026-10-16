@@ -24,6 +24,7 @@ export async function mosjeCardSetup(page, entry, c) {
 	for (const f of s.field || []) await setMosjeOnField(page, 'player_1', f.slot ?? 0, f.id, { mp: f.mp, level: f.level ?? 1, sideways: f.sideways });
 	for (const f of s.oppField || []) await setMosjeOnField(page, 'player_2', f.slot ?? 0, f.id, { mp: f.mp, level: f.level ?? 1 });
 	await clearEntryProtection(page);
+	for (const f of (s.field || []).filter(x => x.fresh)) await setMosjeOnField(page, 'player_1', f.slot ?? 0, f.id, { mp: f.mp, level: f.level ?? 1, entryProtected: true });
 	await setEnergy(page, 'player_1', s.energy ?? 3);
 	await setEnergy(page, 'player_2', 6);
 	await setHand(page, 'player_1', s.hand || []);
@@ -32,7 +33,7 @@ export async function mosjeCardSetup(page, entry, c) {
 	await page.evaluate(({ piecies, place, turn, graveyard, noUnlock, welloe }) => {
 		const h = window.__testHooks;
 		for (const id of welloe || []) h.injectWelloeMosje('player_1', id);
-		for (const p of piecies || []) h.setPiecieOnField('player_1', p.slot, p.id, { faceDown: p.faceDown !== false });
+		for (const p of piecies || []) h.setPiecieOnField('player_1', p.slot, p.id, { faceDown: p.faceDown !== false, stays: p.stays });
 		if (place) h.setActivePlace(place.id, place.by || 'player_2');
 		if (turn) h.setTurnNumber(turn);
 		for (const id of graveyard || []) h.injectGraveyardCard('player_1', id);

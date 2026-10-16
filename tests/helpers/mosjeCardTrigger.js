@@ -21,6 +21,7 @@ export async function mosjeCardTrigger(page, entry, c) {
 			await page.locator(`.mosje-card--owned[data-card-id="${t.mosje || entry.mosje}"] .mosje-ability-btn`).click();
 			break;
 		case 'playFromHand': await playCardFromHand(page, t.cardId); await page.waitForTimeout(400); break;
+		case 'none': break; // Power-only cases: the board is read as laid out
 		case 'turnStart': await boundary(page, 'start', t.player || 'player_1'); break;
 		case 'turnEnd': await boundary(page, 'end', t.player || 'player_1'); break;
 		case 'activatePiecie': await activateFieldPiecie(page, t.cardId); break;

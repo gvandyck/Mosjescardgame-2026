@@ -1,6 +1,6 @@
 // runMosjeCardTest — one card-test-library case for a 2.0 Mosje: boot, lay out the board, fire the trigger, assert.
 // entry: { mosje, deck, cases: [{ name, setup, trigger, expect }] } — see tests/ui/cards/mosje-registry-2-0.js.
-// expect: { mp: {'own.0': n, 'opp.0': n}, level: {...}, energy, handDelta, oppHandDelta, state: [[path, value]] }.
+// expect: { mp: {'own.0': n, 'opp.0': n}, power: {'own.0': n}, level: {...}, energy, handDelta, oppHandDelta, state: [[path, value]] }.
 import { expect } from '@playwright/test';
 import { getGameState } from '../ui/helpers.js';
 import { mosjeCardSetup } from './mosjeCardSetup.js';
@@ -22,6 +22,11 @@ export async function runMosjeCardTest(page, entry, c) {
 	const e = c.expect;
 	for (const [key, mp] of Object.entries(e.mp || {})) expect(slotOf(after, key)?.mp, `${key} MP`).toBe(mp);
 	for (const [key, lv] of Object.entries(e.level || {})) expect(slotOf(after, key)?.level, `${key} level`).toBe(lv);
+	for (const [key, pw] of Object.entries(e.power || {})) {
+		const [who, idx] = key.split('.');
+		const got = await page.evaluate(({ p, i }) => window.__testHooks.getMosjePower(p, i), { p: who === 'own' ? 'player_1' : 'player_2', i: Number(idx) });
+		expect(got, `${key} Power`).toBe(pw);
+	}
 	if (e.energy != null) expect(after.players.player_1.energy, 'own Energy').toBe(e.energy);
 	if (e.handDelta != null) expect(after.players.player_1.hand.length - before.players.player_1.hand.length, 'own hand').toBe(e.handDelta);
 	if (e.oppHandDelta != null) expect(after.players.player_2.hand.length - before.players.player_2.hand.length, 'opponent hand').toBe(e.oppHandDelta);
