@@ -214,7 +214,7 @@ Plans:
 - [x] 59-02-PLAN.md — Example Decks MP / Substance / Gear (16), Binti food extra, 2.0 Piecie card-test library, Affoe-getemt flake fixed
 - [x] 59-03-PLAN.md — Example Decks Attack / Pet / protection (10), end-of-turn losses, Dikke Taks double hit, Stays bound to a Mosje
 - [x] 59-04-PLAN.md — Example Decks Utility (8), reroll grant, Chain Reaction free path (all Example-Deck Piecies done)
-- [ ] 59-05-PLAN.md — MP / Substance / Gear / Pet rest + MP Amplifier + Synergy Field (14), section 6b Ronald Kip test
+- [x] 59-05-PLAN.md — MP / Substance / Gear / Pet rest + MP Amplifier + Synergy Field (14), section 6b Ronald Kip test
 - [ ] 59-06-PLAN.md — Attack rest, dice rest, draw rest (16), Battle Concert, TemPiecie lock
 - [ ] 59-07-PLAN.md — Redbull, Double Trigger, Dubbele Ding, Leipe Swap; Redbull + VIS-02 specs live
 - [ ] 59-08-PLAN.md — Mosje Shield, Welloe Force, Mosje Reborn, Call of the Welloes, Dingetje toch?!; 73-Piecie coverage guard, full headless run, EFX-02 tick
