@@ -33,7 +33,7 @@ See: `.planning/PROJECT.md` (updated 2026-10-10)
 ## Current Position
 
 Phase: 59 of 64 (piecie effects)
-Plan: 7 of 8 done (59-01 framework, 59-02 MP/Substance/Gear, 59-03 Attack/Pet/protection, 59-04 Utility, 59-05 MP/Substance/Gear/Pet rest + Amplifier + Synergy Field, 59-06 Attack/dice/draw rest, 59-07 Redbull/Double Trigger/Dubbele Ding/Leipe Swap); next 59-08
+Plan: 8 of 8 done (59-01 to 59-07 plus 59-08 Shield/Welloe Force/Reborn/Call/Dingetje + coverage guard); Phase 59 complete, next Phase 60
 Status: Executing phase 59
 Last activity: 2026-10-15
 

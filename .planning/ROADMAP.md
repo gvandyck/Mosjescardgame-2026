@@ -18,7 +18,7 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
  (completed 2026-10-12)
 - [x] **Phase 58: Mosje Abilities and Synergies** - All 32 Mosje abilities, 2.0 synergy pairs, chain rule and The Tactician (Example Deck Mosjes first)
  (completed 2026-10-15)
-- [ ] **Phase 59: Piecie Effects** - All 73 Piecie effects per the Card List (Example Deck Piecies first)
+- [x] **Phase 59: Piecie Effects** - All 73 Piecie effects per the Card List (Example Deck Piecies first)
 - [ ] **Phase 60: Snelle, Places and Hidden Information** - All 20 Snelle and 20 Place effects, hidden-info cards; every card has a card test
 - [ ] **Phase 61: Bot 2.0** - The bot plays legal, sensible 2.0 games: attack-or-Quest, Energy, reactions, no cheating
 - [ ] **Phase 62: 2.0 Card Faces** - Card frames per Phase 7 §A for Mosjes, Piecies, Snelle, Places and Quests
@@ -217,7 +217,7 @@ Plans:
 - [x] 59-05-PLAN.md — MP / Substance / Gear / Pet rest + MP Amplifier + Synergy Field (14), section 6b Ronald Kip test
 - [x] 59-06-PLAN.md — Attack rest, dice rest, draw rest (16), Battle Concert, TemPiecie lock
 - [x] 59-07-PLAN.md — Redbull, Double Trigger, Dubbele Ding, Leipe Swap; Redbull + VIS-02 specs live
-- [ ] 59-08-PLAN.md — Mosje Shield, Welloe Force, Mosje Reborn, Call of the Welloes, Dingetje toch?!; 73-Piecie coverage guard, full headless run, EFX-02 tick
+- [x] 59-08-PLAN.md — Mosje Shield, Welloe Force, Mosje Reborn, Call of the Welloes, Dingetje toch?!; 73-Piecie coverage guard, full headless run, EFX-02 tick
 
 ### Phase 60: Snelle, Places and Hidden Information
 **Goal**: Every Snelle and Place works as the Card List says, hidden-info cards only reveal to the right player, and every card in the game has a card test.
@@ -300,7 +300,7 @@ Plans:
 | 56. Attacking and Quests | 0/TBD | Not started | - |
 | 57. Piecies, Snelle, Places and Reaction Windows | 0/TBD | Not started | - |
 | 58. Mosje Abilities and Synergies | 0/TBD | Not started | - |
-| 59. Piecie Effects | 0/TBD | Not started | - |
+| 59. Piecie Effects | 8/8 | Complete | 2026-10-16 |
 | 60. Snelle, Places and Hidden Information | 0/TBD | Not started | - |
 | 61. Bot 2.0 | 0/TBD | Not started | - |
 | 62. 2.0 Card Faces | 0/TBD | Not started | - |

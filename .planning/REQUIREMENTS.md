@@ -50,7 +50,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 
 ### Card effects (EFX)
 - [x] **EFX-01**: All 32 Mosje abilities and synergy texts work as the Card List says, with activated abilities paying Energy (§3c).
-- [ ] **EFX-02**: All 73 Piecie effects work as the Card List says (Power boosts, reductions, dice boosts, tags, gates, Stays, limits) (§3c).
+- [x] **EFX-02**: All 73 Piecie effects work as the Card List says (Power boosts, reductions, dice boosts, tags, gates, Stays, limits) (§3c).
 - [ ] **EFX-03**: All 20 Snelle effects work as the Card List says, including the Jensen! / Frenssen! / Blensen! chain (§3c).
 - [ ] **EFX-04**: All 20 Place effects work as the Card List says, including fresh Mosjes ignoring them (§3c).
 - [x] **EFX-05**: Synergies are re-wired to the 2.0 pairs; Synergy Chamber makes holder texts work without the partner; free activations never chain again (§2g).
@@ -127,7 +127,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 | TABLE-05 | Phase 57 | Complete |
 | TABLE-06 | Phase 57 | Complete |
 | EFX-01 | Phase 58 | Complete |
-| EFX-02 | Phase 59 | Pending |
+| EFX-02 | Phase 59 | Complete |
 | EFX-03 | Phase 60 | Pending |
 | EFX-04 | Phase 60 | Pending |
 | EFX-05 | Phase 58 | Complete |
