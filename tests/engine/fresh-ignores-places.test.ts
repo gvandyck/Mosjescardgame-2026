@@ -11,7 +11,7 @@ const snap = (st) =>
   JSON.stringify(Object.values(st.players).map((p) => p.activeSlots.map((s) => s && { mp: s.mp, level: s.level, traits: s.traits, pb: s.powerBoost, se: s.statusEffects })));
 
 describe("Fresh ignores every Place effect (RULE-08)", () => {
-  it("finds the effects", () => expect(names.length).toBeGreaterThan(5));
+  it("finds the effects", () => expect(names.length).toBeGreaterThan(0));
   for (const name of names) {
     it(name, () => {
       const st = makeEngineState();

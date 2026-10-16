@@ -53,10 +53,10 @@ describe("place_the_void (PLACE-12) — redundant baseQuestMpBlocked gate remove
     expect(source).not.toContain("baseQuestMpBlocked");
   });
 
-  it("resolving a quest with The Void active leaves the questing Mosje's MP unchanged (same as before this change)", () => {
+  it("2.0: The Void only stops Piecie and Snelle gains - a Quest win still gains MP", () => {
     const state = buildQuestState("place_the_void");
     const after = forceQuestResult(state, "player_1", { questId: "quest_quick_thinking", win: true });
-    expect(after.players.player_1.activeSlots[0].mp).toBe(20);
+    expect(after.players.player_1.activeSlots[0].mp).toBe(45);
   });
 
   it("resolving a quest with NO active Place applies MP gain/loss normally", () => {

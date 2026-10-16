@@ -101,11 +101,12 @@ describe("Ronald Kip stacking under the Card List 2.0 rules", () => {
     expect([first(out).level, first(out).mp]).toEqual([3, 95]);
   });
 
-  it("The Void blocks the gain and the Amplifier is not spent", () => {
+  it("The Void blocks a Piecie gain and the Amplifier is not spent; a Quest gain still goes through", () => {
     const st = board(slot("mosje_coert_tech", 1, 0), null, true);
     st.activePlace = "place_the_void";
-    const out = gainMP(st, "player_1", 0, 40, "QUEST");
+    const out = gainMP(st, "player_1", 0, 40, "PIECIE");
     expect(first(out).mp).toBe(0);
     expect(out.players.player_1.mpAmplifierThisTurn).toBe(true);
+    expect(first(gainMP(st, "player_1", 0, 40, "QUEST")).mp).toBeGreaterThan(0);
   });
 });

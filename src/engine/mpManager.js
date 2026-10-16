@@ -32,9 +32,10 @@ function getActivePlaceId(gameState) {
 export function gainMP(gameState, playerId, slotIndex, amount, source = 'GAIN') {
   if (amount <= 0) return gameState;
 
-  const placeId = getActivePlaceId(gameState);
-  if (placeId === 'place_the_void') {
-    console.log('[MP] The Void active — gainMP blocked');
+  // The Void (2.0): Piecies and Snelle can't make a Mosje gain MP (a fresh Mosje ignores Places).
+  if (getActivePlaceId(gameState) === 'place_the_void' && (source === 'PIECIE' || source === 'SNELLE')
+    && !isFresh(gameState.players[playerId]?.activeSlots?.[slotIndex])) {
+    console.log(`[MP] The Void active - ${source} gain blocked`);
     return gameState;
   }
 
@@ -76,11 +77,6 @@ export function loseMP(gameState, playerId, slotIndex, amount, source = 'DRAIN',
   }
 
   const placeId = getActivePlaceId(gameState);
-
-  if (placeId === 'place_the_void') {
-    console.log('[MP] The Void active — loseMP blocked');
-    return gameState;
-  }
 
   if (placeId === 'place_momentum_factory' && source === 'ATTACK') {
     console.log('[MP] Momentum Factory active — ATTACK damage blocked');
