@@ -1,12 +1,9 @@
 /**
- * redbull-youri.spec.js — Redbull re-fires Youri's Speed Activate, within the cap.
+ * redbull-youri.spec.js - Redbull and Youri, The Speedrunner (Card List 2.0).
  *
- * Ruling (user, 2026-06-17): Youri follows the existing pay/activate-twice flow
- * (pay 20 + pick a face-down Piecie each time), BUT the 3-uses-per-game cap is
- * respected — if firing twice would exceed the cap, the second trigger is denied.
- *
- * Youri is in REPROMPT_DOUBLE_ABILITIES; the cap is enforced inside the ability fn,
- * so the second cast simply fails when no uses remain.
+ * Speed Activate: once per turn, pay 1 Energy, a Piecie placed this turn may be activated now (its cost is still
+ * paid when you activate it), then draw 1 card. Redbull gives one more use: pay the 1 Energy again, activate a second Piecie, draw again. A third
+ * use is refused. (The V4 uses-per-game counter and 20 MP payment no longer exist.)
  *
  * Run: npx playwright test tests/ui/simulation/redbull-youri.spec.js
  */
@@ -14,23 +11,12 @@
 import { test, expect } from '@playwright/test';
 import {
 	GAME_URL_TEST, seedCustomDeck, waitForBoard, ss,
-	setHand, setMosjeMP, unlockPiecies, playCardFromHand, getGameState,
+	setHand, playCardFromHand, getGameState,
 } from '../helpers.js';
+import { playAndActivateRedbull, extraUses, energyOf, useAbilityViaUi } from '../../helpers/redbullUi.js';
+import { PIECIES } from '../../../src/data/piecies.js';
 
-async function armRedbull(page) {
-	await playCardFromHand(page, 'piecie_redbull');
-	await page.waitForTimeout(400);
-	await unlockPiecies(page, 'player_1');
-	await page.locator('#piecies-player [data-card-id="piecie_redbull"]').first()
-		.locator('button:has-text("Activate")').click();
-	await page.waitForTimeout(500);
-	expect((await getGameState(page))?.players?.player_1?.abilityDoubleTrigger).toBe(true);
-}
-
-async function setYouriUses(page, count) {
-	await page.evaluate((c) => window.__testHooks?.setYouriUses('player_1', c), count);
-}
-
+const KANNETJE_COST = PIECIES.find(p => p.id === 'piecie_kannetje_melk').cost;
 const DECK = {
 	id: 'custom_rb_youri', name: 'Redbull + Youri',
 	mosjes: ['mosje_youri'],
@@ -38,75 +24,52 @@ const DECK = {
 	snellePiecies: ['snelle_jensen'], places: [], quests: [],
 };
 
-// KNOWN GAP (Phase 59): Redbull is a Piecie (2.0: one Mosje may use its once-per-turn ability one more time, paying its cost again); the abilityDoubleTrigger re-fire is rebuilt with the Piecie effects; Youri has no use counter any more (58-09), so the old 'uses 0->2' count cannot be asserted.
-test.fixme('Redbull re-fires Youri — pay 20 + activate a Piecie TWICE (uses 0→2)', async ({ page }) => {
-	test.setTimeout(90000);
-
+async function start(page) {
 	await seedCustomDeck(page, DECK, 'PHYSICAL_FORCE');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
-
-	// Hand: Redbull + 2 Piecies to lay face-down as Youri targets.
 	await setHand(page, 'player_1', ['piecie_redbull', 'piecie_kannetje_melk', 'piecie_kannetje_melk']);
 	await page.waitForTimeout(200);
-	await armRedbull(page);
-
-	// Lay two face-down Piecies for Youri to activate (one per fire).
+	await playAndActivateRedbull(page, { energy: 12 });
+	expect(await extraUses(page)).toBe(1);
+	// Lay two Piecies face-down this turn: Youri's targets (one per use).
 	await playCardFromHand(page, 'piecie_kannetje_melk');
 	await page.waitForTimeout(300);
 	await playCardFromHand(page, 'piecie_kannetje_melk');
 	await page.waitForTimeout(300);
+}
 
-	await setYouriUses(page, 0);
-	await setMosjeMP(page, 'player_1', 0, 60);
-	await page.waitForTimeout(200);
+test('Redbull re-fires Youri: 1 Energy + the Piecie cost twice, two Piecies activated, a card drawn each time', async ({ page }) => {
+	test.setTimeout(90000);
+	await start(page);
+	const energy0 = await energyOf(page);
+	const gy0 = (await getGameState(page)).players.player_1.graveyard.length;
 
-	// Fire Youri. First cast (2 face-down) prompts a slot pick; second cast (1 left)
-	// auto-activates the remaining face-down Piecie.
-	await page.locator('.mosje-card--owned[data-card-id="mosje_youri"] .mosje-ability-btn').click();
-	const slotBtn = page.locator('.modal-mosje-select-btn');
-	await slotBtn.first().waitFor({ state: 'visible', timeout: 15000 });
-	await slotBtn.first().click();
-	await page.waitForTimeout(1500);
+	for (let use = 0; use < 2; use++) {
+		await useAbilityViaUi(page, 'mosje_youri');   // makes a Piecie placed this turn ready (first free slot picked)
+		await page.waitForTimeout(700);
+		await page.locator('#piecies-player [data-card-id="piecie_kannetje_melk"]')
+			.filter({ has: page.locator('button:has-text("Activate")') }).first()
+			.locator('button:has-text("Activate")').click();   // ...and the player activates it, paying its cost
+		await page.waitForTimeout(700);
+	}
 	await ss(page, 'redbull-youri-twice');
 
 	const st = await getGameState(page);
-	console.log('youriAbilityUses:', st?.players?.player_1?.youriAbilityUses);
-	expect(st?.players?.player_1?.youriAbilityUses).toBe(2);     // fired twice
-	expect(st?.players?.player_1?.abilityDoubleTrigger).toBeFalsy();
+	expect(st.players.player_1.graveyard.length).toBe(gy0 + 2);               // both Piecies were activated and discarded
+	expect(await energyOf(page)).toBe(energy0 - 2 * (1 + KANNETJE_COST));      // Speed Activate (1) + the Piecie cost, twice
+	expect(st.players.player_1.activeSlots[0].abilityUsesThisTurn).toBe(2);
 });
 
-// KNOWN GAP (Phase 59): the 3-per-game cap is gone in 2.0 (58-09); how Redbull re-fires the once-per-turn Speed Activate is decided with the Redbull Piecie rewrite.
-test.fixme('Redbull + Youri at 2 uses — first fire is the 3rd use, second is DENIED (cap)', async ({ page }) => {
+test('Redbull + Youri: a third Speed Activate is refused and costs nothing', async ({ page }) => {
 	test.setTimeout(90000);
-
-	await seedCustomDeck(page, DECK, 'PHYSICAL_FORCE');
-	await page.goto(GAME_URL_TEST);
-	await waitForBoard(page);
-
-	await setHand(page, 'player_1', ['piecie_redbull', 'piecie_kannetje_melk']);
-	await page.waitForTimeout(200);
-	await armRedbull(page);
-
-	// One face-down Piecie — first fire auto-activates it.
-	await playCardFromHand(page, 'piecie_kannetje_melk');
-	await page.waitForTimeout(300);
-
-	await setYouriUses(page, 2);   // already used twice this game → only 1 use left
-	await setMosjeMP(page, 'player_1', 0, 60);
-	await page.waitForTimeout(200);
-
-	await page.locator('.mosje-card--owned[data-card-id="mosje_youri"] .mosje-ability-btn').click();
-	await page.waitForTimeout(1200);
-	// The denied second cast surfaces a "Cannot Use Ability" modal — dismiss if present.
-	const dismiss = page.locator('#modal-continue, .modal-btn');
-	if (await dismiss.first().isVisible({ timeout: 2000 }).catch(() => false)) {
-		await dismiss.first().click();
-	}
-	await ss(page, 'redbull-youri-cap');
-
-	const st = await getGameState(page);
-	console.log('youriAbilityUses (cap):', st?.players?.player_1?.youriAbilityUses);
-	expect(st?.players?.player_1?.youriAbilityUses).toBe(3);     // 3rd use only — NOT 4
-	expect(st?.players?.player_1?.abilityDoubleTrigger).toBeFalsy();
+	await start(page);
+	await useAbilityViaUi(page, 'mosje_youri');
+	await page.waitForTimeout(600);
+	await useAbilityViaUi(page, 'mosje_youri');
+	await page.waitForTimeout(600);
+	const energy = await energyOf(page);
+	await expect(page.locator('.mosje-card--owned[data-card-id="mosje_youri"] .mosje-ability-btn')).toBeDisabled();
+	expect(await energyOf(page)).toBe(energy);
+	expect((await getGameState(page)).players.player_1.activeSlots[0].abilityUsesThisTurn).toBe(2);
 });

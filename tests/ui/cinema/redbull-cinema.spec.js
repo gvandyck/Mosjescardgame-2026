@@ -1,11 +1,9 @@
 /**
- * redbull-cinema.spec.js — "Cinema mode" demo of the Redbull double-trigger.
+ * redbull-cinema.spec.js - "Cinema mode" demo of Redbull (Card List 2.0): one Mosje may use its once-per-turn ability
+ * one more time this turn, paying its Energy again.
  *
- * A deliberately SLOW, narrated walkthrough so a human can watch the effect play
- * out: board → Redbull placed → Redbull activated ("ability triggers TWICE") →
- * Alyssa Fissa's ability fires → her MP jumps by 40 (two ×20 echoes) not 20.
- *
- * It still asserts the real outcome, so it doubles as a visual regression check.
+ * A deliberately SLOW, narrated walkthrough: board -> Redbull placed and activated -> Tuk Healer's Healing Hands is
+ * used twice (+20 MP each, 1 Energy each). It still asserts the real outcome, so it doubles as a regression check.
  * Runs in the `visual` project (headed + slowMo). Watch it:
  *   npx playwright test --project=visual tests/ui/cinema/redbull-cinema.spec.js --headed
  */
@@ -13,82 +11,47 @@
 import { test, expect } from '@playwright/test';
 import {
 	GAME_URL_TEST, seedCustomDeck, waitForBoard, ss,
-	setHand, setMosjeMP, unlockPiecies, playCardFromHand,
-	getGameState, getHandSize, readOwnedMosjes,
+	setHand, setMosjeMP, getGameState,
 } from '../helpers.js';
+import { playAndActivateRedbull, extraUses, energyOf, useAbilityViaUi } from '../../helpers/redbullUi.js';
 
-async function alyssaMp(page) {
-	return (await getGameState(page))?.players?.player_1?.activeSlots?.[0]?.mp ?? null;
-}
+const tukMp = async (page) => (await getGameState(page))?.players?.player_1?.activeSlots?.[0]?.mp ?? null;
 
-test('🎬 Redbull cinema — ability triggers TWICE (free echo)', async ({ page }, testInfo) => {
+test('🎬 Redbull cinema - the ability can be used a second time, paying its Energy again', async ({ page }, testInfo) => {
 	test.setTimeout(120000);
-
-	// Pause between story beats when watching (headed project) so it plays like a clip;
-	// 0 in headless runs so CI/quick checks stay fast. Override with CINEMA=<ms>.
 	const BEAT = Number(process.env.CINEMA) || (testInfo.project.use.headless === false ? 2200 : 0);
 	const beat = (label) => { if (label) console.log(`🎬 ${label}`); return BEAT ? page.waitForTimeout(BEAT) : Promise.resolve(); };
 
-	// Opt-in: forward the engine's own console (LOG_PAGE=1) — shows the ability
-	// actually firing twice, with its per-fire MP breakdown.
-	if (process.env.LOG_PAGE) {
-		page.on('console', (m) => {
-			const t = m.text();
-			if (t.includes('Alyssa Fissa') || t.includes('Redbull')) console.log('   [engine]', t);
-		});
-	}
-
-	// ── Scene 1: set the stage ────────────────────────────────────────────────
 	await seedCustomDeck(page, {
 		id: 'custom_cinema_redbull', name: 'Redbull Cinema',  // id MUST start with custom_ (resolveCustomDeckDef)
-		mosjes: ['mosje_alyssa_fissa'],          // ability: +5 MP per card in hand
-		piecies: ['piecie_redbull', 'piecie_redbull', 'piecie_redbull',
-		          'piecie_quest_prep', 'piecie_quest_prep', 'piecie_quest_prep',
-		          'piecie_kannetje_melk', 'piecie_kannetje_melk'],
+		mosjes: ['mosje_tuk_healer'],            // Healing Hands: 1 Energy, one of your Mosjes gains 20 MP
+		piecies: ['piecie_redbull', 'piecie_redbull', ...Array(6).fill('piecie_kannetje_melk')],
 		snellePiecies: ['snelle_jensen'], places: [], quests: [],
 	}, 'PHYSICAL_FORCE');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
-	await beat('Scene 1 — Alyssa Fissa is on the field (ability: +5 MP per card in hand)');
+	await beat('Scene 1 - Tuk is on the field (Healing Hands: 1 Energy, +20 MP, once per turn)');
 
-	// Alyssa starts at 0 MP; hand is Redbull + 4 cards.
-	await setMosjeMP(page, 'player_1', 0, 0);
-	await setHand(page, 'player_1', ['piecie_redbull',
-		'piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk']);
+	await setMosjeMP(page, 'player_1', 0, 10);
+	await setHand(page, 'player_1', ['piecie_redbull', 'piecie_kannetje_melk']);
 	await ss(page, 'cinema-redbull-1-start');
-	await beat('Alyssa at 0 MP, holding 5 cards (Redbull + 4)');
+	await beat('Tuk at 10 MP, holding Redbull');
 
-	// ── Scene 2: play & activate Redbull ──────────────────────────────────────
-	await playCardFromHand(page, 'piecie_redbull');
-	await page.waitForTimeout(600);
-	await beat('Scene 2 — Redbull placed on the field');
-
-	await unlockPiecies(page, 'player_1');
-	const el = page.locator('#piecies-player [data-card-id="piecie_redbull"]').first();
-	await el.locator('button:has-text("Activate")').click();
-	await page.waitForTimeout(600);
-	const flag = (await getGameState(page))?.players?.player_1?.abilityDoubleTrigger;
-	expect(flag).toBe(true);
+	await playAndActivateRedbull(page);
+	expect(await extraUses(page)).toBe(1);
 	await ss(page, 'cinema-redbull-2-active');
-	await beat('⚡ Redbull ACTIVE — the next Mosje ability will trigger TWICE');
+	await beat('Redbull ACTIVE - Healing Hands may be used one more time');
 
-	// ── Scene 3: fire Alyssa's ability — watch MP jump ────────────────────────
-	const before = await alyssaMp(page);
-	const hand = await getHandSize(page, 'player_1');     // 4 cards remain after Redbull
-	console.log(`🎬 Scene 3 — Alyssa MP before: ${before}; hand ${hand} → single +${hand * 5}, doubled +${hand * 10}`);
-	await beat('About to fire Alyssa Fissa\'s ability…');
-
-	await page.locator('.mosje-card--owned[data-card-id="mosje_alyssa_fissa"] .mosje-ability-btn').click();
-	await page.waitForTimeout(900);
+	const energy0 = await energyOf(page);
+	await useAbilityViaUi(page, 'mosje_tuk_healer');
+	await page.waitForTimeout(700);
+	await beat(`First use: Tuk at ${await tukMp(page)} MP`);
+	await useAbilityViaUi(page, 'mosje_tuk_healer');
+	await page.waitForTimeout(700);
 	await ss(page, 'cinema-redbull-3-fired');
+	const after = await tukMp(page);
+	await beat(`Second use: Tuk at ${after} MP, Energy ${energy0} -> ${await energyOf(page)}. fin`);
 
-	const after = await alyssaMp(page);
-	const gained = after - before;
-	console.log(`🎬 RESULT — Alyssa MP ${before} → ${after} (gained ${gained}; +${hand * 5} echoed twice)`);
-	await beat(`💥 Ability fired TWICE — Alyssa gained ${gained} MP (not ${hand * 5})`);
-
-	// Real assertions (cinema is also a regression check)
-	expect(gained).toBe(hand * 10);                       // fired twice
-	expect((await getGameState(page))?.players?.player_1?.abilityDoubleTrigger).toBeFalsy(); // flag consumed
-	await beat('Scene 4 — flag consumed; Redbull is spent. 🎬 fin');
+	expect(after).toBe(50);
+	expect(await energyOf(page)).toBe(energy0 - 2);
 });

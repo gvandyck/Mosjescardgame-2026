@@ -83,8 +83,7 @@ test('VIS-01: Dubbele Dosis is discarded at once, costs Energy, and gives +1 die
 // "Swap the MP of one of your Mosjes and one opponent Mosje. A swap is not a gain or a loss: nobody levels up
 // or gets getemt from it." The swap is permanent: it must NOT revert at the end of the turn (V4 did).
 
-// KNOWN GAP (Phase 59): Leipe Swap effect still reverts at end of turn (V4 text); the 2.0 swap is permanent.
-test.fixme('VIS-02: Leipe Swap swaps MP and the swap does not revert at end of turn', async ({ page }) => {
+test('VIS-02: Leipe Swap swaps MP and the swap does not revert at end of turn', async ({ page }) => {
 	const deck = {
 		id: 'custom_leipe_test',
 		name: 'Leipe Test',
@@ -122,21 +121,9 @@ test.fixme('VIS-02: Leipe Swap swaps MP and the swap does not revert at end of t
 	expect(ownBefore).toBe(40);
 	expect(oppBefore).toBe(70);
 
-	// Activate Leipe Swap — shows target selector modals
+	// Activate Leipe Swap — one own and one opponent Mosje: both targets are the only choice, so no picker opens
 	await activatePiecieOnField(page, 'piecie_leipe_swap');
-
-	// Pick OWN Mosje
-	const ownBtn = page.locator('.target-option').first();
-	if (await ownBtn.waitFor({ state: 'visible', timeout: 4000 }).then(() => true).catch(() => false)) {
-		await ownBtn.click();
-		await page.waitForTimeout(400);
-	}
-	// Pick OPPONENT Mosje
-	const oppBtn = page.locator('.target-option').first();
-	if (await oppBtn.waitFor({ state: 'visible', timeout: 4000 }).then(() => true).catch(() => false)) {
-		await oppBtn.click();
-		await page.waitForTimeout(500);
-	}
+	await page.waitForTimeout(600);
 
 	// MP DURING — should be swapped
 	const ownDuring = (await readOwnedMosjes(page))[0]?.mp;
@@ -146,7 +133,7 @@ test.fixme('VIS-02: Leipe Swap swaps MP and the swap does not revert at end of t
 	expect(oppDuring).toBe(40);
 	await ss(page, 'vis02-swapped');
 
-	// KNOWN GAP (Phase 59): Leipe Swap effect still reverts at end of turn (V4 text); the 2.0 swap is permanent.
+	// The 2.0 swap is permanent: it does not revert at the end of the turn (V4 did).
 	await endTurnAndWait(page);
 	await endTurnAndWait(page);
 	// After the opponent's turn plus ours the swapped MP is still swapped (opponent may have changed theirs: check own).
@@ -156,7 +143,7 @@ test.fixme('VIS-02: Leipe Swap swaps MP and the swap does not revert at end of t
 
 	const log = await readLog(page);
 	expect(log.join(' ')).toMatch(/[Ll]eipe/);
-	await ss(page, 'vis02-reverted');
+	await ss(page, 'vis02-kept');
 });
 
 // ─── VIS-03: Quest success grants MP, log shows roll + threshold ──────────────

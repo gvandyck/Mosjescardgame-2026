@@ -1,14 +1,9 @@
 /**
- * redbull-gambler.spec.js — Redbull doubles Jeffrey Gambler's High Stakes.
+ * redbull-gambler.spec.js — Redbull and Jeffrey, The Silent Gambler (Card List 2.0).
  *
- * 2026-07-13 ability-text-engine-reconciliation ruling: the old fixed-30-MP wager
- * mechanic was dropped entirely ("too OP"). NEW DESIGN: roll 1d6, no MP cost, no MP
- * change either way. Rolls 1-5 → QUEST_BLOCKED this turn. Roll 6 → +3 Quest roll
- * bonus (questPrepBonus). High Stakes is still self-contained (fresh d6, no stale
- * _pendingTargets), so a plain re-run rolls again — a true "triggers twice".
- *
- * Dice mocked to a fixed value so both the original cast and the Redbull echo land
- * on the same outcome.
+ * High Stakes: once per turn, stake 1 or 2 Energy and roll a die. 1-2: the Energy is lost. 3-4: you get it back.
+ * 5-6: you get it back, draw 1 card, gain 10 MP per Energy staked, and the next Quest success this turn gives +15 MP.
+ * Redbull gives one more use (the stake is staked again), so the roll happens twice. Dice are mocked to a fixed value.
  *
  * Run: npx playwright test tests/ui/simulation/redbull-gambler.spec.js
  */
@@ -16,102 +11,63 @@
 import { test, expect } from '@playwright/test';
 import {
 	GAME_URL_TEST, seedCustomDeck, waitForBoard, ss,
-	setHand, setMosjeMP, unlockPiecies, playCardFromHand,
-	getGameState, readOwnedMosjes, mockDiceRoll,
+	setHand, setMosjeMP, getGameState, getHandSize, readOwnedMosjes, mockDiceRoll,
 } from '../helpers.js';
+import { playAndActivateRedbull, extraUses, energyOf, useAbilityViaUi } from '../../helpers/redbullUi.js';
 
-// KNOWN GAP (Phase 59): Redbull is a Piecie (2.0: one Mosje may use its once-per-turn ability one more time, paying its cost again); the abilityDoubleTrigger re-fire is rebuilt with the Piecie effects; High Stakes is now a 1-2 Energy stake with a 1-6 die (58-09), no +6 Quest roll bonus.
-test.fixme('Redbull doubles Jeffrey Gambler — jackpot twice (+6 Quest roll bonus, no MP change)', async ({ page }) => {
-	test.setTimeout(90000);
-
-	await mockDiceRoll(page, 0.9); // Math.random→0.9 ⇒ d6 always rolls 6 (jackpot)
-
+async function start(page, id) {
 	await seedCustomDeck(page, {
-		id: 'custom_rb_gambler', name: 'Redbull + Gambler',
-		mosjes: ['mosje_jeffrey_gambler'],   // High Stakes: roll 1d6, 6 → +3 questPrepBonus
-		piecies: ['piecie_redbull', 'piecie_redbull',
-		          'piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk',
-		          'piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk'],
+		id, name: 'Redbull + Gambler', mosjes: ['mosje_jeffrey_gambler'],
+		piecies: ['piecie_redbull', 'piecie_redbull', ...Array(6).fill('piecie_kannetje_melk')],
 		snellePiecies: ['snelle_jensen'], places: [], quests: [],
 	}, 'PHYSICAL_FORCE');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
-
-	await setHand(page, 'player_1', ['piecie_redbull', 'piecie_kannetje_melk', 'piecie_kannetje_melk']);
+	await setHand(page, 'player_1', ['piecie_redbull', 'piecie_kannetje_melk']);
 	await page.waitForTimeout(200);
+}
 
-	// Arm Redbull
-	await playCardFromHand(page, 'piecie_redbull');
-	await page.waitForTimeout(400);
-	await unlockPiecies(page, 'player_1');
-	await page.locator('#piecies-player [data-card-id="piecie_redbull"]').first()
-		.locator('button:has-text("Activate")').click();
-	await page.waitForTimeout(500);
-	expect((await getGameState(page))?.players?.player_1?.abilityDoubleTrigger).toBe(true);
+test('Redbull doubles Jeffrey Gambler: jackpot twice (+10 MP and a card each, stakes come back)', async ({ page }) => {
+	test.setTimeout(90000);
+	await mockDiceRoll(page, 0.9); // d6 always rolls 6
+	await start(page, 'custom_rb_gambler');
+	await playAndActivateRedbull(page);
+	expect(await extraUses(page)).toBe(1);
 
 	await setMosjeMP(page, 'player_1', 0, 35);
 	await page.waitForTimeout(200);
-	const before = (await readOwnedMosjes(page))[0]?.mp;
+	const energy0 = await energyOf(page);
+	const hand0 = await getHandSize(page, 'player_1');
 
-	await page.locator('.mosje-card--owned[data-card-id="mosje_jeffrey_gambler"] .mosje-ability-btn').click();
-	await page.waitForTimeout(900);
-	await ss(page, 'redbull-gambler');
+	await useAbilityViaUi(page, 'mosje_jeffrey_gambler');
+	await page.waitForTimeout(500);
+	await useAbilityViaUi(page, 'mosje_jeffrey_gambler');
+	await page.waitForTimeout(500);
+	await ss(page, 'redbull-gambler-jackpot');
 
-	const after = (await readOwnedMosjes(page))[0]?.mp;
-	const state = await getGameState(page);
-	console.log(`Gambler MP ${before}→${after} (should be unchanged); questPrepBonus=${state?.players?.player_1?.questPrepBonus}`);
-
-	expect(after - before).toBe(0);  // High Stakes never touches MP
-	expect(state?.players?.player_1?.questPrepBonus).toBe(6);  // two jackpot rolls: +3 +3
-	expect(state?.players?.player_1?.activeSlots?.[0]?.statusEffects ?? []).toEqual([]);
-	expect(state?.players?.player_1?.abilityDoubleTrigger).toBeFalsy();
+	expect((await readOwnedMosjes(page))[0]?.mp).toBe(55);          // +10 per staked Energy, twice (stake 1)
+	expect(await getHandSize(page, 'player_1')).toBe(hand0 + 2);    // a card each time
+	expect(await energyOf(page)).toBe(energy0);                     // the stakes came back
+	expect((await getGameState(page)).players.player_1.gamblerQuestBonusTurn).toBeDefined();
 });
 
-// KNOWN GAP (Phase 59): Redbull is a Piecie (2.0: one Mosje may use its once-per-turn ability one more time, paying its cost again); the abilityDoubleTrigger re-fire is rebuilt with the Piecie effects; High Stakes no longer blocks Quests (58-09).
-test.fixme('Redbull doubles Jeffrey Gambler — QUEST_BLOCKED twice, no MP change', async ({ page }) => {
+test('Redbull doubles Jeffrey Gambler: two losing rolls lose the stake twice, MP untouched', async ({ page }) => {
 	test.setTimeout(90000);
-
-	await mockDiceRoll(page, 0.1); // Math.random→0.1 ⇒ d6 always rolls 1 (QUEST_BLOCKED)
-
-	await seedCustomDeck(page, {
-		id: 'custom_rb_gambler_lose', name: 'Redbull + Gambler (blocked)',
-		mosjes: ['mosje_jeffrey_gambler'],
-		piecies: ['piecie_redbull', 'piecie_redbull',
-		          'piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk',
-		          'piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk'],
-		snellePiecies: ['snelle_jensen'], places: [], quests: [],
-	}, 'PHYSICAL_FORCE');
-	await page.goto(GAME_URL_TEST);
-	await waitForBoard(page);
-
-	await setHand(page, 'player_1', ['piecie_redbull', 'piecie_kannetje_melk', 'piecie_kannetje_melk']);
-	await page.waitForTimeout(200);
-
-	// Arm Redbull
-	await playCardFromHand(page, 'piecie_redbull');
-	await page.waitForTimeout(400);
-	await unlockPiecies(page, 'player_1');
-	await page.locator('#piecies-player [data-card-id="piecie_redbull"]').first()
-		.locator('button:has-text("Activate")').click();
-	await page.waitForTimeout(500);
-	expect((await getGameState(page))?.players?.player_1?.abilityDoubleTrigger).toBe(true);
+	await mockDiceRoll(page, 0.1); // d6 always rolls 1
+	await start(page, 'custom_rb_gambler_lose');
+	await playAndActivateRedbull(page);
 
 	await setMosjeMP(page, 'player_1', 0, 70);
 	await page.waitForTimeout(200);
-	const before = (await readOwnedMosjes(page))[0]?.mp;
+	const energy0 = await energyOf(page);
 
-	await page.locator('.mosje-card--owned[data-card-id="mosje_jeffrey_gambler"] .mosje-ability-btn').click();
-	await page.waitForTimeout(900);
-	await ss(page, 'redbull-gambler-lose');
+	await useAbilityViaUi(page, 'mosje_jeffrey_gambler');
+	await page.waitForTimeout(500);
+	await useAbilityViaUi(page, 'mosje_jeffrey_gambler');
+	await page.waitForTimeout(500);
+	await ss(page, 'redbull-gambler-lost');
 
-	const after = (await readOwnedMosjes(page))[0]?.mp;
-	const state = await getGameState(page);
-	const questBlockedCount = (state?.players?.player_1?.activeSlots?.[0]?.statusEffects ?? [])
-		.filter(e => e.type === 'QUEST_BLOCKED').length;
-	console.log(`Gambler MP ${before}→${after} (should be unchanged); QUEST_BLOCKED count=${questBlockedCount}`);
-
-	expect(after - before).toBe(0);  // High Stakes never touches MP
-	expect(questBlockedCount).toBe(2);  // both fires pushed QUEST_BLOCKED
-	expect(state?.players?.player_1?.questPrepBonus ?? 0).toBe(0);
-	expect(state?.players?.player_1?.abilityDoubleTrigger).toBeFalsy();
+	expect((await readOwnedMosjes(page))[0]?.mp).toBe(70);
+	expect(await energyOf(page)).toBe(energy0 - 2);                 // 1 Energy lost per losing roll
+	expect((await getGameState(page)).players.player_1.gamblerQuestBonusTurn).toBeUndefined();
 });

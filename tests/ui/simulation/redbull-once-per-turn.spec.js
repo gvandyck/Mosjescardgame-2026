@@ -1,14 +1,9 @@
 /**
- * redbull-once-per-turn.spec.js — Redbull must NOT double once-per-turn abilities.
+ * redbull-once-per-turn.spec.js — Redbull (Card List 2.0): "One of your Mosjes may use its once-per-turn ability one
+ * more time this turn (pay its cost again)."
  *
- * Ruling (user, 2026-06-17): Redbull is a powerup "within bounds" — it respects
- * once-per-turn cooldowns and once-per-game caps. But the echo in useMosjeAbility
- * calls the ability fn directly, AFTER the engine sets abilityUsedThisTurn, so it
- * bypasses the per-turn brake and doubles abilities it shouldn't ("Group B leak").
- *
- * Tuk Healer (Healing Presence: choose one own Mosje +10 MP, once per turn — with
- * only one Mosje on the field it defaults to healing itself) is the clean canary:
- * single = +10, leaked double = +20.
+ * Tuk Healer (Healing Hands, 1 Energy: one Mosje of yours gains 20 MP) is the canary: the ability can be used twice
+ * after Redbull, each use paying its 1 Energy, and a third use is refused. Without Redbull it stays once per turn.
  *
  * Run: npx playwright test tests/ui/simulation/redbull-once-per-turn.spec.js
  */
@@ -16,50 +11,58 @@
 import { test, expect } from '@playwright/test';
 import {
 	GAME_URL_TEST, seedCustomDeck, waitForBoard, ss,
-	setHand, setMosjeMP, unlockPiecies, playCardFromHand,
-	getGameState, readOwnedMosjes,
+	setHand, setMosjeMP, readOwnedMosjes,
 } from '../helpers.js';
+import { playAndActivateRedbull, extraUses, energyOf, useAbilityViaUi } from '../../helpers/redbullUi.js';
 
-async function armRedbull(page) {
-	await playCardFromHand(page, 'piecie_redbull');
-	await page.waitForTimeout(400);
-	await unlockPiecies(page, 'player_1');
-	const el = page.locator('#piecies-player [data-card-id="piecie_redbull"]').first();
-	await el.locator('button:has-text("Activate")').click();
-	await page.waitForTimeout(500);
-	expect((await getGameState(page))?.players?.player_1?.abilityDoubleTrigger).toBe(true);
-}
+const DECK = {
+	id: 'custom_rb_tuk_healer', name: 'Redbull + Tuk Healer',
+	mosjes: ['mosje_tuk_healer'],
+	piecies: ['piecie_redbull', 'piecie_redbull', ...Array(6).fill('piecie_kannetje_melk')],
+	snellePiecies: ['snelle_jensen'], places: [], quests: [],
+};
 
-test('Redbull does NOT double Tuk Healer (once-per-turn) — +10, not +20', async ({ page }) => {
-	test.setTimeout(90000);
-
-	await seedCustomDeck(page, {
-		id: 'custom_rb_tuk_healer', name: 'Redbull + Tuk Healer',
-		mosjes: ['mosje_tuk_healer'],   // Healing Presence: solo on field, defaults to self +10 MP (once/turn)
-		piecies: ['piecie_redbull', 'piecie_redbull',
-		          'piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk',
-		          'piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk'],
-		snellePiecies: ['snelle_jensen'], places: [], quests: [],
-	}, 'PHYSICAL_FORCE');
+async function start(page) {
+	await seedCustomDeck(page, DECK, 'PHYSICAL_FORCE');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
-
-	await setHand(page, 'player_1', ['piecie_redbull', 'piecie_kannetje_melk', 'piecie_kannetje_melk']);
+	await setHand(page, 'player_1', ['piecie_redbull', 'piecie_kannetje_melk']);
 	await page.waitForTimeout(200);
-	await armRedbull(page);
+}
 
-	// Start at a known MP so the gain is unambiguous and stays under the 100 cap.
-	await setMosjeMP(page, 'player_1', 0, 0);
+test('Redbull gives Tuk Healer a second paid use: +20 MP twice, 1 Energy each, a third use is refused', async ({ page }) => {
+	test.setTimeout(90000);
+	await start(page);
+	await playAndActivateRedbull(page);
+	expect(await extraUses(page)).toBe(1);
+
+	await setMosjeMP(page, 'player_1', 0, 10);
 	await page.waitForTimeout(200);
-	const before = (await readOwnedMosjes(page))[0]?.mp;
+	const energy0 = await energyOf(page);
 
-	await page.locator('.mosje-card--owned[data-card-id="mosje_tuk_healer"] .mosje-ability-btn').click();
-	await page.waitForTimeout(800);
+	await useAbilityViaUi(page, 'mosje_tuk_healer');
+	await page.waitForTimeout(500);
+	expect((await readOwnedMosjes(page))[0]?.mp).toBe(30);
+	expect(await energyOf(page)).toBe(energy0 - 1);
+
+	// Second use: the button is usable again and charges the 1 Energy again.
+	await useAbilityViaUi(page, 'mosje_tuk_healer');
+	await page.waitForTimeout(500);
 	await ss(page, 'redbull-tuk-healer');
+	expect((await readOwnedMosjes(page))[0]?.mp).toBe(50);
+	expect(await energyOf(page)).toBe(energy0 - 2);
 
-	const after = (await readOwnedMosjes(page))[0]?.mp;
-	console.log(`Tuk Healer MP ${before}→${after} (gained ${after - before}; single should be 10)`);
+	// Third use: refused (the button is disabled), nothing is paid.
+	await expect(page.locator('.mosje-card--owned[data-card-id="mosje_tuk_healer"] .mosje-ability-btn')).toBeDisabled();
+	expect(await energyOf(page)).toBe(energy0 - 2);
+});
 
-	// Once-per-turn ability: Redbull must not echo it.
-	expect(after - before).toBe(10);
+test('Without Redbull Tuk Healer stays once per turn: one +20, then the button is disabled', async ({ page }) => {
+	test.setTimeout(90000);
+	await start(page);
+	await setMosjeMP(page, 'player_1', 0, 10);
+	await useAbilityViaUi(page, 'mosje_tuk_healer');
+	await page.waitForTimeout(500);
+	expect((await readOwnedMosjes(page))[0]?.mp).toBe(30);
+	await expect(page.locator('.mosje-card--owned[data-card-id="mosje_tuk_healer"] .mosje-ability-btn')).toBeDisabled();
 });

@@ -20,6 +20,7 @@ import {
 	setPendingTargets, setQuestFaceUp, setNextDice, questViaUi,
 	unlockPiecies, setHand,
 } from '../helpers.js';
+import { playAndActivateRedbull, extraUses, energyOf, useAbilityViaUi } from '../../helpers/redbullUi.js';
 
 /**
  * End a turn and return 'gameover' if the reward overlay appeared, 'turn' otherwise.
@@ -361,78 +362,42 @@ test('chain-4: Youri Speed Activate - 1 Energy, same-turn Piecie activates, hand
 	expect(log.join(' ')).toMatch(/[Yy]ouri|[Ss]peed/);
 });
 
-// ─── Chain 5: Redbull + Ability — EXPECTED FAILURE (bug documented) ───────────
+// ─── Chain 5: Redbull + Ability (Card List 2.0: a second PAID use of a once-per-turn ability) ───────────────
 
-// KNOWN GAP (Phase 59): Redbull is a Piecie (2.0: one Mosje may use its once-per-turn ability one more time, paying its cost again); the abilityDoubleTrigger re-fire is rebuilt with the Piecie effects; Alyssa Fissa's Party Power is a passive trigger now (no ability button), so this V4 setup cannot run.
-test.fixme('chain-5: Redbull double-triggers a Mosje ability (free echo)', async ({ page }) => {
-	// Redbull sets player.abilityDoubleTrigger; useMosjeAbility now re-runs the ability
-	// EFFECT once more at no extra cost (free echo). Alyssa Fissa gains +5 per card in
-	// hand, so with Redbull active her ability gains 2 × (5 × handSize).
-	// Start MP at 0 so the doubled gain stays under the 100 cap (Phase 31).
+test('chain-5: Redbull gives Tuk Healer a second paid use (+20 MP twice, 1 Energy each)', async ({ page }) => {
 	test.setTimeout(90000);
 
-	const deck = {
-		id: 'custom_redbull_c5',
-		name: 'Redbull Bug Chain',
-		mosjes: ['mosje_alyssa_fissa'],  // ability: +5 × handSize
+	await seedCustomDeck(page, {
+		id: 'custom_redbull_c5', name: 'Redbull Chain',
+		mosjes: ['mosje_tuk_healer'],  // Healing Hands: 1 Energy, +20 MP, once per turn
 		piecies: ['piecie_redbull', 'piecie_redbull', 'piecie_redbull',
 		          'piecie_quest_prep', 'piecie_quest_prep', 'piecie_quest_prep',
 		          'piecie_kannetje_melk', 'piecie_kannetje_melk'],
-		snellePiecies: ['snelle_jensen'],
-		places: [],
-		quests: [],
-	};
-	await seedCustomDeck(page, deck, 'PHYSICAL_FORCE');
+		snellePiecies: ['snelle_jensen'], places: [], quests: [],
+	}, 'PHYSICAL_FORCE');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
 
-	await setMosjeMP(page, 'player_1', 0, 50);
-	// Redbull + 4 filler: after playing Redbull, Alyssa still sees 4 cards in hand, so
-	// her +5/card ability gains 20 — doubled to 40 (verifiable, and under the 100 cap).
-	await setHand(page, 'player_1', ['piecie_redbull',
-		'piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk']);
+	await setHand(page, 'player_1', ['piecie_redbull', 'piecie_kannetje_melk']);
 	await page.waitForTimeout(200);
 
-	// Play Redbull, then unlock + activate THIS turn (no bot turn — avoids the lone
-	// Mosje being KO'd by the bot during an end-turn, post defeat-at-0).
-	await playCardFromHand(page, 'piecie_redbull');
-	await page.waitForTimeout(400);
-	await unlockPiecies(page, 'player_1');
+	// Play + activate Redbull this turn (no bot turn - avoids the lone Mosje being KO'd by the bot during an end-turn).
+	await playAndActivateRedbull(page);
+	expect(await extraUses(page)).toBe(1);
 
-	// Activate Redbull → abilityDoubleTrigger = true
-	await activatePiecie(page, 'piecie_redbull');
-	const stateAfterRedbull = await getGameState(page);
-	const flagSet = stateAfterRedbull?.players?.player_1?.abilityDoubleTrigger;
-	console.log('abilityDoubleTrigger after Redbull:', flagSet);
-	expect(flagSet).toBe(true);  // flag is set by the effect
-
-	// Read hand size to know expected MP gain
-	const handSize = await getHandSize(page, 'player_1');
-	const singleTriggerGain = handSize * 5;
-	const doubleTriggerGain = singleTriggerGain * 2;
-	console.log(`Hand size: ${handSize}, single gain: ${singleTriggerGain}, expected double: ${doubleTriggerGain}`);
-
-	// Start at 0 so the doubled gain doesn't hit the 100 cap (Phase 31)
 	await setMosjeMP(page, 'player_1', 0, 0);
 	await page.waitForTimeout(200);
+	const energy0 = await energyOf(page);
 
-	// Use Alyssa Fissa ability — Redbull makes it fire twice
-	const alyssaCard = page.locator('.mosje-card--owned[data-card-id="mosje_alyssa_fissa"]');
-	const abilityBtn = alyssaCard.locator('.mosje-ability-btn');
-	await abilityBtn.waitFor({ state: 'visible', timeout: 5000 });
-	await abilityBtn.click();
-	await page.waitForTimeout(800);
+	await useAbilityViaUi(page, 'mosje_tuk_healer');
+	await page.waitForTimeout(500);
+	await useAbilityViaUi(page, 'mosje_tuk_healer');
+	await page.waitForTimeout(500);
 	await ss(page, 'chain5-after-ability');
 
-	const mpAfter = (await readOwnedMosjes(page))[0]?.mp;
-	const actualGain = mpAfter - 0;
-	console.log(`MP gained: ${actualGain} | expected double: ${doubleTriggerGain}`);
-	expect(doubleTriggerGain).toBeLessThanOrEqual(100); // sanity: stays under the cap
-	expect(actualGain).toBe(doubleTriggerGain);          // ability fired TWICE (free echo)
-
-	// And the flag is consumed after firing
-	const stateAfter = await getGameState(page);
-	expect(stateAfter?.players?.player_1?.abilityDoubleTrigger).toBeFalsy();
+	expect((await readOwnedMosjes(page))[0]?.mp).toBe(40);       // fired twice: +20 +20
+	expect(await energyOf(page)).toBe(energy0 - 2);               // the Energy was paid again
+	await expect(page.locator('.mosje-card--owned[data-card-id="mosje_tuk_healer"] .mosje-ability-btn')).toBeDisabled();
 });
 
 // ─── Chain 6: Controller + Quest (+15 MP DIGITAL, +1 dice) ────────────────────
@@ -475,8 +440,8 @@ test('chain-6: Controller gives a Digital Mosje MP and +1 die on one Quest', asy
 
 	const mpAfterController = (await readOwnedMosjes(page))[0]?.mp;
 	const stateAfterController = await getGameState(page);
-	// KNOWN GAP (Phase 59): Card List says the Controller gains 10 MP; the engine still gives 15 (Digital L1) — assert only a gain.
-	expect(mpAfterController).toBeGreaterThanOrEqual(50);
+	// Card List: the Controller gives the chosen Mosje 10 MP.
+	expect(mpAfterController).toBe(50);
 	expect(stateAfterController?.players?.player_1?.questExtraDice ?? 0).toBe(1);
 
 	// Skilled Quest (two 4+). Base dice = Technical stars; base-1 ones then two 6s: wins only with the extra die.

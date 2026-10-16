@@ -493,4 +493,26 @@ export const PIECIE_REGISTRY = [
 		trigger: { kind: 'activatePiecie', cardId: 'piecie_those_eyelashes' },
 		expect: { mp: { 'own.0': 40 }, energy: 1, oppHandDelta: -1, state: [['_snelleBlocked', 'player_2']] },
 	}] },
+	// -- Chain / swap (59-07) -----------------------------------------------
+	{ piecie: 'piecie_redbull', deck: 'rest', section: 'Utility', cases: [{
+		name: 'Tuk Healer gets one more ability use this turn (2 Energy)',
+		setup: { field: own('mosje_tuk_healer'), oppField: OPP40, piecies: on('piecie_redbull') },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_redbull' }, expect: { energy: 1, state: [['players.player_1.activeSlots.0.extraAbilityUses', 1]] },
+	}] },
+	{ piecie: 'piecie_double_trigger', deck: 'rest', section: 'Utility', cases: [{
+		name: 'both Mosjes with an activated ability get one more use (3 Energy)',
+		setup: { field: [{ id: 'mosje_tuk_healer', mp: 20, level: 2 }, { slot: 1, id: 'mosje_hacker', mp: 20 }], oppField: OPP40, piecies: on('piecie_double_trigger') },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_double_trigger' },
+		expect: { energy: 0, state: [['players.player_1.activeSlots.0.extraAbilityUses', 1], ['players.player_1.activeSlots.1.extraAbilityUses', 1]] },
+	}] },
+	{ piecie: 'piecie_leipe_swap', deck: 'rest', section: 'Utility', cases: [{
+		name: 'swaps the MP of your Mosje (20) and the opponent Mosje (40) for good, no level change (4 Energy)',
+		setup: { field: own(MING, 20), oppField: OPP40, piecies: on('piecie_leipe_swap'), energy: 6 },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_leipe_swap' }, expect: { mp: { 'own.0': 40, 'opp.0': 20 }, energy: 2 },
+	}] },
+	{ piecie: 'piecie_dubbele_ding', deck: 'rest', section: 'Utility', cases: [{
+		name: 'with nothing activatable in hand only the 2 Energy is paid',
+		setup: { field: [{ id: MING, mp: 20, level: 2 }], oppField: OPP40, piecies: on('piecie_dubbele_ding'), hand: [], energy: 6 },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_dubbele_ding' }, expect: { energy: 4 },
+	}] },
 ];
