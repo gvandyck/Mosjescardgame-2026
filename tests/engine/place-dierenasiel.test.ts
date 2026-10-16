@@ -1,64 +1,32 @@
 import { describe, expect, it } from "vitest";
-// @ts-expect-error — JS module, no type declarations
-import { effect_dierenasiel } from "../../src/abilities/placeEffects.js";
-// @ts-expect-error — JS module, no type declarations
-import { loseMP } from "../../src/engine/mpManager.js";
-// @ts-expect-error — JS module, no type declarations
-import { createEngineState } from "../helpers/testHelpers.js";
-// @ts-expect-error — JS module, no type declarations
-import { PLACES } from "../../src/data/places.js";
+// @ts-expect-error - JS module, no type declarations
+import { getEffectiveCost } from "../../src/engine/energy/getEffectiveCost.js";
+// @ts-expect-error - JS module, no type declarations
+import { makeEngineState } from "../helpers/makeEngineState.js";
 
-// ─────────────────────────────────────────────────────────────
-// Phase 35-03 (PLACE-06) — Dierenasiel reconciliation
-// The card's +25% PET-protection clause was permanently dead code: the
-// setter wrote `state.dienasielActive` (missing the "r") while every
-// reader checked the correctly-spelled `state.dierenasielActive` — the
-// two never matched. The ruling drops the clause entirely (not just the
-// typo) — this plan removes the setter and both dead readers.
-// The card's "PET Piecies cost 0 MP" clause is unaffected and deferred
-// to Phase 36 (game-wide MP cost model redesign).
-// ─────────────────────────────────────────────────────────────
+// Dierenasiel (Card List 2.0): pet Piecies cost 0 Energy. Welloe Graveyard: Harde Didde, Klaar Met Jou and
+// Elimination Strike cost 1 less. (The -10 Power clause lives in getPower: places-power.test.ts.)
 
-describe("place_dierenasiel (PLACE-06) — dead +25% clause removed", () => {
-  it("effect_dierenasiel no longer sets a *ierenasielActive flag on the returned state", () => {
-    const state = createEngineState({ activePlace: "place_dierenasiel" });
-    const after = effect_dierenasiel(state);
-    expect(after.dienasielActive).toBeUndefined();
-    expect(after.dierenasielActive).toBeUndefined();
+const cost = (place: string | null, id: string, kind = "piecie") => getEffectiveCost(makeEngineState({ activePlace: place }), "player_1", id, kind);
+
+describe("place_dierenasiel - pet Piecies cost 0", () => {
+  it("a pet Piecie (Bowie Stormey, cost 1) costs 0; a non-pet keeps its cost", () => {
+    expect(cost("place_dierenasiel", "piecie_bowie_stormey")).toBe(0);
+    expect(cost("place_dierenasiel", "piecie_te_hard_gaan")).toBe(2);
   });
-
-  it("loseMP applies the full loss amount even when dierenasielActive is manually set true", () => {
-    const state = createEngineState({
-      activePlayerId: "player_1",
-      players: {
-        player_1: {
-          hand: [],
-          deck: [],
-          activeSlots: [
-            {
-              cardId: "mosje_a",
-              name: "Mosje A",
-              traits: {},
-              mp: 100,
-              level: 1,
-              isDefeated: false,
-              statusEffects: [],
-              abilityUsedThisTurn: false,
-            },
-          ],
-        },
-        player_2: { hand: [], deck: [], activeSlots: [] },
-      },
-    });
-    state.dierenasielActive = true;
-
-    const after = loseMP(state, "player_1", 0, 20, "DRAIN");
-    expect(after.players.player_1.activeSlots[0].mp).toBe(80);
+  it("without the Place a pet costs its printed 1", () => {
+    expect(cost(null, "piecie_bowie_stormey")).toBe(1);
   });
+});
 
-  it("place_dierenasiel.description no longer promises the removed +25% clause", () => {
-    const place = PLACES.find((p: any) => p.id === "place_dierenasiel");
-    expect(place.description).not.toContain("25%");
-    expect(place.description).not.toContain("protection bonuses");
+describe("place_welloe_graveyard - Welloe-pile cards cost 1 less", () => {
+  it("Harde Didde 4 -> 3, Klaar Met Jou 4 -> 3, Elimination Strike 4 -> 3", () => {
+    expect(cost("place_welloe_graveyard", "piecie_harde_didde")).toBe(3);
+    expect(cost("place_welloe_graveyard", "piecie_klaar_met_jou")).toBe(3);
+    expect(cost("place_welloe_graveyard", "ability_gandoe_destroyer_elimination_strike", "ability")).toBe(3);
+  });
+  it("other cards and no Place: unchanged", () => {
+    expect(cost("place_welloe_graveyard", "piecie_te_hard_gaan")).toBe(2);
+    expect(cost(null, "piecie_harde_didde")).toBe(4);
   });
 });

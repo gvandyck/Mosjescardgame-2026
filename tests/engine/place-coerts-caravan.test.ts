@@ -1,79 +1,51 @@
 import { describe, expect, it } from "vitest";
-// @ts-expect-error — JS module, no type declarations
-import { createEngineState } from "../helpers/testHelpers.js";
-// @ts-expect-error — JS module, no type declarations
-import { loseMP } from "../../src/engine/mpManager.js";
+// @ts-expect-error - JS module, no type declarations
+import { activatePiecie } from "../../src/engine/turnManager.js";
+// @ts-expect-error - JS module, no type declarations
+import { makeEngineState } from "../helpers/makeEngineState.js";
 
-// ─────────────────────────────────────────────────────────────
-// Phase 41 — Coert's Caravan redesign.
-// The old end-of-turn drain identity is gone. Caravan is now a passive shield:
-// Coert Mosjes ignore up to 40 MP of Quest damage per turn. Quest attempt costs
-// remain costs and are not prevented.
-// ─────────────────────────────────────────────────────────────
+// Coert's Caravan (Card List 2.0): once per turn a player with a Coert on their field activates 1 Piecie for 0 Energy.
+// It is used automatically on the first Piecie that costs 1+ Energy. Te Hard Gaan costs 2.
 
-function buildCaravanState(overrides = {}) {
-  return createEngineState({
-    activePlace: "place_coerts_caravan",
-    turnNumber: 7,
+const mosje = (cardId: string) => ({ cardId, name: cardId, mp: 80, level: 1, isDefeated: false, traits: {}, statusEffects: [], abilityUsedThisTurn: false });
+const pie = () => ({ cardId: "piecie_te_hard_gaan", type: "PIECIE", faceDown: true, activated: false, playedOnTurn: 1, canActivateOnTurn: 1 });
+
+function build(mosjeId: string, place: string | null = "place_coerts_caravan") {
+  return makeEngineState({
+    turnNumber: 3,
+    activePlace: place,
     players: {
-      player_1: {
-        activeSlots: [
-          {
-            cardId: "mosje_coert_kasteluck",
-            name: "Coert KasteLuck",
-            traits: {},
-            mp: 50,
-            level: 1,
-            isDefeated: false,
-            statusEffects: [],
-            abilityUsedThisTurn: false,
-          },
-          {
-            cardId: "mosje_b",
-            name: "Non-Coert Mosje B",
-            traits: {},
-            mp: 40,
-            level: 1,
-            isDefeated: false,
-            statusEffects: [],
-            abilityUsedThisTurn: false,
-          },
-        ],
-      },
-      player_2: { activeSlots: [] },
+      player_1: { energy: 6, piecieSlots: [pie(), pie(), null, null], activeSlots: [mosje(mosjeId), null], deck: [{ cardId: "piecie_kannetje_melk", type: "PIECIE" }] },
+      player_2: { activeSlots: [mosje("mosje_binti"), null] },
     },
-    ...overrides,
   });
 }
 
-describe("place_coerts_caravan (Phase 41) — Coert Quest-damage shield", () => {
-  it("prevents up to 40 MP of Quest damage to a Coert Mosje each turn", () => {
-    const state = buildCaravanState();
-
-    const afterFirst = loseMP(state, "player_1", 0, 30, "QUEST");
-    expect(afterFirst.players.player_1.activeSlots[0].mp).toBe(50);
-    expect(afterFirst.players.player_1.activeSlots[0]._coertsCaravanQuestShield.used).toBe(30);
-
-    const afterSecond = loseMP(afterFirst, "player_1", 0, 20, "QUEST_ELIMINATION");
-    expect(afterSecond.players.player_1.activeSlots[0].mp).toBe(40);
-    expect(afterSecond.players.player_1.activeSlots[0]._coertsCaravanQuestShield.used).toBe(40);
+describe("place_coerts_caravan - free Piecie once per turn", () => {
+  it("first Piecie costs 0, the second costs its full 2", () => {
+    const first = activatePiecie(build("mosje_coert"), "player_1", 0);
+    expect(first.success).toBe(true);
+    expect(first.state.players.player_1.energy).toBe(6);
+    const second = activatePiecie(first.state, "player_1", 1);
+    expect(second.success).toBe(true);
+    expect(second.state.players.player_1.energy).toBe(4);
   });
 
-  it("does not prevent Quest attempt costs or non-Quest damage", () => {
-    const state = buildCaravanState();
-
-    const afterCost = loseMP(state, "player_1", 0, 20, "QUEST_COST");
-    expect(afterCost.players.player_1.activeSlots[0].mp).toBe(30);
-
-    const afterDrain = loseMP(state, "player_1", 0, 20, "DRAIN");
-    expect(afterDrain.players.player_1.activeSlots[0].mp).toBe(30);
+  it("without a Coert on the field the Piecie costs full", () => {
+    const res = activatePiecie(build("mosje_binti"), "player_1", 0);
+    expect(res.state.players.player_1.energy).toBe(4);
   });
 
-  it("does not shield non-Coert Mosjes from Quest damage", () => {
-    const state = buildCaravanState();
-    const after = loseMP(state, "player_1", 1, 20, "QUEST");
-
-    expect(after.players.player_1.activeSlots[1].mp).toBe(20);
+  it("without the Place the Piecie costs full", () => {
+    const res = activatePiecie(build("mosje_coert", null), "player_1", 0);
+    expect(res.state.players.player_1.energy).toBe(4);
   });
 
+  it("the free use comes back on the next turn", () => {
+    const first = activatePiecie(build("mosje_coert"), "player_1", 0);
+    const next = JSON.parse(JSON.stringify(first.state));
+    next.turnNumber = 5;
+    const res = activatePiecie(next, "player_1", 1);
+    expect(res.state.players.player_1.energy).toBe(6);
+  });
 });

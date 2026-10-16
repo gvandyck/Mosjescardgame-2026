@@ -43,7 +43,8 @@ import { checkWin } from './winLose/checkWin.js';
 import { payEnergy } from './energy/payEnergy.js';
 import { canPay } from './energy/canPay.js';
 import { canMosjeAct } from './mp/canMosjeAct.js';
-import { getAbilityEnergyCost } from './energy/getAbilityEnergyCost.js';
+import { getEffectiveCost } from './energy/getEffectiveCost.js';
+import { delluftFee } from './energy/delluftFee.js';
 import { piecieActivationGate } from './table/piecieActivationGate.js';
 import { runPiecieEffect } from './piecies/runPiecieEffect.js';
 import { afterPiecieEffect } from './piecies/afterPiecieEffect.js';
@@ -472,7 +473,7 @@ function activatePiecieCore(gameState, playerId, slotIndex) {
   }
 
   // Energy: pay the card's cost after validation, before any mutation (free chains never reach here)
-  const piecieEnergyPay = payEnergy(state, playerId, Number(knownCardDef.cost) || 0);
+  const piecieEnergyPay = payEnergy(state, playerId, getEffectiveCost(state, playerId, knownCardDef.id, 'piecie', { caravan: true, commit: true }));
   if (!piecieEnergyPay.success) {
     return { state: gameState, success: false, error: piecieEnergyPay.error || 'Not enough Energy' };
   }
@@ -691,8 +692,8 @@ export function useMosjeAbility(gameState, playerId, mosjeId) {
     return { state: gameState, success: false, error: `Ability not implemented: ${mosjeDef.abilityId}` };
   }
 
-  const energyCost = getAbilityEnergyCost(mosjeDef.abilityId);
-  if (!canPay(player, energyCost)) {
+  const energyCost = getEffectiveCost(gameState, playerId, mosjeDef.abilityId, 'ability');
+  if (!canPay(player, energyCost + delluftFee(gameState, playerId, energyCost))) {
     return { state: gameState, success: false, error: 'Not enough Energy' };
   }
 

@@ -7,6 +7,7 @@ import { resolvePiecieActivation } from '../turnManager.js';
 import { piecieActivationGate } from '../table/piecieActivationGate.js';
 import { findPlayableHandIndex } from '../hand/findPlayableHandIndex.js';
 import { payEnergy } from '../energy/payEnergy.js';
+import { getEffectiveCost } from '../energy/getEffectiveCost.js';
 
 const DEFS = Object.fromEntries(PIECIES.map(p => [p.id, p]));
 
@@ -20,7 +21,7 @@ export function continueDubbeleDing(state) {
 		const slotIndex = (me.piecieSlots || []).findIndex(s => s === null || s === undefined);
 		const found = findPlayableHandIndex(state, me.hand, c => c.cardId === cardId);
 		if (!def || slotIndex < 0 || found.index < 0 || piecieActivationGate(state, q.playerId, def)) continue;
-		if (!payEnergy(state, q.playerId, Number(def.cost) || 0).success) continue;
+		if (!payEnergy(state, q.playerId, getEffectiveCost(state, q.playerId, def.id, 'piecie')).success) continue;
 		me.hand.splice(found.index, 1);
 		me.piecieSlots[slotIndex] = { cardId, type: 'PIECIE', faceDown: false, activated: true, playedOnTurn: state.turnNumber };
 		const res = resolvePiecieActivation(state, q.playerId, slotIndex, def, { free: false });
