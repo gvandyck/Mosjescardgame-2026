@@ -33,7 +33,7 @@ See: `.planning/PROJECT.md` (updated 2026-10-10)
 ## Current Position
 
 Phase: 59 of 64 (piecie effects)
-Plan: 2 of 8 done (59-01 framework, 59-02 MP/Substance/Gear); next 59-03
+Plan: 3 of 8 done (59-01 framework, 59-02 MP/Substance/Gear, 59-03 Attack/Pet/protection); next 59-04
 Status: Executing phase 59
 Last activity: 2026-10-15
 
