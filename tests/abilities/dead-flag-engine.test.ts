@@ -11,7 +11,7 @@ import { PIECIES } from "../../src/data/piecies.js";
 // Phase 18 — dead-flag fixes
 // These three Piecies set an effect flag that was never consumed:
 //   _snelleBlocked       (Those Eyelashes)  → playSnellie must reject blocked player
-//   _battleConcertActive (Battle Concert)   → the Quest fail must be redirected (KNOWN GAP in 2.0, see below)
+//   _battleConcertActive (Battle Concert)   → the Quest fail must be redirected
 //   _rerollGranted       (Tweede Kans)      → main.js consumes (covered indirectly)
 // Plus persistence: all three cards must persist until end of turn.
 // ─────────────────────────────────────────────────────────────
@@ -115,7 +115,11 @@ describe("Those Eyelashes — effect stores opponent id (not boolean true)", () 
     // Opponent needs a hand card for the discard loop (Those Eyelashes discards 1).
     state.players.player_2.hand = [{ cardId: "any_card", type: "PIECIE" }];
 
-    const next = effect_those_eyelashes(state, "player_1");
+    // 2.0: the opponent picks the card they discard (a pause); answer it, then the effect finishes.
+    const asked = effect_those_eyelashes(state, "player_1");
+    expect(asked.needChoice.playerId).toBe("player_2");
+    state.players.player_2._pendingTargets = { eyelash_discard: { cardId: "any_card" } };
+    const next = effect_those_eyelashes(state, "player_1", { eyeSlot: 0 });
     // Must be the opponent's id, NOT boolean true.
     expect(next._snelleBlocked).toBe("player_2");
     expect(next._snelleBlocked).not.toBe(true);
@@ -202,9 +206,8 @@ function makeBattleConcertState(questingCardId: string) {
 const FAIL_QUEST = "quest_quick_thinking";
 
 describe("Battle Concert — redirect Alyssa's quest-failure MP to opponent", () => {
-  // KNOWN GAP (Phase 59): Battle Concert is a Piecie, so its 2.0 flat-15 redirect is built with the Piecie effects. V4 resolveQuest redirected the fail to the opponent; the 2.0 attempt
-  // (resolveQuestAttempt) does not read _battleConcertActive yet, and 2.0 Battle Concert is a flat 15 (Card List).
-  it.skip("redirects the Quest fail to opponent when _battleConcertActive set and Mosje is Alyssa", () => {
+  // Battle Concert (Card List 2.0): an Alyssa's Quest fail costs her nothing, the opponent Mosje loses a flat 15.
+  it("redirects the Quest fail to opponent when _battleConcertActive set and Mosje is Alyssa", () => {
     const state = makeBattleConcertState("mosje_alyssa_bulldozer");
     (state as any)._battleConcertActive = "player_1";
 

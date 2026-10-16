@@ -4,5 +4,5 @@ import { roundToTen } from './roundToTen.js';
 
 export function getPower(slot) {
 	const base = getLevelRow(slot?.cardId, slot?.level)?.power ?? 0;
-	return Math.max(0, roundToTen(base + (Number(slot?.powerBoost) || 0) + (Number(slot?.powerBoostThisTurn) || 0) + (Number(slot?.powerBoostUntilOwnerTurnEnd?.amount) || 0)));
+	return Math.max(0, roundToTen(base + (Number(slot?.powerBoost) || 0) + (Number(slot?.powerBoostThisTurn) || 0) + (Number(slot?.powerStaysBonus) || 0) + (Number(slot?.powerBoostUntilOwnerTurnEnd?.amount) || 0)));
 }

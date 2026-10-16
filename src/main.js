@@ -1474,27 +1474,6 @@ function initGamePage() {
 		});
 		gameState = newState.pendingReaction ? await settleReactions(newState, reactionCtx()) : newState;
 
-		// ── STUB-11: Bagga of Greed — discard 1 from entire hand ─────────────────
-		if (gameState._baggaDiscard) {
-			const hand = gameState.players[localPlayerId].hand;
-			const allCards = hand.map(c => {
-				const def = CARD_LOOKUP[c.cardId] || {};
-				return { cardId: c.cardId, name: def.name || c.cardId, description: def.description || '' };
-			});
-			const cardToDiscard = await modal.showCardChoice('Bagga of Greed — Discard a Card', allCards);
-			if (cardToDiscard) {
-				const idx = gameState.players[localPlayerId].hand.findIndex(c => c.cardId === cardToDiscard.cardId);
-				if (idx >= 0) {
-					const [removed] = gameState.players[localPlayerId].hand.splice(idx, 1);
-					const _removedId = removed.cardId || removed;
-					if (!Array.isArray(gameState.players[localPlayerId].graveyard)) gameState.players[localPlayerId].graveyard = [];
-					gameState.players[localPlayerId].graveyard.push({ cardId: _removedId, name: CARD_LOOKUP[_removedId]?.name ?? _removedId, type: CARD_LOOKUP[_removedId]?.type ?? 'HAND_CARD', source: 'discarded' });
-				}
-			}
-			// If null: player keeps both cards (Keep Both Cards ghost button)
-			delete gameState._baggaDiscard;
-		}
-
 		// ── STUB-14: Welloe Force — pick opponent Mosje as redirect target ────────
 		if (gameState._welloeForceActive?.targetSlotId === null) {
 			const oppId = Object.keys(gameState.players).find(id => id !== localPlayerId);

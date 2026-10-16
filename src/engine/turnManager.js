@@ -47,6 +47,9 @@ import { getDrawStepOptions } from './mosje/getDrawStepOptions.js';
 import { armSetAside } from './mosje/armSetAside.js';
 import { returnSetAside } from './mosje/returnSetAside.js';
 import { MOSJE_ABILITY_RULES } from '../rules/mosjeAbilityRules.js';
+import { findPlayableHandIndex } from './hand/findPlayableHandIndex.js';
+import { drawFromEffect } from './turn/drawFromEffect.js';
+import { gainFromPiecie } from '../abilities/piecie/gainFromPiecie.js';
 
 console.log('[ENGINE] turnManager.js loaded');
 
@@ -58,13 +61,17 @@ export function applyPerfectRhythmDraw(state, playerId, wasArmedBeforeActivation
   const player = state.players[playerId];
   if (!player) return state;
 
-  if (player.deck.length > 0) {
-    player.hand.push(player.deck.shift());
-    state = applyPlaceEffectsOnDraw(state, playerId, 1);
-    console.log('[ABILITY] Perfect Rhythm: later Piecie activation drew 1 card');
-  } else {
-    console.log('[ABILITY] Perfect Rhythm: later Piecie activation had no card to draw');
-  }
+  // Card List 2.0: each later activation draws 1, at most 2 times per Rhythm (perfectRhythmDraws counts what is left).
+  const left = player.perfectRhythmDraws ?? 2;
+  if (left <= 0) return state;
+  player.perfectRhythmDraws = left - 1;
+  const handBefore = player.hand.length;
+  state = drawFromEffect(state, playerId, 1);
+  if (state.players[playerId].hand.length > handBefore) state = applyPlaceEffectsOnDraw(state, playerId, 1);
+  // Dancing/DDR Chris on the field: it also gains 10 MP each time.
+  const ddr = state.players[playerId].activeSlots.findIndex(s => s && !s.isDefeated && s.cardId === 'mosje_chris_ddr');
+  if (ddr >= 0) state = gainFromPiecie(state, playerId, ddr, 10, PIECIES.find(c => c.id === 'piecie_perfect_rhythm'));
+  console.log('[ABILITY] Perfect Rhythm: later Piecie activation counted');
   return state;
 }
 
@@ -186,6 +193,7 @@ export function startTurn(gameState) {
   // `state` (global), not on activePlayer.
   delete state._snelleBlocked;
   delete state._battleConcertActive;
+  delete state._battleConcertTarget;
   delete state._rerollGranted;
 
   // Ronald, The Master Chef: cards set aside from this player's hand return at the end of THIS turn.
@@ -391,6 +399,7 @@ export function endTurn(gameState) {
   // Reset questPrepBonus at end of turn — per-turn bonus (BUG-05)
   state.players[playerId].questPrepBonus = 0;
   state.players[playerId].perfectRhythmDrawNextPiecie = false;
+  state.players[playerId].perfectRhythmDraws = 0;
 
   // Leipe Swap: at the end of the swapper's turn, swap the two slots' current MP back.
   if (state._leipeSwap && state._leipeSwap.byPlayerId === playerId) {
@@ -448,8 +457,9 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
   if (!Array.isArray(player.graveyard)) player.graveyard = [];
 
   // Remove from hand
-  const handIndex = player.hand.findIndex(c => c.cardId === cardRef.cardId);
-  if (handIndex === -1) return { state, success: false, error: 'Card not in hand' };
+  const found = findPlayableHandIndex(state, player.hand, c => c.cardId === cardRef.cardId);
+  const handIndex = found.index;
+  if (handIndex === -1) return { state, success: false, error: found.error };
 
   // 2.0: 3 Piecie-only slots; an active Place never occupies one.
   const filledSlots = player.piecieSlots.filter(slot => slot !== null && slot !== undefined).length;
@@ -663,8 +673,9 @@ function playSnellieCore(gameState, playerId, cardRef, cardDef) {
   if (!Array.isArray(player.graveyard)) player.graveyard = [];
 
   // Remove from hand and place face-up in a piecie slot (swept to discard at end of turn)
-  const handIndex = player.hand.findIndex(c => c.cardId === cardRef.cardId);
-  if (handIndex === -1) return { state, success: false, error: 'Card not in hand' };
+  const found = findPlayableHandIndex(state, player.hand, c => c.cardId === cardRef.cardId);
+  const handIndex = found.index;
+  if (handIndex === -1) return { state, success: false, error: found.error };
   const snellePay = payEnergy(state, playerId, Number(cardDef.cost) || 0);
   if (!snellePay.success) return { state: gameState, success: false, error: snellePay.error || 'Not enough Energy' };
   const [playedCard] = player.hand.splice(handIndex, 1);
@@ -768,8 +779,9 @@ export function playMosje(gameState, playerId, cardRef) {
   if (!Array.isArray(player.activeSlots)) player.activeSlots = [null, null];
   while (player.activeSlots.length < 2) player.activeSlots.push(null);
 
-  const handIndex = player.hand.findIndex(c => c.cardId === cardRef.cardId && c.type === 'MOSJE');
-  if (handIndex === -1) return { state, success: false, error: 'Card not in hand' };
+  const found = findPlayableHandIndex(state, player.hand, c => c.cardId === cardRef.cardId && c.type === 'MOSJE');
+  const handIndex = found.index;
+  if (handIndex === -1) return { state, success: false, error: found.error };
 
   const openSlotIndex = player.activeSlots.findIndex(slot => slot === null);
   if (openSlotIndex < 0) {
@@ -1051,8 +1063,9 @@ export function playPlace(gameState, playerId, cardRef, cardDef) {
   }
   if (state.activePlace) return { state, success: false, error: 'A Place is already in play' };
   if (!Array.isArray(player.hand)) player.hand = [];
-  const handIndex = player.hand.findIndex(c => c.cardId === cardRef.cardId);
-  if (handIndex === -1) return { state, success: false, error: 'Card not in hand' };
+  const found = findPlayableHandIndex(state, player.hand, c => c.cardId === cardRef.cardId);
+  const handIndex = found.index;
+  if (handIndex === -1) return { state, success: false, error: found.error };
 
   const def = cardDef || PLACE_LOOKUP[cardRef.cardId] || {};
   const pay = payEnergy(state, playerId, Number(def.cost) || 0);

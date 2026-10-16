@@ -10,6 +10,7 @@ import { cloneState } from './cloneState.js';
 import { pieceDef } from './pieceDef.js';
 import { gainFromPiecie } from './gainFromPiecie.js';
 import { resolvePiecieOwnSlot } from './resolvePiecieOwnSlot.js';
+import { discardChoice } from './discardChoice.js';
 
 const nameOf = (cardId) => toGraveyardEntry(cardId, 'x').name;
 // One option per distinct cardId (the first copy's position).
@@ -71,4 +72,32 @@ export function effect_stookerino(gameState, playerId, ctx = {}) {
 	const main = Math.min(30, 10 * getCardEnergyCost(card.cardId)) + (binti >= 0 && binti === si ? 10 : 0);
 	if (si >= 0 && main > 0) state = gainFromPiecie(state, playerId, si, main, def);
 	return binti >= 0 && binti !== si ? gainFromPiecie(state, playerId, binti, 10, def) : state;
+}
+
+// Bagga of Greed: draw 2, then discard 1 card from your hand (a pause over the whole hand; the draw is not repeated).
+export function effect_bagga_of_greed(gameState, playerId, ctx = {}) {
+	const state = ctx.baggaDrawn ? cloneState(gameState) : drawFromEffect(cloneState(gameState), playerId, 2);
+	return discardChoice(state, playerId, 'bagga_discard', { baggaDrawn: true });
+}
+
+// Perfect Rhythm: this turn each later Piecie activation draws 1 card, at most 2 times (applyPerfectRhythmDraw counts
+// perfectRhythmDraws down); a Dancing/DDR Chris on the field also gains 10 MP each time.
+export function effect_perfect_rhythm(gameState, playerId) {
+	const state = cloneState(gameState);
+	const player = state.players[playerId];
+	if (!player) return state;
+	player.perfectRhythmDrawNextPiecie = true;
+	player.perfectRhythmDraws = (player.perfectRhythmDraws || 0) + 2;
+	return state;
+}
+
+// F1 Telemetry Data: one of your Mosjes gains 15 MP and you draw 1; with Martin, The Precision Driver on your field
+// he gains 30 instead (not the chosen one) and you draw 2.
+export function effect_f1_telemetry(gameState, playerId) {
+	const state = cloneState(gameState);
+	const si = resolvePiecieOwnSlot(state, playerId, 'piecie_f1_telemetry');
+	const driver = state.players[playerId].activeSlots.findIndex(s => s && !s.isDefeated && s.cardId === 'mosje_martin_driver');
+	if (driver >= 0) return drawFromEffect(gainFromPiecie(state, playerId, driver, 30, pieceDef('piecie_f1_telemetry')), playerId, 2);
+	if (si < 0) return state;
+	return drawFromEffect(gainFromPiecie(state, playerId, si, 15, pieceDef('piecie_f1_telemetry')), playerId, 1);
 }

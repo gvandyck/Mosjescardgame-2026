@@ -46,7 +46,7 @@ export const PIECIE_TARGETS = {
 	piecie_slecht_gezet: [],
 	piecie_popo_komt: [],
 	piecie_huisbaas: [],
-	piecie_battle_concert: [],
+	piecie_battle_concert: [{ key: 'opp_slot_index', who: 'opp' }],
 	piecie_dingetje_toch: [],
 	piecie_skipping_rope: [],
 	piecie_pot_of_weed: [],

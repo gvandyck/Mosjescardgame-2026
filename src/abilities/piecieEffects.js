@@ -1,18 +1,11 @@
 // piecieEffects.js — One function per Piecie card's effect.
 // Filled in Phase 4.
 
-import { rollDie } from '../engine/deckEngine.js';
-import { applyMpAmplifier } from '../engine/mp/applyMpAmplifier.js';
 import { isHolderTextActive } from '../engine/synergy/isHolderTextActive.js';
 import { MOSJES } from '../data/mosjes.js';
 import { createMosjeSlot } from '../engine/mp/createMosjeSlot.js';
-import { applyGainToSlot } from '../engine/mp/applyGainToSlot.js';
-import { applyMpLossToSlot } from '../engine/mp/applyMpLossToSlot.js';
-import { isFresh } from '../engine/fresh/isFresh.js';
 import { resolveOwnTargetSlot } from '../engine/targets/resolveOwnTargetSlot.js';
-import { resolveOppTargetSlot } from '../engine/targets/resolveOppTargetSlot.js';
 import { PIECIES } from '../data/piecies.js';
-import { addToGraveyard } from '../engine/graveyardUtils.js';
 import { canLeaveWelloePile } from '../engine/table/canLeaveWelloePile.js';
 
 // Card List 2.0 section files (one file per section; same effect_* names, so data effectIds stay).
@@ -26,56 +19,14 @@ export * from './piecie/utilityDrawPiecies.js';
 export * from './piecie/utilityDicePiecies.js';
 export * from './piecie/utilityChainPiecies.js';
 export * from './piecie/utilityPlacePiecies.js';
+export * from './piecie/attackRevealPiecies.js';
+export * from './piecie/utilityQuestPiecies.js';
+export * from './piecie/utilityHandPiecies.js';
 
 console.log('[ABILITY] piecieEffects.js loaded');
 
 function cloneState(state) {
 	return JSON.parse(JSON.stringify(state));
-}
-
-function getOpponentId(state, playerId) {
-	return Object.keys(state.players).find(id => id !== playerId) || null;
-}
-
-// applyDamage — thin wrapper over the 2.0 loss funnel (applyMpLossToSlot): §2g pipeline,
-// subtract, tracking, getemt. `playerId` is the OWNER of the slot being hit.
-function applyDamage(state, playerId, mosje, amount, source = 'DRAIN', byPlayerId = null) {
-	if (!mosje || mosje.isDefeated || !(amount > 0)) return { final: 0, getemt: null };
-	return applyMpLossToSlot({ state, playerId, slot: mosje, amount, source, byPlayerId });
-}
-
-// U8 — Entry Protection: hostile effect damage fizzles against a freshly
-// entered Mosje (until its owner's next turn starts). Use for OPPONENT-
-// targeted damage only — self-effects, gambles and cost payments keep
-// calling applyDamage directly (costs are never blocked, see U7).
-function applyHostileDamage(state, playerId, mosje, amount) {
-	if (!mosje) return false;
-	if (isFresh(mosje)) {
-		console.log(`[ABILITY] 🛡️ Entry protection: ${mosje.name} just entered play — ${amount} damage fizzled`);
-		return false;
-	}
-	applyDamage(state, playerId, mosje, amount, 'DRAIN', getOpponentId(state, playerId));
-	return true;
-}
-
-// U8 — Entry Protection also blocks hostile status effects: a debuff aimed at
-// a freshly entered Mosje fizzles. Use for OPPONENT-targeting pushes only —
-// buffs on your own Mosjes are always allowed.
-function pushHostileStatus(mosje, effect, label) {
-	if (isFresh(mosje)) {
-		console.log(`[ABILITY] 🛡️ Entry protection: ${mosje.name} just entered play — ${effect.type} fizzled`);
-		return false;
-	}
-	mosje.statusEffects.push(effect);
-	if (label) console.log(label);
-	return true;
-}
-
-function applyMPGain(player, si, amount, state, playerId) {
-	// MP Amplifier doubles the next gain this turn (max +40 extra); 2.0: 100+ levels up, Level 3 stops at 95.
-	const total = applyMpAmplifier(state, playerId, amount);
-	applyGainToSlot(player.activeSlots[si], total, { turnNumber: state.turnNumber });
-	return total;
 }
 
 // ─────────────────────────────────────────
@@ -85,40 +36,6 @@ function applyMPGain(player, si, amount, state, playerId) {
 // ─────────────────────────────────────────
 // ATTACK
 // ─────────────────────────────────────────
-
-export function effect_snoeiertje(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si < 0) return state;
-	// questBonusMP handles the real logic (+15 MP on quest success this turn).
-	// STUB-08: SNOEIERTJE_COST status effect push removed — it was never consumed anywhere.
-	player.questBonusMP = (player.questBonusMP || 0) + 15;
-	console.log('[ABILITY] Snoeiertje: +15 quest bonus MP applied');
-	return state;
-}
-
-export function effect_jantje_jantje(gameState, playerId) {
-	// Needs UI: player must name a card. For now: just log as pending.
-	console.log('[ABILITY] Jantje Jantje: requires UI input \u2014 skipped');
-	return gameState;
-}
-
-export function effect_kleine_taks(gameState, playerId) {
-	const state = cloneState(gameState);
-	const oppId = getOpponentId(state, playerId);
-	if (!oppId) return state;
-	const osi = resolveOppTargetSlot(state, oppId);
-	if (osi >= 0) {
-		pushHostileStatus(
-			state.players[oppId].activeSlots[osi],
-			{ type: 'KLEINE_TAKS', value: -10, turnsLeft: 4 },
-			'[ABILITY] Kleine Taks: -10 MP/turn for 4 turns on opponent'
-		);
-	}
-	return state;
-}
 
 // ─────────────────────────────────────────
 // UTILITY
@@ -133,27 +50,6 @@ export function effect_redbull(gameState, playerId) {
 	return state;
 }
 
-export function effect_tweede_kans(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	player.hasRerolledDieThisTurn = false;  // reset so they can reroll
-	state._rerollGranted = true;
-	console.log('[ABILITY] Tweede Kans: free die reroll granted');
-	return state;
-}
-
-export function effect_bagga_of_greed(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	player.hand.push(...player.deck.splice(0, Math.min(2, player.deck.length)));
-	// Discard 1 — UI picks which. Flag for UI.
-	state._baggaDiscard = true;
-	console.log('[ABILITY] Bagga of Greed: drew 2, must discard 1 (pending UI)');
-	return state;
-}
-
 export function effect_dubbele_ding(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];
@@ -161,57 +57,6 @@ export function effect_dubbele_ding(gameState, playerId) {
 	player.instantPiecieThisTurn = true;
 	player.dubbeleActivations = 2;  // UI uses this counter
 	console.log('[ABILITY] Dubbele Ding: 2 instant Piecies from hand');
-	return state;
-}
-
-export function effect_tempiecie(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player || player.graveyard?.length === 0) return state;
-	// Retrieve top discard card to hand, mark as unplayable this turn
-	const retrieved = player.graveyard.shift();
-	retrieved._unplayableThisTurn = true;
-	player.hand.push(retrieved);
-	console.log('[ABILITY] TemPiecie: retrieved', retrieved.cardId, '(unplayable this turn)');
-	return state;
-}
-
-export function effect_loaded_dice(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	// KNOWN GAP (Phase 59): the Jeffrey "reroll 1 die" part is not implemented.
-	player.questExtraDice = (player.questExtraDice || 0) + 1;
-	console.log('[ABILITY] Loaded Dice: +1 die on the next Quest');
-	return state;
-}
-
-export function effect_perfect_rhythm(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-
-	player.perfectRhythmDrawNextPiecie = true;
-	const ddrChrisSlotIndex = player.activeSlots.findIndex(
-		slot => slot && !slot.isDefeated && slot.cardId === 'mosje_chris_ddr'
-	);
-	const hasDdrChris = ddrChrisSlotIndex >= 0;
-	if (hasDdrChris) applyMPGain(player, ddrChrisSlotIndex, 10, state, playerId);
-	console.log(`[ABILITY] Perfect Rhythm: each later Piecie activation draws 1${hasDdrChris ? ', +10 MP (DDR Chris)' : ''}`);
-	return state;
-}
-
-export function effect_dikke_plaat(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const hasAlyssaFissa = player.activeSlots.some(
-		slot => slot && !slot.isDefeated && slot.cardId === 'mosje_alyssa_fissa'
-	);
-	// KNOWN GAP (Phase 59): the DJ / Alyssa Fissa Fissa "reroll 1 die" part is not implemented.
-	void hasAlyssaFissa;
-	player.questExtraDice = (player.questExtraDice || 0) + 1;
-	console.log('[ABILITY] Dikke Plaat: +1 die on the next Quest');
 	return state;
 }
 
@@ -292,87 +137,11 @@ export function effect_leipe_swap(gameState, playerId) {
 	return state;
 }
 
-export function effect_battle_concert(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	state._battleConcertActive = playerId;
-	console.log('[ABILITY] Battle Concert: Alyssa quest failure redirected to opponent');
-	return state;
-}
-
 export function effect_dingetje_toch(gameState, playerId) {
 	// Wildcard — substitution flag; engine checks this when resolving requirements
 	const state = cloneState(gameState);
 	state._dingetjeTochActive = true;
 	console.log('[ABILITY] Dingetje Toch: universal wildcard active');
-	return state;
-}
-
-export function effect_those_eyelashes(gameState, playerId) {
-	let state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const hasMartin = player.activeSlots.some(s => s && !s.isDefeated &&
-		(s.cardId?.includes('martin') || s.cardId?.includes('west')));
-	if (!hasMartin) {
-		console.log('[ABILITY] Those Eyelashes: no Martin/West on field');
-		return state;
-	}
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si >= 0) applyGainToSlot(player.activeSlots[si], 20, { turnNumber: state.turnNumber });
-	const oppIds = Object.keys(state.players).filter(id => id !== playerId);
-	for (const oppId of oppIds) {
-		let opp = state.players[oppId];
-		if (opp.hand.length > 0) {
-			const [removed] = opp.hand.splice(0, 1);
-			const cardId = removed?.cardId ?? removed;
-			state = addToGraveyard(state, oppId, cardId, 'discarded');
-			opp = state.players[oppId];
-		}
-	}
-	// Store the blocked opponent's playerId (consumed by playSnellie), not boolean true.
-	if (oppIds[0]) state._snelleBlocked = oppIds[0];
-	console.log('[ABILITY] Those Eyelashes: +20 MP, all opponents discard 1, Snelles blocked');
-	return state;
-}
-
-export function effect_f1_telemetry(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si < 0) return state;
-	const hasMartin = player.activeSlots.some(s => s && !s.isDefeated &&
-		(s.cardId?.includes('martin') || s.cardId?.includes('west')));
-	if (hasMartin) {
-		applyGainToSlot(player.activeSlots[si], 40, { turnNumber: state.turnNumber });
-		player.hand.push(...player.deck.splice(0, Math.min(2, player.deck.length)));
-		player.questBonusMP = (player.questBonusMP || 0) + 20;
-		console.log('[ABILITY] F1 Telemetry: +40 MP, drew 2, +20 quest bonus');
-	} else {
-		applyGainToSlot(player.activeSlots[si], 15, { turnNumber: state.turnNumber });
-		player.hand.push(...player.deck.splice(0, Math.min(1, player.deck.length)));
-		console.log('[ABILITY] F1 Telemetry: +15 MP, drew 1');
-	}
-	return state;
-}
-
-export function effect_perfect_setup(gameState, playerId) {
-	if (gameState.activePlace === 'place_momentum_stabilizer') {
-		console.log('[ABILITY] Perfect Setup blocked by Momentum Stabilizer');
-		return gameState;
-	}
-
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si < 0) return state;
-	const mosje = player.activeSlots[si];
-	if (mosje.mp < 60) mosje.mp = 60; // mp-direct-ok: V4 clamp effect, Phase 59
-	if (mosje.mp > 90) mosje.mp = 90; // mp-direct-ok: V4 clamp effect, Phase 59
-	console.log(`[ABILITY] Perfect Setup: MP set to ${mosje.mp}`);
 	return state;
 }
 
@@ -435,23 +204,6 @@ export function effect_welloe_force(gameState, playerId) {
 	return state;
 }
 
-export function effect_kan_het(gameState, playerId) {
-	const state = cloneState(gameState);
-	const player = state.players[playerId];
-	if (!player) return state;
-	const si = resolveOwnTargetSlot(state, playerId);
-	if (si < 0) return state;
-	const roll = rollDie(6);
-	if (roll === 6) {
-		applyMPGain(player, si, 50, state, playerId);
-		console.log(`[ABILITY] Kan het?!: rolled ${roll} → KAN HET! +50 MP`);
-	} else {
-		applyDamage(state, playerId, player.activeSlots[si], 10);
-		console.log(`[ABILITY] Kan het?!: rolled ${roll} → nope, -10 MP`);
-	}
-	return state;
-}
-
 // ─────────────────────────────────────────
 // PET PROTECTION
 // ─────────────────────────────────────────
@@ -471,34 +223,4 @@ export function effect_kan_het(gameState, playerId) {
 // ─────────────────────────────────────────
 // BOOSTER-ONLY ATTACK
 // ─────────────────────────────────────────
-
-export function effect_continuous_assault(gameState, playerId) {
-	const state = cloneState(gameState);
-	const oppId = getOpponentId(state, playerId);
-	if (!oppId) return state;
-	const osi = resolveOppTargetSlot(state, oppId);
-	if (osi >= 0) {
-		pushHostileStatus(
-			state.players[oppId].activeSlots[osi],
-			{ type: 'CONTINUOUS_ASSAULT', value: -15, turnsLeft: 3 },
-			'[ABILITY] Continuous Assault: -15 MP/turn for 3 turns on opponent'
-		);
-	}
-	return state;
-}
-
-export function effect_mp_hemorrhage(gameState, playerId) {
-	const state = cloneState(gameState);
-	const oppId = getOpponentId(state, playerId);
-	if (!oppId) return state;
-	const osi = resolveOppTargetSlot(state, oppId);
-	if (osi >= 0) {
-		pushHostileStatus(
-			state.players[oppId].activeSlots[osi],
-			{ type: 'HEMORRHAGE', value: -20, turnsLeft: 5 },
-			'[ABILITY] MP Hemorrhage: -20 MP/turn for 5 turns'
-		);
-	}
-	return state;
-}
 

@@ -10,7 +10,7 @@ function linkedGone(state, playerId, e) {
 }
 
 // Custom-end Piecies that simply last until the end of the owner's next turn (their effect may end them sooner).
-const CUSTOM_END_OF_NEXT_TURN = new Set(['piecie_tikker', 'piecie_mp_hemorrhage']);
+const CUSTOM_END_OF_NEXT_TURN = new Set(['piecie_tikker', 'piecie_mp_hemorrhage', 'piecie_kleine_taks']);
 
 export function sweepStaysSlots(state, playerId, when) {
 	let next = state;
@@ -25,7 +25,7 @@ export function sweepStaysSlots(state, playerId, when) {
 				(when === 'start' && own && e.staysEnd === 'startOfNextTurn' && older) ||
 				(when === 'end' && own && e.staysEnd === 'endOfNextTurn' && older) ||
 				(when === 'end' && e.staysEnd === 'endOfTurn') ||
-				(when === 'end' && own && e.staysEnd === 'custom' && (linkedGone(next, pid, e) || (CUSTOM_END_OF_NEXT_TURN.has(e.cardId) && older)));
+				(when === 'end' && own && e.staysEnd === 'custom' && (linkedGone(next, pid, e) || (CUSTOM_END_OF_NEXT_TURN.has(e.cardId) && older) || (e.cardId === 'piecie_mp_hemorrhage' && !e.marked)));
 			if (gone) next = discardPiecieSlot(next, pid, i);
 		});
 	}

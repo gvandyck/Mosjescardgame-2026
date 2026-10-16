@@ -56,7 +56,7 @@ export function runQuestOutcomeHooks(gameState, playerId, slotIndex, questCard, 
 	const player = state.players[playerId];
 	let questMpGained = mpGained;
 	if (!skipBonus) {
-		// questBonusMP is armed by snoeiertje/super_saiyan_mos/momentum_boost/f1_telemetry; consumed only when it applies.
+		// questBonusMP: a one-shot bonus flag (no 2.0 Piecie arms it any more); consumed only on a success.
 		const armedBonus = didSucceed ? (player.questBonusMP || 0) : 0;
 		const questingMosje = player.activeSlots[slotIndex];
 		const synergyBonus = didSucceed ? getPartnerSynergyQuestBonus(state, playerId, questCard.category) : 0;

@@ -1,4 +1,5 @@
 // QUEST_CONDITIONS — costId -> (ctx) => bool. ctx = { state, playerId, slot, quest }. Pure.
+import { mpForQuest } from './mpForQuest.js';
 
 const own = ({ state, playerId }) => state.players[playerId];
 const opp = ({ state, playerId }) => state.players[Object.keys(state.players).find(id => id !== playerId)];
@@ -15,8 +16,8 @@ export const QUEST_CONDITIONS = {
 	level_1_only: ({ slot }) => slot?.level === 1,
 	place_in_play: ({ state }) => !!state.activePlace,
 	used_ability_this_turn: ({ slot }) => !!slot?.abilityUsedThisTurn,
-	mp_70_to_80: ({ slot }) => slot?.mp >= 70 && slot?.mp <= 80,
-	mp_80_plus: ({ slot }) => slot?.mp >= 80,
+	mp_70_to_80: ({ slot }) => mpForQuest(slot) >= 70 && mpForQuest(slot) <= 80, // Perfect Setup counts here
+	mp_80_plus: ({ slot }) => mpForQuest(slot) >= 80,
 	piecie_stays: (ctx) => filled(own(ctx)).some(staysPiecie),
 	three_face_down: (ctx) => filled(own(ctx)).filter(e => e.faceDown).length >= 3,
 	three_piecies_in_play: (ctx) => filled(own(ctx)).length >= 3,

@@ -39,9 +39,11 @@ function makeState() {
 }
 
 describe('effect_those_eyelashes — discarded card appears in holder graveyard', () => {
-  it('opponent loses first hand card and it appears in their graveyard', () => {
+  // Phase 59 (Card List 2.0): the opponent chooses which card they discard (a pause answered via _pendingTargets).
+  it('opponent loses the card they choose and it appears in their graveyard', () => {
     const state = makeState();
-    const result = effect_those_eyelashes(state, 'player_1');
+    state.players.player_2._pendingTargets = { eyelash_discard: { cardId: 'piecie_foo' } };
+    const result = effect_those_eyelashes(state, 'player_1', { eyeSlot: 0 });
     const opp = result.players.player_2;
     // Hand is smaller
     expect(opp.hand).toHaveLength(1);
@@ -54,7 +56,8 @@ describe('effect_those_eyelashes — discarded card appears in holder graveyard'
 
   it('graveyard entry has type set', () => {
     const state = makeState();
-    const result = effect_those_eyelashes(state, 'player_1');
+    state.players.player_2._pendingTargets = { eyelash_discard: { cardId: 'piecie_foo' } };
+    const result = effect_those_eyelashes(state, 'player_1', { eyeSlot: 0 });
     const entry = (result.players.player_2.graveyard as any[])[0];
     expect(entry.type).toBeDefined();
   });

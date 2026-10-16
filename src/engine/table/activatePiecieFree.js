@@ -12,6 +12,7 @@ import { resolvePiecieActivation } from '../turnManager.js';
 import { piecieActivationGate } from './piecieActivationGate.js';
 import { isPiecieReady } from './isPiecieReady.js';
 import { toGraveyardEntry } from '../graveyardUtils.js';
+import { findPlayableHandIndex } from '../hand/findPlayableHandIndex.js';
 import { PIECIES } from '../../data/piecies.js';
 
 const DEFS = Object.fromEntries(PIECIES.map(p => [p.id, p]));
@@ -41,8 +42,9 @@ function freeCore(gameState, playerId, source, opts) {
 	const pileKey = PILES[source?.from];
 	if (!cardId || !pileKey) return fail('Invalid free activation source');
 	const pile = player[pileKey] || [];
-	const at = pile.findIndex(c => c.cardId === cardId);
-	if (at < 0) return fail('That card is not in the ' + source.from);
+	const found = source.from === 'hand' ? findPlayableHandIndex(state, pile, c => c.cardId === cardId) : null;
+	const at = found ? found.index : pile.findIndex(c => c.cardId === cardId);
+	if (at < 0) return fail(found && found.error !== 'Card not in hand' ? found.error : 'That card is not in the ' + source.from);
 	const def = DEFS[cardId];
 	if (!def) return fail('Unknown Piecie definition');
 	const gate = piecieActivationGate(state, playerId, def);

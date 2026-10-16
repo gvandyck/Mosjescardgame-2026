@@ -13,7 +13,7 @@ import {
   effect_perfect_rhythm,
 } from '../../src/abilities/piecieEffects.js';
 // @ts-expect-error - JavaScript module has no type declarations
-import { activatePiecie, endTurn } from '../../src/engine/turnManager.js';
+import { activatePiecie, endTurn, applyPerfectRhythmDraw } from '../../src/engine/turnManager.js';
 
 type StateOptions = {
   cardId?: string;
@@ -260,24 +260,30 @@ describe('Perfect Rhythm', () => {
     expect(result.players.player_1.activeSlots[0].mp).toBe(50);
   });
 
-  it('grants +10 MP (95 + 10 levels up, 2.0) only for exact mosje_chris_ddr', () => {
-    const result = effect_perfect_rhythm(
-      makeState({ cardId: 'mosje_chris_ddr', mp: 95 }),
+  // Phase 59 (Card List 2.0): the +10 comes with each later Piecie activation, not with Rhythm itself.
+  it('grants +10 MP (95 + 10 levels up, 2.0) on a later activation, only for exact mosje_chris_ddr', () => {
+    const result = applyPerfectRhythmDraw(
+      effect_perfect_rhythm(makeState({ cardId: 'mosje_chris_ddr', mp: 95 }), 'player_1'),
       'player_1',
+      true,
     );
     expect(result.players.player_1.activeSlots[0].mp).toBe(0);
     expect(result.players.player_1.activeSlots[0].level).toBe(2);
   });
 
   it('grants +10 MP to exact DDR Chris instead of an unrelated first slot', () => {
-    const result = effect_perfect_rhythm(
-      makeState({
-        activeSlots: [
-          makeMosje('mosje_gandoe_destroyer', 40),
-          makeMosje('mosje_chris_ddr', 50),
-        ],
-      }),
+    const result = applyPerfectRhythmDraw(
+      effect_perfect_rhythm(
+        makeState({
+          activeSlots: [
+            makeMosje('mosje_gandoe_destroyer', 40),
+            makeMosje('mosje_chris_ddr', 50),
+          ],
+        }),
+        'player_1',
+      ),
       'player_1',
+      true,
     );
 
     expect(result.players.player_1.activeSlots[0].mp).toBe(40);
