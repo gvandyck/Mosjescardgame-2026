@@ -367,4 +367,130 @@ export const PIECIE_REGISTRY = [
 		trigger: { kind: 'activatePiecie', cardId: 'piecie_katjegang', picks: [{ index: 0 }], then: { kind: 'activatePiecie', cardId: 'piecie_gekke_vogels', picks: [{ index: 0 }] } },
 		expect: { state: [['players.player_1.piecieSlots.1.startGain.length', 2], ['players.player_1.piecieSlots.1.startGain.0.amount', 15]] },
 	}] },
+	// -- Attack rest, Utility dice rest and draw rest (59-06) ------------------
+	{ piecie: 'piecie_snoeiertje', deck: 'rest', section: 'Attack', cases: [{
+		name: '+10 Power now and a 10 MP loss queued for the end of the turn',
+		setup: { field: own(MING, 30), oppField: OPP40, piecies: on('piecie_snoeiertje') },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_snoeiertje' },
+		expect: { mp: { 'own.0': 30 }, energy: 3, state: [['players.player_1.activeSlots.0.powerBoostThisTurn', 10], ['players.player_1.endOfTurnLosses.0.amount', 10]] },
+	}, {
+		name: 'at the end of the turn the Mosje loses 10 MP',
+		setup: { field: own(MING, 30), oppField: OPP40, piecies: on('piecie_snoeiertje') },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_snoeiertje', then: { kind: 'turnEnd' } }, expect: { mp: { 'own.0': 20 } },
+	}] },
+	{ piecie: 'piecie_jantje_jantje', deck: 'rest', section: 'Attack', cases: [{
+		name: 'hit: name Affoe, the opponent discards it and your Mosje gets +20 Power',
+		setup: { field: own(MING, 40), oppField: OPP40, piecies: on('piecie_jantje_jantje'), oppHand: ['piecie_affoe', 'piecie_straffoe'] },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_jantje_jantje', picks: [/Affoe/] },
+		expect: { mp: { 'own.0': 40 }, energy: 2, oppHandDelta: -1, state: [['players.player_1.activeSlots.0.powerBoostThisTurn', 20], ['players.player_2.graveyard.0.cardId', 'piecie_affoe']] },
+	}, {
+		name: 'miss: the named card is not there, your Mosje loses 10 MP',
+		setup: { field: own(MING, 40), oppField: OPP40, piecies: on('piecie_jantje_jantje'), oppHand: ['piecie_straffoe'] },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_jantje_jantje', picks: [/Affoe/] }, expect: { mp: { 'own.0': 30 }, oppHandDelta: 0 },
+	}] },
+	{ piecie: 'piecie_continuous_assault', deck: 'rest', section: 'Attack', cases: [{
+		name: 'Stays (2 Energy), the chosen Mosje has +10 Power while it stays',
+		setup: { field: own(MING, 30), oppField: OPP40, piecies: on('piecie_continuous_assault') },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_continuous_assault' },
+		expect: { energy: 1, state: [['players.player_1.piecieSlots.0.stays', true], ['players.player_1.activeSlots.0.powerStaysBonus', 10]] },
+	}] },
+	{ piecie: 'piecie_mp_hemorrhage', deck: 'rest', section: 'Attack', cases: [{
+		name: '+20 Power and the Mosje is armed (3 Energy)',
+		setup: { field: own(MING, 30), oppField: OPP40, piecies: on('piecie_mp_hemorrhage') },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_mp_hemorrhage' },
+		expect: { energy: 0, state: [['players.player_1.activeSlots.0.powerBoostThisTurn', 20], ['players.player_1.activeSlots.0.mpHemorrhageArmed', true]] },
+	}, {
+		name: 'no attack this turn: the card is discarded at the end of the turn, nothing lost',
+		setup: { field: own(MING, 30), oppField: OPP40, piecies: on('piecie_mp_hemorrhage') },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_mp_hemorrhage', then: { kind: 'turnEnd' } },
+		expect: { mp: { 'opp.0': 40 }, state: [['players.player_1.piecieSlots.0', null]] },
+	}] },
+	{ piecie: 'piecie_kleine_taks', deck: 'rest', section: 'Attack', cases: [{
+		name: 'Stays: two 10 MP losses queued on the chosen opponent Mosje',
+		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_kleine_taks') },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_kleine_taks' },
+		expect: { energy: 2, state: [['players.player_1.endOfTurnLosses.length', 2], ['players.player_1.piecieSlots.0.stays', true]] },
+	}, {
+		name: 'at the end of this turn the opponent Mosje loses 10 MP',
+		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_kleine_taks') },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_kleine_taks', then: { kind: 'turnEnd' } }, expect: { mp: { 'opp.0': 30 } },
+	}] },
+	{ piecie: 'piecie_tweede_kans', deck: 'rest', section: 'Utility', cases: [{
+		name: 'one reroll of any Quest roll this turn',
+		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_tweede_kans') },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_tweede_kans' },
+		expect: { energy: 3, state: [['players.player_1.rerollGrants.0.scope', 'anyQuest'], ['players.player_1.rerollGrants.0.uses', 1]] },
+	}] },
+	{ piecie: 'piecie_loaded_dice', deck: 'rest', section: 'Utility', cases: [{
+		name: '+1 die, and a reroll with a Jeffrey on the field',
+		setup: { field: [{ id: 'mosje_jeffrey', mp: 20 }], oppField: OPP40, piecies: on('piecie_loaded_dice') },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_loaded_dice' },
+		expect: { state: [['players.player_1.questExtraDice', 1], ['players.player_1.rerollGrants.length', 1]] },
+	}, {
+		name: '+1 die, no reroll without a Jeffrey',
+		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_loaded_dice') },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_loaded_dice' },
+		expect: { state: [['players.player_1.questExtraDice', 1], ['players.player_1.rerollGrants', undefined]] },
+	}] },
+	{ piecie: 'piecie_dikke_plaat', deck: 'rest', section: 'Utility', cases: [{
+		name: '+1 die, and a reroll with DJ 80/20 on the field',
+		setup: { field: [{ id: 'mosje_dj_8020', mp: 20 }], oppField: OPP40, piecies: on('piecie_dikke_plaat') },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_dikke_plaat' },
+		expect: { state: [['players.player_1.questExtraDice', 1], ['players.player_1.rerollGrants.length', 1]] },
+	}, {
+		name: '+1 die, no reroll with another Mosje',
+		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_dikke_plaat') },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_dikke_plaat' },
+		expect: { state: [['players.player_1.questExtraDice', 1], ['players.player_1.rerollGrants', undefined]] },
+	}] },
+	{ piecie: 'piecie_kan_het', deck: 'rest', section: 'Utility', cases: [
+		{ name: 'a 5 gains 40 MP', setup: { field: own(MING, 20), oppField: OPP40, piecies: on('piecie_kan_het'), abilityDice: [5] },
+			trigger: { kind: 'activatePiecie', cardId: 'piecie_kan_het' }, expect: { mp: { 'own.0': 60 } } },
+		{ name: 'a 4 loses 10 MP', setup: { field: own(MING, 20), oppField: OPP40, piecies: on('piecie_kan_het'), abilityDice: [4] },
+			trigger: { kind: 'activatePiecie', cardId: 'piecie_kan_het' }, expect: { mp: { 'own.0': 10 } } },
+	] },
+	{ piecie: 'piecie_perfect_setup', deck: 'rest', section: 'Utility', cases: [{
+		name: 'counts as 80 MP for Quest requirements, real MP unchanged',
+		setup: { field: own(MING, 20), oppField: OPP40, piecies: on('piecie_perfect_setup') },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_perfect_setup', picks: [/80 MP/] },
+		expect: { mp: { 'own.0': 20 }, state: [['players.player_1.activeSlots.0.questMpOverride', 80]] },
+	}] },
+	{ piecie: 'piecie_battle_concert', deck: 'rest', section: 'Utility', cases: [{
+		name: 'with an Alyssa on your field: armed for this turn (1 Energy)',
+		setup: { field: own('mosje_alyssa_bulldozer', 30), oppField: OPP40, piecies: on('piecie_battle_concert') },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_battle_concert' }, expect: { energy: 2, state: [['_battleConcertActive', 'player_1']] },
+	}] },
+	{ piecie: 'piecie_bagga_of_greed', deck: 'rest', section: 'Utility', cases: [{
+		name: 'draw 2, then discard 1 from the hand',
+		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_bagga_of_greed'), hand: ['piecie_affoe'] },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_bagga_of_greed' }, expect: { handDelta: 1, energy: 3, state: [['players.player_1.graveyard.length', 2]] },
+	}] },
+	{ piecie: 'piecie_perfect_rhythm', deck: 'rest', section: 'Utility', cases: [{
+		name: 'the next Piecie activation draws 1 extra card (Pot of Weed 2 + 1)',
+		setup: { field: own(MING), oppField: OPP40, piecies: [{ slot: 0, id: 'piecie_perfect_rhythm' }, { slot: 1, id: 'piecie_pot_of_weed' }] },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_perfect_rhythm', then: { kind: 'activatePiecie', cardId: 'piecie_pot_of_weed' } },
+		expect: { handDelta: 3, state: [['players.player_1.perfectRhythmDraws', 1]] },
+	}] },
+	{ piecie: 'piecie_tempiecie', deck: 'rest', section: 'Utility', cases: [{
+		name: 'a discard-pile card comes to the hand, locked this turn (2 Energy)',
+		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_tempiecie'), graveyard: ['piecie_affoe'] },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_tempiecie' },
+		expect: { handDelta: 1, energy: 1, state: [['players.player_1.hand.0.cardId', 'piecie_affoe']] },
+		check: (before, after) => { if (!after.players.player_1.hand[0]?.lockedTurn) throw new Error('TemPiecie card is not locked this turn'); },
+	}] },
+	{ piecie: 'piecie_f1_telemetry', deck: 'rest', section: 'Utility', cases: [{
+		name: '+15 MP and draw 1',
+		setup: { field: own(MING, 20), oppField: OPP40, piecies: on('piecie_f1_telemetry') },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_f1_telemetry' }, expect: { mp: { 'own.0': 35 }, handDelta: 1, energy: 2 },
+	}, {
+		name: 'with Martin, The Precision Driver: he gains 30 (not the chosen Mosje) and you draw 2',
+		setup: { field: [{ id: MING, mp: 20 }, { slot: 1, id: 'mosje_martin_driver', mp: 20 }], oppField: OPP40, piecies: on('piecie_f1_telemetry') },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_f1_telemetry' }, expect: { mp: { 'own.0': 20, 'own.1': 50 }, handDelta: 2 },
+	}] },
+	{ piecie: 'piecie_those_eyelashes', deck: 'rest', section: 'Utility', cases: [{
+		name: 'Martin on the field: the opponent discards 1, your Mosje gains 20 MP, no opponent Snelle this turn',
+		setup: { field: own('mosje_martin_driver', 20), oppField: OPP40, piecies: on('piecie_those_eyelashes'), oppHand: ['piecie_affoe', 'piecie_straffoe'] },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_those_eyelashes' },
+		expect: { mp: { 'own.0': 40 }, energy: 1, oppHandDelta: -1, state: [['_snelleBlocked', 'player_2']] },
+	}] },
 ];
