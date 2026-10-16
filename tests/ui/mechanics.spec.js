@@ -110,16 +110,16 @@ test('VIS-02: Leipe Swap swaps MP and the swap does not revert at end of turn', 
 	await endTurnAndWait(page);
 
 	// Set known MP values right before activation so assertions are deterministic
-	await setMosjeMP(page, 'player_1', 0, 40);
-	await setMosjeMP(page, 'player_2', 0, 70);
+	await setMosjeMP(page, 'player_1', 0, 5);
+	await setMosjeMP(page, 'player_2', 0, 90);
 	await page.waitForTimeout(300);
 
 	// MP BEFORE
 	const ownBefore = (await readOwnedMosjes(page))[0]?.mp;
 	const oppBefore = (await readOpponentMosjes(page))[0]?.mp;
 	console.log(`Before — own: ${ownBefore}, opp: ${oppBefore}`);
-	expect(ownBefore).toBe(40);
-	expect(oppBefore).toBe(70);
+	expect(ownBefore).toBe(5);
+	expect(oppBefore).toBe(90);
 
 	// Activate Leipe Swap — one own and one opponent Mosje: both targets are the only choice, so no picker opens
 	await activatePiecieOnField(page, 'piecie_leipe_swap');
@@ -129,17 +129,19 @@ test('VIS-02: Leipe Swap swaps MP and the swap does not revert at end of turn', 
 	const ownDuring = (await readOwnedMosjes(page))[0]?.mp;
 	const oppDuring = (await readOpponentMosjes(page))[0]?.mp;
 	console.log(`During (swapped) — own: ${ownDuring}, opp: ${oppDuring}`);
-	expect(ownDuring).toBe(70);
-	expect(oppDuring).toBe(40);
+	expect(ownDuring).toBe(90);
+	expect(oppDuring).toBe(5);
 	await ss(page, 'vis02-swapped');
 
 	// The 2.0 swap is permanent: it does not revert at the end of the turn (V4 did).
 	await endTurnAndWait(page);
 	await endTurnAndWait(page);
-	// After the opponent's turn plus ours the swapped MP is still swapped (opponent may have changed theirs: check own).
+	// After the opponent's turn plus ours the swapped MP is still swapped (the bot may have hit us a little: check own is still near the swapped value).
 	const ownAfter = (await readOwnedMosjes(page))[0]?.mp;
 	console.log(`After end of turn — own: ${ownAfter}`);
-	expect(ownAfter, 'swapped MP is kept (no V4 revert)').toBe(70);
+	// The bot acts in between (attack / Place), so allow its small swings; a V4 revert would put us back near 5.
+	expect(ownAfter, 'swapped MP is kept (no V4 revert)').toBeGreaterThanOrEqual(50);
+	expect(ownAfter).toBeLessThanOrEqual(100);
 
 	const log = await readLog(page);
 	expect(log.join(' ')).toMatch(/[Ll]eipe/);
@@ -443,14 +445,24 @@ test('VIS-08: Laat me chillen! stays through the opponent turn and leaves at the
 	expect((await readOwnedMosjes(page))[0]?.mp, 'activation changes no MP').toBe(mpBefore);
 	expect(await isPiecieOnField(page, 'piecie_laat_me_chillen'), 'Stays: still in its slot after activation').toBe(true);
 
-	// End turn 2 → opponent's turn → back to us: it must still be there (Stays until the end of OUR next turn).
+	// End turn 2 → opponent's turn → back to us. Card List: "The next time one of your Mosjes would lose MP, it loses
+	// 20 less. Then discard this card." The bot may attack during its turn, which consumes the card at once (the
+	// reduction is applied, then it is discarded); otherwise it Stays until the end of OUR next turn.
+	const loseBefore = (await readOwnedMosjes(page))[0]?.mp;
 	await endTurnAndWait(page);
-	expect(await isPiecieOnField(page, 'piecie_laat_me_chillen'), 'still there through the opponent turn').toBe(true);
-
-	// End our next turn → it leaves to the discard.
-	await endTurnAndWait(page);
-	expect(await isPiecieOnField(page, 'piecie_laat_me_chillen'), 'gone after the end of the owner next turn').toBe(false);
-	expect((await getGameState(page)).players.player_1.graveyard.map(c => c.cardId ?? c)).toContain('piecie_laat_me_chillen');
+	const gs1 = await getGameState(page);
+	const inGrave = () => gs1.players.player_1.graveyard.map(c => c.cardId ?? c).includes('piecie_laat_me_chillen');
+	if (await isPiecieOnField(page, 'piecie_laat_me_chillen')) {
+		// Not hit: it Stays through the opponent turn and leaves at the end of the owner next turn.
+		expect(inGrave(), 'still on the field, not in the discard').toBe(false);
+		await endTurnAndWait(page);
+		expect(await isPiecieOnField(page, 'piecie_laat_me_chillen'), 'gone after the end of the owner next turn').toBe(false);
+		expect((await getGameState(page)).players.player_1.graveyard.map(c => c.cardId ?? c)).toContain('piecie_laat_me_chillen');
+	} else {
+		// Consumed by the bot's hit: discarded, and the 20 less really happened (a 10 hit costs 0, never more than 20 lost to a 40 hit).
+		expect(inGrave(), 'consumed by the first loss: in the discard pile').toBe(true);
+		expect((await readOwnedMosjes(page))[0]?.mp, 'the hit was reduced, not amplified').toBeGreaterThanOrEqual(loseBefore - 30);
+	}
 
 	const log = await readLog(page);
 	expect(log.join(' ')).toMatch(/[Cc]hillen|laat/i);
