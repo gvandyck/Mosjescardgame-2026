@@ -72,7 +72,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 
 ### Verification (TEST)
 - [x] **TEST-01**: Engine unit tests E1–E30 from handoff §6a pass in `npm test`.
-- [ ] **TEST-02**: Every Card List card has a card-test-library entry (Example Deck cards first), including the §6b must-have edge cases.
+- [ ] **TEST-02**: Every Card List card except the 38 Quests (covered by engine tests — Gandalf 2026-10-16) has a card-test-library entry (Example Deck cards first), including the §6b must-have edge cases.
 - [ ] **TEST-03**: Playwright specs U1–U12 from handoff §6c pass.
 - [ ] **TEST-04**: Phase 7 §A10 frame tests pass (unit + Playwright screenshots at 1920×1080).
 - [ ] **TEST-05**: `npm run test:sim` runs the 2.0 rules with the 3 Example Decks: 0 crashes, timeout rate under 25%.
