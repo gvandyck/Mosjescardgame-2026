@@ -59,6 +59,9 @@ test('chain: Affoe getemt — first hit sideways at 0 MP, second hit to the Well
 	await setMosjeOnField(page, 'player_2', 0, 'mosje_ming_predictor', { mp: 5, level: 1 });
 	await clearEntryProtection(page);
 	await setHand(page, 'player_1', ['piecie_affoe']);
+	// The bot's hand is random; a Snelle in it opens a reaction window (Phase 57) and changes the numbers, and an
+	// empty hand would make the empty-field opponent lose (no Mosje left anywhere). Pin: one spare Mosje, no Snelle.
+	await setHand(page, 'player_2', ['mosje_ming_natural']);
 
 	await playCardFromHand(page, 'piecie_affoe');
 	await page.waitForTimeout(300);
@@ -196,10 +199,10 @@ test('chain: piecie MP gain crossing 100 raises one Level and resets MP to 0', a
 	expect(after.mp).toBe(0);                       // MP resets, no carry-over
 });
 
-// ── Chain F: Tikker grants QUEST_BLOCKED → General Quest is blocked ──────────
-// Activate Tikker (+40 MP and QUEST_BLOCKED status). A General Quest attempt is
-// then refused — no payment modal, MP unchanged, log notes the block.
-test('chain: Tikker QUEST_BLOCKED prevents a General Quest', async ({ page }) => {
+// ── Chain F: Tikker Stays next to its Mosje → that Mosje can't Quest on the owner's NEXT turn ──
+// Card List: +40 MP, the Tikker stays face-up; the Mosje can't attempt a Quest on your next turn. A Quest attempt
+// then is refused — nothing paid, MP unchanged.
+test('chain: Tikker blocks a General Quest on the next turn', async ({ page }) => {
 	test.setTimeout(60000);
 	await seedCustomDeck(page, {
 		id: 'custom_tikker_chain', name: 'Tikker Chain',
@@ -217,15 +220,19 @@ test('chain: Tikker QUEST_BLOCKED prevents a General Quest', async ({ page }) =>
 	await playCardFromHand(page, 'piecie_tikker');
 	await page.waitForTimeout(300);
 	await unlockPiecies(page, 'player_1');
-	await activate(page, 'piecie_tikker');          // +40 MP + QUEST_BLOCKED status
+	await activate(page, 'piecie_tikker');          // +40 MP, the Tikker Stays next to the Mosje
 
-	// Confirm the status is present
-	const st = await ownSlotObj(page, 0);
-	const blocked = (st?.statusEffects || []).some(e => e.type === 'QUEST_BLOCKED');
-	console.log('QUEST_BLOCKED present:', blocked, '| MP after Tikker:', st?.mp);
-	expect(blocked).toBe(true);
+	// Confirm the Tikker Stays face-up and marks the Mosje it blocks
+	const gs = await getGameState(page);
+	const tikker = gs.players.player_1.piecieSlots.find(e => e?.cardId === 'piecie_tikker');
+	console.log('Tikker slot:', JSON.stringify(tikker), '| MP after Tikker:', gs.players.player_1.activeSlots[0].mp);
+	expect(tikker?.stays).toBe(true);
+	expect(tikker?.blockedMosjeSlot).toBe(0);
 
-	// 2.0: try to Quest — the Mosje can be picked but every Quest is disabled (QUEST_BLOCKED)
+	// The owner's next turn (turn number + 1; the Tikker is still there)
+	await page.evaluate((n) => window.__testHooks.setTurnNumber(n), gs.turnNumber + 1);
+
+	// 2.0: try to Quest — the Mosje can be picked but every Quest is disabled (Tikker)
 	const mpBefore = await ownSlot0(page);
 	await page.click('#btn-quest');
 	await page.locator('.modal-mosje-select-btn[data-id="0"]').click();
