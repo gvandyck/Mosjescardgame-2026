@@ -62,46 +62,28 @@ function makeState(overrides: {
 
 describe('Physical Equipment cards (PHYS-01/02/03)', () => {
 
-  describe('effect_dumbbells', () => {
-    it('gives 20 MP to FIGHTING Mosje at level 1', () => {
-      const state = makeState({ subtype: 'FIGHTING', level: 1, mp: 0 });
-      const result = effect_dumbbells(state, 'player_1');
-      expect(result.players.player_1.activeSlots[0].mp).toBe(20);
+  describe('effect_dumbbells (Card List 2.0: Physical stars, not the Fighting subtype)', () => {
+    const phys = (physical: number, over: any = {}) => makeState({ subtype: 'FIGHTING', level: 1, mp: 0, traits: { physical }, ...over });
+
+    it('gives 20 MP to a Physical 1 star Mosje at any level', () => {
+      for (const level of [1, 2, 3]) {
+        const result = effect_dumbbells(phys(1, { level }), 'player_1');
+        expect(result.players.player_1.activeSlots[0].mp).toBe(20);
+      }
     });
 
-    it('gives 20 MP to FIGHTING Mosje at level 2', () => {
-      const state = makeState({ subtype: 'FIGHTING', level: 2, mp: 0 });
-      const result = effect_dumbbells(state, 'player_1');
-      expect(result.players.player_1.activeSlots[0].mp).toBe(20);
+    it('gives nothing to a Mosje without Physical 1 star (target table refuses it)', () => {
+      const result = effect_dumbbells(phys(0), 'player_1');
+      expect(result.players.player_1.activeSlots[0].mp).toBe(0);
     });
 
-    it('gives 20 MP to FIGHTING Mosje at level 3', () => {
-      const state = makeState({ subtype: 'FIGHTING', level: 3, mp: 0 });
-      const result = effect_dumbbells(state, 'player_1');
-      expect(result.players.player_1.activeSlots[0].mp).toBe(20);
-    });
-
-    it('gives 5 MP base to non-FIGHTING Mosje', () => {
-      const state = makeState({ subtype: 'DIGITAL', level: 1, mp: 0 });
-      const result = effect_dumbbells(state, 'player_1');
-      expect(result.players.player_1.activeSlots[0].mp).toBe(5);
-    });
-
-    it('also draws 1 card at FIGHTING level 3', () => {
-      const state = makeState({ subtype: 'FIGHTING', level: 3, deckCards: ['x'] });
-      const result = effect_dumbbells(state, 'player_1');
+    it('also draws 1 card at Physical 3 stars', () => {
+      const result = effect_dumbbells(phys(3, { deckCards: ['x'] }), 'player_1');
       expect(result.players.player_1.hand.length).toBe(1);
     });
 
-    it('does not draw at FIGHTING level 2', () => {
-      const state = makeState({ subtype: 'FIGHTING', level: 2, deckCards: ['x'] });
-      const result = effect_dumbbells(state, 'player_1');
-      expect(result.players.player_1.hand.length).toBe(0);
-    });
-
-    it('does not draw with non-FIGHTING Mosje', () => {
-      const state = makeState({ subtype: 'DIGITAL', level: 3, deckCards: ['x'] });
-      const result = effect_dumbbells(state, 'player_1');
+    it('does not draw at Physical 2 stars', () => {
+      const result = effect_dumbbells(phys(2, { deckCards: ['x'] }), 'player_1');
       expect(result.players.player_1.hand.length).toBe(0);
     });
   });
@@ -126,34 +108,24 @@ describe('Physical Equipment cards (PHYS-01/02/03)', () => {
     });
   });
 
-  describe('effect_skipping_rope', () => {
-    it('gives +1 questExtraDice with FIGHTING Mosje', () => {
-      const state = makeState({ subtype: 'FIGHTING' });
-      const result = effect_skipping_rope(state, 'player_1');
-      expect(result.players.player_1.questExtraDice).toBe(1);
+  describe('effect_skipping_rope (Card List 2.0: Physical 1 star or more)', () => {
+    const rope = (physical: number, over: any = {}) => makeState({ subtype: 'DIGITAL', traits: { physical }, ...over });
+
+    it('gives +1 questExtraDice when a Mosje has Physical 1 star or more', () => {
+      expect(effect_skipping_rope(rope(1), 'player_1').players.player_1.questExtraDice).toBe(1);
     });
 
-    it('draws 1 card with FIGHTING Mosje', () => {
-      const state = makeState({ subtype: 'FIGHTING', deckCards: ['x'] });
-      const result = effect_skipping_rope(state, 'player_1');
-      expect(result.players.player_1.hand.length).toBe(1);
+    it('gives no extra die without Physical 1 star', () => {
+      expect(effect_skipping_rope(rope(0), 'player_1').players.player_1.questExtraDice ?? 0).toBe(0);
     });
 
-    it('gives no extra die with non-FIGHTING Mosje', () => {
-      const state = makeState({ subtype: 'DIGITAL' });
-      const result = effect_skipping_rope(state, 'player_1');
-      expect(result.players.player_1.questExtraDice ?? 0).toBe(0);
-    });
-
-    it('still draws 1 card with non-FIGHTING Mosje', () => {
-      const state = makeState({ subtype: 'DIGITAL', deckCards: ['x'] });
-      const result = effect_skipping_rope(state, 'player_1');
-      expect(result.players.player_1.hand.length).toBe(1);
+    it('always draws 1 card', () => {
+      expect(effect_skipping_rope(rope(0, { deckCards: ['x'] }), 'player_1').players.player_1.hand.length).toBe(1);
+      expect(effect_skipping_rope(rope(2, { deckCards: ['x'] }), 'player_1').players.player_1.hand.length).toBe(1);
     });
 
     it('does not draw when deck is empty', () => {
-      const state = makeState({ subtype: 'FIGHTING', deckCards: [] });
-      const result = effect_skipping_rope(state, 'player_1');
+      const result = effect_skipping_rope(rope(2, { deckCards: [] }), 'player_1');
       expect(result.players.player_1.hand.length).toBe(0);
     });
   });

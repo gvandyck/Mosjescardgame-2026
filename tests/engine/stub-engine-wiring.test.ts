@@ -124,34 +124,19 @@ describe("piecieEffects — push site value checks for Task 1", () => {
     expect(cover[0]).toMatchObject({ slotIndex: 0, reduce: 10 });
   });
 
-  it("Test 7b: effect_tony — pushed MP_LOSS_HALVED has value:1, not 0", () => {
-    const state = makeState(100, 1);
-    const result = effect_tony(state, "p1");
-    const effect = result.players.p1.activeSlots[0].statusEffects.find(
-      (e: any) => e.type === "MP_LOSS_HALVED"
-    );
-    expect(effect).toBeDefined();
-    expect(effect?.value).toBe(1);
+  it("Test 7b: effect_tony (Card List 2.0) — a non-named Mosje is covered 10 less per loss", () => {
+    const result = effect_tony(withEntry(makeState(100, 1)), "p1", { slotIndex: 0 });
+    expect(result.players.p1.piecieSlots[0].boundTo[0]).toMatchObject({ slotIndex: 0, reduce: 10 });
   });
 
-  it("Test 7c: effect_gekke_vogels — pushed MP_LOSS_HALVED has value:1, not 0", () => {
-    const state = makeState(100, 1);
-    const result = effect_gekke_vogels(state, "p1");
-    const effect = result.players.p1.activeSlots[0].statusEffects.find(
-      (e: any) => e.type === "MP_LOSS_HALVED"
-    );
-    expect(effect).toBeDefined();
-    expect(effect?.value).toBe(1);
+  it("Test 7c: effect_gekke_vogels (Card List 2.0) — a non-named Mosje is covered 10 less per loss", () => {
+    const result = effect_gekke_vogels(withEntry(makeState(100, 1)), "p1", { slotIndex: 0 });
+    expect(result.players.p1.piecieSlots[0].boundTo[0]).toMatchObject({ slotIndex: 0, reduce: 10 });
   });
 
-  it("Test 7d: effect_katjegang — pushed MP_LOSS_HALVED has value:1, not 0", () => {
-    const state = makeState(100, 1);
-    const result = effect_katjegang(state, "p1");
-    const effect = result.players.p1.activeSlots[0].statusEffects.find(
-      (e: any) => e.type === "MP_LOSS_HALVED"
-    );
-    expect(effect).toBeDefined();
-    expect(effect?.value).toBe(1);
+  it("Test 7d: effect_katjegang (Card List 2.0) — a non-named Mosje is covered 10 less per loss", () => {
+    const result = effect_katjegang(withEntry(makeState(100, 1)), "p1", { slotIndex: 0 });
+    expect(result.players.p1.piecieSlots[0].boundTo[0]).toMatchObject({ slotIndex: 0, reduce: 10 });
   });
 
   it("Test 7e: effect_vianna_poes (Card List 2.0) — a non-Cless Mosje is covered 10 less per loss", () => {

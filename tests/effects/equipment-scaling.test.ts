@@ -71,9 +71,9 @@ describe('Gear Piecies on the Card List 2.0 (replaces the V4 BAL-01 scaling)', (
     });
   });
 
-  describe('effect_mouse (interim: the deck peek comes with 59-05)', () => {
+  describe('effect_mouse (the +10 MP half; the deck peek is in piecies-sections-rest.test.ts)', () => {
     it('gives a flat 10 MP', () => {
-      const result = effect_mouse(makeState({ subtype: 'DIGITAL', level: 2, mp: 0 }), 'player_1');
+      const result = effect_mouse(makeState({ subtype: 'DIGITAL', level: 2, mp: 0, deckCards: [] }), 'player_1');
       expect(result.players.player_1.activeSlots[0].mp).toBe(10);
     });
   });
