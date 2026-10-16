@@ -43,6 +43,9 @@ export async function mosjeCardSetup(page, entry, c) {
 	if (s.dice) await setNextDice(page, s.dice);
 	if (s.abilityDice) await page.evaluate((v) => window.__testHooks.setNextAbilityDice(v), s.abilityDice);
 	if (s.deckTop) await page.evaluate(({ id, cards }) => window.__testHooks.setDeckTop(id, cards), { id: 'player_1', cards: s.deckTop });
+	if (s.deckSize != null) { // exactly n cards in the draw deck (0 = empty)
+		await page.evaluate(({ n, ids }) => { const h = window.__testHooks; h.emptyDeck('player_1'); h.setDeckTop('player_1', ids.slice(0, n)); }, { n: s.deckSize, ids: DECK_PIECIES });
+	}
 	if (s.pendingTargets) await page.evaluate((t) => window.__testHooks.setPendingTargets(t), s.pendingTargets);
 	await page.waitForTimeout(150);
 }

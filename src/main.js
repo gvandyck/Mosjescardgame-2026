@@ -14,6 +14,9 @@ import { PIECIE_TARGETS } from './rules/piecieTargets.js';
 import { piecieTargetOptions } from './engine/targets/piecieTargetOptions.js';
 import { isPiecieReady } from './engine/table/isPiecieReady.js';
 import { attackMosje } from './engine/actions/attackMosje.js';
+import { rollQuestAttempt } from './engine/quests/rollQuestAttempt.js';
+import { resolveQuestAttempt } from './engine/quests/resolveQuestAttempt.js';
+import { chooseQuestChoices } from './bot/strategy/chooseQuestChoices.js';
 import { settleReactions } from './ui/actions/settleReactions.js';
 import { runAttackFlow } from './ui/actions/runAttackFlow.js';
 import { runQuestFlow } from './ui/actions/runQuestFlow.js';
@@ -1003,7 +1006,7 @@ function initGamePage() {
 			},
 			injectGraveyardCard(playerId, cardId) {
 				const player = gameState?.players?.[playerId];
-				if (player) { player.graveyard.unshift({ cardId, name: cardId, type: 'PIECIE', source: 'played' }); }
+				if (player) { player.graveyard.unshift({ cardId, name: cardId, type: cardTypeFor(cardId), source: 'played' }); }
 			},
 			// 58-12: put exactly these cards on top of a player's deck (in order), so a card test can fix what Lucky Draw /
 			// Calculated Guess / Time Control will see. Cards already in the deck are kept below them.
@@ -1076,6 +1079,31 @@ function initGamePage() {
 				gameState.activePlayerId = localPlayerId;
 				renderFromState(gameState);
 				return res.success ? 'ok' : res.error;
+			},
+			// 60-01: the bot plays a Snelle from hand (reaction windows open for the human), or attempts a Quest, so the
+			// reaction Snelle (Je Weet Niet, Jammertje ...) can be proven without the bot's own turn logic.
+			botPlaySnelle(cardId) {
+				const def = SNELLE_PIECIES.find(s => s.id === cardId);
+				if (!gameState || !def) return 'unknown snelle';
+				gameState.players.player_2.hand.push({ cardId, type: 'SNELLE_PIECIE' });
+				const res = playSnellie(gameState, 'player_2', { cardId, type: 'SNELLE_PIECIE' }, def);
+				if (!res.success) return res.error;
+				playBotSteps([{ state: res.state, label: `plays ${def.name} (test)` }], 'Bot', 0, 0, () => {});
+				return 'ok';
+			},
+			botQuest(slotIndex = 0, stackId) {
+				if (!gameState) return 'no game';
+				gameState.activePlayerId = 'player_2';
+				const roll = rollQuestAttempt(gameState, 'player_2', { slotIndex, stackId });
+				if (!roll.ok) return roll.error;
+				let next = roll.state;
+				if (!roll.reactionPending) {
+					const done = resolveQuestAttempt(roll.state, roll.pending, chooseQuestChoices(roll.state, 'player_2', roll.pending));
+					if (!done.ok) return done.error;
+					next = done.state;
+				}
+				playBotSteps([{ state: next, label: 'attempts a Quest (test)' }], 'Bot', 0, 0, () => {});
+				return 'ok';
 			},
 			getGameState() { return JSON.parse(JSON.stringify(gameState)); },
 			getHandSize(playerId) { return gameState?.players?.[playerId]?.hand?.length ?? -1; },
@@ -1631,7 +1659,7 @@ function initGamePage() {
 				modal.showInfo('Cannot Play', error || 'That card cannot be played right now.');
 				return;
 			}
-			gameState = newState.pendingReaction ? await settleReactions(newState, reactionCtx()) : newState;
+			gameState = (newState.pendingReaction || newState.pendingChoice?.hook === 'snelle') ? await settleReactions(newState, reactionCtx()) : newState;
 			log.add('gain', `Played ${cardDef.name} (instant).`);
 			if (resultLog) log.add(resultLog.type, resultLog.msg);
 			if (cardDef.description) log.add('info', `Effect: ${cardDef.description}`);
