@@ -237,7 +237,7 @@ Plans:
 - [x] 60-04-PLAN.md — Place Power in getPower (8 Places), Drain Zone gap, getMosjePower hook, 2.0 Place registry
 - [x] 60-05-PLAN.md — Turn-start / dice / Quest Places (Gym, Bank Chilling, Eendjes, Skiffa, Tesla, Quest Haven, Obby #1, Parkeren +20, DGS); V4 Place hooks + questBonusMP retired
 - [x] 60-06-PLAN.md — Cost / loss Places (Coert's Caravan, Delluft fee, Dierenasiel, Welloe Graveyard, Momentum Stabilizer §6b, Zo is Natuur, The Void, Synergy Chamber) (EFX-04 done)
-- [ ] 60-07-PLAN.md — Hidden info: per-viewer state.revealed, reveal modal, bot limited to reveals (6 cards); V4 Snelle UI removed (EFX-07)
+- [x] 60-07-PLAN.md — Hidden info: per-viewer state.revealed, reveal modal, bot limited to reveals (6 cards); V4 Snelle UI removed (EFX-07)
 - [ ] 60-08-PLAN.md — Quest card tests (38), 183-card coverage guard, Phase 60 fixmes closed, full headless card suite, ticks (TEST-02)
 
 ### Phase 61: Bot 2.0
