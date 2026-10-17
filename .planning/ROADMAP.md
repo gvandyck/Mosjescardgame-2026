@@ -19,7 +19,7 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 - [x] **Phase 58: Mosje Abilities and Synergies** - All 32 Mosje abilities, 2.0 synergy pairs, chain rule and The Tactician (Example Deck Mosjes first)
  (completed 2026-10-15)
 - [x] **Phase 59: Piecie Effects** - All 73 Piecie effects per the Card List (Example Deck Piecies first)
-- [ ] **Phase 60: Snelle, Places and Hidden Information** - All 20 Snelle and 20 Place effects, hidden-info cards; every card has a card test
+- [x] **Phase 60: Snelle, Places and Hidden Information** - All 20 Snelle and 20 Place effects, hidden-info cards; every card has a card test (completed 2026-10-17)
 - [ ] **Phase 61: Bot 2.0** - The bot plays legal, sensible 2.0 games: attack-or-Quest, Energy, reactions, no cheating
 - [ ] **Phase 62: 2.0 Card Faces** - Card frames per Phase 7 §A for Mosjes, Piecies, Snelle, Places and Quests
 - [ ] **Phase 63: 2.0 Board and Player Actions** - The 2.0 board, Energy crystals, field tiles, and attack/Quest/Place/reaction controls
@@ -36,7 +36,7 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 | 57 | Piecies, Snelle, Places and Reaction Windows | 7/7 | Complete    | 2026-10-12 |
 | 58 | Mosje Abilities and Synergies | 12/12 | Complete    | 2026-10-15 |
 | 59 | Piecie Effects | 8/8 | Complete    | 2026-10-16 |
-| 60 | Snelle, Places and Hidden Information | Every Snelle and Place works; hidden info stays hidden; every card tested | EFX-03, EFX-04, EFX-07, TEST-02 | 4 |
+| 60 | Snelle, Places and Hidden Information | 8/8 | Complete   | 2026-10-17 |
 | 61 | Bot 2.0 | The bot plays legal, sensible 2.0 games without cheating | BOT-01..04 | 4 |
 | 62 | 2.0 Card Faces | Every card face follows the Phase 7 §A spec | UI-04, TEST-04 | 5 |
 | 63 | 2.0 Board and Player Actions | A human can play a full 2.0 turn on the 2.0 board | UI-01, 02, 03, 05 | 4 |
@@ -238,7 +238,7 @@ Plans:
 - [x] 60-05-PLAN.md — Turn-start / dice / Quest Places (Gym, Bank Chilling, Eendjes, Skiffa, Tesla, Quest Haven, Obby #1, Parkeren +20, DGS); V4 Place hooks + questBonusMP retired
 - [x] 60-06-PLAN.md — Cost / loss Places (Coert's Caravan, Delluft fee, Dierenasiel, Welloe Graveyard, Momentum Stabilizer §6b, Zo is Natuur, The Void, Synergy Chamber) (EFX-04 done)
 - [x] 60-07-PLAN.md — Hidden info: per-viewer state.revealed, reveal modal, bot limited to reveals (6 cards); V4 Snelle UI removed (EFX-07)
-- [ ] 60-08-PLAN.md — Quest card tests (38), 183-card coverage guard, Phase 60 fixmes closed, full headless card suite, ticks (TEST-02)
+- [x] 60-08-PLAN.md — Quest card tests (38), 183-card coverage guard, Phase 60 fixmes closed, full headless card suite, ticks (TEST-02)
 
 ### Phase 61: Bot 2.0
 **Goal**: The bot plays legal, sensible 2.0 games against a human or another bot.

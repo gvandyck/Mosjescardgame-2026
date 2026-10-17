@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Obby Card Game 2.0 — slice A (offline vs bot)
 status: executing
-stopped_at: Phase 60 plan 07 complete; handoff written (RESUME HERE)
-last_updated: 2026-10-16T20:27:16.012Z
-last_activity: 2026-10-11
+stopped_at: Phase 60 plan 08 complete (all 8 plans); next - verify Phase 60 (gsd-verifier), then plan Phase 61
+last_updated: "2026-10-17T10:45:27.763Z"
+last_activity: 2026-10-17
 progress:
   total_phases: 54
-  completed_phases: 29
-  total_plans: 130
-  completed_plans: 170
-  percent: 54
+  completed_phases: 35
+  total_plans: 174
+  completed_plans: 166
+  percent: 65
 ---
 
 # Project State
@@ -26,14 +26,14 @@ See: `.planning/PROJECT.md` (updated 2026-10-10)
 
 **Core value:** On branch `obby-2.0`, the web game plays by the full 2.0 rules on one table against the bot, with the 3 Example Decks, deployed separately to eightytwenty.nl/obbycardgame2. V4 on `main` stays untouched.
 
-**Current focus:** Phase 60 — snelle, places and hidden information (60-08 left)
+**Current focus:** Phase 60 — snelle, places and hidden information: all 8 plans done, phase verification left
 
 **Sources of truth:** `docs/obby-2.0/` — Claude Code Handoff (spec), Card List (card texts; wins over phase docs), Core Numbers (rules), Example Decks, Phase 7 Card Frames and Art.
 
 ## Current Position
 
 Phase: 60 of 64 (snelle, places and hidden information)
-Plan: 60-07 complete — next: 60-08 (last plan of Phase 60)
+Plan: 60-08 complete (8/8) — next: verify Phase 60, then plan Phase 61
 Status: Executing
 Last activity: 2026-10-17
 
@@ -41,15 +41,16 @@ Last activity: 2026-10-17
 
 **Done and verified:** Phases 53–59 (card data, Energy/levels/getemt, turn flow, attacks + Quests, table rules + reaction windows, all 32 Mosje abilities, all 73 Piecie effects). `npm test` green (154 files, 1666 tests). Everything pushed to `origin/obby-2.0`.
 
-**Phase 60 status:** plans 60-01..60-07 done (all 20 Snelle, all 20 Places, Place Power, hidden-info reveals per player). Left: **60-08** — 183-card coverage guard (TEST-02 excludes the 38 Quests, Gandalf 2026-10-16), close remaining Phase-60 fixmes, one full headless card run, tick EFX-03 / EFX-04 / EFX-07 / TEST-02. Then verify Phase 60 (gsd-verifier) and mark it complete.
+**Phase 60 status:** all 8 plans done (all 20 Snelle, all 20 Places, Place Power, hidden-info reveals per player, 183-card coverage guard, 38 Quest card tests added on top of TEST-02, V4 Snelle test files deleted, no open Phase-60 fixme). EFX-03 / EFX-04 / EFX-07 / TEST-02 ticked. `npm test` green (155 files, 1678 tests). Full headless card run: 419 of 422 pass; `cardv1-hand` (230px) and `cardv1-piecie` (440x660) are red on 161dfb4 too (text collisions, left for Phase 62 card faces); VIS-02 was a real Phase-60 flake (bot Jensen! cancels Leipe Swap) fixed by pinning the bot hand. Left: run the Phase 60 verifier (gsd-verifier) and confirm the phase complete. Open rule question: Klaar Met Jou still draws 1 with no legal opponent target (Card List silent).
 
-**Next command:** `/gsd:execute-phase 60` (picks up at 60-08), then `/gsd:plan-phase 61`.
+**Next command:** verify Phase 60 (`/gsd:verify-work 60` or the phase verifier), then `/gsd:plan-phase 61`.
 
 **After 60:** 61 Bot 2.0 → 62 2.0 Card Faces (Phase 7 spec) → 63 Board + player actions → 64 Lobby / full games / sim (re-point sim specs to Example Decks) / deploy to /obbycardgame2. Known gaps for those phases are written in each ROADMAP phase entry ("Known gap …" lines).
 
 **Rules decided during the build:** Card List "Rulings" section (Phases 56–60) — the Card List wins over everything.
 
 **How we work (Gandalf's calls):**
+
 - Cheapest process: no research agent / plan-checker; planner writes short research; sonnet executors one plan at a time on the main tree; one-line updates; phase verifier at the end of each phase; AskUserQuestion only for real card-rule ambiguities.
 - Executor prompt must say: branch obby-2.0, no push by the agent (orchestrator pushes), no /_archive/, never `npm run test:sim` (old deck ids until Phase 64), Playwright HEADLESS ONLY via a temporary config (never the default "visual" project; Gandalf plays on his main screen), run only specs for touched cards (full card suite only in a phase's last plan), no probe files in tests/ (vitest runs tests/**/*.ts), helpers in tests/helpers/*.js, never weaken tests (KNOWN GAP + later phase instead), `node --check` each UI file separately (multi-arg only checks the first), SUMMARY ≤15 lines, commits end with the Co-Authored-By line.
 - Card effects may live in one file per Card List section (Gandalf, Phase 59).
@@ -117,6 +118,6 @@ None for v2.0 yet.
 
 ## Session Continuity
 
-Last session: 2026-10-11T02:06:17.039Z
-Stopped at: v2.0 roadmap written (ROADMAP.md v2.0 section, REQUIREMENTS.md traceability, this file)
+Last session: 2026-10-17T10:45:27.751Z
+Stopped at: Phase 60 plan 08 complete (all 8 plans); next - verify Phase 60 (gsd-verifier), then plan Phase 61
 Resume file: None
