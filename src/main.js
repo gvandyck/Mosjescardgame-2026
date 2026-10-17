@@ -60,12 +60,14 @@ import { driveBotTurn, driveBotTurnSteps } from './bot/botDriver.js';
 import { settleMosjePauses } from './bot/settleMosjePauses.js';
 import { runMosjeAbilityFlow } from './ui/actions/runMosjeAbilityFlow.js';
 import { settlePendingChoice } from './ui/actions/settlePendingChoice.js';
+import { showNewReveals } from './ui/showNewReveals.js';
 import { pushTestDice } from './engine/dice/testDiceQueue.js';
 import { pickBotDeck } from './bot/pickBotDeck.js';
 
 console.log('[UI] App bootstrapping...');
 
 const CARD_LOOKUP = buildCardLookup();
+const revealSeen = new Set(); // reveal entries the local player has already been shown (EFX-07)
 let _customDecksCache = [];
 // Tracked active deck id for the signed-in (non-anonymous) lobby flow — read
 // at form submit instead of the (hidden) #deck-select. Never falls back to
@@ -1101,7 +1103,21 @@ function initGamePage() {
 				gameState._testNoBotResume = true;
 				const res = activatePiecie(gameState, 'player_2', 0);
 				if (!res.success) { gameState.activePlayerId = localPlayerId; return res.error; }
-				playBotSteps([{ state: res.state, label: `activates ${def.name} (test)` }], 'Bot', 0, 0, () => {});
+				playBotSteps([{ state: res.state, label: `activates ${def.name} (test)` }], 'Bot', 0, 0, () => settleLocalMosjePauses()); // a Piecie that pauses for the human (Those Eyelashes) prompts them
+				return 'ok';
+			},
+			// 60-07: the bot uses a Mosje ability on its field (targets = state._pendingTargets), so hidden-info reveals to the
+			// BOT (Ronald's Strategic Insight) can be proven: the human must see nothing of their own hand being revealed.
+			botUseAbility(mosjeId, targets = {}) {
+				if (!gameState) return 'no game';
+				gameState.activePlayerId = 'player_2';
+				gameState._pendingTargets = { ...targets };
+				const res = useMosjeAbility(gameState, 'player_2', mosjeId);
+				gameState.activePlayerId = localPlayerId;
+				if (!res.success) return res.error;
+				gameState = res.state;
+				gameState.activePlayerId = localPlayerId;
+				renderFromState(gameState);
 				return 'ok';
 			},
 			// 60-01: the bot plays a Snelle from hand (reaction windows open for the human), or attempts a Quest, so the
@@ -1367,6 +1383,7 @@ function initGamePage() {
 		const onOpenDiscard = handleOpenDiscard;
 		const onPlayFromHand = (isLocalTurn && !gameOver) ? handlePlayCard : null;
 		renderBoard(boardRoot, uiState, onUseAbility, null, onActivatePiecie, onOpenDiscard, onPlayFromHand);
+		showNewReveals(state, localPlayerId, modal, CARD_LOOKUP, revealSeen); // reveal modal: local viewer's entries only
 		if (state._lastPlaceEffect?.placeName) {
 			showPlaceEffectBanner(state._lastPlaceEffect.placeName, state._lastPlaceEffect.description, state._lastPlaceEffect.phase);
 			delete state._lastPlaceEffect;
@@ -1829,25 +1846,15 @@ function toBoardViewModel(gameState, localPlayerId) {
 }
 
 function buildActiveModifiers(gameState, playerId, isLocalPlayer = false) {
-	const flags = gameState._snelleFlags || {};
 	const player = gameState.players[playerId];
 	const pills = [];
 
 	// Quest dice bonuses — only show on the local player's zone (they're the ones questing)
 	if (isLocalPlayer) {
-		const questBonus = (flags.questDiceBonus || 0) + (player?.questExtraDice || 0);
+		const questBonus = (player?.questExtraDice || 0);
 		if (questBonus > 0) pills.push({ label: `+${questBonus} Quest Roll`, color: 'gold' });
 	}
 
-	if (flags.forceReroll?.[playerId])         pills.push({ label: '🎲 Reroll Ready', color: 'gold' });
-	if (flags.negateNextPiecie?.[playerId])     pills.push({ label: '🛡 Negate Piecie', color: 'blue' });
-	if (flags.negateNextAttack?.[playerId])     pills.push({ label: '⚡ Dodge Active', color: 'teal' });
-	if (flags.negateNextElimination?.[playerId]) pills.push({ label: '💀 Not Today!', color: 'blue' });
-	if (flags.doubleNextPiecie?.[playerId])     pills.push({ label: '×2 Double Trigger', color: 'purple' });
-	if (flags.negateNextSearch?.[playerId])     pills.push({ label: '🚫 Anti-Search', color: 'orange' });
-	if (flags.drainReversal?.[playerId])        pills.push({ label: '↩ Drain Reflect', color: 'orange' });
-	const mpRed = flags.mpLossReduction?.[playerId];
-	if (Number.isInteger(mpRed) && mpRed > 0)  pills.push({ label: `🛡 -${mpRed} Damage`, color: 'blue' });
 
 	// Laat me chillen! and Snelle Laat me chillen! store MP_LOSS_REDUCTION in the active Mosje's statusEffects
 	if (player) {
@@ -1857,7 +1864,6 @@ function buildActiveModifiers(gameState, playerId, isLocalPlayer = false) {
 			if (se) { pills.push({ label: `🛡 -${se.value} Damage`, color: 'teal' }); break; }
 		}
 	}
-	if (flags.copyLastPiecie?.forPlayer === playerId) pills.push({ label: '📋 Copy Ready', color: 'purple' });
 
 	// Synergy bonuses currently live for this player (real partner present, or
 	// waived via Synergy Chamber) — shown proactively so a synergy's effect is

@@ -135,7 +135,6 @@ export function startTurn(gameState) {
   activePlayer.piecieActivationsThisTurn = 0; // Build Gadget / Speed Run conditions (56-03)
   activePlayer.cardsDrawnThisTurn = 0; // Artistic Expression (56-03)
   activePlayer.actionsThisTurn = [];
-  activePlayer.freePiecieActivationAvailable = false;
   activePlayer.attackPieciePlayedThisTurn = false;
   activePlayer.ddrChainsThisTurn = 0; // Dancing/DDR Chris: max 2 free chains per turn
   activePlayer.jiscaRolledThisTurn = false; // Jisca: once per turn

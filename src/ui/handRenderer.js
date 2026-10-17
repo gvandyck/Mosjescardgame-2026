@@ -6,6 +6,7 @@ import { renderCard } from './cardRenderer.js';
 import { markEnteringCards } from './markEnteringCards.js';
 import { initModalManager } from './modalManager.js';
 import { getCardById } from '../data/cardIndex.js';
+import { getEffectiveCost } from '../engine/energy/getEffectiveCost.js';
 
 console.log('[UI] handRenderer.js loaded');
 
@@ -104,10 +105,10 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 			if (isLocalTurn) {
 				cardEl.classList.add('hand-card--playable');
 				if (isRegularPlayable) {
-					const hasFreeActivation = Boolean(
-						gameState?.players?.[localPlayerId]?.freePiecieActivationAvailable &&
-						gameState?.activePlace === 'place_coerts_caravan'
-					);
+					// Coert's Caravan: the first Piecie costing 1+ this turn is free (same rule as activation: getEffectiveCost).
+					const hasFreeActivation = Boolean(gameState && card.type === 'PIECIE'
+						&& getEffectiveCost(gameState, localPlayerId, card.cardId, 'piecie') >= 1
+						&& getEffectiveCost(gameState, localPlayerId, card.cardId, 'piecie', { caravan: true }) === 0);
 					if (hasFreeActivation) {
 						cardEl.classList.add('free-activation');
 						cardEl.title = '⭐ Free activation — Coert\'s Caravan';
