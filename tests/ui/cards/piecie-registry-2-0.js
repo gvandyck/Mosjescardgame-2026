@@ -169,12 +169,21 @@ export const PIECIE_REGISTRY = [
 			setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_harde_didde'), energy: 5 },
 			trigger: { kind: 'activatePiecie', cardId: 'piecie_harde_didde' },
 			expect: { energy: 5 } },
+		{ name: 'MP limit: an opponent Mosje with 45 MP (over 40) is not sent to the Welloe pile',
+			setup: { field: [{ id: MING, mp: 20, level: 2 }], oppField: [{ id: MING, mp: 45 }], piecies: on('piecie_harde_didde'), energy: 5 },
+			trigger: { kind: 'activatePiecie', cardId: 'piecie_harde_didde' },
+			expect: { mp: { 'opp.0': 45 }, state: [['players.player_2.welloePile.length', 0]] } },
 	] },
 	{ piecie: 'piecie_klaar_met_jou', deck: 'example', section: 'Attack', cases: [{
 		name: 'Level 2: a 30 MP opponent Mosje goes to the Welloe pile, draw 1',
 		setup: { field: [{ id: MING, mp: 20, level: 2 }], oppField: [{ id: MING, mp: 30 }], piecies: on('piecie_klaar_met_jou'), energy: 5 },
 		trigger: { kind: 'activatePiecie', cardId: 'piecie_klaar_met_jou' },
 		expect: { energy: 1, handDelta: 1, state: [['players.player_2.welloePile.length', 1]] },
+	}, {
+		name: 'MP limit: an opponent Mosje with 35 MP (over 30) is not sent to the Welloe pile',
+		setup: { field: [{ id: MING, mp: 20, level: 2 }], oppField: [{ id: MING, mp: 35 }], piecies: on('piecie_klaar_met_jou'), energy: 5 },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_klaar_met_jou' },
+		expect: { mp: { 'opp.0': 35 }, state: [['players.player_2.welloePile.length', 0]] }, // whether the card still draws with no legal target is not stated by the Card List
 	}] },
 	// -- Protection and Pet Piecies (59-03) ----------------------------------
 	{ piecie: 'piecie_afblijven', deck: 'example', section: 'Utility', cases: [{

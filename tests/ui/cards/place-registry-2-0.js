@@ -18,7 +18,7 @@ const fresh = (place, id, n) => ({ name: 'a fresh Mosje ignores it', setup: at(p
 const turn = (place, name, id, mp, after, f = {}) => ({ name, setup: { field: [{ id, mp, ...f }], oppField: OPP, place: { id: place, by: 'player_2' } }, trigger: { kind: 'turnStart' }, expect: { mp: { 'own.0': after } } });
 const quest = (place, name, dice, after) => ({ name, setup: { field: [{ id: DIG, mp: 40 }], oppField: OPP, place: { id: place, by: 'player_2' }, quest: { stack: 'DIGITAL', id: 'quest_quick_thinking' }, dice }, trigger: { kind: 'quest', stack: 'DIGITAL' }, expect: { mp: { 'own.0': after } } });
 
-export const PLACE_REGISTRY = [
+const PLACE_ENTRIES = [
 	{ place: 'place_the_gym', deck: 'example', cases: [
 		power('Fighting Power 20 -> 30', 'place_the_gym', BULL, 30),
 		power('Digital Power 10 stays 10', 'place_the_gym', DIG, 10),
@@ -178,3 +178,6 @@ export const PLACE_REGISTRY = [
 			trigger: { kind: 'activatePiecie', cardId: 'piecie_kannetje_melk' }, expect: { mp: { 'own.0': 45 } } },
 	] },
 ];
+
+// Example Deck Places first (stable sort keeps each group in file order).
+export const PLACE_REGISTRY = [...PLACE_ENTRIES].sort((a, b) => (a.deck === 'example' ? 0 : 1) - (b.deck === 'example' ? 0 : 1));
