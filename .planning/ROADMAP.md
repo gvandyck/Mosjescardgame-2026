@@ -36,7 +36,7 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 | 57 | Piecies, Snelle, Places and Reaction Windows | 7/7 | Complete    | 2026-10-12 |
 | 58 | Mosje Abilities and Synergies | 12/12 | Complete    | 2026-10-15 |
 | 59 | Piecie Effects | 8/8 | Complete    | 2026-10-16 |
-| 60 | Snelle, Places and Hidden Information | 8/8 | Complete   | 2026-10-17 |
+| 60 | Snelle, Places and Hidden Information | 8/8 | Complete    | 2026-10-17 |
 | 61 | Bot 2.0 | The bot plays legal, sensible 2.0 games without cheating | BOT-01..04 | 4 |
 | 62 | 2.0 Card Faces | Every card face follows the Phase 7 §A spec | UI-04, TEST-04 | 5 |
 | 63 | 2.0 Board and Player Actions | A human can play a full 2.0 turn on the 2.0 board | UI-01, 02, 03, 05 | 4 |

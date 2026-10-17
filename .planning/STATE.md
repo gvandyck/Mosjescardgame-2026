@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Obby Card Game 2.0 — slice A (offline vs bot)
-status: executing
-stopped_at: Phase 60 plan 08 complete (all 8 plans); next - verify Phase 60 (gsd-verifier), then plan Phase 61
-last_updated: "2026-10-17T10:45:27.763Z"
+status: ready_to_plan
+stopped_at: Phase 60 complete (8/8) — ready to discuss Phase 61
+last_updated: 2026-10-17T23:27:16.254Z
 last_activity: 2026-10-17
 progress:
   total_phases: 54
   completed_phases: 35
   total_plans: 174
-  completed_plans: 166
+  completed_plans: 178
   percent: 65
 ---
 
@@ -26,24 +26,26 @@ See: `.planning/PROJECT.md` (updated 2026-10-10)
 
 **Core value:** On branch `obby-2.0`, the web game plays by the full 2.0 rules on one table against the bot, with the 3 Example Decks, deployed separately to eightytwenty.nl/obbycardgame2. V4 on `main` stays untouched.
 
-**Current focus:** Phase 60 — snelle, places and hidden information: all 8 plans done, phase verification left
+**Current focus:** Phase 61 — bot 2.0
 
 **Sources of truth:** `docs/obby-2.0/` — Claude Code Handoff (spec), Card List (card texts; wins over phase docs), Core Numbers (rules), Example Decks, Phase 7 Card Frames and Art.
 
 ## Current Position
 
-Phase: 60 of 64 (snelle, places and hidden information)
-Plan: 60-08 complete (8/8) — next: verify Phase 60, then plan Phase 61
-Status: Executing
+Phase: 61 of 64 (bot 2.0)
+Plan: Not started
+Status: Ready to plan
 Last activity: 2026-10-17
 
 ## RESUME HERE (handoff 2026-10-17, chat rotated for context size)
 
-**Done and verified:** Phases 53–59 (card data, Energy/levels/getemt, turn flow, attacks + Quests, table rules + reaction windows, all 32 Mosje abilities, all 73 Piecie effects). `npm test` green (154 files, 1666 tests). Everything pushed to `origin/obby-2.0`.
+**Done and verified:** Phases 53–60 (card data, Energy/levels/getemt, turn flow, attacks + Quests, table rules + reaction windows, all 32 Mosje abilities, all 73 Piecie effects, all 20 Snelle, all 20 Places, hidden info per viewer, 183-card coverage guard). `npm test` green (155 files, 1679 tests). Phase 60 verifier: `passed` (60-VERIFICATION.md).
 
-**Phase 60 status:** all 8 plans done (all 20 Snelle, all 20 Places, Place Power, hidden-info reveals per player, 183-card coverage guard, 38 Quest card tests added on top of TEST-02, V4 Snelle test files deleted, no open Phase-60 fixme). EFX-03 / EFX-04 / EFX-07 / TEST-02 ticked. `npm test` green (155 files, 1678 tests). Full headless card run: 419 of 422 pass; `cardv1-hand` (230px) and `cardv1-piecie` (440x660) are red on 161dfb4 too (text collisions, left for Phase 62 card faces); VIS-02 was a real Phase-60 flake (bot Jensen! cancels Leipe Swap) fixed by pinning the bot hand. Left: run the Phase 60 verifier (gsd-verifier) and confirm the phase complete. Open rule question: Klaar Met Jou still draws 1 with no legal opponent target (Card List silent).
+**Phase 60 notes:** EFX-03 / EFX-04 / EFX-07 / TEST-02 ticked. The verifier found one real defect (The Void didn't block Emergency Healings); fixed in 930fc53 with a unit test + a place_the_void browser case (both failed first). Full headless card run was 419 of 422; `cardv1-hand` (230px) and `cardv1-piecie` (440x660) are red on 161dfb4 too (text collisions, left for Phase 62 card faces). VIS-02 stabilised by pinning the bot hand (about 1 in 27 rare flake remains when the bot kills the 0 MP opening Mosje turn 1).
 
-**Next command:** verify Phase 60 (`/gsd:verify-work 60` or the phase verifier), then `/gsd:plan-phase 61`.
+**Open rule questions (not failures, need a Gandalf ruling in the Card List Rulings section):** (1) Klaar Met Jou draws 1 card even with no legal opponent target; (2) does The Void also stop a staying Piecie's start-of-turn gain (Bowie & Stormey, Gekke Vogels; today it does not); (3) Chef's Special reveals only the opponent's Piecies, the text says "look at your opponent's hand". Display-only: `requirement` in `snellePiecies.js` is wrong for Jammertje Gepakt! and Lucky Cóin (fix with Phase 62 card faces).
+
+**Next command:** `/gsd:plan-phase 61` (Bot 2.0). Known gap to include: the bot's affordability check ignores the Delluft parking fee.
 
 **After 60:** 61 Bot 2.0 → 62 2.0 Card Faces (Phase 7 spec) → 63 Board + player actions → 64 Lobby / full games / sim (re-point sim specs to Example Decks) / deploy to /obbycardgame2. Known gaps for those phases are written in each ROADMAP phase entry ("Known gap …" lines).
 
@@ -79,6 +81,7 @@ Last activity: 2026-10-17
 | 57 | 7 | - | - |
 | 58 | 12 | - | - |
 | 59 | 8 | - | - |
+| 60 | 8 | - | - |
 
 ## Accumulated Context
 
