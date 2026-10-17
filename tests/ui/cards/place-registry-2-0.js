@@ -136,6 +136,9 @@ const PLACE_ENTRIES = [
 		{ name: 'losses are not blocked: an attack of Power 20 takes 20 (50 -> 30)',
 			setup: { field: [{ id: ART, mp: 50 }], oppField: [{ id: BULL, mp: 40 }], place: { id: 'place_the_void', by: 'player_2' } },
 			trigger: { kind: 'attacked' }, expect: { mp: { 'own.0': 30 } } },
+		{ name: 'Emergency Healings (a Snelle) gives 0, is still spent, and the attack of Power 20 takes 20 (50 -> 30)',
+			setup: { field: [{ id: ART, mp: 50 }], oppField: [{ id: BULL, mp: 40 }], place: { id: 'place_the_void', by: 'player_2' }, hand: ['snelle_emergency_healings'] },
+			trigger: { kind: 'attacked', picks: [/Emergency Healings/] }, expect: { mp: { 'own.0': 30 }, energy: 2, handDelta: -1 } },
 	] },
 	{ place: 'place_coerts_caravan', deck: 'rest', part: 'free Piecie', cases: [
 		{ name: 'with a Coert the first Piecie costs 0 Energy (3 stays 3)',

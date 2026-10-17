@@ -39,6 +39,13 @@ describe("loss reductions and Emergency Healings", () => {
     const r = board([mk(30, { traits: { resilient: 2 } })], [mk(40)]);
     expect(mine(hit(fx.effect_snelle_emergency_healings(r, "player_2", { reaction: reaction({ 0: 40 }) }), 40)).mp).toBe(25);
   });
+  it("Emergency Healings gives 0 MP under The Void (the loss still lands); without it the gain applies", () => {
+    const withVoid = Object.assign(board([mk(30)], [mk(40)]), { activePlace: "place_the_void" });
+    const s = fx.effect_snelle_emergency_healings(withVoid, "player_2", { reaction: reaction({ 0: 20 }) });
+    expect(mine(hit(s, 20)).mp).toBe(10);
+    const noVoid = fx.effect_snelle_emergency_healings(board([mk(30)], [mk(40)]), "player_2", { reaction: reaction({ 0: 20 }) });
+    expect(mine(hit(noVoid, 20)).mp).toBe(35);
+  });
   it("The Protector: 30 less; two threatened Mosjes -> a pick", () => {
     const one = fx.effect_snelle_the_protector(board([mk(60), mk(60)], [mk(40)]), "player_2", { reaction: reaction({ 0: 40 }) });
     expect(mine(hit(one, 40)).mp).toBe(50);

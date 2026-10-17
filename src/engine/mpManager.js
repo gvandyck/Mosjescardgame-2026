@@ -9,6 +9,7 @@ import { normalizeSlotMp } from './mp/normalizeSlotMp.js';
 import { applyMpLossToSlot } from './mp/applyMpLossToSlot.js';
 import { applyMpAmplifier } from './mp/applyMpAmplifier.js';
 import { synergyFieldBonus } from './mp/synergyFieldBonus.js';
+import { voidBlocksGain } from './mp/voidBlocksGain.js';
 
 console.log('[ENGINE] mpManager.js loaded');
 
@@ -32,9 +33,7 @@ function getActivePlaceId(gameState) {
 export function gainMP(gameState, playerId, slotIndex, amount, source = 'GAIN') {
   if (amount <= 0) return gameState;
 
-  // The Void (2.0): Piecies and Snelle can't make a Mosje gain MP (a fresh Mosje ignores Places).
-  if (getActivePlaceId(gameState) === 'place_the_void' && (source === 'PIECIE' || source === 'SNELLE')
-    && !isFresh(gameState.players[playerId]?.activeSlots?.[slotIndex])) {
+  if (voidBlocksGain(gameState, playerId, slotIndex, source)) {
     console.log(`[MP] The Void active - ${source} gain blocked`);
     return gameState;
   }
