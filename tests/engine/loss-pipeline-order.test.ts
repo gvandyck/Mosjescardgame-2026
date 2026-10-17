@@ -16,6 +16,7 @@ const def = MOSJES.find((m: any) => m.id === "mosje_gandoe_wizard");
 
 function build(opts: { place?: string | null; level?: number; mp?: number; status?: any[] } = {}) {
   const slot = createMosjeSlot(def, { level: opts.level ?? 2, mp: opts.mp ?? 60 });
+  slot.entryProtected = false; // fresh Mosjes ignore Places; these cases test the Place steps
   slot.statusEffects = opts.status ?? [];
   const state = makeEngineState({
     activePlayerId: "player_1",
