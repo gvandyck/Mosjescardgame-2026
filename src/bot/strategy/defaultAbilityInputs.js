@@ -4,6 +4,7 @@
 // Hidden info: the opponent's hand is read ONLY for abilities whose card text lets the player look at it.
 import { MOSJE_ABILITY_RULES } from '../../rules/mosjeAbilityRules.js';
 import { PIECIES } from '../../data/piecies.js';
+import { getRevealedFor } from '../../engine/hidden/getRevealedFor.js';
 
 const PIECIE_IDS = new Set(PIECIES.map(p => p.id));
 
@@ -27,7 +28,13 @@ export function defaultAbilityInputs(state, botId, abilityId) {
 			case 'confirm': v = false; break;
 			case 'number': v = Math.min(input.max, Math.max(input.min, Math.round(((input.min + input.max) / 2) / (input.step || 1)) * (input.step || 1))); break;
 			case 'deckOwner': v = botId; break;
-			case 'oppHandCard': v = HAND_PEEK_ABILITIES.has(abilityId) && (state.players[oppId]?.hand || []).length ? 0 : undefined; break;
+			case 'oppHandCard': { // only cards this card reveals to the bot: an existing reveal, or the hand the peek ability itself shows
+				const seen = getRevealedFor(state, botId).flatMap(e => e.cardIds);
+				if (!seen.length && !HAND_PEEK_ABILITIES.has(abilityId)) { v = undefined; break; } // no reveal: the hand is never read
+				const hand = state.players[oppId]?.hand || [];
+				const at = seen.length ? hand.findIndex(c => seen.includes(c.cardId)) : (hand.length ? 0 : -1);
+				v = at >= 0 ? at : undefined; break;
+			}
 			case 'questStack': v = Object.keys(state.questStacks || {})[0]; break;
 			case 'ownPiecieSlot': {
 				const i = (me.piecieSlots || []).findIndex(s => s && s.type === 'PIECIE' && !s.activated && (input.filter !== 'faceDown' || s.faceDown)

@@ -10,6 +10,7 @@ import { cloneState } from './cloneState.js';
 import { pieceDef } from './pieceDef.js';
 import { gainFromPiecie } from './gainFromPiecie.js';
 import { resolvePiecieOwnSlot } from './resolvePiecieOwnSlot.js';
+import { revealCards } from '../../engine/hidden/revealCards.js';
 import { discardChoice } from './discardChoice.js';
 
 const nameOf = (cardId) => toGraveyardEntry(cardId, 'x').name;
@@ -59,6 +60,7 @@ export function effect_stookerino(gameState, playerId, ctx = {}) {
 	const si = ctx.stookSlot ?? resolvePiecieOwnSlot(state, playerId, 'piecie_stookerino');
 	const pick = me._pendingTargets?.stook_card;
 	if (pick === undefined) {
+		revealCards(state, playerId, 'piecie_stookerino', opp.hand.map(c => c.cardId)); // the card shows the hand before the pick
 		const options = distinct(opp.hand).map(({ label, cardId }) => ({ label, cardId }));
 		return { state, needChoice: { playerId, choiceKind: 'handCard', key: 'stook_card', options, prompt: "Discard a card from your opponent's hand", ctx: { stookSlot: si } } };
 	}

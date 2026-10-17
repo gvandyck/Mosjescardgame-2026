@@ -1,7 +1,8 @@
 // fpsWestRevealHand — FPS West holder text: once per turn (own turn, free) make the opponent reveal their hand.
-// Live only through isHolderTextActive (FPS Coert on the field, or Synergy Chamber). Sets state.revealedHandTo so
-// the UI shows the hand to this player only. Returns { ok, success, state, error? }.
+// Live only through isHolderTextActive (FPS Coert on the field, or Synergy Chamber). Records the hand with
+// revealCards (shown to this player only). Returns { ok, success, state, error? }.
 import { isHolderTextActive } from '../synergy/isHolderTextActive.js';
+import { revealCards } from '../hidden/revealCards.js';
 import { canMosjeAct } from '../mp/canMosjeAct.js';
 
 export function fpsWestRevealHand(gameState, playerId) {
@@ -14,6 +15,7 @@ export function fpsWestRevealHand(gameState, playerId) {
 	if (player.handRevealTurn === gameState.turnNumber) return fail('Already used this turn');
 	const state = JSON.parse(JSON.stringify(gameState));
 	state.players[playerId].handRevealTurn = state.turnNumber;
-	state.revealedHandTo = { viewerId: playerId, turnNumber: state.turnNumber };
+	const oppId = Object.keys(state.players).find(id => id !== playerId);
+	revealCards(state, playerId, 'holder_fps_west', (state.players[oppId]?.hand || []).map(c => c.cardId));
 	return { ok: true, success: true, state };
 }

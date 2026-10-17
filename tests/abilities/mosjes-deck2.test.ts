@@ -99,7 +99,8 @@ describe("FPS West holder text: reveal the opponent hand", () => {
   it("with FPS Coert on the field: once per turn, free, shown to the owner only", () => {
     const r = fpsWestRevealHand(board(true), "player_1");
     expect(r.success).toBe(true);
-    expect(r.state.revealedHandTo).toEqual({ viewerId: "player_1", turnNumber: 3 });
+    expect(r.state.revealed.player_1).toHaveLength(1);
+    expect(r.state.revealed.player_2).toBeUndefined();
     expect(fpsWestRevealHand(r.state, "player_1").success).toBe(false);
   });
   it("without FPS Coert (and no Synergy Chamber) or off your turn: refused", () => {

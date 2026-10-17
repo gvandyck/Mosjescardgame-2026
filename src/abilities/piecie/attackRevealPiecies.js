@@ -3,6 +3,7 @@
 import { loseMP } from '../../engine/mpManager.js';
 import { ALL_CARDS } from '../../data/cardIndex.js';
 import { toGraveyardEntry } from '../../engine/graveyardUtils.js';
+import { revealCards } from '../../engine/hidden/revealCards.js';
 import { cloneState } from './cloneState.js';
 import { addPowerThisTurn } from './addPowerThisTurn.js';
 import { resolvePiecieOwnSlot } from './resolvePiecieOwnSlot.js';
@@ -24,6 +25,7 @@ export function effect_jantje_jantje(gameState, playerId, ctx = {}) {
 	}
 	delete me._pendingTargets[KEY];
 	const opp = state.players[Object.keys(state.players).find(id => id !== playerId)];
+	revealCards(state, playerId, 'piecie_jantje_jantje', opp.hand.map(c => c.cardId)); // "look at your opponent's hand"
 	const at = opp.hand.findIndex(c => nameOf(c.cardId) === pick.label);
 	if (at < 0) return loseMP(state, playerId, si, 10, 'DRAIN', false, playerId);
 	const [card] = opp.hand.splice(at, 1);

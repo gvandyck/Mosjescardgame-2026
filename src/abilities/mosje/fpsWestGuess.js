@@ -1,6 +1,8 @@
 // FPS West — Tactical Analysis (activated half): once per turn, pay 1 Energy (useMosjeAbility): look at the
 // opponent's hand and name the card type they will play next. The guess is stored on FPS West's slot and
 // settled by fpsWestTacticalAnalysis.js. Input: state._pendingTargets.card_type (MOSJE / PIECIE / SNELLE / PLACE).
+import { revealCards } from '../../engine/hidden/revealCards.js';
+
 const TYPES = ['MOSJE', 'PIECIE', 'SNELLE', 'PLACE'];
 
 export function fpsWestGuess(gameState, playerId, mosjeId = 'mosje_fps_west') {
@@ -10,6 +12,7 @@ export function fpsWestGuess(gameState, playerId, mosjeId = 'mosje_fps_west') {
 	const guess = state._pendingTargets?.card_type;
 	if (!TYPES.includes(guess)) throw new Error('Name a card type: Mosje, Piecie, Snelle or Place');
 	slot.fpsWestGuess = guess;
-	state.revealedHandTo = { viewerId: playerId, turnNumber: state.turnNumber }; // UI shows the opponent's hand to this player only
+	const oppId = Object.keys(state.players).find(id => id !== playerId);
+	revealCards(state, playerId, 'ability_fps_west_tactical_analysis', (state.players[oppId]?.hand || []).map(c => c.cardId));
 	return state;
 }

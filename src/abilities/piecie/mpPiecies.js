@@ -2,6 +2,7 @@
 import { loseMP } from '../../engine/mpManager.js';
 import { cloneState } from './cloneState.js';
 import { pieceDef } from './pieceDef.js';
+import { revealCards } from '../../engine/hidden/revealCards.js';
 import { gainOwnMosje } from './gainOwnMosje.js';
 import { drawFromEffect } from '../../engine/turn/drawFromEffect.js';
 import { gainFromPiecie } from './gainFromPiecie.js';
@@ -53,8 +54,11 @@ export function effect_ronald_kip(gameState, playerId) {
 export function effect_chefs_special(gameState, playerId) {
 	const ronald = gameState.players[playerId].activeSlots.some(s => s && !s.isDefeated && s.cardId === 'mosje_ronald_chef');
 	const oppId = Object.keys(gameState.players).find(id => id !== playerId);
-	const inHand = (gameState.players[oppId]?.hand || []).filter(c => c.type === 'PIECIE').length;
-	return gainOwnMosje(gameState, playerId, 'piecie_chefs_special', () => (ronald ? Math.min(45, Math.max(15, 15 * inHand)) : 15));
+	const seen = (gameState.players[oppId]?.hand || []).filter(c => c.type === 'PIECIE');
+	const inHand = seen.length;
+	// With Ronald the Piecies in the opponent's hand are shown to the activator (only them); without Ronald nothing is.
+	const state = ronald ? revealCards(cloneState(gameState), playerId, 'piecie_chefs_special', seen.map(c => c.cardId)) : gameState;
+	return gainOwnMosje(state, playerId, 'piecie_chefs_special', () => (ronald ? Math.min(45, Math.max(15, 15 * inHand)) : 15));
 }
 
 // Warm Kannetje Melk: one of your Mosjes loses 10 MP, then you draw 2 (a loss: no Binti extra).

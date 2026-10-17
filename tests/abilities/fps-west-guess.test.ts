@@ -33,7 +33,8 @@ describe("FPS West Tactical Analysis (activated half)", () => {
     expect(res.success).toBe(true);
     expect(res.state.players.player_1.energy).toBe(2);
     expect(mine(res.state).fpsWestGuess).toBe("PIECIE");
-    expect(res.state.revealedHandTo).toEqual({ viewerId: "player_1", turnNumber: 3 });
+    expect(res.state.revealed.player_1).toHaveLength(1);
+    expect(res.state.revealed.player_2).toBeUndefined();
     expect(mine(res.state).mp).toBe(25);
   });
   it("is refused with 0 Energy and without a valid type", () => {
