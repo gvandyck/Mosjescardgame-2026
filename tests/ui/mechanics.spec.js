@@ -121,6 +121,10 @@ test('VIS-02: Leipe Swap swaps MP and the swap does not revert at end of turn', 
 	expect(ownBefore).toBe(5);
 	expect(oppBefore).toBe(90);
 
+	// Since Phase 60 the bot's Jensen! really cancels a Piecie that targets its Mosje (it holds 2 in this deck), which made this
+	// test depend on the bot's hand (~1 run in 6). Pin its hand empty: the swap itself is what is tested here; Jensen! has its own specs.
+	await page.evaluate(() => window.__testHooks.setHand('player_2', []));
+
 	// Activate Leipe Swap — one own and one opponent Mosje: both targets are the only choice, so no picker opens
 	await activatePiecieOnField(page, 'piecie_leipe_swap');
 	await page.waitForTimeout(600);

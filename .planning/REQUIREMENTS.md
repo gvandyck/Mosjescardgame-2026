@@ -51,11 +51,11 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 ### Card effects (EFX)
 - [x] **EFX-01**: All 32 Mosje abilities and synergy texts work as the Card List says, with activated abilities paying Energy (§3c).
 - [x] **EFX-02**: All 73 Piecie effects work as the Card List says (Power boosts, reductions, dice boosts, tags, gates, Stays, limits) (§3c).
-- [ ] **EFX-03**: All 20 Snelle effects work as the Card List says, including the Jensen! / Frenssen! / Blensen! chain (§3c).
-- [ ] **EFX-04**: All 20 Place effects work as the Card List says, including fresh Mosjes ignoring them (§3c).
+- [x] **EFX-03**: All 20 Snelle effects work as the Card List says, including the Jensen! / Frenssen! / Blensen! chain (§3c).
+- [x] **EFX-04**: All 20 Place effects work as the Card List says, including fresh Mosjes ignoring them (§3c).
 - [x] **EFX-05**: Synergies are re-wired to the 2.0 pairs; Synergy Chamber makes holder texts work without the partner; free activations never chain again (§2g).
 - [x] **EFX-06**: The Tactician sets MP to 10–75 until end of turn and snaps back to real MP plus that turn's changes (§2g).
-- [ ] **EFX-07**: Hidden-info cards (Ronald, FPS West, Stookerino, Jantje, Chef's Special, Those Eyelashes) reveal only to the player entitled to see (§3c).
+- [x] **EFX-07**: Hidden-info cards (Ronald, FPS West, Stookerino, Jantje, Chef's Special, Those Eyelashes) reveal only to the player entitled to see (§3c).
 
 ### Bot (BOT)
 - [ ] **BOT-01**: The bot chooses attack or Quest per Mosje (best expected MP swing, finish a getemt, protect a Level 3), adapted inside `src/bot/strategy/` (§5).
@@ -72,7 +72,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 
 ### Verification (TEST)
 - [x] **TEST-01**: Engine unit tests E1–E30 from handoff §6a pass in `npm test`.
-- [ ] **TEST-02**: Every Card List card except the 38 Quests (covered by engine tests — Gandalf 2026-10-16) has a card-test-library entry (Example Deck cards first), including the §6b must-have edge cases.
+- [x] **TEST-02**: Every Card List card except the 38 Quests (covered by engine tests — Gandalf 2026-10-16) has a card-test-library entry (Example Deck cards first), including the §6b must-have edge cases.
 - [ ] **TEST-03**: Playwright specs U1–U12 from handoff §6c pass.
 - [ ] **TEST-04**: Phase 7 §A10 frame tests pass (unit + Playwright screenshots at 1920×1080).
 - [ ] **TEST-05**: `npm run test:sim` runs the 2.0 rules with the 3 Example Decks: 0 crashes, timeout rate under 25%.
@@ -128,11 +128,11 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 | TABLE-06 | Phase 57 | Complete |
 | EFX-01 | Phase 58 | Complete |
 | EFX-02 | Phase 59 | Complete |
-| EFX-03 | Phase 60 | Pending |
-| EFX-04 | Phase 60 | Pending |
+| EFX-03 | Phase 60 | Complete |
+| EFX-04 | Phase 60 | Complete |
 | EFX-05 | Phase 58 | Complete |
 | EFX-06 | Phase 58 | Complete |
-| EFX-07 | Phase 60 | Pending |
+| EFX-07 | Phase 60 | Complete |
 | BOT-01 | Phase 61 | Pending |
 | BOT-02 | Phase 61 | Pending |
 | BOT-03 | Phase 61 | Pending |
@@ -143,7 +143,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 | UI-04 | Phase 62 | Pending |
 | UI-05 | Phase 63 | Pending |
 | TEST-01 | Phase 58 | Complete |
-| TEST-02 | Phase 60 | Pending |
+| TEST-02 | Phase 60 | Complete |
 | TEST-03 | Phase 64 | Pending |
 | TEST-04 | Phase 62 | Pending |
 | TEST-05 | Phase 64 | Pending |

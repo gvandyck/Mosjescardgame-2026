@@ -1,4 +1,5 @@
-// SHELL-04 guard: every test.fixme / test.skip / it.skip / describe.skip names the later card phase (59-60) and a reason.
+// SHELL-04 guard (closed out in Phase 60-08): every test.fixme / test.skip / it.skip / describe.skip names a LATER phase (61+) and a reason.
+// Phase 59 and 60 are done, so nothing may be parked on them any more.
 import { describe, expect, it } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
@@ -17,18 +18,17 @@ function walk(dir: string): string[] {
   });
 }
 
-describe('SHELL-04: every fixme/skip names Phase 59 or 60 and a reason', () => {
-  it('no un-owned fixme or skip in tests/', () => {
+describe('SHELL-04: every fixme/skip names Phase 61 or later and a reason', () => {
+  it('no un-owned fixme or skip in tests/, and none parked on Phase 59 or 60', () => {
     const offenders: string[] = [];
     for (const f of walk(TESTS)) {
       const lines = readFileSync(f, 'utf8').split('\n');
       lines.forEach((line, i) => {
         if (!MARKER.test(line)) return;
-        // Environment viewers (WATCH=1) and the registry-driven skipReason runner are not parked game rules;
-        // the registry reasons are checked in the second test.
-        if (/process\.env/.test(line) || /spec\.skipReason\)/.test(line)) return;
+        // Environment viewers (WATCH=1) are not parked game rules.
+        if (/process\.env/.test(line)) return;
         const window = lines.slice(Math.max(0, i - 3), i + 1).join('\n');
-        const m = window.match(/Phase (59|60)\b[^\n]*?[:,)\s-]+\s*([^\n]*)/);
+        const m = window.match(/Phase (6[1-9]|[7-9]\d|\d{3,})\b[^\n]*?[:,)\s-]+\s*([^\n]*)/);
         const reason = m ? m[2].trim() : '';
         if (!m || reason.length < 10) offenders.push(`${f.replace(TESTS, 'tests')}:${i + 1}  ${line.trim().slice(0, 90)}`);
       });
@@ -36,13 +36,16 @@ describe('SHELL-04: every fixme/skip names Phase 59 or 60 and a reason', () => {
     expect(offenders).toEqual([]);
   });
 
-  it('every card-registry skipReason has a real reason (>= 10 chars) and names no V4 rule', () => {
-    const src = readFileSync(join(TESTS, 'ui', 'cards', 'card-registry.js'), 'utf8');
-    const reasons = [...src.matchAll(/skipReason:\s*'([^']*)'/g)].map((m) => m[1]);
-    expect(reasons.length).toBeGreaterThan(0);
-    for (const r of reasons) {
-      expect(r.length, r).toBeGreaterThanOrEqual(10);
-      expect(r, r).not.toMatch(/questPrepBonus|persistUntilEndOfTurn|V4 rule/);
-    }
+  it('the guard accepts Phase 61+ with a reason and rejects Phase 59 / 60 or a missing reason', () => {
+    const accepts = (text: string) => {
+      const m = text.match(/Phase (6[1-9]|[7-9]\d|\d{3,})\b[^\n]*?[:,)\s-]+\s*([^\n]*)/);
+      return !!m && m[2].trim().length >= 10;
+    };
+    expect(accepts('// KNOWN GAP (Phase 61): the bot does not use this yet')).toBe(true);
+    expect(accepts('// KNOWN GAP (Phase 64): lobby flow is wired with the sim re-point')).toBe(true);
+    expect(accepts('// KNOWN GAP (Phase 60): Eendjes Voeren is rewritten with the Place effects')).toBe(false);
+    expect(accepts('// KNOWN GAP (Phase 59): a Piecie reason that is long enough')).toBe(false);
+    expect(accepts('// KNOWN GAP (Phase 61):')).toBe(false);
+    expect(accepts('// parked for later')).toBe(false);
   });
 });

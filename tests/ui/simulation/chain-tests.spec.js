@@ -18,7 +18,7 @@ import {
 	playCardFromHand, endTurnAndWait,
 	mockDiceRoll, getGameState, getHandSize,
 	setPendingTargets, setQuestFaceUp, setNextDice, questViaUi,
-	unlockPiecies, setHand,
+	unlockPiecies, setHand, setMosjeOnField, clearEntryProtection, setEnergy,
 } from '../helpers.js';
 import { playAndActivateRedbull, extraUses, energyOf, useAbilityViaUi } from '../../helpers/redbullUi.js';
 
@@ -457,119 +457,43 @@ test('chain-6: Controller gives a Digital Mosje MP and +1 die on one Quest', asy
 	expect(mpAfterQuest, 'two 6s with the extra die won the Quest').toBeGreaterThan(mpAfterController);
 });
 
-// ─── Chain 7: Eendjes Voeren + Michelle END_PHASE +10 MP ─────────────────────
+// ─── Chain 7: Eendjes Voeren + Michelle (2.0: a Michelle gains 10 MP at the start of its owner's turn) ───────────
 
-// KNOWN GAP (Phase 60): Eendjes Voeren Place effect (END_PHASE +10 MP) is rewritten with the Place effects; the old silent skip hid that it never ran.
-test.fixme('chain-7: Eendjes Voeren END_PHASE gives Michelle +10 MP per turn', async ({ page }) => {
+test("chain-7: Eendjes Voeren — a Michelle gains 10 MP at the start of her owner's turn, not the opponent's", async ({ page }) => {
 	test.setTimeout(90000);
 	const deck = {
 		id: 'custom_eendjes_c7',
 		name: 'Eendjes Chain',
-		// Only Michelle so she's guaranteed to start on field
 		mosjes: ['mosje_michelle'],
 		piecies: ['piecie_kannetje_melk', 'piecie_kannetje_melk', 'piecie_kannetje_melk'],
-		snellePiecies: ['snelle_jensen'],
+		snellePiecies: [],
 		places: ['place_eendjes_voeren'],
 		quests: [],
 	};
-	// PHYSICAL_FORCE bot has no Binti (whose ability deals -10 to us and would cancel END_PHASE +10)
 	await seedCustomDeck(page, deck, 'PHYSICAL_FORCE');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
 
-	// Verify Michelle is on field
-	const mosjes = await readOwnedMosjes(page);
-	const michelle = mosjes.find(m => m.name.toLowerCase().includes('michelle') ||
-	                                  m.name.toLowerCase().includes('iron tuk'));
-	if (!mosjes.length) { throw new Error('Setup failed: No Mosje on field'); }
-	console.log('Owned Mosjes:', mosjes);
+	// Michelle, Iron Tuk on the field at 30 MP and no longer fresh (a fresh Mosje ignores Places); the Place is in hand.
+	await setMosjeOnField(page, 'player_1', 0, 'mosje_michelle', { mp: 30, level: 1 });
+	await clearEntryProtection(page);
+	await setHand(page, 'player_1', ['place_eendjes_voeren']);
+	await setEnergy(page, 'player_1', 3);
 
-	await setMosjeMP(page, 'player_1', 0, 30);
-	await page.waitForTimeout(200);
-
-	// Turn 1: play Eendjes Voeren from hand (it's a Place)
-	const hand = await readHand(page);
-	const place = hand.find(c => c.cardId === 'place_eendjes_voeren');
-	if (!place) { throw new Error('Setup failed: Eendjes Voeren not in hand'); }
-
+	// Card List: Eendjes Voeren costs 2, is played from hand and works at once. It gives nothing until a turn starts.
 	await playCardFromHand(page, 'place_eendjes_voeren');
-	await page.waitForTimeout(500);
-	expect(await isPiecieOnField(page, 'place_eendjes_voeren')).toBe(true);
+	await expect.poll(async () => (await getGameState(page)).activePlace).toBe('place_eendjes_voeren');
+	let gs = await getGameState(page);
+	expect(gs.players.player_1.energy, 'Eendjes Voeren costs 2').toBe(1);
+	expect(gs.players.player_1.activeSlots[0].mp, 'no MP until a turn starts').toBe(30);
 
-	// End turn 1 → Place becomes activatable
-	await endTurnAndWait(page);
-
-	// Turn 2: Activate Eendjes Voeren
-	// Place activation uses the "Activate" button on the piecie zone element
-	await activatePiecie(page, 'place_eendjes_voeren');
-	await ss(page, 'chain7-place-activated');
-
-	// Verify active place is set
-	const stateAfterActivate = await getGameState(page);
-	const activePlace = stateAfterActivate?.activePlace;
-	console.log('Active place after activation:', activePlace);
-	expect(activePlace).toBe('place_eendjes_voeren');
-
-	// IMPORTANT: activePlaceCanActivateOnTurn = turnNumber + 1 in setActivePlace.
-	// This means END_PHASE effects fire STARTING THE NEXT TURN after activation.
-	// We activated on turn 2, so END_PHASE fires starting turn 3 → need one more turn.
-
-	// End turn 2 (place active but not yet firing)
-	const r2 = await endTurnGuarded(page);
-	if (r2 === 'gameover') { console.log('Game ended on turn 2 — skip'); return; }
-	// Wait for all deferred bot callbacks to fully settle (slowMo + animation delays)
-	await page.waitForTimeout(1000);
-	if (await page.locator('#reward-overlay').isVisible({ timeout: 200 }).catch(() => false)) {
-		console.log('Game ended during settlement — skip'); return;
-	}
-
-	// DIRECT ENGINE SIMULATION: set Michelle to 60, then call endTurn via testHook
-	// to measure the END_PHASE delta in isolation — no bot interference, no timing issues.
-	await setMosjeMP(page, 'player_1', 0, 60);
-	await page.waitForTimeout(300);
-
-	// simulateEndPhaseForMichelle calls endTurn on a STATE SNAPSHOT (read-only, doesn't
-	// change live gameState) and returns { before, after, delta, turnNumber, canActivateOnTurn }
-	let endPhaseResult = await page.evaluate(() => {
-		return window.__testHooks?.simulateEndPhaseForMichelle('player_1') ?? null;
-	});
-	console.log('END_PHASE simulation (current turn):', endPhaseResult);
-
-	if (!endPhaseResult) { console.log('testHooks not available — skip'); return; }
-
-	// If the place hasn't started firing yet (turnNumber < canActivateOnTurn), advance one turn
-	if (endPhaseResult.turnNumber < endPhaseResult.canActivateOnTurn) {
-		console.log(`Place fires from turn ${endPhaseResult.canActivateOnTurn}; currently turn ${endPhaseResult.turnNumber} — need one more turn`);
-		const r3 = await endTurnGuarded(page);
-		if (r3 === 'gameover') { console.log('Game ended advancing turn — skip'); return; }
-		await page.waitForTimeout(600);
-		if (await page.locator('#reward-overlay').isVisible({ timeout: 200 }).catch(() => false)) {
-			console.log('Game ended during wait — skip'); return;
-		}
-		await setMosjeMP(page, 'player_1', 0, 60);
-		await page.waitForTimeout(300);
-		endPhaseResult = await page.evaluate(() => {
-			return window.__testHooks?.simulateEndPhaseForMichelle('player_1') ?? null;
-		});
-		console.log('END_PHASE simulation (next turn):', endPhaseResult);
-	}
-
-	await ss(page, 'chain7-end-phase-verified');
-	console.log(`END_PHASE delta: ${endPhaseResult?.delta} (turnNumber: ${endPhaseResult?.turnNumber}, canFire: ${endPhaseResult?.canActivateOnTurn})`);
-	expect(endPhaseResult?.delta).toBeGreaterThanOrEqual(10);
-
-	// State assertions
-	const statePost = await getGameState(page);
-	console.log('Active place still set:', statePost?.activePlace);
-	expect(statePost?.activePlace).toBe('place_eendjes_voeren');
-
-	// Key documented findings for the user:
-	// 1. Eendjes Voeren END_PHASE effect fires correctly when Michelle is on field
-	// 2. The 1-turn delay (activePlaceCanActivateOnTurn = activationTurn+1) means
-	//    the effect fires starting the END OF THE NEXT TURN after activation, not immediately
-	// 3. The user's "no +10" report was likely because:
-	//    a) Michelle wasn't on field yet (only 1 Mosje starts on field), OR
-	//    b) The place was activated but the effect fires the NEXT end-of-turn
-	// 4. Also: Binti's Cutting Words (-10 to opponent) can exactly cancel the +10 bonus
-	console.log('Eendjes Voeren + Michelle chain: PASS — END_PHASE +10 confirmed via engine simulation ✅');
+	// The opponent's turn start does nothing for my Michelle; my own turn start gives her +10 (30 -> 40).
+	await page.evaluate(() => window.__testHooks.runTurnBoundary('start', 'player_2'));
+	gs = await getGameState(page);
+	expect(gs.players.player_1.activeSlots[0].mp, "opponent's turn start: no gain").toBe(30);
+	await page.evaluate(() => window.__testHooks.runTurnBoundary('start', 'player_1'));
+	await ss(page, 'chain7-michelle-gained');
+	gs = await getGameState(page);
+	expect(gs.players.player_1.activeSlots[0].mp, "owner's turn start: +10").toBe(40);
+	expect(gs.activePlace).toBe('place_eendjes_voeren');
 });

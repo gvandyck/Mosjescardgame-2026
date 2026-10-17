@@ -1,13 +1,13 @@
 /**
  * place-play.spec.js - U7: a Place is played from hand and works at once, only one Place at a time,
  * a destroyer Piecie removes it to its owner's discard (Phase 57, TABLE-05).
- * KNOWN GAP (fix in Phase 60): Drain Zone's text says "+10 Power" but the engine only adds +10 to DRAIN losses
- * (src/engine/mp/lossSteps/drainZoneBonus.js), so no on-screen Power change is asserted here.
+ * Drain Zone (Card List): "All Mosjes get +10 Power." Read with getMosjePower on both sides: it applies at once and goes
+ * away with the Place (Alyssa, The Bulldozer is Power 20 at Level 1, Ming, The Predictor is Power 10).
  */
 import { test, expect } from '@playwright/test';
 import {
 	GAME_URL_TEST, seedOfflineSession, waitForBoard, getGameState, setEnergy, setHand, playCardFromHand,
-	unlockPiecies, clearEntryProtection,
+	unlockPiecies, clearEntryProtection, setMosjeOnField,
 } from './helpers.js';
 import { activatePiecieOnField } from '../helpers/piecieUi.js';
 
@@ -16,7 +16,12 @@ test('Place played from hand sits on the board, pays Energy, blocks a second Pla
 	await seedOfflineSession(page);
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
+	await setMosjeOnField(page, 'player_1', 0, 'mosje_alyssa_bulldozer', { mp: 50, level: 1 });
+	await setMosjeOnField(page, 'player_2', 0, 'mosje_ming_predictor', { mp: 40, level: 1 });
 	await clearEntryProtection(page);
+	const power = (pid) => page.evaluate((p) => window.__testHooks.getMosjePower(p, 0), pid);
+	expect(await power('player_1'), 'own Power before the Place').toBe(20);
+	expect(await power('player_2'), 'opponent Power before the Place').toBe(10);
 	await setHand(page, 'player_1', ['place_drain_zone', 'place_momentum_stabilizer']);
 	await setEnergy(page, 'player_1', 6);
 
@@ -26,6 +31,8 @@ test('Place played from hand sits on the board, pays Energy, blocks a second Pla
 	expect(gs.players.player_1.energy, 'Drain Zone costs 3').toBe(3);
 	expect(gs.activePlacePlayedBy).toBe('player_1');
 	await expect(page.locator('#piecies-player [data-card-id="place_drain_zone"]')).toBeVisible();
+	expect(await power('player_1'), 'Drain Zone: own Mosje +10 Power').toBe(30);
+	expect(await power('player_2'), 'Drain Zone: opponent Mosje +10 Power').toBe(20);
 
 	// Second Place: its play button is disabled and explains why; nothing changes.
 	const wrap = page.locator('.hand-card-wrap[data-card-id="place_momentum_stabilizer"]').first();
@@ -45,4 +52,6 @@ test('Place played from hand sits on the board, pays Energy, blocks a second Pla
 	expect(gs.activePlace).toBeNull();
 	expect(gs.players.player_1.graveyard.some(c => c.cardId === 'place_drain_zone' && c.type === 'PLACE')).toBe(true);
 	expect(gs.players.player_2.graveyard.some(c => c.cardId === 'place_drain_zone')).toBe(false);
+	expect(await power('player_1'), 'Place gone: own Power back to 20').toBe(20);
+	expect(await power('player_2'), 'Place gone: opponent Power back to 10').toBe(10);
 });
