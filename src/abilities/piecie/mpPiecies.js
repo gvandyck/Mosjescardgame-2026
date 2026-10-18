@@ -56,8 +56,8 @@ export function effect_chefs_special(gameState, playerId) {
 	const oppId = Object.keys(gameState.players).find(id => id !== playerId);
 	const seen = (gameState.players[oppId]?.hand || []).filter(c => c.type === 'PIECIE');
 	const inHand = seen.length;
-	// With Ronald the Piecies in the opponent's hand are shown to the activator (only them); without Ronald nothing is.
-	const state = ronald ? revealCards(cloneState(gameState), playerId, 'piecie_chefs_special', seen.map(c => c.cardId)) : gameState;
+	// With Ronald the activator looks at the opponent's whole hand (Gandalf 2026-10-18; only the Piecies count for the gain); without Ronald nothing is shown.
+	const state = ronald ? revealCards(cloneState(gameState), playerId, 'piecie_chefs_special', (gameState.players[oppId]?.hand || []).map(c => c.cardId)) : gameState;
 	return gainOwnMosje(state, playerId, 'piecie_chefs_special', () => (ronald ? Math.min(45, Math.max(15, 15 * inHand)) : 15));
 }
 

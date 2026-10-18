@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 // @ts-expect-error - JS module, no type declarations
 import { loseMP, gainMP } from "../../src/engine/mpManager.js";
 // @ts-expect-error - JS module, no type declarations
+import { payStaysStartGain } from "../../src/engine/table/payStaysStartGain.js";
+// @ts-expect-error - JS module, no type declarations
 import { makeEngineState } from "../helpers/makeEngineState.js";
 // @ts-expect-error - JS module, no type declarations
 import { createMosjeSlot } from "../../src/engine/mp/createMosjeSlot.js";
@@ -48,6 +50,17 @@ describe("place_the_void - Piecies and Snelle can't give MP", () => {
   });
   it("losses are not blocked", () => {
     expect(mp(loseMP(build("place_the_void"), "player_1", 0, 20, "ATTACK", false, "player_2"))).toBe(60);
+  });
+  it("a staying Piecie's start-of-turn gain (Bowie & Stormey, Gekke Vogels) is blocked too (Gandalf 2026-10-18)", () => {
+    const withEntry = (place: string | null) => {
+      const st = build(place);
+      st.players.player_1.piecieSlots = [{ cardId: "piecie_bowie_stormey", startGain: [{ slotIndex: 0, cardId: def.id, amount: 10 }] }, null, null];
+      return st;
+    };
+    const blocked = payStaysStartGain(withEntry("place_the_void"), "player_1", 0);
+    expect(mp(blocked)).toBe(80);
+    expect(blocked.players.player_1.piecieSlots[0].startGain).toEqual([]); // still paid out once, then cleared
+    expect(mp(payStaysStartGain(withEntry(null), "player_1", 0))).toBe(90);
   });
   it("a fresh Mosje ignores the Place and still gains", () => {
     const st = build("place_the_void");

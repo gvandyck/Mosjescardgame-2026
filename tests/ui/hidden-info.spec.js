@@ -1,6 +1,6 @@
 /**
  * hidden-info.spec.js - EFX-07 on the live board (Phase 60-07). A reveal reaches only the entitled viewer:
- *  a) human plays Chef's Special with Ronald: the read-only reveal modal lists the bot's Piecies
+ *  a) human plays Chef's Special with Ronald: the read-only reveal modal lists the bot's whole hand
  *  b) human plays Stookerino: the generic pick modal lists the bot's hand (that is the reveal), state.revealed is the human's only
  *  c) bot uses Ronald's Strategic Insight: the human gets no reveal modal, only the set-aside result is public
  *  d) bot activates Those Eyelashes Tho...: the human picks their OWN discard on the generic modal, Snelle is blocked for them
@@ -34,15 +34,16 @@ const readyPiecie = (page, id) => page.evaluate((cardId) => {
 	window.__testHooks.unlockPiecies('player_1');
 }, id);
 
-test('a: Chef\'s Special with Ronald shows the human a read-only reveal of the bot Piecies', async ({ page }) => {
+test('a: Chef\'s Special with Ronald shows the human a read-only reveal of the bot\'s whole hand', async ({ page }) => {
 	test.setTimeout(60000);
-	await boot(page, { own: 'mosje_ronald_chef' });
+	await boot(page, { own: 'mosje_ronald_chef', oppHand: [...OPP_HAND, 'snelle_jensen'] });
 	await readyPiecie(page, 'piecie_chefs_special');
 	await activatePiecieOnField(page, 'piecie_chefs_special');
 	await expect(page.locator(REVEAL_ROW).first()).toBeVisible({ timeout: 8000 });
 	const names = (await page.locator(REVEAL_ROW).allInnerTexts()).join('|');
 	expect(names).toMatch(/Pot of Weed/i);
 	expect(names).toMatch(/Harde Didde/i);
+	expect(names).toMatch(/Jensen/i); // the whole hand is shown, not only the Piecies (Gandalf 2026-10-18)
 	const gs = await getGameState(page);
 	expect(gs.revealed?.player_1?.length).toBe(1);
 	expect(gs.revealed?.player_2).toBeUndefined();

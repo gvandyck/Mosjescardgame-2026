@@ -39,11 +39,11 @@ Last activity: 2026-10-17
 
 ## RESUME HERE (handoff 2026-10-17, chat rotated for context size)
 
-**Done and verified:** Phases 53–60 (card data, Energy/levels/getemt, turn flow, attacks + Quests, table rules + reaction windows, all 32 Mosje abilities, all 73 Piecie effects, all 20 Snelle, all 20 Places, hidden info per viewer, 183-card coverage guard). `npm test` green (155 files, 1679 tests). Phase 60 verifier: `passed` (60-VERIFICATION.md).
+**Done and verified:** Phases 53–60 (card data, Energy/levels/getemt, turn flow, attacks + Quests, table rules + reaction windows, all 32 Mosje abilities, all 73 Piecie effects, all 20 Snelle, all 20 Places, hidden info per viewer, 183-card coverage guard). `npm test` green (155 files, 1680 tests). Phase 60 verifier: `passed` (60-VERIFICATION.md).
 
 **Phase 60 notes:** EFX-03 / EFX-04 / EFX-07 / TEST-02 ticked. The verifier found one real defect (The Void didn't block Emergency Healings); fixed in 930fc53 with a unit test + a place_the_void browser case (both failed first). Full headless card run was 419 of 422; `cardv1-hand` (230px) and `cardv1-piecie` (440x660) are red on 161dfb4 too (text collisions, left for Phase 62 card faces). VIS-02 stabilised by pinning the bot hand (about 1 in 27 rare flake remains when the bot kills the 0 MP opening Mosje turn 1).
 
-**Open rule questions (not failures, need a Gandalf ruling in the Card List Rulings section):** (1) Klaar Met Jou draws 1 card even with no legal opponent target; (2) does The Void also stop a staying Piecie's start-of-turn gain (Bowie & Stormey, Gekke Vogels; today it does not); (3) Chef's Special reveals only the opponent's Piecies, the text says "look at your opponent's hand". Display-only: `requirement` in `snellePiecies.js` is wrong for Jammertje Gepakt! and Lucky Cóin (fix with Phase 62 card faces).
+**Rulings Gandalf made 2026-10-18 (now in the Card List "Rulings" section, code + tests done):** Klaar Met Jou with no legal target still draws 1 (no change); The Void also blocks a staying Piecie's start-of-turn gain (Bowie & Stormey, Gekke Vogels); Chef's Special with Ronald reveals the opponent's whole hand (only Piecies count for the gain). Display-only leftover: `requirement` in `snellePiecies.js` is wrong for Jammertje Gepakt! and Lucky Cóin (fix with Phase 62 card faces).
 
 **Next command:** `/gsd:plan-phase 61` (Bot 2.0). Known gap to include: the bot's affordability check ignores the Delluft parking fee.
 

@@ -79,10 +79,10 @@ describe("the six hidden-info cards reveal to the activator only", () => {
     const out = effect_jantje_jantje(st, "player_1", { jantjeSlot: 0 });
     onlyViewer(out, "player_1");
   });
-  it("Chef's Special: reveals the opponent's Piecies with Ronald on the field, nothing without", () => {
+  it("Chef's Special: reveals the opponent's whole hand with Ronald on the field (Gandalf 2026-10-18), nothing without", () => {
     const withRonald = effect_chefs_special(game("mosje_ronald_chef"), "player_1");
     onlyViewer(withRonald, "player_1");
-    expect(getRevealedFor(withRonald, "player_1")[0].cardIds).toEqual(["piecie_kannetje_melk", "piecie_broodje_doner"]);
+    expect(getRevealedFor(withRonald, "player_1")[0].cardIds).toEqual(ids(OPP_HAND())); // Piecies and the Snelle
     const without = effect_chefs_special(game("mosje_ming_natural"), "player_1");
     expect(getRevealedFor(without, "player_1")).toEqual([]);
     expect(getRevealedFor(without, "player_2")).toEqual([]);

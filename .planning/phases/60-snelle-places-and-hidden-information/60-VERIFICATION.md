@@ -2,7 +2,7 @@
 phase: 60-snelle-places-and-hidden-information
 verified: 2026-10-18T01:20:00Z
 status: passed
-score: 4/4 roadmap success criteria verified (the one Void defect found was closed in-session; 3 open rule questions remain for Gandalf)
+score: 4/4 roadmap success criteria verified (the one Void defect found was closed in-session; the 3 open rule questions were ruled by Gandalf 2026-10-18 and implemented)
 overrides_applied: 0
 re_verification: false
 gaps: []
@@ -97,7 +97,7 @@ The Void defect was reproduced by the verifier's probe and then fixed inline (sm
 ## Gaps summary
 
 1. ~~The Void does not block Emergency Healings~~ CLOSED (see above).
-2. Open rule questions for Gandalf, not failures: Klaar Met Jou with no legal target (item c); whether The Void also stops a staying Piecie's start-of-turn gain; Chef's Special showing only Piecies instead of the whole hand.
+2. Rule questions, all ruled by Gandalf 2026-10-18 (Card List "Rulings"): Klaar Met Jou with no legal target still draws 1 (no change); The Void also stops a staying Piecie's start-of-turn gain (`STAYS_START` added to `voidBlocksGain`, unit test failed first); Chef's Special with Ronald reveals the whole opponent hand (`mpPiecies.js`, unit + hidden-info.spec test updated).
 3. Rare VIS-02 flake (1 in 27 at HEAD, before the pin, unrelated to Leipe Swap).
 
 ---
