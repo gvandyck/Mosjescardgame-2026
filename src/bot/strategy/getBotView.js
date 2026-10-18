@@ -54,7 +54,7 @@ export function getBotView(state, botId) {
 		out.questStacks = {};
 		for (const [id, stack] of Object.entries(state.questStacks)) out.questStacks[id] = { ...stack, deck: standIns(stack?.deck?.length ?? 0) };
 	}
-	if (state.revealed) out.revealed = state.revealed[botId] ? { [botId]: state.revealed[botId] } : {};
+	out.revealed = state.revealed?.[botId] ? { [botId]: state.revealed[botId] } : {}; // always present: "nobody saw anything" must not differ from "the key is missing"
 	const pc = state.pendingChoice;
 	if (pc && pc.playerId !== botId) out.pendingChoice = { ...pc, options: [], ...(pc.after?.p ? { after: { ...pc.after, p: { ...pc.after.p, eligible: [] } } } : {}) };
 	if (pr && pr.responderId !== botId) out.pendingReaction = { ...pr, eligible: [] };

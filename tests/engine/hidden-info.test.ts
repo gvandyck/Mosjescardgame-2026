@@ -120,7 +120,10 @@ describe("the bot only uses what a card reveals", () => {
     try {
       const { defaultAbilityInputs: fresh } = await import("../../src/bot/strategy/defaultAbilityInputs.js");
       const st = game("mosje_ronald_chef");
-      Object.defineProperty(st.players.player_2, "hand", { get() { throw new Error("hand was read"); }, configurable: true });
+      // The hand COUNT is table information (the bot view reads .length); reading any CARD of the hand must never happen.
+      st.players.player_2.hand = new Proxy(st.players.player_2.hand, {
+        get(target, prop, receiver) { if (/^\d+$/.test(String(prop))) throw new Error("hand card was read"); return Reflect.get(target, prop, receiver); },
+      });
       expect(fresh(st, "player_1", "ability_test_no_peek")).toBeNull();
     } finally { vi.doUnmock("../../src/rules/mosjeAbilityRules.js"); vi.resetModules(); }
   });

@@ -10,6 +10,7 @@ import { getJabTargets } from '../../engine/quests/getJabTargets.js';
 import { rollQuestAttempt } from '../../engine/quests/rollQuestAttempt.js';
 import { questWinChance } from './questWinChance.js';
 import { chooseQuestCostChoice } from './chooseQuestCostChoice.js';
+import { asBotView } from './asBotView.js';
 
 const GETEMT_BONUS = 20;
 const JAB = 10;
@@ -50,6 +51,7 @@ function bestQuest(state, botId, slotIndex, slot) {
 }
 
 export function chooseMosjeAction(state, botId, slotIndex) {
+	state = asBotView(state, botId); // BOT-04: from here on `state` is the table view
 	if (!canMosjeTakeAction(state, botId, slotIndex).ok) return null;
 	const slot = state.players[botId].activeSlots[slotIndex];
 	const options = [bestAttack(state, botId, slot), bestQuest(state, botId, slotIndex, slot)].filter(Boolean);

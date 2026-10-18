@@ -5,6 +5,7 @@
 import { MOSJE_ABILITY_RULES } from '../../rules/mosjeAbilityRules.js';
 import { PIECIES } from '../../data/piecies.js';
 import { getRevealedFor } from '../../engine/hidden/getRevealedFor.js';
+import { asBotView } from './asBotView.js';
 
 const PIECIE_IDS = new Set(PIECIES.map(p => p.id));
 
@@ -13,6 +14,7 @@ const live = (state, pid) => (state.players[pid]?.activeSlots || []).map((s, slo
 const byMp = (a, b) => a.s.mp - b.s.mp;
 
 export function defaultAbilityInputs(state, botId, abilityId) {
+	state = asBotView(state, botId); // BOT-04: from here on `state` is the table view
 	const rule = MOSJE_ABILITY_RULES[abilityId];
 	if (!rule) return null;
 	const me = state.players[botId];

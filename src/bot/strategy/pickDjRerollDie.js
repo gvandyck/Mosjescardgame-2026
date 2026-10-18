@@ -3,8 +3,10 @@
 // the win depends on (the lowest such one). Only rerolls that can change the outcome are worth the use.
 import { getQuestDef } from '../../engine/quests/getQuestDef.js';
 import { isBandWin } from '../../engine/quests/isBandWin.js';
+import { asBotView } from './asBotView.js';
 
 export function pickDjRerollDie(state, responderId, eligible, prefix = 'djReroll:') {
+	state = asBotView(state, responderId); // BOT-04: from here on `state` is the table view
 	const roll = state.pendingQuestRoll;
 	const quest = roll && getQuestDef(roll.questId);
 	if (!quest || quest.band === 'trained') return null;

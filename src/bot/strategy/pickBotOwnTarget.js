@@ -3,6 +3,7 @@
 import { PIECIES } from '../../data/piecies.js';
 import { MOSJES } from '../../data/mosjes.js';
 import { getCardTags } from './comboTags.js';
+import { asBotView } from './asBotView.js';
 
 function powerOf(slot) {
 	const def = MOSJES.find(m => m.id === slot.cardId);
@@ -10,6 +11,7 @@ function powerOf(slot) {
 }
 
 export function pickBotOwnTarget(state, botId, effectId) {
+	state = asBotView(state, botId); // BOT-04: from here on `state` is the table view
 	const slots = state.players?.[botId]?.activeSlots || [];
 	const card = PIECIES.find(p => p.effectId === effectId);
 	const isGain = !!card && getCardTags(card.id).includes('mp-gain');

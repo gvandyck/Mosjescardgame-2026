@@ -1,10 +1,12 @@
 // chooseQuestCostChoice — cheapest legal discard for a "First you must" Quest cost, or undefined.
 import { payQuestCost } from '../../engine/quests/payQuestCost.js';
 import { isReadyPiecieSlot } from '../../engine/quests/isReadyPiecieSlot.js';
+import { asBotView } from './asBotView.js';
 
 const HAND_COST = { PLACE: 1, QUEST: 1, PIECIE: 2, MOSJE: 9 };
 
 export function chooseQuestCostChoice(state, playerId, slotIndex, quest) {
+	state = asBotView(state, playerId); // BOT-04: from here on `state` is the table view
 	if (!quest?.costId) return { ok: true, choice: undefined };
 	const player = state.players[playerId];
 	const options = [{ choice: undefined, rank: 0 }];

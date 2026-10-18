@@ -4,10 +4,12 @@ import { SNELLE_PIECIES } from '../../data/snellePiecies.js';
 import { getQuestDef } from '../../engine/quests/getQuestDef.js';
 import { getQuestDiceCount } from '../../engine/quests/getQuestDiceCount.js';
 import { pickDjRerollDie } from './pickDjRerollDie.js';
+import { asBotView } from './asBotView.js';
 
 const costOf = (id) => Number(SNELLE_PIECIES.find(d => d.id === id)?.cost) || 0;
 
 export function chooseReaction(state, responderId) {
+	state = asBotView(state, responderId); // BOT-04: from here on `state` is the table view
 	const p = state.pendingReaction;
 	if (!p || p.responderId !== responderId) return null;
 	const has = (id) => p.eligible.includes(id);

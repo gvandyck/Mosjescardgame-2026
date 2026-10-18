@@ -7,6 +7,7 @@ import { isPiecieReady } from '../../engine/table/isPiecieReady.js';
 // 'payoff' cards until enough setup is ready this turn.
 
 import { getCardTags } from './comboTags.js';
+import { asBotView } from './asBotView.js';
 
 const BASE_PRIORITY = {
 	multiplier: 0,
@@ -28,6 +29,7 @@ const BASE_PRIORITY = {
  * @returns {Array<{ slotIndex, cardId, tags }>} ordered activation plan
  */
 export function planPiecieActivations(gameState, playerId, profile, intent = {}) {
+	gameState = asBotView(gameState, playerId); // BOT-04: from here on `gameState` is the table view
 	const player = gameState?.players?.[playerId];
 	const slots = player?.piecieSlots || [];
 	const turnNumber = gameState?.turnNumber ?? 0;

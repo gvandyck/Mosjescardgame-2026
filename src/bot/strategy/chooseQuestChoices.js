@@ -1,7 +1,9 @@
 // chooseQuestChoices — the bot's picks for a resolved Quest attempt (jab target, Vraag Aad, Parkeren Delft).
 import { getJabTargets } from '../../engine/quests/getJabTargets.js';
+import { asBotView } from './asBotView.js';
 
 export function chooseQuestChoices(state, botId, pending) {
+	state = asBotView(state, botId); // BOT-04: from here on `state` is the table view
 	const choices = {};
 	const { questId, win, discardedCardIds } = pending;
 	const mine = state.players[botId];

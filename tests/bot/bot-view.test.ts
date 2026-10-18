@@ -128,7 +128,7 @@ describe('getBotView', () => {
 		const min = { turnNumber: 2, players: { [BOT]: { hand: [card('a')], activeSlots: [] }, [OPP]: { activeSlots: [] } } };
 		const view = getBotView(min, BOT);
 		expect(view.questStacks).toBeUndefined();
-		expect(view.revealed).toBeUndefined();
+		expect(view.revealed).toEqual({}); // always an object: a missing key must not tell the bot whether the opponent saw something
 		expect(view.players[OPP].hand).toBeUndefined();
 		expect(view.players[OPP].deck).toBeUndefined();
 		expect(view.players[OPP].piecieSlots).toBeUndefined();
