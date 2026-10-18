@@ -9,6 +9,10 @@ import { questWinChance } from '../../src/bot/strategy/questWinChance.js';
 // @ts-expect-error JS module without type declarations
 import { chooseMosjeAction } from '../../src/bot/strategy/chooseMosjeAction.js';
 // @ts-expect-error JS module without type declarations
+import { scoreMosjeAction } from '../../src/bot/strategy/scoreMosjeAction.js';
+// @ts-expect-error JS module without type declarations
+import { valueOfLoss } from '../../src/bot/strategy/valueOfLoss.js';
+// @ts-expect-error JS module without type declarations
 import { chooseQuestChoices } from '../../src/bot/strategy/chooseQuestChoices.js';
 // @ts-expect-error JS module without type declarations
 import { attackMosje } from '../../src/engine/actions/attackMosje.js';
@@ -73,6 +77,55 @@ describe('chooseMosjeAction', () => {
     const s = board(mkSlot({ mp: 60 }), [null, null], { FIGHTING: 'quest_endurance_test' });
     s.players.player_1.hand = [];
     expect(chooseMosjeAction(s, 'player_1', 0)).toBeNull();
+  });
+});
+
+// 61-04 (BOT-01): the choice follows the value of the MP swing (slot worth, getemt, Level 3), not a flat +20 bonus.
+// Gandoe Wizard (mkSlot default): Power 10 / 20 / 30 on Level 1 / 2 / 3; `powerBoost` adds on top. Steady Quest: +25 / -15.
+describe('chooseMosjeAction - expected value (61-04)', () => {
+  const steady = { FIGHTING: 'quest_tough_it_out' };
+  const attackTo = (s: any, i: number) => chooseMosjeAction(s, 'player_1', i);
+
+  it('finishes a getemt: an attack that drops a 20 MP Mosje beats a Steady Quest, worth what the getemt costs it', () => {
+    const target = mkSlot({ mp: 20 });
+    const s = board(mkSlot({ mp: 60, powerBoost: 10 }), [target, null], steady); // Power 20
+    expect(attackTo(s, 0)).toMatchObject({ kind: 'attack', targetPlayerId: 'player_2', targetSlotIndex: 0 });
+    expect(scoreMosjeAction(s, 'player_1', 0).value).toBe(valueOfLoss(target, 20));
+  });
+
+  it('hits the Mosje it can finish, not the fat one (either slot order)', () => {
+    const power20 = () => mkSlot({ mp: 60, powerBoost: 10 });
+    expect(attackTo(board(power20(), [mkSlot({ mp: 20 }), mkSlot({ mp: 60 })]), 0)).toMatchObject({ kind: 'attack', targetSlotIndex: 0 });
+    expect(attackTo(board(power20(), [mkSlot({ mp: 60 }), mkSlot({ mp: 20 })]), 0)).toMatchObject({ kind: 'attack', targetSlotIndex: 1 });
+  });
+
+  it('values dropping a Level 3 above an equal hit on a Level 1', () => {
+    const power30 = () => mkSlot({ mp: 60, powerBoost: 20 });
+    const lv3 = () => mkSlot({ level: 3, mp: 30 });
+    const lv1 = () => mkSlot({ mp: 30 });
+    expect(attackTo(board(power30(), [lv3(), lv1()]), 0)).toMatchObject({ kind: 'attack', targetSlotIndex: 0 });
+    expect(attackTo(board(power30(), [lv1(), lv3()]), 0)).toMatchObject({ kind: 'attack', targetSlotIndex: 1 });
+    const s = board(power30(), [lv3(), lv1()]);
+    expect(scoreMosjeAction(s, 'player_1', 0).value).toBe(valueOfLoss(lv3(), 30));
+    expect(valueOfLoss(lv3(), 30)).toBeGreaterThan(valueOfLoss(lv1(), 30));
+  });
+
+  it('keeps a Level 3 out of a Quest whose loss leaves it within the opponent next-turn Power', () => {
+    const fresh = (boost: number) => [mkSlot({ mp: 40, entryProtected: true, powerBoost: boost }), null]; // no attack target, Power 10 + boost
+    const lv3 = () => mkSlot({ level: 3, mp: 40 }); // a failed Steady Quest leaves 25
+    expect(attackTo(board(lv3(), fresh(20), steady), 0)).toBeNull(); // threat 30 >= 25
+    expect(attackTo(board(lv3(), fresh(10), steady), 0)).toMatchObject({ kind: 'quest', stackId: 'FIGHTING' }); // threat 20 < 25
+  });
+
+  it('does not attack into a staying Welloe Force when the thorns getemt the attacker', () => {
+    const s = board(mkSlot({ mp: 15 }), [mkSlot({ mp: 60 }), null]);
+    expect(attackTo(s, 0)).toMatchObject({ kind: 'attack' }); // control: without the card the 10 Power hit is free
+    s.players.player_2.piecieSlots[0] = { cardId: 'piecie_welloe_force', type: 'PIECIE', stays: true, faceDown: false };
+    expect(attackTo(s, 0)).toBeNull();
+  });
+
+  it('scores nothing for a Mosje that cannot act', () => {
+    expect(scoreMosjeAction(board(mkSlot({ actedThisTurn: true }), [mkSlot({ mp: 40 }), null]), 'player_1', 0)).toBeNull();
   });
 });
 
