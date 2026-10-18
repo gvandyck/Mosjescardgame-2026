@@ -155,10 +155,11 @@ export const SNELLE_REGISTRY = [
 			expect: { mp: { 'own.0': 35, 'opp.0': 35 }, energy: 1, handDelta: -1, state: [['players.player_1.pieciesActivatedThisTurn', 0]] } },
 	] },
 	{ snelle: 'snelle_frenssen', deck: 'example', cases: [
-		{ name: 'my Affoe: the bot Jensen! is cancelled, the Affoe resolves and a bot Mosje also loses 10 (40 - 10 - 15)',
-			setup: { field: [{ id: MING, mp: 20 }], oppField: OPP40, hand: ['snelle_frenssen'], oppHand: ['snelle_jensen'], energy: 6, piecies: [{ slot: 0, id: AFFOE }] },
+		// Phase 61: the bot plays Jensen! only to save a Mosje in danger (getemt, Level 3, a loss of 20+), so the bot Mosje is Level 3.
+		{ name: 'my Affoe: the bot Jensen! is cancelled, the Affoe resolves and a bot Mosje also loses 10 (70 - 10 - 15)',
+			setup: { field: [{ id: MING, mp: 20 }], oppField: [{ id: MING, mp: 70, level: 3 }], hand: ['snelle_frenssen'], oppHand: ['snelle_jensen'], energy: 6, piecies: [{ slot: 0, id: AFFOE }] },
 			trigger: { kind: 'activatePiecie', cardId: AFFOE, picks: [/Frenssen/] },
-			expect: { mp: { 'own.0': 30, 'opp.0': 15 }, energy: 3, handDelta: -1, state: [['players.player_2.energy', 5]] } },
+			expect: { mp: { 'own.0': 30, 'opp.0': 45 }, level: { 'opp.0': 3 }, energy: 3, handDelta: -1, state: [['players.player_2.energy', 5]] } },
 	] },
 	{ snelle: 'snelle_blensen', deck: 'example', cases: [
 		{ name: 'costs 4 without a Jensen!/Frenssen!; afterwards the bot Affoe cannot target my Mosje',
