@@ -62,9 +62,11 @@ describe('pickBotOwnTarget', () => {
   it('never a defeated slot', () => {
     expect(pickBotOwnTarget(s(mk('mosje_gandoe_wizard', 99, { isDefeated: true }), mk('mosje_jeffrey', 5)), 'player_1', 'effect_kannetje_melk')).toBe(1);
   });
+  // 61-05: Stripje Bennies is a self-loss card (the Mosje loses 20 MP), so it no longer counts as a "Power" effect - a
+  // Power boost (Te Hard Gaan) is the non-gain effect that goes to the higher Power. Same fixture, same expected slot.
   it('non-gain effect -> higher Power', () => {
     const a = mk('mosje_gandoe_wizard', 90, { level: 1 });
     const b = mk('mosje_gandoe_wizard', 10, { level: 3 });
-    expect(pickBotOwnTarget(s(a, b), 'player_1', 'effect_stripje_bennies')).toBe(1);
+    expect(pickBotOwnTarget(s(a, b), 'player_1', 'effect_te_hard_gaan')).toBe(1);
   });
 });

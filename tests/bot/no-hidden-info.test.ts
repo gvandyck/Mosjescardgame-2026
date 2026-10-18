@@ -28,6 +28,8 @@ import { chooseReaction } from '../../src/bot/strategy/chooseReaction.js';
 import { chooseTriggerChoice } from '../../src/bot/strategy/chooseTriggerChoice.js';
 import { defaultAbilityInputs } from '../../src/bot/strategy/defaultAbilityInputs.js';
 import { pickBotOwnTarget } from '../../src/bot/strategy/pickBotOwnTarget.js';
+import { pickMosjeOption } from '../../src/bot/strategy/pickMosjeOption.js';
+import { pickOwnSlotByRole } from '../../src/bot/strategy/pickOwnSlotByRole.js';
 import { pickDjRerollDie } from '../../src/bot/strategy/pickDjRerollDie.js';
 import { planPiecieActivations } from '../../src/bot/strategy/planPiecieActivations.js';
 import { isUsefulActivation } from '../../src/bot/strategy/isUsefulActivation.js';
@@ -130,11 +132,26 @@ const TRAP_TABLE = {
 		];
 		for (const pendingReaction of fixtures) chooseReaction({ ...t, pendingReaction, pendingQuestRoll: roll }, seat);
 	},
-	chooseTriggerChoice: (t, seat) => chooseTriggerChoice({ ...t, pendingChoice: { hook: 'trigger', playerId: seat, key: 'k', options: [{ slotIndex: 0 }, { slotIndex: 1 }] } }, seat),
+	chooseTriggerChoice: (t, seat) => {
+		chooseTriggerChoice({ ...t, pendingChoice: { hook: 'trigger', playerId: seat, key: 'k', options: [{ slotIndex: 0 }, { slotIndex: 1 }] } }, seat);
+		const options = [0, 1].map((slotIndex) => ({ playerId: other(seat), slotIndex, label: 'opp' }));
+		chooseTriggerChoice({ ...t, pendingChoice: { hook: 'piecie', playerId: seat, key: 'k', choiceKind: 'mosje', options } }, seat);
+	},
 	defaultAbilityInputs: (t, seat) => {
 		for (const [id, rule] of Object.entries(MOSJE_ABILITY_RULES)) if (rule.kind === 'activated') defaultAbilityInputs(t, seat, id);
 	},
 	pickBotOwnTarget: (t, seat) => { for (const effectId of OWN_TARGET_EFFECT_IDS) pickBotOwnTarget(t, seat, effectId); },
+	pickOwnSlotByRole: (t, seat) => { for (const role of ['power', 'self-loss', 'defense', 'gain']) expect(pickOwnSlotByRole(t, seat, role, [0, 1], 10)).toBeGreaterThanOrEqual(0); },
+	pickMosjeOption: (t, seat) => {
+		const options = (playerId, ...slots) => slots.map((slotIndex) => ({ playerId, slotIndex, label: `${playerId}:${slotIndex}` }));
+		const choice = (opts, piecieId) => ({ hook: 'piecie', playerId: seat, choiceKind: 'mosje', options: opts, ...(piecieId ? { piecie: { cardDef: { id: piecieId } } } : {}) });
+		// Slot 0 of each seat holds a Mosje; slot 1 may be empty, which makes its option malformed (still no throw).
+		expect(pickMosjeOption(t, seat, choice(options(other(seat), 0)))).toBeDefined(); // the opponent's Mosjes
+		for (const piecieId of ['piecie_warm_kannetje_melk', 'piecie_kannetje_melk']) expect(pickMosjeOption(t, seat, choice(options(seat, 0), piecieId))).toBeDefined(); // own: self-loss and gain
+		pickMosjeOption(t, seat, choice(options(other(seat), 0, 1)));
+		pickMosjeOption(t, seat, choice(options(seat, 0, 1), 'piecie_stripje_bennies'));
+		expect(pickMosjeOption(t, seat, choice([...options(seat, 0), ...options(other(seat), 0)]))).toBeUndefined(); // mixed
+	},
 	pickDjRerollDie: (t, seat) => {
 		const eligible = ['djReroll:0', 'djReroll:1', 'piecieReroll:0', 'piecieReroll:1'];
 		const questId = faceUpQuestIds(t)[0];
@@ -198,8 +215,8 @@ describe('BOT-04 source scan: every state-taking export is in the trap table', (
 			expect(readFileSync(`${dir}${f}.js`, 'utf8'), f).toMatch(/asBotView\(/);
 		}
 	});
-	it('the Piecie usefulness check added in 61-05 projects onto the table view on entry', () => {
-		for (const f of ['isUsefulActivation']) {
+	it('the Piecie usefulness check and the Mosje pick added in 61-05 project onto the table view on entry', () => {
+		for (const f of ['isUsefulActivation', 'pickMosjeOption', 'pickOwnSlotByRole']) {
 			expect(readFileSync(`${dir}${f}.js`, 'utf8'), f).toMatch(/asBotView\(/);
 		}
 	});

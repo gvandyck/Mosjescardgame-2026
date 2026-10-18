@@ -1,25 +1,22 @@
-// pickBotOwnTarget — which of its own Mosjes the bot aims a "your Mosje" Piecie at.
-// Gain effects: highest MP (closest to the next level). Others: highest Power. Ties: lower slot.
+// pickBotOwnTarget — which of its own Mosjes the bot aims a "your Mosje" Piecie at (slot index, -1 when none).
+// By what the card does: a Power boost goes to a Mosje that can still attack, a self-loss to the Mosje that absorbs it,
+// a pet to an own Level 3 (else the most valuable Mosje); an MP gain protects a threatened Level 3, else levels something up.
+// The picking itself is pickOwnSlotByRole; the role comes from the Piecie's tags (comboTags) and its self-loss amount.
 import { PIECIES } from '../../data/piecies.js';
-import { MOSJES } from '../../data/mosjes.js';
 import { getCardTags } from './comboTags.js';
+import { SELF_LOSS_MP } from './cardAmounts.js';
+import { pickOwnSlotByRole } from './pickOwnSlotByRole.js';
 import { asBotView } from './asBotView.js';
-
-function powerOf(slot) {
-	const def = MOSJES.find(m => m.id === slot.cardId);
-	return def?.levels?.[(slot.level || 1) - 1]?.power ?? 0;
-}
 
 export function pickBotOwnTarget(state, botId, effectId) {
 	state = asBotView(state, botId); // BOT-04: from here on `state` is the table view
 	const slots = state.players?.[botId]?.activeSlots || [];
 	const card = PIECIES.find(p => p.effectId === effectId);
-	const isGain = !!card && getCardTags(card.id).includes('mp-gain');
-	const score = s => (isGain ? (s.mp || 0) : powerOf(s));
-	let best = -1;
-	slots.forEach((s, i) => {
-		if (!s || s.isDefeated) return;
-		if (best < 0 || score(s) > score(slots[best])) best = i;
-	});
-	return best;
+	const tags = card ? getCardTags(card.id) : [];
+	const loss = card ? SELF_LOSS_MP[card.id] ?? 0 : 0; // Straffoe's own 5 MP counts too
+	let role = 'gain';
+	if (tags.includes('power')) role = 'power';
+	else if (loss > 0) role = 'self-loss';
+	else if (tags.includes('defense')) role = 'defense';
+	return pickOwnSlotByRole(state, botId, role, slots.map((_, i) => i), loss);
 }
