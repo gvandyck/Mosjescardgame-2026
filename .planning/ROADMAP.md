@@ -39,7 +39,7 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 | 58 | Mosje Abilities and Synergies | 12/12 | Complete    | 2026-10-15 |
 | 59 | Piecie Effects | 8/8 | Complete    | 2026-10-16 |
 | 60 | Snelle, Places and Hidden Information | 8/8 | Complete    | 2026-10-17 |
-| 61 | Bot 2.0 | 4/9 | In Progress|  |
+| 61 | Bot 2.0 | 5/9 | In Progress|  |
 | 62 | 2.0 Card Faces | Every card face follows the Phase 7 §A spec | UI-04, TEST-04 | 5 |
 | 63 | 2.0 Board and Player Actions | A human can play a full 2.0 turn on the 2.0 board | UI-01, 02, 03, 05 | 4 |
 | 64 | Lobby, Full Games, Simulation and Deploy | Anyone can play 2.0 vs the bot at eightytwenty.nl/obbycardgame2 | SHELL-01, 02, 03, TEST-03, TEST-05 | 5 |
@@ -311,7 +311,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 61-05-PLAN.md — Piecie activations: 2.0 tags, engine gate + Energy budget + usefulness; own targets protect Level 3; Mosje picks
+- [x] 61-05-PLAN.md — Piecie activations: 2.0 tags, engine gate + Energy budget + usefulness; own targets protect Level 3; Mosje picks
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
