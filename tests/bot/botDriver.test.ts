@@ -230,9 +230,12 @@ describe('driveBotTurn', () => {
   // Test 5 (2.0): a Place in hand is played straight onto the table, no slot, only if none is in play
   it('hand has one PLACE — it becomes the active Place and no Piecie slot is used', () => {
     const placeDef = (PLACES as { id: string; cost: number }[]).find((p) => p.cost <= 2)!;
+    // 61-08: a Place is played only when it fits (Bank Chilling's -10 Power must hit the opponent more than the bot), so the
+    // opponent has two Mosjes on the field here; the assertions are unchanged.
     const state = makeState({
       hand: [{ cardId: placeDef.id, type: 'PLACE' }],
       activeSlots: [makeMosjeSlot('mosje_jeffrey', 50)],
+      opponentSlots: [makeMosjeSlot('mosje_jeffrey', 50), makeMosjeSlot('mosje_michelle', 50)],
     });
     (state.players.player_2 as any).energy = 6;
     const result = driveBotTurn(state, 'player_2');

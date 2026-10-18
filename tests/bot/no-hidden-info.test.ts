@@ -38,6 +38,9 @@ import { canBotAfford } from '../../src/bot/strategy/canBotAfford.js';
 import { chooseSummon } from '../../src/bot/strategy/chooseSummon.js';
 import { shouldUseAbility } from '../../src/bot/strategy/shouldUseAbility.js';
 import { choosePlaceToPlay } from '../../src/bot/strategy/choosePlaceToPlay.js';
+import { placeFit } from '../../src/bot/strategy/placeFit.js';
+import { MOSJES } from '../../src/data/mosjes.js';
+import { createMosjeSlot } from '../../src/engine/mp/createMosjeSlot.js';
 import { opponentThreat } from '../../src/bot/strategy/opponentThreat.js';
 import { reactionReserve } from '../../src/bot/strategy/reactionReserve.js';
 import { choosePieciesToPlace } from '../../src/bot/strategy/choosePieciesToPlace.js';
@@ -100,6 +103,14 @@ function withShopping(t, seat) {
 	const me = t.players[seat];
 	const hand = [...me.hand, card('mosje_alyssa_fissa', 'MOSJE'), card('place_the_gym', 'PLACE'), card('place_tesla', 'PLACE')];
 	return { ...t, activePlace: null, players: { ...t.players, [seat]: { ...me, energy: 6, hand, activeSlots: [me.activeSlots[0], null] } } };
+}
+
+// A board where The Gym clearly fits: a settled Fighting Gandoe for the seat against a settled Digital Ronald (and no Coert for Tesla).
+function withGymBoard(t, seat) {
+	const slot = (id) => ({ ...createMosjeSlot(MOSJES.find((m) => m.id === id), { level: 1, mp: 30 }), entryProtected: false });
+	const players = { ...t.players, [seat]: { ...t.players[seat], activeSlots: [slot('mosje_gandoe_wizard'), null] } };
+	players[other(seat)] = { ...t.players[other(seat)], activeSlots: [slot('mosje_ronald_chef'), null] };
+	return { ...t, players };
 }
 
 // The seat holds a reaction Snelle (Jensen!), so the reserve choosers reach their kept-slot / kept-Energy branch.
@@ -206,7 +217,12 @@ const TRAP_TABLE = {
 	canBotAfford: (t, seat) => { for (const [id, kind] of PAYMENTS) canBotAfford(withShopping(t, seat), seat, id, kind, 1); },
 	chooseSummon: (t, seat) => { expect(chooseSummon(withShopping(t, seat), seat)?.cardId).toBe('mosje_alyssa_fissa'); },
 	shouldUseAbility: (t, seat) => { for (const i of [0, 1]) shouldUseAbility(withShopping(t, seat), seat, i, getBotProfile(t, seat), 1); },
-	choosePlaceToPlay: (t, seat) => { expect(choosePlaceToPlay(withShopping(t, seat), seat, 1)?.cardId).toBe('place_the_gym'); },
+	choosePlaceToPlay: (t, seat) => { expect(choosePlaceToPlay(withGymBoard(withShopping(t, seat), seat), seat, 1)?.cardId).toBe('place_the_gym'); },
+	placeFit: (t, seat) => {
+		const st = withGymBoard(withShopping(t, seat), seat);
+		expect(placeFit(st, seat, 'place_the_gym')).toBeGreaterThan(0);
+		expect(placeFit(st, seat, 'place_arcade')).toBeLessThan(0);
+	},
 	opponentThreat: (t, seat) => { expect(opponentThreat(t, seat)).toBeGreaterThanOrEqual(0); },
 	reactionReserve: (t, seat) => { expect(reactionReserve(withReaction(t, seat), seat)).toMatchObject({ keepSlot: true, energy: 1 }); },
 	choosePieciesToPlace: (t, seat) => { expect(choosePieciesToPlace(withReaction(t, seat), seat)).toBeInstanceOf(Array); },
@@ -272,6 +288,11 @@ describe('BOT-04 source scan: every state-taking export is in the trap table', (
 	});
 	it('the defender and counter reaction picks added in 61-07 project onto the table view on entry', () => {
 		for (const f of ['pickDefensiveSnelle', 'pickCounterSnelle']) {
+			expect(readFileSync(`${dir}${f}.js`, 'utf8'), f).toMatch(/asBotView\(/);
+		}
+	});
+	it('the Place fit added in 61-08 projects onto the table view on entry', () => {
+		for (const f of ['placeFit']) {
 			expect(readFileSync(`${dir}${f}.js`, 'utf8'), f).toMatch(/asBotView\(/);
 		}
 	});

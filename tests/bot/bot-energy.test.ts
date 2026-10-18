@@ -190,9 +190,12 @@ describe('choosePlaceToPlay', () => {
 	});
 	it("skips a Place it can't pay (reserve included) and takes the next one", () => {
 		const hand = [place('place_the_gym'), place('place_bank_chilling')]; // costs 3 and 2
-		expect(choosePlaceToPlay(table({ energy: 2, hand }), BOT).cardId).toBe('place_bank_chilling');
-		expect(choosePlaceToPlay(table({ energy: 3, hand }), BOT, 1).cardId).toBe('place_bank_chilling');
-		expect(choosePlaceToPlay(table({ energy: 1, hand }), BOT)).toBeNull();
+		// 61-08: Places are played only with a positive fit; Bank Chilling (-10 Power for everyone) needs the opponent to have
+		// more Mosjes on the field than the bot, so the opponent gets a second one here (assertions unchanged).
+		const oppField = ['mosje_jeffrey', 'mosje_jeffrey'];
+		expect(choosePlaceToPlay(table({ energy: 2, hand, oppField }), BOT).cardId).toBe('place_bank_chilling');
+		expect(choosePlaceToPlay(table({ energy: 3, hand, oppField }), BOT, 1).cardId).toBe('place_bank_chilling');
+		expect(choosePlaceToPlay(table({ energy: 1, hand, oppField }), BOT)).toBeNull();
 	});
 	it('Tesla needs a Coert on the field', () => {
 		expect(choosePlaceToPlay(table({ energy: 6, hand: [place('place_tesla')] }), BOT)).toBeNull();
