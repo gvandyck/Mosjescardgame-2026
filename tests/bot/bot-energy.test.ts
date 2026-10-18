@@ -1,13 +1,17 @@
 // @ts-nocheck
 // BOT-02: the bot pays what the engine will really charge. Place discounts (Dierenasiel, Welloe Graveyard, Coert's
 // Caravan) and the Delluft parking fee are in its Energy plan; it never asks the engine for a payment it can't cover.
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { MOSJES } from '../../src/data/mosjes.js';
 import { createMosjeSlot } from '../../src/engine/mp/createMosjeSlot.js';
 import { getBotPaymentCost } from '../../src/bot/strategy/getBotPaymentCost.js';
 import { canBotAfford } from '../../src/bot/strategy/canBotAfford.js';
 import { chooseSummon } from '../../src/bot/strategy/chooseSummon.js';
 import { shouldUseAbility } from '../../src/bot/strategy/shouldUseAbility.js';
+import { choosePlaceToPlay } from '../../src/bot/strategy/choosePlaceToPlay.js';
+import { driveBotTurn, driveBotTurnSteps } from '../../src/bot/botDriver.js';
+import { createInitialGameState } from '../../src/engine/gameState.js';
+import { startTurn } from '../../src/engine/turnManager.js';
 import { getBotProfile } from '../../src/bot/strategy/botProfiles.js';
 import { makeEngineState } from '../helpers/makeEngineState.js';
 
@@ -171,4 +175,160 @@ describe('shouldUseAbility', () => {
 		st.players[BOT].activeSlots[0].abilityUsedThisGame = true;
 		expect(shouldUseAbility(st, BOT, 0, profile(st))).toBe(false);
 	});
+});
+
+// ---------------------------------------------------------------------------------------------------------------
+// choosePlaceToPlay
+// ---------------------------------------------------------------------------------------------------------------
+describe('choosePlaceToPlay', () => {
+	const place = (cardId) => ({ cardId, type: 'PLACE' });
+	it('plays an affordable Place, never while another Place is in play, never on a cooldown turn', () => {
+		expect(choosePlaceToPlay(table({ energy: 3, hand: [place('place_the_gym')] }), BOT).cardId).toBe('place_the_gym');
+		expect(choosePlaceToPlay(table({ energy: 3, place: 'place_boxing_ring', hand: [place('place_the_gym')] }), BOT)).toBeNull();
+		expect(choosePlaceToPlay(table({ energy: 3, hand: [place('place_the_gym')], bot: { cooldownTurn: true } }), BOT)).toBeNull();
+		expect(choosePlaceToPlay(table({ energy: 3, hand: [place('place_the_gym')], active: OPP }), BOT)).toBeNull();
+	});
+	it("skips a Place it can't pay (reserve included) and takes the next one", () => {
+		const hand = [place('place_the_gym'), place('place_bank_chilling')]; // costs 3 and 2
+		expect(choosePlaceToPlay(table({ energy: 2, hand }), BOT).cardId).toBe('place_bank_chilling');
+		expect(choosePlaceToPlay(table({ energy: 3, hand }), BOT, 1).cardId).toBe('place_bank_chilling');
+		expect(choosePlaceToPlay(table({ energy: 1, hand }), BOT)).toBeNull();
+	});
+	it('Tesla needs a Coert on the field', () => {
+		expect(choosePlaceToPlay(table({ energy: 6, hand: [place('place_tesla')] }), BOT)).toBeNull();
+		expect(choosePlaceToPlay(table({ energy: 6, hand: [place('place_tesla')], field: ['mosje_coert_tech', null] }), BOT).cardId).toBe('place_tesla');
+	});
+});
+
+// ---------------------------------------------------------------------------------------------------------------
+// The driver: no unaffordable or impossible try, and every refusal is measured
+// ---------------------------------------------------------------------------------------------------------------
+function mulberry32(seed) {
+	return function () {
+		seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+		let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+		t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+		return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+	};
+}
+let origRandom;
+beforeEach(() => { origRandom = Math.random; Math.random = mulberry32(0xE4E26E); });
+afterEach(() => { Math.random = origRandom; });
+
+// Runs `run` and returns every '[BOT] METRIC {...}' line it printed, parsed.
+function captureMetrics(run) {
+	const metrics = [];
+	const spy = vi.spyOn(console, 'log').mockImplementation((...args) => {
+		if (typeof args[0] === 'string' && args[0].startsWith('[BOT] METRIC ')) metrics.push(JSON.parse(args[0].slice('[BOT] METRIC '.length)));
+	});
+	try { run(); } finally { spy.mockRestore(); }
+	return metrics;
+}
+// engine-refused metrics, optionally only for the given driver calls. The scenario tests name the calls they are about:
+// other refusal kinds are counted in the seeded games below and swept in 61-08.
+const refusals = (metrics, ...calls) => metrics.filter((m) => m.ev === 'engine-refused' && (!calls.length || calls.includes(m.call)));
+
+const noQuests = { questStacks: ['FIGHTING', 'DIGITAL', 'ARTISTIC'].reduce((o, id) => ({ ...o, [id]: { deck: [], faceUp: null, tokens: 0, discard: [] } }), {}) };
+const readyPiecie = (cardId) => ({ cardId, type: 'PIECIE', faceDown: true, activated: false, playedOnTurn: 2, canActivateOnTurn: 3 });
+function driveTurn(st) {
+	let steps;
+	const metrics = captureMetrics(() => { steps = driveBotTurnSteps(st, BOT); });
+	return { steps, metrics, end: steps[steps.length - 1].state, labels: steps.map((s) => s.label) };
+}
+
+describe('driveBotTurn under the Delluft parking fee', () => {
+	const delluft = (over) => table({ place: 'place_delluft', state: noQuests, ...over });
+
+	it('Energy 2: no summon of a cost-2 Mosje and no refusal; Energy 3: summoned, Energy 0 after', () => {
+		const hand = [{ cardId: 'mosje_alyssa_fissa', type: 'MOSJE' }];
+		const poor = driveTurn(delluft({ energy: 2, hand }));
+		expect(poor.labels.some((l) => /to the field/.test(l))).toBe(false);
+		expect(poor.end.players[BOT].hand).toHaveLength(1);
+		expect(refusals(poor.metrics, 'playMosje')).toEqual([]);
+
+		const rich = driveTurn(delluft({ energy: 3, hand }));
+		expect(rich.labels.some((l) => /to the field/.test(l))).toBe(true);
+		expect(rich.end.players[BOT].activeSlots[1]?.cardId).toBe('mosje_alyssa_fissa');
+		expect(rich.end.players[BOT].energy).toBe(0);
+		expect(refusals(rich.metrics, 'playMosje')).toEqual([]);
+	});
+
+	it('Energy 2: a ready cost-2 Piecie is not activated and not tried; Energy 3: activated, Energy 0 after', () => {
+		const bot = { piecieSlots: [readyPiecie('piecie_momentum_diefje'), null, null] };
+		const poor = driveTurn(delluft({ energy: 2, bot }));
+		expect(poor.end.players[BOT].piecieSlots[0]?.activated).toBeFalsy();
+		expect(poor.end.players[BOT].energy).toBe(2);
+		expect(refusals(poor.metrics, 'activatePiecie')).toEqual([]);
+
+		const rich = driveTurn(delluft({ energy: 3, bot }));
+		expect(rich.labels.some((l) => /activates momentum diefje/.test(l))).toBe(true);
+		expect(rich.end.players[BOT].energy).toBe(0);
+		expect(refusals(rich.metrics, 'activatePiecie')).toEqual([]);
+	});
+});
+
+describe('driveBotTurn: Places', () => {
+	const place = (cardId) => ({ cardId, type: 'PLACE' });
+	it("a cost-3 Place it can't pay is not tried; paid, it is played", () => {
+		const poor = driveTurn(table({ energy: 2, hand: [place('place_the_gym')], state: noQuests }));
+		expect(poor.end.activePlace).toBeNull();
+		expect(refusals(poor.metrics, 'playPlace')).toEqual([]);
+		const rich = driveTurn(table({ energy: 3, hand: [place('place_the_gym')], state: noQuests }));
+		expect(rich.end.activePlace).toBe('place_the_gym');
+		expect(rich.end.players[BOT].energy).toBe(0);
+	});
+	it('Tesla in hand without a Coert is not played and not tried', () => {
+		const run = driveTurn(table({ energy: 6, hand: [place('place_tesla')], state: noQuests }));
+		expect(run.end.activePlace).toBeNull();
+		expect(refusals(run.metrics, 'playPlace')).toEqual([]);
+	});
+});
+
+describe('driveBotTurn: Piecie slots', () => {
+	it('with all 3 Piecie slots full it does not try to place another Piecie', () => {
+		const down = (cardId) => ({ cardId, type: 'PIECIE', faceDown: true, activated: false, playedOnTurn: 3, canActivateOnTurn: 4 });
+		const bot = { piecieSlots: [down('piecie_te_hard_gaan'), down('piecie_te_hard_gaan'), down('piecie_te_hard_gaan')] };
+		const run = driveTurn(table({ energy: 3, hand: [{ cardId: 'piecie_kannetje_melk', type: 'PIECIE' }], bot, state: noQuests }));
+		expect(run.end.players[BOT].hand).toHaveLength(1);
+		expect(refusals(run.metrics, 'playPiecie')).toEqual([]);
+	});
+});
+
+// ---------------------------------------------------------------------------------------------------------------
+// Seeded bot-vs-bot games: the Energy refusal count is 0 (also with Delluft in play from the start)
+// ---------------------------------------------------------------------------------------------------------------
+function runBotVsBot(p1DeckId, p2DeckId, { delluft = false } = {}) {
+	const players = [
+		{ playerId: 'player_1', name: 'BotA', deckId: p1DeckId },
+		{ playerId: 'player_2', name: 'BotB', deckId: p2DeckId },
+	];
+	let state = createInitialGameState(players, 'ENERGY_BVB', { firstPlayerId: 'player_1' });
+	if (delluft) { state.activePlace = 'place_delluft'; state.activePlacePlayedBy = 'player_2'; }
+	state = startTurn(state);
+	for (let turns = 0; turns < 200 && state.status !== 'FINISHED'; turns++) {
+		state = driveBotTurn(state, state.activePlayerId);
+		if (state.status === 'FINISHED') break;
+		state = startTurn(state);
+	}
+	return state;
+}
+
+describe('seeded bot-vs-bot games: 0 Energy refusals', () => {
+	const PAIRS = [
+		['EXAMPLE_TAKSEN', 'EXAMPLE_REGELAARS'],
+		['EXAMPLE_CREATIEVELINGEN', 'EXAMPLE_TAKSEN'],
+		['EXAMPLE_REGELAARS', 'EXAMPLE_CREATIEVELINGEN'],
+	];
+	for (const delluft of [false, true]) {
+		for (const [a, b] of PAIRS) {
+			it(`${a} vs ${b}${delluft ? ' with Delluft in play' : ''}`, () => {
+				const metrics = captureMetrics(() => { runBotVsBot(a, b, { delluft }); });
+				const found = refusals(metrics);
+				const tally = {};
+				for (const m of found) tally[`${m.call}: ${m.error}`] = (tally[`${m.call}: ${m.error}`] || 0) + 1;
+				console.info(`[ENERGY-REFUSALS] ${a} vs ${b}${delluft ? ' +Delluft' : ''}: ${found.length} engine-refused`, JSON.stringify(tally));
+				expect(found.filter((m) => /energy/i.test(String(m.error)))).toEqual([]);
+			}, 60000);
+		}
+	}
 });

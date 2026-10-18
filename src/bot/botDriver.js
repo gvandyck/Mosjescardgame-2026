@@ -42,11 +42,14 @@ import { getBotProfile } from './strategy/botProfiles.js';
 import { pickBotOwnTarget } from './strategy/pickBotOwnTarget.js';
 import { OWN_TARGET_EFFECT_IDS } from '../engine/targets/ownTargetEffects.js';
 import { planPiecieActivations } from './strategy/planPiecieActivations.js';
-import { getStrikeCandidates } from '../abilities/mosje/getStrikeCandidates.js';
-import { getAbilityEnergyCost } from '../engine/energy/getAbilityEnergyCost.js';
-import { canPay } from '../engine/energy/canPay.js';
 import { isPiecieReady } from '../engine/table/isPiecieReady.js';
-import { classifyLossSeverity, getRequiredConfidence } from './strategy/assessQuestRisk.js';
+import { piecieActivationGate } from '../engine/table/piecieActivationGate.js';
+import { PIECIE_SLOT_COUNT } from '../engine/table/tableRules.js';
+import { asBotView } from './strategy/asBotView.js';
+import { canBotAfford } from './strategy/canBotAfford.js';
+import { chooseSummon } from './strategy/chooseSummon.js';
+import { choosePlaceToPlay } from './strategy/choosePlaceToPlay.js';
+import { shouldUseAbility } from './strategy/shouldUseAbility.js';
 import { getCardTags } from './strategy/comboTags.js';
 import { canMosjeAct } from '../engine/mp/canMosjeAct.js';
 import { getAbilityTiming } from './strategy/abilityTiming.js';
@@ -90,57 +93,6 @@ function computeQuestIntent(state, botPlayerId) {
   return slots.some((_, i) => canMosjeTakeAction(state, botPlayerId, i).ok);
 }
 
-// Gate costly/situational abilities so the bot doesn't burn its quest MP.
-function shouldUseAbility(state, botPlayerId, slot, def, profile) {
-  const cost = getAbilityEnergyCost(def.abilityId);
-  if (def.abilityId === 'ability_gandoe_destroyer_elimination_strike') {
-    return shouldUseEliminationStrike(state, botPlayerId, slot, cost);
-  }
-  if (def.abilityId === 'ability_azn_cless_risk_reward') {
-    return shouldUseRiskReward(state, botPlayerId, slot, profile);
-  }
-  // 2.0: abilities cost Energy, never MP.
-  if (cost > (state.players[botPlayerId]?.energy ?? 0)) return false;
-  return true;
-}
-
-// AZN Cless — Risk and Reward: a manually-triggered d6 gamble, even → +25 MP,
-// odd → -15 MP (see mosjeAbilities.js — the card text calls this an automatic
-// end-of-turn roll, but it is a real ability-button activation with no MP
-// cost, so the generic cost gate above never applies). Fixed 50% odds either
-// way; reuse the same severity/confidence vocabulary as quest risk (U8-safe:
-// classifyLossSeverity reads 2.0 getemt: L1 upright = sideways, sideways = fatal)
-// so the bot only skips the flip when a real loss would be a real problem.
-const RISK_REWARD_LOSS = 15;
-function shouldUseRiskReward(state, botPlayerId, slot, profile) {
-  const severity = classifyLossSeverity({
-    mpBefore: slot.mp || 0,
-    level: slot.level,
-    lossAmount: RISK_REWARD_LOSS,
-    sideways: slot.sideways,
-  });
-  const requiredP = getRequiredConfidence(severity, profile);
-  return 0.5 >= requiredP; // fixed odds — either side of the coin is equally likely
-}
-
-// Elimination Strike (4 Energy, once per game): only when it sets up the
-// knockout (opponent down to one Mosje) or removes a leveled threat.
-function shouldUseEliminationStrike(state, botPlayerId, slot, cost) {
-  if (cost > (state.players[botPlayerId]?.energy ?? 0) || slot.abilityUsedThisGame) return false;
-  const oppId = Object.keys(state.players).find(id => id !== botPlayerId);
-  const oppActive = (state.players[oppId]?.activeSlots || []).filter(s => s && !s.isDefeated);
-  if (oppActive.length === 0) return false;
-  // The strike takes the lowest-level non-fresh Mosje (a tie is settled by the bot's first pick); none = it would be refused.
-  if (getStrikeCandidates(state, oppId).length === 0) return false;
-  const setsUpKnockout = oppActive.length === 1;
-  const removesLeveledThreat = oppActive.some(s => (s.level || 1) >= 2);
-  if (setsUpKnockout || removesLeveledThreat) {
-    emitBotMetric('elimination-strike', { knockout: setsUpKnockout });
-    return true;
-  }
-  return false;
-}
-
 /**
  * driveBotTurnSteps
  * Runs the bot's full turn and returns an array of { state, label } snapshots —
@@ -157,6 +109,8 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
   let state = JSON.parse(JSON.stringify(gameState));
   const profile = getBotProfile(state, botPlayerId);
   const push = (label) => steps.push({ state, label });
+  // BOT-02 legality signal: every engine call the bot made that the engine then refused (61-09 asserts none).
+  const refused = (call, cardId, error) => emitBotMetric('engine-refused', { deck: profile.deckId, call, cardId, error });
   let halted = false; // a human must answer a reaction window first
   const finished = () => state.status === 'FINISHED' || halted;
   // Answer bot-side windows; stop (and show the window) when a human must answer.
@@ -172,7 +126,7 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
     if (!held || held.playerId !== botPlayerId || state.pendingReaction) return;
     const choices = chooseQuestChoices(state, botPlayerId, held);
     const done = resolveQuestAttempt(state, held, choices);
-    if (!done.ok) { state = { ...state }; delete state.pendingQuestRoll; return; }
+    if (!done.ok) { refused('resolveQuestAttempt', held.questId, done.error); state = { ...state }; delete state.pendingQuestRoll; return; }
     state = done.state;
     const slotName = state.players[botPlayerId].activeSlots[held.slotIndex]?.name;
     emitBotMetric('quest-roll', { deck: profile.deckId, quest: held.questId, dice: held.dice.length, success: done.win });
@@ -199,7 +153,7 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
       const def = MOSJE_LOOKUP[slot.cardId];
       if (!def?.abilityId || def.autoAbility) continue;
       if (getAbilityTiming(slot.cardId) !== timing) continue;
-      if (!shouldUseAbility(state, botPlayerId, slot, def, profile)) continue;
+      if (!shouldUseAbility(state, botPlayerId, i, profile)) continue;
 
       // Clone before calling: useMosjeAbility mutates the state it receives.
       const stateForAbility = JSON.parse(JSON.stringify(state));
@@ -214,6 +168,8 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
         // A new pause (Binti: the opponent's discard pick) must never stall a bot; a human's pause is answered by the UI.
         state = settleMosjePauses(state, humanIds).state;
         if (result.reactionPending && !settle()) return; // Chris: the free activation opens a reaction window
+      } else {
+        refused('useMosjeAbility', slot.cardId, result.error);
       }
     }
   };
@@ -224,21 +180,19 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
   // bot-vs-bot play, since nothing ever called playMosje for the bot. Always
   // play it: extra turn trickle, ability access, and quest-risk backup have
   // no real downside, so this needs no risk model (unlike quests/gambles).
+  // 2.0 TABLE-01 + RULE-07: chooseSummon prices the summon for real (Place discounts and the Delluft fee) and
+  // checks the free slot and the cooldown turn, so the engine is never asked for a summon the bot can't pay.
   {
-    // 2.0 TABLE-01: summoning costs Energy, so pick the cheapest Mosje the bot can afford.
-    // 2.0 RULE-07: nothing but face-down Piecies on a cooldown turn.
-    const botPlayer = state.players[botPlayerId];
-    const mosjeCardRef = onCooldown ? undefined : (botPlayer?.hand || [])
-      .filter(c => c.type === 'MOSJE' && canPay(botPlayer, MOSJE_LOOKUP[c.cardId]?.cost ?? 0))
-      .sort((a, b) => (MOSJE_LOOKUP[a.cardId]?.cost ?? 0) - (MOSJE_LOOKUP[b.cardId]?.cost ?? 0))[0];
-    const hasFreeSlot = (state.players[botPlayerId]?.activeSlots || []).some(s => s === null);
-    if (mosjeCardRef && hasFreeSlot) {
+    const mosjeCardRef = chooseSummon(state, botPlayerId);
+    if (mosjeCardRef) {
       const result = playMosje(state, botPlayerId, mosjeCardRef);
       if (result.success) {
         state = result.state;
         const mosjeDef = MOSJE_LOOKUP[mosjeCardRef.cardId];
         emitBotMetric('plays-second-mosje', { deck: profile.deckId, cardId: mosjeCardRef.cardId, slotIndex: result.slotIndex });
         push(`plays ${mosjeDef?.name ?? mosjeCardRef.cardId} to the field`);
+      } else {
+        refused('playMosje', mosjeCardRef.cardId, result.error);
       }
     }
   }
@@ -253,14 +207,15 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
     .sort((a, b) => playPriority(a) - playPriority(b));
   for (const cardRef of playable) {
     if (finished()) break;
+    if ((state.players[botPlayerId]?.piecieSlots || []).filter(Boolean).length >= PIECIE_SLOT_COUNT) break; // no room - never ask
     const cardDef = PIECIE_LOOKUP[cardRef.cardId];
     if (!cardDef) continue;
     const result = playPiecie(state, botPlayerId, cardRef, cardDef);
     if (result.success) {
       state = result.state;
       push(`plays ${cardDef.name}`);
-    } else if (result.error && /slot|full/i.test(result.error)) {
-      break; // No more room — stop trying
+    } else {
+      refused('playPiecie', cardRef.cardId, result.error);
     }
   }
 
@@ -285,7 +240,11 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
       s && s.type === 'PIECIE' && !s.activated && s.cardId === entry.cardId);
     if (idx < 0) continue;
     if (!isPiecieReady(slots[idx], state.turnNumber)) continue;
-    const botEffectId = PIECIE_LOOKUP[slots[idx].cardId]?.effectId;
+    // Checked right before each call: Energy drops (and the Delluft fee is used up) as activations are paid.
+    const view = asBotView(state, botPlayerId);
+    const pieDef = PIECIE_LOOKUP[slots[idx].cardId];
+    if (!pieDef || !canBotAfford(view, botPlayerId, pieDef.id, 'piecie') || piecieActivationGate(view, botPlayerId, pieDef)) continue;
+    const botEffectId = pieDef.effectId;
     if (OWN_TARGET_EFFECT_IDS.includes(botEffectId)) {
       const own = pickBotOwnTarget(state, botPlayerId, botEffectId);
       if (own >= 0) state = { ...state, _pendingTargets: { ...(state._pendingTargets || {}), own_slot_index: own } };
@@ -298,6 +257,8 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
       if (state.pendingChoice) { halted = true; push('waits for your choice'); return steps; }
       if ((result.reactionPending || state.pendingReaction) && !settle()) return steps;
       push(`activates ${entry.cardId.replace('piecie_', '').replace(/_/g, ' ')}`);
+    } else {
+      refused('activatePiecie', entry.cardId, result.error);
     }
   }
 
@@ -307,17 +268,17 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
   // ── Phase E: action phase ──────────────────────────────────────────────────
   if (!finished()) runActionPhase();
 
-  // ── Phase F: play a Place from hand (only when none is in play) ───────────────
-  if (!finished() && !state.activePlace) {
-    for (const cardRef of [...(state.players[botPlayerId]?.hand || [])]) {
-      if (cardRef.type !== 'PLACE') continue;
-      const cardDef = PLACE_LOOKUP[cardRef.cardId];
-      if (!cardDef) continue;
-      const result = playPlace(state, botPlayerId, cardRef, cardDef);
+  // ── Phase F: play a Place from hand (only when none is in play and the bot can pay it) ─────
+  if (!finished()) {
+    const placeRef = choosePlaceToPlay(state, botPlayerId);
+    const cardDef = placeRef && PLACE_LOOKUP[placeRef.cardId];
+    if (cardDef) {
+      const result = playPlace(state, botPlayerId, placeRef, cardDef);
       if (result.success) {
         state = result.state;
         push(`plays Place: ${cardDef.name}`);
-        break;
+      } else {
+        refused('playPlace', placeRef.cardId, result.error);
       }
     }
   }
@@ -346,7 +307,7 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
       }
       if (action.kind === 'attack') {
         const res = attackMosje(state, botPlayerId, { attackerSlotIndex: i, targetPlayerId: action.targetPlayerId, targetSlotIndex: action.targetSlotIndex });
-        if (!res.ok) { emitBotMetric('action-skip', { deck: profile.deckId, reason: res.error }); continue; }
+        if (!res.ok) { refused('attackMosje', slot.cardId, res.error); emitBotMetric('action-skip', { deck: profile.deckId, reason: res.error }); continue; }
         const targetName = state.players[action.targetPlayerId].activeSlots[action.targetSlotIndex]?.name;
         state = res.state;
         if (res.reactionPending) {
@@ -359,7 +320,7 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
         continue;
       }
       const roll = rollQuestAttempt(state, botPlayerId, { slotIndex: i, stackId: action.stackId, costChoice: action.costChoice, dieChoices: action.dieChoices });
-      if (!roll.ok) { emitBotMetric('action-skip', { deck: profile.deckId, reason: roll.error }); continue; }
+      if (!roll.ok) { refused('rollQuestAttempt', slot.cardId, roll.error); emitBotMetric('action-skip', { deck: profile.deckId, reason: roll.error }); continue; }
       if (roll.reactionPending) {
         state = roll.state;
         if (settle()) finishHeldQuest();
@@ -368,7 +329,7 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
       const questName = getQuestDef(roll.pending.questId)?.name ?? roll.pending.questId;
       const choices = chooseQuestChoices(roll.state, botPlayerId, roll.pending);
       const done = resolveQuestAttempt(roll.state, roll.pending, choices);
-      if (!done.ok) { emitBotMetric('action-skip', { deck: profile.deckId, reason: done.error }); continue; }
+      if (!done.ok) { refused('resolveQuestAttempt', roll.pending.questId, done.error); emitBotMetric('action-skip', { deck: profile.deckId, reason: done.error }); continue; }
       state = done.state;
       emitBotMetric('quest-roll', { deck: profile.deckId, quest: roll.pending.questId, dice: roll.pending.dice.length, success: done.win });
       push(`${slot.name} tries ${questName}: dice [${roll.pending.dice.join(',')}] ${done.win ? 'WIN' : 'FAIL'}`);

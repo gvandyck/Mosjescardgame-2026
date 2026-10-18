@@ -3,6 +3,7 @@
 import { resolveReaction } from '../engine/reactions/resolveReaction.js';
 import { chooseReaction } from './strategy/chooseReaction.js';
 import { settleMosjePauses } from './settleMosjePauses.js';
+import { emitBotMetric } from './strategy/emitBotMetric.js';
 
 export function settleReactions(state, humanIds = []) {
 	let n = 0;
@@ -16,8 +17,12 @@ export function settleReactions(state, humanIds = []) {
 		}
 		const who = state.pendingReaction.responderId;
 		if (humanIds.includes(who)) return { state, waiting: true };
-		let r = resolveReaction(state, who, n++ < 8 ? chooseReaction(state, who) : null);
-		if (!r.ok) r = resolveReaction(state, who, null);
+		const pick = n++ < 8 ? chooseReaction(state, who) : null;
+		let r = resolveReaction(state, who, pick);
+		if (!r.ok) {
+			emitBotMetric('engine-refused', { call: 'resolveReaction', cardId: pick, error: r.error }); // BOT-02: the bot's choice was refused
+			r = resolveReaction(state, who, null);
+		}
 		if (r.ok) { state = r.state; continue; }
 		state = { ...state }; delete state.pendingReaction; // malformed state: never loop
 	}
