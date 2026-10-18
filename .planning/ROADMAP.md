@@ -23,6 +23,7 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 - [x] **Phase 59: Piecie Effects** - All 73 Piecie effects per the Card List (Example Deck Piecies first)
 - [x] **Phase 60: Snelle, Places and Hidden Information** - All 20 Snelle and 20 Place effects, hidden-info cards; every card has a card test (completed 2026-10-17)
 - [x] **Phase 61: Bot 2.0** - The bot plays legal, sensible 2.0 games: attack-or-Quest, Energy, reactions, no cheating (completed 2026-10-18)
+- [ ] **Phase 61.1: Bot 2.0 follow-up** (INSERTED) - Engine reaction-replay fixes (Drain Reversal, Perfect Dodge) and bot-test hardening from the Phase 61 verifier
 - [ ] **Phase 62: 2.0 Card Faces** - Card frames per Phase 7 §A for Mosjes, Piecies, Snelle, Places and Quests
 - [ ] **Phase 63: 2.0 Board and Player Actions** - The 2.0 board, Energy crystals, field tiles, and attack/Quest/Place/reaction controls
 - [ ] **Phase 64: Lobby, Full Games, Simulation and Deploy** - Bot-only lobby with 3 decks, full-game specs, 2.0 sim, separate deploy to /obbycardgame2
@@ -39,7 +40,7 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 | 58 | Mosje Abilities and Synergies | 12/12 | Complete    | 2026-10-15 |
 | 59 | Piecie Effects | 8/8 | Complete    | 2026-10-16 |
 | 60 | Snelle, Places and Hidden Information | 8/8 | Complete    | 2026-10-17 |
-| 61 | Bot 2.0 | 9/9 | Complete   | 2026-10-18 |
+| 61 | Bot 2.0 | 9/9 | Complete    | 2026-10-18 |
 | 62 | 2.0 Card Faces | Every card face follows the Phase 7 §A spec | UI-04, TEST-04 | 5 |
 | 63 | 2.0 Board and Player Actions | A human can play a full 2.0 turn on the 2.0 board | UI-01, 02, 03, 05 | 4 |
 | 64 | Lobby, Full Games, Simulation and Deploy | Anyone can play 2.0 vs the bot at eightytwenty.nl/obbycardgame2 | SHELL-01, 02, 03, TEST-03, TEST-05 | 5 |
@@ -330,6 +331,23 @@ Plans:
 **Wave 9** *(blocked on Wave 8 completion)*
 
 - [x] 61-09-PLAN.md — Seeded bot-vs-bot legality check (3 Example Decks + Delluft), full suites, README, gap notes, BOT-01..04 ticked
+
+### Phase 61.1: Bot 2.0 follow-up: engine reaction-replay fixes and bot-test hardening (INSERTED)
+
+**Goal:** The reaction replay and the bot's own tests have no known holes left from the Phase 61 verifier (61-VERIFICATION.md, deferred-items.md).
+**Requirements**: BOT-02, BOT-04 (hardening; no new requirement IDs)
+**Depends on:** Phase 61
+**Success Criteria** (what must be TRUE):
+  1. Drain Reversal: if its rider puts the attacker out of action, the attack fizzles and the Snelle stays paid (Card List "Rulings", 2026-10-18); no refused reaction. Failing-first spec from seed 0xB00E (CREATIEVELINGEN vs REGELAARS) plus an engine-level case.
+  2. Perfect Dodge against a sideways 0 MP Level 1 target no longer fails with "Invalid attack target" (window state carries `_pendingWelloe`). Failing-first spec from seed 50349 (TAKSEN vs CREATIEVELINGEN). No rule question.
+  3. The `engine-refused` metric also covers the silent paths in `settleMosjePauses.js` (refused `resolvePendingChoice`, `finishDrawStep`) and the second failure path in `settleReactions.js`; the seeded legality test still asserts 0.
+  4. The BOT-04 guard also covers `botDriver.js`, `settleReactions.js`, `settleMosjePauses.js` and `pickBotDeck.js` (source scan over `src/bot/*.js` with a short own-seat allowlist, or a full-turn invariance test that swaps the opponent hand with its deck top). A hidden read in `botDriver.js` must fail a test.
+  5. The seeded legality runner counts "fizzled on a fresh Mosje" log lines for single-target hostile effects and the test asserts 0 outside the all-targets cards (Straffoe).
+**Tests to add:** the two failing-first reaction specs, plus the guard/metric tests above. Cheap process applies (no research agent, no plan-checker).
+**Plans:** TBD
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 61.1 to break down)
 
 ### Phase 62: 2.0 Card Faces
 

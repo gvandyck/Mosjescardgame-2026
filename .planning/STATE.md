@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Obby Card Game 2.0 — slice A (offline vs bot)
-status: verifying
-stopped_at: Completed 61-09-PLAN.md
-last_updated: "2026-10-18T18:22:10.377Z"
+status: planning
+stopped_at: Phase 61 complete (9/9, verifier human_needed, approved) - ready to plan Phase 61.1
+last_updated: "2026-10-18T18:56:35.859Z"
 last_activity: 2026-10-18
 progress:
   total_phases: 56
   completed_phases: 36
   total_plans: 183
-  completed_plans: 175
+  completed_plans: 187
   percent: 64
 ---
 
@@ -26,15 +26,15 @@ See: `.planning/PROJECT.md` (updated 2026-10-10)
 
 **Core value:** On branch `obby-2.0`, the web game plays by the full 2.0 rules on one table against the bot, with the 3 Example Decks, deployed separately to eightytwenty.nl/obbycardgame2. V4 on `main` stays untouched.
 
-**Current focus:** Phase 61 — Bot 2.0
+**Current focus:** Phase 61.1 — Bot 2.0 follow-up (engine reaction-replay fixes + bot-test hardening), then Phase 62
 
 **Sources of truth:** `docs/obby-2.0/` — Claude Code Handoff (spec), Card List (card texts; wins over phase docs), Core Numbers (rules), Example Decks, Phase 7 Card Frames and Art.
 
 ## Current Position
 
-Phase: 61 (Bot 2.0) — EXECUTING
-Plan: 9 of 9
-Status: Phase complete — ready for verification
+Phase: 61.1
+Plan: Not started
+Status: Ready to plan
 Last activity: 2026-10-18
 
 ## RESUME HERE (handoff 2026-10-17, chat rotated for context size)
@@ -45,7 +45,9 @@ Last activity: 2026-10-18
 
 **Rulings Gandalf made 2026-10-18 (now in the Card List "Rulings" section, code + tests done):** Klaar Met Jou with no legal target still draws 1 (no change); The Void also blocks a staying Piecie's start-of-turn gain (Bowie & Stormey, Gekke Vogels); Chef's Special with Ronald reveals the opponent's whole hand (only Piecies count for the gain). Display-only leftover: `requirement` in `snellePiecies.js` is wrong for Jammertje Gepakt! and Lucky Cóin (fix with Phase 62 card faces).
 
-**Next command:** `/gsd:plan-phase 61` (Bot 2.0). Known gap to include: the bot's affordability check ignores the Delluft parking fee.
+**Phase 61 (Bot 2.0) done 2026-10-18:** 9 plans, verifier `human_needed` (no blocker, 4/4 criteria), approved by Gandalf. `npm test` green (164 files, 2074 tests). Delluft gap closed. Open: optional playtest vs the bot (61-HUMAN-UAT.md). Ruling: Drain Reversal, if its rider sidelines the attacker the attack fizzles (Card List Rulings). Phase 61.1 inserted for the two engine reaction-replay bugs + the verifier's W1–W3 hardening. Backlog parked in ROADMAP: 999.1 multi-card combo win, 999.2 mobile-first UI/UX. The PLAN files, 61-RESEARCH.md and these planning edits are uncommitted (commit_docs false). A stray worktree `.claude/worktrees/agent-a09f5170046fb4231` exists, not from Phase 61.
+
+**Next command:** `/gsd-plan-phase 61.1` (cheap process, short plan), then Phase 62 card faces.
 
 **After 60:** 61 Bot 2.0 → 62 2.0 Card Faces (Phase 7 spec) → 63 Board + player actions → 64 Lobby / full games / sim (re-point sim specs to Example Decks) / deploy to /obbycardgame2. Known gaps for those phases are written in each ROADMAP phase entry ("Known gap …" lines).
 
@@ -91,6 +93,7 @@ Last activity: 2026-10-18
 | Phase 61 P07 | 20min | 2 tasks | 8 files |
 | Phase 61 P08 | 2 sessions | 3 tasks | 14 files |
 | Phase 61 P09 | 55 min | 2 tasks | 4 files |
+| 61 | 9 | - | - |
 
 ## Accumulated Context
 
