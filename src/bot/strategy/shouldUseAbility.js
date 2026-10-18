@@ -1,26 +1,36 @@
 // shouldUseAbility - should the bot press the ability button of its Mosje in `slotIndex` now? (BOT-02: moved out of
-// botDriver.js.) The Energy gate is the REAL price: Place discounts (Welloe Graveyard) plus the Delluft parking fee,
-// with `reserve` Energy kept back. Timing, once-per-turn and "can it act" stay with the caller; this is only the gate.
+// botDriver.js.) Two gates, both the engine's own: whether the engine would accept the press at all (the same
+// MOSJE_ABILITY_RULES data and counters useMosjeAbility reads, plus each ability's Only-if) and the REAL price: Place
+// discounts (Welloe Graveyard) plus the Delluft parking fee, with `reserve` Energy kept back. Timing, "can it act" and the
+// inputs stay with the caller; `profile` is kept for callers that pass the deck profile.
 import { MOSJES } from '../../data/mosjes.js';
+import { MOSJE_ABILITY_RULES } from '../../rules/mosjeAbilityRules.js';
 import { getStrikeCandidates } from '../../abilities/mosje/getStrikeCandidates.js';
+import { isCooldownBlocked } from '../../engine/turn/isCooldownBlocked.js';
 import { asBotView } from './asBotView.js';
 import { canBotAfford } from './canBotAfford.js';
-import { classifyLossSeverity, getRequiredConfidence } from './assessQuestRisk.js';
 import { emitBotMetric } from './emitBotMetric.js';
 
 const MOSJE_LOOKUP = Object.fromEntries(MOSJES.map(m => [m.id, m]));
+const LEGACY_RULE = { kind: 'activated', per: 'turn', maxPerTurn: 1, ownTurnOnly: false }; // what the engine assumes for an ability without rules
 
-// AZN Cless - Risk and Reward: a manually-triggered d6 gamble, even -> +25 MP, odd -> -15 MP, fixed 50% odds. Reuse the
-// severity/confidence vocabulary of quest risk so the bot only skips the flip when a real loss would be a real problem.
-const RISK_REWARD_LOSS = 15;
-function shouldUseRiskReward(slot, profile) {
-	const severity = classifyLossSeverity({
-		mpBefore: slot.mp || 0,
-		level: slot.level,
-		lossAmount: RISK_REWARD_LOSS,
-		sideways: slot.sideways,
-	});
-	return 0.5 >= getRequiredConfidence(severity, profile); // fixed odds - either side of the coin is equally likely
+// Would useMosjeAbility accept a press now? Mirrors its checks in order: cooldown, kind, own turn, per-game and per-turn limits.
+// Triggers and passives fire by themselves; Lucky Beats (reactive) is a reaction-window card; Extra Resources and
+// Time Control (drawStep) are options of the draw step. None of them has a button in the action phase.
+function enginePressable(view, botId, slot, abilityId) {
+	if (isCooldownBlocked(view, botId)) return false;
+	const rule = MOSJE_ABILITY_RULES[abilityId] || LEGACY_RULE;
+	if (rule.kind !== 'activated' || rule.reactive || rule.drawStep) return false;
+	if (rule.ownTurnOnly !== false && view.activePlayerId !== botId) return false;
+	if (rule.per === 'game' && slot.abilityUsedThisGame) return false;
+	const uses = slot.abilityUsesThisTurn ?? (slot.abilityUsedThisTurn ? 1 : 0);
+	return uses < (rule.maxPerTurn ?? 1) + (slot.extraAbilityUses || 0); // Redbull / Double Trigger add paid extra uses
+}
+
+// Chris - Perfect Setup: the ability itself needs all 3 Piecie slots holding face-down, unactivated Piecies.
+function perfectSetupReady(view, botId) {
+	const slots = view.players?.[botId]?.piecieSlots || [];
+	return slots.length >= 3 && [0, 1, 2].every(i => slots[i]?.type === 'PIECIE' && slots[i].faceDown && !slots[i].activated);
 }
 
 // Elimination Strike (once per game): only when it sets up the knockout (opponent down to one Mosje) or removes a leveled threat.
@@ -44,9 +54,9 @@ export function shouldUseAbility(state, botId, slotIndex, profile, reserve = 0) 
 	const view = asBotView(state, botId); // BOT-04: from here on `view` is the table view
 	const slot = view.players?.[botId]?.activeSlots?.[slotIndex];
 	const abilityId = slot ? MOSJE_LOOKUP[slot.cardId]?.abilityId : null;
-	if (!abilityId) return false;
+	if (!abilityId || !enginePressable(view, botId, slot, abilityId)) return false;
 	if (!canBotAfford(view, botId, abilityId, 'ability', reserve)) return false;
+	if (abilityId === 'ability_chris_perfect_setup') return perfectSetupReady(view, botId);
 	if (abilityId === 'ability_gandoe_destroyer_elimination_strike') return shouldUseEliminationStrike(view, botId, slot);
-	if (abilityId === 'ability_azn_cless_risk_reward') return shouldUseRiskReward(slot, profile);
 	return true;
 }

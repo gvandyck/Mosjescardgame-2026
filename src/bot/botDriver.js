@@ -60,6 +60,7 @@ import { shouldUseAbility } from './strategy/shouldUseAbility.js';
 import { choosePieciesToPlace } from './strategy/choosePieciesToPlace.js';
 import { reactionReserve } from './strategy/reactionReserve.js';
 import { canMosjeAct } from '../engine/mp/canMosjeAct.js';
+import { isCooldownBlocked } from '../engine/turn/isCooldownBlocked.js';
 import { getAbilityTiming } from './strategy/abilityTiming.js';
 import { emitBotMetric } from './strategy/emitBotMetric.js';
 
@@ -107,11 +108,19 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
   let halted = false; // a human must answer a reaction window first
   const finished = () => state.status === 'FINISHED' || halted;
   // Answer bot-side windows; stop (and show the window) when a human must answer.
+  // A window's held action is replayed inside settleReactions and can end in a Mosje pause (Jisca's chain pick after
+  // a Piecie): that pause is answered here too, before the next engine call, and a window it opens is settled in turn.
   const settle = () => {
-    const r = settleReactions(state, humanIds);
-    state = r.state;
-    if (r.waiting) { halted = true; push('waits for your reaction'); }
-    return !halted;
+    for (let round = 0; round < 6; round++) {
+      const r = settleReactions(state, humanIds);
+      state = r.state;
+      if (r.waiting) { halted = true; push('waits for your reaction'); return false; }
+      const p = settleMosjePauses(state, humanIds);
+      state = p.state;
+      if (p.waiting) { halted = true; push('waits for your choice'); return false; }
+      if (!state.pendingReaction && state.pendingChoice?.hook !== 'snelle') break;
+    }
+    return true;
   };
   // Resolve a bot Quest roll that was held back by reaction windows.
   const finishHeldQuest = () => {
@@ -125,10 +134,11 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
     emitBotMetric('quest-roll', { deck: profile.deckId, quest: held.questId, dice: held.dice.length, success: done.win });
     push(`${slotName} tries ${getQuestDef(held.questId)?.name ?? held.questId}: dice [${held.dice.join(',')}] ${done.win ? 'WIN' : 'FAIL'}`, { kind: 'quest', slotIndex: held.slotIndex, stackId: held.stackId });
   };
-  const onCooldown = state.players[botPlayerId]?.cooldownTurn === true;
 
   // A bot's own turn-start pause (draw step / trigger choice) is answered first, so it can never stall.
   state = settleMosjePauses(state, humanIds).state;
+  // Read AFTER that pause: an empty deck at the draw step is what turns the turn into a cooldown turn (RULE-07).
+  const onCooldown = isCooldownBlocked(state, botPlayerId);
 
   // Resume: answer an open window / finish a held Quest roll before anything else.
   if (state.pendingReaction || state.pendingQuestRoll) {

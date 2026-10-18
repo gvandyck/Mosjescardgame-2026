@@ -312,8 +312,10 @@ describe("pickCounterSnelle and chooseReaction", () => {
     const q = getQuestDef("quest_tough_it_out");
     stacks[q.stack] = { deck: ["quest_filler"], faceUp: q.id, tokens: 0, discard: [] };
     const traits = { physical: 1, mental: 1, creative: 1, technical: 1, resilient: 1, social: 1 };
+    // 61-08: the window is a real one - the bot is the roller (its own turn) and holds the offered cards - because chooseReaction
+    // now dry-runs the held roll without the Sleutelpuntje it would play. The assertions below are unchanged.
     const quest = (moments: string[], eligible: string[], energy: number, roll: any = {}) =>
-      win([L(30, 1, { traits }), null], moments, eligible, {}, { questStacks: stacks, bot: { energy }, pendingQuestRoll: { questId: q.id, playerId: BOT, dice: [1], win: false, ...roll } }, { type: "quest", args: [BOT, { slotIndex: 0, stackId: q.stack }] });
+      win([L(30, 1, { traits }), null], moments, eligible, {}, { questStacks: stacks, activePlayerId: BOT, bot: { energy, hand: H(...eligible) }, pendingQuestRoll: { questId: q.id, playerId: BOT, dice: [1], win: false, ...roll } }, { type: "quest", args: [BOT, { slotIndex: 0, stackId: q.stack }] });
     expect(asked(quest(["beforeOwnQuestRoll"], ["snelle_sleutelpuntje"], 1))).toBe("snelle_sleutelpuntje");
     expect(asked(quest(["beforeOwnQuestRoll"], ["snelle_sleutelpuntje"], 0))).toBeNull();
     expect(asked(quest(["afterOwnQuestRoll"], ["snelle_lucky_coin"], 1))).toBe("snelle_lucky_coin");

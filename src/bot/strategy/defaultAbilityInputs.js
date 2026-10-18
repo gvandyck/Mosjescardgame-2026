@@ -5,9 +5,15 @@
 import { MOSJE_ABILITY_RULES } from '../../rules/mosjeAbilityRules.js';
 import { PIECIES } from '../../data/piecies.js';
 import { getRevealedFor } from '../../engine/hidden/getRevealedFor.js';
+import { piecieActivationGate } from '../../engine/table/piecieActivationGate.js';
 import { asBotView } from './asBotView.js';
+import { isUsefulActivation } from './isUsefulActivation.js';
 
 const PIECIE_IDS = new Set(PIECIES.map(p => p.id));
+const PIECIE_BY_ID = Object.fromEntries(PIECIES.map(p => [p.id, p]));
+
+// A free activation (Chris, Youri) still meets the engine's gate (Jeffrey, Level 2+, Only if) and should do something.
+const freeActivationOk = (view, botId, cardId) => !!PIECIE_BY_ID[cardId] && !piecieActivationGate(view, botId, PIECIE_BY_ID[cardId]) && isUsefulActivation(view, botId, cardId);
 
 const HAND_PEEK_ABILITIES = new Set(['ability_ronald_chef_strategic_insight', 'ability_fps_west_tactical_analysis']);
 const live = (state, pid) => (state.players[pid]?.activeSlots || []).map((s, slotIndex) => ({ s, slotIndex })).filter(({ s }) => s && !s.isDefeated);
@@ -40,7 +46,8 @@ export function defaultAbilityInputs(state, botId, abilityId) {
 			case 'questStack': v = Object.keys(state.questStacks || {})[0]; break;
 			case 'ownPiecieSlot': {
 				const i = (me.piecieSlots || []).findIndex(s => s && s.type === 'PIECIE' && !s.activated && (input.filter !== 'faceDown' || s.faceDown)
-					&& (input.filter !== 'placedThisTurn' || (s.playedOnTurn === state.turnNumber && s.canActivateOnTurn > state.turnNumber)));
+					&& (input.filter !== 'placedThisTurn' || (s.playedOnTurn === state.turnNumber && s.canActivateOnTurn > state.turnNumber))
+					&& freeActivationOk(state, botId, s.cardId));
 				v = i >= 0 ? i : undefined; break;
 			}
 			case 'discardCard': { // a card in the discard pile (Master Plan): the first Piecie there
