@@ -20,6 +20,7 @@ import { getBotView } from '../../src/bot/strategy/getBotView.js';
 import { asBotView } from '../../src/bot/strategy/asBotView.js';
 import { getBotProfile } from '../../src/bot/strategy/botProfiles.js';
 import { chooseMosjeAction } from '../../src/bot/strategy/chooseMosjeAction.js';
+import { scoreMosjeAction } from '../../src/bot/strategy/scoreMosjeAction.js';
 import { chooseQuestChoices } from '../../src/bot/strategy/chooseQuestChoices.js';
 import { chooseQuestCostChoice } from '../../src/bot/strategy/chooseQuestCostChoice.js';
 import { chooseReaction } from '../../src/bot/strategy/chooseReaction.js';
@@ -101,6 +102,7 @@ const TRAP_TABLE = {
 	asBotView: (t, seat) => asBotView(t, seat),
 	getBotProfile: (t, seat) => getBotProfile(t, seat),
 	chooseMosjeAction: (t, seat) => [0, 1].map((i) => chooseMosjeAction(t, seat, i)),
+	scoreMosjeAction: (t, seat) => [0, 1].map((i) => scoreMosjeAction(t, seat, i)),
 	chooseQuestChoices: (t, seat) => {
 		const ids = [...faceUpQuestIds(t), 'quest_parkeren_delft', 'quest_geen_raad_vraag_aad'];
 		for (const questId of ids) for (const win of [true, false]) chooseQuestChoices(t, seat, { questId, win, discardedCardIds: [] });
@@ -192,8 +194,8 @@ describe('BOT-04 source scan: every state-taking export is in the trap table', (
 			expect(readFileSync(`${dir}${f}.js`, 'utf8'), f).toMatch(/asBotView\(/);
 		}
 	});
-	it('the payment choosers added in 61-02 and the threat read added in 61-03 project onto the table view on entry', () => {
-		for (const f of ['getBotPaymentCost', 'canBotAfford', 'chooseSummon', 'shouldUseAbility', 'choosePlaceToPlay', 'opponentThreat']) {
+	it('the payment choosers added in 61-02, the threat read added in 61-03 and the action score added in 61-04 project onto the table view on entry', () => {
+		for (const f of ['getBotPaymentCost', 'canBotAfford', 'chooseSummon', 'shouldUseAbility', 'choosePlaceToPlay', 'opponentThreat', 'scoreMosjeAction']) {
 			expect(readFileSync(`${dir}${f}.js`, 'utf8'), f).toMatch(/asBotView\(/);
 		}
 	});
@@ -222,7 +224,10 @@ describe('BOT-04 invariance: only hidden information differs, the decisions do n
 		it(`chooseMosjeAction, planPiecieActivations and chooseQuestCostChoice agree for ${seat}`, () => {
 			const a = prepare(seat);
 			const b = scramble(a, seat);
-			for (const i of [0, 1]) expect(chooseMosjeAction(b, seat, i)).toEqual(chooseMosjeAction(a, seat, i));
+			for (const i of [0, 1]) {
+				expect(chooseMosjeAction(b, seat, i)).toEqual(chooseMosjeAction(a, seat, i));
+				expect(scoreMosjeAction(b, seat, i)).toEqual(scoreMosjeAction(a, seat, i));
+			}
 			const profile = getBotProfile(a, seat);
 			expect(planPiecieActivations(b, seat, profile, { willQuest: true })).toEqual(planPiecieActivations(a, seat, profile, { willQuest: true }));
 			expect(planPiecieActivations(a, seat, profile, { willQuest: true }).length).toBeGreaterThan(0); // the ready Piecie is planned
