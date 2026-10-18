@@ -42,6 +42,7 @@ import { opponentThreat } from '../../src/bot/strategy/opponentThreat.js';
 import { reactionReserve } from '../../src/bot/strategy/reactionReserve.js';
 import { choosePieciesToPlace } from '../../src/bot/strategy/choosePieciesToPlace.js';
 import { pickDefensiveSnelle } from '../../src/bot/strategy/pickDefensiveSnelle.js';
+import { pickCounterSnelle } from '../../src/bot/strategy/pickCounterSnelle.js';
 import { makeTrapState } from '../helpers/hiddenTrap.js';
 
 const SEATS = ['player_1', 'player_2'];
@@ -107,6 +108,22 @@ function withReaction(t, seat) {
 	return { ...t, players: { ...t.players, [seat]: { ...me, hand: [...me.hand, { cardId: 'snelle_jensen', type: 'SNELLE_PIECIE' }] } } };
 }
 
+// Piecie windows on a trap state: the opponent activates a visible Piecie (a gain card and an attack card), and the seat
+// activates its own ready Piecie. The opponent's other face-down Piecies stay trapped.
+function piecieWindows(t, seat) {
+	const theirs = other(seat);
+	const open = (cardId) => ({ cardId, type: 'PIECIE', faceDown: false, activated: false, playedOnTurn: t.turnNumber - 1, canActivateOnTurn: t.turnNumber });
+	const base = { id: 'r1', actorId: theirs, queue: [], preview: { getemt: [], toWelloe: false, mpLoss: {} } };
+	const states = ['piecie_kannetje_melk', 'piecie_harde_didde', 'piecie_te_hard_gaan'].map((cardId) => {
+		const slots = [open(cardId), ...t.players[theirs].piecieSlots.slice(1)];
+		const players = { ...t.players, [theirs]: { ...t.players[theirs], piecieSlots: slots } };
+		return { ...t, players, pendingReaction: { ...base, responderId: seat, moments: ['afterPiecieActivation'], eligible: ['snelle_jammertje_gepakt', 'snelle_gevalletje_klakkeloos'], action: { type: 'activatePiecie', args: [theirs, 0] } } };
+	});
+	const own = t.players[seat].piecieSlots.findIndex((s) => s && s.cardId);
+	states.push({ ...t, pendingReaction: { ...base, actorId: seat, responderId: seat, moments: ['afterOwnPiecieActivation'], eligible: ['snelle_dubbele_temminks'], action: { type: 'activatePiecie', args: [seat, own] } } });
+	return states;
+}
+
 const faceUpQuestIds = (st) => Object.values(st.questStacks).map((s) => s.faceUp).filter(Boolean);
 
 // One entry per state-taking export of src/bot/strategy: (trap, seat) => calls it, on every branch we can reach.
@@ -140,6 +157,19 @@ const TRAP_TABLE = {
 			{ ...rollWindow, moments: ['afterQuestRoll'], eligible: dj },
 		];
 		for (const pendingReaction of fixtures) chooseReaction({ ...t, pendingReaction, pendingQuestRoll: roll }, seat);
+		for (const state of piecieWindows(t, seat)) chooseReaction(state, seat); // the Piecie windows, own and opponent's
+		const attack = { ...window, action: { type: 'attack', args: [other(seat), { attackerSlotIndex: 0, targetPlayerId: seat, targetSlotIndex: 0 }] } };
+		chooseReaction({ ...t, pendingReaction: { ...attack, moments: ['attacked', 'wouldLoseMp'], eligible: ['snelle_the_protector', 'snelle_perfect_dodge', 'snelle_emergency_healings'] } }, seat);
+	},
+	pickCounterSnelle: (t, seat) => {
+		const stackId = Object.keys(t.questStacks)[0];
+		const base = { id: 'r1', responderId: seat, actorId: other(seat), queue: [], preview: { getemt: [], toWelloe: false, mpLoss: {} }, action: { type: 'rollQuest', args: [other(seat), { slotIndex: 0, stackId }] } };
+		const rolls = [true, false].map((win) => ({ questId: t.questStacks[stackId].faceUp, playerId: other(seat), dice: [5, 2], win }));
+		const rollIds = ['snelle_jeweetniet', 'snelle_lucky_coin', 'djReroll:0', 'djReroll:1', 'piecieReroll:0', 'piecieReroll:1'];
+		for (const pendingQuestRoll of rolls) pickCounterSnelle({ ...t, pendingReaction: { ...base, moments: ['afterQuestRoll'], eligible: rollIds }, pendingQuestRoll }, seat);
+		pickCounterSnelle({ ...t, pendingReaction: { ...base, moments: ['jensenPlayed'], eligible: ['snelle_frenssen', 'snelle_blensen'] } }, seat);
+		pickCounterSnelle({ ...t, jensenPlayedTurn: t.turnNumber, pendingReaction: { ...base, moments: ['jensenPlayed'], eligible: ['snelle_blensen'] } }, seat);
+		for (const state of piecieWindows(t, seat)) pickCounterSnelle(state, seat);
 	},
 	chooseTriggerChoice: (t, seat) => {
 		chooseTriggerChoice({ ...t, pendingChoice: { hook: 'trigger', playerId: seat, key: 'k', options: [{ slotIndex: 0 }, { slotIndex: 1 }] } }, seat);
@@ -240,8 +270,8 @@ describe('BOT-04 source scan: every state-taking export is in the trap table', (
 			expect(readFileSync(`${dir}${f}.js`, 'utf8'), f).toMatch(/asBotView\(/);
 		}
 	});
-	it('the defender reaction pick added in 61-07 projects onto the table view on entry', () => {
-		for (const f of ['pickDefensiveSnelle']) {
+	it('the defender and counter reaction picks added in 61-07 project onto the table view on entry', () => {
+		for (const f of ['pickDefensiveSnelle', 'pickCounterSnelle']) {
 			expect(readFileSync(`${dir}${f}.js`, 'utf8'), f).toMatch(/asBotView\(/);
 		}
 	});
@@ -276,6 +306,17 @@ describe('BOT-04 invariance: only hidden information differs, the decisions do n
 			const a = prepare(seat);
 			expect(JSON.stringify(a.players[other(seat)].hand)).not.toBe(JSON.stringify(scramble(a, seat).players[other(seat)].hand));
 			expect(getBotView(scramble(a, seat), seat)).toEqual(getBotView(a, seat));
+		});
+		it(`the reaction answers agree for ${seat} (Piecie windows, the opponent's other face-down Piecies scrambled)`, () => {
+			const a = prepare(seat);
+			const b = scramble(a, seat);
+			const wa = piecieWindows(a, seat);
+			const wb = piecieWindows(b, seat);
+			expect(wa.length).toBeGreaterThan(0);
+			wa.forEach((w, n) => {
+				expect(chooseReaction(wb[n], seat)).toEqual(chooseReaction(w, seat));
+				expect(pickCounterSnelle(wb[n], seat)).toEqual(pickCounterSnelle(w, seat));
+			});
 		});
 		it(`chooseMosjeAction, planPiecieActivations and chooseQuestCostChoice agree for ${seat}`, () => {
 			const a = prepare(seat);

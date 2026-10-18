@@ -28,6 +28,12 @@ import { MOSJES } from "../../src/data/mosjes.js";
 import { getPower } from "../../src/engine/mp/getPower.js";
 // @ts-expect-error
 import { pickDefensiveSnelle } from "../../src/bot/strategy/pickDefensiveSnelle.js";
+// @ts-expect-error
+import { pickCounterSnelle } from "../../src/bot/strategy/pickCounterSnelle.js";
+// @ts-expect-error
+import { PIECIES } from "../../src/data/piecies.js";
+// @ts-expect-error
+import { QUESTS } from "../../src/data/quests.js";
 
 const attackerDef = MOSJES.find((m: any) => m.id === "mosje_alyssa_bulldozer");
 const plain = MOSJES.find((m: any) => m.id !== "mosje_alyssa_bulldozer" && m.id !== "mosje_parkour_west");
@@ -141,23 +147,24 @@ describe("bot-vs-bot on the Example Deck pairings", () => {
 
 // BOT-03 (61-07): defender reactions are chosen by survival and price. Windows are hand-built (the preview a real attack
 // shows is checked against the engine in the last case); the bot is player_2, the actor player_1.
-describe("pickDefensiveSnelle", () => {
-  const BOT = "player_2";
-  const L = (mp: number, level = 1, extra: any = {}) => mk(mp, plain, { level, ...extra });
-  const none = { getemt: [] as number[], toWelloe: false, mpLoss: {}, welloeSlots: [] as number[] };
-  const piecieHit = { type: "activatePiecie", args: ["player_1", 0] };
-  // A bot window: `field` is the bot's board, `extra` overrides the state (`extra.bot` the bot's own fields).
-  const win = (field: any[], moments: string[], eligible: string[], preview: any, extra: any = {}, action: any = { type: "attack", args: ["player_1", ATT] }) => {
-    const { bot, ...rest } = extra;
-    return makeEngineState({ turnNumber: 3, activePlayerId: "player_1", ...rest,
-      players: { player_1: { activeSlots: [mk(50, attackerDef), null] }, [BOT]: { activeSlots: field, ...(bot || {}) } },
-      pendingReaction: { id: "r1", responderId: BOT, actorId: "player_1", moments, eligible, preview: { ...none, ...preview }, action, queue: [] } });
-  };
-  const hit = (field: any[], loss: number, eligible: string[], extra: any = {}) =>
-    win(field, ["attacked", "wouldLoseMp"], eligible, { getemt: loss >= field[0].mp ? [0] : [], mpLoss: { 0: loss } }, extra);
-  const targeted = (field: any[], loss: number, eligible: string[], extra: any = {}) =>
-    win(field, ["targeted", "wouldLoseMp"], eligible, { getemt: loss >= field[0].mp ? [0] : [], mpLoss: { 0: loss } }, extra, piecieHit);
+const BOT = "player_2";
+const L = (mp: number, level = 1, extra: any = {}) => mk(mp, plain, { level, ...extra });
+const none = { getemt: [] as number[], toWelloe: false, mpLoss: {}, welloeSlots: [] as number[] };
+const piecieHit = { type: "activatePiecie", args: ["player_1", 0] };
+// A bot window (the bot is player_2, the actor player_1): `field` is the bot's board; `extra` overrides the state,
+// `extra.bot` the bot's own fields and `extra.opp` the actor's.
+const win = (field: any[], moments: string[], eligible: string[], preview: any, extra: any = {}, action: any = { type: "attack", args: ["player_1", ATT] }) => {
+  const { bot, opp, ...rest } = extra;
+  return makeEngineState({ turnNumber: 3, activePlayerId: "player_1", ...rest,
+    players: { player_1: { activeSlots: [mk(50, attackerDef), null], ...(opp || {}) }, [BOT]: { activeSlots: field, ...(bot || {}) } },
+    pendingReaction: { id: "r1", responderId: BOT, actorId: "player_1", moments, eligible, preview: { ...none, ...preview }, action, queue: [] } });
+};
+const hit = (field: any[], loss: number, eligible: string[], extra: any = {}) =>
+  win(field, ["attacked", "wouldLoseMp"], eligible, { getemt: loss >= field[0].mp ? [0] : [], mpLoss: { 0: loss } }, extra);
+const targeted = (field: any[], loss: number, eligible: string[], extra: any = {}) =>
+  win(field, ["targeted", "wouldLoseMp"], eligible, { getemt: loss >= field[0].mp ? [0] : [], mpLoss: { 0: loss } }, extra, piecieHit);
 
+describe("pickDefensiveSnelle", () => {
   it("L1 at 20 MP, a 30 hit, The Protector and Perfect Dodge eligible: The Protector (0 Energy)", () => {
     expect(pickDefensiveSnelle(hit([L(20), null], 30, ["snelle_perfect_dodge", "snelle_the_protector"]), BOT)).toBe("snelle_the_protector");
   });
@@ -228,5 +235,137 @@ describe("pickDefensiveSnelle", () => {
     expect(saved.sideways).toBeFalsy();
     expect(saved.mp).toBeGreaterThan(0);
     expect(resolveReaction(w, BOT, "snelle_the_protector").state.players[BOT].activeSlots[0].sideways).toBe(true); // the engine agrees
+  });
+});
+
+// BOT-03 (61-07): answers to the opponent's Piecie, Quest roll and Jensen!, and the bot's own windows. Windows are hand-built.
+describe("pickCounterSnelle and chooseReaction", () => {
+  const faceDown = (cardId: string) => ({ cardId, type: "PIECIE", faceDown: true, activated: false, playedOnTurn: 2, canActivateOnTurn: 3 });
+  const asked = (w: any) => { const pick = chooseReaction(w, BOT); if (pick) expect(w.pendingReaction.eligible, "the answer is always an eligible card").toContain(pick); return pick; };
+  const theirs = (cardId: string, eligible: string[], extra: any = {}, field: any[] = [L(30), L(40)]) =>
+    win(field, ["afterPiecieActivation"], eligible, {}, { ...extra, opp: { piecieSlots: [faceDown(cardId), null, null] } }, piecieHit);
+  const mine = (cardId: string, eligible: string[], bot: any = {}) =>
+    win([L(30), L(40)], ["afterOwnPiecieActivation"], eligible, {}, { bot: { energy: 4, piecieSlots: [faceDown(cardId), null, null], ...bot } }, { type: "activatePiecie", args: [BOT, 0] });
+  const withRarity = (cardId: string, rarity: string, run: () => void) => { // a fixture: the same card, printed as a five-star
+    const def = PIECIES.find((p: any) => p.id === cardId);
+    const was = def.rarity;
+    def.rarity = rarity;
+    try { run(); } finally { def.rarity = was; }
+  };
+  const JAM = "snelle_jammertje_gepakt", GEV = "snelle_gevalletje_klakkeloos", TEM = "snelle_dubbele_temminks";
+
+  it("the opponent activates Harde Didde (cost 4, attack, five stars): Jammertje Gepakt!; Gevalletje alone passes", () => {
+    expect(asked(theirs("piecie_harde_didde", [JAM]))).toBe(JAM);
+    expect(asked(theirs("piecie_harde_didde", [GEV]))).toBeNull(); // not on a five-star card
+  });
+  it("Kannetje Melk (a plain gain): Gevalletje Klakkeloos, also when Jammertje Gepakt! is eligible", () => {
+    expect(asked(theirs("piecie_kannetje_melk", [GEV]))).toBe(GEV);
+    expect(asked(theirs("piecie_kannetje_melk", [JAM, GEV]))).toBe(GEV);
+    expect(asked(theirs("piecie_kannetje_melk", [JAM]))).toBeNull(); // cost 0, no attack: not worth the card
+  });
+  it("Jammertje Gepakt! for cost 2+, attack / Power cards and five-star cards; a cheap utility Piecie passes", () => {
+    expect(asked(theirs("piecie_tempiecie", [JAM]))).toBe(JAM); // cost 2
+    expect(asked(theirs("piecie_te_hard_gaan", [JAM]))).toBe(JAM); // Power
+    expect(asked(theirs("piecie_affoe", [JAM]))).toBe(JAM); // attack
+    expect(asked(theirs("piecie_loaded_dice", [JAM]))).toBeNull(); // cost 0, quest prep
+    withRarity("piecie_loaded_dice", "★★★★★", () => expect(asked(theirs("piecie_loaded_dice", [JAM]))).toBe(JAM)); // five stars
+  });
+  it("Gevalletje Klakkeloos copies a gain or draw card, never a five-star one, and not when nobody could receive the MP", () => {
+    expect(asked(theirs("piecie_pot_of_weed", [GEV]))).toBe(GEV); // draw
+    withRarity("piecie_kannetje_melk", "★★★★★", () => expect(asked(theirs("piecie_kannetje_melk", [GEV]))).toBeNull());
+    expect(asked(theirs("piecie_loaded_dice", [GEV]))).toBeNull(); // neither gain nor draw
+    expect(asked(theirs("piecie_kannetje_melk", [GEV], {}, [L(95, 3), null]))).toBeNull(); // a Level 3 at 95 cannot gain
+  });
+  it("pickCounterSnelle alone: the same answers, and nothing in a defender window", () => {
+    expect(pickCounterSnelle(theirs("piecie_harde_didde", [JAM]), BOT)).toBe(JAM);
+    expect(pickCounterSnelle(hit([L(20), null], 30, ["snelle_the_protector"]), BOT)).toBeNull();
+    expect(pickCounterSnelle(theirs("piecie_harde_didde", [JAM]), "player_1")).toBeNull(); // not this seat's window
+  });
+  it("the opponent's winning Quest roll: Je Weet Niet; a losing one passes; a Piecie / DJ reroll that flips it goes first", () => {
+    const steady = QUESTS.find((q: any) => q.band === "steady");
+    const trained = QUESTS.find((q: any) => q.band === "trained");
+    const roll = (q: any, dice: number[], wins: boolean, eligible: string[]) =>
+      win([L(30), null], ["afterQuestRoll"], eligible, {}, { pendingQuestRoll: { questId: q.id, playerId: "player_1", dice, win: wins } }, { type: "quest", args: ["player_1", { slotIndex: 0, stackId: q.stack }] });
+    expect(asked(roll(steady, [5], true, ["snelle_jeweetniet"]))).toBe("snelle_jeweetniet");
+    expect(asked(roll(steady, [2], false, ["snelle_jeweetniet", "snelle_lucky_coin"]))).toBeNull();
+    expect(asked(roll(steady, [5], true, ["snelle_lucky_coin"]))).toBe("snelle_lucky_coin"); // Lucky Coin after Je Weet Niet
+    expect(asked(roll(steady, [5], true, ["snelle_jeweetniet", "snelle_lucky_coin", "djReroll:0"]))).toBe("djReroll:0");
+    expect(asked(roll(steady, [5], true, ["snelle_jeweetniet", "piecieReroll:0"]))).toBe("piecieReroll:0");
+    expect(asked(roll(trained, [5], true, ["snelle_jeweetniet", "snelle_lucky_coin"]))).toBeNull(); // a trained Quest never fails
+  });
+  it("Jensen! was played: Frenssen!; else a free Blensen!; a 4-Energy Blensen! passes", () => {
+    const jensen = (eligible: string[], extra: any = {}) => win([L(30), null], ["jensenPlayed"], eligible, {}, extra, piecieHit);
+    expect(asked(jensen(["snelle_frenssen", "snelle_blensen"], { jensenPlayedTurn: 3 }))).toBe("snelle_frenssen");
+    expect(asked(jensen(["snelle_blensen"], { jensenPlayedTurn: 3 }))).toBe("snelle_blensen"); // free: a Jensen! this turn
+    expect(asked(jensen(["snelle_blensen"], { bot: { energy: 6 } }))).toBeNull();
+    expect(asked(jensen(["snelle_frenssen"], { bot: { energy: 1 } }))).toBeNull(); // cannot pay 2
+  });
+  it("defender windows go to the defender rule: a real threat gets the cheapest saver, a small loss on a healthy Mosje is passed", () => {
+    expect(asked(hit([L(20), null], 30, ["snelle_perfect_dodge", "snelle_the_protector"]))).toBe("snelle_the_protector");
+    expect(asked(hit([L(60), null], 10, ["snelle_the_protector"]))).toBeNull();
+    expect(asked(targeted([L(40), null], 80, ["snelle_jensen", "snelle_the_protector"]))).toBe("snelle_jensen");
+  });
+  it("own windows: Sleutelpuntje and Lucky Coin need the Energy; Dubbele Temminks follows a gain or draw Piecie only", () => {
+    const stacks: any = {};
+    for (const id of ["FIGHTING", "DIGITAL", "ARTISTIC"]) stacks[id] = { deck: ["quest_filler"], faceUp: "quest_filler", tokens: 0, discard: [] };
+    const q = getQuestDef("quest_tough_it_out");
+    stacks[q.stack] = { deck: ["quest_filler"], faceUp: q.id, tokens: 0, discard: [] };
+    const traits = { physical: 1, mental: 1, creative: 1, technical: 1, resilient: 1, social: 1 };
+    const quest = (moments: string[], eligible: string[], energy: number, roll: any = {}) =>
+      win([L(30, 1, { traits }), null], moments, eligible, {}, { questStacks: stacks, bot: { energy }, pendingQuestRoll: { questId: q.id, playerId: BOT, dice: [1], win: false, ...roll } }, { type: "quest", args: [BOT, { slotIndex: 0, stackId: q.stack }] });
+    expect(asked(quest(["beforeOwnQuestRoll"], ["snelle_sleutelpuntje"], 1))).toBe("snelle_sleutelpuntje");
+    expect(asked(quest(["beforeOwnQuestRoll"], ["snelle_sleutelpuntje"], 0))).toBeNull();
+    expect(asked(quest(["afterOwnQuestRoll"], ["snelle_lucky_coin"], 1))).toBe("snelle_lucky_coin");
+    expect(asked(quest(["afterOwnQuestRoll"], ["snelle_lucky_coin"], 0))).toBeNull();
+    expect(asked(mine("piecie_kannetje_melk", [TEM]))).toBe(TEM);
+    expect(asked(mine("piecie_pot_of_weed", [TEM]))).toBe(TEM); // draw
+    expect(asked(mine("piecie_kannetje_melk", [TEM], { energy: 1 }))).toBeNull(); // cannot pay 2
+    expect(asked(mine("piecie_harde_didde", [TEM]))).toBeNull(); // five stars (and an attack)
+    expect(asked(mine("piecie_loaded_dice", [TEM]))).toBeNull(); // neither gain nor draw
+    withRarity("piecie_kannetje_melk", "★★★★★", () => expect(asked(mine("piecie_kannetje_melk", [TEM]))).toBeNull());
+  });
+});
+
+// A reaction the bot plays is a metric (the bot-quality sweep counts them).
+describe("reaction-played metric", () => {
+  const metrics = (run: () => void) => {
+    const lines: string[] = [];
+    const spy = vi.spyOn(console, "log").mockImplementation((...a: any[]) => { if (String(a[0]).startsWith("[BOT] METRIC")) lines.push(String(a[0]).slice(13)); });
+    try { run(); } finally { spy.mockRestore(); }
+    return lines.map((l) => JSON.parse(l)).filter((m) => m.ev === "reaction-played");
+  };
+  it("settleReactions emits it for the Snelle the bot plays, and not for a pass", () => {
+    const w = attackMosje(board({ hand: H("snelle_negate_elimination") }), "player_1", ATT).state;
+    const played = metrics(() => settleReactions(w, []));
+    expect(played).toHaveLength(1);
+    expect(played[0]).toMatchObject({ responderId: "player_2", cardId: "snelle_negate_elimination" });
+    expect(played[0].moments).toContain("toWelloe");
+    const safe = attackMosje(board({ hand: H("snelle_negate_elimination"), activeSlots: [mk(50), mk(50)] }), "player_1", ATT).state;
+    expect(metrics(() => settleReactions(safe, []))).toHaveLength(0);
+  });
+});
+
+describe("bot-vs-bot reactions on the seeded Example Deck pairings", () => {
+  const pairs: Array<[string, string]> = [["EXAMPLE_TAKSEN", "EXAMPLE_REGELAARS"], ["EXAMPLE_CREATIEVELINGEN", "EXAMPLE_TAKSEN"], ["EXAMPLE_REGELAARS", "EXAMPLE_CREATIEVELINGEN"]];
+  const seeded = (seed: number) => () => { seed |= 0; seed = (seed + 0x6D2B79F5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  it("the bots play at least one reaction Snelle in total and every game still reaches a stable end", () => {
+    const real = Math.random;
+    const lines: string[] = [];
+    const spy = vi.spyOn(console, "log").mockImplementation((...a: any[]) => { if (String(a[0]).startsWith("[BOT] METRIC")) lines.push(String(a[0]).slice(13)); });
+    try {
+      pairs.forEach(([a, b], n) => {
+        Math.random = seeded(0xB07 + n);
+        const players = [{ playerId: "player_1", name: "A", deckId: a }, { playerId: "player_2", name: "B", deckId: b }];
+        let s = startTurn(createInitialGameState(players, "T", { firstPlayerId: "player_1" }));
+        for (let turns = 0; s.status !== "FINISHED" && turns < 60; turns++) {
+          s = driveBotTurn(s, s.activePlayerId);
+          expect(s.pendingReaction).toBeUndefined();
+          if (s.status === "FINISHED") break;
+          s = startTurn(s);
+        }
+      });
+    } finally { Math.random = real; spy.mockRestore(); }
+    const played = lines.map((l) => JSON.parse(l)).filter((m) => m.ev === "reaction-played");
+    expect(played.length).toBeGreaterThanOrEqual(1);
   });
 });
