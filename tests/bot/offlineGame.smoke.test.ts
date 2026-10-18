@@ -144,7 +144,9 @@ describe('Offline game smoke test', () => {
     // deck-out; this test uses its own fixed seed so the cooldown path is reached deterministically.
     // 56-08: seed bumped 0xC0FFEE -> 0xC0FFEF. Removing the V4 shared Quest deck shuffle from createInitialGameState
     // shifted the seeded RNG sequence, so the old seed now ended by a Level-3 win before any deck-out.
-    Math.random = mulberry32(0xC0FFEF);
+    // 61-04: seed bumped 0xC0FFEF -> 0xC0FFF1. The value-based bot finishes the passive human (KNOCKOUT on turn 8) before any
+    // deck-out on the old seed; 0xC0FFF1 reaches the cooldown path. Assertions unchanged.
+    Math.random = mulberry32(0xC0FFF1);
     let state: any = createInitialGameState(players, 'DECKOUT_TEST', { firstPlayerId: players[0].playerId }); // 2.0: deterministic
     // Trim both decks to 3 cards so deck-out (and the skip path) triggers within a few turns.
     state.players.player_1.deck = state.players.player_1.deck.slice(0, 3);

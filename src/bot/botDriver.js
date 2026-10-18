@@ -11,8 +11,9 @@
 //   B. Play Piecies (tag-priority order)
 //   C. Activate ready Piecies in strategic order (multipliers → MP → prep …)
 //   D. 'preQuest' Mosje abilities (setup conversions)
-//   E. Action phase — each Mosje takes at most one action (attack OR Quest),
-//      picked by chooseMosjeAction (best expected MP swing); engine-legal only
+//   E. Action phase — each Mosje takes at most one action (attack OR Quest). The
+//      Mosje with the most valuable action goes first (orderActingMosjes), asked
+//      again after every action; chooseMosjeAction picks by expected MP swing
 //   F. Play a Place, activate a face-down Place
 //   G. 'late' Mosje abilities
 //   H. End turn
@@ -32,6 +33,7 @@ import { getQuestDef } from '../engine/quests/getQuestDef.js';
 import { settleMosjePauses } from './settleMosjePauses.js';
 import { settleReactions } from './settleReactions.js';
 import { chooseMosjeAction } from './strategy/chooseMosjeAction.js';
+import { orderActingMosjes } from './strategy/orderActingMosjes.js';
 import { defaultAbilityInputs } from './strategy/defaultAbilityInputs.js';
 import { chooseQuestChoices } from './strategy/chooseQuestChoices.js';
 import { canMosjeTakeAction } from '../engine/actions/canMosjeTakeAction.js';
@@ -44,7 +46,7 @@ import { OWN_TARGET_EFFECT_IDS } from '../engine/targets/ownTargetEffects.js';
 import { planPiecieActivations } from './strategy/planPiecieActivations.js';
 import { isPiecieReady } from '../engine/table/isPiecieReady.js';
 import { piecieActivationGate } from '../engine/table/piecieActivationGate.js';
-import { PIECIE_SLOT_COUNT } from '../engine/table/tableRules.js';
+import { PIECIE_SLOT_COUNT, MAX_FIELD_MOSJES } from '../engine/table/tableRules.js';
 import { asBotView } from './strategy/asBotView.js';
 import { canBotAfford } from './strategy/canBotAfford.js';
 import { chooseSummon } from './strategy/chooseSummon.js';
@@ -108,7 +110,8 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
   // Defensive clone: some engine functions mutate the state they receive.
   let state = JSON.parse(JSON.stringify(gameState));
   const profile = getBotProfile(state, botPlayerId);
-  const push = (label) => steps.push({ state, label });
+  // `action` says what the step was (summon, place-piecie, activate, ability, place, attack, quest, end); a wait has none.
+  const push = (label, action) => steps.push(action ? { state, label, action } : { state, label });
   // BOT-02 legality signal: every engine call the bot made that the engine then refused (61-09 asserts none).
   const refused = (call, cardId, error) => emitBotMetric('engine-refused', { deck: profile.deckId, call, cardId, error });
   let halted = false; // a human must answer a reaction window first
@@ -130,7 +133,7 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
     state = done.state;
     const slotName = state.players[botPlayerId].activeSlots[held.slotIndex]?.name;
     emitBotMetric('quest-roll', { deck: profile.deckId, quest: held.questId, dice: held.dice.length, success: done.win });
-    push(`${slotName} tries ${getQuestDef(held.questId)?.name ?? held.questId}: dice [${held.dice.join(',')}] ${done.win ? 'WIN' : 'FAIL'}`);
+    push(`${slotName} tries ${getQuestDef(held.questId)?.name ?? held.questId}: dice [${held.dice.join(',')}] ${done.win ? 'WIN' : 'FAIL'}`, { kind: 'quest', slotIndex: held.slotIndex, stackId: held.stackId });
   };
   const onCooldown = state.players[botPlayerId]?.cooldownTurn === true;
 
@@ -164,7 +167,7 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
       const result = useMosjeAbility(stateForAbility, botPlayerId, slot.cardId);
       if (result.success) {
         state = result.state;
-        push(`uses ${slot.name}'s ability`);
+        push(`uses ${slot.name}'s ability`, { kind: 'ability', abilityId: def.abilityId });
         // A new pause (Binti: the opponent's discard pick) must never stall a bot; a human's pause is answered by the UI.
         state = settleMosjePauses(state, humanIds).state;
         if (result.reactionPending && !settle()) return; // Chris: the free activation opens a reaction window
@@ -190,7 +193,7 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
         state = result.state;
         const mosjeDef = MOSJE_LOOKUP[mosjeCardRef.cardId];
         emitBotMetric('plays-second-mosje', { deck: profile.deckId, cardId: mosjeCardRef.cardId, slotIndex: result.slotIndex });
-        push(`plays ${mosjeDef?.name ?? mosjeCardRef.cardId} to the field`);
+        push(`plays ${mosjeDef?.name ?? mosjeCardRef.cardId} to the field`, { kind: 'summon', cardId: mosjeCardRef.cardId });
       } else {
         refused('playMosje', mosjeCardRef.cardId, result.error);
       }
@@ -213,7 +216,7 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
     const result = playPiecie(state, botPlayerId, cardRef, cardDef);
     if (result.success) {
       state = result.state;
-      push(`plays ${cardDef.name}`);
+      push(`plays ${cardDef.name}`, { kind: 'place-piecie', cardId: cardRef.cardId });
     } else {
       refused('playPiecie', cardRef.cardId, result.error);
     }
@@ -223,7 +226,7 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
   if (onCooldown) {
     if (!finished()) {
       state = endTurn(state);
-      push('ends turn (cooldown)');
+      push('ends turn (cooldown)', { kind: 'end' });
     }
     return steps;
   }
@@ -256,7 +259,7 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
       state = settleMosjePauses(state, humanIds).state;
       if (state.pendingChoice) { halted = true; push('waits for your choice'); return steps; }
       if ((result.reactionPending || state.pendingReaction) && !settle()) return steps;
-      push(`activates ${entry.cardId.replace('piecie_', '').replace(/_/g, ' ')}`);
+      push(`activates ${entry.cardId.replace('piecie_', '').replace(/_/g, ' ')}`, { kind: 'activate', cardId: entry.cardId });
     } else {
       refused('activatePiecie', entry.cardId, result.error);
     }
@@ -276,7 +279,7 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
       const result = playPlace(state, botPlayerId, placeRef, cardDef);
       if (result.success) {
         state = result.state;
-        push(`plays Place: ${cardDef.name}`);
+        push(`plays Place: ${cardDef.name}`, { kind: 'place', cardId: placeRef.cardId });
       } else {
         refused('playPlace', placeRef.cardId, result.error);
       }
@@ -289,34 +292,37 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
   // ── Phase H: end turn ─────────────────────────────────────────────────────
   if (!finished()) {
     state = endTurn(state);
-    push('ends turn');
+    push('ends turn', { kind: 'end' });
   }
 
   return steps;
 
   // ── Action phase internals (closures over state/steps/profile) ───────────
 
+  // Each Mosje takes at most one action. The next Mosje is picked again after every action (value order), because
+  // one attack changes what the next is worth - the second Mosje finishes the getemt the first one set up.
   function runActionPhase() {
-    const slotCount = (state.players[botPlayerId]?.activeSlots || []).length;
-    for (let i = 0; i < slotCount && !finished(); i++) {
+    const tried = new Set();
+    for (let n = 0; n < MAX_FIELD_MOSJES && !finished(); n++) {
+      const i = orderActingMosjes(state, botPlayerId).find(idx => !tried.has(idx));
+      if (i === undefined) break;
+      tried.add(i);
       const slot = state.players[botPlayerId].activeSlots[i];
       const action = chooseMosjeAction(state, botPlayerId, i);
-      if (!action) {
-        if (slot) emitBotMetric('action-skip', { deck: profile.deckId, reason: canMosjeTakeAction(state, botPlayerId, i).error || 'no-positive-swing' });
-        continue;
-      }
+      if (!action) continue;
       if (action.kind === 'attack') {
         const res = attackMosje(state, botPlayerId, { attackerSlotIndex: i, targetPlayerId: action.targetPlayerId, targetSlotIndex: action.targetSlotIndex });
         if (!res.ok) { refused('attackMosje', slot.cardId, res.error); emitBotMetric('action-skip', { deck: profile.deckId, reason: res.error }); continue; }
         const targetName = state.players[action.targetPlayerId].activeSlots[action.targetSlotIndex]?.name;
+        const attackStep = { kind: 'attack', attackerSlotIndex: i, targetPlayerId: action.targetPlayerId, targetSlotIndex: action.targetSlotIndex };
         state = res.state;
         if (res.reactionPending) {
           if (!settle()) return;
-          push(`${slot.name} attacks ${targetName}`);
+          push(`${slot.name} attacks ${targetName}`, attackStep);
           continue;
         }
-        emitBotMetric('attack', { deck: profile.deckId, power: res.power, final: res.final });
-        push(`${slot.name} attacks ${targetName} for ${res.final}`);
+        emitBotMetric('attack', { deck: profile.deckId, power: res.power, final: res.final, attackerSlotIndex: i, targetPlayerId: action.targetPlayerId, targetSlotIndex: action.targetSlotIndex });
+        push(`${slot.name} attacks ${targetName} for ${res.final}`, attackStep);
         continue;
       }
       const roll = rollQuestAttempt(state, botPlayerId, { slotIndex: i, stackId: action.stackId, costChoice: action.costChoice, dieChoices: action.dieChoices });
@@ -332,8 +338,13 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
       if (!done.ok) { refused('resolveQuestAttempt', roll.pending.questId, done.error); emitBotMetric('action-skip', { deck: profile.deckId, reason: done.error }); continue; }
       state = done.state;
       emitBotMetric('quest-roll', { deck: profile.deckId, quest: roll.pending.questId, dice: roll.pending.dice.length, success: done.win });
-      push(`${slot.name} tries ${questName}: dice [${roll.pending.dice.join(',')}] ${done.win ? 'WIN' : 'FAIL'}`);
+      push(`${slot.name} tries ${questName}: dice [${roll.pending.dice.join(',')}] ${done.win ? 'WIN' : 'FAIL'}`, { kind: 'quest', slotIndex: i, stackId: action.stackId });
     }
+    if (finished()) return;
+    // A Mosje that was never chosen did nothing: say why (the engine's gate, else no option was worth more than 0).
+    (state.players[botPlayerId].activeSlots || []).forEach((slot, i) => {
+      if (slot && !tried.has(i)) emitBotMetric('action-skip', { deck: profile.deckId, reason: canMosjeTakeAction(state, botPlayerId, i).error || 'no-positive-swing' });
+    });
   }
 }
 

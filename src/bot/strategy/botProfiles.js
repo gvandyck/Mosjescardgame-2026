@@ -17,6 +17,29 @@ export const DEFAULT_BOT_PROFILE = {
 };
 
 export const BOT_PROFILES = {
+	// 2.0 Example Decks, from their "Playing it" notes.
+	// Taksen: Gym and Boxing Gloves pressure; hit first, take the Quest odds.
+	EXAMPLE_TAKSEN: {
+		archetype: 'aggressive',
+		riskTolerance: 0.6,
+		comboPatience: 0.2,
+		preferAttack: true,
+	},
+	// Regelaars: fill the slots for Chris's Perfect Setup and the Master Plan Quest, keep Jammertje live.
+	EXAMPLE_REGELAARS: {
+		archetype: 'setup-control',
+		riskTolerance: 0.45,
+		comboPatience: 0.6,
+		preferAttack: false,
+	},
+	// Creatievelingen: Tuk heals every turn, chains off Jisca; steady tempo.
+	EXAMPLE_CREATIEVELINGEN: {
+		archetype: 'tempo-sustain',
+		riskTolerance: 0.5,
+		comboPatience: 0.4,
+		preferAttack: false,
+	},
+	// V4 duo decks (kept; not used by the 2.0 Example Decks).
 	// Boxing pressure: quest hard, punch harder.
 	DUO_GANDOE_MICHELLE: {
 		archetype: 'aggressive',
