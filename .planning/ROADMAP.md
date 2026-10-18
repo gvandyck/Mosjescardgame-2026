@@ -39,7 +39,7 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 | 58 | Mosje Abilities and Synergies | 12/12 | Complete    | 2026-10-15 |
 | 59 | Piecie Effects | 8/8 | Complete    | 2026-10-16 |
 | 60 | Snelle, Places and Hidden Information | 8/8 | Complete    | 2026-10-17 |
-| 61 | Bot 2.0 | 2/9 | In Progress|  |
+| 61 | Bot 2.0 | 3/9 | In Progress|  |
 | 62 | 2.0 Card Faces | Every card face follows the Phase 7 §A spec | UI-04, TEST-04 | 5 |
 | 63 | 2.0 Board and Player Actions | A human can play a full 2.0 turn on the 2.0 board | UI-01, 02, 03, 05 | 4 |
 | 64 | Lobby, Full Games, Simulation and Deploy | Anyone can play 2.0 vs the bot at eightytwenty.nl/obbycardgame2 | SHELL-01, 02, 03, TEST-03, TEST-05 | 5 |
@@ -303,7 +303,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 61-03-PLAN.md — Value model (TDD): slotWorth, valueOfGain, valueOfLoss (2.0 level / getemt rules), opponentThreat
+- [x] 61-03-PLAN.md — Value model (TDD): slotWorth, valueOfGain, valueOfLoss (2.0 level / getemt rules), opponentThreat
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
