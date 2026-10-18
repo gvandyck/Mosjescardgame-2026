@@ -20,6 +20,9 @@ peeking.
 | `chooseQuestCostChoice.js` / `chooseQuestChoices.js` | Cheapest legal cost discard; jab target (lowest MP), Vraag Aad, Parkeren Delft picks. |
 | `assessQuestRisk.js` | Only `classifyLossSeverity` / `getRequiredConfidence` remain (fixed-odds gamble judging). Full strategy is Phase 61. |
 | `abilityTiming.js` | When each Mosje ability is worth firing: `early` (Coert KasteLuck, Jisca), `preQuest` (Chris, Youri), `late` (default), `skip` (auto-abilities like Michelle). |
+| `chooseReaction.js` | The bot's answer to an open reaction window: its own windows (Sleutelpuntje, DJ / Piecie rerolls, Lucky Coin, Dubbele Temminks) are decided here, the opponent's actions go to the two pickers below. Every Snelle must pass `canBotAfford` (Delluft fee included). |
+| `pickDefensiveSnelle.js` | A Mosje attacked, targeted or heading for the Welloe pile: Not Today! first, else only when it is in danger (getemt, Level 3, a loss worth 20+) the cheapest Snelle after which it survives, else the biggest cut. Amounts in `cardAmounts.js`. |
+| `pickCounterSnelle.js` | Against the opponent's Jensen! (Frenssen!, free Blensen!), Piecie activation (Jammertje Gepakt! on costly / attack / Power / five-star, Gevalletje Klakkeloos on a gain or draw card) and winning Quest roll (reroll, Je Weet Niet, Lucky Coin). |
 | `emitBotMetric.js` | `[BOT] METRIC {json}` console lines. Parsed by `tests/ui/simulation/game-collector.js` into the deck-matrix report's **Bot quality** section. |
 
 ## Parity fixes over the pre-2026-07-08 bot

@@ -48,14 +48,15 @@ const board = (p2: any = {}, p1: any = {}) =>
   makeEngineState({ turnNumber: 3, players: { player_1: { activeSlots: [mk(50, attackerDef), null], ...p1 }, player_2: { activeSlots: [mk(10, plain, { sideways: true }), mk(50)], ...p2 } } });
 
 describe("chooseReaction", () => {
-  it("defender: cheapest eligible when the attack would getemt / go to Welloe; else null", () => {
+  it("defender: survival first (Not Today! when the attack goes to Welloe); a hit worth 20 MP gets a saver, a smaller one is passed", () => {
     const w = attackMosje(board({ hand: H("snelle_perfect_dodge", "snelle_the_protector", "snelle_negate_elimination") }), "player_1", ATT).state;
     expect(w.pendingReaction.preview.getemt.length + (w.pendingReaction.preview.toWelloe ? 1 : 0)).toBeGreaterThan(0);
     const pick = chooseReaction(w, "player_2");
     expect(w.pendingReaction.eligible).toContain(pick);
+    expect(pick).toBe("snelle_negate_elimination"); // 61-07: was "the cheapest eligible"; the Mosje is saved, not the Energy
     const safe = attackMosje(board({ hand: H("snelle_perfect_dodge"), activeSlots: [mk(50), mk(50)] }), "player_1", ATT).state;
     expect(safe.pendingReaction.preview.getemt).toEqual([]);
-    expect(chooseReaction(safe, "player_2")).toBeNull();
+    expect(chooseReaction(safe, "player_2")).toBe("snelle_perfect_dodge"); // 61-07: was null; this 20 MP hit now reaches the "worth a card" line (a 10 MP hit still passes, see pickDefensiveSnelle)
   });
   it("actor: Sleutelpuntje below 4 dice, Lucky Coin on a lost roll, pass otherwise", () => {
     const q = getQuestDef("quest_tough_it_out");
@@ -332,16 +333,24 @@ describe("reaction-played metric", () => {
     const lines: string[] = [];
     const spy = vi.spyOn(console, "log").mockImplementation((...a: any[]) => { if (String(a[0]).startsWith("[BOT] METRIC")) lines.push(String(a[0]).slice(13)); });
     try { run(); } finally { spy.mockRestore(); }
-    return lines.map((l) => JSON.parse(l)).filter((m) => m.ev === "reaction-played");
+    return lines.map((l) => JSON.parse(l));
   };
+  const played = (all: any[]) => all.filter((m) => m.ev === "reaction-played");
   it("settleReactions emits it for the Snelle the bot plays, and not for a pass", () => {
     const w = attackMosje(board({ hand: H("snelle_negate_elimination") }), "player_1", ATT).state;
-    const played = metrics(() => settleReactions(w, []));
-    expect(played).toHaveLength(1);
-    expect(played[0]).toMatchObject({ responderId: "player_2", cardId: "snelle_negate_elimination" });
-    expect(played[0].moments).toContain("toWelloe");
+    const mine = played(metrics(() => settleReactions(w, [])));
+    expect(mine).toHaveLength(1);
+    expect(mine[0]).toMatchObject({ responderId: "player_2", cardId: "snelle_negate_elimination" });
+    expect(mine[0].moments).toContain("toWelloe");
     const safe = attackMosje(board({ hand: H("snelle_negate_elimination"), activeSlots: [mk(50), mk(50)] }), "player_1", ATT).state;
-    expect(metrics(() => settleReactions(safe, []))).toHaveLength(0);
+    expect(played(metrics(() => settleReactions(safe, [])))).toHaveLength(0);
+  });
+  it("an answer the engine refuses is an engine-refused metric, not a played reaction", () => {
+    // The window offers The Protector, but the card is not in the bot's hand: playSnellie refuses it, the window is passed.
+    const w = hit([L(20), null], 30, ["snelle_the_protector"]);
+    const all = metrics(() => settleReactions(w, []));
+    expect(played(all)).toHaveLength(0);
+    expect(all.filter((m) => m.ev === "engine-refused" && m.call === "resolveReaction")).toHaveLength(1);
   });
 });
 

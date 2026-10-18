@@ -19,6 +19,7 @@ export function settleReactions(state, humanIds = []) {
 		if (humanIds.includes(who)) return { state, waiting: true };
 		const pick = n++ < 8 ? chooseReaction(state, who) : null;
 		let r = resolveReaction(state, who, pick);
+		if (r.ok && pick) emitBotMetric('reaction-played', { deck: state.players[who]?.deckId, responderId: who, cardId: pick, moments: state.pendingReaction.moments }); // BOT-03: the bot played a reaction
 		if (!r.ok) {
 			emitBotMetric('engine-refused', { call: 'resolveReaction', cardId: pick, error: r.error }); // BOT-02: the bot's choice was refused
 			r = resolveReaction(state, who, null);
