@@ -53,7 +53,8 @@ import { canBotAfford } from './strategy/canBotAfford.js';
 import { chooseSummon } from './strategy/chooseSummon.js';
 import { choosePlaceToPlay } from './strategy/choosePlaceToPlay.js';
 import { shouldUseAbility } from './strategy/shouldUseAbility.js';
-import { getCardTags } from './strategy/comboTags.js';
+import { choosePieciesToPlace } from './strategy/choosePieciesToPlace.js';
+import { reactionReserve } from './strategy/reactionReserve.js';
 import { canMosjeAct } from '../engine/mp/canMosjeAct.js';
 import { getAbilityTiming } from './strategy/abilityTiming.js';
 import { emitBotMetric } from './strategy/emitBotMetric.js';
@@ -61,19 +62,6 @@ import { emitBotMetric } from './strategy/emitBotMetric.js';
 const PIECIE_LOOKUP = Object.fromEntries(PIECIES.map(c => [c.id, c]));
 const PLACE_LOOKUP = Object.fromEntries(PLACES.map(c => [c.id, c]));
 const MOSJE_LOOKUP = Object.fromEntries(MOSJES.map(m => [m.id, m]));
-
-// Priority for PLAYING cards face-down (slot competition): multipliers and
-// MP gains claim slots first, Personal Quests early too (high payoff later).
-function playPriority(cardRef) {
-  if (cardRef.type === 'QUEST') return 1.5;
-  const tags = getCardTags(cardRef.cardId);
-  if (tags.includes('multiplier')) return 0;
-  if (tags.includes('mp-gain')) return 1;
-  if (tags.includes('quest-prep')) return 2;
-  if (tags.includes('attack') || tags.includes('power')) return 3;
-  if (tags.includes('draw')) return 4;
-  return 5;
-}
 
 // Opponent board pressure from PUBLIC info only.
 function getOpponentPressure(state, botPlayerId) {
@@ -153,7 +141,8 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
       const def = MOSJE_LOOKUP[slot.cardId];
       if (!def?.abilityId || def.autoAbility) continue;
       if (getAbilityTiming(slot.cardId) !== timing) continue;
-      if (!shouldUseAbility(state, botPlayerId, i, profile)) continue;
+      // Energy for a held reaction Snelle stays untouched (recomputed here: earlier steps change the hand).
+      if (!shouldUseAbility(state, botPlayerId, i, profile, reactionReserve(state, botPlayerId).energy)) continue;
 
       // Clone before calling: useMosjeAbility mutates the state it receives.
       const stateForAbility = JSON.parse(JSON.stringify(state));
@@ -200,12 +189,8 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
   // ── Phase A: early abilities ──────────────────────────────────────────────
   useAbilitiesFor('early');
 
-  // ── Phase B: play Piecies + place Personal Quests, best cards first ──────
-  const handSnapshot = [...(state.players[botPlayerId]?.hand || [])];
-  const playable = handSnapshot
-    .filter(c => c.type === 'PIECIE')
-    .sort((a, b) => playPriority(a) - playPriority(b));
-  for (const cardRef of playable) {
+  // ── Phase B: play Piecies face-down, best cards first (BOT-03: one slot stays free for a held reaction Snelle) ──
+  for (const cardRef of choosePieciesToPlace(state, botPlayerId)) {
     if (finished()) break;
     if ((state.players[botPlayerId]?.piecieSlots || []).filter(Boolean).length >= PIECIE_SLOT_COUNT) break; // no room - never ask
     const cardDef = PIECIE_LOOKUP[cardRef.cardId];
@@ -232,7 +217,9 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
   const willQuest = computeQuestIntent(state, botPlayerId);
   const { lethalPressure } = getOpponentPressure(state, botPlayerId);
   // The plan holds only Piecies that pass the engine gate, are useful now and fit the Energy (61-05).
-  const activationPlan = planPiecieActivations(state, botPlayerId, profile, { willQuest, lethalPressure });
+  // BOT-03: the Energy of a held reaction Snelle is not part of the activation budget (the hand can change between activations, so it is read again below).
+  const spendable = Math.max(0, (Number(state.players[botPlayerId]?.energy) || 0) - reactionReserve(state, botPlayerId).energy);
+  const activationPlan = planPiecieActivations(state, botPlayerId, profile, { willQuest, lethalPressure, budget: spendable });
   for (const entry of activationPlan) {
     if (finished()) break;
     // Re-locate by cardId: earlier activations can shift or sweep slots.
@@ -245,7 +232,7 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
     const view = asBotView(state, botPlayerId);
     const pieDef = PIECIE_LOOKUP[slots[idx].cardId];
     // Earlier activations change the table (a Place destroyed, a Mosje knocked out), so the plan is re-judged here too.
-    if (!pieDef || !canBotAfford(view, botPlayerId, pieDef.id, 'piecie') || piecieActivationGate(view, botPlayerId, pieDef) || !isUsefulActivation(view, botPlayerId, pieDef.id)) continue;
+    if (!pieDef || !canBotAfford(view, botPlayerId, pieDef.id, 'piecie', reactionReserve(view, botPlayerId).energy) || piecieActivationGate(view, botPlayerId, pieDef) || !isUsefulActivation(view, botPlayerId, pieDef.id)) continue;
     const botEffectId = pieDef.effectId;
     if (OWN_TARGET_EFFECT_IDS.includes(botEffectId)) {
       const own = pickBotOwnTarget(state, botPlayerId, botEffectId);
@@ -272,7 +259,7 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
 
   // ── Phase F: play a Place from hand (only when none is in play and the bot can pay it) ─────
   if (!finished()) {
-    const placeRef = choosePlaceToPlay(state, botPlayerId);
+    const placeRef = choosePlaceToPlay(state, botPlayerId, reactionReserve(state, botPlayerId).energy);
     const cardDef = placeRef && PLACE_LOOKUP[placeRef.cardId];
     if (cardDef) {
       const result = playPlace(state, botPlayerId, placeRef, cardDef);

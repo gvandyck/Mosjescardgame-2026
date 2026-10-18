@@ -39,6 +39,8 @@ import { chooseSummon } from '../../src/bot/strategy/chooseSummon.js';
 import { shouldUseAbility } from '../../src/bot/strategy/shouldUseAbility.js';
 import { choosePlaceToPlay } from '../../src/bot/strategy/choosePlaceToPlay.js';
 import { opponentThreat } from '../../src/bot/strategy/opponentThreat.js';
+import { reactionReserve } from '../../src/bot/strategy/reactionReserve.js';
+import { choosePieciesToPlace } from '../../src/bot/strategy/choosePieciesToPlace.js';
 import { makeTrapState } from '../helpers/hiddenTrap.js';
 
 const SEATS = ['player_1', 'player_2'];
@@ -96,6 +98,12 @@ function withShopping(t, seat) {
 	const me = t.players[seat];
 	const hand = [...me.hand, card('mosje_alyssa_fissa', 'MOSJE'), card('place_the_gym', 'PLACE'), card('place_tesla', 'PLACE')];
 	return { ...t, activePlace: null, players: { ...t.players, [seat]: { ...me, energy: 6, hand, activeSlots: [me.activeSlots[0], null] } } };
+}
+
+// The seat holds a reaction Snelle (Jensen!), so the reserve choosers reach their kept-slot / kept-Energy branch.
+function withReaction(t, seat) {
+	const me = t.players[seat];
+	return { ...t, players: { ...t.players, [seat]: { ...me, hand: [...me.hand, { cardId: 'snelle_jensen', type: 'SNELLE_PIECIE' }] } } };
 }
 
 const faceUpQuestIds = (st) => Object.values(st.questStacks).map((s) => s.faceUp).filter(Boolean);
@@ -169,6 +177,8 @@ const TRAP_TABLE = {
 	shouldUseAbility: (t, seat) => { for (const i of [0, 1]) shouldUseAbility(withShopping(t, seat), seat, i, getBotProfile(t, seat), 1); },
 	choosePlaceToPlay: (t, seat) => { expect(choosePlaceToPlay(withShopping(t, seat), seat, 1)?.cardId).toBe('place_the_gym'); },
 	opponentThreat: (t, seat) => { expect(opponentThreat(t, seat)).toBeGreaterThanOrEqual(0); },
+	reactionReserve: (t, seat) => { expect(reactionReserve(withReaction(t, seat), seat)).toMatchObject({ keepSlot: true, energy: 1 }); },
+	choosePieciesToPlace: (t, seat) => { expect(choosePieciesToPlace(withReaction(t, seat), seat)).toBeInstanceOf(Array); },
 };
 
 describe('BOT-04 trap states: no strategy export reads hidden information', () => {
@@ -217,6 +227,11 @@ describe('BOT-04 source scan: every state-taking export is in the trap table', (
 	});
 	it('the Piecie usefulness check and the Mosje pick added in 61-05 project onto the table view on entry', () => {
 		for (const f of ['isUsefulActivation', 'pickMosjeOption', 'pickOwnSlotByRole']) {
+			expect(readFileSync(`${dir}${f}.js`, 'utf8'), f).toMatch(/asBotView\(/);
+		}
+	});
+	it('the reaction reserve and the Piecie placement added in 61-06 project onto the table view on entry', () => {
+		for (const f of ['reactionReserve', 'choosePieciesToPlace']) {
 			expect(readFileSync(`${dir}${f}.js`, 'utf8'), f).toMatch(/asBotView\(/);
 		}
 	});
