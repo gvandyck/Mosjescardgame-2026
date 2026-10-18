@@ -28,6 +28,11 @@ import { defaultAbilityInputs } from '../../src/bot/strategy/defaultAbilityInput
 import { pickBotOwnTarget } from '../../src/bot/strategy/pickBotOwnTarget.js';
 import { pickDjRerollDie } from '../../src/bot/strategy/pickDjRerollDie.js';
 import { planPiecieActivations } from '../../src/bot/strategy/planPiecieActivations.js';
+import { getBotPaymentCost } from '../../src/bot/strategy/getBotPaymentCost.js';
+import { canBotAfford } from '../../src/bot/strategy/canBotAfford.js';
+import { chooseSummon } from '../../src/bot/strategy/chooseSummon.js';
+import { shouldUseAbility } from '../../src/bot/strategy/shouldUseAbility.js';
+import { choosePlaceToPlay } from '../../src/bot/strategy/choosePlaceToPlay.js';
 import { makeTrapState } from '../helpers/hiddenTrap.js';
 
 const SEATS = ['player_1', 'player_2'];
@@ -78,6 +83,15 @@ function prepare(seat) {
 	return st;
 }
 
+// The seat gets Energy, a Mosje, two Places and Tesla in hand, an open field slot and no Place in play, so the payment
+// choosers reach every branch that reads its own hand.
+const PAYMENTS = [['mosje_alyssa_fissa', 'mosje'], ['place_the_gym', 'place'], ['piecie_te_hard_gaan', 'piecie'], ['snelle_blensen', 'snelle'], ['ability_ronald_chef_strategic_insight', 'ability'], ['ability_gandoe_destroyer_elimination_strike', 'ability']];
+function withShopping(t, seat) {
+	const me = t.players[seat];
+	const hand = [...me.hand, card('mosje_alyssa_fissa', 'MOSJE'), card('place_the_gym', 'PLACE'), card('place_tesla', 'PLACE')];
+	return { ...t, activePlace: null, players: { ...t.players, [seat]: { ...me, energy: 6, hand, activeSlots: [me.activeSlots[0], null] } } };
+}
+
 const faceUpQuestIds = (st) => Object.values(st.questStacks).map((s) => s.faceUp).filter(Boolean);
 
 // One entry per state-taking export of src/bot/strategy: (trap, seat) => calls it, on every branch we can reach.
@@ -125,6 +139,11 @@ const TRAP_TABLE = {
 		}
 	},
 	planPiecieActivations: (t, seat) => planPiecieActivations(t, seat, getBotProfile(t, seat), { willQuest: true }),
+	getBotPaymentCost: (t, seat) => { for (const [id, kind] of PAYMENTS) getBotPaymentCost(withShopping(t, seat), seat, id, kind); },
+	canBotAfford: (t, seat) => { for (const [id, kind] of PAYMENTS) canBotAfford(withShopping(t, seat), seat, id, kind, 1); },
+	chooseSummon: (t, seat) => { expect(chooseSummon(withShopping(t, seat), seat)?.cardId).toBe('mosje_alyssa_fissa'); },
+	shouldUseAbility: (t, seat) => { for (const i of [0, 1]) shouldUseAbility(withShopping(t, seat), seat, i, getBotProfile(t, seat), 1); },
+	choosePlaceToPlay: (t, seat) => { expect(choosePlaceToPlay(withShopping(t, seat), seat, 1)?.cardId).toBe('place_the_gym'); },
 };
 
 describe('BOT-04 trap states: no strategy export reads hidden information', () => {
@@ -168,6 +187,11 @@ describe('BOT-04 source scan: every state-taking export is in the trap table', (
 	});
 	it('the choosers retrofitted in 61-01 project onto the table view on entry', () => {
 		for (const f of ['chooseMosjeAction', 'chooseQuestChoices', 'chooseQuestCostChoice', 'chooseReaction', 'chooseTriggerChoice', 'defaultAbilityInputs', 'pickBotOwnTarget', 'pickDjRerollDie', 'planPiecieActivations']) {
+			expect(readFileSync(`${dir}${f}.js`, 'utf8'), f).toMatch(/asBotView\(/);
+		}
+	});
+	it('the payment choosers added in 61-02 project onto the table view on entry', () => {
+		for (const f of ['getBotPaymentCost', 'canBotAfford', 'chooseSummon', 'shouldUseAbility', 'choosePlaceToPlay']) {
 			expect(readFileSync(`${dir}${f}.js`, 'utf8'), f).toMatch(/asBotView\(/);
 		}
 	});
