@@ -287,9 +287,11 @@ Plans:
   4. Bot decisions read only what a player at a real table would know (no opponent hand, no deck order), guarded by a test.
 
 **Tests to add**: bot strategy unit tests in `src/bot/strategy/` coverage; a legality check over seeded bot-vs-bot games.
-**Known gap from Phase 54 (54-09)**: Drain Reversal's reflect now uses the raw incoming loss, not the post-reduction amount; set it per the Card List text when Drain Reversal is rewritten.
-**Known gap from Phase 56 (56-06)**: Skiffa's Social +2 dice and Tweede Kans reroll aren't wired into the 2.0 Quest roll; two `place-skiffa.test.ts` cases are `it.skip` until then.
-**Known gap from Phase 60 (60-06)**: the bot's affordability check uses printed costs without the Delluft parking fee (engine refuses safely); include fees in bot Energy planning.
+**Known gap from Phase 54 (54-09)**: Drain Reversal's reflect now uses the raw incoming loss, not the post-reduction amount; set it per the Card List text when Drain Reversal is rewritten. - closed in 60-02 (fixed 10 reflect, per the Card List)
+**Known gap from Phase 56 (56-06)**: Skiffa's Social +2 dice and Tweede Kans reroll aren't wired into the 2.0 Quest roll; two `place-skiffa.test.ts` cases are `it.skip` until then. - closed in 60-05 (2.0 Skiffa reroll grant, the V4 +2 Social cases deleted) and Phase 59 (TweedeKANs reroll grant)
+**Known gap from Phase 60 (60-06)**: the bot's affordability check uses printed costs without the Delluft parking fee (engine refuses safely); include fees in bot Energy planning. - closed in 61-02 (and 61-06 for own-turn reaction offers)
+**Open engine gaps found by the 61-08 refusal sweep (1800 extra seeded games; none occur in the 15 legality games - Gandalf to decide)**: (1) Drain Reversal's rider (one opponent Mosje loses 10 MP) can send the attacker sideways, so the held attack replays with "This Mosje cannot act" and the whole reaction is refused (9 of 1800 games, e.g. seed 0xB00E CREATIEVELINGEN vs REGELAARS). (2) Perfect Dodge against a sideways 0 MP Level 1 target: the window state already holds `_pendingWelloe`, playing the Snelle sweeps the Mosje to the Welloe pile and the held attack fails with "Invalid attack target" (1 of 1800, seed 50349 TAKSEN vs CREATIEVELINGEN). Details in `.planning/phases/61-bot-2-0/deferred-items.md`.
+**Open, not a refusal**: the bot never uses draw-step abilities (Coert Tech, Martin Historian); the draw step is settled with a normal draw.
 **Notes**: Adapt the existing strategy layer; port the desk sim bot's ideas, not its code.
 **Plans**: 9 plans (9 waves, sequential)
 Plans:
