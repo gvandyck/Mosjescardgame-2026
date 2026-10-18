@@ -24,6 +24,10 @@ import { createInitialGameState } from "../../src/engine/gameState.js";
 import { startTurn, endTurn } from "../../src/engine/turnManager.js";
 // @ts-expect-error
 import { MOSJES } from "../../src/data/mosjes.js";
+// @ts-expect-error
+import { getPower } from "../../src/engine/mp/getPower.js";
+// @ts-expect-error
+import { pickDefensiveSnelle } from "../../src/bot/strategy/pickDefensiveSnelle.js";
 
 const attackerDef = MOSJES.find((m: any) => m.id === "mosje_alyssa_bulldozer");
 const plain = MOSJES.find((m: any) => m.id !== "mosje_alyssa_bulldozer" && m.id !== "mosje_parkour_west");
@@ -133,4 +137,96 @@ describe("bot-vs-bot on the Example Deck pairings", () => {
       expect(s.activePlayerId).toBeTruthy();
     });
   }
+});
+
+// BOT-03 (61-07): defender reactions are chosen by survival and price. Windows are hand-built (the preview a real attack
+// shows is checked against the engine in the last case); the bot is player_2, the actor player_1.
+describe("pickDefensiveSnelle", () => {
+  const BOT = "player_2";
+  const L = (mp: number, level = 1, extra: any = {}) => mk(mp, plain, { level, ...extra });
+  const none = { getemt: [] as number[], toWelloe: false, mpLoss: {}, welloeSlots: [] as number[] };
+  const piecieHit = { type: "activatePiecie", args: ["player_1", 0] };
+  // A bot window: `field` is the bot's board, `extra` overrides the state (`extra.bot` the bot's own fields).
+  const win = (field: any[], moments: string[], eligible: string[], preview: any, extra: any = {}, action: any = { type: "attack", args: ["player_1", ATT] }) => {
+    const { bot, ...rest } = extra;
+    return makeEngineState({ turnNumber: 3, activePlayerId: "player_1", ...rest,
+      players: { player_1: { activeSlots: [mk(50, attackerDef), null] }, [BOT]: { activeSlots: field, ...(bot || {}) } },
+      pendingReaction: { id: "r1", responderId: BOT, actorId: "player_1", moments, eligible, preview: { ...none, ...preview }, action, queue: [] } });
+  };
+  const hit = (field: any[], loss: number, eligible: string[], extra: any = {}) =>
+    win(field, ["attacked", "wouldLoseMp"], eligible, { getemt: loss >= field[0].mp ? [0] : [], mpLoss: { 0: loss } }, extra);
+  const targeted = (field: any[], loss: number, eligible: string[], extra: any = {}) =>
+    win(field, ["targeted", "wouldLoseMp"], eligible, { getemt: loss >= field[0].mp ? [0] : [], mpLoss: { 0: loss } }, extra, piecieHit);
+
+  it("L1 at 20 MP, a 30 hit, The Protector and Perfect Dodge eligible: The Protector (0 Energy)", () => {
+    expect(pickDefensiveSnelle(hit([L(20), null], 30, ["snelle_perfect_dodge", "snelle_the_protector"]), BOT)).toBe("snelle_the_protector");
+  });
+  it("the same hit with only Emergency Healings (Resilient 1): Emergency Healings; under The Void: null", () => {
+    const f = () => [L(20, 1, { traits: { resilient: 1 } }), null];
+    expect(pickDefensiveSnelle(hit(f(), 30, ["snelle_emergency_healings"]), BOT)).toBe("snelle_emergency_healings");
+    expect(pickDefensiveSnelle(hit(f(), 30, ["snelle_emergency_healings"], { activePlace: "place_the_void" }), BOT)).toBeNull();
+  });
+  it("a 10 loss on an L1 at 60 is passed (the card is saved); 20 is worth a card", () => {
+    expect(pickDefensiveSnelle(hit([L(60), null], 10, ["snelle_the_protector", "snelle_perfect_dodge"]), BOT)).toBeNull();
+    expect(pickDefensiveSnelle(hit([L(60), null], 20, ["snelle_the_protector"]), BOT)).toBe("snelle_the_protector");
+  });
+  it("a 20 loss on a Level 3 at 80: the cheapest reducer; equal price goes in Card List order", () => {
+    expect(pickDefensiveSnelle(hit([L(80, 3), null], 20, ["snelle_perfect_dodge", "snelle_the_protector", "snelle_emergency_healings"]), BOT)).toBe("snelle_the_protector");
+    expect(pickDefensiveSnelle(hit([L(80, 3), null], 20, ["snelle_drain_reversal", "snelle_perfect_dodge"]), BOT)).toBe("snelle_perfect_dodge");
+    expect(pickDefensiveSnelle(hit([L(80, 3), null], 20, ["snelle_emergency_healings", "snelle_drain_reversal"]), BOT)).toBe("snelle_emergency_healings"); // 1 Energy beats 2
+  });
+  it("a Welloe move with Not Today! eligible: Not Today!, ahead of the cheaper reducers", () => {
+    const w = win([L(0, 1, { sideways: true }), L(50)], ["attacked", "wouldLoseMp", "toWelloe"], ["snelle_the_protector", "snelle_negate_elimination"], { getemt: [0], toWelloe: true, welloeSlots: [0] });
+    expect(pickDefensiveSnelle(w, BOT)).toBe("snelle_negate_elimination");
+  });
+  it("targeted and losing MP on an L1 at 40: a 50 loss -> The Protector (both prevent it, 0 Energy beats 1); an 80 loss -> Jensen!", () => {
+    expect(pickDefensiveSnelle(targeted([L(40), null], 50, ["snelle_jensen", "snelle_the_protector"]), BOT)).toBe("snelle_the_protector");
+    expect(pickDefensiveSnelle(targeted([L(40), null], 80, ["snelle_jensen", "snelle_the_protector"]), BOT)).toBe("snelle_jensen");
+  });
+  it("when nothing saves the Mosje, the biggest cut is still played (ties: the cheaper card)", () => {
+    expect(pickDefensiveSnelle(hit([L(20), null], 100, ["snelle_drain_reversal", "snelle_the_protector"]), BOT)).toBe("snelle_the_protector");
+  });
+  it("a Mosje a card sends straight to the Welloe pile cannot be cut: a reducer is not played, Jensen! is", () => {
+    const direct = (eligible: string[]) => win([L(30, 2), null], ["targeted", "wouldLoseMp", "toWelloe"], eligible, { getemt: [0], toWelloe: true, welloeSlots: [0] }, {}, piecieHit);
+    expect(pickDefensiveSnelle(direct(["snelle_the_protector"]), BOT)).toBeNull();
+    expect(pickDefensiveSnelle(direct(["snelle_the_protector", "snelle_jensen"]), BOT)).toBe("snelle_jensen");
+  });
+  it("Counter Strikka needs a second Mosje to send the hit to; Blensen! only when nothing cheaper saves", () => {
+    expect(pickDefensiveSnelle(targeted([L(40), null], 40, ["snelle_counter_strikka"]), BOT)).toBeNull();
+    expect(pickDefensiveSnelle(targeted([L(40), L(50)], 40, ["snelle_counter_strikka"]), BOT)).toBe("snelle_counter_strikka");
+    expect(pickDefensiveSnelle(targeted([L(40), null], 40, ["snelle_blensen", "snelle_jensen"]), BOT)).toBe("snelle_jensen");
+    expect(pickDefensiveSnelle(targeted([L(40), null], 40, ["snelle_blensen"]), BOT)).toBe("snelle_blensen");
+  });
+  it("Perfect Dodge cuts 30 on Physical 3 and 20 below it", () => {
+    // A 100 hit on an L1 at 40 is lost whatever is played, so the biggest cut wins: Emergency Healings (Resilient 1) cuts 25.
+    const f = (physical: number) => [L(40, 1, { traits: { physical, resilient: 1 } }), null];
+    const both = ["snelle_emergency_healings", "snelle_perfect_dodge"];
+    expect(pickDefensiveSnelle(hit(f(3), 100, both), BOT)).toBe("snelle_perfect_dodge"); // 30 > 25
+    expect(pickDefensiveSnelle(hit(f(2), 100, both), BOT)).toBe("snelle_emergency_healings"); // 20 < 25
+    // Equal cut and price (Dodge 20, Drain Reversal 20): Card List order.
+    expect(pickDefensiveSnelle(hit(f(2), 100, ["snelle_drain_reversal", "snelle_perfect_dodge"]), BOT)).toBe("snelle_perfect_dodge");
+  });
+  it("Delluft on the bot's own turn: Energy 1 cannot pay a cost-1 Snelle (1 + the fee); Energy 2 can", () => {
+    const own = (energy: number) => targeted([L(40), null], 80, ["snelle_jensen"], { activePlace: "place_delluft", activePlayerId: BOT, bot: { energy } });
+    expect(pickDefensiveSnelle(own(1), BOT)).toBeNull();
+    expect(pickDefensiveSnelle(own(2), BOT)).toBe("snelle_jensen");
+  });
+  it("a window of the other seat is not the bot's: null", () => {
+    expect(pickDefensiveSnelle(hit([L(20), null], 30, ["snelle_the_protector"]), "player_1")).toBeNull();
+  });
+  it("real attack window: the preview stops at the Mosje's MP, so the hit is read from the attacker's Power (L1 at 40, Power 70)", () => {
+    const attacker = mk(50, attackerDef);
+    attacker.powerBoost = 70 - getPower(attacker, undefined, "player_1");
+    const s = makeEngineState({ turnNumber: 3, players: { player_1: { activeSlots: [attacker, null] },
+      [BOT]: { activeSlots: [L(40, 1, { traits: { resilient: 2 } }), null], hand: H("snelle_the_protector", "snelle_emergency_healings") } } });
+    const w = attackMosje(s, "player_1", ATT).state;
+    expect(w.pendingReaction.eligible).toEqual(expect.arrayContaining(["snelle_the_protector", "snelle_emergency_healings"]));
+    expect(w.pendingReaction.preview.mpLoss[0]).toBe(40); // capped at the Mosje's MP: the preview alone makes The Protector look enough
+    // The Protector: 70 - 30 = 40 lost = dead. Emergency Healings (Resilient 2): +35 first, then 70 lost = 5 left.
+    expect(pickDefensiveSnelle(w, BOT)).toBe("snelle_emergency_healings");
+    const saved = resolveReaction(w, BOT, "snelle_emergency_healings").state.players[BOT].activeSlots[0];
+    expect(saved.sideways).toBeFalsy();
+    expect(saved.mp).toBeGreaterThan(0);
+    expect(resolveReaction(w, BOT, "snelle_the_protector").state.players[BOT].activeSlots[0].sideways).toBe(true); // the engine agrees
+  });
 });

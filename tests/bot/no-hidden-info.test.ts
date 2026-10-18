@@ -41,6 +41,7 @@ import { choosePlaceToPlay } from '../../src/bot/strategy/choosePlaceToPlay.js';
 import { opponentThreat } from '../../src/bot/strategy/opponentThreat.js';
 import { reactionReserve } from '../../src/bot/strategy/reactionReserve.js';
 import { choosePieciesToPlace } from '../../src/bot/strategy/choosePieciesToPlace.js';
+import { pickDefensiveSnelle } from '../../src/bot/strategy/pickDefensiveSnelle.js';
 import { makeTrapState } from '../helpers/hiddenTrap.js';
 
 const SEATS = ['player_1', 'player_2'];
@@ -179,6 +180,15 @@ const TRAP_TABLE = {
 	opponentThreat: (t, seat) => { expect(opponentThreat(t, seat)).toBeGreaterThanOrEqual(0); },
 	reactionReserve: (t, seat) => { expect(reactionReserve(withReaction(t, seat), seat)).toMatchObject({ keepSlot: true, energy: 1 }); },
 	choosePieciesToPlace: (t, seat) => { expect(choosePieciesToPlace(withReaction(t, seat), seat)).toBeInstanceOf(Array); },
+	pickDefensiveSnelle: (t, seat) => {
+		const eligible = ['snelle_jensen', 'snelle_counter_strikka', 'snelle_blensen', 'snelle_the_protector', 'snelle_perfect_dodge', 'snelle_drain_reversal', 'snelle_emergency_healings', 'snelle_negate_elimination'];
+		const action = { type: 'attack', args: [other(seat), { attackerSlotIndex: 0, targetPlayerId: seat, targetSlotIndex: 0 }] };
+		const base = { id: 'r1', responderId: seat, actorId: other(seat), eligible, action, queue: [] };
+		const preview = { getemt: [0], toWelloe: false, mpLoss: { 0: 20 }, welloeSlots: [] };
+		for (const [moments, extra] of [[['attacked', 'wouldLoseMp'], {}], [['targeted', 'wouldLoseMp'], {}], [['attacked', 'wouldLoseMp', 'toWelloe'], { toWelloe: true, welloeSlots: [0] }]]) {
+			pickDefensiveSnelle({ ...t, pendingReaction: { ...base, moments, preview: { ...preview, ...extra } } }, seat);
+		}
+	},
 };
 
 describe('BOT-04 trap states: no strategy export reads hidden information', () => {
@@ -227,6 +237,11 @@ describe('BOT-04 source scan: every state-taking export is in the trap table', (
 	});
 	it('the Piecie usefulness check and the Mosje pick added in 61-05 project onto the table view on entry', () => {
 		for (const f of ['isUsefulActivation', 'pickMosjeOption', 'pickOwnSlotByRole']) {
+			expect(readFileSync(`${dir}${f}.js`, 'utf8'), f).toMatch(/asBotView\(/);
+		}
+	});
+	it('the defender reaction pick added in 61-07 projects onto the table view on entry', () => {
+		for (const f of ['pickDefensiveSnelle']) {
 			expect(readFileSync(`${dir}${f}.js`, 'utf8'), f).toMatch(/asBotView\(/);
 		}
 	});
