@@ -61,7 +61,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 - [ ] **BOT-01**: The bot chooses attack or Quest per Mosje (best expected MP swing, finish a getemt, protect a Level 3), adapted inside `src/bot/strategy/` (§5).
 - [ ] **BOT-02**: The bot pays Energy, plays Piecies/Snelle/Places/summons legally and respects fresh and level-up protection (§5).
 - [ ] **BOT-03**: The bot keeps a slot free when holding a reaction Snelle and answers reaction windows (§5).
-- [ ] **BOT-04**: The bot never uses hidden information it wouldn't have at a real table (§5).
+- [x] **BOT-04**: The bot never uses hidden information it wouldn't have at a real table (§5).
 
 ### Board and card faces (UI)
 - [ ] **UI-01**: The board shows per player one row of 3 Piecie slots + 2 Mosjes, the Place / 3 Quests with stacks and fail tokens / End Turn in the middle, and the hand at the bottom, judged at 1920×1080 (§4).
@@ -136,7 +136,7 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 | BOT-01 | Phase 61 | Pending |
 | BOT-02 | Phase 61 | Pending |
 | BOT-03 | Phase 61 | Pending |
-| BOT-04 | Phase 61 | Pending |
+| BOT-04 | Phase 61 | Complete |
 | UI-01 | Phase 63 | Pending |
 | UI-02 | Phase 63 | Pending |
 | UI-03 | Phase 63 | Pending |
