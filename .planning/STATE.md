@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Obby Card Game 2.0 — slice A (offline vs bot)
 status: executing
-stopped_at: Completed 61-07-PLAN.md
-last_updated: "2026-10-18T13:41:49.887Z"
+stopped_at: Completed 61-08-PLAN.md
+last_updated: "2026-10-18T17:32:49.717Z"
 last_activity: 2026-10-18
 progress:
   total_phases: 56
   completed_phases: 35
   total_plans: 183
-  completed_plans: 173
+  completed_plans: 174
   percent: 63
 ---
 
@@ -33,7 +33,7 @@ See: `.planning/PROJECT.md` (updated 2026-10-10)
 ## Current Position
 
 Phase: 61 (Bot 2.0) — EXECUTING
-Plan: 8 of 9
+Plan: 9 of 9
 Status: Ready to execute
 Last activity: 2026-10-18
 
@@ -89,6 +89,7 @@ Last activity: 2026-10-18
 | Phase 61 P05 | 14min | 2 tasks | 17 files |
 | Phase 61 P06 | 7min | 2 tasks | 7 files |
 | Phase 61 P07 | 20min | 2 tasks | 8 files |
+| Phase 61 P08 | 2 sessions | 3 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -115,6 +116,7 @@ Roadmap decisions (2026-10-10):
 - V4-rule tests are rewritten or deleted in the phase that replaces the rule; SHELL-04 closes in Phase 57 (last V4-replacing phase).
 - TEST-01 (E1–E30) closes in Phase 58 (E26 Tactician is the last engine test); TEST-02 in Phase 60; TEST-04 in Phase 62; TEST-03 and TEST-05 in Phase 64.
 - [Phase 61]: 61-07: a getemt hit is read as max(preview loss, Mosje MP, attacker Power) because the reaction preview stops at the Mosje's MP; direct Welloe moves get no reducer; Counter Strikka needs a second own Mosje
+- [Phase 61-08]: shouldUseAbility mirrors the engine MOSJE_ABILITY_RULES gate; a held window's Mosje pause is answered in the driver settle(), withReactionWindow untouched
 
 ### Pending Todos
 
@@ -129,6 +131,6 @@ None for v2.0 yet.
 
 ## Session Continuity
 
-Last session: 2026-10-18T13:41:49.468Z
-Stopped at: Completed 61-07-PLAN.md
+Last session: 2026-10-18T17:32:49.703Z
+Stopped at: Completed 61-08-PLAN.md
 Resume file: None
