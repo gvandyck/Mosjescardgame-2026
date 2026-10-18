@@ -33,6 +33,7 @@ import { canBotAfford } from '../../src/bot/strategy/canBotAfford.js';
 import { chooseSummon } from '../../src/bot/strategy/chooseSummon.js';
 import { shouldUseAbility } from '../../src/bot/strategy/shouldUseAbility.js';
 import { choosePlaceToPlay } from '../../src/bot/strategy/choosePlaceToPlay.js';
+import { opponentThreat } from '../../src/bot/strategy/opponentThreat.js';
 import { makeTrapState } from '../helpers/hiddenTrap.js';
 
 const SEATS = ['player_1', 'player_2'];
@@ -144,6 +145,7 @@ const TRAP_TABLE = {
 	chooseSummon: (t, seat) => { expect(chooseSummon(withShopping(t, seat), seat)?.cardId).toBe('mosje_alyssa_fissa'); },
 	shouldUseAbility: (t, seat) => { for (const i of [0, 1]) shouldUseAbility(withShopping(t, seat), seat, i, getBotProfile(t, seat), 1); },
 	choosePlaceToPlay: (t, seat) => { expect(choosePlaceToPlay(withShopping(t, seat), seat, 1)?.cardId).toBe('place_the_gym'); },
+	opponentThreat: (t, seat) => { expect(opponentThreat(t, seat)).toBeGreaterThanOrEqual(0); },
 };
 
 describe('BOT-04 trap states: no strategy export reads hidden information', () => {
@@ -190,8 +192,8 @@ describe('BOT-04 source scan: every state-taking export is in the trap table', (
 			expect(readFileSync(`${dir}${f}.js`, 'utf8'), f).toMatch(/asBotView\(/);
 		}
 	});
-	it('the payment choosers added in 61-02 project onto the table view on entry', () => {
-		for (const f of ['getBotPaymentCost', 'canBotAfford', 'chooseSummon', 'shouldUseAbility', 'choosePlaceToPlay']) {
+	it('the payment choosers added in 61-02 and the threat read added in 61-03 project onto the table view on entry', () => {
+		for (const f of ['getBotPaymentCost', 'canBotAfford', 'chooseSummon', 'shouldUseAbility', 'choosePlaceToPlay', 'opponentThreat']) {
 			expect(readFileSync(`${dir}${f}.js`, 'utf8'), f).toMatch(/asBotView\(/);
 		}
 	});
