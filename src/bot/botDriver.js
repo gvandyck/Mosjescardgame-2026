@@ -44,6 +44,7 @@ import { getBotProfile } from './strategy/botProfiles.js';
 import { pickBotOwnTarget } from './strategy/pickBotOwnTarget.js';
 import { OWN_TARGET_EFFECT_IDS } from '../engine/targets/ownTargetEffects.js';
 import { planPiecieActivations } from './strategy/planPiecieActivations.js';
+import { isUsefulActivation } from './strategy/isUsefulActivation.js';
 import { isPiecieReady } from '../engine/table/isPiecieReady.js';
 import { piecieActivationGate } from '../engine/table/piecieActivationGate.js';
 import { PIECIE_SLOT_COUNT, MAX_FIELD_MOSJES } from '../engine/table/tableRules.js';
@@ -69,7 +70,7 @@ function playPriority(cardRef) {
   if (tags.includes('multiplier')) return 0;
   if (tags.includes('mp-gain')) return 1;
   if (tags.includes('quest-prep')) return 2;
-  if (tags.includes('attack')) return 3;
+  if (tags.includes('attack') || tags.includes('power')) return 3;
   if (tags.includes('draw')) return 4;
   return 5;
 }
@@ -82,11 +83,7 @@ function getOpponentPressure(state, botPlayerId) {
     && (active[0].level || 1) === 1
     && (active[0].mp || 0) <= 30
     && active[0].entryProtected !== true; // U8 — no lethal window vs protected
-  // U8 — attacks fizzle while every opponent Mosje is entry-protected; the
-  // planner holds attack activations for a turn when this is true.
-  const opponentFullyProtected = active.length > 0
-    && active.every(s => s.entryProtected === true);
-  return { oppId, lethalPressure, opponentFullyProtected };
+  return { oppId, lethalPressure };
 }
 
 // Will any Mosje act this turn? Optimistic - gates quest-prep activations.
@@ -233,8 +230,9 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
 
   // ── Phase C: activate ready Piecies in strategic order ───────────────────
   const willQuest = computeQuestIntent(state, botPlayerId);
-  const { lethalPressure, opponentFullyProtected } = getOpponentPressure(state, botPlayerId);
-  const activationPlan = planPiecieActivations(state, botPlayerId, profile, { willQuest, lethalPressure, opponentFullyProtected });
+  const { lethalPressure } = getOpponentPressure(state, botPlayerId);
+  // The plan holds only Piecies that pass the engine gate, are useful now and fit the Energy (61-05).
+  const activationPlan = planPiecieActivations(state, botPlayerId, profile, { willQuest, lethalPressure });
   for (const entry of activationPlan) {
     if (finished()) break;
     // Re-locate by cardId: earlier activations can shift or sweep slots.
@@ -246,7 +244,8 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
     // Checked right before each call: Energy drops (and the Delluft fee is used up) as activations are paid.
     const view = asBotView(state, botPlayerId);
     const pieDef = PIECIE_LOOKUP[slots[idx].cardId];
-    if (!pieDef || !canBotAfford(view, botPlayerId, pieDef.id, 'piecie') || piecieActivationGate(view, botPlayerId, pieDef)) continue;
+    // Earlier activations change the table (a Place destroyed, a Mosje knocked out), so the plan is re-judged here too.
+    if (!pieDef || !canBotAfford(view, botPlayerId, pieDef.id, 'piecie') || piecieActivationGate(view, botPlayerId, pieDef) || !isUsefulActivation(view, botPlayerId, pieDef.id)) continue;
     const botEffectId = pieDef.effectId;
     if (OWN_TARGET_EFFECT_IDS.includes(botEffectId)) {
       const own = pickBotOwnTarget(state, botPlayerId, botEffectId);

@@ -30,6 +30,7 @@ import { defaultAbilityInputs } from '../../src/bot/strategy/defaultAbilityInput
 import { pickBotOwnTarget } from '../../src/bot/strategy/pickBotOwnTarget.js';
 import { pickDjRerollDie } from '../../src/bot/strategy/pickDjRerollDie.js';
 import { planPiecieActivations } from '../../src/bot/strategy/planPiecieActivations.js';
+import { isUsefulActivation } from '../../src/bot/strategy/isUsefulActivation.js';
 import { getBotPaymentCost } from '../../src/bot/strategy/getBotPaymentCost.js';
 import { canBotAfford } from '../../src/bot/strategy/canBotAfford.js';
 import { chooseSummon } from '../../src/bot/strategy/chooseSummon.js';
@@ -144,6 +145,7 @@ const TRAP_TABLE = {
 		}
 	},
 	planPiecieActivations: (t, seat) => planPiecieActivations(t, seat, getBotProfile(t, seat), { willQuest: true }),
+	isUsefulActivation: (t, seat) => { for (const piecie of PIECIES) isUsefulActivation(t, seat, piecie.id); },
 	getBotPaymentCost: (t, seat) => { for (const [id, kind] of PAYMENTS) getBotPaymentCost(withShopping(t, seat), seat, id, kind); },
 	canBotAfford: (t, seat) => { for (const [id, kind] of PAYMENTS) canBotAfford(withShopping(t, seat), seat, id, kind, 1); },
 	chooseSummon: (t, seat) => { expect(chooseSummon(withShopping(t, seat), seat)?.cardId).toBe('mosje_alyssa_fissa'); },
@@ -193,6 +195,11 @@ describe('BOT-04 source scan: every state-taking export is in the trap table', (
 	});
 	it('the choosers retrofitted in 61-01 project onto the table view on entry', () => {
 		for (const f of ['chooseMosjeAction', 'chooseQuestChoices', 'chooseQuestCostChoice', 'chooseReaction', 'chooseTriggerChoice', 'defaultAbilityInputs', 'pickBotOwnTarget', 'pickDjRerollDie', 'planPiecieActivations']) {
+			expect(readFileSync(`${dir}${f}.js`, 'utf8'), f).toMatch(/asBotView\(/);
+		}
+	});
+	it('the Piecie usefulness check added in 61-05 projects onto the table view on entry', () => {
+		for (const f of ['isUsefulActivation']) {
 			expect(readFileSync(`${dir}${f}.js`, 'utf8'), f).toMatch(/asBotView\(/);
 		}
 	});
