@@ -12,3 +12,7 @@
 
 - Drain Reversal: the rider ("one opponent Mosje loses 10 MP") can send the attacker sideways, so the held attack replays with "This Mosje cannot act" and `resolveReaction` refuses the whole card (9 of 1800 games, e.g. seed 0xB00E CREATIEVELINGEN vs REGELAARS).
 - Perfect Dodge: with a sideways 0 MP Level 1 target the window state already holds `_pendingWelloe`; playing the Snelle sweeps the Mosje to the Welloe pile and the held attack fails with "Invalid attack target" (1 of 1800, seed 50349 TAKSEN vs CREATIEVELINGEN). `applyGetemt` sets the flag; likely the window's dry run touches the live slot.
+
+## 61-09: status of the two open engine gaps
+
+Still OPEN for Gandalf to decide (not worked around in the bot). Neither occurs in the 15 seeded games of `tests/bot/bot-legality.test.ts` (0 engine-refused there); they only show in wider sweeps. Also open, not a refusal: the bot never uses draw-step abilities (Coert Tech, Martin Historian).
