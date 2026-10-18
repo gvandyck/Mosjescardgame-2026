@@ -342,6 +342,70 @@ describe('driveBotTurn - attacks (2.0, 56-05)', () => {
 });
 
 // ─────────────────────────────────────────────────────────────
+// 61-04 (BOT-01): Mosje order by value, getemt finishing, Level 3 guard, step actions
+// ─────────────────────────────────────────────────────────────
+
+describe('driveBotTurnSteps - action order and getemt finishing (61-04)', () => {
+  // Jeffrey and Gandoe Wizard both have Power 10 on Level 1; `powerBoost` adds on top.
+  const strong = () => ({ ...makeMosjeSlot('mosje_gandoe_wizard', 50), powerBoost: 20 }); // Power 30
+  const weak = () => makeMosjeSlot('mosje_jeffrey', 50); // Power 10
+  const target = () => makeMosjeSlot('mosje_gandoe_wizard', 35); // one L1 Mosje, not fresh
+  const board = (activeSlots: any[]) => makeState({ activeSlots, opponentSlots: [target(), null] });
+  const attacksOf = (steps: any[]) => steps.filter((st) => st.action?.kind === 'attack');
+
+  for (const [name, slots, strongIndex] of [['Power 30 in slot 0', [strong(), weak()], 0], ['Power 30 in slot 1', [weak(), strong()], 1]] as const) {
+    it(`${name}: the strong Mosje acts first and the second attack finishes the getemt`, () => {
+      const steps = driveBotTurnSteps(board([...slots]), 'player_2');
+      const attacks = attacksOf(steps);
+      expect(attacks).toHaveLength(2);
+      expect(attacks[0].action.attackerSlotIndex).toBe(strongIndex); // order follows value, not slot
+      expect(attacks[1].action.attackerSlotIndex).toBe(1 - strongIndex);
+      const last = attacks[1].state;
+      expect(last.players.player_1.activeSlots[0].sideways).toBe(true);
+      expect((last.players.player_2.activeSlots as any[]).every((s) => s.actedThisTurn)).toBe(true);
+    });
+  }
+
+  it('records an attack as { kind, attackerSlotIndex, targetPlayerId, targetSlotIndex }', () => {
+    const steps = driveBotTurnSteps(board([strong()]), 'player_2');
+    expect(attacksOf(steps)[0].action).toEqual({ kind: 'attack', attackerSlotIndex: 0, targetPlayerId: 'player_1', targetSlotIndex: 0 });
+  });
+
+  it('gives every recorded step an action kind', () => {
+    const state = makeState({
+      hand: [{ cardId: (PIECIES as { id: string }[])[0].id, type: 'PIECIE' }],
+      activeSlots: [strong()],
+      opponentSlots: [target(), null],
+    });
+    const steps = driveBotTurnSteps(state, 'player_2');
+    expect(steps.length).toBeGreaterThan(2);
+    for (const st of steps) expect(['summon', 'place-piecie', 'activate', 'ability', 'place', 'attack', 'quest', 'end'], st.label).toContain(st.action?.kind);
+    expect(steps.find((st: any) => st.action?.kind === 'place-piecie')?.action.cardId).toBe((PIECIES as { id: string }[])[0].id);
+    expect(steps[steps.length - 1].action).toEqual({ kind: 'end' });
+  });
+
+  describe('Level 3 guard', () => {
+    const lv3Board = (opponentBoost: number) => makeState({
+      questDeck: [{ cardId: QUEST_ID, type: 'QUEST' }],
+      activeSlots: [{ ...makeMosjeSlot('mosje_jeffrey', 40), level: 3 }],
+      // fresh, so there is no attack target; Power 10 + boost
+      opponentSlots: [{ ...makeMosjeSlot('mosje_jeffrey', 40), entryProtected: true, powerBoost: opponentBoost }, null],
+    });
+    const questsTried = (st: any) => st.players.player_2.questsAttemptedThisTurn;
+
+    it('does not Quest when a failed Steady Quest (-15) leaves it within the opponent Power (30)', () => {
+      const after = driveBotTurn(lv3Board(20), 'player_2');
+      expect(questsTried(after)).toBe(0);
+      expect(after.players.player_2.activeSlots[0].mp).toBe(40);
+    });
+
+    it('does Quest when the opponent Power (20) is below what a failure leaves (25)', () => {
+      expect(questsTried(driveBotTurn(lv3Board(10), 'player_2'))).toBe(1);
+    });
+  });
+});
+
+// ─────────────────────────────────────────────────────────────
 // AZN Cless — Risk and Reward gating
 // The ability is a manual, zero-cost, fixed 50/50 gamble (even d6 → +25 MP,
 // odd → -15 MP). It has no MP-cost gate to fall back on, so the bot must

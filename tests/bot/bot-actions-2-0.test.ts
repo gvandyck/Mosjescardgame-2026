@@ -137,6 +137,29 @@ describe('chooseQuestChoices', () => {
     expect(c.jabTarget).toEqual({ playerId: 'player_2', slotIndex: 1 });
   });
 
+  // 61-04: the jab goes where 10 MP hurts most (valueOfLoss), ties to the lower MP.
+  describe('jab target by value', () => {
+    const jabOn = (opp: any[]) =>
+      chooseQuestChoices(board(mkSlot({ mp: 60 }), opp), 'player_1', { questId: 'quest_dutch_courage', win: true, discardedCardIds: [] }).jabTarget;
+    const at = (slotIndex: number) => ({ playerId: 'player_2', slotIndex });
+
+    it('a 10 MP Mosje (getemt) beats a 50 MP one, in either order', () => {
+      expect(jabOn([mkSlot({ mp: 10 }), mkSlot({ mp: 50 })])).toEqual(at(0));
+      expect(jabOn([mkSlot({ mp: 50 }), mkSlot({ mp: 10 })])).toEqual(at(1));
+    });
+
+    it('equal value (10 each) goes to the lower MP: Level 2 at 60 vs Level 1 at 40', () => {
+      expect(jabOn([mkSlot({ level: 2, mp: 60 }), mkSlot({ mp: 40 })])).toEqual(at(1));
+      expect(jabOn([mkSlot({ mp: 40 }), mkSlot({ level: 2, mp: 60 })])).toEqual(at(0));
+    });
+
+    it('a getemt that drops a Level 2 is worth more than one that turns a Level 1 sideways, whatever the order', () => {
+      expect(valueOfLoss(mkSlot({ level: 2, mp: 10 }), 10)).toBeGreaterThan(valueOfLoss(mkSlot({ mp: 10 }), 10));
+      expect(jabOn([mkSlot({ mp: 10 }), mkSlot({ level: 2, mp: 10 })])).toEqual(at(1));
+      expect(jabOn([mkSlot({ mp: 5 }), mkSlot({ level: 3, mp: 10 })])).toEqual(at(1)); // lowest MP is not the best jab
+    });
+  });
+
   it('uses Vraag Aad on a fail when it holds a card, not when the hand is empty', () => {
     const s = board(mkSlot({ mp: 60 }), [null, null], {}, { hand: [{ cardId: 'piecie_kannetje_melk', type: 'PIECIE' }] });
     const pending = { questId: 'quest_geen_raad_vraag_aad', win: false, discardedCardIds: [] };

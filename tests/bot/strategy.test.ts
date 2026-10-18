@@ -104,6 +104,13 @@ describe('getBotProfile', () => {
     expect(profile.deckId).toBe('DUO_CHRIS_YOURI');
   });
 
+  it('gives each Example Deck the profile from its Playing it notes (61-04)', () => {
+    const profileOf = (deckId: string) => getBotProfile(makeState({ deckId }), 'player_2');
+    expect(profileOf('EXAMPLE_TAKSEN')).toMatchObject({ archetype: 'aggressive', riskTolerance: 0.6, comboPatience: 0.2, preferAttack: true });
+    expect(profileOf('EXAMPLE_REGELAARS')).toMatchObject({ archetype: 'setup-control', riskTolerance: 0.45, comboPatience: 0.6, preferAttack: false });
+    expect(profileOf('EXAMPLE_CREATIEVELINGEN')).toMatchObject({ archetype: 'tempo-sustain', riskTolerance: 0.5, comboPatience: 0.4, preferAttack: false });
+  });
+
   it('falls back to the default profile for unknown/legacy decks', () => {
     const state = makeState({ deckId: 'PHYSICAL_FORCE' });
     const profile = getBotProfile(state, 'player_2');
