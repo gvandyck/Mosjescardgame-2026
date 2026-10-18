@@ -39,6 +39,7 @@ import { chooseSummon } from '../../src/bot/strategy/chooseSummon.js';
 import { shouldUseAbility } from '../../src/bot/strategy/shouldUseAbility.js';
 import { choosePlaceToPlay } from '../../src/bot/strategy/choosePlaceToPlay.js';
 import { placeFit } from '../../src/bot/strategy/placeFit.js';
+import { chooseProactiveSnelle } from '../../src/bot/strategy/chooseProactiveSnelle.js';
 import { MOSJES } from '../../src/data/mosjes.js';
 import { createMosjeSlot } from '../../src/engine/mp/createMosjeSlot.js';
 import { opponentThreat } from '../../src/bot/strategy/opponentThreat.js';
@@ -111,6 +112,17 @@ function withGymBoard(t, seat) {
 	const players = { ...t.players, [seat]: { ...t.players[seat], activeSlots: [slot('mosje_gandoe_wizard'), null] } };
 	players[other(seat)] = { ...t.players[other(seat)], activeSlots: [slot('mosje_ronald_chef'), null] };
 	return { ...t, players };
+}
+
+// The seat holds every proactive Snelle, a 5 MP Mosje, a Place in its discard pile and Bank Chilling is in play, so
+// chooseProactiveSnelle reaches the value of each card (the opponent has a settled Mosje to hit; two Piecie slots are free).
+function withProactive(t, seat) {
+	const me = t.players[seat];
+	const hand = [...me.hand, ...['snelle_momentum_rush', 'snelle_bijna_welloe', 'snelle_ff_haaltje_nemen', 'snelle_jantje_jantje_jantje', 'snelle_chillingsvoorbij'].map((id) => card(id, 'SNELLE_PIECIE'))];
+	const board = withGymBoard(t, seat);
+	const own = { ...board.players[seat].activeSlots[0], mp: 5 };
+	const players = { ...board.players, [seat]: { ...board.players[seat], energy: 6, hand, graveyard: [card('place_the_gym', 'PLACE')], activeSlots: [own, null], piecieSlots: [null, null, board.players[seat].piecieSlots[2]] } };
+	return { ...board, activePlace: 'place_bank_chilling', players };
 }
 
 // The seat holds a reaction Snelle (Jensen!), so the reserve choosers reach their kept-slot / kept-Energy branch.
@@ -218,6 +230,7 @@ const TRAP_TABLE = {
 	chooseSummon: (t, seat) => { expect(chooseSummon(withShopping(t, seat), seat)?.cardId).toBe('mosje_alyssa_fissa'); },
 	shouldUseAbility: (t, seat) => { for (const i of [0, 1]) shouldUseAbility(withShopping(t, seat), seat, i, getBotProfile(t, seat), 1); },
 	choosePlaceToPlay: (t, seat) => { expect(choosePlaceToPlay(withGymBoard(withShopping(t, seat), seat), seat, 1)?.cardId).toBe('place_the_gym'); },
+	chooseProactiveSnelle: (t, seat) => { expect(chooseProactiveSnelle(withProactive(t, seat), seat, 1)?.cardId).toBeTruthy(); },
 	placeFit: (t, seat) => {
 		const st = withGymBoard(withShopping(t, seat), seat);
 		expect(placeFit(st, seat, 'place_the_gym')).toBeGreaterThan(0);
@@ -291,8 +304,8 @@ describe('BOT-04 source scan: every state-taking export is in the trap table', (
 			expect(readFileSync(`${dir}${f}.js`, 'utf8'), f).toMatch(/asBotView\(/);
 		}
 	});
-	it('the Place fit added in 61-08 projects onto the table view on entry', () => {
-		for (const f of ['placeFit']) {
+	it('the Place fit and the proactive Snelle pick added in 61-08 project onto the table view on entry', () => {
+		for (const f of ['placeFit', 'chooseProactiveSnelle']) {
 			expect(readFileSync(`${dir}${f}.js`, 'utf8'), f).toMatch(/asBotView\(/);
 		}
 	});

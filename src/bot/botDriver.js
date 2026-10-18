@@ -10,6 +10,7 @@
 //   A. 'early' Mosje abilities (arm per-Piecie triggers / extra plays)
 //   B. Play Piecies (tag-priority order)
 //   C. Activate ready Piecies in strategic order (multipliers → MP → prep …)
+//   C2. Snelle from hand without a reaction moment (Momentum Rush, Bijna Welloe, ...) when legal and worth something
 //   D. 'preQuest' Mosje abilities (setup conversions)
 //   E. Action phase — each Mosje takes at most one action (attack OR Quest). The
 //      Mosje with the most valuable action goes first (orderActingMosjes), asked
@@ -23,6 +24,7 @@ import {
   playPiecie,
   activatePiecie,
   playPlace,
+  playSnellie,
   useMosjeAbility,
   endTurn,
 } from '../engine/turnManager.js';
@@ -39,6 +41,7 @@ import { chooseQuestChoices } from './strategy/chooseQuestChoices.js';
 import { canMosjeTakeAction } from '../engine/actions/canMosjeTakeAction.js';
 import { PIECIES } from '../data/piecies.js';
 import { PLACES } from '../data/places.js';
+import { SNELLE_PIECIES } from '../data/snellePiecies.js';
 import { MOSJES } from '../data/mosjes.js';
 import { getBotProfile } from './strategy/botProfiles.js';
 import { pickBotOwnTarget } from './strategy/pickBotOwnTarget.js';
@@ -52,6 +55,7 @@ import { asBotView } from './strategy/asBotView.js';
 import { canBotAfford } from './strategy/canBotAfford.js';
 import { chooseSummon } from './strategy/chooseSummon.js';
 import { choosePlaceToPlay } from './strategy/choosePlaceToPlay.js';
+import { chooseProactiveSnelle } from './strategy/chooseProactiveSnelle.js';
 import { shouldUseAbility } from './strategy/shouldUseAbility.js';
 import { choosePieciesToPlace } from './strategy/choosePieciesToPlace.js';
 import { reactionReserve } from './strategy/reactionReserve.js';
@@ -61,6 +65,7 @@ import { emitBotMetric } from './strategy/emitBotMetric.js';
 
 const PIECIE_LOOKUP = Object.fromEntries(PIECIES.map(c => [c.id, c]));
 const PLACE_LOOKUP = Object.fromEntries(PLACES.map(c => [c.id, c]));
+const SNELLE_LOOKUP = Object.fromEntries(SNELLE_PIECIES.map(c => [c.id, c]));
 const MOSJE_LOOKUP = Object.fromEntries(MOSJES.map(m => [m.id, m]));
 
 // Opponent board pressure from PUBLIC info only.
@@ -249,6 +254,21 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
     } else {
       refused('activatePiecie', entry.cardId, result.error);
     }
+  }
+
+  // ── Phase C2: Snelle from hand that has no reaction moment (BOT-02) ──────────
+  // At most one per Piecie slot (a cast Snelle frees its slot again). chooseProactiveSnelle only names a card the engine
+  // accepts and the bot can pay with the reaction reserve kept; a pick the card needs is answered by settle().
+  for (let cast = 0; cast < PIECIE_SLOT_COUNT && !finished(); cast++) {
+    const pick = chooseProactiveSnelle(state, botPlayerId, reactionReserve(state, botPlayerId).energy);
+    const cardRef = pick && (state.players[botPlayerId]?.hand || []).find(c => c.cardId === pick.cardId);
+    const snelleDef = pick && SNELLE_LOOKUP[pick.cardId];
+    if (!cardRef || !snelleDef) break;
+    const result = playSnellie(state, botPlayerId, cardRef, snelleDef);
+    if (!result.success) { refused('playSnellie', pick.cardId, result.error); break; }
+    state = result.state;
+    if ((result.reactionPending || state.pendingReaction || state.pendingChoice?.hook === 'snelle') && !settle()) return steps;
+    push(`plays ${snelleDef.name}`, { kind: 'snelle', cardId: pick.cardId });
   }
 
   // ── Phase D: preQuest abilities ───────────────────────────────────────────
