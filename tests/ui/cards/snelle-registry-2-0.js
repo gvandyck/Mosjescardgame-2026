@@ -85,6 +85,11 @@ export const SNELLE_REGISTRY = [
 		{ name: 'taksed for 30: loses 20 less (70), one opponent Mosje loses a fixed 10 (40)',
 			setup: { field: [{ id: MING, mp: 80 }], oppField: ATTACKER, hand: ['snelle_drain_reversal'] },
 			trigger: { kind: 'attacked', picks: [/Drain Reversal/] }, expect: { mp: { 'own.0': 70, 'opp.0': 40 }, energy: 1, handDelta: -1 } },
+		// Card List Rulings (Drain Reversal, ruled 2026-10-18): the rider sidelines the attacker -> the attack fizzles, the Snelle stays paid.
+		{ name: 'rider sidelines the attacker: the attack fizzles and the Snelle stays paid',
+			setup: { field: [{ id: MING, mp: 80 }], oppField: [{ id: 'mosje_alyssa_bulldozer', mp: 10, level: 1 }], hand: ['snelle_drain_reversal'] },
+			trigger: { kind: 'attacked', picks: [/Drain Reversal/] },
+			expect: { mp: { 'own.0': 80 }, energy: 1, handDelta: -1, state: [['players.player_2.activeSlots.0.sideways', true], ['players.player_2.activeSlots.0.mp', 0]] } },
 	] },
 	{ snelle: 'snelle_negate_elimination', deck: 'example', cases: [
 		{ name: 'sideways Mosje taksed to the Welloe pile: stays sideways at 5 MP, Welloe pile empty',
