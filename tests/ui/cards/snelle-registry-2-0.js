@@ -80,6 +80,11 @@ export const SNELLE_REGISTRY = [
 		{ name: 'Needs Physical 2: taksed for 30 -> loses 20 less (80 - 10)',
 			setup: { field: [{ id: MICHELLE, mp: 80 }], oppField: ATTACKER, hand: ['snelle_perfect_dodge'] },
 			trigger: { kind: 'attacked', picks: [/Perfect Dodge/] }, expect: { mp: { 'own.0': 70 }, energy: 1, handDelta: -1 } },
+		// 61.1: the stale _pendingWelloe flag on a sideways 0 MP target made the held attack replay fail ("Invalid attack target"), refusing the Dodge.
+		{ name: 'sideways 0 MP target that still carries the Welloe flag: the Dodge is played, not refused',
+			setup: { field: [{ slot: 0, id: MICHELLE, mp: 0, sideways: true, pendingWelloe: true }, { slot: 1, id: MING, mp: 60 }], oppField: ATTACKER, hand: ['snelle_perfect_dodge'] },
+			trigger: { kind: 'attacked', picks: [/Perfect Dodge/] },
+			expect: { energy: 1, handDelta: -1, state: [['players.player_1.welloePile.length', 1], ['players.player_1.activeSlots.0', null]] } },
 	] },
 	{ snelle: 'snelle_drain_reversal', deck: 'example', cases: [
 		{ name: 'taksed for 30: loses 20 less (70), one opponent Mosje loses a fixed 10 (40)',

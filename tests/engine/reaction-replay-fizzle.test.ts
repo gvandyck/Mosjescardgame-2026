@@ -16,10 +16,10 @@ import { MOSJES } from "../../src/data/mosjes.js";
 
 const attackerDef = MOSJES.find((m: any) => m.id === "mosje_alyssa_bulldozer"); // L1 Power 20
 const plain = MOSJES.find((m: any) => m.id !== "mosje_alyssa_bulldozer" && m.id !== "mosje_parkour_west");
-const mk = (mp: number, d = plain, level = 1) => {
+const mk = (mp: number, d = plain, level = 1, extra: any = {}) => {
   const s = createMosjeSlot(d, { level, mp });
   s.entryProtected = false;
-  return s;
+  return Object.assign(s, extra);
 };
 const ATT = { attackerSlotIndex: 0, targetPlayerId: "player_2", targetSlotIndex: 0 };
 
@@ -91,5 +91,54 @@ describe("Drain Reversal rider vs the attacker", () => {
     expect(att.level).toBe(1);
     expect(att.mp).toBe(50);
     expect(att.actedThisTurn).toBe(true);
+  });
+});
+
+// 61.1-02 (D-02): the Snelle play's own victory check sweeps a sideways 0 MP target that still carries the stale
+// _pendingWelloe flag; the held attack then replayed against an empty slot and the Dodge was refused ("Invalid attack target").
+// player_1 attacks player_2 slot 0 (sideways, 0 MP, Physical 2); player_2 holds Perfect Dodge. Returns the open reaction window.
+function dodgeWindow(extra: any) {
+  const s = makeEngineState({
+    turnNumber: 3,
+    players: {
+      player_1: { activeSlots: [mk(50, attackerDef), mk(50)] },
+      player_2: {
+        activeSlots: [mk(0, plain, 1, { sideways: true, traits: { physical: 2 }, ...extra }), mk(50)],
+        hand: [{ cardId: "snelle_perfect_dodge" }],
+        energy: 6,
+      },
+    },
+  });
+  const w = attackMosje(s, "player_1", ATT);
+  expect(w.ok).toBe(true);
+  expect(w.state.pendingReaction?.eligible).toContain("snelle_perfect_dodge");
+  return w.state;
+}
+
+describe("Perfect Dodge vs a sideways 0 MP Level 1 target", () => {
+  it("the window state still carries _pendingWelloe: the Dodge is played, not refused", () => {
+    const r = resolveReaction(dodgeWindow({ _pendingWelloe: true }), "player_2", "snelle_perfect_dodge");
+    expect(r.ok, r.error).toBe(true);
+    expect(r.error).toBeUndefined();
+    expect(r.state.pendingReaction).toBeUndefined();
+    expect(r.state.reactionMods).toBeUndefined();
+    const p2 = r.state.players.player_2;
+    expect(p2.hand).toHaveLength(0);
+    expect(p2.energy).toBe(4); // Perfect Dodge stays paid (2 Energy)
+    expect(p2.graveyard.map((g: any) => g.cardId)).toContain("snelle_perfect_dodge");
+    expect(p2.activeSlots[0]).toBeNull(); // the stale flag is swept by the Snelle play's own victory check
+    expect(p2.welloePile).toHaveLength(1);
+    expect(slot(r.state, "player_1", 0).actedThisTurn).toBeFalsy(); // the attack fizzled: its target was gone, no action spent
+  });
+
+  it("control, without the flag the Dodge soaks the hit", () => {
+    const r = resolveReaction(dodgeWindow({}), "player_2", "snelle_perfect_dodge");
+    expect(r.ok, r.error).toBe(true);
+    const p2 = r.state.players.player_2;
+    expect(p2.activeSlots[0]).not.toBeNull();
+    expect(p2.activeSlots[0].mp).toBe(0);
+    expect(p2.activeSlots[0].sideways).toBe(true);
+    expect(p2.welloePile).toHaveLength(0);
+    expect(p2.energy).toBe(4);
   });
 });

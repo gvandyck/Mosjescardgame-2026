@@ -7,6 +7,7 @@ import { resumePiecieChoice } from '../piecies/resumePiecieChoice.js';
 import { resumeSnelleChoice } from '../snelle/resumeSnelleChoice.js';
 import { continueReaction } from '../reactions/resolveReaction.js';
 import { withReactionWindow } from '../reactions/withReactionWindow.js';
+import { checkVictory } from '../victoryChecker.js';
 
 export function resolvePendingChoice(state, value) {
 	const pc = state.pendingChoice;
@@ -41,5 +42,8 @@ export function resolvePendingChoice(state, value) {
 	}
 	const out = runTriggerJobs(s, pc.hook, pc.jobs, pc.jobIndex, pc.ctx, { key: pc.key, playerId: pc.playerId });
 	const next = out.amount !== undefined && out.state ? out.state : out;
-	return { ok: true, success: true, state: next };
+	// A resumed trigger job (for example Jisca's Perfect Combo) can flag a getemt-while-sideways Mosje (_pendingWelloe).
+	// Every other engine entry point sweeps it with checkVictory; this one did not, so the flag lingered until a later
+	// action (61.1-02, seed 50349). No sweep while another pause is open: that resume sweeps in turn.
+	return { ok: true, success: true, state: next.pendingChoice ? next : checkVictory(next) };
 }
