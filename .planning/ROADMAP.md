@@ -23,10 +23,11 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 - [x] **Phase 59: Piecie Effects** - All 73 Piecie effects per the Card List (Example Deck Piecies first)
 - [x] **Phase 60: Snelle, Places and Hidden Information** - All 20 Snelle and 20 Place effects, hidden-info cards; every card has a card test (completed 2026-10-17)
 - [x] **Phase 61: Bot 2.0** - The bot plays legal, sensible 2.0 games: attack-or-Quest, Energy, reactions, no cheating (completed 2026-10-18)
-- [ ] **Phase 61.1: Bot 2.0 follow-up** (INSERTED) - Engine reaction-replay fixes (Drain Reversal, Perfect Dodge) and bot-test hardening from the Phase 61 verifier
+- [x] **Phase 61.1: Bot 2.0 follow-up** (INSERTED) - Engine reaction-replay fixes (Drain Reversal, Perfect Dodge) and bot-test hardening from the Phase 61 verifier (completed 2026-10-20)
 - [ ] **Phase 62: 2.0 Card Faces** - Card frames per Phase 7 §A for Mosjes, Piecies, Snelle, Places and Quests
 - [ ] **Phase 63: 2.0 Board and Player Actions** - The 2.0 board, Energy crystals, field tiles, and attack/Quest/Place/reaction controls
 - [ ] **Phase 64: Lobby, Full Games, Simulation and Deploy** - Bot-only lobby with 3 decks, full-game specs, 2.0 sim, separate deploy to /obbycardgame2
+- [ ] **Phase 65: Mobile Play** - Touch UX and phone layout so a full 2.0 game is playable on a phone (promoted from backlog 999.2)
 
 ### Phase Overview
 
@@ -41,6 +42,7 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 | 59 | Piecie Effects | 8/8 | Complete    | 2026-10-16 |
 | 60 | Snelle, Places and Hidden Information | 8/8 | Complete    | 2026-10-17 |
 | 61 | Bot 2.0 | 9/9 | Complete    | 2026-10-18 |
+| 61.1 | Bot 2.0 follow-up | 4/4 | Complete    | 2026-10-20 |
 | 62 | 2.0 Card Faces | Every card face follows the Phase 7 §A spec | UI-04, TEST-04 | 5 |
 | 63 | 2.0 Board and Player Actions | A human can play a full 2.0 turn on the 2.0 board | UI-01, 02, 03, 05 | 4 |
 | 64 | Lobby, Full Games, Simulation and Deploy | Anyone can play 2.0 vs the bot at eightytwenty.nl/obbycardgame2 | SHELL-01, 02, 03, TEST-03, TEST-05 | 5 |
@@ -344,10 +346,13 @@ Plans:
   4. The BOT-04 guard also covers `botDriver.js`, `settleReactions.js`, `settleMosjePauses.js` and `pickBotDeck.js` (source scan over `src/bot/*.js` with a short own-seat allowlist, or a full-turn invariance test that swaps the opponent hand with its deck top). A hidden read in `botDriver.js` must fail a test.
   5. The seeded legality runner counts "fizzled on a fresh Mosje" log lines for single-target hostile effects and the test asserts 0 outside the all-targets cards (Straffoe).
 **Tests to add:** the two failing-first reaction specs, plus the guard/metric tests above. Cheap process applies (no research agent, no plan-checker).
-**Plans:** TBD
+**Plans:** 4/4 plans complete (verifier `passed` 5/5, 61.1-VERIFICATION.md)
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 61.1 to break down)
+- [x] 61.1-01-PLAN.md — Drain Reversal: sidelined attacker fizzles the held attack (failing-first from seed 0xB00E)
+- [x] 61.1-02-PLAN.md — Perfect Dodge vs sideways 0 MP target (seed 50349); resolvePendingChoice now sweeps via checkVictory
+- [x] 61.1-03-PLAN.md — `engine-refused` metric on the silent paths + fizzled-on-fresh-Mosje count
+- [x] 61.1-04-PLAN.md — BOT-04 guard over botDriver/settleReactions/settleMosjePauses/pickBotDeck + docs + phase verification
 
 ### Phase 62: 2.0 Card Faces
 
@@ -365,6 +370,7 @@ Plans:
 **Tests to add**: A10 unit tests (frame tier, foil, Piecie label, cost 0) and A10 Playwright screenshots.
 **Known gap (pre-existing, found in Phase 55)**: `tests/ui/cards/cardv1-hand.spec.js` 230px text-collision check fails for mosje_martin_historian, mosje_martin_senor_west, piecie_bowie_stormey, piecie_tony, piecie_gekke_vogels (long 2.0 texts); fix with the 2.0 card faces.
 **Notes**: Decide per unmerged UI branch (`ui/arena-hover-spotlight`, `ui/card-frame-v1`, `ui/rarity-tiers`) whether to bring it into `obby-2.0` first.
+**Mobile-ready rule (from backlog 999.2)**: card faces scale from ONE size token (container-relative units, no fixed-px layout) and stay free of text collisions from the hand size (~230 px) down to roughly 100 px wide; text that no longer fits is covered by the large detail view, not by shrinking fonts forever. Fixing the existing 230 px collisions (Known gap above) is the first step. Phone layout itself is Phase 65.
 **Plans**: TBD
 **UI hint**: yes
 
@@ -381,6 +387,7 @@ Plans:
   4. The player can attack (pick attacker, then target, invalid targets disabled), try Quests, play Places and answer reaction prompts, and a cooldown-turn banner blocks everything except placing Piecies.
 
 **Tests to add**: U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U12 (plus the A10 badge / level-row screenshots on the live board).
+**Mobile-ready rules (from backlog 999.2; cheap now, expensive to retrofit later)**: (a) every player action (attack, Quest, Place, Activate, End Turn, reaction answers) is reachable by click/tap; hover spotlight and hover zoom are extras, never the only way. (b) The board is laid out on ONE scalable root (size tokens, no hard-pixel positions), so a single scale can fit any viewport. (c) The hand never covers an action control (this also fixes the Phase 57 gap listed under Phase 64). (d) Interactive controls are at least 44 px at the scale where they would show on a phone. Phone layout and gestures themselves are Phase 65.
 **Plans**: TBD
 **UI hint**: yes
 
@@ -399,6 +406,24 @@ Plans:
 **Tests to add**: U11 (`full-game-2.0.spec.js`); 2.0 sim scenarios.
 **Known gap from Phase 57 (57-07)**: below 1920 wide (e.g. 1280) the hand overlay covers the Piecie Activate button (place-play spec fails at 1280). Fix with the 2.0 board layout; judge at ≥1920×1080 but don't break smaller windows.
 **Notes**: Compare sim shape with the desk sim (median ~15 rounds, ~74% attacks, seat 1 ~55%) as a rules sanity check only; balancing is parked. Firebase is not needed for slice A. Never merge `obby-2.0` into `main` (Gandalf's call).
+**Mobile-ready rule (from backlog 999.2)**: the lobby and every modal/prompt follow the same rules as the Phase 63 board (no hover-only actions, tap targets, scales to the viewport). Add a report-only 390×844 touch-emulation canary: lobby → game starts → no page-level horizontal scroll, no console errors, screenshots of the board for Phase 65. Failures here do not block Phase 64.
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 65: Mobile Play (touch UX and phone layout)
+
+**Goal**: Gandalf can play a full 2.0 game against the bot on his own phone at eightytwenty.nl/obbycardgame2.
+**Depends on**: Phase 64 (every screen exists and is deployed to a URL a real phone can open)
+**Requirements**: TBD (new MOB-xx IDs to be written in discuss-phase; origin: backlog 999.2)
+**Success Criteria** (what must be TRUE; refine in discuss-phase):
+
+  1. The hand can be swiped through and a card played with one tap; long-press (or a detail button) opens a large readable card.
+  2. Every card on the field (both players, Piecie slots, Mosjes, Place, Quests) can be seen and read on a phone without overlapping the action controls; the board scales or pans to the viewport.
+  3. Attack, Quest, Place, Activate, End Turn and reaction prompts are all reachable by touch with tap targets of at least 44 px; nothing needs hover.
+  4. Works in portrait (landscape decided in discuss-phase) from 360×740 up; desktop at 1920×1080 does not change.
+  5. Playwright touch-emulation specs (isMobile + hasTouch, 390×844 and 360×740) pass, and a short real-device checklist is done by Gandalf on his phone.
+
+**Notes**: Earlier ideas (branch `feature/mobile-hand`, 2026-06-13): swipe-up hand drawer, zoom-to-fit board, tap = quick-play, long-press = detail. They were built for the V4 board; reuse the ideas, not the code. Swipes and long-press cannot be proven by screenshots; use touch simulation plus a real-device checklist. Cheap Obby process applies.
 **Plans**: TBD
 **UI hint**: yes
 
@@ -414,10 +439,12 @@ Plans:
 | 58. Mosje Abilities and Synergies | 0/TBD | Not started | - |
 | 59. Piecie Effects | 8/8 | Complete | 2026-10-16 |
 | 60. Snelle, Places and Hidden Information | 0/TBD | Not started | - |
-| 61. Bot 2.0 | 0/TBD | Not started | - |
+| 61. Bot 2.0 | 9/9 | Complete | 2026-10-18 |
+| 61.1. Bot 2.0 follow-up | 4/4 | Complete | 2026-10-20 |
 | 62. 2.0 Card Faces | 0/TBD | Not started | - |
 | 63. 2.0 Board and Player Actions | 0/TBD | Not started | - |
 | 64. Lobby, Full Games, Simulation and Deploy | 0/TBD | Not started | - |
+| 65. Mobile Play | 0/TBD | Not started | - |
 
 ---
 
@@ -1629,15 +1656,4 @@ Unsequenced ideas (captured 2026-10-18, outside the Obby 2.0 phase sequence 61-6
 Plans:
 - [ ] TBD (promote with /gsd-review-backlog when ready)
 
-### Phase 999.2: Mobile-first UI/UX rework (BACKLOG)
-
-**Goal:** The game is properly playable on a phone.
-**Idea (Gandalf, 2026-10-18):** Gandalf wants to play on mobile. Today he cannot swipe through the cards in his hand and cannot see all cards on the field, among other problems.
-- Open: hand navigation (swipe, drawer), seeing the whole field (zoom/scroll), tap vs long-press for play and card detail, touch targets, portrait vs landscape.
-- Earlier direction to build on (2026-06-13, branch `feature/mobile-hand`, unmerged): swipe-up hand drawer, zoom-to-fit board, tap = quick-play, long-press = detail. Predates the 2.0 card faces (Phase 62) and board (Phase 63), so re-check against those first. Desktop (Full HD) stays the primary target; mobile changes stay additive.
-- Needs real touch-device testing; screenshots alone cannot verify swipes or long-press.
-**Requirements:** TBD
-**Plans:** 0 plans
-
-Plans:
-- [ ] TBD (promote with /gsd-review-backlog when ready)
+_Backlog 999.2 (Mobile-first UI/UX rework) was promoted to Phase 65 (Mobile Play) on 2026-10-18._

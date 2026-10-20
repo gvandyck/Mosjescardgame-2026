@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Obby Card Game 2.0 — slice A (offline vs bot)
 status: planning
-stopped_at: Phase 61 complete (9/9, verifier human_needed, approved) - ready to plan Phase 61.1
-last_updated: "2026-10-18T18:56:35.859Z"
-last_activity: 2026-10-18
+stopped_at: Phase 61.1 complete (4/4, verifier passed 5/5) - ready to discuss Phase 62 (2.0 Card Faces)
+last_updated: "2026-10-20T00:00:00.000Z"
+last_activity: 2026-10-20
 progress:
   total_phases: 56
-  completed_phases: 36
+  completed_phases: 37
   total_plans: 183
-  completed_plans: 187
+  completed_plans: 191
   percent: 64
 ---
 
@@ -26,16 +26,16 @@ See: `.planning/PROJECT.md` (updated 2026-10-10)
 
 **Core value:** On branch `obby-2.0`, the web game plays by the full 2.0 rules on one table against the bot, with the 3 Example Decks, deployed separately to eightytwenty.nl/obbycardgame2. V4 on `main` stays untouched.
 
-**Current focus:** Phase 61.1 — Bot 2.0 follow-up (engine reaction-replay fixes + bot-test hardening), then Phase 62
+**Current focus:** Phase 62 — 2.0 Card Faces (Phase 61.1 done 2026-10-20)
 
 **Sources of truth:** `docs/obby-2.0/` — Claude Code Handoff (spec), Card List (card texts; wins over phase docs), Core Numbers (rules), Example Decks, Phase 7 Card Frames and Art.
 
 ## Current Position
 
-Phase: 61.1
+Phase: 62
 Plan: Not started
-Status: Ready to plan
-Last activity: 2026-10-18
+Status: Ready to discuss (UI phase: discuss, then ui-phase, then plan)
+Last activity: 2026-10-20
 
 ## RESUME HERE (handoff 2026-10-17, chat rotated for context size)
 
@@ -45,9 +45,11 @@ Last activity: 2026-10-18
 
 **Rulings Gandalf made 2026-10-18 (now in the Card List "Rulings" section, code + tests done):** Klaar Met Jou with no legal target still draws 1 (no change); The Void also blocks a staying Piecie's start-of-turn gain (Bowie & Stormey, Gekke Vogels); Chef's Special with Ronald reveals the opponent's whole hand (only Piecies count for the gain). Display-only leftover: `requirement` in `snellePiecies.js` is wrong for Jammertje Gepakt! and Lucky Cóin (fix with Phase 62 card faces).
 
-**Phase 61 (Bot 2.0) done 2026-10-18:** 9 plans, verifier `human_needed` (no blocker, 4/4 criteria), approved by Gandalf. `npm test` green (164 files, 2074 tests). Delluft gap closed. Open: optional playtest vs the bot (61-HUMAN-UAT.md). Ruling: Drain Reversal, if its rider sidelines the attacker the attack fizzles (Card List Rulings). Phase 61.1 inserted for the two engine reaction-replay bugs + the verifier's W1–W3 hardening. Backlog parked in ROADMAP: 999.1 multi-card combo win, 999.2 mobile-first UI/UX. The PLAN files, 61-RESEARCH.md and these planning edits are uncommitted (commit_docs false). A stray worktree `.claude/worktrees/agent-a09f5170046fb4231` exists, not from Phase 61.
+**Phase 61 (Bot 2.0) done 2026-10-18:** 9 plans, verifier `human_needed` (no blocker, 4/4 criteria), approved by Gandalf. `npm test` green (164 files, 2074 tests). Delluft gap closed. Open: optional playtest vs the bot (61-HUMAN-UAT.md). Ruling: Drain Reversal, if its rider sidelines the attacker the attack fizzles (Card List Rulings). Phase 61.1 inserted for the two engine reaction-replay bugs + the verifier's W1–W3 hardening. Backlog parked in ROADMAP: 999.1 multi-card combo win. Mobile (old 999.2) was promoted to Phase 65 Mobile Play, after Phase 64; Phases 62/63/64 carry cheap Mobile-ready rules. The PLAN files, 61-RESEARCH.md and these planning edits are uncommitted (commit_docs false). A stray worktree `.claude/worktrees/agent-a09f5170046fb4231` exists, not from Phase 61.
 
-**Next command:** `/gsd-plan-phase 61.1` (cheap process, short plan), then Phase 62 card faces.
+**Phase 61.1 (Bot 2.0 follow-up) done 2026-10-20:** 4 plans, verifier `passed` 5/5 (61.1-VERIFICATION.md). Drain Reversal sidelining the attacker now fizzles the held attack (Snelle stays paid); Perfect Dodge vs a sideways 0 MP target works (root cause: `resolvePendingChoice` never swept `_pendingWelloe`, now calls `checkVictory`); `engine-refused` metric covers the silent paths; BOT-04 guard covers all of src/bot/*.js (scan + hand-swap invariance); legality runner counts fizzles on fresh Mosjes. Judgement call (not in Card List): a fizzled held attack does NOT spend the attacker's action. `npm test` green (169 files, 2108 tests). Headless card suite 394/397: `cardv1-hand`, `cardv1-piecie` (Phase 62 fixes these) + flaky `place_skiffa` reroll (todo filed: .planning/todos/pending/2026-10-20-place-skiffa-reroll-flake.md). 9+ commits ahead of origin/obby-2.0, NOT pushed.
+
+**Next command:** `/gsd-discuss-phase 62` (Card Faces; first decide which unmerged UI branch to bring in: `ui/card-frame-v1`, `ui/arena-hover-spotlight`; `ui/rarity-tiers` is already on main), then `/gsd-ui-phase 62`, then `/gsd-plan-phase 62` (cheap process).
 
 **After 60:** 61 Bot 2.0 → 62 2.0 Card Faces (Phase 7 spec) → 63 Board + player actions → 64 Lobby / full games / sim (re-point sim specs to Example Decks) / deploy to /obbycardgame2. Known gaps for those phases are written in each ROADMAP phase entry ("Known gap …" lines).
 
@@ -62,7 +64,7 @@ Last activity: 2026-10-18
 
 ## Phase Sequence (v2.0)
 
-53 Card Data → 54 Energy/Levels/Getemt → 55 Turn Flow/Setup/Protection → 56 Attacking + Quests → 57 Piecies/Snelle/Places + Reaction Windows → 58 Mosje Abilities + Synergies → 59 Piecie Effects → 60 Snelle/Places/Hidden Info → 61 Bot 2.0 → 62 Card Faces → 63 Board + Player Actions → 64 Lobby/Full Games/Sim/Deploy
+53 Card Data → 54 Energy/Levels/Getemt → 55 Turn Flow/Setup/Protection → 56 Attacking + Quests → 57 Piecies/Snelle/Places + Reaction Windows → 58 Mosje Abilities + Synergies → 59 Piecie Effects → 60 Snelle/Places/Hidden Info → 61 Bot 2.0 → 62 Card Faces → 63 Board + Player Actions → 64 Lobby/Full Games/Sim/Deploy → 65 Mobile Play
 
 ## Performance Metrics
 
