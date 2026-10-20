@@ -25,6 +25,7 @@ export function settleReactions(state, humanIds = []) {
 			r = resolveReaction(state, who, null);
 		}
 		if (r.ok) { state = r.state; continue; }
+		emitBotMetric('engine-refused', { call: 'resolveReaction', cardId: null, error: r.error }); // BOT-02: even the pass was refused
 		state = { ...state }; delete state.pendingReaction; // malformed state: never loop
 	}
 	return { state, waiting: false };

@@ -111,6 +111,9 @@ describe('seeded bot-vs-bot legality (15 games: 3 Example Decks)', () => {
 			const refused = game.metrics.filter((m) => m.ev === 'engine-refused');
 			expect(refused.slice(0, 5).map((m) => `${m.call} | ${m.cardId} | ${m.error}`), `${refused.length} engine-refused`).toEqual([]);
 			expect(refused).toHaveLength(0);
+			// (2b) 61.1 D-03c: no single-target hostile effect aimed at a fresh Mosje (the engine fizzles it silently); only an all-targets card (Straffoe) explains a fizzle.
+			console.info(`[LEGALITY] ${g.a} vs ${g.b} seed 0x${g.seed.toString(16).toUpperCase()}${g.delluft ? ' +Delluft' : ''}: ${game.fizzles.explained} fresh-Mosje fizzles explained by an all-targets card, ${game.fizzles.unexplained.length} unexplained`);
+			expect(game.fizzles.unexplained, 'single-target hostile effect aimed at a fresh Mosje').toEqual([]);
 			// (3)-(6) Energy range, attack targets, cooldown turns, the held reaction slot.
 			expect(found.problems).toEqual([]);
 		}, 60000);
