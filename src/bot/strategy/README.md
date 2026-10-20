@@ -48,6 +48,15 @@ Every engine call the engine refuses is reported as an `engine-refused` metric; 
 ## Tests
 
 - `tests/bot/no-hidden-info.test.ts` - BOT-04, the table-view guard.
+- `tests/bot/no-hidden-info-driver.test.ts` - BOT-04 for the driver files (61.1): a source scan of `src/bot/*.js` that fails on
+  any read of `hand`, `deck`, `piecieSlots`, `revealed` or `_pendingTargets` that is not `players[botPlayerId]` (a new bot file is
+  scanned automatically; extend the `OWN_WRITES` allowlist only with the exact text of a line that WRITES the bot's own input),
+  plus a full-turn invariance check (the opponent's hand swapped with its deck top must not change the bot's actions up to the
+  first wait for a human). The scan is a tripwire for obvious reads; the invariance test catches a computed-key read.
+- `bot-legality.test.ts` also asserts 0 unexplained "Fresh ... fizzled" engine lines per game (Straffoe, which hits every
+  opponent Mosje, is the one explained exception, see `tests/helpers/classifyFizzles.js`). The `engine-refused` metric now also
+  covers `settleMosjePauses` (refused pause answer or draw step) and the second `settleReactions` failure (even the pass refused).
+- `tests/bot/reaction-replay-seeds.test.ts` - the 61.1 regression seeds 0xB00E (Drain Reversal) and 50349 (Perfect Dodge).
 - `tests/bot/bot-legality.test.ts` - BOT-01..BOT-03 over 15 seeded bot-vs-bot games on the 3 Example Decks (6 ordered
   pairings x 2 seeds, plus 3 with Delluft in play): every game finishes, 0 refused engine calls, every attack targets a
   non-fresh, non-level-up-protected Mosje (checked with the engine's own helpers), Energy stays an integer 0-6, a cooldown
@@ -61,9 +70,6 @@ The old deck-matrix simulation still uses pre-2.0 deck ids until Phase 64, so it
 
 ## Known gaps
 
-- Drain Reversal's rider can send the attacker sideways, so the held attack replays with "This Mosje cannot act" and the
-  whole reaction is refused (engine; found by a 1800-game sweep, none in the seeded games).
-- Perfect Dodge against a sideways 0 MP Level 1 target: the held attack fails with "Invalid attack target" (engine; 1 of 1800).
 - The bot never uses draw-step abilities (Coert Tech, Martin Historian); the draw step is settled with a normal draw.
 
 Details: `.planning/phases/61-bot-2-0/deferred-items.md`.
