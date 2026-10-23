@@ -7,6 +7,12 @@ import { MOSJES } from '../data/mosjes.js';
 import { PIECIES } from '../data/piecies.js';
 import { SNELLE_PIECIES } from '../data/snellePiecies.js';
 import { PLACES } from '../data/places.js';
+import { buildCardPanel } from './cardV1/buildCardPanel.js';
+import { getLevelRows } from './cardV1/getLevelRows.js';
+import { formatEnergyChip } from './cardV1/formatEnergyChip.js';
+import { getQuestNeed } from './cardV1/getQuestNeed.js';
+import { formatQuestRollsLine } from './cardV1/formatQuestRollsLine.js';
+import { formatQuestStakes } from './cardV1/formatQuestStakes.js';
 
 console.log('[UI] modalManager.js loaded');
 
@@ -431,7 +437,6 @@ export function initModalManager(container) {
 		const type = String(card.type || card.cardType || '').toUpperCase();
 
 		const esc = escapeHtml;
-		const cap = (s) => String(s).charAt(0).toUpperCase() + String(s).slice(1);
 		const TYPE_META = {
 			MOSJE:          { label: 'Mosje',  cls: 'mosje',  accent: '#e8b94f' },
 			PIECIE:         { label: 'Piecie', cls: 'piecie', accent: '#3d8ef5' },
@@ -457,28 +462,40 @@ export function initModalManager(container) {
 			if (card.abilityDescription) sections.push(['Ability', esc(card.abilityDescription)]);
 			if (card.synergyEffect) sections.push(['Synergy', esc(card.synergyEffect)]);
 			if (card.petSynergy) chips.push(`🐾 ${esc(String(card.petSynergy).replace('piecie_', '').replace(/_/g, ' '))}`);
-			const traits = Object.entries(card.traits || {}).filter(([, v]) => Number(v) > 0);
-			if (traits.length) {
-				const tHTML = traits.map(([n, v]) =>
-					`<span class="cd-trait"><span class="cd-trait-name">${esc(cap(n))}</span><span class="cd-trait-stars">${'★'.repeat(Number(v))}</span></span>`).join('');
-				sections.push(['Traits', `<div class="cd-traits">${tHTML}</div>`, true]);
+			// The 3 level rows (Power + traits per level); the current level is lit (a hand card shows Level 1).
+			const levelRows = getLevelRows(card, card.level);
+			if (levelRows.length) {
+				const rowsHTML = levelRows.map((r) =>
+					`<div class="cd-level-row" data-lit="${r.lit}"><b>${esc(r.label)}</b>${esc(r.text)}</div>`).join('');
+				sections.push(['Levels', `<div class="cd-levels">${rowsHTML}</div>`, true]);
 			}
 		} else if (type === 'PIECIE' || type === 'SNELLE_PIECIE') {
-			chips.push((card.mpCost === 0 || card.mpCost == null) ? 'Free' : `${card.mpCost} MP`);
-			if (type === 'SNELLE_PIECIE') chips.push('⚡ Interrupt');
-			if (card.requirement && card.requirement !== 'any') chips.push(`Requires ${esc(card.requirement)}`);
+			chips.push(esc(formatEnergyChip(card)));
+			if (card.needsText) chips.push(`Needs: ${esc(card.needsText)}`);
 			if (Array.isArray(card.tags)) card.tags.forEach(t => chips.push(esc(t)));
 			if (card.description) sections.push(['Effect', esc(card.description)]);
 			if (card.abilityDescription) sections.push(['Ability', esc(card.abilityDescription)]);
 		} else if (type === 'PLACE') {
-			if (card.trigger) chips.push(`Trigger: ${esc(card.trigger.replace(/_/g, ' '))}`);
 			if (Array.isArray(card.tags)) card.tags.forEach(t => chips.push(esc(t)));
 			if (card.description) sections.push(['Effect', esc(card.description)]);
 			const good = Array.isArray(card.goodFor) && card.goodFor.length ? card.goodFor.join(', ') : null;
 			const bad  = Array.isArray(card.badFor)  && card.badFor.length  ? card.badFor.join(', ')  : null;
 			if (good || bad) sections.push(['Affinity',
 				`${good ? `<span class="cd-good">▲ ${esc(good)}</span>` : ''}${bad ? `<span class="cd-bad">▼ ${esc(bad)}</span>` : ''}`, true]);
+		} else if (type.startsWith('QUEST') && card.stack) {
+			// 2.0 Quest: dice need, what it rolls, the cost sentence, the Also text and the stakes.
+			const need = getQuestNeed(card);
+			if (need) sections.push(['Need', esc(need.label === 'NEED' ? need.value : `${need.value} · ${need.label}`)]);
+			sections.push(['Rolls', esc(formatQuestRollsLine(card).replace(/^Rolls:\s*/, ''))]);
+			if (card.costText) sections.push(['First you must', esc(card.costText)]);
+			if (card.extras) sections.push(['Also', esc(String(card.extras).replace(/\*\*/g, ''))]);
+			const stakes = formatQuestStakes(card);
+			const loseHTML = stakes.lose.hookValue === 'none'
+				? `<span class="cd-good">${esc(stakes.lose.value)}</span>`
+				: `<span class="cd-bad">Lose ${esc(stakes.lose.value)}</span>`;
+			sections.push(['Outcome', `<span class="cd-good">Win ${esc(stakes.win.value)}</span>${loseHTML}`, true]);
 		} else if (type.startsWith('QUEST')) {
+			// A leftover V4 Quest (no stack): the old fields, until Phase 63 retires them.
 			if (card.difficulty) chips.push(`Difficulty: ${esc(card.difficulty)}`);
 			if (card.requirementDescription) sections.push(['Requirement', esc(card.requirementDescription)]);
 			if (card.description) sections.push(['Description', esc(card.description)]);
@@ -488,12 +505,9 @@ export function initModalManager(container) {
 			sections.push(['Effect', esc(card.description)]);
 		}
 
-		const copyLimit = card.rarity ? ({ '★': 4, '★★': 3, '★★★': 2, '★★★★': 2, '★★★★★': 1 }[card.rarity] ?? 1) : null;
 		const chipsHTML = chips.length ? `<div class="cd-chips">${chips.map(c => `<span class="cd-chip">${c}</span>`).join('')}</div>` : '';
 		const sectionsHTML = sections.map(([label, body, raw]) =>
 			`<section class="cd-sec"><h4 class="cd-sec-label">${esc(label)}</h4>${raw ? body : `<p class="cd-sec-text">${body}</p>`}</section>`).join('');
-		const flavourHTML = card.flavourText ? `<p class="cd-flavour">${esc(card.flavourText)}</p>` : '';
-		const rarityHTML = card.rarity ? `<span class="cd-rarity">${esc(card.rarity)}${copyLimit ? ` · max ${copyLimit}/deck` : ''}</span>` : '';
 
 		container.classList.add('modal-root--open');
 		container.innerHTML = `
@@ -508,12 +522,11 @@ export function initModalManager(container) {
 						</div>
 						<div class="cd-subrow">
 							${nick ? `<span class="cd-nick">"${esc(nick)}"</span>` : ''}
-							${rarityHTML}
 						</div>
 					</header>
+					${buildCardPanel(card)}
 					${chipsHTML}
 					<div class="cd-sections">${sectionsHTML}</div>
-					${flavourHTML}
 					<button class="modal-btn cd-close" id="modal-close-preview" type="button">Close</button>
 				</div>
 			</section>

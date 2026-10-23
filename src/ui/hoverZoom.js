@@ -1,5 +1,6 @@
 import { renderCard } from './cardRenderer.js';
 import { getCardById } from '../data/cardIndex.js';
+import { buildCardPanel } from './cardV1/buildCardPanel.js';
 
 // Field cards (yours and the opponent's) and hand cards both preview in the dock.
 const FIELD_SELECTOR = '#board-root .card[data-card-id], .game-hand-panel .hand-card-wrap[data-card-id]';
@@ -19,7 +20,8 @@ function readHook(srcEl, hook) {
 }
 
 // Rebuild a field card from its full definition + live MP/level/Power so the popup
-// shows the ability text the art-first field card hides.
+// shows the ability text the art-first field card hides. Returns { card, panelHtml }: the panel (flavour, rarity,
+// Limit 1 per deck, per-type reminder; D-09) hangs under the card inside the dock.
 function buildPopupCard(srcEl) {
 	const cardId = srcEl.dataset.cardId;
 	const def = getCardById(cardId);
@@ -29,7 +31,7 @@ function buildPopupCard(srcEl) {
 	// (the MP hook is the real MP even when a temp MP is shown on the tile).
 	const live = { mp: readHook(srcEl, 'mp'), level: readHook(srcEl, 'level'), power: readHook(srcEl, 'power') };
 	for (const [key, value] of Object.entries(live)) if (value !== null) merged[key] = value;
-	return renderCard(merged, { compact: false });
+	return { card: renderCard(merged, { compact: false }), panelHtml: buildCardPanel(merged) };
 }
 
 /** Hover any face-up field card (yours or the opponent's) → full-size card popup, docked on the right of the
@@ -44,13 +46,19 @@ export function initHoverZoom() {
 		}
 		if (target === currentTarget) return;
 		removePopup();
-		const card = buildPopupCard(target);
-		if (!card) return;
+		const built = buildPopupCard(target);
+		if (!built) return;
 		currentTarget = target;
 		popup = document.createElement('div');
 		// Hand previews use the same dock and size as field previews and the spotlight (hover-zoom--hand is only a marker).
 		popup.className = target.classList.contains('hand-card-wrap') ? 'hover-zoom hover-zoom--hand' : 'hover-zoom';
-		popup.appendChild(card);
+		popup.appendChild(built.card);
+		if (built.panelHtml) {
+			const panel = document.createElement('div');
+			panel.className = 'hover-zoom__panel';
+			panel.innerHTML = built.panelHtml;
+			popup.appendChild(panel);
+		}
 		document.body.appendChild(popup);
 	});
 	document.addEventListener('mouseout', (e) => {

@@ -243,3 +243,17 @@
   border: calc(1.5 * var(--u)) solid var(--cv1-tint); background: transparent;
 }
 .card-v1--field .cv2-tile .cv2-pip[data-cv1-pip="filled"] { background: var(--cv1-main); }
+
+/* -- Hover / detail panel (62-06, D-09): flavour, rarity, "Limit 1 per deck" and the per-type reminder. It sits OUTSIDE
+      the card face (under the hover popup, in the detail modal), so it uses rem, not --u. -- */
+.cv2-panel {
+  display: flex; flex-direction: column; gap: 0.3rem; box-sizing: border-box; padding: 0.55rem 0.75rem;
+  background: rgba(5, 5, 5, 0.88); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 0.5rem;
+  font-family: 'DM Sans', sans-serif; font-size: 0.8rem; line-height: 1.35; color: #f4f4f5; text-align: left;
+}
+.cv2-panel-line { margin: 0; }
+.cv2-panel-line--flavour { font-style: italic; color: #d4d4d8; }
+.cv2-panel-line--rarity { font-weight: 700; letter-spacing: 0.12em; }
+.cv2-panel-line--limit { font-weight: 700; }
+.cv2-panel-line--reminder { color: #b4b4bd; }
+.card-detail .cv2-panel { background: rgba(255, 255, 255, 0.04); font-size: 0.85rem; }

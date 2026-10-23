@@ -101,3 +101,41 @@ test('hovering a hand card previews it in the same dock at the same size, with a
 	await page.mouse.move(5, 5);
 	await expect(pop).toHaveCount(0);
 });
+
+// D-09: the card panel (flavour, rarity, limit, reminder) hangs under the docked card. The dock box stays the card box,
+// and the panel is fully on screen and not cut, even for the longest panel (a Place: flavour + rarity + reminder).
+for (const [width, height] of [[1920, 1080], [1280, 720]]) {
+  test(`the hover panel fits under the docked card at ${width}x${height}`, async ({ page }) => {
+    await page.setViewportSize({ width, height });
+    await seedOfflineSession(page);
+    await page.goto(GAME_URL_TEST);
+    await waitForBoard(page);
+    await page.evaluate(() => window.__testHooks.setActivePlace('place_tesla', 'player_1'));
+    await page.mouse.move(5, 5);
+    await page.waitForTimeout(800);
+
+    await page.locator('#board-root .card[data-card-id="place_tesla"]').first().hover();
+    await page.waitForTimeout(400);
+    const pop = page.locator('.hover-zoom');
+    await expect(pop).toHaveCount(1);
+    const b = await box(pop);
+    expect(Math.abs(b.h - b.w * 1.5), 'the dock box is still the card box').toBeLessThanOrEqual(2);
+    expect(Math.abs((b.y + b.h / 2) - height / 2)).toBeLessThanOrEqual(2);
+
+    const panel = pop.locator('.hover-zoom__panel');
+    await expect(panel).toBeVisible();
+    await expect(panel.locator('.cv2-panel-line--flavour')).toHaveCount(1);
+    await expect(panel.locator('.cv2-panel-line--rarity')).toHaveText(/^★+$/);
+    await expect(panel.locator('.cv2-panel-line--reminder')).toContainText('Fresh Mosjes ignore it.');
+    const p = await box(panel);
+    expect(p.y).toBeGreaterThanOrEqual(b.y + b.h - 1);
+    expect(p.y + p.h, 'panel bottom inside the screen').toBeLessThanOrEqual(height);
+    expect(p.x).toBeGreaterThanOrEqual(0);
+    expect(p.x + p.w).toBeLessThanOrEqual(width);
+    const cut = await panel.evaluate((el) => el.scrollHeight - el.clientHeight);
+    expect(cut, 'the panel text is not cut off').toBeLessThanOrEqual(1);
+    await page.screenshot({ path: `tests/ui/screenshots/cardv1/hover-panel-${width}.png` });
+    await page.mouse.move(5, 5);
+    await expect(pop).toHaveCount(0);
+  });
+}

@@ -6,6 +6,7 @@ import { MOSJES } from '../../src/data/mosjes.js';
 import { QUESTS } from '../../src/data/quests.js';
 import { getCardPanelLines } from '../../src/ui/cardV1/getCardPanelLines.js';
 import { buildCardPanel } from '../../src/ui/cardV1/buildCardPanel.js';
+import { formatEnergyChip } from '../../src/ui/cardV1/formatEnergyChip.js';
 
 // Phase 62 D-09: flavour, rarity, "Limit 1 per deck" and the per-type reminder live in the hover / detail panel,
 // not on the face. The reminder copy is the 62-UI-SPEC Copywriting contract.
@@ -77,6 +78,17 @@ describe('getCardPanelLines (D-09)', () => {
   it('no card, an unknown type and an empty card all give no lines', () => {
     expect(getCardPanelLines(null)).toEqual([]);
     expect(getCardPanelLines({ type: 'UNKNOWN' })).toEqual([]);
+  });
+});
+
+describe('formatEnergyChip (cost outside the face)', () => {
+  it('0 renders "0 Energy", never Free; Blensen! keeps its "or free"', () => {
+    expect(formatEnergyChip(piecie('Kannetje Melk'))).toBe('0 Energy');
+    expect(formatEnergyChip(piecie('Harde Didde'))).toBe('4 Energy');
+    const blensen = (SNELLE_PIECIES as any[]).find((c) => c.costText);
+    expect(blensen.costText).toBe('4 or free');
+    expect(formatEnergyChip(blensen)).toBe('4 Energy or free');
+    expect(formatEnergyChip({})).toBe('0 Energy');
   });
 });
 

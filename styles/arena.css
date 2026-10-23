@@ -94,6 +94,18 @@
 }
 .hover-zoom .card .uc-text,
 .hover-zoom .card .uc-meta { display: block; }
+/* The card panel (flavour, rarity, limit, per-type reminder; D-09) hangs under the card inside the dock. It is out of
+   flow so the dock box stays exactly the card box (same spot and size as the spotlight); the max-height keeps it
+   inside the screen: half the viewport minus the half card that sits below the centre line. */
+.hover-zoom__panel {
+	position: absolute;
+	left: 0;
+	top: 100%;
+	width: 100%;
+	margin-top: 0.6rem;
+	max-height: calc(50vh - var(--pop-w) * 0.75 - 1.1rem);
+	overflow: hidden;
+}
 @keyframes hover-zoom-in { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
 
 /* ── Action spotlight (right side of screen) ───────────────────────── */

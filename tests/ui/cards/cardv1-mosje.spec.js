@@ -237,6 +237,15 @@ test.describe('card frame v1 — Mosje', () => {
     const t = await tile.boundingBox();
     const b = await big.boundingBox();
     expect(b.height).toBeGreaterThan(t.height * 2);
+    // D-09 panel under the docked card: visible, inside the viewport, with the rarity line; the dock box is still the card box.
+    const panel = big.locator('.hover-zoom__panel');
+    await expect(panel).toBeVisible();
+    await expect(panel.locator('.cv2-panel-line--rarity')).toHaveText(/^★+$/);
+    const pb = await panel.boundingBox();
+    expect(pb.y).toBeGreaterThanOrEqual(b.y + b.height - 1);
+    expect(pb.y + pb.height).toBeLessThanOrEqual(1000);
+    expect(pb.x).toBeGreaterThanOrEqual(0);
+    expect(pb.x + pb.width).toBeLessThanOrEqual(1600);
     await page.waitForTimeout(800);
     await page.screenshot({ path: `${OUT}/mosje-hover.png` });
     await page.mouse.move(5, 500);

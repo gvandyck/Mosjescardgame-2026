@@ -47,4 +47,27 @@ test('card frame v1 — click-detail modal shows a large readable card', async (
   const modalDescPx = await modalCard.locator('.cv2-text').evaluate(el => parseFloat(getComputedStyle(el).fontSize));
   expect(modalDescPx).toBeGreaterThanOrEqual(9);
   await page.screenshot({ path: `${OUT}/detail-modal.png` });
+
+  // D-09 panel under the header: rarity stars, no V4 "max N/deck" copy-limit text, Levels section with the lit row.
+  const mosjePanel = page.locator('.card-detail .cv2-panel');
+  await expect(mosjePanel).toBeVisible();
+  await expect(mosjePanel.locator('.cv2-panel-line--rarity')).toHaveText(/^★+$/);
+  await expect(page.locator('.card-detail .cd-level-row')).toHaveCount(3);
+  await expect(page.locator('.card-detail .cd-level-row[data-lit="true"]')).toHaveCount(1);
+  expect(await page.locator('.card-detail').innerText()).not.toMatch(/max \d|\/deck/);
+  await page.locator('#modal-close-preview').click();
+  await expect(page.locator('.card-detail')).toHaveCount(0);
+
+  // A face-up Piecie on the field: its panel carries the Piecie reminder; the chips show Energy, never Free / N MP.
+  await page.evaluate(() => window.__testHooks.setPiecieOnField('player_1', 0, 'piecie_kannetje_melk', { faceDown: false }));
+  await page.waitForTimeout(800);
+  await page.mouse.move(5, 300);
+  await page.locator('#board-root .board-zone--player .field-piecie-card[data-card-id="piecie_kannetje_melk"]').first().click();
+  const piecieModal = page.locator('.card-detail');
+  await expect(piecieModal).toBeVisible();
+  await expect(piecieModal.locator('.cv2-panel-line--reminder')).toHaveText('Place face-down for free. From your next turn, pay its cost to activate it.');
+  await expect(piecieModal.locator('.cd-chip').first()).toHaveText('0 Energy');
+  expect(await piecieModal.innerText()).not.toMatch(/max \d|\/deck/);
+  expect(await piecieModal.locator('.cd-chips').innerText()).not.toMatch(/Free|Requires|Interrupt|\bMP\b/); // no V4 chips
+  await page.screenshot({ path: `${OUT}/detail-modal-piecie.png` });
 });
