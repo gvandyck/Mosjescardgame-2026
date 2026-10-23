@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Obby Card Game 2.0 — slice A (offline vs bot)
-status: "Phase 62 planned (7 plans) - ready to execute"
-stopped_at: Phase 62 planned (7 plans, 7 waves) - next /gsd-execute-phase 62
-last_updated: "2026-10-20T20:28:00.607Z"
-last_activity: 2026-10-20
+status: executing
+stopped_at: Phase 62 executed (7/7) and verified (human_needed, 5/5 criteria); next /gsd-discuss-phase 63
+last_updated: "2026-10-23T20:33:18.684Z"
+last_activity: 2026-10-23
 progress:
   total_phases: 57
-  completed_phases: 37
+  completed_phases: 38
   total_plans: 194
-  completed_plans: 179
-  percent: 65
+  completed_plans: 186
+  percent: 67
 ---
 
 # Project State
@@ -26,16 +26,16 @@ See: `.planning/PROJECT.md` (updated 2026-10-10)
 
 **Core value:** On branch `obby-2.0`, the web game plays by the full 2.0 rules on one table against the bot, with the 3 Example Decks, deployed separately to eightytwenty.nl/obbycardgame2. V4 on `main` stays untouched.
 
-**Current focus:** Phase 62 — 2.0 Card Faces (Phase 61.1 done 2026-10-20)
+**Current focus:** Phase 63 — 2.0 Board and Player Actions (Phase 62 Card Faces done 2026-10-23, verifier human_needed)
 
 **Sources of truth:** `docs/obby-2.0/` — Claude Code Handoff (spec), Card List (card texts; wins over phase docs), Core Numbers (rules), Example Decks, Phase 7 Card Frames and Art.
 
 ## Current Position
 
-Phase: 62
-Plan: 0 of 7 executed
-Status: Phase 62 planned (7 plans) - ready to execute
-Last activity: 2026-10-20
+Phase: 63
+Plan: Not started
+Status: Ready to discuss (UI phase: discuss, then ui-phase, then plan)
+Last activity: 2026-10-23
 
 ## RESUME HERE (handoff 2026-10-17, chat rotated for context size)
 
@@ -49,7 +49,9 @@ Last activity: 2026-10-20
 
 **Phase 61.1 (Bot 2.0 follow-up) done 2026-10-20:** 4 plans, verifier `passed` 5/5 (61.1-VERIFICATION.md). Drain Reversal sidelining the attacker now fizzles the held attack (Snelle stays paid); Perfect Dodge vs a sideways 0 MP target works (root cause: `resolvePendingChoice` never swept `_pendingWelloe`, now calls `checkVictory`); `engine-refused` metric covers the silent paths; BOT-04 guard covers all of src/bot/*.js (scan + hand-swap invariance); legality runner counts fizzles on fresh Mosjes. Judgement call (not in Card List): a fizzled held attack does NOT spend the attacker's action. `npm test` green (169 files, 2108 tests). Headless card suite 394/397: `cardv1-hand`, `cardv1-piecie` (Phase 62 fixes these) + flaky `place_skiffa` reroll (todo filed: .planning/todos/pending/2026-10-20-place-skiffa-reroll-flake.md). 9+ commits ahead of origin/obby-2.0, NOT pushed.
 
-**Next command:** `/gsd-execute-phase 62` (Card Faces; discussed, UI-SPEC written, 7 plans planned 2026-10-20; cheap process). Phase 65 Mobile Play stays last (needs the 64 deploy URL), decided 2026-10-23.
+**Phase 62 (2.0 Card Faces) done 2026-10-23:** 7 plans, verifier `human_needed` (5/5 criteria, no blocker; 62-VERIFICATION.md). UI-04 / TEST-04 ticked. All card faces and field tiles are 2.0 (Energy cost, frosted text box, 3 level rows, Piecie/Snelle/Place/Quest faces, hover/detail panel, no V4 card text, legacy face code deleted). `npm test` green (179 files, 2256 tests); card suite 429 pass / 2 red. Gandalf's 2026-10-20 UI work (right-hand hover dock, 150% hand, auto-fit text, felt table) was committed first (8cac3cd, 0355d80) and the plans patched around it. Needs Gandalf: (1) `hand-animation-perf` red, p95 50-67 ms vs 25 ms, mostly the hover-dock / 150% hand commit, frosted blur (D-05) adds on top, measured headless; (2) visual sign-off on tests/ui/screenshots/cardv1/a10-*.png; (3) small calls: Bowie & Stormey text clamps at every size, 7 Quests show an empty dark band, hover panel overlays the right end of the hand, D-08 "whole card in stack colour" only colours art window/pill/tile, UI-SPEC dim rows .55 and no cost on Piecie/Snelle/Place tiles. Phase 63 inherits: Fresh/Protected badges tests, Quests on the live board with fail pips from engine state, Tactician temp MP. Phase 64 inherits: deck-builder.js still uses V4 RARITY_COPY_LIMITS.
+
+**Next command:** `/gsd-discuss-phase 63` (Board + player actions). Phase 65 Mobile Play stays last (needs the 64 deploy URL), decided 2026-10-23.
 
 **After 60:** 61 Bot 2.0 → 62 2.0 Card Faces (Phase 7 spec) → 63 Board + player actions → 64 Lobby / full games / sim (re-point sim specs to Example Decks) / deploy to /obbycardgame2. Known gaps for those phases are written in each ROADMAP phase entry ("Known gap …" lines).
 
@@ -96,6 +98,12 @@ Last activity: 2026-10-20
 | Phase 61 P08 | 2 sessions | 3 tasks | 14 files |
 | Phase 61 P09 | 55 min | 2 tasks | 4 files |
 | 61 | 9 | - | - |
+| Phase 62 P01 | 20min | 3 tasks | 31 files |
+| Phase 62 P02 | 50min | 3 tasks | 29 files |
+| Phase 62 P04 | ~1h | 3 tasks | 24 files |
+| Phase 62 P05 | ~1h | 3 tasks | 29 files |
+| Phase 62 P06 | ~1h | 3 tasks | 30 files |
+| Phase 62 P07 | ~1h30m | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -131,6 +139,7 @@ None for v2.0 yet.
 
 ### Blockers/Concerns
 
+- KNOWN GAP (62-07): tests/ui/cards/hand-animation-perf.spec.js is red (hand hover p95 frame time 66.7 ms vs < 25; green on 907734c at 16.7, already 50.1 on 0355d80). Cause: hover dock + 150% hand (8cac3cd) plus the Phase 62 frosted backdrop-filter; headless software rendering. Design call for Gandalf (blur radius / dock cost), test untouched. Also red, not Phase 62: place_skiffa reroll flake, cinema modal-preview + arena-hover (no 4th hand card).
 - Open spec items (handoff §8): the modifier order for one loss is a proposal (flag any card that disagrees); Quest stack reshuffle-when-empty is a proposal; names owed for The Hacker, The Tactician, The Drainer.
 - Unmerged UI branches (`ui/arena-hover-spotlight`, `ui/card-frame-v1`, `ui/rarity-tiers`): decide per branch before Phase 62 whether to bring it into `obby-2.0`.
 - Deploy (Phase 64): FTP folder is created by the first deploy; Firebase (`FIREBASE_CONFIG_2`) is not needed for slice A.
@@ -138,6 +147,6 @@ None for v2.0 yet.
 
 ## Session Continuity
 
-Last session: 2026-10-20T20:28:00.595Z
-Stopped at: Phase 62 planned (7 plans, 7 waves) - next /gsd-execute-phase 62
-Resume file: .planning/phases/62-2-0-card-faces/62-01-PLAN.md
+Last session: 2026-10-23T20:33:13.253Z
+Stopped at: Completed 62-07-PLAN.md (phase sweep: A10 spec + 183-card collision sweep + docs; UI-04 / TEST-04 ticked); next: Phase 62 verifier
+Resume file: None

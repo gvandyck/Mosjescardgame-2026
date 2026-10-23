@@ -67,14 +67,14 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 - [ ] **UI-01**: The board shows per player one row of 3 Piecie slots + 2 Mosjes, the Place / 3 Quests with stacks and fail tokens / End Turn in the middle, and the hand at the bottom, judged at 1920×1080 (§4).
 - [ ] **UI-02**: Each player shows 6 Energy crystals, filled = available.
 - [ ] **UI-03**: Field Mosje tiles show Power, LVL chip and MP; sideways tiles rotate 90°; Fresh and Protected badges; "LVL 3 · HOLD"; Tactician temp MP (Phase 7 §A3).
-- [ ] **UI-04**: Card faces follow Phase 7 §A: Energy cost top-left, frosted text box, Mosjes always full art (foil on ★★★★★ or `foil` flag), 3 level rows with the current one lit, Piecie tag-first label, Place cost, Quests in stack colours with need / win / lose.
+- [x] **UI-04**: Card faces follow Phase 7 §A: Energy cost top-left, frosted text box, Mosjes always full art (foil on ★★★★★ or `foil` flag), 3 level rows with the current one lit, Piecie tag-first label, Place cost, Quests in stack colours with need / win / lose.
 - [ ] **UI-05**: The player can attack (pick attacker → target, invalid targets disabled), attempt Quests, play Places and answer reaction prompts from the UI; a cooldown-turn banner blocks everything but placing.
 
 ### Verification (TEST)
 - [x] **TEST-01**: Engine unit tests E1–E30 from handoff §6a pass in `npm test`.
 - [x] **TEST-02**: Every Card List card except the 38 Quests (covered by engine tests — Gandalf 2026-10-16) has a card-test-library entry (Example Deck cards first), including the §6b must-have edge cases.
 - [ ] **TEST-03**: Playwright specs U1–U12 from handoff §6c pass.
-- [ ] **TEST-04**: Phase 7 §A10 frame tests pass (unit + Playwright screenshots at 1920×1080).
+- [x] **TEST-04**: Phase 7 §A10 frame tests pass (unit + Playwright screenshots at 1920×1080).
 - [ ] **TEST-05**: `npm run test:sim` runs the 2.0 rules with the 3 Example Decks: 0 crashes, timeout rate under 25%.
 
 ## Future Requirements (later milestones)
@@ -140,12 +140,12 @@ Source of truth: `docs/obby-2.0/Obby Card Game 2.0 - Claude Code Handoff.md` (§
 | UI-01 | Phase 63 | Pending |
 | UI-02 | Phase 63 | Pending |
 | UI-03 | Phase 63 | Pending |
-| UI-04 | Phase 62 | Pending |
+| UI-04 | Phase 62 | Complete |
 | UI-05 | Phase 63 | Pending |
 | TEST-01 | Phase 58 | Complete |
 | TEST-02 | Phase 60 | Complete |
 | TEST-03 | Phase 64 | Pending |
-| TEST-04 | Phase 62 | Pending |
+| TEST-04 | Phase 62 | Complete |
 | TEST-05 | Phase 64 | Pending |
 
 **Coverage:** 55/55 v2.0 requirements mapped to exactly one phase (53–64). No orphans, no duplicates.

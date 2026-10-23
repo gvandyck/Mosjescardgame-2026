@@ -24,7 +24,7 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 - [x] **Phase 60: Snelle, Places and Hidden Information** - All 20 Snelle and 20 Place effects, hidden-info cards; every card has a card test (completed 2026-10-17)
 - [x] **Phase 61: Bot 2.0** - The bot plays legal, sensible 2.0 games: attack-or-Quest, Energy, reactions, no cheating (completed 2026-10-18)
 - [x] **Phase 61.1: Bot 2.0 follow-up** (INSERTED) - Engine reaction-replay fixes (Drain Reversal, Perfect Dodge) and bot-test hardening from the Phase 61 verifier (completed 2026-10-20)
-- [ ] **Phase 62: 2.0 Card Faces** - Card frames per Phase 7 §A for Mosjes, Piecies, Snelle, Places and Quests
+- [x] **Phase 62: 2.0 Card Faces** - Card frames per Phase 7 §A for Mosjes, Piecies, Snelle, Places and Quests (completed 2026-10-23)
 - [ ] **Phase 63: 2.0 Board and Player Actions** - The 2.0 board, Energy crystals, field tiles, and attack/Quest/Place/reaction controls
 - [ ] **Phase 64: Lobby, Full Games, Simulation and Deploy** - Bot-only lobby with 3 decks, full-game specs, 2.0 sim, separate deploy to /obbycardgame2
 - [ ] **Phase 65: Mobile Play** - Touch UX and phone layout so a full 2.0 game is playable on a phone (promoted from backlog 999.2)
@@ -43,7 +43,7 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 | 60 | Snelle, Places and Hidden Information | 8/8 | Complete    | 2026-10-17 |
 | 61 | Bot 2.0 | 9/9 | Complete    | 2026-10-18 |
 | 61.1 | Bot 2.0 follow-up | 4/4 | Complete    | 2026-10-20 |
-| 62 | 2.0 Card Faces | 0/7 | Planned | - |
+| 62 | 2.0 Card Faces | 7/7 | Complete   | 2026-10-23 |
 | 63 | 2.0 Board and Player Actions | 0/TBD | Not started | - |
 | 64 | Lobby, Full Games, Simulation and Deploy | 0/TBD | Not started | - |
 | 65 | Mobile Play | 0/TBD | Not started | - |
@@ -369,19 +369,20 @@ Plans:
   5. The Phase 7 §A10 unit tests and Playwright screenshots at 1920×1080 pass.
 
 **Tests to add**: A10 unit tests (frame tier, foil, Piecie label, cost 0) and A10 Playwright screenshots.
-**Known gap (pre-existing, found in Phase 55)**: `tests/ui/cards/cardv1-hand.spec.js` 230px text-collision check fails for mosje_martin_historian, mosje_martin_senor_west, piecie_bowie_stormey, piecie_tony, piecie_gekke_vogels (long 2.0 texts); fix with the 2.0 card faces.
+**Known gap CLOSED in 62-03** (was: pre-existing, found in Phase 55): `tests/ui/cards/cardv1-hand.spec.js` 230px text-collision check fails for mosje_martin_historian, mosje_martin_senor_west, piecie_bowie_stormey, piecie_tony, piecie_gekke_vogels (long 2.0 texts); fix with the 2.0 card faces.
+**Known gap (found in 62-07, for Gandalf)**: `tests/ui/cards/hand-animation-perf.spec.js` is red (hand hover p95 frame time 66.7 ms vs < 25 in headless software rendering). Green on 907734c (16.7 ms), already 50.1 ms on 0355d80 (hover dock + 150% hand); the Phase 62 frosted `backdrop-filter` adds on top. Without blur 50.0, without dock 50.0, without both 16.7. Needs a design call (blur radius / dock cost); the test is untouched.
 **Notes**: Decide per unmerged UI branch (`ui/arena-hover-spotlight`, `ui/card-frame-v1`, `ui/rarity-tiers`) whether to bring it into `obby-2.0` first.
 **Mobile-ready rule (from backlog 999.2)**: card faces scale from ONE size token (container-relative units, no fixed-px layout) and stay free of text collisions from the hand size (~230 px) down to roughly 100 px wide; text that no longer fits is covered by the large detail view, not by shrinking fonts forever. Fixing the existing 230 px collisions (Known gap above) is the first step. Phone layout itself is Phase 65.
 **Plans**: 7 plans (linear waves 1-7, one plan at a time)
 
 Plans:
-- [ ] 62-01-PLAN.md — needsText data + Card List guard, pure face helpers, frame tier from getFrameTier (foil, rarity diamonds), A10 unit tests
-- [ ] 62-02-PLAN.md — shared 2.0 pop-up face (cost, frosted text box, level rows, footer, clamp, 150 px collapse) + Mosje face; zone-collision helper
-- [ ] 62-03-PLAN.md — Piecie + Snelle faces (Needs line, tag-first label, STAYS, Instant · any turn, or free); 230 px Known gap closed
-- [ ] 62-04-PLAN.md — Place face (cost, verbatim Good for · Bad for) + Quest face (stack colour, need, Rolls, WIN/LOSE, placeholder art)
-- [ ] 62-05-PLAN.md — 2.0 field tiles for every type (Power/MP, STAYS, Quest 2 fail pips); hover popup reads tile hooks
-- [ ] 62-06-PLAN.md — hover/detail panel (flavour, rarity, Limit 1, reminder), no V4 card text left, ?cardv1=off + legacy face code removed
-- [ ] 62-07-PLAN.md — phase sweep: A10 Playwright screenshots + contrast pixel sample, 183-card collision sweep, full card suite, docs
+- [x] 62-01-PLAN.md — needsText data + Card List guard, pure face helpers, frame tier from getFrameTier (foil, rarity diamonds), A10 unit tests
+- [x] 62-02-PLAN.md — shared 2.0 pop-up face (cost, frosted text box, level rows, footer, clamp, 150 px collapse) + Mosje face; zone-collision helper
+- [x] 62-03-PLAN.md — Piecie + Snelle faces (Needs line, tag-first label, STAYS, Instant · any turn, or free); 230 px Known gap closed
+- [x] 62-04-PLAN.md — Place face (cost, verbatim Good for · Bad for) + Quest face (stack colour, need, Rolls, WIN/LOSE, placeholder art)
+- [x] 62-05-PLAN.md — 2.0 field tiles for every type (Power/MP, STAYS, Quest 2 fail pips); hover popup reads tile hooks
+- [x] 62-06-PLAN.md — hover/detail panel (flavour, rarity, Limit 1, reminder), no V4 card text left, ?cardv1=off + legacy face code removed
+- [x] 62-07-PLAN.md — phase sweep: A10 Playwright screenshots + contrast pixel sample, 183-card collision sweep, full card suite, docs
 **UI hint**: yes
 
 ### Phase 63: 2.0 Board and Player Actions
@@ -451,7 +452,7 @@ Plans:
 | 60. Snelle, Places and Hidden Information | 8/8 | Complete | 2026-10-17 |
 | 61. Bot 2.0 | 9/9 | Complete | 2026-10-18 |
 | 61.1. Bot 2.0 follow-up | 4/4 | Complete | 2026-10-20 |
-| 62. 2.0 Card Faces | 0/7 | Planned | - |
+| 62. 2.0 Card Faces | 7/7 | Complete | 2026-10-23 |
 | 63. 2.0 Board and Player Actions | 0/TBD | Not started | - |
 | 64. Lobby, Full Games, Simulation and Deploy | 0/TBD | Not started | - |
 | 65. Mobile Play | 0/TBD | Not started | - |
