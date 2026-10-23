@@ -31,8 +31,8 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 
 ### Phase Overview
 
-| # | Phase | Goal | Requirements | Success Criteria |
-|---|-------|------|--------------|------------------|
+| # | Phase | Plans | Status | Completed |
+|---|-------|-------|--------|-----------|
 | 53 | 2.0 Card Data and Example Decks | 7/7 | Complete    | 2026-10-10 |
 | 54 | Energy, Levels and Getemt | 16/16 | Complete    | 2026-10-11 |
 | 55 | Turn Flow, Setup and Protection | 7/7 | Complete    | 2026-10-11 |
@@ -43,9 +43,10 @@ Test IDs: **E#** = engine unit tests (handoff §6a), **U#** = Playwright UI spec
 | 60 | Snelle, Places and Hidden Information | 8/8 | Complete    | 2026-10-17 |
 | 61 | Bot 2.0 | 9/9 | Complete    | 2026-10-18 |
 | 61.1 | Bot 2.0 follow-up | 4/4 | Complete    | 2026-10-20 |
-| 62 | 2.0 Card Faces | Every card face follows the Phase 7 §A spec | UI-04, TEST-04 | 5 |
-| 63 | 2.0 Board and Player Actions | A human can play a full 2.0 turn on the 2.0 board | UI-01, 02, 03, 05 | 4 |
-| 64 | Lobby, Full Games, Simulation and Deploy | Anyone can play 2.0 vs the bot at eightytwenty.nl/obbycardgame2 | SHELL-01, 02, 03, TEST-03, TEST-05 | 5 |
+| 62 | 2.0 Card Faces | 0/7 | Planned | - |
+| 63 | 2.0 Board and Player Actions | 0/TBD | Not started | - |
+| 64 | Lobby, Full Games, Simulation and Deploy | 0/TBD | Not started | - |
+| 65 | Mobile Play | 0/TBD | Not started | - |
 
 ### Phase Details
 
@@ -371,7 +372,16 @@ Plans:
 **Known gap (pre-existing, found in Phase 55)**: `tests/ui/cards/cardv1-hand.spec.js` 230px text-collision check fails for mosje_martin_historian, mosje_martin_senor_west, piecie_bowie_stormey, piecie_tony, piecie_gekke_vogels (long 2.0 texts); fix with the 2.0 card faces.
 **Notes**: Decide per unmerged UI branch (`ui/arena-hover-spotlight`, `ui/card-frame-v1`, `ui/rarity-tiers`) whether to bring it into `obby-2.0` first.
 **Mobile-ready rule (from backlog 999.2)**: card faces scale from ONE size token (container-relative units, no fixed-px layout) and stay free of text collisions from the hand size (~230 px) down to roughly 100 px wide; text that no longer fits is covered by the large detail view, not by shrinking fonts forever. Fixing the existing 230 px collisions (Known gap above) is the first step. Phone layout itself is Phase 65.
-**Plans**: TBD
+**Plans**: 7 plans (linear waves 1-7, one plan at a time)
+
+Plans:
+- [ ] 62-01-PLAN.md — needsText data + Card List guard, pure face helpers, frame tier from getFrameTier (foil, rarity diamonds), A10 unit tests
+- [ ] 62-02-PLAN.md — shared 2.0 pop-up face (cost, frosted text box, level rows, footer, clamp, 150 px collapse) + Mosje face; zone-collision helper
+- [ ] 62-03-PLAN.md — Piecie + Snelle faces (Needs line, tag-first label, STAYS, Instant · any turn, or free); 230 px Known gap closed
+- [ ] 62-04-PLAN.md — Place face (cost, verbatim Good for · Bad for) + Quest face (stack colour, need, Rolls, WIN/LOSE, placeholder art)
+- [ ] 62-05-PLAN.md — 2.0 field tiles for every type (Power/MP, STAYS, Quest 2 fail pips); hover popup reads tile hooks
+- [ ] 62-06-PLAN.md — hover/detail panel (flavour, rarity, Limit 1, reminder), no V4 card text left, ?cardv1=off + legacy face code removed
+- [ ] 62-07-PLAN.md — phase sweep: A10 Playwright screenshots + contrast pixel sample, 183-card collision sweep, full card suite, docs
 **UI hint**: yes
 
 ### Phase 63: 2.0 Board and Player Actions
@@ -431,17 +441,17 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 53. 2.0 Card Data and Example Decks | 0/TBD | Not started | - |
-| 54. Energy, Levels and Getemt | 0/16 | Planned | - |
-| 55. Turn Flow, Setup and Protection | 0/TBD | Not started | - |
-| 56. Attacking and Quests | 0/TBD | Not started | - |
-| 57. Piecies, Snelle, Places and Reaction Windows | 0/TBD | Not started | - |
-| 58. Mosje Abilities and Synergies | 0/TBD | Not started | - |
+| 53. 2.0 Card Data and Example Decks | 7/7 | Complete | 2026-10-10 |
+| 54. Energy, Levels and Getemt | 16/16 | Complete | 2026-10-11 |
+| 55. Turn Flow, Setup and Protection | 7/7 | Complete | 2026-10-11 |
+| 56. Attacking and Quests | 9/9 | Complete | 2026-10-12 |
+| 57. Piecies, Snelle, Places and Reaction Windows | 7/7 | Complete | 2026-10-12 |
+| 58. Mosje Abilities and Synergies | 12/12 | Complete | 2026-10-15 |
 | 59. Piecie Effects | 8/8 | Complete | 2026-10-16 |
-| 60. Snelle, Places and Hidden Information | 0/TBD | Not started | - |
+| 60. Snelle, Places and Hidden Information | 8/8 | Complete | 2026-10-17 |
 | 61. Bot 2.0 | 9/9 | Complete | 2026-10-18 |
 | 61.1. Bot 2.0 follow-up | 4/4 | Complete | 2026-10-20 |
-| 62. 2.0 Card Faces | 0/TBD | Not started | - |
+| 62. 2.0 Card Faces | 0/7 | Planned | - |
 | 63. 2.0 Board and Player Actions | 0/TBD | Not started | - |
 | 64. Lobby, Full Games, Simulation and Deploy | 0/TBD | Not started | - |
 | 65. Mobile Play | 0/TBD | Not started | - |

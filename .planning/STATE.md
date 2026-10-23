@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Obby Card Game 2.0 — slice A (offline vs bot)
-status: planning
-stopped_at: Phase 61.1 complete (4/4, verifier passed 5/5) - ready to discuss Phase 62 (2.0 Card Faces)
-last_updated: "2026-10-20T00:00:00.000Z"
+status: "Phase 62 planned (7 plans) - ready to execute"
+stopped_at: Phase 62 planned (7 plans, 7 waves) - next /gsd-execute-phase 62
+last_updated: "2026-10-20T20:28:00.607Z"
 last_activity: 2026-10-20
 progress:
-  total_phases: 56
+  total_phases: 57
   completed_phases: 37
-  total_plans: 183
-  completed_plans: 191
-  percent: 64
+  total_plans: 194
+  completed_plans: 179
+  percent: 65
 ---
 
 # Project State
@@ -33,8 +33,8 @@ See: `.planning/PROJECT.md` (updated 2026-10-10)
 ## Current Position
 
 Phase: 62
-Plan: Not started
-Status: Ready to discuss (UI phase: discuss, then ui-phase, then plan)
+Plan: 0 of 7 executed
+Status: Phase 62 planned (7 plans) - ready to execute
 Last activity: 2026-10-20
 
 ## RESUME HERE (handoff 2026-10-17, chat rotated for context size)
@@ -49,7 +49,7 @@ Last activity: 2026-10-20
 
 **Phase 61.1 (Bot 2.0 follow-up) done 2026-10-20:** 4 plans, verifier `passed` 5/5 (61.1-VERIFICATION.md). Drain Reversal sidelining the attacker now fizzles the held attack (Snelle stays paid); Perfect Dodge vs a sideways 0 MP target works (root cause: `resolvePendingChoice` never swept `_pendingWelloe`, now calls `checkVictory`); `engine-refused` metric covers the silent paths; BOT-04 guard covers all of src/bot/*.js (scan + hand-swap invariance); legality runner counts fizzles on fresh Mosjes. Judgement call (not in Card List): a fizzled held attack does NOT spend the attacker's action. `npm test` green (169 files, 2108 tests). Headless card suite 394/397: `cardv1-hand`, `cardv1-piecie` (Phase 62 fixes these) + flaky `place_skiffa` reroll (todo filed: .planning/todos/pending/2026-10-20-place-skiffa-reroll-flake.md). 9+ commits ahead of origin/obby-2.0, NOT pushed.
 
-**Next command:** `/gsd-discuss-phase 62` (Card Faces; first decide which unmerged UI branch to bring in: `ui/card-frame-v1`, `ui/arena-hover-spotlight`; `ui/rarity-tiers` is already on main), then `/gsd-ui-phase 62`, then `/gsd-plan-phase 62` (cheap process).
+**Next command:** `/gsd-execute-phase 62` (Card Faces; discussed, UI-SPEC written, 7 plans planned 2026-10-20; cheap process). Phase 65 Mobile Play stays last (needs the 64 deploy URL), decided 2026-10-23.
 
 **After 60:** 61 Bot 2.0 → 62 2.0 Card Faces (Phase 7 spec) → 63 Board + player actions → 64 Lobby / full games / sim (re-point sim specs to Example Decks) / deploy to /obbycardgame2. Known gaps for those phases are written in each ROADMAP phase entry ("Known gap …" lines).
 
@@ -138,6 +138,6 @@ None for v2.0 yet.
 
 ## Session Continuity
 
-Last session: 2026-10-18T18:22:10.361Z
-Stopped at: Completed 61-09-PLAN.md
-Resume file: None
+Last session: 2026-10-20T20:28:00.595Z
+Stopped at: Phase 62 planned (7 plans, 7 waves) - next /gsd-execute-phase 62
+Resume file: .planning/phases/62-2-0-card-faces/62-01-PLAN.md
