@@ -7,6 +7,7 @@
 import { escapeHtml } from './escapeHtml.js';
 import { fitFirstName } from './fitFirstName.js';
 import { buildArtLayer } from './buildArtLayer.js';
+import { buildQuestArt } from './buildQuestArt.js';
 import { buildTierChrome } from './buildTierChrome.js';
 import { buildShineLayers } from './buildShineLayers.js';
 import { buildBoxedLayers } from './buildBoxedLayers.js';
@@ -34,9 +35,11 @@ export function buildPopupFace(spec, { tier = 4, layout = 'fullart', diamonds = 
   const fade = getTierFadeHeight({ typeKey, lines: spec.lines });
   const vars = `--cv1-main:${escapeHtml(colors.main)};--cv1-tint:${escapeHtml(colors.tint)};--cv1-tint-alpha:${resolveTintAlpha(TEXTBOX_TINT_ALPHA)};--cv1-text-size:${text.size};--cv1-name-size:${nameSize};--cv1-fade:${fade}`;
   const foil = !fullArt && tier === 3 ? buildFoilLayers() : null;
+  // A Quest without real art shows the stack-colour seigaiha + die placeholder (D-08).
+  const art = buildArtLayer(card) || (typeKey === 'QUEST' ? buildQuestArt() : '');
   const windowInner = fullArt
-    ? `${buildArtLayer(card)}${FADES}${tier === 5 ? buildShineLayers() : ''}`
-    : `${buildArtLayer(card)}${foil ? foil.window : ''}`;
+    ? `${art}${FADES}${tier === 5 ? buildShineLayers() : ''}`
+    : `${art}${foil ? foil.window : ''}`;
   const chrome = fullArt ? buildTierChrome(diamonds) : buildBoxedLayers(tier, diamonds);
   const nick = name.nick ? `<div class="cv2-nick">${escapeHtml(name.nick)}</div>` : '';
   return `

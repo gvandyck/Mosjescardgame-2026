@@ -1,28 +1,44 @@
-// buildQuestSpecV1.js — Quest card -> face spec (rose). Name only, "Category · Difficulty"
-// info line, QUEST/PERSONAL pill, fail penalty as border text, success MP badge.
+// buildQuestSpecV1.js — Quest card -> 2.0 face spec (62-02 SPEC CONTRACT, consumed by buildPopupFace; Phase 7 A7, D-08).
+// Only the 38 2.0 Quests (those with a `stack`) get this face; a leftover V4 Quest returns null and the
+// unified template draws it. The whole card is in its stack colour. Corner = dice need (getQuestNeed), info =
+// "Rolls: <trait> · <band>", text = "First you must: …" then the Also text, footer = WIN left, "<STACK> QUEST"
+// pill in the centre, LOSE right (Trained: "can't fail"). No LVL chip, no Power / MP, no cost.
+// failTokens is read by the field tile (62-05); fieldPill + badge only feed the legacy tile until then.
 import { TYPE_COLORS } from './typeColors.js';
-import { splitSentences } from './splitSentences.js';
+import { getQuestNeed } from './getQuestNeed.js';
+import { formatQuestRollsLine } from './formatQuestRollsLine.js';
+import { formatQuestStakes } from './formatQuestStakes.js';
+import { getQuestTextLines } from './getQuestTextLines.js';
 
-function titleCase(word) {
-  const w = String(word || '');
-  return w ? w[0].toUpperCase() + w.slice(1).toLowerCase() : '';
-}
+const STACKS = ['FIGHTING', 'DIGITAL', 'ARTISTIC'];
 
 export function buildQuestSpecV1(card) {
-  const pill = card.questType === 'PERSONAL' ? 'PERSONAL QUEST' : 'QUEST';
-  const fail = Number(card.failMP);
+  if (!STACKS.includes(card.stack)) return null;
+  const colors = TYPE_COLORS[card.stack];
+  const stakes = formatQuestStakes(card);
+  const cantFail = stakes.lose.hookValue === 'none';
   return {
-    colors: TYPE_COLORS.QUEST,
+    face: 2,
+    typeKey: 'QUEST',
+    colors,
     name: { first: String(card.name || 'Quest'), nick: '' },
-    lines: splitSentences(card.description || card.requirementDescription || ''),
-    info: [card.category, titleCase(card.difficulty)].filter(Boolean).join(' · '),
-    pill,
-    fieldPill: 'QUEST',
-    borderText: Number.isFinite(fail) && fail !== 0 ? `Fail: ${fail < 0 ? '−' : '+'}${Math.abs(fail)} MP` : 'Quest',
-    badge: Number.isFinite(Number(card.successMP)) ? { value: `+${Number(card.successMP)}`, label: 'SUCCESS', fieldLabel: 'MP' } : null,
+    corner: getQuestNeed(card),
+    lines: getQuestTextLines(card),
+    levelRows: [],
+    info: formatQuestRollsLine(card),
+    pill: '',
+    stays: false,
+    label: '',
+    footer: {
+      left: { value: stakes.win.value, label: 'WIN', hook: 'win', hookValue: stakes.win.hookValue },
+      centre: { kind: 'pill', chip: `${card.stack} QUEST`, label: '' },
+      right: { value: stakes.lose.value, label: cantFail ? '' : 'LOSE', hook: 'lose', hookValue: stakes.lose.hookValue, word: cantFail },
+    },
     card,
-    infoInRow: true, // category/difficulty sits on the pill row, clear of the description plate
     allowLarge: true,
     fieldArtPos: '50% 50%',
+    failTokens: Number(card.failTokens ?? card.tokens ?? 0) || 0,
+    fieldPill: 'QUEST',
+    badge: { value: stakes.win.value, label: 'WIN', fieldLabel: 'WIN' },
   };
 }

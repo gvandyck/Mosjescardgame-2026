@@ -7,5 +7,5 @@ export const TYPE_COLORS = {
   PIECIE: { main: '#15803D', tint: '#DCFCE7' },
   PLACE: { main: '#6D28D9', tint: '#EDE9FE' },
   SNELLE: { main: '#A16207', tint: '#FEF9C3' },
-  QUEST: { main: '#BE123C', tint: '#FFE4E6' },
 };
+// A 2.0 Quest is drawn in its stack colour (FIGHTING / DIGITAL / ARTISTIC above); the rose Quest colour is gone.

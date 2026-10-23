@@ -1,8 +1,8 @@
 // buildCardV1.js — entry point for the card frame v1 faces.
 // Returns { html, className } for a supported card type, or null when the card
-// type is not (yet) part of the v1 design and the old renderer should be used.
-// A spec with face === 2 is built by the shared 2.0 pop-up face (buildPopupFace); the types that are not
-// converted yet keep the legacy builder until 62-03 / 62-04. The field tile is still the legacy tile (62-05).
+// has no v1 face (an unknown type, or a V4 Quest without a stack) and the old renderer should be used.
+// A spec with face === 2 is built by the shared 2.0 pop-up face (buildPopupFace); every card type is on it now.
+// The field tile is still the legacy tile (62-05).
 import { buildFaceV1 } from './buildFaceV1.js';
 import { buildPopupFace } from './buildPopupFace.js';
 import { buildFieldFaceV1 } from './buildFieldFaceV1.js';
@@ -30,6 +30,7 @@ export function buildCardV1(card, { fieldMode = false } = {}) {
   const buildSpec = SPEC_BUILDERS[String(card.type || '').toUpperCase()];
   if (!buildSpec) return null;
   const spec = buildSpec(card);
+  if (!spec) return null; // e.g. a leftover V4 Quest without a stack: the unified template draws it
   const tierAttrs = getTierAttributes(card);
   return {
     html: fieldMode ? buildFieldFaceV1(spec) : buildPopupHtml(spec, tierAttrs),

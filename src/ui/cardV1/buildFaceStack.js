@@ -8,12 +8,19 @@ function buildStat(stat, side) {
   if (!stat) return `<div class="cv2-footer-gap cv2-footer-gap--${side}"></div>`;
   const hook = stat.hook ? ` data-cv1-${escapeHtml(stat.hook)}="${escapeHtml(stat.hookValue ?? '')}"` : '';
   const sub = stat.sub ? `<div class="cv2-stat-sub">${escapeHtml(stat.sub)}</div>` : '';
-  return `<div class="cv2-stat cv2-stat--${side}"${hook}><div class="cv2-stat-val">${escapeHtml(stat.value)}</div>${sub}<div class="cv2-stat-label">${escapeHtml(stat.label)}</div></div>`;
+  const word = stat.word ? ' cv2-stat-val--word' : ''; // a word instead of a number ("can't fail")
+  return `<div class="cv2-stat cv2-stat--${side}"${hook}><div class="cv2-stat-val${word}">${escapeHtml(stat.value)}</div>${sub}<div class="cv2-stat-label">${escapeHtml(stat.label)}</div></div>`;
+}
+
+// Footer centre: kind 'lvl' (default, Mosje) = LVL chip + type label; kind 'pill' (Quest) = one "<STACK> QUEST" pill.
+function buildCentre(c) {
+  if (!c) return '<div class="cv2-footer-centre"></div>';
+  if (c.kind === 'pill') return `<div class="cv2-footer-centre"><span class="cv2-footer-pill">${escapeHtml(c.chip)}</span></div>`;
+  return `<div class="cv2-footer-centre"><div class="cv2-lvl-chip">${escapeHtml(c.chip)}</div><div class="cv2-lvl-label">${escapeHtml(c.label)}</div></div>`;
 }
 
 function buildFooter(footer) {
-  const c = footer.centre;
-  const centre = c ? `<div class="cv2-footer-centre"><div class="cv2-lvl-chip">${escapeHtml(c.chip)}</div><div class="cv2-lvl-label">${escapeHtml(c.label)}</div></div>` : '<div class="cv2-footer-centre"></div>';
+  const centre = buildCentre(footer.centre);
   return `<div class="cv2-footer">${buildStat(footer.left, 'left')}${centre}${buildStat(footer.right, 'right')}</div>`;
 }
 
