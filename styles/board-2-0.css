@@ -78,7 +78,7 @@
 .game-board .pile-column { flex-direction: row; gap: 8px; align-self: flex-start; }
 .game-board .welloe-pile-container:empty { display: none; }
 
-.game-board .board-energy { flex: 0 0 var(--crystal-col); width: var(--crystal-col); align-self: stretch; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.game-board .board-energy { flex: 0 0 var(--crystal-col); width: var(--crystal-col); height: var(--field-tile-h); align-self: flex-start; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
 /* Empty slot: a tile-sized dashed outline, inert. */
 .game-board .board-slot--empty {
@@ -115,4 +115,74 @@
 	font-size: 16px;
 	letter-spacing: 0.08em;
 	text-transform: uppercase;
+}
+
+/* ── Energy crystals (Plan 63-02, D-12): 6 gems in a column that fills from the bottom, the count under it ── */
+/* The gems are 22x21 ref px with a 3 px gap (the spec's 22x26 would not leave room for the count inside one tile height). */
+.energy-crystals { display: flex; flex-direction: column-reverse; align-items: center; gap: calc(3 * var(--bu)); }
+.energy-gem { position: relative; display: block; flex: 0 0 auto; width: calc(22 * var(--bu)); height: calc(21 * var(--bu)); }
+.energy-gem svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.energy-gem__base polygon { fill: rgba(125, 211, 252, 0.12); stroke: rgba(125, 211, 252, 0.45); stroke-width: 1; stroke-linejoin: round; }
+.energy-gem__fill { opacity: 0; }
+.energy-gem__fill polygon { fill: var(--energy); stroke: var(--energy); stroke-width: 1; stroke-linejoin: round; }
+.energy-gem__fill .energy-gem__facet { fill: rgba(255, 255, 255, 0.4); stroke: none; }
+.energy-gem[data-crystal="full"] .energy-gem__fill { opacity: 1; }
+/* Spend preview: the gem is still there but dimmed, with an amber ring. */
+.energy-gem[data-crystal="spend"] .energy-gem__fill { opacity: 0.5; }
+.energy-gem[data-crystal="spend"] .energy-gem__base polygon { stroke: #FBBF24; stroke-width: 2; fill: rgba(251, 191, 36, 0.18); }
+.energy-count {
+	order: -1;                           /* column-reverse: first in order = lowest on screen */
+	margin-top: calc(2 * var(--bu));
+	font: 800 max(14px, calc(18 * var(--bu)))/1 'Sora', sans-serif;
+	color: var(--energy);
+	white-space: nowrap;
+}
+.energy-crystals[data-preview] .energy-count { font-size: max(11px, calc(13 * var(--bu))); }
+.energy-crystals[data-preview="spend"] .energy-count { color: #FBBF24; }
+.energy-crystals[data-preview="short"] .energy-count { color: #FB7185; }
+
+/* Gain fills a gem from the bottom (300 ms, staggered 60 ms); payment fades the spent gem out (250 ms). */
+@keyframes energy-gem-gain { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes energy-gem-spend { from { opacity: 1; } to { opacity: 0; } }
+.energy-gem[data-crystal-anim="gain"] .energy-gem__fill { animation: energy-gem-gain 300ms ease-out both; animation-delay: calc(var(--i, 0) * 60ms); }
+.energy-gem[data-crystal-anim="spend"] .energy-gem__fill { animation: energy-gem-spend 250ms ease-out both; }
+@media (prefers-reduced-motion: reduce) {
+	.energy-gem[data-crystal-anim] .energy-gem__fill { animation: none; }
+}
+
+/* ── Piles at the right end of the row: deck, discard, Welloe (only while it has cards) ── */
+.game-board .welloe-pile-container { flex: 0 0 auto; }
+.welloe-pile {
+	box-sizing: border-box;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: var(--field-tile-w);
+	height: var(--field-tile-h);
+	min-width: 44px;
+	min-height: 44px;
+	padding: 0;
+	border: 1px solid rgba(167, 139, 250, 0.5);
+	border-radius: calc(14 * var(--bu));
+	background: linear-gradient(145deg, #2e1065 0%, #1e1b4b 55%, #2e1065 100%);
+	box-shadow: inset 0 0 0 calc(5 * var(--bu)) rgba(5, 5, 5, 0.25), 0 4px 10px rgba(0, 0, 0, 0.4);
+	color: #fff;
+	cursor: pointer;
+	user-select: none;
+}
+.welloe-pile:hover, .welloe-pile:focus-visible { filter: brightness(1.15); }
+.welloe-pile__word { font: 800 max(12px, calc(22 * var(--bu)))/1 'Sora', sans-serif; letter-spacing: 0.18em; text-indent: 0.18em; color: #C4B5FD; }
+.welloe-pile__count {
+	position: absolute;
+	right: calc(8 * var(--bu));
+	bottom: calc(8 * var(--bu));
+	min-width: 28px;
+	padding: 3px 7px;
+	border-radius: 99px;
+	background: #C4B5FD;
+	color: #1e1b4b;
+	font: 800 12px/1 'Sora', sans-serif;
+	text-align: center;
 }

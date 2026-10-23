@@ -7,6 +7,8 @@ import { markEnteringCards } from './markEnteringCards.js';
 import { initModalManager } from './modalManager.js';
 import { getCardById } from '../data/cardIndex.js';
 import { getEffectiveCost } from '../engine/energy/getEffectiveCost.js';
+import { getHandPlayCost } from './board/getHandPlayCost.js';
+import { setEnergyPreview } from './board/setEnergyPreview.js';
 
 console.log('[UI] handRenderer.js loaded');
 
@@ -164,6 +166,7 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 	markEnteringCards(container);
 
 	handCards.forEach((cardEl, index) => {
+		attachEnergyPreview(cardEl, cards[index], gameState, localPlayerId);
 		cardEl.addEventListener('mouseenter', () => {
 			const current = Array.from(container.querySelectorAll('.hand-card-wrap'));
 			const idx = current.indexOf(cardEl);
@@ -183,6 +186,21 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 	});
 
 	initHandDragDrop(container);
+}
+
+/** D-12: hovering or focusing a playable hand card dims the Energy crystals it would spend ("4/6 → 1/6"). */
+function attachEnergyPreview(wrap, card, gameState, localPlayerId) {
+	if (!card) return;
+	const show = () => {
+		const face = wrap.querySelector('.hand-card');
+		if (!face?.classList.contains('hand-card--playable') || face.classList.contains('hand-card--not-playable')) return;
+		setEnergyPreview(document, getHandPlayCost(gameState, localPlayerId, { cardId: card.cardId, type: card.type }));
+	};
+	const clear = () => setEnergyPreview(document, 0);
+	wrap.addEventListener('mouseenter', show);
+	wrap.addEventListener('mouseleave', clear);
+	wrap.addEventListener('focusin', show);
+	wrap.addEventListener('focusout', (event) => { if (!wrap.contains(event.relatedTarget)) clear(); });
 }
 
 /** Recalculate and apply --fan-rot / --fan-lift on all .hand-card-wrap children. */

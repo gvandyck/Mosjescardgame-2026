@@ -1030,6 +1030,11 @@ function initGamePage() {
 				if (!player || !Array.isArray(cardIds)) return;
 				player.deck = [...cardIds.map(cardId => ({ cardId, type: cardTypeFor(cardId) })), ...player.deck];
 			},
+			// Force a board re-render after hooks that mutate state without rendering
+			// (e.g. injectGraveyardCard) so UI tests can interact with the result.
+			rerender() {
+				if (gameState) renderFromState(gameState);
+			},
 			// Empty a player's draw deck to force the deck-out penalty (D-06) on their next
 			// draw phase — used to reproduce the deck-out turn-skip path.
 			emptyDeck(playerId) {
@@ -1817,6 +1822,7 @@ function toBoardViewModel(gameState, localPlayerId) {
 			top: {
 				id: opponentId,
 				name: opponent.name,
+				energy: opponent.energy,
 				mosjes: toMosjeCards(opponent.activeSlots, opponent.energy),
 				activeModifiers: buildActiveModifiers(gameState, opponentId, false),
 				piecies: toPiecieCards(opponent.piecieSlots, {
@@ -1833,6 +1839,7 @@ function toBoardViewModel(gameState, localPlayerId) {
 			bottom: {
 				id: localPlayerId,
 				name: localPlayer.name,
+				energy: localPlayer.energy,
 				mosjes: toMosjeCards(localPlayer.activeSlots, localPlayer.energy),
 				activeModifiers: buildActiveModifiers(gameState, localPlayerId, true),
 				piecies: toPiecieCards(localPlayer.piecieSlots, {

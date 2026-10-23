@@ -11,6 +11,8 @@ import { MOSJE_ABILITY_RULES } from '../rules/mosjeAbilityRules.js';
 import { buildBoardSkeleton } from './board/buildBoardSkeleton.js';
 import { fillSlotOutlines } from './board/fillSlotOutlines.js';
 import { getFieldSlots } from './board/getFieldSlots.js';
+import { buildEnergyCrystals } from './board/buildEnergyCrystals.js';
+import { buildWelloePile } from './board/buildWelloePile.js';
 
 const PIECIE_SLOTS = 3; // 2.0: 3 Piecie slots per player (mirrors tableRules)
 const MOSJE_SLOTS = 2; // 2.0: 2 Mosje slots per player
@@ -18,6 +20,8 @@ const MOSJE_SLOTS = 2; // 2.0: 2 Mosje slots per player
 console.log('[UI] boardRenderer.js loaded');
 
 let _boardModal = null;
+// Last Energy drawn per player id: buildEnergyCrystals compares against it to animate gained / spent gems (D-12).
+const _lastEnergy = new Map();
 
 function getBoardModal() {
 	if (_boardModal) return _boardModal;
@@ -268,6 +272,12 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 	renderDiscardPile(topDiscard, topPlayer, viewModel.myPlayerId === opponentPlayerId, onOpenDiscard);
 	renderDiscardPile(bottomDiscard, bottomPlayer, viewModel.myPlayerId === bottomPlayer.id, onOpenDiscard);
 
+	// 2.0: Energy crystals at the left end of each row, the Welloe pile at the right end (only while it has cards).
+	renderEnergy(container.querySelector('#energy-opponent'), topPlayer);
+	renderEnergy(container.querySelector('#energy-player'), bottomPlayer);
+	renderWelloe(container.querySelector('#welloe-opponent'), topPlayer, viewModel.myPlayerId === topPlayer.id);
+	renderWelloe(container.querySelector('#welloe-player'), bottomPlayer, viewModel.myPlayerId === bottomPlayer.id);
+
 	// 2.0: the 3 face-up Quests in the middle of the board
 	renderQuestStacks(container.querySelector('#quest-stacks'), { questStacks: viewModel.questStacks });
 
@@ -515,6 +525,10 @@ function renderDeckPile(container, player, isOwned = false) {
 
 	const deckCards = player.deck || [];
 	const count = deckCards.length;
+	// D-13 pile hooks. The opponent's deck size stays hidden, so it gets no data-count.
+	container.setAttribute('data-pile', 'deck');
+	container.setAttribute('data-slot-kind', 'pile');
+	if (isOwned) container.setAttribute('data-count', String(count));
 
 	if (count === 0) {
 		const emptyPile = document.createElement('div');
@@ -580,6 +594,9 @@ function renderDiscardPile(container, player, isOwned, onOpenDiscard) {
 
 	const discardCards = player.graveyard || [];
 	const count = discardCards.length;
+	container.setAttribute('data-pile', 'discard'); // D-13 pile hooks
+	container.setAttribute('data-slot-kind', 'pile');
+	container.setAttribute('data-count', String(count));
 
 	if (count === 0) {
 		// Empty state: faint outlined placeholder
@@ -649,6 +666,29 @@ function renderDiscardPile(container, player, isOwned, onOpenDiscard) {
 	});
 
 	container.appendChild(pile);
+}
+
+// Draws one player's Energy crystal column. The container mirrors data-energy / data-energy-max so a test can read either.
+function renderEnergy(container, player) {
+	if (!container || !player) return;
+	const prevEnergy = _lastEnergy.get(player.id);
+	container.innerHTML = buildEnergyCrystals({ energy: player.energy, prevEnergy });
+	const root = container.querySelector('.energy-crystals');
+	if (root) {
+		container.dataset.energy = root.dataset.energy;
+		container.dataset.energyMax = root.dataset.energyMax;
+		_lastEnergy.set(player.id, Number(root.dataset.energy));
+	}
+}
+
+// Draws the Welloe pile button (nothing while the pile is empty); a tap opens the list, like the discard pile.
+function renderWelloe(container, player, isOwned) {
+	if (!container || !player) return;
+	const cards = player.welloePile || [];
+	container.innerHTML = buildWelloePile({ count: cards.length });
+	container.querySelector('[data-pile="welloe"]')?.addEventListener('click', () => {
+		getBoardModal().showGraveyardModal(player, isOwned, { title: `${player.name || 'Player'}'s Welloe pile`, cards });
+	});
 }
 
 function escapeHtml(text) {

@@ -431,7 +431,8 @@ export function initModalManager(container) {
 	}
 
 	// ── Unified card preview — always two-col, card left at 240 px, info right ──
-	function showCardPreview(card) {
+	// onClose — optional callback after closing (e.g. reopen the modal this preview came from)
+	function showCardPreview(card, { onClose = null } = {}) {
 		if (!card) return;
 		const previewEl = renderCard(card, { compact: true });
 		const type = String(card.type || card.cardType || '').toUpperCase();
@@ -533,8 +534,12 @@ export function initModalManager(container) {
 		`;
 
 		container.querySelector('.cd-preview').appendChild(previewEl);
-		container.querySelector('#modal-close-preview')?.addEventListener('click', close);
-		container.querySelector('.modal-backdrop')?.addEventListener('click', close);
+		const closePreview = () => {
+			close();
+			if (typeof onClose === 'function') onClose();
+		};
+		container.querySelector('#modal-close-preview')?.addEventListener('click', closePreview);
+		container.querySelector('.modal-backdrop')?.addEventListener('click', closePreview);
 	}
 
 	// Legacy aliases — all routes through the unified preview
@@ -826,17 +831,20 @@ export function initModalManager(container) {
 
 	// Graveyard viewer modal — shows cards in a player's graveyard.
 	// isOwned — true if this is the current player's graveyard (allows recovery actions)
-	function showGraveyardModal(player, isOwned) {
+	// list — optional { title, cards }: reuse the same list for another pile (the Welloe pile, D-13)
+	function showGraveyardModal(player, isOwned, list = {}) {
+		const { title = null, cards = null } = list || {};
+		const heading = title ?? `${player?.name || 'Player'}'s Graveyard`;
 		container.classList.add('modal-root--open');
-		const discardCards = player?.graveyard || [];
+		const discardCards = cards ?? player?.graveyard ?? [];
 		const count = discardCards.length;
 
 		if (count === 0) {
 			container.innerHTML = `
 				<div class="modal-backdrop"></div>
 				<section class="modal-card" role="dialog" aria-modal="true">
-					<h3>${escapeHtml(player?.name || 'Player')}'s Graveyard</h3>
-					<p>Graveyard is empty.</p>
+					<h3>${escapeHtml(heading)}</h3>
+					<p>${title ? 'No cards.' : 'Graveyard is empty.'}</p>
 					<button class="modal-btn" id="modal-close-graveyard">Close</button>
 				</section>
 			`;
@@ -844,27 +852,39 @@ export function initModalManager(container) {
 			return;
 		}
 
-		// Build a flat card name lookup from all card data sources
+		// Build a flat card def lookup from all card data sources
 		const _allCards = [...MOSJES, ...PIECIES, ...SNELLE_PIECIES, ...PLACES];
-		const _cardNameMap = Object.fromEntries(_allCards.map(c => [c.id, c.name]));
+		const _cardDefMap = Object.fromEntries(_allCards.map(c => [c.id, c]));
 
 		const cardRows = discardCards.map((entry) => {
 			// entry can be a plain cardId string OR an object { cardId, type, ... }
 			const id = typeof entry === 'string' ? entry : entry?.cardId;
-			const name = _cardNameMap[id] || id || 'Unknown';
+			const def = _cardDefMap[id];
+			const name = def?.name || id || 'Unknown';
 			const type = typeof entry === 'object' && entry?.type ? ` (${entry.type})` : '';
-			return `<li><span>${escapeHtml(name)}${escapeHtml(type)}</span></li>`;
+			// Known cards get a clickable row that opens the full card preview;
+			// unknown ids fall back to a plain, non-clickable label.
+			return def
+				? `<li><button class="modal-card-option graveyard-card-option" type="button" data-card-id="${escapeHtml(id)}">${escapeHtml(name)}${escapeHtml(type)}</button></li>`
+				: `<li><span>${escapeHtml(name)}${escapeHtml(type)}</span></li>`;
 		}).join('');
 
 		container.innerHTML = `
 			<div class="modal-backdrop"></div>
 			<section class="modal-card" role="dialog" aria-modal="true">
-				<h3>${escapeHtml(player?.name || 'Player')}'s Graveyard (${count} cards)</h3>
+				<h3>${escapeHtml(heading)} (${count} cards)</h3>
 				<ul class="modal-card-list">${cardRows}</ul>
 				<button class="modal-btn" id="modal-close-graveyard">Close</button>
 			</section>
 		`;
 		container.querySelector('#modal-close-graveyard')?.addEventListener('click', close);
+		// Clicking a card opens its preview; closing the preview returns to this graveyard list.
+		container.querySelectorAll('.graveyard-card-option').forEach(btn => {
+			btn.addEventListener('click', () => {
+				const def = _cardDefMap[btn.dataset.cardId];
+				if (def) showCardPreview(def, { onClose: () => showGraveyardModal(player, isOwned, list) });
+			});
+		});
 	}
 
 	// Discard recovery modal — allows selecting cards to recover from discard.
