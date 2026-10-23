@@ -12,26 +12,23 @@ function removePopup() {
 	currentTarget = null;
 }
 
-// Rebuild a field card from its full definition + live MP/level so the popup
+// A live number from the hovered card's data-cv1-<hook> attribute (null when the card has no such hook).
+function readHook(srcEl, hook) {
+	const raw = srcEl.querySelector(`[data-cv1-${hook}]`)?.getAttribute(`data-cv1-${hook}`);
+	return raw == null || raw === '' || !Number.isFinite(Number(raw)) ? null : Number(raw);
+}
+
+// Rebuild a field card from its full definition + live MP/level/Power so the popup
 // shows the ability text the art-first field card hides.
 function buildPopupCard(srcEl) {
 	const cardId = srcEl.dataset.cardId;
 	const def = getCardById(cardId);
 	if (!def) return null;
 	const merged = { ...def, description: def.abilityDescription || def.description || def.flavourText || '' };
-	const mpEl = srcEl.querySelector('.uc-mp');
-	if (mpEl) {
-		merged.mp = Number(mpEl.dataset.mp);
-		const lvl = mpEl.querySelector('.uc-mp-lvl')?.textContent.match(/\d+/);
-		if (lvl) merged.level = Number(lvl[0]);
-	}
-	// Card frame v1 field tile: live MP + level come from its badge and L<n> pill.
-	const v1Mp = srcEl.querySelector('[data-cv1-mp]');
-	if (v1Mp) {
-		merged.mp = Number(v1Mp.textContent);
-		const lvl = srcEl.querySelector('.cv1-pill')?.textContent.match(/\d+/);
-		if (lvl) merged.level = Number(lvl[0]);
-	}
+	// 2.0 field tile: the live state is in its data-cv1-mp / data-cv1-level / data-cv1-power hooks
+	// (the MP hook is the real MP even when a temp MP is shown on the tile).
+	const live = { mp: readHook(srcEl, 'mp'), level: readHook(srcEl, 'level'), power: readHook(srcEl, 'power') };
+	for (const [key, value] of Object.entries(live)) if (value !== null) merged[key] = value;
 	return renderCard(merged, { compact: false });
 }
 

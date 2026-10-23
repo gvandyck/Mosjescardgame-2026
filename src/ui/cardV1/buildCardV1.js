@@ -2,10 +2,10 @@
 // Returns { html, className } for a supported card type, or null when the card
 // has no v1 face (an unknown type, or a V4 Quest without a stack) and the old renderer should be used.
 // A spec with face === 2 is built by the shared 2.0 pop-up face (buildPopupFace); every card type is on it now.
-// The field tile is still the legacy tile (62-05).
+// fieldMode builds the 2.0 field tile (buildFieldTile) for every type.
 import { buildFaceV1 } from './buildFaceV1.js';
 import { buildPopupFace } from './buildPopupFace.js';
-import { buildFieldFaceV1 } from './buildFieldFaceV1.js';
+import { buildFieldTile } from './buildFieldTile.js';
 import { buildMosjeSpecV1 } from './buildMosjeSpecV1.js';
 import { buildPiecieSpecV1 } from './buildPiecieSpecV1.js';
 import { buildSnelleSpecV1 } from './buildSnelleSpecV1.js';
@@ -33,7 +33,7 @@ export function buildCardV1(card, { fieldMode = false } = {}) {
   if (!spec) return null; // e.g. a leftover V4 Quest without a stack: the unified template draws it
   const tierAttrs = getTierAttributes(card);
   return {
-    html: fieldMode ? buildFieldFaceV1(spec) : buildPopupHtml(spec, tierAttrs),
+    html: fieldMode ? buildFieldTile(spec, tierAttrs) : buildPopupHtml(spec, tierAttrs),
     className: `card-v1 ${fieldMode ? 'card-v1--field' : 'card-v1--full'} ${tierAttrs.classes}`,
     tier: tierAttrs.tier,
     dataTier: String(tierAttrs.tier),

@@ -2,13 +2,12 @@
 // Corner = Energy cost (0 stays "0"). The info line is "Needs: <needsText>" only on cards that have one (D-03),
 // and that same lead sentence is dropped from the text box (splitNeedsLead), so it is never shown twice.
 // Label = the tag first (Food / Gear / Substance / Pet), else the group (MP / Attack / Utility) (D-07);
-// stays turns on the STAYS chip beside the pill. fieldPill + badge only feed the legacy field tile (until 62-05).
+// stays turns on the STAYS chip beside the pill (the field tile shows the pill and the chip too).
 import { TYPE_COLORS } from './typeColors.js';
 import { splitSentences } from './splitSentences.js';
 import { splitNeedsLead } from './splitNeedsLead.js';
 import { getPiecieLabel } from './getPiecieLabel.js';
 import { formatEnergyCost } from './formatEnergyCost.js';
-import { formatCost } from './formatCost.js';
 
 export function buildPiecieSpecV1(card) {
   return {
@@ -24,8 +23,6 @@ export function buildPiecieSpecV1(card) {
     stays: Boolean(card.stays),
     label: getPiecieLabel(card),
     footer: null,
-    fieldPill: 'PIECIE',
-    badge: formatCost(card.mpCost),
     card,
     allowLarge: true,
     fieldArtPos: '50% 45%',

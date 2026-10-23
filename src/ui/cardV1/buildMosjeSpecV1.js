@@ -2,7 +2,7 @@
 // Live state comes in on the card itself (boardRenderer / hoverZoom merge the slot): level (default 1),
 // mp (default startMP), power (default levels[level - 1].power) and an optional tempMp (Tactician).
 // Text = ability sentences, then the holder's "While ..." synergy text, or the "Synergy: ..." label when the
-// Mosje has partners but no synergy text of its own. fieldPill + badge only feed the legacy field tile (until 62-05).
+// Mosje has partners but no synergy text of its own. level (clamped 1..3) is also read by the field tile (buildFieldTile).
 import { TYPE_COLORS } from './typeColors.js';
 import { parseMosjeName } from './parseMosjeName.js';
 import { splitSentences } from './splitSentences.js';
@@ -39,8 +39,7 @@ export function buildMosjeSpecV1(card) {
       centre: { chip: `LVL ${level}`, label: `${key} MOSJE` },
       right: { value: String(temp ?? mp), label: 'MP', sub: temp === null ? '' : String(mp), hook: 'mp', hookValue: mp },
     },
-    fieldPill: `L${level}`,
-    badge: { value: String(mp), label: 'MP' },
+    level,
     card,
     allowLarge: false,
   };

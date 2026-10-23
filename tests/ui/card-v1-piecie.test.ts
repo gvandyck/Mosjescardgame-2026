@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest';
 import { PIECIES } from '../../src/data/piecies.js';
 import { getPiecieLabel } from '../../src/ui/cardV1/getPiecieLabel.js';
 import { splitNeedsLead } from '../../src/ui/cardV1/splitNeedsLead.js';
-import { formatCost } from '../../src/ui/cardV1/formatCost.js';
 import { getDescriptionLayout } from '../../src/ui/cardV1/getDescriptionLayout.js';
 import { buildPiecieSpecV1 } from '../../src/ui/cardV1/buildPiecieSpecV1.js';
 import { buildCardV1 } from '../../src/ui/cardV1/buildCardV1.js';
@@ -66,7 +65,6 @@ describe('card frame v1 — Piecie data mapping (2.0 face)', () => {
   });
 
   it('cost corner: 0 renders 0, label COST, never Free / MP COST', () => {
-    expect(formatCost(0)).toMatchObject({ value: 'Free', label: 'COST', word: true }); // legacy field tile only (62-05)
     const melk = buildCardV1(byName('Kannetje Melk'), {})!.html;
     expect(corner(melk)).toContain('data-cv1-cost="0"');
     expect(corner(melk)).toContain('<div class="cv2-corner-val">0</div>');

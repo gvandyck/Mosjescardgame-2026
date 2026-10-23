@@ -64,22 +64,25 @@ export async function readLog(page) {
 	);
 }
 
-/** Read owned Mosje cards: [{ name, mp (number) }] */
+/** Read owned Mosje cards: [{ name, mp (number) }]. mp is the tile's data-cv1-mp value (the REAL MP, so a Tactician
+ *  temp MP shown big on the tile never changes it); older markup falls back to the MP text. */
 export async function readOwnedMosjes(page) {
 	return page.evaluate(() =>
 		[...document.querySelectorAll('.mosje-card--owned')].map(card => ({
-			name: card.querySelector('.cv1-first, .uc-title, .mosje-name-v2')?.textContent?.trim() ?? '?',
-			mp:   Number(card.querySelector('[data-cv1-mp], .uc-mp-val, .mosje-mp-header')?.textContent?.trim() ?? '-1'),
+			name: card.querySelector('.cv2-first, .cv1-first, .uc-title, .mosje-name-v2')?.textContent?.trim() ?? '?',
+			mp:   Number(card.querySelector('[data-cv1-mp]')?.getAttribute('data-cv1-mp')
+				?? card.querySelector('.uc-mp-val, .mosje-mp-header')?.textContent?.trim() ?? '-1'),
 		}))
 	);
 }
 
-/** Read opponent Mosje cards: [{ name, mp (number) }] */
+/** Read opponent Mosje cards: [{ name, mp (number) }] (same rules as readOwnedMosjes). */
 export async function readOpponentMosjes(page) {
 	return page.evaluate(() =>
 		[...document.querySelectorAll('.mosje-card--opponent')].map(card => ({
-			name: card.querySelector('.cv1-first, .uc-title, .mosje-name-v2')?.textContent?.trim() ?? '?',
-			mp:   Number(card.querySelector('[data-cv1-mp], .uc-mp-val, .mosje-mp-header')?.textContent?.trim() ?? '-1'),
+			name: card.querySelector('.cv2-first, .cv1-first, .uc-title, .mosje-name-v2')?.textContent?.trim() ?? '?',
+			mp:   Number(card.querySelector('[data-cv1-mp]')?.getAttribute('data-cv1-mp')
+				?? card.querySelector('.uc-mp-val, .mosje-mp-header')?.textContent?.trim() ?? '-1'),
 		}))
 	);
 }

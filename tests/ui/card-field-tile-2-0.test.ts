@@ -24,7 +24,7 @@ const count = (html: string, needle: string) => html.split(needle).length - 1;
 const nameLine = (html: string) => html.match(/<div class="cv2-tile-name">(.*?)<\/div>/s)?.[1] ?? null;
 const pills = (html: string) => html.match(/<div class="cv2-tile-pills">(.*?)<\/div>/s)?.[1] ?? null;
 // the inside of a stat / need box carrying data-cv1-<hook>: its value, optional sub and label divs
-const box = (html: string, hook: string) => html.match(new RegExp(`<div class="cv2-tile-(?:stat|need)[^"]*" data-cv1-${hook}="[^"]*">(.*?)</div></div>`, 's'))?.[1] ?? null;
+const box = (html: string, hook: string) => html.match(new RegExp(`<div class="cv2-tile-(?:stat|need)[^"]*" data-cv1-${hook}="[^"]*">(.*?</div>)</div>`, 's'))?.[1] ?? null;
 const part = (inner: string | null, cls: string) => inner?.match(new RegExp(`<div class="cv2-tile-${cls}">(.*?)</div>`, 's'))?.[1] ?? null;
 
 describe('2.0 field tile: Mosje', () => {
@@ -80,7 +80,7 @@ describe('2.0 field tile: Mosje', () => {
     expect(buildMosjeSpecV1({ ...alyssa, level: 3 }).level).toBe(3);
     expect(buildMosjeSpecV1(alyssa).level).toBe(1);
     expect(buildMosjeSpecV1({ ...alyssa, level: 9 }).level).toBe(3);
-    expect(buildMosjeSpecV1({ ...alyssa, level: 0 }).level).toBe(1);
+    expect(buildMosjeSpecV1({ ...alyssa, level: 0 }).level).toBe(1); // level0-ok: Level 0 input is normalised to 1
     const spec = buildMosjeSpecV1(alyssa) as any;
     expect('fieldPill' in spec).toBe(false);
     expect('badge' in spec).toBe(false);
@@ -217,7 +217,7 @@ describe('2.0 field tile: shared rules', () => {
     for (const c of samples) {
       for (const tier of [1, 2, 3, 4, 5]) {
         const t = tile(c, { rarity: '★'.repeat(tier) });
-        expect(t).not.toContain('ct-');
+        expect(t).not.toMatch(/ct-/); // tier chrome classes (ct-holo, ct-foil ...); "object-position" is not chrome
         expect(t).not.toContain('cv1-stripe');
         expect(t).not.toContain('cv1-diamond');
       }

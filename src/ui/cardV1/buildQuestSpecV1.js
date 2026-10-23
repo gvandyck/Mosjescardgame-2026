@@ -3,7 +3,7 @@
 // unified template draws it. The whole card is in its stack colour. Corner = dice need (getQuestNeed), info =
 // "Rolls: <trait> · <band>", text = "First you must: …" then the Also text, footer = WIN left, "<STACK> QUEST"
 // pill in the centre, LOSE right (Trained: "can't fail"). No LVL chip, no Power / MP, no cost.
-// failTokens is read by the field tile (62-05); fieldPill + badge only feed the legacy tile until then.
+// failTokens is read by the field tile (buildFieldTile): it fills the 2 fail pips.
 import { TYPE_COLORS } from './typeColors.js';
 import { getQuestNeed } from './getQuestNeed.js';
 import { formatQuestRollsLine } from './formatQuestRollsLine.js';
@@ -38,7 +38,5 @@ export function buildQuestSpecV1(card) {
     allowLarge: true,
     fieldArtPos: '50% 50%',
     failTokens: Number(card.failTokens ?? card.tokens ?? 0) || 0,
-    fieldPill: 'QUEST',
-    badge: { value: stakes.win.value, label: 'WIN', fieldLabel: 'WIN' },
   };
 }
