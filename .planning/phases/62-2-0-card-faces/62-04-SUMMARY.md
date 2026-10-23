@@ -1,0 +1,15 @@
+---
+phase: 62-2-0-card-faces
+plan: 04
+requirements-progress: [UI-04, TEST-04]
+commits: [fa30526, 7bd25d6, e574f08, fed138a]
+---
+# Phase 62 Plan 04: 2.0 Place and Quest faces Summary
+**Places run on the shared `buildPopupFace` (Energy cost corner, Card List "Good for / Bad for" words verbatim via `formatGoodBadLine`, "Only 1 in play"); the 38 2.0 Quests get a stack-colour face (dice need corner, "Rolls: trait · band", "First you must" + Also text, WIN / `<STACK> QUEST` pill / LOSE, die + seigaiha placeholder art); the 10 V4 Quests return null and fall back to the unified template.**
+- Red first (recorded): `card-v1-place` failed to load (`formatGoodBadLine.js` missing); `card-v1-quest` failed to load (4 helpers missing) and `card-v1-mosje` failed on the V4 Quest it still drew in rose. After: `npm test` 176 files / 2211 tests green; `node --check` clean per file; headless 1920x1080: cardv1-place 1, card-tiers 38, cardv1-hand 21 (QUEST clean at 386/338/230/180), cardv1-quest 2 (all 38 Quests: need, Rolls, win/lose, pill colour, zones, footer parts never touch), quest-card-tiers 16, card-text-fits 2, neighbours (hover-dock, board, field-tile, mosje/piecie/snelle/place, activate-btn) 57, quest-cards-2-0 filter 4, place-cards-2-0 filter 13. `formatAffinityLine` and the rose `TYPE_COLORS.QUEST` are gone; `questBands.js` untouched.
+- CSS call: a 56 u corner cannot hold "2× 5+" on one line, so two-success needs wrap into a small stack "2×" over "4+" (30 u, divider grows to 74 u); one-success "4+" keeps the big 44 u; Trained's two stars are 26 u; "can't fail" is a 15 u word centred on the number row. `styles/card-face-2-0.css` passes the px gate.
+- Deviations: (Rule 2) added `tests/ui/cards/cardv1-quest.spec.js` (38 Quests, stricter than the plan) and put Places + the 38 Quests into `card-text-fits.spec.js` (legacy-plate branch now fails instead of counting); (Rule 3) card-tiers spec / unit test dropped their legacy Place branches (all faces are 2.0 now); tasks committed one by one (Task 2 as RED + feat) as the orchestrator asked, not once at the end.
+- DESIGN CALL for Gandalf: 7 of the 38 Quests have no cost and no Also text, so their face has no text box and shows an empty dark band between art and Rolls line (Arm Wrestling is one). Filling it with the band's need sentence from the Card List table would be new face text, so I did not; say if you want it.
+- Still legacy by plan: field tile (62-05, Quest tile keeps the old WIN badge + `failTokens` is already on the spec for the 2 pips), modal chips (62-06). `buildFaceV1` and its helpers are now unreferenced by any face; 62-06 can delete them.
+- Screenshots looked at (tests/ui/screenshots/cardv1/): quest-popup (all 38), quest-fighting, quest-digital, quest-artistic, place-popup, quest-v4-fallback. Left behind: the two Phase 50 shot PNGs that `card-tiers.spec` rewrites (already modified before, not committed). Temp config and `test-results/` removed with `rm -r`.
+- KNOWN GAP: none. UI-04 / TEST-04 not ticked (they close with the last plan of the phase).
