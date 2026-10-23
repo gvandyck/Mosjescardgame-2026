@@ -26,3 +26,17 @@ One imperative `.js` engine, no V4/2.0 switch. 2.0 modules under `src/engine/`, 
 - `table/` - summoning (pay `cost` in Energy, max 2 Mosjes per field).
 
 Tests that matter run the real game headless: `tests/ui/turn-flow-2-0.spec.js`, `tests/ui/cards/`. Run Playwright headless only.
+
+## Card faces (Phase 62)
+
+One 2.0 face system for all five card types, in `src/ui/cardV1/` (one function per file, `.js` only). Entry point: `renderCard` in `src/ui/cardRenderer.js` -> `buildCardV1`.
+
+- **Spec builders** `build{Mosje,Piecie,Snelle,Place,Quest}SpecV1` turn a card into a 2.0 spec (corner, name, text lines, level rows, info, pill, label, footer). Two face builders draw it: `buildPopupFace` (pop-up, hand, detail view; 440 x 660 reference) and `buildFieldTile` (field tile; 240 x 176). A V4 Quest without `stack` returns null and falls back to the unified template.
+- **Helpers**: `formatEnergyCost`, `formatEnergyChip`, `getPiecieLabel` (tag first, else group), `getLevelRows`, `splitNeedsLead`, `getQuestNeed`, `formatQuestRollsLine`, `formatQuestStakes`, `getTextBoxLayout` (text size / clamp), `getCardPanelLines` (hover and detail panel: flavour, rarity, "Limit 1 per deck", per-type reminder).
+- **Frame tier** comes from `src/data/getFrameTier.js` (Mosje 4, or 5 with five stars or `foil`; Quest 1; the rest by rarity). The diamonds show the rules rarity, not the tier.
+- **CSS**: `styles/card-face-2-0.css`. ONE size token, `--cv1-w` (card width); `--u = --cv1-w / 440` and every length is `calc(N * var(--u))`. Below 150 px wide (container query `cv1card`) the 3 level rows collapse to the lit one. The frosted text box tint (`.62`) and the dim level rows (`.55`) are tokens in `faceTokens.js` with a contrast test.
+- **Live state** is read from card fields: `level`, `mp`, `power`, `tempMp` (Mosje) and `failTokens` (Quest). `boardRenderer` and `hoverZoom` merge the slot into the card; without it a Mosje shows level 1 and its Start MP.
+- **Data fields** `needsText` (16 Piecies / Snelle: the info line "Needs: ...") and `synergyLabelText` (14 Mosjes: Card List short names) are guarded against the Card List by `tests/data/card-list-2-0-*.test.ts`. The engine keeps using the `synergyLabel` ids.
+- **Test hooks** on the DOM: `data-cv1-cost`, `-need`, `-level-row` (+ `data-lit`), `-power`, `-mp`, `-win`, `-lose`, `-pip`, `-stays`, `-clamped`, `-tier`, `-foil`.
+- **Tests**: unit `tests/ui/card-face-2-0-*.test.ts`, `card-field-tile-2-0`, `card-panel-lines`, `no-v4-face-display`, `card-v1-*.test.ts`; Playwright `tests/ui/cards/cardv1-*.spec.js`, `card-faces-2-0-a10.spec.js` (A10 at 1920x1080, screenshots in `tests/ui/screenshots/cardv1/a10-*.png`) and `card-faces-2-0-sweep.spec.js` (all 183 cards at 230 / 120 px faces and 240 / 120 px tiles). Helpers: `tests/helpers/faceZones.js`, `contrast.js`, `samplePixels.js`.
+- **Phase 63 owns**: board layout, tile pixel size, the Fresh / Protected / Sideways / HOLD badges and their A10 tests, and wiring live Power, `tempMp` and Quest tiles into the board (Quest stacks on the board still draw the V4 box). `deck-builder.js` still enforces the V4 copy-limit table (`getCopyLimit` is the 2.0 rule; Phase 64).
