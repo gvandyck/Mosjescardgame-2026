@@ -1,6 +1,6 @@
 // buildFaceStack.js — the 2.0 bottom stack, one column anchored to the bottom of the face:
 // text box (passed in), then the optional info line, type pill (+ STAYS chip), label and footer.
-// A zone with no content is not rendered at all (never an empty "Requires: Any" line).
+// A zone with no content is not rendered at all (a Piecie with no needsText has no info line).
 // Every value goes through escapeHtml.
 import { escapeHtml } from './escapeHtml.js';
 
