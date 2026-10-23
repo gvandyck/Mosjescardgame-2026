@@ -23,6 +23,8 @@ import { SNELLE_PIECIES } from './data/snellePiecies.js';
 import { getPlayerFacingPlaces } from './data/playerFacingPlaces.js';
 import { QUESTS } from './data/quests.js';
 import { initModalManager } from './ui/modalManager.js';
+import { escapeHtml } from './ui/cardV1/escapeHtml.js';
+import { formatEnergyChip } from './ui/cardV1/formatEnergyChip.js';
 
 // ── Card pool (all cards, including booster-only) ─────────────────────────────
 // Booster-only cards are shown but greyed out until owned, matching the
@@ -272,10 +274,9 @@ function buildTileHTML(card, count, atMax, owned = true, copies = 0) {
 		: '';
 
 	// ── Art header: badge top-left, rarity/lock top-right ────────
-	const rarityMax = RARITY_COPY_LIMITS[rarity] ?? 1;
 	const rarityLabel = !owned
 		? `<span class="tile-lock">Unowned</span>`
-		: (rarity ? `<span class="tile-rarity" title="Owned: ${copies} · Max per deck: ${rarityMax}">${rarity} <small>(${copies})</small></span>` : '');
+		: (rarity ? `<span class="tile-rarity" title="Owned: ${copies}">${rarity} <small>(${copies})</small></span>` : '');
 	const subtypeLabel = card.subtype
 		? `<span class="tile-subtype">${card.subtype.replace(/-/g, ' ')}</span>`
 		: '';
@@ -288,11 +289,11 @@ function buildTileHTML(card, count, atMax, owned = true, copies = 0) {
 			${card.traits ? formatTraits(card.traits) : ''}
 		</div>`;
 	} else if (cardType === 'PIECIE' || cardType === 'SNELLE_PIECIE') {
-		const costStr = card.mpCost === 0 ? 'Free' : `${card.mpCost} MP`;
-		const reqStr  = card.requirement && card.requirement !== 'any' ? `Req: ${card.requirement}` : '';
+		const costStr = escapeHtml(formatEnergyChip(card));
+		const reqStr  = card.needsText ? `Needs: ${escapeHtml(card.needsText)}` : '';
 		statsHTML = `<div class="tile-stats">
 			<span class="stat stat--mp">${costStr}</span>
-			${cardType === 'SNELLE_PIECIE' ? '<span class="stat stat--instant">Interrupt</span>' : ''}
+			${cardType === 'SNELLE_PIECIE' ? '<span class="stat stat--instant">Instant · any turn</span>' : ''}
 			${reqStr ? `<span class="stat stat--req">${reqStr}</span>` : ''}
 		</div>`;
 	} else if (cardType === 'PLACE') {

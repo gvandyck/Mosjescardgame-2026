@@ -1,6 +1,9 @@
 // packOpeningOverlay.js — One-card-at-a-time booster pack reveal.
 // Flow: card appears face-down → click to flip → Next/Done button → next card.
 
+import { escapeHtml } from './cardV1/escapeHtml.js';
+import { formatEnergyChip } from './cardV1/formatEnergyChip.js';
+
 console.log('[UI] packOpeningOverlay.js loaded');
 
 const TYPE_COLOUR = {
@@ -109,18 +112,18 @@ export function showPackOpeningOverlay({ drawnCards, ownedBefore, newBalance, on
 			`;
 		} else if (card.cardType === 'PIECIE' || card.cardType === 'SNELLE_PIECIE') {
 			const tags = card.tags?.map(t => `<span class="pff-tag">${t}</span>`).join('') || '';
-			const req  = card.requirement && card.requirement !== 'any' ? card.requirement : null;
+			const req  = card.needsText || null;
 			bodyHTML = `
 				<div class="pff-name-row">
 					<p class="pff-name">${card.name}</p>
 					${card.rarity ? `<span class="pff-rarity">${card.rarity}</span>` : ''}
 				</div>
 				${card.cardType === 'SNELLE_PIECIE'
-					? '<p class="pff-meta pff-meta--instant">⚡ Instant Interrupt — play from hand at any time</p>'
+					? '<p class="pff-meta pff-meta--instant">Instant · any turn</p>'
 					: ''}
 				<div class="pff-cost-row">
-					<span class="pff-cost-chip">${card.mpCost > 0 ? card.mpCost + ' MP' : 'Free'}</span>
-					${req ? `<span class="pff-req-chip">Req: ${req}</span>` : ''}
+					<span class="pff-cost-chip">${escapeHtml(formatEnergyChip(card))}</span>
+					${req ? `<span class="pff-req-chip">Needs: ${escapeHtml(req)}</span>` : ''}
 				</div>
 				${tags ? `<div class="pff-tags">${tags}</div>` : ''}
 				${card.description ? `<p class="pff-ability">${card.description}</p>` : ''}
