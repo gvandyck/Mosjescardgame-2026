@@ -117,3 +117,31 @@ describe('the ?tiers= URL no longer changes a face', () => {
     }
   });
 });
+
+// ---- Phase 62-03: A10 items checked on the real Piecie / Snelle faces ----
+const cardById = (id: string) => ([...PIECIES, ...SNELLE_PIECIES] as any[]).find((c) => c.id === id);
+const faceCost = (html: string) => html.match(/<div class="cv2-corner" data-cv1-cost="([^"]*)"><div class="cv2-corner-val">([^<]*)<\/div>/);
+const faceLabel = (html: string) => html.match(/<div class="cv2-label">([^<]*)<\/div>/)?.[1];
+
+describe('cost 0 renders "0" on a real face (A10)', () => {
+  it('Kannetje Melk (Piecie) and Momentum Rush (Snelle) show the number 0, never Free', () => {
+    for (const id of ['piecie_kannetje_melk', 'snelle_momentum_rush']) {
+      const card = cardById(id);
+      expect(card.cost, id).toBe(0);
+      const html = (buildCardV1(card) as any).html;
+      expect(faceCost(html)?.slice(1, 3), id).toEqual(['0', '0']);
+      expect(html.slice(0, html.indexOf('cv2-textbox')), id).not.toMatch(/Free|MP COST/);
+    }
+  });
+});
+
+describe('Piecie label is tag-first on the face (A10)', () => {
+  it('Kannetje Melk reads Food although its group is mp; Super Saiyan Mos reads Attack (no tag, group attack)', () => {
+    const melk = cardById('piecie_kannetje_melk');
+    expect(melk.group).toBe('mp');
+    expect(faceLabel((buildCardV1(melk) as any).html)).toBe('Food');
+    const saiyan = cardById('piecie_super_saiyan_mos');
+    expect(saiyan.tag).toBeNull();
+    expect(faceLabel((buildCardV1(saiyan) as any).html)).toBe('Attack');
+  });
+});
