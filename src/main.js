@@ -444,6 +444,8 @@ function initGamePage() {
 	const copyLogBtn = document.getElementById('btn-copy-log');
 	const logCopyBuffer = document.getElementById('log-copy-buffer');
 	const topbarPlaceLabel = document.getElementById('topbar-place');
+	// End Turn moved into the board's middle strip (63-01): keep the node so its one click listener survives every re-render.
+	const endTurnButton = document.getElementById('btn-end-turn');
 
 	if (!boardRoot || !handRoot || !logRoot || !modalRoot) {
 		console.log('[UI] Game containers missing — page not fully ready');
@@ -1383,7 +1385,7 @@ function initGamePage() {
 		const onActivatePiecie = (isLocalTurn && !gameOver) ? handleActivatePiecie : null;
 		const onOpenDiscard = handleOpenDiscard;
 		const onPlayFromHand = (isLocalTurn && !gameOver) ? handlePlayCard : null;
-		renderBoard(boardRoot, uiState, onUseAbility, null, onActivatePiecie, onOpenDiscard, onPlayFromHand);
+		renderBoard(boardRoot, uiState, onUseAbility, null, onActivatePiecie, onOpenDiscard, onPlayFromHand, { endTurnButton });
 		showNewReveals(state, localPlayerId, modal, CARD_LOOKUP, revealSeen); // reveal modal: local viewer's entries only
 		if (state._lastPlaceEffect?.placeName) {
 			showPlaceEffectBanner(state._lastPlaceEffect.placeName, state._lastPlaceEffect.description, state._lastPlaceEffect.phase);
@@ -1826,6 +1828,7 @@ function toBoardViewModel(gameState, localPlayerId) {
 				}),
 				deck: opponent.deck || [],
 				graveyard: opponent.graveyard || [],
+				welloePile: opponent.welloePile || [],
 			},
 			bottom: {
 				id: localPlayerId,
@@ -1841,6 +1844,7 @@ function toBoardViewModel(gameState, localPlayerId) {
 				}),
 				deck: localPlayer.deck || [],
 				graveyard: localPlayer.graveyard || [],
+				welloePile: localPlayer.welloePile || [],
 			},
 		},
 	};

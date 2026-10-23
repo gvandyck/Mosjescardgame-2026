@@ -7,16 +7,9 @@
 	/* Hand: cards stay fully visible in the hand (no sinking, no hover-lift); a click opens the
 	   detail modal. Only the field uses the hover popup. */
 
-	/* ONE field-card size for everything on the table: Mosjes, Piecies, Places, Quests and the deck /
-	   discard piles, mine and the opponent's. Landscape, the approved 240:176 field tile.
-	   Width: the busiest row must fit (--field-slots from boardRenderer, piles included); height: the
-	   board must stay clear of the hand (3 tile rows: opponent, Quests, mine), so the tile tops out at 240x176. */
-	.game-board {
-		--field-h-max: clamp(110px, calc((100vh - 560px) / 3), 176px);
-		/* Never below 170px: on a narrow screen the row overflows and drag-scrolls instead of shrinking the cards. */
-		--field-tile-w: max(170px, min(calc((100vw - 200px) / var(--field-slots, 7) - 8px), calc(var(--field-h-max) * 240 / 176)));
-		--field-tile-h: calc(var(--field-tile-w) * 176 / 240);
-	}
+	/* ONE field-card size for everything on the table: Mosjes, Piecies, Places, Quests and the deck / discard piles, mine and
+	   the opponent's. Landscape, the approved 240:176 field tile. The size tokens (--field-tile-w/h, --bu, --field-slots) live
+	   in styles/board-2-0.css, outside this hover query, so the board scales the same on every device. */
 	.board-zone--player,
 	.board-zone--opponent { --mosje-card-w: var(--field-tile-w); --mosje-slot-h: var(--field-tile-h); --piecie-cell-w: var(--field-tile-w); --piecie-cell-h: var(--field-tile-h); min-height: 0; }
 	.board-zone--player .card--mosje,
@@ -50,7 +43,6 @@
 	.board-zone--opponent .card.card-v1.card-v1--field { --cv1-fh: var(--field-tile-h); height: var(--cv1-fh); }
 	.board-zone--player .pile-column,
 	.board-zone--opponent .pile-column { --piecie-cell-w: var(--field-tile-w); --piecie-cell-h: var(--field-tile-h); flex-direction: row; }
-	.board-zone--opponent .pile-column { flex-direction: row-reverse; }
 
 	.game-hand-panel .hand-strip { pointer-events: none; }
 	.game-hand-panel .hand-strip .hand-card-wrap { pointer-events: auto; }

@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="styles/card-tiers-boxed.css" />
   <link rel="stylesheet" href="styles/card-tiers-foil.css" />
   <link rel="stylesheet" href="styles/card-face-2-0.css" />
+  <link rel="stylesheet" href="styles/board-2-0.css" />
 </head>
 <body class="page page--game">
   <div class="bg-noise" aria-hidden="true"></div>
@@ -34,9 +35,10 @@
       <button id="btn-toggle-log" class="btn-secondary" type="button" aria-expanded="false" aria-controls="topbar-log-popover">Battle Log</button>
       <button id="btn-attack" class="btn-secondary" type="button">Attack</button>
       <button id="btn-quest" class="btn-secondary" type="button">Quest</button>
-      <button id="btn-end-turn" class="btn-primary" type="button">End Turn</button>
     </div>
   </header>
+
+  <div id="status-strip" class="status-strip" data-status-strip role="status" aria-live="polite"></div>
 
   <section id="topbar-win-popover" class="topbar-log-popover topbar-win-popover">
     <div class="topbar-log-header">
@@ -84,7 +86,10 @@
   </section>
 
   <main class="game-layout">
-    <section class="game-board" id="board-root" aria-label="Game board"></section>
+    <section class="game-board" id="board-root" aria-label="Game board">
+      <!-- End Turn: main.js keeps this node and boardRenderer moves it into the board's middle strip on every render. -->
+      <button id="btn-end-turn" class="btn-primary" type="button">End Turn</button>
+    </section>
 
     <section class="game-hand-panel">
       <div id="hand-root" class="hand-strip"></div>

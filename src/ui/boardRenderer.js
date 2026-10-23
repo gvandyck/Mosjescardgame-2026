@@ -8,8 +8,12 @@ import { getCardById } from '../data/cardIndex.js';
 import { initModalManager } from './modalManager.js';
 import { renderQuestStacks } from './renderQuestStacks.js';
 import { MOSJE_ABILITY_RULES } from '../rules/mosjeAbilityRules.js';
+import { buildBoardSkeleton } from './board/buildBoardSkeleton.js';
+import { fillSlotOutlines } from './board/fillSlotOutlines.js';
+import { getFieldSlots } from './board/getFieldSlots.js';
 
 const PIECIE_SLOTS = 3; // 2.0: 3 Piecie slots per player (mirrors tableRules)
+const MOSJE_SLOTS = 2; // 2.0: 2 Mosje slots per player
 
 console.log('[UI] boardRenderer.js loaded');
 
@@ -28,43 +32,18 @@ function getBoardModal() {
 	return _boardModal;
 }
 
-export function renderBoard(container, viewModel, onUseAbility = null, onReturnToHand = null, onActivatePiecie = null, onOpenDiscard = null, onPlayFromHand = null) {
+// extras.endTurnButton: the #btn-end-turn node (kept by main.js so its listener survives every re-render); it is
+// moved into the middle strip of the board (D-07, D-08).
+export function renderBoard(container, viewModel, onUseAbility = null, onReturnToHand = null, onActivatePiecie = null, onOpenDiscard = null, onPlayFromHand = null, extras = {}) {
 	if (!container) return;
 	console.log('[UI] Rendering board view');
 
-	container.innerHTML = `
-		<section class="board-zone board-zone--opponent">
-			<header class="board-zone__header">
-				${escapeHtml(viewModel.players.top.name)}
-				<div class="snelle-modifier-bar" id="modifier-bar-opponent"></div>
-			</header>
-			<div class="board-zone__row">
-				<div class="board-zone__slots" id="zone-opponent"></div>
-				<div class="board-zone__piecies" id="piecies-opponent"></div>
-				<div class="pile-column">
-					<div class="deck-pile-container" id="deck-opponent"></div>
-					<div class="discard-pile-container" id="discard-opponent"></div>
-				</div>
-			</div>
-		</section>
-
-		<section class="quest-stacks" id="quest-stacks"></section>
-
-		<section class="board-zone board-zone--player">
-			<header class="board-zone__header">
-				${escapeHtml(viewModel.players.bottom.name)}
-				<div class="snelle-modifier-bar" id="modifier-bar-player"></div>
-			</header>
-			<div class="board-zone__row">
-				<div class="board-zone__slots" id="zone-player"></div>
-				<div class="board-zone__piecies" id="piecies-player"></div>
-				<div class="pile-column">
-					<div class="deck-pile-container" id="deck-player"></div>
-					<div class="discard-pile-container" id="discard-player"></div>
-				</div>
-			</div>
-		</section>
-	`;
+	const endTurnHadFocus = !!extras.endTurnButton && document.activeElement === extras.endTurnButton;
+	container.setAttribute('data-board', 'obby-2');
+	container.innerHTML = buildBoardSkeleton({
+		topName: viewModel.players.top.name,
+		bottomName: viewModel.players.bottom.name,
+	});
 
 	renderModifierBar(container.querySelector('#modifier-bar-opponent'), viewModel.players.top.activeModifiers);
 	renderModifierBar(container.querySelector('#modifier-bar-player'), viewModel.players.bottom.activeModifiers);
@@ -299,6 +278,18 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		}
 	}
 
+	// Every row always shows its full 2 Mosje + 3 Piecie slots: dashed outlines fill the empty ones.
+	for (const side of ['opponent', 'player']) {
+		fillSlotOutlines(container.querySelector(`#zone-${side}`), 'mosje', MOSJE_SLOTS);
+		fillSlotOutlines(container.querySelector(`#piecies-${side}`), 'piecie', PIECIE_SLOTS);
+	}
+
+	// End Turn lives in the middle strip now; the node (and its click listener) comes from main.js.
+	if (extras.endTurnButton) {
+		container.querySelector('#board-end-turn')?.appendChild(extras.endTurnButton);
+		if (endTurnHadFocus) extras.endTurnButton.focus({ preventScroll: true }); // re-parenting drops focus; keep it for keyboard play
+	}
+
 	// Initialize drag-to-play drop zones (hand → field)
 	initBoardDropZones(container, onPlayFromHand);
 
@@ -306,10 +297,8 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 	const rows = container.querySelectorAll('.board-zone__row');
 	rows.forEach(initDragScroll);
 	markEnteringCards(container);
-	// Tiles shrink as the busiest row fills (arena.css reads --field-slots). The deck and discard piles are
-	// field-sized tiles too, so they count as 2 slots.
-	const rowSizes = [...container.querySelectorAll('.board-zone__row')].map((r) => r.querySelectorAll('.card').length);
-	container.style.setProperty('--field-slots', String(Math.max(4, ...rowSizes) + 2));
+	// board-2-0.css sizes every tile from --field-slots: 7 columns, or 8 while either Welloe pile has cards (D-13).
+	container.style.setProperty('--field-slots', String(getFieldSlots([viewModel.players.top, viewModel.players.bottom])));
 }
 
 function initBoardDropZones(container, onPlayFromHand) {
@@ -351,6 +340,7 @@ function initBoardDropZones(container, onPlayFromHand) {
 function tagBoardElement(element, { zone, playerId, slotIndex, cardId, faceDown = false } = {}) {
 	if (!element) return;
 	if (zone) element.dataset.zone = zone;
+	if (zone === 'mosje' || zone === 'piecie') element.dataset.slotKind = zone; // 63-01: the slot-outline fill and U12 read this
 	if (playerId) element.dataset.playerId = playerId;
 	if (slotIndex !== undefined && slotIndex !== null) element.dataset.slotIndex = String(slotIndex);
 	if (cardId) element.dataset.cardId = cardId;

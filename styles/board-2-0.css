@@ -1,0 +1,118 @@
+/* board-2-0.css — the 2.0 board shell (Phase 63-01, 63-UI-SPEC "Board geometry"). Loaded last.
+   ONE scalable root: the board (.game-board) is a size container; every table size comes from the tile token
+   (--field-tile-w) and its unit --bu (one board unit = tile width / 240). Nothing here sits in a hover media query
+   (Mobile-ready rule b), and the hand never overlaps a row: the board reserves the hand's visible height (--hand-peek). */
+
+.page--game {
+	--topbar-h: 56px;
+	--status-h: 44px;
+	--crystal-col: 64px;                 /* the Energy crystal column at the left end of every row */
+	--energy: #7DD3FC;                   /* filled crystals and the Energy count only */
+
+	/* Hand tokens (moved here from board.css / card-v1.css). 150% hand, sunk 47%; --hand-peek is the part of it that
+	   stays visible above the screen bottom: card height minus the sink, plus the strip padding and the fan raise. */
+	--hand-card-width: clamp(338px, calc((100vw - 40px) / 4.87), 422px);
+	--hand-card-height: calc(var(--hand-card-width) * var(--card-height-ratio));
+	--hand-sink: calc(var(--hand-card-height) * 0.467);
+	--hand-peek: calc(var(--hand-card-height) - var(--hand-sink) + 10px + var(--hand-card-width) * 0.052 + 6px);
+}
+
+/* ── Top bar + the reserved status strip ───────────────────────────── */
+.page--game .game-topbar { height: var(--topbar-h); padding-top: 0; padding-bottom: 0; }
+
+/* The one message slot above the board. Its 44 px are always reserved so nothing jumps; transparent while empty. */
+.status-strip {
+	box-sizing: border-box;
+	position: relative;
+	z-index: 2;
+	width: 95vw;
+	height: var(--status-h);
+	margin: 0 auto;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 0 16px;
+	border: 1px solid transparent;
+	border-radius: 10px;
+	background: transparent;
+	color: #fff;
+	font: 600 15px/1.3 'DM Sans', sans-serif;
+}
+.status-strip[data-status-kind] { background: rgba(5, 5, 5, 0.82); border-color: rgba(255, 255, 255, 0.14); }
+
+/* ── The board: tile token, board unit, reserved hand height ──────── */
+/* The tile tokens are REGISTERED lengths: the cqw in them must resolve ONCE, here on the board's children, against the
+   board container. Every .card is itself a size container (card-face-2-0.css: cv1card), so an unregistered token would
+   be re-evaluated against the card by every descendant that reads it (--u) and come out wrong. */
+@property --field-tile-w { syntax: '<length>'; inherits: true; initial-value: 240px; }
+@property --field-tile-h { syntax: '<length>'; inherits: true; initial-value: 176px; }
+@property --bu { syntax: '<length>'; inherits: true; initial-value: 1px; }
+@property --row-w { syntax: '<length>'; inherits: true; initial-value: 1800px; }
+
+.game-board {
+	container-type: inline-size;         /* 100cqw below = the board's width */
+	--board-extra: 108px;                /* 2 names + stack edge + paddings between the 3 tile rows */
+	/* Height budget: 3 tile rows (opponent, Quests, mine) fit between the strip and the visible hand. */
+	--field-h-max: min(176px, calc((100vh - var(--topbar-h) - var(--status-h) - var(--hand-peek) - var(--board-extra)) / 3));
+}
+.game-board > * {
+	/* One tile width for everything on the table: the busiest row (crystals + --field-slots tiles, 8 px gaps) must fit.
+	   Never below 170px: on a narrow screen the row overflows and drag-scrolls instead of shrinking the cards. */
+	--field-tile-w: max(170px, min(calc((100cqw - var(--crystal-col) - 24px) / var(--field-slots, 7) - 8px), calc(var(--field-h-max) * 240 / 176)));
+	--field-tile-h: calc(var(--field-tile-w) * 176 / 240);
+	--bu: calc(var(--field-tile-w) / 240);   /* one board unit */
+	--row-w: calc(var(--crystal-col) + var(--field-slots, 7) * (var(--field-tile-w) + 8px));
+}
+@media (min-width: 901px) {
+	.page--game .game-layout { height: calc(100vh - var(--topbar-h) - var(--status-h)); margin-bottom: 0; }
+	.game-board { max-height: calc(100vh - var(--topbar-h) - var(--status-h) - var(--hand-peek)); }
+}
+
+/* ── Zones and rows: always 2 Mosje + 3 Piecie slots, the same order in both rows ── */
+.game-board .board-zone { min-height: 0; margin-bottom: 0; padding: 6px 12px; gap: 4px; overflow: visible; }
+.game-board .board-zone__header { min-height: 22px; line-height: 1; }
+/* The row keeps its scroll padding for the tile shadows; the negative margins cancel it so the row is exactly tile high. */
+.game-board .board-zone__row { gap: 8px; align-items: flex-start; padding: 10px 28px 18px; margin: -10px -28px -18px; }
+.game-board .board-zone__slots,
+.game-board .board-zone__piecies { gap: 8px; padding: 0; flex-wrap: nowrap; max-width: none; justify-content: flex-start; min-height: var(--field-tile-h); }
+.game-board .pile-column { flex-direction: row; gap: 8px; align-self: flex-start; }
+.game-board .welloe-pile-container:empty { display: none; }
+
+.game-board .board-energy { flex: 0 0 var(--crystal-col); width: var(--crystal-col); align-self: stretch; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+/* Empty slot: a tile-sized dashed outline, inert. */
+.game-board .board-slot--empty {
+	box-sizing: border-box;
+	flex: 0 0 auto;
+	width: var(--field-tile-w);
+	height: var(--field-tile-h);
+	border: 1px dashed rgba(255, 255, 255, 0.18);
+	border-radius: calc(14 * var(--bu));
+	pointer-events: none;
+	transform: none !important;
+}
+
+/* ── Middle strip: Place (first tile column) · Quests (centre) · End Turn (last column) ── */
+.game-board .board-middle {
+	box-sizing: border-box;
+	display: grid;
+	grid-template-columns: var(--field-tile-w) 1fr auto;
+	align-items: start;
+	column-gap: 8px;
+	width: min(100%, var(--row-w));
+	min-height: calc(var(--field-tile-h) + 21 * var(--bu));   /* the tile row + the Quest stack edge (Plan 03) */
+	margin: 4px auto;
+	padding: 0 0 calc(21 * var(--bu)) calc(var(--crystal-col) + 8px);
+}
+.game-board .board-place { width: var(--field-tile-w); height: var(--field-tile-h); }
+.game-board .board-middle .quest-stacks { display: flex; justify-content: center; align-items: flex-start; gap: calc(12 * var(--bu)); padding: 0; }
+.game-board .board-end-turn { align-self: center; justify-self: end; display: flex; flex-direction: column; align-items: stretch; }
+#btn-end-turn {
+	min-width: 160px;
+	min-height: 56px;
+	font-family: 'Sora', sans-serif;
+	font-weight: 800;
+	font-size: 16px;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}

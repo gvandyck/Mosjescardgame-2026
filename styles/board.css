@@ -2040,8 +2040,7 @@
 .game-hand-panel {
    /* 150% of the previous size (was clamp(225px, (100vw - 40px) / 7.3, 281px)). The hand cards sit closer to the
       eye than the field, so they are the biggest cards on screen. handRenderer sets --hand-overlap so a full hand fits. */
-   --hand-card-width: clamp(338px, calc((100vw - 40px) / 4.87), 422px);
-   --hand-card-height: calc(var(--hand-card-width) * var(--card-height-ratio));
+   /* --hand-card-width / --hand-card-height now live in styles/board-2-0.css (.page--game), next to --hand-peek. */
    /* Card faces size their text from --cv1-w; keep it equal to the real hand card width so
       text is never laid out for a different size than the card is drawn at. */
    --mosje-card-w-hand: var(--hand-card-width);
