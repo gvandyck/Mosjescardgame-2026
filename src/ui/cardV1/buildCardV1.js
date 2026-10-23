@@ -1,7 +1,10 @@
 // buildCardV1.js — entry point for the card frame v1 faces.
 // Returns { html, className } for a supported card type, or null when the card
 // type is not (yet) part of the v1 design and the old renderer should be used.
+// A spec with face === 2 is built by the shared 2.0 pop-up face (buildPopupFace); the types that are not
+// converted yet keep the legacy builder until 62-03 / 62-04. The field tile is still the legacy tile (62-05).
 import { buildFaceV1 } from './buildFaceV1.js';
+import { buildPopupFace } from './buildPopupFace.js';
 import { buildFieldFaceV1 } from './buildFieldFaceV1.js';
 import { buildMosjeSpecV1 } from './buildMosjeSpecV1.js';
 import { buildPiecieSpecV1 } from './buildPiecieSpecV1.js';
@@ -18,15 +21,18 @@ const SPEC_BUILDERS = {
   QUEST: buildQuestSpecV1,
 };
 
+function buildPopupHtml(spec, tierAttrs) {
+  if (spec.face === 2) return buildPopupFace(spec, tierAttrs);
+  return buildFaceV1(spec, { tier: tierAttrs.tier, layoutEnabled: tierAttrs.enabled, diamonds: tierAttrs.diamonds });
+}
+
 export function buildCardV1(card, { fieldMode = false } = {}) {
   const buildSpec = SPEC_BUILDERS[String(card.type || '').toUpperCase()];
   if (!buildSpec) return null;
   const spec = buildSpec(card);
   const tierAttrs = getTierAttributes(card);
   return {
-    html: fieldMode
-      ? buildFieldFaceV1(spec)
-      : buildFaceV1(spec, { tier: tierAttrs.tier, layoutEnabled: tierAttrs.enabled, diamonds: tierAttrs.diamonds }),
+    html: fieldMode ? buildFieldFaceV1(spec) : buildPopupHtml(spec, tierAttrs),
     className: `card-v1 ${fieldMode ? 'card-v1--field' : 'card-v1--full'} ${tierAttrs.classes}`,
     tier: tierAttrs.tier,
     dataTier: String(tierAttrs.tier),

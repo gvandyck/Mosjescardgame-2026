@@ -5,7 +5,7 @@ import { getRarityDiamonds } from '../../src/ui/cardV1/getRarityDiamonds.js';
 import { isFullArt } from '../../src/ui/cardV1/isFullArt.js';
 import { getTierAttributes } from '../../src/ui/cardV1/getTierAttributes.js';
 import { buildCardV1 } from '../../src/ui/cardV1/buildCardV1.js';
-import { buildFaceV1 } from '../../src/ui/cardV1/buildFaceV1.js';
+import { buildPopupFace } from '../../src/ui/cardV1/buildPopupFace.js';
 import { buildFieldFaceV1 } from '../../src/ui/cardV1/buildFieldFaceV1.js';
 import { PIECIES } from '../../src/data/piecies.js';
 import { PLACES } from '../../src/data/places.js';
@@ -112,7 +112,7 @@ describe('buildCardV1 tier attributes', () => {
   it('face html equals the face builders given the tier attributes', () => {
     const c = { ...card, rarity: '★★★' };
     const a = getTierAttributes(c);
-    expect((buildCardV1(c) as any).html).toBe(buildFaceV1(buildMosjeSpecV1(c), { tier: a.tier, layoutEnabled: a.enabled, diamonds: a.diamonds }));
+    expect((buildCardV1(c) as any).html).toBe(buildPopupFace(buildMosjeSpecV1(c), a));
     expect((buildCardV1(card, { fieldMode: true }) as any).html).toBe(buildFieldFaceV1(buildMosjeSpecV1(card)));
   });
 });
