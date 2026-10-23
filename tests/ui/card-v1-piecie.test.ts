@@ -124,11 +124,12 @@ describe('card frame v1 — Piecie data mapping (2.0 face)', () => {
     }
   });
 
-  it('field tile: name, PIECIE pill, COST badge, no description (legacy tile until 62-05)', () => {
+  it('field tile: name, PIECIE pill, no cost, no description', () => {
     const html = buildCardV1(byName('Kannetje Melk'), { fieldMode: true })!.html;
     expect(html).toContain('>PIECIE<');
-    expect(html).toMatch(/data-cv1-mp>Free</);
-    expect(html).toContain('>COST<');
+    expect(html).not.toContain('data-cv1-cost');
+    expect(html).not.toContain('Free');
+    expect(html).not.toContain('>COST<');
     expect(html).not.toContain('cv1-desc');
   });
 

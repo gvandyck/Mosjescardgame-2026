@@ -57,10 +57,12 @@ describe('card frame v1 — Place data mapping (2.0 face)', () => {
     expect(corner(free)).toContain('<div class="cv2-corner-val">0</div>');
   });
 
-  it('field tile has no badge either (legacy tile until 62-05)', () => {
+  it('field tile has the PLACE pill, no badge and no cost either', () => {
     const html = buildCardV1(byName('The Gym'), { fieldMode: true })!.html;
     expect(html).toContain('>PLACE<');
     expect(html).not.toContain('cv1-badge');
+    expect(html).not.toContain('data-cv1-cost');
+    expect(html).not.toContain('>COST<');
     expect(html).not.toContain('cv1-desc');
   });
 

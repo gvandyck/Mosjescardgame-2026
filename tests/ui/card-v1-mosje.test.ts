@@ -206,12 +206,15 @@ describe('card frame v1 — Mosje face data mapping', () => {
     expect(html).toContain('&lt;img src=x onerror=1&gt;');
     expect(html).toContain('&lt;script&gt;');
   });
-  it('field tile: single-line name, L<level> pill, badge, no description', () => {
+  it('field tile: single-line name, L<level> chip, Power box, MP box, no text box', () => {
     const html = buildCardV1({ ...byName('Alyssa, The Bulldozer'), mp: 20, level: 3 }, { fieldMode: true })!.html;
     expect(html).toContain('>L3<');
-    expect(html).toMatch(/data-cv1-mp>20</);
+    expect(html).toMatch(/data-cv1-level="3"/);
+    expect(html).toMatch(/data-cv1-power="40"/);
+    expect(html).toMatch(/data-cv1-mp="20"/);
     expect(html).not.toContain('cv1-desc');
     expect(html).not.toContain('cv1-info');
+    expect(html).not.toContain('cv2-text');
   });
   it('card art falls back cleanly: no <img> when art is missing or a placeholder', () => {
     expect(buildCardV1({ ...byName('Alyssa, The Bulldozer'), artPath: '' }, {})!.html).not.toContain('<img');

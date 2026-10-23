@@ -6,7 +6,7 @@ import { isFullArt } from '../../src/ui/cardV1/isFullArt.js';
 import { getTierAttributes } from '../../src/ui/cardV1/getTierAttributes.js';
 import { buildCardV1 } from '../../src/ui/cardV1/buildCardV1.js';
 import { buildPopupFace } from '../../src/ui/cardV1/buildPopupFace.js';
-import { buildFieldFaceV1 } from '../../src/ui/cardV1/buildFieldFaceV1.js';
+import { buildFieldTile } from '../../src/ui/cardV1/buildFieldTile.js';
 import { PIECIES } from '../../src/data/piecies.js';
 import { PLACES } from '../../src/data/places.js';
 import { buildTierChrome } from '../../src/ui/cardV1/buildTierChrome.js';
@@ -114,7 +114,7 @@ describe('buildCardV1 tier attributes', () => {
     const c = { ...card, rarity: '★★★' };
     const a = getTierAttributes(c);
     expect((buildCardV1(c) as any).html).toBe(buildPopupFace(buildMosjeSpecV1(c), a));
-    expect((buildCardV1(card, { fieldMode: true }) as any).html).toBe(buildFieldFaceV1(buildMosjeSpecV1(card)));
+    expect((buildCardV1(card, { fieldMode: true }) as any).html).toBe(buildFieldTile(buildMosjeSpecV1(card), getTierAttributes(card)));
   });
 });
 
@@ -213,7 +213,7 @@ describe('tier 5 face (full foil)', () => {
     expect(count(w, 'cv1-fade--bottom')).toBe(1);
     expect(count(w, 'cv1-fade--top')).toBe(1);
   });
-  it('field mode is unchanged for every tier', () => {
+  it('field tiles carry no tier chrome at any tier', () => {
     for (const c of [base, PIECIES[0], PLACES[0]] as any[]) {
       for (const tier of [1, 2, 3, 4, 5]) {
         const r = buildCardV1({ ...c, rarity: '★'.repeat(tier) }, { fieldMode: true }) as any;

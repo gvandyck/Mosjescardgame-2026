@@ -78,10 +78,11 @@ describe('card frame v1 — Snelle data mapping (2.0 face)', () => {
     expect(spec.corner).toEqual({ hook: 'cost', value: '1', label: 'COST', sub: '' });
   });
 
-  it('field tile shows name, SNELLE pill and COST badge only (legacy tile until 62-05)', () => {
+  it('field tile shows name and SNELLE pill only, no cost', () => {
     const html = buildCardV1(byName('Lucky Cóin'), { fieldMode: true })!.html;
     expect(html).toContain('>SNELLE<');
-    expect(html).toContain('>COST<');
+    expect(html).not.toContain('data-cv1-cost');
+    expect(html).not.toContain('>COST<');
     expect(html).not.toContain('cv1-desc');
   });
 
