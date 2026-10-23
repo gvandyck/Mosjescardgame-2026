@@ -41,7 +41,7 @@ test('card frame v1 — click-detail modal shows a large readable card', async (
   await expect(modalCard).toBeVisible();
   const box = await modalCard.boundingBox();
   expect(box.width).toBeGreaterThanOrEqual(300);
-  const modalDescPx = await modalCard.locator('.cv1-desc').evaluate(el => parseFloat(getComputedStyle(el).fontSize));
+  const modalDescPx = await modalCard.locator('.cv2-text').evaluate(el => parseFloat(getComputedStyle(el).fontSize));
   expect(modalDescPx).toBeGreaterThanOrEqual(9);
   await page.screenshot({ path: `${OUT}/detail-modal.png` });
 });

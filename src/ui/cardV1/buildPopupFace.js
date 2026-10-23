@@ -44,7 +44,7 @@ export function buildPopupFace(spec, { tier = 4, layout = 'fullart', diamonds = 
       ${chrome}
       <div class="cv1-window">${windowInner}</div>${foil ? foil.frame : ''}
       ${buildCorner(spec.corner)}
-      <div class="cv2-name"><div class="cv2-first">${escapeHtml(name.first)}</div>${nick}</div>
+      <div class="cv2-name${typeKey === 'MOSJE' ? '' : ' cv2-name--wrap'}"><div class="cv2-first">${escapeHtml(name.first)}</div>${nick}</div>
       ${buildFaceStack(spec, buildFaceTextBox(spec))}
     </div>`;
 }

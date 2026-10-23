@@ -4,6 +4,7 @@ import { test, expect } from '@playwright/test';
 import fs from 'fs';
 import { OUT } from './cardv1-helpers.js';
 import { seedOfflineSession, GAME_URL_TEST, waitForBoard, setHand } from '../helpers.js';
+import { collectFaceZones, findFaceCollisions } from '../../helpers/faceZones.js';
 
 test('card frame v1 — hand is visible, hover previews in the dock, no Play button, click plays the card', async ({ page }) => {
   fs.mkdirSync(OUT, { recursive: true });
@@ -41,54 +42,60 @@ test('card frame v1 — hand is visible, hover previews in the dock, no Play but
   await page.screenshot({ path: `${OUT}/hand-click-plays.png` });
 });
 
-// Worst-case hand text: every real card rendered at hand width keeps readable text and
-// the description never runs into the name block.
+// Worst-case hand text: every real card of one type rendered at hand width keeps readable text and no zone
+// of the face runs into another (2.0 faces: zone rects; legacy faces: description vs name / info).
 // The real hand card is 150% of what it was (2026-10-20): 338px wide at the smallest, about 386px at 1920x1080.
-for (const width of [386, 338, 230, 180]) {
-  test(`card frame v1 — hand card text is readable and fits at ${width}px wide`, async ({ page }) => {
-    await seedOfflineSession(page);
-    await page.setViewportSize({ width: 2400, height: 2400 });
-    await page.goto(GAME_URL_TEST);
-    await page.waitForFunction(() => window.__testHooks, { timeout: 20000 });
-    const report = await page.evaluate(async (w) => {
-      const { renderCard } = await import('/src/ui/cardRenderer.js');
-      const { ALL_CARDS } = await import('/src/data/cardIndex.js');
-      const root = document.createElement('div');
-      root.className = 'hand-strip';
-      root.style.cssText = 'position:fixed;left:0;top:0;width:2400px;z-index:99999;background:#0d0b14;display:flex;flex-wrap:wrap;gap:16px;padding:16px;align-content:flex-start';
-      document.body.appendChild(root);
-      const rows = [];
-      for (const c of ALL_CARDS.filter(c => ['MOSJE', 'PIECIE', 'SNELLE_PIECIE', 'PLACE'].includes(c.type))) {
-        const el = renderCard(c, { compact: false });
-        el.classList.add('hand-card');
-        el.style.setProperty('--cv1-w', w + 'px');
-        root.appendChild(el);
-        rows.push([c.id, el]);
+// 338px and up is the real hand size and is enforced for every type. 230px (the old hand size) is the stress case:
+// enforced here for the types whose 2.0 face exists (Mosje now; Snelle / Place stay clean as before) and, for the
+// Piecie face that still has its three pre-existing collisions, held to exactly those ids until 62-03 fixes them.
+// 180px stays informational (smaller windows).
+const TYPES = ['MOSJE', 'PIECIE', 'SNELLE_PIECIE', 'PLACE'];
+const PIECIE_GAP_230 = ['piecie_bowie_stormey', 'piecie_gekke_vogels', 'piecie_tony'];
+const FLOOR_TEXT = 11.5; // the text floor of the 2.0 face (reference px at 440 wide)
+
+for (const type of TYPES) {
+  for (const width of [386, 338, 230, 180]) {
+    test(`card frame v1 — ${type} hand card text is readable and fits at ${width}px wide`, async ({ page }) => {
+      await seedOfflineSession(page);
+      await page.setViewportSize({ width: 2400, height: 2400 });
+      await page.goto(GAME_URL_TEST);
+      await page.waitForFunction(() => window.__testHooks, { timeout: 20000 });
+      await page.evaluate(async ({ w, type }) => {
+        const { renderCard } = await import('/src/ui/cardRenderer.js');
+        const { ALL_CARDS } = await import('/src/data/cardIndex.js');
+        const root = document.createElement('div');
+        root.id = 'hand-gallery';
+        root.className = 'hand-strip';
+        root.style.cssText = 'position:fixed;left:0;top:0;width:2400px;z-index:99999;background:#0d0b14;display:flex;flex-wrap:wrap;gap:16px;padding:16px;align-content:flex-start';
+        document.body.appendChild(root);
+        for (const c of ALL_CARDS.filter(c => c.type === type)) {
+          const el = renderCard(c, { compact: false });
+          el.classList.add('hand-card');
+          el.style.setProperty('--cv1-w', w + 'px');
+          root.appendChild(el);
+        }
+        await document.fonts.ready;
+        await new Promise(r => setTimeout(r, 300));
+      }, { w: width, type });
+      const report = await page.evaluate(collectFaceZones, '#hand-gallery .hand-card');
+      expect(report.length, `${type} cards rendered`).toBeGreaterThan(0);
+      const cut = report.filter(r => r.clipped || r.clamped || r.textOverflow);
+      console.log(`${type} width ${width}: ${cut.length} of ${report.length} descriptions are cut or clamped (full text in the click modal)`);
+      const bad = findFaceCollisions(report);
+      const badIds = [...new Set(bad.map(b => b.split(':')[0]))];
+      console.log(`${type} width ${width}: ${report.length} cards, ${badIds.length} collide:`, bad.join(' | '));
+      for (const r of report) {
+        if (r.face === 2) {
+          // The text never gets smaller than the design floor, and stays readable from the 230px stress size up.
+          expect(r.textPx ?? 99, `${r.id} text size`).toBeGreaterThanOrEqual(FLOOR_TEXT * width / 440 - 0.05);
+          if (width >= 230) expect(r.textPx ?? 99, `${r.id} text size`).toBeGreaterThanOrEqual(5);
+        } else {
+          expect(r.descPx, `${r.id} desc size`).toBeGreaterThanOrEqual(5); // Phase 51: hand card = exact scaled copy of the design (was 11)
+          expect(r.infoPx, `${r.id} info size`).toBeGreaterThanOrEqual(5); // Phase 51: exact scaled design (was 10)
+        }
       }
-      await document.fonts.ready;
-      await new Promise(r => setTimeout(r, 300));
-      return rows.map(([id, el]) => {
-        const card = el.getBoundingClientRect();
-        const q = (s) => el.querySelector(s);
-        const r = (s) => q(s)?.getBoundingClientRect();
-        const desc = r('.cv1-desc'), name = r('.cv1-name'), info = r('.cv1-info');
-        return {
-          id, descPx: parseFloat(getComputedStyle(q('.cv1-desc')).fontSize), infoPx: parseFloat(getComputedStyle(q('.cv1-info')).fontSize),
-          clipped: [...q('.cv1-desc').children].reduce((h, c) => h + c.getBoundingClientRect().height, 0) > q('.cv1-desc').clientHeight + 1,
-          descHitsName: desc.top < name.bottom - 1, descHitsInfo: desc.bottom > info.top + 4, // Phase 51: footer sits closer to the plate by design (D-06); a 2-line traits row may touch the plate padding
-          descInside: desc.left >= card.left && desc.right <= card.right,
-        };
-      });
-    }, width);
-    console.log(`width ${width}: ${report.filter(r => r.clipped).length} of ${report.length} descriptions are cut at the top (full text in the click modal)`);
-    const bad = report.filter(r => r.descHitsName || r.descHitsInfo || !r.descInside);
-    console.log(`width ${width}: ${report.length} cards, ${bad.length} collide:`, bad.map(b => b.id).join(', '));
-    for (const r of report) {
-      expect(r.descPx, `${r.id} desc size`).toBeGreaterThanOrEqual(5); // Phase 51: hand card = exact scaled copy of the design (was 11)
-      expect(r.infoPx, `${r.id} info size`).toBeGreaterThanOrEqual(5); // Phase 51: exact scaled design (was 10)
-    }
-    // 338px and up is the real hand card width and is enforced; 230px (the old hand size) and 180px are
-    // informational only (smaller windows). Phase 62 aims to make 230px collision-free again.
-    if (width >= 338) expect(bad.map(b => b.id).filter(id => id !== 'mosje_jisca'), 'cards whose text collides').toEqual([]); // mosje_jisca: 3 long traits wrap to 2 lines and touch the plate padding (known, cosmetic)
-  });
+      if (width >= 338 || (width === 230 && type !== 'PIECIE')) expect(bad, 'cards whose text collides').toEqual([]);
+      if (width === 230 && type === 'PIECIE') expect(badIds.filter(id => !PIECIE_GAP_230.includes(id)), 'new collisions beyond the pre-existing Known gap').toEqual([]);
+    });
+  }
 }

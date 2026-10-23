@@ -73,6 +73,13 @@ test.describe('Phase 50 rarity tiers', () => {
 			await expect(card.locator('.ct-diamond--lit')).toHaveCount(c.tier);
 			const bg = await card.locator('.ct-diamond--lit').first().evaluate((e) => getComputedStyle(e).backgroundColor);
 			expect(bg).toBe(c.accent);
+			if (MOSJE_TYPES.includes(c.type)) {
+				// 2.0 Mosje face: LVL chip in the footer centre, Power / MP numbers, no MP badge box.
+				expect((await card.locator('.cv2-lvl-chip').innerText()).trim()).toMatch(c.pill);
+				await expect(card.locator('.cv1-badge')).toHaveCount(0);
+				await expect(card.locator('.cv2-footer')).toHaveCount(1);
+				return;
+			}
 			expect((await card.locator('.cv1-pill').innerText()).trim()).toMatch(c.pill);
 			await expect(card.locator('.cv1-badge')).toHaveCount(c.badge ? 1 : 0);
 			if (c.badge) {
@@ -99,8 +106,9 @@ test.describe('Phase 50 rarity tiers', () => {
 	});
 
 	test('text, pill, label and badge boxes identical across tiers', async ({ page }) => {
-		const SELS = ['.cv1-name', '.cv1-nick', '.cv1-info', '.cv1-pill', '.cv1-border-text', '.cv1-badge'];
 		for (const type of TYPES) {
+			const mosje = MOSJE_TYPES.includes(type);
+			const SELS = mosje ? ['.cv2-corner', '.cv2-name', '.cv2-textbox', '.cv2-footer'] : ['.cv1-name', '.cv1-nick', '.cv1-info', '.cv1-pill', '.cv1-border-text', '.cv1-badge'];
 			const boxes = [];
 			for (let tier = 1; tier <= 5; tier += 1) {
 				const card = await mount(page, { type, tier });
@@ -111,7 +119,8 @@ test.describe('Phase 50 rarity tiers', () => {
 					const a = boxes[0][i]; const b = boxes[t][i];
 					expect(!!a, `${type} ${s}`).toBe(!!b);
 					// Tier 4 (full art) has more left/right text padding on purpose, so only compare vertical position and height there.
-					if (a) for (const k of (t >= 3 ? ['y', 'h'] : ['x', 'y', 'w', 'h'])) expect(Math.abs(a[k] - b[k]), `${type} ${s} ${k} tier ${t + 1}`).toBeLessThanOrEqual(1);
+					// A Mosje is full art at every rarity, so all four numbers must match for it.
+					if (a) for (const k of (t >= 3 && !mosje ? ['y', 'h'] : ['x', 'y', 'w', 'h'])) expect(Math.abs(a[k] - b[k]), `${type} ${s} ${k} tier ${t + 1}`).toBeLessThanOrEqual(1);
 				});
 			}
 		}
@@ -120,10 +129,17 @@ test.describe('Phase 50 rarity tiers', () => {
 	test('edge cases: 4-trait Mosje, Place info, art-less card', async ({ page }) => {
 		for (const tier of [1, 2, 3, 4, 5]) {
 			let card = await mount(page, { type: 'FIGHTING', tier, patch: { __fourTraits: true } });
-			const info = await rel(card, '.cv1-info');
-			const badge = await rel(card, '.cv1-badge');
-			expect(info.x + info.w).toBeLessThanOrEqual(330.5);
-			expect(info.x + info.w).toBeLessThanOrEqual(badge.x);
+			// The 4-trait Mosje: every level row stays on one line (nothing cut) and the text box sits inside the card.
+			const rows = await card.locator('.cv2-level-row').evaluateAll((els) => els.map((e) => ({
+				h: e.getBoundingClientRect().height, font: parseFloat(getComputedStyle(e).fontSize), cut: e.scrollWidth > e.clientWidth + 1,
+			})));
+			expect(rows.length).toBe(3);
+			for (const r of rows) {
+				expect(r.h).toBeLessThan(1.6 * r.font);
+				expect(r.cut).toBe(false);
+			}
+			const box = await rel(card, '.cv2-textbox');
+			for (const v of [box.x, box.y, box.r, box.b]) expect(v).toBeGreaterThanOrEqual(0);
 			card = await mount(page, { type: 'PLACE', tier });
 			expect((await rel(card, '.cv1-info')).r).toBeLessThan(110 - 0.5);
 		}
