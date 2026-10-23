@@ -114,8 +114,17 @@ test.describe('card frame v1 — Mosje', () => {
   test('field mode 240x176 + hand sizes: 3 level rows at 230, only the lit one below 150', async ({ page }) => {
     await renderGallery(page, 'field', 240, ids);
     await page.locator('#cv1-gallery').screenshot({ path: `${OUT}/mosje-field.png` });
-    const tooWide = await page.evaluate(() => [...document.querySelectorAll('#cv1-gallery .cv1-name')].map(n => n.scrollWidth > n.clientWidth));
-    expect(tooWide.length).toBeGreaterThan(0); // ellipsis handles overflow; just prove the tiles rendered
+    // 2.0 tile: name + nickname, L chip, Power box and MP box are all there, and no two of them overlap.
+    const tiles = await page.evaluate(collectFaceZones, '#cv1-gallery [data-test-card]');
+    expect(tiles.length).toBe(ids.length);
+    for (const t of tiles) {
+      expect(t.tile, `${t.id} is a 2.0 field tile`).toBe(true);
+      for (const zone of ['name', 'lvl', 'power', 'mp']) expect(t.zones[zone], `${t.id} tile ${zone}`).not.toBeNull();
+    }
+    expect(findFaceCollisions(tiles), 'tile zones that collide or leave the tile at 240').toEqual([]);
+    await renderGallery(page, 'field', 120, ids);
+    expect(findFaceCollisions(await page.evaluate(collectFaceZones, '#cv1-gallery [data-test-card]')), 'tile zones that collide at 120').toEqual([]);
+    await page.locator('#cv1-gallery').screenshot({ path: `${OUT}/mosje-field-120.png` });
     // Hand stress size: every Mosje shows all 3 level rows (row 1 lit) and nothing collides.
     await renderGallery(page, 'full', 230, ids);
     const hand = await page.evaluate(collectFaceZones, '#cv1-gallery [data-test-card]');
@@ -135,6 +144,7 @@ test.describe('card frame v1 — Mosje', () => {
     }
     await page.locator('#cv1-gallery').screenshot({ path: `${OUT}/mosje-small.png` });
     await renderGallery(page, 'field', 150, ids);
+    expect(findFaceCollisions(await page.evaluate(collectFaceZones, '#cv1-gallery [data-test-card]')), 'tile zones that collide at 150').toEqual([]);
     await page.locator('#cv1-gallery').screenshot({ path: `${OUT}/mosje-field-board-size.png` });
   });
 
@@ -190,10 +200,10 @@ test.describe('card frame v1 — Mosje', () => {
     const tile = page.locator('.mosje-card--owned.card-v1--field').first();
     await expect(tile).toBeVisible();
     // 11. live values: MP and level come from game state, not the printed Start MP
-    await expect(tile.locator('[data-cv1-mp]')).toHaveText('35');
-    await expect(tile.locator('.cv1-pill')).toHaveText('L1');
+    await expect(tile.locator('[data-cv1-mp]')).toHaveAttribute('data-cv1-mp', '35');
+    await expect(tile.locator('[data-cv1-level]')).toHaveText('L1');
     await page.evaluate(() => window.__testHooks.setMosjeMP('player_1', 0, 105));
-    await expect(page.locator('.mosje-card--owned.card-v1--field [data-cv1-mp]').first()).toHaveText('105');
+    await expect(page.locator('.mosje-card--owned.card-v1--field [data-cv1-mp]').first()).toHaveAttribute('data-cv1-mp', '105');
     // existing interactions survive: ability button still attached to the owned tile
     await expect(page.locator('.mosje-card--owned .mosje-ability-btn').first()).toBeAttached();
     await expect(page.locator('.hand-card.card-v1--full').first()).toBeVisible();

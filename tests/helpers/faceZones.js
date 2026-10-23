@@ -2,12 +2,19 @@
 // collectFaceZones(selector) is SELF-CONTAINED: pass it to page.evaluate(collectFaceZones, selector). It measures
 // every matched rendered card in the page; findFaceCollisions(rows) then runs in Node on the result.
 // 2.0 faces (.cv1-face--2): the rect of each zone relative to the card (null when absent) plus the text checks.
+// 2.0 field tiles (.cv2-tile, 62-05): the rects of name, L chip, Power, MP, pills, need, WIN, LOSE, fail pips and the
+// Activate / ability button (Phase 63 badges such as .mosje-entry-protected-badge are ignored).
 // Legacy faces (face 1, until 62-06 removes them): the exact measurements the old hand spec used.
 
 export function collectFaceZones(selector) {
   const ZONES = {
     corner: '.cv2-corner', name: '.cv2-name', textbox: '.cv2-textbox', info: '.cv2-info',
     pills: '.cv2-pills', label: '.cv2-label', footer: '.cv2-footer',
+  };
+  const TILE_ZONES = {
+    name: '.cv2-tile-name', lvl: '.cv2-tile-lvl', power: '[data-cv1-power]', mp: '[data-cv1-mp]',
+    pills: '.cv2-tile-pills', need: '.cv2-tile-need', win: '[data-cv1-win]', lose: '[data-cv1-lose]',
+    pips: '.cv2-tile-pips', button: '.mosje-ability-btn, .hand-card__play-btn',
   };
   const round = (n) => Math.round(n * 10) / 10;
   return [...document.querySelectorAll(selector)].map((card) => {
@@ -20,6 +27,13 @@ export function collectFaceZones(selector) {
       return { l: round(r.left - c.left), t: round(r.top - c.top), r: round(r.right - c.left), b: round(r.bottom - c.top) };
     };
     const id = card.dataset.testCard || card.dataset.cardId || '?';
+    if (q('.cv2-tile')) {
+      return {
+        id, width: c.width, height: c.height, face: 2, tile: true,
+        zones: Object.fromEntries(Object.entries(TILE_ZONES).map(([key, sel]) => [key, rect(sel)])),
+        textOverflow: false, clamped: false,
+      };
+    }
     if (q('.cv1-face--2')) {
       const text = q('.cv2-text');
       const rows = [...card.querySelectorAll('.cv2-level-row')];

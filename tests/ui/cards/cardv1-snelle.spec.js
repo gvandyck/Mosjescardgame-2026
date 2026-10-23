@@ -72,6 +72,12 @@ test('card frame v1 — Snelle (2.0 face): zones, Needs line, label, cost, small
 
   await renderGallery(page, 'field', 240, ids);
   await page.locator('#cv1-gallery').screenshot({ path: `${OUT}/snelle-field.png` });
+  // 2.0 Snelle tile: name and type pill (+ STAYS chip) never overlap, at 240 and at 120
+  const tiles = await page.evaluate(collectFaceZones, '#cv1-gallery [data-test-card]');
+  expect(tiles.every((t) => t.tile && t.zones.name && t.zones.pills), 'every Snelle tile has a name and a pill row').toBe(true);
+  expect(findFaceCollisions(tiles), 'Snelle tile zones collide at 240').toEqual([]);
+  await renderGallery(page, 'field', 120, ids);
+  expect(findFaceCollisions(await page.evaluate(collectFaceZones, '#cv1-gallery [data-test-card]')), 'Snelle tile zones collide at 120').toEqual([]);
   await renderGallery(page, 'full', 230, ids);
   const hand = await page.evaluate(collectFaceZones, '#cv1-gallery [data-test-card]');
   expect(findFaceCollisions(hand), 'zones that collide at 230').toEqual([]);

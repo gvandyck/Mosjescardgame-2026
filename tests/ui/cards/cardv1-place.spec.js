@@ -79,6 +79,12 @@ test('card frame v1 — Place (2.0 face): cost, Good/Bad line, label, zones, fie
 
   await renderGallery(page, 'field', 240, ids);
   await page.locator('#cv1-gallery').screenshot({ path: `${OUT}/place-field.png` });
+  // 2.0 Place tile: name and type pill never overlap, at 240 and at 120
+  const tiles = await page.evaluate(collectFaceZones, '#cv1-gallery [data-test-card]');
+  expect(tiles.every((t) => t.tile && t.zones.name && t.zones.pills), 'every Place tile has a name and a pill row').toBe(true);
+  expect(findFaceCollisions(tiles), 'Place tile zones collide at 240').toEqual([]);
+  await renderGallery(page, 'field', 120, ids);
+  expect(findFaceCollisions(await page.evaluate(collectFaceZones, '#cv1-gallery [data-test-card]')), 'Place tile zones collide at 120').toEqual([]);
   await renderGallery(page, 'full', 230, ids);
   await page.locator('#cv1-gallery').screenshot({ path: `${OUT}/place-hand-230.png` });
   await renderGallery(page, 'full', 96, ids);

@@ -114,6 +114,12 @@ test.describe('card frame v1 — Piecie (2.0 face)', () => {
   test('field mode 240x176 + hand/board sizes: screenshots', async ({ page }) => {
     await renderGallery(page, 'field', 240, ids);
     await page.locator('#cv1-gallery').screenshot({ path: `${OUT}/piecie-field.png` });
+    // 2.0 Piecie tile: name and type pill (+ STAYS chip) never overlap, at 240 and at 120
+    const tiles = await page.evaluate(collectFaceZones, '#cv1-gallery [data-test-card]');
+    expect(tiles.every((t) => t.tile && t.zones.name && t.zones.pills), 'every Piecie tile has a name and a pill row').toBe(true);
+    expect(findFaceCollisions(tiles), 'Piecie tile zones collide at 240').toEqual([]);
+    await renderGallery(page, 'field', 120, ids);
+    expect(findFaceCollisions(await page.evaluate(collectFaceZones, '#cv1-gallery [data-test-card]')), 'Piecie tile zones collide at 120').toEqual([]);
     await renderGallery(page, 'full', 230, ids);
     await page.locator('#cv1-gallery').screenshot({ path: `${OUT}/piecie-hand-230.png` });
     await renderGallery(page, 'full', 96, ids);

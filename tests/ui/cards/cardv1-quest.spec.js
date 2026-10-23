@@ -136,6 +136,12 @@ test.describe('card frame v1 — Quest (2.0 face)', () => {
   test('field tile 240x176, hand 230 and small sizes: screenshots', async ({ page }) => {
     await renderGallery(page, 'field', 240, ids);
     await page.locator('#cv1-gallery').screenshot({ path: `${OUT}/quest-field.png` });
+    // 2.0 Quest tile: need, WIN, LOSE and 2 fail pips never overlap, at 240 and at 120
+    const tiles = await page.evaluate(collectFaceZones, '#cv1-gallery [data-test-card]');
+    expect(tiles.every((t) => t.tile && t.zones.need && t.zones.win && t.zones.lose && t.zones.pips), 'every Quest tile has need, win, lose, pips').toBe(true);
+    expect(findFaceCollisions(tiles), 'Quest tile zones collide at 240').toEqual([]);
+    await renderGallery(page, 'field', 120, ids);
+    expect(findFaceCollisions(await page.evaluate(collectFaceZones, '#cv1-gallery [data-test-card]')), 'Quest tile zones collide at 120').toEqual([]);
     await renderGallery(page, 'full', 230, ids);
     await page.locator('#cv1-gallery').screenshot({ path: `${OUT}/quest-hand-230.png` });
     await renderGallery(page, 'full', 96, ids);

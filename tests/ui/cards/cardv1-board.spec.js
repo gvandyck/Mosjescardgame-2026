@@ -17,6 +17,9 @@ test('card frame v1 — live board with all card types', async ({ page }) => {
   await page.waitForTimeout(4000);
 
   await expect(page.locator('#board-root .card-v1--field.card--place').first()).toBeVisible();
+  // 2.0 Place tile: the PLACE pill, and no cost (already paid) or badge
+  await expect(page.locator('#board-root .card-v1--field.card--place .cv2-pill').first()).toHaveText('PLACE');
+  await expect(page.locator('#board-root .card-v1--field.card--place [data-cv1-cost]')).toHaveCount(0);
   await expect(page.locator('#board-root .card-v1--field.card--place .cv1-badge')).toHaveCount(0);
   for (const type of ['piecie', 'snelle', 'mosje']) {
     await expect(page.locator(`.hand-card.card-v1--full.card--${type}`).first()).toBeVisible();

@@ -177,3 +177,69 @@
 .card-detail .cv1-face--2 .cv2-textbox { max-height: none; }
 .card-detail .cv1-face--2[data-cv1-clamped="true"] .cv2-text::before,
 .card-detail .cv1-face--2[data-cv1-clamped="true"] .cv2-text::after { display: none; }
+
+/* -- Field tile (62-05, Phase 7 A3 / A4 / A7; built by buildFieldTile.js, 240 x 176 reference, --u = min(w/240, h/176)) --
+      Mosje: name + nickname on one line, L chip centre-bottom, POWER bottom-left, MP bottom-right.
+      Piecie / Snelle / Place: name, type pill (+ STAYS chip) bottom-left.
+      Quest: name, need top-left under the name, WIN bottom-left, LOSE bottom-right, 2 fail pips top-right.
+      The Activate / ability buttons (card-v1.css) sit above the bottom row: left 14u, bottom max(50px, 60u). -- */
+.card-v1--field .cv2-tile .cv1-fade--bottom { height: calc(64 * var(--u)); }
+.card-v1--field .cv2-tile .cv2-tile-name {
+  left: calc(14 * var(--u)); right: calc(14 * var(--u)); top: calc(12 * var(--u));
+  font-family: 'Sora', sans-serif; font-size: calc(17 * var(--u)); line-height: 1.1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  text-shadow: 0 calc(1 * var(--u)) calc(4 * var(--u)) #000;
+}
+.card-v1--field .cv2-tile .cv2-first { font-weight: 800; font-size: calc(17 * var(--u)); line-height: 1.1; letter-spacing: -0.01em; }
+.card-v1--field .cv2-tile .cv2-nick { margin: 0 0 0 calc(6 * var(--u)); font-weight: 600; font-size: calc(11 * var(--u)); line-height: 1.1; opacity: 0.9; }
+/* Piecie / Snelle / Place names may wrap to two lines (nothing sits below them until the pill row). */
+.card-v1--field .cv2-tile:has(.cv2-tile-pills) .cv2-tile-name { white-space: normal; overflow: visible; text-overflow: clip; }
+.card-v1--field .cv2-tile:has(.cv2-tile-pills) .cv2-first {
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; white-space: normal; line-height: 1.08;
+}
+/* Quest: the fail pips take the top-right corner, so the name stops short of them. */
+.card-v1--field .cv2-tile:has(.cv2-tile-pips) .cv2-tile-name { right: calc(46 * var(--u)); }
+
+/* Number zones: Sora value + small label in the tint colour. */
+.card-v1--field .cv2-tile .cv2-tile-stat { bottom: calc(14 * var(--u)); display: flex; flex-direction: column; text-shadow: 0 calc(1 * var(--u)) calc(6 * var(--u)) rgba(0, 0, 0, 0.9); }
+.card-v1--field .cv2-tile .cv2-tile-stat--left { left: calc(14 * var(--u)); align-items: flex-start; }
+.card-v1--field .cv2-tile .cv2-tile-stat--right { right: calc(14 * var(--u)); align-items: flex-end; }
+.card-v1--field .cv2-tile .cv2-tile-val { font-family: 'Sora', sans-serif; font-weight: 800; font-size: calc(20 * var(--u)); line-height: 1; white-space: nowrap; color: #fff; }
+.card-v1--field .cv2-tile .cv2-tile-sub { font-size: calc(8 * var(--u)); font-weight: 700; line-height: 1.2; color: var(--cv1-tint); white-space: nowrap; }
+.card-v1--field .cv2-tile .cv2-tile-label { margin-top: calc(2 * var(--u)); font-size: calc(8 * var(--u)); font-weight: 800; line-height: 1.2; letter-spacing: 0.14em; color: var(--cv1-tint); white-space: nowrap; }
+/* A word in a number zone ("can't fail"). */
+.card-v1--field .cv2-tile .cv2-tile-stat--word .cv2-tile-val { font-size: calc(12 * var(--u)); font-weight: 700; line-height: 1.2; }
+
+/* Mosje: the L chip, centre-bottom, in the type colour. */
+.card-v1--field .cv2-tile .cv2-tile-lvl {
+  left: 50%; bottom: calc(14 * var(--u)); transform: translateX(-50%);
+  height: calc(20 * var(--u)); padding: 0 calc(8 * var(--u)); display: inline-flex; align-items: center; box-sizing: border-box;
+  border-radius: calc(5 * var(--u)); background: var(--cv1-main); color: #fff;
+  font-size: calc(11 * var(--u)); font-weight: 800; letter-spacing: 0.06em; white-space: nowrap;
+}
+
+/* Piecie / Snelle / Place: type pill and STAYS chip, bottom-left. */
+.card-v1--field .cv2-tile .cv2-tile-pills { left: calc(14 * var(--u)); bottom: calc(14 * var(--u)); display: flex; align-items: center; gap: calc(6 * var(--u)); }
+.card-v1--field .cv2-tile .cv2-pill {
+  height: calc(18 * var(--u)); padding: 0 calc(7 * var(--u)); border-radius: calc(5 * var(--u));
+  font-size: calc(10.5 * var(--u)); letter-spacing: 0.04em;
+}
+.card-v1--field .cv2-tile .cv2-chip {
+  height: calc(18 * var(--u)); padding: 0 calc(6 * var(--u)); border-radius: calc(5 * var(--u));
+  background: rgba(5, 5, 5, 0.6); font-size: calc(9.5 * var(--u)); letter-spacing: 0.06em;
+}
+
+/* Quest: need block under the name, 2 fail pips top-right (empty = ring, filled = dot). */
+.card-v1--field .cv2-tile .cv2-tile-need {
+  left: calc(14 * var(--u)); top: calc(40 * var(--u)); display: flex; flex-direction: column; align-items: flex-start;
+  text-shadow: 0 calc(1 * var(--u)) calc(6 * var(--u)) rgba(0, 0, 0, 0.9);
+}
+.card-v1--field .cv2-tile .cv2-tile-need .cv2-tile-val { font-size: calc(24 * var(--u)); }
+/* A two-success need ("2× 4+") is longer: a little smaller so it stays clear of the die in the art. */
+.card-v1--field .cv2-tile .cv2-tile-need[data-cv1-need*="×"] .cv2-tile-val { font-size: calc(20 * var(--u)); }
+.card-v1--field .cv2-tile .cv2-tile-pips { right: calc(14 * var(--u)); top: calc(16 * var(--u)); display: flex; gap: calc(5 * var(--u)); }
+.card-v1--field .cv2-tile .cv2-pip {
+  position: static; display: block; box-sizing: border-box; width: calc(10 * var(--u)); height: calc(10 * var(--u)); border-radius: 50%;
+  border: calc(1.5 * var(--u)) solid var(--cv1-tint); background: transparent;
+}
+.card-v1--field .cv2-tile .cv2-pip[data-cv1-pip="filled"] { background: var(--cv1-main); }

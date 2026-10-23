@@ -16,19 +16,19 @@ const QUESTS = [
 	{ id: 'quest_leap_of_faith', stack: 'ARTISTIC', color: 'rgb(162, 28, 175)', need: '4+', needLabel: 'COIN', win: '50', lose: '-25', loseText: '−25', file: 'quest-artistic' },
 ];
 
-async function mountQuest(page, { id, tier, width = 440, fieldMode = false }) {
-	await page.evaluate(async ({ id, tier, width, fieldMode }) => {
+async function mountQuest(page, { id, tier, width = 440, fieldMode = false, failTokens }) {
+	await page.evaluate(async ({ id, tier, width, fieldMode, failTokens }) => {
 		const [{ renderCard }, { QUESTS }] = await Promise.all([import('/src/ui/cardRenderer.js'), import('/src/data/quests.js')]);
 		const quest = QUESTS.find((q) => q.id === id);
 		document.getElementById('fx')?.remove();
 		const host = document.createElement('div');
 		host.id = 'fx';
 		host.style.cssText = 'position:absolute;left:0;top:0;z-index:99;background:#000';
-		const el = renderCard({ ...quest, rarity: '★'.repeat(tier) }, { fieldMode });
+		const el = renderCard({ ...quest, rarity: '★'.repeat(tier), ...(failTokens === undefined ? {} : { failTokens }) }, { fieldMode });
 		el.style.setProperty('--cv1-w', `${width}px`);
 		host.append(el);
 		document.body.prepend(host);
-	}, { id, tier, width, fieldMode });
+	}, { id, tier, width, fieldMode, failTokens });
 	return page.locator('#fx > .card');
 }
 
@@ -72,10 +72,30 @@ test.describe('2.0 Quest cards in the tier design', () => {
 				if (tier === 1) await card.screenshot({ path: `${OUT}/${q.file}.png` });
 			});
 		}
-		test(`${q.id}: field tile renders (legacy tile until 62-05)`, async ({ page }) => {
-			const card = await mountQuest(page, { id: q.id, tier: 2, fieldMode: true });
+		test(`${q.id}: field tile shows need, win/lose and 2 fail pips`, async ({ page }) => {
+			const card = await mountQuest(page, { id: q.id, tier: 2, fieldMode: true, width: 240, failTokens: 1 });
 			await expect(card).toHaveClass(/card-v1--field/);
-			await expect(card.locator('.cv1-pill')).toHaveText('QUEST');
+			await expect(card.locator('.cv2-first')).toHaveText(/\S/);
+			await expect(card.locator('[data-cv1-need]')).toHaveAttribute('data-cv1-need', q.need);
+			await expect(card.locator('[data-cv1-win]')).toHaveAttribute('data-cv1-win', q.win);
+			await expect(card.locator('[data-cv1-lose]')).toHaveAttribute('data-cv1-lose', q.lose);
+			await expect(card.locator('[data-cv1-lose] .cv2-tile-val')).toHaveText(q.loseText);
+			await expect(card.locator('[data-cv1-pip]')).toHaveCount(2);
+			await expect(card.locator('[data-cv1-pip="filled"]')).toHaveCount(1); // failTokens 1: one filled, one empty ring
+			await expect(card.locator('[data-cv1-pip="empty"]')).toHaveCount(1);
+			// the filled pip is a solid stack-colour dot, the empty one a ring with no fill
+			const fill = (state) => card.locator(`[data-cv1-pip="${state}"]`).evaluate((e) => getComputedStyle(e).backgroundColor);
+			expect(await fill('filled')).toBe(q.color);
+			expect(await fill('empty')).toBe('rgba(0, 0, 0, 0)');
+			// no cost, Power / MP or legacy QUEST pill on a Quest tile
+			await expect(card.locator('[data-cv1-power], [data-cv1-mp], [data-cv1-cost], .cv1-pill, .cv1-badge')).toHaveCount(0);
+			// the tile zones stay clear of each other and inside the tile, at 240 and at the board size
+			expect(findFaceCollisions(await page.evaluate(collectFaceZones, '#fx > .card')), 'tile zones collide at 240').toEqual([]);
+			await card.screenshot({ path: `${OUT}/${q.file.replace('quest-', 'quest-tile-')}.png` });
+			if (q.id === 'quest_arm_wrestling') await card.screenshot({ path: `${OUT}/quest-tile.png` });
+			await mountQuest(page, { id: q.id, tier: 2, fieldMode: true, width: 150, failTokens: 2 });
+			expect(findFaceCollisions(await page.evaluate(collectFaceZones, '#fx > .card')), 'tile zones collide at 150').toEqual([]);
+			await expect(page.locator('#fx > .card [data-cv1-pip="filled"]')).toHaveCount(2);
 		});
 	}
 });

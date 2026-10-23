@@ -3,6 +3,7 @@
 import { test, expect } from '@playwright/test';
 import fs from 'fs';
 import { OUT } from './cardv1-helpers.js';
+import { collectFaceZones, findFaceCollisions } from '../../helpers/faceZones.js';
 import { seedOfflineSession, GAME_URL_TEST, waitForBoard, setHand, setMosjeOnField, playCardFromHand, endTurnAndWait, clearEntryProtection } from '../helpers.js';
 
 test('Activate button on a field Piecie tile is fully visible and clear of the pill', async ({ page }) => {
@@ -23,7 +24,7 @@ test('Activate button on a field Piecie tile is fully visible and clear of the p
 
   const m = await btn.evaluate((b) => {
     const tile = b.closest('.card-v1--field');
-    const pill = tile.querySelector('.cv1-pill').getBoundingClientRect();
+    const pill = tile.querySelector('.cv2-pill').getBoundingClientRect();
     const r = b.getBoundingClientRect();
     const t = tile.getBoundingClientRect();
     return {
@@ -35,4 +36,8 @@ test('Activate button on a field Piecie tile is fully visible and clear of the p
   expect(m.textClipped).toBe(false);
   expect(m.overlapsPill).toBe(false);
   expect(m.insideTile).toBe(true);
+  // 2.0 tile: the button also stays clear of the name and every other tile zone
+  const zones = await page.evaluate(collectFaceZones, '#piecies-player .card-v1--field');
+  expect(zones.some((z) => z.zones.button), 'the tile zones include the Activate button').toBe(true);
+  expect(findFaceCollisions(zones), 'tile zones that collide or leave the tile').toEqual([]);
 });
