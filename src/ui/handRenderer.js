@@ -190,6 +190,14 @@ function applyFanLayout(container) {
 	const wraps = Array.from(container.querySelectorAll('.hand-card-wrap'));
 	const total = wraps.length;
 	const mid = (total - 1) / 2;
+	// Overlap just enough that the whole hand fits the screen: 15px normally, more for a big hand.
+	let overlap = 15;
+	if (total > 1) {
+		const cardW = wraps[0].offsetWidth;
+		const available = container.clientWidth - 100; // spare room for the fan rotation and the hover scale at both ends
+		overlap = Math.max(15, Math.ceil((total * cardW - available) / (total - 1)));
+	}
+	container.style.setProperty('--hand-overlap', `${overlap}px`);
 	wraps.forEach((wrap, index) => {
 		wrap.dataset.handIndex = String(index);
 		const offset = index - mid;

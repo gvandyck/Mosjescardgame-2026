@@ -11,7 +11,7 @@ import { PIECIES } from '../../src/data/piecies.js';
 import { PLACES } from '../../src/data/places.js';
 import { buildTierChrome } from '../../src/ui/cardV1/buildTierChrome.js';
 import { buildShineLayers } from '../../src/ui/cardV1/buildShineLayers.js';
-import { getAbilityTextSize } from '../../src/ui/cardV1/getAbilityTextSize.js';
+import { getAbilityTextSize, getBoxedTextFit } from '../../src/ui/cardV1/getAbilityTextSize.js';
 import { getTierFadeHeight } from '../../src/ui/cardV1/getTierFadeHeight.js';
 import { buildMosjeSpecV1 } from '../../src/ui/cardV1/buildMosjeSpecV1.js';
 
@@ -198,6 +198,21 @@ describe('getAbilityTextSize (boxed)', () => {
     }
     expect(getAbilityTextSize({ lines: ['x'.repeat(200)], layout: 'boxed' })).toBe(17);
     expect(getAbilityTextSize({ lines: ['x'.repeat(300)], layout: 'boxed' })).toBe(16);
+  });
+
+  it('auto-fit: keeps stepping down until the text fits the plate, never below 11.5', () => {
+    const bowie = (PIECIES as any[]).find((p) => p.id === 'piecie_bowie_stormey');
+    const lines = String(bowie.description).split(/(?<=[.!?])\s+/);
+    const fit = getBoxedTextFit(lines);
+    expect(fit.size).toBeLessThan(16); // 383 characters used to stay at 16 and ran out of the plate
+    expect(fit.size).toBeGreaterThanOrEqual(11.5);
+    expect(getAbilityTextSize({ lines, layout: 'boxed' })).toBe(fit.size);
+  });
+
+  it('short text keeps 18, and text that cannot fit even at the floor is reported', () => {
+    expect(getBoxedTextFit(['Gain 10 MP.'])).toEqual({ size: 18, fits: true });
+    const tooLong = Array.from({ length: 12 }, () => 'A long sentence that keeps going and going. '.repeat(3));
+    expect(getBoxedTextFit(tooLong)).toEqual({ size: 11.5, fits: false });
   });
 });
 

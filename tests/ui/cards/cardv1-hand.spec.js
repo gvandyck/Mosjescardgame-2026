@@ -1,10 +1,11 @@
-// Card frame v1 — the hand: cards are fully visible (not sunk), no hover popup, a click opens the modal.
+// Card frame v1 — the hand: cards are sunk a little and lift on hover, hovering also previews the card in the
+// right-hand dock (2026-10-20: used to be "no hover popup"), no Play button, a click plays the card.
 import { test, expect } from '@playwright/test';
 import fs from 'fs';
 import { OUT } from './cardv1-helpers.js';
 import { seedOfflineSession, GAME_URL_TEST, waitForBoard, setHand } from '../helpers.js';
 
-test('card frame v1 — hand is visible, has no hover popup or Play button, click plays the card', async ({ page }) => {
+test('card frame v1 — hand is visible, hover previews in the dock, no Play button, click plays the card', async ({ page }) => {
   fs.mkdirSync(OUT, { recursive: true });
   await page.setViewportSize({ width: 1600, height: 900 });
   await seedOfflineSession(page);
@@ -24,10 +25,10 @@ test('card frame v1 — hand is visible, has no hover popup or Play button, clic
   const wrapBox = async () => page.locator('.hand-card[data-card-id="mosje_jisca"]').first().boundingBox();
   const btn = page.locator('.hand-card[data-card-id="mosje_jisca"] .hand-card__play-btn').first();
   expect(await btn.evaluate(el => getComputedStyle(el).opacity)).toBe('0');
-  // Hovering a hand card does not open the enlarged popup.
+  // Hovering a hand card previews it large in the right-hand dock (same place as the effect spotlight).
   await page.locator('.hand-card[data-card-id="mosje_jisca"]').first().hover({ position: { x: 40, y: 40 } });
   await page.waitForTimeout(400);
-  await expect(page.locator('.hover-zoom')).toHaveCount(0);
+  await expect(page.locator('.hover-zoom.hover-zoom--hand')).toHaveCount(1);
   expect(await btn.evaluate(el => getComputedStyle(el).opacity)).toBe('1');
   expect((await wrapBox()).y + (await wrapBox()).height).toBeLessThanOrEqual(900 + 2);
 
@@ -42,7 +43,8 @@ test('card frame v1 — hand is visible, has no hover popup or Play button, clic
 
 // Worst-case hand text: every real card rendered at hand width keeps readable text and
 // the description never runs into the name block.
-for (const width of [230, 180]) {
+// The real hand card is 150% of what it was (2026-10-20): 338px wide at the smallest, about 386px at 1920x1080.
+for (const width of [386, 338, 230, 180]) {
   test(`card frame v1 — hand card text is readable and fits at ${width}px wide`, async ({ page }) => {
     await seedOfflineSession(page);
     await page.setViewportSize({ width: 2400, height: 2400 });
@@ -85,7 +87,8 @@ for (const width of [230, 180]) {
       expect(r.descPx, `${r.id} desc size`).toBeGreaterThanOrEqual(5); // Phase 51: hand card = exact scaled copy of the design (was 11)
       expect(r.infoPx, `${r.id} info size`).toBeGreaterThanOrEqual(5); // Phase 51: exact scaled design (was 10)
     }
-    // 230px is the real hand card width; 180px is informational only (smaller windows).
-    if (width >= 230) expect(bad.map(b => b.id).filter(id => id !== 'mosje_jisca'), 'cards whose text collides').toEqual([]); // mosje_jisca: 3 long traits wrap to 2 lines and touch the plate padding (known, cosmetic)
+    // 338px and up is the real hand card width and is enforced; 230px (the old hand size) and 180px are
+    // informational only (smaller windows). Phase 62 aims to make 230px collision-free again.
+    if (width >= 338) expect(bad.map(b => b.id).filter(id => id !== 'mosje_jisca'), 'cards whose text collides').toEqual([]); // mosje_jisca: 3 long traits wrap to 2 lines and touch the plate padding (known, cosmetic)
   });
 }

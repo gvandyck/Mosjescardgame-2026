@@ -1,0 +1,29 @@
+/* table.css — felt table surface for the game board page only (body.page--game).
+   Cards sit on a soft woven material instead of flat black: a slightly lifted felt colour so the black
+   card frames read against it, a light pool from above, a vignette at the edges and a fine fibre grain.
+   Paints on the existing .bg-noise layer (fixed, behind everything). Tune the table with the tokens. */
+
+.page--game {
+	--table-felt: #161e2a;                     /* felt colour in the light pool */
+	--table-light: rgba(255, 255, 255, 0.05);  /* overhead light pool strength */
+	--table-vignette: rgba(2, 4, 9, 0.55);     /* darkness at the screen edges */
+}
+
+.page--game .bg-noise {
+	background-color: var(--table-felt);
+	background-image:
+		radial-gradient(ellipse 80% 65% at 50% 46%, var(--table-light), transparent 72%),
+		radial-gradient(ellipse 125% 105% at 50% 50%, transparent 52%, var(--table-vignette) 100%),
+		url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.11'/%3E%3C/svg%3E");
+}
+
+/* An active Place tints the table, as before, but on top of the felt (the body tint is hidden behind it). */
+.page--game .bg-noise::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	opacity: 0;
+	transition: opacity 0.6s ease;
+	background: radial-gradient(ellipse 100% 100% at 50% 50%, rgba(61, 214, 140, 0.15) 0%, rgba(61, 214, 140, 0.05) 40%, transparent 70%);
+}
+.page--game.place-active .bg-noise::after { opacity: 1; }

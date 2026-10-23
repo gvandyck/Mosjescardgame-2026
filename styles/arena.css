@@ -7,16 +7,28 @@
 	/* Hand: cards stay fully visible in the hand (no sinking, no hover-lift); a click opens the
 	   detail modal. Only the field uses the hover popup. */
 
-	/* Field tiles: one size for every card type and both sides (Mosje, Piecie, Place). */
+	/* ONE field-card size for everything on the table: Mosjes, Piecies, Places, Quests and the deck /
+	   discard piles, mine and the opponent's. Landscape, the approved 240:176 field tile.
+	   Width: the busiest row must fit (--field-slots from boardRenderer, piles included); height: the
+	   board must stay clear of the hand (3 tile rows: opponent, Quests, mine), so the tile tops out at 240x176. */
+	.game-board {
+		--field-h-max: clamp(110px, calc((100vh - 560px) / 3), 176px);
+		/* Never below 170px: on a narrow screen the row overflows and drag-scrolls instead of shrinking the cards. */
+		--field-tile-w: max(170px, min(calc((100vw - 200px) / var(--field-slots, 7) - 8px), calc(var(--field-h-max) * 240 / 176)));
+		--field-tile-h: calc(var(--field-tile-w) * 176 / 240);
+	}
 	.board-zone--player,
-	.board-zone--opponent { --field-tile-w: clamp(170px, calc((100vw - 640px) / var(--field-slots, 7)), 300px); --field-tile-h: clamp(160px, 20vh, 200px); --mosje-card-w: var(--field-tile-w); --mosje-slot-h: calc(var(--field-tile-w) * var(--card-height-ratio)); --piecie-cell-w: var(--field-tile-w); --piecie-cell-h: var(--field-tile-h); min-height: 0; }
+	.board-zone--opponent { --mosje-card-w: var(--field-tile-w); --mosje-slot-h: var(--field-tile-h); --piecie-cell-w: var(--field-tile-w); --piecie-cell-h: var(--field-tile-h); min-height: 0; }
 	.board-zone--player .card--mosje,
 	.board-zone--player .mosje-card--owned,
 	.board-zone--opponent .card--mosje,
 	.board-zone--opponent .mosje-card--opponent {
 		width: var(--field-tile-w); min-width: var(--field-tile-w); max-width: var(--field-tile-w);
-		height: calc(var(--field-tile-w) * var(--card-height-ratio));
+		height: var(--field-tile-h);
 	}
+
+	/* The three Quest cards are the same size as every other card on the field. */
+	.quest-stack { box-sizing: border-box; width: var(--field-tile-w); min-width: var(--field-tile-w); height: var(--field-tile-h); overflow: hidden; align-content: start; padding: 6px 10px; gap: 1px; font-size: 0.74rem; line-height: 1.25; }
 
 	/* The strip itself is a transparent box over the lower board: let clicks fall through
 	   to the field (ability buttons) and keep only the cards themselves clickable. */
@@ -33,13 +45,11 @@
 	.board-zone--player .board-zone__piecies,
 	.board-zone--opponent .board-zone__piecies { flex-wrap: nowrap; max-width: none; min-height: 0; }
 
-	/* Field tiles are exactly as tall as the deck / graveyard stack beside them
-	   (pile cell 110px wide x the card height ratio). */
+	/* Field tiles and the deck / graveyard piles beside them are exactly the same size. */
 	.board-zone--player .card.card-v1.card-v1--field,
 	.board-zone--opponent .card.card-v1.card-v1--field { --cv1-fh: var(--field-tile-h); height: var(--cv1-fh); }
-	/* The deck / graveyard stack beside the tiles grows with them. */
 	.board-zone--player .pile-column,
-	.board-zone--opponent .pile-column { --piecie-cell-w: calc(var(--field-tile-h) / var(--card-height-ratio)); --piecie-cell-h: var(--field-tile-h); flex-direction: row; }
+	.board-zone--opponent .pile-column { --piecie-cell-w: var(--field-tile-w); --piecie-cell-h: var(--field-tile-h); flex-direction: row; }
 	.board-zone--opponent .pile-column { flex-direction: row-reverse; }
 
 	.game-hand-panel .hand-strip { pointer-events: none; }
@@ -57,11 +67,18 @@
 }
 
 /* ── Field hover popup ─────────────────────────────────────────────── */
+/* Docked exactly where the action spotlight sits (right side, vertically centred, same size), so every
+   card preview and every card effect appears in one place. It never follows the cursor. */
 .hover-zoom {
 	position: fixed;
 	z-index: 400;
-	width: var(--pop-w, 300px);
-	height: calc(var(--pop-w, 300px) * var(--card-height-ratio, 1.46));
+	right: 5vw;
+	top: 50%;
+	--spot-w: clamp(240px, 33vh, 360px);
+	--pop-w: var(--spot-w);
+	width: var(--pop-w);
+	height: calc(var(--pop-w) * var(--card-height-ratio, 1.46));
+	margin-top: calc(var(--pop-w) * var(--card-height-ratio, 1.46) / -2);
 	pointer-events: none;
 	filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.7));
 	animation: hover-zoom-in 0.14s ease-out;
@@ -141,7 +158,7 @@
 
 /* ── Card frame v1 inside the popup + spotlight ────────────────────────
    The v1 face scales from --cv1-w (2:3), so size the wrapper to match. */
-.hover-zoom:has(.card-v1) { height: calc(var(--pop-w, 300px) * 1.5); }
+.hover-zoom:has(.card-v1) { height: calc(var(--pop-w) * 1.5); margin-top: calc(var(--pop-w) * 1.5 / -2); }
 .hover-zoom .card.card-v1 { --cv1-w: var(--pop-w, 300px); }
 .card-spotlight:has(.card-v1) { height: calc(var(--spot-w) * 1.5); margin-top: calc(var(--spot-w) * 1.5 / -2); }
 .card-spotlight .card.card-v1 { --cv1-w: var(--spot-w); }

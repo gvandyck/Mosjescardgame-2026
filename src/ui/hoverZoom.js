@@ -1,9 +1,8 @@
 import { renderCard } from './cardRenderer.js';
 import { getCardById } from '../data/cardIndex.js';
 
-const FIELD_SELECTOR = '#board-root .card[data-card-id]';
-const POPUP_W = Math.max(220, Math.min(300, Math.floor(window.innerHeight * 0.6 / 1.5)));
-const POPUP_H = POPUP_W * 1.5;
+// Field cards (yours and the opponent's) and hand cards both preview in the dock.
+const FIELD_SELECTOR = '#board-root .card[data-card-id], .game-hand-panel .hand-card-wrap[data-card-id]';
 let popup = null;
 let currentTarget = null;
 
@@ -36,17 +35,8 @@ function buildPopupCard(srcEl) {
 	return renderCard(merged, { compact: false });
 }
 
-function position(e) {
-	if (!popup) return;
-	const margin = 18;
-	let x = e.clientX + margin;
-	if (x + POPUP_W > window.innerWidth - 8) x = e.clientX - margin - POPUP_W;
-	const y = Math.min(Math.max(8, e.clientY - POPUP_H / 2), window.innerHeight - POPUP_H - 8);
-	popup.style.left = `${Math.max(8, x)}px`;
-	popup.style.top = `${y}px`;
-}
-
-/** Hover any face-up field card (yours or the opponent's) → full-size card popup. */
+/** Hover any face-up field card (yours or the opponent's) → full-size card popup, docked on the right of the
+ *  screen in the same place and at the same size as the action spotlight (arena.css .hover-zoom / .card-spotlight). */
 export function initHoverZoom() {
 	if (!window.matchMedia?.('(hover: hover)').matches) return;
 	document.addEventListener('mouseover', (e) => {
@@ -61,13 +51,11 @@ export function initHoverZoom() {
 		if (!card) return;
 		currentTarget = target;
 		popup = document.createElement('div');
-		popup.className = 'hover-zoom';
-		popup.style.setProperty('--pop-w', `${POPUP_W}px`);
+		// Hand previews use the same dock and size as field previews and the spotlight (hover-zoom--hand is only a marker).
+		popup.className = target.classList.contains('hand-card-wrap') ? 'hover-zoom hover-zoom--hand' : 'hover-zoom';
 		popup.appendChild(card);
 		document.body.appendChild(popup);
-		position(e);
 	});
-	document.addEventListener('mousemove', position);
 	document.addEventListener('mouseout', (e) => {
 		if (currentTarget && !currentTarget.contains(e.relatedTarget)) removePopup();
 	});

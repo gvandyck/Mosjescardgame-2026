@@ -306,9 +306,10 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 	const rows = container.querySelectorAll('.board-zone__row');
 	rows.forEach(initDragScroll);
 	markEnteringCards(container);
-	// Tiles grow when the busiest row has few cards and shrink as it fills (arena.css reads --field-slots).
+	// Tiles shrink as the busiest row fills (arena.css reads --field-slots). The deck and discard piles are
+	// field-sized tiles too, so they count as 2 slots.
 	const rowSizes = [...container.querySelectorAll('.board-zone__row')].map((r) => r.querySelectorAll('.card').length);
-	container.style.setProperty('--field-slots', String(Math.max(4, ...rowSizes)));
+	container.style.setProperty('--field-slots', String(Math.max(4, ...rowSizes) + 2));
 }
 
 function initBoardDropZones(container, onPlayFromHand) {

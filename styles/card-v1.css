@@ -47,7 +47,8 @@
   --u: min(calc(var(--cv1-w) / 240), calc(var(--cv1-fh, calc(var(--cv1-w) * 176 / 240)) / 176));
   height: calc(var(--cv1-w) * 176 / 240);
   border-radius: calc(14 * var(--u));
-  box-shadow: 0 calc(12 * var(--u)) calc(26 * var(--u)) rgba(0, 0, 0, 0.55);
+  /* Short contact shadow: it must fit inside the board zone below the tile (about 29 px), or the zone clips it. */
+  box-shadow: 0 calc(6 * var(--u)) calc(14 * var(--u)) rgba(0, 0, 0, 0.6);
 }
 
 .card.card-v1.card-v1--full {
@@ -310,7 +311,8 @@
 /* -- Hand: sunk a little (the bottom of each card, with its description, is cut off the
       screen), Play button hidden. Hovering lifts the full card and shows the button. -- */
 @media (hover: hover) {
-  .game-hand-panel { --hand-sink: 175px; }
+  /* Sink = 47% of the card height (175px of a 375px card), so it scales with the hand size. */
+  .game-hand-panel { --hand-sink: calc(var(--hand-card-height) * 0.467); }
   .game-hand-panel .hand-strip .hand-card-wrap {
     transform: translateY(calc(var(--fan-lift, 0px) + var(--hand-sink))) rotate(var(--fan-rot, 0deg));
     transform-origin: center bottom;

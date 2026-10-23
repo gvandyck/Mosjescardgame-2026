@@ -1224,7 +1224,7 @@
   display: inline-flex;
   align-items: flex-end;
   justify-content: center;
-  margin-left: -15px;
+  margin-left: calc(-1 * var(--hand-overlap, 15px)); /* handRenderer widens the overlap so a full hand fits */
   padding: 2px;
   border-radius: calc(var(--radius-card) + 2px);
   transform: translateY(var(--fan-lift, 0px)) rotate(var(--fan-rot, 0deg));
@@ -1499,6 +1499,11 @@
   transform: none !important;
 }
 
+/* Field cards: a short shadow that fits inside the board zone (it clips about 29 px below a tile, which cut
+   the generic 80px hover shadow into a hard band). The :not() pair outranks the generic hover rule above,
+   which silently beat the old selectors here. */
+.board-zone .card:not(.card--disabled):not(.face-down):hover .card-face,
+.board-zone .card:not(.card--disabled):not(.face-down):hover,
 .board-zone .card--mosje:hover .card-face,
 .board-zone .mosje-card--owned:hover .card-face,
 .board-zone .mosje-card--opponent:hover .card-face,
