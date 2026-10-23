@@ -19,7 +19,6 @@ const COMBOS = TYPES.flatMap((type) => [1, 2, 3, 4, 5].map((tier) => {
 		type, tier, frame, accent: ACCENT[type],
 		pill: mosje ? /^LVL \d+$/ : new RegExp(`^${type}$`),
 		layout: frame >= 4 ? 'card--fullart' : 'card--boxed',
-		badge: type === 'PLACE' ? 'none' : (type === 'PIECIE' || type === 'SNELLE') ? 'corner' : 'legacy',
 	};
 }));
 
@@ -80,21 +79,15 @@ test.describe('Phase 50 rarity tiers', () => {
 				await expect(card.locator('.cv2-footer')).toHaveCount(1);
 				return;
 			}
-			if (c.badge === 'corner') {
-				// 2.0 Piecie / Snelle face: the cost sits in the top-left corner with no box or border; no cost badge box.
-				expect((await card.locator('.cv2-pill').innerText()).trim()).toMatch(c.pill);
-				await expect(card.locator('.cv2-corner')).toHaveCount(1);
-				await expect(card.locator('.cv1-badge')).toHaveCount(0);
-				const s = await card.locator('.cv2-corner').evaluate((e) => {
-					const cs = getComputedStyle(e);
-					return [cs.backgroundColor, cs.borderTopWidth, cs.boxShadow];
-				});
-				expect(s).toEqual(['rgba(0, 0, 0, 0)', '0px', 'none']);
-				return;
-			}
-			// Place keeps its legacy face until 62-04: pill, no badge.
-			expect((await card.locator('.cv1-pill').innerText()).trim()).toMatch(c.pill);
+			// 2.0 Piecie / Snelle / Place face: the Energy cost sits in the top-left corner with no box or border; no cost badge box.
+			expect((await card.locator('.cv2-pill').innerText()).trim()).toMatch(c.pill);
+			await expect(card.locator('.cv2-corner')).toHaveCount(1);
 			await expect(card.locator('.cv1-badge')).toHaveCount(0);
+			const s = await card.locator('.cv2-corner').evaluate((e) => {
+				const cs = getComputedStyle(e);
+				return [cs.backgroundColor, cs.borderTopWidth, cs.boxShadow];
+			});
+			expect(s).toEqual(['rgba(0, 0, 0, 0)', '0px', 'none']);
 		});
 	}
 
@@ -114,11 +107,10 @@ test.describe('Phase 50 rarity tiers', () => {
 	test('text, pill, label and badge boxes identical across tiers', async ({ page }) => {
 		for (const type of TYPES) {
 			const mosje = MOSJE_TYPES.includes(type);
-			const v2 = mosje || type === 'PIECIE' || type === 'SNELLE'; // 2.0 faces: every box keeps its x / y / w / h at every tier
+			// every face is a 2.0 face now: every box keeps its x / y / w / h at every tier
 			const SELS = mosje ? ['.cv2-corner', '.cv2-name', '.cv2-textbox', '.cv2-footer']
-				: v2 ? ['.cv2-corner', '.cv2-name', '.cv2-info', '.cv2-pills', '.cv2-label']
-					: ['.cv1-name', '.cv1-nick', '.cv1-info', '.cv1-pill', '.cv1-border-text', '.cv1-badge'];
-			if (type === 'PIECIE' || type === 'SNELLE') {
+				: ['.cv2-corner', '.cv2-name', '.cv2-info', '.cv2-pills', '.cv2-label'];
+			if (!mosje) {
 				// the text box ends on the same line at every tier (its top differs: boxed tiers pin it under the art window)
 				const bottoms = [];
 				for (let tier = 1; tier <= 5; tier += 1) bottoms.push((await rel(await mount(page, { type, tier }), '.cv2-textbox')).b);
@@ -133,9 +125,7 @@ test.describe('Phase 50 rarity tiers', () => {
 				SELS.forEach((s, i) => {
 					const a = boxes[0][i]; const b = boxes[t][i];
 					expect(!!a, `${type} ${s}`).toBe(!!b);
-					// Tier 4 (full art) has more left/right text padding on purpose, so only compare vertical position and height there.
-					// A Mosje is full art at every rarity, so all four numbers must match for it.
-					if (a) for (const k of (t >= 3 && !v2 ? ['y', 'h'] : ['x', 'y', 'w', 'h'])) expect(Math.abs(a[k] - b[k]), `${type} ${s} ${k} tier ${t + 1}`).toBeLessThanOrEqual(1);
+					if (a) for (const k of ['x', 'y', 'w', 'h']) expect(Math.abs(a[k] - b[k]), `${type} ${s} ${k} tier ${t + 1}`).toBeLessThanOrEqual(1);
 				});
 			}
 		}
@@ -156,7 +146,8 @@ test.describe('Phase 50 rarity tiers', () => {
 			const box = await rel(card, '.cv2-textbox');
 			for (const v of [box.x, box.y, box.r, box.b]) expect(v).toBeGreaterThanOrEqual(0);
 			card = await mount(page, { type: 'PLACE', tier });
-			expect((await rel(card, '.cv1-info')).r).toBeLessThan(110 - 0.5);
+			// the Good/Bad line keeps its right gap (42 at 440 wide) at every tier, so it never runs under the card edge
+			expect((await rel(card, '.cv2-info')).r).toBeGreaterThanOrEqual(41);
 		}
 		for (const tier of [1, 4]) {
 			const card = await mount(page, { type: 'PIECIE', tier, patch: { artPath: null } });

@@ -1,18 +1,26 @@
-// buildPlaceSpecV1.js — Place card -> face spec (violet). Name only, "Good for / Bad for"
-// info line, PLACE pill, "Only 1 active at a time" border text, NO badge.
+// buildPlaceSpecV1.js — Place card -> 2.0 face spec (62-02 SPEC CONTRACT, consumed by buildPopupFace; violet).
+// Corner = Energy cost (0 stays "0"). Info line = "Good for: X · Bad for: Y" with the Card List words as written.
+// Pill PLACE, label "Only 1 in play", no footer. fieldPill + badge only feed the legacy field tile (until 62-05).
 import { TYPE_COLORS } from './typeColors.js';
 import { splitSentences } from './splitSentences.js';
-import { formatAffinityLine } from './formatAffinityLine.js';
+import { formatGoodBadLine } from './formatGoodBadLine.js';
+import { formatEnergyCost } from './formatEnergyCost.js';
 
 export function buildPlaceSpecV1(card) {
   return {
+    face: 2,
+    typeKey: 'PLACE',
     colors: TYPE_COLORS.PLACE,
     name: { first: String(card.name || 'Place'), nick: '' },
+    corner: { hook: 'cost', ...formatEnergyCost(card) },
     lines: splitSentences(card.description || ''),
-    info: formatAffinityLine(card.goodFor, card.badFor),
+    levelRows: [],
+    info: formatGoodBadLine(card.goodFor, card.badFor),
     pill: 'PLACE',
+    stays: false,
+    label: 'Only 1 in play',
+    footer: null,
     fieldPill: 'PLACE',
-    borderText: 'Only 1 active at a time',
     badge: null,
     card,
     allowLarge: true,

@@ -13,6 +13,7 @@ import { buildTierChrome } from '../../src/ui/cardV1/buildTierChrome.js';
 import { buildShineLayers } from '../../src/ui/cardV1/buildShineLayers.js';
 import { getAbilityTextSize, getBoxedTextFit } from '../../src/ui/cardV1/getAbilityTextSize.js';
 import { getTierFadeHeight } from '../../src/ui/cardV1/getTierFadeHeight.js';
+import { getTextBoxLayout } from '../../src/ui/cardV1/getTextBoxLayout.js';
 import { buildMosjeSpecV1 } from '../../src/ui/cardV1/buildMosjeSpecV1.js';
 import { buildPlaceSpecV1 } from '../../src/ui/cardV1/buildPlaceSpecV1.js';
 
@@ -199,7 +200,7 @@ describe('tier 5 face (full foil)', () => {
     expect(count(html, 'ct-diamond--lit')).toBe(5);
     const spec = buildPlaceSpecV1(t4);
     const style = html.match(/class="cv1-face[^"]*" style="([^"]+)"/)![1];
-    expect(style).toContain(`--cv1-desc-size:${getAbilityTextSize({ lines: spec.lines, typeKey: 'PLACE', layout: 'fullart' })};`);
+    expect(style).toContain(`--cv1-text-size:${getTextBoxLayout({ lines: spec.lines, levelRowCount: 0, layout: 'fullart', info: spec.info }).size};`);
     expect(style).toContain(`--cv1-fade:${getTierFadeHeight({ typeKey: 'PLACE', lines: spec.lines })}`);
   });
   it('art-less tier 5 card keeps window, shine and fades, no img', () => {
@@ -257,20 +258,23 @@ describe('boxed face (tiers 1 and 2)', () => {
       expect(r.className).toContain('card--tierlayout');
       const html = r.html;
       const order = classesIn(html).map((c) => c.split(' ')[0])
-        .filter((c) => ['ct-waves', 'ct-calm', 'ct-grain', 'ct-light', 'ct-inner', 'cv1-window', 'ct-plate-waves', 'ct-plate'].includes(c));
-      expect(order).toEqual(['ct-waves', 'ct-calm', 'ct-calm', 'ct-grain', 'ct-light', 'ct-inner', 'cv1-window', 'ct-plate-waves', 'ct-plate']);
+        .filter((c) => ['ct-waves', 'ct-calm', 'ct-grain', 'ct-light', 'ct-inner', 'cv1-window', 'cv2-textbox', 'ct-plate-waves', 'ct-plate'].includes(c));
+      // 2.0 face: the layers, the window, then the frosted text box (no plate, no plate waves)
+      expect(order).toEqual(['ct-waves', 'ct-calm', 'ct-calm', 'ct-grain', 'ct-light', 'ct-inner', 'cv1-window', 'cv2-textbox']);
       expect(count(html, `ct-inner--t${tier}`)).toBe(1);
       expect(count(html, 'ct-diamond')).toBe(5);
       expect(count(html, 'ct-diamond--lit')).toBe(tier);
       expect(count(html, 'ct-side')).toBe(2);
       expect(count(html, 'cv1-stripe')).toBe(0);
-      expect(html).toMatch(/<div class="ct-plate">\s*<div class="cv1-desc">/);
+      expect(html).not.toContain('ct-plate');
+      expect(html).not.toContain('cv1-desc');
       const w = windowOf(html);
       expect(w).toContain('<img');
       expect(count(w, 'ct-holo')).toBe(0);
       const style = html.match(/class="cv1-face[^"]*" style="([^"]+)"/)![1];
       const spec = buildPlaceSpecV1(gym);
-      expect(style).toContain(`--cv1-desc-size:${getAbilityTextSize({ lines: spec.lines, typeKey: 'PLACE', layout: 'boxed' })};`);
+      expect(style).toContain(`--cv1-text-size:${getTextBoxLayout({ lines: spec.lines, levelRowCount: 0, layout: 'boxed', info: spec.info }).size};`);
+      expect(style).toContain(`--cv1-fade:${getTierFadeHeight({ typeKey: 'PLACE', lines: spec.lines })}`);
     });
   }
   it('art-less boxed card keeps the window with no img', () => {
