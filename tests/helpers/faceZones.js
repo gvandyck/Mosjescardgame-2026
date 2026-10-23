@@ -4,7 +4,6 @@
 // 2.0 faces (.cv1-face--2): the rect of each zone relative to the card (null when absent) plus the text checks.
 // 2.0 field tiles (.cv2-tile, 62-05): the rects of name, L chip, Power, MP, pills, need, WIN, LOSE, fail pips and the
 // Activate / ability button (Phase 63 badges such as .mosje-entry-protected-badge are ignored).
-// Legacy faces (face 1, until 62-06 removes them): the exact measurements the old hand spec used.
 
 export function collectFaceZones(selector) {
   const ZONES = {
@@ -52,34 +51,19 @@ export function collectFaceZones(selector) {
         firstOverflow: !!first && first.scrollWidth > (q('.cv2-name')?.clientWidth ?? 0) + 1,
       };
     }
-    const desc = q('.cv1-desc')?.getBoundingClientRect();
-    const name = q('.cv1-name')?.getBoundingClientRect();
-    const info = q('.cv1-info')?.getBoundingClientRect();
-    const descEl = q('.cv1-desc');
-    return {
-      id, width: c.width, height: c.height, face: 1,
-      descPx: descEl ? parseFloat(getComputedStyle(descEl).fontSize) : null,
-      infoPx: q('.cv1-info') ? parseFloat(getComputedStyle(q('.cv1-info')).fontSize) : null,
-      clipped: !!descEl && [...descEl.children].reduce((h, el) => h + el.getBoundingClientRect().height, 0) > descEl.clientHeight + 1,
-      descHitsName: !!(desc && name) && desc.top < name.bottom - 1,
-      descHitsInfo: !!(desc && info) && desc.bottom > info.top + 4, // the footer sits close to the plate by design; a 2-line traits row may touch the plate padding
-      descInside: !desc || (desc.left >= c.left && desc.right <= c.right),
-    };
+    return { id, width: c.width, height: c.height, face: 0, zones: {} }; // no 2.0 face (an unknown type or a V4 Quest on the unified template)
   });
 }
 
 const overlap = (a, b) => Math.min(a.r, b.r) - Math.max(a.l, b.l) > 1 && Math.min(a.b, b.b) - Math.max(a.t, b.t) > 1;
 
 /** Strings `${id}: a x b` (two zones overlap by more than 1px on both axes), `${id}: a outside` (a zone leaves the card
- *  by more than 1px), `${id}: overflow not flagged` (text runs out of its box without data-cv1-clamped), and the old
- *  rule for legacy faces. [] = collision-free. */
+ *  by more than 1px) and `${id}: overflow not flagged` (text runs out of its box without data-cv1-clamped)
+ *  and `${id}: not a 2.0 face` (the card has neither a 2.0 face nor a 2.0 tile). [] = collision-free. */
 export function findFaceCollisions(rows) {
   const out = [];
   for (const row of rows) {
-    if (row.face === 1) {
-      if (row.descHitsName || row.descHitsInfo || !row.descInside) out.push(`${row.id}: legacy text collides`);
-      continue;
-    }
+    if (row.face === 0) { out.push(`${row.id}: not a 2.0 face`); continue; }
     const present = Object.entries(row.zones).filter(([, rect]) => rect);
     for (let i = 0; i < present.length; i += 1) {
       for (let j = i + 1; j < present.length; j += 1) {

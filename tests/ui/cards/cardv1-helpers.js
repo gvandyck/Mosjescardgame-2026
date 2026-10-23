@@ -30,39 +30,3 @@ export async function renderGallery(page, mode, widthPx, ids) {
     await new Promise(r => setTimeout(r, 400));
   }, { mode, widthPx, ids });
 }
-
-// Measures geometry of every rendered gallery card (positions relative to the card).
-export async function measureGallery(page) {
-  return page.evaluate(() => [...document.querySelectorAll('#cv1-gallery [data-test-card]')].map((card) => {
-    const c = card.getBoundingClientRect();
-    const rel = (sel) => {
-      const el = card.querySelector(sel);
-      if (!el) return null;
-      const r = el.getBoundingClientRect();
-      return { left: +(r.left - c.left).toFixed(1), right: +(r.right - c.left).toFixed(1), top: +(r.top - c.top).toFixed(1), bottom: +(r.bottom - c.top).toFixed(1) };
-    };
-    const first = rel('.cv1-first'), nick = rel('.cv1-nick'), desc = rel('.cv1-desc'), info = rel('.cv1-info'),
-      pill = rel('.cv1-pill'), border = rel('.cv1-border-text'), badge = rel('.cv1-badge');
-    const q = (s) => card.querySelector(s);
-    return {
-      id: card.dataset.testCard,
-      lefts: { first: first?.left, nick: nick?.left ?? null, desc: desc?.left, info: info?.left, pill: pill?.left, border: border?.left },
-      descTop: desc?.top, descBottom: desc?.bottom, infoTop: info?.top,
-      descNameGap: desc ? +(desc.top - (nick || first).bottom).toFixed(1) : null,
-      descHeightPct: desc ? +(((desc.bottom - desc.top) / c.height) * 100).toFixed(1) : null,
-      descClearOfInfo: desc ? desc.bottom <= info.top + 1 : null,
-      infoRight: info?.right, badgeLeft: badge?.left ?? null, badgeTop: badge?.top ?? null,
-      infoOverBadge: badge ? info.right > badge.left && info.bottom > badge.top : false,
-      hasBadge: !!badge,
-      badgeValueFits: badge ? q('.cv1-badge-val').scrollWidth <= q('.cv1-badge').clientWidth : null,
-      badgeLabelFits: badge ? q('.cv1-badge-label').scrollWidth <= q('.cv1-badge').clientWidth : null,
-      firstOverflow: q('.cv1-first').scrollWidth > q('.cv1-name').clientWidth + 1,
-      firstSize: parseFloat(getComputedStyle(q('.cv1-first')).fontSize),
-      descSize: desc ? parseFloat(getComputedStyle(q('.cv1-desc')).fontSize) : null,
-      flaggedOverflow: q('.cv1-face').dataset.cv1Overflow === 'true',
-      pillText: q('.cv1-pill')?.textContent, infoText: q('.cv1-info')?.textContent, borderText: q('.cv1-border-text')?.textContent,
-      badgeText: badge ? `${q('.cv1-badge-val').textContent} ${q('.cv1-badge-label').textContent}` : null,
-      pillColor: getComputedStyle(q('.cv1-pill')).backgroundColor,
-    };
-  }));
-}

@@ -71,3 +71,15 @@ test('card frame v1 — click-detail modal shows a large readable card', async (
   expect(await piecieModal.locator('.cd-chips').innerText()).not.toMatch(/Free|Requires|Interrupt|\bMP\b/); // no V4 chips
   await page.screenshot({ path: `${OUT}/detail-modal-piecie.png` });
 });
+
+test('card audit page: no card has cut text without a clamp flag or a zone outside its card (2.0 faces)', async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await page.goto('/card-audit.html');
+  await page.waitForSelector('#audit-root .cell');
+  await page.waitForTimeout(2500); // fonts + the per-card animation-frame checks
+  expect(await page.locator('#audit-root .cell').count()).toBeGreaterThan(100);
+  expect(await page.locator('#audit-root .cv1-face--2').count(), 'the audited cards are 2.0 faces').toBeGreaterThan(100);
+  const problems = await page.locator('#problems').innerText();
+  expect(await page.locator('#audit-root .cell.bad').count(), problems).toBe(0);
+  expect(problems).toBe('');
+});

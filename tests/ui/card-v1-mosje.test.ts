@@ -6,7 +6,7 @@ import { buildMosjeSpecV1 } from '../../src/ui/cardV1/buildMosjeSpecV1.js';
 import { formatSynergyLabel } from '../../src/ui/cardV1/formatSynergyLabel.js';
 import { formatAbilityLine } from '../../src/ui/cardV1/formatAbilityLine.js';
 import { fitFirstName } from '../../src/ui/cardV1/fitFirstName.js';
-import { getDescriptionLayout } from '../../src/ui/cardV1/getDescriptionLayout.js';
+import { getTextBoxLayout } from '../../src/ui/cardV1/getTextBoxLayout.js';
 import { getMosjeTypeKey } from '../../src/ui/cardV1/getMosjeTypeKey.js';
 import { buildCardV1 } from '../../src/ui/cardV1/buildCardV1.js';
 
@@ -98,14 +98,16 @@ describe('card frame v1 — Mosje face data mapping', () => {
     expect(mid).toBeGreaterThanOrEqual(22);
     expect(mid).toBeLessThan(36);
   });
-  it('description layout steps down for long text and flags impossible text', () => {
-    expect(getDescriptionLayout(['Short.']).size).toBe(14.5);
-    expect(getDescriptionLayout(['Short.']).fade).toBe(250);
+  it('text box layout steps down for long text and flags impossible text (getTextBoxLayout)', () => {
+    expect(getTextBoxLayout({ lines: ['Short.'] })).toEqual({ size: 14.5, clamped: false });
+    const stepped = getTextBoxLayout({ lines: ['x'.repeat(600)] });
+    expect(stepped.size).toBeLessThan(14.5);
+    expect(stepped.size).toBeGreaterThanOrEqual(11.5);
+    expect(stepped.clamped).toBe(false);
     const long = Array.from({ length: 6 }, () => 'A fairly long sentence about what happens to the board when this triggers. '.repeat(3));
-    const layout = getDescriptionLayout(long);
-    expect(layout.size).toBeLessThan(14.5);
-    expect(layout.size).toBeGreaterThanOrEqual(12.5);
-    expect(layout.fade).toBeGreaterThan(380);
+    const layout = getTextBoxLayout({ lines: long });
+    expect(layout.size).toBe(11.5); // the floor, never smaller
+    expect(layout.clamped).toBe(true); // impossible text is flagged (fade + "...")
   });
   it('type colour comes from the Mosje subtype, with a safe fallback', () => {
     expect(getMosjeTypeKey({ subtype: 'DIGITAL' })).toBe('DIGITAL');

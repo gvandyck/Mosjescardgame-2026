@@ -84,71 +84,6 @@
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.88), rgba(0, 0, 0, 0));
 }
 
-.card-v1--full .cv1-stripe {
-  top: calc(296 * var(--u)); width: calc(8 * var(--u)); height: calc(64 * var(--u));
-  background: repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0 calc(2 * var(--u)), transparent calc(2 * var(--u)) calc(8 * var(--u)));
-}
-.card-v1--full .cv1-stripe--l { left: calc(5 * var(--u)); }
-.card-v1--full .cv1-stripe--r { right: calc(5 * var(--u)); }
-.card-v1--full .cv1-diamond {
-  top: calc(6 * var(--u)); width: calc(5 * var(--u)); height: calc(5 * var(--u));
-  transform: rotate(45deg); background: rgba(255, 255, 255, 0.5);
-}
-.card-v1--full .cv1-diamond--a { left: calc(208 * var(--u)); }
-.card-v1--full .cv1-diamond--b { left: calc(218 * var(--u)); background: var(--cv1-main); }
-.card-v1--full .cv1-diamond--c { left: calc(228 * var(--u)); }
-
-.card-v1--full .cv1-name {
-  left: calc(42 * var(--u)); right: calc(40 * var(--u)); top: calc(40 * var(--u));
-  display: flex; flex-direction: column; align-items: flex-start;
-  font-family: 'Sora', sans-serif; text-align: left;
-  text-shadow: 0 calc(2 * var(--u)) calc(8 * var(--u)) rgba(0, 0, 0, 0.85);
-}
-.card-v1--full .cv1-first {
-  font-weight: 800; font-size: calc(var(--cv1-name-size, 40) * var(--u));
-  line-height: 1.05; letter-spacing: -0.01em; white-space: nowrap;
-}
-.card-v1--full .cv1-nick {
-  font-weight: 600; font-size: calc(20 * var(--u)); line-height: 1.2; margin-top: calc(7 * var(--u));
-}
-
-.card-v1--full .cv1-desc {
-  left: calc(42 * var(--u)); right: calc(42 * var(--u)); bottom: calc(122 * var(--u));
-  font-size: calc(var(--cv1-desc-size, 14.5) * var(--u)); line-height: 1.5;
-  text-shadow: 0 calc(1 * var(--u)) calc(3 * var(--u)) #000, 0 0 calc(8 * var(--u)) #000, 0 0 calc(14 * var(--u)) #000;
-}
-.card-v1--full .cv1-desc > div + div { margin-top: calc(7 * var(--u)); }
-.card-v1--full .cv1-info {
-  left: calc(42 * var(--u)); right: calc(110 * var(--u)); bottom: calc(85 * var(--u));
-  font-size: calc(12.5 * var(--u)); font-weight: 600; color: #f4f4f5;
-  text-shadow: 0 calc(1 * var(--u)) calc(4 * var(--u)) #000;
-}
-.card-v1--full .cv1-pill-row { left: calc(42 * var(--u)); bottom: calc(54 * var(--u)); }
-.card-v1--full .cv1-pill {
-  height: calc(22 * var(--u)); padding: 0 calc(9 * var(--u)); display: inline-flex; align-items: center;
-  border-radius: calc(5 * var(--u)); background: var(--cv1-main); color: #fff;
-  font-size: calc(12 * var(--u)); font-weight: 800; letter-spacing: 0.08em;
-}
-.card-v1--full .cv1-border-text {
-  left: calc(42 * var(--u)); bottom: calc(30 * var(--u));
-  font-family: 'Sora', sans-serif; font-weight: 700; font-size: calc(10.5 * var(--u));
-  letter-spacing: 0.16em; color: var(--cv1-tint); text-transform: uppercase; white-space: nowrap;
-}
-.card-v1.card-v1--full .cv1-badge {
-  right: calc(10 * var(--u)); bottom: calc(22 * var(--u)); width: calc(80 * var(--u)); height: calc(80 * var(--u));
-  border-radius: 0; background: none; text-shadow: 0 1px 6px rgba(0,0,0,.9);
-}
-.card-v1--full .cv1-badge-val { font-size: calc(34 * var(--u)); }
-.card-v1--full .cv1-badge-label { font-size: calc(10 * var(--u)); margin-top: calc(3 * var(--u)); letter-spacing: 0.14em; }
-
-/* ── Badge (shared) ────────────────────────────────────── */
-.card-v1 .cv1-badge {
-  box-sizing: border-box; background: #050505; color: #fff;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-}
-.card-v1 .cv1-badge-val { font-family: 'Sora', sans-serif; font-weight: 800; line-height: 1; }
-.card-v1 .cv1-badge-label { font-weight: 800; color: var(--cv1-tint); }
-
 /* ── Field tile ────────────────────────────────────────── */
 .card-v1--field .cv1-window {
   left: calc(8 * var(--u)); right: calc(8 * var(--u)); top: calc(8 * var(--u)); bottom: calc(14 * var(--u));
@@ -164,26 +99,6 @@
   left: 0; right: 0; bottom: 0; height: calc(44 * var(--u));
   background: linear-gradient(0deg, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0));
 }
-.card-v1--field .cv1-name {
-  left: calc(10 * var(--u)); right: calc(10 * var(--u)); top: calc(6 * var(--u));
-  font-family: 'Sora', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  text-shadow: 0 calc(1 * var(--u)) calc(4 * var(--u)) #000;
-}
-.card-v1--field .cv1-first { font-weight: 800; font-size: calc(17 * var(--u)); }
-.card-v1--field .cv1-nick { font-weight: 600; font-size: calc(11 * var(--u)); margin-left: calc(6 * var(--u)); opacity: 0.9; }
-.card-v1--field .cv1-pill-row { left: calc(10 * var(--u)); bottom: calc(10 * var(--u)); }
-.card-v1--field .cv1-pill {
-  height: calc(18 * var(--u)); padding: 0 calc(7 * var(--u)); display: inline-flex; align-items: center;
-  border-radius: calc(5 * var(--u)); background: var(--cv1-main); color: #fff;
-  font-size: calc(10.5 * var(--u)); font-weight: 800; letter-spacing: 0.04em;
-}
-.card-v1--field .cv1-badge {
-  right: calc(5 * var(--u)); bottom: calc(5 * var(--u)); width: calc(50 * var(--u)); height: calc(50 * var(--u));
-  border-radius: calc(11 * var(--u));
-}
-.card-v1--field .cv1-badge-val { font-size: calc(20 * var(--u)); }
-.card-v1--field .cv1-badge-label { font-size: calc(8 * var(--u)); margin-top: calc(1 * var(--u)); letter-spacing: 0.12em; }
-
 /* ── Existing action button inside the field tile ──────────
    Sits in the art window on its own row above the kind/level pill (left of the MP badge), at a fixed
    readable size (it is an interactive control, so it does not scale with the card). */
@@ -208,11 +123,6 @@
 .hand-cards .card.card-v1--full.card--place,
 .hand-strip .card.card-v1--full.card--place { --cv1-w: var(--piecie-card-w-hand, 96px); }
 
-.card-v1--full .cv1-badge-val--word { font-size: calc(26 * var(--u)); }
-.card-v1--field .cv1-badge-val--word { font-size: calc(14 * var(--u)); }
-/* No badge (Place): the info line may run the full width. */
-.card-v1--full .cv1-face--no-badge .cv1-info { right: calc(42 * var(--u)); }
-
 /* -- Piecie / Snelle / Place sizing + variants -- */
 .board-zone__piecies .card.card-v1--field { --cv1-w: var(--piecie-cell-w, 110px); }
 .hand-cards .card.card-v1--full.card--piecie,
@@ -222,44 +132,12 @@
 .hand-cards .card.card-v1--full.card--place,
 .hand-strip .card.card-v1--full.card--place { --cv1-w: var(--piecie-card-w-hand, 96px); }
 
-.card-v1--full .cv1-badge-val--word { font-size: calc(26 * var(--u)); }
-.card-v1--field .cv1-badge-val--word { font-size: calc(14 * var(--u)); }
-/* No badge (Place): the info line may run the full width. */
-.card-v1--full .cv1-face--no-badge .cv1-info { right: calc(42 * var(--u)); }
-
 /* Existing hand action button (Play / PLACE / Play (Instant)) on the full face:
    a fixed-size control along the bottom edge. */
 .card.card-v1--full .hand-card__play-btn {
   position: absolute; left: calc(18 * var(--u)); right: calc(18 * var(--u)); bottom: calc(8 * var(--u));
   width: auto; height: 30px; min-height: 30px; margin: 0; padding: 0 8px; font-size: 12px; z-index: 5;
 }
-
-/* -- Field tiles: text never scales below a readable size -- */
-.card-v1--field .cv1-first { font-size: max(14px, calc(17 * var(--u))); }
-.card-v1--field .cv1-nick { font-size: max(11px, calc(11 * var(--u))); }
-.card-v1--field .cv1-name { top: calc(5 * var(--u)); }
-.card-v1--field .cv1-pill {
-  height: max(18px, calc(18 * var(--u))); padding: 0 max(6px, calc(7 * var(--u)));
-  font-size: max(10.5px, calc(10.5 * var(--u)));
-}
-.card.card-v1--field .cv1-badge {
-  width: max(44px, calc(50 * var(--u))); height: max(44px, calc(50 * var(--u)));
-  border-radius: max(10px, calc(11 * var(--u)));
-}
-.card-v1--field .cv1-badge-val { font-size: max(18px, calc(20 * var(--u))); }
-.card-v1--field .cv1-badge-val--word { font-size: max(14px, calc(14 * var(--u))); }
-.card-v1--field .cv1-badge-label { font-size: max(8.5px, calc(8 * var(--u))); }
-
-/* -- Hand cards: titles stay readable (wrap to two lines instead of shrinking) -- */
-.hand-cards .card-v1--full .cv1-first,
-.hand-strip .card-v1--full .cv1-first {
-  font-size: max(17px, calc(var(--cv1-name-size, 40) * var(--u)));
-  white-space: normal; overflow-wrap: anywhere; line-height: 1.05;
-}
-.hand-cards .card-v1--full .cv1-nick,
-.hand-strip .card-v1--full .cv1-nick { font-size: max(12px, calc(20 * var(--u))); margin-top: 3px; }
-.hand-cards .card-v1--full .cv1-name,
-.hand-strip .card-v1--full .cv1-name { left: max(10px, calc(42 * var(--u))); right: max(10px, calc(40 * var(--u))); top: max(8px, calc(40 * var(--u))); }
 
 /* -- Click-detail modal: show the card large enough to read -- */
 .card-detail:has(.card-v1) { width: min(96vw, 900px); max-width: 900px; }
@@ -270,40 +148,7 @@
 /* A card with a Play button reserves a 26px strip at the bottom for it (--lift). */
 .hand-card.card-v1--full { --lift: 0px; }
 .hand-card.card-v1--full:has(.hand-card__play-btn) { --lift: 26px; }
-.hand-card.card-v1--full:has(.hand-card__play-btn) .cv1-border-text { display: none; }
 
-.hand-cards .card-v1--full .cv1-desc,
-.hand-strip .card-v1--full .cv1-desc {
-  font-size: max(11.5px, calc(var(--cv1-desc-size, 14.5) * var(--u)));
-  line-height: 1.3; left: max(10px, calc(42 * var(--u))); right: max(10px, calc(42 * var(--u)));
-  bottom: calc(max(82px, calc(114 * var(--u))) + var(--lift));
-  /* Text that still does not fit is cut at the top; the click modal shows all of it. */
-  top: 96px; overflow: hidden;
-  display: flex; flex-direction: column; justify-content: flex-end;
-}
-.hand-cards .card-v1--full .cv1-desc > div + div,
-.hand-strip .card-v1--full .cv1-desc > div + div { margin-top: 5px; }
-.hand-cards .card-v1--full .cv1-info,
-.hand-strip .card-v1--full .cv1-info {
-  font-size: max(10.5px, calc(12.5 * var(--u))); left: max(10px, calc(42 * var(--u)));
-  bottom: calc(max(46px, calc(72 * var(--u))) + var(--lift)); right: max(60px, calc(110 * var(--u)));
-}
-.hand-cards .card-v1--full .cv1-face--no-badge .cv1-info,
-.hand-strip .card-v1--full .cv1-face--no-badge .cv1-info { right: 10px; }
-.hand-cards .card-v1--full .cv1-pill-row,
-.hand-strip .card-v1--full .cv1-pill-row { left: max(10px, calc(42 * var(--u))); bottom: calc(max(24px, calc(41 * var(--u))) + var(--lift)); }
-.hand-cards .card-v1--full .cv1-pill,
-.hand-strip .card-v1--full .cv1-pill { height: max(18px, calc(22 * var(--u))); font-size: max(10px, calc(12 * var(--u))); }
-.hand-cards .card-v1--full .cv1-border-text,
-.hand-strip .card-v1--full .cv1-border-text { font-size: max(9px, calc(10.5 * var(--u))); left: max(10px, calc(42 * var(--u))); bottom: max(8px, calc(12 * var(--u))); }
-.hand-cards .card.card-v1--full .cv1-badge,
-.hand-strip .card.card-v1--full .cv1-badge { width: max(50px, calc(80 * var(--u))); height: max(50px, calc(80 * var(--u))); border-radius: 12px; bottom: calc(max(8px, calc(12 * var(--u))) + var(--lift)); right: max(8px, calc(10 * var(--u))); }
-.hand-cards .card-v1--full .cv1-badge-val,
-.hand-strip .card-v1--full .cv1-badge-val { font-size: max(20px, calc(34 * var(--u))); }
-.hand-cards .card-v1--full .cv1-badge-val--word,
-.hand-strip .card-v1--full .cv1-badge-val--word { font-size: max(15px, calc(26 * var(--u))); }
-.hand-cards .card-v1--full .cv1-badge-label,
-.hand-strip .card-v1--full .cv1-badge-label { font-size: max(8.5px, calc(10 * var(--u))); }
 /* The Play button sits in the reserved bottom strip. */
 .hand-cards .card.card-v1--full .hand-card__play-btn,
 .hand-strip .card.card-v1--full .hand-card__play-btn { height: 22px; min-height: 22px; bottom: 4px; left: 6px; right: 6px; font-size: 11px; }
@@ -332,19 +177,6 @@
 /* Hand cards: no Play button; a click on the card plays it (handRenderer). */
 .hand-card.card-v1--full .hand-card__play-btn { display: none !important; }
 
-/* ── Field tile: short ability line (first sentence, two lines max) ──
-   Sits above the type pill over a taller bottom fade. A tile with an Activate
-   button hides it, since the button already takes that row. */
-.card-v1--field .cv1-fdesc {
-  left: calc(10 * var(--u)); right: max(54px, calc(62 * var(--u))); bottom: max(40px, calc(52 * var(--u)));
-  font-size: max(9px, calc(11 * var(--u))); line-height: 1.2; color: #fff;
-  text-shadow: 0 1px 3px #000, 0 0 6px #000;
-  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
-}
-.card-v1--field .cv1-fdesc strong { font-weight: 800; }
-.card-v1--field .cv1-window:has(.cv1-fdesc) .cv1-fade--bottom { height: calc(86 * var(--u)); }
-.card.card-v1--field:has(.mosje-ability-btn, .hand-card__play-btn) .cv1-fdesc { display: none; }
-
 /* Hand glow ring: the card must sit exactly inside its wrapper (equal gap on every side).
    The older Mosje spacing margins (-14px / 6px on hover) pushed the card sideways inside the
    wrapper, so the rainbow ring did not wrap the left side evenly. Spacing is handled by the wrapper. */
@@ -353,20 +185,7 @@
 .hand-strip:hover .hand-card-wrap .card.card-v1--full,
 .hand-cards:hover .hand-card-wrap .card.card-v1--full { margin-left: 0; }
 
-/* ── Field tile: more breathing room between name, ability line, pill and MP ──
-   (tiles are now as tall as the deck stack, so there is space to spare) */
-.card-v1--field .cv1-name { left: calc(14 * var(--u)); right: calc(14 * var(--u)); top: calc(12 * var(--u)); }
-.card-v1--field .cv1-pill-row { left: calc(14 * var(--u)); bottom: calc(14 * var(--u)); }
-.card.card-v1--field .cv1-badge { right: calc(10 * var(--u)); bottom: calc(10 * var(--u)); }
-.card-v1--field .cv1-fdesc { left: calc(14 * var(--u)); bottom: max(50px, calc(60 * var(--u))); line-height: 1.3; }
+/* Field tile: the action button sits above the bottom row of the tile. */
 .card.card-v1--field .mosje-ability-btn,
 .card.card-v1--field .hand-card__play-btn { left: calc(14 * var(--u)); bottom: max(50px, calc(60 * var(--u))); }
 
-/* No box behind the MP / cost number on field tiles either (same rule as the big cards). */
-.card.card-v1.card-v1--field .cv1-badge { background: none; border-radius: 0; box-shadow: none; text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9); }
-
-/* Field tile names may wrap to two lines (Mosjes with a nickname keep one line). */
-.card-v1--field .cv1-name:not(:has(.cv1-nick)) { white-space: normal; overflow: visible; text-overflow: clip; }
-.card-v1--field .cv1-name:not(:has(.cv1-nick)) .cv1-first {
-  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; line-height: 1.08;
-}

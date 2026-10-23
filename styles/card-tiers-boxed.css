@@ -66,36 +66,5 @@
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14), 0 0 0 calc(3 * var(--u)) #050505, 0 0 0 calc(4 * var(--u)) rgba(255, 255, 255, 0.07);
 }
 
-/* 10. Description plate (see-through) + the extra clipped wave copy (tiers 1-2) */
-.card-v1--full.card--tierlayout.card--boxed .ct-plate-waves {
-  inset: 0; opacity: 0.05; mix-blend-mode: screen; pointer-events: none;
-  background: url('../assets/patterns/seigaiha.svg') 0 0 / 100% 100% no-repeat;
-  -webkit-clip-path: inset(calc(366 * var(--u)) calc(24 * var(--u)) calc(108 * var(--u)) calc(24 * var(--u)) round calc(6 * var(--u)));
-  clip-path: inset(calc(366 * var(--u)) calc(24 * var(--u)) calc(108 * var(--u)) calc(24 * var(--u)) round calc(6 * var(--u)));
-}
-.card-v1--full.card--tierlayout.card--boxed .ct-plate {
-  left: calc(24 * var(--u)); right: calc(24 * var(--u));
-  top: calc(366 * var(--u)); height: calc(186 * var(--u));
-  box-sizing: border-box; border-radius: calc(6 * var(--u));
-  padding: calc(16 * var(--u)) calc(18 * var(--u)); overflow: hidden; color: #fff;
-  background: linear-gradient(180deg, rgba(19, 19, 24, 0.36), rgba(11, 11, 15, 0.36));
-  -webkit-backdrop-filter: blur(calc(4 * var(--u))) brightness(2.1) contrast(1.15);
-  backdrop-filter: blur(calc(4 * var(--u))) brightness(2.1) contrast(1.15);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14), 0 0 0 calc(3 * var(--u)) #050505, 0 0 0 calc(4 * var(--u)) rgba(255, 255, 255, 0.07);
-}
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .card-v1--full.card--tierlayout.card--boxed .ct-plate { background: rgba(15, 15, 19, 0.85); }
-}
-/* Ability text flows inside the plate (not bottom-anchored like E1/full art). */
-.card.card-v1--full.card--tierlayout.card--boxed .ct-plate .cv1-desc {
-  position: relative; inset: auto; top: auto; bottom: auto; left: auto; right: auto;
-  display: block; overflow: visible;
-  font-size: calc(var(--cv1-desc-size, 14) * var(--u)); line-height: 1.26; text-shadow: none;
-}
-/* Hand strip: keep a readable minimum inside the plate. */
-.hand-cards .card.card-v1--full.card--tierlayout.card--boxed .ct-plate .cv1-desc,
-.hand-strip .card.card-v1--full.card--tierlayout.card--boxed .ct-plate .cv1-desc {
-  font-size: max(9px, calc(var(--cv1-desc-size, 14) * var(--u))); line-height: 1.24;
-}
 
-/* 11. Footer (traits, pill, category, MP) comes from card-v1.css + card-tiers.css. */
+/* The boxed text box, footer and info line are the 2.0 face: styles/card-face-2-0.css. */

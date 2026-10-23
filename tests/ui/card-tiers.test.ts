@@ -11,9 +11,11 @@ import { PIECIES } from '../../src/data/piecies.js';
 import { PLACES } from '../../src/data/places.js';
 import { buildTierChrome } from '../../src/ui/cardV1/buildTierChrome.js';
 import { buildShineLayers } from '../../src/ui/cardV1/buildShineLayers.js';
-import { getAbilityTextSize, getBoxedTextFit } from '../../src/ui/cardV1/getAbilityTextSize.js';
 import { getTierFadeHeight } from '../../src/ui/cardV1/getTierFadeHeight.js';
 import { getTextBoxLayout } from '../../src/ui/cardV1/getTextBoxLayout.js';
+import { splitSentences } from '../../src/ui/cardV1/splitSentences.js';
+import { SNELLE_PIECIES } from '../../src/data/snellePiecies.js';
+import { QUESTS } from '../../src/data/quests.js';
 import { buildMosjeSpecV1 } from '../../src/ui/cardV1/buildMosjeSpecV1.js';
 import { buildPlaceSpecV1 } from '../../src/ui/cardV1/buildPlaceSpecV1.js';
 
@@ -151,12 +153,34 @@ describe('buildShineLayers', () => {
   });
 });
 
-describe('getAbilityTextSize (full art)', () => {
-  it('is one size (18) for every card type and length', () => {
-    for (const typeKey of ['MOSJE', 'PIECIE', 'SNELLE_PIECIE', 'PLACE', 'QUEST']) {
-      expect(getAbilityTextSize({ lines: ['Gain 10 MP.'], typeKey, layout: 'fullart' })).toBe(18);
-      expect(getAbilityTextSize({ lines: ['x'.repeat(400)], typeKey, layout: 'fullart' })).toBe(18);
+// The ability text size of a rendered 2.0 face: the --cv1-text-size the text box layout put on it.
+const textSizeOf = (card: any) => Number((buildCardV1(card, {}) as any).html.match(/--cv1-text-size:([\d.]+)/)![1]);
+// The same one-sentence text on a card of each type (the Piecie / Snelle Needs lead and the Quest cost line are off).
+const sameText = (text: string, rarity: string) => ({
+  MOSJE: { ...(MOSJES as any[])[0], abilityDescription: text, synergyEffect: null, synergyLabelText: null, rarity },
+  PIECIE: { ...(PIECIES as any[]).find((p) => !p.needsText), description: text, rarity },
+  SNELLE_PIECIE: { ...(SNELLE_PIECIES as any[]).find((p) => !p.needsText), description: text, rarity },
+  PLACE: { ...(PLACES as any[])[0], description: text, rarity },
+  QUEST: { ...(QUESTS as any[]).find((q) => q.stack), costText: null, extras: text },
+});
+
+describe('getTextBoxLayout (full art)', () => {
+  it('gives one size for the same text whatever the card type', () => {
+    // Short text: the five real faces agree with the layout (a full-art card per type: 4 stars; Mosjes are always full
+    // art, Quests are tier 1 and boxed). A long single paragraph: the types with a full-art box and no level rows.
+    for (const text of ['Gain 10 MP.', 'x'.repeat(400)]) {
+      expect(getTextBoxLayout({ lines: [text], layout: 'fullart' })).toEqual({ size: 14.5, clamped: false });
     }
+    for (const [type, card] of Object.entries(sameText('Gain 10 MP.', '★★★★'))) expect(textSizeOf(card), type).toBe(14.5);
+    const { MOSJE, QUEST, ...plain } = sameText('x'.repeat(400), '★★★★');
+    for (const [type, card] of Object.entries(plain)) expect(textSizeOf(card), type).toBe(14.5);
+  });
+
+  it('a long text steps down by the same amount on every full-art type that has no level rows', () => {
+    const long = 'x'.repeat(600);
+    expect(getTextBoxLayout({ lines: [long], layout: 'fullart' }).size).toBe(13);
+    const { MOSJE, QUEST, ...plain } = sameText(long, '★★★★');
+    for (const [type, card] of Object.entries(plain)) expect(textSizeOf(card), type).toBe(13);
   });
 });
 
@@ -223,28 +247,35 @@ describe('tier 5 face (full foil)', () => {
   });
 });
 
-describe('getAbilityTextSize (boxed)', () => {
-  it('is 18 for every card type, stepping down only for long text in the fixed-height plate', () => {
-    for (const typeKey of ['MOSJE', 'PIECIE', 'SNELLE_PIECIE', 'PLACE', 'QUEST']) {
-      expect(getAbilityTextSize({ lines: ['Gain 10 MP.'], typeKey, layout: 'boxed' })).toBe(18);
+describe('getTextBoxLayout (boxed)', () => {
+  it('the boxed box steps down no later than full art for the same text, and is the same size on every boxed type', () => {
+    for (let n = 0; n <= 1500; n += 25) {
+      const full = getTextBoxLayout({ lines: ['x'.repeat(n)], layout: 'fullart' });
+      const boxed = getTextBoxLayout({ lines: ['x'.repeat(n)], layout: 'boxed' });
+      expect(boxed.size, `${n} chars`).toBeLessThanOrEqual(full.size);
+      if (full.clamped) expect(boxed.clamped, `${n} chars`).toBe(true);
     }
-    expect(getAbilityTextSize({ lines: ['x'.repeat(200)], layout: 'boxed' })).toBe(17);
-    expect(getAbilityTextSize({ lines: ['x'.repeat(300)], layout: 'boxed' })).toBe(16);
+    // boxed faces (tier 1, one star): the same text gets the same size on a Piecie, Snelle, Place and Quest
+    const { MOSJE, ...boxedTypes } = sameText('x'.repeat(500), '★');
+    const sizes = Object.entries(boxedTypes).map(([type, card]) => [type, textSizeOf(card)]);
+    expect(new Set(sizes.map(([, size]) => size)).size, JSON.stringify(sizes)).toBe(1);
+    expect(sizes[0][1]).toBe(getTextBoxLayout({ lines: ['x'.repeat(500)], layout: 'boxed' }).size);
   });
 
-  it('auto-fit: keeps stepping down until the text fits the plate, never below 11.5', () => {
+  it('auto-fit: Bowie & Stormey (387 characters) steps down in the boxed text box, never below 11.5', () => {
     const bowie = (PIECIES as any[]).find((p) => p.id === 'piecie_bowie_stormey');
-    const lines = String(bowie.description).split(/(?<=[.!?])\s+/);
-    const fit = getBoxedTextFit(lines);
-    expect(fit.size).toBeLessThan(16); // 383 characters used to stay at 16 and ran out of the plate
+    const lines = splitSentences(bowie.description);
+    const fit = getTextBoxLayout({ lines, layout: 'boxed' });
+    expect(fit.size).toBeLessThan(14.5); // it did not fit at the top size
     expect(fit.size).toBeGreaterThanOrEqual(11.5);
-    expect(getAbilityTextSize({ lines, layout: 'boxed' })).toBe(fit.size);
+    expect(fit.clamped, 'what cannot fit at the floor is flagged').toBe(true);
+    expect(getTextBoxLayout({ lines, layout: 'fullart' })).toEqual({ size: 14.5, clamped: false }); // the roomier full-art box holds it
   });
 
-  it('short text keeps 18, and text that cannot fit even at the floor is reported', () => {
-    expect(getBoxedTextFit(['Gain 10 MP.'])).toEqual({ size: 18, fits: true });
+  it('short text keeps the top size, and text that cannot fit even at the floor is flagged clamped', () => {
+    expect(getTextBoxLayout({ lines: ['Gain 10 MP.'], layout: 'boxed' })).toEqual({ size: 14.5, clamped: false });
     const tooLong = Array.from({ length: 12 }, () => 'A long sentence that keeps going and going. '.repeat(3));
-    expect(getBoxedTextFit(tooLong)).toEqual({ size: 11.5, fits: false });
+    expect(getTextBoxLayout({ lines: tooLong, layout: 'boxed' })).toEqual({ size: 11.5, clamped: true });
   });
 });
 

@@ -84,9 +84,3 @@
   .card-v1--full.card--tierlayout.card--boxed.card--tier-3 .ct-foil-anim { animation: none; }
 }
 
-/* Plate: tier 3 has no extra plate wave copy (board), so lift the backdrop a
-   little to keep the plate texture as visible as on tier 2 (50-04 check). */
-.card-v1--full.card--tierlayout.card--boxed.card--tier-3 .ct-plate {
-  -webkit-backdrop-filter: blur(calc(4 * var(--u))) brightness(2.5) contrast(1.15);
-  backdrop-filter: blur(calc(4 * var(--u))) brightness(2.5) contrast(1.15);
-}

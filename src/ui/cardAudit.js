@@ -1,5 +1,5 @@
 // cardAudit.js — card-audit.html: every card in the game, grouped by type, through the real
-// renderCard. Flags cards whose description overflows the plate / card so they can be fixed.
+// renderCard. Flags cards whose 2.0 text is cut without a clamp flag, or whose zones leave the card, so they can be fixed.
 import { MOSJES } from '../data/mosjes.js';
 import { PIECIES } from '../data/piecies.js';
 import { PLACES } from '../data/places.js';
@@ -22,17 +22,17 @@ const root = document.getElementById('audit-root');
 const problems = document.getElementById('problems');
 const state = { w: 300, type: 'all', field: false };
 
+// A 2.0 card overflows when its text box text is cut without the face being flagged clamped (data-cv1-clamped: fade +
+// ellipsis, D-02), or when one of its zones sits outside the card. A V4 Quest on the unified template has no cv2 zones.
+const ZONES = '.cv2-corner, .cv2-name, .cv2-first, .cv2-nick, .cv2-textbox, .cv2-info, .cv2-pills, .cv2-label, .cv2-footer';
 function isOverflowing(el) {
   const card = el.getBoundingClientRect();
-  const plate = el.querySelector('.ct-plate');
-  const desc = el.querySelector('.cv1-desc');
-  if (plate && desc) {
-    const p = plate.getBoundingClientRect(); const d = desc.getBoundingClientRect();
-    if (d.bottom > p.bottom + 1 || desc.scrollHeight > plate.clientHeight + 1) return true;
-  }
-  return [...el.querySelectorAll('.cv1-first, .cv1-info, .cv1-pill, .cv1-badge-val')].some((n) => {
+  const text = el.querySelector('.cv2-text');
+  const clamped = el.querySelector('.cv1-face--2')?.dataset.cv1Clamped === 'true';
+  if (text && !clamped && text.scrollHeight > text.clientHeight + 1) return true;
+  return [...el.querySelectorAll(ZONES)].some((n) => {
     const r = n.getBoundingClientRect();
-    return r.right > card.right + 1 || r.left < card.left - 1 || r.bottom > card.bottom + 1;
+    return r.right > card.right + 1 || r.left < card.left - 1 || r.bottom > card.bottom + 1 || r.top < card.top - 1;
   });
 }
 

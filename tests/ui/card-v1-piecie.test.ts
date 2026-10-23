@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { PIECIES } from '../../src/data/piecies.js';
 import { getPiecieLabel } from '../../src/ui/cardV1/getPiecieLabel.js';
 import { splitNeedsLead } from '../../src/ui/cardV1/splitNeedsLead.js';
-import { getDescriptionLayout } from '../../src/ui/cardV1/getDescriptionLayout.js';
+import { getTextBoxLayout } from '../../src/ui/cardV1/getTextBoxLayout.js';
 import { buildPiecieSpecV1 } from '../../src/ui/cardV1/buildPiecieSpecV1.js';
 import { buildCardV1 } from '../../src/ui/cardV1/buildCardV1.js';
 
@@ -131,11 +131,14 @@ describe('card frame v1 — Piecie data mapping (2.0 face)', () => {
     expect(html).not.toContain('cv1-desc');
   });
 
-  it('short text is set larger, long text steps down, nothing exceeds the card (legacy helper until 62-06)', () => {
-    expect(getDescriptionLayout(['One of your Mosjes gains 25 MP.'], { allowLarge: true, minFade: 250 })).toMatchObject({ size: 18, fade: 250, overflow: false });
-    const long = getDescriptionLayout(Array.from({ length: 5 }, () => 'A long sentence about what happens. '.repeat(4)), { allowLarge: true, minFade: 250 });
-    expect(long.size).toBeLessThan(16);
-    expect(long.size).toBeGreaterThanOrEqual(12.5);
+  it('short text is set at the default size, long text steps down, nothing exceeds the box (getTextBoxLayout)', () => {
+    expect(getTextBoxLayout({ lines: ['One of your Mosjes gains 25 MP.'] })).toEqual({ size: 14.5, clamped: false });
+    const long = getTextBoxLayout({ lines: Array.from({ length: 5 }, () => 'A long sentence about what happens. '.repeat(4)) });
+    expect(long.size).toBeLessThan(14.5);
+    expect(long.size).toBeGreaterThanOrEqual(11.5);
+    expect(long.clamped).toBe(false);
+    const impossible = getTextBoxLayout({ lines: Array.from({ length: 12 }, () => 'A long sentence about what happens. '.repeat(8)) });
+    expect(impossible).toEqual({ size: 11.5, clamped: true }); // never below the floor, flagged instead
   });
 
   it('every Piecie renders without throwing; its text box holds the description minus the dropped Needs lead', () => {
