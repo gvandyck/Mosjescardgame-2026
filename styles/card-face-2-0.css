@@ -141,6 +141,38 @@
   line-height: 1.2; letter-spacing: 0.16em; text-transform: uppercase; color: var(--cv1-tint); white-space: nowrap;
 }
 
+/* -- Quest (62-04, Phase 7 A7): dice need in the cost slot, placeholder art, "<STACK> QUEST" pill, "can't fail" -- */
+/* One-success needs ("4+") keep the big 44. A two-success need ("2× 4+") wraps at its space into a small stack
+   "2×" over "4+" (the divider grows with it); Trained's two stars shrink so nothing reaches the divider. */
+.card-v1 .cv1-face--2 .cv2-corner[data-cv1-need*="×"] .cv2-corner-val { font-size: calc(30 * var(--u)); }
+.card-v1 .cv1-face--2 .cv2-corner[data-cv1-need*="×"] + .cv2-divider { height: calc(74 * var(--u)); }
+.card-v1 .cv1-face--2 .cv2-corner[data-cv1-need*="★"] .cv2-corner-val { font-size: calc(26 * var(--u)); white-space: nowrap; }
+
+/* Art window without art: the stack colour, the seigaiha pattern and a big die. */
+.card-v1 .cv1-face--2 .cv2-quest-art {
+  inset: 0; display: flex; align-items: center; justify-content: center; overflow: hidden;
+  background: var(--cv1-main); color: rgba(255, 255, 255, 0.92);
+}
+.card-v1 .cv1-face--2 .cv2-quest-art::before {
+  content: ''; position: absolute; inset: 0; opacity: 0.3;
+  background: url('../assets/patterns/seigaiha.svg') 50% 0 / 100% auto no-repeat;
+}
+.card-v1 .cv1-face--2 .cv2-quest-art svg {
+  position: relative; width: calc(96 * var(--u)); height: calc(96 * var(--u)); fill: currentColor;
+  filter: drop-shadow(0 calc(3 * var(--u)) calc(8 * var(--u)) rgba(0, 0, 0, 0.45));
+}
+
+/* Footer centre of a Quest: one pill, centred between WIN and LOSE. */
+.card-v1 .cv1-face--2 .cv2-footer-centre:has(.cv2-footer-pill) { align-self: center; }
+.card-v1 .cv1-face--2 .cv2-footer-pill {
+  height: calc(22 * var(--u)); padding: 0 calc(9 * var(--u)); display: inline-flex; align-items: center;
+  border-radius: calc(5 * var(--u)); background: var(--cv1-main); color: #fff;
+  font-size: calc(12 * var(--u)); font-weight: 800; letter-spacing: 0.08em; white-space: nowrap;
+}
+/* A word in a stat column ("can't fail") instead of the big number. */
+.card-v1 .cv1-face--2 .cv2-stat-val.cv2-stat-val--word { margin-top: calc(8 * var(--u)); font-size: calc(15 * var(--u)); font-weight: 700; line-height: 1.2; }
+.card-v1 .cv1-face--2 .cv2-stat--right:has(.cv2-stat-val--word) { align-self: start; }
+
 /* -- Detail view: the full text, never clamped -- */
 .card-detail .cv1-face--2 .cv2-textbox { max-height: none; }
 .card-detail .cv1-face--2[data-cv1-clamped="true"] .cv2-text::before,

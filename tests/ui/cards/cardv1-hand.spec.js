@@ -47,8 +47,9 @@ test('card frame v1 — hand is visible, hover previews in the dock, no Play but
 // The real hand card is 150% of what it was (2026-10-20): 338px wide at the smallest, about 386px at 1920x1080.
 // 338px and up is the real hand size. 230px (the old hand size) is the stress case. Both are enforced for every type
 // (62-03 closed the last Known gap: piecie_bowie_stormey, piecie_tony and piecie_gekke_vogels are clean on the 2.0 face).
+// 62-04 adds the Quest type (the 38 2.0 Quests) at the same four widths.
 // 180px stays informational (smaller windows).
-const TYPES = ['MOSJE', 'PIECIE', 'SNELLE_PIECIE', 'PLACE'];
+const TYPES = ['MOSJE', 'PIECIE', 'SNELLE_PIECIE', 'PLACE', 'QUEST'];
 const FLOOR_TEXT = 11.5; // the text floor of the 2.0 face (reference px at 440 wide)
 
 for (const type of TYPES) {
@@ -66,7 +67,8 @@ for (const type of TYPES) {
         root.className = 'hand-strip';
         root.style.cssText = 'position:fixed;left:0;top:0;width:2400px;z-index:99999;background:#0d0b14;display:flex;flex-wrap:wrap;gap:16px;padding:16px;align-content:flex-start';
         document.body.appendChild(root);
-        for (const c of ALL_CARDS.filter(c => c.type === type)) {
+        // Quests: only the 38 2.0 Quests (with a stack) have a 2.0 face; the 10 leftover V4 Quests use the unified template.
+        for (const c of ALL_CARDS.filter(c => c.type === type && (type !== 'QUEST' || c.stack))) {
           const el = renderCard(c, { compact: false });
           el.classList.add('hand-card');
           el.style.setProperty('--cv1-w', w + 'px');
