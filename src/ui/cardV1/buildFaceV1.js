@@ -1,7 +1,7 @@
 // buildFaceV1.js — card frame v1 full (pop-up) face, built from a face spec:
 // { colors, name:{first,nick}, lines[], info, pill, borderText, badge|null, card, allowLarge }
 // badge: { value, label, word } — word=true for "Free" (smaller type). Place has no badge.
-// Optional tier: { tier, layoutEnabled } — tier 4 with its layout on gets the
+// Optional tier: { tier, layoutEnabled, diamonds } — diamonds = lit rarity diamonds (default tier); tier 4 with its layout on gets the
 // rarity-tier chrome, shine layers and the tier text-size / fade rules;
 // tiers 1-3 with their layout on get the boxed layers and description plate
 // (tier 3 adds foil ring, cosmos + rainbow via buildFoilLayers).
@@ -23,7 +23,7 @@ const BOXED_TIERS = new Set([1, 2, 3]);
 const E1_CHROME = '<i class="cv1-stripe cv1-stripe--l"></i><i class="cv1-stripe cv1-stripe--r"></i>\n      <i class="cv1-diamond cv1-diamond--a"></i><i class="cv1-diamond cv1-diamond--b"></i><i class="cv1-diamond cv1-diamond--c"></i>';
 const FADES = '<div class="cv1-fade cv1-fade--bottom"></div><div class="cv1-fade cv1-fade--top"></div>';
 
-export function buildFaceV1(spec, { tier = 0, layoutEnabled = false } = {}) {
+export function buildFaceV1(spec, { tier = 0, layoutEnabled = false, diamonds = tier } = {}) {
   const { colors, name, lines, info, pill, borderText, badge, card, allowLarge } = spec;
   const fullArt = layoutEnabled && tier >= 4;
   const boxed = layoutEnabled && BOXED_TIERS.has(tier);
@@ -39,7 +39,7 @@ export function buildFaceV1(spec, { tier = 0, layoutEnabled = false } = {}) {
   // Layer order follows CardTiers7/8: art, fades, then shine on top.
   const foil = boxed && tier === 3 ? buildFoilLayers() : null;
   const windowInner = fullArt ? `${buildArtLayer(card)}${FADES}${tier === 5 ? buildShineLayers() : ''}` : boxed ? `${buildArtLayer(card)}${foil ? foil.window : ''}` : `${buildArtLayer(card)}${FADES}`;
-  const chrome = fullArt ? buildTierChrome(tier) : boxed ? buildBoxedLayers(tier) : E1_CHROME;
+  const chrome = fullArt ? buildTierChrome(diamonds) : boxed ? buildBoxedLayers(tier, diamonds) : E1_CHROME;
   const descHtml = `<div class="cv1-desc">${lines.map((l) => `<div>${formatAbilityLine(l)}</div>`).join('')}</div>`;
 
   return `

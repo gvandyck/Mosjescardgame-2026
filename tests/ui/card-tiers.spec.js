@@ -1,6 +1,7 @@
-// card-tiers.spec.js — Phase 50 rarity tiers in a real browser.
-// Renders real cards through renderCard on the demo page (?tiers=all), plus the
-// deck builder preview and the offline game hand. Runs in "visual" and "tiers-webkit".
+// card-tiers.spec.js — Phase 50 rarity tiers in a real browser, updated for the 2.0 frame rule (62-01).
+// Renders real cards through renderCard on the demo page, plus the deck builder preview and the
+// offline game hand. Mosjes are always full art: frame tier 4, or 5 only for five stars / foil, while the
+// rarity diamonds still show the rules rarity. Runs in "visual" and "tiers-webkit".
 import { test, expect } from '@playwright/test';
 import { seedOfflineSession, GAME_URL_TEST } from './helpers.js';
 
@@ -10,12 +11,17 @@ const ACCENT = {
 	PIECIE: 'rgb(21, 128, 61)', PLACE: 'rgb(109, 40, 217)', SNELLE: 'rgb(161, 98, 7)',
 };
 const TYPES = ['FIGHTING', 'DIGITAL', 'ARTISTIC', 'PIECIE', 'PLACE', 'SNELLE'];
-const COMBOS = TYPES.flatMap((type) => [1, 2, 3, 4, 5].map((tier) => ({
-	type, tier, accent: ACCENT[type],
-	pill: ['FIGHTING', 'DIGITAL', 'ARTISTIC'].includes(type) ? /^LVL \d+$/ : new RegExp(`^${type}$`),
-	layout: tier >= 4 ? 'card--fullart' : 'card--boxed',
-	badge: type !== 'PLACE',
-})));
+const MOSJE_TYPES = ['FIGHTING', 'DIGITAL', 'ARTISTIC'];
+const COMBOS = TYPES.flatMap((type) => [1, 2, 3, 4, 5].map((tier) => {
+	const mosje = MOSJE_TYPES.includes(type);
+	const frame = mosje ? (tier === 5 ? 5 : 4) : tier; // Mosje frame tier (Phase 7 A1); the rest follow their rarity
+	return {
+		type, tier, frame, accent: ACCENT[type],
+		pill: mosje ? /^LVL \d+$/ : new RegExp(`^${type}$`),
+		layout: frame >= 4 ? 'card--fullart' : 'card--boxed',
+		badge: type !== 'PLACE',
+	};
+}));
 
 // Renders one card of `type` at `tier` and `width` into a fixture; returns nothing.
 async function mount(page, { type, tier, width = 440, opts = {}, patch = {}, id = 'fx' }) {
@@ -35,7 +41,7 @@ async function mount(page, { type, tier, width = 440, opts = {}, patch = {}, id 
 		const host = document.createElement('div');
 		host.id = id;
 		host.style.cssText = 'position:absolute;left:0;top:0;padding:0;z-index:99;background:#000';
-		const el = renderCard({ ...src, ...rest, rarity: '★'.repeat(tier) }, opts);
+		const el = renderCard({ ...src, ...rest, ...(src.type === 'MOSJE' ? { foil: false } : {}), rarity: '★'.repeat(tier) }, opts); // foil only from the data; the rarity override decides the frame tier
 		el.style.setProperty('--cv1-w', `${width}px`);
 		host.append(el);
 		document.body.prepend(host);
@@ -62,7 +68,7 @@ test.describe('Phase 50 rarity tiers', () => {
 	for (const c of COMBOS) {
 		test(`combo ${c.type} tier ${c.tier}`, async ({ page }) => {
 			const card = await mount(page, c);
-			await expect(card).toHaveAttribute('data-tier', String(c.tier));
+			await expect(card).toHaveAttribute('data-tier', String(c.frame));
 			await expect(card).toHaveClass(new RegExp(c.layout));
 			await expect(card.locator('.ct-diamond--lit')).toHaveCount(c.tier);
 			const bg = await card.locator('.ct-diamond--lit').first().evaluate((e) => getComputedStyle(e).backgroundColor);
@@ -177,7 +183,7 @@ test('deck builder preview renders a tier card face', async ({ page }) => {
 		root.id = 'modal-root';
 		root.className = 'modal-root';
 		document.body.append(root);
-		initModalManager(root).showCardPreview({ ...MOSJES[0], rarity: '★★★★' });
+		initModalManager(root).showCardPreview({ ...MOSJES[0], foil: false, rarity: '★★★★' });
 	});
 	const card = page.locator('.cd-preview .card').first();
 	await expect(card).toHaveClass(/card-v1/);

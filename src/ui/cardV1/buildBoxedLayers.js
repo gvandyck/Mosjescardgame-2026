@@ -6,7 +6,8 @@
 // All styling lives in styles/card-tiers-boxed.css + card-tiers-foil.css.
 import { buildTierChrome } from './buildTierChrome.js';
 
-export function buildBoxedLayers(tier) {
+// `lit` = how many rarity diamonds are lit (defaults to the tier; the 2.0 faces pass the rules rarity).
+export function buildBoxedLayers(tier, lit = tier) {
   const foil = tier === 3;
   const waves = foil
     ? '<i class="ct-waves-wrap"><i class="ct-waves"></i><i class="ct-rb ct-foil-anim"></i></i>'
@@ -18,5 +19,5 @@ export function buildBoxedLayers(tier) {
     + '<i class="ct-calm ct-calm--top"></i><i class="ct-calm ct-calm--bottom"></i>'
     + '<i class="ct-grain"></i><i class="ct-light"></i>'
     + inner
-    + buildTierChrome(tier);
+    + buildTierChrome(lit);
 }

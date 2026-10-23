@@ -67,6 +67,7 @@ export function renderCard(card, options = {}) {
   if (v1) {
     element.classList.add(...v1.className.split(' '));
     element.dataset.tier = v1.dataTier;
+    element.dataset.cv1Diamonds = String(v1.diamonds);
     element.innerHTML = v1.html;
     return element;
   }

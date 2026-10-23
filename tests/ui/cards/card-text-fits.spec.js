@@ -1,5 +1,6 @@
 // Every card's ability text ends inside its text plate (auto-fit text size), at the pop-up size and at the
 // small 230px hand stress size. Renders each card definition with the real card renderer and real CSS.
+// Mosjes are always full art (no plate, Phase 7 A1), so the boxed set is exactly the non-Mosje cards of frame tier 1-3.
 import { test, expect } from '@playwright/test';
 import { GAME_URL_TEST, seedOfflineSession, waitForBoard } from '../helpers.js';
 
@@ -15,10 +16,12 @@ for (const width of [440, 230]) {
 			const { PIECIES } = await import('/src/data/piecies.js');
 			const { SNELLE_PIECIES } = await import('/src/data/snellePiecies.js');
 			const { PLACES } = await import('/src/data/places.js');
+			const { getFrameTier } = await import('/src/data/getFrameTier.js');
 			const cards = [...MOSJES, ...PIECIES, ...SNELLE_PIECIES, ...PLACES].filter((c) => !c.disabled);
 			const holder = document.createElement('div');
 			holder.style.cssText = 'position:fixed;left:0;top:0;z-index:9999;background:#000';
 			document.body.appendChild(holder);
+			const expectedBoxed = cards.filter((c) => getFrameTier(c) <= 3).length;
 			const bad = [];
 			let boxed = 0;
 			for (const c of cards) {
@@ -32,9 +35,10 @@ for (const width of [440, 230]) {
 				if (over > 1) bad.push(`${c.id} (+${Math.round(over)}px)`);
 			}
 			holder.remove();
-			return { boxed, bad };
+			return { boxed, expectedBoxed, bad };
 		}, width);
-		expect(result.boxed).toBeGreaterThan(100);
+		expect(result.boxed).toBeGreaterThan(90);
+		expect(result.boxed, 'every frame tier 1-3 card has a plate and nothing else does').toBe(result.expectedBoxed);
 		expect(result.bad, 'cards whose text runs out of the plate').toEqual([]);
 	});
 }

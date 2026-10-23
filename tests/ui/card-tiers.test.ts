@@ -1,8 +1,8 @@
 import { describe, it, expect, afterEach, vi } from 'vitest';
 import { MOSJES } from '../../src/data/mosjes.js';
-import { getRarityTier } from '../../src/ui/cardV1/getRarityTier.js';
+import { getFrameTier } from '../../src/data/getFrameTier.js';
+import { getRarityDiamonds } from '../../src/ui/cardV1/getRarityDiamonds.js';
 import { isFullArt } from '../../src/ui/cardV1/isFullArt.js';
-import { isTierLayoutEnabled } from '../../src/ui/cardV1/isTierLayoutEnabled.js';
 import { getTierAttributes } from '../../src/ui/cardV1/getTierAttributes.js';
 import { buildCardV1 } from '../../src/ui/cardV1/buildCardV1.js';
 import { buildFaceV1 } from '../../src/ui/cardV1/buildFaceV1.js';
@@ -14,23 +14,28 @@ import { buildShineLayers } from '../../src/ui/cardV1/buildShineLayers.js';
 import { getAbilityTextSize, getBoxedTextFit } from '../../src/ui/cardV1/getAbilityTextSize.js';
 import { getTierFadeHeight } from '../../src/ui/cardV1/getTierFadeHeight.js';
 import { buildMosjeSpecV1 } from '../../src/ui/cardV1/buildMosjeSpecV1.js';
+import { buildPlaceSpecV1 } from '../../src/ui/cardV1/buildPlaceSpecV1.js';
 
 const setSearch = (search: string) => vi.stubGlobal('window', { location: { search, origin: 'http://localhost', href: 'http://localhost/' } });
 afterEach(() => vi.unstubAllGlobals());
 
-describe('getRarityTier', () => {
+describe('getRarityDiamonds', () => {
   it('counts stars 1..5, capped at 5', () => {
-    expect(getRarityTier({ rarity: '★' })).toBe(1);
-    expect(getRarityTier({ rarity: '★★' })).toBe(2);
-    expect(getRarityTier({ rarity: '★★★' })).toBe(3);
-    expect(getRarityTier({ rarity: '★★★★' })).toBe(4);
-    expect(getRarityTier({ rarity: '★★★★★' })).toBe(5);
-    expect(getRarityTier({ rarity: '★★★★★★' })).toBe(5);
-    expect(getRarityTier({ rarity: '★ ★' })).toBe(2);
+    expect(getRarityDiamonds({ rarity: '★' })).toBe(1);
+    expect(getRarityDiamonds({ rarity: '★★' })).toBe(2);
+    expect(getRarityDiamonds({ rarity: '★★★' })).toBe(3);
+    expect(getRarityDiamonds({ rarity: '★★★★' })).toBe(4);
+    expect(getRarityDiamonds({ rarity: '★★★★★' })).toBe(5);
+    expect(getRarityDiamonds({ rarity: '★★★★★★' })).toBe(5);
+    expect(getRarityDiamonds({ rarity: '★ ★' })).toBe(2);
   });
   it('falls back to 1 for missing/malformed', () => {
-    for (const r of [undefined, null, '', 'abc', {}]) expect(getRarityTier({ rarity: r })).toBe(1);
-    expect(getRarityTier(undefined)).toBe(1);
+    for (const r of [undefined, null, '', 'abc', {}]) expect(getRarityDiamonds({ rarity: r })).toBe(1);
+    expect(getRarityDiamonds(undefined)).toBe(1);
+  });
+  it('Quests light none, whatever their rarity', () => {
+    expect(getRarityDiamonds({ type: 'QUEST', rarity: '★★★' })).toBe(0);
+    expect(getRarityDiamonds({ type: 'QUEST' })).toBe(0);
   });
 });
 
@@ -42,31 +47,51 @@ describe('isFullArt', () => {
   });
 });
 
-describe('isTierLayoutEnabled', () => {
-  it('all five tiers are implemented', () => {
-    setSearch('');
-    for (const t of [1, 2, 3, 4, 5]) expect(isTierLayoutEnabled(t)).toBe(true);
+describe('the ?tiers= URL no longer changes a face', () => {
+  it('all five tiers keep the tier layout with no parameter, ?tiers=all and ?tiers=off', () => {
+    for (const search of ['', '?tiers=all', '?tiers=off']) {
+      setSearch(search);
+      for (const t of [1, 2, 3, 4, 5]) {
+        const a = getTierAttributes({ type: 'PIECIE', rarity: '★'.repeat(t) });
+        expect(a.enabled, search + t).toBe(true);
+        expect(a.classes, search + t).toContain('card--tierlayout');
+      }
+    }
   });
-  it('?tiers=all forces on, ?tiers=off forces off', () => {
-    setSearch('?tiers=all');
-    for (const t of [1, 2, 3, 4, 5]) expect(isTierLayoutEnabled(t)).toBe(true);
-    setSearch('?tiers=off');
-    for (const t of [1, 2, 3, 4, 5]) expect(isTierLayoutEnabled(t)).toBe(false);
+  it('a three-star Piecie renders the same face for every ?tiers= value', () => {
+    const c = { ...PIECIES[0], rarity: '★★★' } as any;
+    setSearch('');
+    const base = (buildCardV1(c) as any).html;
+    for (const search of ['?tiers=all', '?tiers=off']) {
+      setSearch(search);
+      expect((buildCardV1(c) as any).html).toBe(base);
+    }
   });
 });
 
 describe('getTierAttributes', () => {
-  it('builds classes for boxed and full-art tiers', () => {
-    setSearch('?tiers=off');
-    expect(getTierAttributes({ rarity: '★★★' })).toEqual({
-      tier: 3, layout: 'boxed', classes: 'card--tier-3 card--boxed', enabled: false,
+  it('builds classes for boxed and full-art tiers (non-Mosje: frame tier = rarity)', () => {
+    expect(getTierAttributes({ type: 'PIECIE', rarity: '★★★' })).toEqual({
+      tier: 3, layout: 'boxed', classes: 'card--tier-3 card--boxed card--tierlayout', enabled: true, diamonds: 3, foil: false,
     });
-    setSearch('?tiers=all');
-    expect(getTierAttributes({ rarity: '★★★★' })).toEqual({
-      tier: 4, layout: 'fullart', classes: 'card--tier-4 card--fullart card--tierlayout', enabled: true,
+    expect(getTierAttributes({ type: 'PIECIE', rarity: '★★★★' })).toEqual({
+      tier: 4, layout: 'fullart', classes: 'card--tier-4 card--fullart card--tierlayout', enabled: true, diamonds: 4, foil: false,
     });
-    expect(getTierAttributes({ rarity: '★★★★★' })).toEqual({
-      tier: 5, layout: 'fullart', classes: 'card--tier-5 card--fullart card--tierlayout', enabled: true,
+    expect(getTierAttributes({ type: 'PIECIE', rarity: '★★★★★' })).toEqual({
+      tier: 5, layout: 'fullart', classes: 'card--tier-5 card--fullart card--tierlayout', enabled: true, diamonds: 5, foil: true,
+    });
+  });
+  it('a Mosje is always full art (4, or 5 with foil) and its diamonds show the rules rarity', () => {
+    expect(getTierAttributes({ type: 'MOSJE', rarity: '★★', foil: false })).toEqual({
+      tier: 4, layout: 'fullart', classes: 'card--tier-4 card--fullart card--tierlayout', enabled: true, diamonds: 2, foil: false,
+    });
+    expect(getTierAttributes({ type: 'MOSJE', rarity: '★', foil: true })).toEqual({
+      tier: 5, layout: 'fullart', classes: 'card--tier-5 card--fullart card--tierlayout', enabled: true, diamonds: 1, foil: true,
+    });
+  });
+  it('a Quest is tier 1 boxed with no diamonds, whatever its rarity', () => {
+    expect(getTierAttributes({ type: 'QUEST', rarity: '★★★' })).toEqual({
+      tier: 1, layout: 'boxed', classes: 'card--tier-1 card--boxed card--tierlayout', enabled: true, diamonds: 0, foil: false,
     });
   });
 });
@@ -76,18 +101,18 @@ describe('buildCardV1 tier attributes', () => {
   it('adds tier classes in full and field mode', () => {
     for (const fieldMode of [false, true]) {
       const r = buildCardV1(card, { fieldMode }) as any;
-      const tier = getRarityTier(card);
+      const tier = getFrameTier(card);
       expect(r.tier).toBe(tier);
       expect(r.dataTier).toBe(String(tier));
+      expect(r.diamonds).toBe(getRarityDiamonds(card));
       expect(r.className).toContain(`card--tier-${tier}`);
       expect(r.className).toContain(fieldMode ? 'card-v1--field' : 'card-v1--full');
     }
   });
-  it('face html is identical to the pre-tier face builder with ?tiers=off', () => {
-    setSearch('?tiers=off');
+  it('face html equals the face builders given the tier attributes', () => {
     const c = { ...card, rarity: '★★★' };
-    const spec = buildMosjeSpecV1(c);
-    expect((buildCardV1(c) as any).html).toBe(buildFaceV1(spec));
+    const a = getTierAttributes(c);
+    expect((buildCardV1(c) as any).html).toBe(buildFaceV1(buildMosjeSpecV1(c), { tier: a.tier, layoutEnabled: a.enabled, diamonds: a.diamonds }));
     expect((buildCardV1(card, { fieldMode: true }) as any).html).toBe(buildFieldFaceV1(buildMosjeSpecV1(card)));
   });
 });
@@ -141,8 +166,8 @@ describe('getTierFadeHeight', () => {
 });
 
 describe('tier 4 face (full art, no foil)', () => {
-  const base = MOSJES.find((m: any) => m.artPath) as any;
-  const t4 = { ...base, rarity: '★★★★' };
+  const gym = (PLACES as any[]).find((p) => p.id === 'place_the_gym');
+  const t4 = { ...gym, rarity: '★★★★' };
   it('same full-art window as tier 5 but without holo, sweep or glints; 4 diamonds lit', () => {
     setSearch('');
     const r = buildCardV1(t4) as any;
@@ -156,8 +181,9 @@ describe('tier 4 face (full art, no foil)', () => {
 });
 
 describe('tier 5 face (full foil)', () => {
+  const gym = (PLACES as any[]).find((p) => p.id === 'place_the_gym');
   const base = MOSJES.find((m: any) => m.artPath) as any;
-  const t4 = { ...base, rarity: '★★★★★' };
+  const t4 = { ...gym, rarity: '★★★★★' };
   it('window layers follow CardTiers7/8 order: art, fades, holo, sweep, glints', () => {
     setSearch('');
     const html = (buildCardV1(t4) as any).html;
@@ -166,10 +192,10 @@ describe('tier 5 face (full foil)', () => {
     expect(count(html, 'cv1-stripe')).toBe(0);
     expect(count(html, 'cv1-diamond')).toBe(0);
     expect(count(html, 'ct-diamond--lit')).toBe(5);
-    const spec = buildMosjeSpecV1(t4);
+    const spec = buildPlaceSpecV1(t4);
     const style = html.match(/class="cv1-face[^"]*" style="([^"]+)"/)![1];
-    expect(style).toContain(`--cv1-desc-size:${getAbilityTextSize({ lines: spec.lines, typeKey: 'MOSJE', layout: 'fullart' })};`);
-    expect(style).toContain(`--cv1-fade:${getTierFadeHeight({ typeKey: 'MOSJE', lines: spec.lines })}`);
+    expect(style).toContain(`--cv1-desc-size:${getAbilityTextSize({ lines: spec.lines, typeKey: 'PLACE', layout: 'fullart' })};`);
+    expect(style).toContain(`--cv1-fade:${getTierFadeHeight({ typeKey: 'PLACE', lines: spec.lines })}`);
   });
   it('art-less tier 5 card keeps window, shine and fades, no img', () => {
     setSearch('');
@@ -217,11 +243,11 @@ describe('getAbilityTextSize (boxed)', () => {
 });
 
 describe('boxed face (tiers 1 and 2)', () => {
-  const base = MOSJES.find((m: any) => m.artPath) as any;
+  const gym = (PLACES as any[]).find((p) => p.id === 'place_the_gym');
   for (const tier of [1, 2]) {
     it(`tier ${tier}: layers, plate, diamonds, side labels, window`, () => {
       setSearch('');
-      const r = buildCardV1({ ...base, rarity: '★'.repeat(tier) }) as any;
+      const r = buildCardV1({ ...gym, rarity: '★'.repeat(tier) }) as any;
       expect(r.className).toContain('card--boxed');
       expect(r.className).toContain('card--tierlayout');
       const html = r.html;
@@ -238,8 +264,8 @@ describe('boxed face (tiers 1 and 2)', () => {
       expect(w).toContain('<img');
       expect(count(w, 'ct-holo')).toBe(0);
       const style = html.match(/class="cv1-face[^"]*" style="([^"]+)"/)![1];
-      const spec = buildMosjeSpecV1(base);
-      expect(style).toContain(`--cv1-desc-size:${getAbilityTextSize({ lines: spec.lines, typeKey: 'MOSJE', layout: 'boxed' })};`);
+      const spec = buildPlaceSpecV1(gym);
+      expect(style).toContain(`--cv1-desc-size:${getAbilityTextSize({ lines: spec.lines, typeKey: 'PLACE', layout: 'boxed' })};`);
     });
   }
   it('art-less boxed card keeps the window with no img', () => {
@@ -248,16 +274,28 @@ describe('boxed face (tiers 1 and 2)', () => {
     expect(count(html, 'cv1-window')).toBe(1);
     expect(windowOf(html)).not.toContain('<img');
   });
-  it('?tiers=off keeps the E1 face on tier 1/2', () => {
+  it('a ★★ Place with ?tiers=off still renders the boxed tier layout (no cv1-stripe)', () => {
     setSearch('?tiers=off');
-    const c = { ...base, rarity: '★★' };
-    expect((buildCardV1(c) as any).html).toBe(buildFaceV1(buildMosjeSpecV1(c)));
+    const r = buildCardV1({ ...gym, rarity: '★★' }) as any;
+    expect(r.className).toContain('card--boxed');
+    expect(r.className).toContain('card--tierlayout');
+    expect(count(r.html, 'cv1-stripe')).toBe(0);
+    expect(count(r.html, 'ct-diamond--lit')).toBe(2);
+  });
+  it('a Mosje is never boxed: ★ and ★★ Mosjes render the full-art frame with their rarity diamonds', () => {
+    const base = MOSJES.find((m: any) => m.artPath) as any;
+    for (const tier of [1, 2]) {
+      const r = buildCardV1({ ...base, foil: false, rarity: '★'.repeat(tier) }) as any;
+      expect(r.className).toContain('card--fullart');
+      expect(r.className).not.toContain('card--boxed');
+      expect(count(r.html, 'ct-diamond--lit')).toBe(tier);
+    }
   });
 });
 
 describe('boxed face tier 3 (foil)', () => {
-  const base = MOSJES.find((m: any) => m.artPath) as any;
-  const t3 = { ...base, rarity: '★★★' };
+  const gym = (PLACES as any[]).find((p) => p.id === 'place_the_gym');
+  const t3 = { ...gym, rarity: '★★★' };
   it('waves wrap with tint, foil inner line, foil art ring, cosmos + rainbow in window', () => {
     setSearch('');
     const r = buildCardV1(t3) as any;
@@ -284,7 +322,7 @@ describe('boxed face tier 3 (foil)', () => {
   it('tiers 1/2 have no foil; field mode has no ct- markup', () => {
     setSearch('');
     for (const tier of [1, 2]) {
-      const html = (buildCardV1({ ...base, rarity: '★'.repeat(tier) }) as any).html;
+      const html = (buildCardV1({ ...gym, rarity: '★'.repeat(tier) }) as any).html;
       expect(html).not.toContain('ct-foil');
       expect(html).not.toContain('ct-waves-wrap');
     }

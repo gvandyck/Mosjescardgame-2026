@@ -26,9 +26,10 @@ export function buildCardV1(card, { fieldMode = false } = {}) {
   return {
     html: fieldMode
       ? buildFieldFaceV1(spec)
-      : buildFaceV1(spec, { tier: tierAttrs.tier, layoutEnabled: tierAttrs.enabled }),
+      : buildFaceV1(spec, { tier: tierAttrs.tier, layoutEnabled: tierAttrs.enabled, diamonds: tierAttrs.diamonds }),
     className: `card-v1 ${fieldMode ? 'card-v1--field' : 'card-v1--full'} ${tierAttrs.classes}`,
     tier: tierAttrs.tier,
     dataTier: String(tierAttrs.tier),
+    diamonds: tierAttrs.diamonds,
   };
 }

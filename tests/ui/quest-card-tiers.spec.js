@@ -1,5 +1,6 @@
 // quest-card-tiers.spec.js — Quest cards use the v1 tier design (was the old renderer).
-// Renders real quests through renderCard on the demo page at every tier, hand size and field tile.
+// Phase 7 A7: Quests have no rarity, so whatever rarity is passed in they stay frame tier 1 (boxed).
+// Renders real quests through renderCard on the demo page at every rarity override, hand size and field tile.
 import { test, expect } from '@playwright/test';
 
 const DEMO = '/card-tiers-demo.html?tiers=all';
@@ -30,11 +31,13 @@ test.describe('Quest cards in the tier design', () => {
 
 	for (const id of QUESTS) {
 		for (const tier of [1, 2, 3, 4]) {
-			test(`${id} tier ${tier}: v1 face with tier layout, pill, badge and text inside the card`, async ({ page }) => {
+			test(`${id} rarity ${tier}: still tier 1, v1 face with tier layout, pill, badge and text inside the card`, async ({ page }) => {
 				const card = await mountQuest(page, { id, tier });
 				await expect(card).toHaveClass(/card-v1/);
-				await expect(card).toHaveClass(new RegExp(`card--tier-${tier}`));
-				await expect(card).toHaveClass(tier === 4 ? /card--fullart/ : /card--boxed/);
+				await expect(card).toHaveClass(/card--tier-1\b/);
+				await expect(card).toHaveClass(/card--boxed/);
+				await expect(card).not.toHaveClass(/card--fullart/);
+				await expect(card.locator('.ct-diamond--lit')).toHaveCount(0);
 				await expect(card.locator('.cv1-pill')).toHaveText(/QUEST/);
 				await expect(card.locator('.cv1-badge-val')).toHaveText(/^\+\d+$/);
 				const inside = await card.evaluate((c) => {
