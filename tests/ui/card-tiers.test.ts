@@ -119,7 +119,12 @@ describe('buildCardV1 tier attributes', () => {
 
 // No DOM in this vitest env: read class lists in document order from the html string.
 const classesIn = (html: string) => [...html.matchAll(/<(?:div|i|img) [^>]*class="([^"]+)"/g)].map((m) => m[1]);
-const windowOf = (html: string) => html.slice(html.indexOf('<div class="cv1-window">') + 24, html.indexOf('<div class="cv1-name">'));
+// The window layers end where the name starts: legacy faces (Place, Quest) have .cv1-name, 2.0 faces (Mosje, Piecie, Snelle)
+// have the cost corner right after the window (and the tier 3 art ring).
+const windowOf = (html: string) => {
+  const ends = ['<div class="cv1-name">', '<div class="cv2-corner"'].map((m) => html.indexOf(m)).filter((i) => i >= 0);
+  return html.slice(html.indexOf('<div class="cv1-window">') + 24, Math.min(...ends));
+};
 const count = (html: string, cls: string) => classesIn(html).filter((c) => c.split(' ').includes(cls)).length;
 
 describe('buildTierChrome', () => {

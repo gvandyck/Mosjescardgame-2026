@@ -45,12 +45,10 @@ test('card frame v1 — hand is visible, hover previews in the dock, no Play but
 // Worst-case hand text: every real card of one type rendered at hand width keeps readable text and no zone
 // of the face runs into another (2.0 faces: zone rects; legacy faces: description vs name / info).
 // The real hand card is 150% of what it was (2026-10-20): 338px wide at the smallest, about 386px at 1920x1080.
-// 338px and up is the real hand size and is enforced for every type. 230px (the old hand size) is the stress case:
-// enforced here for the types whose 2.0 face exists (Mosje now; Snelle / Place stay clean as before) and, for the
-// Piecie face that still has its three pre-existing collisions, held to exactly those ids until 62-03 fixes them.
+// 338px and up is the real hand size. 230px (the old hand size) is the stress case. Both are enforced for every type
+// (62-03 closed the last Known gap: piecie_bowie_stormey, piecie_tony and piecie_gekke_vogels are clean on the 2.0 face).
 // 180px stays informational (smaller windows).
 const TYPES = ['MOSJE', 'PIECIE', 'SNELLE_PIECIE', 'PLACE'];
-const PIECIE_GAP_230 = ['piecie_bowie_stormey', 'piecie_gekke_vogels', 'piecie_tony'];
 const FLOOR_TEXT = 11.5; // the text floor of the 2.0 face (reference px at 440 wide)
 
 for (const type of TYPES) {
@@ -94,8 +92,7 @@ for (const type of TYPES) {
           expect(r.infoPx, `${r.id} info size`).toBeGreaterThanOrEqual(5); // Phase 51: exact scaled design (was 10)
         }
       }
-      if (width >= 338 || (width === 230 && type !== 'PIECIE')) expect(bad, 'cards whose text collides').toEqual([]);
-      if (width === 230 && type === 'PIECIE') expect(badIds.filter(id => !PIECIE_GAP_230.includes(id)), 'new collisions beyond the pre-existing Known gap').toEqual([]);
+      if (width >= 230) expect(bad, 'cards whose text collides').toEqual([]);
     });
   }
 }

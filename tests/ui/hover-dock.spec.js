@@ -80,14 +80,24 @@ test('hovering a hand card previews it in the same dock at the same size, with a
 	expect(Math.abs(b.w - 356)).toBeLessThanOrEqual(2); // the spotlight / field preview size: clamp(240px, 33vh, 360px) at 1080px high
 	expect(Math.abs(b.h - b.w * 1.5)).toBeLessThanOrEqual(2);
 
-	// every paragraph of Bowie & Stormey's long text ends inside the text plate (auto-fit text size)
+	// Bowie & Stormey's long text (2.0 face): every paragraph is in the box and the text stays inside the frosted text box;
+	// text that cannot all fit at the 11.5 floor is flagged clamped (fade + "...", D-02), never left to spill out unflagged.
 	const fit = await pop.evaluate((el) => {
-		const plate = el.querySelector('.ct-plate');
-		const desc = el.querySelector('.cv1-desc');
-		return { over: desc.getBoundingClientRect().bottom - plate.getBoundingClientRect().bottom, paragraphs: desc.children.length };
+		const box = el.querySelector('.cv2-textbox');
+		const text = el.querySelector('.cv2-text');
+		return {
+			over: text.getBoundingClientRect().bottom - box.getBoundingClientRect().bottom,
+			paragraphs: text.children.length,
+			cut: text.scrollHeight > text.clientHeight + 1,
+			clamped: el.querySelector('.cv1-face--2').dataset.cv1Clamped === 'true',
+			text: text.textContent.replace(/\s+/g, ''), // paragraphs are separate divs: compare without whitespace
+		};
 	});
+	const card = await page.evaluate(async () => (await import('/src/data/cardIndex.js')).getCardById('piecie_bowie_stormey').description);
 	expect(fit.paragraphs).toBeGreaterThanOrEqual(4);
 	expect(fit.over).toBeLessThanOrEqual(1);
+	expect(fit.text, 'the dock shows the whole description').toBe(card.replace(/\s+/g, ''));
+	if (fit.cut) expect(fit.clamped, 'text that is cut must be flagged clamped').toBe(true);
 	await page.mouse.move(5, 5);
 	await expect(pop).toHaveCount(0);
 });
