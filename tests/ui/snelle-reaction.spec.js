@@ -6,8 +6,9 @@
 import { test, expect } from '@playwright/test';
 import {
 	GAME_URL_TEST, seedOfflineSession, waitForBoard, getGameState, setMosjeOnField, clearEntryProtection,
-	setHand, setEnergy, setQuestFaceUp, setNextDice, clickModalOption,
+	setHand, setEnergy, setQuestFaceUp, setNextDice,
 } from './helpers.js';
+import { beginQuestByTap } from '../helpers/boardTaps.js';
 import { answerReaction, expectNoReactionPrompt } from '../helpers/reactionUi.js';
 import { getPower } from '../../src/engine/mp/getPower.js';
 
@@ -75,9 +76,8 @@ async function questWithSleutelpuntje(page, energy, choose) {
 	await boot(page, ['snelle_sleutelpuntje'], energy);
 	await setQuestFaceUp(page, 'FIGHTING', 'quest_tough_it_out');
 	await setNextDice(page, [6, 6, 6, 6, 6, 6]);
-	await page.click('#btn-quest');
-	await clickModalOption(page, '0');
-	await clickModalOption(page, 'FIGHTING');
+	await beginQuestByTap(page, 0); // tap the Mosje, Quest in its tray; then the FIGHTING Quest tile
+	await page.locator('.quest-stack[data-quest-stack="FIGHTING"]').click();
 	if (choose === 'none') {
 		await expectNoReactionPrompt(page, 800);
 	} else {

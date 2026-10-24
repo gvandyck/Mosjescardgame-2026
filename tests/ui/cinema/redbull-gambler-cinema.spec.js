@@ -12,6 +12,7 @@
 import { test, expect } from '@playwright/test';
 import { answerModals } from '../../helpers/answerModals.js';
 import { playAndActivateRedbull, extraUses, energyOf, useAbilityViaUi } from '../../helpers/redbullUi.js';
+import { abilityByTap } from '../../helpers/boardTaps.js';
 import {
 	GAME_URL_TEST, seedCustomDeck, waitForBoard, ss,
 	setHand, setMosjeMP, getGameState, getHandSize, readOwnedMosjes, mockDiceRoll,
@@ -47,7 +48,7 @@ test('🎬 High Stakes stake 1, roll a 1 - the Energy is lost, MP untouched (70 
 	await beat(`Scene 1 - Jeffrey starts at ${await jefMp(page)} MP with 4 Energy. No Redbull.`);
 	await beat('High Stakes: stake 1 Energy, the die shows a 1 -> the Energy is lost.');
 
-	await page.locator('.mosje-card--owned[data-card-id="mosje_jeffrey_gambler"] .mosje-ability-btn').click();
+	await abilityByTap(page, 'mosje_jeffrey_gambler'); // tap the Mosje, Ability in its tray
 	await page.waitForTimeout(500);
 	await answerModals(page, [/1/]);
 	await page.waitForTimeout(900);

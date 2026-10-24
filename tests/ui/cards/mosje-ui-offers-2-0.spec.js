@@ -9,6 +9,7 @@ import { runMosjeCardTest } from '../../helpers/mosjeCardTest.js';
 import { mosjeCardSetup } from '../../helpers/mosjeCardSetup.js';
 import { getGameState, setQuestFaceUp } from '../helpers.js';
 import { QUESTS } from '../../../src/data/quests.js';
+import { tapOwnCard, chooseTray, cancelSelection } from '../../helpers/boardTaps.js';
 
 const OPP = [{ id: 'mosje_ming_predictor', mp: 40 }];
 
@@ -44,19 +45,21 @@ test('Martin, Senor West (AZN Cless on the field): look at the top of a Quest st
 	const topName = QUESTS.find(q => q.id === (typeof top === 'object' ? top.cardId : top)).name;
 	const option = page.locator('.modal-mosje-select-btn:not([disabled])');
 
-	await page.click('#btn-quest');
-	await option.filter({ hasText: 'Senor' }).first().click(); // the acting Mosje
+	const chooseQuest = page.locator('#status-strip[data-status-kind="choose-quest"]'); // the Quest tiles light up (was the "Attempt which Quest?" picker)
+	await tapOwnCard(page, 'mosje', 'mosje_martin_senor_west'); // the acting Mosje
+	await chooseTray(page, 'quest');
 	await expect(page.locator('.modal-card h3')).toContainText('Senor West');
 	await option.filter({ hasText: 'FIGHTING' }).click();
 	await expect(page.locator('.modal-card p')).toHaveText(topName);
 	await option.filter({ hasText: 'OK' }).click();
-	await expect(page.locator('.modal-card h3')).toContainText('Attempt which Quest?');
-	await page.click('#modal-option-cancel');
+	await expect(chooseQuest).toBeVisible();
+	await cancelSelection(page);
 	expect((await getGameState(page)).players.player_1.westPeekTurn).toBe(state.turnNumber);
 
 	// Used up: the second attempt this turn goes straight to the Quest choice.
-	await page.click('#btn-quest');
-	await option.filter({ hasText: 'Senor' }).first().click();
-	await expect(page.locator('.modal-card h3')).toContainText('Attempt which Quest?');
-	await page.click('#modal-option-cancel');
+	await tapOwnCard(page, 'mosje', 'mosje_martin_senor_west');
+	await chooseTray(page, 'quest');
+	await expect(chooseQuest).toBeVisible();
+	await expect(page.locator('.modal-card h3', { hasText: 'Senor West' })).toHaveCount(0);
+	await cancelSelection(page);
 });

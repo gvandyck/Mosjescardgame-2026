@@ -2,7 +2,8 @@
  * quest-registry-2-0.js - card-test-library entries for the 38 Obby 2.0 Quests (Phase 60-08, TEST-02).
  * Every expected number comes from the Card List Quest tables (docs/obby-2.0), not from engine output.
  * Driver: tests/helpers/mosjeCardTest.js (the spec passes { mosje: quest } as the entry id); the Quest is driven through the real
- * Quest picker (#btn-quest): slot, stack, cost / die picks, result screen, jab. Dice are forced with setNextDice.
+ * tap flow (63-06): tap the Mosje, Quest in its tray, the Quest tile of the stack, then cost / die picks, result screen, jab.
+ * Dice are forced with setNextDice.
  * Quest bands: Steady one 4+ (+25/-15) · Skilled two 4+ (+40/-30) · Heroic two 5+ (+60/-25) · Prepared pay first then one 4+ (+50/-30)
  *              Gated condition then one 4+ (+35/-20) · Coin flip 1 die 4+ (+50/-25) · Trained no roll (+25, can't fail).
  * Dice = 1 per star of the rolled trait (min 1, max 4). Test Mosjes (Card List level-1 rows, no Quest-related ability):

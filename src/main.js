@@ -27,7 +27,6 @@ import { chooseQuestChoices } from './bot/strategy/chooseQuestChoices.js';
 import { settleReactions } from './ui/actions/settleReactions.js';
 import { runAttackFlow } from './ui/actions/runAttackFlow.js';
 import { runQuestFlow } from './ui/actions/runQuestFlow.js';
-import { isCooldownBlocked } from './engine/turn/isCooldownBlocked.js';
 import { getActivePartnerSynergyBonuses } from './abilities/questLogic.js';
 import { getMingPeekStack } from './abilities/getMingPeekStack.js';
 import { PIECIE_SLOT_COUNT } from './engine/table/tableRules.js';
@@ -1333,7 +1332,7 @@ function initGamePage() {
 		}
 	});
 
-	// 56-06: Attack / Quest buttons — the flows own all picking; main.js only assigns state, logs, syncs and renders.
+	// 56-06: Attack / Quest (63-06: reached only through the action tray) — the flows own all picking; main.js only assigns state, logs, syncs and renders.
 	async function runMosjeAction(flow, actionLabel, presets = {}) {
 		if (!gameState || gameState.status === 'FINISHED') return;
 		if (gameState.activePlayerId !== localPlayerId) {
@@ -1349,8 +1348,6 @@ function initGamePage() {
 		syncPush();
 		renderAndAnimate(before, { actionLabel });
 	}
-	document.getElementById('btn-attack')?.addEventListener('click', () => runMosjeAction(runAttackFlow, 'attack'));
-	document.getElementById('btn-quest')?.addEventListener('click', () => runMosjeAction(runQuestFlow, 'quest'));
 
 	// Senor West's optional look at a Quest stack (once per turn): the Quest tray chip offers it before the Quest tiles light up.
 	async function offerQuestPeek() {
@@ -1408,11 +1405,10 @@ function initGamePage() {
 			state
 		);
 
-		const onUseAbility = !gameOver ? handleUseAbility : null; // the board disables buttons that are not usable now
-		const onActivatePiecie = (isLocalTurn && !gameOver) ? handleActivatePiecie : null;
 		const onOpenDiscard = handleOpenDiscard;
 		const onPlayFromHand = (isLocalTurn && !gameOver) ? handlePlayCard : null;
-		renderBoard(boardRoot, uiState, onUseAbility, null, onActivatePiecie, onOpenDiscard, onPlayFromHand, { endTurnButton, onTileTap: boardController.onTileTap, onQuestTap: boardController.onQuestTap });
+		// 63-06: Ability and Activate live only in the action tray (the board controller calls handleUseAbility / handleActivatePiecie).
+		renderBoard(boardRoot, uiState, null, onOpenDiscard, onPlayFromHand, { endTurnButton, onTileTap: boardController.onTileTap, onQuestTap: boardController.onQuestTap });
 		boardController.afterRender(); // redraw the selection / tray / target marks on the fresh tiles
 		showNewReveals(state, localPlayerId, modal, CARD_LOOKUP, revealSeen); // reveal modal: local viewer's entries only
 		if (state._lastPlaceEffect?.placeName) {
@@ -1421,8 +1417,6 @@ function initGamePage() {
 		}
 		// Board is rendered (discard containers now exist) — announce any deck-out recycle.
 		maybeAnnounceDeckOut(state);
-
-		const actionBtnsEnabled = isLocalTurn && !gameOver && !isCooldownBlocked(state, localPlayerId);
 
 		const phaseLabel = gameOver
 			? 'Game Over'
@@ -1449,11 +1443,7 @@ function initGamePage() {
 		// Status strip (D-19): one message by priority; the board controller's action mode (D-04) comes first.
 		updateStatusStrip(state);
 
-		const btnAttack = document.getElementById('btn-attack');
-		const btnQuest = document.getElementById('btn-quest');
 		const btnEndTurn = document.getElementById('btn-end-turn');
-		if (btnAttack) btnAttack.disabled = !actionBtnsEnabled;
-		if (btnQuest) btnQuest.disabled = !actionBtnsEnabled;
 		if (btnEndTurn) btnEndTurn.disabled = !isLocalTurn || gameOver;
 	}
 

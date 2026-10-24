@@ -12,7 +12,7 @@ import {
 	GAME_URL_TEST, seedCustomDeck, waitForBoard, ss,
 	setHand, setMosjeMP, setEnergy, getGameState,
 } from '../helpers.js';
-import { playAndActivateRedbull, extraUses, useAbilityViaUi } from '../../helpers/redbullUi.js';
+import { playAndActivateRedbull, extraUses, useAbilityViaUi, abilityChipOf } from '../../helpers/redbullUi.js';
 
 const CASES = [
 	{ mosje: 'mosje_martin_senor_west', botDeck: 'PHYSICAL_FORCE', name: 'Martin Senor West (Calculated Guess)' },
@@ -46,6 +46,7 @@ for (const c of CASES) {
 
 		const slot = (await getGameState(page)).players.player_1.activeSlots[0];
 		expect(slot.abilityUsesThisTurn).toBe(2);
-		await expect(page.locator(`.mosje-card--owned[data-card-id="${c.mosje}"] .mosje-ability-btn`)).toBeDisabled();
+		const chip = await abilityChipOf(page, c.mosje);
+		expect(chip.present && chip.disabled, 'the Ability chip is disabled after two uses').toBe(true);
 	});
 }

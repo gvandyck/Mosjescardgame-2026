@@ -40,6 +40,11 @@
 }
 .status-strip[data-status-kind] { background: rgba(5, 5, 5, 0.82); border-color: rgba(255, 255, 255, 0.14); }
 
+/* The deck-out "DECK RECYCLED" banner (Phase 33, board.css) used to sit at top: 104px, so its fade-in offset (-18 px) and
+   scale-up pushed it over the status strip for the first moments (63-06). It now starts 30 px under the strip, which
+   clears the animation's offset and keeps the cooldown message in the strip readable. */
+.deckout-banner { top: calc(var(--topbar-h, 56px) + var(--status-h, 44px) + 30px); }
+
 /* ── The board: tile token, board unit, reserved hand height ──────── */
 /* The tile tokens are REGISTERED lengths: the cqw in them must resolve ONCE, here on the board's children, against the
    board container. Every .card is itself a size container (card-face-2-0.css: cv1card), so an unregistered token would

@@ -1,4 +1,7 @@
 // tests/ui/helpers.js — Shared Playwright test utilities for all UI tests.
+// Phase 63-06: attackViaUi / questViaUi / questFirstAvailable drive the tap flow in tests/helpers/boardTaps.js (that file
+// imports clickModalOption from here; the cycle is safe, nothing is called while the modules load).
+import { attackByTap, questByTap, questFirstByTap } from '../helpers/boardTaps.js';
 
 export const GAME_URL        = '/game?offline=true&player=player_1';
 export const GAME_URL_TEST   = '/game?offline=true&player=player_1&testMode=true';
@@ -118,13 +121,12 @@ export async function isPiecieOnField(page, cardId) {
 }
 
 /**
- * Count how many of the player's piecies on field have an Activate button
- * (meaning they're placed but not yet activated = effectively "face-down" state).
- * Own piecies render as full cards; face-down state shows Activate button.
+ * Count how many of the player's Piecies on the field are still face-down (placed but not yet activated). The tile no longer
+ * carries an Activate button (63-06), so this reads the engine state, which is where "face-down" lives.
  */
 export async function countFaceDownPiecies(page) {
 	return page.evaluate(() =>
-		document.querySelectorAll('#piecies-player [data-zone="piecie"] button').length
+		(window.__testHooks?.getGameState()?.players?.player_1?.piecieSlots || []).filter((s) => s && s.type === 'PIECIE' && s.faceDown === true && s.activated !== true).length
 	);
 }
 
@@ -264,42 +266,23 @@ export async function clickModalOption(page, id) {
 }
 
 /**
- * Drive #btn-quest: pick the acting Mosje (slot), pick the Quest stack, then click through the
- * remaining option modals (cost/die/result screens) by taking `picks` in order, else the first enabled option.
+ * Quest on the 2.0 tap flow (63-06, was the top-bar Quest button): tap the acting Mosje (slot), Quest in its tray, the Quest tile of the
+ * stack, then click through the remaining option modals (cost/die/result screens) by taking `picks` in order, else the
+ * first enabled option. Implemented by questByTap in tests/helpers/boardTaps.js.
  */
-export async function questViaUi(page, { slot = 0, stackId = 'FIGHTING', picks = [] } = {}) {
-	await page.click('#btn-quest');
-	await clickModalOption(page, String(slot));
-	await clickModalOption(page, stackId);
-	const queue = [...picks];
-	for (let i = 0; i < 8; i++) {
-		const btn = page.locator('.modal-mosje-select-btn:not([disabled])').first();
-		if (!(await btn.isVisible({ timeout: 800 }).catch(() => false))) break;
-		const want = queue.shift();
-		if (want != null) await clickModalOption(page, want); else await btn.click();
-		await page.waitForTimeout(150);
-	}
-	await page.waitForTimeout(300);
+export async function questViaUi(page, opts = {}) {
+	return questByTap(page, opts);
 }
 
-/** Generic Quest attempt for loops/bots: #btn-quest, then the first enabled option in every modal until none is left. */
+/** Generic Quest attempt for loops/bots (was the top-bar Quest button): the first own Mosje whose Quest chip is enabled, the first valid
+ *  Quest tile, then the first enabled option in every modal until none is left. Returns false when no Mosje can Quest. */
 export async function questFirstAvailable(page) {
-	await page.click('#btn-quest');
-	for (let i = 0; i < 10; i++) {
-		const btn = page.locator('.modal-mosje-select-btn:not([disabled])').first();
-		if (!(await btn.isVisible({ timeout: 800 }).catch(() => false))) break;
-		await btn.click();
-		await page.waitForTimeout(150);
-	}
-	await page.waitForTimeout(300);
+	return questFirstByTap(page);
 }
 
-/** Drive #btn-attack: pick the acting Mosje slot, then the target "playerId:slot". */
-export async function attackViaUi(page, { slot = 0, target = 'player_2:0' } = {}) {
-	await page.click('#btn-attack');
-	await clickModalOption(page, String(slot));
-	await clickModalOption(page, target);
-	await page.waitForTimeout(500);
+/** Attack on the 2.0 tap flow (63-06, was the top-bar Attack button): tap the acting Mosje slot, Attack, the target "playerId:slot", Confirm. */
+export async function attackViaUi(page, opts = {}) {
+	return attackByTap(page, opts);
 }
 
 /**

@@ -2,8 +2,9 @@
 // collectFaceZones(selector) is SELF-CONTAINED: pass it to page.evaluate(collectFaceZones, selector). It measures
 // every matched rendered card in the page; findFaceCollisions(rows) then runs in Node on the result.
 // 2.0 faces (.cv1-face--2): the rect of each zone relative to the card (null when absent) plus the text checks.
-// 2.0 field tiles (.cv2-tile, 62-05): the rects of name, L chip, Power, MP, pills, need, WIN, LOSE, fail pips and the
-// Activate / ability button (Phase 63 overlays such as the state badges in .tile-badges sit over the art by design and are ignored).
+// 2.0 field tiles (.cv2-tile, 62-05): the rects of name, L chip, Power, MP, pills, need, WIN, LOSE and fail pips (63-06: the
+// tile has no Activate / ability button any more, those are chips in the action tray; Phase 63 overlays such as the state
+// badges in .tile-badges sit over the art by design and are ignored).
 
 export function collectFaceZones(selector) {
   const ZONES = {
@@ -13,7 +14,7 @@ export function collectFaceZones(selector) {
   const TILE_ZONES = {
     name: '.cv2-tile-name', lvl: '.cv2-tile-lvl', power: '[data-cv1-power]', mp: '[data-cv1-mp]',
     pills: '.cv2-tile-pills', need: '.cv2-tile-need', win: '[data-cv1-win]', lose: '[data-cv1-lose]',
-    pips: '.cv2-tile-pips', button: '.mosje-ability-btn, .hand-card__play-btn',
+    pips: '.cv2-tile-pips',
   };
   const round = (n) => Math.round(n * 10) / 10;
   return [...document.querySelectorAll(selector)].map((card) => {

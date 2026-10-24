@@ -5,6 +5,7 @@ import {
 	playCardFromHand, endTurnAndWait, getGameState, isPiecieOnField,
 } from './helpers.js';
 import { activatePiecieOnField } from '../helpers/piecieUi.js';
+import { readTrayChip } from '../helpers/boardTaps.js';
 
 const PIECIE = 'piecie_kannetje_melk';
 
@@ -17,6 +18,11 @@ test('an own ready Piecie shows Activate and activating discards it', async ({ p
 	await playCardFromHand(page, PIECIE);
 	await expect.poll(() => isPiecieOnField(page, PIECIE)).toBe(true);
 
+	// Placed this turn: the tray offers Activate, but dimmed (not ready yet).
+	const notReady = await readTrayChip(page, 'piecie', PIECIE, 'activate');
+	expect(notReady.present, 'the tray offers Activate').toBe(true);
+	expect(notReady.disabled, 'Activate is dimmed until the Piecie is ready').toBe(true);
+
 	await endTurnAndWait(page);
 
 	const state = await getGameState(page);
@@ -25,9 +31,11 @@ test('an own ready Piecie shows Activate and activating discards it', async ({ p
 	expect(state.turnNumber).toBeGreaterThanOrEqual(slot.canActivateOnTurn);
 	expect(state.activePlayerId).toBe('player_1');
 
-	await expect(
-		page.locator(`#piecies-player [data-card-id="${PIECIE}"] button:has-text("Activate")`),
-	).toBeVisible();
+	// Ready now: the Activate chip in the Piecie's tray is there and enabled (the tile itself has no button).
+	const ready = await readTrayChip(page, 'piecie', PIECIE, 'activate');
+	expect(ready.present, 'the tray offers Activate').toBe(true);
+	expect(ready.disabled, 'Activate is enabled when the Piecie is ready').toBe(false);
+	await expect(page.locator(`#piecies-player [data-card-id="${PIECIE}"] button`)).toHaveCount(0);
 	await activatePiecieOnField(page, PIECIE);
 
 	const after = await getGameState(page);

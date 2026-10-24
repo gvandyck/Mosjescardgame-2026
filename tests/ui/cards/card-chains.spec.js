@@ -16,15 +16,14 @@ import {
 	setMosjeMP, setMosjeOnField, setHand, unlockPiecies, playCardFromHand,
 	clearEntryProtection, mockDiceRoll,
 } from '../helpers.js';
+import { activateByTap, readTrayChip } from '../../helpers/boardTaps.js';
 
-/** Activate a face-down piecie on the field, auto-dismissing up to two target pickers. */
+/** Activate a face-down piecie on the field (tap it, Activate in its tray), auto-dismissing up to two target pickers. */
 async function activate(page, cardId) {
 	const el = page.locator(`#piecies-player [data-card-id="${cardId}"]`).first();
 	await el.waitFor({ state: 'visible', timeout: 8000 });
-	const btn = el.locator('button:has-text("Activate")');
-	await btn.waitFor({ state: 'visible', timeout: 8000 });
-	await btn.click();
-	await page.waitForTimeout(400);
+	await activateByTap(page, cardId);
+	await page.waitForTimeout(100);
 	for (let i = 0; i < 2; i++) {
 		const t = page.locator('.target-option, .modal-mosje-select-btn:not(:disabled)').first();
 		if (await t.isVisible({ timeout: 1500 }).catch(() => false)) { await t.click(); await page.waitForTimeout(350); }
@@ -231,12 +230,10 @@ test('chain: Tikker blocks a General Quest on the next turn', async ({ page }) =
 	// The owner's next turn (turn number + 1; the Tikker is still there)
 	await page.evaluate((n) => window.__testHooks.setTurnNumber(n), gs.turnNumber + 1);
 
-	// 2.0: try to Quest — the Mosje can be picked but every Quest is disabled (Tikker)
+	// 2.0 tap flow: tap the Mosje - its Quest chip is dimmed because every Quest is refused (Tikker); was "No Quest available"
 	const mpBefore = await ownSlot0(page);
-	await page.click('#btn-quest');
-	await page.locator('.modal-mosje-select-btn[data-id="0"]').click();
-	await page.waitForTimeout(500);
-	const refused = await page.locator('.modal-card').filter({ hasText: 'No Quest available' }).isVisible({ timeout: 1000 }).catch(() => false);
+	const questChip = await readTrayChip(page, 'mosje', 0, 'quest');
+	const refused = questChip.present && questChip.disabled;
 	await ss(page, 'chain-tikker-questblock');
 	const mpAfter = await ownSlot0(page);
 	console.log(`Quest-block: refused=${refused}, MP ${mpBefore}→${mpAfter}`);

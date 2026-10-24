@@ -7,7 +7,6 @@ import { markEnteringCards } from './markEnteringCards.js';
 import { getCardById } from '../data/cardIndex.js';
 import { initModalManager } from './modalManager.js';
 import { renderQuestStacks } from './renderQuestStacks.js';
-import { MOSJE_ABILITY_RULES } from '../rules/mosjeAbilityRules.js';
 import { buildBoardSkeleton } from './board/buildBoardSkeleton.js';
 import { fillSlotOutlines } from './board/fillSlotOutlines.js';
 import { getFieldSlots } from './board/getFieldSlots.js';
@@ -43,7 +42,7 @@ function getBoardModal() {
 
 // extras.endTurnButton: the #btn-end-turn node (kept by main.js so its listener survives every re-render); it is
 // moved into the middle strip of the board (D-07, D-08).
-export function renderBoard(container, viewModel, onUseAbility = null, onReturnToHand = null, onActivatePiecie = null, onOpenDiscard = null, onPlayFromHand = null, extras = {}) {
+export function renderBoard(container, viewModel, onReturnToHand = null, onOpenDiscard = null, onPlayFromHand = null, extras = {}) {
 	if (!container) return;
 	console.log('[UI] Rendering board view');
 
@@ -104,36 +103,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		bindTileTap(cardEl, { kind: 'mosje', owner: 'own', playerId: viewModel.players.bottom.id, slotIndex: mosje.slotIndex, cardId: mosje.cardId },
 			() => getBoardModal().showMosjeDetailModal({ ...fullCard, ...mosje }), extras.onTileTap);
 
-		// 2.0: the button comes from the ability rules (activated, not a draw-step one); hidden V4 Mosjes keep the old rule.
-		const abilityRule = MOSJE_ABILITY_RULES[fullCard.abilityId];
-		const showAbilityBtn = abilityRule ? (abilityRule.kind === 'activated' && !abilityRule.drawStep && !abilityRule.reactive) : !fullCard.autoAbility;
-		if (onUseAbility && !mosje.isDefeated && mosje.cardId && showAbilityBtn) {
-			const wrongTurn = abilityRule?.ownTurnOnly !== false && viewModel.gameState?.activePlayerId !== viewModel.myPlayerId;
-			const isUsed = mosje.abilityUsedThisTurn || (abilityRule?.per === 'game' && mosje.abilityUsedThisGame);
-			const costLabel = mosje.abilityCost > 0 ? ` ${mosje.abilityCost} Energy` : '';
-			let tooltip;
-			if (wrongTurn) tooltip = 'You can only use this on your own turn';
-			else if (!isUsed && mosje.cantAffordAbility) tooltip = `Not enough Energy (need ${mosje.abilityCost})`;
-			else if (isUsed) tooltip = 'Ability already used this turn';
-			else tooltip = `Use ability${costLabel ? ` (costs ${mosje.abilityCost} Energy)` : ''}`;
-
-			const btn = document.createElement('button');
-			btn.className = 'mosje-ability-btn' + (isUsed ? ' mosje-ability-btn--used' : '');
-			btn.textContent = `⚡ Activate${costLabel ? ` · ${mosje.abilityCost} Energy` : ''}`;
-			btn.title = tooltip;
-			btn.setAttribute('aria-label', tooltip);
-			btn.disabled = wrongTurn || isUsed || (mosje.cantAffordAbility ?? false);
-			btn.addEventListener('click', (event) => {
-				event.stopPropagation();
-				onUseAbility(mosje.cardId);
-			});
-			// Own Mosjes: place the full-width ability button BELOW the description
-			// meta block (inside the card foot) so description sits on top and the
-			// button bottom-anchors, with breathing space between them.
-			const foot = cardEl.querySelector('.uc-foot');
-			if (foot) foot.appendChild(btn);
-			else cardEl.appendChild(btn);
-		}
+		// 63-06: no Ability button on the tile; the Ability chip lives in the action tray (getAbilityChip, D-03).
 
 		if (
 			onReturnToHand &&
@@ -213,19 +183,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		bindTileTap(piecieEl, { kind: 'piecie', owner: 'own', playerId: viewModel.players.bottom.id, slotIndex: piecie.slotIndex, cardId: piecie.cardId },
 			() => getBoardModal().showDeckBuilderCardPreview(mergedPiecieBottom), extras.onTileTap);
 
-		// Add activate button for Piecies
-		if (onActivatePiecie && piecie.canActivate && piecie.type === 'PIECIE') {
-			const btn = document.createElement('button');
-			btn.className = 'hand-card__play-btn';
-			btn.type = 'button';
-			btn.textContent = 'Activate';
-			btn.addEventListener('click', (event) => {
-				event.stopPropagation();
-				onActivatePiecie(piecie.slotIndex);
-			});
-			piecieEl.appendChild(btn);
-		}
-
+		// 63-06: no Activate button on the tile; Activate lives in the Piecie's action tray (D-03).
 		bottomPiecies?.appendChild(piecieEl);
 	}
 

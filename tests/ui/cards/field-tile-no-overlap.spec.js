@@ -4,7 +4,7 @@ import { test, expect } from '@playwright/test';
 import { seedOfflineSession, GAME_URL_TEST } from '../helpers.js';
 import { collectFaceZones, findFaceCollisions } from '../../helpers/faceZones.js';
 
-// Phase 62-05: the same guard on the 2.0 tile: name, L chip, Power, MP, pill and the Activate / ability button never overlap.
+// Phase 62-05: the same guard on the 2.0 tile: name, L chip, Power, MP, pill and the other tile zones never overlap (63-06: the tile has no Activate / ability button any more).
 for (const width of [1600, 2200, 2560]) {
 	test(`field tiles: name, L chip, Power, MP, pill and buttons do not overlap at ${width}px wide`, async ({ page }) => {
 		await page.setViewportSize({ width, height: 1200 });

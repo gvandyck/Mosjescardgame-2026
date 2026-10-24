@@ -2,6 +2,7 @@
 // may use its once-per-turn ability one more time this turn, paying its Energy again (slot.extraAbilityUses).
 import { playCardFromHand, unlockPiecies, setEnergy, getGameState } from '../ui/helpers.js';
 import { activatePiecieOnField } from './piecieUi.js';
+import { abilityByTap, readTrayChip } from './boardTaps.js';
 import { answerModals } from './answerModals.js';
 
 /** Play Redbull from the hand, make it activatable, activate it (the Mosje picker, if any, takes the first option). */
@@ -25,8 +26,17 @@ export async function energyOf(page) {
 	return (await getGameState(page))?.players?.player_1?.energy;
 }
 
-/** Click a Mosje's ability button and answer every modal it opens (first option each). Returns the clicked labels. */
+/** Tap a Mosje, choose Ability in its tray and answer every modal it opens (first option each). Returns the clicked labels. */
 export async function useAbilityViaUi(page, mosjeId, picks = []) {
-	await page.locator(`.mosje-card--owned[data-card-id="${mosjeId}"] .mosje-ability-btn`).click();
-	return answerModals(page, picks, { max: 8, wait: 700 });
+	await abilityByTap(page, mosjeId);
+	const clicked = await answerModals(page, picks, { max: 8, wait: 700 });
+	// An info-only reveal ("Opponent's Hand", FPS West's Tactical Analysis) stays open until Close and would block the next tap
+	// (the same hang happens on the untouched 63-05 tree with the old tile button): close it when it shows up.
+	await page.locator('#modal-close-hand-reveal').click({ timeout: 800 }).catch(() => {});
+	return clicked;
+}
+
+/** The state of a Mosje's Ability chip in its action tray: { present, disabled, label, reason } (the tray is closed again). */
+export async function abilityChipOf(page, mosjeId) {
+	return readTrayChip(page, 'mosje', mosjeId, 'ability');
 }

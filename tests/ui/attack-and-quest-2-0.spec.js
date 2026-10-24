@@ -6,8 +6,9 @@
 import { test, expect } from '@playwright/test';
 import {
 	GAME_URL_TEST, seedOfflineSession, waitForBoard, getGameState, setMosjeOnField, clearEntryProtection,
-	setQuestFaceUp, setNextDice, attackViaUi, questViaUi,
+	setQuestFaceUp, setNextDice, setHand, attackViaUi, questViaUi,
 } from './helpers.js';
+import { tapOwnCard, chooseTray } from '../helpers/boardTaps.js';
 import { getPower } from '../../src/engine/mp/getPower.js';
 
 async function boot(page) {
@@ -17,6 +18,10 @@ async function boot(page) {
 	await setMosjeOnField(page, 'player_1', 0, 'mosje_binti', { mp: 40, level: 2 });
 	await setMosjeOnField(page, 'player_2', 0, 'mosje_gandoe_wizard', { mp: 60, level: 1 });
 	await clearEntryProtection(page);
+	// Both hands empty: a random opening reaction Snelle (Sleutelpuntje in mine, Je Weet Niet in the bot's) would open a
+	// reaction window or reroll the forced dice in the middle of the Quest taps. The hands have no bearing on these rules.
+	await setHand(page, 'player_1', []);
+	await setHand(page, 'player_2', []);
 }
 const mp = (gs, pid, i = 0) => gs.players[pid].activeSlots[i].mp;
 
@@ -33,9 +38,11 @@ test('E12/E13: 3 face-up Quests; attack drops the target by the attacker Power; 
 	const gs1 = await getGameState(page);
 	expect(mp(gs1, 'player_2'), 'opponent MP dropped by Power').toBe(before - power);
 	await expect(page.locator('.mosje-card--opponent').first()).toContainText(String(before - power));
-	// One action per Mosje: the only Mosje already acted, so the Quest picker offers nobody.
-	await page.click('#btn-quest');
-	await expect(page.locator('.modal-card')).toContainText('No Mosje can act');
+	// One action per Mosje: the only Mosje already acted, so its Quest chip is dimmed and the tap says it already acted.
+	await tapOwnCard(page, 'mosje', 0);
+	await expect(page.locator('[data-action-tray] [data-action="quest"]')).toHaveAttribute('aria-disabled', 'true');
+	await chooseTray(page, 'quest', { force: true });
+	await expect(page.locator('#board-toast')).toContainText('already acted');
 });
 
 test('E16: Quest win with forced dice gives +25 and a new Quest face-up', async ({ page }) => {

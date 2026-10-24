@@ -6,7 +6,7 @@ import { test, expect } from '@playwright/test';
 import fs from 'fs';
 import { seedOfflineSession, GAME_URL_TEST } from '../helpers.js';
 import { collectFaceZones, findFaceCollisions } from '../../helpers/faceZones.js';
-import { openOwnDetails } from '../../helpers/boardTaps.js';
+import { openOwnDetails, tapOwnCard, cancelSelection } from '../../helpers/boardTaps.js';
 
 const OUT = 'tests/ui/screenshots/cardv1';
 
@@ -205,8 +205,10 @@ test.describe('card frame v1 — Mosje', () => {
     await expect(tile.locator('[data-cv1-level]')).toHaveText('L1');
     await page.evaluate(() => window.__testHooks.setMosjeMP('player_1', 0, 105));
     await expect(page.locator('.mosje-card--owned.card-v1--field [data-cv1-mp]').first()).toHaveAttribute('data-cv1-mp', '105');
-    // existing interactions survive: ability button still attached to the owned tile
-    await expect(page.locator('.mosje-card--owned .mosje-ability-btn').first()).toBeAttached();
+    // existing interactions survive: the Ability chip still comes up in the tray of an owned tile (63-06: no button on the tile)
+    await tapOwnCard(page, 'mosje', 'mosje_ronald_chef');
+    await expect(page.locator('[data-action-tray] [data-action="ability"]')).toBeVisible();
+    await cancelSelection(page);
     await expect(page.locator('.hand-card.card-v1--full').first()).toBeVisible();
     await page.waitForTimeout(4000); // let turn/intro overlays finish
     await page.setViewportSize({ width: 1600, height: 1300 });

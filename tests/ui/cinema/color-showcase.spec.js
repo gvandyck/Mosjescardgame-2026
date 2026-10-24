@@ -10,6 +10,7 @@ import {
 	GAME_URL_TEST, seedCustomDeck, waitForBoard, ss,
 	setMosjeOnField, setHand, playCardFromHand, unlockPiecies,
 } from '../helpers.js';
+import { activateByTap, isPiecieActivatable } from '../../helpers/boardTaps.js';
 
 test('🎨 Colour showcase — every card type in hand + on field', async ({ page }, testInfo) => {
 	test.setTimeout(120000);
@@ -36,8 +37,11 @@ test('🎨 Colour showcase — every card type in hand + on field', async ({ pag
 	await page.waitForTimeout(400);
 	await unlockPiecies(page, 'player_1');
 	await page.waitForTimeout(150);
-	const act = page.locator('#piecies-player [data-card-id="place_the_gym"] button:has-text("Activate")').first();
-	if (await act.isVisible({ timeout: 4000 }).catch(() => false)) { await act.click(); await page.waitForTimeout(500); }
+	// 63-06: Activate is a tray chip now. (In 2.0 a Place is active at once on #board-place; a Place left face-down in the row is activated by tap.)
+	if (await page.locator('#piecies-player [data-card-id="place_the_gym"]').count() && await isPiecieActivatable(page, 'place_the_gym')) {
+		await activateByTap(page, 'place_the_gym');
+		await page.waitForTimeout(500);
+	}
 
 	// Play a Piecie to the field (blue), too.
 	await setHand(page, 'player_1', ['piecie_redbull', 'piecie_kannetje_melk']);

@@ -10,11 +10,16 @@ import {
 	mockDiceRoll, setQuestFaceUp, setNextDice, questViaUi, getGameState, setMosjeOnField,
 } from './helpers.js';
 import { activatePiecieOnField } from '../helpers/piecieUi.js';
+import { abilityByTap, readTrayChip, isPiecieActivatable, countActivatablePiecies, tapOwnCard, chooseTray } from '../helpers/boardTaps.js';
 
 // ─── Quest flow helper ────────────────────────────────────────────────────────
 // Full modal sequence for completing a general quest attempt.
 async function completeQuestFlow(page) {
-	// 2.0: Mosje (slot 0) -> FIGHTING Quest -> click through the cost/result screens.
+	// Both hands empty first: a random opening reaction Snelle (Sleutelpuntje in mine, Je Weet Niet in the bot's) would open a
+	// reaction window or reroll the forced dice in the middle of the taps. The hands have no bearing on these Quest rules.
+	await page.evaluate(() => { window.__testHooks.setHand('player_1', []); window.__testHooks.setHand('player_2', []); });
+	await page.waitForTimeout(150);
+	// 2.0 tap flow: tap the Mosje (slot 0), Quest, the FIGHTING Quest tile -> click through the cost/result screens.
 	await questViaUi(page, { slot: 0, stackId: 'FIGHTING' });
 	return true;
 }
@@ -229,8 +234,10 @@ const YOURI_DECK = {
 	snellePiecies: ['snelle_jensen'], places: [], quests: [],
 };
 const energyOf = async (page) => (await getGameState(page)).players.player_1.energy;
-const youriBtn = (page) => page.locator('.mosje-card--owned[data-card-id="mosje_youri"] .mosje-ability-btn');
-const activateBtnOf = (page, cardId) => page.locator(`#piecies-player [data-card-id="${cardId}"] button:has-text("Activate")`).first();
+// 63-06: Youri's ability and a Piecie's Activate live in the action tray (tap the card), not on the tile.
+const useYouri = (page) => abilityByTap(page, 'mosje_youri');
+const youriChip = (page) => readTrayChip(page, 'mosje', 'mosje_youri', 'ability');
+const isReady = (page, cardId) => isPiecieActivatable(page, cardId); // an enabled Activate chip in the Piecie's tray
 
 async function setupYouri(page, count) {
 	await seedCustomDeck(page, YOURI_DECK, 'PHYSICAL_FORCE');
@@ -260,11 +267,11 @@ test('VIS-05: Youri Speed Activate - 1 Energy, the Piecie placed this turn becom
 	const mpBefore = (await readOwnedMosjes(page))[0]?.mp;
 	expect(mpBefore).toBe(60);
 	// Placed this turn: not activatable yet.
-	expect(await activateBtnOf(page, 'piecie_quest_prep').isVisible({ timeout: 300 }).catch(() => false)).toBe(false);
+	expect(await isReady(page, 'piecie_quest_prep')).toBe(false);
 	await ss(page, 'vis05-face-down');
 
-	await youriBtn(page).waitFor({ state: 'visible', timeout: 5000 });
-	await youriBtn(page).click();
+	expect((await youriChip(page)).present, 'Youri shows an Ability chip in his tray').toBe(true);
+	await useYouri(page);
 	// The slot picker also shows for a single waiting Piecie.
 	await page.locator('.modal-mosje-select-btn').first().click();
 	await page.waitForTimeout(1000);
@@ -273,14 +280,14 @@ test('VIS-05: Youri Speed Activate - 1 Energy, the Piecie placed this turn becom
 	expect(await energyOf(page), 'Speed Activate costs 1 Energy').toBe(energyBefore - 1);
 	expect((await readOwnedMosjes(page))[0]?.mp, 'MP is never a cost').toBe(mpBefore);
 	expect((await readHand(page)).length, 'draws 1').toBe(handBefore + 1);
-	await activateBtnOf(page, 'piecie_quest_prep').waitFor({ state: 'visible', timeout: 4000 });
+	await expect.poll(() => isReady(page, 'piecie_quest_prep'), { timeout: 4000 }).toBe(true);
 });
 
 // Once per turn: a second use the same turn is refused, nothing is paid.
 test('VIS-06: Youri Speed Activate is once per turn - the second use is refused and costs nothing', async ({ page }) => {
 	await setupYouri(page, 2);
 	const energyBeforeFirst = await energyOf(page);
-	await youriBtn(page).click();
+	await useYouri(page);
 	await page.waitForTimeout(500);
 	await page.locator('.modal-mosje-select-btn').first().click();
 	await page.waitForTimeout(900);
@@ -288,9 +295,9 @@ test('VIS-06: Youri Speed Activate is once per turn - the second use is refused 
 	expect(energyAfterFirst, 'the first use paid 1 Energy').toBe(energyBeforeFirst - 1);
 	const handAfterFirst = (await readHand(page)).length;
 
-	const again = youriBtn(page);
-	if (await again.isVisible({ timeout: 1000 }).catch(() => false) && await again.isEnabled().catch(() => false)) {
-		await again.click();
+	const again = await youriChip(page);
+	if (again.present && !again.disabled) {
+		await useYouri(page);
 		await page.waitForTimeout(800);
 		const ok = page.locator('#modal-continue, #modal-ok, button:has-text("OK"), button:has-text("Close")').first();
 		if (await ok.isVisible({ timeout: 800 }).catch(() => false)) await ok.click();
@@ -305,7 +312,7 @@ test('VIS-06b: Youri Speed Activate - two Piecies placed this turn show a slot p
 	const handBefore = (await readHand(page)).length;
 	const energyBefore = await energyOf(page);
 
-	await youriBtn(page).click();
+	await useYouri(page);
 	await page.locator('.modal-mosje-select-list').waitFor({ state: 'visible', timeout: 4000 });
 	expect(await page.locator('.modal-mosje-select-btn').count()).toBe(2);
 	await ss(page, 'vis06b-picker');
@@ -314,7 +321,7 @@ test('VIS-06b: Youri Speed Activate - two Piecies placed this turn show a slot p
 
 	expect(await energyOf(page)).toBe(energyBefore - 1);
 	expect((await readHand(page)).length).toBe(handBefore + 1);
-	expect(await page.locator('#piecies-player button:has-text("Activate")').count(), 'only the chosen Piecie is ready').toBe(1);
+	expect(await countActivatablePiecies(page), 'only the chosen Piecie is ready').toBe(1);
 });
 
 // VIS-06c: cancelling the picker pays nothing in 2.0 (Energy is only spent when the ability resolves).
@@ -323,7 +330,7 @@ test('VIS-06c: Youri Speed Activate - cancelling the slot picker pays nothing', 
 	const handBefore = (await readHand(page)).length;
 	const energyBefore = await energyOf(page);
 
-	await youriBtn(page).click();
+	await useYouri(page);
 	await page.locator('.modal-mosje-select-list').waitFor({ state: 'visible', timeout: 4000 });
 	await page.locator('#modal-option-cancel').click();
 	await page.waitForTimeout(500);
@@ -500,9 +507,11 @@ test('VIS-09: one action per Mosje — a Mosje that already Quested cannot Quest
 	// Quest must have resolved and changed MP
 	expect(mpAfterFirst).not.toBe(mpBefore);
 
-	// Second attempt by the same Mosje: it already acted, so nobody can Quest.
-	await page.click('#btn-quest');
-	await expect(page.locator('.modal-card')).toContainText('No Mosje can act');
+	// Second attempt by the same Mosje: it already acted, so its Quest chip is dimmed and the tap says it already acted.
+	await tapOwnCard(page, 'mosje', 0);
+	await expect(page.locator('[data-action-tray] [data-action="quest"]')).toHaveAttribute('aria-disabled', 'true');
+	await chooseTray(page, 'quest', { force: true });
+	await expect(page.locator('#board-toast')).toContainText('already acted');
 	await ss(page, 'vis09-no-mosje-can-act');
 
 	// MP must be unchanged (no cost for a blocked attempt)

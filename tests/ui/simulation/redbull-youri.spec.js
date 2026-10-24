@@ -13,7 +13,8 @@ import {
 	GAME_URL_TEST, seedCustomDeck, waitForBoard, ss,
 	setHand, playCardFromHand, getGameState,
 } from '../helpers.js';
-import { playAndActivateRedbull, extraUses, energyOf, useAbilityViaUi } from '../../helpers/redbullUi.js';
+import { playAndActivateRedbull, extraUses, energyOf, useAbilityViaUi, abilityChipOf } from '../../helpers/redbullUi.js';
+import { activateFirstReady } from '../../helpers/boardTaps.js';
 import { PIECIES } from '../../../src/data/piecies.js';
 
 const KANNETJE_COST = PIECIES.find(p => p.id === 'piecie_kannetje_melk').cost;
@@ -48,9 +49,8 @@ test('Redbull re-fires Youri: 1 Energy + the Piecie cost twice, two Piecies acti
 	for (let use = 0; use < 2; use++) {
 		await useAbilityViaUi(page, 'mosje_youri');   // makes a Piecie placed this turn ready (first free slot picked)
 		await page.waitForTimeout(700);
-		await page.locator('#piecies-player [data-card-id="piecie_kannetje_melk"]')
-			.filter({ has: page.locator('button:has-text("Activate")') }).first()
-			.locator('button:has-text("Activate")').click();   // ...and the player activates it, paying its cost
+		// ...and the player activates it from its tray (the first Kannetje whose Activate chip is enabled), paying its cost
+		expect(await activateFirstReady(page, 'piecie_kannetje_melk'), 'a Piecie is ready after Speed Activate').toBe(true);
 		await page.waitForTimeout(700);
 	}
 	await ss(page, 'redbull-youri-twice');
@@ -69,7 +69,8 @@ test('Redbull + Youri: a third Speed Activate is refused and costs nothing', asy
 	await useAbilityViaUi(page, 'mosje_youri');
 	await page.waitForTimeout(600);
 	const energy = await energyOf(page);
-	await expect(page.locator('.mosje-card--owned[data-card-id="mosje_youri"] .mosje-ability-btn')).toBeDisabled();
+	const chip = await abilityChipOf(page, 'mosje_youri');
+	expect(chip.present && chip.disabled, 'the Ability chip is disabled').toBe(true);
 	expect(await energyOf(page)).toBe(energy);
 	expect((await getGameState(page)).players.player_1.activeSlots[0].abilityUsesThisTurn).toBe(2);
 });

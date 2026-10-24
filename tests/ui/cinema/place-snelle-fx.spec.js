@@ -9,6 +9,7 @@ import {
 	GAME_URL_TEST, seedCustomDeck, waitForBoard, ss,
 	setMosjeOnField, setHand, playCardFromHand, unlockPiecies, getGameState,
 } from '../helpers.js';
+import { activateByTap, isPiecieActivatable } from '../../helpers/boardTaps.js';
 
 test('🎬 Place (green) + Snelle (light-blue) effect colours', async ({ page }, testInfo) => {
 	test.setTimeout(120000);
@@ -37,9 +38,10 @@ test('🎬 Place (green) + Snelle (light-blue) effect colours', async ({ page },
 	await page.waitForTimeout(600);
 	await unlockPiecies(page, 'player_1');           // make it activatable this turn
 	await page.waitForTimeout(200);
-	const activateBtn = page.locator('#piecies-player [data-card-id="place_the_gym"] button:has-text("Activate")').first();
-	await activateBtn.waitFor({ state: 'visible', timeout: 5000 });
-	await activateBtn.click();
+	// 63-06: Activate is a tray chip now. (In 2.0 a Place is active at once on #board-place; a Place left face-down in the row is activated by tap.)
+	if (await page.locator('#piecies-player [data-card-id="place_the_gym"]').count() && await isPiecieActivatable(page, 'place_the_gym')) {
+		await activateByTap(page, 'place_the_gym');
+	}
 	await page.waitForTimeout(700);
 	await ss(page, 'placesnelle-2-place');
 	await beat('🟢 Place activated — GREEN burst');

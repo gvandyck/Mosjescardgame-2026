@@ -61,10 +61,9 @@ async function playActiveTurn(page, turnIndex) {
 	const overlayAlready = await page.locator('#reward-overlay').isVisible({ timeout: 200 }).catch(() => false);
 	if (overlayAlready) return false;
 
-	// Attempt a Quest with the first Mosje that can act (2.0: pick Mosje, pick Quest, click through)
-	const questBtn = page.locator('#btn-quest');
-	const questEnabled = await questBtn.evaluate(el => !el.disabled).catch(() => false);
-	if (questEnabled) await questFirstAvailable(page);
+	// Attempt a Quest with the first Mosje that can act (2.0 tap flow: tap the Mosje, Quest, the Quest tile, click through);
+	// questFirstAvailable does nothing and returns false when no Mosje's Quest chip is enabled (was: the old Quest button being disabled).
+	await questFirstAvailable(page);
 
 	// Check if game ended during quest resolution
 	const overlayAfterQuest = await page.locator('#reward-overlay').isVisible({ timeout: 200 }).catch(() => false);

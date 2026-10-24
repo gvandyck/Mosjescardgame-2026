@@ -13,7 +13,7 @@ import {
 	GAME_URL_TEST, seedCustomDeck, waitForBoard, ss,
 	setHand, setMosjeMP, readOwnedMosjes,
 } from '../helpers.js';
-import { playAndActivateRedbull, extraUses, energyOf, useAbilityViaUi } from '../../helpers/redbullUi.js';
+import { playAndActivateRedbull, extraUses, energyOf, useAbilityViaUi, abilityChipOf } from '../../helpers/redbullUi.js';
 
 const DECK = {
 	id: 'custom_rb_tuk_healer', name: 'Redbull + Tuk Healer',
@@ -52,8 +52,9 @@ test('Redbull gives Tuk Healer a second paid use: +20 MP twice, 1 Energy each, a
 	expect((await readOwnedMosjes(page))[0]?.mp).toBe(50);
 	expect(await energyOf(page)).toBe(energy0 - 2);
 
-	// Third use: refused (the button is disabled), nothing is paid.
-	await expect(page.locator('.mosje-card--owned[data-card-id="mosje_tuk_healer"] .mosje-ability-btn')).toBeDisabled();
+	// Third use: refused (the Ability chip in the tray is disabled), nothing is paid.
+	const third = await abilityChipOf(page, 'mosje_tuk_healer');
+	expect(third.present && third.disabled, 'the Ability chip is disabled').toBe(true);
 	expect(await energyOf(page)).toBe(energy0 - 2);
 });
 
@@ -64,5 +65,6 @@ test('Without Redbull Tuk Healer stays once per turn: one +20, then the button i
 	await useAbilityViaUi(page, 'mosje_tuk_healer');
 	await page.waitForTimeout(500);
 	expect((await readOwnedMosjes(page))[0]?.mp).toBe(30);
-	await expect(page.locator('.mosje-card--owned[data-card-id="mosje_tuk_healer"] .mosje-ability-btn')).toBeDisabled();
+	const used = await abilityChipOf(page, 'mosje_tuk_healer');
+	expect(used.present && used.disabled, 'the Ability chip is disabled').toBe(true);
 });

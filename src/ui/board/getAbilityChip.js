@@ -1,5 +1,5 @@
 // getAbilityChip.js — the tray's Ability chip for one own Mosje, or null when it has no button (63-UI-SPEC "Action tray").
-// Same rule boardRenderer's .mosje-ability-btn uses: only an 'activated' ability that is not a draw-step or reactive one
+// Same rule the old tile ability button used (removed in 63-06): only an 'activated' ability that is not a draw-step or reactive one
 // (hidden V4 Mosjes keep the old "no autoAbility" rule). The reasons mirror useMosjeAbility, which re-checks everything.
 import { MOSJES } from '../../data/mosjes.js';
 import { MOSJE_ABILITY_RULES } from '../../rules/mosjeAbilityRules.js';

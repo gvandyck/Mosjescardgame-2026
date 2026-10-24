@@ -20,7 +20,8 @@ import {
 	setPendingTargets, setQuestFaceUp, setNextDice, questViaUi,
 	unlockPiecies, setHand, setMosjeOnField, clearEntryProtection, setEnergy,
 } from '../helpers.js';
-import { playAndActivateRedbull, extraUses, energyOf, useAbilityViaUi } from '../../helpers/redbullUi.js';
+import { playAndActivateRedbull, extraUses, energyOf, useAbilityViaUi, abilityChipOf } from '../../helpers/redbullUi.js';
+import { activateByTap, abilityByTap, isPiecieActivatable } from '../../helpers/boardTaps.js';
 
 /**
  * End a turn and return 'gameover' if the reward overlay appeared, 'turn' otherwise.
@@ -40,10 +41,8 @@ import { attachCollector } from './game-collector.js';
 async function activatePiecie(page, cardId) {
 	const el = page.locator(`#piecies-player [data-card-id="${cardId}"]`).first();
 	await el.waitFor({ state: 'visible', timeout: 8000 });
-	const btn = el.locator('button:has-text("Activate")');
-	await btn.waitFor({ state: 'visible', timeout: 5000 });
-	await btn.click();
-	await page.waitForTimeout(600);
+	await activateByTap(page, cardId); // 63-06: tap the Piecie, Activate in its tray
+	await page.waitForTimeout(300);
 	// Auto-dismiss any target selector that appears
 	const target = page.locator('.target-option').first();
 	if (await target.isVisible({ timeout: 600 }).catch(() => false)) {
@@ -337,13 +336,12 @@ test('chain-4: Youri Speed Activate - 1 Energy, same-turn Piecie activates, hand
 	await playCardFromHand(page, 'piecie_quest_prep');
 	await page.waitForTimeout(500);
 	expect(await isPiecieOnField(page, 'piecie_quest_prep')).toBe(true);
-	const activateBtn = page.locator('#piecies-player [data-card-id="piecie_quest_prep"] button:has-text("Activate")');
-	expect(await activateBtn.isVisible({ timeout: 300 }).catch(() => false), 'not ready the turn it is placed').toBe(false);
+	expect(await isPiecieActivatable(page, 'piecie_quest_prep'), 'not ready the turn it is placed').toBe(false);
 
 	const handSizeBefore = await getHandSize(page, 'player_1');
 	const energyBefore = await energyOf();
 
-	await page.locator('.mosje-card--owned[data-card-id="mosje_youri"] .mosje-ability-btn').click();
+	await abilityByTap(page, 'mosje_youri'); // tap Youri, Ability in his tray
 	await page.locator('.modal-mosje-select-btn').first().click();
 	await page.waitForTimeout(1000);
 	await ss(page, 'chain4-after-ability');
@@ -353,10 +351,11 @@ test('chain-4: Youri Speed Activate - 1 Energy, same-turn Piecie activates, hand
 	expect(await getHandSize(page, 'player_1'), 'draws 1').toBe(handSizeBefore + 1);
 
 	// The Piecie is now ready: activating it works the same turn and pays its own cost.
-	await activateBtn.waitFor({ state: 'visible', timeout: 4000 });
-	await activateBtn.click();
-	await page.waitForTimeout(800);
-	expect(await activateBtn.isVisible({ timeout: 300 }).catch(() => false), 'activated').toBe(false);
+	await expect.poll(() => isPiecieActivatable(page, 'piecie_quest_prep'), { timeout: 4000 }).toBe(true);
+	await activateByTap(page, 'piecie_quest_prep');
+	await page.waitForTimeout(500);
+	const stillOnField = await isPiecieOnField(page, 'piecie_quest_prep');
+	expect(!stillOnField || !(await isPiecieActivatable(page, 'piecie_quest_prep')), 'activated').toBe(true);
 
 	const log = await readLog(page);
 	expect(log.join(' ')).toMatch(/[Yy]ouri|[Ss]peed/);
@@ -397,7 +396,8 @@ test('chain-5: Redbull gives Tuk Healer a second paid use (+20 MP twice, 1 Energ
 
 	expect((await readOwnedMosjes(page))[0]?.mp).toBe(40);       // fired twice: +20 +20
 	expect(await energyOf(page)).toBe(energy0 - 2);               // the Energy was paid again
-	await expect(page.locator('.mosje-card--owned[data-card-id="mosje_tuk_healer"] .mosje-ability-btn')).toBeDisabled();
+	const usedChip = await abilityChipOf(page, 'mosje_tuk_healer');
+	expect(usedChip.present && usedChip.disabled, 'the Ability chip is disabled after two uses').toBe(true);
 });
 
 // ─── Chain 6: Controller + Quest (+15 MP DIGITAL, +1 dice) ────────────────────

@@ -10,6 +10,7 @@ import { test, expect } from '@playwright/test';
 import {
 	GAME_URL_TEST, seedCustomDeck, waitForBoard, ss, setHand, getGameState,
 } from '../helpers.js';
+import { abilityByTap } from '../../helpers/boardTaps.js';
 
 async function pickFirstCardOption(page, headingText) {
 	await page.locator(`.modal-card h3:has-text("${headingText}")`).waitFor({ state: 'visible', timeout: 15000 });
@@ -38,7 +39,7 @@ test('Binti Creator Quick Sketch — discard 2 FOOD, tutor 1 card to hand', asyn
 	const handBefore = before.players.player_1.hand.length;
 	const deckBefore = before.players.player_1.deck.length;
 
-	await page.locator('.mosje-card--owned[data-card-id="mosje_binti_creator"] .mosje-ability-btn').click();
+	await abilityByTap(page, 'mosje_binti_creator'); // tap Binti, Ability in her tray
 	await pickFirstCardOption(page, '1st FOOD');        // discard #1
 	await pickFirstCardOption(page, '2nd FOOD');        // discard #2
 	await pickFirstCardOption(page, 'search your deck'); // tutor target

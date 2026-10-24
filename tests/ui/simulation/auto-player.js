@@ -3,7 +3,7 @@
  *
  * On each turn the auto-player:
  *   1. Plays one Snelle Piecie from hand if available (they're instant, no face-down)
- *   2. Attempts General Quest if the button is enabled
+ *   2. Attempts a Quest if a Mosje's Quest chip is enabled (tap flow, 63-06)
  *   3. Plays one regular Piecie from hand (goes face-down)
  *   4. Ends the turn
  *
@@ -108,11 +108,9 @@ export async function playAutoTurn(page) {
 
 	if (await page.locator('#reward-overlay').isVisible({ timeout: 100 }).catch(() => false)) return 'gameover';
 
-	// 2. Quest with the first Mosje that can act (2.0: #btn-quest -> pick Mosje -> pick Quest -> click through).
-	const questBtn = page.locator('#btn-quest');
-	const questEnabled = await questBtn.evaluate(el => !el.disabled).catch(() => false);
-	if (questEnabled) {
-		await questFirstAvailable(page);
+	// 2. Quest with the first Mosje that can act (2.0 tap flow: tap the Mosje, Quest, the first valid Quest tile, click through).
+	// questFirstAvailable returns false (and taps nothing further) when no Mosje's Quest chip is enabled.
+	if (await questFirstAvailable(page)) {
 		await autoDismissAll(page);
 	}
 
