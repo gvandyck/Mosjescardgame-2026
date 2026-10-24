@@ -2,6 +2,7 @@
 // Detects the current page and starts the matching UI flow.
 
 import { renderBoard, showPlaceEffectBanner } from './ui/boardRenderer.js';
+import { getPlaceTint } from './ui/board/getPlaceTint.js';
 import { createLogRenderer } from './ui/logRenderer.js';
 import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
@@ -443,7 +444,6 @@ function initGamePage() {
 	const logPopover = document.getElementById('topbar-log-popover');
 	const copyLogBtn = document.getElementById('btn-copy-log');
 	const logCopyBuffer = document.getElementById('log-copy-buffer');
-	const topbarPlaceLabel = document.getElementById('topbar-place');
 	// End Turn moved into the board's middle strip (63-01): keep the node so its one click listener survives every re-render.
 	const endTurnButton = document.getElementById('btn-end-turn');
 
@@ -535,23 +535,6 @@ function initGamePage() {
 	}
 	const modal = initModalManager(modalRoot);
 	if (logCopyBuffer) log.attachBuffer(logCopyBuffer);
-
-	if (topbarPlaceLabel) {
-		topbarPlaceLabel.style.cursor = 'pointer';
-		topbarPlaceLabel.title = 'Show active Place details';
-		topbarPlaceLabel.addEventListener('click', () => {
-			if (!gameState?.activePlace) {
-				modal.showInfo('No Active Place', 'There is currently no active Place card.');
-				return;
-			}
-			const placeDef = CARD_LOOKUP[gameState.activePlace] || PLACES.find(p => p.id === gameState.activePlace);
-			if (!placeDef) {
-				modal.showInfo('Active Place', gameState.activePlace);
-				return;
-			}
-			modal.showPlaceDetailModal(placeDef);
-		});
-	}
 
 	if (copyLogBtn) {
 		copyLogBtn.addEventListener('click', async () => {
@@ -1411,18 +1394,12 @@ function initGamePage() {
 			turnLabel.textContent = `${isLocalTurn ? 'You' : uiState.activePlayerName} • ${phaseLabel}`;
 		}
 
-		const topbarPlace = document.getElementById('topbar-place');
-		const topbarPlaceTurns = document.getElementById('topbar-place-turns');
-		if (topbarPlace) topbarPlace.textContent = uiState.activePlaceName || 'None';
-		if (topbarPlaceTurns) {
-			const turns = Number(uiState.activePlaceTurns || 0);
-			topbarPlaceTurns.textContent = `${turns} turn${turns === 1 ? '' : 's'} active`;
-		}
-
-		// Toggle Place active visual indicator
+		// Toggle the Place active visual indicator: the felt wash takes the Place's colour (D-10). The tint is left in place
+		// when the Place goes, so the 0.6 s fade-out keeps its colour.
 		const pageBody = document.querySelector('.page--game');
 		if (pageBody) {
 			if (state.activePlace) {
+				pageBody.style.setProperty('--place-tint', getPlaceTint(uiState.activePlace));
 				pageBody.classList.add('place-active');
 			} else {
 				pageBody.classList.remove('place-active');

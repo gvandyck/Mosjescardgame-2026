@@ -17,13 +17,14 @@
 		url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.11'/%3E%3C/svg%3E");
 }
 
-/* An active Place tints the table, as before, but on top of the felt (the body tint is hidden behind it). */
+/* An active Place tints the table on top of the felt (the body tint is hidden behind it). main.js sets --place-tint from the
+   Place's goodFor stack colour (orange / teal / magenta) or the warm neutral (Phase 63-03, D-10); it fades in and out in 0.6 s. */
 .page--game .bg-noise::after {
 	content: '';
 	position: absolute;
 	inset: 0;
 	opacity: 0;
 	transition: opacity 0.6s ease;
-	background: radial-gradient(ellipse 100% 100% at 50% 50%, rgba(61, 214, 140, 0.15) 0%, rgba(61, 214, 140, 0.05) 40%, transparent 70%);
+	background: radial-gradient(ellipse 100% 100% at 50% 50%, color-mix(in srgb, var(--place-tint, #B45309) 15%, transparent) 0%, color-mix(in srgb, var(--place-tint, #B45309) 5%, transparent) 40%, transparent 70%);
 }
 .page--game.place-active .bg-noise::after { opacity: 1; }

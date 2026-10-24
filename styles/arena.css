@@ -20,9 +20,6 @@
 		height: var(--field-tile-h);
 	}
 
-	/* The three Quest cards are the same size as every other card on the field. */
-	.quest-stack { box-sizing: border-box; width: var(--field-tile-w); min-width: var(--field-tile-w); height: var(--field-tile-h); overflow: hidden; align-content: start; padding: 6px 10px; gap: 1px; font-size: 0.74rem; line-height: 1.25; }
-
 	/* The strip itself is a transparent box over the lower board: let clicks fall through
 	   to the field (ability buttons) and keep only the cards themselves clickable. */
 	/* One row per player: Mosjes, Piecies, Place and the piles sit side by side (no wrapping

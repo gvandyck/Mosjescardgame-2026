@@ -4,6 +4,7 @@
  * Drain Zone (Card List): "All Mosjes get +10 Power." Read with getMosjePower on both sides: it applies at once and goes
  * away with the Place (Alyssa, The Bulldozer is Power 20 at Level 1, Ming, The Predictor is Power 10).
  */
+import fs from 'fs';
 import { test, expect } from '@playwright/test';
 import {
 	GAME_URL_TEST, seedOfflineSession, waitForBoard, getGameState, setEnergy, setHand, playCardFromHand,
@@ -30,7 +31,18 @@ test('Place played from hand sits on the board, pays Energy, blocks a second Pla
 	let gs = await getGameState(page);
 	expect(gs.players.player_1.energy, 'Drain Zone costs 3').toBe(3);
 	expect(gs.activePlacePlayedBy).toBe('player_1');
-	await expect(page.locator('#piecies-player [data-card-id="place_drain_zone"]')).toBeVisible();
+	// 63-03: the Place takes no slot. It sits in the middle strip's Place tile with an owner chip, and the felt takes its tint.
+	const placeTile = page.locator('#board-place [data-card-id="place_drain_zone"]');
+	await expect(placeTile).toBeVisible();
+	await expect(placeTile).toHaveAttribute('data-place-owner', 'player_1');
+	await expect(placeTile.locator('.place-owner-chip')).toContainText('YOU');
+	await expect(page.locator('#piecies-player [data-card-id="place_drain_zone"]'), 'no Piecie slot is used').toHaveCount(0);
+	await expect(page.locator('body')).toHaveClass(/place-active/);
+	expect(await page.evaluate(() => getComputedStyle(document.body).getPropertyValue('--place-tint').trim()), 'felt tint set').not.toBe('');
+	await page.mouse.move(2, 2);
+	await page.waitForTimeout(800); // the 0.6 s felt fade settles
+	fs.mkdirSync('tests/ui/screenshots/board-2-0', { recursive: true });
+	await page.screenshot({ path: 'tests/ui/screenshots/board-2-0/u7-place.png' });
 	expect(await power('player_1'), 'Drain Zone: own Mosje +10 Power').toBe(30);
 	expect(await power('player_2'), 'Drain Zone: opponent Mosje +10 Power').toBe(20);
 
@@ -50,6 +62,9 @@ test('Place played from hand sits on the board, pays Energy, blocks a second Pla
 	await activatePiecieOnField(page, 'piecie_bong_hit_demolition');
 	gs = await getGameState(page);
 	expect(gs.activePlace).toBeNull();
+	await expect(page.locator('#board-place')).toContainText('No Place in play');
+	await expect(page.locator('#board-place [data-card-id="place_drain_zone"]')).toHaveCount(0);
+	await expect(page.locator('body')).not.toHaveClass(/place-active/);
 	expect(gs.players.player_1.graveyard.some(c => c.cardId === 'place_drain_zone' && c.type === 'PLACE')).toBe(true);
 	expect(gs.players.player_2.graveyard.some(c => c.cardId === 'place_drain_zone')).toBe(false);
 	expect(await power('player_1'), 'Place gone: own Power back to 20').toBe(20);

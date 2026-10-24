@@ -1,23 +1,34 @@
-// renderQuestStacks — the 3 face-up Quests (Fighting / Digital / Artistic) in the middle of the board.
-import { getQuestDef } from '../engine/quests/getQuestDef.js';
+// renderQuestStacks — the 3 face-up Quests (Fighting / Digital / Artistic) in the middle strip of the board, drawn as
+// 2.0 Quest tiles on visible stacks (63-UI-SPEC "Quest stacks", D-09). The HTML comes from buildQuestStacksHtml.
+// onTap(stackId, questId) is called for a tap / Enter on a stack. A stack whose face-up Quest changed since the last render
+// (a win or the 2nd fail replaced it) gets the 250 ms slide-up class quest-stack--new.
+import { buildQuestStacksHtml } from './board/buildQuestStacksHtml.js';
 
-const esc = (t) => String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const STACK_LABEL = { FIGHTING: 'Fighting', DIGITAL: 'Digital', ARTISTIC: 'Artistic' };
+const _lastFaceUp = new Map(); // stack id -> the Quest id that was face up at the previous render
 
-export function renderQuestStacks(container, state) {
+export function renderQuestStacks(container, { questStacks, onTap } = {}) {
 	if (!container) return;
-	const stacks = state?.questStacks || {};
-	container.innerHTML = Object.keys(STACK_LABEL).map(stackId => {
-		const stack = stacks[stackId];
-		const q = stack?.faceUp ? getQuestDef(stack.faceUp) : null;
-		if (!q) return `<div class="quest-stack quest-stack--empty" data-stack="${stackId}">${STACK_LABEL[stackId]}: empty</div>`;
-		return `<div class="quest-stack" data-stack="${stackId}" data-quest="${esc(q.id)}">
-			<div class="quest-stack__kind">${STACK_LABEL[stackId]}</div>
-			<div class="quest-stack__name">${esc(q.name)}</div>
-			<div class="quest-stack__band">${esc(q.band)} · roll ${esc(q.rollTrait)}</div>
-			<div class="quest-stack__stakes">+${q.win} / -${Math.abs(q.lose ?? 0)}</div>
-			${q.costText ? `<div class="quest-stack__cost">${esc(q.costText)}</div>` : ''}
-			<div class="quest-stack__tokens">Fail tokens: ${stack.tokens || 0}/2</div>
-		</div>`;
-	}).join('');
+	container.innerHTML = buildQuestStacksHtml(questStacks);
+
+	const changed = new Set();
+	for (const [stackId, stack] of Object.entries(questStacks || {})) {
+		const faceUp = stack?.faceUp ?? null;
+		if (_lastFaceUp.has(stackId) && _lastFaceUp.get(stackId) !== faceUp && faceUp) changed.add(stackId);
+		_lastFaceUp.set(stackId, faceUp);
+	}
+
+	// The unit tests hand in a plain { innerHTML } container: nothing to wire there.
+	if (typeof container.querySelectorAll !== 'function') return;
+	for (const el of container.querySelectorAll('.quest-stack')) {
+		const stackId = el.dataset.questStack;
+		if (changed.has(stackId)) el.classList.add('quest-stack--new');
+		if (!el.dataset.quest || typeof onTap !== 'function') continue;
+		const tap = () => onTap(stackId, el.dataset.quest);
+		el.addEventListener('click', tap);
+		el.addEventListener('keydown', (event) => {
+			if (event.key !== 'Enter' && event.key !== ' ') return;
+			event.preventDefault();
+			tap();
+		});
+	}
 }

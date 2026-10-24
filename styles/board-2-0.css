@@ -96,7 +96,7 @@
 .game-board .board-middle {
 	box-sizing: border-box;
 	display: grid;
-	grid-template-columns: var(--field-tile-w) 1fr auto;
+	grid-template-columns: var(--field-tile-w) 1fr var(--field-tile-w);   /* End Turn's column mirrors the Place column, so the Quests centre on the tile area */
 	align-items: start;
 	column-gap: 8px;
 	width: min(100%, var(--row-w));
@@ -115,6 +115,110 @@
 	font-size: 16px;
 	letter-spacing: 0.08em;
 	text-transform: uppercase;
+}
+
+/* ── Quest stacks (Plan 63-03, D-09): the 2.0 Quest tile on two visible card edges, a count tab under the front edge ── */
+.quest-stack {
+	--stack-color: #B45309;              /* set inline per stack: Fighting / Digital / Artistic */
+	--stack-tint: #fff;
+	position: relative;
+	box-sizing: border-box;
+	flex: 0 0 auto;
+	width: var(--field-tile-w);
+	height: var(--field-tile-h);         /* the edges and the count tab overflow into the strip's 21 ref px bottom padding */
+	cursor: pointer;
+}
+.quest-stack:focus-visible { outline: 2px solid #fff; outline-offset: 3px; border-radius: calc(14 * var(--bu)); }
+.quest-stack .card.card-v1--field { --cv1-w: var(--field-tile-w); --cv1-fh: var(--field-tile-h); position: relative; z-index: 2; }
+/* The two edges are tile-sized dark layers peeking out below the tile (7 and 14 ref px), outlined in the stack colour at 40%. */
+.quest-stack__edge {
+	position: absolute;
+	left: 0;
+	box-sizing: border-box;
+	width: 100%;
+	height: var(--field-tile-h);
+	border: 1px solid color-mix(in srgb, var(--stack-color) 40%, transparent);
+	border-radius: calc(14 * var(--bu));
+	background: rgba(5, 5, 5, 0.9);
+}
+.quest-stack__edge--front { top: calc(7 * var(--bu)); z-index: 1; }
+.quest-stack__edge--back { top: calc(14 * var(--bu)); z-index: 0; }
+/* "11 left" / "Empty": a small tab hanging from the front edge, right-aligned, in the stack tint. */
+.quest-stack__count {
+	position: absolute;
+	top: calc(var(--field-tile-h) + 7 * var(--bu));
+	right: calc(10 * var(--bu));
+	z-index: 3;
+	box-sizing: border-box;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	min-height: 14px;
+	height: calc(14 * var(--bu));
+	padding: 0 calc(8 * var(--bu));
+	border: 1px solid color-mix(in srgb, var(--stack-color) 40%, transparent);
+	border-top: 0;
+	border-radius: 0 0 calc(6 * var(--bu)) calc(6 * var(--bu));
+	background: rgba(5, 5, 5, 0.92);
+	color: var(--stack-tint);
+	font: 800 max(10px, calc(10 * var(--bu)))/1 'DM Sans', sans-serif;
+	letter-spacing: 0.04em;
+	white-space: nowrap;
+}
+/* An empty stack: a dashed tile-sized outline instead of the tile and the edges. */
+.quest-stack--empty { cursor: default; }
+.quest-stack__slot {
+	box-sizing: border-box;
+	width: var(--field-tile-w);
+	height: var(--field-tile-h);
+	border: 1px dashed color-mix(in srgb, var(--stack-color) 55%, transparent);
+	border-radius: calc(14 * var(--bu));
+}
+/* The next Quest slides in after a win or the 2nd fail (250 ms; the animation only backfills, it never holds a transform). */
+@keyframes quest-stack-in { from { transform: translateY(calc(14 * var(--bu))); opacity: 0; } to { transform: none; opacity: 1; } }
+.quest-stack--new .card { animation: quest-stack-in 250ms ease-out backwards; }
+@media (prefers-reduced-motion: reduce) {
+	.quest-stack--new .card { animation: none; }
+}
+
+/* ── Place tile (Plan 63-03, D-08): the active Place in the first column of the middle strip, or a dashed outline ── */
+.game-board .board-place { position: relative; box-sizing: border-box; }
+.board-place .card.card-v1--field { --cv1-w: var(--field-tile-w); --cv1-fh: var(--field-tile-h); position: relative; cursor: pointer; }
+.board-place__empty {
+	box-sizing: border-box;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+	padding: 0 calc(12 * var(--bu));
+	border: 1px dashed rgba(255, 255, 255, 0.18);
+	border-radius: calc(14 * var(--bu));
+	color: rgba(255, 255, 255, 0.55);
+	font: 600 max(12px, calc(14 * var(--bu)))/1.3 'DM Sans', sans-serif;
+	text-align: center;
+}
+/* The Place name stops short of the owner chip (it wraps to 2 lines, like the Quest name beside its pips). */
+.board-place .card[data-place-owner] .cv2-tile-name { right: calc(110 * var(--u)); }
+/* Owner chip at the tile's top-right: "YOU · 2 turns" / "BOT · 1 turn". */
+.place-owner-chip {
+	position: absolute;
+	top: calc(8 * var(--bu));
+	right: calc(8 * var(--bu));
+	z-index: 4;
+	box-sizing: border-box;
+	display: inline-flex;
+	align-items: center;
+	min-height: 14px;
+	height: calc(18 * var(--bu));
+	padding: 0 calc(8 * var(--bu));
+	border-radius: 99px;
+	background: rgba(5, 5, 5, 0.82);
+	color: #fff;
+	font: 800 max(10px, calc(10 * var(--bu)))/1 'DM Sans', sans-serif;
+	letter-spacing: 0.08em;
+	white-space: nowrap;
+	pointer-events: none;
 }
 
 /* ── Energy crystals (Plan 63-02, D-12): 6 gems in a column that fills from the bottom, the count under it ── */

@@ -1,5 +1,5 @@
 // boardRenderer.js — Draws the full game board (both players' zones,
-// active Place card, quest zone) by generating HTML from the game state.
+// the middle strip with the active Place and the Quest stacks) by generating HTML from the game state.
 // Filled in Phase 5.
 
 import { renderCard } from './cardRenderer.js';
@@ -13,6 +13,7 @@ import { fillSlotOutlines } from './board/fillSlotOutlines.js';
 import { getFieldSlots } from './board/getFieldSlots.js';
 import { buildEnergyCrystals } from './board/buildEnergyCrystals.js';
 import { buildWelloePile } from './board/buildWelloePile.js';
+import { renderPlaceTile } from './board/renderPlaceTile.js';
 
 const PIECIE_SLOTS = 3; // 2.0: 3 Piecie slots per player (mirrors tableRules)
 const MOSJE_SLOTS = 2; // 2.0: 2 Mosje slots per player
@@ -147,39 +148,6 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		bottomZone?.appendChild(cardEl);
 	}
 
-	// Render active Place card in Piecie slot (only on the field that played it)
-	if (viewModel.activePlace && viewModel.activePlacePlayedBy) {
-		const opponentId = Object.keys(viewModel.gameState.players).find(id => id !== viewModel.myPlayerId);
-		const fullPlace = getCardById(viewModel.activePlace.cardId) || viewModel.activePlace;
-		const mergedPlace = { ...fullPlace, ...viewModel.activePlace };
-
-		if (viewModel.activePlacePlayedBy === opponentId) {
-			const placeOpponent = renderCard(viewModel.activePlace, { compact: true, fieldMode: true });
-			placeOpponent.classList.add('field-piecie-card', 'place-card-in-slot', 'card--previewable');
-			tagBoardElement(placeOpponent, {
-				zone: 'place',
-				playerId: opponentId,
-				cardId: viewModel.activePlace.cardId || viewModel.activePlace.id,
-			});
-			placeOpponent.addEventListener('click', () => getBoardModal().showPlaceDetailModal(mergedPlace));
-			topPiecies?.appendChild(placeOpponent);
-		} else if (viewModel.activePlacePlayedBy === viewModel.myPlayerId) {
-			const placePlayer = renderCard(viewModel.activePlace, { compact: true, fieldMode: true });
-			placePlayer.classList.add('field-piecie-card', 'place-card-in-slot', 'card--previewable');
-			tagBoardElement(placePlayer, {
-				zone: 'place',
-				playerId: viewModel.myPlayerId,
-				cardId: viewModel.activePlace.cardId || viewModel.activePlace.id,
-			});
-			placePlayer.addEventListener('click', (e) => {
-				if (e.target.closest('button')) return;
-				getBoardModal().showPlaceDetailModal(mergedPlace);
-			});
-
-			bottomPiecies?.appendChild(placePlayer);
-		}
-	}
-
 	for (const piecie of (viewModel.players.top.piecies || []).slice(0, PIECIE_SLOTS)) {
 		if (piecie.faceDown) {
 			const slot = document.createElement('div');
@@ -278,8 +246,13 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 	renderWelloe(container.querySelector('#welloe-opponent'), topPlayer, viewModel.myPlayerId === topPlayer.id);
 	renderWelloe(container.querySelector('#welloe-player'), bottomPlayer, viewModel.myPlayerId === bottomPlayer.id);
 
-	// 2.0: the 3 face-up Quests in the middle of the board
-	renderQuestStacks(container.querySelector('#quest-stacks'), { questStacks: viewModel.questStacks });
+	// 2.0 middle strip: the Place tile (left) and the 3 face-up Quests on their stacks (centre). A Quest tap goes to the
+	// Quest-choosing flow when one is active (extras.onQuestTap returns true), otherwise it opens the Quest's detail view.
+	renderPlaceTile(container.querySelector('#board-place'), viewModel, (place) => getBoardModal().showPlaceDetailModal(place));
+	renderQuestStacks(container.querySelector('#quest-stacks'), {
+		questStacks: viewModel.questStacks,
+		onTap: (stackId, questId) => extras.onQuestTap?.(stackId) || getBoardModal().showDeckBuilderCardPreview(getCardById(questId)),
+	});
 
 	if (viewModel.activeQuest?.revealOpponentHand && Array.isArray(viewModel.activeQuest?.revealedOpponentHandNames)) {
 		getBoardModal().showOpponentHandRevealModal(viewModel.activeQuest.revealedOpponentHandNames);

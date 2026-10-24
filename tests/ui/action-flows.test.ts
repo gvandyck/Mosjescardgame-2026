@@ -90,17 +90,26 @@ describe('runQuestFlow', () => {
 });
 
 describe('renderQuestStacks', () => {
-  it('renders name, band, roll trait, cost and tokens for each face-up Quest', () => {
+  // 63-03: the same intent on the 2.0 Quest tile: the face-up Quest names, the dice need, the fail tokens as filled pips,
+  // the cards left in the stack, and "Empty" for the stack without a Quest.
+  it('renders name, need, fail pips and count for each face-up Quest, and Empty for a missing one', () => {
     const container: any = { innerHTML: '' };
     const qs = stacks({ FIGHTING: 'quest_tough_it_out', DIGITAL: 'quest_debug_system' });
     qs.FIGHTING.tokens = 1;
+    qs.FIGHTING.deck = Array(11).fill('quest_improvise');
     renderQuestStacks(container, { questStacks: qs });
-    expect(container.innerHTML).toContain('Tough It Out');
-    expect(container.innerHTML).toContain('steady');
-    expect(container.innerHTML).toContain('roll resilient');
-    expect(container.innerHTML).toContain('Fail tokens: 1/2');
-    expect(container.innerHTML).toContain('Mosje has Technical');
-    expect(container.innerHTML).toContain('Artistic: empty');
+    const html: string = container.innerHTML;
+    expect(html).toContain('Tough It Out');
+    expect(html).toContain('Debug System');
+    expect(html).toContain('data-cv1-need=');
+    const part = (id: string) => html.split(/(?=<div class="quest-stack[ "])/).find((p) => p.includes(`data-quest-stack="${id}"`)) ?? '';
+    const fighting = part('FIGHTING');
+    expect(fighting.match(/data-cv1-pip="filled"/g)).toHaveLength(1);
+    expect(fighting).toContain('>11 left<');
+    expect(fighting).toContain('data-stack-count="11"');
+    const artistic = part('ARTISTIC');
+    expect(artistic).toContain('>Empty<');
+    expect(artistic).toContain('quest-stack--empty');
   });
 });
 
