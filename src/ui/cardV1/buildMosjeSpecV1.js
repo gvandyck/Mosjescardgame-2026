@@ -36,7 +36,7 @@ export function buildMosjeSpecV1(card) {
     label: '',
     footer: {
       left: { value: String(power), label: 'POWER', hook: 'power', hookValue: power },
-      centre: { chip: `LVL ${level}`, label: `${key} MOSJE` },
+      centre: { chip: level === 3 ? 'LVL 3 · HOLD' : `LVL ${level}`, label: `${key} MOSJE` }, // Level 3 holds (D-17)
       right: { value: String(temp ?? mp), label: 'MP', sub: temp === null ? '' : String(mp), hook: 'mp', hookValue: mp },
     },
     level,

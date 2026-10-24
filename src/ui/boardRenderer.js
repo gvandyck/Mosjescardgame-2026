@@ -14,6 +14,9 @@ import { getFieldSlots } from './board/getFieldSlots.js';
 import { buildEnergyCrystals } from './board/buildEnergyCrystals.js';
 import { buildWelloePile } from './board/buildWelloePile.js';
 import { renderPlaceTile } from './board/renderPlaceTile.js';
+import { getTileBadges } from './board/getTileBadges.js';
+import { buildTileBadges } from './board/buildTileBadges.js';
+import { showToast } from './board/showToast.js';
 
 const PIECIE_SLOTS = 3; // 2.0: 3 Piecie slots per player (mirrors tableRules)
 const MOSJE_SLOTS = 2; // 2.0: 2 Mosje slots per player
@@ -67,7 +70,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		const fullCard = getCardById(mosje.cardId) || mosje;
 		cardEl.classList.add('mosje-clickable', 'mosje-card--opponent');
 		if (mosje.summonedByPiecie === 'piecie_call_of_welloes') cardEl.classList.add('mosje--welloe-bound');
-		if (mosje.entryProtected) appendEntryProtectionBadge(cardEl);
+		appendTileState(cardEl, mosje);
 		tagBoardElement(cardEl, {
 			zone: 'mosje',
 			playerId: viewModel.players.top.id,
@@ -89,7 +92,7 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		const fullCard = getCardById(mosje.cardId) || mosje;
 		cardEl.classList.add('mosje-clickable', 'mosje-card--owned');
 		if (mosje.summonedByPiecie === 'piecie_call_of_welloes') cardEl.classList.add('mosje--welloe-bound');
-		if (mosje.entryProtected) appendEntryProtectionBadge(cardEl);
+		appendTileState(cardEl, mosje);
 		tagBoardElement(cardEl, {
 			zone: 'mosje',
 			playerId: viewModel.players.bottom.id,
@@ -458,18 +461,25 @@ export function showPlaceEffectBanner(placeName, effectSummary, phase) {
 	}, 2000);
 }
 
-// U8 — Entry Protection badge: 🛡️ overlay on a freshly entered Mosje card so
-// both players can see it cannot be targeted until its owner's next turn.
-function appendEntryProtectionBadge(cardEl) {
-	const badge = document.createElement('span');
-	badge.className = 'mosje-entry-protected-badge';
-	badge.textContent = '🛡️';
-	badge.title = 'Entry protection: just entered play — safe from opponents until its owner\'s next turn';
-	badge.setAttribute('aria-label', badge.title);
-	badge.style.cssText = 'position:absolute;top:4px;right:4px;z-index:5;font-size:16px;'
-		+ 'filter:drop-shadow(0 1px 2px rgba(0,0,0,0.6));pointer-events:none;';
-	if (!cardEl.style.position) cardEl.style.position = 'relative';
-	cardEl.appendChild(badge);
+// 63-04 tile states (D-15..D-17, UI-03): the sideways pose, the Level 3 hold glow and the badge pills (Fresh, Protected,
+// SKIPS TURN, ACTED) on a Mosje tile. A pill is read by tap, Enter / Space or hover (title): the full reason in a toast, so
+// hover is never the only way. The click stops here so it does not also open the detail view.
+function appendTileState(cardEl, tile) {
+	if (tile.isDefeated) return;
+	if (tile.sideways) cardEl.classList.add('mosje-card--sideways');
+	if (tile.level === 3) cardEl.classList.add('mosje-card--hold');
+	const html = buildTileBadges(getTileBadges(tile));
+	if (!html) return;
+	cardEl.insertAdjacentHTML('beforeend', html);
+	for (const badge of cardEl.querySelectorAll('.tile-badge')) {
+		const read = (event) => { event.stopPropagation(); showToast(badge.dataset.reason); };
+		badge.addEventListener('click', read);
+		badge.addEventListener('keydown', (event) => {
+			if (event.key !== 'Enter' && event.key !== ' ') return;
+			event.preventDefault();
+			read(event);
+		});
+	}
 }
 
 // Renders modifier pill badges into a .snelle-modifier-bar container.

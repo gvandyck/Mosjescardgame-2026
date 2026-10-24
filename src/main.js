@@ -3,6 +3,9 @@
 
 import { renderBoard, showPlaceEffectBanner } from './ui/boardRenderer.js';
 import { getPlaceTint } from './ui/board/getPlaceTint.js';
+import { toMosjeTileCards } from './ui/board/toMosjeTileCards.js';
+import { pickStatusMessage } from './ui/board/pickStatusMessage.js';
+import { renderStatusStrip } from './ui/board/renderStatusStrip.js';
 import { createLogRenderer } from './ui/logRenderer.js';
 import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
@@ -27,7 +30,6 @@ import { getActivePartnerSynergyBonuses } from './abilities/questLogic.js';
 import { getMingPeekStack } from './abilities/getMingPeekStack.js';
 import { PIECIE_SLOT_COUNT } from './engine/table/tableRules.js';
 import { loseMP, gainMP } from './engine/mpManager.js';
-import { getAbilityEnergyCost } from './engine/energy/getAbilityEnergyCost.js';
 import { createMosjeSlot } from './engine/mp/createMosjeSlot.js';
 import { checkVictory } from './engine/victoryChecker.js';
 import { MOSJES } from './data/mosjes.js';
@@ -960,7 +962,7 @@ function initGamePage() {
 			// set up exactly the board it needs (e.g. two Mosjes for Tuk Healer/Tactician,
 			// or a specific opponent Mosje for a defeat chain). slotIndex 0 or 1.
 			// Pass cardId=null to clear the slot.
-			setMosjeOnField(playerId, slotIndex, cardId, { mp = 10, level = 1, entryProtected = false, sideways = false, powerBoost = 0, pendingWelloe = false } = {}) {
+			setMosjeOnField(playerId, slotIndex, cardId, { mp = 10, level = 1, entryProtected = false, levelUpProtected = false, sideways = false, powerBoost = 0, pendingWelloe = false } = {}) {
 				const player = gameState?.players?.[playerId];
 				if (!player) return;
 				if (cardId == null) { player.activeSlots[slotIndex] = null; renderFromState(gameState); return; }
@@ -970,6 +972,7 @@ function initGamePage() {
 				// U8 — seeded test Mosjes are UNPROTECTED by default (card tests
 				// model an established board); pass entryProtected:true to test U8.
 				if (!entryProtected) delete seeded.entryProtected;
+				if (levelUpProtected) seeded.levelUpProtected = true; // 63-04: the "levelled up this turn" shield (Protected badge)
 				if (sideways) seeded.sideways = true;
 				if (pendingWelloe) seeded._pendingWelloe = true; // 61.1: seeds the lingering getemt-while-sideways flag (Perfect Dodge repro)
 				if (powerBoost) seeded.powerBoost = powerBoost; // card tests: a Power-40 attacker (Momentum Stabilizer)
@@ -1406,6 +1409,9 @@ function initGamePage() {
 			}
 		}
 
+		// Status strip (D-19): one message by priority. Action modes (choose-target / preview / choose-quest) come with Plan 63-05.
+		renderStatusStrip(document.getElementById('status-strip'), pickStatusMessage(state, localPlayerId, null));
+
 		const btnAttack = document.getElementById('btn-attack');
 		const btnQuest = document.getElementById('btn-quest');
 		const btnEndTurn = document.getElementById('btn-end-turn');
@@ -1800,7 +1806,7 @@ function toBoardViewModel(gameState, localPlayerId) {
 				id: opponentId,
 				name: opponent.name,
 				energy: opponent.energy,
-				mosjes: toMosjeCards(opponent.activeSlots, opponent.energy),
+				mosjes: toMosjeTileCards(gameState, opponentId),
 				activeModifiers: buildActiveModifiers(gameState, opponentId, false),
 				piecies: toPiecieCards(opponent.piecieSlots, {
 					ownerId: opponentId,
@@ -1817,7 +1823,7 @@ function toBoardViewModel(gameState, localPlayerId) {
 				id: localPlayerId,
 				name: localPlayer.name,
 				energy: localPlayer.energy,
-				mosjes: toMosjeCards(localPlayer.activeSlots, localPlayer.energy),
+				mosjes: toMosjeTileCards(gameState, localPlayerId),
 				activeModifiers: buildActiveModifiers(gameState, localPlayerId, true),
 				piecies: toPiecieCards(localPlayer.piecieSlots, {
 					ownerId: localPlayerId,
@@ -1862,33 +1868,6 @@ function buildActiveModifiers(gameState, playerId, isLocalPlayer = false) {
 	}
 
 	return pills;
-}
-
-function toMosjeCards(activeSlots, ownerEnergy = 0) {
-	return activeSlots
-		.map((slot, slotIndex) => ({ slot, slotIndex }))
-		.filter(({ slot }) => slot !== null)
-		.map(({ slot, slotIndex }) => {
-			const mosjeDef = MOSJES.find(m => m.id === slot.cardId);
-			const cost = getAbilityEnergyCost(mosjeDef?.abilityId);
-			return {
-				cardId: slot.cardId,
-				slotIndex,
-				name: slot.name,
-				type: 'MOSJE',
-				mp: slot.mp,
-				level: slot.level,
-				isDefeated: slot.isDefeated,
-				traits: slot.traits ?? {},
-				abilityUsedThisTurn: slot.abilityUsedThisTurn,
-				abilityUsedThisGame: slot.abilityUsedThisGame === true,
-				abilityCost: cost,
-				cantAffordAbility: cost > (ownerEnergy ?? 0),
-				description: slot.isDefeated ? 'Defeated' : '',
-				summonedByPiecie: slot.summonedByPiecie || null,
-				entryProtected: slot.entryProtected === true, // U8 — board shows 🛡️
-			};
-		});
 }
 
 function toPiecieCards(piecieSlots, options = {}) {

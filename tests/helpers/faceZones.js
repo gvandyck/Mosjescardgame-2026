@@ -3,7 +3,7 @@
 // every matched rendered card in the page; findFaceCollisions(rows) then runs in Node on the result.
 // 2.0 faces (.cv1-face--2): the rect of each zone relative to the card (null when absent) plus the text checks.
 // 2.0 field tiles (.cv2-tile, 62-05): the rects of name, L chip, Power, MP, pills, need, WIN, LOSE, fail pips and the
-// Activate / ability button (Phase 63 badges such as .mosje-entry-protected-badge are ignored).
+// Activate / ability button (Phase 63 overlays such as the state badges in .tile-badges sit over the art by design and are ignored).
 
 export function collectFaceZones(selector) {
   const ZONES = {

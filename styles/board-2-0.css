@@ -290,3 +290,142 @@
 	font: 800 12px/1 'Sora', sans-serif;
 	text-align: center;
 }
+
+/* ── Tile states (Plan 63-04, D-15..D-18): badges, sideways pose, Level 3 hold, Tactician temp MP ── */
+/* Badge pills sit in a column at the tile's right edge, just under the name line (the name keeps its full width).
+   Each pill is icon + word; the hit area is extended to 44 x 44 by an invisible ::after BEHIND every pill, so a tap on a
+   visible pill always reads its own reason. */
+.tile-badges {
+	position: absolute;
+	top: calc(35 * var(--bu, 1px));
+	right: calc(8 * var(--bu, 1px));
+	z-index: 6;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: calc(4 * var(--bu, 1px));
+	width: max-content;
+}
+.tile-badge {
+	position: relative;
+	box-sizing: border-box;
+	display: inline-flex;
+	align-items: center;
+	gap: calc(4 * var(--bu, 1px));
+	height: calc(18 * var(--bu, 1px));
+	min-height: 14px;
+	padding: 0 calc(8 * var(--bu, 1px)) 0 calc(6 * var(--bu, 1px));
+	border: 1px solid rgba(255, 255, 255, 0.18);
+	border-radius: 99px;
+	background: rgba(5, 5, 5, 0.82);
+	color: #fff;
+	font: 800 max(10px, calc(10 * var(--bu, 1px)))/1 'DM Sans', sans-serif;
+	letter-spacing: 0.08em;
+	white-space: nowrap;
+	cursor: pointer;
+	user-select: none;
+}
+.tile-badge::after {
+	content: '';
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	z-index: -1;                         /* behind every pill body of this stack, so overlapping hit areas never steal a tap */
+	width: max(100%, 44px);
+	height: 44px;
+	transform: translate(-50%, -50%);
+}
+.tile-badge:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.tile-badge__icon { flex: 0 0 auto; display: block; width: max(10px, calc(11 * var(--bu, 1px))); height: max(10px, calc(11 * var(--bu, 1px))); }
+.tile-badge--protected { border-color: #3D8EF5; }
+.tile-badge--protected .tile-badge__icon { color: #3D8EF5; }
+.tile-badge--fresh .tile-badge__icon { color: #FDE68A; }
+.tile-badge--acted { color: rgba(255, 255, 255, 0.78); }
+
+/* Sideways (D-16): the tile lies on its side, scaled 176/240 so its footprint is exactly the slot height (the row never
+   changes height). !important beats the board's "no hover transform" rule. The pills stand upright in the middle of the tile
+   (the counter-rotation and the counter-scale cancel the tile's own), "SKIPS TURN" first. */
+.game-board .board-zone .card.mosje-card--sideways,
+.game-board .board-zone .card.mosje-card--sideways:hover {
+	transform: rotate(90deg) scale(0.73333) !important;
+}
+.mosje-card--sideways .tile-badges {
+	top: 50%;
+	left: 50%;
+	right: auto;
+	align-items: center;
+	transform: translate(-50%, -50%) rotate(-90deg) scale(1.36364);
+}
+.mosje-card--sideways .tile-badges { width: min-content; }
+/* "SKIPS TURN" wraps to two short lines beside its icon: narrow enough to clear the rotated L chip and nickname. */
+.mosje-card--sideways .tile-badge--centre { order: -1; height: auto; padding: calc(5 * var(--bu, 1px)) calc(9 * var(--bu, 1px)) calc(5 * var(--bu, 1px)) calc(7 * var(--bu, 1px)); border-radius: calc(12 * var(--bu, 1px)); white-space: normal; }
+.mosje-card--sideways .tile-badge--centre .tile-badge__word { width: min-content; line-height: 1.2; }
+
+/* Level 3 (D-17): gold ring + glow, a slow 2.4 s pulse (static with reduced motion); the chip turns gold and reads HOLD. */
+@keyframes tile-hold-pulse {
+	0%, 100% { box-shadow: 0 0 0 2px #E8B94F, 0 0 12px rgba(232, 185, 79, 0.35), 0 calc(6 * var(--bu, 1px)) calc(14 * var(--bu, 1px)) rgba(0, 0, 0, 0.6); }
+	50% { box-shadow: 0 0 0 2px #E8B94F, 0 0 20px rgba(232, 185, 79, 0.7), 0 calc(6 * var(--bu, 1px)) calc(14 * var(--bu, 1px)) rgba(0, 0, 0, 0.6); }
+}
+.game-board .board-zone .card.card-v1--field.mosje-card--hold:not(.card--disabled):not(.face-down) {   /* outranks the board's hover shadow, so the ring stays under the pointer */
+	box-shadow: 0 0 0 2px #E8B94F, 0 0 18px rgba(232, 185, 79, 0.55), 0 calc(6 * var(--bu, 1px)) calc(14 * var(--bu, 1px)) rgba(0, 0, 0, 0.6);
+}
+.game-board .card.mosje-card--hold:not(.level-up):not(.taking-damage):not(.just-played) { animation: tile-hold-pulse 2.4s ease-in-out infinite; }
+.game-board .card-v1--field.mosje-card--hold .cv2-tile .cv2-tile-lvl { background: #E8B94F; color: #1a1405; letter-spacing: 0.03em; padding: 0 calc(6 * var(--u)); }
+@media (prefers-reduced-motion: reduce) {
+	.game-board .card.mosje-card--hold:not(.level-up):not(.taking-damage):not(.just-played) { animation: none; }
+}
+
+/* Tactician (D-18): the temporary MP stays the big number, the real MP sits small under it, tinted 70%. */
+.game-board .card-v1--field .cv2-tile .cv2-tile-stat--right .cv2-tile-sub { font-size: calc(11 * var(--u)); opacity: 0.7; }
+.game-board .card-v1--field .cv2-tile .cv2-tile-stat--right .cv2-tile-sub::before { content: 'real '; }
+
+/* ── Status strip content (Plan 63-04, D-19): one message by priority, optional Confirm / Cancel ── */
+.status-strip__text { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.status-strip[data-status-kind="bot-turn"] { color: rgba(255, 255, 255, 0.82); }
+.status-strip[data-status-kind="cooldown"] { border-color: #F59E0B; }
+.status-strip[data-status-kind="hold"] { border-color: #E8B94F; box-shadow: 0 0 14px rgba(232, 185, 79, 0.28); }
+.status-strip[data-status-kind="choose-target"],
+.status-strip[data-status-kind="preview"] { border-color: #FB7185; }
+.status-strip__btn {
+	flex: 0 0 auto;
+	box-sizing: border-box;
+	min-width: 88px;
+	min-height: 44px;                    /* tap floor: does not shrink with the board */
+	height: 44px;
+	margin: -1px 0;                      /* the strip is 44 px including its border: the button spans it */
+	padding: 0 18px;
+	border: 1px solid rgba(255, 255, 255, 0.22);
+	border-radius: 10px;
+	background: rgba(255, 255, 255, 0.08);
+	color: #fff;
+	font: 800 13px/1 'Sora', sans-serif;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	cursor: pointer;
+}
+.status-strip__btn:hover, .status-strip__btn:focus-visible { filter: brightness(1.2); }
+.status-strip__btn--confirm { background: #E11D48; border-color: #FB7185; }
+
+/* ── Toast (Plan 63-04, D-06): the reason behind a badge or a greyed control, below the status strip ── */
+.board-toast {
+	position: fixed;
+	z-index: 450;
+	left: 50%;
+	top: calc(var(--topbar-h, 56px) + var(--status-h, 44px) + 8px);
+	transform: translateX(-50%);
+	box-sizing: border-box;
+	max-width: min(90vw, 560px);
+	padding: 10px 16px;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	border-radius: 10px;
+	background: rgba(5, 5, 5, 0.94);
+	box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
+	color: #fff;
+	font: 600 14px/1.3 'DM Sans', sans-serif;
+	cursor: pointer;
+	animation: board-toast-in 150ms ease-out;
+}
+@keyframes board-toast-in { from { opacity: 0; transform: translate(-50%, -6px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@media (prefers-reduced-motion: reduce) {
+	.board-toast { animation: none; }
+}

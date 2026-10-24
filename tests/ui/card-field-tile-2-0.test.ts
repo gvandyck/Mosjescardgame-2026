@@ -42,8 +42,8 @@ describe('2.0 field tile: Mosje', () => {
     expect(line).toContain('class="cv2-nick"');
   });
 
-  it('L3 chip centre-bottom, POWER box and MP box carry the live numbers', () => {
-    expect(html).toMatch(/<div class="cv2-tile-lvl" data-cv1-level="3">L3<\/div>/);
+  it('Level 3 chip (LVL 3 · HOLD) centre-bottom, POWER box and MP box carry the live numbers', () => {
+    expect(html).toMatch(/<div class="cv2-tile-lvl" data-cv1-level="3">LVL 3 · HOLD<\/div>/); // spec change D-17: a Level 3 Mosje holds
     expect(attr(html, 'power')).toBe('40');
     expect(part(box(html, 'power'), 'val')).toBe('40');
     expect(part(box(html, 'power'), 'label')).toBe('POWER');
@@ -66,6 +66,14 @@ describe('2.0 field tile: Mosje', () => {
     expect(attr(fresh, 'level')).toBe('1');
     expect(attr(fresh, 'power')).toBe(String(alyssa.levels[0].power));
     expect(attr(fresh, 'mp')).toBe(String(alyssa.startMP ?? 0));
+  });
+
+  it('only Level 3 reads HOLD: Level 1 and 2 keep the short L<n> chip', () => {
+    for (const level of [1, 2]) {
+      const t = tile(alyssa, { mp: 20, level });
+      expect(t).toMatch(new RegExp(`<div class="cv2-tile-lvl" data-cv1-level="${level}">L${level}</div>`));
+      expect(t).not.toContain('HOLD');
+    }
   });
 
   it('a Tactician temp MP shows big with the real MP small under it; the hook keeps the real MP', () => {
