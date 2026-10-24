@@ -11,7 +11,9 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { seedOfflineSession, waitForBoard, GAME_URL_TEST, readLog, ss } from './helpers.js';
+import { seedOfflineSession, waitForBoard, GAME_URL_TEST, readLog, ss, setHand } from './helpers.js';
+import { answerModals } from '../helpers/answerModals.js';
+import { clickEndTurn } from '../helpers/clickEndTurn.js';
 
 test('deck-out shows a recycle banner + log line + discard pulse', async ({ page }) => {
 	test.setTimeout(90000);
@@ -19,6 +21,9 @@ test('deck-out shows a recycle banner + log line + discard pulse', async ({ page
 	await seedOfflineSession(page, 'DIGITAL_CONTROL', 'ARTISTIC_RHYTHM');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
+	await answerModals(page, [], { max: 4, wait: 500 }); // a random starter (Coert, Martin) can open a blocking "Draw step" modal
+	await setHand(page, 'player_1', []); // a random opening Snelle would open a reaction window the bot's turn then waits on
+	await setHand(page, 'player_2', []);
 
 	// Keep the human alive long enough to reach the reshuffle draw, and arm the deck-out.
 	await page.evaluate(() => {
@@ -30,14 +35,16 @@ test('deck-out shows a recycle banner + log line + discard pulse', async ({ page
 	});
 
 	// End turn -> bot plays -> the human's next draw phase reshuffles (fires the event).
-	await page.click('#btn-end-turn');
+	await clickEndTurn(page);
 
 	// Banner appears (this element does not exist pre-implementation -> fails first).
 	const banner = page.locator('.deckout-banner');
 	await banner.waitFor({ state: 'visible', timeout: 30000 });
 	await expect(banner).toContainText('DECK RECYCLED');
 	await expect(banner).toContainText(/reshuffled/i);
-	await expect(banner).toContainText(/skips next turn/i);
+	await expect(banner).toContainText(/cooldown turn/i); // 2.0 RULE-07: the next turn is a cooldown turn (face-down Piecies only)
+	// The recycle notice is brief; the persistent strip is the blocking message for the whole cooldown turn (63-07, D-19).
+	await expect(page.locator('#status-strip')).toHaveAttribute('data-status-kind', 'cooldown');
 
 	// Discard pile pulse toggled on the human's own pile (transient; catch it while the
 	// ~2s pulse animation is running, right after the banner shows).
@@ -51,7 +58,7 @@ test('deck-out shows a recycle banner + log line + discard pulse', async ({ page
 
 	// Permanent battle-log record is present.
 	const rows = await readLog(page);
-	expect(rows.some(r => /deck ran out/i.test(r) && /skips their next turn/i.test(r))).toBe(true);
+	expect(rows.some(r => /deck ran out/i.test(r) && /cooldown turn/i.test(r))).toBe(true);
 
 	// Auto-dismiss within ~3s.
 	await banner.waitFor({ state: 'detached', timeout: 6000 });

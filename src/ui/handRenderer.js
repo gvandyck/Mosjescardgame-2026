@@ -9,6 +9,9 @@ import { getCardById } from '../data/cardIndex.js';
 import { getEffectiveCost } from '../engine/energy/getEffectiveCost.js';
 import { getHandPlayCost } from './board/getHandPlayCost.js';
 import { setEnergyPreview } from './board/setEnergyPreview.js';
+import { showToast } from './board/showToast.js';
+import { COOLDOWN_TEXT } from './board/cooldownText.js';
+import { isCooldownBlocked } from '../engine/turn/isCooldownBlocked.js';
 
 console.log('[UI] handRenderer.js loaded');
 
@@ -41,6 +44,7 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 
 	const questActive = !!activeQuest;
 	const questByOpponent = questActive && activeQuest.attacker && activeQuest.attacker !== localPlayerId;
+	const onCooldown = isCooldownBlocked(gameState, localPlayerId); // D-19: only face-down Piecies may be placed this turn
 
 	if (cards.length === 0) {
 		const empty = document.createElement('p');
@@ -70,9 +74,19 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 		const isPersonalQuest = card.type === 'QUEST' && card.questType === 'PERSONAL';
     const isReturnedMosje = card.type === 'MOSJE' && !!card.returnedThisTurn;
 
+		// Cooldown turn: every card except a Piecie is greyed and a tap says why (the same sentence as the status strip).
+		const cooldownBlocked = onCooldown && card.type !== 'PIECIE';
+		const blockForCooldown = (btn) => {
+			if (btn) { btn.disabled = true; btn.title = COOLDOWN_TEXT; }
+			cardEl.classList.remove('hand-card--playable', 'playable-now');
+			cardEl.classList.add('hand-card--not-playable');
+			cardEl.title = COOLDOWN_TEXT;
+		};
+
 		cardEl.classList.add('card--previewable');
 		cardEl.addEventListener('click', (e) => {
 			if (e.target.closest('button')) return;
+			if (cooldownBlocked) { showToast(COOLDOWN_TEXT); return; }
 			// Card frame v1: the Play button is hidden; clicking a playable card plays it.
 			const playBtn = cardEl.classList.contains('card-v1') && cardEl.querySelector('.hand-card__play-btn');
 			if (playBtn && !playBtn.disabled) { playBtn.click(); return; }
@@ -101,6 +115,7 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 				onPlay(card.cardId, card.type);
 			});
 			cardEl.appendChild(btn);
+			if (cooldownBlocked) blockForCooldown(btn);
 		}
 		// Regular Piecies, Mosjes and Places are only playable on your own turn
 		else if ((isRegularPlayable || isPlace) && onPlay) {
@@ -134,6 +149,7 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 					onPlay(card.cardId, card.type);
 				});
 				cardEl.appendChild(btn);
+				if (cooldownBlocked) blockForCooldown(btn);
 			} else {
 				cardEl.classList.add('hand-card--not-playable');
 				cardEl.title = 'Not your turn';
@@ -151,6 +167,7 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 					onPlay(card.cardId, card.type);
 				});
 				cardEl.appendChild(btn);
+				if (cooldownBlocked) blockForCooldown(btn);
 			} else {
 				cardEl.classList.add('hand-card--not-playable');
 				cardEl.title = 'Not your turn';

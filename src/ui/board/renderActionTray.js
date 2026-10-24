@@ -6,6 +6,7 @@
 // row, so its tray asks for { below: true } from the start). position: fixed, so no row clips it.
 import { showToast } from './showToast.js';
 import { setEnergyPreview } from './setEnergyPreview.js';
+import { COOLDOWN_ERROR } from '../../engine/turn/isCooldownBlocked.js';
 
 const GAP = 6;
 const EDGE = 4;
@@ -23,7 +24,7 @@ function buildChip(chip, board, onChoose) {
 		if (chip.disabled) showToast(chip.reason);
 		else onChoose?.(chip.action);
 	});
-	if (chip.cost > 0) {
+	if (chip.cost > 0 && chip.reason !== COOLDOWN_ERROR) { // a cooldown-greyed chip can never spend, so it shows no spend preview
 		const preview = (cost) => () => setEnergyPreview(board, cost);
 		for (const on of ['mouseenter', 'focus']) btn.addEventListener(on, preview(chip.cost));
 		for (const off of ['mouseleave', 'blur']) btn.addEventListener(off, preview(0));

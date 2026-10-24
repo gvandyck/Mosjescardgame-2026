@@ -2,6 +2,7 @@
 // Phase 63-06: attackViaUi / questViaUi / questFirstAvailable drive the tap flow in tests/helpers/boardTaps.js (that file
 // imports clickModalOption from here; the cycle is safe, nothing is called while the modules load).
 import { attackByTap, questByTap, questFirstByTap } from '../helpers/boardTaps.js';
+import { clickEndTurn } from '../helpers/clickEndTurn.js';
 
 export const GAME_URL        = '/game?offline=true&player=player_1';
 export const GAME_URL_TEST   = '/game?offline=true&player=player_1&testMode=true';
@@ -320,8 +321,18 @@ export async function dismissModal(page) {
  * Click End Turn and wait for the bot to finish (button re-enables).
  */
 export async function endTurnAndWait(page) {
-	await page.click('#btn-end-turn');
-	await page.waitForSelector('#btn-end-turn:not([disabled])', { timeout: 25000 });
+	await clickEndTurn(page);
+	// While the bot plays, its attack can open a "Reaction" prompt for the human (a random hand holds a fitting Snelle). This helper only
+	// waits for control to come back, so it answers "No reaction"; specs that care about the prompt answer it themselves (answerReaction).
+	const back = page.waitForSelector('#btn-end-turn:not([disabled])', { timeout: 25000 });
+	let settled = false;
+	back.then(() => { settled = true; }, () => { settled = true; });
+	const noReaction = page.locator('.modal-card--reaction .modal-mosje-select-btn[data-id="__pass__"]');
+	while (!settled) {
+		if (await noReaction.isVisible().catch(() => false)) await noReaction.click({ timeout: 2000 }).catch(() => {});
+		await page.waitForTimeout(150);
+	}
+	await back;
 }
 
 /**

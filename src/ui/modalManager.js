@@ -662,6 +662,7 @@ export function initModalManager(container) {
 
 	// Generic option picker — the single reusable selector for all "choose one" flows.
 	// options: [{ id, label, metaLabel? }]
+	// variant (optional): adds the class modal-card--<variant> to the card, e.g. 'reaction' = the big-row mobile-ready look (63-07).
 	// Resolves with the chosen id string, or null if cancelled / empty.
 	async function showOptionSelect({
 		title = 'Choose',
@@ -669,6 +670,7 @@ export function initModalManager(container) {
 		options = [],
 		allowCancel = false,
 		autoSelectSingle = false,
+		variant = '',
 	} = {}) {
 		const safeOptions = Array.isArray(options) ? options.filter(Boolean) : [];
 		if (autoSelectSingle && safeOptions.length === 1) return safeOptions[0]?.id ?? null;
@@ -691,7 +693,7 @@ export function initModalManager(container) {
 
 			container.innerHTML = `
 				<div class="modal-backdrop"></div>
-				<section class="modal-card" role="dialog" aria-modal="true">
+				<section class="modal-card${variant ? ` modal-card--${escapeHtml(String(variant).replace(/[^a-z0-9-]/gi, ''))}` : ''}" role="dialog" aria-modal="true">
 					<h3>${escapeHtml(title)}</h3>
 					${prompt ? `<p>${escapeHtml(prompt)}</p>` : ''}
 					<div class="modal-mosje-select-list">${rows}</div>

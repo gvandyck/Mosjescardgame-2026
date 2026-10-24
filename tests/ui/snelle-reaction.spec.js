@@ -3,6 +3,7 @@
  * The bot attacks through the real playBotSteps path (testMode hook botAttack); the human sees a 'Reaction'
  * prompt only with a fitting Snelle, a free Piecie slot and enough Energy. Own-side: Sleutelpuntje before a Quest roll.
  */
+import fs from 'fs';
 import { test, expect } from '@playwright/test';
 import {
 	GAME_URL_TEST, seedOfflineSession, waitForBoard, getGameState, setMosjeOnField, clearEntryProtection,
@@ -96,4 +97,60 @@ test('e: Sleutelpuntje before the own Quest roll gives one more die; Pass does n
 	const p3 = await (await browser.newContext()).newPage();
 	const none = await questWithSleutelpuntje(p3, 0, 'none');
 	expect(none).toBe(without);
+});
+
+// 63-07 (D-20, U6): the reaction prompt is mobile-ready: it names the incoming attack, shows each Snelle with its Energy cost and
+// ends in "No reaction"; big rows, no cancel button, no hover needed.
+const rowHeights = (page) => page.locator('.modal-card--reaction .modal-mosje-select-btn').evaluateAll((els) => els.map((el) => el.getBoundingClientRect().height));
+
+test('f: the attack prompt shows who attacks whom for how much, each Snelle as <Name> · N Energy, and a No reaction row', async ({ page }) => {
+	test.setTimeout(60000);
+	await boot(page, ['snelle_the_protector', 'snelle_drain_reversal'], 3);
+	const power = getPower((await getGameState(page)).players.player_2.activeSlots[0]);
+	await botAttacks(page);
+	const modal = page.locator('.modal-card--reaction');
+	await modal.waitFor({ state: 'visible', timeout: 8000 });
+	await expect(modal.locator('h3')).toHaveText('Reaction');
+	const loss = (await getGameState(page)).pendingReaction.preview.mpLoss?.[0] ?? power;
+	await expect(modal.locator('p'), 'the incoming attack, first names and the MP loss').toHaveText(`Gandoe attacks Binti: −${loss} MP`);
+
+	// One row per eligible Snelle: "<Name> · N Energy" with its text as the meta line.
+	const row = (id) => modal.locator(`.modal-mosje-select-btn[data-id="${id}"]`);
+	await expect(row('snelle_the_protector').locator('.mosje-select-name')).toHaveText('The Protector · 0 Energy');
+	await expect(row('snelle_drain_reversal').locator('.mosje-select-name')).toHaveText('Drain Reversal · 2 Energy');
+	await expect(row('snelle_the_protector').locator('.mosje-select-mp')).toContainText('loses 30 less');
+
+	// The last row is "No reaction" (the old Pass); there is no cancel button; the rows are big and need no hover.
+	const labels = await modal.locator('.modal-mosje-select-btn .mosje-select-name').allInnerTexts();
+	expect(labels[labels.length - 1]).toBe('No reaction');
+	await expect(row('__pass__')).toHaveText('No reaction');
+	await expect(page.locator('#modal-option-cancel'), 'no cancel button').toHaveCount(0);
+	await expect(modal.locator('button', { hasText: /^Pass$/ })).toHaveCount(0);
+	await page.waitForTimeout(500); // the pop-in animation settles before the rows are measured
+	for (const h of await rowHeights(page)) expect(h, 'every row is at least 56 px high').toBeGreaterThanOrEqual(56);
+	const box = await modal.boundingBox();
+	expect(Math.abs(box.x + box.width / 2 - 960), 'a centred card on desktop').toBeLessThan(2);
+	fs.mkdirSync('tests/ui/screenshots/board-2-0', { recursive: true });
+	await page.screenshot({ path: 'tests/ui/screenshots/board-2-0/u6-reaction.png' });
+
+	await answerReaction(page, '__pass__');
+	await settled(page);
+	expect(await myMp(page), 'No reaction takes the full loss').toBe(50 - power);
+});
+
+test('g: under 600 px wide the reaction prompt is a bottom sheet with full-width rows of at least 56 px', async ({ page }) => {
+	test.setTimeout(60000);
+	await boot(page, ['snelle_the_protector'], 3);
+	await page.setViewportSize({ width: 390, height: 844 });
+	await botAttacks(page);
+	const modal = page.locator('.modal-card--reaction');
+	await modal.waitFor({ state: 'visible', timeout: 8000 });
+	await page.waitForTimeout(500);
+	const box = await modal.boundingBox();
+	expect(box.x, 'flush with the left edge').toBeLessThan(1);
+	expect(box.width, 'the full width').toBeGreaterThan(388);
+	expect(Math.abs(box.y + box.height - 844), 'sitting on the bottom edge').toBeLessThan(2);
+	for (const h of await rowHeights(page)) expect(h).toBeGreaterThanOrEqual(56);
+	await answerReaction(page, '__pass__');
+	await settled(page);
 });

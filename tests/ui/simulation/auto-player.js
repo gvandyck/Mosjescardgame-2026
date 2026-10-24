@@ -11,6 +11,7 @@
  */
 
 import { readHand, questFirstAvailable } from '../helpers.js';
+import { clickEndTurn } from '../../helpers/clickEndTurn.js';
 
 /**
  * Returns true if a modal is currently open.
@@ -140,7 +141,7 @@ export async function playAutoTurn(page) {
 	}
 	if (await page.locator('#reward-overlay').isVisible({ timeout: 100 }).catch(() => false)) return 'gameover';
 
-	await page.click('#btn-end-turn').catch(() => {});
+	await clickEndTurn(page).catch(() => {});
 	return await Promise.race([
 		page.waitForSelector('#btn-end-turn:not([disabled])', { timeout: 45000 }).then(() => 'turn'),
 		page.waitForSelector('#reward-overlay', { timeout: 45000 }).then(() => 'gameover'),

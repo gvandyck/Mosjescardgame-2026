@@ -3,6 +3,7 @@
 // player's cooldown turn > Level 3 hold > the opponent's turn. A finished game shows nothing. Returns { kind, text } or null.
 import { isCooldownBlocked } from '../../engine/turn/isCooldownBlocked.js';
 import { parseMosjeName } from '../cardV1/parseMosjeName.js';
+import { COOLDOWN_TEXT } from './cooldownText.js';
 
 function findHold(state, localId) {
 	const ids = [localId, ...Object.keys(state.players || {}).filter(id => id !== localId)];
@@ -17,7 +18,7 @@ export function pickStatusMessage(state, localId, mode = null) {
 	if (!state || state.status === 'FINISHED') return null;
 	if (mode) return mode;
 	if (state.activePlayerId === localId && isCooldownBlocked(state, localId)) {
-		return { kind: 'cooldown', text: 'Cooldown turn: you can only place face-down Piecies' };
+		return { kind: 'cooldown', text: COOLDOWN_TEXT };
 	}
 	const hold = findHold(state, localId);
 	if (hold) {

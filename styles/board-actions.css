@@ -131,6 +131,81 @@
 .status-strip[data-status-kind="choose-quest"] { border-color: #fff; }
 .status-strip[data-status-kind="preview"] .status-strip__btn--confirm { box-shadow: 0 0 12px rgba(225, 29, 72, 0.6); }
 
+/* ── End Turn (63-07, D-11): the label with a small "N actions left" hint under it while a Mosje can still attack or Quest ── */
+#btn-end-turn {
+	display: inline-flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 3px;
+	box-sizing: border-box;
+	min-height: 56px;
+}
+#btn-end-turn .end-turn__label { line-height: 1; }
+#btn-end-turn .end-turn__hint {
+	font: 700 11px/1 'DM Sans', sans-serif;
+	letter-spacing: 0.02em;
+	text-transform: none;
+	opacity: 0.9;
+}
+
+/* ── Reaction prompt and End Turn confirm (63-07, D-20): the generic option modal in its big-row, no-hover variant ── */
+.modal-card.modal-card--reaction {
+	box-sizing: border-box;
+	width: min(92vw, 520px);
+	max-width: 520px;
+	padding: 20px;
+	gap: 12px;
+}
+.modal-card--reaction > h3 { margin: 0; }
+.modal-card--reaction > p { margin: 0; font: 600 15px/1.35 'DM Sans', sans-serif; color: #fff; }
+.modal-card--reaction .modal-mosje-select-list { gap: 10px; margin-top: 2px; }
+.modal-card--reaction .modal-mosje-select-btn {
+	box-sizing: border-box;
+	min-height: 56px;                    /* tap floor: every answer row is at least 56 px high */
+	padding: 10px 16px;
+	flex-wrap: wrap;
+	text-align: left;
+}
+.modal-card--reaction .mosje-select-name { font: 800 15px/1.2 'Sora', sans-serif; }
+/* The card text under a Snelle's name reads as a plain sentence, not as the small mono pill the other pickers use. */
+.modal-card--reaction .mosje-select-mp {
+	flex: 1 1 100%;
+	padding: 0;
+	border: 0;
+	background: none;
+	border-radius: 0;
+	white-space: normal;
+	font: 600 13px/1.35 'DM Sans', sans-serif;
+	color: #b0bcdf;
+}
+/* No hover look: a row reads the same until it is pressed. */
+.modal-card--reaction .modal-mosje-select-btn:hover:not(:disabled) {
+	background: linear-gradient(135deg, #1a150a 0%, #0e0c04 100%);
+	border-color: rgba(232, 185, 79, 0.3);
+	box-shadow: none;
+}
+.modal-card--reaction .modal-mosje-select-btn:active:not(:disabled) { background: linear-gradient(135deg, #2a1f08 0%, #181308 100%); border-color: var(--mosje-gold); }
+/* The last row ("No reaction" / "Keep playing") is the quiet way out. */
+.modal-card--reaction .modal-mosje-select-btn[data-id="__pass__"],
+.modal-card--reaction .modal-mosje-select-btn[data-id="keep"] { background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.22); }
+.modal-card--reaction .modal-mosje-select-btn[data-id="__pass__"] .mosje-select-name,
+.modal-card--reaction .modal-mosje-select-btn[data-id="keep"] .mosje-select-name { color: #fff; }
+/* Under 600 px wide the prompt is a bottom sheet (thumb reach); on desktop it stays the centred card. */
+@media (max-width: 599px) {
+	.modal-card.modal-card--reaction {
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		width: 100%;
+		max-width: none;
+		margin: 0;
+		border-radius: 16px 16px 0 0;
+		padding-bottom: max(20px, env(safe-area-inset-bottom));
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
 	.game-board .card[data-target="valid"],
 	.game-board .quest-stack[data-target="valid"] > .card { animation: none; }

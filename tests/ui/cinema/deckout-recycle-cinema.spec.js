@@ -4,7 +4,7 @@
  * A deliberately SLOW, narrated walkthrough so a human can watch it play out: Binti's
  * draw deck runs dry → on her next draw the discard reshuffles into a fresh deck → the
  * ~3s "DECK RECYCLED" banner rises in the centre, her discard pile pulses, and the battle
- * log records that she skips her next turn (1-turn cooldown) → the banner fades away.
+ * log records that her turn is a cooldown turn (face-down Piecies only) → the banner fades away.
  *
  * It still asserts the real outcome, so it doubles as a visual regression check.
  * Runs in the `visual` project (headed + slowMo). Watch it:
@@ -13,7 +13,9 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { seedOfflineSession, waitForBoard, GAME_URL_TEST, readLog, ss } from '../helpers.js';
+import { seedOfflineSession, waitForBoard, GAME_URL_TEST, readLog, ss, setHand } from '../helpers.js';
+import { answerModals } from '../../helpers/answerModals.js';
+import { clickEndTurn } from '../../helpers/clickEndTurn.js';
 
 test('🎬 Deck-out cinema — discard reshuffles, "DECK RECYCLED" notice plays', async ({ page }, testInfo) => {
 	test.setTimeout(120000);
@@ -27,6 +29,9 @@ test('🎬 Deck-out cinema — discard reshuffles, "DECK RECYCLED" notice plays'
 	await seedOfflineSession(page, 'DIGITAL_CONTROL', 'ARTISTIC_RHYTHM');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
+	await answerModals(page, [], { max: 4, wait: 500 }); // a random starter (Coert, Martin) can open a blocking "Draw step" modal
+	await setHand(page, 'player_1', []); // a random opening Snelle would open a reaction window the bot's turn then waits on
+	await setHand(page, 'player_2', []);
 	await beat('Scene 1 — Binti (you) vs DDR Chris (bot)');
 
 	await page.evaluate(() => {
@@ -47,14 +52,15 @@ test('🎬 Deck-out cinema — discard reshuffles, "DECK RECYCLED" notice plays'
 
 	// ── Scene 3: end turn → bot plays → Binti's draw reshuffles (fires the notice) ──
 	await beat('Ending the turn… the bot plays, then Binti tries to draw with an empty deck');
-	await page.click('#btn-end-turn');
+	await clickEndTurn(page);
 
 	// The ~3s "DECK RECYCLED" banner appears centre-screen.
 	const banner = page.locator('.deckout-banner');
 	await banner.waitFor({ state: 'visible', timeout: 30000 });
 	await expect(banner).toContainText('DECK RECYCLED');
 	await expect(banner).toContainText(/reshuffled/i);
-	await expect(banner).toContainText(/skips next turn/i);
+	await expect(banner).toContainText(/cooldown turn/i); // 2.0 RULE-07: the next turn is a cooldown turn
+	await expect(page.locator('#status-strip'), 'the strip carries the blocking message').toHaveAttribute('data-status-kind', 'cooldown');
 
 	// Catch the discard-pile pulse while its ~2s animation is running, then snapshot.
 	await page.waitForFunction(
@@ -66,8 +72,8 @@ test('🎬 Deck-out cinema — discard reshuffles, "DECK RECYCLED" notice plays'
 
 	// Permanent battle-log record.
 	const rows = await readLog(page);
-	expect(rows.some(r => /deck ran out/i.test(r) && /skips their next turn/i.test(r))).toBe(true);
-	await beat('The battle log notes she skips her next turn (1-turn cooldown)');
+	expect(rows.some(r => /deck ran out/i.test(r) && /cooldown turn/i.test(r))).toBe(true);
+	await beat('The battle log notes her turn is a cooldown turn (face-down Piecies only)');
 
 	// ── Scene 4: the banner fades away on its own ─────────────────────────────
 	await banner.waitFor({ state: 'detached', timeout: 6000 });

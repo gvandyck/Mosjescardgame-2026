@@ -28,13 +28,14 @@ import { activateByTap, abilityByTap, isPiecieActivatable } from '../../helpers/
  * Use instead of endTurnAndWait when the game might end mid-chain.
  */
 async function endTurnGuarded(page) {
-	await page.click('#btn-end-turn');
+	await clickEndTurn(page);
 	return Promise.race([
 		page.waitForSelector('#btn-end-turn:not([disabled])', { timeout: 45000 }).then(() => 'turn'),
 		page.waitForSelector('#reward-overlay', { timeout: 45000 }).then(() => 'gameover'),
 	]).catch(() => 'gameover');
 }
 import { attachCollector } from './game-collector.js';
+import { clickEndTurn } from '../../helpers/clickEndTurn.js';
 
 // ─── Shared: activate a piecie that is ready ─────────────────────────────────
 
@@ -263,7 +264,7 @@ test('chain-3: Not Today! fires on bot elimination — Mosje survives at 5 MP', 
 	await page.waitForTimeout(200);
 	await ss(page, 'chain3-1mp');
 
-	await page.click('#btn-end-turn');
+	await clickEndTurn(page);
 
 	const result = await Promise.race([
 		page.waitForSelector('.modal-card h3', { timeout: 15000 }).then(() => 'modal'),

@@ -1,5 +1,9 @@
-// promptReaction — ask the human which eligible Snelle to play at an open reaction window (or Pass). Reuses the generic option modal.
+// promptReaction — ask the human which eligible Snelle to play at an open reaction window, or "No reaction". Reuses the generic
+// option modal in its big-row 'reaction' variant (63-07, D-20): an attack window opens with "<A> attacks <T>: −n MP", each Snelle
+// is "<Name> · N Energy" with its text underneath, the last row is "No reaction" (id '__pass__'). No hover, no cancel.
 import { SNELLE_PIECIES } from '../../data/snellePiecies.js';
+import { getSnelleCost } from '../../engine/energy/getSnelleCost.js';
+import { describeReactionContext } from '../board/describeReactionContext.js';
 import { escapeMeta } from './escapeMeta.js';
 
 const MOMENT_TEXT = {
@@ -28,10 +32,11 @@ export async function promptReaction(modal, state, responderId) {
 			return { id, label: `Reroll die ${i + 1}`, metaLabel: escapeMeta(`A Piecie lets you reroll one die - the die shows ${dice[i]}`) };
 		}
 		const def = SNELLE_PIECIES.find(c => c.id === id);
-		return { id, label: def?.name ?? id, metaLabel: escapeMeta(`Cost: ${def?.cost ?? 0} Energy - ${def?.description ?? ''}`) };
+		return { id, label: `${def?.name ?? id} · ${getSnelleCost(state, responderId, def)} Energy`, metaLabel: escapeMeta(def?.description ?? '') };
 	});
-	options.push({ id: '__pass__', label: 'Pass' });
-	const prompt = p.moments.map(m => MOMENT_TEXT[m] ?? m).join(' / ') + (dice.length && p.eligible.some(id => id.startsWith('djReroll:') || id.startsWith('piecieReroll:')) ? '. Play a Snelle or reroll a die?' : '. Play a Snelle?');
-	const choice = await modal.showOptionSelect({ title: 'Reaction', prompt, options, allowCancel: false });
+	options.push({ id: '__pass__', label: 'No reaction' });
+	const question = p.moments.map(m => MOMENT_TEXT[m] ?? m).join(' / ') + (dice.length && p.eligible.some(id => id.startsWith('djReroll:') || id.startsWith('piecieReroll:')) ? '. Play a Snelle or reroll a die?' : '. Play a Snelle?');
+	const prompt = describeReactionContext(state) || question;
+	const choice = await modal.showOptionSelect({ title: 'Reaction', prompt, options, allowCancel: false, variant: 'reaction' });
 	return !choice || choice === '__pass__' ? null : choice;
 }

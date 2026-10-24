@@ -28,6 +28,7 @@ import {
 	readHand,
 	mockDiceRoll, questFirstAvailable, questViaUi,
 } from './helpers.js';
+import { clickEndTurn } from '../helpers/clickEndTurn.js';
 
 // Valid win reasons the overlay must show
 // 2.0 overlay texts: "has no Mosje left outside the Welloe pile" (knockout) and "held Level 3 until their turn"; the V4 ids stay for old logs.
@@ -94,7 +95,7 @@ async function playActiveTurn(page, turnIndex) {
 	if (overlayAfterPiecie) return false;
 
 	// End turn — wait for bot or game over
-	await page.click('#btn-end-turn');
+	await clickEndTurn(page);
 
 	// Race between bot finishing its turn and game over overlay
 	const result = await Promise.race([
@@ -130,7 +131,7 @@ test('full game: passive — human ends turns until game over (PHYSICAL_FORCE)',
 		console.log(`Turn ${turnCount}...`);
 
 		// End human turn immediately
-		await page.click('#btn-end-turn');
+		await clickEndTurn(page);
 
 		const result = await Promise.race([
 			page.waitForSelector('#btn-end-turn:not([disabled])', { timeout: 45000 }).then(() => 'turn'),
@@ -239,7 +240,7 @@ for (const matchup of DECK_MATCHUPS) {
 
 		while (turnCount < 30) {
 			turnCount++;
-			await page.click('#btn-end-turn');
+			await clickEndTurn(page);
 			const result = await Promise.race([
 				page.waitForSelector('#btn-end-turn:not([disabled])', { timeout: 45000 }).then(() => 'turn'),
 				page.waitForSelector('#reward-overlay', { timeout: 45000 }).then(() => 'gameover'),
@@ -299,7 +300,7 @@ test('full game: reaching Level 3 is NOT an instant win - held Level 3 wins at t
 	});
 
 	// End the turn; the bot plays; at the human's next turn start the held Level 3 wins.
-	await page.click('#btn-end-turn');
+	await clickEndTurn(page);
 	await page.waitForSelector('#reward-overlay', { timeout: 40000 });
 	const { title, reason } = await waitForGameOver(page, 3000);
 	await ss(page, 'full-game-held-level3-win');

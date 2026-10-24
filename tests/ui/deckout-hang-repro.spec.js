@@ -8,7 +8,9 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { seedOfflineSession, waitForBoard, GAME_URL_TEST, ss } from './helpers.js';
+import { seedOfflineSession, waitForBoard, GAME_URL_TEST, ss, setHand } from './helpers.js';
+import { answerModals } from '../helpers/answerModals.js';
+import { clickEndTurn } from '../helpers/clickEndTurn.js';
 
 const getState = (page) => page.evaluate(() => window.__testHooks?.getGameState() ?? null);
 
@@ -39,6 +41,9 @@ test('deck-out cooldown turn does not freeze offline play (Binti vs DDR Chris)',
 	await seedOfflineSession(page, 'DIGITAL_CONTROL', 'ARTISTIC_RHYTHM');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
+	await answerModals(page, [], { max: 4, wait: 500 }); // a random starter (Coert, Martin) can open a blocking "Draw step" modal
+	await setHand(page, 'player_1', []); // a random opening Snelle would open a reaction window the bot's turn then waits on
+	await setHand(page, 'player_2', []);
 
 	const opening = await getState(page);
 	expect(opening.activePlayerId).toBe('player_1');
@@ -64,7 +69,7 @@ test('deck-out cooldown turn does not freeze offline play (Binti vs DDR Chris)',
 
 	// Turn 1 → End Turn. Bot plays, then the human's next turn begins: the empty-deck draw
 	// reshuffles the discard and makes this turn a cooldown turn.
-	await page.click('#btn-end-turn');
+	await clickEndTurn(page);
 	await waitForHumanControl(page, 30000, 2);
 
 	const armed = await getState(page);
@@ -73,7 +78,7 @@ test('deck-out cooldown turn does not freeze offline play (Binti vs DDR Chris)',
 
 	// End the cooldown turn: the bot plays and control MUST return to the human.
 	const turnBefore = armed.turnNumber;
-	await page.click('#btn-end-turn');
+	await clickEndTurn(page);
 	await waitForHumanControl(page, 30000, turnBefore + 1);
 
 	const after = await getState(page);

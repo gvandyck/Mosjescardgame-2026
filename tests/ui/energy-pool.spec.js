@@ -122,6 +122,21 @@ test('U1: hovering a hand card dims the gems it would spend, leaving clears it',
 	await expect(page.locator('#energy-player .energy-count')).toContainText('need 3');
 });
 
+test('U1: the spend preview survives a board re-render while the pointer stays on the same hand card', async ({ page }) => {
+	await loadBoard(page);
+	await setEnergy(page, 'player_1', 6);
+	await setHand(page, 'player_1', ['place_the_gym']);
+	await page.locator('.hand-card-wrap[data-card-id="place_the_gym"]').hover({ position: { x: 100, y: 30 } });
+	await expect(page.locator('#energy-player .energy-gem[data-crystal="spend"]')).toHaveCount(3);
+	// Every board change rebuilds the hand and the crystals under the unmoving pointer: the preview must come back by itself.
+	await page.evaluate(() => window.__testHooks.rerender());
+	await expect(page.locator('#energy-player .energy-gem[data-crystal="spend"]')).toHaveCount(3);
+	await expect(page.locator('#energy-player .energy-count')).toContainText('→ 3/6');
+	// ... and it still clears when the pointer leaves.
+	await page.mouse.move(960, 420);
+	await expect(page.locator('#energy-player .energy-gem[data-crystal="spend"]')).toHaveCount(0);
+});
+
 test('U1: the piles carry their hooks and the Welloe pile exists only while it has cards', async ({ page }) => {
 	await loadBoard(page);
 

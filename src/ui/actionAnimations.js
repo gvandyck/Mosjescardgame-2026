@@ -271,7 +271,7 @@ export function showDeckOutBanner({ playerName, onPileHighlight } = {}) {
 	createCenterBanner(
 		'deckout-banner',
 		`<span class="deckout-banner__title">&#9851; DECK RECYCLED</span>
-		 <span class="deckout-banner__body">${escapeText(name)}'s deck ran out — discard reshuffled into a new deck. Skips next turn (1-turn cooldown).</span>`
+		 <span class="deckout-banner__body">${escapeText(name)}'s deck ran out: discard reshuffled into a new deck. Cooldown turn: only face-down Piecies.</span>`
 	);
 	if (typeof onPileHighlight === 'function') onPileHighlight();
 }

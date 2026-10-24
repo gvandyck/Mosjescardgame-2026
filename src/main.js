@@ -7,6 +7,9 @@ import { toMosjeTileCards } from './ui/board/toMosjeTileCards.js';
 import { pickStatusMessage } from './ui/board/pickStatusMessage.js';
 import { renderStatusStrip } from './ui/board/renderStatusStrip.js';
 import { createBoardController } from './ui/board/createBoardController.js';
+import { countActionsLeft } from './ui/board/countActionsLeft.js';
+import { confirmEndTurn } from './ui/board/confirmEndTurn.js';
+import { renderEndTurnButton } from './ui/board/renderEndTurnButton.js';
 import { offerWestPeek } from './ui/actions/offerWestPeek.js';
 import { createLogRenderer } from './ui/logRenderer.js';
 import { renderHand } from './ui/handRenderer.js';
@@ -1290,12 +1293,15 @@ function initGamePage() {
 	// Stop Firestore listener on page unload
 	window.addEventListener('beforeunload', stopListening);
 
-	document.getElementById('btn-end-turn')?.addEventListener('click', () => {
+	document.getElementById('btn-end-turn')?.addEventListener('click', async () => {
 		if (!gameState) return;
 		if (gameState.activePlayerId !== localPlayerId) {
 			modal.showInfo('Not Your Turn', 'Wait for your opponent to end their turn.');
 			return;
 		}
+		// D-11: ask "A Mosje can still act: end turn anyway?" only while a Mosje can still attack or Quest.
+		if (!(await confirmEndTurn(modal, countActionsLeft(gameState, localPlayerId)))) return;
+		if (!gameState || gameState.status === 'FINISHED' || gameState.activePlayerId !== localPlayerId) return; // the state moved on while the confirm was open
 		const beforeTurnChange = snapshotForAnimation();
 		const previousPlayerName = gameState.players[gameState.activePlayerId].name;
 		gameState = endTurn(gameState);
@@ -1444,7 +1450,10 @@ function initGamePage() {
 		updateStatusStrip(state);
 
 		const btnEndTurn = document.getElementById('btn-end-turn');
-		if (btnEndTurn) btnEndTurn.disabled = !isLocalTurn || gameOver;
+		if (btnEndTurn) {
+			btnEndTurn.disabled = !isLocalTurn || gameOver;
+			renderEndTurnButton(btnEndTurn, countActionsLeft(state, localPlayerId)); // label + "N actions left" hint + data-actions-left (D-11)
+		}
 	}
 
 	// Redbull / Double Trigger: the engine allows a second paid use (slot.extraAbilityUses), so a use is just one activation.

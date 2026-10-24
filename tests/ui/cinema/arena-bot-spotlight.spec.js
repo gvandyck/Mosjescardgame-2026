@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { GAME_URL_TEST, seedOfflineSession, waitForBoard, setHand, endTurnAndWait, ss } from '../helpers.js';
+import { clickEndTurn } from '../../helpers/clickEndTurn.js';
 
 // A bot play must open a spotlight (bot steps never call animateFieldActivation).
 test('bot playing a Mosje spotlights the card', async ({ page }) => {
@@ -16,7 +17,7 @@ test('bot playing a Mosje spotlights the card', async ({ page }) => {
 			if (el && !window.__spotSeen.includes(el.textContent)) window.__spotSeen.push(el.textContent);
 		}).observe(document.body, { childList: true, subtree: true });
 	});
-	await page.click('#btn-end-turn');
+	await clickEndTurn(page);
 	await page.waitForFunction(() => window.__spotSeen.length > 0, null, { timeout: 25000 });
 	await ss(page, 'arena-7-bot-spotlight');
 	console.log('spotlights seen:', await page.evaluate(() => window.__spotSeen));

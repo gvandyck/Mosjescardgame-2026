@@ -11,6 +11,7 @@ import {
 } from './helpers.js';
 import { activatePiecieOnField } from '../helpers/piecieUi.js';
 import { abilityByTap, readTrayChip, isPiecieActivatable, countActivatablePiecies, tapOwnCard, chooseTray } from '../helpers/boardTaps.js';
+import { clickEndTurn } from '../helpers/clickEndTurn.js';
 
 // ─── Quest flow helper ────────────────────────────────────────────────────────
 // Full modal sequence for completing a general quest attempt.
@@ -377,7 +378,7 @@ test('VIS-07: Not Today! interrupt fires on bot elimination', async ({ page }) =
 	await ss(page, 'vis07-1mp');
 
 	// End turn — bot may eliminate
-	await page.click('#btn-end-turn');
+	await clickEndTurn(page);
 
 	const result = await Promise.race([
 		page.waitForSelector('.modal-card h3', { timeout: 12000 }).then(() => 'modal'),
