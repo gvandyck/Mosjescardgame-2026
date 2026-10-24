@@ -6,6 +6,8 @@ import { getPlaceTint } from './ui/board/getPlaceTint.js';
 import { toMosjeTileCards } from './ui/board/toMosjeTileCards.js';
 import { pickStatusMessage } from './ui/board/pickStatusMessage.js';
 import { renderStatusStrip } from './ui/board/renderStatusStrip.js';
+import { createBoardController } from './ui/board/createBoardController.js';
+import { offerWestPeek } from './ui/actions/offerWestPeek.js';
 import { createLogRenderer } from './ui/logRenderer.js';
 import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
@@ -580,6 +582,21 @@ function initGamePage() {
 
 	let gameState = null;
 	let nextDice = []; // testMode setNextDice queue (Quest rolls)
+
+	// 63-05: the tap-first board. The controller owns selection, the action tray, attack targeting and Quest choosing; its handlers
+	// feed the SAME flows the old buttons use (runAttackFlow / runQuestFlow with preset arguments, ability, Piecie activation).
+	const boardController = createBoardController({
+		getState: () => gameState,
+		localPlayerId,
+		onChange: () => updateStatusStrip(),
+		handlers: {
+			attack: (slotIndex, targetPlayerId, targetSlotIndex) => runMosjeAction(runAttackFlow, 'attack', { slotIndex, targetPlayerId, targetSlotIndex }),
+			beginQuest: () => offerQuestPeek(),
+			quest: (slotIndex, stackId) => runMosjeAction(runQuestFlow, 'quest', { slotIndex, stackId }),
+			ability: (cardId) => handleUseAbility(cardId),
+			activate: (slotIndex) => handleActivatePiecie(slotIndex),
+		},
+	});
 
 	// Stats accumulator — local player game summary for end-screen
 	let gameStats = {
@@ -1317,7 +1334,7 @@ function initGamePage() {
 	});
 
 	// 56-06: Attack / Quest buttons — the flows own all picking; main.js only assigns state, logs, syncs and renders.
-	async function runMosjeAction(flow, actionLabel) {
+	async function runMosjeAction(flow, actionLabel, presets = {}) {
 		if (!gameState || gameState.status === 'FINISHED') return;
 		if (gameState.activePlayerId !== localPlayerId) {
 			modal.showInfo('Not Your Turn', 'You can only act on your own turn.');
@@ -1325,7 +1342,7 @@ function initGamePage() {
 		}
 		const before = snapshotForAnimation();
 		const rng = () => (nextDice.length ? (nextDice.shift() - 1) / 6 + 0.001 : Math.random());
-		const out = await flow({ state: gameState, playerId: localPlayerId, modal, rng, settle: st => settleReactions(st, reactionCtx()) });
+		const out = await flow({ state: gameState, playerId: localPlayerId, modal, rng, settle: st => settleReactions(st, reactionCtx()), ...presets });
 		if (out.state === gameState) return;
 		gameState = out.state;
 		out.log.forEach(line => log.add('quest', line));
@@ -1334,6 +1351,25 @@ function initGamePage() {
 	}
 	document.getElementById('btn-attack')?.addEventListener('click', () => runMosjeAction(runAttackFlow, 'attack'));
 	document.getElementById('btn-quest')?.addEventListener('click', () => runMosjeAction(runQuestFlow, 'quest'));
+
+	// Senor West's optional look at a Quest stack (once per turn): the Quest tray chip offers it before the Quest tiles light up.
+	async function offerQuestPeek() {
+		if (!gameState || gameState.status === 'FINISHED' || gameState.activePlayerId !== localPlayerId) return;
+		const peeked = await offerWestPeek({ state: gameState, playerId: localPlayerId, modal });
+		if (peeked === gameState) return;
+		gameState = peeked;
+		syncPush();
+	}
+
+	// The status strip: an action mode of the board controller (choose-target / preview / choose-quest) wins over the passive
+	// messages; Confirm and Cancel in the strip call the controller.
+	function updateStatusStrip(state = gameState) {
+		if (!state) return;
+		renderStatusStrip(document.getElementById('status-strip'), pickStatusMessage(state, localPlayerId, boardController.getStripMode()), {
+			onConfirm: () => boardController.confirm(),
+			onCancel: () => boardController.cancel(),
+		});
+	}
 
 	// Deck-out recycle notice: when the engine stamps _deckOutEvent (D-06 reshuffle), show a
 	// banner + battle-log line + discard-pile pulse. Runs on both the local action path and
@@ -1376,7 +1412,8 @@ function initGamePage() {
 		const onActivatePiecie = (isLocalTurn && !gameOver) ? handleActivatePiecie : null;
 		const onOpenDiscard = handleOpenDiscard;
 		const onPlayFromHand = (isLocalTurn && !gameOver) ? handlePlayCard : null;
-		renderBoard(boardRoot, uiState, onUseAbility, null, onActivatePiecie, onOpenDiscard, onPlayFromHand, { endTurnButton });
+		renderBoard(boardRoot, uiState, onUseAbility, null, onActivatePiecie, onOpenDiscard, onPlayFromHand, { endTurnButton, onTileTap: boardController.onTileTap, onQuestTap: boardController.onQuestTap });
+		boardController.afterRender(); // redraw the selection / tray / target marks on the fresh tiles
 		showNewReveals(state, localPlayerId, modal, CARD_LOOKUP, revealSeen); // reveal modal: local viewer's entries only
 		if (state._lastPlaceEffect?.placeName) {
 			showPlaceEffectBanner(state._lastPlaceEffect.placeName, state._lastPlaceEffect.description, state._lastPlaceEffect.phase);
@@ -1409,8 +1446,8 @@ function initGamePage() {
 			}
 		}
 
-		// Status strip (D-19): one message by priority. Action modes (choose-target / preview / choose-quest) come with Plan 63-05.
-		renderStatusStrip(document.getElementById('status-strip'), pickStatusMessage(state, localPlayerId, null));
+		// Status strip (D-19): one message by priority; the board controller's action mode (D-04) comes first.
+		updateStatusStrip(state);
 
 		const btnAttack = document.getElementById('btn-attack');
 		const btnQuest = document.getElementById('btn-quest');

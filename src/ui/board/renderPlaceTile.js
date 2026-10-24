@@ -1,11 +1,12 @@
 // renderPlaceTile.js — the Place tile on the left of the middle strip (63-UI-SPEC "Place tile", D-08, D-07).
 // An active Place is drawn as the field-mode Place card (no slot is used) with an owner chip "YOU · 2 turns" / "BOT · 1 turn"
-// and data-place-owner = the owner's player id; a tap opens its detail view. No Place in play = a dashed outline.
+// and data-place-owner = the owner's player id. A tap calls onTap(place) (default: the detail view); the detail view itself
+// (openDetails(place)) is also kept on the tile for the action tray's Details chip. No Place in play = a dashed outline.
 import { renderCard } from '../cardRenderer.js';
 import { getCardById } from '../../data/cardIndex.js';
 import { formatPlaceOwnerChip } from './formatPlaceOwnerChip.js';
 
-export function renderPlaceTile(container, viewModel, openDetails) {
+export function renderPlaceTile(container, viewModel, onTap, openDetails = onTap) {
 	if (!container) return;
 	const place = viewModel?.activePlace;
 	if (!place) {
@@ -29,7 +30,8 @@ export function renderPlaceTile(container, viewModel, openDetails) {
 		tile.appendChild(chip);
 	}
 	const merged = { ...(getCardById(cardId) || place), ...place };
-	tile.addEventListener('click', () => openDetails?.(merged));
+	tile.addEventListener('click', () => onTap?.(merged));
+	tile._boardOpenDetails = () => openDetails?.(merged); // the controller's Details chip reaches the current render's view
 
 	container.replaceChildren(tile);
 }

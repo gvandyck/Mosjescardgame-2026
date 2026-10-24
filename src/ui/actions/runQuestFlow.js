@@ -1,5 +1,7 @@
 // runQuestFlow — human Quest: pick Mosje, pick one of the 3 face-up Quests (unmeetable ones disabled with the reason),
 // pay/choose, roll (rollQuestAttempt), show the dice, then resolve (resolveQuestAttempt) with the post-roll picks.
+// Presets (the tap-first board, 63-05): slotIndex skips the acting-Mosje modal AND the Senor West peek (the tray already
+// offered it); stackId skips the Quest list. A preset Quest that cannot be attempted ends in the 'Cannot attempt' modal.
 import { rollQuestAttempt } from '../../engine/quests/rollQuestAttempt.js';
 import { resolveQuestAttempt } from '../../engine/quests/resolveQuestAttempt.js';
 import { checkQuestCondition } from '../../engine/quests/checkQuestCondition.js';
@@ -10,31 +12,26 @@ import { pickQuestChoices } from './pickQuestChoices.js';
 import { legalCostChoices } from './legalCostChoices.js';
 import { escapeMeta } from './escapeMeta.js';
 import { offerWestPeek } from './offerWestPeek.js';
+import { getQuestTargets } from '../board/getQuestTargets.js';
 
-export async function runQuestFlow({ state: startState, playerId, modal, rng = Math.random, settle = async s => s }) {
+export async function runQuestFlow({ state: startState, playerId, modal, rng = Math.random, settle = async s => s, slotIndex: presetSlot, stackId: presetStack }) {
 	let state = startState;
 	let none = { state, log: [] };
-	const slotIndex = await pickActingMosje({ state, playerId, modal, purpose: 'quest' });
+	const slotIndex = presetSlot ?? await pickActingMosje({ state, playerId, modal, purpose: 'quest' });
 	if (slotIndex == null) return none;
 	// Senor West (holder text): an optional look at a Quest stack; the once-per-turn flag stays even if the attempt is cancelled.
-	state = await offerWestPeek({ state, playerId, modal });
-	none = { state, log: [] };
-
-	const options = [];
-	for (const stackId of QUEST_STACK_IDS) {
-		const quest = getQuestDef(state.questStacks?.[stackId]?.faceUp);
-		if (!quest) continue;
-		const cond = checkQuestCondition(state, playerId, slotIndex, quest);
-		let reason = cond.ok ? '' : cond.error;
-		if (cond.ok && legalCostChoices(state, playerId, slotIndex, stackId).length === 0) reason = `Cannot pay: ${quest.costText}`;
-		options.push({ id: stackId, label: quest.name, metaLabel: escapeMeta(reason || `${quest.band} +${quest.win}/-${Math.abs(quest.lose ?? 0)}`), disabled: !!reason });
+	if (presetSlot == null) {
+		state = await offerWestPeek({ state, playerId, modal });
+		none = { state, log: [] };
 	}
-	if (!options.some(o => !o.disabled)) {
-		await modal.showOptionSelect({ title: 'No Quest available', prompt: 'None of the face-up Quests can be attempted by this Mosje.', options: [{ id: 'ok', label: 'OK' }] });
+
+	const stackId = presetStack ?? await pickQuestStack({ state, playerId, modal, slotIndex });
+	if (stackId == null) return none;
+	const bad = presetStack == null ? null : getQuestTargets(state, playerId, slotIndex).find(t => t.stackId === presetStack);
+	if (bad && !bad.valid) {
+		await modal.showOptionSelect({ title: 'Cannot attempt', prompt: bad.reason, options: [{ id: 'ok', label: 'OK' }] });
 		return none;
 	}
-	const stackId = await modal.showOptionSelect({ title: 'Attempt which Quest?', options, allowCancel: true });
-	if (stackId == null) return none;
 
 	const pre = await pickQuestChoices({ state, playerId, modal, phase: 'pre', slotIndex, stackId });
 	if (!pre) return none;
@@ -66,4 +63,22 @@ export async function runQuestFlow({ state: startState, playerId, modal, rng = M
 		return { state: rolled, log: [`${mosje} attempted ${quest.name}`] };
 	}
 	return { state: done.state, log: [`${mosje} ${pending.win ? 'won' : 'failed'} ${quest.name} (dice ${pending.dice.join(', ') || '-'})`] };
+}
+
+// The Quest list modal: the 3 face-up Quests, unmeetable ones disabled with the reason. Returns the stack id or null.
+async function pickQuestStack({ state, playerId, modal, slotIndex }) {
+	const options = [];
+	for (const stackId of QUEST_STACK_IDS) {
+		const quest = getQuestDef(state.questStacks?.[stackId]?.faceUp);
+		if (!quest) continue;
+		const cond = checkQuestCondition(state, playerId, slotIndex, quest);
+		let reason = cond.ok ? '' : cond.error;
+		if (cond.ok && legalCostChoices(state, playerId, slotIndex, stackId).length === 0) reason = `Cannot pay: ${quest.costText}`;
+		options.push({ id: stackId, label: quest.name, metaLabel: escapeMeta(reason || `${quest.band} +${quest.win}/-${Math.abs(quest.lose ?? 0)}`), disabled: !!reason });
+	}
+	if (!options.some(o => !o.disabled)) {
+		await modal.showOptionSelect({ title: 'No Quest available', prompt: 'None of the face-up Quests can be attempted by this Mosje.', options: [{ id: 'ok', label: 'OK' }] });
+		return null;
+	}
+	return modal.showOptionSelect({ title: 'Attempt which Quest?', options, allowCancel: true });
 }

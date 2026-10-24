@@ -138,3 +138,69 @@ describe('reaction windows through the injected settle', () => {
     expect(called).toBe(false);
   });
 });
+
+// 63-05: the tap-first board hands the flows preset arguments; without them both flows behave exactly as above.
+describe('runAttackFlow presets', () => {
+  const base = () => makeEngineState({
+    questStacks: stacks({}),
+    players: { player_1: { activeSlots: [mkSlot({ mp: 30 }), mkSlot({ mp: 30 })] }, player_2: { activeSlots: [fresh(), mkSlot({ mp: 40 })] } },
+  });
+
+  it('slotIndex + target presets resolve the attack with no modal at all', async () => {
+    const modal = stubModal();
+    const { state, log } = await runAttackFlow({ state: base(), playerId: 'player_1', modal, slotIndex: 1, targetPlayerId: 'player_2', targetSlotIndex: 1 });
+    expect(modal.calls).toHaveLength(0);
+    expect(state.players.player_2.activeSlots[1].mp).toBeLessThan(40);
+    expect(state.players.player_1.activeSlots[1].actedThisTurn).toBe(true);
+    expect(state.players.player_1.activeSlots[0].actedThisTurn).toBeFalsy();
+    expect(log).toHaveLength(1);
+  });
+
+  it('slotIndex alone still asks for the target (and slot 0 is a valid preset)', async () => {
+    const modal = stubModal();
+    const { state } = await runAttackFlow({ state: base(), playerId: 'player_1', modal, slotIndex: 0 });
+    expect(modal.calls.map(c => c.title)).toEqual(['Attack which Mosje?']);
+    expect(state.players.player_1.activeSlots[0].actedThisTurn).toBe(true);
+  });
+
+  it("an illegal preset target ends in the engine's 'Cannot attack' modal and changes nothing", async () => {
+    const s = base();
+    const modal = stubModal();
+    const out = await runAttackFlow({ state: s, playerId: 'player_1', modal, slotIndex: 0, targetPlayerId: 'player_2', targetSlotIndex: 0 });
+    expect(modal.calls.map(c => c.title)).toEqual(['Cannot attack']);
+    expect(out.state).toBe(s);
+  });
+});
+
+describe('runQuestFlow presets', () => {
+  const base = () => makeEngineState({
+    questStacks: { ...stacks({ FIGHTING: 'quest_tough_it_out', DIGITAL: 'quest_debug_system' }), FIGHTING: { deck: ['quest_improvise'], faceUp: 'quest_tough_it_out', tokens: 0, discard: [] } },
+    players: { player_1: { activeSlots: [mkSlot({ mp: 30 }), mkSlot({ mp: 30 })] }, player_2: { activeSlots: [mkSlot({ mp: 40 }), null] } },
+  });
+
+  it('slotIndex + stackId skip the Mosje list and the Quest list: only the roll result is shown', async () => {
+    const modal = stubModal();
+    const { state, log } = await runQuestFlow({ state: base(), playerId: 'player_1', modal, rng: () => 0.99, slotIndex: 1, stackId: 'FIGHTING' });
+    expect(modal.calls.map(c => c.title)).toEqual(['Quest succeeded']);
+    expect(state.players.player_1.activeSlots[1].mp).toBe(55);
+    expect(state.players.player_1.activeSlots[1].actedThisTurn).toBe(true);
+    expect(log[0]).toMatch(/won Tough It Out/);
+  });
+
+  it('slotIndex alone still shows the Quest list; the Senor West peek is not offered again for a preset slot', async () => {
+    const modal = stubModal();
+    await runQuestFlow({ state: base(), playerId: 'player_1', modal, rng: () => 0.99, slotIndex: 0 });
+    expect(modal.calls[0].title).toBe('Attempt which Quest?');
+    expect(modal.calls.some(c => /Senor West/.test(c.title))).toBe(false);
+  });
+
+  it("a preset Quest that cannot be attempted shows the 'Cannot attempt' modal with the reason and changes nothing", async () => {
+    const s = base();
+    const modal = stubModal();
+    const out = await runQuestFlow({ state: s, playerId: 'player_1', modal, slotIndex: 0, stackId: 'DIGITAL' });
+    expect(modal.calls).toHaveLength(1);
+    expect(modal.calls[0].title).toBe('Cannot attempt');
+    expect(out.state).toBe(s);
+    expect(out.log).toEqual([]);
+  });
+});

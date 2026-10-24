@@ -4,6 +4,7 @@ import { test, expect } from '@playwright/test';
 import fs from 'fs';
 import { OUT } from './cardv1-helpers.js';
 import { seedOfflineSession, GAME_URL_TEST, waitForBoard, setHand, setMosjeOnField, playCardFromHand } from '../helpers.js';
+import { openOwnDetails } from '../../helpers/boardTaps.js';
 
 test('card frame v1 — live board with all card types', async ({ page }) => {
   fs.mkdirSync(OUT, { recursive: true });
@@ -39,7 +40,7 @@ test('card frame v1 — click-detail modal shows a large readable card', async (
 
   // Field click -> detail modal with a large card (text >= 9px on screen, card >= 300px wide).
   await page.mouse.move(5, 300);
-  await page.locator('.mosje-card--owned.card-v1--field').first().click();
+  await openOwnDetails(page, 'mosje', 0); // an own tile opens its tray on tap; Details opens the view
   const modalCard = page.locator('.card-detail .cd-preview .card-v1--full');
   await expect(modalCard).toBeVisible();
   const box = await modalCard.boundingBox();
@@ -62,7 +63,7 @@ test('card frame v1 — click-detail modal shows a large readable card', async (
   await page.evaluate(() => window.__testHooks.setPiecieOnField('player_1', 0, 'piecie_kannetje_melk', { faceDown: false }));
   await page.waitForTimeout(800);
   await page.mouse.move(5, 300);
-  await page.locator('#board-root .board-zone--player .field-piecie-card[data-card-id="piecie_kannetje_melk"]').first().click();
+  await openOwnDetails(page, 'piecie', 'piecie_kannetje_melk');
   const piecieModal = page.locator('.card-detail');
   await expect(piecieModal).toBeVisible();
   await expect(piecieModal.locator('.cv2-panel-line--reminder')).toHaveText('Place face-down for free. From your next turn, pay its cost to activate it.');

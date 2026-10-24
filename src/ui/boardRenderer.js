@@ -17,6 +17,7 @@ import { renderPlaceTile } from './board/renderPlaceTile.js';
 import { getTileBadges } from './board/getTileBadges.js';
 import { buildTileBadges } from './board/buildTileBadges.js';
 import { showToast } from './board/showToast.js';
+import { bindTileTap } from './board/bindTileTap.js';
 
 const PIECIE_SLOTS = 3; // 2.0: 3 Piecie slots per player (mirrors tableRules)
 const MOSJE_SLOTS = 2; // 2.0: 2 Mosje slots per player
@@ -77,7 +78,8 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 			slotIndex: mosje.slotIndex,
 			cardId: mosje.cardId,
 		});
-		cardEl.addEventListener('click', () => getBoardModal().showMosjeDetailModal({ ...fullCard, ...mosje }));
+		bindTileTap(cardEl, { kind: 'mosje', owner: 'opponent', playerId: viewModel.players.top.id, slotIndex: mosje.slotIndex, cardId: mosje.cardId },
+			() => getBoardModal().showMosjeDetailModal({ ...fullCard, ...mosje }), extras.onTileTap);
 		topZone?.appendChild(cardEl);
 	}
 
@@ -99,7 +101,8 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 			slotIndex: mosje.slotIndex,
 			cardId: mosje.cardId,
 		});
-		cardEl.addEventListener('click', () => getBoardModal().showMosjeDetailModal({ ...fullCard, ...mosje }));
+		bindTileTap(cardEl, { kind: 'mosje', owner: 'own', playerId: viewModel.players.bottom.id, slotIndex: mosje.slotIndex, cardId: mosje.cardId },
+			() => getBoardModal().showMosjeDetailModal({ ...fullCard, ...mosje }), extras.onTileTap);
 
 		// 2.0: the button comes from the ability rules (activated, not a draw-step one); hidden V4 Mosjes keep the old rule.
 		const abilityRule = MOSJE_ABILITY_RULES[fullCard.abilityId];
@@ -175,10 +178,8 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		});
 		const fullPiecie = getCardById(piecie.cardId) || piecie;
 		const mergedPiecie = { ...fullPiecie, ...piecie };
-		piecieEl.addEventListener('click', (e) => {
-			if (e.target.closest('button')) return;
-			getBoardModal().showDeckBuilderCardPreview(mergedPiecie);
-		});
+		bindTileTap(piecieEl, { kind: 'piecie', owner: 'opponent', playerId: viewModel.players.top.id, slotIndex: piecie.slotIndex, cardId: piecie.cardId },
+			() => getBoardModal().showDeckBuilderCardPreview(mergedPiecie), extras.onTileTap);
 		topPiecies?.appendChild(piecieEl);
 	}
 
@@ -209,10 +210,8 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 		});
 		const fullPiecieBottom = getCardById(piecie.cardId) || piecie;
 		const mergedPiecieBottom = { ...fullPiecieBottom, ...piecie };
-		piecieEl.addEventListener('click', (e) => {
-			if (e.target.closest('button')) return;
-			getBoardModal().showDeckBuilderCardPreview(mergedPiecieBottom);
-		});
+		bindTileTap(piecieEl, { kind: 'piecie', owner: 'own', playerId: viewModel.players.bottom.id, slotIndex: piecie.slotIndex, cardId: piecie.cardId },
+			() => getBoardModal().showDeckBuilderCardPreview(mergedPiecieBottom), extras.onTileTap);
 
 		// Add activate button for Piecies
 		if (onActivatePiecie && piecie.canActivate && piecie.type === 'PIECIE') {
@@ -251,7 +250,16 @@ export function renderBoard(container, viewModel, onUseAbility = null, onReturnT
 
 	// 2.0 middle strip: the Place tile (left) and the 3 face-up Quests on their stacks (centre). A Quest tap goes to the
 	// Quest-choosing flow when one is active (extras.onQuestTap returns true), otherwise it opens the Quest's detail view.
-	renderPlaceTile(container.querySelector('#board-place'), viewModel, (place) => getBoardModal().showPlaceDetailModal(place));
+	// A Place tap goes through the controller too (the owner's tray is just Details); without one it opens the detail view.
+	const openPlaceDetails = (place) => getBoardModal().showPlaceDetailModal(place);
+	renderPlaceTile(container.querySelector('#board-place'), viewModel, (place) => {
+		if (typeof extras.onTileTap !== 'function') return openPlaceDetails(place);
+		const ownerId = viewModel.activePlacePlayedBy || null;
+		extras.onTileTap({
+			kind: 'place', owner: ownerId && ownerId === viewModel.myPlayerId ? 'own' : 'opponent', playerId: ownerId, slotIndex: null,
+			cardId: place.cardId || place.id, el: container.querySelector('#board-place [data-zone="place"]'), openDetails: () => openPlaceDetails(place),
+		});
+	}, openPlaceDetails);
 	renderQuestStacks(container.querySelector('#quest-stacks'), {
 		questStacks: viewModel.questStacks,
 		onTap: (stackId, questId) => extras.onQuestTap?.(stackId) || getBoardModal().showDeckBuilderCardPreview(getCardById(questId)),

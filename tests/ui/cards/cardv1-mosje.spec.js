@@ -6,6 +6,7 @@ import { test, expect } from '@playwright/test';
 import fs from 'fs';
 import { seedOfflineSession, GAME_URL_TEST } from '../helpers.js';
 import { collectFaceZones, findFaceCollisions } from '../../helpers/faceZones.js';
+import { openOwnDetails } from '../../helpers/boardTaps.js';
 
 const OUT = 'tests/ui/screenshots/cardv1';
 
@@ -267,7 +268,7 @@ test.describe('card frame v1 — Mosje', () => {
     await page.screenshot({ path: `${OUT}/mosje-hover-l2.png` });
     await page.mouse.move(5, 500);
     await expect(bigL2).toHaveCount(0);
-    await tile.click();
+    await openOwnDetails(page, 'mosje', 0); // an own tile opens its tray on tap; Details opens the view
     await expect(page.locator('.modal-card.card-detail').first()).toBeVisible();
     await expect(page.locator('.hover-zoom')).toHaveCount(0);
   });

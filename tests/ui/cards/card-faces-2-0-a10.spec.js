@@ -9,6 +9,7 @@ import { CARD_ID_MAP } from '../../../scripts/obby2/cardIdMap.mjs';
 import { samplePixels } from '../../helpers/samplePixels.js';
 import { contrastRatio, compositeOver } from '../../helpers/contrast.js';
 import { DIM_ROW_OPACITY } from '../../../src/ui/cardV1/faceTokens.js';
+import { openOwnDetails } from '../../helpers/boardTaps.js';
 
 const STACK_COLOR = { FIGHTING: 'rgb(194, 65, 12)', DIGITAL: 'rgb(14, 116, 144)', ARTISTIC: 'rgb(162, 28, 175)' };
 const WHITE = [255, 255, 255];
@@ -84,8 +85,8 @@ test.describe('A10 — 2.0 card faces at 1920x1080', () => {
     await page.mouse.move(5, 500);
     await expect(dock).toHaveCount(0);
 
-    // The detail view's card lights row 2 as well.
-    await tile.click();
+    // The detail view's card lights row 2 as well (an own tile opens its tray on tap; Details opens the view).
+    await openOwnDetails(page, 'mosje', 0);
     const detail = page.locator('.card-detail .cd-preview .card-v1--full');
     await expect(detail).toBeVisible();
     await expect(detail.locator('[data-cv1-level-row="2"]')).toHaveAttribute('data-lit', 'true');

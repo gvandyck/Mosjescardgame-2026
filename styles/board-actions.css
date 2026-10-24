@@ -1,0 +1,137 @@
+/* board-actions.css — the tap-first action layer of the 2.0 board (Phase 63-05, 63-UI-SPEC "Action tray" + "Targeting").
+   Selection ring, the action tray, attack targets (rose) and Quest targets (stack colour). Loaded after board-2-0.css.
+   Sizes come from the board unit --bu, except tap targets: chips and buttons keep their 44 px floor on every screen. */
+
+/* ── Selected own card: lifts 6 board units, white ring + soft white glow (one at a time) ── */
+.game-board .card.card-v1.is-selected {
+	transform: translateY(calc(-6 * var(--bu))) !important;
+	transition: none;
+	outline: 2px solid #fff;
+	outline-offset: 0;
+	filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.55));
+	position: relative;
+	z-index: 3;
+}
+/* A sideways tile lifts in its own pose (the board rule rotates it 90 degrees and scales it to fit the slot). */
+.game-board .board-zone .card.mosje-card--sideways.is-selected,
+.game-board .board-zone .card.mosje-card--sideways.is-selected:hover {
+	transform: translateY(calc(-6 * var(--bu))) rotate(90deg) scale(0.73333) !important;
+}
+
+/* ── The action tray: a row of chips centred above the tapped tile (position set by renderActionTray) ── */
+.action-tray {
+	position: fixed;
+	z-index: 140;                        /* above the board, below the modal layer (150) */
+	display: flex;
+	flex-wrap: nowrap;
+	gap: 6px;
+	padding: 0;
+	pointer-events: auto;
+}
+.action-tray__chip {
+	box-sizing: border-box;
+	flex: 0 0 auto;
+	min-width: 88px;
+	min-height: 44px;                    /* tap floor: does not shrink with the board */
+	padding: 0 16px;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	border-radius: 10px;
+	background: rgba(5, 5, 5, 0.88);
+	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55);
+	color: #fff;
+	font: 800 13px/1 'Sora', sans-serif;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	white-space: nowrap;
+	cursor: pointer;
+}
+.action-tray__chip:hover,
+.action-tray__chip:focus-visible { border-color: #fff; background: rgba(30, 30, 38, 0.95); outline: none; }
+.action-tray__chip:focus-visible { box-shadow: 0 0 0 2px #fff, 0 4px 14px rgba(0, 0, 0, 0.55); }
+/* An unusable chip stays tappable: dimmed, and a tap shows the reason in a toast. */
+.action-tray__chip[aria-disabled="true"] { opacity: 0.45; cursor: help; }
+.action-tray__chip[aria-disabled="true"]:hover { border-color: rgba(255, 255, 255, 0.2); background: rgba(5, 5, 5, 0.88); }
+
+/* ── Targeting: everything that is not a target steps back, the targets glow ── */
+.game-board[data-mode="choose-target"] .card:not([data-target]):not(.is-selected),
+.game-board[data-mode="preview"] .card:not([data-target]):not(.is-selected),
+.game-board[data-mode="choose-quest"] .board-zone .card:not(.is-selected),
+.game-board[data-mode="choose-quest"] .board-place .card { opacity: 0.6; }
+
+/* Attack: a valid enemy Mosje gets the rose ring and a slow pulse; an invalid one dims to .45 and wears its reason badge. */
+@keyframes target-pulse {
+	0%, 100% { filter: drop-shadow(0 0 calc(10 * var(--bu)) rgba(251, 113, 133, 0.45)); }
+	50% { filter: drop-shadow(0 0 calc(18 * var(--bu)) rgba(251, 113, 133, 0.9)); }
+}
+.game-board .card[data-target="valid"] {
+	outline: 2px solid #FB7185;
+	outline-offset: 0;
+	filter: drop-shadow(0 0 calc(16 * var(--bu)) rgba(251, 113, 133, 0.7));
+	animation: target-pulse 1.8s ease-in-out infinite;
+	cursor: pointer;
+}
+.game-board .card[data-target="valid"][data-preview] { outline-width: 3px; animation: none; filter: drop-shadow(0 0 calc(20 * var(--bu)) rgba(251, 113, 133, 0.95)); }
+.game-board .card[data-target="invalid"] > :not([data-target-badge]):not(.tile-badges) { opacity: 0.45; }
+.game-board .card[data-target="invalid"] { cursor: help; }
+
+/* Quest: the Quest tile glows in its own stack colour (--stack-color is set on the stack); an invalid one dims with a badge. */
+@keyframes quest-target-pulse {
+	0%, 100% { filter: drop-shadow(0 0 calc(10 * var(--bu)) color-mix(in srgb, var(--stack-color) 50%, transparent)); }
+	50% { filter: drop-shadow(0 0 calc(20 * var(--bu)) var(--stack-color)); }
+}
+.game-board .quest-stack[data-target="valid"] > .card {
+	opacity: 1;
+	outline: 2px solid var(--stack-color);
+	outline-offset: 0;
+	filter: drop-shadow(0 0 calc(16 * var(--bu)) var(--stack-color));
+	animation: quest-target-pulse 1.8s ease-in-out infinite;
+}
+.game-board .quest-stack[data-target="invalid"] > .card { opacity: 0.45; }
+.game-board .quest-stack[data-target] { cursor: pointer; }
+.game-board .quest-stack[data-target="invalid"] { cursor: help; }
+
+/* The short reason badge on an invalid target (Fresh, Protected, Can't pay, Locked, Acted): centred on the tile, never taps. */
+.target-badge {
+	position: absolute;
+	z-index: 8;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	box-sizing: border-box;
+	padding: calc(5 * var(--bu)) calc(12 * var(--bu));
+	border: 1px solid rgba(255, 255, 255, 0.35);
+	border-radius: 999px;
+	background: rgba(5, 5, 5, 0.92);
+	color: #fff;
+	font: 800 max(11px, calc(15 * var(--bu)))/1 'DM Sans', sans-serif;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	white-space: nowrap;
+	pointer-events: none;
+}
+/* The "−20" chip over the previewed target's MP box. */
+.target-chip {
+	position: absolute;
+	z-index: 8;
+	right: calc(10 * var(--bu));
+	bottom: calc(64 * var(--bu));
+	padding: calc(3 * var(--bu)) calc(10 * var(--bu));
+	border-radius: 999px;
+	background: #E11D48;
+	border: 1px solid #FB7185;
+	color: #fff;
+	font: 800 max(13px, calc(26 * var(--bu)))/1 'Sora', sans-serif;
+	pointer-events: none;
+}
+/* A sideways tile is rotated and scaled: stand its labels upright again (1 / 0.73333 = 1.3636). */
+.mosje-card--sideways .target-badge { transform: translate(-50%, -50%) rotate(-90deg) scale(1.3636); }
+.mosje-card--sideways .target-chip { transform: rotate(-90deg) scale(1.3636); }
+
+/* Status strip: the Quest-choosing mode gets the ice border the selection uses. */
+.status-strip[data-status-kind="choose-quest"] { border-color: #fff; }
+.status-strip[data-status-kind="preview"] .status-strip__btn--confirm { box-shadow: 0 0 12px rgba(225, 29, 72, 0.6); }
+
+@media (prefers-reduced-motion: reduce) {
+	.game-board .card[data-target="valid"],
+	.game-board .quest-stack[data-target="valid"] > .card { animation: none; }
+}
