@@ -1,7 +1,14 @@
 // boardTaps.js — Playwright helpers for the tap-first 2.0 board (Phase 63-05): select an own card, pick a tray chip, attack by
 // tapping a target and Confirm, Quest by tapping a Quest tile, Ability / Activate from the tray. Everything is a real tap on the
 // live board, never a hook. Used by the attack-action spec and the rewritten attackViaUi / questViaUi style flows.
+// 63-08: every helper also takes { touch: true } and then presses with locator.tap() (a real touch, needs a hasTouch context)
+// instead of a mouse click: tap-only-turn.spec.js plays a whole turn that way. The default stays a mouse click.
 import { clickModalOption } from '../ui/helpers.js';
+
+/** One press on a locator: locator.tap() when { touch: true } (hasTouch context), else locator.click(). Other options go through. */
+export function press(locator, { touch = false, ...opts } = {}) {
+	return touch ? locator.tap(opts) : locator.click(opts);
+}
 
 const ZONES = { mosje: '#zone-player', piecie: '#piecies-player', place: '#board-place' };
 
@@ -19,19 +26,19 @@ export function targetTile(page, target = 'player_2:0') {
 
 /** A random opening can make the starter's Draw step (Coert and friends) open a blocking option modal on the first turn:
  *  answer it with "Draw normally" so the tap lands on the board. A no-op when no such modal is open. */
-async function dismissDrawStep(page) {
+async function dismissDrawStep(page, touch = false) {
 	const draw = page.locator('.modal-mosje-select-btn[data-id="draw"]');
-	if (await draw.count()) await draw.first().click().catch(() => {});
+	if (await draw.count()) await press(draw.first(), { touch }).catch(() => {});
 }
 
 /** Tap an own card and wait for its action tray. The tap lands low on the left of the tile, clear of the state pills (Fresh,
  *  Protected, SKIPS TURN): a sideways tile centres its pill, and a tap on a pill shows its reason instead of opening the tray. */
-export async function tapOwnCard(page, kind, slotOrId = 0) {
-	await dismissDrawStep(page);
+export async function tapOwnCard(page, kind, slotOrId = 0, { touch = false } = {}) {
+	await dismissDrawStep(page, touch);
 	const tile = ownTile(page, kind, slotOrId);
 	await tile.waitFor({ state: 'visible', timeout: 8000 });
 	const box = await tile.boundingBox();
-	await tile.click(box ? { position: { x: Math.round(box.width * 0.2), y: Math.round(box.height * 0.6) } } : {});
+	await press(tile, { touch, ...(box ? { position: { x: Math.round(box.width * 0.2), y: Math.round(box.height * 0.6) } } : {}) });
 	await page.locator('[data-action-tray]').waitFor({ state: 'visible', timeout: 5000 });
 }
 
@@ -51,8 +58,8 @@ export async function readTrayChip(page, kind, slotOrId, action) {
 
 /** Tap one chip of the open tray (data-action: attack | quest | ability | activate | details). A dimmed chip (aria-disabled) stays
  *  tappable for the player, but Playwright treats aria-disabled as not enabled: pass { force: true } to tap it for its reason toast. */
-export async function chooseTray(page, action, { force = false } = {}) {
-	await page.locator(`[data-action-tray] [data-action="${action}"]`).click({ force });
+export async function chooseTray(page, action, { force = false, touch = false } = {}) {
+	await press(page.locator(`[data-action-tray] [data-action="${action}"]`), { touch, force });
 }
 
 /** The status strip of the page and its message kind. */
@@ -65,44 +72,46 @@ export async function openOwnDetails(page, kind, slotOrId = 0) {
 }
 
 /** Attack by taps: select the Mosje, Attack, tap the target, then Confirm (or tap the target again with confirmBy 'retap'). */
-export async function attackByTap(page, { slot = 0, target = 'player_2:0', confirmBy = 'button' } = {}) {
-	await tapOwnCard(page, 'mosje', slot);
-	await chooseTray(page, 'attack');
+export async function attackByTap(page, { slot = 0, target = 'player_2:0', confirmBy = 'button', touch = false } = {}) {
+	await tapOwnCard(page, 'mosje', slot, { touch });
+	await chooseTray(page, 'attack', { touch });
 	await statusStrip(page).locator('[data-cancel]').waitFor({ state: 'visible', timeout: 5000 });
-	await targetTile(page, target).click();
+	await press(targetTile(page, target), { touch });
 	await page.locator('#status-strip[data-status-kind="preview"]').waitFor({ timeout: 5000 });
-	if (confirmBy === 'retap') await targetTile(page, target).click();
-	else await page.locator('#status-strip [data-confirm]').click();
+	if (confirmBy === 'retap') await press(targetTile(page, target), { touch });
+	else await press(page.locator('#status-strip [data-confirm]'), { touch });
 	await page.waitForTimeout(500);
 }
 
 /** Click through the option modals a Quest opens (cost, dice, result): the `picks` data-ids in order, else the first enabled option.
  *  The first modal gets up to 5 s to open after the Quest tile tap (the flow is async); later gaps get 800 ms. (locator.isVisible
  *  ignores its timeout, so the waits use waitFor.) */
-export async function clickThroughOptions(page, picks = [], max = 8) {
+export async function clickThroughOptions(page, picks = [], max = 8, { touch = false } = {}) {
 	const queue = [...picks];
 	for (let i = 0; i < max; i++) {
 		const btn = page.locator('.modal-mosje-select-btn:not([disabled])').first();
 		if (!(await btn.waitFor({ state: 'visible', timeout: i === 0 ? 5000 : 800 }).then(() => true, () => false))) break;
 		const want = queue.shift();
-		if (want != null) await clickModalOption(page, want); else await btn.click();
+		if (want != null && !touch) await clickModalOption(page, want);
+		else if (want != null) await press(page.locator(`.modal-mosje-select-btn[data-id="${want}"]`), { touch });
+		else await press(btn, { touch });
 		await page.waitForTimeout(150);
 	}
 	await page.waitForTimeout(300);
 }
 
 /** Tap an own Mosje, choose Quest in its tray and wait until the three Quest tiles are choosable (no tile is tapped yet). */
-export async function beginQuestByTap(page, slot = 0) {
-	await tapOwnCard(page, 'mosje', slot);
-	await chooseTray(page, 'quest');
+export async function beginQuestByTap(page, slot = 0, { touch = false } = {}) {
+	await tapOwnCard(page, 'mosje', slot, { touch });
+	await chooseTray(page, 'quest', { touch });
 	await page.locator('#status-strip[data-status-kind="choose-quest"]').waitFor({ timeout: 5000 });
 }
 
 /** Quest by taps: select the Mosje, Quest, tap the Quest tile of the stack, then click through the option modals (cost, dice, result) like questViaUi. */
-export async function questByTap(page, { slot = 0, stackId = 'FIGHTING', picks = [] } = {}) {
-	await beginQuestByTap(page, slot);
-	await page.locator(`.quest-stack[data-quest-stack="${stackId}"]`).click();
-	await clickThroughOptions(page, picks, 8);
+export async function questByTap(page, { slot = 0, stackId = 'FIGHTING', picks = [], touch = false } = {}) {
+	await beginQuestByTap(page, slot, { touch });
+	await press(page.locator(`.quest-stack[data-quest-stack="${stackId}"]`), { touch });
+	await clickThroughOptions(page, picks, 8, { touch });
 }
 
 /** Generic Quest attempt for loops and bots: tap the first own Mosje whose Quest chip is enabled, tap the first valid Quest
@@ -157,9 +166,9 @@ export async function abilityByTap(page, cardId) {
 }
 
 /** Activate a Piecie from its tray. { force: true } also taps a dimmed chip (the engine / the toast then refuses it, like a player's tap). */
-export async function activateByTap(page, cardId, { force = false } = {}) {
-	await tapOwnCard(page, 'piecie', cardId);
-	await chooseTray(page, 'activate', { force });
+export async function activateByTap(page, cardId, { force = false, touch = false } = {}) {
+	await tapOwnCard(page, 'piecie', cardId, { touch });
+	await chooseTray(page, 'activate', { force, touch });
 	await page.waitForTimeout(300);
 }
 

@@ -7,7 +7,7 @@
 import { test, expect } from '@playwright/test';
 import {
 	GAME_URL_TEST, seedCustomDeck, waitForBoard, ss,
-	setMosjeOnField, setHand, playCardFromHand, unlockPiecies, getGameState,
+	setMosjeOnField, setHand, setEnergy, playCardFromHand, unlockPiecies, getGameState,
 } from '../helpers.js';
 import { activateByTap, isPiecieActivatable } from '../../helpers/boardTaps.js';
 
@@ -28,6 +28,7 @@ test('🎬 Place (green) + Snelle (light-blue) effect colours', async ({ page },
 
 	await setMosjeOnField(page, 'player_1', 0, 'mosje_alyssa_bulldozer', { mp: 50, level: 1 });
 	await setHand(page, 'player_1', ['place_the_gym', 'snelle_jensen', 'piecie_kannetje_melk', 'piecie_kannetje_melk']);
+	await setEnergy(page, 'player_1', 6); // 2.0: The Gym costs 3 Energy and Jensen! 1, so both can be played this turn
 	await page.waitForTimeout(300);
 	await ss(page, 'placesnelle-1-start');
 	await beat('Scene 1 — hand holds a Place (The Gym) and a Snelle (Jensen)');

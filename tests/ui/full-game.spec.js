@@ -30,6 +30,37 @@ import {
 } from './helpers.js';
 import { clickEndTurn } from '../helpers/clickEndTurn.js';
 
+// 63-08: a human in a long game meets blocking modals the old spec never answered: a bot attack opens the "Reaction" prompt
+// (it waits for the human, so the bot's turn never ends), a starter's Draw step opens a modal at the turn start, and a turn-start
+// ability can ask a "Choose" question (a deck search). Each is answered the way a player would ("No reaction", "Draw normally",
+// else the first enabled option), like endTurnAndWait in helpers.js and the first-option clicking of questFirstAvailable.
+async function dismissBlockers(page) {
+	const noReaction = page.locator('.modal-card--reaction .modal-mosje-select-btn[data-id="__pass__"]');
+	const drawStep = page.locator('.modal-mosje-select-btn[data-id="draw"]');
+	const anyChoice = page.locator('.modal-mosje-select-btn:not([disabled])');
+	for (const option of [noReaction, drawStep, anyChoice]) {
+		if (await option.first().isVisible().catch(() => false)) { await option.first().click({ timeout: 2000 }).catch(() => {}); return true; }
+	}
+	return false;
+}
+
+/** End the human turn and wait for control back ('turn') or the end screen ('gameover'); 'timeout' after `ms` with neither. */
+async function endTurnAndWatch(page, ms = 45000) {
+	// A turn-start modal can open just after the End Turn button came back, so a blocked click is answered and retried.
+	for (let attempt = 0; ; attempt++) {
+		while (await dismissBlockers(page)) await page.waitForTimeout(200);
+		try { await clickEndTurn(page, { timeout: 2500 }); break; } catch (err) { if (attempt >= 10) throw err; }
+	}
+	const deadline = Date.now() + ms;
+	while (Date.now() < deadline) {
+		if (await page.locator('#reward-overlay').count()) return 'gameover';
+		if (await dismissBlockers(page)) { await page.waitForTimeout(200); continue; }
+		if (await page.locator('#btn-end-turn:not([disabled])').count()) return 'turn';
+		await page.waitForTimeout(150);
+	}
+	return 'timeout';
+}
+
 // Valid win reasons the overlay must show
 // 2.0 overlay texts: "has no Mosje left outside the Welloe pile" (knockout) and "held Level 3 until their turn"; the V4 ids stay for old logs.
 const WIN_REASONS = ['LEVEL_3', 'KNOCKOUT', 'QUEST_MASTER', 'MOMENTUM_DOMINATION', 'NO_MOSJE_LEFT', 'HELD_LEVEL_3'];
@@ -94,14 +125,8 @@ async function playActiveTurn(page, turnIndex) {
 	const overlayAfterPiecie = await page.locator('#reward-overlay').isVisible({ timeout: 200 }).catch(() => false);
 	if (overlayAfterPiecie) return false;
 
-	// End turn — wait for bot or game over
-	await clickEndTurn(page);
-
-	// Race between bot finishing its turn and game over overlay
-	const result = await Promise.race([
-		page.waitForSelector('#btn-end-turn:not([disabled])', { timeout: 45000 }).then(() => 'turn'),
-		page.waitForSelector('#reward-overlay', { timeout: 45000 }).then(() => 'gameover'),
-	]).catch(() => 'timeout');
+	// End turn — wait for the bot to finish its turn (answering its Reaction prompts) or for the game over overlay
+	const result = await endTurnAndWatch(page);
 
 	if (result === 'gameover' || result === 'timeout') return false;
 
@@ -131,12 +156,7 @@ test('full game: passive — human ends turns until game over (PHYSICAL_FORCE)',
 		console.log(`Turn ${turnCount}...`);
 
 		// End human turn immediately
-		await clickEndTurn(page);
-
-		const result = await Promise.race([
-			page.waitForSelector('#btn-end-turn:not([disabled])', { timeout: 45000 }).then(() => 'turn'),
-			page.waitForSelector('#reward-overlay', { timeout: 45000 }).then(() => 'gameover'),
-		]).catch(() => 'timeout');
+		const result = await endTurnAndWatch(page);
 
 		if (result === 'gameover') {
 			console.log(`Game ended on turn ${turnCount}`);
@@ -240,12 +260,9 @@ for (const matchup of DECK_MATCHUPS) {
 
 		while (turnCount < 30) {
 			turnCount++;
-			await clickEndTurn(page);
-			const result = await Promise.race([
-				page.waitForSelector('#btn-end-turn:not([disabled])', { timeout: 45000 }).then(() => 'turn'),
-				page.waitForSelector('#reward-overlay', { timeout: 45000 }).then(() => 'gameover'),
-			]).catch(() => 'timeout');
-			if (result === 'gameover' || result === 'timeout') break;
+			const result = await endTurnAndWatch(page);
+			if (result === 'timeout') throw new Error(`Game timed out on turn ${turnCount} waiting for bot`);
+			if (result === 'gameover') break;
 		}
 
 		await page.waitForSelector('#reward-overlay', { timeout: 5000 });
@@ -276,6 +293,10 @@ test('full game: reaching Level 3 is NOT an instant win - held Level 3 wins at t
 		return gs.players.player_1.activeSlots[0]?.cardId;
 	});
 	await page.evaluate((cid) => {
+		// Both hands empty: a random opening Snelle (Sleutelpuntje for me, Je Weet Niet for the bot) rerolls or adds a die in the
+		// forced Quest rolls below (the same random-hand class as E16 / E17); the hold-Level-3 rule does not depend on any hand.
+		window.__testHooks.setHand('player_1', []);
+		window.__testHooks.setHand('player_2', []);
 		window.__testHooks.setMosjeOnField('player_1', 0, 'mosje_gandoe_destroyer', { mp: 90, level: 2 }); // no quest-success ability (Michelle's Tough Gamble would randomise the MP)
 		window.__testHooks.setQuestFaceUp('FIGHTING', 'quest_tough_it_out'); // Steady win +25 MP (>= 10 needed for Level 3)
 		window.__testHooks.setNextDice([6, 6, 6]); // guaranteed success
