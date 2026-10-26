@@ -1,0 +1,146 @@
+/* lobby-2-0.css — the 2.0 lobby (Phase 64-03): two modes, deck tiles, one Start button. Loaded last on index.html.
+   Every size comes from the lobby unit --lu (about 1rem, scales a little with the viewport) or from --tap (the 44 px
+   touch floor, Mobile-ready rule D-40). Nothing is hover-only: hover may tint a control, never reveal one. */
+
+#lobby2[hidden], #account-lobby[hidden] { display: none !important; }
+
+.lobby-shell--2-0, .lobby2 {
+	--lu: clamp(0.75rem, 0.6rem + 0.5vw, 1rem);
+	--tap: max(44px, 2.75rem);
+	--lobby-ink: #e2e8f0;
+	--lobby-soft: #c9d6f3;
+	--lobby-muted: #8ca0ce;
+	--lobby-edge: rgba(255, 255, 255, 0.12);
+	--lobby-fill: rgba(255, 255, 255, 0.035);
+	--lobby-focus: #ffffff;
+}
+
+/* The page may only scroll when the screen is too small for the lobby (never at 1920x1080, D-06). */
+.page--lobby:has(.lobby-shell--2-0) { justify-content: safe center; overflow-y: auto; }
+
+/* z-index 1: main.css paints a dark bottom vignette (body::after, z-index 0) over unpositioned content, which dimmed Start. */
+.lobby-shell--2-0 { position: relative; z-index: 1; width: min(72rem, 94vw); gap: calc(0.9 * var(--lu)); }
+.lobby-shell--2-0 .lobby-header { padding: calc(0.8 * var(--lu)) calc(1.5 * var(--lu)); }
+.lobby-shell--2-0 .lobby-header h1 { font-size: calc(4 * var(--lu)); margin-bottom: 0; }
+
+.lobby2 {
+	display: grid;
+	gap: calc(1.1 * var(--lu));
+	padding: calc(1.4 * var(--lu));
+	background: #080c1a;
+	border: 1px solid rgba(255, 255, 255, 0.06);
+	border-radius: calc(1 * var(--lu));
+	color: var(--lobby-ink);
+	font-family: var(--font-ui);
+}
+
+.lobby2__group { display: grid; gap: calc(0.5 * var(--lu)); }
+.lobby2__group h2 { font-size: calc(1.35 * var(--lu)); letter-spacing: 0.12em; color: var(--lobby-soft); }
+.lobby2__group .segmented { max-width: calc(26 * var(--lu)); }
+
+/* ── Segmented control: the mode switch and Normal / Fast ─────────── */
+.segmented { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: calc(0.6 * var(--lu)); }
+.segmented__option {
+	min-height: max(44px, 3.5rem);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: calc(0.15 * var(--lu));
+	padding: calc(0.6 * var(--lu)) calc(1 * var(--lu));
+	background: var(--lobby-fill);
+	border: 2px solid var(--lobby-edge);
+	border-radius: calc(0.6 * var(--lu));
+	color: var(--lobby-soft);
+	font-family: var(--font-ui);
+	cursor: pointer;
+}
+.segmented__label { font-family: var(--font-display); font-size: calc(1.5 * var(--lu)); letter-spacing: 0.1em; }
+.segmented__hint { font-size: calc(0.85 * var(--lu)); color: var(--lobby-muted); }
+.lobby2__modes .segmented__label { font-size: calc(2 * var(--lu)); }
+.segmented__option:hover { background: rgba(255, 255, 255, 0.07); }
+.segmented__option[aria-checked="true"] {
+	border-color: var(--mosje-gold);
+	background: rgba(232, 185, 79, 0.14);
+	color: #ffffff;
+	box-shadow: 0 0 calc(1.2 * var(--lu)) var(--mosje-glow);
+}
+
+/* ── Deck tiles: the whole tile is the radio button ───────────────── */
+.deck-tiles {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+	gap: calc(0.7 * var(--lu));
+}
+.deck-tiles--compact { grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); }
+
+.deck-tile {
+	position: relative;
+	min-height: var(--tap);
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: calc(0.35 * var(--lu));
+	padding: calc(0.8 * var(--lu)) calc(1.2 * var(--lu)) calc(0.8 * var(--lu)) calc(1 * var(--lu));
+	background: var(--lobby-fill);
+	border: 1px solid var(--lobby-edge);
+	border-left: calc(0.45 * var(--lu)) solid var(--deck-color);
+	border-radius: calc(0.6 * var(--lu));
+	color: var(--lobby-ink);
+	font-family: var(--font-ui);
+	text-align: left;
+	cursor: pointer;
+}
+.deck-tile__name { font-family: var(--font-display); font-size: calc(1.7 * var(--lu)); letter-spacing: 0.08em; color: var(--deck-tint); }
+.deck-tile__desc { font-size: calc(1 * var(--lu)); line-height: 1.35; color: var(--lobby-soft); }
+.deck-tile__mosje { margin-top: auto; font-size: calc(0.9 * var(--lu)); color: var(--lobby-muted); }
+.deck-tiles--compact .deck-tile { justify-content: center; padding-top: calc(0.5 * var(--lu)); padding-bottom: calc(0.5 * var(--lu)); }
+.deck-tiles--compact .deck-tile__name { font-size: calc(1.4 * var(--lu)); }
+.deck-tile:hover { background: rgba(255, 255, 255, 0.07); }
+.deck-tile[aria-checked="true"] {
+	background: color-mix(in srgb, var(--deck-color) 30%, #080c1a);
+	border-color: var(--deck-color);
+	outline: 2px solid var(--deck-tint);
+	box-shadow: 0 0 calc(1.4 * var(--lu)) color-mix(in srgb, var(--deck-color) 65%, transparent);
+}
+.deck-tile[aria-checked="true"]::after {
+	content: "\2713";
+	position: absolute;
+	top: calc(0.4 * var(--lu));
+	right: calc(0.7 * var(--lu));
+	font-size: calc(1.2 * var(--lu));
+	font-weight: 700;
+	color: var(--deck-tint);
+}
+
+/* ── Name field and Start ─────────────────────────────────────────── */
+.lobby2__name { display: grid; gap: calc(0.35 * var(--lu)); max-width: calc(26 * var(--lu)); font-size: calc(1 * var(--lu)); color: var(--lobby-soft); }
+.lobby2__name input {
+	min-height: var(--tap);
+	padding: calc(0.5 * var(--lu)) calc(1 * var(--lu));
+	background: var(--lobby-fill);
+	border: 1px solid var(--lobby-edge);
+	border-radius: calc(0.5 * var(--lu));
+	color: var(--lobby-ink);
+	font-family: var(--font-mono);
+	font-size: calc(1 * var(--lu));
+}
+.lobby2__start {
+	width: 100%;
+	min-height: max(44px, 3.5rem);
+	background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+	border: none;
+	border-radius: calc(0.6 * var(--lu));
+	box-shadow: 0 calc(0.3 * var(--lu)) calc(1 * var(--lu)) rgba(59, 130, 246, 0.3);
+	color: #ffffff;
+	font-family: var(--font-display);
+	font-size: calc(1.8 * var(--lu));
+	letter-spacing: 0.2em;
+	cursor: pointer;
+}
+.lobby2__start:hover { filter: brightness(1.12); }
+
+.segmented__option:focus-visible, .deck-tile:focus-visible, .lobby2__name input:focus-visible, .lobby2__start:focus-visible {
+	outline: 3px solid var(--lobby-focus);
+	outline-offset: calc(0.15 * var(--lu));
+}

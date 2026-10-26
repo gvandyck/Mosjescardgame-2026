@@ -3,12 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow" />
   <link rel="icon" href="assets/icons/obbyhouse.jpg" type="image/jpeg" />
   <title>MOSJES - Lobby</title>
   <link rel="stylesheet" href="styles/main.css" />
   <link rel="stylesheet" href="styles/board.css" />
   <link rel="stylesheet" href="styles/arena.css" />
   <link rel="stylesheet" href="styles/account.css" />
+  <link rel="stylesheet" href="styles/lobby-2-0.css" />
 </head>
 <body class="page page--lobby">
   <div class="bg-noise" aria-hidden="true"></div>
@@ -18,14 +20,18 @@
     <button id="btn-delete-account" class="btn-account-danger">Delete account</button>
     <button id="btn-signout" class="btn-signout">Sign out</button>
   </div>
-  <main class="lobby-shell">
+  <main class="lobby-shell lobby-shell--2-0">
     <header class="lobby-header">
       <p class="lobby-kicker">EIGHTYTWENTY CARDGAME</p>
       <h1>MOSJES</h1>
       <p>Build your squad. Pick your deck. Enter the arena.</p>
     </header>
 
-    <section class="lobby-panel">
+    <!-- The 2.0 lobby (Play vs Bot / Watch Bots): filled by src/ui/lobby/initLobby2.js. -->
+    <section id="lobby2" class="lobby2" aria-label="Choose how to play"></section>
+
+    <!-- The V4 account lobby: hidden and kept for later slices. Only its test params (testOnboarding, testActiveDeck, testGuestDeck) show it. -->
+    <section id="account-lobby" class="lobby-panel" hidden>
       <form id="lobby-form" class="lobby-form">
         <label for="player-name">Player Name</label>
         <input id="player-name" name="player-name" type="text" maxlength="18" placeholder="e.g. Gandoe" required />

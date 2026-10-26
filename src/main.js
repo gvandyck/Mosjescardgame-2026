@@ -70,6 +70,9 @@ import { settlePendingChoice } from './ui/actions/settlePendingChoice.js';
 import { showNewReveals } from './ui/showNewReveals.js';
 import { pushTestDice } from './engine/dice/testDiceQueue.js';
 import { pickBotDeck } from './bot/pickBotDeck.js';
+import { FEATURES } from './config/features.js';
+import { shouldShowAccountLobby } from './ui/lobby/shouldShowAccountLobby.js';
+import { initLobby2 } from './ui/lobby/initLobby2.js';
 
 console.log('[UI] App bootstrapping...');
 
@@ -107,6 +110,20 @@ if (path.endsWith('/game.html') || path.endsWith('/game')) {
 function initLobbyPage() {
 	console.log('[UI] Initializing lobby page');
 	setVersionLabel();
+
+	// The 2.0 lobby (Play vs Bot / Watch Bots) is the default: no Firebase auth, no account.html redirect (D-11).
+	// The V4 account lobby below stays hidden and only runs for its test params or once FEATURES.accounts is on (D-13, D-16).
+	const lobbyParams = new URLSearchParams(window.location.search);
+	if (!shouldShowAccountLobby(lobbyParams, FEATURES)) {
+		initLobby2({ root: document.getElementById('lobby2') });
+		return;
+	}
+	const lobby2Root = document.getElementById('lobby2');
+	const accountLobby = document.getElementById('account-lobby');
+	if (lobby2Root) lobby2Root.hidden = true;
+	if (accountLobby) accountLobby.hidden = false;
+	document.querySelector('.lobby-shell--2-0')?.classList.remove('lobby-shell--2-0'); // the V4 lobby keeps its own width
+
 	const form = document.getElementById('lobby-form');
 	if (!form) return;
 
