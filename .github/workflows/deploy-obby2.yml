@@ -1,0 +1,80 @@
+# Obby Card Game 2.0 deploy. Mirrors deploy.yml (V4) but on its own branch and its own FTP folder.
+# - Never merge obby-2.0 into main: a push to main deploys V4 (deploy.yml), a push to obby-2.0 deploys this.
+# - The FTP folder obbycardgame2/ is created by the first deploy.
+# - Slice A has no Firebase: the placeholder below puts src/firebase.js in LOCAL mode.
+#   Phase 67 replaces the placeholder with a real Firebase config taken from a GitHub secret.
+#   (No secret of that kind is referenced in this file; tests/shell/deploy-workflows.test.ts guards it.)
+# - No test gate, same as V4: tests run locally before every commit.
+name: Deploy Obby 2.0 to eightytwenty.nl/obbycardgame2
+
+on:
+  push:
+    branches:
+      - obby-2.0
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Write placeholder firebase-config.js (slice A has no Firebase, D-33)
+        run: |
+          printf '%s\n' "export const firebaseConfig = { projectId: 'YOUR_PROJECT_ID' };" > firebase-config.js
+
+      - name: Cache-bust local scripts and styles
+        run: node scripts/cache-bust.mjs . "${GITHUB_SHA::8}"
+
+      - name: Sync to FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASS }}
+          server-dir: /domains/eightytwenty.nl/public_html/obbycardgame2/
+          exclude: |
+            **/.git/**
+            **/node_modules/**
+            **/docs/**
+            **/*.ts
+            **/src/simulation/**
+            **/src/playtest/**
+            **/*.md
+            **/tsconfig*.json
+            **/package*.json
+            **/jest.config.*
+            **/get-shit-done/**
+            **/.github/**
+            **/scripts/**
+            **/account.html
+            **/store.html
+            **/deck-builder.html
+            **/leaderboard.html
+            **/demo.html
+            **/card-*.html
+            **/preview-*.html
+            **/test-game.html
+            **/try-arena.html
+            **/.planning/**
+            **/.claude/**
+            **/tests/**
+            **/design/**
+            **/design-lab/**
+            **/test-results/**
+            **/playwright-report/**
+            **/playwright.config.js
+            **/pw-*.config.js
+            **/vitest.config.*
+            **/_archive/**
+            **/.git*
+            **/database.rules.json
+            **/firebase.json
+            **/.firebaserc
+            **/.firebaseignore
+            **/eslint.config.js
+            **/.eslintrc.json
+            **/.prettierrc.json
+            **/firebase-config.EXAMPLE.js
