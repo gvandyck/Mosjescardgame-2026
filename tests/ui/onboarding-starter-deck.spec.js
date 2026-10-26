@@ -2,6 +2,8 @@
 // Drives the REAL lobby via the committed ?testOnboarding=1 hook (param-gated,
 // stubbed claim — no Firebase). Firebase CDN + config are blocked so the page
 // reaches LOCAL mode, mirroring seedOfflineSession's pattern.
+// Phase 64-03: test 3 no longer waits for the account.html redirect. The 2.0 lobby never redirects (D-11), so it
+// now asserts the 2.0 lobby stays put; tests 1 and 2 are unchanged and still run the hidden V4 lobby via its param.
 import { test, expect } from '@playwright/test';
 
 const DECK_IDS = [
@@ -64,9 +66,11 @@ test.describe('Onboarding starter-deck picker (blocking)', () => {
 		await blockFirebase(page);
 		await page.goto('/');
 
-		// LOCAL mode resolves auth as signed-out -> the auth gate redirects to
-		// the account page. Either way: no onboarding modal is ever shown.
-		await page.waitForURL(/account\.html/, { timeout: 10000 });
+		// The 2.0 lobby has no auth gate and never redirects to account.html (D-11):
+		// it stays on screen and no onboarding modal is ever shown.
+		await expect(page.locator('#lobby2')).toBeVisible();
+		await page.waitForTimeout(1500);
+		expect(page.url()).not.toContain('account.html');
 		await expect(page.locator('.modal-card', { hasText: 'Choose your starter deck' })).toHaveCount(0);
 	});
 });
