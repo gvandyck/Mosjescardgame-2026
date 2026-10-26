@@ -1,12 +1,51 @@
 // Phase 64-01: the pure (or storage-injected) layer of the 2.0 lobby.
 // Feature flags (D-12), the flag-gated mode list (D-15, D-05), the account-lobby gate (D-13),
 // the player-name sanitizer (D-09). No DOM involved.
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { FEATURES } from '../../src/config/features.js';
 import { LOBBY_MODES } from '../../src/config/lobbyModes.js';
 import { getLobbyModes } from '../../src/ui/lobby/getLobbyModes.js';
 import { shouldShowAccountLobby } from '../../src/ui/lobby/shouldShowAccountLobby.js';
 import { sanitizePlayerName } from '../../src/ui/lobby/sanitizePlayerName.js';
+import { getPlayerFacingDecks } from '../../src/data/playerFacingDecks.js';
+import { STORAGE_KEYS } from '../../src/config/storageKeys.js';
+import { resolveDeckChoice } from '../../src/ui/lobby/resolveDeckChoice.js';
+import { normalizeLobbyChoices } from '../../src/ui/lobby/normalizeLobbyChoices.js';
+import { buildStartTarget } from '../../src/ui/lobby/buildStartTarget.js';
+import { launchGame } from '../../src/ui/lobby/launchGame.js';
+import { readLobbyPrefs } from '../../src/ui/lobby/readLobbyPrefs.js';
+import { writeLobbyPrefs } from '../../src/ui/lobby/writeLobbyPrefs.js';
+
+const decks: any[] = getPlayerFacingDecks();
+const DEFAULT_CHOICES = {
+	mode: 'vsBot',
+	name: 'Player',
+	deckChoice: 'EXAMPLE_TAKSEN',
+	botChoice: 'RANDOM',
+	bot1Choice: 'RANDOM',
+	bot2Choice: 'RANDOM',
+	fast: false,
+};
+
+// Small Map-backed Storage stand-in (getItem / setItem / removeItem), optionally throwing.
+const fakeStorage = (seed: Record<string, string> = {}, throws = false) => {
+	const map = new Map<string, string>(Object.entries(seed));
+	return {
+		map,
+		getItem: (key: string) => {
+			if (throws) throw new Error('blocked');
+			return map.has(key) ? (map.get(key) as string) : null;
+		},
+		setItem: (key: string, value: string) => {
+			if (throws) throw new Error('blocked');
+			map.set(key, String(value));
+		},
+		removeItem: (key: string) => {
+			if (throws) throw new Error('blocked');
+			map.delete(key);
+		},
+	};
+};
 
 describe('FEATURES (D-12)', () => {
 	it('lists the six hidden features, all false in slice A, and is frozen', () => {
@@ -79,5 +118,158 @@ describe('sanitizePlayerName (D-09)', () => {
 		expect(sanitizePlayerName(42)).toBe('Player');
 		expect(sanitizePlayerName({})).toBe('Player');
 		expect(sanitizePlayerName(undefined)).toBe('Player');
+	});
+});
+
+describe('resolveDeckChoice (D-08, D-20)', () => {
+	it('rolls RANDOM through the injected picker', () => {
+		expect(resolveDeckChoice('RANDOM', decks, () => decks[2])).toBe(decks[2].id);
+	});
+
+	it('keeps a player-facing deck id', () => {
+		expect(resolveDeckChoice('EXAMPLE_REGELAARS', decks)).toBe('EXAMPLE_REGELAARS');
+	});
+
+	it('falls back to the first deck for a non player-facing or junk id', () => {
+		expect(resolveDeckChoice('PHYSICAL_FORCE', decks)).toBe(decks[0].id);
+		expect(resolveDeckChoice('<script>', decks)).toBe(decks[0].id);
+		expect(resolveDeckChoice(undefined, decks)).toBe(decks[0].id);
+	});
+});
+
+describe('normalizeLobbyChoices (D-04, D-08, D-09, T-64-01)', () => {
+	it('gives the full default set for null and for non-objects', () => {
+		expect(normalizeLobbyChoices(null, decks)).toEqual(DEFAULT_CHOICES);
+		expect(normalizeLobbyChoices('junk', decks)).toEqual(DEFAULT_CHOICES);
+	});
+
+	it('whitelists mode, decks and fast, and cuts the name', () => {
+		const choices = normalizeLobbyChoices(
+			{ mode: 'online', deckChoice: 'RANDOM', botChoice: 'EXAMPLE_TAKSEN', fast: 'yes', name: 'x'.repeat(40) },
+			decks,
+		);
+		expect(choices.mode).toBe('vsBot'); // online is not an enabled mode
+		expect(choices.deckChoice).toBe('EXAMPLE_TAKSEN'); // own deck can never be RANDOM
+		expect(choices.botChoice).toBe('EXAMPLE_TAKSEN');
+		expect(choices.fast).toBe(false); // only true counts
+		expect(choices.name).toHaveLength(18);
+	});
+
+	it('returns exactly the 7 contract keys and ignores extra ones', () => {
+		const choices = normalizeLobbyChoices({ mode: 'watchBots', evil: '1', fast: true }, decks);
+		expect(Object.keys(choices).sort()).toEqual(
+			['bot1Choice', 'bot2Choice', 'botChoice', 'deckChoice', 'fast', 'mode', 'name'],
+		);
+		expect(choices.mode).toBe('watchBots');
+		expect(choices.fast).toBe(true);
+	});
+
+	it('accepts the online mode once onlineRooms is on', () => {
+		const modes = getLobbyModes(LOBBY_MODES, { ...FEATURES, onlineRooms: true });
+		expect(normalizeLobbyChoices({ mode: 'online' }, decks, modes).mode).toBe('online');
+	});
+
+	it('replaces junk bot choices with RANDOM', () => {
+		const choices = normalizeLobbyChoices({ bot1Choice: '<b>', bot2Choice: 7, botChoice: 'PHYSICAL_FORCE' }, decks);
+		expect(choices.bot1Choice).toBe('RANDOM');
+		expect(choices.bot2Choice).toBe('RANDOM');
+		expect(choices.botChoice).toBe('RANDOM');
+	});
+});
+
+describe('buildStartTarget (D-04, D-08, T-64-02)', () => {
+	it('Play vs Bot keeps the offline url and the mosjes:offline payload, replay keeps the choice not the roll', () => {
+		const target = buildStartTarget(
+			{ mode: 'vsBot', name: 'Gandoe', deckChoice: 'EXAMPLE_REGELAARS', botChoice: 'RANDOM' },
+			decks,
+			() => decks[0],
+		);
+		expect(target.url).toBe('./game.html?offline=true&player=player_1');
+		expect(target.offlineSession).toEqual({
+			name: 'Gandoe',
+			deckId: 'EXAMPLE_REGELAARS',
+			botDeckId: 'EXAMPLE_TAKSEN',
+			playerId: 'player_1',
+		});
+		expect(target.replay.botChoice).toBe('RANDOM');
+		expect(target.replay.mode).toBe('vsBot');
+	});
+
+	it('Watch Bots builds the botvsbot url on the player_1 path, with fast only when asked', () => {
+		const choices = { mode: 'watchBots', bot1Choice: 'EXAMPLE_CREATIEVELINGEN', bot2Choice: 'RANDOM', fast: true };
+		const fast = buildStartTarget(choices, decks, () => decks[1]);
+		expect(fast.url).toBe(
+			'./game.html?botvsbot=true&player=player_1&deck1=EXAMPLE_CREATIEVELINGEN&deck2=EXAMPLE_REGELAARS&fast=true',
+		);
+		expect(fast.offlineSession).toBeNull();
+		const normal = buildStartTarget({ ...choices, fast: false }, decks, () => decks[1]);
+		expect(normal.url).not.toContain('fast');
+		expect(normal.replay.bot2Choice).toBe('RANDOM');
+	});
+
+	it('only normalized ids reach the url (garbage never does)', () => {
+		const target = buildStartTarget(
+			{ mode: 'watchBots', bot1Choice: 'a&deck2=<x>', bot2Choice: '../../evil' },
+			decks,
+			() => decks[1],
+		);
+		expect(target.url.startsWith('./game.html?')).toBe(true);
+		expect(target.url).not.toContain('evil');
+		expect(target.url).not.toContain('<');
+	});
+});
+
+describe('launchGame (D-04, D-20)', () => {
+	const vsBot = { mode: 'vsBot', name: 'Gandoe', deckChoice: 'EXAMPLE_TAKSEN', botChoice: 'EXAMPLE_REGELAARS' };
+
+	it('clears the V4 session, writes mosjes:offline and the replay, then navigates once', () => {
+		const session = fakeStorage({ [STORAGE_KEYS.v4LobbySession]: '{"roomCode":"1234"}' });
+		const urls: string[] = [];
+		const target = launchGame(vsBot, { decks, session, navigate: (url: string) => urls.push(url) });
+		expect(session.map.has(STORAGE_KEYS.v4LobbySession)).toBe(false);
+		expect(JSON.parse(session.map.get(STORAGE_KEYS.offlineSession) as string)).toEqual(target.offlineSession);
+		expect(JSON.parse(session.map.get(STORAGE_KEYS.replay) as string).botChoice).toBe('EXAMPLE_REGELAARS');
+		expect(urls).toEqual([target.url]);
+	});
+
+	it('Watch Bots writes no offline session but still writes the replay', () => {
+		const session = fakeStorage();
+		const urls: string[] = [];
+		launchGame({ mode: 'watchBots' }, { decks, session, navigate: (url: string) => urls.push(url) });
+		expect(session.map.has(STORAGE_KEYS.offlineSession)).toBe(false);
+		expect(JSON.parse(session.map.get(STORAGE_KEYS.replay) as string).mode).toBe('watchBots');
+		expect(urls).toHaveLength(1);
+	});
+
+	it('still navigates when the session storage throws', () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		const urls: string[] = [];
+		launchGame(vsBot, { decks, session: fakeStorage({}, true), navigate: (url: string) => urls.push(url) });
+		expect(urls).toHaveLength(1);
+		expect(warn).toHaveBeenCalledTimes(1);
+		warn.mockRestore();
+	});
+});
+
+describe('readLobbyPrefs / writeLobbyPrefs (D-09, T-64-01)', () => {
+	it('falls back to the defaults for no storage, bad JSON, and tampered values', () => {
+		expect(readLobbyPrefs(null, decks)).toEqual(DEFAULT_CHOICES);
+		const bad = fakeStorage({ [STORAGE_KEYS.lobbyPrefs]: '{bad json' });
+		expect(readLobbyPrefs(bad, decks)).toEqual(DEFAULT_CHOICES);
+		expect(readLobbyPrefs(fakeStorage({}, true), decks)).toEqual(DEFAULT_CHOICES);
+		const tampered = fakeStorage({ [STORAGE_KEYS.lobbyPrefs]: JSON.stringify({ mode: 'hack', deckChoice: 'x', fast: 1 }) });
+		expect(readLobbyPrefs(tampered, decks)).toEqual(DEFAULT_CHOICES);
+	});
+
+	it('write returns false without throwing when storage is missing or blocked', () => {
+		expect(writeLobbyPrefs(null, DEFAULT_CHOICES, decks)).toBe(false);
+		expect(writeLobbyPrefs(fakeStorage({}, true), DEFAULT_CHOICES, decks)).toBe(false);
+	});
+
+	it('round-trips the normalized choices', () => {
+		const storage = fakeStorage();
+		const choices = { mode: 'watchBots', name: 'Gandoe', deckChoice: 'EXAMPLE_REGELAARS', botChoice: 'EXAMPLE_TAKSEN', bot1Choice: 'EXAMPLE_TAKSEN', bot2Choice: 'RANDOM', fast: true };
+		expect(writeLobbyPrefs(storage, choices, decks)).toBe(true);
+		expect(readLobbyPrefs(storage, decks)).toEqual(choices);
 	});
 });
