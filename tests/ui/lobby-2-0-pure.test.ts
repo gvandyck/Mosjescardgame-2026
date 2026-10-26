@@ -15,6 +15,9 @@ import { buildStartTarget } from '../../src/ui/lobby/buildStartTarget.js';
 import { launchGame } from '../../src/ui/lobby/launchGame.js';
 import { readLobbyPrefs } from '../../src/ui/lobby/readLobbyPrefs.js';
 import { writeLobbyPrefs } from '../../src/ui/lobby/writeLobbyPrefs.js';
+import { toDeckTileSpecs } from '../../src/ui/lobby/toDeckTileSpecs.js';
+import { buildDeckTilesHtml } from '../../src/ui/lobby/buildDeckTilesHtml.js';
+import { EXAMPLE_DECKS } from '../../src/data/exampleDecks.js';
 
 const decks: any[] = getPlayerFacingDecks();
 const DEFAULT_CHOICES = {
@@ -271,5 +274,85 @@ describe('readLobbyPrefs / writeLobbyPrefs (D-09, T-64-01)', () => {
 		const choices = { mode: 'watchBots', name: 'Gandoe', deckChoice: 'EXAMPLE_REGELAARS', botChoice: 'EXAMPLE_TAKSEN', bot1Choice: 'EXAMPLE_TAKSEN', bot2Choice: 'RANDOM', fast: true };
 		expect(writeLobbyPrefs(storage, choices, decks)).toBe(true);
 		expect(readLobbyPrefs(storage, decks)).toEqual(choices);
+	});
+});
+
+describe('toDeckTileSpecs (D-07)', () => {
+	it('gives one spec per deck in deck order with the stack colour, description and starting Mosje', () => {
+		const specs = toDeckTileSpecs(decks, { selectedId: 'EXAMPLE_REGELAARS' });
+		expect(specs.map((s) => s.id)).toEqual(['EXAMPLE_TAKSEN', 'EXAMPLE_REGELAARS', 'EXAMPLE_CREATIEVELINGEN']);
+		expect(specs.map((s) => s.color)).toEqual(['#C2410C', '#0E7490', '#A21CAF']);
+		expect(specs[0].startingMosjeName).toBe('Alyssa, Fissa Fissa!');
+		expect(specs.map((s) => s.selected)).toEqual([false, true, false]);
+		expect(specs.every((s) => s.isRandom === false)).toBe(true);
+		for (const spec of specs) {
+			const source = (EXAMPLE_DECKS as any[]).find((d) => d.id === spec.id);
+			expect(spec.description).toBe(source.description);
+			expect(spec.name).toBe(source.name);
+			expect(spec.tint).toMatch(/^#[0-9A-F]{6}$/);
+		}
+	});
+
+	it('prepends a neutral Random spec when includeRandom is on', () => {
+		const specs = toDeckTileSpecs(decks, { selectedId: 'RANDOM', includeRandom: true });
+		expect(specs).toHaveLength(4);
+		expect(specs[0]).toMatchObject({ id: 'RANDOM', name: 'Random', isRandom: true, color: '#B45309', selected: true });
+	});
+
+	it('works without options and never selects anything', () => {
+		const specs = toDeckTileSpecs(decks);
+		expect(specs).toHaveLength(3);
+		expect(specs.some((s) => s.selected)).toBe(false);
+	});
+});
+
+describe('buildDeckTilesHtml (D-07, T-64-03)', () => {
+	const count = (html: string, needle: string) => html.split(needle).length - 1;
+
+	it('renders one accessible radiogroup with a radio button per tile', () => {
+		const html = buildDeckTilesHtml(toDeckTileSpecs(decks, { selectedId: 'EXAMPLE_REGELAARS' }), { label: 'Your deck' });
+		expect(html).toContain('role="radiogroup"');
+		expect(html).toContain('aria-label="Your deck"');
+		expect(count(html, 'role="radio"')).toBe(3);
+		expect(count(html, 'data-deck-id="')).toBe(3);
+		expect(count(html, 'data-choice-id="')).toBe(3);
+		expect(count(html, 'aria-checked="true"')).toBe(1);
+		expect(count(html, 'tabindex="0"')).toBe(1);
+		expect(count(html, 'tabindex="-1"')).toBe(2);
+		expect(count(html, 'deck-tile__desc')).toBe(3);
+		expect(count(html, 'Starts with ')).toBe(3);
+		expect(html).toContain('Starts with Alyssa, Fissa Fissa!');
+	});
+
+	it('puts tabindex 0 on the first tile when nothing is selected', () => {
+		const html = buildDeckTilesHtml(toDeckTileSpecs(decks), { label: 'Pick' });
+		expect(count(html, 'aria-checked="true"')).toBe(0);
+		expect(count(html, 'tabindex="0"')).toBe(1);
+		expect(html.indexOf('tabindex="0"')).toBeLessThan(html.indexOf('tabindex="-1"'));
+	});
+
+	it('compact drops the description and Starts-with lines', () => {
+		const html = buildDeckTilesHtml(toDeckTileSpecs(decks, { includeRandom: true }), { label: 'Bot plays', compact: true });
+		expect(html).toContain('deck-tiles--compact');
+		expect(html).not.toContain('deck-tile__desc');
+		expect(html).not.toContain('Starts with');
+		expect(html).toContain('deck-tile--random');
+		expect(count(html, 'role="radio"')).toBe(4);
+	});
+
+	it('escapes every value: markup in a name and CSS injection in a colour', () => {
+		const evil = {
+			id: 'x"><script>', name: '<img src=x onerror=alert(1)>', description: '<b>d</b>', startingMosjeName: '<i>m</i>',
+			color: 'red;background:url(x)', tint: '"><svg>', isRandom: false, selected: true,
+		};
+		const html = buildDeckTilesHtml([evil], { label: '"><u>label' });
+		expect(html).toContain('&lt;img');
+		expect(html).not.toContain('<img');
+		expect(html).not.toContain('<script');
+		expect(html).not.toContain('<svg');
+		expect(html).not.toContain('<b>');
+		expect(html).not.toContain('<i>');
+		expect(html).not.toContain('<u>');
+		expect(html).not.toContain('background:url');
 	});
 });
