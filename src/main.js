@@ -686,7 +686,10 @@ function initGamePage() {
 	// ── Bot vs Bot loop — drives both players with per-action delays ────
 	// Bot-vs-bot step delay: ?fast=true collapses the pause to 30ms (sim speed);
 	// ?delay=<ms> sets a custom pace for watching slowly; otherwise 1000ms.
-	const botStepDelay = urlParams.get('fast') === 'true'
+	// ?fast=true is sim speed (64-04 / D-26): playBotSteps also skips the read hold on a spotlighted play, so a game measures the rules,
+	// not the animation. Watch Bots only: a vs Bot game (offline) never speeds up, whatever the URL says.
+	const isFastBots = isBotVsBot && urlParams.get('fast') === 'true';
+	const botStepDelay = isFastBots
 		? 30
 		: (Number(urlParams.get('delay')) || 1000);
 
@@ -696,7 +699,9 @@ function initGamePage() {
 		const botName = gameState.players[botId]?.name ?? botId;
 		let steps;
 		try {
-			steps = driveBotTurnSteps(gameState, botId, { humanIds: [localPlayerId] });
+			// Both seats are bots in Watch Bots, so no human answers a reaction window or pending choice (64-04: passing
+			// [localPlayerId] here made player_1's windows wait for a human nobody is, and the game never finished).
+			steps = driveBotTurnSteps(gameState, botId, { humanIds: [] });
 		} catch (err) {
 			console.error('[BOT] driveBotTurnSteps threw:', err);
 			return;
@@ -720,6 +725,7 @@ function initGamePage() {
 	}
 	// The local human's own pauses (trigger choice, draw-step abilities): prompt, then render the settled state.
 	function settleLocalMosjePauses() {
+		if (isBotVsBot) return; // Watch Bots has no human to answer a modal (settleBotMosjePauses already answered both seats' pauses)
 		if (!gameState || (!gameState.pendingChoice && !gameState.pendingDrawStep)) return;
 		const humanIds = isOffline ? [localPlayerId] : Object.keys(gameState.players);
 		settlePendingChoice({ state: gameState, localPlayerId, modal, humanIds }).then(async st => {
@@ -773,9 +779,11 @@ function initGamePage() {
 			await playBotSteps(freshSteps, botName, 0, delay, onComplete);
 			return;
 		}
-		// Let a spotlighted bot play be read before the next step (rAF: spotlight opens next frame).
-		await new Promise(resolve => setTimeout(resolve, 60));
-		if (isSpotlightActive()) await new Promise(resolve => setTimeout(resolve, 1500));
+		// Let a spotlighted bot play be read before the next step (rAF: spotlight opens next frame). Fast bots (sim speed) skip the hold.
+		if (!isFastBots) {
+			await new Promise(resolve => setTimeout(resolve, 60));
+			if (isSpotlightActive()) await new Promise(resolve => setTimeout(resolve, 1500));
+		}
 
 		if (gameState.status === 'FINISHED') {
 			handleGameOver(gameState);
