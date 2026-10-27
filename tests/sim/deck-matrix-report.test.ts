@@ -7,6 +7,7 @@ import { summarizeBotMetrics } from '../ui/simulation/game-collector.js';
 import { aggregateDeckStats } from '../ui/simulation/aggregate-deck-stats.js';
 import { buildSanityChecks } from '../ui/simulation/build-sanity-checks.js';
 import { evaluateSimGate } from '../ui/simulation/evaluate-sim-gate.js';
+import { buildSimRecord } from '../ui/simulation/build-sim-record.js';
 import { buildDeckMatrixMarkdown } from '../ui/simulation/build-deck-matrix-markdown.js';
 
 const TAKSEN = 'EXAMPLE_TAKSEN';
@@ -152,6 +153,42 @@ describe('evaluateSimGate (D-26: only crashes and a timeout rate of 25 % or more
 		expect(refused.crashes[0].firstError).toBe('engine-refused x2');
 		const bad = evaluateSimGate([{ ...base, matchup: 'A-vs-B', gameIndex: 1, seed: 1, crashed: true, winReason: 'QUEST_MASTER' }], { expectedGames: 1 });
 		expect(bad.crashes[0].firstError).toBe('invalid win reason QUEST_MASTER');
+	});
+});
+
+describe('buildSimRecord (what counts as a crash, D-26)', () => {
+	const meta = { matchup: 'TK-vs-RG', p1: { key: 'TK' }, p2: { key: 'RG' }, gameIndex: 3, seed: 64003 };
+	const ok = { finished: true, timedOut: false, timeoutKind: null, rounds: 22, winReason: 'LEVEL_3', winnerId: 'player_2', errors: [], engineRefused: 0, stuckMs: 0, elapsedMs: 5000,
+		metrics: [{ ev: 'attack', deck: TAKSEN }, { ev: 'quest-roll', deck: TAKSEN, success: true }] };
+
+	it('a clean finished game is not a crash; winnerDeck is the seat key of winnerId; metrics are summarised', () => {
+		const rec = buildSimRecord(meta, ok);
+		expect(rec).toMatchObject({ matchup: 'TK-vs-RG', p1Deck: 'TK', p2Deck: 'RG', gameIndex: 3, seed: 64003, crashed: false, winnerDeck: 'RG', rounds: 22 });
+		expect(rec.botMetrics[TAKSEN]).toMatchObject({ attacks: 1, questRolls: 1, questWins: 1 });
+	});
+
+	it('a round-cap timeout is a timeout, not a crash', () => {
+		const rec = buildSimRecord(meta, { ...ok, finished: false, timedOut: true, timeoutKind: 'rounds', winReason: null, winnerId: null });
+		expect(rec).toMatchObject({ crashed: false, timedOut: true, timeoutKind: 'rounds', winnerDeck: null });
+	});
+
+	it('a page or console error, an engine-refused metric and a V4 win reason are each a crash', () => {
+		expect(buildSimRecord(meta, { ...ok, errors: ['console: boom'] }).crashed).toBe(true);
+		expect(buildSimRecord(meta, { ...ok, engineRefused: 1 }).crashed).toBe(true);
+		expect(buildSimRecord(meta, { ...ok, winReason: 'QUEST_MASTER' }).crashed).toBe(true);
+		expect(buildSimRecord(meta, { ...ok, winReason: 'KNOCKOUT' }).crashed).toBe(false);
+	});
+
+	it('a thrown harness error becomes a crashed record carrying the message', () => {
+		const rec = buildSimRecord(meta, null, new Error('page closed'));
+		expect(rec).toMatchObject({ crashed: true, finished: false, timedOut: false });
+		expect(rec.errors[0]).toContain('page closed');
+	});
+
+	it('a game that neither finished nor timed out is a crash too', () => {
+		const rec = buildSimRecord(meta, { ...ok, finished: false, winReason: null, winnerId: null });
+		expect(rec.crashed).toBe(true);
+		expect(rec.errors.length).toBeGreaterThan(0);
 	});
 });
 

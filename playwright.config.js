@@ -2,7 +2,8 @@ import { defineConfig } from '@playwright/test';
 
 // Three projects:
 //  - "visual" — headed + slowMo: smoke, mechanics, full-game, chain tests.
-//  - "sim"    — headless + fast: the bulk bot-vs-bot statistical simulation.
+//  - "sim"    — headless + fast: the 2.0 deck-matrix simulation (sim-deck-matrix.spec.js):
+//               9 ordered matchups of the 3 Example Decks x 10 games + a crash / timeout gate (64-06).
 //  - "cards"  — the data-driven card-effect library. headless + slowMo so a
 //               SINGLE browser steps through cards gently (no rapid open/close
 //               that hangs a busy PC). Run --headed to watch.
@@ -13,7 +14,7 @@ import { defineConfig } from '@playwright/test';
 // Run examples:
 //   npm run test:cards          → card library, headless, one-at-a-time
 //   npm run test:cards:watch    → same, but headed so you can watch
-//   npm run test:sim            → bot-vs-bot simulation
+//   npm run test:sim            → 2.0 bot-vs-bot simulation (GAMES_PER_MATCHUP=1 for a 9-game smoke)
 export default defineConfig({
   testDir: './tests/ui',
   timeout: 60000,
@@ -33,7 +34,7 @@ export default defineConfig({
     },
     {
       name: 'visual',
-      testIgnore: ['**/sim-30-games.spec.js', '**/sim-botvsbot.spec.js', '**/sim-deck-matrix.spec.js', '**/cards/**'],
+      testIgnore: ['**/sim-deck-matrix.spec.js', '**/cards/**'],
       use: {
         baseURL: 'http://localhost:5500',
         headless: false,
@@ -50,7 +51,7 @@ export default defineConfig({
     },
     {
       name: 'sim',
-      testMatch: ['**/sim-30-games.spec.js', '**/sim-botvsbot.spec.js', '**/sim-deck-matrix.spec.js'],
+      testMatch: ['**/sim-deck-matrix.spec.js'],
       timeout: 180000,
       use: {
         baseURL: 'http://localhost:5500',
