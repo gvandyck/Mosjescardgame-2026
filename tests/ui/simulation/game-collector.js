@@ -16,6 +16,8 @@ export function attachCollector(page) {
 
 	page.on('console', msg => {
 		const text = msg.text();
+		// 64-04: a console error counts as a crash too (the 2.0 sim and U11 require zero).
+		if (msg.type() === 'error') errors.push(`console: ${text}`);
 		if (text.startsWith('[ENGINE]') || text.startsWith('[ABILITY]') ||
 		    text.startsWith('[QUEST]') || text.startsWith('[PIECIE]') ||
 		    text.startsWith('[PLACE]') || text.startsWith('[UI]') ||
@@ -28,6 +30,15 @@ export function attachCollector(page) {
 	return {
 		getLogs: () => [...logs],
 		getErrors: () => [...errors],
+		// The parsed '[BOT] METRIC {json}' objects (emitBotMetric), in order; a malformed line is skipped.
+		getMetrics: () => {
+			const metrics = [];
+			for (const line of logs) {
+				if (!line.startsWith('[BOT] METRIC ')) continue;
+				try { metrics.push(JSON.parse(line.slice('[BOT] METRIC '.length))); } catch { /* skip */ }
+			}
+			return metrics;
+		},
 	};
 }
 
