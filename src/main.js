@@ -71,8 +71,15 @@ import { showNewReveals } from './ui/showNewReveals.js';
 import { pushTestDice } from './engine/dice/testDiceQueue.js';
 import { pickBotDeck } from './bot/pickBotDeck.js';
 import { FEATURES } from './config/features.js';
+import { STORAGE_KEYS } from './config/storageKeys.js';
+import { STARTER_DECKS } from './data/starterDecks.js';
 import { shouldShowAccountLobby } from './ui/lobby/shouldShowAccountLobby.js';
 import { initLobby2 } from './ui/lobby/initLobby2.js';
+import { launchGame } from './ui/lobby/launchGame.js';
+import { sanitizeGameParams } from './ui/game/sanitizeGameParams.js';
+import { buildGameSummary } from './ui/gameOver/buildGameSummary.js';
+import { getGameOverHeadline } from './ui/gameOver/getGameOverHeadline.js';
+import { getReplayChoices } from './ui/gameOver/getReplayChoices.js';
 
 console.log('[UI] App bootstrapping...');
 
@@ -532,6 +539,8 @@ function initGamePage() {
 	}
 
 	const urlParams = new URLSearchParams(window.location.search);
+	// D-17 / T-64-21: ?player= and ?deck1= / ?deck2= are user-controlled; only seat ids and known deck ids get through.
+	const gameParams = sanitizeGameParams(urlParams, STARTER_DECKS.map(deck => deck.id));
 	const lobbyData = readLobbyData();
 	const log = createLogRenderer(logRoot);
 
@@ -581,7 +590,8 @@ function initGamePage() {
 	}
 
 	// Determine which player this client controls
-	const localPlayerId = urlParams.get('player') || lobbyData.playerId || 'player_1';
+	const sessionSeat = lobbyData.playerId === 'player_1' || lobbyData.playerId === 'player_2' ? lobbyData.playerId : null;
+	const localPlayerId = gameParams.player || sessionSeat || 'player_1';
 	const opponentId = localPlayerId === 'player_1' ? 'player_2' : 'player_1';
 	// De-dupe id for the deck-out recycle notice so re-renders / repeated remote pushes
 	// don't re-show the banner. Fires again only on a genuinely new deck-out (new turn).
@@ -617,15 +627,7 @@ function initGamePage() {
 		},
 	});
 
-	// Stats accumulator — local player game summary for end-screen
-	let gameStats = {
-		questsAttempted: 0,
-		questsSucceeded: 0,
-		peakMP: 0,
-		biggestSingleGain: 0,
-		mosjesLost: 0,
-	};
-	let prevActiveSlots = null; // snapshot of local player's active slots after each render
+	// The game-over numbers (rounds, Quests, Mosjes lost) come from the engine state (buildGameSummary), not from a UI tracker.
 	let gameOverHandled = false; // guard: the win overlay must only ever show once
 
 	// ── Sync helpers ──────────────────────────────────────────────────────
@@ -633,37 +635,12 @@ function initGamePage() {
 		if (isOnline && gameState) pushState(roomCode, gameState);
 	}
 
-	// Tracks peak MP for local player after every render.
-	function trackPeakMP() {
-		const localPlayer = gameState.players?.[localPlayerId];
-		if (!localPlayer) return;
-		(localPlayer.activeSlots || []).forEach(slot => {
-			if (!slot) return;
-			const mp = Number(slot.mp || 0);
-			if (mp > gameStats.peakMP) gameStats.peakMP = mp;
-		});
-	}
-
 	// ── Offline win-check wrapper ──────────────────────────────────────────
 	// After any human action, check if the game just ended.
 	// Replaces bare renderFromState(gameState) calls in all 7 action handlers.
 	function renderAndCheckWin() {
-		const localSlots = gameState.players?.[localPlayerId]?.activeSlots || [];
-
 		renderFromState(gameState);
 
-		// Detect mosje defeats since last render
-		if (prevActiveSlots) {
-			prevActiveSlots.forEach((before, i) => {
-				const after = localSlots[i];
-				if (before && !before.isDefeated && after && after.isDefeated) {
-					gameStats.mosjesLost += 1;
-				}
-			});
-		}
-		prevActiveSlots = localSlots.map(s => s ? { isDefeated: s.isDefeated } : null);
-
-		trackPeakMP();
 		if (isOffline && gameState && gameState.status === 'FINISHED') {
 			handleGameOver(gameState);
 		}
@@ -890,22 +867,47 @@ function initGamePage() {
 		gameOverHandled = true;
 		await cancelDisconnectHooks();
 		stopListening();
+		const mode = isBotVsBot ? 'watchBots' : (isOffline ? 'vsBot' : 'online');
 		const winnerName = gs.players[gs.winnerId]?.name || 'Unknown';
-		const opponentName = gs.players[localPlayerId === 'player_1' ? 'player_2' : 'player_1']?.name || 'Opponent';
-		const outcome = gs.winnerId === localPlayerId ? 'win' : 'loss';
 		const winDetail = describeWin(gs);
 
 		log.add('win', `🏆 ${winnerName} wins! ${winDetail}`);
 
+		// D-12 / T-64-24: Munten rewards are a hidden feature; no Firebase write while the flag is off.
 		let muntenAwarded = 0;
 		const user = getCurrentUser();
-		if ((isOnline || isOffline) && user && !user.isAnonymous) {
+		if (FEATURES.muntenRewards && (isOnline || isOffline) && user && !user.isAnonymous) {
+			const opponentName = gs.players[localPlayerId === 'player_1' ? 'player_2' : 'player_1']?.name || 'Opponent';
+			const outcome = gs.winnerId === localPlayerId ? 'win' : 'loss';
 			const rewardRoomCode = isOnline ? roomCode : `OFFLINE_${Date.now()}`;
 			const result = await claimMatchReward(rewardRoomCode, user.uid, outcome, opponentName);
 			muntenAwarded = result.muntenAwarded;
 		}
 
-		showRewardOverlay({ outcome, winnerName, winReason: gs.winReason, winDetail, muntenAwarded, isOnline, stats: gameStats, logEntries: log.getEntries() });
+		const summary = buildGameSummary(gs);
+		showRewardOverlay({
+			headline: getGameOverHeadline({ mode, winnerId: gs.winnerId, localPlayerId, summary }),
+			winReason: gs.winReason,
+			winnerId: gs.winnerId,
+			mode,
+			reasonText: winDetail,
+			summary,
+			showMunten: FEATURES.muntenRewards,
+			muntenAwarded,
+			logEntries: log.getEntries(),
+			onPlayAgain: mode === 'online' ? null : () => playAgain(mode),
+		});
+	}
+
+	// Play again (D-18, D-20): restart through the same launchGame path as the lobby Start button. A Random bot deck is
+	// rolled again there, and the full page load re-runs createInitialGameState (a new setup die roll).
+	function playAgain(mode) {
+		let replayRaw = null;
+		try { replayRaw = window.sessionStorage.getItem(STORAGE_KEYS.replay); } catch { /* storage blocked: the live session / URL decide */ }
+		const decks = getPlayerFacingDecks();
+		const choices = getReplayChoices({ replayRaw, offlineData: readOfflineData(), urlParams, mode, decks });
+		if (!choices) return;
+		launchGame(choices, { decks, session: window.sessionStorage, navigate: url => window.location.assign(url) });
 	}
 
 	// ── Shared remote-state handler — registered after game init ─────────
@@ -1251,13 +1253,11 @@ function initGamePage() {
 		} else {
 			// Bot vs Bot, Offline vs Bot, or LOCAL dev mode
 			if (isBotVsBot) {
-				// Optional deck1/deck2 URL params let a simulation control the matchup.
-				// Falls back to random decks when not provided.
-				const paramDeck1 = urlParams.get('deck1');
-				const paramDeck2 = urlParams.get('deck2');
-				const deck1 = paramDeck1 || pickBotDeck(getPlayerFacingDecks()).id;
-				const deck2 = paramDeck2 || pickOpponentDeck(deck1);
-				startGame('Bot A', deck1, 'Bot B', deck2);
+				// Optional deck1/deck2 URL params let a simulation control the matchup (known deck ids only, D-17).
+				// Falls back to random decks when not provided or unknown.
+				const deck1 = gameParams.deck1 || pickBotDeck(getPlayerFacingDecks()).id;
+				const deck2 = gameParams.deck2 || pickOpponentDeck(deck1);
+				startGame('Bot 1', deck1, 'Bot 2', deck2);
 				log.add('quest', 'Bot vs Bot mode — no human input needed. Sit back and watch!');
 				runBotVsBotLoop();
 			} else if (isOffline) {

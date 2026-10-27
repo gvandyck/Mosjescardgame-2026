@@ -1,0 +1,97 @@
+/* game-over-2-0.css — the 2.0 game-over screen (Phase 64-05). Loaded after main.css, which still owns the overlay shell,
+   title and Battle Log look. This file adds the 2.0 stats block and the 44 px control floor (Mobile-ready rule D-40).
+   Every size comes from --go-u (about 1rem, scales a little with the viewport) or --tap. Nothing is hover-only. */
+
+.reward-overlay {
+	--go-u: clamp(0.8rem, 0.65rem + 0.45vw, 1rem);
+	--tap: max(44px, 2.75rem);
+}
+
+.reward-overlay .reward-card {
+	width: min(36rem, 94vw);
+	max-width: none;
+	padding: calc(2 * var(--go-u)) calc(2.4 * var(--go-u));
+	gap: calc(0.6 * var(--go-u));
+}
+
+.reward-overlay .reward-reason { max-width: 100%; }
+
+/* ── Stats: a Rounds tile, then one row per player ───────────────────── */
+.reward-overlay .reward-stats {
+	margin: calc(0.8 * var(--go-u)) 0 calc(0.4 * var(--go-u));
+	display: grid;
+	gap: calc(0.7 * var(--go-u));
+}
+.reward-overlay .reward-stats__divider { margin-bottom: 0; }
+
+.go-stat {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: calc(0.25 * var(--go-u));
+}
+.go-stat__value {
+	font-size: calc(1.75 * var(--go-u));
+	font-weight: 700;
+	line-height: 1;
+	color: #f9fafb;
+	letter-spacing: -0.02em;
+}
+.go-stat__label {
+	font-size: calc(0.72 * var(--go-u));
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: rgba(255, 255, 255, 0.6);
+}
+
+.go-stat--rounds,
+.go-player {
+	background: rgba(255, 255, 255, 0.04);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: calc(0.7 * var(--go-u));
+	padding: calc(0.7 * var(--go-u)) calc(0.9 * var(--go-u));
+}
+
+.go-players { display: grid; gap: calc(0.6 * var(--go-u)); }
+
+.go-player {
+	display: grid;
+	grid-template-columns: 1.5fr 1fr 1fr;
+	align-items: center;
+	gap: calc(0.8 * var(--go-u));
+}
+.go-player__who {
+	display: flex;
+	flex-direction: column;
+	gap: calc(0.15 * var(--go-u));
+	min-width: 0;
+	text-align: left;
+}
+.go-player__name {
+	font-weight: 700;
+	font-size: calc(1.1 * var(--go-u));
+	color: #fff;
+	overflow-wrap: anywhere;
+}
+.go-player__deck {
+	font-size: calc(0.8 * var(--go-u));
+	color: rgba(255, 255, 255, 0.6);
+}
+
+/* ── Actions: Copy Log, Play again, Back to Lobby ─────────────────────── */
+.reward-overlay .reward-actions { gap: calc(0.7 * var(--go-u)); }
+.reward-overlay .reward-btn {
+	min-height: var(--tap);
+	min-width: 44px;
+}
+.reward-overlay .reward-btn:focus-visible {
+	outline: 2px solid #ffffff;
+	outline-offset: 2px;
+}
+
+/* Narrow screens: the player row stacks (name on its own line), the buttons wrap. */
+@media (max-width: 30rem) {
+	.reward-overlay .reward-card { padding: calc(1.4 * var(--go-u)); }
+	.go-player { grid-template-columns: 1fr 1fr; }
+	.go-player__who { grid-column: 1 / -1; }
+}

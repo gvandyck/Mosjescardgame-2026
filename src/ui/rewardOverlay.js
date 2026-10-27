@@ -1,140 +1,65 @@
-// rewardOverlay.js — Post-match reward screen.
-// Shows outcome, Munten earned, and a "Back to Lobby" button.
-// For guests or LOCAL games, shows a minimal match-finished screen.
+// rewardOverlay.js — the 2.0 game-over screen (64-05: D-19 to D-22).
+// Thin DOM shell: the markup comes from buildRewardOverlayHtml, the headline / numbers from main.js (pure builders).
+// Hooks the sim and the specs read: #reward-overlay with data-win-reason / data-winner-id / data-mode.
 
 console.log('[UI] rewardOverlay.js loaded');
 
+import { buildRewardOverlayHtml } from './gameOver/buildRewardOverlayHtml.js';
+
 /**
  * @param {object} opts
- * @param {'win'|'loss'} opts.outcome
- * @param {string}  opts.winnerName
- * @param {string}  opts.winReason       Raw win-condition enum (e.g. 'KNOCKOUT')
- * @param {string}  [opts.winDetail]     Plain-language explanation of how the game was won
- * @param {number}  opts.muntenAwarded   0 for guests / LOCAL games
- * @param {boolean} opts.isOnline
- * @param {object}  [opts.stats]         Optional gameStats from main.js accumulator
+ * @param {{icon:string,title:string,subtitle:string,tone:'win'|'loss'|'neutral'}} opts.headline  from getGameOverHeadline
+ * @param {string}  opts.winReason       Raw win-condition enum ('LEVEL_3' | 'KNOCKOUT'), machine-readable
+ * @param {string}  opts.winnerId        'player_1' | 'player_2'
+ * @param {'vsBot'|'watchBots'|'online'} opts.mode
+ * @param {string}  opts.reasonText      Plain-language win line (describeWin)
+ * @param {{rounds:number,players:object[]}} opts.summary   from buildGameSummary
+ * @param {boolean} opts.showMunten      FEATURES.muntenRewards
+ * @param {number}  opts.muntenAwarded
  * @param {Array<{type:string,text:string}>} [opts.logEntries]  Battle-log entries (newest-first)
+ * @param {(() => void)|null} [opts.onPlayAgain]  Play again handler; no button when null
  */
-export function showRewardOverlay({ outcome, winnerName, winReason, winDetail, muntenAwarded, isOnline, stats, logEntries = [] }) {
-	// Remove any existing overlay
+export function showRewardOverlay({ headline, winReason, winnerId, mode, reasonText, summary, showMunten, muntenAwarded, logEntries = [], onPlayAgain = null }) {
 	document.getElementById('reward-overlay')?.remove();
-
-	const isWin = outcome === 'win';
 
 	const overlay = document.createElement('div');
 	overlay.id = 'reward-overlay';
-	overlay.className = `reward-overlay ${isWin ? 'reward-overlay--win' : 'reward-overlay--loss'}`;
-	// Machine-readable win reason — tools/sims read this instead of parsing prose.
+	overlay.className = `reward-overlay ${headline.tone === 'loss' ? 'reward-overlay--loss' : 'reward-overlay--win'}`;
+	// Machine-readable values — tools / sims read these instead of parsing prose.
 	if (winReason) overlay.dataset.winReason = winReason;
+	if (winnerId) overlay.dataset.winnerId = winnerId;
+	if (mode) overlay.dataset.mode = mode;
 
-	const muntenSection = (isOnline && muntenAwarded > 0)
-		? `<p class="reward-munten">+${muntenAwarded} Munten</p>`
-		: '';
-
-	const successRate = stats
-		? (stats.questsAttempted > 0 ? Math.round((stats.questsSucceeded / stats.questsAttempted) * 100) : 0)
-		: 0;
-
-	const statsSection = stats ? `
-		<div class="reward-stats">
-			<div class="reward-stats__divider"><span>Game Summary</span></div>
-			<div class="reward-stats__grid">
-				<div class="stat-tile stat-tile--quest">
-					<span class="stat-tile__icon">⚔️</span>
-					<span class="stat-tile__value">${stats.questsSucceeded}<span class="stat-tile__denom">/${stats.questsAttempted}</span></span>
-					<span class="stat-tile__label">Quests won</span>
-				</div>
-				<div class="stat-tile stat-tile--rate">
-					<span class="stat-tile__icon">🎯</span>
-					<span class="stat-tile__value">${successRate}<span class="stat-tile__denom">%</span></span>
-					<span class="stat-tile__label">Success rate</span>
-				</div>
-				<div class="stat-tile stat-tile--peak">
-					<span class="stat-tile__icon">⚡</span>
-					<span class="stat-tile__value">${stats.peakMP}<span class="stat-tile__denom"> MP</span></span>
-					<span class="stat-tile__label">Peak momentum</span>
-				</div>
-				<div class="stat-tile stat-tile--gain">
-					<span class="stat-tile__icon">📈</span>
-					<span class="stat-tile__value">+${stats.biggestSingleGain}<span class="stat-tile__denom"> MP</span></span>
-					<span class="stat-tile__label">Biggest gain</span>
-				</div>
-				${stats.mosjesLost > 0 ? `
-				<div class="stat-tile stat-tile--loss stat-tile--full">
-					<span class="stat-tile__icon">💀</span>
-					<span class="stat-tile__value">${stats.mosjesLost}</span>
-					<span class="stat-tile__label">Mosje${stats.mosjesLost !== 1 ? 's' : ''} lost</span>
-				</div>` : ''}
-			</div>
-		</div>
-	` : '';
-
-	// HTML-escape every value that reaches innerHTML below. Player/Mosje names are
-	// not pre-sanitised (the in-game log uses textContent), so an online opponent's
-	// display name could otherwise inject markup into this overlay.
-	const esc = (s) => String(s).replace(/[&<>"']/g, c => (
-		{ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
-	));
-
-	const subtitle = isOnline
-		? (isWin ? 'You won the match!' : `${esc(winnerName)} won the match.`)
-		: `${esc(winnerName)} wins!`;
-
-	// Plain-language explanation of how the game was won. Falls back to the raw
-	// enum if main.js didn't supply a description. Escaped at render time below.
-	const reasonText = winDetail || (winReason ? `Won by ${winReason}.` : '');
-
-	// Battle log recap — the same colour-coded entries from the in-game log. Collapsed by
-	// default (as a <details>) so the win card stays short and doesn't need to scroll; the
-	// player can expand it to review, or just hit Copy Log.
-	const hasLog = Array.isArray(logEntries) && logEntries.length > 0;
-	const logSection = hasLog ? `
-		<details class="reward-log-details">
-			<summary class="reward-log-summary">Battle Log <span class="reward-log-count">${logEntries.length}</span></summary>
-			<div class="reward-log" id="reward-log">
-				${logEntries.map(e => `<div class="log-row ${esc(e.type)}">${esc(e.text)}</div>`).join('')}
-			</div>
-		</details>
-	` : '';
-
-	overlay.innerHTML = `
-		<div class="reward-card">
-			<div class="reward-icon">${isWin ? '🏆' : '💀'}</div>
-			<h2 class="reward-title">${isWin ? 'Victory!' : 'Defeat'}</h2>
-			<p class="reward-subtitle">${subtitle}</p>
-			${reasonText ? `<p class="reward-reason">${esc(reasonText)}</p>` : ''}
-			${muntenSection}
-			${statsSection}
-			${logSection}
-			<div class="reward-actions">
-				${hasLog ? '<button class="reward-btn reward-btn--ghost" id="reward-copy-btn" type="button">Copy Log</button>' : ''}
-				<button class="reward-btn" id="reward-back-btn">Back to Lobby</button>
-			</div>
-		</div>
-	`;
-
+	const canPlayAgain = typeof onPlayAgain === 'function';
+	overlay.innerHTML = buildRewardOverlayHtml({ headline, reasonText, summary, showMunten, muntenAwarded, logEntries, canPlayAgain });
 	document.body.appendChild(overlay);
 
 	document.getElementById('reward-back-btn').addEventListener('click', () => {
 		window.location.href = './index.html';
 	});
 
-	// Copy the recap in chronological order (oldest → newest) for easy sharing.
+	const againBtn = document.getElementById('reward-again-btn');
+	if (againBtn && canPlayAgain) {
+		againBtn.addEventListener('click', () => {
+			againBtn.disabled = true; // one restart per game over, a second click must not launch twice
+			onPlayAgain();
+		});
+	}
+
+	// Copy the recap in chronological order (oldest -> newest) for easy sharing.
 	const copyBtn = document.getElementById('reward-copy-btn');
-	if (copyBtn && hasLog) {
-		const chronological = [...logEntries].reverse().map(e => e.text).join('\n');
+	if (copyBtn && logEntries.length) {
+		const chronological = [...logEntries].reverse().map(entry => entry.text).join('\n');
 		copyBtn.addEventListener('click', async () => {
 			try {
 				await navigator.clipboard.writeText(chronological);
 				copyBtn.textContent = 'Copied ✓';
-				setTimeout(() => { copyBtn.textContent = 'Copy Log'; }, 1500);
 			} catch {
 				copyBtn.textContent = 'Copy failed';
-				setTimeout(() => { copyBtn.textContent = 'Copy Log'; }, 1500);
 			}
+			setTimeout(() => { copyBtn.textContent = 'Copy Log'; }, 1500);
 		});
 	}
 
-	// Animate in
 	requestAnimationFrame(() => overlay.classList.add('reward-overlay--visible'));
 }
