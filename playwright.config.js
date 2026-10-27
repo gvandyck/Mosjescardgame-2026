@@ -1,12 +1,15 @@
 import { defineConfig } from '@playwright/test';
 
-// Three projects:
+// Projects:
 //  - "visual" — headed + slowMo: smoke, mechanics, full-game, chain tests.
 //  - "sim"    — headless + fast: the 2.0 deck-matrix simulation (sim-deck-matrix.spec.js):
 //               9 ordered matchups of the 3 Example Decks x 10 games + a crash / timeout gate (64-06).
 //  - "cards"  — the data-driven card-effect library. headless + slowMo so a
 //               SINGLE browser steps through cards gently (no rapid open/close
 //               that hangs a busy PC). Run --headed to watch.
+//  - "mobile-canary" — REPORT ONLY (64-07, D-30): headless 390x844 touch phone, lobby -> deck -> Start -> board.
+//               Its result is written to a report and never gates the phase; only `npm run test:mobile-canary`
+//               runs it (own project, excluded from "visual"). Phase 65 owns the phone layout it will flag.
 //
 // IMPORTANT: card + sim tests share one http-server on port 5500 and are NOT
 // parallel-safe — always run them with `--workers=1` (the npm scripts do this).
@@ -34,7 +37,7 @@ export default defineConfig({
     },
     {
       name: 'visual',
-      testIgnore: ['**/sim-deck-matrix.spec.js', '**/cards/**'],
+      testIgnore: ['**/sim-deck-matrix.spec.js', '**/cards/**', '**/mobile-canary.spec.js'],
       use: {
         baseURL: 'http://localhost:5500',
         headless: false,
@@ -57,6 +60,23 @@ export default defineConfig({
         baseURL: 'http://localhost:5500',
         headless: true,
         slowMo: 0,
+        screenshot: 'only-on-failure',
+        video: 'off',
+      },
+    },
+    {
+      // D-30: report-only phone canary (390x844, touch). Chromium with isMobile + hasTouch; never part of the gate.
+      name: 'mobile-canary',
+      testMatch: ['**/mobile-canary.spec.js'],
+      timeout: 90000,
+      use: {
+        baseURL: 'http://localhost:5500',
+        browserName: 'chromium',
+        headless: true,
+        viewport: { width: 390, height: 844 },
+        isMobile: true,
+        hasTouch: true,
+        deviceScaleFactor: 3,
         screenshot: 'only-on-failure',
         video: 'off',
       },
