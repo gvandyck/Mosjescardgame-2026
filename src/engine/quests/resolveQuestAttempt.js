@@ -7,6 +7,7 @@ import { QUEST_EXTRAS } from './questExtras.js';
 import { getJabTargets } from './getJabTargets.js';
 import { applyQuestJab } from './applyQuestJab.js';
 import { advanceQuestStack } from './advanceQuestStack.js';
+import { countQuestAttempt } from './countQuestAttempt.js';
 import { runMosjeTriggers } from '../mosje/runMosjeTriggers.js';
 import { applyMomentumBoostWin } from './applyMomentumBoostWin.js';
 import { battleConcertRedirect } from './battleConcertRedirect.js';
@@ -57,6 +58,7 @@ export function resolveQuestAttempt(state, pending, choices = {}) {
 		if (extras.onWin) s = extras.onWin(s, ctx, choices);
 	}
 	s = advanceQuestStack(s, stackId, win ? 'win' : 'fail');
+	s = countQuestAttempt(s, playerId, win); // display-only stat for the game-over screen (64-05)
 	s = checkVictory(s);
 	console.log(`[QUEST] ${quest.name}: ${name} dice [${dice.join(',')}] band ${quest.band} -> ${win ? 'WIN' : 'FAIL'}`);
 	return { ok: true, state: s, win, choices };
