@@ -96,16 +96,41 @@
 
 .game-board .board-energy { flex: 0 0 var(--crystal-col); width: var(--crystal-col); height: var(--field-tile-h); align-self: flex-start; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
-/* Empty slot: a tile-sized dashed outline, inert. */
+/* Empty slot: a tile-sized dashed outline with a faint fill, inert. Always visible, never hover-only (64.1 D-02, 63 D-21). */
 .game-board .board-slot--empty {
 	box-sizing: border-box;
 	flex: 0 0 auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	width: var(--field-tile-w);
 	height: var(--field-tile-h);
-	border: 1px dashed rgba(255, 255, 255, 0.18);
+	border: 2px dashed rgba(255, 255, 255, 0.4);
+	background: rgba(255, 255, 255, 0.04);
 	border-radius: calc(14 * var(--bu));
 	pointer-events: none;
 	transform: none !important;
+}
+/* The slot a raised or dragged hand card will go into (64.1 D-06): the engine fills the first free slot, so exactly one
+   slot glows. D-09: the gold accent, static on purpose (the LVL 3 HOLD tile pulses). Its 12 px glow stays inside --paint-pad
+   (D-03). Still inert: the engine has no chosen-slot play. */
+.game-board .board-slot--empty[data-place-here] {
+	border: 2px solid var(--mosje-gold, #E8B94F);
+	background: rgba(232, 185, 79, 0.1);
+	box-shadow: 0 0 calc(12 * var(--bu)) rgba(232, 185, 79, 0.45), inset 0 0 calc(18 * var(--bu)) rgba(232, 185, 79, 0.18);
+	animation: none;
+}
+.board-slot__hint {
+	box-sizing: border-box;
+	padding: calc(6 * var(--bu)) calc(12 * var(--bu));
+	border-radius: 999px;
+	background: rgba(5, 5, 5, 0.82);
+	color: var(--mosje-gold, #E8B94F);
+	font: 800 max(12px, calc(15 * var(--bu)))/1 'Sora', sans-serif;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	white-space: nowrap;
+	pointer-events: none;
 }
 
 /* ── Middle strip: Place (first tile column) · Quests (centre) · End Turn (last column) ── */
