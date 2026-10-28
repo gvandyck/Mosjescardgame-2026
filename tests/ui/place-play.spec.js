@@ -69,6 +69,10 @@ for (const viewport of VIEWPORTS) {
 			await page.evaluate(() => window.__testHooks.setPiecieOnField('player_1', 0, 'piecie_bong_hit_demolition', { faceDown: true }));
 			await unlockPiecies(page, 'player_1');
 			// Activate through the tray; the chip is the topmost element at its own centre, so the hand cannot be covering it.
+			// 65-02: park the mouse off the hand first. The hover above left the second Place raised, and on the fitting 1280x800
+			// table (smaller tiles) that raised card covers Piecie slot 0, so the tap could never land while the mouse stays on it.
+			await page.mouse.move(2, 2);
+			await page.waitForTimeout(500); // the raised card lowers (0.32 s transition)
 			await tapOwnCard(page, 'piecie', 'piecie_bong_hit_demolition');
 			const chip = page.locator('[data-action-tray] [data-action="activate"]');
 			await expect(chip).toBeVisible();

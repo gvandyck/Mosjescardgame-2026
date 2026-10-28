@@ -71,11 +71,22 @@
 }
 .game-board > * {
 	/* One tile width for everything on the table: the busiest row (crystals + --field-slots tiles, 8 px gaps) must fit.
-	   Never below 170px: on a narrow screen the row overflows and drag-scrolls instead of shrinking the cards. */
+	   Never below 170px for width: on a narrow screen the row overflows and drag-scrolls instead of shrinking the cards. The
+	   floor also holds for height on every normal window; only the short-window block below may go lower (down to 100 px, D-03). */
 	--field-tile-w: max(170px, min(calc((100cqw - var(--crystal-col) - 24px) / var(--field-slots, 7) - 8px), calc(var(--field-h-max) * 240 / 176)));
 	--field-tile-h: calc(var(--field-tile-w) * 176 / 240);
 	--bu: calc(var(--field-tile-w) / 240);   /* one board unit */
 	--row-w: calc(var(--crystal-col) + var(--field-slots, 7) * (var(--field-tile-w) + 8px));
+}
+/* Short desktop window (Phase 65-02, MOB-08, D-03): where the height budget asks for less than 170 px, the 170 px floor made
+   the three rows taller than the board (1280x800: scrollHeight 491 vs clientHeight 404). Here the height term may win down to
+   100 px (the 62 face rule holds to about 100 px); the width term keeps its 170 px floor. Identical to the rule above whenever
+   the height term is at least 170 px, which is why 1920x1080 and 1920x950 sit outside this query and stay as they were.
+   min-width 1200 px keeps narrower desktops on the 170 px floor and the sideways row scroll. */
+@media (min-width: 1200px) and (max-height: 940px) {
+	.game-board > * {
+		--field-tile-w: min(max(170px, calc((100cqw - var(--crystal-col) - 24px) / var(--field-slots, 7) - 8px)), max(calc(var(--field-h-max) * 240 / 176), 100px));
+	}
 }
 @media (min-width: 901px) {
 	.page--game .game-layout { height: calc(100vh - var(--topbar-h) - var(--status-h)); margin-bottom: 0; }
