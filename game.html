@@ -2,7 +2,7 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="robots" content="noindex,nofollow" />
   <link rel="icon" href="assets/icons/obbyhouse.jpg" type="image/jpeg" />
   <title>MOSJES - Game Board</title>
@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="styles/board-2-0.css" />
   <link rel="stylesheet" href="styles/board-actions.css" />
   <link rel="stylesheet" href="styles/game-over-2-0.css" />
+  <link rel="stylesheet" href="styles/phone-base.css" />
 </head>
 <body class="page page--game">
   <div class="bg-noise" aria-hidden="true"></div>
@@ -97,5 +98,13 @@
   <div id="modal-root" class="modal-root"></div>
 
   <script type="module" src="src/main.js"></script>
+
+  <!-- Phase 65 (D-01): a phone held sideways shows only this notice; styles/phone-base.css decides when (short landscape, coarse pointer). -->
+  <div id="rotate-notice" class="rotate-notice" role="alert">
+    <div class="rotate-notice__box">
+      <span class="rotate-notice__icon" aria-hidden="true">&#x1F4F1;</span>
+      <p>Turn your phone upright to play</p>
+    </div>
+  </div>
 </body>
 </html>

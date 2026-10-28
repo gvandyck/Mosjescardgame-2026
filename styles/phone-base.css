@@ -1,0 +1,87 @@
+/* phone-base.css - Phase 65 (D-01, D-02, D-18): the phone foundation. Loaded LAST on game.html and index.html; later Phase 65
+   plans add their own phone-*.css after it. Everything phone-only sits behind ONE literal breakpoint, `max-width: 700px`
+   (src/ui/phone/phoneQuery.js is the JS twin; tests/ui/phone-breakpoint.test.ts keeps them equal), so the desktop table at
+   1920x1080 / 1920x950 stays byte-for-byte what it was (tests/ui/desktop-layout-lock.spec.js).
+   The phone layout switches on by viewport WIDTH, not by "touch device", so a narrow desktop window can test it.
+   Pinch-zoom stays allowed on purpose: touch-action is manipulation (no double-tap zoom), never none, and the viewport meta
+   carries no zoom lock. */
+
+/* ── Rotate notice (D-01): a phone held sideways shows only this ─────────────────────────────────────────────────────── */
+/* Short landscape AND a coarse pointer = a phone on its side. A desktop window (fine pointer) and a tablet (taller than
+   500 px) never match, and neither does a portrait phone. */
+.rotate-notice { display: none; }
+
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+	.rotate-notice {
+		display: flex;
+		position: fixed;
+		inset: 0;
+		z-index: 10000;
+		align-items: center;
+		justify-content: center;
+		padding: 16px;
+		background: #0f0f0f;
+		color: #f2f2f2;
+		text-align: center;
+	}
+	.rotate-notice__box { display: flex; align-items: center; gap: 20px; max-width: 90vw; }
+	.rotate-notice__icon { font-size: 56px; line-height: 1; }
+	.rotate-notice p { font: 600 24px/1.3 var(--font-ui); letter-spacing: 0.02em; }
+}
+
+/* ── The phone layout (portrait phones, width <= 700 px) ─────────────────────────────────────────────────────────────── */
+@media (max-width: 700px) {
+	/* Phone tokens (the table, header and bottom bar of the later plans read these). --hand-peek is 0: the phone hand is a
+	   drawer, so no hand height is reserved above the screen bottom. */
+	.page--game {
+		--safe-t: env(safe-area-inset-top, 0px);
+		--safe-b: env(safe-area-inset-bottom, 0px);
+		--phone-top: calc(var(--topbar-h) + var(--safe-t));
+		--phone-bar-h: 60px;
+		--phone-bottom: calc(var(--phone-bar-h) + var(--safe-b));
+		--phone-tap: 44px;
+		--hand-peek: 0px;
+	}
+
+	/* Touch hygiene (D-18). No pull-to-refresh or rubber-band, no tap flash, no callout, no double-tap zoom (pinch stays). */
+	html,
+	body {
+		overscroll-behavior: none;
+	}
+	body {
+		touch-action: manipulation;
+		-webkit-tap-highlight-color: transparent;
+		-webkit-touch-callout: none;
+		-webkit-text-size-adjust: 100%;
+		text-size-adjust: 100%;
+	}
+
+	/* No text selection on the table; form fields stay selectable. */
+	.game-board,
+	.game-hand-panel,
+	.game-topbar,
+	.status-strip {
+		-webkit-user-select: none;
+		user-select: none;
+	}
+	input,
+	textarea {
+		-webkit-user-select: text;
+		user-select: text;
+	}
+
+	/* One screen, no page scroll: the game page is exactly the dynamic viewport tall (100dvh follows the iOS address bar). Written
+	   as body.page--game and html:has(...) so they beat the legacy 900 / 768 px rules in board.css (auto height, overflow auto). */
+	html:has(body.page--game) {
+		height: 100dvh;
+		overflow: hidden;
+	}
+	body.page--game {
+		height: 100dvh;
+		overflow: hidden;
+	}
+	body.page--game .game-layout {
+		width: 100%;
+		margin: 0;
+	}
+}
