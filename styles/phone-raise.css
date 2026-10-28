@@ -116,6 +116,25 @@
 		border-radius: 12px;
 	}
 
+	/* The gold "Place here" slot takes touch (65-07, D-10): a tap on it plays the raised card (bindRaisedSlotPlay). It stays at
+	   z-index 47, above the bar (46) and the hand panel (45), so nothing can sit over it (the 64.1 lift is the safety net). The
+	   label keeps pointer-events none, so the tap lands on the slot. Only this ONE slot is live; every other empty slot stays
+	   inert (board-2-0.css) and a tap on it cancels the raise. The desktop keeps its inert slot because this is inside the query. */
+	.page--game .game-board .board-slot--empty[data-place-here] {
+		position: relative;
+		z-index: 47;
+		pointer-events: auto;
+		cursor: pointer;
+	}
+
+	/* A shut drawer takes no touch at all, not even while it slides away (220 ms): phone-hand.css gives the strip pointer-events
+	   auto, so a card still on its way down would catch the tap meant for the board (a tap on a bare slot would raise that card
+	   instead of cancelling the raise). */
+	.page--game .game-hand-panel:not([data-drawer="open"]),
+	.page--game .game-hand-panel:not([data-drawer="open"]) * {
+		pointer-events: none !important;
+	}
+
 	/* No long-press image menu or drag preview on a card picture (blockCardMenu also stops the contextmenu event). */
 	.page--game .game-hand-panel img,
 	.page--game .game-board img {

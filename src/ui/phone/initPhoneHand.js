@@ -4,8 +4,9 @@
 // panel, which holds the handle, closes) and follows the phone breakpoint: crossing it closes the drawer, cancels the raise and calls
 // onLayoutChange (main.js re-renders, so End Turn moves between the bar and the middle strip), and keeps the whole table fitting
 // between the header and the bar on every resize (bindPhoneFit, 65-05). Raising a card closes the drawer and calls onRaise() (main.js
-// cancels a selected field card) once per newly raised card. The dock's three buttons share ONE delegated click listener. On the
-// desktop the bar, scrim and handle are display none, so none of this is ever seen.
+// cancels a selected field card) once per newly raised card. The dock's three buttons share ONE delegated click listener, and a click
+// on the gold "Place here" slot plays the raised card (bindRaisedSlotPlay, 65-07). On the desktop the bar, scrim and handle are
+// display none, so none of this is ever seen.
 // Returns { drawer, update(info), raise }; update writes the hand size and the Energy into the bar; raise is the createHandRaise
 // object that handRenderer feeds and main.js refreshes after every render.
 import { createPhoneDrawer } from './createPhoneDrawer.js';
@@ -16,6 +17,7 @@ import { bindPhoneFit } from './bindPhoneFit.js';
 import { createHandRaise } from './createHandRaise.js';
 import { renderRaiseDock } from './renderRaiseDock.js';
 import { bindRaiseDismiss } from './bindRaiseDismiss.js';
+import { bindRaisedSlotPlay } from './bindRaisedSlotPlay.js';
 import { blockCardMenu } from './blockCardMenu.js';
 import { showToast } from '../board/showToast.js';
 
@@ -52,6 +54,7 @@ export function initPhoneHand({ onLayoutChange, onRaise } = {}) {
 		else raise.cancel();
 	});
 	bindRaiseDismiss(raise);
+	bindRaisedSlotPlay(raise); // a tap on the gold slot plays too (65-07); every other slot stays inert and a tap on it cancels
 	blockCardMenu(document.querySelector('main.game-layout'));
 
 	bindDrawerSwipe(bar, { onUp: () => { if (bar.dataset.mode !== 'raise') drawer.open(); } });
