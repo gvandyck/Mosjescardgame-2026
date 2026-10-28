@@ -1,0 +1,101 @@
+/* phone-header.css - Phase 65-01 (D-07, D-15): the game page's top bar on a phone. Loaded after phone-base.css; everything sits
+   behind the one 700 px phone query, so the desktop header is untouched. The header is --phone-top tall (the 56 px bar plus the
+   notch inset): the top 44 px hold the turn label and the two icon buttons, the bottom 12 px hold the version caption, so nothing
+   overlaps. The buttons keep their text content ('How to Win 🏆', 'Battle Log': board-cutover.spec.js reads it): the words are
+   hidden with font-size 0, an icon is drawn with ::before, and the accessible name is the aria-label set in game.html. */
+
+@media (max-width: 700px) {
+	/* The legacy 768 px rule gives the bar a margin and a width; both go, the bar is edge to edge under the notch. */
+	.page--game .game-topbar {
+		box-sizing: border-box;
+		width: 100%;
+		height: var(--phone-top);
+		margin: 0;
+		padding: var(--safe-t) 8px 0;
+		gap: 6px;
+		align-items: flex-start;
+		overflow: visible;
+	}
+
+	/* Not needed on a phone: the title, the V4 flow slot and the room code (online play is Phase 67). */
+	.page--game .game-topbar h1,
+	.page--game .topbar-flow,
+	.page--game .topbar-room-code {
+		display: none;
+	}
+
+	/* The turn label takes the free width and wraps instead of cutting ("You • MAIN Phase", never "YOU • MA..."). */
+	.page--game #turn-label {
+		display: flex;
+		align-items: center;
+		flex: 1 1 auto;
+		min-width: 0;
+		height: 44px;
+		max-height: 44px;
+		overflow: visible;
+		white-space: normal;
+		text-overflow: clip;
+		font-size: 0.9rem;
+		line-height: 1.15;
+	}
+
+	/* How to Win and Battle Log: 44x44 icon buttons. */
+	.page--game .topbar-actions {
+		flex: 0 0 auto;
+		gap: 6px;
+		overflow: visible;
+	}
+	.page--game .topbar-actions button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex: 0 0 44px;
+		width: 44px;
+		min-width: 44px;
+		height: 44px;
+		padding: 0;
+		overflow: visible;
+		text-overflow: clip;
+		font-size: 0;
+		line-height: 0;
+	}
+	.page--game .topbar-actions button::before {
+		font-size: 22px;
+		line-height: 1;
+	}
+	.page--game #btn-toggle-win::before { content: '\1F3C6'; }   /* trophy */
+	.page--game #btn-toggle-log::before { content: '\1F4DC'; }   /* scroll */
+
+	/* The two popovers become sheets under the bar: full width with an 8 px margin, scrolling when long. */
+	.page--game .topbar-log-popover,
+	.page--game .topbar-win-popover {
+		position: fixed;
+		left: 8px;
+		right: 8px;
+		width: auto;
+		top: calc(var(--phone-top) + 4px);
+		max-height: calc(100dvh - var(--phone-top) - 16px);
+		overflow-y: auto;
+	}
+	.page--game #btn-copy-log {
+		min-height: 44px;
+	}
+
+	/* The version badge becomes a 9 px caption in the bottom 12 px of the bar: no pill, no taps (the old pill sat bottom right
+	   and, on the lobby, covered the Start button; the lobby badge is plan 10). */
+	.page--game .app-version-badge {
+		top: calc(var(--safe-t) + 45px);
+		left: 10px;
+		right: auto;
+		bottom: auto;
+		z-index: 121;
+		padding: 0;
+		border: 0;
+		border-radius: 0;
+		background: none;
+		font-size: 9px;
+		line-height: 1;
+		opacity: 0.7;
+		pointer-events: none;
+	}
+}
