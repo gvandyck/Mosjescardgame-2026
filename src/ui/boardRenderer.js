@@ -17,6 +17,7 @@ import { getTileBadges } from './board/getTileBadges.js';
 import { buildTileBadges } from './board/buildTileBadges.js';
 import { showToast } from './board/showToast.js';
 import { bindTileTap } from './board/bindTileTap.js';
+import { pickEndTurnHost } from './phone/pickEndTurnHost.js';
 
 const PIECIE_SLOTS = 3; // 2.0: 3 Piecie slots per player (mirrors tableRules)
 const MOSJE_SLOTS = 2; // 2.0: 2 Mosje slots per player
@@ -236,9 +237,9 @@ export function renderBoard(container, viewModel, onReturnToHand = null, onOpenD
 		fillSlotOutlines(container.querySelector(`#piecies-${side}`), 'piecie', PIECIE_SLOTS);
 	}
 
-	// End Turn lives in the middle strip now; the node (and its click listener) comes from main.js.
+	// End Turn lives in the middle strip (or, on a phone, in the bottom bar: pickEndTurnHost); the node (and its click listener) comes from main.js.
 	if (extras.endTurnButton) {
-		container.querySelector('#board-end-turn')?.appendChild(extras.endTurnButton);
+		pickEndTurnHost(container)?.appendChild(extras.endTurnButton);
 		if (endTurnHadFocus) extras.endTurnButton.focus({ preventScroll: true }); // re-parenting drops focus; keep it for keyboard play
 	}
 

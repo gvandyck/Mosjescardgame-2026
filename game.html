@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="styles/game-over-2-0.css" />
   <link rel="stylesheet" href="styles/phone-base.css" />
   <link rel="stylesheet" href="styles/phone-header.css" />
+  <link rel="stylesheet" href="styles/phone-hand.css" />
 </head>
 <body class="page page--game">
   <div class="bg-noise" aria-hidden="true"></div>
@@ -91,9 +92,26 @@
       <button id="btn-end-turn" class="btn-primary" type="button">End Turn</button>
     </section>
 
-    <section class="game-hand-panel">
+    <!-- Phase 65-03 (D-08): on a phone the hand is a drawer behind the bar below; styles/phone-hand.css and src/ui/phone/initPhoneHand.js
+         drive it. The bar, scrim and handle live INSIDE main.game-layout (a stacking context, z-index 1) on purpose: the hand panel
+         (z 45) and the "Place here" slot (z 47) are in it too, so the scrim (44) < panel (45) < bar (46) < marked slot (47) order holds. -->
+    <section class="game-hand-panel" id="phone-drawer">
+      <div class="phone-drawer__handle" aria-hidden="true"></div>
       <div id="hand-root" class="hand-strip"></div>
     </section>
+
+    <div id="phone-drawer-scrim" class="phone-drawer-scrim" hidden></div>
+
+    <div id="phone-bar" class="phone-bar" role="toolbar" aria-label="Hand and turn">
+      <button id="phone-hand-toggle" class="phone-bar__hand" type="button" aria-expanded="false" aria-controls="hand-root">
+        <span class="phone-bar__chevron" aria-hidden="true"></span>
+        <span class="phone-bar__label">Hand</span>
+        <span class="phone-bar__count" data-phone-hand-count>0</span>
+      </button>
+      <span class="phone-bar__energy" data-phone-energy role="status" aria-label="Energy">0/6</span>
+      <!-- End Turn: main.js keeps the node; boardRenderer (pickEndTurnHost) moves it in here on a phone. -->
+      <div id="phone-bar-end-turn" class="phone-bar__end-turn"></div>
+    </div>
   </main>
 
   <div id="modal-root" class="modal-root"></div>

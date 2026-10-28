@@ -10,6 +10,8 @@ import { createBoardController } from './ui/board/createBoardController.js';
 import { countActionsLeft } from './ui/board/countActionsLeft.js';
 import { confirmEndTurn } from './ui/board/confirmEndTurn.js';
 import { renderEndTurnButton } from './ui/board/renderEndTurnButton.js';
+import { initPhoneHand } from './ui/phone/initPhoneHand.js';
+import { ENERGY_MAX } from './engine/energy/energyRules.js';
 import { offerWestPeek } from './ui/actions/offerWestPeek.js';
 import { createLogRenderer } from './ui/logRenderer.js';
 import { renderHand } from './ui/handRenderer.js';
@@ -481,6 +483,9 @@ function initGamePage() {
 		console.log('[UI] Game containers missing — page not fully ready');
 		return;
 	}
+
+	// 65-03: the phone hand drawer + bottom bar; crossing the phone breakpoint re-renders so End Turn changes host.
+	const phoneHand = initPhoneHand({ onLayoutChange: () => { if (gameState) renderFromState(gameState); } });
 
 	if (logToggleBtn && logPopover) {
 		const setLogOpen = (open) => {
@@ -1435,6 +1440,8 @@ function initGamePage() {
 			localPlayerId,
 			state
 		);
+
+		phoneHand.update({ handCount: state.players[localPlayerId].hand.length, energy: state.players[localPlayerId].energy, max: ENERGY_MAX });
 
 		const onOpenDiscard = handleOpenDiscard;
 		const onPlayFromHand = (isLocalTurn && !gameOver) ? handlePlayCard : null;

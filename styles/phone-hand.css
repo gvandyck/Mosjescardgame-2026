@@ -1,0 +1,237 @@
+/* phone-hand.css - Phase 65-03 (MOB-02, D-08, D-09, D-15, D-18): on a phone the hand is a drawer behind a thin bottom bar (hand
+   count, Energy, End Turn). Loaded after phone-header.css; everything phone-only sits behind the one 700 px phone query, so the
+   desktop hand and the desktop middle strip are untouched. Stacking (all inside main.game-layout, z-index 1): scrim 44 < hand
+   panel 45 < bar 46 < the 64.1 "Place here" slot 47. styles/phone-base.css owns the tokens (--phone-top, --phone-bar-h,
+   --phone-bottom, --safe-b); src/ui/phone/initPhoneHand.js drives the state (panel[data-drawer] = open | closed).
+   Touch-action: the bar and the handle take only pinch-zoom (never `none`: phone-breakpoint.test.ts keeps pinch-zoom allowed), so a
+   one-finger vertical drag there is never a scroll or Chrome's pull-to-refresh (which would end the swipe with pointercancel) but
+   arrives as touch events for bindDrawerSwipe. The card strip pans sideways only. */
+
+/* The phone-only elements never show outside the phone layout. */
+.phone-bar,
+.phone-drawer-scrim,
+.phone-drawer__handle {
+	display: none;
+}
+
+@media (max-width: 700px) {
+	/* Hand cards: about 40 % of the screen wide, so two and a bit fit and the rest scroll sideways. The card face follows (its
+	   text is sized from the card width, --mosje-card-w-hand = --hand-card-width). */
+	.page--game {
+		--hand-card-width: clamp(140px, 40vw, 176px);
+	}
+
+	/* The board region ends exactly at the top of the bar: the hand no longer reserves any height of its own (--hand-peek is 0). */
+	.page--game .game-layout {
+		width: 100%;
+		margin: 0;
+		height: calc(100dvh - var(--phone-top) - var(--status-h) - var(--phone-bottom));
+	}
+	.page--game .game-board {
+		max-height: none;
+		height: 100%;
+	}
+
+	/* ── The bottom bar: Hand button · Energy · End Turn ─────────────────────────────────────────────────────────────── */
+	.page--game .phone-bar {
+		box-sizing: border-box;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		height: var(--phone-bottom);
+		padding: 0 8px var(--safe-b);
+		z-index: 46;
+		background: linear-gradient(180deg, rgba(22, 22, 28, 0.97), rgba(8, 8, 10, 0.99));
+		border-top: 1px solid rgba(255, 255, 255, 0.14);
+		touch-action: pinch-zoom;
+	}
+	.page--game .phone-bar__hand {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		flex: 1 1 auto;
+		min-width: 0;
+		min-height: 44px;
+		height: 48px;
+		padding: 0 12px;
+		border: 1px solid rgba(255, 255, 255, 0.2);
+		border-radius: 12px;
+		background: rgba(255, 255, 255, 0.07);
+		color: #f2f2f2;
+		font: 700 15px/1 var(--font-ui, 'DM Sans', sans-serif);
+		cursor: pointer;
+	}
+	.page--game .phone-bar__label {
+		flex: 1 1 auto;
+		text-align: left;
+	}
+	.page--game .phone-bar__count {
+		min-width: 24px;
+		padding: 4px 8px;
+		border-radius: 999px;
+		background: var(--mosje-gold, #E8B94F);
+		color: #111;
+		font-weight: 800;
+		text-align: center;
+	}
+	/* A chevron drawn with borders: points up while the drawer is closed ("pull up"), down while it is open. */
+	.page--game .phone-bar__chevron {
+		width: 9px;
+		height: 9px;
+		margin: 3px 2px 0 4px;
+		border-top: 2px solid currentColor;
+		border-left: 2px solid currentColor;
+		transform: rotate(45deg);
+		transition: transform 200ms ease;
+	}
+	.page--game .phone-bar__hand[aria-expanded="true"] .phone-bar__chevron {
+		margin-top: -3px;
+		transform: rotate(225deg);
+	}
+	.page--game .phone-bar__energy {
+		flex: 0 0 auto;
+		color: var(--energy, #7DD3FC);
+		font: 800 16px/1 var(--font-ui, 'DM Sans', sans-serif);
+		white-space: nowrap;
+	}
+	.page--game .phone-bar__energy::before {
+		content: '\25C6';
+		margin-right: 4px;
+		font-size: 13px;
+	}
+	.page--game .phone-bar__end-turn {
+		display: flex;
+		align-items: center;
+		flex: 0 0 auto;
+	}
+	/* End Turn in the bar: the 160x56 desktop size would crowd the Hand button, this is the 44 px phone size (D-09, D-15). */
+	.page--game .phone-bar #btn-end-turn {
+		min-width: 108px;
+		min-height: 44px;
+		height: 48px;
+		padding: 0 12px;
+		font-size: 14px;
+		letter-spacing: 0.05em;
+	}
+	.page--game .phone-bar #btn-end-turn .end-turn__hint {
+		font-size: 10px;
+	}
+	/* The middle strip's End Turn column is empty on the phone (plan 05 lays the strip out). */
+	.page--game .game-board .board-end-turn {
+		display: none;
+	}
+
+	/* ── The drawer: the hand panel slides up from behind the bar ────────────────────────────────────────────────────── */
+	.page--game .game-hand-panel {
+		box-sizing: border-box;
+		left: 0;
+		right: 0;
+		bottom: var(--phone-bottom);
+		z-index: 45;
+		max-height: calc(100dvh - var(--phone-top) - var(--status-h) - var(--phone-bottom) - 16px);
+		padding: 0 0 8px;
+		border-radius: 16px 16px 0 0;
+		background: linear-gradient(180deg, rgba(26, 26, 32, 0.98), rgba(12, 12, 16, 0.99));
+		border-top: 1px solid rgba(255, 255, 255, 0.16);
+		box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.45);
+		transition: transform 220ms ease, visibility 0s linear 0s;
+	}
+	/* Closed (also before the script has run): off the bottom, invisible, inert. visibility waits for the slide to end. */
+	.page--game .game-hand-panel:not([data-drawer="open"]) {
+		transform: translateY(calc(100% + var(--phone-bottom) + 8px));
+		visibility: hidden;
+		pointer-events: none;
+		transition: transform 220ms ease, visibility 0s linear 220ms;
+	}
+	.page--game .game-hand-panel[data-drawer="open"] {
+		transform: none;
+		visibility: visible;
+		pointer-events: auto;
+	}
+	.page--game .phone-drawer__handle {
+		display: block;
+		position: relative;
+		height: 28px;
+		touch-action: pinch-zoom;
+	}
+	.page--game .phone-drawer__handle::before {
+		content: '';
+		position: absolute;
+		left: 50%;
+		top: 12px;
+		width: 36px;
+		height: 4px;
+		margin-left: -18px;
+		border-radius: 2px;
+		background: rgba(255, 255, 255, 0.35);
+	}
+	/* The board scrim: dims the table while the drawer is open and swallows the tap that closes it (the click goes to the scrim,
+	   never to a tile). It stops at the bar, which stays usable. */
+	.page--game .phone-drawer-scrim {
+		position: fixed;
+		left: 0;
+		right: 0;
+		top: 0;
+		bottom: var(--phone-bottom);
+		z-index: 44;
+		background: rgba(0, 0, 0, 0.25);
+		touch-action: manipulation;
+	}
+	.page--game .game-hand-panel[data-drawer="open"] ~ .phone-drawer-scrim:not([hidden]) {
+		display: block;
+	}
+
+	/* ── The hand strip: one sideways row, 16 px side padding so the first and last card stay clear of the Android edge-swipe
+	   Back zone. justify-content "safe center" centres a short hand and starts a long one at the left edge (never clipped). ── */
+	.page--game .game-hand-panel .hand-strip {
+		display: flex;
+		align-items: flex-end;
+		justify-content: flex-start;
+		justify-content: safe center;
+		gap: 10px;
+		padding: 6px 16px 14px;
+		overflow-x: auto;
+		overflow-y: hidden;
+		scroll-snap-type: x proximity;
+		touch-action: pan-x;
+		overscroll-behavior-x: contain;
+		scrollbar-width: none;
+		pointer-events: auto !important;
+	}
+	.page--game .game-hand-panel .hand-strip::-webkit-scrollbar {
+		display: none;
+	}
+	/* The desktop fan, hover lift and sink (cards.css, card-v1.css, arena.css) also match a narrow desktop window: neutralise them
+	   here, hover and nudge included. Cards sit flat in a row. */
+	.page--game .game-hand-panel .hand-strip .hand-card-wrap,
+	.page--game .game-hand-panel .hand-strip .hand-card-wrap:hover,
+	.page--game .game-hand-panel .hand-strip .hand-card-wrap:focus-within,
+	.page--game .game-hand-panel .hand-strip .hand-card-wrap.nudge-left,
+	.page--game .game-hand-panel .hand-strip .hand-card-wrap.nudge-right {
+		flex: 0 0 auto;
+		scroll-snap-align: center;
+		margin: 0 !important;
+		transform: none !important;
+		transition: none;
+		will-change: auto;
+		z-index: auto;
+	}
+	.page--game .game-hand-panel .hand-strip .hand-card-wrap::before {
+		display: none;
+	}
+	.page--game .game-hand-panel .hand-strip .hand-card-wrap .card:hover {
+		transform: none !important;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.page--game .game-hand-panel,
+		.page--game .game-hand-panel:not([data-drawer="open"]),
+		.page--game .phone-bar__chevron {
+			transition: none;
+		}
+	}
+}

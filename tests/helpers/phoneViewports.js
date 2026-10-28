@@ -7,6 +7,10 @@ export const PHONE_VIEWPORTS = [
 	{ name: '360x740', width: 360, height: 740 },
 ];
 
+/** Gandalf's Pixel 8 Pro (Android Chrome): 395x880 full screen, about 395x731 visible with the address bar and the 3-button nav
+ *  bar (measured 2026-10-28). Geometry specs run it next to PHONE_VIEWPORTS: `[...PHONE_VIEWPORTS, PIXEL_VIEWPORT]`. */
+export const PIXEL_VIEWPORT = { name: '395x731', width: 395, height: 731 };
+
 /** The test.use() options of a touch phone at this viewport: isMobile + hasTouch, so (pointer: coarse) and (hover: none) hold. */
 export function phoneUse(vp) {
 	return {
