@@ -2,8 +2,10 @@
  * phone-hand-drawer.spec.js - Phase 65-03 (MOB-02, MOB-04; D-08, D-09, D-15, D-18, D-19 c): on a touch phone the hand is a
  * drawer behind a thin bottom bar (hand count, Energy, End Turn), closed by default so no card covers your row. It opens by a tap
  * on the Hand button and by a real touch swipe up on the bar (CDP touch events, tests/helpers/phoneSwipe.js); it closes by a tap on
- * the button, a swipe down on the handle, a tap on the board scrim (which must not reach the board) or Esc. A Chrome pointer /
- * touch cancel mid-swipe changes nothing. Every hand card is reachable by a sideways swipe. End Turn lives in the bar (>= 44x44,
+ * the button, a swipe down on the handle, a tap on the board scrim (which must not reach the board) or Esc. A touchcancel mid-swipe
+ * changes nothing; a pointercancel mid-swipe does NOT end it (65-03b: real Android Chrome sends one ~15 ms into every drag, then keeps
+ * delivering touchmoves and a touchend, so that swipe still opens / closes the drawer). Every hand card is reachable by a sideways
+ * swipe. End Turn lives in the bar (>= 44x44,
  * confirm and "N actions left" kept) and goes back to the middle strip on a wide window; the desktop shows no bar at all.
  * Runs at 390x844, 360x740 and the Pixel 8 Pro visible size 395x731 (Gandalf's phone). Emulation proves the layout, the taps and
  * the synthetic swipes; swipe feel, momentum and the Android gesture bar are Gandalf's phone (65-HUMAN-UAT.md).
@@ -127,7 +129,7 @@ for (const vp of VIEWPORTS) {
 
 		test('(d) a touch swipe up on the bar opens, a swipe down on the handle closes; short, sideways and cancelled drags do nothing', async ({ page }) => {
 			const bar = centre(await rectOf(page, '#phone-bar'));
-			// too short, mostly sideways, and cancelled mid-swipe (Chrome pointercancel / touchcancel): the drawer stays closed
+			// too short, mostly sideways, and cancelled mid-swipe (touchcancel; a pointercancel is NOT a cancel, see (i)): the drawer stays closed
 			await swipe(page, { from: bar, to: { x: bar.x, y: bar.y - 20 } });
 			await expectClosed(page, 'after a 20 px drag up');
 			await swipe(page, { from: { x: bar.x - 50, y: bar.y }, to: { x: bar.x + 50, y: bar.y - 60 } });
@@ -156,6 +158,51 @@ for (const vp of VIEWPORTS) {
 			const card = centre(await rectOf(page, '.hand-card-wrap'));
 			await swipe(page, { from: card, to: { x: card.x, y: card.y + 100 } });
 			await expectClosed(page, 'after a swipe down that starts on a hand card');
+		});
+
+		test('(i) the real Android Chrome swipe: a pointercancel arrives mid-drag, the touch events carry on, the touchend opens / closes the drawer', async ({ page }) => {
+			// Measured on Gandalf's Pixel 8 Pro: pointerdown, touchstart, pointermove, touchmove, pointercancel ~15 ms after the first
+			// move, ~30 more touchmoves, then a touchend at the final position (no touchcancel). Only touchcancel really cancels.
+			await page.evaluate(() => {
+				window.__pointerCancels = 0;
+				for (const sel of ['#phone-bar', '.phone-drawer__handle']) {
+					document.querySelector(sel).addEventListener('pointercancel', () => { window.__pointerCancels++; });
+				}
+			});
+			const firePointerCancel = (sel) => () => page.evaluate((s) => {
+				document.querySelector(s).dispatchEvent(new PointerEvent('pointercancel', { bubbles: true, cancelable: false, pointerType: 'touch', isPrimary: true }));
+			}, sel);
+
+			const bar = centre(await rectOf(page, '#phone-bar'));
+			await swipe(page, { from: bar, to: { x: bar.x, y: bar.y - 90 }, steps: 12, afterFirstMove: firePointerCancel('#phone-bar') });
+			expect(await page.evaluate(() => window.__pointerCancels), 'the pointercancel really reached the bar').toBe(1);
+			await expectOpen(page, 'after a swipe up on the bar that had a pointercancel mid-drag');
+
+			const handle = centre(await rectOf(page, '.phone-drawer__handle'));
+			await swipe(page, { from: handle, to: { x: handle.x, y: handle.y + 90 }, steps: 12, afterFirstMove: firePointerCancel('.phone-drawer__handle') });
+			expect(await page.evaluate(() => window.__pointerCancels), 'the pointercancel really reached the handle').toBe(2);
+			await expectClosed(page, 'after a swipe down on the handle that had a pointercancel mid-drag');
+
+			// the thresholds still hold under a pointercancel: a 20 px drag is no swipe
+			await swipe(page, { from: bar, to: { x: bar.x, y: bar.y - 20 }, steps: 12, afterFirstMove: firePointerCancel('#phone-bar') });
+			await expectClosed(page, 'after a 20 px drag up with a pointercancel');
+		});
+
+		test('(j) a touchcancel mid-gesture ends it without action: the drawer stays as it was (up on the bar, down on the handle)', async ({ page }) => {
+			const bar = centre(await rectOf(page, '#phone-bar'));
+			// the finger has already travelled 90 px up when the browser cancels the touch
+			await swipe(page, { from: bar, to: { x: bar.x, y: bar.y - 90 }, steps: 12, cancel: true });
+			await expectClosed(page, 'after a swipe up on the bar that ends in a touchcancel');
+			// a later short drag must not inherit the cancelled gesture's start point
+			await swipe(page, { from: bar, to: { x: bar.x, y: bar.y - 20 } });
+			await expectClosed(page, 'after a short drag following a touchcancel');
+
+			// reopened by swipe, not by tap: Chromium drops the click of a tap that follows a short synthetic drag (see (d))
+			await swipe(page, { from: bar, to: { x: bar.x, y: bar.y - 90 } });
+			await expectOpen(page, 'opened by a real swipe up');
+			const handle = centre(await rectOf(page, '.phone-drawer__handle'));
+			await swipe(page, { from: handle, to: { x: handle.x, y: handle.y + 90 }, steps: 12, cancel: true });
+			await expectOpen(page, 'after a swipe down on the handle that ends in a touchcancel');
 		});
 
 		test('Android: the bar and the handle take no browser gesture; the bar and the drawer clear the gesture-bar safe area', async ({ page }) => {

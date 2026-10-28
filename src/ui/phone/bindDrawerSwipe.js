@@ -1,9 +1,11 @@
 // bindDrawerSwipe.js — a one-finger vertical swipe on `el` (Phase 65-03, D-08). onUp() or onDown() fires ONCE, when the finger lifts
 // after travelling at least `minDistance` px vertically AND at least 1.5x as far vertically as sideways (so a sideways card swipe or
-// a diagonal slip is never a drawer swipe). A second finger, a touchcancel or a pointercancel (Chrome taking the gesture for a scroll
-// or pull-to-refresh) ends the gesture WITHOUT action, so the drawer is never left half-moved. Listeners are passive and never call
-// preventDefault: the page keeps scrolling and tapping normally (the CSS touch-action on the bar decides who owns the gesture).
-// Returns the unbind function.
+// a diagonal slip is never a drawer swipe). A second finger or a touchcancel ends the gesture WITHOUT action, so the drawer is never
+// left half-moved. A pointercancel is deliberately NOT listened to (65-03b, measured on a real Pixel 8 Pro): Chrome on Android sends
+// pointercancel about 15 ms into a drag when it takes the drag for a native pan, but it keeps delivering touchmove events and ends
+// with a touchend at the final position; only a touchcancel really cancels the touch. Treating pointercancel as a cancel discarded
+// every real swipe. Listeners are passive and never call preventDefault: the page keeps scrolling and tapping normally (the CSS
+// touch-action on the bar decides who owns the gesture). Returns the unbind function.
 export function bindDrawerSwipe(el, { onUp, onDown, minDistance = 48 } = {}) {
 	if (!el) return () => {};
 	let from = null;    // { x, y } where the one finger went down, or null when no countable gesture is running
@@ -40,12 +42,10 @@ export function bindDrawerSwipe(el, { onUp, onDown, minDistance = 48 } = {}) {
 	el.addEventListener('touchmove', onMove, opts);
 	el.addEventListener('touchend', onEnd, opts);
 	el.addEventListener('touchcancel', onCancel, opts);
-	el.addEventListener('pointercancel', onCancel, opts);
 	return () => {
 		el.removeEventListener('touchstart', onStart, opts);
 		el.removeEventListener('touchmove', onMove, opts);
 		el.removeEventListener('touchend', onEnd, opts);
 		el.removeEventListener('touchcancel', onCancel, opts);
-		el.removeEventListener('pointercancel', onCancel, opts);
 	};
 }
