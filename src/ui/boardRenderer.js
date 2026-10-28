@@ -18,6 +18,7 @@ import { buildTileBadges } from './board/buildTileBadges.js';
 import { showToast } from './board/showToast.js';
 import { bindTileTap } from './board/bindTileTap.js';
 import { pickEndTurnHost } from './phone/pickEndTurnHost.js';
+import { applyPhoneFit } from './phone/applyPhoneFit.js';
 
 const PIECIE_SLOTS = 3; // 2.0: 3 Piecie slots per player (mirrors tableRules)
 const MOSJE_SLOTS = 2; // 2.0: 2 Mosje slots per player
@@ -252,6 +253,8 @@ export function renderBoard(container, viewModel, onReturnToHand = null, onOpenD
 	markEnteringCards(container);
 	// board-2-0.css sizes every tile from --field-slots: 7 columns, or 8 while either Welloe pile has cards (D-13).
 	container.style.setProperty('--field-slots', String(getFieldSlots([viewModel.players.top, viewModel.players.bottom])));
+	// On a phone: shrink the opponent's side (then mine) until the whole table fits; elsewhere remove the scale variables (65-05).
+	applyPhoneFit(container);
 }
 
 function initBoardDropZones(container, onPlayFromHand) {

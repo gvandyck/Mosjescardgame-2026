@@ -1,0 +1,45 @@
+/* phone-middle.css - Phase 65-05 (MOB-01 second half; D-04, D-05, D-06): the middle strip of the phone table. Loaded after
+   phone-board.css, behind the ONE 700 px phone query (tests/ui/phone-breakpoint.test.ts), so the desktop strip is untouched. The 3
+   Quest tiles stand on their stacks in ONE line (stack count tab and live fail pips kept); the Place tile is centred under them; the
+   End Turn column is gone (End Turn lives in the bottom bar, plan 65-03). The Quest tiles use the board token of MY side
+   (--me-scale); the Place has its own token with --opp-scale, so it shrinks together with the opponent's side (D-05: the opponent
+   and the Place shrink first, down to 0.7). src/ui/phone/applyPhoneFit.js writes both scale variables. */
+
+@media (max-width: 700px) {
+	.page--game .game-board .board-middle {
+		box-sizing: border-box;
+		display: grid;
+		grid-template-columns: repeat(3, var(--field-tile-w));
+		grid-template-rows: auto auto;
+		column-gap: var(--phone-gap);
+		/* Room for the Quest stack edges and the "N left" tab (7 bu below the tile, 14 px high at the least) plus 2 px of air, so
+		   the tab never touches the Place tile under it. */
+		row-gap: calc(7 * var(--bu) + max(14 * var(--bu), 14px) + 2px);
+		justify-content: center;
+		align-items: start;
+		width: 100%;
+		min-height: 0;
+		margin: 4px 0;
+		padding: 0;
+	}
+	/* The 3 stacks become grid items of row 1. */
+	.page--game .game-board .board-middle .quest-stacks {
+		display: contents;
+	}
+	.page--game .game-board .board-middle .quest-stack {
+		grid-row: 1;
+	}
+	/* The Place: its own tile token (the opponent's scale), row 2, centred under the Quests. */
+	.page--game .game-board .board-middle .board-place {
+		--field-tile-w: calc((100cqw - 2 * var(--phone-gap)) / 3 * var(--opp-scale, 1));
+		--field-tile-h: calc(var(--field-tile-w) * 176 / 240);
+		--bu: calc(var(--field-tile-w) / 240);
+		grid-column: 1 / -1;
+		grid-row: 2;
+		justify-self: center;
+	}
+	/* End Turn is in the bottom bar. */
+	.page--game .game-board .board-middle .board-end-turn {
+		display: none;
+	}
+}

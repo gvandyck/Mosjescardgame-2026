@@ -15,8 +15,15 @@
 		--phone-pad: 12px;
 		padding-left: var(--phone-pad);
 		padding-right: var(--phone-pad);
+		/* The desktop's 18 px paint room under the bottom row is for the row scroll boxes that clip at their padding; the phone rows
+		   do not clip, and every pixel counts for the whole-table fit (65-05). 8 px still holds a tile shadow. */
+		padding-bottom: 8px;
 		overflow-x: hidden;
-		overflow-y: auto;                    /* a fallback only: plan 05 makes the table fit without it */
+		overflow-y: auto;                    /* the fallback when the table cannot fit even at its smallest (applyPhoneFit) */
+		scrollbar-width: none;               /* a classic scrollbar would narrow the board, change the tile token and make the fit unstable */
+	}
+	.page--game .game-board::-webkit-scrollbar {
+		display: none;
 	}
 	/* 100cqw is the board's CONTENT width (the container is the content box), so the horizontal padding is already out of it. */
 	.page--game .game-board > * {
@@ -28,20 +35,7 @@
 		--field-tile-w: calc((100cqw - 2 * var(--phone-gap)) / 3 * var(--opp-scale, 1));
 	}
 
-	/* ── INTERIM middle strip (65-04 only; plan 05 lays it out properly in styles/phone-middle.css, which loads after this sheet and
-	   wins): the board token now also shrinks the Quest and Place tiles, and the desktop 3-column strip (tile | 1fr | tile, with a
-	   crystal-column padding) would push the Quests past the right edge and keep #board-root scrolling sideways. Here the 3 Quests
-	   take one line at the tile width and the Place sits under them. ─────────────────────────────────────────────────────────── */
-	.page--game .game-board .board-middle {
-		grid-template-columns: repeat(3, var(--field-tile-w));
-		column-gap: var(--phone-gap);
-		justify-content: center;
-		width: 100%;
-		min-height: 0;
-		padding: 0 0 calc(21 * var(--bu)) 0;   /* room for the Quest stack edges and the "N left" tab */
-	}
-	.page--game .game-board .board-middle .quest-stacks { display: contents; }
-	.page--game .game-board .board-middle .board-place { grid-column: 1 / -1; grid-row: 2; justify-self: center; }
+	/* The middle strip (3 Quests in a line, the Place under them) is styles/phone-middle.css, loaded right after this sheet. */
 
 	/* ── Tiles: one size from the token, whatever the pointer ────────────────────────────────────────────────────────── */
 	.page--game .game-board .board-zone--player,

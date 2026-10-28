@@ -37,6 +37,14 @@ async function seedSides(page, opts = {}) {
 	}
 	await page.evaluate(() => window.__testHooks.rerender());
 	await page.waitForTimeout(400);
+	// Plan 65-05 now writes --opp-scale / --me-scale itself (at 395x731 the table is too tall at scale 1). This spec judges the two sides
+	// AT scale 1 (or sets a scale itself), so it pins both on the board, exactly as (c) and scaleOpponent below do. Assertions unchanged.
+	await page.evaluate(() => {
+		const board = document.getElementById('board-root');
+		board.style.setProperty('--opp-scale', '1');
+		board.style.setProperty('--me-scale', '1');
+	});
+	await page.waitForTimeout(150);
 }
 
 /** Both sides as readSide numbers. */
