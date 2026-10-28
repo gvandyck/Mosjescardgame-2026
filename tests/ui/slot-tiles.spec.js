@@ -19,6 +19,10 @@ const SHOT_DIR = 'tests/ui/screenshots/board-2-0';
 const FISSA = 'mosje_alyssa_fissa';
 const DONER = 'piecie_broodje_doner';
 const FILLER = 'piecie_kannetje_melk';
+const JENSEN = 'snelle_jensen'; // Snelle, cost 1, no play condition
+const BLENSEN = 'snelle_blensen'; // Snelle, cost 4, stays in its slot until the end of the turn (so its landing slot can be read)
+const BIJNA_WELLOE = 'snelle_bijna_welloe'; // Snelle, cost 0, "Only if one of your Mosjes has 10 MP or less"
+const SNELLE_HAND = [FISSA, FILLER, JENSEN, BLENSEN, BIJNA_WELLOE];
 
 const hint = (page) => page.locator('#board-root [data-place-here]');
 const wrapOf = (page, cardId) => page.locator(`.hand-card-wrap[data-card-id="${cardId}"]`).first();
@@ -32,8 +36,9 @@ async function away(page) {
  * Board with a free first Mosje slot (0) and a free second Piecie slot (1), 6 Energy. The hand is five cards: the fan puts
  * the Mosje card at the far left (its raised card covers Mosje slot 0) and the Piecie card in the middle (its raised card covers
  * Piecie slot 1), so the D-12 hit-test is not vacuous. The fillers are Piecies that nothing in this spec plays.
+ * `hand` overrides the five cards (the Snelle cases put their Snelle in the middle, where the Piecie card sits above).
  */
-async function seed(page, viewport) {
+async function seed(page, viewport, hand = [FISSA, FILLER, DONER, FILLER, FILLER]) {
 	await seedOfflineSession(page);
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
@@ -50,7 +55,7 @@ async function seed(page, viewport) {
 		window.__testHooks.setPiecieOnField('player_1', 2, null);
 	});
 	await clearEntryProtection(page);
-	await setHand(page, 'player_1', [FISSA, FILLER, DONER, FILLER, FILLER]);
+	await setHand(page, 'player_1', hand);
 	await setEnergy(page, 'player_1', 6);
 	await page.mouse.move(2, 2);
 	await page.waitForTimeout(700); // the hand re-fans and its transition settles
@@ -260,4 +265,109 @@ test('D-08/D-12: at 1920x950 the hint marks the right slot, stays inside the boa
 
 	expect(await hint(page).count()).toBe(0);
 	expect(await readPaintOverflow(page, '#board-root .board-slot--empty'), 'empty slots inside every clip at 1920x950').toEqual([]);
+});
+
+test('64.1-03 D-02/D-06/D-12: a raised or dragged Snelle marks the Piecie slot it will fill', async ({ page }) => {
+	test.setTimeout(120000);
+	await seed(page, { width: 1920, height: 1080 }, SNELLE_HAND);
+
+	// a. A raised Snelle marks the first free own Piecie slot (1) and nothing else, drawn over the raised card (D-12).
+	await raise(page, JENSEN);
+	await expect.poll(() => hint(page).count(), 'hint while the Snelle is raised').toBe(1);
+	expect(await hint(page).getAttribute('data-slot-kind')).toBe('piecie');
+	expect(await hint(page).getAttribute('data-slot-index')).toBe('1');
+	expect(await hint(page).evaluate((el) => !!el.closest('#piecies-player')), 'inside my Piecie row').toBe(true);
+	expect(await page.locator('[data-place-here-label]').count(), 'exactly one label').toBe(1);
+	expect(await page.locator('[data-place-here-label]').first().textContent()).toBe('Place here');
+	for (const other of ['#zone-player', '#zone-opponent', '#piecies-opponent']) {
+		expect(await page.locator(`${other} [data-place-here]`).count(), `no hint in ${other}`).toBe(0);
+	}
+	await page.waitForTimeout(400);
+	await expectLabelOnTop(page, 'Snelle case 1920x1080');
+	fs.mkdirSync(SHOT_DIR, { recursive: true });
+	await page.screenshot({ path: `${SHOT_DIR}/slot-place-here-snelle-1920x1080.png` });
+
+	// b. It clears when the pointer leaves.
+	await away(page);
+	expect(await hint(page).count(), 'hint cleared when the pointer leaves').toBe(0);
+	expect(await page.locator('[data-place-here-label]').count(), 'label cleared when the pointer leaves').toBe(0);
+
+	// c. Not hover-only: an HTML5 drag shows it with the pointer away, and dragend clears it.
+	const dt = await page.evaluateHandle(() => new DataTransfer());
+	await wrapOf(page, JENSEN).dispatchEvent('dragstart', { dataTransfer: dt });
+	await expect.poll(() => hint(page).count(), 'hint during a drag').toBe(1);
+	expect(await hint(page).getAttribute('data-slot-kind')).toBe('piecie');
+	expect(await hint(page).getAttribute('data-slot-index')).toBe('1');
+	await wrapOf(page, JENSEN).dispatchEvent('dragend', { dataTransfer: dt });
+	await expect.poll(() => hint(page).count(), 'hint cleared by dragend').toBe(0);
+
+	// d. It follows the engine's FIRST free slot: with slot 1 taken the hint moves to slot 2.
+	await page.evaluate((id) => window.__testHooks.setPiecieOnField('player_1', 1, id, { faceDown: true }), FILLER);
+	await page.waitForTimeout(500);
+	await raise(page, JENSEN);
+	await expect.poll(() => hint(page).count(), 'hint with slot 1 taken').toBe(1);
+	expect(await hint(page).getAttribute('data-slot-index'), 'the first free Piecie slot is now 2').toBe('2');
+	await away(page);
+
+	// e. No free Piecie slot (a Snelle needs one): no hint.
+	await page.evaluate((id) => window.__testHooks.setPiecieOnField('player_1', 2, id, { faceDown: true }), FILLER);
+	await page.waitForTimeout(500);
+	await raise(page, JENSEN);
+	await page.waitForTimeout(300);
+	expect(await hint(page).count(), 'a full Piecie row shows no hint for a Snelle').toBe(0);
+	await away(page);
+	await page.evaluate(() => {
+		window.__testHooks.setPiecieOnField('player_1', 1, null);
+		window.__testHooks.setPiecieOnField('player_1', 2, null);
+	});
+	await page.waitForTimeout(500);
+
+	// f. A Snelle that cannot be paid goes nowhere (Jensen costs 1).
+	await setEnergy(page, 'player_1', 0);
+	await raise(page, JENSEN);
+	await page.waitForTimeout(300);
+	expect(await hint(page).count(), 'a Snelle that costs more than the Energy pool shows no hint').toBe(0);
+	await away(page);
+	await setEnergy(page, 'player_1', 6);
+
+	// g. A Snelle whose "Only if" is not met would be refused by the engine, so it is not marked either.
+	await raise(page, BIJNA_WELLOE);
+	await page.waitForTimeout(300);
+	expect(await hint(page).count(), 'Bijna Welloe needs a Mosje at 10 MP or less: no hint at 50 MP').toBe(0);
+	await away(page);
+	await setMosjeOnField(page, 'player_1', 1, 'mosje_alyssa_bulldozer', { mp: 10 });
+	await page.waitForTimeout(500);
+	await raise(page, BIJNA_WELLOE);
+	await expect.poll(() => hint(page).count(), 'the same Snelle is marked once its condition holds').toBe(1);
+	expect(await hint(page).getAttribute('data-slot-kind')).toBe('piecie');
+	await away(page);
+	await setMosjeOnField(page, 'player_1', 1, 'mosje_alyssa_bulldozer', { mp: 50 });
+	await page.waitForTimeout(500);
+
+	// h. It lands where it said. Blensen! stays face-up in its slot until the end of the turn, so the slot can be read back.
+	await raise(page, BLENSEN);
+	await expect.poll(() => hint(page).count(), 'hint while Blensen! is raised').toBe(1);
+	const snelleIndex = Number(await hint(page).getAttribute('data-slot-index'));
+	expect(snelleIndex, 'the Snelle hint marks slot 1').toBe(1);
+	await playCardFromHand(page, BLENSEN);
+	await expect.poll(async () => (await getGameState(page)).players.player_1.piecieSlots[snelleIndex]?.cardId, 'engine: the Snelle sits in the marked slot').toBe(BLENSEN);
+	expect((await getGameState(page)).players.player_1.piecieSlots[snelleIndex].type).toBe('SNELLE_PIECIE');
+	await away(page);
+	expect(await hint(page).count(), 'nothing is marked after the play').toBe(0);
+	expect(await page.locator('[data-place-here-label]').count(), 'no label is left behind').toBe(0);
+});
+
+test('64.1-03 D-08/D-12: at 1920x950 a raised Snelle marks the Piecie slot and is drawn over the raised card', async ({ page }) => {
+	test.setTimeout(90000);
+	await seed(page, { width: 1920, height: 950 }, SNELLE_HAND);
+
+	await raise(page, JENSEN);
+	await expect.poll(() => hint(page).count(), 'hint while the Snelle is raised').toBe(1);
+	expect(await hint(page).getAttribute('data-slot-kind')).toBe('piecie');
+	expect(await hint(page).getAttribute('data-slot-index')).toBe('1');
+	await page.waitForTimeout(400);
+	await expectLabelOnTop(page, 'Snelle case 1920x950');
+	expect(await readPaintOverflow(page, '#board-root [data-place-here]'), 'hint glow inside every clip at 1920x950').toEqual([]);
+	await away(page);
+	expect(await hint(page).count()).toBe(0);
 });

@@ -2,10 +2,11 @@
 // Phase 64.1 (D-06): the slot the board marks is the slot the engine fills.
 import { describe, it, expect } from 'vitest';
 import { getNextFreeSlot } from '../../src/ui/board/getNextFreeSlot.js';
-import { playMosje, playPiecie } from '../../src/engine/turnManager.js';
+import { playMosje, playPiecie, playSnellie } from '../../src/engine/turnManager.js';
 import { createMosjeSlot } from '../../src/engine/mp/createMosjeSlot.js';
 import { MOSJES } from '../../src/data/mosjes.js';
 import { PIECIES } from '../../src/data/piecies.js';
+import { SNELLE_PIECIES } from '../../src/data/snellePiecies.js';
 import { makeEngineState } from '../helpers/makeEngineState.js';
 
 const X = createMosjeSlot(MOSJES.find((m) => m.id === 'mosje_gandoe_wizard'));
@@ -83,5 +84,41 @@ describe('getNextFreeSlot matches the real engine', () => {
 		const state = makeEngineState({ players: { player_1: { piecieSlots: [P, P, P], hand: [DONER] } } });
 		expect(getNextFreeSlot(state.players.player_1, 'piecie')).toBe(-1);
 		expect(playPiecie(state, 'player_1', DONER, DONER_DEF).success).toBe(false);
+	});
+});
+
+describe('getNextFreeSlot matches the real playSnellie (64.1-03)', () => {
+	// Blensen! stays face-up in its slot until the end of the turn, so the slot it filled can be read back
+	// (every other Snelle is discarded the moment it resolves).
+	const BLENSEN = { cardId: 'snelle_blensen', type: 'SNELLE_PIECIE' };
+	const BLENSEN_DEF = SNELLE_PIECIES.find((c) => c.id === 'snelle_blensen');
+	const layouts = [
+		['[null, null, null]', [null, null, null]],
+		['[P, null, null]', [P, null, null]],
+		['[null, P, null]', [null, P, null]],
+		['[P, P, null]', [P, P, null]],
+	];
+
+	it.each(layouts)('playSnellie fills the marked slot for %s', (_name, layout) => {
+		const state = makeEngineState({ players: { player_1: { piecieSlots: layout, hand: [BLENSEN] } } });
+		const expected = getNextFreeSlot(state.players.player_1, 'piecie');
+		const result = playSnellie(state, 'player_1', BLENSEN, BLENSEN_DEF);
+		expect(result.success).toBe(true);
+		expect(result.state.players.player_1.piecieSlots[expected].cardId).toBe('snelle_blensen');
+		expect(result.state.players.player_1.piecieSlots[expected].type).toBe('SNELLE_PIECIE');
+	});
+
+	it.each(layouts)('the same slot on the opponent turn for %s (a Snelle is not turn-bound)', (_name, layout) => {
+		const state = makeEngineState({ activePlayerId: 'player_2', players: { player_1: { piecieSlots: layout, hand: [BLENSEN] } } });
+		const expected = getNextFreeSlot(state.players.player_1, 'piecie');
+		const result = playSnellie(state, 'player_1', BLENSEN, BLENSEN_DEF);
+		expect(result.success).toBe(true);
+		expect(result.state.players.player_1.piecieSlots[expected].cardId).toBe('snelle_blensen');
+	});
+
+	it('a full Piecie row marks nothing and playSnellie refuses', () => {
+		const state = makeEngineState({ players: { player_1: { piecieSlots: [P, P, P], hand: [BLENSEN] } } });
+		expect(getNextFreeSlot(state.players.player_1, 'piecie')).toBe(-1);
+		expect(playSnellie(state, 'player_1', BLENSEN, BLENSEN_DEF).success).toBe(false);
 	});
 });
