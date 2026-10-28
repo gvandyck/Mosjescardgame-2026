@@ -56,7 +56,16 @@
 
 .game-board {
 	container-type: inline-size;         /* 100cqw below = the board's width */
-	--board-extra: 108px;                /* 2 names + stack edge + paddings between the 3 tile rows */
+	/* Paint room (Phase 64.1, D-03): the board clips at its own padding box and every row clips at its scroll padding, so
+	   whatever a tile paints outside its box (hover shadow 22 px, Level 3 hold glow 20 px, pile badge + shadow 16 px, the
+	   worst pile layer rect about 16 px) needs this much room inside both clips. One token feeds the board's bottom
+	   padding, the height budget and the row scroll padding. */
+	--paint-pad: 24px;
+	--board-pad-b: calc(var(--paint-pad) - 6px);   /* 6 px = the zone's own bottom padding (.board-zone below) */
+	padding-bottom: var(--board-pad-b);
+	/* 2 names + stack edge + paddings between the 3 tile rows, plus the paint room under the bottom row: the board is
+	   border-box, so its bottom padding is part of the height budget and the 3 rows still fit. */
+	--board-extra: calc(108px + var(--board-pad-b));
 	/* Height budget: 3 tile rows (opponent, Quests, mine) fit between the strip and the visible hand. */
 	--field-h-max: min(176px, calc((100vh - var(--topbar-h) - var(--status-h) - var(--hand-peek) - var(--board-extra)) / 3));
 }
@@ -76,8 +85,10 @@
 /* ── Zones and rows: always 2 Mosje + 3 Piecie slots, the same order in both rows ── */
 .game-board .board-zone { min-height: 0; margin-bottom: 0; padding: 6px 12px; gap: 4px; overflow: visible; }
 .game-board .board-zone__header { min-height: 22px; line-height: 1; }
-/* The row keeps its scroll padding for the tile shadows; the negative margins cancel it so the row is exactly tile high. */
-.game-board .board-zone__row { gap: 8px; align-items: flex-start; padding: 10px 28px 18px; margin: -10px -28px -18px; }
+/* The row is an overflow-x:auto scroll box, which also clips vertically at its padding box: its scroll padding is the paint
+   room above and below the tiles (shadows, hover lift, glows, pile badges). The negative margins cancel it so the row is
+   exactly tile high. */
+.game-board .board-zone__row { gap: 8px; align-items: flex-start; padding: var(--paint-pad) 28px var(--paint-pad); margin: calc(-1 * var(--paint-pad)) -28px calc(-1 * var(--paint-pad)); }
 .game-board .board-zone__slots,
 .game-board .board-zone__piecies { gap: 8px; padding: 0; flex-wrap: nowrap; max-width: none; justify-content: flex-start; min-height: var(--field-tile-h); }
 .game-board .pile-column { flex-direction: row; gap: 8px; align-self: flex-start; }
@@ -111,7 +122,9 @@
 }
 .game-board .board-place { width: var(--field-tile-w); height: var(--field-tile-h); }
 .game-board .board-middle .quest-stacks { display: flex; justify-content: center; align-items: flex-start; gap: calc(12 * var(--bu)); padding: 0; }
-.game-board .board-end-turn { align-self: center; justify-self: end; display: flex; flex-direction: column; align-items: stretch; }
+/* End Turn's .btn-primary halo (20 px at rest, 30 px on hover) was cut when the button sat flush 12 px from the board edge;
+   centred in its tile-wide column it clears the edge at every width. */
+.game-board .board-end-turn { align-self: center; justify-self: center; display: flex; flex-direction: column; align-items: stretch; }
 #btn-end-turn {
 	min-width: 160px;
 	min-height: 56px;
