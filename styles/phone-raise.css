@@ -1,0 +1,124 @@
+/* phone-raise.css - Phase 65-06 (MOB-03, D-10, D-12, D-15): the tap-raise dock. On a phone the first tap on a hand card RAISES it; the
+   bar then swaps its three controls (Hand, Energy, End Turn) for the dock: a tile thumbnail, the card name, one info line (the cost,
+   or the reason it cannot be played), and the Details, Play and cancel buttons, each at least 44 px. The dock lives in the same 60 px
+   bar, so the board never loses height and the gold "Place here" slot is never covered (the big face is the Details view, D-11).
+   src/ui/phone/renderRaiseDock.js sets #phone-bar[data-mode] and .hand-card-wrap[data-raised]. Loaded after phone-middle.css; the one
+   phone query keeps the desktop untouched. No animation, so there is nothing to switch off for reduced motion. */
+
+@media (max-width: 700px) {
+	.page--game .phone-bar__raise {
+		display: none;
+	}
+	/* Raise mode: cancel first to end the turn or open the hand again (the Hand button and End Turn are hidden). */
+	.page--game .phone-bar[data-mode="raise"] > :not(.phone-bar__raise) {
+		display: none;
+	}
+	.page--game .phone-bar[data-mode="raise"] .phone-bar__raise {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		width: 100%;
+		min-width: 0;
+	}
+
+	/* The thumbnail: a 240:176 field tile at 56 px wide, decoration only. */
+	.page--game .raise__thumb {
+		position: relative;
+		flex: 0 0 56px;
+		width: 56px;
+		height: 41px;
+		overflow: hidden;
+		border-radius: 6px;
+		pointer-events: none;
+	}
+	.page--game .raise__thumb .card {
+		--cv1-w: 56px;
+		--cv1-fh: 41px;
+		position: static;
+		margin: 0;
+	}
+
+	.page--game .raise__info {
+		display: flex;
+		flex: 1 1 auto;
+		flex-direction: column;
+		gap: 2px;
+		min-width: 0;
+	}
+	.page--game .raise__name {
+		overflow: hidden;
+		color: #f2f2f2;
+		font: 700 13px/1.2 var(--font-ui, 'DM Sans', sans-serif);
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	/* Up to two lines; a longer reason is read in full from the toast a tap on a disabled Play shows. */
+	.page--game .raise__line {
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		overflow: hidden;
+		color: rgba(242, 242, 242, 0.78);
+		font: 500 11px/1.15 var(--font-ui, 'DM Sans', sans-serif);
+	}
+
+	.page--game .raise__btn {
+		box-sizing: border-box;
+		position: relative;
+		flex: 0 0 auto;
+		min-width: 60px;
+		min-height: 44px;
+		height: 48px;
+		padding: 0 8px;
+		border: 1px solid rgba(255, 255, 255, 0.2);
+		border-radius: 12px;
+		background: rgba(255, 255, 255, 0.07);
+		color: #f2f2f2;
+		font: 700 13px/1 var(--font-ui, 'DM Sans', sans-serif);
+		cursor: pointer;
+	}
+	/* Play: the gold accent. Disabled stays tappable on purpose: the tap says why (a toast). */
+	.page--game .raise__btn--play {
+		border-color: var(--mosje-gold, #E8B94F);
+		background: var(--mosje-gold, #E8B94F);
+		color: #111;
+		font-weight: 800;
+	}
+	.page--game .raise__btn--play[aria-disabled="true"] {
+		opacity: 0.5;
+	}
+	/* Cancel: a 44 x 44 cross drawn with two bars. */
+	.page--game .raise__btn--cancel {
+		width: 44px;
+		min-width: 44px;
+		padding: 0;
+	}
+	.page--game .raise__btn--cancel::before,
+	.page--game .raise__btn--cancel::after {
+		content: '';
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		width: 18px;
+		height: 2px;
+		margin: -1px 0 0 -9px;
+		background: currentColor;
+		transform: rotate(45deg);
+	}
+	.page--game .raise__btn--cancel::after {
+		transform: rotate(-45deg);
+	}
+
+	/* The raised card in the (closed) drawer. */
+	.page--game .game-hand-panel .hand-strip .hand-card-wrap[data-raised] {
+		outline: 3px solid var(--mosje-gold, #E8B94F);
+		outline-offset: -1px;
+		border-radius: 12px;
+	}
+
+	/* No long-press image menu or drag preview on a card picture (blockCardMenu also stops the contextmenu event). */
+	.page--game .game-hand-panel img,
+	.page--game .game-board img {
+		-webkit-user-drag: none;
+	}
+}

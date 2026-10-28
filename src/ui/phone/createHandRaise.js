@@ -30,6 +30,7 @@ export function createHandRaise({ effects = {} } = {}) {
 	}
 
 	function toggle(cardId) {
+		if (cardId === undefined || cardId === null) return; // a hand entry without a card id (unknown card) cannot be raised
 		if (cardId === raisedId) { cancel(); return; }
 		const view = viewOf(cardId);
 		if (!view) return; // not in the hand: ignore

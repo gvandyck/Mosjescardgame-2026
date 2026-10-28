@@ -485,7 +485,8 @@ function initGamePage() {
 	}
 
 	// 65-03: the phone hand drawer + bottom bar; crossing the phone breakpoint re-renders so End Turn changes host.
-	const phoneHand = initPhoneHand({ onLayoutChange: () => { if (gameState) renderFromState(gameState); } });
+	// 65-06: raising a hand card cancels a selected field card (boardController is created further down; it exists by the first tap).
+	const phoneHand = initPhoneHand({ onLayoutChange: () => { if (gameState) renderFromState(gameState); }, onRaise: () => boardController.cancel() });
 
 	if (logToggleBtn && logPopover) {
 		const setLogOpen = (open) => {
@@ -1438,7 +1439,8 @@ function initGamePage() {
 			isLocalTurn,
 			state.activeQuest,
 			localPlayerId,
-			state
+			state,
+			phoneHand.raise
 		);
 
 		phoneHand.update({ handCount: state.players[localPlayerId].hand.length, energy: state.players[localPlayerId].energy, max: ENERGY_MAX });
@@ -1448,6 +1450,7 @@ function initGamePage() {
 		// 63-06: Ability and Activate live only in the action tray (the board controller calls handleUseAbility / handleActivatePiecie).
 		renderBoard(boardRoot, uiState, null, onOpenDiscard, onPlayFromHand, { endTurnButton, onTileTap: boardController.onTileTap, onQuestTap: boardController.onQuestTap });
 		boardController.afterRender(); // redraw the selection / tray / target marks on the fresh tiles
+		phoneHand.raise.refresh(); // phone: put the raised card's "Place here" and Energy preview back on the fresh slots and crystals
 		showNewReveals(state, localPlayerId, modal, CARD_LOOKUP, revealSeen); // reveal modal: local viewer's entries only
 		if (state._lastPlaceEffect?.placeName) {
 			showPlaceEffectBanner(state._lastPlaceEffect.placeName, state._lastPlaceEffect.description, state._lastPlaceEffect.phase);

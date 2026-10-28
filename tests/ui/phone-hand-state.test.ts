@@ -174,6 +174,8 @@ describe('createHandRaise (state machine, no DOM)', () => {
 	it('an id that is not in the hand is ignored', () => {
 		const { raise, log } = setup();
 		raise.toggle('not_in_hand');
+		raise.toggle(undefined); // a hand entry of an unknown card has no cardId
+		raise.toggle(null);
 		expect(raise.current()).toBe(null);
 		expect(log).toEqual([]);
 	});

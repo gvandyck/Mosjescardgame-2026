@@ -13,6 +13,7 @@ import { bindSlotHint } from './board/bindSlotHint.js';
 import { showToast } from './board/showToast.js';
 import { COOLDOWN_TEXT } from './board/cooldownText.js';
 import { isCooldownBlocked } from '../engine/turn/isCooldownBlocked.js';
+import { isPhoneLayout } from './phone/isPhoneLayout.js';
 
 console.log('[UI] handRenderer.js loaded');
 
@@ -38,10 +39,18 @@ function showCardPreview(card) {
 
 // onPlay(cardId, cardType) — optional callback when a playable card is clicked.
 // isLocalTurn — when false, regular cards are dimmed; Snelle Piecies stay active.
-export function renderHand(container, cards, onPlay = null, isLocalTurn = true, activeQuest = null, localPlayerId = null, gameState = null) {
+// phoneRaise — optional (Phase 65-06): the phone's createHandRaise object. On a phone layout a tap RAISES a card (Play and Details
+// are buttons in the bottom bar) instead of playing it; hover, the slot hint, the Energy preview and drag are desktop-only.
+export function renderHand(container, cards, onPlay = null, isLocalTurn = true, activeQuest = null, localPlayerId = null, gameState = null, phoneRaise = null) {
 	if (!container) return;
 	console.log('[UI] Rendering hand with', cards.length, 'cards');
 	container.innerHTML = '';
+
+	const touchRaise = !!phoneRaise && isPhoneLayout();
+	if (touchRaise) {
+		// The raise reads the CURRENT hand and state; main.js refreshes it after the board has rendered (the slots are rebuilt then).
+		phoneRaise.configure({ onPlay, onDetails: (card) => showCardPreview(card), getContext: () => ({ state: gameState, localPlayerId, isLocalTurn, cards }) });
+	}
 
 	const questActive = !!activeQuest;
 	const questByOpponent = questActive && activeQuest.attacker && activeQuest.attacker !== localPlayerId;
@@ -86,6 +95,7 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 
 		cardEl.classList.add('card--previewable');
 		cardEl.addEventListener('click', (e) => {
+			if (touchRaise) { phoneRaise.toggle(card.cardId); return; } // phone: the first tap raises, it never plays
 			if (e.target.closest('button')) return;
 			if (cooldownBlocked) { showToast(COOLDOWN_TEXT); return; }
 			// Card frame v1: the Play button is hidden; clicking a playable card plays it.
@@ -184,6 +194,7 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 	markEnteringCards(container);
 
 	handCards.forEach((cardEl, index) => {
+		if (touchRaise) return; // phone: no hover preview, slot hint or nudge (their compat mouse events would fight the raise)
 		attachEnergyPreview(cardEl, cards[index], gameState, localPlayerId);
 		bindSlotHint(cardEl, cards[index], gameState, localPlayerId);
 		cardEl.addEventListener('mouseenter', () => {
@@ -204,7 +215,7 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 		});
 	});
 
-	initHandDragDrop(container);
+	if (!touchRaise) initHandDragDrop(container); // phone: no drag (a long press would start the browser's drag / image menu)
 }
 
 /** D-12: hovering or focusing a playable hand card dims the Energy crystals it would spend ("4/6 → 1/6"). */

@@ -25,6 +25,7 @@
   <link rel="stylesheet" href="styles/phone-hand.css" />
   <link rel="stylesheet" href="styles/phone-board.css" />
   <link rel="stylesheet" href="styles/phone-middle.css" />
+  <link rel="stylesheet" href="styles/phone-raise.css" />
 </head>
 <body class="page page--game">
   <div class="bg-noise" aria-hidden="true"></div>
@@ -113,6 +114,9 @@
       <span class="phone-bar__energy" data-phone-energy role="status" aria-label="Energy">0/6</span>
       <!-- End Turn: main.js keeps the node; boardRenderer (pickEndTurnHost) moves it in here on a phone. -->
       <div id="phone-bar-end-turn" class="phone-bar__end-turn"></div>
+      <!-- Phase 65-06 (D-10): the raised hand card (name, cost or reason, Details, Play, cancel); src/ui/phone/renderRaiseDock.js fills it
+           and switches the bar to data-mode="raise", which hides the three controls above. -->
+      <div class="phone-bar__raise" data-raise-dock role="group" aria-label="Raised card"></div>
     </div>
   </main>
 
