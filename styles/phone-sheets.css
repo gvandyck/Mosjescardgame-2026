@@ -1,0 +1,143 @@
+/* phone-sheets.css - Phase 65-08 (MOB-05, D-12, D-14, D-15): on a phone EVERY prompt and picker that modalManager builds (draw step,
+   reactions, End Turn confirm, cost / dice / target pickers, roll results, lists, info, confirm, text input) is a bottom sheet:
+   full width on the bottom edge, at most 78 % of the screen tall, safe-area padding, the board visible above under a light
+   backdrop. The card detail view stays a big CENTRED card sized to the phone, with a Close you can reach by thumb. The generic
+   sheet is a superset of the reaction sheet in board-actions.css (which stays untouched). Presentation only: modalManager.js is
+   not edited and the desktop modals are not touched (everything is inside the one phone query). Loaded last on game.html and
+   index.html (index.html opens modals too). */
+
+@media (max-width: 700px) {
+	/* The board stays visible above a sheet: a light backdrop and no blur (D-14). */
+	.modal-root--open .modal-backdrop,
+	.modal-root--open .modal-overlay {
+		background: rgba(0, 0, 0, 0.35);
+		backdrop-filter: none;
+		-webkit-backdrop-filter: none;
+	}
+
+	/* ── The generic sheet: every .modal-card except the detail view ─────────────────────────────────────────────────────── */
+	.modal-root--open .modal-card:not(.card-detail) {
+		box-sizing: border-box;
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		width: 100%;
+		max-width: none;
+		margin: 0;
+		max-height: min(78dvh, calc(100dvh - 56px));
+		overflow-x: hidden;
+		overflow-y: auto;
+		overscroll-behavior: contain;
+		border-radius: 16px 16px 0 0;
+		padding: 18px 16px max(16px, env(safe-area-inset-bottom));
+		animation: phone-sheet-up 220ms ease-out;
+	}
+	@keyframes phone-sheet-up {
+		from { transform: translateY(100%); }
+		to { transform: translateY(0); }
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.modal-root--open .modal-card:not(.card-detail) { animation: none; }
+	}
+	/* The dice win flash and loss shake use the same animation property: put them back (a loss shake is a sideways move). */
+	.modal-root--open .modal-card.dice-modal--win { animation: dice-winflash 0.6s ease; }
+	.modal-root--open .modal-card.dice-modal--lose { animation: dice-shake 0.5s cubic-bezier(.36, .07, .19, .97); }
+	/* The reaction sheet keeps its roomier padding from board-actions.css. */
+	.modal-root--open .modal-card.modal-card--reaction { padding: 20px 20px max(20px, env(safe-area-inset-bottom)); }
+
+	/* The corner shade is for the centred card; a small grab pill sits on top of a sheet instead (decoration only). */
+	.modal-root--open .modal-card:not(.card-detail)::after { display: none; }
+	.modal-root--open .modal-card:not(.card-detail)::before {
+		content: '';
+		justify-self: center;
+		width: 40px;
+		height: 4px;
+		margin: -8px 0 0;
+		border-radius: 2px;
+		background: rgba(255, 255, 255, 0.28);
+		pointer-events: none;
+	}
+
+	/* Every control inside a sheet is at least 44 px (D-15): rows 48-52, buttons 48, the field 48, the close cross 44. */
+	.modal-root--open .modal-card:not(.card-detail) .modal-btn { height: auto; min-height: 48px; font-size: 0.9rem; letter-spacing: 0.04em; }
+	.modal-root--open .modal-card:not(.card-detail):not(.modal-card--reaction) .modal-mosje-select-btn { min-height: 52px; flex-wrap: wrap; text-align: left; }
+	.modal-root--open .modal-card:not(.card-detail) .mosje-select-mp { min-width: 0; max-width: 100%; white-space: normal; border-radius: 10px; }
+	.modal-root--open .modal-card:not(.card-detail) .modal-card-option { min-height: 48px; }
+	.modal-root--open .modal-card:not(.card-detail) .target-option { min-height: 52px; min-width: 0; }
+	.modal-root--open .modal-card:not(.card-detail) .modal-input { box-sizing: border-box; min-height: 48px; font-size: 1rem; }
+	.modal-root--open .modal-card:not(.card-detail) .modal-close { width: 44px; height: 44px; }
+	.modal-root--open .modal-card:not(.card-detail) .modal-actions .modal-btn { flex: 1; }
+	.modal-root--open .modal-card:not(.card-detail) .modal-card-list,
+	.modal-root--open .modal-card:not(.card-detail) .recovery-card-list { max-height: min(40dvh, 320px); overscroll-behavior: contain; }
+	.modal-root--open .modal-card:not(.card-detail) .recovery-card-option { padding: 0 12px; }
+	.modal-root--open .modal-card:not(.card-detail) .recovery-card-option input[type="checkbox"] { width: 22px; height: 22px; }
+	.modal-root--open .modal-card:not(.card-detail) .recovery-card-option label { display: flex; align-items: center; min-height: 48px; }
+
+	/* The roll sheet: the stage is compact so the result and Continue fit the sheet (the die is hidden until the roll). */
+	.modal-root--open .dice-modal .dice-head { gap: 6px; padding-bottom: 10px; margin-bottom: 8px; }
+	.modal-root--open .dice-modal .dice-body { min-height: 0; gap: 8px; }
+	.modal-root--open .dice-modal .dice-die { width: 64px; height: 64px; }
+	.modal-root--open .dice-modal .die-grid { width: 46px; height: 46px; gap: 4px; }
+	.modal-root--open .dice-modal .dice-result { padding: 8px 14px; }
+	.modal-root--open .dice-modal .dice-actions { margin-top: 8px; flex-wrap: wrap; }
+	.modal-root--open .dice-modal .dice-actions .modal-btn { flex: 1 1 auto; }
+
+	/* The Quest attempt sheet (the 2-column desktop card): one column, the Mosje picture small and centred above the text. */
+	.modal-root--open .modal-card.modal-card--mosje-detail { grid-template-columns: 1fr; align-items: start; gap: 8px; }
+	.modal-root--open .modal-card--mosje-detail .modal-mosje-preview { zoom: 0.5; position: static; display: flex; justify-content: center; }
+
+	/* ── The detail view: a big CENTRED card sized to the phone, never a sheet (D-14) ─────────────────────────────────────── */
+	/* It leaves at least a 36 px strip of backdrop above and below (a tap there closes it, the same closePreview handler as Close),
+	   and scrolls inside itself when the text is long. */
+	.modal-root--open .modal-card.card-detail {
+		box-sizing: border-box;
+		position: absolute;
+		inset: 0;
+		margin: auto;
+		width: min(94vw, 420px);
+		max-width: none;
+		height: fit-content;
+		max-height: calc(100dvh - 72px - env(safe-area-inset-top, 0px));
+		overflow-x: hidden;
+		overflow-y: auto;
+		overscroll-behavior: contain;
+		grid-template-columns: 1fr;
+		justify-items: center;
+		align-items: start;
+		gap: 12px;
+		padding: 14px;
+	}
+	/* The face follows the phone token: 72 % of the screen width, at most 300 px (>= 60 % of a 360 px screen). */
+	.modal-root--open .card-detail .cd-preview .card.card-v1--full { --cv1-w: min(72vw, 300px); }
+	.modal-root--open .card-detail .cd-info { width: 100%; min-height: 0; }
+	/* Close stays pinned to the bottom of the dialog while the text scrolls, so a thumb always reaches it. */
+	.modal-root--open .card-detail .cd-close {
+		position: sticky;
+		bottom: 8px;
+		z-index: 2;
+		height: auto;
+		min-height: 48px;
+		font-size: 0.95rem;
+		background: #263052;
+		border-color: rgba(255, 255, 255, 0.22);
+		box-shadow: 0 -10px 14px #0a1020;
+	}
+
+	/* ── Hover popup and action spotlight ─────────────────────────────────────────────────────────────────────────────── */
+	/* Nothing hover-only (D-12): Details is a button, so the dock popup is not needed (a narrow desktop window gets it hidden too). */
+	.hover-zoom { display: none; }
+	/* The spotlight is small, centred under the status strip, and never takes a tap or covers the bar. It is placed with left
+	   (not a transform) because the spotlight animates its own transform. */
+	.card-spotlight,
+	.card-spotlight:has(.card-v1) {
+		--spot-w: min(46vw, 170px);
+		left: calc(50% - var(--spot-w) / 2);
+		right: auto;
+		top: calc(var(--phone-top, 56px) + var(--status-h, 44px) + 8px);
+		margin-top: 0;
+		pointer-events: none;
+	}
+	.card-spotlight .spot-effect { padding: 2px 10px; font-size: 1.25rem; }
+	.card-spotlight .spot-effect small { font-size: 0.65rem; }
+}
