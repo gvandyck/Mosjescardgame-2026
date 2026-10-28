@@ -9,6 +9,7 @@ import { getCardById } from '../data/cardIndex.js';
 import { getEffectiveCost } from '../engine/energy/getEffectiveCost.js';
 import { getHandPlayCost } from './board/getHandPlayCost.js';
 import { setEnergyPreview } from './board/setEnergyPreview.js';
+import { bindSlotHint } from './board/bindSlotHint.js';
 import { showToast } from './board/showToast.js';
 import { COOLDOWN_TEXT } from './board/cooldownText.js';
 import { isCooldownBlocked } from '../engine/turn/isCooldownBlocked.js';
@@ -184,6 +185,7 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 
 	handCards.forEach((cardEl, index) => {
 		attachEnergyPreview(cardEl, cards[index], gameState, localPlayerId);
+		bindSlotHint(cardEl, cards[index], gameState, localPlayerId);
 		cardEl.addEventListener('mouseenter', () => {
 			const current = Array.from(container.querySelectorAll('.hand-card-wrap'));
 			const idx = current.indexOf(cardEl);

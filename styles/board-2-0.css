@@ -113,8 +113,14 @@
 }
 /* The slot a raised or dragged hand card will go into (64.1 D-06): the engine fills the first free slot, so exactly one
    slot glows. D-09: the gold accent, static on purpose (the LVL 3 HOLD tile pulses). Its 12 px glow stays inside --paint-pad
-   (D-03). Still inert: the engine has no chosen-slot play. */
+   (D-03). Still inert: the engine has no chosen-slot play.
+   D-12: the raised hand card (hand panel z-index 45, the raised card 60 inside it) covers part of the player row, so the
+   marked slot is lifted to 47, above the whole hand layer: its gold frame and "Place here" are drawn over the raised card.
+   Only this one slot is lifted. The board itself is NOT (its opaque felt would hide the raised card). The board's container
+   query does not form a stacking context, so a z-index on the slot is enough (slot-tiles.spec.js hit-tests it). */
 .game-board .board-slot--empty[data-place-here] {
+	position: relative;
+	z-index: 47;
 	border: 2px solid var(--mosje-gold, #E8B94F);
 	background: rgba(232, 185, 79, 0.1);
 	box-shadow: 0 0 calc(12 * var(--bu)) rgba(232, 185, 79, 0.45), inset 0 0 calc(18 * var(--bu)) rgba(232, 185, 79, 0.18);
