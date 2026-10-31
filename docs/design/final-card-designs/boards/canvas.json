@@ -1,0 +1,90 @@
+{
+  "v": 3,
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-10-30T20:00:00Z"
+  },
+  "title": "Obby Card Game 2.0 · Final Card Designs",
+  "launch": {
+    "view": "canvas"
+  },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 2400,
+      "h": 1760,
+      "title": "01 · Overview & legend"
+    },
+    "Anatomy.dc.html": {
+      "x": 0,
+      "y": 1920,
+      "w": 3580,
+      "h": 860,
+      "title": "02 · Card anatomy"
+    },
+    "Mosjes.dc.html": {
+      "x": 0,
+      "y": 2940,
+      "w": 2140,
+      "h": 2078,
+      "title": "03 · Mosjes, Ultimate & Personal Quest"
+    },
+    "Items.dc.html": {
+      "x": 0,
+      "y": 5178,
+      "w": 2190,
+      "h": 2246,
+      "title": "04 · Piecie, Snelle, Place, Quest"
+    },
+    "Rarity.dc.html": {
+      "x": 0,
+      "y": 7584,
+      "w": 2500,
+      "h": 1109,
+      "title": "05 · Rarity & finish"
+    },
+    "Edges.dc.html": {
+      "x": 0,
+      "y": 8853,
+      "w": 1890,
+      "h": 940,
+      "title": "06 · Text rules & edge cases"
+    },
+    "Tiles.dc.html": {
+      "x": 0,
+      "y": 9953,
+      "w": 2300,
+      "h": 1712,
+      "title": "07 · Board tiles"
+    },
+    "States.dc.html": {
+      "x": 0,
+      "y": 11825,
+      "w": 2316,
+      "h": 1860,
+      "title": "08 · Board states"
+    },
+    "Hand.dc.html": {
+      "x": 0,
+      "y": 13845,
+      "w": 2200,
+      "h": 1180,
+      "title": "09 · Hand & detail panel"
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Anatomy.dc.html",
+    "Mosjes.dc.html",
+    "Items.dc.html",
+    "Rarity.dc.html",
+    "Edges.dc.html",
+    "Tiles.dc.html",
+    "States.dc.html",
+    "Hand.dc.html"
+  ],
+  "notes": {},
+  "designSystems": []
+}
