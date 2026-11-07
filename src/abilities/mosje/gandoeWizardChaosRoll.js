@@ -1,4 +1,4 @@
-// Gandoe, The Unpredictable Wizard — Chaos Roll: at the start of your turn roll a die:
+// Gandoe, The Claude Wizard — Chaos Roll: at the start of your turn roll a die:
 // 1-2 this Mosje loses 10 MP; 3-4 nothing; 5-6 +10 Power this turn.
 import { rollDie } from '../../engine/deckEngine.js';
 import { loseMP } from '../../engine/mpManager.js';

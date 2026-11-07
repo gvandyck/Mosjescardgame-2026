@@ -11,7 +11,7 @@ import { chooseTriggerChoice } from '../../src/bot/strategy/chooseTriggerChoice.
 
 const BOT = 'player_1';
 const OPP = 'player_2';
-// Gandoe, The Unpredictable Wizard: Power 10 / 20 / 30 at Level 1 / 2 / 3.
+// Gandoe, The Claude Wizard: Power 10 / 20 / 30 at Level 1 / 2 / 3.
 const mosje = (level, mp, extra = {}) => ({ cardId: 'mosje_gandoe_wizard', name: 'Gandoe Wizard', level, mp, isDefeated: false, ...extra });
 const board = (mine, theirs = [mosje(1, 50)], extra = {}) =>
 	makeEngineState({ ...extra, players: { [BOT]: { activeSlots: mine }, [OPP]: { activeSlots: theirs } } });

@@ -73,7 +73,7 @@ describe('getPiecieLabel (D-07, tag first)', () => {
   });
 });
 
-const gandoe = (MOSJES as any[]).find((m) => m.id === CARD_ID_MAP.mosjes['Gandoe, The Unpredictable Wizard']);
+const gandoe = (MOSJES as any[]).find((m) => m.id === CARD_ID_MAP.mosjes['Gandoe, The Claude Wizard']);
 
 describe('getLevelRows (D-06)', () => {
   it('gives 3 rows, L1 lit by default', () => {

@@ -2,7 +2,7 @@
 // quest_dutch_courage and quest_cheat_code are new ids added in plan 53-05.
 export const CARD_ID_MAP = {
   mosjes: {
-    "Gandoe, The Unpredictable Wizard": "mosje_gandoe_wizard",
+    "Gandoe, The Claude Wizard": "mosje_gandoe_wizard",
     "Jeffrey, The Strongman": "mosje_jeffrey",
     "Alyssa, The Bulldozer": "mosje_alyssa_bulldozer",
     "Alyssa, Fissa Fissa!": "mosje_alyssa_fissa",
