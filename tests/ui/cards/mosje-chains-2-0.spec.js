@@ -1,6 +1,6 @@
 /**
  * mosje-chains-2-0.spec.js - Handoff section 6b on the real game, headless:
- *  (a) the chain rule: Jisca + Dancing/DDR Chris on one paid activation -> two FREE activations, and a free Piecie never
+ *  (a) the chain rule: Jisca + Chris, The BigStepper on one paid activation -> two FREE activations, and a free Piecie never
  *      starts another chain roll (the counters show exactly one chain; the engine rule itself is unit-tested in mosjes-deck3-chain.test.ts);
  *  (b) Synergy Chamber: a holder text works without its partner while the Chamber is in play, and not without it.
  * Run headless only: npx playwright test -c <temporary headless config> tests/ui/cards/mosje-chains-2-0.spec.js

@@ -308,7 +308,7 @@ export function ability_tuk_architect_perfect_placement(gameState, playerId, mos
 	return tukArchitectPerfectPlacement(gameState, playerId, mosjeId);
 }
 
-// 2.0: Dancing/DDR Chris Perfect Combo Chain is a trigger/passive (src/abilities/mosje/*, MOSJE_TRIGGERS). No manual ability; kept so the dispatch map resolves.
+// 2.0: Chris, The BigStepper Perfect Combo Chain is a trigger/passive (src/abilities/mosje/*, MOSJE_TRIGGERS). No manual ability; kept so the dispatch map resolves.
 export function ability_chris_ddr_perfect_combo_chain(gameState) {
 	return gameState;
 }

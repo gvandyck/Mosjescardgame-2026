@@ -16,7 +16,7 @@ const TEST_CARDS = [
   ['Ronald, The Master Chef', '2-effect card'],
   ['Jisca, The Maestro', 'longest text stress test'],
   ['FPS Coert', 'no nickname'],
-  ['Dancing/DDR Chris', 'long first name, no nickname'],
+  ['Chris, The BigStepper', 'long first name, no nickname'],
   ['Parkour West, The Flow Fighter', 'long first name + nickname'],
   ['[...], The Hacker', 'placeholder first name + nickname'],
 ];

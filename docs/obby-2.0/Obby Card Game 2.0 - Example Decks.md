@@ -98,7 +98,7 @@ Tuk heals, Bank Chilling feeds the Social Mosjes, chains off Jisca and DDR Chris
 | 1 | Cless, The Teacher | Mosje | 2 |
 | 1 | Binti, The Sharp Tongue | Mosje | 2 |
 | 1 | DJ 80/20, The Lucky Mixer | Mosje | 2 |
-| 1 | Dancing/DDR Chris | Mosje | 3 |
+| 1 | Chris, The BigStepper | Mosje | 3 |
 | 1 | Skiffa | Place | 3 |
 | 1 | Bank Chilling | Place | 2 |
 | 2 | Kannetje Melk | Piecie · food | 0 |

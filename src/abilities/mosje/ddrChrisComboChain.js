@@ -1,4 +1,4 @@
-// Dancing/DDR Chris — Perfect Combo Chain: whenever his owner activates a Piecie (paid), roll a die:
+// Chris, The BigStepper — Perfect Combo Chain: whenever his owner activates a Piecie (paid), roll a die:
 // 5-6 activate another ready Piecie of theirs for free. Up to 2 times per turn: the counter ddrChainsThisTurn
 // (reset in startTurn) counts successful free activations. A free activation never starts the roll (chain rule).
 import { rollDie } from '../../engine/deckEngine.js';

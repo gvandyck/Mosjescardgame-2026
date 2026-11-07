@@ -29,7 +29,7 @@ export const MOSJE_TRIGGERS = {
 	endOfTurn: [aznClessRiskReward, fpsWestTacticalAnalysis, martinHistorianEndDraw],
 	questWinAmount: [michelleToughGamble],
 	questSuccess: [parkourWestFlowQuest, fpsCoertHeadshot, jeffreyBruteForce, martinDriverPerfectLine, jeffreyGamblerQuestBonus],
-	// piecieActivated order on one activation (Card List ruling): Jisca, then Dancing/DDR Chris, then Cless, The Teacher.
+	// piecieActivated order on one activation (Card List ruling): Jisca, then Chris, The BigStepper, then Cless, The Teacher.
 	piecieActivated: [jiscaPerfectCombo, ddrChrisComboChain, clessTeachingMoment],
 	placeDestroyed: [alyssaFissaPartyPower],
 	cardPlayedFromHand: [fpsWestTacticalAnalysis],

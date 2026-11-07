@@ -668,7 +668,7 @@ export const PIECIES = [
     requirement: "any",
     effectId: "effect_perfect_rhythm",
     tags: ["DRAW", "CHAIN"],
-    description: "This turn, each time you activate another Piecie, draw 1 card (max 2). Dancing/DDR Chris on your field: it also gains 10 MP each time.",
+    description: "This turn, each time you activate another Piecie, draw 1 card (max 2). Chris, The BigStepper on your field: it also gains 10 MP each time.",
     flavourText: "",
     cost: 0,
     tag: null,

@@ -1,4 +1,4 @@
-// EFX-01 Example Deck 3 chain Mosjes: Jisca (Perfect Combo), Dancing/DDR Chris (Perfect Combo Chain),
+// EFX-01 Example Deck 3 chain Mosjes: Jisca (Perfect Combo), Chris, The BigStepper (Perfect Combo Chain),
 // Cless, The Teacher (Teaching Moment) on the piecieActivated hook. The §6b chain-rule cases live in
 // tests/engine/free-activation-chain.test.ts.
 import { afterEach, describe, expect, it } from "vitest";
@@ -90,7 +90,7 @@ describe("Jisca: Perfect Combo", () => {
   });
 });
 
-describe("Dancing/DDR Chris: Perfect Combo Chain", () => {
+describe("Chris, The BigStepper: Perfect Combo Chain", () => {
   const board = (slots: any[]) => build([mk("mosje_chris_ddr", 30), null], slots);
 
   it("die 6 on two paid activations: two free activations; then no more rolls this turn", () => {

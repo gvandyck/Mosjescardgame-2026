@@ -72,7 +72,7 @@ export function applyPerfectRhythmDraw(state, playerId, wasArmedBeforeActivation
   if (left <= 0) return state;
   player.perfectRhythmDraws = left - 1;
   state = drawFromEffect(state, playerId, 1);
-  // Dancing/DDR Chris on the field: it also gains 10 MP each time.
+  // Chris, The BigStepper on the field: it also gains 10 MP each time.
   const ddr = state.players[playerId].activeSlots.findIndex(s => s && !s.isDefeated && s.cardId === 'mosje_chris_ddr');
   if (ddr >= 0) state = gainFromPiecie(state, playerId, ddr, 10, PIECIES.find(c => c.id === 'piecie_perfect_rhythm'));
   console.log('[ABILITY] Perfect Rhythm: later Piecie activation counted');
@@ -136,7 +136,7 @@ export function startTurn(gameState) {
   activePlayer.cardsDrawnThisTurn = 0; // Artistic Expression (56-03)
   activePlayer.actionsThisTurn = [];
   activePlayer.attackPieciePlayedThisTurn = false;
-  activePlayer.ddrChainsThisTurn = 0; // Dancing/DDR Chris: max 2 free chains per turn
+  activePlayer.ddrChainsThisTurn = 0; // Chris, The BigStepper: max 2 free chains per turn
   activePlayer.jiscaRolledThisTurn = false; // Jisca: once per turn
 
   // Dead-flag turn hygiene (Phase 18): clear stale single-turn effect flags so a

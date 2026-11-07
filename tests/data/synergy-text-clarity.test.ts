@@ -20,7 +20,7 @@ const REQUIRED_PARTNER_MENTIONS: Record<string, string[]> = {
   // Card List 2.0: exactly 5 Mosjes carry a synergy text.
   mosje_martin_historian: ['Cless, The Teacher'],
   mosje_martin_senor_west: ['AZN Cless'],
-  mosje_youri: ['Dancing/DDR Chris'],
+  mosje_youri: ['Chris, The BigStepper'],
   mosje_binti: ['Coert, The Hawaiian Tech Savant'],
   mosje_fps_west: ['FPS Coert'],
   // Not in Card List 2.0 (still V4 data, untouched until its own plan):

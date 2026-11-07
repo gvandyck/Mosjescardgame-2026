@@ -33,7 +33,7 @@ export const CARD_ID_MAP = {
     "Cless, The Teacher": "mosje_cless_teacher",
     "Martin, The Precision Driver": "mosje_martin_driver",
     "Tuk \"The Builder\", The Sims Architect": "mosje_tuk_architect",
-    "Dancing/DDR Chris": "mosje_chris_ddr",
+    "Chris, The BigStepper": "mosje_chris_ddr",
   },
   quests: {
     "Arm Wrestling": "quest_arm_wrestling",

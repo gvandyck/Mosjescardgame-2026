@@ -83,7 +83,7 @@ export function effect_bagga_of_greed(gameState, playerId, ctx = {}) {
 }
 
 // Perfect Rhythm: this turn each later Piecie activation draws 1 card, at most 2 times (applyPerfectRhythmDraw counts
-// perfectRhythmDraws down); a Dancing/DDR Chris on the field also gains 10 MP each time.
+// perfectRhythmDraws down); a Chris, The BigStepper on the field also gains 10 MP each time.
 export function effect_perfect_rhythm(gameState, playerId) {
 	const state = cloneState(gameState);
 	const player = state.players[playerId];

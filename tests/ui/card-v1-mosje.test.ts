@@ -18,7 +18,7 @@ describe('card frame v1 — Mosje name parsing', () => {
   });
   it('handles a missing nickname', () => {
     expect(parseMosjeName('[FPS Coert]')).toEqual({ firstName: 'FPS Coert', nickname: '' });
-    expect(parseMosjeName('[Dancing/DDR Chris]')).toEqual({ firstName: 'Dancing/DDR Chris', nickname: '' });
+    expect(parseMosjeName('[Chris, The BigStepper]')).toEqual({ firstName: 'Chris, The BigStepper', nickname: '' });
   });
   it('handles a placeholder first name and nested quotes', () => {
     expect(parseMosjeName('[...] The Hacker')).toEqual({ firstName: '...', nickname: 'The Hacker' });
@@ -87,14 +87,14 @@ describe('card frame v1 — Mosje face data mapping', () => {
   });
   it('first name shrinks for long names, never below 24px, never above 40px', () => {
     expect(fitFirstName('Alyssa')).toBe(40);
-    expect(fitFirstName('Dancing/DDR Chris')).toBeLessThan(40);
-    expect(fitFirstName('Dancing/DDR Chris')).toBeGreaterThanOrEqual(24);
+    expect(fitFirstName('Chris, The BigStepper')).toBeLessThan(40);
+    expect(fitFirstName('Chris, The BigStepper')).toBeGreaterThanOrEqual(24);
     expect(fitFirstName('X'.repeat(60))).toBe(24);
   });
   it('first name takes the 2.0 max, min and available width as optional parameters', () => {
     expect(fitFirstName('Alyssa', 36, 22, 280)).toBe(36);
     expect(fitFirstName('X'.repeat(60), 36, 22, 280)).toBe(22);
-    const mid = fitFirstName('Dancing/DDR Chris', 36, 22, 280);
+    const mid = fitFirstName('Chris, The BigStepper', 36, 22, 280);
     expect(mid).toBeGreaterThanOrEqual(22);
     expect(mid).toBeLessThan(36);
   });
