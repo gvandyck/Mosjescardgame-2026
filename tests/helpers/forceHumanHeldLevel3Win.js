@@ -13,11 +13,11 @@ export async function forceHumanHeldLevel3Win(page, { overlayTimeout = 40000 } =
 		hooks.setHand('player_2', []);
 		// Level 2 / 90 MP, no quest-success ability: a winning Steady Quest (+25) pushes it past the Level 3 line.
 		hooks.setMosjeOnField('player_1', 0, 'mosje_gandoe_destroyer', { mp: 90, level: 2 });
-		hooks.setQuestFaceUp('FIGHTING', 'quest_tough_it_out');
+		hooks.setQuestFaceUp('PHYSICAL', 'quest_tough_it_out');
 		hooks.setNextDice([6, 6, 6]); // guaranteed success
 		hooks.setTurnNumber(3);
 	});
-	await questViaUi(page, { slot: 0, stackId: 'FIGHTING' });
+	await questViaUi(page, { slot: 0, stackId: 'PHYSICAL' });
 	await page.waitForTimeout(800);
 
 	// Level 3 reached this turn is no instant win. Shield the Mosje (entry protection) so the bot cannot knock it down

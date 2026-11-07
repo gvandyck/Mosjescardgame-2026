@@ -108,7 +108,7 @@ export async function beginQuestByTap(page, slot = 0, { touch = false } = {}) {
 }
 
 /** Quest by taps: select the Mosje, Quest, tap the Quest tile of the stack, then click through the option modals (cost, dice, result) like questViaUi. */
-export async function questByTap(page, { slot = 0, stackId = 'FIGHTING', picks = [], touch = false } = {}) {
+export async function questByTap(page, { slot = 0, stackId = 'PHYSICAL', picks = [], touch = false } = {}) {
 	await beginQuestByTap(page, slot, { touch });
 	await press(page.locator(`.quest-stack[data-quest-stack="${stackId}"]`), { touch });
 	await clickThroughOptions(page, picks, 8, { touch });

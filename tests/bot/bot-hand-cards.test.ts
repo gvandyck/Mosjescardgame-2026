@@ -29,7 +29,7 @@ const deckOf = (n) => Array.from({ length: n }, () => ({ cardId: 'piecie_kannetj
 const mosjeIn = (f) => (!f ? null : typeof f === 'string' ? slotOf(f) : slotOf(f.id, f.extra));
 
 // Three stacks; `faceUp` names the face-up Quest per stack (a stack without one has no Quest up).
-const stacks = (faceUp = {}) => ['FIGHTING', 'DIGITAL', 'ARTISTIC'].reduce((o, id) => ({ ...o, [id]: { deck: [], faceUp: faceUp[id] ?? null, tokens: 0, discard: [] } }), {});
+const stacks = (faceUp = {}) => ['PHYSICAL', 'DIGITAL', 'ARTISTIC'].reduce((o, id) => ({ ...o, [id]: { deck: [], faceUp: faceUp[id] ?? null, tokens: 0, discard: [] } }), {});
 
 // The bot is player_1 and it is its turn 3. A null in `field` / `oppField` is an open slot; an entry is a Mosje id or { id, extra }.
 function table({ energy = 3, field = ['mosje_gandoe_wizard', null], oppField = ['mosje_ronald_chef', null], hand = [], oppHand = [], faceUp = {}, activePlace = null, bot = {}, state = {} } = {}) {
@@ -48,13 +48,13 @@ function table({ energy = 3, field = ['mosje_gandoe_wizard', null], oppField = [
 }
 
 describe('placeFit and choosePlaceToPlay: Places are chosen by fit', () => {
-	it('own Fighting Mosje vs a Digital opponent: The Gym fits (> 0) and is played with Energy 3', () => {
+	it('own Physical Mosje vs a Digital opponent: The Gym fits (> 0) and is played with Energy 3', () => {
 		const st = table({ hand: [place('place_the_gym')] });
 		expect(placeFit(st, BOT, 'place_the_gym')).toBeGreaterThan(0);
 		expect(choosePlaceToPlay(st, BOT)?.cardId).toBe('place_the_gym');
 	});
 
-	it('own Digital Mosje vs a Fighting opponent: The Gym is a minus and stays in hand; Arcade with a Technical Quest up fits', () => {
+	it('own Digital Mosje vs a Physical opponent: The Gym is a minus and stays in hand; Arcade with a Technical Quest up fits', () => {
 		const field = ['mosje_ronald_chef', null];
 		const oppField = ['mosje_gandoe_wizard', null];
 		const gymOnly = table({ field, oppField, hand: [place('place_the_gym')] });
@@ -67,7 +67,7 @@ describe('placeFit and choosePlaceToPlay: Places are chosen by fit', () => {
 
 	it('two Places in hand: the one with the higher fit is played, whatever the hand order', () => {
 		const hand = [place('place_arcade'), place('place_the_gym'), place('place_boxing_ring')];
-		const st = table({ hand }); // Gandoe (Fighting) vs a Digital Ronald: Boxing Ring (+20 for a Gandoe, -10 for the Digital) beats The Gym
+		const st = table({ hand }); // Gandoe (Physical) vs a Digital Ronald: Boxing Ring (+20 for a Gandoe, -10 for the Digital) beats The Gym
 		expect(placeFit(st, BOT, 'place_boxing_ring')).toBeGreaterThan(placeFit(st, BOT, 'place_the_gym'));
 		expect(placeFit(st, BOT, 'place_the_gym')).toBeGreaterThan(placeFit(st, BOT, 'place_arcade'));
 		expect(choosePlaceToPlay(st, BOT)?.cardId).toBe('place_boxing_ring');
@@ -80,10 +80,10 @@ describe('placeFit and choosePlaceToPlay: Places are chosen by fit', () => {
 		expect(choosePlaceToPlay(st, BOT)).toBeNull();
 	});
 
-	it('fresh Mosjes ignore a Place: a fresh Fighting Mosje gets no Power from The Gym, so only the words count', () => {
+	it('fresh Mosjes ignore a Place: a fresh Physical Mosje gets no Power from The Gym, so only the words count', () => {
 		const fresh = table({ hand: [place('place_the_gym')], field: ['mosje_gandoe_wizard', null], oppField: ['mosje_jeffrey', null], bot: { activeSlots: [slotOf('mosje_gandoe_wizard', { entryProtected: true }), null] } });
 		const settled = table({ hand: [place('place_the_gym')], field: ['mosje_gandoe_wizard', null], oppField: ['mosje_jeffrey', null] });
-		// settled: +10 Power each side (0 net) + the Fighting word; fresh own Mosje: the opponent's +10 is not matched
+		// settled: +10 Power each side (0 net) + the Physical word; fresh own Mosje: the opponent's +10 is not matched
 		expect(placeFit(fresh, BOT, 'place_the_gym')).toBe(placeFit(settled, BOT, 'place_the_gym') - 10);
 	});
 

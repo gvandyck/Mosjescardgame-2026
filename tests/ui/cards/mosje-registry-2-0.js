@@ -11,7 +11,7 @@ const MILK = 'piecie_kannetje_melk';
 const milk = (...slots) => slots.map(slot => ({ slot, id: MILK }));
 const OPP40 = [{ id: 'mosje_ming_predictor', mp: 40 }]; // a plain, non-fresh opponent target
 const OPP_HAND = ['piecie_kannetje_melk', 'piecie_affoe', 'piecie_straffoe'];
-const ARM = { stack: 'FIGHTING', id: 'quest_arm_wrestling' }; // Skilled (two 4+), Physical, win +40
+const ARM = { stack: 'PHYSICAL', id: 'quest_arm_wrestling' }; // Skilled (two 4+), Strength, win +40
 
 export const MOSJE_REGISTRY = [
 	// -- Deck 1 -------------------------------------------------------------
@@ -32,13 +32,13 @@ export const MOSJE_REGISTRY = [
 	{ mosje: 'mosje_michelle', deck: 1, cases: [
 		{ name: 'Tough Gamble 4-6: ONE doubled Quest gain (20 + 80 -> Level 2 / 0 MP)',
 			setup: { field: [{ id: 'mosje_michelle', mp: 20 }], oppField: OPP40, quest: ARM, dice: [5, 5, 5, 5], abilityDice: [5] },
-			trigger: { kind: 'quest', stack: 'FIGHTING' }, expect: { mp: { 'own.0': 0 }, level: { 'own.0': 2 } } },
+			trigger: { kind: 'quest', stack: 'PHYSICAL' }, expect: { mp: { 'own.0': 0 }, level: { 'own.0': 2 } } },
 		{ name: 'Tough Gamble 4-6 from 10 MP: 10 + 80 = 90, still Level 1 (a second doubling would level her up)',
 			setup: { field: [{ id: 'mosje_michelle', mp: 10 }], oppField: OPP40, quest: ARM, dice: [5, 5, 5, 5], abilityDice: [5] },
-			trigger: { kind: 'quest', stack: 'FIGHTING' }, expect: { mp: { 'own.0': 90 }, level: { 'own.0': 1 } } },
+			trigger: { kind: 'quest', stack: 'PHYSICAL' }, expect: { mp: { 'own.0': 90 }, level: { 'own.0': 1 } } },
 		{ name: 'Tough Gamble 1-3: half the Quest gain (40 + 20)',
 			setup: { field: [{ id: 'mosje_michelle', mp: 40 }], oppField: OPP40, quest: ARM, dice: [5, 5, 5, 5], abilityDice: [2] },
-			trigger: { kind: 'quest', stack: 'FIGHTING' }, expect: { mp: { 'own.0': 60 }, level: { 'own.0': 1 } } },
+			trigger: { kind: 'quest', stack: 'PHYSICAL' }, expect: { mp: { 'own.0': 60 }, level: { 'own.0': 1 } } },
 	] },
 	{ mosje: 'mosje_azn_cless', deck: 1, cases: [
 		{ name: 'Risk & Reward 6: draw 2 and +10 MP',
@@ -51,7 +51,7 @@ export const MOSJE_REGISTRY = [
 	{ mosje: 'mosje_parkour_west', deck: 1, cases: [
 		{ name: 'Flow: Quest success -> +20 MP on top of the Quest (10 + 40 + 20)',
 			setup: { field: [{ id: 'mosje_parkour_west', mp: 10 }], oppField: OPP40, quest: ARM, dice: [5, 5, 5, 5] },
-			trigger: { kind: 'quest', stack: 'FIGHTING' }, expect: { mp: { 'own.0': 70 } } },
+			trigger: { kind: 'quest', stack: 'PHYSICAL' }, expect: { mp: { 'own.0': 70 } } },
 		{ name: 'Flow: taksed for 30 -> loses 20 less (80 - 10)',
 			setup: { field: [{ id: 'mosje_parkour_west', mp: 80 }], oppField: [{ id: 'mosje_jeffrey', mp: 50, level: 3 }] },
 			trigger: { kind: 'attacked' }, expect: { mp: { 'own.0': 70 } } },
@@ -84,9 +84,9 @@ export const MOSJE_REGISTRY = [
 		},
 	}] },
 	{ mosje: 'mosje_fps_coert', deck: 2, cases: [{
-		name: 'Headshot Precision (6): Physical Quest success -> +30 MP and an opponent Mosje loses 15',
+		name: 'Headshot Precision (6): Strength Quest success -> +30 MP and an opponent Mosje loses 15',
 		setup: { field: [{ id: 'mosje_fps_coert', mp: 20 }], oppField: [{ id: 'mosje_ming_predictor', mp: 60 }], quest: ARM, dice: [5, 5, 5, 5], abilityDice: [6] },
-		trigger: { kind: 'quest', stack: 'FIGHTING' },
+		trigger: { kind: 'quest', stack: 'PHYSICAL' },
 		expect: { mp: { 'own.0': 90, 'opp.0': 45 } }, // 20 + 40 + 30; 60 - 15
 	}] },
 	{ mosje: 'mosje_fps_west', deck: 2, cases: [
@@ -143,8 +143,8 @@ export const MOSJE_REGISTRY = [
 	}] },
 	{ mosje: 'mosje_dj_8020', deck: 3, cases: [{
 		name: 'Lucky Beats: reroll a failed Quest die (coin flip 4+, +50)',
-		setup: { field: [{ id: 'mosje_dj_8020', mp: 20 }], oppField: OPP40, quest: { stack: 'FIGHTING', id: 'quest_geen_raad_vraag_aad' }, dice: [1], abilityDice: [5] },
-		trigger: { kind: 'quest', stack: 'FIGHTING', picks: [/Lucky Beats/] },
+		setup: { field: [{ id: 'mosje_dj_8020', mp: 20 }], oppField: OPP40, quest: { stack: 'PHYSICAL', id: 'quest_geen_raad_vraag_aad' }, dice: [1], abilityDice: [5] },
+		trigger: { kind: 'quest', stack: 'PHYSICAL', picks: [/Lucky Beats/] },
 		expect: { mp: { 'own.0': 70 } },
 	}] },
 	{ mosje: 'mosje_chris_ddr', deck: 3, cases: [

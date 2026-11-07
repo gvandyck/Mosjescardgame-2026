@@ -12,7 +12,7 @@ import { MOSJE_ABILITY_RULES } from '../../src/rules/mosjeAbilityRules.js';
 const mosje = (mp: number, extra: any = {}) => ({ cardId: 'mosje_x', name: 'X', mp, level: 1, isDefeated: false, ...extra });
 function state(extra: any = {}): any {
 	return {
-		turnNumber: 3, activePlayerId: 'bot', questStacks: { FIGHTING: {} },
+		turnNumber: 3, activePlayerId: 'bot', questStacks: { PHYSICAL: {} },
 		players: {
 			bot: { hand: [{ cardId: 'piecie_a', type: 'PIECIE' }, { cardId: 'piecie_b', type: 'PIECIE' }], deck: [1, 2, 3, 4, 5, 6].map(i => ({ cardId: 'c' + i })), piecieSlots: [null, null, null], activeSlots: [mosje(40), mosje(10)], energy: 6 },
 			human: { hand: [{ cardId: 'piecie_h', type: 'PIECIE' }], deck: [], piecieSlots: [null, null, null], activeSlots: [mosje(20), mosje(60), mosje(80, { entryProtected: true })] },

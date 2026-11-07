@@ -79,7 +79,7 @@ describe('getLevelRows (D-06)', () => {
   it('gives 3 rows, L1 lit by default', () => {
     const rows = getLevelRows(gandoe);
     expect(rows).toHaveLength(3);
-    expect(rows[0]).toEqual({ level: 1, label: 'L1', text: 'Power 10 · Phys ★★ · Res ★ · Cre ★★', lit: true });
+    expect(rows[0]).toEqual({ level: 1, label: 'L1', text: 'Power 10 · Str ★★ · Res ★ · Cre ★★', lit: true });
     expect(rows.map((r: any) => r.lit)).toEqual([true, false, false]);
   });
   it('level 2 lights row 2 only; the level is clamped to 1..3', () => {

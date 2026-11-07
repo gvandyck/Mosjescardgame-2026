@@ -86,7 +86,7 @@ export function ability_coert_extra_resources() {
 // PHASE 4: REAL IMPLEMENTATIONS FOR ALL 33 REMAINING MOSJE ABILITIES
 // ────────────────────────────────────────────────────────────────────────────────
 
-// FIGHTING MOSJES
+// PHYSICAL MOSJES
 
 // 2.0: Gandoe Wizard Chaos Roll is a trigger/passive (src/abilities/mosje/*, MOSJE_TRIGGERS). No manual ability; kept so the dispatch map resolves.
 export function ability_gandoe_wizard_chaos_roll(gameState) {

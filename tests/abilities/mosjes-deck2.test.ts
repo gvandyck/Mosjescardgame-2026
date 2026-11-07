@@ -24,9 +24,9 @@ const win = (s: any, category: string) => runMosjeTriggers(s, "questSuccess", { 
 
 describe("FPS Coert: Headshot Precision", () => {
   const board = (oppSlots: any[] = [mk("mosje_a", 50), mk("mosje_b", 50)]) => field([mk("mosje_fps_coert", 30), null], oppSlots);
-  it("Physical win + die 6: +30 MP and the owner chooses the opponent Mosje that loses 15", () => {
+  it("Strength win + die 6: +30 MP and the owner chooses the opponent Mosje that loses 15", () => {
     pushTestDice([6]);
-    const s = win(board(), "Physical");
+    const s = win(board(), "Strength");
     expect(s.pendingChoice.playerId).toBe("player_1");
     expect(s.pendingChoice.options).toHaveLength(2);
     const r = resolvePendingChoice(s, s.pendingChoice.options[1]);
@@ -46,20 +46,20 @@ describe("FPS Coert: Headshot Precision", () => {
     expect(slot(win(board(), "Mental"), "player_1", 0).mp).toBe(30);
     clearTestDice();
     pushTestDice([5]);
-    const s = win(board(), "Physical");
+    const s = win(board(), "Strength");
     expect(slot(s, "player_1", 0).mp).toBe(30);
     expect(s.pendingChoice).toBeUndefined();
   });
   it("a fresh opponent Mosje is never offered", () => {
     pushTestDice([6]);
-    const s = win(board([mk("mosje_a", 50, { entryProtected: true }), mk("mosje_b", 50)]), "Physical");
+    const s = win(board([mk("mosje_a", 50, { entryProtected: true }), mk("mosje_b", 50)]), "Strength");
     expect(slot(s, "player_2", 0).mp).toBe(50);
     expect(slot(s, "player_2", 1).mp).toBe(35);
   });
   it("only fires for his own Quest win, not a partner's", () => {
     pushTestDice([6]);
     const s = field([mk("mosje_other", 30), mk("mosje_fps_coert", 30)], [mk("mosje_a", 50), null]);
-    const out = runMosjeTriggers(s, "questSuccess", { playerId: "player_1", slotIndex: 0, quest: { category: "Physical" }, amount: 50 });
+    const out = runMosjeTriggers(s, "questSuccess", { playerId: "player_1", slotIndex: 0, quest: { category: "Strength" }, amount: 50 });
     expect(slot(out, "player_1", 1).mp).toBe(30);
   });
 });

@@ -91,15 +91,15 @@ describe("quest defs carry the new data fields", () => {
     expect(q?.opponentLoseMP).toBe(30);
   });
 
-  it("quest_arm_wrestling.category === 'Physical' (used by the partner-synergy bonus)", () => {
+  it("quest_arm_wrestling.category === 'Strength' (used by the partner-synergy bonus)", () => {
     const q = QUESTS.find((x: any) => x.id === "quest_arm_wrestling");
-    expect(q?.category).toBe("Physical");
+    expect(q?.category).toBe("Strength");
   });
 });
 
 // ─────────────────────────────────────────────────────────────
 // getPartnerSynergyQuestBonus — U6 stack step 4 (live board-state check,
-// not consumed like questBonusMP). West + Cless: "Physical Quests give
+// not consumed like questBonusMP). West + Cless: "Strength Quests give
 // +15 bonus MP" when both are active — previously declared in mosjes.js
 // but never mechanically applied (getActiveSynergies() only ever drove
 // the hardcoded Binti+Coert FOOD-double check).
@@ -115,17 +115,17 @@ describe("getPartnerSynergyQuestBonus", () => {
     } as any;
   }
 
-  it("returns +15 for a Physical quest when West AND Cless are both active", () => {
+  it("returns +15 for a Strength quest when West AND Cless are both active", () => {
     const state = stateWithActive(["mosje_martin_senor_west", "mosje_azn_cless"]);
-    expect(getPartnerSynergyQuestBonus(state, "player_1", "Physical")).toBe(15);
+    expect(getPartnerSynergyQuestBonus(state, "player_1", "Strength")).toBe(15);
   });
 
   it("returns 0 when only one of the pair is active", () => {
     const state = stateWithActive(["mosje_martin_senor_west"]);
-    expect(getPartnerSynergyQuestBonus(state, "player_1", "Physical")).toBe(0);
+    expect(getPartnerSynergyQuestBonus(state, "player_1", "Strength")).toBe(0);
   });
 
-  it("returns 0 for a non-Physical category even with both active", () => {
+  it("returns 0 for a non-Strength category even with both active", () => {
     const state = stateWithActive(["mosje_martin_senor_west", "mosje_azn_cless"]);
     expect(getPartnerSynergyQuestBonus(state, "player_1", "Mental")).toBe(0);
   });
@@ -133,7 +133,7 @@ describe("getPartnerSynergyQuestBonus", () => {
   it("ignores a defeated partner", () => {
     const state = stateWithActive(["mosje_martin_senor_west", "mosje_azn_cless"]);
     state.players.player_1.activeSlots[1].isDefeated = true;
-    expect(getPartnerSynergyQuestBonus(state, "player_1", "Physical")).toBe(0);
+    expect(getPartnerSynergyQuestBonus(state, "player_1", "Strength")).toBe(0);
   });
 
   it("returns 0 with no category", () => {
@@ -144,17 +144,17 @@ describe("getPartnerSynergyQuestBonus", () => {
 
 // ─────────────────────────────────────────────────────────────
 // 2.0 attempt (rollQuestAttempt + resolveQuestAttempt) — bonus MP application (live partner-synergy), both gated to success only. Base amounts come from the Card List:
-// Quick Thinking (Steady, Mental) +25 / -15, Arm Wrestling (Skilled, Physical) +40 / -30.
+// Quick Thinking (Steady, Mental) +25 / -15, Arm Wrestling (Skilled, Strength) +40 / -30.
 // ─────────────────────────────────────────────────────────────
 describe("2.0 Quest attempt — bonus MP application", () => {
   // Every case stays under the 100 MP level-up threshold (gain and bonus are separate gainMP calls).
   function withPhysical(state: any) {
-    // Arm Wrestling is Skilled (2 dice): 2 Physical stars give the dice to win it.
-    for (const s of state.players.player_1.activeSlots) if (s) s.traits = { physical: 2 };
+    // Arm Wrestling is Skilled (2 dice): 2 Strength stars give the dice to win it.
+    for (const s of state.players.player_1.activeSlots) if (s) s.traits = { strength: 2 };
     return state;
   }
 
-  it("applies the West+Cless Physical-quest synergy bonus on success", () => {
+  it("applies the West+Cless Strength-quest synergy bonus on success", () => {
     const state = withPhysical(makeState({ p1mp: 50 }));
     state.players.player_1.activeSlots = [
       makeSlot("mosje_martin_senor_west", 30),
@@ -167,7 +167,7 @@ describe("2.0 Quest attempt — bonus MP application", () => {
     expect(next.players.player_1.activeSlots[0].mp).toBe(85); // 30 + 40 + 15
   });
 
-  it("does NOT apply the synergy bonus for a non-Physical quest", () => {
+  it("does NOT apply the synergy bonus for a non-Strength quest", () => {
     const state = makeState({ p1mp: 50 });
     state.players.player_1.activeSlots = [
       makeSlot("mosje_martin_senor_west", 30),

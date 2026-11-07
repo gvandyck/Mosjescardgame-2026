@@ -31,7 +31,7 @@ function makePlayer(overrides: Record<string, any> = {}) {
         mp: 100,
         level: 1,
         isDefeated: false,
-        traits: { physical: 0, technical: 0 },
+        traits: { strength: 0, technical: 0 },
         statusEffects: [],
         abilityUsedThisTurn: false,
       },

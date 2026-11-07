@@ -2,14 +2,14 @@
  * snelle-registry-2-0.js - card-test-library entries for the Obby 2.0 Snelle (Phase 60).
  * Every expected number comes from the Card List Snelle table (docs/obby-2.0), not from engine output.
  * Driver: tests/helpers/mosjeCardTest.js (the spec passes { mosje: snelle } as the entry id). Energy starts at 3.
- * Plain Mosjes: Ming Predictor (no stars that matter), Michelle (Physical 2). Opponent hand is pinned empty (no windows).
+ * Plain Mosjes: Ming Predictor (no stars that matter), Michelle (Strength 2). Opponent hand is pinned empty (no windows).
  * Trigger kinds: playSnelle (own hand, through the UI), botPlaySnelle / botQuest (the bot acts, for the reaction cards).
  */
 const MING = 'mosje_ming_predictor';
 const MICHELLE = 'mosje_michelle';
 const OPP40 = [{ id: MING, mp: 40 }];
 const ATTACKER = [{ id: 'mosje_jeffrey', mp: 50, level: 3 }]; // 30 Power, non-fresh
-const ARM = { stack: 'FIGHTING', id: 'quest_arm_wrestling' };
+const ARM = { stack: 'PHYSICAL', id: 'quest_arm_wrestling' };
 const QUICK = { stack: 'DIGITAL', id: 'quest_quick_thinking' };
 const BANK = { id: 'place_bank_chilling', by: 'player_2' };
 const AFFOE = 'piecie_affoe'; // 1 star: the opponent Mosje loses 15 MP, one of the activator's Mosjes gains 10
@@ -77,7 +77,7 @@ export const SNELLE_REGISTRY = [
 			trigger: { kind: 'attacked', picks: [/The Protector/] }, expect: { mp: { 'own.0': 80 }, energy: 3, handDelta: -1 } },
 	] },
 	{ snelle: 'snelle_perfect_dodge', deck: 'example', cases: [
-		{ name: 'Needs Physical 2: taksed for 30 -> loses 20 less (80 - 10)',
+		{ name: 'Needs Strength 2: taksed for 30 -> loses 20 less (80 - 10)',
 			setup: { field: [{ id: MICHELLE, mp: 80 }], oppField: ATTACKER, hand: ['snelle_perfect_dodge'] },
 			trigger: { kind: 'attacked', picks: [/Perfect Dodge/] }, expect: { mp: { 'own.0': 70 }, energy: 1, handDelta: -1 } },
 		// 61.1: the stale _pendingWelloe flag on a sideways 0 MP target made the held attack replay fail ("Invalid attack target"), refusing the Dodge.
@@ -105,18 +105,18 @@ export const SNELLE_REGISTRY = [
 	{ snelle: 'snelle_sleutelpuntje', deck: 'example', cases: [
 		{ name: 'before the Quest roll: +1 die (Jeffrey 3 dice would fail [5,2,2]; 4 dice [5,2,2,5] win a Skilled Quest)',
 			setup: { field: [{ id: 'mosje_jeffrey', mp: 20 }], oppField: OPP40, hand: ['snelle_sleutelpuntje'], quest: ARM, abilityDice: [5, 2, 2, 5] },
-			trigger: { kind: 'quest', stack: 'FIGHTING', picks: [/Arm Wrestling/, /Sleutelpuntje/] }, expect: { mp: { 'own.0': 70 }, energy: 2, handDelta: -1 } }, // 20 + 40 + Jeffrey Brute Force 10
+			trigger: { kind: 'quest', stack: 'PHYSICAL', picks: [/Arm Wrestling/, /Sleutelpuntje/] }, expect: { mp: { 'own.0': 70 }, energy: 2, handDelta: -1 } }, // 20 + 40 + Jeffrey Brute Force 10
 	] },
 	{ snelle: 'snelle_lucky_coin', deck: 'example', cases: [
 		{ name: 'Creative 2: reroll one chosen die once ([5,2] -> [5,6] wins Arm Wrestling)',
 			setup: { field: [{ id: 'mosje_gandoe_wizard', mp: 20 }], oppField: OPP40, hand: ['snelle_lucky_coin'], quest: ARM, dice: [5, 2], abilityDice: [6] },
-			trigger: { kind: 'quest', stack: 'FIGHTING', picks: [/Arm Wrestling/, /Lucky/, /Die 2/, /Done/] }, expect: { mp: { 'own.0': 60 }, energy: 2, handDelta: -1 } },
+			trigger: { kind: 'quest', stack: 'PHYSICAL', picks: [/Arm Wrestling/, /Lucky/, /Die 2/, /Done/] }, expect: { mp: { 'own.0': 60 }, energy: 2, handDelta: -1 } },
 		{ name: 'Creative 3: choose the result (Quick Thinking [2,2,2] -> die 1 set to 6 wins)',
 			setup: { field: [{ id: 'mosje_ronald_mastermind', mp: 20 }], oppField: OPP40, hand: ['snelle_lucky_coin'], quest: QUICK, dice: [2, 2, 2] },
 			trigger: { kind: 'quest', stack: 'DIGITAL', picks: [/Quick Thinking/, /Lucky/, /Die 1/, /^6$/, /Done/] }, expect: { mp: { 'own.0': 45 }, energy: 2, handDelta: -1 } },
 		{ name: 'Needs Creative: no Creative Mosje -> not offered, nothing paid',
 			setup: { field: [{ id: MICHELLE, mp: 20 }], oppField: OPP40, hand: ['snelle_lucky_coin'], quest: ARM, dice: [5, 5], abilityDice: [2] },
-			trigger: { kind: 'quest', stack: 'FIGHTING' }, expect: { energy: 3, handDelta: 0 } },
+			trigger: { kind: 'quest', stack: 'PHYSICAL' }, expect: { energy: 3, handDelta: 0 } },
 	] },
 	{ snelle: 'snelle_jeweetniet', deck: 'example', cases: [
 		{ name: 'opponent rolls [5,5,5] (win), reroll all -> [1,1,1] fails: -15 instead of +25',

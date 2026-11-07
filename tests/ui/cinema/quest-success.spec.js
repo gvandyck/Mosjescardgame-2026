@@ -38,13 +38,13 @@ test('🎬 Quest success cinema — green flash + ✓ badge', async ({ page }, t
 	await setMosjeOnField(page, 'player_1', 0, HERO, { mp: 50, level: 1 });
 	// Inject a known standard roll-based general quest so the flow is deterministic
 	// (the random deck can otherwise serve a guess-type quest with a different modal).
-	await setQuestFaceUp(page, 'FIGHTING', 'quest_tough_it_out');
+	await setQuestFaceUp(page, 'PHYSICAL', 'quest_tough_it_out');
 	await setNextDice(page, [6, 6, 6]); // every die a 6 -> guaranteed success
 	await ss(page, 'questwin-1-start');
 	await beat('Scene 1 — Mosje at 50 MP, about to attempt a General Quest (dice forced to win)');
 
 	await beat('Scene 2 — attempting the quest…');
-	await questViaUi(page, { slot: 0, stackId: 'FIGHTING' });
+	await questViaUi(page, { slot: 0, stackId: 'PHYSICAL' });
 	await ss(page, 'questwin-2-result');
 	await beat('✅ Quest SUCCESS — green flash + ✓ badge on the Mosje');
 

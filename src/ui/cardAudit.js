@@ -9,7 +9,7 @@ import { renderCard } from './cardRenderer.js';
 
 const mosjeOf = (s) => MOSJES.filter((c) => String(c.subtype).toUpperCase() === s);
 const GROUPS = [
-  ['Fighting Mosjes', mosjeOf('FIGHTING')],
+  ['Physical Mosjes', mosjeOf('PHYSICAL')],
   ['Digital Mosjes', mosjeOf('DIGITAL')],
   ['Artistic Mosjes', mosjeOf('ARTISTIC')],
   ['Piecies', PIECIES],

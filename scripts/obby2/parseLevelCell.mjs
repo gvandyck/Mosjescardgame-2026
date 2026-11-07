@@ -1,6 +1,6 @@
-// Dev-only: "L1: Power 10 · Phys ★★ · Res ★<br>L2: ..." -> [{ power, traits }] x3.
+// Dev-only: "L1: Power 10 · Str ★★ · Res ★<br>L2: ..." -> [{ power, traits }] x3.
 const TRAIT = {
-  Phys: 'physical', Men: 'mental', Soc: 'social',
+  Str: 'strength', Men: 'mental', Soc: 'social',
   Cre: 'creative', Tech: 'technical', Res: 'resilient',
 };
 

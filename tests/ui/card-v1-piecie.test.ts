@@ -38,8 +38,8 @@ describe('card frame v1 — Piecie data mapping (2.0 face)', () => {
     for (const p of LIVE) {
       const html = chrome(buildCardV1(p, {})!.html);
       expect(html, p.id).not.toMatch(/Requires/);
-      expect(html, p.id).not.toMatch(/\b(level\d|mental\d|physical\d|bankChilling)\b/);
-      expect(html, p.id).not.toMatch(/Momentum-Gaining|Digital Equipment|Physical Equipment|Pet Protection/);
+      expect(html, p.id).not.toMatch(/\b(level\d|mental\d|strength\d|bankChilling)\b/);
+      expect(html, p.id).not.toMatch(/Momentum-Gaining|Digital Equipment|Strength Equipment|Pet Protection/);
     }
   });
 

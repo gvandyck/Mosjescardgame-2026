@@ -9,7 +9,7 @@ export const STARTER_DECKS = [
     id: "PHYSICAL_FORCE",
     disabled: true,
     name: "Physical Force",
-    description: "Couple power: Gandoe and Michelle's boxing chemistry. Physical quests, place synergies, and the Toennoe hangout.",
+    description: "Couple power: Gandoe and Michelle's boxing chemistry. Strength quests, place synergies, and the Toennoe hangout.",
     mosjes: ["mosje_gandoe_destroyer", "mosje_michelle"],
     piecies: [
       "piecie_boxing_gloves",
@@ -240,7 +240,7 @@ export const STARTER_DECKS = [
     id: "DUO_WEST_CLESS",
     disabled: true,
     name: "West & Cless — Calculated Chaos",
-    description: "Señor West's reads and Cless's wild rolls both cash in Physical Quests for +15. The Gym and Obby reward the muscle, ViannaPoes guards Cless, and F1 Telemetry + Those Eyelashes punish the opponent's hand.",
+    description: "Señor West's reads and Cless's wild rolls both cash in Strength Quests for +15. The Gym and Obby reward the muscle, ViannaPoes guards Cless, and F1 Telemetry + Those Eyelashes punish the opponent's hand.",
     mosjes: ["mosje_martin_senor_west", "mosje_azn_cless"],
     piecies: [
       "piecie_vianna_poes",

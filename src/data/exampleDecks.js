@@ -5,8 +5,8 @@ export const EXAMPLE_DECKS = [
   {
     id: "EXAMPLE_TAKSEN",
     name: "Taksen",
-    description: "Hit hard, keep your Mosjes fed, push Physical Quests at The Gym.",
-    kind: "FIGHTING",
+    description: "Hit hard, keep your Mosjes fed, push Strength Quests at The Gym.",
+    kind: "PHYSICAL",
     startingMosje: "mosje_alyssa_fissa",
     mosjes: [
       "mosje_alyssa_fissa",

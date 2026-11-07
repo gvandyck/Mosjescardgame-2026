@@ -8,7 +8,7 @@ import { QUESTS } from '../../data/quests.js';
 const mosjeOf = (s) => MOSJES.filter((c) => String(c.subtype).toUpperCase() === s);
 
 export const CARD_GROUPS = [
-  ['Fighting', mosjeOf('FIGHTING')],
+  ['Physical', mosjeOf('PHYSICAL')],
   ['Digital', mosjeOf('DIGITAL')],
   ['Artistic', mosjeOf('ARTISTIC')],
   ['Piecies', PIECIES],

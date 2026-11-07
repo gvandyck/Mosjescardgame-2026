@@ -2,8 +2,8 @@
  * piecie-registry-2-0.js - card-test-library entries for the Example-Deck Piecies (Obby 2.0, Phase 59).
  * Every expected number comes from the Card List Piecie tables (docs/obby-2.0), not from engine output.
  * Driver: tests/helpers/mosjeCardTest.js (the spec passes { mosje: piecie } as the entry id).
- * Plain targets: Ming Predictor (no Physical, no Resilient, passive-free), Michelle (Physical 2), Parkour West
- * (Physical 3, Resilient 2), Gandoe Wizard (a Gandoe, Physical 2). Opponent hand is pinned empty by the setup.
+ * Plain targets: Ming Predictor (no Strength, no Resilient, passive-free), Michelle (Strength 2), Parkour West
+ * (Strength 3, Resilient 2), Gandoe Wizard (a Gandoe, Strength 2). Opponent hand is pinned empty by the setup.
  */
 const MING = 'mosje_ming_predictor';
 const OPP40 = [{ id: MING, mp: 40 }];
@@ -31,13 +31,13 @@ export const PIECIE_REGISTRY = [
 			trigger: { kind: 'activatePiecie', cardId: 'piecie_eendjes_voeren' }, expect: { mp: { 'own.0': 60 } } },
 	] },
 	{ piecie: 'piecie_protein_shake', deck: 'example', section: 'MP', cases: [
-		{ name: 'Physical 2 stars -> +25',
+		{ name: 'Strength 2 stars -> +25',
 			setup: { field: own('mosje_michelle'), oppField: OPP40, piecies: on('piecie_protein_shake') },
 			trigger: { kind: 'activatePiecie', cardId: 'piecie_protein_shake' }, expect: { mp: { 'own.0': 45 } } },
-		{ name: 'Physical 3 stars -> +35',
+		{ name: 'Strength 3 stars -> +35',
 			setup: { field: own('mosje_parkour_west'), oppField: OPP40, piecies: on('piecie_protein_shake') },
 			trigger: { kind: 'activatePiecie', cardId: 'piecie_protein_shake' }, expect: { mp: { 'own.0': 55 } } },
-		{ name: 'Physical 2 stars in the Boxing Ring -> +35',
+		{ name: 'Strength 2 stars in the Boxing Ring -> +35',
 			setup: { field: own('mosje_michelle'), oppField: OPP40, piecies: on('piecie_protein_shake'), place: { id: 'place_boxing_ring', by: 'player_2' } },
 			trigger: { kind: 'activatePiecie', cardId: 'piecie_protein_shake' }, expect: { mp: { 'own.0': 55 } } },
 	] },
@@ -118,7 +118,7 @@ export const PIECIE_REGISTRY = [
 		trigger: { kind: 'activatePiecie', cardId: 'piecie_controller' }, expect: { mp: { 'own.0': 30 }, state: [['players.player_1.questExtraDice', 1]] },
 	}] },
 	{ piecie: 'piecie_boxing_gloves', deck: 'example', section: 'Gear', cases: [
-		{ name: 'Physical 2 stars: +10 Power this turn (1 Energy)',
+		{ name: 'Strength 2 stars: +10 Power this turn (1 Energy)',
 			setup: { field: own('mosje_michelle'), oppField: OPP40, piecies: on('piecie_boxing_gloves'), energy: 3 },
 			trigger: { kind: 'activatePiecie', cardId: 'piecie_boxing_gloves' },
 			expect: { energy: 2, state: [['players.player_1.activeSlots.0.powerBoostThisTurn', 10]] } },
@@ -253,8 +253,8 @@ export const PIECIE_REGISTRY = [
 	] },
 	{ piecie: 'piecie_quest_prep', deck: 'example', section: 'Utility', cases: [{
 		name: 'Dubbele Dosis: 2 dice on the next Quest and one die rerolled at the after-roll pause',
-		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_quest_prep'), quest: { stack: 'FIGHTING', id: 'quest_geen_raad_vraag_aad' }, dice: [1, 1], abilityDice: [5] },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_quest_prep', then: { kind: 'quest', stack: 'FIGHTING', picks: [/Reroll die 1/] } },
+		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_quest_prep'), quest: { stack: 'PHYSICAL', id: 'quest_geen_raad_vraag_aad' }, dice: [1, 1], abilityDice: [5] },
+		trigger: { kind: 'activatePiecie', cardId: 'piecie_quest_prep', then: { kind: 'quest', stack: 'PHYSICAL', picks: [/Reroll die 1/] } },
 		expect: { mp: { 'own.0': 70 }, energy: 2 },
 	}] },
 	{ piecie: 'piecie_chain_reaction', deck: 'example', section: 'Utility', cases: [{
@@ -345,15 +345,15 @@ export const PIECIE_REGISTRY = [
 		expect: { mp: { 'own.0': 30 }, handDelta: 0, state: [['players.player_1.deck.0.cardId', 'piecie_straffoe'], ['players.player_1.deck.1.cardId', 'piecie_affoe']] },
 	}] },
 	{ piecie: 'piecie_dumbbells', deck: 'example', section: 'Gear', cases: [
-		{ name: 'Physical 2 stars: +20 MP, no draw',
+		{ name: 'Strength 2 stars: +20 MP, no draw',
 			setup: { field: own('mosje_michelle'), oppField: OPP40, piecies: on('piecie_dumbbells') },
 			trigger: { kind: 'activatePiecie', cardId: 'piecie_dumbbells' }, expect: { mp: { 'own.0': 40 }, handDelta: 0 } },
-		{ name: 'Physical 3 stars: +20 MP and draw 1',
+		{ name: 'Strength 3 stars: +20 MP and draw 1',
 			setup: { field: own('mosje_parkour_west'), oppField: OPP40, piecies: on('piecie_dumbbells') },
 			trigger: { kind: 'activatePiecie', cardId: 'piecie_dumbbells' }, expect: { mp: { 'own.0': 40 }, handDelta: 1 } },
 	] },
 	{ piecie: 'piecie_skipping_rope', deck: 'example', section: 'Gear', cases: [{
-		name: 'draw 1, and +1 die with a Physical 1 star Mosje',
+		name: 'draw 1, and +1 die with a Strength 1 star Mosje',
 		setup: { field: own('mosje_michelle'), oppField: OPP40, piecies: on('piecie_skipping_rope') },
 		trigger: { kind: 'activatePiecie', cardId: 'piecie_skipping_rope' }, expect: { handDelta: 1, state: [['players.player_1.questExtraDice', 1]] },
 	}] },

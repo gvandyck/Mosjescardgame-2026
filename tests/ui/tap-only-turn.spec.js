@@ -39,7 +39,7 @@ async function seedBoard(page) {
 	await page.evaluate((id) => window.__testHooks.setPiecieOnField('player_1', 0, id, { faceDown: true }), PIECIE);
 	await unlockPiecies(page, 'player_1'); // a ready Piecie
 	await setEnergy(page, 'player_1', 6);
-	await setQuestFaceUp(page, 'FIGHTING', 'quest_tough_it_out'); // Steady: one 4+, +25 / -15
+	await setQuestFaceUp(page, 'PHYSICAL', 'quest_tough_it_out'); // Steady: one 4+, +25 / -15
 	await setNextDice(page, [6, 6, 6, 6, 6, 6]);
 }
 
@@ -81,11 +81,11 @@ test('a whole turn is played with taps only: attack, Quest, Place, Piecie Activa
 	gs = await getGameState(page);
 	expect(mp(gs, 'player_2', 0), 'the target lost the attacker Power').toBe(60 - power);
 
-	// 2. Quest: tap the other Mosje, Quest in its tray, the FIGHTING Quest tile, then the cost / dice / result modals.
-	await questByTap(page, { slot: 1, stackId: 'FIGHTING', ...TOUCH });
+	// 2. Quest: tap the other Mosje, Quest in its tray, the PHYSICAL Quest tile, then the cost / dice / result modals.
+	await questByTap(page, { slot: 1, stackId: 'PHYSICAL', ...TOUCH });
 	gs = await getGameState(page);
 	expect(mp(gs, 'player_1', 1), 'Quest win: +25').toBe(40 + 25);
-	expect(gs.questStacks.FIGHTING.faceUp, 'the next Quest turned face-up').not.toBe('quest_tough_it_out');
+	expect(gs.questStacks.PHYSICAL.faceUp, 'the next Quest turned face-up').not.toBe('quest_tough_it_out');
 
 	// 3. Place: the hand card is tapped (it plays and pays its Energy).
 	await setHand(page, 'player_1', [PLACE]);

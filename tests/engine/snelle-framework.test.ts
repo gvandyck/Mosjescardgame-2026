@@ -41,7 +41,7 @@ function board(p2: any = {}, p1: any = {}) {
   return makeEngineState({
     turnNumber: 3,
     players: {
-      player_1: { activeSlots: [mk(50, { physical: 3 }, "mosje_alyssa_bulldozer"), mk(50)], energy: 10, ...p1 },
+      player_1: { activeSlots: [mk(50, { strength: 3 }, "mosje_alyssa_bulldozer"), mk(50)], energy: 10, ...p1 },
       player_2: { activeSlots: [mk(50), mk(50)], energy: 6, ...p2 },
     },
   });
@@ -71,10 +71,10 @@ describe("Snelle context", () => {
 });
 
 describe("Needs / Only if", () => {
-  it("Perfect Dodge is offered only for a Physical 2 star attacked Mosje", () => {
-    const ok = attackMosje(board({ hand: H("snelle_perfect_dodge"), activeSlots: [mk(50, { physical: 2 }), mk(50)] }), "player_1", ATT);
+  it("Perfect Dodge is offered only for a Strength 2 star attacked Mosje", () => {
+    const ok = attackMosje(board({ hand: H("snelle_perfect_dodge"), activeSlots: [mk(50, { strength: 2 }), mk(50)] }), "player_1", ATT);
     expect(ok.state.pendingReaction.eligible).toContain("snelle_perfect_dodge");
-    const no = attackMosje(board({ hand: H("snelle_perfect_dodge"), activeSlots: [mk(50, { physical: 1 }), mk(50)] }), "player_1", ATT);
+    const no = attackMosje(board({ hand: H("snelle_perfect_dodge"), activeSlots: [mk(50, { strength: 1 }), mk(50)] }), "player_1", ATT);
     expect(no.state.pendingReaction?.eligible ?? []).not.toContain("snelle_perfect_dodge");
   });
   it("Lucky Coin without Creative 1 star is not offered", () => {

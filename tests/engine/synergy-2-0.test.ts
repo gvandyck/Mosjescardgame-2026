@@ -11,7 +11,7 @@ import { playPiecie, startTurn } from "../../src/engine/turnManager.js";
 import { forceQuestResult } from "../helpers/forceQuestResult.js";
 
 function slot(cardId: string, mp = 40, extra: Record<string, unknown> = {}) {
-  return { cardId, name: cardId, subtype: "FIGHTING", traits: { physical: 2, technical: 2, mental: 2 }, mp, level: 1,
+  return { cardId, name: cardId, subtype: "PHYSICAL", traits: { strength: 2, technical: 2, mental: 2 }, mp, level: 1,
     isDefeated: false, statusEffects: [] as unknown[], abilityUsedThisTurn: false, ...extra };
 }
 function makeState(mine: any[], place: string | null = null, hand: any[] = []) {
@@ -74,12 +74,12 @@ describe("V4 pairs are gone", () => {
 });
 
 describe("holder texts", () => {
-  it("Senor West + AZN Cless: Physical +15 only, not Digital", () => {
+  it("Senor West + AZN Cless: Strength +15 only, not Digital", () => {
     const s = makeState([slot("mosje_martin_senor_west"), slot("mosje_azn_cless")]);
-    expect(getPartnerSynergyQuestBonus(s, "player_1", "Physical")).toBe(15);
+    expect(getPartnerSynergyQuestBonus(s, "player_1", "Strength")).toBe(15);
     expect(getPartnerSynergyQuestBonus(s, "player_1", "Digital")).toBe(0);
     expect(getPartnerSynergyQuestBonus(s, "player_1", "Artistic")).toBe(0);
-    expect(getPartnerSynergyQuestBonus(makeState([slot("mosje_martin_senor_west"), null]), "player_1", "Physical")).toBe(0);
+    expect(getPartnerSynergyQuestBonus(makeState([slot("mosje_martin_senor_west"), null]), "player_1", "Strength")).toBe(0);
   });
 
   it("FPS West + FPS Coert: a Quest win gives both +10", () => {

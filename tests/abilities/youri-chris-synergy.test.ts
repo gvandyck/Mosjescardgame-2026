@@ -91,7 +91,7 @@ function buildSynergyState(chris: string | null, youriAlive: boolean, chrisDefea
     activeSlots.push({
       cardId: chris,
       name: 'Chris',
-      traits: { physical: 3, technical: 2, social: 2 },
+      traits: { strength: 3, technical: 2, social: 2 },
       mp: 30,
       level: 1,
       isDefeated: chrisDefeated,

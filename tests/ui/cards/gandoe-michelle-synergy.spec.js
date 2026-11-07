@@ -10,9 +10,9 @@
 import { test } from '@playwright/test';
 import { runMosjeCardTest } from '../../helpers/mosjeCardTest.js';
 
-const ARM = { stack: 'FIGHTING', id: 'quest_arm_wrestling' }; // Skilled, Physical, win +40
+const ARM = { stack: 'PHYSICAL', id: 'quest_arm_wrestling' }; // Skilled, Strength, win +40
 const OPP = [{ id: 'mosje_ming_predictor', mp: 40 }];
-const quest = { kind: 'quest', stack: 'FIGHTING' };
+const quest = { kind: 'quest', stack: 'PHYSICAL' };
 
 const CASES = [
 	{

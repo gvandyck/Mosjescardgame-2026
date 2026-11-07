@@ -1,6 +1,6 @@
-// getLevelRows.js — the 3 Mosje level rows "Power 10 · Phys ★★ · Res ★" with the current level lit (D-06).
+// getLevelRows.js — the 3 Mosje level rows "Power 10 · Str ★★ · Res ★" with the current level lit (D-06).
 const ABBR = {
-  physical: 'Phys', mental: 'Men', social: 'Soc', creative: 'Cre', technical: 'Tech', resilient: 'Res',
+  strength: 'Str', mental: 'Men', social: 'Soc', creative: 'Cre', technical: 'Tech', resilient: 'Res',
 };
 
 function rowText(level) {

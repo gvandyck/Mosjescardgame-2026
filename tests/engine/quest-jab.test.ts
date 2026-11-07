@@ -35,7 +35,7 @@ describe("Quest jab (E19)", () => {
     expect(opp1(finish(s, q, true, { jabTarget: T })).mp).toBe(40);
   });
   it("Late Night Questing skips Digital targets", () => {
-    const { s, q } = build("late_night_questing", { opp: [mkSlot({ mp: 40, subtype: "DIGITAL" }), mkSlot({ mp: 40, subtype: "FIGHTING" })] });
+    const { s, q } = build("late_night_questing", { opp: [mkSlot({ mp: 40, subtype: "DIGITAL" }), mkSlot({ mp: 40, subtype: "PHYSICAL" })] });
     expect(getJabTargets(s, "player_1", q.id)).toEqual([{ playerId: "player_2", slotIndex: 1 }]);
   });
   it("Shotje Obby only allows the highest-MP target", () => {

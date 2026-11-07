@@ -1354,7 +1354,7 @@
    Skeuomorphic Layer Overrides
    ============================================================== */
 
-/* ── PHYSICAL CARD SHADOWS ───────────────────────────────────────── */
+/* ── STRENGTH CARD SHADOWS ───────────────────────────────────────── */
 .card .card-face,
 .card {
   box-shadow:
@@ -1682,7 +1682,7 @@
 /* ════════════════════════════════════════════════════════════════════════════
    CARD DESIGN SYSTEM — token-driven, applied across ALL card types.
    Type is conveyed by frame colour + art ONLY. Names, body text and padding are
-   identical everywhere; the card's physical size is the only thing that varies.
+   identical everywhere; the card's strength size is the only thing that varies.
    ════════════════════════════════════════════════════════════════════════════ */
 
 /* Titles — every card name renders the same. */

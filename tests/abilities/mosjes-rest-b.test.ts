@@ -79,7 +79,7 @@ describe("Ming, The Natural: Lucky Draw (reveal the top card; a Piecie: activate
 
 describe("Ming, The Predictor: Future Sight (look at the top card of one Quest stack; you may pay 1 Energy to put it on the bottom)", () => {
   const stacks = () => ({
-    FIGHTING: { deck: ["q1", "q2", "q3"], faceUp: null, tokens: 0, discard: [] },
+    PHYSICAL: { deck: ["q1", "q2", "q3"], faceUp: null, tokens: 0, discard: [] },
     DIGITAL: { deck: ["d1", "d2"], faceUp: null, tokens: 0, discard: [] },
     ARTISTIC: { deck: [], faceUp: null, tokens: 0, discard: [] },
   });
@@ -89,7 +89,7 @@ describe("Ming, The Predictor: Future Sight (look at the top card of one Quest s
     const res = use(board(3), PREDICTOR, { stack_id: "DIGITAL", bottom: true });
     expect(res.success).toBe(true);
     expect(res.state.questStacks.DIGITAL.deck).toEqual(["d2", "d1"]);
-    expect(res.state.questStacks.FIGHTING.deck).toEqual(["q1", "q2", "q3"]);
+    expect(res.state.questStacks.PHYSICAL.deck).toEqual(["q1", "q2", "q3"]);
     expect(res.state.players.player_1.energy).toBe(2);
   });
 
@@ -101,9 +101,9 @@ describe("Ming, The Predictor: Future Sight (look at the top card of one Quest s
   });
 
   it("look only (no): the card stays and no Energy is paid", () => {
-    const res = use(board(3), PREDICTOR, { stack_id: "FIGHTING", bottom: false });
+    const res = use(board(3), PREDICTOR, { stack_id: "PHYSICAL", bottom: false });
     expect(res.success).toBe(true);
-    expect(res.state.questStacks.FIGHTING.deck).toEqual(["q1", "q2", "q3"]);
+    expect(res.state.questStacks.PHYSICAL.deck).toEqual(["q1", "q2", "q3"]);
     expect(res.state.players.player_1.energy).toBe(3);
   });
 

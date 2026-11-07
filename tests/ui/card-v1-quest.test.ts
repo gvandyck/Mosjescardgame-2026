@@ -65,7 +65,7 @@ describe('getQuestNeed (dice need, top-left)', () => {
 
 describe('formatQuestRollsLine', () => {
   it('prints Rolls: <trait> · <band> for the four shapes', () => {
-    expect(formatQuestRollsLine(byId('quest_arm_wrestling'))).toBe('Rolls: Physical · Skilled');
+    expect(formatQuestRollsLine(byId('quest_arm_wrestling'))).toBe('Rolls: Strength · Skilled');
     expect(formatQuestRollsLine(byId('quest_sprint_race'))).toBe('Rolls: no roll · Trained');
     expect(formatQuestRollsLine(byId('quest_geen_raad_vraag_aad'))).toBe('Rolls: no trait · Coin flip');
     expect(formatQuestRollsLine(byId('quest_ultimate_challenge'))).toBe("Rolls: Mosje's best trait · Heroic");
@@ -132,20 +132,20 @@ describe('2.0 Quest face', () => {
     expect(buildCardV1(byId('quest_leap_of_faith'))!.html).toContain('--cv1-main:#A21CAF');
   });
 
-  it('Arm Wrestling: need 2× 4+ NEED, Rolls line, win / lose, FIGHTING QUEST pill, tier 1 boxed', () => {
+  it('Arm Wrestling: need 2× 4+ NEED, Rolls line, win / lose, PHYSICAL QUEST pill, tier 1 boxed', () => {
     const r = buildCardV1(byId('quest_arm_wrestling'))!;
     const html = r.html;
     expect(r.className).toBe('card-v1 card-v1--full card--tier-1 card--boxed card--tierlayout');
     expect(attr(html, 'need')).toBe('2× 4+');
     expect(html).toContain('<div class="cv2-corner-label">NEED</div>');
-    expect(part(html, 'cv2-info')).toBe('Rolls: Physical · Skilled');
+    expect(part(html, 'cv2-info')).toBe('Rolls: Strength · Skilled');
     expect(attr(html, 'win')).toBe('40');
     expect(attr(html, 'lose')).toBe('-30');
     expect(html).toContain('<div class="cv2-stat-val">+40</div>');
     expect(html).toContain('<div class="cv2-stat-val">−30</div>');
     expect(html).toContain('>WIN<');
     expect(html).toContain('>LOSE<');
-    expect(footerPill(html)).toBe('FIGHTING QUEST');
+    expect(footerPill(html)).toBe('PHYSICAL QUEST');
     expect(html).not.toContain('cv2-pills');
     expect(html).not.toContain('cv2-label"');
   });
@@ -216,7 +216,7 @@ describe('2.0 Quest face', () => {
     expect('fieldPill' in spec).toBe(false); // the legacy tile keys went with the legacy tile (62-05)
     expect('badge' in spec).toBe(false);
     expect(spec.corner).toEqual({ hook: 'need', value: '2× 4+', label: 'NEED' });
-    expect(spec.footer.centre).toEqual({ kind: 'pill', chip: 'FIGHTING QUEST', label: '' });
+    expect(spec.footer.centre).toEqual({ kind: 'pill', chip: 'PHYSICAL QUEST', label: '' });
     expect(spec.footer.left).toMatchObject({ value: '+40', label: 'WIN', hook: 'win', hookValue: 40 });
     expect(spec.footer.right).toMatchObject({ value: '−30', label: 'LOSE', hook: 'lose', hookValue: -30 });
     const trained = buildQuestSpecV1(byId('quest_sprint_race')) as any;

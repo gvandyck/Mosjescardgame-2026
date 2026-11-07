@@ -80,9 +80,9 @@ test('U4 + A10: a Quest win that levels a Mosje up shows PROTECTED; it cannot be
 	await emptyHands(page);
 	await expect(badge(ownTile(page, 0), 'protected')).toHaveCount(0);
 
-	await setQuestFaceUp(page, 'FIGHTING', 'quest_tough_it_out'); // Steady: one 4+, +25 / -15
+	await setQuestFaceUp(page, 'PHYSICAL', 'quest_tough_it_out'); // Steady: one 4+, +25 / -15
 	await setNextDice(page, [6, 6, 6]);
-	await questViaUi(page, { slot: 0, stackId: 'FIGHTING' });
+	await questViaUi(page, { slot: 0, stackId: 'PHYSICAL' });
 	const gs = await getGameState(page);
 	const slot = gs.players.player_1.activeSlots[0];
 	expect(slot.level, 'engine: the win levelled Binti up').toBe(2);

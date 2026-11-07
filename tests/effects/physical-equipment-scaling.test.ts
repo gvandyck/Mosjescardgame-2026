@@ -1,4 +1,4 @@
-// PHYS-01/02/03: Physical Equipment effect tests
+// PHYS-01/02/03: Strength Equipment effect tests
 // TDD Phase: RED — all tests must fail until Task 2 implements the functions
 import { describe, expect, it } from 'vitest';
 // @ts-expect-error — JS module, no type declarations
@@ -59,62 +59,62 @@ function makeState(overrides: {
   };
 }
 
-describe('Physical Equipment cards (PHYS-01/02/03)', () => {
+describe('Strength Equipment cards (PHYS-01/02/03)', () => {
 
-  describe('effect_dumbbells (Card List 2.0: Physical stars, not the Fighting subtype)', () => {
-    const phys = (physical: number, over: any = {}) => makeState({ subtype: 'FIGHTING', level: 1, mp: 0, traits: { physical }, ...over });
+  describe('effect_dumbbells (Card List 2.0: Strength stars, not the Physical subtype)', () => {
+    const phys = (strength: number, over: any = {}) => makeState({ subtype: 'PHYSICAL', level: 1, mp: 0, traits: { strength }, ...over });
 
-    it('gives 20 MP to a Physical 1 star Mosje at any level', () => {
+    it('gives 20 MP to a Strength 1 star Mosje at any level', () => {
       for (const level of [1, 2, 3]) {
         const result = effect_dumbbells(phys(1, { level }), 'player_1');
         expect(result.players.player_1.activeSlots[0].mp).toBe(20);
       }
     });
 
-    it('gives nothing to a Mosje without Physical 1 star (target table refuses it)', () => {
+    it('gives nothing to a Mosje without Strength 1 star (target table refuses it)', () => {
       const result = effect_dumbbells(phys(0), 'player_1');
       expect(result.players.player_1.activeSlots[0].mp).toBe(0);
     });
 
-    it('also draws 1 card at Physical 3 stars', () => {
+    it('also draws 1 card at Strength 3 stars', () => {
       const result = effect_dumbbells(phys(3, { deckCards: ['x'] }), 'player_1');
       expect(result.players.player_1.hand.length).toBe(1);
     });
 
-    it('does not draw at Physical 2 stars', () => {
+    it('does not draw at Strength 2 stars', () => {
       const result = effect_dumbbells(phys(2, { deckCards: ['x'] }), 'player_1');
       expect(result.players.player_1.hand.length).toBe(0);
     });
   });
 
   describe('effect_boxing_gloves', () => {
-    const boxer = (over: any) => makeState({ subtype: 'FIGHTING', level: 1, mp: 0, ...over });
+    const boxer = (over: any) => makeState({ subtype: 'PHYSICAL', level: 1, mp: 0, ...over });
 
-    it('gives +10 Power this turn to a Physical 2 stars Mosje (no MP)', () => {
-      const result = effect_boxing_gloves(boxer({ traits: { physical: 2 } }), 'player_1');
+    it('gives +10 Power this turn to a Strength 2 stars Mosje (no MP)', () => {
+      const result = effect_boxing_gloves(boxer({ traits: { strength: 2 } }), 'player_1');
       expect(result.players.player_1.activeSlots[0].powerBoostThisTurn).toBe(10);
       expect(result.players.player_1.activeSlots[0].mp).toBe(0);
     });
 
-    it('does nothing when Physical is below 2 stars', () => {
-      const result = effect_boxing_gloves(boxer({ traits: { physical: 1 } }), 'player_1');
+    it('does nothing when Strength is below 2 stars', () => {
+      const result = effect_boxing_gloves(boxer({ traits: { strength: 1 } }), 'player_1');
       expect(result.players.player_1.activeSlots[0].powerBoostThisTurn).toBeUndefined();
     });
 
     it('gives a Gandoe +20 Power instead', () => {
-      const result = effect_boxing_gloves(boxer({ cardId: 'mosje_gandoe_destroyer', traits: { physical: 3 } }), 'player_1');
+      const result = effect_boxing_gloves(boxer({ cardId: 'mosje_gandoe_destroyer', traits: { strength: 3 } }), 'player_1');
       expect(result.players.player_1.activeSlots[0].powerBoostThisTurn).toBe(20);
     });
   });
 
-  describe('effect_skipping_rope (Card List 2.0: Physical 1 star or more)', () => {
-    const rope = (physical: number, over: any = {}) => makeState({ subtype: 'DIGITAL', traits: { physical }, ...over });
+  describe('effect_skipping_rope (Card List 2.0: Strength 1 star or more)', () => {
+    const rope = (strength: number, over: any = {}) => makeState({ subtype: 'DIGITAL', traits: { strength }, ...over });
 
-    it('gives +1 questExtraDice when a Mosje has Physical 1 star or more', () => {
+    it('gives +1 questExtraDice when a Mosje has Strength 1 star or more', () => {
       expect(effect_skipping_rope(rope(1), 'player_1').players.player_1.questExtraDice).toBe(1);
     });
 
-    it('gives no extra die without Physical 1 star', () => {
+    it('gives no extra die without Strength 1 star', () => {
       expect(effect_skipping_rope(rope(0), 'player_1').players.player_1.questExtraDice ?? 0).toBe(0);
     });
 
@@ -130,17 +130,17 @@ describe('Physical Equipment cards (PHYS-01/02/03)', () => {
   });
 });
 
-describe('Physical Equipment: Protein Shake + Boxing Ring (PHYS-04/05)', () => {
+describe('Strength Equipment: Protein Shake + Boxing Ring (PHYS-04/05)', () => {
 
   describe('effect_protein_shake', () => {
-    const fighter = (physical: number, extra: any = {}) =>
-      ({ ...makeState({ subtype: 'FIGHTING', level: 1, mp: 0, traits: { physical } }), ...extra });
+    const fighter = (strength: number, extra: any = {}) =>
+      ({ ...makeState({ subtype: 'PHYSICAL', level: 1, mp: 0, traits: { strength } }), ...extra });
 
-    it('gives 25 MP with Physical 1 star', () => {
+    it('gives 25 MP with Strength 1 star', () => {
       expect(effect_protein_shake(fighter(1), 'player_1').players.player_1.activeSlots[0].mp).toBe(25);
     });
 
-    it('gives 35 MP with Physical 3 stars', () => {
+    it('gives 35 MP with Strength 3 stars', () => {
       expect(effect_protein_shake(fighter(3), 'player_1').players.player_1.activeSlots[0].mp).toBe(35);
     });
 
@@ -149,7 +149,7 @@ describe('Physical Equipment: Protein Shake + Boxing Ring (PHYS-04/05)', () => {
       expect(effect_protein_shake(state, 'player_1').players.player_1.activeSlots[0].mp).toBe(35);
     });
 
-    it('gives nothing without Physical 1 star', () => {
+    it('gives nothing without Strength 1 star', () => {
       expect(effect_protein_shake(fighter(0), 'player_1').players.player_1.activeSlots[0].mp).toBe(0);
     });
 

@@ -20,8 +20,8 @@ async function completeQuestFlow(page) {
 	// reaction window or reroll the forced dice in the middle of the taps. The hands have no bearing on these Quest rules.
 	await page.evaluate(() => { window.__testHooks.setHand('player_1', []); window.__testHooks.setHand('player_2', []); });
 	await page.waitForTimeout(150);
-	// 2.0 tap flow: tap the Mosje (slot 0), Quest, the FIGHTING Quest tile -> click through the cost/result screens.
-	await questViaUi(page, { slot: 0, stackId: 'FIGHTING' });
+	// 2.0 tap flow: tap the Mosje (slot 0), Quest, the PHYSICAL Quest tile -> click through the cost/result screens.
+	await questViaUi(page, { slot: 0, stackId: 'PHYSICAL' });
 	return true;
 }
 
@@ -167,7 +167,7 @@ test('VIS-03: Quest success grants MP and logs roll result', async ({ page }) =>
 	await waitForBoard(page);
 	// A plain Mosje (no Quest-reward ability such as Michelle's Tough Gamble) keeps the +25 exact.
 	await setMosjeOnField(page, 'player_1', 0, 'mosje_binti', { mp: 50, level: 1 });
-	await setQuestFaceUp(page, 'FIGHTING', 'quest_tough_it_out'); // Steady: one 4+, +25 / -15
+	await setQuestFaceUp(page, 'PHYSICAL', 'quest_tough_it_out'); // Steady: one 4+, +25 / -15
 	await setNextDice(page, [6, 6, 6]);
 
 	await setMosjeMP(page, 'player_1', 0, 50);
@@ -199,7 +199,7 @@ test('VIS-04: Quest fail MP floor — MP never goes negative', async ({ page }) 
 	await seedOfflineSession(page, 'PHYSICAL_FORCE');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
-	await setQuestFaceUp(page, 'FIGHTING', 'quest_tough_it_out'); // Steady: one 4+, +25 / -15
+	await setQuestFaceUp(page, 'PHYSICAL', 'quest_tough_it_out'); // Steady: one 4+, +25 / -15
 	await setNextDice(page, [1, 1, 1]);
 
 	await setMosjeMP(page, 'player_1', 0, 5);
@@ -489,7 +489,7 @@ test('VIS-09: one action per Mosje — a Mosje that already Quested cannot Quest
 	await seedOfflineSession(page, 'PHYSICAL_FORCE');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
-	await setQuestFaceUp(page, 'FIGHTING', 'quest_tough_it_out'); // Steady: one 4+, +25 / -15
+	await setQuestFaceUp(page, 'PHYSICAL', 'quest_tough_it_out'); // Steady: one 4+, +25 / -15
 	await setNextDice(page, [6, 6, 6]);
 
 	await setMosjeMP(page, 'player_1', 0, 200);

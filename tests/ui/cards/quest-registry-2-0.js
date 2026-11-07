@@ -7,8 +7,8 @@
  * Quest bands: Steady one 4+ (+25/-15) · Skilled two 4+ (+40/-30) · Heroic two 5+ (+60/-25) · Prepared pay first then one 4+ (+50/-30)
  *              Gated condition then one 4+ (+35/-20) · Coin flip 1 die 4+ (+50/-25) · Trained no roll (+25, can't fail).
  * Dice = 1 per star of the rolled trait (min 1, max 4). Test Mosjes (Card List level-1 rows, no Quest-related ability):
- *   Gandoe, The Destroyer: Phys 3, Res 2, no other trait (1 die on Mental / Technical / Creative / Social).  Level-1 Power 20.
- *   Ming, The Predictor: Men 3, Tech 2.   Binti, The Sharp Tongue: Cre 2, Soc 3.   Ronald, The Master Chef: Phys 1.
+ *   Gandoe, The Destroyer: Str 3, Res 2, no other trait (1 die on Mental / Technical / Creative / Social).  Level-1 Power 20.
+ *   Ming, The Predictor: Men 3, Tech 2.   Binti, The Sharp Tongue: Cre 2, Soc 3.   Ronald, The Master Chef: Str 1.
  * Example Deck Quests (named in the deck notes) come first.
  */
 import { all, replaced, tokenOne, discarded, slotEmpty, noAttempt, untouched, deckTopIs, deckShorterBy } from '../../helpers/questCheckKit.js';
@@ -20,7 +20,7 @@ const MILK = 'piecie_kannetje_melk', DONER = 'piecie_broodje_doner', STRAFFOE = 
 const LARRY = 'piecie_larry_zegeltje', SNOEI = 'piecie_snoeiertje', KEYBOARD = 'piecie_keyboard', MOUSE = 'piecie_mouse';
 const FF = 'snelle_ff_haaltje_nemen';
 const OPP40 = [{ id: MING, mp: 40 }];
-const F = 'FIGHTING', D = 'DIGITAL', A = 'ARTISTIC';
+const F = 'PHYSICAL', D = 'DIGITAL', A = 'ARTISTIC';
 const WIN = [6, 6, 6], LOSE = [1, 1, 1];
 
 const S = (who, mp, stack, id, over = {}) => ({ field: [{ id: who, mp }], oppField: OPP40, quest: { stack, id }, ...over });
@@ -92,19 +92,19 @@ export const QUEST_REGISTRY = [
 		gate('no substance in hand: no attempt', S(BINTI, 20, A, 'quest_larry_temmen', { dice: WIN, hand: [MILK] }), A),
 	] },
 
-	// ---- Fighting stack ----
+	// ---- Physical stack ----
 	{ quest: 'quest_arm_wrestling', deck: 'rest', cases: [
-		{ name: 'Skilled: two 4+ on Physical, win +40',
+		{ name: 'Skilled: two 4+ on Strength, win +40',
 			setup: S(GD, 20, F, 'quest_arm_wrestling', { dice: WIN }), trigger: go(F), expect: { mp: { 'own.0': 60 }, check: won(F, 'quest_arm_wrestling') } },
 		{ name: 'only one 4+ is a fail: -30 and a token',
 			setup: S(GD, 40, F, 'quest_arm_wrestling', { dice: [6, 3, 3] }), trigger: go(F),
 			expect: { mp: { 'own.0': 10 }, check: lost(F, 'quest_arm_wrestling') } },
 	] },
 	{ quest: 'quest_sprint_race', deck: 'rest', cases: [
-		{ name: 'Trained (Physical 2 stars or more): no roll, +25 even with failing dice',
+		{ name: 'Trained (Strength 2 stars or more): no roll, +25 even with failing dice',
 			setup: S(GD, 20, F, 'quest_sprint_race', { dice: LOSE }), trigger: go(F, ['ok']),
 			expect: { mp: { 'own.0': 45 }, check: won(F, 'quest_sprint_race') } },
-		gate('Physical 1 star (Ronald, The Master Chef): no attempt', S(CHEF, 20, F, 'quest_sprint_race', { dice: WIN }), F),
+		gate('Strength 1 star (Ronald, The Master Chef): no attempt', S(CHEF, 20, F, 'quest_sprint_race', { dice: WIN }), F),
 	] },
 	{ quest: 'quest_sustained_assault', deck: 'rest', cases: [
 		{ name: 'another Mosje attacked this turn: +1 die turns a 1 die roll [1,6] into a win, +25 and a jab',

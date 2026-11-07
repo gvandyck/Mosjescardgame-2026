@@ -7,7 +7,7 @@ const MILK = 'piecie_kannetje_melk'; // one of your Mosjes gains 25 MP, costs 0 
 const milk = (...slots) => slots.map(slot => ({ slot, id: MILK }));
 const OPP40 = [{ id: 'mosje_ming_predictor', mp: 40 }];
 const OPP_HAND = ['piecie_kannetje_melk', 'piecie_affoe', 'piecie_straffoe'];
-const ARM = { stack: 'FIGHTING', id: 'quest_arm_wrestling' }; // Skilled (two 4+), Physical, win +40
+const ARM = { stack: 'PHYSICAL', id: 'quest_arm_wrestling' }; // Skilled (two 4+), Strength, win +40
 const SELF0 = { playerId: 'player_1', slotIndex: 0 };
 const OPP0 = { playerId: 'player_2', slotIndex: 0 };
 
@@ -29,7 +29,7 @@ export const MOSJE_REGISTRY_REST = [
 	{ mosje: 'mosje_jeffrey', deck: null, cases: [
 		{ name: 'Brute Force: a Quest success gives +10 MP extra (20 + 40 + 10)',
 			setup: { field: [{ id: 'mosje_jeffrey', mp: 20 }], oppField: OPP40, quest: ARM, dice: [5, 5, 5, 5] },
-			trigger: { kind: 'quest', stack: 'FIGHTING' }, expect: { mp: { 'own.0': 70 } } },
+			trigger: { kind: 'quest', stack: 'PHYSICAL' }, expect: { mp: { 'own.0': 70 } } },
 		{ name: 'Brute Force: while Jeffrey is on the field an MP Piecie cannot be activated',
 			setup: { field: [{ id: 'mosje_jeffrey', mp: 20 }], oppField: OPP40, piecies: milk(0), energy: 3 },
 			trigger: { kind: 'activatePiecie', cardId: MILK }, expect: { mp: { 'own.0': 20 }, energy: 3 } },
@@ -59,12 +59,12 @@ export const MOSJE_REGISTRY_REST = [
 	] },
 	{ mosje: 'mosje_ming_predictor', deck: null, cases: [{
 		name: 'Future Sight: look at the top of a Quest stack, pay 1 Energy to put it on the bottom',
-		setup: { field: [{ id: 'mosje_ming_predictor', mp: 30 }], oppField: OPP40, energy: 3, pendingTargets: { stack_id: 'FIGHTING', bottom: true } },
+		setup: { field: [{ id: 'mosje_ming_predictor', mp: 30 }], oppField: OPP40, energy: 3, pendingTargets: { stack_id: 'PHYSICAL', bottom: true } },
 		trigger: { kind: 'button' },
 		expect: {
 			energy: 2,
 			check: (before, after) => {
-				const b = before.questStacks.FIGHTING.deck, a = after.questStacks.FIGHTING.deck;
+				const b = before.questStacks.PHYSICAL.deck, a = after.questStacks.PHYSICAL.deck;
 				if (a.length !== b.length) throw new Error('stack size changed');
 				if (JSON.stringify(a[a.length - 1]) !== JSON.stringify(b[0])) throw new Error('the top card is not on the bottom');
 				if (JSON.stringify(a[0]) !== JSON.stringify(b[1])) throw new Error('the next card is not on top');
@@ -97,7 +97,7 @@ export const MOSJE_REGISTRY_REST = [
 			trigger: { kind: 'button' }, expect: { mp: { 'own.0': 50 }, energy: 3, handDelta: 1 } },
 		{ name: 'High Stakes 5-6: the next Quest success this turn gives +15 extra (30 + 10 + 40 + 15)',
 			setup: { field: [{ id: 'mosje_jeffrey_gambler', mp: 30 }], oppField: OPP40, energy: 3, quest: ARM, dice: [5, 5, 5, 5], abilityDice: [5], pendingTargets: { stake: 1 } },
-			trigger: { kind: 'button', then: { kind: 'quest', stack: 'FIGHTING' } }, expect: { mp: { 'own.0': 95 } } },
+			trigger: { kind: 'button', then: { kind: 'quest', stack: 'PHYSICAL' } }, expect: { mp: { 'own.0': 95 } } },
 	] },
 	{ mosje: 'mosje_youri', deck: null, cases: [{
 		name: 'Speed Activate: pay 1 Energy, activate a Piecie the turn it was placed, draw 1 (30 + 25)',
@@ -139,7 +139,7 @@ export const MOSJE_REGISTRY_REST = [
 			trigger: { kind: 'turnStart' }, expect: { mp: { 'own.0': 30 }, handDelta: 1 } },
 	] },
 	{ mosje: 'mosje_martin_driver', deck: null, cases: [
-		{ name: 'Perfect Line: a Quest success gives this Mosje 15 MP extra (20 + 25 + 15; Artistic Expression, he has no Physical)',
+		{ name: 'Perfect Line: a Quest success gives this Mosje 15 MP extra (20 + 25 + 15; Artistic Expression, he has no Strength)',
 			setup: { field: [{ id: 'mosje_martin_driver', mp: 20 }], oppField: OPP40, quest: { stack: 'ARTISTIC', id: 'quest_artistic_expression' }, dice: [5, 5, 5, 5] },
 			trigger: { kind: 'quest', stack: 'ARTISTIC' }, expect: { mp: { 'own.0': 60 } } },
 		{ name: 'Pit Stop: pay 1 Energy and discard 2 cards: draw 3 and gain 10 MP',

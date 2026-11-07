@@ -118,7 +118,7 @@
         id: 'gandoe',
         firstName: 'Gandoe',
         nickname: 'The Unpredictable Wizard',
-        traits: { physical: 2, mental: 1 },
+        traits: { strength: 2, mental: 1 },
         ability: 'Draws 2 cards when correctly guessing opponent card type'
       },
       {
@@ -145,7 +145,7 @@
     ];
 
     function createCardHTML(mosje) {
-      const traitIcons = { physical: '⚡', mental: '🧠', social: '💬', creative: '🎨', technical: '🔧' };
+      const traitIcons = { strength: '⚡', mental: '🧠', social: '💬', creative: '🎨', technical: '🔧' };
 
       let traitsHTML = '';
       for (const [trait, stars] of Object.entries(mosje.traits || {})) {

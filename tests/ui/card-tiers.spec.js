@@ -7,11 +7,11 @@ import { seedOfflineSession, GAME_URL_TEST } from './helpers.js';
 
 const DEMO = '/card-tiers-demo.html?tiers=all';
 const ACCENT = {
-	FIGHTING: 'rgb(194, 65, 12)', DIGITAL: 'rgb(14, 116, 144)', ARTISTIC: 'rgb(162, 28, 175)',
+	PHYSICAL: 'rgb(194, 65, 12)', DIGITAL: 'rgb(14, 116, 144)', ARTISTIC: 'rgb(162, 28, 175)',
 	PIECIE: 'rgb(21, 128, 61)', PLACE: 'rgb(109, 40, 217)', SNELLE: 'rgb(161, 98, 7)',
 };
-const TYPES = ['FIGHTING', 'DIGITAL', 'ARTISTIC', 'PIECIE', 'PLACE', 'SNELLE'];
-const MOSJE_TYPES = ['FIGHTING', 'DIGITAL', 'ARTISTIC'];
+const TYPES = ['PHYSICAL', 'DIGITAL', 'ARTISTIC', 'PIECIE', 'PLACE', 'SNELLE'];
+const MOSJE_TYPES = ['PHYSICAL', 'DIGITAL', 'ARTISTIC'];
 const COMBOS = TYPES.flatMap((type) => [1, 2, 3, 4, 5].map((tier) => {
 	const mosje = MOSJE_TYPES.includes(type);
 	const frame = mosje ? (tier === 5 ? 5 : 4) : tier; // Mosje frame tier (Phase 7 A1); the rest follow their rarity
@@ -133,7 +133,7 @@ test.describe('Phase 50 rarity tiers', () => {
 
 	test('edge cases: 4-trait Mosje, Place info, art-less card', async ({ page }) => {
 		for (const tier of [1, 2, 3, 4, 5]) {
-			let card = await mount(page, { type: 'FIGHTING', tier, patch: { __fourTraits: true } });
+			let card = await mount(page, { type: 'PHYSICAL', tier, patch: { __fourTraits: true } });
 			// The 4-trait Mosje: every level row stays on one line (nothing cut) and the text box sits inside the card.
 			const rows = await card.locator('.cv2-level-row').evaluateAll((els) => els.map((e) => ({
 				h: e.getBoundingClientRect().height, font: parseFloat(getComputedStyle(e).fontSize), cut: e.scrollWidth > e.clientWidth + 1,
@@ -157,11 +157,11 @@ test.describe('Phase 50 rarity tiers', () => {
 	});
 
 	test('field tiles have no tier chrome and same box as untiered E1', async ({ page }) => {
-		const ref = await mount(page, { type: 'FIGHTING', tier: 1, opts: { fieldMode: true }, patch: { rarity: undefined } });
+		const ref = await mount(page, { type: 'PHYSICAL', tier: 1, opts: { fieldMode: true }, patch: { rarity: undefined } });
 		await ref.evaluate((e) => e.style.removeProperty('--cv1-w'));
 		const refBox = await ref.boundingBox();
 		for (const tier of [1, 2, 3, 4, 5]) {
-			const card = await mount(page, { type: 'FIGHTING', tier, opts: { fieldMode: true } });
+			const card = await mount(page, { type: 'PHYSICAL', tier, opts: { fieldMode: true } });
 			await card.evaluate((e) => e.style.removeProperty('--cv1-w'));
 			await expect(card.locator('[class*="ct-"]')).toHaveCount(0);
 			const b = await card.boundingBox();

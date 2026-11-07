@@ -2,7 +2,7 @@
 // Spec: { key, who: 'own' | 'opp' | 'any', rule? }. [] = nothing to pick. Keys are what the effects read from
 // state._pendingTargets: own_slot_index, opp_slot_index (resolveOppTargetSlot), any_target ({ playerId, slotIndex }).
 // Opponent Mosjes that are fresh are never offered. Rules: notFresh (also own side, for who 'any'),
-// activatedAbility (Redbull), physical1 / physical2 (Physical stars needed), mpMax20 / mpMax30 / mpMax40 (the MP limit in the text).
+// activatedAbility (Redbull), strength1 / strength2 (Strength stars needed), mpMax20 / mpMax30 / mpMax40 (the MP limit in the text).
 export const PIECIE_TARGETS = {
 	piecie_kannetje_melk: [{ key: 'own_slot_index', who: 'own' }],
 	piecie_warm_kannetje_melk: [{ key: 'own_slot_index', who: 'own' }],
@@ -12,7 +12,7 @@ export const PIECIE_TARGETS = {
 	piecie_momentum_boost: [{ key: 'own_slot_index', who: 'own' }],
 	piecie_eendjes_voeren: [{ key: 'own_slot_index', who: 'own' }],
 	piecie_varkenspootjes: [{ key: 'any_target', who: 'any', rule: 'notFresh' }],
-	piecie_protein_shake: [{ key: 'own_slot_index', who: 'own', rule: 'physical1' }],
+	piecie_protein_shake: [{ key: 'own_slot_index', who: 'own', rule: 'strength1' }],
 	piecie_energy_surge: [{ key: 'own_slot_index', who: 'own', rule: 'mpMax20' }],
 	piecie_snoeiertje: [{ key: 'own_slot_index', who: 'own' }],
 	piecie_te_hard_gaan: [{ key: 'own_slot_index', who: 'own' }],
@@ -75,6 +75,6 @@ export const PIECIE_TARGETS = {
 	piecie_larry_zegeltje: [{ key: 'own_slot_index', who: 'own' }],
 	piecie_leipe_swap: [{ key: 'own_slot_index', who: 'own' }, { key: 'opp_slot_index', who: 'opp' }],
 	piecie_affoe: [{ key: 'opp_slot_index', who: 'opp' }, { key: 'own_slot_index', who: 'own' }],
-	piecie_dumbbells: [{ key: 'own_slot_index', who: 'own', rule: 'physical1' }],
-	piecie_boxing_gloves: [{ key: 'own_slot_index', who: 'own', rule: 'physical2' }],
+	piecie_dumbbells: [{ key: 'own_slot_index', who: 'own', rule: 'strength1' }],
+	piecie_boxing_gloves: [{ key: 'own_slot_index', who: 'own', rule: 'strength2' }],
 };

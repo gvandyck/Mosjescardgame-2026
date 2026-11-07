@@ -29,7 +29,7 @@ async function boot(page, { bothOpen = false } = {}) {
 	await setMosjeOnField(page, 'player_2', 1, 'mosje_ronald_chef', { mp: 40, level: 1 });
 	await setHand(page, 'player_1', HAND);
 	await setHand(page, 'player_2', []);
-	await setQuestFaceUp(page, 'FIGHTING', 'quest_tough_it_out');
+	await setQuestFaceUp(page, 'PHYSICAL', 'quest_tough_it_out');
 	await page.mouse.move(2, 2);
 }
 const oppMp = async (page, i) => (await getGameState(page)).players.player_2.activeSlots[i].mp;
@@ -222,7 +222,7 @@ test('U2: Quest by tap - Quest chip, the 3 Quest tiles glow or dim with a reason
 	await expect(statusStrip(page)).toContainText('Choose a Quest for Alyssa');
 	await expect(page.locator('[data-action-tray]')).toHaveCount(0);
 	const stack = (id) => page.locator(`.quest-stack[data-quest-stack="${id}"]`);
-	await expect(stack('FIGHTING')).toHaveAttribute('data-target', 'valid');
+	await expect(stack('PHYSICAL')).toHaveAttribute('data-target', 'valid');
 	await expect(stack('DIGITAL')).toHaveAttribute('data-target', 'invalid');
 	await expect(stack('DIGITAL').locator('[data-target-badge]')).toHaveText('Locked');
 	await expect(stack('ARTISTIC')).toHaveAttribute('data-target', 'invalid');
@@ -237,7 +237,7 @@ test('U2: Quest by tap - Quest chip, the 3 Quest tiles glow or dim with a reason
 	await expect(statusStrip(page)).toHaveAttribute('data-status-kind', 'choose-quest');
 	expect((await getGameState(page)).players.player_1.activeSlots[0].actedThisTurn).toBeFalsy();
 
-	await stack('FIGHTING').click();
+	await stack('PHYSICAL').click();
 	const result = page.locator('.modal-mosje-select-btn:not([disabled])').first();
 	await result.waitFor({ state: 'visible', timeout: 5000 });
 	await expect(page.locator('.modal-card')).toContainText('Quest succeeded');
@@ -252,11 +252,11 @@ test('U2: questByTap helper wins a Quest with forced dice and the Mosje has then
 	await boot(page, { bothOpen: true });
 	await setNextDice(page, [6, 6, 6]);
 	const before = (await getGameState(page)).players.player_1.activeSlots[0].mp;
-	await questByTap(page, { slot: 0, stackId: 'FIGHTING' });
+	await questByTap(page, { slot: 0, stackId: 'PHYSICAL' });
 	const gs = await getGameState(page);
 	expect(gs.players.player_1.activeSlots[0].mp).toBe(before + 25);
 	expect(gs.players.player_1.activeSlots[0].actedThisTurn).toBe(true);
-	expect(gs.questStacks.FIGHTING.faceUp, 'a new Quest turned face-up').not.toBe('quest_tough_it_out');
+	expect(gs.questStacks.PHYSICAL.faceUp, 'a new Quest turned face-up').not.toBe('quest_tough_it_out');
 	await tapOwnCard(page, 'mosje', 0);
 	await expect(page.locator('[data-action-tray] [data-action="quest"]')).toHaveAttribute('aria-disabled', 'true');
 });

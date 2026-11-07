@@ -6,7 +6,7 @@ import { MOSJES } from "../../src/data/mosjes.js";
 import { getQuestDef } from "../../src/engine/quests/getQuestDef.js";
 import { resolveQuestAttempt } from "../../src/engine/quests/resolveQuestAttempt.js";
 
-const ONE = { physical: 1, mental: 1, creative: 1, technical: 1, resilient: 1, social: 1 };
+const ONE = { strength: 1, mental: 1, creative: 1, technical: 1, resilient: 1, social: 1 };
 export function mkSlot(over = {}, mosje = MOSJES[0]) {
   const level = over.level || 1;
   const s = createMosjeSlot(mosje, { level, mp: over.mp ?? 30 });
@@ -18,7 +18,7 @@ export const byName = (re) => MOSJES.find(m => re.test(m.name));
 export function build(questName, { me = null, opp = [mkSlot({ mp: 40 }), null], p1 = {}, p2 = {} } = {}) {
   const q = getQuestDef("quest_" + questName);
   const stacks = {};
-  for (const id of ["FIGHTING", "DIGITAL", "ARTISTIC"]) stacks[id] = { deck: ["quest_filler"], faceUp: "quest_tough_it_out", tokens: 0, discard: [] };
+  for (const id of ["PHYSICAL", "DIGITAL", "ARTISTIC"]) stacks[id] = { deck: ["quest_filler"], faceUp: "quest_tough_it_out", tokens: 0, discard: [] };
   stacks[q.stack] = { deck: ["quest_filler"], faceUp: q.id, tokens: 0, discard: [] };
   const s = makeEngineState({
     questStacks: stacks,

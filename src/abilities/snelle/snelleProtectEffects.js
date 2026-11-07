@@ -39,13 +39,13 @@ export function effect_snelle_the_protector(gameState, pid, ctx = {}) {
 	});
 }
 
-// Perfect Dodge: the attacked Mosje (Needs Physical 2) loses 20 less, Physical 3: 30 less.
+// Perfect Dodge: the attacked Mosje (Needs Strength 2) loses 20 less, Strength 3: 30 less.
 export function effect_snelle_perfect_dodge(gameState, pid, ctx = {}) {
 	const state = clone(gameState);
 	const target = ctx.reaction?.action?.args?.[1];
 	const slot = target && target.targetPlayerId === pid ? state.players[pid].activeSlots[target.targetSlotIndex] : null;
 	if (!slot) return state;
-	addReactionMod(state, reduce(pid, target.targetSlotIndex, stars(slot, 'physical') >= 3 ? 30 : 20));
+	addReactionMod(state, reduce(pid, target.targetSlotIndex, stars(slot, 'strength') >= 3 ? 30 : 20));
 	return state;
 }
 

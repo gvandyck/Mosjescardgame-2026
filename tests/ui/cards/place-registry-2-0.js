@@ -2,8 +2,8 @@
  * place-registry-2-0.js - card-test-library entries for the Power Places (Obby 2.0, Phase 60-04, EFX-04 part 1).
  * Numbers come from the Card List Place table (docs/obby-2.0), not from engine output.
  * Driver: tests/helpers/mosjeCardTest.js (the spec passes { mosje: place } as the entry id); trigger 'none' reads the board as laid out.
- * Mosjes: Bulldozer (Fighting, L1 Power 20), Ming Natural (Digital, 10), Tuk Healer (Artistic, 0, a Tuk), Michelle (Fighting 10),
- * Gandoe Destroyer (Fighting 20).
+ * Mosjes: Bulldozer (Physical, L1 Power 20), Ming Natural (Digital, 10), Tuk Healer (Artistic, 0, a Tuk), Michelle (Physical 10),
+ * Gandoe Destroyer (Physical 20).
  */
 const BULL = 'mosje_alyssa_bulldozer';
 const DIG = 'mosje_ming_natural';
@@ -20,15 +20,15 @@ const quest = (place, name, dice, after) => ({ name, setup: { field: [{ id: DIG,
 
 const PLACE_ENTRIES = [
 	{ place: 'place_the_gym', deck: 'example', cases: [
-		power('Fighting Power 20 -> 30', 'place_the_gym', BULL, 30),
+		power('Physical Power 20 -> 30', 'place_the_gym', BULL, 30),
 		power('Digital Power 10 stays 10', 'place_the_gym', DIG, 10),
 		fresh('place_the_gym', BULL, 20),
-		{ name: 'an attack by a Fighting Power 20 Mosje takes 30 MP',
+		{ name: 'an attack by a Physical Power 20 Mosje takes 30 MP',
 			setup: { field: [{ id: ART, mp: 50 }], oppField: [{ id: BULL, mp: 40 }], place: { id: 'place_the_gym', by: 'player_2' } },
 			trigger: { kind: 'attacked' }, expect: { mp: { 'own.0': 20 } } },
 	] },
 	{ place: 'place_boxing_ring', deck: 'example', cases: [
-		power('Fighting Power 20 -> 30', 'place_boxing_ring', BULL, 30),
+		power('Physical Power 20 -> 30', 'place_boxing_ring', BULL, 30),
 		power('a Gandoe gets +20 -> 40', 'place_boxing_ring', GANDOE, 40),
 		power('Digital Power 10 -> 0', 'place_boxing_ring', DIG, 0),
 		power('Artistic Power 0 stays 0', 'place_boxing_ring', ART, 0),
@@ -42,23 +42,23 @@ const PLACE_ENTRIES = [
 		fresh('place_de_box', 'mosje_michelle', 10),
 	] },
 	{ place: 'place_arcade', deck: 'example', cases: [
-		power('Fighting Power 20 -> 10', 'place_arcade', BULL, 10),
+		power('Physical Power 20 -> 10', 'place_arcade', BULL, 10),
 		power('Digital Power 10 stays 10', 'place_arcade', DIG, 10),
 		fresh('place_arcade', BULL, 20),
 	] },
 	{ place: 'place_skiffa', deck: 'example', cases: [
 		power('Digital Power 10 -> 0', 'place_skiffa', DIG, 0),
-		power('Fighting Power 20 stays 20', 'place_skiffa', BULL, 20),
+		power('Physical Power 20 stays 20', 'place_skiffa', BULL, 20),
 		fresh('place_skiffa', DIG, 10),
 	] },
 	{ place: 'place_bank_chilling', deck: 'example', cases: [
-		power('every Mosje -10: Fighting 20 -> 10', 'place_bank_chilling', BULL, 10),
+		power('every Mosje -10: Physical 20 -> 10', 'place_bank_chilling', BULL, 10),
 		power('Power 0 never goes below 0', 'place_bank_chilling', ART, 0),
 		fresh('place_bank_chilling', BULL, 20),
 	] },
 	{ place: 'place_drain_zone', deck: 'rest', cases: [
 		power('every Mosje +10: Digital 10 -> 20', 'place_drain_zone', DIG, 20),
-		power('Fighting 20 -> 30', 'place_drain_zone', BULL, 30),
+		power('Physical 20 -> 30', 'place_drain_zone', BULL, 30),
 		fresh('place_drain_zone', DIG, 10),
 	] },
 	{ place: 'place_dierenasiel', deck: 'rest', cases: [
@@ -68,8 +68,8 @@ const PLACE_ENTRIES = [
 	] },
 	// Phase 60-05 (EFX-04 part 2): turn-start, dice and Quest-MP Places. Fresh Mosjes are laid out with fresh:true.
 	{ place: 'place_the_gym', deck: 'example', part: 'turn start', cases: [
-		turn('place_the_gym', 'a non-Fighting Mosje loses 10 at its owner turn start (40 -> 30)', DIG, 40, 30),
-		turn('place_the_gym', 'a Fighting Mosje is unchanged (40)', BULL, 40, 40),
+		turn('place_the_gym', 'a non-Physical Mosje loses 10 at its owner turn start (40 -> 30)', DIG, 40, 30),
+		turn('place_the_gym', 'a Physical Mosje is unchanged (40)', BULL, 40, 40),
 		turn('place_the_gym', 'a fresh Mosje is unchanged (40)', DIG, 40, 40, { fresh: true }),
 	] },
 	{ place: 'place_bank_chilling', deck: 'rest', part: 'turn start', cases: [

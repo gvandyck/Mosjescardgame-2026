@@ -15,8 +15,8 @@ Phase 6 output, 2026-10-10. The three starter decks from Phase 5 in their final 
 
 ---
 
-## Deck 1 — Fighting · "Taksen"
-Hit hard, keep your Mosjes fed, push Physical Quests at The Gym.
+## Deck 1 — Physical · "Taksen"
+Hit hard, keep your Mosjes fed, push Strength Quests at The Gym.
 **Starting Mosje:** Alyssa, Fissa Fissa!
 
 | # | Card | Kind | Cost |
@@ -128,7 +128,7 @@ Tuk heals, Bank Chilling feeds the Social Mosjes, chains off Jisca and DDR Chris
 ---
 
 ## Mosje count by type
-| Deck | Fighting | Digital | Artistic |
+| Deck | Physical | Digital | Artistic |
 |---|---|---|---|
 | Taksen | 6 | — | — |
 | Regelaars | — | 6 | — |

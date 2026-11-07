@@ -42,14 +42,14 @@ describe('card frame v1 — Snelle data mapping (2.0 face)', () => {
     // the old V4 requirement leftovers are gone
     const specInfo = (SNELLE_PIECIES as any[]).map((p) => buildSnelleSpecV1(p).info);
     expect(specInfo.filter(Boolean)).toHaveLength(5);
-    expect(specInfo.join('|')).not.toMatch(/Requires|Lvl 1\+|Bank Chilling active|Physical ★★\+/);
+    expect(specInfo.join('|')).not.toMatch(/Requires|Lvl 1\+|Bank Chilling active|Strength ★★\+/);
   });
 
   it('no Snelle face prints Requires, Free, MP COST, the old border text or a V4 code', () => {
     for (const p of SNELLE_PIECIES as any[]) {
       const html = chrome(buildCardV1(p, {})!.html);
       expect(html, p.id).not.toMatch(/Requires|Free|MP COST|Instant - play any time/);
-      expect(html, p.id).not.toMatch(/\b(level\d|mental\d|physical\d|bankChilling)\b/);
+      expect(html, p.id).not.toMatch(/\b(level\d|mental\d|strength\d|bankChilling)\b/);
       expect(part(html, 'cv2-label'), p.id).toBe('Instant · any turn');
       expect(html, p.id).toContain('>SNELLE<');
     }

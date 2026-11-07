@@ -33,7 +33,7 @@ function buildQuestState(activePlace: string | null) {
           {
             cardId: "mosje_a",
             name: "Mosje A",
-            traits: { physical: 3 },
+            traits: { strength: 3 },
             mp: 20,
             level: 1,
             isDefeated: false,

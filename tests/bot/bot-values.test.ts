@@ -146,10 +146,10 @@ describe('opponentThreat: the Power the opponent can hit with on their next turn
 		expect(opponentThreat(table([wizard({ powerBoost: 10 }), null]), BOT)).toBe(20);
 	});
 
-	it('follows the active Place the engine counts (The Gym: +10 for a Fighting Mosje that is not fresh)', () => {
-		const st = { ...table([bulldozer({ subtype: 'FIGHTING' }), null]), activePlace: 'place_the_gym' };
+	it('follows the active Place the engine counts (The Gym: +10 for a Physical Mosje that is not fresh)', () => {
+		const st = { ...table([bulldozer({ subtype: 'PHYSICAL' }), null]), activePlace: 'place_the_gym' };
 		expect(opponentThreat(st, BOT)).toBe(30);
-		const fresh = { ...table([bulldozer({ subtype: 'FIGHTING', entryProtected: true }), null]), activePlace: 'place_the_gym' };
+		const fresh = { ...table([bulldozer({ subtype: 'PHYSICAL', entryProtected: true }), null]), activePlace: 'place_the_gym' };
 		expect(opponentThreat(fresh, BOT)).toBe(20);
 	});
 

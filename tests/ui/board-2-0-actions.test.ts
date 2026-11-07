@@ -22,13 +22,13 @@ import { renderStatusStrip } from '../../src/ui/board/renderStatusStrip.js';
 
 const stacks = (f: Record<string, string | null>) => {
 	const o: any = {};
-	for (const id of ['FIGHTING', 'DIGITAL', 'ARTISTIC']) o[id] = { deck: [], faceUp: f[id] ?? null, tokens: 0, discard: [] };
+	for (const id of ['PHYSICAL', 'DIGITAL', 'ARTISTIC']) o[id] = { deck: [], faceUp: f[id] ?? null, tokens: 0, discard: [] };
 	return o;
 };
 const chef = () => byName(/Master Chef/); // activated ability, 2 Energy
 const jeffrey = () => byName(/Strongman/); // passive: no Ability chip
 const board = (mine: any[], theirs: any[], over: any = {}) => makeEngineState({
-	questStacks: stacks({ FIGHTING: 'quest_tough_it_out' }),
+	questStacks: stacks({ PHYSICAL: 'quest_tough_it_out' }),
 	players: { player_1: { activeSlots: mine }, player_2: { activeSlots: theirs } },
 	...over,
 });
@@ -179,19 +179,19 @@ describe('buildAttackPreview', () => {
 });
 
 describe('getQuestTargets', () => {
-	const quests = { FIGHTING: 'quest_tough_it_out', DIGITAL: 'quest_debug_system', ARTISTIC: null };
+	const quests = { PHYSICAL: 'quest_tough_it_out', DIGITAL: 'quest_debug_system', ARTISTIC: null };
 
 	it('marks an open Quest valid, a failed condition Locked, a missing stack Quest invalid', () => {
 		const s = board([mkSlot({ mp: 40 }), null], [mkSlot({ mp: 40 }), null], { questStacks: stacks(quests) });
-		const [fighting, digital, artistic] = getQuestTargets(s, 'player_1', 0);
-		expect(fighting).toEqual({ stackId: 'FIGHTING', valid: true, short: '', reason: '' });
+		const [physical, digital, artistic] = getQuestTargets(s, 'player_1', 0);
+		expect(physical).toEqual({ stackId: 'PHYSICAL', valid: true, short: '', reason: '' });
 		expect(digital).toMatchObject({ stackId: 'DIGITAL', valid: false, short: 'Locked' });
 		expect(digital.reason).toMatch(/Condition not met/);
 		expect(artistic).toMatchObject({ stackId: 'ARTISTIC', valid: false, reason: 'No Quest in this stack' });
 	});
 
 	it("a cost the player cannot pay is \"Can't pay\" with 'Cannot pay: <cost>'", () => {
-		const s = board([mkSlot({ mp: 40 }), null], [mkSlot({ mp: 40 }), null], { questStacks: stacks({ FIGHTING: 'quest_parkour_challenge' }) });
+		const s = board([mkSlot({ mp: 40 }), null], [mkSlot({ mp: 40 }), null], { questStacks: stacks({ PHYSICAL: 'quest_parkour_challenge' }) });
 		expect(getQuestTargets(s, 'player_1', 0)[0]).toMatchObject({ valid: false, short: "Can't pay", reason: 'Cannot pay: Discard 1 ready Piecie' });
 	});
 

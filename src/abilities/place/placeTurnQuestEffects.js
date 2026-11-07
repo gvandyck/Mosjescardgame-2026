@@ -18,7 +18,7 @@ export function placeTurnStart(state, playerId) {
 	for (let i = 0; i < count; i++) {
 		const slot = state.players[playerId].activeSlots[i];
 		if (!live(slot)) continue;
-		if (place === 'place_the_gym' && slot.subtype !== 'FIGHTING') state = loseMP(state, playerId, i, 10, 'PLACE', false, owner);
+		if (place === 'place_the_gym' && slot.subtype !== 'PHYSICAL') state = loseMP(state, playerId, i, 10, 'PLACE', false, owner);
 		else if (place === 'place_bank_chilling' && (slot.traits?.social || 0) >= 2) state = gainMP(state, playerId, i, 10, 'PLACE');
 		else if (place === 'place_eendjes_voeren' && isMichelle(slot)) state = gainMP(state, playerId, i, 10, 'PLACE');
 	}

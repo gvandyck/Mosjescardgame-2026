@@ -319,8 +319,8 @@ function makeAbilityState(mp: number, extraStateProps: Record<string, unknown> =
           {
             cardId: "mosje_tuk_healer",
             name: "[Gandoe] The Unpredictable Wizard",
-            subtype: "FIGHTING",
-            traits: { physical: 2, resilient: 1, creative: 2 },
+            subtype: "PHYSICAL",
+            traits: { strength: 2, resilient: 1, creative: 2 },
             mp,
             level: 1,
             isDefeated: false,

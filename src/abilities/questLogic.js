@@ -19,19 +19,19 @@ function getActiveMosjes(player) {
 
 // ─────────────────────────────────────────────────────────────
 // Holder-text quest bonuses (2.0). Live only through isHolderTextActive.
-// Senor West holder: your Mosjes' Physical Quest wins gain +15 extra.
+// Senor West holder: your Mosjes' Strength Quest wins gain +15 extra.
 // ─────────────────────────────────────────────────────────────
 const SENOR_WEST_PHYSICAL_BONUS = 15;
 
 export function getPartnerSynergyQuestBonus(gameState, playerId, category) {
-	if (category !== 'Physical') return 0;
+	if (category !== 'Strength') return 0;
 	return isHolderTextActive(gameState, playerId, 'mosje_martin_senor_west') ? SENOR_WEST_PHYSICAL_BONUS : 0;
 }
 
 // UI helper: which quest bonuses are live right now (pill before a Quest is attempted).
 export function getActivePartnerSynergyBonuses(gameState, playerId) {
-	return getPartnerSynergyQuestBonus(gameState, playerId, 'Physical') > 0
-		? [{ category: 'Physical', bonus: SENOR_WEST_PHYSICAL_BONUS }]
+	return getPartnerSynergyQuestBonus(gameState, playerId, 'Strength') > 0
+		? [{ category: 'Strength', bonus: SENOR_WEST_PHYSICAL_BONUS }]
 		: [];
 }
 

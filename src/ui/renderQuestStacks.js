@@ -1,4 +1,4 @@
-// renderQuestStacks — the 3 face-up Quests (Fighting / Digital / Artistic) in the middle strip of the board, drawn as
+// renderQuestStacks — the 3 face-up Quests (Physical / Digital / Artistic) in the middle strip of the board, drawn as
 // 2.0 Quest tiles on visible stacks (63-UI-SPEC "Quest stacks", D-09). The HTML comes from buildQuestStacksHtml.
 // onTap(stackId, questId) is called for a tap / Enter on a stack. A stack whose face-up Quest changed since the last render
 // (a win or the 2nd fail replaced it) gets the 250 ms slide-up class quest-stack--new.

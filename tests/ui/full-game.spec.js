@@ -298,13 +298,13 @@ test('full game: reaching Level 3 is NOT an instant win - held Level 3 wins at t
 		window.__testHooks.setHand('player_1', []);
 		window.__testHooks.setHand('player_2', []);
 		window.__testHooks.setMosjeOnField('player_1', 0, 'mosje_gandoe_destroyer', { mp: 90, level: 2 }); // no quest-success ability (Michelle's Tough Gamble would randomise the MP)
-		window.__testHooks.setQuestFaceUp('FIGHTING', 'quest_tough_it_out'); // Steady win +25 MP (>= 10 needed for Level 3)
+		window.__testHooks.setQuestFaceUp('PHYSICAL', 'quest_tough_it_out'); // Steady win +25 MP (>= 10 needed for Level 3)
 		window.__testHooks.setNextDice([6, 6, 6]); // guaranteed success
 		window.__testHooks.setTurnNumber(3);
 	}, cardId);
 
 	// Attempt the Quest through the real 2.0 UI flow (Mosje pick -> Quest pick -> dice screen).
-	await questViaUi(page, { slot: 0, stackId: 'FIGHTING' });
+	await questViaUi(page, { slot: 0, stackId: 'PHYSICAL' });
 
 	// Reached Level 3 this turn: NO win overlay yet.
 	await page.waitForTimeout(800);

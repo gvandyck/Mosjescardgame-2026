@@ -32,7 +32,7 @@ describe('2.0 setup', () => {
 
   it('builds 3 typed quest stacks with a face-up top', () => {
     const s = make();
-    for (const t of ['FIGHTING', 'DIGITAL', 'ARTISTIC']) {
+    for (const t of ['PHYSICAL', 'DIGITAL', 'ARTISTIC']) {
       const st = s.questStacks[t];
       const total = QUESTS.filter((q: any) => q.stack === t).length;
       expect(QUESTS.find((q: any) => q.id === st.faceUp).stack).toBe(t);
@@ -40,7 +40,7 @@ describe('2.0 setup', () => {
       expect(st.tokens).toBe(0);
       expect(st.discard).toEqual([]);
     }
-    expect(buildQuestStacks([], (a: any) => a).FIGHTING.faceUp).toBeNull();
+    expect(buildQuestStacks([], (a: any) => a).PHYSICAL.faceUp).toBeNull();
   });
 
   it('opening dice: highest first, ties reroll', () => {

@@ -18,7 +18,7 @@ const pick = (list, test = () => true) => list.find((c) => test(c) && hasArt(c))
 const mosje = (subtype) => pick(MOSJES, (c) => String(c.subtype).toUpperCase() === subtype);
 
 const ROWS = [
-  ['Fighting Mosje', mosje('FIGHTING')],
+  ['Physical Mosje', mosje('PHYSICAL')],
   ['Digital Mosje', mosje('DIGITAL')],
   ['Artistic Mosje', mosje('ARTISTIC')],
   ['Piecie', pick(PIECIES)],
@@ -73,7 +73,7 @@ ${card.name}`), renderCard({ ...card, rarity: '★'.repeat(tier) }));
 const field = document.getElementById('field-grid');
 for (let tier = 1; tier <= 5; tier += 1) {
   const wrap = cell('edge-cell', '');
-  wrap.append(cell('row-label', `Field tile, tier ${tier}`), renderCard({ ...mosje('FIGHTING'), rarity: '★'.repeat(tier) }, { fieldMode: true }));
+  wrap.append(cell('row-label', `Field tile, tier ${tier}`), renderCard({ ...mosje('PHYSICAL'), rarity: '★'.repeat(tier) }, { fieldMode: true }));
   field.append(wrap);
 }
 
