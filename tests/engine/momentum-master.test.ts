@@ -17,7 +17,7 @@ function makeState(mp: number) {
       player_1: {
         activeSlots: [
           { cardId: "mosje_martin_senor_west", name: "West", mp, level: 1, isDefeated: false,
-            traits: { mental: 3, technical: 1, physical: 2 }, statusEffects: [], abilityUsedThisTurn: false },
+            traits: { mental: 3, technical: 1, strength: 2 }, statusEffects: [], abilityUsedThisTurn: false },
           null,
         ],
         hand: [], deck: [], discard: [],
@@ -38,8 +38,8 @@ describe("Momentum Master — checkQuestCondition (mp_80_plus)", () => {
 });
 
 describe("Momentum Master — dice (replaces V4 getQuestDiceThreshold)", () => {
-  it("rolls one die per star of the quest's trait (2 physical stars -> 2 dice)", () => {
-    expect(MM.rollTrait).toBe("physical");
+  it("rolls one die per star of the quest's trait (2 strength stars -> 2 dice)", () => {
+    expect(MM.rollTrait).toBe("strength");
     expect(getQuestDiceCount(makeState(90), "player_1", makeState(90).players.player_1.activeSlots[0], MM)).toBe(2);
   });
 });

@@ -146,14 +146,14 @@ describe('Dingetje toch?!', () => {
     const ready = { cardId: DING, type: 'PIECIE', faceDown: true, canActivateOnTurn: 2 };
     expect(QUEST_COSTS.discard_ready_piecie.canPay(ctx(player([], [ready])), { zone: 'ready', index: 0 })).toBe(true);
   });
-  it('meets one trait requirement (needs Physical 2 stars) on a Physical 1 star Mosje, and only trait ones', () => {
+  it('meets one trait requirement (needs Strength 2 stars) on a Strength 1 star Mosje, and only trait ones', () => {
     const s: any = makePiecieState({ piecieId: 'piecie_kannetje_melk' });
     const me = s.players.player_1;
-    me.activeSlots[0].traits = { physical: 1 };
+    me.activeSlots[0].traits = { strength: 1 };
     me.hand = [card(DING)];
-    const physical = { costId: 'physical_2' };
-    expect(checkQuestCondition(s, 'player_1', 0, physical).ok).toBe(false);
-    expect(checkQuestCondition(s, 'player_1', 0, physical, { zone: 'hand', index: 0 })).toMatchObject({ ok: true, dingetje: { zone: 'hand', index: 0 } });
+    const strength = { costId: 'strength_2' };
+    expect(checkQuestCondition(s, 'player_1', 0, strength).ok).toBe(false);
+    expect(checkQuestCondition(s, 'player_1', 0, strength, { zone: 'hand', index: 0 })).toMatchObject({ ok: true, dingetje: { zone: 'hand', index: 0 } });
     expect(checkQuestCondition(s, 'player_1', 0, { costId: 'mp_80_plus' }, { zone: 'hand', index: 0 }).ok).toBe(false);
     expect(dingetjeForTrait(s, 'player_1', { costId: 'mp_80_plus' }, { zone: 'hand', index: 0 })).toBeNull();
   });

@@ -52,7 +52,7 @@ describe("E21 - cooldown turn", () => {
     }
     // V4 activatePersonalQuest check removed (Personal Quests are gone); the 2.0 Quest attempt is covered right here.
     // 2.0 actions (Phase 56) report { ok:false } through the shared canMosjeTakeAction gate.
-    const quest = rollQuestAttempt(s, "player_1", { slotIndex: 0, stackId: "FIGHTING" });
+    const quest = rollQuestAttempt(s, "player_1", { slotIndex: 0, stackId: "PHYSICAL" });
     const attack = attackMosje(s, "player_1", { attackerSlotIndex: 0, targetPlayerId: "player_2", targetSlotIndex: 0 });
     for (const r of [quest, attack]) {
       expect(r.ok).toBe(false);

@@ -22,13 +22,13 @@ const game = (place: string | null, a: any, extra: any = {}) =>
   makeEngineState({ activePlace: place, players: { player_1: { activeSlots: [a, mk("mosje_jeffrey", 80)], ...extra }, player_2: { activeSlots: [mk("mosje_jeffrey", 80), null] } } });
 const power = (place: string | null, id: string, extra: any = {}) => { const a = mk(id); return getPower(a, game(place, a, extra), "player_1"); };
 
-const BULL = "mosje_alyssa_bulldozer"; // Fighting, L1 Power 20
+const BULL = "mosje_alyssa_bulldozer"; // Physical, L1 Power 20
 const DIG = "mosje_ming_natural"; // Digital, L1 Power 10
 const ART = "mosje_tuk_healer"; // Artistic, L1 Power 0 (a Tuk)
 
 describe("Place Power in getPower", () => {
-  it("The Gym: Fighting +10", () => { expect(power("place_the_gym", BULL)).toBe(30); expect(power("place_the_gym", DIG)).toBe(10); });
-  it("Boxing Ring: Fighting +10, Gandoe +20, Digital/Artistic -10 (never below 0)", () => {
+  it("The Gym: Physical +10", () => { expect(power("place_the_gym", BULL)).toBe(30); expect(power("place_the_gym", DIG)).toBe(10); });
+  it("Boxing Ring: Physical +10, Gandoe +20, Digital/Artistic -10 (never below 0)", () => {
     expect(power("place_boxing_ring", BULL)).toBe(30);
     expect(power("place_boxing_ring", "mosje_gandoe_destroyer")).toBe(40);
     expect(power("place_boxing_ring", DIG)).toBe(0);
@@ -40,7 +40,7 @@ describe("Place Power in getPower", () => {
     expect(power("place_de_box", "mosje_gandoe_destroyer")).toBe(30);
     expect(power("place_de_box", BULL)).toBe(20);
   });
-  it("Arcade: Fighting -10; Skiffa: Digital -10; Bank Chilling: all -10; Drain Zone: all +10", () => {
+  it("Arcade: Physical -10; Skiffa: Digital -10; Bank Chilling: all -10; Drain Zone: all +10", () => {
     expect(power("place_arcade", BULL)).toBe(10);
     expect(power("place_arcade", DIG)).toBe(10);
     expect(power("place_skiffa", DIG)).toBe(0);
@@ -59,7 +59,7 @@ describe("Place Power in getPower", () => {
       expect(getPower(a, game(place, a), "player_1")).toBe(20);
     }
   });
-  it("an attack hits for the Place-adjusted Power (Fighting 20 in The Gym takes 30)", () => {
+  it("an attack hits for the Place-adjusted Power (Physical 20 in The Gym takes 30)", () => {
     const s = game("place_the_gym", mk(BULL));
     const r = attackMosje(s, "player_1", { attackerSlotIndex: 0, targetPlayerId: "player_2", targetSlotIndex: 0 });
     expect(r.state.players.player_2.activeSlots[0].mp).toBe(50);

@@ -52,7 +52,7 @@ test('🎬 Bulldozer cinema — Unstoppable comeback after quest damage', async 
 	// Put her at Level 1 / 80 MP so she has room to take a hit.
 	await setMosjeOnField(page, 'player_1', 0, BULLDOZER, { mp: 80, level: 1 });
 	// Known 2.0 Quest (Steady, lose 15) with every die forced to 1 -> guaranteed failure (she takes the damage).
-	await setQuestFaceUp(page, 'FIGHTING', 'quest_tough_it_out');
+	await setQuestFaceUp(page, 'PHYSICAL', 'quest_tough_it_out');
 	await setNextDice(page, [1, 1, 1, 1]);
 	await ss(page, 'bulldozer-1-start');
 	await beat('Scene 1 — Alyssa The Bulldozer at 80 MP (Unstoppable: taksed 30+ -> +25 MP, +10 Power)');
@@ -62,7 +62,7 @@ test('🎬 Bulldozer cinema — Unstoppable comeback after quest damage', async 
 
 	// ── Scene 2: attempt a General Quest — and fail ───────────────────────────
 	await beat('Scene 2 — attempting a Quest (fails → takes damage)…');
-	await questViaUi(page, { slot: 0, stackId: 'FIGHTING' });
+	await questViaUi(page, { slot: 0, stackId: 'PHYSICAL' });
 	await ss(page, 'bulldozer-2-after-quest');
 
 	const hurt = await bulldozer(page);

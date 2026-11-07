@@ -30,7 +30,7 @@ test('E12/E13: 3 face-up Quests; attack drops the target by the attacker Power; 
 	await boot(page);
 	await expect(page.locator('#quest-stacks')).toBeVisible();
 	const gs0 = await getGameState(page);
-	for (const s of ['FIGHTING', 'DIGITAL', 'ARTISTIC']) expect(gs0.questStacks[s].faceUp, `${s} face-up`).toBeTruthy();
+	for (const s of ['PHYSICAL', 'DIGITAL', 'ARTISTIC']) expect(gs0.questStacks[s].faceUp, `${s} face-up`).toBeTruthy();
 	const power = getPower(gs0.players.player_1.activeSlots[0]);
 	expect(power).toBeGreaterThan(0);
 	const before = mp(gs0, 'player_2');
@@ -48,14 +48,14 @@ test('E12/E13: 3 face-up Quests; attack drops the target by the attacker Power; 
 test('E16: Quest win with forced dice gives +25 and a new Quest face-up', async ({ page }) => {
 	test.setTimeout(60000);
 	await boot(page);
-	await setQuestFaceUp(page, 'FIGHTING', 'quest_tough_it_out'); // Steady: one 4+, +25 / -15
+	await setQuestFaceUp(page, 'PHYSICAL', 'quest_tough_it_out'); // Steady: one 4+, +25 / -15
 	await setNextDice(page, [6, 6, 6]);
 	const before = mp(await getGameState(page), 'player_1');
-	await questViaUi(page, { slot: 0, stackId: 'FIGHTING' });
+	await questViaUi(page, { slot: 0, stackId: 'PHYSICAL' });
 	const gs = await getGameState(page);
 	expect(mp(gs, 'player_1')).toBe(before + 25);
-	expect(gs.questStacks.FIGHTING.faceUp, 'next Quest turned face-up').not.toBe('quest_tough_it_out');
-	expect(gs.questStacks.FIGHTING.faceUp).toBeTruthy();
+	expect(gs.questStacks.PHYSICAL.faceUp, 'next Quest turned face-up').not.toBe('quest_tough_it_out');
+	expect(gs.questStacks.PHYSICAL.faceUp).toBeTruthy();
 	await expect(page.locator('.mosje-card--owned').first()).toContainText(String(before + 25));
 });
 
@@ -63,17 +63,17 @@ test('E17: Quest fail loses 15 and adds a token; a 2nd fail discards the Quest',
 	test.setTimeout(60000);
 	await boot(page);
 	await setMosjeOnField(page, 'player_1', 1, 'mosje_alyssa_fissa', { mp: 40, level: 1 });
-	await setQuestFaceUp(page, 'FIGHTING', 'quest_tough_it_out');
+	await setQuestFaceUp(page, 'PHYSICAL', 'quest_tough_it_out');
 	await setNextDice(page, [1, 1, 1, 1, 1, 1]);
 	const before = mp(await getGameState(page), 'player_1');
-	await questViaUi(page, { slot: 0, stackId: 'FIGHTING' });
+	await questViaUi(page, { slot: 0, stackId: 'PHYSICAL' });
 	let gs = await getGameState(page);
 	expect(mp(gs, 'player_1')).toBe(before - 15);
-	expect(gs.questStacks.FIGHTING.faceUp).toBe('quest_tough_it_out');
-	expect(gs.questStacks.FIGHTING.tokens, 'fail token').toBe(1);
+	expect(gs.questStacks.PHYSICAL.faceUp).toBe('quest_tough_it_out');
+	expect(gs.questStacks.PHYSICAL.tokens, 'fail token').toBe(1);
 	// Second failed attempt (second Mosje, same turn) -> 2nd token -> Quest leaves the stack.
-	await questViaUi(page, { slot: 1, stackId: 'FIGHTING' });
+	await questViaUi(page, { slot: 1, stackId: 'PHYSICAL' });
 	gs = await getGameState(page);
-	expect(gs.questStacks.FIGHTING.faceUp).not.toBe('quest_tough_it_out');
-	expect(gs.questStacks.FIGHTING.discard).toContain('quest_tough_it_out');
+	expect(gs.questStacks.PHYSICAL.faceUp).not.toBe('quest_tough_it_out');
+	expect(gs.questStacks.PHYSICAL.discard).toContain('quest_tough_it_out');
 });

@@ -9,7 +9,7 @@ import { rollQuestAttempt } from "../../src/engine/quests/rollQuestAttempt.js";
 import { resolveQuestAttempt } from "../../src/engine/quests/resolveQuestAttempt.js";
 import { getQuestDef } from "../../src/engine/quests/getQuestDef.js";
 
-const ONE = { physical: 1, mental: 1, creative: 1, technical: 1, resilient: 1, social: 1 };
+const ONE = { strength: 1, mental: 1, creative: 1, technical: 1, resilient: 1, social: 1 };
 const HIGH = 0.7; // d6 = 5
 const LOW = 0.2; // d6 = 2
 const rngOf = (v) => () => v;
@@ -25,7 +25,7 @@ function mkSlot(over = {}) {
 function build(questName, { slot = {}, p1 = {}, second = null } = {}) {
   const q = getQuestDef("quest_" + questName);
   const stacks = {};
-  for (const id of ["FIGHTING", "DIGITAL", "ARTISTIC"]) stacks[id] = { deck: ["quest_filler"], faceUp: "quest_tough_it_out", tokens: 0, discard: [] };
+  for (const id of ["PHYSICAL", "DIGITAL", "ARTISTIC"]) stacks[id] = { deck: ["quest_filler"], faceUp: "quest_tough_it_out", tokens: 0, discard: [] };
   stacks[q.stack] = { deck: ["quest_filler"], faceUp: q.id, tokens: 0, discard: [] };
   const s = makeEngineState({
     questStacks: stacks,
@@ -122,7 +122,7 @@ describe("Trained (E18)", () => {
     expect(s.questStacks[q.stack].tokens).toBe(0);
   });
   it("wins +25 with no dice and no rng call for two stars", () => {
-    const { s, q } = build("sprint_race", { slot: { traits: { ...ONE, physical: 2 } } });
+    const { s, q } = build("sprint_race", { slot: { traits: { ...ONE, strength: 2 } } });
     const r = go(s, q, { rng: noRng });
     expect(r.ok).toBe(true);
     expect(r.pending.dice).toEqual([]);

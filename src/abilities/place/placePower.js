@@ -11,12 +11,12 @@ export function placePowerBonus(state, slot, ownerId) {
 	if (!place || !slot || isFresh(slot)) return 0;
 	const type = slot.subtype;
 	switch (place) {
-		case 'place_the_gym': return type === 'FIGHTING' ? 10 : 0;
+		case 'place_the_gym': return type === 'PHYSICAL' ? 10 : 0;
 		case 'place_boxing_ring':
-			if (type === 'FIGHTING') return hasWord(slot, 'Gandoe') ? 20 : 10;
+			if (type === 'PHYSICAL') return hasWord(slot, 'Gandoe') ? 20 : 10;
 			return type === 'DIGITAL' || type === 'ARTISTIC' ? -10 : 0;
 		case 'place_de_box': return ['Gandoe', 'Michelle', 'Tuk'].some(n => hasWord(slot, n)) ? 10 : 0;
-		case 'place_arcade': return type === 'FIGHTING' ? -10 : 0;
+		case 'place_arcade': return type === 'PHYSICAL' ? -10 : 0;
 		case 'place_skiffa': return type === 'DIGITAL' ? -10 : 0;
 		case 'place_bank_chilling': return -10;
 		case 'place_drain_zone': return 10;

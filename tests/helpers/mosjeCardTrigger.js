@@ -37,7 +37,7 @@ export async function mosjeCardTrigger(page, entry, c) {
 			// t.ids = data-ids taken in order after the slot / stack picks (e.g. 'ok' for the result screen, 'no', '0'); else the first enabled option.
 			if (!picks.length) { await questViaUi(page, { slot: t.slot ?? 0, stackId: t.stack, picks: t.ids || [] }); return; }
 			// Named picks (a reaction option such as DJ's Lucky Beats): tap the Mosje, Quest and the stack's tile, then answer by label.
-			// The old Quest picker listed "FIGHTING - <Quest name>" and a registry pick may name that Quest (/Arm Wrestling/): the
+			// The old Quest picker listed "PHYSICAL - <Quest name>" and a registry pick may name that Quest (/Arm Wrestling/): the
 			// tap on the Quest tile replaces that modal, so such a leading pick is spent. (Left in, it would never match, never be
 			// shifted, and block every pick after it.)
 			{

@@ -359,7 +359,7 @@ describe('Phase 16 — getMosjeTrait resilience aura (EEV-03)', () => {
           activeSlots: [{
             cardId: 'mosje_gandoe_destroyer',
             isDefeated: false,
-            traits: { physical: 3, resilient },
+            traits: { strength: 3, resilient },
           }],
         },
       },
@@ -376,9 +376,9 @@ describe('Phase 16 — getMosjeTrait resilience aura (EEV-03)', () => {
     expect(getMosjeTrait(state, 'p1', 'mosje_gandoe_destroyer', 'resilient')).toBe(1);
   });
 
-  it('returns real physical trait value (not overridden) when place is active', () => {
+  it('returns real strength trait value (not overridden) when place is active', () => {
     const state = makeGameState('place_eendjes_voeren', 1);
-    expect(getMosjeTrait(state, 'p1', 'mosje_gandoe_destroyer', 'physical')).toBe(3);
+    expect(getMosjeTrait(state, 'p1', 'mosje_gandoe_destroyer', 'strength')).toBe(3);
   });
 });
 

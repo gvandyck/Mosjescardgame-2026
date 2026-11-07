@@ -52,9 +52,9 @@ describe("loss reductions and Emergency Healings", () => {
     const two = fx.effect_snelle_the_protector(board([mk(60), mk(60)], [mk(40)]), "player_2", { reaction: reaction({ 0: 40, 1: 40 }) });
     expect(two.needChoice.options).toHaveLength(2);
   });
-  it("Perfect Dodge: Physical 2 -> 20 less, Physical 3 -> 30 less (no loss)", () => {
+  it("Perfect Dodge: Strength 2 -> 20 less, Strength 3 -> 30 less (no loss)", () => {
     const act = { type: "attack", args: [{}, { targetPlayerId: "player_2", targetSlotIndex: 0 }] };
-    const dodge = (ph: number) => hit(fx.effect_snelle_perfect_dodge(board([mk(60, { traits: { physical: ph } })], [mk(40)]), "player_2", { reaction: reaction({ 0: 30 }, { action: act }) }), 30);
+    const dodge = (ph: number) => hit(fx.effect_snelle_perfect_dodge(board([mk(60, { traits: { strength: ph } })], [mk(40)]), "player_2", { reaction: reaction({ 0: 30 }, { action: act }) }), 30);
     expect(mine(dodge(2)).mp).toBe(50);
     expect(mine(dodge(3)).mp).toBe(60);
   });
@@ -100,7 +100,7 @@ describe("window integration", () => {
   it("Perfect Dodge answered in the attacked window shrinks the attack and leaves no entries", () => {
     const s = makeEngineState({ turnNumber: 3, players: {
       player_1: { activeSlots: [mk(50, {}, alyssa), mk(50)] },
-      player_2: { activeSlots: [mk(50, { traits: { physical: 2 } }), mk(50)], hand: [{ cardId: "snelle_perfect_dodge" }], energy: 3 } } });
+      player_2: { activeSlots: [mk(50, { traits: { strength: 2 } }), mk(50)], hand: [{ cardId: "snelle_perfect_dodge" }], energy: 3 } } });
     const r = attackMosje(s, "player_1", { attackerSlotIndex: 0, targetPlayerId: "player_2", targetSlotIndex: 0 });
     expect(r.state.pendingReaction.eligible).toContain("snelle_perfect_dodge");
     const out = resolveReaction(r.state, "player_2", "snelle_perfect_dodge");

@@ -7,10 +7,10 @@ function placeDice({ state, slot, quest }) {
 	if (isFresh(slot)) return 0;
 	const trait = quest?.rollTrait;
 	switch (state?.activePlace) {
-		case 'place_the_gym': return trait === 'physical' ? 1 : 0;
+		case 'place_the_gym': return trait === 'strength' ? 1 : 0;
 		case 'place_arcade': return trait === 'technical' ? 1 : 0;
 		case 'place_de_box':
-			return trait === 'physical' && ['Gandoe', 'Michelle', 'Tuk'].some(n => hasWord(slot, n)) ? 1 : 0;
+			return trait === 'strength' && ['Gandoe', 'Michelle', 'Tuk'].some(n => hasWord(slot, n)) ? 1 : 0;
 		case 'place_tesla': return hasWord(slot, 'Coert') || hasWord(slot, 'Binti') ? 1 : 0;
 		default: return 0;
 	}

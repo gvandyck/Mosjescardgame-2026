@@ -21,7 +21,7 @@ describe("Jeffrey The Strongman — Brute Force passive quest bonus (IMPL-PF-M2)
     id: "quest_arm_wrestling",
     type: "QUEST",
     questType: "GENERAL",
-    category: "Physical",
+    category: "Strength",
     requirementId: "quest_req_arm_wrestling",
     successMP: 40,
     failMP: -15,
@@ -43,7 +43,7 @@ describe("Jeffrey The Strongman — Brute Force passive quest bonus (IMPL-PF-M2)
             {
               cardId: "mosje_jeffrey",
               name: "[Jeffrey] The Strongman",
-              subtype: "FIGHTING",
+              subtype: "PHYSICAL",
               traits: {},
               mp: 30,
               level: 1,

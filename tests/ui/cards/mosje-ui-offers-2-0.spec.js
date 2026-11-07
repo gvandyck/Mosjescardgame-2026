@@ -39,9 +39,9 @@ test('Martin, Senor West (AZN Cless on the field): look at the top of a Quest st
 	});
 	// Pin a plain Steady Quest face-up so "Attempt which Quest?" always has a choice
 	// (random face-up Quests could all be un-attemptable -> "No Quest available" flake).
-	await setQuestFaceUp(page, 'FIGHTING', 'quest_tough_it_out');
+	await setQuestFaceUp(page, 'PHYSICAL', 'quest_tough_it_out');
 	const state = await getGameState(page);
-	const top = state.questStacks.FIGHTING.deck[0];
+	const top = state.questStacks.PHYSICAL.deck[0];
 	const topName = QUESTS.find(q => q.id === (typeof top === 'object' ? top.cardId : top)).name;
 	const option = page.locator('.modal-mosje-select-btn:not([disabled])');
 
@@ -49,7 +49,7 @@ test('Martin, Senor West (AZN Cless on the field): look at the top of a Quest st
 	await tapOwnCard(page, 'mosje', 'mosje_martin_senor_west'); // the acting Mosje
 	await chooseTray(page, 'quest');
 	await expect(page.locator('.modal-card h3')).toContainText('Senor West');
-	await option.filter({ hasText: 'FIGHTING' }).click();
+	await option.filter({ hasText: 'PHYSICAL' }).click();
 	await expect(page.locator('.modal-card p')).toHaveText(topName);
 	await option.filter({ hasText: 'OK' }).click();
 	await expect(chooseQuest).toBeVisible();

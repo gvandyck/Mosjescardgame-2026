@@ -21,7 +21,7 @@ import { rollQuestAttempt } from '../../src/engine/quests/rollQuestAttempt.js';
 
 function stacks(faceUp: Record<string, string | null> = {}) {
   const out: any = {};
-  for (const id of ['FIGHTING', 'DIGITAL', 'ARTISTIC']) out[id] = { deck: [], faceUp: faceUp[id] ?? null, tokens: 0, discard: [] };
+  for (const id of ['PHYSICAL', 'DIGITAL', 'ARTISTIC']) out[id] = { deck: [], faceUp: faceUp[id] ?? null, tokens: 0, discard: [] };
   return out;
 }
 const board = (me: any, opp: any[], q: Record<string, string | null> = {}, p1: any = {}) =>
@@ -62,19 +62,19 @@ describe('chooseMosjeAction', () => {
   });
 
   it('picks a Quest when there is no attack target, and the engine accepts it', () => {
-    const s = board(mkSlot({ mp: 60 }), [null, null], { FIGHTING: 'quest_tough_it_out' });
+    const s = board(mkSlot({ mp: 60 }), [null, null], { PHYSICAL: 'quest_tough_it_out' });
     const a = chooseMosjeAction(s, 'player_1', 0);
-    expect(a).toMatchObject({ kind: 'quest', stackId: 'FIGHTING' });
+    expect(a).toMatchObject({ kind: 'quest', stackId: 'PHYSICAL' });
     expect(rollQuestAttempt(s, 'player_1', { slotIndex: 0, stackId: a.stackId, costChoice: a.costChoice, rng: () => 0.9 }).ok).toBe(true);
   });
 
   it('skips a Quest whose failure would getemt it at even odds', () => {
-    const s = board(mkSlot({ mp: 15 }), [null, null], { FIGHTING: 'quest_tough_it_out' });
+    const s = board(mkSlot({ mp: 15 }), [null, null], { PHYSICAL: 'quest_tough_it_out' });
     expect(chooseMosjeAction(s, 'player_1', 0)).toBeNull();
   });
 
   it('skips a Quest whose "First you must" cost it cannot pay', () => {
-    const s = board(mkSlot({ mp: 60 }), [null, null], { FIGHTING: 'quest_endurance_test' });
+    const s = board(mkSlot({ mp: 60 }), [null, null], { PHYSICAL: 'quest_endurance_test' });
     s.players.player_1.hand = [];
     expect(chooseMosjeAction(s, 'player_1', 0)).toBeNull();
   });
@@ -83,7 +83,7 @@ describe('chooseMosjeAction', () => {
 // 61-04 (BOT-01): the choice follows the value of the MP swing (slot worth, getemt, Level 3), not a flat +20 bonus.
 // Gandoe Wizard (mkSlot default): Power 10 / 20 / 30 on Level 1 / 2 / 3; `powerBoost` adds on top. Steady Quest: +25 / -15.
 describe('chooseMosjeAction - expected value (61-04)', () => {
-  const steady = { FIGHTING: 'quest_tough_it_out' };
+  const steady = { PHYSICAL: 'quest_tough_it_out' };
   const attackTo = (s: any, i: number) => chooseMosjeAction(s, 'player_1', i);
 
   it('finishes a getemt: an attack that drops a 20 MP Mosje beats a Steady Quest, worth what the getemt costs it', () => {
@@ -114,7 +114,7 @@ describe('chooseMosjeAction - expected value (61-04)', () => {
     const fresh = (boost: number) => [mkSlot({ mp: 40, entryProtected: true, powerBoost: boost }), null]; // no attack target, Power 10 + boost
     const lv3 = () => mkSlot({ level: 3, mp: 40 }); // a failed Steady Quest leaves 25
     expect(attackTo(board(lv3(), fresh(20), steady), 0)).toBeNull(); // threat 30 >= 25
-    expect(attackTo(board(lv3(), fresh(10), steady), 0)).toMatchObject({ kind: 'quest', stackId: 'FIGHTING' }); // threat 20 < 25
+    expect(attackTo(board(lv3(), fresh(10), steady), 0)).toMatchObject({ kind: 'quest', stackId: 'PHYSICAL' }); // threat 20 < 25
   });
 
   it('does not attack into a staying Welloe Force when the thorns getemt the attacker', () => {

@@ -106,7 +106,7 @@ function withShopping(t, seat) {
 	return { ...t, activePlace: null, players: { ...t.players, [seat]: { ...me, energy: 6, hand, activeSlots: [me.activeSlots[0], null] } } };
 }
 
-// A board where The Gym clearly fits: a settled Fighting Gandoe for the seat against a settled Digital Ronald (and no Coert for Tesla).
+// A board where The Gym clearly fits: a settled Physical Gandoe for the seat against a settled Digital Ronald (and no Coert for Tesla).
 function withGymBoard(t, seat) {
 	const slot = (id) => ({ ...createMosjeSlot(MOSJES.find((m) => m.id === id), { level: 1, mp: 30 }), entryProtected: false });
 	const players = { ...t.players, [seat]: { ...t.players[seat], activeSlots: [slot('mosje_gandoe_wizard'), null] } };

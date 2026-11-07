@@ -87,9 +87,9 @@ function makeState({
   return {
     activePlayerId: 'player_2',
     turnNumber: 5,
-    // 2.0: three typed Quest stacks. `questDeck[0]` (if any) is the face-up Quest of FIGHTING.
+    // 2.0: three typed Quest stacks. `questDeck[0]` (if any) is the face-up Quest of PHYSICAL.
     questStacks: {
-      FIGHTING: { deck: [] as string[], faceUp: questDeck[0]?.cardId ?? null, tokens: 0, discard: [] as string[] },
+      PHYSICAL: { deck: [] as string[], faceUp: questDeck[0]?.cardId ?? null, tokens: 0, discard: [] as string[] },
       DIGITAL: { deck: [] as string[], faceUp: null, tokens: 0, discard: [] as string[] },
       ARTISTIC: { deck: [] as string[], faceUp: null, tokens: 0, discard: [] as string[] },
     },
@@ -157,7 +157,7 @@ function makeState({
 // Tests
 // ─────────────────────────────────────────────────────────────
 
-const QUEST_ID = 'quest_tough_it_out'; // steady, FIGHTING, resilient, no cost
+const QUEST_ID = 'quest_tough_it_out'; // steady, PHYSICAL, resilient, no cost
 
 describe('driveBotTurn', () => {
   // Test 1: No-op game — driveBotTurn does not throw, returns a state
@@ -508,7 +508,7 @@ describe('driveBotTurn — plays a 2nd Mosje from hand', () => {
       activeSlots: [makeMosjeSlot('mosje_martin_senor_west', 50), null as unknown as MosjeSlot],
     });
     const result = driveBotTurn(state, 'player_2');
-    const bonus = getPartnerSynergyQuestBonus(result, 'player_2', 'Physical');
+    const bonus = getPartnerSynergyQuestBonus(result, 'player_2', 'Strength');
     expect(bonus).toBe(15);
   });
 });

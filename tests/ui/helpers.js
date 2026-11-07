@@ -248,7 +248,7 @@ export async function getGameState(page) {
 }
 
 /**
- * 2.0: put a Quest face-up on its stack (testMode hook). stackId: FIGHTING | DIGITAL | ARTISTIC.
+ * 2.0: put a Quest face-up on its stack (testMode hook). stackId: PHYSICAL | DIGITAL | ARTISTIC.
  */
 export async function setQuestFaceUp(page, stackId, questId) {
 	await page.evaluate(({ s, q }) => window.__testHooks?.setQuestFaceUp(s, q), { s: stackId, q: questId });

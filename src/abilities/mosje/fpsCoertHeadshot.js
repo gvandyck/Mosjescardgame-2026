@@ -1,4 +1,4 @@
-// FPS Coert — Headshot Precision: when this Mosje succeeds at a Physical or Technical Quest, roll a die:
+// FPS Coert — Headshot Precision: when this Mosje succeeds at a Strength or Technical Quest, roll a die:
 // on a 6 it gains 30 MP and one opponent Mosje of the owner's choice (not fresh) loses 15 MP.
 import { rollDie } from '../../engine/deckEngine.js';
 import { gainMP, loseMP } from '../../engine/mpManager.js';
@@ -10,7 +10,7 @@ export const fpsCoertHeadshot = {
 	mosjeId: 'mosje_fps_coert',
 	run(state, ctx) {
 		if (ctx.slotIndex !== ctx.holderSlotIndex || ctx.playerId !== ctx.ownerId) return state;
-		if (!['Physical', 'Technical'].includes(ctx.quest?.category)) return state;
+		if (!['Strength', 'Technical'].includes(ctx.quest?.category)) return state;
 		const roll = ctx.roll ?? rollDie(6);
 		if (roll !== 6) return state;
 		const oppId = Object.keys(state.players).find(id => id !== ctx.ownerId);

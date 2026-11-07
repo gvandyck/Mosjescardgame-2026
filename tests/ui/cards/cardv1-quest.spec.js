@@ -4,7 +4,7 @@ import fs from 'fs';
 import { OUT, openGame, renderGallery } from './cardv1-helpers.js';
 import { collectFaceZones, findFaceCollisions } from '../../helpers/faceZones.js';
 
-const STACK_COLOR = { FIGHTING: 'rgb(194, 65, 12)', DIGITAL: 'rgb(14, 116, 144)', ARTISTIC: 'rgb(162, 28, 175)' };
+const STACK_COLOR = { PHYSICAL: 'rgb(194, 65, 12)', DIGITAL: 'rgb(14, 116, 144)', ARTISTIC: 'rgb(162, 28, 175)' };
 
 // Per rendered card: what the face shows plus the fit checks the zone rects cannot see (collected in the page).
 function readFaces() {

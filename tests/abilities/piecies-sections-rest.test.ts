@@ -152,20 +152,20 @@ describe('Substance section', () => {
 });
 
 describe('Gear section', () => {
-  it('Dumbbells: Physical 1 star +20; Physical 3 stars also draw 1', () => {
-    const one = run(board('piecie_dumbbells', { own: slotOf('mosje_coert_tech', 0, { traits: { physical: 1 } }) }));
+  it('Dumbbells: Strength 1 star +20; Strength 3 stars also draw 1', () => {
+    const one = run(board('piecie_dumbbells', { own: slotOf('mosje_coert_tech', 0, { traits: { strength: 1 } }) }));
     expect(mp(one)).toBe(20);
     expect(one.players.player_1.hand).toHaveLength(0);
-    const three = run(board('piecie_dumbbells', { own: slotOf('mosje_coert_tech', 0, { traits: { physical: 3 } }) }));
+    const three = run(board('piecie_dumbbells', { own: slotOf('mosje_coert_tech', 0, { traits: { strength: 3 } }) }));
     expect(mp(three)).toBe(20);
     expect(three.players.player_1.hand).toHaveLength(1);
   });
 
-  it('Skipping Rope: draw 1, +1 die only with a Physical 1 star Mosje', () => {
-    const yes = run(board('piecie_skipping_rope', { own: slotOf('mosje_coert_tech', 50, { traits: { physical: 1 } }) }));
+  it('Skipping Rope: draw 1, +1 die only with a Strength 1 star Mosje', () => {
+    const yes = run(board('piecie_skipping_rope', { own: slotOf('mosje_coert_tech', 50, { traits: { strength: 1 } }) }));
     expect(yes.players.player_1.hand).toHaveLength(1);
     expect(yes.players.player_1.questExtraDice).toBe(1);
-    const no = run(board('piecie_skipping_rope', { own: slotOf('mosje_coert_tech', 50, { traits: { physical: 0 } }) }));
+    const no = run(board('piecie_skipping_rope', { own: slotOf('mosje_coert_tech', 50, { traits: { strength: 0 } }) }));
     expect(no.players.player_1.hand).toHaveLength(1);
     expect(no.players.player_1.questExtraDice || 0).toBe(0);
   });

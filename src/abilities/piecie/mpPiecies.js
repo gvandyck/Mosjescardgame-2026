@@ -16,9 +16,9 @@ export const effect_broodje_doner = (s, pid) => gainOwnMosje(s, pid, 'piecie_bro
 export const effect_eendjes_voeren = (s, pid) =>
 	gainOwnMosje(s, pid, 'piecie_eendjes_voeren', slot => ((slot.traits?.resilient || 0) >= 2 ? 40 : 30));
 
-// Protein Shake: Physical 1 star or more (target table) +25; Physical 3 stars or Boxing Ring +35.
+// Protein Shake: Strength 1 star or more (target table) +25; Strength 3 stars or Boxing Ring +35.
 export const effect_protein_shake = (s, pid) => gainOwnMosje(s, pid, 'piecie_protein_shake',
-	(slot, st) => ((slot.traits?.physical || 0) >= 3 || st.activePlace === 'place_boxing_ring' ? 35 : 25));
+	(slot, st) => ((slot.traits?.strength || 0) >= 3 || st.activePlace === 'place_boxing_ring' ? 35 : 25));
 
 // Varkenspootjes: a Binti gains 40, any other non-fresh Mosje (either side) loses 15.
 export function effect_varkenspootjes(gameState, playerId) {

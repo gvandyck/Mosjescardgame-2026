@@ -183,9 +183,9 @@ describe("Quest windows", () => {
   const q = getQuestDef("quest_tough_it_out");
   function qBoard(h1: string[], h2: string[]) {
     const stacks: any = {};
-    for (const id of ["FIGHTING", "DIGITAL", "ARTISTIC"]) stacks[id] = { deck: ["quest_filler"], faceUp: "quest_filler", tokens: 0, discard: [] };
+    for (const id of ["PHYSICAL", "DIGITAL", "ARTISTIC"]) stacks[id] = { deck: ["quest_filler"], faceUp: "quest_filler", tokens: 0, discard: [] };
     stacks[q.stack] = { deck: ["quest_filler"], faceUp: q.id, tokens: 0, discard: [] };
-    const slot = () => mk(30, plain, 1, { traits: { physical: 1, mental: 1, creative: 1, technical: 1, resilient: 1, social: 1 } });
+    const slot = () => mk(30, plain, 1, { traits: { strength: 1, mental: 1, creative: 1, technical: 1, resilient: 1, social: 1 } });
     return makeEngineState({
       turnNumber: 3, questStacks: stacks,
       players: { player_1: { hand: H(...h1), activeSlots: [slot(), null] }, player_2: { hand: H(...h2), activeSlots: [slot(), null] } },

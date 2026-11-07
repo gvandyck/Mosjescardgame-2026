@@ -11,7 +11,7 @@ import { contrastRatio, compositeOver } from '../../helpers/contrast.js';
 import { DIM_ROW_OPACITY } from '../../../src/ui/cardV1/faceTokens.js';
 import { openOwnDetails } from '../../helpers/boardTaps.js';
 
-const STACK_COLOR = { FIGHTING: 'rgb(194, 65, 12)', DIGITAL: 'rgb(14, 116, 144)', ARTISTIC: 'rgb(162, 28, 175)' };
+const STACK_COLOR = { PHYSICAL: 'rgb(194, 65, 12)', DIGITAL: 'rgb(14, 116, 144)', ARTISTIC: 'rgb(162, 28, 175)' };
 const WHITE = [255, 255, 255];
 
 async function openBoard(page) {
@@ -155,7 +155,7 @@ test.describe('A10 — 2.0 card faces at 1920x1080', () => {
     await renderItems(page, items, { width: 2000, height: 760 });
 
     const expected = {
-      quest_arm_wrestling: { stack: 'FIGHTING', need: '2× 4+', needLabel: 'NEED', win: '40', lose: '-30' },
+      quest_arm_wrestling: { stack: 'PHYSICAL', need: '2× 4+', needLabel: 'NEED', win: '40', lose: '-30' },
       quest_debug_system: { stack: 'DIGITAL', need: '★★', needLabel: 'TRAINED', win: '25', lose: 'none' },
       quest_leap_of_faith: { stack: 'ARTISTIC', need: '4+', needLabel: 'COIN', win: '50', lose: '-25' },
     };

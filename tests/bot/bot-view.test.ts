@@ -133,7 +133,7 @@ describe('getBotView', () => {
 		expect(view.players[OPP].deck).toBeUndefined();
 		expect(view.players[OPP].piecieSlots).toBeUndefined();
 		expect(view.players[BOT].hand).toEqual([card('a')]);
-		expect(getBotView({ players: { [BOT]: {}, [OPP]: {} }, questStacks: { FIGHTING: {} } }, BOT).questStacks.FIGHTING.deck).toEqual([]);
+		expect(getBotView({ players: { [BOT]: {}, [OPP]: {} }, questStacks: { PHYSICAL: {} } }, BOT).questStacks.PHYSICAL.deck).toEqual([]);
 	});
 });
 

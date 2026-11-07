@@ -1,6 +1,6 @@
 // Dev-only: Card List "First you must..." cell text -> short snake id.
 export const QUEST_COST_IDS = {
-  'Mosje has Physical ★★+': 'physical_2',
+  'Mosje has Strength ★★+': 'strength_2',
   'Level 1 Mosje only': 'level_1_only',
   'Discard 1 ready Piecie': 'discard_ready_piecie',
   'Discard 1 food Piecie (from your hand or a ready one)': 'discard_food_piecie',

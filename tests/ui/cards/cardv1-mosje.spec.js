@@ -58,7 +58,7 @@ test.describe('card frame v1 — Mosje', () => {
       const { getCardsByType } = await import('/src/data/cardIndex.js');
       const mosjes = getCardsByType('MOSJE');
       const out = wanted.map(([name]) => mosjes.find(c => c.name === name)?.id);
-      for (const sub of ['FIGHTING', 'DIGITAL', 'ARTISTIC']) {
+      for (const sub of ['PHYSICAL', 'DIGITAL', 'ARTISTIC']) {
         const c = mosjes.find(m => m.subtype === sub && !out.includes(m.id));
         if (c) out.push(c.id);
       }

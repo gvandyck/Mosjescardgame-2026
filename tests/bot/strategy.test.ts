@@ -27,7 +27,7 @@ function makeMosje(overrides: Record<string, unknown> = {}) {
     level: 1,
     isDefeated: false,
     statusEffects: [],
-    traits: { physical: 3 },
+    traits: { strength: 3 },
     ...overrides,
   };
 }

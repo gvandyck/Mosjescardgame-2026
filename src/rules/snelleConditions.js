@@ -14,7 +14,7 @@ function perfectDodge(state, pid, reaction) {
 	const target = a.args?.[1] || {};
 	const slot = state.players[pid]?.activeSlots?.[target.targetSlotIndex];
 	if (target.targetPlayerId !== pid || !alive(slot)) return 'Needs: one of your Mosjes is attacked';
-	return stars(slot, 'physical') >= 2 || 'Needs: the attacked Mosje has Physical ★★';
+	return stars(slot, 'strength') >= 2 || 'Needs: the attacked Mosje has Strength ★★';
 }
 
 // Dubbele Temminks / Gevalletje Klakkeloos: a Piecie was just activated, and it is not a five-star card.

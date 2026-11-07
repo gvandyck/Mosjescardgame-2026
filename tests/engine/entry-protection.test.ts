@@ -38,7 +38,7 @@ function makeMosje(cardId: string, mp = 50, extra: Partial<MosjeSlot> = {}): Mos
     immuneThisTurn: false,
     mpLostThisTurn: 0,
     statusEffects: [],
-    traits: { physical: 2 },
+    traits: { strength: 2 },
     ...extra,
   };
 }

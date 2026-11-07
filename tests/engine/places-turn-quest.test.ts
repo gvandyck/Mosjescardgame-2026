@@ -15,7 +15,7 @@ import { placeGearDraw } from "../../src/abilities/place/placeTurnQuestEffects.j
 const card = (cardId, type = "PIECIE") => ({ cardId, type });
 const deck = () => [card("piecie_kannetje_melk"), card("piecie_kannetje_melk"), card("piecie_kannetje_melk")];
 const ming = () => MOSJES.find((m) => m.id === "mosje_ming_natural"); // no start-of-turn or Quest triggers
-const fighter = (over = {}) => mkSlot({ subtype: "FIGHTING", mp: 40, ...over }, ming());
+const fighter = (over = {}) => mkSlot({ subtype: "PHYSICAL", mp: 40, ...over }, ming());
 const digital = (over = {}) => mkSlot({ subtype: "DIGITAL", mp: 40, ...over }, ming());
 const game = (place, p1 = {}, p2 = {}, owner = "player_1") => makeEngineState({
   turnNumber: 5, activePlayerId: "player_1", activePlace: place, activePlacePlayedBy: owner,
@@ -24,7 +24,7 @@ const game = (place, p1 = {}, p2 = {}, owner = "player_1") => makeEngineState({
 const mp = (s, pid, i) => s.players[pid].activeSlots[i].mp;
 
 describe("Turn-start Places (start of the turn player's turn only)", () => {
-  it("The Gym: non-Fighting Mosjes of the turn player lose 10; Fighting, opponents and fresh ones do not", () => {
+  it("The Gym: non-Physical Mosjes of the turn player lose 10; Physical, opponents and fresh ones do not", () => {
     const s = game("place_the_gym",
       { activeSlots: [digital(), fighter(), digital({ entryProtected: true })] },
       { activeSlots: [digital()] });
@@ -42,7 +42,7 @@ describe("Turn-start Places (start of the turn player's turn only)", () => {
     expect(mp(n, "player_1", 1)).toBe(30);
   });
   it("Eendjes Voeren: the turn player's Michelle gains 10, another Mosje and the opponent's Michelle do not", () => {
-    const m = () => mkSlot({ mp: 30, subtype: "FIGHTING" }, byName(/Michelle/));
+    const m = () => mkSlot({ mp: 30, subtype: "PHYSICAL" }, byName(/Michelle/));
     const n = startTurn(game("place_eendjes_voeren", { activeSlots: [m(), digital()] }, { activeSlots: [m()] }));
     expect(mp(n, "player_1", 0)).toBe(40);
     expect(mp(n, "player_1", 1)).toBe(40);
@@ -99,7 +99,7 @@ describe("Quest Places (one gain, bonus after Michelle's double)", () => {
 describe("Skiffa reroll and Digital Gaming Stop", () => {
   const offer = (slot) => {
     const s = game("place_skiffa", { activeSlots: [slot] });
-    s.questStacks = { FIGHTING: { deck: ["quest_filler"], faceUp: "quest_tough_it_out", tokens: 0, discard: [] },
+    s.questStacks = { PHYSICAL: { deck: ["quest_filler"], faceUp: "quest_tough_it_out", tokens: 0, discard: [] },
       DIGITAL: { deck: ["quest_filler"], faceUp: "quest_tough_it_out", tokens: 0, discard: [] },
       ARTISTIC: { deck: ["quest_filler"], faceUp: "quest_tough_it_out", tokens: 0, discard: [] } };
     const stackId = Object.keys(s.questStacks)[0];

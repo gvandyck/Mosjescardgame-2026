@@ -29,7 +29,7 @@ const NEEDS: Record<string, string> = {
   piecie_mouse: 'a Digital Mosje is on your field',
   piecie_controller: 'a Digital Mosje is on your field',
   snelle_bijna_welloe: 'one of your Mosjes has 10 MP or less',
-  snelle_perfect_dodge: 'the attacked Mosje has Physical ★★',
+  snelle_perfect_dodge: 'the attacked Mosje has Strength ★★',
   snelle_lucky_coin: 'one of your Mosjes has Creative ★',
   snelle_counter_strikka: 'one of your Mosjes has Mental ★★',
   snelle_jammertje_gepakt: 'one of your Mosjes has Mental ★★',

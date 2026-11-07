@@ -96,14 +96,14 @@ describe("Drain Reversal rider vs the attacker", () => {
 
 // 61.1-02 (D-02): the Snelle play's own victory check sweeps a sideways 0 MP target that still carries the stale
 // _pendingWelloe flag; the held attack then replayed against an empty slot and the Dodge was refused ("Invalid attack target").
-// player_1 attacks player_2 slot 0 (sideways, 0 MP, Physical 2); player_2 holds Perfect Dodge. Returns the open reaction window.
+// player_1 attacks player_2 slot 0 (sideways, 0 MP, Strength 2); player_2 holds Perfect Dodge. Returns the open reaction window.
 function dodgeWindow(extra: any) {
   const s = makeEngineState({
     turnNumber: 3,
     players: {
       player_1: { activeSlots: [mk(50, attackerDef), mk(50)] },
       player_2: {
-        activeSlots: [mk(0, plain, 1, { sideways: true, traits: { physical: 2 }, ...extra }), mk(50)],
+        activeSlots: [mk(0, plain, 1, { sideways: true, traits: { strength: 2 }, ...extra }), mk(50)],
         hand: [{ cardId: "snelle_perfect_dodge" }],
         energy: 6,
       },

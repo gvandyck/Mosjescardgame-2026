@@ -27,7 +27,7 @@ function diceDelta(view, withPlace, pid, quests) {
 	return DIE_VALUE * sum(upright(view, pid), s => Math.max(0, ...quests.map(q => getQuestDiceCount(withPlace, pid, s, q) - getQuestDiceCount(view, pid, s, q))));
 }
 
-// The words a Mosje answers to on a card: its type (Fighting, Digital, Artistic) and every word of its name, lower case.
+// The words a Mosje answers to on a card: its type (Physical, Digital, Artistic) and every word of its name, lower case.
 function wordsOf(slot) {
 	const def = MOSJE_BY_ID[slot.cardId];
 	const name = String(def?.name ?? slot.name ?? '');

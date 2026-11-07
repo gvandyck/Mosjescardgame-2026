@@ -82,8 +82,8 @@ describe('card frame v1 — Mosje face data mapping', () => {
   it('the 2.0 face has no traits info line; traits live in the level rows', () => {
     const html = buildCardV1(byName('Alyssa, The Bulldozer'), {})!.html;
     expect(html).not.toContain('cv2-info');
-    expect(html).not.toContain('Physical ★★★'); // the old "Physical ★★★ · Resilient ★★" info line is gone
-    expect(html).toContain('Power 20 · Phys ★★★ · Res ★★ · Soc ★★★'); // row 1
+    expect(html).not.toContain('Strength ★★★'); // the old "Strength ★★★ · Resilient ★★" info line is gone
+    expect(html).toContain('Power 20 · Str ★★★ · Res ★★ · Soc ★★★'); // row 1
   });
   it('first name shrinks for long names, never below 24px, never above 40px', () => {
     expect(fitFirstName('Alyssa')).toBe(40);
@@ -112,8 +112,8 @@ describe('card frame v1 — Mosje face data mapping', () => {
   it('type colour comes from the Mosje subtype, with a safe fallback', () => {
     expect(getMosjeTypeKey({ subtype: 'DIGITAL' })).toBe('DIGITAL');
     expect(getMosjeTypeKey({ subtype: 'ARTISTIC' })).toBe('ARTISTIC');
-    expect(getMosjeTypeKey({ subtype: 'nope' })).toBe('FIGHTING');
-    expect(getMosjeTypeKey(undefined)).toBe('FIGHTING');
+    expect(getMosjeTypeKey({ subtype: 'nope' })).toBe('PHYSICAL');
+    expect(getMosjeTypeKey(undefined)).toBe('PHYSICAL');
   });
 
   it('2.0 face: cost, name, nickname, the lit level row, Power / LVL / MP footer, type label (Alyssa, level 2)', () => {
@@ -130,7 +130,7 @@ describe('card frame v1 — Mosje face data mapping', () => {
     expect(stat(html, 'power')![1]).toBe('30'); // level 2 power
     expect(stat(html, 'mp')![1]).toBe('35');
     expect(html).toContain('LVL 2');
-    expect(html).toContain('FIGHTING MOSJE');
+    expect(html).toContain('PHYSICAL MOSJE');
     expect(html).toContain('#C2410C');
     expect(html).not.toContain('cv2-info');
     expect(html).not.toContain('cv1-badge'); // no MP badge box any more

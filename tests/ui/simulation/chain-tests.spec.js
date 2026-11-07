@@ -96,14 +96,14 @@ test('chain-1: Quest Prep Stack — Dubbele Dosis gives +1 die that turns a near
 	expect(stateAfterActivate?.players?.player_1?.questExtraDice ?? 0).toBe(1);
 
 	// Steady Quest (one 4+). Base dice = Resilient stars; every base die is a 1, only the EXTRA die is a 6.
-	await setQuestFaceUp(page, 'FIGHTING', 'quest_tough_it_out');
+	await setQuestFaceUp(page, 'PHYSICAL', 'quest_tough_it_out');
 	const base = Math.max(1, Number(stateAfterActivate.players.player_1.activeSlots[0].traits?.resilient) || 0);
 	await setNextDice(page, [...Array(base).fill(1), 6]);
 	await setMosjeMP(page, 'player_1', 0, 60);  // refresh for clean MP assertion
 	await page.waitForTimeout(200);
 
 	const mpBefore = (await readOwnedMosjes(page))[0]?.mp;
-	await questViaUi(page, { slot: 0, stackId: 'FIGHTING' });
+	await questViaUi(page, { slot: 0, stackId: 'PHYSICAL' });
 	await ss(page, 'chain1-after-quest');
 
 	const mpAfter = (await readOwnedMosjes(page))[0]?.mp;

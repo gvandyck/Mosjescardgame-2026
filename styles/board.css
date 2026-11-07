@@ -1127,7 +1127,7 @@
 }
 
 /* ── Mosje ability "cast" — type-coloured ring + glow + chip ───────────────── */
-/* Fighting=red, Digital=blue, Artistic=purple. Distinct from the generic +MP. */
+/* Physical=red, Digital=blue, Artistic=purple. Distinct from the generic +MP. */
 /* Ability casts use the Mosje category colour (gold). */
 .cast-ring--mosje, .cast-chip--mosje, .cast-glow--mosje { --cast: #e8b94f; --cast-soft: rgba(232, 185, 79, 0.9); }
 

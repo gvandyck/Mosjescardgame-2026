@@ -18,11 +18,11 @@ import { effect_momentum_factory } from "../../src/abilities/placeEffects.js";
 
 // The 20 Card List Places. Momentum Factory is a V4 leftover still in data (no Card List entry): tested apart below.
 const ALL = PLACES.map((p) => p.id).filter((id) => id !== "place_momentum_factory");
-const CAST = ["Gandoe", "Michelle", "Tuk", "Coert", "Ming"]; // Fighting/Gandoe, Michelle, Artistic Tuk, Digital Coert, Digital Ming
+const CAST = ["Gandoe", "Michelle", "Tuk", "Coert", "Ming"]; // Physical/Gandoe, Michelle, Artistic Tuk, Digital Coert, Digital Ming
 const mosjeFor = (word) => byName(new RegExp(word));
 const slotFor = (word, fresh) => {
   const s = mkSlot({ mp: 80, entryProtected: fresh }, mosjeFor(word));
-  s.traits = { physical: 3, mental: 3, creative: 3, technical: 3, resilient: 3, social: 3 };
+  s.traits = { strength: 3, mental: 3, creative: 3, technical: 3, resilient: 3, social: 3 };
   return s;
 };
 const world = (place, slot) => makeEngineState({
@@ -42,7 +42,7 @@ function probe(place, word, fresh) {
   const turn = turnMp(place) - turnMp(null);
   return {
     power: getPower(slot, st, "player_1"),
-    dicePhys: dice(st, slot, "physical"), diceTech: dice(st, slot, "technical"),
+    diceStr: dice(st, slot, "strength"), diceTech: dice(st, slot, "technical"),
     bonusWin: placeQuestBonus(st, slot, "quest_quick_thinking", true), bonusLose: placeQuestBonus(st, slot, "quest_quick_thinking", false),
     bonusParking: placeQuestBonus(st, slot, "quest_parkeren_delft", true),
     afterLoss, afterGain, turn,
@@ -90,7 +90,7 @@ describe("fresh Mosjes ignore Places (RULE-08)", () => {
     for (const place of MOSJE_PLACES) {
       probeAll(place, false).forEach((p, i) => Object.keys(p).forEach((k) => { if (p[k] !== base[i][k]) moved.add(k); }));
     }
-    for (const k of ["power", "dicePhys", "diceTech", "bonusWin", "bonusLose", "bonusParking", "afterLoss", "afterGain", "turn"]) expect(moved.has(k), k).toBe(true);
+    for (const k of ["power", "diceStr", "diceTech", "bonusWin", "bonusLose", "bonusParking", "afterLoss", "afterGain", "turn"]) expect(moved.has(k), k).toBe(true);
   });
 
   it("both sides: a bad-side Place (Bank Chilling -10 Power) and a good-side one (Drain Zone +10) are both ignored when fresh", () => {

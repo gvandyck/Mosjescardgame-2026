@@ -187,7 +187,7 @@ export function createEngineState(overrides = {}) {
           {
             cardId: 'mosje_jeffrey',
             name: '[Jeffrey] The Strongman',
-            traits: { physical: 3, resilient: 1 },
+            traits: { strength: 3, resilient: 1 },
             mp: 20,
             level: 1,
             isDefeated: false,

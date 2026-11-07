@@ -17,7 +17,7 @@ const snelle = (cardId) => ({ cardId, type: 'SNELLE_PIECIE' });
 const piecie = (cardId) => ({ cardId, type: 'PIECIE' });
 const readyPiecie = (cardId) => ({ cardId, type: 'PIECIE', faceDown: true, activated: false, playedOnTurn: 2, canActivateOnTurn: 3 });
 const filled = (st) => st.players[BOT].piecieSlots.filter(Boolean).length;
-const noQuests = { questStacks: ['FIGHTING', 'DIGITAL', 'ARTISTIC'].reduce((o, id) => ({ ...o, [id]: { deck: [], faceUp: null, tokens: 0, discard: [] } }), {}) };
+const noQuests = { questStacks: ['PHYSICAL', 'DIGITAL', 'ARTISTIC'].reduce((o, id) => ({ ...o, [id]: { deck: [], faceUp: null, tokens: 0, discard: [] } }), {}) };
 
 // The bot is player_1 and it is its turn 3, 3 empty Piecie slots.
 function table({ energy = 3, place = null, field = ['mosje_gandoe_wizard', null], hand = [], bot = {}, oppHand = [], active = BOT } = {}) {

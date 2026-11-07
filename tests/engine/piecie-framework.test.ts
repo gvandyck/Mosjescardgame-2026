@@ -143,7 +143,7 @@ describe('Level 2+ gate and Only-if conditions', () => {
   it('Keyboard / Mouse / Controller without a Digital Mosje are refused, nothing paid; with one allowed', () => {
     for (const id of ['piecie_keyboard', 'piecie_mouse', 'piecie_controller']) {
       const s = makePiecieState({ piecieId: id });
-      s.players.player_1.activeSlots[0].subtype = 'FIGHTING';
+      s.players.player_1.activeSlots[0].subtype = 'PHYSICAL';
       s.players.player_1.energy = 10;
       const r = activatePiecie(s, 'player_1', 0);
       expect(r.success, id).toBe(false);

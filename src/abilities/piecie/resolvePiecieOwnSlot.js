@@ -1,5 +1,5 @@
 // resolvePiecieOwnSlot - which of the activator's Mosjes a Piecie hits. The pick (state._pendingTargets.own_slot_index,
-// consumed) is re-checked against the Piecie's target table (piecieTargetOptions: Physical stars, MP limit ...):
+// consumed) is re-checked against the Piecie's target table (piecieTargetOptions: Strength stars, MP limit ...):
 // a live Mosje that breaks the rule ends the effect (-1, T-59-04); an empty/defeated slot falls back to the first
 // eligible Mosje (T-55-10). Without a pick the first eligible Mosje is used.
 import { piecieTargetOptions } from '../../engine/targets/piecieTargetOptions.js';

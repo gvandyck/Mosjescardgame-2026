@@ -132,8 +132,8 @@ describe("E20 - conditions", () => {
     expect(ok(s, "shotje_obby")).toBe(false);
   });
   it("Trained needs trait >= 2 in the rolled trait", () => {
-    const lo = build({}, { traits: { physical: 1, technical: 1, social: 1 } });
-    const hi = build({}, { traits: { physical: 2, technical: 2, social: 2 } });
+    const lo = build({}, { traits: { strength: 1, technical: 1, social: 1 } });
+    const hi = build({}, { traits: { strength: 2, technical: 2, social: 2 } });
     for (const n of ["sprint_race", "debug_system", "team_building"]) {
       expect(ok(lo, n)).toBe(false);
       expect(ok(hi, n)).toBe(true);

@@ -43,7 +43,7 @@ function makeMosje(cardId: string, mp = 50, tags?: string[]) {
   return {
     cardId,
     name: cardId,
-    subtype: 'PHYSICAL',
+    subtype: 'STRENGTH',
     tags,
     traits: {},
     mp,

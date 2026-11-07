@@ -44,7 +44,7 @@ A **user testing expert–grade card playtesting system** that runs individual c
 - `src/playtest/generate-report.ts` — Markdown report generation
 - `src/playtest/run-all-playtests.ts` — Entry point (npx tsx src/playtest/run-all-playtests.ts)
 - `src/playtest/bootstrap-registry.ts` — Card registration imports
-- `src/playtest/specs/physical-force.ts` — 12 Physical Force card specs (all passing)
+- `src/playtest/specs/strength-force.ts` — 12 Physical Force card specs (all passing)
 - `src/playtest/specs/index.ts` — Spec exports
 - `src/playtest/README.md` — Comprehensive user guide
 - `docs/playtest-report.md` — Sample output (12/12 cards passing)
@@ -61,7 +61,7 @@ npx tsx src/playtest/run-all-playtests.ts
 Outputs: `docs/playtest-report.md` with pass/fail summary + detailed results per card.
 
 ### Add Tests for More Cards
-1. Copy `physical-force.ts` → `digital-control.ts`
+1. Copy `strength-force.ts` → `digital-control.ts`
 2. Replace card IDs with Digital Control deck cards
 3. Add new specs to `specs/index.ts`
 4. Update `run-all-playtests.ts` to include new specs

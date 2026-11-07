@@ -57,11 +57,11 @@ describe('MP Piecies', () => {
     expect(mp(run(board('piecie_eendjes_voeren', { ownSlot: { traits: { resilient: 2 } } })))).toBe(90);
   });
 
-  it('Protein Shake +25 on Physical 1 star, +35 on 3 stars or in Boxing Ring, refused target below 1 star', () => {
-    expect(mp(run(board('piecie_protein_shake', { ownSlot: { traits: { physical: 1 } } })))).toBe(75);
-    expect(mp(run(board('piecie_protein_shake', { ownSlot: { traits: { physical: 3 } } })))).toBe(85);
-    expect(mp(run(board('piecie_protein_shake', { ownSlot: { traits: { physical: 1 } }, place: 'place_boxing_ring' })))).toBe(85);
-    expect(mp(run(board('piecie_protein_shake', { ownSlot: { traits: { physical: 0 } } })))).toBe(50);
+  it('Protein Shake +25 on Strength 1 star, +35 on 3 stars or in Boxing Ring, refused target below 1 star', () => {
+    expect(mp(run(board('piecie_protein_shake', { ownSlot: { traits: { strength: 1 } } })))).toBe(75);
+    expect(mp(run(board('piecie_protein_shake', { ownSlot: { traits: { strength: 3 } } })))).toBe(85);
+    expect(mp(run(board('piecie_protein_shake', { ownSlot: { traits: { strength: 1 } }, place: 'place_boxing_ring' })))).toBe(85);
+    expect(mp(run(board('piecie_protein_shake', { ownSlot: { traits: { strength: 0 } } })))).toBe(50);
   });
 
   it('Varkenspootjes: a Binti gains 40, anyone else loses 15, a fresh Mosje is never touched', () => {
@@ -217,9 +217,9 @@ describe('Gear Piecies', () => {
     expect(out.players.player_1.questExtraDice).toBe(1);
   });
 
-  it('Boxing Gloves +10 Power this turn on Physical 2 stars, a Gandoe +20, not offered below 2 stars', () => {
-    expect(run(board('piecie_boxing_gloves', { ownSlot: { traits: { physical: 2 }, cardId: 'mosje_x' } })).players.player_1.activeSlots[0].powerBoostThisTurn).toBe(10);
-    expect(run(board('piecie_boxing_gloves', { ownSlot: { traits: { physical: 2 } } })).players.player_1.activeSlots[0].powerBoostThisTurn).toBe(20);
-    expect(run(board('piecie_boxing_gloves', { ownSlot: { traits: { physical: 1 } } })).players.player_1.activeSlots[0].powerBoostThisTurn).toBeUndefined();
+  it('Boxing Gloves +10 Power this turn on Strength 2 stars, a Gandoe +20, not offered below 2 stars', () => {
+    expect(run(board('piecie_boxing_gloves', { ownSlot: { traits: { strength: 2 }, cardId: 'mosje_x' } })).players.player_1.activeSlots[0].powerBoostThisTurn).toBe(10);
+    expect(run(board('piecie_boxing_gloves', { ownSlot: { traits: { strength: 2 } } })).players.player_1.activeSlots[0].powerBoostThisTurn).toBe(20);
+    expect(run(board('piecie_boxing_gloves', { ownSlot: { traits: { strength: 1 } } })).players.player_1.activeSlots[0].powerBoostThisTurn).toBeUndefined();
   });
 });

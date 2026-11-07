@@ -14,7 +14,7 @@ const deckPick = (n) => [
 ];
 
 export const MOSJE_ABILITY_RULES = Object.freeze({
-	// Fighting
+	// Physical
 	ability_gandoe_wizard_chaos_roll: trig(),
 	ability_jeffrey_brute_force: pass(),
 	ability_alyssa_bulldozer_unstoppable: pass(),

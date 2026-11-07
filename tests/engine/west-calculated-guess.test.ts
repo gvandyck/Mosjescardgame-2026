@@ -82,24 +82,24 @@ describe("Senor West holder text: look at the top of a Quest stack", () => {
   const withAzn = () => {
     const s = board();
     s.players.player_1.activeSlots[1] = mkSlot({ mp: 30 }, AZN);
-    s.questStacks = { FIGHTING: { deck: ["quest_tough_it_out", "quest_filler"], faceUp: "quest_filler", tokens: 0, discard: [] } };
+    s.questStacks = { PHYSICAL: { deck: ["quest_tough_it_out", "quest_filler"], faceUp: "quest_filler", tokens: 0, discard: [] } };
     return s;
   };
 
   it("with AZN Cless: returns the top deck card id, once per turn, no other change", () => {
     const s = withAzn();
-    const res = senorWestPeekQuestStack(s, "player_1", "FIGHTING");
+    const res = senorWestPeekQuestStack(s, "player_1", "PHYSICAL");
     expect(res.success).toBe(true);
     expect(res.cardId).toBe("quest_tough_it_out");
     expect(res.state.questStacks).toEqual(s.questStacks);
-    expect(senorWestPeekQuestStack(res.state, "player_1", "FIGHTING").success).toBe(false);
+    expect(senorWestPeekQuestStack(res.state, "player_1", "PHYSICAL").success).toBe(false);
   });
 
   it("without AZN Cless, on the opponent's turn, or for an unknown stack: refused", () => {
-    expect(senorWestPeekQuestStack(board(), "player_1", "FIGHTING").success).toBe(false);
+    expect(senorWestPeekQuestStack(board(), "player_1", "PHYSICAL").success).toBe(false);
     const s = withAzn();
     expect(senorWestPeekQuestStack(s, "player_1", "NOPE").success).toBe(false);
     s.activePlayerId = "player_2";
-    expect(senorWestPeekQuestStack(s, "player_1", "FIGHTING").success).toBe(false);
+    expect(senorWestPeekQuestStack(s, "player_1", "PHYSICAL").success).toBe(false);
   });
 });

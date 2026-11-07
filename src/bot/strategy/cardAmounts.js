@@ -17,7 +17,7 @@ export const ELIMINATION_MP_MAX = {
 // bot counts the same as a cut. Jensen!, Counter Strikka and Blensen! cut nothing: they stop the card instead.
 export const SNELLE_LOSS_CUT = {
 	snelle_the_protector: { base: 30 },
-	snelle_perfect_dodge: { base: 20, upgraded: 30, trait: 'physical', stars: 3 },
+	snelle_perfect_dodge: { base: 20, upgraded: 30, trait: 'strength', stars: 3 },
 	snelle_drain_reversal: { base: 20 },
 	snelle_emergency_healings: { base: 25, upgraded: 35, trait: 'resilient', stars: 2 },
 };

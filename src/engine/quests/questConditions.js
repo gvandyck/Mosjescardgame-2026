@@ -10,7 +10,7 @@ const totalMp = (p) => (p?.activeSlots || []).reduce((n, s) => n + (s && !s.isDe
 const staysPiecie = (entry) => entry.stays === true;
 
 export const QUEST_CONDITIONS = {
-	physical_2: trait2('physical'),
+	strength_2: trait2('strength'),
 	technical_2: trait2('technical'),
 	social_2: trait2('social'),
 	level_1_only: ({ slot }) => slot?.level === 1,

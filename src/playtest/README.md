@@ -214,13 +214,13 @@ Then set `mosje.startMP` to satisfy `{ type: "mp", params: { operator: "<=", val
 To test just one card during development:
 
 ```typescript
-// specs/physical-force.ts
+// specs/strength-force.ts
 import { runCardPlaytest } from "../run-card-playtest.js";
 
 console.log(runCardPlaytest(kannetjeMelkSpec));
 ```
 
-Then run with `npx tsx src/playtest/specs/physical-force.ts`.
+Then run with `npx tsx src/playtest/specs/strength-force.ts`.
 
 ## Integration with CI
 

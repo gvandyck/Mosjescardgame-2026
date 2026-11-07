@@ -37,9 +37,9 @@ test('U10: a Mosje that reaches Level 3 shows LVL 3 · HOLD, a gold hold tile an
 	await expect(ownTile(page, 0).locator('.cv2-tile-lvl')).toHaveText('L2');
 	await expect(strip(page), 'no hold message before anyone is at Level 3').not.toHaveAttribute('data-status-kind', 'hold');
 
-	await setQuestFaceUp(page, 'FIGHTING', 'quest_tough_it_out'); // Steady: one 4+, +25 / -15: 90 + 25 reaches Level 3
+	await setQuestFaceUp(page, 'PHYSICAL', 'quest_tough_it_out'); // Steady: one 4+, +25 / -15: 90 + 25 reaches Level 3
 	await setNextDice(page, [6, 6, 6]);
-	await questViaUi(page, { slot: 0, stackId: 'FIGHTING' });
+	await questViaUi(page, { slot: 0, stackId: 'PHYSICAL' });
 	let gs = await getGameState(page);
 	expect(gs.players.player_1.activeSlots[0].level, 'engine: Level 3').toBe(3);
 	expect(gs.status, 'reaching Level 3 does not end the game').not.toBe('FINISHED');

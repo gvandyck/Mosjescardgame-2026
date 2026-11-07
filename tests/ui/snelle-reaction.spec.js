@@ -75,10 +75,10 @@ test('c: not enough Energy (Perfect Dodge costs 2, Energy 1) -> no prompt', asyn
 
 async function questWithSleutelpuntje(page, energy, choose) {
 	await boot(page, ['snelle_sleutelpuntje'], energy);
-	await setQuestFaceUp(page, 'FIGHTING', 'quest_tough_it_out');
+	await setQuestFaceUp(page, 'PHYSICAL', 'quest_tough_it_out');
 	await setNextDice(page, [6, 6, 6, 6, 6, 6]);
-	await beginQuestByTap(page, 0); // tap the Mosje, Quest in its tray; then the FIGHTING Quest tile
-	await page.locator('.quest-stack[data-quest-stack="FIGHTING"]').click();
+	await beginQuestByTap(page, 0); // tap the Mosje, Quest in its tray; then the PHYSICAL Quest tile
+	await page.locator('.quest-stack[data-quest-stack="PHYSICAL"]').click();
 	if (choose === 'none') {
 		await expectNoReactionPrompt(page, 800);
 	} else {
