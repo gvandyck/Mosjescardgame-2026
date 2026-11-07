@@ -521,7 +521,7 @@ export const MOSJES = [
     subtype: "DIGITAL",
     name: "FPS Coert",
     startMP: 20,
-    traits: { technical: 3, strength: 2, mental: 2 },
+    traits: { technical: 2, resilient: 1, mental: 1 },
     abilityId: "ability_fps_coert_headshot_precision",
     autoAbility: true,
     abilityDescription: "Headshot Precision: when this Mosje succeeds at a Strength or Technical Quest, roll a die: on a 6 it gains 30 MP and one opponent's Mosje loses 15 MP.",
@@ -531,7 +531,7 @@ export const MOSJES = [
     tags: ["COERT", "FPS"],
     flavourText: "Quick scopes and clutch plays — every shot counts.",
     cost: 3,
-    levels: [{ power: 10, traits: { technical: 3, strength: 2, mental: 2 } }, { power: 20, traits: { technical: 3, strength: 3, mental: 2 } }, { power: 30, traits: { technical: 3, strength: 3, mental: 3 } }],
+    levels: [{ power: 10, traits: { technical: 2, resilient: 1, mental: 1 } }, { power: 20, traits: { technical: 2, resilient: 2, mental: 1 } }, { power: 30, traits: { technical: 3, resilient: 2, mental: 1 } }],
     abilityName: "Headshot Precision",
     synergyLabel: ["mosje_fps_west"],
     synergyLabelText: "FPS West",
@@ -539,8 +539,7 @@ export const MOSJES = [
     foil: false,
     artPath: "assets/mosje-art/placeholder.png",
     rarity: "★★★",
-    isBoosterOnly: false,
-    disabled: true // archived 7 Nov 2026
+    isBoosterOnly: false
   },
   {
     id: "mosje_fps_west",
@@ -548,7 +547,7 @@ export const MOSJES = [
     subtype: "DIGITAL",
     name: "FPS West",
     startMP: 10,
-    traits: { technical: 3, mental: 3, strength: 1 },
+    traits: { technical: 2, resilient: 1, social: 1 },
     abilityId: "ability_fps_west_tactical_analysis",
     // LEGACY abilityDescription (pre-Phase 19, archived for possible revert):
     // "Tactical Analysis: Pay 10 MP to view opponent hand and predict next card type; correct gain 20 MP, wrong lose 10 MP."
@@ -559,7 +558,7 @@ export const MOSJES = [
     tags: ["WEST", "FPS"],
     flavourText: "Analyzing angles, predicting movements, always one step ahead.",
     cost: 3,
-    levels: [{ power: 10, traits: { technical: 3, mental: 3, strength: 1 } }, { power: 20, traits: { technical: 3, mental: 3, strength: 2 } }, { power: 30, traits: { technical: 3, mental: 3, strength: 3 } }],
+    levels: [{ power: 10, traits: { technical: 2, resilient: 1, social: 1 } }, { power: 20, traits: { technical: 2, resilient: 2, social: 1 } }, { power: 30, traits: { technical: 3, resilient: 2, social: 1 } }],
     abilityName: "Tactical Analysis",
     synergyLabel: ["mosje_fps_coert"],
     synergyLabelText: "FPS Coert",
@@ -567,8 +566,7 @@ export const MOSJES = [
     foil: true,
     artPath: "assets/mosje-art/FPS West.png",
     rarity: "★★★★",
-    isBoosterOnly: false,
-    disabled: true // archived 7 Nov 2026
+    isBoosterOnly: false
   },
 
   // ─────────────────────────────────────────
