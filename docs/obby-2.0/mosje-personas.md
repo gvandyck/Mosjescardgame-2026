@@ -2,7 +2,7 @@
 
 One profile per friend, with every Mosje card of that friend. Source of truth for themes, art, ability wording and Personal Quests. Started 7 Nov 2026 from Gandalf's lore answers; add lines any time under **More to add**.
 
-Types and traits come from `src/data/mosjes.js` (branch `card/mosje-roster-7nov`). Ability text is the 1 Nov Cleanup List version (not all in code yet). **PQ type ⚠** = the Personal Quest was written for the old type and must be re-typed.
+Types and traits come from `src/data/mosjes.js` (branch `card/mosje-roster-7nov`). Ability text is the 1 Nov Cleanup List version (not all in code yet). Personal Quests re-typed on 7 Nov where a Mosje changed type.
 
 Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Creative Art 2/3/3 + Res 1/1/1. Res = −5 MP per ★ on attacks.
 
@@ -26,12 +26,12 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 3 · start MP 10
 - **Traits:** LV1 Tech ★★ · Res ★ · Str ★ → LV2 Tech ★★ · Res ★★ · Str ★ → LV3 Tech ★★★ · Res ★★ · Str ★
-- **Ability:** Start of your turn: roll a die. 1–2: −10 MP. 5–6: +10 Power or +1 die this turn. (Unpredictable Wizard text)
-- **Personal Quest:** Hocus Pocus ⚠ written as Physical, card is now Digital
+- **Ability:** Once per turn, 1ϟ: look at your top 3 cards, take 1, put the rest on the bottom. (approved 7 Nov)
+- **Personal Quest:** (new name pending, was Hocus Pocus) · Digital · Needs: 1 ready gear Piecie · Roll Tech★ → 2× 4+
 - **Life & vibe:**
   - Was 'The Unpredictable Wizard' (chaotic magic, potions); renamed 7 Nov
   - Builds things with AI · vibe-codes this game
-- **Theme check:** Ability and PQ still describe the chaos wizard: needs a new Digital ability and PQ about building with AI.
+- **Theme check:** New ability approved 7 Nov. PQ re-themed (name pending).
 
 ### DJ 80/20, The Lucky Mixer · Creative
 
@@ -62,12 +62,12 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 3 · start MP 10
 - **Traits:** LV1 Str ★★ · Soc ★ · Res ★ → LV2 Str ★★★ · Soc ★ · Res ★ → LV3 Str ★★★ · Soc ★★ · Res ★
-- **Ability:** Quest win: roll a die. 1–3: half the MP. 4–6: double.
+- **Ability:** Loses 10 less from every attack. From LV3: 15 less. (approved 7 Nov)
 - **Personal Quest:** Ironman
 - **Life & vibe:**
   - Tough as iron · endurance, never quits
   - Boxing with Gandoe · never gives up · takes hits and keeps going
-- **Theme check:** Ability is a gamble, which doesn't fit 'iron'. Rework toward taking hits / never giving up.
+- **Theme check:** Fixed 7 Nov.
 
 ### Tuk, The Healing Spirit · Creative
 
@@ -114,7 +114,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 - **Stats:** cost 2 · start MP 30
 - **Traits:** LV1 Str ★★ · Soc ★ · Art ★ → LV2 Str ★★★ · Soc ★ · Art ★ → LV3 Str ★★★ · Soc ★★ · Art ★
 - **Ability:** Start of your turn: roll a die. 4–6: draw 1, +5 MP.
-- **Personal Quest:** Lucky Streak ⚠ written as Artistic, card is now Physical
+- **Personal Quest:** Lucky Streak · re-typed 7 Nov: Physical, rolls Str
 - **Life & vibe:**
   - Lucky streak
   - Pulls rares from real Pokémon card packs (why he's Physical)
@@ -154,12 +154,12 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 2 · start MP 20
 - **Traits:** LV1 Str ★★ · Men ★ · Tech ★ → LV2 Str ★★★ · Men ★ · Tech ★ → LV3 Str ★★★ · Men ★★ · Tech ★
-- **Ability:** Once per turn: name a card type, reveal the top card of any deck. Right: draw 2, +10 MP. Wrong: −10 MP.
-- **Personal Quest:** Obby Shotjes Gauntlet ⚠ written as Digital, card is now Physical
+- **Ability:** Once per turn, 1ϟ: an opponent Mosje is charmed and can't attack until the end of their next turn. (approved 7 Nov)
+- **Personal Quest:** Obby Shotjes Gauntlet · re-typed 7 Nov: Physical, rolls Str
 - **Life & vibe:**
   - Shotje Obby · charming señor
   - Shots one after another · dancing / charming · those eyelashes knock people out
-- **Theme check:** Guessing ability doesn't fit the new Physical type: rework toward shots / charm.
+- **Theme check:** Fixed 7 Nov (those eyelashes).
 
 ### Parkour West, The Flow Fighter · Physical
 
@@ -190,7 +190,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 - **Stats:** cost 3 · start MP 15
 - **Traits:** LV1 Tech ★★ · Res ★ · Art ★ → LV2 Tech ★★ · Res ★★ · Art ★ → LV3 Tech ★★★ · Res ★★ · Art ★
 - **Ability:** Quest win: +15 MP extra. Once per turn, 1 Energy + discard 2 cards: draw 3.
-- **Personal Quest:** Grand Prix ⚠ written as Artistic, card is now Digital
+- **Personal Quest:** Grand Prix · re-typed 7 Nov: Digital, rolls Tech + Art
 - **Life & vibe:**
   - F1 / Grand Prix · perfect racing line
   - Sim racing (F1 game) — why he's Digital
@@ -251,19 +251,19 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 3 · start MP 20
 - **Traits:** LV1 Str ★★ · Soc ★ · Res ★ → LV2 Str ★★★ · Soc ★ · Res ★ → LV3 Str ★★★ · Soc ★★ · Res ★
-- **Ability:** Your Quest wins give +10 MP extra. You can't activate MP Piecies, except Protein Shake.
+- **Ability:** Can hold 3 attachments instead of 2. (approved 7 Nov)
 - **Personal Quest:** Sterke Jongen
 - **Life & vibe:**
   - Lifts heavy stuff
   - Hits really hard · carries heavy things
-- **Theme check:** Ability is about Quest MP, not hitting hard: rework toward Power / carrying.
+- **Theme check:** Fixed 7 Nov (carries heavy things).
 
 ### Jeffrey, The Silent Gambler · Creative
 
 - **Stats:** cost 3 · start MP 10
 - **Traits:** LV1 Art ★★ · Men ★ · Res ★ → LV2 Art ★★★ · Men ★ · Res ★ → LV3 Art ★★★ · Men ★★ · Res ★
 - **Ability:** Once per turn, stake 1–2 Energy and roll. 1–2: lost. 3–4: back. 5–6: back, draw 1, +10 MP per Energy.
-- **Personal Quest:** High Roller ⚠ written as Digital, card is now Creative
+- **Personal Quest:** High Roller · re-typed 7 Nov: Creative, rolls Art
 - **Life & vibe:**
   - Poker face · high stakes · dice addict
   - Casino / Punto Banco
@@ -287,7 +287,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 - **Stats:** cost 3 · start MP 15
 - **Traits:** LV1 Str ★★ · Art ★ · Soc ★ → LV2 Str ★★★ · Art ★ · Soc ★ → LV3 Str ★★★ · Art ★★ · Soc ★
 - **Ability:** When you activate a Piecie, roll. 5–6: activate another ready Piecie for free (max 2 per turn).
-- **Personal Quest:** Full Combo ⚠ written as Artistic, card is now Physical
+- **Personal Quest:** Full Combo · re-typed 7 Nov: Physical, rolls Str
 - **Life & vibe:**
   - Full combo · perfect timing (DDR)
   - Wide stance during DDR games: hard to knock over
@@ -350,7 +350,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 - **Stats:** cost 3 · start MP 10
 - **Traits:** LV1 Art ★★ · Men ★ · Res ★ → LV2 Art ★★★ · Men ★ · Res ★ → LV3 Art ★★★ · Men ★★ · Res ★
 - **Ability:** Once per turn, 1 Energy: reveal your top card and draw it. A Piecie may be activated for free instead.
-- **Personal Quest:** Beginner's Luck ⚠ written as Digital, card is now Creative
+- **Personal Quest:** Beginner's Luck · re-typed 7 Nov: Creative, rolls Art
 - **Life & vibe:**
   - Just shows up & wins · effortless · annoyingly good
   - Every game first try; in real life naturally good at what he tries
@@ -373,12 +373,12 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 3 · start MP 10
 - **Traits:** LV1 Str ★★ · Soc ★ · Men ★ → LV2 Str ★★★ · Soc ★ · Men ★ → LV3 Str ★★★ · Soc ★★ · Men ★
-- **Ability:** Once per turn, 2 Energy: look at the opponent's hand and lock 1 card until the end of their next turn.
-- **Personal Quest:** Michelinster ⚠ written as Digital, card is now Physical
+- **Ability:** Food Piecies you activate give +10 MP more. (approved 7 Nov)
+- **Personal Quest:** Michelinster · re-typed 7 Nov: Physical, rolls Str
 - **Life & vibe:**
   - Signature dish · feeds the group
   - Feeds the whole group · heavy kitchen work (why he's Physical)
-- **Theme check:** Hand-lock ability doesn't fit a chef: rework toward food / feeding the group.
+- **Theme check:** Fixed 7 Nov (signature dish).
 
 ### Ronald, The Mastermind — archived
 
