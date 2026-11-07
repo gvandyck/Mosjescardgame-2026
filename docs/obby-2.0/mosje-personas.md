@@ -8,7 +8,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 ## Gandoe
 
-**Who:** Gandoe (Gandalf). DJ 80/20 shares Gandalf's own alias 80/20 (Eightytwenty) — confirm it's a Gandoe card.
+**Who:** Gandalf van Dyck — Gandoe is his nickname. Named after the wizard, hence the wizard cards (The Unpredictable Wizard, now The Claude Wizard). DJ 80/20 is his DJ alias (also his portfolio name, Eightytwenty).
 
 ### Gandoe, The Destroyer · Physical
 
@@ -40,7 +40,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 - **Ability:** Once per turn: reroll any one die. From LV3: twice per turn.
 - **Personal Quest:** Lucky Crescendo
 - **Life & vibe:**
-  - 80% luck, 20% skill; 80/20 is Gandalf's portfolio name
+  - Gandalf's DJ alias · 80% luck, 20% skill
   - DJs at parties · beat drop · crowd control
   - Moment: the beat drop at Skiffa
 - **Theme check:** Fits.
@@ -393,7 +393,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 ## Binti
 
-**Who:** Binti — the Varkenspootjes story names 'Wendy': confirm if Binti is Wendy.
+**Who:** Wendy, nickname Binti.
 
 ### Binti, The Sharp Tongue · Creative
 
