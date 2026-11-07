@@ -1,7 +1,7 @@
 // Dev-only: "L1: Power 10 · Str ★★ · Res ★<br>L2: ..." -> [{ power, traits }] x3.
 const TRAIT = {
   Str: 'strength', Men: 'mental', Soc: 'social',
-  Cre: 'creative', Tech: 'technical', Res: 'resilient',
+  Art: 'artistic', Tech: 'technical', Res: 'resilient',
 };
 
 export function parseLevelCell(cell) {

@@ -14,7 +14,7 @@ export function placePowerBonus(state, slot, ownerId) {
 		case 'place_the_gym': return type === 'PHYSICAL' ? 10 : 0;
 		case 'place_boxing_ring':
 			if (type === 'PHYSICAL') return hasWord(slot, 'Gandoe') ? 20 : 10;
-			return type === 'DIGITAL' || type === 'ARTISTIC' ? -10 : 0;
+			return type === 'DIGITAL' || type === 'CREATIVE' ? -10 : 0;
 		case 'place_de_box': return ['Gandoe', 'Michelle', 'Tuk'].some(n => hasWord(slot, n)) ? 10 : 0;
 		case 'place_arcade': return type === 'PHYSICAL' ? -10 : 0;
 		case 'place_skiffa': return type === 'DIGITAL' ? -10 : 0;

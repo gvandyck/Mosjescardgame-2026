@@ -371,7 +371,7 @@ function typeBadge(cardType) {
 }
 
 function formatTraits(traits) {
-	const ABBR = { strength: 'PHY', mental: 'MEN', social: 'SOC', creative: 'CRE', technical: 'TEC', resilient: 'RES' };
+	const ABBR = { strength: 'PHY', mental: 'MEN', social: 'SOC', artistic: 'CRE', technical: 'TEC', resilient: 'RES' };
 	return Object.entries(traits)
 		.map(([k, v]) => `<span class="trait trait--${k}" title="${k}">${ABBR[k] || k.slice(0, 3).toUpperCase()} ${'★'.repeat(v)}</span>`)
 		.join('');

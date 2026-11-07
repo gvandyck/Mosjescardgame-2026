@@ -30,7 +30,7 @@ test('E12/E13: 3 face-up Quests; attack drops the target by the attacker Power; 
 	await boot(page);
 	await expect(page.locator('#quest-stacks')).toBeVisible();
 	const gs0 = await getGameState(page);
-	for (const s of ['PHYSICAL', 'DIGITAL', 'ARTISTIC']) expect(gs0.questStacks[s].faceUp, `${s} face-up`).toBeTruthy();
+	for (const s of ['PHYSICAL', 'DIGITAL', 'CREATIVE']) expect(gs0.questStacks[s].faceUp, `${s} face-up`).toBeTruthy();
 	const power = getPower(gs0.players.player_1.activeSlots[0]);
 	expect(power).toBeGreaterThan(0);
 	const before = mp(gs0, 'player_2');

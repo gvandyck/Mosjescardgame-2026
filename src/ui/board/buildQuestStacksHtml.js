@@ -1,5 +1,5 @@
 // buildQuestStacksHtml.js — the 3 Quest stacks of the middle strip as HTML (63-UI-SPEC "Quest stacks", D-09, spec U5).
-// Per stack (Physical / Digital / Artistic): the 2.0 Quest tile (the 62 field-tile builder, fail pips filled from
+// Per stack (Physical / Digital / Creative): the 2.0 Quest tile (the 62 field-tile builder, fail pips filled from
 // stack.tokens) on two visible card edges, plus a count tab "11 left". A stack without a face-up Quest is a dashed
 // outline reading "Empty". Hooks: data-quest-stack, data-stack, data-quest, data-stack-count (cards left in the deck).
 // Every interpolated value goes through escapeHtml.
@@ -9,7 +9,7 @@ import { buildCardV1 } from '../cardV1/buildCardV1.js';
 import { escapeHtml } from '../cardV1/escapeHtml.js';
 import { TYPE_COLORS } from '../cardV1/typeColors.js';
 
-const STACK_LABEL = { PHYSICAL: 'Physical', DIGITAL: 'Digital', ARTISTIC: 'Artistic' };
+const STACK_LABEL = { PHYSICAL: 'Physical', DIGITAL: 'Digital', CREATIVE: 'Creative' };
 
 function stackAttrs(stackId, left, extra = '') {
 	const id = escapeHtml(stackId);

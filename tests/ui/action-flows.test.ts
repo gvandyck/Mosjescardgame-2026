@@ -27,7 +27,7 @@ function stubModal(answers: Array<string | null | undefined> = []) {
 }
 const stacks = (f: Record<string, string | null>) => {
   const o: any = {};
-  for (const id of ['PHYSICAL', 'DIGITAL', 'ARTISTIC']) o[id] = { deck: [], faceUp: f[id] ?? null, tokens: 0, discard: [] };
+  for (const id of ['PHYSICAL', 'DIGITAL', 'CREATIVE']) o[id] = { deck: [], faceUp: f[id] ?? null, tokens: 0, discard: [] };
   return o;
 };
 const fresh = () => mkSlot({ mp: 40, entryProtected: true });
@@ -107,9 +107,9 @@ describe('renderQuestStacks', () => {
     expect(physical.match(/data-cv1-pip="filled"/g)).toHaveLength(1);
     expect(physical).toContain('>11 left<');
     expect(physical).toContain('data-stack-count="11"');
-    const artistic = part('ARTISTIC');
-    expect(artistic).toContain('>Empty<');
-    expect(artistic).toContain('quest-stack--empty');
+    const creative = part('CREATIVE');
+    expect(creative).toContain('>Empty<');
+    expect(creative).toContain('quest-stack--empty');
   });
 });
 

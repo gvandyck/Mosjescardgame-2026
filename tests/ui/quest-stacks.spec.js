@@ -10,7 +10,7 @@ import {
 	setQuestFaceUp, setNextDice, questViaUi, setHand,
 } from './helpers.js';
 
-const STACKS = ['PHYSICAL', 'DIGITAL', 'ARTISTIC'];
+const STACKS = ['PHYSICAL', 'DIGITAL', 'CREATIVE'];
 const SHOT_DIR = 'tests/ui/screenshots/board-2-0';
 
 async function boot(page) {

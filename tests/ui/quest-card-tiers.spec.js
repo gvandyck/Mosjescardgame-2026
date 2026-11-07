@@ -13,7 +13,7 @@ const OUT = 'tests/ui/screenshots/cardv1';
 const QUESTS = [
 	{ id: 'quest_arm_wrestling', stack: 'PHYSICAL', color: 'rgb(194, 65, 12)', need: '2× 4+', needLabel: 'NEED', win: '40', lose: '-30', loseText: '−30', file: 'quest-physical' },
 	{ id: 'quest_debug_system', stack: 'DIGITAL', color: 'rgb(14, 116, 144)', need: '★★', needLabel: 'TRAINED', win: '25', lose: 'none', loseText: "can't fail", file: 'quest-digital' },
-	{ id: 'quest_leap_of_faith', stack: 'ARTISTIC', color: 'rgb(162, 28, 175)', need: '4+', needLabel: 'COIN', win: '50', lose: '-25', loseText: '−25', file: 'quest-artistic' },
+	{ id: 'quest_leap_of_faith', stack: 'CREATIVE', color: 'rgb(162, 28, 175)', need: '4+', needLabel: 'COIN', win: '50', lose: '-25', loseText: '−25', file: 'quest-creative' },
 ];
 
 async function mountQuest(page, { id, tier, width = 440, fieldMode = false, failTokens }) {

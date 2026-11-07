@@ -26,7 +26,7 @@ import { getPower } from '../../src/engine/mp/getPower.js';
 
 const stacks = () => {
 	const o: any = {};
-	for (const id of ['PHYSICAL', 'DIGITAL', 'ARTISTIC']) o[id] = { deck: [], faceUp: id === 'PHYSICAL' ? 'quest_tough_it_out' : null, tokens: 0, discard: [] };
+	for (const id of ['PHYSICAL', 'DIGITAL', 'CREATIVE']) o[id] = { deck: [], faceUp: id === 'PHYSICAL' ? 'quest_tough_it_out' : null, tokens: 0, discard: [] };
 	return o;
 };
 const board = (mine: any[], theirs: any[], over: any = {}) => makeEngineState({
@@ -65,7 +65,7 @@ describe('countActionsLeft (D-11)', () => {
 	it('counts a Mosje that can only Quest (no legal attack target) and drops one with neither option', () => {
 		const noTarget = board([mkSlot({ mp: 40 }), null], [mkSlot({ mp: 40, entryProtected: true }), null]);
 		expect(countActionsLeft(noTarget, 'player_1')).toBe(1); // the Quest is still open
-		const nothing = board([mkSlot({ mp: 40 }), null], [mkSlot({ mp: 40, entryProtected: true }), null], { questStacks: { PHYSICAL: { deck: [], faceUp: null, tokens: 0, discard: [] }, DIGITAL: { deck: [], faceUp: null, tokens: 0, discard: [] }, ARTISTIC: { deck: [], faceUp: null, tokens: 0, discard: [] } } });
+		const nothing = board([mkSlot({ mp: 40 }), null], [mkSlot({ mp: 40, entryProtected: true }), null], { questStacks: { PHYSICAL: { deck: [], faceUp: null, tokens: 0, discard: [] }, DIGITAL: { deck: [], faceUp: null, tokens: 0, discard: [] }, CREATIVE: { deck: [], faceUp: null, tokens: 0, discard: [] } } });
 		expect(countActionsLeft(nothing, 'player_1')).toBe(0);
 	});
 

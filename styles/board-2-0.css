@@ -168,7 +168,7 @@
 
 /* ── Quest stacks (Plan 63-03, D-09): the 2.0 Quest tile on two visible card edges, a count tab under the front edge ── */
 .quest-stack {
-	--stack-color: #B45309;              /* set inline per stack: Physical / Digital / Artistic */
+	--stack-color: #B45309;              /* set inline per stack: Physical / Digital / Creative */
 	--stack-tint: #fff;
 	position: relative;
 	box-sizing: border-box;

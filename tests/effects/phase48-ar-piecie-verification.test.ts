@@ -36,7 +36,7 @@ function makeMosje(cardId: string, mp = 50, tags?: string[]) {
   return {
     cardId,
     name: cardId,
-    subtype: 'ARTISTIC',
+    subtype: 'CREATIVE',
     tags,
     traits: {},
     mp,

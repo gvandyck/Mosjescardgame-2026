@@ -11,7 +11,7 @@ const mosjeOf = (s) => MOSJES.filter((c) => String(c.subtype).toUpperCase() === 
 const GROUPS = [
   ['Physical Mosjes', mosjeOf('PHYSICAL')],
   ['Digital Mosjes', mosjeOf('DIGITAL')],
-  ['Artistic Mosjes', mosjeOf('ARTISTIC')],
+  ['Creative Mosjes', mosjeOf('CREATIVE')],
   ['Piecies', PIECIES],
   ['Snelle Piecies', SNELLE_PIECIES],
   ['Places', PLACES],

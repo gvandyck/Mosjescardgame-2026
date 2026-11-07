@@ -542,7 +542,7 @@
 .trait--strength  { background: rgba(255,107,53,0.18);  color: var(--trait-strength); }
 .trait--mental    { background: rgba(74,158,255,0.18);  color: var(--trait-mental); }
 .trait--social    { background: rgba(255,159,67,0.18);  color: var(--trait-social); }
-.trait--creative  { background: rgba(196,74,255,0.18);  color: var(--trait-creative); }
+.trait--artistic  { background: rgba(196,74,255,0.18);  color: var(--trait-artistic); }
 .trait--technical { background: rgba(0,210,211,0.18);   color: var(--trait-technical); }
 .trait--resilient { background: rgba(29,209,161,0.18);  color: var(--trait-resilient); }
 

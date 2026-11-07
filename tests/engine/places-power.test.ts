@@ -24,11 +24,11 @@ const power = (place: string | null, id: string, extra: any = {}) => { const a =
 
 const BULL = "mosje_alyssa_bulldozer"; // Physical, L1 Power 20
 const DIG = "mosje_ming_natural"; // Digital, L1 Power 10
-const ART = "mosje_tuk_healer"; // Artistic, L1 Power 0 (a Tuk)
+const ART = "mosje_tuk_healer"; // Creative, L1 Power 0 (a Tuk)
 
 describe("Place Power in getPower", () => {
   it("The Gym: Physical +10", () => { expect(power("place_the_gym", BULL)).toBe(30); expect(power("place_the_gym", DIG)).toBe(10); });
-  it("Boxing Ring: Physical +10, Gandoe +20, Digital/Artistic -10 (never below 0)", () => {
+  it("Boxing Ring: Physical +10, Gandoe +20, Digital/Creative -10 (never below 0)", () => {
     expect(power("place_boxing_ring", BULL)).toBe(30);
     expect(power("place_boxing_ring", "mosje_gandoe_destroyer")).toBe(40);
     expect(power("place_boxing_ring", DIG)).toBe(0);

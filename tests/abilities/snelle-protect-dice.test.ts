@@ -123,23 +123,23 @@ describe("dice Snelle", () => {
     const out = fx.effect_snelle_jeweetniet(s, "player_2");
     expect(out.pendingQuestRoll.dice).toHaveLength(3);
   });
-  it("Lucky Coin: dice are picked one by one; Creative 3 chooses the value", () => {
-    const a = board([mk(50, { traits: { creative: 3 } })], [mk(40)]);
+  it("Lucky Coin: dice are picked one by one; Artistic 3 chooses the value", () => {
+    const a = board([mk(50, { traits: { artistic: 3 } })], [mk(40)]);
     a.pendingQuestRoll = roll([1, 2]);
     expect(lucky(a).needChoice.options.some((o: any) => o.die === 0)).toBe(true);
-    const b = board([mk(50, { traits: { creative: 1 } })], [mk(40)]);
+    const b = board([mk(50, { traits: { artistic: 1 } })], [mk(40)]);
     b.pendingQuestRoll = roll([1, 2]);
     b.players.player_2._pendingTargets = { coin_0: { label: "Die 1", die: 0 } };
     expect(lucky(b).needChoice.key).toBe("coin_1");
     b.players.player_2._pendingTargets.coin_1 = { label: "Done", done: true };
     expect(lucky(b).pendingQuestRoll.dice).toHaveLength(2);
-    const d = board([mk(50, { traits: { creative: 3 } })], [mk(40)]);
+    const d = board([mk(50, { traits: { artistic: 3 } })], [mk(40)]);
     d.pendingQuestRoll = roll([1, 2]);
     d.players.player_2._pendingTargets = { coin_0: { die: 1 }, coin_v_0: { value: 6 }, coin_1: { done: true } };
     expect(lucky(d).pendingQuestRoll.dice).toEqual([1, 6]);
   });
-  it("Lucky Coin without Creative 3 ignores a smuggled value (rerolls instead)", () => {
-    const d = board([mk(50, { traits: { creative: 1 } })], [mk(40)]);
+  it("Lucky Coin without Artistic 3 ignores a smuggled value (rerolls instead)", () => {
+    const d = board([mk(50, { traits: { artistic: 1 } })], [mk(40)]);
     d.pendingQuestRoll = roll([1, 2]);
     d.players.player_2._pendingTargets = { coin_0: { die: 1 }, coin_v_0: { value: 99 }, coin_1: { done: true } };
     const dice = lucky(d).pendingQuestRoll.dice;

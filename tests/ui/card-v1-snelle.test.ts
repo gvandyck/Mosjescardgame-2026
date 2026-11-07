@@ -20,13 +20,13 @@ describe('card frame v1 — Snelle data mapping (2.0 face)', () => {
     expect(html).toContain('>Lucky Cóin<');
     expect(html).not.toContain('cv1-nick');
     expect(html).toContain('>SNELLE<');
-    expect(part(html, 'cv2-info')).toBe('Needs: one of your Mosjes has Creative ★');
+    expect(part(html, 'cv2-info')).toBe('Needs: one of your Mosjes has Artistic ★');
     expect(part(html, 'cv2-label')).toBe('Instant · any turn');
     expect(corner(html)).toContain('data-cv1-cost="1"');
     expect(corner(html)).toContain('>COST<');
     expect(html).toContain('#A16207');
     expect(html).toContain('#FEF9C3');
-    expect(plain(textBox(html))).toBe("Reroll any dice once (yours or your opponent's). Creative ★★★: choose the result instead.");
+    expect(plain(textBox(html))).toBe("Reroll any dice once (yours or your opponent's). Artistic ★★★: choose the result instead.");
   });
 
   it('Needs lines appear exactly on the 5 Snelle with needsText (Jammertje reads Mental ★★)', () => {

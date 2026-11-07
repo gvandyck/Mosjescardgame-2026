@@ -166,7 +166,7 @@ describe('2.0 Quest face', () => {
     expect(attr(html, 'need')).toBe('4+');
     expect(html).toContain('<div class="cv2-corner-label">COIN</div>');
     expect(attr(html, 'lose')).toBe('-25');
-    expect(footerPill(html)).toBe('ARTISTIC QUEST');
+    expect(footerPill(html)).toBe('CREATIVE QUEST');
   });
 
   it('has no LVL chip, no Power / MP / cost, no diamonds, and prints no V4 Success / Failure text or MP numbers', () => {

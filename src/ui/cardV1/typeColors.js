@@ -3,9 +3,9 @@
 export const TYPE_COLORS = {
   PHYSICAL: { main: '#C2410C', tint: '#FFEDD5' },
   DIGITAL: { main: '#0E7490', tint: '#CFFAFE' },
-  ARTISTIC: { main: '#A21CAF', tint: '#FAE8FF' },
+  CREATIVE: { main: '#A21CAF', tint: '#FAE8FF' },
   PIECIE: { main: '#15803D', tint: '#DCFCE7' },
   PLACE: { main: '#6D28D9', tint: '#EDE9FE' },
   SNELLE: { main: '#A16207', tint: '#FEF9C3' },
 };
-// A 2.0 Quest is drawn in its stack colour (PHYSICAL / DIGITAL / ARTISTIC above); the rose Quest colour is gone.
+// A 2.0 Quest is drawn in its stack colour (PHYSICAL / DIGITAL / CREATIVE above); the rose Quest colour is gone.

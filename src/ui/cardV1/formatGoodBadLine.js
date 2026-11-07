@@ -1,4 +1,4 @@
-// formatGoodBadLine.js — "Good for: Physical · Bad for: Digital, Artistic" for a Place (Phase 7 A6).
+// formatGoodBadLine.js — "Good for: Physical · Bad for: Digital, Creative" for a Place (Phase 7 A6).
 // The Card List words are printed exactly as written (no re-casing: "low-MP Mosjes", "Coert / Binti decks").
 // An empty side is left out (nothing is invented); when both are empty the line is empty.
 export function formatGoodBadLine(goodFor, badFor) {

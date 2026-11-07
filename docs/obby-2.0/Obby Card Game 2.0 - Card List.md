@@ -2,12 +2,12 @@
 
 Phase 6 output, 2026-10-10. This is every 2.0 card with the text that goes on it, and nothing else. The reasons behind each card are in the phase docs (Phase 1–5). The numbers and rules are in `Obby Card Game 2.0 - Core Numbers.md`. If this list and a phase doc disagree, **this list wins**.
 
-**Count:** 32 Mosjes (8 Physical, 14 Digital, 10 Artistic) · 38 Quests (13 / 13 / 12) · 73 Piecies · 20 Snelle · 20 Places = **183 cards**.
+**Count:** 32 Mosjes (8 Physical, 14 Digital, 10 Creative) · 38 Quests (13 / 13 / 12) · 73 Piecies · 20 Snelle · 20 Places = **183 cards**.
 
 ## How to read this list
 - **Cost** is Energy. A Mosje's cost is paid when you summon it (your first Mosje at setup is free). A Piecie's cost is paid when you activate it (placing it face-down is free). Snelle and Places are paid when you play them.
 - **Level rows:** a Mosje prints one row per level: its Power and its traits on that level. At Level 3 you win if you keep it there until the start of your next turn.
-- **Traits:** Str = Strength, Men = Mental, Soc = Social, Cre = Creative, Tech = Technical, Res = Resilient. A Quest rolls 1 die per ★ of the trait it tests (at least 1, at most 4).
+- **Traits:** Str = Strength, Men = Mental, Soc = Social, Art = Artistic, Tech = Technical, Res = Resilient. A Quest rolls 1 die per ★ of the trait it tests (at least 1, at most 4).
 - **Synergy: <name>** is only a label. The card it names holds the text, which starts "While <name> is also on your field:".
 - **Stays:** the card stays face-up in its slot (still using it) until the time it says, then goes to the discard pile.
 - **Fresh:** a Mosje that just came into play. Until the start of its owner's next turn it can't attack, no opponent card, ability or Quest jab can choose it, and it ignores Places.
@@ -21,20 +21,20 @@ Phase 6 output, 2026-10-10. This is every 2.0 card with the text that goes on it
 ### Physical
 | Mosje | Cost | Rarity | Start MP | Level rows | Ability | Synergy |
 |---|---|---|---|---|---|---|
-| Gandoe, The Unpredictable Wizard | 3 | ★★★ | 10 | L1: Power 10 · Str ★★ · Res ★ · Cre ★★<br>L2: Power 20 · Str ★★★ · Res ★ · Cre ★★<br>L3: Power 30 · Str ★★★ · Res ★★ · Cre ★★ | **Chaos Roll** — at the start of your turn roll a die: 1–2 this Mosje loses 10 MP; 3–4 nothing; 5–6 +10 Power this turn. | — |
+| Gandoe, The Unpredictable Wizard | 3 | ★★★ | 10 | L1: Power 10 · Str ★★ · Res ★ · Art ★★<br>L2: Power 20 · Str ★★★ · Res ★ · Art ★★<br>L3: Power 30 · Str ★★★ · Res ★★ · Art ★★ | **Chaos Roll** — at the start of your turn roll a die: 1–2 this Mosje loses 10 MP; 3–4 nothing; 5–6 +10 Power this turn. | — |
 | Jeffrey, The Strongman | 3 | ★★ | 20 | L1: Power 10 · Str ★★★ · Res ★<br>L2: Power 20 · Str ★★★ · Res ★★<br>L3: Power 30 · Str ★★★ · Res ★★★ | **Brute Force** — whenever one of your Mosjes succeeds at a Quest, it gets +10 MP extra. While Jeffrey is on your field, you can't activate Piecies that give MP. | — |
 | Alyssa, The Bulldozer | 4 | ★★★★ | 0 | L1: Power 20 · Str ★★★ · Res ★★ · Soc ★★★<br>L2: Power 30 · Str ★★★ · Res ★★★ · Soc ★★★<br>L3: Power 40 · Str ★★★ · Res ★★★ · Soc ★★★ | **Unstoppable** — when she is taksed for 30 or more MP in one turn, she gains 25 MP and has +10 Power until the end of your next turn. | — |
 | Alyssa, Fissa Fissa! | 2 | ★★ | 20 | L1: Power 10 · Str ★★ · Soc ★★★ · Res ★<br>L2: Power 20 · Str ★★★ · Soc ★★★ · Res ★<br>L3: Power 30 · Str ★★★ · Soc ★★★ · Res ★★ | **Party Power** — when a Place is destroyed by a card you activated, this Mosje gains 20 MP (once per turn). | — |
-| AZN Cless, The Wild Card | 2 | ★ | 30 | L1: Power 0 · Str ★★ · Soc ★★ · Cre ★<br>L2: Power 10 · Str ★★★ · Soc ★★ · Cre ★<br>L3: Power 20 · Str ★★★ · Soc ★★ · Cre ★★ | **Risk & Reward** — at the end of your turn roll a die: 1 discard a card from your hand; 6 draw 2 cards and this Mosje gains 10 MP. | Senor West, ViannaPoes |
+| AZN Cless, The Wild Card | 2 | ★ | 30 | L1: Power 0 · Str ★★ · Soc ★★ · Art ★<br>L2: Power 10 · Str ★★★ · Soc ★★ · Art ★<br>L3: Power 20 · Str ★★★ · Soc ★★ · Art ★★ | **Risk & Reward** — at the end of your turn roll a die: 1 discard a card from your hand; 6 draw 2 cards and this Mosje gains 10 MP. | Senor West, ViannaPoes |
 | Michelle, Iron Tuk | 3 | ★★★ | 10 | L1: Power 10 · Str ★★ · Soc ★ · Res ★★<br>L2: Power 20 · Str ★★ · Soc ★ · Res ★★★<br>L3: Power 30 · Str ★★ · Soc ★★ · Res ★★★ | **Tough Gamble** — when this Mosje succeeds at a Quest, roll a die: 1–3 it gets half the MP, 4–6 it gets double. | Bowie & Stormey |
-| Parkour West, The Flow Fighter | 3 | ★★★★ | 10 | L1: Power 10 · Str ★★★ · Cre ★★ · Res ★★<br>L2: Power 20 · Str ★★★ · Cre ★★★ · Res ★★<br>L3: Power 30 · Str ★★★ · Cre ★★★ · Res ★★★ | **Flow** — when this Mosje succeeds at a Quest it gains 20 MP. Once per turn, when it is taksed for 30 or more MP, it loses 20 less. | — |
+| Parkour West, The Flow Fighter | 3 | ★★★★ | 10 | L1: Power 10 · Str ★★★ · Art ★★ · Res ★★<br>L2: Power 20 · Str ★★★ · Art ★★★ · Res ★★<br>L3: Power 30 · Str ★★★ · Art ★★★ · Res ★★★ | **Flow** — when this Mosje succeeds at a Quest it gains 20 MP. Once per turn, when it is taksed for 30 or more MP, it loses 20 less. | — |
 | Gandoe, The Destroyer | 4 | ★★★★★ | 0 | L1: Power 20 · Str ★★★ · Res ★★<br>L2: Power 30 · Str ★★★ · Res ★★★<br>L3: Power 40 · Str ★★★ · Res ★★★ | **Elimination Strike** — once per game, pay 4 Energy: send your opponent's lowest-level Mosje to the Welloe pile (you choose if tied). | — |
 
 ### Digital
 | Mosje | Cost | Rarity | Start MP | Level rows | Ability | Synergy |
 |---|---|---|---|---|---|---|
 | Ronald, The Master Chef | 3 | ★★★ | 10 | L1: Power 10 · Men ★★★ · Soc ★★★ · Str ★<br>L2: Power 20 · Men ★★★ · Soc ★★★ · Str ★ · Tech ★<br>L3: Power 30 · Men ★★★ · Soc ★★★ · Str ★ · Tech ★★ | **Strategic Insight** — once per turn, pay 2 Energy: look at your opponent's hand and choose 1 card. They set it face-down beside their field; it returns to their hand at the end of their next turn. | Ronald Kip, Chef's Special |
-| Ming, The Natural | 3 | ★★★ | 10 | L1: Power 10 · Men ★★★ · Tech ★★ · Cre ★★<br>L2: Power 20 · Men ★★★ · Tech ★★★ · Cre ★★<br>L3: Power 30 · Men ★★★ · Tech ★★★ · Cre ★★★ | **Lucky Draw** — once per turn, reveal the top card of your deck. A Piecie: activate it for free (no Energy, no face-down wait) or add it to your hand. Anything else: draw it and gain 15 MP. | — |
+| Ming, The Natural | 3 | ★★★ | 10 | L1: Power 10 · Men ★★★ · Tech ★★ · Art ★★<br>L2: Power 20 · Men ★★★ · Tech ★★★ · Art ★★<br>L3: Power 30 · Men ★★★ · Tech ★★★ · Art ★★★ | **Lucky Draw** — once per turn, reveal the top card of your deck. A Piecie: activate it for free (no Energy, no face-down wait) or add it to your hand. Anything else: draw it and gain 15 MP. | — |
 | Ming, The Predictor | 2 | ★★ | 20 | L1: Power 10 · Men ★★★ · Tech ★★<br>L2: Power 20 · Men ★★★ · Tech ★★★<br>L3: Power 30 · Men ★★★ · Tech ★★★ · Soc ★ | **Future Sight** — once per turn, look at the top card of one Quest stack. You may pay 1 Energy to put it on the bottom of that stack. | — |
 | Martin, The Historian | 3 | ★★★ | 10 | L1: Power 10 · Men ★★★ · Tech ★ · Res ★★<br>L2: Power 20 · Men ★★★ · Tech ★★ · Res ★★<br>L3: Power 30 · Men ★★★ · Tech ★★★ · Res ★★ | **Time Control** — once per turn, instead of your normal draw, look at the top 5 cards of any deck, put them back in any order and gain 15 MP. At the end of your turn, draw 2 cards.<br>**While Cless, The Teacher is also on your field:** Teaching Moment draws on a 4–6 instead of 5–6, and when Time Control looks at your own deck you may put 1 of those 5 cards into your hand. | Cless, The Teacher |
 | Martin, Senor West | 2 | ★★ | 20 | L1: Power 0 · Men ★★★ · Tech ★<br>L2: Power 10 · Men ★★★ · Tech ★★<br>L3: Power 20 · Men ★★★ · Tech ★★★ | **Calculated Guess** — once per turn: name a card type (Mosje, Piecie, Snelle or Place), then reveal the top card of any deck and put it back. Correct: draw 2 cards and gain 10 MP. Wrong: lose 10 MP.<br>**While AZN Cless is also on your field:** when your Mosjes succeed at Strength Quests they gain +15 MP extra, and once per turn you may look at the top card of a Quest stack before attempting. | AZN Cless |
@@ -48,19 +48,19 @@ Phase 6 output, 2026-10-10. This is every 2.0 card with the text that goes on it
 | FPS Coert | 3 | ★★★ | 20 | L1: Power 10 · Tech ★★★ · Str ★★ · Men ★★<br>L2: Power 20 · Tech ★★★ · Str ★★★ · Men ★★<br>L3: Power 30 · Tech ★★★ · Str ★★★ · Men ★★★ | **Headshot Precision** — when this Mosje succeeds at a Strength or Technical Quest, roll a die: on a 6 it gains 30 MP and one opponent's Mosje loses 15 MP. | FPS West |
 | FPS West | 3 | ★★★★ | 10 | L1: Power 10 · Tech ★★★ · Men ★★★ · Str ★<br>L2: Power 20 · Tech ★★★ · Men ★★★ · Str ★★<br>L3: Power 30 · Tech ★★★ · Men ★★★ · Str ★★★ | **Tactical Analysis** — once per turn, pay 1 Energy: look at your opponent's hand and name the card type they will play next (Mosje, Piecie, Snelle or Place). Correct: gain 20 MP. Wrong: lose 10 MP.<br>**While FPS Coert is also on your field:** when either of them succeeds at a Quest, both gain 10 MP. Once per turn you may make your opponent reveal their hand. | FPS Coert |
 
-### Artistic
+### Creative
 | Mosje | Cost | Rarity | Start MP | Level rows | Ability | Synergy |
 |---|---|---|---|---|---|---|
-| Ronald, The Mastermind | 3 | ★★★ | 10 | L1: Power 10 · Cre ★★★ · Men ★★★<br>L2: Power 20 · Cre ★★★ · Men ★★★ · Soc ★<br>L3: Power 30 · Cre ★★★ · Men ★★★ · Soc ★★ | **Master Plan** — once per turn, pay 2 Energy: activate a Piecie from your discard pile as if it were ready (this replaces its own Energy cost). It goes back to the discard pile afterwards. | — |
-| Jisca, The Maestro | 3 | ★★★ | 10 | L1: Power 10 · Cre ★★★ · Soc ★★ · Men ★★<br>L2: Power 20 · Cre ★★★ · Soc ★★★ · Men ★★<br>L3: Power 30 · Cre ★★★ · Soc ★★★ · Men ★★★ | **Perfect Combo** — once per turn, after you activate a Piecie, roll a die: 4–6 activate another ready Piecie of yours for free (no Energy) and one opponent Mosje loses 15 MP; 1–3 Jisca loses 10 MP (ignored if she is at 0 MP). | — |
-| Tuk, The Healing Spirit | 2 | ★★ | 30 | L1: Power 0 · Cre ★★ · Soc ★★ · Res ★★★<br>L2: Power 10 · Cre ★★★ · Soc ★★ · Res ★★★<br>L3: Power 20 · Cre ★★★ · Soc ★★★ · Res ★★★ | **Healing Hands** — once per turn, pay 1 Energy: one of your Mosjes (herself included) gains 20 MP. | — |
-| DJ 80/20, The Lucky Mixer | 2 | ★★ | 30 | L1: Power 0 · Cre ★★★ · Res ★★<br>L2: Power 10 · Cre ★★★ · Res ★★★<br>L3: Power 20 · Cre ★★★ · Res ★★★ · Soc ★ | **Lucky Beats** — once per turn, reroll any one die (yours or your opponent's). | — |
-| Coert, KasteLuck | 2 | ★ | 30 | L1: Power 0 · Cre ★★ · Soc ★★ · Res ★<br>L2: Power 10 · Cre ★★★ · Soc ★★ · Res ★<br>L3: Power 20 · Cre ★★★ · Soc ★★ · Res ★★ | **Morning Luck** — at the start of your turn roll a die: 4–6 draw 1 card and this Mosje gains 5 MP. | Tony |
-| Binti, The Sharp Tongue | 2 | ★★ | 20 | L1: Power 0 · Cre ★★ · Soc ★★★<br>L2: Power 10 · Cre ★★★ · Soc ★★★<br>L3: Power 20 · Cre ★★★ · Soc ★★★ · Res ★ | **Cutting Words** — once per turn, pay 1 Energy and discard 1 Piecie from your hand: one opponent Mosje loses 10 MP and the opponent discards 1 card of their choice.<br>**While Coert, The Hawaiian Tech Savant is also on your field:** every food Piecie you activate gives its Mosje +10 MP extra. | Coert, The Hawaiian Tech Savant |
-| Cless, The Teacher | 2 | ★★ | 30 | L1: Power 0 · Cre ★★★ · Men ★★<br>L2: Power 10 · Cre ★★★ · Men ★★★<br>L3: Power 20 · Cre ★★★ · Men ★★★ · Soc ★ | **Teaching Moment** — when you activate a Piecie, roll a die: 5–6 draw 1 card and one of your Mosjes gains 5 MP. | Martin, The Historian, ViannaPoes |
-| Martin, The Precision Driver | 3 | ★★★ | 15 | L1: Power 10 · Cre ★★★ · Tech ★★ · Men ★★<br>L2: Power 20 · Cre ★★★ · Tech ★★★ · Men ★★<br>L3: Power 30 · Cre ★★★ · Tech ★★★ · Men ★★★ | **Perfect Line** — whenever this Mosje succeeds at a Quest it gains 15 MP extra.<br>**Pit Stop** — once per turn, pay 1 Energy and discard 2 cards from your hand: draw 3 cards and gain 10 MP. | — |
-| Tuk "The Builder", The Sims Architect | 3 | ★★★ | 10 | L1: Power 10 · Tech ★★★ · Cre ★★★ · Men ★★<br>L2: Power 20 · Tech ★★★ · Cre ★★★ · Men ★★★<br>L3: Power 30 · Tech ★★★ · Cre ★★★ · Men ★★★ · Soc ★ | **Perfect Placement** — once per turn, pay 1 Energy: look at the top 5 cards of your deck, put 2 in your hand and the rest on the bottom in any order. | Bowie & Stormey |
-| Dancing/DDR Chris | 3 | ★★★ | 15 | L1: Power 10 · Str ★★★ · Cre ★★★ · Soc ★★<br>L2: Power 20 · Str ★★★ · Cre ★★★ · Soc ★★★<br>L3: Power 30 · Str ★★★ · Cre ★★★ · Soc ★★★ · Res ★ | **Perfect Combo Chain** — whenever you activate a Piecie, roll a die: 5–6 activate another ready Piecie of yours for free (no Energy). Up to 2 times per turn. | Youri |
+| Ronald, The Mastermind | 3 | ★★★ | 10 | L1: Power 10 · Art ★★★ · Men ★★★<br>L2: Power 20 · Art ★★★ · Men ★★★ · Soc ★<br>L3: Power 30 · Art ★★★ · Men ★★★ · Soc ★★ | **Master Plan** — once per turn, pay 2 Energy: activate a Piecie from your discard pile as if it were ready (this replaces its own Energy cost). It goes back to the discard pile afterwards. | — |
+| Jisca, The Maestro | 3 | ★★★ | 10 | L1: Power 10 · Art ★★★ · Soc ★★ · Men ★★<br>L2: Power 20 · Art ★★★ · Soc ★★★ · Men ★★<br>L3: Power 30 · Art ★★★ · Soc ★★★ · Men ★★★ | **Perfect Combo** — once per turn, after you activate a Piecie, roll a die: 4–6 activate another ready Piecie of yours for free (no Energy) and one opponent Mosje loses 15 MP; 1–3 Jisca loses 10 MP (ignored if she is at 0 MP). | — |
+| Tuk, The Healing Spirit | 2 | ★★ | 30 | L1: Power 0 · Art ★★ · Soc ★★ · Res ★★★<br>L2: Power 10 · Art ★★★ · Soc ★★ · Res ★★★<br>L3: Power 20 · Art ★★★ · Soc ★★★ · Res ★★★ | **Healing Hands** — once per turn, pay 1 Energy: one of your Mosjes (herself included) gains 20 MP. | — |
+| DJ 80/20, The Lucky Mixer | 2 | ★★ | 30 | L1: Power 0 · Art ★★★ · Res ★★<br>L2: Power 10 · Art ★★★ · Res ★★★<br>L3: Power 20 · Art ★★★ · Res ★★★ · Soc ★ | **Lucky Beats** — once per turn, reroll any one die (yours or your opponent's). | — |
+| Coert, KasteLuck | 2 | ★ | 30 | L1: Power 0 · Art ★★ · Soc ★★ · Res ★<br>L2: Power 10 · Art ★★★ · Soc ★★ · Res ★<br>L3: Power 20 · Art ★★★ · Soc ★★ · Res ★★ | **Morning Luck** — at the start of your turn roll a die: 4–6 draw 1 card and this Mosje gains 5 MP. | Tony |
+| Binti, The Sharp Tongue | 2 | ★★ | 20 | L1: Power 0 · Art ★★ · Soc ★★★<br>L2: Power 10 · Art ★★★ · Soc ★★★<br>L3: Power 20 · Art ★★★ · Soc ★★★ · Res ★ | **Cutting Words** — once per turn, pay 1 Energy and discard 1 Piecie from your hand: one opponent Mosje loses 10 MP and the opponent discards 1 card of their choice.<br>**While Coert, The Hawaiian Tech Savant is also on your field:** every food Piecie you activate gives its Mosje +10 MP extra. | Coert, The Hawaiian Tech Savant |
+| Cless, The Teacher | 2 | ★★ | 30 | L1: Power 0 · Art ★★★ · Men ★★<br>L2: Power 10 · Art ★★★ · Men ★★★<br>L3: Power 20 · Art ★★★ · Men ★★★ · Soc ★ | **Teaching Moment** — when you activate a Piecie, roll a die: 5–6 draw 1 card and one of your Mosjes gains 5 MP. | Martin, The Historian, ViannaPoes |
+| Martin, The Precision Driver | 3 | ★★★ | 15 | L1: Power 10 · Art ★★★ · Tech ★★ · Men ★★<br>L2: Power 20 · Art ★★★ · Tech ★★★ · Men ★★<br>L3: Power 30 · Art ★★★ · Tech ★★★ · Men ★★★ | **Perfect Line** — whenever this Mosje succeeds at a Quest it gains 15 MP extra.<br>**Pit Stop** — once per turn, pay 1 Energy and discard 2 cards from your hand: draw 3 cards and gain 10 MP. | — |
+| Tuk "The Builder", The Sims Architect | 3 | ★★★ | 10 | L1: Power 10 · Tech ★★★ · Art ★★★ · Men ★★<br>L2: Power 20 · Tech ★★★ · Art ★★★ · Men ★★★<br>L3: Power 30 · Tech ★★★ · Art ★★★ · Men ★★★ · Soc ★ | **Perfect Placement** — once per turn, pay 1 Energy: look at the top 5 cards of your deck, put 2 in your hand and the rest on the bottom in any order. | Bowie & Stormey |
+| Dancing/DDR Chris | 3 | ★★★ | 15 | L1: Power 10 · Str ★★★ · Art ★★★ · Soc ★★<br>L2: Power 20 · Str ★★★ · Art ★★★ · Soc ★★★<br>L3: Power 30 · Str ★★★ · Art ★★★ · Soc ★★★ · Res ★ | **Perfect Combo Chain** — whenever you activate a Piecie, roll a die: 5–6 activate another ready Piecie of yours for free (no Energy). Up to 2 times per turn. | Youri |
 
 **Chain rule (print in the rulebook):** a Piecie that another card activates for free (Jisca, DDR Chris, Ming Natural, Chris The All-Rounder, Master Plan, Chain Reaction) never starts another chain roll or Teaching Moment roll. Copies (Dubbele Temminks, Gevalletje Klakkeloos) aren't activations. Coert's Caravan's 0-Energy activation is a normal activation, so it can.
 
@@ -113,19 +113,19 @@ Three face-up, one from each stack. Roll 1 die per ★ of the trait in "Rolls" (
 | Perfect Timing | Coin flip | no trait | Mosje has 70 to 80 MP | +50 / −25 | — |
 | Cheat code | Prepared | Mental | Discard 1 Snelle from your hand | +50 / −30 | Win: also draw 1 card. |
 
-### Artistic stack (12)
+### Creative stack (12)
 | Quest | Band | Rolls | First you must… | Win / Lose | Also |
 |---|---|---|---|---|---|
 | Team Building | Trained | no roll | Mosje has Social ★★+ | +25 / — | — |
-| Artistic Expression | Steady | Creative | — | +25 / −15 | +1 die if you drew 2 or more cards this turn. |
+| Artistic Expression | Steady | Artistic | — | +25 / −15 | +1 die if you drew 2 or more cards this turn. |
 | Inspire Crowd | Steady | Social | — | +25 / −15 | — |
-| Improvise! | Steady | Creative | — | +25 / −15 | You may pay 1 Energy: +1 die. |
+| Improvise! | Steady | Artistic | — | +25 / −15 | You may pay 1 Energy: +1 die. |
 | Form Alliance | Skilled | Social | — | +40 / −30 | Win: one opponent Mosje also gains 10 MP. |
-| Lucky Break | Heroic | Creative | — | +60 / −25 | — |
+| Lucky Break | Heroic | Artistic | — | +60 / −25 | — |
 | Negotiation | Prepared | Social | Discard 1 Piecie from your hand | +50 / −30 | — |
 | Larry Temmen Niemand Zeggen | Prepared | Social | Discard 1 substance Piecie (from your hand or a ready one) | +50 / −30 | If you discarded Larry / Zegeltje: win also jabs. |
-| Parkeren Delft | Prepared | Creative | Discard 1 ready Piecie | +50 / −30 | Win: remove up to 3 cards in any discard piles from the game. A Coert gains 10 more on a win. A Cless loses 10 more on a failure. |
-| Create Masterpiecie | Gated | Creative | 3 or more Piecies of yours are in play | +35 / −20 | — |
+| Parkeren Delft | Prepared | Artistic | Discard 1 ready Piecie | +50 / −30 | Win: remove up to 3 cards in any discard piles from the game. A Coert gains 10 more on a win. A Cless loses 10 more on a failure. |
+| Create Masterpiecie | Gated | Artistic | 3 or more Piecies of yours are in play | +35 / −20 | — |
 | Shotje Obby | Gated | Social | Your Mosjes' total MP is lower than your opponent's | +35 / −20 | Win: jab on the opponent's Mosje with the most MP. |
 | Leap of Faith | Coin flip | no trait | — | +50 / −25 | — |
 
@@ -248,7 +248,7 @@ Play straight from your hand at any time, also on your opponent's turn, with you
 | Drain Reversal | 2 | ★★★ | Play when one of your Mosjes would lose MP from an opponent's attack or card: it loses 20 less, and one opponent Mosje loses 10 MP. |
 | Not Today! | 2 | ★★★★ | Play when one of your Mosjes would be sent to the Welloe pile: it isn't. It stays where it is (still sideways if it was); if it has less than 5 MP, it goes to 5. |
 | Ff Haaltje Nemen | 2 | ★★ | Draw 2 cards. |
-| Lucky Cóin | 1 | ★ | Needs: one of your Mosjes has Creative ★. Reroll any dice once (yours or your opponent's). Creative ★★★: choose the result instead. |
+| Lucky Cóin | 1 | ★ | Needs: one of your Mosjes has Artistic ★. Reroll any dice once (yours or your opponent's). Artistic ★★★: choose the result instead. |
 | Sleutelpuntje | 1 | ★ | Play just before a Quest roll: +1 die on that Quest. |
 | Je Weet Niet | 1 | ★★ | Play right after your opponent rolls for a Quest: they reroll all those dice and keep the new roll. |
 | Counter Strikka | 2 | ★★★ | Needs: one of your Mosjes has Mental ★★. Play when an opponent's Piecie or Snelle targets a Mosje: choose another Mosje it can legally target instead. Mental ★★★: also draw 1 card. |
@@ -268,15 +268,15 @@ Play from your hand on your turn, only when no Place is in play. Pay its cost an
 
 | Place | Cost | Rarity | Text | Good for | Bad for |
 |---|---|---|---|---|---|
-| The Gym | 3 | ★★★ | Physical Mosjes get +10 Power. Quests that roll Strength get +1 die. At the start of each player's turn, that player's non-Physical Mosjes lose 10 MP. | Physical | Digital, Artistic |
-| Boxing Ring | 3 | ★★★ | Physical Mosjes get +10 Power; a Gandoe gets +20 instead. Digital and Artistic Mosjes get −10 Power. | Physical, Gandoe | Digital, Artistic |
+| The Gym | 3 | ★★★ | Physical Mosjes get +10 Power. Quests that roll Strength get +1 die. At the start of each player's turn, that player's non-Physical Mosjes lose 10 MP. | Physical | Digital, Creative |
+| Boxing Ring | 3 | ★★★ | Physical Mosjes get +10 Power; a Gandoe gets +20 instead. Digital and Creative Mosjes get −10 Power. | Physical, Gandoe | Digital, Creative |
 | De Box | 2 | ★★ | Gandoes, Michelles and Tuks get +10 Power and +1 die on Quests that roll Strength. | Gandoe, Michelle, Tuk | Decks without them |
 | Eendjes Voeren | 2 | ★★ | Every Mosje counts as Resilient ★★★ when it rolls for a Quest. A Michelle gains 10 MP at the start of its owner's turn. | Low Resilient, Michelle | Mosjes that already have Resilient ★★★ |
 | Arcade | 3 | ★★★ | Quests that roll Technical get +1 die. Physical Mosjes get −10 Power. | Digital | Physical |
 | Digital Gaming Stop | 2 | ★★★ | When you activate a gear Piecie, you also draw 1 card. | Gear decks | Decks without gear |
 | Tesla | 3 | ★★★ | Play only if a Coert is on your field. Coerts and Bintis get +1 die on every Quest. If you have no Coert on your field, destroy Tesla. | Coert, Binti | Decks without them |
 | Coert's Caravan | 3 | ★★★★ | Once per turn, a player with a Coert on their field may activate 1 Piecie for 0 Energy. | Coert | Decks without a Coert |
-| Skiffa | 3 | ★★★ | When an Artistic Mosje rolls for a Quest, it may reroll 1 die. Digital Mosjes get −10 Power. | Artistic | Digital |
+| Skiffa | 3 | ★★★ | When an Creative Mosje rolls for a Quest, it may reroll 1 die. Digital Mosjes get −10 Power. | Creative | Digital |
 | Bank Chilling | 2 | ★★ | At the start of each player's turn, that player's Mosjes with Social ★★ or more gain 10 MP. All Mosjes get −10 Power. | Social Mosjes, Questers | Attackers |
 | Delluft | 4 | ★★★★★ | Limit 1 per deck. **Parking fee:** the first time a player pays Energy on their own turn, they pay 1 more. A player with a Coert or Binti on their field pays no fee; a player with a Cless pays 2 more. Parkeren Delft wins give 20 MP more. | Coert / Binti decks | Cless decks, everyone else |
 | Quest Haven | 3 | ★★★ | Every Quest win gives 10 MP more. | Questers | Attack decks |

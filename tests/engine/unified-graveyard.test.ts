@@ -67,7 +67,7 @@ describe('Unified graveyard — Mosje graveyard write (PLACE-REC-ENGINE-03)', ()
         player_2: {
           graveyard: [] as unknown[],
           activeSlots: [
-            { cardId: 'mosje_binti', name: '[Binti]', mp: 5, level: 1, isDefeated: false, statusEffects: [], subtype: 'ARTISTIC', traits: {} },
+            { cardId: 'mosje_binti', name: '[Binti]', mp: 5, level: 1, isDefeated: false, statusEffects: [], subtype: 'CREATIVE', traits: {} },
             null,
           ],
         },

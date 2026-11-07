@@ -101,15 +101,15 @@ describe("Skiffa reroll and Digital Gaming Stop", () => {
     const s = game("place_skiffa", { activeSlots: [slot] });
     s.questStacks = { PHYSICAL: { deck: ["quest_filler"], faceUp: "quest_tough_it_out", tokens: 0, discard: [] },
       DIGITAL: { deck: ["quest_filler"], faceUp: "quest_tough_it_out", tokens: 0, discard: [] },
-      ARTISTIC: { deck: ["quest_filler"], faceUp: "quest_tough_it_out", tokens: 0, discard: [] } };
+      CREATIVE: { deck: ["quest_filler"], faceUp: "quest_tough_it_out", tokens: 0, discard: [] } };
     const stackId = Object.keys(s.questStacks)[0];
     const r = rollQuestAttempt(s, "player_1", { slotIndex: 0, stackId, skipReactions: true, rng: () => 0.5 });
     return r.ok ? findRerollGrant(r.state, "player_1", true) : -2;
   };
-  it("an Artistic roller has one reroll option on that roll; Digital and fresh Artistic have none", () => {
-    expect(offer(mkSlot({ subtype: "ARTISTIC" }))).toBeGreaterThanOrEqual(0);
+  it("an Creative roller has one reroll option on that roll; Digital and fresh Creative have none", () => {
+    expect(offer(mkSlot({ subtype: "CREATIVE" }))).toBeGreaterThanOrEqual(0);
     expect(offer(mkSlot({ subtype: "DIGITAL" }))).toBe(-1);
-    expect(offer(mkSlot({ subtype: "ARTISTIC", entryProtected: true }))).toBe(-1);
+    expect(offer(mkSlot({ subtype: "CREATIVE", entryProtected: true }))).toBe(-1);
   });
   const gear = PIECIES.find((p) => p.tag === "gear");
   const food = PIECIES.find((p) => p.tag === "food");

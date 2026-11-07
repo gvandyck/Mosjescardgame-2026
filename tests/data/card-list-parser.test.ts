@@ -25,7 +25,7 @@ describe('parseCardList', () => {
   });
 
   it('splits quests into stacks 13 / 13 / 12', () => {
-    for (const [s, n] of [['PHYSICAL', 13], ['DIGITAL', 13], ['ARTISTIC', 12]] as const) {
+    for (const [s, n] of [['PHYSICAL', 13], ['DIGITAL', 13], ['CREATIVE', 12]] as const) {
       expect(count(list.quests, (q) => q.stack === s)).toBe(n);
     }
   });

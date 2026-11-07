@@ -13,7 +13,7 @@ import { MOSJES } from "../../src/data/mosjes.js";
 import { PLACES } from "../../src/data/places.js";
 
 // ─────────────────────────────────────────────────────────────
-// Skiffa (Obby 2.0): an Artistic Mosje may reroll 1 die on its own Quest roll; the Digital -10 Power is in places-power.test.ts.
+// Skiffa (Obby 2.0): an Creative Mosje may reroll 1 die on its own Quest roll; the Digital -10 Power is in places-power.test.ts.
 // ─────────────────────────────────────────────────────────────
 
 describe("place_skiffa (PLACE-10) — Task 1: dead discard/-15 mechanic removed", () => {
@@ -50,7 +50,7 @@ describe("place_skiffa (PLACE-10) — Task 1: dead discard/-15 mechanic removed"
   });
 });
 
-describe("place_skiffa (2.0) — Artistic reroll grant", () => {
+describe("place_skiffa (2.0) — Creative reroll grant", () => {
   const mk = (subtype: string, fresh = false) => {
     const s = createMosjeSlot(MOSJES.find((m: any) => m.id === "mosje_ming_natural"), { level: 1, mp: 40 });
     s.subtype = subtype; s.entryProtected = fresh;
@@ -62,14 +62,14 @@ describe("place_skiffa (2.0) — Artistic reroll grant", () => {
     placeSkiffaGrant(state, player, slot);
     return player.rerollGrants || [];
   };
-  it("an Artistic roller gets exactly one reroll, for that roll only", () => {
-    const g = grant(mk("ARTISTIC"));
+  it("an Creative roller gets exactly one reroll, for that roll only", () => {
+    const g = grant(mk("CREATIVE"));
     expect(g).toHaveLength(1);
     expect(g[0]).toMatchObject({ scope: "ownQuest", uses: 1, forRoll: true });
   });
-  it("a Digital roller, a fresh Artistic roller and another Place give none", () => {
+  it("a Digital roller, a fresh Creative roller and another Place give none", () => {
     expect(grant(mk("DIGITAL"))).toHaveLength(0);
-    expect(grant(mk("ARTISTIC", true))).toHaveLength(0);
-    expect(grant(mk("ARTISTIC"), "place_the_gym")).toHaveLength(0);
+    expect(grant(mk("CREATIVE", true))).toHaveLength(0);
+    expect(grant(mk("CREATIVE"), "place_the_gym")).toHaveLength(0);
   });
 });

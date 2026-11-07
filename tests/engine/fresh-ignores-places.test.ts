@@ -18,11 +18,11 @@ import { effect_momentum_factory } from "../../src/abilities/placeEffects.js";
 
 // The 20 Card List Places. Momentum Factory is a V4 leftover still in data (no Card List entry): tested apart below.
 const ALL = PLACES.map((p) => p.id).filter((id) => id !== "place_momentum_factory");
-const CAST = ["Gandoe", "Michelle", "Tuk", "Coert", "Ming"]; // Physical/Gandoe, Michelle, Artistic Tuk, Digital Coert, Digital Ming
+const CAST = ["Gandoe", "Michelle", "Tuk", "Coert", "Ming"]; // Physical/Gandoe, Michelle, Creative Tuk, Digital Coert, Digital Ming
 const mosjeFor = (word) => byName(new RegExp(word));
 const slotFor = (word, fresh) => {
   const s = mkSlot({ mp: 80, entryProtected: fresh }, mosjeFor(word));
-  s.traits = { strength: 3, mental: 3, creative: 3, technical: 3, resilient: 3, social: 3 };
+  s.traits = { strength: 3, mental: 3, artistic: 3, technical: 3, resilient: 3, social: 3 };
   return s;
 };
 const world = (place, slot) => makeEngineState({

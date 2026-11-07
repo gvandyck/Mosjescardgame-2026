@@ -91,7 +91,7 @@ function makeState({
     questStacks: {
       PHYSICAL: { deck: [] as string[], faceUp: questDeck[0]?.cardId ?? null, tokens: 0, discard: [] as string[] },
       DIGITAL: { deck: [] as string[], faceUp: null, tokens: 0, discard: [] as string[] },
-      ARTISTIC: { deck: [] as string[], faceUp: null, tokens: 0, discard: [] as string[] },
+      CREATIVE: { deck: [] as string[], faceUp: null, tokens: 0, discard: [] as string[] },
     },
     activePlace: null,
     activePlacePlayedBy: null,

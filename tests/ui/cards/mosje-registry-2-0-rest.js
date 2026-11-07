@@ -140,8 +140,8 @@ export const MOSJE_REGISTRY_REST = [
 	] },
 	{ mosje: 'mosje_martin_driver', deck: null, cases: [
 		{ name: 'Perfect Line: a Quest success gives this Mosje 15 MP extra (20 + 25 + 15; Artistic Expression, he has no Strength)',
-			setup: { field: [{ id: 'mosje_martin_driver', mp: 20 }], oppField: OPP40, quest: { stack: 'ARTISTIC', id: 'quest_artistic_expression' }, dice: [5, 5, 5, 5] },
-			trigger: { kind: 'quest', stack: 'ARTISTIC' }, expect: { mp: { 'own.0': 60 } } },
+			setup: { field: [{ id: 'mosje_martin_driver', mp: 20 }], oppField: OPP40, quest: { stack: 'CREATIVE', id: 'quest_artistic_expression' }, dice: [5, 5, 5, 5] },
+			trigger: { kind: 'quest', stack: 'CREATIVE' }, expect: { mp: { 'own.0': 60 } } },
 		{ name: 'Pit Stop: pay 1 Energy and discard 2 cards: draw 3 and gain 10 MP',
 			setup: { field: [{ id: 'mosje_martin_driver', mp: 30 }], oppField: OPP40, energy: 3, hand: [MILK, 'piecie_affoe', 'piecie_straffoe'], pendingTargets: { discard_cards: [0, 1] } },
 			trigger: { kind: 'button' }, expect: { mp: { 'own.0': 40 }, energy: 2, handDelta: 1 } },

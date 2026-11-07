@@ -78,7 +78,7 @@ describe("holder texts", () => {
     const s = makeState([slot("mosje_martin_senor_west"), slot("mosje_azn_cless")]);
     expect(getPartnerSynergyQuestBonus(s, "player_1", "Strength")).toBe(15);
     expect(getPartnerSynergyQuestBonus(s, "player_1", "Digital")).toBe(0);
-    expect(getPartnerSynergyQuestBonus(s, "player_1", "Artistic")).toBe(0);
+    expect(getPartnerSynergyQuestBonus(s, "player_1", "Creative")).toBe(0);
     expect(getPartnerSynergyQuestBonus(makeState([slot("mosje_martin_senor_west"), null]), "player_1", "Strength")).toBe(0);
   });
 

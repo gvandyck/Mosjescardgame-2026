@@ -20,7 +20,7 @@ const mosje = (subtype) => pick(MOSJES, (c) => String(c.subtype).toUpperCase() =
 const ROWS = [
   ['Physical Mosje', mosje('PHYSICAL')],
   ['Digital Mosje', mosje('DIGITAL')],
-  ['Artistic Mosje', mosje('ARTISTIC')],
+  ['Creative Mosje', mosje('CREATIVE')],
   ['Piecie', pick(PIECIES)],
   ['Place', pick(PLACES)],
   ['Snelle', pick(SNELLE_PIECIES)],

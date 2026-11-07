@@ -31,12 +31,12 @@ export function effect_snelle_jeweetniet(gameState) {
 
 const dieOption = (dice, i) => ({ label: `Die ${i + 1} (${dice[i]})`, die: i });
 
-// Lucky Coin: pick dice one by one ('coin_n'), then reroll each once. Creative 3: also pick its result ('coin_v_n', 1-6).
+// Lucky Coin: pick dice one by one ('coin_n'), then reroll each once. Artistic 3: also pick its result ('coin_v_n', 1-6).
 export function effect_snelle_lucky_coin(gameState, pid) {
 	const state = clone(gameState);
 	const pending = state.pendingQuestRoll;
 	if (!pending) return state;
-	const creative3 = bestStars(state, pid, 'creative') >= 3;
+	const artistic3 = bestStars(state, pid, 'artistic') >= 3;
 	const picks = state.players[pid]._pendingTargets || {};
 	const own = pending.playerId === pid;
 	const chosen = [];
@@ -52,7 +52,7 @@ export function effect_snelle_lucky_coin(gameState, pid) {
 		}
 		if (given.done) break;
 		let value = null;
-		if (creative3) {
+		if (artistic3) {
 			const v = picks['coin_v_' + n];
 			if (!v) {
 				const faces = [1, 2, 3, 4, 5, 6].map(value => ({ label: String(value), value }));
@@ -64,7 +64,7 @@ export function effect_snelle_lucky_coin(gameState, pid) {
 	}
 	for (const { die, value } of chosen) {
 		if (!Number.isInteger(die) || die < 0 || die >= pending.dice.length) continue;
-		pending.dice[die] = creative3 && Number.isInteger(value) && value >= 1 && value <= 6 ? value : rollDie(6); // T-60-04
+		pending.dice[die] = artistic3 && Number.isInteger(value) && value >= 1 && value <= 6 ? value : rollDie(6); // T-60-04
 	}
 	if (chosen.length) recheck(pending);
 	for (const k of Object.keys(picks)) if (k.startsWith('coin_')) delete picks[k];

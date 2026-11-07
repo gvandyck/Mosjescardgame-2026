@@ -11,7 +11,7 @@ import { attackMosje } from "../../src/engine/actions/attackMosje.js";
 const mk = (over = {}) => Object.assign(createMosjeSlot(MOSJES[0], { level: 1, mp: 50 }), { entryProtected: false }, over);
 function build(p1 = {}, a = {}, b = {}) {
   const stacks = {};
-  for (const id of ["PHYSICAL", "DIGITAL", "ARTISTIC"]) stacks[id] = { deck: ["quest_x"], faceUp: "quest_tough_it_out", tokens: 0, discard: [] };
+  for (const id of ["PHYSICAL", "DIGITAL", "CREATIVE"]) stacks[id] = { deck: ["quest_x"], faceUp: "quest_tough_it_out", tokens: 0, discard: [] };
   return makeEngineState({
     questStacks: stacks,
     players: { player_1: { activeSlots: [mk(a), mk(b)], ...p1 }, player_2: { activeSlots: [mk(), null] } },

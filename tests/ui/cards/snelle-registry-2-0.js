@@ -108,13 +108,13 @@ export const SNELLE_REGISTRY = [
 			trigger: { kind: 'quest', stack: 'PHYSICAL', picks: [/Arm Wrestling/, /Sleutelpuntje/] }, expect: { mp: { 'own.0': 70 }, energy: 2, handDelta: -1 } }, // 20 + 40 + Jeffrey Brute Force 10
 	] },
 	{ snelle: 'snelle_lucky_coin', deck: 'example', cases: [
-		{ name: 'Creative 2: reroll one chosen die once ([5,2] -> [5,6] wins Arm Wrestling)',
+		{ name: 'Artistic 2: reroll one chosen die once ([5,2] -> [5,6] wins Arm Wrestling)',
 			setup: { field: [{ id: 'mosje_gandoe_wizard', mp: 20 }], oppField: OPP40, hand: ['snelle_lucky_coin'], quest: ARM, dice: [5, 2], abilityDice: [6] },
 			trigger: { kind: 'quest', stack: 'PHYSICAL', picks: [/Arm Wrestling/, /Lucky/, /Die 2/, /Done/] }, expect: { mp: { 'own.0': 60 }, energy: 2, handDelta: -1 } },
-		{ name: 'Creative 3: choose the result (Quick Thinking [2,2,2] -> die 1 set to 6 wins)',
+		{ name: 'Artistic 3: choose the result (Quick Thinking [2,2,2] -> die 1 set to 6 wins)',
 			setup: { field: [{ id: 'mosje_ronald_mastermind', mp: 20 }], oppField: OPP40, hand: ['snelle_lucky_coin'], quest: QUICK, dice: [2, 2, 2] },
 			trigger: { kind: 'quest', stack: 'DIGITAL', picks: [/Quick Thinking/, /Lucky/, /Die 1/, /^6$/, /Done/] }, expect: { mp: { 'own.0': 45 }, energy: 2, handDelta: -1 } },
-		{ name: 'Needs Creative: no Creative Mosje -> not offered, nothing paid',
+		{ name: 'Needs Artistic: no Artistic Mosje -> not offered, nothing paid',
 			setup: { field: [{ id: MICHELLE, mp: 20 }], oppField: OPP40, hand: ['snelle_lucky_coin'], quest: ARM, dice: [5, 5], abilityDice: [2] },
 			trigger: { kind: 'quest', stack: 'PHYSICAL' }, expect: { energy: 3, handDelta: 0 } },
 	] },

@@ -132,20 +132,20 @@
         id: 'coert',
         firstName: 'Coert',
         nickname: 'The Hawaiian Tech Savant',
-        traits: { technical: 3, creative: 1 },
+        traits: { technical: 3, artistic: 1 },
         ability: 'Can activate Piecies one turn earlier'
       },
       {
         id: 'ronald',
         firstName: 'Ronald',
         nickname: 'The Master Chef',
-        traits: { social: 2, creative: 2 },
+        traits: { social: 2, artistic: 2 },
         ability: 'Recovers 10 MP when winning a quest'
       }
     ];
 
     function createCardHTML(mosje) {
-      const traitIcons = { strength: '⚡', mental: '🧠', social: '💬', creative: '🎨', technical: '🔧' };
+      const traitIcons = { strength: '⚡', mental: '🧠', social: '💬', artistic: '🎨', technical: '🔧' };
 
       let traitsHTML = '';
       for (const [trait, stars] of Object.entries(mosje.traits || {})) {

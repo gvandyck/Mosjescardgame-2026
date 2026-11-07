@@ -10,7 +10,7 @@ import { formatQuestRollsLine } from './formatQuestRollsLine.js';
 import { formatQuestStakes } from './formatQuestStakes.js';
 import { getQuestTextLines } from './getQuestTextLines.js';
 
-const STACKS = ['PHYSICAL', 'DIGITAL', 'ARTISTIC'];
+const STACKS = ['PHYSICAL', 'DIGITAL', 'CREATIVE'];
 
 export function buildQuestSpecV1(card) {
   if (!STACKS.includes(card.stack)) return null;

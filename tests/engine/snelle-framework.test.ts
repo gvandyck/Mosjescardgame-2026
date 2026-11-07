@@ -77,10 +77,10 @@ describe("Needs / Only if", () => {
     const no = attackMosje(board({ hand: H("snelle_perfect_dodge"), activeSlots: [mk(50, { strength: 1 }), mk(50)] }), "player_1", ATT);
     expect(no.state.pendingReaction?.eligible ?? []).not.toContain("snelle_perfect_dodge");
   });
-  it("Lucky Coin without Creative 1 star is not offered", () => {
-    const s = board({ hand: H("snelle_lucky_coin"), activeSlots: [mk(50, { creative: 0 }), null] });
+  it("Lucky Coin without Artistic 1 star is not offered", () => {
+    const s = board({ hand: H("snelle_lucky_coin"), activeSlots: [mk(50, { artistic: 0 }), null] });
     expect(getEligibleReactions(s, "player_2", ["afterQuestRoll"])).not.toContain("snelle_lucky_coin");
-    s.players.player_2.activeSlots[0].traits.creative = 1;
+    s.players.player_2.activeSlots[0].traits.artistic = 1;
     expect(getEligibleReactions(s, "player_2", ["afterQuestRoll"])).toContain("snelle_lucky_coin");
   });
   it("a refused play pays no Energy and keeps the card in hand", () => {

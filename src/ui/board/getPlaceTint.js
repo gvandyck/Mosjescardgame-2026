@@ -1,5 +1,5 @@
 // getPlaceTint.js — the felt wash colour for an active Place (63-UI-SPEC "Place tile and felt tint", D-10).
-// A Place that is good for exactly ONE Quest stack (Physical / Digital / Artistic) takes that stack's colour;
+// A Place that is good for exactly ONE Quest stack (Physical / Digital / Creative) takes that stack's colour;
 // a Place good for none or for several stacks gets the neutral warm tone. Other goodFor entries (Mosje names,
 // decks, "Questers") are ignored. No new data field: it only reads place.goodFor.
 import { QUEST_STACK_IDS } from '../../engine/setup/setupRules.js';

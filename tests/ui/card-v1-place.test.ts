@@ -22,7 +22,7 @@ const plain = (html: string) => unescape(html.replace(/<\/div>\s*<div/g, '</div>
 describe('card frame v1 — Place data mapping (2.0 face)', () => {
   it('good / bad line prints the Card List words exactly as written and leaves empty sides out', () => {
     expect(formatGoodBadLine(['Social Mosjes', 'Questers'], ['Attackers'])).toBe('Good for: Social Mosjes, Questers · Bad for: Attackers');
-    expect(formatGoodBadLine(['Physical'], ['Digital', 'Artistic'])).toBe('Good for: Physical · Bad for: Digital, Artistic');
+    expect(formatGoodBadLine(['Physical'], ['Digital', 'Creative'])).toBe('Good for: Physical · Bad for: Digital, Creative');
     expect(formatGoodBadLine([], ['low-MP Mosjes'])).toBe('Bad for: low-MP Mosjes');
     expect(formatGoodBadLine(['Coert / Binti decks'], [])).toBe('Good for: Coert / Binti decks');
     expect(formatGoodBadLine([], [])).toBe('');
@@ -35,7 +35,7 @@ describe('card frame v1 — Place data mapping (2.0 face)', () => {
     expect(corner(html)).toContain('data-cv1-cost="3"');
     expect(corner(html)).toContain('>COST<');
     expect(html).toContain('>PLACE<');
-    expect(part(html, 'cv2-info')).toBe('Good for: Physical · Bad for: Digital, Artistic');
+    expect(part(html, 'cv2-info')).toBe('Good for: Physical · Bad for: Digital, Creative');
     expect(part(html, 'cv2-label')).toBe('Only 1 in play');
     expect(html).toContain('#6D28D9');
     expect(html).not.toContain(V4_BORDER);
@@ -94,7 +94,7 @@ describe('card frame v1 — Place data mapping (2.0 face)', () => {
     const html = buildCardV1({ ...byName('The Gym'), goodFor: ['<i>x</i>'], description: 'Gain <b>1</b>.' }, {})!.html;
     expect(html).not.toContain('<i>x</i>');
     expect(html).not.toContain('<b>1</b>');
-    expect(part(html, 'cv2-info')).toBe('Good for: <i>x</i> · Bad for: Digital, Artistic');
+    expect(part(html, 'cv2-info')).toBe('Good for: <i>x</i> · Bad for: Digital, Creative');
     expect(html).toContain('&lt;i&gt;x&lt;/i&gt;');
   });
 });

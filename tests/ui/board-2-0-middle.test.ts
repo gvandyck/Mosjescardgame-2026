@@ -10,7 +10,7 @@ const deckOf = (n: number) => Array.from({ length: n }, () => 'quest_improvise')
 const stacks = (over: Record<string, any> = {}) => ({
 	PHYSICAL: { faceUp: 'quest_tough_it_out', deck: deckOf(11), discard: [], tokens: 0 },
 	DIGITAL: { faceUp: 'quest_debug_system', deck: deckOf(9), discard: [], tokens: 0 },
-	ARTISTIC: { faceUp: null, deck: [], discard: [], tokens: 0 },
+	CREATIVE: { faceUp: null, deck: [], discard: [], tokens: 0 },
 	...over,
 });
 // One stack element's HTML: split the strip at every stack root (class "quest-stack" or "quest-stack quest-stack--empty").
@@ -20,9 +20,9 @@ const stackHtml = (html: string, id: string) =>
 describe('buildQuestStacksHtml (D-09, UI-01)', () => {
 	const html = buildQuestStacksHtml(stacks());
 
-	it('draws one stack per Quest stack, in Physical / Digital / Artistic order, with all hooks', () => {
+	it('draws one stack per Quest stack, in Physical / Digital / Creative order, with all hooks', () => {
 		const ids = [...html.matchAll(/data-quest-stack="([A-Z]+)"/g)].map((m) => m[1]);
-		expect(ids).toEqual(['PHYSICAL', 'DIGITAL', 'ARTISTIC']);
+		expect(ids).toEqual(['PHYSICAL', 'DIGITAL', 'CREATIVE']);
 		const physical = stackHtml(html, 'PHYSICAL');
 		expect(physical).toContain('data-stack="PHYSICAL"');
 		expect(physical).toContain('data-quest="quest_tough_it_out"');
@@ -51,12 +51,12 @@ describe('buildQuestStacksHtml (D-09, UI-01)', () => {
 	});
 
 	it('an empty stack is a dashed outline reading "Empty" with no Quest tile', () => {
-		const artistic = stackHtml(html, 'ARTISTIC');
-		expect(artistic).toContain('quest-stack--empty');
-		expect(artistic).toContain('>Empty<');
-		expect(artistic).toContain('data-stack-count="0"');
-		expect(artistic).not.toContain('cv2-tile');
-		expect(artistic).not.toContain('data-quest="');
+		const creative = stackHtml(html, 'CREATIVE');
+		expect(creative).toContain('quest-stack--empty');
+		expect(creative).toContain('>Empty<');
+		expect(creative).toContain('data-stack-count="0"');
+		expect(creative).not.toContain('cv2-tile');
+		expect(creative).not.toContain('data-quest="');
 	});
 
 	it('counts the cards left in the deck, singular or not', () => {
@@ -81,7 +81,7 @@ describe('getPlaceTint (D-10)', () => {
 	it('a Place good for exactly one Quest stack takes that stack colour', () => {
 		expect(getPlaceTint({ goodFor: ['Physical', 'Gandoe'] })).toBe('#C2410C');
 		expect(getPlaceTint({ goodFor: ['Digital'] })).toBe('#0E7490');
-		expect(getPlaceTint({ goodFor: ['Artistic'] })).toBe('#A21CAF');
+		expect(getPlaceTint({ goodFor: ['Creative'] })).toBe('#A21CAF');
 	});
 
 	it('none, several or no Place give the warm neutral tone', () => {

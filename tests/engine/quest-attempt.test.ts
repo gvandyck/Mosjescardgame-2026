@@ -9,7 +9,7 @@ import { rollQuestAttempt } from "../../src/engine/quests/rollQuestAttempt.js";
 import { resolveQuestAttempt } from "../../src/engine/quests/resolveQuestAttempt.js";
 import { getQuestDef } from "../../src/engine/quests/getQuestDef.js";
 
-const ONE = { strength: 1, mental: 1, creative: 1, technical: 1, resilient: 1, social: 1 };
+const ONE = { strength: 1, mental: 1, artistic: 1, technical: 1, resilient: 1, social: 1 };
 const HIGH = 0.7; // d6 = 5
 const LOW = 0.2; // d6 = 2
 const rngOf = (v) => () => v;
@@ -25,7 +25,7 @@ function mkSlot(over = {}) {
 function build(questName, { slot = {}, p1 = {}, second = null } = {}) {
   const q = getQuestDef("quest_" + questName);
   const stacks = {};
-  for (const id of ["PHYSICAL", "DIGITAL", "ARTISTIC"]) stacks[id] = { deck: ["quest_filler"], faceUp: "quest_tough_it_out", tokens: 0, discard: [] };
+  for (const id of ["PHYSICAL", "DIGITAL", "CREATIVE"]) stacks[id] = { deck: ["quest_filler"], faceUp: "quest_tough_it_out", tokens: 0, discard: [] };
   stacks[q.stack] = { deck: ["quest_filler"], faceUp: q.id, tokens: 0, discard: [] };
   const s = makeEngineState({
     questStacks: stacks,
@@ -76,7 +76,7 @@ describe("Quest attempt end to end (E17)", () => {
   it("a fresh Mosje may Quest and any stack can be picked", () => {
     const { s, q } = build("tough_it_out", { slot: { entryProtected: true } });
     expect(go(s, q).ok).toBe(true);
-    expect(rollQuestAttempt(s, "player_1", { slotIndex: 0, stackId: "ARTISTIC", rng: rngOf(HIGH) }).ok).toBe(true);
+    expect(rollQuestAttempt(s, "player_1", { slotIndex: 0, stackId: "CREATIVE", rng: rngOf(HIGH) }).ok).toBe(true);
   });
 
   it("refuses a stack with no face-up Quest", () => {

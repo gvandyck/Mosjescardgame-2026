@@ -81,7 +81,7 @@ describe("Ming, The Predictor: Future Sight (look at the top card of one Quest s
   const stacks = () => ({
     PHYSICAL: { deck: ["q1", "q2", "q3"], faceUp: null, tokens: 0, discard: [] },
     DIGITAL: { deck: ["d1", "d2"], faceUp: null, tokens: 0, discard: [] },
-    ARTISTIC: { deck: [], faceUp: null, tokens: 0, discard: [] },
+    CREATIVE: { deck: [], faceUp: null, tokens: 0, discard: [] },
   });
   const board = (energy: number) => field(PREDICTOR, { energy }, { questStacks: stacks() });
 
@@ -108,7 +108,7 @@ describe("Ming, The Predictor: Future Sight (look at the top card of one Quest s
   });
 
   it("an empty stack, a missing stack or an unknown stack is refused", () => {
-    for (const stack_id of ["ARTISTIC", undefined, "NOPE"]) {
+    for (const stack_id of ["CREATIVE", undefined, "NOPE"]) {
       const res = use(board(3), PREDICTOR, { stack_id, bottom: true });
       expect(res.success).toBe(false);
       expect(res.state.players.player_1.energy).toBe(3);

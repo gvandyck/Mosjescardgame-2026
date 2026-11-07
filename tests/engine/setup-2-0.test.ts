@@ -32,7 +32,7 @@ describe('2.0 setup', () => {
 
   it('builds 3 typed quest stacks with a face-up top', () => {
     const s = make();
-    for (const t of ['PHYSICAL', 'DIGITAL', 'ARTISTIC']) {
+    for (const t of ['PHYSICAL', 'DIGITAL', 'CREATIVE']) {
       const st = s.questStacks[t];
       const total = QUESTS.filter((q: any) => q.stack === t).length;
       expect(QUESTS.find((q: any) => q.id === st.faceUp).stack).toBe(t);

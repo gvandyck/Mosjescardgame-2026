@@ -29,7 +29,7 @@ const deckOf = (n) => Array.from({ length: n }, () => ({ cardId: 'piecie_kannetj
 const mosjeIn = (f) => (!f ? null : typeof f === 'string' ? slotOf(f) : slotOf(f.id, f.extra));
 
 // Three stacks; `faceUp` names the face-up Quest per stack (a stack without one has no Quest up).
-const stacks = (faceUp = {}) => ['PHYSICAL', 'DIGITAL', 'ARTISTIC'].reduce((o, id) => ({ ...o, [id]: { deck: [], faceUp: faceUp[id] ?? null, tokens: 0, discard: [] } }), {});
+const stacks = (faceUp = {}) => ['PHYSICAL', 'DIGITAL', 'CREATIVE'].reduce((o, id) => ({ ...o, [id]: { deck: [], faceUp: faceUp[id] ?? null, tokens: 0, discard: [] } }), {});
 
 // The bot is player_1 and it is its turn 3. A null in `field` / `oppField` is an open slot; an entry is a Mosje id or { id, extra }.
 function table({ energy = 3, field = ['mosje_gandoe_wizard', null], oppField = ['mosje_ronald_chef', null], hand = [], oppHand = [], faceUp = {}, activePlace = null, bot = {}, state = {} } = {}) {

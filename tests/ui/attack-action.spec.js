@@ -212,7 +212,7 @@ test('U2: Quest by tap - Quest chip, the 3 Quest tiles glow or dim with a reason
 	test.setTimeout(90000);
 	await boot(page, { bothOpen: true });
 	await setQuestFaceUp(page, 'DIGITAL', 'quest_debug_system'); // Technical 2+: Alyssa has none -> Locked
-	await setQuestFaceUp(page, 'ARTISTIC', 'quest_parkeren_delft'); // discard a ready Piecie: none -> Can't pay
+	await setQuestFaceUp(page, 'CREATIVE', 'quest_parkeren_delft'); // discard a ready Piecie: none -> Can't pay
 	await setNextDice(page, [6, 6, 6]);
 	const before = (await getGameState(page)).players.player_1.activeSlots[0].mp;
 
@@ -225,14 +225,14 @@ test('U2: Quest by tap - Quest chip, the 3 Quest tiles glow or dim with a reason
 	await expect(stack('PHYSICAL')).toHaveAttribute('data-target', 'valid');
 	await expect(stack('DIGITAL')).toHaveAttribute('data-target', 'invalid');
 	await expect(stack('DIGITAL').locator('[data-target-badge]')).toHaveText('Locked');
-	await expect(stack('ARTISTIC')).toHaveAttribute('data-target', 'invalid');
-	await expect(stack('ARTISTIC').locator('[data-target-badge]')).toHaveText("Can't pay");
+	await expect(stack('CREATIVE')).toHaveAttribute('data-target', 'invalid');
+	await expect(stack('CREATIVE').locator('[data-target-badge]')).toHaveText("Can't pay");
 	await page.screenshot({ path: `${SHOT_DIR}/u2-quest.png` });
 
 	// A dimmed tile shows its reason and keeps the mode; the glowing one starts the Quest.
 	await stack('DIGITAL').click();
 	await expect(page.locator('#board-toast')).toContainText('Condition not met');
-	await stack('ARTISTIC').click();
+	await stack('CREATIVE').click();
 	await expect(page.locator('#board-toast')).toContainText('Cannot pay: Discard 1 ready Piecie');
 	await expect(statusStrip(page)).toHaveAttribute('data-status-kind', 'choose-quest');
 	expect((await getGameState(page)).players.player_1.activeSlots[0].actedThisTurn).toBeFalsy();

@@ -98,7 +98,7 @@ export const EXAMPLE_DECKS = [
     id: "EXAMPLE_CREATIEVELINGEN",
     name: "Creatievelingen",
     description: "Tuk heals, Bank Chilling feeds the Social Mosjes, chains off Jisca and DDR Chris, Binti's food and discard tricks.",
-    kind: "ARTISTIC",
+    kind: "CREATIVE",
     startingMosje: "mosje_tuk_healer",
     mosjes: [
       "mosje_tuk_healer",

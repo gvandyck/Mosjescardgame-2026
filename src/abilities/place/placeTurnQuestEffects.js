@@ -36,9 +36,9 @@ export function placeQuestBonus(state, slot, questId, win) {
 	}
 }
 
-// Skiffa: an Artistic Mosje rolling for a Quest may reroll 1 die once (a grant for that Quest only).
+// Skiffa: an Creative Mosje rolling for a Quest may reroll 1 die once (a grant for that Quest only).
 export function placeSkiffaGrant(state, player, slot) {
-	if (state.activePlace !== 'place_skiffa' || !live(slot) || slot.subtype !== 'ARTISTIC') return;
+	if (state.activePlace !== 'place_skiffa' || !live(slot) || slot.subtype !== 'CREATIVE') return;
 	player.rerollGrants = [...(player.rerollGrants || []),
 		{ scope: 'ownQuest', uses: 1, turnKey: djTurnKey(state), forRoll: true, source: 'place_skiffa' }];
 }

@@ -43,9 +43,9 @@ describe('Quests carry Card List 2.0 data', () => {
     });
   }
 
-  it('stacks are PHYSICAL 13 / DIGITAL 13 / ARTISTIC 12', () => {
+  it('stacks are PHYSICAL 13 / DIGITAL 13 / CREATIVE 12', () => {
     const n = (s: string) => (QUESTS as any[]).filter((q) => q.stack === s).length;
-    expect([n('PHYSICAL'), n('DIGITAL'), n('ARTISTIC')]).toEqual([13, 13, 12]);
+    expect([n('PHYSICAL'), n('DIGITAL'), n('CREATIVE')]).toEqual([13, 13, 12]);
   });
 
   it('the handoff renames hold', () => {

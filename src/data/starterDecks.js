@@ -74,7 +74,7 @@ export const STARTER_DECKS = [
     id: "ARTISTIC_RHYTHM",
     disabled: true,
     name: "Artistic Rhythm",
-    description: "Youri and Chris DDR: speedrun combos, piecie chains, and creative quest pressure.",
+    description: "Youri and Chris DDR: speedrun combos, piecie chains, and artistic quest pressure.",
     mosjes: ["mosje_youri", "mosje_chris_ddr"],
     piecies: [
       "piecie_kannetje_melk",

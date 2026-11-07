@@ -71,7 +71,7 @@ describe("Quest extras", () => {
     expect(finish(s, q, true, { formAllianceTarget: T }).players.player_2.activeSlots[0].mp).toBe(40);
   });
   it("every 2.0 Quest with a Card List extras text has a QUEST_EXTRAS entry", () => {
-    for (const q of QUESTS.filter(q => q.extras && ["PHYSICAL", "DIGITAL", "ARTISTIC"].includes(q.stack))) {
+    for (const q of QUESTS.filter(q => q.extras && ["PHYSICAL", "DIGITAL", "CREATIVE"].includes(q.stack))) {
       expect(QUEST_EXTRAS[q.id], q.id).toBeTruthy();
     }
   });

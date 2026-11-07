@@ -87,7 +87,7 @@ The Coerts and the FPS pair: gear for cards and MP, dice help on Technical Quest
 
 **Playing it:** fill all 3 slots for Chris's Perfect Setup and the Master Plan Quest. Your 4 Snelle also pay for Cheat code, so don't burn them all. Five of your six Mosjes have Mental ★★, so Jammertje is almost always live.
 
-## Deck 3 — Artistic · "Creatievelingen"
+## Deck 3 — Creative · "Creatievelingen"
 Tuk heals, Bank Chilling feeds the Social Mosjes, chains off Jisca and DDR Chris, Binti's food and discard tricks.
 **Starting Mosje:** Tuk, The Healing Spirit
 
@@ -128,7 +128,7 @@ Tuk heals, Bank Chilling feeds the Social Mosjes, chains off Jisca and DDR Chris
 ---
 
 ## Mosje count by type
-| Deck | Physical | Digital | Artistic |
+| Deck | Physical | Digital | Creative |
 |---|---|---|---|
 | Taksen | 6 | — | — |
 | Regelaars | — | 6 | — |

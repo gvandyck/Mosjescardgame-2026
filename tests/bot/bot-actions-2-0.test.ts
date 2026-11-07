@@ -21,7 +21,7 @@ import { rollQuestAttempt } from '../../src/engine/quests/rollQuestAttempt.js';
 
 function stacks(faceUp: Record<string, string | null> = {}) {
   const out: any = {};
-  for (const id of ['PHYSICAL', 'DIGITAL', 'ARTISTIC']) out[id] = { deck: [], faceUp: faceUp[id] ?? null, tokens: 0, discard: [] };
+  for (const id of ['PHYSICAL', 'DIGITAL', 'CREATIVE']) out[id] = { deck: [], faceUp: faceUp[id] ?? null, tokens: 0, discard: [] };
   return out;
 }
 const board = (me: any, opp: any[], q: Record<string, string | null> = {}, p1: any = {}) =>

@@ -201,7 +201,7 @@ describe('2.0 field tile: Quest', () => {
 
   it('every 2.0 Quest has a tile with need, win, lose and 2 pips, in its stack colour', () => {
     expect(stackQuests).toHaveLength(38);
-    const colour: Record<string, string> = { PHYSICAL: '#C2410C', DIGITAL: '#0E7490', ARTISTIC: '#A21CAF' };
+    const colour: Record<string, string> = { PHYSICAL: '#C2410C', DIGITAL: '#0E7490', CREATIVE: '#A21CAF' };
     for (const q of stackQuests) {
       const t = tile(q);
       expect(attr(t, 'need'), q.id).not.toBeNull();

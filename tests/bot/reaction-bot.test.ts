@@ -61,9 +61,9 @@ describe("chooseReaction", () => {
   it("actor: Sleutelpuntje below 4 dice, Lucky Coin on a lost roll, pass otherwise", () => {
     const q = getQuestDef("quest_tough_it_out");
     const stacks: any = {};
-    for (const id of ["PHYSICAL", "DIGITAL", "ARTISTIC"]) stacks[id] = { deck: ["quest_filler"], faceUp: "quest_filler", tokens: 0, discard: [] };
+    for (const id of ["PHYSICAL", "DIGITAL", "CREATIVE"]) stacks[id] = { deck: ["quest_filler"], faceUp: "quest_filler", tokens: 0, discard: [] };
     stacks[q.stack] = { deck: ["quest_filler"], faceUp: q.id, tokens: 0, discard: [] };
-    const traits = { strength: 1, mental: 1, creative: 1, technical: 1, resilient: 1, social: 1 };
+    const traits = { strength: 1, mental: 1, artistic: 1, technical: 1, resilient: 1, social: 1 };
     const s = makeEngineState({ turnNumber: 3, questStacks: stacks, players: { player_1: { hand: H("snelle_sleutelpuntje", "snelle_lucky_coin"), activeSlots: [mk(30, plain, { traits }), null] }, player_2: { activeSlots: [mk(30), null] } } });
     const before = rollQuestAttempt(s, "player_1", { slotIndex: 0, stackId: q.stack, rng: () => 0.7 });
     expect(chooseReaction(before.state, "player_1")).toBe("snelle_sleutelpuntje");
@@ -93,7 +93,7 @@ describe("driver", () => {
     s.turnNumber = 5;
     // Deterministic: createInitialGameState deals random face-up Quests; if one was playable the bot
     // quested instead of attacking (flaky). Pin every stack to an unplayable filler so the attack is the only play.
-    for (const id of ["PHYSICAL", "DIGITAL", "ARTISTIC"]) s.questStacks[id] = { deck: ["quest_filler"], faceUp: "quest_filler", tokens: 0, discard: [] };
+    for (const id of ["PHYSICAL", "DIGITAL", "CREATIVE"]) s.questStacks[id] = { deck: ["quest_filler"], faceUp: "quest_filler", tokens: 0, discard: [] };
     s.players.player_2.activeSlots = [mk(50, attackerDef), null];
     s.players.player_2.hand = [];
     s.players.player_1.activeSlots = [mk(50), null];
@@ -308,10 +308,10 @@ describe("pickCounterSnelle and chooseReaction", () => {
   });
   it("own windows: Sleutelpuntje and Lucky Coin need the Energy; Dubbele Temminks follows a gain or draw Piecie only", () => {
     const stacks: any = {};
-    for (const id of ["PHYSICAL", "DIGITAL", "ARTISTIC"]) stacks[id] = { deck: ["quest_filler"], faceUp: "quest_filler", tokens: 0, discard: [] };
+    for (const id of ["PHYSICAL", "DIGITAL", "CREATIVE"]) stacks[id] = { deck: ["quest_filler"], faceUp: "quest_filler", tokens: 0, discard: [] };
     const q = getQuestDef("quest_tough_it_out");
     stacks[q.stack] = { deck: ["quest_filler"], faceUp: q.id, tokens: 0, discard: [] };
-    const traits = { strength: 1, mental: 1, creative: 1, technical: 1, resilient: 1, social: 1 };
+    const traits = { strength: 1, mental: 1, artistic: 1, technical: 1, resilient: 1, social: 1 };
     // 61-08: the window is a real one - the bot is the roller (its own turn) and holds the offered cards - because chooseReaction
     // now dry-runs the held roll without the Sleutelpuntje it would play. The assertions below are unchanged.
     const quest = (moments: string[], eligible: string[], energy: number, roll: any = {}) =>

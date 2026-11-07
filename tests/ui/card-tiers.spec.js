@@ -7,11 +7,11 @@ import { seedOfflineSession, GAME_URL_TEST } from './helpers.js';
 
 const DEMO = '/card-tiers-demo.html?tiers=all';
 const ACCENT = {
-	PHYSICAL: 'rgb(194, 65, 12)', DIGITAL: 'rgb(14, 116, 144)', ARTISTIC: 'rgb(162, 28, 175)',
+	PHYSICAL: 'rgb(194, 65, 12)', DIGITAL: 'rgb(14, 116, 144)', CREATIVE: 'rgb(162, 28, 175)',
 	PIECIE: 'rgb(21, 128, 61)', PLACE: 'rgb(109, 40, 217)', SNELLE: 'rgb(161, 98, 7)',
 };
-const TYPES = ['PHYSICAL', 'DIGITAL', 'ARTISTIC', 'PIECIE', 'PLACE', 'SNELLE'];
-const MOSJE_TYPES = ['PHYSICAL', 'DIGITAL', 'ARTISTIC'];
+const TYPES = ['PHYSICAL', 'DIGITAL', 'CREATIVE', 'PIECIE', 'PLACE', 'SNELLE'];
+const MOSJE_TYPES = ['PHYSICAL', 'DIGITAL', 'CREATIVE'];
 const COMBOS = TYPES.flatMap((type) => [1, 2, 3, 4, 5].map((tier) => {
 	const mosje = MOSJE_TYPES.includes(type);
 	const frame = mosje ? (tier === 5 ? 5 : 4) : tier; // Mosje frame tier (Phase 7 A1); the rest follow their rarity

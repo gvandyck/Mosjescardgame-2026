@@ -2,7 +2,7 @@
  * place-registry-2-0.js - card-test-library entries for the Power Places (Obby 2.0, Phase 60-04, EFX-04 part 1).
  * Numbers come from the Card List Place table (docs/obby-2.0), not from engine output.
  * Driver: tests/helpers/mosjeCardTest.js (the spec passes { mosje: place } as the entry id); trigger 'none' reads the board as laid out.
- * Mosjes: Bulldozer (Physical, L1 Power 20), Ming Natural (Digital, 10), Tuk Healer (Artistic, 0, a Tuk), Michelle (Physical 10),
+ * Mosjes: Bulldozer (Physical, L1 Power 20), Ming Natural (Digital, 10), Tuk Healer (Creative, 0, a Tuk), Michelle (Physical 10),
  * Gandoe Destroyer (Physical 20).
  */
 const BULL = 'mosje_alyssa_bulldozer';
@@ -31,7 +31,7 @@ const PLACE_ENTRIES = [
 		power('Physical Power 20 -> 30', 'place_boxing_ring', BULL, 30),
 		power('a Gandoe gets +20 -> 40', 'place_boxing_ring', GANDOE, 40),
 		power('Digital Power 10 -> 0', 'place_boxing_ring', DIG, 0),
-		power('Artistic Power 0 stays 0', 'place_boxing_ring', ART, 0),
+		power('Creative Power 0 stays 0', 'place_boxing_ring', ART, 0),
 		fresh('place_boxing_ring', DIG, 10),
 	] },
 	{ place: 'place_de_box', deck: 'example', cases: [
@@ -83,9 +83,9 @@ const PLACE_ENTRIES = [
 		turn('place_eendjes_voeren', 'a fresh Michelle gains nothing (30)', 'mosje_michelle', 30, 30, { fresh: true }),
 	] },
 	{ place: 'place_skiffa', deck: 'example', part: 'reroll', cases: [{
-		name: 'an Artistic Mosje may reroll 1 die on its Quest roll (1,1 fails; reroll die 1 -> 6 wins +25)',
-		setup: { field: [{ id: ART, mp: 50 }], oppField: OPP, place: { id: 'place_skiffa', by: 'player_2' }, quest: { stack: 'ARTISTIC', id: 'quest_inspire_crowd' }, dice: [1, 1], abilityDice: [6] },
-		trigger: { kind: 'quest', stack: 'ARTISTIC', picks: [/Reroll die 1/] }, expect: { mp: { 'own.0': 75 } },
+		name: 'an Creative Mosje may reroll 1 die on its Quest roll (1,1 fails; reroll die 1 -> 6 wins +25)',
+		setup: { field: [{ id: ART, mp: 50 }], oppField: OPP, place: { id: 'place_skiffa', by: 'player_2' }, quest: { stack: 'CREATIVE', id: 'quest_inspire_crowd' }, dice: [1, 1], abilityDice: [6] },
+		trigger: { kind: 'quest', stack: 'CREATIVE', picks: [/Reroll die 1/] }, expect: { mp: { 'own.0': 75 } },
 	}] },
 	{ place: 'place_tesla', deck: 'example', part: 'play', cases: [
 		{ name: 'cannot be played without a Coert on your field',

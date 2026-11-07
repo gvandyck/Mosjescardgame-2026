@@ -231,7 +231,7 @@ function captureMetrics(run) {
 // other refusal kinds are counted in the seeded games below and swept in 61-08.
 const refusals = (metrics, ...calls) => metrics.filter((m) => m.ev === 'engine-refused' && (!calls.length || calls.includes(m.call)));
 
-const noQuests = { questStacks: ['PHYSICAL', 'DIGITAL', 'ARTISTIC'].reduce((o, id) => ({ ...o, [id]: { deck: [], faceUp: null, tokens: 0, discard: [] } }), {}) };
+const noQuests = { questStacks: ['PHYSICAL', 'DIGITAL', 'CREATIVE'].reduce((o, id) => ({ ...o, [id]: { deck: [], faceUp: null, tokens: 0, discard: [] } }), {}) };
 const readyPiecie = (cardId) => ({ cardId, type: 'PIECIE', faceDown: true, activated: false, playedOnTurn: 2, canActivateOnTurn: 3 });
 function driveTurn(st) {
 	let steps;

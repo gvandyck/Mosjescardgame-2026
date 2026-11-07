@@ -150,10 +150,10 @@ describe('Dubbele Dosis', () => {
   const q = getQuestDef('quest_tough_it_out');
   function withQuest(s: any) {
     const stacks: any = {};
-    for (const id of ['PHYSICAL', 'DIGITAL', 'ARTISTIC']) stacks[id] = { deck: ['quest_filler'], faceUp: 'quest_filler', tokens: 0, discard: [] };
+    for (const id of ['PHYSICAL', 'DIGITAL', 'CREATIVE']) stacks[id] = { deck: ['quest_filler'], faceUp: 'quest_filler', tokens: 0, discard: [] };
     stacks[q.stack] = { deck: ['quest_filler'], faceUp: q.id, tokens: 0, discard: [] };
     s.questStacks = stacks;
-    s.players.player_1.activeSlots[0].traits = { strength: 1, mental: 1, creative: 1, technical: 1, resilient: 1, social: 1 };
+    s.players.player_1.activeSlots[0].traits = { strength: 1, mental: 1, artistic: 1, technical: 1, resilient: 1, social: 1 };
     return s;
   }
   const opts = { slotIndex: 0, stackId: q.stack };

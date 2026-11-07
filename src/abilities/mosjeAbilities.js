@@ -206,7 +206,7 @@ export function ability_fps_west_tactical_analysis(gameState, playerId, mosjeId)
 	return fpsWestGuess(gameState, playerId, mosjeId);
 }
 
-// ARTISTIC MOSJES
+// CREATIVE MOSJES
 
 // Ronald Mastermind — Master Plan: see abilities/mosje/ronaldMastermindMasterPlan.js (2 Energy via abilityEnergyCosts.js).
 export function ability_ronald_mastermind_master_plan(gameState, playerId, mosjeId) {

@@ -63,7 +63,7 @@ function rollCore(state, playerId, { slotIndex, stackId, costChoice, dieChoices 
 	const diceCount = getQuestDiceCount(s, playerId, slot, quest, { extra });
 	player.questExtraDice = 0;
 	for (const g of player.rerollGrants || []) if (g.scope === 'ownQuest') g.forRoll = true; // Dubbele Dosis: reroll belongs to this Quest
-	placeSkiffaGrant(s, player, slot); // Skiffa: an Artistic roller may reroll 1 die
+	placeSkiffaGrant(s, player, slot); // Skiffa: an Creative roller may reroll 1 die
 
 	const trained = quest.band === 'trained';
 	const dice = trained ? [] : rollQuestDice(diceCount, rng);

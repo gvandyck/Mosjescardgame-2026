@@ -7,8 +7,8 @@
  * Quest bands: Steady one 4+ (+25/-15) · Skilled two 4+ (+40/-30) · Heroic two 5+ (+60/-25) · Prepared pay first then one 4+ (+50/-30)
  *              Gated condition then one 4+ (+35/-20) · Coin flip 1 die 4+ (+50/-25) · Trained no roll (+25, can't fail).
  * Dice = 1 per star of the rolled trait (min 1, max 4). Test Mosjes (Card List level-1 rows, no Quest-related ability):
- *   Gandoe, The Destroyer: Str 3, Res 2, no other trait (1 die on Mental / Technical / Creative / Social).  Level-1 Power 20.
- *   Ming, The Predictor: Men 3, Tech 2.   Binti, The Sharp Tongue: Cre 2, Soc 3.   Ronald, The Master Chef: Str 1.
+ *   Gandoe, The Destroyer: Str 3, Res 2, no other trait (1 die on Mental / Technical / Artistic / Social).  Level-1 Power 20.
+ *   Ming, The Predictor: Men 3, Tech 2.   Binti, The Sharp Tongue: Art 2, Soc 3.   Ronald, The Master Chef: Str 1.
  * Example Deck Quests (named in the deck notes) come first.
  */
 import { all, replaced, tokenOne, discarded, slotEmpty, noAttempt, untouched, deckTopIs, deckShorterBy } from '../../helpers/questCheckKit.js';
@@ -20,7 +20,7 @@ const MILK = 'piecie_kannetje_melk', DONER = 'piecie_broodje_doner', STRAFFOE = 
 const LARRY = 'piecie_larry_zegeltje', SNOEI = 'piecie_snoeiertje', KEYBOARD = 'piecie_keyboard', MOUSE = 'piecie_mouse';
 const FF = 'snelle_ff_haaltje_nemen';
 const OPP40 = [{ id: MING, mp: 40 }];
-const F = 'PHYSICAL', D = 'DIGITAL', A = 'ARTISTIC';
+const F = 'PHYSICAL', D = 'DIGITAL', A = 'CREATIVE';
 const WIN = [6, 6, 6], LOSE = [1, 1, 1];
 
 const S = (who, mp, stack, id, over = {}) => ({ field: [{ id: who, mp }], oppField: OPP40, quest: { stack, id }, ...over });
@@ -261,7 +261,7 @@ export const QUEST_REGISTRY = [
 		gate('85 MP: no attempt', S(MING, 85, D, 'quest_perfect_timing', { dice: [4] }), D),
 	] },
 
-	// ---- Artistic stack ----
+	// ---- Creative stack ----
 	{ quest: 'quest_team_building', deck: 'rest', cases: [
 		{ name: 'Trained (Social 2 stars or more): no roll, +25',
 			setup: S(BINTI, 20, A, 'quest_team_building', { dice: LOSE }), trigger: go(A, ['ok']), expect: { mp: { 'own.0': 45 }, check: won(A, 'quest_team_building') } },
@@ -295,7 +295,7 @@ export const QUEST_REGISTRY = [
 			expect: { mp: { 'own.0': 10, 'opp.0': 40 }, check: lost(A, 'quest_form_alliance') } },
 	] },
 	{ quest: 'quest_lucky_break', deck: 'rest', cases: [
-		{ name: 'Heroic: [6,6] are two 5+ on Creative, win +60',
+		{ name: 'Heroic: [6,6] are two 5+ on Artistic, win +60',
 			setup: S(BINTI, 20, A, 'quest_lucky_break', { dice: [6, 6] }), trigger: go(A), expect: { mp: { 'own.0': 80 }, check: won(A, 'quest_lucky_break') } },
 		{ name: 'a 6 and a 4 is only one 5+: fail -25',
 			setup: S(BINTI, 40, A, 'quest_lucky_break', { dice: [6, 4] }), trigger: go(A), expect: { mp: { 'own.0': 15 }, check: lost(A, 'quest_lucky_break') } },

@@ -28,7 +28,7 @@ export const SNELLE_CONDITIONS = {
 	snelle_dubbele_temminks: copyablePiecie,
 	snelle_gevalletje_klakkeloos: copyablePiecie,
 	snelle_perfect_dodge: perfectDodge,
-	snelle_lucky_coin: (s, p) => hasStars('creative', 1)(s, p) || 'Needs: one of your Mosjes has Creative ★',
+	snelle_lucky_coin: (s, p) => hasStars('artistic', 1)(s, p) || 'Needs: one of your Mosjes has Artistic ★',
 	snelle_counter_strikka: (s, p) => hasStars('mental', 2)(s, p) || 'Needs: one of your Mosjes has Mental ★★',
 	snelle_jammertje_gepakt: (s, p) => hasStars('mental', 2)(s, p) || 'Needs: one of your Mosjes has Mental ★★',
 	snelle_bijna_welloe: (s, p) => mosjes(s, p).some(m => m.mp <= 10) || 'Only if one of your Mosjes has 10 MP or less',

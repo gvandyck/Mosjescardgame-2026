@@ -111,7 +111,7 @@ describe('card frame v1 — Mosje face data mapping', () => {
   });
   it('type colour comes from the Mosje subtype, with a safe fallback', () => {
     expect(getMosjeTypeKey({ subtype: 'DIGITAL' })).toBe('DIGITAL');
-    expect(getMosjeTypeKey({ subtype: 'ARTISTIC' })).toBe('ARTISTIC');
+    expect(getMosjeTypeKey({ subtype: 'CREATIVE' })).toBe('CREATIVE');
     expect(getMosjeTypeKey({ subtype: 'nope' })).toBe('PHYSICAL');
     expect(getMosjeTypeKey(undefined)).toBe('PHYSICAL');
   });
