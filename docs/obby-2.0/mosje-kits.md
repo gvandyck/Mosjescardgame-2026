@@ -16,13 +16,13 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | Mosje | Personal Quest | Signature Piecie | Place |
 |---|---|---|---|
 | Gandoe, The Destroyer | Kampioen Van De Box | Boxing Gloves (a Gandoe +20), De Belt | De Box, Obby #1 (host) |
-| Alyssa, The Bulldozer | Charge! | Moshpit (Battle Concert, needs an Alyssa) | **Rugby Training** NEW |
+| Alyssa, The Bulldozer | Charge! | Moshpit (Battle Concert, needs an Alyssa), **Rugbybal** NEW | **Rugby Training** NEW |
 | Alyssa, Fissa Fissa! (specialist) | Fissa Tot De Ochtend | Moshpit, Dikke Plaat | De Dansvloer |
 | AZN Cless, The Wild Card | All In | Protein Shake (a Cless +35) | Gym |
 | Michelle, Iron Tuk | Ironman | Bowie & Stormey | Eendjes Voeren, De Box |
 | Parkour West (specialist) | Over Alle Daken | Protein Shake (a West +35) | De Daken, Obby #1 (host) |
 | Jeffrey, The Strongman | Sterke Jongen | Protein Shake (a Jeffrey +35), Dumbbells | Gym |
-| Ronald, The Master Chef | Michelinster | Ronald Kip, Chef's Special, Hele Fles Fireman | **Ronnie's Kitchen** NEW, Obby #1 (host) |
+| Ronald, The Master Chef | Michelinster | Ronald Kip, Chef's Special, Hele Fles Fireman, **Koksmes** NEW | **Ronnie's Kitchen** NEW, Obby #1 (host) |
 | Martin, Señor West | Obby Shotjes Gauntlet | Those Eyelashes Tho... | Obby #1 (host) |
 | Coert, KasteLuck | Lucky Streak | Tony, Boosterpackkie | **Ruilbeurs Jaarbeurs** NEW |
 | Chris, The BigStepper | Full Combo | In De Groove, **Dancepad** NEW, **Handdoek** NEW | **Silverstone (DDR arcade)** NEW, Obby #1 (host) |
@@ -73,7 +73,9 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | **Blikje Monsteros** (substance) | Youri | Gain 2ϟ this turn. One of your Mosjes loses 15 MP. A Youri also draws 1. (Flavour: his stomach.) |
 | **Headset** (gear) | FPS Coert + FPS West | Only if a Digital Mosje is on your field: look at the top 2 cards of the opponent's deck. An FPS Mosje also gets +10 Power this turn. |
 | Dancepad (gear) | Chris, The BigStepper | One of your Mosjes gains 10 MP. A Chris also gets +1 ▣ on one Quest this turn. |
-| Handdoek (gear) | Chris, The BigStepper | The towel on the DDR bar. Attach to one of your Mosjes. Once per turn, when it rolls for a Quest: reroll 1 die. A Chris also gains 10 MP. |
+| Handdoek (Snelle) | Chris, The BigStepper | The towel on the DDR bar. Play right after one of your Mosjes rolls for a Quest: reroll 1 die. A Chris also gains 10 MP. |
+| Rugbybal (gear) | Alyssa, The Bulldozer | Attach to one of your Mosjes: it gets +10 Power when it attacks. An Alyssa also gains 10 MP after each attack. |
+| Koksmes (gear) | Ronald, The Master Chef | Attach to one of your Mosjes: it gets +10 Power. A Ronald gets +20 instead. |
 | De Switch (gear) | Youri + Chris, The Gamer (later) | One of your Mosjes gains 10 MP. A Chris or Youri also gets +1 ▣ on one Quest this turn. No Digital requirement. |
 | *Mosje Kart* (idea, Snelle) | Youri + Chris, The Gamer (later) | Each player rolls 1 ▣. The highest gains 20 MP; a Chris or Youri gains 30. Ties: nobody. |
 | Yoke & Pedals (gear) | Flightsim Coert | Only if a Digital Mosje is on your field: one of your Mosjes gains 10 MP. A Coert also draws 1. |
