@@ -79,3 +79,22 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 - **Gandoe, The Claude Wizard → Gandoe, The Cloude Wizard** (no brand name).
 - **Redbull → Rebouleh** (Coert's word joke).
 - Ideas saved for later boosters: KasteLuck unpacks Pokémon packs at work · grading cards in Germany (slabs) · his box of expensive cards.
+
+## Booster theme: Valheim Crew (ideas, 9 Nov)
+Gandoe plays Valheim with West, Coert and sometimes Michelle; their world is **Obbyheim**. A group theme instead of one Mosje's kit.
+- **New keyword — Crew:** any Gandoe, West, Coert or Michelle card. Crew cards get stronger with Mosjes of **different** crew friends side by side. Pushes two-type decks (Valheim is both Digital and Physical).
+- **Deck theme rule:** crew cards only in decks with at least 1 Crew Mosje.
+- Own names on purpose (no real Valheim boss / item names).
+
+| Card | Type | Draft effect |
+|---|---|---|
+| **Obbyheim** | Place | Rested: at the start of your turn, each of your Mosjes that didn't attack last turn gains 10 MP. A Crew Mosje gains 15. |
+| *Het Moeras* | Place | Every Mosje loses 5 MP at the start of its owner's turn. Res★ Quests: +1 ▣. |
+| *Houweel* (pickaxe) | Piecie · gear | +1 ▣ on one Str★ Quest this turn. A Crew Mosje also draws 1. |
+| *Mede* (mead) | Piecie · food | One of your Mosjes gains 20 MP. A Crew Mosje also loses 10 less from the next attack. |
+| *Draagriem* (carry belt) | Piecie · gear | Attach: this Mosje can hold 1 more attachment. |
+| *Portaal* | Snelle | Move 1 attachment from one of your Mosjes to your other Mosje. |
+| *De Hertenbaas* | Quest · Physical, Heroic | **Needs:** both your Mosjes Level 2+. **Roll:** 1 ▣ per Str★. Need 2× ⚄+. **Win:** draw 1. |
+| *Alle Bazen Verslagen* | Personal Quest ★★★★★ (chase) | **Needs:** 2 Crew Mosjes of different friends on your field + Obbyheim. **Roll:** none, it can't fail. |
+- Later: a Viking Ultimate for one of the crew.
+- Open: roles in the crew (who builds, explores, fights), one memorable moment for a card.
