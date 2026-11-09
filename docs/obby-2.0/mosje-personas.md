@@ -276,7 +276,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 **Linked cards:**
 - Place: Punto Banco
 - Piecie: Gekke Dobbel (a Jeffrey may reroll)
-- Protein Shake (a Jeffrey +35)
+- Protein Shake
 
 **More to add:**
 - 

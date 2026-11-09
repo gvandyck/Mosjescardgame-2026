@@ -21,7 +21,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | AZN Cless, The Wild Card | All In | Protein Shake, **ChestPress** NEW | Gym |
 | Michelle, Iron Tuk | Ironman | Bowie & Stormey | Eendjes Voeren, De Box |
 | Parkour West (specialist) | Over Alle Daken | Protein Shake | De Daken, Obby #1 (host) |
-| Jeffrey, The Strongman | Sterke Jongen | Protein Shake (a Jeffrey +35), Dumbbells | Gym |
+| Jeffrey, The Strongman | Sterke Jongen | Protein Shake, Dumbbells | Gym |
 | Ronald, The Master Chef | Michelinster | Ronald Kip, Chef's Special, Hele Fles Fireman, **Koksmes** NEW | **Ronnie's Kitchen** NEW, Obby #1 (host) |
 | Martin, Señor West | Obby Shotjes Gauntlet | Those Eyelashes Tho..., **Poncho & Sombrero** NEW | Obby #1 (host) |
 | Coert, KasteLuck | Lucky Streak | Tony, Boosterpackkie | **Ruilbeurs Jaarbeurs** NEW |
@@ -107,7 +107,7 @@ Obby #1 and #2 are the homes where the whole group hung out. **Any Mosje** can u
 Every Physical Mosje gets its own gear. Status:
 - Done: Gandoe (Boxing Gloves, De Belt, Skipping Rope), Chris (Dancepad), Alyssa Bulldozer (Rugbybal), Ronald Chef (Koksmes), AZN Cless (ChestPress), Señor West (Poncho & Sombrero).
 - Proposal: Boxing Gloves shared Gandoe + Michelle ("A Gandoe or Michelle gets +20"); she boxes with Gandoe. Fixes Michelle in the starter deck.
-- Protein Shake is already generic in the data (Str ★+: 25 MP, 35 with Str ★★★ or Boxing Ring); the "+35 for West/Cless" labels in the docs were wrong. Proposal: Parkour West gets *Grip-schoenen*.
+- Protein Shake is already generic in the data (Str ★+: 25 MP, 35 with Str ★★★ or Boxing Ring); the "+35 for West/Cless/Jeffrey" labels in the docs were wrong. Proposal: Parkour West gets *Grip-schoenen*.
 - Proposal: Coert KasteLuck *Toploader* (slab). Alyssa Fissa: later.
 - Watch: Handdoek is the Physical reroll card; no second reroll gear.
 
