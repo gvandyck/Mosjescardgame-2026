@@ -8,7 +8,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 ## Gandoe
 
-**Who:** Gandalf van Dyck — Gandoe is his nickname. Named after the wizard, hence the wizard cards (The Unpredictable Wizard, now The Cloud Wizard). DJ 80/20 is his DJ alias (also his portfolio name, Eightytwenty).
+**Who:** Gandalf van Dyck — Gandoe is his nickname. Named after the wizard, hence the wizard cards (The Unpredictable Wizard, now The Cloud Wizard — 'Cloud', not 'Claude', to avoid brand names). DJ 80/20 is his DJ alias (also his portfolio name, Eightytwenty).
 
 ### Gandoe, The Destroyer · Physical
 
@@ -118,6 +118,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 - **Life & vibe:**
   - Lucky streak
   - Pulls rares from real Pokémon card packs (why he's Physical)
+  - Goes to Germany to grade cards (slabs) · has a box of expensive cards · unpacks packs at work with collecting colleagues · went to the Jaarbeurs trade fair in Utrecht with Gandoe
 - **Theme check:** Draw-luck fits; could reference opening packs (Boosterpackkie).
 
 ### FPS Coert · Digital
@@ -139,7 +140,9 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 **Linked cards:**
 - Drives a Tesla (Place: Tesla) — he drives Binti to Winston for her Varkenspootjes
-- Places: Coert's Caravan, Tesla
+- Places: Coert's Caravan, Tesla, Ruilbeurs Jaarbeurs, Woonkamer (Discord)
+- Coert's word joke 'Rebouleh' (Redbull) → the Piecie Rebouleh
+- Flightsim Coert (NEW, booster): built his own MSFS 2024 flight sim setup → De Cockpit, Yoke & Pedals, PQ Butter Landing
 - Piecies: Hawaii Pizza (a Coert +35), Boosterpackkie
 - Quest: Parkeren Delft (a Coert +10 on a win)
 
@@ -181,7 +184,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 - **Personal Quest:** Clutch Round
 - **Life & vibe:**
   - Reads the angles · 1v2 clutch
-  - Counter-Strike, Call of Duty — plays with FPS Coert
+  - Counter-Strike, Call of Duty — plays with FPS Coert (mostly Tarkov) in the Discord channel 'Woonkamer'
   - Knows every map
 - **Theme check:** Fits.
 
@@ -202,7 +205,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 - PQ: Archive Dive (parked with the card)
 
 **Linked cards:**
-- Piecies: Those Eyelashes Tho..., Protein Shake (a West +35), Track Highscore
+- Piecies: Those Eyelashes Tho..., Protein Shake (a West +35), Track Highscore, Headset (FPS)
 - Place: Obby #1
 
 **More to add:**
@@ -220,7 +223,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 - **Personal Quest:** Charge!
 - **Life & vibe:**
   - Charges in laughing
-  - Says what she thinks · contact sport · unstoppable once she starts
+  - Says what she thinks · rugby · unstoppable once she starts
   - Moment: laughing while getting hit
 - **Theme check:** Fits.
 
@@ -380,15 +383,17 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
   - Feeds the whole group · heavy kitchen work (why he's Physical)
 - **Theme check:** Fixed 7 Nov (signature dish).
 
-### Ronald, The Mastermind · Creative
+### Ronald, Dr. Filosoof (was The Mastermind) · Creative
 
 - **Stats:** cost 3 · start MP 10
 - **Traits:** LV1 Art ★★ · Men ★ · Res ★ → LV2 Art ★★★ · Men ★ · Res ★ → LV3 Art ★★★ · Men ★★ · Res ★
-- **Ability:** Once per turn, 2ϟ: activate a Piecie from your discard pile (instead of its cost). It goes back afterwards.
-- **Personal Quest:** Checkmate (rolls Men in the PQ List; starter Mosje → rolls Art)
+- **Ability (draft 9 Nov):** Once per turn, 1ϟ: choose an opponent Mosje; on its next Quest it rolls 1 die less (too busy listening).
+- **Personal Quest:** Ongevraagd Advies (was Checkmate) · Needs: opponent has 4+ cards in hand · Roll Art, need 2× 4+
 - **Life & vibe:**
   - Evil genius plan · chess master · controls reality · reuses old tricks
   - Back from the archive 9 Nov for the Creative starter deck
+  - Drunk Ronald talks to everyone and gives unasked advice → 'Dr. Phil' joke → Dr. Filosoof
+  - Once drank a whole bottle of Fireman (liquorice liqueur) → Piecie Hele Fles Fireman
 - **Theme check:** Fits (reuses old tricks).
 
 **Linked cards:**
@@ -461,6 +466,8 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 - **Life & vibe:**
   - Frame-perfect · world record
   - Everything as fast as possible · real records / leaderboards
+  - Used to drink Monster energy until it gave him stomach issues → Blikje Monsteros
+  - Games in his own living room, where he also makes his own game → Youri's Studio
   - Moment: beating his own record
 - **Theme check:** Fits.
 
