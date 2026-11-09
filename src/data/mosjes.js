@@ -581,7 +581,7 @@ export const MOSJES = [
     subtype: "CREATIVE",
     name: "Ronald, The Mastermind",
     startMP: 10,
-    traits: { artistic: 3, mental: 3 },
+    traits: { artistic: 2, mental: 1, resilient: 1 },
     abilityId: "ability_ronald_mastermind_master_plan",
     abilityDescription: "Master Plan: once per turn, pay 2 Energy: activate a Piecie from your discard pile as if it were ready (this replaces its own Energy cost). It goes back to the discard pile afterwards.",
     synergyWith: [],
@@ -591,15 +591,14 @@ export const MOSJES = [
     flavourText: "The greatest artist controls not just the canvas, but reality itself.",
     artFocus: "50% 22.3%",
     cost: 3,
-    levels: [{ power: 10, traits: { artistic: 3, mental: 3 } }, { power: 20, traits: { artistic: 3, mental: 3, social: 1 } }, { power: 30, traits: { artistic: 3, mental: 3, social: 2 } }],
+    levels: [{ power: 10, traits: { artistic: 2, mental: 1, resilient: 1 } }, { power: 20, traits: { artistic: 3, mental: 1, resilient: 1 } }, { power: 30, traits: { artistic: 3, mental: 2, resilient: 1 } }],
     abilityName: "Master Plan",
     synergyLabel: [],
     limitPerDeck: 2,
     foil: false,
     artPath: "assets/mosje-art/Ronald The Master Mind.jpeg",
     rarity: "★★★",
-    isBoosterOnly: false,
-    disabled: true // archived 7 Nov 2026
+    isBoosterOnly: false
   },
   {
     id: "mosje_jisca",

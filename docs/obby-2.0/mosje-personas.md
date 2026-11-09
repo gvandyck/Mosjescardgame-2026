@@ -380,10 +380,16 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
   - Feeds the whole group · heavy kitchen work (why he's Physical)
 - **Theme check:** Fixed 7 Nov (signature dish).
 
-### Ronald, The Mastermind — archived
+### Ronald, The Mastermind · Creative
 
-- Lore: Evil genius · chess master
-- PQ: Checkmate (parked with the card)
+- **Stats:** cost 3 · start MP 10
+- **Traits:** LV1 Art ★★ · Men ★ · Res ★ → LV2 Art ★★★ · Men ★ · Res ★ → LV3 Art ★★★ · Men ★★ · Res ★
+- **Ability:** Once per turn, 2ϟ: activate a Piecie from your discard pile (instead of its cost). It goes back afterwards.
+- **Personal Quest:** Checkmate (rolls Men in the PQ List; starter Mosje → rolls Art)
+- **Life & vibe:**
+  - Evil genius plan · chess master · controls reality · reuses old tricks
+  - Back from the archive 9 Nov for the Creative starter deck
+- **Theme check:** Fits (reuses old tricks).
 
 **Linked cards:**
 - Piecie: Ronald Kip (signature dish)
