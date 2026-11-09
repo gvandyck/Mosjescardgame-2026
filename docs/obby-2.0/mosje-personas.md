@@ -206,7 +206,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 **Linked cards:**
 - Piecies: Those Eyelashes Tho..., Protein Shake (a West +35), Track Highscore, Headset (FPS)
-- Place: Obby #1
+- Place: Obby #1 (host: gets Host advantage)
 
 **More to add:**
 - 
@@ -337,6 +337,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 - **Theme check:** Fits.
 
 **Linked cards:**
+- Place: Homeschool (he teaches from home)
 - Pet: ViannaPoes
 - Protein Shake (a Cless +35)
 - Quest: Parkeren Delft (a Cless −10 more on a fail)

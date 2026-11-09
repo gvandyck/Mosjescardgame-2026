@@ -89,7 +89,7 @@ export const PLACES = [
     trigger: "ON_QUEST",
     effectId: "effect_obby_1",
     tags: ["STRENGTH", "RESILIENT"],
-    description: "Every Quest win gives 10 MP more. Every Quest loss costs 10 MP more.",
+    description: "Every Quest win gives 10 MP more. Every Quest loss costs 10 MP more. Host advantage: at the start of your turn, if you control a Martin/West, Ronald, Gandoe or Chris, one of your Mosjes gains 10 MP.",
     flavourText: "",
     cost: 2,
     limitPerDeck: 2,

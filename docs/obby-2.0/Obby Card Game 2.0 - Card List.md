@@ -280,7 +280,7 @@ Play from your hand on your turn, only when no Place is in play. Pay its cost an
 | Bank Chilling | 2 | ★★ | At the start of each player's turn, that player's Mosjes with Social ★★ or more gain 10 MP. All Mosjes get −10 Power. | Social Mosjes, Questers | Attackers |
 | Delluft | 4 | ★★★★★ | Limit 1 per deck. **Parking fee:** the first time a player pays Energy on their own turn, they pay 1 more. A player with a Coert or Binti on their field pays no fee; a player with a Cless pays 2 more. Parkeren Delft wins give 20 MP more. | Coert / Binti decks | Cless decks, everyone else |
 | Quest Haven | 3 | ★★★ | Every Quest win gives 10 MP more. | Questers | Attack decks |
-| Obby #1 | 2 | ★★★ | Every Quest win gives 10 MP more. Every Quest loss costs 10 MP more. | Mosjes with ★★★ in the rolled trait | Weak Questers, Coin flips |
+| Obby #1 | 2 | ★★★ | Every Quest win gives 10 MP more. Every Quest loss costs 10 MP more. Host advantage: at the start of your turn, if you control a Martin/West, Ronald, Gandoe or Chris, one of your Mosjes gains 10 MP. | Mosjes with ★★★ in the rolled trait | Weak Questers, Coin flips |
 | Zo is Natuur | 2 | ★★★ | Mosjes with Resilient ★★ or more lose 10 MP less from attacks. | Resilient Mosjes | Attackers |
 | Drain Zone | 3 | ★★★★ | All Mosjes get +10 Power. | Attackers, the player who is behind | Level 3 holders, low-MP Mosjes |
 | Momentum Stabilizer | 3 | ★★★★ | No Mosje can lose more than 30 MP at once (one attack, one card or one Quest). | Questers, Level 3 holders | High-Power Mosjes, Power boosts |

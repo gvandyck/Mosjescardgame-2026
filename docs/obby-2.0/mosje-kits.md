@@ -15,27 +15,27 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 ## Physical
 | Mosje | Personal Quest | Signature Piecie | Place |
 |---|---|---|---|
-| Gandoe, The Destroyer | Kampioen Van De Box | Boxing Gloves (a Gandoe +20), De Belt | De Box |
+| Gandoe, The Destroyer | Kampioen Van De Box | Boxing Gloves (a Gandoe +20), De Belt | De Box, Obby #1 (host) |
 | Alyssa, The Bulldozer | Charge! | Moshpit (Battle Concert, needs an Alyssa) | **Rugby Training** NEW |
 | Alyssa, Fissa Fissa! (specialist) | Fissa Tot De Ochtend | Moshpit, Dikke Plaat | De Dansvloer |
 | AZN Cless, The Wild Card | All In | Protein Shake (a Cless +35) | Gym |
 | Michelle, Iron Tuk | Ironman | Bowie & Stormey | Eendjes Voeren, De Box |
-| Parkour West (specialist) | Over Alle Daken | Protein Shake (a West +35) | De Daken |
+| Parkour West (specialist) | Over Alle Daken | Protein Shake (a West +35) | De Daken, Obby #1 (host) |
 | Jeffrey, The Strongman | Sterke Jongen | Protein Shake (a Jeffrey +35), Dumbbells | Gym |
-| Ronald, The Master Chef | Michelinster | Ronald Kip, Chef's Special, Hele Fles Fireman | **Ronnie's Kitchen** NEW |
-| Martin, Señor West | Obby Shotjes Gauntlet | Those Eyelashes Tho... | Obby #1 |
+| Ronald, The Master Chef | Michelinster | Ronald Kip, Chef's Special, Hele Fles Fireman | **Ronnie's Kitchen** NEW, Obby #1 (host) |
+| Martin, Señor West | Obby Shotjes Gauntlet | Those Eyelashes Tho... | Obby #1 (host) |
 | Coert, KasteLuck | Lucky Streak | Tony, Boosterpackkie | **Ruilbeurs Jaarbeurs** NEW |
-| Chris, The BigStepper | Full Combo | In De Groove, **Dancepad** NEW | **Silverstone (DDR arcade)** NEW |
+| Chris, The BigStepper | Full Combo | In De Groove, **Dancepad** NEW | **Silverstone (DDR arcade)** NEW, Obby #1 (host) |
 
 ## Digital
 | Mosje | Personal Quest | Signature Piecie | Place |
 |---|---|---|---|
 | Coert, The Hawaiian Tech Savant | Aloha Tech Support | Hawaii Pizza, Boosterpackkie | Coert's Caravan, Tesla |
-| Gandoe, The Cloude Wizard (was Claude Wizard) | Vibe Coded | **MagicPrompt** NEW | **Gandoe's Cloude** NEW |
+| Gandoe, The Cloude Wizard (was Claude Wizard) | Vibe Coded | **MagicPrompt** NEW | **Gandoe's Cloude** NEW, Obby #1 (host) |
 | Youri, The Speedrunner | World Record Run | **Blikje Monsteros** NEW | **Youri's Woonkamer** NEW |
 | FPS Coert | Headshot | **Headset** NEW | **Woonkamer (Discord)** NEW |
-| FPS West | Clutch Round | Headset, Those Eyelashes Tho... | Woonkamer (Discord) |
-| Martin, The Precision Driver (specialist) | Grand Prix | Track Highscore | Circuit Zandvoort |
+| FPS West | Clutch Round | Headset, Those Eyelashes Tho... | Woonkamer (Discord), Obby #1 (host) |
+| Martin, The Precision Driver (specialist) | Grand Prix | Track Highscore | Circuit Zandvoort, Obby #1 (host) |
 | Flightsim Coert (NEW, specialist, booster) | Butter Landing | Yoke & Pedals | De Cockpit |
 
 ## Creative
@@ -45,10 +45,10 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | Jeffrey, The Silent Gambler | High Roller | Gekke Dobbel | Punto Banco |
 | DJ 80/20, The Lucky Mixer | Lucky Crescendo | Dikke Plaat | Skiffa |
 | Binti, The Sharp Tongue | Binti Brandt | Varkenspootjes, Stookerino | Tesla, Delluft |
-| Ronald, Dr. Phill-osoof (was The Mastermind) | Ongevraagd Advies (was Checkmate) | **Hele Fles Fireman** NEW | Ronnie's Kitchen |
+| Ronald, Dr. Phill-osoof (was The Mastermind) | Ongevraagd Advies (was Checkmate) | **Hele Fles Fireman** NEW | Ronnie's Kitchen, Obby #1 (host) |
 | Jisca, The Maestro (specialist) | Staande Ovatie | Gekke Vogels | Het Podium |
 | Tuk, The Healing Spirit (specialist) | Cat Sanctuary | Bowie & Stormey | De Box |
-| Cless, The Teacher (specialist) | Final Exam | ViannaPoes | Schoolplein |
+| Cless, The Teacher (specialist) | Final Exam | ViannaPoes | **Homeschool** NEW |
 
 ## NEW kit cards (draft effects)
 ### Places
@@ -61,6 +61,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | Youri's Woonkamer | Youri (works and makes his own game in his living room) | The first time each turn a player activates a Piecie the turn it was placed, they draw 1. |
 | **Woonkamer (Discord)** | FPS Coert + FPS West (their Discord channel) | With 2 Digital Mosjes on your field: +1 ▣ on Tech★ Quests. |
 | **Silverstone (DDR arcade)** | Chris, The BigStepper | The 3rd Piecie a player activates in a turn costs 0ϟ. A Chris also gains 10 MP each time. |
+| **Homeschool** | Cless, The Teacher | Cless teaches from home. Once per turn, after you activate a Piecie: you may discard 1 card to draw 1. A Cless also gains 10 MP. |
 | Nieuwe Gimma | Ming (every game first try) | The first Quest a Mosje tries each turn: it may reroll 1 ▣. |
 | De Cockpit | Flightsim Coert | A player with 2+ ready gear Piecies gets +1 ▣ on Quest rolls. Physical Mosjes −10 Power. |
 
@@ -80,6 +81,19 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 - **Gandoe, The Claude Wizard → Gandoe, The Cloude Wizard** (no brand name).
 - **Redbull → Rebouleh** (Coert's word joke).
 - Ideas saved for later boosters: KasteLuck unpacks Pokémon packs at work · grading cards in Germany (slabs) · his box of expensive cards.
+
+## The Obby homes (9 Nov)
+
+Obby #1 and #2 are the homes where the whole group hung out. **Any Mosje** can use them; the friends who lived there get a bonus.
+
+| Card | Type | For everyone | Host advantage (Martin/West, Ronald, Gandoe, Chris) |
+|---|---|---|---|
+| **Obby #1** | Place ★★★ · cost 2 | Every Quest win gives 10 MP more. Every Quest loss costs 10 MP more. | At the start of your turn, if you control a host, one of your Mosjes gains 10 MP. Once per turn, it doesn't stack. |
+| *Obby #2* | Place, to be decided | Proposal: all Mosjes −10 Power (nobody fights at home). | Still to be decided: it needs a different host buff from #1. |
+
+- Hosts: all Mosjes of Martin/West, Ronald, Gandoe and Chris (9 Mosjes across all three types).
+- Open question: who lived at #1 and who at #2? For now all four are on #1.
+- Engine: the effect_obby_1 handler still needs to be written (trigger ON_QUEST + START_OF_TURN).
 
 ## Booster theme: Valheim Crew (ideas, 9 Nov)
 Gandoe plays Valheim with West, Coert and sometimes Michelle; their world is **Obbyheim**. A group theme instead of one Mosje's kit.
