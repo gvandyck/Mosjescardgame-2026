@@ -468,7 +468,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
   - Frame-perfect · world record
   - Everything as fast as possible · real records / leaderboards
   - Used to drink Monster energy until it gave him stomach issues → Blikje Monsteros
-  - Games in his own living room, where he also makes his own game → Youri's Studio
+  - Games in his own living room, where he also makes his own game → Youri's Woonkamer
   - Moment: beating his own record
 - **Theme check:** Fits.
 

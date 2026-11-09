@@ -31,7 +31,7 @@ Rules: only standard-curve Mosjes · starter PQs ★–★★★ (chase PQs ★�
 ## Digital — gear up
 **Mosjes:** Coert, The Hawaiian Tech Savant · Gandoe, The Cloude Wizard · Youri, The Speedrunner · FPS Coert · FPS West
 **Personal Quests:** Aloha Tech Support ★★★ · Vibe Coded ★★ · World Record Run ★ · Headshot ★★
-**Places:** Coert's Caravan (Coert) · Woonkamer (Discord) (FPS duo) · *Youri's Studio* (Youri)
+**Places:** Coert's Caravan (Coert) · Woonkamer (Discord) (FPS duo) · Youri's Woonkamer (Youri)
 
 | Group | Cards (copies) | n |
 |---|---|---|
@@ -47,7 +47,7 @@ Rules: only standard-curve Mosjes · starter PQs ★–★★★ (chase PQs ★�
 |---|---|
 | Coert, Tech Savant | Aloha Tech Support, Hawaii Pizza, Boosterpackkie, Coert's Caravan |
 | Gandoe, The Cloude Wizard | Vibe Coded, MagicPrompt (Gandoe's Cloude stays out: 3 Place slots) |
-| Youri, The Speedrunner | World Record Run, Blikje Monsteros, Youri's Studio |
+| Youri, The Speedrunner | World Record Run, Blikje Monsteros, Youri's Woonkamer |
 | FPS Coert | Headshot, Headset, Woonkamer |
 | FPS West | Headset, Those Eyelashes Tho..., Woonkamer (Clutch Round in packs) |
 
@@ -78,6 +78,6 @@ Rules: only standard-curve Mosjes · starter PQs ★–★★★ (chase PQs ★�
 ---
 
 ## Still open
-- Placeholder names still to confirm: Youri's Studio, Ongevraagd Advies (Dancepad, Nieuwe Gimma, MagicPrompt named 9 Nov).
+- All names confirmed (9 Nov). Note: two Places share "Woonkamer" — Youri's Woonkamer and Woonkamer (Discord); always print the full name.
 - Counter Strikka / Jammertje Gepakt need Men★★, which no standard Digital Mosje reaches → proposal: Tech★★.
 - Quest stacks lean on Res (Physical) and Soc (Creative), which standard Mosjes barely have → shift toward main traits in the Quest text rework.

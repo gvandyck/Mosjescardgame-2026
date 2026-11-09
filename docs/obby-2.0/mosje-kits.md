@@ -32,7 +32,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 |---|---|---|---|
 | Coert, The Hawaiian Tech Savant | Aloha Tech Support | Hawaii Pizza, Boosterpackkie | Coert's Caravan, Tesla |
 | Gandoe, The Cloude Wizard (was Claude Wizard) | Vibe Coded | **MagicPrompt** NEW | **Gandoe's Cloude** NEW |
-| Youri, The Speedrunner | World Record Run | **Blikje Monsteros** NEW | ***Youri's Studio*** NEW |
+| Youri, The Speedrunner | World Record Run | **Blikje Monsteros** NEW | **Youri's Woonkamer** NEW |
 | FPS Coert | Headshot | **Headset** NEW | **Woonkamer (Discord)** NEW |
 | FPS West | Clutch Round | Headset, Those Eyelashes Tho... | Woonkamer (Discord) |
 | Martin, The Precision Driver (specialist) | Grand Prix | Track Highscore | Circuit Zandvoort |
@@ -45,7 +45,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | Jeffrey, The Silent Gambler | High Roller | Gekke Dobbel | Punto Banco |
 | DJ 80/20, The Lucky Mixer | Lucky Crescendo | Dikke Plaat | Skiffa |
 | Binti, The Sharp Tongue | Binti Brandt | Varkenspootjes, Stookerino | Tesla, Delluft |
-| Ronald, Dr. Phill-osoof (was The Mastermind) | *Ongevraagd Advies* (was Checkmate) | **Hele Fles Fireman** NEW | Ronnie's Kitchen |
+| Ronald, Dr. Phill-osoof (was The Mastermind) | Ongevraagd Advies (was Checkmate) | **Hele Fles Fireman** NEW | Ronnie's Kitchen |
 | Jisca, The Maestro (specialist) | Staande Ovatie | Gekke Vogels | Het Podium |
 | Tuk, The Healing Spirit (specialist) | Cat Sanctuary | Bowie & Stormey | De Box |
 | Cless, The Teacher (specialist) | Final Exam | ViannaPoes | Schoolplein |
@@ -58,7 +58,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | **Ronnie's Kitchen** | both Ronalds | Food Piecies give +10 MP. A Ronald: draw 1 the first time each turn. |
 | **Ruilbeurs Jaarbeurs** | Coert, KasteLuck (Pokémon trade fair, Utrecht) | Once per turn, a player may discard 1 card to draw 1. A Coert draws 2 instead. |
 | **Gandoe's Cloude** | Gandoe, The Cloude Wizard | Gear Piecies cost 1ϟ less (min 0). Physical Mosjes −10 Power. |
-| *Youri's Studio* | Youri (makes his own game) | The first time each turn a player activates a Piecie the turn it was placed, they draw 1. |
+| Youri's Woonkamer | Youri (works and makes his own game in his living room) | The first time each turn a player activates a Piecie the turn it was placed, they draw 1. |
 | **Woonkamer (Discord)** | FPS Coert + FPS West (their Discord channel) | With 2 Digital Mosjes on your field: +1 ▣ on Tech★ Quests. |
 | Nieuwe Gimma | Ming (every game first try) | The first Quest a Mosje tries each turn: it may reroll 1 ▣. |
 | De Cockpit | Flightsim Coert | A player with 2+ ready gear Piecies gets +1 ▣ on Quest rolls. Physical Mosjes −10 Power. |
@@ -75,7 +75,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | **Zwoele Ming Power** (★★, cost 1) | Ming | Your next Quest this turn (not a Personal Quest) needs 1 die less to succeed (min 1). A Ming also gains 10 MP. |
 
 ### Mosje changes
-- **Ronald, Dr. Phill-osoof → Ronald, Dr. Phill-osoof** (Dr. Phil joke: drunk Ronald gives everyone unasked advice). New ability: once per turn, 1ϟ: choose an opponent Mosje; on its next Quest it rolls 1 ▣ less (too busy listening). New PQ *Ongevraagd Advies*: **Needs:** the opponent has 4+ cards in hand. **Roll:** 1 ▣ per Art★. Need 2× ⚃+.
+- **Ronald, Dr. Phill-osoof → Ronald, Dr. Phill-osoof** (Dr. Phil joke: drunk Ronald gives everyone unasked advice). New ability: once per turn, 1ϟ: choose an opponent Mosje; on its next Quest it rolls 1 ▣ less (too busy listening). New PQ Ongevraagd Advies: **Needs:** the opponent has 4+ cards in hand. **Roll:** 1 ▣ per Art★. Need 2× ⚃+.
 - **Gandoe, The Claude Wizard → Gandoe, The Cloude Wizard** (no brand name).
 - **Redbull → Rebouleh** (Coert's word joke).
 - Ideas saved for later boosters: KasteLuck unpacks Pokémon packs at work · grading cards in Germany (slabs) · his box of expensive cards.
