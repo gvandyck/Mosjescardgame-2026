@@ -25,13 +25,13 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | Ronald, The Master Chef | Michelinster | Ronald Kip, Chef's Special, Hele Fles Fireman | **Ronnie's Kitchen** NEW |
 | Martin, Señor West | Obby Shotjes Gauntlet | Those Eyelashes Tho... | Obby #1 |
 | Coert, KasteLuck | Lucky Streak | Tony, Boosterpackkie | **Ruilbeurs Jaarbeurs** NEW |
-| Chris, The BigStepper | Full Combo | In De Groove, ***Dansmat*** NEW | De Dansvloer |
+| Chris, The BigStepper | Full Combo | In De Groove, **Dancepad** NEW | De Dansvloer |
 
 ## Digital
 | Mosje | Personal Quest | Signature Piecie | Place |
 |---|---|---|---|
 | Coert, The Hawaiian Tech Savant | Aloha Tech Support | Hawaii Pizza, Boosterpackkie | Coert's Caravan, Tesla |
-| Gandoe, The Cloude Wizard (was Claude Wizard) | Vibe Coded | ***Toverprompt*** NEW | **Gandoe's Cloude** NEW |
+| Gandoe, The Cloude Wizard (was Claude Wizard) | Vibe Coded | **MagicPrompt** NEW | **Gandoe's Cloude** NEW |
 | Youri, The Speedrunner | World Record Run | **Blikje Monsteros** NEW | ***Youri's Studio*** NEW |
 | FPS Coert | Headshot | **Headset** NEW | **Woonkamer (Discord)** NEW |
 | FPS West | Clutch Round | Headset, Those Eyelashes Tho... | Woonkamer (Discord) |
@@ -41,7 +41,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 ## Creative
 | Mosje | Personal Quest | Signature Piecie | Place |
 |---|---|---|---|
-| Ming, The Natural | Beginner's Luck | **[Ming's lucky item — open]** | ***Nieuw Spel*** NEW |
+| Ming, The Natural | Beginner's Luck | **[Ming's lucky item — open]** | **Nieuwe Gimma** NEW |
 | Jeffrey, The Silent Gambler | High Roller | Gekke Dobbel | Punto Banco |
 | DJ 80/20, The Lucky Mixer | Lucky Crescendo | Dikke Plaat | Skiffa |
 | Binti, The Sharp Tongue | Binti Brandt | Varkenspootjes, Stookerino | Tesla, Delluft |
@@ -60,17 +60,17 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | **Gandoe's Cloude** | Gandoe, The Cloude Wizard | Gear Piecies cost 1ϟ less (min 0). Physical Mosjes −10 Power. |
 | *Youri's Studio* | Youri (makes his own game) | The first time each turn a player activates a Piecie the turn it was placed, they draw 1. |
 | **Woonkamer (Discord)** | FPS Coert + FPS West (their Discord channel) | With 2 Digital Mosjes on your field: +1 ▣ on Tech★ Quests. |
-| *Nieuw Spel* | Ming (every game first try) | The first Quest a Mosje tries each turn: it may reroll 1 ▣. |
+| Nieuwe Gimma | Ming (every game first try) | The first Quest a Mosje tries each turn: it may reroll 1 ▣. |
 | De Cockpit | Flightsim Coert | A player with 2+ ready gear Piecies gets +1 ▣ on Quest rolls. Physical Mosjes −10 Power. |
 
 ### Piecies
 | Piecie | For | Effect |
 |---|---|---|
 | **Hele Fles Fireman** (substance, ★★★) | both Ronalds | One of your Mosjes gets +20 Power this turn and loses 20 MP at the end of the turn. A Ronald loses nothing (he's used to it). |
-| *Toverprompt* (gear) | Gandoe, The Cloude Wizard | Search your deck for a gear Piecie. A Gandoe also gains 10 MP. |
+| MagicPrompt (gear) | Gandoe, The Cloude Wizard | Search your deck for a gear Piecie. A Gandoe also gains 10 MP. |
 | **Blikje Monsteros** (substance) | Youri | Gain 2ϟ this turn. One of your Mosjes loses 15 MP. A Youri also draws 1. (Flavour: his stomach.) |
 | **Headset** (gear) | FPS Coert + FPS West | Only if a Digital Mosje is on your field: look at the top 2 cards of the opponent's deck. An FPS Mosje also gets +10 Power this turn. |
-| *Dansmat* (gear) | Chris, The BigStepper | One of your Mosjes gains 10 MP. A Chris also gets +1 ▣ on one Quest this turn. |
+| Dancepad (gear) | Chris, The BigStepper | One of your Mosjes gains 10 MP. A Chris also gets +1 ▣ on one Quest this turn. |
 | Yoke & Pedals (gear) | Flightsim Coert | Only if a Digital Mosje is on your field: one of your Mosjes gains 10 MP. A Coert also draws 1. |
 | [Ming's lucky item] | Ming | open |
 
@@ -97,4 +97,4 @@ Gandoe plays Valheim with West, Coert and sometimes Michelle; their world is **O
 | *De Hertenbaas* | Quest · Physical, Heroic | **Needs:** both your Mosjes Level 2+. **Roll:** 1 ▣ per Str★. Need 2× ⚄+. **Win:** draw 1. |
 | *Alle Bazen Verslagen* | Personal Quest ★★★★★ (chase) | **Needs:** 2 Crew Mosjes of different friends on your field + Obbyheim. **Roll:** none, it can't fail. |
 - Later: a Viking Ultimate for one of the crew.
-- Open: roles in the crew (who builds, explores, fights), one memorable moment for a card.
+- What the crew does in Obbyheim: **boss fights** (Gandalf, 9 Nov) — the boss Quest and Alle Bazen Verslagen are the heart of the set; more boss cards fit here.

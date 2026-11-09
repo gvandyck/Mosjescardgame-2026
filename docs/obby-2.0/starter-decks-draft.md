@@ -35,7 +35,7 @@ Rules: only standard-curve Mosjes · starter PQs ★–★★★ (chase PQs ★�
 
 | Group | Cards (copies) | n |
 |---|---|---|
-| Gear | Keyboard 2 · Mouse 2 · Controller 2 · Headset 2 · *Toverprompt* 2 | 10 |
+| Gear | Keyboard 2 · Mouse 2 · Controller 2 · Headset 2 · MagicPrompt 2 | 10 |
 | Food | Hawaii Pizza 2 · Kannetje Melk 1 | 3 |
 | Kit / draw | Boosterpackkie 2 · Blikje Monsteros 2 · Zie je die Dingetjes 1 · Rebouleh 1 | 6 |
 | Attack | Kleine Taks 2 · Te Hard Gaan 1 | 3 |
@@ -46,7 +46,7 @@ Rules: only standard-curve Mosjes · starter PQs ★–★★★ (chase PQs ★�
 | Mosje | Kit cards in the deck |
 |---|---|
 | Coert, Tech Savant | Aloha Tech Support, Hawaii Pizza, Boosterpackkie, Coert's Caravan |
-| Gandoe, The Cloude Wizard | Vibe Coded, Toverprompt (Gandoe's Cloude stays out: 3 Place slots) |
+| Gandoe, The Cloude Wizard | Vibe Coded, MagicPrompt (Gandoe's Cloude stays out: 3 Place slots) |
 | Youri, The Speedrunner | World Record Run, Blikje Monsteros, Youri's Studio |
 | FPS Coert | Headshot, Headset, Woonkamer |
 | FPS West | Headset, Those Eyelashes Tho..., Woonkamer (Clutch Round in packs) |
@@ -54,7 +54,7 @@ Rules: only standard-curve Mosjes · starter PQs ★–★★★ (chase PQs ★�
 ## Creative — outsmart
 **Mosjes:** Ming, The Natural · Jeffrey, The Silent Gambler · DJ 80/20 · Binti, The Sharp Tongue · Ronald, Dr. Phill-osoof
 **Personal Quests:** Beginner's Luck ★ (Art) · High Roller ★★ (Art) · Lucky Crescendo ★★ · Binti Brandt ★★ (Art)
-**Places:** Skiffa (DJ; Lucky Crescendo needs it) · Punto Banco (Jeffrey) · *Nieuw Spel* (Ming)
+**Places:** Skiffa (DJ; Lucky Crescendo needs it) · Punto Banco (Jeffrey) · Nieuwe Gimma (Ming)
 
 | Group | Cards (copies) | n |
 |---|---|---|
@@ -69,7 +69,7 @@ Rules: only standard-curve Mosjes · starter PQs ★–★★★ (chase PQs ★�
 
 | Mosje | Kit cards in the deck |
 |---|---|
-| Ming, The Natural | Beginner's Luck, Nieuw Spel, [lucky item] |
+| Ming, The Natural | Beginner's Luck, Nieuwe Gimma, [lucky item] |
 | Jeffrey, The Silent Gambler | High Roller, Gekke Dobbel, Punto Banco |
 | DJ 80/20 | Lucky Crescendo, Dikke Plaat, Skiffa |
 | Binti, The Sharp Tongue | Binti Brandt, Varkenspootjes, Stookerino |
@@ -79,6 +79,6 @@ Rules: only standard-curve Mosjes · starter PQs ★–★★★ (chase PQs ★�
 
 ## Still open
 - Ming's lucky item (name + effect).
-- Placeholder names: Toverprompt, Youri's Studio, Nieuw Spel, Dansmat, Dr. Phill-osoof, Ongevraagd Advies.
+- Placeholder names still to confirm: Youri's Studio, Ongevraagd Advies (Dancepad, Nieuwe Gimma, MagicPrompt named 9 Nov).
 - Counter Strikka / Jammertje Gepakt need Men★★, which no standard Digital Mosje reaches → proposal: Tech★★.
 - Quest stacks lean on Res (Physical) and Soc (Creative), which standard Mosjes barely have → shift toward main traits in the Quest text rework.
