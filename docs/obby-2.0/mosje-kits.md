@@ -25,14 +25,14 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | Ronald, The Master Chef | Michelinster | Ronald Kip, Chef's Special, Hele Fles Fireman | **Ronnie's Kitchen** NEW, Obby #1 (host) |
 | Martin, Señor West | Obby Shotjes Gauntlet | Those Eyelashes Tho... | Obby #1 (host) |
 | Coert, KasteLuck | Lucky Streak | Tony, Boosterpackkie | **Ruilbeurs Jaarbeurs** NEW |
-| Chris, The BigStepper | Full Combo | In De Groove, **Dancepad** NEW | **Silverstone (DDR arcade)** NEW, Obby #1 (host) |
+| Chris, The BigStepper | Full Combo | In De Groove, **Dancepad** NEW, **De Switch** NEW | **Silverstone (DDR arcade)** NEW, Obby #1 (host) |
 
 ## Digital
 | Mosje | Personal Quest | Signature Piecie | Place |
 |---|---|---|---|
 | Coert, The Hawaiian Tech Savant | Aloha Tech Support | Hawaii Pizza, Boosterpackkie | Coert's Caravan, Tesla |
 | Gandoe, The Cloude Wizard (was Claude Wizard) | Vibe Coded | **MagicPrompt** NEW | **Gandoe's Cloude** NEW, Obby #1 (host) |
-| Youri, The Speedrunner | World Record Run | **Blikje Monsteros** NEW | **Youri's Woonkamer** NEW |
+| Youri, The Speedrunner | World Record Run | **Blikje Monsteros** NEW, **De Switch** NEW | **Youri's Woonkamer** NEW |
 | FPS Coert | Headshot | **Headset** NEW | **Woonkamer (Discord)** NEW |
 | FPS West | Clutch Round | Headset, Those Eyelashes Tho... | Woonkamer (Discord), Obby #1 (host) |
 | Martin, The Precision Driver (specialist) | Grand Prix | Track Highscore | Circuit Zandvoort, Obby #1 (host) |
@@ -73,6 +73,8 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | **Blikje Monsteros** (substance) | Youri | Gain 2ϟ this turn. One of your Mosjes loses 15 MP. A Youri also draws 1. (Flavour: his stomach.) |
 | **Headset** (gear) | FPS Coert + FPS West | Only if a Digital Mosje is on your field: look at the top 2 cards of the opponent's deck. An FPS Mosje also gets +10 Power this turn. |
 | Dancepad (gear) | Chris, The BigStepper | One of your Mosjes gains 10 MP. A Chris also gets +1 ▣ on one Quest this turn. |
+| De Switch (gear) | Chris, The BigStepper + Youri | One of your Mosjes gains 10 MP. A Chris or Youri also gets +1 ▣ on one Quest this turn. No Digital requirement, so it also works in Physical. |
+| *Mosje Kart* (idea, Snelle) | Chris + Youri | Each player rolls 1 ▣. The highest gains 20 MP; a Chris or Youri gains 30. Ties: nobody. |
 | Yoke & Pedals (gear) | Flightsim Coert | Only if a Digital Mosje is on your field: one of your Mosjes gains 10 MP. A Coert also draws 1. |
 | **Zwoele Ming Power** (★★, cost 1) | Ming | Your next Quest this turn (not a Personal Quest) needs 1 die less to succeed (min 1). A Ming also gains 10 MP. |
 

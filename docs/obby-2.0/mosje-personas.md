@@ -302,7 +302,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 - PQ: Manus-je Van Alles (parked with the card)
 
 **Linked cards:**
-- Piecie: In De Groove (Chris +10 MP), Dancepad
+- Piecie: In De Groove (Chris +10 MP), Dancepad, De Switch (plays Mario Kart on his Switch 2 with Youri)
 - Place: Silverstone (the DDR arcade)
 
 **More to add:**
@@ -472,6 +472,10 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
   - Games in his own living room, where he also makes his own game → Youri's Woonkamer
   - Moment: beating his own record
 - **Theme check:** Fits.
+
+**Linked cards:**
+- Piecies: Blikje Monsteros, De Switch (Mario Kart with Chris on the Switch 2)
+- Place: Youri's Woonkamer
 
 **More to add:**
 - 
