@@ -302,10 +302,11 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 - PQ: Manus-je Van Alles (parked with the card)
 
 **Linked cards:**
-- Piecie: In De Groove (Chris +10 MP), Dancepad, De Switch (plays Mario Kart on his Switch 2 with Youri)
+- Piecie: In De Groove (Chris +10 MP), Dancepad, Zweetdoekje (the towel on the DDR bar)
 - Place: Silverstone (the DDR arcade)
 
 **More to add:**
+- Later: a separate **Chris, The Gamer** (Switch 2, Mario Kart with Youri → De Switch, Mosje Kart)
 - 
 
 ## Cless

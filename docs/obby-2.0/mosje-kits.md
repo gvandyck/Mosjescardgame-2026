@@ -25,7 +25,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | Ronald, The Master Chef | Michelinster | Ronald Kip, Chef's Special, Hele Fles Fireman | **Ronnie's Kitchen** NEW, Obby #1 (host) |
 | Martin, Señor West | Obby Shotjes Gauntlet | Those Eyelashes Tho... | Obby #1 (host) |
 | Coert, KasteLuck | Lucky Streak | Tony, Boosterpackkie | **Ruilbeurs Jaarbeurs** NEW |
-| Chris, The BigStepper | Full Combo | In De Groove, **Dancepad** NEW, **De Switch** NEW | **Silverstone (DDR arcade)** NEW, Obby #1 (host) |
+| Chris, The BigStepper | Full Combo | In De Groove, **Dancepad** NEW, **Zweetdoekje** NEW | **Silverstone (DDR arcade)** NEW, Obby #1 (host) |
 
 ## Digital
 | Mosje | Personal Quest | Signature Piecie | Place |
@@ -73,8 +73,9 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | **Blikje Monsteros** (substance) | Youri | Gain 2ϟ this turn. One of your Mosjes loses 15 MP. A Youri also draws 1. (Flavour: his stomach.) |
 | **Headset** (gear) | FPS Coert + FPS West | Only if a Digital Mosje is on your field: look at the top 2 cards of the opponent's deck. An FPS Mosje also gets +10 Power this turn. |
 | Dancepad (gear) | Chris, The BigStepper | One of your Mosjes gains 10 MP. A Chris also gets +1 ▣ on one Quest this turn. |
-| De Switch (gear) | Chris, The BigStepper + Youri | One of your Mosjes gains 10 MP. A Chris or Youri also gets +1 ▣ on one Quest this turn. No Digital requirement, so it also works in Physical. |
-| *Mosje Kart* (idea, Snelle) | Chris + Youri | Each player rolls 1 ▣. The highest gains 20 MP; a Chris or Youri gains 30. Ties: nobody. |
+| Zweetdoekje (gear) | Chris, The BigStepper | The towel on the DDR bar. Attach to one of your Mosjes. Once per turn, when it rolls for a Quest: reroll 1 die. A Chris also gains 10 MP. |
+| De Switch (gear) | Youri + Chris, The Gamer (later) | One of your Mosjes gains 10 MP. A Chris or Youri also gets +1 ▣ on one Quest this turn. No Digital requirement. |
+| *Mosje Kart* (idea, Snelle) | Youri + Chris, The Gamer (later) | Each player rolls 1 ▣. The highest gains 20 MP; a Chris or Youri gains 30. Ties: nobody. |
 | Yoke & Pedals (gear) | Flightsim Coert | Only if a Digital Mosje is on your field: one of your Mosjes gains 10 MP. A Coert also draws 1. |
 | **Zwoele Ming Power** (★★, cost 1) | Ming | Your next Quest this turn (not a Personal Quest) needs 1 die less to succeed (min 1). A Ming also gains 10 MP. |
 

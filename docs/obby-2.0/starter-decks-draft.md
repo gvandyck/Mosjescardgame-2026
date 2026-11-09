@@ -14,7 +14,7 @@ Rules: only standard-curve Mosjes · starter PQs ★–★★★ (chase PQs ★�
 | Group | Cards (copies) | n |
 |---|---|---|
 | Food | Kannetje Melk 2 · Broodje Döner 2 · Ronald Kip 2 · Protein Shake 2 | 8 |
-| Gear | Dumbbells 2 · Dancepad 2 · De Switch 2 | 6 |
+| Gear | Dumbbells 2 · Dancepad 2 · Zweetdoekje 2 | 6 |
 | Attack | Te Hard Gaan 2 · Snoeiertje 1 · Hele Fles Fireman 1 · Super Saiyan Mos 1 · Kleine Taks 1 | 6 |
 | Kit / defence | Bowie & Stormey 1 · Moshpit 1 · Afblijven! 1 · In De Groove 1 | 4 |
 | Snelle | Pleistertje kan 1 · Nog Niet Klaar 1 · Sleutelpuntje 1 · Jensen! 1 | 4 |
@@ -22,7 +22,7 @@ Rules: only standard-curve Mosjes · starter PQs ★–★★★ (chase PQs ★�
 
 | Mosje | Kit cards in the deck |
 |---|---|
-| Chris, The BigStepper | Dancepad, De Switch, In De Groove, 28 Piecies for his ability (Silverstone stays out: 3 Place slots) |
+| Chris, The BigStepper | Dancepad, Zweetdoekje, In De Groove, 28 Piecies for his ability (Silverstone stays out: 3 Place slots) |
 | Alyssa, The Bulldozer | Charge!, Moshpit (Rugby Training stays out: 3 Place slots) |
 | Jeffrey, The Strongman | Sterke Jongen, Gym, Protein Shake, Dumbbells, 6 gear to attach |
 | Michelle, Iron Tuk | Ironman, Bowie & Stormey, De Box, 8 food |
@@ -78,7 +78,7 @@ Rules: only standard-curve Mosjes · starter PQs ★–★★★ (chase PQs ★�
 ---
 
 ## Change 9 Nov: one Gandoe less
-Gandalf: no 3 Gandoes across the starter decks; DJ 80/20 stays. **Gandoe, The Destroyer** leaves Physical (Digital has exactly 5 regular Mosjes, so the Cloude Wizard stays). In his place: **Chris, The BigStepper**. Out: Boxing Gloves 2, De Belt 1, Bagga of Greed 1. In: Dancepad 2, De Switch 2 (NEW, Chris + Youri), In De Groove 1. Touwtjespringen is out too: only Gandoe jumps rope, and the card doesn't exist in the data. The Destroyer is now a booster Mosje with his own kit (Kampioen Van De Box, Boxing Gloves, De Belt, De Box).
+Gandalf: no 3 Gandoes across the starter decks; DJ 80/20 stays. **Gandoe, The Destroyer** leaves Physical (Digital has exactly 5 regular Mosjes, so the Cloude Wizard stays). In his place: **Chris, The BigStepper**. Out: Boxing Gloves 2, De Belt 1, Bagga of Greed 1. In: Dancepad 2, Zweetdoekje 2 (NEW, the towel on the DDR bar), In De Groove 1. Chris stays pure DDR; a separate Chris, The Gamer comes later. Touwtjespringen is out too: only Gandoe jumps rope, and the card doesn't exist in the data. The Destroyer is now a booster Mosje with his own kit (Kampioen Van De Box, Boxing Gloves, De Belt, De Box).
 
 ## Still open
 - All names confirmed (9 Nov). Note: two Places share "Woonkamer" — Youri's Woonkamer and Woonkamer (Discord); always print the full name.
