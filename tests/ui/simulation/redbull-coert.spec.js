@@ -1,8 +1,8 @@
 /**
- * redbull-coert.spec.js — Redbull and Coert, The Hawaiian Tech Savant (Card List 2.0).
+ * redbull-coert.spec.js — Rebouleh and Coert, The Hawaiian Tech Savant (Card List 2.0).
  *
  * Coert's Extra Resources is a draw-step ability (pay 1 Energy to draw 1 extra card, up to 2 times per turn): it
- * has no Activate button to press again, so Redbull never targets it. The V4 story (Redbull echoes a 10-MP
+ * has no Activate button to press again, so Rebouleh never targets it. The V4 story (Rebouleh echoes a 10-MP
  * "pay and draw" ability) is gone: MP is never spent on abilities in 2.0.
  *
  * Run: npx playwright test tests/ui/simulation/redbull-coert.spec.js
@@ -17,7 +17,7 @@ import { playAndActivateRedbull, extraUses, energyOf } from '../../helpers/redbu
 const piecies = ['piecie_redbull', 'piecie_redbull', ...Array(6).fill('piecie_kannetje_melk')];
 
 async function start(page, mosjes) {
-	await seedCustomDeck(page, { id: 'custom_redbull_coert', name: 'Redbull + Coert', mosjes, piecies, snellePiecies: ['snelle_jensen'], places: [], quests: [] }, 'PHYSICAL_FORCE');
+	await seedCustomDeck(page, { id: 'custom_redbull_coert', name: 'Rebouleh + Coert', mosjes, piecies, snellePiecies: ['snelle_jensen'], places: [], quests: [] }, 'PHYSICAL_FORCE');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
 	await page.waitForTimeout(600);
@@ -28,7 +28,7 @@ async function start(page, mosjes) {
 	await page.waitForTimeout(200);
 }
 
-test('Redbull next to Coert goes to the Mosje with an Activate button (Coert is not offered)', async ({ page }) => {
+test('Rebouleh next to Coert goes to the Mosje with an Activate button (Coert is not offered)', async ({ page }) => {
 	test.setTimeout(90000);
 	await start(page, ['mosje_coert_tech', 'mosje_tuk_healer']);
 	const slots = (await getGameState(page)).players.player_1.activeSlots;
@@ -43,10 +43,10 @@ test('Redbull next to Coert goes to the Mosje with an Activate button (Coert is 
 	expect(await extraUses(page, coert)).toBe(0);
 });
 
-test('Redbull with only Coert on the field has no target: the Energy is spent and nothing is granted', async ({ page }) => {
+test('Rebouleh with only Coert on the field has no target: the Energy is spent and nothing is granted', async ({ page }) => {
 	test.setTimeout(90000);
 	await start(page, ['mosje_coert_tech']);
 	await playAndActivateRedbull(page, { energy: 8 });
 	expect(await extraUses(page, 0)).toBe(0);
-	expect(await energyOf(page)).toBeLessThan(8); // the Redbull Energy is spent and nothing is refunded
+	expect(await energyOf(page)).toBeLessThan(8); // the Rebouleh Energy is spent and nothing is refunded
 });

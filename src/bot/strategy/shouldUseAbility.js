@@ -24,7 +24,7 @@ function enginePressable(view, botId, slot, abilityId) {
 	if (rule.ownTurnOnly !== false && view.activePlayerId !== botId) return false;
 	if (rule.per === 'game' && slot.abilityUsedThisGame) return false;
 	const uses = slot.abilityUsesThisTurn ?? (slot.abilityUsedThisTurn ? 1 : 0);
-	return uses < (rule.maxPerTurn ?? 1) + (slot.extraAbilityUses || 0); // Redbull / Double Trigger add paid extra uses
+	return uses < (rule.maxPerTurn ?? 1) + (slot.extraAbilityUses || 0); // Rebouleh / Double Trigger add paid extra uses
 }
 
 // Chris - Perfect Setup: the ability itself needs all 3 Piecie slots holding face-down, unactivated Piecies.

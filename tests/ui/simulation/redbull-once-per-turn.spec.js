@@ -1,9 +1,9 @@
 /**
- * redbull-once-per-turn.spec.js — Redbull (Card List 2.0): "One of your Mosjes may use its once-per-turn ability one
+ * redbull-once-per-turn.spec.js — Rebouleh (Card List 2.0): "One of your Mosjes may use its once-per-turn ability one
  * more time this turn (pay its cost again)."
  *
  * Tuk Healer (Healing Hands, 1 Energy: one Mosje of yours gains 20 MP) is the canary: the ability can be used twice
- * after Redbull, each use paying its 1 Energy, and a third use is refused. Without Redbull it stays once per turn.
+ * after Rebouleh, each use paying its 1 Energy, and a third use is refused. Without Rebouleh it stays once per turn.
  *
  * Run: npx playwright test tests/ui/simulation/redbull-once-per-turn.spec.js
  */
@@ -16,7 +16,7 @@ import {
 import { playAndActivateRedbull, extraUses, energyOf, useAbilityViaUi, abilityChipOf } from '../../helpers/redbullUi.js';
 
 const DECK = {
-	id: 'custom_rb_tuk_healer', name: 'Redbull + Tuk Healer',
+	id: 'custom_rb_tuk_healer', name: 'Rebouleh + Tuk Healer',
 	mosjes: ['mosje_tuk_healer'],
 	piecies: ['piecie_redbull', 'piecie_redbull', ...Array(6).fill('piecie_kannetje_melk')],
 	snellePiecies: ['snelle_jensen'], places: [], quests: [],
@@ -30,7 +30,7 @@ async function start(page) {
 	await page.waitForTimeout(200);
 }
 
-test('Redbull gives Tuk Healer a second paid use: +20 MP twice, 1 Energy each, a third use is refused', async ({ page }) => {
+test('Rebouleh gives Tuk Healer a second paid use: +20 MP twice, 1 Energy each, a third use is refused', async ({ page }) => {
 	test.setTimeout(90000);
 	await start(page);
 	await playAndActivateRedbull(page);
@@ -58,7 +58,7 @@ test('Redbull gives Tuk Healer a second paid use: +20 MP twice, 1 Energy each, a
 	expect(await energyOf(page)).toBe(energy0 - 2);
 });
 
-test('Without Redbull Tuk Healer stays once per turn: one +20, then the button is disabled', async ({ page }) => {
+test('Without Rebouleh Tuk Healer stays once per turn: one +20, then the button is disabled', async ({ page }) => {
 	test.setTimeout(90000);
 	await start(page);
 	await setMosjeMP(page, 'player_1', 0, 10);

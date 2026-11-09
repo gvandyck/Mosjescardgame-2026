@@ -78,7 +78,7 @@ card('Stookerino', 'P', 2, None, heal=20)
 card('Varkenspootjes', 'P', 1, 'food', binti=40, hit=15)
 card('Dikke Taks', 'P', 3, None, power=10, sweep=True, draw=1, needl2=True)
 card('Snoeiertje', 'P', 0, None, power=10, selfcost=10)
-card('Redbull', 'P', 2, None)
+card('Rebouleh', 'P', 2, None)
 card('Pot of Weed', 'P', 1, 'substance', draw=2)
 # Snelle
 card('Perfect Dodge', 'S', 2, None, react=20, needphys2=True)
@@ -484,7 +484,7 @@ class Game:
         if fx.get('stays') and not pl.field: return False
         if 'heal' in fx and not fx.get('draw') and pl.field and all(m.level == 3 and m.mp >= 60 for m in pl.field): return False
         if fx.get('power') or fx.get('dice'): return False  # used in the action step
-        if c in ('Chain Reaction', 'Redbull'): return False
+        if c in ('Chain Reaction', 'Rebouleh'): return False
         if fx.get('hit') and not any(not m.fresh for m in s.opp(i).field) and not fx.get('heal'): return False
         return True
 

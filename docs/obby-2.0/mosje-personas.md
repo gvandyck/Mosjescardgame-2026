@@ -8,7 +8,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 ## Gandoe
 
-**Who:** Gandalf van Dyck — Gandoe is his nickname. Named after the wizard, hence the wizard cards (The Unpredictable Wizard, now The Claude Wizard). DJ 80/20 is his DJ alias (also his portfolio name, Eightytwenty).
+**Who:** Gandalf van Dyck — Gandoe is his nickname. Named after the wizard, hence the wizard cards (The Unpredictable Wizard, now The Cloud Wizard). DJ 80/20 is his DJ alias (also his portfolio name, Eightytwenty).
 
 ### Gandoe, The Destroyer · Physical
 
@@ -22,7 +22,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
   - Moment: wins the belt
 - **Theme check:** Fits.
 
-### Gandoe, The Claude Wizard · Digital
+### Gandoe, The Cloud Wizard · Digital
 
 - **Stats:** cost 3 · start MP 10
 - **Traits:** LV1 Tech ★★ · Res ★ · Str ★ → LV2 Tech ★★ · Res ★★ · Str ★ → LV3 Tech ★★★ · Res ★★ · Str ★

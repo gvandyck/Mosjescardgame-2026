@@ -2,7 +2,7 @@
 // Spec: { key, who: 'own' | 'opp' | 'any', rule? }. [] = nothing to pick. Keys are what the effects read from
 // state._pendingTargets: own_slot_index, opp_slot_index (resolveOppTargetSlot), any_target ({ playerId, slotIndex }).
 // Opponent Mosjes that are fresh are never offered. Rules: notFresh (also own side, for who 'any'),
-// activatedAbility (Redbull), strength1 / strength2 (Strength stars needed), mpMax20 / mpMax30 / mpMax40 (the MP limit in the text).
+// activatedAbility (Rebouleh), strength1 / strength2 (Strength stars needed), mpMax20 / mpMax30 / mpMax40 (the MP limit in the text).
 export const PIECIE_TARGETS = {
 	piecie_kannetje_melk: [{ key: 'own_slot_index', who: 'own' }],
 	piecie_warm_kannetje_melk: [{ key: 'own_slot_index', who: 'own' }],

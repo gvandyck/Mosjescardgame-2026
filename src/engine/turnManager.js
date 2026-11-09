@@ -154,7 +154,7 @@ export function startTurn(gameState) {
     if (slot) {
       slot.abilityUsedThisTurn = false;
       slot.abilityUsesThisTurn = 0;
-      delete slot.extraAbilityUses; // Redbull / Double Trigger end with the turn
+      delete slot.extraAbilityUses; // Rebouleh / Double Trigger end with the turn
       slot.immuneThisTurn = false;
       // decision 1 (54-11): sideways = this Mosje skips this owner turn
       if (slot.sideways) slot.sidewaysArmed = true;
@@ -681,7 +681,7 @@ export function useMosjeAbility(gameState, playerId, mosjeId) {
   }
   const maxPerTurn = rule.maxPerTurn ?? 1;
   const usesThisTurn = slot.abilityUsesThisTurn ?? (slot.abilityUsedThisTurn ? 1 : 0);
-  const useLimit = maxPerTurn + (slot.extraAbilityUses || 0); // Redbull / Double Trigger add paid extra uses
+  const useLimit = maxPerTurn + (slot.extraAbilityUses || 0); // Rebouleh / Double Trigger add paid extra uses
   if (usesThisTurn >= useLimit) {
     return { state: gameState, success: false, error: 'Ability already used this turn' };
   }

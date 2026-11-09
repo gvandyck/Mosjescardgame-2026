@@ -1,4 +1,4 @@
-// Phase 59-07: Redbull, Double Trigger, Dubbele Ding, Leipe Swap (Card List 2.0).
+// Phase 59-07: Rebouleh, Double Trigger, Dubbele Ding, Leipe Swap (Card List 2.0).
 import { afterEach, describe, expect, it, vi } from 'vitest';
 // @ts-ignore JS modules
 import { activatePiecie, endTurn, startTurn, useMosjeAbility } from '../../src/engine/turnManager.js';
@@ -42,7 +42,7 @@ function board(piecieId: string, o: any = {}) {
 const act = (s: any, idx = 0) => activatePiecie(s, 'player_1', idx);
 const heal = (s: any) => { s._pendingTargets = { own_slot_index: 0 }; return useMosjeAbility(s, 'player_1', 'mosje_tuk_healer'); };
 
-describe('Redbull', () => {
+describe('Rebouleh', () => {
   it('lets the chosen Mosje use its ability a second time, paying its Energy again; a third use fails', () => {
     const s = board('piecie_redbull', { own: slotOf('mosje_tuk_healer'), second: slotOf('mosje_gandoe_wizard') });
     const first = heal(s);
@@ -50,7 +50,7 @@ describe('Redbull', () => {
     const e0 = first.state.players.player_1.energy;
     const r = act(first.state);
     expect(r.success).toBe(true);
-    expect(r.state.players.player_1.energy).toBe(e0 - 2); // Redbull's own cost
+    expect(r.state.players.player_1.energy).toBe(e0 - 2); // Rebouleh's own cost
     const e1 = r.state.players.player_1.energy;
     const second = heal(r.state);
     expect(second.success).toBe(true);

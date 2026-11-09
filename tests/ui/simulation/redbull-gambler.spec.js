@@ -1,9 +1,9 @@
 /**
- * redbull-gambler.spec.js — Redbull and Jeffrey, The Silent Gambler (Card List 2.0).
+ * redbull-gambler.spec.js — Rebouleh and Jeffrey, The Silent Gambler (Card List 2.0).
  *
  * High Stakes: once per turn, stake 1 or 2 Energy and roll a die. 1-2: the Energy is lost. 3-4: you get it back.
  * 5-6: you get it back, draw 1 card, gain 10 MP per Energy staked, and the next Quest success this turn gives +15 MP.
- * Redbull gives one more use (the stake is staked again), so the roll happens twice. Dice are mocked to a fixed value.
+ * Rebouleh gives one more use (the stake is staked again), so the roll happens twice. Dice are mocked to a fixed value.
  *
  * Run: npx playwright test tests/ui/simulation/redbull-gambler.spec.js
  */
@@ -17,7 +17,7 @@ import { playAndActivateRedbull, extraUses, energyOf, useAbilityViaUi } from '..
 
 async function start(page, id) {
 	await seedCustomDeck(page, {
-		id, name: 'Redbull + Gambler', mosjes: ['mosje_jeffrey_gambler'],
+		id, name: 'Rebouleh + Gambler', mosjes: ['mosje_jeffrey_gambler'],
 		piecies: ['piecie_redbull', 'piecie_redbull', ...Array(6).fill('piecie_kannetje_melk')],
 		snellePiecies: ['snelle_jensen'], places: [], quests: [],
 	}, 'PHYSICAL_FORCE');
@@ -27,7 +27,7 @@ async function start(page, id) {
 	await page.waitForTimeout(200);
 }
 
-test('Redbull doubles Jeffrey Gambler: jackpot twice (+10 MP and a card each, stakes come back)', async ({ page }) => {
+test('Rebouleh doubles Jeffrey Gambler: jackpot twice (+10 MP and a card each, stakes come back)', async ({ page }) => {
 	test.setTimeout(90000);
 	await mockDiceRoll(page, 0.9); // d6 always rolls 6
 	await start(page, 'custom_rb_gambler');
@@ -51,7 +51,7 @@ test('Redbull doubles Jeffrey Gambler: jackpot twice (+10 MP and a card each, st
 	expect((await getGameState(page)).players.player_1.gamblerQuestBonusTurn).toBeDefined();
 });
 
-test('Redbull doubles Jeffrey Gambler: two losing rolls lose the stake twice, MP untouched', async ({ page }) => {
+test('Rebouleh doubles Jeffrey Gambler: two losing rolls lose the stake twice, MP untouched', async ({ page }) => {
 	test.setTimeout(90000);
 	await mockDiceRoll(page, 0.1); // d6 always rolls 1
 	await start(page, 'custom_rb_gambler_lose');

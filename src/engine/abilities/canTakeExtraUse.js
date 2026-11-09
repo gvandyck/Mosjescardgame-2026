@@ -1,4 +1,4 @@
-// canTakeExtraUse - true when this Mosje has an activated once-per-turn ability with an Activate button (Redbull /
+// canTakeExtraUse - true when this Mosje has an activated once-per-turn ability with an Activate button (Rebouleh /
 // Double Trigger targets). Passive, trigger and once-per-game abilities are never offered, and neither are the ones
 // used inside the draw step (Coert, Martin Historian) or a reaction window (DJ 80/20): they have no button to press again.
 import { MOSJES } from '../../data/mosjes.js';

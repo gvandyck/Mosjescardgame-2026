@@ -27,7 +27,7 @@ export function effect_mp_amplifier(gameState, playerId) {
 // +10 per staying copy on an ability gain. Not "giving MP" either.
 export const effect_synergy_field = (gameState) => cloneState(gameState);
 
-// Redbull: the chosen Mosje (an activated once-per-turn ability) may use it one more time this turn; the second use
+// Rebouleh: the chosen Mosje (an activated once-per-turn ability) may use it one more time this turn; the second use
 // pays the ability's Energy again (useMosjeAbility). No eligible Mosje: nothing happens.
 export function effect_redbull(gameState, playerId) {
 	const state = cloneState(gameState);

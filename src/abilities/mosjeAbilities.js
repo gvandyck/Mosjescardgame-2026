@@ -273,7 +273,7 @@ export function ability_martin_driver_perfect_line(gameState, playerId, mosjeId)
 }
 
 // Amplifier — Power Boost: pay 30 MP; your first other Mosje with an activated once-per-turn ability may use it
-// one more time this turn (the Redbull extra use: that ability's Energy is paid again).
+// one more time this turn (the Rebouleh extra use: that ability's Energy is paid again).
 // Max 2 uses per game (player.amplifierUses).
 export function ability_amplifier_power_boost(gameState, playerId) {
 	const state = cloneState(gameState);

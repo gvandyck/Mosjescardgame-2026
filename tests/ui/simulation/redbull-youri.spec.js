@@ -1,8 +1,8 @@
 /**
- * redbull-youri.spec.js - Redbull and Youri, The Speedrunner (Card List 2.0).
+ * redbull-youri.spec.js - Rebouleh and Youri, The Speedrunner (Card List 2.0).
  *
  * Speed Activate: once per turn, pay 1 Energy, a Piecie placed this turn may be activated now (its cost is still
- * paid when you activate it), then draw 1 card. Redbull gives one more use: pay the 1 Energy again, activate a second Piecie, draw again. A third
+ * paid when you activate it), then draw 1 card. Rebouleh gives one more use: pay the 1 Energy again, activate a second Piecie, draw again. A third
  * use is refused. (The V4 uses-per-game counter and 20 MP payment no longer exist.)
  *
  * Run: npx playwright test tests/ui/simulation/redbull-youri.spec.js
@@ -19,7 +19,7 @@ import { PIECIES } from '../../../src/data/piecies.js';
 
 const KANNETJE_COST = PIECIES.find(p => p.id === 'piecie_kannetje_melk').cost;
 const DECK = {
-	id: 'custom_rb_youri', name: 'Redbull + Youri',
+	id: 'custom_rb_youri', name: 'Rebouleh + Youri',
 	mosjes: ['mosje_youri'],
 	piecies: ['piecie_redbull', 'piecie_redbull', ...Array(24).fill('piecie_kannetje_melk')],
 	snellePiecies: ['snelle_jensen'], places: [], quests: [],
@@ -40,7 +40,7 @@ async function start(page) {
 	await page.waitForTimeout(300);
 }
 
-test('Redbull re-fires Youri: 1 Energy + the Piecie cost twice, two Piecies activated, a card drawn each time', async ({ page }) => {
+test('Rebouleh re-fires Youri: 1 Energy + the Piecie cost twice, two Piecies activated, a card drawn each time', async ({ page }) => {
 	test.setTimeout(90000);
 	await start(page);
 	const energy0 = await energyOf(page);
@@ -61,7 +61,7 @@ test('Redbull re-fires Youri: 1 Energy + the Piecie cost twice, two Piecies acti
 	expect(st.players.player_1.activeSlots[0].abilityUsesThisTurn).toBe(2);
 });
 
-test('Redbull + Youri: a third Speed Activate is refused and costs nothing', async ({ page }) => {
+test('Rebouleh + Youri: a third Speed Activate is refused and costs nothing', async ({ page }) => {
 	test.setTimeout(90000);
 	await start(page);
 	await useAbilityViaUi(page, 'mosje_youri');

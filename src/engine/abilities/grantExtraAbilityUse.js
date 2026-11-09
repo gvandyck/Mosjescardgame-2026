@@ -1,4 +1,4 @@
-// grantExtraAbilityUse - Redbull / Double Trigger: this Mosje may use its once-per-turn ability one more time this
+// grantExtraAbilityUse - Rebouleh / Double Trigger: this Mosje may use its once-per-turn ability one more time this
 // turn (useMosjeAbility allows maxPerTurn + extraAbilityUses uses and charges the Energy each time; the counter
 // is cleared by expireThisTurnEffects and at turn start). Mutates the slot. Returns true when granted.
 import { MOSJES } from '../../data/mosjes.js';

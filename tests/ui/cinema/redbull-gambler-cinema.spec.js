@@ -1,10 +1,10 @@
 /**
  * redbull-gambler-cinema.spec.js — slow, narrated walkthrough of Jeffrey Gambler's
- * High Stakes, and how Redbull doubling it stacks a second roll.
+ * High Stakes, and how Rebouleh doubling it stacks a second roll.
  *
  * 2.0 High Stakes: stake 1 or 2 Energy, roll a die: 1-2 the Energy is lost, 3-4 you get it back, 5-6 you get it back,
  * draw 1 and gain 10 MP per Energy staked. Scene 1 shows ONE forced-1 roll (the Energy is lost, MP untouched); Scene 2
- * shows Redbull giving a second use: two forced-6 rolls, +10 MP and a card each.
+ * shows Rebouleh giving a second use: two forced-6 rolls, +10 MP and a card each.
  *
  * Watch: npx playwright test --project=visual --headed tests/ui/cinema/redbull-gambler-cinema.spec.js --workers=1
  */
@@ -45,7 +45,7 @@ test('🎬 High Stakes stake 1, roll a 1 - the Energy is lost, MP untouched (70 
 	await page.evaluate(() => window.__testHooks.setEnergy('player_1', 4));
 	await page.waitForTimeout(200);
 	await ss(page, 'gambler-1-start');
-	await beat(`Scene 1 - Jeffrey starts at ${await jefMp(page)} MP with 4 Energy. No Redbull.`);
+	await beat(`Scene 1 - Jeffrey starts at ${await jefMp(page)} MP with 4 Energy. No Rebouleh.`);
 	await beat('High Stakes: stake 1 Energy, the die shows a 1 -> the Energy is lost.');
 
 	await abilityByTap(page, 'mosje_jeffrey_gambler'); // tap the Mosje, Ability in its tray
@@ -61,8 +61,8 @@ test('🎬 High Stakes stake 1, roll a 1 - the Energy is lost, MP untouched (70 
 	expect(energy, 'stake of 1 lost').toBe(3);
 });
 
-// Redbull gives High Stakes one more use: stake 1 again, roll again. Both rolls are a 6 (jackpot): +10 MP and a card each.
-test('🎬 Redbull doubles the roll - two jackpots, +10 MP and a card each (70 -> 90), the stakes come back', async ({ page }, testInfo) => {
+// Rebouleh gives High Stakes one more use: stake 1 again, roll again. Both rolls are a 6 (jackpot): +10 MP and a card each.
+test('🎬 Rebouleh doubles the roll - two jackpots, +10 MP and a card each (70 -> 90), the stakes come back', async ({ page }, testInfo) => {
 	test.setTimeout(120000);
 	const beat = makeBeat(page, testInfo);
 	await mockDiceRoll(page, 0.9);  // d6 -> 6, both rolls land the same
@@ -81,7 +81,7 @@ test('🎬 Redbull doubles the roll - two jackpots, +10 MP and a card each (70 -
 	const energy0 = await energyOf(page);
 	const hand0 = await getHandSize(page, 'player_1');
 	await ss(page, 'gambler-2-armed');
-	await beat(`Scene 2 - Jeffrey at ${await jefMp(page)} MP, Redbull ACTIVE: High Stakes can be used a second time.`);
+	await beat(`Scene 2 - Jeffrey at ${await jefMp(page)} MP, Rebouleh ACTIVE: High Stakes can be used a second time.`);
 	await beat('Dice forced to 6: both rolls are a jackpot.');
 
 	await useAbilityViaUi(page, 'mosje_jeffrey_gambler', [/1/]);

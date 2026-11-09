@@ -362,13 +362,13 @@ test('chain-4: Youri Speed Activate - 1 Energy, same-turn Piecie activates, hand
 	expect(log.join(' ')).toMatch(/[Yy]ouri|[Ss]peed/);
 });
 
-// ─── Chain 5: Redbull + Ability (Card List 2.0: a second PAID use of a once-per-turn ability) ───────────────
+// ─── Chain 5: Rebouleh + Ability (Card List 2.0: a second PAID use of a once-per-turn ability) ───────────────
 
-test('chain-5: Redbull gives Tuk Healer a second paid use (+20 MP twice, 1 Energy each)', async ({ page }) => {
+test('chain-5: Rebouleh gives Tuk Healer a second paid use (+20 MP twice, 1 Energy each)', async ({ page }) => {
 	test.setTimeout(90000);
 
 	await seedCustomDeck(page, {
-		id: 'custom_redbull_c5', name: 'Redbull Chain',
+		id: 'custom_redbull_c5', name: 'Rebouleh Chain',
 		mosjes: ['mosje_tuk_healer'],  // Healing Hands: 1 Energy, +20 MP, once per turn
 		piecies: ['piecie_redbull', 'piecie_redbull', 'piecie_redbull',
 		          'piecie_quest_prep', 'piecie_quest_prep', 'piecie_quest_prep',
@@ -381,7 +381,7 @@ test('chain-5: Redbull gives Tuk Healer a second paid use (+20 MP twice, 1 Energ
 	await setHand(page, 'player_1', ['piecie_redbull', 'piecie_kannetje_melk']);
 	await page.waitForTimeout(200);
 
-	// Play + activate Redbull this turn (no bot turn - avoids the lone Mosje being KO'd by the bot during an end-turn).
+	// Play + activate Rebouleh this turn (no bot turn - avoids the lone Mosje being KO'd by the bot during an end-turn).
 	await playAndActivateRedbull(page);
 	expect(await extraUses(page)).toBe(1);
 

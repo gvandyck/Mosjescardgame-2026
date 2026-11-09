@@ -487,7 +487,7 @@ export const PIECIES = [
     id: "piecie_redbull",
     type: "PIECIE",
     subtype: "UTILITY",
-    name: "Redbull",
+    name: "Rebouleh",
     mpCost: 0,
     requirement: "level1",
     effectId: "effect_redbull",

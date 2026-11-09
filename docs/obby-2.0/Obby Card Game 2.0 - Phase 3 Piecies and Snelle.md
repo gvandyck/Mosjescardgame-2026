@@ -82,8 +82,8 @@ Dingetje toch?! can count as any tag.
 | 10 | Kan het?! | — | 0 | ★★ | Roll a die for one of your Mosjes: 5–6 it gains 40 MP; 1–4 it loses 10 MP. | Web-only. "6: +50 / 1–5: −10" averaged 0 MP; now a clean 1-in-3 with a small plus. |
 | 11 | Perfect Setup | — | 0 | ★★ | This turn, one of your Mosjes counts as having any MP from 60 to 90 (you pick) for Quest requirements. Its real MP doesn't change. | Your call: "counts as" instead of a real set, so no level-up and no second marker. Opens Perfect Timing (70–80) and Momentum Master (80+). Cleanup reworded. |
 | | **Abilities and activations** | | | | | |
-| 12 | Redbull | — | 2 | ★★ | One of your Mosjes may use its once-per-turn ability one more time this turn (pay its cost again). | "Ability twice" kept; paying again keeps Energy abilities fair. |
-| 13 | Double Trigger | — | 3 | ★★★★ | Both your Mosjes may use their once-per-turn ability one more time this turn (pay the costs again). | Was a twin of Redbull; new job (your call): the team version. Lvl 2+ dropped. |
+| 12 | Rebouleh | — | 2 | ★★ | One of your Mosjes may use its once-per-turn ability one more time this turn (pay its cost again). | "Ability twice" kept; paying again keeps Energy abilities fair. |
+| 13 | Double Trigger | — | 3 | ★★★★ | Both your Mosjes may use their once-per-turn ability one more time this turn (pay the costs again). | Was a twin of Rebouleh; new job (your call): the team version. Lvl 2+ dropped. |
 | 14 | Dubbele Ding | — | 2 | ★★★ | Activate up to 2 Piecies straight from your hand as if they were ready (pay their costs). Each needs a free Piecie slot. | The table says 3 (25 MP); 2 because you still pay both costs. Lvl 2+ dropped. |
 | 15 | Chain Reaction | — | 2 | ★★★ | This turn, after you activate a Piecie, you may activate one more ready Piecie of yours for free (once). | "From your hand" → "a ready Piecie", the same fix as Jisca in Phase 1. The free one doesn't chain. |
 | 16 | MP Amplifier | — | 1 | ★★ | This turn, the next time one of your Mosjes gains MP, it gains double (at most 40 extra). | "+50%" leaves the 5-grid; doubling stays on it. |
@@ -163,7 +163,7 @@ All Snelle need a free Piecie slot (see rules). They can be played any time, als
 | | **Counters and copies** | | | | |
 | 12 | Counter Strikka | 2 | ★★★ | Needs: one of your Mosjes has Mental ★★. Play when an opponent's Piecie or Snelle targets a Mosje: choose another Mosje it can legally target instead. Mental ★★★: also draw 1 card. | Your call: V4 redirect (the web text was a twin of Jammertje). |
 | 13 | Jammertje Gepakt! | 2 | ★★★ | Needs: one of your Mosjes has Mental ★★. Play when your opponent activates a Piecie or plays a Snelle: cancel it and put it on the bottom of their deck (their Energy stays spent). Mental ★★★: also draw 1 card. | V4 text (your exception). Need lowered from ★★★ to ★★ so the ★★★ bonus means something. |
-| 14 | Dubbele Temminks | 2 | ★★★ | Play right after you activate a Piecie: its effect happens a second time (same or new targets). Not on a ★★★★★ card. | Web text (V4 doubled an ability, a twin of Redbull). The copy isn't an activation, so it doesn't chain. |
+| 14 | Dubbele Temminks | 2 | ★★★ | Play right after you activate a Piecie: its effect happens a second time (same or new targets). Not on a ★★★★★ card. | Web text (V4 doubled an ability, a twin of Rebouleh). The copy isn't an activation, so it doesn't chain. |
 | 15 | Gevalletje Klakkeloos | 2 | ★★★ | Play right after your opponent activates a Piecie: you get the same effect too (choose your own targets). Not on a ★★★★★ card. | Web text. Free → 2: copying a Ronald Kip is worth 50 MP. |
 | | **Places** | | | | |
 | 16 | Jantje Jantje... Jantje? | 0 | ★★★ | Only while the Place is Bank Chilling: one opponent Mosje loses 15 MP and one of your Mosjes gains 15 MP. | Web text; "steal 30" → 15 / 15 (small direct hits). Bank Chilling gets reworked in Phase 4. |

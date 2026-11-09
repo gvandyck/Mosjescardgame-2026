@@ -1481,7 +1481,7 @@ function initGamePage() {
 		}
 	}
 
-	// Redbull / Double Trigger: the engine allows a second paid use (slot.extraAbilityUses), so a use is just one activation.
+	// Rebouleh / Double Trigger: the engine allows a second paid use (slot.extraAbilityUses), so a use is just one activation.
 	async function handleUseAbility(mosjeId) {
 		await runAbilityActivation(mosjeId);
 	}

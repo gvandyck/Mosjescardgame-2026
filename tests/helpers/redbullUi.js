@@ -1,11 +1,11 @@
-// redbullUi.js — Playwright helpers for the Redbull specs (not a test file). Redbull (Card List 2.0): one of your Mosjes
+// redbullUi.js — Playwright helpers for the Rebouleh specs (not a test file). Rebouleh (Card List 2.0): one of your Mosjes
 // may use its once-per-turn ability one more time this turn, paying its Energy again (slot.extraAbilityUses).
 import { playCardFromHand, unlockPiecies, setEnergy, getGameState } from '../ui/helpers.js';
 import { activatePiecieOnField } from './piecieUi.js';
 import { abilityByTap, readTrayChip } from './boardTaps.js';
 import { answerModals } from './answerModals.js';
 
-/** Play Redbull from the hand, make it activatable, activate it (the Mosje picker, if any, takes the first option). */
+/** Play Rebouleh from the hand, make it activatable, activate it (the Mosje picker, if any, takes the first option). */
 export async function playAndActivateRedbull(page, { energy = 8 } = {}) {
 	await setEnergy(page, 'player_1', energy);
 	await playCardFromHand(page, 'piecie_redbull');

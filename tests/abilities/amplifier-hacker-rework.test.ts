@@ -10,7 +10,7 @@ import { createEngineState } from "../helpers/testHelpers.js";
 // 2026-06-17 card-text reconciliation:
 //   Amplifier Power Boost — was a +10-MP stub; reworked to "pay 30 MP, arm a
 //   double-trigger (your active Mosje's next ability fires twice), max 2/game"
-//   (59-07: now the Redbull extra use, slot.extraAbilityUses, instead of the V4 echo flag).
+//   (59-07: now the Rebouleh extra use, slot.extraAbilityUses, instead of the V4 echo flag).
 //   Hacker System Hack — was "force a card into the opponent's hand" (helped them);
 //   reworked to "+10 MP, draw 1, once / 5 turns" (slot.systemHackCooldown).
 // ─────────────────────────────────────────────────────────────

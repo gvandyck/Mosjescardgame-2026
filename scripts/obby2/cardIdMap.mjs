@@ -2,7 +2,7 @@
 // quest_dutch_courage and quest_cheat_code are new ids added in plan 53-05.
 export const CARD_ID_MAP = {
   mosjes: {
-    "Gandoe, The Claude Wizard": "mosje_gandoe_wizard",
+    "Gandoe, The Cloud Wizard": "mosje_gandoe_wizard",
     "Jeffrey, The Strongman": "mosje_jeffrey",
     "Alyssa, The Bulldozer": "mosje_alyssa_bulldozer",
     "Alyssa, Fissa Fissa!": "mosje_alyssa_fissa",
@@ -108,7 +108,7 @@ export const CARD_ID_MAP = {
     "Dikke Plaat": "piecie_dikke_plaat",
     "Kan het?!": "piecie_kan_het",
     "Perfect Setup": "piecie_perfect_setup",
-    "Redbull": "piecie_redbull",
+    "Rebouleh": "piecie_redbull",
     "Double Trigger": "piecie_double_trigger",
     "Dubbele Ding": "piecie_dubbele_ding",
     "Chain Reaction": "piecie_chain_reaction",

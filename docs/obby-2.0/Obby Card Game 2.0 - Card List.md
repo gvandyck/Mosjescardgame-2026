@@ -21,7 +21,7 @@ Phase 6 output, 2026-10-10. This is every 2.0 card with the text that goes on it
 ### Physical
 | Mosje | Cost | Rarity | Start MP | Level rows | Ability | Synergy |
 |---|---|---|---|---|---|---|
-| Gandoe, The Claude Wizard | 3 | ★★★ | 10 | L1: Power 10 · Str ★★ · Res ★ · Art ★★<br>L2: Power 20 · Str ★★★ · Res ★ · Art ★★<br>L3: Power 30 · Str ★★★ · Res ★★ · Art ★★ | **Chaos Roll** — at the start of your turn roll a die: 1–2 this Mosje loses 10 MP; 3–4 nothing; 5–6 +10 Power this turn. | — |
+| Gandoe, The Cloud Wizard | 3 | ★★★ | 10 | L1: Power 10 · Str ★★ · Res ★ · Art ★★<br>L2: Power 20 · Str ★★★ · Res ★ · Art ★★<br>L3: Power 30 · Str ★★★ · Res ★★ · Art ★★ | **Chaos Roll** — at the start of your turn roll a die: 1–2 this Mosje loses 10 MP; 3–4 nothing; 5–6 +10 Power this turn. | — |
 | Jeffrey, The Strongman | 3 | ★★ | 20 | L1: Power 10 · Str ★★★ · Res ★<br>L2: Power 20 · Str ★★★ · Res ★★<br>L3: Power 30 · Str ★★★ · Res ★★★ | **Brute Force** — whenever one of your Mosjes succeeds at a Quest, it gets +10 MP extra. While Jeffrey is on your field, you can't activate Piecies that give MP. | — |
 | Alyssa, The Bulldozer | 4 | ★★★★ | 0 | L1: Power 20 · Str ★★★ · Res ★★ · Soc ★★★<br>L2: Power 30 · Str ★★★ · Res ★★★ · Soc ★★★<br>L3: Power 40 · Str ★★★ · Res ★★★ · Soc ★★★ | **Unstoppable** — when she is taksed for 30 or more MP in one turn, she gains 25 MP and has +10 Power until the end of your next turn. | — |
 | Alyssa, Fissa Fissa! | 2 | ★★ | 20 | L1: Power 10 · Str ★★ · Soc ★★★ · Res ★<br>L2: Power 20 · Str ★★★ · Soc ★★★ · Res ★<br>L3: Power 30 · Str ★★★ · Soc ★★★ · Res ★★ | **Party Power** — when a Place is destroyed by a card you activated, this Mosje gains 20 MP (once per turn). | — |
@@ -177,7 +177,7 @@ Placed face-down for free (needs a free slot of your 3). From your next turn it 
 | Dikke Plaat | Piecie | 0 | ★ | +1 die on one Quest this turn. DJ 80/20 or Alyssa, Fissa Fissa! on your field: you may also reroll 1 die of that Quest. |
 | Kan het?! | Piecie | 0 | ★★ | Roll a die for one of your Mosjes: 5–6 it gains 40 MP; 1–4 it loses 10 MP. |
 | Perfect Setup | Piecie | 0 | ★★ | This turn, one of your Mosjes counts as having any MP from 60 to 90 (you pick) for Quest requirements. Its real MP doesn't change. |
-| Redbull | Piecie | 2 | ★★ | One of your Mosjes may use its once-per-turn ability one more time this turn (pay its cost again). |
+| Rebouleh | Piecie | 2 | ★★ | One of your Mosjes may use its once-per-turn ability one more time this turn (pay its cost again). |
 | Double Trigger | Piecie | 3 | ★★★★ | Both your Mosjes may use their once-per-turn ability one more time this turn (pay the costs again). |
 | Dubbele Ding | Piecie | 2 | ★★★ | Activate up to 2 Piecies straight from your hand as if they were ready (pay their costs). Each needs a free Piecie slot. |
 | Chain Reaction | Piecie | 2 | ★★★ | This turn, after you activate a Piecie, you may activate one more ready Piecie of yours for free (once). |

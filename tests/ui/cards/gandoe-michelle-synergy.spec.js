@@ -26,7 +26,7 @@ const CASES = [
 		expect: { mp: { 'own.0': 90, 'own.1': 40 }, level: { 'own.0': 1 } },
 	},
 	{
-		name: 'roll 5 never gives Gandoe, The Claude Wizard anything either',
+		name: 'roll 5 never gives Gandoe, The Cloud Wizard anything either',
 		setup: { field: [{ id: 'mosje_michelle', mp: 10 }, { id: 'mosje_gandoe_wizard', mp: 40, slot: 1 }], oppField: OPP, quest: ARM, dice: [5, 5, 5, 5], abilityDice: [5] },
 		expect: { mp: { 'own.0': 90, 'own.1': 40 } },
 	},

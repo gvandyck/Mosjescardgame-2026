@@ -9,7 +9,7 @@ const MP_MAX = { mpMax20: 20, mpMax30: 30, mpMax40: 40 };
 const STARS = { strength1: 1, strength2: 2 };
 
 function passes(slot, rule) {
-	if (rule === 'activatedAbility') return canTakeExtraUse(slot); // Redbull: an activated once-per-turn ability
+	if (rule === 'activatedAbility') return canTakeExtraUse(slot); // Rebouleh: an activated once-per-turn ability
 	if (MP_MAX[rule] !== undefined) return slot.mp <= MP_MAX[rule];
 	if (STARS[rule] !== undefined) return (slot.traits?.strength || 0) >= STARS[rule];
 	return true;

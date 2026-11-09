@@ -1,11 +1,11 @@
 /**
- * redbull-abilities-cinema.spec.js - "Cinema mode" demos of Redbull (Card List 2.0) across different Mosje abilities.
+ * redbull-abilities-cinema.spec.js - "Cinema mode" demos of Rebouleh (Card List 2.0) across different Mosje abilities.
  *
- * Deliberately SLOW, narrated walkthroughs so a human can watch Redbull give a second paid use (or correctly NOT apply):
+ * Deliberately SLOW, narrated walkthroughs so a human can watch Rebouleh give a second paid use (or correctly NOT apply):
  *
- *   1. Redbull + Tuk Healer (simple ability)       -> used twice, 1 Energy each
- *   2. Redbull + Coert alone (draw-step ability)   -> no target: Energy spent, nothing granted
- *   3. Redbull + Binti (discard + target ability)  -> Cutting Words twice: -20 MP on the opponent, 2 Energy, 2 discards
+ *   1. Rebouleh + Tuk Healer (simple ability)       -> used twice, 1 Energy each
+ *   2. Rebouleh + Coert alone (draw-step ability)   -> no target: Energy spent, nothing granted
+ *   3. Rebouleh + Binti (discard + target ability)  -> Cutting Words twice: -20 MP on the opponent, 2 Energy, 2 discards
  *
  * Each scene still asserts the real outcome, so it doubles as a visual regression check.
  *
@@ -29,7 +29,7 @@ const PIECIES = ['piecie_redbull', 'piecie_redbull', ...Array(6).fill('piecie_ka
 const deck = (id, mosjes) => ({ id, name: id, mosjes, piecies: PIECIES, snellePiecies: ['snelle_jensen'], places: [], quests: [] });
 
 // ───────────────────────────────────────────────────────────────────────────
-test('Redbull + Tuk Healer - the ability is used twice (+20 MP each, 1 Energy each)', async ({ page }, testInfo) => {
+test('Rebouleh + Tuk Healer - the ability is used twice (+20 MP each, 1 Energy each)', async ({ page }, testInfo) => {
 	test.setTimeout(120000);
 	const beat = makeBeat(page, testInfo);
 	await seedCustomDeck(page, deck('custom_cinema_rb_tuk', ['mosje_tuk_healer']), 'PHYSICAL_FORCE');
@@ -42,7 +42,7 @@ test('Redbull + Tuk Healer - the ability is used twice (+20 MP each, 1 Energy ea
 	await playAndActivateRedbull(page);
 	expect(await extraUses(page)).toBe(1);
 	await ss(page, 'cinema-rb-armed');
-	await beat('Redbull ACTIVE - one more use of the ability this turn');
+	await beat('Rebouleh ACTIVE - one more use of the ability this turn');
 
 	const energy0 = await energyOf(page);
 	await useAbilityViaUi(page, 'mosje_tuk_healer');
@@ -55,11 +55,11 @@ test('Redbull + Tuk Healer - the ability is used twice (+20 MP each, 1 Energy ea
 	await beat(`TWICE - Tuk at ${mp} MP`);
 	expect(mp).toBe(50);
 	expect(await energyOf(page)).toBe(energy0 - 2);
-	await beat('Redbull is used up. fin');
+	await beat('Rebouleh is used up. fin');
 });
 
 // ───────────────────────────────────────────────────────────────────────────
-test('Redbull + Coert alone - draw-step ability, no target: the Energy is spent, nothing is granted', async ({ page }, testInfo) => {
+test('Rebouleh + Coert alone - draw-step ability, no target: the Energy is spent, nothing is granted', async ({ page }, testInfo) => {
 	test.setTimeout(120000);
 	const beat = makeBeat(page, testInfo);
 	await seedCustomDeck(page, deck('custom_cinema_rb_coert', ['mosje_coert_tech']), 'PHYSICAL_FORCE');
@@ -74,11 +74,11 @@ test('Redbull + Coert alone - draw-step ability, no target: the Energy is spent,
 	await ss(page, 'cinema-rb-coert');
 	expect(await extraUses(page)).toBe(0);
 	expect(await energyOf(page)).toBeLessThan(8);
-	await beat('No Mosje with a usable ability: Redbull fizzles. fin');
+	await beat('No Mosje with a usable ability: Rebouleh fizzles. fin');
 });
 
 // ───────────────────────────────────────────────────────────────────────────
-test('Redbull + Binti - Cutting Words twice: the opponent loses 20 MP, 2 Energy', async ({ page }, testInfo) => {
+test('Rebouleh + Binti - Cutting Words twice: the opponent loses 20 MP, 2 Energy', async ({ page }, testInfo) => {
 	test.setTimeout(120000);
 	const beat = makeBeat(page, testInfo);
 	await seedCustomDeck(page, deck('custom_cinema_rb_binti', ['mosje_binti']), 'PHYSICAL_FORCE');

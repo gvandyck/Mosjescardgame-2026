@@ -1,8 +1,8 @@
 /**
- * redbull-reprompt.spec.js - Redbull (Card List 2.0) gives an input ability a second use, and the second use asks its
+ * redbull-reprompt.spec.js - Rebouleh (Card List 2.0) gives an input ability a second use, and the second use asks its
  * questions again with a FRESH prompt (each use is a normal, paid activation: no echo, no stale input).
  * Verifies Martin Senor West (Calculated Guess), FPS West (Tactical Analysis) and Tuk Architect (Perfect Placement)
- * can each be used twice under Redbull (both uses counted, a third refused).
+ * can each be used twice under Rebouleh (both uses counted, a third refused).
  *
  * Run: npx playwright test tests/ui/simulation/redbull-reprompt.spec.js
  */
@@ -21,10 +21,10 @@ const CASES = [
 ];
 
 for (const c of CASES) {
-	test(`Redbull: ${c.name} is used twice with a fresh prompt each time`, async ({ page }) => {
+	test(`Rebouleh: ${c.name} is used twice with a fresh prompt each time`, async ({ page }) => {
 		test.setTimeout(90000);
 		await seedCustomDeck(page, {
-			id: `custom_rb_${c.mosje}`, name: `Redbull + ${c.mosje}`, mosjes: [c.mosje],
+			id: `custom_rb_${c.mosje}`, name: `Rebouleh + ${c.mosje}`, mosjes: [c.mosje],
 			// Big deck so two rounds never deplete it.
 			piecies: ['piecie_redbull', 'piecie_redbull', ...Array(24).fill('piecie_kannetje_melk')],
 			snellePiecies: ['snelle_jensen'], places: [], quests: [],
