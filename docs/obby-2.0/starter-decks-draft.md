@@ -29,7 +29,7 @@ Rules: only standard-curve Mosjes · starter PQs ★–★★★ (chase PQs ★�
 | Ronald, The Master Chef | Michelinster, Ronald Kip, Hele Fles Fireman, Ronnie's Kitchen |
 
 ## Digital — gear up
-**Mosjes:** Coert, The Hawaiian Tech Savant · Gandoe, The Cloud Wizard · Youri, The Speedrunner · FPS Coert · FPS West
+**Mosjes:** Coert, The Hawaiian Tech Savant · Gandoe, The Cloude Wizard · Youri, The Speedrunner · FPS Coert · FPS West
 **Personal Quests:** Aloha Tech Support ★★★ · Vibe Coded ★★ · World Record Run ★ · Headshot ★★
 **Places:** Coert's Caravan (Coert) · Woonkamer (Discord) (FPS duo) · *Youri's Studio* (Youri)
 
@@ -46,7 +46,7 @@ Rules: only standard-curve Mosjes · starter PQs ★–★★★ (chase PQs ★�
 | Mosje | Kit cards in the deck |
 |---|---|
 | Coert, Tech Savant | Aloha Tech Support, Hawaii Pizza, Boosterpackkie, Coert's Caravan |
-| Gandoe, The Cloud Wizard | Vibe Coded, Toverprompt (Gandoe's Cloud stays out: 3 Place slots) |
+| Gandoe, The Cloude Wizard | Vibe Coded, Toverprompt (Gandoe's Cloude stays out: 3 Place slots) |
 | Youri, The Speedrunner | World Record Run, Blikje Monsteros, Youri's Studio |
 | FPS Coert | Headshot, Headset, Woonkamer |
 | FPS West | Headset, Those Eyelashes Tho..., Woonkamer (Clutch Round in packs) |

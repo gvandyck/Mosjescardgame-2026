@@ -22,7 +22,7 @@ Hit hard, keep your Mosjes fed, push Strength Quests at The Gym.
 | # | Card | Kind | Cost |
 |---|---|---|---|
 | 1 | Alyssa, Fissa Fissa! *(start)* | Mosje | 2 |
-| 1 | Gandoe, The Cloud Wizard | Mosje | 3 |
+| 1 | Gandoe, The Cloude Wizard | Mosje | 3 |
 | 1 | Michelle, Iron Tuk | Mosje | 3 |
 | 1 | AZN Cless, The Wild Card | Mosje | 2 |
 | 1 | Parkour West, The Flow Fighter | Mosje | 3 |

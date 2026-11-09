@@ -12,7 +12,7 @@ export const MOSJES = [
     id: "mosje_gandoe_wizard",
     type: "MOSJE",
     subtype: "DIGITAL",
-    name: "Gandoe, The Cloud Wizard",
+    name: "Gandoe, The Cloude Wizard",
     startMP: 10,
     traits: { technical: 2, resilient: 1, strength: 1 },
     abilityId: "ability_gandoe_wizard_chaos_roll",

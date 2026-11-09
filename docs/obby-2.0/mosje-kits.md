@@ -31,7 +31,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | Mosje | Personal Quest | Signature Piecie | Place |
 |---|---|---|---|
 | Coert, The Hawaiian Tech Savant | Aloha Tech Support | Hawaii Pizza, Boosterpackkie | Coert's Caravan, Tesla |
-| Gandoe, The Cloud Wizard (was Claude Wizard) | Vibe Coded | ***Toverprompt*** NEW | **Gandoe's Cloud** NEW |
+| Gandoe, The Cloude Wizard (was Claude Wizard) | Vibe Coded | ***Toverprompt*** NEW | **Gandoe's Cloude** NEW |
 | Youri, The Speedrunner | World Record Run | **Blikje Monsteros** NEW | ***Youri's Studio*** NEW |
 | FPS Coert | Headshot | **Headset** NEW | **Woonkamer (Discord)** NEW |
 | FPS West | Clutch Round | Headset, Those Eyelashes Tho... | Woonkamer (Discord) |
@@ -57,7 +57,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | **Rugby Training** | Alyssa, The Bulldozer | Physical Mosjes that were attacked last turn get +10 Power. Digital Mosjes −10 Power. |
 | **Ronnie's Kitchen** | both Ronalds | Food Piecies give +10 MP. A Ronald: draw 1 the first time each turn. |
 | **Ruilbeurs Jaarbeurs** | Coert, KasteLuck (Pokémon trade fair, Utrecht) | Once per turn, a player may discard 1 card to draw 1. A Coert draws 2 instead. |
-| **Gandoe's Cloud** | Gandoe, The Cloud Wizard | Gear Piecies cost 1ϟ less (min 0). Physical Mosjes −10 Power. |
+| **Gandoe's Cloude** | Gandoe, The Cloude Wizard | Gear Piecies cost 1ϟ less (min 0). Physical Mosjes −10 Power. |
 | *Youri's Studio* | Youri (makes his own game) | The first time each turn a player activates a Piecie the turn it was placed, they draw 1. |
 | **Woonkamer (Discord)** | FPS Coert + FPS West (their Discord channel) | With 2 Digital Mosjes on your field: +1 ▣ on Tech★ Quests. |
 | *Nieuw Spel* | Ming (every game first try) | The first Quest a Mosje tries each turn: it may reroll 1 ▣. |
@@ -67,7 +67,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | Piecie | For | Effect |
 |---|---|---|
 | **Hele Fles Fireman** (substance, ★★★) | both Ronalds | One of your Mosjes gets +20 Power this turn and loses 20 MP at the end of the turn. A Ronald loses nothing (he's used to it). |
-| *Toverprompt* (gear) | Gandoe, The Cloud Wizard | Search your deck for a gear Piecie. A Gandoe also gains 10 MP. |
+| *Toverprompt* (gear) | Gandoe, The Cloude Wizard | Search your deck for a gear Piecie. A Gandoe also gains 10 MP. |
 | **Blikje Monsteros** (substance) | Youri | Gain 2ϟ this turn. One of your Mosjes loses 15 MP. A Youri also draws 1. (Flavour: his stomach.) |
 | **Headset** (gear) | FPS Coert + FPS West | Only if a Digital Mosje is on your field: look at the top 2 cards of the opponent's deck. An FPS Mosje also gets +10 Power this turn. |
 | *Dansmat* (gear) | Chris, The BigStepper | One of your Mosjes gains 10 MP. A Chris also gets +1 ▣ on one Quest this turn. |
@@ -76,6 +76,6 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 
 ### Mosje changes
 - **Ronald, The Mastermind → *Ronald, Dr. Filosoof*** (Dr. Phil joke: drunk Ronald gives everyone unasked advice). New ability: once per turn, 1ϟ: choose an opponent Mosje; on its next Quest it rolls 1 ▣ less (too busy listening). New PQ *Ongevraagd Advies*: **Needs:** the opponent has 4+ cards in hand. **Roll:** 1 ▣ per Art★. Need 2× ⚃+.
-- **Gandoe, The Claude Wizard → Gandoe, The Cloud Wizard** (no brand name).
+- **Gandoe, The Claude Wizard → Gandoe, The Cloude Wizard** (no brand name).
 - **Redbull → Rebouleh** (Coert's word joke).
 - Ideas saved for later boosters: KasteLuck unpacks Pokémon packs at work · grading cards in Germany (slabs) · his box of expensive cards.
