@@ -4,7 +4,7 @@ One profile per friend, with every Mosje card of that friend. Source of truth fo
 
 Types and traits come from `src/data/mosjes.js` (branch `card/mosje-roster-7nov`). Ability text is the 1 Nov Cleanup List version (not all in code yet). Personal Quests re-typed on 7 Nov where a Mosje changed type.
 
-Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Creative Art 2/3/3 + Res 1/1/1. Res = −5 MP per ★ on attacks.
+Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Creative Art 2/3/3 + Res 1/1/1. Res = −5 MP per ★ on attacks. Specialists (9 Nov, booster Mosjes only): main 2/2/3 + second 2/3/3.
 
 ## Gandoe
 
@@ -63,7 +63,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 - **Stats:** cost 3 · start MP 10
 - **Traits:** LV1 Str ★★ · Soc ★ · Res ★ → LV2 Str ★★★ · Soc ★ · Res ★ → LV3 Str ★★★ · Soc ★★ · Res ★
 - **Ability:** Loses 10 less from every attack. From LV3: 15 less. (approved 7 Nov)
-- **Personal Quest:** Ironman
+- **Personal Quest:** Ironman · rolls Str from 9 Nov (starter Mosje)
 - **Life & vibe:**
   - Tough as iron · endurance, never quits
   - Boxing with Gandoe · never gives up · takes hits and keeps going
@@ -72,7 +72,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 ### Tuk, The Healing Spirit · Creative
 
 - **Stats:** cost 2 · start MP 30
-- **Traits:** LV1 Art ★★ · Res ★ · Soc ★ → LV2 Art ★★★ · Res ★ · Soc ★ → LV3 Art ★★★ · Res ★★ · Soc ★
+- **Traits:** LV1 Art ★★ · Soc ★★ → LV2 Art ★★ · Soc ★★★ → LV3 Art ★★★ · Soc ★★★ · specialist curve (booster, 9 Nov)
 - **Ability:** Once per turn, 1 Energy: one of your Mosjes gains 15 MP. From LV3: 20 MP instead.
 - **Personal Quest:** Cat Sanctuary
 - **Life & vibe:**
@@ -164,7 +164,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 ### Parkour West, The Flow Fighter · Physical
 
 - **Stats:** cost 3 · start MP 10
-- **Traits:** LV1 Str ★★ · Art ★ · Men ★ → LV2 Str ★★★ · Art ★ · Men ★ → LV3 Str ★★★ · Art ★★ · Men ★
+- **Traits:** LV1 Str ★★ · Art ★★ → LV2 Str ★★ · Art ★★★ → LV3 Str ★★★ · Art ★★★ · specialist curve (booster, 9 Nov)
 - **Ability:** Quest win: +20 MP extra. Once per turn, taksed for 20+: lose 10 less. From LV3: lose 20 less.
 - **Personal Quest:** Over Alle Daken
 - **Life & vibe:**
@@ -188,7 +188,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 ### Martin, The Precision Driver · Digital
 
 - **Stats:** cost 3 · start MP 15
-- **Traits:** LV1 Tech ★★ · Res ★ · Art ★ → LV2 Tech ★★ · Res ★★ · Art ★ → LV3 Tech ★★★ · Res ★★ · Art ★
+- **Traits:** LV1 Tech ★★ · Art ★★ → LV2 Tech ★★ · Art ★★★ → LV3 Tech ★★★ · Art ★★★ · specialist curve (booster, 9 Nov)
 - **Ability:** Quest win: +15 MP extra. Once per turn, 1 Energy + discard 2 cards: draw 3.
 - **Personal Quest:** Grand Prix · re-typed 7 Nov: Digital, rolls Tech + Art
 - **Life & vibe:**
@@ -227,7 +227,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 ### Alyssa, Fissa Fissa! · Physical
 
 - **Stats:** cost 2 · start MP 20
-- **Traits:** LV1 Str ★★ · Soc ★ · Art ★ → LV2 Str ★★★ · Soc ★ · Art ★ → LV3 Str ★★★ · Soc ★★ · Art ★
+- **Traits:** LV1 Str ★★ · Soc ★★ → LV2 Str ★★ · Soc ★★★ → LV3 Str ★★★ · Soc ★★★ · specialist curve (booster, 9 Nov)
 - **Ability:** A Place is destroyed by your card, or you activate a Place: +20 MP (once per turn).
 - **Personal Quest:** Fissa Tot De Ochtend
 - **Life & vibe:**
@@ -324,7 +324,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 ### Cless, The Teacher · Creative
 
 - **Stats:** cost 2 · start MP 30
-- **Traits:** LV1 Art ★★ · Men ★ · Res ★ → LV2 Art ★★★ · Men ★ · Res ★ → LV3 Art ★★★ · Men ★★ · Res ★
+- **Traits:** LV1 Art ★★ · Men ★★ → LV2 Art ★★ · Men ★★★ → LV3 Art ★★★ · Men ★★★ · specialist curve (booster, 9 Nov)
 - **Ability:** When you activate a Piecie, roll. 5–6: draw 1, a Mosje +5 MP. From LV3: on a 4–6.
 - **Personal Quest:** Final Exam
 - **Life & vibe:**
@@ -400,7 +400,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 - **Stats:** cost 2 · start MP 20
 - **Traits:** LV1 Art ★★ · Soc ★ · Res ★ → LV2 Art ★★★ · Soc ★ · Res ★ → LV3 Art ★★★ · Soc ★★ · Res ★
 - **Ability:** Once per turn, 1 Energy + discard 1 Piecie: an opponent Mosje −10 MP and the opponent discards 1 card. From LV3: −20 MP instead.
-- **Personal Quest:** Binti Brandt
+- **Personal Quest:** Binti Brandt · rolls Art from 9 Nov (starter Mosje)
 - **Life & vibe:**
   - Roasts people · savage comebacks · words cut deep
   - Deadpan one-liners · never forgets your fails · roasts out of love
@@ -426,7 +426,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 ### Jisca, The Maestro · Creative
 
 - **Stats:** cost 3 · start MP 10
-- **Traits:** LV1 Art ★★ · Soc ★ · Res ★ → LV2 Art ★★★ · Soc ★ · Res ★ → LV3 Art ★★★ · Soc ★★ · Res ★
+- **Traits:** LV1 Art ★★ · Soc ★★ → LV2 Art ★★ · Soc ★★★ → LV3 Art ★★★ · Soc ★★★ · specialist curve (booster, 9 Nov)
 - **Ability:** Once per turn, after you activate a Piecie, roll. 4–6: activate another ready Piecie for free, an opponent Mosje −15 MP. 1–3: −10 MP.
 - **Personal Quest:** Staande Ovatie
 - **Life & vibe:**
