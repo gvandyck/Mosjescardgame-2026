@@ -383,7 +383,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
   - Feeds the whole group · heavy kitchen work (why he's Physical)
 - **Theme check:** Fixed 7 Nov (signature dish).
 
-### Ronald, Dr. Filosoof (was The Mastermind) · Creative
+### Ronald, Dr. Phill-osoof (was The Mastermind) · Creative
 
 - **Stats:** cost 3 · start MP 10
 - **Traits:** LV1 Art ★★ · Men ★ · Res ★ → LV2 Art ★★★ · Men ★ · Res ★ → LV3 Art ★★★ · Men ★★ · Res ★
@@ -392,7 +392,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 - **Life & vibe:**
   - Evil genius plan · chess master · controls reality · reuses old tricks
   - Back from the archive 9 Nov for the Creative starter deck
-  - Drunk Ronald talks to everyone and gives unasked advice → 'Dr. Phil' joke → Dr. Filosoof
+  - Drunk Ronald talks to everyone and gives unasked advice → 'Dr. Phil' joke → Dr. Phill-osoof
   - Once drank a whole bottle of Fireman (liquorice liqueur) → Piecie Hele Fles Fireman
 - **Theme check:** Fits (reuses old tricks).
 

@@ -24,7 +24,7 @@ export const CARD_ID_MAP = {
     "Placeholder 4, The Drainer": "mosje_drainer",
     "FPS Coert": "mosje_fps_coert",
     "FPS West": "mosje_fps_west",
-    "Ronald, The Mastermind": "mosje_ronald_mastermind",
+    "Ronald, Dr. Phill-osoof": "mosje_ronald_mastermind",
     "Jisca, The Maestro": "mosje_jisca",
     "Tuk, The Healing Spirit": "mosje_tuk_healer",
     "DJ 80/20, The Lucky Mixer": "mosje_dj_8020",

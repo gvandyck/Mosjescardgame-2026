@@ -52,7 +52,7 @@ Rules: only standard-curve Mosjes · starter PQs ★–★★★ (chase PQs ★�
 | FPS West | Headset, Those Eyelashes Tho..., Woonkamer (Clutch Round in packs) |
 
 ## Creative — outsmart
-**Mosjes:** Ming, The Natural · Jeffrey, The Silent Gambler · DJ 80/20 · Binti, The Sharp Tongue · Ronald, *Dr. Filosoof*
+**Mosjes:** Ming, The Natural · Jeffrey, The Silent Gambler · DJ 80/20 · Binti, The Sharp Tongue · Ronald, Dr. Phill-osoof
 **Personal Quests:** Beginner's Luck ★ (Art) · High Roller ★★ (Art) · Lucky Crescendo ★★ · Binti Brandt ★★ (Art)
 **Places:** Skiffa (DJ; Lucky Crescendo needs it) · Punto Banco (Jeffrey) · *Nieuw Spel* (Ming)
 
@@ -73,12 +73,12 @@ Rules: only standard-curve Mosjes · starter PQs ★–★★★ (chase PQs ★�
 | Jeffrey, The Silent Gambler | High Roller, Gekke Dobbel, Punto Banco |
 | DJ 80/20 | Lucky Crescendo, Dikke Plaat, Skiffa |
 | Binti, The Sharp Tongue | Binti Brandt, Varkenspootjes, Stookerino |
-| Ronald, Dr. Filosoof | Hele Fles Fireman (Ongevraagd Advies and Ronnie's Kitchen stay out: slots) |
+| Ronald, Dr. Phill-osoof | Hele Fles Fireman (Ongevraagd Advies and Ronnie's Kitchen stay out: slots) |
 
 ---
 
 ## Still open
 - Ming's lucky item (name + effect).
-- Placeholder names: Toverprompt, Youri's Studio, Nieuw Spel, Dansmat, Dr. Filosoof, Ongevraagd Advies.
+- Placeholder names: Toverprompt, Youri's Studio, Nieuw Spel, Dansmat, Dr. Phill-osoof, Ongevraagd Advies.
 - Counter Strikka / Jammertje Gepakt need Men★★, which no standard Digital Mosje reaches → proposal: Tech★★.
 - Quest stacks lean on Res (Physical) and Soc (Creative), which standard Mosjes barely have → shift toward main traits in the Quest text rework.

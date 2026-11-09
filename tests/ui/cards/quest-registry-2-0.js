@@ -265,7 +265,7 @@ export const QUEST_REGISTRY = [
 	{ quest: 'quest_team_building', deck: 'rest', cases: [
 		{ name: 'Trained (Social 2 stars or more): no roll, +25',
 			setup: S(BINTI, 20, A, 'quest_team_building', { dice: LOSE }), trigger: go(A, ['ok']), expect: { mp: { 'own.0': 45 }, check: won(A, 'quest_team_building') } },
-		gate('no Social at all (Ronald, The Mastermind): no attempt', S(MASTERMIND, 20, A, 'quest_team_building', { dice: WIN }), A),
+		gate('no Social at all (Ronald, Dr. Phill-osoof): no attempt', S(MASTERMIND, 20, A, 'quest_team_building', { dice: WIN }), A),
 	] },
 	{ quest: 'quest_artistic_expression', deck: 'rest', cases: [
 		{ name: 'drew 2+ cards this turn (Ff Haaltje Nemen): +1 die, [1,6] wins, +25',

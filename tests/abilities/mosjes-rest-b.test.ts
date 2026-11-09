@@ -207,7 +207,7 @@ describe("Youri, The Speedrunner: Speed Activate (pay 1 Energy: a Piecie placed 
   });
 });
 
-describe("Ronald, The Mastermind: Master Plan (once per turn, pay 2 Energy: activate a Piecie from your discard pile as if ready; it goes back to the discard pile)", () => {
+describe("Ronald, Dr. Phill-osoof: Master Plan (once per turn, pay 2 Energy: activate a Piecie from your discard pile as if ready; it goes back to the discard pile)", () => {
   const board = (graveyard: any[], extra: any = {}) => field(MASTERMIND, { graveyard, ...extra });
 
   it("Kannetje Melk from the discard pile: 2 Energy paid, effect resolves, the card is back in the discard pile", () => {

@@ -18,7 +18,7 @@ V4 holds **13** Artistic Mosjes (not 14 as the Progress note said). Three were t
 
 | # | Mosje | Cost | Rarity | Power L1 / L2 / L3 | Start MP | Traits L1 → L2 → L3 |
 |---|---|---|---|---|---|---|
-| 1 | Ronald, The Mastermind | 3 | ★★★ | 10 / 20 / 30 | 10 | Cre ★★★ · Men ★★★ → Soc ★ → Soc ★★ |
+| 1 | Ronald, Dr. Phill-osoof | 3 | ★★★ | 10 / 20 / 30 | 10 | Cre ★★★ · Men ★★★ → Soc ★ → Soc ★★ |
 | 2 | Jisca, The Maestro | 3 | ★★★ | 10 / 20 / 30 | 10 | Cre ★★★ · Soc ★★ · Men ★★ → Soc ★★★ → Men ★★★ |
 | 3 | Tuk, The Healing Spirit | 2 | ★★ | 0 / 10 / 20 | 30 | Cre ★★ · Soc ★★ · Res ★★★ → Cre ★★★ → Soc ★★★ |
 | 4 | DJ 80/20, The Lucky Mixer | 2 | ★★ | 0 / 10 / 20 | 30 | Cre ★★★ · Res ★★ → Res ★★★ → Soc ★ |
@@ -32,7 +32,7 @@ V4 holds **13** Artistic Mosjes (not 14 as the Progress note said). Three were t
 ## Abilities (table text)
 | Mosje | Ability (2.0 text) | Label |
 |---|---|---|
-| Ronald, The Mastermind | **Master Plan** — once per turn, pay 2 Energy: activate a Piecie from your discard pile as if it were ready (this replaces its own Energy cost). It goes back to the discard pile afterwards. | — |
+| Ronald, Dr. Phill-osoof | **Master Plan** — once per turn, pay 2 Energy: activate a Piecie from your discard pile as if it were ready (this replaces its own Energy cost). It goes back to the discard pile afterwards. | — |
 | Jisca, The Maestro | **Perfect Combo** — once per turn, after you activate a Piecie, roll a die: 4–6 activate another ready Piecie of yours for free (no Energy) and one opponent Mosje loses 15 MP; 1–3 Jisca loses 10 MP (ignored if she is at 0 MP). | — |
 | Tuk, The Healing Spirit | **Healing Hands** — once per turn, pay 1 Energy: one of your Mosjes (herself included) gains 20 MP. *(1 Energy added in Phase 5, R4.)* | — |
 | DJ 80/20, The Lucky Mixer | **Lucky Beats** — once per turn, reroll any one die (yours or your opponent's). | — |

@@ -45,7 +45,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | Jeffrey, The Silent Gambler | High Roller | Gekke Dobbel | Punto Banco |
 | DJ 80/20, The Lucky Mixer | Lucky Crescendo | Dikke Plaat | Skiffa |
 | Binti, The Sharp Tongue | Binti Brandt | Varkenspootjes, Stookerino | Tesla, Delluft |
-| Ronald, *Dr. Filosoof* (was The Mastermind) | *Ongevraagd Advies* (was Checkmate) | **Hele Fles Fireman** NEW | Ronnie's Kitchen |
+| Ronald, Dr. Phill-osoof (was The Mastermind) | *Ongevraagd Advies* (was Checkmate) | **Hele Fles Fireman** NEW | Ronnie's Kitchen |
 | Jisca, The Maestro (specialist) | Staande Ovatie | Gekke Vogels | Het Podium |
 | Tuk, The Healing Spirit (specialist) | Cat Sanctuary | Bowie & Stormey | De Box |
 | Cless, The Teacher (specialist) | Final Exam | ViannaPoes | Schoolplein |
@@ -75,7 +75,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | [Ming's lucky item] | Ming | open |
 
 ### Mosje changes
-- **Ronald, The Mastermind → *Ronald, Dr. Filosoof*** (Dr. Phil joke: drunk Ronald gives everyone unasked advice). New ability: once per turn, 1ϟ: choose an opponent Mosje; on its next Quest it rolls 1 ▣ less (too busy listening). New PQ *Ongevraagd Advies*: **Needs:** the opponent has 4+ cards in hand. **Roll:** 1 ▣ per Art★. Need 2× ⚃+.
+- **Ronald, Dr. Phill-osoof → Ronald, Dr. Phill-osoof** (Dr. Phil joke: drunk Ronald gives everyone unasked advice). New ability: once per turn, 1ϟ: choose an opponent Mosje; on its next Quest it rolls 1 ▣ less (too busy listening). New PQ *Ongevraagd Advies*: **Needs:** the opponent has 4+ cards in hand. **Roll:** 1 ▣ per Art★. Need 2× ⚃+.
 - **Gandoe, The Claude Wizard → Gandoe, The Cloude Wizard** (no brand name).
 - **Redbull → Rebouleh** (Coert's word joke).
 - Ideas saved for later boosters: KasteLuck unpacks Pokémon packs at work · grading cards in Germany (slabs) · his box of expensive cards.

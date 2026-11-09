@@ -579,7 +579,7 @@ export const MOSJES = [
     id: "mosje_ronald_mastermind",
     type: "MOSJE",
     subtype: "CREATIVE",
-    name: "Ronald, The Mastermind",
+    name: "Ronald, Dr. Phill-osoof",
     startMP: 10,
     traits: { artistic: 2, mental: 1, resilient: 1 },
     abilityId: "ability_ronald_mastermind_master_plan",
