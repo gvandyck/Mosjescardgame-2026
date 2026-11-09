@@ -357,6 +357,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 - **Life & vibe:**
   - Just shows up & wins · effortless · annoyingly good
   - Every game first try; in real life naturally good at what he tries
+  - "Zwoele Ming Power": sexy, smooth Ming forces luck on his side and does things with ease → Piecie Zwoele Ming Power
   - Improvises everything (why he's Creative)
 - **Theme check:** Fits.
 

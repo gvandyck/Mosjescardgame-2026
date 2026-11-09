@@ -10,7 +10,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 - Kit cards may be **shared by the same friend** when the theme fits (Bowie & Stormey for Michelle and Tuk; Moshpit for both Alyssas; Ronnie's Kitchen and Hele Fles Fireman for both Ronalds).
 - **Deck theme rule:** a kit card only goes in a deck that has a matching Mosje (no De Cockpit without a pilot). Generic cards (Kannetje Melk, Te Hard Gaan, Jensen!…) go anywhere.
 
-**NEW** = new card (draft effect, 9 Nov). *Italic* = placeholder name. All kits are complete except Ming's signature Piecie.
+**NEW** = new card (draft effect, 9 Nov). *Italic* = placeholder name. All kits are complete.
 
 ## Physical
 | Mosje | Personal Quest | Signature Piecie | Place |
@@ -41,7 +41,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 ## Creative
 | Mosje | Personal Quest | Signature Piecie | Place |
 |---|---|---|---|
-| Ming, The Natural | Beginner's Luck | **[Ming's lucky item — open]** | **Nieuwe Gimma** NEW |
+| Ming, The Natural | Beginner's Luck | **Zwoele Ming Power** NEW | **Nieuwe Gimma** NEW |
 | Jeffrey, The Silent Gambler | High Roller | Gekke Dobbel | Punto Banco |
 | DJ 80/20, The Lucky Mixer | Lucky Crescendo | Dikke Plaat | Skiffa |
 | Binti, The Sharp Tongue | Binti Brandt | Varkenspootjes, Stookerino | Tesla, Delluft |
@@ -72,7 +72,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | **Headset** (gear) | FPS Coert + FPS West | Only if a Digital Mosje is on your field: look at the top 2 cards of the opponent's deck. An FPS Mosje also gets +10 Power this turn. |
 | Dancepad (gear) | Chris, The BigStepper | One of your Mosjes gains 10 MP. A Chris also gets +1 ▣ on one Quest this turn. |
 | Yoke & Pedals (gear) | Flightsim Coert | Only if a Digital Mosje is on your field: one of your Mosjes gains 10 MP. A Coert also draws 1. |
-| [Ming's lucky item] | Ming | open |
+| **Zwoele Ming Power** (★★, cost 1) | Ming | Your next Quest this turn (not a Personal Quest) needs 1 die less to succeed (min 1). A Ming also gains 10 MP. |
 
 ### Mosje changes
 - **Ronald, Dr. Phill-osoof → Ronald, Dr. Phill-osoof** (Dr. Phil joke: drunk Ronald gives everyone unasked advice). New ability: once per turn, 1ϟ: choose an opponent Mosje; on its next Quest it rolls 1 ▣ less (too busy listening). New PQ *Ongevraagd Advies*: **Needs:** the opponent has 4+ cards in hand. **Roll:** 1 ▣ per Art★. Need 2× ⚃+.

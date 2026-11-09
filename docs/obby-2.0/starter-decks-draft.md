@@ -62,14 +62,14 @@ Rules: only standard-curve Mosjes · starter PQs ★–★★★ (chase PQs ★�
 | Dice | Gekke Dobbel 2 · Dubbele Dosis 1 | 3 |
 | Disruption | Varkenspootjes 2 · Stookerino 1 · Jantje Jantje... 1 | 4 |
 | Draw | Zie je die Dingetjes 2 · Pot of Weed 1 · Bagga of Greed 1 | 4 |
-| Kit | Hele Fles Fireman 1 (Ronald) · [Ming's lucky item] 2 · TemPiecie 1 | 4 |
+| Kit | Hele Fles Fireman 1 (Ronald) · Zwoele Ming Power 2 · TemPiecie 1 | 4 |
 | Food / substance / attack | Kannetje Melk 2 · Larry / Zegeltje 1 · Te Hard Gaan 1 | 4 |
 | Snelle | Lucky Cóin 2 · Je Weet Niet 1 · Jensen! 1 · Gevalletje Klakkeloos 1 | 5 |
 | **Total Piecies + Snelle** | | **28** |
 
 | Mosje | Kit cards in the deck |
 |---|---|
-| Ming, The Natural | Beginner's Luck, Nieuwe Gimma, [lucky item] |
+| Ming, The Natural | Beginner's Luck, Nieuwe Gimma, Zwoele Ming Power |
 | Jeffrey, The Silent Gambler | High Roller, Gekke Dobbel, Punto Banco |
 | DJ 80/20 | Lucky Crescendo, Dikke Plaat, Skiffa |
 | Binti, The Sharp Tongue | Binti Brandt, Varkenspootjes, Stookerino |
@@ -78,7 +78,6 @@ Rules: only standard-curve Mosjes · starter PQs ★–★★★ (chase PQs ★�
 ---
 
 ## Still open
-- Ming's lucky item (name + effect).
 - Placeholder names still to confirm: Youri's Studio, Ongevraagd Advies (Dancepad, Nieuwe Gimma, MagicPrompt named 9 Nov).
 - Counter Strikka / Jammertje Gepakt need Men★★, which no standard Digital Mosje reaches → proposal: Tech★★.
 - Quest stacks lean on Res (Physical) and Soc (Creative), which standard Mosjes barely have → shift toward main traits in the Quest text rework.
