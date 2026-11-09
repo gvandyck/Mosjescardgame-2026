@@ -205,7 +205,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 - PQ: Archive Dive (parked with the card)
 
 **Linked cards:**
-- Piecies: Those Eyelashes Tho..., Protein Shake (a West +35), Track Highscore, Headset (FPS)
+- Piecies: Those Eyelashes Tho..., Poncho & Sombrero (gear; art ref = the Señor West sticker: sombrero, poncho, revolver, white gloves), Protein Shake, Track Highscore, Headset (FPS)
 - Place: Obby #1 (host: gets Host advantage)
 
 **More to add:**
@@ -324,6 +324,8 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
   - Dares / challenges · gym PR attempts
   - Gym Cless (AZN) vs. work Cless (The Teacher)
 - **Theme check:** Fits.
+- Gear: ChestPress (the machine in the gym)
+
 
 ### Cless, The Teacher · Creative
 
@@ -340,7 +342,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 **Linked cards:**
 - Place: Homeschool (he teaches from home)
 - Pet: ViannaPoes
-- Protein Shake (a Cless +35)
+- Protein Shake
 - Quest: Parkeren Delft (a Cless −10 more on a fail)
 
 **More to add:**

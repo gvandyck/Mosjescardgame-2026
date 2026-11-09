@@ -18,12 +18,12 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | Gandoe, The Destroyer | Kampioen Van De Box | Boxing Gloves (a Gandoe +20), De Belt | De Box, Obby #1 (host) |
 | Alyssa, The Bulldozer | Charge! | Moshpit (Battle Concert, needs an Alyssa), **Rugbybal** NEW | **Rugby Training** NEW |
 | Alyssa, Fissa Fissa! (specialist) | Fissa Tot De Ochtend | Moshpit, Dikke Plaat | De Dansvloer |
-| AZN Cless, The Wild Card | All In | Protein Shake (a Cless +35) | Gym |
+| AZN Cless, The Wild Card | All In | Protein Shake, **ChestPress** NEW | Gym |
 | Michelle, Iron Tuk | Ironman | Bowie & Stormey | Eendjes Voeren, De Box |
-| Parkour West (specialist) | Over Alle Daken | Protein Shake (a West +35) | De Daken, Obby #1 (host) |
+| Parkour West (specialist) | Over Alle Daken | Protein Shake | De Daken, Obby #1 (host) |
 | Jeffrey, The Strongman | Sterke Jongen | Protein Shake (a Jeffrey +35), Dumbbells | Gym |
 | Ronald, The Master Chef | Michelinster | Ronald Kip, Chef's Special, Hele Fles Fireman, **Koksmes** NEW | **Ronnie's Kitchen** NEW, Obby #1 (host) |
-| Martin, Señor West | Obby Shotjes Gauntlet | Those Eyelashes Tho... | Obby #1 (host) |
+| Martin, Señor West | Obby Shotjes Gauntlet | Those Eyelashes Tho..., **Poncho & Sombrero** NEW | Obby #1 (host) |
 | Coert, KasteLuck | Lucky Streak | Tony, Boosterpackkie | **Ruilbeurs Jaarbeurs** NEW |
 | Chris, The BigStepper | Full Combo | In De Groove, **Dancepad** NEW, **Handdoek** NEW | **Silverstone (DDR arcade)** NEW, Obby #1 (host) |
 
@@ -76,6 +76,8 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | Handdoek (Snelle) | Chris, The BigStepper | The towel on the DDR bar. Play right after one of your Mosjes rolls for a Quest: reroll 1 die. A Chris also gains 10 MP. |
 | Rugbybal (gear) | Alyssa, The Bulldozer | Attach to one of your Mosjes: it gets +10 Power when it attacks. An Alyssa also gains 10 MP after each attack. |
 | Koksmes (gear) | Ronald, The Master Chef | Attach to one of your Mosjes: it gets +10 Power. A Ronald gets +20 instead. |
+| ChestPress (gear) | AZN Cless, The Wild Card | The machine in the gym. Attach: once per turn, before a Quest roll you may pay 10 MP: +1 ▣ (a PR attempt). An AZN Cless pays nothing. |
+| Poncho & Sombrero (gear) | Martin, Señor West | Mexican poncho + big hat (art ref: the Señor West sticker). Attach: his charm ability costs 0 Energy. A charmed Mosje also loses 10 MP. |
 | De Switch (gear) | Youri + Chris, The Gamer (later) | One of your Mosjes gains 10 MP. A Chris or Youri also gets +1 ▣ on one Quest this turn. No Digital requirement. |
 | *Mosje Kart* (idea, Snelle) | Youri + Chris, The Gamer (later) | Each player rolls 1 ▣. The highest gains 20 MP; a Chris or Youri gains 30. Ties: nobody. |
 | Yoke & Pedals (gear) | Flightsim Coert | Only if a Digital Mosje is on your field: one of your Mosjes gains 10 MP. A Coert also draws 1. |
@@ -99,6 +101,15 @@ Obby #1 and #2 are the homes where the whole group hung out. **Any Mosje** can u
 - Hosts: all Mosjes of Martin/West, Ronald, Gandoe and Chris (9 Mosjes across all three types).
 - Open question: who lived at #1 and who at #2? For now all four are on #1.
 - Engine: the effect_obby_1 handler still needs to be written (trigger ON_QUEST + START_OF_TURN).
+
+## Physical gear check (9 Nov)
+
+Every Physical Mosje gets its own gear. Status:
+- Done: Gandoe (Boxing Gloves, De Belt, Skipping Rope), Chris (Dancepad), Alyssa Bulldozer (Rugbybal), Ronald Chef (Koksmes), AZN Cless (ChestPress), Señor West (Poncho & Sombrero).
+- Proposal: Boxing Gloves shared Gandoe + Michelle ("A Gandoe or Michelle gets +20"); she boxes with Gandoe. Fixes Michelle in the starter deck.
+- Protein Shake is already generic in the data (Str ★+: 25 MP, 35 with Str ★★★ or Boxing Ring); the "+35 for West/Cless" labels in the docs were wrong. Proposal: Parkour West gets *Grip-schoenen*.
+- Proposal: Coert KasteLuck *Toploader* (slab). Alyssa Fissa: later.
+- Watch: Handdoek is the Physical reroll card; no second reroll gear.
 
 ## Booster theme: Valheim Crew (ideas, 9 Nov)
 Gandoe plays Valheim with West, Coert and sometimes Michelle; their world is **Obbyheim**. A group theme instead of one Mosje's kit.
