@@ -25,7 +25,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | Ronald, The Master Chef | Michelinster | Ronald Kip, Chef's Special, Hele Fles Fireman | **Ronnie's Kitchen** NEW |
 | Martin, Señor West | Obby Shotjes Gauntlet | Those Eyelashes Tho... | Obby #1 |
 | Coert, KasteLuck | Lucky Streak | Tony, Boosterpackkie | **Ruilbeurs Jaarbeurs** NEW |
-| Chris, The BigStepper | Full Combo | In De Groove, **Dancepad** NEW | De Dansvloer |
+| Chris, The BigStepper | Full Combo | In De Groove, **Dancepad** NEW | **Silverstone (DDR arcade)** NEW |
 
 ## Digital
 | Mosje | Personal Quest | Signature Piecie | Place |
@@ -60,6 +60,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | **Gandoe's Cloude** | Gandoe, The Cloude Wizard | Gear Piecies cost 1ϟ less (min 0). Physical Mosjes −10 Power. |
 | Youri's Woonkamer | Youri (works and makes his own game in his living room) | The first time each turn a player activates a Piecie the turn it was placed, they draw 1. |
 | **Woonkamer (Discord)** | FPS Coert + FPS West (their Discord channel) | With 2 Digital Mosjes on your field: +1 ▣ on Tech★ Quests. |
+| **Silverstone (DDR arcade)** | Chris, The BigStepper | The 3rd Piecie a player activates in a turn costs 0ϟ. A Chris also gains 10 MP each time. |
 | Nieuwe Gimma | Ming (every game first try) | The first Quest a Mosje tries each turn: it may reroll 1 ▣. |
 | De Cockpit | Flightsim Coert | A player with 2+ ready gear Piecies gets +1 ▣ on Quest rolls. Physical Mosjes −10 Power. |
 
