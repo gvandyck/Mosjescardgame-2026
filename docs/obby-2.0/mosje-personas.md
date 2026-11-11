@@ -68,6 +68,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
   - Tough as iron · endurance, never quits
   - Boxing with Gandoe · never gives up · takes hits and keeps going
 - **Theme check:** Fixed 7 Nov.
+- Gear ideas (11 Nov): Knijpkat (squishy cat in her bag), Omafiets (old Dutch bike, barely held together), Thuiszorg (she does elderly care at people's homes)
 
 ### Tuk, The Healing Spirit · Creative
 

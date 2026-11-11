@@ -5,7 +5,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 ## To-do checklist
 
 **Done**
-- [x] Obby #1 for everyone; Host advantage for Martin/West, Ronald, Gandoe, Chris; listed in all host kits (9 + 11 Nov)
+- [x] Obby #1 for everyone; Host advantage; listed in all host kits (9 + 11 Nov)
 - [x] Silverstone (DDR arcade) for Chris, The BigStepper (9 Nov)
 - [x] Homeschool for Cless, The Teacher (was Schoolplein) (9 Nov)
 - [x] Chris pure DDR: Dancepad, Handdoek (Snelle); De Switch → Youri + Chris, The Gamer later (9 Nov)
@@ -15,15 +15,18 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 - [x] Michelle's PQ: Ironman → Knocked Down, Not Out (11 Nov)
 
 **Open**
-- [ ] Michelle has no gear yet: share Boxing Gloves with Gandoe ("a Gandoe or Michelle +20")?
-- [ ] Parkour West gear: *Grip-schoenen*
-- [ ] Coert, KasteLuck gear: *Toploader*
-- [ ] Obby #2: who lived where + its own host buff
-- [ ] Obby #1 balance: 9 host Mosjes, at least 1 in every starter deck; limit the bonus to Questing Mosjes?
+- [ ] Gear for Mosjes without their own (see the list from 11 Nov: mostly Creative + Coert Tech Savant)
+- [ ] Michelle's gear: pick from Knijpkat / Omafiets / Thuiszorg (drafted 11 Nov)
+- [x] Parkour West gear: Grip-schoenen (11 Nov)
+- [x] Coert, KasteLuck gear: Toploader (11 Nov)
+- [x] Obby #2: hosts Chris + Gandoe, same card as #1 with +15 host bonus; Obby #1 hosts Martin/West, Ronald, Gandoe (11 Nov)
+- [ ] Obby balance: a host in every starter deck; limit the bonus to Questing Mosjes? (playtest)
 - [ ] Alyssa Bulldozer: Helm & Schouderpads only if she needs a 2nd Piecie
 - [ ] Chris, The Gamer (Switch 2, Mosje Kart with Youri)
 - [ ] Counter Strikka / Jammertje Gepakt: Men★★ → Tech★★
 - [ ] Engine: Obby #1 host trigger, all NEW kit cards in data (FINAL handover)
+
+**Card text rule (11 Nov):** a card may have more than one effect, but keep the text short; many cards doing small things makes booster pulls more fun.
 
 ## The kit rule
 1. **Personal Quest:** its own PQ (one per Mosje card).
@@ -38,23 +41,23 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 ## Physical
 | Mosje | Personal Quest | Signature Piecie | Place |
 |---|---|---|---|
-| Gandoe, The Destroyer | Kampioen Van De Box | Boxing Gloves (a Gandoe +20), De Belt | De Box, Obby #1 (host) |
+| Gandoe, The Destroyer | Kampioen Van De Box | Boxing Gloves (a Gandoe +20), De Belt | De Box, Obby #1 + #2 (host) |
 | Alyssa, The Bulldozer | Charge! | **Rugbybal** NEW | **Rugby Training** NEW |
 | Alyssa, Fissa Fissa! (specialist) | Fissa Tot De Ochtend | Dikke Plaat, **Zonnebril** NEW | **Perron** (was De Dansvloer) |
 | AZN Cless, The Wild Card | All In | Protein Shake, **ChestPress** NEW | Gym |
-| Michelle, Iron Tuk | **Knocked Down, Not Out** (was Ironman) | Bowie & Stormey | Eendjes Voeren, De Box |
-| Parkour West (specialist) | Over Alle Daken | Protein Shake | De Daken, Obby #1 (host) |
+| Michelle, Iron Tuk | **Knocked Down, Not Out** (was Ironman) | Bowie & Stormey, *Knijpkat / Omafiets* (pick) | Eendjes Voeren, De Box |
+| Parkour West (specialist) | Over Alle Daken | Protein Shake, **Grip-schoenen** NEW | De Daken, Obby #1 (host) |
 | Jeffrey, The Strongman | Sterke Jongen | Protein Shake, Dumbbells | Gym |
 | Ronald, The Master Chef | Michelinster | Ronald Kip, Chef's Special, Hele Fles Fireman, **Koksmes** NEW | **Ronnie's Kitchen** NEW, Obby #1 (host) |
 | Martin, Señor West | Obby Shotjes Gauntlet | Those Eyelashes Tho..., **Poncho & Sombrero** NEW | Obby #1 (host) |
-| Coert, KasteLuck | Lucky Streak | Tony, Boosterpackkie | **Ruilbeurs Jaarbeurs** NEW |
-| Chris, The BigStepper | Full Combo | In De Groove, **Dancepad** NEW, **Handdoek** NEW | **Silverstone (DDR arcade)** NEW, Obby #1 (host) |
+| Coert, KasteLuck | Lucky Streak | Tony, Boosterpackkie, **Toploader** NEW | **Ruilbeurs Jaarbeurs** NEW |
+| Chris, The BigStepper | Full Combo | In De Groove, **Dancepad** NEW, **Handdoek** NEW | **Silverstone (DDR arcade)** NEW, Obby #2 (host) |
 
 ## Digital
 | Mosje | Personal Quest | Signature Piecie | Place |
 |---|---|---|---|
 | Coert, The Hawaiian Tech Savant | Aloha Tech Support | Hawaii Pizza, Boosterpackkie | Coert's Caravan, Tesla |
-| Gandoe, The Cloude Wizard (was Claude Wizard) | Vibe Coded | **MagicPrompt** NEW | **Gandoe's Cloude** NEW, Obby #1 (host) |
+| Gandoe, The Cloude Wizard (was Claude Wizard) | Vibe Coded | **MagicPrompt** NEW | **Gandoe's Cloude** NEW, Obby #1 + #2 (host) |
 | Youri, The Speedrunner | World Record Run | **Blikje Monsteros** NEW, **De Switch** NEW | **Youri's Woonkamer** NEW |
 | FPS Coert | Headshot | **Headset** NEW | **Woonkamer (Discord)** NEW |
 | FPS West | Clutch Round | Headset, Those Eyelashes Tho... | Woonkamer (Discord), Obby #1 (host) |
@@ -103,6 +106,11 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | Koksmes (gear) | Ronald, The Master Chef | Attach to one of your Mosjes: it gets +10 Power. A Ronald gets +20 instead. |
 | ChestPress (gear) | AZN Cless, The Wild Card | The machine in the gym. Attach: once per turn, before a Quest roll you may pay 10 MP: +1 ▣ (a PR attempt). An AZN Cless pays nothing. |
 | Poncho & Sombrero (gear) | Martin, Señor West | Mexican poncho + big hat (art ref: the Señor West sticker). Attach: his charm ability costs 0 Energy. A charmed Mosje also loses 10 MP. |
+| **Knijpkat** (gear) — pick | Michelle, Iron Tuk | The squishy cat in her bag. Attach: when this Mosje fails a Quest, it gains 10 MP back. A Michelle gains 20. (Works with Knocked Down, Not Out.) |
+| **Omafiets** (gear) — pick | Michelle, Iron Tuk | Her old Dutch bike, barely held together. Attach: +1 ▣ on one Quest each turn. If that roll has a ⚀, the bike falls apart: discard it. |
+| **Thuiszorg** (Snelle) — pick | Michelle, Iron Tuk (+ Tuk) | Elderly care at home. Play any time: one of your Mosjes gains 15 MP. If it's a Michelle, also draw 1. |
+| **Grip-schoenen** (gear) | Parkour West | Attach: Mosjes with less Power can't attack this Mosje. A West also gains 10 MP when an attack on him is stopped. |
+| **Toploader** (gear) | Coert, KasteLuck | The plastic sleeve for a graded card. Attach: your opponent's Piecies can't make this Mosje lose MP. A Coert also draws 1 when he wins a Quest. |
 | De Switch (gear) | Youri + Chris, The Gamer (later) | One of your Mosjes gains 10 MP. A Chris or Youri also gets +1 ▣ on one Quest this turn. No Digital requirement. |
 | *Mosje Kart* (idea, Snelle) | Youri + Chris, The Gamer (later) | Each player rolls 1 ▣. The highest gains 20 MP; a Chris or Youri gains 30. Ties: nobody. |
 | Yoke & Pedals (gear) | Flightsim Coert | Only if a Digital Mosje is on your field: one of your Mosjes gains 10 MP. A Coert also draws 1. |
@@ -118,13 +126,13 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 
 Obby #1 and #2 are the homes where the whole group hung out. **Any Mosje** can use them; the friends who lived there get a bonus.
 
-| Card | Type | For everyone | Host advantage (Martin/West, Ronald, Gandoe, Chris) |
+| Card | Type | For everyone | Host advantage |
 |---|---|---|---|
-| **Obby #1** | Place ★★★ · cost 2 | Every Quest win gives 10 MP more. Every Quest loss costs 10 MP more. | At the start of your turn, if you control a host, one of your Mosjes gains 10 MP. Once per turn, it doesn't stack. |
-| *Obby #2* | Place, to be decided | Proposal: all Mosjes −10 Power (nobody fights at home). | Still to be decided: it needs a different host buff from #1. |
+| **Obby #1** | Place ★★★ · cost 2 | Every Quest win gives 10 MP more. Every Quest loss costs 10 MP more. | Hosts: **Martin/West, Ronald, Gandoe**. At the start of your turn, if you control a host, one of your Mosjes gains 10 MP. Once per turn, doesn't stack. |
+| **Obby #2** | Place ★★★ · cost 2 | Same as Obby #1: Quest win +10 MP more, Quest loss −10 MP more. | Hosts: **Chris, Gandoe**. Same Host advantage, but **+15 MP**: fewer hosts (about 4 Mosjes vs 8), so a slightly bigger bonus. |
 
-- Hosts: all Mosjes of Martin/West, Ronald, Gandoe and Chris (9 Mosjes across all three types).
-- Open question: who lived at #1 and who at #2? For now all four are on #1.
+- Obby #1 hosts: Martin/West, Ronald, Gandoe. Obby #2 hosts: Chris, Gandoe. Gandoe lived in both.
+- Both homes are deliberately almost the same card (11 Nov): only the owners and the host bonus differ.
 - Engine: the effect_obby_1 handler still needs to be written (trigger ON_QUEST + START_OF_TURN).
 
 ## Personal Quest rework (11 Nov)
