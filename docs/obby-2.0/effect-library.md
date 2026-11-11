@@ -6,6 +6,15 @@ Source: all 170 active card texts in `src/data` (Piecies, Snelle, Places), the 2
 
 ---
 
+## 0. Clean text rule (Gandalf, 11 Nov)
+Keep effects **easy and clean**:
+- One short sentence per effect; two at most.
+- At most one condition (*Needs:* or a keyword), no star thresholds on top ("Str ★★★: 25").
+- Friend bonus ("A Coert…") only on kit cards, where it's the point of the card.
+- Several effects on one card are allowed, as long as the text stays short.
+
+---
+
 ## 1. Anatomy of an effect
 
 Every effect is built from up to 7 parts, always in this order on the card:
