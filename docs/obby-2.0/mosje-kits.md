@@ -2,12 +2,35 @@
 
 Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its story and make it work. A new Mosje isn't finished until its kit is.
 
+## To-do checklist
+
+**Done**
+- [x] Obby #1 for everyone; Host advantage for Martin/West, Ronald, Gandoe, Chris; listed in all host kits (9 + 11 Nov)
+- [x] Silverstone (DDR arcade) for Chris, The BigStepper (9 Nov)
+- [x] Homeschool for Cless, The Teacher (was Schoolplein) (9 Nov)
+- [x] Chris pure DDR: Dancepad, Handdoek (Snelle); De Switch → Youri + Chris, The Gamer later (9 Nov)
+- [x] Physical gear: Rugbybal (Alyssa Bulldozer), Koksmes (Ronald Chef), ChestPress (AZN Cless), Poncho & Sombrero (Señor West) (9 Nov)
+- [x] Moshpit removed from both Alyssas; possibly a Place later (11 Nov)
+- [x] Zonnebril (party gear) + Perron (was De Dansvloer) for Alyssa Fissa and party Mosjes (11 Nov)
+- [x] Michelle's PQ: Ironman → Knocked Down, Not Out (11 Nov)
+
+**Open**
+- [ ] Michelle has no gear yet: share Boxing Gloves with Gandoe ("a Gandoe or Michelle +20")?
+- [ ] Parkour West gear: *Grip-schoenen*
+- [ ] Coert, KasteLuck gear: *Toploader*
+- [ ] Obby #2: who lived where + its own host buff
+- [ ] Obby #1 balance: 9 host Mosjes, at least 1 in every starter deck; limit the bonus to Questing Mosjes?
+- [ ] Alyssa Bulldozer: Helm & Schouderpads only if she needs a 2nd Piecie
+- [ ] Chris, The Gamer (Switch 2, Mosje Kart with Youri)
+- [ ] Counter Strikka / Jammertje Gepakt: Men★★ → Tech★★
+- [ ] Engine: Obby #1 host trigger, all NEW kit cards in data (FINAL handover)
+
 ## The kit rule
 1. **Personal Quest:** its own PQ (one per Mosje card).
 2. **Signature Piecie:** at least 1 Piecie, pet or Snelle that names the Mosje or its friend ("A Coert…", "a Gandoe gets +20") or clearly belongs to it.
 3. **Place:** at least 1 Place that names it / its friend or is its real-life spot.
 4. **Persona:** an entry in `mosje-personas.md`.
-- Kit cards may be **shared by the same friend** when the theme fits (Bowie & Stormey for Michelle and Tuk; Moshpit for both Alyssas; Ronnie's Kitchen and Hele Fles Fireman for both Ronalds).
+- Kit cards may be **shared by the same friend** when the theme fits (Bowie & Stormey for Michelle and Tuk; Perron + Zonnebril for party Mosjes; Ronnie's Kitchen and Hele Fles Fireman for both Ronalds).
 - **Deck theme rule:** a kit card only goes in a deck that has a matching Mosje (no De Cockpit without a pilot). Generic cards (Kannetje Melk, Te Hard Gaan, Jensen!…) go anywhere.
 
 **NEW** = new card (draft effect, 9 Nov). *Italic* = placeholder name. All kits are complete.
@@ -16,10 +39,10 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | Mosje | Personal Quest | Signature Piecie | Place |
 |---|---|---|---|
 | Gandoe, The Destroyer | Kampioen Van De Box | Boxing Gloves (a Gandoe +20), De Belt | De Box, Obby #1 (host) |
-| Alyssa, The Bulldozer | Charge! | Moshpit (Battle Concert, needs an Alyssa), **Rugbybal** NEW | **Rugby Training** NEW |
-| Alyssa, Fissa Fissa! (specialist) | Fissa Tot De Ochtend | Moshpit, Dikke Plaat | De Dansvloer |
+| Alyssa, The Bulldozer | Charge! | **Rugbybal** NEW | **Rugby Training** NEW |
+| Alyssa, Fissa Fissa! (specialist) | Fissa Tot De Ochtend | Dikke Plaat, **Zonnebril** NEW | **Perron** (was De Dansvloer) |
 | AZN Cless, The Wild Card | All In | Protein Shake, **ChestPress** NEW | Gym |
-| Michelle, Iron Tuk | Ironman | Bowie & Stormey | Eendjes Voeren, De Box |
+| Michelle, Iron Tuk | **Knocked Down, Not Out** (was Ironman) | Bowie & Stormey | Eendjes Voeren, De Box |
 | Parkour West (specialist) | Over Alle Daken | Protein Shake | De Daken, Obby #1 (host) |
 | Jeffrey, The Strongman | Sterke Jongen | Protein Shake, Dumbbells | Gym |
 | Ronald, The Master Chef | Michelinster | Ronald Kip, Chef's Special, Hele Fles Fireman, **Koksmes** NEW | **Ronnie's Kitchen** NEW, Obby #1 (host) |
@@ -61,6 +84,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | Youri's Woonkamer | Youri (works and makes his own game in his living room) | The first time each turn a player activates a Piecie the turn it was placed, they draw 1. |
 | **Woonkamer (Discord)** | FPS Coert + FPS West (their Discord channel) | With 2 Digital Mosjes on your field: +1 ▣ on Tech★ Quests. |
 | **Silverstone (DDR arcade)** | Chris, The BigStepper | The 3rd Piecie a player activates in a turn costs 0ϟ. A Chris also gains 10 MP each time. |
+| **Perron** (was De Dansvloer) | Alyssa, Fissa Fissa! + any party Mosje (the Rotterdam club we all went to) | Mosjes with a Zonnebril attached are Resilient +1 ★ (lose 5 MP less per hit). An Alyssa also gains 10 MP at the start of your turn. Replaces De Dansvloer's draw effect: one effect per card. |
 | **Homeschool** | Cless, The Teacher | Cless teaches from home. Once per turn, after you activate a Piecie: you may discard 1 card to draw 1. A Cless also gains 10 MP. |
 | Nieuwe Gimma | Ming (every game first try) | The first Quest a Mosje tries each turn: it may reroll 1 ▣. |
 | De Cockpit | Flightsim Coert | A player with 2+ ready gear Piecies gets +1 ▣ on Quest rolls. Physical Mosjes −10 Power. |
@@ -68,6 +92,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 ### Piecies
 | Piecie | For | Effect |
 |---|---|---|
+| **Zonnebril** (gear, ★★, cost 1) | Alyssa, Fissa Fissa! + party Mosjes (shared) | Attach to one of your Mosjes: your opponent's Snelle Piecies can't target it. Flavour: *"Wat? Ik ben gewoon moe."* At Perron: also Resilient +1 ★. |
 | **Hele Fles Fireman** (substance, ★★★) | both Ronalds | One of your Mosjes gets +20 Power this turn and loses 20 MP at the end of the turn. A Ronald loses nothing (he's used to it). |
 | MagicPrompt (gear) | Gandoe, The Cloude Wizard | Search your deck for a gear Piecie. A Gandoe also gains 10 MP. |
 | **Blikje Monsteros** (substance) | Youri | Gain 2ϟ this turn. One of your Mosjes loses 15 MP. A Youri also draws 1. (Flavour: his stomach.) |
@@ -101,6 +126,14 @@ Obby #1 and #2 are the homes where the whole group hung out. **Any Mosje** can u
 - Hosts: all Mosjes of Martin/West, Ronald, Gandoe and Chris (9 Mosjes across all three types).
 - Open question: who lived at #1 and who at #2? For now all four are on #1.
 - Engine: the effect_obby_1 handler still needs to be written (trigger ON_QUEST + START_OF_TURN).
+
+## Personal Quest rework (11 Nov)
+
+| PQ | Mosje | Rarity | Needs | Pay | Roll | Odds |
+|---|---|---|---|---|---|---|
+| **Knocked Down, Not Out** (was Ironman) | Michelle, Iron Tuk | ★★★ | this Mosje lost MP since the start of your last turn (an attack, a failed Quest or a Pay) and still has 50+ MP | discard 1 ready food Piecie | 1 ▣ per Str★. Need 1× ⚄+. | 70 % (LV3, 3 dice) |
+
+She gets knocked down and gets back up. Her ability (loses 10 less per attack) keeps her above 50 MP. A failed Quest also counts as a knockdown, so the PQ works even if the opponent refuses to attack her. **Stop it:** knock her below 50 MP.
 
 ## Physical gear check (9 Nov)
 

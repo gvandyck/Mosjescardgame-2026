@@ -63,7 +63,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 - **Stats:** cost 3 · start MP 10
 - **Traits:** LV1 Str ★★ · Soc ★ · Res ★ → LV2 Str ★★★ · Soc ★ · Res ★ → LV3 Str ★★★ · Soc ★★ · Res ★
 - **Ability:** Loses 10 less from every attack. From LV3: 15 less. (approved 7 Nov)
-- **Personal Quest:** Ironman · rolls Str from 9 Nov (starter Mosje)
+- **Personal Quest:** Knocked Down, Not Out (was Ironman, 11 Nov) · rolls Str (starter Mosje)
 - **Life & vibe:**
   - Tough as iron · endurance, never quits
   - Boxing with Gandoe · never gives up · takes hits and keeps going
@@ -236,12 +236,13 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 - **Life & vibe:**
   - Party animal · dancefloor · until sunrise
   - Last to go home · drags everyone along · festival queen
-  - Places: De Dansvloer, a festival
+  - Places: Perron (Rotterdam club, was De Dansvloer), a festival
+  - Partygoers wear a Zonnebril
 - **Theme check:** Fits.
 
 **Linked cards:**
-- Piecie: Dikke Plaat (Alyssa reroll)
-- Quest: Moshpit (needs an Alyssa)
+- Piecies: Dikke Plaat (Alyssa reroll), Zonnebril (party gear)
+- Place: Perron
 
 **More to add:**
 - 
