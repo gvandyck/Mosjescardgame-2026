@@ -153,7 +153,7 @@ Draft effects. Digital gear uses the existing template "Only if a Digital Mosje 
 | **Omafiets** | gear | ★★ | Michelle, Iron Tuk | Attach: +1 ▣ on one Quest each turn. If that roll shows a ⚀, the bike falls apart: discard it. A Michelle keeps riding on the first ⚀. |
 | **Thuiszorg** | Snelle | ★★ | Michelle, Iron Tuk | Play any time: one of your Mosjes gains 15 MP. A Michelle or Tuk also draws 1. (shared Michelle + Tuk) |
 | **All The Plates** | gear | ★★★ | Jeffrey, The Strongman | Attach to a Mosje with Str ★★★: +20 Power, but it can't attack the turn you attach it (loading the bar). A Jeffrey can. |
-| **Hawaiishirt** | gear | ★ | Coert, The Hawaiian Tech Savant | Attach: at the start of your turn, if this Mosje didn't attack last turn, it gains 10 MP. A Coert gains 15. |
+| **Hawaiishirt** | gear | ★ | Coert, The Hawaiian Tech Savant | **Attach:** your first Piecie each turn costs 1 Energy less. (clean version, 11 Nov) |
 | **Reserve-onderdelen** | gear | ★★ | Coert, The Hawaiian Tech Savant | Only if a Digital Mosje is on your field: take 1 gear Piecie from your discard pile into your hand. |
 | **Kabelbak** | gear | ★ | Coert, The Hawaiian Tech Savant | Only if a Digital Mosje is on your field: draw 2, then discard 1. |
 | **Bootstick** | gear | ★★ | Coert, The Hawaiian Tech Savant | Only if a Digital Mosje is on your field: shuffle your hand into your deck and draw that many. A Coert draws 1 more. |

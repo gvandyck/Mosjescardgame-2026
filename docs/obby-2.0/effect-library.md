@@ -152,10 +152,10 @@ A trigger keyword is a rule: a bold label at the start of a line that says **whe
 
 | Keyword | Trigger | What it does to the game | Sample card (draft) | Status |
 |---|---|---|---|---|
-| **Entrance:** | When you summon this Mosje | Makes *when* you summon a choice | Alyssa, The Bulldozer: *Entrance: one opponent Mosje loses 10 MP.* | Recommended |
-| **Discarded:** | When this card is discarded from your hand by any effect | Punishes Binti / Stookerino discard; makes Bagga of Greed a combo piece | *Restjes (food): Discarded: one of your Mosjes gains 15 MP.* | Recommended |
-| **Level Down:** | When this Mosje drops a level (getemt) | Comeback for the player who's behind | *Michelle: Level Down: gains 20 MP.* | Recommended |
-| **Combo:** | The 2nd Piecie you activate this turn | Sequencing skill: which card first? | *Dancepad: Combo: draw 1.* | Recommended |
+| **Entrance:** | When you summon this Mosje | Makes *when* you summon a choice | Alyssa, The Bulldozer: *Entrance: one opponent Mosje loses 10 MP.* | **Accepted 11 Nov** |
+| **Discarded:** | When this card is discarded from your hand by any effect | Punishes Binti / Stookerino discard; makes Bagga of Greed a combo piece | *Restjes (food): Discarded: one of your Mosjes gains 15 MP.* | **Accepted 11 Nov** |
+| **Level Down:** | When this Mosje drops a level (getemt) | Comeback for the player who's behind | *Michelle: Level Down: gains 20 MP.* | **Accepted 11 Nov** |
+| **Combo:** | The 2nd Piecie you activate this turn | Sequencing skill: which card first? | *Dancepad: Combo: draw 1.* | **Accepted 11 Nov** |
 | **Fresh:** | If this Mosje is fresh (summoned this turn) | Fresh-only bonus on Piecies | *Kannetje Melk: Fresh: gains 35 instead.* | Overlaps Entrance |
 | **Last Words:** | When this Mosje goes to the Welloe pile | KO-ing a Mosje has a price | *Coert, Tech Savant: Last Words: draw 2.* | Later (only 2 KO cards) |
 | **Level Up:** | When this Mosje levels up | Rewards the core loop directly | *Cloude Wizard: Level Up: look at your top 3, take 1.* | Later |
@@ -217,9 +217,28 @@ Recommendation: retire `MOMENTUM-GAINING` and `STRENGTH-EQUIPMENT` / `DIGITAL-EQ
 - **Gaps worth filling** (1–2 cards each): TUTOR, ENERGY_GAIN, LEVEL_DOWN / level up, THORNS, DIE_MINUS, REDIRECT.
 - **Biggest lever:** triggers, not verbs. A new trigger on an old verb (*Discarded: gains 15 MP*) is still a new card for the player and almost free to code.
 
-## 8. Next steps
+## 8. Accepted reworks (11 Nov)
+Nine cards that only gained MP, rewritten with the clean text rule. Data and code follow at the FINAL handover.
 
-1. Gandalf picks which new trigger keywords and mechanics go in (§4).
+| Card | Was | New text | Template | Deck |
+|---|---|---|---|---|
+| **Broodje Döner** | gains 35 MP | One of your Mosjes gets +10 Power ⏳2. | POWER_UP (STAYS_2) | Physical |
+| **Snoeiertje** | +10 Power, loses 10 MP (copy of Te Hard Gaan) | One of your Mosjes gets +10 Power this turn. **Combo:** +20 instead. | POWER_UP + Combo | Physical |
+| **Terugslag!** (was Momentum Rush) | gains 15 MP | Play when one of your Mosjes is attacked: the attacker loses 15 MP. | THORNS | Physical |
+| **Mouse** | +10 MP, look at 2 cards | **Needs:** a Digital Mosje. Take a gear Piecie from your deck into your hand. | TUTOR | Digital |
+| **Hawaiishirt** | +10 MP each turn | **Attach:** your first Piecie each turn costs 1 Energy less. | COST_DOWN | Digital |
+| **Save State** (was Momentum Boost) | gains 15 MP | One of your Mosjes can't drop a level ⏳2. | SAVE | Digital |
+| **Toch Niet!** (was Emergency Healings) | gains 25 MP | Play when your opponent starts a Quest: they roll 1 ▣ less. | DIE_MINUS | Creative |
+| **Kladje** (was Shoettoe) | gains 30 MP | Draw 1. **Discarded:** draw 2. | DRAW + Discarded | Creative |
+| **Spiegelen** (was Nature's Gift) | gains 30 MP | One of your Mosjes copies an opponent Mosje's Power this turn. | SET_POWER (new) | Creative |
+
+Effect: pure MP-only cards drop from 18 to 9. MP_GAIN 45 → 36. New in the starter decks: THORNS, TUTOR, COST_DOWN, SAVE, DIE_MINUS, SET_POWER and the keywords Combo and Discarded.
+
+**Playtest watch:** Spiegelen (a 15-Power Mosje borrowing 30), Save State (only useful if levels drop often), Mouse (finds 1 of 10 gear cards every time).
+
+## 9. Next steps
+
+1. ~~Pick trigger keywords~~ Done 11 Nov: **Entrance, Discarded, Level Down, Combo**.
 2. Rule on the open style choices: ⏳ icons, two friend-bonus forms, "Needs:" for type gates, Energy vs ϟ.
 3. Wording pass: rewrite every card to the canonical phrasing and tag it with template IDs (in a sheet).
 4. Claude Code: one handler per template ID (FINAL handover).
