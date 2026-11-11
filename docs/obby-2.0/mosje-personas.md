@@ -57,6 +57,8 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 ## Michelle / Tuk
 
 **Who:** Michelle, nickname Tuk.
+- Gear (11 Nov): Draaitafels, DJ Koptelefoon, Mixer
+
 
 ### Michelle, Iron Tuk · Physical
 
@@ -69,6 +71,8 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
   - Boxing with Gandoe · never gives up · takes hits and keeps going
 - **Theme check:** Fixed 7 Nov.
 - Gear ideas (11 Nov): Knijpkat (squishy cat in her bag), Omafiets (old Dutch bike, barely held together), Thuiszorg (she does elderly care at people's homes)
+- Gear (11 Nov): Knijpkat, Omafiets, Thuiszorg
+
 
 ### Tuk, The Healing Spirit · Creative
 
@@ -81,6 +85,8 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
   - Works in care / healthcare · the friend you call when it's bad
   - Fierce: protects her people · Iron Tuk in the ring
 - **Theme check:** Fits.
+- Gear (11 Nov): Kattenbrokjes, Knijpkat, Thuiszorg
+
 
 ### Tuk "The Builder", The Sims Architect — archived
 
@@ -109,6 +115,8 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
   - Hawaiian shirts
   - Fixes everyone's PC · builds gaming rigs · works in IT
 - **Theme check:** Fits.
+- Gear (11 Nov): Hawaiishirt, Reserve-onderdelen, Kabelbak, Bootstick, Tesla Laadkabel
+
 
 ### Coert, KasteLuck · Physical
 
@@ -133,6 +141,8 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
   - Plays Tarkov and SQUAD
   - Rushes in · rages when he loses
 - **Theme check:** Fits. 'Rages when he loses' could become a fail effect.
+- Gear (11 Nov): Med Kit, Night Vision, Loot Backpack
+
 
 ### [Coert] Kast-elein — archived
 
@@ -188,6 +198,8 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
   - Counter-Strike, Call of Duty — plays with FPS Coert (mostly Tarkov) in the Discord channel 'Woonkamer'
   - Knows every map
 - **Theme check:** Fits.
+- Gear (11 Nov): Minimap, Smoke Grenade
+
 
 ### Martin, The Precision Driver · Digital
 
@@ -199,6 +211,8 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
   - F1 / Grand Prix · perfect racing line
   - Sim racing (F1 game) — why he's Digital
 - **Theme check:** Fits; Piecie Track Highscore.
+- Gear (11 Nov): Racestuur
+
 
 ### Martin, The Historian — archived
 
@@ -262,6 +276,8 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
   - Lifts heavy stuff
   - Hits really hard · carries heavy things
 - **Theme check:** Fixed 7 Nov (carries heavy things).
+- Gear (11 Nov): All The Plates
+
 
 ### Jeffrey, The Silent Gambler · Creative
 
@@ -286,6 +302,8 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 ## Chris
 
 **Who:** Chris.
+- Gear (11 Nov): Pokerfiches, Zonnebril
+
 
 ### Chris, The BigStepper · Physical
 
@@ -353,6 +371,8 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 ## Ming
 
 **Who:** Ming.
+- Gear (11 Nov): Japans Woordenboek, Kanji Flashcards, Bento Box
+
 
 ### Ming, The Natural · Creative
 
@@ -366,6 +386,8 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
   - "Zwoele Ming Power": sexy, smooth Ming forces luck on his side and does things with ease → Piecie Zwoele Ming Power
   - Improvises everything (why he's Creative)
 - **Theme check:** Fits.
+- Gear (11 Nov): Day-One Game
+
 
 ### Ming, The Predictor — archived
 
@@ -424,6 +446,8 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
   - Deadpan one-liners · never forgets your fails · roasts out of love
   - Loves Varkenspootjes (pig's feet) from Winston, an Asian food shop; Coert drives her there in his Tesla
 - **Theme check:** Fits.
+- Gear (11 Nov): Roast-boekje, Telefoon
+
 
 ### [Binti] The Creator — archived
 
@@ -463,6 +487,8 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 ## Youri
 
 **Who:** Youri.
+- Gear (11 Nov): Bladmuziek, Metronoom
+
 
 ### Youri, The Speedrunner · Digital
 

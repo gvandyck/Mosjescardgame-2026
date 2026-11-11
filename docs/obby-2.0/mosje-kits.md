@@ -15,8 +15,9 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 - [x] Michelle's PQ: Ironman → Knocked Down, Not Out (11 Nov)
 
 **Open**
-- [ ] Gear for Mosjes without their own (see the list from 11 Nov: mostly Creative + Coert Tech Savant)
-- [ ] Michelle's gear: pick from Knijpkat / Omafiets / Thuiszorg (drafted 11 Nov)
+- [x] Gear round: 13 Mosjes got gear drafts (11 Nov)
+- [ ] Trim the gear round: ~27 new cards; pick 1 signature per Mosje for the kits, the rest go to boosters
+- [x] Michelle's gear: Knijpkat, Omafiets, Thuiszorg (11 Nov)
 - [x] Parkour West gear: Grip-schoenen (11 Nov)
 - [x] Coert, KasteLuck gear: Toploader (11 Nov)
 - [x] Obby #2: hosts Chris + Gandoe, same card as #1 with +15 host bonus; Obby #1 hosts Martin/West, Ronald, Gandoe (11 Nov)
@@ -45,9 +46,9 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | Alyssa, The Bulldozer | Charge! | **Rugbybal** NEW | **Rugby Training** NEW |
 | Alyssa, Fissa Fissa! (specialist) | Fissa Tot De Ochtend | Dikke Plaat, **Zonnebril** NEW | **Perron** (was De Dansvloer) |
 | AZN Cless, The Wild Card | All In | Protein Shake, **ChestPress** NEW | Gym |
-| Michelle, Iron Tuk | **Knocked Down, Not Out** (was Ironman) | Bowie & Stormey, *Knijpkat / Omafiets* (pick) | Eendjes Voeren, De Box |
+| Michelle, Iron Tuk | **Knocked Down, Not Out** (was Ironman) | Bowie & Stormey, **Knijpkat** NEW, **Omafiets** NEW, **Thuiszorg** NEW | Eendjes Voeren, De Box |
 | Parkour West (specialist) | Over Alle Daken | Protein Shake, **Grip-schoenen** NEW | De Daken, Obby #1 (host) |
-| Jeffrey, The Strongman | Sterke Jongen | Protein Shake, Dumbbells | Gym |
+| Jeffrey, The Strongman | Sterke Jongen | Protein Shake, Dumbbells, **All The Plates** NEW | Gym |
 | Ronald, The Master Chef | Michelinster | Ronald Kip, Chef's Special, Hele Fles Fireman, **Koksmes** NEW | **Ronnie's Kitchen** NEW, Obby #1 (host) |
 | Martin, Señor West | Obby Shotjes Gauntlet | Those Eyelashes Tho..., **Poncho & Sombrero** NEW | Obby #1 (host) |
 | Coert, KasteLuck | Lucky Streak | Tony, Boosterpackkie, **Toploader** NEW | **Ruilbeurs Jaarbeurs** NEW |
@@ -56,25 +57,25 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 ## Digital
 | Mosje | Personal Quest | Signature Piecie | Place |
 |---|---|---|---|
-| Coert, The Hawaiian Tech Savant | Aloha Tech Support | Hawaii Pizza, Boosterpackkie | Coert's Caravan, Tesla |
+| Coert, The Hawaiian Tech Savant | Aloha Tech Support | Hawaii Pizza, Boosterpackkie, **Hawaiishirt** NEW, **Reserve-onderdelen** NEW, **Kabelbak** NEW, **Bootstick** NEW, **Tesla Laadkabel** NEW | Coert's Caravan, Tesla |
 | Gandoe, The Cloude Wizard (was Claude Wizard) | Vibe Coded | **MagicPrompt** NEW | **Gandoe's Cloude** NEW, Obby #1 + #2 (host) |
 | Youri, The Speedrunner | World Record Run | **Blikje Monsteros** NEW, **De Switch** NEW | **Youri's Woonkamer** NEW |
-| FPS Coert | Headshot | **Headset** NEW | **Woonkamer (Discord)** NEW |
-| FPS West | Clutch Round | Headset, Those Eyelashes Tho... | Woonkamer (Discord), Obby #1 (host) |
-| Martin, The Precision Driver (specialist) | Grand Prix | Track Highscore | Circuit Zandvoort, Obby #1 (host) |
+| FPS Coert | Headshot | **Headset** NEW, **Med Kit** NEW, **Night Vision** NEW, **Loot Backpack** NEW | **Woonkamer (Discord)** NEW |
+| FPS West | Clutch Round | Headset, Those Eyelashes Tho..., **Minimap** NEW, **Smoke Grenade** NEW | Woonkamer (Discord), Obby #1 (host) |
+| Martin, The Precision Driver (specialist) | Grand Prix | Track Highscore, **Racestuur** NEW | Circuit Zandvoort, Obby #1 (host) |
 | Flightsim Coert (NEW, specialist, booster) | Butter Landing | Yoke & Pedals | De Cockpit |
 
 ## Creative
 | Mosje | Personal Quest | Signature Piecie | Place |
 |---|---|---|---|
-| Ming, The Natural | Beginner's Luck | **Zwoele Ming Power** NEW | **Nieuwe Gimma** NEW |
-| Jeffrey, The Silent Gambler | High Roller | Gekke Dobbel | Punto Banco |
-| DJ 80/20, The Lucky Mixer | Lucky Crescendo | Dikke Plaat | Skiffa |
-| Binti, The Sharp Tongue | Binti Brandt | Varkenspootjes, Stookerino | Tesla, Delluft |
+| Ming, The Natural | Beginner's Luck | **Zwoele Ming Power** NEW, **Day-One Game** NEW | **Nieuwe Gimma** NEW |
+| Jeffrey, The Silent Gambler | High Roller | Gekke Dobbel, **Pokerfiches** NEW, **Zonnebril** NEW | Punto Banco |
+| DJ 80/20, The Lucky Mixer | Lucky Crescendo | Dikke Plaat, **Draaitafels** NEW, **DJ Koptelefoon** NEW, **Mixer** NEW | Skiffa |
+| Binti, The Sharp Tongue | Binti Brandt | Varkenspootjes, Stookerino, **Roast-boekje** NEW, **Telefoon** NEW | Tesla, Delluft |
 | Ronald, Dr. Phill-osoof (was The Mastermind) | Ongevraagd Advies (was Checkmate) | **Hele Fles Fireman** NEW | Ronnie's Kitchen, Obby #1 (host) |
-| Jisca, The Maestro (specialist) | Staande Ovatie | Gekke Vogels | Het Podium |
-| Tuk, The Healing Spirit (specialist) | Cat Sanctuary | Bowie & Stormey | De Box |
-| Cless, The Teacher (specialist) | Final Exam | ViannaPoes | **Homeschool** NEW |
+| Jisca, The Maestro (specialist) | Staande Ovatie | Gekke Vogels, **Bladmuziek** NEW, **Metronoom** NEW | Het Podium |
+| Tuk, The Healing Spirit (specialist) | Cat Sanctuary | Bowie & Stormey, **Kattenbrokjes** NEW, **Knijpkat** NEW, **Thuiszorg** NEW | De Box |
+| Cless, The Teacher (specialist) | Final Exam | ViannaPoes, **Japans Woordenboek** NEW, **Kanji Flashcards** NEW, **Bento Box** NEW | **Homeschool** NEW |
 
 ## NEW kit cards (draft effects)
 ### Places
@@ -106,9 +107,6 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | Koksmes (gear) | Ronald, The Master Chef | Attach to one of your Mosjes: it gets +10 Power. A Ronald gets +20 instead. |
 | ChestPress (gear) | AZN Cless, The Wild Card | The machine in the gym. Attach: once per turn, before a Quest roll you may pay 10 MP: +1 ▣ (a PR attempt). An AZN Cless pays nothing. |
 | Poncho & Sombrero (gear) | Martin, Señor West | Mexican poncho + big hat (art ref: the Señor West sticker). Attach: his charm ability costs 0 Energy. A charmed Mosje also loses 10 MP. |
-| **Knijpkat** (gear) — pick | Michelle, Iron Tuk | The squishy cat in her bag. Attach: when this Mosje fails a Quest, it gains 10 MP back. A Michelle gains 20. (Works with Knocked Down, Not Out.) |
-| **Omafiets** (gear) — pick | Michelle, Iron Tuk | Her old Dutch bike, barely held together. Attach: +1 ▣ on one Quest each turn. If that roll has a ⚀, the bike falls apart: discard it. |
-| **Thuiszorg** (Snelle) — pick | Michelle, Iron Tuk (+ Tuk) | Elderly care at home. Play any time: one of your Mosjes gains 15 MP. If it's a Michelle, also draw 1. |
 | **Grip-schoenen** (gear) | Parkour West | Attach: Mosjes with less Power can't attack this Mosje. A West also gains 10 MP when an attack on him is stopped. |
 | **Toploader** (gear) | Coert, KasteLuck | The plastic sleeve for a graded card. Attach: your opponent's Piecies can't make this Mosje lose MP. A Coert also draws 1 when he wins a Quest. |
 | De Switch (gear) | Youri + Chris, The Gamer (later) | One of your Mosjes gains 10 MP. A Chris or Youri also gets +1 ▣ on one Quest this turn. No Digital requirement. |
@@ -142,6 +140,42 @@ Obby #1 and #2 are the homes where the whole group hung out. **Any Mosje** can u
 | **Knocked Down, Not Out** (was Ironman) | Michelle, Iron Tuk | ★★★ | this Mosje lost MP since the start of your last turn (an attack, a failed Quest or a Pay) and still has 50+ MP | discard 1 ready food Piecie | 1 ▣ per Str★. Need 1× ⚄+. | 70 % (LV3, 3 dice) |
 
 She gets knocked down and gets back up. Her ability (loses 10 less per attack) keeps her above 50 MP. A failed Quest also counts as a knockdown, so the PQ works even if the opponent refuses to attack her. **Stop it:** knock her below 50 MP.
+
+## Gear round (11 Nov, Gandalf's picks)
+
+Draft effects. Digital gear uses the existing template "Only if a Digital Mosje is on your field"; Creative gear "While a Creative Mosje is on your field". Ronald, Dr. Phill-osoof keeps Hele Fles Fireman as his signature card (starts his drunk Dr. Phil rambling).
+
+| Card | Kind | ★ | For | Draft effect |
+|---|---|---|---|---|
+| **Knijpkat** | gear | ★★ | Michelle, Iron Tuk | Attach: when this Mosje fails a Quest, it gains 10 MP. A Michelle or Tuk gains 20. (shared Michelle + Tuk) |
+| **Omafiets** | gear | ★★ | Michelle, Iron Tuk | Attach: +1 ▣ on one Quest each turn. If that roll shows a ⚀, the bike falls apart: discard it. A Michelle keeps riding on the first ⚀. |
+| **Thuiszorg** | Snelle | ★★ | Michelle, Iron Tuk | Play any time: one of your Mosjes gains 15 MP. A Michelle or Tuk also draws 1. (shared Michelle + Tuk) |
+| **All The Plates** | gear | ★★★ | Jeffrey, The Strongman | Attach to a Mosje with Str ★★★: +20 Power, but it can't attack the turn you attach it (loading the bar). A Jeffrey can. |
+| **Hawaiishirt** | gear | ★ | Coert, The Hawaiian Tech Savant | Attach: at the start of your turn, if this Mosje didn't attack last turn, it gains 10 MP. A Coert gains 15. |
+| **Reserve-onderdelen** | gear | ★★ | Coert, The Hawaiian Tech Savant | Only if a Digital Mosje is on your field: take 1 gear Piecie from your discard pile into your hand. |
+| **Kabelbak** | gear | ★ | Coert, The Hawaiian Tech Savant | Only if a Digital Mosje is on your field: draw 2, then discard 1. |
+| **Bootstick** | gear | ★★ | Coert, The Hawaiian Tech Savant | Only if a Digital Mosje is on your field: shuffle your hand into your deck and draw that many. A Coert draws 1 more. |
+| **Tesla Laadkabel** | gear | ★★ | Coert, The Hawaiian Tech Savant | Only if a Digital Mosje is on your field: gain 1 Energy this turn. At Tesla: 2. |
+| **Med Kit** | gear | ★ | FPS Coert | Only if a Digital Mosje is on your field: one of your Mosjes gains 20 MP. An FPS Mosje gains 30. |
+| **Night Vision** | gear | ★★ | FPS Coert | Only if a Digital Mosje is on your field: look at your opponent's hand. An FPS Coert also gets +1 ▣ on one Quest this turn. |
+| **Loot Backpack** | gear | ★★ | FPS Coert | Attach: when this Mosje wins a Quest, draw 1. |
+| **Minimap** | gear | ★★ | FPS West | Only if a Digital Mosje is on your field: look at the top 3 cards of your opponent's deck and put them back in any order. |
+| **Smoke Grenade** | Snelle | ★★ | FPS West | Play when an opponent Mosje attacks: that attack gets −10 Power. If it targets a West, the attack is cancelled. |
+| **Racestuur** | gear | ★★ | Martin, The Precision Driver | Attach: +1 ▣ on Quests that roll Tech. A Martin also gains 10 MP on each Quest win. |
+| **Day-One Game** | gear | ★★ | Ming, The Natural | Draw 1. A Ming also gets +1 ▣ on his next Quest this turn (first try, every time). |
+| **Pokerfiches** | gear | ★★ | Jeffrey, The Silent Gambler | Attach: once per turn, when you stake Energy (High Roller, Punto Banco, his ability), it counts as 1 Energy more. |
+| **Zonnebril** | gear (shared) | ★★ | Jeffrey, The Silent Gambler | Existing party card, now also his: poker face. No text change. |
+| **Roast-boekje** | gear | ★★ | Binti, The Sharp Tongue | Attach: once per turn, when your opponent discards a card, an opponent Mosje loses 10 MP. A Binti: 15. |
+| **Telefoon** | gear | ★ | Binti, The Sharp Tongue | Your opponent reveals 2 random cards from their hand. A Binti makes them discard 1 of those. |
+| **Bladmuziek** | gear | ★ | Jisca, The Maestro | While a Creative Mosje is on your field: look at the top 3 cards of your deck and put them back in any order. |
+| **Metronoom** | gear | ★★ | Jisca, The Maestro | Attach: once per turn, after you activate a Piecie, roll 1 ▣: on ⚃+ this Mosje gains 10 MP. A Jisca's ability also succeeds on ⚂. |
+| **Kattenbrokjes** | food | ★ | Tuk, The Healing Spirit | One of your Mosjes gains 15 MP. With Bowie & Stormey ready: 25. |
+| **Japans Woordenboek** | gear | ★★ | Cless, The Teacher | Attach: at the end of your turn, if you have 3 or fewer cards in hand, draw 1. |
+| **Kanji Flashcards** | Snelle | ★ | Cless, The Teacher | Draw 2, then put 1 card from your hand on top of your deck. A Cless keeps both. |
+| **Bento Box** | food | ★★ | Cless, The Teacher | One of your Mosjes gains 20 MP. A Cless also draws 1. |
+| **Draaitafels** | gear | ★★ | DJ 80/20, The Lucky Mixer | Attach: +1 ▣ on Quests that roll Art. A DJ 80/20 also gains 10 MP each time he rerolls. |
+| **DJ Koptelefoon** | gear | ★ | DJ 80/20, The Lucky Mixer | Attach: once per turn, look at the top card of your deck; you may put it on the bottom (cue the next track). |
+| **Mixer** | gear | ★★ | DJ 80/20, The Lucky Mixer | Attach: when this Mosje rolls a pair on a Quest, it gains 10 MP and you gain 1 Energy. |
 
 ## Physical gear check (9 Nov)
 
