@@ -134,33 +134,37 @@ Today about **120 of 170 cards** only do something *the moment you play them* (`
 | `ON_KO` · `ON_PLACE` · `ON_DRAW` | 1 each |
 | `ON_SUMMON` · `ON_DISCARDED` · `ON_LEVEL_UP` · `ON_WELLOE` | **0** |
 
-### New angles: trigger keywords (ideas)
-Short Dutch keywords keep the friend-group voice and fit the left of a text line like a label.
+Note: the keyword list below was renamed to English on 11 Nov (Entrance, Discarded, Level Down, Combo…).
 
-| Keyword | Trigger | What it does to the game | Sample card (draft) |
-|---|---|---|---|
-| **Binnenkomer:** | When you summon this Mosje | A reason to summon at the right moment, not just ASAP | Alyssa, The Bulldozer: *Binnenkomer: one opponent Mosje loses 10 MP.* |
-| **Vers:** | If this Mosje is fresh (summoned this turn) | Fresh Mosjes can't do much; this gives Piecies a fresh-only bonus | *Kannetje Melk — Vers: gains 35 instead.* |
-| **Weggegooid:** | When this card is discarded from your hand by any effect | Punishes Binti / Stookerino discard; makes Bagga of Greed a combo piece | *Restjes (food) — Weggegooid: one of your Mosjes gains 15 MP.* |
-| **Welloe:** | When this Mosje goes to the Welloe pile | Last words: KO-ing a Mosje has a price | *Coert, Tech Savant — Welloe: draw 2.* |
-| **Level-up:** | When this Mosje levels up | Rewards the core loop (levelling) directly | *Gandoe, The Cloude Wizard — Level-up: look at your top 3, take 1.* |
-| **Getemt:** | When this Mosje is getemt (drops a level) | Comeback; keeps a losing player in the game | *Michelle — Getemt: gains 20 MP.* (fits Knocked Down, Not Out) |
-| **Tweede!** / **Combo 2:** | The 2nd Piecie you activate this turn | Sequencing skill: which card goes first? | *Dancepad — Combo 2: draw 1.* |
-| **Elke ⚅:** | Each 6 in a roll | Formalises Lucky Streak / Mixer / Omafiets into one keyword | *Gekke Dobbel — Elke ⚅: +5 MP.* |
-| **Bij trekken:** | When you draw your 2nd card in a turn | Draw decks (Coert, Youri) get a payoff | *Kabelbak — Bij trekken: +10 MP.* |
-| **Afgevallen:** | When this gear leaves its Mosje (destroyed, moved, Mosje leaves) | Gear isn't just lost; Omafiets falling apart gets a payoff | *Omafiets — Afgevallen: draw 1.* |
-| **Spaarpot:** | End of your turn, per unspent Energy | Rewards patience; anti-dump decks | *Pokerfiches — Spaarpot: +5 MP per unspent Energy.* |
-| **Rondje!** | Each player gets it (you pick yours first) | Group-night flavour; symmetric cards are rare and very on-theme | *Dikke Jonko* is already this; *Rondje Shotjes: each player's Mosjes gain 10 MP, yours 20.* |
+### New angles: trigger keywords (ideas)
+**Language rule (Gandalf, 11 Nov):** core functions and keywords are **English**. Dutch stays for card names and flavour.
+
+A trigger keyword is a rule: a bold label at the start of a line that says **when** the effect happens (like *Battlecry* in Hearthstone). Each keyword costs 1 rulebook line, 1 code handler and 1 label in the card design; after that, any card can use it. Start with 3–6 per set.
+
+| Keyword | Trigger | What it does to the game | Sample card (draft) | Status |
+|---|---|---|---|---|
+| **Entrance:** | When you summon this Mosje | Makes *when* you summon a choice | Alyssa, The Bulldozer: *Entrance: one opponent Mosje loses 10 MP.* | Recommended |
+| **Discarded:** | When this card is discarded from your hand by any effect | Punishes Binti / Stookerino discard; makes Bagga of Greed a combo piece | *Restjes (food): Discarded: one of your Mosjes gains 15 MP.* | Recommended |
+| **Level Down:** | When this Mosje drops a level (getemt) | Comeback for the player who's behind | *Michelle: Level Down: gains 20 MP.* | Recommended |
+| **Combo:** | The 2nd Piecie you activate this turn | Sequencing skill: which card first? | *Dancepad: Combo: draw 1.* | Recommended |
+| **Fresh:** | If this Mosje is fresh (summoned this turn) | Fresh-only bonus on Piecies | *Kannetje Melk: Fresh: gains 35 instead.* | Overlaps Entrance |
+| **Last Words:** | When this Mosje goes to the Welloe pile | KO-ing a Mosje has a price | *Coert, Tech Savant: Last Words: draw 2.* | Later (only 2 KO cards) |
+| **Level Up:** | When this Mosje levels up | Rewards the core loop directly | *Cloude Wizard: Level Up: look at your top 3, take 1.* | Later |
+| **Each ⚅:** | Each 6 in a roll | One keyword for Lucky Streak / Mixer / Omafiets | *Gekke Dobbel: Each ⚅: +5 MP.* | Later, luck booster |
+| **On Draw:** | When you draw your 2nd card in a turn | Payoff for draw decks | *Kabelbak: On Draw: +10 MP.* | Skip (draw saturated) |
+| **Detached:** | When this gear leaves its Mosje | Gear isn't just lost | *Omafiets: Detached: draw 1.* | Skip (gear only) |
+| **Saved Up:** | End of your turn, per unspent Energy | Rewards patience | *Pokerfiches: Saved Up: +5 MP per Energy.* | Skip (fiddly at the table) |
+| **Everyone:** | Each player gets it, you pick first | Group-night flavour, symmetric cards | *Rondje Shotjes: Everyone: Mosjes gain 10 MP, yours 20.* | Later, booster |
 
 ### New angles: mechanics (ideas)
 | Mechanic | How it works | Fit |
 |---|---|---|
-| **Teller** (counters) | Put a die on the card; +1 each turn; cash in for an effect that scales | Spaarvarken, Tikker-style cards, slow builds |
-| **Valstrik** (face-down set) | Pay now, place face-down; flips when its trigger happens (on the opponent's turn) | Called It already does this; a small Piecie family |
+| **Counters** | Put a die on the card; +1 each turn; cash in for an effect that scales | Spaarvarken, Tikker-style cards |
+| **Trap** | Pay now, place face-down; flips when its trigger happens | Called It already does this |
 | **Bodyguard** | Attacks must target this Mosje if able | Kast-elein, De Belt champion |
-| **Afpakken** (steal) | Take an attached card from an opponent Mosje | De Belt already moves; tiny chase family |
-| **Weg ermee** (mill) | Opponent puts their top card in the discard pile | New angle on Places / Huisbaas |
-| **Lege handen** | Bonus while you have 0–1 cards in hand | Aggro decks, Cless's dictionary flip side |
+| **Steal** | Take an attached card from an opponent Mosje | De Belt already moves |
+| **Discard Top** | Opponent puts their top card in the discard pile | New angle for Places and Huisbaas |
+| **Empty Hand** | Bonus while you hold 0–1 cards | Aggro decks |
 
 ---
 
