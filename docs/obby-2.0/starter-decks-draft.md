@@ -13,11 +13,11 @@ Rules: only standard-curve Mosjes · starter PQs ★–★★★ (chase PQs ★�
 
 | Group | Cards (copies) | n |
 |---|---|---|
-| Food | Kannetje Melk 2 · Broodje Döner 2 · Ronald Kip 2 · Protein Shake 2 | 8 |
+| Food | Kannetje Melk 2 · Late Night Döner 2 · Ronald Kip 2 · Protein Shake 2 | 8 |
 | Gear | Dumbbells 2 · Dancepad 2 · Rugbybal 2 · Koksmes 1 | 7 |
 | Attack | Te Hard Gaan 2 · Snoeiertje 1 · Hele Fles Fireman 1 · Super Saiyan Mos 1 · Kleine Taks 1 | 6 |
 | Kit / defence | Bowie & Stormey 1 · Afblijven! 1 · In De Groove 1 | 3 |
-| Snelle | Handdoek 2 · Terugslag! 1 · Jensen! 1 | 4 |
+| Snelle | Handdoek 2 · Aansteker 1 · Jensen! 1 | 4 |
 | **Total Piecies + Snelle** | | **28** |
 
 | Mosje | Kit cards in the deck |
@@ -39,7 +39,7 @@ Rules: only standard-curve Mosjes · starter PQs ★–★★★ (chase PQs ★�
 | Food | Hawaii Pizza 2 · Kannetje Melk 1 | 3 |
 | Kit / draw | Boosterpackkie 2 · Blikje Monsteros 2 · Zie je die Dingetjes 1 · Rebouleh 1 | 6 |
 | Attack | Kleine Taks 2 · Te Hard Gaan 1 | 3 |
-| Other | Those Eyelashes Tho... 1 (FPS West) · Save State 1 | 2 |
+| Other | Those Eyelashes Tho... 1 (FPS West) · Ctrl+S 1 | 2 |
 | Snelle | Jensen! 1 · Sleutelpuntje 1 · Je Weet Niet 1 · Ff Haaltje Nemen 1 | 4 |
 | **Total Piecies + Snelle** | | **28** |
 
@@ -64,7 +64,7 @@ Rules: only standard-curve Mosjes · starter PQs ★–★★★ (chase PQs ★�
 | Draw | Zie je die Dingetjes 2 · Kladje 1 · Bagga of Greed 1 | 4 |
 | Kit | Hele Fles Fireman 1 (Ronald) · Zwoele Ming Power 2 · TemPiecie 1 | 4 |
 | Food / substance / attack | Kannetje Melk 1 · Spiegelen 1 · Larry / Zegeltje 1 · Te Hard Gaan 1 | 4 |
-| Snelle | Lucky Cóin 2 · Je Weet Niet 1 · Jensen! 1 · Toch Niet! 1 | 5 |
+| Snelle | Lucky Cóin 2 · Je Weet Niet 1 · Jensen! 1 · Oh nee toch niet 1 | 5 |
 | **Total Piecies + Snelle** | | **28** |
 
 | Mosje | Kit cards in the deck |
@@ -85,9 +85,9 @@ Moshpit out (more a Place than a Piecie); its slot goes to a 2nd Rugbybal. Miche
 
 ## Change 11 Nov: card diversity swaps
 Nine cards that only gained MP got a new, clean effect (see `effect-library.md`, "Accepted reworks").
-- **Physical:** Broodje Döner (+10 Power ⏳2) and Snoeiertje (+10 Power, Combo +20) were already in. Terugslag! replaces Pleistertje kan.
-- **Digital:** Mouse (now finds a gear Piecie) was already in. Hawaiishirt replaces 1 Keyboard; Save State replaces Afblijven!.
-- **Creative:** Kladje replaces Pot of Weed; Spiegelen replaces 1 Kannetje Melk; Toch Niet! replaces Gevalletje Klakkeloos.
+- **Physical:** Late Night Döner (+10 Power ⏳2) and Snoeiertje (+10 Power, Combo +20) were already in. Aansteker replaces Pleistertje kan.
+- **Digital:** Mouse (now finds a gear Piecie) was already in. Hawaiishirt replaces 1 Keyboard; Ctrl+S replaces Afblijven!.
+- **Creative:** Kladje replaces Pot of Weed; Spiegelen replaces 1 Kannetje Melk; Oh nee toch niet replaces Gevalletje Klakkeloos.
 
 ## Still open
 - All names confirmed (9 Nov). Note: two Places share "Woonkamer" — Youri's Woonkamer and Woonkamer (Discord); always print the full name.

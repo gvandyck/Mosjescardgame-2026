@@ -65,7 +65,7 @@ Design note: the ⏳ number is the graphic-design win. Players can see at a glan
 ### MP (Momentum)
 | ID | Canonical phrasing | Count | Examples | Note |
 |---|---|---|---|---|
-| `MP_GAIN` | **One of your Mosjes gains X MP.** | **45** | Kannetje Melk, Broodje Döner, Momentum Rush, Med Kit | Most-used verb in the game: 1 in 4 cards. Enough. |
+| `MP_GAIN` | **One of your Mosjes gains X MP.** | **45** | Kannetje Melk, Ronald Kip, Momentum Rush, Med Kit | Most-used verb in the game: 1 in 4 cards. Enough. |
 | `MP_LOSS` | **One opponent Mosje loses X MP.** | 6 | Affoe, Straffoe, Roast-boekje | |
 | `MP_COST` | **One of your Mosjes loses X MP.** (as a price) | 10 | Te Hard Gaan, Stripje Bennies, Warm Kannetje Melk | Always written *before* the reward. |
 | `MP_SHIELD` | **loses X less** (each time / from attacks) | 12 | Afblijven!, 5 pets, Perfect Dodge, The Protector | Shown as shield + number (Resilient style). |
@@ -181,7 +181,7 @@ A trigger keyword is a rule: a bold label at the start of a line that says **whe
 
 | Family (`subtype`) | Default duration | Template focus | Naming |
 |---|---|---|---|
-| Food (`FOOD`) | INSTANT | MP_GAIN (+ friend bonus) | Dish names (Broodje Döner, Bento Box) |
+| Food (`FOOD`) | INSTANT | MP_GAIN (+ friend bonus) | Dish names (Late Night Döner, Bento Box) |
 | Substance (`SUBSTANCE`) | INSTANT | GAMBLE, MP_COST + reward | Slang names |
 | Gear (`GEAR`) | ATTACH | POWER_UP, DIE_PLUS, REROLL, triggers | Object names |
 | Pet (`PET`) | STAYS_2 | MP_SHIELD + friend bonus | Pet names |
@@ -218,23 +218,23 @@ Recommendation: retire `MOMENTUM-GAINING` and `STRENGTH-EQUIPMENT` / `DIGITAL-EQ
 - **Biggest lever:** triggers, not verbs. A new trigger on an old verb (*Discarded: gains 15 MP*) is still a new card for the player and almost free to code.
 
 ## 8. Accepted reworks (11 Nov)
-Nine cards that only gained MP, rewritten with the clean text rule. Data and code follow at the FINAL handover.
+Nine cards that only gained MP, rewritten with the clean text rule. Final names picked by Gandalf on 11 Nov. Data and code follow at the FINAL handover.
 
 | Card | Was | New text | Template | Deck |
 |---|---|---|---|---|
-| **Broodje Döner** | gains 35 MP | One of your Mosjes gets +10 Power ⏳2. | POWER_UP (STAYS_2) | Physical |
+| **Late Night Döner** (was Broodje Döner) | gains 35 MP | One of your Mosjes gets +10 Power ⏳2. | POWER_UP (STAYS_2) | Physical |
 | **Snoeiertje** | +10 Power, loses 10 MP (copy of Te Hard Gaan) | One of your Mosjes gets +10 Power this turn. **Combo:** +20 instead. | POWER_UP + Combo | Physical |
-| **Terugslag!** (was Momentum Rush) | gains 15 MP | Play when one of your Mosjes is attacked: the attacker loses 15 MP. | THORNS | Physical |
+| **Aansteker** (was Momentum Rush; draft name Terugslag!) | gains 15 MP | Play when one of your Mosjes is attacked: the attacker loses 15 MP. | THORNS | Physical |
 | **Mouse** | +10 MP, look at 2 cards | **Needs:** a Digital Mosje. Take a gear Piecie from your deck into your hand. | TUTOR | Digital |
 | **Hawaiishirt** | +10 MP each turn | **Attach:** your first Piecie each turn costs 1 Energy less. | COST_DOWN | Digital |
-| **Save State** (was Momentum Boost) | gains 15 MP | One of your Mosjes can't drop a level ⏳2. | SAVE | Digital |
-| **Toch Niet!** (was Emergency Healings) | gains 25 MP | Play when your opponent starts a Quest: they roll 1 ▣ less. | DIE_MINUS | Creative |
+| **Ctrl+S** (was Momentum Boost; draft name Save State) | gains 15 MP | One of your Mosjes can't drop a level ⏳2. | SAVE | Digital |
+| **Oh nee toch niet** (was Emergency Healings; draft name Toch Niet!) | gains 25 MP | Play when your opponent starts a Quest: they roll 1 ▣ less. | DIE_MINUS | Creative |
 | **Kladje** (was Shoettoe) | gains 30 MP | Draw 1. **Discarded:** draw 2. | DRAW + Discarded | Creative |
 | **Spiegelen** (was Nature's Gift) | gains 30 MP | One of your Mosjes copies an opponent Mosje's Power this turn. | SET_POWER (new) | Creative |
 
 Effect: pure MP-only cards drop from 18 to 9. MP_GAIN 45 → 36. New in the starter decks: THORNS, TUTOR, COST_DOWN, SAVE, DIE_MINUS, SET_POWER and the keywords Combo and Discarded.
 
-**Playtest watch:** Spiegelen (a 15-Power Mosje borrowing 30), Save State (only useful if levels drop often), Mouse (finds 1 of 10 gear cards every time).
+**Playtest watch:** Spiegelen (a 15-Power Mosje borrowing 30), Ctrl+S (only useful if levels drop often), Mouse (finds 1 of 10 gear cards every time).
 
 ## 9. Next steps
 
