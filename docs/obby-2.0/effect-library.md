@@ -65,7 +65,7 @@ Design note: the ⏳ number is the graphic-design win. Players can see at a glan
 ### MP (Momentum)
 | ID | Canonical phrasing | Count | Examples | Note |
 |---|---|---|---|---|
-| `MP_GAIN` | **One of your Mosjes gains X MP.** | **45** | Kannetje Melk, Ronald Kip, Momentum Rush, Med Kit | Most-used verb in the game: 1 in 4 cards. Enough. |
+| `MP_GAIN` | **One of your Mosjes gains X MP.** | **45** | Kannetje Melk, Ronald Kip, Hawaii Pizza, Med Kit | Most-used verb in the game: 1 in 4 cards. Enough. |
 | `MP_LOSS` | **One opponent Mosje loses X MP.** | 6 | Affoe, Straffoe, Roast-boekje | |
 | `MP_COST` | **One of your Mosjes loses X MP.** (as a price) | 10 | Te Hard Gaan, Stripje Bennies, Warm Kannetje Melk | Always written *before* the reward. |
 | `MP_SHIELD` | **loses X less** (each time / from attacks) | 12 | Afblijven!, 5 pets, Perfect Dodge, The Protector | Shown as shield + number (Resilient style). |
