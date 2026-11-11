@@ -206,7 +206,7 @@ Recommendation: retire `MOMENTUM-GAINING` and `STRENGTH-EQUIPMENT` / `DIGITAL-EQ
 
 - **MP_GAIN (45) and DRAW (35) are saturated.** New cards should not add another "gains X MP" or "draw X" unless it has a new trigger.
 - **Gaps worth filling** (1–2 cards each): TUTOR, ENERGY_GAIN, LEVEL_DOWN / level up, THORNS, DIE_MINUS, REDIRECT.
-- **Biggest lever:** triggers, not verbs. A new trigger on an old verb (*Weggegooid: gains 15 MP*) is still a new card for the player and almost free to code.
+- **Biggest lever:** triggers, not verbs. A new trigger on an old verb (*Discarded: gains 15 MP*) is still a new card for the player and almost free to code.
 
 ## 8. Next steps
 
