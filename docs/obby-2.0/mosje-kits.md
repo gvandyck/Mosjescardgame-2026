@@ -16,7 +16,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 
 **Open**
 - [x] Gear round: 13 Mosjes got gear drafts (11 Nov)
-- [ ] Trim the gear round: ~27 new cards; pick 1 signature per Mosje for the kits, the rest go to boosters
+- [x] Gear round trimmed: 1 signature per Mosje in the kit, the rest are booster extras (11 Nov)
 - [x] Michelle's gear: Knijpkat, Omafiets, Thuiszorg (11 Nov)
 - [x] Parkour West gear: Grip-schoenen (11 Nov)
 - [x] Coert, KasteLuck gear: Toploader (11 Nov)
@@ -46,7 +46,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | Alyssa, The Bulldozer | Charge! | **Rugbybal** NEW | **Rugby Training** NEW |
 | Alyssa, Fissa Fissa! (specialist) | Fissa Tot De Ochtend | Dikke Plaat, **Zonnebril** NEW | **Perron** (was De Dansvloer) |
 | AZN Cless, The Wild Card | All In | Protein Shake, **ChestPress** NEW | Gym |
-| Michelle, Iron Tuk | **Knocked Down, Not Out** (was Ironman) | Bowie & Stormey, **Knijpkat** NEW, **Omafiets** NEW, **Thuiszorg** NEW | Eendjes Voeren, De Box |
+| Michelle, Iron Tuk | **Knocked Down, Not Out** (was Ironman) | Bowie & Stormey, **Knijpkat** NEW, *Omafiets* (booster), *Thuiszorg* (booster) | Eendjes Voeren, De Box |
 | Parkour West (specialist) | Over Alle Daken | Protein Shake, **Grip-schoenen** NEW | De Daken, Obby #1 (host) |
 | Jeffrey, The Strongman | Sterke Jongen | Protein Shake, Dumbbells, **All The Plates** NEW | Gym |
 | Ronald, The Master Chef | Michelinster | Ronald Kip, Chef's Special, Hele Fles Fireman, **Koksmes** NEW | **Ronnie's Kitchen** NEW, Obby #1 (host) |
@@ -57,11 +57,11 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 ## Digital
 | Mosje | Personal Quest | Signature Piecie | Place |
 |---|---|---|---|
-| Coert, The Hawaiian Tech Savant | Aloha Tech Support | Hawaii Pizza, Boosterpackkie, **Hawaiishirt** NEW, **Reserve-onderdelen** NEW, **Kabelbak** NEW, **Bootstick** NEW, **Tesla Laadkabel** NEW | Coert's Caravan, Tesla |
+| Coert, The Hawaiian Tech Savant | Aloha Tech Support | Hawaii Pizza, Boosterpackkie, **Hawaiishirt** NEW, *Reserve-onderdelen* (booster), *Kabelbak* (booster), *Bootstick* (booster), *Tesla Laadkabel* (booster) | Coert's Caravan, Tesla |
 | Gandoe, The Cloude Wizard (was Claude Wizard) | Vibe Coded | **MagicPrompt** NEW | **Gandoe's Cloude** NEW, Obby #1 + #2 (host) |
 | Youri, The Speedrunner | World Record Run | **Blikje Monsteros** NEW, **De Switch** NEW | **Youri's Woonkamer** NEW |
-| FPS Coert | Headshot | **Headset** NEW, **Med Kit** NEW, **Night Vision** NEW, **Loot Backpack** NEW | **Woonkamer (Discord)** NEW |
-| FPS West | Clutch Round | Headset, Those Eyelashes Tho..., **Minimap** NEW, **Smoke Grenade** NEW | Woonkamer (Discord), Obby #1 (host) |
+| FPS Coert | Headshot | **Headset** NEW, *Med Kit* (booster), **Night Vision** NEW, *Loot Backpack* (booster) | **Woonkamer (Discord)** NEW |
+| FPS West | Clutch Round | Headset, Those Eyelashes Tho..., **Minimap** NEW, *Smoke Grenade* (booster) | Woonkamer (Discord), Obby #1 (host) |
 | Martin, The Precision Driver (specialist) | Grand Prix | Track Highscore, **Racestuur** NEW | Circuit Zandvoort, Obby #1 (host) |
 | Flightsim Coert (NEW, specialist, booster) | Butter Landing | Yoke & Pedals | De Cockpit |
 
@@ -70,12 +70,12 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 |---|---|---|---|
 | Ming, The Natural | Beginner's Luck | **Zwoele Ming Power** NEW, **Day-One Game** NEW | **Nieuwe Gimma** NEW |
 | Jeffrey, The Silent Gambler | High Roller | Gekke Dobbel, **Pokerfiches** NEW, **Zonnebril** NEW | Punto Banco |
-| DJ 80/20, The Lucky Mixer | Lucky Crescendo | Dikke Plaat, **Draaitafels** NEW, **DJ Koptelefoon** NEW, **Mixer** NEW | Skiffa |
-| Binti, The Sharp Tongue | Binti Brandt | Varkenspootjes, Stookerino, **Roast-boekje** NEW, **Telefoon** NEW | Tesla, Delluft |
+| DJ 80/20, The Lucky Mixer | Lucky Crescendo | Dikke Plaat, **Draaitafels** NEW, *DJ Koptelefoon* (booster), *Mixer* (booster) | Skiffa |
+| Binti, The Sharp Tongue | Binti Brandt | Varkenspootjes, Stookerino, **Roast-boekje** NEW, *Telefoon* (booster) | Tesla, Delluft |
 | Ronald, Dr. Phill-osoof (was The Mastermind) | Ongevraagd Advies (was Checkmate) | **Hele Fles Fireman** NEW | Ronnie's Kitchen, Obby #1 (host) |
-| Jisca, The Maestro (specialist) | Staande Ovatie | Gekke Vogels, **Bladmuziek** NEW, **Metronoom** NEW | Het Podium |
-| Tuk, The Healing Spirit (specialist) | Cat Sanctuary | Bowie & Stormey, **Kattenbrokjes** NEW, **Knijpkat** NEW, **Thuiszorg** NEW | De Box |
-| Cless, The Teacher (specialist) | Final Exam | ViannaPoes, **Japans Woordenboek** NEW, **Kanji Flashcards** NEW, **Bento Box** NEW | **Homeschool** NEW |
+| Jisca, The Maestro (specialist) | Staande Ovatie | Gekke Vogels, *Bladmuziek* (booster), **Metronoom** NEW | Het Podium |
+| Tuk, The Healing Spirit (specialist) | Cat Sanctuary | Bowie & Stormey, **Kattenbrokjes** NEW, **Knijpkat** NEW (shared), *Thuiszorg* (booster, shared) | De Box |
+| Cless, The Teacher (specialist) | Final Exam | ViannaPoes, **Japans Woordenboek** NEW, *Kanji Flashcards* (booster), *Bento Box* (booster) | **Homeschool** NEW |
 
 ## NEW kit cards (draft effects)
 ### Places
@@ -142,6 +142,8 @@ Obby #1 and #2 are the homes where the whole group hung out. **Any Mosje** can u
 She gets knocked down and gets back up. Her ability (loses 10 less per attack) keeps her above 50 MP. A failed Quest also counts as a knockdown, so the PQ works even if the opponent refuses to attack her. **Stop it:** knock her below 50 MP.
 
 ## Gear round (11 Nov, Gandalf's picks)
+
+**Signature** (in the kit): Knijpkat, All The Plates, Hawaiishirt, Night Vision, Minimap, Racestuur, Day-One Game, Pokerfiches, Roast-boekje, Metronoom, Kattenbrokjes, Japans Woordenboek, Draaitafels. All other cards in this table are **booster extras**.
 
 Draft effects. Digital gear uses the existing template "Only if a Digital Mosje is on your field"; Creative gear "While a Creative Mosje is on your field". Ronald, Dr. Phill-osoof keeps Hele Fles Fireman as his signature card (starts his drunk Dr. Phil rambling).
 
