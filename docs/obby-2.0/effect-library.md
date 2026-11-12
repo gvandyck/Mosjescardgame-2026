@@ -25,6 +25,17 @@ Keep effects **easy and clean**:
 
 ---
 
+## Style decisions (12 Nov) — PROVISIONAL until the mockup test
+Gandalf's picks, to be tested on the "Card Text Style Test" canvas (A all words · B all icons · C mix) before the wording pass:
+1. Duration: **icon + number** (⏳1 / ⏳2).
+2. Friend bonus: **name icon** (a name tag like `COERT`).
+3. Type requirement: **type glyph in a corner** (no "Needs:" text).
+4. Energy in text: **own bolt icon**, same style as the die.
+
+Note: the Card Design Lock (29 Oct) ruled "no STAYS chip, no corner glyphs". Picks 1 and 3 reopen that; the test decides.
+
+---
+
 ## 1. Anatomy of an effect
 
 Every effect is built from up to 7 parts, always in this order on the card:
