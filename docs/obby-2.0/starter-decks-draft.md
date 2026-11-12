@@ -85,7 +85,7 @@ Moshpit out (more a Place than a Piecie); its slot goes to a 2nd Rugbybal. Miche
 
 ## Change 11 Nov: card diversity swaps
 Nine cards that only gained MP got a new, clean effect (see `effect-library.md`, "Accepted reworks").
-- **Physical:** Late Night Döner (+10 Power ⏳2) and Snoeiertje (+10 Power, Combo +20) were already in. Aansteker replaces Pleistertje kan.
+- **Physical:** Late Night Döner (+10 Power until the end of your next turn) and Snoeiertje (+10 Power, Combo +20) were already in. Aansteker replaces Pleistertje kan.
 - **Digital:** Mouse (now finds a gear Piecie) was already in. Hawaiishirt replaces 1 Keyboard; Ctrl+S replaces Afblijven!.
 - **Creative:** Kladje replaces Pot of Weed; Spiegelen replaces 1 Kannetje Melk; Oh nee toch niet replaces Gevalletje Klakkeloos.
 

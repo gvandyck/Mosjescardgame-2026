@@ -6,15 +6,18 @@ Source: all 170 active card texts in `src/data` (Piecies, Snelle, Places), the 2
 
 ---
 
-## Style decisions (Gandalf, 12 Nov)
+## Style decisions (Gandalf, 12 Nov) — FINAL: all text
+Tested on the "Card Text Style Test" canvas (boards A–G). Decision: **all text, no glyphs, no name tags.** This keeps the Card Design Lock (29 Oct: no STAYS chip, no corner glyphs) intact.
+
 | Topic | Decision | On the card |
 |---|---|---|
-| Duration | Icon + number | `⏳1` (until your next turn) · `⏳2` (until the end of your next turn) |
-| Friend bonus | Name icon | `COERT` gains 25 instead. · With `COERT`: draw 1. |
-| Type requirement | Type glyph in a corner | Corner glyph = needs a Mosje of that type on your field (depends on glyph design) |
-| Energy | Own icon, like the die | `⚡1` |
+| Duration | Fixed Yu-Gi-Oh style phrases | "this turn" · "until the end of your next turn" · "during your opponent's next turn" |
+| Friend bonus | Words, two forms | "A Coert gains 35 instead." (that Mosje) · "With a Coert on your field: draw 1." (a check) |
+| Type requirement | Needs: line | "**Needs:** a Digital Mosje." |
+| Energy | The word | "pay 1 Energy" |
+| Cost / condition | Yu-Gi-Oh punctuation | **colon** = condition ("Once per turn:"), **semicolon** = cost ("pay 1 Energy; draw 3"), "and if it does" = only if the first part worked |
 
-These replace the phrasings in §2 and §6 (fixes 2–5).
+The plain die icon (9 Nov) stays, but only in Quest / PQ roll lines; in effect text it's the word "die". Durations go only on effects that last (Power, shields, locks), never on "gains X MP".
 
 ## 0. Clean text rule (Gandalf, 11 Nov)
 Keep effects **easy and clean**:
@@ -22,17 +25,6 @@ Keep effects **easy and clean**:
 - At most one condition (*Needs:* or a keyword), no star thresholds on top ("Str ★★★: 25").
 - Friend bonus ("A Coert…") only on kit cards, where it's the point of the card.
 - Several effects on one card are allowed, as long as the text stays short.
-
----
-
-## Style decisions (12 Nov) — PROVISIONAL until the mockup test
-Gandalf's picks, to be tested on the "Card Text Style Test" canvas (A all words · B all icons · C mix) before the wording pass:
-1. Duration: **icon + number** (⏳1 / ⏳2).
-2. Friend bonus: **name icon** (a name tag like `COERT`).
-3. Type requirement: **type glyph in a corner** (no "Needs:" text).
-4. Energy in text: **own bolt icon**, same style as the die.
-
-Note: the Card Design Lock (29 Oct) ruled "no STAYS chip, no corner glyphs". Picks 1 and 3 reopen that; the test decides.
 
 ---
 
@@ -47,7 +39,7 @@ Every effect is built from up to 7 parts, always in this order on the card:
 | 3 | **Target** | Who does it hit? | *one of your Mosjes* · *one opponent Mosje* · *each player* |
 | 4 | **Verb** | What happens? (a template below) | *gains* |
 | 5 | **Amount** | How much? | *15 MP* |
-| 6 | **Duration** | How long? | *this turn* · ⏳1 · Attach |
+| 6 | **Duration** | How long? | *this turn* · *until the end of your next turn* · Attach |
 | 7 | **Friend bonus** | Extra for the right friend | *A Coert gains 25 instead.* |
 
 In code: one handler per **verb template**, with the other parts as parameters.
@@ -69,13 +61,13 @@ Today there are 4+ ways to say how long something lasts ("Stays until the start 
 |---|---|---|---|
 | `INSTANT` | *(nothing)* | Happens now, card goes to the discard pile | Kannetje Melk, Pot of Weed, most Piecies |
 | `THIS_TURN` | **this turn** | Ends at the end of this turn | Super Saiyan Mos, Dubbele Dosis, TweedeKANs |
-| `STAYS_1` | **⏳1** "Stays until your next turn." | Covers the opponent's turn, ends when yours starts | Afblijven!, Welloe Force |
-| `STAYS_2` | **⏳2** "Stays until the end of your next turn." | One extra turn | Pets, Laat me chillen!, Synergy Field, Mosje Shield, Continuous Assault |
+| `OPP_TURN` | "during your opponent's next turn" | Only the opponent's turn (shields) | Afblijven!, Welloe Force |
+| `UNTIL_NEXT_END` | "until the end of your next turn" | This turn + opponent's turn + your next turn (2 attacks) | Pets, Laat me chillen!, Synergy Field, Mosje Shield, Continuous Assault |
 | `ATTACH` | **Attach:** | Under a Mosje until it leaves play or the card is destroyed (max 2 per Mosje) | De Belt, Call of the Welloes, all new gear |
 | `PLACE` | *(Place card)* | Until another Place replaces it or it's destroyed | All Places |
 | `ONCE` | "The next time …: …. Then discard this card." | Waits for one trigger, then gone | Laat me chillen!, MP Amplifier, Kleine Taks (2 ticks) |
 
-Design note: the ⏳ number is the graphic-design win. Players can see at a glance how long a card stays, without reading.
+Design note (12 Nov): durations are written out as fixed phrases, never icons. Each phrase means exactly one thing, the way Yu-Gi-Oh does it.
 
 ---
 
@@ -218,14 +210,14 @@ Recommendation: retire `MOMENTUM-GAINING` and `STRENGTH-EQUIPMENT` / `DIGITAL-EQ
 ## 6. Wording fixes found (for the Phase 6 pass)
 
 1. **Dice:** "+1 die" and "+1 ▣" are both in use → **▣ everywhere** (ruled 9 Nov).
-2. **Duration:** 4+ phrasings → the 6 durations above, with ⏳1 / ⏳2 icons.
+2. **Duration:** 4+ phrasings → the fixed phrases above (decided 12 Nov).
 3. **Friend bonus:** 5 phrasings ("While Ronald, The Master Chef is also on your field", "If a Coert is on your field", "A Gandoe gets", "Named: …", "Chris, The BigStepper on your field:") → only two:
    - **"A <Friend> …"**: extra for that Mosje itself.
    - **"With a <Friend> on your field: …"**: a field check.
 
    Synergy Chamber's text must follow ("With a <Friend> on your field" texts work without that Mosje).
 4. **Type gate:** "Only if a Digital Mosje is on your field" / "While an Artistic Mosje is on your field" (Schetsboek still says *Artistic*) / "Play only if a Coert…" → **"Needs: a Digital Mosje on your field."** "Needs:" is the same keyword as on the PQs.
-5. **Energy symbol:** "ϟ" and "Energy" are mixed → pick one. Energy is safer for print and fonts.
+5. **Energy symbol:** "ϟ" and "Energy" are mixed → **the word Energy** (decided 12 Nov).
 6. **Typos and leftovers:** Skiffa "an Creative Mosje"; "Strength ★" still used where the label is now Str★.
 7. **SCRY near-copies:** Mouse, Bladmuziek, Minimap, DJ Koptelefoon, Zie je die Dingetjes. Keep 2 at most; give DJ Koptelefoon a reroll payoff instead.
 8. **Pets:** 5 cards on one template is good consistency. Give each pet **one unique line** so pulling a pet from a booster feels different.
@@ -243,12 +235,12 @@ Nine cards that only gained MP, rewritten with the clean text rule. Final names 
 
 | Card | Was | New text | Template | Deck |
 |---|---|---|---|---|
-| **Late Night Döner** (was Broodje Döner) | gains 35 MP | One of your Mosjes gets +10 Power ⏳2. | POWER_UP (STAYS_2) | Physical |
+| **Late Night Döner** (was Broodje Döner) | gains 35 MP | One of your Mosjes gains 10 Power until the end of your next turn. | POWER_UP (UNTIL_NEXT_END) | Physical |
 | **Snoeiertje** | +10 Power, loses 10 MP (copy of Te Hard Gaan) | One of your Mosjes gets +10 Power this turn. **Combo:** +20 instead. | POWER_UP + Combo | Physical |
 | **Aansteker** (was Momentum Rush; draft name Terugslag!) | gains 15 MP | Play when one of your Mosjes is attacked: the attacker loses 15 MP. | THORNS | Physical |
 | **Mouse** | +10 MP, look at 2 cards | **Needs:** a Digital Mosje. Take a gear Piecie from your deck into your hand. | TUTOR | Digital |
 | **Hawaiishirt** | +10 MP each turn | **Attach:** your first Piecie each turn costs 1 Energy less. | COST_DOWN | Digital |
-| **Ctrl+S** (was Momentum Boost; draft name Save State) | gains 15 MP | One of your Mosjes can't drop a level ⏳2. | SAVE | Digital |
+| **Ctrl+S** (was Momentum Boost; draft name Save State) | gains 15 MP | One of your Mosjes can't drop a level until the end of your next turn. | SAVE | Digital |
 | **Oh nee toch niet** (was Emergency Healings; draft name Toch Niet!) | gains 25 MP | Play when your opponent starts a Quest: they roll 1 ▣ less. | DIE_MINUS | Creative |
 | **Kladje** (was Shoettoe) | gains 30 MP | Draw 1. **Discarded:** draw 2. | DRAW + Discarded | Creative |
 | **Spiegelen** (was Nature's Gift) | gains 30 MP | One of your Mosjes copies an opponent Mosje's Power this turn. | SET_POWER (new) | Creative |
@@ -260,6 +252,6 @@ Effect: pure MP-only cards drop from 18 to 9. MP_GAIN 45 → 36. New in the star
 ## 9. Next steps
 
 1. ~~Pick trigger keywords~~ Done 11 Nov: **Entrance, Discarded, Level Down, Combo**.
-2. Rule on the open style choices: ⏳ icons, two friend-bonus forms, "Needs:" for type gates, Energy vs ϟ.
+2. ~~Rule on the style choices~~ Done 12 Nov: all text (see top).
 3. Wording pass: rewrite every card to the canonical phrasing and tag it with template IDs (in a sheet).
 4. Claude Code: one handler per template ID (FINAL handover).
