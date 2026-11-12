@@ -6,6 +6,16 @@ Source: all 170 active card texts in `src/data` (Piecies, Snelle, Places), the 2
 
 ---
 
+## Style decisions (Gandalf, 12 Nov)
+| Topic | Decision | On the card |
+|---|---|---|
+| Duration | Icon + number | `⏳1` (until your next turn) · `⏳2` (until the end of your next turn) |
+| Friend bonus | Name icon | `COERT` gains 25 instead. · With `COERT`: draw 1. |
+| Type requirement | Type glyph in a corner | Corner glyph = needs a Mosje of that type on your field (depends on glyph design) |
+| Energy | Own icon, like the die | `⚡1` |
+
+These replace the phrasings in §2 and §6 (fixes 2–5).
+
 ## 0. Clean text rule (Gandalf, 11 Nov)
 Keep effects **easy and clean**:
 - One short sentence per effect; two at most.
