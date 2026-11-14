@@ -276,7 +276,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
   - Lifts heavy stuff
   - Hits really hard · carries heavy things
 - **Theme check:** Fixed 7 Nov (carries heavy things).
-- Gear (11 Nov): All The Plates
+- Gear (11 Nov): Jeffrey's Plates
 
 
 ### Jeffrey, The Silent Gambler · Creative
@@ -423,7 +423,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
   - Evil genius plan · chess master · controls reality · reuses old tricks
   - Back from the archive 9 Nov for the Creative starter deck
   - Drunk Ronald talks to everyone and gives unasked advice → 'Dr. Phil' joke → Dr. Phill-osoof
-  - Once drank a whole bottle of Fireman (liquorice liqueur) → Piecie Hele Fles Fireman
+  - Once drank a whole bottle of Fireman (liquorice liqueur) → Piecie Ronald's Fles Fireman
 - **Theme check:** Fits (reuses old tricks).
 
 **Linked cards:**

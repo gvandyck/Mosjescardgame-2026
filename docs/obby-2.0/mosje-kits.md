@@ -15,7 +15,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 - [x] Michelle's PQ: Ironman → Knocked Down, Not Out (11 Nov)
 
 **Open**
-- [ ] Pets (rule 14 Nov: each friend gets 1 pet card, all pets share one effect). Have one: Gandoe + Michelle/Tuk (Bowie & Stormey), Jisca (Gekke Vogels), Coert + Binti (Tony), Cless (ViannaPoes), Alyssa (KatjeGang). Ming (*Ming's Hond*, placeholder: real name and breed to come). Still need a real pet: Jeffrey, Ronald, Martin/West, Chris, Youri
+- [ ] Pets (rule 14 Nov: each friend gets 1 pet card, all pets share one effect). Have one: Gandoe + Michelle/Tuk (Bowie & Stormey), Jisca (Gekke Vogels), Coert + Binti (Tony), Cless (ViannaPoes), Alyssa (KatjeGang). Ming (*Ming's Hond*, placeholder: real name and breed to come). No pet, signature card instead: Jeffrey, Ronald, Martin/West, Chris, Youri
 - [x] Gear round: 13 Mosjes got gear drafts (11 Nov)
 - [x] Gear round trimmed: 1 signature per Mosje in the kit, the rest are booster extras (11 Nov)
 - [x] Michelle's gear: Knijpkat, Omafiets, Thuiszorg (11 Nov)
@@ -33,12 +33,14 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 
 **Pet rule (14 Nov):** each friend gets 1 pet card. All pets use the same effect; only the friend's name changes. One card can show several animals.
 
+**Signature rule (14 Nov):** a friend without a pet gets one signature card carrying their name. Each keeps its own effect (unlike pets). Set so far: **Ronald's Fles Fireman** (was Hele Fles Fireman), **Jeffrey's Plates** (was All The Plates). To confirm: Martin/West, Chris, Youri ("Youri's Beta").
+
 ## The kit rule
 1. **Personal Quest:** its own PQ (one per Mosje card).
 2. **Signature Piecie:** at least 1 Piecie, pet or Snelle that names the Mosje or its friend ("A Coert…", "a Gandoe gets +20") or clearly belongs to it.
 3. **Place:** at least 1 Place that names it / its friend or is its real-life spot.
 4. **Persona:** an entry in `mosje-personas.md`.
-- Kit cards may be **shared by the same friend** when the theme fits (Bowie & Stormey for Michelle and Tuk; Perron + Zonnebril for party Mosjes; Ronnie's Kitchen and Hele Fles Fireman for both Ronalds).
+- Kit cards may be **shared by the same friend** when the theme fits (Bowie & Stormey for Michelle and Tuk; Perron + Zonnebril for party Mosjes; Ronnie's Kitchen and Ronald's Fles Fireman for both Ronalds).
 - **Deck theme rule:** a kit card only goes in a deck that has a matching Mosje (no De Cockpit without a pilot). Generic cards (Kannetje Melk, Te Hard Gaan, Jensen!…) go anywhere.
 
 **NEW** = new card (draft effect, 9 Nov). *Italic* = placeholder name. All kits are complete.
@@ -52,8 +54,8 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | AZN Cless, The Wild Card | All In | Protein Shake, **ChestPress** NEW | Gym |
 | Michelle, Iron Tuk | **Knocked Down, Not Out** (was Ironman) | Bowie & Stormey, **Knijpkat** NEW, *Omafiets* (booster), *Thuiszorg* (booster) | Eendjes Voeren, De Box |
 | Parkour West (specialist) | Over Alle Daken | Protein Shake, **Grip-schoenen** NEW | De Daken, Obby #1 (host) |
-| Jeffrey, The Strongman | Sterke Jongen | Protein Shake, Dumbbells, **All The Plates** NEW | Gym |
-| Ronald, The Master Chef | Michelinster | Ronald Kip, Chef's Special, Hele Fles Fireman, **Koksmes** NEW | **Ronnie's Kitchen** NEW, Obby #1 (host) |
+| Jeffrey, The Strongman | Sterke Jongen | Protein Shake, Dumbbells, **Jeffrey's Plates** NEW | Gym |
+| Ronald, The Master Chef | Michelinster | Ronald Kip, Chef's Special, Ronald's Fles Fireman, **Koksmes** NEW | **Ronnie's Kitchen** NEW, Obby #1 (host) |
 | Martin, Señor West | Obby Shotjes Gauntlet | Those Eyelashes Tho..., **Poncho & Sombrero** NEW | Obby #1 (host) |
 | Coert, KasteLuck | Lucky Streak | Tony, Boosterpackkie, **Toploader** NEW | **Ruilbeurs Jaarbeurs** NEW |
 | Chris, The BigStepper | Full Combo | In De Groove, **Dancepad** NEW, **Handdoek** NEW | **Silverstone (DDR arcade)** NEW, Obby #2 (host) |
@@ -76,7 +78,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | Jeffrey, The Silent Gambler | High Roller | Gekke Dobbel, **Pokerfiches** NEW, **Zonnebril** NEW | Punto Banco |
 | DJ 80/20, The Lucky Mixer | Lucky Crescendo | Dikke Plaat, **Draaitafels** NEW, *DJ Koptelefoon* (booster), *Mixer* (booster) | Skiffa |
 | Binti, The Sharp Tongue | Binti Brandt | Varkenspootjes, Stookerino, **Roast-boekje** NEW, *Telefoon* (booster), Tony (pet, shared with Coert) | Tesla, Delluft |
-| Ronald, Dr. Phill-osoof (was The Mastermind) | Ongevraagd Advies (was Checkmate) | **Hele Fles Fireman** NEW | Ronnie's Kitchen, Obby #1 (host) |
+| Ronald, Dr. Phill-osoof (was The Mastermind) | Ongevraagd Advies (was Checkmate) | **Ronald's Fles Fireman** NEW | Ronnie's Kitchen, Obby #1 (host) |
 | Jisca, The Maestro (specialist) | Staande Ovatie | Gekke Vogels, *Bladmuziek* (booster), **Metronoom** NEW | Het Podium |
 | Tuk, The Healing Spirit (specialist) | Cat Sanctuary | Bowie & Stormey, **Kattenbrokjes** NEW, **Knijpkat** NEW (shared), *Thuiszorg* (booster, shared) | De Box |
 | Cless, The Teacher (specialist) | Final Exam | ViannaPoes, **Japans Woordenboek** NEW, *Kanji Flashcards* (booster), *Bento Box* (booster) | **Homeschool** NEW |
@@ -102,7 +104,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 |---|---|---|
 | **Zonnebril** (gear, ★★, cost 1) | Alyssa, Fissa Fissa! + party Mosjes (shared) | Attach to one of your Mosjes: your opponent's Snelle Piecies can't target it. Flavour: *"Wat? Ik ben gewoon moe."* At Perron: also Resilient +1 ★. |
 | *Ming's Hond* (pet, placeholder) | Ming | One of your Mosjes loses 10 less MP each time it loses MP, until the end of your next turn. A Ming loses 20 less instead. Name and breed to come. |
-| **Hele Fles Fireman** (substance, ★★★) | both Ronalds | One of your Mosjes gets +20 Power this turn and loses 20 MP at the end of the turn. A Ronald loses nothing (he's used to it). |
+| **Ronald's Fles Fireman** (substance, ★★★) | both Ronalds | One of your Mosjes gets +20 Power this turn and loses 20 MP at the end of the turn. A Ronald loses nothing (he's used to it). |
 | MagicPrompt (gear) | Gandoe, The Cloude Wizard | Search your deck for a gear Piecie. A Gandoe also gains 10 MP. |
 | **Blikje Monsteros** (substance) | Youri | Gain 2ϟ this turn. One of your Mosjes loses 15 MP. A Youri also draws 1. (Flavour: his stomach.) |
 | **Headset** (gear) | FPS Coert + FPS West | Only if a Digital Mosje is on your field: look at the top 2 cards of the opponent's deck. An FPS Mosje also gets +10 Power this turn. |
@@ -148,16 +150,16 @@ She gets knocked down and gets back up. Her ability (loses 10 less per attack) k
 
 ## Gear round (11 Nov, Gandalf's picks)
 
-**Signature** (in the kit): Knijpkat, All The Plates, Hawaiishirt, Night Vision, Minimap, Racestuur, Day-One Game, Pokerfiches, Roast-boekje, Metronoom, Kattenbrokjes, Japans Woordenboek, Draaitafels. All other cards in this table are **booster extras**.
+**Signature** (in the kit): Knijpkat, Jeffrey's Plates, Hawaiishirt, Night Vision, Minimap, Racestuur, Day-One Game, Pokerfiches, Roast-boekje, Metronoom, Kattenbrokjes, Japans Woordenboek, Draaitafels. All other cards in this table are **booster extras**.
 
-Draft effects. Digital gear uses the existing template "Only if a Digital Mosje is on your field"; Creative gear "While a Creative Mosje is on your field". Ronald, Dr. Phill-osoof keeps Hele Fles Fireman as his signature card (starts his drunk Dr. Phil rambling).
+Draft effects. Digital gear uses the existing template "Only if a Digital Mosje is on your field"; Creative gear "While a Creative Mosje is on your field". Ronald, Dr. Phill-osoof keeps Ronald's Fles Fireman as his signature card (starts his drunk Dr. Phil rambling).
 
 | Card | Kind | ★ | For | Draft effect |
 |---|---|---|---|---|
 | **Knijpkat** | gear | ★★ | Michelle, Iron Tuk | Attach: when this Mosje fails a Quest, it gains 10 MP. A Michelle or Tuk gains 20. (shared Michelle + Tuk) |
 | **Omafiets** | gear | ★★ | Michelle, Iron Tuk | Attach: +1 ▣ on one Quest each turn. If that roll shows a ⚀, the bike falls apart: discard it. A Michelle keeps riding on the first ⚀. |
 | **Thuiszorg** | Snelle | ★★ | Michelle, Iron Tuk | Play any time: one of your Mosjes gains 15 MP. A Michelle or Tuk also draws 1. (shared Michelle + Tuk) |
-| **All The Plates** | gear | ★★★ | Jeffrey, The Strongman | Attach to a Mosje with Str ★★★: +20 Power, but it can't attack the turn you attach it (loading the bar). A Jeffrey can. |
+| **Jeffrey's Plates** | gear | ★★★ | Jeffrey, The Strongman | Attach to a Mosje with Str ★★★: +20 Power, but it can't attack the turn you attach it (loading the bar). A Jeffrey can. |
 | **Hawaiishirt** | gear | ★ | Coert, The Hawaiian Tech Savant | **Attach:** your first Piecie each turn costs 1 Energy less. (clean version, 11 Nov) |
 | **Reserve-onderdelen** | gear | ★★ | Coert, The Hawaiian Tech Savant | Only if a Digital Mosje is on your field: take 1 gear Piecie from your discard pile into your hand. |
 | **Kabelbak** | gear | ★ | Coert, The Hawaiian Tech Savant | Only if a Digital Mosje is on your field: draw 2, then discard 1. |

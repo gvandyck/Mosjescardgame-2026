@@ -15,7 +15,7 @@ Rules: only standard-curve Mosjes · starter PQs ★–★★★ (chase PQs ★�
 |---|---|---|
 | Food | Kannetje Melk 2 · Late Night Döner 2 · Ronald Kip 2 · Protein Shake 2 | 8 |
 | Gear | Dumbbells 2 · Dancepad 2 · Rugbybal 2 · Koksmes 1 | 7 |
-| Attack | Te Hard Gaan 2 · Snoeiertje 1 · Hele Fles Fireman 1 · Super Saiyan Mos 1 · Kleine Taks 1 | 6 |
+| Attack | Te Hard Gaan 2 · Snoeiertje 1 · Ronald's Fles Fireman 1 · Super Saiyan Mos 1 · Kleine Taks 1 | 6 |
 | Kit / defence | Bowie & Stormey 1 · Afblijven! 1 · In De Groove 1 | 3 |
 | Snelle | Handdoek 2 · Aansteker 1 · Jensen! 1 | 4 |
 | **Total Piecies + Snelle** | | **28** |
@@ -26,7 +26,7 @@ Rules: only standard-curve Mosjes · starter PQs ★–★★★ (chase PQs ★�
 | Alyssa, The Bulldozer | Charge!, Rugbybal ×2 (Rugby Training stays out: 3 Place slots) |
 | Jeffrey, The Strongman | Sterke Jongen, Gym, Protein Shake, Dumbbells, 6 gear to attach |
 | Michelle, Iron Tuk | Knocked Down, Not Out, Bowie & Stormey, De Box, 8 food |
-| Ronald, The Master Chef | Michelinster, Ronald Kip, Koksmes, Hele Fles Fireman, Ronnie's Kitchen |
+| Ronald, The Master Chef | Michelinster, Ronald Kip, Koksmes, Ronald's Fles Fireman, Ronnie's Kitchen |
 
 ## Digital — gear up
 **Mosjes:** Coert, The Hawaiian Tech Savant · Gandoe, The Cloude Wizard · Youri, The Speedrunner · FPS Coert · FPS West
@@ -62,7 +62,7 @@ Rules: only standard-curve Mosjes · starter PQs ★–★★★ (chase PQs ★�
 | Dice | Gekke Dobbel 2 · Dubbele Dosis 1 | 3 |
 | Disruption | Varkenspootjes 2 · Stookerino 1 · Jantje Jantje... 1 | 4 |
 | Draw | Zie je die Dingetjes 2 · Kladje 1 · Bagga of Greed 1 | 4 |
-| Kit | Hele Fles Fireman 1 (Ronald) · Zwoele Ming Power 2 · TemPiecie 1 | 4 |
+| Kit | Ronald's Fles Fireman 1 (Ronald) · Zwoele Ming Power 2 · TemPiecie 1 | 4 |
 | Food / substance / attack | Kannetje Melk 1 · Spiegelen 1 · Larry / Zegeltje 1 · Te Hard Gaan 1 | 4 |
 | Snelle | Lucky Cóin 2 · Je Weet Niet 1 · Jensen! 1 · Oh nee toch niet 1 | 5 |
 | **Total Piecies + Snelle** | | **28** |
@@ -73,7 +73,7 @@ Rules: only standard-curve Mosjes · starter PQs ★–★★★ (chase PQs ★�
 | Jeffrey, The Silent Gambler | High Roller, Gekke Dobbel, Punto Banco |
 | DJ 80/20 | Lucky Crescendo, Dikke Plaat, Skiffa |
 | Binti, The Sharp Tongue | Binti Brandt, Varkenspootjes, Stookerino |
-| Ronald, Dr. Phill-osoof | Hele Fles Fireman (Ongevraagd Advies and Ronnie's Kitchen stay out: slots) |
+| Ronald, Dr. Phill-osoof | Ronald's Fles Fireman (Ongevraagd Advies and Ronnie's Kitchen stay out: slots) |
 
 ---
 
