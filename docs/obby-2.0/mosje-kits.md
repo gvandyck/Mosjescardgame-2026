@@ -33,7 +33,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 
 **Pet rule (14 Nov):** each friend gets 1 pet card. All pets use the same effect; only the friend's name changes. One card can show several animals.
 
-**Signature rule (14 Nov):** a friend without a pet gets one signature card carrying their name. Each keeps its own effect (unlike pets). All five set: **Ronald's Fles Fireman** (was Hele Fles Fireman), **Jeffrey's Plates** (was All The Plates), **Señor West's Sombrero** (was Poncho & Sombrero), **Chris's Handdoek** (was Handdoek), **Youri's Beta** (new card).
+**Signature rule (14 Nov):** a friend without a pet gets one signature card carrying their name. Each keeps its own effect (unlike pets), but all follow the pet pattern: **the card works for anyone, and its own friend gets more.** All five set: **Ronald's Fles Fireman** (was Hele Fles Fireman), **Jeffrey's Plates** (was All The Plates), **Señor West's Sombrero** (was Poncho & Sombrero), **Chris's Handdoek** (was Handdoek), **Youri's Beta** (new card).
 
 ## The kit rule
 1. **Personal Quest:** its own PQ (one per Mosje card).
@@ -113,10 +113,10 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | Rugbybal (gear) | Alyssa, The Bulldozer | Attach to one of your Mosjes: it gets +10 Power when it attacks. An Alyssa also gains 10 MP after each attack. |
 | Koksmes (gear) | Ronald, The Master Chef | Attach to one of your Mosjes: it gets +10 Power. A Ronald gets +20 instead. |
 | ChestPress (gear) | AZN Cless, The Wild Card | The machine in the gym. Attach: once per turn, before a Quest roll you may pay 10 MP: +1 ▣ (a PR attempt). An AZN Cless pays nothing. |
-| Señor West's Sombrero (gear) | Martin, Señor West | Mexican poncho + big hat (art ref: the Señor West sticker). Attach: his charm ability costs 0 Energy. A charmed Mosje also loses 10 MP. |
+| Señor West's Sombrero (gear) | Martin, Señor West | Mexican poncho + big hat (art ref: the Señor West sticker). Attach: the first attack on this Mosje each turn gets −10 Power. A Señor West's charm also costs 0 Energy. (Pattern rule 14 Nov: now useful for any Mosje.) |
 | **Grip-schoenen** (gear) | Parkour West | Attach: Mosjes with less Power can't attack this Mosje. A West also gains 10 MP when an attack on him is stopped. |
 | **Toploader** (gear) | Coert, KasteLuck | The plastic sleeve for a graded card. Attach: your opponent's Piecies can't make this Mosje lose MP. A Coert also draws 1 when he wins a Quest. |
-| **Youri's Beta** (gear, draft) | Youri | The beta of the game he's making. Attach: once per turn, when this Mosje fails a Quest, roll all the dice again. |
+| **Youri's Beta** (gear, draft) | Youri | The beta of the game he's making. Attach: the first time this Mosje fails a Quest, roll all the dice again, then discard this card. A Youri keeps this card. |
 | De Switch (gear) | Youri + Chris, The Gamer (later) | One of your Mosjes gains 10 MP. A Chris or Youri also gets +1 ▣ on one Quest this turn. No Digital requirement. |
 | *Mosje Kart* (idea, Snelle) | Youri + Chris, The Gamer (later) | Each player rolls 1 ▣. The highest gains 20 MP; a Chris or Youri gains 30. Ties: nobody. |
 | Yoke & Pedals (gear) | Flightsim Coert | Only if a Digital Mosje is on your field: one of your Mosjes gains 10 MP. A Coert also draws 1. |
