@@ -114,7 +114,7 @@ Design note (12 Nov): durations are written out as fixed phrases, never icons. E
 | ID | Canonical phrasing | Count | Examples |
 |---|---|---|---|
 | `DIE_PLUS` | **+1 ▣ on one Quest this turn.** | 15 | Dubbele Dosis, Controller, Sleutelpuntje, Gym |
-| `REROLL` | **Reroll 1 ▣.** | 8 | TweedeKANs, Dikke Plaat, Skiffa, Handdoek, DJ 80/20 |
+| `REROLL` | **Reroll 1 ▣.** | 8 | TweedeKANs, Dikke Plaat, Skiffa, Chris's Handdoek, DJ 80/20 |
 | `REROLL_OPP` | **Your opponent rerolls all those dice.** | 1 | Je Weet Niet |
 | `DIE_MINUS` | **… rolls 1 ▣ less.** | 1 | Ronald, Dr. Phill-osoof |
 | `GAMBLE` | **Roll 1 ▣: ⚀–⚁ … · ⚂–⚃ … · ⚄–⚅ …** | 6 | Kan het?!, Grammetje Pieter, Larry / Zegeltje | One table layout for every roll card. |

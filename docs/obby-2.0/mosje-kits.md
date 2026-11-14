@@ -8,8 +8,8 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 - [x] Obby #1 for everyone; Host advantage; listed in all host kits (9 + 11 Nov)
 - [x] Silverstone (DDR arcade) for Chris, The BigStepper (9 Nov)
 - [x] Homeschool for Cless, The Teacher (was Schoolplein) (9 Nov)
-- [x] Chris pure DDR: Dancepad, Handdoek (Snelle); De Switch → Youri + Chris, The Gamer later (9 Nov)
-- [x] Physical gear: Rugbybal (Alyssa Bulldozer), Koksmes (Ronald Chef), ChestPress (AZN Cless), Poncho & Sombrero (Señor West) (9 Nov)
+- [x] Chris pure DDR: Dancepad, Chris's Handdoek (Snelle); De Switch → Youri + Chris, The Gamer later (9 Nov)
+- [x] Physical gear: Rugbybal (Alyssa Bulldozer), Koksmes (Ronald Chef), ChestPress (AZN Cless), Señor West's Sombrero (Señor West) (9 Nov)
 - [x] Moshpit removed from both Alyssas; possibly a Place later (11 Nov)
 - [x] Zonnebril (party gear) + Perron (was De Dansvloer) for Alyssa Fissa and party Mosjes (11 Nov)
 - [x] Michelle's PQ: Ironman → Knocked Down, Not Out (11 Nov)
@@ -33,7 +33,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 
 **Pet rule (14 Nov):** each friend gets 1 pet card. All pets use the same effect; only the friend's name changes. One card can show several animals.
 
-**Signature rule (14 Nov):** a friend without a pet gets one signature card carrying their name. Each keeps its own effect (unlike pets). Set so far: **Ronald's Fles Fireman** (was Hele Fles Fireman), **Jeffrey's Plates** (was All The Plates). To confirm: Martin/West, Chris, Youri ("Youri's Beta").
+**Signature rule (14 Nov):** a friend without a pet gets one signature card carrying their name. Each keeps its own effect (unlike pets). All five set: **Ronald's Fles Fireman** (was Hele Fles Fireman), **Jeffrey's Plates** (was All The Plates), **Señor West's Sombrero** (was Poncho & Sombrero), **Chris's Handdoek** (was Handdoek), **Youri's Beta** (new card).
 
 ## The kit rule
 1. **Personal Quest:** its own PQ (one per Mosje card).
@@ -56,16 +56,16 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | Parkour West (specialist) | Over Alle Daken | Protein Shake, **Grip-schoenen** NEW | De Daken, Obby #1 (host) |
 | Jeffrey, The Strongman | Sterke Jongen | Protein Shake, Dumbbells, **Jeffrey's Plates** NEW | Gym |
 | Ronald, The Master Chef | Michelinster | Ronald Kip, Chef's Special, Ronald's Fles Fireman, **Koksmes** NEW | **Ronnie's Kitchen** NEW, Obby #1 (host) |
-| Martin, Señor West | Obby Shotjes Gauntlet | Those Eyelashes Tho..., **Poncho & Sombrero** NEW | Obby #1 (host) |
+| Martin, Señor West | Obby Shotjes Gauntlet | Those Eyelashes Tho..., **Señor West's Sombrero** NEW | Obby #1 (host) |
 | Coert, KasteLuck | Lucky Streak | Tony, Boosterpackkie, **Toploader** NEW | **Ruilbeurs Jaarbeurs** NEW |
-| Chris, The BigStepper | Full Combo | In De Groove, **Dancepad** NEW, **Handdoek** NEW | **Silverstone (DDR arcade)** NEW, Obby #2 (host) |
+| Chris, The BigStepper | Full Combo | In De Groove, **Dancepad** NEW, **Chris's Handdoek** NEW | **Silverstone (DDR arcade)** NEW, Obby #2 (host) |
 
 ## Digital
 | Mosje | Personal Quest | Signature Piecie | Place |
 |---|---|---|---|
 | Coert, The Hawaiian Tech Savant | Aloha Tech Support | Hawaii Pizza, Boosterpackkie, **Hawaiishirt** NEW, *Reserve-onderdelen* (booster), *Kabelbak* (booster), *Bootstick* (booster), *Tesla Laadkabel* (booster) | Coert's Caravan, Tesla |
 | Gandoe, The Cloude Wizard (was Claude Wizard) | Vibe Coded | **MagicPrompt** NEW | **Gandoe's Cloude** NEW, Obby #1 + #2 (host) |
-| Youri, The Speedrunner | World Record Run | **Blikje Monsteros** NEW, **De Switch** NEW | **Youri's Woonkamer** NEW |
+| Youri, The Speedrunner | World Record Run | **Youri's Beta** NEW (signature), **Blikje Monsteros** NEW, **De Switch** NEW | **Youri's Woonkamer** NEW |
 | FPS Coert | Headshot | **Headset** NEW, *Med Kit* (booster), **Night Vision** NEW, *Loot Backpack* (booster) | **Woonkamer (Discord)** NEW |
 | FPS West | Clutch Round | Headset, Those Eyelashes Tho..., **Minimap** NEW, *Smoke Grenade* (booster) | Woonkamer (Discord), Obby #1 (host) |
 | Martin, The Precision Driver (specialist) | Grand Prix | Track Highscore, **Racestuur** NEW | Circuit Zandvoort, Obby #1 (host) |
@@ -109,13 +109,14 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | **Blikje Monsteros** (substance) | Youri | Gain 2ϟ this turn. One of your Mosjes loses 15 MP. A Youri also draws 1. (Flavour: his stomach.) |
 | **Headset** (gear) | FPS Coert + FPS West | Only if a Digital Mosje is on your field: look at the top 2 cards of the opponent's deck. An FPS Mosje also gets +10 Power this turn. |
 | Dancepad (gear) | Chris, The BigStepper | One of your Mosjes gains 10 MP. A Chris also gets +1 ▣ on one Quest this turn. |
-| Handdoek (Snelle) | Chris, The BigStepper | The towel on the DDR bar. Play right after one of your Mosjes rolls for a Quest: reroll 1 die. A Chris also gains 10 MP. |
+| Chris's Handdoek (Snelle) | Chris, The BigStepper | The towel on the DDR bar. Play right after one of your Mosjes rolls for a Quest: reroll 1 die. A Chris also gains 10 MP. |
 | Rugbybal (gear) | Alyssa, The Bulldozer | Attach to one of your Mosjes: it gets +10 Power when it attacks. An Alyssa also gains 10 MP after each attack. |
 | Koksmes (gear) | Ronald, The Master Chef | Attach to one of your Mosjes: it gets +10 Power. A Ronald gets +20 instead. |
 | ChestPress (gear) | AZN Cless, The Wild Card | The machine in the gym. Attach: once per turn, before a Quest roll you may pay 10 MP: +1 ▣ (a PR attempt). An AZN Cless pays nothing. |
-| Poncho & Sombrero (gear) | Martin, Señor West | Mexican poncho + big hat (art ref: the Señor West sticker). Attach: his charm ability costs 0 Energy. A charmed Mosje also loses 10 MP. |
+| Señor West's Sombrero (gear) | Martin, Señor West | Mexican poncho + big hat (art ref: the Señor West sticker). Attach: his charm ability costs 0 Energy. A charmed Mosje also loses 10 MP. |
 | **Grip-schoenen** (gear) | Parkour West | Attach: Mosjes with less Power can't attack this Mosje. A West also gains 10 MP when an attack on him is stopped. |
 | **Toploader** (gear) | Coert, KasteLuck | The plastic sleeve for a graded card. Attach: your opponent's Piecies can't make this Mosje lose MP. A Coert also draws 1 when he wins a Quest. |
+| **Youri's Beta** (gear, draft) | Youri | The beta of the game he's making. Attach: once per turn, when this Mosje fails a Quest, roll all the dice again. |
 | De Switch (gear) | Youri + Chris, The Gamer (later) | One of your Mosjes gains 10 MP. A Chris or Youri also gets +1 ▣ on one Quest this turn. No Digital requirement. |
 | *Mosje Kart* (idea, Snelle) | Youri + Chris, The Gamer (later) | Each player rolls 1 ▣. The highest gains 20 MP; a Chris or Youri gains 30. Ties: nobody. |
 | Yoke & Pedals (gear) | Flightsim Coert | Only if a Digital Mosje is on your field: one of your Mosjes gains 10 MP. A Coert also draws 1. |
@@ -189,11 +190,11 @@ Draft effects. Digital gear uses the existing template "Only if a Digital Mosje 
 ## Physical gear check (9 Nov)
 
 Every Physical Mosje gets its own gear. Status:
-- Done: Gandoe (Boxing Gloves, De Belt, Skipping Rope), Chris (Dancepad), Alyssa Bulldozer (Rugbybal), Ronald Chef (Koksmes), AZN Cless (ChestPress), Señor West (Poncho & Sombrero).
+- Done: Gandoe (Boxing Gloves, De Belt, Skipping Rope), Chris (Dancepad), Alyssa Bulldozer (Rugbybal), Ronald Chef (Koksmes), AZN Cless (ChestPress), Señor West (Señor West's Sombrero).
 - Proposal: Boxing Gloves shared Gandoe + Michelle ("A Gandoe or Michelle gets +20"); she boxes with Gandoe. Fixes Michelle in the starter deck.
 - Protein Shake is already generic in the data (Str ★+: 25 MP, 35 with Str ★★★ or Boxing Ring); the "+35 for West/Cless/Jeffrey" labels in the docs were wrong. Proposal: Parkour West gets *Grip-schoenen*.
 - Proposal: Coert KasteLuck *Toploader* (slab). Alyssa Fissa: later.
-- Watch: Handdoek is the Physical reroll card; no second reroll gear.
+- Watch: Chris's Handdoek is the Physical reroll card; no second reroll gear.
 
 ## Booster theme: Valheim Crew (ideas, 9 Nov)
 Gandoe plays Valheim with West, Coert and sometimes Michelle; their world is **Obbyheim**. A group theme instead of one Mosje's kit.

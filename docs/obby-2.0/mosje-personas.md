@@ -220,7 +220,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 - PQ: Archive Dive (parked with the card)
 
 **Linked cards:**
-- Piecies: Those Eyelashes Tho..., Poncho & Sombrero (gear; art ref = the Señor West sticker: sombrero, poncho, revolver, white gloves), Protein Shake, Track Highscore, Headset (FPS)
+- Piecies: Those Eyelashes Tho..., Señor West's Sombrero (gear; art ref = the Señor West sticker: sombrero, poncho, revolver, white gloves), Protein Shake, Track Highscore, Headset (FPS)
 - Place: Obby #1 (host: gets Host advantage)
 
 **More to add:**
@@ -322,7 +322,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 - PQ: Manus-je Van Alles (parked with the card)
 
 **Linked cards:**
-- Piecie: In De Groove (Chris +10 MP), Dancepad, Handdoek (Snelle: the towel on the DDR bar)
+- Piecie: In De Groove (Chris +10 MP), Dancepad, Chris's Handdoek (Snelle: the towel on the DDR bar)
 - Place: Silverstone (the DDR arcade)
 
 **More to add:**
@@ -503,6 +503,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
   - Everything as fast as possible · real records / leaderboards
   - Used to drink Monster energy until it gave him stomach issues → Blikje Monsteros
   - Games in his own living room, where he also makes his own game → Youri's Woonkamer
+  - Is building his own game IRL → Youri's Beta (signature card)
   - Moment: beating his own record
 - **Theme check:** Fits.
 

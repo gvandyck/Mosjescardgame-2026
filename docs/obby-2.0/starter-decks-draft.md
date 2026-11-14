@@ -17,12 +17,12 @@ Rules: only standard-curve Mosjes · starter PQs ★–★★★ (chase PQs ★�
 | Gear | Dumbbells 2 · Dancepad 2 · Rugbybal 2 · Koksmes 1 | 7 |
 | Attack | Te Hard Gaan 2 · Snoeiertje 1 · Ronald's Fles Fireman 1 · Super Saiyan Mos 1 · Kleine Taks 1 | 6 |
 | Kit / defence | Bowie & Stormey 1 · Afblijven! 1 · In De Groove 1 | 3 |
-| Snelle | Handdoek 2 · Aansteker 1 · Jensen! 1 | 4 |
+| Snelle | Chris's Handdoek 2 · Aansteker 1 · Jensen! 1 | 4 |
 | **Total Piecies + Snelle** | | **28** |
 
 | Mosje | Kit cards in the deck |
 |---|---|
-| Chris, The BigStepper | Dancepad, Handdoek, In De Groove, 28 Piecies for his ability (Silverstone stays out: 3 Place slots) |
+| Chris, The BigStepper | Dancepad, Chris's Handdoek, In De Groove, 28 Piecies for his ability (Silverstone stays out: 3 Place slots) |
 | Alyssa, The Bulldozer | Charge!, Rugbybal ×2 (Rugby Training stays out: 3 Place slots) |
 | Jeffrey, The Strongman | Sterke Jongen, Gym, Protein Shake, Dumbbells, 6 gear to attach |
 | Michelle, Iron Tuk | Knocked Down, Not Out, Bowie & Stormey, De Box, 8 food |
@@ -78,7 +78,7 @@ Rules: only standard-curve Mosjes · starter PQs ★–★★★ (chase PQs ★�
 ---
 
 ## Change 9 Nov: one Gandoe less
-Gandalf: no 3 Gandoes across the starter decks; DJ 80/20 stays. **Gandoe, The Destroyer** leaves Physical (Digital has exactly 5 regular Mosjes, so the Cloude Wizard stays). In his place: **Chris, The BigStepper**. Out: Boxing Gloves 2, De Belt 1, Bagga of Greed 1. In: Dancepad 2, Handdoek 2 (NEW, the towel on the DDR bar), In De Groove 1. Handdoek became a Snelle (wipe the sweat, reroll); its gear slots went to Rugbybal (Alyssa) and Koksmes (Ronald); Nog Niet Klaar and Sleutelpuntje out. Chris stays pure DDR; a separate Chris, The Gamer comes later. Touwtjespringen is out too: only Gandoe jumps rope, and the card doesn't exist in the data. The Destroyer is now a booster Mosje with his own kit (Kampioen Van De Box, Boxing Gloves, De Belt, De Box).
+Gandalf: no 3 Gandoes across the starter decks; DJ 80/20 stays. **Gandoe, The Destroyer** leaves Physical (Digital has exactly 5 regular Mosjes, so the Cloude Wizard stays). In his place: **Chris, The BigStepper**. Out: Boxing Gloves 2, De Belt 1, Bagga of Greed 1. In: Dancepad 2, Chris's Handdoek 2 (NEW, the towel on the DDR bar), In De Groove 1. Chris's Handdoek became a Snelle (wipe the sweat, reroll); its gear slots went to Rugbybal (Alyssa) and Koksmes (Ronald); Nog Niet Klaar and Sleutelpuntje out. Chris stays pure DDR; a separate Chris, The Gamer comes later. Touwtjespringen is out too: only Gandoe jumps rope, and the card doesn't exist in the data. The Destroyer is now a booster Mosje with his own kit (Kampioen Van De Box, Boxing Gloves, De Belt, De Box).
 
 ## Change 11 Nov
 Moshpit out (more a Place than a Piecie); its slot goes to a 2nd Rugbybal. Michelle's PQ Ironman → Knocked Down, Not Out.
