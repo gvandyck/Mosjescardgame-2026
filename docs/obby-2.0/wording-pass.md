@@ -393,7 +393,7 @@ Reworded by rule, like the other booster cards. Source: `mosje-personas.md` and 
 | Cless, The Teacher (Creative) | When you activate a Piecie: roll 1 die. On a 5 or 6, draw 1 and one of your Mosjes gains 5 MP. From Level 2: on a 4, 5 or 6. | GAMBLE · DRAW · MP_GAIN · on activate Piecie · level upgrade |
 | Jisca, The Maestro (Creative) | Once per turn, when you activate a Piecie: roll 1 die. 4–6: activate another ready Piecie for 0 Energy and 1 target opponent Mosje loses 15 MP. 1–3: this Mosje loses 10 MP. | GAMBLE · EXTRA_USE · MP_LOSS · target |
 
-**Flightsim Coert** (NEW, picked by Gandalf 14 Nov) is a Digital Mosje: his gear is real, but he flies digitally. His stats are not confirmed yet; Claude's proposal: cost 3 · start 10 MP · LV1 Tech ★★ · Men ★★ → LV2 Tech ★★ · Men ★★★ → LV3 Tech ★★★ · Men ★★★ (the specialist curve). Archived Mosjes get no text: The Historian, The Predictor, The All-Rounder, The Creator, Kast-elein, The Sims Architect and the four placeholders.
+**Flightsim Coert** (NEW, picked by Gandalf 14 Nov) is a Digital Mosje: his gear is real, but he flies digitally. Stats (14 Nov, Gandalf left the second trait to Claude, to balance trait use): cost 3 · start 10 MP · LV1 Tech ★★ · Men ★★ → LV2 Tech ★★ · Men ★★★ → LV3 Tech ★★★ · Men ★★★ (the specialist curve). Men was the least used trait: 17 stars at Level 3 across the 25 active Mosjes, against 19 for Res and Tech, 27 for Soc and 34 for Str and Art; 5 of the 6 other Digital Mosjes already carry Res. He is the only Digital Mosje with more than Men ★, so he is the one who is good at the Digital Quests that roll Men. Archived Mosjes get no text: The Historian, The Predictor, The All-Rounder, The Creator, Kast-elein, The Sims Architect and the four placeholders.
 **Ruled 14 Nov:** Gandoe, The Destroyer and Alyssa, The Bulldozer start at 10 MP (start MP is never 0). Parkour West and The Precision Driver carry two abilities each, the longest texts among the Mosjes.
 
 ### Booster Personal Quests
@@ -471,7 +471,6 @@ Rule change by precedent: **Obby Shotjes Gauntlet** loses the alternative paymen
 16. **The Protector** is a Snelle that attaches: it can be played at any time, counts as one of the Mosje's 2 attachments, and is discarded at the start of your turn unless you pay 1 Energy. This "pay or discard" line is a new duration (UPKEEP) and needs its own handler.
 
 ## To do
-- Flightsim Coert: confirm his stats (cost, start MP, second trait)
 - The 38 general Quests are not part of this pass (names round)
 - Sync the older docs with this pass: Starter Decks (Digital counts), Effect Library (§6.1, new templates HAND_SWAP, QUEST_EASE, PEEK_DECK), Mosje Kits, Mosje Personas (abilities), Rules and Decisions, Personal Quest List
 - Push this doc to the repo branch `card/mosje-roster-7nov`

@@ -20,12 +20,11 @@ Repo: `gvandyck/mosjescardgame-2026`, branch `card/mosje-roster-7nov` (stacked o
 - New rulebook lines are listed in the wording pass under "Rulebook lines owed" (16 lines), including: a Quest roll never uses more than 6 dice; a Personal Quest can't be discarded by an opponent's effect; one pile per player (Welloe pile = discard pile); "Target" covers cards and Mosje abilities.
 
 ## Still open (in the wording pass doc)
-1. **Flightsim Coert** has his ability and Butter Landing; his stats (cost, start MP, second trait) are Claude's proposal and not confirmed.
-2. **MP costs at low MP:** FPS West needs 21+ MP to pay 20 MP. Not ruled for the other MP costs (Te Hard Gaan, Ronald's Fles Fireman, Blikje Monsteros, Stripje Bennies, ChestPress).
-3. Booster texts were reworded by rule and skimmed by Claude, not approved one by one. Gandalf confirmed all booster costs.
-4. Ff Haaltje Nemen stays "Draw 1" at 2 Energy (Gandalf's call; Claude flagged it as too weak).
+1. **MP costs at low MP:** FPS West needs 21+ MP to pay 20 MP. Not ruled for the other MP costs (Te Hard Gaan, Ronald's Fles Fireman, Blikje Monsteros, Stripje Bennies, ChestPress).
+2. Booster texts were reworded by rule and skimmed by Claude, not approved one by one. Gandalf confirmed all booster costs.
+3. Ff Haaltje Nemen stays "Draw 1" at 2 Energy (Gandalf's call; Claude flagged it as too weak).
 
-Ruled on 14 Nov, after the pass: attached gear counts as a "ready gear Piecie"; Ctrl+S at 0 MP stays at 0 and keeps its level; Gandoe, The Destroyer and Alyssa, The Bulldozer start at 10 MP.
+Flightsim Coert is complete (Digital; Tech and Men on the specialist curve; ability, Butter Landing). Ruled on 14 Nov, after the pass: attached gear counts as a "ready gear Piecie"; Ctrl+S at 0 MP stays at 0 and keeps its level; Gandoe, The Destroyer and Alyssa, The Bulldozer start at 10 MP.
 
 ## What to do next
 1. **Names round:** the 38 general Quests become memories from our friend group, and the generic card names (Bodyguard, Arcade, Track Highscore…) get friend-group names. Draft them in a reroll sheet. Placeholder names from this pass: Ming's Hond.

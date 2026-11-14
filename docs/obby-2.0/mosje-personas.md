@@ -156,6 +156,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 - Places: Coert's Caravan, Tesla, Ruilbeurs Jaarbeurs, Woonkamer (Discord)
 - Coert's word joke 'Rebouleh' (Redbull) → the Piecie Rebouleh
 - Flightsim Coert (NEW, booster): built his own MSFS 2024 flight sim setup → De Cockpit, Yoke & Pedals, PQ Butter Landing
+  - 14 Nov: Digital · cost 3 · start MP 10 · LV1 Tech ★★ · Men ★★ → LV2 Tech ★★ · Men ★★★ → LV3 Tech ★★★ · Men ★★★ (specialist curve). Ability and Personal Quest text: `wording-pass.md`.
 - Piecies: Hawaii Pizza (a Coert +35), Boosterpackkie
 - Quest: Parkeren Delft (a Coert +10 on a win)
 
