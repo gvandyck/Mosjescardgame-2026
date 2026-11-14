@@ -7,8 +7,9 @@ Paste everything below the line into a new chat in the "Mosjes card game" projec
 We're continuing the Obby Card Game 2.0 (MOSJES) rework. Read these project docs first, in this order, before answering:
 
 1. `Obby Card Game 2.0 - Wording Pass.md` (**the single source for card texts, costs and abilities; it wins over every older doc**)
-2. `Obby Card Game 2.0 - Effect Library.md` (wording rules and template IDs)
-3. `Obby Card Game 2.0 - Mosje Kits.md` and `Starter Decks.md` (only where you need them; both are older than the wording pass)
+2. `Obby Card Game 2.0 - Rules and Decisions - Update 14 Nov.md` (the new rules from the pass, and what they override)
+3. `Obby Card Game 2.0 - Effect Library.md` (wording rules and template IDs)
+4. `Obby Card Game 2.0 - Rules and Decisions.md`, `Mosje Kits.md` and `Starter Decks.md` (only where you need them; both are older than the wording pass)
 
 Repo: `gvandyck/mosjescardgame-2026`, branch `card/mosje-roster-7nov` (stacked on PR #12, `card/physical-rename`). The docs live in `docs/obby-2.0/`; the wording pass is `wording-pass.md`.
 
@@ -20,15 +21,14 @@ Repo: `gvandyck/mosjescardgame-2026`, branch `card/mosje-roster-7nov` (stacked o
 - New rulebook lines are listed in the wording pass under "Rulebook lines owed" (16 lines), including: a Quest roll never uses more than 6 dice; a Personal Quest can't be discarded by an opponent's effect; one pile per player (Welloe pile = discard pile); "Target" covers cards and Mosje abilities.
 
 ## Still open (in the wording pass doc)
-1. **MP costs at low MP:** FPS West needs 21+ MP to pay 20 MP. Not ruled for the other MP costs (Te Hard Gaan, Ronald's Fles Fireman, Blikje Monsteros, Stripje Bennies, ChestPress).
-2. Booster texts were reworded by rule and skimmed by Claude, not approved one by one. Gandalf confirmed all booster costs.
-3. Ff Haaltje Nemen stays "Draw 1" at 2 Energy (Gandalf's call; Claude flagged it as too weak).
+1. Booster texts were reworded by rule and skimmed by Claude, not approved one by one. Gandalf confirmed all booster costs.
+2. Ff Haaltje Nemen stays "Draw 1" at 2 Energy (Gandalf's call; Claude flagged it as too weak).
 
-Flightsim Coert is complete (Digital; Tech and Men on the specialist curve; ability, Butter Landing). Ruled on 14 Nov, after the pass: attached gear counts as a "ready gear Piecie"; Ctrl+S at 0 MP stays at 0 and keeps its level; Gandoe, The Destroyer and Alyssa, The Bulldozer start at 10 MP.
+Flightsim Coert is complete (Digital; Tech and Men on the specialist curve; ability, Butter Landing). Ruled on 14 Nov, after the pass: attached gear counts as a "ready gear Piecie"; Ctrl+S at 0 MP stays at 0 and keeps its level; Gandoe, The Destroyer and Alyssa, The Bulldozer start at 10 MP; no MP cost can take a Mosje to 0 MP or less.
 
 ## What to do next
 1. **Names round:** the 38 general Quests become memories from our friend group, and the generic card names (Bodyguard, Arcade, Track Highscore…) get friend-group names. Draft them in a reroll sheet. Placeholder names from this pass: Ming's Hond.
-2. **Sync the older docs** with the wording pass: Mosje Kits, Mosje Personas (abilities), Effect Library (new templates HAND_SWAP, QUEST_EASE, PEEK_DECK, UPKEEP), Rules and Decisions, Personal Quest List (still says Ironman).
+2. **Older docs:** `Obby Card Game 2.0 - Rules and Decisions - Update 14 Nov.md` lists the new rules and what they override. In the repo, Mosje Kits, Mosje Personas, Effect Library and Starter Decks are synced. In the project, those four docs, Rules and Decisions and the Personal Quest List still have their old text (the project copies differ from the repo copies, so they were not overwritten): update them one at a time, reading each in full first.
 3. **Playtest** with the watch list at the bottom of the wording pass.
 4. Only when I say the design is FINAL: the handover to code (new cards and starter decks into `src/data`, fix the failing tests that pin the old roster, merge PR #12).
 
