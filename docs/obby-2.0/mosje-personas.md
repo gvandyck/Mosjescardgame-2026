@@ -16,7 +16,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 4 · start MP 10 (ruled 14 Nov: never 0)
 - **Traits:** LV1 Str ★★ · Men ★ · Res ★ → LV2 Str ★★★ · Men ★ · Res ★ → LV3 Str ★★★ · Men ★★ · Res ★
-- **Ability:** Once per game, 4 Energy: the opponent's lowest-level Mosje drops one level (Level 1: sideways).
+- **Ability:** Once per game: pay 4 Energy; your opponent's lowest-level Mosje drops one level. (wording pass, 14 Nov)
 - **Personal Quest:** Kampioen Van De Box
 - **Life & vibe:**
   - Boxing ring · finisher / KO · final boss · title belt
@@ -28,8 +28,8 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 3 · start MP 10
 - **Traits:** LV1 Tech ★★ · Res ★ · Str ★ → LV2 Tech ★★ · Res ★★ · Str ★ → LV3 Tech ★★★ · Res ★★ · Str ★
-- **Ability:** Once per turn, 1ϟ: look at your top 3 cards, take 1, put the rest on the bottom. (approved 7 Nov)
-- **Personal Quest:** (new name pending, was Hocus Pocus) · Digital · Needs: 1 ready gear Piecie · Roll Tech★ → 2× 4+
+- **Ability:** Once per turn: pay 1 Energy; look at the top 3 cards of your deck, take 1 and put the rest on the bottom. (wording pass, 14 Nov)
+- **Personal Quest:** Vibe Coded (was Hocus Pocus) · Digital · Needs: 1 ready gear Piecie · Roll Tech★ → any 2 the same (14 Nov)
 - **Life & vibe:**
   - Was 'The Unpredictable Wizard' (chaotic magic, potions); renamed 7 Nov
   - Builds things with AI · vibe-codes this game
@@ -39,7 +39,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 2 · start MP 30
 - **Traits:** LV1 Art ★★ · Soc ★ · Res ★ → LV2 Art ★★★ · Soc ★ · Res ★ → LV3 Art ★★★ · Soc ★★ · Res ★
-- **Ability:** Once per turn: reroll any one die. From LV3: twice per turn.
+- **Ability:** Once per turn: reroll any 1 die. From Level 2: reroll up to 2 dice instead. (wording pass, 14 Nov)
 - **Personal Quest:** Lucky Crescendo
 - **Life & vibe:**
   - Gandalf's DJ alias · 80% luck, 20% skill
@@ -66,7 +66,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 3 · start MP 10
 - **Traits:** LV1 Str ★★ · Soc ★ · Res ★ → LV2 Str ★★★ · Soc ★ · Res ★ → LV3 Str ★★★ · Soc ★★ · Res ★
-- **Ability:** Loses 10 less from every attack. From LV3: 15 less. (approved 7 Nov)
+- **Ability:** This Mosje loses 10 less MP from each attack. From Level 2: 15 less. (wording pass, 14 Nov)
 - **Personal Quest:** Knocked Down, Not Out (was Ironman, 11 Nov) · rolls Str (starter Mosje)
 - **Life & vibe:**
   - Tough as iron · endurance, never quits
@@ -80,7 +80,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 2 · start MP 30
 - **Traits:** LV1 Art ★★ · Soc ★★ → LV2 Art ★★ · Soc ★★★ → LV3 Art ★★★ · Soc ★★★ · specialist curve (booster, 9 Nov)
-- **Ability:** Once per turn, 1 Energy: one of your Mosjes gains 15 MP. From LV3: 20 MP instead.
+- **Ability:** Once per turn: pay 1 Energy; one of your Mosjes gains 15 MP. From Level 2: 20 MP instead. (wording pass, 14 Nov)
 - **Personal Quest:** Cat Sanctuary
 - **Life & vibe:**
   - Cares for everyone · gentle but fierce · cats Bowie & Stormey
@@ -110,7 +110,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 3 · start MP 20
 - **Traits:** LV1 Tech ★★ · Res ★ · Men ★ → LV2 Tech ★★ · Res ★★ · Men ★ → LV3 Tech ★★★ · Res ★★ · Men ★
-- **Ability:** When you draw, 1 Energy: draw 1 more (max 2 times per turn).
+- **Ability:** Up to twice per turn, at the start of your turn: pay 1 Energy; draw 1. (wording pass, 14 Nov)
 - **Personal Quest:** Aloha Tech Support
 - **Life & vibe:**
   - Aloha chill · tech wizard · always more resources
@@ -124,7 +124,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 2 · start MP 30
 - **Traits:** LV1 Str ★★ · Soc ★ · Art ★ → LV2 Str ★★★ · Soc ★ · Art ★ → LV3 Str ★★★ · Soc ★★ · Art ★
-- **Ability:** Start of your turn: roll a die. 4–6: draw 1, +5 MP.
+- **Ability:** At the start of your turn: roll 1 die. On a 4, 5 or 6, draw 1 and this Mosje gains 5 MP. (wording pass, 14 Nov)
 - **Personal Quest:** Lucky Streak · re-typed 7 Nov: Physical, rolls Str
 - **Life & vibe:**
   - Lucky streak
@@ -136,7 +136,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 3 · start MP 20
 - **Traits:** LV1 Tech ★★ · Res ★ · Men ★ → LV2 Tech ★★ · Res ★★ · Men ★ → LV3 Tech ★★★ · Res ★★ · Men ★
-- **Ability:** Strength or Technical Quest win: roll a die. 6: +30 MP and an opponent Mosje −15 MP.
+- **Ability:** When this Mosje wins a Quest that rolls Str or Tech: roll 1 die. On a 5 or 6, it gains 30 MP and 1 target opponent Mosje loses 15 MP. (wording pass, 14 Nov)
 - **Personal Quest:** Headshot
 - **Life & vibe:**
   - Headshots · clutch plays
@@ -171,7 +171,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 2 · start MP 20
 - **Traits:** LV1 Str ★★ · Men ★ · Tech ★ → LV2 Str ★★★ · Men ★ · Tech ★ → LV3 Str ★★★ · Men ★★ · Tech ★
-- **Ability:** Once per turn, 1ϟ: an opponent Mosje is charmed and can't attack until the end of their next turn. (approved 7 Nov)
+- **Ability:** Once per turn: pay 1 Energy; target 1 opponent Mosje. It can't attack until the end of your opponent's next turn. (wording pass, 14 Nov)
 - **Personal Quest:** Obby Shotjes Gauntlet · re-typed 7 Nov: Physical, rolls Str
 - **Life & vibe:**
   - Shotje Obby · charming señor
@@ -182,7 +182,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 3 · start MP 10
 - **Traits:** LV1 Str ★★ · Art ★★ → LV2 Str ★★ · Art ★★★ → LV3 Str ★★★ · Art ★★★ · specialist curve (booster, 9 Nov)
-- **Ability:** Quest win: +20 MP extra. Once per turn, taksed for 20+: lose 10 less. From LV3: lose 20 less.
+- **Ability:** When this Mosje wins a Quest: it gains 20 MP more. Once per turn, when it loses 20 or more MP from an attack: it loses 10 less. From Level 2: 20 less. (wording pass, 14 Nov)
 - **Personal Quest:** Over Alle Daken
 - **Life & vibe:**
   - Rooftops & walls · flow · show-off tricks
@@ -194,7 +194,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 3 · start MP 10
 - **Traits:** LV1 Tech ★★ · Res ★ · Soc ★ → LV2 Tech ★★ · Res ★★ · Soc ★ → LV3 Tech ★★★ · Res ★★ · Soc ★
-- **Ability:** Once per turn, 1 Energy: look at the opponent's hand and name a card type. They play one before your next turn: +20 MP. They don't: −10 MP.
+- **Ability:** Once per turn: pay 1 Energy; look at your opponent's hand. Then you can have this Mosje lose 20 MP; put 1 card from that hand on the bottom of their deck. They draw 1. (wording pass, 14 Nov)
 - **Personal Quest:** Clutch Round
 - **Life & vibe:**
   - Reads the angles · 1v2 clutch
@@ -208,7 +208,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 3 · start MP 15
 - **Traits:** LV1 Tech ★★ · Art ★★ → LV2 Tech ★★ · Art ★★★ → LV3 Tech ★★★ · Art ★★★ · specialist curve (booster, 9 Nov)
-- **Ability:** Quest win: +15 MP extra. Once per turn, 1 Energy + discard 2 cards: draw 3.
+- **Ability:** When this Mosje wins a Quest: it gains 15 MP more. Once per turn: pay 1 Energy and discard 2 cards; draw 3. (wording pass, 14 Nov)
 - **Personal Quest:** Grand Prix · re-typed 7 Nov: Digital, rolls Tech + Art
 - **Life & vibe:**
   - F1 / Grand Prix · perfect racing line
@@ -237,7 +237,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 4 · start MP 10 (ruled 14 Nov: never 0)
 - **Traits:** LV1 Str ★★ · Soc ★ · Res ★ → LV2 Str ★★★ · Soc ★ · Res ★ → LV3 Str ★★★ · Soc ★★ · Res ★
-- **Ability:** Taksed for 20+ in one turn: +25 MP and +10 Power until the end of your next turn.
+- **Ability:** When this Mosje loses 20 or more MP from attacks in one turn: it gains 25 MP and gets +10 Power until the end of your next turn. (wording pass, 14 Nov)
 - **Personal Quest:** Charge!
 - **Life & vibe:**
   - Charges in laughing
@@ -249,7 +249,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 2 · start MP 20
 - **Traits:** LV1 Str ★★ · Soc ★★ → LV2 Str ★★ · Soc ★★★ → LV3 Str ★★★ · Soc ★★★ · specialist curve (booster, 9 Nov)
-- **Ability:** A Place is destroyed by your card, or you activate a Place: +20 MP (once per turn).
+- **Ability:** Once per turn, when you activate a Place or your card destroys one: this Mosje gains 20 MP. (wording pass, 14 Nov)
 - **Personal Quest:** Fissa Tot De Ochtend
 - **Life & vibe:**
   - Party animal · dancefloor · until sunrise
@@ -273,7 +273,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 3 · start MP 20
 - **Traits:** LV1 Str ★★ · Soc ★ · Res ★ → LV2 Str ★★★ · Soc ★ · Res ★ → LV3 Str ★★★ · Soc ★★ · Res ★
-- **Ability:** Can hold 3 attachments instead of 2. (approved 7 Nov)
+- **Ability:** This Mosje can hold 3 attachments. (wording pass, 14 Nov)
 - **Personal Quest:** Sterke Jongen
 - **Life & vibe:**
   - Lifts heavy stuff
@@ -286,7 +286,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 3 · start MP 10
 - **Traits:** LV1 Art ★★ · Men ★ · Res ★ → LV2 Art ★★★ · Men ★ · Res ★ → LV3 Art ★★★ · Men ★★ · Res ★
-- **Ability:** Once per turn, stake 1–2 Energy and roll. 1–2: lost. 3–4: back. 5–6: back, draw 1, +10 MP per Energy.
+- **Ability:** Once per turn: stake 1 or 2 Energy and roll 1 die. 1–2: lose it. 3–4: take it back. 5–6: take it back, draw 1, and this Mosje gains 10 MP per Energy staked. (wording pass, 14 Nov)
 - **Personal Quest:** High Roller · re-typed 7 Nov: Creative, rolls Art
 - **Life & vibe:**
   - Poker face · high stakes · dice addict
@@ -312,7 +312,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 3 · start MP 15
 - **Traits:** LV1 Str ★★ · Art ★ · Soc ★ → LV2 Str ★★★ · Art ★ · Soc ★ → LV3 Str ★★★ · Art ★★ · Soc ★
-- **Ability:** When you activate a Piecie, roll. 5–6: activate another ready Piecie for free (max 2 per turn).
+- **Ability:** When you activate a Piecie: roll 1 die. On a 5 or 6, you can activate another ready Piecie for 0 Energy (max 2 per turn). (wording pass, 14 Nov)
 - **Personal Quest:** Full Combo · re-typed 7 Nov: Physical, rolls Str
 - **Life & vibe:**
   - Full combo · perfect timing (DDR)
@@ -340,7 +340,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 2 · start MP 30
 - **Traits:** LV1 Str ★★ · Soc ★ · Art ★ → LV2 Str ★★★ · Soc ★ · Art ★ → LV3 Str ★★★ · Soc ★★ · Art ★
-- **Ability:** End of your turn: roll a die. 1–2: discard 1 card. 5–6: draw 1, +10 MP. From LV3: 5–6 draws 2.
+- **Ability:** At the end of your turn: roll 1 die. 1–2: discard 1 card. 5–6: draw 1 and this Mosje gains 10 MP. From Level 2: draw 2 instead. (wording pass, 14 Nov)
 - **Personal Quest:** All In
 - **Life & vibe:**
   - Risk taker
@@ -354,7 +354,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 2 · start MP 30
 - **Traits:** LV1 Art ★★ · Men ★★ → LV2 Art ★★ · Men ★★★ → LV3 Art ★★★ · Men ★★★ · specialist curve (booster, 9 Nov)
-- **Ability:** When you activate a Piecie, roll. 5–6: draw 1, a Mosje +5 MP. From LV3: on a 4–6.
+- **Ability:** When you activate a Piecie: roll 1 die. On a 5 or 6, draw 1 and one of your Mosjes gains 5 MP. From Level 2: on a 4, 5 or 6. (wording pass, 14 Nov)
 - **Personal Quest:** Final Exam
 - **Life & vibe:**
   - Teaches Japanese · homework / exams · pet ViannaPoes
@@ -381,7 +381,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 3 · start MP 10
 - **Traits:** LV1 Art ★★ · Men ★ · Res ★ → LV2 Art ★★★ · Men ★ · Res ★ → LV3 Art ★★★ · Men ★★ · Res ★
-- **Ability:** Once per turn, 1 Energy: reveal your top card and draw it. A Piecie may be activated for free instead.
+- **Ability:** Once per turn: pay 1 Energy; reveal the top card of your deck and draw it. If it's a Piecie, you can activate it for 0 Energy instead. (wording pass, 14 Nov)
 - **Personal Quest:** Beginner's Luck · re-typed 7 Nov: Creative, rolls Art
 - **Life & vibe:**
   - Just shows up & wins · effortless · annoyingly good
@@ -409,7 +409,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 3 · start MP 10
 - **Traits:** LV1 Str ★★ · Soc ★ · Men ★ → LV2 Str ★★★ · Soc ★ · Men ★ → LV3 Str ★★★ · Soc ★★ · Men ★
-- **Ability:** Food Piecies you activate give +10 MP more. (approved 7 Nov)
+- **Ability:** The first food Piecie you activate each turn gives 10 MP more. (wording pass, 14 Nov)
 - **Personal Quest:** Michelinster · re-typed 7 Nov: Physical, rolls Str
 - **Life & vibe:**
   - Signature dish · feeds the group
@@ -420,7 +420,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 3 · start MP 10
 - **Traits:** LV1 Art ★★ · Men ★ · Res ★ → LV2 Art ★★★ · Men ★ · Res ★ → LV3 Art ★★★ · Men ★★ · Res ★
-- **Ability (draft 9 Nov):** Once per turn, 1ϟ: choose an opponent Mosje; on its next Quest it rolls 1 die less (too busy listening).
+- **Ability:** Once per turn: pay 1 Energy; target 1 opponent Mosje. It rolls 1 die less on its next Quest. (wording pass, 14 Nov)
 - **Personal Quest:** Ongevraagd Advies (was Checkmate) · Needs: opponent has 4+ cards in hand · Roll Art, need 2× 4+
 - **Life & vibe:**
   - Evil genius plan · chess master · controls reality · reuses old tricks
@@ -443,7 +443,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 2 · start MP 20
 - **Traits:** LV1 Art ★★ · Soc ★ · Res ★ → LV2 Art ★★★ · Soc ★ · Res ★ → LV3 Art ★★★ · Soc ★★ · Res ★
-- **Ability:** Once per turn, 1 Energy + discard 1 Piecie: an opponent Mosje −10 MP and the opponent discards 1 card. From LV3: −20 MP instead.
+- **Ability:** Once per turn: pay 1 Energy and discard 1 Piecie; 1 target opponent Mosje loses 10 MP and your opponent discards 1 card of their choice. From Level 2: 20 MP instead, but not on two turns in a row. (wording pass, 14 Nov)
 - **Personal Quest:** Binti Brandt · rolls Art from 9 Nov (starter Mosje)
 - **Life & vibe:**
   - Roasts people · savage comebacks · words cut deep
@@ -474,7 +474,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 3 · start MP 10
 - **Traits:** LV1 Art ★★ · Soc ★★ → LV2 Art ★★ · Soc ★★★ → LV3 Art ★★★ · Soc ★★★ · specialist curve (booster, 9 Nov)
-- **Ability:** Once per turn, after you activate a Piecie, roll. 4–6: activate another ready Piecie for free, an opponent Mosje −15 MP. 1–3: −10 MP.
+- **Ability:** Once per turn, when you activate a Piecie: roll 1 die. 4–6: activate another ready Piecie for 0 Energy and 1 target opponent Mosje loses 15 MP. 1–3: this Mosje loses 10 MP. (wording pass, 14 Nov)
 - **Personal Quest:** Staande Ovatie
 - **Life & vibe:**
   - Concert stage · music as weapon · crazy birds
@@ -499,7 +499,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 - **Stats:** cost 3 · start MP 10
 - **Traits:** LV1 Tech ★★ · Res ★ · Men ★ → LV2 Tech ★★ · Res ★★ · Men ★ → LV3 Tech ★★★ · Res ★★ · Men ★
-- **Ability:** Once per turn, 1 Energy: activate a Piecie the turn you placed it (pay its cost), then draw 1. From LV3: no Energy cost.
+- **Ability:** Once per turn: pay 1 Energy; activate a Piecie on the turn you placed it. From Level 2: then draw 1. (wording pass, 14 Nov)
 - **Personal Quest:** World Record Run
 - **Life & vibe:**
   - Frame-perfect · world record

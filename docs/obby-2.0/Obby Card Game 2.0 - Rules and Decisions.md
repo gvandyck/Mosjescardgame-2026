@@ -76,6 +76,36 @@ A number on a card is its cost: the Energy it takes from your pool. Mosjes never
 - Arm Wrestling — Fighting Quest: roll 1 die per Physical ★, need two 4+. +40 / −30 MP.
 - Endurance Test — Fighting Quest: discard 1 ready food Piecie; roll 1 die per Physical ★, need one 4+. +50 / −30 MP.
 
+## Rulings 9–14 Nov 2026 (roster, kits and the wording pass)
+Card texts, costs and Mosje abilities now live in `wording-pass.md`; it wins over the sample cards above.
+
+**Types and cards**
+- The three Mosje types are **Physical, Digital and Creative** (was Fighting / Digital / Artistic). Traits on cards: Str, Tech, Art, Men, Soc, Res.
+- Summoning a Mosje costs Energy (the cost on the card); your first Mosje at setup is free.
+- Start MP is never 0: Gandoe, The Destroyer and Alyssa, The Bulldozer start at 10.
+- Every Mosje has a kit: its own Personal Quest, a signature Piecie or pet, and a Place. All pets share one effect.
+- A Mosje holds at most 2 attachments (Jeffrey, The Strongman: 3).
+- ★★★★★ cards are limit 1 per deck; the limit is not printed on the card.
+
+**Card text**
+- All text, no glyphs: colon = condition, semicolon = cost, fixed duration phrases ("this turn", "until the end of your next turn", "during your opponent's next turn").
+- Keywords: **Needs:**, **Attach:**, **Entrance:**, **Discarded:**, **Level Down:**, **Combo:**. "You can" marks an optional effect.
+- **Target** is a defined word. Cards and Mosje abilities target; attacks don't.
+
+**Rules added by the wording pass**
+1. A price before a semicolon is paid when the card is played.
+2. You can't pay an MP cost that would take a Mosje to 0 MP or less.
+3. A Quest roll never uses more than 6 dice.
+4. A Personal Quest can't be discarded by an opponent's effect.
+5. One pile per player: the Welloe pile and the discard pile are the same pile.
+6. Gear attached to a Mosje counts as a "ready gear Piecie", for Needs and for Pay.
+7. A Mosje protected by Ctrl+S that reaches 0 MP stays at 0 and keeps its level.
+8. Level upgrades on Mosje abilities start at Level 2.
+9. The Protector is a Snelle that attaches and stays: pay 1 Energy at the start of your turn or discard it.
+10. A Mosje summoned from an opponent's pile (Mosje Reborn) is yours while it is in play and goes back to its owner's pile when it leaves.
+11. DJ 80/20 counts as a Gandoe.
+12. Personal Quests: a Personal Quest roll counts as a Quest roll, and a Mosje can attempt one only if it started your turn at Level 3 (ruled 1 Nov).
+
 ## Open questions
 - Does summoning a Mosje cost Energy (Ronald/Alyssa show a cost), or is it free like placing?
 - Rename "Getemt" too (e.g. "Getakst"), since "temmen" was dropped?

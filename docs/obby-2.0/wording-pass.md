@@ -463,7 +463,7 @@ Rule change by precedent: **Obby Shotjes Gauntlet** loses the alternative paymen
 8. Zwoele Ming Power: a Quest always needs at least 1 success.
 9. Kleine Taks stays in its slot until its second tick, then is discarded.
 10. Binti: a marker shows that the 20 MP hit was used last turn.
-11. **Ruled 14 Nov:** FPS West needs 21 or more MP to pay the 20 MP for his swap (same as Charge!). Not yet ruled for other MP costs (Te Hard Gaan, Ronald's Fles Fireman, Blikje Monsteros, Stripje Bennies, ChestPress): can they take a Mosje to 0?
+11. **Ruled 14 Nov, one rule for all MP costs:** you can't pay an MP cost that would take a Mosje to 0 MP or less. This covers FPS West, Charge!, Te Hard Gaan, Ronald's Fles Fireman, Blikje Monsteros, Stripje Bennies, Warm Kannetje Melk, Straffoe, Tesla Laadkabel and ChestPress.
 12. Knocked Down, Not Out: an attack, a failed Quest or a Pay all count as losing MP.
 13. DJ 80/20 counts as a Gandoe.
 14. **One pile per player (Gandalf, 14 Nov):** the Welloe pile and the discard pile are the same pile. Cards say "Welloe pile" when they are about Mosjes and "discard pile" otherwise. Consequences: Mosje Reborn also finds a Mosje that was discarded from a hand; TemPiecie can take a knocked-out Mosje back into the hand (it still has to be summoned again at Level 1).

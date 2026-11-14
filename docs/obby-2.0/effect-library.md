@@ -305,3 +305,31 @@ All five pets now share one template; only the friend's name changes.
 2. ~~Rule on the style choices~~ Done 12 Nov: all text (see top).
 3. Wording pass: rewrite every card to the canonical phrasing and tag it with template IDs (in a sheet).
 4. Claude Code: one handler per template ID (FINAL handover).
+
+## 12. Added in the wording pass (14 Nov)
+The pass is done; every final text and its template tags are in `wording-pass.md`. It added these parts to the library.
+
+### New verb templates
+| ID | Canonical phrasing | Cards |
+|---|---|---|
+| `HAND_SWAP` | **Put 1 card from that hand on the bottom of their deck. They draw 1.** | FPS West |
+| `QUEST_EASE` | **Your next Quest this turn needs 1 success less.** | Zwoele Ming Power |
+| `PEEK_DECK` | **Look at the top X cards of your opponent's deck.** | Headset, Minimap |
+| `STEAL` | **… onto your field** / **the attacker's owner can move …** | Mosje Reborn, De Belt |
+| `SET_POWER` | **One of your Mosjes copies its Power this turn.** | Spiegelen |
+
+### New duration
+| ID | On the card | Means | Cards |
+|---|---|---|---|
+| `UPKEEP` | "At the start of your turn: pay 1 Energy or discard this card." | Stays in play for as long as its owner pays | The Protector |
+
+### Wording rules settled in the pass
+- **Cost first:** a price is written before the reward with a semicolon and is paid when the card is played ("One of your Mosjes loses 10 MP; it gets +20 Power this turn.").
+- **MP costs:** you can't pay an MP cost that would take a Mosje to 0 MP or less.
+- **Target** is used for opponent Mosjes, and for Mosje abilities as well as Piecies and Snelle. "One of your Mosjes" stays the phrase for your own. Varkenspootjes is the one card that targets either side.
+- **Friend bonus, three forms:** "A <Friend> …" (the Mosje the card picked) · "With a <Friend> on your field: …" (a check) · "On a <Friend>: …" (attached gear).
+- **Dice:** the word "die" in effect text; the die icon only in Quest and Personal Quest Roll lines. A Quest roll never uses more than 6 dice.
+- **Level upgrades** on Mosje abilities start at Level 2 ("From Level 2: …").
+- **Type gate:** "**Needs:** a Physical / Digital / Creative Mosje." replaces every Strength ★ or Artistic ★ gate. The only star gates left are single conditions (Tech ★★ on Counter Strikka and Jammertje Gepakt!, Soc ★★ on Bank Chilling, Res ★★ on Zo is Natuur).
+- **Counts after the pass:** the 17 cards archived on 1 Nov are no longer counted in the tables above.
+
