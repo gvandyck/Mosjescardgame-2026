@@ -2,7 +2,7 @@
 
 Started 14 Nov 2026 (Gandalf + Claude). Rework Plan **Phase 6**. This doc is the single place a card's final text lives. Rules for the wording: `effect-library.md` (style decisions, §0 clean text rule, §9 the 12 wording rules).
 
-Status per card: **Approved** (Gandalf said yes) · **By rule** (booster cards reworded with the ruled rules, not approved one by one) · **To do**. 86 starter cards approved; 129 booster cards reworded by rule or decided (215 texts in total); every cost set and confirmed. **The three starter decks are complete** (Piecies, Snelle, Places, Personal Quests, Mosje abilities).
+Status per card: **Approved** (Gandalf said yes) · **By rule** (booster cards reworded with the ruled rules, not approved one by one) · **To do**. 86 starter cards approved; 131 booster cards reworded by rule or decided (217 texts in total); every cost set and confirmed. **The three starter decks are complete** (Piecies, Snelle, Places, Personal Quests, Mosje abilities).
 
 Conventions used so far:
 - "One of your Mosjes" for your own Mosjes; "Target" only for opponent Mosjes.
@@ -388,11 +388,12 @@ Reworded by rule, like the other booster cards. Source: `mosje-personas.md` and 
 | Alyssa, Fissa Fissa! (Physical) | Once per turn, when you activate a Place or your card destroys one: this Mosje gains 20 MP. | MP_GAIN · ON_PLACE |
 | AZN Cless, The Wild Card (Physical) | At the end of your turn: roll 1 die. 1–2: discard 1 card. 5–6: draw 1 and this Mosje gains 10 MP. From Level 2: draw 2 instead. | GAMBLE · DRAW · MP_GAIN · END_OF_TURN · level upgrade |
 | Martin, The Precision Driver (Digital) | When this Mosje wins a Quest: it gains 15 MP more. Once per turn: pay 1 Energy and discard 2 cards; draw 3. | MP_GAIN · DRAW · ON_QUEST_WIN · pay Energy + discard |
+| Flightsim Coert (Digital · NEW) | When this Mosje fails a Quest: it loses 10 less MP for each gear Piecie attached to it. | MP_SHIELD · ON_QUEST_FAIL · scales with ATTACH |
 | Tuk, The Healing Spirit (Creative) | Once per turn: pay 1 Energy; one of your Mosjes gains 15 MP. From Level 2: 20 MP instead. | MP_GAIN · pay Energy · level upgrade |
 | Cless, The Teacher (Creative) | When you activate a Piecie: roll 1 die. On a 5 or 6, draw 1 and one of your Mosjes gains 5 MP. From Level 2: on a 4, 5 or 6. | GAMBLE · DRAW · MP_GAIN · on activate Piecie · level upgrade |
 | Jisca, The Maestro (Creative) | Once per turn, when you activate a Piecie: roll 1 die. 4–6: activate another ready Piecie for 0 Energy and 1 target opponent Mosje loses 15 MP. 1–3: this Mosje loses 10 MP. | GAMBLE · EXTRA_USE · MP_LOSS · target |
 
-**Flightsim Coert** (NEW booster Mosje) is still a draft: no ability yet. Gandalf does him later (14 Nov). Archived Mosjes get no text: The Historian, The Predictor, The All-Rounder, The Creator, Kast-elein, The Sims Architect and the four placeholders.
+**Flightsim Coert** (NEW, picked by Gandalf 14 Nov) is a Digital Mosje: his gear is real, but he flies digitally. His stats are not confirmed yet; Claude's proposal: cost 3 · start 10 MP · LV1 Tech ★★ · Men ★★ → LV2 Tech ★★ · Men ★★★ → LV3 Tech ★★★ · Men ★★★ (the specialist curve). Archived Mosjes get no text: The Historian, The Predictor, The All-Rounder, The Creator, Kast-elein, The Sims Architect and the four placeholders.
 **Ruled 14 Nov:** Gandoe, The Destroyer and Alyssa, The Bulldozer start at 10 MP (start MP is never 0). Parkour West and The Precision Driver carry two abilities each, the longest texts among the Mosjes.
 
 ### Booster Personal Quests
@@ -407,6 +408,7 @@ Reworded by rule, like the other booster cards. Source: `mosje-personas.md` and 
 | Obby Shotjes Gauntlet | ★★★★ · Martin, Señor West | **Needs:** Obby #1 in play. **Pay:** discard 2 substance Piecies, 1 from your hand and 1 ready. **Roll:** 1 ▣ per Str★. Need 2× ⚃+. |
 | Full Combo | ★★★★ · Chris, The BigStepper | **Needs:** you activated 3 Piecies this turn. **Roll:** 1 ▣ per Str★. Need 1× ⚃+. |
 | Clutch Round | ★★ · FPS West | **Needs:** you have 1 Mosje on your field and your opponent has 2. **Pay:** 1 Energy. **Roll:** 1 ▣ per Tech★. Need 2× ⚃+. |
+| Butter Landing (NEW) | ★★★ · Flightsim Coert | **Needs:** this Mosje lost no MP since the start of your last turn. **Pay:** 2 Energy. **Roll:** 1 ▣ per Tech★. Need 2× ⚃+. |
 | Grand Prix | ★★★ · Martin, The Precision Driver | **Needs:** Track Highscore ready. **Pay:** 2 Energy. **Roll:** 1 ▣ per Tech★ and 1 ▣ per Art★. Need 3× ⚃+. |
 | Ongevraagd Advies | ★★★ · Ronald, Dr. Phill-osoof | **Needs:** your opponent has 4+ cards in hand. **Roll:** 1 ▣ per Art★. Need 2× ⚃+. |
 | Staande Ovatie | ★★★ · Jisca, The Maestro | **Needs:** Het Podium in play. **Pay:** discard 1 ready pet Piecie. **Roll:** 1 ▣ per Soc★. Need 2× ⚃+. |
@@ -414,7 +416,7 @@ Reworded by rule, like the other booster cards. Source: `mosje-personas.md` and 
 | Final Exam | ★★ · Cless, The Teacher | **Needs:** ViannaPoes ready. **Pay:** discard 2 cards from your hand. **Roll:** 1 ▣ per Men★. Need 2× ⚃+. |
 
 Rule change by precedent: **Obby Shotjes Gauntlet** loses the alternative payment (a ready Those Eyelashes Tho... plus 1 substance). Roll traits follow the personas doc (re-typed 7 Nov: Lucky Streak, Obby Shotjes Gauntlet and Full Combo roll Str; Grand Prix rolls Tech and Art).
-**Butter Landing** (Flightsim Coert) waits for that draft. Personal Quests of archived Mosjes are archived with them: Called It, Archive Dive, Manus-je Van Alles, Blank Canvas, The Immovable Kast, Dream House. Ongevraagd Advies has no rarity in the docs; ★★★ is taken from Checkmate, the card it replaces.
+**Butter Landing** mirrors Knocked Down, Not Out: he has to go a full round without losing MP; attacking him stops it. 50 % on 3 dice. A failed Quest costs him MP too, so it pulls against his own ability on purpose. Personal Quests of archived Mosjes are archived with them: Called It, Archive Dive, Manus-je Van Alles, Blank Canvas, The Immovable Kast, Dream House. Ongevraagd Advies has no rarity in the docs; ★★★ is taken from Checkmate, the card it replaces.
 
 ---
 
@@ -469,7 +471,7 @@ Rule change by precedent: **Obby Shotjes Gauntlet** loses the alternative paymen
 16. **The Protector** is a Snelle that attaches: it can be played at any time, counts as one of the Mosje's 2 attachments, and is discarded at the start of your turn unless you pay 1 Energy. This "pay or discard" line is a new duration (UPKEEP) and needs its own handler.
 
 ## To do
-- Flightsim Coert (draft): ability and Personal Quest (Butter Landing), later
+- Flightsim Coert: confirm his stats (cost, start MP, second trait)
 - The 38 general Quests are not part of this pass (names round)
 - Sync the older docs with this pass: Starter Decks (Digital counts), Effect Library (§6.1, new templates HAND_SWAP, QUEST_EASE, PEEK_DECK), Mosje Kits, Mosje Personas (abilities), Rules and Decisions, Personal Quest List
 - Push this doc to the repo branch `card/mosje-roster-7nov`

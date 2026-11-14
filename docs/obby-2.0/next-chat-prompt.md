@@ -13,14 +13,14 @@ We're continuing the Obby Card Game 2.0 (MOSJES) rework. Read these project docs
 Repo: `gvandyck/mosjescardgame-2026`, branch `card/mosje-roster-7nov` (stacked on PR #12, `card/physical-rename`). The docs live in `docs/obby-2.0/`; the wording pass is `wording-pass.md`.
 
 ## Where we are
-- **Wording pass done (14 Nov).** 215 texts: 86 starter cards approved one by one, 129 booster cards reworded "by rule" (not approved one by one) or decided.
+- **Wording pass done (14 Nov).** 217 texts: 86 starter cards approved one by one, 131 booster cards reworded "by rule" (not approved one by one) or decided.
 - Starter decks are complete: Piecies, Snelle, Places, Personal Quests and Mosje abilities, every cost set.
 - A balance round is applied (FPS West, Youri, Binti, Ronald, Zwoele Ming Power, Coert's Caravan, FPS Coert, Stookerino, Dumbbells, level upgrades from Level 2).
 - Chase cards: Mosje Reborn (any player's pile, Level 1, 50 MP) and The Protector (a Snelle that attaches and costs 1 Energy per turn to keep).
 - New rulebook lines are listed in the wording pass under "Rulebook lines owed" (16 lines), including: a Quest roll never uses more than 6 dice; a Personal Quest can't be discarded by an opponent's effect; one pile per player (Welloe pile = discard pile); "Target" covers cards and Mosje abilities.
 
 ## Still open (in the wording pass doc)
-1. **Flightsim Coert** is still a draft: no ability, and his Personal Quest, Butter Landing, has no text. Gandalf does him later.
+1. **Flightsim Coert** has his ability and Butter Landing; his stats (cost, start MP, second trait) are Claude's proposal and not confirmed.
 2. **MP costs at low MP:** FPS West needs 21+ MP to pay 20 MP. Not ruled for the other MP costs (Te Hard Gaan, Ronald's Fles Fireman, Blikje Monsteros, Stripje Bennies, ChestPress).
 3. Booster texts were reworded by rule and skimmed by Claude, not approved one by one. Gandalf confirmed all booster costs.
 4. Ff Haaltje Nemen stays "Draw 1" at 2 Energy (Gandalf's call; Claude flagged it as too weak).
