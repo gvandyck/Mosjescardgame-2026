@@ -1,5 +1,7 @@
 # Obby Card Game 2.0 — Starter Decks (draft 9 Nov 2026)
 
+> **14 Nov 2026:** the wording pass is done. Card texts, costs and Mosje abilities in `wording-pass.md` win wherever this doc differs.
+
 Three starters named after their type. 40 cards each: **5 Mosjes · 4 Personal Quests · 3 Places · 28 Piecies + Snelle**. Copy limit 2, ★★★★★ 1. Archived cards left out; NEW cards from the Personal Quest List and `Mosje Kits.md`. *Italic* = placeholder name.
 
 Rules: only standard-curve Mosjes · starter PQs ★–★★★ (chase PQs ★★★★+ stay in packs) · every Mosje's ability and PQ is fed · **kit cards only with their own Mosje** (deck theme rule) · at least 2 Mosjes have their own Place in the deck.
@@ -35,7 +37,7 @@ Rules: only standard-curve Mosjes · starter PQs ★–★★★ (chase PQs ★�
 
 | Group | Cards (copies) | n |
 |---|---|---|
-| Gear | Keyboard 1 · Hawaiishirt 1 · Mouse 2 · Controller 2 · Headset 2 · MagicPrompt 2 | 10 |
+| Gear | Keyboard 2 · Hawaiishirt 1 · Mouse 1 · Controller 2 · Headset 2 · MagicPrompt 2 | 10 |
 | Food | Hawaii Pizza 2 · Kannetje Melk 1 | 3 |
 | Kit / draw | Boosterpackkie 2 · Blikje Monsteros 2 · Zie je die Dingetjes 1 · Rebouleh 1 | 6 |
 | Attack | Kleine Taks 2 · Te Hard Gaan 1 | 3 |
@@ -88,6 +90,9 @@ Nine cards that only gained MP got a new, clean effect (see `effect-library.md`,
 - **Physical:** Late Night Döner (+10 Power until the end of your next turn) and Snoeiertje (+10 Power, Combo +20) were already in. Aansteker replaces Pleistertje kan.
 - **Digital:** Mouse (now finds a gear Piecie) was already in. Hawaiishirt replaces 1 Keyboard; Ctrl+S replaces Afblijven!.
 - **Creative:** Kladje replaces Pot of Weed; Spiegelen replaces 1 Kannetje Melk; Oh nee toch niet replaces Gevalletje Klakkeloos.
+
+## Change 14 Nov: wording pass
+Digital: Mouse 2 → 1, Keyboard 1 → 2 (Mouse and MagicPrompt do the same search; MagicPrompt is the kit card). Physical: Dumbbells ×2 are now Attach gear. All card texts and costs: `wording-pass.md`.
 
 ## Still open
 - All names confirmed (9 Nov). Note: two Places share "Woonkamer" — Youri's Woonkamer and Woonkamer (Discord); always print the full name.

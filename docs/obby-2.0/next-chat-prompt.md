@@ -1,4 +1,4 @@
-# Obby Card Game 2.0 — Next Chat Prompt (14 Nov 2026)
+# Obby Card Game 2.0 — Next Chat Prompt (after the wording pass, 14 Nov 2026)
 
 Paste everything below the line into a new chat in the "Mosjes card game" project.
 
@@ -6,44 +6,39 @@ Paste everything below the line into a new chat in the "Mosjes card game" projec
 
 We're continuing the Obby Card Game 2.0 (MOSJES) rework. Read these project docs first, in this order, before answering:
 
-1. `Obby Card Game 2.0 - Effect Library.md` (the wording rules: read all of it)
-2. `Obby Card Game 2.0 - Mosje Kits.md` (kits, the to-do checklist at the top, new cards)
-3. `Obby Card Game 2.0 - Starter Decks.md` (the three 40-card decks)
-4. `Obby Card Game 2.0 - Rules and Decisions.md` and `Card Design Lock.md` (only where you need them)
+1. `Obby Card Game 2.0 - Wording Pass.md` (**the single source for card texts, costs and abilities; it wins over every older doc**)
+2. `Obby Card Game 2.0 - Effect Library.md` (wording rules and template IDs)
+3. `Obby Card Game 2.0 - Mosje Kits.md` and `Starter Decks.md` (only where you need them; both are older than the wording pass)
 
-Repo: `gvandyck/mosjescardgame-2026`, branch `card/mosje-roster-7nov` (stacked on PR #12, `card/physical-rename`). The docs live in `docs/obby-2.0/`.
+Repo: `gvandyck/mosjescardgame-2026`, branch `card/mosje-roster-7nov` (stacked on PR #12, `card/physical-rename`). The docs live in `docs/obby-2.0/`; the wording pass is `wording-pass.md`.
 
 ## Where we are
-- Roster, types (Physical / Digital / Creative), trait curve, starter decks and Mosje kits are done.
-- Every friend has a pet card or a signature card. Pets all share one effect. Signature cards follow the pattern "works for anyone, its own friend gets more".
-- The Effect Library is written: verb templates, durations, 4 new keywords (Entrance, Discarded, Level Down, Combo), 9 card reworks, 12 shortened cards.
-- Card text style is FINAL: all text, no glyphs, no name tags, no icons for duration or Energy. Yu-Gi-Oh style fixed phrases: colon = condition, semicolon = cost, "until the end of your next turn", "during your opponent's next turn". The plain die icon is only for Quest and Personal Quest roll lines.
+- **Wording pass done (14 Nov).** 215 texts: 86 starter cards approved one by one, 129 booster cards reworded "by rule" (not approved one by one) or decided.
+- Starter decks are complete: Piecies, Snelle, Places, Personal Quests and Mosje abilities, every cost set.
+- A balance round is applied (FPS West, Youri, Binti, Ronald, Zwoele Ming Power, Coert's Caravan, FPS Coert, Stookerino, Dumbbells, level upgrades from Level 2).
+- Chase cards: Mosje Reborn (any player's pile, Level 1, 50 MP) and The Protector (a Snelle that attaches and costs 1 Energy per turn to keep).
+- New rulebook lines are listed in the wording pass under "Rulebook lines owed" (16 lines), including: a Quest roll never uses more than 6 dice; a Personal Quest can't be discarded by an opponent's effect; one pile per player (Welloe pile = discard pile); "Target" covers cards and Mosje abilities.
 
-## What to do now: the wording pass (Phase 6)
-Rewrite every card text to the rules in the Effect Library (§0 clean text rule, the style decisions at the top, §9 the 12 wording rules). Start with the cards in the three starter decks, then the rest.
+## Still open (in the wording pass doc)
+1. **41 booster costs are Claude's proposals** (marked `*`). Confirm or change them.
+2. **Flightsim Coert** has no ability and his Personal Quest, Butter Landing, has no text.
+3. **Rulebook questions:** does attached gear count as "ready"? What does Ctrl+S do at 0 MP? Can FPS West pay MP he doesn't have?
+4. **Start MP 0** on Gandoe, The Destroyer and Alyssa, The Bulldozer (ruled "never 0" on 1 Nov).
+5. Booster texts were not reviewed card by card: skim the booster tables and call out anything that reads wrong.
+6. Ff Haaltje Nemen stays "Draw 1" at 2 Energy (Gandalf's call; Claude flagged it as too weak).
 
-How I want it:
-- Show me the cards as a sheet of cards I can approve, edit or reroll per card, in batches of about 12. Old text small, new text large, and say what you cut if a rewording changes the rule.
-- Keep effects easy and clean: one short sentence, two at most. No star thresholds on top of a condition.
-- Use "one of your Mosjes" as the standard target phrase and "Target" as the defined word for targeting.
-- Tag each card with its template ID from the Effect Library, so the code handover is easy.
-- Save approved texts in a new doc, `Obby Card Game 2.0 - Wording Pass.md`, and in the repo under `docs/obby-2.0/`.
-
-## After the wording pass
-1. Names round: the 38 generic Quests become memories from our friend group, and the 26 generic card names (Synergy Field, MP Amplifier, …) get friend-group names. Draft them in a reroll sheet.
-2. Open items from the checklist in the kits doc: Obby #1 / #2 balance, gear for Alyssa Fissa, Chris The Gamer, Ming's dog (name and breed), helmet and shoulderpads for Alyssa Bulldozer if needed.
-3. Sync the older docs: `Rules and Decisions.md` and `Personal Quest List.md` (still says Ironman; it's now Knocked Down, Not Out) with everything decided 9–14 Nov.
-4. Only when I say the design is FINAL: the handover to code (new cards and starter decks into `src/data`, fix the failing tests that pin the old roster, merge PR #12, playtest).
+## What to do next
+1. **Names round:** the 38 general Quests become memories from our friend group, and the generic card names (Bodyguard, Arcade, Track Highscore…) get friend-group names. Draft them in a reroll sheet. Placeholder names from this pass: Ming's Hond.
+2. **Sync the older docs** with the wording pass: Mosje Kits, Mosje Personas (abilities), Effect Library (new templates HAND_SWAP, QUEST_EASE, PEEK_DECK, UPKEEP), Rules and Decisions, Personal Quest List (still says Ironman).
+3. **Playtest** with the watch list at the bottom of the wording pass.
+4. Only when I say the design is FINAL: the handover to code (new cards and starter decks into `src/data`, fix the failing tests that pin the old roster, merge PR #12).
 
 ## How I like to work
-- Be critical. Don't just agree with me; tell me when an idea is weak and why.
+- Be critical. Don't just agree with me; tell me when an idea is weak and why. Use what Yu-Gi-Oh, Pokémon and Magic learned.
 - Show results as cards (type-coloured border, badges, effect in a box, dashed outline for new or draft cards), not long tables.
-- For choices, give me a picker with buttons that sends my picks back, and mark your recommendation. Make sure the picker sends names, not colour codes.
+- For choices, give me a picker with buttons that sends my picks back, and mark your recommendation. The picked button must be obvious (solid colour, check mark, tinted card). The picker sends names, not colour codes.
 - Core terms and keywords in English; Dutch for card names and flavour. Avoid real brand names.
 - Docs only until FINAL. No commits to main; work on a branch and keep tests green before merging.
 
-## Reference pages
-- Mosje Kits page: https://claude.ai/artifact/NDSpFbyYiNXLzpEPkWhtCZ
-- Card Text Style Test canvas (board G is the final all-text style): https://claude.ai/artifact/JB1MUCSC1jjM8vohDmBvJ1
-
-Start by confirming what you read in two or three lines, then show me the first batch of starter-deck cards.
+## Parked ideas (in the wording pass doc)
+Type bonus form ("A Physical Mosje gets +30 instead"), Opstaan!, Doorpakken, Groepsfoto, Wat Heb Je Daar?.

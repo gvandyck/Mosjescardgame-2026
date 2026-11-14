@@ -1,5 +1,7 @@
 # Obby Card Game 2.0 — Mosje Kits
 
+> **14 Nov 2026:** the wording pass is done. Card texts, costs and Mosje abilities in `wording-pass.md` win wherever this doc differs.
+
 Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its story and make it work. A new Mosje isn't finished until its kit is.
 
 ## To-do checklist

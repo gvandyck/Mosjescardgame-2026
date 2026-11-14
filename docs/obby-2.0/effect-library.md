@@ -1,5 +1,7 @@
 # Obby Card Game 2.0 — Effect Library
 
+> **14 Nov 2026:** the wording pass is done. Card texts, costs and Mosje abilities in `wording-pass.md` win wherever this doc differs.
+
 Drafted 11 Nov 2026 (Gandalf + Claude). Step 1 of Rework Plan **Phase 6 (wording pass + effect library)**. Goal: every card is built from the same small set of parts, so (1) shared effects use the exact same words, (2) cards group cleanly for code and naming, and (3) new cards add new *angles* instead of new numbers.
 
 Source: all 170 active card texts in `src/data` (Piecies, Snelle, Places), the 26 Mosje abilities and the 11 Nov gear round. The 38 generic Quests are left out: they are number tables (win +X / fail −Y), not effects.
@@ -209,7 +211,7 @@ Recommendation: retire `MOMENTUM-GAINING` and `STRENGTH-EQUIPMENT` / `DIGITAL-EQ
 
 ## 6. Wording fixes found (for the Phase 6 pass)
 
-1. **Dice:** "+1 die" and "+1 ▣" are both in use → **▣ everywhere** (ruled 9 Nov).
+1. **Dice:** ~~"+1 die" and "+1 ▣" are both in use → ▣ everywhere (ruled 9 Nov).~~ **Overruled 14 Nov:** the word "die" in effect text; the die icon only in Quest and Personal Quest Roll lines.
 2. **Duration:** 4+ phrasings → the fixed phrases above (decided 12 Nov).
 3. **Friend bonus:** 5 phrasings ("While Ronald, The Master Chef is also on your field", "If a Coert is on your field", "A Gandoe gets", "Named: …", "Chris, The BigStepper on your field:") → only two:
    - **"A <Friend> …"**: extra for that Mosje itself.

@@ -1,5 +1,7 @@
 # Mosje personas
 
+> **14 Nov 2026:** the wording pass is done. Card texts, costs and Mosje abilities in `wording-pass.md` win wherever this doc differs.
+
 One profile per friend, with every Mosje card of that friend. Source of truth for themes, art, ability wording and Personal Quests. Started 7 Nov 2026 from Gandalf's lore answers; add lines any time under **More to add**.
 
 Types and traits come from `src/data/mosjes.js` (branch `card/mosje-roster-7nov`). Ability text is the 1 Nov Cleanup List version (not all in code yet). Personal Quests re-typed on 7 Nov where a Mosje changed type.
