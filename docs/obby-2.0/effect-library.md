@@ -249,7 +249,48 @@ Effect: pure MP-only cards drop from 18 to 9. MP_GAIN 45 → 36. New in the star
 
 **Playtest watch:** Spiegelen (a 15-Power Mosje borrowing 30), Ctrl+S (only useful if levels drop often), Mouse (finds 1 of 10 gear cards every time).
 
-## 9. Next steps
+## 9. Wording rules from other TCGs (accepted 14 Nov)
+Gandalf accepted all 12 suggestions from the scan of 151 card names and texts. They apply to every card in the wording pass.
+
+**Names**
+1. **Friend-group names.** The 26 generic names (Synergy Field, MP Amplifier, Perfect Dodge, …) get names from the group, like Kladje and Aansteker.
+2. **Quests as memories.** The 38 generic Quests (Arm Wrestling, Strategy Puzzle, …) are renamed after things that happened.
+3. **Flavour line.** One italic line with the inside joke under the rules text, only on cards with short text. The data already has a flavour field.
+
+**Text grammar**
+4. **"Target" is a defined word.** "Target 1 opponent Mosje" replaces "choose". Rulebook: only cards target; attacks don't. That defines what Blensen! and Zonnebril protect against.
+5. **Numbered effects ① ②** on cards with two separate effects.
+6. **Duration at the end** of the sentence, never "Stays until…" at the start.
+7. **Fixed trigger phrases** for Snelle: "When an opponent's Mosje attacks:", "When your opponent starts a Quest:", "When your opponent activates a Piecie:".
+8. **"You can"** for optional effects ("you may" is retired). Everything else is mandatory.
+9. **"One of your Mosjes"** stays the standard target phrase (62 cards). Not Yu-Gi-Oh's "1 Mosje you control".
+
+**Card structure**
+10. **Subtypes:** FOOD · GEAR · PET · SUBSTANCE · ATTACK · TRICK. UTILITY, MOMENTUM-GAINING, STRENGTH-/DIGITAL-EQUIPMENT and COUNTER-CHAIN are retired (TRICK replaces UTILITY; COUNTER-CHAIN cards are Snelle).
+11. **Quest text = footer only.** "+WIN / −LOSE" lives in the footer; the text area is for the memory or a condition.
+12. **Deck limit out of the text.** ★★★★★ = foil = limit 1, stated in the rulebook only.
+
+## 10. Shortened cards (accepted 14 Nov)
+The 12 longest texts, rewritten. "Rule change" marks where shorter also changed what the card does.
+
+| Card | Chars | New text | Rule change |
+|---|---|---|---|
+| **Bowie & Stormey** | 387 → 149 | One of your Mosjes loses 10 less MP each time it loses MP, until the end of your next turn. A Gandoe, Michelle or Tuk loses 20 less instead. | Pair bonus cut (open question) |
+| **Gekke Vogels** | 300 → 132 | One of your Mosjes loses 10 less MP each time it loses MP, until the end of your next turn. A Jisca loses 20 less instead. | Combo with an Alyssa + KatjeGang cut |
+| **Tony** | 253 → 132 | One of your Mosjes loses 10 less MP each time it loses MP, until the end of your next turn. A Coert loses 20 less instead. | Morning Luck on 3–6 cut |
+| **ViannaPoes** | 199 → 132 | One of your Mosjes loses 10 less MP each time it loses MP, until the end of your next turn. A Cless loses 20 less instead. | none |
+| **KatjeGang** | 190 → 134 | One of your Mosjes loses 10 less MP each time it loses MP, until the end of your next turn. An Alyssa loses 20 less instead. | "Synergy: Gekke Vogels" note cut |
+| **Dingetje toch?!** | 267 → 105 | Discard this card: it counts as any 1 card or Piecie type a requirement asks for. It never adds Quest dice. | No longer counts as a trait requirement; "ready" detail to the rulebook |
+| **Call of the Welloes** | 252 → 123 | Summon a Mosje from your Welloe pile at Level 1 and attach this card to it. When either leaves the field, the other does too. | none |
+| **Delluft** | 233 → 127 | The first time each player pays Energy on their turn, they pay 1 more. A player with a Coert or Binti on their field pays no fee. | Cless +2 and Parkeren Delft +20 cut |
+| **Blensen!** | 198 → 136 | Costs 0 Energy if a Jensen! or Frenssen! was played this turn. Until the end of this turn, your opponent's cards can't target your Mosjes. | none (rule 4 covers attacks) |
+| **Chef's Special** | 194 → 155 | One of your Mosjes gains 15 MP. With Ronald, The Master Chef on your field: look at your opponent's hand; it gains 15 MP per Piecie there instead (max 45). | none |
+| **Jammertje Gepakt!** | 191 → 117 | Needs: a Mosje with Mental ★★. When your opponent activates a Piecie: cancel it and put it on the bottom of their deck. | Mental ★★★ draw cut |
+| **Obby #1** | 191 → 167 | Quest wins give 10 MP more; Quest losses cost 10 MP more. With a Martin, West, Ronald or Gandoe on your field: one of your Mosjes gains 10 MP at the start of your turn. | none |
+
+All five pets now share one template; only the friend's name changes.
+
+## 11. Next steps
 
 1. ~~Pick trigger keywords~~ Done 11 Nov: **Entrance, Discarded, Level Down, Combo**.
 2. ~~Rule on the style choices~~ Done 12 Nov: all text (see top).
