@@ -24,7 +24,8 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 - [ ] Obby balance: a host in every starter deck; limit the bonus to Questing Mosjes? (playtest)
 - [ ] Alyssa Bulldozer: Helm & Schouderpads only if she needs a 2nd Piecie
 - [ ] Chris, The Gamer (Switch 2, Mosje Kart with Youri)
-- [ ] Counter Strikka / Jammertje Gepakt: Men★★ → Tech★★
+- [x] Counter Strikka / Jammertje Gepakt: Men★★ → Tech★★ (14 Nov)
+- [x] DJ 80/20 counts as a Gandoe (14 Nov)
 - [ ] Engine: Obby #1 host trigger, all NEW kit cards in data (FINAL handover)
 
 **Card text rule (11 Nov):** a card may have more than one effect, but keep the text short; many cards doing small things makes booster pulls more fun.

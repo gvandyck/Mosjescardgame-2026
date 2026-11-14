@@ -91,5 +91,5 @@ Nine cards that only gained MP got a new, clean effect (see `effect-library.md`,
 
 ## Still open
 - All names confirmed (9 Nov). Note: two Places share "Woonkamer" — Youri's Woonkamer and Woonkamer (Discord); always print the full name.
-- Counter Strikka / Jammertje Gepakt need Men★★, which no standard Digital Mosje reaches → proposal: Tech★★.
+- ~~Counter Strikka / Jammertje Gepakt need Men★★~~ Ruled 14 Nov: both need Tech★★ now.
 - Quest stacks lean on Res (Physical) and Soc (Creative), which standard Mosjes barely have → shift toward main traits in the Quest text rework.

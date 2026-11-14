@@ -285,10 +285,16 @@ The 12 longest texts, rewritten. "Rule change" marks where shorter also changed 
 | **Delluft** | 233 → 127 | The first time each player pays Energy on their turn, they pay 1 more. A player with a Coert or Binti on their field pays no fee. | Cless +2 and Parkeren Delft +20 cut |
 | **Blensen!** | 198 → 136 | Costs 0 Energy if a Jensen! or Frenssen! was played this turn. Until the end of this turn, your opponent's cards can't target your Mosjes. | none (rule 4 covers attacks) |
 | **Chef's Special** | 194 → 155 | One of your Mosjes gains 15 MP. With Ronald, The Master Chef on your field: look at your opponent's hand; it gains 15 MP per Piecie there instead (max 45). | none |
-| **Jammertje Gepakt!** | 191 → 117 | Needs: a Mosje with Mental ★★. When your opponent activates a Piecie: cancel it and put it on the bottom of their deck. | Mental ★★★ draw cut |
+| **Jammertje Gepakt!** | 191 → 117 | Needs: a Mosje with Tech ★★. When your opponent activates a Piecie: cancel it and put it on the bottom of their deck. | Mental ★★★ draw cut; Mental → Tech (14 Nov) |
 | **Obby #1** | 191 → 167 | Quest wins give 10 MP more; Quest losses cost 10 MP more. With a Martin, West, Ronald or Gandoe on your field: one of your Mosjes gains 10 MP at the start of your turn. | none |
 
 All five pets now share one template; only the friend's name changes.
+
+### Rulings from the final questions (14 Nov)
+- **DJ 80/20 counts as a Gandoe.** One rulebook line; no card names him separately.
+- **Jammertje Gepakt! and Counter Strikka:** the requirement changes from Mental ★★ to **Tech ★★**, so both work in the Digital starter deck.
+- **New names** (38 Quests, 26 generic cards): a separate round after the wording pass.
+- **Bowie & Stormey pair bonus:** still open.
 
 ## 11. Next steps
 
