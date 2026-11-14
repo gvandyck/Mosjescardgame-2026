@@ -447,6 +447,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
   - Loves Varkenspootjes (pig's feet) from Winston, an Asian food shop; Coert drives her there in his Tesla
 - **Theme check:** Fits.
 - Gear (11 Nov): Roast-boekje, Telefoon
+- Pet: Tony (the cat is hers and Coert's)
 
 
 ### [Binti] The Creator — archived

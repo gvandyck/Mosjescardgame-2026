@@ -277,7 +277,7 @@ The 12 longest texts, rewritten. "Rule change" marks where shorter also changed 
 |---|---|---|---|
 | **Bowie & Stormey** | 387 → 149 | One of your Mosjes loses 10 less MP each time it loses MP, until the end of your next turn. A Gandoe, Michelle or Tuk loses 20 less instead. | Pair bonus cut (confirmed 14 Nov) |
 | **Gekke Vogels** | 300 → 132 | One of your Mosjes loses 10 less MP each time it loses MP, until the end of your next turn. A Jisca loses 20 less instead. | Combo with an Alyssa + KatjeGang cut |
-| **Tony** | 253 → 132 | One of your Mosjes loses 10 less MP each time it loses MP, until the end of your next turn. A Coert loses 20 less instead. | Morning Luck on 3–6 cut |
+| **Tony** | 253 → 132 | One of your Mosjes loses 10 less MP each time it loses MP, until the end of your next turn. A Coert or Binti loses 20 less instead. | Morning Luck on 3–6 cut; Binti added (Tony is her cat too, 14 Nov) |
 | **ViannaPoes** | 199 → 132 | One of your Mosjes loses 10 less MP each time it loses MP, until the end of your next turn. A Cless loses 20 less instead. | none |
 | **KatjeGang** | 190 → 134 | One of your Mosjes loses 10 less MP each time it loses MP, until the end of your next turn. An Alyssa loses 20 less instead. | "Synergy: Gekke Vogels" note cut |
 | **Dingetje toch?!** | 267 → 105 | Discard this card: it counts as any 1 card or Piecie type a requirement asks for. It never adds Quest dice. | No longer counts as a trait requirement; "ready" detail to the rulebook |

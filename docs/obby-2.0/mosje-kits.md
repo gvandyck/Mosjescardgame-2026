@@ -15,7 +15,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 - [x] Michelle's PQ: Ironman → Knocked Down, Not Out (11 Nov)
 
 **Open**
-- [ ] Pets (rule 14 Nov: each friend gets 1 pet card, all pets share one effect). Have one: Gandoe + Michelle/Tuk (Bowie & Stormey), Jisca (Gekke Vogels), Coert (Tony), Cless (ViannaPoes), Alyssa (KatjeGang). Still need a real pet: Jeffrey, Ronald, Martin/West, Chris, Ming, Binti, Youri
+- [ ] Pets (rule 14 Nov: each friend gets 1 pet card, all pets share one effect). Have one: Gandoe + Michelle/Tuk (Bowie & Stormey), Jisca (Gekke Vogels), Coert + Binti (Tony), Cless (ViannaPoes), Alyssa (KatjeGang). Still need a real pet: Jeffrey, Ronald, Martin/West, Chris, Ming, Youri
 - [x] Gear round: 13 Mosjes got gear drafts (11 Nov)
 - [x] Gear round trimmed: 1 signature per Mosje in the kit, the rest are booster extras (11 Nov)
 - [x] Michelle's gear: Knijpkat, Omafiets, Thuiszorg (11 Nov)
@@ -75,7 +75,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | Ming, The Natural | Beginner's Luck | **Zwoele Ming Power** NEW, **Day-One Game** NEW | **Nieuwe Gimma** NEW |
 | Jeffrey, The Silent Gambler | High Roller | Gekke Dobbel, **Pokerfiches** NEW, **Zonnebril** NEW | Punto Banco |
 | DJ 80/20, The Lucky Mixer | Lucky Crescendo | Dikke Plaat, **Draaitafels** NEW, *DJ Koptelefoon* (booster), *Mixer* (booster) | Skiffa |
-| Binti, The Sharp Tongue | Binti Brandt | Varkenspootjes, Stookerino, **Roast-boekje** NEW, *Telefoon* (booster) | Tesla, Delluft |
+| Binti, The Sharp Tongue | Binti Brandt | Varkenspootjes, Stookerino, **Roast-boekje** NEW, *Telefoon* (booster), Tony (pet, shared with Coert) | Tesla, Delluft |
 | Ronald, Dr. Phill-osoof (was The Mastermind) | Ongevraagd Advies (was Checkmate) | **Hele Fles Fireman** NEW | Ronnie's Kitchen, Obby #1 (host) |
 | Jisca, The Maestro (specialist) | Staande Ovatie | Gekke Vogels, *Bladmuziek* (booster), **Metronoom** NEW | Het Podium |
 | Tuk, The Healing Spirit (specialist) | Cat Sanctuary | Bowie & Stormey, **Kattenbrokjes** NEW, **Knijpkat** NEW (shared), *Thuiszorg* (booster, shared) | De Box |
