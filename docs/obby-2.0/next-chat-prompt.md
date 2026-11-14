@@ -20,12 +20,12 @@ Repo: `gvandyck/mosjescardgame-2026`, branch `card/mosje-roster-7nov` (stacked o
 - New rulebook lines are listed in the wording pass under "Rulebook lines owed" (16 lines), including: a Quest roll never uses more than 6 dice; a Personal Quest can't be discarded by an opponent's effect; one pile per player (Welloe pile = discard pile); "Target" covers cards and Mosje abilities.
 
 ## Still open (in the wording pass doc)
-1. **41 booster costs are Claude's proposals** (marked `*`). Confirm or change them.
-2. **Flightsim Coert** has no ability and his Personal Quest, Butter Landing, has no text.
-3. **Rulebook questions:** does attached gear count as "ready"? What does Ctrl+S do at 0 MP? Can FPS West pay MP he doesn't have?
-4. **Start MP 0** on Gandoe, The Destroyer and Alyssa, The Bulldozer (ruled "never 0" on 1 Nov).
-5. Booster texts were not reviewed card by card: skim the booster tables and call out anything that reads wrong.
-6. Ff Haaltje Nemen stays "Draw 1" at 2 Energy (Gandalf's call; Claude flagged it as too weak).
+1. **Flightsim Coert** is still a draft: no ability, and his Personal Quest, Butter Landing, has no text. Gandalf does him later.
+2. **MP costs at low MP:** FPS West needs 21+ MP to pay 20 MP. Not ruled for the other MP costs (Te Hard Gaan, Ronald's Fles Fireman, Blikje Monsteros, Stripje Bennies, ChestPress).
+3. Booster texts were reworded by rule and skimmed by Claude, not approved one by one. Gandalf confirmed all booster costs.
+4. Ff Haaltje Nemen stays "Draw 1" at 2 Energy (Gandalf's call; Claude flagged it as too weak).
+
+Ruled on 14 Nov, after the pass: attached gear counts as a "ready gear Piecie"; Ctrl+S at 0 MP stays at 0 and keeps its level; Gandoe, The Destroyer and Alyssa, The Bulldozer start at 10 MP.
 
 ## What to do next
 1. **Names round:** the 38 general Quests become memories from our friend group, and the generic card names (Bodyguard, Arcade, Track Highscore…) get friend-group names. Draft them in a reroll sheet. Placeholder names from this pass: Ming's Hond.

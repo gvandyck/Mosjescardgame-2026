@@ -147,7 +147,7 @@ One keyword per line on the card: Needs, Pay, Roll. The die icon is allowed in R
 | Binti Brandt | ★★ · Binti, The Sharp Tongue | **Needs:** your opponent has 2 or fewer cards in hand. **Pay:** discard 1 Piecie from your hand. **Roll:** 1 ▣ per Art★. Need 2× ⚃+. |
 
 Rule change: **Vibe Coded** needs any 2 dice the same (the old Hocus Pocus roll, 44 % on 3 dice) instead of two 4+, so it differs from Headshot. Charge!: the "not if it takes her to 0" bracket became a Needs line. Knocked Down, Not Out: the list of what counts as losing MP moves to the rulebook.
-Rulebook line owed: does gear attached to a Mosje count as a "ready gear Piecie"? (Sterke Jongen, Vibe Coded, Headshot, Aloha Tech Support.) **Playtest watch:** Aloha Tech Support (5+ other cards in hand); High Roller with Punto Banco's +2 dice.
+Ruled 14 Nov: gear attached to a Mosje counts as a "ready gear Piecie". **Playtest watch:** Aloha Tech Support (5+ other cards in hand); High Roller with Punto Banco's +2 dice.
 
 ---
 
@@ -173,7 +173,7 @@ Source: `mosje-personas.md` (the repo data still has the old abilities).
 | Ronald, Dr. Phill-osoof (draft ability) | Once per turn: pay 1 Energy; target 1 opponent Mosje. It rolls 1 die less on its next Quest. | DIE_MINUS · pay Energy · target |
 
 Rule changes (Gandalf's edits): **FPS West** loses the naming bet; he looks at the hand and can pay 30 MP to discard a card of his choice from it. **DJ 80/20** at Level 3 rerolls up to 2 dice in one use (was: two uses per turn).
-Rulebook lines owed: "Target" applies to Mosje abilities too, so Zonnebril and Blensen! protect against them · Youri still pays the Piecie's own cost · can FPS West pay the 20 MP if it takes him to 0 or less?
+Rulebook lines owed: "Target" applies to Mosje abilities too, so Zonnebril and Blensen! protect against them · Youri still pays the Piecie's own cost · FPS West needs 21+ MP to pay for his swap (ruled 14 Nov).
 
 ---
 
@@ -455,13 +455,13 @@ Rule change by precedent: **Obby Shotjes Gauntlet** loses the alternative paymen
 2. A Quest roll never uses more than 6 dice.
 3. "Target" is a defined word; only cards and Mosje abilities target, attacks don't. Jensen!, Zonnebril and Blensen! work against anything that says Target.
 4. A price before a semicolon is paid when the card is played.
-5. Does gear attached to a Mosje count as a "ready gear Piecie"?
+5. **Ruled 14 Nov:** gear attached to a Mosje counts as a "ready gear Piecie", for Needs lines and for Pay lines (Sterke Jongen, Vibe Coded, Headshot, Aloha Tech Support). Playtest watch: a Mosje with gear on it always meets those Needs lines.
 6. Rebouleh and Youri: the extra use still pays the normal cost.
-7. Ctrl+S: what happens to a protected Mosje at 0 MP.
+7. **Ruled 14 Nov:** a Mosje protected by Ctrl+S that reaches 0 MP stays at 0 and keeps its level. After the protection ends it only drops when it loses MP again.
 8. Zwoele Ming Power: a Quest always needs at least 1 success.
 9. Kleine Taks stays in its slot until its second tick, then is discarded.
 10. Binti: a marker shows that the 20 MP hit was used last turn.
-11. FPS West: can he pay the 20 MP if it takes him to 0 or less?
+11. **Ruled 14 Nov:** FPS West needs 21 or more MP to pay the 20 MP for his swap (same as Charge!). Not yet ruled for other MP costs (Te Hard Gaan, Ronald's Fles Fireman, Blikje Monsteros, Stripje Bennies, ChestPress): can they take a Mosje to 0?
 12. Knocked Down, Not Out: an attack, a failed Quest or a Pay all count as losing MP.
 13. DJ 80/20 counts as a Gandoe.
 14. **One pile per player (Gandalf, 14 Nov):** the Welloe pile and the discard pile are the same pile. Cards say "Welloe pile" when they are about Mosjes and "discard pile" otherwise. Consequences: Mosje Reborn also finds a Mosje that was discarded from a hand; TemPiecie can take a knocked-out Mosje back into the hand (it still has to be summoned again at Level 1).
@@ -473,4 +473,4 @@ Rule change by precedent: **Obby Shotjes Gauntlet** loses the alternative paymen
 - The 38 general Quests are not part of this pass (names round)
 - Sync the older docs with this pass: Starter Decks (Digital counts), Effect Library (§6.1, new templates HAND_SWAP, QUEST_EASE, PEEK_DECK), Mosje Kits, Mosje Personas (abilities), Rules and Decisions, Personal Quest List
 - Push this doc to the repo branch `card/mosje-roster-7nov`
-- Playtest watch list: Med Kit, Pre-order Market, Mosje Reborn (steals from the opponent's pile; with Harde Didde it is a two-card steal), Gekke Dobbel, Zwoele Ming Power, Punto Banco with High Roller, Coert's Caravan, FPS West, Youri, Binti, Aloha Tech Support, Vibe Coded with extra dice, Headset, Schetsboek, Ff Haaltje Nemen
+- Playtest watch list: Headshot and Vibe Coded now that attached gear counts as ready, Med Kit, Pre-order Market, Mosje Reborn (steals from the opponent's pile; with Harde Didde it is a two-card steal), Gekke Dobbel, Zwoele Ming Power, Punto Banco with High Roller, Coert's Caravan, FPS West, Youri, Binti, Aloha Tech Support, Vibe Coded with extra dice, Headset, Schetsboek, Ff Haaltje Nemen
