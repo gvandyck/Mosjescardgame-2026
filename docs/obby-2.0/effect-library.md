@@ -275,7 +275,7 @@ The 12 longest texts, rewritten. "Rule change" marks where shorter also changed 
 
 | Card | Chars | New text | Rule change |
 |---|---|---|---|
-| **Bowie & Stormey** | 387 → 149 | One of your Mosjes loses 10 less MP each time it loses MP, until the end of your next turn. A Gandoe, Michelle or Tuk loses 20 less instead. | Pair bonus cut (open question) |
+| **Bowie & Stormey** | 387 → 149 | One of your Mosjes loses 10 less MP each time it loses MP, until the end of your next turn. A Gandoe, Michelle or Tuk loses 20 less instead. | Pair bonus cut (confirmed 14 Nov) |
 | **Gekke Vogels** | 300 → 132 | One of your Mosjes loses 10 less MP each time it loses MP, until the end of your next turn. A Jisca loses 20 less instead. | Combo with an Alyssa + KatjeGang cut |
 | **Tony** | 253 → 132 | One of your Mosjes loses 10 less MP each time it loses MP, until the end of your next turn. A Coert loses 20 less instead. | Morning Luck on 3–6 cut |
 | **ViannaPoes** | 199 → 132 | One of your Mosjes loses 10 less MP each time it loses MP, until the end of your next turn. A Cless loses 20 less instead. | none |
@@ -294,7 +294,8 @@ All five pets now share one template; only the friend's name changes.
 - **DJ 80/20 counts as a Gandoe.** One rulebook line; no card names him separately.
 - **Jammertje Gepakt! and Counter Strikka:** the requirement changes from Mental ★★ to **Tech ★★**, so both work in the Digital starter deck.
 - **New names** (38 Quests, 26 generic cards): a separate round after the wording pass.
-- **Bowie & Stormey pair bonus:** still open.
+- **Bowie & Stormey pair bonus:** stays cut. **All pets do the same thing** (the one pet template), simple for now.
+- **Pet rule:** each friend gets 1 pet card; one card can show several animals (Bowie & Stormey, Gekke Vogels, KatjeGang).
 
 ## 11. Next steps
 

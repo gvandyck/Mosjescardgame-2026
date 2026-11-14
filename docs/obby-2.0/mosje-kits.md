@@ -15,6 +15,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 - [x] Michelle's PQ: Ironman → Knocked Down, Not Out (11 Nov)
 
 **Open**
+- [ ] Pets (rule 14 Nov: each friend gets 1 pet card, all pets share one effect). Have one: Gandoe + Michelle/Tuk (Bowie & Stormey), Jisca (Gekke Vogels), Coert (Tony), Cless (ViannaPoes), Alyssa (KatjeGang). Still need a real pet: Jeffrey, Ronald, Martin/West, Chris, Ming, Binti, Youri
 - [x] Gear round: 13 Mosjes got gear drafts (11 Nov)
 - [x] Gear round trimmed: 1 signature per Mosje in the kit, the rest are booster extras (11 Nov)
 - [x] Michelle's gear: Knijpkat, Omafiets, Thuiszorg (11 Nov)
@@ -29,6 +30,8 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 - [ ] Engine: Obby #1 host trigger, all NEW kit cards in data (FINAL handover)
 
 **Card text rule (11 Nov):** a card may have more than one effect, but keep the text short; many cards doing small things makes booster pulls more fun.
+
+**Pet rule (14 Nov):** each friend gets 1 pet card. All pets use the same effect; only the friend's name changes. One card can show several animals.
 
 ## The kit rule
 1. **Personal Quest:** its own PQ (one per Mosje card).
