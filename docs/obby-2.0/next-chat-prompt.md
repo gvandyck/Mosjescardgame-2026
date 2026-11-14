@@ -42,3 +42,9 @@ Repo: `gvandyck/mosjescardgame-2026`, branch `card/mosje-roster-7nov` (stacked o
 
 ## Parked ideas (in the wording pass doc)
 Type bonus form ("A Physical Mosje gets +30 instead"), Opstaan!, Doorpakken, Groepsfoto, Wat Heb Je Daar?.
+
+## Reference pages
+- Mosje Kits page: https://claude.ai/artifact/NDSpFbyYiNXLzpEPkWhtCZ
+- Card Text Style Test canvas (board G is the final all-text style): https://claude.ai/artifact/JB1MUCSC1jjM8vohDmBvJ1
+
+Start by confirming what you read in two or three lines, then ask me which of the open items to take first.
