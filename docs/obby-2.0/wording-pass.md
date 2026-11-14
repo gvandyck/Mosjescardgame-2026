@@ -2,7 +2,7 @@
 
 Started 14 Nov 2026 (Gandalf + Claude). Rework Plan **Phase 6**. This doc is the single place a card's final text lives. Rules for the wording: `effect-library.md` (style decisions, §0 clean text rule, §9 the 12 wording rules).
 
-Status per card: **Approved** (Gandalf said yes) · **By rule** (booster cards reworded with the ruled rules, not approved one by one) · **To do**. 86 starter cards approved; 129 booster cards reworded by rule or decided (215 texts in total); every cost set (41 booster costs are Claude's proposals, marked *). **The three starter decks are complete** (Piecies, Snelle, Places, Personal Quests, Mosje abilities).
+Status per card: **Approved** (Gandalf said yes) · **By rule** (booster cards reworded with the ruled rules, not approved one by one) · **To do**. 86 starter cards approved; 129 booster cards reworded by rule or decided (215 texts in total); every cost set and confirmed. **The three starter decks are complete** (Piecies, Snelle, Places, Personal Quests, Mosje abilities).
 
 Conventions used so far:
 - "One of your Mosjes" for your own Mosjes; "Target" only for opponent Mosjes.
@@ -218,7 +218,7 @@ Rulebook lines from this round: a Personal Quest can't be discarded by an oppone
 
 Gandalf asked to finish the boosters in one go. These texts were written by applying the rules already ruled in the starter pass (pet template, Needs: lines, fixed durations, cost first with a semicolon, Target, one friend bonus, "you can"). **They were not approved card by card.** Rule changes are listed under each table; the real choices are in "Booster decisions".
 
-`*` after a cost = proposed by Claude (the card had no cost).
+Costs: 41 booster cards had no cost. Claude proposed them on the approved scale and **Gandalf confirmed all 41 on 14 Nov**.
 
 ### Booster Piecies from the data
 
@@ -256,7 +256,7 @@ Gandalf asked to finish the boosters in one go. These texts were written by appl
 | Gekke Vogels | pet · ★★ · 1 | One of your Mosjes loses 10 less MP each time it loses MP, until the end of your next turn. A Jisca loses 20 less instead. | MP_SHIELD · UNTIL_NEXT_END · friend bonus |
 | KatjeGang | pet · ★★ · 1 | One of your Mosjes loses 10 less MP each time it loses MP, until the end of your next turn. An Alyssa loses 20 less instead. | MP_SHIELD · UNTIL_NEXT_END · friend bonus |
 | ViannaPoes | pet · ★★ · 1 | One of your Mosjes loses 10 less MP each time it loses MP, until the end of your next turn. A Cless loses 20 less instead. | MP_SHIELD · UNTIL_NEXT_END · friend bonus |
-| Ming's Hond (placeholder name) | pet · ★★ · 1* | One of your Mosjes loses 10 less MP each time it loses MP, until the end of your next turn. A Ming loses 20 less instead. | MP_SHIELD · UNTIL_NEXT_END · friend bonus |
+| Ming's Hond (placeholder name) | pet · ★★ · 1 | One of your Mosjes loses 10 less MP each time it loses MP, until the end of your next turn. A Ming loses 20 less instead. | MP_SHIELD · UNTIL_NEXT_END · friend bonus |
 
 Rule changes by precedent: **Dikke Taks** loses "Draw 1" (third effect) · **Track Highscore** loses "he gains 30 instead" (one friend bonus, the draw stays, as with Ronald Kip) · **Laat me chillen!**, **Welloe Force**: fixed duration phrases · **Touwtjespringen**: the Strength ★ gate becomes "Needs: a Physical Mosje" · pets and Chef's Special, Dingetje toch?!, Call of the Welloes: texts from Effect Library §10. Rulebook lines moved off the card: Dubbele Ding (pay their costs, free slots needed), Mosje Reborn and Call of the Welloes (the Mosje is fresh), Huisbaas (pay the Place's cost), Tikker (leave it face-up as a reminder).
 
@@ -273,7 +273,7 @@ Rule changes by precedent: **Dikke Taks** loses "Draw 1" (third effect) · **Tra
 | Dubbele Temminks | ★★★ · 2 | When you activate a Piecie: its effect happens a second time. Not on a ★★★★★ card. | COPY |
 | Gevalletje Klakkeloos | ★★★ · 2 | When your opponent activates a Piecie: you get the same effect too. Not on a ★★★★★ card. | COPY |
 | Frenssen! | ★★★ · 2 | When a Jensen! is played: cancel it. One Mosje of the player who played it loses 10 MP. | CANCEL · MP_LOSS |
-| Blensen! | ★★★★★ · 4 | Costs 0 Energy if a Jensen! or Frenssen! was played this turn. Until the end of this turn, your opponent's cards can't target your Mosjes. | UNTARGETABLE · THIS_TURN |
+| Blensen! | ★★★★★ · 4 | Costs 0 Energy if a Jensen! or Frenssen! was played this turn. Until the end of this turn, your opponent's cards and abilities can't target your Mosjes. | UNTARGETABLE · THIS_TURN |
 | Chillingsvoorbij! | ★★ · 1 | Take the last Place you lost from your discard pile into your hand. | RECYCLE |
 
 Rule change by precedent: **Counter Strikka** loses "Mental ★★★: also draw 1" (as Jammertje Gepakt! did) and needs Tech ★★ (ruled 14 Nov).
@@ -295,13 +295,13 @@ Rule change by precedent: **Counter Strikka** loses "Mental ★★★: also draw
 | Pre-order Market (was Digital Gaming Stop) | ★★★ · 2 | When a player activates a gear Piecie: that player draws 1. | DRAW · on activate gear |
 | Tesla | ★★★ · 3 | **Needs:** a Coert on your field. A Coert or Binti gets +1 die on every Quest. If you have no Coert on your field, destroy Tesla. | DIE_PLUS · friend bonus |
 | Eendjes Voeren | ★★ · 2 | On Quests that roll Res, every Mosje rolls 3 dice. A Michelle gains 10 MP at the start of her owner's turn. | Quest dice · MP_GAIN · friend bonus |
-| Rugby Training (NEW) | ★★★ · 2* | Physical Mosjes that were attacked during the last turn get +10 Power. Digital Mosjes get −10 Power. | POWER_UP · POWER_DOWN |
-| Ruilbeurs Jaarbeurs (NEW) | ★★★ · 2* | Once per turn, a player can discard 1 card; they draw 1. A player with a Coert on their field draws 2 instead. | LOOT · friend check |
-| Gandoe's Cloude (NEW) | ★★★ · 2* | Gear Piecies cost 1 Energy less. Physical Mosjes get −10 Power. | COST_DOWN · POWER_DOWN |
-| Silverstone (DDR arcade) (NEW) | ★★★ · 2* | The 3rd Piecie a player activates in a turn costs 0 Energy. With a Chris on their field: it also gains 10 MP. | COST_DOWN · friend check |
+| Rugby Training (NEW) | ★★★ · 2 | Physical Mosjes that were attacked during the last turn get +10 Power. Digital Mosjes get −10 Power. | POWER_UP · POWER_DOWN |
+| Ruilbeurs Jaarbeurs (NEW) | ★★★ · 2 | Once per turn, a player can discard 1 card; they draw 1. A player with a Coert on their field draws 2 instead. | LOOT · friend check |
+| Gandoe's Cloude (NEW) | ★★★ · 2 | Gear Piecies cost 1 Energy less. Physical Mosjes get −10 Power. | COST_DOWN · POWER_DOWN |
+| Silverstone (DDR arcade) (NEW) | ★★★ · 2 | The 3rd Piecie a player activates in a turn costs 0 Energy. With a Chris on their field: that Chris also gains 10 MP. | COST_DOWN · friend check |
 | Perron (NEW, was De Dansvloer) | ★★★ · 2 | Mosjes with a Zonnebril attached lose 5 less MP from each attack. An Alyssa also gains 10 MP at the start of her owner's turn. | MP_SHIELD · MP_GAIN · friend bonus |
-| Homeschool (NEW, was Schoolplein) | ★★★ · 2* | Once per turn, after a player activates a Piecie: they can discard 1 card; they draw 1. A Cless also gains 10 MP. | LOOT · friend bonus |
-| De Cockpit (NEW) | ★★★ · 2* | A player with 2 or more ready gear Piecies gets +1 die on Quest rolls. Physical Mosjes get −10 Power. | DIE_PLUS · POWER_DOWN |
+| Homeschool (NEW, was Schoolplein) | ★★★ · 2 | Once per turn, after a player activates a Piecie: they can discard 1 card; they draw 1. With a Cless on their field: that Cless also gains 10 MP. | LOOT · friend bonus |
+| De Cockpit (NEW) | ★★★ · 2 | A player with 2 or more ready gear Piecies gets +1 die on Quest rolls. Physical Mosjes get −10 Power. | DIE_PLUS · POWER_DOWN |
 | Het Podium (NEW) | ★★★ · 2 | Quests that roll Soc get +1 die. Physical Mosjes get −10 Power. | DIE_PLUS · POWER_DOWN |
 | De Daken (NEW) | ★★★ · 2 | When a Mosje rolls Str or Art for a Quest: it can reroll 1 die. Digital Mosjes get −10 Power. | REROLL · POWER_DOWN |
 | Circuit Zandvoort (NEW) | ★★★ · 3 | When a Mosje with ★★★ in the rolled trait rolls for a Quest: +1 die. Physical Mosjes get −10 Power. | DIE_PLUS · POWER_DOWN |
@@ -313,38 +313,38 @@ Rule changes: none beyond wording. Pre-order Market now says "a player" (Places 
 | Card | Kind · ★ · cost | Text | Template |
 |---|---|---|---|
 | Zonnebril | gear · ★★ · 1 · party Mosjes, Jeffrey Gambler | **Attach:** your opponent's Snelle can't target this Mosje. | UNTARGETABLE · ATTACH |
-| Knijpkat | gear · ★★ · 1* · Michelle, Tuk | **Attach:** when this Mosje fails a Quest, it gains 10 MP. A Michelle or Tuk gains 20 instead. | MP_GAIN · ATTACH · ON_QUEST_FAIL · friend bonus |
-| Omafiets | gear · ★★ · 1* · Michelle | **Attach:** +1 die on one Quest each turn. If that roll shows a 1, discard this card. A Michelle ignores the first 1. | DIE_PLUS · ATTACH · friend bonus |
-| Thuiszorg | Snelle · ★★ · 1* · Michelle, Tuk | One of your Mosjes gains 15 MP. A Michelle or Tuk also draws 1. | MP_GAIN · DRAW · friend bonus |
-| Reserve-onderdelen | gear · ★★ · 1* · Coert | **Needs:** a Digital Mosje. Take 1 gear Piecie from your discard pile into your hand. | RECYCLE · needs DIGITAL |
-| Kabelbak | gear · ★ · 0* · Coert | **Needs:** a Digital Mosje. Draw 2, then discard 1. | LOOT · needs DIGITAL |
-| Bootstick | gear · ★★ · 1* · Coert | **Needs:** a Digital Mosje. Shuffle your hand into your deck and draw that many. With a Coert on your field: draw 1 more. | DRAW (mulligan) · needs DIGITAL · friend check |
-| Med Kit | gear · ★ · 0* · FPS Coert | **Needs:** a Digital Mosje. One of your Mosjes gains 20 MP. An FPS Mosje gains 30 instead. | MP_GAIN · needs DIGITAL · friend bonus |
-| Night Vision | gear · ★★ · 1* · FPS Coert | **Needs:** a Digital Mosje. Look at your opponent's hand. With FPS Coert on your field: one of your Mosjes gets +1 die on one Quest this turn. | PEEK_HAND · DIE_PLUS · needs DIGITAL · friend check |
-| Loot Backpack | gear · ★★ · 1* · FPS Coert | **Attach:** when this Mosje wins a Quest, draw 1. | DRAW · ATTACH · ON_QUEST_WIN |
-| Minimap | gear · ★★ · 0* · FPS West | **Needs:** a Digital Mosje. Look at the top 3 cards of your opponent's deck and put them back in any order. | SCRY (opponent) · needs DIGITAL |
-| Smoke Grenade | Snelle · ★★ · 1* · FPS West | When an opponent's Mosje attacks: that attack gets −10 Power. If it attacks a West, cancel the attack instead. | POWER_DOWN · CANCEL · friend bonus |
-| Racestuur | gear · ★★ · 1* · Martin Driver | **Attach:** +1 die on Quests that roll Tech. A Martin also gains 10 MP when he wins a Quest. | DIE_PLUS · ATTACH · friend bonus |
-| Day-One Game | gear · ★★ · 1* · Ming | Draw 1. A Ming also gets +1 die on its next Quest this turn. | DRAW · DIE_PLUS · friend bonus |
-| Pokerfiches | gear · ★★ · 1* · Jeffrey Gambler | **Attach:** once per turn, when you stake Energy, it counts as 1 Energy more. | stake boost · ATTACH |
-| Roast-boekje | gear · ★★ · 1* · Binti | **Attach:** once per turn, when your opponent discards a card: 1 target opponent Mosje loses 10 MP. A Binti makes it 15 MP. | MP_LOSS · ATTACH · target · friend bonus |
-| Telefoon | gear · ★ · 1* · Binti | Your opponent reveals 2 random cards from their hand. With a Binti on your field: they discard 1 of them, your choice. | PEEK_HAND · DISCARD_OPP · friend check |
-| Bladmuziek | gear · ★ · 0* · Jisca | **Needs:** a Creative Mosje. Look at the top 3 cards of your deck and put them back in any order. | SCRY · needs CREATIVE |
-| Metronoom | gear · ★★ · 1* · Jisca | **Attach:** once per turn, when you activate a Piecie: roll 1 die. On a 4, 5 or 6, this Mosje gains 10 MP. A Jisca's own ability also succeeds on a 3. | GAMBLE · MP_GAIN · ATTACH · friend bonus |
-| Kattenbrokjes | food · ★ · 0* · Tuk | One of your Mosjes gains 15 MP. With Bowie & Stormey in play: 25 MP instead. | MP_GAIN |
-| Japans Woordenboek | gear · ★★ · 1* · Cless Teacher | **Attach:** at the end of your turn, if you have 3 or fewer cards in your hand, draw 1. | DRAW · ATTACH · END_OF_TURN |
-| Kanji Flashcards | Snelle · ★ · 1* · Cless Teacher | Draw 2, then put 1 card from your hand on top of your deck. With a Cless on your field: keep both. | DRAW · friend check |
-| Bento Box | food · ★★ · 1* · Cless Teacher | One of your Mosjes gains 20 MP. A Cless also draws 1. | MP_GAIN · DRAW · friend bonus |
-| Draaitafels | gear · ★★ · 1* · DJ 80/20 | **Attach:** +1 die on Quests that roll Art. A DJ 80/20 also gains 10 MP each time he rerolls a die. | DIE_PLUS · ATTACH · friend bonus |
-| DJ Koptelefoon | gear · ★ · 0* · DJ 80/20 | **Attach:** once per turn, look at the top card of your deck. You can put it on the bottom. | SCRY · ATTACH |
-| Mixer | gear · ★★ · 1* · DJ 80/20 | **Attach:** when this Mosje rolls a pair on a Quest, it gains 10 MP and you gain 1 Energy. | MP_GAIN · ENERGY_GAIN · ATTACH |
-| Toploader | gear · ★★ · 2* · Coert, KasteLuck | **Attach:** your opponent's Piecies can't make this Mosje lose MP. A Coert also draws 1 when he wins a Quest. | UNTARGETABLE (MP loss) · ATTACH · friend bonus |
-| ChestPress | gear · ★★ · 1* · AZN Cless | **Attach:** once per turn, before a Quest roll, this Mosje can lose 10 MP; +1 die on that Quest. An AZN Cless loses nothing. | MP_COST · DIE_PLUS · ATTACH · friend bonus |
-| Señor West's Sombrero | gear · ★★ · 1* · Martin, Señor West | **Attach:** the first attack on this Mosje each turn gets −10 Power. On a Señor West: his ability costs 0 Energy. | POWER_DOWN · COST_DOWN · ATTACH · friend bonus |
-| De Switch | gear · ★ · 0* · Youri, Chris | One of your Mosjes gains 10 MP. A Chris or Youri also gets +1 die on one Quest this turn. | MP_GAIN · DIE_PLUS · friend bonus |
-| Yoke & Pedals | gear · ★ · 0* · Flightsim Coert | **Needs:** a Digital Mosje. One of your Mosjes gains 10 MP. With a Coert on your field: draw 1. | MP_GAIN · DRAW · needs DIGITAL · friend check |
+| Knijpkat | gear · ★★ · 1 · Michelle, Tuk | **Attach:** when this Mosje fails a Quest, it gains 10 MP. A Michelle or Tuk gains 20 instead. | MP_GAIN · ATTACH · ON_QUEST_FAIL · friend bonus |
+| Omafiets | gear · ★★ · 1 · Michelle | **Attach:** +1 die on one Quest each turn. If that roll shows a 1, discard this card. A Michelle ignores the first 1. | DIE_PLUS · ATTACH · friend bonus |
+| Thuiszorg | Snelle · ★★ · 1 · Michelle, Tuk | One of your Mosjes gains 15 MP. A Michelle or Tuk also draws 1. | MP_GAIN · DRAW · friend bonus |
+| Reserve-onderdelen | gear · ★★ · 1 · Coert | **Needs:** a Digital Mosje. Take 1 gear Piecie from your discard pile into your hand. | RECYCLE · needs DIGITAL |
+| Kabelbak | gear · ★ · 0 · Coert | **Needs:** a Digital Mosje. Draw 2, then discard 1. | LOOT · needs DIGITAL |
+| Bootstick | gear · ★★ · 1 · Coert | **Needs:** a Digital Mosje. Shuffle your hand into your deck and draw that many. With a Coert on your field: draw 1 more. | DRAW (mulligan) · needs DIGITAL · friend check |
+| Med Kit | gear · ★ · 0 · FPS Coert | **Needs:** a Digital Mosje. One of your Mosjes gains 20 MP. An FPS Mosje gains 30 instead. | MP_GAIN · needs DIGITAL · friend bonus |
+| Night Vision | gear · ★★ · 1 · FPS Coert | **Needs:** a Digital Mosje. Look at your opponent's hand. With FPS Coert on your field: one of your Mosjes gets +1 die on one Quest this turn. | PEEK_HAND · DIE_PLUS · needs DIGITAL · friend check |
+| Loot Backpack | gear · ★★ · 1 · FPS Coert | **Attach:** when this Mosje wins a Quest, draw 1. | DRAW · ATTACH · ON_QUEST_WIN |
+| Minimap | gear · ★★ · 0 · FPS West | **Needs:** a Digital Mosje. Look at the top 3 cards of your opponent's deck and put them back in any order. | SCRY (opponent) · needs DIGITAL |
+| Smoke Grenade | Snelle · ★★ · 1 · FPS West | When an opponent's Mosje attacks: that attack gets −10 Power. If it attacks a West, cancel the attack instead. | POWER_DOWN · CANCEL · friend bonus |
+| Racestuur | gear · ★★ · 1 · Martin Driver | **Attach:** +1 die on Quests that roll Tech. A Martin also gains 10 MP when he wins a Quest. | DIE_PLUS · ATTACH · friend bonus |
+| Day-One Game | gear · ★★ · 1 · Ming | Draw 1. With a Ming on your field: it gets +1 die on its next Quest this turn. | DRAW · DIE_PLUS · friend bonus |
+| Pokerfiches | gear · ★★ · 1 · Jeffrey Gambler | **Attach:** once per turn, when you stake Energy, it counts as 1 Energy more. | stake boost · ATTACH |
+| Roast-boekje | gear · ★★ · 1 · Binti | **Attach:** once per turn, when your opponent discards a card: 1 target opponent Mosje loses 10 MP. On a Binti: 15 MP instead. | MP_LOSS · ATTACH · target · friend bonus |
+| Telefoon | gear · ★ · 1 · Binti | Your opponent reveals 2 random cards from their hand. With a Binti on your field: they discard 1 of them, your choice. | PEEK_HAND · DISCARD_OPP · friend check |
+| Bladmuziek | gear · ★ · 0 · Jisca | **Needs:** a Creative Mosje. Look at the top 3 cards of your deck and put them back in any order. | SCRY · needs CREATIVE |
+| Metronoom | gear · ★★ · 1 · Jisca | **Attach:** once per turn, when you activate a Piecie: roll 1 die. On a 4, 5 or 6, this Mosje gains 10 MP. A Jisca's own ability also succeeds on a 3. | GAMBLE · MP_GAIN · ATTACH · friend bonus |
+| Kattenbrokjes | food · ★ · 0 · Tuk | One of your Mosjes gains 15 MP. With Bowie & Stormey in play: 25 MP instead. | MP_GAIN |
+| Japans Woordenboek | gear · ★★ · 1 · Cless Teacher | **Attach:** at the end of your turn, if you have 3 or fewer cards in your hand, draw 1. | DRAW · ATTACH · END_OF_TURN |
+| Kanji Flashcards | Snelle · ★ · 1 · Cless Teacher | Draw 2, then put 1 card from your hand on top of your deck. With a Cless on your field: keep both. | DRAW · friend check |
+| Bento Box | food · ★★ · 1 · Cless Teacher | One of your Mosjes gains 20 MP. A Cless also draws 1. | MP_GAIN · DRAW · friend bonus |
+| Draaitafels | gear · ★★ · 1 · DJ 80/20 | **Attach:** +1 die on Quests that roll Art. A DJ 80/20 also gains 10 MP each time he rerolls a die. | DIE_PLUS · ATTACH · friend bonus |
+| DJ Koptelefoon | gear · ★ · 0 · DJ 80/20 | **Attach:** once per turn, look at the top card of your deck. You can put it on the bottom. | SCRY · ATTACH |
+| Mixer | gear · ★★ · 1 · DJ 80/20 | **Attach:** when this Mosje rolls a pair on a Quest, it gains 10 MP and you gain 1 Energy. | MP_GAIN · ENERGY_GAIN · ATTACH |
+| Toploader | gear · ★★ · 2 · Coert, KasteLuck | **Attach:** your opponent's Piecies can't make this Mosje lose MP. A Coert also draws 1 when he wins a Quest. | UNTARGETABLE (MP loss) · ATTACH · friend bonus |
+| ChestPress | gear · ★★ · 1 · AZN Cless | **Attach:** once per turn, before a Quest roll, this Mosje can lose 10 MP; +1 die on that Quest. An AZN Cless loses nothing. | MP_COST · DIE_PLUS · ATTACH · friend bonus |
+| Señor West's Sombrero | gear · ★★ · 1 · Martin, Señor West | **Attach:** the first attack on this Mosje each turn gets −10 Power. On a Señor West: his ability costs 0 Energy. | POWER_DOWN · COST_DOWN · ATTACH · friend bonus |
+| De Switch | gear · ★ · 0 · Youri, Chris | One of your Mosjes gains 10 MP. A Chris or Youri also gets +1 die on one Quest this turn. | MP_GAIN · DIE_PLUS · friend bonus |
+| Yoke & Pedals | gear · ★ · 0 · Flightsim Coert | **Needs:** a Digital Mosje. One of your Mosjes gains 10 MP. With a Coert on your field: draw 1. | MP_GAIN · DRAW · needs DIGITAL · friend check |
 | A Mili | substance · ★★ · 1 · Gandoe | Roll 1 die for one of your Mosjes. 1–2: it loses 10 MP. 3–4: it gains 20 MP. 5–6: it gains 20 MP and gets +10 Power this turn. A Gandoe never loses MP from it. | GAMBLE · friend bonus |
-| Bodyguard | Snelle · ★★★ · 1 | When an opponent's Mosje attacks one of yours: your other Mosje takes the attack instead. A Kast-elein loses 10 less from it. | REDIRECT · friend bonus |
+| Bodyguard | Snelle · ★★★ · 1 | When an opponent's Mosje attacks one of yours: your other Mosje takes the attack instead. | REDIRECT |
 
 Señor West's Sombrero: "charm" is Señor West's own ability (an opponent Mosje is charmed and can't attack), so on him that ability costs 0 Energy.
 
@@ -353,13 +353,22 @@ Señor West's Sombrero: "charm" is Señor West's own ability (an opponent Mosje 
 | Card | Kind · ★ · cost | Final text | Template |
 |---|---|---|---|
 | Boxing Gloves | gear · ★★ · 1 · Gandoe, Michelle | **Needs:** a Physical Mosje. One of your Mosjes gets +10 Power this turn. A Gandoe or Michelle gets +20 instead. | POWER_UP · THIS_TURN · needs PHYSICAL · friend bonus |
-| Jeffrey's Plates | gear · ★★★ · 3* · Jeffrey Strongman | **Attach:** +20 Power. This Mosje can't attack on the turn you attach this. A Jeffrey can. | POWER_UP · ATTACH · LOCK · friend bonus |
+| Jeffrey's Plates | gear · ★★★ · 3 · Jeffrey Strongman | **Attach:** +20 Power. This Mosje can't attack on the turn you attach this. A Jeffrey can. | POWER_UP · ATTACH · LOCK · friend bonus |
 | De Belt | gear · ★★★★ · 2 · Gandoe Destroyer | **Needs:** a Physical Mosje. **Attach:** +20 Power. If this Mosje drops a level from an attack, the attacker's owner can move De Belt to one of their Physical Mosjes. | POWER_UP · ATTACH · STEAL |
-| Youri's Beta | gear · ★★ · 1* · Youri | **Attach:** the first time this Mosje fails a Quest, roll all the dice again. Then discard this card. On a Youri: once per turn, and keep this card. | REROLL · ATTACH · ON_QUEST_FAIL · friend bonus |
-| Grip-schoenen | gear · ★★ · 1* · Parkour West | **Attach:** Mosjes with less Power can't attack this Mosje. A West also gets +10 Power. | LOCK (attack) · POWER_UP · ATTACH · friend bonus |
-| Tesla Laadkabel | gear · ★★ · 0* · Coert | **Needs:** a Digital Mosje. One of your Mosjes loses 10 MP; gain 1 Energy this turn. With Tesla in play: gain 2 instead. | MP_COST · ENERGY_GAIN · THIS_TURN · needs DIGITAL |
+| Youri's Beta | gear · ★★ · 1 · Youri | **Attach:** the first time this Mosje fails a Quest, roll all the dice again. Then discard this card. On a Youri: once per turn, and keep this card. | REROLL · ATTACH · ON_QUEST_FAIL · friend bonus |
+| Grip-schoenen | gear · ★★ · 1 · Parkour West | **Attach:** Mosjes with less Power can't attack this Mosje. A West also gets +10 Power. | LOCK (attack) · POWER_UP · ATTACH · friend bonus |
+| Tesla Laadkabel | gear · ★★ · 0 · Coert | **Needs:** a Digital Mosje. One of your Mosjes loses 10 MP; gain 1 Energy this turn. With Tesla in play: gain 2 instead. | MP_COST · ENERGY_GAIN · THIS_TURN · needs DIGITAL |
 
 Also ruled: the 17 cards archived on 1 Nov stay archived (Synergy Field, MP Amplifier, Perfect Dodge, Mosje Shield, Continuous Assault, MP Hemorrhage, Chain Reaction, Perfect Setup, MP Adjuster, Drain Reversal, Quest Haven, Synergy Chamber, Momentum Factory, Boxing Ring, Double Trigger, Moshpit, the old Schoolplein). **Mosje Reborn and The Protector become ★★★★★ chase cards** (Gandalf: "super powerful, a good card to try and pull"). Mosje Reborn is done: cost 2, a Mosje from any player's pile (the opponent's too) onto your field at Level 1 with 50 MP (Gandalf, 14 Nov: Level 1, not Level 2). The Protector is done too (Gandalf's idea, 14 Nov): a Snelle that attaches to one Mosje at any time and stays for 1 Energy per turn.
+
+### Booster skim (14 Nov, by Claude on Gandalf's request)
+Read all 129 booster texts against the rules and against each other. Fixed:
+- **Bodyguard** named Kast-elein, a Mosje that is archived. The friend line is cut.
+- **Blensen!** now says "cards and abilities", the same as The Protector, since Mosje abilities can target.
+- **Silverstone, Homeschool, Day-One Game:** the friend line pointed at "it" or at a Mosje the card never picked. They now say which Mosje.
+- **Roast-boekje:** friend line in the standard form ("On a Binti: 15 MP instead").
+
+Left as they are, for the playtest: Med Kit (20 MP behind a gate is less than Kannetje Melk for anyone but an FPS Mosje) · Pre-order Market (a draw on every gear Piecie in a deck full of free gear) · Klaar Met Jou and Harde Didde (near-copies) · Welloe Plekka (switches off Mosje Reborn, Call of the Welloes and TemPiecie on Mosjes; that is its job).
 
 Near-copies left as they are, on Gandalf's principle that the same effect is fine when the owner differs: Kabelbak (Bagga of Greed for Digital), De Switch (Dancepad for Youri), Homeschool (Ruilbeurs Jaarbeurs for Cless), Bladmuziek and Minimap. No owner difference, so worth a look later: Klaar Met Jou and Harde Didde.
 
@@ -383,8 +392,8 @@ Reworded by rule, like the other booster cards. Source: `mosje-personas.md` and 
 | Cless, The Teacher (Creative) | When you activate a Piecie: roll 1 die. On a 5 or 6, draw 1 and one of your Mosjes gains 5 MP. From Level 2: on a 4, 5 or 6. | GAMBLE · DRAW · MP_GAIN · on activate Piecie · level upgrade |
 | Jisca, The Maestro (Creative) | Once per turn, when you activate a Piecie: roll 1 die. 4–6: activate another ready Piecie for 0 Energy and 1 target opponent Mosje loses 15 MP. 1–3: this Mosje loses 10 MP. | GAMBLE · EXTRA_USE · MP_LOSS · target |
 
-Missing: **Flightsim Coert** (NEW booster Mosje) has no ability text in any doc. Archived Mosjes get no text: The Historian, The Predictor, The All-Rounder, The Creator, Kast-elein, The Sims Architect and the four placeholders.
-Notes: Gandoe, The Destroyer starts at 0 MP in the personas doc, against the 1 Nov ruling "start MP never 0" (same for Alyssa, The Bulldozer). Parkour West and The Precision Driver carry two abilities each, the longest texts among the Mosjes.
+**Flightsim Coert** (NEW booster Mosje) is still a draft: no ability yet. Gandalf does him later (14 Nov). Archived Mosjes get no text: The Historian, The Predictor, The All-Rounder, The Creator, Kast-elein, The Sims Architect and the four placeholders.
+**Ruled 14 Nov:** Gandoe, The Destroyer and Alyssa, The Bulldozer start at 10 MP (start MP is never 0). Parkour West and The Precision Driver carry two abilities each, the longest texts among the Mosjes.
 
 ### Booster Personal Quests
 
@@ -405,7 +414,7 @@ Notes: Gandoe, The Destroyer starts at 0 MP in the personas doc, against the 1 N
 | Final Exam | ★★ · Cless, The Teacher | **Needs:** ViannaPoes ready. **Pay:** discard 2 cards from your hand. **Roll:** 1 ▣ per Men★. Need 2× ⚃+. |
 
 Rule change by precedent: **Obby Shotjes Gauntlet** loses the alternative payment (a ready Those Eyelashes Tho... plus 1 substance). Roll traits follow the personas doc (re-typed 7 Nov: Lucky Streak, Obby Shotjes Gauntlet and Full Combo roll Str; Grand Prix rolls Tech and Art).
-Missing: **Butter Landing** (Flightsim Coert) has no text. Personal Quests of archived Mosjes are archived with them: Called It, Archive Dive, Manus-je Van Alles, Blank Canvas, The Immovable Kast, Dream House. Ongevraagd Advies has no rarity in the docs; ★★★ is taken from Checkmate, the card it replaces.
+**Butter Landing** (Flightsim Coert) waits for that draft. Personal Quests of archived Mosjes are archived with them: Called It, Archive Dive, Manus-je Van Alles, Blank Canvas, The Immovable Kast, Dream House. Ongevraagd Advies has no rarity in the docs; ★★★ is taken from Checkmate, the card it replaces.
 
 ---
 
@@ -460,8 +469,8 @@ Missing: **Butter Landing** (Flightsim Coert) has no text. Personal Quests of ar
 16. **The Protector** is a Snelle that attaches: it can be played at any time, counts as one of the Mosje's 2 attachments, and is discarded at the start of your turn unless you pay 1 Energy. This "pay or discard" line is a new duration (UPKEEP) and needs its own handler.
 
 ## To do
-- Flightsim Coert: ability and Personal Quest (Butter Landing) have no text yet
+- Flightsim Coert (draft): ability and Personal Quest (Butter Landing), later
 - The 38 general Quests are not part of this pass (names round)
 - Sync the older docs with this pass: Starter Decks (Digital counts), Effect Library (§6.1, new templates HAND_SWAP, QUEST_EASE, PEEK_DECK), Mosje Kits, Mosje Personas (abilities), Rules and Decisions, Personal Quest List
 - Push this doc to the repo branch `card/mosje-roster-7nov`
-- Playtest watch list: Mosje Reborn (steals from the opponent's pile; with Harde Didde it is a two-card steal), Gekke Dobbel, Zwoele Ming Power, Punto Banco with High Roller, Coert's Caravan, FPS West, Youri, Binti, Aloha Tech Support, Vibe Coded with extra dice, Headset, Schetsboek, Ff Haaltje Nemen
+- Playtest watch list: Med Kit, Pre-order Market, Mosje Reborn (steals from the opponent's pile; with Harde Didde it is a two-card steal), Gekke Dobbel, Zwoele Ming Power, Punto Banco with High Roller, Coert's Caravan, FPS West, Youri, Binti, Aloha Tech Support, Vibe Coded with extra dice, Headset, Schetsboek, Ff Haaltje Nemen

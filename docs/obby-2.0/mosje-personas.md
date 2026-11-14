@@ -14,7 +14,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 ### Gandoe, The Destroyer · Physical
 
-- **Stats:** cost 4 · start MP 0
+- **Stats:** cost 4 · start MP 10 (ruled 14 Nov: never 0)
 - **Traits:** LV1 Str ★★ · Men ★ · Res ★ → LV2 Str ★★★ · Men ★ · Res ★ → LV3 Str ★★★ · Men ★★ · Res ★
 - **Ability:** Once per game, 4 Energy: the opponent's lowest-level Mosje drops one level (Level 1: sideways).
 - **Personal Quest:** Kampioen Van De Box
@@ -234,7 +234,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
 
 ### Alyssa, The Bulldozer · Physical
 
-- **Stats:** cost 4 · start MP 0
+- **Stats:** cost 4 · start MP 10 (ruled 14 Nov: never 0)
 - **Traits:** LV1 Str ★★ · Soc ★ · Res ★ → LV2 Str ★★★ · Soc ★ · Res ★ → LV3 Str ★★★ · Soc ★★ · Res ★
 - **Ability:** Taksed for 20+ in one turn: +25 MP and +10 Power until the end of your next turn.
 - **Personal Quest:** Charge!
