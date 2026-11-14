@@ -387,6 +387,7 @@ Trait curve (7 Nov): Physical Str 2/3/3 · Digital Tech 2/2/3 + Res 1/2/2 · Cre
   - Improvises everything (why he's Creative)
 - **Theme check:** Fits.
 - Gear (11 Nov): Day-One Game
+- Pet: a dog (name and breed unknown; placeholder card Ming's Hond)
 
 
 ### Ming, The Predictor — archived

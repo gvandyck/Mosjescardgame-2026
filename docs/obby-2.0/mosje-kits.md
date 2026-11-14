@@ -15,7 +15,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 - [x] Michelle's PQ: Ironman → Knocked Down, Not Out (11 Nov)
 
 **Open**
-- [ ] Pets (rule 14 Nov: each friend gets 1 pet card, all pets share one effect). Have one: Gandoe + Michelle/Tuk (Bowie & Stormey), Jisca (Gekke Vogels), Coert + Binti (Tony), Cless (ViannaPoes), Alyssa (KatjeGang). Still need a real pet: Jeffrey, Ronald, Martin/West, Chris, Ming, Youri
+- [ ] Pets (rule 14 Nov: each friend gets 1 pet card, all pets share one effect). Have one: Gandoe + Michelle/Tuk (Bowie & Stormey), Jisca (Gekke Vogels), Coert + Binti (Tony), Cless (ViannaPoes), Alyssa (KatjeGang). Ming (*Ming's Hond*, placeholder: real name and breed to come). Still need a real pet: Jeffrey, Ronald, Martin/West, Chris, Youri
 - [x] Gear round: 13 Mosjes got gear drafts (11 Nov)
 - [x] Gear round trimmed: 1 signature per Mosje in the kit, the rest are booster extras (11 Nov)
 - [x] Michelle's gear: Knijpkat, Omafiets, Thuiszorg (11 Nov)
@@ -72,7 +72,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 ## Creative
 | Mosje | Personal Quest | Signature Piecie | Place |
 |---|---|---|---|
-| Ming, The Natural | Beginner's Luck | **Zwoele Ming Power** NEW, **Day-One Game** NEW | **Nieuwe Gimma** NEW |
+| Ming, The Natural | Beginner's Luck | **Zwoele Ming Power** NEW, **Day-One Game** NEW, *Ming's Hond* (pet, placeholder) | **Nieuwe Gimma** NEW |
 | Jeffrey, The Silent Gambler | High Roller | Gekke Dobbel, **Pokerfiches** NEW, **Zonnebril** NEW | Punto Banco |
 | DJ 80/20, The Lucky Mixer | Lucky Crescendo | Dikke Plaat, **Draaitafels** NEW, *DJ Koptelefoon* (booster), *Mixer* (booster) | Skiffa |
 | Binti, The Sharp Tongue | Binti Brandt | Varkenspootjes, Stookerino, **Roast-boekje** NEW, *Telefoon* (booster), Tony (pet, shared with Coert) | Tesla, Delluft |
@@ -101,6 +101,7 @@ Ruled 9 Nov 2026. **Every Mosje card comes with a kit**: the cards that tell its
 | Piecie | For | Effect |
 |---|---|---|
 | **Zonnebril** (gear, ★★, cost 1) | Alyssa, Fissa Fissa! + party Mosjes (shared) | Attach to one of your Mosjes: your opponent's Snelle Piecies can't target it. Flavour: *"Wat? Ik ben gewoon moe."* At Perron: also Resilient +1 ★. |
+| *Ming's Hond* (pet, placeholder) | Ming | One of your Mosjes loses 10 less MP each time it loses MP, until the end of your next turn. A Ming loses 20 less instead. Name and breed to come. |
 | **Hele Fles Fireman** (substance, ★★★) | both Ronalds | One of your Mosjes gets +20 Power this turn and loses 20 MP at the end of the turn. A Ronald loses nothing (he's used to it). |
 | MagicPrompt (gear) | Gandoe, The Cloude Wizard | Search your deck for a gear Piecie. A Gandoe also gains 10 MP. |
 | **Blikje Monsteros** (substance) | Youri | Gain 2ϟ this turn. One of your Mosjes loses 15 MP. A Youri also draws 1. (Flavour: his stomach.) |
