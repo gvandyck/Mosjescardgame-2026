@@ -114,3 +114,20 @@ Answers Gandalf gives on a rule or a card while the design update is being built
 | 15 Nov 2026 | 69 | Aloha Tech Support names "Coert, Tech Savant". | That is Coert, The Hawaiian Tech Savant. |
 | 15 Nov 2026 | 69 | The deck list says "DJ 80/20", the card list "DJ 80/20, The Lucky Mixer". | The card keeps its full name; "DJ 80/20" is shorthand. |
 | 15 Nov 2026 | 69 | Which Mosje starts on the field (§3.2)? | The player picks one of the deck's 5 Mosjes at the start of each game; the bot picks one at random. |
+
+### Claude's calls, for Gandalf to review
+Gandalf asked on 15 Nov to keep building without stopping for questions. These gaps were filled by Claude so the build could go on. Each one is easy to change; say so and it is changed in the next build.
+
+| Date | Phase | Gap | Call made |
+|---|---|---|---|
+| 15 Nov 2026 | 70 | §5 says level-up resets MP "to 10 (or its printed start MP)". | Flat 10 for every Mosje. |
+| 15 Nov 2026 | 70 | How do you lose? (not in this doc) | As before: you lose when you have no Mosje left outside your pile. |
+| 15 Nov 2026 | 70 | Empty field at the start of your turn; the first player's first draw; running out of deck. (not in this doc) | As before: the cheapest Mosje from hand or deck is placed for free; the first player skips their first draw; on deck-out the pile is shuffled into a new deck and that turn is a cooldown turn. |
+| 15 Nov 2026 | 70 | One pile per player: what is reshuffled on deck-out? | Everything in the pile except Mosjes; Mosjes stay in the pile. |
+| 15 Nov 2026 | 70 | §4: in what order do bonuses and reductions apply to an attack? | Power (printed + boosts + triangle) → card shields → Resilient (−5 per ★). If a card prevents the whole attack it does nothing; otherwise it does at least 5. |
+| 15 Nov 2026 | 70 | §6: fewest dice on a roll? | 1 (a Mosje with no ★ in the trait still rolls 1 die); most is 6. |
+| 15 Nov 2026 | 70 | §7: which Piecies are "named under Needs" when several qualify? | The player chooses which ready Piecie counts; that one is discarded on a fail. |
+| 15 Nov 2026 | 70 | §7: on a failed Personal Quest, is MP or Energy paid under Pay given back? | No. Pay is never refunded. |
+| 15 Nov 2026 | 70 | §7: can your own effects discard your Personal Quest? | Yes. Only an opponent's effect can't. |
+| 15 Nov 2026 | 70 | §8: do attachments survive a level-up or level-down? | Yes, they stay while the Mosje is on the field. |
+| 15 Nov 2026 | 70 | §8: which cards attach? | The ones whose text has the keyword Attach, not every gear or pet card. |
