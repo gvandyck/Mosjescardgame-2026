@@ -110,4 +110,7 @@ Answers Gandalf gives on a rule or a card while the design update is being built
 
 | Date | Phase | Question | Ruling |
 |---|---|---|---|
-| — | — | — | (none yet) |
+| 15 Nov 2026 | 69 | Aloha Tech Support and Lucky Crescendo have no type in `cards.json`. | Aloha Tech Support is Digital; Lucky Crescendo is Creative. |
+| 15 Nov 2026 | 69 | Aloha Tech Support names "Coert, Tech Savant". | That is Coert, The Hawaiian Tech Savant. |
+| 15 Nov 2026 | 69 | The deck list says "DJ 80/20", the card list "DJ 80/20, The Lucky Mixer". | The card keeps its full name; "DJ 80/20" is shorthand. |
+| 15 Nov 2026 | 69 | Which Mosje starts on the field (§3.2)? | The player picks one of the deck's 5 Mosjes at the start of each game; the bot picks one at random. |
