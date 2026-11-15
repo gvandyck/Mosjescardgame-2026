@@ -20,9 +20,9 @@ Wording only; no rule changed.
 |---|---|---|---|
 | Kannetje Melk | food · ★ · 0 | One of your Mosjes gains 25 MP. | MP_GAIN · INSTANT |
 | Late Night Döner | food · ★★ · 1 | One of your Mosjes gets +10 Power until the end of your next turn. | POWER_UP · UNTIL_NEXT_END |
-| Dancepad (NEW) | gear · 0 | One of your Mosjes gains 10 MP. A Chris also gets +1 die on one Quest this turn. | MP_GAIN · DIE_PLUS · friend bonus |
-| Rugbybal (NEW) | gear · 2 | **Attach:** +10 Power. An Alyssa also gains 10 MP each time she attacks. | POWER_UP · ATTACH · MP_GAIN · friend bonus |
-| Koksmes (NEW) | gear · 2 | **Attach:** +10 Power. A Ronald gets +20 instead. | POWER_UP · ATTACH · friend bonus |
+| Dancepad (NEW) | gear · ★ · 0 | One of your Mosjes gains 10 MP. A Chris also gets +1 die on one Quest this turn. | MP_GAIN · DIE_PLUS · friend bonus |
+| Rugbybal (NEW) | gear · ★★ · 2 | **Attach:** +10 Power. An Alyssa also gains 10 MP each time she attacks. | POWER_UP · ATTACH · MP_GAIN · friend bonus |
+| Koksmes (NEW) | gear · ★★ · 2 | **Attach:** +10 Power. A Ronald gets +20 instead. | POWER_UP · ATTACH · friend bonus |
 | Snoeiertje | attack · ★ · 0 | One of your Mosjes gets +10 Power this turn. **Combo:** +20 instead. | POWER_UP · THIS_TURN · COMBO |
 | Super Saiyan Mos | attack · ★★★ · 3 | One of your Mosjes gets +30 Power this turn. | POWER_UP · THIS_TURN |
 
@@ -33,7 +33,7 @@ Source text was in the project docs (Card Cleanup List, Personal Quest List).
 
 | Card | Kind · ★ · cost | Final text | Template |
 |---|---|---|---|
-| In De Groove | trick · 1 · kit: Chris | This turn, each time you activate another Piecie: draw 1 (max 2). A Chris also gains 10 MP each time. | DRAW · THIS_TURN · on activate Piecie · friend bonus |
+| In De Groove | trick · ★★ · 1 · kit: Chris | This turn, each time you activate another Piecie: draw 1 (max 2). A Chris also gains 10 MP each time. | DRAW · THIS_TURN · on activate Piecie · friend bonus |
 
 ---
 
@@ -47,7 +47,7 @@ Gandalf picked option A on all eight. Each of these changes what the card does.
 | Dumbbells | gear · ★ · 0 | **Attach:** +1 die on Quests that roll Str. | DIE_PLUS · ATTACH | Now an Attach card (balance round): no MP, no draw |
 | Te Hard Gaan | attack · ★★ · 2 | One of your Mosjes loses 10 MP; it gets +20 Power this turn. | MP_COST · POWER_UP · THIS_TURN | The 10 MP is paid when played, not at the end of the turn |
 | Ronald's Fles Fireman (NEW) | substance · ★★★ · 1 | One of your Mosjes loses 20 MP; it gets +20 Power this turn. A Ronald loses nothing. | MP_COST · POWER_UP · THIS_TURN · friend bonus | The 20 MP is paid when played |
-| Gekke Dobbel | trick · 0 · kit: Jeffrey | +1 die on one Quest this turn. A Jeffrey gets +2 dice instead. | DIE_PLUS · THIS_TURN · friend bonus | Reroll cut; a Jeffrey rolls 2 extra dice. **Playtest watch.** |
+| Gekke Dobbel | trick · ★ · 0 · kit: Jeffrey | +1 die on one Quest this turn. A Jeffrey gets +2 dice instead. | DIE_PLUS · THIS_TURN · friend bonus | Reroll cut; a Jeffrey rolls 2 extra dice. **Playtest watch.** |
 | Schetsboek | gear · ★ · 0 | **Needs:** a Creative Mosje. Look at the top 2 cards of your deck. Take 1 and put the other on the bottom. | SCRY · DRAW · needs CREATIVE | The plain "draw 1" without a Creative Mosje is cut |
 | Hawaii Pizza | food · ★★ · 1 · kit: Coert | One of your Mosjes gains 30 MP. With a Coert on your field: draw 1. | MP_GAIN · DRAW · friend check | 25 → 30 for everyone; "a Coert gains 35" cut |
 
@@ -61,14 +61,14 @@ Wording only, except Afblijven!.
 | Kleine Taks | attack · ★★ · 1 | Target 1 opponent Mosje. It loses 10 MP at the end of this turn and at the end of your next turn. | DOT · 2 ticks · target |
 | Bowie & Stormey | pet · ★★★ · 1 | One of your Mosjes loses 10 less MP each time it loses MP, until the end of your next turn. A Gandoe, Michelle or Tuk loses 20 less instead. | MP_SHIELD · UNTIL_NEXT_END · friend bonus |
 | Afblijven! | trick · ★★ · 1 | One of your Mosjes loses 20 less MP each time it loses MP, during your opponent's next turn. | MP_SHIELD · OPP_TURN |
-| Chris's Handdoek (NEW) | Snelle · 0 · kit: Chris | When one of your Mosjes rolls for a Quest: reroll 1 die. A Chris also gains 10 MP. | REROLL · friend bonus |
+| Chris's Handdoek (NEW) | Snelle · ★ · 0 · kit: Chris | When one of your Mosjes rolls for a Quest: reroll 1 die. A Chris also gains 10 MP. | REROLL · friend bonus |
 | Aansteker | Snelle · ★ · 0 | When an opponent's Mosje attacks: the attacker loses 15 MP. | THORNS · on opponent attack |
 | Jensen! | Snelle · ★★ · 1 | When an opponent's Piecie or Snelle targets one of your Mosjes: cancel it. | CANCEL · on opponent card |
 | Keyboard | gear · ★ · 0 | **Needs:** a Digital Mosje. One of your Mosjes gains 10 MP. Draw 1. | MP_GAIN · DRAW · needs DIGITAL |
 | Mouse | gear · ★ · 1 | **Needs:** a Digital Mosje. Search your deck for a gear Piecie and put it in your hand. | TUTOR · needs DIGITAL |
 | Controller | gear · ★ · 0 | **Needs:** a Digital Mosje. One of your Mosjes gains 10 MP and gets +1 die on one Quest this turn. | MP_GAIN · DIE_PLUS · needs DIGITAL |
-| Headset (NEW) | gear · 0 · kit: FPS duo | **Needs:** a Digital Mosje. Look at the top 2 cards of your opponent's deck. With an FPS Mosje on your field: it gets +10 Power this turn. | PEEK_DECK · POWER_UP · friend check |
-| MagicPrompt (NEW) | gear · 1 · kit: Gandoe | Search your deck for a gear Piecie and put it in your hand. With a Gandoe on your field: it gains 10 MP. | TUTOR · MP_GAIN · friend check |
+| Headset (NEW) | gear · ★ · 0 · kit: FPS duo | **Needs:** a Digital Mosje. Look at the top 2 cards of your opponent's deck. With an FPS Mosje on your field: it gets +10 Power this turn. | PEEK_DECK · POWER_UP · friend check |
+| MagicPrompt (NEW) | gear · ★★ · 1 · kit: Gandoe | Search your deck for a gear Piecie and put it in your hand. With a Gandoe on your field: it gains 10 MP. | TUTOR · MP_GAIN · friend check |
 | Hawaiishirt | gear · ★ · 2 · kit: Coert | **Attach:** your first Piecie each turn costs 1 Energy less. | COST_DOWN · ATTACH |
 
 Rule change: Afblijven! goes from 10 less to 20 less and now covers only the opponent's next turn (at 10 it was a pet that ended sooner, for the same cost). Kleine Taks: "Stays" and the discard line move to the rulebook. Jensen!: with Target as a defined word it only stops cards that say Target.
@@ -79,7 +79,7 @@ Rule change: Afblijven! goes from 10 less to 20 less and now covers only the opp
 
 | Card | Kind · ★ · cost | Final text | Template |
 |---|---|---|---|
-| Blikje Monsteros (NEW) | substance · 0 · kit: Youri | One of your Mosjes loses 15 MP; gain 2 Energy this turn. A Youri also draws 1. | MP_COST · ENERGY_GAIN · THIS_TURN · friend bonus |
+| Blikje Monsteros (NEW) | substance · ★★ · 0 · kit: Youri | One of your Mosjes loses 15 MP; gain 2 Energy this turn. A Youri also draws 1. | MP_COST · ENERGY_GAIN · THIS_TURN · friend bonus |
 | Zie je die Dingetjes | trick · ★★ · 0 | Look at the top 3 cards of your deck. Take 1 and put the rest back in any order. | SCRY · DRAW |
 | Rebouleh | trick · ★★ · 2 | One of your Mosjes can use its once-per-turn ability one more time this turn. | EXTRA_USE · THIS_TURN |
 | Ctrl+S | trick · ★★ · 0 | One of your Mosjes can't drop a level until the end of your next turn. | SAVE · UNTIL_NEXT_END |
@@ -117,11 +117,11 @@ Rulebook line owed: Zwoele Ming Power (a Quest always needs at least 1 success).
 |---|---|---|---|
 | Stookerino | trick · ★★ · 1 · kit: Binti | Your opponent discards 1 card of their choice. With a Binti on your field: look at their hand first. | DISCARD_OPP (their choice) · PEEK_HAND · friend check |
 | Gym | Place · ★★★ · 3 | Physical Mosjes get +10 Power. Quests that roll Str get +1 die. | POWER_UP · DIE_PLUS · PLACE |
-| Ronnie's Kitchen (NEW) | Place · 2 · both Ronalds | Food Piecies give 10 MP more. With a Ronald on your field: draw 1 the first time you activate a food Piecie each turn. | MP_GAIN boost · DRAW · PLACE · friend check |
+| Ronnie's Kitchen (NEW) | Place · ★★★ · 2 · both Ronalds | Food Piecies give 10 MP more. With a Ronald on your field: draw 1 the first time you activate a food Piecie each turn. | MP_GAIN boost · DRAW · PLACE · friend check |
 | Coert's Caravan | Place · ★★★★ · 3 | Once per turn, a player with a Coert on their field can activate 1 Piecie for 2 Energy less. | COST_DOWN · PLACE · friend check |
-| Woonkamer (Discord) (NEW) | Place · 2 · FPS duo | A player with 2 Digital Mosjes on their field gets +1 die on Quests that roll Tech. | DIE_PLUS · PLACE |
-| Youri's Woonkamer (NEW) | Place · 2 · Youri | Once per turn, when a player with a Youri activates a Piecie on the turn they placed it: that player draws 1. | DRAW · PLACE · on activate Piecie · friend check |
-| Nieuwe Gimma (NEW) | Place · 2 · Ming | The first time each turn a Mosje rolls for a Quest: +1 die. | DIE_PLUS · PLACE |
+| Woonkamer (Discord) (NEW) | Place · ★★★ · 2 · FPS duo | A player with 2 Digital Mosjes on their field gets +1 die on Quests that roll Tech. | DIE_PLUS · PLACE |
+| Youri's Woonkamer (NEW) | Place · ★★★ · 2 · Youri | Once per turn, when a player with a Youri activates a Piecie on the turn they placed it: that player draws 1. | DRAW · PLACE · on activate Piecie · friend check |
+| Nieuwe Gimma (NEW) | Place · ★★★ · 2 · Ming | The first time each turn a Mosje rolls for a Quest: +1 die. | DIE_PLUS · PLACE |
 | Punto Banco | Place · ★★★ · 3 · Jeffrey | Once per turn, before a Quest roll, a player can pay 1 Energy; they call Punto or Banco and roll 2 dice. If their call is higher: +2 dice on that Quest. On a tie: they take the Energy back. | GAMBLE · DIE_PLUS · PLACE |
 
 Rule changes: **Stookerino** (Gandalf's edit): the opponent picks the discard, the MP gain is gone, and only a Binti player sees the hand. **Gym**: the 10 MP drain on non-Physical Mosjes is cut. **Youri's Woonkamer** (Gandalf's edit): only a player with a Youri draws. **Punto Banco**: a win pays +2 dice (was +1), so the gamble beats a sure +1 die from Sleutelpuntje. **Playtest watch:** Punto Banco stacked with Dikke Plaat and Gekke Dobbel.
@@ -446,6 +446,13 @@ Rule change by precedent: **Obby Shotjes Gauntlet** loses the alternative paymen
 | Doorpakken (placeholder) | One of your Mosjes loses 20 MP; it can attack one more time this turn. | Attacks only. Dangerous with Super Saiyan Mos. |
 | Groepsfoto | Reveal 3 cards from your hand; gain 1 Energy this turn. | New verb REVEAL. MP version: 10 MP per revealed card. |
 | Wat Heb Je Daar? (placeholder) | Name a Piecie subtype. Your opponent discards 1 Piecie of that subtype. If they can't, they show you their hand. | Naming a card type is too easy (28 of 40 cards are Piecies). |
+
+## Rulings of 15 Nov (handover)
+- **Rarities** for the 13 cards that had none: ★ Dancepad, Gekke Dobbel, Chris's Handdoek, Headset · ★★ Rugbybal, Koksmes, In De Groove, MagicPrompt, Blikje Monsteros · ★★★ Ronnie's Kitchen, Woonkamer (Discord), Youri's Woonkamer, Nieuwe Gimma.
+- **Power** follows the curve for the Mosjes that changed type: Ronald, The Master Chef, Martin, Señor West and Coert, KasteLuck 10 / 20 / 25; Flightsim Coert 5 / 10 / 15.
+- **Quests:** the coder keeps the current 38 Quests with only the type and trait renames; the Quest pass comes later as a data-only change.
+- **FINAL, starters first:** the rules and the three starter decks are FINAL for the coder. Booster cards wait until Gandalf has played a few games.
+- The handover pack is in `handover/` (README, rules, card list, cards.json).
 
 ## Deck list changes from this pass (14 Nov)
 - **Digital:** Mouse 2 → 1, Keyboard 1 → 2.

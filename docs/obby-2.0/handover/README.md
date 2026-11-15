@@ -2,8 +2,14 @@
 
 For Claude Code. Gandalf isn't a coder: explain choices in plain words and ask when something is unclear (repo `CLAUDE.md`: when in doubt, stop and ask).
 
-## 0. Gate: do not start until Gandalf says FINAL
-This pack describes the **target design**. Gandalf's rule: docs only until he says the design is FINAL. Section 6 lists what is still open. Until he has ruled on those and said FINAL, change no engine code or card data.
+## 0. Scope: starters first (FINAL on 15 Nov 2026)
+Gandalf has said the design is **FINAL for the rules and the three starter decks**. That is what you build now:
+
+- the rules in `rules.md` (engine work, section 4 below);
+- the 15 starter Mosjes, 12 starter Personal Quests and the starter Piecies, Snelle and Places: in `cards.json` these have `"set": "starter"` or `"starter": true`;
+- the three starter decks in `starter-decks-draft.md`.
+
+**Booster cards are not FINAL.** Their texts were reworded by rule and not playtested. Do not add or change booster cards (`"set": "booster"` / `"starter": false`) until Gandalf says so. It is fine to build handlers in a way that the booster cards can use later.
 
 This pack **replaces** `Obby Card Game 2.0 - Claude Code Handoff.md` and `Obby Card Game 2.0 - Card List.md` (both 10 Oct). Those describe an earlier design: old roster, no Personal Quest cards, level-up resets to 0. Do not follow them.
 
@@ -57,13 +63,17 @@ Template tags in `cards.json` (count of cards using each), so one handler can se
 - Every new or changed card gets a test in the same branch. Anything that touches MP gain or loss: re-run the Ronald Kip stacking test and the simulation. Ronald Kip itself changed (40 MP, and Ronald, The Master Chef now boosts only the first food Piecie each turn), so that test's expected numbers change.
 - Branch: `card/mosje-roster-7nov`, stacked on PR #12 (`card/physical-rename`).
 
-## 6. Still open (Gandalf decides; ask, don't guess)
-1. **13 cards have no rarity** (`rarity: null`): Dancepad, Rugbybal, Koksmes, In De Groove, Gekke Dobbel, Chris's Handdoek, Headset, MagicPrompt, Blikje Monsteros, Ronnie's Kitchen, Woonkamer (Discord), Youri's Woonkamer, Nieuwe Gimma.
-2. **Power for 4 Mosjes is a proposal** (`powerProposed: true`): Ronald, The Master Chef; Martin, Señor West; Coert, KasteLuck (all three became Physical after the Power curve was ruled) and Flightsim Coert (new).
-3. **The 38 general Quests** have not been through the wording pass. Their last texts are from 1 Nov and still lean on Res and Soc, which standard Mosjes barely have. Until they are redone, keep the Quests in `quests.js` as they are, apart from the type and trait renames.
-4. **Names:** friend-group names for the Quests and for generic card names; "Ming's Hond" is a placeholder.
-5. **Booster texts** were reworded by rule and skimmed, not approved one by one. **Nothing has been playtested since the balance round**; the watch list is at the bottom of `wording-pass.md`.
-6. **Ultimate Mosjes:** ruled in principle, no card designed.
+## 6. Ruled on 15 Nov, and what is still open
+Ruled:
+- **Rarities** for the 13 cards that had none are in `cards.json` now.
+- **Power** follows the curve for every Mosje, including Ronald, The Master Chef, Martin, Señor West, Coert, KasteLuck (10 / 20 / 25) and Flightsim Coert (5 / 10 / 15).
+- **Quests:** keep the 38 general Quests in `quests.js` as they are, with only the type and trait renames. Their wording pass comes later as a data-only change.
+
+Still open (Gandalf decides; ask, don't guess):
+1. **Booster cards:** not FINAL (see section 0). Nothing has been playtested since the balance round; the watch list is at the bottom of `wording-pass.md`.
+2. **The Quest pass:** texts, the trait spread (the stacks lean on Res and Soc) and friend-group names.
+3. **Names:** generic card names, and "Ming's Hond" is a placeholder.
+4. **Ultimate Mosjes:** ruled in principle, no card designed.
 
 ## 7. What this pack does not tell you
 The author of this pack did not compare the design with the engine code. Three facts were checked on 15 Nov: `src/` has no Personal Quest card type; `mosjes.js` has `levels` with Power and traits, 10 Mosjes disabled, and the old Power values; `getCopyLimit.js` already gives 1 copy for ★★★★★ and 2 otherwise. Everything else in §4 may be partly built already. Check before you build.

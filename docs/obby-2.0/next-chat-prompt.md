@@ -27,10 +27,12 @@ Repo: `gvandyck/mosjescardgame-2026`, branch `card/mosje-roster-7nov` (stacked o
 Flightsim Coert is complete (Digital; Tech and Men on the specialist curve; ability, Butter Landing). Ruled on 14 Nov, after the pass: attached gear counts as a "ready gear Piecie"; Ctrl+S at 0 MP stays at 0 and keeps its level; Gandoe, The Destroyer and Alyssa, The Bulldozer start at 10 MP; no MP cost can take a Mosje to 0 MP or less.
 
 ## What to do next
-1. **Names round:** the 38 general Quests become memories from our friend group, and the generic card names (Bodyguard, Arcade, Track Highscore…) get friend-group names. Draft them in a reroll sheet. Placeholder names from this pass: Ming's Hond.
-2. **Older docs:** `Obby Card Game 2.0 - Rules and Decisions - Update 14 Nov.md` lists the new rules and what they override. In the repo, Mosje Kits, Mosje Personas, Effect Library and Starter Decks are synced. In the project, those four docs, Rules and Decisions and the Personal Quest List still have their old text (the project copies differ from the repo copies, so they were not overwritten): update them one at a time, reading each in full first.
-3. **Playtest** with the watch list at the bottom of the wording pass.
-4. Only when I say the design is FINAL: the handover to code (new cards and starter decks into `src/data`, fix the failing tests that pin the old roster, merge PR #12).
+The code handover pack is in the repo under `docs/obby-2.0/handover/` and in the project as `Code Handover (15 Nov)` and `Rules (current, 15 Nov)`. **The rules and the three starter decks are FINAL (15 Nov); booster cards are not.**
+1. **Playtest** the starter decks, with the watch list at the bottom of the wording pass. Then decide when the boosters are FINAL.
+2. **Quest pass:** the 38 general Quests still need rewording, a trait fix (the stacks lean on Res and Soc) and friend-group names. It goes to the coder later as a data-only change.
+3. **Names round:** generic card names (Bodyguard, Arcade, Track Highscore…); "Ming's Hond" is a placeholder.
+4. **Project docs with old text:** Rules and Decisions, Mosje Kits, Mosje Personas, Effect Library, Starter Decks and the Personal Quest List in the project were not overwritten (the project copies differ from the repo copies). `Rules (current, 15 Nov)` and `Rules and Decisions - Update 14 Nov` say what wins.
+5. **Code:** Claude Code starts from `docs/obby-2.0/handover/README.md` on branch `card/mosje-roster-7nov`.
 
 ## How I like to work
 - Be critical. Don't just agree with me; tell me when an idea is weak and why. Use what Yu-Gi-Oh, Pokémon and Magic learned.
