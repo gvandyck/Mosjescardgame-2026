@@ -3,7 +3,7 @@
 ## Current state (15 Nov 2026): read this first
 The design moved on a lot after the phases below (new roster, Personal Quest cards, kits, the wording pass of 14 Nov). For anything about the **current** design or the **code handover**, start here:
 
-0. `handover/claude-code-prompt-v5.md`: the prompt that starts Claude Code on **V5** (the official name of this design), with the GSD workflow and the versioning.
+0. `handover/claude-code-prompt.md`: the prompt that starts Claude Code on this design update, with the GSD workflow and the versioning.
 1. `handover/README.md`: the code handover pack (what to build, what is still open, and the gate: nothing is built until Gandalf says FINAL).
 2. `handover/rules.md`: the rules as they stand.
 3. `handover/card-list.md` / `handover/cards.json`: every card, generated from `wording-pass.md`.
