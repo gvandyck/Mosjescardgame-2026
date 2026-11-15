@@ -1,6 +1,8 @@
 // live-smoke-obby2.mjs - REPORT-ONLY smoke of a deployed Obby 2.0 site (64-07, D-38). Read-only: one headless visit, no credentials.
 // Usage: node scripts/live-smoke-obby2.mjs [baseUrl]    (default https://eightytwenty.nl/obbycardgame2/)
 // Checks at 1920x1080: the lobby loads, shows version 2.0-..., robots noindex, 2 modes, 3 deck tiles, and Start opens a real game.
+// Also (65-10): <base>manifest.webmanifest answers 200 with JSON whose display is standalone, and <base>assets/icons/apple-touch-icon.png
+// answers 200 as image/png (Add to Home Screen).
 // Prints ONE JSON report with verdict PASS or FAIL and always exits 0: the verdict is information for the person who deployed, never a gate.
 // scripts/** is not deployed (deploy-obby2.yml exclude list).
 import { chromium } from '@playwright/test';
@@ -8,12 +10,25 @@ import { chromium } from '@playwright/test';
 const baseUrl = process.argv[2] || 'https://eightytwenty.nl/obbycardgame2/';
 const consoleErrors = [];
 const pageErrors = [];
-const report = { url: baseUrl, version: null, robots: null, modes: 0, tiles: 0, gameStarted: false, consoleErrors, pageErrors, verdict: 'FAIL' };
+const report = { url: baseUrl, version: null, robots: null, modes: 0, tiles: 0, gameStarted: false, manifest: null, appleIcon: null, consoleErrors, pageErrors, verdict: 'FAIL' };
 
 function judge(r) {
   const clean = r.consoleErrors.length === 0 && r.pageErrors.length === 0;
-  const ok = String(r.version).startsWith('2.0-') && String(r.robots).includes('noindex') && r.modes === 2 && r.tiles === 3 && r.gameStarted && clean;
+  const ok = String(r.version).startsWith('2.0-') && String(r.robots).includes('noindex') && r.modes === 2 && r.tiles === 3 && r.gameStarted && r.manifest === 'OK' && r.appleIcon === 'OK' && clean;
   return ok ? 'PASS' : 'FAIL';
+}
+
+// 'OK', or a short reason. Both are plain GETs of public files, nothing is sent.
+async function checkManifest(context, base) {
+  const res = await context.request.get(new URL('manifest.webmanifest', base).href);
+  if (res.status() !== 200) return 'HTTP ' + res.status();
+  const json = await res.json().catch(() => null);
+  return json && json.display === 'standalone' ? 'OK' : 'not standalone JSON';
+}
+async function checkAppleIcon(context, base) {
+  const res = await context.request.get(new URL('assets/icons/apple-touch-icon.png', base).href);
+  if (res.status() !== 200) return 'HTTP ' + res.status();
+  return String(res.headers()['content-type']).startsWith('image/png') ? 'OK' : 'content-type ' + res.headers()['content-type'];
 }
 
 let browser;
@@ -35,6 +50,9 @@ try {
   await page.waitForURL(/game\.html/, { timeout: 20000 });
   await page.locator('.mosje-card--owned').first().waitFor({ state: 'attached', timeout: 20000 });
   report.gameStarted = true;
+
+  report.manifest = await checkManifest(context, baseUrl);
+  report.appleIcon = await checkAppleIcon(context, baseUrl);
 } catch (err) {
   report.error = String(err.message).split('\n')[0];
 } finally {
