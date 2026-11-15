@@ -26,8 +26,13 @@ If a bug genuinely can't be reproduced in the browser (e.g. it lives in pure-eng
 
 ---
 
-## 🃏 Obby Card Game 2.0 rework (design work, not engine code)
-If the user says "start on phase N" (or mentions Obby 2.0 / the 2.0 rework), read `docs/obby-2.0/README.md` first. It holds the roadmap, the working rules and the reading order. Don't touch the engine for it until Phase 6.
+## 🃏 Obby Card Game 2.0 — build the new cards and rules into the online game
+The 2.0 design is done for the rules and the three starter decks (FINAL on 15 Nov 2026). **Gandalf playtests online**, so the job now is to continue the 2.0 web game at **https://eightytwenty.nl/obbycardgame2/** with the new cards and rule changes.
+
+- **Start here:** `docs/obby-2.0/handover/README.md` (what to build, in what scope, and what is still open). Then `handover/rules.md` and `handover/cards.json` / `handover/card-list.md`.
+- **Scope now:** the rules and the three starter decks. Booster cards are not FINAL; don't add or change them until Gandalf says so.
+- **Deploy:** the 2.0 game deploys by FTP from the branch `obby-2.0` through `.github/workflows/deploy-obby2.yml` (GitHub secrets hold the FTP login; nothing is uploaded by hand). Work on a branch and merge into `obby-2.0` only with green tests. Never merge `obby-2.0` into `main`: `main` is the old V4 game at eightytwenty.nl/cardgame2026.
+- The older docs in `docs/obby-2.0/` (phase docs, the 10 Oct Card List and Claude Code Handoff) are history; `docs/obby-2.0/README.md` says which docs are current.
 
 ---
 

@@ -9,6 +9,16 @@ Gandalf has said the design is **FINAL for the rules and the three starter decks
 - the 15 starter Mosjes, 12 starter Personal Quests and the starter Piecies, Snelle and Places: in `cards.json` these have `"set": "starter"` or `"starter": true`;
 - the three starter decks in `starter-decks-draft.md`.
 
+### Why: the online playtest
+Gandalf playtests **online**, in the web game, not on paper. So the goal of this work is concrete: **the three starter decks are playable with the new rules at https://eightytwenty.nl/obbycardgame2/**, so he can play them and decide what changes. Booster cards come after that first round of online games.
+
+How it gets online (already set up; see `docs/developer-handoff.md`, "Deploy"):
+- The 2.0 game deploys from the branch **`obby-2.0`**. A push to it runs `.github/workflows/deploy-obby2.yml`, which uploads the site by FTP to `/obbycardgame2/` on eightytwenty.nl. The FTP login lives in GitHub secrets (`FTP_HOST`, `FTP_USER`, `FTP_PASS`); never put it in the repo, and there is nothing to upload by hand.
+- This design work sits on `card/mosje-roster-7nov`, stacked on PR #12 (`card/physical-rename` → `obby-2.0`). Build on a branch, open a pull request into `obby-2.0`, and merge only when the tests are green: the deploy has no test gate, so whatever lands on `obby-2.0` goes live.
+- **Never merge `obby-2.0` into `main`.** `main` deploys the old V4 game to eightytwenty.nl/cardgame2026, which stays as it is.
+- Bump `APP_VERSION` in `src/version.js` for every shipped change (it is `2.0-A.3` today) so Gandalf can see which build he is playing. After a deploy, check the live site (`scripts/live-smoke-obby2.mjs`).
+- **Done means:** Gandalf can open the site, pick each of the three starter decks, and play a full game against the bot to a Personal Quest win.
+
 **Booster cards are not FINAL.** Their texts were reworded by rule and not playtested. Do not add or change booster cards (`"set": "booster"` / `"starter": false`) until Gandalf says so. It is fine to build handlers in a way that the booster cards can use later.
 
 This pack **replaces** `Obby Card Game 2.0 - Claude Code Handoff.md` and `Obby Card Game 2.0 - Card List.md` (both 10 Oct). Those describe an earlier design: old roster, no Personal Quest cards, level-up resets to 0. Do not follow them.
