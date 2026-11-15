@@ -144,7 +144,7 @@ export const PIECIES = [
     piecieKind: "trick",
     artPath: "assets/piecie-art/Eendjes voeren.jpeg",
     rarity: "★★",
-    isBoosterOnly: true,
+    isBoosterOnly: false,
   },
   {
     id: "piecie_varkenspootjes",
@@ -653,7 +653,7 @@ export const PIECIES = [
     piecieKind: "trick",
     artPath: "assets/piecies/placeholder.png",
     rarity: "★",
-    isBoosterOnly: true,
+    isBoosterOnly: false,
   },
   {
     id: "piecie_boosterpackkie",
@@ -676,7 +676,7 @@ export const PIECIES = [
     piecieKind: "trick",
     artPath: "assets/piecies/placeholder.png",
     rarity: "★★",
-    isBoosterOnly: true,
+    isBoosterOnly: false,
   },
   {
     id: "piecie_perfect_rhythm",
@@ -699,7 +699,7 @@ export const PIECIES = [
     piecieKind: "trick",
     artPath: "assets/piecies/placeholder.png",
     rarity: "★★",
-    isBoosterOnly: true,
+    isBoosterOnly: false,
   },
   {
     id: "piecie_dikke_plaat",
@@ -722,7 +722,7 @@ export const PIECIES = [
     piecieKind: "trick",
     artPath: "assets/piecies/placeholder.png",
     rarity: "★",
-    isBoosterOnly: true,
+    isBoosterOnly: false,
   },
   {
     id: "piecie_mp_amplifier",

@@ -1,10 +1,12 @@
 import { EXAMPLE_DECKS } from './exampleDecks.js';
+import { STARTER_DECKS_21 } from './starterDecks21.js';
 
 // starterDecks.js — The 3 prebuilt deck configurations players can pick
 // in the lobby. Each deck has 2 Mosjes + a set of Piecies, Snelle Piecies,
 // Places, and Quests. Card IDs here must match IDs in the other data files.
 
 export const STARTER_DECKS = [
+  ...STARTER_DECKS_21,
   {
     id: "PHYSICAL_FORCE",
     disabled: true,

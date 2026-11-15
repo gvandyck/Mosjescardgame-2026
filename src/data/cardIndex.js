@@ -6,6 +6,7 @@ import { PIECIES } from "./piecies.js";
 import { SNELLE_PIECIES } from "./snellePiecies.js";
 import { PLACES } from "./places.js";
 import { QUESTS } from "./quests.js";
+import { PERSONAL_QUESTS } from "./personalQuests.js";
 
 /** Every card in the game as a flat array. */
 export const ALL_CARDS = [
@@ -14,6 +15,7 @@ export const ALL_CARDS = [
   ...SNELLE_PIECIES,
   ...PLACES,
   ...QUESTS,
+  ...PERSONAL_QUESTS,
 ];
 
 /**

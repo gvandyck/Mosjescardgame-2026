@@ -34,7 +34,7 @@ describe('Card List 2.0 umbrella', () => {
   });
 
   it('visible non-Quest cards have cost, 1-5 star rarity and limitPerDeck 1 or 2', () => {
-    for (const c of visible.filter((x) => x.type !== 'QUEST')) {
+    for (const c of visible.filter((x) => x.type !== 'QUEST' && x.type !== 'PERSONAL_QUEST')) {
       expect(typeof c.cost, `${c.id} cost`).toBe('number');
       expect(stars(c.rarity), `${c.id} rarity`).toBeGreaterThanOrEqual(1);
       expect(stars(c.rarity), `${c.id} rarity`).toBeLessThanOrEqual(5);

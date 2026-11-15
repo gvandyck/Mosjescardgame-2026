@@ -135,6 +135,16 @@ export function buildDeck(starterDeckConfig, options = {}) {
     }
   }
 
+  // 2.1: Personal Quests are in the deck (rules §7); inert until Phase 70 adds the play.
+  for (const cardId of expandEntries(starterDeckConfig?.personalQuests || [])) {
+    if (excludedCardIds.has(cardId)) continue;
+    if (getCardById(cardId)?.type !== 'PERSONAL_QUEST') {
+      console.warn(`[DECK] Not a Personal Quest, skipped: ${cardId}`);
+      continue;
+    }
+    cards.push({ cardId, type: 'PERSONAL_QUEST', faceDown: false, turnsOnField: 0 });
+  }
+
   console.log(`[DECK] Built player deck: ${cards.length} cards`);
   return shuffleDeck(cards);
 }

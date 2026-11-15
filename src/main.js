@@ -41,6 +41,8 @@ import { PIECIES } from './data/piecies.js';
 import { SNELLE_PIECIES } from './data/snellePiecies.js';
 import { PLACES } from './data/places.js';
 import { QUESTS } from './data/quests.js';
+import { PERSONAL_QUESTS } from './data/personalQuests.js';
+import { personalQuestText } from './ui/personalQuestText.js';
 import { createRoom, joinRoom } from './multiplayer/roomManager.js';
 import { pushState, listenToState, stopListening, registerDisconnectLoss, cancelDisconnectHooks } from './multiplayer/syncManager.js';
 import { eventBus } from './multiplayer/eventBus.js';
@@ -946,6 +948,7 @@ function initGamePage() {
 			: String(cardId).startsWith('snelle_') ? 'SNELLE_PIECIE'
 			: String(cardId).startsWith('place_') ? 'PLACE'
 			: String(cardId).startsWith('quest_') ? 'QUEST'
+			: String(cardId).startsWith('pq_') ? 'PERSONAL_QUEST'
 			: 'PIECIE';
 		window.__testHooks = {
 			setMosjeMP(playerId, slotIndex, mp) {
@@ -1837,7 +1840,7 @@ function readCustomDeckFromSession(deckId) {
 }
 
 function buildCardLookup() {
-	const allCards = [...MOSJES, ...PIECIES, ...SNELLE_PIECIES, ...PLACES, ...QUESTS];
+	const allCards = [...MOSJES, ...PIECIES, ...SNELLE_PIECIES, ...PLACES, ...QUESTS, ...PERSONAL_QUESTS];
 	const map = {};
 	for (const card of allCards) map[card.id] = card;
 	return map;
@@ -1997,7 +2000,7 @@ function toHandViewModel(hand) {
 			cardId: cardRef.cardId,
 			name: def.name,
 			type: def.type,
-			description: def.description || def.requirementDescription || def.flavourText || '',
+			description: def.description || def.requirementDescription || def.flavourText || personalQuestText(def),
 			questType: def.questType,
 			requiredMosjeId: def.requiredMosjeId,
 			difficulty: def.difficulty,
