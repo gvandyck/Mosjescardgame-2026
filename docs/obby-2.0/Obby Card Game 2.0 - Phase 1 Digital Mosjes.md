@@ -1,5 +1,7 @@
 # Obby Card Game 2.0 — Phase 1: Digital Mosjes
 
+> **Superseded (15 Nov 2026).** Phase 1 working doc; kept for history. Current design: `handover/README.md`, `handover/rules.md`, `handover/card-list.md`.
+
 Done 2026-10-09. Uses `Obby Card Game 2.0 - Core Numbers.md` (§4 Mosje stat ranges) and the same format as `Obby Card Game 2.0 - Phase 1 Fighting Mosjes.md`.
 Artistic Mosjes follow in their own session.
 

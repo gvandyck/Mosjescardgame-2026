@@ -1,5 +1,17 @@
 # Obby Card Game 2.0 — Roadmap & how to work
 
+## Current state (15 Nov 2026): read this first
+The design moved on a lot after the phases below (new roster, Personal Quest cards, kits, the wording pass of 14 Nov). For anything about the **current** design or the **code handover**, start here:
+
+1. `handover/README.md`: the code handover pack (what to build, what is still open, and the gate: nothing is built until Gandalf says FINAL).
+2. `handover/rules.md`: the rules as they stand.
+3. `handover/card-list.md` / `handover/cards.json`: every card, generated from `wording-pass.md`.
+4. `wording-pass.md`, `rules-update-14-nov.md`, `starter-decks-draft.md`, `effect-library.md`, `mosje-kits.md`, `mosje-personas.md`.
+5. `next-chat-prompt.md`: how to pick up the design work in a new chat.
+
+The phase docs, `Progress.md`, `Core Numbers.md`, the 10 Oct Card List and the 10 Oct Claude Code Handoff are kept for history and carry a "Superseded" banner. Type names in them are old: Fighting is now Physical, Artistic is now Creative.
+
+
 Entry point for any new chat. Reading order: this file → `Obby Card Game 2.0 - Progress.md` → `Obby Card Game 2.0 - Core Numbers.md` → the phase's section in `Obby Card Game 2.0 - Rework Plan.md`. Rules are in `Obby Card Game 2.0 - Rules and Decisions.md` (note: the Core Numbers doc overrides it where they differ: Getemt keeps its name, level-ups reset to 0, no Player 2 compensation, cooldown turn on deck-out).
 
 Card source: Card List V4 on Google Drive, "Mosjes Card List Momentum Edition V4" (file id `1E1ZYPim6x4oWVrhplapufDeetP5gzsTJAzP8EcRHZnc`). Read it with the Drive connector; it is not in the repo. From Phase 3 on, the web game's card data (`src/data/*.js`) is a second source: it has newer texts, renamed cards and web-only cards. Read it, never edit it, and ask how to use it (Phase 3: V4 + web extras, web names, mostly web text).

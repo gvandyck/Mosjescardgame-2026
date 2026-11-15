@@ -1,5 +1,7 @@
 # Obby Card Game 2.0 — Phase 4: Places
 
+> **Superseded (15 Nov 2026).** Phase 4 working doc; kept for history. Current design: `handover/README.md`, `handover/rules.md`, `handover/card-list.md`.
+
 Done 2026-10-10. Uses `Obby Card Game 2.0 - Core Numbers.md` (§3 cost curve). Source: the 17 V4 Places plus the 4 Places that only exist in the web game (your call: Boxing Ring, Tesla, Eendjes Voeren, De Box). Result: **20 Places.** 1 parked (Momentum Factory, your call).
 
 ## Rules used in this doc (your calls this phase)

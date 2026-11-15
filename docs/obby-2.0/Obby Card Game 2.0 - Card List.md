@@ -1,5 +1,7 @@
 # Obby Card Game 2.0 — Card List
 
+> **Superseded (15 Nov 2026).** This is the 10 Oct card list (old roster, old texts). Current design: `handover/README.md`, `handover/rules.md`, `handover/card-list.md`.
+
 Phase 6 output, 2026-10-10. This is every 2.0 card with the text that goes on it, and nothing else. The reasons behind each card are in the phase docs (Phase 1–5). The numbers and rules are in `Obby Card Game 2.0 - Core Numbers.md`. If this list and a phase doc disagree, **this list wins**.
 
 **Count:** 32 Mosjes (8 Physical, 14 Digital, 10 Creative) · 38 Quests (13 / 13 / 12) · 73 Piecies · 20 Snelle · 20 Places = **183 cards**.

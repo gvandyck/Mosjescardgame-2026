@@ -1,5 +1,7 @@
 # Obby Card Game 2.0 — Progress
 
+> **Superseded (15 Nov 2026).** Phase log up to Oct 2026; kept for history. Current design: `handover/README.md`, `handover/rules.md`, `handover/card-list.md`.
+
 Source docs: `Obby Card Game 2.0 - Rules and Decisions`, `Obby Card Game 2.0 - Rework Plan` (in Downloads), Card List V4 (Google Drive: "Mosjes Card List Momentum Edition V4", id 1E1ZYPim6x4oWVrhplapufDeetP5gzsTJAzP8EcRHZnc).
 Docs for this rework live in `docs/obby-2.0/` (design only, no engine code touched).
 

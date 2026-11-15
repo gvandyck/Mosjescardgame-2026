@@ -1,5 +1,7 @@
 # Obby Card Game 2.0 — Phase 3: Piecies & Snelle
 
+> **Superseded (15 Nov 2026).** Phase 3 working doc; kept for history. Current design: `handover/README.md`, `handover/rules.md`, `handover/card-list.md`.
+
 Done 2026-10-10. Uses `Obby Card Game 2.0 - Core Numbers.md` (§3 cost curve, §5 MP → Energy). Source: the V4 Piecies and Snelle plus the cards that only exist in the web game (your call). Result: **73 Piecies + 20 Snelle = 93 cards.** 1 card cut (MP Adjuster), 1 left out (Buurvrouw, empty in V4 and not in the web game).
 
 ## Rules used in this doc (your calls this phase)

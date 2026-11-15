@@ -1,5 +1,7 @@
 # Obby Card Game 2.0 — Claude Code Handoff (web game)
 
+> **Superseded (15 Nov 2026).** This is the 10 Oct handoff for an earlier design. Do not follow it. Current design: `handover/README.md`, `handover/rules.md`, `handover/card-list.md`.
+
 Phase 6 output, 2026-10-10. This is a **spec** for the engine milestone that turns the web game into 2.0. Phase 6 changed no engine code; the work starts in its own milestone. Written for Claude Code; Gandalf isn't a coder, so the setup steps that need him are marked **(Gandalf)**.
 
 ## 0. Sources of truth (read in this order)

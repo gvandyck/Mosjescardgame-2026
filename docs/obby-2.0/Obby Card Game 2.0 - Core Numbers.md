@@ -1,5 +1,7 @@
 # Obby Card Game 2.0 — Core Numbers (Phase 0 output)
 
+> **Superseded (15 Nov 2026).** These are the 10 Oct numbers; several changed (level-up resets to 10 MP, Power curve, type names). Current design: `handover/README.md`, `handover/rules.md`, `handover/card-list.md`.
+
 Locked 2026-10-09. Every later phase uses these numbers. Change a number here first, then the cards.
 
 ## 1. Rulings from the open questions

@@ -1,5 +1,7 @@
 # Obby Card Game 2.0 — Example Decks
 
+> **Superseded (15 Nov 2026).** Replaced by the three starter decks in `starter-decks-draft.md`. Current design: `handover/README.md`, `handover/rules.md`, `handover/card-list.md`.
+
 Phase 6 output, 2026-10-10. The three starter decks from Phase 5 in their final form. Card texts are in `Obby Card Game 2.0 - Card List.md`; why each card is in its deck is in the Phase 5 doc.
 
 ## Deck rules

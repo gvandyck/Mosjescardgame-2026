@@ -1,5 +1,7 @@
 # Obby Card Game 2.0 — Phase 2: Quests
 
+> **Superseded (15 Nov 2026).** Phase 2 working doc; kept for history. The Quests still need their own wording pass. Current design: `handover/README.md`, `handover/rules.md`, `handover/card-list.md`.
+
 Done 2026-10-09. Uses `Obby Card Game 2.0 - Core Numbers.md` (§6 Quests). Source: V4 Quest list (40 Quests in 7 groups). Result: **38 Quests in 3 typed stacks (Fighting 13, Digital 13, Artistic 12)**. The two newest Quests (one each for Fighting and Digital) keep their working names "Dutch courage" and "Cheat code"; Gandalf accepted these as they are (a Dutch name can still replace them later).
 
 ## Rules used in this doc (your calls this phase)

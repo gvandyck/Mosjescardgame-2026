@@ -1,5 +1,7 @@
 # Obby Card Game 2.0 — Phase 1: Artistic Mosjes
 
+> **Superseded (15 Nov 2026).** Phase 1 working doc; kept for history. Current design: `handover/README.md`, `handover/rules.md`, `handover/card-list.md`.
+
 Done 2026-10-09. Uses `Obby Card Game 2.0 - Core Numbers.md` (§4 Mosje stat ranges) and the same format as the Fighting and Digital docs.
 
 > **Phase 5 update (2026-10-10):** every Mosje got **10 less Power on every level** (Phase 5 doc, R3). The Power column below is already updated; Power numbers inside the change notes are the old ones.
