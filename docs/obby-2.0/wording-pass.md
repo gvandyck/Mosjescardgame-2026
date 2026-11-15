@@ -447,6 +447,11 @@ Rule change by precedent: **Obby Shotjes Gauntlet** loses the alternative paymen
 | Groepsfoto | Reveal 3 cards from your hand; gain 1 Energy this turn. | New verb REVEAL. MP version: 10 MP per revealed card. |
 | Wat Heb Je Daar? (placeholder) | Name a Piecie subtype. Your opponent discards 1 Piecie of that subtype. If they can't, they show you their hand. | Naming a card type is too easy (28 of 40 cards are Piecies). |
 
+## Renames (names round)
+Open to-do: `names-round-todo.md`. Each approved rename is listed here as "old name → new name (date)".
+
+- none yet
+
 ## Rulings of 15 Nov (handover)
 - **Rarities** for the 13 cards that had none: ★ Dancepad, Gekke Dobbel, Chris's Handdoek, Headset · ★★ Rugbybal, Koksmes, In De Groove, MagicPrompt, Blikje Monsteros · ★★★ Ronnie's Kitchen, Woonkamer (Discord), Youri's Woonkamer, Nieuwe Gimma.
 - **Power** follows the curve for the Mosjes that changed type: Ronald, The Master Chef, Martin, Señor West and Coert, KasteLuck 10 / 20 / 25; Flightsim Coert 5 / 10 / 15.

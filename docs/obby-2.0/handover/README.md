@@ -1,4 +1,6 @@
-# Obby Card Game 2.0 — Code handover pack (15 Nov 2026)
+# Obby Card Game V5 — Code handover pack (15 Nov 2026)
+
+**V5** is the official name of this design (the reworked Obby Card Game 2.0). The prompt to start Claude Code on it: `claude-code-prompt-v5.md`.
 
 For Claude Code. Gandalf isn't a coder: explain choices in plain words and ask when something is unclear (repo `CLAUDE.md`: when in doubt, stop and ask).
 
@@ -16,7 +18,7 @@ How it gets online (already set up; see `docs/developer-handoff.md`, "Deploy"):
 - The 2.0 game deploys from the branch **`obby-2.0`**. A push to it runs `.github/workflows/deploy-obby2.yml`, which uploads the site by FTP to `/obbycardgame2/` on eightytwenty.nl. The FTP login lives in GitHub secrets (`FTP_HOST`, `FTP_USER`, `FTP_PASS`); never put it in the repo, and there is nothing to upload by hand.
 - This design work sits on `card/mosje-roster-7nov`, stacked on PR #12 (`card/physical-rename` → `obby-2.0`). Build on a branch, open a pull request into `obby-2.0`, and merge only when the tests are green: the deploy has no test gate, so whatever lands on `obby-2.0` goes live.
 - **Never merge `obby-2.0` into `main`.** `main` deploys the old V4 game to eightytwenty.nl/cardgame2026, which stays as it is.
-- Bump `APP_VERSION` in `src/version.js` for every shipped change (it is `2.0-A.3` today) so Gandalf can see which build he is playing. After a deploy, check the live site (`scripts/live-smoke-obby2.mjs`).
+- Bump `APP_VERSION` in `src/version.js` for every shipped change so Gandalf can see which build he is playing. It is `2.0-A.3` today; V5 uses `5.<minor>.<patch>` with git tags and a changelog (proposal in `claude-code-prompt-v5.md`, "Versioning"). After a deploy, check the live site (`scripts/live-smoke-obby2.mjs`).
 - **Done means:** Gandalf can open the site, pick each of the three starter decks, and play a full game against the bot to a Personal Quest win.
 
 **Booster cards are not FINAL.** Their texts were reworded by rule and not playtested. Do not add or change booster cards (`"set": "booster"` / `"starter": false`) until Gandalf says so. It is fine to build handlers in a way that the booster cards can use later.

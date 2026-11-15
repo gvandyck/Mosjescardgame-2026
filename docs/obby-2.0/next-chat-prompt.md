@@ -29,10 +29,9 @@ Flightsim Coert is complete (Digital; Tech and Men on the specialist curve; abil
 ## What to do next
 The code handover pack is in the repo under `docs/obby-2.0/handover/` and in the project as `Code Handover (15 Nov)` and `Rules (current, 15 Nov)`. **The rules and the three starter decks are FINAL (15 Nov); booster cards are not.**
 1. **Playtest** the starter decks, with the watch list at the bottom of the wording pass. Then decide when the boosters are FINAL.
-2. **Quest pass:** the 38 general Quests still need rewording, a trait fix (the stacks lean on Res and Soc) and friend-group names. It goes to the coder later as a data-only change.
-3. **Names round:** generic card names (Bodyguard, Arcade, Track Highscore…); "Ming's Hond" is a placeholder.
-4. **Project docs with old text:** Rules and Decisions, Mosje Kits, Mosje Personas, Effect Library, Starter Decks and the Personal Quest List in the project were not overwritten (the project copies differ from the repo copies). `Rules (current, 15 Nov)` and `Rules and Decisions - Update 14 Nov` say what wins.
-5. **Code:** Claude Code starts from `docs/obby-2.0/handover/README.md` on branch `card/mosje-roster-7nov`.
+2. **Names round + Quest pass (open to-do):** `Obby Card Game 2.0 - Names Round To-do.md` lists every name still to do (28 Quests to turn into memories, about 20 generic card names, Ming's Hond) and how to run it. Do the Quest text and trait fix in the same pass.
+3. **Project docs with old text:** Rules and Decisions, Mosje Kits, Mosje Personas, Effect Library, Starter Decks and the Personal Quest List in the project were not overwritten (the project copies differ from the repo copies). `Rules (current, 15 Nov)` and `Rules and Decisions - Update 14 Nov` say what wins.
+4. **Code:** Claude Code starts from `docs/obby-2.0/handover/README.md` on branch `card/mosje-roster-7nov`.
 
 ## How I like to work
 - Be critical. Don't just agree with me; tell me when an idea is weak and why. Use what Yu-Gi-Oh, Pokémon and Magic learned.
@@ -48,4 +47,4 @@ Type bonus form ("A Physical Mosje gets +30 instead"), Opstaan!, Doorpakken, Gro
 - Mosje Kits page: https://claude.ai/artifact/NDSpFbyYiNXLzpEPkWhtCZ
 - Card Text Style Test canvas (board G is the final all-text style): https://claude.ai/artifact/JB1MUCSC1jjM8vohDmBvJ1
 
-Start by confirming what you read in two or three lines, then ask me which of the open items to take first.
+Start by confirming what you read in two or three lines. If the names round to-do is still open, suggest doing a batch of it; otherwise ask me which open item to take first.

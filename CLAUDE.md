@@ -26,8 +26,10 @@ If a bug genuinely can't be reproduced in the browser (e.g. it lives in pure-eng
 
 ---
 
-## 🃏 Obby Card Game 2.0 — build the new cards and rules into the online game
-The 2.0 design is done for the rules and the three starter decks (FINAL on 15 Nov 2026). **Gandalf playtests online**, so the job now is to continue the 2.0 web game at **https://eightytwenty.nl/obbycardgame2/** with the new cards and rule changes.
+## 🃏 Obby Card Game V5 — build the new cards and rules into the online game
+**V5** is the official name for the reworked 2.0 design (15 Nov 2026); V4 stays on `main`. Work in GSD milestones and phases, ask Gandalf with AskUserQuestion when unsure, and version every deploy (`5.<minor>.<patch>`, git tag, changelog): see `docs/obby-2.0/handover/claude-code-prompt-v5.md`.
+
+The design is done for the rules and the three starter decks (FINAL on 15 Nov 2026). **Gandalf playtests online**, so the job now is to continue the 2.0 web game at **https://eightytwenty.nl/obbycardgame2/** with the new cards and rule changes.
 
 - **Start here:** `docs/obby-2.0/handover/README.md` (what to build, in what scope, and what is still open). Then `handover/rules.md` and `handover/cards.json` / `handover/card-list.md`.
 - **Scope now:** the rules and the three starter decks. Booster cards are not FINAL; don't add or change them until Gandalf says so.

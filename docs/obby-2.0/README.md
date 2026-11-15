@@ -3,11 +3,13 @@
 ## Current state (15 Nov 2026): read this first
 The design moved on a lot after the phases below (new roster, Personal Quest cards, kits, the wording pass of 14 Nov). For anything about the **current** design or the **code handover**, start here:
 
+0. `handover/claude-code-prompt-v5.md`: the prompt that starts Claude Code on **V5** (the official name of this design), with the GSD workflow and the versioning.
 1. `handover/README.md`: the code handover pack (what to build, what is still open, and the gate: nothing is built until Gandalf says FINAL).
 2. `handover/rules.md`: the rules as they stand.
 3. `handover/card-list.md` / `handover/cards.json`: every card, generated from `wording-pass.md`.
 4. `wording-pass.md`, `rules-update-14-nov.md`, `starter-decks-draft.md`, `effect-library.md`, `mosje-kits.md`, `mosje-personas.md`.
 5. `next-chat-prompt.md`: how to pick up the design work in a new chat.
+6. `names-round-todo.md`: **open to-do**, the friend-group names for the Quests and the generic cards. Suggest it at the start of a new design chat while it is open.
 
 The phase docs, `Progress.md`, `Core Numbers.md`, the 10 Oct Card List and the 10 Oct Claude Code Handoff are kept for history and carry a "Superseded" banner. Type names in them are old: Fighting is now Physical, Artistic is now Creative.
 
