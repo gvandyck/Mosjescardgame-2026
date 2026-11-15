@@ -17,13 +17,13 @@ import { readLobbyPrefs } from '../../src/ui/lobby/readLobbyPrefs.js';
 import { writeLobbyPrefs } from '../../src/ui/lobby/writeLobbyPrefs.js';
 import { toDeckTileSpecs } from '../../src/ui/lobby/toDeckTileSpecs.js';
 import { buildDeckTilesHtml } from '../../src/ui/lobby/buildDeckTilesHtml.js';
-import { EXAMPLE_DECKS } from '../../src/data/exampleDecks.js';
+import { STARTER_DECKS } from '../../src/data/starterDecks.js';
 
 const decks: any[] = getPlayerFacingDecks();
 const DEFAULT_CHOICES = {
 	mode: 'vsBot',
 	name: 'Player',
-	deckChoice: 'EXAMPLE_TAKSEN',
+	deckChoice: 'STARTER_PHYSICAL',
 	botChoice: 'RANDOM',
 	bot1Choice: 'RANDOM',
 	bot2Choice: 'RANDOM',
@@ -130,7 +130,7 @@ describe('resolveDeckChoice (D-08, D-20)', () => {
 	});
 
 	it('keeps a player-facing deck id', () => {
-		expect(resolveDeckChoice('EXAMPLE_REGELAARS', decks)).toBe('EXAMPLE_REGELAARS');
+		expect(resolveDeckChoice('STARTER_DIGITAL', decks)).toBe('STARTER_DIGITAL');
 	});
 
 	it('falls back to the first deck for a non player-facing or junk id', () => {
@@ -148,12 +148,12 @@ describe('normalizeLobbyChoices (D-04, D-08, D-09, T-64-01)', () => {
 
 	it('whitelists mode, decks and fast, and cuts the name', () => {
 		const choices = normalizeLobbyChoices(
-			{ mode: 'online', deckChoice: 'RANDOM', botChoice: 'EXAMPLE_TAKSEN', fast: 'yes', name: 'x'.repeat(40) },
+			{ mode: 'online', deckChoice: 'RANDOM', botChoice: 'STARTER_PHYSICAL', fast: 'yes', name: 'x'.repeat(40) },
 			decks,
 		);
 		expect(choices.mode).toBe('vsBot'); // online is not an enabled mode
-		expect(choices.deckChoice).toBe('EXAMPLE_TAKSEN'); // own deck can never be RANDOM
-		expect(choices.botChoice).toBe('EXAMPLE_TAKSEN');
+		expect(choices.deckChoice).toBe('STARTER_PHYSICAL'); // own deck can never be RANDOM
+		expect(choices.botChoice).toBe('STARTER_PHYSICAL');
 		expect(choices.fast).toBe(false); // only true counts
 		expect(choices.name).toHaveLength(18);
 	});
@@ -183,15 +183,15 @@ describe('normalizeLobbyChoices (D-04, D-08, D-09, T-64-01)', () => {
 describe('buildStartTarget (D-04, D-08, T-64-02)', () => {
 	it('Play vs Bot keeps the offline url and the mosjes:offline payload, replay keeps the choice not the roll', () => {
 		const target = buildStartTarget(
-			{ mode: 'vsBot', name: 'Gandoe', deckChoice: 'EXAMPLE_REGELAARS', botChoice: 'RANDOM' },
+			{ mode: 'vsBot', name: 'Gandoe', deckChoice: 'STARTER_DIGITAL', botChoice: 'RANDOM' },
 			decks,
 			() => decks[0],
 		);
 		expect(target.url).toBe('./game.html?offline=true&player=player_1');
 		expect(target.offlineSession).toEqual({
 			name: 'Gandoe',
-			deckId: 'EXAMPLE_REGELAARS',
-			botDeckId: 'EXAMPLE_TAKSEN',
+			deckId: 'STARTER_DIGITAL',
+			botDeckId: 'STARTER_PHYSICAL',
 			playerId: 'player_1',
 		});
 		expect(target.replay.botChoice).toBe('RANDOM');
@@ -199,10 +199,10 @@ describe('buildStartTarget (D-04, D-08, T-64-02)', () => {
 	});
 
 	it('Watch Bots builds the botvsbot url on the player_1 path, with fast only when asked', () => {
-		const choices = { mode: 'watchBots', bot1Choice: 'EXAMPLE_CREATIEVELINGEN', bot2Choice: 'RANDOM', fast: true };
+		const choices = { mode: 'watchBots', bot1Choice: 'STARTER_CREATIVE', bot2Choice: 'RANDOM', fast: true };
 		const fast = buildStartTarget(choices, decks, () => decks[1]);
 		expect(fast.url).toBe(
-			'./game.html?botvsbot=true&player=player_1&deck1=EXAMPLE_CREATIEVELINGEN&deck2=EXAMPLE_REGELAARS&fast=true',
+			'./game.html?botvsbot=true&player=player_1&deck1=STARTER_CREATIVE&deck2=STARTER_DIGITAL&fast=true',
 		);
 		expect(fast.offlineSession).toBeNull();
 		const normal = buildStartTarget({ ...choices, fast: false }, decks, () => decks[1]);
@@ -223,7 +223,7 @@ describe('buildStartTarget (D-04, D-08, T-64-02)', () => {
 });
 
 describe('launchGame (D-04, D-20)', () => {
-	const vsBot = { mode: 'vsBot', name: 'Gandoe', deckChoice: 'EXAMPLE_TAKSEN', botChoice: 'EXAMPLE_REGELAARS' };
+	const vsBot = { mode: 'vsBot', name: 'Gandoe', deckChoice: 'STARTER_PHYSICAL', botChoice: 'STARTER_DIGITAL' };
 
 	it('clears the V4 session, writes mosjes:offline and the replay, then navigates once', () => {
 		const session = fakeStorage({ [STORAGE_KEYS.v4LobbySession]: '{"roomCode":"1234"}' });
@@ -231,7 +231,7 @@ describe('launchGame (D-04, D-20)', () => {
 		const target = launchGame(vsBot, { decks, session, navigate: (url: string) => urls.push(url) });
 		expect(session.map.has(STORAGE_KEYS.v4LobbySession)).toBe(false);
 		expect(JSON.parse(session.map.get(STORAGE_KEYS.offlineSession) as string)).toEqual(target.offlineSession);
-		expect(JSON.parse(session.map.get(STORAGE_KEYS.replay) as string).botChoice).toBe('EXAMPLE_REGELAARS');
+		expect(JSON.parse(session.map.get(STORAGE_KEYS.replay) as string).botChoice).toBe('STARTER_DIGITAL');
 		expect(urls).toEqual([target.url]);
 	});
 
@@ -271,7 +271,7 @@ describe('readLobbyPrefs / writeLobbyPrefs (D-09, T-64-01)', () => {
 
 	it('round-trips the normalized choices', () => {
 		const storage = fakeStorage();
-		const choices = { mode: 'watchBots', name: 'Gandoe', deckChoice: 'EXAMPLE_REGELAARS', botChoice: 'EXAMPLE_TAKSEN', bot1Choice: 'EXAMPLE_TAKSEN', bot2Choice: 'RANDOM', fast: true };
+		const choices = { mode: 'watchBots', name: 'Gandoe', deckChoice: 'STARTER_DIGITAL', botChoice: 'STARTER_PHYSICAL', bot1Choice: 'STARTER_PHYSICAL', bot2Choice: 'RANDOM', fast: true };
 		expect(writeLobbyPrefs(storage, choices, decks)).toBe(true);
 		expect(readLobbyPrefs(storage, decks)).toEqual(choices);
 	});
@@ -279,14 +279,14 @@ describe('readLobbyPrefs / writeLobbyPrefs (D-09, T-64-01)', () => {
 
 describe('toDeckTileSpecs (D-07)', () => {
 	it('gives one spec per deck in deck order with the stack colour, description and starting Mosje', () => {
-		const specs = toDeckTileSpecs(decks, { selectedId: 'EXAMPLE_REGELAARS' });
-		expect(specs.map((s) => s.id)).toEqual(['EXAMPLE_TAKSEN', 'EXAMPLE_REGELAARS', 'EXAMPLE_CREATIEVELINGEN']);
+		const specs = toDeckTileSpecs(decks, { selectedId: 'STARTER_DIGITAL' });
+		expect(specs.map((s) => s.id)).toEqual(['STARTER_PHYSICAL', 'STARTER_DIGITAL', 'STARTER_CREATIVE']);
 		expect(specs.map((s) => s.color)).toEqual(['#C2410C', '#0E7490', '#A21CAF']);
-		expect(specs[0].startingMosjeName).toBe('Alyssa, Fissa Fissa!');
+		expect(specs.map((s) => s.startingMosjeName)).toEqual(['', '', '']); // 2.1: no fixed starting Mosje, the pick comes at game start
 		expect(specs.map((s) => s.selected)).toEqual([false, true, false]);
 		expect(specs.every((s) => s.isRandom === false)).toBe(true);
 		for (const spec of specs) {
-			const source = (EXAMPLE_DECKS as any[]).find((d) => d.id === spec.id);
+			const source = (STARTER_DECKS as any[]).find((d) => d.id === spec.id);
 			expect(spec.description).toBe(source.description);
 			expect(spec.name).toBe(source.name);
 			expect(spec.tint).toMatch(/^#[0-9A-F]{6}$/);
@@ -310,7 +310,7 @@ describe('buildDeckTilesHtml (D-07, T-64-03)', () => {
 	const count = (html: string, needle: string) => html.split(needle).length - 1;
 
 	it('renders one accessible radiogroup with a radio button per tile', () => {
-		const html = buildDeckTilesHtml(toDeckTileSpecs(decks, { selectedId: 'EXAMPLE_REGELAARS' }), { label: 'Your deck' });
+		const html = buildDeckTilesHtml(toDeckTileSpecs(decks, { selectedId: 'STARTER_DIGITAL' }), { label: 'Your deck' });
 		expect(html).toContain('role="radiogroup"');
 		expect(html).toContain('aria-label="Your deck"');
 		expect(count(html, 'role="radio"')).toBe(3);
@@ -320,8 +320,7 @@ describe('buildDeckTilesHtml (D-07, T-64-03)', () => {
 		expect(count(html, 'tabindex="0"')).toBe(1);
 		expect(count(html, 'tabindex="-1"')).toBe(2);
 		expect(count(html, 'deck-tile__desc')).toBe(3);
-		expect(count(html, 'Starts with ')).toBe(3);
-		expect(html).toContain('Starts with Alyssa, Fissa Fissa!');
+		expect(count(html, 'Starts with ')).toBe(0); // 2.1: starter decks have no fixed starting Mosje, so no "Starts with" line
 	});
 
 	it('puts tabindex 0 on the first tile when nothing is selected', () => {

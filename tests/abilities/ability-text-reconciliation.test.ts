@@ -535,10 +535,11 @@ describe("FPS Coert data", () => {
     expect(fpsCoert.autoAbility).toBe(true);
   });
 
-  it("abilityDescription matches the Card List 2.0 text and the ruling", () => {
+  it("abilityDescription matches the 2.1 starter text (Phase 69)", () => {
     const fpsCoert = MOSJES.find((m: any) => m.id === "mosje_fps_coert");
     const desc = fpsCoert.abilityDescription.toLowerCase();
-    expect(desc).toContain("succeeds at a strength or technical quest");
+    expect(desc).toContain("wins a quest that rolls str or tech");
+    expect(desc).toContain("on a 5 or 6");
     expect(desc).toContain("30 mp");
     expect(desc).toContain("15 mp");
   });

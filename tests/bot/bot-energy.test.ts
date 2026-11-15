@@ -116,7 +116,7 @@ describe('chooseSummon', () => {
 	const fissa = mosje('mosje_alyssa_fissa'); // cost 2, start MP 20
 	const wizard = mosje('mosje_gandoe_wizard'); // cost 3, start MP 10
 	const jeffrey = mosje('mosje_jeffrey'); // cost 3, start MP 20
-	const bulldozer = mosje('mosje_alyssa_bulldozer'); // cost 4, start MP 0
+	const bulldozer = mosje('mosje_gandoe_destroyer'); // cost 4, start MP 0 (2.1: Alyssa the Bulldozer now starts on 10)
 
 	it('picks the highest-cost affordable Mosje, ties by higher start MP', () => {
 		expect(chooseSummon(table({ energy: 6, hand: [fissa, wizard, jeffrey] }), BOT).cardId).toBe('mosje_jeffrey');
@@ -125,7 +125,7 @@ describe('chooseSummon', () => {
 	});
 	it('a 0 MP Mosje only when nothing else is affordable', () => {
 		expect(chooseSummon(table({ energy: 6, hand: [bulldozer, fissa] }), BOT).cardId).toBe('mosje_alyssa_fissa');
-		expect(chooseSummon(table({ energy: 6, hand: [bulldozer] }), BOT).cardId).toBe('mosje_alyssa_bulldozer');
+		expect(chooseSummon(table({ energy: 6, hand: [bulldozer] }), BOT).cardId).toBe('mosje_gandoe_destroyer');
 		expect(chooseSummon(table({ energy: 3, hand: [bulldozer] }), BOT)).toBeNull();
 	});
 	it('nothing on a cooldown turn, with two Mosjes on the field, or on the opponent\'s turn', () => {
@@ -181,9 +181,10 @@ describe('shouldUseAbility', () => {
 // choosePlaceToPlay
 // ---------------------------------------------------------------------------------------------------------------
 describe('choosePlaceToPlay', () => {
+	const PHYS = ['mosje_jeffrey', null]; // 2.1: the Gym is Good for Physical, bad for Digital
 	const place = (cardId) => ({ cardId, type: 'PLACE' });
 	it('plays an affordable Place, never while another Place is in play, never on a cooldown turn', () => {
-		expect(choosePlaceToPlay(table({ energy: 3, hand: [place('place_the_gym')] }), BOT).cardId).toBe('place_the_gym');
+		expect(choosePlaceToPlay(table({ energy: 3, field: PHYS, hand: [place('place_the_gym')] }), BOT).cardId).toBe('place_the_gym');
 		expect(choosePlaceToPlay(table({ energy: 3, place: 'place_boxing_ring', hand: [place('place_the_gym')] }), BOT)).toBeNull();
 		expect(choosePlaceToPlay(table({ energy: 3, hand: [place('place_the_gym')], bot: { cooldownTurn: true } }), BOT)).toBeNull();
 		expect(choosePlaceToPlay(table({ energy: 3, hand: [place('place_the_gym')], active: OPP }), BOT)).toBeNull();
@@ -271,12 +272,13 @@ describe('driveBotTurn under the Delluft parking fee', () => {
 });
 
 describe('driveBotTurn: Places', () => {
+	const PHYS = ['mosje_jeffrey', null]; // 2.1: the Gym is Good for Physical, bad for Digital
 	const place = (cardId) => ({ cardId, type: 'PLACE' });
 	it("a cost-3 Place it can't pay is not tried; paid, it is played", () => {
-		const poor = driveTurn(table({ energy: 2, hand: [place('place_the_gym')], state: noQuests }));
+		const poor = driveTurn(table({ energy: 2, field: PHYS, hand: [place('place_the_gym')], state: noQuests }));
 		expect(poor.end.activePlace).toBeNull();
 		expect(refusals(poor.metrics, 'playPlace')).toEqual([]);
-		const rich = driveTurn(table({ energy: 3, hand: [place('place_the_gym')], state: noQuests }));
+		const rich = driveTurn(table({ energy: 3, field: PHYS, hand: [place('place_the_gym')], state: noQuests }));
 		expect(rich.end.activePlace).toBe('place_the_gym');
 		expect(rich.end.players[BOT].energy).toBe(0);
 	});

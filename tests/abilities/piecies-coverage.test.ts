@@ -9,16 +9,22 @@ import * as piecieEffects from '../../src/abilities/piecieEffects.js';
 // @ts-ignore
 import { getCopyLimit } from '../../src/data/getCopyLimit.js';
 // @ts-ignore
+import { PENDING_STARTER_EFFECTS } from '../../src/data/pendingStarterEffects.js';
+// @ts-ignore
 import { PIECIE_REGISTRY } from '../ui/cards/piecie-registry-2-0.js';
 
 const CUT = 'piecie_mp_adjuster'; // cut from Obby 2.0
-const live = (PIECIES as any[]).filter((p) => p.id !== CUT);
+// Phase 69: the 11 starter Piecies added for 2.1 have no handler or card-test case yet (Phase 71: effect follows the
+// new text). They are listed in PENDING_STARTER_EFFECTS and skipped here; remove an id there when its handler lands.
+const pending = new Set(PENDING_STARTER_EFFECTS as string[]);
+const live = (PIECIES as any[]).filter((p) => p.id !== CUT && !pending.has(p.effectId));
 const dir = join(__dirname, '..', '..', 'src', 'abilities', 'piecie');
 const sectionText = readdirSync(dir).filter((f) => f.endsWith('Piecies.js')).map((f) => readFileSync(join(dir, f), 'utf8')).join('\n');
 
 describe('Piecie coverage (EFX-02)', () => {
-  it('there are 73 Obby 2.0 Piecies', () => {
+  it('there are 73 Obby 2.0 Piecies with an effect, plus the 11 pending 2.1 starter Piecies', () => {
     expect(live).toHaveLength(73);
+    expect((PIECIES as any[]).filter((p) => pending.has(p.effectId))).toHaveLength(11);
   });
 
   it('every Piecie has at least one headless card-test case in the registry', () => {

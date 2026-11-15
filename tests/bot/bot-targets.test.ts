@@ -11,7 +11,7 @@ import { chooseTriggerChoice } from '../../src/bot/strategy/chooseTriggerChoice.
 
 const BOT = 'player_1';
 const OPP = 'player_2';
-// Gandoe, The Cloude Wizard: Power 10 / 20 / 30 at Level 1 / 2 / 3.
+// Gandoe, The Cloude Wizard: Power 10 / 15 / 20 at Level 1 / 2 / 3 (2.1 data).
 const mosje = (level, mp, extra = {}) => ({ cardId: 'mosje_gandoe_wizard', name: 'Gandoe Wizard', level, mp, isDefeated: false, ...extra });
 const board = (mine, theirs = [mosje(1, 50)], extra = {}) =>
 	makeEngineState({ ...extra, players: { [BOT]: { activeSlots: mine }, [OPP]: { activeSlots: theirs } } });
@@ -19,8 +19,8 @@ const pick = (effectId, mine, theirs, extra) => pickBotOwnTarget(board(mine, the
 
 describe('pickBotOwnTarget: MP gains (Kannetje Melk)', () => {
 	it('protects a Level 3 whose MP is at or below the opponent threat', () => {
-		const s = board([mosje(3, 30), mosje(1, 60)], [mosje(3, 50)]);
-		expect(opponentThreat(s, BOT)).toBe(30);
+		const s = board([mosje(3, 20), mosje(1, 60)], [mosje(3, 50)]);
+		expect(opponentThreat(s, BOT)).toBe(20);
 		expect(pickBotOwnTarget(s, BOT, 'effect_kannetje_melk')).toBe(0);
 	});
 	it('a Level 3 above the threat is not special: the gain goes where it is worth the most, ties to the higher MP', () => {
@@ -118,7 +118,7 @@ describe('pickMosjeOption', () => {
 	});
 	it('own Mosjes otherwise: the gain rule (a Level 3 at the threat first)', () => {
 		const options = [opt(BOT, 0), opt(BOT, 1)];
-		expect(run([mosje(1, 60), mosje(3, 30)], [mosje(3, 50)], options)).toBe(options[1]);
+		expect(run([mosje(1, 60), mosje(3, 20)], [mosje(3, 50)], options)).toBe(options[1]);
 		expect(run([mosje(1, 90), mosje(1, 40)], undefined, options, { piecie: { cardDef: { id: 'piecie_kannetje_melk' } } })).toBe(options[0]);
 	});
 	it('mixed own and opponent options, no options or malformed options: no answer', () => {

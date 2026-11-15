@@ -54,7 +54,7 @@ describe('pickBotDeck()', () => {
       spy.mockReturnValue(i / 50);
       const picked = pickBotDeck(decks);
       expect(HIDDEN).not.toContain(picked.id);
-      expect(picked.id.startsWith('EXAMPLE_')).toBe(true);
+      expect(picked.id.startsWith('STARTER_')).toBe(true); // 69-03: the player-facing pool is the three 2.1 starter decks
     }
   });
 

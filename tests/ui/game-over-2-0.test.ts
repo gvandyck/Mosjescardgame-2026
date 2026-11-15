@@ -23,8 +23,8 @@ function finishedState(over = {}) {
 		winnerId: 'player_2',
 		winReason: 'LEVEL_3',
 		players: {
-			player_1: { name: 'Gandoe', deckId: 'EXAMPLE_TAKSEN', welloePile: [{ type: 'MOSJE', name: 'A' }, { type: 'MOSJE', name: 'B' }, { type: 'PIECIE', name: 'P' }], questStats: { attempted: 4, won: 3 } },
-			player_2: { name: 'Bot', deckId: 'EXAMPLE_REGELAARS', welloePile: [{ type: 'MOSJE', name: 'C' }] },
+			player_1: { name: 'Gandoe', deckId: 'STARTER_PHYSICAL', welloePile: [{ type: 'MOSJE', name: 'A' }, { type: 'MOSJE', name: 'B' }, { type: 'PIECIE', name: 'P' }], questStats: { attempted: 4, won: 3 } },
+			player_2: { name: 'Bot', deckId: 'STARTER_DIGITAL', welloePile: [{ type: 'MOSJE', name: 'C' }] },
 		},
 		...over,
 	});
@@ -64,8 +64,8 @@ describe('buildGameSummary (D-19: 2.0 numbers from engine data)', () => {
 		const summary = buildGameSummary(finishedState());
 		expect(summary.rounds).toBe(7);
 		expect(summary.players).toHaveLength(2);
-		expect(summary.players[0]).toMatchObject({ playerId: 'player_1', name: 'Gandoe', deckName: 'Taksen', questsWon: 3, questsAttempted: 4, mosjesLost: 2 });
-		expect(summary.players[1]).toMatchObject({ playerId: 'player_2', name: 'Bot', deckName: 'Regelaars', questsWon: 0, questsAttempted: 0, mosjesLost: 1 });
+		expect(summary.players[0]).toMatchObject({ playerId: 'player_1', name: 'Gandoe', deckName: 'Physical', questsWon: 3, questsAttempted: 4, mosjesLost: 2 });
+		expect(summary.players[1]).toMatchObject({ playerId: 'player_2', name: 'Bot', deckName: 'Digital', questsWon: 0, questsAttempted: 0, mosjesLost: 1 });
 	});
 
 	it('uses the deck id for an unknown deck and counts only MOSJE cards as lost', () => {
@@ -88,9 +88,9 @@ describe('getGameOverHeadline (D-21)', () => {
 
 	it('Watch Bots: "<Deck> wins (Bot N)" with neither Victory nor Defeat', () => {
 		const second = getGameOverHeadline({ mode: 'watchBots', winnerId: 'player_2', localPlayerId: 'player_1', summary });
-		expect(second).toMatchObject({ title: 'Regelaars wins (Bot 2)', subtitle: 'Taksen (Bot 1) vs Regelaars (Bot 2)', tone: 'neutral' });
+		expect(second).toMatchObject({ title: 'Digital wins (Bot 2)', subtitle: 'Physical (Bot 1) vs Digital (Bot 2)', tone: 'neutral' });
 		const first = getGameOverHeadline({ mode: 'watchBots', winnerId: 'player_1', localPlayerId: 'player_1', summary });
-		expect(first.title).toBe('Taksen wins (Bot 1)');
+		expect(first.title).toBe('Physical wins (Bot 1)');
 		expect(`${first.title} ${second.title}`).not.toMatch(/Victory|Defeat/);
 	});
 
@@ -103,7 +103,7 @@ describe('getGameOverHeadline (D-21)', () => {
 });
 
 describe('getReplayChoices (D-20, T-64-23)', () => {
-	const stored = { mode: 'vsBot', name: 'Gandoe', deckChoice: 'EXAMPLE_REGELAARS', botChoice: 'RANDOM', bot1Choice: 'RANDOM', bot2Choice: 'RANDOM', fast: false };
+	const stored = { mode: 'vsBot', name: 'Gandoe', deckChoice: 'STARTER_DIGITAL', botChoice: 'RANDOM', bot1Choice: 'RANDOM', bot2Choice: 'RANDOM', fast: false };
 
 	it('returns the normalized stored choices for the same mode and keeps a Random bot deck Random', () => {
 		const choices = getReplayChoices({ replayRaw: JSON.stringify(stored), offlineData: {}, urlParams: new URLSearchParams(''), mode: 'vsBot', decks });
@@ -112,23 +112,23 @@ describe('getReplayChoices (D-20, T-64-23)', () => {
 	});
 
 	it('falls back to the offline data (vsBot) on broken JSON or another mode', () => {
-		const offlineData = { name: 'Eva', deckId: 'EXAMPLE_CREATIEVELINGEN', botDeckId: 'EXAMPLE_TAKSEN' };
+		const offlineData = { name: 'Eva', deckId: 'STARTER_CREATIVE', botDeckId: 'STARTER_PHYSICAL' };
 		for (const replayRaw of ['{broken', JSON.stringify({ ...stored, mode: 'watchBots' }), null]) {
 			const choices = getReplayChoices({ replayRaw, offlineData, urlParams: new URLSearchParams(''), mode: 'vsBot', decks });
-			expect(choices).toMatchObject({ mode: 'vsBot', name: 'Eva', deckChoice: 'EXAMPLE_CREATIEVELINGEN', botChoice: 'EXAMPLE_TAKSEN' });
+			expect(choices).toMatchObject({ mode: 'vsBot', name: 'Eva', deckChoice: 'STARTER_CREATIVE', botChoice: 'STARTER_PHYSICAL' });
 		}
 	});
 
 	it('falls back to the deck1 / deck2 / fast URL params for Watch Bots', () => {
-		const urlParams = new URLSearchParams('botvsbot=true&deck1=EXAMPLE_REGELAARS&deck2=EXAMPLE_TAKSEN&fast=true');
+		const urlParams = new URLSearchParams('botvsbot=true&deck1=STARTER_DIGITAL&deck2=STARTER_PHYSICAL&fast=true');
 		const choices = getReplayChoices({ replayRaw: '{broken', offlineData: {}, urlParams, mode: 'watchBots', decks });
-		expect(choices).toMatchObject({ mode: 'watchBots', bot1Choice: 'EXAMPLE_REGELAARS', bot2Choice: 'EXAMPLE_TAKSEN', fast: true });
+		expect(choices).toMatchObject({ mode: 'watchBots', bot1Choice: 'STARTER_DIGITAL', bot2Choice: 'STARTER_PHYSICAL', fast: true });
 	});
 
 	it('sends an unknown stored deck through the whitelist, and online has no replay', () => {
 		const evil = JSON.stringify({ ...stored, deckChoice: '<img src=x>', botChoice: 'NOPE' });
 		const choices = getReplayChoices({ replayRaw: evil, offlineData: {}, urlParams: new URLSearchParams(''), mode: 'vsBot', decks });
-		expect(choices.deckChoice).toBe('EXAMPLE_TAKSEN');
+		expect(choices.deckChoice).toBe('STARTER_PHYSICAL');
 		expect(choices.botChoice).toBe('RANDOM');
 		expect(getReplayChoices({ replayRaw: JSON.stringify(stored), offlineData: {}, urlParams: new URLSearchParams(''), mode: 'online', decks })).toBeNull();
 	});
@@ -136,10 +136,10 @@ describe('getReplayChoices (D-20, T-64-23)', () => {
 
 describe('sanitizeGameParams (D-17, T-64-21)', () => {
 	it('accepts player_1 / player_2 and known deck ids, drops everything else', () => {
-		const bad = sanitizeGameParams(new URLSearchParams('player=player_9&deck1=EXAMPLE_TAKSEN&deck2=<script>'), knownIds);
-		expect(bad).toEqual({ player: null, deck1: 'EXAMPLE_TAKSEN', deck2: null });
-		const ok = sanitizeGameParams(new URLSearchParams('player=player_2&deck1=EXAMPLE_REGELAARS&deck2=PHYSICAL_FORCE'), knownIds);
-		expect(ok).toEqual({ player: 'player_2', deck1: 'EXAMPLE_REGELAARS', deck2: 'PHYSICAL_FORCE' });
+		const bad = sanitizeGameParams(new URLSearchParams('player=player_9&deck1=STARTER_PHYSICAL&deck2=<script>'), knownIds);
+		expect(bad).toEqual({ player: null, deck1: 'STARTER_PHYSICAL', deck2: null });
+		const ok = sanitizeGameParams(new URLSearchParams('player=player_2&deck1=STARTER_DIGITAL&deck2=PHYSICAL_FORCE'), knownIds);
+		expect(ok).toEqual({ player: 'player_2', deck1: 'STARTER_DIGITAL', deck2: 'PHYSICAL_FORCE' });
 		expect(sanitizeGameParams(new URLSearchParams(''), knownIds)).toEqual({ player: null, deck1: null, deck2: null });
 	});
 });

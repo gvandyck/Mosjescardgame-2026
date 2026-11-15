@@ -71,7 +71,7 @@ export const SNELLE_PIECIES = [
     tag: null,
     stays: null,
     levelGate: null,
-    needsText: "one of your Mosjes has Artistic ★",
+    needsText: "a Creative Mosje",
     limitPerDeck: 2,
     givesMP: false,
     artPath: "assets/snelle-art/Lucky Coin.jpeg",
@@ -487,6 +487,7 @@ export const SNELLE_PIECIES = [
   },
   {
     id: "snelle_chriss_handdoek",
+    reactionMoments: [], // Phase 71: opens a window when its effect lands (rolls for a Quest)
     type: "SNELLE_PIECIE",
     subtype: "INSTANT",
     name: "Chris's Handdoek",

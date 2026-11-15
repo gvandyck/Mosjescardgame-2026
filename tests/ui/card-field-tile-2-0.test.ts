@@ -44,8 +44,8 @@ describe('2.0 field tile: Mosje', () => {
 
   it('Level 3 chip (LVL 3 · HOLD) centre-bottom, POWER box and MP box carry the live numbers', () => {
     expect(html).toMatch(/<div class="cv2-tile-lvl" data-cv1-level="3">LVL 3 · HOLD<\/div>/); // spec change D-17: a Level 3 Mosje holds
-    expect(attr(html, 'power')).toBe('40');
-    expect(part(box(html, 'power'), 'val')).toBe('40');
+    expect(attr(html, 'power')).toBe('30'); // 2.1: Alyssa the Bulldozer Power 20 / 25 / 30
+    expect(part(box(html, 'power'), 'val')).toBe('30');
     expect(part(box(html, 'power'), 'label')).toBe('POWER');
     expect(attr(html, 'mp')).toBe('20');
     expect(part(box(html, 'mp'), 'val')).toBe('20');
@@ -119,12 +119,12 @@ describe('2.0 field tile: Piecie, Snelle, Place', () => {
     expect(t).not.toContain('cv2-tile-stat');
   });
 
-  it('the STAYS chip sits beside the pill on exactly the 15 Piecies that stay (Welloe Force has one, Kannetje Melk none)', () => {
+  it('the STAYS chip sits beside the pill on exactly the 11 live Piecies that stay (2.1) (Welloe Force has one, Kannetje Melk none)', () => {
     const force = tile(piecie('Welloe Force'));
     expect(force).toContain('data-cv1-stays="true"');
     expect(pills(force)).toMatch(/<span class="cv2-pill">PIECIE<\/span><span class="cv2-chip" data-cv1-stays="true">STAYS<\/span>/);
     const live = (PIECIES as any[]).filter((p) => !p.disabled);
-    expect(live.filter((p) => p.stays)).toHaveLength(15);
+    expect(live.filter((p) => p.stays)).toHaveLength(11);
     for (const p of live) expect(tile(p).includes('data-cv1-stays="true"'), p.id).toBe(Boolean(p.stays));
   });
 
@@ -138,7 +138,7 @@ describe('2.0 field tile: Piecie, Snelle, Place', () => {
   });
 
   it('a Place tile has the PLACE pill and no cost, no chip', () => {
-    const t = tile((PLACES as any[]).find((p) => p.name === 'The Gym'));
+    const t = tile((PLACES as any[]).find((p) => p.name === 'Gym'));
     expect(pills(t)).toContain('<span class="cv2-pill">PLACE</span>');
     expect(t).not.toContain('data-cv1-cost');
     expect(t).not.toContain('>COST<');

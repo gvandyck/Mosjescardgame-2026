@@ -152,12 +152,13 @@ describe('driveBotTurn keeps the Energy for a reaction Snelle', () => {
 	});
 	it('a Place that would eat the reserved Energy is not played; one that leaves it is', () => {
 		const gym = { cardId: 'place_the_gym', type: 'PLACE' }; // 3 Energy
-		const held = drive(table({ energy: 3, hand: [jensen, gym] }));
+		const field = ['mosje_jeffrey', null]; // 2.1: the Gym is Good for Physical (the default Wizard is Digital, the bot would not play it)
+		const held = drive(table({ field, energy: 3, hand: [jensen, gym] }));
 		expect(held.end.activePlace).toBeNull();
 		expect(held.end.players[BOT].energy).toBe(3);
-		const free = drive(table({ energy: 3, hand: [gym] }));
+		const free = drive(table({ field, energy: 3, hand: [gym] }));
 		expect(free.end.activePlace).toBe('place_the_gym');
-		const rich = drive(table({ energy: 4, hand: [jensen, gym] }));
+		const rich = drive(table({ field, energy: 4, hand: [jensen, gym] }));
 		expect(rich.end.activePlace).toBe('place_the_gym');
 		expect(rich.end.players[BOT].energy).toBe(1);
 	});

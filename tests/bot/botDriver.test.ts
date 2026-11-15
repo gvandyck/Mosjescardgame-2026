@@ -391,19 +391,19 @@ describe('driveBotTurnSteps - action order and getemt finishing (61-04)', () => 
     const lv3Board = (opponentBoost: number) => makeState({
       questDeck: [{ cardId: QUEST_ID, type: 'QUEST' }],
       activeSlots: [{ ...makeMosjeSlot('mosje_jeffrey', 40), level: 3 }],
-      // fresh, so there is no attack target; Power 10 + boost
+      // fresh, so there is no attack target; Power 20 (2.1 Jeffrey, Level 1) + boost
       opponentSlots: [{ ...makeMosjeSlot('mosje_jeffrey', 40), entryProtected: true, powerBoost: opponentBoost }, null],
     });
     const questsTried = (st: any) => st.players.player_2.questsAttemptedThisTurn;
 
     it('does not Quest when a failed Steady Quest (-15) leaves it within the opponent Power (30)', () => {
-      const after = driveBotTurn(lv3Board(20), 'player_2');
+      const after = driveBotTurn(lv3Board(10), 'player_2');
       expect(questsTried(after)).toBe(0);
       expect(after.players.player_2.activeSlots[0].mp).toBe(40);
     });
 
     it('does Quest when the opponent Power (20) is below what a failure leaves (25)', () => {
-      expect(questsTried(driveBotTurn(lv3Board(10), 'player_2'))).toBe(1);
+      expect(questsTried(driveBotTurn(lv3Board(0), 'player_2'))).toBe(1);
     });
   });
 });

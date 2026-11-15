@@ -23,7 +23,7 @@ const game = (place: string | null, a: any, extra: any = {}) =>
 const power = (place: string | null, id: string, extra: any = {}) => { const a = mk(id); return getPower(a, game(place, a, extra), "player_1"); };
 
 const BULL = "mosje_alyssa_bulldozer"; // Physical, L1 Power 20
-const DIG = "mosje_ming_natural"; // Digital, L1 Power 10
+const DIG = "mosje_fps_west"; // Digital, L1 Power 10 (2.1: Ming, The Natural is Creative now)
 const ART = "mosje_tuk_healer"; // Creative, L1 Power 0 (a Tuk)
 
 describe("Place Power in getPower", () => {

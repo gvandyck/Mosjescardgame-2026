@@ -42,9 +42,13 @@ describe('expandDeckToCardIds()', () => {
     ]);
   });
 
-  it('every player-facing Example Deck expands to 30 cards', () => {
+  // Phase 69: the player-facing decks are the 3 starter decks (40 cards = 36 listed in the five card arrays + 4 Personal Quests
+  // in `personalQuests`). expandDeckToCardIds does not know `personalQuests` yet (registered-user flow, see the 69-03 summary),
+  // so it expands the 36 cards of the five arrays.
+  it('every player-facing starter deck expands to its 36 card-array ids (the 4 Personal Quests are not expanded yet)', () => {
     for (const deck of getPlayerFacingDecks() as DeckDef[]) {
-      expect(expandDeckToCardIds(deck)).toHaveLength(30);
+      expect(expandDeckToCardIds(deck)).toHaveLength(36);
+      expect((deck as any).personalQuests).toHaveLength(4);
     }
   });
 

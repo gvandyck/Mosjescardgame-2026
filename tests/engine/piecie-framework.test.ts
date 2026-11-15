@@ -43,6 +43,8 @@ import { makePiecieState } from '../helpers/makePiecieState.js';
 // @ts-ignore
 import { PIECIES } from '../../src/data/piecies.js';
 // @ts-ignore
+import { PENDING_STARTER_EFFECTS } from '../../src/data/pendingStarterEffects.js';
+// @ts-ignore
 import { PIECIE_TARGETS } from '../../src/rules/piecieTargets.js';
 // @ts-ignore
 import { PIECIE_CONDITIONS } from '../../src/rules/piecieConditions.js';
@@ -191,7 +193,8 @@ describe('Level 2+ gate and Only-if conditions', () => {
 });
 
 describe('Piecie target table', () => {
-  const real = (PIECIES as any[]).filter((p) => p.id !== 'piecie_mp_adjuster');
+  // Phase 71: the 11 new 2.1 starter Piecies (PENDING_STARTER_EFFECTS) have no effect or target entry yet.
+  const real = (PIECIES as any[]).filter((p) => p.id !== 'piecie_mp_adjuster' && !PENDING_STARTER_EFFECTS.includes(p.effectId));
   it('has an entry for every Piecie id', () => {
     expect(real.length).toBe(73);
     for (const p of real) expect(PIECIE_TARGETS[p.id], p.id).toBeTruthy();

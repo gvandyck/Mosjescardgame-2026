@@ -1,4 +1,5 @@
 // Phase 62-01: pure 2.0 face helpers (cost, Piecie label, level rows, needs split, tint tokens).
+import { isStarterId } from '../helpers/starterSetIds';
 import { describe, it, expect } from 'vitest';
 // @ts-ignore JS module
 import { readDoc } from '../../scripts/obby2/readDoc.mjs';
@@ -64,7 +65,7 @@ describe('getPiecieLabel (D-07, tag first)', () => {
     const allowed = ['Food', 'Gear', 'Substance', 'Pet', 'MP', 'Attack', 'Utility'];
     // piecie_mp_adjuster is a disabled dev tool without tag/group, not a Card List card.
     const live = (PIECIES as any[]).filter((p) => !p.disabled);
-    expect(live).toHaveLength(73);
+    expect(live).toHaveLength(75); // 2.1: the live Piecies after the archive, plus the 11 new ones
     for (const p of live) {
       const label = getPiecieLabel(p);
       expect(label, p.id).not.toBe('');
@@ -79,7 +80,7 @@ describe('getLevelRows (D-06)', () => {
   it('gives 3 rows, L1 lit by default', () => {
     const rows = getLevelRows(gandoe);
     expect(rows).toHaveLength(3);
-    expect(rows[0]).toEqual({ level: 1, label: 'L1', text: 'Power 10 · Str ★★ · Res ★ · Art ★★', lit: true });
+    expect(rows[0]).toEqual({ level: 1, label: 'L1', text: 'Power 10 · Tech ★★ · Res ★ · Str ★', lit: true }); // 2.1 starter row of the Wizard
     expect(rows.map((r: any) => r.lit)).toEqual([true, false, false]);
   });
   it('level 2 lights row 2 only; the level is clamped to 1..3', () => {
@@ -108,10 +109,14 @@ describe('getLevelRows (D-06)', () => {
       const expected = cells[5].split('<br>').map((seg) => seg.trim().replace(/^L\d: /, ''));
       const card = (MOSJES as any[]).find((m) => m.id === CARD_ID_MAP.mosjes[name]);
       expect(card, name).toBeTruthy();
-      expect(getLevelRows(card).map((r: any) => r.text), name).toEqual(expected);
+      // Phase 69: the 15 starter Mosjes follow cards.json (tests/data/starter-set-2-1.test.ts); the booster Mosjes' trait rows were
+      // redesigned after 10 Oct, so only the Power of each row is compared with the superseded Card List.
+      if (isStarterId(card.id)) continue;
+      const power = (t: string) => t.match(/^Power (\d+)/)![1];
+      expect(getLevelRows(card).map((r: any) => power(r.text)), name).toEqual(expected.map(power));
       checked += 1;
     }
-    expect(checked).toBe(32);
+    expect(checked).toBe(32 - 15);
   });
 });
 
@@ -127,9 +132,9 @@ describe('splitNeedsLead (D-03, D-12)', () => {
     expect(splitNeedsLead('Needs: X. Rest.', 'Y')).toBe('Needs: X. Rest.');
     expect(splitNeedsLead('Plain text.', 'X')).toBe('Plain text.');
   });
-  it('for the 16 needsText cards the lead is removed and the rest is a suffix of the description', () => {
+  it('for the 18 needsText cards the lead is removed and the rest is a suffix of the description', () => {
     const cards = ([...PIECIES, ...SNELLE_PIECIES] as any[]).filter((c) => c.needsText);
-    expect(cards).toHaveLength(16);
+    expect(cards).toHaveLength(18); // 2.1 (incl. 2 archived)
     for (const c of cards) {
       const rest = splitNeedsLead(c.description, c.needsText);
       expect(rest, c.id).not.toBe(c.description);

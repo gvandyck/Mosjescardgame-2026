@@ -72,11 +72,12 @@ describe("Ronald Chef: Strategic Insight", () => {
 });
 
 describe("Ronald Chef ability description", () => {
-  it("is the 2.0 Strategic Insight text", () => {
+  // Phase 69: the 2.1 text is a passive food bonus; the Strategic Insight effect above still runs until
+  // Phase 71 ("Phase 71: effect follows the new text"). This pins the new text.
+  it("is the 2.1 starter text (first food Piecie each turn gives 10 MP more)", () => {
     const desc = MOSJES.find((m: any) => m.id === "mosje_ronald_chef").abilityDescription.toLowerCase();
-    expect(desc).toContain("strategic insight");
-    expect(desc).toContain("look at your opponent's hand and choose 1 card");
-    expect(desc).toContain("face-down");
-    expect(desc).toContain("returns to their hand");
+    expect(desc).toContain("first food piecie you activate each turn");
+    expect(desc).toContain("10 mp more");
+    expect(desc).not.toContain("strategic insight");
   });
 });

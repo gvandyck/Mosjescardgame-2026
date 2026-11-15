@@ -9,6 +9,8 @@ import { CARD_ID_MAP } from '../../scripts/obby2/cardIdMap.mjs';
 // @ts-ignore JS module
 import { PLACES } from '../../src/data/places.js';
 
+import { isStarterId } from '../helpers/starterSetIds';
+
 const list = parseCardList(readDoc('Obby Card Game 2.0 - Card List.md'));
 const get = (id: string) => (PLACES as any[]).find((p) => p.id === id);
 const stars = (r: string) => (r.match(/★/g) || []).length;
@@ -16,7 +18,8 @@ const stars = (r: string) => (r.match(/★/g) || []).length;
 describe('Places carry Card List 2.0 data', () => {
   it('parses 20 place rows', () => expect(list.places).toHaveLength(20));
 
-  for (const row of list.places as any[]) {
+  // Phase 69: starter Places (The Gym, Skiffa, De Box, Coert's Caravan, ...) follow cards.json (tests/data/starter-set-2-1.test.ts).
+  for (const row of (list.places as any[]).filter((r) => !isStarterId(CARD_ID_MAP.places[r.name]))) {
     const id = CARD_ID_MAP.places[row.name];
     it(`${row.name} (${id})`, () => {
       const p = get(id);

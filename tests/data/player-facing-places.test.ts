@@ -18,8 +18,8 @@ describe("getPlayerFacingPlaces — Drain Zone + The Void unhidden (Obby 2.0)", 
     expect(getPlayerFacingPlaces()).toEqual(PLACES.filter((p: any) => !p.disabled));
   });
 
-  it("Drain Zone is in the player-facing list", () => {
-    expect(getPlayerFacingPlaces().find((p: any) => p.id === "place_drain_zone")).toBeDefined();
+  it("Drain Zone is not in the player-facing list (archived by the 2.1 starter set, data kept)", () => {
+    expect(getPlayerFacingPlaces().find((p: any) => p.id === "place_drain_zone")).toBeUndefined();
   });
 
   it("The Void is in the player-facing list", () => {
@@ -31,8 +31,10 @@ describe("getPlayerFacingPlaces — Drain Zone + The Void unhidden (Obby 2.0)", 
   });
 
   it("raw PLACES still contains every Place (engine importers unfiltered)", () => {
-    expect(PLACES.length).toBe(21); // 20 Card List Places + hidden V4-only Momentum Factory
-    expect(PLACES.filter((p: any) => !p.disabled)).toHaveLength(20);
+    // 20 Card List Places + hidden V4-only Momentum Factory + 5 new 2.1 Places = 26; 5 are disabled
+    // (Momentum Factory plus Boxing Ring, Quest Haven, Drain Zone, Synergy Chamber archived in 2.1)
+    expect(PLACES.length).toBe(26);
+    expect(PLACES.filter((p: any) => !p.disabled)).toHaveLength(21);
     expect(PLACES.find((p: any) => p.id === "place_drain_zone")).toBeDefined();
     expect(PLACES.find((p: any) => p.id === "place_the_void")).toBeDefined();
   });

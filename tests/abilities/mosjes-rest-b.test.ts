@@ -12,7 +12,7 @@ const NATURAL = byName(/Ming, The Natural/);
 const PREDICTOR = byName(/Ming, The Predictor/);
 const GAMBLER = byName(/Silent Gambler/);
 const YOURI = byName(/Youri/);
-const MASTERMIND = byName(/The Mastermind/);
+const MASTERMIND = byName(/Phill-osoof/);
 const STRONGMAN = byName(/Jeffrey, The Strongman/);
 
 const field = (me: any, p1: any = {}, extra: any = {}) => makeEngineState({

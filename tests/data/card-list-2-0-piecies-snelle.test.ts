@@ -18,15 +18,19 @@ import { SNELLE_PIECIES } from '../../src/data/snellePiecies.js';
 // @ts-ignore JS module
 import { PLACES } from '../../src/data/places.js';
 
+import { isStarterId } from '../helpers/starterSetIds';
+
 const list = parseCardList(readDoc('Obby Card Game 2.0 - Card List.md'));
 const all: any[] = [...PIECIES, ...SNELLE_PIECIES];
 const get = (id: string) => all.find((c) => c.id === id);
 const stars = (r: string) => (r.match(/★/g) || []).length;
 
+// Phase 69: the 10 Oct Card List is superseded for the 2.1 starter cards (tests/data/starter-set-2-1.test.ts pins those to
+// cards.json), so rows for starter cards are left out here. The other cards keep this comparison.
 const rows = [
   ...list.piecies.map((r: any) => ({ r, id: CARD_ID_MAP.piecies[r.name], type: 'piecie' })),
   ...list.snelle.map((r: any) => ({ r, id: CARD_ID_MAP.snelle[r.name], type: 'snelle' })),
-];
+].filter(({ id }) => !isStarterId(id));
 
 describe('Card List 2.0 Piecies and Snelle', () => {
   it('has 73 + 20 rows', () => {
@@ -45,10 +49,10 @@ describe('Card List 2.0 Piecies and Snelle', () => {
       else expect(c.tag).toBeNull();
     }
   });
-  it('stays is set on exactly the 16 Stays cards', () => {
+  it('stays is set on exactly the 16 Stays cards (the ones that are not 2.1 starter cards; those follow cards.json)', () => {
     expect(Object.keys(STAYS_BY_ID)).toHaveLength(16);
     for (const { id } of rows) expect(get(id).stays, id).toBe(STAYS_BY_ID[id] ?? null);
-    expect(rows.filter(({ id }) => get(id).stays !== null)).toHaveLength(16);
+    expect(rows.filter(({ id }) => get(id).stays !== null)).toHaveLength(Object.keys(STAYS_BY_ID).filter((id) => !isStarterId(id)).length);
   });
   it('levelGate 2 only on Harde Didde, Klaar Met Jou, Dikke Taks', () => {
     const gated = rows.filter(({ id }) => get(id).levelGate === 2).map(({ id }) => id).sort();
@@ -71,7 +75,7 @@ describe('Card List 2.0 Piecies and Snelle', () => {
     for (const c of SNELLE_PIECIES.filter((s: any) => s.id !== 'snelle_blensen')) expect(c.costText, c.id).toBeNull();
   });
   it('renames: Nature\'s Gift, Eendjes Voeren (Place), Lucky Cóin', () => {
-    expect(get('piecie_eendjes_voeren').name).toBe("Nature's Gift");
+    expect(get('piecie_eendjes_voeren').name).toBe('Spiegelen'); // 69-03: was Nature's Gift, renamed in the 2.1 starter set
     expect((PLACES as any[]).find((p) => p.id === 'place_eendjes_voeren').name).toBe('Eendjes Voeren');
     expect(get('snelle_lucky_coin').name).toBe('Lucky Cóin');
   });

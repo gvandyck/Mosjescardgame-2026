@@ -34,11 +34,12 @@ describe('toMosjeTileCards (D-15..D-18, UI-03)', () => {
 		expect(toMosjeTileCards(s, 'player_2')).toEqual([]);
 	});
 
+	// 69-03: Jeffrey (Power 20 at Level 1) instead of Binti: the 2.1 Power curve has 5s (Binti 5/10/15) and getPower still rounds to 10.
 	it('Power is the live getPower: level row plus boosts, not the printed number', () => {
-		const printed = def('mosje_binti').levels[0].power;
-		const plain = toMosjeTileCards(state([slotOf('mosje_binti')], [null, null]), 'player_1')[0];
+		const printed = def('mosje_jeffrey').levels[0].power;
+		const plain = toMosjeTileCards(state([slotOf('mosje_jeffrey')], [null, null]), 'player_1')[0];
 		expect(plain.power).toBe(printed);
-		const boosted = toMosjeTileCards(state([slotOf('mosje_binti', {}, { powerBoost: 20 })], [null, null]), 'player_1')[0];
+		const boosted = toMosjeTileCards(state([slotOf('mosje_jeffrey', {}, { powerBoost: 20 })], [null, null]), 'player_1')[0];
 		expect(boosted.power).toBe(printed + 20);
 	});
 

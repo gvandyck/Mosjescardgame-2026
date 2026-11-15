@@ -83,7 +83,7 @@ describe('card frame v1 — Mosje face data mapping', () => {
     const html = buildCardV1(byName('Alyssa, The Bulldozer'), {})!.html;
     expect(html).not.toContain('cv2-info');
     expect(html).not.toContain('Strength ★★★'); // the old "Strength ★★★ · Resilient ★★" info line is gone
-    expect(html).toContain('Power 20 · Str ★★★ · Res ★★ · Soc ★★★'); // row 1
+    expect(html).toContain('Power 20 · Str ★★ · Soc ★ · Res ★'); // row 1
   });
   it('first name shrinks for long names, never below 24px, never above 40px', () => {
     expect(fitFirstName('Alyssa')).toBe(40);
@@ -127,7 +127,7 @@ describe('card frame v1 — Mosje face data mapping', () => {
     expect(html).toContain(rowTag(2, true));
     expect(html).toContain(rowTag(1, false));
     expect(html).toContain(rowTag(3, false));
-    expect(stat(html, 'power')![1]).toBe('30'); // level 2 power
+    expect(stat(html, 'power')![1]).toBe('25'); // level 2 power (2.1: 20 / 25 / 30)
     expect(stat(html, 'mp')![1]).toBe('35');
     expect(html).toContain('LVL 2');
     expect(html).toContain('PHYSICAL MOSJE');
@@ -218,7 +218,7 @@ describe('card frame v1 — Mosje face data mapping', () => {
     const html = buildCardV1({ ...byName('Alyssa, The Bulldozer'), mp: 20, level: 3 }, { fieldMode: true })!.html;
     expect(html).toContain('>LVL 3 · HOLD<'); // spec change D-17: a Level 3 Mosje holds
     expect(html).toMatch(/data-cv1-level="3"/);
-    expect(html).toMatch(/data-cv1-power="40"/);
+    expect(html).toMatch(/data-cv1-power="30"/);
     expect(html).toMatch(/data-cv1-mp="20"/);
     expect(html).not.toContain('cv1-desc');
     expect(html).not.toContain('cv1-info');

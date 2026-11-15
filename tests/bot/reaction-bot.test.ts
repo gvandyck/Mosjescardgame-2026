@@ -36,7 +36,8 @@ import { PIECIES } from "../../src/data/piecies.js";
 import { QUESTS } from "../../src/data/quests.js";
 
 const attackerDef = MOSJES.find((m: any) => m.id === "mosje_alyssa_bulldozer");
-const plain = MOSJES.find((m: any) => m.id !== "mosje_alyssa_bulldozer" && m.id !== "mosje_parkour_west");
+// 69-03: Perfect Dodge now needs Strength ★★ on the attacked Mosje (2.1 text), so the plain Mosje is Ronald, The Master Chef (Strength 2 at Level 1).
+const plain = MOSJES.find((m: any) => m.id === "mosje_ronald_chef");
 const mk = (mp: number, d = plain, extra: any = {}) => {
   const s = createMosjeSlot(d, { level: 1, mp });
   s.entryProtected = false;

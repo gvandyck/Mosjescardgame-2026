@@ -81,13 +81,16 @@ describe("FPS West Tactical Analysis (settling half)", () => {
 });
 
 describe("FPS West ability description — guessing game text", () => {
-  it("uses the Card List 2.0 Tactical Analysis text (name the card type; correct +20, wrong -10) and drops the legacy wording", () => {
+  // Phase 69: the 2.1 starter text replaced the guessing game; the guessing-game effect above still runs
+  // until Phase 71 ("Phase 71: effect follows the new text"). This pins the new text, not the old effect.
+  it("uses the 2.1 starter text (look at the hand, lose 20 MP, bottom of deck, they draw 1) and drops the guessing wording", () => {
     const w = MOSJES.find((m: any) => m.id === "mosje_fps_west");
     expect(w).toBeTruthy();
-    expect(w.abilityDescription).toContain("Tactical Analysis");
-    expect(w.abilityDescription).toContain("name the card type");
-    expect(w.abilityDescription).toContain("Correct: gain 20 MP");
+    expect(w.abilityDescription).toContain("pay 1 Energy");
+    expect(w.abilityDescription).toContain("look at your opponent's hand");
+    expect(w.abilityDescription).toContain("lose 20 MP");
+    expect(w.abilityDescription).toContain("bottom of their deck");
+    expect(w.abilityDescription).not.toContain("name the card type");
     expect(w.abilityDescription).not.toContain("predict");
-    expect(w.abilityDescription).not.toContain("Pay 10 MP");
   });
 });

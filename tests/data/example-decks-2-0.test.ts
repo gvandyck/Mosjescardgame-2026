@@ -1,4 +1,5 @@
 // Phase 53-07 (E30): the 3 Example Decks match the Example Decks doc and obey the deck rules.
+import { isStarterId, ARCHIVED_BY_2_1 } from '../helpers/starterSetIds';
 import { describe, it, expect } from 'vitest';
 // @ts-ignore JS module
 import { parseExampleDecks } from '../../scripts/obby2/parseExampleDecks.mjs';
@@ -62,7 +63,8 @@ describe('Example Decks 2.0 (E30)', () => {
         for (const [id, n] of Object.entries(counts)) {
           const card = getCardById(id);
           expect(card, id).toBeTruthy();
-          expect(card.disabled, id).toBeFalsy();
+          // Phase 69: the Example Decks are hidden data now; cards the 2.1 set archived may still be listed in them
+          if (!ARCHIVED_BY_2_1.includes(id)) expect(card.disabled, id).toBeFalsy();
           expect(n, id).toBeLessThanOrEqual(getCopyLimit(card));
           expect(n, id).toBeLessThanOrEqual(2);
         }
@@ -76,7 +78,10 @@ describe('Example Decks 2.0 (E30)', () => {
 
       it('doc cost and tag columns agree with the data', () => {
         for (const e of doc.entries) {
-          const card = getCardById(CARD_ID_MAP[mapKey(e.kind)][e.name]);
+          const cardId = CARD_ID_MAP[mapKey(e.kind)][e.name];
+          // Phase 69: the doc is the 10 Oct design; cost, tag and name of the 2.1 starter cards follow cards.json now
+          if (isStarterId(cardId) || ARCHIVED_BY_2_1.includes(cardId)) continue;
+          const card = getCardById(cardId);
           const expectedCost = e.cost.includes('or free') ? card.costText : Number(e.cost);
           if (e.cost.includes('or free')) expect(card.costText).toBeTruthy();
           else expect(card.cost, e.name).toBe(expectedCost);

@@ -13,14 +13,18 @@ import { FOIL_MOSJE_IDS } from '../../scripts/obby2/foilMosjeIds.mjs';
 // @ts-ignore JS module
 import { MOSJES } from '../../src/data/mosjes.js';
 
+import { isStarterId } from '../helpers/starterSetIds';
+
 const list = parseCardList(readDoc('Obby Card Game 2.0 - Card List.md'));
 const byId = (id: string) => (MOSJES as any[]).find((m) => m.id === id);
 
 describe('Card List 2.0 Mosjes in mosjes.js', () => {
   it('every Card List Mosje matches its data entry', () => {
     expect(list.mosjes).toHaveLength(32);
+    // Phase 69: the 15 starter Mosjes follow cards.json (tests/data/starter-set-2-1.test.ts); the other 17 keep this check.
     for (const row of list.mosjes) {
       const id = CARD_ID_MAP.mosjes[row.name];
+      if (isStarterId(id)) continue;
       const card = byId(id);
       expect(card, row.name).toBeTruthy();
       expect(card.name).toBe(row.name);
@@ -29,7 +33,9 @@ describe('Card List 2.0 Mosjes in mosjes.js', () => {
       expect(card.startMP).toBe(row.startMP);
       expect(card.abilityName).toBe(row.abilities[0].name);
       expect(card.limitPerDeck).toBe((row.rarity.match(/★/g) || []).length === 5 ? 1 : 2);
-      expect(card.levels).toEqual(row.levels);
+      // Power per level still follows the Card List; the trait rows of the booster Mosjes were redesigned after 10 Oct
+      // (handover/cards.json), so they are no longer compared with the superseded list (Phase 69-03).
+      expect(card.levels.map((l: any) => l.power)).toEqual(row.levels.map((l: any) => l.power));
       expect(card.abilityDescription).toBe(row.abilities.map((a: any) => `${a.name}: ${a.text}`).join(' '));
       expect(card.synergyEffect).toBe(row.holderText ?? null);
       expect(card.synergyLabel).toEqual(MOSJE_SYNERGY_LABELS[id] ?? []);

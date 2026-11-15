@@ -262,13 +262,13 @@ describe('getTextBoxLayout (boxed)', () => {
     expect(sizes[0][1]).toBe(getTextBoxLayout({ lines: ['x'.repeat(500)], layout: 'boxed' }).size);
   });
 
-  it('auto-fit: Bowie & Stormey (387 characters) steps down in the boxed text box, never below 11.5', () => {
-    const bowie = (PIECIES as any[]).find((p) => p.id === 'piecie_bowie_stormey');
-    const lines = splitSentences(bowie.description);
+  it('auto-fit: Gekke Vogels (300 characters, the longest 2.1 Piecie text) steps down in the boxed text box, never below 11.5', () => {
+    const longest = (PIECIES as any[]).find((p) => p.id === 'piecie_gekke_vogels'); // 69-03: the longest 2.1 Piecie text (300 chars; Bowie & Stormey is shorter now)
+    const lines = splitSentences(longest.description);
     const fit = getTextBoxLayout({ lines, layout: 'boxed' });
     expect(fit.size).toBeLessThan(14.5); // it did not fit at the top size
     expect(fit.size).toBeGreaterThanOrEqual(11.5);
-    expect(fit.clamped, 'what cannot fit at the floor is flagged').toBe(true);
+    expect(fit.clamped, 'it fits at a stepped-down size, so it is not flagged (the clamped case is the next test)').toBe(false);
     expect(getTextBoxLayout({ lines, layout: 'fullart' })).toEqual({ size: 14.5, clamped: false }); // the roomier full-art box holds it
   });
 

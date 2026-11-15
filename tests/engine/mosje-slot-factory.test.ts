@@ -41,7 +41,7 @@ describe("createMosjeSlot", () => {
 
 describe("getLevelRow / refreshLevelTraits", () => {
   it("returns the level row and null for unknown cards", () => {
-    expect(getLevelRow("mosje_gandoe_wizard", 2).power).toBe(20);
+    expect(getLevelRow("mosje_gandoe_wizard", 2).power).toBe(15); // 2.1: Wizard Power 10 / 15 / 20
     expect(getLevelRow("nope", 1)).toBeNull();
   });
   it("refreshes traits from the current level row", () => {

@@ -9,6 +9,8 @@ import { CARD_ID_MAP } from '../../scripts/obby2/cardIdMap.mjs';
 // @ts-ignore JS module
 import { ALL_CARDS } from '../../src/data/cardIndex.js';
 
+import { STARTER_NEW_NAMES, ARCHIVED_BY_2_1 } from '../helpers/starterSetIds';
+
 const list = parseCardList(readDoc('Obby Card Game 2.0 - Card List.md'));
 const all = ALL_CARDS as any[];
 const mappedIds: string[] = Object.values(CARD_ID_MAP).flatMap((m: any) => Object.values(m) as string[]);
@@ -26,11 +28,17 @@ describe('Card List 2.0 umbrella', () => {
     for (const id of mappedIds) expect(all.find((c) => c.id === id), id).toBeTruthy();
   });
 
-  it('visible cards == Card List cards (bijection)', () => {
+  // Phase 69: the visible set is the 10 Oct Card List minus the 22 archived cards (ARCHIVED_BY_2_1), plus the 17 new 2.1 starter cards and the 12 Personal Quests.
+  it('visible cards == Card List cards - archived + 2.1 additions (bijection)', () => {
     const vis = new Set(visible.map((c) => c.id));
-    expect([...vis].filter((id) => !mappedIds.includes(id))).toEqual([]);
-    expect(mappedIds.filter((id) => !vis.has(id))).toEqual([]);
-    expect(vis.size).toBe(183);
+    const archived = mappedIds.filter((id) => all.find((c) => c.id === id)?.disabled);
+    expect(archived.sort()).toEqual([...ARCHIVED_BY_2_1].sort());
+    const added = visible.filter((c) => !mappedIds.includes(c.id));
+    expect(added.filter((c) => c.type === 'PERSONAL_QUEST')).toHaveLength(12);
+    const newCards = added.filter((c) => c.type !== 'PERSONAL_QUEST');
+    expect(newCards.map((c) => c.name).sort()).toEqual([...STARTER_NEW_NAMES].sort());
+    expect(mappedIds.filter((id) => !archived.includes(id) && !vis.has(id))).toEqual([]);
+    expect(vis.size).toBe(183 - 22 + 17 + 12);
   });
 
   it('visible non-Quest cards have cost, 1-5 star rarity and limitPerDeck 1 or 2', () => {

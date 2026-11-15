@@ -12,6 +12,8 @@ import { SNELLE_PIECIES } from '../../src/data/snellePiecies.js';
 // @ts-ignore
 import { PLACES } from '../../src/data/places.js';
 // @ts-ignore
+import { PENDING_STARTER_EFFECTS } from '../../src/data/pendingStarterEffects.js';
+// @ts-ignore
 import { MOSJE_REGISTRY } from '../ui/cards/mosje-registry-2-0.js';
 // @ts-ignore
 import { QUEST_REGISTRY } from '../ui/cards/quest-registry-2-0.js';
@@ -38,7 +40,10 @@ const kinds: Kind[] = [
   { name: 'Snelle', count: 20, data: SNELLE_PIECIES, registry: SNELLE_REGISTRY, key: 'snelle' },
   { name: 'Places', count: 20, data: PLACES, registry: PLACE_REGISTRY, key: 'place' },
 ];
-const live = (k: Kind) => k.data.filter((c) => !NOT_IN_2_0.has(c.id)).map((c) => c.id as string);
+// Phase 71: the 17 new 2.1 starter cards have no effect yet (PENDING_STARTER_EFFECTS), so no card-test case exists for them.
+// Remove an id from that list when its handler and card-test case land and this guard covers it again.
+const pending = new Set(PENDING_STARTER_EFFECTS as string[]);
+const live = (k: Kind) => k.data.filter((c) => !NOT_IN_2_0.has(c.id) && !pending.has(c.effectId)).map((c) => c.id as string);
 const covered = (k: Kind) => new Set(k.registry.filter((r) => r.cases?.length).map((r) => r[k.key] as string));
 
 describe('card-test coverage of the Card List (TEST-02)', () => {

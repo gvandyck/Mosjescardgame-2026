@@ -103,7 +103,8 @@ describe('Phase 46 thematic Piecie definitions', () => {
   ] as const;
 
   for (const [id, rarity, persists] of expected) {
-    it(`${id} has the approved booster-only fields`, () => {
+    // Phase 69: these four are in the 2.1 starter decks on purpose, so they are no longer booster-only.
+    it(`${id} has the approved thematic fields (not booster-only since 2.1)`, () => {
       const card = PIECIES.find((entry: { id: string }) => entry.id === id);
       expect(card).toMatchObject({
         id,
@@ -113,23 +114,27 @@ describe('Phase 46 thematic Piecie definitions', () => {
         requirement: 'any',
         artPath: 'assets/piecies/placeholder.png',
         rarity,
-        isBoosterOnly: true,
+        isBoosterOnly: false,
       });
       expect(card?.persistUntilEndOfTurn).toBeUndefined(); // V4 field gone (57-02)
       expect(persists).toBe(false); // 2.0: none of these Stay
     });
   }
 
-  it('keeps all four cards out of starter decks and eligible for the booster pool', () => {
+  it('puts all four cards in the 2.1 starter decks (and Boosterpackkie also in the hidden Regelaars Example Deck)', () => {
+    const decksOf: Record<string, string[]> = {
+      piecie_loaded_dice: ['STARTER_CREATIVE'],
+      piecie_boosterpackkie: ['STARTER_DIGITAL', 'EXAMPLE_REGELAARS'],
+      piecie_perfect_rhythm: ['STARTER_PHYSICAL'],
+      piecie_dikke_plaat: ['STARTER_CREATIVE'],
+    };
     for (const [id] of expected) {
       const card = PIECIES.find((entry: { id: string }) => entry.id === id);
       expect(card?.disabled).not.toBe(true);
-      // Obby 2.0: Boosterpackkie is a Regelaars Example Deck card (Example Decks doc),
-      // so it is the one exception to the "not in a starter deck" rule.
       const inDecks = STARTER_DECKS
         .filter((deck: { piecies?: string[] }) => deck.piecies?.includes(id))
         .map((deck: { id: string }) => deck.id);
-      expect(inDecks).toEqual(id === 'piecie_boosterpackkie' ? ['EXAMPLE_REGELAARS'] : []);
+      expect(inDecks.sort()).toEqual(decksOf[id].sort());
     }
   });
 

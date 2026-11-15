@@ -11,26 +11,32 @@ import { PIECIES } from '../../src/data/piecies.js';
 // @ts-ignore JS module
 import { SNELLE_PIECIES } from '../../src/data/snellePiecies.js';
 
+import { isStarterId } from '../helpers/starterSetIds';
+
 const list = parseCardList(readDoc('Obby Card Game 2.0 - Card List.md'));
 const all: any[] = [...PIECIES, ...SNELLE_PIECIES];
 const get = (id: string) => all.find((c) => c.id === id);
 
-// Copied verbatim from the Card List condition (never reworded).
+// Copied verbatim from the Card List condition (never reworded). Phase 69: the 2.1 starter cards follow cards.json, whose
+// texts open with "**Needs:** X." (Keyboard, Mouse, Controller, Those Eyelashes, Lucky Cóin, and the new Protein Shake,
+// Schetsboek, Headset); Energy Surge lost its condition line.
 const NEEDS: Record<string, string> = {
-  piecie_energy_surge: 'one of your Mosjes has 20 MP or less',
   piecie_dikke_taks: 'one of your Mosjes at Level 2+',
   piecie_harde_didde: 'one of your Mosjes at Level 2+',
   piecie_klaar_met_jou: 'one of your Mosjes at Level 2+',
   piecie_popo_komt: 'there are 3 or more Mosjes on the field in total',
   piecie_huisbaas: 'the top card of any discard pile is a substance Piecie',
-  piecie_those_eyelashes: 'a Martin or a West is on your field',
+  piecie_those_eyelashes: 'a Martin or a West',
   piecie_battle_concert: 'an Alyssa is on your field',
-  piecie_keyboard: 'a Digital Mosje is on your field',
-  piecie_mouse: 'a Digital Mosje is on your field',
-  piecie_controller: 'a Digital Mosje is on your field',
+  piecie_keyboard: 'a Digital Mosje',
+  piecie_mouse: 'a Digital Mosje',
+  piecie_controller: 'a Digital Mosje',
+  piecie_protein_shake: 'a Physical Mosje',
+  piecie_schetsboek: 'a Creative Mosje',
+  piecie_headset: 'a Digital Mosje',
   snelle_bijna_welloe: 'one of your Mosjes has 10 MP or less',
   snelle_perfect_dodge: 'the attacked Mosje has Strength ★★',
-  snelle_lucky_coin: 'one of your Mosjes has Artistic ★',
+  snelle_lucky_coin: 'a Creative Mosje',
   snelle_counter_strikka: 'one of your Mosjes has Mental ★★',
   snelle_jammertje_gepakt: 'one of your Mosjes has Mental ★★',
 };
@@ -41,10 +47,10 @@ const rows = [
 ];
 
 describe('needsText vs the Card List (D-03)', () => {
-  it('exactly the 16 expected cards carry needsText, with the Card List condition', () => {
+  it('exactly the 18 expected cards carry needsText, with the Card List / cards.json condition', () => {
     const withNeeds = all.filter((c) => c.needsText).map((c) => c.id).sort();
     expect(withNeeds).toEqual(Object.keys(NEEDS).sort());
-    expect(withNeeds).toHaveLength(16);
+    expect(withNeeds).toHaveLength(18);
     for (const id of Object.keys(NEEDS)) expect(get(id).needsText, id).toBe(NEEDS[id]);
   });
 
@@ -52,13 +58,20 @@ describe('needsText vs the Card List (D-03)', () => {
     let n = 0;
     for (const { r, id } of rows) {
       if (!/^(Needs: |Only if )/.test(r.text)) continue;
+      if (isStarterId(id)) continue; // 2.1 starter cards: see the next test, they follow cards.json
       const needs = get(id).needsText;
       expect(needs, r.name).toBeTruthy();
       const ok = [`Needs: ${needs}.`, `Only if ${needs}:`, `Only if ${needs}.`].some((p) => r.text.startsWith(p));
       expect(ok, `${r.name}: "${r.text.slice(0, 70)}"`).toBe(true);
       n += 1;
     }
-    expect(n).toBe(16);
+    expect(n).toBe(10); // 16 minus the 6 starter cards whose text moved to the 2.1 wording
+  });
+
+  it('every live card whose text opens with "**Needs:** X." has needsText X (2.1 starter texts)', () => {
+    const lead = all.filter((c) => !c.disabled && /^\*\*Needs:\*\* /.test(c.description));
+    expect(lead.length).toBeGreaterThanOrEqual(8);
+    for (const c of lead) expect(c.description.startsWith(`**Needs:** ${c.needsText}.`), c.id).toBe(true);
   });
 
   it('the three levelGate 2 cards say "one of your Mosjes at Level 2+"', () => {

@@ -12,6 +12,8 @@ import { getStarterEligible } from "../../src/data/cardIndex.js";
 // @ts-ignore JS module
 import { getPlayerFacingPlaces } from "../../src/data/playerFacingPlaces.js";
 
+import { ARCHIVED_BY_2_1 } from "../helpers/starterSetIds";
+
 // Obby 2.0 (Phase 53-06): 15 parked/cut cards are hidden with the shared `disabled: true`
 // flag. Data stays in src/data; they must never reach boosters, starter lists,
 // player-facing Places or the deck builder. mosje_drainer is a Card List card again.
@@ -29,13 +31,14 @@ describe("Hidden cards — data flag", () => {
     });
   }
 
-  it("mosje_drainer exists and is NOT disabled", () => {
+  // Phase 69: mosje_drainer (and 21 other cards) are archived by the 2.1 starter set: disabled, data kept.
+  it("mosje_drainer exists and is archived (disabled) since 2.1", () => {
     expect(byId("mosje_drainer")).toBeTruthy();
-    expect(byId("mosje_drainer").disabled).toBeFalsy();
+    expect(byId("mosje_drainer").disabled).toBe(true);
   });
 
-  it("no other card is disabled", () => {
-    const extra = (ALL_CARDS as any[]).filter((c) => c.disabled && !HIDDEN_IDS.includes(c.id));
+  it("no other card is disabled, except the archived 2.1 cards", () => {
+    const extra = (ALL_CARDS as any[]).filter((c) => c.disabled && !HIDDEN_IDS.includes(c.id) && !ARCHIVED_BY_2_1.includes(c.id));
     expect(extra.map((c) => c.id)).toEqual([]);
   });
 });
@@ -56,10 +59,10 @@ describe("Hidden cards — starter-eligible pool", () => {
 });
 
 describe("Hidden cards — player-facing Places and deck builder", () => {
-  it("getPlayerFacingPlaces excludes Momentum Factory, includes Drain Zone and The Void", () => {
+  it("getPlayerFacingPlaces excludes Momentum Factory and Drain Zone (archived in 2.1), includes The Void", () => {
     const ids = getPlayerFacingPlaces().map((p: any) => p.id);
     expect(ids).not.toContain("place_momentum_factory");
-    expect(ids).toContain("place_drain_zone");
+    expect(ids).not.toContain("place_drain_zone");
     expect(ids).toContain("place_the_void");
   });
 

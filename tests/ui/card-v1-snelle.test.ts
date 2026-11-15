@@ -20,13 +20,13 @@ describe('card frame v1 — Snelle data mapping (2.0 face)', () => {
     expect(html).toContain('>Lucky Cóin<');
     expect(html).not.toContain('cv1-nick');
     expect(html).toContain('>SNELLE<');
-    expect(part(html, 'cv2-info')).toBe('Needs: one of your Mosjes has Artistic ★');
+    expect(part(html, 'cv2-info')).toBe('Needs: a Creative Mosje'); // 2.1 text
     expect(part(html, 'cv2-label')).toBe('Instant · any turn');
     expect(corner(html)).toContain('data-cv1-cost="1"');
     expect(corner(html)).toContain('>COST<');
     expect(html).toContain('#A16207');
     expect(html).toContain('#FEF9C3');
-    expect(plain(textBox(html))).toBe("Reroll any dice once (yours or your opponent's). Artistic ★★★: choose the result instead.");
+    expect(plain(textBox(html))).toBe('When a player rolls for a Quest: reroll any of those dice.'); // 2.1 text, the "**Needs:**" lead is on the info line
   });
 
   it('Needs lines appear exactly on the 5 Snelle with needsText (Jammertje reads Mental ★★)', () => {
@@ -64,7 +64,7 @@ describe('card frame v1 — Snelle data mapping (2.0 face)', () => {
     const paid = buildCardV1({ ...byName('Lucky Cóin'), cost: 3 }, {})!.html;
     expect(corner(paid)).toContain('data-cv1-cost="3"');
     expect(corner(paid)).not.toContain('cv2-corner-sub');
-    const rush = buildCardV1(byName('Momentum Rush'), {})!.html;
+    const rush = buildCardV1(byName('Aansteker'), {})!.html;
     expect(corner(rush)).toContain('<div class="cv2-corner-val">0</div>');
     for (const p of SNELLE_PIECIES as any[]) {
       expect(corner(buildCardV1(p, {})!.html), p.id).toContain(`data-cv1-cost="${p.cost}"`);

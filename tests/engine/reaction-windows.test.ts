@@ -18,7 +18,8 @@ import { SNELLE_PIECIES } from "../../src/data/snellePiecies.js";
 import { MOSJES } from "../../src/data/mosjes.js";
 
 const attackerDef = MOSJES.find((m: any) => m.id === "mosje_alyssa_bulldozer"); // L1 Power 20
-const plain = MOSJES.find((m: any) => m.id !== "mosje_alyssa_bulldozer" && m.id !== "mosje_parkour_west");
+// 69-03: Perfect Dodge now needs Strength ★★ on the attacked Mosje (2.1 text): Ronald, The Master Chef has it at Level 1.
+const plain = MOSJES.find((m: any) => m.id === "mosje_ronald_chef");
 const mk = (mp: number, d = plain, level = 1, extra: any = {}) => {
   const s = createMosjeSlot(d, { level, mp });
   s.entryProtected = false;

@@ -48,15 +48,20 @@ function table({ energy = 3, field = ['mosje_gandoe_wizard', null], oppField = [
 }
 
 describe('placeFit and choosePlaceToPlay: Places are chosen by fit', () => {
+	// 2.1 data: Gandoe, The Cloude Wizard is Digital and Ronald, The Master Chef is Physical (the old tests had it the other
+	// way round). The Physical own Mosje is Gandoe, The Destroyer (still a Gandoe); the Digital opponent is Coert, Tech Savant.
+	const PHYS = 'mosje_gandoe_destroyer';
+	const DIG = 'mosje_coert_tech';
+	const fit = (o = {}) => table({ field: [PHYS, null], oppField: [DIG, null], ...o });
 	it('own Physical Mosje vs a Digital opponent: The Gym fits (> 0) and is played with Energy 3', () => {
-		const st = table({ hand: [place('place_the_gym')] });
+		const st = fit({ hand: [place('place_the_gym')] });
 		expect(placeFit(st, BOT, 'place_the_gym')).toBeGreaterThan(0);
 		expect(choosePlaceToPlay(st, BOT)?.cardId).toBe('place_the_gym');
 	});
 
 	it('own Digital Mosje vs a Physical opponent: The Gym is a minus and stays in hand; Arcade with a Technical Quest up fits', () => {
-		const field = ['mosje_ronald_chef', null];
-		const oppField = ['mosje_gandoe_wizard', null];
+		const field = ['mosje_gandoe_wizard', null]; // Digital
+		const oppField = ['mosje_ronald_chef', null]; // Physical
 		const gymOnly = table({ field, oppField, hand: [place('place_the_gym')] });
 		expect(placeFit(gymOnly, BOT, 'place_the_gym')).toBeLessThan(0);
 		expect(choosePlaceToPlay(gymOnly, BOT)).toBeNull();
@@ -67,11 +72,11 @@ describe('placeFit and choosePlaceToPlay: Places are chosen by fit', () => {
 
 	it('two Places in hand: the one with the higher fit is played, whatever the hand order', () => {
 		const hand = [place('place_arcade'), place('place_the_gym'), place('place_boxing_ring')];
-		const st = table({ hand }); // Gandoe (Physical) vs a Digital Ronald: Boxing Ring (+20 for a Gandoe, -10 for the Digital) beats The Gym
+		const st = fit({ hand }); // Gandoe (Physical) vs a Digital Coert: Boxing Ring (+20 for a Gandoe, -10 for the Digital) beats The Gym
 		expect(placeFit(st, BOT, 'place_boxing_ring')).toBeGreaterThan(placeFit(st, BOT, 'place_the_gym'));
 		expect(placeFit(st, BOT, 'place_the_gym')).toBeGreaterThan(placeFit(st, BOT, 'place_arcade'));
 		expect(choosePlaceToPlay(st, BOT)?.cardId).toBe('place_boxing_ring');
-		expect(choosePlaceToPlay(table({ hand: [place('place_arcade'), place('place_the_gym')] }), BOT)?.cardId).toBe('place_the_gym');
+		expect(choosePlaceToPlay(fit({ hand: [place('place_arcade'), place('place_the_gym')] }), BOT)?.cardId).toBe('place_the_gym');
 	});
 
 	it('a Place that helps both sides the same is not played (fit 0)', () => {
@@ -81,8 +86,8 @@ describe('placeFit and choosePlaceToPlay: Places are chosen by fit', () => {
 	});
 
 	it('fresh Mosjes ignore a Place: a fresh Physical Mosje gets no Power from The Gym, so only the words count', () => {
-		const fresh = table({ hand: [place('place_the_gym')], field: ['mosje_gandoe_wizard', null], oppField: ['mosje_jeffrey', null], bot: { activeSlots: [slotOf('mosje_gandoe_wizard', { entryProtected: true }), null] } });
-		const settled = table({ hand: [place('place_the_gym')], field: ['mosje_gandoe_wizard', null], oppField: ['mosje_jeffrey', null] });
+		const fresh = table({ hand: [place('place_the_gym')], field: [PHYS, null], oppField: ['mosje_jeffrey', null], bot: { activeSlots: [slotOf(PHYS, { entryProtected: true }), null] } });
+		const settled = table({ hand: [place('place_the_gym')], field: [PHYS, null], oppField: ['mosje_jeffrey', null] });
 		// settled: +10 Power each side (0 net) + the Physical word; fresh own Mosje: the opponent's +10 is not matched
 		expect(placeFit(fresh, BOT, 'place_the_gym')).toBe(placeFit(settled, BOT, 'place_the_gym') - 10);
 	});
@@ -96,10 +101,10 @@ describe('placeFit and choosePlaceToPlay: Places are chosen by fit', () => {
 
 	it('nothing is played while a Place is in play, off its own turn, or when the cost eats the kept Energy', () => {
 		const hand = [place('place_the_gym')];
-		expect(choosePlaceToPlay(table({ hand, activePlace: 'place_boxing_ring' }), BOT)).toBeNull();
-		expect(choosePlaceToPlay(table({ hand, state: { activePlayerId: OPP } }), BOT)).toBeNull();
-		expect(choosePlaceToPlay(table({ hand, energy: 3 }), BOT, 1)).toBeNull(); // The Gym costs 3, 1 is kept back
-		expect(choosePlaceToPlay(table({ hand, energy: 4 }), BOT, 1)?.cardId).toBe('place_the_gym');
+		expect(choosePlaceToPlay(fit({ hand, activePlace: 'place_boxing_ring' }), BOT)).toBeNull();
+		expect(choosePlaceToPlay(fit({ hand, state: { activePlayerId: OPP } }), BOT)).toBeNull();
+		expect(choosePlaceToPlay(fit({ hand, energy: 3 }), BOT, 1)).toBeNull(); // The Gym costs 3, 1 is kept back
+		expect(choosePlaceToPlay(fit({ hand, energy: 4 }), BOT, 1)?.cardId).toBe('place_the_gym');
 	});
 
 	it('unknown Place id: fit 0', () => {
@@ -108,7 +113,7 @@ describe('placeFit and choosePlaceToPlay: Places are chosen by fit', () => {
 
 	it('the driver plays the best Place and not a minus one', () => {
 		const run = (hand) => {
-			const steps = driveBotTurnSteps(table({ hand, state: { questStacks: stacks() } }), BOT);
+			const steps = driveBotTurnSteps(fit({ hand, state: { questStacks: stacks() } }), BOT);
 			return steps[steps.length - 1].state;
 		};
 		expect(run([place('place_arcade'), place('place_the_gym')]).activePlace).toBe('place_the_gym');
@@ -140,7 +145,7 @@ describe('chooseProactiveSnelle and the driver Snelle phase', () => {
 		expect(chooseProactiveSnelle(st, BOT)).toEqual({ cardId: 'snelle_momentum_rush' });
 		const run = driveTurn(st);
 		expect(run.played.map((s) => s.action)).toEqual([{ kind: 'snelle', cardId: 'snelle_momentum_rush' }]); // recorded as a step
-		expect(run.played[0].label).toBe('plays Momentum Rush');
+		expect(run.played[0].label).toBe('plays Aansteker'); // 2.1 rename of Momentum Rush (the +15 MP effect runs until Phase 71)
 		expect(run.played[0].state.players[BOT].activeSlots[0].mp).toBe(55);
 		expect(run.played[0].state.players[BOT].piecieSlots.every((s) => !s)).toBe(true);
 		expect(run.end.players[BOT].hand).toEqual([]);

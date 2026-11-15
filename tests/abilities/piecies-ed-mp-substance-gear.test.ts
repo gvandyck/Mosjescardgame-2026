@@ -203,7 +203,8 @@ describe('Gear Piecies', () => {
   };
 
   it('Keyboard needs a Digital Mosje; +10 and draw 1', () => {
-    const none = activatePiecie(board('piecie_keyboard'), 'player_1', 0);
+    // Phase 69: the default test Mosje (Gandoe, The Wizard) is Digital in the 2.1 data, so force a Physical one for the refusal.
+    const none = activatePiecie(board('piecie_keyboard', { ownSlot: { subtype: 'PHYSICAL' } }), 'player_1', 0);
     expect(none.success).toBe(false);
     expect(none.error).toMatch(/Digital/);
     const out = run(digital(board('piecie_keyboard', { pick: { own_slot_index: 0 } })));

@@ -29,9 +29,9 @@ describe('card frame v1 — Place data mapping (2.0 face)', () => {
     expect(formatGoodBadLine(undefined, undefined)).toBe('');
   });
 
-  it('The Gym face: cost 3, name, PLACE pill, Good/Bad line, "Only 1 in play", violet, NO badge', () => {
-    const html = buildCardV1(byName('The Gym'), {})!.html;
-    expect(html).toContain('>The Gym<');
+  it('Gym face (2.1 name of The Gym): cost 3, name, PLACE pill, Good/Bad line, "Only 1 in play", violet, NO badge', () => {
+    const html = buildCardV1(byName('Gym'), {})!.html;
+    expect(html).toContain('>Gym<');
     expect(corner(html)).toContain('data-cv1-cost="3"');
     expect(corner(html)).toContain('>COST<');
     expect(html).toContain('>PLACE<');
@@ -44,7 +44,7 @@ describe('card frame v1 — Place data mapping (2.0 face)', () => {
   });
 
   it('is a 2.0 spec: face 2, PLACE type key, cost corner, no level rows or footer', () => {
-    const spec = buildPlaceSpecV1(byName('The Gym')) as any;
+    const spec = buildPlaceSpecV1(byName('Gym')) as any;
     expect(spec).toMatchObject({ face: 2, typeKey: 'PLACE', pill: 'PLACE', label: 'Only 1 in play', levelRows: [], footer: null, stays: false });
     expect(spec.corner).toEqual({ hook: 'cost', value: '3', label: 'COST', sub: '' });
   });
@@ -53,12 +53,12 @@ describe('card frame v1 — Place data mapping (2.0 face)', () => {
     for (const p of PLACES as any[]) {
       expect(corner(buildCardV1(p, {})!.html), p.id).toContain(`data-cv1-cost="${Number(p.cost) || 0}"`);
     }
-    const free = buildCardV1({ ...byName('The Gym'), cost: 0 }, {})!.html;
+    const free = buildCardV1({ ...byName('Gym'), cost: 0 }, {})!.html;
     expect(corner(free)).toContain('<div class="cv2-corner-val">0</div>');
   });
 
   it('field tile has the PLACE pill, no badge and no cost either', () => {
-    const html = buildCardV1(byName('The Gym'), { fieldMode: true })!.html;
+    const html = buildCardV1(byName('Gym'), { fieldMode: true })!.html;
     expect(html).toContain('>PLACE<');
     expect(html).not.toContain('cv1-badge');
     expect(html).not.toContain('data-cv1-cost');
@@ -91,7 +91,7 @@ describe('card frame v1 — Place data mapping (2.0 face)', () => {
   });
 
   it('escapes markup in the Good/Bad line and the text box', () => {
-    const html = buildCardV1({ ...byName('The Gym'), goodFor: ['<i>x</i>'], description: 'Gain <b>1</b>.' }, {})!.html;
+    const html = buildCardV1({ ...byName('Gym'), goodFor: ['<i>x</i>'], description: 'Gain <b>1</b>.' }, {})!.html;
     expect(html).not.toContain('<i>x</i>');
     expect(html).not.toContain('<b>1</b>');
     expect(part(html, 'cv2-info')).toBe('Good for: <i>x</i> · Bad for: Digital, Creative');

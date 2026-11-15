@@ -34,7 +34,7 @@ describe('card frame v1 — Piecie data mapping (2.0 face)', () => {
   });
 
   it('no Piecie face prints a V4 requirement code, "Requires" or an old sub-category', () => {
-    expect(LIVE).toHaveLength(73);
+    expect(LIVE).toHaveLength(75); // 2.1: 64 old live Piecies after the archive + 11 new
     for (const p of LIVE) {
       const html = chrome(buildCardV1(p, {})!.html);
       expect(html, p.id).not.toMatch(/Requires/);
@@ -45,7 +45,7 @@ describe('card frame v1 — Piecie data mapping (2.0 face)', () => {
 
   it('Needs lines appear exactly on the Piecies with needsText', () => {
     const withNeeds = LIVE.filter((p) => p.needsText);
-    expect(withNeeds).toHaveLength(11);
+    expect(withNeeds).toHaveLength(12); // 2.1: Needs lines follow the cards.json texts
     for (const p of LIVE) {
       const html = buildCardV1(p, {})!.html;
       if (p.needsText) expect(part(html, 'cv2-info'), p.id).toBe(`Needs: ${p.needsText}`);
@@ -99,7 +99,7 @@ describe('card frame v1 — Piecie data mapping (2.0 face)', () => {
   });
 
   it('a STAYS chip sits next to the pill on exactly the Piecies with stays', () => {
-    expect(LIVE.filter((p) => p.stays)).toHaveLength(15);
+    expect(LIVE.filter((p) => p.stays)).toHaveLength(11); // 2.1
     for (const p of LIVE) {
       const html = buildCardV1(p, {})!.html;
       expect(html.includes('data-cv1-stays="true"'), p.id).toBe(Boolean(p.stays));
@@ -154,7 +154,7 @@ describe('card frame v1 — Piecie data mapping (2.0 face)', () => {
   it('the dropped lead is exactly the Needs sentence: the description starts with it, one capital changes', () => {
     for (const p of LIVE.filter((x) => x.needsText)) {
       const text = norm(p.description);
-      const lead = [`Needs: ${p.needsText}.`, `Only if ${p.needsText}:`, `Only if ${p.needsText}.`].find((l) => text.startsWith(l));
+      const lead = [`Needs: ${p.needsText}.`, `**Needs:** ${p.needsText}.`, `Only if ${p.needsText}:`, `Only if ${p.needsText}.`].find((l) => text.startsWith(l));
       expect(lead, `${p.id} starts with its Needs sentence`).toBeTruthy();
       const rest = text.slice(lead!.length).trim();
       expect(splitNeedsLead(text, p.needsText), p.id).toBe(rest.charAt(0).toUpperCase() + rest.slice(1));
