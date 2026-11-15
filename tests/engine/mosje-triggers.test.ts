@@ -181,13 +181,13 @@ describe("useMosjeAbility gates", () => {
 });
 
 describe("Quest win is ONE gain", () => {
-  it("applies every questWinAmount modifier, then a single gain (70 + 80 -> Level 2 at 0 MP)", () => {
+  it("applies every questWinAmount modifier, then a single gain (70 + 80 -> Level 2 at 10 MP)", () => {
     reg("questWinAmount", { mosjeId: mkSlot().cardId, run: (_s: any, ctx: any) => ctx.amount * 2 });
     const { s, q } = build("arm_wrestling", { me: mkSlot({ mp: 70 }) });
     const out = finish(s, q, true);
     const me = out.players.player_1.activeSlots[0];
     expect(me.level).toBe(2);
-    expect(me.mp).toBe(0);
+    expect(me.mp).toBe(10);
   });
   it("runs questSuccess triggers after the gain with the final amount", () => {
     let seen = 0;

@@ -61,9 +61,9 @@ describe("Ronald Kip stacking under the Card List 2.0 rules", () => {
     expect(out.players.player_1.mpAmplifierThisTurn).toBe(false);
   });
 
-  it("MP Amplifier, Ronald Kip and Ronald: 60 + 40 = 100 -> Level 2 at 0 MP", () => {
+  it("MP Amplifier, Ronald Kip and Ronald: 60 + 40 = 100 -> Level 2 at 10 MP", () => {
     const out = kip(board(slot("mosje_coert_tech", 1, 0), slot("mosje_ronald_chef", 1, 50), true));
-    expect([first(out).level, first(out).mp]).toEqual([2, 0]);
+    expect([first(out).level, first(out).mp]).toEqual([2, 10]);
   });
 
   it("the Amplifier doubles a Quest win of 40 -> 80, once only", () => {
@@ -88,17 +88,17 @@ describe("Ronald Kip stacking under the Card List 2.0 rules", () => {
 
   it("Binti's food extra is part of the doubled gain: (50 + 10) + 40 = 100 -> Level 2", () => {
     const out = kip(board(slot("mosje_binti", 1, 0), slot("mosje_coert_tech", 1, 50), true));
-    expect([first(out).level, first(out).mp]).toEqual([2, 0]);
+    expect([first(out).level, first(out).mp]).toEqual([2, 10]);
   });
 
-  it("a gain that crosses 100 on Level 1 -> Level 2 at 0 MP (no carry-over)", () => {
+  it("a gain that crosses 100 on Level 1 -> Level 2 at 10 MP (no carry-over)", () => {
     const out = kip(board(slot("mosje_coert_tech", 1, 60), null));
-    expect([first(out).level, first(out).mp]).toEqual([2, 0]);
+    expect([first(out).level, first(out).mp]).toEqual([2, 10]);
   });
 
-  it("on Level 3 the gain is capped at 95", () => {
+  it("on Level 3 the gain is capped at 100", () => {
     const out = kip(board(slot("mosje_coert_tech", 3, 70), null));
-    expect([first(out).level, first(out).mp]).toEqual([3, 95]);
+    expect([first(out).level, first(out).mp]).toEqual([3, 100]);
   });
 
   it("The Void blocks a Piecie gain and the Amplifier is not spent; a Quest gain still goes through", () => {

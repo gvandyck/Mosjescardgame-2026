@@ -20,7 +20,7 @@ describe("getPower (E14)", () => {
     s.powerBoost = 20;
     expect(getPower(s)).toBe(def.levels[1].power + 20);
   });
-  it("is a non-negative multiple of 10 and never NaN for bad levels", () => {
+  it("is a non-negative multiple of 5 and never NaN for bad levels", () => {
     for (const lv of [0, 9, NaN, 1, 2, 3]) {
       const s = createMosjeSlot(def, { level: 1 });
       s.level = lv;
@@ -28,7 +28,7 @@ describe("getPower (E14)", () => {
       const p = getPower(s);
       expect(Number.isNaN(p)).toBe(false);
       expect(p).toBeGreaterThanOrEqual(0);
-      expect(p % 10).toBe(0);
+      expect(p % 5).toBe(0);
     }
   });
   it("no boost -> plain level row Power", () => {

@@ -231,7 +231,7 @@ describe('Boosterpackkie', () => {
       'player_1',
     );
 
-    expect(result.players.player_1.activeSlots[0].mp).toBe(0);
+    expect(result.players.player_1.activeSlots[0].mp).toBe(10);
     expect(result.players.player_1.activeSlots[0].level).toBe(2);
   });
 
@@ -272,7 +272,7 @@ describe('Perfect Rhythm', () => {
       'player_1',
       true,
     );
-    expect(result.players.player_1.activeSlots[0].mp).toBe(0);
+    expect(result.players.player_1.activeSlots[0].mp).toBe(10);
     expect(result.players.player_1.activeSlots[0].level).toBe(2);
   });
 

@@ -276,7 +276,7 @@ describe("pickCounterSnelle and chooseReaction", () => {
     expect(asked(theirs("piecie_pot_of_weed", [GEV]))).toBe(GEV); // draw
     withRarity("piecie_kannetje_melk", "★★★★★", () => expect(asked(theirs("piecie_kannetje_melk", [GEV]))).toBeNull());
     expect(asked(theirs("piecie_loaded_dice", [GEV]))).toBeNull(); // neither gain nor draw
-    expect(asked(theirs("piecie_kannetje_melk", [GEV], {}, [L(95, 3), null]))).toBeNull(); // a Level 3 at 95 cannot gain
+    expect(asked(theirs("piecie_kannetje_melk", [GEV], {}, [L(100, 3), null]))).toBeNull(); // a Level 3 at 100 cannot gain
   });
   it("pickCounterSnelle alone: the same answers, and nothing in a defender window", () => {
     expect(pickCounterSnelle(theirs("piecie_harde_didde", [JAM]), BOT)).toBe(JAM);

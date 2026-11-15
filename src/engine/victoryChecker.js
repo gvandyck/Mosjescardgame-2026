@@ -8,6 +8,7 @@ import { checkLoss } from './winLose/checkLoss.js';
 import { getAllPlayerIds } from './gameState.js';
 import { placeTeslaCheck } from '../abilities/place/placeTurnQuestEffects.js';
 import { normalizeSlotMp } from './mp/normalizeSlotMp.js';
+import { LEVEL_UP_AT, LEVEL3_MP_CAP } from './mp/levelRules.js';
 
 console.log('[ENGINE] victoryChecker.js loaded');
 
@@ -30,7 +31,7 @@ export function checkVictory(gameState) {
   let state = placeTeslaCheck(applyPendingDefeats(gameState));
   if (state.status === 'FINISHED') return state;
 
-  // 2.0 MP normaliser: levels any >=100 Mosje, caps L3 at 95, snaps to the 5-grid.
+  // MP normaliser: levels any >=100 Mosje below L3 (to 10 MP), caps L3 at 100, snaps to the 5-grid.
   state = normalizeMosjeMp(state);
 
   const playerIds = getAllPlayerIds(state);
@@ -88,14 +89,15 @@ export function applyPendingDefeats(gameState) {
 
 // ─────────────────────────────────────────────────────────────
 // normalizeMosjeMp
-// 2.0 safety net behind the per-effect gains: every live Mosje with MP >= 100
-// is levelled (MP 0), Level 3 is capped at 95, MP is snapped to the 5-grid and
+// Safety net behind the per-effect gains: every live Mosje below Level 3 with MP >= 100
+// is levelled (MP 10), Level 3 is capped at 100, MP is snapped to the 5-grid and
 // floored at 0. Clones only when something needs changing.
 // ─────────────────────────────────────────────────────────────
 export function normalizeMosjeMp(gameState) {
   const needsWork = (slot) => slot && !slot.isDefeated
-    && (!Number.isFinite(slot.mp) || slot.mp >= 100 || slot.mp % 5 !== 0 || slot.mp < 0
-      || (slot.level === 3 && slot.mp > 95));
+    && (!Number.isFinite(slot.mp) || slot.mp % 5 !== 0 || slot.mp < 0
+      || (slot.level < 3 && slot.mp >= LEVEL_UP_AT)
+      || (slot.level === 3 && slot.mp > LEVEL3_MP_CAP));
   let mutated = false;
   for (const playerId of getAllPlayerIds(gameState)) {
     const slots = gameState.players[playerId]?.activeSlots || [];

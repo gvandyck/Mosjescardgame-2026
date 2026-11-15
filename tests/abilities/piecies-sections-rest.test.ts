@@ -106,8 +106,8 @@ describe('MP Amplifier', () => {
     expect(mp(a)).toBe(30);
     expect(mp(gainMP(a, 'player_1', 0, 15, 'ABILITY'))).toBe(45);
     s.players.player_1.mpAmplifierThisTurn = true;
-    const big = gainMP(s, 'player_1', 0, 80, 'GAIN'); // 80 + 40 = 120: next Level at 0 MP, no carry-over
-    expect([big.players.player_1.activeSlots[0].level, mp(big)]).toEqual([2, 0]);
+    const big = gainMP(s, 'player_1', 0, 80, 'GAIN'); // 80 + 40 = 120: next Level at 10 MP, no carry-over
+    expect([big.players.player_1.activeSlots[0].level, mp(big)]).toEqual([2, 10]);
   });
 
   it('Jeffrey allows MP Amplifier and Synergy Field but not Ronald Kip', () => {

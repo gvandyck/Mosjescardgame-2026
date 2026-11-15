@@ -41,11 +41,12 @@ describe('questWinChance (exact binomial)', () => {
 });
 
 describe('chooseMosjeAction', () => {
-  it('attacks a non-fresh opponent, never a fresh or level-up-protected one', () => {
+  it('attacks a non-fresh opponent, never a fresh one', () => {
     const me = mkSlot({ mp: 60 });
-    const s = board(me, [mkSlot({ mp: 40, entryProtected: true }), mkSlot({ mp: 40, levelUpProtected: true }), mkSlot({ mp: 40 })]);
+    const s = board(me, [mkSlot({ mp: 40, entryProtected: true }), mkSlot({ mp: 40, levelledUpTurn: 1 }), mkSlot({ mp: 40 })]);
     const a = chooseMosjeAction(s, 'player_1', 0);
-    expect(a).toMatchObject({ kind: 'attack', targetPlayerId: 'player_2', targetSlotIndex: 2 });
+    expect(a).toMatchObject({ kind: 'attack', targetPlayerId: 'player_2' });
+    expect(a.targetSlotIndex).not.toBe(0); // slot 1 (just levelled) is a legal target now (2.1)
     expect(attackMosje(s, 'player_1', { attackerSlotIndex: 0, targetPlayerId: a.targetPlayerId, targetSlotIndex: a.targetSlotIndex }).ok).toBe(true);
   });
 

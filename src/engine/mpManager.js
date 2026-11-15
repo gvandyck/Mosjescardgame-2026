@@ -20,8 +20,8 @@ function getActivePlaceId(gameState) {
 // ─────────────────────────────────────────────────────────────
 // gainMP
 // Gives `amount` MP to a specific Mosje slot for a player.
-// Obby 2.0: every gain can level. 100+ MP raises one Level and resets MP to 0
-// (no carry-over); a Level 3 Mosje is capped at 95. See applyGainToSlot.
+// Every gain can level. 100+ MP raises one Level and resets MP to 10
+// (no carry-over); a Level 3 Mosje is capped at 100. See applyGainToSlot.
 //
 // gameState  — full game state object
 // playerId   — which player's Mosje gains MP
@@ -57,7 +57,7 @@ export function gainMP(gameState, playerId, slotIndex, amount, source = 'GAIN') 
 // loseMP
 // Removes `amount` MP from a Mosje through the loss pipeline. MP never goes
 // negative. A real loss (final > 0) leaving 0 MP triggers getemt (applyGetemt):
-// Level 2-3 drops a Level at 50 MP, Level 1 turns sideways, sideways -> Welloe pile.
+// Level 2-3 drops a Level at 10 MP, Level 1 turns sideways, sideways -> Welloe pile.
 //
 // Returns updated gameState.
 // ─────────────────────────────────────────────────────────────
@@ -103,7 +103,7 @@ export function loseMP(gameState, playerId, slotIndex, amount, source = 'DRAIN',
 // ─────────────────────────────────────────────────────────────
 // checkLevelUp
 // Normalises a Mosje's MP after a direct write: 100+ MP raises one Level and
-// resets MP to 0, Level 3 is capped at 95, MP is snapped to the 5-grid.
+// resets MP to 10, Level 3 is capped at 100, MP is snapped to the 5-grid.
 //
 // Returns updated gameState.
 // ─────────────────────────────────────────────────────────────

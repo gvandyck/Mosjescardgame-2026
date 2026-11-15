@@ -37,12 +37,12 @@ async function pickTarget({ state, playerId, modal }) {
 		p.activeSlots.forEach((t, i) => {
 			if (!t || t.isDefeated) return;
 			const ok = isValidAttackTarget(state, playerId, pid, i);
-			const why = isFresh(t) ? 'Fresh - safe' : t.levelUpProtected ? 'Level-up protected' : '';
+			const why = isFresh(t) ? 'Fresh - safe' : '';
 			options.push({ id: `${pid}:${i}`, label: t.name, metaLabel: escapeMeta(ok ? `${t.mp} MP` : why), disabled: !ok });
 		});
 	}
 	if (!options.some(o => !o.disabled)) {
-		await modal.showOptionSelect({ title: 'No valid target', prompt: 'Every opposing Mosje is fresh or protected.', options: [{ id: 'ok', label: 'OK' }] });
+		await modal.showOptionSelect({ title: 'No valid target', prompt: 'Every opposing Mosje is fresh.', options: [{ id: 'ok', label: 'OK' }] });
 		return null;
 	}
 	return modal.showOptionSelect({ title: 'Attack which Mosje?', options, allowCancel: true });

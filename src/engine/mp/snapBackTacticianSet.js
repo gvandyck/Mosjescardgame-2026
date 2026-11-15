@@ -1,6 +1,7 @@
 // snapBackTacticianSet — end of turn: every Mosje under a Tactician set goes back to its real MP plus the gains
-// and losses of the turn (5-grid, 0-95). Never levels up or getemts. Mutates the passed (cloned) state.
+// and losses of the turn (5-grid, 0-100). Never levels up or getemts. Mutates the passed (cloned) state.
 import { roundToFive } from '../roundToFive.js';
+import { LEVEL3_MP_CAP } from './levelRules.js';
 
 export function snapBackTacticianSet(state) {
 	for (const player of Object.values(state.players || {})) {
@@ -9,7 +10,7 @@ export function snapBackTacticianSet(state) {
 			const { realMp, delta } = slot.tacticianSet;
 			delete slot.tacticianSet;
 			if (slot.isDefeated) continue;
-			slot.mp = roundToFive(Math.min(95, Math.max(0, realMp + delta))); // mp-direct-ok: Tactician snap-back
+			slot.mp = roundToFive(Math.min(LEVEL3_MP_CAP, Math.max(0, realMp + delta))); // mp-direct-ok: Tactician snap-back
 		}
 	}
 	return state;

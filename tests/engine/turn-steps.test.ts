@@ -26,14 +26,14 @@ describe("2.0 turn steps", () => {
     expect(out2.players.player_1.activeSlots[0].entryProtected).toBeUndefined();
   });
 
-  it("levelUpProtected clears for the active player only", () => {
+  it("entryProtected clears for the active player only", () => {
     const st = makeEngineState();
-    st.players.player_1.activeSlots[0] = { ...createMosjeSlot(m), levelUpProtected: true };
-    st.players.player_2.activeSlots[0] = { ...createMosjeSlot(m), levelUpProtected: true };
+    st.players.player_1.activeSlots[0] = { ...createMosjeSlot(m), entryProtected: true };
+    st.players.player_2.activeSlots[0] = { ...createMosjeSlot(m), entryProtected: true };
     st.players.player_1.deck = [filler];
     const out = startTurn(st);
-    expect(out.players.player_1.activeSlots[0].levelUpProtected).toBeUndefined();
-    expect(out.players.player_2.activeSlots[0].levelUpProtected).toBe(true);
+    expect(out.players.player_1.activeSlots[0].entryProtected).toBeUndefined();
+    expect(out.players.player_2.activeSlots[0].entryProtected).toBe(true);
   });
 
   it("no MP at turn start (no trickle)", () => {

@@ -61,7 +61,6 @@ describe("attackMosje (E12)", () => {
     ["already acted", { attacker: { actedThisTurn: true } }],
     ["cooldown turn", { p1: { cooldownTurn: true } }],
     ["fresh target", { target: { entryProtected: true } }],
-    ["level-up protected target", { target: { levelUpProtected: true } }],
   ])("refuses %s with no state change", (_n, extra: any) => {
     const s = build(50, extra);
     const before = JSON.stringify(s);

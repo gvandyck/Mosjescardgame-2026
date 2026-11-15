@@ -8,8 +8,6 @@ const SVG = (inner) => `<svg class="tile-badge__icon" viewBox="0 0 16 16" aria-h
 const ICONS = {
 	// four-point sparkle
 	fresh: SVG('<path d="M8 1.2 9.6 6.4 14.8 8 9.6 9.6 8 14.8 6.4 9.6 1.2 8 6.4 6.4Z" fill="currentColor"/>'),
-	// shield
-	protected: SVG('<path d="M8 1.4 13.6 3.4V8c0 3.2-2.3 5.4-5.6 6.6C4.7 13.4 2.4 11.2 2.4 8V3.4Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>'),
 	// crescent moon: asleep, skips a turn
 	sideways: SVG('<path d="M12.6 10.4A5.6 5.6 0 0 1 5.6 3.4a5.6 5.6 0 1 0 7 7Z" fill="currentColor"/>'),
 	// check mark

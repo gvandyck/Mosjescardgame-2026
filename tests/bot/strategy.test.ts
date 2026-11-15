@@ -181,9 +181,9 @@ describe('planPiecieActivations - legal, affordable and useful (61-05)', () => {
       const state = makeState({ piecieSlots: slotsOf('piecie_kannetje_melk', 'piecie_pot_of_weed') }, { activePlace: 'place_the_void' });
       expect(planIds(state)).toEqual(['piecie_pot_of_weed']);
     });
-    it('every own Mosje at Level 3 and 95 MP: no MP gain is planned; one that can still gain brings it back', () => {
+    it('every own Mosje at Level 3 and 100 MP: no MP gain is planned; one that can still gain brings it back', () => {
       const slots = slotsOf('piecie_kannetje_melk');
-      const capped = jammer(95, { level: 3 });
+      const capped = jammer(100, { level: 3 });
       expect(planIds(makeState({ activeSlots: [capped], piecieSlots: slots }))).toEqual([]);
       expect(planIds(makeState({ activeSlots: [capped, jammer(50)], piecieSlots: slots }))).toEqual(['piecie_kannetje_melk']);
     });

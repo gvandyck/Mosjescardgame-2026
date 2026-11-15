@@ -43,20 +43,20 @@ describe('toMosjeTileCards (D-15..D-18, UI-03)', () => {
 		expect(boosted.power).toBe(printed + 20);
 	});
 
-	it('carries the state flags: sideways, levelUpProtected, entryProtected (Fresh), actedThisTurn', () => {
+	it('carries the state flags: sideways, entryProtected (Fresh), actedThisTurn', () => {
 		const plain = toMosjeTileCards(state([slotOf('mosje_binti')], [null, null]), 'player_1')[0];
-		expect([plain.sideways, plain.levelUpProtected, plain.entryProtected, plain.actedThisTurn]).toEqual([false, false, false, false]);
-		const all = toMosjeTileCards(state([slotOf('mosje_binti', {}, { sideways: true, levelUpProtected: true, entryProtected: true, actedThisTurn: true })], [null, null]), 'player_1')[0];
-		expect([all.sideways, all.levelUpProtected, all.entryProtected, all.actedThisTurn]).toEqual([true, true, true, true]);
+		expect([plain.sideways, plain.entryProtected, plain.actedThisTurn]).toEqual([false, false, false]);
+		const all = toMosjeTileCards(state([slotOf('mosje_binti', {}, { sideways: true, entryProtected: true, actedThisTurn: true })], [null, null]), 'player_1')[0];
+		expect([all.sideways, all.entryProtected, all.actedThisTurn]).toEqual([true, true, true]);
 	});
 
-	it('a Tactician set shows the temporary MP as tempMp and the REAL MP (real + delta, 5-grid, 0..95) as mp', () => {
+	it('a Tactician set shows the temporary MP as tempMp and the REAL MP (real + delta, 5-grid, 0..100) as mp', () => {
 		const set = (realMp: number, delta: number) => toMosjeTileCards(
 			state([slotOf('mosje_binti', { mp: 25 }, { tacticianSet: { realMp, delta } })], [null, null]), 'player_1')[0];
 		expect(set(40, 0)).toMatchObject({ tempMp: 25, mp: 40 });
 		expect(set(40, 15)).toMatchObject({ tempMp: 25, mp: 55 });
 		expect(set(40, -60)).toMatchObject({ tempMp: 25, mp: 0 }); // clamped at 0
-		expect(set(90, 40)).toMatchObject({ tempMp: 25, mp: 95 }); // clamped at 95
+		expect(set(90, 40)).toMatchObject({ tempMp: 25, mp: 100 }); // clamped at 100
 		expect(set(40, 12)).toMatchObject({ mp: 50 }); // 52 snaps to the 5-grid
 		const normal = toMosjeTileCards(state([slotOf('mosje_binti', { mp: 25 })], [null, null]), 'player_1')[0];
 		expect('tempMp' in normal).toBe(false);
@@ -74,9 +74,6 @@ describe('getTileBadges (D-15, D-16, D-06)', () => {
 		expect(getTileBadges({ entryProtected: true })).toEqual([
 			{ kind: 'fresh', label: 'FRESH', reason: "Fresh: can't attack, can't be chosen by opponent cards, ignores Places" },
 		]);
-		expect(getTileBadges({ levelUpProtected: true })).toEqual([
-			{ kind: 'protected', label: 'PROTECTED', reason: "Levelled up this turn: can't be attacked" },
-		]);
 		expect(getTileBadges({ sideways: true })).toEqual([
 			{ kind: 'sideways', label: 'SKIPS TURN', reason: 'Hit at Level 1: skips its next turn. Can still be attacked' },
 		]);
@@ -85,9 +82,9 @@ describe('getTileBadges (D-15, D-16, D-06)', () => {
 		]);
 	});
 
-	it('orders fresh, protected, sideways, acted; Level 3 hold is not a badge', () => {
-		const all = getTileBadges({ entryProtected: true, levelUpProtected: true, sideways: true, actedThisTurn: true, level: 3 });
-		expect(all.map((b) => b.kind)).toEqual(['fresh', 'protected', 'sideways', 'acted']);
+	it('orders fresh, sideways, acted; Level 3 hold is not a badge', () => {
+		const all = getTileBadges({ entryProtected: true, sideways: true, actedThisTurn: true, level: 3 });
+		expect(all.map((b) => b.kind)).toEqual(['fresh', 'sideways', 'acted']);
 		expect(getTileBadges({ level: 3 })).toEqual([]);
 	});
 });
@@ -99,14 +96,14 @@ describe('buildTileBadges (T-63-06)', () => {
 	});
 
 	it('one span.tile-badge per badge inside div.tile-badges with data-badge, data-reason, icon and word', () => {
-		const html = buildTileBadges(getTileBadges({ entryProtected: true, levelUpProtected: true }));
+		const html = buildTileBadges(getTileBadges({ entryProtected: true, sideways: true }));
 		expect(html.startsWith('<div class="tile-badges">')).toBe(true);
 		expect(html.match(/<span class="tile-badge /g)).toHaveLength(2);
 		expect(html).toContain('data-badge="fresh"');
-		expect(html).toContain('data-badge="protected"');
-		expect(html).toContain('data-reason="Levelled up this turn: can&#39;t be attacked"');
+		expect(html).toContain('data-badge="sideways"');
+		expect(html).toContain('data-reason="Hit at Level 1: skips its next turn. Can still be attacked"');
 		expect(html).toContain('>FRESH<');
-		expect(html).toContain('>PROTECTED<');
+		expect(html).toContain('>SKIPS TURN<');
 		expect(html.match(/<svg /g)).toHaveLength(2);
 	});
 

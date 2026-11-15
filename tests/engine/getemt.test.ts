@@ -29,24 +29,24 @@ function build(level: number, mp: number, mod?: (slot: any) => void) {
 const slotOf = (s: any) => s.players.player_1.activeSlots[0];
 
 describe("getemt (Obby 2.0 §2b)", () => {
-  it("E4: L2 at 20 loses 30 -> L1 at 50 with level-1 traits", () => {
+  it("E4: L2 at 20 loses 30 -> L1 at 10 with level-1 traits", () => {
     const s = loseMP(build(2, 20), "player_1", 0, 30, "DRAIN");
     expect(slotOf(s).level).toBe(1);
-    expect(slotOf(s).mp).toBe(50);
+    expect(slotOf(s).mp).toBe(10);
     expect(slotOf(s).traits).toEqual(def.levels[0].traits);
   });
 
-  it("E4: L3 at 10 loses 10 -> L2 at 50", () => {
+  it("E4: L3 at 10 loses 10 -> L2 at 10", () => {
     const s = loseMP(build(3, 10), "player_1", 0, 10, "DRAIN");
     expect(slotOf(s).level).toBe(2);
-    expect(slotOf(s).mp).toBe(50);
+    expect(slotOf(s).mp).toBe(10);
     expect(slotOf(s).traits).toEqual(def.levels[1].traits);
   });
 
-  it("exactly 0 after a real loss does getemt: L2 at 15 loses 15 -> L1 at 50", () => {
+  it("exactly 0 after a real loss does getemt: L2 at 15 loses 15 -> L1 at 10", () => {
     const s = loseMP(build(2, 15), "player_1", 0, 15, "DRAIN");
     expect(slotOf(s).level).toBe(1);
-    expect(slotOf(s).mp).toBe(50);
+    expect(slotOf(s).mp).toBe(10);
   });
 
   it("E5: L1 at 10 loses 20 -> stays L1, MP 0, sideways", () => {
@@ -152,12 +152,12 @@ import { activatePiecie } from "../../src/engine/turnManager.js";
 import { makePiecieState } from "../helpers/makePiecieState.js";
 
 describe("Piecie losses (54-13)", () => {
-  it("Affoe on an opponent L2 at 10 -> opponent L1 at 50 (getemt)", () => {
+  it("Affoe on an opponent L2 at 10 -> opponent L1 at 10 (getemt)", () => {
     const st = makePiecieState({ piecieId: "piecie_affoe", foe: { level: 2, mp: 10 } });
     const r = activatePiecie(st, "player_1", 0);
     expect(r.success).toBe(true);
     const foe = r.state.players.player_2.activeSlots[0];
-    expect([foe.level, foe.mp]).toEqual([1, 50]);
+    expect([foe.level, foe.mp]).toEqual([1, 10]);
   });
   it("Affoe on a sideways L1 opponent at 10 -> opponent's Welloe pile", () => {
     const st = makePiecieState({
@@ -179,10 +179,10 @@ import { coertTechExtraResources } from "../../src/abilities/mosje/coertTechExtr
 const coertDraw = (st: any) => coertTechExtraResources.run(JSON.parse(JSON.stringify(st)), { playerId: "player_1", choices: { extra: 1 } });
 
 describe("ability / Quest losses (54-14)", () => {
-  it("failed Quest taking an L2 Mosje to 0 -> L1 at 50", () => {
+  it("failed Quest taking an L2 Mosje to 0 -> L1 at 10", () => {
     // 2.0: Arm Wrestling lose is -30 (Card List), so the L2 Mosje starts at 30 to reach exactly 0.
     const st = forceQuestResult(build(2, 30), "player_1", { questId: "quest_arm_wrestling", win: false });
-    expect([slotOf(st).level, slotOf(st).mp]).toEqual([1, 50]);
+    expect([slotOf(st).level, slotOf(st).mp]).toEqual([1, 10]);
   });
   it("2.0: Coert Extra Resources spends no MP (Energy only, at the draw step) — L2 at 10 stays L2 at 10", () => {
     const st = coertDraw(build(2, 10));

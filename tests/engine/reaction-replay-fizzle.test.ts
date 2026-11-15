@@ -89,7 +89,7 @@ describe("Drain Reversal rider vs the attacker", () => {
     expect(r.ok, r.error).toBe(true);
     const att = slot(r.state, "player_1", 0);
     expect(att.level).toBe(1);
-    expect(att.mp).toBe(50);
+    expect(att.mp).toBe(10);
     expect(att.actedThisTurn).toBe(true);
   });
 });

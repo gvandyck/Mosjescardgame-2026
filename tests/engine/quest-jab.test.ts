@@ -16,18 +16,18 @@ describe("Quest jab (E19)", () => {
     const { s, q } = build("sustained_assault", { opp: [mkSlot({ mp: 10 }), null] });
     expect(opp1(finish(s, q, true, { jabTarget: T })).sideways).toBe(true);
   });
-  it("jab on a L2 Mosje at 5 MP drops it to L1 at 50", () => {
+  it("jab on a L2 Mosje at 5 MP drops it to L1 at 10", () => {
     const { s, q } = build("sustained_assault", { opp: [mkSlot({ mp: 5, level: 2 }), null] });
     const t = opp1(finish(s, q, true, { jabTarget: T }));
-    expect([t.level, t.mp]).toEqual([1, 50]);
+    expect([t.level, t.mp]).toEqual([1, 10]);
   });
   it("fresh target is not targetable and loses nothing", () => {
     const { s, q } = build("sustained_assault", { opp: [mkSlot({ mp: 40, entryProtected: true }), null] });
     expect(getJabTargets(s, "player_1", q.id)).toEqual([]);
     expect(opp1(finish(s, q, true, { jabTarget: T })).mp).toBe(40);
   });
-  it("a level-up-protected target is hit by the jab", () => {
-    const { s, q } = build("sustained_assault", { opp: [mkSlot({ mp: 40, levelUpProtected: true }), null] });
+  it("a just-levelled target is hit by the jab", () => {
+    const { s, q } = build("sustained_assault", { opp: [mkSlot({ mp: 40, levelledUpTurn: 1 }), null] });
     expect(opp1(finish(s, q, true, { jabTarget: T })).mp).toBe(30);
   });
   it("Tough It Out has no jab", () => {

@@ -68,8 +68,8 @@ describe('getTrayActions: Mosje', () => {
 		expect(chip(chips, 'ability')).toMatchObject({ disabled: true, reason: 'This Mosje is sideways' });
 	});
 
-	it("says 'No valid target' when every opposing Mosje is fresh or protected", () => {
-		const s = board([mkSlot({ mp: 40 }), null], [mkSlot({ mp: 40, entryProtected: true }), mkSlot({ mp: 40, levelUpProtected: true })]);
+	it("says 'No valid target' when every opposing Mosje is fresh", () => {
+		const s = board([mkSlot({ mp: 40 }), null], [mkSlot({ mp: 40, entryProtected: true }), mkSlot({ mp: 40, entryProtected: true })]);
 		expect(chip(tray(s), 'attack')).toMatchObject({ disabled: true, reason: 'No valid target' });
 	});
 
@@ -137,13 +137,13 @@ describe('getTrayActions: Piecie and Place', () => {
 });
 
 describe('getAttackTargets', () => {
-	it('marks fresh and protected Mosjes invalid with the short badge and the full reason', () => {
-		const s = board([mkSlot({ mp: 40 }), null], [mkSlot({ mp: 40, entryProtected: true }), mkSlot({ mp: 40, levelUpProtected: true })]);
+	it('marks fresh Mosjes invalid with the short badge and the full reason', () => {
+		const s = board([mkSlot({ mp: 40 }), null], [mkSlot({ mp: 40, entryProtected: true }), mkSlot({ mp: 40, levelledUpTurn: 1 })]);
 		s.players.player_2.activeSlots.push(mkSlot({ mp: 40 }));
 		const targets = getAttackTargets(s, 'player_1');
 		expect(targets).toEqual([
 			{ playerId: 'player_2', slotIndex: 0, valid: false, short: 'Fresh', reason: "Fresh Mosjes can't be attacked" },
-			{ playerId: 'player_2', slotIndex: 1, valid: false, short: 'Protected', reason: "Level-up protected: can't be attacked this turn" },
+			{ playerId: 'player_2', slotIndex: 1, valid: true, short: '', reason: '' }, // levelled up: can be attacked (2.1)
 			{ playerId: 'player_2', slotIndex: 2, valid: true, short: '', reason: '' },
 		]);
 	});

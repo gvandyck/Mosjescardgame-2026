@@ -50,7 +50,7 @@ function assertInvariants(state: any, turn: number): void {
       expect(s.mp < 100 && (s.level < 3 || s.mp <= 95), `${tag} mp=${s.mp} level=${s.level}`).toBe(true);
       expect([1, 2, 3], `${tag} level=${s.level}`).toContain(s.level);
       const pw = getPower(s);
-      expect(pw % 10 === 0 && pw >= 0, `${tag} power=${pw}`).toBe(true);
+      expect(pw % 5 === 0 && pw >= 0, `${tag} power=${pw}`).toBe(true);
     }
   }
 }

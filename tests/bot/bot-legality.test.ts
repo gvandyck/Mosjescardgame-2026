@@ -58,7 +58,7 @@ function analyse(game) {
 			if (!attacker || isFresh(attacker)) flag(step, `attacker slot ${action.attackerSlotIndex} is fresh or missing`);
 			if (!isValidAttackTarget(before, playerId, action.targetPlayerId, action.targetSlotIndex)) {
 				const t = targetOf(before, action);
-				flag(step, `invalid target ${action.targetPlayerId}#${action.targetSlotIndex} (${t?.cardId}, fresh=${t?.entryProtected}, levelUpProtected=${t?.levelUpProtected})`);
+				flag(step, `invalid target ${action.targetPlayerId}#${action.targetSlotIndex} (${t?.cardId}, fresh=${t?.entryProtected})`);
 			}
 			const b = targetOf(before, action);
 			const a = targetOf(after, action);

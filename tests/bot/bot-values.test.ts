@@ -16,7 +16,7 @@ const clone = (x) => JSON.parse(JSON.stringify(x));
 
 describe('BOT_VALUES: data only', () => {
 	it('holds the valuation constants', () => {
-		expect(BOT_VALUES).toEqual({ LEVEL_BONUS: [0, 25, 200], SIDEWAYS_PENALTY: 25, WELLOE_WORTH: -145, L3_MP_CAP: 95 });
+		expect(BOT_VALUES).toEqual({ LEVEL_BONUS: [0, 25, 200], SIDEWAYS_PENALTY: 25, WELLOE_WORTH: -145, L3_MP_CAP: 100 });
 	});
 });
 
@@ -46,15 +46,15 @@ describe('slotWorth: one Mosje by level, MP and status', () => {
 describe('valueOfGain: a hypothetical gain under the 2.0 level rule', () => {
 	it.each([
 		['plain gain on Level 1', slot(1, 40), 25, 25],
-		['100 MP reached: next level at 0 MP', slot(1, 90), 25, 35],
-		['Level 2 -> Level 3 at 0 MP', slot(2, 90), 25, 185],
-		['Level 3 stops at 95', slot(3, 80), 25, 15],
-		['Level 3 already at 95', slot(3, 95), 25, 0],
+		['100 MP reached: next level at 10 MP', slot(1, 90), 25, 45],
+		['Level 2 -> Level 3 at 10 MP', slot(2, 90), 25, 195],
+		['Level 3 stops at 100', slot(3, 80), 25, 20],
+		['Level 3 already at 100', slot(3, 100), 25, 0],
 		['a zero gain', slot(1, 40), 0, 0],
 		['a gain off the 5-grid rounds to 10', slot(1, 40), 12, 10],
 		['a negative gain is nothing', slot(1, 40), -10, 0],
 		['a sideways Mosje gains the same MP', slot(1, 20, { sideways: true }), 25, 25],
-		['a sideways Mosje that levels up stays sideways', slot(1, 90, { sideways: true }), 25, 35],
+		['a sideways Mosje that levels up stays sideways', slot(1, 90, { sideways: true }), 25, 45],
 	])('%s', (_name, s, amount, value) => {
 		expect(valueOfGain(s, amount)).toBe(value);
 	});
@@ -78,8 +78,8 @@ describe('valueOfLoss: a hypothetical loss under the getemt rule', () => {
 		['loss past 0 on Level 1: sideways at 0 MP', slot(1, 20), 30, 45],
 		['loss to exactly 0 is getemt', slot(1, 15), 15, 40],
 		['loss past 0 on a sideways Level 1: Welloe pile', slot(1, 20, { sideways: true }), 30, 140],
-		['Level 2 drops one level at 50 MP', slot(2, 20), 30, 95],
-		['Level 3 drops one level at 50 MP', slot(3, 30), 40, 255],
+		['Level 2 drops one level at 10 MP', slot(2, 20), 30, 135],
+		['Level 3 drops one level at 10 MP', slot(3, 30), 40, 295],
 		['a zero loss', slot(1, 30), 0, 0],
 		['a negative loss is nothing', slot(1, 30), -5, 0],
 		['a loss off the 5-grid rounds to 30', slot(1, 50), 28, 30],
@@ -93,8 +93,8 @@ describe('valueOfLoss: a hypothetical loss under the getemt rule', () => {
 	});
 
 	it('a Level 2 sideways Mosje keeps its sideways flag when it drops', () => {
-		// Level 2 sideways 20 MP: worth 100 + 20 + 25 - 25 = 120; after getemt Level 1 sideways 50 MP: 50 - 25 = 25.
-		expect(valueOfLoss(slot(2, 20, { sideways: true }), 30)).toBe(95);
+		// Level 2 sideways 20 MP: worth 100 + 20 + 25 - 25 = 120; after getemt Level 1 sideways 10 MP: 10 - 25 = -15.
+		expect(valueOfLoss(slot(2, 20, { sideways: true }), 30)).toBe(135);
 	});
 
 	it('never touches the slot it was given', () => {
@@ -139,7 +139,7 @@ describe('opponentThreat: the Power the opponent can hit with on their next turn
 	});
 
 	it('follows the level row: a Level 2 Mosje hits harder', () => {
-		expect(opponentThreat(table([wizard({ level: 2, mp: 10 }), null]), BOT)).toBe(20);
+		expect(opponentThreat(table([wizard({ level: 2, mp: 10 }), null]), BOT)).toBe(15);
 	});
 
 	it('follows the Power boosts the engine counts', () => {

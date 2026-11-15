@@ -109,7 +109,7 @@ describe("Michelle: Tough Gamble (one gain)", () => {
   it("die 5 doubles: 40 MP + Arm Wrestling 40 -> one gain of 80 -> Level 2 at 0 MP", () => {
     const m = win(5, 40);
     expect(m.level).toBe(2);
-    expect(m.mp).toBe(0);
+    expect(m.mp).toBe(10);
   });
   it("die 2 halves the win (5-grid): +20", () => {
     expect(win(2, 40).mp).toBe(60);

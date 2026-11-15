@@ -25,7 +25,7 @@ describe("E27 gain side: grid invariants", () => {
       expect(s.mp).toBeGreaterThanOrEqual(0);
       expect(s.level).toBeGreaterThanOrEqual(1);
       expect(s.level).toBeLessThanOrEqual(3);
-      if (s.level === 3) expect(s.mp).toBeLessThanOrEqual(95);
+      if (s.level === 3) expect(s.mp).toBeLessThanOrEqual(100);
       else expect(s.mp).toBeLessThan(100);
     }
   });

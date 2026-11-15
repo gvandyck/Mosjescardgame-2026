@@ -94,15 +94,15 @@ describe("E26 The Tactician: snap-back", () => {
 });
 
 describe("E26 The Tactician: getemt and level-up end the set early", () => {
-  it("E26 real 60 L2, set 10, loses 10 -> getemt works (L1, 50 MP) and no snap-back on top", () => {
+  it("E26 real 60 L2, set 10, loses 10 -> getemt works (L1, 10 MP) and no snap-back on top", () => {
     let s = set(board(60, 2), 10).state;
     s = loseMP(s, "player_1", 0, 10, "ABILITY", false, "player_2");
     const slot = s.players.player_1.activeSlots[0];
     expect(slot.level).toBe(1);
-    expect(slot.mp).toBe(50);
+    expect(slot.mp).toBe(10);
     expect(slot.tacticianSet).toBeUndefined();
     s = endTurn(s);
-    expect(mp(s)).toBe(50);
+    expect(mp(s)).toBe(10);
     expect(s.players.player_1.activeSlots[0].level).toBe(1);
   });
 

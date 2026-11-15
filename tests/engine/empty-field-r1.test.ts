@@ -48,11 +48,12 @@ describe("E9 — R1 empty field", () => {
 });
 
 describe("level-up flag and this-turn effects", () => {
-  it("crossing 100 sets levelUpProtected", () => {
+  it("crossing 100 sets no protection (2.1)", () => {
     const slot = createMosjeSlot(cheap, { mp: 95 });
     applyGainToSlot(slot, 5, { turnNumber: 1 });
     expect(slot.level).toBe(2);
-    expect(slot.levelUpProtected).toBe(true);
+    expect(slot.levelUpProtected).toBeUndefined();
+    expect(slot.mp).toBe(10);
   });
 
   it("powerBoostThisTurn counts in getPower and expires at end of turn", () => {

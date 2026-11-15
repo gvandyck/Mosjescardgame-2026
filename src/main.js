@@ -1011,7 +1011,7 @@ function initGamePage() {
 			// set up exactly the board it needs (e.g. two Mosjes for Tuk Healer/Tactician,
 			// or a specific opponent Mosje for a defeat chain). slotIndex 0 or 1.
 			// Pass cardId=null to clear the slot.
-			setMosjeOnField(playerId, slotIndex, cardId, { mp = 10, level = 1, entryProtected = false, levelUpProtected = false, sideways = false, powerBoost = 0, pendingWelloe = false } = {}) {
+			setMosjeOnField(playerId, slotIndex, cardId, { mp = 10, level = 1, entryProtected = false, sideways = false, powerBoost = 0, pendingWelloe = false } = {}) {
 				const player = gameState?.players?.[playerId];
 				if (!player) return;
 				if (cardId == null) { player.activeSlots[slotIndex] = null; renderFromState(gameState); return; }
@@ -1021,7 +1021,6 @@ function initGamePage() {
 				// U8 — seeded test Mosjes are UNPROTECTED by default (card tests
 				// model an established board); pass entryProtected:true to test U8.
 				if (!entryProtected) delete seeded.entryProtected;
-				if (levelUpProtected) seeded.levelUpProtected = true; // 63-04: the "levelled up this turn" shield (Protected badge)
 				if (sideways) seeded.sideways = true;
 				if (pendingWelloe) seeded._pendingWelloe = true; // 61.1: seeds the lingering getemt-while-sideways flag (Perfect Dodge repro)
 				if (powerBoost) seeded.powerBoost = powerBoost; // card tests: a Power-40 attacker (Momentum Stabilizer)

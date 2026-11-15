@@ -73,7 +73,7 @@ describe("Gandoe <-> Michelle synergy", () => {
     const michelle = result.players.player_1.activeSlots[1];
 
     expect(michelle.level).toBe(2);
-    // 2.0: Tough Gamble (die 4 = double) is a questWinAmount modifier: ONE gain of 80 -> Level 2 at 0 MP.
-    expect(michelle.mp).toBe(0);
+    // 2.0: Tough Gamble (die 4 = double) is a questWinAmount modifier: ONE gain of 80 -> Level 2 at 10 MP.
+    expect(michelle.mp).toBe(10);
   });
 });

@@ -20,34 +20,34 @@ const def = MOSJES.find((m: any) => m.id === "mosje_gandoe_wizard");
 const slot = (level: number, mp: number) => createMosjeSlot(def, { level, mp });
 
 describe("applyGainToSlot (E3, E7b)", () => {
-  it("E3: L1 at 95 + 10 -> L2 at 0 MP with level-2 traits and levelledUpTurn", () => {
+  it("E3: L1 at 95 + 10 -> L2 at 10 MP with level-2 traits and levelledUpTurn", () => {
     const s = slot(1, 95);
     const r = applyGainToSlot(s, 10, { turnNumber: 4 });
     expect(r.leveled).toBe(true);
     expect(s.level).toBe(2);
-    expect(s.mp).toBe(0);
+    expect(s.mp).toBe(10);
     expect(s.traits).toEqual(def.levels[1].traits);
     expect(s.levelledUpTurn).toBe(4);
   });
-  it("L2 at 95 + 10 -> L3 at 0", () => {
+  it("L2 at 95 + 10 -> L3 at 10", () => {
     const s = slot(2, 95);
     applyGainToSlot(s, 10);
     expect(s.level).toBe(3);
-    expect(s.mp).toBe(0);
+    expect(s.mp).toBe(10);
   });
-  it("one level per gain: L1 at 90 + 200 -> L2 at 0", () => {
+  it("one level per gain: L1 at 90 + 200 -> L2 at 10", () => {
     const s = slot(1, 90);
     applyGainToSlot(s, 200);
     expect(s.level).toBe(2);
-    expect(s.mp).toBe(0);
+    expect(s.mp).toBe(10);
   });
-  it("E7b: L3 at 90 + 25 -> 95, and L3 at 95 + 5 stays 95", () => {
+  it("E7b: L3 at 90 + 25 -> 100, and L3 at 100 + 5 stays 100", () => {
     const s = slot(3, 90);
     applyGainToSlot(s, 25);
-    expect(s.mp).toBe(95);
+    expect(s.mp).toBe(100);
     expect(s.level).toBe(3);
     applyGainToSlot(s, 5);
-    expect(s.mp).toBe(95);
+    expect(s.mp).toBe(100);
   });
   it("ignores 0, negative, NaN gains and defeated slots", () => {
     const s = slot(1, 40);
@@ -68,8 +68,8 @@ describe("normalizeSlotMp", () => {
   it("levels, caps, snaps and floors", () => {
     const a = slot(1, 5); a.mp = 105;
     expect(normalizeSlotMp(a, { turnNumber: 2 })).toBe(true);
-    expect([a.level, a.mp, a.levelledUpTurn]).toEqual([2, 0, 2]);
-    const b = slot(3, 5); b.mp = 120; normalizeSlotMp(b); expect(b.mp).toBe(95);
+    expect([a.level, a.mp, a.levelledUpTurn]).toEqual([2, 10, 2]);
+    const b = slot(3, 5); b.mp = 120; normalizeSlotMp(b); expect(b.mp).toBe(100);
     const c = slot(1, 5); c.mp = 33; normalizeSlotMp(c); expect(c.mp).toBe(35);
     const d = slot(1, 5); d.mp = -10; normalizeSlotMp(d); expect(d.mp).toBe(0);
     const e = slot(1, 5); e.mp = NaN; normalizeSlotMp(e); expect(e.mp).toBe(0);
@@ -91,16 +91,16 @@ function makeState(mp: number, level: number) {
 }
 
 describe("engine wrappers", () => {
-  it("gainMP: L1 at 95 + 10 -> L2 at 0 and levelledUpTurn = turnNumber", () => {
+  it("gainMP: L1 at 95 + 10 -> L2 at 10 and levelledUpTurn = turnNumber", () => {
     const out = gainMP(makeState(95, 1), "player_1", 0, 10, "GAIN");
     const s = out.players.player_1.activeSlots[0];
-    expect([s.level, s.mp, s.levelledUpTurn]).toEqual([2, 0, 6]);
+    expect([s.level, s.mp, s.levelledUpTurn]).toEqual([2, 10, 6]);
   });
   it("checkVictory backstop levels a >=100 Mosje", () => {
     const st = makeState(5, 1);
     st.players.player_1.activeSlots[0].mp = 105;
     const s = checkVictory(st).players.player_1.activeSlots[0];
-    expect([s.level, s.mp]).toEqual([2, 0]);
+    expect([s.level, s.mp]).toEqual([2, 10]);
   });
   // 2.0 (55-02): the V4 +10 turn trickle is gone, so a Mosje at 95 no longer
   // levels at turn start; it stays Level 1 at 95 MP.
@@ -125,27 +125,27 @@ import { effect_kannetje_melk } from "../../src/abilities/piecieEffects.js";
 
 describe("Piecie gains (54-13)", () => {
   // Called on the bare effect (no checkVictory) so the normaliser backstop cannot mask a missing funnel.
-  it("effect alone: Kannetje Melk on L1 at 95 -> L2 at 0 MP", () => {
+  it("effect alone: Kannetje Melk on L1 at 95 -> L2 at 10 MP", () => {
     const st = makePiecieState({ piecieId: "piecie_kannetje_melk", own: { level: 1, mp: 95 } });
     const s = effect_kannetje_melk(st, "player_1").players.player_1.activeSlots[0];
-    expect([s.level, s.mp]).toEqual([2, 0]);
+    expect([s.level, s.mp]).toEqual([2, 10]);
   });
   it("effect alone: Kannetje Melk at L3 90 caps at 95", () => {
     const st = makePiecieState({ piecieId: "piecie_kannetje_melk", own: { level: 3, mp: 90 } });
     const s = effect_kannetje_melk(st, "player_1").players.player_1.activeSlots[0];
-    expect([s.level, s.mp]).toEqual([3, 95]);
+    expect([s.level, s.mp]).toEqual([3, 100]);
   });
-  it("E3 via Piecie: Kannetje Melk on L1 at 95 -> L2 at 0 MP", () => {
+  it("E3 via Piecie: Kannetje Melk on L1 at 95 -> L2 at 10 MP", () => {
     const st = makePiecieState({ piecieId: "piecie_kannetje_melk", own: { level: 1, mp: 95 } });
     const r = activatePiecie(st, "player_1", 0);
     expect(r.success).toBe(true);
     const s = r.state.players.player_1.activeSlots[0];
-    expect([s.level, s.mp]).toEqual([2, 0]);
+    expect([s.level, s.mp]).toEqual([2, 10]);
   });
   it("E7b via Piecie: Kannetje Melk at L3 90 caps at 95", () => {
     const st = makePiecieState({ piecieId: "piecie_kannetje_melk", own: { level: 3, mp: 90 } });
     const s = activatePiecie(st, "player_1", 0).state.players.player_1.activeSlots[0];
-    expect([s.level, s.mp]).toEqual([3, 95]);
+    expect([s.level, s.mp]).toEqual([3, 100]);
   });
 });
 
@@ -169,20 +169,20 @@ function abilityState(level: number, mp: number, defId = "mosje_gandoe_wizard") 
 const mine = (st: any) => st.players.player_1.activeSlots[0];
 
 describe("ability / Quest / Snelle gains (54-14)", () => {
-  it("E3 from a Quest: success taking L1 at 95 over 100 -> L2 at 0 MP", () => {
+  it("E3 from a Quest: success taking L1 at 95 over 100 -> L2 at 10 MP", () => {
     // 2.0 Quick Thinking win is +25 (Card List): 95 + 25 = 120 -> L2 at 0.
     const st = forceQuestResult(abilityState(1, 95), "player_1", { questId: "quest_quick_thinking", win: true });
-    expect([mine(st).level, mine(st).mp]).toEqual([2, 0]);
+    expect([mine(st).level, mine(st).mp]).toEqual([2, 10]);
   });
-  it("Jeffrey Brute Force (+10 after a Quest) can level: L1 at 70 + Quest 25 -> L2 at 0", () => {
+  it("Jeffrey Brute Force (+10 after a Quest) can level: L1 at 70 + Quest 25 -> L2 at 10", () => {
     // Start 70 (was 90 with a V4 +5 Quest): 70 + 25 = 95 stays L1, then Brute Force +10 = 105 -> L2 at 0
     const st = forceQuestResult(abilityState(1, 70, "mosje_jeffrey"), "player_1", { questId: "quest_quick_thinking", win: true });
-    expect([mine(st).level, mine(st).mp]).toEqual([2, 0]);
+    expect([mine(st).level, mine(st).mp]).toEqual([2, 10]);
   });
-  it("Momentum Rush (Snelle, bare effect): L1 at 95 -> L2 at 0; L3 at 90 caps at 95", () => {
+  it("Momentum Rush (Snelle, bare effect): L1 at 95 -> L2 at 10; L3 at 90 caps at 100", () => {
     const a = effect_snelle_momentum_rush(abilityState(1, 95), "player_1");
-    expect([mine(a).level, mine(a).mp]).toEqual([2, 0]);
+    expect([mine(a).level, mine(a).mp]).toEqual([2, 10]);
     const b = effect_snelle_momentum_rush(abilityState(3, 90), "player_1");
-    expect([mine(b).level, mine(b).mp]).toEqual([3, 95]);
+    expect([mine(b).level, mine(b).mp]).toEqual([3, 100]);
   });
 });
