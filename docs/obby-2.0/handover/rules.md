@@ -104,3 +104,10 @@ One clean statement of the rules as they stand, for the code handover. Sources: 
 ## 14. Not in this handover
 - **Ultimate Mosjes** (a stat-boost card placed on a Mosje; free at Level 3, 3 Energy below): ruled on 30–31 Oct, but no Ultimate card has been designed yet.
 - **The 38 general Quests:** their texts have not been through the wording pass (see the handoff).
+
+## 15. Rulings (during the build)
+Answers Gandalf gives on a rule or a card while the design update is being built (milestone v2.1). Newest last. Where a ruling changes a card text, `wording-pass.md` and the generated `cards.json` / `card-list.md` are updated too.
+
+| Date | Phase | Question | Ruling |
+|---|---|---|---|
+| — | — | — | (none yet) |

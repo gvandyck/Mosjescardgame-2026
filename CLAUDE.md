@@ -35,11 +35,12 @@ The design is done for the rules and the three starter decks (FINAL on 15 Nov 20
 - **Scope now:** the rules and the three starter decks. Booster cards are not FINAL; don't add or change them until Gandalf says so.
 - **Deploy:** the 2.0 game deploys by FTP from the branch `obby-2.0` through `.github/workflows/deploy-obby2.yml` (GitHub secrets hold the FTP login; nothing is uploaded by hand). Work on a branch and merge into `obby-2.0` only with green tests. Never merge `obby-2.0` into `main`: `main` is the old V4 game at eightytwenty.nl/cardgame2026.
 - The older docs in `docs/obby-2.0/` (phase docs, the 10 Oct Card List and Claude Code Handoff) are history; `docs/obby-2.0/README.md` says which docs are current.
+- **Where the work happens (milestone v2.1, from 15 Nov 2026):** branch `feature/v2.1-design-update`; one release at the end as `2.0-A.14`. Plan and progress: `.planning/STATE.md` and `.planning/ROADMAP.md` (Phases 68–74). Rulings Gandalf makes go into `docs/obby-2.0/handover/rules.md` §15; every live version gets an entry in `docs/obby-2.0/CHANGELOG.md` and a git tag. The phone layout (Phase 65) is parked on `ui/mobile-play-65`.
 
 ---
 
 ## What this project is
-A card game engine for the Mosjes Card Game — a friend-group trading card game where players race to Level 3 by earning Momentum Points (MP) through Quests. **This is a digital prototype used to playtest the rules, card interactions, chains, and multiplayer before printing a physical card game.** Priorities: a clean prototype, easy editing of cards/abilities, working multiplayer (P2P + bot), and tests that verify *real* card behavior (not hallucinated).
+A card game engine for the Mosjes Card Game — a friend-group trading card game where players level their Mosjes up to Level 3 by earning Momentum Points (MP) through Quests (2.0: and then win with a Personal Quest). **This is a digital prototype used to playtest the rules, card interactions, chains, and multiplayer before printing a physical card game.** Priorities: a clean prototype, easy editing of cards/abilities, working multiplayer (P2P + bot), and tests that verify *real* card behavior (not hallucinated).
 
 ## 🧭 Architecture: ONE engine — single source of truth
 There used to be **two** engines defining every card (a duplication tax — every change needed two edits). We are consolidating to a **single source of truth: the imperative JavaScript engine** that actually runs the live game.
@@ -56,10 +57,9 @@ The retired **declarative TypeScript engine** (the old second definition of ever
 > The old "two card systems — reconcile both + docs" rule is **obsolete**. There is now ONE source of truth (the `.js` engine). When you add or change a card, edit it **once** in the `.js` engine + its docs. Do not create or maintain a parallel `.ts` definition.
 
 Read these docs before touching anything:
-- `/docs/developer-handoff.md` — full architecture overview
-- `/docs/card-reference.md` — what is and isn't implemented
-- `/docs/phase0-rulings.md` — canonical game rules
-- `/docs/phase10-report.md` — latest simulation results
+- `/docs/developer-handoff.md` — full architecture overview (and the deploy)
+- For Obby 2.0 work: `docs/obby-2.0/handover/README.md`, `handover/rules.md` (canonical 2.0 rules) and `handover/cards.json` / `card-list.md` (card texts)
+- For V4 work on `main` only: `/docs/card-reference.md`, `/docs/phase0-rulings.md` (V4 rules), `/docs/phase10-report.md` (old simulation results)
 
 ### 🛑 If a doc file is missing — STOP
 If any of the above files do not exist, **do not proceed**. Do not guess, do not infer from the code, do not work around it. Stop and tell the user which file is missing and ask them how to proceed. Example: "I can't find `/docs/phase0-rulings.md`. Should I continue without it, or can you add it first?" Never silently fall back to reading source code as a substitute for missing documentation.
@@ -86,16 +86,16 @@ Name branches clearly: `feature/`, `fix/`, `card/`, `ui/`, `test/`. Only merge t
 Every exported function lives in its own file. No barrel files with multiple function exports.
 
 ```
-src/effects/apply-mp-gain.ts       ✅
-src/effects/index.ts (re-exports only, no logic)  ✅
-src/effects/mp-utils.ts (3 functions)  ❌
+src/engine/mp/applyMpGain.js       ✅
+src/engine/mp/index.js (re-exports only, no logic)  ✅
+src/engine/mp/mpUtils.js (3 functions)  ❌
 ```
 
 ### Small files are better files
 Prefer many small files over few large ones. A file over ~80 lines is a warning sign. If it's getting long, split it. Smaller files are easier to test, easier to find bugs in, and easier to reason about.
 
 ### Keep card definitions as pure data
-No logic inside card definition files. Card files describe *what* a card is (name, type, cost, traits, effect references). All behaviour lives in `/src/effects/`.
+No logic inside card definition files. Card files describe *what* a card is (name, type, cost, traits, effect references). All behaviour lives in `src/abilities/` and `src/engine/` (the examples below show the idea; the live code is plain `.js`).
 
 ```typescript
 // ✅ Card file — data only
@@ -114,7 +114,7 @@ export const jiscaCard: CardDefinition = {
 ```
 
 ### Pure functions in engine and effects
-`/src/engine/` and `/src/effects/` must contain only pure functions: same input → same output, no side effects, no mutation.
+New code in `src/engine/` and `src/abilities/` should be pure functions where the engine allows it: same input → same output, no hidden side effects.
 
 ---
 
@@ -169,7 +169,8 @@ If tests fail after your change, fix it before doing anything else. Do not stack
 **Step 3 — After any change to MP gain/loss, quests, or level logic:**
 Re-run the Ronald Kip stacking test specifically, then the full simulation:
 ```bash
-node --loader ts-node/esm src/simulation/run-once.ts
+npx vitest run tests/engine/ronald-kip-stacking.test.ts
+npm run test:sim
 ```
 Target: 0 crashes, timeout rate < 25%.
 
@@ -185,7 +186,7 @@ A new card needs at minimum:
 3. If it touches MP, re-run the Ronald Kip stacking test
 
 ### When adding a new card
-Follow the exact pattern in `/src/cards/proof/proof-simple-gain.ts`.
+Add the data in `src/data/*.js`, the effect in `src/abilities/` or `src/engine/`, and a card test in `tests/ui/cards/` (the card-test-library registries). Follow the nearest existing card of the same kind.
 
 ---
 
@@ -194,32 +195,34 @@ Follow the exact pattern in `/src/cards/proof/proof-simple-gain.ts`.
 If your change touches MP gain, MP costs, level thresholds, or Quest completion logic:
 1. Re-run the Ronald Kip stacking test specifically
 2. Run the full simulation after
-3. Check `/docs/phase0-rulings.md` to confirm the ruling before assuming something is a bug
+3. Check the rules doc to confirm the ruling before assuming something is a bug (`docs/obby-2.0/handover/rules.md` for 2.0, `/docs/phase0-rulings.md` for V4)
 
 ---
 
 ## Current project state at a glance
 
-| Layer | Status |
+| What | Status (15 Nov 2026) |
 |---|---|
-| TypeScript engine | ✅ Feature-complete (Phase 11) |
-| Tests | ✅ 536 passing |
-| Card implementations | ✅ All cards, Phases 1–11 |
-| UI layer | 🔨 In progress |
-| Firebase multiplayer | 📋 Planned |
-| Additional cards | 📋 Planned |
+| V4 game | On `main`, live at eightytwenty.nl/cardgame2026; leave it alone |
+| Obby 2.0, 10 Oct design | Live at eightytwenty.nl/obbycardgame2 as `2.0-A.3` (branch `obby-2.0`) |
+| Obby 2.0, 15 Nov design update | Being built on `feature/v2.1-design-update` (milestone v2.1) |
+| Phone layout | Parked on `ui/mobile-play-65` |
+| Online rooms, accounts | Later (slices B and C) |
 
-Architecture: immutable reducer pattern. State is never mutated — every action returns a new state object.
+Up-to-date numbers (tests, phases) are in `.planning/STATE.md`, not here.
 
 ---
 
 ## Quick reference: key paths
 
 ```
-/src/engine/          — core game loop, pure functions only
-/src/effects/         — card effect implementations, pure functions only
-/src/cards/           — card definitions (data only, no logic)
-/src/simulation/      — simulation runner
-/src/ui/              — UI layer (in progress)
-/docs/                — all design docs, read before changing things
+src/data/         — card data (data only, no logic)
+src/abilities/    — card effects
+src/engine/       — game loop and rules
+src/rules/        — rule tables
+src/bot/          — the bot
+src/ui/           — board, hand, card faces, modals
+tests/            — unit tests (npm test); tests/ui/ = Playwright against the real game
+docs/obby-2.0/    — the 2.0 design; handover/ is current
+docs/             — V4 docs and the developer handoff
 ```
