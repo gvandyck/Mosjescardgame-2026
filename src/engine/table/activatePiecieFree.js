@@ -59,7 +59,7 @@ function freeCore(gameState, playerId, source, opts) {
 		player.piecieSlots[slotIndex] = { cardId, type: 'PIECIE', faceDown: false, activated: true, playedOnTurn: state.turnNumber };
 	}
 	const res = resolvePiecieActivation(state, playerId, slotIndex, def, { free: true });
-	if (slotIndex < 0 && res.success && !res.negated) {
+	if (slotIndex < 0 && res.success && !res.negated && !def.attach) { // an Attach card ends on its Mosje (or the pile)
 		const me = res.state.players[playerId];
 		const back = opts.returnTo || 'discard';
 		if (back === 'deck') me.deck.push({ ...card, faceDown: false });

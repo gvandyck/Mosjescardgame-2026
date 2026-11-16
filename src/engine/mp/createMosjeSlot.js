@@ -18,6 +18,7 @@ export function createMosjeSlot(mosjeDef, { level = 1, mp } = {}) {
     sideways: false,
     isDefeated: false,
     statusEffects: [],
+    attachments: [], // cards attached to this Mosje: { cardId, attachedTurn } (rules section 8)
     abilityUsedThisTurn: false,
     immuneThisTurn: false,
     mpLostThisTurn: 0,

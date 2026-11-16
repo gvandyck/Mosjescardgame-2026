@@ -8,6 +8,7 @@ import { QUESTS } from '../data/quests.js';
 import { buildDeck } from './deckEngine.js';
 import { ENERGY_START } from './energy/energyRules.js';
 import { createMosjeSlot } from './mp/createMosjeSlot.js';
+import { dropAttachments } from './attachments/dropAttachments.js';
 import { isFresh } from './fresh/isFresh.js';
 import { PIECIE_SLOT_COUNT } from './table/tableRules.js';
 import { OPENING_HAND_SIZE } from './setup/setupRules.js';
@@ -334,6 +335,7 @@ export function returnMosjeToHand(gameState, playerId, slotIndex) {
     },
   };
 
+  dropAttachments(player, slot); // attached cards go to the pile, none returns with the Mosje
   player.activeSlots[slotIndex] = null;
   if (!Array.isArray(player.returnedMosjesThisTurn)) player.returnedMosjesThisTurn = [];
   if (!player.returnedMosjesThisTurn.includes(slot.cardId)) {

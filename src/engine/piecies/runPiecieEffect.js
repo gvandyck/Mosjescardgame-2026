@@ -7,15 +7,16 @@
 // Returns { state, paused }.
 import * as piecieEffects from '../../abilities/piecieEffects.js';
 import { takeHeldMod } from '../reactions/takeHeldMod.js';
+import { withAttach } from '../attachments/withAttach.js';
 
 const MAX_AUTO_PICKS = 3;
 
 function runOnce(state, playerId, cardDef, ctx, extra) {
-	const fn = piecieEffects[cardDef.effectId];
-	if (typeof fn !== 'function') {
-		console.warn(`[ENGINE] No effect function found for: ${cardDef.effectId}`);
-		return { state, paused: false };
-	}
+	const own = piecieEffects[cardDef.effectId];
+	if (typeof own !== 'function') console.warn(`[ENGINE] No effect function found for: ${cardDef.effectId}`);
+	// An Attach card moves onto a Mosje first (attachStep), then its own effect runs, if it has one.
+	const fn = cardDef.attach ? withAttach(own, cardDef) : own;
+	if (typeof fn !== 'function') return { state, paused: false };
 	const autoKeys = [...(extra.autoKeys || [])];
 	let tctx = { ...ctx };
 	for (let pick = 0; ; pick++) {
@@ -55,7 +56,8 @@ export function runPiecieEffect(state, playerId, cardDef, ctx = {}, extra = {}) 
 	const first = runOnce(state, playerId, cardDef, ctx, extra);
 	if (first.paused) return first;
 	state = first.state;
-	if (takeHeldMod(state, 'double', playerId)) {
+	// Dubbele Temminks never doubles the attach itself (a second run would attach the same card twice): it is used up.
+	if (takeHeldMod(state, 'double', playerId) && !cardDef.attach) {
 		// The second run picks its targets again (same or new): every pick of the first run is used up.
 		for (const pl of Object.values(state.players)) pl._pendingTargets = {};
 		const second = runOnce(state, playerId, cardDef, { ...ctx, resume: false }, { after: extra.after, copy: extra.copy });

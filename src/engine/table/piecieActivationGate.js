@@ -12,6 +12,7 @@ export function piecieActivationGate(state, playerId, cardDef) {
 	if (jeffreyActive && GIVES_MP_PIECIES.has(cardDef?.id)) {
 		return 'Jeffrey, The Strongman: you cannot activate Piecies that give MP';
 	}
+	if (cardDef?.attach && !player?.activeSlots?.some(s => s && !s.isDefeated)) return 'Attach needs one of your Mosjes on the field';
 	const levelGate = levelGateError(state, playerId, cardDef);
 	if (levelGate) return levelGate;
 	const check = PIECIE_CONDITIONS[cardDef?.id]; // "Only if / Needs" - checked before any Energy is paid
