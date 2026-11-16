@@ -33,10 +33,10 @@ describe("place_momentum_stabilizer - 40 -> 30", () => {
 
 describe("place_zo_is_natuur - Resilient 2+ lose 10 less from attacks", () => {
   it("Resilient 2 attacked for 30 loses 20", () => {
-    expect(mp(loseMP(build("place_zo_is_natuur", 80, 2), "player_1", 0, 30, "ATTACK", false, "player_2"))).toBe(60);
+    expect(mp(loseMP(build("place_zo_is_natuur", 80, 2), "player_1", 0, 30, "ATTACK", false, "player_2"))).toBe(70); // 30, Zo -10, Resilient 2 -10 (70-02)
   });
   it("Resilient 1 attacked for 30 loses 30; a card loss is not reduced", () => {
-    expect(mp(loseMP(build("place_zo_is_natuur", 80, 1), "player_1", 0, 30, "ATTACK", false, "player_2"))).toBe(50);
+    expect(mp(loseMP(build("place_zo_is_natuur", 80, 1), "player_1", 0, 30, "ATTACK", false, "player_2"))).toBe(55); // 30, Resilient 1 -5 (70-02)
     expect(mp(loseMP(build("place_zo_is_natuur", 80, 2), "player_1", 0, 30, "PIECIE", false, "player_2"))).toBe(50);
   });
 });

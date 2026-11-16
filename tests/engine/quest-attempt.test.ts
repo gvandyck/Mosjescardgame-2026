@@ -25,8 +25,8 @@ function mkSlot(over = {}) {
 function build(questName, { slot = {}, p1 = {}, second = null } = {}) {
   const q = getQuestDef("quest_" + questName);
   const stacks = {};
-  for (const id of ["PHYSICAL", "DIGITAL", "CREATIVE"]) stacks[id] = { deck: ["quest_filler"], faceUp: "quest_tough_it_out", tokens: 0, discard: [] };
-  stacks[q.stack] = { deck: ["quest_filler"], faceUp: q.id, tokens: 0, discard: [] };
+  for (const id of ["PHYSICAL", "DIGITAL", "CREATIVE"]) stacks[id] = { deck: ["quest_improvise"], faceUp: "quest_tough_it_out", discard: [] };
+  stacks[q.stack] = { deck: ["quest_improvise"], faceUp: q.id, discard: [] };
   const s = makeEngineState({
     questStacks: stacks,
     players: {
@@ -48,29 +48,31 @@ describe("Quest attempt end to end (E17)", () => {
     expect(out.ok).toBe(true);
     expect(out.state.players.player_1.activeSlots[0].mp).toBe(55);
     expect(out.state.players.player_1.activeSlots[0].actedThisTurn).toBe(true);
-    expect(out.state.questStacks[q.stack].faceUp).toBe("quest_filler");
-    expect(out.state.questStacks[q.stack].discard).toEqual([q.id]);
+    const stack = out.state.questStacks[q.stack]; // 70-02: the Quest is shuffled back, a card is turned up
+    expect([stack.faceUp, ...stack.deck].sort()).toEqual(["quest_improvise", q.id].sort());
+    expect(stack.discard).toEqual([]);
   });
 
-  it("Steady fail: -15 MP and a token", () => {
+  it("Steady fail: -15 MP and the Quest is replaced at once (no token)", () => {
     const { s, q } = build("tough_it_out");
     const r = go(s, q, { rng: rngOf(LOW) });
     expect(r.pending.dice).toEqual([2]);
     const out = resolveQuestAttempt(r.state, r.pending);
     expect(out.state.players.player_1.activeSlots[0].mp).toBe(15);
-    expect(out.state.questStacks[q.stack].tokens).toBe(1);
-    expect(out.state.questStacks[q.stack].faceUp).toBe(q.id);
+    const stack = out.state.questStacks[q.stack];
+    expect(stack.tokens).toBeUndefined();
+    expect([stack.faceUp, ...stack.deck].sort()).toEqual(["quest_improvise", q.id].sort());
   });
 
-  it("two fails by different players replace the Quest", () => {
+  it("two fails by different players: each attempt turns a Quest up (70-02)", () => {
     const { s, q } = build("tough_it_out");
     let st = resolveQuestAttempt(...(([r]) => [r.state, r.pending])([go(s, q, { rng: rngOf(LOW) })])).state;
     st.activePlayerId = "player_2";
     const r2 = rollQuestAttempt(st, "player_2", { slotIndex: 0, stackId: q.stack, rng: rngOf(LOW) });
     expect(r2.ok).toBe(true);
     st = resolveQuestAttempt(r2.state, r2.pending).state;
-    expect(st.questStacks[q.stack].faceUp).toBe("quest_filler");
-    expect(st.questStacks[q.stack].tokens).toBe(0);
+    expect(st.questStacks[q.stack].faceUp).not.toBeNull();
+    expect(st.questStacks[q.stack].tokens).toBeUndefined();
   });
 
   it("a fresh Mosje may Quest and any stack can be picked", () => {
@@ -119,7 +121,7 @@ describe("Trained (E18)", () => {
     const r = go(s, q, { rng: noRng });
     expect(r.ok).toBe(false);
     expect(s.players.player_1.activeSlots[0].actedThisTurn).toBeFalsy();
-    expect(s.questStacks[q.stack].tokens).toBe(0);
+    expect(s.questStacks[q.stack].tokens).toBeUndefined(); // no fail tokens (70-02)
   });
   it("wins +25 with no dice and no rng call for two stars", () => {
     const { s, q } = build("sprint_race", { slot: { traits: { ...ONE, strength: 2 } } });
@@ -128,7 +130,7 @@ describe("Trained (E18)", () => {
     expect(r.pending.dice).toEqual([]);
     const out = resolveQuestAttempt(r.state, r.pending);
     expect(out.state.players.player_1.activeSlots[0].mp).toBe(55);
-    expect(out.state.questStacks[q.stack].faceUp).toBe("quest_filler");
+    expect([out.state.questStacks[q.stack].faceUp, ...out.state.questStacks[q.stack].deck].sort()).toEqual(["quest_improvise", q.id].sort()); // shuffled back (70-02)
   });
 });
 

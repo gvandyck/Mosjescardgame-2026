@@ -16,14 +16,14 @@ describe("getQuestDiceCount (E15)", () => {
   it("missing trait -> 1", () => expect(getQuestDiceCount(mk(), "p1", slot({}), arm)).toBe(1));
   it("best trait", () => expect(getQuestDiceCount(mk(), "p1", slot({ strength: 2, social: 3 }), { rollTrait: "best", band: "steady" })).toBe(3));
   it("none -> 1", () => expect(getQuestDiceCount(mk(), "p1", slot({ strength: 3 }), { rollTrait: "none", band: "coin_flip" })).toBe(1));
-  it("cap at 4 with Gym + Piecie die", () => expect(getQuestDiceCount(mk("place_the_gym", 1), "p1", slot({ strength: 3 }), arm)).toBe(4));
-  it("4 stars + Arcade on Technical stays 4", () => expect(getQuestDiceCount(mk("place_arcade"), "p1", slot({ technical: 4 }), { rollTrait: "technical", band: "steady" })).toBe(4));
+  it("3 stars + Gym + Piecie die = 5", () => expect(getQuestDiceCount(mk("place_the_gym", 1), "p1", slot({ strength: 3 }), arm)).toBe(5));
+  it("4 stars + Arcade on Technical = 5 (cap is 6, 70-02)", () => expect(getQuestDiceCount(mk("place_arcade"), "p1", slot({ technical: 4 }), { rollTrait: "technical", band: "steady" })).toBe(5));
   it("Gym gives +1 on Strength", () => expect(getQuestDiceCount(mk("place_the_gym"), "p1", slot({ strength: 1 }), arm)).toBe(2));
   it("fresh Mosje gets no Place die", () => expect(getQuestDiceCount(mk("place_the_gym"), "p1", slot({ strength: 1 }, "T", true), arm)).toBe(1));
   it("Coert + Tesla +1 on any Quest", () => expect(getQuestDiceCount(mk("place_tesla"), "p1", slot({ social: 1 }, "Coert Kasteluck"), { rollTrait: "social", band: "steady" })).toBe(2));
-  it("Sleutelpuntje (questExtraDice) and extra added before cap", () => {
+  it("Sleutelpuntje (questExtraDice) and extra added before the cap of 6", () => {
     expect(getQuestDiceCount(mk(null, 1), "p1", slot({ strength: 1 }), arm)).toBe(2);
-    expect(getQuestDiceCount(mk(), "p1", slot({ strength: 3 }), arm, { extra: 5 })).toBe(4);
+    expect(getQuestDiceCount(mk(), "p1", slot({ strength: 3 }), arm, { extra: 5 })).toBe(6); // 3 + 5 = 8, capped at 6 (70-02)
   });
 });
 

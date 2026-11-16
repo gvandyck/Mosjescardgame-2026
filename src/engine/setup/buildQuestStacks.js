@@ -7,7 +7,7 @@ export function buildQuestStacks(quests, shuffle = shuffleDeck) {
   for (const stackId of QUEST_STACK_IDS) {
     const ids = shuffle(quests.filter(q => q.stack === stackId).map(q => q.id));
     const faceUp = ids.length ? ids.shift() : null;
-    stacks[stackId] = { deck: ids, faceUp, tokens: 0, discard: [] };
+    stacks[stackId] = { deck: ids, faceUp, discard: [] };
   }
   return stacks;
 }

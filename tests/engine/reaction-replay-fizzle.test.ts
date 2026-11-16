@@ -14,8 +14,9 @@ import { resolvePendingChoice } from "../../src/engine/mosje/resolvePendingChoic
 // @ts-expect-error
 import { MOSJES } from "../../src/data/mosjes.js";
 
-const attackerDef = MOSJES.find((m: any) => m.id === "mosje_alyssa_bulldozer"); // L1 Power 20
 const plain = MOSJES.find((m: any) => m.id !== "mosje_alyssa_bulldozer" && m.id !== "mosje_parkour_west");
+// L1 Power 20; same type as the target so the type triangle (70-02) does not change these numbers
+const attackerDef = { ...MOSJES.find((m: any) => m.id === "mosje_alyssa_bulldozer"), subtype: plain.subtype };
 const mk = (mp: number, d = plain, level = 1, extra: any = {}) => {
   const s = createMosjeSlot(d, { level, mp });
   s.entryProtected = false;

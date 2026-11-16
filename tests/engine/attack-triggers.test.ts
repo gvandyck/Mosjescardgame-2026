@@ -21,6 +21,7 @@ function mk(def: any, mp = 50, boost = 0, extra: any = {}) {
   const s = createMosjeSlot(def, { level: 1, mp });
   s.entryProtected = false;
   s.powerBoost = boost;
+  s.traits = { ...s.traits, resilient: 0 }; // 70-02: Resilient has its own test file
   return Object.assign(s, extra);
 }
 function game(att: any, tgt: any, top: any = {}) {
@@ -84,9 +85,9 @@ describe("attack triggers", () => {
   it("Zo is Natuur: attack -10 for Resilient 2+, other losses and Resilient 1 unchanged", () => {
     const res2 = mk(plain, 80); res2.traits = { ...res2.traits, resilient: 2 };
     const r = hit(game(attacker(30), res2, { activePlace: "place_zo_is_natuur" }));
-    expect(t0(r.state).mp).toBe(80 - 20);
+    expect(t0(r.state).mp).toBe(80 - 10); // 30, Zo -10 = 20, Resilient 2 -10 = 10
     const res1 = mk(plain, 80); res1.traits = { ...res1.traits, resilient: 1 };
-    expect(t0(hit(game(attacker(30), res1, { activePlace: "place_zo_is_natuur" })).state).mp).toBe(50);
+    expect(t0(hit(game(attacker(30), res1, { activePlace: "place_zo_is_natuur" })).state).mp).toBe(55); // Zo does nothing at Res 1; Resilient takes 5
   });
   it("Momentum Stabilizer: attack 40 -> 30", () => {
     const r = hit(game(attacker(40), mk(plain, 80), { activePlace: "place_momentum_stabilizer" }));

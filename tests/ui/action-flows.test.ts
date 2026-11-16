@@ -73,13 +73,15 @@ describe('runQuestFlow', () => {
     expect(state.players.player_1.activeSlots[0].mp).toBe(55); // Tough It Out: dice [6] -> +25
     expect(state.players.player_1.activeSlots[0].actedThisTurn).toBe(true);
     expect(log[0]).toMatch(/won Tough It Out/);
-    expect(state.questStacks.PHYSICAL.faceUp).toBe('quest_improvise');
+    const before = base().questStacks.PHYSICAL; // 70-02: the won Quest is shuffled back, one is turned up
+    expect([state.questStacks.PHYSICAL.faceUp, ...state.questStacks.PHYSICAL.deck].sort()).toEqual([before.faceUp, ...before.deck].sort());
   });
 
-  it('a failed roll loses MP and adds a fail token', async () => {
+  it('a failed roll loses MP and the Quest is replaced at once (no fail token)', async () => {
     const { state } = await runQuestFlow({ state: base(), playerId: 'player_1', modal: stubModal(), rng: () => 0 });
     expect(state.players.player_1.activeSlots[0].mp).toBe(15);
-    expect(state.questStacks.PHYSICAL.tokens).toBe(1);
+    expect(state.questStacks.PHYSICAL.tokens).toBeUndefined();
+    expect(state.questStacks.PHYSICAL.faceUp).not.toBeNull();
   });
 
   it('cancel at the Mosje or Quest step returns the input state unchanged', async () => {
@@ -92,10 +94,9 @@ describe('runQuestFlow', () => {
 describe('renderQuestStacks', () => {
   // 63-03: the same intent on the 2.0 Quest tile: the face-up Quest names, the dice need, the fail tokens as filled pips,
   // the cards left in the stack, and "Empty" for the stack without a Quest.
-  it('renders name, need, fail pips and count for each face-up Quest, and Empty for a missing one', () => {
+  it('renders name, need, empty fail pips and count for each face-up Quest, and Empty for a missing one', () => {
     const container: any = { innerHTML: '' };
     const qs = stacks({ PHYSICAL: 'quest_tough_it_out', DIGITAL: 'quest_debug_system' });
-    qs.PHYSICAL.tokens = 1;
     qs.PHYSICAL.deck = Array(11).fill('quest_improvise');
     renderQuestStacks(container, { questStacks: qs });
     const html: string = container.innerHTML;
@@ -104,7 +105,7 @@ describe('renderQuestStacks', () => {
     expect(html).toContain('data-cv1-need=');
     const part = (id: string) => html.split(/(?=<div class="quest-stack[ "])/).find((p) => p.includes(`data-quest-stack="${id}"`)) ?? '';
     const physical = part('PHYSICAL');
-    expect(physical.match(/data-cv1-pip="filled"/g)).toHaveLength(1);
+    expect(physical.match(/data-cv1-pip="filled"/g)).toBeNull(); // fail tokens are gone (70-02); the pips leave the face in Phase 72
     expect(physical).toContain('>11 left<');
     expect(physical).toContain('data-stack-count="11"');
     const creative = part('CREATIVE');

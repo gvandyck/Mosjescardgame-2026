@@ -1092,7 +1092,6 @@ function initGamePage() {
 				stack.discard = stack.discard.filter(id => id !== questId);
 				if (stack.faceUp && stack.faceUp !== questId) stack.deck.unshift(stack.faceUp);
 				stack.faceUp = questId;
-				stack.tokens = 0;
 				renderFromState(gameState);
 			},
 			// 56-06: the next Quest dice come from this list (6 = max); falls back to Math.random once empty.

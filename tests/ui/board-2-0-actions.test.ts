@@ -161,14 +161,14 @@ describe('buildAttackPreview', () => {
 		const s = pair();
 		const power = getPower(s.players.player_1.activeSlots[0], s, 'player_1');
 		expect(power).toBe(20);
-		expect(buildAttackPreview(s, 'player_1', 0, 'player_2', 0)).toBe('Alyssa hits Ming: −20 MP (leaves 20)');
+		expect(buildAttackPreview(s, 'player_1', 0, 'player_2', 0)).toBe('Alyssa hits Ming: −15 MP (leaves 25)'); // Power 20 minus Ming's Resilient 1 (70-02)
 	});
 
 	it('never leaves a negative number and follows a Power boost', () => {
 		const s = pair();
 		s.players.player_1.activeSlots[0].powerBoost = 40;
 		s.players.player_2.activeSlots[0].mp = 30;
-		expect(buildAttackPreview(s, 'player_1', 0, 'player_2', 0)).toBe('Alyssa hits Ming: −60 MP (leaves 0)');
+		expect(buildAttackPreview(s, 'player_1', 0, 'player_2', 0)).toBe('Alyssa hits Ming: −55 MP (leaves 0)'); // Power 60 minus Resilient 1 (70-02)
 	});
 
 	it("a Power 0 attacker reads 'has 0 Power: no effect'", () => {

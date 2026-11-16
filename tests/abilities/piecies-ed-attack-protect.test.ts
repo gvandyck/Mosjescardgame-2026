@@ -114,8 +114,9 @@ describe('Attack Piecies: Level 2+ cards', () => {
     const s = run(board('piecie_dikke_taks', { ownSlot: { level: 2 }, foe2: slotOf(MING) }));
     const hit = attack(s);
     const power = hit.power;
-    expect(mp(hit.state, 'player_2', 0)).toBe(50 - power);
-    expect(mp(hit.state, 'player_2', 1)).toBe(50 - power);
+    const res = (i: number) => 5 * (hit.state.players.player_2.activeSlots[i].traits?.resilient || 0); // Resilient takes 5 per star (70-02)
+    expect(mp(hit.state, 'player_2', 0)).toBe(50 - Math.max(5, power - res(0)));
+    expect(mp(hit.state, 'player_2', 1)).toBe(50 - Math.max(5, power - res(1)));
     expect(hit.state.players.player_1.activeSlots[0].hitBothOpponents).toBeUndefined();
     const fresh = run(board('piecie_dikke_taks', { ownSlot: { level: 2 }, foe2: { ...slotOf(MING), entryProtected: true } }));
     expect(mp(attack(fresh).state, 'player_2', 1)).toBe(50);

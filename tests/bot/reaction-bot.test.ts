@@ -223,15 +223,15 @@ describe("pickDefensiveSnelle", () => {
   it("a window of the other seat is not the bot's: null", () => {
     expect(pickDefensiveSnelle(hit([L(20), null], 30, ["snelle_the_protector"]), "player_1")).toBeNull();
   });
-  it("real attack window: the preview stops at the Mosje's MP, so the hit is read from the attacker's Power (L1 at 40, Power 70)", () => {
+  it("real attack window: the preview stops at the Mosje's MP, so the hit is read from the attacker's Power (L1 at 40, Power 80)", () => {
     const attacker = mk(50, attackerDef);
-    attacker.powerBoost = 70 - getPower(attacker, undefined, "player_1");
+    attacker.powerBoost = 80 - getPower(attacker, undefined, "player_1");
     const s = makeEngineState({ turnNumber: 3, players: { player_1: { activeSlots: [attacker, null] },
       [BOT]: { activeSlots: [L(40, 1, { traits: { resilient: 2 } }), null], hand: H("snelle_the_protector", "snelle_emergency_healings") } } });
     const w = attackMosje(s, "player_1", ATT).state;
     expect(w.pendingReaction.eligible).toEqual(expect.arrayContaining(["snelle_the_protector", "snelle_emergency_healings"]));
     expect(w.pendingReaction.preview.mpLoss[0]).toBe(40); // capped at the Mosje's MP: the preview alone makes The Protector look enough
-    // The Protector: 70 - 30 = 40 lost = dead. Emergency Healings (Resilient 2): +35 first, then 70 lost = 5 left.
+    // The Protector: 80 - 30 = 50, Resilient 2 -10 = 40 lost = dead. Emergency Healings (Resilient 2): +35 first, then 70 lost = 5 left. (Power 80, not 70: Resilient 2 is a new -10, 70-02.)
     expect(pickDefensiveSnelle(w, BOT)).toBe("snelle_emergency_healings");
     const saved = resolveReaction(w, BOT, "snelle_emergency_healings").state.players[BOT].activeSlots[0];
     expect(saved.sideways).toBeFalsy();

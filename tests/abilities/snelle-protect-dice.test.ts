@@ -37,7 +37,7 @@ describe("loss reductions and Emergency Healings", () => {
     const s = fx.effect_snelle_emergency_healings(board([mk(30)], [mk(40)]), "player_2", { reaction: reaction({ 0: 40 }) });
     expect(mine(hit(s, 40)).mp).toBe(15);
     const r = board([mk(30, { traits: { resilient: 2 } })], [mk(40)]);
-    expect(mine(hit(fx.effect_snelle_emergency_healings(r, "player_2", { reaction: reaction({ 0: 40 }) }), 40)).mp).toBe(25);
+    expect(mine(hit(fx.effect_snelle_emergency_healings(r, "player_2", { reaction: reaction({ 0: 40 }) }), 40)).mp).toBe(35); // gain 35, then 40 minus Resilient 2 (10) = 30 lost (70-02)
   });
   it("Emergency Healings gives 0 MP under The Void (the loss still lands); without it the gain applies", () => {
     const withVoid = Object.assign(board([mk(30)], [mk(40)]), { activePlace: "place_the_void" });
@@ -99,7 +99,7 @@ describe("Not Today!", () => {
 describe("window integration", () => {
   it("Perfect Dodge answered in the attacked window shrinks the attack and leaves no entries", () => {
     const s = makeEngineState({ turnNumber: 3, players: {
-      player_1: { activeSlots: [mk(50, {}, alyssa), mk(50)] },
+      player_1: { activeSlots: [mk(50, {}, { ...alyssa, subtype: ming.subtype }), mk(50)] }, // same type: no triangle (70-02)
       player_2: { activeSlots: [mk(50, { traits: { strength: 2 } }), mk(50)], hand: [{ cardId: "snelle_perfect_dodge" }], energy: 3 } } });
     const r = attackMosje(s, "player_1", { attackerSlotIndex: 0, targetPlayerId: "player_2", targetSlotIndex: 0 });
     expect(r.state.pendingReaction.eligible).toContain("snelle_perfect_dodge");
@@ -112,10 +112,10 @@ describe("window integration", () => {
 describe("dice Snelle", () => {
   const roll = (dice: number[]) => ({ playerId: "player_1", slotIndex: 0, stackId: "a", questId: "quest_quick_thinking", dice, diceCount: dice.length, win: false });
   const lucky = (s: any) => fx.effect_snelle_lucky_coin(s, "player_2", { reaction: { moments: ["afterQuestRoll"] } });
-  it("Sleutelpuntje adds one die to the next Quest roll, never above 4", () => {
+  it("Sleutelpuntje adds one die to the next Quest roll, never above 6", () => {
     const s = fx.effect_snelle_sleutelpuntje(board([mk(50)], [mk(40)]), "player_2");
     expect(s.players.player_2.questExtraDice).toBe(1);
-    expect(getQuestDiceCount(s, "player_2", mine(s), { rollTrait: "x" }, { extra: 9 })).toBe(4);
+    expect(getQuestDiceCount(s, "player_2", mine(s), { rollTrait: "x" }, { extra: 9 })).toBe(6);
   });
   it("Je Weet Niet rerolls every die of the held roll", () => {
     const s = board([mk(50)], [mk(40)]);

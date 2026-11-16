@@ -75,7 +75,7 @@ describe("fresh Mosjes ignore Places (RULE-08)", () => {
   it("the baseline probe is sensible: a non-fresh and fresh Mosje are identical with no Place", () => {
     expect(probeAll(null, true)).toEqual(probeAll(null, false));
     expect(probe(null, "Gandoe", false).power).toBeGreaterThan(0);
-    expect(probe(null, "Gandoe", false).afterLoss).toBe(30); // 80 - 50 own-sourced loss
+    expect(probe(null, "Gandoe", false).afterLoss).toBe(45); // 80 - 50 own-sourced attack loss, Resilient 3 takes 15 (70-02)
   });
 
   for (const place of MOSJE_PLACES) {

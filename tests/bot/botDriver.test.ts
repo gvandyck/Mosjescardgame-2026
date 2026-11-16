@@ -351,8 +351,8 @@ describe('driveBotTurn - attacks (2.0, 56-05)', () => {
 describe('driveBotTurnSteps - action order and getemt finishing (61-04)', () => {
   // Jeffrey and Gandoe Wizard both have Power 10 on Level 1; `powerBoost` adds on top.
   const strong = () => ({ ...makeMosjeSlot('mosje_gandoe_wizard', 50), powerBoost: 20 }); // Power 30
-  const weak = () => makeMosjeSlot('mosje_jeffrey', 50); // Power 10
-  const target = () => makeMosjeSlot('mosje_gandoe_wizard', 35); // one L1 Mosje, not fresh
+  const weak = () => makeMosjeSlot('mosje_gandoe_wizard', 50); // Power 10 (same type as the target: no triangle, 70-02)
+  const target = () => makeMosjeSlot('mosje_gandoe_wizard', 30); // one L1 Mosje, Resilient 1 takes 5 off each hit (70-02): 25 + 5 = 30
   const board = (activeSlots: any[]) => makeState({ activeSlots, opponentSlots: [target(), null] });
   const attacksOf = (steps: any[]) => steps.filter((st) => st.action?.kind === 'attack');
 

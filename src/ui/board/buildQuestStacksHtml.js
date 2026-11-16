@@ -1,6 +1,6 @@
 // buildQuestStacksHtml.js — the 3 Quest stacks of the middle strip as HTML (63-UI-SPEC "Quest stacks", D-09, spec U5).
 // Per stack (Physical / Digital / Creative): the 2.0 Quest tile (the 62 field-tile builder, fail pips filled from
-// stack.tokens) on two visible card edges, plus a count tab "11 left". A stack without a face-up Quest is a dashed
+// the old fail tokens, gone since 70-02) on two visible card edges, plus a count tab "11 left". A stack without a face-up Quest is a dashed
 // outline reading "Empty". Hooks: data-quest-stack, data-stack, data-quest, data-stack-count (cards left in the deck).
 // Every interpolated value goes through escapeHtml.
 import { QUEST_STACK_IDS } from '../../engine/setup/setupRules.js';
@@ -30,7 +30,7 @@ function buildStack(stackId, stack) {
 	const quest = stack?.faceUp ? getQuestDef(stack.faceUp) : null;
 	if (!quest) return buildEmptyStack(stackId, left);
 	// The tile reads card.failTokens to fill its 2 fail pips.
-	const face = buildCardV1({ ...quest, cardId: quest.id, type: 'QUEST', failTokens: stack.tokens || 0 }, { fieldMode: true });
+	const face = buildCardV1({ ...quest, cardId: quest.id, type: 'QUEST', failTokens: 0 }, { fieldMode: true });
 	if (!face) return buildEmptyStack(stackId, left);
 	const name = escapeHtml(quest.name);
 	const label = `${escapeHtml(STACK_LABEL[stackId])} Quest: ${name}, ${left} left`;

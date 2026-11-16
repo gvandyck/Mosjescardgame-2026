@@ -9,10 +9,12 @@ import { staysBoundReducer } from './lossSteps/staysBoundReducer.js';
 import { snelleReactionReducer } from './lossSteps/snelleReactionReducer.js';
 import { emergencyHealingsStep } from './lossSteps/emergencyHealingsStep.js';
 import { momentumStabilizerCap } from './lossSteps/momentumStabilizerCap.js';
+import { resilientDefence } from './lossSteps/resilientDefence.js';
 
 export const LOSS_STEPS = {
   beforeLoss: [emergencyHealingsStep],
   base: [],
   reducers: [zoIsNatuurReducer, halvedLossReducer, statusReductionReducer, staysBoundReducer, snelleReactionReducer],
   caps: [momentumStabilizerCap],
+  defence: [resilientDefence],
 };

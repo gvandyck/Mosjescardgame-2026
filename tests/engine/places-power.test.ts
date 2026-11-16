@@ -62,7 +62,7 @@ describe("Place Power in getPower", () => {
   it("an attack hits for the Place-adjusted Power (Physical 20 in The Gym takes 30)", () => {
     const s = game("place_the_gym", mk(BULL));
     const r = attackMosje(s, "player_1", { attackerSlotIndex: 0, targetPlayerId: "player_2", targetSlotIndex: 0 });
-    expect(r.state.players.player_2.activeSlots[0].mp).toBe(50);
+    expect(r.state.players.player_2.activeSlots[0].mp).toBe(55); // Power 30 minus Resilient 1 (70-02), no triangle
   });
   it("Drain Zone no longer adds +10 to a DRAIN loss", () => {
     const s = game("place_drain_zone", mk(BULL));

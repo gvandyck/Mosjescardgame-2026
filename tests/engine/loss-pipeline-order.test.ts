@@ -71,7 +71,7 @@ describe("resolveMpLoss — §2g order", () => {
 
   it("Drain Zone no longer adds 10 to a DRAIN loss (Power only)", () => {
     expect(resolveMpLoss(ctxFor(build({ place: "place_drain_zone" }), 20))).toBe(20);
-    expect(resolveMpLoss(ctxFor(build({ place: "place_drain_zone" }), 20, "ATTACK"))).toBe(20);
+    expect(resolveMpLoss(ctxFor(build({ place: "place_drain_zone" }), 20, "ATTACK"))).toBe(10); // Resilient 2 takes 10 off an attack (70-02)
   });
 
   it("a pushed reducer runs after built-in reducers and before caps", () => {

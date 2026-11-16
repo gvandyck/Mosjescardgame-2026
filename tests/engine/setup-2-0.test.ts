@@ -37,7 +37,7 @@ describe('2.0 setup', () => {
       const total = QUESTS.filter((q: any) => q.stack === t).length;
       expect(QUESTS.find((q: any) => q.id === st.faceUp).stack).toBe(t);
       expect(st.deck.length).toBe(total - 1);
-      expect(st.tokens).toBe(0);
+      expect(st.tokens).toBeUndefined(); // fail tokens are gone (70-02)
       expect(st.discard).toEqual([]);
     }
     expect(buildQuestStacks([], (a: any) => a).PHYSICAL.faceUp).toBeNull();

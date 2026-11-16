@@ -205,11 +205,11 @@ describe('Utility dice rest', () => {
     expect(run(board('piecie_dikke_plaat', { own: slotOf('mosje_alyssa_bulldozer') })).players.player_1.rerollGrants || []).toEqual([]);
   });
 
-  it('dice never go above 4', () => {
+  it('dice never go above 6', () => {
     const s = run(board('piecie_loaded_dice', { own: slotOf('mosje_jeffrey') }));
     s.players.player_1.questExtraDice = 9;
     const slot = s.players.player_1.activeSlots[0];
-    expect(getQuestDiceCount(s, 'player_1', slot, quest())).toBe(4);
+    expect(getQuestDiceCount(s, 'player_1', slot, quest())).toBe(6); // cap is 6 since 70-02
   });
 
   it('Kan het?!: 5-6 gains 40, 1-4 loses 10', () => {

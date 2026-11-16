@@ -19,8 +19,9 @@ const DECKS = ['EXAMPLE_TAKSEN', 'EXAMPLE_REGELAARS', 'EXAMPLE_CREATIEVELINGEN']
 const ORDERED = DECKS.flatMap((a) => DECKS.filter((b) => b !== a).map((b) => [a, b])); // the 6 ordered pairings
 const UNORDERED = [[DECKS[0], DECKS[1]], [DECKS[0], DECKS[2]], [DECKS[1], DECKS[2]]];
 const DELLUFT = (state) => { state.activePlace = 'place_delluft'; state.activePlacePlayedBy = 'player_2'; };
+// 70-02: seed 0xB07B (TAKSEN vs CREATIEVELINGEN) no longer finished in 200 turns once Resilient and the triangle landed (Personal Quest win comes later); moved to 0xB07C.
 const GAMES = [
-	...[0xB07A, 0xB07B].flatMap((seed) => ORDERED.map(([a, b]) => ({ a, b, seed, delluft: false }))),
+	...[0xB07A, 0xB07C].flatMap((seed) => ORDERED.map(([a, b]) => ({ a, b, seed, delluft: false }))),
 	...UNORDERED.map(([a, b]) => ({ a, b, seed: 0xDE1F, delluft: true })),
 ];
 

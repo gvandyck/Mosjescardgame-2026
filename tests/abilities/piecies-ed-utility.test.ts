@@ -183,11 +183,11 @@ describe('Dubbele Dosis', () => {
     const after = resolveQuestAttempt(done.state, done.pending);
     expect(after.state.players.player_1.rerollGrants).toEqual([]);
   });
-  it('never more than 4 dice', () => {
+  it('never more than 6 dice', () => {
     const s = withQuest(board('piecie_quest_prep'));
     s.players.player_1.questExtraDice = 5;
     const done = rollQuestAttempt(run(s), 'player_1', { ...opts, rng: () => 0.7, skipReactions: true });
-    expect(done.pending.dice.length).toBe(4);
+    expect(done.pending.dice.length).toBe(6); // cap is 6 since 70-02
   });
 });
 

@@ -89,19 +89,19 @@ describe('chooseMosjeAction - expected value (61-04)', () => {
 
   it('finishes a getemt: an attack that drops a 20 MP Mosje beats a Steady Quest, worth what the getemt costs it', () => {
     const target = mkSlot({ mp: 20 });
-    const s = board(mkSlot({ mp: 60, powerBoost: 10 }), [target, null], steady); // Power 20
+    const s = board(mkSlot({ mp: 60, powerBoost: 15 }), [target, null], steady); // Power 25, Resilient 1 takes 5: loses 20 (70-02)
     expect(attackTo(s, 0)).toMatchObject({ kind: 'attack', targetPlayerId: 'player_2', targetSlotIndex: 0 });
     expect(scoreMosjeAction(s, 'player_1', 0).value).toBe(valueOfLoss(target, 20));
   });
 
   it('hits the Mosje it can finish, not the fat one (either slot order)', () => {
-    const power20 = () => mkSlot({ mp: 60, powerBoost: 10 });
+    const power20 = () => mkSlot({ mp: 60, powerBoost: 15 }); // Power 25, loses 20 after Resilient 1 (70-02)
     expect(attackTo(board(power20(), [mkSlot({ mp: 20 }), mkSlot({ mp: 60 })]), 0)).toMatchObject({ kind: 'attack', targetSlotIndex: 0 });
     expect(attackTo(board(power20(), [mkSlot({ mp: 60 }), mkSlot({ mp: 20 })]), 0)).toMatchObject({ kind: 'attack', targetSlotIndex: 1 });
   });
 
   it('values dropping a Level 3 above an equal hit on a Level 1', () => {
-    const power30 = () => mkSlot({ mp: 60, powerBoost: 20 });
+    const power30 = () => mkSlot({ mp: 60, powerBoost: 25 }); // Power 35 (70-02: 5 more, Resilient 1 takes them off)
     const lv3 = () => mkSlot({ level: 3, mp: 30 });
     const lv1 = () => mkSlot({ mp: 30 });
     expect(attackTo(board(power30(), [lv3(), lv1()]), 0)).toMatchObject({ kind: 'attack', targetSlotIndex: 0 });

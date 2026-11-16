@@ -18,6 +18,7 @@ const plain = MOSJES.find((m: any) => m.id !== "mosje_alyssa_bulldozer" && m.id 
 function mk(mp: number, d = plain, level = 1) {
   const s = createMosjeSlot(d, { level, mp });
   s.entryProtected = false;
+  s.traits = { ...s.traits, resilient: 0 }; // 70-02: Resilient and the triangle have their own test file
   return s;
 }
 function build(targetMp = 50, extra: any = {}) {
@@ -41,9 +42,9 @@ describe("attackMosje (E12)", () => {
     const s = build(50);
     const r = act(s);
     expect(r.ok).toBe(true);
-    const p = r.power;
-    expect(p).toBe(20);
-    expect(r.state.players.player_2.activeSlots[0].mp).toBe(50 - p);
+    expect(r.power).toBe(20);
+    expect(r.final).toBe(30); // Physical Alyssa beats Digital target: +10 (70-02)
+    expect(r.state.players.player_2.activeSlots[0].mp).toBe(50 - r.final);
     const a = r.state.players.player_1.activeSlots[0];
     expect([a.actedThisTurn, a.attackedThisTurn]).toEqual([true, true]);
   });
@@ -80,7 +81,7 @@ describe("attackMosje (E12)", () => {
   it("L1 target at 10 hit for 20 gets getemt (sideways)", () => {
     const s = build(10);
     const r = act(s);
-    expect(r.final).toBe(20);
+    expect(r.final).toBe(30); // 20 Power + 10 triangle
     const t = r.state.players.player_2.activeSlots[0];
     expect(t.sideways).toBe(true);
   });
