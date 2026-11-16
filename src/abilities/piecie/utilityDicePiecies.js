@@ -1,5 +1,5 @@
 // utilityDicePiecies - Card List 2.0 Utility dice Piecies. Dubbele Dosis / Loaded Dice / Dikke Plaat: +1 die on one
-// Quest this turn (getQuestDiceCount clamps at 4) and, with the named Mosje on the field, one reroll of a die of that
+// Quest this turn (getQuestDiceCount clamps at 6) and, with the named Mosje on the field, one reroll of a die of that
 // Quest at its after-roll pause (a grant tied to the next own Quest). TweedeKANs: one reroll of any Quest roll this turn.
 import { rollDie } from '../../engine/deckEngine.js';
 import { loseMP } from '../../engine/mpManager.js';

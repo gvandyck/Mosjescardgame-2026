@@ -5,9 +5,10 @@ import { PIECIES } from '../data/piecies.js';
 import { PLACES } from '../data/places.js';
 import { SNELLE_PIECIES } from '../data/snellePiecies.js';
 import { QUESTS } from '../data/quests.js';
+import { PERSONAL_QUESTS } from '../data/personalQuests.js';
 
 // Internal lookup built once — includes every card type so callers never miss a type.
-const ALL_CARD_DATA = [...MOSJES, ...PIECIES, ...PLACES, ...SNELLE_PIECIES, ...QUESTS];
+const ALL_CARD_DATA = [...MOSJES, ...PIECIES, ...PLACES, ...SNELLE_PIECIES, ...QUESTS, ...PERSONAL_QUESTS];
 const CARD_DEF_MAP = Object.fromEntries(ALL_CARD_DATA.map(c => [c.id, c]));
 
 /**

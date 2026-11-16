@@ -11,7 +11,7 @@ function recheck(pending) {
 	pending.win = isPendingRollWin(pending, pending.dice);
 }
 
-// Sleutelpuntje: +1 die on the owner's next Quest roll (getQuestDiceCount keeps the 4-dice cap).
+// Sleutelpuntje: +1 die on the owner's next Quest roll (getQuestDiceCount keeps the 6-dice cap).
 export function effect_snelle_sleutelpuntje(gameState, pid) {
 	const state = clone(gameState);
 	state.players[pid].questExtraDice = (state.players[pid].questExtraDice || 0) + 1;

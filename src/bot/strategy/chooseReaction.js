@@ -4,6 +4,7 @@
 // a Quest roll, a Jensen!). Every Snelle must be affordable now (Place discounts and the Delluft fee included).
 import { getQuestDef } from '../../engine/quests/getQuestDef.js';
 import { getQuestDiceCount } from '../../engine/quests/getQuestDiceCount.js';
+import { MAX_QUEST_DICE } from '../../engine/quests/questRules.js';
 import { rollQuestAttempt } from '../../engine/quests/rollQuestAttempt.js';
 import { findPlayableHandIndex } from '../../engine/hand/findPlayableHandIndex.js';
 import { heldPiecieDef } from '../../rules/heldPiecieDef.js';
@@ -47,7 +48,7 @@ export function chooseReaction(state, responderId) {
 		const { slotIndex, stackId } = p.action.args[1] || {};
 		const slot = state.players[responderId]?.activeSlots?.[slotIndex];
 		const quest = getQuestDef(state.questStacks?.[stackId]?.faceUp);
-		return can('snelle_sleutelpuntje') && slot && quest && getQuestDiceCount(state, responderId, slot, quest) < 4 && rollSurvivesSleutelpuntje(state, responderId, p.action.args[1]) ? 'snelle_sleutelpuntje' : null;
+		return can('snelle_sleutelpuntje') && slot && quest && getQuestDiceCount(state, responderId, slot, quest) < MAX_QUEST_DICE && rollSurvivesSleutelpuntje(state, responderId, p.action.args[1]) ? 'snelle_sleutelpuntje' : null;
 	}
 	if (at('afterOwnQuestRoll')) {
 		const reroll = pickDjRerollDie(state, responderId, p.eligible) || pickDjRerollDie(state, responderId, p.eligible, 'piecieReroll:'); // DJ Lucky Beats, Piecie grant (Dubbele Dosis)
