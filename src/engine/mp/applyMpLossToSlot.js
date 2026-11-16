@@ -22,6 +22,7 @@ export function applyMpLossToSlot({ state, playerId, slot, amount, source, byPla
   const player = state.players[playerId];
   player.totalDamageTaken = (player.totalDamageTaken || 0) + final;
   slot.mpLostThisTurn = (slot.mpLostThisTurn || 0) + final;
+  slot.mpLostWindowNow = true; // Needs: lost MP since the start of the owner's last turn (70-06)
 
   let getemt = null;
   if (slot.mp <= 0) getemt = applyGetemt(slot);

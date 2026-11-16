@@ -3,6 +3,7 @@
 // hand at the end of THEIR next turn (armSetAside at their start of turn, returnSetAside at their end of turn).
 // Input: state._pendingTargets.locked_card = index into the opponent's hand.
 import { revealCards } from '../../engine/hidden/revealCards.js';
+import { opponentPickableHand } from '../../engine/hand/opponentPickableHand.js';
 
 export function ronaldChefStrategicInsight(gameState, playerId, mosjeId = 'mosje_ronald_chef') {
 	const state = JSON.parse(JSON.stringify(gameState));
@@ -11,8 +12,11 @@ export function ronaldChefStrategicInsight(gameState, playerId, mosjeId = 'mosje
 	const oppId = Object.keys(state.players).find(id => id !== playerId);
 	const opp = state.players[oppId];
 	if (!opp?.hand?.length) throw new Error('Strategic Insight: the opponent has no cards in hand');
+	// A Personal Quest is never set aside (D-06): with nothing else in hand there is nothing to choose.
+	const pickable = opponentPickableHand(opp.hand);
+	if (!pickable.length) throw new Error('Strategic Insight: the opponent has no cards in hand you can choose');
 	const pick = state._pendingTargets?.locked_card;
-	if (!Number.isInteger(pick) || pick < 0 || pick >= opp.hand.length) throw new Error('Strategic Insight: choose a card from the opponent\'s hand');
+	if (!Number.isInteger(pick) || !pickable.includes(pick)) throw new Error('Strategic Insight: choose a card from the opponent\'s hand');
 	revealCards(state, playerId, 'ability_ronald_chef_strategic_insight', opp.hand.map(c => c.cardId)); // the whole hand is seen before the choice
 	const [card] = opp.hand.splice(pick, 1);
 	if (!Array.isArray(opp.setAside)) opp.setAside = [];

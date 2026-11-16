@@ -12,6 +12,8 @@ import { gainFromPiecie } from './gainFromPiecie.js';
 import { resolvePiecieOwnSlot } from './resolvePiecieOwnSlot.js';
 import { revealCards } from '../../engine/hidden/revealCards.js';
 import { discardChoice } from './discardChoice.js';
+import { opponentPickableHand } from '../../engine/hand/opponentPickableHand.js';
+import { discardFromHand } from '../../engine/hand/discardFromHand.js';
 
 const nameOf = (cardId) => toGraveyardEntry(cardId, 'x').name;
 // One option per distinct cardId (the first copy's position).
@@ -55,20 +57,21 @@ export function effect_zie_je_die_dingetjes(gameState, playerId) {
 export function effect_stookerino(gameState, playerId, ctx = {}) {
 	let state = cloneState(gameState);
 	const me = state.players[playerId];
-	const opp = state.players[Object.keys(state.players).find(id => id !== playerId)];
-	if (!opp?.hand.length) return state;
+	const oppId = Object.keys(state.players).find(id => id !== playerId);
+	const opp = state.players[oppId];
+	const pickable = opp ? opponentPickableHand(opp.hand).map(i => opp.hand[i]) : []; // Personal Quests are safe (D-06)
+	if (!pickable.length) return state;
 	const si = ctx.stookSlot ?? resolvePiecieOwnSlot(state, playerId, 'piecie_stookerino');
 	const pick = me._pendingTargets?.stook_card;
 	if (pick === undefined) {
 		revealCards(state, playerId, 'piecie_stookerino', opp.hand.map(c => c.cardId)); // the card shows the hand before the pick
-		const options = distinct(opp.hand).map(({ label, cardId }) => ({ label, cardId }));
+		const options = distinct(pickable).map(({ label, cardId }) => ({ label, cardId }));
 		return { state, needChoice: { playerId, choiceKind: 'handCard', key: 'stook_card', options, prompt: "Discard a card from your opponent's hand", ctx: { stookSlot: si } } };
 	}
 	delete me._pendingTargets.stook_card;
 	const at = opp.hand.findIndex(c => c.cardId === pick.cardId);
-	if (at < 0) return state;
-	const [card] = opp.hand.splice(at, 1);
-	opp.graveyard = [...(opp.graveyard || []), toGraveyardEntry(card.cardId, 'discarded')];
+	const card = at < 0 ? null : discardFromHand(state, oppId, at, { byPlayerId: playerId });
+	if (!card) return state;
 	const def = pieceDef('piecie_stookerino');
 	const binti = findTagSlot(me, 'BINTI');
 	const main = Math.min(30, 10 * getCardEnergyCost(card.cardId)) + (binti >= 0 && binti === si ? 10 : 0);

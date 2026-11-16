@@ -3,12 +3,15 @@
 import { loseMP } from '../../engine/mpManager.js';
 import { ALL_CARDS } from '../../data/cardIndex.js';
 import { toGraveyardEntry } from '../../engine/graveyardUtils.js';
+import { opponentPickableHand } from '../../engine/hand/opponentPickableHand.js';
+import { discardFromHand } from '../../engine/hand/discardFromHand.js';
 import { revealCards } from '../../engine/hidden/revealCards.js';
 import { cloneState } from './cloneState.js';
 import { addPowerThisTurn } from './addPowerThisTurn.js';
 import { resolvePiecieOwnSlot } from './resolvePiecieOwnSlot.js';
 
 const KEY = 'jantje_name';
+const oppId = (state, playerId) => Object.keys(state.players).find(id => id !== playerId);
 const nameOf = (cardId) => toGraveyardEntry(cardId, 'x').name;
 // One option per distinct card name that can be in a hand (Quest cards are not).
 const NAMES = [...new Map(ALL_CARDS.filter(c => c.type !== 'QUEST').map(c => [c.name, { label: c.name, cardId: c.id }])).values()]
@@ -24,12 +27,12 @@ export function effect_jantje_jantje(gameState, playerId, ctx = {}) {
 		return { state, needChoice: { playerId, choiceKind: 'cardName', key: KEY, options: NAMES, prompt: "Name a card (then you look at your opponent's hand)", ctx: { jantjeSlot: si } } };
 	}
 	delete me._pendingTargets[KEY];
-	const opp = state.players[Object.keys(state.players).find(id => id !== playerId)];
+	const opp = state.players[oppId(state, playerId)];
 	revealCards(state, playerId, 'piecie_jantje_jantje', opp.hand.map(c => c.cardId)); // "look at your opponent's hand"
-	const at = opp.hand.findIndex(c => nameOf(c.cardId) === pick.label);
+	// A Personal Quest is never a hit (D-06): only the pickable cards can be named.
+	const at = opponentPickableHand(opp.hand).find(i => nameOf(opp.hand[i].cardId) === pick.label) ?? -1;
 	if (at < 0) return loseMP(state, playerId, si, 10, 'DRAIN', false, playerId);
-	const [card] = opp.hand.splice(at, 1);
-	opp.graveyard = [...(opp.graveyard || []), toGraveyardEntry(card.cardId, 'discarded')];
+	discardFromHand(state, oppId(state, playerId), at, { byPlayerId: playerId });
 	addPowerThisTurn(state, playerId, si, 20);
 	return state;
 }

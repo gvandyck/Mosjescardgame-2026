@@ -1,7 +1,12 @@
 // personalQuests.js — Obby 2.1 starter Personal Quests (Phase 69). Pure data, from docs/obby-2.0/handover/cards.json.
 // A Personal Quest lives in the deck and the hand but is inert until Phase 70 (no play yet).
 // needsText / payText / rollText are the printed lines (null when the card has none); `roll` is what the
-// Phase 70 engine reads. Structured Needs / Pay are Phase 70's job.
+// Phase 70 engine reads.
+// needs / pay (Phase 70-06, D-07) are the same lines as data; the texts stay the display. [] = the card has no such line.
+//   needs kinds (src/engine/needs/needKinds.js): placeInPlay{placeId}, readyPiecie{tag?,name?,count}, mosjeMinMP{amount},
+//     mosjeLostMPSinceLastTurnStart{}, mosjesOnField{count}, handSizeOther{count}, opponentHandMax{count}
+//   pay kinds (src/engine/costs/costKinds.js): mpLoss{amount}, energy{amount}, energyAny{}, discardReadyPiecie{tag,count},
+//     discardFromHand{tag|type,count}
 // roll.need: roll `count` dice showing `face` (or higher when orHigher). anySame = "any 2 the same".
 
 export const PERSONAL_QUESTS = [
@@ -14,6 +19,8 @@ export const PERSONAL_QUESTS = [
     rarity: "★★",
     needsText: "this Mosje has 31+ MP.",
     payText: "this Mosje loses 30 MP.",
+    needs: [{ kind: 'mosjeMinMP', amount: 31 }],
+    pay: [{ kind: 'mpLoss', amount: 30 }],
     rollText: "1 ▣ per Str★. Need 2× ⚃+.",
     roll: { trait: "STR", need: { count: 2, face: 4, orHigher: true } },
     placeholderArt: true,
@@ -27,6 +34,8 @@ export const PERSONAL_QUESTS = [
     rarity: "★★★",
     needsText: "Gym in play.",
     payText: "discard 1 ready gear Piecie.",
+    needs: [{ kind: 'placeInPlay', placeId: 'place_the_gym' }],
+    pay: [{ kind: 'discardReadyPiecie', tag: 'gear', count: 1 }],
     rollText: "1 ▣ per Str★. Need 2× ⚃+.",
     roll: { trait: "STR", need: { count: 2, face: 4, orHigher: true } },
     placeholderArt: true,
@@ -40,6 +49,8 @@ export const PERSONAL_QUESTS = [
     rarity: "★★★",
     needsText: "this Mosje lost MP since the start of your last turn and has 50+ MP.",
     payText: "discard 1 ready food Piecie.",
+    needs: [{ kind: 'mosjeLostMPSinceLastTurnStart' }, { kind: 'mosjeMinMP', amount: 50 }],
+    pay: [{ kind: 'discardReadyPiecie', tag: 'food', count: 1 }],
     rollText: "1 ▣ per Str★. Need 1× ⚄+.",
     roll: { trait: "STR", need: { count: 1, face: 5, orHigher: true } },
     placeholderArt: true,
@@ -53,6 +64,8 @@ export const PERSONAL_QUESTS = [
     rarity: "★★★",
     needsText: "Ronald Kip ready and 2 Mosjes on your field.",
     payText: "discard 1 food Piecie from your hand.",
+    needs: [{ kind: 'readyPiecie', name: 'piecie_ronald_kip', count: 1 }, { kind: 'mosjesOnField', count: 2 }],
+    pay: [{ kind: 'discardFromHand', tag: 'food', count: 1 }],
     rollText: "1 ▣ per Str★. Need 2× ⚃+.",
     roll: { trait: "STR", need: { count: 2, face: 4, orHigher: true } },
     placeholderArt: true,
@@ -66,6 +79,8 @@ export const PERSONAL_QUESTS = [
     rarity: "★★★",
     needsText: "1 ready gear Piecie and 5+ other cards in your hand.",
     payText: "2 Energy.",
+    needs: [{ kind: 'readyPiecie', tag: 'gear', count: 1 }, { kind: 'handSizeOther', count: 5 }],
+    pay: [{ kind: 'energy', amount: 2 }],
     rollText: "1 ▣ per Tech★. Need 2× ⚃+.",
     roll: { trait: "TECH", need: { count: 2, face: 4, orHigher: true } },
     placeholderArt: true,
@@ -79,6 +94,8 @@ export const PERSONAL_QUESTS = [
     rarity: "★★",
     needsText: "1 ready gear Piecie.",
     payText: null,
+    needs: [{ kind: 'readyPiecie', tag: 'gear', count: 1 }],
+    pay: [],
     rollText: "1 ▣ per Tech★. Need any 2 the same.",
     roll: { trait: "TECH", need: { count: 2, face: null, orHigher: false, anySame: true } },
     placeholderArt: true,
@@ -92,6 +109,8 @@ export const PERSONAL_QUESTS = [
     rarity: "★",
     needsText: null,
     payText: "discard 2 gear Piecies from your hand.",
+    needs: [],
+    pay: [{ kind: 'discardFromHand', tag: 'gear', count: 2 }],
     rollText: "1 ▣ per Tech★. Need 2× ⚃+.",
     roll: { trait: "TECH", need: { count: 2, face: 4, orHigher: true } },
     placeholderArt: true,
@@ -105,6 +124,8 @@ export const PERSONAL_QUESTS = [
     rarity: "★★",
     needsText: "1 ready gear Piecie.",
     payText: null,
+    needs: [{ kind: 'readyPiecie', tag: 'gear', count: 1 }],
+    pay: [],
     rollText: "1 ▣ per Tech★. Need 1× ⚅.",
     roll: { trait: "TECH", need: { count: 1, face: 6, orHigher: false } },
     placeholderArt: true,
@@ -118,6 +139,8 @@ export const PERSONAL_QUESTS = [
     rarity: "★",
     needsText: null,
     payText: "1 Energy.",
+    needs: [],
+    pay: [{ kind: 'energy', amount: 1 }],
     rollText: "1 ▣ per Art★. Need 1× ⚅.",
     roll: { trait: "ART", need: { count: 1, face: 6, orHigher: false } },
     placeholderArt: true,
@@ -131,6 +154,8 @@ export const PERSONAL_QUESTS = [
     rarity: "★★",
     needsText: null,
     payText: "any amount of Energy.",
+    needs: [],
+    pay: [{ kind: 'energyAny' }],
     rollText: "1 ▣ per Art★, +1 ▣ per 2 Energy paid. Need 2× ⚄+.",
     roll: { trait: "ART", need: { count: 2, face: 5, orHigher: true } },
     rollExtra: { bonusDicePerEnergyPaid: { energy: 2, dice: 1 } },
@@ -145,6 +170,8 @@ export const PERSONAL_QUESTS = [
     rarity: "★★",
     needsText: "Skiffa in play.",
     payText: null,
+    needs: [{ kind: 'placeInPlay', placeId: 'place_skiffa' }],
+    pay: [],
     rollText: "1 ▣ per Art★. Need 2× ⚄+.",
     roll: { trait: "ART", need: { count: 2, face: 5, orHigher: true } },
     placeholderArt: true,
@@ -158,6 +185,8 @@ export const PERSONAL_QUESTS = [
     rarity: "★★",
     needsText: "your opponent has 2 or fewer cards in hand.",
     payText: "discard 1 Piecie from your hand.",
+    needs: [{ kind: 'opponentHandMax', count: 2 }],
+    pay: [{ kind: 'discardFromHand', type: 'PIECIE', count: 1 }],
     rollText: "1 ▣ per Art★. Need 2× ⚃+.",
     roll: { trait: "ART", need: { count: 2, face: 4, orHigher: true } },
     placeholderArt: true,

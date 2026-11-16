@@ -4,5 +4,6 @@
 export function payMpCost(slot, amount) {
 	slot.mp -= amount; // mp-direct-ok: a paid cost takes exactly its amount, no reducers (rules §9, D-22)
 	slot.mpLostThisTurn = (slot.mpLostThisTurn || 0) + amount;
+	slot.mpLostWindowNow = true; // Needs: lost MP since the start of the owner's last turn (70-06)
 	return slot;
 }
