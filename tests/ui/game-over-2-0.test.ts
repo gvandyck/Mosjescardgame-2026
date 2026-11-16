@@ -21,7 +21,7 @@ function finishedState(over = {}) {
 		status: 'FINISHED',
 		turnNumber: 7,
 		winnerId: 'player_2',
-		winReason: 'LEVEL_3',
+		winReason: 'PERSONAL_QUEST',
 		players: {
 			player_1: { name: 'Gandoe', deckId: 'STARTER_PHYSICAL', graveyard: [{ type: 'MOSJE', name: 'A' }, { type: 'MOSJE', name: 'B' }, { type: 'PIECIE', name: 'P' }], questStats: { attempted: 4, won: 3 } },
 			player_2: { name: 'Bot', deckId: 'STARTER_DIGITAL', graveyard: [{ type: 'MOSJE', name: 'C' }] },
@@ -147,7 +147,7 @@ describe('sanitizeGameParams (D-17, T-64-21)', () => {
 describe('buildRewardOverlayHtml (D-19, D-20, D-22, T-64-22)', () => {
 	const summary = buildGameSummary(finishedState());
 	const headline = getGameOverHeadline({ mode: 'vsBot', winnerId: 'player_1', localPlayerId: 'player_1', summary });
-	const base = { headline, reasonText: 'A held Level 3 until their turn - victory!', summary, mode: 'vsBot', showMunten: false, muntenAwarded: 0, logEntries: [{ type: 'win', text: 'One' }, { type: 'info', text: 'Two' }], canPlayAgain: true };
+	const base = { headline, reasonText: 'Their Mosje completed a Personal Quest - victory!', summary, mode: 'vsBot', showMunten: false, muntenAwarded: 0, logEntries: [{ type: 'win', text: 'One' }, { type: 'info', text: 'Two' }], canPlayAgain: true };
 
 	it('keeps the stable selectors and adds the 2.0 stats', () => {
 		const html = buildRewardOverlayHtml(base);

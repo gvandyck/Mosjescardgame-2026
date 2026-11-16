@@ -170,7 +170,7 @@ test('chain: Coert KasteLuck Morning Luck - start of turn, 4-6 draws 1 card and 
 // 2.0 rule (applyGainToSlot): reaching 100 MP raises the Mosje one Level and
 // resets MP to 0 (no carry-over). A Level 1 / 80 MP Mosje gaining +25 from
 // Kannetje Melk lands at Level 2 / 0 MP - not 105 MP and not a double level-up.
-test('chain: piecie MP gain crossing 100 raises one Level and resets MP to 0', async ({ page }) => {
+test('chain: piecie MP gain crossing 100 raises one Level and resets MP to 10', async ({ page }) => {
 	test.setTimeout(60000);
 	await seedCustomDeck(page, {
 		id: 'custom_levelup_chain', name: 'MP-cap Chain',
@@ -191,10 +191,10 @@ test('chain: piecie MP gain crossing 100 raises one Level and resets MP to 0', a
 	await activate(page, 'piecie_kannetje_melk');   // +25 on 80 → should CAP at 100
 
 	const after = await ownSlotObj(page, 0);
-	console.log(`MP-cap chain: → Lv${after.level}/${after.mp} (expected Lv2/0)`);
+	console.log(`MP-cap chain: → Lv${after.level}/${after.mp} (expected Lv2/10)`);
 	await ss(page, 'chain-mp-cap');
 	expect(after.level).toBe(2);                    // exactly one Level up
-	expect(after.mp).toBe(0);                       // MP resets, no carry-over
+	expect(after.mp).toBe(10);                      // 70-01 (D-08): MP resets to 10, no carry-over
 });
 
 // ── Chain F: Tikker Stays next to its Mosje → that Mosje can't Quest on the owner's NEXT turn ──

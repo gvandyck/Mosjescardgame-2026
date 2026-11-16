@@ -9,7 +9,7 @@ import {
 	setQuestFaceUp, setNextDice, setHand, attackViaUi, questViaUi,
 } from './helpers.js';
 import { tapOwnCard, chooseTray } from '../helpers/boardTaps.js';
-import { getPower } from '../../src/engine/mp/getPower.js';
+import { previewAttack } from '../../src/engine/attack/previewAttack.js';
 
 async function boot(page) {
 	await seedOfflineSession(page, 'DUO_COERT_BINTI', 'DUO_GANDOE_MICHELLE');
@@ -25,13 +25,14 @@ async function boot(page) {
 }
 const mp = (gs, pid, i = 0) => gs.players[pid].activeSlots[i].mp;
 
-test('E12/E13: 3 face-up Quests; attack drops the target by the attacker Power; that Mosje cannot then Quest', async ({ page }) => {
+test('E12/E13: 3 face-up Quests; attack drops the target by the previewed loss; that Mosje cannot then Quest', async ({ page }) => {
 	test.setTimeout(60000);
 	await boot(page);
 	await expect(page.locator('#quest-stacks')).toBeVisible();
 	const gs0 = await getGameState(page);
 	for (const s of ['PHYSICAL', 'DIGITAL', 'CREATIVE']) expect(gs0.questStacks[s].faceUp, `${s} face-up`).toBeTruthy();
-	const power = getPower(gs0.players.player_1.activeSlots[0]);
+	// 70-02: the loss is Power + type triangle - Resilient (at least 5): the engine's own preview.
+	const power = previewAttack(gs0, 'player_1', 0, 'player_2', 0).final;
 	expect(power).toBeGreaterThan(0);
 	const before = mp(gs0, 'player_2');
 	await attackViaUi(page);
@@ -54,26 +55,22 @@ test('E16: Quest win with forced dice gives +25 and a new Quest face-up', async 
 	await questViaUi(page, { slot: 0, stackId: 'PHYSICAL' });
 	const gs = await getGameState(page);
 	expect(mp(gs, 'player_1')).toBe(before + 25);
-	expect(gs.questStacks.PHYSICAL.faceUp, 'next Quest turned face-up').not.toBe('quest_tough_it_out');
+	expect(gs.questStacks.PHYSICAL.faceUp, 'next Quest turned face-up').toBeTruthy(); // D-16: the attempted Quest is shuffled back first, so the same card can come up again
 	expect(gs.questStacks.PHYSICAL.faceUp).toBeTruthy();
 	await expect(page.locator('.mosje-card--owned').first()).toContainText(String(before + 25));
 });
 
-test('E17: Quest fail loses 15 and adds a token; a 2nd fail discards the Quest', async ({ page }) => {
+test('E17: Quest fail loses 15, the Quest goes back into its stack and a new one is turned up (no fail tokens)', async ({ page }) => {
 	test.setTimeout(60000);
 	await boot(page);
-	await setMosjeOnField(page, 'player_1', 1, 'mosje_alyssa_fissa', { mp: 40, level: 1 });
 	await setQuestFaceUp(page, 'PHYSICAL', 'quest_tough_it_out');
 	await setNextDice(page, [1, 1, 1, 1, 1, 1]);
 	const before = mp(await getGameState(page), 'player_1');
 	await questViaUi(page, { slot: 0, stackId: 'PHYSICAL' });
-	let gs = await getGameState(page);
+	const gs = await getGameState(page);
 	expect(mp(gs, 'player_1')).toBe(before - 15);
-	expect(gs.questStacks.PHYSICAL.faceUp).toBe('quest_tough_it_out');
-	expect(gs.questStacks.PHYSICAL.tokens, 'fail token').toBe(1);
-	// Second failed attempt (second Mosje, same turn) -> 2nd token -> Quest leaves the stack.
-	await questViaUi(page, { slot: 1, stackId: 'PHYSICAL' });
-	gs = await getGameState(page);
-	expect(gs.questStacks.PHYSICAL.faceUp).not.toBe('quest_tough_it_out');
-	expect(gs.questStacks.PHYSICAL.discard).toContain('quest_tough_it_out');
+	// 70-07 / D-16: win or fail, the attempted Quest is shuffled back into the stack and the next one is turned up.
+	expect(gs.questStacks.PHYSICAL.faceUp, 'a new Quest is turned up').toBeTruthy(); // D-16: the attempted Quest is shuffled back first, so the same card can come up again
+	expect([gs.questStacks.PHYSICAL.faceUp, ...gs.questStacks.PHYSICAL.deck], 'the attempted Quest is back in the stack').toContain('quest_tough_it_out');
+	expect(gs.questStacks.PHYSICAL.tokens, 'no fail tokens any more').toBeUndefined();
 });

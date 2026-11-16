@@ -17,7 +17,7 @@ console.log('[ENGINE] victoryChecker.js loaded');
 // ─────────────────────────────────────────────────────────────
 // WIN / LOSE (Obby 2.0):
 //   KNOCKOUT — an opponent has no Mosje left on field, in hand or in deck.
-//   LEVEL_3 is decided at turn start by winLose/checkWin.js (hold Level 3).
+//   The win (PERSONAL_QUEST) is set by resolvePersonalQuestAttempt; this file decides only the loss.
 // ─────────────────────────────────────────────────────────────
 
 // ─────────────────────────────────────────────────────────────
@@ -119,7 +119,7 @@ export function normalizeMosjeMp(gameState) {
 // ─────────────────────────────────────────────────────────────
 // getWinReason
 // Obby 2.0: the only instant end is KNOCKOUT (an opponent has no Mosje left on
-// field, in hand or in deck). The Level 3 win is checked at turn start (checkWin).
+// field, in hand or in deck). The Personal Quest win is set by resolvePersonalQuestAttempt.
 // ─────────────────────────────────────────────────────────────
 function getWinReason(gameState, playerId) {
   const opponentIds = getAllPlayerIds(gameState).filter(id => id !== playerId);

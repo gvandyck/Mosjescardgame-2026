@@ -64,23 +64,20 @@ test('U5: 3 Quest tiles on visible stacks, each with its dice need, 2 edges and 
 	await page.screenshot({ path: `${SHOT_DIR}/u5-quests.png` });
 });
 
-test('U5: a failed Quest fills a fail pip; the 2nd fail replaces the Quest with a fresh one (0 pips)', async ({ page }) => {
+test('U5: a failed Quest goes back into its stack and a fresh Quest (0 pips) is turned up', async ({ page }) => {
 	test.setTimeout(60000);
 	await bootWithoutHand(page);
 	await setQuestFaceUp(page, 'PHYSICAL', 'quest_tough_it_out'); // Steady: one 4+, +25 / -15
 	await expect(stackOf(page, 'PHYSICAL')).toHaveAttribute('data-quest', 'quest_tough_it_out');
+	const before = (await getGameState(page)).questStacks.PHYSICAL.deck.length;
 	await setNextDice(page, [1, 1, 1, 1, 1, 1]);
 	await questViaUi(page, { slot: 0, stackId: 'PHYSICAL' });
-	let gs = await getGameState(page);
-	expect(gs.questStacks.PHYSICAL.tokens, 'engine fail token').toBe(1);
-	await expect(stackOf(page, 'PHYSICAL')).toHaveAttribute('data-quest', 'quest_tough_it_out');
-	await expect(filledPips(page, 'PHYSICAL'), 'one filled pip after the first fail').toHaveCount(1);
-	await expect(filledPips(page, 'DIGITAL'), 'other stacks untouched').toHaveCount(0);
-
-	// Second failed attempt (second Mosje, same turn): the Quest leaves, the next one comes in with empty pips.
-	await questViaUi(page, { slot: 1, stackId: 'PHYSICAL' });
-	gs = await getGameState(page);
-	expect(gs.questStacks.PHYSICAL.faceUp).not.toBe('quest_tough_it_out');
+	const gs = await getGameState(page);
+	// 70-07 / D-16: no fail tokens; after one attempt the Quest is shuffled back and the next one is turned up.
+	expect(gs.questStacks.PHYSICAL.tokens, 'no engine fail token').toBeUndefined();
+	expect(gs.questStacks.PHYSICAL.faceUp, 'a Quest is turned face-up').toBeTruthy(); // D-16: the attempted Quest is shuffled back first, so the same card can come up again
+	expect([gs.questStacks.PHYSICAL.faceUp, ...gs.questStacks.PHYSICAL.deck], 'the failed Quest is back in the stack').toContain('quest_tough_it_out');
+	expect(gs.questStacks.PHYSICAL.deck.length, 'the stack keeps its size').toBe(before);
 	await expect(stackOf(page, 'PHYSICAL')).toHaveAttribute('data-quest', gs.questStacks.PHYSICAL.faceUp);
 	await expect(filledPips(page, 'PHYSICAL'), 'fresh Quest has no fail pips').toHaveCount(0);
 	await expect(stackOf(page, 'PHYSICAL').locator('.quest-stack__count')).toHaveText(`${gs.questStacks.PHYSICAL.deck.length} left`);
@@ -95,9 +92,9 @@ test('U5: a won Quest is replaced by the next one in its stack', async ({ page }
 	await setNextDice(page, [6, 6, 6]);
 	await questViaUi(page, { slot: 0, stackId: 'PHYSICAL' });
 	const gs = await getGameState(page);
-	expect(gs.questStacks.PHYSICAL.faceUp, 'next Quest turned face-up').not.toBe('quest_tough_it_out');
+	expect(gs.questStacks.PHYSICAL.faceUp, 'next Quest turned face-up').toBeTruthy(); // D-16: the attempted Quest is shuffled back first, so the same card can come up again
 	await expect(stackOf(page, 'PHYSICAL')).toHaveAttribute('data-quest', gs.questStacks.PHYSICAL.faceUp);
 	await expect(filledPips(page, 'PHYSICAL')).toHaveCount(0);
 	await expect(stackOf(page, 'PHYSICAL')).toHaveAttribute('data-stack-count', String(gs.questStacks.PHYSICAL.deck.length));
-	expect(gs.questStacks.PHYSICAL.deck.length, 'one card left the deck').toBe(before - 1);
+	expect(gs.questStacks.PHYSICAL.deck.length, 'the won Quest is shuffled back, the stack keeps its size').toBe(before);
 });

@@ -2,7 +2,7 @@
  * U11 - full 2.0 games, one bot-vs-bot game per ordered matchup of the 3 Example Decks (handoff 6c).
  *
  * D-23: "every pairing" = 9 ordered matchups (3 distinct pairings in both seat orders + 3 mirrors).
- * D-24: fast=true, testMode=true; pass = #reward-overlay with a valid win reason (LEVEL_3 or KNOCKOUT), no pageerror,
+ * D-24: fast=true, testMode=true; pass = #reward-overlay with a valid win reason (PERSONAL_QUEST or KNOCKOUT), no pageerror,
  *       no console error, no engine-refused bot metric.
  * D-26: the engine has no turn cap, so the harness caps a game at 80 rounds or 120 s wall clock (tests/helpers/simCaps.js).
  *
@@ -25,7 +25,7 @@ MATCHUPS.forEach(([p1, p2], i) => {
 		console.log(`U11 ${p1.name} vs ${p2.name} (seed ${seed}): ${r.rounds} rounds, ${(r.elapsedMs / 1000).toFixed(1)} s, `
 			+ `winner ${r.winnerId} by ${r.winReason}, stuck ${r.stuckMs} ms ${r.stuckWhat ?? ''}`);
 		expect(r.timedOut, summary).toBe(false);
-		expect(['LEVEL_3', 'KNOCKOUT'], summary).toContain(r.winReason);
+		expect(['PERSONAL_QUEST', 'KNOCKOUT'], summary).toContain(r.winReason);
 		expect(r.errors, summary).toEqual([]);
 		expect(r.engineRefused, summary).toBe(0);
 	});

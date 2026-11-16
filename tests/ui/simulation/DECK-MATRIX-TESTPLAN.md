@@ -10,7 +10,7 @@ The game's own bot drives both seats (`?botvsbot=true&fast=true&testMode=true`);
 Harness: `tests/helpers/playBotGame.js` (shared with U11 `tests/ui/full-game-2.0.spec.js`).
 
 ## Gate (the only thing that fails the run, D-26)
-- any crash: page error, console error, bot-driver throw, `engine-refused` metric, win reason other than LEVEL_3 / KNOCKOUT
+- any crash: page error, console error, bot-driver throw, `engine-refused` metric, win reason other than PERSONAL_QUEST / KNOCKOUT
 - a lost record (fewer than 90 games recorded), or a timeout rate of 25 % or more
 - Timeout = not finished by round 80 or 120 s (`tests/helpers/simCaps.js`). The engine has no turn cap; 80 is far above the
   measured median 22 / p95 48, so only a real stall reaches it. Never raise the caps to make a run pass.

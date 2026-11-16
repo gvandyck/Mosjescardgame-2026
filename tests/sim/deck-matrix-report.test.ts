@@ -21,12 +21,12 @@ const m = (over) => ({ ...zero, ...over });
 function fixture() {
 	const base = { crashed: false, errors: [], engineRefused: 0, timedOut: false, timeoutKind: null, elapsedMs: 1000, botMetrics: {} };
 	return [
-		{ ...base, matchup: 'TK-vs-RG', p1Deck: 'TK', p2Deck: 'RG', gameIndex: 1, seed: 64001, finished: true, rounds: 10, winReason: 'LEVEL_3', winnerId: 'player_1', winnerDeck: 'TK',
+		{ ...base, matchup: 'TK-vs-RG', p1Deck: 'TK', p2Deck: 'RG', gameIndex: 1, seed: 64001, finished: true, rounds: 10, winReason: 'PERSONAL_QUEST', winnerId: 'player_1', winnerDeck: 'TK',
 			botMetrics: { [TAKSEN]: m({ attacks: 6, questRolls: 2, questWins: 1 }), [REGELAARS]: m({ attacks: 2, questRolls: 2, questWins: 2, secondMosjePlays: 1 }) } },
 		{ ...base, matchup: 'TK-vs-RG', p1Deck: 'TK', p2Deck: 'RG', gameIndex: 2, seed: 64002, finished: true, rounds: 20, winReason: 'KNOCKOUT', winnerId: 'player_2', winnerDeck: 'RG',
 			botMetrics: { [TAKSEN]: m({ attacks: 4 }), [REGELAARS]: m({ questRolls: 4, questWins: 3, actionSkips: 2, skipReasons: { 'no-energy': 2 } }) } },
-		{ ...base, matchup: 'RG-vs-TK', p1Deck: 'RG', p2Deck: 'TK', gameIndex: 1, seed: 64101, finished: true, rounds: 30, winReason: 'LEVEL_3', winnerId: 'player_1', winnerDeck: 'RG' },
-		{ ...base, matchup: 'TK-vs-TK', p1Deck: 'TK', p2Deck: 'TK', gameIndex: 1, seed: 64201, finished: true, rounds: 40, winReason: 'LEVEL_3', winnerId: 'player_2', winnerDeck: 'TK' },
+		{ ...base, matchup: 'RG-vs-TK', p1Deck: 'RG', p2Deck: 'TK', gameIndex: 1, seed: 64101, finished: true, rounds: 30, winReason: 'PERSONAL_QUEST', winnerId: 'player_1', winnerDeck: 'RG' },
+		{ ...base, matchup: 'TK-vs-TK', p1Deck: 'TK', p2Deck: 'TK', gameIndex: 1, seed: 64201, finished: true, rounds: 40, winReason: 'PERSONAL_QUEST', winnerId: 'player_2', winnerDeck: 'TK' },
 		{ ...base, matchup: 'CV-vs-TK', p1Deck: 'CV', p2Deck: 'TK', gameIndex: 1, seed: 64301, finished: false, timedOut: true, timeoutKind: 'rounds', rounds: 81, winReason: null, winnerId: null, winnerDeck: null },
 		{ ...base, matchup: 'RG-vs-CV', p1Deck: 'RG', p2Deck: 'CV', gameIndex: 1, seed: 64401, finished: false, crashed: true, errors: ['console: boom'], rounds: 3, winReason: null, winnerId: null, winnerDeck: null },
 	];
@@ -63,7 +63,7 @@ describe('aggregateDeckStats (D-27 report numbers)', () => {
 	it('overall: median of [10,20,30,40] is 25, p90 is 40, win reasons and seat 1 share over finished games', () => {
 		expect(stats.overall.medianRounds).toBe(25);
 		expect(stats.overall.p90Rounds).toBe(40);
-		expect(stats.overall.winReasons).toEqual({ LEVEL_3: 3, KNOCKOUT: 1 });
+		expect(stats.overall.winReasons).toEqual({ PERSONAL_QUEST: 3, KNOCKOUT: 1 });
 		expect(stats.overall.seat1WinRate).toBe(50);
 	});
 
@@ -158,7 +158,7 @@ describe('evaluateSimGate (D-26: only crashes and a timeout rate of 25 % or more
 
 describe('buildSimRecord (what counts as a crash, D-26)', () => {
 	const meta = { matchup: 'TK-vs-RG', p1: { key: 'TK' }, p2: { key: 'RG' }, gameIndex: 3, seed: 64003 };
-	const ok = { finished: true, timedOut: false, timeoutKind: null, rounds: 22, winReason: 'LEVEL_3', winnerId: 'player_2', errors: [], engineRefused: 0, stuckMs: 0, elapsedMs: 5000,
+	const ok = { finished: true, timedOut: false, timeoutKind: null, rounds: 22, winReason: 'PERSONAL_QUEST', winnerId: 'player_2', errors: [], engineRefused: 0, stuckMs: 0, elapsedMs: 5000,
 		metrics: [{ ev: 'attack', deck: TAKSEN }, { ev: 'quest-roll', deck: TAKSEN, success: true }] };
 
 	it('a clean finished game is not a crash; winnerDeck is the seat key of winnerId; metrics are summarised', () => {

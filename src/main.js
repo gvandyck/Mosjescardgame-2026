@@ -30,6 +30,7 @@ import { chooseQuestChoices } from './bot/strategy/chooseQuestChoices.js';
 import { settleReactions } from './ui/actions/settleReactions.js';
 import { runAttackFlow } from './ui/actions/runAttackFlow.js';
 import { runQuestFlow } from './ui/actions/runQuestFlow.js';
+import { runPersonalQuestFlow } from './ui/actions/runPersonalQuestFlow.js';
 import { getActivePartnerSynergyBonuses } from './abilities/questLogic.js';
 import { getMingPeekStack } from './abilities/getMingPeekStack.js';
 import { PIECIE_SLOT_COUNT } from './engine/table/tableRules.js';
@@ -41,6 +42,7 @@ import { PIECIES } from './data/piecies.js';
 import { SNELLE_PIECIES } from './data/snellePiecies.js';
 import { PLACES } from './data/places.js';
 import { QUESTS } from './data/quests.js';
+import { getPersonalQuestDef } from './engine/personalQuests/getPersonalQuestDef.js';
 import { PERSONAL_QUESTS } from './data/personalQuests.js';
 import { personalQuestText } from './ui/personalQuestText.js';
 import { createRoom, joinRoom } from './multiplayer/roomManager.js';
@@ -625,6 +627,7 @@ function initGamePage() {
 			attack: (slotIndex, targetPlayerId, targetSlotIndex) => runMosjeAction(runAttackFlow, 'attack', { slotIndex, targetPlayerId, targetSlotIndex }),
 			beginQuest: () => offerQuestPeek(),
 			quest: (slotIndex, stackId) => runMosjeAction(runQuestFlow, 'quest', { slotIndex, stackId }),
+			personalQuest: (slotIndex) => runPersonalQuest({ slotIndex }),
 			ability: (cardId) => handleUseAbility(cardId),
 			activate: (slotIndex) => handleActivatePiecie(slotIndex),
 		},
@@ -848,10 +851,11 @@ function initGamePage() {
 		const opponentName = opponent?.name || 'Opponent';
 
 		switch (gs.winReason) {
-			case 'LEVEL_3': {
-				const champ = (winner?.activeSlots || []).find(s => s && s.level >= 3);
-				const who = champ?.name || `${winnerName}'s Mosje`;
-				return `${who} held Level 3 until their turn — victory!`;
+			case 'PERSONAL_QUEST': {
+				const won = gs.winningQuest || {};
+				const who = won.mosjeName || `${winnerName}'s Mosje`;
+				const quest = getPersonalQuestDef(won.cardId)?.name || 'a Personal Quest';
+				return `${who} completed the Personal Quest ${quest} — victory!`;
 			}
 			case 'KNOCKOUT': {
 				const lastDefeated = getPileMosjes(opponent).slice(-1)[0];
@@ -1011,7 +1015,7 @@ function initGamePage() {
 			// set up exactly the board it needs (e.g. two Mosjes for Tuk Healer/Tactician,
 			// or a specific opponent Mosje for a defeat chain). slotIndex 0 or 1.
 			// Pass cardId=null to clear the slot.
-			setMosjeOnField(playerId, slotIndex, cardId, { mp = 10, level = 1, entryProtected = false, sideways = false, powerBoost = 0, pendingWelloe = false } = {}) {
+			setMosjeOnField(playerId, slotIndex, cardId, { mp = 10, level = 1, entryProtected = false, sideways = false, powerBoost = 0, pendingWelloe = false, startedTurnAtLevel = true } = {}) {
 				const player = gameState?.players?.[playerId];
 				if (!player) return;
 				if (cardId == null) { player.activeSlots[slotIndex] = null; renderFromState(gameState); return; }
@@ -1021,6 +1025,9 @@ function initGamePage() {
 				// U8 — seeded test Mosjes are UNPROTECTED by default (card tests
 				// model an established board); pass entryProtected:true to test U8.
 				if (!entryProtected) delete seeded.entryProtected;
+				// 70-08: the level the Mosje had when its owner's turn started (Personal Quest pacing). A seeded Mosje counts as
+				// established; pass startedTurnAtLevel:false to switch that off (the field is then absent, as for a Mosje summoned this turn).
+				if (startedTurnAtLevel) seeded.levelAtTurnStart = level;
 				if (sideways) seeded.sideways = true;
 				if (pendingWelloe) seeded._pendingWelloe = true; // 61.1: seeds the lingering getemt-while-sideways flag (Perfect Dodge repro)
 				if (powerBoost) seeded.powerBoost = powerBoost; // card tests: a Power-40 attacker (Momentum Stabilizer)
@@ -1379,6 +1386,12 @@ function initGamePage() {
 		out.log.forEach(line => log.add('quest', line));
 		syncPush();
 		renderAndAnimate(before, { actionLabel });
+	}
+
+	// 70-09: a Personal Quest from the hand (Play button, card preset) or from a Mosje's tray chip (slot preset). A win ends the game.
+	async function runPersonalQuest(presets) {
+		await runMosjeAction(runPersonalQuestFlow, 'personal-quest', presets);
+		if (gameState?.status === 'FINISHED') handleGameOver(gameState);
 	}
 
 	// Senor West's optional look at a Quest stack (once per turn): the Quest tray chip offers it before the Quest tiles light up.
@@ -1769,6 +1782,11 @@ function initGamePage() {
 					: [],
 			});
 			showInstantEffect('snelle');   // red burst — instant card
+			return;
+		}
+
+		if (cardType === 'PERSONAL_QUEST') {
+			await runPersonalQuest({ cardId });
 			return;
 		}
 

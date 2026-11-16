@@ -4,7 +4,7 @@
 // gets, so every test can demand zero page errors and zero console errors.
 import { test, expect } from '@playwright/test';
 import { servePlaceholderFirebase } from '../helpers/servePlaceholderFirebase.js';
-import { forceHumanHeldLevel3Win } from '../helpers/forceHumanHeldLevel3Win.js';
+import { forceHumanPersonalQuestWin } from '../helpers/forceHumanPersonalQuestWin.js';
 import { playBotGame } from '../helpers/playBotGame.js';
 import { GAME_URL_TEST, waitForBoard, ss } from './helpers.js';
 
@@ -44,21 +44,21 @@ test('D-19 D-21 D-22 vs Bot: Victory, 2.0 stats from the engine, no V4 tiles, no
 	await seedVsBotSession(page, { withReplay: false });
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
-	await forceHumanHeldLevel3Win(page);
+	await forceHumanPersonalQuestWin(page);
 
 	const overlay = page.locator('#reward-overlay');
 	await expect(page.locator('.reward-title')).toHaveText('Victory!');
 	await expect(overlay).toHaveAttribute('data-mode', 'vsBot');
-	await expect(overlay).toHaveAttribute('data-win-reason', 'LEVEL_3');
+	await expect(overlay).toHaveAttribute('data-win-reason', 'PERSONAL_QUEST');
 	await expect(overlay).toHaveAttribute('data-winner-id', 'player_1');
 	await expect(page.locator('.reward-subtitle')).toHaveText('TestPlayer wins!');
-	await expect(page.locator('.reward-reason')).toContainText('held Level 3');
+	await expect(page.locator('.reward-reason')).toContainText('Personal Quest');
 
 	// The numbers come from the engine state, not from a UI tracker.
 	const state = await page.evaluate(() => window.__testHooks.getGameState());
 	await expect(page.locator('[data-stat="rounds"]')).toHaveText(String(state.turnNumber));
-	const quests = state.players.player_1.questStats;
-	expect(quests.attempted).toBeGreaterThanOrEqual(1);
+	// 70-09: the win is a Personal Quest, which is not a Quest stat; the screen still shows the engine's counter (0/0 here).
+	const quests = state.players.player_1.questStats ?? { attempted: 0, won: 0 };
 	await expect(page.locator('[data-stat="quests"][data-player-id="player_1"]')).toHaveText(`${quests.won}/${quests.attempted}`);
 	for (const id of ['player_1', 'player_2']) {
 		const lost = state.players[id].graveyard.filter(card => card.type === 'MOSJE').length;
@@ -92,7 +92,7 @@ test('D-20 Play again vs Bot keeps the decks and rolls Random again', async ({ p
 	await seedVsBotSession(page, { withReplay: true });
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
-	await forceHumanHeldLevel3Win(page);
+	await forceHumanPersonalQuestWin(page);
 
 	await page.locator('#reward-again-btn').click();
 	await page.waitForURL('**/game.html?offline=true&player=player_1');

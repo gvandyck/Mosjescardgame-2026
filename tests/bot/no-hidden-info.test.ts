@@ -24,6 +24,8 @@ import { scoreMosjeAction } from '../../src/bot/strategy/scoreMosjeAction.js';
 import { orderActingMosjes } from '../../src/bot/strategy/orderActingMosjes.js';
 import { chooseQuestChoices } from '../../src/bot/strategy/chooseQuestChoices.js';
 import { chooseQuestCostChoice } from '../../src/bot/strategy/chooseQuestCostChoice.js';
+import { choosePersonalQuest } from '../../src/bot/strategy/choosePersonalQuest.js';
+import { defaultPersonalQuestChoice } from '../../src/bot/strategy/defaultPersonalQuestChoice.js';
 import { chooseReaction } from '../../src/bot/strategy/chooseReaction.js';
 import { chooseTriggerChoice } from '../../src/bot/strategy/chooseTriggerChoice.js';
 import { defaultAbilityInputs } from '../../src/bot/strategy/defaultAbilityInputs.js';
@@ -161,6 +163,8 @@ const TRAP_TABLE = {
 		const ids = [...faceUpQuestIds(t), 'quest_parkeren_delft', 'quest_geen_raad_vraag_aad'];
 		for (const questId of ids) for (const win of [true, false]) chooseQuestChoices(t, seat, { questId, win, discardedCardIds: [] });
 	},
+	choosePersonalQuest: (t, seat) => { choosePersonalQuest(t, seat); [0, 1].forEach((i) => choosePersonalQuest(t, seat, i)); },
+	defaultPersonalQuestChoice: (t, seat) => { defaultPersonalQuestChoice(t, seat, 'pq_high_roller'); },
 	chooseQuestCostChoice: (t, seat) => {
 		for (const id of faceUpQuestIds(t)) chooseQuestCostChoice(t, seat, 0, getQuestDef(id));
 		for (const quest of QUESTS) chooseQuestCostChoice(t, seat, 0, quest); // every cost kind

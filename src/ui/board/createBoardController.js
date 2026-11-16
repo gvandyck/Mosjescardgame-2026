@@ -5,7 +5,7 @@
 //   selected -> Ability / Activate -> handlers.ability / handlers.activate;  Details -> the tile's detail view
 //   Cancel, Esc, empty felt, the end of your turn, or a card that went away -> idle
 // getState() -> the engine state; handlers = { attack(slot, targetPlayerId, targetSlot), beginQuest(slot) (may be async),
-// quest(slot, stackId), ability(cardId), activate(slotIndex) }; onChange() runs after every redraw (main.js repaints the strip).
+// quest(slot, stackId), personalQuest(slot), ability(cardId), activate(slotIndex) }; onChange() runs after every redraw (main.js repaints the strip).
 // The board is rebuilt on every state change, so afterRender() redraws the current mode on the fresh tiles.
 import { getTrayActions } from './getTrayActions.js';
 import { getAttackTargets } from './getAttackTargets.js';
@@ -92,7 +92,8 @@ export function createBoardController({ getState, localPlayerId, handlers = {}, 
 			return;
 		}
 		setMode('idle');
-		if (action === 'ability') handlers.ability?.(card.cardId);
+		if (action === 'personalQuest') handlers.personalQuest?.(card.slotIndex);
+		else if (action === 'ability') handlers.ability?.(card.cardId);
 		else if (action === 'activate') handlers.activate?.(card.slotIndex);
 	}
 

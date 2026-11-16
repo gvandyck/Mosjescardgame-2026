@@ -10,7 +10,10 @@ export function chooseQuestCostChoice(state, playerId, slotIndex, quest) {
 	if (!quest?.costId) return { ok: true, choice: undefined };
 	const player = state.players[playerId];
 	const options = [{ choice: undefined, rank: 0 }];
-	(player.hand || []).forEach((c, index) => options.push({ choice: { zone: 'hand', index }, rank: HAND_COST[c.type] ?? 3 }));
+	(player.hand || []).forEach((c, index) => {
+		if (c.type === 'PERSONAL_QUEST') return; // the only way to win is never a price (70-09)
+		options.push({ choice: { zone: 'hand', index }, rank: HAND_COST[c.type] ?? 3 });
+	});
 	(player.piecieSlots || []).forEach((e, index) => {
 		if (isReadyPiecieSlot(e, state.turnNumber)) options.push({ choice: { zone: 'ready', index }, rank: 5 });
 	});

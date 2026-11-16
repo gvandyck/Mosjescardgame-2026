@@ -6,6 +6,7 @@ import { getAttackTargets } from './getAttackTargets.js';
 import { getQuestTargets } from './getQuestTargets.js';
 import { getAbilityChip } from './getAbilityChip.js';
 import { makeTrayChip } from './makeTrayChip.js';
+import { getPersonalQuestOptions } from '../../engine/personalQuests/getPersonalQuestOptions.js';
 
 function attackReason(state, playerId, slotIndex, slot) {
 	const gate = canMosjeTakeAction(state, playerId, slotIndex);
@@ -27,6 +28,9 @@ export function getMosjeTrayActions(state, playerId, slotIndex) {
 		makeTrayChip('attack', 'Attack', attackReason(state, playerId, slotIndex, slot)),
 		makeTrayChip('quest', 'Quest', questReason(state, playerId, slotIndex)),
 	];
+	// 70-09: a Personal Quest in hand adds a chip; it carries the engine's reason when this Mosje cannot attempt any of them.
+	const mine = getPersonalQuestOptions(state, playerId).filter((o) => o.slotIndex === slotIndex);
+	if (mine.length) chips.push(makeTrayChip('personalQuest', 'Personal Quest', mine.some((o) => o.ok) ? '' : mine[0].error));
 	const ability = getAbilityChip(state, playerId, slotIndex);
 	if (ability) chips.push(ability);
 	chips.push(makeTrayChip('details', 'Details'));

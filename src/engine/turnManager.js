@@ -45,7 +45,6 @@ import { reshufflePileIntoDeck } from './pile/reshufflePileIntoDeck.js';
 import { createMosjeSlot } from './mp/createMosjeSlot.js';
 import { roundToFive } from './roundToFive.js';
 import { gainEnergy } from './energy/gainEnergy.js';
-import { checkWin } from './winLose/checkWin.js';
 import { payEnergy } from './energy/payEnergy.js';
 import { canPay } from './energy/canPay.js';
 import { canMosjeAct } from './mp/canMosjeAct.js';
@@ -116,8 +115,7 @@ export function normalizePiecieSlots(player, slotCount = PIECIE_SLOT_COUNT) {
 export function startTurn(gameState) {
   let state = JSON.parse(JSON.stringify(gameState));
   const playerId = state.activePlayerId;
-  // Obby 2.0 §2b: the win check is the FIRST thing at turn start (hold Level 3).
-  state = checkWin(state, playerId);
+  // Obby 2.1: holding Level 3 wins nothing; the only win is resolvePersonalQuestAttempt (D-01).
   if (state.status === 'FINISHED') return state;
   state = sweepStaysSlots(state, playerId, 'start'); // startOfNextTurn Stays leave now
   expireTimedEffects(state, 'turnStart', playerId);

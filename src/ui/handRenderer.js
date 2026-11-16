@@ -72,7 +72,7 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 		const isSnelle = card.type === 'SNELLE_PIECIE';
 		const isRegularPlayable = card.type === 'PIECIE' || card.type === 'MOSJE';
 		const isPlace = card.type === 'PLACE';
-		const isPersonalQuest = card.type === 'QUEST' && card.questType === 'PERSONAL';
+		const isPersonalQuest = card.type === 'PERSONAL_QUEST'; // 70-09: Play opens the Personal Quest flow (the button stays on when no Mosje is legal; the flow says why)
     const isReturnedMosje = card.type === 'MOSJE' && !!card.returnedThisTurn;
 
 		// Cooldown turn: every card except a Piecie is greyed and a tap says why (the same sentence as the status strip).
@@ -162,7 +162,7 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 				const btn = document.createElement('button');
 				btn.className = 'hand-card__play-btn';
 				btn.type = 'button';
-				btn.textContent = 'Place';
+				btn.textContent = 'Play';
 				btn.addEventListener('click', (e) => {
 					e.stopPropagation();
 					onPlay(card.cardId, card.type);

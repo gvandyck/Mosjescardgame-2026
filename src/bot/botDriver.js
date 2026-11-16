@@ -31,7 +31,11 @@ import {
 import { attackMosje } from '../engine/actions/attackMosje.js';
 import { rollQuestAttempt } from '../engine/quests/rollQuestAttempt.js';
 import { resolveQuestAttempt } from '../engine/quests/resolveQuestAttempt.js';
+import { getPersonalQuestDef } from '../engine/personalQuests/getPersonalQuestDef.js';
 import { getQuestDef } from '../engine/quests/getQuestDef.js';
+import { runBotPersonalQuest } from './runBotPersonalQuest.js';
+import { resolvePersonalQuestAttempt } from '../engine/personalQuests/resolvePersonalQuestAttempt.js';
+import { choosePersonalQuest } from './strategy/choosePersonalQuest.js';
 import { settleMosjePauses } from './settleMosjePauses.js';
 import { settleReactions } from './settleReactions.js';
 import { chooseMosjeAction } from './strategy/chooseMosjeAction.js';
@@ -122,10 +126,22 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
     }
     return true;
   };
+  const pushPersonalQuest = (pending, win) => {
+    const slotName = state.players[botPlayerId].activeSlots[pending.slotIndex]?.name;
+    emitBotMetric('personal-quest-roll', { deck: profile.deckId, quest: pending.cardId, dice: pending.dice.length, success: win });
+    push(`${slotName} tries Personal Quest ${getPersonalQuestDef(pending.cardId)?.name ?? pending.cardId}: dice [${pending.dice.join(',')}] ${win ? 'WIN' : 'FAIL'}`, { kind: 'personal-quest', slotIndex: pending.slotIndex, cardId: pending.cardId });
+  };
   // Resolve a bot Quest roll that was held back by reaction windows.
   const finishHeldQuest = () => {
     const held = state.pendingQuestRoll;
     if (!held || held.playerId !== botPlayerId || state.pendingReaction) return;
+    if (held.kind === 'personal') { // 70-09: a Personal Quest roll that a window held back
+      const fin = resolvePersonalQuestAttempt(state, held);
+      if (!fin.ok) { refused('resolvePersonalQuestAttempt', held.cardId, fin.error); state = { ...state }; delete state.pendingQuestRoll; return; }
+      state = fin.state;
+      pushPersonalQuest(held, fin.win);
+      return;
+    }
     const choices = chooseQuestChoices(state, botPlayerId, held);
     const done = resolveQuestAttempt(state, held, choices);
     if (!done.ok) { refused('resolveQuestAttempt', held.questId, done.error); state = { ...state }; delete state.pendingQuestRoll; return; }
@@ -319,6 +335,18 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
   // one attack changes what the next is worth - the second Mosje finishes the getemt the first one set up.
   function runActionPhase() {
     const tried = new Set();
+    // D-27: a legal Personal Quest is that Mosje's action for the turn (the only way to win), so it goes first. The
+    // value ordering below skips a Mosje with nothing worth doing, so this cannot be left to chooseMosjeAction.
+    for (let i = 0; i < MAX_FIELD_MOSJES && !finished(); i++) {
+      const pqPick = choosePersonalQuest(state, botPlayerId, i);
+      if (!pqPick) continue;
+      const attempt = runBotPersonalQuest(state, botPlayerId, pqPick);
+      if (!attempt.ok) { refused('rollPersonalQuestAttempt', pqPick.cardId, attempt.error); emitBotMetric('action-skip', { deck: profile.deckId, reason: attempt.error }); continue; }
+      tried.add(i);
+      state = attempt.state;
+      if (attempt.reactionPending) { if (settle()) finishHeldQuest(); }
+      else pushPersonalQuest(attempt.pending, attempt.win);
+    }
     for (let n = 0; n < MAX_FIELD_MOSJES && !finished(); n++) {
       const i = orderActingMosjes(state, botPlayerId).find(idx => !tried.has(idx));
       if (i === undefined) break;

@@ -105,9 +105,10 @@ describe('seeded bot-vs-bot legality (15 games: 3 Example Decks)', () => {
 			totals.push({ ...g, seen: found.seen, cover: found.cover, reactionsPlayed });
 			console.info(`[LEGALITY] ${g.a} vs ${g.b} seed 0x${g.seed.toString(16).toUpperCase()}${g.delluft ? ' +Delluft' : ''}: winner=${game.state.winnerId} (${game.state.winReason}), ${game.turns} turns, ${game.steps.length} steps`);
 
-			// (1) The game finishes within 200 turns without throwing (the runner would have thrown).
-			expect(game.state.status).toBe('FINISHED');
+			// (1) The game runs at most 200 turns without throwing (the runner would have thrown). 70-09: holding Level 3 no
+			// longer wins, so a game ends only by KNOCKOUT or a Personal Quest; whether the bot finishes every game is Phase 73.
 			expect(game.turns).toBeLessThanOrEqual(200);
+			if (game.state.status !== 'FINISHED') expect(game.turns).toBe(200);
 			// (2) No engine call of the bot is refused.
 			const refused = game.metrics.filter((m) => m.ev === 'engine-refused');
 			expect(refused.slice(0, 5).map((m) => `${m.call} | ${m.cardId} | ${m.error}`), `${refused.length} engine-refused`).toEqual([]);

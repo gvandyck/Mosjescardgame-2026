@@ -11,7 +11,7 @@ import {
 } from './helpers.js';
 import { beginQuestByTap } from '../helpers/boardTaps.js';
 import { answerReaction, expectNoReactionPrompt } from '../helpers/reactionUi.js';
-import { getPower } from '../../src/engine/mp/getPower.js';
+import { previewAttack } from '../../src/engine/attack/previewAttack.js';
 
 async function boot(page, hand, energy) {
 	await seedOfflineSession(page, 'DUO_COERT_BINTI', 'DUO_GANDOE_MICHELLE');
@@ -25,13 +25,15 @@ async function boot(page, hand, energy) {
 	await setEnergy(page, 'player_1', energy);
 }
 const botAttacks = (page) => page.evaluate(() => window.__testHooks.botAttack(0, 0));
+// 70-02 / 70-09: the loss of the bot's attack is the engine's own preview (Power + type triangle - Resilient, at least 5), not the bare Power.
+const incoming = async (page) => previewAttack(await getGameState(page), 'player_2', 0, 'player_1', 0).final;
 const myMp = async (page) => (await getGameState(page)).players.player_1.activeSlots[0].mp;
 const settled = (page) => expect.poll(async () => (await getGameState(page)).pendingReaction == null && (await getGameState(page)).activePlayerId, { timeout: 15000 }).toBeTruthy();
 
 test('a: The Protector is offered and played from saved Energy; attack still resolves', async ({ page }) => {
 	test.setTimeout(60000);
 	await boot(page, ['snelle_the_protector'], 3);
-	const power = getPower((await getGameState(page)).players.player_2.activeSlots[0]);
+	const power = await incoming(page);
 	await botAttacks(page);
 	await answerReaction(page, 'snelle_the_protector');
 	await settled(page);
@@ -44,7 +46,7 @@ test('a: The Protector is offered and played from saved Energy; attack still res
 test('d: Pass takes the full Power loss', async ({ page }) => {
 	test.setTimeout(60000);
 	await boot(page, ['snelle_the_protector'], 3);
-	const power = getPower((await getGameState(page)).players.player_2.activeSlots[0]);
+	const power = await incoming(page);
 	await botAttacks(page);
 	await answerReaction(page, '__pass__');
 	await settled(page);
@@ -56,7 +58,7 @@ test('b: no free Piecie slot -> no prompt, full Power loss', async ({ page }) =>
 	test.setTimeout(60000);
 	await boot(page, ['snelle_the_protector'], 3);
 	for (let i = 0; i < 3; i++) await page.evaluate((i) => window.__testHooks.setPiecieOnField('player_1', i, 'piecie_kannetje_melk', { faceDown: true }), i);
-	const power = getPower((await getGameState(page)).players.player_2.activeSlots[0]);
+	const power = await incoming(page);
 	await botAttacks(page);
 	await expectNoReactionPrompt(page);
 	await settled(page);
@@ -66,7 +68,7 @@ test('b: no free Piecie slot -> no prompt, full Power loss', async ({ page }) =>
 test('c: not enough Energy (Perfect Dodge costs 2, Energy 1) -> no prompt', async ({ page }) => {
 	test.setTimeout(60000);
 	await boot(page, ['snelle_perfect_dodge'], 1);
-	const power = getPower((await getGameState(page)).players.player_2.activeSlots[0]);
+	const power = await incoming(page);
 	await botAttacks(page);
 	await expectNoReactionPrompt(page);
 	await settled(page);
@@ -106,7 +108,7 @@ const rowHeights = (page) => page.locator('.modal-card--reaction .modal-mosje-se
 test('f: the attack prompt shows who attacks whom for how much, each Snelle as <Name> · N Energy, and a No reaction row', async ({ page }) => {
 	test.setTimeout(60000);
 	await boot(page, ['snelle_the_protector', 'snelle_drain_reversal'], 3);
-	const power = getPower((await getGameState(page)).players.player_2.activeSlots[0]);
+	const power = await incoming(page);
 	await botAttacks(page);
 	const modal = page.locator('.modal-card--reaction');
 	await modal.waitFor({ state: 'visible', timeout: 8000 });

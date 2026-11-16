@@ -1,12 +1,12 @@
 /**
  * build-sim-record.js — turn ONE playBotGame result into the record the 2.0 sim aggregates (64-06, D-26).
  * A game is a CRASH when: it has a page or console error, an engine-refused bot metric, a finished win reason other than
- * LEVEL_3 / KNOCKOUT, a thrown harness error, or it neither finished nor hit a cap. A cap hit alone is a TIMEOUT, not a crash.
+ * PERSONAL_QUEST / KNOCKOUT, a thrown harness error, or it neither finished nor hit a cap. A cap hit alone is a TIMEOUT, not a crash.
  * meta: { matchup, p1: { key }, p2: { key }, gameIndex, seed }. result: playBotGame's return (null when it threw `thrown`).
  */
 import { summarizeBotMetrics } from './game-collector.js';
 
-const VALID_WIN_REASONS = ['LEVEL_3', 'KNOCKOUT'];
+const VALID_WIN_REASONS = ['PERSONAL_QUEST', 'KNOCKOUT'];
 
 export function buildSimRecord(meta, result, thrown = null) {
 	const r = result || { finished: false, timedOut: false, timeoutKind: null, rounds: 0, winReason: null, winnerId: null, errors: [], metrics: [], engineRefused: 0, stuckMs: 0, elapsedMs: 0 };

@@ -47,7 +47,7 @@ function assertInvariants(state: any, turn: number): void {
       if (!s) continue;
       const tag = `turn ${turn} ${pid} slot ${i} (${s.cardId})`;
       expect(Number.isInteger(s.mp) && s.mp % 5 === 0 && s.mp >= 0, `${tag} mp=${s.mp}`).toBe(true);
-      expect(s.mp < 100 && (s.level < 3 || s.mp <= 95), `${tag} mp=${s.mp} level=${s.level}`).toBe(true);
+      expect(s.mp <= 100 && (s.level === 3 || s.mp < 100), `${tag} mp=${s.mp} level=${s.level}`).toBe(true);
       expect([1, 2, 3], `${tag} level=${s.level}`).toContain(s.level);
       const pw = getPower(s);
       expect(pw % 5 === 0 && pw >= 0, `${tag} power=${pw}`).toBe(true);

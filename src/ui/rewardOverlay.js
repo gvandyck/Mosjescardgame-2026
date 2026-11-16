@@ -9,7 +9,7 @@ import { buildRewardOverlayHtml } from './gameOver/buildRewardOverlayHtml.js';
 /**
  * @param {object} opts
  * @param {{icon:string,title:string,subtitle:string,tone:'win'|'loss'|'neutral'}} opts.headline  from getGameOverHeadline
- * @param {string}  opts.winReason       Raw win-condition enum ('LEVEL_3' | 'KNOCKOUT'), machine-readable
+ * @param {string}  opts.winReason       Raw win-condition enum ('PERSONAL_QUEST' | 'KNOCKOUT'), machine-readable
  * @param {string}  opts.winnerId        'player_1' | 'player_2'
  * @param {'vsBot'|'watchBots'|'online'} opts.mode
  * @param {string}  opts.reasonText      Plain-language win line (describeWin)

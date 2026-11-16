@@ -87,7 +87,7 @@ test('a whole turn is played with taps only: attack, Quest, Place, Piecie Activa
 	await questByTap(page, { slot: 1, stackId: 'PHYSICAL', ...TOUCH });
 	gs = await getGameState(page);
 	expect(mp(gs, 'player_1', 1), 'Quest win: +25').toBe(40 + 25);
-	expect(gs.questStacks.PHYSICAL.faceUp, 'the next Quest turned face-up').not.toBe('quest_tough_it_out');
+	expect(gs.questStacks.PHYSICAL.faceUp, 'the next Quest turned face-up').toBeTruthy(); // D-16: the attempted Quest is shuffled back first, so the same card can come up again
 
 	// 3. Place: the hand card is tapped (it plays and pays its Energy).
 	await setHand(page, 'player_1', [PLACE]);

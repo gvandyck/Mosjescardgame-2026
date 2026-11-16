@@ -12,6 +12,7 @@ import {
 import {
 	tapOwnCard, chooseTray, attackByTap, questByTap, abilityByTap, activateByTap, ownTile, targetTile, statusStrip,
 } from '../helpers/boardTaps.js';
+import { previewAttack } from '../../src/engine/attack/previewAttack.js';
 import { buildAttackPreview } from '../../src/ui/board/buildAttackPreview.js';
 
 const SHOT_DIR = 'tests/ui/screenshots/board-2-0';
@@ -127,20 +128,24 @@ test('U2: tapping the target a second time confirms; tapping another valid targe
 	await boot(page, { bothOpen: true });
 	const ming = await oppMp(page, 0);
 	const ronald = await oppMp(page, 1);
+	// 70-02: the loss is Power + type triangle - Resilient (at least 5): the engine's own preview, per target.
+	const gs = await getGameState(page);
+	const lossMing = previewAttack(gs, 'player_1', 0, 'player_2', 0).final;
+	const lossRonald = previewAttack(gs, 'player_1', 0, 'player_2', 1).final;
 
 	await tapOwnCard(page, 'mosje', 0);
 	await chooseTray(page, 'attack');
 	await targetTile(page, 'player_2:0').click();
-	await expect(statusStrip(page).locator('.status-strip__text')).toHaveText(`Alyssa hits Ming: −20 MP (leaves ${ming - 20})`);
+	await expect(statusStrip(page).locator('.status-strip__text')).toHaveText(`Alyssa hits Ming: −${lossMing} MP (leaves ${ming - lossMing})`);
 	await targetTile(page, 'player_2:1').click();
-	await expect(statusStrip(page).locator('.status-strip__text')).toHaveText(`Alyssa hits Ronald: −20 MP (leaves ${ronald - 20})`);
+	await expect(statusStrip(page).locator('.status-strip__text')).toHaveText(`Alyssa hits Ronald: −${lossRonald} MP (leaves ${ronald - lossRonald})`);
 	await expect(targetTile(page, 'player_2:0')).not.toHaveAttribute('data-preview', /.*/);
 	await expect(targetTile(page, 'player_2:1')).toHaveAttribute('data-preview', '');
 	expect(await oppMp(page, 0)).toBe(ming);
 	expect(await oppMp(page, 1)).toBe(ronald);
 
 	await targetTile(page, 'player_2:1').click(); // the same target again = Confirm
-	await expect.poll(() => oppMp(page, 1)).toBe(ronald - 20);
+	await expect.poll(() => oppMp(page, 1)).toBe(ronald - lossRonald);
 	expect(await oppMp(page, 0), 'the other target is untouched').toBe(ming);
 	await expect(statusStrip(page)).not.toHaveAttribute('data-status-kind', /./);
 });
@@ -256,7 +261,7 @@ test('U2: questByTap helper wins a Quest with forced dice and the Mosje has then
 	const gs = await getGameState(page);
 	expect(gs.players.player_1.activeSlots[0].mp).toBe(before + 25);
 	expect(gs.players.player_1.activeSlots[0].actedThisTurn).toBe(true);
-	expect(gs.questStacks.PHYSICAL.faceUp, 'a new Quest turned face-up').not.toBe('quest_tough_it_out');
+	expect(gs.questStacks.PHYSICAL.faceUp, 'a new Quest turned face-up').toBeTruthy(); // D-16: the attempted Quest is shuffled back first, so the same card can come up again
 	await tapOwnCard(page, 'mosje', 0);
 	await expect(page.locator('[data-action-tray] [data-action="quest"]')).toHaveAttribute('aria-disabled', 'true');
 });
@@ -265,8 +270,9 @@ test('U2: attackByTap helper attacks with a second tap', async ({ page }) => {
 	test.setTimeout(90000);
 	await boot(page, { bothOpen: true });
 	const ming = await oppMp(page, 0);
+	const loss = previewAttack(await getGameState(page), 'player_1', 0, 'player_2', 0).final;
 	await attackByTap(page, { slot: 0, target: 'player_2:0', confirmBy: 'retap' });
-	expect(await oppMp(page, 0)).toBe(ming - 20);
+	expect(await oppMp(page, 0)).toBe(ming - loss);
 });
 
 test('U2: Ability chip names its Energy cost, a short pool says why, and with Energy the tap runs the ability', async ({ page }) => {

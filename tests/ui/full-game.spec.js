@@ -9,7 +9,7 @@
  * Max per test: 30 turns before failing (safety cap, well above real-world max).
  *
  * Three test scenarios:
- *   1. Passive game   — human just ends every turn, bot drives to KNOCKOUT/LEVEL_3
+ *   1. Passive game   — human just ends every turn, bot drives to KNOCKOUT/PERSONAL_QUEST
  *   2. Active game    — human attempts a quest + plays a piecie each turn
  *   3. All three decks — one passive game per starter deck combination
  */
@@ -62,8 +62,8 @@ async function endTurnAndWatch(page, ms = 45000) {
 }
 
 // Valid win reasons the overlay must show
-// 2.0 overlay texts: "has no Mosje left outside the Welloe pile" (knockout) and "held Level 3 until their turn"; the V4 ids stay for old logs.
-const WIN_REASONS = ['LEVEL_3', 'KNOCKOUT', 'QUEST_MASTER', 'MOMENTUM_DOMINATION', 'NO_MOSJE_LEFT', 'HELD_LEVEL_3'];
+// 2.0 overlay texts: "has no Mosje left outside the Welloe pile" (knockout) and "completed the Personal Quest".
+const WIN_REASONS = ['PERSONAL_QUEST', 'KNOCKOUT'];
 
 // ─── Shared helpers ───────────────────────────────────────────────────────────
 
@@ -278,55 +278,61 @@ for (const matchup of DECK_MATCHUPS) {
 
 // ─── VIS-GAME-04: Accelerated game — force near-win, assert exact win reason ─
 
-test('full game: reaching Level 3 is NOT an instant win - held Level 3 wins at the next turn start of its owner', async ({ page }) => {
-	// 2.0 hold-Level-3 rule (E7): a quest that lifts a Mosje to Level 3 shows no win;
-	// if it is still Level 3 when its owner's next turn starts, that player wins.
-	test.setTimeout(90000);
+test('full game: reaching Level 3 and holding it is NOT a win - a Level 3 Mosje wins with a Personal Quest', async ({ page }) => {
+	// Obby 2.1 (D-01): the hold-Level-3 win is gone. A quest that lifts a Mosje to Level 3 shows no win, a whole round later it is
+	// still no win, and the same Mosje then completes a Personal Quest from the hand and wins.
+	test.setTimeout(120000);
 
-	await seedOfflineSession(page, 'PHYSICAL_FORCE', 'DIGITAL_CONTROL');
+	await seedOfflineSession(page, 'EXAMPLE_TAKSEN', 'EXAMPLE_REGELAARS');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
 
 	// Put the human's Mosje one quest away from Level 3: Level 2 / 90 MP, a winning quest pushes it past 100.
-	const cardId = await page.evaluate(() => {
-		const gs = window.__testHooks.getGameState();
-		return gs.players.player_1.activeSlots[0]?.cardId;
-	});
-	await page.evaluate((cid) => {
-		// Both hands empty: a random opening Snelle (Sleutelpuntje for me, Je Weet Niet for the bot) rerolls or adds a die in the
-		// forced Quest rolls below (the same random-hand class as E16 / E17); the hold-Level-3 rule does not depend on any hand.
+	await page.evaluate(() => {
+		// Both hands empty: a random opening Snelle rerolls or adds a die in the forced Quest rolls below.
 		window.__testHooks.setHand('player_1', []);
 		window.__testHooks.setHand('player_2', []);
-		window.__testHooks.setMosjeOnField('player_1', 0, 'mosje_gandoe_destroyer', { mp: 90, level: 2 }); // no quest-success ability (Michelle's Tough Gamble would randomise the MP)
+		window.__testHooks.setMosjeOnField('player_1', 0, 'mosje_gandoe_destroyer', { mp: 90, level: 2 }); // no quest-success ability
 		window.__testHooks.setQuestFaceUp('PHYSICAL', 'quest_tough_it_out'); // Steady win +25 MP (>= 10 needed for Level 3)
 		window.__testHooks.setNextDice([6, 6, 6]); // guaranteed success
 		window.__testHooks.setTurnNumber(3);
-	}, cardId);
-
-	// Attempt the Quest through the real 2.0 UI flow (Mosje pick -> Quest pick -> dice screen).
+	});
 	await questViaUi(page, { slot: 0, stackId: 'PHYSICAL' });
 
-	// Reached Level 3 this turn: NO win overlay yet.
+	// Reached Level 3 this turn: NO win overlay.
 	await page.waitForTimeout(800);
 	const lvlNow = await page.evaluate(() => window.__testHooks.getGameState().players.player_1.activeSlots[0]?.level);
 	expect(lvlNow).toBe(3);
 	expect(await page.locator('#reward-overlay').count()).toBe(0);
 	await ss(page, 'full-game-level3-no-instant-win');
 
-	// Shield the Level 3 Mosje from the bot's random plays (entry protection lasts until
-	// our next turn) so the hold-Level-3 check is deterministic; Level 3 itself was reached via the real quest.
+	// Shield the Level 3 Mosje from the bot's random plays, end the turn, let the bot play: holding Level 3 into the owner's next
+	// turn wins nothing any more.
 	await page.evaluate(() => {
 		const sl = window.__testHooks.getGameState().players.player_1.activeSlots[0];
 		window.__testHooks.setMosjeOnField('player_1', 0, sl.cardId, { mp: sl.mp, level: sl.level, entryProtected: true });
 	});
+	await endTurnAndWait(page);
+	expect(await page.locator('#reward-overlay').count()).toBe(0);
+	expect(await page.evaluate(() => window.__testHooks.getGameState().status)).toBe('PLAYING');
 
-	// End the turn; the bot plays; at the human's next turn start the held Level 3 wins.
-	await clickEndTurn(page);
-	await page.waitForSelector('#reward-overlay', { timeout: 40000 });
+	// Now a Personal Quest: the Mosje started this turn at Level 3, so it may attempt (2 dice, both 4+).
+	const mosjeId = await page.evaluate(() => window.__testHooks.getGameState().players.player_1.activeSlots[0].cardId);
+	expect(mosjeId).toBe('mosje_gandoe_destroyer');
+	await page.evaluate(() => {
+		window.__testHooks.setHand('player_1', ['pq_charge']);
+		window.__testHooks.setMosjeOnField('player_1', 0, 'mosje_alyssa_bulldozer', { mp: 60, level: 3 });
+		window.__testHooks.clearEntryProtection();
+		window.__testHooks.setNextDice([6, 6, 6, 6]);
+	});
+	await playCardFromHand(page, 'pq_charge');
+	await page.locator('.modal-mosje-select-btn[data-id="0"]').click({ timeout: 5000 });
+	await page.locator('.modal-mosje-select-btn[data-id="ok"]').click({ timeout: 5000 });
+	await page.waitForSelector('#reward-overlay', { timeout: 15000 });
 	const { title, reason } = await waitForGameOver(page, 3000);
-	await ss(page, 'full-game-held-level3-win');
+	await ss(page, 'full-game-personal-quest-win');
 	expect(title).toBe('Victory!');
-	expect(reason.toLowerCase()).toContain('held level 3');
+	expect(reason.toLowerCase()).toContain('personal quest');
 
 	// The end screen embeds the battle log (colour-coded rows) + a Copy Log button.
 	await page.locator('#reward-overlay .reward-log-summary').click(); // log is a collapsed <details>
