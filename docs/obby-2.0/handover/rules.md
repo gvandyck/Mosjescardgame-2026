@@ -131,3 +131,17 @@ Gandalf asked on 15 Nov to keep building without stopping for questions. These g
 | 15 Nov 2026 | 70 | §7: can your own effects discard your Personal Quest? | Yes. Only an opponent's effect can't. |
 | 15 Nov 2026 | 70 | §8: do attachments survive a level-up or level-down? | Yes, they stay while the Mosje is on the field. |
 | 15 Nov 2026 | 70 | §8: which cards attach? | The ones whose text has the keyword Attach, not every gear or pet card. |
+| 16 Nov 2026 | 70 | §6: a Quest is shuffled back after one attempt. Can the same Quest come up again at once? | Yes. A stack with one Quest always shows that Quest again. |
+| 16 Nov 2026 | 70 | Zo is Natuur (−10 on attacks against Res 2+) next to the new Resilient defence. | Both apply; the Place is not a starter card and is left as it is. |
+| 16 Nov 2026 | 70 | §10: a Mosje card discarded from a hand, at deck-out. | It stays in the pile like a fallen Mosje. Effects that take a card from the pile can still take it; they can't take a fallen Mosje. |
+| 16 Nov 2026 | 70 | §11: is the 40-card deck rule checked at the start of a game? | Not yet. The checker exists and the three starter decks pass; enforcing it would refuse the 30-card Example Decks and custom decks. |
+| 16 Nov 2026 | 70 | §8: Dubbele Temminks on an Attach card. | Dubbele Temminks is used up but the card is not attached twice. |
+| 16 Nov 2026 | 70 | §9 Target: which cards open the targeted reaction window? | Only cards whose text says Target: Eendjes voeren, Varkenspootjes, Kleine Taks, Ronald Mastermind's Master Plan, Binti's Cutting Words. Affoe, Harde Didde and Klaar Met Jou no longer open it. |
+| 16 Nov 2026 | 70 | §9 costs: does a repeat by Dubbele Temminks pay the cost again? | No. |
+| 16 Nov 2026 | 70 | §7: Jantje Jantje names a Personal Quest in the opponent's hand. | It counts as a miss. |
+| 16 Nov 2026 | 70 | §7: Ronald Chef's Strategic Insight, Binti's Cutting Words or Stookerino when the opponent holds only Personal Quests. | Treated as an empty hand: nothing happens, and Ronald Chef's ability is refused without costing Energy. |
+| 16 Nov 2026 | 70 | §9 Combo with copies and repeats. | Combo does not fire for a copy (Gevalletje Klakkeloos); with Dubbele Temminks it fires once, after both runs. |
+| 16 Nov 2026 | 70 | §9 Entrance: which arrivals count? | A summon from the hand or the pile. Not the starting Mosje and not the free Mosje on an empty field. |
+| 16 Nov 2026 | 70 | §9 Upkeep with 0 Energy. | The card is discarded without asking. |
+| 16 Nov 2026 | 70 | §7: on a fail, a Piecie named under Needs that Pay already discarded. | It is skipped, not discarded twice. |
+| 16 Nov 2026 | 70 | Does a Personal Quest attempt count as a Quest in the end-of-game stats? | No. |
