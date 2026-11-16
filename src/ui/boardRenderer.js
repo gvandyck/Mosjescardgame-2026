@@ -15,6 +15,8 @@ import { buildWelloePile } from './board/buildWelloePile.js';
 import { renderPlaceTile } from './board/renderPlaceTile.js';
 import { getTileBadges } from './board/getTileBadges.js';
 import { buildTileBadges } from './board/buildTileBadges.js';
+import { getPileMosjes } from '../engine/pile/getPileMosjes.js';
+import { getPileCards } from '../engine/pile/getPileCards.js';
 import { showToast } from './board/showToast.js';
 import { bindTileTap } from './board/bindTileTap.js';
 
@@ -541,7 +543,7 @@ function renderDiscardPile(container, player, isOwned, onOpenDiscard) {
 	}
 	container.innerHTML = '';
 
-	const discardCards = player.graveyard || [];
+	const discardCards = getPileCards(player);
 	const count = discardCards.length;
 	container.setAttribute('data-pile', 'discard'); // D-13 pile hooks
 	container.setAttribute('data-slot-kind', 'pile');
@@ -633,7 +635,7 @@ function renderEnergy(container, player) {
 // Draws the Welloe pile button (nothing while the pile is empty); a tap opens the list, like the discard pile.
 function renderWelloe(container, player, isOwned) {
 	if (!container || !player) return;
-	const cards = player.welloePile || [];
+	const cards = getPileMosjes(player);
 	container.innerHTML = buildWelloePile({ count: cards.length });
 	container.querySelector('[data-pile="welloe"]')?.addEventListener('click', () => {
 		getBoardModal().showGraveyardModal(player, isOwned, { title: `${player.name || 'Player'}'s Welloe pile`, cards });

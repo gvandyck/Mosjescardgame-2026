@@ -9,6 +9,7 @@ import { payEnergy } from "../../src/engine/energy/payEnergy.js";
 import { canPay } from "../../src/engine/energy/canPay.js";
 // @ts-expect-error — JS module, no type declarations
 import { gainEnergy } from "../../src/engine/energy/gainEnergy.js";
+import { fallen } from "../helpers/fallen.js";
 
 /** E1 — Energy pool: start 2, +1 per own turn, max 6, carry-over, safe payment. */
 function newGame() {
@@ -23,11 +24,12 @@ function newGame() {
 }
 
 describe("E1 Energy", () => {
-  it("new game gives both players 2 Energy and an empty welloePile", () => {
+  it("new game gives both players 2 Energy and an empty pile", () => {
     const s = newGame();
     for (const id of ["player_1", "player_2"]) {
       expect(s.players[id].energy).toBe(2);
-      expect(s.players[id].welloePile).toEqual([]);
+      expect(s.players[id].graveyard).toEqual([]);
+      expect(s.players[id]).not.toHaveProperty("welloePile");
     }
   });
 

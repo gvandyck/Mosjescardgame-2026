@@ -5,20 +5,23 @@ import { buildBoardSkeleton } from '../../src/ui/board/buildBoardSkeleton.js';
 import { buildSlotOutlines } from '../../src/ui/board/buildSlotOutlines.js';
 
 describe('getFieldSlots (D-13)', () => {
-	it('is 7 when no Welloe pile has a card', () => {
-		expect(getFieldSlots([{ welloePile: [] }, { welloePile: [] }])).toBe(7);
+	it('is 7 when no pile holds a fallen Mosje', () => {
+		expect(getFieldSlots([{ graveyard: [] }, { graveyard: [] }])).toBe(7);
 	});
 	it('is 8 as soon as either pile has a card', () => {
-		expect(getFieldSlots([{ welloePile: [{ cardId: 'mosje_binti' }] }, { welloePile: [] }])).toBe(8);
-		expect(getFieldSlots([{ welloePile: [] }, { welloePile: [{ cardId: 'a' }, { cardId: 'b' }] }])).toBe(8);
+		expect(getFieldSlots([{ graveyard: [{ cardId: 'mosje_binti', type: 'MOSJE' }] }, { graveyard: [] }])).toBe(8);
+		expect(getFieldSlots([{ graveyard: [] }, { graveyard: [{ cardId: 'a', type: 'MOSJE' }, { cardId: 'b', type: 'MOSJE' }] }])).toBe(8);
+	});
+	it('discarded cards alone do not widen the board', () => {
+		expect(getFieldSlots([{ graveyard: [{ cardId: 'p', type: 'PIECIE' }] }, { graveyard: [] }])).toBe(7);
 	});
 	it('counts a missing pile as empty', () => {
-		expect(getFieldSlots([{}, { welloePile: undefined }])).toBe(7);
+		expect(getFieldSlots([{}, { graveyard: undefined }])).toBe(7);
 		expect(getFieldSlots([])).toBe(7);
 		expect(getFieldSlots(undefined)).toBe(7);
 	});
 	it('also takes the engine players object', () => {
-		expect(getFieldSlots({ player_1: { welloePile: [] }, player_2: { welloePile: [{ cardId: 'x' }] } })).toBe(8);
+		expect(getFieldSlots({ player_1: { graveyard: [] }, player_2: { graveyard: [{ cardId: 'x', type: 'MOSJE' }] } })).toBe(8);
 	});
 });
 

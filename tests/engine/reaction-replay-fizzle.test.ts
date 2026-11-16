@@ -13,6 +13,7 @@ import { resolveReaction } from "../../src/engine/reactions/resolveReaction.js";
 import { resolvePendingChoice } from "../../src/engine/mosje/resolvePendingChoice.js";
 // @ts-expect-error
 import { MOSJES } from "../../src/data/mosjes.js";
+import { fallen } from "../helpers/fallen.js";
 
 const plain = MOSJES.find((m: any) => m.id !== "mosje_alyssa_bulldozer" && m.id !== "mosje_parkour_west");
 // L1 Power 20; same type as the target so the type triangle (70-02) does not change these numbers
@@ -128,7 +129,7 @@ describe("Perfect Dodge vs a sideways 0 MP Level 1 target", () => {
     expect(p2.energy).toBe(4); // Perfect Dodge stays paid (2 Energy)
     expect(p2.graveyard.map((g: any) => g.cardId)).toContain("snelle_perfect_dodge");
     expect(p2.activeSlots[0]).toBeNull(); // the stale flag is swept by the Snelle play's own victory check
-    expect(p2.welloePile).toHaveLength(1);
+    expect(fallen(p2)).toHaveLength(1);
     expect(slot(r.state, "player_1", 0).actedThisTurn).toBeFalsy(); // the attack fizzled: its target was gone, no action spent
   });
 
@@ -139,7 +140,7 @@ describe("Perfect Dodge vs a sideways 0 MP Level 1 target", () => {
     expect(p2.activeSlots[0]).not.toBeNull();
     expect(p2.activeSlots[0].mp).toBe(0);
     expect(p2.activeSlots[0].sideways).toBe(true);
-    expect(p2.welloePile).toHaveLength(0);
+    expect(fallen(p2)).toHaveLength(0);
     expect(p2.energy).toBe(4);
   });
 });

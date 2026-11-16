@@ -23,8 +23,8 @@ function finishedState(over = {}) {
 		winnerId: 'player_2',
 		winReason: 'LEVEL_3',
 		players: {
-			player_1: { name: 'Gandoe', deckId: 'STARTER_PHYSICAL', welloePile: [{ type: 'MOSJE', name: 'A' }, { type: 'MOSJE', name: 'B' }, { type: 'PIECIE', name: 'P' }], questStats: { attempted: 4, won: 3 } },
-			player_2: { name: 'Bot', deckId: 'STARTER_DIGITAL', welloePile: [{ type: 'MOSJE', name: 'C' }] },
+			player_1: { name: 'Gandoe', deckId: 'STARTER_PHYSICAL', graveyard: [{ type: 'MOSJE', name: 'A' }, { type: 'MOSJE', name: 'B' }, { type: 'PIECIE', name: 'P' }], questStats: { attempted: 4, won: 3 } },
+			player_2: { name: 'Bot', deckId: 'STARTER_DIGITAL', graveyard: [{ type: 'MOSJE', name: 'C' }] },
 		},
 		...over,
 	});
@@ -69,7 +69,7 @@ describe('buildGameSummary (D-19: 2.0 numbers from engine data)', () => {
 	});
 
 	it('uses the deck id for an unknown deck and counts only MOSJE cards as lost', () => {
-		const state = finishedState({ players: { player_1: { deckId: 'NOT_A_DECK', welloePile: [{ type: 'PIECIE' }, { type: 'PLACE' }] } } });
+		const state = finishedState({ players: { player_1: { deckId: 'NOT_A_DECK', graveyard: [{ type: 'PIECIE' }, { type: 'PLACE' }] } } });
 		const first = buildGameSummary(state).players[0];
 		expect(first.deckName).toBe('NOT_A_DECK');
 		expect(first.mosjesLost).toBe(0);

@@ -2,6 +2,7 @@
 // Phase 63-06: attackViaUi / questViaUi / questFirstAvailable drive the tap flow in tests/helpers/boardTaps.js (that file
 // imports clickModalOption from here; the cycle is safe, nothing is called while the modules load).
 import { attackByTap, questByTap, questFirstByTap } from '../helpers/boardTaps.js';
+import { withFallenView } from '../helpers/fallen.js';
 import { clickEndTurn } from '../helpers/clickEndTurn.js';
 
 export const GAME_URL        = '/game?offline=true&player=player_1';
@@ -244,7 +245,7 @@ export async function getGraveyardSize(page, playerId) {
 
 /** Read a snapshot of the full game state (for asserting status effects, flags, etc.). */
 export async function getGameState(page) {
-	return page.evaluate(() => window.__testHooks?.getGameState() ?? null);
+	return withFallenView(await page.evaluate(() => window.__testHooks?.getGameState() ?? null));
 }
 
 /**

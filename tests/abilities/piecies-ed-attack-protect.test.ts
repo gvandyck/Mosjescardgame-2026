@@ -18,6 +18,7 @@ import { makePiecieState } from '../helpers/makePiecieState.js';
 import { createMosjeSlot } from '../../src/engine/mp/createMosjeSlot.js';
 // @ts-ignore
 import { MOSJES } from '../../src/data/mosjes.js';
+import { fallen } from "../helpers/fallen.js";
 
 const card = (n: number) => Array.from({ length: n }, (_, i) => ({ cardId: 'piecie_pot_of_weed', type: 'PIECIE', i }));
 const slotOf = (id: string, mp = 50, level = 1) => {
@@ -125,7 +126,7 @@ describe('Attack Piecies: Level 2+ cards', () => {
   it('Harde Didde sends a Mosje with 40 MP or less to the Welloe pile; refused at Level 1; a higher MP target is left alone', () => {
     const s = run(board('piecie_harde_didde', { ownSlot: { level: 2 }, foe: { mp: 40 } }));
     expect(s.players.player_2.activeSlots[0]).toBeNull();
-    expect(s.players.player_2.welloePile).toHaveLength(1);
+    expect(fallen(s.players.player_2)).toHaveLength(1);
     const l1 = activatePiecie(board('piecie_harde_didde', { foe: { mp: 40 } }), 'player_1', 0);
     expect(l1.success).toBe(false);
     expect(l1.state.players.player_1.energy).toBe(6);
@@ -135,10 +136,10 @@ describe('Attack Piecies: Level 2+ cards', () => {
 
   it('Klaar Met Jou: 30 MP or less to the Welloe pile and draw 1; 35 MP is not allowed', () => {
     const s = run(board('piecie_klaar_met_jou', { ownSlot: { level: 2 }, foe: { mp: 30 } }));
-    expect(s.players.player_2.welloePile).toHaveLength(1);
+    expect(fallen(s.players.player_2)).toHaveLength(1);
     expect(s.players.player_1.hand).toHaveLength(1);
     const no = run(board('piecie_klaar_met_jou', { ownSlot: { level: 2 }, foe: { mp: 35 }, pick: { opp_slot_index: 0 } }));
-    expect(no.players.player_2.welloePile || []).toHaveLength(0);
+    expect(fallen(no.players.player_2)).toHaveLength(0);
   });
 });
 

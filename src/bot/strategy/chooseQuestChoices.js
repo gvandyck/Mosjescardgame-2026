@@ -1,4 +1,5 @@
 // chooseQuestChoices — the bot's picks for a resolved Quest attempt (jab target, Vraag Aad, Parkeren Delft).
+import { isFallenMosje } from '../../engine/pile/isFallenMosje.js';
 import { getJabTargets } from '../../engine/quests/getJabTargets.js';
 import { valueOfLoss } from './valueOfLoss.js';
 import { asBotView } from './asBotView.js';
@@ -20,7 +21,7 @@ export function chooseQuestChoices(state, botId, pending) {
 			const picks = [];
 			for (const [playerId, p] of Object.entries(state.players)) {
 				if (playerId === botId) continue;
-				(p.graveyard || []).forEach((_, graveyardIndex) => picks.push({ playerId, graveyardIndex }));
+				(p.graveyard || []).forEach((g, graveyardIndex) => !isFallenMosje(g) && picks.push({ playerId, graveyardIndex }));
 			}
 			choices.parkerenRemove = picks.slice(0, 3);
 		}

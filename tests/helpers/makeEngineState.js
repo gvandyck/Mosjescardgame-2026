@@ -20,7 +20,6 @@ function basePlayer(playerId, name) {
     hand: [],
     deck: [],
     graveyard: [],
-    welloePile: [],
     energy: 6,
     activeSlots: [null, null],
     piecieSlots: [null, null, null],

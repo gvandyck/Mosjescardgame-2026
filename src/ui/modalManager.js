@@ -8,6 +8,7 @@ import { PIECIES } from '../data/piecies.js';
 import { SNELLE_PIECIES } from '../data/snellePiecies.js';
 import { PLACES } from '../data/places.js';
 import { buildCardPanel } from './cardV1/buildCardPanel.js';
+import { getPileCards } from '../engine/pile/getPileCards.js';
 import { getLevelRows } from './cardV1/getLevelRows.js';
 import { formatEnergyChip } from './cardV1/formatEnergyChip.js';
 import { getQuestNeed } from './cardV1/getQuestNeed.js';
@@ -838,7 +839,7 @@ export function initModalManager(container) {
 		const { title = null, cards = null } = list || {};
 		const heading = title ?? `${player?.name || 'Player'}'s Graveyard`;
 		container.classList.add('modal-root--open');
-		const discardCards = cards ?? player?.graveyard ?? [];
+		const discardCards = cards ?? getPileCards(player);
 		const count = discardCards.length;
 
 		if (count === 0) {

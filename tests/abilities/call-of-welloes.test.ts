@@ -5,6 +5,7 @@ import { endTurn } from "../../src/engine/turnManager.js";
 import { PIECIES } from "../../src/data/piecies.js";
 // @ts-expect-error — JS module, no type declarations
 import { markMosjeDefeated } from "../../src/engine/victoryChecker.js";
+import { fallen } from "../helpers/fallen.js";
 
 // ─────────────────────────────────────────────────────────────
 // Phase 22 — Wave 4: Revised mechanic (gap closure)
@@ -24,7 +25,6 @@ function makePlayer(overrides: Record<string, any> = {}) {
     hand: [] as any[],
     deck: [] as any[],
     graveyard: [] as any[],
-    welloePile: [] as any[],
     activeSlots: [
       {
         cardId: "mosje_self",
@@ -89,10 +89,9 @@ describe("endTurn — Call of the Welloes: defeat when Piecie is gone", () => {
     // Mosje is defeated: slot nulled
     expect(result.players.player_1.activeSlots[0]).toBeNull();
     // Welloe pile receives the defeated Mosje (type: MOSJE, isDefeated: true)
-    const welloePile = (result.players.player_1 as any).welloePile as any[];
-    const defeated = welloePile.find((e: any) => e.cardId === "mosje_test" && e.type === "MOSJE");
+    const defeated = fallen(result.players.player_1).find((e: any) => e.cardId === "mosje_test" && e.type === "MOSJE");
     expect(defeated).toBeDefined();
-    expect(defeated.isDefeated).toBe(true);
+    expect(defeated.source).toBe("welloe");
   });
 });
 
@@ -113,8 +112,7 @@ describe("endTurn — Call of the Welloes: Mosje stays when Piecie is present", 
     const result = endTurn(state);
     expect(result.players.player_1.activeSlots[0]).not.toBeNull();
     expect(result.players.player_1.activeSlots[0]?.cardId).toBe("mosje_test");
-    const welloePile = (result.players.player_1 as any).welloePile as any[];
-    expect(welloePile.some((e: any) => e.cardId === "mosje_test" && e.type === "MOSJE")).toBe(false);
+    expect(fallen(result.players.player_1).some((e: any) => e.cardId === "mosje_test" && e.type === "MOSJE")).toBe(false);
   });
 });
 

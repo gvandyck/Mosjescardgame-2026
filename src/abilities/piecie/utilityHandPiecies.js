@@ -1,5 +1,6 @@
 // utilityHandPiecies - Card List 2.0 Utility Piecies that move cards between the hand and the discard pile:
 // TemPiecie (take a card back, locked this turn) and Those Eyelashes Tho... (the opponent discards, no Snelle).
+import { isFallenMosje } from '../../engine/pile/isFallenMosje.js';
 import { turnLockKey } from '../../engine/hand/turnLockKey.js';
 import { cloneState } from './cloneState.js';
 import { pieceDef } from './pieceDef.js';
@@ -12,7 +13,7 @@ import { resolvePiecieOwnSlot } from './resolvePiecieOwnSlot.js';
 export function effect_tempiecie(gameState, playerId) {
 	const state = cloneState(gameState);
 	const me = state.players[playerId];
-	const pile = me.graveyard || [];
+	const pile = (me.graveyard || []).filter(e => !isFallenMosje(e)); // a fallen Mosje is not a discard
 	if (!pile.length) return state;
 	const pick = me._pendingTargets?.tempiecie_card;
 	if (pick === undefined) {
@@ -21,7 +22,7 @@ export function effect_tempiecie(gameState, playerId) {
 	}
 	delete me._pendingTargets.tempiecie_card;
 	let at = -1;
-	pile.forEach((e, i) => { if (e.cardId === pick.cardId) at = i; });
+	me.graveyard.forEach((e, i) => { if (!isFallenMosje(e) && e.cardId === pick.cardId) at = i; });
 	if (at < 0) return state;
 	const [entry] = me.graveyard.splice(at, 1);
 	me.hand.push({ cardId: entry.cardId, type: entry.type, faceDown: false, turnsOnField: 0, lockedTurn: turnLockKey(state) });

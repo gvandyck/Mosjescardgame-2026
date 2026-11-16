@@ -13,6 +13,7 @@ import { startTurn, endTurn, useMosjeAbility } from "../../src/engine/turnManage
 import { canMosjeAct } from "../../src/engine/mp/canMosjeAct.js";
 // @ts-expect-error — JS module, no type declarations
 import { MOSJES } from "../../src/data/mosjes.js";
+import { fallen } from "../helpers/fallen.js";
 
 const withAbility = MOSJES.filter((m: any) => m.abilityId);
 const defA = withAbility[0];
@@ -86,7 +87,7 @@ describe("sideways lifecycle (E5, decision 1)", () => {
     let s = loseMP(build("player_1"), "player_2", 0, 20, "DRAIN");
     s = loseMP(s, "player_2", 0, 20, "DRAIN");
     s = checkVictory(s);
-    expect(s.players.player_2.welloePile.length).toBe(1);
+    expect(fallen(s.players.player_2).length).toBe(1);
   });
 
   it("sideways never sets a cooldown turn (V4 skip is gone)", () => {

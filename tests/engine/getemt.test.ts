@@ -63,9 +63,9 @@ describe("getemt (Obby 2.0 §2b)", () => {
     expect(slotOf(s)._pendingWelloe).toBe(true);
     s = checkVictory(s);
     expect(slotOf(s)).toBeNull();
-    expect(s.players.player_1.welloePile.map((c: any) => c.cardId)).toContain(def.id);
-    expect(s.players.player_1.welloePile[0].source).toBe("welloe");
-    expect(s.players.player_1.graveyard.some((c: any) => c.type === "MOSJE")).toBe(false);
+    expect(fallen(s.players.player_1).map((c: any) => c.cardId)).toContain(def.id);
+    expect(fallen(s.players.player_1)[0].source).toBe("welloe");
+    expect(s.players.player_1.graveyard.filter((c: any) => c.type === "MOSJE")).toHaveLength(1); // the one pile
   });
 
   it("E6: L1 at 0 MP, loss reduced to 0 -> no change, not sideways", () => {
@@ -95,7 +95,7 @@ describe("getemt (Obby 2.0 §2b)", () => {
     expect(slotOf(s)).not.toBeNull();
     expect(slotOf(s).mp).toBe(5);
     expect(slotOf(s)._pendingWelloe).toBeUndefined();
-    expect(s.players.player_1.welloePile).toHaveLength(0);
+    expect(fallen(s.players.player_1)).toHaveLength(0);
   });
 
   it("Not Today! saves a sideways getemt Mosje (5 MP, on field)", () => {
@@ -105,7 +105,7 @@ describe("getemt (Obby 2.0 §2b)", () => {
     s = checkVictory(s);
     expect(slotOf(s)).not.toBeNull();
     expect(slotOf(s).mp).toBe(5);
-    expect(s.players.player_1.welloePile).toHaveLength(0);
+    expect(fallen(s.players.player_1)).toHaveLength(0);
   });
 
   it("last Mosje to the Welloe pile -> opponent wins (KNOCKOUT)", () => {
@@ -167,8 +167,8 @@ describe("Piecie losses (54-13)", () => {
     });
     const r = activatePiecie(st, "player_1", 0);
     expect(r.state.players.player_2.activeSlots[0]).toBeNull();
-    expect(r.state.players.player_2.welloePile).toHaveLength(1);
-    expect(r.state.players.player_1.welloePile).toHaveLength(0);
+    expect(fallen(r.state.players.player_2)).toHaveLength(1);
+    expect(fallen(r.state.players.player_1)).toHaveLength(0);
   });
 });
 
@@ -176,6 +176,7 @@ describe("Piecie losses (54-13)", () => {
 import { forceQuestResult } from "../helpers/forceQuestResult.js";
 // @ts-expect-error — JS module, no type declarations
 import { coertTechExtraResources } from "../../src/abilities/mosje/coertTechExtraResources.js";
+import { fallen } from "../helpers/fallen.js";
 const coertDraw = (st: any) => coertTechExtraResources.run(JSON.parse(JSON.stringify(st)), { playerId: "player_1", choices: { extra: 1 } });
 
 describe("ability / Quest losses (54-14)", () => {

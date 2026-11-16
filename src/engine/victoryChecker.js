@@ -7,6 +7,7 @@ import { discardBoundStays } from './table/discardBoundStays.js';
 import { checkLoss } from './winLose/checkLoss.js';
 import { getAllPlayerIds } from './gameState.js';
 import { placeTeslaCheck } from '../abilities/place/placeTurnQuestEffects.js';
+import { addMosjeToPile } from './pile/addMosjeToPile.js';
 import { normalizeSlotMp } from './mp/normalizeSlotMp.js';
 import { LEVEL_UP_AT, LEVEL3_MP_CAP } from './mp/levelRules.js';
 
@@ -162,8 +163,7 @@ export function markMosjeDefeated(gameState, playerId, slotIndex) {
   // never shuffled back). Decision 6: battle-log line only until the Phase 63 pile UI.
   console.log(`[ENGINE] ${mosje.name} getemt while sideways -> Welloe pile`);
   mosje.isDefeated = true;
-  if (!Array.isArray(state.players[playerId].welloePile)) state.players[playerId].welloePile = [];
-  state.players[playerId].welloePile.push({ ...mosje, type: 'MOSJE', source: 'welloe' });
+  addMosjeToPile(state.players[playerId], mosje);
   state.players[playerId].activeSlots[slotIndex] = null;
 
   // Call of the Welloes: if this Mosje was summoned by the Piecie, clear the anchor link (D-17)

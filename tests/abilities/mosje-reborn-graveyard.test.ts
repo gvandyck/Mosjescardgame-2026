@@ -2,6 +2,7 @@
 import { describe, it, expect } from 'vitest';
 // @ts-expect-error — JS module, no type declarations
 import { effect_mosje_reborn } from '../../src/abilities/piecieEffects.js';
+import { fallen } from "../helpers/fallen.js";
 
 const mosjeGraveyardEntry = {
   cardId: 'mosje_jeffrey',
@@ -15,15 +16,14 @@ const mosjeGraveyardEntry = {
   traits: {},
 };
 
-function makeState(welloePile: unknown[] = [], activeSlots: unknown[] = [null, null]) {
+function makeState(pile: unknown[] = [], activeSlots: unknown[] = [null, null]) {
   return {
     activePlayerId: 'player_1',
     players: {
       player_1: {
         id: 'player_1',
         hand: [] as unknown[],
-        graveyard: [] as unknown[],
-        welloePile,
+        graveyard: pile, // the one pile holds the fallen Mosjes
         activeSlots,
         deck: [] as unknown[],
         piecieSlots: [null, null, null, null] as unknown[],
@@ -43,7 +43,7 @@ describe('effect_mosje_reborn — reads from the Welloe pile', () => {
     expect(revived).toBeDefined();
     expect(revived.isDefeated).toBe(false);
     // Welloe pile entry removed
-    const remaining = ((result.players.player_1 as any).welloePile as any[]).filter((e: any) => e.type === 'MOSJE');
+    const remaining = fallen(result.players.player_1);
     expect(remaining).toHaveLength(0);
   });
 
@@ -60,6 +60,6 @@ describe('effect_mosje_reborn — reads from the Welloe pile', () => {
     state.activePlace = 'place_welloe_graveyard';
     const result = effect_mosje_reborn(state, 'player_1');
     expect(result.players.player_1.activeSlots).toEqual([null, null]);
-    expect(result.players.player_1.welloePile).toHaveLength(1);
+    expect(fallen(result.players.player_1)).toHaveLength(1);
   });
 });

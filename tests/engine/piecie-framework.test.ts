@@ -166,7 +166,7 @@ describe('Level 2+ gate and Only-if conditions', () => {
     s.players.player_1.activeSlots[0].cardId = 'mosje_alyssa_fissa';
     expect(PIECIE_CONDITIONS.piecie_battle_concert(s, 'player_1')).toBe(true);
     expect(PIECIE_CONDITIONS.piecie_mosje_reborn(s, 'player_1')).not.toBe(true);
-    s.players.player_1.welloePile = [{ cardId: 'mosje_jeffrey', type: 'MOSJE' }];
+    s.players.player_1.graveyard = [{ cardId: 'mosje_jeffrey', type: 'MOSJE' }];
     expect(PIECIE_CONDITIONS.piecie_mosje_reborn(s, 'player_1')).toBe(true);
     s.activePlace = 'place_welloe_graveyard';
     expect(PIECIE_CONDITIONS.piecie_call_of_welloes(s, 'player_1')).not.toBe(true);

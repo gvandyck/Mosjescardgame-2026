@@ -2,6 +2,9 @@
 import { REACTION_MOMENTS as M } from './reactionMoments.js';
 
 // Held actions that activate a Piecie ('resumePiecie' = an activation that was paused on a target pick).
+// Fallen Mosjes in the one pile (entries with source 'welloe'); a discarded Piecie does not count.
+const countFallen = (p) => (p.graveyard || []).filter(e => e?.type === 'MOSJE' && e.source === 'welloe').length;
+
 export const PIECIE_ACTIONS = ['activatePiecie', 'activatePiecieFree', 'resumePiecie'];
 
 export function detectReactionMoments(before, after, { actorId, responderId, actionType }) {
@@ -19,7 +22,7 @@ export function detectReactionMoments(before, after, { actorId, responderId, act
 		if (as.mp < bs.mp || as.level < bs.level) { lowers = true; preview.mpLoss[i] = Math.max(0, bs.mp - as.mp); }
 		if (as.level < bs.level || (as.sideways && !bs.sideways)) preview.getemt.push(i);
 	});
-	if ((a.welloePile || []).length > (b.welloePile || []).length) { preview.toWelloe = true; lowers = true; }
+	if (countFallen(a) > countFallen(b)) { preview.toWelloe = true; lowers = true; }
 	if ((PIECIE_ACTIONS.includes(actionType) || actionType === 'playSnelle' || actionType === 'resumeSnelle') && changed) moments.push(M.TARGETED);
 	if (lowers) moments.push(M.WOULD_LOSE_MP);
 	if (preview.toWelloe) moments.push(M.TO_WELLOE);

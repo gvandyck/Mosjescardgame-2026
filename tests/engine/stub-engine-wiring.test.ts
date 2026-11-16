@@ -22,6 +22,7 @@ import { effect_vianna_poes } from "../../src/abilities/piecieEffects.js";
 import { effect_mosje_shield } from "../../src/abilities/piecieEffects.js";
 // @ts-expect-error — JS module, no type declarations
 import { effect_ff_haaltje_nemen } from "../../src/abilities/snelleEffects.js";
+import { fallen } from "../helpers/fallen.js";
 
 function makeState(mp: number, level: number, statusEffects: unknown[] = []) {
   return {
@@ -170,8 +171,7 @@ describe("markMosjeDefeated - Mosje Shield (bound Stays entry)", () => {
     (state.players.p1 as any).piecieSlots = [shieldEntry("mosje_someone_else")];
     const result = markMosjeDefeated(state, "p1", 0);
     expect(result.players.p1.activeSlots[0]).toBeNull();
-    const welloeMosjes = ((result.players.p1 as any).welloePile as any[]).filter((e: any) => e.type === 'MOSJE'); expect(welloeMosjes).toHaveLength(1);
-    expect((result.players.p1.graveyard as any[]).filter((e: any) => e.type === 'MOSJE')).toHaveLength(0);
+    const welloeMosjes = (fallen(result.players.p1)).filter((e: any) => e.type === 'MOSJE'); expect(welloeMosjes).toHaveLength(1);
   });
 
   it("Test 10: Mosje Shield AND a Not Today! save entry - the shield fires first, the entry is kept", () => {

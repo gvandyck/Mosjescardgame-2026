@@ -2,6 +2,7 @@
 // Returns { title, options:[{ id, label, value, metaLabel?, disabled? }] }; `value` is what the ability reads
 // from _pendingTargets[key]. List kinds only (orderTopN / pickFromTopN go through pickCardOrder).
 // Hidden info: oppHandCard lists the opponent's hand, so this must only run in the acting player's client.
+import { isFallenMosje } from '../../engine/pile/isFallenMosje.js';
 import { getQuestDef } from '../../engine/quests/getQuestDef.js';
 import { toGraveyardEntry } from '../../engine/graveyardUtils.js';
 
@@ -60,6 +61,7 @@ export function buildAbilityInputOptions(state, playerId, input, collected = {})
 		}
 		case 'discardCard': {
 			const rows = (me.graveyard || []).map((c, i) => ({ c, i }))
+				.filter(({ c }) => !isFallenMosje(c))
 				.filter(({ c }) => !input.filter || typeOf(c.cardId ?? c) === input.filter)
 				.map(({ c, i }) => ({ label: nameOf(c.cardId ?? c), value: i }));
 			return { title: 'Choose a card from your discard pile', options: withIds(rows) };

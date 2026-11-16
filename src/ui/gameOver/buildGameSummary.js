@@ -2,6 +2,8 @@
 // won / attempted and the Mosjes lost. Pure; every number comes from engine data, nothing is tracked in the UI.
 import { STARTER_DECKS } from '../../data/starterDecks.js';
 
+import { getPileMosjes } from '../../engine/pile/getPileMosjes.js';
+
 const SEATS = ['player_1', 'player_2'];
 
 function toPlayerSummary(state, playerId) {
@@ -14,7 +16,7 @@ function toPlayerSummary(state, playerId) {
 		deckName: deck ? deck.name : (player.deckId || ''),
 		questsWon: stats.won || 0,
 		questsAttempted: stats.attempted || 0,
-		mosjesLost: (player.welloePile || []).filter(card => card?.type === 'MOSJE').length,
+		mosjesLost: getPileMosjes(player).length,
 	};
 }
 

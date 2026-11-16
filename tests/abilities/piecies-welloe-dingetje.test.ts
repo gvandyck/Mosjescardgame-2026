@@ -24,6 +24,7 @@ import { makePiecieState } from '../helpers/makePiecieState.js';
 import { createMosjeSlot } from '../../src/engine/mp/createMosjeSlot.js';
 // @ts-ignore
 import { MOSJES } from '../../src/data/mosjes.js';
+import { fallen } from "../helpers/fallen.js";
 
 const slotOf = (id: string, mp = 50) => {
   const s = createMosjeSlot(MOSJES.find((m: any) => m.id === id), { level: 1, mp });
@@ -60,10 +61,10 @@ describe('Mosje Shield', () => {
     expect(s.players.player_1.piecieSlots[0]).toMatchObject({ cardId: 'piecie_mosje_shield', stays: true, staysEnd: 'endOfNextTurn' });
     const saved = markMosjeDefeated(s, 'player_1', 1);
     expect(saved.players.player_1.activeSlots[1].mp).toBe(5);
-    expect(saved.players.player_1.welloePile).toHaveLength(0);
+    expect(fallen(saved.players.player_1)).toHaveLength(0);
     const other = markMosjeDefeated(s, 'player_1', 0);
     expect(other.players.player_1.activeSlots[0]).toBeNull();
-    expect(other.players.player_1.welloePile).toHaveLength(1);
+    expect(fallen(other.players.player_1)).toHaveLength(1);
   });
   it('ends at the end of the owner next turn', () => {
     let s = shielded();
@@ -97,14 +98,14 @@ describe('Welloe Force', () => {
 describe('Mosje Reborn and Call of the Welloes', () => {
   const withPile = (id: string) => {
     const s = board(id);
-    s.players.player_1.welloePile = [pile('mosje_jeffrey')];
+    s.players.player_1.graveyard = [pile('mosje_jeffrey')];
     return s;
   };
   const def = MOSJES.find((m: any) => m.id === 'mosje_jeffrey');
   it('Mosje Reborn: Level 1, starting MP + 30, fresh, on a free spot', () => {
     const st = play(withPile('piecie_mosje_reborn'));
     expect(st.players.player_1.activeSlots[1]).toMatchObject({ cardId: 'mosje_jeffrey', level: 1, mp: def.startMP + 30, entryProtected: true });
-    expect(st.players.player_1.welloePile).toHaveLength(0);
+    expect(fallen(st.players.player_1)).toHaveLength(0);
   });
   it('Mosje Reborn needs a Mosje in the Welloe pile', () => {
     expect(activatePiecie(board('piecie_mosje_reborn'), 'player_1', 0).success).toBe(false);
@@ -121,7 +122,7 @@ describe('Mosje Reborn and Call of the Welloes', () => {
     expect(a.players.player_1.graveyard.some((e: any) => e.cardId === 'piecie_call_of_welloes')).toBe(true);
     const b = discardPiecieSlot(st, 'player_1', 0);
     expect(b.players.player_1.activeSlots[1]).toBeNull();
-    expect(b.players.player_1.welloePile.some((e: any) => e.cardId === 'mosje_jeffrey')).toBe(true);
+    expect(fallen(b.players.player_1).some((e: any) => e.cardId === 'mosje_jeffrey')).toBe(true);
   });
 });
 

@@ -18,20 +18,19 @@ function deckedOut() {
   const p = st.players.player_1;
   p.deck = [];
   p.graveyard = ["a", "b", "c"];
-  p.welloePile = ["w"];
+  p.graveyard.push({ cardId: "mosje_w", name: "W", type: "MOSJE", source: "welloe" });
   p.energy = 2;
   return st;
 }
 
 describe("E21 - cooldown turn", () => {
-  it("deck-out reshuffles the discard (never the Welloe pile), draws, marks cooldown, still +1 Energy", () => {
+  it("deck-out reshuffles the discarded cards (fallen Mosjes stay in the pile), draws, marks cooldown, still +1 Energy", () => {
     const s = startTurn(deckedOut());
     const p = s.players.player_1;
     expect(p.hand).toHaveLength(1);
     expect(p.deck).toHaveLength(2);
     expect([...p.deck, ...p.hand].sort()).toEqual(["a", "b", "c"]);
-    expect(p.graveyard).toEqual([]);
-    expect(p.welloePile).toEqual(["w"]);
+    expect(p.graveyard).toEqual([{ cardId: "mosje_w", name: "W", type: "MOSJE", source: "welloe" }]);
     expect(p.cooldownTurn).toBe(true);
     expect(p.energy).toBe(3);
     expect(isCooldownBlocked(s, "player_1")).toBe(true);

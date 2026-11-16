@@ -61,7 +61,7 @@ test('D-19 D-21 D-22 vs Bot: Victory, 2.0 stats from the engine, no V4 tiles, no
 	expect(quests.attempted).toBeGreaterThanOrEqual(1);
 	await expect(page.locator('[data-stat="quests"][data-player-id="player_1"]')).toHaveText(`${quests.won}/${quests.attempted}`);
 	for (const id of ['player_1', 'player_2']) {
-		const lost = state.players[id].welloePile.filter(card => card.type === 'MOSJE').length;
+		const lost = state.players[id].graveyard.filter(card => card.type === 'MOSJE').length;
 		await expect(page.locator(`[data-stat="mosjes-lost"][data-player-id="${id}"]`)).toHaveText(String(lost));
 	}
 

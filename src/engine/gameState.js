@@ -104,8 +104,7 @@ function createPlayerState(config) {
 
     hand,
     deck,
-    graveyard: [],        // all defeated/discarded/destroyed cards end up here (typed entries)
-    welloePile: [],       // Welloe pile — separate from graveyard, never shuffled back (handoff §2f)
+    graveyard: [],        // the ONE pile (2.1 rules §10): discarded cards and fallen Mosjes (type 'MOSJE', source 'welloe')
     energy: ENERGY_START, // Obby 2.0 Energy pool (Core Numbers §1-2)
 
     activeSlots,          // [mosjeSlot, mosjeSlot] — up to 2 active Mosjes

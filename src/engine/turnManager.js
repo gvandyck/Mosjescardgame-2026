@@ -36,6 +36,8 @@ import { PLACES } from '../data/places.js';
 import { SNELLE_PIECIES } from '../data/snellePiecies.js';
 import { QUESTS } from '../data/quests.js';
 import { toGraveyardEntry } from './graveyardUtils.js';
+import { getPileCards } from './pile/getPileCards.js';
+import { reshufflePileIntoDeck } from './pile/reshufflePileIntoDeck.js';
 import { createMosjeSlot } from './mp/createMosjeSlot.js';
 import { roundToFive } from './roundToFive.js';
 import { gainEnergy } from './energy/gainEnergy.js';
@@ -233,13 +235,12 @@ export function phaseDrawCard(gameState, playerId, count = 1, isOpponentTriggere
   const player = state.players[playerId];
 
   if (player.deck.length === 0) {
-    if (player.graveyard.length === 0) {
+    if (getPileCards(player).length === 0) {
       console.log('[ENGINE] Draw phase: deck AND discard empty — no draw, no penalty');
       return state;
     }
-    // Reshuffle discard into deck (deck-out rule per D-06)
-    player.deck = shuffleDeck([...player.graveyard]);
-    player.graveyard = [];
+    // Deck-out (2.1, rules §10): the non-Mosje cards of the one pile become the deck; fallen Mosjes stay in the pile
+    reshufflePileIntoDeck(player, shuffleDeck);
     const { drawn, remaining } = drawCards(player.deck, 1);
     player.deck = remaining;
     player.hand.push(...drawn);

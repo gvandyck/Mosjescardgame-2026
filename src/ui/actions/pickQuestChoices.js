@@ -1,6 +1,7 @@
 // pickQuestChoices — the human's Quest picks, asked only when the Quest needs them.
 // phase 'pre'  (before the roll): { costChoice, dieChoices } or null if the player cancelled.
 // phase 'post' (after the roll):  the `choices` object for resolveQuestAttempt.
+import { isFallenMosje } from '../../engine/pile/isFallenMosje.js';
 import { getJabTargets } from '../../engine/quests/getJabTargets.js';
 import { legalCostChoices } from './legalCostChoices.js';
 import { toGraveyardEntry } from '../../engine/graveyardUtils.js';
@@ -62,6 +63,7 @@ export async function pickQuestChoices({ state, playerId, modal, phase, slotInde
 				const opts = [];
 				for (const [pid, p] of Object.entries(state.players)) {
 					(p.graveyard || []).forEach((g, gi) => {
+						if (isFallenMosje(g)) return; // a fallen Mosje is not a discard
 						if (!picks.some(x => x.playerId === pid && x.graveyardIndex === gi)) opts.push({ id: `${pid}:${gi}`, label: g?.name || nameOf(g?.cardId), metaLabel: escapeMeta(state.players[pid].name) });
 					});
 				}

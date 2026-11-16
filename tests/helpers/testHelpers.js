@@ -150,7 +150,6 @@ export function createEngineState(overrides = {}) {
         deck: [{ cardId: 'piecie_kannetje_melk', type: 'PIECIE' }],
         discard: [],
         welloe: [],
-        welloePile: [],
         energy: 6,
         activeSlots: [
           {
@@ -181,7 +180,6 @@ export function createEngineState(overrides = {}) {
         deck: [{ cardId: 'piecie_affoe', type: 'PIECIE' }],
         discard: [],
         welloe: [],
-        welloePile: [],
         energy: 6,
         activeSlots: [
           {

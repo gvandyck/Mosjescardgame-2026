@@ -9,6 +9,7 @@ import { markMosjeDefeated, checkVictory } from "../../src/engine/victoryChecker
 import { checkLoss } from "../../src/engine/winLose/checkLoss.js";
 // @ts-expect-error — JS module, no type declarations
 import { MOSJES } from "../../src/data/mosjes.js";
+import { fallen } from "../helpers/fallen.js";
 
 const def = MOSJES.find((m: any) => m.id === "mosje_gandoe_wizard");
 const other = MOSJES.find((m: any) => m.id !== "mosje_gandoe_wizard");
@@ -34,7 +35,7 @@ describe("no Mosje left = loss (Obby 2.0 §2c)", () => {
     expect(s.status).toBe("FINISHED");
     expect(s.winnerId).toBe("player_1");
     expect(s.winReason).toBe("KNOCKOUT");
-    expect(s.players.player_2.welloePile).toHaveLength(1);
+    expect(fallen(s.players.player_2)).toHaveLength(1);
   });
 
   it("E8 negative: a Mosje still in hand -> game continues", () => {

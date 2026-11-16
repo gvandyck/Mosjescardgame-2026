@@ -17,6 +17,7 @@ import {
 } from './helpers.js';
 import { attackByTap, questByTap, activateByTap, clickThroughOptions, press } from '../helpers/boardTaps.js';
 import { getPower } from '../../src/engine/mp/getPower.js';
+import { previewAttack } from '../../src/engine/attack/previewAttack.js';
 
 test.use({ hasTouch: true, viewport: { width: 1920, height: 1080 } });
 
@@ -75,11 +76,12 @@ test('a whole turn is played with taps only: attack, Quest, Place, Piecie Activa
 	let gs = await getGameState(page);
 	const power = getPower(gs.players.player_1.activeSlots[0]);
 	expect(power).toBe(20);
+	const hitFor = previewAttack(gs, 'player_1', 0, 'player_2', 0).final; // 2.1: type triangle and Resilient change the Power
 
 	// 1. Attack: tap Alyssa, Attack in the tray, tap the target, Confirm in the strip.
 	await attackByTap(page, { slot: 0, target: 'player_2:0', ...TOUCH });
 	gs = await getGameState(page);
-	expect(mp(gs, 'player_2', 0), 'the target lost the attacker Power').toBe(60 - power);
+	expect(mp(gs, 'player_2', 0), 'the target lost the attacker Power').toBe(60 - hitFor);
 
 	// 2. Quest: tap the other Mosje, Quest in its tray, the PHYSICAL Quest tile, then the cost / dice / result modals.
 	await questByTap(page, { slot: 1, stackId: 'PHYSICAL', ...TOUCH });
@@ -119,7 +121,9 @@ test('a whole turn is played with taps only: attack, Quest, Place, Piecie Activa
 	await setEnergy(page, 'player_1', 6);
 	await setHand(page, 'player_2', []);
 	const botPower = await page.evaluate(() => window.__testHooks.getMosjePower('player_2', 0));
-	const before = mp(await getGameState(page), 'player_1', 0);
+	const preState = await getGameState(page);
+	const before = mp(preState, 'player_1', 0);
+	const botHit = previewAttack(preState, 'player_2', 0, 'player_1', 0).final; // 2.1: triangle and Resilient
 	expect(await page.evaluate(() => window.__testHooks.botAttack(0, 0))).toBe('ok');
 	const prompt = page.locator('.modal-card--reaction');
 	await expect(prompt).toBeVisible({ timeout: 8000 });
@@ -129,7 +133,7 @@ test('a whole turn is played with taps only: attack, Quest, Place, Piecie Activa
 		const g = await getGameState(page);
 		return g.pendingReaction == null && g.activePlayerId === 'player_1';
 	}, { timeout: 15000 }).toBe(true);
-	expect(mp(await getGameState(page), 'player_1', 0), 'No reaction: the full Power loss').toBe(before - botPower);
+	expect(mp(await getGameState(page), 'player_1', 0), 'No reaction: the full Power loss').toBe(before - botHit);
 	expect((await getGameState(page)).players.player_1.hand.some((c) => c.cardId === 'snelle_the_protector'), 'the Snelle stayed in hand').toBe(true);
 
 	expect(errors, 'no page errors during the turn').toEqual([]);

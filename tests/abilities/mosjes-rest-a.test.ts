@@ -15,6 +15,7 @@ import { settleMosjePauses } from "../../src/bot/settleMosjePauses.js";
 import { makeEngineState } from "../helpers/makeEngineState.js";
 // @ts-expect-error - JS module
 import { mkSlot, byName, build, finish } from "../helpers/quest56.js";
+import { fallen } from "../helpers/fallen.js";
 
 const JEFF = byName(/Jeffrey, The Strongman/);
 const DESTROYER = byName(/The Destroyer/);
@@ -80,7 +81,7 @@ describe("Gandoe, The Destroyer: Elimination Strike (once per game, 4 Energy: th
     const res = useMosjeAbility(board([mkSlot({ mp: 40, level: 2 }), mkSlot({ mp: 40 })]), "player_1", DESTROYER.id);
     expect(res.success).toBe(true);
     expect(res.state.players.player_1.energy).toBe(2);
-    expect(res.state.players.player_2.welloePile.length).toBe(1);
+    expect(fallen(res.state.players.player_2).length).toBe(1);
     expect(res.state.players.player_2.activeSlots[1]?.isDefeated ?? true).toBe(true);
     expect(res.state.players.player_2.activeSlots[0].isDefeated).toBeFalsy();
   });
@@ -93,7 +94,7 @@ describe("Gandoe, The Destroyer: Elimination Strike (once per game, 4 Energy: th
     expect(pc.options.length).toBe(2);
     const done = resolvePendingChoice(res.state, pc.options[1]);
     expect(done.ok).toBe(true);
-    expect(done.state.players.player_2.welloePile.length).toBe(1);
+    expect(fallen(done.state.players.player_2).length).toBe(1);
     expect(done.state.players.player_2.activeSlots[0].isDefeated).toBeFalsy();
   });
 
@@ -101,13 +102,13 @@ describe("Gandoe, The Destroyer: Elimination Strike (once per game, 4 Energy: th
     const res = useMosjeAbility(board([mkSlot({ mp: 40 }), mkSlot({ mp: 40 })]), "player_1", DESTROYER.id);
     const settled = settleMosjePauses(res.state, []);
     expect(settled.state.pendingChoice).toBeUndefined();
-    expect(settled.state.players.player_2.welloePile.length).toBe(1);
+    expect(fallen(settled.state.players.player_2).length).toBe(1);
   });
 
   it("the only lowest-level Mosje is fresh: the lowest-level non-fresh one is taken", () => {
     const res = useMosjeAbility(board([mkSlot({ mp: 40, level: 2 }), mkSlot({ mp: 40, level: 1, entryProtected: true })]), "player_1", DESTROYER.id);
     expect(res.success).toBe(true);
-    expect(res.state.players.player_2.welloePile.length).toBe(1);
+    expect(fallen(res.state.players.player_2).length).toBe(1);
     expect(res.state.players.player_2.activeSlots[1].isDefeated).toBeFalsy();
     expect(res.state.players.player_2.activeSlots[0]?.isDefeated ?? true).toBe(true);
   });

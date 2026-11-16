@@ -18,6 +18,7 @@ import { getQuestDiceCount } from "../../src/engine/quests/getQuestDiceCount.js"
 import * as fx from "../../src/abilities/snelleEffects.js";
 // @ts-expect-error
 import { MOSJES } from "../../src/data/mosjes.js";
+import { fallen } from "../helpers/fallen.js";
 
 const ming = MOSJES.find((m: any) => m.id === "mosje_ming_predictor");
 const alyssa = MOSJES.find((m: any) => m.id === "mosje_alyssa_bulldozer");
@@ -78,13 +79,13 @@ describe("loss reductions and Emergency Healings", () => {
 describe("Not Today!", () => {
   const sideways = () => board([mk(5, { sideways: true }), mk(50)], [mk(40)]);
   const window = { moments: ["toWelloe"], preview: { getemt: [0], toWelloe: true, mpLoss: { 0: 5 } } };
-  it("a sideways Mosje at 5 MP hit for 10 stays, sideways, welloePile unchanged", () => {
+  it("a sideways Mosje at 5 MP hit for 10 stays, sideways, no fallen Mosje", () => {
     const s = fx.effect_snelle_negate_elimination(sideways(), "player_2", { reaction: window });
     const out = checkVictory(hit(s, 10));
     expect(mine(out)).not.toBeNull();
     expect(mine(out).sideways).toBe(true);
     expect(mine(out).mp).toBe(5);
-    expect(out.players.player_2.welloePile).toHaveLength(0);
+    expect(fallen(out.players.player_2)).toHaveLength(0);
   });
   it("at 0 MP it goes to 5", () => {
     const s = fx.effect_snelle_negate_elimination(board([mk(0, { sideways: true }), mk(50)], [mk(40)]), "player_2", { reaction: window });
@@ -92,7 +93,7 @@ describe("Not Today!", () => {
   });
   it("without the Snelle the same hit sends it to the Welloe pile", () => {
     const out = checkVictory(hit(sideways(), 10));
-    expect(out.players.player_2.welloePile).toHaveLength(1);
+    expect(fallen(out.players.player_2)).toHaveLength(1);
   });
 });
 

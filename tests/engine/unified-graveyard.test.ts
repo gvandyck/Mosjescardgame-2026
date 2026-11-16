@@ -5,6 +5,7 @@ import { describe, it, expect } from 'vitest';
 import { setActivePlace, destroyActivePlace } from '../../src/engine/gameState.js';
 // @ts-expect-error — JS module, no type declarations
 import { markMosjeDefeated } from '../../src/engine/victoryChecker.js';
+import { fallen } from "../helpers/fallen.js";
 
 function makeState(overrides: Record<string, unknown> = {}) {
   return {
@@ -75,13 +76,13 @@ describe('Unified graveyard — Mosje graveyard write (PLACE-REC-ENGINE-03)', ()
     };
   }
 
-  it('markMosjeDefeated pushes full slot with type:MOSJE to player.welloePile (not graveyard)', () => {
+  it('markMosjeDefeated puts a type:MOSJE entry into the one pile (player.graveyard)', () => {
     const state = makeStateWithMosje();
     const result = markMosjeDefeated(state, 'player_2', 0);
-    expect((result.players.player_2 as any).welloePile).toContainEqual(
-      expect.objectContaining({ cardId: 'mosje_binti', type: 'MOSJE', source: 'welloe', isDefeated: true })
-    );
-    expect(result.players.player_2.graveyard).toHaveLength(0);
+    expect(result.players.player_2.graveyard).toEqual([
+      expect.objectContaining({ cardId: 'mosje_binti', type: 'MOSJE', source: 'welloe' }),
+    ]);
+    expect(result.players.player_2).not.toHaveProperty('welloePile');
   });
 
   it('markMosjeDefeated does NOT write to player.welloe', () => {

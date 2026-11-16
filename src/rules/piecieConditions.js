@@ -4,6 +4,9 @@
 import { PIECIES } from '../data/piecies.js';
 import { canLeaveWelloePile } from '../engine/table/canLeaveWelloePile.js';
 
+import { getPileMosjes } from '../engine/pile/getPileMosjes.js';
+import { getPileCards } from '../engine/pile/getPileCards.js';
+
 const alive = (s) => s && !s.isDefeated;
 const mosjes = (state, pid) => (state.players[pid]?.activeSlots || []).filter(alive);
 const hasName = (s, ...bits) => bits.some(b => String(s.cardId).includes(b));
@@ -14,7 +17,7 @@ const digital = (state, pid) => mosjes(state, pid).some(s => s.subtype === 'DIGI
 const welloeReturn = (state, pid) => {
 	const p = state.players[pid];
 	if (!canLeaveWelloePile(state)) return 'Welloe Graveyard keeps Mosjes in the Welloe pile';
-	if (!(p?.welloePile || []).some(e => e.type === 'MOSJE')) return 'Needs a Mosje in your Welloe pile';
+	if (!getPileMosjes(p).length > 0) return 'Needs a Mosje in your pile';
 	if (!(p?.activeSlots || []).some(s => s === null)) return 'Needs a free Mosje spot';
 	return true;
 };
@@ -32,7 +35,8 @@ export const PIECIE_CONDITIONS = {
 	piecie_popo_komt: (state) => Object.keys(state.players).reduce((n, id) => n + mosjes(state, id).length, 0) >= 3
 		|| 'Only if there are 3 or more Mosjes on the field in total',
 	piecie_huisbaas: (state) => Object.values(state.players).some((p) => {
-		const top = (p.graveyard || [])[(p.graveyard || []).length - 1];
+		const cards = getPileCards(p);
+			const top = cards[cards.length - 1];
 		return top && SUBSTANCE.has(top.cardId);
 	}) || 'Only if the top card of any discard pile is a substance Piecie',
 	piecie_welloe_force: (state, pid) => (state.players[pid]?.hand || []).length > 0

@@ -80,6 +80,7 @@ import { initLobby2 } from './ui/lobby/initLobby2.js';
 import { launchGame } from './ui/lobby/launchGame.js';
 import { sanitizeGameParams } from './ui/game/sanitizeGameParams.js';
 import { buildGameSummary } from './ui/gameOver/buildGameSummary.js';
+import { getPileMosjes } from './engine/pile/getPileMosjes.js';
 import { getGameOverHeadline } from './ui/gameOver/getGameOverHeadline.js';
 import { getReplayChoices } from './ui/gameOver/getReplayChoices.js';
 
@@ -853,8 +854,7 @@ function initGamePage() {
 				return `${who} held Level 3 until their turn — victory!`;
 			}
 			case 'KNOCKOUT': {
-				const lastDefeated = [...(opponent?.welloePile || [])].reverse()
-					.find(c => c?.type === 'MOSJE');
+				const lastDefeated = getPileMosjes(opponent).slice(-1)[0];
 				const tail = lastDefeated?.name ? ` (last to fall: ${lastDefeated.name})` : '';
 				return `${opponentName} has no Mosje left outside the Welloe pile${tail}.`;
 			}
@@ -1051,7 +1051,7 @@ function initGamePage() {
 			injectWelloeMosje(playerId, mosjeId) {
 				const player = gameState?.players?.[playerId];
 				if (!player) return;
-				Object.assign(player, { welloePile: [...(player.welloePile || []), { cardId: mosjeId, name: mosjeId, type: 'MOSJE', source: 'welloe', isDefeated: true }] });
+				player.graveyard = [...(player.graveyard || []), { cardId: mosjeId, name: mosjeId, type: 'MOSJE', source: 'welloe' }];
 			},
 			injectGraveyardCard(playerId, cardId) {
 				const player = gameState?.players?.[playerId];
@@ -1879,7 +1879,6 @@ function toBoardViewModel(gameState, localPlayerId) {
 				}),
 				deck: opponent.deck || [],
 				graveyard: opponent.graveyard || [],
-				welloePile: opponent.welloePile || [],
 			},
 			bottom: {
 				id: localPlayerId,
@@ -1896,7 +1895,6 @@ function toBoardViewModel(gameState, localPlayerId) {
 				}),
 				deck: localPlayer.deck || [],
 				graveyard: localPlayer.graveyard || [],
-				welloePile: localPlayer.welloePile || [],
 			},
 		},
 	};
