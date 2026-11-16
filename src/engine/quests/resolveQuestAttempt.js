@@ -11,6 +11,7 @@ import { countQuestAttempt } from './countQuestAttempt.js';
 import { runMosjeTriggers } from '../mosje/runMosjeTriggers.js';
 import { applyMomentumBoostWin } from './applyMomentumBoostWin.js';
 import { battleConcertRedirect } from './battleConcertRedirect.js';
+import { resolvePersonalQuestAttempt } from '../personalQuests/resolvePersonalQuestAttempt.js';
 import { placeQuestBonus } from '../../abilities/place/placeTurnQuestEffects.js';
 
 export function resolveQuestAttempt(state, pending, choices = {}) {
@@ -20,6 +21,7 @@ export function resolveQuestAttempt(state, pending, choices = {}) {
 		state = JSON.parse(JSON.stringify(state));
 		delete state.pendingQuestRoll;
 	}
+	if (pending?.kind === 'personal') return resolvePersonalQuestAttempt(state, pending); // a held Personal Quest roll (70-08)
 	const { playerId, slotIndex, stackId, questId, win, dice } = pending;
 	const quest = getQuestDef(questId);
 	if (!quest || state.questStacks?.[stackId]?.faceUp !== questId) {

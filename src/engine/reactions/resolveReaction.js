@@ -3,6 +3,7 @@ import { replayHeldAttack } from './replayHeldAttack.js';
 import { activatePiecie, playSnellie, useMosjeAbility } from '../turnManager.js';
 import { activatePiecieFree } from '../table/activatePiecieFree.js';
 import { rollQuestAttempt } from '../quests/rollQuestAttempt.js';
+import { rollPersonalQuestAttempt } from '../personalQuests/rollPersonalQuestAttempt.js';
 import { SNELLE_PIECIES } from '../../data/snellePiecies.js';
 import { getEligibleReactions, DJ_REROLL_PREFIX, PIECIE_REROLL_PREFIX } from './getEligibleReactions.js';
 import { djLuckyBeats } from '../../abilities/mosje/djLuckyBeats.js';
@@ -28,6 +29,11 @@ function replay(state, action) {
 		case 'resumeSnelle': return { state: resumeSnelleChoice(state, a[0]).state, success: true };
 		case 'quest': {
 			const r = rollQuestAttempt(state, a[0], { ...a[1], skipBeforeRoll: true });
+			if (r.ok && r.pending && !r.state.pendingQuestRoll) r.state = { ...r.state, pendingQuestRoll: r.pending };
+			return r;
+		}
+		case 'personalQuest': {
+			const r = rollPersonalQuestAttempt(state, a[0], { ...a[1], skipBeforeRoll: true });
 			if (r.ok && r.pending && !r.state.pendingQuestRoll) r.state = { ...r.state, pendingQuestRoll: r.pending };
 			return r;
 		}

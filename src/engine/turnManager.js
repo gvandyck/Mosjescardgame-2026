@@ -166,6 +166,7 @@ export function startTurn(gameState) {
       // decision 1 (54-11): sideways = this Mosje skips this owner turn
       if (slot.sideways) slot.sidewaysArmed = true;
       slot.mpLostThisTurn = 0;
+      slot.levelAtTurnStart = slot.level; // Personal Quest legality: must start the turn at Level 3 (70-08, D-02)
       // Needs "lost MP since the start of your last turn": the window that just ended becomes the previous one (70-06)
       slot.mpLostWindowPrev = slot.mpLostWindowNow === true;
       slot.mpLostWindowNow = false;

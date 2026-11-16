@@ -1,15 +1,14 @@
 // snelleDiceEffects - Card List 2.0 Quest-dice Snelle (Phase 60): Lucky Coin, Sleutelpuntje, Je Weet Niet. Effects: (state, playerId, ctx).
 // The roll under reaction is state.pendingQuestRoll; changing a die re-checks the band the way useRerollGrant does.
 import { rollDie } from '../../engine/deckEngine.js';
-import { getQuestDef } from '../../engine/quests/getQuestDef.js';
-import { isBandWin } from '../../engine/quests/isBandWin.js';
+import { isPendingRollWin } from '../../engine/quests/isPendingRollWin.js';
 
 const clone = (s) => JSON.parse(JSON.stringify(s));
 const bestStars = (state, pid, trait) =>
 	Math.max(0, ...(state.players[pid].activeSlots || []).filter(s => s && !s.isDefeated).map(s => s.traits?.[trait] || 0));
 
 function recheck(pending) {
-	pending.win = isBandWin(getQuestDef(pending.questId).band, pending.dice);
+	pending.win = isPendingRollWin(pending, pending.dice);
 }
 
 // Sleutelpuntje: +1 die on the owner's next Quest roll (getQuestDiceCount keeps the 4-dice cap).

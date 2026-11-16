@@ -12,7 +12,7 @@ const BANNED = ['skipNextTurn', 'Turn trickle', 'TURN TRICKLE', 'splice(0, 6)', 
   // Phase 56-08: V4 Quest system (replaced by questStacks / checkQuestCondition / getQuestDiceCount / rollQuestAttempt).
   // questsAttemptedThisTurn is NOT banned: rollQuestAttempt keeps it as the 2.0 per-turn attempt counter.
   'sharedGeneralQuest', 'attemptGeneralQuest', 'attemptPersonalQuest', 'playPersonalQuest', 'activatePersonalQuest',
-  'hasAttemptedQuestThisTurn', 'getQuestDiceThreshold', 'checkTraitRoll', 'canAttemptGeneralQuest', 'canAttemptPersonalQuest',
+  'hasAttemptedQuestThisTurn', 'getQuestDiceThreshold', 'checkTraitRoll', 'canAttemptGeneralQuest', // canAttemptPersonalQuest is the 2.1 legality check again (70-08), no longer banned
   'getGeneralQuestBlockReason', 'activatePlace', 'activePlaceCanActivateOnTurn', 'getFirstActiveMosje(', 'quest_req_',
   // Phase 57-07: V4 persistence, Place slots and the V4 damage-interrupt modal.
   'persistUntilEoT', 'showDamageInterruptModal', 'humanTakesDamageOrElimination'];

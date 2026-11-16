@@ -2,14 +2,15 @@
 // Own roll: reroll a failing roll's lowest die that could still turn it into a win. Opponent's roll: reroll a die
 // the win depends on (the lowest such one). Only rerolls that can change the outcome are worth the use.
 import { getQuestDef } from '../../engine/quests/getQuestDef.js';
-import { isBandWin } from '../../engine/quests/isBandWin.js';
+import { isPendingRollWin } from '../../engine/quests/isPendingRollWin.js';
 import { asBotView } from './asBotView.js';
 
 export function pickDjRerollDie(state, responderId, eligible, prefix = 'djReroll:') {
 	state = asBotView(state, responderId); // BOT-04: from here on `state` is the table view
 	const roll = state.pendingQuestRoll;
-	const quest = roll && getQuestDef(roll.questId);
-	if (!quest || quest.band === 'trained') return null;
+	if (!roll) return null;
+	const quest = roll.kind === 'personal' ? null : getQuestDef(roll.questId); // a Personal Quest roll has its own need
+	if (roll.kind !== 'personal' && (!quest || quest.band === 'trained')) return null;
 	const own = roll.playerId === responderId;
 	if (own === roll.win) return null; // own win / opponent's loss: leave it
 	const swing = own ? 6 : 1;
@@ -18,7 +19,7 @@ export function pickDjRerollDie(state, responderId, eligible, prefix = 'djReroll
 		const id = `${prefix}${i}`;
 		if (!eligible.includes(id)) continue;
 		const test = roll.dice.map((d, j) => (j === i ? swing : d));
-		if (isBandWin(quest.band, test) !== roll.win) return id;
+		if (isPendingRollWin(roll, test) !== roll.win) return id;
 	}
 	return null;
 }

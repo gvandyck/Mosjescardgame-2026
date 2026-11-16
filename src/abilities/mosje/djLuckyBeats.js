@@ -2,8 +2,7 @@
 // reroll one die of that roll; the band is re-checked with the new die. Works on state.pendingQuestRoll (mutates the
 // given, already cloned, state). Returns false when it cannot be used (nothing changes).
 import { rollDie } from '../../engine/deckEngine.js';
-import { getQuestDef } from '../../engine/quests/getQuestDef.js';
-import { isBandWin } from '../../engine/quests/isBandWin.js';
+import { isPendingRollWin } from '../../engine/quests/isPendingRollWin.js';
 import { canDjReroll, djTurnKey } from './canDjReroll.js';
 
 export function djLuckyBeats(state, ownerId, dieIndex) {
@@ -12,7 +11,7 @@ export function djLuckyBeats(state, ownerId, dieIndex) {
 	const slotIndex = canDjReroll(state, ownerId);
 	if (slotIndex < 0) return false;
 	pending.dice[dieIndex] = rollDie(6);
-	pending.win = isBandWin(getQuestDef(pending.questId).band, pending.dice);
+	pending.win = isPendingRollWin(pending, pending.dice);
 	state.players[ownerId].activeSlots[slotIndex].djRerollTurn = djTurnKey(state);
 	return true;
 }

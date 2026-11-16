@@ -43,8 +43,8 @@ export function pickCounterSnelle(state, responderId) {
 	if (moments.includes('afterQuestRoll') && roll && roll.playerId !== responderId) {
 		const flip = pickDjRerollDie(view, responderId, p.eligible) || pickDjRerollDie(view, responderId, p.eligible, 'piecieReroll:');
 		if (flip) return flip;
-		const quest = getQuestDef(roll.questId);
-		if (!roll.win || !quest || quest.band === 'trained') return null; // a losing roll stays lost; a trained Quest never fails
+		const quest = roll.kind === 'personal' ? null : getQuestDef(roll.questId); // a Personal Quest roll never "trains"
+		if (!roll.win || (roll.kind !== 'personal' && (!quest || quest.band === 'trained'))) return null; // a losing roll stays lost; a trained Quest never fails
 		if (can('snelle_jeweetniet')) return 'snelle_jeweetniet';
 		return can('snelle_lucky_coin') ? 'snelle_lucky_coin' : null;
 	}
