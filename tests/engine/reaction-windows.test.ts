@@ -107,16 +107,27 @@ describe("defender windows", () => {
 });
 
 describe("Piecie activation windows", () => {
-  const mkp = (hand2: string[], hand1: string[] = []) =>
+  // 70-05 (D-20): the targeted window needs a card flagged targets:true; Varkenspootjes ("Target 1 Mosje") is the one-star flagged card.
+  const mkp = (hand2: string[], hand1: string[] = [], held = "piecie_klaar_met_jou") =>
     board({ hand: H(...hand2), activeSlots: [mk(30, plain, 1, { traits: { mental: 2 } }), mk(50)] }, { // Jammertje / Counter Strikka need Mental 2 stars (Card List)
       // Klaar Met Jou: Level 2+ gate (second Mosje is Level 2); foe Mosje at 30 MP goes to the Welloe pile
-      activeSlots: [mk(50, attackerDef), mk(50, plain, 2)], hand: H(...hand1), energy: 10, piecieSlots: [{ ...ready }, null, null] });
-  it("defender: afterPiecieActivation + targeted + wouldLoseMp; Jammertje offered", () => {
-    const r = activatePiecie(mkp(["snelle_jammertje_gepakt", "snelle_counter_strikka", "snelle_jensen"]), "player_1", 0);
+      activeSlots: [mk(50, attackerDef), mk(50, plain, 2)], hand: H(...hand1), energy: 10, piecieSlots: [{ ...ready, cardId: held }, null, null] });
+  it("defender, flagged card: afterPiecieActivation + targeted + wouldLoseMp; Jammertje offered", () => {
+    const r = activatePiecie(mkp(["snelle_jammertje_gepakt", "snelle_counter_strikka", "snelle_jensen"], [], "piecie_varkenspootjes"), "player_1", 0);
     expect(r.success).toBe(true);
     const p = r.state.pendingReaction;
     expect(p.moments).toEqual(expect.arrayContaining(["afterPiecieActivation", "targeted", "wouldLoseMp"]));
     expect(p.eligible).toEqual(expect.arrayContaining(["snelle_jammertje_gepakt", "snelle_counter_strikka", "snelle_jensen"]));
+  });
+  it("defender, unflagged card: no targeted moment even though a Mosje is hit; Jensen! is not offered", () => {
+    const r = activatePiecie(mkp(["snelle_jammertje_gepakt", "snelle_counter_strikka", "snelle_jensen"]), "player_1", 0);
+    expect(r.success).toBe(true);
+    const p = r.state.pendingReaction;
+    expect(p.moments).toEqual(expect.arrayContaining(["afterPiecieActivation", "wouldLoseMp"]));
+    expect(p.moments).not.toContain("targeted");
+    expect(p.eligible).toContain("snelle_jammertje_gepakt");
+    expect(p.eligible).not.toContain("snelle_jensen");
+    expect(p.eligible).not.toContain("snelle_counter_strikka");
   });
   it("Jammertje is never offered for a Snelle play", () => {
     const s = board({ hand: H("snelle_jammertje_gepakt") }, { hand: H("snelle_momentum_rush"), energy: 10 });
@@ -124,9 +135,9 @@ describe("Piecie activation windows", () => {
     const r = playSnellie(s, "player_1", { cardId: "snelle_momentum_rush", type: "SNELLE_PIECIE" }, def);
     expect(r.state.pendingReaction).toBeUndefined();
   });
-  // Dubbele Temminks is refused on a five-star Piecie (Klaar Met Jou), so these two use the one-star Affoe on single-Mosje fields (no pick).
+  // Dubbele Temminks is refused on a five-star Piecie (Klaar Met Jou), so these two use the one-star, flagged Varkenspootjes on single-Mosje fields (no pick).
   const affoe = (s: any) => {
-    s.players.player_1.piecieSlots[0] = { ...ready, cardId: "piecie_affoe" };
+    s.players.player_1.piecieSlots[0] = { ...ready, cardId: "piecie_varkenspootjes" };
     s.players.player_1.activeSlots[1] = null;
     s.players.player_2.activeSlots[1] = null;
     return s;
@@ -144,7 +155,7 @@ describe("Piecie activation windows", () => {
     expect(direct.pendingReaction.responderId).toBe("player_1");
   });
   it("jensenPlayed: Jensen! in a targeted window opens Frenssen! for the other player", () => {
-    const w = activatePiecie(mkp(["snelle_jensen"], ["snelle_frenssen"]), "player_1", 0).state;
+    const w = activatePiecie(mkp(["snelle_jensen"], ["snelle_frenssen"], "piecie_varkenspootjes"), "player_1", 0).state;
     const r = resolveReaction(w, "player_2", "snelle_jensen");
     expect(r.state.pendingReaction.responderId).toBe("player_1");
     expect(r.state.pendingReaction.moments).toEqual(["jensenPlayed"]);

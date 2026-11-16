@@ -1,6 +1,6 @@
 // resolveReaction — answer state.pendingReaction with a Snelle cardId or null (pass); then next window or replay.
 import { replayHeldAttack } from './replayHeldAttack.js';
-import { activatePiecie, playSnellie } from '../turnManager.js';
+import { activatePiecie, playSnellie, useMosjeAbility } from '../turnManager.js';
 import { activatePiecieFree } from '../table/activatePiecieFree.js';
 import { rollQuestAttempt } from '../quests/rollQuestAttempt.js';
 import { SNELLE_PIECIES } from '../../data/snellePiecies.js';
@@ -23,6 +23,7 @@ function replay(state, action) {
 		case 'activatePiecie': return activatePiecie(state, a[0], a[1], SKIP);
 		case 'activatePiecieFree': return activatePiecieFree(state, a[0], a[1], { ...a[2], ...SKIP });
 		case 'playSnelle': return playSnellie(state, a[0], a[1], a[2], SKIP);
+		case 'mosjeAbility': return useMosjeAbility(state, a[0], a[1], SKIP);
 		case 'resumePiecie': return { state: resumePiecieChoice(state, a[0]), success: true };
 		case 'resumeSnelle': return { state: resumeSnelleChoice(state, a[0]).state, success: true };
 		case 'quest': {
@@ -87,7 +88,7 @@ export function continueReaction(s, p, queue) {
 	s.replayingHeld = true; // only the held action may consume the reactionMods entries
 	applyRetarget(s); // Counter Strikka: a Piecie's chosen target moves before it replays
 	const res = replay(s, p.action);
-	if (res.state) { delete res.state.reactionMods; delete res.state.replayingHeld; } // one-shot entries never outlive the held action (T-60-03)
+	if (res.state) { delete res.state.reactionMods; delete res.state.replayingHeld; delete res.state.targetedThisAction; } // one-shot entries never outlive the held action (T-60-03)
 	if (copied && res.success !== false && res.ok !== false && !res.negated && !res.state?.pendingChoice) {
 		res.state = copyHeldPiecie(res.state, copy.playerId, copied);
 	}

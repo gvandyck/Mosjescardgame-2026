@@ -1,5 +1,8 @@
 // Phase 60-03 (EFX-03): Jensen!, Frenssen!, Blensen!, Counter Strikka, Jammertje Gepakt!, Dubbele Temminks, Gevalletje Klakkeloos.
 // Held card = Affoe (one star, 1 Energy): the opponent Mosje loses 15 MP, one of your Mosjes gains 10. Numbers come from the Card List.
+// 70-05 (D-20): the targeted window (Jensen!, Blensen!, Counter Strikka) only opens for a card flagged targets:true, so the
+// tests of that window hold Varkenspootjes (1 Energy, "Target 1 Mosje": a non-Binti loses 15) instead of the unflagged Affoe.
+const TARGETING = "piecie_varkenspootjes";
 import { describe, expect, it } from "vitest";
 // @ts-expect-error — JS modules
 import { makeEngineState } from "../helpers/makeEngineState.js";
@@ -45,37 +48,37 @@ const answer = (s: any, pid: string, card: string | null) => resolveReaction(s, 
 
 describe("Jensen! / Frenssen! / Blensen!", () => {
   it("Jensen! cancels the Piecie: no effect, owner's discard, Energy stays spent", () => {
-    const r = answer(go(board({}, { hand: H("snelle_jensen") })), "player_2", "snelle_jensen");
+    const r = answer(go(board({}, { hand: H("snelle_jensen") }, TARGETING)), "player_2", "snelle_jensen");
     const s = r.state;
     expect(s.pendingReaction).toBeUndefined();
     expect(mp(s, "player_2")).toBe(50);
     expect(mp(s, "player_1")).toBe(30);
-    expect(ids(s.players.player_1.graveyard)).toContain("piecie_affoe");
+    expect(ids(s.players.player_1.graveyard)).toContain(TARGETING);
     expect(s.players.player_1.piecieSlots[0]).toBeNull();
     expect(s.players.player_1.energy).toBe(5);
     expect(s.players.player_2.energy).toBe(5);
     expect(ids(s.players.player_2.graveyard)).toContain("snelle_jensen");
   });
   it("Frenssen! cancels the Jensen!: the Piecie resolves and a Mosje of the Jensen! player loses 10", () => {
-    const w = answer(go(board({ hand: H("snelle_frenssen") }, { hand: H("snelle_jensen") })), "player_2", "snelle_jensen").state;
+    const w = answer(go(board({ hand: H("snelle_frenssen") }, { hand: H("snelle_jensen") }, TARGETING)), "player_2", "snelle_jensen").state;
     expect(w.pendingReaction.moments).toEqual(["jensenPlayed"]);
     const s = answer(w, "player_1", "snelle_frenssen").state;
     expect(s.pendingReaction).toBeUndefined();
-    expect(mp(s, "player_2")).toBe(25); // 50 - 10 (Frenssen!) - 15 (Affoe)
-    expect(mp(s, "player_1")).toBe(40);
-    expect(s.players.player_1.energy).toBe(3); // Affoe 1 + Frenssen! 2
+    expect(mp(s, "player_2")).toBe(25); // 50 - 10 (Frenssen!) - 15 (Varkenspootjes)
+    expect(mp(s, "player_1")).toBe(30);
+    expect(s.players.player_1.energy).toBe(3); // Varkenspootjes 1 + Frenssen! 2
     expect(s.players.player_1.graveyard.some((c: any) => c.cardId === "snelle_frenssen")).toBe(true);
   });
   it("after Frenssen! the Jensen! player gets a targeted window; Blensen! is free there and the hit fizzles", () => {
-    const base = board({ hand: H("snelle_frenssen") }, { hand: H("snelle_jensen", "snelle_blensen") });
+    const base = board({ hand: H("snelle_frenssen") }, { hand: H("snelle_jensen", "snelle_blensen") }, TARGETING);
     const w = answer(go(base), "player_2", "snelle_jensen").state;
     const t = answer(w, "player_1", "snelle_frenssen").state;
     expect(t.pendingReaction.responderId).toBe("player_2");
     expect(t.pendingReaction.eligible).toContain("snelle_blensen");
     const s = answer(t, "player_2", "snelle_blensen").state;
     expect(s.players.player_2.energy).toBe(5); // Jensen! 1 + Blensen! free
-    expect(mp(s, "player_2")).toBe(40); // only Frenssen!'s 10; Affoe fizzled
-    expect(ids(s.players.player_1.graveyard)).toContain("piecie_affoe");
+    expect(mp(s, "player_2")).toBe(40); // only Frenssen!'s 10; Varkenspootjes fizzled
+    expect(ids(s.players.player_1.graveyard)).toContain(TARGETING);
   });
   it("Blensen! costs 4 without a Jensen!/Frenssen! this turn, 0 after one", () => {
     const def = SNELLE_PIECIES.find((d: any) => d.id === "snelle_blensen");
@@ -107,8 +110,9 @@ describe("Counter Strikka / Jammertje Gepakt!", () => {
     expect(ids(s.players.player_2.hand)).toEqual(["d1"]);
   });
   it("Counter Strikka moves the held Piecie's chosen target to the other legal Mosje", () => {
-    const two = board({}, { activeSlots: [mk(50, MENTAL2), mk(50)], hand: H("snelle_counter_strikka") });
-    two._pendingTargets = { opp_slot_index: 0 }; // what the activation picker stores
+    const two = board({}, { activeSlots: [mk(50, MENTAL2), mk(50)], hand: H("snelle_counter_strikka") }, TARGETING);
+    two._pendingTargets = { any_target: { playerId: "player_2", slotIndex: 0 } }; // what the activation picker stores
+    two.players.player_2._pendingTargets = { counter_strikka_to: { playerId: "player_2", slotIndex: 1 } }; // Varkenspootjes can also hit own Mosjes: the answer names the other opponent Mosje
     const window = go(two);
     expect(window.pendingReaction.eligible).toContain("snelle_counter_strikka");
     const s = answer(window, "player_2", "snelle_counter_strikka").state;

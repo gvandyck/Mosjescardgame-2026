@@ -8,14 +8,16 @@
 import * as piecieEffects from '../../abilities/piecieEffects.js';
 import { takeHeldMod } from '../reactions/takeHeldMod.js';
 import { withAttach } from '../attachments/withAttach.js';
+import { withCosts } from '../costs/withCosts.js';
 
 const MAX_AUTO_PICKS = 3;
 
 function runOnce(state, playerId, cardDef, ctx, extra) {
 	const own = piecieEffects[cardDef.effectId];
 	if (typeof own !== 'function') console.warn(`[ENGINE] No effect function found for: ${cardDef.effectId}`);
-	// An Attach card moves onto a Mosje first (attachStep), then its own effect runs, if it has one.
-	const fn = cardDef.attach ? withAttach(own, cardDef) : own;
+	// An Attach card moves onto a Mosje first (attachStep), then the price is paid (costStep), then its own effect runs, if it has one.
+	const priced = cardDef.activationCost?.length ? withCosts(own, cardDef) : own;
+	const fn = cardDef.attach ? withAttach(priced, cardDef) : priced;
 	if (typeof fn !== 'function') return { state, paused: false };
 	const autoKeys = [...(extra.autoKeys || [])];
 	let tctx = { ...ctx };
@@ -60,7 +62,8 @@ export function runPiecieEffect(state, playerId, cardDef, ctx = {}, extra = {}) 
 	if (takeHeldMod(state, 'double', playerId) && !cardDef.attach) {
 		// The second run picks its targets again (same or new): every pick of the first run is used up.
 		for (const pl of Object.values(state.players)) pl._pendingTargets = {};
-		const second = runOnce(state, playerId, cardDef, { ...ctx, resume: false }, { after: extra.after, copy: extra.copy });
+		// The price is paid once: the second run skips the cost step (costPaidBy is not carried over).
+		const second = runOnce(state, playerId, cardDef, { ...ctx, resume: false, ...(cardDef.activationCost?.length ? { costPaid: true } : {}) }, { after: extra.after, copy: extra.copy });
 		console.log('[ENGINE] Dubbele Temminks: effect triggered twice');
 		return second;
 	}

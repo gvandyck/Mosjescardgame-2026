@@ -5,6 +5,7 @@
 import { GIVES_MP_PIECIES } from '../../rules/givesMpPiecies.js';
 import { PIECIE_CONDITIONS } from '../../rules/piecieConditions.js';
 import { levelGateError } from './levelGateError.js';
+import { costGateError } from '../costs/costGateError.js';
 
 export function piecieActivationGate(state, playerId, cardDef) {
 	const player = state.players[playerId];
@@ -13,6 +14,8 @@ export function piecieActivationGate(state, playerId, cardDef) {
 		return 'Jeffrey, The Strongman: you cannot activate Piecies that give MP';
 	}
 	if (cardDef?.attach && !player?.activeSlots?.some(s => s && !s.isDefeated)) return 'Attach needs one of your Mosjes on the field';
+	const costGate = costGateError(state, playerId, cardDef); // D-22: an MP cost must leave the paying Mosje above 0
+	if (costGate) return costGate;
 	const levelGate = levelGateError(state, playerId, cardDef);
 	if (levelGate) return levelGate;
 	const check = PIECIE_CONDITIONS[cardDef?.id]; // "Only if / Needs" - checked before any Energy is paid

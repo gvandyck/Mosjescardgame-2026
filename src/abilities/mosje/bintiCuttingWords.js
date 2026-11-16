@@ -3,6 +3,7 @@
 // own choice. Inputs (state._pendingTargets): hand_card (hand index or Piecie cardId), opp_slot_index (default: first
 // non-fresh Mosje). Refused (throws, nothing spent) for a non-Piecie card or when every opponent Mosje is fresh.
 import { loseMP } from '../../engine/mpManager.js';
+import { markTargeted } from '../../engine/targets/markTargeted.js';
 import { isFresh } from '../../engine/fresh/isFresh.js';
 import { PIECIES } from '../../data/piecies.js';
 import { runTriggerJobs } from '../../engine/mosje/runTriggerJobs.js';
@@ -30,6 +31,7 @@ export function bintiCuttingWords(gameState, playerId, mosjeId = 'mosje_binti') 
 	delete targets.opp_slot_index;
 
 	player.graveyard.push(...player.hand.splice(handIndex, 1));
+	markTargeted(state, oppId, target.i); // the Target step (D-20)
 	const hit = loseMP(state, oppId, target.i, 10, 'ABILITY', false, playerId);
 	return runTriggerJobs(hit, 'bintiDiscard', [{ triggerIdx: 0, playerId, slotIndex: bintiIndex }], 0, { playerId, discarderId: oppId });
 }

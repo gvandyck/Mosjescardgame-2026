@@ -2,8 +2,15 @@
 // is re-checked against the Piecie's target table (MP limit, not fresh): a live Mosje that breaks the rule ends the
 // effect (slotIndex -1, T-59-05); an empty/defeated slot falls back to the first eligible Mosje. Returns { oppId, slotIndex }.
 import { piecieTargetOptions } from '../../engine/targets/piecieTargetOptions.js';
+import { markTargeted } from '../../engine/targets/markTargeted.js';
 
 export function resolvePiecieOppSlot(state, playerId, cardId) {
+	const out = pickOppSlot(state, playerId, cardId);
+	markTargeted(state, out.oppId, out.slotIndex); // the Target step (D-20); ignores -1
+	return out;
+}
+
+function pickOppSlot(state, playerId, cardId) {
 	const spec = piecieTargetOptions(state, playerId, cardId).find(s => s.key === 'opp_slot_index');
 	const options = (spec?.options || []).filter(o => o.playerId !== playerId);
 	const oppId = Object.keys(state.players).find(id => id !== playerId);

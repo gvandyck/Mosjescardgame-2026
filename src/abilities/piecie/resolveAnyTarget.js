@@ -2,8 +2,15 @@
 // state._pendingTargets.any_target (consumed), re-checked against the target table. Without a pick: a Binti
 // (own first), else the first opponent Mosje, else the first own one. Returns null when nothing is allowed.
 import { piecieTargetOptions } from '../../engine/targets/piecieTargetOptions.js';
+import { markTargeted } from '../../engine/targets/markTargeted.js';
 
 export function resolveAnyTarget(state, playerId, cardId) {
+	const t = pickAnyTarget(state, playerId, cardId);
+	if (t) markTargeted(state, t.playerId, t.slotIndex); // the Target step (D-20)
+	return t;
+}
+
+function pickAnyTarget(state, playerId, cardId) {
 	const options = piecieTargetOptions(state, playerId, cardId).find(s => s.key === 'any_target')?.options || [];
 	const chosen = state._pendingTargets?.any_target;
 	if (chosen !== undefined) {

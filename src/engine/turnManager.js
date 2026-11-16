@@ -3,6 +3,7 @@
 // The UI calls these functions; they return the updated game state.
 
 import { withReactionWindow } from './reactions/withReactionWindow.js';
+import { actionTargets } from './targets/actionTargets.js';
 import { takeHeldMod } from './reactions/takeHeldMod.js';
 import { cancelHeldCard } from './reactions/cancelHeldCard.js';
 import { getSnelleCost } from './energy/getSnelleCost.js';
@@ -653,7 +654,14 @@ export function playMosje(gameState, playerId, cardRef) {
 // Returns { state, success, error? }
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // NOTE: Energy cost from src/rules/abilityEnergyCosts.js is checked before and paid after a successful ability (54-03); MP is never a cost.
-export function useMosjeAbility(gameState, playerId, mosjeId) {
+// A flagged ability (rules targets: true, D-20) runs inside the reaction window of its target; the rest take the old path.
+export function useMosjeAbility(gameState, playerId, mosjeId, opts = {}) {
+  const action = { type: 'mosjeAbility', args: [playerId, mosjeId], skipReactions: opts.skipReactions };
+  if (!actionTargets(gameState, action)) return useMosjeAbilityCore(gameState, playerId, mosjeId);
+  return withReactionWindow(gameState, playerId, action, (st) => useMosjeAbilityCore(JSON.parse(JSON.stringify(st)), playerId, mosjeId));
+}
+
+function useMosjeAbilityCore(gameState, playerId, mosjeId) {
   const player = gameState.players[playerId];
   if (!player) return { state: gameState, success: false, error: 'Player not found' };
   if (isCooldownBlocked(gameState, playerId)) return { state: gameState, success: false, error: COOLDOWN_ERROR };
