@@ -164,7 +164,7 @@ export function markMosjeDefeated(gameState, playerId, slotIndex) {
   // never shuffled back). Decision 6: battle-log line only until the Phase 63 pile UI.
   console.log(`[ENGINE] ${mosje.name} getemt while sideways -> Welloe pile`);
   mosje.isDefeated = true;
-  dropAttachments(state.players[playerId], mosje); // attached cards go to the pile with it
+  dropAttachments(state.players[playerId], mosje, state); // attached cards go to the pile with it
   addMosjeToPile(state.players[playerId], mosje);
   state.players[playerId].activeSlots[slotIndex] = null;
 

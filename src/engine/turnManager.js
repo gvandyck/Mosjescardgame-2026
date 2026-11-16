@@ -17,6 +17,9 @@ import { drawCards, shuffleDeck } from './deckEngine.js';
 import { placeEmptyFieldMosje } from './turn/placeEmptyFieldMosje.js';
 import { clearOwnerProtections } from './turn/clearOwnerProtections.js';
 import { expireThisTurnEffects } from './turn/expireThisTurnEffects.js';
+import { expireTimedEffects } from './durations/expireTimedEffects.js';
+import { runUpkeep } from './durations/runUpkeep.js';
+import { runKeywordHook } from './keywords/runKeywordHook.js';
 import { snapBackTacticianSet } from './mp/snapBackTacticianSet.js';
 import { getNextPlayerId } from './turn/getNextPlayerId.js';
 import { isCooldownBlocked, COOLDOWN_ERROR } from './turn/isCooldownBlocked.js';
@@ -117,6 +120,7 @@ export function startTurn(gameState) {
   state = checkWin(state, playerId);
   if (state.status === 'FINISHED') return state;
   state = sweepStaysSlots(state, playerId, 'start'); // startOfNextTurn Stays leave now
+  expireTimedEffects(state, 'turnStart', playerId);
   console.log(`[ENGINE] â”€â”€ Turn ${state.turnNumber} START â€” Player: ${playerId} â”€â”€`);
 
   // Reset per-turn trackers for the active player
@@ -224,7 +228,8 @@ export function finishStartTurn(state, playerId, opts = {}) {
   // R2/U8: this player's fresh and level-up flags end now (the R1 Mosje stays fresh, E9).
   clearOwnerProtections(state.players[playerId], r1.placedSlotIndex >= 0 ? [r1.placedSlotIndex] : []);
 
-  return state;
+  // Upkeep (rules §9) is the very last step: it may pause on a pendingChoice, so no other turn-start step can be skipped.
+  return runUpkeep(state, playerId);
 }
 
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -338,6 +343,7 @@ export function endTurn(gameState) {
   snapBackTacticianSet(state);
   state = runEndOfTurnLosses(state, playerId); // "at the end of the turn it loses N MP" (Te Hard Gaan ...)
   expireThisTurnEffects(state);
+  expireTimedEffects(state, 'turnEnd', playerId);
 
   state = checkVictory(state);
   if (state.status === 'FINISHED') return state;
@@ -643,6 +649,7 @@ export function playMosje(gameState, playerId, cardRef) {
 
   slot.entryProtected = true; // fresh on arrival, also for savedState returns
   player.activeSlots[openSlotIndex] = slot;
+  state = runKeywordHook(state, 'entrance', mosjeDef.id, { playerId, slotIndex: openSlotIndex }); // Entrance: summoned from hand
 
   state = runMosjeTriggers(state, 'cardPlayedFromHand', { playerId, cardType: 'MOSJE' });
   state = checkVictory(state);

@@ -9,6 +9,8 @@ import * as piecieEffects from '../../abilities/piecieEffects.js';
 import { takeHeldMod } from '../reactions/takeHeldMod.js';
 import { withAttach } from '../attachments/withAttach.js';
 import { withCosts } from '../costs/withCosts.js';
+import { isCombo } from '../keywords/isCombo.js';
+import { runKeywordHook } from '../keywords/runKeywordHook.js';
 
 const MAX_AUTO_PICKS = 3;
 
@@ -55,6 +57,15 @@ function runOnce(state, playerId, cardDef, ctx, extra) {
 }
 
 export function runPiecieEffect(state, playerId, cardDef, ctx = {}, extra = {}) {
+	const out = runWithCombo(state, playerId, cardDef, { ...ctx, combo: extra.copy !== true && isCombo(state, playerId) }, extra);
+	// Combo (70-07): the card's combo hook runs once, when the effect is completely done and this was the 2nd Piecie
+	if (!out.paused && out.state && extra.copy !== true && isCombo(out.state, playerId)) {
+		out.state = runKeywordHook(out.state, 'combo', cardDef.id, { playerId, slotIndex: ctx.slotIndex, free: ctx.free === true, combo: true });
+	}
+	return out;
+}
+
+function runWithCombo(state, playerId, cardDef, ctx, extra) {
 	const first = runOnce(state, playerId, cardDef, ctx, extra);
 	if (first.paused) return first;
 	state = first.state;

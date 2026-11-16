@@ -1,4 +1,5 @@
 // expireThisTurnEffects — end of turn: every "this turn" effect on every Mosje ends.
+// NEW timed effects use the shared mechanism in src/engine/durations/ (state.timedEffects), not new fields here.
 // "This turn" keys today: powerBoostThisTurn, immuneThisTurn (Phase 58-60 add more here).
 export function expireThisTurnEffects(state) {
 	for (const player of Object.values(state.players || {})) {

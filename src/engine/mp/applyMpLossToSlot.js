@@ -6,6 +6,7 @@ import { applyGetemt } from './applyGetemt.js';
 import { takeReactionMod } from '../reactions/takeReactionMod.js';
 import { isFresh } from '../fresh/isFresh.js';
 import { isOpponentSourced } from '../fresh/isOpponentSourced.js';
+import { runKeywordHook } from '../keywords/runKeywordHook.js';
 
 export function applyMpLossToSlot({ state, playerId, slot, amount, source, byPlayerId = null }) {
   if (isFresh(slot) && isOpponentSourced(state, playerId, byPlayerId)) {
@@ -38,5 +39,6 @@ export function applyMpLossToSlot({ state, playerId, slot, amount, source, byPla
     if (getemt) delete slot.tacticianSet;
     else slot.tacticianSet.delta -= final;
   }
+  if (getemt === 'dropped') runKeywordHook(state, 'levelDown', slot.cardId, { playerId, slotIndex, level: slot.level });
   return { final, getemt };
 }

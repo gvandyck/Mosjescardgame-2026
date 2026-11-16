@@ -7,6 +7,7 @@ import { resumePiecieChoice } from '../piecies/resumePiecieChoice.js';
 import { resumeSnelleChoice } from '../snelle/resumeSnelleChoice.js';
 import { continueReaction } from '../reactions/resolveReaction.js';
 import { withReactionWindow } from '../reactions/withReactionWindow.js';
+import { resumeUpkeep } from '../durations/resumeUpkeep.js';
 import { checkVictory } from '../victoryChecker.js';
 
 export function resolvePendingChoice(state, value) {
@@ -17,6 +18,7 @@ export function resolvePendingChoice(state, value) {
 	}
 	const s = JSON.parse(JSON.stringify(state));
 	delete s.pendingChoice;
+	if (pc.hook === 'upkeep') return { ok: true, success: true, state: resumeUpkeep(s, pc, value) }; // turn-start Upkeep (70-07)
 	const target = s.players[pc.playerId];
 	target._pendingTargets = { ...(target._pendingTargets || {}), [pc.key]: value };
 	if (pc.hook === 'piecie') {

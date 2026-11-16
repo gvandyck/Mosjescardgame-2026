@@ -5,6 +5,7 @@
 import { GIVES_MP_PIECIES } from '../../rules/givesMpPiecies.js';
 import { PIECIE_CONDITIONS } from '../../rules/piecieConditions.js';
 import { levelGateError } from './levelGateError.js';
+import { dataNeedsReason } from '../needs/dataNeedsReason.js';
 import { costGateError } from '../costs/costGateError.js';
 
 export function piecieActivationGate(state, playerId, cardDef) {
@@ -23,5 +24,5 @@ export function piecieActivationGate(state, playerId, cardDef) {
 		const res = check(state, playerId);
 		if (res !== true) return res;
 	}
-	return null;
+	return dataNeedsReason(state, playerId, cardDef); // Needs declared as data: the reason, nothing paid
 }

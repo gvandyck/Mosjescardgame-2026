@@ -2,6 +2,7 @@
 // the pile first. Mutates the (already cloned) state. Returns { ok, error? }; on a refusal nothing has changed.
 import { getMaxAttachments } from './getMaxAttachments.js';
 import { toGraveyardEntry } from '../graveyardUtils.js';
+import { dropTiedEffects } from '../durations/dropTiedEffects.js';
 
 export function attachToMosje(state, playerId, mosjeSlotIndex, cardId, { replaceIndex } = {}) {
 	const player = state.players?.[playerId];
@@ -14,6 +15,7 @@ export function attachToMosje(state, playerId, mosjeSlotIndex, cardId, { replace
 		}
 		const [gone] = list.splice(replaceIndex, 1);
 		player.graveyard = [...(player.graveyard || []), toGraveyardEntry(gone.cardId, 'discarded')];
+		dropTiedEffects(state, { playerId, slotIndex: mosjeSlotIndex, attachmentCardId: gone.cardId }); // "while attached" ends
 	}
 	slot.attachments = [...list, { cardId, attachedTurn: state.turnNumber }];
 	return { ok: true };

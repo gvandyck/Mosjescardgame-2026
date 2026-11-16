@@ -2,6 +2,7 @@
 // snelleConditionMet runs BEFORE Energy is paid, both when offering a Snelle in a reaction window and when playing it.
 // reaction = { moments, preview, action, actorId } of the open window, or null when played freely.
 import { heldPiecieDef } from './heldPiecieDef.js';
+import { dataNeedsReason } from '../engine/needs/dataNeedsReason.js';
 
 const alive = (s) => s && !s.isDefeated;
 const mosjes = (state, pid) => (state.players[pid]?.activeSlots || []).filter(alive);
@@ -39,5 +40,7 @@ export const SNELLE_CONDITIONS = {
 // true when the Snelle may be played now; otherwise the error text (nothing is paid, the card stays in hand).
 export function snelleConditionMet(state, playerId, def, reaction = null) {
 	const rule = SNELLE_CONDITIONS[def?.id];
-	return rule ? rule(state, playerId, reaction) : true;
+	const res = rule ? rule(state, playerId, reaction) : true;
+	if (res !== true) return res;
+	return dataNeedsReason(state, playerId, def) ?? true; // Needs declared as data (70-07)
 }

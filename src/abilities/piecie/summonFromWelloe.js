@@ -5,6 +5,7 @@ import { createMosjeSlot } from '../../engine/mp/createMosjeSlot.js';
 import { getPileMosjes } from '../../engine/pile/getPileMosjes.js';
 import { takeMosjeFromPile } from '../../engine/pile/takeMosjeFromPile.js';
 import { canLeaveWelloePile } from '../../engine/table/canLeaveWelloePile.js';
+import { runKeywordHook } from '../../engine/keywords/runKeywordHook.js';
 
 export function summonFromWelloe(state, playerId, mosjeCardId, bonusMp = 0) {
 	const player = state.players[playerId];
@@ -14,5 +15,6 @@ export function summonFromWelloe(state, playerId, mosjeCardId, bonusMp = 0) {
 	if (!def || free < 0 || !getPileMosjes(player).some(e => e.cardId === mosjeCardId)) return -1;
 	takeMosjeFromPile(player, mosjeCardId);
 	player.activeSlots[free] = createMosjeSlot(def, { level: 1, mp: (def.startMP ?? 0) + bonusMp });
+	runKeywordHook(state, 'entrance', def.id, { playerId, slotIndex: free }); // Entrance: summoned from the pile
 	return free;
 }
