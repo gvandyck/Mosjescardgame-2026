@@ -27,5 +27,10 @@ export const CARD_STEPS = {
 	piecie_te_hard_gaan: [{ do: 'power', amount: 20, duration: 'thisTurn' }],
 	piecie_ronalds_fles_fireman: [{ do: 'power', amount: 20, duration: 'thisTurn' }],
 	piecie_snoeiertje: [{ do: 'power', amount: 10, comboAmount: 20, duration: 'thisTurn' }],
+	piecie_controller: [{ do: 'gainMp', amount: 10 }, { do: 'questDie', amount: 1, on: 'picked' }],
+	piecie_dancepad: [
+		{ do: 'gainMp', amount: 10 },
+		{ do: 'questDie', amount: 1, on: 'picked', onlyIf: { pickedFriend: ['Chris'] } },
+	],
 	piecie_super_saiyan_mos: [{ do: 'power', amount: 30, duration: 'thisTurn' }],
 };

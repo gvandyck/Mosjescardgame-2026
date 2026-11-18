@@ -71,10 +71,10 @@ describe('Gear Piecies on the Card List 2.0 (replaces the V4 BAL-01 scaling)', (
     });
   });
 
-  describe('effect_mouse (the +10 MP half; the deck peek is in piecies-sections-rest.test.ts)', () => {
-    it('gives a flat 10 MP', () => {
+  describe('effect_mouse (the deck search is in starter-gear-piecies.test.ts)', () => {
+    it('gives no MP any more (71-06: it searches the deck for a gear Piecie)', () => {
       const result = effect_mouse(makeState({ subtype: 'DIGITAL', level: 2, mp: 0, deckCards: [] }), 'player_1');
-      expect(result.players.player_1.activeSlots[0].mp).toBe(10);
+      expect(result.players.player_1.activeSlots[0].mp).toBe(0);
     });
   });
 
@@ -88,7 +88,7 @@ describe('Gear Piecies on the Card List 2.0 (replaces the V4 BAL-01 scaling)', (
 
     it('gives +1 die on one Quest this turn (questExtraDice)', () => {
       const result = effect_controller(makeState({ subtype: 'DIGITAL', level: 1 }), 'player_1');
-      expect(result.players.player_1.questExtraDice).toBe(1);
+      expect(result.players.player_1.questDiceGrants).toMatchObject([{ amount: 1, slotIndex: 0 }]); // 71-06: bound to the picked Mosje
     });
   });
 

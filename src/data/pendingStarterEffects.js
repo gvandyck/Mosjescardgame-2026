@@ -4,13 +4,9 @@
 // Coverage guards skip these ids with a "Phase 71" note instead of failing. Remove an id when its handler lands.
 
 export const PENDING_STARTER_EFFECTS = [
-  "effect_dancepad",
   "effect_rugbybal",
   "effect_koksmes",
-  "effect_schetsboek",
   "effect_chriss_handdoek",
-  "effect_headset",
-  "effect_magicprompt",
   "effect_hawaiishirt",
   "effect_zwoele_ming_power",
   "effect_woonkamer_discord",

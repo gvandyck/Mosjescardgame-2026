@@ -210,7 +210,7 @@ describe('Gear Piecies', () => {
   it('Controller +10 and +1 die on one Quest this turn', () => {
     const out = run(digital(board('piecie_controller', { pick: { own_slot_index: 0 } })));
     expect(mp(out)).toBe(60);
-    expect(out.players.player_1.questExtraDice).toBe(1);
+    expect(out.players.player_1.questDiceGrants).toMatchObject([{ amount: 1, slotIndex: 0, lasts: 'thisTurn' }]); // 71-06: a die for that Mosje's next Quest
   });
 
   it('Boxing Gloves +10 Power this turn on Strength 2 stars, a Gandoe +20, not offered below 2 stars', () => {

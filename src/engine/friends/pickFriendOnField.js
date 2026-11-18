@@ -8,7 +8,8 @@ export function pickFriendOnField(state, playerId, names, key, prompt) {
 	if (!slots.length) return { none: true };
 	if (slots.length === 1) return { slotIndex: slots[0] };
 	const player = state.players[playerId];
-	const given = player._pendingTargets?.[key];
+	const raw = player._pendingTargets?.[key];
+	const given = raw && typeof raw === 'object' ? raw.slotIndex : raw; // a pause answer is the option object
 	if (player._pendingTargets) delete player._pendingTargets[key];
 	if (slots.includes(given)) return { slotIndex: given };
 	const options = slots.map(slotIndex => ({ label: player.activeSlots[slotIndex].name, slotIndex }));

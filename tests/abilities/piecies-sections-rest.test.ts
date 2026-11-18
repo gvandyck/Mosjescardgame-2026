@@ -171,29 +171,23 @@ describe('Gear section', () => {
     expect(no.players.player_1.questExtraDice || 0).toBe(0);
   });
 
-  it('Mouse: needs a Digital Mosje; +10, then pick a deck, then the order of its top 2', () => {
+  it('Mouse: needs a Digital Mosje; searches the deck for a gear Piecie (71-06), no MP', () => {
     expect(attempt(board('piecie_mouse', { own: slotOf('mosje_gandoe_destroyer', 50) })).success).toBe(false);
-    const A = 'piecie_keyboard', B = 'piecie_tikker';
-    let s = run(board('piecie_mouse', { own: slotOf('mosje_coert_tech', 0), deck: cards(A, B, 'piecie_pot_of_weed'), foeDeck: cards('piecie_mouse', 'piecie_controller') }));
-    expect(mp(s)).toBe(10);
+    const A = 'piecie_keyboard', B = 'piecie_controller';
+    let s = run(board('piecie_mouse', { own: slotOf('mosje_coert_tech', 0), deck: cards(A, B, 'piecie_pot_of_weed') }));
+    expect(mp(s)).toBe(0);
     expect(s.pendingChoice.playerId).toBe('player_1');
-    expect(s.pendingChoice.options.map((o: any) => o.deck)).toEqual(['own', 'opp']);
-    s = answer(s, (o) => o.find((x: any) => x.deck === 'own'));
     expect(s.pendingChoice.options.map((o: any) => o.cardId)).toEqual([A, B]);
     s = answer(s, (o) => o.find((x: any) => x.cardId === B));
     expect(s.pendingChoice).toBeUndefined();
-    expect(ids(s.players.player_1.deck)).toEqual([B, A, 'piecie_pot_of_weed']);
-    expect(mp(s)).toBe(10); // the gain is not paid twice
+    expect(ids(s.players.player_1.hand)).toEqual([B]);
+    expect(ids(s.players.player_1.deck).sort()).toEqual([A, 'piecie_pot_of_weed'].sort());
   });
 
-  it("Mouse can reorder the opponent's deck; with both decks empty it only gains", () => {
-    let s = run(board('piecie_mouse', { own: slotOf('mosje_coert_tech', 0), deck: cards('piecie_keyboard'), foeDeck: cards('piecie_mouse', 'piecie_controller') }));
-    s = answer(s, (o) => o.find((x: any) => x.deck === 'opp'));
-    s = answer(s, (o) => o.find((x: any) => x.cardId === 'piecie_controller'));
-    expect(ids(s.players.player_2.deck)).toEqual(['piecie_controller', 'piecie_mouse']);
+  it('Mouse with no gear in the deck takes nothing and asks nothing', () => {
     const empty = run(board('piecie_mouse', { own: slotOf('mosje_coert_tech', 0), deck: [], foeDeck: [] }));
     expect(empty.pendingChoice).toBeUndefined();
-    expect(mp(empty)).toBe(10);
+    expect(mp(empty)).toBe(0);
   });
 });
 
