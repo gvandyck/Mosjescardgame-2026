@@ -61,7 +61,7 @@ describe("Gandoe <-> Michelle synergy", () => {
   // V4 Gandoe<->Michelle kicker and +15 partner bonus removed in 2.0 (Phase 58-01): no such synergy in the Card List.
   it("Michelle gets no Gandoe partner bonus on a Strength Quest", () => {
     vi.spyOn(Math, "random").mockReturnValue(0.55);
-    // Michelle starts at 40 MP; Arm Wrestling +40 doubled by Tough Gamble = one gain of 80.
+    // Michelle starts at 40 MP; Arm Wrestling +40 (2.1: no Tough Gamble die) = 80.
     const state = makeState([
       makeSlot("mosje_gandoe_destroyer", 40, 1),
       makeSlot("mosje_michelle", 40, 1),
@@ -72,8 +72,7 @@ describe("Gandoe <-> Michelle synergy", () => {
     const result = forceQuestResult(state, "player_1", { slotIndex: 1, questId: STRENGTH_QUEST, win: true });
     const michelle = result.players.player_1.activeSlots[1];
 
-    expect(michelle.level).toBe(2);
-    // 2.0: Tough Gamble (die 4 = double) is a questWinAmount modifier: ONE gain of 80 -> Level 2 at 10 MP.
-    expect(michelle.mp).toBe(10);
+    expect(michelle.level).toBe(1);
+    expect(michelle.mp).toBe(80);
   });
 });

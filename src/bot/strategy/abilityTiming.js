@@ -15,7 +15,7 @@ export const ABILITY_TIMING = {
 	mosje_jisca: 'early',             // Perfect Combo: arms per-Piecie chain rolls
 	mosje_chris: 'preQuest',          // Perfect Setup: free activation + 15 MP
 	mosje_youri: 'preQuest',          // Speed Activate: fire a fresh Piecie now
-	mosje_michelle: 'skip',           // Tough Gamble is automatic on quest resolve
+	mosje_michelle: 'skip',           // Iron Tuk is a passive attack step
 	mosje_gandoe_destroyer: 'late',   // Elimination Strike (gated separately)
 	mosje_binti: 'late',              // Cutting Words: discard fodder chosen by bot
 	mosje_azn_cless: 'late',          // Risk and Reward: end-of-turn style roll

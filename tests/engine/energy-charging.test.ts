@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 // @ts-expect-error - JS module, no type declarations
 import { activatePiecie, playSnellie, playPlace, useMosjeAbility } from "../../src/engine/turnManager.js";
 // @ts-expect-error - JS module, no type declarations
+import { resolvePendingChoice } from "../../src/engine/mosje/resolvePendingChoice.js";
+// @ts-expect-error - JS module, no type declarations
 import { makeEngineState } from "../helpers/makeEngineState.js";
 
 function mosje(cardId: string, mp = 80) {
@@ -84,9 +86,10 @@ describe("Energy charging", () => {
     vi.spyOn(Math, "random").mockReturnValue(0.99);
     const s = build(6, [slotOf("piecie_te_hard_gaan", "PIECIE"), slotOf("piecie_te_hard_gaan", "PIECIE"), null, null]);
     s.players.player_1.activeSlots[0] = mosje("mosje_chris_ddr");
-    const res = activatePiecie(s, "player_1", 0);
+    let res: any = activatePiecie(s, "player_1", 0);
     vi.restoreAllMocks();
     expect(res.success).toBe(true);
+    res = resolvePendingChoice(res.state, res.state.pendingChoice.options[0]); // Chris asks (71-11: "no" is an option too)
     expect(res.state.players.player_1.piecieSlots[1]).toBeNull(); // chain fired on slot 1
     expect(res.state.players.player_1.energy).toBe(4);
   });

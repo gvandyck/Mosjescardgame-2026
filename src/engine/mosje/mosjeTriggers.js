@@ -1,7 +1,6 @@
 import { gandoeWizardChaosRoll } from '../../abilities/mosje/gandoeWizardChaosRoll.js';
 import { aznClessRiskReward } from '../../abilities/mosje/aznClessRiskReward.js';
 import { alyssaFissaPartyPower } from '../../abilities/mosje/alyssaFissaPartyPower.js';
-import { michelleToughGamble } from '../../abilities/mosje/michelleToughGamble.js';
 import { parkourWestFlowQuest } from '../../abilities/mosje/parkourWestFlowQuest.js';
 import { coertTechExtraResources } from '../../abilities/mosje/coertTechExtraResources.js';
 import { fpsCoertHeadshot } from '../../abilities/mosje/fpsCoertHeadshot.js';
@@ -26,7 +25,7 @@ export const MOSJE_TRIGGERS = {
 	startOfTurn: [gandoeWizardChaosRoll, coertKasteLuckMorningLuck],
 	oppStartOfTurn: [drainerContinuousDrain],
 	endOfTurn: [aznClessRiskReward, fpsWestTacticalAnalysis, martinHistorianEndDraw],
-	questWinAmount: [michelleToughGamble],
+	questWinAmount: [],
 	questSuccess: [parkourWestFlowQuest, fpsCoertHeadshot, martinDriverPerfectLine, jeffreyGamblerQuestBonus],
 	// piecieActivated order on one activation (Card List ruling): Jisca, then Chris, The BigStepper, then Cless, The Teacher.
 	piecieActivated: [jiscaPerfectCombo, ddrChrisComboChain, clessTeachingMoment],

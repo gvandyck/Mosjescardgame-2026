@@ -8,6 +8,8 @@ import { attackMosje } from "../../src/engine/actions/attackMosje.js";
 // @ts-expect-error — JS module
 import { getPower } from "../../src/engine/mp/getPower.js";
 // @ts-expect-error — JS module
+import { expireTimedEffects } from "../../src/engine/durations/expireTimedEffects.js";
+// @ts-expect-error — JS module
 import { expireThisTurnEffects } from "../../src/engine/turn/expireThisTurnEffects.js";
 // @ts-expect-error — JS module
 import { MOSJES } from "../../src/data/mosjes.js";
@@ -45,23 +47,17 @@ describe("attack triggers", () => {
     s2.players.player_1.activeSlots[0].actedThisTurn = false;
     expect(t0(hit(s2).state).mp).toBe(40);
   });
-  it("Unstoppable: 20 then 10 -> +25 MP and +10 Power once; lasts through owner's next turn", () => {
-    let s = game(attacker(20), mk(bull, 50));
-    s = hit(s).state;
-    expect(t0(s).mp).toBe(30);
-    a0(s).actedThisTurn = false; a0(s).powerBoost = 10 - getPower(mk(plain)); // attacker Power now 10
-    s = hit(s).state;
-    expect(t0(s).mp).toBe(20 + 25);
-    expect(t0(s).powerBoostUntilOwnerTurnEnd).toEqual({ amount: 10, ownerId: "player_2" });
-    expect(getPower(t0(s))).toBe(getPower(mk(bull)) + 10);
+  it("Unstoppable: 20 in one turn -> +25 MP and +10 Power once; lasts through owner's next turn", () => {
+    let s = hit(game(attacker(20), mk(bull, 50))).state;
+    expect(t0(s).mp).toBe(30 + 25);
+    expect(getPower(t0(s), s, "player_2")).toBe(getPower(mk(bull)) + 10);
     // end of attacker's turn: boost survives
     s.activePlayerId = "player_1";
-    expireThisTurnEffects(s);
-    expect(getPower(t0(s))).toBe(getPower(mk(bull)) + 10);
+    expireTimedEffects(s, "turnEnd", "player_1");
+    expect(getPower(t0(s), s, "player_2")).toBe(getPower(mk(bull)) + 10);
     // end of owner's turn: gone
-    s.activePlayerId = "player_2";
-    expireThisTurnEffects(s);
-    expect(getPower(t0(s))).toBe(getPower(mk(bull)));
+    expireTimedEffects(s, "turnEnd", "player_2");
+    expect(getPower(t0(s), s, "player_2")).toBe(getPower(mk(bull)));
   });
   it("Welloe Force: attacker loses 15", () => {
     const s = game(attacker(10), mk(plain, 50));

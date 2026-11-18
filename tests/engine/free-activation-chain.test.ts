@@ -68,7 +68,7 @@ describe("activatePiecieFree", () => {
     expect(activatePiecieFree(done, "player_1", { slotIndex: 0 }).error).toBe("Piecie already activated");
   });
 
-  it("never fires the DDR Chris chain (normal activation chains on a 6, free does not)", () => {
+  it("DDR Chris chains on a paid activation and, since 71-11, rolls on a free one too (capped at 2 free per turn)", () => {
     vi.spyOn(Math, "random").mockReturnValue(0.99); // every die = 6
     const mk = () => build({
       activeSlots: [mosje("mosje_chris_ddr"), null],
@@ -76,11 +76,8 @@ describe("activatePiecieFree", () => {
     });
     let normal: any = activatePiecie(mk(), "player_1", 0);
     while (normal.state.pendingChoice) normal = resolvePendingChoice(normal.state, normal.state.pendingChoice.options[0]);
-    expect(normal.state.players.player_1.ddrChainsThisTurn).toBe(1); // one roll per paid activation: one ready Piecie chained for free
-    expect(normal.state.players.player_1.piecieSlots.filter((s: any) => s === null).length).toBe(2);
-    const free = activatePiecieFree(mk(), "player_1", { slotIndex: 0 });
-    expect(free.state.players.player_1.ddrChainsThisTurn || 0).toBe(0); // no chain
-    expect(free.state.players.player_1.piecieSlots[1]?.activated).toBe(false);
+    expect(normal.state.players.player_1.piecieSlots.filter((s: any) => s === null).length).toBe(3);
+    expect(normal.state.players.player_1.ddrChainsThisTurn).toBe(2); // two free ones, the second rolled on the first
   });
 
   it("the gates still apply, free or not (a Piecie that needs a Digital Mosje is refused without one)", () => {
@@ -121,6 +118,7 @@ describe("activatePiecieFree", () => {
 });
 
 // Handoff 6b: the chain rule, proven with the dice queue (leftover dice = no extra roll happened).
+const settle = (r: any) => { while (r.state.pendingChoice) r = resolvePendingChoice(r.state, r.state.pendingChoice.options[0]); return r; };
 const rest = () => { const out: number[] = []; for (let d = shiftTestDie(); d !== null; d = shiftTestDie()) out.push(d); return out; };
 const world = (mosjes: string[], slots: any[]) => build({
   activeSlots: [mosje(mosjes[0]), mosjes[1] ? mosje(mosjes[1]) : null],
@@ -129,40 +127,37 @@ const world = (mosjes: string[], slots: any[]) => build({
 // a sturdier foe so TE_HARD's own damage and Jisca's -15 do not defeat it
 const sturdy = (s: any) => { s.players.player_2.activeSlots[0].mp = 80; return s; };
 
-describe("chain rule: a free activation never starts a roll", () => {
-  it("Jisca + DDR on one activation: each rolls once, Energy is paid once, the freed Piecies roll nothing", () => {
-    pushTestDice([5, 6, 1, 1]); // Jisca 5, DDR 6, then two leftovers that must stay unread
+describe("chain rule: a free activation never starts Jisca or Cless; Chris rolls on it (71-11)", () => {
+  it("Jisca + DDR on one activation: Energy is paid once, only the paid Piecie costs Energy", () => {
+    pushTestDice([5, 6, 1, 1]); // Jisca 5, then the free Piecies roll for Chris only
     const s = sturdy(world(["mosje_jisca", "mosje_chris_ddr"], [placed(TE_HARD), placed(DONER), placed(DONER)]));
     let res: any = activatePiecie(s, "player_1", 0);
     expect(res.state.pendingChoice.key).toBe("jisca_piecie"); // two ready Piecies: Jisca's owner picks
-    res = resolvePendingChoice(res.state, res.state.pendingChoice.options[0]); // slot 1; the foe target is automatic
+    res = settle(res); // slot 1; the foe target is automatic
     const p = res.state.players.player_1;
-    expect(res.state.pendingChoice).toBeUndefined();
     expect(p.energy).toBe(4); // only the paid Piecie (2) cost Energy
     expect(p.ddrChainsThisTurn).toBe(1);
     expect(p.piecieSlots.every((x: any) => x === null)).toBe(true); // all three Piecies resolved
-    expect(res.state.players.player_2.activeSlots[0].mp).toBe(65); // 80 - 15 (Jisca); Momentum Diefje is +20 Power (Card List 2.0), no damage
-    expect(rest()).toEqual([1, 1]); // the two freed Piecies rolled nothing
+    expect(res.state.players.player_2.activeSlots[0].mp).toBe(65); // 80 - 15 (Jisca)
+    expect(rest()).toEqual([]); // Jisca and Chris each rolled, and the free Piecie rolled for Chris
   });
 
-  it("Jisca + DDR + Cless: Cless rolls once, for the paid activation only", () => {
-    pushTestDice([5, 6, 5, 1, 1]); // Jisca, DDR, Cless, leftovers
-    const s = world(["mosje_jisca", "mosje_chris_ddr"], [placed(TE_HARD), placed(DONER), placed(DONER)]);
-    s.players.player_1.activeSlots.push(mosje("mosje_cless_teacher"));
+  it("Jisca + Cless: Cless rolls once, for the paid activation only", () => {
+    pushTestDice([5, 5, 1, 1]); // Jisca, Cless, leftovers
+    const s = world(["mosje_jisca", "mosje_cless_teacher"], [placed(TE_HARD), placed(DONER), placed(DONER)]);
     s.players.player_1.deck = [{ cardId: "x", type: "PLACE" }];
-    let res: any = activatePiecie(s, "player_1", 0);
-    while (res.state.pendingChoice) res = resolvePendingChoice(res.state, res.state.pendingChoice.options[0]);
+    const res = settle(activatePiecie(s, "player_1", 0));
     expect(res.state.players.player_1.hand.some((c: any) => c.cardId === "x")).toBe(true); // Cless drew once
-    expect(rest()).toEqual([1, 1]);
+    expect(rest()).toEqual([1, 1]); // the freed Piecies rolled nothing for Jisca or Cless
   });
 
-  it("a direct free activation (Ming Natural / Master Plan style) rolls nothing", () => {
+  it("a direct free activation (Ming Natural / Master Plan style) rolls for Chris only", () => {
     pushTestDice([6, 6]);
     const s = world(["mosje_jisca", "mosje_chris_ddr"], [placed(TE_HARD), placed(DONER), null]);
     const res = activatePiecieFree(s, "player_1", { slotIndex: 0 });
     expect(res.success).toBe(true);
-    expect(res.state.pendingChoice).toBeUndefined();
+    expect(res.state.pendingChoice.key).toBe("ddr_piecie"); // Chris rolled the first 6
     expect(res.state.players.player_1.piecieSlots[1].activated).toBe(false);
-    expect(rest()).toEqual([6, 6]);
+    expect(rest()).toEqual([6]); // Jisca rolled nothing
   });
 });

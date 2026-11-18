@@ -14,6 +14,8 @@ import {
 } from '../../src/abilities/piecieEffects.js';
 // @ts-expect-error - JavaScript module has no type declarations
 import { activatePiecie, endTurn, applyPerfectRhythmDraw } from '../../src/engine/turnManager.js';
+// @ts-expect-error - JS module
+import { resolvePendingChoice } from '../../src/engine/mosje/resolvePendingChoice.js';
 
 type StateOptions = {
   cardId?: string;
@@ -383,8 +385,9 @@ describe('Perfect Rhythm', () => {
       ],
     });
 
-    const result = activatePiecie(state, 'player_1', 0);
+    let result = activatePiecie(state, 'player_1', 0);
     expect(result.success).toBe(true);
+    result = resolvePendingChoice(result.state, result.state.pendingChoice.options[0]); // Chris asks (71-11)
     expect(result.state.players.player_1.ddrChainsThisTurn).toBe(1); // slot 1 was chained for free (2.0: from the field)
     expect(
       result.state.players.player_1.hand.map((card: { cardId: string }) => card.cardId),

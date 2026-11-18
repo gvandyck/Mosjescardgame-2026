@@ -147,7 +147,6 @@ describe('durations', () => {
 		const base = pow(st);
 		st.players.player_1.activeSlots[0].powerBoostThisTurn = 10;
 		expect(pow(st)).toBe(base + 10);
-		st.players.player_1.activeSlots[0].powerBoostUntilOwnerTurnEnd = { amount: 5, ownerId: 'player_1' };
-		expect(pow(st)).toBe(base + 15);
+		expect(pow(st)).toBe(base + 10);
 	});
 });

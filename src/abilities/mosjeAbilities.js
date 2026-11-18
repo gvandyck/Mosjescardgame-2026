@@ -114,7 +114,7 @@ export function ability_azn_cless_risk_reward(gameState) {
 	return gameState;
 }
 
-// 2.0: Michelle Tough Gamble is a trigger/passive (src/abilities/mosje/*, MOSJE_TRIGGERS). No manual ability; kept so the dispatch map resolves.
+// 2.1: Michelle, Iron Tuk is a passive attack step (src/engine/attack/ironTukReducer.js). No manual ability; kept so the dispatch map resolves.
 export function ability_michelle_tough_gamble(gameState) {
 	return gameState;
 }

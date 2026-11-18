@@ -93,20 +93,15 @@ describe("Jisca: Perfect Combo", () => {
 describe("Chris, The BigStepper: Perfect Combo Chain", () => {
   const board = (slots: any[]) => build([mk("mosje_chris_ddr", 30), null], slots);
 
-  it("die 6 on two paid activations: two free activations; then no more rolls this turn", () => {
+  it("die 6 on a paid and then a free activation: two free activations; then no more rolls this turn", () => {
     pushTestDice([6, 6, 6]);
-    const first = activatePiecie(board([placed(), placed(), placed(), null]), "player_1", 0);
-    const chosen = settle(first);
-    expect(p1(chosen).ddrChainsThisTurn).toBe(1);
+    const first = settle(activatePiecie(board([placed(), placed(), placed(), null]), "player_1", 0));
+    expect(p1(first).ddrChainsThisTurn).toBe(2); // the free one rolled too (71-11)
     // refill two ready Piecies and activate again
-    const st = chosen.state;
-    st.players.player_1.piecieSlots = [placed(), placed(), placed(), null];
-    const second = settle(activatePiecie(st, "player_1", 0));
-    expect(p1(second).ddrChainsThisTurn).toBe(2);
-    const st2 = second.state;
-    st2.players.player_1.piecieSlots = [placed(), placed(), null, null];
-    activatePiecie(st2, "player_1", 0);
-    expect(rest()).toEqual([6]); // capped at 2: the third paid activation rolled nothing
+    const st = first.state;
+    st.players.player_1.piecieSlots = [placed(), placed(), null, null];
+    activatePiecie(st, "player_1", 0);
+    expect(rest()).toEqual([6]); // capped at 2: no die for the next paid activation
   });
 
   it("die 5 with no ready Piecie: nothing happens and it does not count toward the 2", () => {
@@ -145,9 +140,9 @@ describe("Cless, The Teacher: Teaching Moment", () => {
     expect(p1(synergy).hand).toHaveLength(1);
   });
 
-  it("a free activation triggers none of the three", () => {
+  it("a free activation triggers neither Jisca nor Cless (Chris rolls on it since 71-11)", () => {
     expect(MOSJE_TRIGGERS.piecieActivated.map((e: any) => e.mosjeId)).toEqual(["mosje_jisca", "mosje_chris_ddr", "mosje_cless_teacher"]);
-    for (const e of MOSJE_TRIGGERS.piecieActivated) {
+    for (const e of MOSJE_TRIGGERS.piecieActivated.filter((x: any) => x.mosjeId !== "mosje_chris_ddr")) {
       const s = board();
       pushTestDice([6]);
       expect(e.run(s, { free: true, ownerId: "player_1", holderSlotIndex: 0 })).toBe(s);

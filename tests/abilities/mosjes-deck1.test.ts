@@ -100,19 +100,17 @@ describe("Alyssa Fissa: Party Power", () => {
   });
 });
 
-describe("Michelle: Tough Gamble (one gain)", () => {
+describe("Michelle: Quest win is plain (Tough Gamble is gone in 2.1)", () => {
   const win = (die: number, mp: number, quest = "arm_wrestling") => {
     const { s, q } = build(quest, { me: mkSlot({ mp }, byName(/Michelle/)) });
     pushTestDice([die]);
     return finish(s, q, true).players.player_1.activeSlots[0];
   };
-  it("die 5 doubles: 40 MP + Arm Wrestling 40 -> one gain of 80 -> Level 2 at 0 MP", () => {
-    const m = win(5, 40);
-    expect(m.level).toBe(2);
-    expect(m.mp).toBe(10);
+  it("no die doubles the win: 40 MP + Arm Wrestling 40 = 80 MP whatever the queued die", () => {
+    expect(win(5, 40).mp).toBe(80);
   });
-  it("die 2 halves the win (5-grid): +20", () => {
-    expect(win(2, 40).mp).toBe(60);
+  it("no die halves it either: the same win with a 2 in the queue", () => {
+    expect(win(2, 40).mp).toBe(80);
   });
   it("failing a Quest rolls no die", () => {
     const { s, q } = build("arm_wrestling", { me: mkSlot({ mp: 40 }, byName(/Michelle/)) });

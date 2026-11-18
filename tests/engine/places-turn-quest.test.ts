@@ -81,10 +81,10 @@ describe("Quest Places (one gain, bonus after Michelle's double)", () => {
     expect(mp(q("place_obby_1", mkSlot({ mp: 20 }), "quest_quick_thinking", true), "player_1", 0)).toBe(55);
     expect(mp(q("place_obby_1", mkSlot({ mp: 50 }), "quest_quick_thinking", false), "player_1", 0)).toBe(25);
   });
-  it("Michelle + Quest Haven: (Quest MP x 2) + 10 in one gain", () => {
-    vi.spyOn(Math, "random").mockReturnValue(0.55); // Tough Gamble die 4 = double
+  it("Michelle + Quest Haven: Quest MP + 10 in one gain (2.1: no Tough Gamble die)", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0.55);
     const m = mkSlot({ mp: 20 }, byName(/Michelle/));
-    expect(mp(q("place_quest_haven", m, "quest_quick_thinking", true), "player_1", 0)).toBe(20 + 50 + 10);
+    expect(mp(q("place_quest_haven", m, "quest_quick_thinking", true), "player_1", 0)).toBe(20 + 25 + 10);
   });
   it("a fresh Mosje gets no Place bonus", () => {
     expect(mp(q("place_quest_haven", mkSlot({ mp: 20, entryProtected: true }), "quest_quick_thinking", true), "player_1", 0)).toBe(45);

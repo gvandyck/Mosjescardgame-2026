@@ -19,5 +19,5 @@ export function getPower(slot, state, ownerId) {
 	const base = getLevelRow(slot?.cardId, slot?.level)?.power ?? 0;
 	const place = state ? placePowerBonus(state, slot, ownerId) : 0;
 	const timed = timedPower(slot, state, ownerId);
-	return Math.max(0, roundToFive(base + place + timed + (Number(slot?.powerBoost) || 0) + (Number(slot?.powerBoostThisTurn) || 0) + (Number(slot?.powerStaysBonus) || 0) + (Number(slot?.powerBoostUntilOwnerTurnEnd?.amount) || 0)));
+	return Math.max(0, roundToFive(base + place + timed + (Number(slot?.powerBoost) || 0) + (Number(slot?.powerBoostThisTurn) || 0) + (Number(slot?.powerStaysBonus) || 0)));
 }
