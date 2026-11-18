@@ -6,6 +6,7 @@ import { checkQuestCondition } from './checkQuestCondition.js';
 import { payQuestCost } from './payQuestCost.js';
 import { QUEST_EXTRAS } from './questExtras.js';
 import { getQuestDiceCount } from './getQuestDiceCount.js';
+import { takeQuestDiceGrants } from './takeQuestDiceGrants.js';
 import { queuedRng } from '../dice/queuedRng.js';
 import { rollQuestDice } from './rollQuestDice.js';
 import { isBandWin } from './isBandWin.js';
@@ -62,6 +63,7 @@ function rollCore(state, playerId, { slotIndex, stackId, costChoice, dieChoices 
 		{ state: s, playerId, player, slot, slotIndex, quest, revealed: paid.revealed }, dieChoices) || 0;
 	const diceCount = getQuestDiceCount(s, playerId, slot, quest, { extra });
 	player.questExtraDice = 0;
+	takeQuestDiceGrants(s, playerId, slot); // card die grants (71-02) count once, on this copy only
 	for (const g of player.rerollGrants || []) if (g.scope === 'ownQuest') g.forRoll = true; // Dubbele Dosis: reroll belongs to this Quest
 	placeSkiffaGrant(s, player, slot); // Skiffa: an Creative roller may reroll 1 die
 

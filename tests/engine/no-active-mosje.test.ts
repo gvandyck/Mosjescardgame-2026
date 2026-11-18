@@ -5,6 +5,12 @@ import { join } from 'node:path';
 // @ts-expect-error — JS module
 import { OWN_TARGET_EFFECT_IDS } from '../../src/engine/targets/ownTargetEffects.js';
 // @ts-expect-error — JS module
+import { CARD_STEPS } from '../../src/rules/cardSteps.js';
+// @ts-expect-error — JS module
+import { STEP_KINDS } from '../../src/engine/steps/stepKinds.js';
+// @ts-expect-error — JS module
+import { PIECIES } from '../../src/data/piecies.js';
+// @ts-expect-error — JS module
 import { pickBotOwnTarget } from '../../src/bot/strategy/pickBotOwnTarget.js';
 // @ts-expect-error — JS module
 import { makeEngineState } from '../helpers/makeEngineState.js';
@@ -40,6 +46,10 @@ describe('no active-Mosje concept', () => {
         const name = part.match(/^(?:function|const) (effect_\w+)/)?.[1];
         if (name && /resolveOwnTargetSlot\(|resolvePiecieOwnSlot\(|gainOwnMosje\(|ownMosje\(/.test(part) && !EXEMPT.includes(name)) used.push(name);
       }
+    }
+    // Step cards (71-02): the handler picks the own Mosje when one of the card's steps needs one.
+    for (const [cardId, steps] of Object.entries(CARD_STEPS) as [string, any[]][]) {
+      if (steps.some((st) => STEP_KINDS[st.do].needsMosje(st))) used.push((PIECIES as any[]).find((p) => p.id === cardId).effectId);
     }
     expect([...used].sort()).toEqual([...OWN_TARGET_EFFECT_IDS].sort());
   });

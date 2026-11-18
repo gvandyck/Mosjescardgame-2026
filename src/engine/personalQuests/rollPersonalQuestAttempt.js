@@ -8,6 +8,7 @@ import { checkNeeds } from '../needs/checkNeeds.js';
 import { payCosts } from '../costs/payCosts.js';
 import { queuedRng } from '../dice/queuedRng.js';
 import { rollQuestDice } from '../quests/rollQuestDice.js';
+import { takeQuestDiceGrants } from '../quests/takeQuestDiceGrants.js';
 import { getEligibleReactions } from '../reactions/getEligibleReactions.js';
 import { buildPendingReaction } from '../reactions/buildPendingReaction.js';
 import { REACTION_MOMENTS as M } from '../reactions/reactionMoments.js';
@@ -59,6 +60,7 @@ function rollCore(state, playerId, { cardId, slotIndex, choice = {}, rng = queue
 	const energyPaid = (def.pay || []).reduce((n, c) => n + (c.kind === 'energy' ? c.amount : c.kind === 'energyAny' ? (choice?.energy || 0) : 0), 0);
 	const diceCount = getPersonalQuestDice(s, playerId, slot, def, { energyPaid });
 	player.questExtraDice = 0;
+	takeQuestDiceGrants(s, playerId, slot); // card die grants (71-02) count once, on this copy only
 	for (const g of player.rerollGrants || []) if (g.scope === 'ownQuest') g.forRoll = true; // Dubbele Dosis: reroll belongs to this roll
 	placeSkiffaGrant(s, player, slot);
 	const dice = rollQuestDice(diceCount, rng);

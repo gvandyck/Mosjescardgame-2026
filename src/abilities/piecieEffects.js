@@ -20,6 +20,8 @@ export * from './piecie/attackRevealPiecies.js';
 export * from './piecie/utilityQuestPiecies.js';
 export * from './piecie/utilityHandPiecies.js';
 export * from './piecie/utilityWelloePiecies.js';
+export * from './piecie/stepPiecies.js';
+export * from './piecie/starter/index.js';
 
 console.log('[ABILITY] piecieEffects.js loaded');
 

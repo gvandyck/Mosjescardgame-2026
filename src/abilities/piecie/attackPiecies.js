@@ -71,13 +71,6 @@ export function effect_kleine_taks(gameState, playerId, ctx = {}) {
 	return state;
 }
 
-export function effect_super_saiyan_mos(gameState, playerId) {
-	const state = cloneState(gameState);
-	const si = resolvePiecieOwnSlot(state, playerId, 'piecie_super_saiyan_mos');
-	if (si >= 0) addPowerThisTurn(state, playerId, si, 30);
-	return state;
-}
-
 // Momentum Diefje: +10 Power; the flag makes momentumDiefjeGain pay +20 MP when its attack makes a Mosje lose MP.
 export function effect_momentum_diefje(gameState, playerId) {
 	const state = cloneState(gameState);

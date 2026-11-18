@@ -9,6 +9,7 @@ export function expireThisTurnEffects(state) {
 			player.chainReactionFree = 0; // Chain Reaction: an unarmed / unused free activation ends with the turn
 			player.chainReactionOffer = 0;
 			player.mpAmplifierThisTurn = false; // MP Amplifier: an unused boost ends with the turn
+			if (player.questDiceGrants) player.questDiceGrants = player.questDiceGrants.filter(g => g.lasts !== 'thisTurn'); // card die bonus (71-02); untilUsed stays
 		}
 		delete player.gamblerQuestBonusTurn; // Jeffrey, The Silent Gambler: the +15 lasts this turn only
 		for (const slot of player.activeSlots || []) {

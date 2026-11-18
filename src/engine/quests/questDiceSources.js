@@ -1,5 +1,6 @@
 // QUEST_DICE_SOURCES — each (ctx) => extra dice; ctx = { state, playerId, slot, quest }. Pure.
 import { isFresh } from '../fresh/isFresh.js';
+import { questDiceGrantTotal } from './questDiceGrantTotal.js';
 
 const hasWord = (slot, word) => String(slot?.name || '').split(/[^A-Za-z]+/).includes(word);
 
@@ -20,4 +21,8 @@ function playerExtraDice({ state, playerId }) {
 	return state?.players?.[playerId]?.questExtraDice || 0;
 }
 
-export const QUEST_DICE_SOURCES = [placeDice, playerExtraDice];
+function cardGrantDice({ state, playerId, slot }) {
+	return questDiceGrantTotal(state, playerId, slot);
+}
+
+export const QUEST_DICE_SOURCES = [placeDice, playerExtraDice, cardGrantDice];

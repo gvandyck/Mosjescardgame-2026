@@ -23,7 +23,10 @@ const pending = new Set(PENDING_STARTER_EFFECTS as string[]);
 const rowPending = new Set(REGISTRY_PENDING as string[]);
 const live = (PIECIES as any[]).filter((p) => p.id !== CUT && !pending.has(p.effectId));
 const dir = join(__dirname, '..', '..', 'src', 'abilities', 'piecie');
-const sectionText = readdirSync(dir).filter((f) => f.endsWith('Piecies.js')).map((f) => readFileSync(join(dir, f), 'utf8')).join('\n');
+// Every .js file under src/abilities/piecie/, sub-folders included (Phase 71: starter/ holds one effect per file).
+const jsFiles = (d: string): string[] => readdirSync(d, { withFileTypes: true })
+  .flatMap((e) => (e.isDirectory() ? jsFiles(join(d, e.name)) : e.name.endsWith('.js') ? [join(d, e.name)] : []));
+const sectionText = jsFiles(dir).map((f) => readFileSync(f, 'utf8')).join('\n');
 
 describe('Piecie coverage (EFX-02)', () => {
   it('the Piecies with an effect and the pending 2.1 starter Piecies are counted from the data', () => {

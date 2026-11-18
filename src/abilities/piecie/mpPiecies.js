@@ -9,7 +9,6 @@ import { gainFromPiecie } from './gainFromPiecie.js';
 import { resolveAnyTarget } from './resolveAnyTarget.js';
 import { resolvePiecieOwnSlot } from './resolvePiecieOwnSlot.js';
 
-export const effect_kannetje_melk = (s, pid) => gainOwnMosje(s, pid, 'piecie_kannetje_melk', () => 25);
 export const effect_broodje_doner = (s, pid) => gainOwnMosje(s, pid, 'piecie_broodje_doner', () => 35);
 
 // Nature's Gift (Eendjes voeren): +30, +40 with Resilient 2 stars or more.
