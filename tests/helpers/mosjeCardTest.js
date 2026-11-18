@@ -5,6 +5,7 @@ import { expect } from '@playwright/test';
 import { getGameState } from '../ui/helpers.js';
 import { mosjeCardSetup } from './mosjeCardSetup.js';
 import { mosjeCardTrigger } from './mosjeCardTrigger.js';
+import { personalQuestExpect } from './personalQuestExpect.js';
 
 const slotOf = (s, key) => {
 	const [who, idx] = key.split('.');
@@ -32,4 +33,5 @@ export async function runMosjeCardTest(page, entry, c) {
 	if (e.oppHandDelta != null) expect(after.players.player_2.hand.length - before.players.player_2.hand.length, 'opponent hand').toBe(e.oppHandDelta);
 	for (const [path, value] of e.state || []) expect(pathOf(after, path), path).toEqual(value);
 	if (e.check) e.check(before, after);
+	await personalQuestExpect(page, c, before, after);
 }

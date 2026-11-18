@@ -2,6 +2,7 @@
 import { questViaUi, playCardFromHand, attackViaUi, getGameState, setEnergy } from '../ui/helpers.js';
 import { abilityByTap, activateByTap, beginQuestByTap, cancelSelection, chooseTray, tapOwnCard } from './boardTaps.js';
 import { answerModals } from './answerModals.js';
+import { personalQuestTrigger } from './personalQuestTrigger.js';
 import { QUESTS } from '../../src/data/quests.js';
 
 // Quest "no attempt" on the tap flow: the Mosje's Quest chip is aria-disabled (= the old "No Quest available"), or after
@@ -53,12 +54,14 @@ export async function mosjeCardTrigger(page, entry, c) {
 			break;
 		case 'questRefused': await questRefused(page, t); break; // the Quest cannot be attempted: its option is disabled (or no Quest is available)
 		case 'attack': await attackViaUi(page, { slot: t.slot ?? 0, target: t.target || 'player_2:0' }); break;
+		case 'ownTurn': await page.evaluate(() => window.__testHooks.giveTurnToLocal()); await page.waitForTimeout(200); break; // after 'attacked' (the hook leaves the bot active)
 		case 'attacked': await page.evaluate(() => window.__testHooks.botAttack(0, 0)); await page.waitForTimeout(400); break;
 		case 'playSnelle': await playCardFromHand(page, t.cardId); await page.waitForTimeout(400); break;
 		case 'botPlaySnelle': await page.evaluate((id) => window.__testHooks.botPlaySnelle(id), t.cardId); break;
 		case 'botQuest': await page.evaluate(({ s, k }) => window.__testHooks.botQuest(s, k), { s: t.slot ?? 0, k: t.stack }); break;
 		case 'botActivatePiecie': await page.evaluate(({ id, tg }) => window.__testHooks.botActivatePiecie(id, tg), { id: t.cardId, tg: t.targets || {} }); break;
 		case 'botPlayPiecie': await page.evaluate((id) => window.__testHooks.botPlayPiecie(id), t.cardId); break;
+		case 'personalQuest': await personalQuestTrigger(page, t, c); break; // Play on the Personal Quest card; the modals are answered below
 		default: throw new Error(`Unknown trigger kind: ${t.kind}`);
 	}
 	await answerModals(page, picks);

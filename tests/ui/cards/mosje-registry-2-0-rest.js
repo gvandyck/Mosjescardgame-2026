@@ -26,37 +26,6 @@ export const MOSJE_REGISTRY_REST = [
 			},
 		},
 	}] },
-	{ mosje: 'mosje_jeffrey', deck: null, cases: [
-		{ name: 'Brute Force: a Quest success gives +10 MP extra (20 + 40 + 10)',
-			setup: { field: [{ id: 'mosje_jeffrey', mp: 20 }], oppField: OPP40, quest: ARM, dice: [5, 5, 5, 5] },
-			trigger: { kind: 'quest', stack: 'PHYSICAL' }, expect: { mp: { 'own.0': 70 } } },
-		{ name: 'Brute Force: while Jeffrey is on the field an MP Piecie cannot be activated',
-			setup: { field: [{ id: 'mosje_jeffrey', mp: 20 }], oppField: OPP40, piecies: milk(0), energy: 3 },
-			trigger: { kind: 'activatePiecie', cardId: MILK }, expect: { mp: { 'own.0': 20 }, energy: 3 } },
-	] },
-	{ mosje: 'mosje_ronald_chef', deck: null, cases: [{
-		name: 'Strategic Insight: pay 2 Energy, the chosen card in the opponent hand is set aside',
-		setup: { field: [{ id: 'mosje_ronald_chef', mp: 30 }], oppField: OPP40, energy: 3, oppHand: OPP_HAND, pendingTargets: { locked_card: 1 } },
-		trigger: { kind: 'button' },
-		expect: {
-			energy: 1, oppHandDelta: -1,
-			check: (before, after) => {
-				const aside = after.players.player_2.setAside;
-				if (!aside || aside.length !== 1 || aside[0].card.cardId !== 'piecie_affoe') throw new Error('Affoe was not set aside');
-			},
-		},
-	}] },
-	{ mosje: 'mosje_ming_natural', deck: null, cases: [
-		{ name: 'Lucky Draw: a Piecie on top, add it to my hand',
-			setup: { field: [{ id: 'mosje_ming_natural', mp: 30 }], oppField: OPP40, deckTop: [MILK], pendingTargets: { choice: 'hand' } },
-			trigger: { kind: 'button' }, expect: { mp: { 'own.0': 30 }, handDelta: 1, energy: 3 } },
-		{ name: 'Lucky Draw: a Piecie on top, activate it for free (30 + 25, no Energy)',
-			setup: { field: [{ id: 'mosje_ming_natural', mp: 30 }], oppField: OPP40, deckTop: [MILK], pendingTargets: { choice: 'activate' } },
-			trigger: { kind: 'button' }, expect: { mp: { 'own.0': 55 }, handDelta: 0, energy: 3 } },
-		{ name: 'Lucky Draw: anything else on top is drawn and gains 15 MP',
-			setup: { field: [{ id: 'mosje_ming_natural', mp: 30 }], oppField: OPP40, deckTop: ['snelle_jensen'] },
-			trigger: { kind: 'button' }, expect: { mp: { 'own.0': 45 }, handDelta: 1 } },
-	] },
 	{ mosje: 'mosje_ming_predictor', deck: null, cases: [{
 		name: 'Future Sight: look at the top of a Quest stack, pay 1 Energy to put it on the bottom',
 		setup: { field: [{ id: 'mosje_ming_predictor', mp: 30 }], oppField: OPP40, energy: 3, pendingTargets: { stack_id: 'PHYSICAL', bottom: true } },
@@ -85,26 +54,6 @@ export const MOSJE_REGISTRY_REST = [
 			setup: { field: [{ id: 'mosje_martin_senor_west', mp: 30 }], oppField: OPP40, deckTop: [MILK], pendingTargets: { card_type: 'PLACE', deck_owner: 'player_1' } },
 			trigger: { kind: 'button' }, expect: { mp: { 'own.0': 20 }, handDelta: 0 } },
 	] },
-	{ mosje: 'mosje_jeffrey_gambler', deck: null, cases: [
-		{ name: 'High Stakes stake 1, roll 1-2: the Energy is lost',
-			setup: { field: [{ id: 'mosje_jeffrey_gambler', mp: 30 }], oppField: OPP40, energy: 3, abilityDice: [1], pendingTargets: { stake: 1 } },
-			trigger: { kind: 'button' }, expect: { mp: { 'own.0': 30 }, energy: 2, handDelta: 0 } },
-		{ name: 'High Stakes stake 1, roll 3-4: the Energy comes back, nothing else',
-			setup: { field: [{ id: 'mosje_jeffrey_gambler', mp: 30 }], oppField: OPP40, energy: 3, abilityDice: [3], pendingTargets: { stake: 1 } },
-			trigger: { kind: 'button' }, expect: { mp: { 'own.0': 30 }, energy: 3, handDelta: 0 } },
-		{ name: 'High Stakes stake 2, roll 5-6: Energy back, draw 1 and +20 MP (10 per Energy)',
-			setup: { field: [{ id: 'mosje_jeffrey_gambler', mp: 30 }], oppField: OPP40, energy: 3, abilityDice: [6], pendingTargets: { stake: 2 } },
-			trigger: { kind: 'button' }, expect: { mp: { 'own.0': 50 }, energy: 3, handDelta: 1 } },
-		{ name: 'High Stakes 5-6: the next Quest success this turn gives +15 extra (30 + 10 + 40 + 15)',
-			setup: { field: [{ id: 'mosje_jeffrey_gambler', mp: 30 }], oppField: OPP40, energy: 3, quest: ARM, dice: [5, 5, 5, 5], abilityDice: [5], pendingTargets: { stake: 1 } },
-			trigger: { kind: 'button', then: { kind: 'quest', stack: 'PHYSICAL' } }, expect: { mp: { 'own.0': 95 } } },
-	] },
-	{ mosje: 'mosje_youri', deck: null, cases: [{
-		name: 'Speed Activate: pay 1 Energy, activate a Piecie the turn it was placed, draw 1 (30 + 25)',
-		setup: { field: [{ id: 'mosje_youri', mp: 30 }], oppField: OPP40, energy: 3, hand: [MILK], noUnlock: true },
-		trigger: { kind: 'playFromHand', cardId: MILK, then: { kind: 'button', picks: [/./], then: { kind: 'activatePiecie', cardId: MILK } } },
-		expect: { mp: { 'own.0': 55 }, energy: 2, handDelta: 0 }, // played (-1) + drawn (+1)
-	}] },
 	{ mosje: 'mosje_tactician', deck: null, cases: [
 		{ name: 'MP Manipulation: pay 2 Energy, set my Mosje to 75 for this turn (no level-up)',
 			setup: { field: [{ id: 'mosje_tactician', mp: 30 }], oppField: OPP40, energy: 3, pendingTargets: { target: SELF0, mp: 75 } },
@@ -119,18 +68,6 @@ export const MOSJE_REGISTRY_REST = [
 			setup: { field: [{ id: 'mosje_tactician', mp: 30 }], oppField: OPP40, energy: 3, pendingTargets: { target: OPP0, mp: 10 } },
 			trigger: { kind: 'button' }, expect: { mp: { 'opp.0': 10 }, energy: 1 } },
 	] },
-	{ mosje: 'mosje_ronald_mastermind', deck: null, cases: [{
-		name: 'Master Plan: pay 1 Energy, mark an opponent Mosje: it rolls 1 die less on its next Quest',
-		setup: { field: [{ id: 'mosje_ronald_mastermind', mp: 30 }], oppField: OPP40, energy: 3, pendingTargets: { opp_slot_index: 0 } },
-		trigger: { kind: 'button' },
-		expect: {
-			energy: 2,
-			check: (before, after) => {
-				const g = after.players.player_2.questDiceGrants || [];
-				if (!g.some(x => x.amount === -1 && x.lasts === 'untilUsed' && x.slotIndex === 0)) throw new Error('the -1 die mark is missing on the opponent Mosje');
-			},
-		},
-	}] },
 	{ mosje: 'mosje_coert_kasteluck', deck: null, cases: [
 		{ name: 'Morning Luck 4-6: draw 1 (plus the normal draw) and gain 5 MP',
 			setup: { field: [{ id: 'mosje_coert_kasteluck', mp: 30 }], oppField: OPP40, abilityDice: [5] },

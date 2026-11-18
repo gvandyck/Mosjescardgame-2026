@@ -2,11 +2,15 @@
  * mosje-chains-2-0.spec.js - Handoff section 6b on the real game, headless:
  *  (a) the chain rule: Jisca + Chris, The BigStepper on one paid activation -> two FREE activations, and a free Piecie never
  *      starts another chain roll (the counters show exactly one chain; the engine rule itself is unit-tested in mosjes-deck3-chain.test.ts);
- *  (b) Synergy Chamber: a holder text works without its partner while the Chamber is in play, and not without it.
+ *  (b) Synergy Chamber: a holder text (Senor West's AZN Cless line) works without its partner while the Chamber is in play, and not without it.
  * Run headless only: npx playwright test -c <temporary headless config> tests/ui/cards/mosje-chains-2-0.spec.js
  */
 import { test, expect } from '@playwright/test';
 import { runMosjeCardTest } from '../../helpers/mosjeCardTest.js';
+import { mosjeCardSetup } from '../../helpers/mosjeCardSetup.js';
+import { answerModals } from '../../helpers/answerModals.js';
+import { tapOwnCard, chooseTray } from '../../helpers/boardTaps.js';
+import { getGameState } from '../helpers.js';
 
 const MILK = 'piecie_kannetje_melk';
 const DONER = 'piecie_broodje_doner'; // food, costs 1 Energy, +35 MP
@@ -39,26 +43,29 @@ test('chain rule: Jisca then DDR Chris on one paid activation = two free activat
 });
 
 const CHAMBER = { id: 'place_synergy_chamber', by: 'player_2' }; // works for both players
-const BINTI_FOOD = {
-	field: [{ id: 'mosje_binti', mp: 20 }], oppField: OPP, piecies: [{ slot: 0, id: MILK }], energy: 3,
-};
+const ARM = { stack: 'PHYSICAL', id: 'quest_arm_wrestling' }; // Skilled (two 4+), Strength, win +40
+// Martin, Senor West alone: "While AZN Cless is also on your field: Strength Quest wins give +15 MP extra" (71-14 left Binti's Coert line off).
+const SENOR_WEST = { field: [{ id: 'mosje_martin_senor_west', mp: 30 }], oppField: OPP, quest: ARM, dice: [5, 5, 5, 5] };
 
-test('Synergy Chamber: Binti\'s Coert holder text works without Coert while the Chamber is in play (20 + 25 + 10)', async ({ page }) => {
+test('Synergy Chamber: Senor West gets the AZN Cless holder text without Cless while the Chamber is in play (30 + 40 + 15)', async ({ page }) => {
 	test.setTimeout(60000);
-	await runMosjeCardTest(page, { mosje: 'mosje_binti', deck: null }, {
-		name: 'chamber on',
-		setup: { ...BINTI_FOOD, place: CHAMBER },
-		trigger: { kind: 'activatePiecie', cardId: MILK },
-		expect: { mp: { 'own.0': 55 } },
-	});
+	await mosjeCardSetup(page, { mosje: 'mosje_martin_senor_west' }, { setup: { ...SENOR_WEST, place: CHAMBER } });
+	await tapOwnCard(page, 'mosje', 'mosje_martin_senor_west');
+	await chooseTray(page, 'quest');
+	// the Chamber also gives his once-per-turn look at a Quest stack: decline it by looking at one and pressing OK, then attempt
+	await page.locator('.modal-mosje-select-btn:not([disabled])', { hasText: 'PHYSICAL' }).click();
+	await page.locator('.modal-mosje-select-btn:not([disabled])', { hasText: 'OK' }).click();
+	await page.locator('.quest-stack[data-quest-stack="PHYSICAL"]').click();
+	await answerModals(page, []);
+	expect((await getGameState(page)).players.player_1.activeSlots[0].mp).toBe(85);
 });
 
-test('Synergy Chamber: without the Chamber and without Coert, Binti gets no extra (20 + 25)', async ({ page }) => {
+test('Synergy Chamber: without the Chamber and without Cless, Senor West gets no extra (30 + 40)', async ({ page }) => {
 	test.setTimeout(60000);
-	await runMosjeCardTest(page, { mosje: 'mosje_binti', deck: null }, {
+	await runMosjeCardTest(page, { mosje: 'mosje_martin_senor_west', deck: null }, {
 		name: 'chamber off',
-		setup: BINTI_FOOD,
-		trigger: { kind: 'activatePiecie', cardId: MILK },
-		expect: { mp: { 'own.0': 45 } },
+		setup: SENOR_WEST,
+		trigger: { kind: 'quest', stack: 'PHYSICAL', picks: [/./] },
+		expect: { mp: { 'own.0': 70 } },
 	});
 });

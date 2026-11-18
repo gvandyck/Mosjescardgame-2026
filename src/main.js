@@ -1127,6 +1127,12 @@ function initGamePage() {
 				playBotSteps([{ state: res.state, label: 'attacks (test)' }], 'Bot', 0, 0, () => {});
 				return 'ok';
 			},
+			// 71-22: after botAttack (which leaves the turn with the bot) give the turn back to the human, so a card can be played in the same case.
+			giveTurnToLocal() {
+				if (!gameState || gameState.status === 'FINISHED') return;
+				gameState.activePlayerId = localPlayerId;
+				renderFromState(gameState);
+			},
 			// 58-11: the bot places a Piecie from hand (engine playPiecie), so "opponent plays a card" triggers
 			// (FPS West's Tactical Analysis) can be proven without the bot's own turn logic.
 			botPlayPiecie(cardId) {

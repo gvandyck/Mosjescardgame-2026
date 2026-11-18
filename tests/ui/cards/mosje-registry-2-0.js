@@ -6,6 +6,8 @@
  * trigger.then = a second trigger fired after the first (FPS West: guess first, then the opponent plays).
  */
 import { MOSJE_REGISTRY_REST } from './mosje-registry-2-0-rest.js';
+import { MOSJE_REGISTRY_STARTER_A } from './mosje-registry-starter-a.js';
+import { MOSJE_REGISTRY_STARTER_B } from './mosje-registry-starter-b.js';
 
 const MILK = 'piecie_kannetje_melk';
 const milk = (...slots) => slots.map(slot => ({ slot, id: MILK }));
@@ -21,25 +23,6 @@ export const MOSJE_REGISTRY = [
 		trigger: { kind: 'activatePiecie', cardId: 'piecie_slecht_gezet' },
 		expect: { mp: { 'own.0': 40 }, energy: 2 },
 	}] },
-	{ mosje: 'mosje_gandoe_wizard', deck: 1, cases: [
-		{ name: 'Chaos Roll 1-2: loses 10 MP',
-			setup: { field: [{ id: 'mosje_gandoe_wizard', mp: 30 }], oppField: OPP40, abilityDice: [1] },
-			trigger: { kind: 'turnStart' }, expect: { mp: { 'own.0': 20 }, state: [['players.player_1.activeSlots.0.powerBoostThisTurn', undefined]] } },
-		{ name: 'Chaos Roll 5-6: +10 Power this turn',
-			setup: { field: [{ id: 'mosje_gandoe_wizard', mp: 30 }], oppField: OPP40, abilityDice: [5] },
-			trigger: { kind: 'turnStart' }, expect: { mp: { 'own.0': 30 }, state: [['players.player_1.activeSlots.0.powerBoostThisTurn', 10]] } },
-	] },
-	{ mosje: 'mosje_michelle', deck: 1, cases: [
-		{ name: 'Tough Gamble 4-6: ONE doubled Quest gain (20 + 80 -> Level 2 / 0 MP)',
-			setup: { field: [{ id: 'mosje_michelle', mp: 20 }], oppField: OPP40, quest: ARM, dice: [5, 5, 5, 5], abilityDice: [5] },
-			trigger: { kind: 'quest', stack: 'PHYSICAL' }, expect: { mp: { 'own.0': 0 }, level: { 'own.0': 2 } } },
-		{ name: 'Tough Gamble 4-6 from 10 MP: 10 + 80 = 90, still Level 1 (a second doubling would level her up)',
-			setup: { field: [{ id: 'mosje_michelle', mp: 10 }], oppField: OPP40, quest: ARM, dice: [5, 5, 5, 5], abilityDice: [5] },
-			trigger: { kind: 'quest', stack: 'PHYSICAL' }, expect: { mp: { 'own.0': 90 }, level: { 'own.0': 1 } } },
-		{ name: 'Tough Gamble 1-3: half the Quest gain (40 + 20)',
-			setup: { field: [{ id: 'mosje_michelle', mp: 40 }], oppField: OPP40, quest: ARM, dice: [5, 5, 5, 5], abilityDice: [2] },
-			trigger: { kind: 'quest', stack: 'PHYSICAL' }, expect: { mp: { 'own.0': 60 }, level: { 'own.0': 1 } } },
-	] },
 	{ mosje: 'mosje_azn_cless', deck: 1, cases: [
 		{ name: 'Risk & Reward 6: draw 2 and +10 MP',
 			setup: { field: [{ id: 'mosje_azn_cless', mp: 30 }], oppField: OPP40, abilityDice: [6] },
@@ -56,20 +39,7 @@ export const MOSJE_REGISTRY = [
 			setup: { field: [{ id: 'mosje_parkour_west', mp: 80 }], oppField: [{ id: 'mosje_jeffrey', mp: 50, level: 3 }] },
 			trigger: { kind: 'attacked' }, expect: { mp: { 'own.0': 70 } } },
 	] },
-	{ mosje: 'mosje_alyssa_bulldozer', deck: 1, cases: [{
-		name: 'Unstoppable: taksed for 30 -> +25 MP and +10 Power (80 - 30 + 25)',
-		setup: { field: [{ id: 'mosje_alyssa_bulldozer', mp: 80 }], oppField: [{ id: 'mosje_jeffrey', mp: 50, level: 3 }] },
-		trigger: { kind: 'attacked' },
-		expect: { mp: { 'own.0': 75 }, state: [['players.player_1.activeSlots.0.powerBoostUntilOwnerTurnEnd.amount', 10]] },
-	}] },
-
 	// -- Deck 2 -------------------------------------------------------------
-	{ mosje: 'mosje_coert_tech', deck: 2, cases: [{
-		name: 'Extra Resources: draw step, pay 2 Energy for 2 extra cards (plus the normal draw)',
-		setup: { field: [{ id: 'mosje_coert_tech', mp: 20 }], oppField: OPP40, energy: 3 },
-		trigger: { kind: 'turnStart', picks: [/Hawaiian/, /2/] },
-		expect: { energy: 2, handDelta: 3 }, // 3 + 1 (turn start) - 2 paid = 2 Energy; 1 draw + 2 extra
-	}] },
 	{ mosje: 'mosje_hacker', deck: 2, cases: [{
 		name: 'System Hack: pay 1 Energy, reverse the top 3 of my deck, +10 MP',
 		setup: { field: [{ id: 'mosje_hacker', mp: 30 }], oppField: OPP40, energy: 3, pendingTargets: { deck_owner: 'player_1', order: [2, 1, 0] } },
@@ -83,22 +53,6 @@ export const MOSJE_REGISTRY = [
 			},
 		},
 	}] },
-	{ mosje: 'mosje_fps_coert', deck: 2, cases: [{
-		name: 'Headshot Precision (6): Strength Quest success -> +30 MP and an opponent Mosje loses 15',
-		setup: { field: [{ id: 'mosje_fps_coert', mp: 20 }], oppField: [{ id: 'mosje_ming_predictor', mp: 60 }], quest: ARM, dice: [5, 5, 5, 5], abilityDice: [6] },
-		trigger: { kind: 'quest', stack: 'PHYSICAL' },
-		expect: { mp: { 'own.0': 90, 'opp.0': 45 } }, // 20 + 40 + 30; 60 - 15
-	}] },
-	{ mosje: 'mosje_fps_west', deck: 2, cases: [
-		{ name: 'Tactical Analysis: guess Piecie, opponent plays a Piecie -> +20 MP (1 Energy)',
-			setup: { field: [{ id: 'mosje_fps_west', mp: 30 }], oppField: OPP40, energy: 3, oppHand: OPP_HAND },
-			trigger: { kind: 'button', picks: [/PIECIE/i], then: { kind: 'botPlayPiecie', cardId: MILK } },
-			expect: { mp: { 'own.0': 50 }, energy: 2 } },
-		{ name: 'Tactical Analysis: guess Place, opponent plays a Piecie -> -10 MP (1 Energy)',
-			setup: { field: [{ id: 'mosje_fps_west', mp: 30 }], oppField: OPP40, energy: 3, oppHand: OPP_HAND },
-			trigger: { kind: 'button', picks: [/PLACE/i], then: { kind: 'botPlayPiecie', cardId: MILK } },
-			expect: { mp: { 'own.0': 20 }, energy: 2 } },
-	] },
 	{ mosje: 'mosje_drainer', deck: 2, cases: [{
 		name: 'Continuous Drain: at the start of the opponent turn one of their Mosjes loses 5 MP',
 		setup: { field: [{ id: 'mosje_drainer', mp: 30 }], oppField: OPP40 },
@@ -111,6 +65,7 @@ export const MOSJE_REGISTRY = [
 		trigger: { kind: 'button' },
 		expect: { mp: { 'own.0': 60 }, energy: 3 }, // 20 + 15 + 25, no Energy paid
 	}] },
+
 
 	// -- Deck 3 -------------------------------------------------------------
 	{ mosje: 'mosje_tuk_healer', deck: 3, cases: [{
@@ -135,26 +90,9 @@ export const MOSJE_REGISTRY = [
 			setup: { field: [{ id: 'mosje_cless_teacher', mp: 30 }], oppField: OPP40, piecies: milk(0), abilityDice: [4] },
 			trigger: { kind: 'activatePiecie', cardId: MILK }, expect: { mp: { 'own.0': 55 }, handDelta: 0 } },
 	] },
-	{ mosje: 'mosje_binti', deck: 3, cases: [{
-		name: 'Cutting Words: pay 1 Energy + discard a Piecie -> opponent Mosje -10 MP, opponent discards 1',
-		setup: { field: [{ id: 'mosje_binti', mp: 20 }], oppField: OPP40, energy: 3, hand: [MILK, 'piecie_affoe'], oppHand: OPP_HAND },
-		trigger: { kind: 'button' },
-		expect: { mp: { 'opp.0': 30 }, energy: 2, handDelta: -1, oppHandDelta: -1 },
-	}] },
-	{ mosje: 'mosje_dj_8020', deck: 3, cases: [{
-		name: 'Lucky Beats: reroll a failed Quest die (coin flip 4+, +50)',
-		setup: { field: [{ id: 'mosje_dj_8020', mp: 20 }], oppField: OPP40, quest: { stack: 'PHYSICAL', id: 'quest_geen_raad_vraag_aad' }, dice: [1], abilityDice: [5] },
-		trigger: { kind: 'quest', stack: 'PHYSICAL', picks: [/Lucky Beats/] },
-		expect: { mp: { 'own.0': 70 } },
-	}] },
-	{ mosje: 'mosje_chris_ddr', deck: 3, cases: [
-		{ name: 'Perfect Combo Chain 5-6: another ready Piecie free (15 + 25 + 25)',
-			setup: { field: [{ id: 'mosje_chris_ddr', mp: 15 }], oppField: OPP40, piecies: milk(0, 1, 2), abilityDice: [5] },
-			trigger: { kind: 'activatePiecie', cardId: MILK }, expect: { mp: { 'own.0': 65 }, energy: 3, state: [['players.player_1.ddrChainsThisTurn', 1]] } },
-		{ name: 'Perfect Combo Chain 4: no chain (15 + 25)',
-			setup: { field: [{ id: 'mosje_chris_ddr', mp: 15 }], oppField: OPP40, piecies: milk(0, 1, 2), abilityDice: [4] },
-			trigger: { kind: 'activatePiecie', cardId: MILK }, expect: { mp: { 'own.0': 40 }, state: [['players.player_1.ddrChainsThisTurn', 0]] } },
-	] },
 	// -- The other 14 (no Example Deck): mosje-registry-2-0-rest.js --
+	// -- The 15 starter Mosjes on the 2.1 text (71-22) --
+	...MOSJE_REGISTRY_STARTER_A,
+	...MOSJE_REGISTRY_STARTER_B,
 	...MOSJE_REGISTRY_REST,
 ];
