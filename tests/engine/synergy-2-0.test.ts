@@ -27,7 +27,6 @@ describe("isHolderTextActive: the five 2.0 pairs", () => {
   it.each([
     ["mosje_martin_historian", "mosje_cless_teacher"],
     ["mosje_martin_senor_west", "mosje_azn_cless"],
-    ["mosje_fps_west", "mosje_fps_coert"],
     ["mosje_binti", "mosje_coert_tech"],
   ])("%s works with %s and not without", (holder, partner) => {
     expect(isHolderTextActive(makeState([slot(holder), slot(partner)]), "player_1", holder)).toBe(true);
@@ -81,14 +80,13 @@ describe("holder texts", () => {
     expect(getPartnerSynergyQuestBonus(makeState([slot("mosje_martin_senor_west"), null]), "player_1", "Strength")).toBe(0);
   });
 
-  it("FPS West + FPS Coert: a Quest win gives both +10", () => {
+  it("FPS West + FPS Coert: the old line is off (71-13): a Quest win gives neither of them +10", () => {
     vi.spyOn(Math, "random").mockReturnValue(0.55);
     const win = (s: any) => forceQuestResult(s, "player_1", { slotIndex: 0, questId: "quest_arm_wrestling", win: true });
     const paired = win(makeState([slot("mosje_fps_west", 10), slot("mosje_fps_coert", 10)])).players.player_1.activeSlots;
-    expect(paired[1].mp).toBe(20);
-    const alone = win(makeState([slot("mosje_fps_west", 10), null])).players.player_1.activeSlots[0].mp;
-    const cham = win(makeState([slot("mosje_fps_west", 10), null], "place_synergy_chamber")).players.player_1.activeSlots[0].mp;
-    expect(cham - alone).toBe(10);
+    const alone = win(makeState([slot("mosje_fps_west", 10), null])).players.player_1.activeSlots;
+    expect(paired[0].mp).toBe(alone[0].mp);
+    expect(paired[1].mp).toBe(10);
   });
 
   it("Youri + DDR Chris: the old line is off (71-12): a placed Piecie waits either way", () => {

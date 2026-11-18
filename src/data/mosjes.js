@@ -577,7 +577,7 @@ export const MOSJES = [
     // "Tactical Analysis: Pay 10 MP to view opponent hand and predict next card type; correct gain 20 MP, wrong lose 10 MP."
     abilityDescription: "Once per turn: pay 1 Energy; look at your opponent's hand. Then you can have this Mosje lose 20 MP; put 1 card from that hand on the bottom of their deck. They draw 1.",
     synergyWith: ["mosje_fps_coert", "mosje_azn_cless"],
-    synergyEffect: "While FPS Coert is also on your field: when either of them succeeds at a Quest, both gain 10 MP. Once per turn you may make your opponent reveal their hand.",
+    synergyEffect: null, // 71-13: the old FPS pair line is not in the 2.1 text
     petSynergy: null,
     tags: ["WEST", "FPS"],
     friend: "West",

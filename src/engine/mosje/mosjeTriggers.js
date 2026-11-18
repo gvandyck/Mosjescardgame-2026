@@ -4,7 +4,7 @@ import { alyssaFissaPartyPower } from '../../abilities/mosje/alyssaFissaPartyPow
 import { parkourWestFlowQuest } from '../../abilities/mosje/parkourWestFlowQuest.js';
 import { coertTechExtraResources } from '../../abilities/mosje/coertTechExtraResources.js';
 import { fpsCoertHeadshot } from '../../abilities/mosje/fpsCoertHeadshot.js';
-import { fpsWestTacticalAnalysis } from '../../abilities/mosje/fpsWestTacticalAnalysis.js';
+import { fpsWestBottomChoice } from '../../abilities/mosje/fpsWestBottomChoice.js';
 import { drainerContinuousDrain } from '../../abilities/mosje/drainerContinuousDrain.js';
 import { jiscaPerfectCombo } from '../../abilities/mosje/jiscaPerfectCombo.js';
 import { ddrChrisComboChain } from '../../abilities/mosje/ddrChrisComboChain.js';
@@ -24,18 +24,20 @@ import { bintiDiscardChoice } from '../../abilities/mosje/bintiDiscardChoice.js'
 export const MOSJE_TRIGGERS = {
 	startOfTurn: [coertKasteLuckMorningLuck],
 	oppStartOfTurn: [drainerContinuousDrain],
-	endOfTurn: [aznClessRiskReward, fpsWestTacticalAnalysis, martinHistorianEndDraw],
+	endOfTurn: [aznClessRiskReward, martinHistorianEndDraw],
 	questWinAmount: [],
 	questSuccess: [parkourWestFlowQuest, fpsCoertHeadshot, martinDriverPerfectLine, jeffreyGamblerQuestBonus],
 	// piecieActivated order on one activation (Card List ruling): Jisca, then Chris, The BigStepper, then Cless, The Teacher.
 	piecieActivated: [jiscaPerfectCombo, ddrChrisComboChain, clessTeachingMoment],
 	placeDestroyed: [alyssaFissaPartyPower],
-	cardPlayedFromHand: [fpsWestTacticalAnalysis],
+	cardPlayedFromHand: [],
 	drawStep: [coertTechExtraResources, martinHistorianTimeControl],
 	// Binti's Cutting Words fires this directly (not from runMosjeTriggers) so the opponent's discard pick can pause.
 	bintiDiscard: [bintiDiscardChoice],
 	// Gandoe, The Cloude Wizard's top-3 pick fires this directly so the owner's choice can pause.
 	wizardPick: [gandoeWizardPick],
+	// FPS West's bottom-of-deck pick fires this directly so the owner's choice can pause.
+	fpsWestBottom: [fpsWestBottomChoice],
 	// Gandoe, The Destroyer's Elimination Strike resolves here so a tie can pause for the owner's pick.
 	destroyerStrike: [gandoeDestroyerStrikeChoice],
 };

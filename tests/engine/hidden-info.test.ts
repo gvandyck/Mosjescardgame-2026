@@ -5,8 +5,7 @@ import { makeEngineState } from "../helpers/makeEngineState.js";
 import { mkSlot } from "../helpers/quest56.js";
 import { revealCards } from "../../src/engine/hidden/revealCards.js";
 import { getRevealedFor } from "../../src/engine/hidden/getRevealedFor.js";
-import { fpsWestGuess } from "../../src/abilities/mosje/fpsWestGuess.js";
-import { fpsWestRevealHand } from "../../src/engine/mosje/fpsWestRevealHand.js";
+import { fpsWestLookAndBottom } from "../../src/abilities/mosje/fpsWestLookAndBottom.js";
 import { effect_stookerino } from "../../src/abilities/piecie/starter/stookerino.js";
 import { effect_jantje_jantje } from "../../src/abilities/piecie/attackRevealPiecies.js";
 import { effect_chefs_special } from "../../src/abilities/piecie/mpPiecies.js";
@@ -46,17 +45,10 @@ describe("revealCards / getRevealedFor", () => {
 });
 
 describe("the hidden-info cards reveal to the activator only", () => {
-  it("FPS West: the ability and the holder text", () => {
-    const st = game("mosje_fps_west");
-    st._pendingTargets = { card_type: "PIECIE" };
-    const a = fpsWestGuess(st, "player_1");
+  it("FPS West: the ability shows the hand to the activator only", () => {
+    const a = fpsWestLookAndBottom(game("mosje_fps_west"), "player_1");
     onlyViewer(a, "player_1");
     expect(getRevealedFor(a, "player_1")[0].cardIds).toEqual(ids(OPP_HAND()));
-    const holder = game("mosje_fps_west");
-    holder.players.player_1.activeSlots[1] = mkSlot({ mp: 40, cardId: "mosje_fps_coert" });
-    const h = fpsWestRevealHand(holder, "player_1");
-    expect(h.success).toBe(true);
-    onlyViewer(h.state, "player_1");
   });
   it("Stookerino: the opponent picks; with a Binti on the field the hand is shown to the activator only, without one nothing is", () => {
     const st = game("mosje_binti");

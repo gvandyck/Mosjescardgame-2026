@@ -10,7 +10,7 @@ import { applyMpLossToSlot } from '../engine/mp/applyMpLossToSlot.js';
 import { isFresh } from '../engine/fresh/isFresh.js';
 import { hackerSystemHack } from './mosje/hackerSystemHack.js';
 import { chrisPerfectSetup } from './mosje/chrisPerfectSetup.js';
-import { fpsWestGuess } from './mosje/fpsWestGuess.js';
+import { fpsWestLookAndBottom } from './mosje/fpsWestLookAndBottom.js';
 import { tacticianMpManipulation } from './mosje/tacticianMpManipulation.js';
 import { gandoeDestroyerEliminationStrike } from './mosje/gandoeDestroyerEliminationStrike.js';
 import { martinDriverPitStop } from './mosje/martinDriverPitStop.js';
@@ -203,9 +203,9 @@ export function ability_fps_coert_headshot_precision(gameState) {
 	return gameState;
 }
 
-// FPS West — Tactical Analysis: see abilities/mosje/fpsWestGuess.js (1 Energy via abilityEnergyCosts.js).
+// FPS West — Tactical Analysis: see abilities/mosje/fpsWestLookAndBottom.js (1 Energy via abilityEnergyCosts.js).
 export function ability_fps_west_tactical_analysis(gameState, playerId, mosjeId) {
-	return fpsWestGuess(gameState, playerId, mosjeId);
+	return fpsWestLookAndBottom(gameState, playerId, mosjeId);
 }
 
 // CREATIVE MOSJES
