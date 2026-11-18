@@ -36,12 +36,9 @@ describe('defaultAbilityInputs', () => {
 		expect(defaultAbilityInputs(state(), 'bot', 'ability_hacker_system_hack')).toEqual({ deck_owner: 'bot', order: [0, 1, 2] });
 		expect(defaultAbilityInputs(state(), 'bot', 'ability_tactician_mp_manipulation')).toEqual({ target: { playerId: 'bot', slotIndex: 1 }, mp: 45 });
 	});
-	it('reads the opponent hand ONLY for Ronald Chef and FPS West', () => {
+	it('no ability asks for an opponent hand card any more (Ronald, The Master Chef is passive since 71-04)', () => {
 		const withHand = Object.entries(MOSJE_ABILITY_RULES as Record<string, any>).filter(([, r]) => r.inputs.some((i: any) => i.kind === 'oppHandCard')).map(([id]) => id);
-		expect(withHand).toEqual(['ability_ronald_chef_strategic_insight']); // FPS West asks a card TYPE, never a hand card
-		expect(defaultAbilityInputs(state(), 'bot', 'ability_ronald_chef_strategic_insight')).toEqual({ locked_card: 0 });
-		const s = state(); s.players.human.hand = [];
-		expect(defaultAbilityInputs(s, 'bot', 'ability_ronald_chef_strategic_insight')).toBeNull();
+		expect(withHand).toEqual([]); // FPS West asks a card TYPE, never a hand card
 		// an ability without the peek permission never gets an opponent hand index
 		expect(defaultAbilityInputs(state(), 'bot', 'ability_tuk_healer_healing_presence')).not.toHaveProperty('locked_card');
 	});

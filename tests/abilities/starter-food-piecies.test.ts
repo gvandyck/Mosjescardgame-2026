@@ -67,18 +67,18 @@ describe('Ronald Kip', () => {
 		expect(mine(out).mp).toBe(60);
 		expect(out.players.player_1.hand).toHaveLength(0);
 	});
-	it('with Ronald, The Master Chef: +40 and draw 1', () => {
+	it('with Ronald, The Master Chef: +40 (+10 as the first food Piecie of the turn) and draw 1', () => {
 		const out = run(board('piecie_ronald_kip', 'mosje_coert_tech', 'mosje_ronald_chef'));
-		expect(mine(out).mp).toBe(60);
+		expect(mine(out).mp).toBe(70);
 		expect(out.players.player_1.hand).toHaveLength(1);
 	});
 	it('with Ronald, Dr. Phill-osoof: also draw 1', () => {
 		const out = run(board('piecie_ronald_kip', 'mosje_coert_tech', 'mosje_ronald_mastermind'));
 		expect(out.players.player_1.hand).toHaveLength(1);
 	});
-	it('with a Ronald and an empty deck: +40, no draw, no error', () => {
+	it('with a Ronald and an empty deck: +40 (+10 Chef), no draw, no error', () => {
 		const out = run(board('piecie_ronald_kip', 'mosje_coert_tech', 'mosje_ronald_chef', 0));
-		expect(mine(out).mp).toBe(60);
+		expect(mine(out).mp).toBe(70);
 		expect(out.players.player_1.hand).toHaveLength(0);
 	});
 });

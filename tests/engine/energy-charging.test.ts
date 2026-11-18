@@ -114,19 +114,15 @@ describe("Ability Energy charging", () => {
   });
 
   it("a throwing ability (needs UI input) costs no Energy", () => {
-    const res = useMosjeAbility(withMosje(6, "mosje_ronald_chef"), "player_1", "mosje_ronald_chef");
+    const res = useMosjeAbility(withMosje(6, "mosje_tactician"), "player_1", "mosje_tactician");
     expect(res.success).toBe(false);
     expect(res.state.players.player_1.energy).toBe(6);
   });
 
-  it("Ronald Strategic Insight costs 2 Energy and no MP", () => {
-    const s = withMosje(6, "mosje_ronald_chef");
-    s.players.player_2.hand = [{ cardId: "piecie_kannetje_melk", type: "PIECIE" }];
-    s._pendingTargets = { locked_card: 0 };
-    const res = useMosjeAbility(s, "player_1", "mosje_ronald_chef");
-    expect(res.success).toBe(true);
-    expect(res.state.players.player_1.activeSlots[0].mp).toBe(60);
-    expect(res.state.players.player_1.energy).toBe(4);
+  it("Ronald, The Master Chef has no button any more: using it is refused and costs nothing", () => {
+    const res = useMosjeAbility(withMosje(6, "mosje_ronald_chef"), "player_1", "mosje_ronald_chef");
+    expect(res.success).toBe(false);
+    expect(res.state.players.player_1.energy).toBe(6);
   });
 
   it("Youri Speed Activate costs exactly 1 Energy and no MP", () => {

@@ -122,31 +122,6 @@ describe("Binti's Cutting Words (the opponent discards a card of their choice)",
   });
 });
 
-describe('Ronald, The Master Chef: Strategic Insight (sets a card aside)', () => {
-  const RONALD = byName(/Ronald, The Master Chef/);
-  const use = (hand: any[], index: number) => {
-    const s = makeEngineState({
-      turnNumber: 5,
-      players: { player_1: { energy: 6, activeSlots: [mkSlot({ mp: 50 }, RONALD), null] }, player_2: { hand, activeSlots: [mkSlot({ mp: 40 }), null] } },
-    });
-    s._pendingTargets = { locked_card: index };
-    return useMosjeAbility(s, 'player_1', RONALD.id);
-  };
-  it('cannot set the Personal Quest aside, but can the other card', () => {
-    const bad = use([PQ, PIECIE], 0);
-    expect(bad.success).toBe(false);
-    const good = use([PQ, PIECIE], 1);
-    expect(good.success).toBe(true);
-    expect(ids(good.state.players.player_2.hand)).toEqual(['pq_charge']);
-  });
-  it('with only a Personal Quest in hand it does nothing and costs nothing', () => {
-    const r = use([PQ], 0);
-    expect(r.success).toBe(false);
-    expect(ids(r.state.players.player_2.hand)).toEqual(['pq_charge']);
-    expect(r.state.players.player_1.energy).toBe(6);
-  });
-});
-
 describe('the owner can discard their own Personal Quest', () => {
   it('discardChoice offers it and discards it', () => {
     const s = board([], { hand: [PQ] });

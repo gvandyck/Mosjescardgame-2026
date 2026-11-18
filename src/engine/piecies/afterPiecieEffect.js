@@ -8,6 +8,7 @@ import { finishPiecieActivation } from '../table/finishPiecieActivation.js';
 import { runMosjeTriggers } from '../mosje/runMosjeTriggers.js';
 import { checkVictory } from '../victoryChecker.js';
 import * as placeEffects from '../../abilities/placeEffects.js';
+import { AFTER_ACTIVATION_STEPS } from './afterActivationSteps.js';
 import { placeGearDraw } from '../../abilities/place/placeTurnQuestEffects.js';
 
 export function afterPiecieEffect(state, playerId, slotIndex, cardDef, after = {}, opts = {}) {
@@ -30,6 +31,8 @@ export function afterPiecieEffect(state, playerId, slotIndex, cardDef, after = {
 	state.players[playerId].lastCardPlayedType = cardDef.tags?.[0] || null;
 
 	state = placeGearDraw(state, playerId, cardDef);
+
+	for (const step of AFTER_ACTIVATION_STEPS) state = step(state, { playerId, cardDef, slotIndex, free });
 
 	// Momentum Factory bonus (first Piecie each turn)
 	if (state.activePlace === 'place_momentum_factory') state = placeEffects.effect_momentum_factory(state);

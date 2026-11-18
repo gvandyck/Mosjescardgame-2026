@@ -22,7 +22,6 @@ import { youriSpeedActivate } from './mosje/youriSpeedActivate.js';
 import { ronaldMastermindMasterPlan } from './mosje/ronaldMastermindMasterPlan.js';
 import { tukHealingHands } from './mosje/tukHealingHands.js';
 import { bintiCuttingWords } from './mosje/bintiCuttingWords.js';
-import { ronaldChefStrategicInsight } from './mosje/ronaldChefStrategicInsight.js';
 import { senorWestCalculatedGuess } from './mosje/senorWestCalculatedGuess.js';
 import { tukArchitectPerfectPlacement } from './mosje/tukArchitectPerfectPlacement.js';
 
@@ -132,9 +131,10 @@ export function ability_gandoe_destroyer_elimination_strike(gameState, playerId,
 
 // DIGITAL MOSJES
 
-// Ronald Chef — Strategic Insight: see abilities/mosje/ronaldChefStrategicInsight.js (2 Energy via abilityEnergyCosts.js).
-export function ability_ronald_chef_strategic_insight(gameState, playerId, mosjeId) {
-	return ronaldChefStrategicInsight(gameState, playerId, mosjeId);
+// Ronald Chef — passive since 2.1: the first-food-Piecie bonus lives in abilities/mosje/ronaldChefFirstFood.js.
+// No button; this stub only keeps the dispatch map resolving.
+export function ability_ronald_chef_strategic_insight(gameState) {
+	return gameState;
 }
 
 // Ming Natural — Lucky Draw: see abilities/mosje/mingNaturalLuckyDraw.js (free activation or hand, else draw + 15 MP).

@@ -230,6 +230,7 @@ export const MOSJES = [
     startMP: 10,
     traits: { strength: 2, social: 1, mental: 1 },
     abilityId: "ability_ronald_chef_strategic_insight",
+    autoAbility: true,
     // LEGACY abilityDescription (pre-Phase 19, archived for possible revert):
     // "Strategic Insight: Pay 20 MP to view opponent hand and lock 1 chosen card next turn (once per turn, 3-turn cooldown)."
     abilityDescription: "The first food Piecie you activate each turn gives 10 MP more.",

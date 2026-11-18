@@ -48,7 +48,7 @@ describe('runCardSteps: gainMp', () => {
 	});
 	it('friendAmount: a Ronald gains 30, any other Mosje 20', () => {
 		const steps = [{ do: 'gainMp', amount: 20, friendAmount: { friends: ['Ronald'], amount: 30 } }];
-		expect(mp(run(world({ slots: ['mosje_ronald_chef', null], pick: 0 }), steps))).toBe(50);
+		expect(mp(run(world({ slots: ['mosje_ronald_mastermind', null], pick: 0 }), steps))).toBe(50);
 		expect(mp(run(world({ slots: ['mosje_michelle', null], pick: 0 }), steps))).toBe(40);
 	});
 	it('ctx.costPaidBy is the picked Mosje and no own-Mosje pick is read', () => {

@@ -101,7 +101,7 @@ function prepare(seat) {
 
 // The seat gets Energy, a Mosje, two Places and Tesla in hand, an open field slot and no Place in play, so the payment
 // choosers reach every branch that reads its own hand.
-const PAYMENTS = [['mosje_alyssa_fissa', 'mosje'], ['place_the_gym', 'place'], ['piecie_te_hard_gaan', 'piecie'], ['snelle_blensen', 'snelle'], ['ability_ronald_chef_strategic_insight', 'ability'], ['ability_gandoe_destroyer_elimination_strike', 'ability']];
+const PAYMENTS = [['mosje_alyssa_fissa', 'mosje'], ['place_the_gym', 'place'], ['piecie_te_hard_gaan', 'piecie'], ['snelle_blensen', 'snelle'], ['ability_tactician_mp_manipulation', 'ability'], ['ability_gandoe_destroyer_elimination_strike', 'ability']];
 function withShopping(t, seat) {
 	const me = t.players[seat];
 	const hand = [...me.hand, card('mosje_alyssa_fissa', 'MOSJE'), card('place_the_gym', 'PLACE'), card('place_tesla', 'PLACE')];

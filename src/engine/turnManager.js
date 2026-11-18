@@ -137,6 +137,7 @@ export function startTurn(gameState) {
   activePlayer.chainReactionOffer = 0;
   activePlayer.drawsThisTurn = 0;
   activePlayer.pieciesActivatedThisTurn = 0;
+  activePlayer.foodActivatedThisTurn = 0; // Ronald, The Master Chef / Ronnie's Kitchen: first food Piecie each turn
   activePlayer.piecieActivationsThisTurn = 0; // Build Gadget / Speed Run conditions (56-03)
   activePlayer.cardsDrawnThisTurn = 0; // Artistic Expression (56-03)
   activePlayer.actionsThisTurn = [];

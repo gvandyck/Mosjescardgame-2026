@@ -5,7 +5,6 @@ import { makeEngineState } from "../helpers/makeEngineState.js";
 import { mkSlot } from "../helpers/quest56.js";
 import { revealCards } from "../../src/engine/hidden/revealCards.js";
 import { getRevealedFor } from "../../src/engine/hidden/getRevealedFor.js";
-import { ronaldChefStrategicInsight } from "../../src/abilities/mosje/ronaldChefStrategicInsight.js";
 import { fpsWestGuess } from "../../src/abilities/mosje/fpsWestGuess.js";
 import { fpsWestRevealHand } from "../../src/engine/mosje/fpsWestRevealHand.js";
 import { effect_stookerino } from "../../src/abilities/piecie/utilityDrawPiecies.js";
@@ -46,16 +45,7 @@ describe("revealCards / getRevealedFor", () => {
   });
 });
 
-describe("the six hidden-info cards reveal to the activator only", () => {
-  it("Ronald, The Master Chef - Strategic Insight: the opponent hand, before the chosen card is set aside", () => {
-    const st = game("mosje_ronald_chef");
-    st._pendingTargets = { locked_card: 1 };
-    const out = ronaldChefStrategicInsight(st, "player_1");
-    onlyViewer(out, "player_1");
-    expect(getRevealedFor(out, "player_1")[0].cardIds).toEqual(ids(OPP_HAND()));
-    expect(out.players.player_2.setAside[0].card.cardId).toBe("piecie_broodje_doner");
-    expect(out.revealedHandTo).toBeUndefined();
-  });
+describe("the hidden-info cards reveal to the activator only", () => {
   it("FPS West: the ability and the holder text", () => {
     const st = game("mosje_fps_west");
     st._pendingTargets = { card_type: "PIECIE" };
@@ -107,13 +97,6 @@ describe("the six hidden-info cards reveal to the activator only", () => {
 });
 
 describe("the bot only uses what a card reveals", () => {
-  it("a peek ability (Ronald) picks from the hand it shows", () => {
-    expect(defaultAbilityInputs(game("mosje_ronald_chef"), "player_1", "ability_ronald_chef_strategic_insight")).toEqual({ locked_card: 0 });
-  });
-  it("with an earlier reveal the bot picks a revealed card", () => {
-    const st = revealCards(game("mosje_ronald_chef"), "player_1", "x", ["piecie_broodje_doner"]);
-    expect(defaultAbilityInputs(st, "player_1", "ability_ronald_chef_strategic_insight")).toEqual({ locked_card: 1 });
-  });
   it("an ability with a hand input but no reveal never reads the opponent hand (it is skipped)", async () => {
     vi.resetModules();
     vi.doMock("../../src/rules/mosjeAbilityRules.js", () => ({ MOSJE_ABILITY_RULES: { ability_test_no_peek: { inputs: [{ key: "c", kind: "oppHandCard" }] } } }));

@@ -40,14 +40,14 @@ describe("Ronald Kip stacking under the 2.1 starter text", () => {
     expect(out.players.player_1.hand).toHaveLength(0);
   });
 
-  it("with Ronald, The Master Chef on the field: +40 and draw 1", () => {
-    const out = kip(board(slot("mosje_coert_tech", 1, 0), slot("mosje_ronald_chef", 1, 50)));
+  it("with Ronald, Dr. Phill-osoof on the field: +40 and draw 1 (no Chef bonus)", () => {
+    const out = kip(board(slot("mosje_coert_tech", 1, 0), slot("mosje_ronald_mastermind", 1, 50)));
     expect(first(out).mp).toBe(40);
     expect(out.players.player_1.hand).toHaveLength(1);
   });
 
   it("with Ronald and an empty deck: still +40, nothing drawn", () => {
-    const out = kip(board(slot("mosje_coert_tech", 1, 0), slot("mosje_ronald_chef", 1, 50), 0));
+    const out = kip(board(slot("mosje_coert_tech", 1, 0), slot("mosje_ronald_mastermind", 1, 50), 0));
     expect(first(out).mp).toBe(40);
     expect(out.players.player_1.hand).toHaveLength(0);
   });
@@ -67,7 +67,39 @@ describe("Ronald Kip stacking under the 2.1 starter text", () => {
     expect([first(out).level, first(out).mp]).toEqual([3, 100]);
   });
 
-  // 71-04: Ronald, The Master Chef +10 (first food Piecie each turn) and Ronnie's Kitchen +10 go here.
+  // 71-04 (D-38, second half): Ronald, The Master Chef +10 (first food Piecie each turn) and Ronnie's Kitchen +10.
+  const chef = () => slot("mosje_ronald_chef", 1, 50);
+  const kitchen = (st: any) => { st.activePlace = "place_ronnies_kitchen"; return st; };
+
+  it("as the first food Piecie with Ronald, The Master Chef: 50 (40 + 10)", () => {
+    const out = kip(board(slot("mosje_coert_tech", 1, 0), chef()));
+    expect(first(out).mp).toBe(50);
+    expect(out.players.player_1.hand).toHaveLength(1);
+  });
+
+  it("in Ronnie's Kitchen without the Chef: 50", () => {
+    expect(first(kip(kitchen(board(slot("mosje_coert_tech", 1, 0), null)))).mp).toBe(50);
+  });
+
+  it("with the Chef and the Kitchen: 60 (40 + 10 + 10)", () => {
+    expect(first(kip(kitchen(board(slot("mosje_coert_tech", 1, 0), chef())))).mp).toBe(60);
+  });
+
+  it("with both, from 50 MP at Level 1: Level 2 at 10 MP", () => {
+    const out = kip(kitchen(board(slot("mosje_coert_tech", 1, 50), chef())));
+    expect([first(out).level, first(out).mp]).toEqual([2, 10]);
+  });
+
+  it("with both at Level 3 and 60 MP: capped at 100", () => {
+    const out = kip(kitchen(board(slot("mosje_coert_tech", 3, 60), chef())));
+    expect([first(out).level, first(out).mp]).toEqual([3, 100]);
+  });
+
+  it("a second Ronald Kip the same turn with both: 50 (the Chef's bonus is used up)", () => {
+    const st = kitchen(board(slot("mosje_coert_tech", 1, 0), chef()));
+    st.players.player_1.foodActivatedThisTurn = 1;
+    expect(first(kip(st)).mp).toBe(50);
+  });
 
   it("The Void blocks a Piecie gain; a Quest gain still goes through", () => {
     const st = board(slot("mosje_coert_tech", 1, 0), null);

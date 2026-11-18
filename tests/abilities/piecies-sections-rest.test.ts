@@ -61,7 +61,7 @@ describe('MP section', () => {
   it('Ronald Kip +40; with a Ronald on the field the same +40 and draw 1', () => {
     expect(mp(run(board('piecie_ronald_kip', { own: slotOf('mosje_coert_tech', 0) })))).toBe(40);
     const s = run(board('piecie_ronald_kip', { own: slotOf('mosje_coert_tech', 0), second: RONALD() }));
-    expect(mp(s)).toBe(40);
+    expect(mp(s)).toBe(50); // +40, +10 for Ronald, The Master Chef (first food Piecie of the turn, 71-04)
     expect(s.players.player_1.hand).toHaveLength(1);
   });
 
@@ -69,10 +69,11 @@ describe('MP section', () => {
     const hand = (n: number) => [...cards(...Array(n).fill('piecie_keyboard')), { cardId: 'mosje_jisca', type: 'MOSJE' }];
     const at = (n: number, ronald: boolean) => mp(run(board('piecie_chefs_special', { own: slotOf('mosje_coert_tech', 0), second: ronald ? RONALD() : null, foeHand: hand(n) })));
     expect(at(3, false)).toBe(15);
-    expect(at(0, true)).toBe(15);
-    expect(at(2, true)).toBe(30);
-    expect(at(4, true)).toBe(45);
-    expect(at(6, true)).toBe(45);
+    // with the Chef on the field the first food Piecie of the turn also gives +10 (71-04)
+    expect(at(0, true)).toBe(25);
+    expect(at(2, true)).toBe(40);
+    expect(at(4, true)).toBe(55);
+    expect(at(6, true)).toBe(55);
   });
 
   it('Warm Kannetje Melk: -10 MP and draw 2 (no Binti extra on a loss)', () => {

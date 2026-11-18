@@ -163,7 +163,7 @@ describe('driveBotTurn keeps the Energy for a reaction Snelle', () => {
 		expect(rich.end.players[BOT].energy).toBe(1);
 	});
 	it('a Mosje ability that would eat the reserved Energy is not used; one that leaves it is', () => {
-		const field = ['mosje_ronald_chef', null]; // Strategic Insight: 2 Energy, needs a card in the opponent hand
+		const field = ['mosje_tactician', null]; // MP Manipulation: 2 Energy (was Ronald's Strategic Insight before 71-04)
 		const oppHand = [piecie('piecie_kannetje_melk')];
 		const free = drive(table({ energy: 2, field, hand: [], oppHand }));
 		expect(free.labels.some((l) => /ability/.test(l))).toBe(true); // control: the ability is used at all

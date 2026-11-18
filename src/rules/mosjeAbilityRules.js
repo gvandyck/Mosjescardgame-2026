@@ -25,7 +25,7 @@ export const MOSJE_ABILITY_RULES = Object.freeze({
 	ability_parkour_west_adaptive_combat: pass(),
 	ability_gandoe_destroyer_elimination_strike: act([], { per: 'game' }),
 	// Digital
-	ability_ronald_chef_strategic_insight: act([{ key: 'locked_card', kind: 'oppHandCard' }]),
+	ability_ronald_chef_strategic_insight: pass(), // Ronald, The Master Chef: first food Piecie each turn +10 MP (ronaldChefFirstFood.js)
 	ability_ming_natural_lucky_draw: act([{ key: 'choice', kind: 'choice', options: ['activate', 'hand'] }]),
 	ability_ming_predictor_future_sight: act([{ key: 'stack_id', kind: 'questStack' }, { key: 'bottom', kind: 'confirm', peekStack: 'stack_id' }]),
 	ability_martin_historian_time_control: act(deckPick(5), { drawStep: true }),

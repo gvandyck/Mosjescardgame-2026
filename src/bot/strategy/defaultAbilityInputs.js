@@ -15,7 +15,7 @@ const PIECIE_BY_ID = Object.fromEntries(PIECIES.map(p => [p.id, p]));
 // A free activation (Chris, Youri) still meets the engine's gate (Jeffrey, Level 2+, Only if) and should do something.
 const freeActivationOk = (view, botId, cardId) => !!PIECIE_BY_ID[cardId] && !piecieActivationGate(view, botId, PIECIE_BY_ID[cardId]) && isUsefulActivation(view, botId, cardId);
 
-const HAND_PEEK_ABILITIES = new Set(['ability_ronald_chef_strategic_insight', 'ability_fps_west_tactical_analysis']);
+const HAND_PEEK_ABILITIES = new Set(['ability_fps_west_tactical_analysis']);
 const live = (state, pid) => (state.players[pid]?.activeSlots || []).map((s, slotIndex) => ({ s, slotIndex })).filter(({ s }) => s && !s.isDefeated);
 const byMp = (a, b) => a.s.mp - b.s.mp;
 

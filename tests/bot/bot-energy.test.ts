@@ -57,7 +57,7 @@ describe('getBotPaymentCost: Delluft parking fee', () => {
 		const st = table({ place: 'place_delluft' });
 		expect(getBotPaymentCost(st, BOT, 'place_the_gym', 'place')).toBe(4);
 		expect(getBotPaymentCost(st, BOT, 'snelle_jensen', 'snelle')).toBe(2);
-		expect(getBotPaymentCost(st, BOT, 'ability_ronald_chef_strategic_insight', 'ability')).toBe(3);
+		expect(getBotPaymentCost(st, BOT, 'ability_tactician_mp_manipulation', 'ability')).toBe(3);
 	});
 });
 
@@ -145,7 +145,7 @@ describe('chooseSummon', () => {
 
 describe('shouldUseAbility', () => {
 	const profile = (st) => getBotProfile(st, BOT);
-	const chef = ['mosje_ronald_chef', null]; // Strategic Insight: 2 Energy
+	const chef = ['mosje_tactician', null]; // MP Manipulation: 2 Energy (was Ronald's Strategic Insight before 71-04)
 	it('a printed cost that fits is not enough: cost + Delluft fee must fit', () => {
 		const at = (energy, place) => { const st = table({ energy, place, field: chef }); return shouldUseAbility(st, BOT, 0, profile(st)); };
 		expect(at(2, null)).toBe(true);

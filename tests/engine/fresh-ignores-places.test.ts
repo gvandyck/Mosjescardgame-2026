@@ -61,14 +61,15 @@ const MOSJE_PLACES = [
 // Handled by dedicated cases below: Synergy Chamber acts on Mosjes; the other three only
 // change what a card costs / draws for a player, so no Mosje channel moves.
 const SPECIAL = ["place_synergy_chamber"];
-const PLAYER_LEVEL = ["place_coerts_caravan", "place_welloe_graveyard", "place_digital_gaming_stop"];
+// Ronnie's Kitchen acts on food Piecie gains only (getFoodBonus, fresh-checked in starter-ronald-food.test.ts), not on a probe channel.
+const PLAYER_LEVEL = ["place_coerts_caravan", "place_welloe_graveyard", "place_digital_gaming_stop", "place_ronnies_kitchen"];
 
 describe("fresh Mosjes ignore Places (RULE-08)", () => {
   beforeEach(() => { vi.spyOn(Math, "random").mockReturnValue(0.5); }); // start-of-turn triggers of some Mosjes roll dice
   afterEach(() => vi.restoreAllMocks());
 
-  it("the three groups cover exactly the 20 Places", () => {
-    expect(ALL).toHaveLength(20);
+  it("the three groups cover exactly the 21 Places", () => {
+    expect(ALL).toHaveLength(21);
     expect([...MOSJE_PLACES, ...SPECIAL, ...PLAYER_LEVEL].sort()).toEqual([...ALL].sort());
   });
 

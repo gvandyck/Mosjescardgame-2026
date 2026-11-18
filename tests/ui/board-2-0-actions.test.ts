@@ -25,7 +25,7 @@ const stacks = (f: Record<string, string | null>) => {
 	for (const id of ['PHYSICAL', 'DIGITAL', 'CREATIVE']) o[id] = { deck: [], faceUp: f[id] ?? null, tokens: 0, discard: [] };
 	return o;
 };
-const chef = () => byName(/Master Chef/); // activated ability, 2 Energy
+const chef = () => byName(/The Tactician/); // activated ability, 2 Energy (Ronald, The Master Chef is passive since 71-04)
 const jeffrey = () => byName(/Strongman/); // passive: no Ability chip
 const board = (mine: any[], theirs: any[], over: any = {}) => makeEngineState({
 	questStacks: stacks({ PHYSICAL: 'quest_tough_it_out' }),
