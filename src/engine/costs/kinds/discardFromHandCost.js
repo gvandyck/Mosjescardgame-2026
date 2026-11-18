@@ -2,7 +2,7 @@
 // type. choice.handCardIds says which (default: the first matches). ctx.excludeCardId = the card being paid for,
 // never a candidate. A chosen card that does not qualify is refused (T-70-07).
 import { PIECIES } from '../../../data/piecies.js';
-import { toGraveyardEntry } from '../../graveyardUtils.js';
+import { discardFromHand } from '../../hand/discardFromHand.js';
 
 const TAGS = Object.fromEntries(PIECIES.map(p => [p.id, p.tag]));
 
@@ -36,10 +36,8 @@ export const discardFromHandCost = {
 		return typeof r === 'string' ? r : true;
 	},
 	pay(ctx, cost, choice) {
-		const player = ctx.state.players[ctx.playerId];
 		const idx = pick(ctx, cost, choice);
-		const gone = idx.map(i => player.hand[i]);
-		player.hand = player.hand.filter((_, i) => !idx.includes(i));
-		player.graveyard = [...(player.graveyard || []), ...gone.map(c => toGraveyardEntry(c.cardId, 'discarded'))];
+		// The one hand discard (fires Discarded), in hand order; each removal shifts the later indexes down by one.
+		[...idx].sort((a, b) => a - b).forEach((i, n) => discardFromHand(ctx.state, ctx.playerId, i - n, { byPlayerId: ctx.playerId }));
 	},
 };

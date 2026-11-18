@@ -1017,6 +1017,7 @@ export const PIECIES = [
     stays: null,
     levelGate: null,
     needsText: "a Martin or a West",
+    needs: [{ kind: 'fieldFriend', friends: ['Martin', 'West'] }],
     limitPerDeck: 2,
     givesMP: false,
     piecieKind: "trick",

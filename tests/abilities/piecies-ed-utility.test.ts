@@ -72,16 +72,16 @@ describe('Boosterpackkie', () => {
     expect(mp(s)).toBe(50);
     expect(random).not.toHaveBeenCalled();
   });
-  it('with a Coert: that Coert +10, a 5-6 draws 1 more, a 1-4 does not', () => {
+  it('with a Coert: no MP (2.1), a 5-6 draws 1 more, a 1-4 does not', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0.99);
     const hi = run(board('piecie_boosterpackkie', { second: slotOf('mosje_coert_kasteluck', 40) }));
     expect(hi.players.player_1.hand).toHaveLength(2);
-    expect(mp(hi, 1)).toBe(50);
+    expect(mp(hi, 1)).toBe(40);
     expect(mp(hi, 0)).toBe(50);
     vi.spyOn(Math, 'random').mockReturnValue(0);
     const lo = run(board('piecie_boosterpackkie', { second: slotOf('mosje_coert_kasteluck', 40) }));
     expect(lo.players.player_1.hand).toHaveLength(1);
-    expect(mp(lo, 1)).toBe(50);
+    expect(mp(lo, 1)).toBe(40);
   });
 });
 
@@ -115,34 +115,34 @@ describe('Zie je die Dingetjes', () => {
 });
 
 describe('Stookerino', () => {
+  // 2.1: the OPPONENT picks the card they discard; no MP for anyone; with a Binti on your field you look at the hand first.
   const stook = (foeHand: string[], o: any = {}) => {
     let s = run(board('piecie_stookerino', { foeHand: cards(...foeHand), ...o }));
     if (s.pendingChoice) s = answer(s, (opts) => opts[0]);
     return s;
   };
-  it('+10 per Energy of the discarded card (max 30), the card goes to the opponent discard pile', () => {
-    const two = stook(['piecie_chain_reaction', 'piecie_chain_reaction']); // Energy 2
-    expect(mp(two)).toBe(70);
-    expect(ids(two.players.player_2.hand)).toEqual(['piecie_chain_reaction']);
+  it('the card goes to the opponent discard pile, nobody gains MP', () => {
+    const two = stook(['piecie_chain_reaction', 'piecie_harde_didde']);
+    expect(mp(two)).toBe(50);
+    expect(ids(two.players.player_2.hand)).toEqual(['piecie_harde_didde']);
     expect(ids(two.players.player_2.graveyard)).toEqual(['piecie_chain_reaction']);
-    expect(mp(stook(['piecie_harde_didde']))).toBe(80); // Energy 4 -> max 30
-    expect(mp(stook(['piecie_boosterpackkie']))).toBe(50); // Energy 0
   });
-  it('the player picks which card; an empty hand does nothing', () => {
+  it('the opponent picks which card; an empty hand does nothing', () => {
     let s = run(board('piecie_stookerino', { foeHand: cards('piecie_pot_of_weed', 'piecie_harde_didde') }));
+    expect(s.pendingChoice.playerId).toBe('player_2');
     expect(s.pendingChoice.options).toHaveLength(2);
     s = answer(s, (o) => o.find((x: any) => x.cardId === 'piecie_harde_didde'));
-    expect(mp(s)).toBe(80);
+    expect(mp(s)).toBe(50);
+    expect(ids(s.players.player_2.graveyard)).toEqual(['piecie_harde_didde']);
     const empty = run(board('piecie_stookerino', { foeHand: [] }));
     expect(mp(empty)).toBe(50);
     expect(empty.pendingChoice).toBeUndefined();
   });
-  it('a Binti on your field gains 10 more (separately, or in the same gain when it is the chosen Mosje)', () => {
-    const other = stook(['piecie_chain_reaction'], { second: slotOf('mosje_binti', 30) });
-    expect(mp(other, 0)).toBe(70);
-    expect(mp(other, 1)).toBe(40);
-    const same = stook(['piecie_chain_reaction'], { own: slotOf('mosje_binti', 30), pick: { own_slot_index: 0 } });
-    expect(mp(same, 0)).toBe(60);
+  it('a Binti on your field: no MP either, the hand is revealed to you', () => {
+    const s = run(board('piecie_stookerino', { foeHand: cards('piecie_chain_reaction', 'piecie_harde_didde'), second: slotOf('mosje_binti', 30) }));
+    expect(s.pendingChoice.playerId).toBe('player_2');
+    expect(s.revealed.player_1[0].cardIds).toEqual(['piecie_chain_reaction', 'piecie_harde_didde']);
+    expect(mp(s, 1)).toBe(30);
   });
 });
 

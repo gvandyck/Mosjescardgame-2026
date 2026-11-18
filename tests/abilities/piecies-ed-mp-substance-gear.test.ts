@@ -166,7 +166,7 @@ describe('Substance Piecies', () => {
     expect(checkQuestCondition(swept, 'player_1', 0, quest).ok).toBe(true);
   });
 
-  it('Larry / Zegeltje: 1-2 -25 and discard 1, 3-4 +20, 5-6 +40 and draw 2', () => {
+  it('Larry / Zegeltje: 1-2 -25 (no discard, 2.1), 3-4 +20, 5-6 +40 and draw 2', () => {
     pushTestDice([3]);
     expect(mp(run(board('piecie_larry_zegeltje')))).toBe(70);
     pushTestDice([6]);
@@ -176,11 +176,9 @@ describe('Substance Piecies', () => {
     pushTestDice([1]);
     const low = run(board('piecie_larry_zegeltje', { hand: [{ cardId: 'piecie_affoe', type: 'PIECIE' }, { cardId: 'piecie_straffoe', type: 'PIECIE' }] }));
     expect(mp(low)).toBe(25);
-    expect(low.pendingChoice.playerId).toBe('player_1');
-    const done = resolvePendingChoice(low, low.pendingChoice.options[0]).state;
-    expect(done.players.player_1.hand.length).toBe(1);
-    expect(mp(done)).toBe(25); // the roll was not repeated
-    expect(done.players.player_1.graveyard.some((g: any) => g.cardId === 'piecie_affoe')).toBe(true);
+    expect(low.pendingChoice).toBeUndefined();
+    expect(low.players.player_1.hand.length).toBe(2);
+    expect(low.players.player_1.graveyard.some((g: any) => g.cardId === 'piecie_affoe')).toBe(false);
   });
 
   it('Bong Hit Demolition destroys the Place and draws 2', () => {

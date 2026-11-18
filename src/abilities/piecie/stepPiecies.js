@@ -13,6 +13,7 @@ export const effect_hawaii_pizza = stepCard('piecie_hawaii_pizza');
 export const effect_te_hard_gaan = stepCard('piecie_te_hard_gaan');
 export const effect_ronalds_fles_fireman = stepCard('piecie_ronalds_fles_fireman');
 export const effect_snoeiertje = stepCard('piecie_snoeiertje');
+export const effect_energy_surge = stepCard('piecie_energy_surge');
 export const effect_super_saiyan_mos = stepCard('piecie_super_saiyan_mos');
 export const effect_controller = stepCard('piecie_controller');
 export const effect_dancepad = stepCard('piecie_dancepad');

@@ -157,11 +157,13 @@ describe('Level 2+ gate and Only-if conditions', () => {
     }
   });
 
-  it('Those Eyelashes needs Martin/West, Battle Concert an Alyssa, Mosje Reborn a Welloe Mosje + free spot', () => {
+  it('Those Eyelashes needs Martin/West (as card data), Battle Concert an Alyssa, Mosje Reborn a Welloe Mosje + free spot', () => {
     const s = makePiecieState({ piecieId: 'piecie_those_eyelashes' });
-    expect(PIECIE_CONDITIONS.piecie_those_eyelashes(s, 'player_1')).not.toBe(true);
-    s.players.player_1.activeSlots[0].cardId = 'mosje_parkour_west';
-    expect(PIECIE_CONDITIONS.piecie_those_eyelashes(s, 'player_1')).toBe(true);
+    expect(PIECIE_CONDITIONS.piecie_those_eyelashes).toBeUndefined(); // the Need is data on the card now
+    expect(activatePiecie(s, 'player_1', 0).success).toBe(false);
+    s.players.player_1.activeSlots[0] = createMosjeSlot((MOSJES as any[]).find((m: any) => m.id === 'mosje_parkour_west'), { level: 1, mp: 50 });
+    s.players.player_1.energy = 6;
+    expect(activatePiecie(s, 'player_1', 0).success).toBe(true);
     expect(PIECIE_CONDITIONS.piecie_battle_concert(s, 'player_1')).not.toBe(true);
     s.players.player_1.activeSlots[0].cardId = 'mosje_alyssa_fissa';
     expect(PIECIE_CONDITIONS.piecie_battle_concert(s, 'player_1')).toBe(true);
@@ -175,13 +177,10 @@ describe('Level 2+ gate and Only-if conditions', () => {
     expect(PIECIE_CONDITIONS.piecie_call_of_welloes(s, 'player_1')).not.toBe(true);
   });
 
-  it('Shhh popo komt! needs 3 Mosjes; Shoettoe needs a Mosje at 20 MP or less', () => {
+  it('Shhh popo komt! needs 3 Mosjes; Kladje has no condition any more', () => {
     const s = makePiecieState({ piecieId: 'piecie_popo_komt' });
     expect(PIECIE_CONDITIONS.piecie_popo_komt(s, 'player_1')).not.toBe(true);
-    const sh = makePiecieState({ piecieId: 'piecie_energy_surge', own: { mp: 50 } });
-    expect(PIECIE_CONDITIONS.piecie_energy_surge(sh, 'player_1')).not.toBe(true);
-    const low = makePiecieState({ piecieId: 'piecie_energy_surge', own: { mp: 20 } });
-    expect(PIECIE_CONDITIONS.piecie_energy_surge(low, 'player_1')).toBe(true);
+    expect(PIECIE_CONDITIONS.piecie_energy_surge).toBeUndefined();
   });
 
   it('Huisbaas needs a substance Piecie on top of a discard pile', () => {

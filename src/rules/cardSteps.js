@@ -32,5 +32,6 @@ export const CARD_STEPS = {
 		{ do: 'gainMp', amount: 10 },
 		{ do: 'questDie', amount: 1, on: 'picked', onlyIf: { pickedFriend: ['Chris'] } },
 	],
+	piecie_energy_surge: [{ do: 'drawCards', count: 1 }], // Kladje (Discarded: draw 2, starter/kladjeDiscarded.js)
 	piecie_super_saiyan_mos: [{ do: 'power', amount: 30, duration: 'thisTurn' }],
 };

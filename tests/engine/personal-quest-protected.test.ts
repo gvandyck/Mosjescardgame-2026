@@ -10,7 +10,7 @@ import { discardFromHand } from '../../src/engine/hand/discardFromHand.js';
 // @ts-ignore JS module
 import { effect_jantje_jantje } from '../../src/abilities/piecie/attackRevealPiecies.js';
 // @ts-ignore JS module
-import { effect_stookerino } from '../../src/abilities/piecie/utilityDrawPiecies.js';
+import { effect_stookerino } from '../../src/abilities/piecie/starter/stookerino.js';
 // @ts-ignore JS module
 import { bintiDiscardChoice } from '../../src/abilities/mosje/bintiDiscardChoice.js';
 // @ts-ignore JS module
@@ -78,17 +78,18 @@ describe('Jantje Jantje (name a card, discard it from the opponent hand)', () =>
 
 describe('Stookerino (discard a chosen card from the opponent hand)', () => {
   it('the options skip the Personal Quest', () => {
-    const r = effect_stookerino(board([PQ, PIECIE]), 'player_1', { stookSlot: 0 });
+    const r = effect_stookerino(board([PQ, PIECIE]), 'player_1');
+    expect(r.needChoice.playerId).toBe('player_2');
     expect(r.needChoice.options.map((o: any) => o.cardId)).toEqual(['piecie_affoe']);
   });
   it('a forged pick of the Personal Quest discards nothing', () => {
     const s = board([PQ, PIECIE]);
-    s.players.player_1._pendingTargets = { stook_card: { label: 'Charge!', cardId: 'pq_charge' } };
-    const r = effect_stookerino(s, 'player_1', { stookSlot: 0 });
+    s.players.player_2._pendingTargets = { stook_discard: { label: 'Charge!', cardId: 'pq_charge' } };
+    const r = effect_stookerino(s, 'player_1', { stookSeen: true });
     expect(ids(r.players.player_2.hand)).toEqual(['pq_charge', 'piecie_affoe']);
   });
   it('with only a Personal Quest in hand there is no pause and nothing is discarded', () => {
-    const r = effect_stookerino(board([PQ]), 'player_1', { stookSlot: 0 });
+    const r = effect_stookerino(board([PQ]), 'player_1');
     expect(r.needChoice).toBeUndefined();
     expect(ids(r.players.player_2.hand)).toEqual(['pq_charge']);
   });

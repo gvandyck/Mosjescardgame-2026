@@ -7,7 +7,7 @@ import { revealCards } from "../../src/engine/hidden/revealCards.js";
 import { getRevealedFor } from "../../src/engine/hidden/getRevealedFor.js";
 import { fpsWestGuess } from "../../src/abilities/mosje/fpsWestGuess.js";
 import { fpsWestRevealHand } from "../../src/engine/mosje/fpsWestRevealHand.js";
-import { effect_stookerino } from "../../src/abilities/piecie/utilityDrawPiecies.js";
+import { effect_stookerino } from "../../src/abilities/piecie/starter/stookerino.js";
 import { effect_jantje_jantje } from "../../src/abilities/piecie/attackRevealPiecies.js";
 import { effect_chefs_special } from "../../src/abilities/piecie/mpPiecies.js";
 import { effect_those_eyelashes } from "../../src/abilities/piecie/utilityHandPiecies.js";
@@ -58,11 +58,17 @@ describe("the hidden-info cards reveal to the activator only", () => {
     expect(h.success).toBe(true);
     onlyViewer(h.state, "player_1");
   });
-  it("Stookerino: the hand is shown before the pick and the options come from it", () => {
-    const r = effect_stookerino(game("mosje_ming_natural"), "player_1");
-    expect(r.needChoice.playerId).toBe("player_1");
+  it("Stookerino: the opponent picks; with a Binti on the field the hand is shown to the activator only, without one nothing is", () => {
+    const st = game("mosje_binti");
+    const r = effect_stookerino(st, "player_1");
+    expect(r.needChoice.playerId).toBe("player_2");
     onlyViewer(r.state, "player_1");
+    expect(getRevealedFor(r.state, "player_1")[0].cardIds).toEqual(ids(OPP_HAND()));
     expect(r.needChoice.options.map((o) => o.cardId)).toEqual(ids(OPP_HAND()));
+    const plain = effect_stookerino(game("mosje_ming_natural"), "player_1");
+    expect(plain.needChoice.playerId).toBe("player_2");
+    expect(getRevealedFor(plain.state, "player_1")).toEqual([]);
+    expect(getRevealedFor(plain.state, "player_2")).toEqual([]);
   });
   it("Jantje Jantje...: shows the hand to the actor after naming", () => {
     const st = game("mosje_ming_natural", { _pendingTargets: { jantje_name: { label: "Kannetje Melk", cardId: "piecie_kannetje_melk" } } });

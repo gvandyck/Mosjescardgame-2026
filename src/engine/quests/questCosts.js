@@ -2,6 +2,7 @@
 // choice = { zone: 'ready' | 'hand', index }. Discards land in the owner's graveyard (discard pile rule).
 import { PIECIES } from '../../data/piecies.js';
 import { toGraveyardEntry } from '../graveyardUtils.js';
+import { discardFromHand } from '../hand/discardFromHand.js';
 import { isReadyPiecieSlot } from './isReadyPiecieSlot.js';
 
 const pieceTag = (cardId) => PIECIES.find(p => p.id === cardId)?.tag ?? null;
@@ -27,9 +28,10 @@ function discarding(accepts, zones = ['ready', 'hand']) {
 		},
 		pay(ctx, choice) {
 			const p = pick(ctx, choice);
-			if (p.zone === 'ready') ctx.player.piecieSlots[p.index] = null;
-			else ctx.player.hand.splice(p.index, 1);
-			ctx.player.graveyard.push(toGraveyardEntry(p.cardId, 'discarded'));
+			if (p.zone === 'ready') {
+				ctx.player.piecieSlots[p.index] = null;
+				ctx.player.graveyard.push(toGraveyardEntry(p.cardId, 'discarded'));
+			} else discardFromHand(ctx.state, ctx.playerId, p.index, { byPlayerId: ctx.playerId }); // fires Discarded
 			ctx.discarded = [...(ctx.discarded || []), p.cardId];
 		},
 	};

@@ -2,6 +2,7 @@
 // discarding a Dingetje (hand, or a READY placed one). Level / MP / board conditions are not trait requirements.
 import { toGraveyardEntry } from '../graveyardUtils.js';
 import { isReadyPiecieSlot } from './isReadyPiecieSlot.js';
+import { discardFromHand } from '../hand/discardFromHand.js';
 
 const DINGETJE = 'piecie_dingetje_toch';
 const TRAIT_CONDITIONS = new Set(['strength_2', 'technical_2', 'social_2']);
@@ -21,7 +22,7 @@ export function dingetjeForTrait(state, playerId, quest, choice) {
 // Discard that Dingetje from the (cloned) state.
 export function discardDingetje(state, playerId, { zone, index }) {
 	const p = state.players[playerId];
-	if (zone === 'hand') p.hand.splice(index, 1);
-	else p.piecieSlots[index] = null;
+	if (zone === 'hand') return void discardFromHand(state, playerId, index, { byPlayerId: playerId }); // fires Discarded
+	p.piecieSlots[index] = null;
 	p.graveyard = [...(p.graveyard || []), toGraveyardEntry(DINGETJE, 'discarded')];
 }

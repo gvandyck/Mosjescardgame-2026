@@ -52,5 +52,3 @@ export function effect_warm_kannetje_melk(gameState, playerId) {
 	return drawFromEffect(next, playerId, 2);
 }
 
-// Shoettoe: only if one of your Mosjes has 20 MP or less (gate + target table): it gains 30 MP.
-export const effect_energy_surge = (s, pid) => gainOwnMosje(s, pid, 'piecie_energy_surge', () => 30);

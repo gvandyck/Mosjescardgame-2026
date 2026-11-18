@@ -3,6 +3,7 @@
 // Returns { ask, key, options, counts }: ask -> pause with options; counts -> the player discarded it (done on state).
 import { toGraveyardEntry } from '../../engine/graveyardUtils.js';
 import { isPiecieReady } from '../../engine/table/isPiecieReady.js';
+import { discardFromHand } from '../../engine/hand/discardFromHand.js';
 
 const DINGETJE = 'piecie_dingetje_toch';
 const KEY = 'gekke_dingetje';
@@ -20,8 +21,10 @@ export function dingetjeAsKatje(state, playerId, needed) {
 	}
 	delete me._pendingTargets[KEY];
 	if (!pick.use) return none;
-	if (inHand >= 0) me.hand.splice(inHand, 1);
-	else me.piecieSlots[placed] = null;
-	me.graveyard = [...(me.graveyard || []), toGraveyardEntry(DINGETJE, 'discarded')];
+	if (inHand >= 0) discardFromHand(state, playerId, inHand, { byPlayerId: playerId }); // fires Discarded
+	else {
+		me.piecieSlots[placed] = null;
+		me.graveyard = [...(me.graveyard || []), toGraveyardEntry(DINGETJE, 'discarded')];
+	}
 	return { ask: false, counts: true };
 }

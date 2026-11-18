@@ -128,7 +128,7 @@ describe('Mosje Reborn and Call of the Welloes', () => {
 
 describe('Dingetje toch?!', () => {
   const DING = 'piecie_dingetje_toch';
-  const ctx = (p: any, turn = 5) => ({ state: { turnNumber: turn }, player: p });
+  const ctx = (p: any, turn = 5) => ({ state: { turnNumber: turn, players: { player_1: p } }, playerId: 'player_1', player: p });
   const player = (hand: any[], slots: any[] = []) => ({ hand, piecieSlots: slots, graveyard: [] as any[] });
   it('pays a food / substance / Snelle cost from the hand and leaves play', () => {
     const p = player([card(DING)]);

@@ -224,15 +224,15 @@ describe('Boosterpackkie', () => {
     expect(result.players.player_1.hand).toHaveLength(1);
   });
 
-  it('grants +10 MP (95 + 10 levels up, 2.0) with a COERT-tagged Mosje', () => {
+  it('grants no MP with a Coert (2.1 text: draw only)', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0);
     const result = effect_boosterpackkie(
       makeState({ cardId: 'mosje_coert_kasteluck', mp: 95 }),
       'player_1',
     );
 
-    expect(result.players.player_1.activeSlots[0].mp).toBe(10);
-    expect(result.players.player_1.activeSlots[0].level).toBe(2);
+    expect(result.players.player_1.activeSlots[0].mp).toBe(95);
+    expect(result.players.player_1.activeSlots[0].level).toBe(1);
   });
 
   it('does not grant MP without a COERT-tagged Mosje', () => {
@@ -241,7 +241,7 @@ describe('Boosterpackkie', () => {
     expect(result.players.player_1.activeSlots[0].mp).toBe(50);
   });
 
-  it('grants +10 MP to the qualifying COERT Mosje instead of an unrelated first slot', () => {
+  it('grants no MP to the Coert or to anyone else (2.1 text)', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0);
     const result = effect_boosterpackkie(
       makeState({
@@ -254,7 +254,7 @@ describe('Boosterpackkie', () => {
     );
 
     expect(result.players.player_1.activeSlots[0].mp).toBe(40);
-    expect(result.players.player_1.activeSlots[1].mp).toBe(60);
+    expect(result.players.player_1.activeSlots[1].mp).toBe(50);
   });
 });
 

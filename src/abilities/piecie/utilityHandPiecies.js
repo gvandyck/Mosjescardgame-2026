@@ -3,10 +3,7 @@
 import { isFallenMosje } from '../../engine/pile/isFallenMosje.js';
 import { turnLockKey } from '../../engine/hand/turnLockKey.js';
 import { cloneState } from './cloneState.js';
-import { pieceDef } from './pieceDef.js';
-import { gainFromPiecie } from './gainFromPiecie.js';
-import { discardChoice } from './discardChoice.js';
-import { resolvePiecieOwnSlot } from './resolvePiecieOwnSlot.js';
+import { opponentDiscardChoice } from './opponentDiscardChoice.js';
 
 // TemPiecie: pause over the discard pile; the card comes to the hand with lockedTurn (place / play / summon refused
 // this turn - findPlayableHandIndex in every play path). An empty pile does nothing.
@@ -29,15 +26,13 @@ export function effect_tempiecie(gameState, playerId) {
 	return state;
 }
 
-// Those Eyelashes Tho... (Martin or West on your field - activation gate): the opponent discards 1 card of their
-// choice (they pick), one of your Mosjes gains 20 MP, and the opponent can't play Snelle this turn.
-export function effect_those_eyelashes(gameState, playerId, ctx = {}) {
+// Those Eyelashes Tho... (Needs a Martin or a West, data on the card): the opponent discards 1 card of their choice
+// (never a Personal Quest) and can't play Snelle this turn. No MP (2.1 text).
+export function effect_those_eyelashes(gameState, playerId) {
 	const state = cloneState(gameState);
-	const si = ctx.eyeSlot ?? resolvePiecieOwnSlot(state, playerId, 'piecie_those_eyelashes');
 	const oppId = Object.keys(state.players).find(id => id !== playerId);
-	const discarded = discardChoice(state, oppId, 'eyelash_discard', { eyeSlot: si });
+	const discarded = opponentDiscardChoice(state, oppId, playerId, 'eyelash_discard', {});
 	if (discarded.needChoice) return discarded;
-	const next = si >= 0 ? gainFromPiecie(discarded, playerId, si, 20, pieceDef('piecie_those_eyelashes')) : discarded;
-	next._snelleBlocked = oppId; // cleared when the opponent's turn starts
-	return next;
+	discarded._snelleBlocked = oppId; // cleared when the opponent's turn starts
+	return discarded;
 }

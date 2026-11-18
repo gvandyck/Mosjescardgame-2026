@@ -3,6 +3,7 @@
 // so paid choices (Energy, discards) may mutate ctx.player. 56-04 adds onWin / onFail / jab to this table.
 import { PIECIES } from '../../data/piecies.js';
 import { toGraveyardEntry } from '../graveyardUtils.js';
+import { discardFromHand } from '../hand/discardFromHand.js';
 import { isNamedMosje } from './isNamedMosje.js';
 import { drawFromEffect } from '../turn/drawFromEffect.js';
 import { reorderDeckTop } from './reorderDeckTop.js';
@@ -41,11 +42,10 @@ export const QUEST_EXTRAS = {
 		},
 	},
 	quest_strategy_puzzle: {
-		extraDice({ player }, dieChoices) {
+		extraDice({ state, playerId, player }, dieChoices) {
 			const i = dieChoices.discardHandIndex;
 			if (!Number.isInteger(i) || !player.hand?.[i]) return 0;
-			const [card] = player.hand.splice(i, 1);
-			player.graveyard.push(toGraveyardEntry(card.cardId, 'discarded'));
+			discardFromHand(state, playerId, i, { byPlayerId: playerId }); // fires Discarded
 			return 1;
 		},
 	},
@@ -60,8 +60,7 @@ export const QUEST_EXTRAS = {
 			const i = choices.vraagAadDiscardHandIndex;
 			const player = s.players[playerId];
 			if (!Number.isInteger(i) || !player.hand[i]) return { s, base: null };
-			const [card] = player.hand.splice(i, 1);
-			player.graveyard.push(toGraveyardEntry(card.cardId, 'discarded'));
+			discardFromHand(s, playerId, i, { byPlayerId: playerId }); // fires Discarded
 			return { s, base: 10 };
 		},
 	},

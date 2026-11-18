@@ -359,14 +359,14 @@ describe('Utility draw rest', () => {
     expect(s.players.player_1.hand).toHaveLength(2);
   });
 
-  it('Those Eyelashes Tho...: the opponent chooses the discard, +20 for yours, no opponent Snelle this turn', () => {
+  it('Those Eyelashes Tho...: the opponent chooses the discard, no MP (2.1), no opponent Snelle this turn', () => {
     const s0 = board('piecie_those_eyelashes', { second: slotOf('mosje_martin_driver', 30), foeHand: cards('piecie_affoe', 'piecie_straffoe') });
     let s = run(s0);
     expect(s.pendingChoice.playerId).toBe('player_2');
     s = answer(s, (o) => o.find((x: any) => x.cardId === 'piecie_straffoe'));
     expect(hand(s, 'player_2')).toEqual(['piecie_affoe']);
     expect(s.players.player_2.graveyard.map((g: any) => g.cardId)).toEqual(['piecie_straffoe']);
-    expect(mp(s)).toBe(70);
+    expect(mp(s)).toBe(50);
     expect(s._snelleBlocked).toBe('player_2');
   });
 

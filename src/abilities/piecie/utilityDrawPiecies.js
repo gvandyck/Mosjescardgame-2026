@@ -1,30 +1,25 @@
 // utilityDrawPiecies - Card List 2.0 Utility "draw / look" Piecies (Example-Deck cards). Effects: (state, playerId, ctx).
 // Pauses (return { state, needChoice }): Zie je die Dingetjes (pick for hand, then the order of the rest) and
-// Stookerino (which card of the opponent's hand to discard). The answers live in the chooser's _pendingTargets.
+// Bagga of Greed (which card to discard). The answers live in the chooser's _pendingTargets. Stookerino: starter/stookerino.js.
 import { rollDie } from '../../engine/deckEngine.js';
 import { drawFromEffect } from '../../engine/turn/drawFromEffect.js';
 import { toGraveyardEntry } from '../../engine/graveyardUtils.js';
-import { getCardEnergyCost } from '../../engine/energy/getCardEnergyCost.js';
-import { findTagSlot } from '../../engine/targets/findTagSlot.js';
+import { friendSlotsOnField } from '../../engine/friends/friendSlotsOnField.js';
 import { cloneState } from './cloneState.js';
 import { pieceDef } from './pieceDef.js';
 import { gainFromPiecie } from './gainFromPiecie.js';
 import { resolvePiecieOwnSlot } from './resolvePiecieOwnSlot.js';
-import { revealCards } from '../../engine/hidden/revealCards.js';
 import { discardChoice } from './discardChoice.js';
-import { opponentPickableHand } from '../../engine/hand/opponentPickableHand.js';
-import { discardFromHand } from '../../engine/hand/discardFromHand.js';
 
 const nameOf = (cardId) => toGraveyardEntry(cardId, 'x').name;
 // One option per distinct cardId (the first copy's position).
 const distinct = (cards) => cards.map((c, index) => ({ label: nameOf(c.cardId), index, cardId: c.cardId }))
 	.filter((o, i, all) => all.findIndex(x => x.cardId === o.cardId) === i);
 
+// Boosterpackkie: draw 1; with a Coert (FPS Coert counts) on your field roll a die: 5-6 draws 1 more. No MP (2.1 text).
 export function effect_boosterpackkie(gameState, playerId) {
-	let state = drawFromEffect(cloneState(gameState), playerId, 1);
-	const si = findTagSlot(state.players[playerId], 'COERT');
-	if (si < 0) return state;
-	state = gainFromPiecie(state, playerId, si, 10, pieceDef('piecie_boosterpackkie'));
+	const state = drawFromEffect(cloneState(gameState), playerId, 1);
+	if (!friendSlotsOnField(state, playerId, ['Coert']).length) return state;
 	return rollDie(6) >= 5 ? drawFromEffect(state, playerId, 1) : state;
 }
 
@@ -50,33 +45,6 @@ export function effect_zie_je_die_dingetjes(gameState, playerId) {
 	delete player._pendingTargets.zie_pick;
 	delete player._pendingTargets.zie_top;
 	return state;
-}
-
-// Stookerino: discard a card of your choice from the opponent's hand; one of your Mosjes gains 10 per Energy it
-// cost (max 30), a Binti on your field +10 more (in the same gain when it is the chosen Mosje).
-export function effect_stookerino(gameState, playerId, ctx = {}) {
-	let state = cloneState(gameState);
-	const me = state.players[playerId];
-	const oppId = Object.keys(state.players).find(id => id !== playerId);
-	const opp = state.players[oppId];
-	const pickable = opp ? opponentPickableHand(opp.hand).map(i => opp.hand[i]) : []; // Personal Quests are safe (D-06)
-	if (!pickable.length) return state;
-	const si = ctx.stookSlot ?? resolvePiecieOwnSlot(state, playerId, 'piecie_stookerino');
-	const pick = me._pendingTargets?.stook_card;
-	if (pick === undefined) {
-		revealCards(state, playerId, 'piecie_stookerino', opp.hand.map(c => c.cardId)); // the card shows the hand before the pick
-		const options = distinct(pickable).map(({ label, cardId }) => ({ label, cardId }));
-		return { state, needChoice: { playerId, choiceKind: 'handCard', key: 'stook_card', options, prompt: "Discard a card from your opponent's hand", ctx: { stookSlot: si } } };
-	}
-	delete me._pendingTargets.stook_card;
-	const at = opp.hand.findIndex(c => c.cardId === pick.cardId);
-	const card = at < 0 ? null : discardFromHand(state, oppId, at, { byPlayerId: playerId });
-	if (!card) return state;
-	const def = pieceDef('piecie_stookerino');
-	const binti = findTagSlot(me, 'BINTI');
-	const main = Math.min(30, 10 * getCardEnergyCost(card.cardId)) + (binti >= 0 && binti === si ? 10 : 0);
-	if (si >= 0 && main > 0) state = gainFromPiecie(state, playerId, si, main, def);
-	return binti >= 0 && binti !== si ? gainFromPiecie(state, playerId, binti, 10, def) : state;
 }
 
 // Bagga of Greed: draw 2, then discard 1 card from your hand (a pause over the whole hand; the draw is not repeated).

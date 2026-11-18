@@ -26,10 +26,6 @@ export const PIECIE_CONDITIONS = {
 	piecie_keyboard: digital,
 	piecie_mouse: digital,
 	piecie_controller: digital,
-	piecie_energy_surge: (state, pid) => mosjes(state, pid).some(s => s.mp <= 20)
-		|| 'Only if one of your Mosjes has 20 MP or less',
-	piecie_those_eyelashes: (state, pid) => mosjes(state, pid).some(s => hasName(s, 'martin', 'west'))
-		|| 'Only if a Martin or a West is on your field',
 	piecie_battle_concert: (state, pid) => mosjes(state, pid).some(s => hasName(s, 'alyssa'))
 		|| 'Only if an Alyssa is on your field',
 	piecie_popo_komt: (state) => Object.keys(state.players).reduce((n, id) => n + mosjes(state, id).length, 0) >= 3

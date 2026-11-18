@@ -3,6 +3,7 @@
 import { rollDie, drawCards } from '../../engine/deckEngine.js';
 import { gainMP } from '../../engine/mpManager.js';
 import { toGraveyardEntry } from '../../engine/graveyardUtils.js';
+import { discardFromHand } from '../../engine/hand/discardFromHand.js';
 
 const KEY = 'cless_discard';
 
@@ -18,9 +19,7 @@ export const aznClessRiskReward = {
 				const options = owner.hand.map((c, i) => ({ label: toGraveyardEntry(c.cardId ?? c, 'discarded').name, handIndex: i }));
 				return { needChoice: { playerId: ctx.ownerId, choiceKind: 'handCard', key: KEY, options, ctx: { roll } } };
 			}
-			const [card] = owner.hand.splice(pick.handIndex, 1);
-			if (!Array.isArray(owner.graveyard)) owner.graveyard = [];
-			owner.graveyard.push(toGraveyardEntry(card.cardId ?? card, 'discarded'));
+			discardFromHand(state, ctx.ownerId, pick.handIndex, { byPlayerId: ctx.ownerId }); // fires Discarded
 			return state;
 		}
 		if (roll === 6) {

@@ -82,9 +82,12 @@ describe('MP section', () => {
     expect(s.players.player_1.hand).toHaveLength(2);
   });
 
-  it('Shoettoe: +30 on a Mosje at 20 MP or less, refused when none qualifies', () => {
-    expect(mp(run(board('piecie_energy_surge', { own: slotOf('mosje_coert_tech', 20) })))).toBe(50);
-    expect(attempt(board('piecie_energy_surge', { own: slotOf('mosje_coert_tech', 25) })).success).toBe(false);
+  it('Kladje (2.1): draws 1 for any MP, no MP and no condition', () => {
+    for (const startMp of [20, 25, 80]) {
+      const out = run(board('piecie_energy_surge', { own: slotOf('mosje_coert_tech', startMp) }));
+      expect(mp(out)).toBe(startMp);
+      expect(out.players.player_1.hand).toHaveLength(1);
+    }
   });
 });
 

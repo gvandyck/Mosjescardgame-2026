@@ -10,7 +10,6 @@ import { cloneState } from './cloneState.js';
 import { pieceDef } from './pieceDef.js';
 import { gainFromPiecie } from './gainFromPiecie.js';
 import { resolvePiecieOwnSlot } from './resolvePiecieOwnSlot.js';
-import { discardChoice } from './discardChoice.js';
 import { triggerPlaceDestroyedEffects } from '../placeEffects.js';
 
 const oppOf = (state, pid) => Object.keys(state.players).find(id => id !== pid) || null;
@@ -77,17 +76,13 @@ export function effect_tikker(gameState, playerId, ctx = {}) {
 	return gainFromPiecie(state, playerId, si, 40, pieceDef('piecie_tikker'));
 }
 
-// Larry / Zegeltje: roll for one Mosje: 1-2 loses 25 and you discard 1; 3-4 gains 20; 5-6 gains 40 and you draw 2.
-export function effect_larry_zegeltje(gameState, playerId, ctx = {}) {
-	let state = cloneState(gameState);
-	let roll = ctx.larryRoll;
-	if (roll === undefined) {
-		roll = rollDie(6);
-		if (roll <= 2) state = ownMosje(state, playerId, 'piecie_larry_zegeltje', 25, 0);
-		else if (roll <= 4) state = ownMosje(state, playerId, 'piecie_larry_zegeltje', 0, 20);
-		else state = drawFromEffect(ownMosje(state, playerId, 'piecie_larry_zegeltje', 0, 40), playerId, 2);
-	}
-	return roll <= 2 ? discardChoice(state, playerId, 'larry_discard', { larryRoll: roll }) : state;
+// Larry / Zegeltje: roll for one Mosje: 1-2 loses 25; 3-4 gains 20; 5-6 gains 40 and you draw 2 (no discard, 2.1 text).
+export function effect_larry_zegeltje(gameState, playerId) {
+	const state = cloneState(gameState);
+	const roll = rollDie(6);
+	if (roll <= 2) return ownMosje(state, playerId, 'piecie_larry_zegeltje', 25, 0);
+	if (roll <= 4) return ownMosje(state, playerId, 'piecie_larry_zegeltje', 0, 20);
+	return drawFromEffect(ownMosje(state, playerId, 'piecie_larry_zegeltje', 0, 40), playerId, 2);
 }
 
 export function effect_bong_hit_demolition(gameState, playerId) {
