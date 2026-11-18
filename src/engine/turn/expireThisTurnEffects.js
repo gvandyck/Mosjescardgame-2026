@@ -5,7 +5,8 @@ export function expireThisTurnEffects(state) {
 	for (const player of Object.values(state.players || {})) {
 		if (player === state.players?.[state.activePlayerId]) player.questExtraDice = 0; // Controller / gear: +1 die lasts this turn
 		if (player === state.players?.[state.activePlayerId]) {
-			delete player.rerollGrants; // Dubbele Dosis: an unused reroll ends with the turn
+			player.questEaseThisTurn = 0; // Zwoele Ming Power: an unused ease ends with the turn
+				delete player.rerollGrants; // Dubbele Dosis: an unused reroll ends with the turn
 			player.chainReactionFree = 0; // Chain Reaction: an unarmed / unused free activation ends with the turn
 			player.chainReactionOffer = 0;
 			player.mpAmplifierThisTurn = false; // MP Amplifier: an unused boost ends with the turn

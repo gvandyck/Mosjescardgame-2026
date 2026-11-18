@@ -16,4 +16,6 @@ export const effect_snoeiertje = stepCard('piecie_snoeiertje');
 export const effect_energy_surge = stepCard('piecie_energy_surge');
 export const effect_super_saiyan_mos = stepCard('piecie_super_saiyan_mos');
 export const effect_controller = stepCard('piecie_controller');
+export const effect_quest_prep = stepCard('piecie_quest_prep');
+export const effect_loaded_dice = stepCard('piecie_loaded_dice');
 export const effect_dancepad = stepCard('piecie_dancepad');

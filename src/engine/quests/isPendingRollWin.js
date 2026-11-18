@@ -6,5 +6,5 @@ import { isPersonalQuestWin } from '../personalQuests/isPersonalQuestWin.js';
 
 export function isPendingRollWin(pending, dice) {
 	if (pending?.kind === 'personal') return isPersonalQuestWin(pending.need, dice);
-	return isBandWin(getQuestDef(pending?.questId)?.band, dice);
+	return isBandWin(getQuestDef(pending?.questId)?.band, dice, pending?.ease || 0);
 }

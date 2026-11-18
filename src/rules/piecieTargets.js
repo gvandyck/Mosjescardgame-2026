@@ -37,6 +37,7 @@ export const PIECIE_TARGETS = {
 	piecie_quest_prep: [],
 	piecie_loaded_dice: [],
 	piecie_dikke_plaat: [],
+	piecie_zwoele_ming_power: [],
 	piecie_double_trigger: [],
 	piecie_dubbele_ding: [],
 	piecie_chain_reaction: [],

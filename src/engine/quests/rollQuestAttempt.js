@@ -63,16 +63,18 @@ function rollCore(state, playerId, { slotIndex, stackId, costChoice, dieChoices 
 		{ state: s, playerId, player, slot, slotIndex, quest, revealed: paid.revealed }, dieChoices) || 0;
 	const diceCount = getQuestDiceCount(s, playerId, slot, quest, { extra });
 	player.questExtraDice = 0;
+	const ease = player.questEaseThisTurn || 0; // Zwoele Ming Power: this roll uses it up
+	player.questEaseThisTurn = 0;
 	takeQuestDiceGrants(s, playerId, slot); // card die grants (71-02) count once, on this copy only
 	for (const g of player.rerollGrants || []) if (g.scope === 'ownQuest') g.forRoll = true; // Dubbele Dosis: reroll belongs to this Quest
 	placeSkiffaGrant(s, player, slot); // Skiffa: an Creative roller may reroll 1 die
 
 	const trained = quest.band === 'trained';
 	const dice = trained ? [] : rollQuestDice(diceCount, rng);
-	const win = trained ? true : isBandWin(quest.band, dice);
+	const win = trained ? true : isBandWin(quest.band, dice, ease);
 	return {
 		ok: true,
 		state: s,
-		pending: { playerId, slotIndex, stackId, questId, dice, diceCount: trained ? 0 : diceCount, win, revealed: paid.revealed || null, discardedCardIds: paid.discardedCardIds || [] },
+		pending: { playerId, slotIndex, stackId, questId, ease, dice, diceCount: trained ? 0 : diceCount, win, revealed: paid.revealed || null, discardedCardIds: paid.discardedCardIds || [] },
 	};
 }

@@ -146,7 +146,7 @@ describe('Stookerino', () => {
   });
 });
 
-describe('Dubbele Dosis', () => {
+describe('Dikke Plaat reroll pause (Dubbele Dosis no longer grants a reroll, 71-09)', () => {
   const q = getQuestDef('quest_tough_it_out');
   function withQuest(s: any) {
     const stacks: any = {};
@@ -159,7 +159,7 @@ describe('Dubbele Dosis', () => {
   const opts = { slotIndex: 0, stackId: q.stack };
 
   it('+1 die on the next Quest and one reroll at its own after-roll pause', () => {
-    const s = run(withQuest(board('piecie_quest_prep')));
+    const s = run(withQuest(board('piecie_dikke_plaat', { own: slotOf('mosje_alyssa_fissa') })));
     expect(s.players.player_1.questExtraDice).toBe(1);
     expect(s.players.player_1.rerollGrants).toHaveLength(1);
     const w = rollQuestAttempt(s, 'player_1', { ...opts, rng: () => 0.7, skipBeforeRoll: true });
@@ -175,7 +175,7 @@ describe('Dubbele Dosis', () => {
     expect(resolveQuestAttempt(r.state, undefined as any).ok).toBe(true);
   });
   it("the opponent's roll never offers the reroll; an unused grant ends with the turn or with that Quest", () => {
-    const s = run(withQuest(board('piecie_quest_prep')));
+    const s = run(withQuest(board('piecie_dikke_plaat', { own: slotOf('mosje_alyssa_fissa') })));
     expect(getEligibleReactions(s, 'player_1', ['afterQuestRoll'], { dice: [3] })).toEqual([]);
     expect(getEligibleReactions(s, 'player_1', ['afterOwnQuestRoll'], { dice: [3] })).toEqual(['piecieReroll:0']);
     expect(endTurn(s).players.player_1.rerollGrants).toBeUndefined();
@@ -184,7 +184,7 @@ describe('Dubbele Dosis', () => {
     expect(after.state.players.player_1.rerollGrants).toEqual([]);
   });
   it('never more than 6 dice', () => {
-    const s = withQuest(board('piecie_quest_prep'));
+    const s = withQuest(board('piecie_dikke_plaat', { own: slotOf('mosje_alyssa_fissa') }));
     s.players.player_1.questExtraDice = 5;
     const done = rollQuestAttempt(run(s), 'player_1', { ...opts, rng: () => 0.7, skipReactions: true });
     expect(done.pending.dice.length).toBe(6); // cap is 6 since 70-02

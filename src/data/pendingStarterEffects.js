@@ -5,7 +5,6 @@
 
 export const PENDING_STARTER_EFFECTS = [
   "effect_chriss_handdoek",
-  "effect_zwoele_ming_power",
   "effect_woonkamer_discord",
   "effect_youris_woonkamer",
   "effect_nieuwe_gimma",

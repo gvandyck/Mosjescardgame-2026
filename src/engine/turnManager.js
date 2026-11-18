@@ -61,6 +61,7 @@ import { MOSJE_ABILITY_RULES } from '../rules/mosjeAbilityRules.js';
 import { findPlayableHandIndex } from './hand/findPlayableHandIndex.js';
 import { drawFromEffect } from './turn/drawFromEffect.js';
 import { gainFromPiecie } from '../abilities/piecie/gainFromPiecie.js';
+import { friendSlotsOnField } from './friends/friendSlotsOnField.js';
 
 console.log('[ENGINE] turnManager.js loaded');
 
@@ -77,8 +78,8 @@ export function applyPerfectRhythmDraw(state, playerId, wasArmedBeforeActivation
   if (left <= 0) return state;
   player.perfectRhythmDraws = left - 1;
   state = drawFromEffect(state, playerId, 1);
-  // Chris, The BigStepper on the field: it also gains 10 MP each time.
-  const ddr = state.players[playerId].activeSlots.findIndex(s => s && !s.isDefeated && s.cardId === 'mosje_chris_ddr');
+  // A Chris on the field (the first one): it also gains 10 MP each time.
+  const ddr = friendSlotsOnField(state, playerId, ['Chris'])[0] ?? -1;
   if (ddr >= 0) state = gainFromPiecie(state, playerId, ddr, 10, PIECIES.find(c => c.id === 'piecie_perfect_rhythm'));
   console.log('[ABILITY] Perfect Rhythm: later Piecie activation counted');
   return state;

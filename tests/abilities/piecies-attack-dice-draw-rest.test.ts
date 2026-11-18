@@ -189,13 +189,10 @@ describe('Utility dice rest', () => {
     expect(findRerollGrant(s, 'player_1', false)).toBe(0);
   });
 
-  it('Loaded Dice: +1 die; the reroll only with a Jeffrey on the field', () => {
-    const plain = run(board('piecie_loaded_dice'));
-    expect(plain.players.player_1.questExtraDice).toBe(1);
-    expect(plain.players.player_1.rerollGrants || []).toEqual([]);
-    const jeff = run(board('piecie_loaded_dice', { own: slotOf('mosje_jeffrey') }));
-    expect(jeff.players.player_1.questExtraDice).toBe(1);
-    expect(findRerollGrant(jeff, 'player_1', true)).toBe(0);
+  it('Gekke Dobbel: a die grant (+1, a Jeffrey +2) for the next Quest roll, and never a reroll (71-09)', () => {
+    const s = run(board('piecie_loaded_dice', { own: slotOf('mosje_jeffrey') }));
+    expect(s.players.player_1.questDiceGrants).toEqual([expect.objectContaining({ amount: 1, lasts: 'thisTurn', friendAmount: { friends: ['Jeffrey'], amount: 2 } })]);
+    expect(s.players.player_1.rerollGrants || []).toEqual([]);
   });
 
   it('Dikke Plaat: reroll only with DJ 80/20 or Alyssa, Fissa Fissa!', () => {
@@ -206,7 +203,7 @@ describe('Utility dice rest', () => {
   });
 
   it('dice never go above 6', () => {
-    const s = run(board('piecie_loaded_dice', { own: slotOf('mosje_jeffrey') }));
+    const s = run(board('piecie_dikke_plaat', { own: slotOf('mosje_jeffrey') }));
     s.players.player_1.questExtraDice = 9;
     const slot = s.players.player_1.activeSlots[0];
     expect(getQuestDiceCount(s, 'player_1', slot, quest())).toBe(6); // cap is 6 since 70-02

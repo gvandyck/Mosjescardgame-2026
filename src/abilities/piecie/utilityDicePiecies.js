@@ -1,6 +1,6 @@
-// utilityDicePiecies - Card List 2.0 Utility dice Piecies. Dubbele Dosis / Loaded Dice / Dikke Plaat: +1 die on one
-// Quest this turn (getQuestDiceCount clamps at 6) and, with the named Mosje on the field, one reroll of a die of that
-// Quest at its after-roll pause (a grant tied to the next own Quest). TweedeKANs: one reroll of any Quest roll this turn.
+// utilityDicePiecies - Card List 2.0 Utility dice Piecies. Dikke Plaat: +1 die on one Quest this turn (getQuestDiceCount
+// clamps at 6) and, with DJ 80/20 or Alyssa, Fissa Fissa! on the field, one reroll of a die of that Quest at its
+// after-roll pause (a grant tied to the next own Quest). TweedeKANs: one reroll of any Quest roll this turn.
 import { rollDie } from '../../engine/deckEngine.js';
 import { loseMP } from '../../engine/mpManager.js';
 import { addRerollGrant } from '../../engine/quests/piecieRerollGrant.js';
@@ -21,8 +21,7 @@ function extraDie(gameState, playerId, rerollMosjes) {
 	return state;
 }
 
-export const effect_quest_prep = (gameState, playerId) => extraDie(gameState, playerId, null);
-export const effect_loaded_dice = (gameState, playerId) => extraDie(gameState, playerId, ['mosje_jeffrey']);
+// Dubbele Dosis and Gekke Dobbel are step cards now (rules/cardSteps.js, 71-09); Dikke Plaat stays here.
 export const effect_dikke_plaat = (gameState, playerId) => extraDie(gameState, playerId, ['mosje_dj_8020', 'mosje_alyssa_fissa']);
 
 export function effect_tweede_kans(gameState, playerId) {

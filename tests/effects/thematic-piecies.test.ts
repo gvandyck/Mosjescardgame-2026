@@ -162,10 +162,10 @@ describe('Loaded Dice and Dikke Plaat', () => {
     ['Alyssa, Fissa Fissa!', { cardId: 'mosje_alyssa_fissa' }],
   ];
   for (const [label, opts] of cases) {
-    it(`Loaded Dice gives exactly +1 die with ${label}`, () => {
+    it(`Gekke Dobbel is a die grant (+1, Jeffrey +2), never questExtraDice, with ${label}`, () => {
       const result = effect_loaded_dice(makeState(opts), 'player_1');
-      expect(result.players.player_1.questExtraDice).toBe(1);
-      expect(result.players.player_1.questPrepBonus).toBe(0);
+      expect(result.players.player_1.questExtraDice || 0).toBe(0);
+      expect(result.players.player_1.questDiceGrants).toEqual([expect.objectContaining({ amount: 1, friendAmount: { friends: ['Jeffrey'], amount: 2 } })]);
     });
     it(`Dikke Plaat gives exactly +1 die with ${label}`, () => {
       const result = effect_dikke_plaat(makeState(opts), 'player_1');

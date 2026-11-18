@@ -10,3 +10,4 @@ export * from './koksmes.js';
 export * from './rugbybal.js';
 export * from './hawaiishirt.js';
 export * from './stookerino.js';
+export * from './zwoeleMingPower.js';
