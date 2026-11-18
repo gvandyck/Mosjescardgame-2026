@@ -99,6 +99,8 @@ export function resolvePlaceEffect(gameState, triggerPhase, context = {}) {
 		case 'place_momentum_stabilizer':
 		case 'place_delluft':
 		case 'place_dierenasiel':
+		case 'place_woonkamer_discord': // Tech dice: questDiceSources
+		case 'place_nieuwe_gimma': // first Quest roll die: questDiceSources
 		case 'place_ronnies_kitchen': // food bonus: getFoodBonus; draw: ronniesKitchenDraw
 			return state;
 

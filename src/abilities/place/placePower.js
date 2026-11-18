@@ -1,5 +1,6 @@
 // placePowerBonus - the Power change the active Place gives one Mosje (Card List 2.0). Fresh Mosjes ignore Places.
 import { isFresh } from '../../engine/fresh/isFresh.js';
+import { isFriend } from '../../engine/friends/isFriend.js';
 import { PIECIES } from '../../data/piecies.js';
 
 const hasWord = (slot, word) => String(slot?.name || '').split(/[^A-Za-z]+/).includes(word);
@@ -15,7 +16,7 @@ export function placePowerBonus(state, slot, ownerId) {
 		case 'place_boxing_ring':
 			if (type === 'PHYSICAL') return hasWord(slot, 'Gandoe') ? 20 : 10;
 			return type === 'DIGITAL' || type === 'CREATIVE' ? -10 : 0;
-		case 'place_de_box': return ['Gandoe', 'Michelle', 'Tuk'].some(n => hasWord(slot, n)) ? 10 : 0;
+		case 'place_de_box': return isFriend(slot, ['Gandoe', 'Michelle', 'Tuk']) ? 10 : 0; // friends (D-05): DJ 80/20 is a Gandoe
 		case 'place_arcade': return type === 'PHYSICAL' ? -10 : 0;
 		case 'place_skiffa': return type === 'DIGITAL' ? -10 : 0;
 		case 'place_bank_chilling': return -10;

@@ -24,12 +24,12 @@ const game = (place, p1 = {}, p2 = {}, owner = "player_1") => makeEngineState({
 const mp = (s, pid, i) => s.players[pid].activeSlots[i].mp;
 
 describe("Turn-start Places (start of the turn player's turn only)", () => {
-  it("The Gym: non-Physical Mosjes of the turn player lose 10; Physical, opponents and fresh ones do not", () => {
+  it("The Gym (2.1 text): nobody loses MP at the start of a turn, Physical or not", () => {
     const s = game("place_the_gym",
       { activeSlots: [digital(), fighter(), digital({ entryProtected: true })] },
       { activeSlots: [digital()] });
     const n = startTurn(s);
-    expect(mp(n, "player_1", 0)).toBe(30);
+    expect(mp(n, "player_1", 0)).toBe(40);
     expect(mp(n, "player_1", 1)).toBe(40);
     expect(n.players.player_1.activeSlots[2].mp).toBe(40);
     expect(mp(n, "player_2", 0)).toBe(40);

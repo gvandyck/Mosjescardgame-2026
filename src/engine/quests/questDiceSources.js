@@ -2,17 +2,23 @@
 import { isFresh } from '../fresh/isFresh.js';
 import { ATTACHMENT_RULES } from '../../rules/attachmentRules.js';
 import { questDiceGrantTotal } from './questDiceGrantTotal.js';
+import { isFriend } from '../friends/isFriend.js';
 
 const hasWord = (slot, word) => String(slot?.name || '').split(/[^A-Za-z]+/).includes(word);
 
-function placeDice({ state, slot, quest }) {
+// live Digital Mosjes on the player's field (Woonkamer (Discord))
+const digitalCount = (state, playerId) => (state?.players?.[playerId]?.activeSlots || []).filter(s => s && !s.isDefeated && s.subtype === 'DIGITAL').length;
+
+function placeDice({ state, playerId, slot, quest }) {
 	if (isFresh(slot)) return 0;
 	const trait = quest?.rollTrait;
 	switch (state?.activePlace) {
 		case 'place_the_gym': return trait === 'strength' ? 1 : 0;
 		case 'place_arcade': return trait === 'technical' ? 1 : 0;
 		case 'place_de_box':
-			return trait === 'strength' && ['Gandoe', 'Michelle', 'Tuk'].some(n => hasWord(slot, n)) ? 1 : 0;
+			return trait === 'strength' && isFriend(slot, ['Gandoe', 'Michelle', 'Tuk']) ? 1 : 0;
+			case 'place_woonkamer_discord': return trait === 'technical' && digitalCount(state, playerId) >= 2 ? 1 : 0;
+			case 'place_nieuwe_gimma': return (state.questRollsThisTurn || 0) === 0 ? 1 : 0; // the first Quest roll of the turn
 		case 'place_tesla': return hasWord(slot, 'Coert') || hasWord(slot, 'Binti') ? 1 : 0;
 		default: return 0;
 	}

@@ -1,6 +1,6 @@
 // placeTurnQuestEffects - Obby 2.0 Places that act at turn start, on Quest results, on Skiffa rolls, on gear
 // activation and (Tesla) on the owner's field. Fresh Mosjes ignore Places. Power parts live in placePower.js.
-import { gainMP, loseMP } from '../../engine/mpManager.js';
+import { gainMP } from '../../engine/mpManager.js';
 import { isFresh } from '../../engine/fresh/isFresh.js';
 import { destroyActivePlace } from '../../engine/gameState.js';
 import { drawFromEffect } from '../../engine/turn/drawFromEffect.js';
@@ -9,17 +9,16 @@ import { djTurnKey } from '../mosje/canDjReroll.js';
 const live = (slot) => slot && !slot.isDefeated && !isFresh(slot);
 const isMichelle = (slot) => String(slot.cardId || '').toLowerCase().includes('michelle');
 
-// Start of `playerId`'s turn: The Gym / Bank Chilling / Eendjes Voeren act on that player's Mosjes only.
+// Start of `playerId`'s turn: Bank Chilling / Eendjes Voeren act on that player's Mosjes only.
 export function placeTurnStart(state, playerId) {
 	const place = state.activePlace;
-	if (!['place_the_gym', 'place_bank_chilling', 'place_eendjes_voeren'].includes(place)) return state;
+	if (!['place_bank_chilling', 'place_eendjes_voeren'].includes(place)) return state;
 	const owner = state.activePlacePlayedBy || playerId;
 	const count = state.players[playerId]?.activeSlots?.length || 0;
 	for (let i = 0; i < count; i++) {
 		const slot = state.players[playerId].activeSlots[i];
 		if (!live(slot)) continue;
-		if (place === 'place_the_gym' && slot.subtype !== 'PHYSICAL') state = loseMP(state, playerId, i, 10, 'PLACE', false, owner);
-		else if (place === 'place_bank_chilling' && (slot.traits?.social || 0) >= 2) state = gainMP(state, playerId, i, 10, 'PLACE');
+		if (place === 'place_bank_chilling' && (slot.traits?.social || 0) >= 2) state = gainMP(state, playerId, i, 10, 'PLACE');
 		else if (place === 'place_eendjes_voeren' && isMichelle(slot)) state = gainMP(state, playerId, i, 10, 'PLACE');
 	}
 	return state;

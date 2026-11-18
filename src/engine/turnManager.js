@@ -130,6 +130,7 @@ export function startTurn(gameState) {
 
   activePlayer.questsCompletedThisTurn = 0;
   activePlayer.questsAttemptedThisTurn = 0;
+  state.questRollsThisTurn = 0; // Nieuwe Gimma: first Quest roll of the turn
   activePlayer.hasRerolledDieThisTurn = false;
   activePlayer.pieciesPlayedThisTurn = 0;
   activePlayer.lastCardPlayedType = null;

@@ -18,7 +18,7 @@ import { isHolderTextActive } from "../../src/engine/synergy/isHolderTextActive.
 import { effect_momentum_factory } from "../../src/abilities/placeEffects.js";
 
 // The 20 Card List Places. Momentum Factory is a V4 leftover still in data (no Card List entry): tested apart below.
-// Phase 71: the 5 new 2.1 Places have no effect yet (PENDING_STARTER_EFFECTS), so they are not probed here until their handlers land.
+// Phase 71: Places with no effect yet (PENDING_STARTER_EFFECTS) are not probed here until their handlers land.
 const ALL = PLACES.filter((p) => !PENDING_STARTER_EFFECTS.includes(p.effectId)).map((p) => p.id).filter((id) => id !== "place_momentum_factory");
 const CAST = ["Gandoe", "Michelle", "Tuk", "Coert", "Ming"]; // Physical/Gandoe, Michelle, Creative Tuk, Digital Coert, Digital Ming
 const mosjeFor = (word) => byName(new RegExp(word));
@@ -56,20 +56,21 @@ const probeAll = (place, fresh) => CAST.map((w) => probe(place, w, fresh));
 const MOSJE_PLACES = [
   "place_the_gym", "place_bank_chilling", "place_quest_haven", "place_skiffa", "place_obby_1", "place_arcade",
   "place_zo_is_natuur", "place_the_void", "place_drain_zone", "place_momentum_stabilizer", "place_delluft",
-  "place_dierenasiel", "place_boxing_ring", "place_tesla", "place_eendjes_voeren", "place_de_box",
+  "place_dierenasiel", "place_boxing_ring", "place_tesla", "place_eendjes_voeren", "place_de_box", "place_nieuwe_gimma",
 ];
 // Handled by dedicated cases below: Synergy Chamber acts on Mosjes; the other three only
 // change what a card costs / draws for a player, so no Mosje channel moves.
 const SPECIAL = ["place_synergy_chamber"];
 // Ronnie's Kitchen acts on food Piecie gains only (getFoodBonus, fresh-checked in starter-ronald-food.test.ts), not on a probe channel.
-const PLAYER_LEVEL = ["place_coerts_caravan", "place_welloe_graveyard", "place_digital_gaming_stop", "place_ronnies_kitchen"];
+// Woonkamer (Discord) needs 2 Digital Mosjes on the field: the one-Mosje probe sees no change (fresh case: starter-places-a.test.ts).
+const PLAYER_LEVEL = ["place_coerts_caravan", "place_welloe_graveyard", "place_digital_gaming_stop", "place_ronnies_kitchen", "place_woonkamer_discord"];
 
 describe("fresh Mosjes ignore Places (RULE-08)", () => {
   beforeEach(() => { vi.spyOn(Math, "random").mockReturnValue(0.5); }); // start-of-turn triggers of some Mosjes roll dice
   afterEach(() => vi.restoreAllMocks());
 
-  it("the three groups cover exactly the 21 Places", () => {
-    expect(ALL).toHaveLength(21);
+  it("the three groups cover exactly the 23 Places", () => {
+    expect(ALL).toHaveLength(23);
     expect([...MOSJE_PLACES, ...SPECIAL, ...PLAYER_LEVEL].sort()).toEqual([...ALL].sort());
   });
 

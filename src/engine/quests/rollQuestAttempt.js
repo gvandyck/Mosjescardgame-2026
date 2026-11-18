@@ -62,6 +62,7 @@ function rollCore(state, playerId, { slotIndex, stackId, costChoice, dieChoices 
 	const extra = QUEST_EXTRAS[quest.id]?.extraDice?.(
 		{ state: s, playerId, player, slot, slotIndex, quest, revealed: paid.revealed }, dieChoices) || 0;
 	const diceCount = getQuestDiceCount(s, playerId, slot, quest, { extra });
+	s.questRollsThisTurn = (s.questRollsThisTurn || 0) + 1; // Nieuwe Gimma: counted on this copy only, after the dice
 	player.questExtraDice = 0;
 	const ease = player.questEaseThisTurn || 0; // Zwoele Ming Power: this roll uses it up
 	player.questEaseThisTurn = 0;

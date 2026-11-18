@@ -59,6 +59,7 @@ function rollCore(state, playerId, { cardId, slotIndex, choice = {}, rng = queue
 	// 3. Roll: a Quest roll, so every dice bonus, reroll and the 6-dice cap apply
 	const energyPaid = (def.pay || []).reduce((n, c) => n + (c.kind === 'energy' ? c.amount : c.kind === 'energyAny' ? (choice?.energy || 0) : 0), 0);
 	const diceCount = getPersonalQuestDice(s, playerId, slot, def, { energyPaid });
+	s.questRollsThisTurn = (s.questRollsThisTurn || 0) + 1; // Nieuwe Gimma: a Personal Quest roll is a Quest roll
 	player.questExtraDice = 0;
 	takeQuestDiceGrants(s, playerId, slot); // card die grants (71-02) count once, on this copy only
 	for (const g of player.rerollGrants || []) if (g.scope === 'ownQuest') g.forRoll = true; // Dubbele Dosis: reroll belongs to this roll
