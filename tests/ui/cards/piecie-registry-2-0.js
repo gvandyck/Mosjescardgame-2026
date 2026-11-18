@@ -2,9 +2,13 @@
  * piecie-registry-2-0.js - card-test-library entries for the Example-Deck Piecies (Obby 2.0, Phase 59).
  * Every expected number comes from the Card List Piecie tables (docs/obby-2.0), not from engine output.
  * Driver: tests/helpers/mosjeCardTest.js (the spec passes { mosje: piecie } as the entry id).
+ * The starter food, gear, attack and substance rows (71-20) live in piecie-registry-starter-*.js and are spread in at the end.
  * Plain targets: Ming Predictor (no Strength, no Resilient, passive-free), Michelle (Strength 2), Parkour West
  * (Strength 3, Resilient 2), Gandoe Wizard (a Gandoe, Strength 2). Opponent hand is pinned empty by the setup.
  */
+import { STARTER_FOOD_GEAR_ROWS } from './piecie-registry-starter-food-gear.js';
+import { STARTER_ATTACK_SUBSTANCE_ROWS } from './piecie-registry-starter-attack-substance.js';
+
 const MING = 'mosje_ming_predictor';
 const OPP40 = [{ id: MING, mp: 40 }];
 const on = (id, slot = 0) => [{ slot, id }];
@@ -12,16 +16,6 @@ const own = (id, mp = 20) => [{ id, mp }];
 
 export const PIECIE_REGISTRY = [
 	// -- MP Piecies ---------------------------------------------------------
-	{ piecie: 'piecie_kannetje_melk', deck: 'example', section: 'MP', cases: [{
-		name: '+25 MP',
-		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_kannetje_melk') },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_kannetje_melk' }, expect: { mp: { 'own.0': 45 }, energy: 3 },
-	}] },
-	{ piecie: 'piecie_broodje_doner', deck: 'example', section: 'MP', cases: [{
-		name: '+35 MP for 1 Energy',
-		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_broodje_doner'), energy: 3 },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_broodje_doner' }, expect: { mp: { 'own.0': 55 }, energy: 2 },
-	}] },
 	{ piecie: 'piecie_eendjes_voeren', deck: 'example', section: 'MP', cases: [
 		{ name: "Nature's Gift: Resilient below 2 stars -> +30",
 			setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_eendjes_voeren') },
@@ -29,27 +23,6 @@ export const PIECIE_REGISTRY = [
 		{ name: "Nature's Gift: Resilient 2 stars -> +40",
 			setup: { field: own('mosje_parkour_west'), oppField: OPP40, piecies: on('piecie_eendjes_voeren') },
 			trigger: { kind: 'activatePiecie', cardId: 'piecie_eendjes_voeren' }, expect: { mp: { 'own.0': 60 } } },
-	] },
-	{ piecie: 'piecie_protein_shake', deck: 'example', section: 'MP', cases: [
-		{ name: 'Strength 2 stars -> +25',
-			setup: { field: own('mosje_michelle'), oppField: OPP40, piecies: on('piecie_protein_shake') },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_protein_shake' }, expect: { mp: { 'own.0': 45 } } },
-		{ name: 'Strength 3 stars -> +35',
-			setup: { field: own('mosje_parkour_west'), oppField: OPP40, piecies: on('piecie_protein_shake') },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_protein_shake' }, expect: { mp: { 'own.0': 55 } } },
-		{ name: 'Strength 2 stars in the Boxing Ring -> +35',
-			setup: { field: own('mosje_michelle'), oppField: OPP40, piecies: on('piecie_protein_shake'), place: { id: 'place_boxing_ring', by: 'player_2' } },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_protein_shake' }, expect: { mp: { 'own.0': 55 } } },
-	] },
-	{ piecie: 'piecie_varkenspootjes', deck: 'example', section: 'MP', cases: [
-		{ name: 'a non-Binti Mosje loses 15',
-			setup: { field: own(MING, 30), oppField: OPP40, piecies: on('piecie_varkenspootjes'), energy: 3 },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_varkenspootjes', picks: [{ index: 0 }] },
-			expect: { mp: { 'own.0': 15, 'opp.0': 40 }, energy: 2 } },
-		{ name: 'a Binti gains 40',
-			setup: { field: own('mosje_binti', 20), oppField: OPP40, piecies: on('piecie_varkenspootjes'), energy: 3 },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_varkenspootjes', picks: [/Binti/] },
-			expect: { mp: { 'own.0': 60 } } },
 	] },
 	{ piecie: 'piecie_momentum_boost', deck: 'example', section: 'MP', cases: [
 		{ name: '+15 MP now',
@@ -90,33 +63,12 @@ export const PIECIE_REGISTRY = [
 		trigger: { kind: 'activatePiecie', cardId: 'piecie_tikker' },
 		expect: { mp: { 'own.0': 60 }, state: [['players.player_1.piecieSlots.0.stays', true], ['players.player_1.piecieSlots.0.blockedMosjeSlot', 0]] },
 	}] },
-	{ piecie: 'piecie_larry_zegeltje', deck: 'example', section: 'Substance', cases: [
-		{ name: 'roll 1-2: loses 25 and discards 1',
-			setup: { field: own(MING, 40), oppField: OPP40, piecies: on('piecie_larry_zegeltje'), abilityDice: [1], hand: ['piecie_affoe'] },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_larry_zegeltje' }, expect: { mp: { 'own.0': 15 }, handDelta: -1 } },
-		{ name: 'roll 3-4: gains 20',
-			setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_larry_zegeltje'), abilityDice: [3] },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_larry_zegeltje' }, expect: { mp: { 'own.0': 40 } } },
-		{ name: 'roll 5-6: gains 40 and draws 2',
-			setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_larry_zegeltje'), abilityDice: [6] },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_larry_zegeltje' }, expect: { mp: { 'own.0': 60 }, handDelta: 2 } },
-	] },
 	{ piecie: 'piecie_bong_hit_demolition', deck: 'example', section: 'Substance', cases: [{
 		name: 'destroys the Place and draws 2 (2 Energy)',
 		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_bong_hit_demolition'), place: { id: 'place_the_gym', by: 'player_2' }, energy: 3 },
 		trigger: { kind: 'activatePiecie', cardId: 'piecie_bong_hit_demolition' }, expect: { handDelta: 2, energy: 1, state: [['activePlace', null]] },
 	}] },
 	// -- Gear Piecies -------------------------------------------------------
-	{ piecie: 'piecie_keyboard', deck: 'example', section: 'Gear', cases: [{
-		name: 'with a Digital Mosje: +10 MP and draw 1',
-		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_keyboard') },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_keyboard' }, expect: { mp: { 'own.0': 30 }, handDelta: 1 },
-	}] },
-	{ piecie: 'piecie_controller', deck: 'example', section: 'Gear', cases: [{
-		name: 'with a Digital Mosje: +10 MP and +1 die on one Quest this turn',
-		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_controller') },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_controller' }, expect: { mp: { 'own.0': 30 }, state: [['players.player_1.questExtraDice', 1]] },
-	}] },
 	{ piecie: 'piecie_boxing_gloves', deck: 'example', section: 'Gear', cases: [
 		{ name: 'Strength 2 stars: +10 Power this turn (1 Energy)',
 			setup: { field: own('mosje_michelle'), oppField: OPP40, piecies: on('piecie_boxing_gloves'), energy: 3 },
@@ -128,22 +80,6 @@ export const PIECIE_REGISTRY = [
 			expect: { state: [['players.player_1.activeSlots.0.powerBoostThisTurn', 20]] } },
 	] },
 	// -- Attack Piecies (59-03) ----------------------------------------------
-	{ piecie: 'piecie_te_hard_gaan', deck: 'example', section: 'Attack', cases: [
-		{ name: '+20 Power this turn (2 Energy), the -10 MP is scheduled for the end of the turn',
-			setup: { field: own(MING, 30), oppField: OPP40, piecies: on('piecie_te_hard_gaan') },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_te_hard_gaan' },
-			expect: { energy: 1, mp: { 'own.0': 30 }, state: [['players.player_1.activeSlots.0.powerBoostThisTurn', 20], ['players.player_1.endOfTurnLosses.0.amount', 10]] } },
-		{ name: 'at the end of the turn it loses 10 MP',
-			setup: { field: own(MING, 30), oppField: OPP40, piecies: on('piecie_te_hard_gaan') },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_te_hard_gaan', then: { kind: 'turnEnd' } },
-			expect: { mp: { 'own.0': 20 } } },
-	] },
-	{ piecie: 'piecie_super_saiyan_mos', deck: 'example', section: 'Attack', cases: [{
-		name: '+30 Power this turn',
-		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_super_saiyan_mos') },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_super_saiyan_mos' },
-		expect: { mp: { 'own.0': 20 }, state: [['players.player_1.activeSlots.0.powerBoostThisTurn', 30]] },
-	}] },
 	{ piecie: 'piecie_momentum_diefje', deck: 'example', section: 'Attack', cases: [{
 		name: '+10 Power this turn and the +20 MP attack flag',
 		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_momentum_diefje') },
@@ -290,14 +226,6 @@ export const PIECIE_REGISTRY = [
 			expect: { energy: 6, state: [['activePlace', 'place_the_gym']] } },
 	] },
 	// -- MP / Substance / Gear / Pet rest + MP Amplifier, Synergy Field (59-05) ----------------------
-	{ piecie: 'piecie_ronald_kip', deck: 'example', section: 'MP', cases: [
-		{ name: 'alone: +50 MP (2 Energy)',
-			setup: { field: own(MING, 0), oppField: OPP40, piecies: on('piecie_ronald_kip') },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_ronald_kip' }, expect: { mp: { 'own.0': 50 }, energy: 1, handDelta: 0 } },
-		{ name: 'with Ronald, The Master Chef: +60 MP and draw 1',
-			setup: { field: [{ slot: 0, id: MING, mp: 0 }, { slot: 1, id: 'mosje_ronald_chef', mp: 20 }], oppField: OPP40, piecies: on('piecie_ronald_kip') },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_ronald_kip', picks: [{ index: 0 }] }, expect: { mp: { 'own.0': 60 }, handDelta: 1 } },
-	] },
 	{ piecie: 'piecie_chefs_special', deck: 'example', section: 'MP', cases: [
 		{ name: 'alone: +15 MP',
 			setup: { field: own(MING, 0), oppField: OPP40, piecies: on('piecie_chefs_special') },
@@ -338,20 +266,6 @@ export const PIECIE_REGISTRY = [
 		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_pot_of_weed') },
 		trigger: { kind: 'activatePiecie', cardId: 'piecie_pot_of_weed' }, expect: { handDelta: 2, energy: 2 },
 	}] },
-	{ piecie: 'piecie_mouse', deck: 'example', section: 'Gear', cases: [{
-		name: 'Digital gate: +10 MP, look at the top 2 of your deck and put the 2nd on top',
-		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_mouse'), deckTop: ['piecie_affoe', 'piecie_straffoe'] },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_mouse', picks: [/Your deck/, /Straffoe/] },
-		expect: { mp: { 'own.0': 30 }, handDelta: 0, state: [['players.player_1.deck.0.cardId', 'piecie_straffoe'], ['players.player_1.deck.1.cardId', 'piecie_affoe']] },
-	}] },
-	{ piecie: 'piecie_dumbbells', deck: 'example', section: 'Gear', cases: [
-		{ name: 'Strength 2 stars: +20 MP, no draw',
-			setup: { field: own('mosje_michelle'), oppField: OPP40, piecies: on('piecie_dumbbells') },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_dumbbells' }, expect: { mp: { 'own.0': 40 }, handDelta: 0 } },
-		{ name: 'Strength 3 stars: +20 MP and draw 1',
-			setup: { field: own('mosje_parkour_west'), oppField: OPP40, piecies: on('piecie_dumbbells') },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_dumbbells' }, expect: { mp: { 'own.0': 40 }, handDelta: 1 } },
-	] },
 	{ piecie: 'piecie_skipping_rope', deck: 'example', section: 'Gear', cases: [{
 		name: 'draw 1, and +1 die with a Strength 1 star Mosje',
 		setup: { field: own('mosje_michelle'), oppField: OPP40, piecies: on('piecie_skipping_rope') },
@@ -377,16 +291,6 @@ export const PIECIE_REGISTRY = [
 		expect: { state: [['players.player_1.piecieSlots.1.startGain.length', 2], ['players.player_1.piecieSlots.1.startGain.0.amount', 15]] },
 	}] },
 	// -- Attack rest, Utility dice rest and draw rest (59-06) ------------------
-	{ piecie: 'piecie_snoeiertje', deck: 'rest', section: 'Attack', cases: [{
-		name: '+10 Power now and a 10 MP loss queued for the end of the turn',
-		setup: { field: own(MING, 30), oppField: OPP40, piecies: on('piecie_snoeiertje') },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_snoeiertje' },
-		expect: { mp: { 'own.0': 30 }, energy: 3, state: [['players.player_1.activeSlots.0.powerBoostThisTurn', 10], ['players.player_1.endOfTurnLosses.0.amount', 10]] },
-	}, {
-		name: 'at the end of the turn the Mosje loses 10 MP',
-		setup: { field: own(MING, 30), oppField: OPP40, piecies: on('piecie_snoeiertje') },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_snoeiertje', then: { kind: 'turnEnd' } }, expect: { mp: { 'own.0': 20 } },
-	}] },
 	{ piecie: 'piecie_jantje_jantje', deck: 'rest', section: 'Attack', cases: [{
 		name: 'hit: name Affoe, the opponent discards it and your Mosje gets +20 Power',
 		setup: { field: own(MING, 40), oppField: OPP40, piecies: on('piecie_jantje_jantje'), oppHand: ['piecie_affoe', 'piecie_straffoe'] },
@@ -413,16 +317,6 @@ export const PIECIE_REGISTRY = [
 		setup: { field: own(MING, 30), oppField: OPP40, piecies: on('piecie_mp_hemorrhage') },
 		trigger: { kind: 'activatePiecie', cardId: 'piecie_mp_hemorrhage', then: { kind: 'turnEnd' } },
 		expect: { mp: { 'opp.0': 40 }, state: [['players.player_1.piecieSlots.0', null]] },
-	}] },
-	{ piecie: 'piecie_kleine_taks', deck: 'rest', section: 'Attack', cases: [{
-		name: 'Stays: two 10 MP losses queued on the chosen opponent Mosje',
-		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_kleine_taks') },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_kleine_taks' },
-		expect: { energy: 2, state: [['players.player_1.endOfTurnLosses.length', 2], ['players.player_1.piecieSlots.0.stays', true]] },
-	}, {
-		name: 'at the end of this turn the opponent Mosje loses 10 MP',
-		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_kleine_taks') },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_kleine_taks', then: { kind: 'turnEnd' } }, expect: { mp: { 'opp.0': 30 } },
 	}] },
 	{ piecie: 'piecie_tweede_kans', deck: 'rest', section: 'Utility', cases: [{
 		name: 'one reroll of any Quest roll this turn',
@@ -555,4 +449,7 @@ export const PIECIE_REGISTRY = [
 		trigger: { kind: 'activatePiecie', cardId: 'piecie_dingetje_toch' },
 		expect: { energy: 3, state: [['players.player_1.piecieSlots.0', null]] },
 	}] },
+	// -- Starter food, gear, attack and substance Piecies on the 2.1 text (71-20) ---------------------
+	...STARTER_FOOD_GEAR_ROWS,
+	...STARTER_ATTACK_SUBSTANCE_ROWS,
 ];

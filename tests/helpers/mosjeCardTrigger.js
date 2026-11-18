@@ -1,5 +1,5 @@
 // mosjeCardTrigger — fire a Mosje ability the way the Card List says, through the real UI where one exists.
-import { questViaUi, playCardFromHand, attackViaUi, getGameState } from '../ui/helpers.js';
+import { questViaUi, playCardFromHand, attackViaUi, getGameState, setEnergy } from '../ui/helpers.js';
 import { abilityByTap, activateByTap, beginQuestByTap, cancelSelection, chooseTray, tapOwnCard } from './boardTaps.js';
 import { answerModals } from './answerModals.js';
 import { QUESTS } from '../../src/data/quests.js';
@@ -30,6 +30,7 @@ export async function mosjeCardTrigger(page, entry, c) {
 			break;
 		case 'playFromHand': await playCardFromHand(page, t.cardId); await page.waitForTimeout(400); break;
 		case 'none': break; // Power-only cases: the board is read as laid out
+		case 'setEnergy': await setEnergy(page, t.player || 'player_1', t.n); break; // refill the pool mid-case (a later turn of the same case)
 		case 'turnStart': await boundary(page, 'start', t.player || 'player_1'); break;
 		case 'turnEnd': await boundary(page, 'end', t.player || 'player_1'); break;
 		case 'activatePiecie': await activateByTap(page, t.cardId, { force: true }); break; // a refusal case taps the dimmed chip: nothing is paid
