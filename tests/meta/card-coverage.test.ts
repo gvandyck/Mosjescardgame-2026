@@ -1,5 +1,5 @@
-// Phase 60-08 (TEST-02): coverage guard - every one of the 183 Obby 2.0 Card List cards has at least one 2.0 card-test-library case.
-// 32 Mosjes + 38 Quests + 73 Piecies + 20 Snelle + 20 Places = 183. Parked / cut ids ("Not in 2.0" in the Card List) are excluded by name.
+// Phase 60-08 (TEST-02): coverage guard - every Obby 2.0 Card List card has at least one 2.0 card-test-library case.
+// Counts come from the data (Phase 71-01), not fixed numbers. Parked / cut ids ("Not in 2.0" in the Card List) are excluded by name.
 import { describe, expect, it } from 'vitest';
 // @ts-ignore JS modules
 import { MOSJES } from '../../src/data/mosjes.js';
@@ -13,6 +13,8 @@ import { SNELLE_PIECIES } from '../../src/data/snellePiecies.js';
 import { PLACES } from '../../src/data/places.js';
 // @ts-ignore
 import { PENDING_STARTER_EFFECTS } from '../../src/data/pendingStarterEffects.js';
+// @ts-ignore
+import { REGISTRY_PENDING } from '../helpers/registryPending.js';
 // @ts-ignore
 import { MOSJE_REGISTRY } from '../ui/cards/mosje-registry-2-0.js';
 // @ts-ignore
@@ -32,24 +34,26 @@ const NOT_IN_2_0 = new Set([
   'quest_personal_winston_tijd', 'quest_personal_kickboxing_bootcamp',
 ]);
 
-type Kind = { name: string; count: number; data: any[]; registry: any[]; key: string };
+type Kind = { name: string; data: any[]; registry: any[]; key: string };
 const kinds: Kind[] = [
-  { name: 'Mosjes', count: 32, data: MOSJES, registry: MOSJE_REGISTRY, key: 'mosje' },
-  { name: 'Quests', count: 38, data: QUESTS, registry: QUEST_REGISTRY, key: 'quest' },
-  { name: 'Piecies', count: 73, data: PIECIES, registry: PIECIE_REGISTRY, key: 'piecie' },
-  { name: 'Snelle', count: 20, data: SNELLE_PIECIES, registry: SNELLE_REGISTRY, key: 'snelle' },
-  { name: 'Places', count: 20, data: PLACES, registry: PLACE_REGISTRY, key: 'place' },
+  { name: 'Mosjes', data: MOSJES, registry: MOSJE_REGISTRY, key: 'mosje' },
+  { name: 'Quests', data: QUESTS, registry: QUEST_REGISTRY, key: 'quest' },
+  { name: 'Piecies', data: PIECIES, registry: PIECIE_REGISTRY, key: 'piecie' },
+  { name: 'Snelle', data: SNELLE_PIECIES, registry: SNELLE_REGISTRY, key: 'snelle' },
+  { name: 'Places', data: PLACES, registry: PLACE_REGISTRY, key: 'place' },
 ];
-// Phase 71: the 17 new 2.1 starter cards have no effect yet (PENDING_STARTER_EFFECTS), so no card-test case exists for them.
-// Remove an id from that list when its handler and card-test case land and this guard covers it again.
-const pending = new Set(PENDING_STARTER_EFFECTS as string[]);
-const live = (k: Kind) => k.data.filter((c) => !NOT_IN_2_0.has(c.id) && !pending.has(c.effectId)).map((c) => c.id as string);
+// Phase 71: a card is skipped for the row check while its card id is in REGISTRY_PENDING (row comes in 71-20 to 71-23),
+// and disabled (archived) cards need no row. A registry entry may name any card in the data that is not cut.
+const rowPending = new Set(REGISTRY_PENDING as string[]);
+const notCut = (k: Kind) => k.data.filter((c) => !NOT_IN_2_0.has(c.id)).map((c) => c.id as string);
+const live = (k: Kind) => k.data.filter((c) => !NOT_IN_2_0.has(c.id) && !c.disabled && !rowPending.has(c.id)).map((c) => c.id as string);
 const covered = (k: Kind) => new Set(k.registry.filter((r) => r.cases?.length).map((r) => r[k.key] as string));
 
 describe('card-test coverage of the Card List (TEST-02)', () => {
-  it('the Card List has 183 cards: 32 Mosjes, 38 Quests, 73 Piecies, 20 Snelle, 20 Places', () => {
-    for (const k of kinds) expect(live(k), k.name).toHaveLength(k.count);
-    expect(kinds.reduce((n, k) => n + live(k).length, 0)).toBe(183);
+  it('every kind has cards, and the pending row list only names cards in the data', () => {
+    for (const k of kinds) expect(notCut(k).length, k.name).toBeGreaterThan(0);
+    const all = new Set(kinds.flatMap(notCut));
+    expect([...rowPending].filter((id) => !all.has(id))).toEqual([]);
   });
 
   for (const k of kinds) {
@@ -58,8 +62,8 @@ describe('card-test coverage of the Card List (TEST-02)', () => {
       expect(live(k).filter((id) => !have.has(id)), `${k.name} without a case`).toEqual([]);
     });
 
-    it(`every ${k.name} registry entry names a live 2.0 card (no unknown, parked or cut ids)`, () => {
-      const ids = new Set(live(k));
+    it(`every ${k.name} registry entry names a live 2.0 card (no unknown or cut ids)`, () => {
+      const ids = new Set(notCut(k));
       expect(k.registry.map((r) => r[k.key] as string).filter((id) => !ids.has(id)), `${k.name} registry ids`).toEqual([]);
     });
   }

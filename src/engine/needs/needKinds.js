@@ -7,6 +7,8 @@ import { mosjeLostMPSinceLastTurnStart } from './kinds/mosjeLostMPSinceLastTurnS
 import { mosjesOnField } from './kinds/mosjesOnField.js';
 import { handSizeOther } from './kinds/handSizeOther.js';
 import { opponentHandMax } from './kinds/opponentHandMax.js';
+import { fieldMosjeType } from './kinds/fieldMosjeType.js';
+import { fieldFriend } from './kinds/fieldFriend.js';
 
 export const NEED_KINDS = Object.freeze({
 	placeInPlay,
@@ -16,4 +18,6 @@ export const NEED_KINDS = Object.freeze({
 	mosjesOnField,
 	handSizeOther,
 	opponentHandMax,
+	fieldMosjeType,
+	fieldFriend,
 });

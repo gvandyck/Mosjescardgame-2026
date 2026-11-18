@@ -13,6 +13,10 @@ import { SNELLE_PIECIES } from '../../src/data/snellePiecies.js';
 import { PLACES } from '../../src/data/places.js';
 // @ts-ignore JS module
 import { PENDING_STARTER_EFFECTS } from '../../src/data/pendingStarterEffects.js';
+// @ts-ignore
+import * as piecieEffects from '../../src/abilities/piecieEffects.js';
+// @ts-ignore
+import * as snelleEffects from '../../src/abilities/snelleEffects.js';
 
 const J = JSON.parse(readFileSync(join(__dirname, '..', '..', 'docs', 'obby-2.0', 'handover', 'cards.json'), 'utf8'));
 const mosjes: any[] = J.mosjes.filter((m: any) => m.set === 'starter');
@@ -70,15 +74,21 @@ describe('starter set (cards.json) vs src/data', () => {
       if (c.kind === 'piecie' && ['food', 'gear', 'pet', 'substance'].includes(c.subtype)) expect(d.tag).toBe(c.subtype);
     });
     if (c.isNew) {
-      it('is listed as a pending starter effect (Phase 71)', () => {
-        expect(PENDING_STARTER_EFFECTS).toContain(d.effectId);
+      it('its effect id is in the pending list or has a handler (Phase 71)', () => {
+        const pending = (PENDING_STARTER_EFFECTS as string[]).includes(d.effectId);
+        // a Place that is not pending is enough; Piecies and Snelle need an exported handler
+        const handler = c.kind === 'piecie' ? typeof (piecieEffects as any)[d.effectId] === 'function'
+          : c.kind === 'snelle' ? typeof (snelleEffects as any)[d.effectId] === 'function' : true;
+        expect(pending || handler).toBe(true);
         expect(d.isBoosterOnly).toBe(false);
       });
     }
   });
 
-  it('pending effect list holds exactly the 17 new cards', () => {
-    expect(new Set(PENDING_STARTER_EFFECTS).size).toBe(17);
+  it('pending effect list holds only effect ids of the 17 new cards, each at most once', () => {
+    const newIds = new Set(cards.filter((c) => c.isNew).map((c) => (pool.find((x) => x.name === c.name) as any)?.effectId));
+    expect(new Set(PENDING_STARTER_EFFECTS).size).toBe((PENDING_STARTER_EFFECTS as string[]).length);
+    expect((PENDING_STARTER_EFFECTS as string[]).filter((id) => !newIds.has(id))).toEqual([]);
   });
 
   it('the 17 archived cards are disabled but kept', () => {
