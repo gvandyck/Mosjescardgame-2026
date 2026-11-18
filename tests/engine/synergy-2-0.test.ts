@@ -27,7 +27,6 @@ describe("isHolderTextActive: the five 2.0 pairs", () => {
   it.each([
     ["mosje_martin_historian", "mosje_cless_teacher"],
     ["mosje_martin_senor_west", "mosje_azn_cless"],
-    ["mosje_youri", "mosje_chris_ddr"],
     ["mosje_fps_west", "mosje_fps_coert"],
     ["mosje_binti", "mosje_coert_tech"],
   ])("%s works with %s and not without", (holder, partner) => {
@@ -52,9 +51,9 @@ describe("isHolderTextActive: the five 2.0 pairs", () => {
 describe("Synergy Chamber", () => {
   it("makes a holder work without its partner, for both players", () => {
     const s = makeState([slot("mosje_binti"), null], "place_synergy_chamber");
-    s.players.player_2.activeSlots[0] = slot("mosje_youri");
+    s.players.player_2.activeSlots[0] = slot("mosje_martin_historian");
     expect(isHolderTextActive(s, "player_1", "mosje_binti")).toBe(true);
-    expect(isHolderTextActive(s, "player_2", "mosje_youri")).toBe(true);
+    expect(isHolderTextActive(s, "player_2", "mosje_martin_historian")).toBe(true);
   });
   it("a fresh holder ignores it", () => {
     const s = makeState([slot("mosje_binti", 40, { entryProtected: true }), null], "place_synergy_chamber");
@@ -92,10 +91,10 @@ describe("holder texts", () => {
     expect(cham - alone).toBe(10);
   });
 
-  it("Youri + DDR Chris: a placed Piecie is ready at once; without DDR it waits", () => {
+  it("Youri + DDR Chris: the old line is off (71-12): a placed Piecie waits either way", () => {
     const card = { cardId: "piecie_kannetje_melk", type: "PIECIE" };
     const withDdr = playPiecie(makeState([slot("mosje_youri"), slot("mosje_chris_ddr")], null, [card]), "player_1", card);
-    expect(withDdr.state.players.player_1.piecieSlots.find((x: any) => x).canActivateOnTurn).toBe(3);
+    expect(withDdr.state.players.player_1.piecieSlots.find((x: any) => x).canActivateOnTurn).toBe(4);
     const without = playPiecie(makeState([slot("mosje_youri"), null], null, [card]), "player_1", card);
     expect(without.state.players.player_1.piecieSlots.find((x: any) => x).canActivateOnTurn).toBe(4);
   });

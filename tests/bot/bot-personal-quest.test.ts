@@ -4,12 +4,17 @@
 import { describe, it, expect, afterEach, vi } from 'vitest';
 import { makeEngineState } from '../helpers/makeEngineState.js';
 import { makePiecieState } from '../helpers/makePiecieState.js';
-import { mkSlot } from '../helpers/quest56.js';
+import { mkSlot as baseSlot } from '../helpers/quest56.js';
+import { MOSJES } from '../../src/data/mosjes.js';
 import { runSeededBotGame } from '../helpers/runSeededBotGame.js';
 import { driveBotTurnSteps } from '../../src/bot/botDriver.js';
 import { startTurn } from '../../src/engine/turnManager.js';
 import { pushTestDice, clearTestDice } from '../../src/engine/dice/testDiceQueue.js';
 import { chooseQuestCostChoice } from '../../src/bot/strategy/chooseQuestCostChoice.js';
+
+// Jeffrey, The Strongman has no button: the bot must not press an ability (Gandoe, The Cloude Wizard now has one).
+const JEFFREY = MOSJES.find((m) => m.id === 'mosje_jeffrey');
+const mkSlot = (over = {}) => baseSlot(over, JEFFREY);
 
 afterEach(() => clearTestDice());
 

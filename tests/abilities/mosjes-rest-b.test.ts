@@ -168,17 +168,17 @@ describe("Jeffrey, The Silent Gambler: High Stakes (stake 1 or 2 Energy, roll: 1
   });
 });
 
-describe("Youri, The Speedrunner: Speed Activate (pay 1 Energy: a Piecie placed this turn may be activated now - its own cost still paid - then draw 1)", () => {
+describe("Youri, The Speedrunner: Speed Activate (pay 1 Energy: a Piecie placed this turn may be activated now - its own cost still paid; from Level 2 then draw 1)", () => {
   const placed = (extra: any = {}) => ({ cardId: "piecie_te_hard_gaan", type: "PIECIE", faceDown: true, activated: false, playedOnTurn: 5, canActivateOnTurn: 6, ...extra });
   const board = (slot: any) => field(YOURI, { piecieSlots: [slot, null, null], deck: [card("snelle_jensen")] });
 
-  it("makes the slot ready now, draws 1, costs 1 Energy; activating it then still pays its own cost", () => {
+  it("makes the slot ready now, draws nothing at Level 1, costs 1 Energy; activating it then still pays its own cost", () => {
     const res = use(board(placed()), YOURI, { piecie_slot: 0 });
     expect(res.success).toBe(true);
     const p = res.state.players.player_1;
     expect(p.energy).toBe(5);
     expect(p.piecieSlots[0].canActivateOnTurn).toBe(5);
-    expect(p.hand).toHaveLength(1);
+    expect(p.hand).toHaveLength(0); // the draw is from Level 2 (71-12, pinned in starter-digital-mosjes-a.test.ts)
     const act = activatePiecie(res.state, "player_1", 0);
     expect(act.success).toBe(true);
     expect(act.state.players.player_1.energy).toBe(3); // Te Hard Gaan costs 2

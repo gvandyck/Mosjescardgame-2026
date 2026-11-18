@@ -470,7 +470,7 @@ export const MOSJES = [
     abilityId: "ability_youri_speed_activate",
     abilityDescription: "Once per turn: pay 1 Energy; activate a Piecie on the turn you placed it. From Level 2: then draw 1.",
     synergyWith: ["mosje_chris", "mosje_chris_ddr"],
-    synergyEffect: "While Chris, The BigStepper is also on your field: you may activate Piecies the turn you place them, without paying for Speed Activate (still pay their Energy cost).",
+    synergyEffect: null,
     petSynergy: null,
     tags: ["YOURI"],
     friend: "Youri",

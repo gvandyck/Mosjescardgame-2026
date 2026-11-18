@@ -3,6 +3,7 @@
 // (src/data/mosjes.js is generator-owned, so the costs live here.)
 export const ABILITY_ENERGY_COSTS = Object.freeze({
   ability_gandoe_destroyer_elimination_strike: 4,
+  ability_gandoe_wizard_chaos_roll: 1,
   ability_coert_tech_extra_resources: 1,
   ability_hacker_system_hack: 1,
   ability_youri_speed_activate: 1,

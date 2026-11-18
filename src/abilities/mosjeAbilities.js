@@ -18,6 +18,7 @@ import { mingNaturalLuckyDraw } from './mosje/mingNaturalLuckyDraw.js';
 import { mingPredictorFutureSight } from './mosje/mingPredictorFutureSight.js';
 import { jeffreyGamblerHighStakes } from './mosje/jeffreyGamblerHighStakes.js';
 import { grantExtraAbilityUse } from '../engine/abilities/grantExtraAbilityUse.js';
+import { gandoeWizardTopThree } from './mosje/gandoeWizardTopThree.js';
 import { youriSpeedActivate } from './mosje/youriSpeedActivate.js';
 import { ronaldMastermindMasterPlan } from './mosje/ronaldMastermindMasterPlan.js';
 import { tukHealingHands } from './mosje/tukHealingHands.js';
@@ -87,9 +88,10 @@ export function ability_coert_extra_resources() {
 
 // PHYSICAL MOSJES
 
-// 2.0: Gandoe Wizard Chaos Roll is a trigger/passive (src/abilities/mosje/*, MOSJE_TRIGGERS). No manual ability; kept so the dispatch map resolves.
-export function ability_gandoe_wizard_chaos_roll(gameState) {
-	return gameState;
+// Gandoe, The Cloude Wizard (2.1): once per turn, 1 Energy, take 1 of the top 3 (abilities/mosje/gandoeWizardTopThree.js).
+// The id keeps the old name "chaos roll"; the Chaos Roll itself is gone.
+export function ability_gandoe_wizard_chaos_roll(gameState, playerId, mosjeId) {
+	return gandoeWizardTopThree(gameState, playerId, mosjeId);
 }
 
 // Jeffrey Strongman (2.1): his text is only "3 attachments" (engine/attachments/attachRules.js). No trigger, no gate;

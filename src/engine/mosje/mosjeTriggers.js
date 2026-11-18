@@ -1,4 +1,4 @@
-import { gandoeWizardChaosRoll } from '../../abilities/mosje/gandoeWizardChaosRoll.js';
+import { gandoeWizardPick } from '../../abilities/mosje/gandoeWizardPick.js';
 import { aznClessRiskReward } from '../../abilities/mosje/aznClessRiskReward.js';
 import { alyssaFissaPartyPower } from '../../abilities/mosje/alyssaFissaPartyPower.js';
 import { parkourWestFlowQuest } from '../../abilities/mosje/parkourWestFlowQuest.js';
@@ -22,7 +22,7 @@ import { bintiDiscardChoice } from '../../abilities/mosje/bintiDiscardChoice.js'
 // (or { needChoice }); questWinAmount returns the running number; oppStartOfTurn runs for the
 // NON-active player's field; an entry with onOpponent:true runs for the player(s) who did NOT act (FPS West); drawStep entries use available() to offer a draw-step option.
 export const MOSJE_TRIGGERS = {
-	startOfTurn: [gandoeWizardChaosRoll, coertKasteLuckMorningLuck],
+	startOfTurn: [coertKasteLuckMorningLuck],
 	oppStartOfTurn: [drainerContinuousDrain],
 	endOfTurn: [aznClessRiskReward, fpsWestTacticalAnalysis, martinHistorianEndDraw],
 	questWinAmount: [],
@@ -34,6 +34,8 @@ export const MOSJE_TRIGGERS = {
 	drawStep: [coertTechExtraResources, martinHistorianTimeControl],
 	// Binti's Cutting Words fires this directly (not from runMosjeTriggers) so the opponent's discard pick can pause.
 	bintiDiscard: [bintiDiscardChoice],
+	// Gandoe, The Cloude Wizard's top-3 pick fires this directly so the owner's choice can pause.
+	wizardPick: [gandoeWizardPick],
 	// Gandoe, The Destroyer's Elimination Strike resolves here so a tie can pause for the owner's pick.
 	destroyerStrike: [gandoeDestroyerStrikeChoice],
 };

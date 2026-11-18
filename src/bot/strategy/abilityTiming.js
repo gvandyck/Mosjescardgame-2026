@@ -11,6 +11,7 @@
 //   'skip'     — never trigger manually (auto-abilities fire on their own).
 
 export const ABILITY_TIMING = {
+	mosje_gandoe_wizard: 'early',     // Top-3 pick: dig for cards before playing
 	mosje_coert_kasteluck: 'early',   // Morning Luck is a startOfTurn trigger now (no manual use)
 	mosje_jisca: 'early',             // Perfect Combo: arms per-Piecie chain rolls
 	mosje_chris: 'preQuest',          // Perfect Setup: free activation + 15 MP

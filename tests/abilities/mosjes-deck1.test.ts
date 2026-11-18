@@ -30,22 +30,14 @@ function field(slot: any, p1: any = {}, p2Slot: any = null) {
 }
 const slot0 = (s: any) => s.players.player_1.activeSlots[0];
 
-describe("Gandoe Wizard: Chaos Roll", () => {
-  it("1-2 loses 10 MP", () => {
-    pushTestDice([1]);
-    expect(slot0(runMosjeTriggers(field(mk("mosje_gandoe_wizard")), "startOfTurn", { playerId: "player_1" })).mp).toBe(20);
-  });
-  it("3-4 nothing", () => {
-    pushTestDice([3]);
-    expect(slot0(runMosjeTriggers(field(mk("mosje_gandoe_wizard")), "startOfTurn", { playerId: "player_1" })).mp).toBe(30);
-  });
-  it("5-6 gives +10 Power this turn, gone after the turn ends", () => {
-    pushTestDice([6]);
-    const s = runMosjeTriggers(field(mk("mosje_gandoe_wizard")), "startOfTurn", { playerId: "player_1" });
-    const base = getPower(mk("mosje_gandoe_wizard"));
-    expect(getPower(slot0(s))).toBe(base + 10);
-    expireThisTurnEffects(s);
-    expect(getPower(slot0(s))).toBe(base);
+describe("Gandoe Wizard: the Chaos Roll is gone (71-12: now a top-3 pick, see starter-digital-mosjes-a.test.ts)", () => {
+  it("nothing happens for him at the start of the turn, whatever the die says", () => {
+    for (const die of [1, 3, 6]) {
+      pushTestDice([die]);
+      const s = runMosjeTriggers(field(mk("mosje_gandoe_wizard")), "startOfTurn", { playerId: "player_1" });
+      expect(slot0(s).mp).toBe(30);
+      expect(getPower(slot0(s))).toBe(getPower(mk("mosje_gandoe_wizard")));
+    }
   });
 });
 

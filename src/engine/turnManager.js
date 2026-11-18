@@ -26,7 +26,6 @@ import { isCooldownBlocked, COOLDOWN_ERROR } from './turn/isCooldownBlocked.js';
 import { applyStatusEffectMP, getTotalMPForPlayer } from './mpManager.js';
 import { checkVictory, markMosjeDefeated } from './victoryChecker.js';
 import { getAllPlayerIds, setActivePlace, destroyActivePlace, clearReturnedMosjesAtTurnEnd } from './gameState.js';
-import { isHolderTextActive } from './synergy/isHolderTextActive.js';
 import * as placeEffects from '../abilities/placeEffects.js';
 import { placeTurnStart, hasCoert } from '../abilities/place/placeTurnQuestEffects.js';
 import * as piecieEffects from '../abilities/piecieEffects.js';
@@ -404,17 +403,13 @@ export function playPiecie(gameState, playerId, cardRef, cardDef) {
     return { state, success: false, error: 'No empty Piecie slot available' };
   }
 
-  const chrisYouriSynergy = isHolderTextActive(state, playerId, 'mosje_youri');
-  if (chrisYouriSynergy) {
-    console.log('[SYNERGY] Youri holder text: Piecie placed with instant activation (canActivateOnTurn = ' + state.turnNumber + ')');
-  }
   player.piecieSlots[emptySlot] = {
     cardId: cardRef.cardId,
     type: 'PIECIE',
     faceDown: true,
     activated: false,
     playedOnTurn: state.turnNumber,
-    canActivateOnTurn: chrisYouriSynergy ? state.turnNumber : state.turnNumber + 1,
+    canActivateOnTurn: state.turnNumber + 1,
   };
 
   state.players[playerId].pieciesPlayedThisTurn = (state.players[playerId].pieciesPlayedThisTurn || 0) + 1;

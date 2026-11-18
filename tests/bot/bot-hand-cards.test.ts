@@ -32,7 +32,7 @@ const mosjeIn = (f) => (!f ? null : typeof f === 'string' ? slotOf(f) : slotOf(f
 const stacks = (faceUp = {}) => ['PHYSICAL', 'DIGITAL', 'CREATIVE'].reduce((o, id) => ({ ...o, [id]: { deck: [], faceUp: faceUp[id] ?? null, tokens: 0, discard: [] } }), {});
 
 // The bot is player_1 and it is its turn 3. A null in `field` / `oppField` is an open slot; an entry is a Mosje id or { id, extra }.
-function table({ energy = 3, field = ['mosje_gandoe_wizard', null], oppField = ['mosje_ronald_chef', null], hand = [], oppHand = [], faceUp = {}, activePlace = null, bot = {}, state = {} } = {}) {
+function table({ energy = 3, field = ['mosje_martin_historian', null], oppField = ['mosje_ronald_chef', null], hand = [], oppHand = [], faceUp = {}, activePlace = null, bot = {}, state = {} } = {}) {
 	return makeEngineState({
 		turnNumber: 3,
 		activePlayerId: BOT,
@@ -51,7 +51,7 @@ describe('placeFit and choosePlaceToPlay: Places are chosen by fit', () => {
 	// 2.1 data: Gandoe, The Cloude Wizard is Digital and Ronald, The Master Chef is Physical (the old tests had it the other
 	// way round). The Physical own Mosje is Gandoe, The Destroyer (still a Gandoe); the Digital opponent is Coert, Tech Savant.
 	const PHYS = 'mosje_gandoe_destroyer';
-	const DIG = 'mosje_coert_tech';
+	const DIG = 'mosje_martin_historian';
 	const fit = (o = {}) => table({ field: [PHYS, null], oppField: [DIG, null], ...o });
 	it('own Physical Mosje vs a Digital opponent: The Gym fits (> 0) and is played with Energy 3', () => {
 		const st = fit({ hand: [place('place_the_gym')] });
@@ -60,7 +60,7 @@ describe('placeFit and choosePlaceToPlay: Places are chosen by fit', () => {
 	});
 
 	it('own Digital Mosje vs a Physical opponent: The Gym is a minus and stays in hand; Arcade with a Technical Quest up fits', () => {
-		const field = ['mosje_gandoe_wizard', null]; // Digital
+		const field = ['mosje_martin_historian', null]; // Digital
 		const oppField = ['mosje_ronald_chef', null]; // Physical
 		const gymOnly = table({ field, oppField, hand: [place('place_the_gym')] });
 		expect(placeFit(gymOnly, BOT, 'place_the_gym')).toBeLessThan(0);
@@ -80,7 +80,7 @@ describe('placeFit and choosePlaceToPlay: Places are chosen by fit', () => {
 	});
 
 	it('a Place that helps both sides the same is not played (fit 0)', () => {
-		const st = table({ field: ['mosje_gandoe_wizard', null], oppField: ['mosje_jeffrey', null], hand: [place('place_bank_chilling')] });
+		const st = table({ field: ['mosje_martin_historian', null], oppField: ['mosje_jeffrey', null], hand: [place('place_bank_chilling')] });
 		expect(placeFit(st, BOT, 'place_bank_chilling')).toBe(0); // -10 Power each, no word matches
 		expect(choosePlaceToPlay(st, BOT)).toBeNull();
 	});
@@ -137,7 +137,7 @@ function driveTurn(st) {
 	const metrics = captureMetrics(() => { steps = driveBotTurnSteps(st, BOT); });
 	return { steps, metrics, end: steps[steps.length - 1].state, played: steps.filter((s) => s.action?.kind === 'snelle') };
 }
-const mp40 = { id: 'mosje_gandoe_wizard', extra: { mp: 40, level: 1 } };
+const mp40 = { id: 'mosje_martin_historian', extra: { mp: 40, level: 1 } };
 
 describe('chooseProactiveSnelle and the driver Snelle phase', () => {
 	it('Momentum Rush on its own turn: played, the Mosje goes 40 -> 55 MP, the Piecie slot is free again, no refusal', () => {
@@ -186,7 +186,7 @@ describe('chooseProactiveSnelle and the driver Snelle phase', () => {
 	it('Bijna Welloe only while an own Mosje has 10 MP or less (its Only if); then that Mosje gains 20', () => {
 		const hand = [snelle('snelle_bijna_welloe')];
 		expect(chooseProactiveSnelle(table({ field: [mp40, null], hand }), BOT)).toBeNull();
-		const low = table({ field: [{ id: 'mosje_gandoe_wizard', extra: { mp: 10, level: 1 } }, null], hand });
+		const low = table({ field: [{ id: 'mosje_martin_historian', extra: { mp: 10, level: 1 } }, null], hand });
 		expect(chooseProactiveSnelle(low, BOT)).toEqual({ cardId: 'snelle_bijna_welloe' });
 		const run = driveTurn(low);
 		expect(run.played[0].state.players[BOT].activeSlots[0].mp).toBe(30);
@@ -253,7 +253,7 @@ describe('chooseProactiveSnelle and the driver Snelle phase', () => {
 	it('the most valuable card goes first, a cast frees its slot for the next, and the Energy reserve is kept', () => {
 		const rush = snelle('snelle_momentum_rush');
 		const welloe = snelle('snelle_bijna_welloe');
-		const low = { id: 'mosje_gandoe_wizard', extra: { mp: 5, level: 1 } };
+		const low = { id: 'mosje_martin_historian', extra: { mp: 5, level: 1 } };
 		const st = table({ field: [low, null], hand: [rush, welloe] });
 		expect(chooseProactiveSnelle(st, BOT)).toEqual({ cardId: 'snelle_bijna_welloe' }); // +20 beats +15
 		const run = driveTurn(st);
@@ -274,7 +274,7 @@ describe('shouldUseAbility: only a press the engine would accept', () => {
 	const use = (field, over = {}) => { const st = table({ energy: 6, field, ...over }); return shouldUseAbility(st, BOT, 0, profile(st)); };
 
 	it('triggers, passives, the DJ reaction and the draw-step abilities have no button', () => {
-		for (const id of ['mosje_alyssa_fissa', 'mosje_azn_cless', 'mosje_drainer', 'mosje_parkour_west', 'mosje_jisca', 'mosje_cless_teacher', 'mosje_jeffrey', 'mosje_gandoe_wizard']) {
+		for (const id of ['mosje_alyssa_fissa', 'mosje_azn_cless', 'mosje_drainer', 'mosje_parkour_west', 'mosje_jisca', 'mosje_cless_teacher', 'mosje_jeffrey']) {
 			expect(use([id, null]), id).toBe(false); // trigger / passive
 		}
 		expect(use(['mosje_dj_8020', null])).toBe(false); // Lucky Beats: a reaction at the Quest pause
@@ -321,7 +321,7 @@ describe('driver: no call the engine rejects', () => {
 		const ready = { cardId: 'piecie_te_hard_gaan', type: 'PIECIE', faceDown: true, activated: false, playedOnTurn: 1, canActivateOnTurn: 2 };
 		const gone = [{ cardId: 'piecie_kannetje_melk', type: 'PIECIE' }];
 		// Coert Tech has a draw-step option, so startTurn pauses on the draw; the bot answers it, and THEN the deck-out cooldown starts.
-		const opened = startTurn(table({ field: ['mosje_coert_tech', null], hand: [], bot: { deck: [], graveyard: gone, piecieSlots: [ready, null, null] } }));
+		const opened = startTurn(table({ field: ['mosje_martin_historian', null], hand: [], bot: { deck: [], graveyard: gone, piecieSlots: [ready, null, null] } }));
 		expect(opened.pendingDrawStep?.playerId).toBe(BOT);
 		expect(opened.players[BOT].cooldownTurn).toBeFalsy();
 		const run = driveTurn(opened);

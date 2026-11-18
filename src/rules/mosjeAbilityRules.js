@@ -16,7 +16,7 @@ const deckPick = (n) => [
 
 export const MOSJE_ABILITY_RULES = Object.freeze({
 	// Physical
-	ability_gandoe_wizard_chaos_roll: trig(),
+	ability_gandoe_wizard_chaos_roll: act(), // Gandoe, The Cloude Wizard: take 1 of the top 3 (name kept, card faces are Phase 72)
 	ability_jeffrey_brute_force: pass(),
 	ability_alyssa_bulldozer_unstoppable: pass(),
 	ability_alyssa_fissa_party_power: trig(),
