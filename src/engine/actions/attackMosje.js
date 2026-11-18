@@ -6,6 +6,7 @@ import { checkVictory } from '../victoryChecker.js';
 import { getPower } from '../mp/getPower.js';
 import { isFresh } from '../fresh/isFresh.js';
 import { canMosjeTakeAction } from './canMosjeTakeAction.js';
+import { ATTACK_TRIGGERS } from '../attack/attackTriggers.js';
 import { isValidAttackTarget } from './isValidAttackTarget.js';
 
 export function attackMosje(state, playerId, params, opts = {}) {
@@ -36,6 +37,7 @@ function attackCore(state, playerId, { attackerSlotIndex, targetPlayerId, target
     const other = hitBoth ? otherHitTarget(s, targetPlayerId, targetSlotIndex) : -1;
     if (other >= 0) s = hitOneTarget(s, { ...base, targetSlotIndex: other }).state;
   }
+  for (const trigger of ATTACK_TRIGGERS.afterAttack) s = trigger({ state: s, attackerPlayerId: playerId, attackerSlotIndex });
   console.log(`[ATTACK] ${attacker.name} taksed ${s.players[targetPlayerId].activeSlots[targetSlotIndex]?.name} for ${final}`);
   s = checkVictory(s);
   return { state: s, ok: true, power, final };

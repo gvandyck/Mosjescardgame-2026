@@ -39,7 +39,6 @@ export const OWN_TARGET_EFFECT_IDS = [
 	'effect_keyboard',
 	'effect_controller',
 	'effect_dancepad',
-	'effect_dumbbells',
 	'effect_boxing_gloves',
 	'effect_protein_shake',
 	'effect_straffoe',

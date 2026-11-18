@@ -22,15 +22,15 @@ const DESTROYER = byName(/The Destroyer/);
 const DRIVER = byName(/Precision Driver/);
 const placed = (cardId: string) => ({ cardId, type: "PIECIE", faceDown: true, activated: false, playedOnTurn: 1, canActivateOnTurn: 1 });
 
-describe("Jeffrey, The Strongman: Brute Force (a Quest win of one of your Mosjes: +10 MP extra; no MP-giving Piecies)", () => {
-  it("another own Mosje that wins a Quest gets +10 extra", () => {
+describe("Jeffrey, The Strongman (2.1): only \"3 attachments\" - no Quest bonus and no Piecie gate", () => {
+  it("another own Mosje that wins a Quest gets the Quest MP and nothing extra", () => {
     const { s, q } = build("quick_thinking", { p1: { activeSlots: [mkSlot({ mp: 30 }), mkSlot({ mp: 30 }, JEFF)] } });
     const win = finish(s, q, true);
-    expect(win.players.player_1.activeSlots[0].mp).toBe(30 + q.win + 10);
+    expect(win.players.player_1.activeSlots[0].mp).toBe(30 + q.win);
     expect(win.players.player_1.activeSlots[1].mp).toBe(30);
   });
 
-  it("no bonus on a lost Quest, and none when Jeffrey is not on the field", () => {
+  it("a lost Quest still loses MP, and a win without Jeffrey is the same", () => {
     const withJ = build("quick_thinking", { p1: { activeSlots: [mkSlot({ mp: 30 }), mkSlot({ mp: 30 }, JEFF)] } });
     const lost = finish(withJ.s, withJ.q, false);
     expect(lost.players.player_1.activeSlots[0].mp).toBeLessThan(30);
@@ -46,20 +46,14 @@ describe("Jeffrey, The Strongman: Brute Force (a Quest win of one of your Mosjes
     },
   });
 
-  it("Jeffrey on the field: Ronald Kip (gives MP) is refused and Energy stays", () => {
+  it("Jeffrey on the field: Ronald Kip (gives MP) can be activated", () => {
     const res = activatePiecie(withPiecie("piecie_ronald_kip", true), "player_1", 0);
-    expect(res.success).toBe(false);
-    expect(res.state.players.player_1.energy).toBe(6);
+    expect(res.success, res.error).toBe(true);
   });
 
-  it("also refused for a free activation", () => {
+  it("also for a free activation", () => {
     const res = activatePiecieFree(withPiecie("piecie_ronald_kip", true), "player_1", { slotIndex: 0 });
-    expect(res.success).toBe(false);
-  });
-
-  it("without Jeffrey Ronald Kip works; a Piecie that gives no MP (Te Hard Gaan) is fine with him", () => {
-    expect(activatePiecie(withPiecie("piecie_ronald_kip", false), "player_1", 0).success).toBe(true);
-    expect(activatePiecie(withPiecie("piecie_te_hard_gaan", true), "player_1", 0).success).toBe(true);
+    expect(res.success, res.error).toBe(true);
   });
 
   it("the V4 FOOD/RESTORE tag rule is gone: tags alone no longer block a Piecie", () => {

@@ -5,9 +5,23 @@
 import { getCardEnergyCost } from './getCardEnergyCost.js';
 import { getAbilityEnergyCost } from './getAbilityEnergyCost.js';
 import { fieldHasMosjeNamed } from './fieldHasMosjeNamed.js';
+import { ATTACHMENT_RULES } from '../../rules/attachmentRules.js';
 import { PIECIES } from '../../data/piecies.js';
 
 const WELLOE_CARDS = new Set(['piecie_harde_didde', 'piecie_klaar_met_jou', 'ability_gandoe_destroyer_elimination_strike']);
+
+// Hawaiishirt: while it is attached to one of the player's live Mosjes the first Piecie of the turn costs 1 less (also a
+// 0-cost one: the discount is used because the counter rises). Adds to Coert's Caravan.
+function firstPiecieDiscount(state, playerId) {
+	const player = state?.players?.[playerId];
+	if (!player || (player.piecieActivationsThisTurn || 0) > 0) return 0;
+	let total = 0;
+	for (const slot of player.activeSlots || []) {
+		if (!slot || slot.isDefeated) continue;
+		for (const a of slot.attachments || []) total += ATTACHMENT_RULES[a.cardId]?.firstPiecieDiscount || 0;
+	}
+	return total;
+}
 
 export function getEffectiveCost(state, playerId, cardId, kind = 'piecie', opts = {}) {
 	let cost = kind === 'ability' ? getAbilityEnergyCost(cardId) : getCardEnergyCost(cardId);
@@ -22,5 +36,6 @@ export function getEffectiveCost(state, playerId, cardId, kind = 'piecie', opts 
 			cost = 0;
 		}
 	}
+	if (kind === 'piecie') cost -= firstPiecieDiscount(state, playerId); // Hawaiishirt: reads the activation counter, no flag
 	return Math.max(0, cost);
 }

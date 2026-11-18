@@ -92,8 +92,8 @@ export function ability_gandoe_wizard_chaos_roll(gameState) {
 	return gameState;
 }
 
-// Jeffrey Strongman — Brute Force is a questSuccess trigger (abilities/mosje/jeffreyBruteForce.js) plus the MP-Piecie gate
-// (engine/table/piecieActivationGate.js). This manual entry is a no-op kept so the dispatch map resolves.
+// Jeffrey Strongman (2.1): his text is only "3 attachments" (engine/attachments/attachRules.js). No trigger, no gate;
+// this manual entry is a no-op kept so the dispatch map resolves.
 export function ability_jeffrey_brute_force(gameState, _playerId) {
 	console.log('[ABILITY] Jeffrey Brute Force: passive auto-ability — no manual activation needed');
 	return gameState;

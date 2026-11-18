@@ -13,7 +13,7 @@ import { createEngineState } from "../helpers/testHelpers.js";
 // Alyssa Bulldozer comeback math (V4 manual ability: +5 per 10 MP lost) removed in 58-04: the 2.0 Card List
 // Unstoppable is an attack trigger (covered in the attack trigger tests), not a manual ability.
 
-describe("Jeffrey The Strongman — Brute Force passive quest bonus (IMPL-PF-M2)", () => {
+describe("Jeffrey The Strongman (2.1) — no Quest bonus any more, only 3 attachments (71-07)", () => {
   // Verified against the PASSIVE mechanic (applyMosjeFieldEffectsOnQuest, fired
   // internally by runQuestOutcomeHooks) — NOT the no-op manual ability_jeffrey_brute_force
   // stub, per D-02/T-48-SC.
@@ -83,17 +83,16 @@ describe("Jeffrey The Strongman — Brute Force passive quest bonus (IMPL-PF-M2)
     };
   }
 
-  it("quest success -> Jeffrey's own MP includes the base gain + the +10 Brute Force passive bonus", () => {
+  it("quest success -> Jeffrey gets the Quest MP and nothing extra", () => {
     const state = makeJeffreyState();
 
     const result = forceQuestResult(state, "player_1", { questId: "quest_quick_thinking", win: true });
 
-    // 2.0 Quick Thinking win (+25, Card List) + passive +10 on the starting 30 MP.
-    // (V4 used Arm Wrestling successMP 40; the passive +10 is what this test pins.)
-    expect(result.players.player_1.activeSlots[0].mp).toBe(30 + 25 + 10);
+    // 2.0 Quick Thinking win (+25, Card List); the old Brute Force +10 is gone (71-07).
+    expect(result.players.player_1.activeSlots[0].mp).toBe(30 + 25);
   });
 
-  it("quest failure -> no Brute Force bonus (questMpGained is 0)", () => {
+  it("quest failure -> no bonus (questMpGained is 0)", () => {
     const state = makeJeffreyState();
 
     const result = forceQuestResult(state, "player_1", { questId: "quest_quick_thinking", win: false });

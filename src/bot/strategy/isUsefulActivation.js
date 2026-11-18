@@ -3,7 +3,7 @@
 // (The Void, every Mosje at Level 3 / 100), a hit with no legal target, destroying the bot's OWN Place, a self-loss
 // that would knock a Mosje out. Everything else (unknown cards too) is useful. The engine gate (Jeffrey, Level 2,
 // "Only if") and Energy are separate: planPiecieActivations asks piecieActivationGate and the budget.
-import { GIVES_MP_PIECIES } from '../../rules/givesMpPiecies.js';
+import { GIVES_MP_PIECIES } from './givesMpPiecies.js';
 import { canMosjeTakeAction } from '../../engine/actions/canMosjeTakeAction.js';
 import { isValidAttackTarget } from '../../engine/actions/isValidAttackTarget.js';
 import { isFresh } from '../../engine/fresh/isFresh.js';

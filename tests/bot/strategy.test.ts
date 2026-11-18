@@ -149,9 +149,9 @@ describe('planPiecieActivations - legal, affordable and useful (61-05)', () => {
   });
 
   describe('engine gate', () => {
-    it('Jeffrey, The Strongman on the field: no Piecie that gives MP is planned', () => {
+    it('Jeffrey, The Strongman on the field: Piecies that give MP are planned like any other (71-07)', () => {
       const state = makeState({ activeSlots: [jammer(50, { cardId: 'mosje_jeffrey' })], piecieSlots: slotsOf('piecie_kannetje_melk', 'piecie_pot_of_weed') });
-      expect(planIds(state)).toEqual(['piecie_pot_of_weed']);
+      expect(planIds(state)).toEqual(['piecie_kannetje_melk', 'piecie_pot_of_weed']);
     });
     it('Harde Didde needs an own Level 2+ Mosje (even with a target at 40 MP)', () => {
       const slots = slotsOf('piecie_harde_didde');

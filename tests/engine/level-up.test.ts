@@ -174,10 +174,9 @@ describe("ability / Quest / Snelle gains (54-14)", () => {
     const st = forceQuestResult(abilityState(1, 95), "player_1", { questId: "quest_quick_thinking", win: true });
     expect([mine(st).level, mine(st).mp]).toEqual([2, 10]);
   });
-  it("Jeffrey Brute Force (+10 after a Quest) can level: L1 at 70 + Quest 25 -> L2 at 10", () => {
-    // Start 70 (was 90 with a V4 +5 Quest): 70 + 25 = 95 stays L1, then Brute Force +10 = 105 -> L2 at 0
+  it("Jeffrey, The Strongman has no Quest bonus (71-07): L1 at 70 + Quest 25 = 95 stays L1", () => {
     const st = forceQuestResult(abilityState(1, 70, "mosje_jeffrey"), "player_1", { questId: "quest_quick_thinking", win: true });
-    expect([mine(st).level, mine(st).mp]).toEqual([2, 10]);
+    expect([mine(st).level, mine(st).mp]).toEqual([1, 95]);
   });
   it("Momentum Rush (Snelle, bare effect): L1 at 95 -> L2 at 10; L3 at 90 caps at 100", () => {
     const a = effect_snelle_momentum_rush(abilityState(1, 95), "player_1");

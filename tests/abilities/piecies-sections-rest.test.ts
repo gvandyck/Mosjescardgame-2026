@@ -111,11 +111,11 @@ describe('MP Amplifier', () => {
     expect([big.players.player_1.activeSlots[0].level, mp(big)]).toEqual([2, 10]);
   });
 
-  it('Jeffrey allows MP Amplifier and Synergy Field but not Ronald Kip', () => {
+  it('Jeffrey, The Strongman (2.1) blocks no Piecie: MP Amplifier, Synergy Field and Ronald Kip all work', () => {
     const jeffrey = () => slotOf('mosje_jeffrey', 50);
     expect(attempt(board('piecie_mp_amplifier', { second: jeffrey() })).success).toBe(true);
     expect(attempt(board('piecie_synergy_field', { second: jeffrey() })).success).toBe(true);
-    expect(attempt(board('piecie_ronald_kip', { second: jeffrey() })).success).toBe(false);
+    expect(attempt(board('piecie_ronald_kip', { second: jeffrey() })).success).toBe(true);
   });
 });
 
@@ -153,13 +153,11 @@ describe('Substance section', () => {
 });
 
 describe('Gear section', () => {
-  it('Dumbbells: Strength 1 star +20; Strength 3 stars also draw 1', () => {
-    const one = run(board('piecie_dumbbells', { own: slotOf('mosje_coert_tech', 0, { traits: { strength: 1 } }) }));
-    expect(mp(one)).toBe(20);
+  it('Dumbbells (71-07): attaches, no MP and no draw; the die is covered in starter-attach-gear', () => {
+    const one = run(board('piecie_dumbbells', { own: slotOf('mosje_coert_tech', 0, { traits: { strength: 3 } }) }));
+    expect(mp(one)).toBe(0);
     expect(one.players.player_1.hand).toHaveLength(0);
-    const three = run(board('piecie_dumbbells', { own: slotOf('mosje_coert_tech', 0, { traits: { strength: 3 } }) }));
-    expect(mp(three)).toBe(20);
-    expect(three.players.player_1.hand).toHaveLength(1);
+    expect(one.players.player_1.activeSlots[0].attachments.map((a: any) => a.cardId)).toEqual(['piecie_dumbbells']);
   });
 
   it('Skipping Rope: draw 1, +1 die only with a Strength 1 star Mosje', () => {

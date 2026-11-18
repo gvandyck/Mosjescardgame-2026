@@ -5,3 +5,7 @@ export * from './mouse.js';
 export * from './magicPrompt.js';
 export * from './schetsboek.js';
 export * from './headset.js';
+export * from './dumbbells.js';
+export * from './koksmes.js';
+export * from './rugbybal.js';
+export * from './hawaiishirt.js';

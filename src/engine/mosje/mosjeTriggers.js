@@ -10,7 +10,6 @@ import { drainerContinuousDrain } from '../../abilities/mosje/drainerContinuousD
 import { jiscaPerfectCombo } from '../../abilities/mosje/jiscaPerfectCombo.js';
 import { ddrChrisComboChain } from '../../abilities/mosje/ddrChrisComboChain.js';
 import { clessTeachingMoment } from '../../abilities/mosje/clessTeachingMoment.js';
-import { jeffreyBruteForce } from '../../abilities/mosje/jeffreyBruteForce.js';
 import { jeffreyGamblerQuestBonus } from '../../abilities/mosje/jeffreyGamblerQuestBonus.js';
 import { martinDriverPerfectLine } from '../../abilities/mosje/martinDriverPerfectLine.js';
 import { gandoeDestroyerStrikeChoice } from '../../abilities/mosje/gandoeDestroyerStrikeChoice.js';
@@ -28,7 +27,7 @@ export const MOSJE_TRIGGERS = {
 	oppStartOfTurn: [drainerContinuousDrain],
 	endOfTurn: [aznClessRiskReward, fpsWestTacticalAnalysis, martinHistorianEndDraw],
 	questWinAmount: [michelleToughGamble],
-	questSuccess: [parkourWestFlowQuest, fpsCoertHeadshot, jeffreyBruteForce, martinDriverPerfectLine, jeffreyGamblerQuestBonus],
+	questSuccess: [parkourWestFlowQuest, fpsCoertHeadshot, martinDriverPerfectLine, jeffreyGamblerQuestBonus],
 	// piecieActivated order on one activation (Card List ruling): Jisca, then Chris, The BigStepper, then Cless, The Teacher.
 	piecieActivated: [jiscaPerfectCombo, ddrChrisComboChain, clessTeachingMoment],
 	placeDestroyed: [alyssaFissaPartyPower],

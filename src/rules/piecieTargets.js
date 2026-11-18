@@ -82,6 +82,9 @@ export const PIECIE_TARGETS = {
 	piecie_larry_zegeltje: [{ key: 'own_slot_index', who: 'own' }],
 	piecie_leipe_swap: [{ key: 'own_slot_index', who: 'own' }, { key: 'opp_slot_index', who: 'opp' }],
 	piecie_affoe: [{ key: 'opp_slot_index', who: 'opp' }, { key: 'own_slot_index', who: 'own' }],
-	piecie_dumbbells: [{ key: 'own_slot_index', who: 'own', rule: 'strength1' }],
+	piecie_dumbbells: [], // Attach: the attach step asks which Mosje
+	piecie_koksmes: [],
+	piecie_rugbybal: [],
+	piecie_hawaiishirt: [],
 	piecie_boxing_gloves: [{ key: 'own_slot_index', who: 'own', rule: 'strength2' }],
 };

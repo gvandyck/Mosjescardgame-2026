@@ -51,7 +51,7 @@ import { PIECIE_CONDITIONS } from '../../src/rules/piecieConditions.js';
 // @ts-ignore
 import { piecieTargetOptions } from '../../src/engine/targets/piecieTargetOptions.js';
 // @ts-ignore
-import { GIVES_MP_PIECIES } from '../../src/rules/givesMpPiecies.js';
+import { GIVES_MP_PIECIES } from '../../src/bot/strategy/givesMpPiecies.js';
 // @ts-ignore
 import { createMosjeSlot } from '../../src/engine/mp/createMosjeSlot.js';
 // @ts-ignore

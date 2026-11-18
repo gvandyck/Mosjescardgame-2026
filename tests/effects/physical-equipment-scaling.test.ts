@@ -3,7 +3,6 @@
 import { describe, expect, it } from 'vitest';
 // @ts-expect-error — JS module, no type declarations
 import {
-  effect_dumbbells,
   effect_boxing_gloves,
   effect_skipping_rope,
   effect_protein_shake,
@@ -60,32 +59,6 @@ function makeState(overrides: {
 }
 
 describe('Strength Equipment cards (PHYS-01/02/03)', () => {
-
-  describe('effect_dumbbells (Card List 2.0: Strength stars, not the Physical subtype)', () => {
-    const phys = (strength: number, over: any = {}) => makeState({ subtype: 'PHYSICAL', level: 1, mp: 0, traits: { strength }, ...over });
-
-    it('gives 20 MP to a Strength 1 star Mosje at any level', () => {
-      for (const level of [1, 2, 3]) {
-        const result = effect_dumbbells(phys(1, { level }), 'player_1');
-        expect(result.players.player_1.activeSlots[0].mp).toBe(20);
-      }
-    });
-
-    it('gives nothing to a Mosje without Strength 1 star (target table refuses it)', () => {
-      const result = effect_dumbbells(phys(0), 'player_1');
-      expect(result.players.player_1.activeSlots[0].mp).toBe(0);
-    });
-
-    it('also draws 1 card at Strength 3 stars', () => {
-      const result = effect_dumbbells(phys(3, { deckCards: ['x'] }), 'player_1');
-      expect(result.players.player_1.hand.length).toBe(1);
-    });
-
-    it('does not draw at Strength 2 stars', () => {
-      const result = effect_dumbbells(phys(2, { deckCards: ['x'] }), 'player_1');
-      expect(result.players.player_1.hand.length).toBe(0);
-    });
-  });
 
   describe('effect_boxing_gloves', () => {
     const boxer = (over: any) => makeState({ subtype: 'PHYSICAL', level: 1, mp: 0, ...over });

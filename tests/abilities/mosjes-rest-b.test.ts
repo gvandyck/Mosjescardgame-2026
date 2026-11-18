@@ -68,12 +68,11 @@ describe("Ming, The Natural: Lucky Draw (reveal the top card; a Piecie: activate
     expect(res.state.players.player_1.activeSlots[0].mp).toBe(30);
   });
 
-  it("a free activation the rules refuse (Jeffrey, The Strongman: no MP Piecies) is refused whole", () => {
+  it("with Jeffrey, The Strongman on the field the free activation of an MP Piecie works (no gate in 2.1)", () => {
     const s = field(NATURAL, { deck: [card("piecie_ronald_kip")] });
     s.players.player_1.activeSlots[1] = mkSlot({ mp: 30 }, STRONGMAN);
     const res = use(s, NATURAL, { choice: "activate" });
-    expect(res.success).toBe(false);
-    expect(res.state.players.player_1.deck).toHaveLength(1);
+    expect(res.success, res.error).toBe(true);
   });
 });
 
@@ -233,13 +232,12 @@ describe("Ronald, Dr. Phill-osoof: Master Plan (once per turn, pay 2 Energy: act
     expect(slot.abilityUsedThisGame).toBeFalsy();
   });
 
-  it("Jeffrey, The Strongman on the field + an MP Piecie: refused, nothing paid, the card stays in the discard pile", () => {
+  it("Jeffrey, The Strongman on the field + an MP Piecie: works as for any Mosje (no gate in 2.1)", () => {
     const s = board([{ cardId: "piecie_ronald_kip" }]);
     s.players.player_1.activeSlots[1] = mkSlot({ mp: 30 }, STRONGMAN);
     const res = use(s, MASTERMIND, { discard_card: 0 });
-    expect(res.success).toBe(false);
-    expect(res.state.players.player_1.energy).toBe(6);
-    expect(res.state.players.player_1.graveyard).toHaveLength(1);
+    expect(res.success, res.error).toBe(true);
+    expect(res.state.players.player_1.energy).toBe(4);
   });
 
   it("refused for a card that is not a Piecie, for no choice, and with 1 Energy", () => {
