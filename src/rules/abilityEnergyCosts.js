@@ -9,7 +9,7 @@ export const ABILITY_ENERGY_COSTS = Object.freeze({
   ability_youri_speed_activate: 1,
   ability_tactician_mp_manipulation: 2,
   ability_fps_west_tactical_analysis: 1,
-  ability_ronald_mastermind_master_plan: 2,
+  ability_ronald_mastermind_master_plan: 1,
   ability_tuk_healer_healing_presence: 1,
   ability_binti_cutting_words: 1,
   ability_martin_driver_perfect_line: 1,

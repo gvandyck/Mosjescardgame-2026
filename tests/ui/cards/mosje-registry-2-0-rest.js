@@ -120,13 +120,14 @@ export const MOSJE_REGISTRY_REST = [
 			trigger: { kind: 'button' }, expect: { mp: { 'opp.0': 10 }, energy: 1 } },
 	] },
 	{ mosje: 'mosje_ronald_mastermind', deck: null, cases: [{
-		name: 'Master Plan: pay 2 Energy, activate a Piecie from my discard pile for free (30 + 25); it goes back to the discard pile',
-		setup: { field: [{ id: 'mosje_ronald_mastermind', mp: 30 }], oppField: OPP40, energy: 3, graveyard: [MILK], pendingTargets: { discard_card: 0 } },
+		name: 'Master Plan: pay 1 Energy, mark an opponent Mosje: it rolls 1 die less on its next Quest',
+		setup: { field: [{ id: 'mosje_ronald_mastermind', mp: 30 }], oppField: OPP40, energy: 3, pendingTargets: { opp_slot_index: 0 } },
 		trigger: { kind: 'button' },
 		expect: {
-			mp: { 'own.0': 55 }, energy: 1,
+			energy: 2,
 			check: (before, after) => {
-				if (!after.players.player_1.graveyard.some(c => c.cardId === MILK)) throw new Error('Kannetje Melk is not back in the discard pile');
+				const g = after.players.player_2.questDiceGrants || [];
+				if (!g.some(x => x.amount === -1 && x.lasts === 'untilUsed' && x.slotIndex === 0)) throw new Error('the -1 die mark is missing on the opponent Mosje');
 			},
 		},
 	}] },

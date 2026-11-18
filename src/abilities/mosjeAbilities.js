@@ -20,7 +20,7 @@ import { jeffreyGamblerHighStakes } from './mosje/jeffreyGamblerHighStakes.js';
 import { grantExtraAbilityUse } from '../engine/abilities/grantExtraAbilityUse.js';
 import { gandoeWizardTopThree } from './mosje/gandoeWizardTopThree.js';
 import { youriSpeedActivate } from './mosje/youriSpeedActivate.js';
-import { ronaldMastermindMasterPlan } from './mosje/ronaldMastermindMasterPlan.js';
+import { ronaldPhilosoofMark } from './mosje/ronaldPhilosoofMark.js';
 import { tukHealingHands } from './mosje/tukHealingHands.js';
 import { bintiCuttingWords } from './mosje/bintiCuttingWords.js';
 import { senorWestCalculatedGuess } from './mosje/senorWestCalculatedGuess.js';
@@ -189,7 +189,7 @@ export function ability_youri_speed_activate(gameState, playerId, mosjeId) {
 	return youriSpeedActivate(gameState, playerId, mosjeId);
 }
 
-// Tactician — MP Manipulation: see abilities/mosje/tacticianMpManipulation.js (2 Energy via abilityEnergyCosts.js).
+// Tactician — MP Manipulation: see abilities/mosje/tacticianMpManipulation.js (1 Energy via abilityEnergyCosts.js).
 export function ability_tactician_mp_manipulation(gameState, playerId) {
 	return tacticianMpManipulation(gameState, playerId);
 }
@@ -210,9 +210,9 @@ export function ability_fps_west_tactical_analysis(gameState, playerId, mosjeId)
 
 // CREATIVE MOSJES
 
-// Ronald Mastermind — Master Plan: see abilities/mosje/ronaldMastermindMasterPlan.js (2 Energy via abilityEnergyCosts.js).
+// Ronald Mastermind — Master Plan: see abilities/mosje/ronaldPhilosoofMark.js (1 Energy via abilityEnergyCosts.js).
 export function ability_ronald_mastermind_master_plan(gameState, playerId, mosjeId) {
-	return ronaldMastermindMasterPlan(gameState, playerId, mosjeId);
+	return ronaldPhilosoofMark(gameState, playerId, mosjeId);
 }
 
 // 2.0: Jisca Perfect Combo is a trigger/passive (src/abilities/mosje/*, MOSJE_TRIGGERS). No manual ability; kept so the dispatch map resolves.

@@ -169,6 +169,9 @@ export function startTurn(gameState) {
       // Needs "lost MP since the start of your last turn": the window that just ended becomes the previous one (70-06)
       slot.mpLostWindowPrev = slot.mpLostWindowNow === true;
       slot.mpLostWindowNow = false;
+      // Binti, The Sharp Tongue: the turn after a 20 MP hit the hit is 10 again (71-14, D-16)
+      slot.bintiBigHitLastTurn = slot.bintiBigHitThisTurn === true;
+      slot.bintiBigHitThisTurn = false;
       // MP Adjuster: reverse the temporary delta applied last turn
       if (slot._mpAdjustDelta !== undefined) {
         // Restore of a temporary absolute set: floor 0, on the 5-grid, never levels or getemts.

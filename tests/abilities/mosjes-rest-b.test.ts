@@ -1,5 +1,5 @@
 // EFX-01 rest B: Ming The Natural (Lucky Draw), Ming The Predictor (Future Sight), Jeffrey The Silent Gambler (High
-// Stakes), Youri (Speed Activate) and Ronald The Mastermind (Master Plan). Card List 2.0 texts are quoted per describe.
+// Stakes), Youri (Speed Activate) and (moved to starter-creative-mosjes-a) Ronald Dr. Phill-osoof. Card List 2.0 texts are quoted per describe.
 import { afterEach, describe, expect, it, vi } from "vitest";
 // @ts-expect-error - JS module
 import { useMosjeAbility, activatePiecie } from "../../src/engine/turnManager.js";
@@ -12,7 +12,6 @@ const NATURAL = byName(/Ming, The Natural/);
 const PREDICTOR = byName(/Ming, The Predictor/);
 const GAMBLER = byName(/Silent Gambler/);
 const YOURI = byName(/Youri/);
-const MASTERMIND = byName(/Phill-osoof/);
 const STRONGMAN = byName(/Jeffrey, The Strongman/);
 
 const field = (me: any, p1: any = {}, extra: any = {}) => makeEngineState({
@@ -206,43 +205,4 @@ describe("Youri, The Speedrunner: Speed Activate (pay 1 Energy: a Piecie placed 
   });
 });
 
-describe("Ronald, Dr. Phill-osoof: Master Plan (once per turn, pay 2 Energy: activate a Piecie from your discard pile as if ready; it goes back to the discard pile)", () => {
-  const board = (graveyard: any[], extra: any = {}) => field(MASTERMIND, { graveyard, ...extra });
-
-  it("Kannetje Melk from the discard pile: 2 Energy paid, effect resolves, the card is back in the discard pile", () => {
-    const res = use(board([{ cardId: "piecie_kannetje_melk" }]), MASTERMIND, { discard_card: 0 });
-    expect(res.success).toBe(true);
-    const p = res.state.players.player_1;
-    expect(p.energy).toBe(4);
-    expect(p.activeSlots[0].mp).toBe(55); // +25
-    expect(p.graveyard.filter((c: any) => c.cardId === "piecie_kannetje_melk")).toHaveLength(1);
-    expect(p.piecieSlots.every((s: any) => s === null)).toBe(true);
-  });
-
-  it("once per turn, no once-per-game flag: a second use the same turn is refused, the next turn works", () => {
-    const first = use(board([{ cardId: "piecie_kannetje_melk" }]), MASTERMIND, { discard_card: 0 });
-    first.state._pendingTargets = { discard_card: 0 };
-    const again = useMosjeAbility(first.state, "player_1", MASTERMIND.id);
-    expect(again.success).toBe(false);
-    const next = JSON.parse(JSON.stringify(first.state));
-    const slot = next.players.player_1.activeSlots[0];
-    slot.abilityUsedThisTurn = false; slot.abilityUsesThisTurn = 0;
-    next._pendingTargets = { discard_card: 0 };
-    expect(useMosjeAbility(next, "player_1", MASTERMIND.id).success).toBe(true);
-    expect(slot.abilityUsedThisGame).toBeFalsy();
-  });
-
-  it("Jeffrey, The Strongman on the field + an MP Piecie: works as for any Mosje (no gate in 2.1)", () => {
-    const s = board([{ cardId: "piecie_ronald_kip" }]);
-    s.players.player_1.activeSlots[1] = mkSlot({ mp: 30 }, STRONGMAN);
-    const res = use(s, MASTERMIND, { discard_card: 0 });
-    expect(res.success, res.error).toBe(true);
-    expect(res.state.players.player_1.energy).toBe(4);
-  });
-
-  it("refused for a card that is not a Piecie, for no choice, and with 1 Energy", () => {
-    expect(use(board([{ cardId: "snelle_jensen" }]), MASTERMIND, { discard_card: 0 }).success).toBe(false);
-    expect(use(board([{ cardId: "piecie_kannetje_melk" }]), MASTERMIND, {}).success).toBe(false);
-    expect(use(board([{ cardId: "piecie_kannetje_melk" }], { energy: 1 }), MASTERMIND, { discard_card: 0 }).success).toBe(false);
-  });
-});
+// Ronald, Dr. Phill-osoof (Master Plan: pay 1 Energy, mark an opponent Mosje for 1 die less): tests/abilities/starter-creative-mosjes-a.test.ts

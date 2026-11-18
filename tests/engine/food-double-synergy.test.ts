@@ -23,27 +23,17 @@ function makeState(p1Mosjes: (ReturnType<typeof makeSlot> | null)[]) {
   } as any;
 }
 
-describe("Binti holder text: food Piecies +10 with Coert Tech", () => {
-  it("Binti + Coert Tech is live", () => {
+// Phase 71-14: Binti, The Sharp Tongue no longer has a Coert synergy; her food +10 is gone.
+describe("Binti + Coert Tech: no holder text any more", () => {
+  it("Binti + Coert Tech is not live", () => {
     const state = makeState([makeSlot("mosje_binti"), makeSlot("mosje_coert_tech")]);
-    expect(isHolderTextActive(state, "player_1", "mosje_binti")).toBe(true);
-  });
-
-  it.each(["mosje_coert_kasteluck", "mosje_coert_kastelein"])("%s is not a partner any more", (coertId) => {
-    const state = makeState([makeSlot("mosje_binti"), makeSlot(coertId)]);
     expect(isHolderTextActive(state, "player_1", "mosje_binti")).toBe(false);
   });
 
-  it("a defeated Coert Tech does not count", () => {
-    const dead = { ...makeSlot("mosje_coert_tech"), isDefeated: true };
-    const state = makeState([makeSlot("mosje_binti"), dead]);
-    expect(isHolderTextActive(state, "player_1", "mosje_binti")).toBe(false);
-  });
-
-  it("Kannetje Melk gives 25 + 10 with Binti + Coert Tech", () => {
+  it("Kannetje Melk gives its printed 25 with Binti + Coert Tech", () => {
     const state = makeState([makeSlot("mosje_binti", 20), makeSlot("mosje_coert_tech")]);
     const out = effect_kannetje_melk(state, "player_1");
-    expect(out.players.player_1.activeSlots[0].mp).toBe(55);
+    expect(out.players.player_1.activeSlots[0].mp).toBe(45);
   });
 
   it("Kannetje Melk stays at base 25 without Coert Tech", () => {

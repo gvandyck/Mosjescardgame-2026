@@ -1,11 +1,13 @@
 // Binti, The Sharp Tongue — Cutting Words: once per turn, pay 1 Energy (useMosjeAbility) and discard 1 Piecie from
 // hand: one opponent Mosje of the owner's choice (not fresh) loses 10 MP and the opponent discards 1 card of their
-// own choice. Inputs (state._pendingTargets): hand_card (hand index or Piecie cardId), opp_slot_index (default: first
+// own choice. From Level 2 the hit is 20 MP, but not on two turns in a row (the turn after a 20 hit it is 10; tracked per
+// slot with bintiBigHitThisTurn / bintiBigHitLastTurn, moved by startTurn). Inputs (state._pendingTargets): hand_card (hand index or Piecie cardId), opp_slot_index (default: first
 // non-fresh Mosje). Refused (throws, nothing spent) for a non-Piecie card or when every opponent Mosje is fresh.
 import { loseMP } from '../../engine/mpManager.js';
 import { markTargeted } from '../../engine/targets/markTargeted.js';
 import { isFresh } from '../../engine/fresh/isFresh.js';
 import { PIECIES } from '../../data/piecies.js';
+import { discardFromHand } from '../../engine/hand/discardFromHand.js';
 import { runTriggerJobs } from '../../engine/mosje/runTriggerJobs.js';
 
 export function bintiCuttingWords(gameState, playerId, mosjeId = 'mosje_binti') {
@@ -30,8 +32,11 @@ export function bintiCuttingWords(gameState, playerId, mosjeId = 'mosje_binti') 
 	delete targets.hand_card;
 	delete targets.opp_slot_index;
 
-	player.graveyard.push(...player.hand.splice(handIndex, 1));
+	const slot = player.activeSlots[bintiIndex];
+	const big = (slot.level || 1) >= 2 && slot.bintiBigHitLastTurn !== true;
+	if (big) slot.bintiBigHitThisTurn = true;
+	discardFromHand(state, playerId, handIndex, { byPlayerId: playerId }); // fires Discarded (D-27)
 	markTargeted(state, oppId, target.i); // the Target step (D-20)
-	const hit = loseMP(state, oppId, target.i, 10, 'ABILITY', false, playerId);
+	const hit = loseMP(state, oppId, target.i, big ? 20 : 10, 'ABILITY', false, playerId);
 	return runTriggerJobs(hit, 'bintiDiscard', [{ triggerIdx: 0, playerId, slotIndex: bintiIndex }], 0, { playerId, discarderId: oppId });
 }

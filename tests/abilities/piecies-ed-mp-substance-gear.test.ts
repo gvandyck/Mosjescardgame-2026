@@ -68,18 +68,18 @@ describe('MP Piecies', () => {
     expect(mp(run(fresh), 'player_2')).toBe(50);
   });
 
-  it("food Piecies give +10 more while Binti's Coert holder text is active (Varkenspootjes on Binti = 50), never on a loss", () => {
+  it("food Piecies give their printed MP with Binti and Coert on the field (71-14: the old +10 synergy is gone)", () => {
     const s = board('piecie_kannetje_melk');
     const coert = MOSJES.find((m: any) => m.id === 'mosje_coert_tech');
     s.players.player_1.activeSlots[1] = { ...createMosjeSlot(coert, { level: 1, mp: 30 }), entryProtected: false };
     s.players.player_1.activeSlots[0] = { ...createMosjeSlot(binti(), { level: 1, mp: 20 }), entryProtected: false };
     s._pendingTargets = { own_slot_index: 1 };
     const out = run(s);
-    expect(mp(out, 'player_1', 1)).toBe(65); // 30 + 25 + 10
+    expect(mp(out, 'player_1', 1)).toBe(55); // 30 + 25
     const v = board('piecie_varkenspootjes', { pick: { any_target: { playerId: 'player_1', slotIndex: 0 } } });
     v.players.player_1.activeSlots[1] = { ...createMosjeSlot(coert, { level: 1, mp: 30 }), entryProtected: false };
     v.players.player_1.activeSlots[0] = { ...createMosjeSlot(binti(), { level: 1, mp: 20 }), entryProtected: false };
-    expect(mp(run(v))).toBe(70); // 20 + 40 + 10
+    expect(mp(run(v))).toBe(60); // 20 + 40
   });
 
   // Ctrl+S (piecie_momentum_boost) is a protection card now: tests/abilities/starter-protection-piecies.test.ts.

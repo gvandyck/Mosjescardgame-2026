@@ -739,7 +739,7 @@ export const MOSJES = [
     abilityId: "ability_binti_cutting_words",
     abilityDescription: "Once per turn: pay 1 Energy and discard 1 Piecie; 1 target opponent Mosje loses 10 MP and your opponent discards 1 card of their choice. From Level 2: 20 MP instead, but not on two turns in a row.",
     synergyWith: ["mosje_coert_tech", "mosje_coert_kasteluck", "mosje_coert_kastelein"],
-    synergyEffect: "While Coert, The Hawaiian Tech Savant is also on your field: every food Piecie you activate gives its Mosje +10 MP extra.",
+    synergyEffect: null,
     petSynergy: null,
     tags: ["BINTI"],
     friend: "Binti",

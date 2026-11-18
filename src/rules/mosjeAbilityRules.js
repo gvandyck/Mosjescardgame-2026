@@ -40,7 +40,7 @@ export const MOSJE_ABILITY_RULES = Object.freeze({
 	ability_fps_coert_headshot_precision: trig(),
 	ability_fps_west_tactical_analysis: act(), // FPS West: look at the hand, may lose 20 MP to bottom a card (pause)
 	// Creative
-	ability_ronald_mastermind_master_plan: act([{ key: 'discard_card', kind: 'discardCard', filter: 'PIECIE' }], { targets: true }),
+	ability_ronald_mastermind_master_plan: act([{ key: 'opp_slot_index', kind: 'oppMosje' }], { targets: true }),
 	ability_jisca_perfect_combo: trig(),
 	ability_tuk_healer_healing_presence: act([{ key: 'own_slot_index', kind: 'ownMosje' }]),
 	ability_dj_8020_lucky_beats: act([], { ownTurnOnly: false, reactive: true }),

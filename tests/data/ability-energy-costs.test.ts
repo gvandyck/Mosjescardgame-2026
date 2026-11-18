@@ -14,7 +14,6 @@ const known = (MOSJES as any[]).filter((m) => m.abilityId);
 const PHASE_71_TEXT_AHEAD = [
   "ability_gandoe_wizard_chaos_roll", // new: pay 1 Energy, look at the top 3 cards
   "ability_ming_natural_lucky_draw", // new: pay 1 Energy, reveal the top card and draw it
-  "ability_ronald_mastermind_master_plan", // new: pay 1 Energy (table still has the old 2)
 ];
 
 describe("ability Energy costs", () => {

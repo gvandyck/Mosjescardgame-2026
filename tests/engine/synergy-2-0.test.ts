@@ -27,7 +27,6 @@ describe("isHolderTextActive: the five 2.0 pairs", () => {
   it.each([
     ["mosje_martin_historian", "mosje_cless_teacher"],
     ["mosje_martin_senor_west", "mosje_azn_cless"],
-    ["mosje_binti", "mosje_coert_tech"],
   ])("%s works with %s and not without", (holder, partner) => {
     expect(isHolderTextActive(makeState([slot(holder), slot(partner)]), "player_1", holder)).toBe(true);
     expect(isHolderTextActive(makeState([slot(holder), null]), "player_1", holder)).toBe(false);
@@ -41,22 +40,24 @@ describe("isHolderTextActive: the five 2.0 pairs", () => {
   });
 
   it("getActiveSynergies lists live holders only", () => {
-    const syn = getActiveSynergies(makeState([slot("mosje_binti"), slot("mosje_coert_tech")]), "player_1");
-    expect(syn.map((x: any) => x.holderId)).toEqual(["mosje_binti"]);
-    expect(syn[0].partnerId).toBe("mosje_coert_tech");
+    const syn = getActiveSynergies(makeState([slot("mosje_martin_historian"), slot("mosje_cless_teacher")]), "player_1");
+    expect(syn.map((x: any) => x.holderId)).toEqual(["mosje_martin_historian"]);
+    expect(syn[0].partnerId).toBe("mosje_cless_teacher");
+    // 71-14: Binti's old Coert synergy is off (her text no longer has one)
+    expect(getActiveSynergies(makeState([slot("mosje_binti"), slot("mosje_coert_tech")]), "player_1")).toEqual([]);
   });
 });
 
 describe("Synergy Chamber", () => {
   it("makes a holder work without its partner, for both players", () => {
-    const s = makeState([slot("mosje_binti"), null], "place_synergy_chamber");
+    const s = makeState([slot("mosje_martin_senor_west"), null], "place_synergy_chamber");
     s.players.player_2.activeSlots[0] = slot("mosje_martin_historian");
-    expect(isHolderTextActive(s, "player_1", "mosje_binti")).toBe(true);
+    expect(isHolderTextActive(s, "player_1", "mosje_martin_senor_west")).toBe(true);
     expect(isHolderTextActive(s, "player_2", "mosje_martin_historian")).toBe(true);
   });
   it("a fresh holder ignores it", () => {
-    const s = makeState([slot("mosje_binti", 40, { entryProtected: true }), null], "place_synergy_chamber");
-    expect(isHolderTextActive(s, "player_1", "mosje_binti")).toBe(false);
+    const s = makeState([slot("mosje_martin_senor_west", 40, { entryProtected: true }), null], "place_synergy_chamber");
+    expect(isHolderTextActive(s, "player_1", "mosje_martin_senor_west")).toBe(false);
   });
 });
 
