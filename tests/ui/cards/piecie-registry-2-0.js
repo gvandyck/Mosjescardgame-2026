@@ -2,12 +2,13 @@
  * piecie-registry-2-0.js - card-test-library entries for the Example-Deck Piecies (Obby 2.0, Phase 59).
  * Every expected number comes from the Card List Piecie tables (docs/obby-2.0), not from engine output.
  * Driver: tests/helpers/mosjeCardTest.js (the spec passes { mosje: piecie } as the entry id).
- * The starter food, gear, attack and substance rows (71-20) live in piecie-registry-starter-*.js and are spread in at the end.
+ * The starter food, gear, attack and substance rows (71-20) live in piecie-registry-starter-*.js and are spread in at the end; the pet and trick rows (71-21) live in piecie-registry-starter-pet-trick.js.
  * Plain targets: Ming Predictor (no Strength, no Resilient, passive-free), Michelle (Strength 2), Parkour West
  * (Strength 3, Resilient 2), Gandoe Wizard (a Gandoe, Strength 2). Opponent hand is pinned empty by the setup.
  */
 import { STARTER_FOOD_GEAR_ROWS } from './piecie-registry-starter-food-gear.js';
 import { STARTER_ATTACK_SUBSTANCE_ROWS } from './piecie-registry-starter-attack-substance.js';
+import { STARTER_PET_TRICK_ROWS } from './piecie-registry-starter-pet-trick.js';
 
 const MING = 'mosje_ming_predictor';
 const OPP40 = [{ id: MING, mp: 40 }];
@@ -16,23 +17,6 @@ const own = (id, mp = 20) => [{ id, mp }];
 
 export const PIECIE_REGISTRY = [
 	// -- MP Piecies ---------------------------------------------------------
-	{ piecie: 'piecie_eendjes_voeren', deck: 'example', section: 'MP', cases: [
-		{ name: "Nature's Gift: Resilient below 2 stars -> +30",
-			setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_eendjes_voeren') },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_eendjes_voeren' }, expect: { mp: { 'own.0': 50 } } },
-		{ name: "Nature's Gift: Resilient 2 stars -> +40",
-			setup: { field: own('mosje_parkour_west'), oppField: OPP40, piecies: on('piecie_eendjes_voeren') },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_eendjes_voeren' }, expect: { mp: { 'own.0': 60 } } },
-	] },
-	{ piecie: 'piecie_momentum_boost', deck: 'example', section: 'MP', cases: [
-		{ name: '+15 MP now',
-			setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_momentum_boost') },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_momentum_boost' }, expect: { mp: { 'own.0': 35 } } },
-		{ name: 'flags the Mosje for +10 more on a Quest win this turn',
-			setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_momentum_boost') },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_momentum_boost' },
-			expect: { mp: { 'own.0': 35 }, state: [['players.player_1.activeSlots.0.momentumBoostWin', true]] } },
-	] },
 	// -- Substance Piecies --------------------------------------------------
 	{ piecie: 'piecie_grammetje_pieter', deck: 'example', section: 'Substance', cases: [
 		{ name: 'roll 1-3: loses 15',
@@ -75,7 +59,7 @@ export const PIECIE_REGISTRY = [
 			trigger: { kind: 'activatePiecie', cardId: 'piecie_boxing_gloves' },
 			expect: { energy: 2, state: [['players.player_1.activeSlots.0.powerBoostThisTurn', 10]] } },
 		{ name: 'a Gandoe gets +20 instead',
-			setup: { field: own('mosje_gandoe_wizard'), oppField: OPP40, piecies: on('piecie_boxing_gloves'), energy: 3 },
+			setup: { field: own('mosje_gandoe_destroyer'), oppField: OPP40, piecies: on('piecie_boxing_gloves'), energy: 3 },
 			trigger: { kind: 'activatePiecie', cardId: 'piecie_boxing_gloves' },
 			expect: { state: [['players.player_1.activeSlots.0.powerBoostThisTurn', 20]] } },
 	] },
@@ -122,32 +106,12 @@ export const PIECIE_REGISTRY = [
 		expect: { mp: { 'opp.0': 35 }, state: [['players.player_2.welloePile.length', 0]] }, // whether the card still draws with no legal target is not stated by the Card List
 	}] },
 	// -- Protection and Pet Piecies (59-03) ----------------------------------
-	{ piecie: 'piecie_afblijven', deck: 'example', section: 'Utility', cases: [{
-		name: 'Stays, the chosen Mosje loses 10 less per loss (1 Energy)',
-		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_afblijven') },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_afblijven' },
-		expect: { energy: 2, state: [['players.player_1.piecieSlots.0.stays', true], ['players.player_1.piecieSlots.0.boundTo.0.reduce', 10]] },
-	}] },
 	{ piecie: 'piecie_laat_me_chillen', deck: 'example', section: 'Utility', cases: [{
 		name: 'Stays, the next loss of any own Mosje is 20 less',
 		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_laat_me_chillen') },
 		trigger: { kind: 'activatePiecie', cardId: 'piecie_laat_me_chillen' },
 		expect: { energy: 2, state: [['players.player_1.piecieSlots.0.stays', true], ['players.player_1.piecieSlots.0.lossReduceOnce', 20]] },
 	}] },
-	{ piecie: 'piecie_bowie_stormey', deck: 'example', section: 'Pet', cases: [
-		{ name: 'a Mosje that is not named is covered 10 less',
-			setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_bowie_stormey') },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_bowie_stormey' },
-			expect: { energy: 2, state: [['players.player_1.piecieSlots.0.boundTo.0.reduce', 10]] } },
-		{ name: 'the named Michelle is covered 20 less',
-			setup: { field: own('mosje_michelle'), oppField: OPP40, piecies: on('piecie_bowie_stormey') },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_bowie_stormey' },
-			expect: { state: [['players.player_1.piecieSlots.0.boundTo.0.reduce', 20]] } },
-		{ name: 'Gandoe + Michelle: both covered 20 less, each gains 10 at the start of the next turn',
-			setup: { field: [{ slot: 0, id: 'mosje_gandoe_wizard', mp: 20 }, { slot: 1, id: 'mosje_michelle', mp: 20 }], oppField: OPP40, piecies: on('piecie_bowie_stormey') },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_bowie_stormey', picks: [{ index: 0 }] },
-			expect: { state: [['players.player_1.piecieSlots.0.boundTo.0.reduce', 20], ['players.player_1.piecieSlots.0.boundTo.1.reduce', 20], ['players.player_1.piecieSlots.0.startGain.length', 2]] } },
-	] },
 	{ piecie: 'piecie_vianna_poes', deck: 'example', section: 'Pet', cases: [
 		{ name: 'a Mosje that is not a Cless is covered 10 less',
 			setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_vianna_poes') },
@@ -159,46 +123,6 @@ export const PIECIE_REGISTRY = [
 			expect: { state: [['players.player_1.piecieSlots.0.boundTo.0.reduce', 20]] } },
 	] },
 	// -- Utility Piecies: draw, dice, chain, Place (59-04) ---------------------
-	{ piecie: 'piecie_boosterpackkie', deck: 'example', section: 'Utility', cases: [
-		{ name: 'no Coert: draw 1 and nothing else',
-			setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_boosterpackkie') },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_boosterpackkie' }, expect: { mp: { 'own.0': 20 }, handDelta: 1, energy: 3 } },
-		{ name: 'a Coert: +10 MP and a 5-6 draws 1 more',
-			setup: { field: own('mosje_coert_kasteluck'), oppField: OPP40, piecies: on('piecie_boosterpackkie'), abilityDice: [6] },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_boosterpackkie' }, expect: { mp: { 'own.0': 30 }, handDelta: 2 } },
-		{ name: 'a Coert: a 1-4 draws only the first card',
-			setup: { field: own('mosje_coert_kasteluck'), oppField: OPP40, piecies: on('piecie_boosterpackkie'), abilityDice: [3] },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_boosterpackkie' }, expect: { mp: { 'own.0': 30 }, handDelta: 1 } },
-	] },
-	{ piecie: 'piecie_zie_je_die_dingetjes', deck: 'example', section: 'Utility', cases: [{
-		name: 'top 3: take the 2nd to hand, the rest go back on top in the chosen order',
-		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_zie_je_die_dingetjes'), deckTop: ['piecie_affoe', 'piecie_straffoe', 'piecie_larry_zegeltje'] },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_zie_je_die_dingetjes', picks: [/Straffoe/, /Larry/] },
-		expect: { handDelta: 1, energy: 3, state: [['players.player_1.hand.0.cardId', 'piecie_straffoe'],
-			['players.player_1.deck.0.cardId', 'piecie_larry_zegeltje'], ['players.player_1.deck.1.cardId', 'piecie_affoe']] },
-	}] },
-	{ piecie: 'piecie_stookerino', deck: 'example', section: 'Utility', cases: [
-		{ name: 'discard a 4-Energy card of the opponent: +30 (max 30)',
-			setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_stookerino'), oppHand: ['piecie_pot_of_weed', 'piecie_harde_didde'] },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_stookerino', picks: [/Harde Didde/] },
-			expect: { mp: { 'own.0': 50 }, energy: 1, oppHandDelta: -1, state: [['players.player_2.graveyard.0.cardId', 'piecie_harde_didde']] } },
-		{ name: 'a Binti on the field gains 10 more',
-			setup: { field: [{ slot: 0, id: MING, mp: 20 }, { slot: 1, id: 'mosje_binti', mp: 20 }], oppField: OPP40, piecies: on('piecie_stookerino'), oppHand: ['piecie_chain_reaction'] },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_stookerino', picks: [{ index: 0 }] },
-			expect: { mp: { 'own.0': 40, 'own.1': 30 }, oppHandDelta: -1 } },
-	] },
-	{ piecie: 'piecie_quest_prep', deck: 'example', section: 'Utility', cases: [{
-		name: 'Dubbele Dosis: 2 dice on the next Quest and one die rerolled at the after-roll pause',
-		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_quest_prep'), quest: { stack: 'PHYSICAL', id: 'quest_geen_raad_vraag_aad' }, dice: [1, 1], abilityDice: [5] },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_quest_prep', then: { kind: 'quest', stack: 'PHYSICAL', picks: [/Reroll die 1/] } },
-		expect: { mp: { 'own.0': 70 }, energy: 2 },
-	}] },
-	{ piecie: 'piecie_chain_reaction', deck: 'example', section: 'Utility', cases: [{
-		name: 'after a paid Piecie the next ready Piecie is free (2 + 1 Energy, two +35)',
-		setup: { field: own(MING), oppField: OPP40, energy: 6, piecies: [{ slot: 0, id: 'piecie_chain_reaction' }, { slot: 1, id: 'piecie_broodje_doner' }, { slot: 2, id: 'piecie_broodje_doner' }] },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_chain_reaction', then: { kind: 'activatePiecie', cardId: 'piecie_broodje_doner', then: { kind: 'activatePiecie', cardId: 'piecie_broodje_doner' } } },
-		expect: { mp: { 'own.0': 90 }, energy: 3 },
-	}] },
 	{ piecie: 'piecie_slecht_gezet', deck: 'example', section: 'Utility', cases: [
 		{ name: 'the opponent Place is destroyed (1 Energy)',
 			setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_slecht_gezet'), place: { id: 'place_the_gym', by: 'player_2' } },
@@ -230,31 +154,14 @@ export const PIECIE_REGISTRY = [
 		{ name: 'alone: +15 MP',
 			setup: { field: own(MING, 0), oppField: OPP40, piecies: on('piecie_chefs_special') },
 			trigger: { kind: 'activatePiecie', cardId: 'piecie_chefs_special' }, expect: { mp: { 'own.0': 15 }, energy: 2 } },
-		{ name: "with Ronald: 15 per Piecie in the opponent's hand (2 -> +30)",
+		{ name: "with Ronald: 15 per Piecie in the opponent's hand (2 -> +30), plus his +10 on the first food Piecie (D-10)",
 			setup: { field: [{ slot: 0, id: MING, mp: 0 }, { slot: 1, id: 'mosje_ronald_chef', mp: 20 }], oppField: OPP40, piecies: on('piecie_chefs_special'), oppHand: ['piecie_pot_of_weed', 'piecie_harde_didde'] },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_chefs_special', picks: [{ index: 0 }] }, expect: { mp: { 'own.0': 30 } } },
+			trigger: { kind: 'activatePiecie', cardId: 'piecie_chefs_special', picks: [{ index: 0 }] }, expect: { mp: { 'own.0': 40 } } },
 	] },
 	{ piecie: 'piecie_warm_kannetje_melk', deck: 'example', section: 'MP', cases: [{
 		name: '-10 MP and draw 2',
 		setup: { field: own(MING, 30), oppField: OPP40, piecies: on('piecie_warm_kannetje_melk') },
 		trigger: { kind: 'activatePiecie', cardId: 'piecie_warm_kannetje_melk' }, expect: { mp: { 'own.0': 20 }, handDelta: 2 },
-	}] },
-	{ piecie: 'piecie_energy_surge', deck: 'example', section: 'MP', cases: [{
-		name: 'Shoettoe: a Mosje at 20 MP or less gains 30 MP',
-		setup: { field: own(MING, 20), oppField: OPP40, piecies: on('piecie_energy_surge') },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_energy_surge' }, expect: { mp: { 'own.0': 50 } },
-	}] },
-	{ piecie: 'piecie_mp_amplifier', deck: 'example', section: 'Utility', cases: [{
-		name: 'the next gain doubles (max +40 extra): Ronald Kip makes 90 (1 + 2 Energy)',
-		setup: { field: own(MING, 0), oppField: OPP40, energy: 6, piecies: [{ slot: 0, id: 'piecie_mp_amplifier' }, { slot: 1, id: 'piecie_ronald_kip' }] },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_mp_amplifier', then: { kind: 'activatePiecie', cardId: 'piecie_ronald_kip' } },
-		expect: { mp: { 'own.0': 90 }, energy: 3, state: [['players.player_1.mpAmplifierThisTurn', false]] },
-	}] },
-	{ piecie: 'piecie_synergy_field', deck: 'example', section: 'Utility', cases: [{
-		name: 'Stays on the table until the end of your next turn (ability gains +10 in gainMP)',
-		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_synergy_field') },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_synergy_field' },
-		expect: { energy: 2, state: [['players.player_1.piecieSlots.0.stays', true], ['players.player_1.piecieSlots.0.staysEnd', 'endOfNextTurn']] },
 	}] },
 	{ piecie: 'piecie_stripje_bennies', deck: 'example', section: 'Substance', cases: [{
 		name: 'draw 3 and -20 MP',
@@ -291,60 +198,11 @@ export const PIECIE_REGISTRY = [
 		expect: { state: [['players.player_1.piecieSlots.1.startGain.length', 2], ['players.player_1.piecieSlots.1.startGain.0.amount', 15]] },
 	}] },
 	// -- Attack rest, Utility dice rest and draw rest (59-06) ------------------
-	{ piecie: 'piecie_jantje_jantje', deck: 'rest', section: 'Attack', cases: [{
-		name: 'hit: name Affoe, the opponent discards it and your Mosje gets +20 Power',
-		setup: { field: own(MING, 40), oppField: OPP40, piecies: on('piecie_jantje_jantje'), oppHand: ['piecie_affoe', 'piecie_straffoe'] },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_jantje_jantje', picks: [/Affoe/] },
-		expect: { mp: { 'own.0': 40 }, energy: 2, oppHandDelta: -1, state: [['players.player_1.activeSlots.0.powerBoostThisTurn', 20], ['players.player_2.graveyard.0.cardId', 'piecie_affoe']] },
-	}, {
-		name: 'miss: the named card is not there, your Mosje loses 10 MP',
-		setup: { field: own(MING, 40), oppField: OPP40, piecies: on('piecie_jantje_jantje'), oppHand: ['piecie_straffoe'] },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_jantje_jantje', picks: [/Affoe/] }, expect: { mp: { 'own.0': 30 }, oppHandDelta: 0 },
-	}] },
-	{ piecie: 'piecie_continuous_assault', deck: 'rest', section: 'Attack', cases: [{
-		name: 'Stays (2 Energy), the chosen Mosje has +10 Power while it stays',
-		setup: { field: own(MING, 30), oppField: OPP40, piecies: on('piecie_continuous_assault') },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_continuous_assault' },
-		expect: { energy: 1, state: [['players.player_1.piecieSlots.0.stays', true], ['players.player_1.activeSlots.0.powerStaysBonus', 10]] },
-	}] },
-	{ piecie: 'piecie_mp_hemorrhage', deck: 'rest', section: 'Attack', cases: [{
-		name: '+20 Power and the Mosje is armed (3 Energy)',
-		setup: { field: own(MING, 30), oppField: OPP40, piecies: on('piecie_mp_hemorrhage') },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_mp_hemorrhage' },
-		expect: { energy: 0, state: [['players.player_1.activeSlots.0.powerBoostThisTurn', 20], ['players.player_1.activeSlots.0.mpHemorrhageArmed', true]] },
-	}, {
-		name: 'no attack this turn: the card is discarded at the end of the turn, nothing lost',
-		setup: { field: own(MING, 30), oppField: OPP40, piecies: on('piecie_mp_hemorrhage') },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_mp_hemorrhage', then: { kind: 'turnEnd' } },
-		expect: { mp: { 'opp.0': 40 }, state: [['players.player_1.piecieSlots.0', null]] },
-	}] },
 	{ piecie: 'piecie_tweede_kans', deck: 'rest', section: 'Utility', cases: [{
 		name: 'one reroll of any Quest roll this turn',
 		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_tweede_kans') },
 		trigger: { kind: 'activatePiecie', cardId: 'piecie_tweede_kans' },
 		expect: { energy: 3, state: [['players.player_1.rerollGrants.0.scope', 'anyQuest'], ['players.player_1.rerollGrants.0.uses', 1]] },
-	}] },
-	{ piecie: 'piecie_loaded_dice', deck: 'rest', section: 'Utility', cases: [{
-		name: '+1 die, and a reroll with a Jeffrey on the field',
-		setup: { field: [{ id: 'mosje_jeffrey', mp: 20 }], oppField: OPP40, piecies: on('piecie_loaded_dice') },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_loaded_dice' },
-		expect: { state: [['players.player_1.questExtraDice', 1], ['players.player_1.rerollGrants.length', 1]] },
-	}, {
-		name: '+1 die, no reroll without a Jeffrey',
-		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_loaded_dice') },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_loaded_dice' },
-		expect: { state: [['players.player_1.questExtraDice', 1], ['players.player_1.rerollGrants', undefined]] },
-	}] },
-	{ piecie: 'piecie_dikke_plaat', deck: 'rest', section: 'Utility', cases: [{
-		name: '+1 die, and a reroll with DJ 80/20 on the field',
-		setup: { field: [{ id: 'mosje_dj_8020', mp: 20 }], oppField: OPP40, piecies: on('piecie_dikke_plaat') },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_dikke_plaat' },
-		expect: { state: [['players.player_1.questExtraDice', 1], ['players.player_1.rerollGrants.length', 1]] },
-	}, {
-		name: '+1 die, no reroll with another Mosje',
-		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_dikke_plaat') },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_dikke_plaat' },
-		expect: { state: [['players.player_1.questExtraDice', 1], ['players.player_1.rerollGrants', undefined]] },
 	}] },
 	{ piecie: 'piecie_kan_het', deck: 'rest', section: 'Utility', cases: [
 		{ name: 'a 5 gains 40 MP', setup: { field: own(MING, 20), oppField: OPP40, piecies: on('piecie_kan_het'), abilityDice: [5] },
@@ -352,35 +210,6 @@ export const PIECIE_REGISTRY = [
 		{ name: 'a 4 loses 10 MP', setup: { field: own(MING, 20), oppField: OPP40, piecies: on('piecie_kan_het'), abilityDice: [4] },
 			trigger: { kind: 'activatePiecie', cardId: 'piecie_kan_het' }, expect: { mp: { 'own.0': 10 } } },
 	] },
-	{ piecie: 'piecie_perfect_setup', deck: 'rest', section: 'Utility', cases: [{
-		name: 'counts as 80 MP for Quest requirements, real MP unchanged',
-		setup: { field: own(MING, 20), oppField: OPP40, piecies: on('piecie_perfect_setup') },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_perfect_setup', picks: [/80 MP/] },
-		expect: { mp: { 'own.0': 20 }, state: [['players.player_1.activeSlots.0.questMpOverride', 80]] },
-	}] },
-	{ piecie: 'piecie_battle_concert', deck: 'rest', section: 'Utility', cases: [{
-		name: 'with an Alyssa on your field: armed for this turn (1 Energy)',
-		setup: { field: own('mosje_alyssa_bulldozer', 30), oppField: OPP40, piecies: on('piecie_battle_concert') },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_battle_concert' }, expect: { energy: 2, state: [['_battleConcertActive', 'player_1']] },
-	}] },
-	{ piecie: 'piecie_bagga_of_greed', deck: 'rest', section: 'Utility', cases: [{
-		name: 'draw 2, then discard 1 from the hand',
-		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_bagga_of_greed'), hand: ['piecie_affoe'] },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_bagga_of_greed' }, expect: { handDelta: 1, energy: 3, state: [['players.player_1.graveyard.length', 2]] },
-	}] },
-	{ piecie: 'piecie_perfect_rhythm', deck: 'rest', section: 'Utility', cases: [{
-		name: 'the next Piecie activation draws 1 extra card (Pot of Weed 2 + 1)',
-		setup: { field: own(MING), oppField: OPP40, piecies: [{ slot: 0, id: 'piecie_perfect_rhythm' }, { slot: 1, id: 'piecie_pot_of_weed' }] },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_perfect_rhythm', then: { kind: 'activatePiecie', cardId: 'piecie_pot_of_weed' } },
-		expect: { handDelta: 3, state: [['players.player_1.perfectRhythmDraws', 1]] },
-	}] },
-	{ piecie: 'piecie_tempiecie', deck: 'rest', section: 'Utility', cases: [{
-		name: 'a discard-pile card comes to the hand, locked this turn (2 Energy)',
-		setup: { field: own(MING), oppField: OPP40, piecies: on('piecie_tempiecie'), graveyard: ['piecie_affoe'] },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_tempiecie' },
-		expect: { handDelta: 1, energy: 1, state: [['players.player_1.hand.0.cardId', 'piecie_affoe']] },
-		check: (before, after) => { if (!after.players.player_1.hand[0]?.lockedTurn) throw new Error('TemPiecie card is not locked this turn'); },
-	}] },
 	{ piecie: 'piecie_f1_telemetry', deck: 'rest', section: 'Utility', cases: [{
 		name: '+15 MP and draw 1',
 		setup: { field: own(MING, 20), oppField: OPP40, piecies: on('piecie_f1_telemetry') },
@@ -390,24 +219,7 @@ export const PIECIE_REGISTRY = [
 		setup: { field: [{ id: MING, mp: 20 }, { slot: 1, id: 'mosje_martin_driver', mp: 20 }], oppField: OPP40, piecies: on('piecie_f1_telemetry') },
 		trigger: { kind: 'activatePiecie', cardId: 'piecie_f1_telemetry' }, expect: { mp: { 'own.0': 20, 'own.1': 50 }, handDelta: 2 },
 	}] },
-	{ piecie: 'piecie_those_eyelashes', deck: 'rest', section: 'Utility', cases: [{
-		name: 'Martin on the field: the opponent discards 1, your Mosje gains 20 MP, no opponent Snelle this turn',
-		setup: { field: own('mosje_martin_driver', 20), oppField: OPP40, piecies: on('piecie_those_eyelashes'), oppHand: ['piecie_affoe', 'piecie_straffoe'] },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_those_eyelashes' },
-		expect: { mp: { 'own.0': 40 }, energy: 1, oppHandDelta: -1, state: [['_snelleBlocked', 'player_2']] },
-	}] },
 	// -- Chain / swap (59-07) -----------------------------------------------
-	{ piecie: 'piecie_redbull', deck: 'rest', section: 'Utility', cases: [{
-		name: 'Tuk Healer gets one more ability use this turn (2 Energy)',
-		setup: { field: own('mosje_tuk_healer'), oppField: OPP40, piecies: on('piecie_redbull') },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_redbull' }, expect: { energy: 1, state: [['players.player_1.activeSlots.0.extraAbilityUses', 1]] },
-	}] },
-	{ piecie: 'piecie_double_trigger', deck: 'rest', section: 'Utility', cases: [{
-		name: 'both Mosjes with an activated ability get one more use (3 Energy)',
-		setup: { field: [{ id: 'mosje_tuk_healer', mp: 20, level: 2 }, { slot: 1, id: 'mosje_hacker', mp: 20 }], oppField: OPP40, piecies: on('piecie_double_trigger') },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_double_trigger' },
-		expect: { energy: 0, state: [['players.player_1.activeSlots.0.extraAbilityUses', 1], ['players.player_1.activeSlots.1.extraAbilityUses', 1]] },
-	}] },
 	{ piecie: 'piecie_leipe_swap', deck: 'rest', section: 'Utility', cases: [{
 		name: 'swaps the MP of your Mosje (20) and the opponent Mosje (40) for good, no level change (4 Energy)',
 		setup: { field: own(MING, 20), oppField: OPP40, piecies: on('piecie_leipe_swap'), energy: 6 },
@@ -419,12 +231,6 @@ export const PIECIE_REGISTRY = [
 		trigger: { kind: 'activatePiecie', cardId: 'piecie_dubbele_ding' }, expect: { energy: 4 },
 	}] },
 	// -- Protect / Welloe / wildcard (59-08) --------------------------------
-	{ piecie: 'piecie_mosje_shield', deck: 'rest', section: 'Utility', cases: [{
-		name: 'Stays bound to your Mosje (2 Energy); it cannot be sent to the Welloe pile',
-		setup: { field: own(MING, 20), oppField: OPP40, piecies: on('piecie_mosje_shield'), energy: 5 },
-		trigger: { kind: 'activatePiecie', cardId: 'piecie_mosje_shield', picks: [{ index: 0 }] },
-		expect: { energy: 3, state: [['players.player_1.piecieSlots.0.cardId', 'piecie_mosje_shield'], ['players.player_1.piecieSlots.0.boundTo.0.shield', true]] },
-	}] },
 	{ piecie: 'piecie_welloe_force', deck: 'rest', section: 'Utility', cases: [{
 		name: 'discards 1 hand card as part of the cost (2 Energy) and Stays until the start of your next turn',
 		setup: { field: own(MING, 20), oppField: OPP40, piecies: on('piecie_welloe_force'), energy: 5, hand: ['piecie_kannetje_melk'] },
@@ -452,4 +258,6 @@ export const PIECIE_REGISTRY = [
 	// -- Starter food, gear, attack and substance Piecies on the 2.1 text (71-20) ---------------------
 	...STARTER_FOOD_GEAR_ROWS,
 	...STARTER_ATTACK_SUBSTANCE_ROWS,
+	// -- Starter pet and trick Piecies on the 2.1 text (71-21); rows of the archived Piecies are gone (D-35) ---------
+	...STARTER_PET_TRICK_ROWS,
 ];

@@ -2,7 +2,6 @@
 // The coverage guards skip the row check for these ids. 71-20 to 71-23 empty the list; 71-25 deletes this file.
 export const REGISTRY_PENDING = [
 	'snelle_chriss_handdoek',
-	'piecie_zwoele_ming_power',
 	'place_ronnies_kitchen',
 	'place_woonkamer_discord',
 	'place_youris_woonkamer',

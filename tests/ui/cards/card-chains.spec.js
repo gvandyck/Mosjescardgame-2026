@@ -3,7 +3,7 @@
  *
  * These go beyond single-card assertions: they wire up a precise board with the
  * custom-scenario testHooks (setHand, setMosjeOnField, setMosjeMP, unlockPiecies)
- * and verify interactions — getemt (sideways, Welloe pile), MP-amplifier scaling, multi-Mosje
+ * and verify interactions — getemt (sideways, Welloe pile), multi-Mosje
  * abilities, MP transfer. Runs in the `cards` project (single browser, gentle).
  *
  * Run: npm run test:cards   (or SLOWMO=400 npm run test:cards:watch to watch)
@@ -92,44 +92,7 @@ test('chain: Affoe getemt — first hit sideways at 0 MP, second hit to the Well
 	expect(await page.locator('#reward-overlay').count()).toBe(0);
 });
 
-// ── Chain B: MP Amplifier doubles the NEXT gain (max +40 extra) ──────────────────────────
-// Activate MP Amplifier (sets mpAmplifierThisTurn), then Kannetje Melk (+25 base): doubled = +50.
-test('chain: MP Amplifier → next Kannetje Melk gains +50 (doubled)', async ({ page }) => {
-	test.setTimeout(60000);
-	await seedCustomDeck(page, {
-		id: 'custom_amp_chain', name: 'Amplifier Chain',
-		mosjes: ['mosje_gandoe_destroyer'],
-		piecies: ['piecie_mp_amplifier', 'piecie_kannetje_melk', 'piecie_kannetje_melk'],
-		snellePiecies: ['snelle_jensen'], places: [], quests: [],
-	}, 'PHYSICAL_FORCE');
-	await page.goto(GAME_URL_TEST);
-	await waitForBoard(page);
-	await clearEntryProtection(page); // U8 — chains model an established board
-
-	await setMosjeMP(page, 'player_1', 0, 40);
-	await setHand(page, 'player_1', ['piecie_mp_amplifier', 'piecie_kannetje_melk']);
-
-	// Activate amplifier first (sets the flag, no MP change)
-	await playCardFromHand(page, 'piecie_mp_amplifier');
-	await page.waitForTimeout(300);
-	await unlockPiecies(page, 'player_1');
-	await activate(page, 'piecie_mp_amplifier');
-
-	const flagged = await getGameState(page);
-	expect(flagged?.players?.player_1?.mpAmplifierThisTurn).toBe(true);
-
-	// Now play + activate Kannetje Melk — gain should be doubled to 50
-	const before = await ownSlot0(page);
-	await playCardFromHand(page, 'piecie_kannetje_melk');
-	await page.waitForTimeout(300);
-	await unlockPiecies(page, 'player_1');
-	await activate(page, 'piecie_kannetje_melk');
-	const after = await ownSlot0(page);
-	const delta = after - before;
-	console.log(`Amplifier chain: Kannetje gain = ${delta} (expected 50 = 25 doubled)`);
-	await ss(page, 'chain-mp-amplifier');
-	expect(delta).toBe(50);
-});
+// Chain B (MP Amplifier doubles the next gain) was removed in 71-21: MP Amplifier is an archived Piecie (D-35).
 
 // Removed in 58-12: the V4 single-Mosje chains for Tuk Healer (+10 chosen Mosje), Tactician (MP transfer), Ming Natural
 // (reveal modal, keep/activate), Chris All-Rounder (+25 on a Piecie) and Jisca (5-6 free activation of the only Piecie).
