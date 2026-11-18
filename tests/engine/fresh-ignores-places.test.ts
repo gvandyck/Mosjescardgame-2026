@@ -62,15 +62,16 @@ const MOSJE_PLACES = [
 // change what a card costs / draws for a player, so no Mosje channel moves.
 const SPECIAL = ["place_synergy_chamber"];
 // Ronnie's Kitchen acts on food Piecie gains only (getFoodBonus, fresh-checked in starter-ronald-food.test.ts), not on a probe channel.
+// Youri's Woonkamer (a draw) and Punto Banco (a roll option) touch no Mosje channel: fresh cases in starter-places-b.test.ts.
 // Woonkamer (Discord) needs 2 Digital Mosjes on the field: the one-Mosje probe sees no change (fresh case: starter-places-a.test.ts).
-const PLAYER_LEVEL = ["place_coerts_caravan", "place_welloe_graveyard", "place_digital_gaming_stop", "place_ronnies_kitchen", "place_woonkamer_discord"];
+const PLAYER_LEVEL = ["place_coerts_caravan", "place_welloe_graveyard", "place_digital_gaming_stop", "place_ronnies_kitchen", "place_woonkamer_discord", "place_youris_woonkamer", "place_punto_banco"];
 
 describe("fresh Mosjes ignore Places (RULE-08)", () => {
   beforeEach(() => { vi.spyOn(Math, "random").mockReturnValue(0.5); }); // start-of-turn triggers of some Mosjes roll dice
   afterEach(() => vi.restoreAllMocks());
 
-  it("the three groups cover exactly the 23 Places", () => {
-    expect(ALL).toHaveLength(23);
+  it("the three groups cover exactly the 25 Places", () => {
+    expect(ALL).toHaveLength(25);
     expect([...MOSJE_PLACES, ...SPECIAL, ...PLAYER_LEVEL].sort()).toEqual([...ALL].sort());
   });
 

@@ -14,6 +14,7 @@ import { getEligibleReactions } from '../reactions/getEligibleReactions.js';
 import { buildPendingReaction } from '../reactions/buildPendingReaction.js';
 import { beforeRollWindows } from '../reactions/beforeRollWindows.js';
 import { REACTION_MOMENTS as M } from '../reactions/reactionMoments.js';
+import { applyPuntoBanco } from '../../abilities/place/applyPuntoBanco.js';
 import { placeSkiffaGrant } from '../../abilities/place/placeTurnQuestEffects.js';
 
 export function rollQuestAttempt(state, playerId, options) {
@@ -40,7 +41,7 @@ export function rollQuestAttempt(state, playerId, options) {
 	return { ...res, state: buildPendingReaction(held, playerId, { type: 'continueQuest', args: [] }, windows), reactionPending: true };
 }
 
-function rollCore(state, playerId, { slotIndex, stackId, costChoice, dieChoices = {}, rng = queuedRng }) {
+function rollCore(state, playerId, { slotIndex, stackId, costChoice, dieChoices = {}, puntoBanco, rng = queuedRng }) {
 	const fail = (error) => ({ ok: false, state, error });
 	const gate = canMosjeTakeAction(state, playerId, slotIndex);
 	if (!gate.ok) return fail(gate.error);
@@ -59,8 +60,10 @@ function rollCore(state, playerId, { slotIndex, stackId, costChoice, dieChoices 
 	slot.actedThisTurn = true;
 	player.questsAttemptedThisTurn = (player.questsAttemptedThisTurn || 0) + 1;
 
-	const extra = QUEST_EXTRAS[quest.id]?.extraDice?.(
-		{ state: s, playerId, player, slot, slotIndex, quest, revealed: paid.revealed }, dieChoices) || 0;
+	const trained = quest.band === 'trained';
+	const gamble = trained ? { extraDice: 0 } : applyPuntoBanco(s, playerId, puntoBanco, rng); // Punto Banco: paid and stamped on this copy, before the Quest dice
+	const extra = gamble.extraDice + (QUEST_EXTRAS[quest.id]?.extraDice?.(
+		{ state: s, playerId, player, slot, slotIndex, quest, revealed: paid.revealed }, dieChoices) || 0);
 	const diceCount = getQuestDiceCount(s, playerId, slot, quest, { extra });
 	s.questRollsThisTurn = (s.questRollsThisTurn || 0) + 1; // Nieuwe Gimma: counted on this copy only, after the dice
 	player.questExtraDice = 0;
@@ -70,12 +73,11 @@ function rollCore(state, playerId, { slotIndex, stackId, costChoice, dieChoices 
 	for (const g of player.rerollGrants || []) if (g.scope === 'ownQuest') g.forRoll = true; // Dubbele Dosis: reroll belongs to this Quest
 	placeSkiffaGrant(s, player, slot); // Skiffa: an Creative roller may reroll 1 die
 
-	const trained = quest.band === 'trained';
 	const dice = trained ? [] : rollQuestDice(diceCount, rng);
 	const win = trained ? true : isBandWin(quest.band, dice, ease);
 	return {
 		ok: true,
 		state: s,
-		pending: { playerId, slotIndex, stackId, questId, ease, dice, diceCount: trained ? 0 : diceCount, win, revealed: paid.revealed || null, discardedCardIds: paid.discardedCardIds || [] },
+		pending: { playerId, slotIndex, stackId, questId, ease, dice, diceCount: trained ? 0 : diceCount, win, revealed: paid.revealed || null, discardedCardIds: paid.discardedCardIds || [], ...(gamble.result ? { puntoBanco: gamble.result } : {}) },
 	};
 }

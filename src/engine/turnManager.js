@@ -518,6 +518,7 @@ export function resolvePiecieActivation(state, playerId, safeSlotIndex, knownCar
   const after = {
     handSizeBefore: state.players[playerId].hand.length,
     rhythmWasArmed: state.players[playerId].perfectRhythmDrawNextPiecie === true,
+    placedThisTurn: !!slot && slot.playedOnTurn === state.turnNumber, // Youri's Woonkamer
   };
   const run = runPiecieEffect(state, playerId, knownCardDef, { slotIndex: safeSlotIndex, free }, { after });
   state = run.state;

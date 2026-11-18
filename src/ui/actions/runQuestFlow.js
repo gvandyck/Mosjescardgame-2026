@@ -12,6 +12,7 @@ import { pickQuestChoices } from './pickQuestChoices.js';
 import { legalCostChoices } from './legalCostChoices.js';
 import { escapeMeta } from './escapeMeta.js';
 import { offerWestPeek } from './offerWestPeek.js';
+import { askPuntoBanco } from './askPuntoBanco.js';
 import { getQuestTargets } from '../board/getQuestTargets.js';
 
 export async function runQuestFlow({ state: startState, playerId, modal, rng = Math.random, settle = async s => s, slotIndex: presetSlot, stackId: presetStack }) {
@@ -35,7 +36,8 @@ export async function runQuestFlow({ state: startState, playerId, modal, rng = M
 
 	const pre = await pickQuestChoices({ state, playerId, modal, phase: 'pre', slotIndex, stackId });
 	if (!pre) return none;
-	const roll = rollQuestAttempt(state, playerId, { slotIndex, stackId, costChoice: pre.costChoice, dieChoices: pre.dieChoices, rng });
+	const puntoBanco = await askPuntoBanco({ state, playerId, modal });
+	const roll = rollQuestAttempt(state, playerId, { slotIndex, stackId, costChoice: pre.costChoice, dieChoices: pre.dieChoices, puntoBanco, rng });
 	if (!roll.ok) {
 		await modal.showOptionSelect({ title: 'Cannot attempt', prompt: roll.error, options: [{ id: 'ok', label: 'OK' }] });
 		return none;

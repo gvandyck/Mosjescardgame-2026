@@ -8,6 +8,7 @@ import { getPersonalQuestOptions } from '../../engine/personalQuests/getPersonal
 import { getPersonalQuestDef } from '../../engine/personalQuests/getPersonalQuestDef.js';
 import { pickPersonalQuestChoice } from './pickPersonalQuestChoice.js';
 import { escapeMeta } from './escapeMeta.js';
+import { askPuntoBanco } from './askPuntoBanco.js';
 
 const OK = [{ id: 'ok', label: 'OK' }];
 const nameOf = (cardId) => getPersonalQuestDef(cardId)?.name ?? cardId;
@@ -52,7 +53,8 @@ export async function runPersonalQuestFlow({ state, playerId, modal, rng = Math.
 
 	const choice = await pickPersonalQuestChoice({ state, playerId, modal, cardId });
 	if (!choice) return none;
-	const roll = rollPersonalQuestAttempt(state, playerId, { cardId, slotIndex, choice, rng });
+	const puntoBanco = await askPuntoBanco({ state, playerId, modal });
+	const roll = rollPersonalQuestAttempt(state, playerId, { cardId, slotIndex, choice, puntoBanco, rng });
 	if (!roll.ok) {
 		await modal.showOptionSelect({ title: 'Cannot attempt', prompt: roll.error, options: OK });
 		return none;

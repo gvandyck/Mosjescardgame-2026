@@ -13,6 +13,8 @@ import { getEligibleReactions } from '../reactions/getEligibleReactions.js';
 import { buildPendingReaction } from '../reactions/buildPendingReaction.js';
 import { beforeRollWindows } from '../reactions/beforeRollWindows.js';
 import { REACTION_MOMENTS as M } from '../reactions/reactionMoments.js';
+import { MAX_QUEST_DICE } from '../quests/questRules.js';
+import { applyPuntoBanco } from '../../abilities/place/applyPuntoBanco.js';
 import { placeSkiffaGrant } from '../../abilities/place/placeTurnQuestEffects.js';
 
 export function rollPersonalQuestAttempt(state, playerId, options) {
@@ -39,7 +41,7 @@ export function rollPersonalQuestAttempt(state, playerId, options) {
 	return { ...res, state: buildPendingReaction(held, playerId, { type: 'continueQuest', args: [] }, windows), reactionPending: true };
 }
 
-function rollCore(state, playerId, { cardId, slotIndex, choice = {}, rng = queuedRng }) {
+function rollCore(state, playerId, { cardId, slotIndex, choice = {}, puntoBanco, rng = queuedRng }) {
 	const fail = (error) => ({ ok: false, state, error });
 	const can = canAttemptPersonalQuest(state, playerId, { cardId, slotIndex, choice });
 	if (!can.ok) return fail(can.error);
@@ -58,7 +60,8 @@ function rollCore(state, playerId, { cardId, slotIndex, choice = {}, rng = queue
 	slot.actedThisTurn = true;
 	// 3. Roll: a Quest roll, so every dice bonus, reroll and the 6-dice cap apply
 	const energyPaid = (def.pay || []).reduce((n, c) => n + (c.kind === 'energy' ? c.amount : c.kind === 'energyAny' ? (choice?.energy || 0) : 0), 0);
-	const diceCount = getPersonalQuestDice(s, playerId, slot, def, { energyPaid });
+	const gamble = applyPuntoBanco(s, playerId, puntoBanco, rng); // Punto Banco: paid and stamped on this copy, before the dice
+	const diceCount = Math.min(MAX_QUEST_DICE, getPersonalQuestDice(s, playerId, slot, def, { energyPaid }) + gamble.extraDice);
 	s.questRollsThisTurn = (s.questRollsThisTurn || 0) + 1; // Nieuwe Gimma: a Personal Quest roll is a Quest roll
 	player.questExtraDice = 0;
 	takeQuestDiceGrants(s, playerId, slot); // card die grants (71-02) count once, on this copy only
@@ -69,6 +72,6 @@ function rollCore(state, playerId, { cardId, slotIndex, choice = {}, rng = queue
 	return {
 		ok: true,
 		state: s,
-		pending: { kind: 'personal', playerId, slotIndex, cardId, questId: cardId, dice, diceCount, win, need: { ...def.roll.need }, needPicks: needs.picks?.readyPiecies || [], energyPaid },
+		pending: { kind: 'personal', playerId, slotIndex, cardId, questId: cardId, dice, diceCount, win, need: { ...def.roll.need }, needPicks: needs.picks?.readyPiecies || [], energyPaid, ...(gamble.result ? { puntoBanco: gamble.result } : {}) },
 	};
 }

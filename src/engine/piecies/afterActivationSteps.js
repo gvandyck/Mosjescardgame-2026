@@ -2,6 +2,7 @@
 // Push-only: each step is (state, ctx) => state, ctx = { playerId, cardDef, slotIndex, free }.
 // The Kitchen draw reads the food counter, so it comes before countFoodActivation.
 import { ronniesKitchenDraw } from '../../abilities/place/ronniesKitchenDraw.js';
+import { yourisWoonkamerDraw } from '../../abilities/place/yourisWoonkamerDraw.js';
 import { countFoodActivation } from './countFoodActivation.js';
 
-export const AFTER_ACTIVATION_STEPS = [ronniesKitchenDraw, countFoodActivation];
+export const AFTER_ACTIVATION_STEPS = [ronniesKitchenDraw, yourisWoonkamerDraw, countFoodActivation];

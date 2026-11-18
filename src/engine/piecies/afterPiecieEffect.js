@@ -32,7 +32,7 @@ export function afterPiecieEffect(state, playerId, slotIndex, cardDef, after = {
 
 	state = placeGearDraw(state, playerId, cardDef);
 
-	for (const step of AFTER_ACTIVATION_STEPS) state = step(state, { playerId, cardDef, slotIndex, free });
+	for (const step of AFTER_ACTIVATION_STEPS) state = step(state, { playerId, cardDef, slotIndex, free, placedThisTurn: after.placedThisTurn === true });
 
 	// Momentum Factory bonus (first Piecie each turn)
 	if (state.activePlace === 'place_momentum_factory') state = placeEffects.effect_momentum_factory(state);
