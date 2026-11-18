@@ -123,7 +123,8 @@ describe('unflagged cards and attacks', () => {
 
 describe('Mosje ability with the flag', () => {
   const binti = MOSJES.find((m: any) => m.id === 'mosje_binti');
-  function bintiBoard(p2Hand = ['snelle_jensen']) {
+  // 71-16: Jensen! reacts to a Piecie or Snelle only; Counter Strikka (Mental 2 on the board) still answers a Mosje ability.
+  function bintiBoard(p2Hand = ['snelle_counter_strikka']) {
     const s = board('piecie_kleine_taks', { p1Slots: [mk(50, binti), null], p2Hand });
     s.players.player_1.hand = H('piecie_kannetje_melk');
     s.players.player_1.energy = 4;

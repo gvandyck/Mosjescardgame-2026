@@ -27,12 +27,6 @@ function onThreatened(gameState, pid, ctx, key, prompt, apply, filter = () => tr
 
 const reduce = (pid, slotIndex, amount) => ({ kind: 'reduce', playerId: pid, slotIndex, amount });
 
-export function effect_snelle_emergency_healings(gameState, pid, ctx = {}) {
-	return onThreatened(gameState, pid, ctx, 'heal_slot', 'Emergency Healings: which Mosje gains MP first?', (state, slot, i) => {
-		addReactionMod(state, { kind: 'gainFirst', playerId: pid, slotIndex: i, amount: stars(slot, 'resilient') >= 2 ? 35 : 25 });
-	});
-}
-
 export function effect_snelle_the_protector(gameState, pid, ctx = {}) {
 	return onThreatened(gameState, pid, ctx, 'protector_slot', 'The Protector: which Mosje loses 30 less?', (state, _slot, i) => {
 		addReactionMod(state, reduce(pid, i, 30));

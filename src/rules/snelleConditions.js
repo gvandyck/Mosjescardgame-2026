@@ -25,11 +25,17 @@ function copyablePiecie(state, _pid, reaction) {
 	return def.rarity === '★★★★★' ? 'Not on a ★★★★★ card' : true;
 }
 
+// Jensen!: only a Piecie or a Snelle that targets (a Mosje ability that targets is not its window).
+const CARD_ACTIONS = ['activatePiecie', 'activatePiecieFree', 'resumePiecie', 'playSnelle', 'resumeSnelle'];
+function jensen(_state, _pid, reaction) {
+	return CARD_ACTIONS.includes(reaction?.action?.type) || 'Jensen! reacts to a Piecie or Snelle';
+}
+
 export const SNELLE_CONDITIONS = {
 	snelle_dubbele_temminks: copyablePiecie,
 	snelle_gevalletje_klakkeloos: copyablePiecie,
 	snelle_perfect_dodge: perfectDodge,
-	snelle_lucky_coin: (s, p) => hasStars('artistic', 1)(s, p) || 'Needs: one of your Mosjes has Artistic ★',
+	snelle_jensen: jensen,
 	snelle_counter_strikka: (s, p) => hasStars('mental', 2)(s, p) || 'Needs: one of your Mosjes has Mental ★★',
 	snelle_jammertje_gepakt: (s, p) => hasStars('mental', 2)(s, p) || 'Needs: one of your Mosjes has Mental ★★',
 	snelle_bijna_welloe: (s, p) => mosjes(s, p).some(m => m.mp <= 10) || 'Only if one of your Mosjes has 10 MP or less',

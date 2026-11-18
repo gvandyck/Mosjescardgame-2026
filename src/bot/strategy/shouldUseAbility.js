@@ -27,6 +27,9 @@ function enginePressable(view, botId, slot, abilityId) {
 	return uses < (rule.maxPerTurn ?? 1) + (slot.extraAbilityUses || 0); // Rebouleh / Double Trigger add paid extra uses
 }
 
+// Abilities that look at or draw from the deck: refused (nothing paid) when it is empty.
+const NEEDS_DECK = ['ability_gandoe_wizard_chaos_roll', 'ability_ming_natural_lucky_draw'];
+
 // Chris - Perfect Setup: the ability itself needs all 3 Piecie slots holding face-down, unactivated Piecies.
 function perfectSetupReady(view, botId) {
 	const slots = view.players?.[botId]?.piecieSlots || [];
@@ -56,6 +59,7 @@ export function shouldUseAbility(state, botId, slotIndex, profile, reserve = 0) 
 	const abilityId = slot ? MOSJE_LOOKUP[slot.cardId]?.abilityId : null;
 	if (!abilityId || !enginePressable(view, botId, slot, abilityId)) return false;
 	if (!canBotAfford(view, botId, abilityId, 'ability', reserve)) return false;
+	if (NEEDS_DECK.includes(abilityId) && !(view.players[botId].deck || []).length) return false; // the engine refuses "Your deck is empty"
 	if (abilityId === 'ability_chris_perfect_setup') return perfectSetupReady(view, botId);
 	if (abilityId === 'ability_gandoe_destroyer_elimination_strike') return shouldUseEliminationStrike(view, botId, slot);
 	return true;

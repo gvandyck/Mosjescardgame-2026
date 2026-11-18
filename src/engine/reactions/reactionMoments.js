@@ -10,4 +10,5 @@ export const REACTION_MOMENTS = Object.freeze({
 	BEFORE_OWN_QUEST_ROLL: 'beforeOwnQuestRoll',
 	AFTER_OWN_QUEST_ROLL: 'afterOwnQuestRoll',
 	AFTER_OWN_PIECIE_ACTIVATION: 'afterOwnPiecieActivation',
+	BEFORE_OPP_QUEST_ROLL: 'beforeOppQuestRoll', // the other player's window before a Quest roll (Oh nee toch niet)
 });

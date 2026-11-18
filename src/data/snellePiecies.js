@@ -33,7 +33,7 @@ export const SNELLE_PIECIES = [
   },
   {
     id: "snelle_emergency_healings",
-    reactionMoments: ["wouldLoseMp"],
+    reactionMoments: ["beforeOppQuestRoll"],
     type: "SNELLE_PIECIE",
     subtype: "INSTANT",
     name: "Oh nee toch niet",
@@ -72,6 +72,7 @@ export const SNELLE_PIECIES = [
     stays: null,
     levelGate: null,
     needsText: "a Creative Mosje",
+    needs: [{ kind: "fieldMosjeType", type: "CREATIVE" }],
     limitPerDeck: 2,
     givesMP: false,
     artPath: "assets/snelle-art/Lucky Coin.jpeg",
@@ -181,7 +182,7 @@ export const SNELLE_PIECIES = [
   },
   {
     id: "snelle_momentum_rush",
-    reactionMoments: [],
+    reactionMoments: ["attacked"],
     type: "SNELLE_PIECIE",
     subtype: "INSTANT",
     name: "Aansteker",
@@ -487,7 +488,7 @@ export const SNELLE_PIECIES = [
   },
   {
     id: "snelle_chriss_handdoek",
-    reactionMoments: [], // Phase 71: opens a window when its effect lands (rolls for a Quest)
+    reactionMoments: ["afterOwnQuestRoll"],
     type: "SNELLE_PIECIE",
     subtype: "INSTANT",
     name: "Chris's Handdoek",

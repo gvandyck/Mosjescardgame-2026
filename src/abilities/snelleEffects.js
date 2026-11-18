@@ -12,6 +12,7 @@ export * from './snelle/snelleProtectEffects.js';
 export * from './snelle/snelleDiceEffects.js';
 export * from './snelle/snelleCancelEffects.js';
 export * from './snelle/snelleCopyEffects.js';
+export * from './snelle/starter/index.js';
 
 export function effect_emergency_healings(gameState, playerId) {
 	const state = JSON.parse(JSON.stringify(gameState));

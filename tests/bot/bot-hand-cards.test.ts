@@ -138,23 +138,20 @@ function driveTurn(st) {
 	return { steps, metrics, end: steps[steps.length - 1].state, played: steps.filter((s) => s.action?.kind === 'snelle') };
 }
 const mp40 = { id: 'mosje_martin_historian', extra: { mp: 40, level: 1 } };
+const mp5 = { id: 'mosje_martin_historian', extra: { mp: 5, level: 1 } }; // low enough for Bijna Welloe's Only if
 
 describe('chooseProactiveSnelle and the driver Snelle phase', () => {
-	it('Momentum Rush on its own turn: played, the Mosje goes 40 -> 55 MP, the Piecie slot is free again, no refusal', () => {
+	it('Aansteker answers an attack, so it is never played proactively (71-16)', () => {
 		const st = table({ field: [mp40, null], hand: [snelle('snelle_momentum_rush')] });
-		expect(chooseProactiveSnelle(st, BOT)).toEqual({ cardId: 'snelle_momentum_rush' });
+		expect(chooseProactiveSnelle(st, BOT)).toBeNull();
 		const run = driveTurn(st);
-		expect(run.played.map((s) => s.action)).toEqual([{ kind: 'snelle', cardId: 'snelle_momentum_rush' }]); // recorded as a step
-		expect(run.played[0].label).toBe('plays Aansteker'); // 2.1 rename of Momentum Rush (the +15 MP effect runs until Phase 71)
-		expect(run.played[0].state.players[BOT].activeSlots[0].mp).toBe(55);
-		expect(run.played[0].state.players[BOT].piecieSlots.every((s) => !s)).toBe(true);
-		expect(run.end.players[BOT].hand).toEqual([]);
-		expect(run.end.players[BOT].graveyard.some((c) => c.cardId === 'snelle_momentum_rush')).toBe(true);
+		expect(run.played).toEqual([]);
+		expect(run.end.players[BOT].activeSlots[0].mp).toBe(40);
 		expect(refusals(run.metrics)).toEqual([]);
 	});
 
-	it('under The Void a Snelle gain does nothing, so Momentum Rush stays in hand', () => {
-		const st = table({ field: [mp40, null], hand: [snelle('snelle_momentum_rush')], activePlace: 'place_the_void' });
+	it('under The Void a Snelle gain does nothing, so Bijna Welloe stays in hand', () => {
+		const st = table({ field: [mp5, null], hand: [snelle('snelle_bijna_welloe')], activePlace: 'place_the_void' });
 		expect(chooseProactiveSnelle(st, BOT)).toBeNull();
 		const run = driveTurn(st);
 		expect(run.played).toEqual([]);
@@ -163,20 +160,20 @@ describe('chooseProactiveSnelle and the driver Snelle phase', () => {
 	});
 
 	it('never on a cooldown turn, with 3 full Piecie slots, off its own turn, or while Those Eyelashes blocks it', () => {
-		const hand = [snelle('snelle_momentum_rush')];
+		const hand = [snelle('snelle_bijna_welloe')];
 		const down = { cardId: 'piecie_te_hard_gaan', type: 'PIECIE', faceDown: true, activated: false, playedOnTurn: 3, canActivateOnTurn: 4 };
-		const cooldown = table({ field: [mp40, null], hand, bot: { cooldownTurn: true } });
-		const blocked = table({ field: [mp40, null], hand, state: { _snelleBlocked: BOT } });
+		const cooldown = table({ field: [mp5, null], hand, bot: { cooldownTurn: true } });
+		const blocked = table({ field: [mp5, null], hand, state: { _snelleBlocked: BOT } });
 		expect(chooseProactiveSnelle(cooldown, BOT)).toBeNull();
-		expect(chooseProactiveSnelle(table({ field: [mp40, null], hand, bot: { piecieSlots: [down, down, down] } }), BOT)).toBeNull();
-		expect(chooseProactiveSnelle(table({ field: [mp40, null], hand, state: { activePlayerId: OPP } }), BOT)).toBeNull();
+		expect(chooseProactiveSnelle(table({ field: [mp5, null], hand, bot: { piecieSlots: [down, down, down] } }), BOT)).toBeNull();
+		expect(chooseProactiveSnelle(table({ field: [mp5, null], hand, state: { activePlayerId: OPP } }), BOT)).toBeNull();
 		expect(chooseProactiveSnelle(blocked, BOT)).toBeNull();
 		for (const st of [blocked, cooldown]) {
 			const run = driveTurn(st);
 			expect(run.played).toEqual([]);
 			expect(refusals(run.metrics)).toEqual([]);
 		}
-		expect(chooseProactiveSnelle(table({ field: [mp40, null], hand, bot: { piecieSlots: [down, down, null] } }), BOT)).toEqual({ cardId: 'snelle_momentum_rush' }); // control: one free slot is enough
+		expect(chooseProactiveSnelle(table({ field: [mp5, null], hand, bot: { piecieSlots: [down, down, null] } }), BOT)).toEqual({ cardId: 'snelle_bijna_welloe' }); // control: one free slot is enough
 	});
 
 	it('a reaction Snelle (Jensen!, The Protector) is not a proactive card', () => {
@@ -196,13 +193,13 @@ describe('chooseProactiveSnelle and the driver Snelle phase', () => {
 		expect(refusals(high.metrics)).toEqual([]);
 	});
 
-	it('with two Mosjes the pick pauses and the bot answers it: exactly one gains 15 MP', () => {
-		const st = table({ field: [mp40, { id: 'mosje_jeffrey', extra: { mp: 40, level: 1 } }], hand: [snelle('snelle_momentum_rush')] });
+	it('with two Mosjes the pick pauses and the bot answers it: exactly one gains 20 MP (Bijna Welloe)', () => {
+		const st = table({ field: [mp5, { id: 'mosje_jeffrey', extra: { mp: 5, level: 1 } }], hand: [snelle('snelle_bijna_welloe')] });
 		const run = driveTurn(st);
 		expect(run.played).toHaveLength(1);
 		const after = run.played[0].state;
 		expect(after.pendingChoice).toBeUndefined();
-		expect(after.players[BOT].activeSlots.map((s) => s.mp).sort()).toEqual([40, 55]);
+		expect(after.players[BOT].activeSlots.map((s) => s.mp).sort((a, b) => a - b)).toEqual([5, 25]);
 		expect(refusals(run.metrics)).toEqual([]);
 	});
 
@@ -221,7 +218,7 @@ describe('chooseProactiveSnelle and the driver Snelle phase', () => {
 		expect(refusals(run.metrics)).toEqual([]);
 	});
 
-	it('Ff Haaltje Nemen (2): not with Energy 2 and Jensen! (1) held, played with Energy 3, and only while the hand is nearly empty', () => {
+	it('Ff Haaltje Nemen (2 Energy, draws 1): not with Energy 2 and Jensen! (1) held, played with Energy 3, and only while the hand is nearly empty', () => {
 		const jensen = snelle('snelle_jensen');
 		const draw = snelle('snelle_ff_haaltje_nemen');
 		const run = (energy, hand, deck = deckOf(5)) => driveTurn(table({ energy, hand, bot: { deck } }));
@@ -232,7 +229,7 @@ describe('chooseProactiveSnelle and the driver Snelle phase', () => {
 		const rich = run(3, [jensen, draw]);
 		expect(rich.played.map((s) => s.action.cardId)).toEqual(['snelle_ff_haaltje_nemen']);
 		expect(rich.end.players[BOT].energy).toBe(1);
-		expect(rich.end.players[BOT].hand.length).toBe(3); // Jensen! + the 2 cards drawn
+		expect(rich.end.players[BOT].hand.length).toBe(2); // Jensen! + the 1 card drawn
 		const filler = (n) => Array.from({ length: n }, () => place('place_the_gym'));
 		expect(chooseProactiveSnelle(table({ energy: 6, hand: [draw, ...filler(3)], bot: { deck: deckOf(5) } }), BOT)).toEqual({ cardId: 'snelle_ff_haaltje_nemen' });
 		expect(chooseProactiveSnelle(table({ energy: 6, hand: [draw, ...filler(4)], bot: { deck: deckOf(5) } }), BOT)).toBeNull();
@@ -250,15 +247,13 @@ describe('chooseProactiveSnelle and the driver Snelle phase', () => {
 		expect(refusals(run.metrics)).toEqual([]);
 	});
 
-	it('the most valuable card goes first, a cast frees its slot for the next, and the Energy reserve is kept', () => {
-		const rush = snelle('snelle_momentum_rush');
-		const welloe = snelle('snelle_bijna_welloe');
-		const low = { id: 'mosje_martin_historian', extra: { mp: 5, level: 1 } };
-		const st = table({ field: [low, null], hand: [rush, welloe] });
-		expect(chooseProactiveSnelle(st, BOT)).toEqual({ cardId: 'snelle_bijna_welloe' }); // +20 beats +15
+	it('a cast frees its slot for the next, and the Energy reserve is kept', () => {
+		const welloe = () => snelle('snelle_bijna_welloe');
+		const st = table({ field: [mp5, mp5], hand: [welloe(), welloe()] });
+		expect(chooseProactiveSnelle(st, BOT)).toEqual({ cardId: 'snelle_bijna_welloe' });
 		const run = driveTurn(st);
-		expect(run.played.map((s) => s.action.cardId)).toEqual(['snelle_bijna_welloe', 'snelle_momentum_rush']);
-		expect(run.end.players[BOT].activeSlots[0].mp).toBe(40);
+		expect(run.played.map((s) => s.action.cardId)).toEqual(['snelle_bijna_welloe', 'snelle_bijna_welloe']);
+		expect(run.end.players[BOT].activeSlots.map((s) => s.mp)).toEqual([25, 25]);
 		expect(run.end.players[BOT].piecieSlots.every((s) => !s)).toBe(true);
 		const draw = snelle('snelle_ff_haaltje_nemen');
 		expect(chooseProactiveSnelle(table({ energy: 2, hand: [draw], bot: { deck: deckOf(3) } }), BOT, 1)).toBeNull(); // 2 Energy, 1 kept back

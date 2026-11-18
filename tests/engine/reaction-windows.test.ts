@@ -179,7 +179,9 @@ describe("data map", () => {
     expect(get("snelle_sleutelpuntje")).toEqual(["beforeOwnQuestRoll"]);
     expect(get("snelle_frenssen")).toEqual(["jensenPlayed"]);
     expect(get("snelle_jammertje_gepakt")).toEqual(["afterPiecieActivation"]);
-    expect(get("snelle_momentum_rush")).toEqual([]);
+    expect(get("snelle_momentum_rush")).toEqual(["attacked"]);
+    expect(get("snelle_emergency_healings")).toEqual(["beforeOppQuestRoll"]);
+    expect(get("snelle_chriss_handdoek")).toEqual(["afterOwnQuestRoll"]);
   });
 });
 
@@ -197,7 +199,8 @@ describe("Quest windows", () => {
     const stacks: any = {};
     for (const id of ["PHYSICAL", "DIGITAL", "CREATIVE"]) stacks[id] = { deck: ["quest_filler"], faceUp: "quest_filler", tokens: 0, discard: [] };
     stacks[q.stack] = { deck: ["quest_filler"], faceUp: q.id, tokens: 0, discard: [] };
-    const slot = () => mk(30, plain, 1, { traits: { strength: 1, mental: 1, artistic: 1, technical: 1, resilient: 1, social: 1 } });
+    const slot = () => mk(30, MOSJES.find((m: any) => m.id === "mosje_binti"), 1, { // a Creative Mosje: Lucky Coin needs one (71-16)
+      traits: { strength: 1, mental: 1, artistic: 1, technical: 1, resilient: 1, social: 1 } });
     return makeEngineState({
       turnNumber: 3, questStacks: stacks,
       players: { player_1: { hand: H(...h1), activeSlots: [slot(), null] }, player_2: { hand: H(...h2), activeSlots: [slot(), null] } },

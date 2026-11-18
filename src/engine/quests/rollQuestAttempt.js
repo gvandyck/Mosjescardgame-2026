@@ -12,6 +12,7 @@ import { rollQuestDice } from './rollQuestDice.js';
 import { isBandWin } from './isBandWin.js';
 import { getEligibleReactions } from '../reactions/getEligibleReactions.js';
 import { buildPendingReaction } from '../reactions/buildPendingReaction.js';
+import { beforeRollWindows } from '../reactions/beforeRollWindows.js';
 import { REACTION_MOMENTS as M } from '../reactions/reactionMoments.js';
 import { placeSkiffaGrant } from '../../abilities/place/placeTurnQuestEffects.js';
 
@@ -20,11 +21,10 @@ export function rollQuestAttempt(state, playerId, options) {
 	const other = Object.keys(state.players).find(id => id !== playerId);
 	if (!options.skipBeforeRoll) {
 		const dry = rollCore(state, playerId, { ...options, rng: () => 0.5 });
-		const eligible = dry.ok ? getEligibleReactions(state, playerId, [M.BEFORE_OWN_QUEST_ROLL]) : [];
-		if (eligible.length) {
+		const before = dry.ok ? beforeRollWindows(state, playerId) : [];
+		if (before.length) {
 			const { rng, ...args } = options;
-			const w = { responderId: playerId, moments: [M.BEFORE_OWN_QUEST_ROLL], eligible };
-			return { ok: true, state: buildPendingReaction(state, playerId, { type: 'quest', args: [playerId, args] }, [w]), reactionPending: true };
+			return { ok: true, state: buildPendingReaction(state, playerId, { type: 'quest', args: [playerId, args] }, before), reactionPending: true };
 		}
 	}
 	const res = rollCore(state, playerId, options);

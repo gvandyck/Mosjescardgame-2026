@@ -155,7 +155,7 @@ import { makeEngineState } from "../helpers/makeEngineState.js";
 import { forceQuestResult } from "../helpers/forceQuestResult.js";
 // @ts-expect-error — JS module, no type declarations
 // @ts-expect-error — JS module, no type declarations
-import { effect_snelle_momentum_rush } from "../../src/abilities/snelleEffects.js";
+import { effect_snelle_jantje_jantje_jantje } from "../../src/abilities/snelleEffects.js";
 
 function abilityState(level: number, mp: number, defId = "mosje_gandoe_wizard") {
   const d = MOSJES.find((m: any) => m.id === defId);
@@ -178,10 +178,10 @@ describe("ability / Quest / Snelle gains (54-14)", () => {
     const st = forceQuestResult(abilityState(1, 70, "mosje_jeffrey"), "player_1", { questId: "quest_quick_thinking", win: true });
     expect([mine(st).level, mine(st).mp]).toEqual([1, 95]);
   });
-  it("Momentum Rush (Snelle, bare effect): L1 at 95 -> L2 at 10; L3 at 90 caps at 100", () => {
-    const a = effect_snelle_momentum_rush(abilityState(1, 95), "player_1");
+  it("Jantje Jantje... Jantje? (Snelle, bare effect, no opponent Mosje): L1 at 95 -> L2 at 10; L3 at 90 caps at 100", () => {
+    const a = effect_snelle_jantje_jantje_jantje(abilityState(1, 95), "player_1");
     expect([mine(a).level, mine(a).mp]).toEqual([2, 10]);
-    const b = effect_snelle_momentum_rush(abilityState(3, 90), "player_1");
+    const b = effect_snelle_jantje_jantje_jantje(abilityState(3, 90), "player_1");
     expect([mine(b).level, mine(b).mp]).toEqual([3, 100]);
   });
 });

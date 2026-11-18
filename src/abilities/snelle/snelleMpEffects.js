@@ -15,13 +15,11 @@ function gainOnPick(gameState, pid, key, amount, prompt, filter) {
 	return gainMP(state, pid, pick.slot.slotIndex, amount, 'SNELLE');
 }
 
-export const effect_snelle_momentum_rush = (s, pid) => gainOnPick(s, pid, 'rush_slot', 15, 'Momentum Rush: which Mosje gains 15 MP?');
-
 export const effect_snelle_bijna_welloe = (s, pid) =>
 	gainOnPick(s, pid, 'welloe_slot', 20, 'Bijna Welloe: which Mosje gains 20 MP?', m => m.mp <= 10);
 
 export function effect_snelle_ff_haaltje_nemen(gameState, pid) {
-	return drawFromEffect(clone(gameState), pid, 2);
+	return drawFromEffect(clone(gameState), pid, 1);
 }
 
 // Chillingsvoorbij!: the most recently discarded Place of yours goes back to your hand.

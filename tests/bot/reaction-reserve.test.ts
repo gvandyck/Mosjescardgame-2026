@@ -57,10 +57,13 @@ describe('reactionReserve', () => {
 			expect(reactionReserve(table({ hand: [snelle(id)] }), BOT).keepSlot, id).toBe(true);
 		}
 	});
-	it('own-turn Snelle (Sleutelpuntje, Dubbele Temminks) and proactive ones (Momentum Rush, Ff Haaltje Nemen, Bijna Welloe) keep nothing', () => {
-		for (const id of ['snelle_sleutelpuntje', 'snelle_dubbele_temminks', 'snelle_momentum_rush', 'snelle_ff_haaltje_nemen', 'snelle_bijna_welloe', 'snelle_chillingsvoorbij']) {
+	it('own-turn Snelle (Sleutelpuntje, Dubbele Temminks) and proactive ones (Ff Haaltje Nemen, Bijna Welloe) keep nothing', () => {
+		for (const id of ['snelle_sleutelpuntje', 'snelle_dubbele_temminks', 'snelle_ff_haaltje_nemen', 'snelle_bijna_welloe', 'snelle_chillingsvoorbij']) {
 			expect(reactionReserve(table({ hand: [snelle(id)] }), BOT), id).toEqual({ keepSlot: false, energy: 0, cardIds: [] });
 		}
+	});
+	it('Aansteker (answers an attack, 0 Energy) keeps a slot but no Energy (71-16)', () => {
+		expect(reactionReserve(table({ hand: [snelle('snelle_momentum_rush')] }), BOT)).toEqual({ keepSlot: true, energy: 0, cardIds: ['snelle_momentum_rush'] });
 	});
 	it('on a cooldown turn the reserve still holds (the slot matters on the opponent\'s turn)', () => {
 		expect(reactionReserve(table({ hand: [snelle('snelle_jensen')], bot: { cooldownTurn: true } }), BOT)).toMatchObject({ keepSlot: true, energy: 1 });
@@ -79,7 +82,7 @@ describe('reactionReserve', () => {
 describe('choosePieciesToPlace', () => {
 	const trio = [piecie('piecie_pot_of_weed'), piecie('piecie_kannetje_melk'), piecie('piecie_mp_amplifier')]; // draw, mp-gain, multiplier
 	it('hand Piecies in role order (multiplier, MP gain, ..., draw); other card types are skipped', () => {
-		const out = choosePieciesToPlace(table({ hand: [snelle('snelle_momentum_rush'), ...trio, { cardId: 'place_the_gym', type: 'PLACE' }] }), BOT);
+		const out = choosePieciesToPlace(table({ hand: [snelle('snelle_bijna_welloe'), ...trio, { cardId: 'place_the_gym', type: 'PLACE' }] }), BOT);
 		expect(out.map((c) => c.cardId)).toEqual(['piecie_mp_amplifier', 'piecie_kannetje_melk', 'piecie_pot_of_weed']);
 	});
 	it('a reaction Snelle in hand keeps one slot: 3 free slots place 2', () => {
@@ -112,8 +115,8 @@ describe('driveBotTurn keeps a slot for a reaction Snelle', () => {
 		expect(end.players[BOT].hand.filter((c) => c.type === 'PIECIE').map((c) => c.cardId)).toEqual(['piecie_pot_of_weed']);
 		expect(end.players[BOT].hand.some((c) => c.cardId === 'snelle_jensen')).toBe(true);
 	});
-	it('Momentum Rush (no reaction moment) + 3 Piecies: 3 placed', () => {
-		expect(filled(drive(table({ hand: [snelle('snelle_momentum_rush'), ...trio] })).end)).toBe(3);
+	it('Bijna Welloe (no reaction moment) + 3 Piecies: 3 placed', () => {
+		expect(filled(drive(table({ hand: [snelle('snelle_bijna_welloe'), ...trio] })).end)).toBe(3);
 	});
 	it('Sleutelpuntje (own-turn moment only) + 3 Piecies: 3 placed', () => {
 		expect(filled(drive(table({ hand: [snelle('snelle_sleutelpuntje'), ...trio] })).end)).toBe(3);

@@ -25,7 +25,7 @@ import * as effects from "../../src/abilities/snelleEffects.js";
 
 vi.mock("../../src/abilities/snelleEffects.js", async (orig: any) => {
   const real = await orig();
-  return { ...real, effect_snelle_emergency_healings: vi.fn((s: any) => s) };
+  return { ...real, effect_snelle_the_protector: vi.fn((s: any) => s) };
 });
 
 const def = (id: string) => SNELLE_PIECIES.find((d: any) => d.id === id);
@@ -50,12 +50,12 @@ const play = (s: any, pid: string, id: string, opts: any = {}) => playSnellie(s,
 
 describe("Snelle context", () => {
   it("a Snelle played in a window gets ctx.reaction (moments, preview, held action, actor)", () => {
-    const s = board({ hand: H("snelle_emergency_healings") });
+    const s = board({ hand: H("snelle_the_protector") });
     const held = attackMosje(s, "player_1", ATT);
     expect(held.state.pendingReaction.responderId).toBe("player_2");
-    const fn = (effects as any).effect_snelle_emergency_healings;
+    const fn = (effects as any).effect_snelle_the_protector;
     fn.mockClear();
-    resolveReaction(held.state, "player_2", "snelle_emergency_healings");
+    resolveReaction(held.state, "player_2", "snelle_the_protector");
     const ctx = fn.mock.calls[0][2];
     expect(ctx.reaction.moments).toContain("wouldLoseMp");
     expect(ctx.reaction.action.type).toBe("attack");
@@ -63,9 +63,9 @@ describe("Snelle context", () => {
     expect(ctx.reaction.preview.mpLoss).toBeTruthy();
   });
   it("played freely the reaction is null", () => {
-    const fn = (effects as any).effect_snelle_emergency_healings;
+    const fn = (effects as any).effect_snelle_the_protector;
     fn.mockClear();
-    play(board({}, { hand: H("snelle_emergency_healings") }), "player_1", "snelle_emergency_healings");
+    play(board({}, { hand: H("snelle_the_protector") }), "player_1", "snelle_the_protector");
     expect(fn.mock.calls[0][2].reaction).toBeNull();
   });
 });
@@ -77,10 +77,10 @@ describe("Needs / Only if", () => {
     const no = attackMosje(board({ hand: H("snelle_perfect_dodge"), activeSlots: [mk(50, { strength: 1 }), mk(50)] }), "player_1", ATT);
     expect(no.state.pendingReaction?.eligible ?? []).not.toContain("snelle_perfect_dodge");
   });
-  it("Lucky Coin without Artistic 1 star is not offered", () => {
-    const s = board({ hand: H("snelle_lucky_coin"), activeSlots: [mk(50, { artistic: 0 }), null] });
+  it("Lucky Coin without a Creative Mosje is not offered (71-16: a Physical Mosje with an Art star is not enough)", () => {
+    const s = board({ hand: H("snelle_lucky_coin"), activeSlots: [mk(50, { artistic: 3 }, "mosje_michelle"), null] });
     expect(getEligibleReactions(s, "player_2", ["afterQuestRoll"])).not.toContain("snelle_lucky_coin");
-    s.players.player_2.activeSlots[0].traits.artistic = 1;
+    s.players.player_2.activeSlots[0] = mk(50, { artistic: 0 }, "mosje_dj_8020");
     expect(getEligibleReactions(s, "player_2", ["afterQuestRoll"])).toContain("snelle_lucky_coin");
   });
   it("a refused play pays no Energy and keeps the card in hand", () => {
@@ -97,33 +97,33 @@ describe("Needs / Only if", () => {
 
 describe("pick pause", () => {
   it("a two-Mosje pick pauses on hook 'snelle' and resumes the same play once", () => {
-    const s = board({}, { hand: H("snelle_momentum_rush") });
-    const r = play(s, "player_1", "snelle_momentum_rush");
+    const s = board({}, { hand: H("snelle_bijna_welloe"), activeSlots: [mk(5, { strength: 3 }, "mosje_alyssa_bulldozer"), mk(5)] }); // Bijna Welloe: both Mosjes have 10 MP or less
+    const r = play(s, "player_1", "snelle_bijna_welloe");
     expect(r.success).toBe(true);
     const pc = r.state.pendingChoice;
     expect(pc.hook).toBe("snelle");
-    expect(r.state.players.player_1.piecieSlots.some((x: any) => x?.cardId === "snelle_momentum_rush")).toBe(true);
+    expect(r.state.players.player_1.piecieSlots.some((x: any) => x?.cardId === "snelle_bijna_welloe")).toBe(true);
     expect(r.state.players.player_1.graveyard).toHaveLength(0);
     const out = resolvePendingChoice(r.state, pc.options[1]);
     const p1 = out.state.players.player_1;
-    expect(p1.activeSlots[1].mp).toBe(65);
-    expect(p1.activeSlots[0].mp).toBe(50);
+    expect(p1.activeSlots[1].mp).toBe(25);
+    expect(p1.activeSlots[0].mp).toBe(5);
     expect(p1.piecieSlots.every((x: any) => x === null)).toBe(true);
-    expect(p1.graveyard.filter((g: any) => g.cardId === "snelle_momentum_rush")).toHaveLength(1);
+    expect(p1.graveyard.filter((g: any) => g.cardId === "snelle_bijna_welloe")).toHaveLength(1);
     expect(out.state.pendingChoice).toBeUndefined();
   });
   it("a paused Snelle inside a reaction window replays the held action only after the pick", () => {
-    const fn = (effects as any).effect_snelle_emergency_healings;
+    const fn = (effects as any).effect_snelle_the_protector;
     const opts = [0, 1].map((slotIndex) => ({ playerId: "player_2", slotIndex, label: "m" + slotIndex }));
     fn.mockImplementationOnce((s: any) => ({ state: JSON.parse(JSON.stringify(s)), needChoice: { playerId: "player_2", key: "k", options: opts } }));
-    const held = attackMosje(board({ hand: H("snelle_emergency_healings") }), "player_1", ATT);
-    const r = resolveReaction(held.state, "player_2", "snelle_emergency_healings");
+    const held = attackMosje(board({ hand: H("snelle_the_protector") }), "player_1", ATT);
+    const r = resolveReaction(held.state, "player_2", "snelle_the_protector");
     expect(r.state.pendingChoice.hook).toBe("snelle");
     expect(r.state.pendingReaction).toBeUndefined();
     expect(r.state.players.player_2.activeSlots[0].mp).toBe(50); // the attack has not landed yet
     const out = resolvePendingChoice(r.state, opts[0]);
     expect(out.state.players.player_2.activeSlots[0].mp).toBeLessThan(50); // held attack replayed after the pick
-    expect(out.state.players.player_2.graveyard.filter((g: any) => g.cardId === "snelle_emergency_healings")).toHaveLength(1);
+    expect(out.state.players.player_2.graveyard.filter((g: any) => g.cardId === "snelle_the_protector")).toHaveLength(1);
   });
 });
 

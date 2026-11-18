@@ -65,7 +65,7 @@ describe("chooseReaction", () => {
     for (const id of ["PHYSICAL", "DIGITAL", "CREATIVE"]) stacks[id] = { deck: ["quest_filler"], faceUp: "quest_filler", tokens: 0, discard: [] };
     stacks[q.stack] = { deck: ["quest_filler"], faceUp: q.id, tokens: 0, discard: [] };
     const traits = { strength: 1, mental: 1, artistic: 1, technical: 1, resilient: 1, social: 1 };
-    const s = makeEngineState({ turnNumber: 3, questStacks: stacks, players: { player_1: { hand: H("snelle_sleutelpuntje", "snelle_lucky_coin"), activeSlots: [mk(30, plain, { traits }), null] }, player_2: { activeSlots: [mk(30), null] } } });
+    const s = makeEngineState({ turnNumber: 3, questStacks: stacks, players: { player_1: { hand: H("snelle_sleutelpuntje", "snelle_lucky_coin"), activeSlots: [mk(30, MOSJES.find((m: any) => m.id === "mosje_binti"), { traits }), null] }, player_2: { activeSlots: [mk(30), null] } } });
     const before = rollQuestAttempt(s, "player_1", { slotIndex: 0, stackId: q.stack, rng: () => 0.7 });
     expect(chooseReaction(before.state, "player_1")).toBe("snelle_sleutelpuntje");
     const lost = rollQuestAttempt(s, "player_1", { slotIndex: 0, stackId: q.stack, rng: () => 0, skipBeforeRoll: true });
@@ -227,15 +227,13 @@ describe("pickDefensiveSnelle", () => {
     const attacker = mk(50, attackerDef);
     attacker.powerBoost = 80 - getPower(attacker, undefined, "player_1");
     const s = makeEngineState({ turnNumber: 3, players: { player_1: { activeSlots: [attacker, null] },
-      [BOT]: { activeSlots: [L(40, 1, { traits: { resilient: 2 } }), null], hand: H("snelle_the_protector", "snelle_emergency_healings") } } });
+      [BOT]: { activeSlots: [L(40, 1, { traits: { resilient: 2, strength: 2 } }), null], hand: H("snelle_the_protector", "snelle_perfect_dodge") } } });
     const w = attackMosje(s, "player_1", ATT).state;
-    expect(w.pendingReaction.eligible).toEqual(expect.arrayContaining(["snelle_the_protector", "snelle_emergency_healings"]));
+    expect(w.pendingReaction.eligible).toEqual(expect.arrayContaining(["snelle_the_protector", "snelle_perfect_dodge"]));
     expect(w.pendingReaction.preview.mpLoss[0]).toBe(40); // capped at the Mosje's MP: the preview alone makes The Protector look enough
-    // The Protector: 80 - 30 = 50, Resilient 2 -10 = 40 lost = dead. Emergency Healings (Resilient 2): +35 first, then 70 lost = 5 left. (Power 80, not 70: Resilient 2 is a new -10, 70-02.)
-    expect(pickDefensiveSnelle(w, BOT)).toBe("snelle_emergency_healings");
-    const saved = resolveReaction(w, BOT, "snelle_emergency_healings").state.players[BOT].activeSlots[0];
-    expect(saved.sideways).toBeFalsy();
-    expect(saved.mp).toBeGreaterThan(0);
+    // The Protector: 80 - 30 = 50, Resilient 2 -10 = 40 lost = dead. Perfect Dodge (Strength 2): 80 - 20 = 60 -10 = 50 lost = dead. (Power 80: Resilient 2 is a new -10, 70-02.)
+    // Nothing saves the Mosje, so the bot takes the biggest cut: The Protector. (71-16: Emergency Healings no longer heals first.)
+    expect(pickDefensiveSnelle(w, BOT)).toBe("snelle_the_protector");
     expect(resolveReaction(w, BOT, "snelle_the_protector").state.players[BOT].activeSlots[0].sideways).toBe(true); // the engine agrees
   });
 });

@@ -33,20 +33,7 @@ const reaction = (mpLoss: any, extra: any = {}) => ({ moments: ["wouldLoseMp"], 
 const board = (own: any[], opp: any[]) => makeEngineState({ turnNumber: 3, players: { player_1: { activeSlots: opp }, player_2: { activeSlots: own } } });
 const hit = (s: any, amount: number, slot = 0) => loseMP(s, "player_2", slot, amount, "ATTACK", false, "player_1");
 
-describe("loss reductions and Emergency Healings", () => {
-  it("Emergency Healings: gain first, then the loss (Resilient 2: 35)", () => {
-    const s = fx.effect_snelle_emergency_healings(board([mk(30)], [mk(40)]), "player_2", { reaction: reaction({ 0: 40 }) });
-    expect(mine(hit(s, 40)).mp).toBe(15);
-    const r = board([mk(30, { traits: { resilient: 2 } })], [mk(40)]);
-    expect(mine(hit(fx.effect_snelle_emergency_healings(r, "player_2", { reaction: reaction({ 0: 40 }) }), 40)).mp).toBe(35); // gain 35, then 40 minus Resilient 2 (10) = 30 lost (70-02)
-  });
-  it("Emergency Healings gives 0 MP under The Void (the loss still lands); without it the gain applies", () => {
-    const withVoid = Object.assign(board([mk(30)], [mk(40)]), { activePlace: "place_the_void" });
-    const s = fx.effect_snelle_emergency_healings(withVoid, "player_2", { reaction: reaction({ 0: 20 }) });
-    expect(mine(hit(s, 20)).mp).toBe(10);
-    const noVoid = fx.effect_snelle_emergency_healings(board([mk(30)], [mk(40)]), "player_2", { reaction: reaction({ 0: 20 }) });
-    expect(mine(hit(noVoid, 20)).mp).toBe(35);
-  });
+describe("loss reductions", () => {
   it("The Protector: 30 less; two threatened Mosjes -> a pick", () => {
     const one = fx.effect_snelle_the_protector(board([mk(60), mk(60)], [mk(40)]), "player_2", { reaction: reaction({ 0: 40 }) });
     expect(mine(hit(one, 40)).mp).toBe(50);
@@ -124,7 +111,7 @@ describe("dice Snelle", () => {
     const out = fx.effect_snelle_jeweetniet(s, "player_2");
     expect(out.pendingQuestRoll.dice).toHaveLength(3);
   });
-  it("Lucky Coin: dice are picked one by one; Artistic 3 chooses the value", () => {
+  it("Lucky Coin: dice are picked one by one, 'Done' stops (71-16: the results are always rolled)", () => {
     const a = board([mk(50, { traits: { artistic: 3 } })], [mk(40)]);
     a.pendingQuestRoll = roll([1, 2]);
     expect(lucky(a).needChoice.options.some((o: any) => o.die === 0)).toBe(true);
@@ -134,17 +121,5 @@ describe("dice Snelle", () => {
     expect(lucky(b).needChoice.key).toBe("coin_1");
     b.players.player_2._pendingTargets.coin_1 = { label: "Done", done: true };
     expect(lucky(b).pendingQuestRoll.dice).toHaveLength(2);
-    const d = board([mk(50, { traits: { artistic: 3 } })], [mk(40)]);
-    d.pendingQuestRoll = roll([1, 2]);
-    d.players.player_2._pendingTargets = { coin_0: { die: 1 }, coin_v_0: { value: 6 }, coin_1: { done: true } };
-    expect(lucky(d).pendingQuestRoll.dice).toEqual([1, 6]);
-  });
-  it("Lucky Coin without Artistic 3 ignores a smuggled value (rerolls instead)", () => {
-    const d = board([mk(50, { traits: { artistic: 1 } })], [mk(40)]);
-    d.pendingQuestRoll = roll([1, 2]);
-    d.players.player_2._pendingTargets = { coin_0: { die: 1 }, coin_v_0: { value: 99 }, coin_1: { done: true } };
-    const dice = lucky(d).pendingQuestRoll.dice;
-    expect(dice[0]).toBe(1);
-    expect(dice[1]).toBeLessThanOrEqual(6);
   });
 });

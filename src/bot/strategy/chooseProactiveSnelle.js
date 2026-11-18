@@ -35,7 +35,6 @@ export function chooseProactiveSnelle(state, botId, reserve = 0) {
 	const bestHit = (amount) => Math.max(0, ...mosjeOptions(view, botId, 'opp')
 		.map(o => valueOfLoss(view.players[o.playerId].activeSlots[o.slotIndex], amount)));
 	const value = {
-		snelle_momentum_rush: () => bestGain(15),
 		snelle_bijna_welloe: () => bestGain(20, slot => slot.mp <= 10),
 		snelle_ff_haaltje_nemen: () => ((me.hand.length - 1 <= NEARLY_EMPTY_HAND && (me.deck || []).length > 0) ? DRAW_VALUE : 0),
 		snelle_jantje_jantje_jantje: () => bestHit(15) + bestGain(15),

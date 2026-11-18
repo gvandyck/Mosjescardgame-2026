@@ -4,8 +4,6 @@ import { rollDie } from '../../engine/deckEngine.js';
 import { isPendingRollWin } from '../../engine/quests/isPendingRollWin.js';
 
 const clone = (s) => JSON.parse(JSON.stringify(s));
-const bestStars = (state, pid, trait) =>
-	Math.max(0, ...(state.players[pid].activeSlots || []).filter(s => s && !s.isDefeated).map(s => s.traits?.[trait] || 0));
 
 function recheck(pending) {
 	pending.win = isPendingRollWin(pending, pending.dice);
@@ -30,12 +28,11 @@ export function effect_snelle_jeweetniet(gameState) {
 
 const dieOption = (dice, i) => ({ label: `Die ${i + 1} (${dice[i]})`, die: i });
 
-// Lucky Coin: pick dice one by one ('coin_n'), then reroll each once. Artistic 3: also pick its result ('coin_v_n', 1-6).
+// Lucky Coin: pick dice one by one ('coin_n'; 'Done' stops), then reroll each picked die once. The results are always rolled.
 export function effect_snelle_lucky_coin(gameState, pid) {
 	const state = clone(gameState);
 	const pending = state.pendingQuestRoll;
 	if (!pending) return state;
-	const artistic3 = bestStars(state, pid, 'artistic') >= 3;
 	const picks = state.players[pid]._pendingTargets || {};
 	const own = pending.playerId === pid;
 	const chosen = [];
@@ -50,20 +47,11 @@ export function effect_snelle_lucky_coin(gameState, pid) {
 			return { state, needChoice: { playerId: pid, key: 'coin_' + n, choiceKind: 'die', prompt: 'Lucky Coin: which die do you reroll?', options } };
 		}
 		if (given.done) break;
-		let value = null;
-		if (artistic3) {
-			const v = picks['coin_v_' + n];
-			if (!v) {
-				const faces = [1, 2, 3, 4, 5, 6].map(value => ({ label: String(value), value }));
-				return { state, needChoice: { playerId: pid, key: 'coin_v_' + n, choiceKind: 'dieValue', prompt: 'Lucky Coin: choose the result', options: own ? faces.reverse() : faces } };
-			}
-			value = v.value;
-		}
-		chosen.push({ die: given.die, value });
+		chosen.push({ die: given.die });
 	}
-	for (const { die, value } of chosen) {
+	for (const { die } of chosen) {
 		if (!Number.isInteger(die) || die < 0 || die >= pending.dice.length) continue;
-		pending.dice[die] = artistic3 && Number.isInteger(value) && value >= 1 && value <= 6 ? value : rollDie(6); // T-60-04
+		pending.dice[die] = rollDie(6); // T-60-04
 	}
 	if (chosen.length) recheck(pending);
 	for (const k of Object.keys(picks)) if (k.startsWith('coin_')) delete picks[k];

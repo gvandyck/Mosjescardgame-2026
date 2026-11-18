@@ -10,7 +10,7 @@ import { makeEngineState } from "../helpers/makeEngineState.js";
 
 const mosje = (cardId: string) => ({ cardId, name: cardId, mp: 80, level: 1, isDefeated: false, traits: {}, statusEffects: [], abilityUsedThisTurn: false });
 const SLEUTELPUNTJE = { cardId: "snelle_sleutelpuntje", type: "SNELLE_PIECIE" }; // 1 Energy, beforeOwnQuestRoll
-const JENSEN = { cardId: "snelle_jensen", type: "SNELLE_PIECIE" }; // 1 Energy, targeted
+const JE_WEET_NIET = { cardId: "snelle_jeweetniet", type: "SNELLE_PIECIE" }; // 1 Energy, afterQuestRoll (71-16: Jensen! now needs a held Piecie or Snelle)
 const OWN_ROLL = ["beforeOwnQuestRoll"];
 
 // Delluft in play, turn 3. `active` is whose turn it is; player_1 is the responder.
@@ -37,8 +37,8 @@ describe("getEligibleReactions: Delluft fee in the Energy check", () => {
   });
 
   it("opponent's turn: no fee, Energy 1 pays a 1-Energy defender Snelle", () => {
-    const st = build({ energy: 1, hand: [JENSEN], active: "player_2" });
-    expect(getEligibleReactions(st, "player_1", ["targeted"])).toEqual(["snelle_jensen"]);
+    const st = build({ energy: 1, hand: [JE_WEET_NIET], active: "player_2" });
+    expect(getEligibleReactions(st, "player_1", ["afterQuestRoll"])).toEqual(["snelle_jeweetniet"]);
   });
 
   it("own turn with a Coert on the field: the fee is waived, Energy 1 is enough", () => {
