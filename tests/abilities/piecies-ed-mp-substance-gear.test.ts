@@ -13,8 +13,6 @@ import { makePiecieState } from '../helpers/makePiecieState.js';
 // @ts-ignore
 import { checkQuestCondition } from '../../src/engine/quests/checkQuestCondition.js';
 // @ts-ignore
-import { applyMomentumBoostWin } from '../../src/engine/quests/applyMomentumBoostWin.js';
-// @ts-ignore
 import { sweepStaysSlots } from '../../src/engine/table/sweepStaysSlots.js';
 // @ts-ignore
 import { getQuestDef } from '../../src/engine/quests/getQuestDef.js';
@@ -84,14 +82,7 @@ describe('MP Piecies', () => {
     expect(mp(run(v))).toBe(70); // 20 + 40 + 10
   });
 
-  it('Momentum Boost +15, and +10 more only when that Mosje wins a Quest this turn (once)', () => {
-    const out = run(board('piecie_momentum_boost'));
-    expect(mp(out)).toBe(65);
-    const won = applyMomentumBoostWin(out, 'player_1', 0);
-    expect(mp(won)).toBe(75);
-    expect(mp(applyMomentumBoostWin(won, 'player_1', 0))).toBe(75);
-    expect(mp(applyMomentumBoostWin(board('piecie_kannetje_melk'), 'player_1', 0))).toBe(50);
-  });
+  // Ctrl+S (piecie_momentum_boost) is a protection card now: tests/abilities/starter-protection-piecies.test.ts.
 });
 
 describe('Substance Piecies', () => {

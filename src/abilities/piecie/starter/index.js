@@ -11,3 +11,4 @@ export * from './rugbybal.js';
 export * from './hawaiishirt.js';
 export * from './stookerino.js';
 export * from './zwoeleMingPower.js';
+export * from './ctrlS.js';

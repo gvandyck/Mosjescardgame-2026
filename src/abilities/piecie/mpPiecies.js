@@ -22,16 +22,6 @@ export function effect_varkenspootjes(gameState, playerId) {
 	return loseMP(state, t.playerId, t.slotIndex, 15, 'DRAIN', false, playerId);
 }
 
-// Momentum Boost: +15 now; the slot is flagged so a Quest win this turn gives +10 more (resolveQuestAttempt).
-export function effect_momentum_boost(gameState, playerId) {
-	const state = cloneState(gameState);
-	const si = resolvePiecieOwnSlot(state, playerId, 'piecie_momentum_boost');
-	if (si < 0) return state;
-	const next = gainFromPiecie(state, playerId, si, 15, pieceDef('piecie_momentum_boost'));
-	next.players[playerId].activeSlots[si].momentumBoostWin = true;
-	return next;
-}
-
 // Chef's Special: +15; while Ronald, The Master Chef is on your field the gain is 15 per Piecie in the opponent's
 // hand instead (at least 15, at most 45).
 export function effect_chefs_special(gameState, playerId) {

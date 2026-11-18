@@ -4,10 +4,12 @@ import { gainMpStep } from './kinds/gainMpStep.js';
 import { drawCardsStep } from './kinds/drawCardsStep.js';
 import { powerStep } from './kinds/powerStep.js';
 import { questDieStep } from './kinds/questDieStep.js';
+import { shieldStep } from './kinds/shieldStep.js';
 
 export const STEP_KINDS = Object.freeze({
 	gainMp: gainMpStep,
 	drawCards: drawCardsStep,
 	power: powerStep,
 	questDie: questDieStep,
+	shield: shieldStep,
 });

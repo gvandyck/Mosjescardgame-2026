@@ -1,11 +1,12 @@
 // cardSteps - data only: card id -> the list of steps the generic handler (engine/steps/runCardSteps.js) runs, in order.
 // Step fields:
-//   do          'gainMp' | 'drawCards' | 'power' | 'questDie'  (an unknown name throws)
+//   do          'gainMp' | 'drawCards' | 'power' | 'questDie' | 'shield'  (an unknown name throws)
 //   amount      gainMp: MP; power: Power; questDie: dice (negative = fewer dice)
 //   count       drawCards: cards to draw
 //   duration    power: 'thisTurn' | 'untilEndOfYourNextTurn'
 //   lasts       questDie: 'thisTurn' (default) | 'untilUsed'
 //   on          questDie: 'picked' binds the die bonus to the picked Mosje (default: any Mosje)
+//   onlyOppTurn shield: the cover counts only during the opponent's turn
 //   comboAmount amount used instead of `amount` when the card is activated as a Combo
 //   friendAmount { friends: [names], amount } amount used when the picked Mosje is one of those friends
 //   onlyIf      { friendOnField: [names] } a Mosje of that friend is on the activator's field
@@ -35,5 +36,7 @@ export const CARD_STEPS = {
 	piecie_energy_surge: [{ do: 'drawCards', count: 1 }], // Kladje (Discarded: draw 2, starter/kladjeDiscarded.js)
 	piecie_quest_prep: [{ do: 'questDie', amount: 2 }], // Dubbele Dosis: the next Quest roll this turn, any Mosje
 	piecie_loaded_dice: [{ do: 'questDie', amount: 1, friendAmount: { friends: ['Jeffrey'], amount: 2 } }], // Gekke Dobbel
+	piecie_bowie_stormey: [{ do: 'shield', amount: 10, friendAmount: { friends: ['Gandoe', 'Michelle', 'Tuk'], amount: 20 } }],
+	piecie_afblijven: [{ do: 'shield', amount: 20, onlyOppTurn: true }],
 	piecie_super_saiyan_mos: [{ do: 'power', amount: 30, duration: 'thisTurn' }],
 };

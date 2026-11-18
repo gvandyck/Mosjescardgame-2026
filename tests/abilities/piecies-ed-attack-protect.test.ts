@@ -130,13 +130,12 @@ describe('Attack Piecies: Level 2+ cards', () => {
 });
 
 describe('Protection Piecies: reductions shrink a loss, never stop it', () => {
-  it('Afblijven!: every loss of the chosen Mosje 10 less until the start of the next turn', () => {
-    const s = run(board('piecie_afblijven'));
+  it('Afblijven!: during the opponent turn every loss of the chosen Mosje 20 less (more in starter-protection-piecies)', () => {
+    const s = { ...run(board('piecie_afblijven')), activePlayerId: 'player_2' };
     expect(s.players.player_1.piecieSlots[0].stays).toBe(true);
-    expect(mp(lose(s, 25))).toBe(35);
-    const small = lose(s, 5);
-    expect(mp(small)).toBe(50);
-    expect(mp(lose(lose(s, 25), 25))).toBe(20);
+    expect(mp(lose(s, 25))).toBe(45);
+    expect(mp(lose(s, 15))).toBe(50);
+    expect(mp(lose(lose(s, 30), 30))).toBe(30);
     const later = { ...s, turnNumber: s.turnNumber + 1 };
     expect(sweepStaysSlots(later, 'player_1', 'start').players.player_1.piecieSlots[0]).toBeNull();
   });
@@ -172,20 +171,7 @@ describe('Pet line', () => {
     expect(mp(lose(s, 30, 1), 'player_1', 1)).toBe(40);
   });
 
-  it('Bowie with Gandoe + Michelle: both covered 20 less and each gains 10 at the start of the next turn', () => {
-    const s = run(board('piecie_bowie_stormey', { second: slotOf('mosje_michelle') }));
-    expect(mp(lose(s, 30, 0))).toBe(40);
-    expect(mp(lose(s, 30, 1), 'player_1', 1)).toBe(40);
-    const start = sweepStaysSlots({ ...s, turnNumber: s.turnNumber + 1 }, 'player_1', 'start');
-    expect(mp(start, 'player_1', 0)).toBe(60);
-    expect(mp(start, 'player_1', 1)).toBe(60);
-    expect(sweepStaysSlots(start, 'player_1', 'start').players.player_1.activeSlots[0].mp).toBe(60);
-  });
-
-  it('Bowie with Gandoe + a Tuk also pairs', () => {
-    const s = run(board('piecie_bowie_stormey', { second: slotOf('mosje_tuk_healer') }));
-    expect(mp(lose(s, 30, 1), 'player_1', 1)).toBe(40);
-  });
+  // Bowie with a Gandoe and Michelle: the pair bonus is gone on the 2.1 text (starter-protection-piecies.test.ts).
 
   it('ViannaPoes: 10 less on any Mosje, 20 less on a Cless; lasts until the end of the next turn', () => {
     const plain = run(board('piecie_vianna_poes'));

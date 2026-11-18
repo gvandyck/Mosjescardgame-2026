@@ -11,6 +11,7 @@ export function staysBoundReducer(ctx) {
 		if (!e || e.stays !== true) return;
 		if (e.boundTo?.length && !staysBoundGone(ctx.state, e)) {
 			for (const b of e.boundTo) {
+				if (b.onlyOppTurn && ctx.state.activePlayerId === ctx.playerId) continue; // Afblijven!: the opponent's turn only
 				if (b.playerId === ctx.playerId && b.slotIndex === ctx.slotIndex) amount -= b.reduce || 0;
 			}
 		}

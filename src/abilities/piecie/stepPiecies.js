@@ -18,4 +18,6 @@ export const effect_super_saiyan_mos = stepCard('piecie_super_saiyan_mos');
 export const effect_controller = stepCard('piecie_controller');
 export const effect_quest_prep = stepCard('piecie_quest_prep');
 export const effect_loaded_dice = stepCard('piecie_loaded_dice');
+export const effect_bowie_stormey = stepCard('piecie_bowie_stormey');
+export const effect_afblijven = stepCard('piecie_afblijven');
 export const effect_dancepad = stepCard('piecie_dancepad');
