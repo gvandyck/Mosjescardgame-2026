@@ -136,21 +136,14 @@ describe('Strength Equipment: Protein Shake + Boxing Ring (PHYS-04/05)', () => {
     const fighter = (strength: number, extra: any = {}) =>
       ({ ...makeState({ subtype: 'PHYSICAL', level: 1, mp: 0, traits: { strength } }), ...extra });
 
-    it('gives 25 MP with Strength 1 star', () => {
-      expect(effect_protein_shake(fighter(1), 'player_1').players.player_1.activeSlots[0].mp).toBe(25);
+    it('gives a flat 30 MP with Strength 1 star', () => {
+      expect(effect_protein_shake(fighter(1), 'player_1').players.player_1.activeSlots[0].mp).toBe(30);
     });
 
-    it('gives 35 MP with Strength 3 stars', () => {
-      expect(effect_protein_shake(fighter(3), 'player_1').players.player_1.activeSlots[0].mp).toBe(35);
-    });
-
-    it('gives 35 MP while the Place is Boxing Ring', () => {
-      const state = fighter(1, { activePlace: 'place_boxing_ring' });
-      expect(effect_protein_shake(state, 'player_1').players.player_1.activeSlots[0].mp).toBe(35);
-    });
-
-    it('gives nothing without Strength 1 star', () => {
-      expect(effect_protein_shake(fighter(0), 'player_1').players.player_1.activeSlots[0].mp).toBe(0);
+    it('gives the same 30 MP with Strength 3 stars, in Boxing Ring, or with no Strength star', () => {
+      expect(effect_protein_shake(fighter(3), 'player_1').players.player_1.activeSlots[0].mp).toBe(30);
+      expect(effect_protein_shake(fighter(1, { activePlace: 'place_boxing_ring' }), 'player_1').players.player_1.activeSlots[0].mp).toBe(30);
+      expect(effect_protein_shake(fighter(0), 'player_1').players.player_1.activeSlots[0].mp).toBe(30);
     });
 
     it('does not mutate input state', () => {

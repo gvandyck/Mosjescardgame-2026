@@ -14,5 +14,15 @@
 // The picked Mosje is ctx.costPaidBy, else ctx.attachedTo, else the own-Mosje pick of the card.
 export const CARD_STEPS = {
 	piecie_kannetje_melk: [{ do: 'gainMp', amount: 25 }],
+	piecie_broodje_doner: [{ do: 'power', amount: 10, duration: 'untilEndOfYourNextTurn' }],
+	piecie_protein_shake: [{ do: 'gainMp', amount: 30 }],
+	piecie_ronald_kip: [
+		{ do: 'gainMp', amount: 40 },
+		{ do: 'drawCards', count: 1, onlyIf: { friendOnField: ['Ronald'] } },
+	],
+	piecie_hawaii_pizza: [
+		{ do: 'gainMp', amount: 30 },
+		{ do: 'drawCards', count: 1, onlyIf: { friendOnField: ['Coert'] } },
+	],
 	piecie_super_saiyan_mos: [{ do: 'power', amount: 30, duration: 'thisTurn' }],
 };

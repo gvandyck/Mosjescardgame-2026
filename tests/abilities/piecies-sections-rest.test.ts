@@ -58,10 +58,10 @@ const ids = (list: any[]) => list.map((c) => c.cardId);
 const RONALD = () => slotOf('mosje_ronald_chef', 50);
 
 describe('MP section', () => {
-  it('Ronald Kip +50; with Ronald, The Master Chef +60 and draw 1', () => {
-    expect(mp(run(board('piecie_ronald_kip', { own: slotOf('mosje_coert_tech', 0) })))).toBe(50);
+  it('Ronald Kip +40; with a Ronald on the field the same +40 and draw 1', () => {
+    expect(mp(run(board('piecie_ronald_kip', { own: slotOf('mosje_coert_tech', 0) })))).toBe(40);
     const s = run(board('piecie_ronald_kip', { own: slotOf('mosje_coert_tech', 0), second: RONALD() }));
-    expect(mp(s)).toBe(60);
+    expect(mp(s)).toBe(40);
     expect(s.players.player_1.hand).toHaveLength(1);
   });
 
@@ -88,14 +88,14 @@ describe('MP section', () => {
 });
 
 describe('MP Amplifier', () => {
-  it('arms once; Ronald Kip then makes 90', () => {
+  it('arms once; Ronald Kip then makes 80', () => {
     const s = run(board('piecie_mp_amplifier'));
     expect(s.players.player_1.mpAmplifierThisTurn).toBe(true);
     s.players.player_1.piecieSlots[1] = { cardId: 'piecie_ronald_kip', type: 'PIECIE', faceDown: true, activated: false, playedOnTurn: 1, canActivateOnTurn: 2 };
     s.players.player_1.activeSlots[0] = slotOf('mosje_coert_tech', 0);
     const out = activatePiecie(s, 'player_1', 1);
     expect(out.success, out.error).toBe(true);
-    expect(mp(out.state)).toBe(90);
+    expect(mp(out.state)).toBe(80);
     expect(out.state.players.player_1.mpAmplifierThisTurn).toBe(false);
   });
 

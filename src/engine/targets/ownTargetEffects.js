@@ -5,6 +5,7 @@ export const OWN_TARGET_EFFECT_IDS = [
 	'effect_redbull',
 	'effect_broodje_doner',
 	'effect_ronald_kip',
+	'effect_hawaii_pizza',
 	'effect_chefs_special',
 	'effect_momentum_boost',
 	'effect_eendjes_voeren',

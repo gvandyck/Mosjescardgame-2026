@@ -84,7 +84,7 @@ describe("activatePiecieFree", () => {
   });
 
   it("the gates still apply (Jeffrey blocks a FOOD Piecie, free or not)", () => {
-    const s = build({ activeSlots: [mosje("mosje_jeffrey"), null], piecieSlots: [placed(DONER), null, null] });
+    const s = build({ activeSlots: [mosje("mosje_jeffrey"), null], piecieSlots: [placed("piecie_kannetje_melk"), null, null] }); // Doner gives no MP now (71-03)
     expect(activatePiecie(s, "player_1", 0).success).toBe(false);
     const free = activatePiecieFree(s, "player_1", { slotIndex: 0 });
     expect(free.success).toBe(false);

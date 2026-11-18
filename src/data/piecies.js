@@ -1613,6 +1613,7 @@ export const PIECIES = [
     flavourText: "",
     cost: 0,
     needsText: "a Physical Mosje",
+    needs: [{ kind: 'fieldMosjeType', type: 'PHYSICAL' }],
     tag: "food",
     group: "mp",
     stays: null,

@@ -33,7 +33,7 @@ describe("Ming, The Natural: Lucky Draw (reveal the top card; a Piecie: activate
     expect(res.success).toBe(true);
     const p = res.state.players.player_1;
     expect(p.energy).toBe(6);
-    expect(p.activeSlots[0].mp).toBe(80); // Ronald Kip +50
+    expect(p.activeSlots[0].mp).toBe(70); // Ronald Kip +40
     expect(p.graveyard.some((c: any) => c.cardId === "piecie_ronald_kip")).toBe(true);
     expect(p.hand).toHaveLength(0);
     expect(p.deck).toHaveLength(1);

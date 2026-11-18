@@ -47,9 +47,9 @@ const mp = (s: any, who = 'player_1', i = 0) => s.players[who].activeSlots[i].mp
 const binti = () => MOSJES.find((m: any) => m.id === 'mosje_binti');
 
 describe('MP Piecies', () => {
-  it('Kannetje Melk +25, Broodje Doner +35', () => {
+  it('Kannetje Melk +25; Late Night Doner gives no MP (its Power is tested in starter-food-piecies)', () => {
     expect(mp(run(board('piecie_kannetje_melk')))).toBe(75);
-    expect(mp(run(board('piecie_broodje_doner')))).toBe(85);
+    expect(mp(run(board('piecie_broodje_doner')))).toBe(50);
   });
 
   it("Nature's Gift +30, +40 with Resilient 2 stars", () => {
@@ -57,11 +57,11 @@ describe('MP Piecies', () => {
     expect(mp(run(board('piecie_eendjes_voeren', { ownSlot: { traits: { resilient: 2 } } })))).toBe(90);
   });
 
-  it('Protein Shake +25 on Strength 1 star, +35 on 3 stars or in Boxing Ring, refused target below 1 star', () => {
-    expect(mp(run(board('piecie_protein_shake', { ownSlot: { traits: { strength: 1 } } })))).toBe(75);
-    expect(mp(run(board('piecie_protein_shake', { ownSlot: { traits: { strength: 3 } } })))).toBe(85);
-    expect(mp(run(board('piecie_protein_shake', { ownSlot: { traits: { strength: 1 } }, place: 'place_boxing_ring' })))).toBe(85);
-    expect(mp(run(board('piecie_protein_shake', { ownSlot: { traits: { strength: 0 } } })))).toBe(50);
+  it('Protein Shake +30 on any own Mosje, flat (Strength and Boxing Ring no longer matter)', () => {
+    const phys = (o: any = {}) => board('piecie_protein_shake', { ...o, ownSlot: { subtype: 'PHYSICAL', ...(o.ownSlot || {}) } });
+    expect(mp(run(phys({ ownSlot: { traits: { strength: 0 } } })))).toBe(80);
+    expect(mp(run(phys({ ownSlot: { traits: { strength: 3 } } })))).toBe(80);
+    expect(mp(run(phys({ place: 'place_boxing_ring' })))).toBe(80);
   });
 
   it('Varkenspootjes: a Binti gains 40, anyone else loses 15, a fresh Mosje is never touched', () => {

@@ -9,7 +9,6 @@ export const PENDING_STARTER_EFFECTS = [
   "effect_koksmes",
   "effect_ronalds_fles_fireman",
   "effect_schetsboek",
-  "effect_hawaii_pizza",
   "effect_chriss_handdoek",
   "effect_headset",
   "effect_magicprompt",

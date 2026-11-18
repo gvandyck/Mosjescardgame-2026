@@ -2,7 +2,7 @@
 // is on your field, you can't activate Piecies that give MP." Snelle Piecies are not in the list (the Card List says
 // Piecies). Mirrors the Piecie ids of scripts/obby2/givesMpIds.mjs.
 export const GIVES_MP_PIECIES = new Set([
-	'piecie_kannetje_melk', 'piecie_broodje_doner', 'piecie_ronald_kip', 'piecie_chefs_special',
+	'piecie_kannetje_melk', 'piecie_ronald_kip', 'piecie_chefs_special',
 	'piecie_varkenspootjes', 'piecie_protein_shake', 'piecie_momentum_boost', 'piecie_eendjes_voeren',
 	'piecie_energy_surge', 'piecie_momentum_diefje', 'piecie_boosterpackkie', 'piecie_perfect_rhythm',
 	'piecie_kan_het', 'piecie_stookerino', 'piecie_those_eyelashes', 'piecie_f1_telemetry',
