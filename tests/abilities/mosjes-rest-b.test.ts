@@ -1,5 +1,4 @@
-// EFX-01 rest B: Ming The Natural (Lucky Draw), Ming The Predictor (Future Sight), Jeffrey The Silent Gambler (High
-// Stakes), Youri (Speed Activate) and (moved to starter-creative-mosjes-a) Ronald Dr. Phill-osoof. Card List 2.0 texts are quoted per describe.
+// EFX-01 rest B: Ming The Predictor (Future Sight), Youri (Speed Activate) and (moved to starter-creative-mosjes-a) Ronald Dr. Phill-osoof. Card List 2.0 texts are quoted per describe.
 import { afterEach, describe, expect, it, vi } from "vitest";
 // @ts-expect-error - JS module
 import { useMosjeAbility, activatePiecie } from "../../src/engine/turnManager.js";
@@ -24,56 +23,7 @@ const card = (cardId: string) => ({ cardId, type: "X" });
 
 afterEach(() => vi.restoreAllMocks());
 
-describe("Ming, The Natural: Lucky Draw (reveal the top card; a Piecie: activate it free or add it to hand; else draw it and gain 15 MP)", () => {
-  const withTop = (top: string) => field(NATURAL, { deck: [card(top), card("snelle_jensen")] });
-
-  it("a Piecie, choice activate: resolves free (no Energy), card to the discard pile, none in hand", () => {
-    const res = use(withTop("piecie_ronald_kip"), NATURAL, { choice: "activate" });
-    expect(res.success).toBe(true);
-    const p = res.state.players.player_1;
-    expect(p.energy).toBe(6);
-    expect(p.activeSlots[0].mp).toBe(70); // Ronald Kip +40
-    expect(p.graveyard.some((c: any) => c.cardId === "piecie_ronald_kip")).toBe(true);
-    expect(p.hand).toHaveLength(0);
-    expect(p.deck).toHaveLength(1);
-  });
-
-  it("a Piecie, choice hand: added to hand, nothing activated, no MP", () => {
-    const res = use(withTop("piecie_ronald_kip"), NATURAL, { choice: "hand" });
-    expect(res.success).toBe(true);
-    const p = res.state.players.player_1;
-    expect(p.hand.map((c: any) => c.cardId)).toEqual(["piecie_ronald_kip"]);
-    expect(p.activeSlots[0].mp).toBe(30);
-  });
-
-  it("a Piecie without a choice is refused and nothing changes", () => {
-    const res = use(withTop("piecie_ronald_kip"), NATURAL, {});
-    expect(res.success).toBe(false);
-    expect(res.state.players.player_1.deck).toHaveLength(2);
-  });
-
-  it("anything else (a Snelle): drawn to hand and Ming gains 15", () => {
-    const res = use(withTop("snelle_jensen"), NATURAL, {});
-    expect(res.success).toBe(true);
-    const p = res.state.players.player_1;
-    expect(p.hand.map((c: any) => c.cardId)).toEqual(["snelle_jensen"]);
-    expect(p.activeSlots[0].mp).toBe(45);
-  });
-
-  it("empty deck: nothing happens and the ability still counts as used", () => {
-    const res = use(field(NATURAL, { deck: [] }), NATURAL, {});
-    expect(res.success).toBe(true);
-    expect(res.state.players.player_1.hand).toHaveLength(0);
-    expect(res.state.players.player_1.activeSlots[0].mp).toBe(30);
-  });
-
-  it("with Jeffrey, The Strongman on the field the free activation of an MP Piecie works (no gate in 2.1)", () => {
-    const s = field(NATURAL, { deck: [card("piecie_ronald_kip")] });
-    s.players.player_1.activeSlots[1] = mkSlot({ mp: 30 }, STRONGMAN);
-    const res = use(s, NATURAL, { choice: "activate" });
-    expect(res.success, res.error).toBe(true);
-  });
-});
+// Ming, The Natural (Lucky Draw), Jeffrey, The Silent Gambler (High Stakes) and DJ 80/20: tests/abilities/starter-creative-mosjes-b.test.ts
 
 describe("Ming, The Predictor: Future Sight (look at the top card of one Quest stack; you may pay 1 Energy to put it on the bottom)", () => {
   const stacks = () => ({
@@ -111,59 +61,6 @@ describe("Ming, The Predictor: Future Sight (look at the top card of one Quest s
       expect(res.success).toBe(false);
       expect(res.state.players.player_1.energy).toBe(3);
     }
-  });
-});
-
-describe("Jeffrey, The Silent Gambler: High Stakes (stake 1 or 2 Energy, roll: 1-2 lost; 3-4 back; 5-6 back + draw 1 + 10 MP per Energy + next Quest success +15)", () => {
-  const roll = (n: number) => vi.spyOn(Math, "random").mockReturnValue((n - 0.5) / 6);
-  const board = (energy = 3) => field(GAMBLER, { energy, deck: [card("snelle_jensen")] });
-
-  it("roll 1 with a stake of 2: the Energy is lost (3 -> 1)", () => {
-    roll(1);
-    const res = use(board(), GAMBLER, { stake: 2 });
-    expect(res.success).toBe(true);
-    expect(res.state.players.player_1.energy).toBe(1);
-  });
-
-  it("roll 3: the Energy comes back (3 -> 3), nothing else", () => {
-    roll(3);
-    const res = use(board(), GAMBLER, { stake: 2 });
-    const p = res.state.players.player_1;
-    expect(p.energy).toBe(3);
-    expect(p.hand).toHaveLength(0);
-    expect(p.activeSlots[0].mp).toBe(30);
-  });
-
-  it("roll 6 with a stake of 2: Energy back, draw 1, +20 MP, and the next Quest success this turn gets +15 extra once", () => {
-    roll(6);
-    const res = use(board(), GAMBLER, { stake: 2 });
-    const p = res.state.players.player_1;
-    expect(p.energy).toBe(3);
-    expect(p.hand.map((c: any) => c.cardId)).toEqual(["snelle_jensen"]);
-    expect(p.activeSlots[0].mp).toBe(50);
-    expect(p.gamblerQuestBonusTurn).toBe(res.state.turnNumber);
-  });
-
-  it("a stake the player cannot pay (2 with 1 Energy) is refused and nothing is lost", () => {
-    roll(1);
-    const res = use(board(1), GAMBLER, { stake: 2 });
-    expect(res.success).toBe(false);
-    expect(res.state.players.player_1.energy).toBe(1);
-  });
-
-  it("only 1 or 2 may be staked", () => {
-    for (const stake of [0, 3, undefined]) expect(use(board(), GAMBLER, { stake }).success).toBe(false);
-  });
-
-  it("the +15 on a Quest success is paid once, to the Mosje that succeeded, and only on the armed turn", () => {
-    const { s, q } = build("quick_thinking", { p1: { activeSlots: [mkSlot({ mp: 30 }), mkSlot({ mp: 30 }, GAMBLER)] } });
-    s.players.player_1.gamblerQuestBonusTurn = s.turnNumber;
-    const win = finish(s, q, true);
-    expect(win.players.player_1.activeSlots[0].mp).toBe(30 + q.win + 15);
-    expect(win.players.player_1.gamblerQuestBonusTurn).toBeUndefined();
-    const stale = build("quick_thinking", { p1: { activeSlots: [mkSlot({ mp: 30 }), mkSlot({ mp: 30 }, GAMBLER)] } });
-    stale.s.players.player_1.gamblerQuestBonusTurn = stale.s.turnNumber - 1;
-    expect(finish(stale.s, stale.q, true).players.player_1.activeSlots[0].mp).toBe(30 + stale.q.win);
   });
 });
 

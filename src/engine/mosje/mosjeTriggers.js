@@ -9,7 +9,7 @@ import { drainerContinuousDrain } from '../../abilities/mosje/drainerContinuousD
 import { jiscaPerfectCombo } from '../../abilities/mosje/jiscaPerfectCombo.js';
 import { ddrChrisComboChain } from '../../abilities/mosje/ddrChrisComboChain.js';
 import { clessTeachingMoment } from '../../abilities/mosje/clessTeachingMoment.js';
-import { jeffreyGamblerQuestBonus } from '../../abilities/mosje/jeffreyGamblerQuestBonus.js';
+import { mingActivateChoice } from '../../abilities/mosje/mingActivateChoice.js';
 import { martinDriverPerfectLine } from '../../abilities/mosje/martinDriverPerfectLine.js';
 import { gandoeDestroyerStrikeChoice } from '../../abilities/mosje/gandoeDestroyerStrikeChoice.js';
 import { coertKasteLuckMorningLuck } from '../../abilities/mosje/coertKasteLuckMorningLuck.js';
@@ -26,7 +26,7 @@ export const MOSJE_TRIGGERS = {
 	oppStartOfTurn: [drainerContinuousDrain],
 	endOfTurn: [aznClessRiskReward, martinHistorianEndDraw],
 	questWinAmount: [],
-	questSuccess: [parkourWestFlowQuest, fpsCoertHeadshot, martinDriverPerfectLine, jeffreyGamblerQuestBonus],
+	questSuccess: [parkourWestFlowQuest, fpsCoertHeadshot, martinDriverPerfectLine],
 	// piecieActivated order on one activation (Card List ruling): Jisca, then Chris, The BigStepper, then Cless, The Teacher.
 	piecieActivated: [jiscaPerfectCombo, ddrChrisComboChain, clessTeachingMoment],
 	placeDestroyed: [alyssaFissaPartyPower],
@@ -34,6 +34,8 @@ export const MOSJE_TRIGGERS = {
 	drawStep: [coertTechExtraResources, martinHistorianTimeControl],
 	// Binti's Cutting Words fires this directly (not from runMosjeTriggers) so the opponent's discard pick can pause.
 	bintiDiscard: [bintiDiscardChoice],
+	// Ming, The Natural's reveal fires this directly so the owner's "activate it or keep it" answer can pause.
+	mingActivate: [mingActivateChoice],
 	// Gandoe, The Cloude Wizard's top-3 pick fires this directly so the owner's choice can pause.
 	wizardPick: [gandoeWizardPick],
 	// FPS West's bottom-of-deck pick fires this directly so the owner's choice can pause.

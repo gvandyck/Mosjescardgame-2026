@@ -60,7 +60,7 @@ function makeState(slotCardId: string, mp = 50) {
 }
 
 describe("Ming Natural — Lucky Draw", () => {
-  it("draws a non-Piecie card, adds it to hand, and gains 15 MP", () => {
+  it("draws a non-Piecie card into the hand and gains no MP (2.1)", () => {
     const state = makeState("mosje_ming_natural", 50);
     state.players.player_1.deck = [{ cardId: "quest_something", type: "QUEST" }];
 
@@ -68,10 +68,10 @@ describe("Ming Natural — Lucky Draw", () => {
 
     expect(next.players.player_1.hand.map((c: any) => c.cardId)).toEqual(["quest_something"]);
     expect(next.players.player_1.deck).toEqual([]);
-    expect(next.players.player_1.activeSlots[0].mp).toBe(65);
+    expect(next.players.player_1.activeSlots[0].mp).toBe(50);
   });
 
-  // Piecie top card (activate free / add to hand) and the empty deck: see tests/abilities/mosjes-rest-b.test.ts (Card List 2.0).
+  // Piecie top card (activate free / keep), Energy and the empty deck: see tests/abilities/starter-creative-mosjes-b.test.ts (2.1).
   it("throws when Ming Natural is not on field", () => {
     const state = makeState("mosje_opponent", 50);
     state.players.player_1.deck = [{ cardId: "quest_something", type: "QUEST" }];

@@ -149,77 +149,25 @@ describe("Binti: Cutting Words (1 Energy + discard 1 Piecie: one opponent Mosje,
   });
 });
 
-describe("DJ 80/20: Lucky Beats (once per turn, reroll any one die at the Quest after-roll pause)", () => {
+// DJ 80/20 (2.1: own Quest and Personal Quest rolls only, 2 rerolls from Level 2): tests/abilities/starter-creative-mosjes-b.test.ts.
+// Only the bot's use of the reroll stays here.
+describe("DJ 80/20: Lucky Beats, the bot", () => {
   // Tough It Out is a steady Quest (one die, 4+ wins). Initial roll: rng 0.7 -> 5 (win), rng 0.1 -> 1 (fail).
-  const quest = (djOwner: "player_1" | "player_2", djOver: any = {}) => {
+  const quest = () => {
     const { s } = build("tough_it_out", { opp: [mkSlot({ mp: 40 }), null] });
     s.turnNumber = 3;
-    s.players[djOwner].activeSlots[1] = mkSlot({ mp: 30, ...djOver }, DJ);
+    s.players.player_1.activeSlots[1] = mkSlot({ mp: 30 }, DJ);
     return s;
   };
   const stackOf = (s: any) => Object.keys(s.questStacks).find((k) => s.questStacks[k].faceUp === "quest_tough_it_out");
   const rollOn = (s: any, rng: number) => rollQuestAttempt(s, "player_1", { slotIndex: 0, stackId: stackOf(s), rng: () => rng });
 
-  it("opponent's winning roll: the DJ owner rerolls the die, the band is re-checked, the Quest fails", () => {
-    const w = rollOn(quest("player_2"), 0.7);
-    expect(w.state.pendingReaction.responderId).toBe("player_2");
-    expect(w.state.pendingReaction.eligible).toEqual(["djReroll:0"]);
-    expect(w.state.pendingQuestRoll.win).toBe(true);
-    pushTestDice([2]);
-    const r = resolveReaction(w.state, "player_2", "djReroll:0");
-    expect(r.ok).toBe(true);
-    expect(r.state.pendingQuestRoll.dice).toEqual([2]);
-    expect(r.state.pendingQuestRoll.win).toBe(false);
-    expect(r.state.players.player_2.activeSlots[1].djRerollTurn).toBe("3:player_1");
-  });
-
-  it("own failing roll: reroll to a 6 turns it into a win that resolves as a win", () => {
-    const w = rollOn(quest("player_1"), 0.1);
-    expect(w.state.pendingReaction.responderId).toBe("player_1");
-    expect(w.state.pendingReaction.moments).toEqual(["afterOwnQuestRoll"]);
-    pushTestDice([6]);
-    const r = resolveReaction(w.state, "player_1", "djReroll:0");
-    expect(r.state.pendingReaction).toBeUndefined();
-    const out = resolveQuestAttempt(r.state, undefined as any);
-    expect(out.win).toBe(true);
-  });
-
-  it("passing leaves the roll, and DJ stays unused", () => {
-    const w = rollOn(quest("player_2"), 0.7);
-    const r = resolveReaction(w.state, "player_2", null);
-    expect(r.state.pendingQuestRoll.dice).toEqual([5]);
-    expect(r.state.players.player_2.activeSlots[1].djRerollTurn).toBeUndefined();
-  });
-
-  it("used once -> no DJ window for the rest of that turn; a new turn allows it again", () => {
-    const s = quest("player_2", { djRerollTurn: "3:player_1" });
-    expect(rollOn(s, 0.7).state.pendingReaction).toBeUndefined();
-    s.turnNumber = 4;
-    expect(rollOn(s, 0.7).state.pendingReaction.eligible).toEqual(["djReroll:0"]);
-  });
-
-  it("a sideways DJ gets no window", () => {
-    expect(rollOn(quest("player_2", { sideways: true }), 0.7).state.pendingReaction).toBeUndefined();
-  });
-
-  it("no pending roll / not an after-roll moment: no DJ entry", () => {
-    const s = quest("player_2");
-    expect(getEligibleReactions(s, "player_2", ["afterQuestRoll"])).toEqual([]);
-    expect(getEligibleReactions(s, "player_2", ["attacked"], { dice: [5] })).toEqual([]);
-  });
-
-  it("bot DJ rerolls the opponent's winning roll and its own failing roll, but leaves rolls that suit it", () => {
-    const w = rollOn(quest("player_2"), 0.7);
-    pushTestDice([1]);
-    const settled = settleReactions(w.state, ["player_1"]);
-    expect(settled.waiting).toBe(false);
-    expect(settled.state.pendingQuestRoll.win).toBe(false);
-
-    const own = rollOn(quest("player_1"), 0.1);
+  it("rerolls its own failing roll, but leaves a roll that suits it", () => {
+    const own = rollOn(quest(), 0.1);
     pushTestDice([6]);
     expect(settleReactions(own.state, []).state.pendingQuestRoll.win).toBe(true);
 
-    const lost = rollOn(quest("player_2"), 0.1); // the opponent already failed: leave it
-    expect(settleReactions(lost.state, ["player_1"]).state.pendingQuestRoll.dice).toEqual([1]);
+    const won = rollOn(quest(), 0.7);
+    expect(settleReactions(won.state, []).state.pendingQuestRoll.dice).toEqual([5]);
   });
 });

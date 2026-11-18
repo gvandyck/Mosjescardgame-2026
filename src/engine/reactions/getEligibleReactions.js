@@ -1,6 +1,6 @@
 // getEligibleReactions — unique hand cardIds of Snelle that fit one of `moments` and can be played now.
-// After a Quest roll it also lists DJ 80/20's Lucky Beats as `djReroll:<dieIndex>` (one per die) when `dice`
-// (or state.pendingQuestRoll.dice) exist and the responder's DJ has not rerolled this turn. Not a card: no hand, Energy or slot needed.
+// After the responder's OWN Quest roll it also lists DJ 80/20's Lucky Beats as `djReroll:<dieIndex>` (one per die) when `dice`
+// (or state.pendingQuestRoll.dice) exist and the responder's DJ has a reroll left this turn. Not a card: no hand, Energy or slot needed.
 // Likewise `piecieReroll:<dieIndex>` while a Piecie reroll grant (Dubbele Dosis) is unused.
 import { SNELLE_PIECIES } from '../../data/snellePiecies.js';
 import { PIECIE_SLOT_COUNT } from '../table/tableRules.js';
@@ -22,7 +22,8 @@ export function getEligibleReactions(state, responderId, moments, { dice, action
 	const out = snelleReactions(state, responderId, player, moments, { moments, action, preview, actorId });
 	const rolled = dice ?? state.pendingQuestRoll?.dice ?? [];
 	const afterRoll = moments.includes(M.AFTER_QUEST_ROLL) || moments.includes(M.AFTER_OWN_QUEST_ROLL);
-	if (afterRoll && !isCooldownBlocked(state, responderId) && canDjReroll(state, responderId) >= 0) {
+	// DJ 80/20 (D-17): only the roller's own after-roll pause, never the opponent's roll.
+	if (moments.includes(M.AFTER_OWN_QUEST_ROLL) && !isCooldownBlocked(state, responderId) && canDjReroll(state, responderId) >= 0) {
 		rolled.forEach((_, i) => out.push(DJ_REROLL_PREFIX + i));
 	}
 	// Piecie reroll grants (Dubbele Dosis ...): not an activation, so a cooldown turn does not block them.

@@ -139,7 +139,7 @@ export function ability_ronald_chef_strategic_insight(gameState) {
 	return gameState;
 }
 
-// Ming Natural — Lucky Draw: see abilities/mosje/mingNaturalLuckyDraw.js (free activation or hand, else draw + 15 MP).
+// Ming Natural — Lucky Draw: see abilities/mosje/mingNaturalLuckyDraw.js (1 Energy: reveal + draw the top card, a Piecie may be activated free).
 export function ability_ming_natural_lucky_draw(gameState, playerId, mosjeId) {
 	return mingNaturalLuckyDraw(gameState, playerId, mosjeId);
 }

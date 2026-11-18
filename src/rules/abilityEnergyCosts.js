@@ -12,6 +12,7 @@ export const ABILITY_ENERGY_COSTS = Object.freeze({
   ability_ronald_mastermind_master_plan: 1,
   ability_tuk_healer_healing_presence: 1,
   ability_binti_cutting_words: 1,
+  ability_ming_natural_lucky_draw: 1,
   ability_martin_driver_perfect_line: 1,
   ability_tuk_architect_perfect_placement: 1,
 });

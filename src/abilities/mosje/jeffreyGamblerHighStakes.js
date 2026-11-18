@@ -1,6 +1,5 @@
 // Jeffrey, The Silent Gambler — High Stakes: once per turn, stake 1 or 2 Energy and roll a die. 1-2: the Energy is
-// lost. 3-4: you get it back. 5-6: you get it back, draw 1 card, gain 10 MP per Energy staked, and your next Quest
-// success this turn gives +15 MP extra (player.gamblerQuestBonusTurn, read by jeffreyGamblerQuestBonus).
+// lost (spent). 3-4: you get it back. 5-6: you get it back, draw 1 card and gain 10 MP per Energy staked. Nothing more.
 // The stake is paid INSIDE the effect (charged 0 up front); refused (throws, nothing happens) if the player is short.
 // Input: _pendingTargets.stake = 1 | 2.
 import { rollDie, drawCards } from '../../engine/deckEngine.js';
@@ -23,6 +22,5 @@ export function jeffreyGamblerHighStakes(gameState, playerId, mosjeId = 'mosje_j
 	const { drawn, remaining } = drawCards(player.deck, 1);
 	player.deck = remaining;
 	player.hand.push(...drawn);
-	player.gamblerQuestBonusTurn = state.turnNumber;
 	return { state: gainMP(state, playerId, slotIndex, 10 * stake, 'ABILITY'), success: true };
 }

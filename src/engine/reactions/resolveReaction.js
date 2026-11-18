@@ -7,6 +7,7 @@ import { rollPersonalQuestAttempt } from '../personalQuests/rollPersonalQuestAtt
 import { SNELLE_PIECIES } from '../../data/snellePiecies.js';
 import { getEligibleReactions, DJ_REROLL_PREFIX, PIECIE_REROLL_PREFIX } from './getEligibleReactions.js';
 import { djLuckyBeats } from '../../abilities/mosje/djLuckyBeats.js';
+import { canDjReroll } from '../../abilities/mosje/canDjReroll.js';
 import { useRerollGrant } from '../quests/useRerollGrant.js';
 import { REACTION_MOMENTS as M } from './reactionMoments.js';
 import { resumePiecieChoice } from '../piecies/resumePiecieChoice.js';
@@ -54,6 +55,8 @@ export function resolveReaction(state, responderId, cardId = null) {
 		if (cardId.startsWith(DJ_REROLL_PREFIX)) {
 			// DJ 80/20 Lucky Beats: reroll one die of the held Quest roll (not a card; no Energy).
 			if (!djLuckyBeats(s, responderId, Number(cardId.slice(DJ_REROLL_PREFIX.length)))) return fail('Lucky Beats cannot be used now');
+			// From Level 2 DJ has a second reroll: the same pause opens again (the player may pass) while one is left.
+			if (canDjReroll(s, responderId) >= 0) queue.unshift({ responderId, moments: p.moments });
 		} else if (cardId.startsWith(PIECIE_REROLL_PREFIX)) {
 			// A Piecie reroll grant (Dubbele Dosis): reroll one die of the held Quest roll; the grant is consumed first.
 			if (!useRerollGrant(s, responderId, Number(cardId.slice(PIECIE_REROLL_PREFIX.length)))) return fail('That reroll cannot be used now');

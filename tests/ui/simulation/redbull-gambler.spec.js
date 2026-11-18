@@ -48,7 +48,6 @@ test('Rebouleh doubles Jeffrey Gambler: jackpot twice (+10 MP and a card each, s
 	expect((await readOwnedMosjes(page))[0]?.mp).toBe(55);          // +10 per staked Energy, twice (stake 1)
 	expect(await getHandSize(page, 'player_1')).toBe(hand0 + 2);    // a card each time
 	expect(await energyOf(page)).toBe(energy0);                     // the stakes came back
-	expect((await getGameState(page)).players.player_1.gamblerQuestBonusTurn).toBeDefined();
 });
 
 test('Rebouleh doubles Jeffrey Gambler: two losing rolls lose the stake twice, MP untouched', async ({ page }) => {
