@@ -40,7 +40,8 @@ describe('no active-Mosje concept', () => {
     // V4 bodies still in piecieEffects.js, plus the Card List 2.0 section files (piecie/*.js) that pick through
     // resolvePiecieOwnSlot (directly or via gainOwnMosje / ownMosje).
     const files = ['abilities/piecieEffects.js', ...readdirSync(join(SRC, 'abilities', 'piecie'))
-      .filter((n) => n.endsWith('Piecies.js')).map((n) => 'abilities/piecie/' + n)];
+      .filter((n) => n.endsWith('Piecies.js')).map((n) => 'abilities/piecie/' + n),
+    ...readdirSync(join(SRC, 'abilities', 'piecie', 'starter')).filter((n) => n.endsWith('.js') && n !== 'index.js').map((n) => 'abilities/piecie/starter/' + n)];
     for (const file of files) {
       for (const part of strip(read(file)).split(/^export /m)) {
         const name = part.match(/^(?:function|const) (effect_\w+)/)?.[1];
@@ -48,7 +49,9 @@ describe('no active-Mosje concept', () => {
       }
     }
     // Step cards (71-02): the handler picks the own Mosje when one of the card's steps needs one.
+    // A card with an activationCost gets its Mosje from the cost step (cost_mosje), not from the own-target pick.
     for (const [cardId, steps] of Object.entries(CARD_STEPS) as [string, any[]][]) {
+      if ((PIECIES as any[]).find((p) => p.id === cardId).activationCost) continue;
       if (steps.some((st) => STEP_KINDS[st.do].needsMosje(st))) used.push((PIECIES as any[]).find((p) => p.id === cardId).effectId);
     }
     expect([...used].sort()).toEqual([...OWN_TARGET_EFFECT_IDS].sort());
@@ -77,6 +80,6 @@ describe('pickBotOwnTarget', () => {
   it('non-gain effect -> higher Power', () => {
     const a = mk('mosje_gandoe_wizard', 90, { level: 1 });
     const b = mk('mosje_gandoe_wizard', 10, { level: 3 });
-    expect(pickBotOwnTarget(s(a, b), 'player_1', 'effect_te_hard_gaan')).toBe(1);
+    expect(pickBotOwnTarget(s(a, b), 'player_1', 'effect_snoeiertje')).toBe(1);
   });
 });

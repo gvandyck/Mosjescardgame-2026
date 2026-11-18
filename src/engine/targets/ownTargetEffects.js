@@ -18,7 +18,6 @@ export const OWN_TARGET_EFFECT_IDS = [
 	'effect_continuous_assault',
 	'effect_mp_hemorrhage',
 	'effect_afblijven',
-	'effect_te_hard_gaan',
 	'effect_dikke_taks',
 	'effect_bowie_stormey',
 	'effect_vianna_poes',

@@ -56,7 +56,8 @@ function analyse(game) {
 			const attacker = before.players[playerId].activeSlots[action.attackerSlotIndex];
 			const can = canMosjeTakeAction(before, playerId, action.attackerSlotIndex);
 			if (!can.ok) flag(step, `attacker slot ${action.attackerSlotIndex} cannot act: ${can.error}`);
-			if (!attacker || isFresh(attacker)) flag(step, `attacker slot ${action.attackerSlotIndex} is fresh or missing`);
+			// A turn that opens with a draw-step pause (Coert Tech) clears the owner's fresh flags only when that pause is answered, so `before` still shows them.
+			if (!attacker || (isFresh(attacker) && !before.pendingDrawStep)) flag(step, `attacker slot ${action.attackerSlotIndex} is fresh or missing`);
 			if (!isValidAttackTarget(before, playerId, action.targetPlayerId, action.targetSlotIndex)) {
 				const t = targetOf(before, action);
 				flag(step, `invalid target ${action.targetPlayerId}#${action.targetSlotIndex} (${t?.cardId}, fresh=${t?.entryProtected})`);

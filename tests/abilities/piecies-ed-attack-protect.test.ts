@@ -52,30 +52,16 @@ const attack = (s: any) => attackMosje(s, 'player_1', { attackerSlotIndex: 0, ta
 const MING = 'mosje_ming_predictor';
 
 describe('Attack Piecies: Power this turn', () => {
-  it('Te Hard Gaan +20 Power now, -10 MP at the end of the turn, Power gone afterwards', () => {
+  it('Te Hard Gaan: pays 10 MP at once, +20 Power now, nothing lost at the end of the turn (more in starter-attack-cost-piecies)', () => {
     const s0 = board('piecie_te_hard_gaan');
     const base = getPower(s0.players.player_1.activeSlots[0]);
     const s = run(s0);
     expect(getPower(s.players.player_1.activeSlots[0])).toBe(base + 20);
-    expect(mp(s)).toBe(50);
+    expect(mp(s)).toBe(40);
     const e = endTurn(s);
     expect(mp(e)).toBe(40);
     expect(e.players.player_1.activeSlots[0].powerBoostThisTurn).toBeUndefined();
-    expect(e.players.player_1.endOfTurnLosses).toEqual([]);
-  });
-
-  it("Te Hard Gaan's end-of-turn loss goes through the loss steps (Afblijven! shrinks it)", () => {
-    const s = board('piecie_te_hard_gaan');
-    s.players.player_1.piecieSlots[1] = { cardId: 'piecie_afblijven', type: 'PIECIE', stays: true, staysEnd: 'startOfNextTurn', activatedRound: 5,
-      boundTo: [{ playerId: 'player_1', slotIndex: 0, cardId: s.players.player_1.activeSlots[0].cardId, reduce: 10 }] };
-    expect(mp(endTurn(run(s)))).toBe(50);
-  });
-
-  it('Te Hard Gaan: the loss is skipped when that Mosje has left play', () => {
-    const s = run(board('piecie_te_hard_gaan'));
-    s.players.player_1.activeSlots[0] = null;
-    s.players.player_1.activeSlots[1] = slotOf(MING);
-    expect(mp(endTurn(s), 'player_1', 1)).toBe(50);
+    expect(e.players.player_1.endOfTurnLosses || []).toEqual([]);
   });
 
   it('Super Saiyan Mos +30 Power this turn', () => {

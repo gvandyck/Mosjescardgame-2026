@@ -10,10 +10,6 @@ import { resolveAnyTarget } from './resolveAnyTarget.js';
 import { isFriend } from '../../engine/friends/isFriend.js';
 import { resolvePiecieOwnSlot } from './resolvePiecieOwnSlot.js';
 
-// Nature's Gift (Eendjes voeren): +30, +40 with Resilient 2 stars or more.
-export const effect_eendjes_voeren = (s, pid) =>
-	gainOwnMosje(s, pid, 'piecie_eendjes_voeren', slot => ((slot.traits?.resilient || 0) >= 2 ? 40 : 30));
-
 // Varkenspootjes: a Binti gains 40, any other non-fresh Mosje (either side) loses 15.
 export function effect_varkenspootjes(gameState, playerId) {
 	const state = cloneState(gameState);

@@ -7,7 +7,6 @@ import { opponentPickableHand } from '../../engine/hand/opponentPickableHand.js'
 import { discardFromHand } from '../../engine/hand/discardFromHand.js';
 import { revealCards } from '../../engine/hidden/revealCards.js';
 import { cloneState } from './cloneState.js';
-import { addPowerThisTurn } from './addPowerThisTurn.js';
 import { resolvePiecieOwnSlot } from './resolvePiecieOwnSlot.js';
 
 const KEY = 'jantje_name';
@@ -33,6 +32,5 @@ export function effect_jantje_jantje(gameState, playerId, ctx = {}) {
 	const at = opponentPickableHand(opp.hand).find(i => nameOf(opp.hand[i].cardId) === pick.label) ?? -1;
 	if (at < 0) return loseMP(state, playerId, si, 10, 'DRAIN', false, playerId);
 	discardFromHand(state, oppId(state, playerId), at, { byPlayerId: playerId });
-	addPowerThisTurn(state, playerId, si, 20);
 	return state;
 }

@@ -1,2 +1,3 @@
 // One new starter Piecie effect per file in this folder, re-exported here (and piecieEffects.js re-exports this file).
-// No exports yet.
+export * from './blikjeMonsteros.js';
+export * from './spiegelen.js';

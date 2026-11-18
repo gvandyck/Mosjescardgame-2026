@@ -24,5 +24,8 @@ export const CARD_STEPS = {
 		{ do: 'gainMp', amount: 30 },
 		{ do: 'drawCards', count: 1, onlyIf: { friendOnField: ['Coert'] } },
 	],
+	piecie_te_hard_gaan: [{ do: 'power', amount: 20, duration: 'thisTurn' }],
+	piecie_ronalds_fles_fireman: [{ do: 'power', amount: 20, duration: 'thisTurn' }],
+	piecie_snoeiertje: [{ do: 'power', amount: 10, comboAmount: 20, duration: 'thisTurn' }],
 	piecie_super_saiyan_mos: [{ do: 'power', amount: 30, duration: 'thisTurn' }],
 };

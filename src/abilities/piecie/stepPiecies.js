@@ -10,4 +10,7 @@ export const effect_broodje_doner = stepCard('piecie_broodje_doner');
 export const effect_protein_shake = stepCard('piecie_protein_shake');
 export const effect_ronald_kip = stepCard('piecie_ronald_kip');
 export const effect_hawaii_pizza = stepCard('piecie_hawaii_pizza');
+export const effect_te_hard_gaan = stepCard('piecie_te_hard_gaan');
+export const effect_ronalds_fles_fireman = stepCard('piecie_ronalds_fles_fireman');
+export const effect_snoeiertje = stepCard('piecie_snoeiertje');
 export const effect_super_saiyan_mos = stepCard('piecie_super_saiyan_mos');

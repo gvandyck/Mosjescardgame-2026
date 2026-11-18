@@ -8,26 +8,6 @@ import { drawFromEffect } from '../../engine/turn/drawFromEffect.js';
 import { discardPiecieSlotInPlace } from '../../engine/table/discardPiecieSlotInPlace.js';
 import { scheduleEndOfTurnLoss } from './scheduleEndOfTurnLoss.js';
 
-// Te Hard Gaan: +20 Power this turn; at the end of the turn that Mosje loses 10 MP (runEndOfTurnLosses).
-export function effect_te_hard_gaan(gameState, playerId) {
-	const state = cloneState(gameState);
-	const si = resolvePiecieOwnSlot(state, playerId, 'piecie_te_hard_gaan');
-	if (si < 0) return state;
-	addPowerThisTurn(state, playerId, si, 20);
-	scheduleEndOfTurnLoss(state, playerId, { slotIndex: si, amount: 10, dueRound: state.turnNumber });
-	return state;
-}
-
-// Snoeiertje: +10 Power this turn; at the end of the turn that Mosje loses 10 MP.
-export function effect_snoeiertje(gameState, playerId) {
-	const state = cloneState(gameState);
-	const si = resolvePiecieOwnSlot(state, playerId, 'piecie_snoeiertje');
-	if (si < 0) return state;
-	addPowerThisTurn(state, playerId, si, 10);
-	scheduleEndOfTurnLoss(state, playerId, { slotIndex: si, amount: 10, dueRound: state.turnNumber });
-	return state;
-}
-
 // Continuous Assault (Stays until the end of the owner's next turn): the chosen Mosje has +10 Power while the card
 // stays (powerStaysBonus, taken back by releaseBoundPower when the card or the Mosje leaves).
 export function effect_continuous_assault(gameState, playerId, ctx = {}) {

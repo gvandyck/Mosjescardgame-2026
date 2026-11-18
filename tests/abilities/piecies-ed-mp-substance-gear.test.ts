@@ -52,11 +52,6 @@ describe('MP Piecies', () => {
     expect(mp(run(board('piecie_broodje_doner')))).toBe(50);
   });
 
-  it("Nature's Gift +30, +40 with Resilient 2 stars", () => {
-    expect(mp(run(board('piecie_eendjes_voeren', { ownSlot: { traits: { resilient: 1 } } })))).toBe(80);
-    expect(mp(run(board('piecie_eendjes_voeren', { ownSlot: { traits: { resilient: 2 } } })))).toBe(90);
-  });
-
   it('Protein Shake +30 on any own Mosje, flat (Strength and Boxing Ring no longer matter)', () => {
     const phys = (o: any = {}) => board('piecie_protein_shake', { ...o, ownSlot: { subtype: 'PHYSICAL', ...(o.ownSlot || {}) } });
     expect(mp(run(phys({ ownSlot: { traits: { strength: 0 } } })))).toBe(80);

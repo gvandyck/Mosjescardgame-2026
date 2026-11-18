@@ -16,7 +16,7 @@ import { makeEngineState } from "../helpers/makeEngineState.js";
 const mosje = (cardId: string, mp = 30) => ({ cardId, name: cardId, mp, level: 1, isDefeated: false, traits: {}, statusEffects: [], abilityUsedThisTurn: false });
 const placed = (cardId: string, extra: any = {}) => ({ cardId, type: "PIECIE", faceDown: true, activated: false, playedOnTurn: 1, canActivateOnTurn: 1, ...extra });
 const DONER = "piecie_broodje_doner"; // cost 1, FOOD
-const TE_HARD = "piecie_te_hard_gaan"; // cost 2
+const TE_HARD = "piecie_momentum_diefje"; // cost 2
 
 function build(p1: any = {}, extra: any = {}) {
   return makeEngineState({
@@ -141,7 +141,7 @@ describe("chain rule: a free activation never starts a roll", () => {
     expect(p.energy).toBe(4); // only the paid Piecie (2) cost Energy
     expect(p.ddrChainsThisTurn).toBe(1);
     expect(p.piecieSlots.every((x: any) => x === null)).toBe(true); // all three Piecies resolved
-    expect(res.state.players.player_2.activeSlots[0].mp).toBe(65); // 80 - 15 (Jisca); Te Hard Gaan is +20 Power (Card List 2.0), no damage
+    expect(res.state.players.player_2.activeSlots[0].mp).toBe(65); // 80 - 15 (Jisca); Momentum Diefje is +20 Power (Card List 2.0), no damage
     expect(rest()).toEqual([1, 1]); // the two freed Piecies rolled nothing
   });
 

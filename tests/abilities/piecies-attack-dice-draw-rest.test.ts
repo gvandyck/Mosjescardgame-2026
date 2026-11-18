@@ -78,12 +78,12 @@ const stays = (s: any) => s.players.player_1.piecieSlots[0];
 const sleeping = (s: any) => { s.players.player_2.activeSlots[0].entryProtected = false; return s; };
 
 describe('Attack rest', () => {
-  it('Snoeiertje +10 Power now, -10 MP at the end of the turn', () => {
+  it('Snoeiertje +10 Power now, no MP lost at the end of the turn', () => {
     const s0 = board('piecie_snoeiertje');
     const base = getPower(s0.players.player_1.activeSlots[0]);
     const s = run(s0);
     expect(getPower(s.players.player_1.activeSlots[0])).toBe(base + 10);
-    expect(mp(endTurn(s))).toBe(40);
+    expect(mp(endTurn(s))).toBe(50);
   });
 
   it('Continuous Assault: Stays, +10 Power while it stays, gone at the end of the next turn', () => {
@@ -160,7 +160,7 @@ describe('Attack rest', () => {
     expect(mp(endTurn(gone), 'player_2', 1)).toBe(70);
   });
 
-  it('Jantje Jantje...: a hit discards the card and gives +20 Power; only the named card goes', () => {
+  it('Jantje Jantje...: a hit discards the card and gives no Power; only the named card goes', () => {
     const base = getPower(board('piecie_jantje_jantje').players.player_1.activeSlots[0]);
     let s = run(board('piecie_jantje_jantje', { foeHand: cards('piecie_affoe', 'piecie_straffoe') }));
     expect(s.pendingChoice.options.every((o: any) => o.label && o.cardId)).toBe(true);
@@ -168,7 +168,7 @@ describe('Attack rest', () => {
     s = answer(s, (o) => o.find((x: any) => x.cardId === 'piecie_affoe'));
     expect(hand(s, 'player_2')).toEqual(['piecie_straffoe']);
     expect(s.players.player_2.graveyard.map((g: any) => g.cardId)).toEqual(['piecie_affoe']);
-    expect(getPower(s.players.player_1.activeSlots[0])).toBe(base + 20);
+    expect(getPower(s.players.player_1.activeSlots[0])).toBe(base);
     expect(mp(s)).toBe(50);
   });
 

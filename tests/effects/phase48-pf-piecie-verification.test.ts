@@ -105,14 +105,12 @@ function makeState(
 }
 
 describe('Phase 48 gap-fill — effect_snoeiertje (IMPL-PF-P3)', () => {
-  // Phase 59 (Card List 2.0): +10 Power this turn, and at the end of the turn the Mosje loses 10 MP (no quest bonus any more).
-  it('gives +10 Power this turn and queues a 10 MP loss for the end of the turn', () => {
+  // Phase 71-05 (2.1 text): +10 Power this turn (+20 as a Combo), no MP loss.
+  it('gives +10 Power this turn and queues no MP loss', () => {
     const state = makeState();
     const result = effect_snoeiertje(state, 'player_1');
     expect(result.players.player_1.activeSlots[0].powerBoostThisTurn).toBe(10);
-    expect(result.players.player_1.endOfTurnLosses).toEqual([
-      expect.objectContaining({ slotIndex: 0, amount: 10, dueTurnOf: 'player_1' }),
-    ]);
+    expect(result.players.player_1.endOfTurnLosses || []).toEqual([]);
   });
 });
 

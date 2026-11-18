@@ -49,14 +49,14 @@ describe("Jisca: Perfect Combo", () => {
 
   it("free activation costs no Energy", () => {
     pushTestDice([5]);
-    const res = activatePiecie(board([placed(), placed("piecie_te_hard_gaan"), null]), "player_1", 0);
-    expect(p1(res).energy).toBe(6); // Te Hard Gaan (cost 2) came free
-    expect(res.state.players.player_2.activeSlots[0].mp).toBe(35); // 50 - 15 (Jisca); Te Hard Gaan is +20 Power on Jisca now, no damage
+    const res = activatePiecie(board([placed(), placed("piecie_momentum_diefje"), null]), "player_1", 0);
+    expect(p1(res).energy).toBe(6); // Momentum Diefje (cost 2) came free
+    expect(res.state.players.player_2.activeSlots[0].mp).toBe(35); // 50 - 15 (Jisca); Momentum Diefje is +20 Power on Jisca now, no damage
   });
 
   it("die 2: Jisca loses 10; at 0 MP nothing is lost", () => {
     pushTestDice([2]);
-    const hard = () => board([placed("piecie_te_hard_gaan"), null, null]);
+    const hard = () => board([placed("piecie_momentum_diefje"), null, null]);
     expect(p1(activatePiecie(hard(), "player_1", 0)).activeSlots[0].mp).toBe(20);
     clearTestDice();
     pushTestDice([2]);
@@ -73,7 +73,7 @@ describe("Jisca: Perfect Combo", () => {
 
   it("rolls only for her first paid activation each turn", () => {
     pushTestDice([2, 6]);
-    const hard = "piecie_te_hard_gaan";
+    const hard = "piecie_momentum_diefje";
     const first = activatePiecie(board([placed(hard), placed(hard), null]), "player_1", 0);
     expect(p1(first).jiscaRolledThisTurn).toBe(true);
     const second = activatePiecie(first.state, "player_1", 1);

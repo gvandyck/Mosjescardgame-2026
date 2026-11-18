@@ -280,7 +280,7 @@ describe("Chris All-Rounder — Perfect Setup", () => {
 
   it("activates the chosen face-down Piecie for free (no Energy, even placed this turn) and Chris gains 15 MP", () => {
     const placedNow = (cardId: string) => ({ ...makeFaceDownPiecieSlot(cardId), playedOnTurn: 5, canActivateOnTurn: 6 });
-    const state = makeChrisState([placedNow("piecie_broodje_doner"), placedNow("piecie_te_hard_gaan"), placedNow("piecie_kannetje_melk")]);
+    const state = makeChrisState([placedNow("piecie_broodje_doner"), placedNow("piecie_momentum_diefje"), placedNow("piecie_kannetje_melk")]);
     state._pendingTargets = { piecie_slot: 1 };
 
     const res = useMosjeAbility(state, "player_1", "mosje_chris");
@@ -288,23 +288,23 @@ describe("Chris All-Rounder — Perfect Setup", () => {
     expect(res.success).toBe(true);
     expect(res.state.players.player_1.activeSlots[0].mp).toBe(65); // 50 + 15
     expect(res.state.players.player_1.energy).toBe(6); // free: nothing paid
-    expect(res.state.players.player_1.piecieSlots[1]?.cardId).not.toBe("piecie_te_hard_gaan");
+    expect(res.state.players.player_1.piecieSlots[1]?.cardId).not.toBe("piecie_momentum_diefje");
     expect(res.state.players.player_1.piecieSlots[0]?.cardId).toBe("piecie_broodje_doner"); // others untouched
   });
 
   it("falls back to the first slot when no selection is given (bot-safe)", () => {
-    const state = makeChrisState([makeFaceDownPiecieSlot("piecie_broodje_doner"), makeFaceDownPiecieSlot("piecie_te_hard_gaan"), makeFaceDownPiecieSlot("piecie_kannetje_melk")]);
+    const state = makeChrisState([makeFaceDownPiecieSlot("piecie_broodje_doner"), makeFaceDownPiecieSlot("piecie_momentum_diefje"), makeFaceDownPiecieSlot("piecie_kannetje_melk")]);
     const res = useMosjeAbility(state, "player_1", "mosje_chris");
     expect(res.success).toBe(true);
     expect(res.state.players.player_1.piecieSlots[0]?.cardId).not.toBe("piecie_broodje_doner");
   });
 
   it("is refused (nothing spent, no MP) with only 2 face-down Piecies, and works once per turn", () => {
-    const two = makeChrisState([makeFaceDownPiecieSlot("piecie_broodje_doner"), makeFaceDownPiecieSlot("piecie_te_hard_gaan"), null]);
+    const two = makeChrisState([makeFaceDownPiecieSlot("piecie_broodje_doner"), makeFaceDownPiecieSlot("piecie_momentum_diefje"), null]);
     const r = useMosjeAbility(two, "player_1", "mosje_chris");
     expect(r.success).toBe(false);
     expect(two.players.player_1.activeSlots[0].mp).toBe(50);
-    const three = makeChrisState([makeFaceDownPiecieSlot("piecie_broodje_doner"), makeFaceDownPiecieSlot("piecie_te_hard_gaan"), makeFaceDownPiecieSlot("piecie_kannetje_melk")]);
+    const three = makeChrisState([makeFaceDownPiecieSlot("piecie_broodje_doner"), makeFaceDownPiecieSlot("piecie_momentum_diefje"), makeFaceDownPiecieSlot("piecie_kannetje_melk")]);
     const once = useMosjeAbility(three, "player_1", "mosje_chris");
     expect(useMosjeAbility(once.state, "player_1", "mosje_chris").success).toBe(false);
   });
