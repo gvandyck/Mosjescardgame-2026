@@ -26,26 +26,6 @@ export const MOSJE_REGISTRY_REST = [
 			},
 		},
 	}] },
-	{ mosje: 'mosje_ming_predictor', deck: null, cases: [{
-		name: 'Future Sight: look at the top of a Quest stack, pay 1 Energy to put it on the bottom',
-		setup: { field: [{ id: 'mosje_ming_predictor', mp: 30 }], oppField: OPP40, energy: 3, pendingTargets: { stack_id: 'PHYSICAL', bottom: true } },
-		trigger: { kind: 'button' },
-		expect: {
-			energy: 2,
-			check: (before, after) => {
-				const b = before.questStacks.PHYSICAL.deck, a = after.questStacks.PHYSICAL.deck;
-				if (a.length !== b.length) throw new Error('stack size changed');
-				if (JSON.stringify(a[a.length - 1]) !== JSON.stringify(b[0])) throw new Error('the top card is not on the bottom');
-				if (JSON.stringify(a[0]) !== JSON.stringify(b[1])) throw new Error('the next card is not on top');
-			},
-		},
-	}] },
-	{ mosje: 'mosje_martin_historian', deck: null, cases: [{
-		name: 'Time Control: instead of the normal draw, +15 MP; the end of that turn draws 2',
-		setup: { field: [{ id: 'mosje_martin_historian', mp: 30 }], oppField: OPP40, hand: [MILK] },
-		trigger: { kind: 'turnStart', picks: [/Historian/, /Your deck/, /./, /./, /./, /./], then: { kind: 'turnEnd' } },
-		expect: { mp: { 'own.0': 45 }, handDelta: 2 }, // the normal draw was replaced (0) + 2 at end of turn
-	}] },
 	{ mosje: 'mosje_martin_senor_west', deck: null, cases: [
 		{ name: 'Calculated Guess: right type -> draw 2 and +10 MP',
 			setup: { field: [{ id: 'mosje_martin_senor_west', mp: 30 }], oppField: OPP40, deckTop: [MILK], pendingTargets: { card_type: 'PIECIE', deck_owner: 'player_1' } },
@@ -53,20 +33,6 @@ export const MOSJE_REGISTRY_REST = [
 		{ name: 'Calculated Guess: wrong type -> lose 10 MP',
 			setup: { field: [{ id: 'mosje_martin_senor_west', mp: 30 }], oppField: OPP40, deckTop: [MILK], pendingTargets: { card_type: 'PLACE', deck_owner: 'player_1' } },
 			trigger: { kind: 'button' }, expect: { mp: { 'own.0': 20 }, handDelta: 0 } },
-	] },
-	{ mosje: 'mosje_tactician', deck: null, cases: [
-		{ name: 'MP Manipulation: pay 2 Energy, set my Mosje to 75 for this turn (no level-up)',
-			setup: { field: [{ id: 'mosje_tactician', mp: 30 }], oppField: OPP40, energy: 3, pendingTargets: { target: SELF0, mp: 75 } },
-			trigger: { kind: 'button' }, expect: { mp: { 'own.0': 75 }, level: { 'own.0': 1 }, energy: 1 } },
-		{ name: 'MP Manipulation: at the end of the turn the real MP comes back',
-			setup: { field: [{ id: 'mosje_tactician', mp: 30 }], oppField: OPP40, energy: 3, pendingTargets: { target: SELF0, mp: 75 } },
-			trigger: { kind: 'button', then: { kind: 'turnEnd' } }, expect: { mp: { 'own.0': 30 }, level: { 'own.0': 1 } } },
-		{ name: 'MP Manipulation: set to 10, gain 25 this turn -> real 30 + 25 at the end of the turn',
-			setup: { field: [{ id: 'mosje_tactician', mp: 30 }], oppField: OPP40, energy: 3, piecies: milk(0), pendingTargets: { target: SELF0, mp: 10 } },
-			trigger: { kind: 'button', then: { kind: 'activatePiecie', cardId: MILK, then: { kind: 'turnEnd' } } }, expect: { mp: { 'own.0': 55 } } },
-		{ name: 'MP Manipulation: set an opponent Mosje to 10 for this turn',
-			setup: { field: [{ id: 'mosje_tactician', mp: 30 }], oppField: OPP40, energy: 3, pendingTargets: { target: OPP0, mp: 10 } },
-			trigger: { kind: 'button' }, expect: { mp: { 'opp.0': 10 }, energy: 1 } },
 	] },
 	{ mosje: 'mosje_coert_kasteluck', deck: null, cases: [
 		{ name: 'Morning Luck 4-6: draw 1 (plus the normal draw) and gain 5 MP',
@@ -84,22 +50,4 @@ export const MOSJE_REGISTRY_REST = [
 			setup: { field: [{ id: 'mosje_martin_driver', mp: 30 }], oppField: OPP40, energy: 3, hand: [MILK, 'piecie_affoe', 'piecie_straffoe'], pendingTargets: { discard_cards: [0, 1] } },
 			trigger: { kind: 'button' }, expect: { mp: { 'own.0': 40 }, energy: 2, handDelta: 1 } },
 	] },
-	{ mosje: 'mosje_tuk_architect', deck: null, cases: [{
-		name: 'Perfect Placement: pay 1 Energy, take 2 of the top 5, the rest go to the bottom in my order',
-		setup: {
-			field: [{ id: 'mosje_tuk_architect', mp: 30 }], oppField: OPP40, energy: 3,
-			deckTop: ['piecie_affoe', 'piecie_straffoe', 'piecie_slecht_gezet', 'piecie_quest_prep', 'piecie_larry_zegeltje'],
-			pendingTargets: { pick: [0, 1], order: [2, 0, 1] },
-		},
-		trigger: { kind: 'button' },
-		expect: {
-			energy: 2, handDelta: 2,
-			check: (before, after) => {
-				const hand = after.players.player_1.hand.map(c => c.cardId);
-				if (!hand.includes('piecie_affoe') || !hand.includes('piecie_straffoe')) throw new Error('picked cards are not in hand');
-				const bottom = after.players.player_1.deck.slice(-3).map(c => c.cardId);
-				if (JSON.stringify(bottom) !== JSON.stringify(['piecie_larry_zegeltje', 'piecie_slecht_gezet', 'piecie_quest_prep'])) throw new Error(`bottom order ${bottom}`);
-			},
-		},
-	}] },
 ];

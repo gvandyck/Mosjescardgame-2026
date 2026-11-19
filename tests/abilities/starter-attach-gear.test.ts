@@ -13,7 +13,6 @@ import { getReadyPiecies } from '../../src/engine/attachments/getReadyPiecies.js
 import { attachToMosje } from '../../src/engine/attachments/attachToMosje.js';
 import { returnMosjeToHand } from '../../src/engine/gameState.js';
 import { MOSJES } from '../../src/data/mosjes.js';
-import { PENDING_STARTER_EFFECTS } from '../../src/data/pendingStarterEffects.js';
 import { forceQuestResult } from '../helpers/forceQuestResult.js';
 import { makePiecieState } from '../helpers/makePiecieState.js';
 
@@ -45,11 +44,6 @@ const place = (s: any, id: string, i: number) => {
 	s.players.player_1.piecieSlots[i] = { cardId: id, type: 'PIECIE', faceDown: true, activated: false, playedOnTurn: 1, canActivateOnTurn: 2 };
 };
 
-describe('no pending handlers left for the four Attach cards', () => {
-	it('Rugbybal, Koksmes and Hawaiishirt are no longer pending', () => {
-		for (const id of ['effect_rugbybal', 'effect_koksmes', 'effect_hawaiishirt']) expect(PENDING_STARTER_EFFECTS).not.toContain(id);
-	});
-});
 
 describe('Dumbbells', () => {
 	it('attaches without any MP; +1 die on a Str Quest only, for that Mosje only', () => {

@@ -11,7 +11,6 @@ import { rollPersonalQuestAttempt } from '../../src/engine/personalQuests/rollPe
 import { resolveReaction } from '../../src/engine/reactions/resolveReaction.js';
 import { activatePiecie, resolvePiecieActivation, startTurn } from '../../src/engine/turnManager.js';
 import { applyPuntoBanco } from '../../src/abilities/place/applyPuntoBanco.js';
-import { PENDING_STARTER_EFFECTS } from '../../src/data/pendingStarterEffects.js';
 
 beforeEach(() => { vi.spyOn(Math, 'random').mockReturnValue(0.5); });
 afterEach(() => vi.restoreAllMocks());
@@ -32,11 +31,6 @@ const world = (place, slots = [null, null], extra = {}) => {
 const face = (d) => (d - 0.5) / 6;
 const seq = (...dice) => { const q = dice.map(face); return () => (q.length ? q.shift() : 0.7); };
 
-describe('the pending list is empty', () => {
-	it('no starter effect is pending', () => {
-		expect(PENDING_STARTER_EFFECTS).toEqual([]);
-	});
-});
 
 describe("Youri's Woonkamer (place_youris_woonkamer)", () => {
 	const pie = (turn, ready = turn) => ({ cardId: 'piecie_momentum_diefje', type: 'PIECIE', faceDown: true, activated: false, playedOnTurn: turn, canActivateOnTurn: ready });

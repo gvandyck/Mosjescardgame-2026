@@ -16,7 +16,6 @@ import { rollQuestAttempt } from '../../src/engine/quests/rollQuestAttempt.js';
 import { rollPersonalQuestAttempt } from '../../src/engine/personalQuests/rollPersonalQuestAttempt.js';
 import { resolveReaction } from '../../src/engine/reactions/resolveReaction.js';
 import { activatePiecie, startTurn } from '../../src/engine/turnManager.js';
-import { PENDING_STARTER_EFFECTS } from '../../src/data/pendingStarterEffects.js';
 
 beforeEach(() => { vi.spyOn(Math, 'random').mockReturnValue(0.5); });
 afterEach(() => vi.restoreAllMocks());
@@ -169,9 +168,6 @@ describe('Skiffa (place_skiffa)', () => {
 
 describe('Woonkamer (Discord) (place_woonkamer_discord)', () => {
 	const two = (a, b) => world('place_woonkamer_discord', [slotOf(a), slotOf(b)]);
-	it('is no longer pending', () => {
-		expect(PENDING_STARTER_EFFECTS).not.toContain('effect_woonkamer_discord');
-	});
 	it('2 Digital Mosjes: +1 die on a Tech Quest, nothing on a Str Quest', () => {
 		const st = two(GANDOE, CHRIS);
 		expect(diceBonus(st, st.players.player_1.activeSlots[0], 'technical')).toBe(1);
@@ -211,9 +207,6 @@ describe('Nieuwe Gimma (place_nieuwe_gimma)', () => {
 	const phys = () => [withStars(slotOf(MICHELLE, { level: 3, levelAtTurnStart: 3 }), { strength: 2 }), withStars(slotOf('mosje_jeffrey', { level: 3, levelAtTurnStart: 3 }), { strength: 2 })];
 	const Q = (slotIndex = 0, extra = {}) => ({ slotIndex, stackId: 'PHYSICAL', rng: () => 0.7, skipReactions: true, ...extra });
 	const base = () => rollQuestAttempt(world(null, phys()), 'player_1', Q()).pending.diceCount;
-	it('is no longer pending', () => {
-		expect(PENDING_STARTER_EFFECTS).not.toContain('effect_nieuwe_gimma');
-	});
 	it('the first Quest roll of a turn has +1 die, the second has none', () => {
 		const first = rollQuestAttempt(world('place_nieuwe_gimma', phys()), 'player_1', Q(0));
 		expect(first.pending.diceCount).toBe(base() + 1);

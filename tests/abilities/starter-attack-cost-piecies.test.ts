@@ -8,7 +8,6 @@ import { getPower } from '../../src/engine/mp/getPower.js';
 import { createMosjeSlot } from '../../src/engine/mp/createMosjeSlot.js';
 import { MOSJES } from '../../src/data/mosjes.js';
 import { PIECIES } from '../../src/data/piecies.js';
-import { PENDING_STARTER_EFFECTS } from '../../src/data/pendingStarterEffects.js';
 import { effect_eendjes_voeren } from '../../src/abilities/piecieEffects.js';
 import { makePiecieState } from '../helpers/makePiecieState.js';
 
@@ -142,8 +141,6 @@ describe('MP price first', () => {
 		expect(get('piecie_te_hard_gaan').activationCost).toEqual([{ kind: 'mpLoss', amount: 10 }]);
 		expect(get('piecie_ronalds_fles_fireman').activationCost).toEqual([{ kind: 'mpLoss', amount: 20, freeFor: ['Ronald'] }]);
 		expect(get('piecie_blikje_monsteros').activationCost).toEqual([{ kind: 'mpLoss', amount: 15 }]);
-		expect(PENDING_STARTER_EFFECTS).not.toContain('effect_ronalds_fles_fireman');
-		expect(PENDING_STARTER_EFFECTS).not.toContain('effect_blikje_monsteros');
 	});
 });
 

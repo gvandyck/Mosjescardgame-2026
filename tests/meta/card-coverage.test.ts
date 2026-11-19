@@ -12,10 +12,6 @@ import { SNELLE_PIECIES } from '../../src/data/snellePiecies.js';
 // @ts-ignore
 import { PLACES } from '../../src/data/places.js';
 // @ts-ignore
-import { PENDING_STARTER_EFFECTS } from '../../src/data/pendingStarterEffects.js';
-// @ts-ignore
-import { REGISTRY_PENDING } from '../helpers/registryPending.js';
-// @ts-ignore
 import { MOSJE_REGISTRY } from '../ui/cards/mosje-registry-2-0.js';
 // @ts-ignore
 import { QUEST_REGISTRY } from '../ui/cards/quest-registry-2-0.js';
@@ -42,18 +38,13 @@ const kinds: Kind[] = [
   { name: 'Snelle', data: SNELLE_PIECIES, registry: SNELLE_REGISTRY, key: 'snelle' },
   { name: 'Places', data: PLACES, registry: PLACE_REGISTRY, key: 'place' },
 ];
-// Phase 71: a card is skipped for the row check while its card id is in REGISTRY_PENDING (row comes in 71-20 to 71-23),
-// and disabled (archived) cards need no row. A registry entry may name any card in the data that is not cut.
-const rowPending = new Set(REGISTRY_PENDING as string[]);
-const notCut = (k: Kind) => k.data.filter((c) => !NOT_IN_2_0.has(c.id)).map((c) => c.id as string);
-const live = (k: Kind) => k.data.filter((c) => !NOT_IN_2_0.has(c.id) && !c.disabled && !rowPending.has(c.id)).map((c) => c.id as string);
+// Archived (disabled) cards need no row. A registry entry may name any card in the data that is not cut and not disabled.
+const live = (k: Kind) => k.data.filter((c) => !NOT_IN_2_0.has(c.id) && !c.disabled).map((c) => c.id as string);
 const covered = (k: Kind) => new Set(k.registry.filter((r) => r.cases?.length).map((r) => r[k.key] as string));
 
 describe('card-test coverage of the Card List (TEST-02)', () => {
-  it('every kind has cards, and the pending row list only names cards in the data', () => {
-    for (const k of kinds) expect(notCut(k).length, k.name).toBeGreaterThan(0);
-    const all = new Set(kinds.flatMap(notCut));
-    expect([...rowPending].filter((id) => !all.has(id))).toEqual([]);
+  it('every kind has cards', () => {
+    for (const k of kinds) expect(live(k).length, k.name).toBeGreaterThan(0);
   });
 
   for (const k of kinds) {
@@ -62,8 +53,8 @@ describe('card-test coverage of the Card List (TEST-02)', () => {
       expect(live(k).filter((id) => !have.has(id)), `${k.name} without a case`).toEqual([]);
     });
 
-    it(`every ${k.name} registry entry names a live 2.0 card (no unknown or cut ids)`, () => {
-      const ids = new Set(notCut(k));
+    it(`every ${k.name} registry entry names a live 2.0 card (no unknown, cut or disabled ids)`, () => {
+      const ids = new Set(live(k));
       expect(k.registry.map((r) => r[k.key] as string).filter((id) => !ids.has(id)), `${k.name} registry ids`).toEqual([]);
     });
   }

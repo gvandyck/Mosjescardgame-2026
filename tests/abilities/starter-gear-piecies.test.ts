@@ -9,7 +9,6 @@ import { questDiceGrantTotal } from '../../src/engine/quests/questDiceGrantTotal
 import { expireThisTurnEffects } from '../../src/engine/turn/expireThisTurnEffects.js';
 import { getRevealedFor } from '../../src/engine/hidden/getRevealedFor.js';
 import { MOSJES } from '../../src/data/mosjes.js';
-import { PENDING_STARTER_EFFECTS } from '../../src/data/pendingStarterEffects.js';
 import { makePiecieState } from '../helpers/makePiecieState.js';
 
 afterEach(() => vi.restoreAllMocks());
@@ -212,10 +211,3 @@ describe('Headset', () => {
 	});
 });
 
-describe('pending list', () => {
-	it('the four cards are no longer pending', () => {
-		for (const id of ['effect_dancepad', 'effect_magicprompt', 'effect_schetsboek', 'effect_headset']) {
-			expect(PENDING_STARTER_EFFECTS).not.toContain(id);
-		}
-	});
-});

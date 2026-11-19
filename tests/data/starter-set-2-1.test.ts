@@ -11,8 +11,6 @@ import { PIECIES } from '../../src/data/piecies.js';
 import { SNELLE_PIECIES } from '../../src/data/snellePiecies.js';
 // @ts-ignore JS module
 import { PLACES } from '../../src/data/places.js';
-// @ts-ignore JS module
-import { PENDING_STARTER_EFFECTS } from '../../src/data/pendingStarterEffects.js';
 // @ts-ignore
 import * as piecieEffects from '../../src/abilities/piecieEffects.js';
 // @ts-ignore
@@ -74,21 +72,14 @@ describe('starter set (cards.json) vs src/data', () => {
       if (c.kind === 'piecie' && ['food', 'gear', 'pet', 'substance'].includes(c.subtype)) expect(d.tag).toBe(c.subtype);
     });
     if (c.isNew) {
-      it('its effect id is in the pending list or has a handler (Phase 71)', () => {
-        const pending = (PENDING_STARTER_EFFECTS as string[]).includes(d.effectId);
-        // a Place that is not pending is enough; Piecies and Snelle need an exported handler
+      it('its effect id has a handler', () => {
+        // a Place has no export by effect id; Piecies and Snelle need an exported handler
         const handler = c.kind === 'piecie' ? typeof (piecieEffects as any)[d.effectId] === 'function'
           : c.kind === 'snelle' ? typeof (snelleEffects as any)[d.effectId] === 'function' : true;
-        expect(pending || handler).toBe(true);
+        expect(handler).toBe(true);
         expect(d.isBoosterOnly).toBe(false);
       });
     }
-  });
-
-  it('pending effect list holds only effect ids of the 17 new cards, each at most once', () => {
-    const newIds = new Set(cards.filter((c) => c.isNew).map((c) => (pool.find((x) => x.name === c.name) as any)?.effectId));
-    expect(new Set(PENDING_STARTER_EFFECTS).size).toBe((PENDING_STARTER_EFFECTS as string[]).length);
-    expect((PENDING_STARTER_EFFECTS as string[]).filter((id) => !newIds.has(id))).toEqual([]);
   });
 
   it('the 17 archived cards are disabled but kept', () => {

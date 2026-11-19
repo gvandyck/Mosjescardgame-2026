@@ -39,34 +39,6 @@ export const MOSJE_REGISTRY = [
 			setup: { field: [{ id: 'mosje_parkour_west', mp: 80 }], oppField: [{ id: 'mosje_jeffrey', mp: 50, level: 3 }] },
 			trigger: { kind: 'attacked' }, expect: { mp: { 'own.0': 70 } } },
 	] },
-	// -- Deck 2 -------------------------------------------------------------
-	{ mosje: 'mosje_hacker', deck: 2, cases: [{
-		name: 'System Hack: pay 1 Energy, reverse the top 3 of my deck, +10 MP',
-		setup: { field: [{ id: 'mosje_hacker', mp: 30 }], oppField: OPP40, energy: 3, pendingTargets: { deck_owner: 'player_1', order: [2, 1, 0] } },
-		trigger: { kind: 'button' },
-		expect: {
-			mp: { 'own.0': 40 }, energy: 2,
-			check: (before, after) => {
-				const b = before.players.player_1.deck, a = after.players.player_1.deck;
-				if (JSON.stringify(a.slice(0, 3)) !== JSON.stringify([b[2], b[1], b[0]])) throw new Error('top 3 not reversed');
-				if (JSON.stringify(a.slice(3)) !== JSON.stringify(b.slice(3))) throw new Error('rest of the deck changed');
-			},
-		},
-	}] },
-	{ mosje: 'mosje_drainer', deck: 2, cases: [{
-		name: 'Continuous Drain: at the start of the opponent turn one of their Mosjes loses 5 MP',
-		setup: { field: [{ id: 'mosje_drainer', mp: 30 }], oppField: OPP40 },
-		trigger: { kind: 'turnStart', player: 'player_2' },
-		expect: { mp: { 'opp.0': 35, 'own.0': 30 } },
-	}] },
-	{ mosje: 'mosje_chris', deck: 2, cases: [{
-		name: 'Perfect Setup: 3 face-down Piecies -> activate one free and gain 15 MP (plus the 25 of the Piecie)',
-		setup: { field: [{ id: 'mosje_chris', mp: 20 }], oppField: OPP40, piecies: milk(0, 1, 2), energy: 3 },
-		trigger: { kind: 'button' },
-		expect: { mp: { 'own.0': 60 }, energy: 3 }, // 20 + 15 + 25, no Energy paid
-	}] },
-
-
 	// -- Deck 3 -------------------------------------------------------------
 	{ mosje: 'mosje_tuk_healer', deck: 3, cases: [{
 		name: 'Healing Hands: pay 1 Energy, another Mosje of mine gains 20 MP',

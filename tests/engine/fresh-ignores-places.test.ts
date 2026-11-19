@@ -8,7 +8,6 @@ import { makeEngineState } from "../helpers/makeEngineState.js";
 import { mkSlot, byName } from "../helpers/quest56.js";
 import { MOSJES } from "../../src/data/mosjes.js";
 import { PLACES } from "../../src/data/places.js";
-import { PENDING_STARTER_EFFECTS } from "../../src/data/pendingStarterEffects.js";
 import { getPower } from "../../src/engine/mp/getPower.js";
 import { QUEST_DICE_SOURCES } from "../../src/engine/quests/questDiceSources.js";
 import { placeQuestBonus } from "../../src/abilities/place/placeTurnQuestEffects.js";
@@ -18,8 +17,7 @@ import { isHolderTextActive } from "../../src/engine/synergy/isHolderTextActive.
 import { effect_momentum_factory } from "../../src/abilities/placeEffects.js";
 
 // The 20 Card List Places. Momentum Factory is a V4 leftover still in data (no Card List entry): tested apart below.
-// Phase 71: Places with no effect yet (PENDING_STARTER_EFFECTS) are not probed here until their handlers land.
-const ALL = PLACES.filter((p) => !PENDING_STARTER_EFFECTS.includes(p.effectId)).map((p) => p.id).filter((id) => id !== "place_momentum_factory");
+const ALL = PLACES.map((p) => p.id).filter((id) => id !== "place_momentum_factory");
 const CAST = ["Gandoe", "Michelle", "Tuk", "Coert", "Ming"]; // Physical/Gandoe, Michelle, Creative Tuk, Digital Coert, Digital Ming
 const mosjeFor = (word) => byName(new RegExp(word));
 const slotFor = (word, fresh) => {
