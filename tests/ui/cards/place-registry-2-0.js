@@ -6,7 +6,12 @@
  * Gandoe Destroyer (Physical 20).
  */
 const BULL = 'mosje_alyssa_bulldozer';
-const DIG = 'mosje_ming_natural';
+const DIG = 'mosje_ming_natural'; // Creative since 71 (used only where the type does not matter)
+const DIGP = 'mosje_ming_predictor'; // Digital, Power 10 (Gym / Arcade / Skiffa Digital rows)
+const MICH = 'mosje_michelle';
+const ARM = { stack: 'PHYSICAL', id: 'quest_arm_wrestling' }; // Michelle rolls 2 Str dice, needs 2x 5+
+const HACK = { stack: 'DIGITAL', id: 'quest_hack_mainframe' }; // Skilled, two 4+ on the Tech dice, +40 / -30
+const MELK = 'piecie_kannetje_melk';
 const ART = 'mosje_tuk_healer';
 const GANDOE = 'mosje_gandoe_destroyer';
 const OPP = [{ id: 'mosje_ming_predictor', mp: 40 }];
@@ -15,24 +20,19 @@ const at = (place, id, extra = {}) => ({ field: [{ id, mp: 50, ...extra.f }], op
 const power = (name, place, id, n, extra) => ({ name, setup: at(place, id, extra), trigger: NONE, expect: { power: { 'own.0': n } } });
 const fresh = (place, id, n) => ({ name: 'a fresh Mosje ignores it', setup: at(place, id, { f: { fresh: true } }), trigger: NONE, expect: { power: { 'own.0': n } } });
 
+const strQuest = (place, name, mp, after) => ({ name, setup: { field: [{ id: MICH, mp }], oppField: OPP, place: { id: place, by: 'player_2' }, quest: ARM, dice: [5, 2, 5] }, trigger: { kind: 'quest', stack: 'PHYSICAL', picks: [/Arm Wrestling/] }, expect: { mp: { 'own.0': after } } });
 const turn = (place, name, id, mp, after, f = {}) => ({ name, setup: { field: [{ id, mp, ...f }], oppField: OPP, place: { id: place, by: 'player_2' } }, trigger: { kind: 'turnStart' }, expect: { mp: { 'own.0': after } } });
 const quest = (place, name, dice, after) => ({ name, setup: { field: [{ id: DIG, mp: 40 }], oppField: OPP, place: { id: place, by: 'player_2' }, quest: { stack: 'DIGITAL', id: 'quest_quick_thinking' }, dice }, trigger: { kind: 'quest', stack: 'DIGITAL' }, expect: { mp: { 'own.0': after } } });
 
 const PLACE_ENTRIES = [
 	{ place: 'place_the_gym', deck: 'example', cases: [
 		power('Physical Power 20 -> 30', 'place_the_gym', BULL, 30),
-		power('Digital Power 10 stays 10', 'place_the_gym', DIG, 10),
+		power('Digital Power 10 stays 10', 'place_the_gym', DIGP, 10),
 		fresh('place_the_gym', BULL, 20),
+		strQuest('place_the_gym', 'a Str Quest rolls 1 die more (Michelle 2 dice [5,2] would fail; 3 dice [5,2,5] win +40: 20 -> 60)', 20, 60),
 		{ name: 'an attack by a Physical Power 20 Mosje takes 30 MP',
 			setup: { field: [{ id: ART, mp: 50 }], oppField: [{ id: BULL, mp: 40 }], place: { id: 'place_the_gym', by: 'player_2' } },
 			trigger: { kind: 'attacked' }, expect: { mp: { 'own.0': 20 } } },
-	] },
-	{ place: 'place_boxing_ring', deck: 'example', cases: [
-		power('Physical Power 20 -> 30', 'place_boxing_ring', BULL, 30),
-		power('a Gandoe gets +20 -> 40', 'place_boxing_ring', GANDOE, 40),
-		power('Digital Power 10 -> 0', 'place_boxing_ring', DIG, 0),
-		power('Creative Power 0 stays 0', 'place_boxing_ring', ART, 0),
-		fresh('place_boxing_ring', DIG, 10),
 	] },
 	{ place: 'place_de_box', deck: 'example', cases: [
 		power('a Michelle +10 -> 20', 'place_de_box', 'mosje_michelle', 20),
@@ -40,26 +40,24 @@ const PLACE_ENTRIES = [
 		power('a Gandoe +10 -> 30', 'place_de_box', GANDOE, 30),
 		power('anyone else +0', 'place_de_box', BULL, 20),
 		fresh('place_de_box', 'mosje_michelle', 10),
+		power('a DJ 80/20 (Power 5) +10 -> 15', 'place_de_box', 'mosje_dj_8020', 15),
+		strQuest('place_de_box', 'a Michelle rolls 1 die more on a Str Quest (3 dice [5,2,5] win: 20 -> 60)', 20, 60),
+		{ name: 'anyone else gets no die: Bulldozer (2 dice [5,2]) fails, 50 -> 20', setup: { field: [{ id: BULL, mp: 50 }], oppField: OPP, place: { id: 'place_de_box', by: 'player_2' }, quest: ARM, dice: [5, 2, 5] }, trigger: { kind: 'quest', stack: 'PHYSICAL', picks: [/Arm Wrestling/] }, expect: { mp: { 'own.0': 20 } } },
 	] },
 	{ place: 'place_arcade', deck: 'example', cases: [
 		power('Physical Power 20 -> 10', 'place_arcade', BULL, 10),
-		power('Digital Power 10 stays 10', 'place_arcade', DIG, 10),
+		power('Digital Power 10 stays 10', 'place_arcade', DIGP, 10),
 		fresh('place_arcade', BULL, 20),
 	] },
 	{ place: 'place_skiffa', deck: 'example', cases: [
-		power('Digital Power 10 -> 0', 'place_skiffa', DIG, 0),
+		power('Digital Power 10 -> 0', 'place_skiffa', DIGP, 0),
 		power('Physical Power 20 stays 20', 'place_skiffa', BULL, 20),
-		fresh('place_skiffa', DIG, 10),
+		fresh('place_skiffa', DIGP, 10),
 	] },
 	{ place: 'place_bank_chilling', deck: 'example', cases: [
 		power('every Mosje -10: Physical 20 -> 10', 'place_bank_chilling', BULL, 10),
 		power('Power 0 never goes below 0', 'place_bank_chilling', ART, 0),
 		fresh('place_bank_chilling', BULL, 20),
-	] },
-	{ place: 'place_drain_zone', deck: 'rest', cases: [
-		power('every Mosje +10: Digital 10 -> 20', 'place_drain_zone', DIG, 20),
-		power('Physical 20 -> 30', 'place_drain_zone', BULL, 30),
-		fresh('place_drain_zone', DIG, 10),
 	] },
 	{ place: 'place_dierenasiel', deck: 'rest', cases: [
 		power('no staying pet Piecie: -10 (20 -> 10)', 'place_dierenasiel', BULL, 10),
@@ -68,7 +66,7 @@ const PLACE_ENTRIES = [
 	] },
 	// Phase 60-05 (EFX-04 part 2): turn-start, dice and Quest-MP Places. Fresh Mosjes are laid out with fresh:true.
 	{ place: 'place_the_gym', deck: 'example', part: 'turn start', cases: [
-		turn('place_the_gym', 'a non-Physical Mosje loses 10 at its owner turn start (40 -> 30)', DIG, 40, 30),
+		turn('place_the_gym', 'no MP loss at turn start any more: a Digital Mosje stays at 40', DIGP, 40, 40),
 		turn('place_the_gym', 'a Physical Mosje is unchanged (40)', BULL, 40, 40),
 		turn('place_the_gym', 'a fresh Mosje is unchanged (40)', DIG, 40, 40, { fresh: true }),
 	] },
@@ -94,10 +92,6 @@ const PLACE_ENTRIES = [
 		{ name: 'can be played with a Coert on your field (3 Energy)',
 			setup: { field: [{ id: 'mosje_coert_kasteluck', mp: 40 }], oppField: OPP, hand: ['place_tesla'] },
 			trigger: { kind: 'playFromHand', cardId: 'place_tesla' }, expect: { energy: 0, handDelta: -1, state: [['activePlace', 'place_tesla']] } },
-	] },
-	{ place: 'place_quest_haven', deck: 'rest', part: 'quest', cases: [
-		quest('place_quest_haven', 'a Quest win gives 10 more (+25 -> 40 + 35 = 75)', [5, 5, 5], 75),
-		quest('place_quest_haven', 'a Quest loss is unchanged (-15 -> 25)', [1, 1, 1], 25),
 	] },
 	{ place: 'place_obby_1', deck: 'rest', part: 'quest', cases: [
 		quest('place_obby_1', 'a Quest win gives 10 more (40 + 35 = 75)', [5, 5, 5], 75),
@@ -136,14 +130,17 @@ const PLACE_ENTRIES = [
 		{ name: 'losses are not blocked: an attack of Power 20 takes 20 (50 -> 30)',
 			setup: { field: [{ id: ART, mp: 50 }], oppField: [{ id: BULL, mp: 40 }], place: { id: 'place_the_void', by: 'player_2' } },
 			trigger: { kind: 'attacked' }, expect: { mp: { 'own.0': 30 } } },
-		{ name: 'Emergency Healings (a Snelle) gives 0, is still spent, and the attack of Power 20 takes 20 (50 -> 30)',
-			setup: { field: [{ id: ART, mp: 50 }], oppField: [{ id: BULL, mp: 40 }], place: { id: 'place_the_void', by: 'player_2' }, hand: ['snelle_emergency_healings'] },
-			trigger: { kind: 'attacked', picks: [/Emergency Healings/] }, expect: { mp: { 'own.0': 30 }, energy: 2, handDelta: -1 } },
+		{ name: 'Bijna Welloe (a Snelle that gains MP; Emergency Healings is Oh nee toch niet now) gives 0 and is still played',
+			setup: { field: [{ id: ART, mp: 5 }], oppField: OPP, place: { id: 'place_the_void', by: 'player_2' }, hand: ['snelle_bijna_welloe'] },
+			trigger: { kind: 'playSnelle', cardId: 'snelle_bijna_welloe' }, expect: { mp: { 'own.0': 5 }, energy: 3, handDelta: -1 } },
 	] },
 	{ place: 'place_coerts_caravan', deck: 'rest', part: 'free Piecie', cases: [
 		{ name: 'with a Coert the first Piecie costs 0 Energy (3 stays 3)',
 			setup: { field: [{ id: 'mosje_coert_kasteluck', mp: 40 }], oppField: OPP, piecies: [{ slot: 0, id: 'piecie_broodje_doner' }], place: { id: 'place_coerts_caravan', by: 'player_2' }, energy: 3 },
 			trigger: { kind: 'activatePiecie', cardId: 'piecie_broodje_doner' }, expect: { energy: 3 } },
+		{ name: 'only the first: with a Coert the second Piecie of the turn costs full price (Doner free, Chefs Special 1: 3 -> 2)',
+			setup: { field: [{ id: 'mosje_coert_kasteluck', mp: 40 }], oppField: OPP, piecies: [{ slot: 0, id: 'piecie_broodje_doner' }, { slot: 1, id: 'piecie_chefs_special' }], place: { id: 'place_coerts_caravan', by: 'player_2' }, energy: 3 },
+			trigger: { kind: 'activatePiecie', cardId: 'piecie_broodje_doner', then: { kind: 'activatePiecie', cardId: 'piecie_chefs_special' } }, expect: { energy: 2 } },
 		{ name: 'without a Coert the Piecie costs its 1 Energy (3 -> 2)',
 			setup: { field: [{ id: DIG, mp: 40 }], oppField: OPP, piecies: [{ slot: 0, id: 'piecie_broodje_doner' }], place: { id: 'place_coerts_caravan', by: 'player_2' }, energy: 3 },
 			trigger: { kind: 'activatePiecie', cardId: 'piecie_broodje_doner' }, expect: { energy: 2 } },
@@ -172,13 +169,54 @@ const PLACE_ENTRIES = [
 			setup: { field: [{ id: BULL, mp: 40 }], oppField: OPP, piecies: [{ slot: 0, id: 'piecie_vianna_poes' }], place: { id: 'place_dierenasiel', by: 'player_2' }, energy: 3 },
 			trigger: { kind: 'activatePiecie', cardId: 'piecie_vianna_poes' }, expect: { energy: 3 } },
 	] },
-	{ place: 'place_synergy_chamber', deck: 'example', part: 'holder text', cases: [
-		{ name: "Binti's Coert holder text works without a Coert (20 + 25 + 10 = 55)",
-			setup: { field: [{ id: 'mosje_binti', mp: 20 }], oppField: OPP, piecies: [{ slot: 0, id: 'piecie_kannetje_melk' }], place: { id: 'place_synergy_chamber', by: 'player_2' }, energy: 3 },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_kannetje_melk' }, expect: { mp: { 'own.0': 55 } } },
-		{ name: 'without the Chamber and without a Coert Binti gets no extra (20 + 25 = 45)',
-			setup: { field: [{ id: 'mosje_binti', mp: 20 }], oppField: OPP, piecies: [{ slot: 0, id: 'piecie_kannetje_melk' }], energy: 3 },
-			trigger: { kind: 'activatePiecie', cardId: 'piecie_kannetje_melk' }, expect: { mp: { 'own.0': 45 } } },
+	// -- 71-23: the five new starter Places (Ronnie's Kitchen, Woonkamer (Discord), Youri's Woonkamer, Nieuwe Gimma, Punto Banco). Michelle rolls 2 Str dice on Arm Wrestling (needs 2x 5+). --
+	{ place: 'place_ronnies_kitchen', deck: 'starter', cases: [
+		{ name: 'a food Piecie gives 10 MP more (Kannetje Melk 25 -> 35: 20 -> 55), no draw without a Ronald',
+			setup: { field: [{ id: MICH, mp: 20 }], oppField: OPP, piecies: [{ slot: 0, id: MELK }], place: { id: 'place_ronnies_kitchen', by: 'player_2' }, energy: 3 },
+			trigger: { kind: 'activatePiecie', cardId: MELK }, expect: { mp: { 'own.0': 55 }, handDelta: 0 } },
+		{ name: 'with a Ronald: the first food Piecie of the turn also draws 1',
+			setup: { field: [{ id: 'mosje_ronald_mastermind', mp: 20 }], oppField: OPP, piecies: [{ slot: 0, id: MELK }], place: { id: 'place_ronnies_kitchen', by: 'player_2' }, energy: 3 },
+			trigger: { kind: 'activatePiecie', cardId: MELK }, expect: { mp: { 'own.0': 55 }, handDelta: 1 } },
+		{ name: 'with a Ronald: the second food Piecie of the turn draws nothing (5 + 35 + 35 = 75, 1 card drawn)',
+			setup: { field: [{ id: 'mosje_ronald_mastermind', mp: 5 }], oppField: OPP, piecies: [{ slot: 0, id: MELK }, { slot: 1, id: MELK }], place: { id: 'place_ronnies_kitchen', by: 'player_2' }, energy: 3 },
+			trigger: { kind: 'activatePiecie', cardId: MELK, then: { kind: 'activatePiecie', cardId: MELK } }, expect: { mp: { 'own.0': 75 }, handDelta: 1 } },
+	] },
+	{ place: 'place_woonkamer_discord', deck: 'starter', cases: [
+		{ name: 'two Digital Mosjes: +1 die on a Tech Quest (Hack Mainframe, Ming 2 dice [4,1] would fail; 3 dice [4,1,5] win +40: 20 -> 60)',
+			setup: { field: [{ slot: 0, id: DIGP, mp: 20 }, { slot: 1, id: DIGP, mp: 40 }], oppField: OPP, place: { id: 'place_woonkamer_discord', by: 'player_2' }, quest: HACK, dice: [4, 1, 5] },
+			trigger: { kind: 'quest', stack: 'DIGITAL', picks: [/Hack Mainframe/] }, expect: { mp: { 'own.0': 60 } } },
+		{ name: 'one Digital Mosje: no extra die, the same roll [4,1] fails (-30: 40 -> 10)',
+			setup: { field: [{ slot: 0, id: DIGP, mp: 40 }], oppField: OPP, place: { id: 'place_woonkamer_discord', by: 'player_2' }, quest: HACK, dice: [4, 1, 5] },
+			trigger: { kind: 'quest', stack: 'DIGITAL', picks: [/Hack Mainframe/] }, expect: { mp: { 'own.0': 10 } } },
+	] },
+	{ place: 'place_youris_woonkamer', deck: 'starter', cases: [
+		{ name: 'with a Youri: a Piecie activated on the turn it was placed draws 1 (played 1, Youri level 1 draws none, Place draws 1)',
+			setup: { field: [{ id: 'mosje_youri', mp: 30 }], oppField: OPP, energy: 3, hand: [MELK], noUnlock: true, place: { id: 'place_youris_woonkamer', by: 'player_2' } },
+			trigger: { kind: 'playFromHand', cardId: MELK, then: { kind: 'button', mosje: 'mosje_youri', picks: [/./], then: { kind: 'activatePiecie', cardId: MELK } } },
+			expect: { mp: { 'own.0': 55 }, energy: 2, handDelta: 0 } },
+		{ name: 'a Piecie placed on an earlier turn draws nothing (ready Melk, 30 -> 55, hand unchanged)',
+			setup: { field: [{ id: 'mosje_youri', mp: 30 }], oppField: OPP, energy: 3, piecies: [{ slot: 0, id: MELK }], place: { id: 'place_youris_woonkamer', by: 'player_2' } },
+			trigger: { kind: 'activatePiecie', cardId: MELK }, expect: { mp: { 'own.0': 55 }, handDelta: 0 } },
+	] },
+	{ place: 'place_nieuwe_gimma', deck: 'starter', cases: [
+		{ name: 'the first roll of the turn has 1 die more (Michelle 2 dice [5,2] would fail; 3 dice [5,2,5] win: 20 -> 60)',
+			setup: { field: [{ id: MICH, mp: 20 }], oppField: OPP, place: { id: 'place_nieuwe_gimma', by: 'player_2' }, quest: ARM, dice: [5, 2, 5] },
+			trigger: { kind: 'quest', stack: 'PHYSICAL', picks: [/Arm Wrestling/] }, expect: { mp: { 'own.0': 60 } } },
+		{ name: 'the second roll of the turn does not: slot 1 rolls 2 dice [5,2] and fails (-30: 40 -> 10)',
+			setup: { field: [{ slot: 0, id: MICH, mp: 20 }, { slot: 1, id: MICH, mp: 40 }], oppField: OPP, place: { id: 'place_nieuwe_gimma', by: 'player_2' }, quest: ARM, dice: [5, 2, 5, 5, 2] },
+			trigger: { kind: 'quest', stack: 'PHYSICAL', picks: [/Arm Wrestling/], then: { kind: 'setQuestFaceUp', stack: 'PHYSICAL', questId: 'quest_arm_wrestling', then: { kind: 'quest', slot: 1, stack: 'PHYSICAL', picks: [/Arm Wrestling/] } } },
+			expect: { mp: { 'own.0': 60, 'own.1': 10 } } },
+	] },
+	{ place: 'place_punto_banco', deck: 'starter', cases: [
+		{ name: 'call Punto, Punto 5 > Banco 2: 1 Energy paid and +2 dice (Michelle rolls 4: [2,2,5,5] win, 20 -> 60)',
+			setup: { field: [{ id: MICH, mp: 20 }], oppField: OPP, place: { id: 'place_punto_banco', by: 'player_2' }, quest: ARM, dice: [5, 2, 2, 2, 5, 5] },
+			trigger: { kind: 'quest', stack: 'PHYSICAL', picks: [/Arm Wrestling/, /Call Punto/] }, expect: { mp: { 'own.0': 60 }, energy: 2 } },
+		{ name: 'a tie gives the Energy back and no dice: Punto 4 = Banco 4, Michelle rolls [5,2] and fails (40 -> 10)',
+			setup: { field: [{ id: MICH, mp: 40 }], oppField: OPP, place: { id: 'place_punto_banco', by: 'player_2' }, quest: ARM, dice: [4, 4, 5, 2, 5, 5] },
+			trigger: { kind: 'quest', stack: 'PHYSICAL', picks: [/Arm Wrestling/, /Call Punto/] }, expect: { mp: { 'own.0': 10 }, energy: 3 } },
+		{ name: '"No" changes nothing: no Energy paid, Michelle rolls 2 dice [5,5] and wins (20 -> 60)',
+			setup: { field: [{ id: MICH, mp: 20 }], oppField: OPP, place: { id: 'place_punto_banco', by: 'player_2' }, quest: ARM, dice: [5, 5, 2, 2] },
+			trigger: { kind: 'quest', stack: 'PHYSICAL', picks: [/Arm Wrestling/, /^No$/] }, expect: { mp: { 'own.0': 60 }, energy: 3 } },
 	] },
 ];
 
