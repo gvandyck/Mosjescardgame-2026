@@ -8,7 +8,8 @@ import { test, expect } from '@playwright/test';
 import { GAME_URL_TEST, seedOfflineSession, waitForBoard } from '../helpers.js';
 
 // Cards whose text is longer than the 2.0 boxed text box holds at the 11.5 floor (full text: modal panel, detail view).
-const CLAMPED = ['piecie_bowie_stormey'];
+// None since 2.1: Bowie & Stormey's text got shorter (no card is cut or leaves its box at 440 and 230, see 'bad' below).
+const CLAMPED = [];
 
 for (const width of [440, 230]) {
 	test(`ability text fits the plate for every card at ${width}px wide`, async ({ page }) => {

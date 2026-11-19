@@ -195,7 +195,7 @@ test.describe('card frame v1 — Mosje', () => {
     await page.evaluate(() => {
       window.__testHooks.clearEntryProtection();
       window.__testHooks.setMosjeOnField('player_1', 0, 'mosje_alyssa_bulldozer', { mp: 35, level: 1 });
-      window.__testHooks.setMosjeOnField('player_1', 1, 'mosje_ronald_chef', { mp: 60, level: 1 });
+      window.__testHooks.setMosjeOnField('player_1', 1, 'mosje_gandoe_wizard', { mp: 60, level: 1 });
       window.__testHooks.setHand('player_1', ['mosje_jisca', 'mosje_fps_coert', 'mosje_chris_ddr']);
     });
     const tile = page.locator('.mosje-card--owned.card-v1--field').first();
@@ -205,8 +205,8 @@ test.describe('card frame v1 — Mosje', () => {
     await expect(tile.locator('[data-cv1-level]')).toHaveText('L1');
     await page.evaluate(() => window.__testHooks.setMosjeMP('player_1', 0, 105));
     await expect(page.locator('.mosje-card--owned.card-v1--field [data-cv1-mp]').first()).toHaveAttribute('data-cv1-mp', '105');
-    // existing interactions survive: the Ability chip still comes up in the tray of an owned tile (63-06: no button on the tile)
-    await tapOwnCard(page, 'mosje', 'mosje_ronald_chef');
+    // existing interactions survive: the Ability chip still comes up (Cloude Wizard: a manual ability; Ronald's is automatic since 2.1) in the tray of an owned tile (63-06: no button on the tile)
+    await tapOwnCard(page, 'mosje', 'mosje_gandoe_wizard');
     await expect(page.locator('[data-action-tray] [data-action="ability"]')).toBeVisible();
     await cancelSelection(page);
     await expect(page.locator('.hand-card.card-v1--full').first()).toBeVisible();
@@ -234,7 +234,7 @@ test.describe('card frame v1 — Mosje', () => {
     await expect(big).toBeVisible();
     await expect(big.locator('.cv2-first')).toHaveText('Alyssa');
     await expect(big.locator('[data-cv1-mp]')).toHaveAttribute('data-cv1-mp', '35'); // live state, not Start MP
-    await expect(big.locator('.cv2-text')).toContainText('Unstoppable');
+    await expect(big.locator('.cv2-text')).toContainText('gets +10 Power');
     await expect(big.locator('[data-cv1-level-row="1"]')).toHaveAttribute('data-lit', 'true'); // level 1: row 1 lit
     await expect(big.locator('[data-cv1-level-row="2"]')).toHaveAttribute('data-lit', 'false');
     const t = await tile.boundingBox();
@@ -263,7 +263,7 @@ test.describe('card frame v1 — Mosje', () => {
     await expect(bigL2).toBeVisible();
     await expect(bigL2.locator('[data-cv1-level-row="2"]')).toHaveAttribute('data-lit', 'true');
     await expect(bigL2.locator('[data-cv1-level-row="1"]')).toHaveAttribute('data-lit', 'false');
-    await expect(bigL2.locator('[data-cv1-power]')).toHaveAttribute('data-cv1-power', '30');
+    await expect(bigL2.locator('[data-cv1-power]')).toHaveAttribute('data-cv1-power', '25');
     await expect(bigL2.locator('[data-cv1-mp]')).toHaveAttribute('data-cv1-mp', '50');
     await expect(bigL2.locator('.cv2-lvl-chip')).toHaveText('LVL 2');
     await page.waitForTimeout(800);

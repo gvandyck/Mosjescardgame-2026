@@ -100,10 +100,10 @@ export const SNELLE_REGISTRY = [
 	] },
 	{ snelle: 'snelle_sleutelpuntje', deck: 'example', cases: [
 		{ name: 'before the Quest roll: +1 die (Michelle 2 dice [5,2] would fail Arm Wrestling; 3 dice [5,2,5] win +40: 20 -> 60)',
-			setup: { field: [{ id: MICHELLE, mp: 20 }], oppField: OPP40, hand: ['snelle_sleutelpuntje'], quest: ARM, dice: [5, 2, 5] },
+			setup: { field: [{ id: MICHELLE, mp: 20 }], oppField: OPP40, hand: ['snelle_sleutelpuntje'], quest: ARM, abilityDice: [5, 2, 5] },
 			trigger: { kind: 'quest', stack: 'PHYSICAL', picks: [/Arm Wrestling/, /Sleutelpuntje/] }, expect: { mp: { 'own.0': 60 }, energy: 2, handDelta: -1 } },
 		{ name: 'not played: 2 dice [5,2] fail, -30 (40 -> 10)',
-			setup: { field: [{ id: MICHELLE, mp: 40 }], oppField: OPP40, hand: ['snelle_sleutelpuntje'], quest: ARM, dice: [5, 2, 5] },
+			setup: { field: [{ id: MICHELLE, mp: 40 }], oppField: OPP40, hand: ['snelle_sleutelpuntje'], quest: ARM, abilityDice: [5, 2, 5] },
 			trigger: { kind: 'quest', stack: 'PHYSICAL', picks: [/Arm Wrestling/, /No reaction|Pass/i] }, expect: { mp: { 'own.0': 10 }, energy: 3, handDelta: 0 } },
 	] },
 	{ snelle: 'snelle_lucky_coin', deck: 'example', cases: [

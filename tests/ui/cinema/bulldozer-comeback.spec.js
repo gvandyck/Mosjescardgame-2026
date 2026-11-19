@@ -53,6 +53,9 @@ test('🎬 Bulldozer cinema — Unstoppable comeback after quest damage', async 
 	await setMosjeOnField(page, 'player_1', 0, BULLDOZER, { mp: 80, level: 1 });
 	// Known 2.0 Quest (Steady, lose 15) with every die forced to 1 -> guaranteed failure (she takes the damage).
 	await setQuestFaceUp(page, 'PHYSICAL', 'quest_tough_it_out');
+	// Both hands empty: a random opening Snelle (a before-roll reaction window) would pause the roll, and the scripted dice are lost on the replay.
+	await setHand(page, 'player_1', []);
+	await setHand(page, 'player_2', []);
 	await setNextDice(page, [1, 1, 1, 1]);
 	await ss(page, 'bulldozer-1-start');
 	await beat('Scene 1 — Alyssa The Bulldozer at 80 MP (Unstoppable: taksed 30+ -> +25 MP, +10 Power)');

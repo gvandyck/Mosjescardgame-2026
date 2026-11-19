@@ -70,7 +70,7 @@ test.describe('A10 — 2.0 card faces at 1920x1080', () => {
     await page.mouse.move(5, 500);
     await expect(dock).toHaveCount(0);
 
-    // The level-up (test hook): row 2 is lit with the level 2 Power.
+    // The level-up (test hook): row 2 is lit with the level 2 Power (25, Bulldozer 20/25/30).
     await setMosjeOnField(page, 'player_1', 0, 'mosje_alyssa_bulldozer', { mp: 50, level: 2 });
     await page.waitForTimeout(800);
     await tile.hover();
@@ -78,7 +78,7 @@ test.describe('A10 — 2.0 card faces at 1920x1080', () => {
     await expect(dock.locator('[data-cv1-level-row="2"]')).toHaveAttribute('data-lit', 'true');
     await expect(dock.locator('[data-cv1-level-row="1"]')).toHaveAttribute('data-lit', 'false');
     await expect(dock.locator('[data-cv1-level-row="3"]')).toHaveAttribute('data-lit', 'false');
-    await expect(dock.locator('[data-cv1-power]')).toHaveAttribute('data-cv1-power', '30');
+    await expect(dock.locator('[data-cv1-power]')).toHaveAttribute('data-cv1-power', '25');
     await expect(dock.locator('.cv2-lvl-chip')).toHaveText('LVL 2');
     await page.waitForTimeout(800);
     await page.screenshot({ path: `${OUT}/a10-mosje-l2.png` });
@@ -91,7 +91,7 @@ test.describe('A10 — 2.0 card faces at 1920x1080', () => {
     await expect(detail).toBeVisible();
     await expect(detail.locator('[data-cv1-level-row="2"]')).toHaveAttribute('data-lit', 'true');
     await expect(detail.locator('[data-cv1-level-row="1"]')).toHaveAttribute('data-lit', 'false');
-    await expect(detail.locator('[data-cv1-power]')).toHaveAttribute('data-cv1-power', '30');
+    await expect(detail.locator('[data-cv1-power]')).toHaveAttribute('data-cv1-power', '25');
     await expect(detail.locator('.cv2-lvl-chip')).toHaveText('LVL 2');
     await page.waitForTimeout(500);
     await page.screenshot({ path: `${OUT}/a10-mosje-detail.png` });

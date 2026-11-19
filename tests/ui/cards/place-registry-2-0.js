@@ -114,12 +114,12 @@ const PLACE_ENTRIES = [
 			trigger: { kind: 'attacked' }, expect: { mp: { 'own.0': 60 } } },
 	] },
 	{ place: 'place_zo_is_natuur', deck: 'rest', part: 'attack', cases: [
-		{ name: 'Resilient 2 (Bulldozer) attacked for 20 loses 10 (50 -> 40)',
-			setup: { field: [{ id: BULL, mp: 50 }], oppField: [{ id: BULL, mp: 40 }], place: { id: 'place_zo_is_natuur', by: 'player_2' } },
+		{ name: 'Res 2 (Level 2 FPS West, Digital) attacked by Physical Power 20: 30 with the triangle, -10 Place, -10 Resilient = loses 10 (50 -> 40)',
+			setup: { field: [{ id: 'mosje_fps_west', mp: 50, level: 2 }], oppField: [{ id: BULL, mp: 40 }], place: { id: 'place_zo_is_natuur', by: 'player_2' } },
 			trigger: { kind: 'attacked' }, expect: { mp: { 'own.0': 40 } } },
-		{ name: 'a non-Resilient Mosje (Ming) attacked for 20 loses 20 (50 -> 30)',
-			setup: { field: [{ id: DIG, mp: 50 }], oppField: [{ id: BULL, mp: 40 }], place: { id: 'place_zo_is_natuur', by: 'player_2' } },
-			trigger: { kind: 'attacked' }, expect: { mp: { 'own.0': 30 } } },
+		{ name: 'Res 1 (Level 1 FPS West) gets no Place reduction: 30 with the triangle, -5 Resilient = loses 25 (50 -> 25)',
+			setup: { field: [{ id: 'mosje_fps_west', mp: 50, level: 1 }], oppField: [{ id: BULL, mp: 40 }], place: { id: 'place_zo_is_natuur', by: 'player_2' } },
+			trigger: { kind: 'attacked' }, expect: { mp: { 'own.0': 25 } } },
 	] },
 	{ place: 'place_the_void', deck: 'rest', part: 'gains', cases: [
 		{ name: 'Kannetje Melk (+25) gives 0 and is still spent',
