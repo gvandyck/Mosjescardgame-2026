@@ -6,15 +6,17 @@
  * Dice are forced with setNextDice.
  * Quest bands: Steady one 4+ (+25/-15) · Skilled two 4+ (+40/-30) · Heroic two 5+ (+60/-25) · Prepared pay first then one 4+ (+50/-30)
  *              Gated condition then one 4+ (+35/-20) · Coin flip 1 die 4+ (+50/-25) · Trained no roll (+25, can't fail).
- * Dice = 1 per star of the rolled trait (min 1, max 4). Test Mosjes (Card List level-1 rows, no Quest-related ability):
- *   Gandoe, The Destroyer: Str 3, Res 2, no other trait (1 die on Mental / Technical / Artistic / Social).  Level-1 Power 20.
- *   Ming, The Predictor: Men 3, Tech 2.   Binti, The Sharp Tongue: Art 2, Soc 3.   Ronald, The Master Chef: Str 1.
+ * Dice = 1 per star of the rolled trait (min 1, max 6). 2.1 rules: a Quest is shuffled back after any one attempt (no fail tokens), a level-up lands on 10 MP.
+ * Test Mosjes (data/mosjes.js level-1 traits, no Quest-related ability):
+ *   Gandoe, The Destroyer: Str 2, Men 1, Res 1.  Level-1 Power 20.   Ming, The Predictor: Men 3, Tech 2.   Binti, The Sharp Tongue: Art 2, Soc 1, Res 1.
+ *   Gandoe, The Cloude Wizard: Tech 2, Res 1, Str 1.   Martin, The Historian: Men 3, Tech 1, Res 2.   Tuk, The Healer: Art 2, Soc 2.
  * Example Deck Quests (named in the deck notes) come first.
  */
 import { all, replaced, tokenOne, discarded, slotEmpty, noAttempt, untouched, deckTopIs, deckShorterBy } from '../../helpers/questCheckKit.js';
 
 const GD = 'mosje_gandoe_destroyer', MING = 'mosje_ming_predictor', BINTI = 'mosje_binti', CHEF = 'mosje_ronald_chef';
 const WEST = 'mosje_martin_senor_west', MASTERMIND = 'mosje_ronald_mastermind', BULL = 'mosje_alyssa_bulldozer';
+const WIZ = 'mosje_gandoe_wizard', HIST = 'mosje_martin_historian', TUK = 'mosje_tuk_healer';
 const YOURI = 'mosje_youri', COERT = 'mosje_coert_tech', CLESS = 'mosje_cless_teacher';
 const MILK = 'piecie_kannetje_melk', DONER = 'piecie_broodje_doner', STRAFFOE = 'piecie_straffoe', AFFOE = 'piecie_affoe';
 const LARRY = 'piecie_larry_zegeltje', SNOEI = 'piecie_snoeiertje', KEYBOARD = 'piecie_keyboard', MOUSE = 'piecie_mouse';
@@ -104,20 +106,20 @@ export const QUEST_REGISTRY = [
 		{ name: 'Trained (Strength 2 stars or more): no roll, +25 even with failing dice',
 			setup: S(GD, 20, F, 'quest_sprint_race', { dice: LOSE }), trigger: go(F, ['ok']),
 			expect: { mp: { 'own.0': 45 }, check: won(F, 'quest_sprint_race') } },
-		gate('Strength 1 star (Ronald, The Master Chef): no attempt', S(CHEF, 20, F, 'quest_sprint_race', { dice: WIN }), F),
+		gate('Strength 1 star (Gandoe, The Cloude Wizard): no attempt', S(WIZ, 20, F, 'quest_sprint_race', { dice: WIN }), F),
 	] },
 	{ quest: 'quest_sustained_assault', deck: 'rest', cases: [
 		{ name: 'another Mosje attacked this turn: +1 die turns a 1 die roll [1,6] into a win, +25 and a jab',
-			setup: { field: [{ slot: 0, id: CHEF, mp: 20 }, { slot: 1, id: GD, mp: 30 }], oppField: [{ id: MING, mp: 60 }], quest: { stack: F, id: 'quest_sustained_assault' }, dice: [1, 6] },
+			setup: { field: [{ slot: 0, id: WIZ, mp: 20 }, { slot: 1, id: GD, mp: 30 }], oppField: [{ id: MING, mp: 60 }], quest: { stack: F, id: 'quest_sustained_assault' }, dice: [1, 6] },
 			trigger: { kind: 'attack', slot: 1, target: 'player_2:0', then: go(F) },
-			expect: { mp: { 'own.0': 45, 'opp.0': 30 }, check: won(F, 'quest_sustained_assault') } }, // attack -20 (Power 20), jab -10
+			expect: { mp: { 'own.0': 45, 'opp.0': 20 }, check: won(F, 'quest_sustained_assault') } }, // attack -30 (Power 20 + 10 triangle, Physical vs Digital), jab -10
 		{ name: 'nobody attacked: 1 die, [1,6] is a fail, -15',
-			setup: S(CHEF, 40, F, 'quest_sustained_assault', { dice: [1, 6] }), trigger: go(F),
+			setup: S(WIZ, 40, F, 'quest_sustained_assault', { dice: [1, 6] }), trigger: go(F),
 			expect: { mp: { 'own.0': 25, 'opp.0': 40 }, check: lost(F, 'quest_sustained_assault') } },
 	] },
 	{ quest: 'quest_tough_it_out', deck: 'rest', cases: [
-		{ name: 'Steady: one 4+ on Resilient, win +25',
-			setup: S(GD, 20, F, 'quest_tough_it_out', { dice: [1, 4] }), trigger: go(F), expect: { mp: { 'own.0': 45 }, check: won(F, 'quest_tough_it_out') } },
+		{ name: 'Steady: one 4+ on Resilient (1 star, 1 die), win +25',
+			setup: S(GD, 20, F, 'quest_tough_it_out', { dice: [4] }), trigger: go(F), expect: { mp: { 'own.0': 45 }, check: won(F, 'quest_tough_it_out') } },
 	] },
 	{ quest: 'quest_survive_storm', deck: 'rest', cases: [
 		{ name: '30 MP or less: +1 die, [1,6] wins, +25',
@@ -126,8 +128,8 @@ export const QUEST_REGISTRY = [
 			setup: S(MING, 35, F, 'quest_survive_storm', { dice: [1, 6] }), trigger: go(F), expect: { mp: { 'own.0': 20 }, check: lost(F, 'quest_survive_storm') } },
 	] },
 	{ quest: 'quest_never_give_up', deck: 'rest', cases: [
-		{ name: 'Level 1 Mosje: Skilled win +40',
-			setup: S(GD, 20, F, 'quest_never_give_up', { dice: WIN }), trigger: go(F), expect: { mp: { 'own.0': 60 }, check: won(F, 'quest_never_give_up') } },
+		{ name: 'Level 1 Mosje: Skilled (Resilient 2 stars, 2 dice) win +40',
+			setup: S(HIST, 20, F, 'quest_never_give_up', { dice: WIN }), trigger: go(F), expect: { mp: { 'own.0': 60 }, check: won(F, 'quest_never_give_up') } },
 		gate('Level 2 Mosje: no attempt', { field: [{ id: GD, mp: 20, level: 2 }], oppField: OPP40, quest: { stack: F, id: 'quest_never_give_up' }, dice: WIN }, F),
 	] },
 	{ quest: 'quest_parkour_challenge', deck: 'rest', cases: [
@@ -146,9 +148,9 @@ export const QUEST_REGISTRY = [
 		gate('no Piecie stays in play: no attempt', S(GD, 20, F, 'quest_endure_pain', { dice: WIN, piecies: piecies(MILK) }), F),
 	] },
 	{ quest: 'quest_momentum_master', deck: 'rest', cases: [
-		{ name: '80 MP: Gated, win +35 reaches 100 and levels up (Level 2, MP 0)',
+		{ name: '80 MP: Gated, win +35 reaches 100 and levels up (Level 2, MP 10)',
 			setup: S(GD, 80, F, 'quest_momentum_master', { dice: WIN }), trigger: go(F),
-			expect: { mp: { 'own.0': 0 }, level: { 'own.0': 2 }, check: won(F, 'quest_momentum_master') } },
+			expect: { mp: { 'own.0': 10 }, level: { 'own.0': 2 }, check: won(F, 'quest_momentum_master') } },
 		gate('75 MP: no attempt', S(GD, 75, F, 'quest_momentum_master', { dice: WIN }), F),
 	] },
 	{ quest: 'quest_ultimate_challenge', deck: 'rest', cases: [
@@ -251,12 +253,12 @@ export const QUEST_REGISTRY = [
 			trigger: { kind: 'activatePiecie', cardId: MILK, then: refused(D) }, expect: { mp: { 'own.0': 30 }, check: noAttempt(D) } },
 	] },
 	{ quest: 'quest_perfect_timing', deck: 'rest', cases: [
-		{ name: '70 MP: Coin flip, a 4 wins +50 and reaches 100 (Level 2, MP 0)',
+		{ name: '70 MP: Coin flip, a 4 wins +50 and reaches 100 (Level 2, MP 10)',
 			setup: S(MING, 70, D, 'quest_perfect_timing', { dice: [4] }), trigger: go(D),
-			expect: { mp: { 'own.0': 0 }, level: { 'own.0': 2 }, check: won(D, 'quest_perfect_timing') } },
+			expect: { mp: { 'own.0': 10 }, level: { 'own.0': 2 }, check: won(D, 'quest_perfect_timing') } },
 		{ name: '80 MP is still in range (70 to 80)',
 			setup: S(MING, 80, D, 'quest_perfect_timing', { dice: [4] }), trigger: go(D),
-			expect: { mp: { 'own.0': 0 }, level: { 'own.0': 2 }, check: won(D, 'quest_perfect_timing') } },
+			expect: { mp: { 'own.0': 10 }, level: { 'own.0': 2 }, check: won(D, 'quest_perfect_timing') } },
 		gate('65 MP: no attempt', S(MING, 65, D, 'quest_perfect_timing', { dice: [4] }), D),
 		gate('85 MP: no attempt', S(MING, 85, D, 'quest_perfect_timing', { dice: [4] }), D),
 	] },
@@ -264,19 +266,19 @@ export const QUEST_REGISTRY = [
 	// ---- Creative stack ----
 	{ quest: 'quest_team_building', deck: 'rest', cases: [
 		{ name: 'Trained (Social 2 stars or more): no roll, +25',
-			setup: S(BINTI, 20, A, 'quest_team_building', { dice: LOSE }), trigger: go(A, ['ok']), expect: { mp: { 'own.0': 45 }, check: won(A, 'quest_team_building') } },
+			setup: S(TUK, 20, A, 'quest_team_building', { dice: LOSE }), trigger: go(A, ['ok']), expect: { mp: { 'own.0': 45 }, check: won(A, 'quest_team_building') } },
 		gate('no Social at all (Ronald, Dr. Phill-osoof): no attempt', S(MASTERMIND, 20, A, 'quest_team_building', { dice: WIN }), A),
 	] },
 	{ quest: 'quest_artistic_expression', deck: 'rest', cases: [
-		{ name: 'drew 2+ cards this turn (Ff Haaltje Nemen): +1 die, [1,6] wins, +25',
-			setup: S(GD, 20, A, 'quest_artistic_expression', { dice: [1, 6], hand: [FF] }),
-			trigger: { kind: 'playSnelle', cardId: FF, then: go(A) }, expect: { mp: { 'own.0': 45 }, energy: 1, check: won(A, 'quest_artistic_expression') } },
+		{ name: 'drew 2+ cards this turn (two Ff Haaltje Nemen, 1 card each): +1 die, [1,6] wins, +25',
+			setup: S(GD, 20, A, 'quest_artistic_expression', { dice: [1, 6], hand: [FF, FF], energy: 4 }),
+			trigger: { kind: 'playSnelle', cardId: FF, then: { kind: 'playSnelle', cardId: FF, then: go(A) } }, expect: { mp: { 'own.0': 45 }, energy: 0, check: won(A, 'quest_artistic_expression') } },
 		{ name: 'no extra draw: 1 die, [1,6] fails, -15',
 			setup: S(GD, 40, A, 'quest_artistic_expression', { dice: [1, 6] }), trigger: go(A), expect: { mp: { 'own.0': 25 }, check: lost(A, 'quest_artistic_expression') } },
 	] },
 	{ quest: 'quest_inspire_crowd', deck: 'rest', cases: [
-		{ name: 'Steady: one 4+ on Social, win +25',
-			setup: S(BINTI, 20, A, 'quest_inspire_crowd', { dice: [1, 1, 5] }), trigger: go(A), expect: { mp: { 'own.0': 45 }, check: won(A, 'quest_inspire_crowd') } },
+		{ name: 'Steady: one 4+ on Social (1 star, 1 die), win +25',
+			setup: S(BINTI, 20, A, 'quest_inspire_crowd', { dice: [5] }), trigger: go(A), expect: { mp: { 'own.0': 45 }, check: won(A, 'quest_inspire_crowd') } },
 	] },
 	{ quest: 'quest_improvise', deck: 'rest', cases: [
 		{ name: 'pay 1 Energy: +1 die, [1,6] wins, +25',
@@ -288,10 +290,10 @@ export const QUEST_REGISTRY = [
 	] },
 	{ quest: 'quest_form_alliance', deck: 'rest', cases: [
 		{ name: 'Skilled win +40; one opponent Mosje also gains 10',
-			setup: S(BINTI, 20, A, 'quest_form_alliance', { dice: WIN }), trigger: go(A),
+			setup: S(TUK, 20, A, 'quest_form_alliance', { dice: WIN }), trigger: go(A),
 			expect: { mp: { 'own.0': 60, 'opp.0': 50 }, check: won(A, 'quest_form_alliance') } },
 		{ name: 'fail: -30, the opponent gains nothing',
-			setup: S(BINTI, 40, A, 'quest_form_alliance', { dice: LOSE }), trigger: go(A),
+			setup: S(TUK, 40, A, 'quest_form_alliance', { dice: LOSE }), trigger: go(A),
 			expect: { mp: { 'own.0': 10, 'opp.0': 40 }, check: lost(A, 'quest_form_alliance') } },
 	] },
 	{ quest: 'quest_lucky_break', deck: 'rest', cases: [

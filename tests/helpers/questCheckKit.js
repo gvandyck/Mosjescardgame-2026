@@ -1,7 +1,7 @@
 // questCheckKit — before/after checks for the Quest card-test registry (tests/ui/cards/quest-registry-2-0.js).
 // Each builder returns (before, after) => void that throws on a mismatch; `expect.check` runs it in tests/helpers/mosjeCardTest.js.
-// The rules come from the Card List Quest intro: a failed attempt puts a token on the Quest; a Quest is replaced when it is won
-// or has 2 tokens; "no attempt" means no token, no action used, nothing paid.
+// 2.1 rule: after one attempt (win or fail) the Quest is shuffled back into its stack and a Quest is turned up (no fail tokens);
+// "no attempt" means no action used, nothing paid, the face-up Quest unchanged.
 const mine = (s) => s.players.player_1;
 const fail = (msg) => { throw new Error(msg); };
 const json = (x) => JSON.stringify(x);
@@ -9,17 +9,20 @@ const json = (x) => JSON.stringify(x);
 /** Run several checks in order. */
 export const all = (...fns) => (before, after) => { for (const f of fns) if (f) f(before, after); };
 
-/** Won: the Quest left its stack's face-up spot and no token is left on a new one. */
-export const replaced = (stack, id) => (before, after) => {
-	if (after.questStacks[stack].faceUp === id) fail(`${id} is still face-up after a win`);
+/** One attempt (win or fail, rules section 6): the Quest is shuffled back, so the stack still has a face-up Quest and as many cards as before. It may be the same Quest again. */
+const shuffledBack = (stack) => (before, after) => {
+	const count = (st) => (st.deck?.length || 0) + (st.faceUp ? 1 : 0);
+	const st = after.questStacks[stack];
+	if (!st.faceUp) fail('no Quest is face-up after the attempt');
+	if (count(st) !== count(before.questStacks[stack])) fail(`stack has ${count(st)} Quests, expected ${count(before.questStacks[stack])}`);
+	if (st.tokens) fail('a fail token was placed (tokens are gone)');
 };
 
-/** Failed once: the same Quest stays face-up with exactly 1 token. */
-export const tokenOne = (stack, id) => (before, after) => {
-	const st = after.questStacks[stack];
-	if (st.faceUp !== id) fail(`${id} was replaced after one failure`);
-	if (st.tokens !== 1) fail(`expected 1 fail token, got ${st.tokens}`);
-};
+/** Won: the attempt shuffled the Quest back into its stack (the same Quest can come up again). */
+export const replaced = (stack, _id) => shuffledBack(stack);
+
+/** Failed: the same as a win for the stack, a Quest is shuffled back after any one attempt; no fail token. */
+export const tokenOne = (stack, _id) => shuffledBack(stack);
 
 /** These cards are in the acting player's discard pile (paid costs, discarded cards). */
 export const discarded = (...ids) => (before, after) => {

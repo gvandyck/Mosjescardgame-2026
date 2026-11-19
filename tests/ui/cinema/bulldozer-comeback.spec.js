@@ -82,9 +82,11 @@ test('🎬 Bulldozer cinema — Unstoppable comeback after quest damage', async 
 	await ss(page, 'bulldozer-3-comeback');
 
 	const after = await bulldozer(page);
-	console.log(`🎬 RESULT — Bulldozer MP ${before} → ${after.mp} (taksed 30, Unstoppable +25), Power boost ${JSON.stringify(after.powerBoostUntilOwnerTurnEnd)}`);
-	await beat(`🛡️ Unstoppable! ${before} - 30 + 25 = ${after.mp} MP, and +10 Power until the end of her next turn.`);
+	// 71-11: the +10 Power is a timed effect (state.timedEffects), not a field on the slot
+	const boost = ((await getGameState(page))?.timedEffects || []).find(e => e.kind === 'power' && e.target?.playerId === 'player_1' && e.target?.slotIndex === 0);
+	console.log(`🎬 RESULT — Bulldozer MP ${before} → ${after.mp} (taksed 30 - 5 Resilient = 25, Unstoppable +25), Power boost ${JSON.stringify(boost)}`);
+	await beat(`🛡️ Unstoppable! ${before} - 25 + 25 = ${after.mp} MP, and +10 Power until the end of her next turn.`);
 
-	expect(after.mp).toBe(before - 30 + 25);
-	expect(after.powerBoostUntilOwnerTurnEnd?.amount).toBe(10);
+	expect(after.mp).toBe(before - 25 + 25); // Power 30 attack, Resilient 1 star takes 5 off (rules section 7)
+	expect(boost?.amount).toBe(10);
 });
