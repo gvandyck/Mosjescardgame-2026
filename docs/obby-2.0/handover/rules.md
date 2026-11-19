@@ -145,3 +145,23 @@ Gandalf asked on 15 Nov to keep building without stopping for questions. These g
 | 16 Nov 2026 | 70 | §9 Upkeep with 0 Energy. | The card is discarded without asking. |
 | 16 Nov 2026 | 70 | §7: on a fail, a Piecie named under Needs that Pay already discarded. | It is skipped, not discarded twice. |
 | 16 Nov 2026 | 70 | Does a Personal Quest attempt count as a Quest in the end-of-game stats? | No. |
+| 19 Nov 2026 | 71 | Youri (with Chris), FPS West (with FPS Coert) and Binti (with Coert) still had an old synergy line that is not in the 2.1 text. | Switched off for these three. Booster Mosjes keep theirs. |
+| 19 Nov 2026 | 71 | Blikje Monsteros: "gain 2 Energy this turn". | A plain gain, max 6; Energy that is not spent carries over like any Energy. |
+| 19 Nov 2026 | 71 | Ctrl+S on a Level 1 Mosje. | No effect: the card stops a level drop, and a Level 1 Mosje at 0 MP goes sideways as always. |
+| 19 Nov 2026 | 71 | Do Bowie & Stormey and Afblijven! keep a Piecie slot while they last? | Yes. Afblijven! only works during the opponent's turn. |
+| 19 Nov 2026 | 71 | "+1 die on one Quest this turn" on a card that names no Mosje (Dikke Plaat, Dubbele Dosis, Gekke Dobbel). | The die goes to that player's next Quest roll this turn, whichever Mosje rolls. Gekke Dobbel gives 2 when that Mosje is a Jeffrey. Controller's and Dancepad's die belongs to the Mosje the card picked. |
+| 19 Nov 2026 | 71 | Hawaiishirt ("your first Piecie each turn costs 1 less") and Coert's Caravan ("1 Piecie for 2 less"): does the player choose which Piecie? | No. Hawaiishirt applies to the first Piecie activated each turn, also a 0-cost one; the Caravan to the first Piecie that costs 1 or more. Both add up, never below 0. |
+| 19 Nov 2026 | 71 | DJ 80/20 from Level 2: "reroll up to 2 dice". | Two single-die rerolls that turn, on one roll or on two. Only on the owner's own Quest and Personal Quest rolls. |
+| 19 Nov 2026 | 71 | Do Oh nee toch niet, Nieuwe Gimma and Punto Banco work on a Personal Quest roll? | Yes (it counts as a Quest roll). Zwoele Ming Power does not, as its text says. |
+| 19 Nov 2026 | 71 | FPS Coert: a Quest that rolls "your best trait". | Does not count as a Quest that rolls Str or Tech. |
+| 19 Nov 2026 | 71 | FPS West: when do "they draw 1"? | Only when a card was put on the bottom. The 20 MP is a price: he must stay above 0. A Personal Quest can't be picked. |
+| 19 Nov 2026 | 71 | Ronald, Dr. Phill-osoof used twice on the same Mosje before it rolls. | The marks add up (2 dice less), never below 1 die. |
+| 19 Nov 2026 | 71 | Gandoe, The Cloude Wizard with fewer than 3 cards in the deck. | He looks at what is there. With an empty deck the ability can't be used and costs nothing. |
+| 19 Nov 2026 | 71 | How is Punto Banco offered? | A question right before the roll. The bot never plays it (Phase 73). |
+| 19 Nov 2026 | 71 | Jensen! and a Mosje ability that targets. | Jensen! reacts to a Piecie or Snelle only, as its text says. |
+| 19 Nov 2026 | 71 | In De Groove with two Chrises on the field. | The first one gains the 10 MP. |
+| 19 Nov 2026 | 71 | Chris, The BigStepper: "you can" activate another Piecie. | The question has a "no" option. |
+| 19 Nov 2026 | 71 | Ronald, The Master Chef: "the first food Piecie each turn gives 10 MP more", when that card gives no MP. | The bonus is used up on it anyway (Late Night Döner, Varkenspootjes on a non-Binti Mosje). |
+| 19 Nov 2026 | 71 | Michelle, Iron Tuk, when her reduction takes the whole attack away. | The attack does 0. The 5 minimum is for Resilient only. |
+| 19 Nov 2026 | 71 | Binti from Level 2: 20 MP, "not on two turns in a row". | The turn after a 20 MP hit she can still use the ability, but it hits for 10. A 10 MP hit never starts the limit. |
+| 19 Nov 2026 | 71 | Which Mosjes count as "a West"? | Parkour West and FPS West. Martin, Señor West is a Martin. |
