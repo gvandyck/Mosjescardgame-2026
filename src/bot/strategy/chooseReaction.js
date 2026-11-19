@@ -16,6 +16,7 @@ import { pickCounterSnelle } from './pickCounterSnelle.js';
 import { pickDefensiveSnelle } from './pickDefensiveSnelle.js';
 import { pickDjRerollDie } from './pickDjRerollDie.js';
 import { asBotView } from './asBotView.js';
+import { dropLockedSnelle } from './dropLockedSnelle.js';
 
 const DEFENDER_MOMENTS = ['targeted', 'wouldLoseMp', 'attacked', 'toWelloe'];
 
@@ -39,7 +40,7 @@ function rollSurvivesSleutelpuntje(view, responderId, heldRoll) {
 }
 
 export function chooseReaction(state, responderId) {
-	state = asBotView(state, responderId); // BOT-04: from here on `state` is the table view
+	state = dropLockedSnelle(asBotView(state, responderId), responderId); // BOT-04: from here on `state` is the table view; a TemPiecie-locked Snelle is not playable
 	const p = state.pendingReaction;
 	if (!p || p.responderId !== responderId) return null;
 	const at = (moment) => p.moments.includes(moment);

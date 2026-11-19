@@ -5,6 +5,9 @@ export const SELF_LOSS_MP = {
 	piecie_warm_kannetje_melk: 10,
 	piecie_stripje_bennies: 20,
 	piecie_straffoe: 5,
+	piecie_te_hard_gaan: 10, // 2.1 starter: the MP price comes first (activationCost)
+	piecie_ronalds_fles_fireman: 20,
+	piecie_blikje_monsteros: 15,
 };
 
 export const ELIMINATION_MP_MAX = {

@@ -27,16 +27,15 @@ export const COMBO_TAGS = {
 
 	// Direct MP boosters
 	piecie_kannetje_melk: ['mp-gain'],
-	piecie_broodje_doner: ['mp-gain'],
+	piecie_broodje_doner: ['power'], // Late Night Döner: +10 Power, no MP
 	piecie_chefs_special: ['mp-gain'],
-	piecie_energy_surge: ['mp-gain'], // Shoettoe
+	piecie_energy_surge: ['draw'], // Kladje
 	piecie_ronald_kip: ['mp-gain'],
-	piecie_momentum_boost: ['mp-gain'],
-	piecie_eendjes_voeren: ['mp-gain'], // Nature's Gift
+	piecie_momentum_boost: ['defense'], // Ctrl+S: protection
+	piecie_eendjes_voeren: ['power'], // Spiegelen: copies a target's Power for this turn
 	piecie_varkenspootjes: ['mp-gain'],
 	piecie_grammetje_pieter: ['mp-gain'],
 	piecie_protein_shake: ['mp-gain'],
-	piecie_dumbbells: ['mp-gain'],
 	piecie_keyboard: ['mp-gain', 'draw'],
 	piecie_mouse: ['mp-gain'],
 	piecie_dikke_jonko: ['mp-gain', 'draw'],
@@ -54,7 +53,9 @@ export const COMBO_TAGS = {
 
 	// Power boosts — only worth it when a Mosje can still attack
 	piecie_snoeiertje: ['power'],
-	piecie_te_hard_gaan: ['power'],
+	piecie_te_hard_gaan: ['power', 'self-loss'],
+	piecie_ronalds_fles_fireman: ['power', 'self-loss'],
+	piecie_blikje_monsteros: ['self-loss'],
 	piecie_super_saiyan_mos: ['power'],
 	piecie_momentum_diefje: ['power'],
 	piecie_continuous_assault: ['power'],

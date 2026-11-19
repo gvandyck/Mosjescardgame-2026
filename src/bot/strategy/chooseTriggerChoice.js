@@ -3,11 +3,13 @@
 // first option. Returns undefined when the choice is not the bot's (or has no options).
 import { asBotView } from './asBotView.js';
 import { pickMosjeOption } from './pickMosjeOption.js';
+import { pickCostMosje } from './pickCostMosje.js';
 
 export function chooseTriggerChoice(state, botId) {
 	state = asBotView(state, botId); // BOT-04: from here on `state` is the table view
 	const pc = state.pendingChoice;
 	if (!pc || pc.playerId !== botId || !Array.isArray(pc.options) || pc.options.length === 0) return undefined;
 	if (pc.choiceKind === 'mosje') return pickMosjeOption(state, botId, pc) ?? pc.options[0];
+	if (pc.key === 'cost_mosje') return pickCostMosje(state, botId, pc) ?? pc.options[0]; // the MP price first: the richest Mosje pays
 	return pc.options[0];
 }

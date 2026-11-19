@@ -58,7 +58,7 @@ function bestQuest(view, botId, slotIndex, slot) {
 		if (!dry.ok) continue;
 		const lose = Math.abs(quest.lose || 0);
 		if (slot.level === 3 && quest.band !== 'trained' && slot.mp - lose <= opponentThreat(view, botId)) continue; // a Level 3 is not risked
-		const p = questWinChance(quest.band, getQuestDiceCount(view, botId, slot, quest));
+		const p = questWinChance(quest.band, getQuestDiceCount(view, botId, slot, quest), view.players[botId].questEaseThisTurn || 0); // Zwoele Ming Power makes the Quest easier
 		const jab = Math.max(0, ...getJabTargets(view, botId, quest.id, { discardedCardIds: dry.pending.discardedCardIds })
 			.map(t => valueOfLoss(view.players[t.playerId].activeSlots[t.slotIndex], JAB)));
 		const value = p * (valueOfGain(slot, quest.win) + jab) - (1 - p) * lossWeight * valueOfLoss(slot, lose) - (paid.rank ?? 0);

@@ -11,17 +11,28 @@
 //   'skip'     — never trigger manually (auto-abilities fire on their own).
 
 export const ABILITY_TIMING = {
-	mosje_gandoe_wizard: 'early',     // Top-3 pick: dig for cards before playing
-	mosje_coert_kasteluck: 'early',   // Morning Luck is a startOfTurn trigger now (no manual use)
-	mosje_jisca: 'early',             // Perfect Combo: arms per-Piecie chain rolls
-	mosje_chris: 'preQuest',          // Perfect Setup: free activation + 15 MP
-	mosje_youri: 'preQuest',          // Speed Activate: fire a fresh Piecie now
-	mosje_michelle: 'skip',           // Iron Tuk is a passive attack step
-	mosje_gandoe_destroyer: 'late',   // Elimination Strike (gated separately)
-	mosje_binti: 'late',              // Cutting Words: discard fodder chosen by bot
-	mosje_azn_cless: 'late',          // Risk and Reward: end-of-turn style roll
-	mosje_martin_senor_west: 'late',  // Calculated Guess
-	mosje_alyssa_bulldozer: 'late',   // Unstoppable: scales with damage taken
+	// 2.1 starter Mosjes
+	mosje_gandoe_wizard: 'early',     // top-3 pick: dig for cards before playing
+	mosje_ming_natural: 'early',      // reveal + draw the top card; a Piecie may be activated at once
+	mosje_youri: 'preQuest',          // pay 1 Energy, activate a Piecie placed this turn
+	mosje_binti: 'late',              // discard a Piecie from the hand, hit a Mosje
+	mosje_fps_west: 'late',           // look at the hand, may bottom a card
+	mosje_ronald_mastermind: 'late',  // Dr. Phill-osoof: mark an opponent Mosje
+	mosje_jeffrey_gambler: 'late',    // High Stakes: stake Energy on a die
+	mosje_michelle: 'skip',           // passive: Iron Tuk cuts an attack
+	mosje_ronald_chef: 'skip',        // passive: first food Piecie +10 MP
+	mosje_jeffrey: 'skip',            // passive: 3 attachments
+	mosje_alyssa_bulldozer: 'skip',   // passive: scales with damage
+	mosje_chris_ddr: 'skip',          // trigger: free Piecie on a Piecie activation
+	mosje_fps_coert: 'skip',          // trigger: Headshot on a Quest win
+	mosje_dj_8020: 'skip',            // reaction window: Lucky Beats reroll
+	mosje_coert_tech: 'skip',         // draw-step option
+	// older (non-starter) Mosjes
+	mosje_coert_kasteluck: 'early',
+	mosje_jisca: 'early',
+	mosje_gandoe_destroyer: 'late',
+	mosje_azn_cless: 'late',
+	mosje_martin_senor_west: 'late',
 };
 
 // Returns the turn phase in which the bot should consider this Mosje's

@@ -21,7 +21,9 @@ describe('reaction replay seeds', () => {
 
 	it('Perfect Dodge seed 50349 (EXAMPLE_TAKSEN vs EXAMPLE_CREATIEVELINGEN) has no refused engine call', () => {
 		const game = taksenVsCreatieve();
-		expect(game.state.status).toBe('FINISHED');
+		// 71-26: the bot tables moved to the 2.1 cards and this seed no longer ends in a knockout; the bot does not play towards
+		// a Personal Quest yet (Phase 73), so "finished, or the whole 200-turn cap" is the stance of bot-legality too.
+		if (game.state.status !== 'FINISHED') expect(game.turns).toBe(200);
 		expect(refusedOf(game)).toEqual([]);
 	}, 60000);
 
