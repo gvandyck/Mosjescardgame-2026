@@ -1,0 +1,10 @@
+/* dice-row.css - a row of die faces for a roll result (72-04). Shared with the game-over screen. */
+.dice-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; margin: 12px 0; }
+.dice-row .die {
+	display: inline-flex; align-items: center; justify-content: center;
+	width: 52px; height: 52px; border-radius: 10px;
+	background: #f4efe2; color: #14172a; font-size: 30px; font-weight: 800;
+	border: 2px solid rgba(20, 23, 42, 0.55); box-shadow: 0 3px 8px rgba(0, 0, 0, 0.45);
+}
+.dice-row .die[data-face="6"] { background: #fff3c4; border-color: #e8b94f; }
+.dice-row .dice-need { flex-basis: 100%; text-align: center; font-size: 14px; opacity: 0.8; }

@@ -12,6 +12,7 @@ import { setEnergyPreview } from './board/setEnergyPreview.js';
 import { bindSlotHint } from './board/bindSlotHint.js';
 import { showToast } from './board/showToast.js';
 import { COOLDOWN_TEXT } from './board/cooldownText.js';
+import { getPersonalQuestPlayState } from './personalQuests/getPersonalQuestPlayState.js';
 import { isCooldownBlocked } from '../engine/turn/isCooldownBlocked.js';
 
 console.log('[UI] handRenderer.js loaded');
@@ -30,10 +31,10 @@ function getHandModal() {
 	return _handModal;
 }
 
-function showCardPreview(card) {
+function showCardPreview(card, opts) {
 	const fullCard = getCardById(card.cardId) || card;
 	const merged = { ...fullCard, ...card };
-	getHandModal().showCardPreview(merged);
+	getHandModal().showCardPreview(merged, opts);
 }
 
 // onPlay(cardId, cardType) — optional callback when a playable card is clicked.
@@ -84,10 +85,22 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 			cardEl.title = COOLDOWN_TEXT;
 		};
 
+		const pqState = () => (gameState ? getPersonalQuestPlayState(gameState, localPlayerId, card.cardId, { isLocalTurn }) : { ok: false, reason: '' });
 		cardEl.classList.add('card--previewable');
 		cardEl.addEventListener('click', (e) => {
 			if (e.target.closest('button')) return;
 			if (cooldownBlocked) { showToast(COOLDOWN_TEXT); return; }
+			// 72-04: a tap on a Personal Quest opens its detail with a Play action (and the engine's reason when it is off).
+			if (isPersonalQuest) {
+				const st = pqState();
+				const canPlay = Boolean(onPlay) && st.ok;
+				const reason = canPlay ? '' : (st.reason || 'It cannot be played now');
+				showCardPreview(card, {
+					actions: [{ id: 'play', label: 'Play', disabled: !canPlay, title: reason, onClick: () => onPlay(card.cardId, card.type) }],
+					reason,
+				});
+				return;
+			}
 			// Card frame v1: the Play button is hidden; clicking a playable card plays it.
 			const playBtn = cardEl.classList.contains('card-v1') && cardEl.querySelector('.hand-card__play-btn');
 			if (playBtn && !playBtn.disabled) { playBtn.click(); return; }
@@ -163,6 +176,8 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 				btn.className = 'hand-card__play-btn';
 				btn.type = 'button';
 				btn.textContent = 'Play';
+				const st = pqState();
+				if (!st.ok && st.reason) btn.title = st.reason; // 72-04: the button stays on (the flow explains); its title says why
 				btn.addEventListener('click', (e) => {
 					e.stopPropagation();
 					onPlay(card.cardId, card.type);

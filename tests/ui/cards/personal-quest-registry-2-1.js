@@ -100,7 +100,7 @@ export const PERSONAL_QUEST_REGISTRY = [
 	{ personalQuest: 'pq_high_roller', cases: [
 		{ name: 'High Roller: pays 2 Energy = 1 die more (4 dice: 1, 1, 5, 5 wins; the first 3 alone would not)',
 			setup: base('mosje_jeffrey_gambler', { hand: ['pq_high_roller'], dice: [1, 1, 5, 5] }),
-			trigger: play('pq_high_roller', [/2 Energy/]), expect: { ...win('High Roller', 'Jeffrey'), energy: 1 } },
+			trigger: play('pq_high_roller', [/^\s*2 Energy/]), expect: { ...win('High Roller', 'Jeffrey'), energy: 1 } },
 		{ name: 'High Roller: pays 0 Energy = no extra die (3 dice: 1, 1, 5 misses, the game goes on)',
 			setup: base('mosje_jeffrey_gambler', { hand: ['pq_high_roller'], dice: [1, 1, 5, 5] }),
 			trigger: play('pq_high_roller', [/^0 Energy/]), expect: { failed: true, energy: 3 } },

@@ -15,6 +15,9 @@ import { buildCardPanel } from './cardV1/buildCardPanel.js';
 import { getPileCards } from '../engine/pile/getPileCards.js';
 import { getLevelRows } from './cardV1/getLevelRows.js';
 import { formatEnergyChip } from './cardV1/formatEnergyChip.js';
+import { buildPersonalQuestSections } from './modals/buildPersonalQuestSections.js';
+import { buildPreviewActionsHtml } from './modals/buildPreviewActionsHtml.js';
+import { buildDiceRowHtml } from './dice/buildDiceRowHtml.js';
 import { getQuestNeed } from './cardV1/getQuestNeed.js';
 import { formatQuestRollsLine } from './cardV1/formatQuestRollsLine.js';
 import { formatQuestStakes } from './cardV1/formatQuestStakes.js';
@@ -437,7 +440,7 @@ export function initModalManager(container) {
 
 	// ── Unified card preview — always two-col, card left at 240 px, info right ──
 	// onClose — optional callback after closing (e.g. reopen the modal this preview came from)
-	function showCardPreview(card, { onClose = null } = {}) {
+	function showCardPreview(card, { onClose = null, actions = null, reason = '' } = {}) {
 		if (!card) return;
 		const previewEl = renderCard(card, { compact: true });
 		const type = String(card.type || card.cardType || '').toUpperCase();
@@ -451,6 +454,7 @@ export function initModalManager(container) {
 			QUEST:          { label: 'Quest',  cls: 'quest',  accent: '#a855f7' },
 			QUEST_GENERAL:  { label: 'Quest',  cls: 'quest',  accent: '#a855f7' },
 			QUEST_PERSONAL: { label: 'Quest',  cls: 'quest',  accent: '#a855f7' },
+			PERSONAL_QUEST: { label: 'Personal Quest', cls: 'quest', accent: '#a855f7' }, // 72-04
 		};
 		const meta = TYPE_META[type] || { label: type || 'Card', cls: 'generic', accent: '#94a3c4' };
 
@@ -475,6 +479,8 @@ export function initModalManager(container) {
 					`<div class="cd-level-row" data-lit="${r.lit}"><b>${esc(r.label)}</b>${esc(r.text)}</div>`).join('');
 				sections.push(['Levels', `<div class="cd-levels">${rowsHTML}</div>`, true]);
 			}
+		} else if (type === 'PERSONAL_QUEST') {
+			buildPersonalQuestSections(card).forEach(sec => sections.push(sec)); // 72-04: Needs / Pay / Roll
 		} else if (type === 'PIECIE' || type === 'SNELLE_PIECIE') {
 			chips.push(esc(formatEnergyChip(card)));
 			if (card.needsText) chips.push(`Needs: ${esc(card.needsText)}`);
@@ -533,6 +539,7 @@ export function initModalManager(container) {
 					${buildCardPanel(card)}
 					${chipsHTML}
 					<div class="cd-sections">${sectionsHTML}</div>
+					${buildPreviewActionsHtml(actions, reason)}
 					<button class="modal-btn cd-close" id="modal-close-preview" type="button">Close</button>
 				</div>
 			</section>
@@ -544,6 +551,14 @@ export function initModalManager(container) {
 			if (typeof onClose === 'function') onClose();
 		};
 		container.querySelector('#modal-close-preview')?.addEventListener('click', closePreview);
+		// 72-04: an enabled action closes the preview, then runs.
+		container.querySelectorAll('.cd-action:not(:disabled)').forEach(btn => {
+			btn.addEventListener('click', () => {
+				const action = (actions || []).find(x => x && x.id === btn.dataset.actionId);
+				close();
+				if (action && typeof action.onClick === 'function') action.onClick();
+			});
+		});
 		container.querySelector('.modal-backdrop')?.addEventListener('click', closePreview);
 	}
 
@@ -678,6 +693,7 @@ export function initModalManager(container) {
 		variant = '',
 		leave = null,        // 72-01: { id, label } always-visible "leave it" button, resolves its id
 		promptCard = null,   // 72-01: a cardId or card object drawn above the options
+		dice = null,         // 72-04: { values, need? } a row of die faces drawn above the options
 	} = {}) {
 		const safeOptions = Array.isArray(options) ? options.filter(Boolean) : [];
 		if (autoSelectSingle && safeOptions.length === 1) return safeOptions[0]?.id ?? null;
@@ -696,6 +712,7 @@ export function initModalManager(container) {
 					<h3>${escapeHtml(title)}</h3>
 					${prompt ? `<p>${escapeHtml(prompt)}</p>` : ''}
 					${promptCardObj ? '<div class="option-prompt-card"></div>' : ''}
+					${dice ? buildDiceRowHtml(dice.values, { need: dice.need }) : ''}
 					<div class="modal-mosje-select-list">${rows}</div>
 					${buildLeaveOptionHtml(leave)}
 					${allowCancel ? '<button class="modal-btn modal-btn--ghost" id="modal-option-cancel" type="button">Cancel</button>' : ''}

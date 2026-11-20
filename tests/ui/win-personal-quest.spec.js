@@ -52,8 +52,9 @@ test('no legal Mosje: the modal says why and the game goes on', async ({ page })
 	await clearEntryProtection(page);
 
 	await playCardFromHand(page, 'pq_charge');
+	// 72-04: the tap opens the detail; Play is off and the reason names Level 3.
 	await expect(page.locator('.modal-card, .modal-content').first()).toContainText('Level 3', { timeout: 5000 });
-	await clickModalOption(page, 'ok');
+	await page.locator('#modal-close-preview').click();
 	const gs = await getGameState(page);
 	expect(gs.status).toBe('PLAYING');
 	expect(gs.players.player_1.hand.map(c => c.cardId)).toContain('pq_charge');

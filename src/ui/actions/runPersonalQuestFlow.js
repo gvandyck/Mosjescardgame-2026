@@ -8,6 +8,9 @@ import { getPersonalQuestOptions } from '../../engine/personalQuests/getPersonal
 import { getPersonalQuestDef } from '../../engine/personalQuests/getPersonalQuestDef.js';
 import { pickPersonalQuestChoice } from './pickPersonalQuestChoice.js';
 import { escapeMeta } from './escapeMeta.js';
+import { buildPersonalQuestMosjeOptions } from '../personalQuests/buildPersonalQuestMosjeOptions.js';
+import { describePersonalQuestFail } from '../personalQuests/describePersonalQuestFail.js';
+import { describeRollNeed } from '../personalQuests/describeRollNeed.js';
 import { askPuntoBanco } from './askPuntoBanco.js';
 
 const OK = [{ id: 'ok', label: 'OK' }];
@@ -42,10 +45,7 @@ export async function runPersonalQuestFlow({ state, playerId, modal, rng = Math.
 	if (slotIndex == null) {
 		const picked = await modal.showOptionSelect({
 			title: `${def.name}: which Mosje?`, allowCancel: true,
-			options: all.filter(o => o.cardId === cardId).map(o => {
-				const slot = state.players[playerId].activeSlots[o.slotIndex];
-				return { id: String(o.slotIndex), label: slot.name, metaLabel: escapeMeta(o.ok ? `Level ${slot.level} - ${slot.mp} MP` : o.error), disabled: !o.ok };
-			}),
+			options: buildPersonalQuestMosjeOptions(state, playerId, cardId), // 72-04: Mosje faces, legal first, the rest greyed with the reason
 		});
 		if (picked == null) return none;
 		slotIndex = Number(picked);
@@ -69,7 +69,8 @@ export async function runPersonalQuestFlow({ state, playerId, modal, rng = Math.
 	const mosje = state.players[playerId].activeSlots[slotIndex].name;
 	await modal.showOptionSelect({
 		title: pending.win ? 'Personal Quest succeeded' : 'Personal Quest failed',
-		prompt: `${def.name}: dice ${pending.dice.join(', ')}`,
+		prompt: def.name,
+		dice: { values: pending.dice, need: describeRollNeed(def.roll) }, // 72-04, CC-2: the dice as a row of faces
 		options: [{ id: 'ok', label: 'Continue' }],
 	});
 	// The Pay and the acted flag are already spent in `rolled`: cancelling is not an undo, so there is no cancel after the roll.
@@ -78,5 +79,8 @@ export async function runPersonalQuestFlow({ state, playerId, modal, rng = Math.
 		await modal.showOptionSelect({ title: 'Personal Quest cannot resolve', prompt: done.error, options: OK });
 		return { state: rolled, log: [`${mosje} attempted ${def.name}`] };
 	}
-	return { state: done.state, log: [`${mosje} ${done.win ? 'completed' : 'failed'} the Personal Quest ${def.name} (dice ${pending.dice.join(', ')})`] };
+	const line = done.win
+		? `${mosje} completed the Personal Quest ${def.name} (dice ${pending.dice.join(', ')})`
+		: describePersonalQuestFail(state.players[playerId], done.state.players[playerId], def.name); // 72-04: names what the fail discarded
+	return { state: done.state, log: [line] };
 }

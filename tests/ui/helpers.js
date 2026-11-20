@@ -302,6 +302,9 @@ export async function playCardFromHand(page, cardId) {
 		await playBtn.click();
 	} else {
 		await wrap.click();
+		// 72-04: tapping a Personal Quest opens its detail; an enabled Play there plays it (a disabled one stays open, with its reason).
+		const detailPlay = page.locator('.card-detail .cd-action[data-action-id="play"]');
+		if (await detailPlay.isVisible({ timeout: 400 }).catch(() => false) && await detailPlay.isEnabled()) await detailPlay.click();
 	}
 }
 
