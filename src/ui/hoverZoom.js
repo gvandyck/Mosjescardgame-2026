@@ -31,6 +31,13 @@ function buildPopupCard(srcEl) {
 	// (the MP hook is the real MP even when a temp MP is shown on the tile).
 	const live = { mp: readHook(srcEl, 'mp'), level: readHook(srcEl, 'level'), power: readHook(srcEl, 'power') };
 	for (const [key, value] of Object.entries(live)) if (value !== null) merged[key] = value;
+	// 72-05: the tile carries its attachment ids; the line is built from card data, the attribute is never inserted as HTML.
+	const ids = (srcEl.dataset.attachments || '').split(',').filter(Boolean);
+	const maxAttachments = Number(srcEl.dataset.maxAttachments);
+	if (ids.length && Number.isFinite(maxAttachments)) {
+		merged.attachments = ids.map(cardId => ({ cardId }));
+		merged.maxAttachments = maxAttachments;
+	}
 	return { card: renderCard(merged, { compact: false }), panelHtml: buildCardPanel(merged) };
 }
 

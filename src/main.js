@@ -36,6 +36,7 @@ import { getMingPeekStack } from './abilities/getMingPeekStack.js';
 import { PIECIE_SLOT_COUNT } from './engine/table/tableRules.js';
 import { loseMP, gainMP } from './engine/mpManager.js';
 import { createMosjeSlot } from './engine/mp/createMosjeSlot.js';
+import { attachToMosje } from './engine/attachments/attachToMosje.js';
 import { checkVictory } from './engine/victoryChecker.js';
 import { MOSJES } from './data/mosjes.js';
 import { PIECIES } from './data/piecies.js';
@@ -1033,6 +1034,14 @@ function initGamePage() {
 				if (powerBoost) seeded.powerBoost = powerBoost; // card tests: a Power-40 attacker (Momentum Stabilizer)
 				player.activeSlots[slotIndex] = seeded;
 				renderFromState(gameState);
+			},
+			// 72-05: attach a card to a Mosje through the engine function (chips and detail list specs). A full Mosje replaces index 0.
+			attachToMosje(playerId, slotIndex, cardId) {
+				if (!gameState) return null;
+				const full = (gameState.players?.[playerId]?.activeSlots?.[slotIndex]?.attachments || []).length >= 2;
+				const res = attachToMosje(gameState, playerId, slotIndex, cardId, full ? { replaceIndex: 0 } : {});
+				renderFromState(gameState);
+				return res;
 			},
 			// Put a Piecie in one of a player's 4 Piecie slots (visual checks, card layout tests).
 			// Face-up and activated by default; { faceDown: true } sets it face-down. cardId=null clears the slot.

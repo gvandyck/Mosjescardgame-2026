@@ -12,6 +12,8 @@ import { buildLeaveOptionHtml } from './modals/buildLeaveOptionHtml.js';
 import { mountOptionCards } from './modals/mountOptionCards.js';
 import { resolveOptionCard } from './modals/resolveOptionCard.js';
 import { buildCardPanel } from './cardV1/buildCardPanel.js';
+import { buildAttachmentSection } from './modals/buildAttachmentSection.js';
+import { getAttachmentRows } from './board/getAttachmentRows.js';
 import { getPileCards } from '../engine/pile/getPileCards.js';
 import { getLevelRows } from './cardV1/getLevelRows.js';
 import { formatEnergyChip } from './cardV1/formatEnergyChip.js';
@@ -471,6 +473,7 @@ export function initModalManager(container) {
 			if (Number.isFinite(card.mp)) chips.push(`${card.mp} MP`);
 			if (card.abilityDescription) sections.push(['Ability', esc(card.abilityDescription)]);
 			if (card.synergyEffect) sections.push(['Synergy', esc(card.synergyEffect)]);
+			if (Array.isArray(card.attachments)) sections.push(['Attachments', buildAttachmentSection(getAttachmentRows(card)), true]); // 72-05
 			if (card.petSynergy) chips.push(`🐾 ${esc(String(card.petSynergy).replace('piecie_', '').replace(/_/g, ' '))}`);
 			// The 3 level rows (Power + traits per level); the current level is lit (a hand card shows Level 1).
 			const levelRows = getLevelRows(card, card.level);
@@ -536,7 +539,7 @@ export function initModalManager(container) {
 							${nick ? `<span class="cd-nick">"${esc(nick)}"</span>` : ''}
 						</div>
 					</header>
-					${buildCardPanel(card)}
+					${buildCardPanel({ ...card, attachments: undefined })}
 					${chipsHTML}
 					<div class="cd-sections">${sectionsHTML}</div>
 					${buildPreviewActionsHtml(actions, reason)}

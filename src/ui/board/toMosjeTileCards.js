@@ -10,6 +10,7 @@ import { getAbilityEnergyCost } from '../../engine/energy/getAbilityEnergyCost.j
 import { isFresh } from '../../engine/fresh/isFresh.js';
 import { roundToFive } from '../../engine/roundToFive.js';
 import { LEVEL3_MP_CAP } from '../../engine/mp/levelRules.js';
+import { getMaxAttachments } from '../../engine/attachments/getMaxAttachments.js';
 
 export function toMosjeTileCards(state, ownerId) {
 	const owner = state?.players?.[ownerId];
@@ -42,6 +43,8 @@ export function toMosjeTileCards(state, ownerId) {
 				entryProtected: isFresh(slot), // U8: Fresh until the owner's next turn start
 				sideways: slot.sideways === true, // getemt at Level 1 (D-16)
 				actedThisTurn: slot.actedThisTurn === true,
+				attachments: (slot.attachments || []).map(a => ({ ...a })), // 72-05: public, drawn as chips
+				maxAttachments: getMaxAttachments(slot),
 			};
 		});
 }

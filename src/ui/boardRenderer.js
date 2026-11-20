@@ -19,6 +19,10 @@ import { getPileMosjes } from '../engine/pile/getPileMosjes.js';
 import { getPileCards } from '../engine/pile/getPileCards.js';
 import { showToast } from './board/showToast.js';
 import { bindTileTap } from './board/bindTileTap.js';
+import { bindChipTap } from './board/bindChipTap.js';
+import { getAttachmentRows } from './board/getAttachmentRows.js';
+import { getAttachmentChips } from './board/getAttachmentChips.js';
+import { buildChipRowHtml } from './chips/buildChipRowHtml.js';
 
 const PIECIE_SLOTS = 3; // 2.0: 3 Piecie slots per player (mirrors tableRules)
 const MOSJE_SLOTS = 2; // 2.0: 2 Mosje slots per player
@@ -432,10 +436,25 @@ export function showPlaceEffectBanner(placeName, effectSummary, phase) {
 // 63-04 tile states (D-15..D-17, UI-03): the sideways pose, the Level 3 hold glow and the badge pills (Fresh, Protected,
 // SKIPS TURN, ACTED) on a Mosje tile. A pill is read by tap, Enter / Space or hover (title): the full reason in a toast, so
 // hover is never the only way. The click stops here so it does not also open the detail view.
+// 72-05 (D-05): attachments are public, so own and opponent tiles both get the chip row (max 3) and the two data
+// attributes the hover dock reads. A tile with nothing attached gets neither.
+function appendAttachmentChips(cardEl, tile) {
+	const { rows, max } = getAttachmentRows(tile);
+	if (!rows.length) return;
+	cardEl.dataset.attachments = rows.map(r => r.cardId).join(',');
+	cardEl.dataset.maxAttachments = String(max);
+	cardEl.insertAdjacentHTML('beforeend', `<div class="tile-chips">${buildChipRowHtml(getAttachmentChips(rows), { max: 3 })}</div>`);
+	bindChipTap(cardEl, (cardId) => {
+		const def = getCardById(cardId);
+		if (def) getBoardModal().showCardPreview(def);
+	});
+}
+
 function appendTileState(cardEl, tile) {
 	if (tile.isDefeated) return;
 	if (tile.sideways) cardEl.classList.add('mosje-card--sideways');
 	if (tile.level === 3) cardEl.classList.add('mosje-card--hold');
+	appendAttachmentChips(cardEl, tile);
 	const html = buildTileBadges(getTileBadges(tile));
 	if (!html) return;
 	cardEl.insertAdjacentHTML('beforeend', html);
