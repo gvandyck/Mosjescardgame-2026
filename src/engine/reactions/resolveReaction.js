@@ -15,6 +15,7 @@ import { resumeSnelleChoice } from '../snelle/resumeSnelleChoice.js';
 import { applyRetarget } from './applyRetarget.js';
 import { copyHeldPiecie } from './copyHeldPiecie.js';
 import { heldPiecieDef } from '../../rules/heldPiecieDef.js';
+import { canMosjeAct } from '../mp/canMosjeAct.js';
 
 const SKIP = { skipReactions: true };
 
@@ -25,7 +26,11 @@ function replay(state, action) {
 		case 'activatePiecie': return activatePiecie(state, a[0], a[1], SKIP);
 		case 'activatePiecieFree': return activatePiecieFree(state, a[0], a[1], { ...a[2], ...SKIP });
 		case 'playSnelle': return playSnellie(state, a[0], a[1], a[2], SKIP);
-		case 'mosjeAbility': return useMosjeAbility(state, a[0], a[1], SKIP);
+		case 'mosjeAbility': { // like a held attack: if the reaction (Drain Reversal) sent the Mosje sideways, the ability fizzles
+			const own = state.players[a[0]]?.activeSlots?.find(x => x && x.cardId === a[1] && !x.isDefeated);
+			if (own && !canMosjeAct(own)) return { state, ok: true, success: true, fizzled: true };
+			return useMosjeAbility(state, a[0], a[1], SKIP);
+		}
 		case 'resumePiecie': return { state: resumePiecieChoice(state, a[0]), success: true };
 		case 'resumeSnelle': return { state: resumeSnelleChoice(state, a[0]).state, success: true };
 		case 'quest': {
