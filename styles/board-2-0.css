@@ -513,3 +513,12 @@
 .tile-tags--above-chips { bottom: calc(48 * var(--bu, 1px) + 1.5 * max(9px, calc(10 * var(--bu, 1px))) + 8px); }
 .tile-tags .tag-line { background: rgba(15, 23, 42, 0.82); color: #f1f5f9; }
 .mosje-card--sideways .tile-tags { display: none; }
+
+/* ── Attack breakdown in the strip (Plan 72-07, D-08): the lines sit in the one 44 px row, the board never moves ── */
+.status-strip__lines { flex: 0 1 auto; min-width: 0; display: flex; align-items: center; gap: 6px 16px; overflow: hidden; white-space: nowrap; }
+.status-strip__lines:has(~ .status-strip__btn) { margin-left: auto; }
+.status-strip[data-status-kind="preview"] .status-strip__text { flex: 0 0 auto; }
+.strip-line { flex: 0 0 auto; font: 600 13px/1.2 'DM Sans', sans-serif; color: rgba(255, 255, 255, 0.9); }
+.strip-line--total { font-weight: 800; color: #fff; }
+.strip-line--note { font-size: 12px; font-weight: 500; color: rgba(255, 255, 255, 0.55); }
+.strip-line--blocked, .status-strip__text--blocked { color: #F59E0B; }

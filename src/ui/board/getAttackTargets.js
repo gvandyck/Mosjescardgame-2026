@@ -17,7 +17,7 @@ export function getAttackTargets(state, playerId) {
 				slotIndex,
 				valid,
 				short: valid ? '' : fresh ? 'Fresh' : 'Safe',
-				reason: valid ? '' : fresh ? "Fresh Mosjes can't be attacked" : "Can't be attacked",
+				reason: valid ? '' : fresh ? "Protected until its owner's next turn" : "Can't be attacked",
 			});
 		});
 	}

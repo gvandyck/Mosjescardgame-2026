@@ -142,7 +142,7 @@ describe('getAttackTargets', () => {
 		s.players.player_2.activeSlots.push(mkSlot({ mp: 40 }));
 		const targets = getAttackTargets(s, 'player_1');
 		expect(targets).toEqual([
-			{ playerId: 'player_2', slotIndex: 0, valid: false, short: 'Fresh', reason: "Fresh Mosjes can't be attacked" },
+			{ playerId: 'player_2', slotIndex: 0, valid: false, short: 'Fresh', reason: "Protected until its owner's next turn" },
 			{ playerId: 'player_2', slotIndex: 1, valid: true, short: '', reason: '' }, // levelled up: can be attacked (2.1)
 			{ playerId: 'player_2', slotIndex: 2, valid: true, short: '', reason: '' },
 		]);
@@ -171,10 +171,10 @@ describe('buildAttackPreview', () => {
 		expect(buildAttackPreview(s, 'player_1', 0, 'player_2', 0)).toBe('Alyssa hits Ming: −55 MP (leaves 0)'); // Power 60 minus Resilient 1 (70-02)
 	});
 
-	it("a Power 0 attacker reads 'has 0 Power: no effect'", () => {
+	it("a Power 0 attacker reads the Can't attack sentence", () => {
 		const s = pair();
 		s.players.player_1.activeSlots[0].powerBoost = -100;
-		expect(buildAttackPreview(s, 'player_1', 0, 'player_2', 0)).toBe('Alyssa has 0 Power: no effect');
+		expect(buildAttackPreview(s, 'player_1', 0, 'player_2', 0)).toBe("Can't attack (Power 0)");
 	});
 });
 

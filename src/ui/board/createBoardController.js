@@ -18,7 +18,7 @@ import { findBoardTile } from './findBoardTile.js';
 import { buildStripMode } from './buildStripMode.js';
 import { isLiveSelection } from './isLiveSelection.js';
 import { bindBoardDismiss } from './bindBoardDismiss.js';
-import { getPower } from '../../engine/mp/getPower.js';
+import { previewAttack } from '../../engine/attack/previewAttack.js';
 import { showToast } from './showToast.js';
 
 const same = (a, b) => !!a && !!b && a.playerId === b.playerId && a.slotIndex === b.slotIndex;
@@ -54,12 +54,17 @@ export function createBoardController({ getState, localPlayerId, handlers = {}, 
 		onChange();
 	}
 
+	// The chip on the previewed tile is the same total as the strip (72-07), never the bare Power.
+	function chipText(state, t) {
+		const { final } = previewAttack(state, localPlayerId, sel.slotIndex, t.playerId, t.slotIndex);
+		return final > 0 ? `−${final}` : '0';
+	}
+
 	function markAttackTargets(board, state) {
-		const power = getPower(state.players[localPlayerId].activeSlots[sel.slotIndex], state, localPlayerId);
 		const entries = getAttackTargets(state, localPlayerId).map(t => ({
 			...t,
 			el: findBoardTile(board, { kind: 'mosje', playerId: t.playerId, slotIndex: t.slotIndex }),
-			chip: mode === 'preview' && same(t, target) ? (power > 0 ? `−${power}` : '0') : '',
+			chip: mode === 'preview' && same(t, target) ? chipText(state, t) : '',
 		}));
 		markTargets(board, mode, entries);
 		if (mode === 'preview') entries.find(e => same(e, target))?.el?.setAttribute('data-preview', '');

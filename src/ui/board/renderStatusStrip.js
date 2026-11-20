@@ -1,5 +1,5 @@
 // renderStatusStrip.js — draws the ONE status message into #status-strip (63-UI-SPEC "Status strip", D-04, D-17, D-19).
-// msg = { kind, text } from pickStatusMessage, or null (empty strip: transparent, its 44 px stay reserved).
+// msg = { kind, text, lines?: [{ kind, text }] } from pickStatusMessage, or null (empty strip: transparent, its 44 px stay reserved).
 // Sets data-status-kind and the escaped text; a 'preview' message adds a Confirm button (data-confirm); 'choose-target',
 // 'preview' and 'choose-quest' add a Cancel button (data-cancel). Buttons are >= 44 px (board-2-0.css).
 // The strip is rebuilt only when its content changes, so a click is never lost to a re-render between press and release;
@@ -17,7 +17,8 @@ function buildButtons(kind) {
 export function renderStatusStrip(el, msg, { onConfirm, onCancel } = {}) {
 	if (!el) return;
 	el._statusHandlers = { onConfirm, onCancel };
-	const signature = msg ? `${msg.kind}\u0000${msg.text}` : '';
+	const lines = Array.isArray(msg?.lines) ? msg.lines : [];
+	const signature = msg ? `${msg.kind}\u0000${msg.text}\u0000${lines.map(l => `${l.kind}:${l.text}`).join('|')}` : '';
 	if (el._statusSignature === signature) return;
 	el._statusSignature = signature;
 
@@ -27,7 +28,9 @@ export function renderStatusStrip(el, msg, { onConfirm, onCancel } = {}) {
 		return;
 	}
 	el.setAttribute('data-status-kind', String(msg.kind));
-	el.innerHTML = `<span class="status-strip__text">${escapeHtml(msg.text)}</span>${buildButtons(msg.kind)}`;
+	const blocked = msg.blocked ? ' status-strip__text--blocked' : '';
+	const lineHtml = lines.length ? `<div class="status-strip__lines">${lines.map(l => `<div class="strip-line strip-line--${escapeHtml(l.kind)}">${escapeHtml(l.text)}</div>`).join('')}</div>` : '';
+	el.innerHTML = `<span class="status-strip__text${blocked}">${escapeHtml(msg.text)}</span>${lineHtml}${buildButtons(msg.kind)}`;
 	el.querySelector('[data-confirm]')?.addEventListener('click', () => el._statusHandlers?.onConfirm?.());
 	el.querySelector('[data-cancel]')?.addEventListener('click', () => el._statusHandlers?.onCancel?.());
 }

@@ -37,7 +37,7 @@ async function pickTarget({ state, playerId, modal }) {
 		p.activeSlots.forEach((t, i) => {
 			if (!t || t.isDefeated) return;
 			const ok = isValidAttackTarget(state, playerId, pid, i);
-			const why = isFresh(t) ? 'Fresh - safe' : '';
+			const why = isFresh(t) ? "Protected until its owner's next turn" : '';
 			options.push({ id: `${pid}:${i}`, label: t.name, metaLabel: escapeMeta(ok ? `${t.mp} MP` : why), disabled: !ok });
 		});
 	}

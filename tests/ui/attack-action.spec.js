@@ -82,10 +82,10 @@ test('U2: tap Alyssa -> tray -> Attack -> glowing targets -> preview -> Confirm 
 	const open = targetTile(page, 'player_2:1');
 	await expect(fresh).toHaveAttribute('data-target', 'invalid');
 	await expect(fresh.locator('[data-target-badge]')).toHaveText('Fresh');
-	await expect(fresh).toHaveAttribute('data-reason', "Fresh Mosjes can't be attacked");
+	await expect(fresh).toHaveAttribute('data-reason', "Protected until its owner's next turn");
 	await expect(open).toHaveAttribute('data-target', 'valid');
 	await fresh.click();
-	await expect(page.locator('#board-toast')).toHaveText("Fresh Mosjes can't be attacked");
+	await expect(page.locator('#board-toast')).toHaveText("Protected until its owner's next turn");
 	await expect(statusStrip(page)).toHaveAttribute('data-status-kind', 'choose-target');
 
 	// 3. Tap the valid target: the one-line preview with the exact numbers, Confirm + Cancel in the strip, a -20 chip on the tile.
