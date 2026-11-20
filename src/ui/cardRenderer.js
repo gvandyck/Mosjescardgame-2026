@@ -80,6 +80,7 @@ function getTypeClass(type) {
   if (type === 'SNELLE_PIECIE') return 'card--snelle card--snelle_piecie';
   if (type === 'PLACE') return 'card--place';
   if (type === 'QUEST') return 'card--quest';
+  if (type === 'PERSONAL_QUEST') return 'card--personal-quest';
   return 'card--unknown';
 }
 

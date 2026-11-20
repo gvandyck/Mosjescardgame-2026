@@ -1,6 +1,7 @@
 // buildCardV1.js — entry point for the card frame v1 faces.
 // Returns { html, className } for a supported card type, or null when the card
 // has no v1 face (an unknown type, or a V4 Quest without a stack) and the old renderer should be used.
+// Supported: Mosje, Piecie, Snelle Piecie, Place, Quest and (72-02) Personal Quest.
 // The pop-up / hand face is the shared 2.0 pop-up face (buildPopupFace) for every card type.
 // fieldMode builds the 2.0 field tile (buildFieldTile) for every type.
 import { buildPopupFace } from './buildPopupFace.js';
@@ -10,6 +11,7 @@ import { buildPiecieSpecV1 } from './buildPiecieSpecV1.js';
 import { buildSnelleSpecV1 } from './buildSnelleSpecV1.js';
 import { buildPlaceSpecV1 } from './buildPlaceSpecV1.js';
 import { buildQuestSpecV1 } from './buildQuestSpecV1.js';
+import { buildPersonalQuestSpecV1 } from './buildPersonalQuestSpecV1.js';
 import { getTierAttributes } from './getTierAttributes.js';
 
 const SPEC_BUILDERS = {
@@ -18,6 +20,7 @@ const SPEC_BUILDERS = {
   SNELLE_PIECIE: buildSnelleSpecV1,
   PLACE: buildPlaceSpecV1,
   QUEST: buildQuestSpecV1,
+  PERSONAL_QUEST: buildPersonalQuestSpecV1,
 };
 
 export function buildCardV1(card, { fieldMode = false } = {}) {

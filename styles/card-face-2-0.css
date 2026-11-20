@@ -74,6 +74,14 @@
   content: '\2026'; position: absolute; right: 0; bottom: 0; padding-left: 0.5em; font-weight: 700;
 }
 
+/* -- Personal Quest blocks (72-02, D-01): small tinted caps label above the printed text. Display-only casing: the stored text is unchanged. -- */
+.card-v1 .cv1-face--2 .cv2-block { display: flex; flex-direction: column; }
+.card-v1 .cv1-face--2 .cv2-block-label {
+  font-family: 'Sora', sans-serif; font-weight: 700; font-size: 0.7em; line-height: 1.2;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--cv1-tint);
+}
+.card-v1 .cv1-face--2 .cv2-block-text::first-letter { text-transform: uppercase; }
+
 /* -- Level rows (Mosje): own darker block, current level lit -- */
 .card-v1 .cv1-face--2 .cv2-levels {
   flex: none; margin-top: calc(8 * var(--u)); padding: calc(4 * var(--u)) 0;

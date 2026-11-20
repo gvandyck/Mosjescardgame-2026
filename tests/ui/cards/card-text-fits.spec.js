@@ -24,9 +24,10 @@ for (const width of [440, 230]) {
 			const { SNELLE_PIECIES } = await import('/src/data/snellePiecies.js');
 			const { PLACES } = await import('/src/data/places.js');
 			const { QUESTS } = await import('/src/data/quests.js');
+				const { PERSONAL_QUESTS } = await import('/src/data/personalQuests.js');
 			const { getFrameTier } = await import('/src/data/getFrameTier.js');
 			// Quests: only the 38 with a stack have a 2.0 face (the 10 leftover V4 Quests use the unified template)
-			const cards = [...MOSJES, ...PIECIES, ...SNELLE_PIECIES, ...PLACES, ...QUESTS.filter((q) => q.stack)].filter((c) => !c.disabled);
+			const cards = [...MOSJES, ...PIECIES, ...SNELLE_PIECIES, ...PLACES, ...QUESTS.filter((q) => q.stack), ...PERSONAL_QUESTS].filter((c) => !c.disabled);
 			const holder = document.createElement('div');
 			holder.style.cssText = 'position:fixed;left:0;top:0;z-index:9999;background:#000';
 			document.body.appendChild(holder);

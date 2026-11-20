@@ -30,7 +30,7 @@ function buildCorner(corner) {
 export function buildPopupFace(spec, { tier = 4, layout = 'fullart', diamonds = tier } = {}) {
   const { colors, name, card, typeKey } = spec;
   const fullArt = layout !== 'boxed';
-  const text = getTextBoxLayout({ lines: spec.lines, levelRowCount: spec.levelRows?.length ?? 0, layout, info: spec.info });
+  const text = getTextBoxLayout({ lines: spec.lines, levelRowCount: spec.levelRows?.length ?? 0, layout, info: spec.info, blockCount: spec.blocks?.length ?? 0 });
   const nameSize = typeKey === 'MOSJE' ? fitFirstName(name.first, 36, 22, 280) : 28;
   const fade = getTierFadeHeight({ typeKey, lines: spec.lines });
   const vars = `--cv1-main:${escapeHtml(colors.main)};--cv1-tint:${escapeHtml(colors.tint)};--cv1-tint-alpha:${resolveTintAlpha(TEXTBOX_TINT_ALPHA)};--cv1-text-size:${text.size};--cv1-name-size:${nameSize};--cv1-fade:${fade}`;

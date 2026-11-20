@@ -12,6 +12,11 @@ export function buildFaceTextBox(spec) {
   const lines = spec.lines || [];
   const rows = spec.levelRows || [];
   if (!lines.length && !rows.length) return '';
+  const blocks = spec.blocks || [];
+  if (blocks.length) {
+    const html = blocks.map((b) => `<div class="cv2-block" data-cv1-pq-block="${escapeHtml(b.key)}"><span class="cv2-block-label">${escapeHtml(b.label)}</span><span class="cv2-block-text">${escapeHtml(b.text)}</span></div>`).join('');
+    return `<div class="cv2-textbox"><div class="cv2-text">${html}</div></div>`;
+  }
   const text = lines.length ? `<div class="cv2-text">${lines.map((l) => `<div>${formatAbilityLine(l)}</div>`).join('')}</div>` : '';
   const levels = rows.length ? `<div class="cv2-levels">${rows.map(buildLevelRow).join('')}</div>` : '';
   return `<div class="cv2-textbox">${text}${levels}</div>`;

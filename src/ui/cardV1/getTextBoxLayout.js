@@ -18,16 +18,17 @@ const INFO_W = 356; // info line width (stack width minus its 12 + 12 inset)
 const INFO_SIZE = 12.5;
 const INFO_LINE_H = 16.5;
 
-function estimateHeight(lines, size) {
+function estimateHeight(lines, size, labelLines) {
   const rows = lines.reduce((sum, l) => sum + Math.max(1, Math.ceil((String(l).length * size * GLYPH) / INNER_W)), 0);
-  return rows * size * LINE_H + Math.max(0, lines.length - 1) * GAP;
+  return (rows + labelLines) * size * LINE_H + Math.max(0, lines.length - 1) * GAP;
 }
 
 /** { size, clamped }: the largest size whose estimated height fits the room the text box has left. */
-export function getTextBoxLayout({ lines = [], levelRowCount = 0, layout = 'fullart', info = '' } = {}) {
+// blockCount (Personal Quest): each labelled block adds one label line above its text.
+export function getTextBoxLayout({ lines = [], levelRowCount = 0, layout = 'fullart', info = '', blockCount = 0 } = {}) {
   const infoLines = Math.ceil((String(info).length * INFO_SIZE * GLYPH) / INFO_W);
   const rowsBlock = levelRowCount ? levelRowCount * ROW_H + ROWS_PAD : 0;
   const available = (BOX_H[layout] ?? BOX_H.fullart) - PAD_Y - rowsBlock - Math.max(0, infoLines - 1) * INFO_LINE_H;
-  const fit = TEXT_SIZES.find((size) => estimateHeight(lines, size) <= available);
+  const fit = TEXT_SIZES.find((size) => estimateHeight(lines, size, blockCount * 0.7) <= available);
   return fit ? { size: fit, clamped: false } : { size: TEXT_SIZES[TEXT_SIZES.length - 1], clamped: true };
 }

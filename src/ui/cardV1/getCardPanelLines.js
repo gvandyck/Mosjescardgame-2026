@@ -5,6 +5,7 @@ const REMINDERS = {
   PIECIE: 'Place face-down for free. From your next turn, pay its cost to activate it.',
   SNELLE_PIECIE: "Play from your hand at any time, also on your opponent's turn, with saved Energy. Needs a free Piecie slot.",
   PLACE: 'Play from your hand on your turn. Works at once and stays until destroyed. Fresh Mosjes ignore it.',
+  PERSONAL_QUEST: "Needs a Level 3 Mosje of this type that started your turn at Level 3. Your opponent can't discard it.",
 };
 
 export function getCardPanelLines(card) {
