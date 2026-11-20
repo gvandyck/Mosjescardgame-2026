@@ -195,6 +195,7 @@ describe('buildStartTarget (D-04, D-08, T-64-02)', () => {
 			deckId: 'STARTER_DIGITAL',
 			botDeckId: 'STARTER_PHYSICAL',
 			playerId: 'player_1',
+			pickStart: true,
 		});
 		expect(target.replay.botChoice).toBe('RANDOM');
 		expect(target.replay.mode).toBe('vsBot');

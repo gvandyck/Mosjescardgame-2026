@@ -24,6 +24,7 @@ export function buildStartTarget(choices, decks, pick = pickBotDeck) {
 			deckId: replay.deckChoice,
 			botDeckId: resolveDeckChoice(replay.botChoice, decks, pick),
 			playerId: 'player_1',
+			pickStart: true, // 72-13 (CC-12): only the lobby asks for the starting Mosje
 		},
 		replay,
 	};

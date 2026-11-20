@@ -96,6 +96,8 @@ test('D-20 Play again vs Bot keeps the decks and rolls Random again', async ({ p
 
 	await page.locator('#reward-again-btn').click();
 	await page.waitForURL('**/game.html?offline=true&player=player_1');
+	// 72-13: Play again goes through the lobby target, so it asks for the starting Mosje again.
+	await page.locator('.modal-card--cards .modal-mosje-select-btn').first().click();
 	await waitForBoard(page);
 	const session = await page.evaluate(() => ({
 		offline: JSON.parse(sessionStorage.getItem('mosjes:offline')),

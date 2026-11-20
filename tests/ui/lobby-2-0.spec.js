@@ -148,13 +148,15 @@ test('D-04: Start vs Bot reaches the board as player_1 and clears a stale V4 roo
 	await page.locator('#lobby2-start').click();
 
 	await page.waitForURL('**/game.html?offline=true&player=player_1');
+	// 72-13: a lobby game asks for the starting Mosje first.
+	await page.locator('.modal-card--cards .modal-mosje-select-btn').first().click();
 	await waitForBoard(page);
 	const session = await page.evaluate(() => ({
 		offline: JSON.parse(sessionStorage.getItem('mosjes:offline')),
 		lobby: sessionStorage.getItem('mosjes:lobby'),
 		replay: JSON.parse(sessionStorage.getItem('obby2:replay')),
 	}));
-	expect(session.offline).toEqual({ name: 'Gandoe', deckId: 'STARTER_DIGITAL', botDeckId: 'STARTER_PHYSICAL', playerId: 'player_1' });
+	expect(session.offline).toEqual({ name: 'Gandoe', deckId: 'STARTER_DIGITAL', botDeckId: 'STARTER_PHYSICAL', playerId: 'player_1', pickStart: true });
 	expect(session.lobby).toBeNull();
 	expect(session.replay.mode).toBe('vsBot');
 	await expect(page.locator('#topbar-room-code')).toBeHidden();

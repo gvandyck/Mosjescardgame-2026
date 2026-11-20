@@ -1,5 +1,7 @@
-// pickStartingMosje — Example Decks name their startingMosje; V4 decks fall back to a random Mosje.
-export function pickStartingMosje(deckDef) {
+// pickStartingMosje — a chosen id (72-13, D-15) wins only if it is one of the deck's Mosjes (T-72-19);
+// else Example Decks name their startingMosje; V4 decks fall back to a random Mosje.
+export function pickStartingMosje(deckDef, chosenId) {
+  if (chosenId && Array.isArray(deckDef?.mosjes) && deckDef.mosjes.includes(chosenId)) return chosenId;
   if (deckDef?.startingMosje) return deckDef.startingMosje;
   const pool = Array.isArray(deckDef?.mosjes) ? deckDef.mosjes.filter(Boolean) : [];
   if (pool.length === 0) throw new Error('[ENGINE] Starter deck has no Mosjes');

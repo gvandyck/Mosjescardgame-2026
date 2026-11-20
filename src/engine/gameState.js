@@ -86,7 +86,7 @@ function createPlayerState(config) {
   const deckDef = config.deckDef || STARTER_DECKS.find(d => d.id === config.deckId);
   if (!deckDef) throw new Error(`[ENGINE] Unknown deckId: ${config.deckId}`);
 
-  const starterMosjeId = pickStartingMosje(deckDef);
+  const starterMosjeId = pickStartingMosje(deckDef, config.startingMosje);
   const starterMosjeData = MOSJES.find(m => m.id === starterMosjeId);
   if (!starterMosjeData) throw new Error(`[ENGINE] Unknown starter mosjeId: ${starterMosjeId}`);
 

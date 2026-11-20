@@ -11,6 +11,7 @@ import { countActionsLeft } from './ui/board/countActionsLeft.js';
 import { confirmEndTurn } from './ui/board/confirmEndTurn.js';
 import { renderEndTurnButton } from './ui/board/renderEndTurnButton.js';
 import { offerWestPeek } from './ui/actions/offerWestPeek.js';
+import { askStartingMosje } from './ui/actions/askStartingMosje.js';
 import { createLogRenderer } from './ui/logRenderer.js';
 import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
@@ -1245,9 +1246,9 @@ function initGamePage() {
 		};
 	}
 
-	function startGame(p1Name, p1Deck, p2Name, p2Deck) {
+	function startGame(p1Name, p1Deck, p2Name, p2Deck, startingMosjeId) {
 		const players = [
-			{ playerId: 'player_1', name: p1Name, deckId: p1Deck, deckDef: resolveCustomDeckDef(p1Deck) },
+			{ playerId: 'player_1', name: p1Name, deckId: p1Deck, deckDef: resolveCustomDeckDef(p1Deck), startingMosje: startingMosjeId },
 			{ playerId: 'player_2', name: p2Name, deckId: p2Deck, deckDef: resolveCustomDeckDef(p2Deck) },
 		];
 		// T-55-01: the firstPlayer override is only honoured in testMode.
@@ -1304,8 +1305,17 @@ function initGamePage() {
 				const humanName  = offlineData.name    || localPlayerName || 'Player';
 				const humanDeck  = offlineData.deckId  || localDeckId;
 				const botDeck    = offlineData.botDeckId || pickOpponentDeck(humanDeck);
-				startGame(humanName, humanDeck, 'Bot', botDeck);
-				log.add('quest', 'Offline mode — playing vs Bot. No Firebase used.');
+				const humanDeckDef = resolveCustomDeckDef(humanDeck) || STARTER_DECKS.find(d => d.id === humanDeck);
+				if (offlineData.pickStart === true && Array.isArray(humanDeckDef?.mosjes) && humanDeckDef.mosjes.length) {
+					// 72-13 (D-15): the lobby game asks for the starting Mosje first; the bot's is random.
+					askStartingMosje({ modal, deck: humanDeckDef }).then(chosen => {
+						startGame(humanName, humanDeck, 'Bot', botDeck, chosen);
+						log.add('quest', 'Offline mode — playing vs Bot. No Firebase used.');
+					});
+				} else {
+					startGame(humanName, humanDeck, 'Bot', botDeck);
+					log.add('quest', 'Offline mode — playing vs Bot. No Firebase used.');
+				}
 			} else {
 				startGame(localPlayerName, localDeckId, opponentName, opponentDeckId);
 			}
