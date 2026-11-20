@@ -13,7 +13,7 @@ export const STARTER_HANDLER_FILES = {
 	mosje_chris_ddr: M,
 	mosje_alyssa_bulldozer: M,
 	mosje_jeffrey: M,
-	mosje_michelle: M,
+	mosje_michelle: 'src/engine/attack/ironTukReducer.js',
 	mosje_ronald_chef: M,
 	mosje_coert_tech: M,
 	mosje_gandoe_wizard: M,

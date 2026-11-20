@@ -145,7 +145,7 @@ export const MOSJES = [
     name: "Michelle, Iron Tuk",
     startMP: 10,
     traits: { strength: 2, social: 1, resilient: 1 },
-    abilityId: "ability_michelle_tough_gamble",
+    abilityId: "ability_michelle_iron_tuk",
     autoAbility: true,
     abilityDescription: "This Mosje loses 10 less MP from each attack. From Level 2: 15 less.",
     synergyWith: ["mosje_gandoe_destroyer"],

@@ -21,7 +21,7 @@ export const MOSJE_ABILITY_RULES = Object.freeze({
 	ability_alyssa_bulldozer_unstoppable: pass(),
 	ability_alyssa_fissa_party_power: trig(),
 	ability_azn_cless_risk_reward: trig(),
-	ability_michelle_tough_gamble: trig(),
+	ability_michelle_iron_tuk: trig(),
 	ability_parkour_west_adaptive_combat: pass(),
 	ability_gandoe_destroyer_elimination_strike: act([], { per: 'game' }),
 	// Digital

@@ -1198,7 +1198,7 @@ function initGamePage() {
 				return 'ok';
 			},
 			// 60-07: the bot uses a Mosje ability on its field (targets = state._pendingTargets), so hidden-info reveals to the
-			// BOT (Ronald's Strategic Insight) can be proven: the human must see nothing of their own hand being revealed.
+			// BOT (a Mosje ability that reveals the hand) can be proven: the human must see nothing of their own hand being revealed.
 			botUseAbility(mosjeId, targets = {}) {
 				if (!gameState) return 'no game';
 				gameState.activePlayerId = 'player_2';

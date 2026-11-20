@@ -54,8 +54,6 @@ import { runPiecieEffect } from './piecies/runPiecieEffect.js';
 import { afterPiecieEffect } from './piecies/afterPiecieEffect.js';
 import { runMosjeTriggers } from './mosje/runMosjeTriggers.js';
 import { getDrawStepOptions } from './mosje/getDrawStepOptions.js';
-import { armSetAside } from './mosje/armSetAside.js';
-import { returnSetAside } from './mosje/returnSetAside.js';
 import { MOSJE_ABILITY_RULES } from '../rules/mosjeAbilityRules.js';
 import { findPlayableHandIndex } from './hand/findPlayableHandIndex.js';
 import { drawFromEffect } from './turn/drawFromEffect.js';
@@ -153,9 +151,6 @@ export function startTurn(gameState) {
   delete state._battleConcertActive;
   delete state._battleConcertTarget;
   delete state._rerollGranted;
-
-  // Ronald, The Master Chef: cards set aside from this player's hand return at the end of THIS turn.
-  armSetAside(state, playerId);
 
   for (const slot of activePlayer.activeSlots) {
     if (slot) {
@@ -343,7 +338,6 @@ export function endTurn(gameState) {
   state.players[playerId].perfectRhythmDraws = 0;
 
   state = runMosjeTriggers(state, 'endOfTurn', { playerId });
-  returnSetAside(state, playerId); // Ronald's Strategic Insight: set-aside cards come back now
   snapBackTacticianSet(state);
   state = runEndOfTurnLosses(state, playerId); // "at the end of the turn it loses N MP" (Te Hard Gaan ...)
   expireThisTurnEffects(state);
