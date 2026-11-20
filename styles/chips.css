@@ -1,0 +1,60 @@
+/* chips.css — shared chip and tag-line components (attachments, timed effects). */
+.chip {
+  --chip-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 1.6em;
+  padding: 0 0.6em;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--chip-main, #475569);
+  color: var(--chip-tint, #f1f5f9);
+  font-size: var(--chip-size, 12px);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+button.chip {
+  font-family: inherit;
+  cursor: pointer;
+}
+button.chip:focus-visible {
+  outline: 2px solid var(--chip-tint, #f1f5f9);
+  outline-offset: 2px;
+}
+.chip--more {
+  background: transparent;
+  border-color: var(--chip-tint, #cbd5e1);
+  color: var(--chip-tint, #cbd5e1);
+  opacity: 0.75;
+}
+.chip-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 4px;
+  max-width: 100%;
+  overflow: hidden;
+}
+.tag-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: 100%;
+}
+.tag-line {
+  font-size: var(--chip-size, 12px);
+  line-height: 1.2;
+  padding-left: 4px;
+  border-left: 2px solid var(--chip-main, #475569);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tag-line--more {
+  opacity: 0.65;
+  border-left-color: transparent;
+}
