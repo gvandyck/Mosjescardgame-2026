@@ -1,0 +1,80 @@
+/* 72-01: the generic option modal with card faces as options, a prompt card and an always-visible leave button. */
+.modal-card--cards {
+	--option-card-w: 190px;
+	width: min(96vw, 1280px);
+	max-width: 96vw;
+	max-height: 96vh;
+	overflow: visible;
+	text-align: center;
+}
+
+.modal-card--cards .modal-mosje-select-list {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: flex-start;
+	gap: 16px;
+	margin-top: 8px;
+}
+
+.modal-card--cards .modal-mosje-select-btn:not(.modal-option--card) { width: auto; min-width: 160px; }
+
+.modal-card--cards .modal-option--card {
+	width: var(--option-card-w);
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 6px;
+	padding: 0;
+	background: transparent;
+	border: 0;
+	box-shadow: none;
+}
+
+.modal-card--cards .modal-option--card:hover:not(:disabled) {
+	background: transparent;
+	box-shadow: none;
+	transform: translateY(-4px);
+}
+
+.modal-card--cards .modal-option--card:hover:not(:disabled) .option-card-slot .card {
+	box-shadow: 0 0 18px 2px var(--mosje-gold, #e8b94f);
+}
+
+.modal-card--cards .modal-option--card:focus-visible {
+	outline: 3px solid var(--mosje-gold, #e8b94f);
+	outline-offset: 4px;
+	border-radius: 12px;
+}
+
+.modal-card--cards .modal-option--card:disabled,
+.modal-card--cards .modal-option--card.modal-mosje-select-btn--disabled {
+	opacity: 0.45;
+	border: 0;
+}
+
+.modal-option--card .option-card-slot,
+.option-prompt-card {
+	display: flex;
+	justify-content: center;
+	pointer-events: none;
+}
+
+.modal-card--cards .option-card-slot .card.card-v1,
+.modal-card--cards .option-prompt-card .card.card-v1 {
+	--cv1-w: var(--option-card-w);
+	position: static;
+	margin: 0;
+}
+
+.modal-card--cards .option-prompt-card { margin: 4px 0 10px; }
+
+.modal-option--card .mosje-select-name { font-size: 0.9rem; }
+.modal-option--card .mosje-select-mp { font-size: 0.8rem; color: var(--text-muted, #9099b7); }
+.modal-option--card:disabled .mosje-select-mp { color: var(--text-muted, #9099b7); }
+
+.modal-card--cards .modal-option-leave {
+	display: block;
+	width: 100%;
+	margin-top: 14px;
+}

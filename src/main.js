@@ -1119,6 +1119,8 @@ function initGamePage() {
 				settleLocalMosjePauses();
 			},
 			setNextDice(values) { nextDice = Array.isArray(values) ? [...values] : []; },
+			// 72-01: open the generic option modal with any config; the resolved value lands in window.__lastOptionSelect.
+			openOptionSelect(config) { window.__lastOptionSelect = 'pending'; return modal.showOptionSelect(config).then(v => { window.__lastOptionSelect = v; return v; }); },
 			// Phase 57 (U6): the bot attacks through the real playBotSteps path, so the human reaction window is shown.
 			botAttack(attackerSlotIndex = 0, targetSlotIndex = 0) {
 				gameState.activePlayerId = 'player_2';

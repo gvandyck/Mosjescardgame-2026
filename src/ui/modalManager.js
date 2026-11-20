@@ -7,6 +7,10 @@ import { MOSJES } from '../data/mosjes.js';
 import { PIECIES } from '../data/piecies.js';
 import { SNELLE_PIECIES } from '../data/snellePiecies.js';
 import { PLACES } from '../data/places.js';
+import { buildOptionRowHtml } from './modals/buildOptionRowHtml.js';
+import { buildLeaveOptionHtml } from './modals/buildLeaveOptionHtml.js';
+import { mountOptionCards } from './modals/mountOptionCards.js';
+import { resolveOptionCard } from './modals/resolveOptionCard.js';
 import { buildCardPanel } from './cardV1/buildCardPanel.js';
 import { getPileCards } from '../engine/pile/getPileCards.js';
 import { getLevelRows } from './cardV1/getLevelRows.js';
@@ -672,6 +676,8 @@ export function initModalManager(container) {
 		allowCancel = false,
 		autoSelectSingle = false,
 		variant = '',
+		leave = null,        // 72-01: { id, label } always-visible "leave it" button, resolves its id
+		promptCard = null,   // 72-01: a cardId or card object drawn above the options
 	} = {}) {
 		const safeOptions = Array.isArray(options) ? options.filter(Boolean) : [];
 		if (autoSelectSingle && safeOptions.length === 1) return safeOptions[0]?.id ?? null;
@@ -679,30 +685,26 @@ export function initModalManager(container) {
 		return new Promise(resolve => {
 			container.classList.add('modal-root--open');
 
-			const rows = safeOptions.map(opt => {
-				const id = opt?.id ?? '';
-				const label = opt?.label ?? String(id);
-				const meta = opt?.metaLabel ?? '';
-				const isDisabled = Boolean(opt?.disabled);
-				const disabledAttr = isDisabled ? 'disabled' : '';
-				const disabledClass = isDisabled ? 'modal-mosje-select-btn--disabled' : '';
-				return `<button class="modal-mosje-select-btn ${disabledClass}" data-id="${escapeHtml(String(id))}" type="button" ${disabledAttr}>
-					<span class="mosje-select-name">${escapeHtml(String(label))}</span>
-					${meta ? `<span class="mosje-select-mp">${meta}</span>` : ''}
-				</button>`;
-			}).join('');
+			const rows = safeOptions.map((opt, index) => buildOptionRowHtml(opt, index)).join('');
+			const hasCardOptions = safeOptions.some(opt => opt?.cardId || opt?.card);
+			const promptCardObj = promptCard ? resolveOptionCard(typeof promptCard === 'string' ? { cardId: promptCard } : { card: promptCard }) : null;
+			const cardsClass = (hasCardOptions || promptCardObj) ? ' modal-card--cards' : '';
 
 			container.innerHTML = `
 				<div class="modal-backdrop"></div>
-				<section class="modal-card${variant ? ` modal-card--${escapeHtml(String(variant).replace(/[^a-z0-9-]/gi, ''))}` : ''}" role="dialog" aria-modal="true">
+				<section class="modal-card${variant ? ` modal-card--${escapeHtml(String(variant).replace(/[^a-z0-9-]/gi, ''))}` : ''}${cardsClass}" role="dialog" aria-modal="true">
 					<h3>${escapeHtml(title)}</h3>
 					${prompt ? `<p>${escapeHtml(prompt)}</p>` : ''}
+					${promptCardObj ? '<div class="option-prompt-card"></div>' : ''}
 					<div class="modal-mosje-select-list">${rows}</div>
+					${buildLeaveOptionHtml(leave)}
 					${allowCancel ? '<button class="modal-btn modal-btn--ghost" id="modal-option-cancel" type="button">Cancel</button>' : ''}
 				</section>
 			`;
 
-			container.querySelectorAll('.modal-mosje-select-btn:not(:disabled)').forEach(btn => {
+			mountOptionCards(container, safeOptions);
+			if (promptCardObj) container.querySelector('.option-prompt-card')?.appendChild(renderCard(promptCardObj, { compact: true }));
+			container.querySelectorAll('.modal-mosje-select-btn:not(:disabled), .modal-option-leave').forEach(btn => {
 				btn.addEventListener('click', () => { close(); resolve(btn.dataset.id ?? null); });
 			});
 			container.querySelector('#modal-option-cancel')?.addEventListener('click', () => { close(); resolve(null); });
