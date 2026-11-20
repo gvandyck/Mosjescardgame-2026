@@ -1,15 +1,16 @@
 // lobby-2-0.spec.js — Phase 64-03 (D-29): the 2.0 lobby, driven live in a real browser at 1920x1080.
-// Two modes (Play vs Bot, Watch Bots), the 3 Example Deck tiles, no account / room / store UI, no Firebase redirect,
+// Two modes (Play vs Bot, Watch Bots), the 3 starter deck tiles, no account / room / store UI, no Firebase redirect,
 // Start reaching the board in both modes, remembered and safe prefs, and the hidden V4 lobby behind its test param.
 // Firebase gets the same placeholder config the live site gets, so every test can demand zero console errors.
 import { test, expect } from '@playwright/test';
 import { servePlaceholderFirebase } from '../helpers/servePlaceholderFirebase.js';
-import { EXAMPLE_DECKS } from '../../src/data/exampleDecks.js';
+import { getPlayerFacingDecks } from '../../src/data/playerFacingDecks.js';
+import { getDeckTileLists } from '../../src/ui/lobby/getDeckTileLists.js';
 import { waitForBoard } from './helpers.js';
 
 test.use({ viewport: { width: 1920, height: 1080 } });
 
-const DECK_IDS = ['EXAMPLE_TAKSEN', 'EXAMPLE_REGELAARS', 'EXAMPLE_CREATIEVELINGEN'];
+const DECK_IDS = ['STARTER_PHYSICAL', 'STARTER_DIGITAL', 'STARTER_CREATIVE'];
 const RADIO = '[role="radio"]';
 const pick = (picker, id) => `[data-picker="${picker}"] ${RADIO}[data-choice-id="${id}"]`;
 
@@ -52,10 +53,27 @@ test('D-02 D-05 D-10 D-11: two modes, 3 deck tiles, no account / room / store UI
 	const tiles = page.locator('[data-picker="player-deck"] .deck-tile');
 	await expect(tiles).toHaveCount(3);
 	expect(await tiles.evaluateAll(els => els.map(el => el.dataset.deckId))).toEqual(DECK_IDS);
-	for (const deck of EXAMPLE_DECKS.filter(entry => DECK_IDS.includes(entry.id))) {
+	for (const deck of getPlayerFacingDecks()) {
+		const lists = getDeckTileLists(deck);
 		const tile = page.locator(`[data-picker="player-deck"] .deck-tile[data-deck-id="${deck.id}"]`);
+		await expect(tile.locator('.deck-tile__name')).toHaveText(deck.name);
+		await expect(tile.locator('.deck-tile__theme')).toHaveText(deck.tagline);
 		await expect(tile.locator('.deck-tile__desc')).toHaveText(deck.description);
-		await expect(tile.locator('.deck-tile__mosje')).toContainText('Starts with');
+		await expect(tile.locator('.deck-tile__mosjes .deck-tile__item')).toHaveText(lists.mosjeNames);
+		await expect(tile.locator('.deck-tile__quests .deck-tile__item')).toHaveText(lists.personalQuestNames);
+		expect(lists.mosjeNames).toHaveLength(5);
+		expect(lists.personalQuestNames).toHaveLength(4);
+		await expect(tile.locator('.deck-tile__mosje')).toHaveCount(0);
+	}
+	await expect(page.locator('#lobby2').getByText(/example/i)).toHaveCount(0);
+	expect(await tiles.evaluateAll(els => els.map(el => el.querySelector('.deck-tile__name').textContent))).toEqual(['Physical', 'Digital', 'Creative']);
+	const fits = await tiles.evaluateAll(els => els.map(el => {
+		const box = el.getBoundingClientRect();
+		return { fullyVisible: box.top >= 0 && box.bottom <= window.innerHeight, overflow: el.scrollHeight - el.clientHeight };
+	}));
+	for (const fit of fits) {
+		expect(fit.fullyVisible, 'tile fully on screen without scrolling').toBe(true);
+		expect(fit.overflow, 'no text overflows its tile').toBeLessThanOrEqual(1);
 	}
 
 	await expect(page.locator(`[data-picker="bot-deck"] ${RADIO}`)).toHaveCount(4);
@@ -103,11 +121,11 @@ test('D-06 D-40: one screen at 1920x1080, controls >= 44 px, keyboard', async ({
 	}
 
 	await page.locator(pick('mode', 'vsBot')).click();
-	await page.locator(pick('player-deck', 'EXAMPLE_TAKSEN')).focus();
+	await page.locator(pick('player-deck', 'STARTER_PHYSICAL')).focus();
 	await page.keyboard.press('ArrowRight');
-	await expect(page.locator(pick('player-deck', 'EXAMPLE_REGELAARS'))).toHaveAttribute('aria-checked', 'true');
-	await expect(page.locator(pick('player-deck', 'EXAMPLE_TAKSEN'))).toHaveAttribute('aria-checked', 'false');
-	await expect(page.locator(pick('player-deck', 'EXAMPLE_REGELAARS'))).toBeFocused();
+	await expect(page.locator(pick('player-deck', 'STARTER_DIGITAL'))).toHaveAttribute('aria-checked', 'true');
+	await expect(page.locator(pick('player-deck', 'STARTER_PHYSICAL'))).toHaveAttribute('aria-checked', 'false');
+	await expect(page.locator(pick('player-deck', 'STARTER_DIGITAL'))).toBeFocused();
 
 	let reachedStart = false;
 	for (let presses = 0; presses < 15 && !reachedStart; presses += 1) {
@@ -124,8 +142,8 @@ test('D-04: Start vs Bot reaches the board as player_1 and clears a stale V4 roo
 		}
 	});
 	await openLobby(page);
-	await page.locator(pick('player-deck', 'EXAMPLE_REGELAARS')).click();
-	await page.locator(pick('bot-deck', 'EXAMPLE_TAKSEN')).click();
+	await page.locator(pick('player-deck', 'STARTER_DIGITAL')).click();
+	await page.locator(pick('bot-deck', 'STARTER_PHYSICAL')).click();
 	await page.locator('#lobby2-name').fill('Gandoe');
 	await page.locator('#lobby2-start').click();
 
@@ -136,7 +154,7 @@ test('D-04: Start vs Bot reaches the board as player_1 and clears a stale V4 roo
 		lobby: sessionStorage.getItem('mosjes:lobby'),
 		replay: JSON.parse(sessionStorage.getItem('obby2:replay')),
 	}));
-	expect(session.offline).toEqual({ name: 'Gandoe', deckId: 'EXAMPLE_REGELAARS', botDeckId: 'EXAMPLE_TAKSEN', playerId: 'player_1' });
+	expect(session.offline).toEqual({ name: 'Gandoe', deckId: 'STARTER_DIGITAL', botDeckId: 'STARTER_PHYSICAL', playerId: 'player_1' });
 	expect(session.lobby).toBeNull();
 	expect(session.replay.mode).toBe('vsBot');
 	await expect(page.locator('#topbar-room-code')).toBeHidden();
@@ -151,7 +169,7 @@ test('D-08: Watch Bots has a row per bot and a speed switch, and starts a bot ga
 	await expect(page.locator(pick('bot1-deck', 'RANDOM'))).toHaveAttribute('aria-checked', 'true');
 	await expect(page.locator(pick('speed', 'normal'))).toHaveAttribute('aria-checked', 'true');
 
-	await page.locator(pick('bot1-deck', 'EXAMPLE_CREATIEVELINGEN')).click();
+	await page.locator(pick('bot1-deck', 'STARTER_CREATIVE')).click();
 	await page.locator(pick('speed', 'fast')).click();
 	await page.locator('#lobby2-start').click();
 
@@ -159,7 +177,7 @@ test('D-08: Watch Bots has a row per bot and a speed switch, and starts a bot ga
 	const params = new URL(page.url()).searchParams;
 	expect(params.get('botvsbot')).toBe('true');
 	expect(params.get('player')).toBe('player_1');
-	expect(params.get('deck1')).toBe('EXAMPLE_CREATIEVELINGEN');
+	expect(params.get('deck1')).toBe('STARTER_CREATIVE');
 	expect(DECK_IDS).toContain(params.get('deck2'));
 	expect(params.get('fast')).toBe('true');
 	await expect(page.locator('.mosje-card--owned, .mosje-card--opponent').first()).toBeVisible({ timeout: 20000 });
@@ -169,11 +187,11 @@ test('D-09: prefs remembered and safe (reload, broken storage, markup in a store
 	// Remembered: last mode, bot deck and speed come back after a reload.
 	await openLobby(page);
 	await page.locator(pick('mode', 'watchBots')).click();
-	await page.locator(pick('bot1-deck', 'EXAMPLE_REGELAARS')).click();
+	await page.locator(pick('bot1-deck', 'STARTER_DIGITAL')).click();
 	await page.locator(pick('speed', 'fast')).click();
 	await page.reload();
 	await expect(page.locator(pick('mode', 'watchBots'))).toHaveAttribute('aria-checked', 'true');
-	await expect(page.locator(pick('bot1-deck', 'EXAMPLE_REGELAARS'))).toHaveAttribute('aria-checked', 'true');
+	await expect(page.locator(pick('bot1-deck', 'STARTER_DIGITAL'))).toHaveAttribute('aria-checked', 'true');
 	await expect(page.locator(pick('bot2-deck', 'RANDOM'))).toHaveAttribute('aria-checked', 'true');
 	await expect(page.locator(pick('speed', 'fast'))).toHaveAttribute('aria-checked', 'true');
 
@@ -185,7 +203,7 @@ test('D-09: prefs remembered and safe (reload, broken storage, markup in a store
 	await brokenPage.addInitScript(() => localStorage.setItem('obby2:lobbyPrefs', '{bad'));
 	await openLobby(brokenPage);
 	await expect(brokenPage.locator(pick('mode', 'vsBot'))).toHaveAttribute('aria-checked', 'true');
-	await expect(brokenPage.locator(pick('player-deck', 'EXAMPLE_TAKSEN'))).toHaveAttribute('aria-checked', 'true');
+	await expect(brokenPage.locator(pick('player-deck', 'STARTER_PHYSICAL'))).toHaveAttribute('aria-checked', 'true');
 	await expect(brokenPage.locator(pick('bot-deck', 'RANDOM'))).toHaveAttribute('aria-checked', 'true');
 	expect(brokenProblems).toEqual([]);
 	await broken.close();

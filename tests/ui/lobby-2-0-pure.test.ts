@@ -18,6 +18,8 @@ import { writeLobbyPrefs } from '../../src/ui/lobby/writeLobbyPrefs.js';
 import { toDeckTileSpecs } from '../../src/ui/lobby/toDeckTileSpecs.js';
 import { buildDeckTilesHtml } from '../../src/ui/lobby/buildDeckTilesHtml.js';
 import { STARTER_DECKS } from '../../src/data/starterDecks.js';
+import { getDeckTileLists } from '../../src/ui/lobby/getDeckTileLists.js';
+import { PERSONAL_QUESTS } from '../../src/data/personalQuests.js';
 
 const decks: any[] = getPlayerFacingDecks();
 const DEFAULT_CHOICES = {
@@ -277,6 +279,30 @@ describe('readLobbyPrefs / writeLobbyPrefs (D-09, T-64-01)', () => {
 	});
 });
 
+describe('getDeckTileLists (72-12, D-14)', () => {
+	it('gives the theme, 5 Mosje names and 4 Personal Quest names per starter deck, in deck order', () => {
+		for (const deck of decks) {
+			const lists = getDeckTileLists(deck);
+			expect(lists.theme).toBe(deck.tagline);
+			expect(lists.mosjeNames).toHaveLength(5);
+			expect(lists.personalQuestNames).toHaveLength(4);
+			expect(lists.personalQuestNames).toEqual(deck.personalQuests.map((id: string) => (PERSONAL_QUESTS as any[]).find((q) => q.id === id).name));
+		}
+		const physical = getDeckTileLists(decks[0]);
+		expect(physical.mosjeNames[1]).toBe('Alyssa, The Bulldozer');
+		expect(physical.personalQuestNames[0]).toBe('Charge!');
+		expect(physical.mosjeNames[0]).toBe('Chris, The BigStepper');
+	});
+
+	it('skips ids that do not resolve and never throws', () => {
+		const lists = getDeckTileLists({ tagline: 'x', mosjes: ['nope', 'mosje_jeffrey'], personalQuests: ['nope'] });
+		expect(lists.mosjeNames).toHaveLength(1);
+		expect(lists.personalQuestNames).toEqual([]);
+		expect(getDeckTileLists({})).toEqual({ theme: '', mosjeNames: [], personalQuestNames: [] });
+		expect(getDeckTileLists(null)).toEqual({ theme: '', mosjeNames: [], personalQuestNames: [] });
+	});
+});
+
 describe('toDeckTileSpecs (D-07)', () => {
 	it('gives one spec per deck in deck order with the stack colour, description and starting Mosje', () => {
 		const specs = toDeckTileSpecs(decks, { selectedId: 'STARTER_DIGITAL' });
@@ -291,6 +317,16 @@ describe('toDeckTileSpecs (D-07)', () => {
 			expect(spec.name).toBe(source.name);
 			expect(spec.tint).toMatch(/^#[0-9A-F]{6}$/);
 		}
+	});
+
+	it('carries the deck contents on each spec, and none on Random', () => {
+		const specs = toDeckTileSpecs(decks, { includeRandom: true });
+		expect(specs[0].theme).toBe('');
+		expect(specs[0].mosjeNames).toEqual([]);
+		expect(specs[0].personalQuestNames).toEqual([]);
+		expect(specs[1].theme).toBe('Hit hard');
+		expect(specs[1].mosjeNames).toHaveLength(5);
+		expect(specs[1].personalQuestNames).toHaveLength(4);
 	});
 
 	it('prepends a neutral Random spec when includeRandom is on', () => {
@@ -328,6 +364,38 @@ describe('buildDeckTilesHtml (D-07, T-64-03)', () => {
 		expect(count(html, 'aria-checked="true"')).toBe(0);
 		expect(count(html, 'tabindex="0"')).toBe(1);
 		expect(html.indexOf('tabindex="0"')).toBeLessThan(html.indexOf('tabindex="-1"'));
+	});
+
+	it('full tiles list the theme, 5 Mosjes and 4 Personal Quests under their headings', () => {
+		const html = buildDeckTilesHtml(toDeckTileSpecs(decks, { selectedId: 'STARTER_PHYSICAL' }), { label: 'Your deck' });
+		expect(count(html, 'deck-tile__theme')).toBe(3);
+		expect(count(html, 'class="deck-tile__mosjes"')).toBe(3);
+		expect(count(html, 'class="deck-tile__quests"')).toBe(3);
+		expect(count(html, '<span class="deck-tile__item">')).toBe(3 * 9);
+		expect(html).toContain('>Mosjes<');
+		expect(html).toContain('>Personal Quests<');
+		expect(html).toContain('Hit hard');
+		expect(html).toContain('Alyssa, The Bulldozer');
+		expect(html).toContain('Charge!');
+		expect(html).not.toMatch(/<(ul|li|a|input|select)/);
+	});
+
+	it('compact tiles stay the name only', () => {
+		const specs = toDeckTileSpecs(decks, { selectedId: 'STARTER_PHYSICAL' });
+		const html = buildDeckTilesHtml(specs, { label: 'Bot', compact: true });
+		expect(html).not.toContain('deck-tile__theme');
+		expect(html).not.toContain('deck-tile__item');
+		expect(html).toContain('<span class="deck-tile__name">Physical</span></button>');
+	});
+
+	it('escapes names inside the lists', () => {
+		const html = buildDeckTilesHtml([{
+			id: 'x', name: 'n', description: 'd', theme: '<b>t</b>', mosjeNames: ['<b>x</b>'], personalQuestNames: ['<i>q</i>'],
+			startingMosjeName: '', color: '#111111', tint: '#222222', isRandom: false, selected: false,
+		}], { label: 'l' });
+		expect(html).not.toContain('<b>');
+		expect(html).not.toContain('<i>');
+		expect(html).toContain('&lt;b&gt;x&lt;/b&gt;');
 	});
 
 	it('compact drops the description and Starts-with lines', () => {

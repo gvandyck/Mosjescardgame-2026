@@ -3,6 +3,7 @@
 // neutral "Random" tile that bot pickers use (the warm tone Phase 63 uses for a neutral Place).
 import { MOSJES } from '../../data/mosjes.js';
 import { TYPE_COLORS } from '../cardV1/typeColors.js';
+import { getDeckTileLists } from './getDeckTileLists.js';
 import { RANDOM_DECK_CHOICE } from '../../config/lobbyModes.js';
 
 const NEUTRAL_COLOR = '#B45309';
@@ -13,6 +14,7 @@ export function toDeckTileSpecs(decks, { selectedId, includeRandom = false } = {
 		id: deck.id,
 		name: deck.name,
 		description: deck.description,
+		...getDeckTileLists(deck),
 		startingMosjeName: MOSJES.find(mosje => mosje.id === deck.startingMosje)?.name ?? '',
 		color: TYPE_COLORS[deck.kind]?.main ?? NEUTRAL_COLOR,
 		tint: TYPE_COLORS[deck.kind]?.tint ?? NEUTRAL_TINT,
@@ -25,6 +27,9 @@ export function toDeckTileSpecs(decks, { selectedId, includeRandom = false } = {
 			id: RANDOM_DECK_CHOICE,
 			name: 'Random',
 			description: 'Rolled again every game',
+			theme: '',
+			mosjeNames: [],
+			personalQuestNames: [],
 			startingMosjeName: '',
 			color: NEUTRAL_COLOR,
 			tint: NEUTRAL_TINT,

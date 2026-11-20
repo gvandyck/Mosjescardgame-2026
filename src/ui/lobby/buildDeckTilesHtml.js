@@ -4,6 +4,7 @@
 // Hooks: data-deck-id and data-choice-id (the pick), --deck-color / --deck-tint (stack colour).
 // Every interpolated value goes through escapeHtml; colours must also be hex, anything else falls back to the neutral tone.
 import { escapeHtml } from '../cardV1/escapeHtml.js';
+import { buildDeckTileListsHtml } from './buildDeckTileListsHtml.js';
 
 const HEX_COLOR = /^#[0-9a-fA-F]{3,8}$/;
 const NEUTRAL_COLOR = '#B45309';
@@ -18,7 +19,9 @@ export function buildDeckTilesHtml(specs, { label, compact = false } = {}) {
 		const classes = `deck-tile${spec.isRandom ? ' deck-tile--random' : ''}`;
 		const details = compact
 			? ''
-			: `<span class="deck-tile__desc">${escapeHtml(spec.description)}</span>`
+			: (spec.theme ? `<span class="deck-tile__theme">${escapeHtml(spec.theme)}</span>` : '')
+				+ `<span class="deck-tile__desc">${escapeHtml(spec.description)}</span>`
+				+ buildDeckTileListsHtml(spec)
 				+ (spec.startingMosjeName ? `<span class="deck-tile__mosje">Starts with ${escapeHtml(spec.startingMosjeName)}</span>` : '');
 		return `<button type="button" class="${classes}" role="radio" aria-checked="${spec.selected ? 'true' : 'false'}" tabindex="${index === focusIndex ? 0 : -1}" data-choice-id="${id}" data-deck-id="${id}" style="--deck-color:${color};--deck-tint:${tint}"><span class="deck-tile__name">${escapeHtml(spec.name)}</span>${details}</button>`;
 	});
