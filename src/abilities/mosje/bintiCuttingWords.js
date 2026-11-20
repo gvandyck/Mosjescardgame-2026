@@ -6,6 +6,7 @@
 import { loseMP } from '../../engine/mpManager.js';
 import { markTargeted } from '../../engine/targets/markTargeted.js';
 import { isFresh } from '../../engine/fresh/isFresh.js';
+import { isShielded } from '../../engine/targets/isShielded.js';
 import { PIECIES } from '../../data/piecies.js';
 import { discardFromHand } from '../../engine/hand/discardFromHand.js';
 import { runTriggerJobs } from '../../engine/mosje/runTriggerJobs.js';
@@ -25,6 +26,7 @@ export function bintiCuttingWords(gameState, playerId, mosjeId = 'mosje_binti') 
 	const card = player.hand[handIndex];
 	if (!card || !PIECIES.some(p => p.id === card.cardId)) throw new Error('Cutting Words needs a Piecie from your hand');
 
+	if (isShielded(state, oppId, playerId)) throw new Error('Blensen! - the opponent Mosjes cannot be targeted this turn');
 	const open = (opp?.activeSlots || []).map((s, i) => ({ s, i })).filter(({ s }) => s && !s.isDefeated && !isFresh(s));
 	const chosen = targets.opp_slot_index;
 	const target = Number.isInteger(chosen) ? open.find(({ i }) => i === chosen) : open[0];
