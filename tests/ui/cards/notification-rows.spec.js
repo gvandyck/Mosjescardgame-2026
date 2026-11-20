@@ -22,15 +22,15 @@ test.beforeEach(async ({ page }) => {
   await waitForBoard(page);
 });
 
-test('quest reward gain is a star, not a heart', async ({ page }) => {
-  const r = await rows(page, mk(10), mk(20), { actionLabel: 'quest-resolution' });
-  expect(r.texts.join('|')).toContain('★ +10 MP');
-  expect(r.texts.join('|')).not.toContain('♥');
-});
-
-test('ability heal keeps the heart; turn-start passive is a sparkle', async ({ page }) => {
-  expect((await rows(page, mk(10), mk(20), { actionLabel: 'mosje-ability' })).texts.join('|')).toContain('♥ +10 MP');
-  expect((await rows(page, mk(10), mk(20), { actionLabel: 'turn-start' })).texts.join('|')).toContain('✦ +10 MP');
+test('gain rows are plain words: quest reward, ability heal and turn passive read +N MP with their own sub label', async ({ page }) => {
+  const q = await rows(page, mk(10), mk(20), { actionLabel: 'quest-resolution' });
+  expect(q.texts.join('|')).toContain('+10 MP');
+  expect(q.texts.join('|')).toContain('Quest reward');
+  expect(q.texts.join('|')).not.toMatch(/[★♥✦]/);
+  const a = await rows(page, mk(10), mk(20), { actionLabel: 'mosje-ability' });
+  expect(a.texts.join('|')).toContain('+10 MP');
+  expect(a.texts.join('|')).not.toMatch(/[★♥✦]/);
+  expect((await rows(page, mk(10), mk(20), { actionLabel: 'turn-start' })).texts.join('|')).toContain('Passive');
 });
 
 test('activation with no state change still shows an info row', async ({ page }) => {

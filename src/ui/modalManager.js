@@ -97,7 +97,7 @@ export function initModalManager(container) {
 			<section class="modal-card dice-modal" role="dialog" aria-modal="true" data-stage="ready">
 				<div class="dice-burst" aria-hidden="true"></div>
 				<header class="dice-head">
-					<h3 class="dice-quest-name">🎯 ${escapeHtml(questInfo.name)}</h3>
+					<h3 class="dice-quest-name">${escapeHtml(questInfo.name)}</h3>
 					${renderDiceMosje(mosje, questInfo.roll?.trait)}
 					${questInfo.requirementDescription ? `<div class="dice-req">${renderRequirement(questInfo.requirementDescription)}</div>` : ''}
 					<span class="dice-pill${impossible ? ' dice-pill--fail' : ''}">
@@ -111,7 +111,7 @@ export function initModalManager(container) {
 					<div class="dice-result" id="dice-result" hidden></div>
 				</div>
 				<div class="dice-actions">
-					<button class="modal-btn dice-roll-btn" id="modal-roll" type="button">Roll Dice 🎲</button>
+					<button class="modal-btn dice-roll-btn" id="modal-roll" type="button">Roll dice</button>
 				</div>
 			</section>
 		`;
@@ -161,7 +161,7 @@ export function initModalManager(container) {
 					if (card) card.classList.add(didSucceed ? 'dice-modal--win' : 'dice-modal--lose');
 					const burst = container.querySelector('.dice-burst');
 					if (burst && didSucceed) {
-						burst.innerHTML = '<span>✨</span><span>✨</span><span>✨</span>';
+						burst.innerHTML = '<span></span><span></span><span></span>';
 					}
 
 					const mpDelta = didSucceed ? questInfo.successMP : questInfo.failMP;
@@ -173,20 +173,20 @@ export function initModalManager(container) {
 						resultPanel.hidden = false;
 						resultPanel.className = `dice-result dice-result--${didSucceed ? 'success' : 'fail'}`;
 						resultPanel.innerHTML = `
-							<div class="dice-result-headline">${didSucceed ? '✅ Success!' : '❌ Failed!'}</div>
+							<div class="dice-result-headline">${didSucceed ? 'Success!' : 'Failed!'}</div>
 							<div class="dice-result-detail">Rolled ${result}${escapeHtml(bonusTxt)} · needed ${threshold}+</div>
 							<div class="dice-result-mp">${sign}${mpDelta} MP</div>
 						`;
 					}
 
 					const rerollText = allowReroll
-						? '🎲 Je Weet Niet — Reroll!'
-						: `🎲 Skiffa Reroll (${placeRerollsLeft} left)`;
+						? 'Je Weet Niet: reroll'
+						: `Skiffa reroll (${placeRerollsLeft} left)`;
 					const actions = container.querySelector('.dice-actions');
 					if (actions) {
 						actions.innerHTML = `
 							${(allowReroll || placeRerollsLeft > 0) ? `<button class="modal-btn modal-btn--ghost" id="modal-reroll" type="button">${rerollText}</button>` : ''}
-							<button class="modal-btn" id="modal-done" type="button">Continue →</button>
+							<button class="modal-btn" id="modal-done" type="button">Continue</button>
 						`;
 					}
 
@@ -415,7 +415,7 @@ export function initModalManager(container) {
 				`<button class="target-option${opt.protected ? ' target-option--protected' : ''}"
 					data-id="${escapeHtml(opt.id)}" type="button"
 					${opt.protected ? 'disabled aria-disabled="true" style="opacity:0.45;cursor:not-allowed;"' : ''}>
-					<span class="target-name">${opt.protected ? '🛡️ ' : ''}${escapeHtml(opt.label)}</span>
+					<span class="target-name">${escapeHtml(opt.label)}${opt.protected ? ' (protected)' : ''}</span>
 					<span class="target-mp">${opt.mpValue} MP</span>
 					<span class="target-level">${opt.protected ? 'PROTECTED' : `LV.${Number(opt.level || 1)}`}</span>
 				</button>`
@@ -424,7 +424,7 @@ export function initModalManager(container) {
 			container.innerHTML = `
 				<div class="modal-backdrop"></div>
 				<section class="modal-card" role="dialog" aria-modal="true">
-					<h3>🎯 Select Target</h3>
+					<h3>Select target</h3>
 					<p class="modal-quest-req">${escapeHtml(prompt)}</p>
 					<div class="target-grid">${optionItems}</div>
 				</section>
@@ -597,7 +597,7 @@ export function initModalManager(container) {
 			<section class="modal-card modal-card--mosje-detail" role="dialog" aria-modal="true">
 				<div class="modal-mosje-preview">${previewEl.outerHTML}</div>
 				<div class="modal-mosje-copy">
-					<h3>🎯 ${escapeHtml(questDef.name || 'Quest')}</h3>
+					<h3>${escapeHtml(questDef.name || 'Quest')}</h3>
 					<p><strong>Current MP:</strong> ${Number(mosje.mp || 0)}</p>
 					<p><strong>Requirement:</strong> ${escapeHtml(questDef.requirementDescription || 'Roll dice')}</p>
 					<p><strong>Roll needed:</strong> ${thresholdLabel}</p>

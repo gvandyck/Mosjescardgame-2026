@@ -1,18 +1,7 @@
 // logRenderer.js — Manages the scrollable game log side panel.
-// Appends messages with emoji prefixes: ⚔️ attack, 🎯 quest, 💥 MP gain, etc.
-// Filled in Phase 5.
+// Appends plain-word messages (72-09: no icon prefix). The row type shows as a coloured left border.
 
 console.log('[UI] logRenderer.js loaded');
-
-const ICONS = {
-	attack: '⚔️',
-	quest: '🎯',
-	gain: '💥',
-	loss: '📉',
-	level: '⬆️',
-	win: '🏆',
-	info: 'ℹ️',
-};
 
 export function createLogRenderer(container) {
 	if (!container) {
@@ -34,11 +23,11 @@ export function createLogRenderer(container) {
 
 	function add(type, message) {
 		const rowType = type || 'system';
-		const icon = ICONS[type] || '•';
-		const line = `${icon} ${message}`;
+		const line = String(message);
 		const row = document.createElement('div');
 		row.className = `log-row ${rowType}`;
 		row.textContent = line;
+		row.setAttribute('data-log-type', rowType);
 		container.prepend(row);
 		lines.unshift(line);
 		entries.unshift({ type: rowType, text: line });

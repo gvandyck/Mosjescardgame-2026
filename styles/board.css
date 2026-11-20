@@ -776,7 +776,7 @@
    padding: 6px 8px;
    border-radius: 4px;
    line-height: 1.4;
-   border-left: 2px solid transparent;
+   border-left: 3px solid transparent;
    background: rgba(255, 255, 255, 0.015);
    animation: log-appear 0.3s var(--ease-smooth);
 }
@@ -791,6 +791,10 @@
 .log-entry.level { border-color: var(--mosje-gold); color: #fde68a; background: rgba(232, 185, 79, 0.06); }
 .log-row.info,
 .log-entry.info { border-color: #38bdf8; color: #bae6fd; background: rgba(56, 189, 248, 0.05); }
+.log-row.attack,
+.log-entry.attack { border-color: #f97316; color: #fdba74; background: rgba(249, 115, 22, 0.05); }
+.log-row.win,
+.log-entry.win { border-color: var(--mosje-gold); color: #fde68a; background: rgba(232, 185, 79, 0.08); }
 .log-row.system,
 .log-entry.system { border-color: #334155; color: #73829d; }
 

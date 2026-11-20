@@ -880,7 +880,7 @@ function initGamePage() {
 		const winnerName = gs.players[gs.winnerId]?.name || 'Unknown';
 		const winDetail = describeWin(gs);
 
-		log.add('win', `🏆 ${winnerName} wins! ${winDetail}`);
+		log.add('win', `${winnerName} wins! ${winDetail}`);
 
 		// D-12 / T-64-24: Munten rewards are a hidden feature; no Firebase write while the flag is off.
 		let muntenAwarded = 0;
@@ -1457,7 +1457,7 @@ function initGamePage() {
 		_lastDeckOutShownId = id;
 
 		const name = state.players?.[evt.playerId]?.name || 'A player';
-		log.add('quest', `♻ ${name}'s deck ran out — discard reshuffled into deck. Cooldown turn: only face-down Piecies.`);
+		log.add('quest', `${name}'s deck ran out: the pile was reshuffled into the deck. Cooldown turn: only face-down Piecies.`);
 		showDeckOutBanner({
 			playerName: name,
 			onPileHighlight: () => pulseDiscardPile(evt.playerId, localPlayerId),
@@ -1811,7 +1811,7 @@ function initGamePage() {
 				actionLabel: 'play-snelle',
 				placedCardId: cardDef.id,
 				extraEffects: cardDef.id === 'snelle_lucky_coin' && resultLog
-					? [{ text: resultLog.type === 'loss' ? '🪙 Tails' : '🪙 Heads', kind: resultLog.type === 'loss' ? 'loss' : 'info', sub: resultLog.msg.replace('Lucky Coin: ', '') }]
+					? [{ text: resultLog.type === 'loss' ? 'Tails' : 'Heads', kind: resultLog.type === 'loss' ? 'loss' : 'info', sub: resultLog.msg.replace('Lucky Coin: ', '') }]
 					: [],
 			});
 			showInstantEffect('snelle');   // red burst — instant card
@@ -1967,7 +1967,7 @@ function buildActiveModifiers(gameState, playerId, isLocalPlayer = false) {
 		for (const slot of player.activeSlots) {
 			if (!slot || slot.isDefeated) continue;
 			const se = (slot.statusEffects || []).find(e => e.type === 'MP_LOSS_REDUCTION' && (e.turnsLeft ?? 1) > 0);
-			if (se) { pills.push({ label: `🛡 -${se.value} Damage`, color: 'teal' }); break; }
+			if (se) { pills.push({ label: `-${se.value} Damage`, color: 'teal' }); break; }
 		}
 	}
 

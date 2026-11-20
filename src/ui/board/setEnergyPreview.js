@@ -24,5 +24,5 @@ export function setEnergyPreview(root, cost) {
 	const full = [...crystals.querySelectorAll('.energy-gem[data-crystal="full"]')];
 	for (const gem of full.slice(full.length - spend)) gem.dataset.crystal = 'spend';
 	crystals.dataset.preview = 'spend';
-	if (count) count.textContent = `${energy}/${max} → ${energy - spend}/${max}`;
+	if (count) count.textContent = `${energy}/${max} to ${energy - spend}/${max}`;
 }

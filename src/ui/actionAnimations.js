@@ -30,12 +30,7 @@ export function animateStateDelta(beforeState, afterState, options = {}) {
 	});
 }
 
-// A heart only means a heal; quest rewards and turn-start passives get their own label.
-function gainIcon(actionLabel = '') {
-	if (actionLabel.includes('quest')) return '★';
-	if (actionLabel.startsWith('turn')) return '✦';
-	return '♥';
-}
+// Quest rewards and turn-start passives get their own label (72-09: words, no icons).
 function gainSub(actionLabel = '', name) {
 	if (actionLabel.includes('quest')) return `Quest reward · ${name}`;
 	if (actionLabel.startsWith('turn')) return `Passive · ${name}`;
@@ -61,11 +56,11 @@ function collectEffects(beforeState, afterState, options = {}) {
 			const delta = Number(slot.mp || 0) - Number(prev.mp || 0);
 			if (delta !== 0 && !(Number(slot.level || 1) > Number(prev.level || 1))) {
 				effects.push(delta > 0
-					? { text: `${gainIcon(options.actionLabel)} +${delta} MP`, kind: 'gain', sub: gainSub(options.actionLabel, sub) }
-					: { text: `⚔ −${Math.abs(delta)} MP`, kind: 'loss', sub });
+					? { text: `+${delta} MP`, kind: 'gain', sub: gainSub(options.actionLabel, sub) }
+					: { text: `−${Math.abs(delta)} MP`, kind: 'loss', sub });
 			}
-			if (slot.immuneThisTurn && !prev.immuneThisTurn) effects.push({ text: '🛡 Immune', kind: 'shield', sub });
-			if (slot.entryProtected && !prev.entryProtected) effects.push({ text: '🛡 Protected', kind: 'shield', sub });
+			if (slot.immuneThisTurn && !prev.immuneThisTurn) effects.push({ text: 'Immune', kind: 'shield', sub });
+			if (slot.entryProtected && !prev.entryProtected) effects.push({ text: 'Protected', kind: 'shield', sub });
 		});
 	}
 	// Cards drawn / returned. A Snelle leaves the actor's hand, so add it back to the net change.
@@ -77,8 +72,8 @@ function collectEffects(beforeState, afterState, options = {}) {
 		const graveLoss = (beforePlayer.graveyard?.length || 0) - (afterPlayer.graveyard?.length || 0);
 		if (handGain <= 0) continue;
 		effects.push(graveLoss > 0
-			? { text: '♻ Returned to hand', kind: 'info', sub: `${handGain} card${handGain > 1 ? 's' : ''} from graveyard` }
-			: { text: `🃏 Draw ${handGain}`, kind: 'info', sub: playerId === options.localPlayerId ? 'You' : 'Opponent' });
+			? { text: 'Returned to hand', kind: 'info', sub: `${handGain} card${handGain > 1 ? 's' : ''} from graveyard` }
+			: { text: `Draw ${handGain}`, kind: 'info', sub: playerId === options.localPlayerId ? 'You' : 'Opponent' });
 	}
 	return effects;
 }
@@ -88,7 +83,7 @@ function collectEffects(beforeState, afterState, options = {}) {
 function spotlightDelta(beforeState, afterState, effects, options = {}) {
 	// Snelle instants leave no field card — spotlight the played card itself.
 	if (!effects.length && ACTIVATION_LABELS.has(options.actionLabel)) {
-		effects = [{ text: '✨ Activated', kind: 'info', sub: 'Effect resolved' }];
+		effects = [{ text: 'Activated', kind: 'info', sub: 'Effect resolved' }];
 	}
 	if (options.actionLabel === 'play-snelle' && options.placedCardId) {
 		showCardSpotlight({ cardId: options.placedCardId, source: null, effects });
@@ -189,7 +184,7 @@ function castAbilityEffect(cardEl, cardId) {
 
 	const chip = document.createElement('div');
 	chip.className = `cast-chip cast-chip--${type}`;
-	chip.textContent = `⚡ ${name}`;
+	chip.textContent = name;
 	chip.style.left = `${cx}px`;
 	// Anchor BELOW the card so it doesn't collide with the +MP float (which rises
 	// from the card's top-centre).
@@ -232,7 +227,7 @@ export function animateQuestResult({ playerId, slotIndex, success } = {}) {
 	const rect = cardEl.getBoundingClientRect();
 	const badge = document.createElement('div');
 	badge.className = `quest-badge quest-badge--${success ? 'success' : 'fail'}`;
-	badge.textContent = success ? '✓' : '✗';
+	badge.textContent = success ? 'Success' : 'Failed';
 	badge.style.left = `${rect.left + rect.width / 2}px`;
 	badge.style.top = `${rect.top + rect.height / 2}px`;
 	document.body.appendChild(badge);
@@ -270,7 +265,7 @@ export function showDeckOutBanner({ playerName, onPileHighlight } = {}) {
 	const name = playerName || 'Player';
 	createCenterBanner(
 		'deckout-banner',
-		`<span class="deckout-banner__title">&#9851; DECK RECYCLED</span>
+		`<span class="deckout-banner__title">DECK RECYCLED</span>
 		 <span class="deckout-banner__body">${escapeText(name)}'s deck ran out: discard reshuffled into a new deck. Cooldown turn: only face-down Piecies.</span>`
 	);
 	if (typeof onPileHighlight === 'function') onPileHighlight();

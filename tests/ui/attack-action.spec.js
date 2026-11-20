@@ -297,7 +297,7 @@ test('U2: Ability chip names its Energy cost, a short pool says why, and with En
 	await expect(chip).toHaveAttribute('aria-disabled', 'false');
 	await chip.hover(); // the spend preview shows on the crystals while the chip is hovered
 	await expect(crystals).toHaveAttribute('data-preview', 'spend');
-	await expect(crystals.locator('.energy-count')).toHaveText('3/6 → 2/6');
+	await expect(crystals.locator('.energy-count')).toHaveText('3/6 to 2/6');
 	await page.keyboard.press('Escape');
 	await abilityByTap(page, 'mosje_tuk_healer');
 	const pick = page.locator('.modal-mosje-select-btn:not([disabled])').first();

@@ -53,7 +53,7 @@ export function showRewardOverlay({ headline, winReason, winnerId, mode, reasonT
 		copyBtn.addEventListener('click', async () => {
 			try {
 				await navigator.clipboard.writeText(chronological);
-				copyBtn.textContent = 'Copied ✓';
+				copyBtn.textContent = 'Copied';
 			} catch {
 				copyBtn.textContent = 'Copy failed';
 			}

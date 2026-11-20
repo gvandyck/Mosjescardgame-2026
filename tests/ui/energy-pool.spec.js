@@ -105,7 +105,7 @@ test('U1: hovering a hand card dims the gems it would spend, leaving clears it',
 	await page.locator('.hand-card-wrap[data-card-id="place_the_gym"]').hover({ position: { x: 100, y: 30 } });
 	await expect(page.locator('#energy-player .energy-gem[data-crystal="spend"]')).toHaveCount(3);
 	await expect(page.locator('#energy-player .energy-gem[data-crystal="full"]')).toHaveCount(3);
-	await expect(page.locator('#energy-player .energy-count')).toContainText('→ 3/6');
+	await expect(page.locator('#energy-player .energy-count')).toContainText('to 3/6');
 	fs.mkdirSync(SHOT_DIR, { recursive: true });
 	await page.waitForTimeout(400);
 	await page.screenshot({ path: `${SHOT_DIR}/u1-energy.png` });
@@ -131,7 +131,7 @@ test('U1: the spend preview survives a board re-render while the pointer stays o
 	// Every board change rebuilds the hand and the crystals under the unmoving pointer: the preview must come back by itself.
 	await page.evaluate(() => window.__testHooks.rerender());
 	await expect(page.locator('#energy-player .energy-gem[data-crystal="spend"]')).toHaveCount(3);
-	await expect(page.locator('#energy-player .energy-count')).toContainText('→ 3/6');
+	await expect(page.locator('#energy-player .energy-count')).toContainText('to 3/6');
 	// ... and it still clears when the pointer leaves.
 	await page.mouse.move(960, 420);
 	await expect(page.locator('#energy-player .energy-gem[data-crystal="spend"]')).toHaveCount(0);
