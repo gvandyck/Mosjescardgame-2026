@@ -11,6 +11,7 @@ import { isFresh } from '../../engine/fresh/isFresh.js';
 import { roundToFive } from '../../engine/roundToFive.js';
 import { LEVEL3_MP_CAP } from '../../engine/mp/levelRules.js';
 import { getMaxAttachments } from '../../engine/attachments/getMaxAttachments.js';
+import { getTimedEffectTags } from './getTimedEffectTags.js';
 
 export function toMosjeTileCards(state, ownerId) {
 	const owner = state?.players?.[ownerId];
@@ -45,6 +46,7 @@ export function toMosjeTileCards(state, ownerId) {
 				actedThisTurn: slot.actedThisTurn === true,
 				attachments: (slot.attachments || []).map(a => ({ ...a })), // 72-05: public, drawn as chips
 				maxAttachments: getMaxAttachments(slot),
+				tags: getTimedEffectTags(state, ownerId, slotIndex), // 72-06: timed effects, die marks, shield
 			};
 		});
 }

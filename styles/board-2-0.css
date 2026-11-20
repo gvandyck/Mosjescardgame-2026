@@ -499,3 +499,17 @@
 .cd-attach { display: flex; flex-direction: column; gap: 2px; margin: 4px 0; font-size: 13px; line-height: 1.35; }
 .cd-attach b { color: #f1f5f9; }
 .cd-attach span { color: #cbd5e1; }
+
+/* ── 72-06 (D-07): timed-effect tag lines in the lower third of a Mosje tile, above the Power / MP numbers (and above the chip row when there is one). Max 2 lines plus "+N more", ellipsis, no wrapping. --chip-size is a little smaller than the chips so 3 lines fit. ── */
+.tile-tags {
+	position: absolute;
+	left: calc(8 * var(--bu, 1px));
+	right: calc(8 * var(--bu, 1px));
+	bottom: calc(48 * var(--bu, 1px));
+	z-index: 7;
+	pointer-events: none;
+	--chip-size: max(8px, calc(9 * var(--bu, 1px)));
+}
+.tile-tags--above-chips { bottom: calc(48 * var(--bu, 1px) + 1.5 * max(9px, calc(10 * var(--bu, 1px))) + 8px); }
+.tile-tags .tag-line { background: rgba(15, 23, 42, 0.82); color: #f1f5f9; }
+.mosje-card--sideways .tile-tags { display: none; }

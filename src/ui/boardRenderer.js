@@ -23,6 +23,7 @@ import { bindChipTap } from './board/bindChipTap.js';
 import { getAttachmentRows } from './board/getAttachmentRows.js';
 import { getAttachmentChips } from './board/getAttachmentChips.js';
 import { buildChipRowHtml } from './chips/buildChipRowHtml.js';
+import { buildTagLinesHtml } from './chips/buildTagLinesHtml.js';
 
 const PIECIE_SLOTS = 3; // 2.0: 3 Piecie slots per player (mirrors tableRules)
 const MOSJE_SLOTS = 2; // 2.0: 2 Mosje slots per player
@@ -450,11 +451,20 @@ function appendAttachmentChips(cardEl, tile) {
 	});
 }
 
+// 72-06 (D-07): timed effects, die marks and the shield as tag lines (max 2, then "+N more") above the chip row.
+function appendTimedTags(cardEl, tile) {
+	const html = buildTagLinesHtml(tile.tags, { max: 2 });
+	if (!html) return;
+	const withChips = cardEl.querySelector('.tile-chips') ? ' tile-tags--above-chips' : '';
+	cardEl.insertAdjacentHTML('beforeend', `<div class="tile-tags${withChips}">${html}</div>`);
+}
+
 function appendTileState(cardEl, tile) {
 	if (tile.isDefeated) return;
 	if (tile.sideways) cardEl.classList.add('mosje-card--sideways');
 	if (tile.level === 3) cardEl.classList.add('mosje-card--hold');
 	appendAttachmentChips(cardEl, tile);
+	appendTimedTags(cardEl, tile);
 	const html = buildTileBadges(getTileBadges(tile));
 	if (!html) return;
 	cardEl.insertAdjacentHTML('beforeend', html);

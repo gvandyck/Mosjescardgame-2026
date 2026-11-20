@@ -37,6 +37,8 @@ import { PIECIE_SLOT_COUNT } from './engine/table/tableRules.js';
 import { loseMP, gainMP } from './engine/mpManager.js';
 import { createMosjeSlot } from './engine/mp/createMosjeSlot.js';
 import { attachToMosje } from './engine/attachments/attachToMosje.js';
+import { addTimedEffect } from './engine/durations/addTimedEffect.js';
+import { addQuestDiceGrant } from './engine/quests/addQuestDiceGrant.js';
 import { checkVictory } from './engine/victoryChecker.js';
 import { MOSJES } from './data/mosjes.js';
 import { PIECIES } from './data/piecies.js';
@@ -1042,6 +1044,20 @@ function initGamePage() {
 				const res = attachToMosje(gameState, playerId, slotIndex, cardId, full ? { replaceIndex: 0 } : {});
 				renderFromState(gameState);
 				return res;
+			},
+			// 72-06: store a timed effect on a Mosje / a die grant on a player through the engine functions (tag-line specs).
+			addTimedEffect(playerId, slotIndex, { kind = 'power', amount = 10, duration = 'untilEndOfYourNextTurn' } = {}) {
+				const slot = gameState?.players?.[playerId]?.activeSlots?.[slotIndex];
+				if (!slot) return null;
+				const res = addTimedEffect(gameState, { target: { playerId, slotIndex, cardId: slot.cardId }, kind, amount, duration, ownerId: playerId });
+				renderFromState(gameState);
+				return res;
+			},
+			addQuestDiceGrant(playerId, grant) {
+				if (!gameState?.players?.[playerId]) return null;
+				addQuestDiceGrant(gameState, playerId, grant);
+				renderFromState(gameState);
+				return true;
 			},
 			// Put a Piecie in one of a player's 4 Piecie slots (visual checks, card layout tests).
 			// Face-up and activated by default; { faceDown: true } sets it face-down. cardId=null clears the slot.
