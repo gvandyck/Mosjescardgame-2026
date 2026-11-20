@@ -18,8 +18,8 @@ test('Martin, The Historian (Cless, The Teacher on the field): Time Control keep
 	await runMosjeCardTest(page, { mosje: 'mosje_martin_historian', deck: null }, {
 		name: 'keep 1',
 		setup: { field: [{ id: 'mosje_martin_historian', mp: 30 }, { id: 'mosje_cless_teacher', mp: 30, slot: 1 }], oppField: OPP },
-		// draw step: Time Control, my own deck, keep the top-5 order as it is (4 asks, the last is automatic), then keep option #2 (= the first card).
-		trigger: { kind: 'turnStart', picks: [/Historian/, /Your deck/, /./, /./, /./, /./, { index: 1 }] },
+		// draw step: Time Control, my own deck, keep the top-5 order as it is (4 asks, the last is automatic), then keep the first card (the first option; the "Keep all on top" leave is its own button).
+		trigger: { kind: 'turnStart', picks: [/Historian/, /Your deck/, /./, /./, /./, /./, { index: 0 }] },
 		expect: {
 			mp: { 'own.0': 45 }, // 30 + 15, and the normal draw is replaced
 			handDelta: 1, // the kept card only

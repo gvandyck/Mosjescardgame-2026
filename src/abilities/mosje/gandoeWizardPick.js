@@ -1,5 +1,5 @@
 // Gandoe, The Cloude Wizard (second half), as a MOSJE_TRIGGERS 'wizardPick' entry so the pick can pause (pendingChoice).
-// Options are the top 3 cards by position ({ label, index }); the pick goes to the hand, the others to the bottom in order.
+// Options are the top 3 cards by position ({ label, index, cardId }); the pick goes to the hand, the others to the bottom in order.
 // The options live only in the owner's pause, so the opponent's view never holds them (getBotView strips them).
 import { toGraveyardEntry } from '../../engine/graveyardUtils.js';
 
@@ -13,7 +13,7 @@ export const gandoeWizardPick = {
 		if (n === 0) return state;
 		const pick = player._pendingTargets?.[KEY];
 		if (pick === undefined) {
-			const options = player.deck.slice(0, n).map((c, index) => ({ label: toGraveyardEntry(c.cardId, 'x').name, index }));
+			const options = player.deck.slice(0, n).map((c, index) => ({ label: toGraveyardEntry(c.cardId, 'x').name, index, cardId: c.cardId }));
 			return { state, needChoice: { playerId: ctx.ownerId, choiceKind: 'handCard', key: KEY, options } };
 		}
 		if (player._pendingTargets) delete player._pendingTargets[KEY];

@@ -4,7 +4,7 @@
 import { toGraveyardEntry } from '../../engine/graveyardUtils.js';
 
 export async function pickCardOrder({ modal, deck, n, mode = 'order', count = n, title = 'Top of the deck' }) {
-	const top = deck.slice(0, n).map((c, i) => ({ i, name: toGraveyardEntry(c.cardId, 'x').name }));
+	const top = deck.slice(0, n).map((c, i) => ({ i, name: toGraveyardEntry(c.cardId, 'x').name, cardId: c.cardId }));
 	const chosen = [];
 	const want = Math.min(mode === 'pick' ? count : top.length, top.length);
 	while (chosen.length < want) {
@@ -12,7 +12,7 @@ export async function pickCardOrder({ modal, deck, n, mode = 'order', count = n,
 		const ord = chosen.length + 1;
 		const id = await modal.showOptionSelect({
 			title: mode === 'pick' ? `${title}: pick card ${ord} of ${want}` : `${title}: card ${ord} from the top`,
-			options: left.map(t => ({ id: String(t.i), label: t.name })),
+			options: left.map(t => ({ id: String(t.i), label: t.name, card: { cardId: t.cardId } })),
 			allowCancel: true,
 			autoSelectSingle: mode === 'order' && left.length === 1,
 		});

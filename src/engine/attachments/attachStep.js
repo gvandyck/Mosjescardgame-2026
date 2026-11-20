@@ -25,7 +25,7 @@ export function attachStep(state, playerId, ctx, cardDef) {
 	if (slot && (slot.attachments || []).length >= getMaxAttachments(slot)) {
 		const rpick = targets.attach_replace;
 		if (rpick === undefined) {
-			const options = slot.attachments.map((a, attachIndex) => ({ label: nameOf(a.cardId), attachIndex }));
+			const options = slot.attachments.map((a, attachIndex) => ({ label: nameOf(a.cardId), attachIndex, cardId: a.cardId }));
 			return { state, needChoice: { playerId, choiceKind: 'attachedCard', key: 'attach_replace', options, prompt: 'Replace which attached card?' } };
 		}
 		replaceIndex = rpick.attachIndex;

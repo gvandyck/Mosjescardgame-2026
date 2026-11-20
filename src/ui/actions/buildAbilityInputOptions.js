@@ -49,7 +49,7 @@ export function buildAbilityInputOptions(state, playerId, input, collected = {})
 		case 'deckOwner':
 			return { title: 'Whose deck?', options: withIds([{ label: 'Your deck', value: playerId }, { label: "Opponent's deck", value: oppId }]) };
 		case 'oppHandCard':
-			return { title: "Pick a card from the opponent's hand", options: withIds((state.players[oppId]?.hand || []).map((c, i) => ({ label: nameOf(c.cardId), value: i }))) };
+			return { title: "Pick a card from the opponent's hand", options: withIds((state.players[oppId]?.hand || []).map((c, i) => ({ label: nameOf(c.cardId), value: i, cardId: c.cardId }))) };
 		case 'questStack':
 			return { title: 'Choose a Quest stack', options: withIds(Object.keys(state.questStacks || {}).map(id => ({ label: id, value: id }))) };
 		case 'ownPiecieSlot': {
@@ -63,13 +63,13 @@ export function buildAbilityInputOptions(state, playerId, input, collected = {})
 			const rows = (me.graveyard || []).map((c, i) => ({ c, i }))
 				.filter(({ c }) => !isFallenMosje(c))
 				.filter(({ c }) => !input.filter || typeOf(c.cardId ?? c) === input.filter)
-				.map(({ c, i }) => ({ label: nameOf(c.cardId ?? c), value: i }));
-			return { title: 'Choose a card from your discard pile', options: withIds(rows) };
+				.map(({ c, i }) => ({ label: nameOf(c.cardId ?? c), value: i, cardId: c.cardId ?? c }));
+			return { title: 'Choose a card from your pile', options: withIds(rows) };
 		}
 		case 'handCard': {
 			const rows = (me.hand || []).map((c, i) => ({ c, i }))
 				.filter(({ c }) => !input.filter || (c.type || typeOf(c.cardId)) === input.filter)
-				.map(({ c, i }) => ({ label: nameOf(c.cardId), value: i }));
+				.map(({ c, i }) => ({ label: nameOf(c.cardId), value: i, cardId: c.cardId }));
 			return { title: input.count > 1 ? `Discard ${input.count} cards` : 'Choose a card from your hand', options: withIds(rows) };
 		}
 		default:

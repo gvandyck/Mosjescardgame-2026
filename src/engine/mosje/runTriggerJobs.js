@@ -35,6 +35,8 @@ export function runTriggerJobs(state, hook, jobs, start, ctx, resume = null) {
 					playerId: nc.playerId, choiceKind: nc.choiceKind, options, key: nc.key,
 					triggerId: `${hook}:${entry.mosjeId}`, hook, jobs, jobIndex: i,
 					ctx: JSON.parse(JSON.stringify(tctx)),
+					...(nc.prompt ? { prompt: nc.prompt } : {}),
+					...(nc.promptCardId ? { promptCardId: nc.promptCardId } : {}), // 72-11: the card the prompt is about (Ming's draw)
 				};
 				return state;
 			}

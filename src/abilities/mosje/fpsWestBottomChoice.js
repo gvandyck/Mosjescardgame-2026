@@ -22,7 +22,7 @@ export const fpsWestBottomChoice = {
 		const pick = owner._pendingTargets?.[KEY];
 		if (pick === undefined) {
 			const options = [{ label: 'Leave it', index: -1 },
-				...pickable.map(index => ({ label: toGraveyardEntry(opp.hand[index].cardId, 'x').name, index }))];
+				...pickable.map(index => ({ label: toGraveyardEntry(opp.hand[index].cardId, 'x').name, index, cardId: opp.hand[index].cardId }))];
 			return { state, needChoice: { playerId: ctx.ownerId, choiceKind: 'handCard', key: KEY, options } };
 		}
 		if (owner._pendingTargets) delete owner._pendingTargets[KEY];

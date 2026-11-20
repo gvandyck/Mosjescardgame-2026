@@ -50,7 +50,7 @@ export async function mosjeCardTrigger(page, entry, c) {
 			await beginQuestByTap(page, t.slot ?? 0);
 			await page.locator(`.quest-stack[data-quest-stack="${t.stack}"]`).click();
 			// the Quest flow is async: let its first modal open before answerModals looks for it
-			await page.locator('.modal-mosje-select-btn:not([disabled]), .target-option:not([disabled]), #modal-continue').first().waitFor({ state: 'visible', timeout: 5000 }).catch(() => {});
+			await page.locator('.modal-mosje-select-btn:not([disabled]), .target-option:not([disabled]), #modal-continue, .modal-option-leave').first().waitFor({ state: 'visible', timeout: 5000 }).catch(() => {});
 			break;
 		case 'setQuestFaceUp': await page.evaluate(({ s, q }) => window.__testHooks.setQuestFaceUp(s, q), { s: t.stack, q: t.questId }); break; // pin the face-up Quest again between two rolls of one case
 		case 'questRefused': await questRefused(page, t); break; // the Quest cannot be attempted: its option is disabled (or no Quest is available)

@@ -18,7 +18,7 @@ export const mingActivateChoice = {
 		if (!def || !player.hand.some(c => c.cardId === ctx.cardId) || piecieActivationGate(state, ctx.ownerId, def)) return state;
 		const pick = player._pendingTargets?.[KEY];
 		if (pick === undefined) {
-			return { state, needChoice: { playerId: ctx.ownerId, choiceKind: 'mingActivate', key: KEY, options: [MING_ACTIVATE, MING_KEEP], prompt: `Ming drew ${def.name}` } };
+			return { state, needChoice: { playerId: ctx.ownerId, choiceKind: 'mingActivate', key: KEY, options: [MING_ACTIVATE, MING_KEEP], prompt: `Ming drew ${def.name}`, promptCardId: ctx.cardId } };
 		}
 		if (player._pendingTargets) delete player._pendingTargets[KEY];
 		if (pick.choice !== 'activate') return state;

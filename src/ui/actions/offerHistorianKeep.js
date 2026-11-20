@@ -14,7 +14,8 @@ export async function offerHistorianKeep({ state, playerId, modal, collected }) 
 	const id = await modal.showOptionSelect({
 		title: 'Time Control: keep a card?',
 		prompt: 'Cless, The Teacher is on your field: put 1 of these cards into your hand, or keep them all on top.',
-		options: [{ id: 'none', label: 'Keep all on top' }, ...top.map((c, i) => ({ id: String(i), label: toGraveyardEntry(c.cardId, 'x').name }))],
+		options: top.map((c, i) => ({ id: String(i), label: toGraveyardEntry(c.cardId, 'x').name, card: { cardId: c.cardId } })),
+		leave: { id: 'none', label: 'Keep all on top' },
 	});
 	return id == null || id === 'none' ? null : top[Number(id)].cardId;
 }
