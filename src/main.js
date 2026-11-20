@@ -14,6 +14,8 @@ import { offerWestPeek } from './ui/actions/offerWestPeek.js';
 import { createLogRenderer } from './ui/logRenderer.js';
 import { renderHand } from './ui/handRenderer.js';
 import { initModalManager } from './ui/modalManager.js';
+import { getAbilityBannerName } from './ui/abilities/getAbilityBannerName.js';
+import { getAbilityLogLine } from './ui/abilities/getAbilityLogLine.js';
 import { animateFieldActivation, animateStateDelta, showTurnTransition, setAbilityNameResolver, animateQuestResult, showInstantEffect, showDeckOutBanner, pulseDiscardPile, isSpotlightActive } from './ui/actionAnimations.js';
 import { initHoverZoom } from './ui/hoverZoom.js';
 import { initCardTierMotion } from './ui/cardTierMotion.js';
@@ -102,15 +104,11 @@ let signedInDeckId = null;
 // stub so form submit exercises the real signed-in branch without Firebase.
 let _testStubUser = null;
 
-// Feed the ability-cast chip the real ability name: the part before ":" in the
-// description, minus qualifiers like "(comeback)"/"(passive)".
+// Feed the ability-cast chip: the data's abilityName, else "<First name> ability" (72-10, D-11).
 initHoverZoom();
 initCardTierMotion();
 
-setAbilityNameResolver((mosjeId) => {
-	const desc = CARD_LOOKUP[mosjeId]?.abilityDescription || '';
-	return desc.split(':')[0].replace(/\s*\([^)]*\)/g, '').trim();
-});
+setAbilityNameResolver((mosjeId) => getAbilityBannerName(CARD_LOOKUP[mosjeId]));
 
 const path = window.location.pathname.toLowerCase();
 
@@ -1550,7 +1548,7 @@ function initGamePage() {
 		}
 		if (slotIndex >= 0) animateFieldActivation({ zone: 'mosje', playerId: localPlayerId, slotIndex, cardId: mosjeId });
 		gameState = out.state;
-		log.add('gain', `Used ability: ${out.name}.`);
+		log.add('gain', getAbilityLogLine(CARD_LOOKUP[mosjeId]) + '.');
 		const abilityDef = CARD_LOOKUP[mosjeId];
 		if (abilityDef?.abilityDescription) log.add('info', `Effect: ${abilityDef.abilityDescription}`);
 		logStateOutcome(log, before, gameState, localPlayerId, `${out.name} ability`);

@@ -36,11 +36,11 @@ test.describe('Mosje ability flow (58-03)', () => {
 		expect(used.reason).toBe('Ability already used this turn');
 	});
 
-	test('Trigger Mosje (Gandoe Wizard) shows no Ability chip', async ({ page }) => {
+	test('Trigger Mosje (Alyssa, The Bulldozer) shows no Ability chip', async ({ page }) => {
 		await boot(page);
-		await setMosjeOnField(page, 'player_1', 0, 'mosje_gandoe_wizard', { mp: 20, level: 1 });
-		await expect(cardOf(page, 'Wizard')).toBeVisible();
-		expect((await readTrayChip(page, 'mosje', 'mosje_gandoe_wizard', 'ability')).present).toBe(false);
+		await setMosjeOnField(page, 'player_1', 0, 'mosje_alyssa_bulldozer', { mp: 20, level: 1 });
+		await expect(cardOf(page, 'Bulldozer')).toBeVisible();
+		expect((await readTrayChip(page, 'mosje', 'mosje_alyssa_bulldozer', 'ability')).present).toBe(false);
 	});
 
 	test('Ability chip is disabled with 0 Energy', async ({ page }) => {
