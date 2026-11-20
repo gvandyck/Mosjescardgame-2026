@@ -49,7 +49,6 @@ import { SNELLE_PIECIES } from './data/snellePiecies.js';
 import { PLACES } from './data/places.js';
 import { QUESTS } from './data/quests.js';
 import { PERSONAL_QUESTS } from './data/personalQuests.js';
-import { personalQuestText } from './ui/personalQuestText.js';
 import { createRoom, joinRoom } from './multiplayer/roomManager.js';
 import { pushState, listenToState, stopListening, registerDisconnectLoss, cancelDisconnectHooks } from './multiplayer/syncManager.js';
 import { eventBus } from './multiplayer/eventBus.js';
@@ -2067,7 +2066,7 @@ function toHandViewModel(hand) {
 			cardId: cardRef.cardId,
 			name: def.name,
 			type: def.type,
-			description: def.description || def.requirementDescription || def.flavourText || personalQuestText(def),
+			description: def.description || def.requirementDescription || def.flavourText,
 			questType: def.questType,
 			requiredMosjeId: def.requiredMosjeId,
 			difficulty: def.difficulty,

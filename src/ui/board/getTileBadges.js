@@ -1,6 +1,6 @@
 // getTileBadges.js — the state badges of one Mosje tile, in display order (63-UI-SPEC "Tile states", D-15, D-16, D-06).
 // tile = a toMosjeTileCards entry. Returns [{ kind, label, reason }]; label is the short pill word, reason the full
-// sentence a tap or hover shows. Level 3 HOLD is NOT a badge: it is the tile's gold glow, its chip and the status strip.
+// sentence a tap or hover shows. Level 3 is NOT a badge (the old hold-Level-3 win is gone: only a Personal Quest wins).
 const BADGES = {
 	fresh: { label: 'FRESH', reason: "Fresh: can't attack, can't be chosen by opponent cards, ignores Places" },
 	sideways: { label: 'SKIPS TURN', reason: 'Hit at Level 1: skips its next turn. Can still be attacked' },

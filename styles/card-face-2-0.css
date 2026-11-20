@@ -205,9 +205,6 @@
 .card-v1--field .cv2-tile:has(.cv2-tile-pills) .cv2-first {
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; white-space: normal; line-height: 1.08;
 }
-/* Quest: the fail pips take the top-right corner, so the name stops short of them. */
-.card-v1--field .cv2-tile:has(.cv2-tile-pips) .cv2-tile-name { right: calc(46 * var(--u)); }
-
 /* Number zones: Sora value + small label in the tint colour. */
 .card-v1--field .cv2-tile .cv2-tile-stat { bottom: calc(14 * var(--u)); display: flex; flex-direction: column; text-shadow: 0 calc(1 * var(--u)) calc(6 * var(--u)) rgba(0, 0, 0, 0.9); }
 .card-v1--field .cv2-tile .cv2-tile-stat--left { left: calc(14 * var(--u)); align-items: flex-start; }
@@ -237,7 +234,7 @@
   background: rgba(5, 5, 5, 0.6); font-size: calc(9.5 * var(--u)); letter-spacing: 0.06em;
 }
 
-/* Quest: need block under the name, 2 fail pips top-right (empty = ring, filled = dot). */
+/* Quest: need block under the name. */
 .card-v1--field .cv2-tile .cv2-tile-need {
   left: calc(14 * var(--u)); top: calc(40 * var(--u)); display: flex; flex-direction: column; align-items: flex-start;
   text-shadow: 0 calc(1 * var(--u)) calc(6 * var(--u)) rgba(0, 0, 0, 0.9);
@@ -245,12 +242,6 @@
 .card-v1--field .cv2-tile .cv2-tile-need .cv2-tile-val { font-size: calc(24 * var(--u)); }
 /* A two-success need ("2× 4+") is longer: a little smaller so it stays clear of the die in the art. */
 .card-v1--field .cv2-tile .cv2-tile-need[data-cv1-need*="×"] .cv2-tile-val { font-size: calc(20 * var(--u)); }
-.card-v1--field .cv2-tile .cv2-tile-pips { right: calc(14 * var(--u)); top: calc(16 * var(--u)); display: flex; gap: calc(5 * var(--u)); }
-.card-v1--field .cv2-tile .cv2-pip {
-  position: static; display: block; box-sizing: border-box; width: calc(10 * var(--u)); height: calc(10 * var(--u)); border-radius: 50%;
-  border: calc(1.5 * var(--u)) solid var(--cv1-tint); background: transparent;
-}
-.card-v1--field .cv2-tile .cv2-pip[data-cv1-pip="filled"] { background: var(--cv1-main); }
 
 /* -- Hover / detail panel (62-06, D-09): flavour, rarity, "Limit 1 per deck" and the per-type reminder. It sits OUTSIDE
       the card face (under the hover popup, in the detail modal), so it uses rem, not --u. -- */

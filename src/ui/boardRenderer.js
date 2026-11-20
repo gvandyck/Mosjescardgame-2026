@@ -434,7 +434,7 @@ export function showPlaceEffectBanner(placeName, effectSummary, phase) {
 	}, 2000);
 }
 
-// 63-04 tile states (D-15..D-17, UI-03): the sideways pose, the Level 3 hold glow and the badge pills (Fresh, Protected,
+// 63-04 tile states (D-15..D-17, UI-03): the sideways pose, and the badge pills (Fresh, Protected,
 // SKIPS TURN, ACTED) on a Mosje tile. A pill is read by tap, Enter / Space or hover (title): the full reason in a toast, so
 // hover is never the only way. The click stops here so it does not also open the detail view.
 // 72-05 (D-05): attachments are public, so own and opponent tiles both get the chip row (max 3) and the two data
@@ -462,7 +462,6 @@ function appendTimedTags(cardEl, tile) {
 function appendTileState(cardEl, tile) {
 	if (tile.isDefeated) return;
 	if (tile.sideways) cardEl.classList.add('mosje-card--sideways');
-	if (tile.level === 3) cardEl.classList.add('mosje-card--hold');
 	appendAttachmentChips(cardEl, tile);
 	appendTimedTags(cardEl, tile);
 	const html = buildTileBadges(getTileBadges(tile));
@@ -630,7 +629,7 @@ function renderDiscardPile(container, player, isOwned, onOpenDiscard) {
 	// Add label
 	const label = document.createElement('div');
 	label.className = 'discard-pile__label';
-	label.textContent = 'Graveyard';
+	label.textContent = 'Pile';
 	pile.appendChild(label);
 
 	// Click to open discard viewer

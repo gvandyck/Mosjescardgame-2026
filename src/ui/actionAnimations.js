@@ -72,7 +72,7 @@ function collectEffects(beforeState, afterState, options = {}) {
 		const graveLoss = (beforePlayer.graveyard?.length || 0) - (afterPlayer.graveyard?.length || 0);
 		if (handGain <= 0) continue;
 		effects.push(graveLoss > 0
-			? { text: 'Returned to hand', kind: 'info', sub: `${handGain} card${handGain > 1 ? 's' : ''} from graveyard` }
+			? { text: 'Returned to hand', kind: 'info', sub: `${handGain} card${handGain > 1 ? 's' : ''} from the pile` }
 			: { text: `Draw ${handGain}`, kind: 'info', sub: playerId === options.localPlayerId ? 'You' : 'Opponent' });
 	}
 	return effects;

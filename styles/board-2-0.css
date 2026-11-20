@@ -57,7 +57,7 @@
 .game-board {
 	container-type: inline-size;         /* 100cqw below = the board's width */
 	/* Paint room (Phase 64.1, D-03): the board clips at its own padding box and every row clips at its scroll padding, so
-	   whatever a tile paints outside its box (hover shadow 22 px, Level 3 hold glow 20 px, pile badge + shadow 16 px, the
+	   whatever a tile paints outside its box (hover shadow 22 px, pile badge + shadow 16 px, the
 	   worst pile layer rect about 16 px) needs this much room inside both clips. One token feeds the board's bottom
 	   padding, the height budget and the row scroll padding. */
 	--paint-pad: 24px;
@@ -112,7 +112,7 @@
 	transform: none !important;
 }
 /* The slot a raised or dragged hand card will go into (64.1 D-06): the engine fills the first free slot, so exactly one
-   slot glows. D-09: the gold accent, static on purpose (the LVL 3 HOLD tile pulses). Its 12 px glow stays inside --paint-pad
+   slot glows. D-09: the gold accent, static on purpose. Its 12 px glow stays inside --paint-pad
    (D-03). Still inert: the engine has no chosen-slot play.
    D-12: the raised hand card (hand panel z-index 45, the raised card 60 inside it) covers part of the player row, so the
    marked slot is lifted to 47, above the whole hand layer: its gold frame and "Place here" are drawn over the raised card.
@@ -410,20 +410,6 @@
 .mosje-card--sideways .tile-badge--centre { order: -1; height: auto; padding: calc(5 * var(--bu, 1px)) calc(9 * var(--bu, 1px)) calc(5 * var(--bu, 1px)) calc(7 * var(--bu, 1px)); border-radius: calc(12 * var(--bu, 1px)); white-space: normal; }
 .mosje-card--sideways .tile-badge--centre .tile-badge__word { width: min-content; line-height: 1.2; }
 
-/* Level 3 (D-17): gold ring + glow, a slow 2.4 s pulse (static with reduced motion); the chip turns gold and reads HOLD. */
-@keyframes tile-hold-pulse {
-	0%, 100% { box-shadow: 0 0 0 2px #E8B94F, 0 0 12px rgba(232, 185, 79, 0.35), 0 calc(6 * var(--bu, 1px)) calc(14 * var(--bu, 1px)) rgba(0, 0, 0, 0.6); }
-	50% { box-shadow: 0 0 0 2px #E8B94F, 0 0 20px rgba(232, 185, 79, 0.7), 0 calc(6 * var(--bu, 1px)) calc(14 * var(--bu, 1px)) rgba(0, 0, 0, 0.6); }
-}
-.game-board .board-zone .card.card-v1--field.mosje-card--hold:not(.card--disabled):not(.face-down) {   /* outranks the board's hover shadow, so the ring stays under the pointer */
-	box-shadow: 0 0 0 2px #E8B94F, 0 0 18px rgba(232, 185, 79, 0.55), 0 calc(6 * var(--bu, 1px)) calc(14 * var(--bu, 1px)) rgba(0, 0, 0, 0.6);
-}
-.game-board .card.mosje-card--hold:not(.level-up):not(.taking-damage):not(.just-played) { animation: tile-hold-pulse 2.4s ease-in-out infinite; }
-.game-board .card-v1--field.mosje-card--hold .cv2-tile .cv2-tile-lvl { background: #E8B94F; color: #1a1405; letter-spacing: 0.03em; padding: 0 calc(6 * var(--u)); }
-@media (prefers-reduced-motion: reduce) {
-	.game-board .card.mosje-card--hold:not(.level-up):not(.taking-damage):not(.just-played) { animation: none; }
-}
-
 /* Tactician (D-18): the temporary MP stays the big number, the real MP sits small under it, tinted 70%. */
 .game-board .card-v1--field .cv2-tile .cv2-tile-stat--right .cv2-tile-sub { font-size: calc(11 * var(--u)); opacity: 0.7; }
 .game-board .card-v1--field .cv2-tile .cv2-tile-stat--right .cv2-tile-sub::before { content: 'real '; }
@@ -432,7 +418,6 @@
 .status-strip__text { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .status-strip[data-status-kind="bot-turn"] { color: rgba(255, 255, 255, 0.82); }
 .status-strip[data-status-kind="cooldown"] { border-color: #F59E0B; }
-.status-strip[data-status-kind="hold"] { border-color: #E8B94F; box-shadow: 0 0 14px rgba(232, 185, 79, 0.28); }
 .status-strip[data-status-kind="choose-target"],
 .status-strip[data-status-kind="preview"] { border-color: #FB7185; }
 .status-strip__btn {

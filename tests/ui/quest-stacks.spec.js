@@ -30,7 +30,7 @@ async function bootWithoutHand(page) {
 	await setHand(page, 'player_2', []);
 }
 const stackOf = (page, id) => page.locator(`[data-zone="middle"] [data-quest-stack="${id}"]`);
-const filledPips = (page, id) => stackOf(page, id).locator('[data-cv1-pip="filled"]');
+const anyPips = (page, id) => stackOf(page, id).locator('.cv2-pip, [data-cv1-pip]');
 
 test('U5: 3 Quest tiles on visible stacks, each with its dice need, 2 edges and a "<n> left" count', async ({ page }) => {
 	test.setTimeout(60000);
@@ -48,8 +48,7 @@ test('U5: 3 Quest tiles on visible stacks, each with its dice need, 2 edges and 
 		await expect(stack.locator('.quest-stack__edge'), `${id} stack edges`).toHaveCount(2);
 		await expect(stack, `${id} count hook`).toHaveAttribute('data-stack-count', String(left));
 		await expect(stack.locator('.quest-stack__count'), `${id} strip text`).toHaveText(`${left} left`);
-		await expect(filledPips(page, id), `${id} starts without fail pips`).toHaveCount(0);
-		await expect(stack.locator('[data-cv1-pip]'), `${id} has 2 pips`).toHaveCount(2);
+		await expect(anyPips(page, id), `${id} shows no fail pips (72-15)`).toHaveCount(0);
 		boxes.push(await stack.locator('.card').boundingBox());
 	}
 	// Geometry: tiles are full size, side by side without overlap, inside the middle strip.
@@ -64,7 +63,7 @@ test('U5: 3 Quest tiles on visible stacks, each with its dice need, 2 edges and 
 	await page.screenshot({ path: `${SHOT_DIR}/u5-quests.png` });
 });
 
-test('U5: a failed Quest goes back into its stack and a fresh Quest (0 pips) is turned up', async ({ page }) => {
+test('U5: a failed Quest goes back into its stack and a fresh Quest is turned up', async ({ page }) => {
 	test.setTimeout(60000);
 	await bootWithoutHand(page);
 	await setQuestFaceUp(page, 'PHYSICAL', 'quest_tough_it_out'); // Steady: one 4+, +25 / -15
@@ -79,7 +78,7 @@ test('U5: a failed Quest goes back into its stack and a fresh Quest (0 pips) is 
 	expect([gs.questStacks.PHYSICAL.faceUp, ...gs.questStacks.PHYSICAL.deck], 'the failed Quest is back in the stack').toContain('quest_tough_it_out');
 	expect(gs.questStacks.PHYSICAL.deck.length, 'the stack keeps its size').toBe(before);
 	await expect(stackOf(page, 'PHYSICAL')).toHaveAttribute('data-quest', gs.questStacks.PHYSICAL.faceUp);
-	await expect(filledPips(page, 'PHYSICAL'), 'fresh Quest has no fail pips').toHaveCount(0);
+	await expect(anyPips(page, 'PHYSICAL'), 'fresh Quest has no fail pips').toHaveCount(0);
 	await expect(stackOf(page, 'PHYSICAL').locator('.quest-stack__count')).toHaveText(`${gs.questStacks.PHYSICAL.deck.length} left`);
 });
 
@@ -94,7 +93,7 @@ test('U5: a won Quest is replaced by the next one in its stack', async ({ page }
 	const gs = await getGameState(page);
 	expect(gs.questStacks.PHYSICAL.faceUp, 'next Quest turned face-up').toBeTruthy(); // D-16: the attempted Quest is shuffled back first, so the same card can come up again
 	await expect(stackOf(page, 'PHYSICAL')).toHaveAttribute('data-quest', gs.questStacks.PHYSICAL.faceUp);
-	await expect(filledPips(page, 'PHYSICAL')).toHaveCount(0);
+	await expect(anyPips(page, 'PHYSICAL')).toHaveCount(0);
 	await expect(stackOf(page, 'PHYSICAL')).toHaveAttribute('data-stack-count', String(gs.questStacks.PHYSICAL.deck.length));
 	expect(gs.questStacks.PHYSICAL.deck.length, 'the won Quest is shuffled back, the stack keeps its size').toBe(before);
 });

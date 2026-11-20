@@ -213,7 +213,8 @@ describe('2.0 Quest face', () => {
 
   it('is a 2.0 spec: face 2, QUEST type key, pill footer, no level rows, no top pill / label', () => {
     const spec = buildQuestSpecV1(byId('quest_arm_wrestling')) as any;
-    expect(spec).toMatchObject({ face: 2, typeKey: 'QUEST', pill: '', label: '', stays: false, levelRows: [], failTokens: 0 });
+    expect(spec).toMatchObject({ face: 2, typeKey: 'QUEST', pill: '', label: '', stays: false, levelRows: [] });
+    expect(spec).not.toHaveProperty('failTokens');
     expect('fieldPill' in spec).toBe(false); // the legacy tile keys went with the legacy tile (62-05)
     expect('badge' in spec).toBe(false);
     expect(spec.corner).toEqual({ hook: 'need', value: '2× 4+', label: 'NEED' });
@@ -234,7 +235,7 @@ describe('2.0 Quest face', () => {
     }
   });
 
-  it('field tile: name, need, WIN / LOSE and 2 fail pips (empty ring / filled dot)', () => {
+  it('field tile: name, need, WIN / LOSE and no fail pips', () => {
     const r = buildCardV1(byId('quest_arm_wrestling'), { fieldMode: true })!;
     expect(r.className).toBe('card-v1 card-v1--field card--tier-1 card--boxed card--tierlayout');
     expect(r.html).toContain('>Arm Wrestling<');
@@ -244,10 +245,8 @@ describe('2.0 Quest face', () => {
     expect(r.html).toContain('>+40<');
     expect(r.html).toContain('>WIN<');
     expect(r.html).toContain('>LOSE<');
-    expect(r.html.split('data-cv1-pip=').length - 1).toBe(2);
-    expect(r.html.split('data-cv1-pip="filled"').length - 1).toBe(0);
-    expect(buildCardV1({ ...byId('quest_arm_wrestling'), failTokens: 1 }, { fieldMode: true })!.html.split('data-cv1-pip="filled"').length - 1).toBe(1);
-    expect(buildCardV1({ ...byId('quest_arm_wrestling'), failTokens: 2 }, { fieldMode: true })!.html.split('data-cv1-pip="filled"').length - 1).toBe(2);
+    expect(r.html).not.toContain('data-cv1-pip');
+    expect(buildCardV1({ ...byId('quest_arm_wrestling'), failTokens: 2 }, { fieldMode: true })!.html).not.toContain('data-cv1-pip');
     expect(r.html).not.toContain('>QUEST<'); // no legacy QUEST pill any more
   });
 

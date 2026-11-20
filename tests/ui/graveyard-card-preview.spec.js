@@ -38,7 +38,7 @@ test('graveyard list cards open the card preview with effect text', async ({ pag
 	const discard = page.locator('[data-zone="player"] [data-pile="discard"]');
 	await expect(discard).toHaveAttribute('data-count', '1');
 	await discard.click();
-	const listModal = page.locator('.modal-card', { hasText: 'Graveyard' });
+	const listModal = page.locator('.modal-card', { hasText: "'s pile" });
 	await expect(listModal).toBeVisible();
 
 	// The card row is a clickable button (pre-fix: plain span, no button).
@@ -54,7 +54,7 @@ test('graveyard list cards open the card preview with effect text', async ({ pag
 
 	// Closing the preview returns to the graveyard list.
 	await page.click('#modal-close-preview');
-	await expect(page.locator('.modal-card', { hasText: "Graveyard" })).toBeVisible();
+	await expect(page.locator('.modal-card', { hasText: "'s pile" })).toBeVisible();
 	await expect(page.locator('.graveyard-card-option', { hasText: piecie.name })).toBeVisible();
 
 	// Close the graveyard list — all modals gone.
@@ -75,7 +75,7 @@ test('an unknown card id in a pile list is shown as escaped plain text', async (
 		window.__testHooks.rerender?.();
 	});
 	await page.locator('[data-zone="player"] [data-pile="discard"]').click();
-	const listModal = page.locator('.modal-card', { hasText: 'Graveyard' });
+	const listModal = page.locator('.modal-card', { hasText: "'s pile" });
 	await expect(listModal).toBeVisible();
 	await expect(listModal).toContainText('<b id="pwned">x</b>');
 	await expect(page.locator('#pwned')).toHaveCount(0);

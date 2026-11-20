@@ -859,7 +859,7 @@ export function initModalManager(container) {
 	// list — optional { title, cards }: reuse the same list for another pile (the Welloe pile, D-13)
 	function showGraveyardModal(player, isOwned, list = {}) {
 		const { title = null, cards = null } = list || {};
-		const heading = title ?? `${player?.name || 'Player'}'s Graveyard`;
+		const heading = title ?? `${player?.name || 'Player'}'s pile`;
 		container.classList.add('modal-root--open');
 		const discardCards = cards ?? getPileCards(player);
 		const count = discardCards.length;
@@ -869,7 +869,7 @@ export function initModalManager(container) {
 				<div class="modal-backdrop"></div>
 				<section class="modal-card" role="dialog" aria-modal="true">
 					<h3>${escapeHtml(heading)}</h3>
-					<p>${title ? 'No cards.' : 'Graveyard is empty.'}</p>
+					<p>${title ? 'No cards.' : 'The pile is empty.'}</p>
 					<button class="modal-btn" id="modal-close-graveyard">Close</button>
 				</section>
 			`;

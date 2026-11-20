@@ -40,15 +40,13 @@ describe('buildQuestStacksHtml (D-09, UI-01)', () => {
 		expect(physical).toContain('>11 left<');
 	});
 
-	it('never fills a fail pip: the tokens are gone (70-02), the pips leave the face in Phase 72', () => {
-		const filled = (h: string) => (h.match(/data-cv1-pip="filled"/g) || []).length;
-		expect(filled(stackHtml(html, 'PHYSICAL'))).toBe(0);
+	it('draws no fail pips at all (D-12): the tokens are gone and so are the pips', () => {
+		expect(stackHtml(html, 'PHYSICAL')).not.toContain('data-cv1-pip');
 		const one = buildQuestStacksHtml(stacks({ PHYSICAL: { faceUp: 'quest_tough_it_out', deck: deckOf(3), discard: [], tokens: 1 } }));
-		expect(filled(stackHtml(one, 'PHYSICAL'))).toBe(0);
-		expect(stackHtml(one, 'PHYSICAL').match(/data-cv1-pip="/g)).toHaveLength(2);
-		const two = buildQuestStacksHtml(stacks({ PHYSICAL: { faceUp: 'quest_tough_it_out', deck: deckOf(3), discard: [], tokens: 2 } }));
-		expect(filled(stackHtml(two, 'PHYSICAL'))).toBe(0);
+		expect(stackHtml(one, 'PHYSICAL')).not.toContain('data-cv1-pip');
+		expect(stackHtml(one, 'PHYSICAL')).not.toContain('cv2-tile-pips');
 	});
+
 
 	it('an empty stack is a dashed outline reading "Empty" with no Quest tile', () => {
 		const creative = stackHtml(html, 'CREATIVE');

@@ -1,6 +1,6 @@
 // Phase 62-05: the 2.0 field tile for every card type (62-UI-SPEC "Field tile", Phase 7 A3 / A4 / A7, D-06 / D-07 / D-08).
 // Mosje tile = name + nickname on one line, L<n> chip, POWER box, MP box. Piecie / Snelle / Place tile = name, type pill, STAYS chip
-// when the card stays. Quest tile = name, need, WIN / LOSE, 2 fail pips. No tile shows a cost (already paid, decided in the UI-SPEC).
+// when the card stays. Quest tile = name, need, WIN / LOSE. No tile shows a cost (already paid, decided in the UI-SPEC).
 import { describe, it, expect } from 'vitest';
 import { MOSJES } from '../../src/data/mosjes.js';
 import { PIECIES } from '../../src/data/piecies.js';
@@ -176,20 +176,12 @@ describe('2.0 field tile: Quest', () => {
     expect(t).not.toContain('data-cv1-cost');
   });
 
-  it('has exactly 2 fail pips: failTokens 0 -> 0 filled, 1 -> 1 filled, 2 -> 2 filled', () => {
-    for (const [tokens, filled] of [[0, 0], [1, 1], [2, 2]] as const) {
+  it('has no fail pips (D-12): failTokens changes nothing on the tile', () => {
+    for (const tokens of [0, 1, 2, 5]) {
       const t = tile(arm, { failTokens: tokens });
-      expect(count(t, 'data-cv1-pip='), `tokens ${tokens}`).toBe(2);
-      expect(count(t, 'data-cv1-pip="filled"'), `tokens ${tokens}`).toBe(filled);
-      expect(count(t, 'data-cv1-pip="empty"'), `tokens ${tokens}`).toBe(2 - filled);
+      expect(t, `tokens ${tokens}`).not.toContain('data-cv1-pip');
+      expect(t, `tokens ${tokens}`).not.toContain('cv2-tile-pips');
     }
-    expect(count(tile(arm), 'data-cv1-pip="filled"')).toBe(0); // no failTokens at all
-  });
-
-  it('clamps the fail tokens to 0..2 and survives junk', () => {
-    expect(count(tile(arm, { failTokens: 5 }), 'data-cv1-pip="filled"')).toBe(2);
-    expect(count(tile(arm, { failTokens: -3 }), 'data-cv1-pip="filled"')).toBe(0);
-    expect(count(tile(arm, { failTokens: '"><x' }), 'data-cv1-pip="filled"')).toBe(0);
   });
 
   it('a Trained Quest tile prints "can\'t fail" for LOSE and keeps the star need', () => {
@@ -199,7 +191,7 @@ describe('2.0 field tile: Quest', () => {
     expect(attr(t, 'need')).toBe('★★');
   });
 
-  it('every 2.0 Quest has a tile with need, win, lose and 2 pips, in its stack colour', () => {
+  it('every 2.0 Quest has a tile with need, win, lose and no pips, in its stack colour', () => {
     expect(stackQuests).toHaveLength(38);
     const colour: Record<string, string> = { PHYSICAL: '#C2410C', DIGITAL: '#0E7490', CREATIVE: '#A21CAF' };
     for (const q of stackQuests) {
@@ -207,7 +199,7 @@ describe('2.0 field tile: Quest', () => {
       expect(attr(t, 'need'), q.id).not.toBeNull();
       expect(attr(t, 'win'), q.id).toBe(String(q.win));
       expect(attr(t, 'lose'), q.id).not.toBeNull();
-      expect(count(t, 'data-cv1-pip='), q.id).toBe(2);
+      expect(t, q.id).not.toContain('data-cv1-pip');
       expect(t, q.id).toContain(colour[q.stack]);
       expect(t, q.id).toContain('cv2-quest-art'); // no real art: the die placeholder fills the window
     }

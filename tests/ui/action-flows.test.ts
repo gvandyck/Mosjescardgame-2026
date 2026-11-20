@@ -94,7 +94,7 @@ describe('runQuestFlow', () => {
 describe('renderQuestStacks', () => {
   // 63-03: the same intent on the 2.0 Quest tile: the face-up Quest names, the dice need, the fail tokens as filled pips,
   // the cards left in the stack, and "Empty" for the stack without a Quest.
-  it('renders name, need, empty fail pips and count for each face-up Quest, and Empty for a missing one', () => {
+  it('renders name, need, no fail pips and count for each face-up Quest, and Empty for a missing one', () => {
     const container: any = { innerHTML: '' };
     const qs = stacks({ PHYSICAL: 'quest_tough_it_out', DIGITAL: 'quest_debug_system' });
     qs.PHYSICAL.deck = Array(11).fill('quest_improvise');
@@ -105,7 +105,7 @@ describe('renderQuestStacks', () => {
     expect(html).toContain('data-cv1-need=');
     const part = (id: string) => html.split(/(?=<div class="quest-stack[ "])/).find((p) => p.includes(`data-quest-stack="${id}"`)) ?? '';
     const physical = part('PHYSICAL');
-    expect(physical.match(/data-cv1-pip="filled"/g)).toBeNull(); // fail tokens are gone (70-02); the pips leave the face in Phase 72
+    expect(physical).not.toContain('data-cv1-pip'); // fail tokens are gone (70-02) and so are the pips (72-15)
     expect(physical).toContain('>11 left<');
     expect(physical).toContain('data-stack-count="11"');
     const creative = part('CREATIVE');

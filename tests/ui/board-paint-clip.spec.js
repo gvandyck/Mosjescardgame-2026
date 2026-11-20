@@ -5,7 +5,7 @@
  * that also clips vertically (10 px above, 18 px below each tile). Measured on 2.0-A.1 at 1920x1080: board 100..733, player
  * pile bottom 727, badge bottom 735, stack layers bottom 738 (5 px over; 6 px at 1920x950, 8 px at 1600x900).
  * This spec measures paint (rect + box-shadow + outline) against the padding box of EVERY clipping ancestor, at rest and under
- * hover / selection / Level 3 HOLD, for both sides and both piles (and the Welloe pile). Written first, seen failing on 2.0-A.1.
+ * hover / selection / a Level 3 tile (no hold glow since 72-15), for both sides and both piles (and the Welloe pile). Written first, seen failing on 2.0-A.1.
  * Budget guards: the fix must not shrink the tiles by more than 5 % in height (1920x1080, 1920x950), keep them 170 px wide at
  * 1600x900, and must not make the 1280x800 bottom-row cut worse (Phase 65 owns that viewport).
  */
@@ -137,14 +137,19 @@ for (const viewport of VIEWPORTS) {
 		await check(page, '#zone-player .is-selected', {}, 'selected own tile', label);
 		await cancelSelection(page);
 
-		// Level 3 HOLD glow on both rows.
+		// 72-15 (D-12): a Level 3 Mosje has no gold hold ring or pulse any more (only a Personal Quest wins), and the pile
+		// is labelled "Pile", never "Graveyard".
 		await setMosjeOnField(page, 'player_1', 0, 'mosje_alyssa_bulldozer', { mp: 50, level: 3 });
 		await setMosjeOnField(page, 'player_2', 0, 'mosje_gandoe_wizard', { mp: 50, level: 3 });
 		await clearEntryProtection(page);
 		await page.mouse.move(2, 2);
 		await page.waitForTimeout(300);
-		expect(await page.locator('#board-root .mosje-card--hold').count(), 'Level 3 HOLD tiles (one per side)').toBe(2);
-		await check(page, '#board-root .mosje-card--hold', {}, 'Level 3 HOLD glow', label);
+		expect(await page.locator('#board-root .mosje-card--hold').count(), 'no Level 3 hold class').toBe(0);
+		const l3 = page.locator('#zone-player [data-zone="mosje"]').first();
+		expect(await l3.evaluate((e) => getComputedStyle(e).animationName), 'no hold pulse on a Level 3 tile').not.toBe('tile-hold-pulse');
+		await check(page, '#zone-player [data-zone="mosje"]', {}, 'Level 3 tile', label);
+		await expect(page.locator('#discard-player .discard-pile__label')).toHaveText('Pile');
+		expect(await page.locator('#board-root').innerText(), 'no Graveyard wording on the board').not.toContain('Graveyard');
 
 		fs.mkdirSync(SHOT_DIR, { recursive: true });
 		await page.screenshot({ path: `${SHOT_DIR}/paint-clip-${label}.png` });

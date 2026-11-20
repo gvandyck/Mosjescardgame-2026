@@ -72,7 +72,7 @@ test.describe('2.0 Quest cards in the tier design', () => {
 				if (tier === 1) await card.screenshot({ path: `${OUT}/${q.file}.png` });
 			});
 		}
-		test(`${q.id}: field tile shows need, win/lose and 2 fail pips`, async ({ page }) => {
+		test(`${q.id}: field tile shows need, win/lose and no fail pips`, async ({ page }) => {
 			const card = await mountQuest(page, { id: q.id, tier: 2, fieldMode: true, width: 240, failTokens: 1 });
 			await expect(card).toHaveClass(/card-v1--field/);
 			await expect(card.locator('.cv2-first')).toHaveText(/\S/);
@@ -80,13 +80,7 @@ test.describe('2.0 Quest cards in the tier design', () => {
 			await expect(card.locator('[data-cv1-win]')).toHaveAttribute('data-cv1-win', q.win);
 			await expect(card.locator('[data-cv1-lose]')).toHaveAttribute('data-cv1-lose', q.lose);
 			await expect(card.locator('[data-cv1-lose] .cv2-tile-val')).toHaveText(q.loseText);
-			await expect(card.locator('[data-cv1-pip]')).toHaveCount(2);
-			await expect(card.locator('[data-cv1-pip="filled"]')).toHaveCount(1); // failTokens 1: one filled, one empty ring
-			await expect(card.locator('[data-cv1-pip="empty"]')).toHaveCount(1);
-			// the filled pip is a solid stack-colour dot, the empty one a ring with no fill
-			const fill = (state) => card.locator(`[data-cv1-pip="${state}"]`).evaluate((e) => getComputedStyle(e).backgroundColor);
-			expect(await fill('filled')).toBe(q.color);
-			expect(await fill('empty')).toBe('rgba(0, 0, 0, 0)');
+			await expect(card.locator('[data-cv1-pip], .cv2-pip, .cv2-tile-pips')).toHaveCount(0); // 72-15: no fail pips
 			// no cost, Power / MP or legacy QUEST pill on a Quest tile
 			await expect(card.locator('[data-cv1-power], [data-cv1-mp], [data-cv1-cost], .cv1-pill, .cv1-badge')).toHaveCount(0);
 			// the tile zones stay clear of each other and inside the tile, at 240 and at the board size
@@ -95,7 +89,7 @@ test.describe('2.0 Quest cards in the tier design', () => {
 			if (q.id === 'quest_arm_wrestling') await card.screenshot({ path: `${OUT}/quest-tile.png` });
 			await mountQuest(page, { id: q.id, tier: 2, fieldMode: true, width: 150, failTokens: 2 });
 			expect(findFaceCollisions(await page.evaluate(collectFaceZones, '#fx > .card')), 'tile zones collide at 150').toEqual([]);
-			await expect(page.locator('#fx > .card [data-cv1-pip="filled"]')).toHaveCount(2);
+			await expect(page.locator('#fx > .card [data-cv1-pip]')).toHaveCount(0);
 		});
 	}
 });

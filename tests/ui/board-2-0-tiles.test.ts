@@ -82,7 +82,7 @@ describe('getTileBadges (D-15, D-16, D-06)', () => {
 		]);
 	});
 
-	it('orders fresh, sideways, acted; Level 3 hold is not a badge', () => {
+	it('orders fresh, sideways, acted; Level 3 is not a badge', () => {
 		const all = getTileBadges({ entryProtected: true, sideways: true, actedThisTurn: true, level: 3 });
 		expect(all.map((b) => b.kind)).toEqual(['fresh', 'sideways', 'acted']);
 		expect(getTileBadges({ level: 3 })).toEqual([]);
@@ -131,7 +131,7 @@ describe('pickStatusMessage (D-17, D-19)', () => {
 		expect(pickStatusMessage(s, 'player_1', mode)).toBe(mode);
 	});
 
-	it('the local cooldown turn comes before the hold message', () => {
+	it('the local cooldown turn shows its message even with a Level 3 Mosje', () => {
 		const s: any = state([slotOf('mosje_binti', { level: 3 })], [null, null]);
 		s.players.player_1.cooldownTurn = true;
 		expect(pickStatusMessage(s, 'player_1')).toEqual({ kind: 'cooldown', text: 'Cooldown turn: you can only place face-down Piecies' });
@@ -147,23 +147,14 @@ describe('pickStatusMessage (D-17, D-19)', () => {
 		expect(pickStatusMessage(t, 'player_1')).toBeNull();
 	});
 
-	it('a Level 3 Mosje shows the hold message with its first name and its owner', () => {
-		const mine: any = state([slotOf('mosje_binti', { level: 3 })], [null, null]);
-		expect(pickStatusMessage(mine, 'player_1')).toEqual({ kind: 'hold', text: 'Binti is at Level 3: Gandalf wins at the start of their next turn' });
-		const theirs: any = state([slotOf('mosje_binti')], [slotOf('mosje_gandoe_wizard', { level: 3 })]);
-		const msg = pickStatusMessage(theirs, 'player_1')!;
-		expect(msg.kind).toBe('hold');
-		expect(msg.text).toBe('Gandoe is at Level 3: Bot wins at the start of their next turn');
-	});
-
-	it('a defeated Level 3 Mosje does not hold', () => {
-		const s: any = state([slotOf('mosje_binti', { level: 3 }, { isDefeated: true })], [null, null]);
-		expect(pickStatusMessage(s, 'player_1')).toBeNull();
-	});
-
-	it('hold beats the bot-turn message', () => {
-		const s: any = state([slotOf('mosje_binti', { level: 3 })], [slotOf('mosje_gandoe_wizard')], { activePlayerId: 'player_2' });
-		expect(pickStatusMessage(s, 'player_1')?.kind).toBe('hold');
+	it('a Level 3 Mosje changes nothing in the status strip (the hold rule is gone, D-12)', () => {
+		const withL3: any = state([slotOf('mosje_binti', { level: 3 })], [null, null]);
+		const without: any = state([slotOf('mosje_binti')], [null, null]);
+		expect(pickStatusMessage(withL3, 'player_1')).toEqual(pickStatusMessage(without, 'player_1'));
+		expect(pickStatusMessage(withL3, 'player_1')).toBeNull();
+		const theirs: any = state([slotOf('mosje_binti')], [slotOf('mosje_gandoe_wizard', { level: 3 })], { activePlayerId: 'player_2' });
+		expect(pickStatusMessage(theirs, 'player_1')?.kind).toBe('bot-turn');
+		expect(JSON.stringify(pickStatusMessage(theirs, 'player_1'))).not.toContain('wins at the start');
 	});
 
 	it("the opponent's turn shows \"<name>'s turn\"; my own plain turn shows nothing", () => {

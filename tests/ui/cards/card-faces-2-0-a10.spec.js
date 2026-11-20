@@ -147,7 +147,7 @@ test.describe('A10 — 2.0 card faces at 1920x1080', () => {
     await page.screenshot({ path: `${OUT}/a10-place-board.png` });
   });
 
-  test('A10 Quest shows stack colour, need, win / lose and fail pips', async ({ page }) => {
+  test('A10 Quest shows stack colour, need, win / lose and no fail pips', async ({ page }) => {
     await openGame(page);
     const quests = ['quest_arm_wrestling', 'quest_debug_system', 'quest_leap_of_faith'];
     const items = quests.map((id) => ({ id, mode: 'full', width: 440, key: `pop-${id}` }));
@@ -174,12 +174,10 @@ test.describe('A10 — 2.0 card faces at 1920x1080', () => {
       else await expect(q.locator('.cv2-stat--right .cv2-stat-val'), `${id} LOSE number`).toHaveText(`−${Math.abs(Number(e.lose))}`);
     }
 
-    // The tile: 2 fail pips, 0 / 1 / 2 of them filled, plus need, WIN and LOSE.
+    // The tile: no fail pips (72-15), need, WIN and LOSE.
     for (const n of [0, 1, 2]) {
       const t = card(page, `tile-${n}`);
-      await expect(t.locator('[data-cv1-pip]'), `tile ${n}: pips`).toHaveCount(2);
-      await expect(t.locator('[data-cv1-pip="filled"]'), `tile ${n}: filled pips`).toHaveCount(n);
-      await expect(t.locator('[data-cv1-pip="empty"]'), `tile ${n}: empty pips`).toHaveCount(2 - n);
+      await expect(t.locator('[data-cv1-pip]'), `tile ${n}: no pips`).toHaveCount(0);
       await expect(t.locator('[data-cv1-need]')).toHaveAttribute('data-cv1-need', '2× 4+');
       await expect(t.locator('[data-cv1-win]')).toHaveAttribute('data-cv1-win', '40');
       await expect(t.locator('[data-cv1-lose]')).toHaveAttribute('data-cv1-lose', '-30');
