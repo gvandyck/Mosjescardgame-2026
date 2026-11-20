@@ -474,7 +474,7 @@ export function initModalManager(container) {
 			if (card.abilityDescription) sections.push(['Ability', esc(card.abilityDescription)]);
 			if (card.synergyEffect) sections.push(['Synergy', esc(card.synergyEffect)]);
 			if (Array.isArray(card.attachments)) sections.push(['Attachments', buildAttachmentSection(getAttachmentRows(card)), true]); // 72-05
-			if (card.petSynergy) chips.push(`🐾 ${esc(String(card.petSynergy).replace('piecie_', '').replace(/_/g, ' '))}`);
+			if (card.petSynergy) chips.push(`Pet synergy: ${esc(String(card.petSynergy).replace('piecie_', '').replace(/_/g, ' '))}`);
 			// The 3 level rows (Power + traits per level); the current level is lit (a hand card shows Level 1).
 			const levelRows = getLevelRows(card, card.level);
 			if (levelRows.length) {
@@ -496,7 +496,7 @@ export function initModalManager(container) {
 			const good = Array.isArray(card.goodFor) && card.goodFor.length ? card.goodFor.join(', ') : null;
 			const bad  = Array.isArray(card.badFor)  && card.badFor.length  ? card.badFor.join(', ')  : null;
 			if (good || bad) sections.push(['Affinity',
-				`${good ? `<span class="cd-good">▲ ${esc(good)}</span>` : ''}${bad ? `<span class="cd-bad">▼ ${esc(bad)}</span>` : ''}`, true]);
+				`${good ? `<span class="cd-good">Good for: ${esc(good)}</span>` : ''}${bad ? `<span class="cd-bad">Bad for: ${esc(bad)}</span>` : ''}`, true]);
 		} else if (type.startsWith('QUEST') && card.stack) {
 			// 2.0 Quest: dice need, what it rolls, the cost sentence, the Also text and the stakes.
 			const need = getQuestNeed(card);
@@ -843,7 +843,7 @@ export function initModalManager(container) {
 		container.innerHTML = `
 			<div class="modal-backdrop"></div>
 			<section class="modal-card" role="dialog" aria-modal="true">
-				<h3>👁 ${escapeHtml(playerName)}'s Hand (${count} card${count !== 1 ? 's' : ''})</h3>
+				<h3>${escapeHtml(playerName)}'s Hand (${count} card${count !== 1 ? 's' : ''})</h3>
 				${count === 0 ? '<p>Hand is empty.</p>' : `<ul class="modal-card-list">${rows}</ul>`}
 				<button class="modal-btn" id="modal-close-hand-reveal">Close</button>
 			</section>

@@ -147,4 +147,11 @@ test.describe('card frame v1 — Quest (2.0 face)', () => {
     await renderGallery(page, 'full', 96, ids);
     await page.locator('#cv1-gallery').screenshot({ path: `${OUT}/quest-small.png` });
   });
+  test('72-08: the Rolls line names the trait with the short word (Str / Tech / Art / Soc / Men / Res), never a full name', async ({ page }) => {
+    await renderGallery(page, 'full', 440, ids);
+    const infos = await page.evaluate(() => [...document.querySelectorAll('#cv1-gallery [data-test-card] .cv2-info')].map((e) => e.textContent));
+    expect(infos.length).toBe(38);
+    for (const t of infos) expect(t, t).not.toMatch(/Strength|Technical|Artistic|Social|Mental|Resilient/);
+    expect(infos.some((t) => /^Rolls: (Str|Tech|Art|Soc|Men|Res) · /.test(t))).toBe(true);
+  });
 });

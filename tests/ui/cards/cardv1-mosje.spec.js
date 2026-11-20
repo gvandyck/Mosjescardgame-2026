@@ -274,4 +274,20 @@ test.describe('card frame v1 — Mosje', () => {
     await expect(page.locator('.modal-card.card-detail').first()).toBeVisible();
     await expect(page.locator('.hover-zoom')).toHaveCount(0);
   });
+  test('72-08: a Level 3 Mosje reads LVL 3 on the face and L3 on the tile (no HOLD); an ability line has no bold name', async ({ page }) => {
+    const html = await page.evaluate(async (id) => {
+      const { renderCard } = await import('/src/ui/cardRenderer.js');
+      const { getCardById } = await import('/src/data/cardIndex.js');
+      const def = { ...getCardById(id), level: 3, mp: 40 };
+      return {
+        face: renderCard(def, {}).outerHTML,
+        tile: renderCard(def, { compact: true, fieldMode: true }).outerHTML,
+        bold: [...renderCard(def, {}).querySelectorAll('.cv2-text b')].map((b) => b.textContent),
+      };
+    }, ids[0]);
+    expect(html.face).toContain('>LVL 3<');
+    expect(html.tile).toMatch(/data-cv1-level="3">L3</);
+    expect(html.face + html.tile).not.toContain('HOLD');
+    expect(html.bold).toEqual([]);
+  });
 });

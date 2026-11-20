@@ -90,3 +90,16 @@ test('card frame v1 — Place (2.0 face): cost, Good/Bad line, label, zones, fie
   await renderGallery(page, 'full', 96, ids);
   await page.locator('#cv1-gallery').screenshot({ path: `${OUT}/place-small.png` });
 });
+
+test('72-08: the Place detail view names the affinity in words (Good for / Bad for), no triangle glyphs', async ({ page }) => {
+  await openGame(page);
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await page.evaluate(async () => {
+    const { initModalManager } = await import('/src/ui/modalManager.js');
+    const { getCardById } = await import('/src/data/cardIndex.js');
+    initModalManager(document.body).showCardPreview(getCardById('place_the_gym'));
+  });
+  const sections = await page.locator('.card-detail .cd-sections').innerText();
+  expect(sections).toContain('Good for:');
+  expect(sections).not.toMatch(/[\u25B2\u25BC]/);
+});

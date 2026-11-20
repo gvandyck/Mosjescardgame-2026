@@ -42,8 +42,8 @@ describe('2.0 field tile: Mosje', () => {
     expect(line).toContain('class="cv2-nick"');
   });
 
-  it('Level 3 chip (LVL 3 · HOLD) centre-bottom, POWER box and MP box carry the live numbers', () => {
-    expect(html).toMatch(/<div class="cv2-tile-lvl" data-cv1-level="3">LVL 3 · HOLD<\/div>/); // spec change D-17: a Level 3 Mosje holds
+  it('Level 3 chip (L3) centre-bottom, POWER box and MP box carry the live numbers', () => {
+    expect(html).toMatch(/<div class="cv2-tile-lvl" data-cv1-level="3">L3<\/div>/);
     expect(attr(html, 'power')).toBe('30'); // 2.1: Alyssa the Bulldozer Power 20 / 25 / 30
     expect(part(box(html, 'power'), 'val')).toBe('30');
     expect(part(box(html, 'power'), 'label')).toBe('POWER');
@@ -68,8 +68,8 @@ describe('2.0 field tile: Mosje', () => {
     expect(attr(fresh, 'mp')).toBe(String(alyssa.startMP ?? 0));
   });
 
-  it('only Level 3 reads HOLD: Level 1 and 2 keep the short L<n> chip', () => {
-    for (const level of [1, 2]) {
+  it('every level keeps the short L<n> chip, never HOLD', () => {
+    for (const level of [1, 2, 3]) {
       const t = tile(alyssa, { mp: 20, level });
       expect(t).toMatch(new RegExp(`<div class="cv2-tile-lvl" data-cv1-level="${level}">L${level}</div>`));
       expect(t).not.toContain('HOLD');

@@ -63,9 +63,10 @@ describe('getQuestNeed (dice need, top-left)', () => {
   });
 });
 
+const SHORT: Record<string, string> = { Strength: 'Str', Technical: 'Tech', Artistic: 'Art', Social: 'Soc', Mental: 'Men', Resilient: 'Res' };
 describe('formatQuestRollsLine', () => {
   it('prints Rolls: <trait> · <band> for the four shapes', () => {
-    expect(formatQuestRollsLine(byId('quest_arm_wrestling'))).toBe('Rolls: Strength · Skilled');
+    expect(formatQuestRollsLine(byId('quest_arm_wrestling'))).toBe('Rolls: Str · Skilled');
     expect(formatQuestRollsLine(byId('quest_sprint_race'))).toBe('Rolls: no roll · Trained');
     expect(formatQuestRollsLine(byId('quest_geen_raad_vraag_aad'))).toBe('Rolls: no trait · Coin flip');
     expect(formatQuestRollsLine(byId('quest_ultimate_challenge'))).toBe("Rolls: Mosje's best trait · Heroic");
@@ -74,7 +75,7 @@ describe('formatQuestRollsLine', () => {
     for (const q of quests) {
       const m = formatQuestRollsLine(q).match(/^Rolls: (.+) · (.+)$/);
       expect(m, q.id).not.toBeNull();
-      expect(m![1], q.id).toBe(rowOf(q).rolls);
+      expect(m![1], q.id).toBe(SHORT[rowOf(q).rolls] ?? rowOf(q).rolls); // the Card List writes the full trait, the face the short word (D-10)
       expect(m![2], q.id).toBe(BAND_LABEL[rowOf(q).band]);
     }
   });
@@ -138,7 +139,7 @@ describe('2.0 Quest face', () => {
     expect(r.className).toBe('card-v1 card-v1--full card--tier-1 card--boxed card--tierlayout');
     expect(attr(html, 'need')).toBe('2× 4+');
     expect(html).toContain('<div class="cv2-corner-label">NEED</div>');
-    expect(part(html, 'cv2-info')).toBe('Rolls: Strength · Skilled');
+    expect(part(html, 'cv2-info')).toBe('Rolls: Str · Skilled');
     expect(attr(html, 'win')).toBe('40');
     expect(attr(html, 'lose')).toBe('-30');
     expect(html).toContain('<div class="cv2-stat-val">+40</div>');

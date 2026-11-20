@@ -142,7 +142,7 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 						&& getEffectiveCost(gameState, localPlayerId, card.cardId, 'piecie', { caravan: true }) === 0);
 					if (hasFreeActivation) {
 						cardEl.classList.add('free-activation');
-						cardEl.title = '⭐ Free activation — Coert\'s Caravan';
+						cardEl.title = 'Free activation: Coert\'s Caravan';
 					}
 				}
 				const btn = document.createElement('button');

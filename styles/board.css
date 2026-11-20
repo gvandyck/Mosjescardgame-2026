@@ -2232,11 +2232,11 @@
 
 .mosje--welloe-bound::after,
 .piecie--welloe-anchor::after {
-  content: '👻';
+  content: 'WELLOE';
   position: absolute;
   top: -12px;
   right: -8px;
-  font-size: 15px;
+  font-size: 10px; font-weight: 800; letter-spacing: .05em; color: #c4b5fd;
   pointer-events: none;
   z-index: 10;
 }

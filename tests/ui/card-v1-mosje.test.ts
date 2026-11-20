@@ -135,10 +135,10 @@ describe('card frame v1 — Mosje face data mapping', () => {
     expect(html).not.toContain('cv2-info');
     expect(html).not.toContain('cv1-badge'); // no MP badge box any more
   });
-  it('2.0 face: the centre chip reads LVL 3 · HOLD at Level 3 only (data-cv1-level stays 3 on the tile)', () => {
+  it('2.0 face: the centre chip reads LVL 3 at Level 3, never HOLD (data-cv1-level stays 3 on the tile)', () => {
     const l3 = buildCardV1({ ...byName('Alyssa, The Bulldozer'), mp: 20, level: 3 }, {})!.html;
-    expect(l3).toContain('LVL 3 · HOLD');
-    expect(l3).not.toContain('>LVL 3<');
+    expect(l3).toContain('>LVL 3<');
+    expect(l3).not.toContain('HOLD');
     for (const level of [1, 2]) expect(buildCardV1({ ...byName('Alyssa, The Bulldozer'), level }, {})!.html).not.toContain('HOLD');
   });
   it('2.0 face uses printed Start MP, LVL 1 and a lit first row for a hand card with no live state', () => {
@@ -214,9 +214,9 @@ describe('card frame v1 — Mosje face data mapping', () => {
     expect(html).toContain('&lt;img src=x onerror=1&gt;');
     expect(html).toContain('&lt;script&gt;');
   });
-  it('field tile: single-line name, L<level> chip (Level 3 reads LVL 3 · HOLD), Power box, MP box, no text box', () => {
+  it('field tile: single-line name, L<level> chip (Level 3 reads L3), Power box, MP box, no text box', () => {
     const html = buildCardV1({ ...byName('Alyssa, The Bulldozer'), mp: 20, level: 3 }, { fieldMode: true })!.html;
-    expect(html).toContain('>LVL 3 · HOLD<'); // spec change D-17: a Level 3 Mosje holds
+    expect(html).toContain('>L3<');
     expect(html).toMatch(/data-cv1-level="3"/);
     expect(html).toMatch(/data-cv1-power="30"/);
     expect(html).toMatch(/data-cv1-mp="20"/);

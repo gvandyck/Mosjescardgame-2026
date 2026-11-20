@@ -1129,11 +1129,6 @@
   font-family: var(--font-mono);
 }
 
-.card--snelle .card__type-label::after,
-.card--snelle_piecie .card__type-label::after {
-  content: '  ⚡';
-  color: var(--snelle-red);
-}
 
 /* ── CARD ACTION BUTTONS (match .modal-btn base style) ──────── */
 .mosje-ability-btn,
@@ -1328,7 +1323,7 @@
 }
 
 .card.free-activation::after {
-  content: '⭐ FREE';
+  content: 'FREE';
   position: absolute;
   top: -10px;
   left: 50%;

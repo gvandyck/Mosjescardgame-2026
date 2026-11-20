@@ -83,7 +83,7 @@ export function showPackOpeningOverlay({ drawnCards, ownedBefore, newBalance, on
 		// Small badge shown in the art zone top-left alongside the type label
 		let subtypeBadge = '';
 		if (card.cardType === 'SNELLE_PIECIE') {
-			subtypeBadge = '<span class="pff-subtype-badge pff-subtype-badge--instant">⚡ INSTANT</span>';
+			subtypeBadge = '<span class="pff-subtype-badge pff-subtype-badge--instant">INSTANT</span>';
 		} else if (card.subtype) {
 			subtypeBadge = `<span class="pff-subtype-badge">${card.subtype}</span>`;
 		} else if (card.trigger) {
@@ -139,8 +139,8 @@ export function showPackOpeningOverlay({ drawnCards, ownedBefore, newBalance, on
 				</div>
 				${card.trigger ? `<p class="pff-meta">Trigger: ${card.trigger.replace(/_/g, ' ')}</p>` : ''}
 				${card.description ? `<p class="pff-ability">${card.description}</p>` : ''}
-				${good ? `<p class="pff-place-good">▲ Good for: ${good}</p>` : ''}
-				${bad  ? `<p class="pff-place-bad">▼ Bad for: ${bad}</p>`   : ''}
+				${good ? `<p class="pff-place-good">Good for: ${good}</p>` : ''}
+				${bad  ? `<p class="pff-place-bad">Bad for: ${bad}</p>`   : ''}
 				${card.flavourText ? `<p class="pff-flavour">"${card.flavourText}"</p>` : ''}
 			`;
 		} else if (card.cardType === 'QUEST') {
@@ -152,8 +152,8 @@ export function showPackOpeningOverlay({ drawnCards, ownedBefore, newBalance, on
 				<p class="pff-meta">${card.category ? card.category + ' · ' : ''}${card.difficulty || ''}</p>
 				${card.requirementDescription ? `<p class="pff-ability">${card.requirementDescription}</p>` : ''}
 				<div class="pff-quest-outcomes">
-					${card.successMP != null ? `<span class="pff-outcome pff-outcome--win">✓ +${card.successMP} MP</span>` : ''}
-					${card.failMP    != null ? `<span class="pff-outcome pff-outcome--lose">✗ ${card.failMP} MP</span>` : ''}
+					${card.successMP != null ? `<span class="pff-outcome pff-outcome--win">Win +${card.successMP} MP</span>` : ''}
+					${card.failMP    != null ? `<span class="pff-outcome pff-outcome--lose">Lose ${Math.abs(card.failMP)} MP</span>` : ''}
 				</div>
 				${card.description ? `<p class="pff-ability">${card.description}</p>` : ''}
 				${card.flavourText ? `<p class="pff-flavour">"${card.flavourText}"</p>` : ''}

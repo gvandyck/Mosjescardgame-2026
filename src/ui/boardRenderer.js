@@ -423,7 +423,7 @@ export function showPlaceEffectBanner(placeName, effectSummary, phase) {
 	const banner = document.createElement('div');
 	banner.className = 'place-effect-banner';
 	banner.innerHTML = `
-		<span class="place-banner-name">📍 ${escapeHtml(placeName || 'Active Place')}</span>
+		<span class="place-banner-name">${escapeHtml(placeName || 'Active Place')}</span>
 		<span class="place-banner-effect">${escapeHtml(effectSummary || `Effect triggered (${phase || 'phase'})`)}</span>
 	`;
 
