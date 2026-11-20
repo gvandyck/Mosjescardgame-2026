@@ -56,7 +56,7 @@
 
 .go-player {
 	display: grid;
-	grid-template-columns: 1.5fr 1fr 1fr;
+	grid-template-columns: 1.4fr 1fr 1fr 1fr;
 	align-items: center;
 	gap: calc(0.8 * var(--go-u));
 }
@@ -95,3 +95,24 @@
 	.go-player { grid-template-columns: 1fr 1fr; }
 	.go-player__who { grid-column: 1 / -1; }
 }
+
+/* ── Winning Personal Quest (72-14, D-16): the card on the left, the Mosje and the dice beside it ─── */
+.reward-overlay .reward-card:has(.go-winning-quest) { width: min(46rem, 94vw); }
+.go-winning-quest {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: calc(1.6 * var(--go-u));
+	margin: calc(0.4 * var(--go-u)) 0;
+}
+.go-winning-quest__card { flex: 0 0 auto; width: 200px; height: 300px; }
+.go-winning-quest__card .card.card-v1 { --cv1-w: 200px; }
+/* With the winning card on screen the rest of the card is kept compact so nothing scrolls at 1080 px. */
+.reward-card:has(.go-winning-quest) .reward-icon { font-size: 2.6rem; }
+.reward-card:has(.go-winning-quest) .go-stat--rounds { padding: calc(0.4 * var(--go-u)) calc(0.9 * var(--go-u)); }
+.reward-card:has(.go-winning-quest) .go-stat__value { font-size: calc(1.4 * var(--go-u)); }
+.reward-card:has(.go-winning-quest) .go-player { padding: calc(0.45 * var(--go-u)) calc(0.9 * var(--go-u)); }
+.go-winning-quest__side { display: flex; flex-direction: column; align-items: center; gap: calc(0.4 * var(--go-u)); min-width: 0; }
+.go-winning-quest__mosje { display: flex; flex-direction: column; align-items: center; gap: calc(0.2 * var(--go-u)); margin: 0; }
+.go-winning-quest__mosje-name { font-weight: 700; font-size: calc(1.3 * var(--go-u)); color: #fff; overflow-wrap: anywhere; }
+.go-winning-quest__stats { font-size: calc(0.95 * var(--go-u)); color: rgba(255, 255, 255, 0.7); }

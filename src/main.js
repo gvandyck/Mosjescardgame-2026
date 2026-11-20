@@ -48,7 +48,6 @@ import { PIECIES } from './data/piecies.js';
 import { SNELLE_PIECIES } from './data/snellePiecies.js';
 import { PLACES } from './data/places.js';
 import { QUESTS } from './data/quests.js';
-import { getPersonalQuestDef } from './engine/personalQuests/getPersonalQuestDef.js';
 import { PERSONAL_QUESTS } from './data/personalQuests.js';
 import { personalQuestText } from './ui/personalQuestText.js';
 import { createRoom, joinRoom } from './multiplayer/roomManager.js';
@@ -88,6 +87,8 @@ import { initLobby2 } from './ui/lobby/initLobby2.js';
 import { launchGame } from './ui/lobby/launchGame.js';
 import { sanitizeGameParams } from './ui/game/sanitizeGameParams.js';
 import { buildGameSummary } from './ui/gameOver/buildGameSummary.js';
+import { getWinningQuestInfo } from './ui/gameOver/getWinningQuestInfo.js';
+import { buildWinningQuestSentence } from './ui/gameOver/buildWinningQuestSentence.js';
 import { getPileMosjes } from './engine/pile/getPileMosjes.js';
 import { getGameOverHeadline } from './ui/gameOver/getGameOverHeadline.js';
 import { getReplayChoices } from './ui/gameOver/getReplayChoices.js';
@@ -854,15 +855,14 @@ function initGamePage() {
 
 		switch (gs.winReason) {
 			case 'PERSONAL_QUEST': {
-				const won = gs.winningQuest || {};
-				const who = won.mosjeName || `${winnerName}'s Mosje`;
-				const quest = getPersonalQuestDef(won.cardId)?.name || 'a Personal Quest';
-				return `${who} completed the Personal Quest ${quest} — victory!`;
+				const info = getWinningQuestInfo(gs);
+				if (info) return buildWinningQuestSentence(info);
+				return `${winnerName} completed a Personal Quest`;
 			}
 			case 'KNOCKOUT': {
 				const lastDefeated = getPileMosjes(opponent).slice(-1)[0];
 				const tail = lastDefeated?.name ? ` (last to fall: ${lastDefeated.name})` : '';
-				return `${opponentName} has no Mosje left outside the Welloe pile${tail}.`;
+				return `${opponentName} was knocked out: no Mosje left outside the pile${tail}`;
 			}
 			default:
 				return String(gs.winReason || 'Game over');
@@ -904,6 +904,7 @@ function initGamePage() {
 			muntenAwarded,
 			logEntries: log.getEntries(),
 			onPlayAgain: mode === 'online' ? null : () => playAgain(mode),
+			winningQuest: getWinningQuestInfo(gs),
 		});
 	}
 
@@ -1105,6 +1106,17 @@ function initGamePage() {
 			emptyDeck(playerId) {
 				const player = gameState?.players?.[playerId];
 				if (player) { player.deck = []; }
+			},
+			// 72-14: end the game by knockout (testMode only): the loser has no Mosje left outside the pile.
+			forceKnockout(loserId) {
+				const player = gameState?.players?.[loserId];
+				if (!player) return;
+				player.activeSlots = [null, null];
+				player.hand = [];
+				player.deck = [];
+				player.graveyard = [...(player.graveyard || []), { cardId: 'mosje_alyssa_bulldozer', name: 'Alyssa', type: 'MOSJE', source: 'welloe' }];
+				gameState = checkVictory(gameState);
+				if (gameState.status === 'FINISHED') handleGameOver(gameState);
 			},
 			/** Call endTurn engine function directly and return Michelle MP before/after. */
 			simulateEndPhaseForMichelle(playerId) {

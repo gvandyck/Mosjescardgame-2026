@@ -38,8 +38,9 @@ test('a Level 3 Mosje plays a Personal Quest from the hand and wins the game', a
 	await expect(overlay).toBeVisible({ timeout: 15000 });
 	await expect(overlay).toHaveAttribute('data-win-reason', 'PERSONAL_QUEST');
 	await expect(overlay).toHaveAttribute('data-winner-id', 'player_1');
-	await expect(page.locator('.reward-reason')).toContainText('Charge!');
+	await expect(page.locator('.reward-reason')).toContainText('completed Charge! with');
 	await expect(page.locator('.reward-reason')).toContainText('Alyssa');
+	await expect(page.locator('.go-winning-quest .card-v1')).toBeVisible();
 	const gs = await getGameState(page);
 	expect(gs.status).toBe('FINISHED');
 	expect(gs.winReason).toBe('PERSONAL_QUEST');

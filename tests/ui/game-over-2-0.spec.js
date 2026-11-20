@@ -7,10 +7,13 @@ import { servePlaceholderFirebase } from '../helpers/servePlaceholderFirebase.js
 import { forceHumanPersonalQuestWin } from '../helpers/forceHumanPersonalQuestWin.js';
 import { playBotGame } from '../helpers/playBotGame.js';
 import { GAME_URL_TEST, waitForBoard, ss } from './helpers.js';
+import { STARTER_DECKS } from '../../src/data/starterDecks.js';
 
 test.use({ viewport: { width: 1920, height: 1080 } });
 
-const DECK_IDS = ['EXAMPLE_TAKSEN', 'EXAMPLE_REGELAARS', 'EXAMPLE_CREATIEVELINGEN'];
+// Phase 69: the lobby decks are the three starter decks; the old example ids are stale here (fixed in 72-14).
+const DECK_IDS = ['STARTER_PHYSICAL', 'STARTER_DIGITAL', 'STARTER_CREATIVE'];
+const deckName = id => STARTER_DECKS.find(deck => deck.id === id).name;
 
 function watchProblems(page) {
 	const problems = [];
@@ -25,8 +28,8 @@ async function seedVsBotSession(page, { withReplay }) {
 	await page.addInitScript(({ withReplay }) => {
 		if (sessionStorage.getItem('test:seeded')) return;
 		sessionStorage.setItem('test:seeded', '1');
-		sessionStorage.setItem('mosjes:offline', JSON.stringify({ name: 'TestPlayer', deckId: 'EXAMPLE_TAKSEN', botDeckId: 'EXAMPLE_REGELAARS', playerId: 'player_1' }));
-		if (withReplay) sessionStorage.setItem('obby2:replay', JSON.stringify({ mode: 'vsBot', name: 'TestPlayer', deckChoice: 'EXAMPLE_TAKSEN', botChoice: 'RANDOM' }));
+		sessionStorage.setItem('mosjes:offline', JSON.stringify({ name: 'TestPlayer', deckId: 'STARTER_PHYSICAL', botDeckId: 'STARTER_DIGITAL', playerId: 'player_1' }));
+		if (withReplay) sessionStorage.setItem('obby2:replay', JSON.stringify({ mode: 'vsBot', name: 'TestPlayer', deckChoice: 'STARTER_PHYSICAL', botChoice: 'RANDOM' }));
 	}, { withReplay });
 }
 
@@ -52,7 +55,17 @@ test('D-19 D-21 D-22 vs Bot: Victory, 2.0 stats from the engine, no V4 tiles, no
 	await expect(overlay).toHaveAttribute('data-win-reason', 'PERSONAL_QUEST');
 	await expect(overlay).toHaveAttribute('data-winner-id', 'player_1');
 	await expect(page.locator('.reward-subtitle')).toHaveText('TestPlayer wins!');
-	await expect(page.locator('.reward-reason')).toContainText('Personal Quest');
+	// 72-14 (D-16): the winning Personal Quest card face, the Mosje, the dice and the sentence.
+	const won = await page.evaluate(() => window.__testHooks.getGameState().winningQuest);
+	await expect(page.locator('.reward-reason')).toHaveText('TestPlayer completed Charge! with Alyssa, The Bulldozer');
+	await expect(page.locator('.go-winning-quest .card-v1')).toBeVisible();
+	await expect(page.locator('.go-winning-quest .card-v1')).toContainText('Charge!');
+	await expect(page.locator('.go-winning-quest__mosje')).toContainText('Level 3');
+	await expect(page.locator('.go-winning-quest__mosje')).toContainText(' MP');
+	await expect(page.locator('.go-winning-quest .die')).toHaveCount(won.dice.length);
+	await expect(page.locator('.go-winning-quest .die')).toHaveText(won.dice.map(String));
+	await expect(page.locator('[data-stat="personal-quests"][data-player-id="player_1"]')).toHaveText('1/1');
+	await expect(page.locator('[data-stat="personal-quests"][data-player-id="player_2"]')).toHaveText('0/0');
 
 	// The numbers come from the engine state, not from a UI tracker.
 	const state = await page.evaluate(() => window.__testHooks.getGameState());
@@ -103,10 +116,10 @@ test('D-20 Play again vs Bot keeps the decks and rolls Random again', async ({ p
 		offline: JSON.parse(sessionStorage.getItem('mosjes:offline')),
 		replay: JSON.parse(sessionStorage.getItem('obby2:replay')),
 	}));
-	expect(session.offline.deckId).toBe('EXAMPLE_TAKSEN');
+	expect(session.offline.deckId).toBe('STARTER_PHYSICAL');
 	expect(session.offline.name).toBe('TestPlayer');
 	expect(DECK_IDS).toContain(session.offline.botDeckId);
-	expect(session.replay).toMatchObject({ mode: 'vsBot', botChoice: 'RANDOM', deckChoice: 'EXAMPLE_TAKSEN' });
+	expect(session.replay).toMatchObject({ mode: 'vsBot', botChoice: 'RANDOM', deckChoice: 'STARTER_PHYSICAL' });
 	await expect(page.locator('#reward-overlay')).toHaveCount(0);
 });
 
@@ -115,19 +128,19 @@ test('D-21 Watch Bots: "<Deck> wins (Bot N)" and Play again', async ({ page }) =
 	await page.addInitScript(() => {
 		if (sessionStorage.getItem('test:seeded')) return;
 		sessionStorage.setItem('test:seeded', '1');
-		sessionStorage.setItem('obby2:replay', JSON.stringify({ mode: 'watchBots', bot1Choice: 'EXAMPLE_TAKSEN', bot2Choice: 'RANDOM', fast: true }));
+		sessionStorage.setItem('obby2:replay', JSON.stringify({ mode: 'watchBots', bot1Choice: 'STARTER_PHYSICAL', bot2Choice: 'RANDOM', fast: true }));
 	});
-	const result = await playBotGame(page, { deck1: 'EXAMPLE_TAKSEN', deck2: 'EXAMPLE_REGELAARS', seed: 6450 });
+	const result = await playBotGame(page, { deck1: 'STARTER_PHYSICAL', deck2: 'STARTER_DIGITAL', seed: 6450 });
 	expect(result.finished, `the game ends (timeout: ${result.timeoutKind})`).toBe(true);
 	expect(result.errors, 'no error during the bot game').toEqual([]);
 
 	const seat = result.winnerId === 'player_1' ? 1 : 2;
-	const winnerDeck = seat === 1 ? 'Taksen' : 'Regelaars';
+	const winnerDeck = deckName(seat === 1 ? 'STARTER_PHYSICAL' : 'STARTER_DIGITAL');
 	const title = page.locator('.reward-title');
 	await expect(title).toHaveText(`${winnerDeck} wins (Bot ${seat})`);
 	expect(await title.innerText()).not.toMatch(/Victory|Defeat/);
 	await expect(page.locator('#reward-overlay')).toHaveAttribute('data-mode', 'watchBots');
-	await expect(page.locator('.reward-subtitle')).toHaveText('Taksen (Bot 1) vs Regelaars (Bot 2)');
+	await expect(page.locator('.reward-subtitle')).toHaveText(`${deckName('STARTER_PHYSICAL')} (Bot 1) vs ${deckName('STARTER_DIGITAL')} (Bot 2)`);
 	await expect(page.locator('[data-stat="quests"]')).toHaveCount(2);
 	await expect(page.locator('.go-player__name')).toHaveText(['Bot 1', 'Bot 2']);
 
@@ -136,8 +149,25 @@ test('D-21 Watch Bots: "<Deck> wins (Bot N)" and Play again', async ({ page }) =
 	const params = new URL(page.url()).searchParams;
 	expect(params.get('botvsbot')).toBe('true');
 	expect(params.get('player')).toBe('player_1');
-	expect(params.get('deck1')).toBe('EXAMPLE_TAKSEN');
+	expect(params.get('deck1')).toBe('STARTER_PHYSICAL');
 	expect(DECK_IDS).toContain(params.get('deck2'));
 	expect(params.get('fast')).toBe('true');
 	await expect(page.locator('.mosje-card--owned, .mosje-card--opponent').first()).toBeVisible({ timeout: 20000 });
+});
+
+test('72-14 D-16 a knockout win says who was knocked out and shows no winning card', async ({ page }) => {
+	test.setTimeout(120000);
+	await seedVsBotSession(page, { withReplay: false });
+	await page.goto(GAME_URL_TEST);
+	await waitForBoard(page);
+	await page.evaluate(() => window.__testHooks.forceKnockout('player_2'));
+
+	const overlay = page.locator('#reward-overlay');
+	await expect(overlay).toBeVisible({ timeout: 15000 });
+	await expect(overlay).toHaveAttribute('data-win-reason', 'KNOCKOUT');
+	await expect(overlay).toHaveAttribute('data-winner-id', 'player_1');
+	await expect(page.locator('.reward-reason')).toContainText('was knocked out: no Mosje left outside the pile');
+	await expect(page.locator('.reward-reason')).toContainText('(last to fall: Alyssa');
+	await expect(page.locator('.go-winning-quest')).toHaveCount(0);
+	await expect(page.locator('[data-stat="personal-quests"]')).toHaveCount(2);
 });

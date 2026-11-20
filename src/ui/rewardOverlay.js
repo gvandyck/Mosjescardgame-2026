@@ -4,6 +4,8 @@
 
 console.log('[UI] rewardOverlay.js loaded');
 
+import { renderCard } from './cardRenderer.js';
+import { getCardById } from '../data/cardIndex.js';
 import { buildRewardOverlayHtml } from './gameOver/buildRewardOverlayHtml.js';
 
 /**
@@ -17,9 +19,10 @@ import { buildRewardOverlayHtml } from './gameOver/buildRewardOverlayHtml.js';
  * @param {boolean} opts.showMunten      FEATURES.muntenRewards
  * @param {number}  opts.muntenAwarded
  * @param {Array<{type:string,text:string}>} [opts.logEntries]  Battle-log entries (newest-first)
+ * @param {object|null} [opts.winningQuest]  from getWinningQuestInfo (Personal Quest win only)
  * @param {(() => void)|null} [opts.onPlayAgain]  Play again handler; no button when null
  */
-export function showRewardOverlay({ headline, winReason, winnerId, mode, reasonText, summary, showMunten, muntenAwarded, logEntries = [], onPlayAgain = null }) {
+export function showRewardOverlay({ headline, winReason, winnerId, mode, reasonText, summary, showMunten, muntenAwarded, logEntries = [], onPlayAgain = null, winningQuest = null }) {
 	document.getElementById('reward-overlay')?.remove();
 
 	const overlay = document.createElement('div');
@@ -31,8 +34,9 @@ export function showRewardOverlay({ headline, winReason, winnerId, mode, reasonT
 	if (mode) overlay.dataset.mode = mode;
 
 	const canPlayAgain = typeof onPlayAgain === 'function';
-	overlay.innerHTML = buildRewardOverlayHtml({ headline, reasonText, summary, showMunten, muntenAwarded, logEntries, canPlayAgain });
+	overlay.innerHTML = buildRewardOverlayHtml({ headline, reasonText, summary, showMunten, muntenAwarded, logEntries, canPlayAgain, winningQuest });
 	document.body.appendChild(overlay);
+	mountWinningQuestCard(overlay, winningQuest);
 
 	document.getElementById('reward-back-btn').addEventListener('click', () => {
 		window.location.href = './index.html';
@@ -62,4 +66,13 @@ export function showRewardOverlay({ headline, winReason, winnerId, mode, reasonT
 	}
 
 	requestAnimationFrame(() => overlay.classList.add('reward-overlay--visible'));
+}
+
+// The Personal Quest card face is mounted after innerHTML, like the option cards (the markup only leaves a slot).
+function mountWinningQuestCard(overlay, winningQuest) {
+	if (!winningQuest) return;
+	const slot = overlay.querySelector('.go-winning-quest__card');
+	const card = getCardById(winningQuest.questCardId);
+	if (!slot || !card) return;
+	slot.appendChild(renderCard(card));
 }

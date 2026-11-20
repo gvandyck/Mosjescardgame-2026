@@ -3,6 +3,7 @@
 // Stable hooks other specs and the sim rely on: .reward-title / -subtitle / -reason / -log-summary / .log-row,
 // #reward-copy-btn, #reward-back-btn; the new ones: [data-stat], #reward-again-btn.
 import { escapeHtml as esc } from '../cardV1/escapeHtml.js';
+import { buildWinningQuestHtml } from './buildWinningQuestHtml.js';
 
 function statsHtml(summary) {
 	const rows = summary.players.map(player => `
@@ -13,7 +14,11 @@ function statsHtml(summary) {
 			</div>
 			<div class="go-stat">
 				<span class="go-stat__value" data-stat="quests" data-player-id="${esc(player.playerId)}">${esc(player.questsWon)}/${esc(player.questsAttempted)}</span>
-				<span class="go-stat__label">Quests won</span>
+				<span class="go-stat__label">General Quests won</span>
+			</div>
+			<div class="go-stat">
+				<span class="go-stat__value" data-stat="personal-quests" data-player-id="${esc(player.playerId)}">${esc(player.personalQuestsWon ?? 0)}/${esc(player.personalQuestsAttempted ?? 0)}</span>
+				<span class="go-stat__label">Personal Quests</span>
 			</div>
 			<div class="go-stat">
 				<span class="go-stat__value" data-stat="mosjes-lost" data-player-id="${esc(player.playerId)}">${esc(player.mosjesLost)}</span>
@@ -42,15 +47,17 @@ function logHtml(logEntries) {
 		</details>`;
 }
 
-export function buildRewardOverlayHtml({ headline, reasonText, summary, showMunten, muntenAwarded, logEntries = [], canPlayAgain }) {
+export function buildRewardOverlayHtml({ headline, reasonText, summary, showMunten, muntenAwarded, logEntries = [], canPlayAgain, winningQuest = null }) {
 	const munten = showMunten && muntenAwarded > 0 ? `<p class="reward-munten">+${esc(muntenAwarded)} Munten</p>` : '';
 	const reason = reasonText ? `<p class="reward-reason">${esc(reasonText)}</p>` : '';
+	const winning = winningQuest ? buildWinningQuestHtml(winningQuest) : '';
 	return `
 		<div class="reward-card">
 			<div class="reward-icon">${esc(headline.icon)}</div>
 			<h2 class="reward-title">${esc(headline.title)}</h2>
 			<p class="reward-subtitle">${esc(headline.subtitle)}</p>
 			${reason}
+			${winning}
 			${munten}
 			${statsHtml(summary)}
 			${logHtml(logEntries)}

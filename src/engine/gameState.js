@@ -112,6 +112,7 @@ function createPlayerState(config) {
     activeSlots,          // [mosjeSlot, mosjeSlot] — up to 2 active Mosjes
     piecieSlots: Array(PIECIE_SLOT_COUNT).fill(null),  // 3 face-down Piecie positions
 
+    personalQuestStats: { attempted: 0, won: 0 }, // 72-14: Personal Quest attempts, apart from questStats
     questsCompleted: 0,
     questsCompletedThisTurn: 0,
     questsAttemptedThisTurn: 0,   // 2.0: Quest attempts this turn (rollQuestAttempt)

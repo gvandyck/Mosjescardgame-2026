@@ -12,6 +12,11 @@ export function resolvePersonalQuestAttempt(state, pending) {
 	const { playerId, slotIndex, cardId, dice, win } = pending;
 	const player = s.players[playerId];
 	if (player?.rerollGrants) player.rerollGrants = player.rerollGrants.filter(g => !g.forRoll); // that roll is over
+	if (player) { // 72-14 (D-17): Personal Quest attempts are counted apart from general Quests (player.questStats)
+		const stats = player.personalQuestStats || (player.personalQuestStats = { attempted: 0, won: 0 });
+		stats.attempted += 1;
+		if (win) stats.won += 1;
+	}
 	const slot = player?.activeSlots?.[slotIndex];
 	if (win) {
 		s.status = 'FINISHED';

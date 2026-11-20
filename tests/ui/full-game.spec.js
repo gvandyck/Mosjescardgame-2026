@@ -62,7 +62,7 @@ async function endTurnAndWatch(page, ms = 45000) {
 }
 
 // Valid win reasons the overlay must show
-// 2.0 overlay texts: "has no Mosje left outside the Welloe pile" (knockout) and "completed the Personal Quest".
+// 2.0 overlay texts: "<Name> was knocked out: no Mosje left outside the pile" (knockout) and "<Player> completed <Quest> with <Mosje>".
 const WIN_REASONS = ['PERSONAL_QUEST', 'KNOCKOUT'];
 
 // ─── Shared helpers ───────────────────────────────────────────────────────────
@@ -332,7 +332,7 @@ test('full game: reaching Level 3 and holding it is NOT a win - a Level 3 Mosje 
 	const { title, reason } = await waitForGameOver(page, 3000);
 	await ss(page, 'full-game-personal-quest-win');
 	expect(title).toBe('Victory!');
-	expect(reason.toLowerCase()).toContain('personal quest');
+	expect(reason.toLowerCase()).toContain('completed charge! with'); // 72-14 sentence
 
 	// The end screen embeds the battle log (colour-coded rows) + a Copy Log button.
 	await page.locator('#reward-overlay .reward-log-summary').click(); // log is a collapsed <details>

@@ -10,6 +10,9 @@ import { getReplayChoices } from '../../src/ui/gameOver/getReplayChoices.js';
 import { buildRewardOverlayHtml } from '../../src/ui/gameOver/buildRewardOverlayHtml.js';
 import { sanitizeGameParams } from '../../src/ui/game/sanitizeGameParams.js';
 import { getPlayerFacingDecks } from '../../src/data/playerFacingDecks.js';
+import { getWinningQuestInfo } from '../../src/ui/gameOver/getWinningQuestInfo.js';
+import { buildWinningQuestSentence } from '../../src/ui/gameOver/buildWinningQuestSentence.js';
+import { buildWinningQuestHtml } from '../../src/ui/gameOver/buildWinningQuestHtml.js';
 import { STARTER_DECKS } from '../../src/data/starterDecks.js';
 
 const decks = getPlayerFacingDecks();
@@ -174,5 +177,68 @@ describe('buildRewardOverlayHtml (D-19, D-20, D-22, T-64-22)', () => {
 		expect(html).toContain('&lt;b&gt;x&lt;/b&gt;');
 		expect(html).not.toContain('<b>x</b>');
 		expect(html).not.toContain('<i>row</i>');
+	});
+});
+
+// 72-14 (D-16, D-17)
+function pqWin(over = {}) {
+	return finishedState({
+		players: { player_1: { name: 'Gandoe', activeSlots: [{ cardId: 'mosje_alyssa_bulldozer', name: 'Alyssa', level: 3, mp: 65 }, null], personalQuestStats: { attempted: 2, won: 1 } } },
+		winnerId: 'player_1',
+		winningQuest: { cardId: 'pq_charge', playerId: 'player_1', mosjeCardId: 'mosje_alyssa_bulldozer', mosjeName: 'Alyssa', slotIndex: 0, dice: [6, 5] },
+		...over,
+	});
+}
+
+describe('buildGameSummary Personal Quest counter (D-17)', () => {
+	it('reads personalQuestStats, 0 when missing', () => {
+		const out = buildGameSummary(pqWin());
+		expect(out.players[0]).toMatchObject({ personalQuestsAttempted: 2, personalQuestsWon: 1 });
+		expect(out.players[1]).toMatchObject({ personalQuestsAttempted: 0, personalQuestsWon: 0 });
+	});
+});
+
+describe('getWinningQuestInfo (D-16, T-72-22)', () => {
+	it('is null unless a Personal Quest won', () => {
+		expect(getWinningQuestInfo(finishedState({ winReason: 'KNOCKOUT' }))).toBeNull();
+		expect(getWinningQuestInfo(finishedState())).toBeNull();
+	});
+	it('returns quest, Mosje (level and MP from the slot), dice and player', () => {
+		expect(getWinningQuestInfo(pqWin())).toEqual({
+			questCardId: 'pq_charge', questName: 'Charge!', playerName: 'Gandoe', dice: [6, 5],
+			mosje: { cardId: 'mosje_alyssa_bulldozer', name: 'Alyssa', level: 3, mp: 65 },
+		});
+	});
+	it('falls back to mosjeName and null level / MP when the slot is gone', () => {
+		const info = getWinningQuestInfo(pqWin({ players: { player_1: { activeSlots: [null, null] } } }));
+		expect(info.mosje).toEqual({ cardId: 'mosje_alyssa_bulldozer', name: 'Alyssa', level: null, mp: null });
+	});
+	it('ignores an unknown quest id', () => {
+		const s = pqWin(); s.winningQuest.cardId = 'nope';
+		expect(getWinningQuestInfo(s)).toBeNull();
+	});
+});
+
+describe('winning quest sentence and markup', () => {
+	const info = { questCardId: 'pq_charge', questName: 'Charge!', playerName: 'Gandoe', dice: [6, 5], mosje: { cardId: 'x', name: 'Alyssa', level: 3, mp: 65 } };
+	it('sentence', () => {
+		expect(buildWinningQuestSentence(info)).toBe('Gandoe completed Charge! with Alyssa');
+	});
+	it('markup: card slot, Mosje line, dice, and escaping', () => {
+		const html = buildWinningQuestHtml({ ...info, mosje: { ...info.mosje, name: '<img src=x>' } });
+		expect(html).toContain('go-winning-quest__card');
+		expect(html).toContain('data-card-id="pq_charge"');
+		expect(html).toContain('Level 3, 65 MP');
+		expect(html.match(/class="die"/g)).toHaveLength(2);
+		expect(html).not.toContain('<img');
+	});
+	it('overlay: Personal Quests stat apart from General Quests, section only with a winning quest', () => {
+		const summary = buildGameSummary(pqWin());
+		const base = { headline: { icon: 'x', title: 't', subtitle: 's' }, summary, showMunten: false, muntenAwarded: 0, canPlayAgain: false };
+		const html = buildRewardOverlayHtml({ ...base, winningQuest: info });
+		expect(html).toContain('go-winning-quest');
+		expect(html).toContain('data-stat="personal-quests" data-player-id="player_1">1/2');
+		expect(html).toContain('General Quests won');
+		expect(buildRewardOverlayHtml(base)).not.toContain('go-winning-quest');
 	});
 });

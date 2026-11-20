@@ -9,6 +9,7 @@ const SEATS = ['player_1', 'player_2'];
 function toPlayerSummary(state, playerId) {
 	const player = state.players?.[playerId] || {};
 	const stats = player.questStats || {};
+	const personal = player.personalQuestStats || {};
 	const deck = STARTER_DECKS.find(entry => entry.id === player.deckId);
 	return {
 		playerId,
@@ -16,6 +17,8 @@ function toPlayerSummary(state, playerId) {
 		deckName: deck ? deck.name : (player.deckId || ''),
 		questsWon: stats.won || 0,
 		questsAttempted: stats.attempted || 0,
+		personalQuestsWon: personal.won || 0,
+		personalQuestsAttempted: personal.attempted || 0,
 		mosjesLost: getPileMosjes(player).length,
 	};
 }
