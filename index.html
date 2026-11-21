@@ -2,15 +2,26 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="robots" content="noindex,nofollow" />
   <link rel="icon" href="assets/icons/obbyhouse.jpg" type="image/jpeg" />
+  <!-- Add to Home Screen (65-10, D-17): relative manifest + icons, opens full-screen; no service worker, no offline mode. -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="apple-mobile-web-app-title" content="Mosjes" />
+  <meta name="theme-color" content="#0f0f0f" />
   <title>MOSJES - Lobby</title>
   <link rel="stylesheet" href="styles/main.css" />
   <link rel="stylesheet" href="styles/board.css" />
   <link rel="stylesheet" href="styles/arena.css" />
   <link rel="stylesheet" href="styles/account.css" />
   <link rel="stylesheet" href="styles/lobby-2-0.css" />
+  <link rel="stylesheet" href="styles/phone-base.css" />
+  <link rel="stylesheet" href="styles/phone-sheets.css" />
+  <link rel="stylesheet" href="styles/phone-screens.css" />
 </head>
 <body class="page page--lobby">
   <div class="bg-noise" aria-hidden="true"></div>
@@ -85,5 +96,13 @@
   <div id="modal-root" class="modal-root"></div>
 
   <script type="module" src="src/main.js"></script>
+
+  <!-- Phase 65 (D-01): a phone held sideways shows only this notice; styles/phone-base.css decides when (short landscape, coarse pointer). -->
+  <div id="rotate-notice" class="rotate-notice" role="alert">
+    <div class="rotate-notice__box">
+      <span class="rotate-notice__icon" aria-hidden="true">&#x1F4F1;</span>
+      <p>Turn your phone upright to play</p>
+    </div>
+  </div>
 </body>
 </html>

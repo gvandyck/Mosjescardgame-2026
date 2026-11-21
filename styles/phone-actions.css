@@ -1,0 +1,58 @@
+/* phone-actions.css - Phase 65-09 (MOB-04; D-13, D-15, T-65-12): the Phase 63 field actions FIT a 360 px phone, their behaviour is
+   untouched. The action tray wraps into 2 columns of 109 px chips (4 chips of 88 px were 392 px wide), the status strip message
+   (the attack banner) may take 2 lines instead of one cut line next to two buttons, and the toast uses the width it needs. Every
+   chip and button stays at least 44 px high and 72 px wide with a gap, so a thumb cannot hit the wrong one. Where the tray goes
+   is src/ui/board/getTrayBounds.js (the band between the status strip and the bottom bar). Loaded after phone-sheets.css; the
+   whole sheet sits behind the ONE 700 px phone query, so the desktop tray, strip and toast are what they were. */
+
+@media (max-width: 700px) {
+	/* ── The action tray: 2 chips per row. width: max-content makes a 1 or 2 chip tray as wide as its chips. ──────────────── */
+	.action-tray {
+		flex-wrap: wrap;
+		gap: 6px;
+		width: max-content;
+		max-width: 224px;                    /* 2 chips of 109 px and the gap */
+	}
+	.action-tray__chip {
+		flex: 0 0 109px;
+		width: 109px;
+		min-width: 0;
+		min-height: 44px;
+		padding: 0 8px;
+		font-size: 12px;
+		line-height: 1.1;
+		white-space: normal;                 /* "Ability · 3 Energy" wraps to two lines inside its chip, never wider */
+		text-align: center;
+	}
+
+	/* ── The status strip: the attack banner (preview) with Confirm and Cancel ─────────────────────────────────────────── */
+	.status-strip {
+		width: calc(100% - 16px);
+		gap: 6px;
+		padding: 0 8px;
+	}
+	.status-strip__text {
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;               /* at most 2 lines, the strip is 44 px high */
+		white-space: normal;
+		font-size: 12px;
+		line-height: 1.15;
+	}
+	.status-strip__btn {
+		min-width: 72px;
+		height: 44px;
+		padding: 0 8px;
+		font-size: 12px;
+		letter-spacing: 0.04em;
+	}
+
+	/* ── The toast: under the (phone) header and strip, as wide as its text up to the window less 8 px each side ───────── */
+	.board-toast {
+		top: calc(var(--phone-top) + var(--status-h) + 8px);
+		width: max-content;
+		max-width: calc(100vw - 16px);
+		padding: 8px 12px;
+		font-size: 13px;
+	}
+}

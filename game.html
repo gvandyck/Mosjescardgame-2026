@@ -2,9 +2,17 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="robots" content="noindex,nofollow" />
   <link rel="icon" href="assets/icons/obbyhouse.jpg" type="image/jpeg" />
+  <!-- Add to Home Screen (65-10, D-17): relative manifest + icons, opens full-screen; no service worker, no offline mode. -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="apple-mobile-web-app-title" content="Mosjes" />
+  <meta name="theme-color" content="#0f0f0f" />
   <title>MOSJES - Game Board</title>
   <link rel="stylesheet" href="styles/main.css" />
   <link rel="stylesheet" href="styles/board.css" />
@@ -23,6 +31,15 @@
   <link rel="stylesheet" href="styles/chips.css" />
   <link rel="stylesheet" href="styles/dice-row.css" />
   <link rel="stylesheet" href="styles/game-over-2-0.css" />
+  <link rel="stylesheet" href="styles/phone-base.css" />
+  <link rel="stylesheet" href="styles/phone-header.css" />
+  <link rel="stylesheet" href="styles/phone-hand.css" />
+  <link rel="stylesheet" href="styles/phone-board.css" />
+  <link rel="stylesheet" href="styles/phone-middle.css" />
+  <link rel="stylesheet" href="styles/phone-raise.css" />
+  <link rel="stylesheet" href="styles/phone-sheets.css" />
+  <link rel="stylesheet" href="styles/phone-actions.css" />
+  <link rel="stylesheet" href="styles/phone-screens.css" />
 </head>
 <body class="page page--game">
   <div class="bg-noise" aria-hidden="true"></div>
@@ -34,8 +51,8 @@
     <span id="topbar-room-code" class="topbar-room-code" hidden>Room: <strong id="topbar-room-code-value"></strong></span>
     <div class="topbar-flow" id="topbar-flow"></div>
     <div class="topbar-actions">
-      <button id="btn-toggle-win" class="btn-secondary" type="button" aria-expanded="false" aria-controls="topbar-win-popover">How to Win 🏆</button>
-      <button id="btn-toggle-log" class="btn-secondary" type="button" aria-expanded="false" aria-controls="topbar-log-popover">Battle Log</button>
+      <button id="btn-toggle-win" class="btn-secondary" type="button" aria-label="How to Win" aria-expanded="false" aria-controls="topbar-win-popover">How to Win 🏆</button>
+      <button id="btn-toggle-log" class="btn-secondary" type="button" aria-label="Battle Log" aria-expanded="false" aria-controls="topbar-log-popover">Battle Log</button>
     </div>
   </header>
 
@@ -92,13 +109,41 @@
       <button id="btn-end-turn" class="btn-primary" type="button">End Turn</button>
     </section>
 
-    <section class="game-hand-panel">
+    <!-- Phase 65-03 (D-08): on a phone the hand is a drawer behind the bar below; styles/phone-hand.css and src/ui/phone/initPhoneHand.js
+         drive it. The bar, scrim and handle live INSIDE main.game-layout (a stacking context, z-index 1) on purpose: the hand panel
+         (z 45) and the "Place here" slot (z 47) are in it too, so the scrim (44) < panel (45) < bar (46) < marked slot (47) order holds. -->
+    <section class="game-hand-panel" id="phone-drawer">
+      <div class="phone-drawer__handle" aria-hidden="true"></div>
       <div id="hand-root" class="hand-strip"></div>
     </section>
+
+    <div id="phone-drawer-scrim" class="phone-drawer-scrim" hidden></div>
+
+    <div id="phone-bar" class="phone-bar" role="toolbar" aria-label="Hand and turn">
+      <button id="phone-hand-toggle" class="phone-bar__hand" type="button" aria-expanded="false" aria-controls="hand-root">
+        <span class="phone-bar__chevron" aria-hidden="true"></span>
+        <span class="phone-bar__label">Hand</span>
+        <span class="phone-bar__count" data-phone-hand-count>0</span>
+      </button>
+      <span class="phone-bar__energy" data-phone-energy role="status" aria-label="Energy">0/6</span>
+      <!-- End Turn: main.js keeps the node; boardRenderer (pickEndTurnHost) moves it in here on a phone. -->
+      <div id="phone-bar-end-turn" class="phone-bar__end-turn"></div>
+      <!-- Phase 65-06 (D-10): the raised hand card (name, cost or reason, Details, Play, cancel); src/ui/phone/renderRaiseDock.js fills it
+           and switches the bar to data-mode="raise", which hides the three controls above. -->
+      <div class="phone-bar__raise" data-raise-dock role="group" aria-label="Raised card"></div>
+    </div>
   </main>
 
   <div id="modal-root" class="modal-root"></div>
 
   <script type="module" src="src/main.js"></script>
+
+  <!-- Phase 65 (D-01): a phone held sideways shows only this notice; styles/phone-base.css decides when (short landscape, coarse pointer). -->
+  <div id="rotate-notice" class="rotate-notice" role="alert">
+    <div class="rotate-notice__box">
+      <span class="rotate-notice__icon" aria-hidden="true">&#x1F4F1;</span>
+      <p>Turn your phone upright to play</p>
+    </div>
+  </div>
 </body>
 </html>

@@ -1,0 +1,75 @@
+/* phone-screens.css - Phase 65-10 (MOB-06 second half, D-16, D-07, D-18): the lobby and the game-over card on a phone. Loaded LAST on
+   index.html and game.html (game.html needs it for the game-over card). Everything is inside the ONE phone query (max-width: 700px,
+   tests/ui/phone-breakpoint.test.ts), so the desktop lobby and game-over card at 1920x1080 stay exactly what they were. */
+
+@media (max-width: 700px) {
+	/* ── Lobby ──────────────────────────────────────────────────────────────────────────────────────────────────────────── */
+	/* Scoped to the 2.0 lobby: account.html also wears .page--lobby. The page starts at the top (never centred: Start must not
+	   slide down) and is the dynamic viewport tall at least, with room for the notch and the home bar. */
+	.page--lobby:has(.lobby-shell--2-0) {
+		min-height: 100dvh;
+		padding: max(12px, env(safe-area-inset-top, 0px)) 12px max(12px, env(safe-area-inset-bottom, 0px));
+		gap: 12px;
+		justify-content: flex-start;
+	}
+	.lobby-shell--2-0 { width: 100%; }
+
+	/* A compact header: the title keeps its look, the kicker and the tag line shrink. */
+	.page--lobby .lobby-shell--2-0 .lobby-header { padding: 10px 12px; }
+	.page--lobby .lobby-shell--2-0 .lobby-header h1 { font-size: 2.4rem; letter-spacing: 0.16em; }
+	.page--lobby .lobby-shell--2-0 .lobby-kicker { font-size: 0.65rem; letter-spacing: 0.16em; }
+	.page--lobby .lobby-shell--2-0 .lobby-header p:not(.lobby-kicker) { font-size: 0.85rem; }
+
+	/* A flex column (not the desktop grid): a sticky grid item is held inside its own grid cell and could never follow the screen. */
+	.page--lobby .lobby2 {
+		display: flex;
+		flex-direction: column;
+		gap: 14px;
+		padding: 12px;
+	}
+	.page--lobby .lobby2__group .segmented { max-width: none; }
+	.page--lobby .deck-tiles--compact { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+	/* Start is always on screen: it sticks to the bottom edge (above the home bar) while the lobby scrolls under it, and a ring
+	   in the panel colour keeps the tiles behind it from showing through the gap. */
+	.page--lobby .lobby2__start {
+		position: sticky;
+		bottom: max(8px, env(safe-area-inset-bottom, 0px));
+		z-index: 5;
+		min-height: 52px;
+		box-shadow: 0 0 0 6px #080c1a, 0 6px 16px rgba(59, 130, 246, 0.3);
+	}
+
+	/* The Version badge is a direct child of the flex-column body: static and ordered last, it ends the page and can never sit
+	   over a control (it covered Start on a phone, D-07). */
+	.page--lobby:has(.lobby-shell--2-0) .app-version-badge {
+		position: static;
+		order: 99;
+		align-self: center;
+		margin: 4px 0 0;
+		font-size: 11px;
+	}
+
+	/* ── Game-over ──────────────────────────────────────────────────────────────────────────────────────────────────────── */
+	/* The card is as tall as the dynamic viewport allows (100dvh follows the address bar, 92vh did not) and scrolls inside itself. */
+	.reward-overlay { padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px); }
+	.reward-overlay .reward-card {
+		box-sizing: border-box;
+		width: calc(100% - 24px);
+		max-height: calc(100dvh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+		padding: 16px 14px;
+		overflow-y: auto;
+		overscroll-behavior: contain;
+	}
+	.reward-overlay .reward-icon { font-size: 2.5rem; }
+	.reward-overlay .reward-title { font-size: 2.4rem; }
+
+	/* The buttons stack, full width, 48 px tall. */
+	.reward-overlay .reward-actions { flex-direction: column; gap: 10px; }
+	.reward-overlay .reward-actions .reward-btn {
+		flex: 0 0 auto;
+		width: 100%;
+		min-height: 48px;
+		margin-top: 0;
+	}
+}

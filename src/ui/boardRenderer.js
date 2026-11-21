@@ -24,6 +24,8 @@ import { getAttachmentRows } from './board/getAttachmentRows.js';
 import { getAttachmentChips } from './board/getAttachmentChips.js';
 import { buildChipRowHtml } from './chips/buildChipRowHtml.js';
 import { buildTagLinesHtml } from './chips/buildTagLinesHtml.js';
+import { pickEndTurnHost } from './phone/pickEndTurnHost.js';
+import { applyPhoneFit } from './phone/applyPhoneFit.js';
 
 const PIECIE_SLOTS = 3; // 2.0: 3 Piecie slots per player (mirrors tableRules)
 const MOSJE_SLOTS = 2; // 2.0: 2 Mosje slots per player
@@ -243,9 +245,9 @@ export function renderBoard(container, viewModel, onReturnToHand = null, onOpenD
 		fillSlotOutlines(container.querySelector(`#piecies-${side}`), 'piecie', PIECIE_SLOTS);
 	}
 
-	// End Turn lives in the middle strip now; the node (and its click listener) comes from main.js.
+	// End Turn lives in the middle strip (or, on a phone, in the bottom bar: pickEndTurnHost); the node (and its click listener) comes from main.js.
 	if (extras.endTurnButton) {
-		container.querySelector('#board-end-turn')?.appendChild(extras.endTurnButton);
+		pickEndTurnHost(container)?.appendChild(extras.endTurnButton);
 		if (endTurnHadFocus) extras.endTurnButton.focus({ preventScroll: true }); // re-parenting drops focus; keep it for keyboard play
 	}
 
@@ -258,6 +260,8 @@ export function renderBoard(container, viewModel, onReturnToHand = null, onOpenD
 	markEnteringCards(container);
 	// board-2-0.css sizes every tile from --field-slots: 7 columns, or 8 while either Welloe pile has cards (D-13).
 	container.style.setProperty('--field-slots', String(getFieldSlots([viewModel.players.top, viewModel.players.bottom])));
+	// On a phone: shrink the opponent's side (then mine) until the whole table fits; elsewhere remove the scale variables (65-05).
+	applyPhoneFit(container);
 }
 
 function initBoardDropZones(container, onPlayFromHand) {

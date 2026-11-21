@@ -6,18 +6,9 @@
 import { getHandPlayCost } from './getHandPlayCost.js';
 import { getNextFreeSlot } from './getNextFreeSlot.js';
 import { setSlotHint } from './setSlotHint.js';
-import { SNELLE_PIECIES } from '../../data/snellePiecies.js';
-import { snelleConditionMet } from '../../rules/snelleConditions.js';
+import { snelleRefused } from './snelleRefused.js';
 
 const KIND_BY_TYPE = { MOSJE: 'mosje', PIECIE: 'piecie', SNELLE_PIECIE: 'piecie' };
-
-// playSnellie refuses a Snelle (nothing paid, nothing placed) when Those Eyelashes blocks it or its "Needs / Only if" fails.
-// A card played from the hand has no reaction window, so the condition is read with reaction = null, as the play does.
-function snelleRefused(gameState, localPlayerId, card) {
-	if (card.type !== 'SNELLE_PIECIE') return false;
-	if (gameState._snelleBlocked === localPlayerId) return true;
-	return snelleConditionMet(gameState, localPlayerId, SNELLE_PIECIES.find((def) => def.id === card.cardId), null) !== true;
-}
 
 export function bindSlotHint(wrap, card, gameState, localPlayerId) {
 	const kind = KIND_BY_TYPE[card?.type];

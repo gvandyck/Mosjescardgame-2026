@@ -4,12 +4,14 @@
 // Hovering or focusing a chip that costs Energy previews the spend on the crystals. The tray sits centred above the tile,
 // clamped to the board edges; it flips below only when there is no room above (the Place tile sits right under the opponent's
 // row, so its tray asks for { below: true } from the start). position: fixed, so no row clips it.
+// The clamp area comes from getTrayBounds: the board edges on the desktop, the band between the status strip and the bottom bar
+// on the phone (65-09).
 import { showToast } from './showToast.js';
 import { setEnergyPreview } from './setEnergyPreview.js';
+import { getTrayBounds } from './getTrayBounds.js';
 import { COOLDOWN_ERROR } from '../../engine/turn/isCooldownBlocked.js';
 
 const GAP = 6;
-const EDGE = 4;
 
 function buildChip(chip, board, onChoose) {
 	const btn = document.createElement('button');
@@ -34,11 +36,11 @@ function buildChip(chip, board, onChoose) {
 
 function placeTray(tray, board, anchor, below) {
 	const a = anchor.getBoundingClientRect();
-	const b = board.getBoundingClientRect();
+	const b = getTrayBounds(board);
 	const w = tray.offsetWidth;
 	const h = tray.offsetHeight;
-	const left = Math.max(b.left + EDGE, Math.min(a.left + a.width / 2 - w / 2, b.right - w - EDGE));
-	const under = Math.min(a.bottom + GAP, window.innerHeight - h - EDGE);
+	const left = Math.max(b.left, Math.min(a.left + a.width / 2 - w / 2, b.right - w));
+	const under = Math.min(a.bottom + GAP, b.bottom - h);
 	let top = below ? under : a.top - h - GAP;
 	if (!below && top < b.top) top = under;
 	tray.style.left = `${Math.round(left)}px`;

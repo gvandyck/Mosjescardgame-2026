@@ -1,0 +1,212 @@
+/* phone-board.css - Phase 65-04 (MOB-01 first half; D-04, D-05, D-06, D-15): the two sides of the table on a phone. Loaded after
+   phone-hand.css; everything sits behind the ONE 700 px phone query (tests/ui/phone-breakpoint.test.ts), so the desktop table is
+   byte-for-byte what it was. Each side wraps into 2 lines: line 1 = the 2 Mosje slots plus a side cell (Energy gems above the deck
+   and discard piles), line 2 = the 3 Piecie slots. Every tile comes from ONE token, --field-tile-w: the board content width minus 2
+   gaps, over 3 tiles (108 px at 360, 118 px at 390), times --me-scale; the opponent uses --opp-scale instead (both default to 1;
+   plan 05 sets them, down to 0.7 for the opponent). --field-tile-h and --bu follow exactly as in board-2-0.css (240:176, tile / 240),
+   so every face still scales from --bu. No 170 px floor, no --field-slots, no --row-w, no sideways scrolling row.
+   Sizes are set here independent of (hover: hover) on purpose: the hover-only arena rules and the legacy 900 px px-rules must not
+   decide a phone tile, in a touch context or in a narrow desktop window. */
+
+@media (max-width: 700px) {
+	/* ── Board and the tile token (D-04, D-05) ───────────────────────────────────────────────────────────────────────── */
+	.page--game .game-board {
+		--phone-gap: 6px;
+		--phone-pad: 12px;
+		padding-left: var(--phone-pad);
+		padding-right: var(--phone-pad);
+		/* The desktop's 18 px paint room under the bottom row is for the row scroll boxes that clip at their padding; the phone rows
+		   do not clip, and every pixel counts for the whole-table fit (65-05). 8 px still holds a tile shadow. */
+		padding-bottom: 8px;
+		overflow-x: hidden;
+		overflow-y: auto;                    /* the fallback when the table cannot fit even at its smallest (applyPhoneFit) */
+		scrollbar-width: none;               /* a classic scrollbar would narrow the board, change the tile token and make the fit unstable */
+	}
+	.page--game .game-board::-webkit-scrollbar {
+		display: none;
+	}
+	/* 100cqw is the board's CONTENT width (the container is the content box), so the horizontal padding is already out of it. */
+	.page--game .game-board > * {
+		--field-tile-w: calc((100cqw - 2 * var(--phone-gap)) / 3 * var(--me-scale, 1));
+		--field-tile-h: calc(var(--field-tile-w) * 176 / 240);
+		--bu: calc(var(--field-tile-w) / 240);
+	}
+	.page--game .game-board > .board-zone--opponent {
+		--field-tile-w: calc((100cqw - 2 * var(--phone-gap)) / 3 * var(--opp-scale, 1));
+	}
+
+	/* The middle strip (3 Quests in a line, the Place under them) is styles/phone-middle.css, loaded right after this sheet. */
+
+	/* ── Tiles: one size from the token, whatever the pointer ────────────────────────────────────────────────────────── */
+	.page--game .game-board .board-zone--player,
+	.page--game .game-board .board-zone--opponent {
+		--mosje-card-w: var(--field-tile-w);
+		--mosje-slot-h: var(--field-tile-h);
+		--piecie-cell-w: var(--field-tile-w);
+		--piecie-cell-h: var(--field-tile-h);
+		min-height: 0;
+		padding: 4px 0;
+	}
+	.page--game .game-board .board-zone .card.card-v1--field,
+	.page--game .game-board .board-zone .card--mosje,
+	.page--game .game-board .board-zone .field-piecie-card,
+	.page--game .game-board .board-zone .piecie-slot,
+	.page--game .game-board .board-zone .board-slot--empty {
+		--cv1-fh: var(--field-tile-h);
+		box-sizing: border-box;
+		width: var(--field-tile-w);
+		min-width: var(--field-tile-w);
+		max-width: var(--field-tile-w);
+		height: var(--field-tile-h);
+	}
+
+	/* ── The row: 2 columns (the 2 Mosje slots | the side cell), the Piecie line under both ─────────────────────────── */
+	.page--game .game-board .board-zone .board-zone__row {
+		display: grid;
+		grid-template-columns: calc(2 * var(--field-tile-w) + var(--phone-gap)) max(var(--field-tile-w), 96px);
+		grid-template-rows: auto auto auto;  /* Energy | piles stack in rows 1-2 of the side cell; the Piecie line is row 3 */
+		column-gap: var(--phone-gap);
+		row-gap: 0;
+		justify-content: center;
+		align-items: start;
+		padding: 0;
+		margin: 0;
+		overflow: visible;                   /* no scroll box, no paint-pad trick: nothing scrolls sideways on a phone */
+		cursor: default;
+	}
+	.page--game .game-board .board-zone .board-zone__row > * {
+		margin: 0;                           /* the hover-only "safe centring" auto margins (arena.css) must not apply */
+	}
+	.page--game .game-board .board-zone .board-zone__slots {
+		grid-column: 1;
+		grid-row: 1 / span 2;
+		display: flex;
+		gap: var(--phone-gap);
+		padding: 0;
+		justify-content: flex-start;
+		min-height: var(--field-tile-h);
+	}
+	.page--game .game-board .board-zone .board-zone__piecies {
+		grid-column: 1 / -1;
+		grid-row: 3;
+		display: flex;
+		flex-wrap: nowrap;
+		gap: var(--phone-gap);
+		margin-top: var(--phone-gap);
+		padding: 0;
+		width: auto;
+		max-width: none;
+		justify-content: flex-start;
+		min-height: var(--field-tile-h);
+	}
+	.page--game .game-board .board-zone .board-energy { grid-column: 2; grid-row: 1; align-self: start; }
+	.page--game .game-board .board-zone .pile-column { grid-column: 2; grid-row: 2; align-self: end; }
+
+	/* ── Energy (D-06): a slim row of 6 gems with "N/6" above it, sized from the tile token ──────────────────────────── */
+	.page--game .game-board .board-zone .board-energy {
+		flex: none;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: auto;
+		height: auto;
+		margin-bottom: 4px;
+	}
+	.page--game .game-board .energy-crystals {
+		--gem-w: max(12px, calc(var(--field-tile-w) / 7.5));
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 2px;
+		width: 100%;
+	}
+	.page--game .game-board .energy-gem {
+		width: var(--gem-w);
+		height: calc(var(--gem-w) * 21 / 22);
+	}
+	.page--game .game-board .energy-count,
+	.page--game .game-board .energy-crystals[data-preview] .energy-count {
+		order: -1;                           /* first line; it also holds the spend preview "4/6 -> 1/6" */
+		flex: 0 0 100%;
+		margin: 0;
+		font-size: 13px;
+		text-align: center;
+	}
+
+	/* ── Piles (D-06, D-15): deck and discard are 44x44 with the count badge INSIDE the box ──────────────────────────── */
+	.page--game .game-board .board-zone .pile-column {
+		flex-direction: row;                 /* beats the opponent's column-reverse (board.css) */
+		justify-content: center;
+		gap: 4px;
+		--piecie-cell-w: 44px;
+		--piecie-cell-h: 44px;
+	}
+	.page--game .game-board .deck-pile-container,
+	.page--game .game-board .discard-pile-container {
+		box-sizing: border-box;
+		position: relative;
+		width: 44px;
+		min-width: 44px;
+		max-width: 44px;
+		height: 44px;
+		gap: 0;
+	}
+	.page--game .game-board .discard-pile:hover {
+		transform: none;                     /* a sticky touch hover must not lift the pile out of its box */
+		filter: none;
+	}
+	/* The stacked layers keep their random offsets (inline style, up to 8 px down and 4 degrees) but are drawn smaller than the box,
+	   so the whole stack stays inside the 44 px square. */
+	.page--game .game-board .discard-pile__card-layer {
+		top: 2px;
+		left: 5px;
+		width: calc(100% - 10px);
+		height: calc(100% - 12px);
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+	}
+	.page--game .game-board .discard-pile__count-badge {
+		right: 2px;
+		bottom: 2px;
+		min-width: 20px;
+		padding: 2px 5px;
+		font-size: 11px;
+		line-height: 1.1;
+	}
+	/* "Deck" / "Graveyard": hidden visually, still in the accessibility tree. */
+	.page--game .game-board .discard-pile__label {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0 0 0 0);
+		white-space: nowrap;
+	}
+
+	/* ── Welloe pile (only while it has cards, D-06): a 44 px pill at the right end of the zone header ───────────────── */
+	.page--game .game-board .board-zone .welloe-pile-container {
+		position: absolute;
+		top: 4px;
+		right: 0;
+		z-index: 2;
+	}
+	.page--game .game-board .welloe-pile {
+		flex-direction: row;
+		gap: 8px;
+		width: auto;
+		min-width: 88px;
+		height: 44px;
+		padding: 0 12px;
+		border-radius: 22px;
+	}
+	.page--game .game-board .welloe-pile__word { font-size: 12px; }
+	.page--game .game-board .welloe-pile__count {
+		position: static;
+		min-width: 22px;
+		padding: 3px 6px;
+	}
+	.page--game .game-board .board-zone:has(.welloe-pile) .board-zone__header {
+		min-height: 44px;
+		padding-right: 100px;                /* the name never runs under the pill */
+	}
+}
