@@ -11,6 +11,7 @@ import { makeEngineState } from '../helpers/makeEngineState.js';
 const FISSA = { cardId: 'mosje_alyssa_fissa', type: 'MOSJE', name: 'Alyssa, Fissa Fissa!' };
 const DONER = { cardId: 'piecie_broodje_doner', type: 'PIECIE', name: 'Broodje Doner' };
 const JENSEN = { cardId: 'snelle_jensen', type: 'SNELLE_PIECIE', name: 'Jensen!' };
+const JEWEETNIET = { cardId: 'snelle_jeweetniet', type: 'SNELLE_PIECIE', name: 'Jeweetniet' }; // no condition (2.1: Jensen! now reacts only to a Piecie or Snelle)
 const BIJNA = { cardId: 'snelle_bijna_welloe', type: 'SNELLE_PIECIE', name: 'Bijna Welloe' };
 const DRAIN = { cardId: 'place_drain_zone', type: 'PLACE', name: 'Drain Zone' };
 const MOSJE_ON_FIELD = { cardId: 'mosje_gandoe_wizard', type: 'MOSJE', mp: 50, isDefeated: false };
@@ -60,7 +61,7 @@ describe('getHandCardState (pure)', () => {
 	});
 
 	it('a Snelle is playable on the opponent turn and takes a Piecie slot', () => {
-		const info = infoOf(stateWith({ piecieSlots: [PIECIE_ON_FIELD, null, null] }, { activePlayerId: 'player_2' }), JENSEN, false);
+		const info = infoOf(stateWith({ piecieSlots: [PIECIE_ON_FIELD, null, null] }, { activePlayerId: 'player_2' }), JEWEETNIET, false);
 		expect(info.canPlay).toBe(true);
 		expect(info.kind).toBe('piecie');
 		expect(info.slotIndex).toBe(1);
