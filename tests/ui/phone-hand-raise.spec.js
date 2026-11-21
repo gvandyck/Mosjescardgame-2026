@@ -13,7 +13,7 @@ import { getGameState, setEnergy } from './helpers.js';
 import { PHONE_VIEWPORTS, PIXEL_VIEWPORT, phoneUse } from '../helpers/phoneViewports.js';
 import { rectOf } from '../helpers/phoneGeometry.js';
 import { swipe } from '../helpers/phoneSwipe.js';
-import { FISSA, KANNETJE, DONER, JENSEN, RAISE_HAND, wrapOf, hintOf, seedRaiseBoard, raiseCard } from '../helpers/phoneRaise.js';
+import { FISSA, KANNETJE, DONER, FREE_SNELLE, RAISE_HAND, wrapOf, hintOf, seedRaiseBoard, raiseCard } from '../helpers/phoneRaise.js';
 import { getCardEnergyCost } from '../../src/engine/energy/getCardEnergyCost.js';
 
 const SHOT_DIR = process.env.OBBY65_SHOT_DIR || 'C:/tmp';
@@ -205,8 +205,8 @@ for (const vp of [...PHONE_VIEWPORTS, PIXEL_VIEWPORT]) { // 390x844, 360x740 and
 		});
 
 		test('(h) a Snelle can be raised and marks a Piecie slot', async ({ page }) => {
-			await raiseCard(page, JENSEN);
-			await expect(dockOf(page)).toContainText('Jensen');
+			await raiseCard(page, FREE_SNELLE);
+			await expect(dockOf(page)).toContainText('Je Weet Niet');
 			const hint = page.locator('#piecies-player [data-place-here]');
 			await expect(hint).toHaveCount(1);
 			await expect(hint).toHaveAttribute('data-slot-kind', 'piecie');

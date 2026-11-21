@@ -7,9 +7,10 @@ import { defineConfig } from '@playwright/test';
 //  - "cards"  — the data-driven card-effect library. headless + slowMo so a
 //               SINGLE browser steps through cards gently (no rapid open/close
 //               that hangs a busy PC). Run --headed to watch.
-//  - "mobile-canary" — REPORT ONLY (64-07, D-30): headless 390x844 touch phone, lobby -> deck -> Start -> board.
-//               Its result is written to a report and never gates the phase; only `npm run test:mobile-canary`
-//               runs it (own project, excluded from "visual"). Phase 65 owns the phone layout it will flag.
+//  - "phone"  — the phone GATE (72.1-02, D-09): headless chromium, touch, Android Chrome user agent, 395x731, DPR 3.
+//               Runs tests/ui/phone/ and the phone-*.spec.js specs; a red phone spec fails the phase. The old report-only
+//               mobile-canary is gone: tests/ui/phone/phone-canary.spec.js asserts instead. `npm run test:phone`.
+//               The headed "visual" project ignores phone specs.
 //
 // IMPORTANT: card + sim tests share one http-server on port 5500 and are NOT
 // parallel-safe — always run them with `--workers=1` (the npm scripts do this).
@@ -37,7 +38,7 @@ export default defineConfig({
     },
     {
       name: 'visual',
-      testIgnore: ['**/sim-deck-matrix.spec.js', '**/cards/**', '**/mobile-canary.spec.js'],
+      testIgnore: ['**/sim-deck-matrix.spec.js', '**/cards/**', '**/phone-*.spec.js', '**/phone/**'],
       use: {
         baseURL: 'http://localhost:5500',
         headless: false,
@@ -65,18 +66,19 @@ export default defineConfig({
       },
     },
     {
-      // D-30: report-only phone canary (390x844, touch). Chromium with isMobile + hasTouch; never part of the gate.
-      name: 'mobile-canary',
-      testMatch: ['**/mobile-canary.spec.js'],
+      // D-09: the phone gate. Pixel 8 Pro in Android Chrome: 395x731 visible, DPR 3, touch, reduced Android Chrome user agent.
+      name: 'phone',
+      testMatch: ['**/phone-*.spec.js', '**/phone/**/*.spec.js'],
       timeout: 90000,
       use: {
         baseURL: 'http://localhost:5500',
         browserName: 'chromium',
         headless: true,
-        viewport: { width: 390, height: 844 },
+        viewport: { width: 395, height: 731 },
         isMobile: true,
         hasTouch: true,
         deviceScaleFactor: 3,
+        userAgent: 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Mobile Safari/537.36',
         screenshot: 'only-on-failure',
         video: 'off',
       },

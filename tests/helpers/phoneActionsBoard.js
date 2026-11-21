@@ -21,7 +21,7 @@ export async function seedActionsBoard(page) {
 		window.__testHooks.setActivePlace(place, 'player_1');
 	}, { doner: DONER, kannetje: KANNETJE, place: PLACE });
 	await unlockPiecies(page, 'player_1');
-	await setQuestFaceUp(page, 'FIGHTING', 'quest_tough_it_out'); // Steady: one 4+, +25 / -15
+	await setQuestFaceUp(page, 'PHYSICAL', 'quest_tough_it_out'); // Steady: one 4+, +25 / -15
 	await setNextDice(page, [6, 6, 6, 6, 6, 6]);
 	await page.waitForTimeout(500); // the table settles
 }

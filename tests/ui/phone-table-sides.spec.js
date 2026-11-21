@@ -163,7 +163,7 @@ for (const vp of VIEWPORTS) {
 
 		test('(e) tapping my discard pile by touch opens the discard list, and it closes', async ({ page }) => {
 			await page.locator('[data-zone="player"] [data-pile="discard"]').tap();
-			const list = page.locator('.modal-card', { hasText: 'Graveyard' });
+			const list = page.locator('.modal-card', { hasText: "'s pile" });
 			await expect(list).toBeVisible();
 			await expect(list.locator('.graveyard-card-option').first()).toBeVisible();
 			await page.locator('#modal-close-graveyard').tap();

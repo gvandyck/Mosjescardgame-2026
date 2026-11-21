@@ -10,7 +10,9 @@ export const FISSA = 'mosje_alyssa_fissa';
 export const KANNETJE = 'piecie_kannetje_melk';
 export const DONER = 'piecie_broodje_doner';
 export const JENSEN = 'snelle_jensen';
-export const RAISE_HAND = [FISSA, KANNETJE, DONER, KANNETJE, JENSEN];
+// 2.1: Jensen! reacts only to a Piecie or Snelle, so it cannot be raised and played from the hand; Je Weet Niet has no condition to play.
+export const FREE_SNELLE = 'snelle_jeweetniet';
+export const RAISE_HAND = [FISSA, KANNETJE, DONER, KANNETJE, FREE_SNELLE];
 
 export const wrapOf = (page, cardId) => page.locator(`.hand-card-wrap[data-card-id="${cardId}"]`).first();
 export const hintOf = (page) => page.locator('#board-root [data-place-here]');

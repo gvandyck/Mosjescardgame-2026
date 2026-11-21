@@ -1,7 +1,7 @@
 /**
  * phone-table-fit.spec.js - Phase 65-05 (MOB-01 second half; D-04, D-05, D-06, D-15, D-19 a): on a touch phone the WHOLE table is
- * visible at once between the header / status strip and the bottom bar: both sides, the 3 Quests (one line, stack count and fail
- * pips kept, each tile >= 100 px), the Place tile centred under them, Energy and piles. End Turn is in the bar, not the strip.
+ * visible at once between the header / status strip and the bottom bar: both sides, the 3 Quests (one line, the "N left"
+ * count tab kept (2.1: no fail pips), each tile >= 100 px), the Place tile centred under them, Energy and piles. End Turn is in the bar, not the strip.
  * When height is tight the opponent's side and the Place shrink first (down to 0.7), then my side and the Quests (never below a
  * 100 px tile); below that the board scrolls inside itself and the page never scrolls. Runs at 390x844, 360x740, the Pixel 8 Pro
  * visible size 395x731, 390x700 and 360x700 (the table fits) and at 360x640 (the board may scroll inside itself).
@@ -65,7 +65,7 @@ async function expectContained(page, t, vertical) {
 	}
 }
 
-/** The Quest line: one top, each tile at least 100 px, count tab and fail pips shown, inside the screen. */
+/** The Quest line: one top, each tile at least 100 px, count tab shown, inside the screen (2.1: no fail pips, a Quest leaves after one attempt). */
 function expectQuests(t, vertical) {
 	expect(t.quests, '3 Quest stacks').toHaveLength(3);
 	const tops = t.quests.map((q) => q.box.y);
@@ -74,8 +74,7 @@ function expectQuests(t, vertical) {
 		expect(q.box.w, `Quest ${i + 1} tile width`).toBeGreaterThanOrEqual(99.5);
 		expect(q.count, `Quest ${i + 1} shows its count tab`).not.toBeNull();
 		expect(q.count.w > 0 && q.count.h > 0, `Quest ${i + 1} count tab has a size`).toBe(true);
-		if (!q.empty) expect(q.pips, `Quest ${i + 1} shows its fail pips`).not.toBeNull();
-		for (const [what, b] of [['tile', q.box], ['count tab', q.count], ['pips', q.pips]]) {
+		for (const [what, b] of [['tile', q.box], ['count tab', q.count]]) {
 			if (!b) continue;
 			expect(b.x >= MARGIN && b.right <= t.vw - MARGIN, `Quest ${i + 1} ${what} inside the screen horizontally (${b.x}..${b.right})`).toBe(true);
 			if (vertical) expect(b.y >= 0 && b.bottom <= t.vh, `Quest ${i + 1} ${what} inside the screen vertically (${b.y}..${b.bottom} of ${t.vh})`).toBe(true);
@@ -110,7 +109,7 @@ for (const vp of ALL) {
 			await expectContained(page, await readTable(page), fits);
 		});
 
-		test('(d) Quests: one line, tiles 100 px and up, count tab and fail pips inside the screen', async ({ page }) => {
+		test('(d) Quests: one line, tiles 100 px and up, count tab inside the screen', async ({ page }) => {
 			expectQuests(await readTable(page), fits);
 		});
 

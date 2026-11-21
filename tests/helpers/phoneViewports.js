@@ -17,6 +17,6 @@ export function phoneUse(vp) {
 		viewport: { width: vp.width, height: vp.height },
 		isMobile: true,
 		hasTouch: true,
-		deviceScaleFactor: 2,
+		deviceScaleFactor: 3,
 	};
 }

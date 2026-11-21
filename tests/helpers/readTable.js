@@ -3,7 +3,7 @@
 // - header / strip / bar: the top bar, the status strip and the bottom bar; board: #board-root with its client box (inside the
 //   border) and scrollH / scrollW plus the horizontal padding, contentBottom (where the last child ends) and free (px left under it,
 //   negative = the table runs past the board); opp / me: the two .board-zone boxes
-// - quests: per .quest-stack { box, count (the "N left" tab), pips (the fail pips, null on an empty stack), empty }
+// - quests: per .quest-stack { box, count (the "N left" tab), empty }
 // - place: the #board-place box and its .card box (null while no Place is active)
 // - endTurnDisplay: computed display of .board-end-turn; endTurnInBar: #btn-end-turn sits inside #phone-bar
 // - scales: the inline --opp-scale / --me-scale on the board ('' when not set)
@@ -40,7 +40,7 @@ export async function readTable(page) {
 			opp: box(board.querySelector('.board-zone--opponent')),
 			me: box(board.querySelector('.board-zone--player')),
 			quests: [...board.querySelectorAll('.quest-stack')].map((el) => ({
-				box: box(el), count: box(el.querySelector('.quest-stack__count')), pips: box(el.querySelector('.cv2-tile-pips')),
+				box: box(el), count: box(el.querySelector('.quest-stack__count')),
 				empty: el.classList.contains('quest-stack--empty'),
 			})),
 			place: { box: box(document.getElementById('board-place')), card: box(document.querySelector('#board-place .card')) },

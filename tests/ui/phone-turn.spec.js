@@ -20,6 +20,8 @@ import { expectBottomSheet } from '../helpers/expectBottomSheet.js';
 import { expectPhoneStable } from '../helpers/expectPhoneStable.js';
 import { touchEndTurn } from '../helpers/touchEndTurn.js';
 import { waitForMyTurnByTouch } from '../helpers/waitForMyTurnByTouch.js';
+import { expectedAttackDamage } from '../helpers/expectedAttackDamage.js';
+import { expectQuestShuffledBack } from '../helpers/expectQuestShuffledBack.js';
 import { getCardEnergyCost } from '../../src/engine/energy/getCardEnergyCost.js';
 
 const TOUCH = { touch: true };
@@ -79,32 +81,39 @@ for (const vp of [...PHONE_VIEWPORTS, PIXEL_VIEWPORT]) {
 			// 4. Attack with Bulldozer: tile, Attack, the target, Confirm in the strip.
 			const power = await page.evaluate(() => window.__testHooks.getMosjePower('player_1', 0));
 			const targetMp = mp(gs, 'player_2', 0);
+			// 2.1 rules section 4: Bulldozer (Physical) beats Gandoe (Digital): +10; Gandoe has Resilient 1 star: -5.
+			const damage = expectedAttackDamage(power, me(gs).activeSlots[0].subtype, gs.players.player_2.activeSlots[0]);
 			await attackByTap(page, { slot: 0, target: 'player_2:0', ...TOUCH });
 			gs = await getGameState(page);
-			expect(mp(gs, 'player_2', 0), 'engine: the target lost the attacker Power').toBe(targetMp - power);
+			expect(mp(gs, 'player_2', 0), 'engine: the target lost the attacker Power').toBe(targetMp - damage);
 			await expectPhoneStable(page, '(4) attack');
 
 			// 5. Quest with Fissa: tile, Quest, the Quest tile, then the sheets (cost / dice / result).
 			const fissaMp = mp(gs, 'player_1', 1);
+			const stateBeforeQuest = gs;
 			await beginQuestByTap(page, 1, TOUCH);
-			await press(page.locator('.quest-stack[data-quest-stack="FIGHTING"]'), TOUCH);
+			await press(page.locator('.quest-stack[data-quest-stack="PHYSICAL"]'), TOUCH);
 			await expectBottomSheet(page, 'Quest sheet');
 			await clickThroughOptions(page, [], 8, TOUCH);
 			gs = await getGameState(page);
 			expect(mp(gs, 'player_1', 1), 'engine: Quest win +25').toBe(fissaMp + 25);
-			expect(gs.questStacks.FIGHTING.faceUp, 'engine: the next Quest turned face-up').not.toBe('quest_tough_it_out');
+			expectQuestShuffledBack(stateBeforeQuest, gs, 'PHYSICAL');
 			await expectPhoneStable(page, '(5) Quest');
 
 			// 6. Activate the Doner from its tray; its target pick is a sheet, answered by touch.
 			const sumBefore = mp(gs, 'player_1', 0) + mp(gs, 'player_1', 1);
 			const energyBeforeDoner = me(gs).energy;
+			const powerSum = () => page.evaluate(() => window.__testHooks.getMosjePower('player_1', 0) + window.__testHooks.getMosjePower('player_1', 1));
+			const powerBefore = await powerSum();
 			await activateByTap(page, DONER, TOUCH);
 			await expectBottomSheet(page, 'Doner pick');
 			await clickThroughOptions(page, [], 3, TOUCH);
 			await expect.poll(async () => me(await getGameState(page)).piecieSlots.some((s) => s && s.cardId === DONER), 'engine: the Doner is spent').toBe(false);
 			gs = await getGameState(page);
 			expect(me(gs).energy, 'engine: Broodje costs 1').toBe(energyBeforeDoner - 1);
-			expect(mp(gs, 'player_1', 0) + mp(gs, 'player_1', 1), 'engine: one Mosje gained 35').toBe(sumBefore + 35);
+			// 2.1 card text: One of your Mosjes gets +10 Power until the end of your next turn (no MP).
+			expect(mp(gs, 'player_1', 0) + mp(gs, 'player_1', 1), 'engine: the Doner gives no MP').toBe(sumBefore);
+			expect(await powerSum(), 'engine: one Mosje got +10 Power').toBe(powerBefore + 10);
 			expect(me(gs).graveyard.some((c) => c.cardId === DONER), 'the Doner went to the discard').toBe(true);
 			await expectPhoneStable(page, '(6) Activate');
 
@@ -130,7 +139,10 @@ for (const vp of [...PHONE_VIEWPORTS, PIXEL_VIEWPORT]) {
 			await setEnergy(page, 'player_1', 6);
 			await setHand(page, 'player_2', []);
 			const botPower = await page.evaluate(() => window.__testHooks.getMosjePower('player_2', 0));
-			const before = mp(await getGameState(page), 'player_1', 0);
+			const gsBeforeBot = await getGameState(page);
+			const before = mp(gsBeforeBot, 'player_1', 0);
+			// 2.1 rules section 4: the type triangle and the target's Resilient stars change the loss (worked out from the rules).
+			const botDamage = expectedAttackDamage(botPower, gsBeforeBot.players.player_2.activeSlots[0].subtype, gsBeforeBot.players.player_1.activeSlots[0]);
 			expect(await page.evaluate(() => window.__testHooks.botAttack(0, 0)), 'the bot attacks').toBe('ok');
 			const prompt = page.locator('.modal-card--reaction');
 			await expect(prompt).toBeVisible({ timeout: 8000 });
@@ -142,7 +154,7 @@ for (const vp of [...PHONE_VIEWPORTS, PIXEL_VIEWPORT]) {
 				return g.pendingReaction == null && g.activePlayerId === 'player_1';
 			}, { timeout: 15000 }).toBe(true);
 			gs = await getGameState(page);
-			expect(mp(gs, 'player_1', 0), 'engine: No reaction, the full Power loss').toBe(before - botPower);
+			expect(mp(gs, 'player_1', 0), 'engine: No reaction, the full attack loss').toBe(before - botDamage);
 			expect(me(gs).hand.some((c) => c.cardId === 'snelle_the_protector'), 'the Snelle stayed in hand').toBe(true);
 			await expectPhoneStable(page, '(8) reaction answered');
 

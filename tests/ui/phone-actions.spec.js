@@ -23,6 +23,8 @@ import { expectInFreeBand } from '../helpers/expectInFreeBand.js';
 import { expectTrayChips } from '../helpers/expectTrayChips.js';
 import { readBannerText } from '../helpers/readBannerText.js';
 import { readSheet } from '../helpers/readSheet.js';
+import { expectedAttackDamage } from '../helpers/expectedAttackDamage.js';
+import { expectQuestShuffledBack } from '../helpers/expectQuestShuffledBack.js';
 
 const TOUCH = { touch: true };
 const SHOT_DIR = process.env.OBBY65_SHOT_DIR || 'C:/tmp';
@@ -80,6 +82,8 @@ for (const vp of [...PHONE_VIEWPORTS, PIXEL_VIEWPORT]) {
 			const before = await getGameState(page);
 			const power = await page.evaluate(() => window.__testHooks.getMosjePower('player_1', 0)); // includes the Drain Zone +10
 			const targetMp = mp(before, 'player_2', 0);
+			// 2.1 rules section 4: Bulldozer (Physical) beats Gandoe (Digital): +10; Gandoe has Resilient 1 star: -5.
+			const damage = expectedAttackDamage(power, before.players.player_1.activeSlots[0].subtype, before.players.player_2.activeSlots[0]);
 			await tapOwnCard(page, 'mosje', 0, TOUCH);
 			await chooseTray(page, 'attack', TOUCH);
 			await expect(page.locator('#status-strip')).toHaveAttribute('data-status-kind', 'choose-target');
@@ -110,11 +114,12 @@ for (const vp of [...PHONE_VIEWPORTS, PIXEL_VIEWPORT]) {
 			expect.soft(intersects(confirm, cancel), 'Confirm and Cancel must not overlap').toBe(false);
 
 			await press(page.locator('#status-strip [data-confirm]'), TOUCH);
-			await expect.poll(async () => mp(await getGameState(page), 'player_2', 0), { message: 'engine: the target lost the attacker Power' }).toBe(targetMp - power);
+			await expect.poll(async () => mp(await getGameState(page), 'player_2', 0), { message: 'engine: the target lost the attacker Power' }).toBe(targetMp - damage);
 		});
 
 		test('(e) Quest: three wide tappable Quest tiles, the picker is a bottom sheet, the Quest resolves by touch', async ({ page }) => {
-			const before = mp(await getGameState(page), 'player_1', 0);
+			const stateBefore = await getGameState(page);
+			const before = mp(stateBefore, 'player_1', 0);
 			await beginQuestByTap(page, 0, TOUCH);
 			const tiles = await page.locator('.quest-stack').evaluateAll((els) => els.map((el) => {
 				const r = el.getBoundingClientRect();
@@ -129,9 +134,9 @@ for (const vp of [...PHONE_VIEWPORTS, PIXEL_VIEWPORT]) {
 				expect.soft(t.h, `${t.id} tile height >= 44`).toBeGreaterThanOrEqual(44);
 				expect.soft(t.hit, `${t.id} answers a tap at its centre`).toBe(true);
 			}
-			expect(tiles.find((t) => t.id === 'FIGHTING').target, 'the face-up Fighting Quest is choosable').toBe('valid');
+			expect(tiles.find((t) => t.id === 'PHYSICAL').target, 'the face-up Physical Quest is choosable').toBe('valid');
 
-			await press(page.locator('.quest-stack[data-quest-stack="FIGHTING"]'), TOUCH);
+			await press(page.locator('.quest-stack[data-quest-stack="PHYSICAL"]'), TOUCH);
 			await page.locator('#modal-root .modal-card').first().waitFor({ state: 'visible', timeout: 5000 });
 			await page.waitForTimeout(400); // the slide-up finishes
 			const sheet = await readSheet(page);
@@ -140,7 +145,7 @@ for (const vp of [...PHONE_VIEWPORTS, PIXEL_VIEWPORT]) {
 			await clickThroughOptions(page, [], 8, TOUCH);
 			const after = await getGameState(page);
 			expect(mp(after, 'player_1', 0), 'engine: Quest win +25').toBe(before + 25);
-			expect(after.questStacks.FIGHTING.faceUp, 'the next Quest turned face-up').not.toBe('quest_tough_it_out');
+			expectQuestShuffledBack(stateBefore, after, 'PHYSICAL');
 		});
 
 		test('(f) the toast sits inside the window between the strip and the bar, text uncut', async ({ page }) => {
@@ -172,7 +177,7 @@ for (const vp of [...PHONE_VIEWPORTS, PIXEL_VIEWPORT]) {
 			await fresh.tap({ position: { x: Math.round(box.width * 0.2), y: Math.round(box.height * 0.6) } });
 			await page.locator('#board-toast').waitFor({ timeout: 3000 });
 			await page.waitForTimeout(300);
-			await expect(page.locator('#board-toast')).toHaveText("Fresh Mosjes can't be attacked");
+			await expect(page.locator('#board-toast')).toHaveText(/^Protected until its owner's next turn$/);
 			await expectInFreeBand(page, '#board-toast');
 		});
 
@@ -186,7 +191,7 @@ for (const vp of [...PHONE_VIEWPORTS, PIXEL_VIEWPORT]) {
 			};
 			await press(targetTile(page, 'player_2:0'), TOUCH);
 			await closeAndCheck('an opponent Mosje tile');
-			await press(page.locator('.quest-stack[data-quest-stack="FIGHTING"]'), TOUCH);
+			await press(page.locator('.quest-stack[data-quest-stack="PHYSICAL"]'), TOUCH);
 			await closeAndCheck('a Quest tile');
 			await tapOwnCard(page, 'mosje', 0, TOUCH);
 			await chooseTray(page, 'details', TOUCH);

@@ -20,7 +20,7 @@ export async function seedPhoneTurnBoard(page) {
 	await setHand(page, 'player_1', [FISSA, KANNETJE]);
 	await setHand(page, 'player_2', []);
 	await setEnergy(page, 'player_1', 6);
-	await setQuestFaceUp(page, 'FIGHTING', 'quest_tough_it_out'); // Steady: one 4+, +25 / -15
+	await setQuestFaceUp(page, 'PHYSICAL', 'quest_tough_it_out'); // Steady: one 4+, +25 / -15
 	await setNextDice(page, [6, 6, 6, 6, 6, 6]);
 	await page.waitForTimeout(600); // the board and the hand settle
 }
