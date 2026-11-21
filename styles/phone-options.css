@@ -1,0 +1,38 @@
+/* phone-options.css - Phase 72.1-03 (D-13): THE snap-scroll row for card-face option modals on a phone. A .modal-card--cards bottom
+   sheet shows its option faces (up to five) as one horizontal row: each face is min(64vw, 240px) wide, the next one peeks in, a
+   swipe scrolls and snaps one face at a time (scroll-snap-stop: always), a tap picks. Generic: no selector names a particular pick,
+   the starting Mosje now, Wizard / FPS West / Ming / the Personal Quest Mosje pick later (plan 07). Loaded after phone-sheets.css.
+   Everything is inside the ONE phone query, so the wrapped desktop faces stay as 72-01 made them. */
+
+@media (max-width: 700px) {
+	.modal-root--open .modal-card.modal-card--cards { --option-card-w: min(64vw, 240px); }
+
+	/* The list bleeds to the sheet edges (the sheet has 16px side padding) so the peeking face is visible. */
+	.modal-root--open .modal-card--cards .modal-mosje-select-list {
+		flex-wrap: nowrap;
+		justify-content: flex-start;
+		overflow-x: auto;
+		overflow-y: hidden;
+		scroll-snap-type: x mandatory;
+		scroll-padding: 0 16px;
+		margin: 8px -16px 0;
+		padding: 4px 16px 12px;
+		-webkit-overflow-scrolling: touch;
+		overscroll-behavior-x: contain;
+		scrollbar-width: none;
+	}
+	.modal-root--open .modal-card--cards .modal-mosje-select-list::-webkit-scrollbar { display: none; }
+
+	.modal-root--open .modal-card--cards .modal-option--card {
+		flex: 0 0 var(--option-card-w);
+		scroll-snap-align: center;
+		scroll-snap-stop: always;
+	}
+
+	/* The hover lift and glow are for a mouse; on touch they would stick after a tap. */
+	@media (hover: none) {
+		.modal-root--open .modal-card--cards .modal-option--card:hover:not(:disabled) { transform: none; }
+		.modal-root--open .modal-card--cards .modal-option--card:hover:not(:disabled) .option-card-slot .card { box-shadow: none; }
+	}
+	.modal-root--open .modal-card--cards .modal-option--card:active:not(:disabled) { transform: scale(0.98); }
+}

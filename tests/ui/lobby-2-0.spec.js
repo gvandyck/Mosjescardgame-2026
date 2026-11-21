@@ -114,6 +114,7 @@ test('D-06 D-40: one screen at 1920x1080, controls >= 44 px, keyboard', async ({
 		expect(fit.mainBottom, `${mode}: the lobby is on screen`).toBeLessThanOrEqual(fit.inner);
 
 		const small = await page.locator('#lobby2').locator('button, input').evaluateAll(els => els
+			.filter(el => el.getClientRects().length > 0) // a display:none control (the phone-only Show cards toggle) is not a tap target
 			.map(el => ({ id: el.id || el.dataset.choiceId || el.tagName, box: el.getBoundingClientRect() }))
 			.filter(entry => entry.box.width < 44 || entry.box.height < 44)
 			.map(entry => `${entry.id} ${Math.round(entry.box.width)}x${Math.round(entry.box.height)}`));

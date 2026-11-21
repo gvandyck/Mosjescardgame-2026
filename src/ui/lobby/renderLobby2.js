@@ -5,6 +5,7 @@
 import { DEFAULT_PLAYER_NAME, PLAYER_NAME_MAX } from '../../config/lobbyModes.js';
 import { buildDeckTiles } from './buildDeckTiles.js';
 import { buildSegmentedControl } from './buildSegmentedControl.js';
+import { buildShowCardsToggle } from './buildShowCardsToggle.js';
 
 const SPEED_OPTIONS = [
 	{ id: 'normal', label: 'Normal' },
@@ -38,6 +39,16 @@ function makeNameField(value, onInput) {
 	return label;
 }
 
+// The deck tiles plus ONE Show cards toggle under them (D-07): shown on a phone only, it opens the lists of all three tiles.
+function yourDeckGroup(decks, state, onChange) {
+	const tiles = buildDeckTiles(decks, {
+		selectedId: state.deckChoice, label: 'Your deck', picker: 'player-deck', onSelect: id => onChange({ deckChoice: id }),
+	});
+	const group = makeGroup('Your deck', tiles);
+	group.append(buildShowCardsToggle(tiles, document));
+	return group;
+}
+
 function botRow(decks, { title, picker, selectedId, onSelect }) {
 	return makeGroup(title, buildDeckTiles(decks, { selectedId, label: title, picker, includeRandom: true, compact: true, onSelect }));
 }
@@ -52,9 +63,7 @@ export function renderLobby2(root, { state, decks, modes, onChange, onStart }) {
 
 	if (state.mode === 'vsBot') {
 		root.append(
-			makeGroup('Your deck', buildDeckTiles(decks, {
-				selectedId: state.deckChoice, label: 'Your deck', picker: 'player-deck', onSelect: id => onChange({ deckChoice: id }),
-			})),
+			yourDeckGroup(decks, state, onChange),
 			botRow(decks, {
 				title: 'Bot plays',
 				picker: 'bot-deck',

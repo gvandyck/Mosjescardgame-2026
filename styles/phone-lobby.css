@@ -1,0 +1,36 @@
+/* phone-lobby.css - Phase 72.1-03 (D-07, MOB-06): the lobby deck tiles on a phone. Loaded LAST on index.html, after phone-screens.css.
+   Three short tiles in one column; the Mosje and Personal Quest lists of every tile are collapsed behind ONE "Show cards" button
+   (buildShowCardsToggle.js sets data-cards-open on the tiles). The button is hidden everywhere else, so the desktop lobby at
+   1920x1080 keeps its open lists. Everything phone-specific sits inside the ONE phone query (tests/ui/phone-breakpoint.test.ts). */
+
+.deck-tiles__toggle { display: none; }
+
+@media (max-width: 700px) {
+	.page--lobby .deck-tiles:not(.deck-tiles--compact) { grid-template-columns: minmax(0, 1fr); }
+
+	.page--lobby .deck-tiles:not([data-cards-open]) .deck-tile__mosjes,
+	.page--lobby .deck-tiles:not([data-cards-open]) .deck-tile__quests { display: none; }
+
+	.page--lobby .deck-tiles__toggle {
+		display: block;
+		box-sizing: border-box;
+		width: 100%;
+		min-height: 48px;
+		margin-top: 8px;
+		padding: 0 16px;
+		background: transparent;
+		border: 1px solid var(--lobby-edge, rgba(255, 255, 255, 0.25));
+		border-radius: calc(0.6 * var(--lu));
+		color: var(--lobby-ink, #ffffff);
+		font-family: var(--font-ui);
+		font-size: calc(1.05 * var(--lu));
+		font-weight: 700;
+		letter-spacing: 0.04em;
+		cursor: pointer;
+	}
+	.page--lobby .deck-tiles__toggle[aria-expanded="true"] { border-color: var(--mosje-gold, #e8b94f); }
+	.page--lobby .deck-tiles__toggle:focus-visible {
+		outline: 3px solid var(--mosje-gold, #e8b94f);
+		outline-offset: 2px;
+	}
+}
