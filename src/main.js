@@ -1209,6 +1209,7 @@ function initGamePage() {
 				gameState = res.state;
 				gameState.activePlayerId = localPlayerId;
 				renderFromState(gameState);
+				settleLocalMosjePauses(); // a pause the bot's ability opens (FPS West's bottom pick) is answered by the bot, never left hanging
 				return 'ok';
 			},
 			// 60-01: the bot plays a Snelle from hand (reaction windows open for the human), or attempts a Quest, so the

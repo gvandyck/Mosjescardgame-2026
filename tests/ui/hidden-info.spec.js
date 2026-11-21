@@ -1,8 +1,8 @@
 /**
  * hidden-info.spec.js - EFX-07 on the live board (Phase 60-07). A reveal reaches only the entitled viewer:
  *  a) human plays Chef's Special with Ronald: the read-only reveal modal lists the bot's whole hand
- *  b) human plays Stookerino: the generic pick modal lists the bot's hand (that is the reveal), state.revealed is the human's only
- *  c) bot uses Ronald's Strategic Insight: the human gets no reveal modal, only the set-aside result is public
+ *  b) human plays Stookerino with a Binti on the field: the read-only reveal lists the bot's hand, state.revealed is the human's only (b2: no Binti, no reveal)
+ *  c) bot uses FPS West: the human gets no reveal modal, nothing of the human hand leaks (the bot's own answer is Leave it)
  *  d) bot activates Those Eyelashes Tho...: the human picks their OWN discard on the generic modal, Snelle is blocked for them
  */
 import { test, expect } from '@playwright/test';
@@ -49,35 +49,54 @@ test('a: Chef\'s Special with Ronald shows the human a read-only reveal of the b
 	expect(gs.revealed?.player_2).toBeUndefined();
 });
 
-test('b: Stookerino lists the bot hand on the generic pick modal for the human only', async ({ page }) => {
+test('b: Stookerino with a Binti on the field shows the human the bot hand in the read-only reveal', async ({ page }) => {
+	// Card text: "Your opponent discards 1 card of their choice. With a Binti on your field: look at their hand first."
+	test.setTimeout(60000);
+	await boot(page, { own: 'mosje_binti' });
+	await readyPiecie(page, 'piecie_stookerino');
+	await activatePiecieOnField(page, 'piecie_stookerino');
+	await expect(page.locator(REVEAL_ROW).first()).toBeVisible({ timeout: 8000 });
+	const names = (await page.locator(REVEAL_ROW).allInnerTexts()).join('|');
+	expect(names).toMatch(/Harde Didde/i);
+	expect(names).toMatch(/Pot of Weed/i);
+	const gs = await getGameState(page);
+	expect(gs.revealed?.player_1?.length).toBeGreaterThan(0); // the human looked
+	expect(gs.revealed?.player_2).toBeUndefined(); // the bot saw nothing
+});
+
+test('b2: Stookerino without a Binti shows no reveal; the bot still discards 1 card of its own choice', async ({ page }) => {
 	test.setTimeout(60000);
 	await boot(page);
 	await readyPiecie(page, 'piecie_stookerino');
 	await activatePiecieOnField(page, 'piecie_stookerino');
-	await expect(page.locator(OPTION).first()).toBeVisible({ timeout: 8000 });
-	const labels = (await page.locator(OPTION).allInnerTexts()).join('|');
-	expect(labels).toMatch(/Harde Didde/i);
-	await page.locator(OPTION).filter({ hasText: /Harde Didde/i }).first().click();
-	await expect.poll(async () => (await getGameState(page)).players.player_2.hand.length, { timeout: 8000 }).toBe(1);
+	await expect.poll(async () => (await getGameState(page)).players.player_2.hand.length, { timeout: 10000 }).toBe(1);
+	await expect(page.locator(REVEAL_ROW)).toHaveCount(0);
 	const gs = await getGameState(page);
-	expect(gs.revealed?.player_1?.length).toBeGreaterThan(0);
+	expect(gs.revealed?.player_1).toBeUndefined();
 	expect(gs.revealed?.player_2).toBeUndefined();
-	await expect(page.locator(REVEAL_ROW)).toHaveCount(0); // the pick modal was the reveal: no second modal
+	expect(gs.players.player_2.graveyard.length).toBeGreaterThan(0);
 });
 
-test('c: the bot uses Ronald\'s Strategic Insight: the human sees no reveal of their own hand', async ({ page }) => {
+test('c: the bot uses FPS West: the human sees no reveal of their own hand, and the bot (which leaves it) changes nothing public', async ({ page }) => {
+	// Card text: "Once per turn: pay 1 Energy; look at your opponent's hand. Then you can have this Mosje lose 20 MP;
+	// put 1 card from that hand on the bottom of their deck. They draw 1."
+	// The bot's default answer to the optional second half is the first option, "Leave it" (a strategy matter for Phase 73).
 	test.setTimeout(60000);
-	await boot(page, { oppMosje: 'mosje_ronald_chef' });
+	await boot(page, { oppMosje: 'mosje_fps_west' });
 	await setHand(page, 'player_1', ['piecie_kannetje_melk', 'piecie_affoe']);
-	const res = await page.evaluate(() => window.__testHooks.botUseAbility('mosje_ronald_chef', { locked_card: 0 }));
+	const deckBefore = (await getGameState(page)).players.player_1.deck.length;
+	const res = await page.evaluate(() => window.__testHooks.botUseAbility('mosje_fps_west', {}));
 	expect(res).toBe('ok');
 	await page.waitForTimeout(600);
 	await expect(page.locator(REVEAL_ROW)).toHaveCount(0);
+	await expect(page.locator('.modal-card')).toHaveCount(0); // no pause of the bot's reached the human
 	const gs = await getGameState(page);
 	expect(gs.revealed?.player_2?.[0]?.cardIds).toEqual(['piecie_kannetje_melk', 'piecie_affoe']); // the bot saw the hand
 	expect(gs.revealed?.player_1).toBeUndefined(); // the human saw nothing of the bot's
-	expect(gs.players.player_1.setAside?.length).toBe(1); // the public result: one card set aside
-	expect(gs.players.player_1.hand.length).toBe(1);
+	expect(gs.pendingChoice, 'the bot answered its own pause').toBeUndefined();
+	expect(gs.players.player_2.activeSlots[0].mp, 'Leave it costs no MP').toBe(40);
+	expect(gs.players.player_1.hand.map((c) => c.cardId)).toEqual(['piecie_kannetje_melk', 'piecie_affoe']);
+	expect(gs.players.player_1.deck.length).toBe(deckBefore);
 });
 
 test('d: the bot activates Those Eyelashes Tho...: the human picks their own discard, no Snelle for them', async ({ page }) => {

@@ -19,7 +19,7 @@ const SHOT_DIR = 'tests/ui/screenshots/board-2-0';
 const FISSA = 'mosje_alyssa_fissa';
 const DONER = 'piecie_broodje_doner';
 const FILLER = 'piecie_kannetje_melk';
-const JENSEN = 'snelle_jensen'; // Snelle, cost 1, no play condition
+const JENSEN = 'snelle_ff_haaltje_nemen'; // Snelle "Draw 1.", cost 2, no play condition (Jensen! needs a Piecie or Snelle that targets, so it cannot be played freely)
 const BLENSEN = 'snelle_blensen'; // Snelle, cost 4, stays in its slot until the end of the turn (so its landing slot can be read)
 const BIJNA_WELLOE = 'snelle_bijna_welloe'; // Snelle, cost 0, "Only if one of your Mosjes has 10 MP or less"
 const SNELLE_HAND = [FISSA, FILLER, JENSEN, BLENSEN, BIJNA_WELLOE];
@@ -322,7 +322,7 @@ test('64.1-03 D-02/D-06/D-12: a raised or dragged Snelle marks the Piecie slot i
 	});
 	await page.waitForTimeout(500);
 
-	// f. A Snelle that cannot be paid goes nowhere (Jensen costs 1).
+	// f. A Snelle that cannot be paid goes nowhere (Ff Haaltje Nemen costs 2).
 	await setEnergy(page, 'player_1', 0);
 	await raise(page, JENSEN);
 	await page.waitForTimeout(300);

@@ -94,7 +94,9 @@ test('hovering a hand card previews it in the same dock at the same size, with a
 		};
 	});
 	const card = await page.evaluate(async () => (await import('/src/data/cardIndex.js')).getCardById('piecie_bowie_stormey').description);
-	expect(fit.paragraphs).toBeGreaterThanOrEqual(4);
+	// one paragraph per sentence of the card text (the 2.1 text is two sentences; the old 2.0 text was longer)
+	expect(fit.paragraphs).toBe(card.split(/(?<=[.!?])\s+/).filter(Boolean).length);
+	expect(fit.paragraphs).toBeGreaterThanOrEqual(2);
 	expect(fit.over).toBeLessThanOrEqual(1);
 	expect(fit.text, 'the dock shows the whole description').toBe(card.replace(/\s+/g, ''));
 	if (fit.cut) expect(fit.clamped, 'text that is cut must be flagged clamped').toBe(true);

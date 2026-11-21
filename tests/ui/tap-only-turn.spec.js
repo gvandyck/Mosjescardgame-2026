@@ -21,7 +21,7 @@ import { previewAttack } from '../../src/engine/attack/previewAttack.js';
 
 test.use({ hasTouch: true, viewport: { width: 1920, height: 1080 } });
 
-const PIECIE = 'piecie_broodje_doner'; // Energy 1: "One of your Mosjes gains 35 MP."
+const PIECIE = 'piecie_broodje_doner'; // Energy 1: "One of your Mosjes gets +10 Power until the end of your next turn."
 const PLACE = 'place_drain_zone'; // Energy 3: "All Mosjes get +10 Power."
 const TOUCH = { touch: true };
 const mp = (gs, pid, i) => gs.players[pid].activeSlots[i].mp;
@@ -99,15 +99,17 @@ test('a whole turn is played with taps only: attack, Quest, Place, Piecie Activa
 	expect(gs.players.player_1.hand.some((c) => c.cardId === PLACE), 'the Place left the hand').toBe(false);
 	await expect(page.locator(`#board-place [data-card-id="${PLACE}"]`)).toBeVisible();
 
-	// 4. Activate: tap the ready Piecie, Activate in its tray; its target pick (which Mosje gains 35) is a tap too.
-	const mpSum = (g) => mp(g, 'player_1', 0) + mp(g, 'player_1', 1);
-	const sumBefore = mpSum(gs);
+	// 4. Activate: tap the ready Piecie, Activate in its tray; its target pick (which Mosje gets +10 Power) is a tap too.
+	const powerSum = () => page.evaluate(() => window.__testHooks.getMosjePower('player_1', 0) + window.__testHooks.getMosjePower('player_1', 1));
+	const powerBefore = await powerSum();
+	const mpBefore = mp(gs, 'player_1', 0) + mp(gs, 'player_1', 1);
 	await activateByTap(page, PIECIE, TOUCH);
 	await clickThroughOptions(page, [], 3, TOUCH);
 	await expect.poll(async () => (await getGameState(page)).players.player_1.piecieSlots.some((s) => s && s.cardId === PIECIE)).toBe(false);
 	gs = await getGameState(page);
 	expect(gs.players.player_1.energy, 'Broodje costs 1').toBe(2);
-	expect(mpSum(gs), 'one Mosje gained 35').toBe(sumBefore + 35);
+	expect(await powerSum(), 'one Mosje got +10 Power').toBe(powerBefore + 10);
+	expect(mp(gs, 'player_1', 0) + mp(gs, 'player_1', 1), 'the Piecie gives Power, not MP').toBe(mpBefore);
 	expect(gs.players.player_1.graveyard.some((c) => c.cardId === PIECIE)).toBe(true);
 
 	// 5. End Turn: the bot plays its whole turn, then the board is mine again.
@@ -120,6 +122,9 @@ test('a whole turn is played with taps only: attack, Quest, Place, Piecie Activa
 	await setHand(page, 'player_1', ['snelle_the_protector']);
 	await setEnergy(page, 'player_1', 6);
 	await setHand(page, 'player_2', []);
+	// The bot's turn from step 5 may have left a Piecie on its field; after the first answer the bot resumes its turn and might
+	// activate it, which opens a SECOND reaction window (seen in 1 of ~8 loaded runs). The stage is cleared so the only window is the attack's.
+	await page.evaluate(() => { for (let i = 0; i < 3; i++) window.__testHooks.setPiecieOnField('player_2', i, null); });
 	const botPower = await page.evaluate(() => window.__testHooks.getMosjePower('player_2', 0));
 	const preState = await getGameState(page);
 	const before = mp(preState, 'player_1', 0);
@@ -131,8 +136,8 @@ test('a whole turn is played with taps only: attack, Quest, Place, Piecie Activa
 	await press(prompt.locator('.modal-mosje-select-btn[data-id="__pass__"]'), TOUCH);
 	await expect.poll(async () => {
 		const g = await getGameState(page);
-		return g.pendingReaction == null && g.activePlayerId === 'player_1';
-	}, { timeout: 15000 }).toBe(true);
+		return `${g.pendingReaction == null ? 'no reaction pending' : `reaction pending (${g.pendingReaction.id})`}, active ${g.activePlayerId}, choice ${g.pendingChoice ? g.pendingChoice.key : 'none'}, draw step ${g.pendingDrawStep ? 'open' : 'none'}`;
+	}, { timeout: 15000 }).toBe('no reaction pending, active player_1, choice none, draw step none');
 	expect(mp(await getGameState(page), 'player_1', 0), 'No reaction: the full Power loss').toBe(before - botHit);
 	expect((await getGameState(page)).players.player_1.hand.some((c) => c.cardId === 'snelle_the_protector'), 'the Snelle stayed in hand').toBe(true);
 

@@ -8,11 +8,12 @@
 import { test, expect } from '@playwright/test';
 
 const DECK_IDS = [
-	'EXAMPLE_TAKSEN',
-	'EXAMPLE_REGELAARS',
-	'EXAMPLE_CREATIEVELINGEN',
+	'STARTER_PHYSICAL',
+	'STARTER_DIGITAL',
+	'STARTER_CREATIVE',
 ];
-const ORIGINALS = ['PHYSICAL_FORCE', 'DIGITAL_CONTROL', 'ARTISTIC_RHYTHM'];
+// Decks that stay in the code for tests and the simulation but are never player-facing (src/data/playerFacingDecks.js).
+const HIDDEN = ['PHYSICAL_FORCE', 'DIGITAL_CONTROL', 'ARTISTIC_RHYTHM', 'EXAMPLE_TAKSEN', 'EXAMPLE_REGELAARS', 'EXAMPLE_CREATIEVELINGEN'];
 
 async function blockFirebase(page) {
 	await page.route('**gstatic.com/**', route => route.abort());
@@ -21,7 +22,7 @@ async function blockFirebase(page) {
 
 test.describe('Lobby: guest dropdown (duo-only)', () => {
 
-	test('guest #deck-select lists exactly the 3 Example Decks, no originals', async ({ page }) => {
+	test('guest #deck-select lists exactly the 3 starter decks, no hidden decks', async ({ page }) => {
 		await blockFirebase(page);
 		await page.goto('/?testGuestDeck=1');
 
@@ -29,7 +30,7 @@ test.describe('Lobby: guest dropdown (duo-only)', () => {
 		await expect(options).toHaveCount(3);
 		const values = await options.evaluateAll(els => els.map(el => el.value));
 		expect(values).toEqual(DECK_IDS);
-		for (const original of ORIGINALS) expect(values).not.toContain(original);
+		for (const original of HIDDEN) expect(values).not.toContain(original);
 
 		// Guest keeps the (now duo-only) dropdown, not the active-deck panel.
 		await expect(page.locator('#active-deck-panel')).toBeHidden();
@@ -45,14 +46,14 @@ test.describe('Lobby: signed-in active-deck panel + Change-deck switcher (live)'
 		await expect(page.locator('#deck-select')).toBeHidden();
 		const panel = page.locator('#active-deck-panel');
 		await expect(panel).toBeVisible();
-		await expect(panel.locator('.active-deck-panel__name')).toHaveText("Taksen");
+		await expect(panel.locator('.active-deck-panel__name')).toHaveText('Physical');
 		// Deck contents are intentionally NOT shown — the name is plenty.
 		await expect(panel.locator('.active-deck-panel__mosjes')).toHaveCount(0);
 
 		// The tracked signed-in deck id (what game-start would read) matches
 		// the seeded active deck.
 		const trackedId = await page.evaluate(() => window.__testActiveDeckHook.signedInDeckId);
-		expect(trackedId).toBe('EXAMPLE_TAKSEN');
+		expect(trackedId).toBe('STARTER_PHYSICAL');
 	});
 
 	test('Change deck opens a switcher listing the seeded decks; picking a different one re-renders the panel and updates the tracked active id', async ({ page }) => {
@@ -66,19 +67,19 @@ test.describe('Lobby: signed-in active-deck panel + Change-deck switcher (live)'
 		const buttons = page.locator('.modal-mosje-select-btn');
 		await expect(buttons).toHaveCount(2);
 		const ids = await buttons.evaluateAll(els => els.map(el => el.dataset.id));
-		expect(ids).toEqual(['EXAMPLE_TAKSEN', 'EXAMPLE_REGELAARS']);
+		expect(ids).toEqual(['STARTER_PHYSICAL', 'STARTER_DIGITAL']);
 
 		// Pick the OTHER seeded deck.
-		await page.locator('.modal-mosje-select-btn[data-id="EXAMPLE_REGELAARS"]').click();
+		await page.locator('.modal-mosje-select-btn[data-id="STARTER_DIGITAL"]').click();
 
 		// Modal closes; panel re-renders to the newly picked deck.
 		await expect(page.locator('#modal-root .modal-card')).toHaveCount(0);
 		const panel = page.locator('#active-deck-panel');
-		await expect(panel.locator('.active-deck-panel__name')).toHaveText('Regelaars');
+		await expect(panel.locator('.active-deck-panel__name')).toHaveText('Digital');
 
 		// The new active id is exactly what game-start would read.
 		const trackedId = await page.evaluate(() => window.__testActiveDeckHook.signedInDeckId);
-		expect(trackedId).toBe('EXAMPLE_REGELAARS');
+		expect(trackedId).toBe('STARTER_DIGITAL');
 	});
 
 	test('Cancelling the switcher leaves the active deck unchanged', async ({ page }) => {
@@ -91,8 +92,8 @@ test.describe('Lobby: signed-in active-deck panel + Change-deck switcher (live)'
 
 		await expect(page.locator('#modal-root .modal-card')).toHaveCount(0);
 		const panel = page.locator('#active-deck-panel');
-		await expect(panel.locator('.active-deck-panel__name')).toHaveText("Taksen");
+		await expect(panel.locator('.active-deck-panel__name')).toHaveText('Physical');
 		const trackedId = await page.evaluate(() => window.__testActiveDeckHook.signedInDeckId);
-		expect(trackedId).toBe('EXAMPLE_TAKSEN');
+		expect(trackedId).toBe('STARTER_PHYSICAL');
 	});
 });

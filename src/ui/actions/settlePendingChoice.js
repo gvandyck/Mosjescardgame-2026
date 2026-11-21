@@ -4,13 +4,16 @@ import { resolvePendingChoice } from '../../engine/mosje/resolvePendingChoice.js
 import { settleMosjePauses } from '../../bot/settleMosjePauses.js';
 import { runDrawStepPrompt } from './runDrawStepPrompt.js';
 import { toPendingChoiceOptions } from './toPendingChoiceOptions.js';
+import { pauseTitle } from './pauseTitle.js';
 
 export async function settlePendingChoice({ state, localPlayerId, modal, humanIds = [localPlayerId] }) {
 	for (let n = 0; n < 12 && (state.pendingChoice || state.pendingDrawStep); n++) {
 		const pc = state.pendingChoice;
 		if (pc && pc.playerId === localPlayerId) {
 			const { options, leave, promptCard } = toPendingChoiceOptions(pc);
-			const id = await modal.showOptionSelect({ title: 'Choose', prompt: pc.prompt || '', options, leave, promptCard });
+			const title = pauseTitle(pc);
+			const prompt = pc.prompt && pc.prompt !== title ? pc.prompt : ''; // the title already says it
+			const id = await modal.showOptionSelect({ title, prompt, options, leave, promptCard });
 			const r = resolvePendingChoice(state, pc.options[id == null ? 0 : Number(id)]);
 			state = r.ok ? r.state : state;
 			if (!r.ok) break;

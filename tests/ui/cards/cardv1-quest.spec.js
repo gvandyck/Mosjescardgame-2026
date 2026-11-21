@@ -136,9 +136,10 @@ test.describe('card frame v1 — Quest (2.0 face)', () => {
   test('field tile 240x176, hand 230 and small sizes: screenshots', async ({ page }) => {
     await renderGallery(page, 'field', 240, ids);
     await page.locator('#cv1-gallery').screenshot({ path: `${OUT}/quest-field.png` });
-    // 2.0 Quest tile: need, WIN, LOSE and 2 fail pips never overlap, at 240 and at 120
+    // 2.1 Quest tile: need, WIN and LOSE never overlap, at 240 and at 120 (the fail pips are gone since 72-15: there is no pips zone)
     const tiles = await page.evaluate(collectFaceZones, '#cv1-gallery [data-test-card]');
-    expect(tiles.every((t) => t.tile && t.zones.need && t.zones.win && t.zones.lose && t.zones.pips), 'every Quest tile has need, win, lose, pips').toBe(true);
+    expect(tiles.every((t) => t.tile && t.zones.need && t.zones.win && t.zones.lose), 'every Quest tile has need, win, lose').toBe(true);
+    expect(tiles.some((t) => t.zones.pips), 'no Quest tile has fail pips (removed in 2.1)').toBe(false);
     expect(findFaceCollisions(tiles), 'Quest tile zones collide at 240').toEqual([]);
     await renderGallery(page, 'field', 120, ids);
     expect(findFaceCollisions(await page.evaluate(collectFaceZones, '#cv1-gallery [data-test-card]')), 'Quest tile zones collide at 120').toEqual([]);

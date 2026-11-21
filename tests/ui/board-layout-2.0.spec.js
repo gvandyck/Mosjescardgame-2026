@@ -141,7 +141,7 @@ async function seedTapBoard(page, viewport) {
 	await page.setViewportSize(viewport);
 	await setMosjeOnField(page, 'player_1', 0, 'mosje_alyssa_bulldozer', { mp: 60, level: 1 });
 	await setMosjeOnField(page, 'player_2', 0, 'mosje_gandoe_wizard', { mp: 60, level: 1 });
-	await setMosjeOnField(page, 'player_2', 1, 'mosje_ming_natural', { mp: 40, level: 1 }); // (the PROTECTED badge is gone in 2.1)
+	await setMosjeOnField(page, 'player_2', 1, 'mosje_ming_natural', { mp: 40, level: 1, sideways: true }); // SKIPS TURN badge (the PROTECTED badge is gone in 2.1; the second badge besides FRESH)
 	await clearEntryProtection(page);
 	await setMosjeOnField(page, 'player_1', 1, 'mosje_alyssa_fissa', { mp: 40, level: 1, entryProtected: true }); // FRESH badge
 	await page.evaluate(() => window.__testHooks.setPiecieOnField('player_1', 0, 'piecie_broodje_doner', { faceDown: true }));
