@@ -20,6 +20,7 @@ import { getPileCards } from '../engine/pile/getPileCards.js';
 import { showToast } from './board/showToast.js';
 import { bindTileTap } from './board/bindTileTap.js';
 import { bindChipTap } from './board/bindChipTap.js';
+import { appendCountBadge } from './board/appendCountBadge.js';
 import { getAttachmentRows } from './board/getAttachmentRows.js';
 import { getAttachmentChips } from './board/getAttachmentChips.js';
 import { buildChipRowHtml } from './chips/buildChipRowHtml.js';
@@ -468,6 +469,7 @@ function appendTileState(cardEl, tile) {
 	if (tile.sideways) cardEl.classList.add('mosje-card--sideways');
 	appendAttachmentChips(cardEl, tile);
 	appendTimedTags(cardEl, tile);
+	appendCountBadge(cardEl, tile);   // 72.1-04: shown instead of the chips and tags on a phone
 	const html = buildTileBadges(getTileBadges(tile));
 	if (!html) return;
 	cardEl.insertAdjacentHTML('beforeend', html);

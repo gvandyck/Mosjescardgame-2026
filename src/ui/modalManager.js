@@ -13,6 +13,7 @@ import { mountOptionCards } from './modals/mountOptionCards.js';
 import { resolveOptionCard } from './modals/resolveOptionCard.js';
 import { buildCardPanel } from './cardV1/buildCardPanel.js';
 import { buildAttachmentSection } from './modals/buildAttachmentSection.js';
+import { buildEffectsSection } from './modals/buildEffectsSection.js';
 import { getAttachmentRows } from './board/getAttachmentRows.js';
 import { getPileCards } from '../engine/pile/getPileCards.js';
 import { getLevelRows } from './cardV1/getLevelRows.js';
@@ -474,6 +475,8 @@ export function initModalManager(container) {
 			if (card.abilityDescription) sections.push(['Ability', esc(card.abilityDescription)]);
 			if (card.synergyEffect) sections.push(['Synergy', esc(card.synergyEffect)]);
 			if (Array.isArray(card.attachments)) sections.push(['Attachments', buildAttachmentSection(getAttachmentRows(card)), true]); // 72-05
+			const effectsHtml = buildEffectsSection(card.tags); // 72.1-04: the timed effects the phone tile no longer lists
+			if (effectsHtml) sections.push(['Effects', effectsHtml, true]);
 			if (card.petSynergy) chips.push(`Pet synergy: ${esc(String(card.petSynergy).replace('piecie_', '').replace(/_/g, ' '))}`);
 			// The 3 level rows (Power + traits per level); the current level is lit (a hand card shows Level 1).
 			const levelRows = getLevelRows(card, card.level);

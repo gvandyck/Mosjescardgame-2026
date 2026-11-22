@@ -179,6 +179,34 @@ for (const vp of FITS) {
 	});
 }
 
+// The three device sizes only: at the tight 700 px heights a re-render with a Welloe pile already overflows by 5 px (pre-existing, deferred-items).
+for (const vp of [PIXEL_VIEWPORT, ...PHONE_VIEWPORTS]) {
+	test.describe(`phone table fit with tile state at ${vp.name}`, () => {
+		test.use(phoneUse(vp));
+		test('(k) attachments, a timed effect, a Welloe pile and a Place: the table still fits (72.1-04)', async ({ page }) => {
+			test.setTimeout(90000);
+						await seedPhoneBoard(page, { hand: HAND, welloe: true });
+			await page.evaluate(() => {
+				const h = window.__testHooks;
+				h.attachToMosje('player_1', 0, 'piecie_dumbbells');
+				h.attachToMosje('player_1', 0, 'piecie_keyboard');
+				h.addTimedEffect('player_1', 0, { kind: 'power', amount: 10, duration: 'untilEndOfYourNextTurn' });
+				h.attachToMosje('player_2', 0, 'piecie_tony');
+				h.setActivePlace('place_drain_zone', 'player_2');
+			});
+			await page.waitForTimeout(500);
+			await expect(page.locator('.tile-count-badge')).toHaveCount(2);
+			const t = await readTable(page);
+			expect(t.board.scrollH, `#board-root scrollHeight ${t.board.scrollH} vs clientHeight ${t.board.h}`).toBeLessThanOrEqual(t.board.h + 1);
+			expect((await pageOverflow(page)).y, 'page overflow y').toBeLessThanOrEqual(0);
+			await expectContained(page, t, true);
+			expectQuests(t, true);
+			// The Welloe pile paints 2 px above #board-root's top edge (pre-existing, not this plan's: deferred-items), so it is left out here.
+			expect(await readPaintOverflow(page, '.quest-stack, #board-place .card, [data-pile]:not(.welloe-pile)')).toEqual([]);
+		});
+	});
+}
+
 test.describe('phone table fit: resizing', () => {
 	test.use(phoneUse(PHONE_VIEWPORTS[0]));
 

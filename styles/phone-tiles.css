@@ -1,0 +1,124 @@
+/* phone-tiles.css - Phase 72.1-04 (D-05, D-04, D-13; MOB-01, MOB-04): what a Mosje tile and the Place tile show on a phone.
+   Linked after phone-middle.css and before phone-raise.css. On a phone a tile is 118 px (mine) and down to 83 px (the opponent's):
+   the chips are 9 px and the tag lines 8 px there, so they give way to ONE count badge ("2 gear, 1 effect", "2+1" on a narrow
+   tile) and the full lists live in the Mosje detail (a tap on the badge opens it). Desktop keeps chips and tag lines: the base
+   rule below hides the badge, and every phone rule sits behind the ONE 700 px phone query (tests/ui/phone-breakpoint.test.ts).
+   Tap targets: the state pill (FRESH / ACTED / SKIPS TURN) and the count badge are themselves 44 px high boxes, the visible pill is
+   drawn inside (a pill is 14-18 px), so a measured control box is never under 44 px. */
+
+/* Desktop: no count badge. The detail view's Effects lines are styled here too (the detail is the same on every screen). */
+.tile-count,
+.tile-count-badge { display: none; }
+.cd-effect { margin: 4px 0; font-size: 13px; line-height: 1.35; color: #cbd5e1; }
+
+@media (max-width: 700px) {
+	/* ── Chips and tags give way to the count badge ─────────────────────────────────────────────────────────────────── */
+	.tile-chips,
+	.tile-tags { display: none; }
+
+	/* The overlay is the container the full / compact text switch asks about; it never takes a tap itself. */
+	.tile-count {
+		position: absolute;
+		inset: 0;
+		z-index: 7;
+		display: block;
+		pointer-events: none;
+		container-type: inline-size;
+	}
+	.mosje-card--sideways .tile-count { display: none; }   /* a lying tile hides its badge like its chips; the detail still lists them */
+
+	/* The element is the 44 px touch box, at the bottom-left above the Power / MP numbers; the pill is drawn inside it. */
+	.tile-count-badge {
+		position: absolute;
+		left: 4px;
+		bottom: max(0px, calc(52 * var(--bu, 1px) - 13.5px));   /* the pill's bottom edge sits 52 bu above the tile bottom */
+		box-sizing: border-box;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 44px;
+		max-width: calc(100% - 8px);
+		height: 44px;
+		pointer-events: auto;
+		cursor: pointer;
+		-webkit-tap-highlight-color: transparent;
+	}
+	.tile-count-badge__full,
+	.tile-count-badge__compact {
+		box-sizing: border-box;
+		max-width: 100%;
+		padding: 3px 6px;
+		border: 1px solid #15803D;                  /* the gear colour of the chips (chipKinds) */
+		border-radius: 99px;
+		background: rgba(5, 5, 5, 0.86);
+		color: #DCFCE7;
+		font: 700 11px/1 'DM Sans', sans-serif;     /* never under 11 px, whatever the tile scale */
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	.tile-count-badge__compact { display: none; }
+	.tile-count-badge:focus-visible .tile-count-badge__full,
+	.tile-count-badge:focus-visible .tile-count-badge__compact { outline: 2px solid #fff; outline-offset: 1px; }
+	/* A tile narrower than 100 px (the opponent's at 0.7) shows the short form. */
+	@container (max-width: 99px) {
+		.tile-count-badge__full { display: none; }
+		.tile-count-badge__compact { display: block; }
+	}
+
+	/* ── State pills: a 44 px box, the visible pill inside (the old ::after hit area is the element itself now) ─────── */
+	.tile-badges { --pill-h: max(14px, calc(18 * var(--bu, 1px))); gap: 0; }
+	.mosje-card:not(.mosje-card--sideways) .tile-badges,
+	.card:not(.mosje-card--sideways) > .tile-badges {
+		top: calc(35 * var(--bu, 1px) - (44px - var(--pill-h)) / 2);   /* the visible pill stays where it was */
+	}
+	.tile-badge {
+		height: 44px;
+		min-width: 44px;
+		border-color: transparent;
+		background: transparent;
+		justify-content: center;
+	}
+	.tile-badge::after { content: none; }
+	.tile-badge::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: calc(50% - var(--pill-h) / 2);
+		height: var(--pill-h);
+		z-index: -1;                                  /* behind the icon and the word of this pill */
+		box-sizing: border-box;
+		border: 1px solid rgba(255, 255, 255, 0.18);
+		border-radius: 99px;
+		background: rgba(5, 5, 5, 0.82);
+	}
+	.tile-badge--protected::before { border-color: #3D8EF5; }
+	/* Two or three pills: the touch boxes overlap, the visible pills keep a 4 bu gap; the upper pill wins the overlap. */
+	.tile-badge + .tile-badge { margin-top: calc(var(--pill-h) + 4 * var(--bu, 1px) - 44px); }
+	.tile-badge:nth-child(1) { z-index: 3; }
+	.tile-badge:nth-child(2) { z-index: 2; }
+	.tile-badge:nth-child(3) { z-index: 1; }
+	/* The lying tile's "SKIPS TURN" pill is a tall two-line pill already: the whole box is the pill. */
+	.mosje-card--sideways .tile-badge::before { top: 0; height: auto; bottom: 0; }
+	.mosje-card--sideways .tile-badge + .tile-badge { margin-top: calc(4 * var(--bu, 1px)); }
+	.mosje-card--sideways .tile-badge--centre { min-height: 44px; }
+
+	/* ── The Place tile: the owner chip sits BESIDE the tile, vertically centred, never over the Place name ─────────── */
+	.board-place .card.card-v1--field { overflow: visible; }   /* the chip lives outside the face; the face clips its own art */
+	.board-place .place-owner-chip {
+		top: 50%;
+		right: auto;
+		left: calc(100% + 6px);
+		transform: translateY(-50%);
+		height: auto;
+		min-height: 18px;
+		padding: 3px 8px;
+		width: max-content;
+		max-width: 104px;                       /* the room beside the tile is at least 111 px at 360 px wide */
+		overflow: hidden;
+		text-overflow: ellipsis;
+		font-size: 10px;
+	}
+	.board-place .card[data-place-owner] .cv2-tile-name { right: calc(14 * var(--u)); }   /* the whole width is the name's again */
+}
