@@ -11,12 +11,18 @@ import {
 import { answerModals } from '../helpers/answerModals.js';
 import { clickEndTurn } from '../helpers/clickEndTurn.js';
 
+// 72.1-12: the bot may attack on its turn; the human then gets a Reaction window that blocks the bot until it is answered, so the
+// wait answers "No reaction" whenever it shows (E11 failed about 1 run in 6 without this).
 async function waitForHumanTurn(page, minTurn) {
-	await page.waitForFunction((m) => {
-		const gs = window.__testHooks?.getGameState();
-		const btn = document.getElementById('btn-end-turn');
-		return gs && gs.turnNumber >= m && gs.activePlayerId === 'player_1' && btn && btn.disabled === false;
-	}, minTurn, { timeout: 40000 });
+	const noReaction = page.locator('.modal-card--reaction .modal-mosje-select-btn[data-id="__pass__"]');
+	await expect.poll(async () => {
+		if (await noReaction.isVisible().catch(() => false)) await noReaction.click().catch(() => {});
+		return page.evaluate((m) => {
+			const gs = window.__testHooks?.getGameState();
+			const btn = document.getElementById('btn-end-turn');
+			return !!(gs && gs.turnNumber >= m && gs.activePlayerId === 'player_1' && btn && btn.disabled === false);
+		}, minTurn);
+	}, { timeout: 40000, intervals: [250] }).toBe(true);
 	await page.waitForTimeout(1500);
 }
 
@@ -35,7 +41,12 @@ test('E11: setup - opponent starter fresh, 3 cards for first player, 3 Energy', 
 	// the opponent's starter is still fresh (protected) until their first turn.
 	expect(gs.players.player_1.activeSlots.find(Boolean).entryProtected).toBeFalsy();
 	expect(gs.players.player_2.activeSlots.find(Boolean).entryProtected).toBe(true);
-	expect(gs.players.player_1.hand.length, 'first player skips first draw (R5)').toBe(3);
+	// R5: the first player skips the first draw, so 3 cards. Coert, KasteLuck (Morning Luck: at the start of your turn roll a die, 4-6
+	// draw 1 card) is the one random starter that can add a 4th; every other starter leaves exactly 3 (72.1-12: this was E11's second flake).
+	const starterName = gs.players.player_1.activeSlots.find(Boolean).name;
+	const handSize = gs.players.player_1.hand.length;
+	if (starterName === 'Coert, KasteLuck') expect([3, 4], `Morning Luck: 3 cards, or 4 on a 4-6 roll (hand ${handSize})`).toContain(handSize);
+	else expect(handSize, `first player skips first draw (R5); starter ${starterName}`).toBe(3);
 	expect(gs.players.player_1.energy, '2 start + 1 turn start').toBe(3);
 	expect(gs.players.player_1.piecieSlots.length).toBe(3);
 

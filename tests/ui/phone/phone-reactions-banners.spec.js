@@ -74,6 +74,8 @@ for (const vp of VIEWPORTS) {
 			expect.soft(m.height, 'at most 78 dvh').toBeLessThanOrEqual(m.vh * 0.78 + 1);
 			expect.soft(m.top, 'the board shows above the sheet').toBeGreaterThanOrEqual(m.vh * 0.2);
 			expect.soft(m.ctxClipped, `context line whole: ${m.ctxText}`).toBe(false);
+			// 72.1-12: the sheet covers the player's own Mosjes, so its context line states the attacked Mosje's current MP.
+			expect.soft(m.ctxText, 'the sheet names the attacked Mosje and its current MP').toContain(`has ${before} MP`);
 			expect(m.rows.length).toBeGreaterThanOrEqual(2);
 			for (const r of m.rows) {
 				expect.soft(r.h, `${r.id}: row >= 48 px`).toBeGreaterThanOrEqual(47.5);
@@ -84,7 +86,7 @@ for (const vp of VIEWPORTS) {
 			}
 			expect(m.rows.some((r) => r.id === '__pass__'), 'No reaction is there').toBe(true);
 			expect.soft(m.cardScroll, 'nothing to scroll with up to 3 options').toBeLessThanOrEqual(1);
-			if (vp.name === '395x731') await savePhoneShot(page, '72.1-09-reaction');
+			if (vp.name === '395x731') await savePhoneShot(page, '72.1-12-reaction');
 			await prompt.locator('.modal-mosje-select-btn[data-id="__pass__"]').tap();
 			await expect.poll(async () => { const g = await getGameState(page); return g.pendingReaction == null && g.activePlayerId === 'player_1'; }, { timeout: 15000 }).toBe(true);
 			expect((await getGameState(page)).players.player_1.activeSlots[0].mp, 'No reaction: the full loss').toBeLessThan(before);

@@ -4,6 +4,8 @@
 import { SNELLE_PIECIES } from '../../data/snellePiecies.js';
 import { getSnelleCost } from '../../engine/energy/getSnelleCost.js';
 import { describeReactionContext } from '../board/describeReactionContext.js';
+import { describeReactionTargetMp } from '../board/describeReactionTargetMp.js';
+import { isPhoneLayout } from '../phone/isPhoneLayout.js';
 import { escapeMeta } from './escapeMeta.js';
 
 const MOMENT_TEXT = {
@@ -36,7 +38,8 @@ export async function promptReaction(modal, state, responderId) {
 	});
 	options.push({ id: '__pass__', label: 'No reaction' });
 	const question = p.moments.map(m => MOMENT_TEXT[m] ?? m).join(' / ') + (dice.length && p.eligible.some(id => id.startsWith('djReroll:') || id.startsWith('piecieReroll:')) ? '. Play a Snelle or reroll a die?' : '. Play a Snelle?');
-	const prompt = describeReactionContext(state) || question;
+	const context = describeReactionContext(state);
+	const prompt = context ? (isPhoneLayout() ? `${context}. ${describeReactionTargetMp(state)}`.trim() : context) : question;
 	const choice = await modal.showOptionSelect({ title: 'Reaction', prompt, options, allowCancel: false, variant: 'reaction' });
 	return !choice || choice === '__pass__' ? null : choice;
 }

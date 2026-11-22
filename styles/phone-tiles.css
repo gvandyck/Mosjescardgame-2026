@@ -102,7 +102,8 @@
 	/* The lying tile's "SKIPS TURN" pill is a tall two-line pill already: the whole box is the pill. */
 	.mosje-card--sideways .tile-badge::before { top: 0; height: auto; bottom: 0; }
 	.mosje-card--sideways .tile-badge + .tile-badge { margin-top: calc(4 * var(--bu, 1px)); }
-	.mosje-card--sideways .tile-badge--centre { min-height: 44px; }
+	/* 72.1-12: 44.2, not 44: the lying tile scales the pill by 1.36364 x 0.73333, which paints 43.9999 px (a 44 px touch gate reads that as under). */
+	.mosje-card--sideways .tile-badge--centre { height: 44.2px; min-height: 44.2px; }
 
 	/* ── The Place tile: the owner chip sits BESIDE the tile, vertically centred, never over the Place name ─────────── */
 	.board-place .card.card-v1--field { overflow: visible; }   /* the chip lives outside the face; the face clips its own art */

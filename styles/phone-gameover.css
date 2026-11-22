@@ -15,12 +15,13 @@
 		margin: 4px 0;
 		width: 100%;
 	}
-	.go-winning-quest__card { width: 150px; height: 225px; }
-	.go-winning-quest__card .card.card-v1 { --cv1-w: 150px; }
+	.go-winning-quest__card { width: 136px; height: 204px; }
+	.go-winning-quest__card .card.card-v1 { --cv1-w: 136px; }
 	.go-winning-quest__side { width: 100%; align-items: center; text-align: center; }
 	.go-winning-quest__side .dice-row { gap: 6px; margin: 6px 0; }
 
-	.reward-card:has(.go-winning-quest) .reward-icon { font-size: 2.2rem; }
+	/* 72.1-12: the trophy goes on a phone win (the title says Victory) so the dice of the winning roll show at first view. */
+	.reward-card:has(.go-winning-quest) .reward-icon { display: none; }
 	.reward-card:has(.go-winning-quest) .reward-title { font-size: 2.2rem; }
 	.go-stat--rounds { padding: 6px 12px; }
 	.reward-overlay .reward-stats { gap: 8px; margin: 6px 0 4px; }

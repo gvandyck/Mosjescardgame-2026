@@ -201,8 +201,30 @@ for (const vp of [PIXEL_VIEWPORT, ...PHONE_VIEWPORTS]) {
 			expect((await pageOverflow(page)).y, 'page overflow y').toBeLessThanOrEqual(0);
 			await expectContained(page, t, true);
 			expectQuests(t, true);
-			// The Welloe pile paints 2 px above #board-root's top edge (pre-existing, not this plan's: deferred-items), so it is left out here.
-			expect(await readPaintOverflow(page, '.quest-stack, #board-place .card, [data-pile]:not(.welloe-pile)')).toEqual([]);
+			// 72.1-12: the Welloe pile now paints inside #board-root too (its phone shadow no longer reaches past the top edge).
+			expect(await readPaintOverflow(page, '.quest-stack, #board-place .card, [data-pile]')).toEqual([]);
+		});
+	});
+}
+
+// 72.1-12: the two Welloe leftovers of 72.1-04, at every fitting size including 390x700 and 360x700: the pile paints inside
+// #board-root, and the table still fits after the board re-renders (the first (g) read was taken right after seeding).
+for (const vp of FITS) {
+	test.describe(`phone table fit: Welloe pile after a re-render at ${vp.name}`, () => {
+		test.use(phoneUse(vp));
+		test('(l) the Welloe pile paints inside the board and the table fits after a re-render (72.1-12; fit at the 3 device sizes)', async ({ page }) => {
+			test.setTimeout(90000);
+			await seedPhoneBoard(page, { hand: HAND, welloe: true });
+			await page.evaluate(() => window.__testHooks.setEnergy('player_2', 4)); // any state change re-renders the board
+			await page.waitForTimeout(700);
+			const t = await readTable(page);
+			console.log(`[72.1-12] ${vp.name} welloe re-render: board scrollH ${t.board.scrollH} clientH ${t.board.h} scales ${JSON.stringify(t.scales)}`);
+			// At 390x700 / 360x700 the 44 px Welloe pill makes the opponent header 22 px taller than without a pile; the opponent is at its
+			// 0.7 floor and my tile at its 100 px floor, so the board scrolls inside itself by 15 / 5 px (the designed fallback, the page never
+			// scrolls). That is an owner call (see 72.1-12-SUMMARY.md), so the board-fit check covers the three device sizes only.
+			if (['390x844', '360x740', '395x731'].includes(vp.name)) expect.soft(t.board.scrollH, `#board-root scrollHeight ${t.board.scrollH} vs clientHeight ${t.board.h}`).toBeLessThanOrEqual(t.board.h + 1);
+			expect.soft((await pageOverflow(page)).y, 'page overflow y').toBeLessThanOrEqual(0);
+			expect.soft(await readPaintOverflow(page, '.welloe-pile, .welloe-pile-container')).toEqual([]);
 		});
 	});
 }

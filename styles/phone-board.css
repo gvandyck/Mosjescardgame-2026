@@ -198,6 +198,8 @@
 		height: 44px;
 		padding: 0 12px;
 		border-radius: 22px;
+		/* 72.1-12: the desktop shadow (0 4px 10px) reaches 6 px above the pill, 2 px past #board-root's top edge; 0 2px 5px stays inside. */
+		box-shadow: inset 0 0 0 calc(5 * var(--bu)) rgba(5, 5, 5, 0.25), 0 2px 5px rgba(0, 0, 0, 0.4);
 	}
 	.page--game .game-board .welloe-pile__word { font-size: 12px; }
 	.page--game .game-board .welloe-pile__count {

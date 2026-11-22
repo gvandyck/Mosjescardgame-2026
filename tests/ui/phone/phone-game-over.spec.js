@@ -111,12 +111,16 @@ for (const vp of VIEWPORTS) {
 				expect(d.x, 'a die is not cut at the left').toBeGreaterThanOrEqual(g.card.x);
 				expect(d.right, 'a die is not cut at the right').toBeLessThanOrEqual(g.card.right);
 			}
+			// 72.1-12: the dice of the winning roll are fully visible at first view (scroll top), above the pinned buttons.
+			for (const d of g.dice) {
+				expect(d.bottom, `a die is not hidden behind the pinned buttons at first view (die bottom ${d.bottom}, buttons top ${g.actions.y})`).toBeLessThanOrEqual(g.actions.y + 0.5);
+			}
 			await expect(page.locator('[data-stat="quests"]')).toHaveCount(2);
 			await expect(page.locator('[data-stat="personal-quests"]')).toHaveCount(2);
 			await expectFits(page, 'win');
 			if (vp.name === '395x731') {
 				await readGameOverCard(page, 'top');
-				await savePhoneShot(page, '72.1-08-game-over');
+				await savePhoneShot(page, '72.1-12-game-over');
 			}
 		});
 
