@@ -14,6 +14,8 @@ import { showToast } from './board/showToast.js';
 import { COOLDOWN_TEXT } from './board/cooldownText.js';
 import { getPersonalQuestPlayState } from './personalQuests/getPersonalQuestPlayState.js';
 import { isCooldownBlocked } from '../engine/turn/isCooldownBlocked.js';
+import { buildPersonalQuestDetailOpts } from './phone/buildPersonalQuestDetailOpts.js';
+import { bindLongPress } from './phone/bindLongPress.js';
 import { isPhoneLayout } from './phone/isPhoneLayout.js';
 
 console.log('[UI] handRenderer.js loaded');
@@ -48,9 +50,10 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 	container.innerHTML = '';
 
 	const touchRaise = !!phoneRaise && isPhoneLayout();
+	const pqDetailOpts = (card) => buildPersonalQuestDetailOpts({ card, state: gameState, playerId: localPlayerId, isLocalTurn, onPlay });
 	if (touchRaise) {
 		// The raise reads the CURRENT hand and state; main.js refreshes it after the board has rendered (the slots are rebuilt then).
-		phoneRaise.configure({ onPlay, onDetails: (card) => showCardPreview(card), getContext: () => ({ state: gameState, localPlayerId, isLocalTurn, cards }) });
+		phoneRaise.configure({ onPlay, onDetails: (card) => showCardPreview(card, card.type === 'PERSONAL_QUEST' ? pqDetailOpts(card) : undefined), getContext: () => ({ state: gameState, localPlayerId, isLocalTurn, cards }) });
 	}
 
 	const questActive = !!activeQuest;
@@ -96,19 +99,15 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 
 		const pqState = () => (gameState ? getPersonalQuestPlayState(gameState, localPlayerId, card.cardId, { isLocalTurn }) : { ok: false, reason: '' });
 		cardEl.classList.add('card--previewable');
+		// 72.1-05: on a phone a long press is a shortcut to Details (it never raises, plays or pays); the tap-raise stays the way to play.
+		if (touchRaise) bindLongPress(cardEl, () => showCardPreview(card, card.type === 'PERSONAL_QUEST' ? pqDetailOpts(card) : undefined));
 		cardEl.addEventListener('click', (e) => {
 			if (touchRaise) { phoneRaise.toggle(card.cardId); return; } // phone: the first tap raises, it never plays
 			if (e.target.closest('button')) return;
 			if (cooldownBlocked) { showToast(COOLDOWN_TEXT); return; }
 			// 72-04: a tap on a Personal Quest opens its detail with a Play action (and the engine's reason when it is off).
 			if (isPersonalQuest) {
-				const st = pqState();
-				const canPlay = Boolean(onPlay) && st.ok;
-				const reason = canPlay ? '' : (st.reason || 'It cannot be played now');
-				showCardPreview(card, {
-					actions: [{ id: 'play', label: 'Play', disabled: !canPlay, title: reason, onClick: () => onPlay(card.cardId, card.type) }],
-					reason,
-				});
+				showCardPreview(card, pqDetailOpts(card));
 				return;
 			}
 			// Card frame v1: the Play button is hidden; clicking a playable card plays it.

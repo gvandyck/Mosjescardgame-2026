@@ -7,6 +7,9 @@ import { createHandRaise } from '../../src/ui/phone/createHandRaise.js';
 import { COOLDOWN_TEXT } from '../../src/ui/board/cooldownText.js';
 import { getCardEnergyCost } from '../../src/engine/energy/getCardEnergyCost.js';
 import { makeEngineState } from '../helpers/makeEngineState.js';
+import { pqWorld } from '../helpers/personalQuestKit.js';
+import { getPersonalQuestPlayState } from '../../src/ui/personalQuests/getPersonalQuestPlayState.js';
+import { describeRaiseView } from '../../src/ui/phone/describeRaiseView.js';
 
 const FISSA = { cardId: 'mosje_alyssa_fissa', type: 'MOSJE', name: 'Alyssa, Fissa Fissa!' };
 const DONER = { cardId: 'piecie_broodje_doner', type: 'PIECIE', name: 'Broodje Doner' };
@@ -245,5 +248,53 @@ describe('createHandRaise (state machine, no DOM)', () => {
 		const { raise, log } = setup();
 		raise.refresh();
 		expect(log).toEqual([]);
+	});
+});
+
+describe('72.1-05: a Personal Quest in the phone hand', () => {
+	const PQ = { cardId: 'pq_charge', type: 'PERSONAL_QUEST', name: 'Charge!' };
+	const pqInfo = (state, isLocalTurn = true) => getHandCardState({ state, playerId: 'player_1', card: PQ, isLocalTurn });
+
+	it('with a legal Level 3 Mosje it can be played: no slot, no Energy, kind null', () => {
+		const info = pqInfo(pqWorld({ cardId: 'pq_charge' }));
+		expect(info).toEqual({ canPlay: true, reason: null, cost: 0, kind: null, slotIndex: -1 });
+	});
+
+	it('with no Level 3 Mosje it says what the engine says', () => {
+		const state = pqWorld({ cardId: 'pq_charge', slot: { level: 1, levelAtTurnStart: 1 } });
+		const info = pqInfo(state);
+		const engine = getPersonalQuestPlayState(state, 'player_1', 'pq_charge', { isLocalTurn: true });
+		expect(info.canPlay).toBe(false);
+		expect(info.reason).toBe('You have no Level 3 Mosje');
+		expect(info.reason).toBe(engine.reason);
+	});
+
+	it('not my turn gives the not-your-turn reason', () => {
+		const state = pqWorld({ cardId: 'pq_charge' });
+		const info = pqInfo(state, false);
+		expect(info.canPlay).toBe(false);
+		expect(info.reason).toBe('Not your turn');
+	});
+
+	it('a cooldown turn gives the cooldown text', () => {
+		const info = pqInfo(pqWorld({ cardId: 'pq_charge', p1: { cooldownTurn: true } }));
+		expect(info.canPlay).toBe(false);
+		expect(info.reason).toBe(COOLDOWN_TEXT);
+	});
+
+	it('a Level 3 Mosje that does not meet the Needs gives the engine sentence', () => {
+		const state = pqWorld({ cardId: 'pq_charge', mp: 20 });
+		const info = pqInfo(state);
+		const engine = getPersonalQuestPlayState(state, 'player_1', 'pq_charge', { isLocalTurn: true });
+		expect(info.canPlay).toBe(false);
+		expect(info.reason).toBe(engine.reason);
+		expect(info.reason).not.toBe('');
+	});
+
+	it('describeRaiseView: "Play to attempt it" when playable, the engine reason when blocked, disabled follows canPlay', () => {
+		const ok = describeRaiseView({ card: PQ, cardId: PQ.cardId, info: pqInfo(pqWorld({ cardId: 'pq_charge' })) });
+		expect(ok).toEqual({ name: 'Charge!', line: 'Play to attempt it', disabled: false });
+		const blocked = describeRaiseView({ card: PQ, cardId: PQ.cardId, info: pqInfo(pqWorld({ cardId: 'pq_charge', slot: { level: 1, levelAtTurnStart: 1 } })) });
+		expect(blocked).toEqual({ name: 'Charge!', line: 'You have no Level 3 Mosje', disabled: true });
 	});
 });

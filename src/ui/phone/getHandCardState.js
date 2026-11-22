@@ -3,11 +3,12 @@
 // the slot `kind` / `slotIndex` (the slot the engine will fill, getNextFreeSlot) for one that can.
 // kind: 'mosje' | 'piecie' | null (a Place takes no slot); a Snelle takes a Piecie slot, like playSnellie. slotIndex is -1 when none.
 // Reasons, first match wins: returned Mosje, cooldown (everything but a Piecie), not your turn (everything but a Snelle), a type that
-// is not played from the hand, a Place already in play, a refused Snelle, too little Energy, no free slot.
+// is not played from the hand (a Personal Quest asks the engine instead, 72.1-05), a Place already in play, a refused Snelle, too little Energy, no free slot.
 import { getHandPlayCost } from '../board/getHandPlayCost.js';
 import { getNextFreeSlot } from '../board/getNextFreeSlot.js';
 import { snelleRefused } from '../board/snelleRefused.js';
 import { COOLDOWN_TEXT } from '../board/cooldownText.js';
+import { getPersonalQuestPlayState } from '../personalQuests/getPersonalQuestPlayState.js';
 import { isCooldownBlocked } from '../../engine/turn/isCooldownBlocked.js';
 
 const KIND_BY_TYPE = { MOSJE: 'mosje', PIECIE: 'piecie', SNELLE_PIECIE: 'piecie' };
@@ -18,6 +19,7 @@ function refusal({ state, playerId, card, isLocalTurn, cost, kind, slotIndex }) 
 	if (card.type === 'MOSJE' && card.returnedThisTurn) return 'Returned this turn; can be replayed next turn';
 	if (card.type !== 'PIECIE' && isCooldownBlocked(state, playerId)) return COOLDOWN_TEXT;
 	if (card.type !== 'SNELLE_PIECIE' && !isLocalTurn) return 'Not your turn';
+	if (card.type === 'PERSONAL_QUEST') return getPersonalQuestPlayState(state, playerId, card.cardId, { isLocalTurn }).reason || null; // 72.1-05: the engine's own sentence, no slot, no Energy
 	if (!PLAYABLE_TYPES.includes(card.type)) return 'Cannot be played from the hand';
 	if (card.type === 'PLACE' && state?.activePlace) return 'A Place is already in play';
 	if (snelleRefused(state, playerId, card)) return state._snelleBlocked === playerId ? 'Blocked this turn' : 'Its condition is not met right now';
