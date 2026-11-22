@@ -26,6 +26,7 @@ import { getAttachmentChips } from './board/getAttachmentChips.js';
 import { buildChipRowHtml } from './chips/buildChipRowHtml.js';
 import { buildTagLinesHtml } from './chips/buildTagLinesHtml.js';
 import { pickEndTurnHost } from './phone/pickEndTurnHost.js';
+import { isPhoneLayout } from './phone/isPhoneLayout.js';
 import { applyPhoneFit } from './phone/applyPhoneFit.js';
 import { bindTableLongPress } from './phone/bindTableLongPress.js';
 
@@ -423,9 +424,10 @@ export function updateMPBar(mosjeInstanceId, mp, level) {
 export function showPlaceEffectBanner(placeName, effectSummary, phase) {
 	const topbarFlow = document.getElementById('topbar-flow');
 	if (!topbarFlow) return;
+	// 72.1-09: the header flow slot is hidden on a phone, so there the banner is a fixed strip above the bar (styles/phone-banners.css).
+	const host = isPhoneLayout() ? document.body : topbarFlow;
 
-	const existing = topbarFlow.querySelector('.place-effect-banner');
-	if (existing) existing.remove();
+	document.querySelectorAll('.place-effect-banner').forEach((old) => old.remove());
 
 	const banner = document.createElement('div');
 	banner.className = 'place-effect-banner';
@@ -434,7 +436,7 @@ export function showPlaceEffectBanner(placeName, effectSummary, phase) {
 		<span class="place-banner-effect">${escapeHtml(effectSummary || `Effect triggered (${phase || 'phase'})`)}</span>
 	`;
 
-	topbarFlow.appendChild(banner);
+	host.appendChild(banner);
 	setTimeout(() => {
 		banner.classList.add('place-banner-fade');
 		banner.addEventListener('transitionend', () => banner.remove(), { once: true });

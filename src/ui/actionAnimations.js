@@ -5,6 +5,8 @@ import {
 	showMPFloat,
 } from './boardRenderer.js';
 import { showCardSpotlight, addSpotlightEffects, isSpotlightActive } from './cardSpotlight.js';
+import { isPhoneLayout } from './phone/isPhoneLayout.js';
+import { clampToViewport } from './phone/clampToViewport.js';
 
 export { isSpotlightActive };
 
@@ -191,6 +193,17 @@ function castAbilityEffect(cardEl, cardId) {
 	chip.style.top = `${rect.bottom}px`;
 	document.body.appendChild(chip);
 	chip.addEventListener('animationend', () => chip.remove(), { once: true });
+	if (isPhoneLayout()) placeChipOnScreen(chip, rect, cx);
+}
+
+// 72.1-09 (D-04): on a phone the chip is kept inside the screen sideways and above the bottom bar (a tile near the bar gets the chip above it).
+function placeChipOnScreen(chip, tileRect, cx) {
+	// offsetWidth / offsetHeight: the layout size (getBoundingClientRect would read the pop-in's scale(0.7) first frame).
+	const box = { width: chip.offsetWidth * 1.08, height: chip.offsetHeight }; // 1.08 = the pop-in's overshoot scale
+	const left = clampToViewport({ centreX: cx, width: box.width, viewport: window.innerWidth });
+	chip.style.left = `${left + box.width / 2}px`;
+	const barTop = document.getElementById('phone-bar')?.getBoundingClientRect().top ?? window.innerHeight;
+	if (tileRect.bottom + box.height + 20 > barTop) chip.style.top = `${Math.max(0, tileRect.top - box.height - 6)}px`;
 }
 
 // Quest outcome on a Mosje: green flash + ✓ pop (success) or red shake + ✗ pop (fail).

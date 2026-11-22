@@ -1,0 +1,39 @@
+/* phone-banners.css - Phase 72.1-09 (D-04, D-06, MOB-04, T-72.1-19): the transient banners fit a phone and never take a tap. The
+   activation chip (cast chip) is clamped by src/ui/phone/clampToViewport.js, this file gives it a width limit and a readable size.
+   The Place effect banner (the header flow slot is hidden on a phone, so showPlaceEffectBanner appends it to body there) is a fixed
+   strip above the bar. The turn and deck-out banners fit the window with 12 px each side under the status strip. Behind the ONE
+   700 px phone query; desktop banners are untouched. Loaded after phone-strip.css. */
+
+@media (max-width: 700px) {
+	.cast-chip {
+		max-width: calc(100vw - 16px);
+		font-size: 0.85rem;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.place-effect-banner {
+		position: fixed;
+		left: 12px;
+		right: 12px;
+		bottom: calc(var(--phone-bottom, 60px) + 12px);
+		margin: 0;
+		z-index: 44;
+		white-space: normal;
+		text-align: center;
+		pointer-events: none;
+		background: rgba(8, 24, 18, 0.94);
+	}
+
+	.turn-transition,
+	.deckout-banner {
+		top: calc(var(--phone-top, 56px) + var(--status-h, 44px) + 12px);
+		min-width: 0;
+		width: calc(100vw - 24px);
+		max-width: calc(100vw - 24px);
+		box-sizing: border-box;
+		padding: 0.7rem 1rem;
+		pointer-events: none;
+	}
+	.turn-transition { font-size: 1.1rem; overflow-wrap: anywhere; }
+}
