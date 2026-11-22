@@ -17,6 +17,7 @@ import { isCooldownBlocked } from '../engine/turn/isCooldownBlocked.js';
 import { buildPersonalQuestDetailOpts } from './phone/buildPersonalQuestDetailOpts.js';
 import { bindLongPress } from './phone/bindLongPress.js';
 import { isPhoneLayout } from './phone/isPhoneLayout.js';
+import { openCardSheet } from './phone/openCardSheet.js';
 
 console.log('[UI] handRenderer.js loaded');
 
@@ -99,8 +100,8 @@ export function renderHand(container, cards, onPlay = null, isLocalTurn = true, 
 
 		const pqState = () => (gameState ? getPersonalQuestPlayState(gameState, localPlayerId, card.cardId, { isLocalTurn }) : { ok: false, reason: '' });
 		cardEl.classList.add('card--previewable');
-		// 72.1-05: on a phone a long press is a shortcut to Details (it never raises, plays or pays); the tap-raise stays the way to play.
-		if (touchRaise) bindLongPress(cardEl, () => showCardPreview(card, card.type === 'PERSONAL_QUEST' ? pqDetailOpts(card) : undefined));
+		// 72.1-05 / 72.1-06: on a phone a long press opens the card sheet (it never raises, plays or pays); its Full card button is Details.
+		if (touchRaise) bindLongPress(cardEl, () => openCardSheet(wrapEl, { onFullCard: () => showCardPreview(card, card.type === 'PERSONAL_QUEST' ? pqDetailOpts(card) : undefined) }));
 		cardEl.addEventListener('click', (e) => {
 			if (touchRaise) { phoneRaise.toggle(card.cardId); return; } // phone: the first tap raises, it never plays
 			if (e.target.closest('button')) return;

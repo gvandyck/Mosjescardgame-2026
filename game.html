@@ -39,9 +39,11 @@
   <link rel="stylesheet" href="styles/phone-tiles.css" />
   <link rel="stylesheet" href="styles/phone-raise.css" />
   <link rel="stylesheet" href="styles/phone-sheets.css" />
+  <link rel="stylesheet" href="styles/phone-detail.css" />
   <link rel="stylesheet" href="styles/phone-actions.css" />
   <link rel="stylesheet" href="styles/phone-screens.css" />
   <link rel="stylesheet" href="styles/phone-options.css" />
+  <link rel="stylesheet" href="styles/phone-card-sheet.css" />
 </head>
 <body class="page page--game">
   <div class="bg-noise" aria-hidden="true"></div>
@@ -137,6 +139,8 @@
   </main>
 
   <div id="modal-root" class="modal-root"></div>
+  <!-- 72.1-06: the phone card sheet (createBottomSheet) lives here, outside #modal-root; styles/phone-card-sheet.css. -->
+  <div id="phone-sheet-root"></div>
 
   <script type="module" src="src/main.js"></script>
 

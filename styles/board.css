@@ -2575,3 +2575,6 @@
 }
 
 /* Quest stacks (Obby 2.0): the 2.0 tile stacks live in styles/board-2-0.css (Phase 63-03). */
+
+/* 72.1-06: the reason, the actions and Close share one wrapper so a phone can pin them together (styles/phone-detail.css); on desktop it adds no box. */
+.card-detail .cd-foot { display: contents; }

@@ -27,6 +27,7 @@ import { buildChipRowHtml } from './chips/buildChipRowHtml.js';
 import { buildTagLinesHtml } from './chips/buildTagLinesHtml.js';
 import { pickEndTurnHost } from './phone/pickEndTurnHost.js';
 import { applyPhoneFit } from './phone/applyPhoneFit.js';
+import { bindTableLongPress } from './phone/bindTableLongPress.js';
 
 const PIECIE_SLOTS = 3; // 2.0: 3 Piecie slots per player (mirrors tableRules)
 const MOSJE_SLOTS = 2; // 2.0: 2 Mosje slots per player
@@ -58,6 +59,7 @@ export function renderBoard(container, viewModel, onReturnToHand = null, onOpenD
 
 	const endTurnHadFocus = !!extras.endTurnButton && document.activeElement === extras.endTurnButton;
 	container.setAttribute('data-board', 'obby-2');
+	bindTableLongPress(container, (def) => getBoardModal().showCardPreview(def)); // 72.1-06: a long press on a table card opens the phone card sheet
 	container.innerHTML = buildBoardSkeleton({
 		topName: viewModel.players.top.name,
 		bottomName: viewModel.players.bottom.name,
@@ -460,6 +462,8 @@ function appendAttachmentChips(cardEl, tile) {
 function appendTimedTags(cardEl, tile) {
 	const html = buildTagLinesHtml(tile.tags, { max: 2 });
 	if (!html) return;
+	// 72.1-06: the full effect texts for the phone card sheet; set through dataset (JSON), never as markup.
+	cardEl.dataset.tags = JSON.stringify(tile.tags.map(({ text, kind }) => ({ text, kind })));
 	const withChips = cardEl.querySelector('.tile-chips') ? ' tile-tags--above-chips' : '';
 	cardEl.insertAdjacentHTML('beforeend', `<div class="tile-tags${withChips}">${html}</div>`);
 }

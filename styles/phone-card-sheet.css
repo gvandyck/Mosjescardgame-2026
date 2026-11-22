@@ -1,0 +1,103 @@
+/* phone-card-sheet.css - Phase 72.1-06 (D-06, D-12, D-13; MOB-05): the phone form of the hover dock, ONE bottom sheet in #phone-sheet-root
+   (src/ui/phone/createBottomSheet.js). Handle, title row with Close, a body that scrolls inside, a "Full card" button. At most 70 dvh,
+   safe-area padding, a light 35 % backdrop and no blur (the board stays visible above), above the bar (46) and the drawer (45) but under
+   the modals (150), so the detail view opened by "Full card" is on top. Everything is inside the one phone query. */
+
+#phone-sheet-root { display: none; }
+
+@media (max-width: 700px) {
+	#phone-sheet-root[data-open] {
+		display: block;
+		position: fixed;
+		inset: 0;
+		z-index: 140;
+	}
+	.phone-sheet-wrap { position: absolute; inset: 0; }
+	.phone-sheet-backdrop {
+		position: absolute;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.35);
+	}
+	.phone-sheet {
+		box-sizing: border-box;
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		display: flex;
+		flex-direction: column;
+		max-height: min(70dvh, calc(100dvh - 56px));
+		padding: 0 16px max(12px, env(safe-area-inset-bottom));
+		background: #1b2340;
+		color: #eef1fb;
+		border: 1px solid rgba(255, 255, 255, 0.14);
+		border-bottom: 0;
+		border-radius: 16px 16px 0 0;
+		box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.45);
+		animation: phone-card-sheet-up 220ms ease-out;
+	}
+	@keyframes phone-card-sheet-up {
+		from { transform: translateY(100%); }
+		to { transform: translateY(0); }
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.phone-sheet { animation: none; }
+	}
+
+	/* The swipe-down area: the handle and the title row (a vertical drag is ours, pinch stays allowed). */
+	.phone-sheet__top { flex: 0 0 auto; touch-action: pinch-zoom; }
+	.phone-sheet__handle {
+		width: 44px;
+		height: 5px;
+		margin: 10px auto 4px;
+		border-radius: 3px;
+		background: rgba(255, 255, 255, 0.32);
+	}
+	.phone-sheet__head { display: flex; align-items: center; gap: 12px; min-height: 48px; }
+	.phone-sheet__title {
+		flex: 1 1 auto;
+		min-width: 0;
+		margin: 0;
+		font-size: 1.05rem;
+		line-height: 1.25;
+		overflow-wrap: anywhere;
+	}
+	.phone-sheet__close,
+	.phone-sheet__action {
+		box-sizing: border-box;
+		min-width: 44px;
+		min-height: 44px;
+		padding: 0 16px;
+		font: inherit;
+		font-weight: 600;
+		color: #eef1fb;
+		background: #263052;
+		border: 1px solid rgba(255, 255, 255, 0.22);
+		border-radius: 10px;
+	}
+	.phone-sheet__close { flex: 0 0 auto; }
+
+	.phone-sheet__body {
+		flex: 1 1 auto;
+		min-height: 0;
+		overflow-y: auto;
+		overflow-x: hidden;
+		overscroll-behavior: contain;
+		padding: 4px 0 8px;
+	}
+	.phone-sheet__foot { flex: 0 0 auto; display: flex; gap: 10px; padding-top: 8px; }
+	.phone-sheet__action { flex: 1 1 0; min-height: 48px; }
+
+	/* The content (src/ui/phone/buildCardSheetContent.js). */
+	.cs-section { margin: 0 0 10px; }
+	.cs-type { margin: 0; font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; color: #9fb0d8; }
+	.cs-section--stats { display: flex; flex-wrap: wrap; gap: 8px; }
+	.cs-stat { padding: 4px 10px; font-size: 0.95rem; font-weight: 600; background: rgba(255, 255, 255, 0.09); border-radius: 999px; }
+	.cs-heading { margin: 0 0 4px; font-size: 0.8rem; letter-spacing: 0.05em; text-transform: uppercase; color: #e8b94f; }
+	.cs-row { font-size: 0.92rem; line-height: 1.4; margin: 0 0 6px; overflow-wrap: anywhere; }
+	.cs-row__name { display: block; }
+	.cs-row__text { display: block; color: #c9d3ee; }
+	.cs-row--effects { padding-left: 8px; border-left: 3px solid #e8b94f; }
+	.cs-row--panel { color: #c9d3ee; }
+	.cs-row--panel[data-kind="flavour"] { font-style: italic; }
+}

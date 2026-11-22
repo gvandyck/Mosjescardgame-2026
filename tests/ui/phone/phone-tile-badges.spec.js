@@ -2,7 +2,7 @@
  * phone-tile-badges.spec.js - Phase 72.1-04 (D-05, D-04, D-13; MOB-01, MOB-04): on a phone a Mosje tile with attachments or timed
  * effects shows ONE count badge ("2 gear, 1 effect"; a narrow tile "2+1") instead of the chip row and the tag lines; with nothing
  * attached there is no badge. The badge text is at least 11 px and clear of the name, Power and MP boxes, its touch area is at least
- * 44 x 44 inside the tile, a tap on it opens the Mosje detail (attachments n / max and the timed effects), a tap elsewhere on the
+ * 44 x 44 inside the tile, a tap on it opens the card sheet (72.1-06: attachments n / max and the timed effects), a tap elsewhere on the
  * tile still opens the tray (own) or the detail (opponent). Desktop (1920x1080, mouse) keeps the chips and tag lines. 395x731,
  * 390x844, 360x740, touch, headless. One screenshot at 395x731 (72.1-04-tile-badges.png).
  */
@@ -111,14 +111,22 @@ for (const vp of [PIXEL_VIEWPORT, ...PHONE_VIEWPORTS]) {
 			expect(await hitSquareMisses(page, OPP_TILE), 'the hit square belongs to the badge').toEqual([]);
 		});
 
-		test('(c) a tap on the badge opens the detail with attachments n / max and the timed effect; a tap elsewhere opens the tray', async ({ page }) => {
+		test('(c) a tap on the badge opens the card sheet (72.1-06) with attachments n / max and the timed effect; a tap elsewhere opens the tray', async ({ page }) => {
 			await seedTileState(page);
 			await page.locator(`${OWN_TILE} .tile-count-badge`).tap();
-			const root = page.locator('.modal-root--open');
-			await expect(root).toContainText('Attachments 2 / 2');
-			await expect(root).toContainText(TIMED_TEXT);
-			await expect(root).toContainText('Dumbbells');
+			const sheet = page.locator('.phone-sheet');
+			await expect(sheet).toContainText('Attachments 2 / 2');
+			await expect(sheet).toContainText(TIMED_TEXT);
+			await expect(sheet).toContainText('Dumbbells');
 			await expect(page.locator('[data-action-tray]'), 'the badge tap did not open the tray').toHaveCount(0);
+			await page.locator('.phone-sheet__close').tap();
+			await expect(sheet).toHaveCount(0);
+
+			// "Full card" reaches the big Mosje detail, which lists the same things.
+			await page.locator(`${OWN_TILE} .tile-count-badge`).tap();
+			await page.locator('.phone-sheet__action').tap();
+			await expect(page.locator('.modal-root--open')).toContainText('Attachments 2 / 2');
+			await expect(page.locator('.modal-root--open')).toContainText(TIMED_TEXT);
 			await closeDetail(page);
 
 			// Elsewhere on my tile (above the badge's touch box, over the art): the tray, not the detail.
@@ -128,10 +136,10 @@ for (const vp of [PIXEL_VIEWPORT, ...PHONE_VIEWPORTS]) {
 			await expect(page.locator('.modal-root--open')).toHaveCount(0);
 			await page.keyboard.press('Escape');
 
-			// The opponent's tile: the badge and the tile both reach the detail, which lists the one attachment.
+			// The opponent's tile: the badge opens the sheet with the one attachment, the tile itself still opens the detail.
 			await page.locator(`${OPP_TILE} .tile-count-badge`).tap();
-			await expect(page.locator('.modal-root--open')).toContainText('Attachments 1 / 2');
-			await closeDetail(page);
+			await expect(sheet).toContainText('Attachments 1 / 2');
+			await page.locator('.phone-sheet__close').tap();
 			const opp = await page.locator(OPP_TILE).boundingBox();
 			await page.locator(OPP_TILE).tap({ position: { x: Math.round(opp.width * 0.85), y: Math.round(opp.height * 0.5) } });
 			await expect(page.locator('.modal-root--open')).toContainText('Attachments 1 / 2');

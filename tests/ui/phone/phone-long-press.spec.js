@@ -1,7 +1,7 @@
 /**
  * phone-long-press.spec.js - Phase 72.1-05 (D-06, T-72.1-10): a long press (500 ms, under 10 px of movement) on a hand card opens its
- * Details and never raises, plays or pays; a short tap raises; a swipe, a touchcancel or a scroll does neither. The real Chrome
- * sequence of 65-03b (a pointercancel ~15 ms in, then more touchmoves and a late touchend) still opens Details. A mouse press-and-hold
+ * card sheet (72.1-06; Details is its "Full card" button) and never raises, plays or pays; a short tap raises; a swipe, a touchcancel or a scroll does neither. The real Chrome
+ * sequence of 65-03b (a pointercancel ~15 ms in, then more touchmoves and a late touchend) still opens the sheet. A mouse press-and-hold
  * on desktop opens nothing. Real CDP touches through the `phone` project at 395x731, 390x844 and 360x740.
  */
 import { test, expect } from '@playwright/test';
@@ -10,7 +10,7 @@ import { seedPhoneBoard } from '../../helpers/phoneBoard.js';
 import { openDrawer, wrapOf, FISSA, KANNETJE, DONER, FREE_SNELLE, RAISE_HAND } from '../../helpers/phoneRaise.js';
 import { longPress } from '../../helpers/phoneLongPress.js';
 
-const detail = (page) => page.locator('.card-detail');
+const detail = (page) => page.locator('.phone-sheet'); // 72.1-06: the long press opens the card sheet, no longer the Details view
 const raised = (page) => page.locator('.hand-card-wrap[data-raised]');
 
 async function centerOf(page, cardId) {
@@ -35,7 +35,7 @@ for (const vp of [PIXEL_VIEWPORT, ...PHONE_VIEWPORTS]) {
 			await openDrawer(page);
 		});
 
-		test('(a) a 600 ms hold opens the Details view and does not raise, play or pay', async ({ page }) => {
+		test('(a) a 600 ms hold opens the card sheet and does not raise, play or pay', async ({ page }) => {
 			const before = await snapshot(page);
 			await longPress(page, { at: await centerOf(page, FISSA), holdMs: 600 });
 			await expect(detail(page)).toBeVisible();
@@ -47,7 +47,7 @@ for (const vp of [PIXEL_VIEWPORT, ...PHONE_VIEWPORTS]) {
 			expect(await snapshot(page), 'nothing played, nothing paid').toEqual(before);
 		});
 
-		test('(b) a hold released at 300 ms is a tap: it raises and opens no Details', async ({ page }) => {
+		test('(b) a hold released at 300 ms is a tap: it raises and opens no sheet', async ({ page }) => {
 			await longPress(page, { at: await centerOf(page, FISSA), holdMs: 300 });
 			await expect(page.locator('#phone-bar')).toHaveAttribute('data-mode', 'raise');
 			await expect(raised(page)).toHaveCount(1);
@@ -75,7 +75,7 @@ for (const vp of [PIXEL_VIEWPORT, ...PHONE_VIEWPORTS]) {
 			expect(await snapshot(page)).toEqual(before);
 		});
 
-		test('(e) the real Chrome sequence: a pointercancel at 15 ms, small drift, a late touchend still opens Details', async ({ page }) => {
+		test('(e) the real Chrome sequence: a pointercancel at 15 ms, small drift, a late touchend still opens the sheet', async ({ page }) => {
 			const at = await centerOf(page, FREE_SNELLE);
 			await longPress(page, {
 				at, moveTo: { x: at.x + 4, y: at.y + 3 }, steps: 3, holdMs: 600,

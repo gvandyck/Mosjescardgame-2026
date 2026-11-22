@@ -1,0 +1,23 @@
+/* phone-detail.css - Phase 72.1-06 (D-06, D-04): on a phone the detail view keeps its reason (.cd-why), Play (.cd-actions) and Close
+   pinned to the bottom of the scrolling dialog, so a long Personal Quest never pushes Play out of reach. The three share .cd-foot
+   (display: contents on desktop). A background strip hides the text that scrolls behind. Loaded after phone-sheets.css. */
+
+@media (max-width: 700px) {
+	.modal-root--open .card-detail .cd-foot {
+		display: block;
+		position: sticky;
+		bottom: -14px;
+		z-index: 3;
+		width: calc(100% + 28px);
+		margin: 0 -14px -14px;
+		padding: 8px 14px 14px;
+		box-sizing: border-box;
+		background: #080c1a;
+		box-shadow: 0 -8px 12px #080c1a;
+	}
+	.modal-root--open .card-detail .cd-foot .cd-why { margin: 0 0 8px; }
+	.modal-root--open .card-detail .cd-foot .cd-actions { margin: 0 0 8px; }
+	.modal-root--open .card-detail .cd-foot .cd-actions .cd-action { flex: 1 1 auto; min-height: 48px; }
+	.modal-root--open .card-detail .cd-foot .cd-close { position: static; bottom: auto; box-shadow: none; margin: 0; width: 100%; }
+	.modal-root--open .card-detail .cd-info { min-height: 0; }
+}

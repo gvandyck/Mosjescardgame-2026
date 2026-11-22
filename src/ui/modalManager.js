@@ -545,8 +545,7 @@ export function initModalManager(container) {
 					${buildCardPanel({ ...card, attachments: undefined })}
 					${chipsHTML}
 					<div class="cd-sections">${sectionsHTML}</div>
-					${buildPreviewActionsHtml(actions, reason)}
-					<button class="modal-btn cd-close" id="modal-close-preview" type="button">Close</button>
+					<div class="cd-foot">${buildPreviewActionsHtml(actions, reason)}<button class="modal-btn cd-close" id="modal-close-preview" type="button">Close</button></div>
 				</div>
 			</section>
 		`;

@@ -62,6 +62,9 @@ export function initPhoneHand({ onLayoutChange, onRaise } = {}) {
 
 	bindPhoneFit(() => document.getElementById('board-root')); // the table re-fits on resize / turn / visual viewport (65-05)
 
+	// 72.1-06: opening the card sheet cancels a raised card first, so the sheet never covers a marked "Place here" slot.
+	document.addEventListener('phone-sheet:open', () => raise.cancel());
+
 	bindPhoneLayoutChange((isPhone) => {
 		drawer.close();
 		raise.cancel();
