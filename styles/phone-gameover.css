@@ -1,0 +1,44 @@
+/* phone-gameover.css - Phase 72.1-08 (D-06, MOB-06): the game-over card on a phone after a Personal Quest win or a knockout.
+   The winning-quest block stacks (150 px card on top, the Mosje line and the dice under it) instead of sitting in a row that
+   squeezes the side column, the player rows get compact, and the three buttons are pinned at the bottom of the card's OWN scroll
+   (sticky, on the card's background) so Play again, Back to Lobby and Copy Log never scroll away. Everything is inside the ONE
+   phone query (max-width: 700px), so the desktop game over (200 px card beside the Mosje, no scroll at 1080) is unchanged.
+   Loaded after phone-screens.css on game.html, which owns the card's size, scroll and the stacked 48 px buttons. */
+
+@media (max-width: 700px) {
+	/* The desktop rule min(46rem, 94vw) would let the card outgrow the phone shell width rule; keep the phone width. */
+	.reward-overlay .reward-card:has(.go-winning-quest) { width: calc(100% - 24px); }
+
+	.go-winning-quest {
+		flex-direction: column;
+		gap: 8px;
+		margin: 4px 0;
+		width: 100%;
+	}
+	.go-winning-quest__card { width: 150px; height: 225px; }
+	.go-winning-quest__card .card.card-v1 { --cv1-w: 150px; }
+	.go-winning-quest__side { width: 100%; align-items: center; text-align: center; }
+	.go-winning-quest__side .dice-row { gap: 6px; margin: 6px 0; }
+
+	.reward-card:has(.go-winning-quest) .reward-icon { font-size: 2.2rem; }
+	.reward-card:has(.go-winning-quest) .reward-title { font-size: 2.2rem; }
+	.go-stat--rounds { padding: 6px 12px; }
+	.reward-overlay .reward-stats { gap: 8px; margin: 6px 0 4px; }
+	.go-players { gap: 6px; }
+	.reward-card:has(.go-winning-quest) .go-player { padding: 6px 10px; }
+
+	/* The pinned footer: inside the card's own scroll, on the card background; the negative margin lets it reach the card edge. */
+	.reward-overlay .reward-actions {
+		position: sticky;
+		bottom: -16px;
+		z-index: 2;
+		align-self: stretch;
+		width: calc(100% + 28px);
+		box-sizing: border-box;
+		margin: 0 -14px -16px;
+		padding: 10px 14px max(12px, env(safe-area-inset-bottom, 0px));
+		background: #1a1a1a;
+		box-shadow: 0 -10px 12px -6px rgba(0, 0, 0, 0.55);
+		border-radius: 0 0 16px 16px;
+	}
+}
