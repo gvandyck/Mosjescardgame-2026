@@ -47,7 +47,7 @@ Git: work on a branch (`docs/obby-2.0-...`), never commit straight to `main`.
 - **Phase 64 = lobby + full games + sim + deploy** (slice 2.0-A shell). Live at `https://eightytwenty.nl/obbycardgame2/` since 2026-10-27 (first deploy, `2.0-A.1`): a push to `obby-2.0` deploys it (`.github/workflows/deploy-obby2.yml`); `main` still deploys V4 to `cardgame2026/` only. Never merge `obby-2.0` into `main`.
 - Two modes, both with the 3 Example Decks: **Play vs Bot** and **Watch Bots** (bot vs bot). No login, store, deck builder or leaderboard in slice A (code kept behind `src/config/features.js`).
 - Version format **`2.0-A.<n>`** (`src/version.js`, bumped by hand per shipped change; slice B becomes `2.0-B.<n>`).
-- **Phase 67 adds online play** (Google / email login, 1v1 rooms, PC vs phone) by flipping the `onlineRooms` / `accounts` flags. Phase 65 is the phone layout. `npm run test:sim` is the 2.0 deck matrix (90 games, crash / timeout gate); `npm run test:mobile-canary` is the report-only phone check.
+- **Phase 67 adds online play** (Google / email login, 1v1 rooms, PC vs phone) by flipping the `onlineRooms` / `accounts` flags. The phone layout (Phase 65, revived as 72.1) is current: see `docs/developer-handoff.md` ("Mobile play"). `npm run test:sim` is the 2.0 deck matrix (90 games, crash / timeout gate); `npm run test:phone` is the phone gate (the real `phone` Playwright project, 395x731 touch).
 - Details and file map: `docs/developer-handoff.md` ("Lobby, game over, sim and deploy (Phase 64)").
 
 ## Reminders for later phases

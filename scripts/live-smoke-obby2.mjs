@@ -48,6 +48,9 @@ try {
 
   await page.locator('#lobby2-start').click();
   await page.waitForURL(/game\.html/, { timeout: 20000 });
+  // 2.1: the lobby always asks for the starting Mosje first; take the first face so the board appears.
+  const pick = page.locator('.modal-mosje-select-btn').first();
+  if (await pick.waitFor({ state: 'visible', timeout: 15000 }).then(() => true, () => false)) await pick.click();
   await page.locator('.mosje-card--owned').first().waitFor({ state: 'attached', timeout: 20000 });
   report.gameStarted = true;
 
