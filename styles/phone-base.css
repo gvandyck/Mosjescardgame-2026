@@ -56,6 +56,18 @@
 		text-size-adjust: 100%;
 	}
 
+	/* 72.1-10 (D-04): the table allows only the gestures the game uses (taps, drags, swipes, scrolls), never a pinch or a
+	   double-tap zoom, so the page cannot zoom the board away mid-game. Phase 65 kept pinch on the whole page for reading cards;
+	   that stays true where it matters: modals, sheets and the detail view keep the default touch-action and remain
+	   pinch-zoomable. The bottom bar (and the drawer handle) keep `pinch-zoom` from 65-03b: measured on a real Pixel, a
+	   one-finger vertical drag there must belong to the page's own swipe (open the drawer), so pan-y is NOT allowed on them. Never `none` (phone-breakpoint.test.ts forbids it). */
+	.game-board,
+	.game-hand-panel,
+	.game-topbar,
+	#status-strip {
+		touch-action: pan-x pan-y;
+	}
+
 	/* No text selection on the table; form fields stay selectable. */
 	.game-board,
 	.game-hand-panel,

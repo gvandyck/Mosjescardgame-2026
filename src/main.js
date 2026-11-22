@@ -11,6 +11,9 @@ import { countActionsLeft } from './ui/board/countActionsLeft.js';
 import { confirmEndTurn } from './ui/board/confirmEndTurn.js';
 import { renderEndTurnButton } from './ui/board/renderEndTurnButton.js';
 import { initPhoneHand } from './ui/phone/initPhoneHand.js';
+import { isPhoneLayout } from './ui/phone/isPhoneLayout.js';
+import { guardBackNavigation } from './ui/phone/guardBackNavigation.js';
+import { confirmLeaveGame } from './ui/phone/confirmLeaveGame.js';
 import { ENERGY_MAX } from './engine/energy/energyRules.js';
 import { offerWestPeek } from './ui/actions/offerWestPeek.js';
 import { askStartingMosje } from './ui/actions/askStartingMosje.js';
@@ -643,6 +646,11 @@ function initGamePage() {
 
 	// The game-over numbers (rounds, Quests, Mosjes lost) come from the engine state (buildGameSummary), not from a UI tracker.
 	let gameOverHandled = false; // guard: the win overlay must only ever show once
+	// 72.1-10 (D-04): on a phone, Back during a running game asks first (decided at page load; desktop Back is untouched). Offline and online alike.
+	const backGuard = isPhoneLayout()
+		? guardBackNavigation({ win: window, isActive: () => !gameOverHandled && gameState?.status !== 'FINISHED', onBack: () => confirmLeaveGame(modal) })
+		: null;
+	backGuard?.arm();
 
 	// ── Sync helpers ──────────────────────────────────────────────────────
 	function syncPush() {
@@ -878,6 +886,7 @@ function initGamePage() {
 	async function handleGameOver(gs) {
 		if (gameOverHandled) return; // already shown — never stack a second overlay
 		gameOverHandled = true;
+		backGuard?.finish(); // Back after game over leaves without asking
 		await cancelDisconnectHooks();
 		stopListening();
 		const mode = isBotVsBot ? 'watchBots' : (isOffline ? 'vsBot' : 'online');

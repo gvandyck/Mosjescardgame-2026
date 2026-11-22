@@ -49,4 +49,11 @@ describe('phone breakpoint (D-02)', () => {
 			expect(meta, `${page} viewport meta`).not.toMatch(/user-scalable|maximum-scale/);
 		}
 	});
+
+	it('limits the table (board, hand panel, header, strip; the bar keeps pinch-zoom, 65-03b) to pan-x pan-y (72.1-10, D-04)', () => {
+		const css = fs.readFileSync(path.join(STYLES, 'phone-base.css'), 'utf8');
+		const rule = css.match(/\.game-board,\s*\.game-hand-panel,\s*\.game-topbar,\s*#status-strip\s*\{[^}]*touch-action:\s*([^;]+);/);
+		expect(rule, 'table touch-action rule').not.toBeNull();
+		expect(rule[1].trim()).toBe('pan-x pan-y');
+	});
 });
