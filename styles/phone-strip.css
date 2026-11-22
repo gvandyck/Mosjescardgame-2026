@@ -1,0 +1,60 @@
+/* phone-strip.css - Phase 72.1-07 (D-06, MOB-05, T-72.1-14, T-72.1-15): during an attack PREVIEW the status strip is a panel docked above the
+   bottom bar, where the thumb is: the target text on top, the breakdown (Power, Triangle, Resilient, total) as a two-column grid of
+   short lines, then Confirm and Cancel side by side, each a full-width half (48 px high, 8 px apart). The attacker's row may sit
+   under the panel; the target is already chosen and stays free above. The muted "Card effects can change this" note is hidden.
+   A blocked attack (Power 0) keeps its sentence and a full-width Cancel, no Confirm. Every other strip message (your turn, bot turn,
+   choose a target, choose a Quest) stays the one 44 px row at the top. Only the preview kind moves; the whole sheet sits behind the
+   ONE 700 px phone query, so the desktop strip is what it was. z-index 45 = the drawer's (shut during a preview); the bar (46), the
+   card sheet and every modal sit above. Loaded after phone-actions.css. */
+
+@media (max-width: 700px) {
+	#status-strip[data-status-kind="preview"] {
+		position: fixed;
+		left: 8px;
+		right: 8px;
+		bottom: var(--phone-bottom);
+		top: auto;
+		width: auto;
+		margin: 0;
+		z-index: 45;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		align-items: stretch;
+		gap: 8px;
+		height: auto;
+		padding: 8px;
+		background: rgba(5, 5, 5, 0.96);          /* the table must not show through the numbers */
+	}
+	#status-strip[data-status-kind="preview"] .status-strip__text {
+		grid-column: 1 / -1;
+		font-size: 13px;
+		line-height: 1.2;
+	}
+	#status-strip[data-status-kind="preview"] .status-strip__lines {
+		grid-column: 1 / -1;
+		margin-left: 0;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		align-items: start;
+		gap: 4px 12px;
+		overflow: visible;
+		white-space: normal;
+	}
+	#status-strip[data-status-kind="preview"] .strip-line {
+		min-width: 0;
+		font-size: 12px;
+		line-height: 1.2;
+		white-space: normal;
+		overflow-wrap: anywhere;
+	}
+	#status-strip[data-status-kind="preview"] .strip-line--note { display: none; }
+	#status-strip[data-status-kind="preview"] .status-strip__btn {
+		min-width: 0;
+		min-height: 48px;
+		height: auto;
+		font-size: 14px;
+	}
+	/* A blocked attack (the amber sentence) has nothing to confirm: Confirm stays hidden and Cancel takes the whole row. */
+	#status-strip[data-status-kind="preview"] .status-strip__text--blocked ~ .status-strip__btn--confirm { display: none; }
+	#status-strip[data-status-kind="preview"] .status-strip__text--blocked ~ .status-strip__btn--cancel { grid-column: 1 / -1; }
+}

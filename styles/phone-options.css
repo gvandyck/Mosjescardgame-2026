@@ -35,4 +35,41 @@
 		.modal-root--open .modal-card--cards .modal-option--card:hover:not(:disabled) .option-card-slot .card { box-shadow: none; }
 	}
 	.modal-root--open .modal-card--cards .modal-option--card:active:not(:disabled) { transform: scale(0.98); }
+
+	/* ── 72.1-07: the pinned footer. The leave button and Cancel stay at the bottom of the scrolling sheet whatever the content
+	   height, solid so no face shows through; with both, the leave button stacks right above Cancel (48 px + 8 px gap). ───────── */
+	.modal-root--open .modal-card--cards .modal-option-leave,
+	.modal-root--open .modal-card--cards #modal-option-cancel {
+		position: sticky;
+		z-index: 2;
+		box-sizing: border-box;
+		width: 100%;
+		min-height: 48px;
+		margin-top: 8px;
+		background: linear-gradient(rgba(42, 53, 95, 0.6), rgba(42, 53, 95, 0.6)) #080c1a;
+		box-shadow: 0 -8px 0 #080c1a, 0 6px 0 #080c1a;
+	}
+	.modal-root--open .modal-card--cards .modal-option-leave { bottom: 0; }
+	.modal-root--open .modal-card--cards .modal-option-leave:has(+ #modal-option-cancel) { bottom: 56px; }
+	.modal-root--open .modal-card--cards #modal-option-cancel { bottom: 0; }
+	.modal-root--open .modal-card--cards h3 { font-size: 1rem; }
+
+	/* ── A prompt card (Ming) is an 88 px thumbnail left of the title and prompt text, so faces + footer fit the sheet. The faces
+	   are narrower with a prompt card (min(56vw, 200px)). ──────────────────────────────────────────────────────────────────── */
+	.modal-root--open .modal-card.modal-card--cards:has(.option-prompt-card) {
+		--option-card-w: min(56vw, 200px);
+		grid-template-columns: 88px 1fr;
+		column-gap: 12px;
+		text-align: left;
+	}
+	.modal-root--open .modal-card--cards:has(.option-prompt-card) > * { grid-column: 1 / -1; }
+	.modal-root--open .modal-card--cards:has(.option-prompt-card) > h3,
+	.modal-root--open .modal-card--cards:has(.option-prompt-card) > p { grid-column: 2; margin: 0; }
+	.modal-root--open .modal-card--cards:has(.option-prompt-card) > .option-prompt-card {
+		grid-column: 1;
+		grid-row: 1 / span 2;
+		margin: 0;
+		align-self: start;
+	}
+	.modal-root--open .modal-card--cards .option-prompt-card .card.card-v1 { --cv1-w: 88px; }
 }
