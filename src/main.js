@@ -1296,6 +1296,10 @@ function initGamePage() {
 		// Register ongoing remote handler for when opponent acts
 		eventBus.on('mp:remote-state', onRemoteState);
 		if (isOnline && localPlayerId === 'player_1') syncPush();
+		// The opening die can make the bot the first player: start its turn (without this the game froze on "Bot's turn").
+		if (isOffline && !isBotVsBot && gameState.status !== 'FINISHED' && gameState.activePlayerId === 'player_2') {
+			runOfflineBotTurnThenHuman();
+		}
 	}
 
 	if (localPlayerId === 'player_1') {

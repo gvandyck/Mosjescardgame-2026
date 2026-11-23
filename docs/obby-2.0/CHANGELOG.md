@@ -9,6 +9,7 @@ The 15 Nov design update. Filled in as the phases land; nothing here is live yet
 - (Phase 69) Three new 40-card starter decks: Physical, Digital, Creative
 - (Phase 70) Win by completing a Personal Quest with a Level 3 Mosje
 - (Phase 70) Gear and pets attach to a Mosje (max 2)
+- (fix) A game against the bot no longer freezes on "Bot's turn" when the bot wins the opening die. The live `2.0-A.3` has the same code (the opening die came in Phase 55), so there about half of the bot games freeze at the start
 
 **Rules / cards:** to be filled in per phase.
 **Phase:** 68–74 (milestone v2.1)

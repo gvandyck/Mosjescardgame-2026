@@ -55,43 +55,34 @@ for (const vp of [PIXEL_VIEWPORT, ...PHONE_VIEWPORTS]) {
 
 		test('leg A: lobby, pick, a turn, End Turn, the bot turn, the next human turn', async ({ page }) => {
 			test.setTimeout(180000);
-			// KNOWN PRODUCT BUG (72.1-12 SUMMARY): when the bot wins the opening die, startGame never starts the bot's turn and the game
-			// freezes on "Bot's turn". A real lobby game has no test hooks to force the first player, so a bot opening is annotated and the
-			// journey starts a fresh game (up to 6 tries; the chance that all six open with the bot is 1 in 64).
-			let humanOpens = false;
-			for (let attempt = 1; attempt <= 6 && !humanOpens; attempt++) {
-				await page.goto('/');
-				await expect(page.locator(TILES)).toHaveCount(3, { timeout: 15000 });
-				await expectPhoneScreenSound(page, { name: 'lobby', scrollsVertically: true });
-				const toggle = page.locator(TOGGLE);
-				await toggle.scrollIntoViewIfNeeded();
-				await toggle.tap();
-				await expect(toggle).toHaveText('Hide cards');
-				await toggle.tap();
-				await expect(toggle).toHaveText('Show cards');
-				await page.locator(TILES).nth(1).tap();
-				await page.locator('#lobby2-start').tap({ timeout: 8000 });
-				await page.waitForURL(/game\.html/, { timeout: 15000 });
+			await page.goto('/');
+			await expect(page.locator(TILES)).toHaveCount(3, { timeout: 15000 });
+			await expectPhoneScreenSound(page, { name: 'lobby', scrollsVertically: true });
+			const toggle = page.locator(TOGGLE);
+			await toggle.scrollIntoViewIfNeeded();
+			await toggle.tap();
+			await expect(toggle).toHaveText('Hide cards');
+			await toggle.tap();
+			await expect(toggle).toHaveText('Show cards');
+			await page.locator(TILES).nth(1).tap();
+			await page.locator('#lobby2-start').tap({ timeout: 8000 });
+			await page.waitForURL(/game\.html/, { timeout: 15000 });
 
-				const pick = page.locator('.modal-card--cards');
-				await expect(pick).toBeVisible({ timeout: 20000 });
-				await expectPhoneScreenSound(page, { name: 'starting pick' });
-				const rowBox = await page.locator('.modal-card--cards .modal-mosje-select-list').boundingBox();
-				const y = rowBox.y + rowBox.height / 2;
-				await swipe(page, { from: { x: rowBox.x + rowBox.width * 0.8, y }, to: { x: rowBox.x + rowBox.width * 0.2, y } });
-				await page.waitForTimeout(800); // the snap-scroll settles before the tap (a tap on a moving face picks nothing)
-				// Headless Chromium sometimes drops the click of the FIRST synthetic tap after a CDP swipe (see phone-lobby-start (e)): tap until the pick is gone, at most three times.
-				for (let attempt = 0; attempt < 3 && await pick.count(); attempt++) {
-					await page.locator('.modal-card--cards .modal-option--card').nth(1).tap().catch(() => {});
-					await page.waitForTimeout(600);
-				}
-				await waitForBoard(page);
-				await page.waitForTimeout(1500);
-				humanOpens = ((await page.locator('#turn-label').textContent()) || '').trim().startsWith('You');
-				if (!humanOpens) test.info().annotations.push({ type: 'bot-opened-freeze', description: `attempt ${attempt}: the bot opened, the game froze (known bug), new game` });
+			const pick = page.locator('.modal-card--cards');
+			await expect(pick).toBeVisible({ timeout: 20000 });
+			await expectPhoneScreenSound(page, { name: 'starting pick' });
+			const rowBox = await page.locator('.modal-card--cards .modal-mosje-select-list').boundingBox();
+			const y = rowBox.y + rowBox.height / 2;
+			await swipe(page, { from: { x: rowBox.x + rowBox.width * 0.8, y }, to: { x: rowBox.x + rowBox.width * 0.2, y } });
+			await page.waitForTimeout(800); // the snap-scroll settles before the tap (a tap on a moving face picks nothing)
+			// Headless Chromium sometimes drops the click of the FIRST synthetic tap after a CDP swipe (see phone-lobby-start (e)): tap until the pick is gone, at most three times.
+			for (let attempt = 0; attempt < 3 && await pick.count(); attempt++) {
+				await page.locator('.modal-card--cards .modal-option--card').nth(1).tap().catch(() => {});
+				await page.waitForTimeout(600);
 			}
-			expect(humanOpens, 'a game in which the human opens was reached within 6 tries').toBe(true);
-			await waitForHumanTurnByTouch(page); // the first player is random: the bot may open
+			await waitForBoard(page);
+			// The opening die decides who starts: when the bot opens it plays its turn first (bot-opens-game.spec.js guards that).
+			await waitForHumanTurnByTouch(page);
 			await answerDrawStep(page);
 			await expectPhoneScreenSound(page, { name: 'board turn 1' });
 
