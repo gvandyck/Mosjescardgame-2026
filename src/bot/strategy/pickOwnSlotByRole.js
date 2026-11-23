@@ -16,6 +16,7 @@ import { slotWorth } from './slotWorth.js';
 import { valueOfGain } from './valueOfGain.js';
 import { valueOfLoss } from './valueOfLoss.js';
 import { asBotView } from './asBotView.js';
+import { getPersonalQuestPlan } from './getPersonalQuestPlan.js';
 
 const GAIN_PICK = 25; // a typical Piecie gain: how the bot compares Mosjes for "one of your Mosjes gains MP"
 
@@ -55,9 +56,10 @@ export function pickOwnSlotByRole(state, botId, role, indexes, loss = 0) {
 	}
 	const open = candidates.filter(c => !voidBlocksGain(view, botId, c.i, 'PIECIE'));
 	const threat = opponentThreat(view, botId);
-	return best(open.length ? open : candidates, (slot) => {
+	const keeperIndex = getPersonalQuestPlan(view, botId)?.keeperIndex ?? -1; // CC-3: gains go to the keeper first
+	return best(open.length ? open : candidates, (slot, i) => {
 		const mp = Number(slot.mp) || 0;
 		const threatened = (Number(slot.level) || 1) >= 3 && mp < BOT_VALUES.L3_MP_CAP && mp <= threat;
-		return [slot.sideways ? 0 : 1, threatened ? 1 : 0, threatened ? -mp : valueOfGain(slot, GAIN_PICK), mp];
+		return [slot.sideways ? 0 : 1, threatened ? 1 : 0, i === keeperIndex ? 1 : 0, threatened ? -mp : valueOfGain(slot, GAIN_PICK), mp];
 	});
 }

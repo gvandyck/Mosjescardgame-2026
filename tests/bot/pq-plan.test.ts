@@ -33,7 +33,7 @@ const digi = (over = {}) => mkSlot({ subtype: 'DIGITAL', ...over });
 describe('pqValues', () => {
 	it('holds the tuning numbers', () => {
 		expect(PQ_VALUES.NEAR_L3_MP).toBe(60);
-		expect(PQ_VALUES.GROW_WEIGHT).toBe(1.5);
+		expect(PQ_VALUES.GROW_WEIGHT).toBe(2.0); // raised from 1.5 in 73-02 (no Level 3 in the seeded probe)
 	});
 });
 

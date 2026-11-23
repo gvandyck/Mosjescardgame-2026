@@ -19,6 +19,8 @@ import { valueOfGain } from './valueOfGain.js';
 import { valueOfLoss } from './valueOfLoss.js';
 import { withQuietLog } from './withQuietLog.js';
 import { asBotView } from './asBotView.js';
+import { getPersonalQuestPlan } from './getPersonalQuestPlan.js';
+import { keeperActionValue } from './keeperActionValue.js';
 
 const JAB = 10;
 
@@ -71,8 +73,10 @@ export function scoreMosjeAction(state, botId, slotIndex) {
 	const view = asBotView(state, botId); // BOT-04: from here on `view` is the table view
 	if (!canMosjeTakeAction(view, botId, slotIndex).ok) return null;
 	const slot = view.players[botId].activeSlots[slotIndex];
-	const attack = bestAttack(view, botId, slotIndex, slot);
-	const quest = bestQuest(view, botId, slotIndex, slot);
+	const plan = getPersonalQuestPlan(view, botId); // the keeper grows by Quests and is kept out of fights (CC-2, CC-3)
+	const weigh = (option) => option && { ...option, value: keeperActionValue(plan, slotIndex, option) };
+	const attack = weigh(bestAttack(view, botId, slotIndex, slot));
+	const quest = weigh(bestQuest(view, botId, slotIndex, slot));
 	const best = attack && (!quest || attack.value >= quest.value) ? attack : quest; // a tie prefers the attack
 	return best && best.value > 0 ? best : null;
 }

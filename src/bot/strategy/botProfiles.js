@@ -39,6 +39,25 @@ export const BOT_PROFILES = {
 		comboPatience: 0.4,
 		preferAttack: false,
 	},
+	// Phase 73 CC-9: the three 2.1 starter decks.
+	STARTER_PHYSICAL: {
+		archetype: 'starter-physical',
+		riskTolerance: 0.55,
+		comboPatience: 0.2,
+		preferAttack: true,
+	},
+	STARTER_DIGITAL: {
+		archetype: 'starter-digital',
+		riskTolerance: 0.5,
+		comboPatience: 0.4,
+		preferAttack: false,
+	},
+	STARTER_CREATIVE: {
+		archetype: 'starter-creative',
+		riskTolerance: 0.5,
+		comboPatience: 0.4,
+		preferAttack: false,
+	},
 	// V4 duo decks (kept; not used by the 2.0 Example Decks).
 	// Boxing pressure: quest hard, punch harder.
 	DUO_GANDOE_MICHELLE: {
