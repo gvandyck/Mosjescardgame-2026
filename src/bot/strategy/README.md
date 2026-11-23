@@ -33,7 +33,14 @@ face-down Piecie ids or its pending options.
 | `chooseReaction.js` / `pickDefensiveSnelle.js` / `pickCounterSnelle.js` / `pickDjRerollDie.js` | The answer to an open reaction window: the bot's own windows (Sleutelpuntje, rerolls, Lucky Coin, Dubbele Temminks) are decided in `chooseReaction`; the opponent's actions go to the defensive picker (a Mosje in danger) and the counter picker (Jensen!, a Piecie, a winning Quest roll). Every Snelle must be affordable now. |
 | `chooseProactiveSnelle.js` / `choosePlaceToPlay.js` / `placeFit.js` | Own-turn cards from hand: Snelle without a reaction moment (Momentum Rush, Bijna Welloe, ...) when legal and worth something; a Place only when it is legal, payable and `placeFit` (Power, Quest dice, Good for / Bad for) is above 0. |
 | `chooseSummon.js` / `shouldUseAbility.js` / `defaultAbilityInputs.js` / `abilityTiming.js` | Which Mosje to summon (priced with fee and discounts, none on a cooldown turn), whether a Mosje ability button is accepted by the engine and affordable, the plain inputs for it, and when in the turn it fires. |
-| `botProfiles.js` | Per-Example-Deck personality (`riskTolerance`, `comboPatience`, `preferAttack`); unknown decks get the balanced default. A profile changes what the bot weighs, never what is legal. |
+| `botProfiles.js` | Per-deck personality (`riskTolerance`, `comboPatience`, `preferAttack`) for the Example Decks and the three starter decks (STARTER_PHYSICAL / DIGITAL / CREATIVE); unknown decks get the balanced default. A profile changes what the bot weighs, never what is legal. |
+| `getPersonalQuestPlan.js` | The Personal Quest plan: the keeper (own live Mosje whose type matches a Personal Quest in the bot's hand), `grow` or `ready` phase, and what the held Personal Quests ask to hold back. `null` = no plan, the bot plays as before. |
+| `personalQuestWinChance.js` | Win chance of one Personal Quest roll (dice from the keeper, need from the card); `choosePersonalQuest.js` picks the legal pair with the best chance and never skips a legal attempt. |
+| `keeperActionValue.js` | Scales an action of a growing keeper: Quest value x `GROW_WEIGHT`, an ordinary attack x `KEEPER_ATTACK_WEIGHT` unless it is a finishing blow. |
+| `piecieHoldSlots.js` / `pieciesHeldInHand.js` | Which face-down Piecies are not activated and which hand cards are not placed because the Personal Quest's Needs or Pay names them. |
+| `choosePuntoBanco.js` | Whether to call 'punto' (Place Punto Banco) on a Personal Quest roll or a Quest roll, from spare Energy and win chance. |
+| `pickFpsWestBottom.js` | Answer to the FPS West "bottom a card" pause: bottoms only a reaction Snelle (or the card the opponent most needs), else leaves it. |
+| `pqValues.js` | Every tuning number of the Personal Quest plan (data only, one-file tuning). |
 | `emitBotMetric.js` / `withQuietLog.js` | `[BOT] METRIC {json}` console lines (`attack`, `quest-roll`, `action-skip`, `reaction-played`, `engine-refused`, ...) and quiet dry-runs. |
 
 `../settleReactions.js` and `../settleMosjePauses.js` answer the reaction windows and Mosje pauses that belong to a bot
@@ -41,8 +48,10 @@ so a game can never stall on them; they stop at a human's window or pause.
 
 ## Turn order (`../botDriver.js`)
 
-summon -> early abilities -> place Piecies face-down -> (cooldown turn: end here) -> activate Piecies -> own-turn Snelle
--> pre-Quest abilities -> one attack-or-Quest per Mosje -> Place -> late abilities -> end turn.
+summon -> early abilities -> early Place (only when the Personal Quest needs that Place) -> place Piecies face-down -> (cooldown
+turn: end here) -> activate Piecies (never the ones the Personal Quest holds) -> own-turn Snelle -> pre-Quest abilities ->
+Personal Quest attempt first in the action phase -> one attack-or-Quest per Mosje (a growing keeper grows by Quest) -> Place ->
+late abilities -> end turn.
 Every engine call the engine refuses is reported as an `engine-refused` metric; the legality test requires none.
 
 ## Tests
@@ -62,14 +71,18 @@ Every engine call the engine refuses is reported as an `engine-refused` metric; 
   non-fresh, non-level-up-protected Mosje (checked with the engine's own helpers), Energy stays an integer 0-6, a cooldown
   turn only places Piecies, a reaction slot is kept free, and the bot summons, activates (some costing Energy), plays
   Places and Snelle, attacks, finishes a getemt and tries Quests. The games run on `tests/helpers/runSeededBotGame.js`.
+- `tests/bot/starter-decks-bot-games.test.ts` - 9 seeded games on the starter decks: 0 refused engine calls, every game finishes or
+  uses all its turns. `tests/bot/starter-pq-progress.test.ts` - the measured guard: Level 3 reached, Personal Quests rolled and won
+  over the same 9 seeds, game length printed (`[STARTER-PQ]`).
+- `tests/bot/pq-plan`, `pq-grow`, `pq-ready`, `starter-new-cards` (`.test.ts`) - the Personal Quest plan, growing the keeper, the Level 3 attempt and
+  hold, Punto Banco, Te Hard Gaan payer and FPS West.
 - `tests/bot/bot-energy.test.ts`, `bot-actions-2-0.test.ts`, `bot-values.test.ts`, `bot-targets.test.ts`,
   `reaction-reserve.test.ts`, `reaction-bot.test.ts`, `bot-hand-cards.test.ts`, `strategy.test.ts`,
   `ability-defaults.test.ts` - the choosers one by one.
 
-The old deck-matrix simulation still uses pre-2.0 deck ids until Phase 64, so it is not used for the bot.
-
 ## Known gaps
 
 - The bot never uses draw-step abilities (Coert Tech, Martin Historian); the draw step is settled with a normal draw.
+- The bot never answers a Personal Quest Need it cannot influence (opponent hand size, Mosje lost MP).
 
 Details: `.planning/phases/61-bot-2-0/deferred-items.md`.

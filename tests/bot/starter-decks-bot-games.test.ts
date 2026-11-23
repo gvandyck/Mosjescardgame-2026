@@ -1,6 +1,6 @@
 // @ts-nocheck
-// 71-26 (D-39): seeded bot-vs-bot games on the three 2.1 starter decks. The bot does not play towards a Personal Quest
-// yet (Phase 73), so a game that does not finish must have used all its turns. Never a throw, never a refused engine call.
+// 71-26 (D-39): seeded bot-vs-bot games on the three 2.1 starter decks. The bot plays towards a Personal Quest (Phase 73),
+// so a game ends by knockout or Personal Quest; a game that does not finish must have used all its turns. Never a throw, never a refused engine call.
 import { describe, it, expect } from 'vitest';
 import { runSeededBotGame } from '../helpers/runSeededBotGame.js';
 
