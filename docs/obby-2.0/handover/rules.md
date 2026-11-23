@@ -165,3 +165,9 @@ Gandalf asked on 15 Nov to keep building without stopping for questions. These g
 | 19 Nov 2026 | 71 | Michelle, Iron Tuk, when her reduction takes the whole attack away. | The attack does 0. The 5 minimum is for Resilient only. |
 | 19 Nov 2026 | 71 | Binti from Level 2: 20 MP, "not on two turns in a row". | The turn after a 20 MP hit she can still use the ability, but it hits for 10. A 10 MP hit never starts the limit. |
 | 19 Nov 2026 | 71 | Which Mosjes count as "a West"? | Parkour West and FPS West. Martin, Señor West is a Martin. |
+| 23 Nov 2026 | 73 | How does the bot play towards a Personal Quest? | Its keeper is the own Mosje that matches a Personal Quest in its hand. While the keeper grows, Quests count double and ordinary attacks a quarter; a Level 3 keeper only finishes Mosjes or takes safe Quests. It attempts every legal Personal Quest, best win chance first. |
+| 23 Nov 2026 | 73 | What does the bot keep for its Personal Quest? | Near or at Level 3 it keeps the Piecies, hand cards and Energy the quest names, and plays the Place the quest needs before the attempt. |
+| 23 Nov 2026 | 73 | Punto Banco and the bot. | The bot now plays it as a Place when nothing better fits and calls it on a Personal Quest roll (1 spare Energy) or a Quest under 85% chance (2 spare Energy). Replaces the Phase 71 call "the bot never plays it". |
+| 23 Nov 2026 | 73 | Who pays Te Hard Gaan and Ronalds Fles Fireman for the bot? | A Mosje that can attack and stays above 0 MP, never the Level 3 keeper. No such Mosje: the card is not played. |
+| 23 Nov 2026 | 73 | When does the bot press FPS West? | Only with 45+ MP, 2 spare Energy and 2+ cards in the opponent's hand. It bottoms a Snelle if it sees one. |
+| 23 Nov 2026 | 73 | A tap on an attached-Gear chip on a Mosje tile (desktop). | Opens the Gear's detail, not the Mosje's action tray (as built in Phase 72). The chips cover about 7% of the tile; left as it is. A phone shows no chips. |
