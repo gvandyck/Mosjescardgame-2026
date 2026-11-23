@@ -9,6 +9,7 @@ The 15 Nov design update. Filled in as the phases land; nothing here is live yet
 - (Phase 69) Three new 40-card starter decks: Physical, Digital, Creative
 - (Phase 70) Win by completing a Personal Quest with a Level 3 Mosje
 - (Phase 70) Gear and pets attach to a Mosje (max 2)
+- (Phase 73) The bot plays towards a Personal Quest: it grows one Mosje, keeps the cards the quest names and attempts it when it can. It also plays Punto Banco now. In 90 bot-vs-bot games 6 ended by Personal Quest, the rest by knockout
 - (fix) A game against the bot no longer freezes on "Bot's turn" when the bot wins the opening die. The live `2.0-A.3` has the same code (the opening die came in Phase 55), so there about half of the bot games freeze at the start
 - (fix) Card texts with a bold lead ("Attach:", "Combo:", "Discarded:", "Needs:") no longer show the two stars around it on the card face and in the detail view
 
