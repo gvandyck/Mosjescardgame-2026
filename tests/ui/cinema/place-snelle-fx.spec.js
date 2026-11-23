@@ -26,12 +26,13 @@ test('🎬 Place (green) + Snelle (light-blue) effect colours', async ({ page },
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
 
-	await setMosjeOnField(page, 'player_1', 0, 'mosje_alyssa_bulldozer', { mp: 50, level: 1 });
-	await setHand(page, 'player_1', ['place_the_gym', 'snelle_jensen', 'piecie_kannetje_melk', 'piecie_kannetje_melk']);
-	await setEnergy(page, 'player_1', 6); // 2.0: The Gym costs 3 Energy and Jensen! 1, so both can be played this turn
+	await setMosjeOnField(page, 'player_1', 0, 'mosje_alyssa_bulldozer', { mp: 10, level: 1 }); // 10 MP: Bijna Welloe is playable
+	await setHand(page, 'player_1', ['place_the_gym', 'snelle_bijna_welloe', 'piecie_kannetje_melk', 'piecie_kannetje_melk']);
+	await setEnergy(page, 'player_1', 6); // The Gym costs 3 Energy, Bijna Welloe 0
+	// Jensen! only reacts to a Piecie or Snelle (rules s15), so the own-turn Snelle of this demo is Bijna Welloe.
 	await page.waitForTimeout(300);
 	await ss(page, 'placesnelle-1-start');
-	await beat('Scene 1 — hand holds a Place (The Gym) and a Snelle (Jensen)');
+	await beat('Scene 1 — hand holds a Place (The Gym) and a Snelle (Bijna Welloe)');
 
 	// ── Place → played face-down, then ACTIVATED → GREEN ──────────────────────
 	await beat('Scene 2 — playing The Gym (Place) face-down…');
@@ -49,12 +50,12 @@ test('🎬 Place (green) + Snelle (light-blue) effect colours', async ({ page },
 	expect((await getGameState(page))?.activePlace).toBe('place_the_gym');
 
 	// ── Snelle → RED ──────────────────────────────────────────────────────────
-	await beat('Scene 3 — playing Jensen (Snelle Piecie)…');
-	await playCardFromHand(page, 'snelle_jensen');
+	await beat('Scene 3 — playing Bijna Welloe (Snelle Piecie)…');
+	await playCardFromHand(page, 'snelle_bijna_welloe');
 	await page.waitForTimeout(700);
 	await ss(page, 'placesnelle-3-snelle');
 	await beat('🩵 Snelle played — light-blue burst');
 	const hand = (await getGameState(page))?.players?.player_1?.hand || [];
-	expect(hand.some(c => (c.cardId || c.id) === 'snelle_jensen')).toBe(false);
+	expect(hand.some(c => (c.cardId || c.id) === 'snelle_bijna_welloe')).toBe(false);
 	await beat('🎬 fin');
 });

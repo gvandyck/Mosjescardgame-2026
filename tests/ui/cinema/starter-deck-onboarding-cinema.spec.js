@@ -28,9 +28,9 @@ import { test, expect } from '@playwright/test';
 import { ss } from '../helpers.js';
 
 const DECK_IDS = [
-	'EXAMPLE_TAKSEN',
-	'EXAMPLE_REGELAARS',
-	'EXAMPLE_CREATIEVELINGEN',
+	'STARTER_PHYSICAL',
+	'STARTER_DIGITAL',
+	'STARTER_CREATIVE',
 ];
 
 async function blockFirebase(page) {
@@ -58,11 +58,11 @@ test('🎬 Starter-deck onboarding & active-deck cinema — all 4 new lobby scre
 	await expect(page.locator('#deck-select')).toBeVisible();
 	await expect(page.locator('#deck-select option')).toHaveCount(3);
 	await ss(page, 'cinema-onboarding-1-guest-dropdown');
-	await beat('Scene 1 — Guest lobby: Starter Deck dropdown now lists only the 3 Example Decks (no PHYSICAL_FORCE / DIGITAL_CONTROL / ARTISTIC_RHYTHM)');
+	await beat('Scene 1 — Guest lobby: Starter Deck dropdown now lists only the 3 starter decks (no PHYSICAL_FORCE / DIGITAL_CONTROL / ARTISTIC_RHYTHM)');
 
 	await page.locator('#deck-select').click();
 	await ss(page, 'cinema-onboarding-1b-guest-dropdown-open');
-	await beat('Scene 1b — Dropdown open: Taksen, Regelaars, Creatievelingen');
+	await beat('Scene 1b — Dropdown open: Physical, Digital, Creative');
 	await page.keyboard.press('Escape');
 
 	// ── Scene 2: Blocking onboarding modal (fresh signed-in account, 0 decks) ─
@@ -73,7 +73,7 @@ test('🎬 Starter-deck onboarding & active-deck cinema — all 4 new lobby scre
 	await expect(page.locator('.modal-mosje-select-btn')).toHaveCount(3);
 	await expect(page.locator('#modal-option-cancel')).toHaveCount(0);
 	await ss(page, 'cinema-onboarding-2-blocking-modal');
-	await beat('Scene 2 — First login, 0 decks: BLOCKING "Choose your starter deck" modal. No cancel button — a new player must pick one of the 3 Example Decks before reaching the lobby');
+	await beat('Scene 2 — First login, 0 decks: BLOCKING "Choose your starter deck" modal. No cancel button — a new player must pick one of the 3 starter decks before reaching the lobby');
 
 	// Hover each option briefly so the design (name + Mosjes meta line) is visible.
 	for (const id of DECK_IDS) {
@@ -81,18 +81,18 @@ test('🎬 Starter-deck onboarding & active-deck cinema — all 4 new lobby scre
 		await beat(`Scene 2 — Option: ${id}`);
 	}
 
-	await page.locator('.modal-mosje-select-btn[data-id="EXAMPLE_CREATIEVELINGEN"]').click();
+	await page.locator('.modal-mosje-select-btn[data-id="STARTER_CREATIVE"]').click();
 	await expect(page.locator('#modal-root .modal-card')).toHaveCount(0);
 	await expect(page.locator('#lobby-form')).toBeVisible();
 	await ss(page, 'cinema-onboarding-3-picked-unblocked');
-	await beat('Scene 2 — Picked "Creatievelingen". Modal closes, deck is claimed (saved + set active + exact card grant), lobby unblocks');
+	await beat('Scene 2 — Picked "Creative". Modal closes, deck is claimed (saved + set active + exact card grant), lobby unblocks');
 
 	// ── Scene 3: Active-deck panel (returning signed-in player) ──────────────
 	await page.goto('/?testActiveDeck=1');
 	await expect(page.locator('#deck-select')).toBeHidden();
 	const panel = page.locator('#active-deck-panel');
 	await expect(panel).toBeVisible();
-	await expect(panel.locator('.active-deck-panel__name')).toHaveText("Taksen");
+	await expect(panel.locator('.active-deck-panel__name')).toHaveText('Physical');
 	await ss(page, 'cinema-onboarding-4-active-deck-panel');
 	await beat('Scene 3 — Returning signed-in player: dropdown is HIDDEN, replaced by the active-deck panel showing their saved deck ("Coert & Binti — Winston\'s Kitchen") + its Mosjes, plus a "Change deck" button');
 
@@ -103,11 +103,11 @@ test('🎬 Starter-deck onboarding & active-deck cinema — all 4 new lobby scre
 	await ss(page, 'cinema-onboarding-5-switcher-modal');
 	await beat('Scene 4 — "Change deck" opens a switcher modal listing this player\'s saved decks (built on the same reusable selection modal as onboarding)');
 
-	await page.locator('.modal-mosje-select-btn[data-id="EXAMPLE_REGELAARS"]').click();
+	await page.locator('.modal-mosje-select-btn[data-id="STARTER_DIGITAL"]').click();
 	await expect(page.locator('#modal-root .modal-card')).toHaveCount(0);
-	await expect(panel.locator('.active-deck-panel__name')).toHaveText('Regelaars');
+	await expect(panel.locator('.active-deck-panel__name')).toHaveText('Digital');
 	await ss(page, 'cinema-onboarding-6-panel-reswitched');
-	await beat('Scene 4 — Switched to "Regelaars": modal closes, panel re-renders instantly to the new active deck. This is the deck the next game will use');
+	await beat('Scene 4 — Switched to "Digital": modal closes, panel re-renders instantly to the new active deck. This is the deck the next game will use');
 
 	console.log('🎬 End of Phase 34 walkthrough — onboarding, guest dropdown, active-deck panel, and switcher all shown.');
 });

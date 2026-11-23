@@ -29,7 +29,7 @@ async function completeQuestFlow(page) {
 // Dubbele Dosis is a non-Stays Piecie: face-down when played, and when activated it takes its Energy cost,
 // gives +1 die on the next Quest (player.questExtraDice) and goes to the discard AT ONCE.
 
-test('VIS-01: Dubbele Dosis is discarded at once, costs Energy, and gives +1 die on the next Quest', async ({ page }) => {
+test('VIS-01: Dubbele Dosis is discarded at once, costs Energy, and gives +2 dice on one Quest this turn', async ({ page }) => {
 	const deck = {
 		id: 'custom_dubbele_test',
 		name: 'Dubbele Test',
@@ -72,10 +72,10 @@ test('VIS-01: Dubbele Dosis is discarded at once, costs Energy, and gives +1 die
 	await ss(page, 'vis01-after-activation');
 
 	const gsAfter = await getGameState(page);
-	// Activation changes no MP; it costs 1 Energy (Card List cost) and grants +1 die.
+	// Activation changes no MP; it costs 1 Energy (Card List cost) and grants +2 dice (15 Nov text: "+2 dice on one Quest this turn").
 	expect((await readOwnedMosjes(page))[0]?.mp).toBe(mpBefore);
 	expect(gsAfter.players.player_1.energy, 'Energy drops by the Piecie cost (1)').toBe(energyBefore - 1);
-	expect(gsAfter.players.player_1.questExtraDice, '+1 die on the next Quest').toBe(1);
+	expect((gsAfter.players.player_1.questDiceGrants || []).reduce((n, g) => n + g.amount, 0), '+2 dice on one Quest this turn').toBe(2);
 	// Non-Stays: gone from the field AT ONCE, in the discard pile.
 	expect(await isPiecieOnField(page, 'piecie_quest_prep')).toBe(false);
 	expect(gsAfter.players.player_1.graveyard.map(c => c.cardId ?? c)).toContain('piecie_quest_prep');
@@ -261,7 +261,7 @@ async function setupYouri(page, count) {
 	if (played < count) throw new Error(`Setup failed: only ${played} Piecies placed`);
 }
 
-test('VIS-05: Youri Speed Activate - 1 Energy, the Piecie placed this turn becomes activatable, draw 1', async ({ page }) => {
+test('VIS-05: Youri Speed Activate - 1 Energy, the Piecie placed this turn becomes activatable (the draw comes from Level 2)', async ({ page }) => {
 	await setupYouri(page, 1);
 	const handBefore = (await readHand(page)).length;
 	const energyBefore = await energyOf(page);
@@ -280,7 +280,7 @@ test('VIS-05: Youri Speed Activate - 1 Energy, the Piecie placed this turn becom
 
 	expect(await energyOf(page), 'Speed Activate costs 1 Energy').toBe(energyBefore - 1);
 	expect((await readOwnedMosjes(page))[0]?.mp, 'MP is never a cost').toBe(mpBefore);
-	expect((await readHand(page)).length, 'draws 1').toBe(handBefore + 1);
+	expect((await readHand(page)).length, 'Level 1: no draw (15 Nov text: "From Level 2: then draw 1")').toBe(handBefore);
 	await expect.poll(() => isReady(page, 'piecie_quest_prep'), { timeout: 4000 }).toBe(true);
 });
 
@@ -321,7 +321,7 @@ test('VIS-06b: Youri Speed Activate - two Piecies placed this turn show a slot p
 	await page.waitForTimeout(900);
 
 	expect(await energyOf(page)).toBe(energyBefore - 1);
-	expect((await readHand(page)).length).toBe(handBefore + 1);
+	expect((await readHand(page)).length, 'Level 1: no draw').toBe(handBefore);
 	expect(await countActivatablePiecies(page), 'only the chosen Piecie is ready').toBe(1);
 });
 

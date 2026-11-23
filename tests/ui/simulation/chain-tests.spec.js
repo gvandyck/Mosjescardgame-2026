@@ -37,6 +37,9 @@ async function endTurnGuarded(page) {
 import { attachCollector } from './game-collector.js';
 import { clickEndTurn } from '../../helpers/clickEndTurn.js';
 
+/** The extra Quest dice a player holds from card effects (Dubbele Dosis, Controller): the sum of player.questDiceGrants. */
+const grantDice = (gs) => (gs?.players?.player_1?.questDiceGrants || []).reduce((n, g) => n + g.amount, 0);
+
 // ─── Shared: activate a piecie that is ready ─────────────────────────────────
 
 async function activatePiecie(page, cardId) {
@@ -61,9 +64,9 @@ async function activatePiecie(page, cardId) {
 
 // ─── Chain 1: Quest Prep Stack ────────────────────────────────────────────────
 
-test('chain-1: Quest Prep Stack — Dubbele Dosis gives +1 die that turns a near-miss into a success', async ({ page }) => {
+test('chain-1: Quest Prep Stack — Dubbele Dosis gives +2 dice that turn a near-miss into a success', async ({ page }) => {
 	test.setTimeout(90000);
-	// 2.0: Dubbele Dosis = +1 die on one Quest (player.questExtraDice). Dice are forced so only the extra die wins.
+	// 15 Nov text: Dubbele Dosis = +2 dice on one Quest this turn (player.questDiceGrants). Dice are forced so only an extra die wins.
 	// Use custom deck to guarantee piecie_quest_prep is in hand every run.
 	await mockDiceRoll(page, 0.1666);
 	const deck = {
@@ -90,15 +93,15 @@ test('chain-1: Quest Prep Stack — Dubbele Dosis gives +1 die that turns a near
 	const r1 = await endTurnGuarded(page);
 	if (r1 === 'gameover') { console.log('Game ended — skip'); return; }
 
-	// Turn 2: activate Dubbele Dosis → +1 die on the next Quest
+	// Turn 2: activate Dubbele Dosis → +2 dice on one Quest this turn
 	await activatePiecie(page, 'piecie_quest_prep');
 	const stateAfterActivate = await getGameState(page);
-	expect(stateAfterActivate?.players?.player_1?.questExtraDice ?? 0).toBe(1);
+	expect(grantDice(stateAfterActivate)).toBe(2);
 
-	// Steady Quest (one 4+). Base dice = Resilient stars; every base die is a 1, only the EXTRA die is a 6.
+	// Steady Quest (one 4+). Base dice = Resilient stars; every base die is a 1, the first extra die too, only the LAST extra die is a 6.
 	await setQuestFaceUp(page, 'PHYSICAL', 'quest_tough_it_out');
 	const base = Math.max(1, Number(stateAfterActivate.players.player_1.activeSlots[0].traits?.resilient) || 0);
-	await setNextDice(page, [...Array(base).fill(1), 6]);
+	await setNextDice(page, [...Array(base + 1).fill(1), 6]);
 	await setMosjeMP(page, 'player_1', 0, 60);  // refresh for clean MP assertion
 	await page.waitForTimeout(200);
 
@@ -109,7 +112,7 @@ test('chain-1: Quest Prep Stack — Dubbele Dosis gives +1 die that turns a near
 	const mpAfter = (await readOwnedMosjes(page))[0]?.mp;
 	console.log(`MP: ${mpBefore} → ${mpAfter}`);
 	expect(mpAfter, 'the extra die (a 6) won the Quest').toBeGreaterThan(mpBefore);
-	expect((await getGameState(page)).players.player_1.questExtraDice ?? 0, 'extra die used up').toBe(0);
+	expect(grantDice(await getGameState(page)), 'extra dice used up').toBe(0);
 });
 
 // ─── Chain 2: Affoe Drain + Kannetje Melk Gain ────────────────────────────────
@@ -254,6 +257,7 @@ test('chain-3: Not Today! fires on bot elimination — Mosje survives at 5 MP', 
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
 
+	await setHand(page, 'player_1', ['snelle_negate_elimination']); // the 3-card opening hand is random: guarantee the card
 	const hand = await readHand(page);
 	if (!hand.some(c => c.cardId === 'snelle_negate_elimination')) {
 		throw new Error('Setup failed: Not Today! not in hand');
@@ -349,7 +353,7 @@ test('chain-4: Youri Speed Activate - 1 Energy, same-turn Piecie activates, hand
 
 	expect((await readOwnedMosjes(page))[0]?.mp, 'MP is never a cost').toBe(60);
 	expect(await energyOf(), 'Speed Activate costs 1 Energy').toBe(energyBefore - 1);
-	expect(await getHandSize(page, 'player_1'), 'draws 1').toBe(handSizeBefore + 1);
+	expect(await getHandSize(page, 'player_1'), 'Level 1: no draw (15 Nov text: "From Level 2: then draw 1")').toBe(handSizeBefore);
 
 	// The Piecie is now ready: activating it works the same turn and pays its own cost.
 	await expect.poll(() => isPiecieActivatable(page, 'piecie_quest_prep'), { timeout: 4000 }).toBe(true);
@@ -443,7 +447,7 @@ test('chain-6: Controller gives a Digital Mosje MP and +1 die on one Quest', asy
 	const stateAfterController = await getGameState(page);
 	// Card List: the Controller gives the chosen Mosje 10 MP.
 	expect(mpAfterController).toBe(50);
-	expect(stateAfterController?.players?.player_1?.questExtraDice ?? 0).toBe(1);
+	expect(grantDice(stateAfterController), 'the picked Mosje gets +1 die on one Quest this turn').toBe(1);
 
 	// Skilled Quest (two 4+). Base dice = Technical stars; base-1 ones then two 6s: wins only with the extra die.
 	await setQuestFaceUp(page, 'DIGITAL', 'quest_hack_mainframe');
@@ -453,7 +457,7 @@ test('chain-6: Controller gives a Digital Mosje MP and +1 die on one Quest', asy
 	await ss(page, 'chain6-after-quest');
 
 	const stateAfterQuest = await getGameState(page);
-	expect(stateAfterQuest?.players?.player_1?.questExtraDice ?? 0, 'extra die used up').toBe(0);
+	expect(grantDice(stateAfterQuest), 'extra die used up').toBe(0);
 	const mpAfterQuest = (await readOwnedMosjes(page))[0]?.mp;
 	expect(mpAfterQuest, 'two 6s with the extra die won the Quest').toBeGreaterThan(mpAfterController);
 });

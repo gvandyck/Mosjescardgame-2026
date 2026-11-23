@@ -38,7 +38,10 @@ async function dismissBlockers(page) {
 	const noReaction = page.locator('.modal-card--reaction .modal-mosje-select-btn[data-id="__pass__"]');
 	const drawStep = page.locator('.modal-mosje-select-btn[data-id="draw"]');
 	const anyChoice = page.locator('.modal-mosje-select-btn:not([disabled])');
-	for (const option of [noReaction, drawStep, anyChoice]) {
+	// A card that shows the human the opponent's hand opens a read-only list with Close; a tile tap outside the own turn opens the detail view.
+	const closeReveal = page.locator('#modal-close-hand-reveal');
+	const closeDetail = page.locator('.card-detail button:has-text("Close")');
+	for (const option of [noReaction, drawStep, closeReveal, closeDetail, anyChoice]) {
 		if (await option.first().isVisible().catch(() => false)) { await option.first().click({ timeout: 2000 }).catch(() => {}); return true; }
 	}
 	return false;
@@ -51,11 +54,19 @@ async function endTurnAndWatch(page, ms = 45000) {
 		while (await dismissBlockers(page)) await page.waitForTimeout(200);
 		try { await clickEndTurn(page, { timeout: 2500 }); break; } catch (err) { if (attempt >= 10) throw err; }
 	}
+	// Right after the click the button is still enabled for a moment: wait until the turn has really passed (button disabled) or the game is over.
+	await page.waitForFunction(() => document.getElementById('reward-overlay') || document.getElementById('btn-end-turn')?.disabled === true, null, { timeout: 5000 }).catch(() => {});
 	const deadline = Date.now() + ms;
 	while (Date.now() < deadline) {
 		if (await page.locator('#reward-overlay').count()) return 'gameover';
 		if (await dismissBlockers(page)) { await page.waitForTimeout(200); continue; }
-		if (await page.locator('#btn-end-turn:not([disabled])').count()) return 'turn';
+		// Control is back only when the button is enabled AND the engine says it is the human's turn with no reaction open: the
+		// button can be enabled for a moment during the bot's turn (after a Reaction prompt), and a tile tap then opens the detail view.
+		const mine = await page.evaluate(() => {
+			const gs = window.__testHooks?.getGameState();
+			return !!gs && gs.activePlayerId === 'player_1' && !gs.pendingReaction && document.getElementById('btn-end-turn')?.disabled === false;
+		});
+		if (mine) return 'turn';
 		await page.waitForTimeout(150);
 	}
 	return 'timeout';
@@ -63,7 +74,10 @@ async function endTurnAndWatch(page, ms = 45000) {
 
 // Valid win reasons the overlay must show
 // 2.0 overlay texts: "<Name> was knocked out: no Mosje left outside the pile" (knockout) and "<Player> completed <Quest> with <Mosje>".
-const WIN_REASONS = ['PERSONAL_QUEST', 'KNOCKOUT'];
+const WIN_REASON_TEXT = /was knocked out|completed .+ with/i;
+// 73: the games run on the three starter decks (the decks a player gets); a passive human is knocked out, which can take
+// more than 30 turns now that the bot also builds towards its Personal Quest.
+const MAX_TURNS = 60;
 
 // ─── Shared helpers ───────────────────────────────────────────────────────────
 
@@ -95,7 +109,18 @@ async function playActiveTurn(page, turnIndex) {
 
 	// Attempt a Quest with the first Mosje that can act (2.0 tap flow: tap the Mosje, Quest, the Quest tile, click through);
 	// questFirstAvailable does nothing and returns false when no Mosje's Quest chip is enabled (was: the old Quest button being disabled).
-	await questFirstAvailable(page);
+	try {
+		await questFirstAvailable(page);
+	} catch (err) {
+		// What the game thought at that moment, so a failure names its cause (whose turn, a pending choice, the button).
+		const snap = await page.evaluate(() => {
+			const gs = window.__testHooks?.getGameState();
+			const btn = document.getElementById('btn-end-turn');
+			return { active: gs?.activePlayerId, turn: gs?.turnNumber, status: gs?.status, pendingChoice: gs?.pendingChoice?.kind ?? gs?.pendingChoice?.type ?? !!gs?.pendingChoice, pendingReaction: !!gs?.pendingReaction, endTurnDisabled: btn?.disabled, label: document.getElementById('turn-label')?.textContent, modal: document.querySelector('#modal-root .modal-card h3, #modal-root .modal-card h2')?.textContent ?? null };
+		});
+		throw new Error(`${err.message}
+Game at that moment: ${JSON.stringify(snap)}`);
+	}
 
 	// Check if game ended during quest resolution
 	const overlayAfterQuest = await page.locator('#reward-overlay').isVisible({ timeout: 200 }).catch(() => false);
@@ -136,10 +161,10 @@ async function playActiveTurn(page, turnIndex) {
 
 // ─── VIS-GAME-01: Passive game — PHYSICAL_FORCE vs ARTISTIC_RHYTHM ─────────
 
-test('full game: passive — human ends turns until game over (PHYSICAL_FORCE)', async ({ page }) => {
-	test.setTimeout(120000);
+test('full game: passive — human ends turns until game over (STARTER_PHYSICAL)', async ({ page }) => {
+	test.setTimeout(300000);
 
-	await seedOfflineSession(page, 'PHYSICAL_FORCE', 'ARTISTIC_RHYTHM');
+	await seedOfflineSession(page, 'STARTER_PHYSICAL', 'STARTER_CREATIVE');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
 	await ss(page, 'full-game-passive-start');
@@ -149,7 +174,7 @@ test('full game: passive — human ends turns until game over (PHYSICAL_FORCE)',
 	expect(startMosjes.length).toBeGreaterThan(0);
 
 	let turnCount = 0;
-	const maxTurns = 30;
+	const maxTurns = MAX_TURNS;
 
 	while (turnCount < maxTurns) {
 		turnCount++;
@@ -177,7 +202,7 @@ test('full game: passive — human ends turns until game over (PHYSICAL_FORCE)',
 	expect(subtitle).toBeTruthy();
 
 	// Assert win reason is one of the 4 valid conditions
-	const reasonFound = WIN_REASONS.some(r => reason.toUpperCase().includes(r.replace(/_/g, " ")));
+	const reasonFound = WIN_REASON_TEXT.test(reason);
 	console.log('Win reason found:', reasonFound, '|', subtitle);
 	expect(reasonFound).toBe(true);
 
@@ -194,12 +219,12 @@ test('full game: passive — human ends turns until game over (PHYSICAL_FORCE)',
 
 // ─── VIS-GAME-02: Active game — DIGITAL_CONTROL vs PHYSICAL_FORCE ────────────
 
-test('full game: active — human plays quests + piecies each turn (DIGITAL_CONTROL)', async ({ page }) => {
-	test.setTimeout(180000);
+test('full game: active — human plays quests + piecies each turn (STARTER_DIGITAL)', async ({ page }) => {
+	test.setTimeout(300000);
 
 	// Mock dice to 0.5 so quest rolls are 4 (boundary success for most quests)
 	await mockDiceRoll(page, 0.5);
-	await seedOfflineSession(page, 'DIGITAL_CONTROL', 'PHYSICAL_FORCE');
+	await seedOfflineSession(page, 'STARTER_DIGITAL', 'STARTER_PHYSICAL');
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
 	await ss(page, 'full-game-active-start');
@@ -208,7 +233,7 @@ test('full game: active — human plays quests + piecies each turn (DIGITAL_CONT
 	console.log('Starting Mosjes:', startMosjes);
 
 	let turnCount = 0;
-	const maxTurns = 30;
+	const maxTurns = MAX_TURNS;
 	let gameEnded = false;
 
 	while (turnCount < maxTurns && !gameEnded) {
@@ -235,7 +260,7 @@ test('full game: active — human plays quests + piecies each turn (DIGITAL_CONT
 
 	// Core assertions
 	expect(title).toMatch(/Victory|Defeat/);
-	const reasonFound = WIN_REASONS.some(r => reason.toUpperCase().includes(r.replace(/_/g, " ")));
+	const reasonFound = WIN_REASON_TEXT.test(reason);
 	expect(reasonFound).toBe(true);
 	console.log(`Active game ended in ${turnCount} turns: ${subtitle}`);
 });
@@ -243,14 +268,14 @@ test('full game: active — human plays quests + piecies each turn (DIGITAL_CONT
 // ─── VIS-GAME-03: All three decks — one passive game each ────────────────────
 
 const DECK_MATCHUPS = [
-	{ p1: 'PHYSICAL_FORCE',  p2: 'DIGITAL_CONTROL' },
-	{ p1: 'DIGITAL_CONTROL', p2: 'ARTISTIC_RHYTHM' },
-	{ p1: 'ARTISTIC_RHYTHM', p2: 'PHYSICAL_FORCE' },
+	{ p1: 'STARTER_PHYSICAL', p2: 'STARTER_DIGITAL' },
+	{ p1: 'STARTER_DIGITAL', p2: 'STARTER_CREATIVE' },
+	{ p1: 'STARTER_CREATIVE', p2: 'STARTER_PHYSICAL' },
 ];
 
 for (const matchup of DECK_MATCHUPS) {
 	test(`full game: ${matchup.p1} vs ${matchup.p2} — game completes without crash`, async ({ page }) => {
-		test.setTimeout(120000);
+		test.setTimeout(300000);
 
 		await seedOfflineSession(page, matchup.p1, matchup.p2);
 		await page.goto(GAME_URL_TEST);
@@ -258,7 +283,7 @@ for (const matchup of DECK_MATCHUPS) {
 
 		let turnCount = 0;
 
-		while (turnCount < 30) {
+		while (turnCount < MAX_TURNS) {
 			turnCount++;
 			const result = await endTurnAndWatch(page);
 			if (result === 'timeout') throw new Error(`Game timed out on turn ${turnCount} waiting for bot`);
@@ -270,7 +295,7 @@ for (const matchup of DECK_MATCHUPS) {
 		await ss(page, `full-game-${matchup.p1.toLowerCase()}-vs-${matchup.p2.toLowerCase()}`);
 
 		expect(title).toMatch(/Victory|Defeat/);
-		const reasonFound = WIN_REASONS.some(r => reason.toUpperCase().includes(r.replace(/_/g, " ")));
+		const reasonFound = WIN_REASON_TEXT.test(reason);
 		expect(reasonFound).toBe(true);
 		console.log(`${matchup.p1} vs ${matchup.p2}: ${subtitle} (${turnCount} turns)`);
 	});
@@ -281,7 +306,7 @@ for (const matchup of DECK_MATCHUPS) {
 test('full game: reaching Level 3 and holding it is NOT a win - a Level 3 Mosje wins with a Personal Quest', async ({ page }) => {
 	// Obby 2.1 (D-01): the hold-Level-3 win is gone. A quest that lifts a Mosje to Level 3 shows no win, a whole round later it is
 	// still no win, and the same Mosje then completes a Personal Quest from the hand and wins.
-	test.setTimeout(120000);
+	test.setTimeout(300000);
 
 	await seedOfflineSession(page, 'EXAMPLE_TAKSEN', 'EXAMPLE_REGELAARS');
 	await page.goto(GAME_URL_TEST);

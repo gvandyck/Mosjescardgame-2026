@@ -3,7 +3,7 @@
 // 63-06: the Ability button is a chip in the action tray now; the same intent is checked there: the tile carries no button,
 // and the chip's label fits inside the chip and the chip inside the screen.
 //
-// (58-03: Parkour West is a passive ability in 2.0 and has no button, so the layout check uses Ronald Chef, an activated Mosje.)
+// (58-03: Parkour West is a passive ability in 2.0 and has no button, so the layout check uses an activated Mosje: Ronald Chef then, and Youri since the 15 Nov design made Ronald Chef passive too.)
 // Bug report (2026-07-06): Parkour West's long ability ("Adaptive Combat
 // Flow: …") rendered un-clamped on the board card and shoved the ability
 // button past the card's bottom edge. The text is now clamped to 4 lines
@@ -20,7 +20,7 @@ test.describe('On-field Mosje ability text clamp', () => {
 		await waitForBoard(page);
 
 		// Force the worst-case long-ability Mosje into the player's slot 0.
-		await setMosjeOnField(page, 'player_1', 0, 'mosje_ronald_chef', { mp: 20, level: 1 });
+		await setMosjeOnField(page, 'player_1', 0, 'mosje_youri', { mp: 20, level: 1 });
 
 		const card = page.locator('.mosje-card--owned').first();
 		// Let the card entry animation settle so the screenshot shows the real face.
@@ -29,7 +29,7 @@ test.describe('On-field Mosje ability text clamp', () => {
 
 		// No Ability button on the tile; it is a chip in the tray that opens when the Mosje is tapped.
 		await expect(card.locator('button')).toHaveCount(0);
-		await tapOwnCard(page, 'mosje', 'mosje_ronald_chef');
+		await tapOwnCard(page, 'mosje', 'mosje_youri');
 		const chip = page.locator('[data-action-tray] [data-action="ability"]');
 		await expect(chip).toBeVisible();
 

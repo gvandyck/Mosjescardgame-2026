@@ -24,7 +24,7 @@ async function bootCooldownTurn(page) {
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
 	await setMosjeOnField(page, 'player_1', 0, 'mosje_binti', { mp: 40, level: 1 });
-	await setMosjeOnField(page, 'player_1', 1, 'mosje_ronald_chef', { mp: 40, level: 1 }); // has an Ability chip (2 Energy)
+	await setMosjeOnField(page, 'player_1', 1, 'mosje_youri', { mp: 40, level: 1 }); // has an Ability chip (Speed Activate, 1 Energy); Ronald Chef is passive since the 15 Nov design
 	await setMosjeOnField(page, 'player_2', 0, 'mosje_gandoe_destroyer', { mp: 60, level: 1 });
 	await clearEntryProtection(page);
 	await setHand(page, 'player_1', []);

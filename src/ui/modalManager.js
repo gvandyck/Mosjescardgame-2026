@@ -22,6 +22,7 @@ import { boldMarkersToHtml } from './cardV1/boldMarkersToHtml.js';
 import { stripBoldMarkers } from './cardV1/stripBoldMarkers.js';
 import { buildPersonalQuestSections } from './modals/buildPersonalQuestSections.js';
 import { buildPreviewActionsHtml } from './modals/buildPreviewActionsHtml.js';
+import { buildHandRevealRowHtml } from './modals/buildHandRevealRowHtml.js';
 import { buildDiceRowHtml } from './dice/buildDiceRowHtml.js';
 import { getQuestNeed } from './cardV1/getQuestNeed.js';
 import { formatQuestRollsLine } from './cardV1/formatQuestRollsLine.js';
@@ -838,11 +839,7 @@ export function initModalManager(container) {
 		container.classList.add('modal-root--open');
 		const count = handCardIds.length;
 
-		const rows = handCardIds.map(cardId => {
-			const name = cardLookup?.[cardId]?.name || cardId;
-			const type = cardLookup?.[cardId]?.type || '';
-			return `<li><span class="hand-reveal-name">${escapeHtml(name)}</span>${type ? `<span class="hand-reveal-type">${escapeHtml(type)}</span>` : ''}</li>`;
-		}).join('');
+		const rows = handCardIds.map(cardId => buildHandRevealRowHtml(cardId, cardLookup)).join('');
 
 		container.innerHTML = `
 			<div class="modal-backdrop"></div>

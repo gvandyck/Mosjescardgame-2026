@@ -14,7 +14,7 @@ test('arena-style hand hover, field hover popup and action spotlight', async ({ 
 	await ss(page, 'arena-1-base');
 
 	// 1. hand hover
-	const hand = page.locator('.hand-card-wrap').nth(3);
+	const hand = page.locator('.hand-card-wrap').first(); // the opening hand is 3 cards in 2.0 (was: the 4th card)
 	await hand.hover({ position: { x: 100, y: 30 } });
 	await page.waitForTimeout(700);
 	await ss(page, 'arena-2-hand-hover');
