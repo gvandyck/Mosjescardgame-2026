@@ -3,8 +3,11 @@
 Status: built in Phase 64-06 (D-23, D-25, D-26, D-27). Replaces the V4 duo-deck matrix.
 
 ## What runs
+Phase 73: the matrix is now the three starter decks (was the Example Decks).
+The report also shows Personal Quest rolls / wins and game length in turns and in pairs (one round = one player turn).
+
 `npm run test:sim` = the headless `sim` project (workers 1) = ONE spec, `sim-deck-matrix.spec.js`.
-The 3 Example Decks (Taksen TK, Regelaars RG, Creatievelingen CV) play all 9 ordered matchups
+The 3 starter decks (Physical PH, Digital DG, Creative CR) play all 9 ordered matchups
 (3 pairings in both seat orders + 3 mirrors), 10 games each = 90 games, plus 1 gate test (91 tests).
 The game's own bot drives both seats (`?botvsbot=true&fast=true&testMode=true`); seat 1 = the first deck named.
 Harness: `tests/helpers/playBotGame.js` (shared with U11 `tests/ui/full-game-2.0.spec.js`).

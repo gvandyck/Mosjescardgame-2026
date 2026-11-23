@@ -1,5 +1,5 @@
 /**
- * U11 - full 2.0 games, one bot-vs-bot game per ordered matchup of the 3 Example Decks (handoff 6c).
+ * U11 - full 2.0 games, one bot-vs-bot game per ordered matchup of the 3 starter decks (handoff 6c; Phase 73-06).
  *
  * D-23: "every pairing" = 9 ordered matchups (3 distinct pairings in both seat orders + 3 mirrors).
  * D-24: fast=true, testMode=true; pass = #reward-overlay with a valid win reason (PERSONAL_QUEST or KNOCKOUT), no pageerror,
@@ -10,11 +10,12 @@
  * handled by changing a seed. Shared harness: tests/helpers/playBotGame.js (the 64-06 simulation reuses it).
  */
 import { test, expect } from '@playwright/test';
-import { EXAMPLE_DECKS } from '../../src/data/exampleDecks.js';
+import { getPlayerFacingDecks } from '../../src/data/playerFacingDecks.js';
 import { playBotGame } from '../helpers/playBotGame.js';
 
 const MATCHUPS = [];
-for (const p1 of EXAMPLE_DECKS) for (const p2 of EXAMPLE_DECKS) MATCHUPS.push([p1, p2]);
+const STARTER = getPlayerFacingDecks();
+for (const p1 of STARTER) for (const p2 of STARTER) MATCHUPS.push([p1, p2]);
 
 MATCHUPS.forEach(([p1, p2], i) => {
 	test(`U11: ${p1.name} vs ${p2.name} plays to an end`, async ({ page }) => {

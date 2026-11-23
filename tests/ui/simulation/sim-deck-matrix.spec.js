@@ -1,7 +1,7 @@
 /**
- * sim-deck-matrix.spec.js - the 2.0 deck-matrix simulation (Phase 64-06, D-23 / D-25 / D-26 / D-27).
+ * sim-deck-matrix.spec.js - the deck-matrix simulation (Phase 64-06, D-23 / D-25 / D-26 / D-27; Phase 73 / NBOT-02: starter decks).
  *
- * The 3 Example Decks play every ORDERED matchup (9 = 3 pairings in both seat orders + 3 mirrors), GAMES_PER_MATCHUP times
+ * The 3 starter decks (Physical, Digital, Creative) play every ORDERED matchup (9 = 3 pairings in both seat orders + 3 mirrors), GAMES_PER_MATCHUP times
  * (default 10), the game's own bot driving BOTH seats (?botvsbot=true). 9 x 10 = 90 games + 1 gate test = 91 tests.
  * Seat 1 is the first named deck (testMode forces player_1 to go first), so the ordered pairs mirror the seats.
  *
@@ -28,11 +28,11 @@ import { buildSanityChecks } from './build-sanity-checks.js';
 import { evaluateSimGate, MAX_TIMEOUT_RATE } from './evaluate-sim-gate.js';
 import { buildDeckMatrixMarkdown } from './build-deck-matrix-markdown.js';
 
-// The 3 Example Decks (src/data/exampleDecks.js); keys are the short labels used in tables and logs.
+// The 3 starter decks (src/data/playerFacingDecks.js); keys are the short labels used in tables and logs.
 const DECKS = [
-	{ key: 'TK', id: 'EXAMPLE_TAKSEN', name: 'Taksen' },
-	{ key: 'RG', id: 'EXAMPLE_REGELAARS', name: 'Regelaars' },
-	{ key: 'CV', id: 'EXAMPLE_CREATIEVELINGEN', name: 'Creatievelingen' },
+	{ key: 'PH', id: 'STARTER_PHYSICAL', name: 'Physical' },
+	{ key: 'DG', id: 'STARTER_DIGITAL', name: 'Digital' },
+	{ key: 'CR', id: 'STARTER_CREATIVE', name: 'Creative' },
 ];
 
 const GAMES_PER_MATCHUP = Number(process.env.GAMES_PER_MATCHUP) || 10;

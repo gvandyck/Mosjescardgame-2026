@@ -45,17 +45,18 @@ export function attachCollector(page) {
  * Count the 2.0 bot events of one game, grouped by deck id ('UNKNOWN' when the event carries no deck,
  * e.g. elimination-strike and the reaction engine-refused). Input = playBotGame's result.metrics.
  *   attack, quest-roll (success -> questWins), action-skip (+ reason), reaction-played,
- *   plays-second-mosje, elimination-strike, engine-refused.
+ *   plays-second-mosje, elimination-strike, engine-refused, personal-quest-roll (pqRolls / pqWins; not a quest-roll, rules s15).
  */
 export function summarizeBotMetrics(metrics) {
 	const byDeck = {};
 	for (const m of metrics) {
 		const d = (byDeck[m.deck || 'UNKNOWN'] ??= {
 			attacks: 0, questRolls: 0, questWins: 0, actionSkips: 0, skipReasons: {},
-			reactionsPlayed: 0, secondMosjePlays: 0, eliminationStrikes: 0, engineRefused: 0,
+			reactionsPlayed: 0, secondMosjePlays: 0, eliminationStrikes: 0, engineRefused: 0, pqRolls: 0, pqWins: 0,
 		});
 		if (m.ev === 'attack') d.attacks++;
 		else if (m.ev === 'quest-roll') { d.questRolls++; if (m.success) d.questWins++; }
+		else if (m.ev === 'personal-quest-roll') { d.pqRolls++; if (m.success) d.pqWins++; }
 		else if (m.ev === 'action-skip') {
 			d.actionSkips++;
 			const reason = m.reason || 'unknown';

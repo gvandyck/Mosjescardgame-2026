@@ -9,10 +9,13 @@
  * Everything here is report only (D-27); the gate lives in evaluate-sim-gate.js.
  */
 
-const COUNTERS = ['attacks', 'questRolls', 'questWins', 'actionSkips', 'reactionsPlayed', 'secondMosjePlays', 'eliminationStrikes', 'engineRefused'];
+const COUNTERS = ['attacks', 'questRolls', 'questWins', 'actionSkips', 'reactionsPlayed', 'secondMosjePlays', 'eliminationStrikes', 'engineRefused', 'pqRolls', 'pqWins'];
 const pct = (n, total) => (total > 0 ? +((n / total) * 100).toFixed(1) : null);
 const sortedRounds = recs => recs.map(r => r.rounds).sort((a, b) => a - b);
 const hasWinner = r => r.finished && (r.winnerId === 'player_1' || r.winnerId === 'player_2');
+
+// rounds = one per player turn; a pair of turns is two
+const half = v => (v === null ? null : v / 2);
 
 function median(sorted) {
 	if (sorted.length === 0) return null;
@@ -36,6 +39,7 @@ function finishBot(b, gamesPlayed) {
 		...b, gamesPlayed,
 		attackShare: pct(b.attacks, b.attacks + b.questRolls),
 		questWinRate: pct(b.questWins, b.questRolls),
+		pqWinRate: pct(b.pqWins, b.pqRolls),
 		secondMosjePerGame: gamesPlayed > 0 ? +(b.secondMosjePlays / gamesPlayed).toFixed(2) : null,
 	};
 }
@@ -59,6 +63,8 @@ function buildOverall(records) {
 		engineRefused: records.reduce((s, r) => s + (r.engineRefused || 0), 0),
 		medianRounds: median(rounds),
 		p90Rounds: p90(rounds),
+		medianPairs: half(median(rounds)),
+		p90Pairs: half(p90(rounds)),
 		seat1WinRate: pct(decided.filter(r => r.winnerId === 'player_1').length, decided.length),
 		attackShare: pct(bot.attacks, bot.attacks + bot.questRolls),
 		winReasons,

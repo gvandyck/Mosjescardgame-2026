@@ -14,7 +14,7 @@ const TAKSEN = 'EXAMPLE_TAKSEN';
 const REGELAARS = 'EXAMPLE_REGELAARS';
 const deckIdToKey = { EXAMPLE_TAKSEN: 'TK', EXAMPLE_REGELAARS: 'RG', EXAMPLE_CREATIEVELINGEN: 'CV' };
 
-const zero = { attacks: 0, questRolls: 0, questWins: 0, actionSkips: 0, skipReasons: {}, reactionsPlayed: 0, secondMosjePlays: 0, eliminationStrikes: 0, engineRefused: 0 };
+const zero = { attacks: 0, questRolls: 0, questWins: 0, actionSkips: 0, skipReasons: {}, reactionsPlayed: 0, secondMosjePlays: 0, eliminationStrikes: 0, engineRefused: 0, pqRolls: 0, pqWins: 0 };
 const m = (over) => ({ ...zero, ...over });
 
 // 6 records: 3 finished non-mirror, 1 finished mirror, 1 round-cap timeout, 1 crash.
@@ -47,6 +47,38 @@ describe('summarizeBotMetrics (2.0 events)', () => {
 		]);
 		expect(out[TAKSEN]).toEqual(m({ attacks: 2, questRolls: 2, questWins: 1, actionSkips: 1, skipReasons: { 'no-energy': 1 }, reactionsPlayed: 1, secondMosjePlays: 1 }));
 		expect(out.UNKNOWN).toEqual(m({ eliminationStrikes: 1, engineRefused: 1 }));
+	});
+});
+
+describe('summarizeBotMetrics (Personal Quest, 73-06)', () => {
+	it('counts personal-quest-roll into pqRolls / pqWins and NOT into quest rolls', () => {
+		const out = summarizeBotMetrics([
+			{ ev: 'personal-quest-roll', deck: TAKSEN, quest: 'p1', dice: 2, success: true },
+			{ ev: 'personal-quest-roll', deck: TAKSEN, quest: 'p2', dice: 2, success: false },
+			{ ev: 'quest-roll', deck: TAKSEN, quest: 'q1', dice: 2, success: true },
+		]);
+		expect(out[TAKSEN]).toEqual(m({ questRolls: 1, questWins: 1, pqRolls: 2, pqWins: 1 }));
+	});
+});
+
+describe('aggregateDeckStats (Personal Quest and pairs, 73-06)', () => {
+	const recs = fixture().map((r, i) => i === 0
+		? { ...r, botMetrics: { [TAKSEN]: m({ attacks: 6, pqRolls: 4, pqWins: 1 }), [REGELAARS]: m({ pqRolls: 2, pqWins: 2 }) } }
+		: r);
+	const stats = aggregateDeckStats(recs, deckIdToKey);
+
+	it('sums pq counters per deck and gives pqWinRate (null without rolls)', () => {
+		expect(stats.decks.TK.bot).toMatchObject({ pqRolls: 4, pqWins: 1, pqWinRate: 25 });
+		expect(stats.decks.RG.bot).toMatchObject({ pqRolls: 2, pqWins: 2, pqWinRate: 100 });
+		expect(stats.decks.CV.bot.pqWinRate).toBeNull();
+	});
+
+	it('overall medianPairs and p90Pairs are the round numbers halved (null stays null)', () => {
+		expect(stats.overall.medianPairs).toBe(12.5);
+		expect(stats.overall.p90Pairs).toBe(20);
+		const empty = aggregateDeckStats([], deckIdToKey);
+		expect(empty.overall.medianPairs).toBeNull();
+		expect(empty.overall.p90Pairs).toBeNull();
 	});
 });
 
@@ -230,5 +262,30 @@ describe('buildDeckMatrixMarkdown', () => {
 		const md = buildDeckMatrixMarkdown(report(fixture()));
 		const row = md.split('\n').find(l => l.startsWith('| **TK**') && l.includes('1 - 1'));
 		expect(row).toBeTruthy(); // TK (seat 1) vs RG (seat 2): 1 - 1
+	});
+});
+
+describe('buildDeckMatrixMarkdown (starter decks, 73-06)', () => {
+	it('titles the report with Starter Decks, shows PQ and pairs columns and no Example Deck names', () => {
+		const ids = { STARTER_PHYSICAL: 'PH', STARTER_DIGITAL: 'DG', STARTER_CREATIVE: 'CR' };
+		const base = { crashed: false, errors: [], engineRefused: 0, timedOut: false, timeoutKind: null, elapsedMs: 1000 };
+		const recs = [
+			{ ...base, matchup: 'PH-vs-DG', p1Deck: 'PH', p2Deck: 'DG', gameIndex: 1, seed: 1, finished: true, rounds: 30, winReason: 'PERSONAL_QUEST', winnerId: 'player_1', winnerDeck: 'PH',
+				botMetrics: { STARTER_PHYSICAL: m({ attacks: 3, pqRolls: 2, pqWins: 1 }) } },
+		];
+		const stats = aggregateDeckStats(recs, ids);
+		const md = buildDeckMatrixMarkdown({
+			generatedAt: 'x', caps: { roundCap: 80, wallClockMs: 120000 }, seedBase: 1, gamesPerMatchup: 1, expectedGames: 1,
+			gate: evaluateSimGate(recs, { expectedGames: 1 }), deckOrder: ['PH', 'DG', 'CR'],
+			deckNames: { PH: 'Physical', DG: 'Digital', CR: 'Creative' }, stats, sanity: buildSanityChecks(stats.overall),
+		});
+		expect(md).toContain('Starter Decks');
+		expect(md).toContain('PQ rolls');
+		expect(md).toContain('PQ win rate');
+		expect(md).toContain('Median pairs');
+		expect(md).toContain('Median turns');
+		expect(md).toContain('Physical');
+		expect(md).not.toContain('Taksen');
+		expect(md).not.toContain('Example Decks');
 	});
 });
