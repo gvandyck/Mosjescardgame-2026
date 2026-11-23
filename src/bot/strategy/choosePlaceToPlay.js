@@ -7,11 +7,19 @@ import { fieldHasMosjeNamed } from '../../engine/energy/fieldHasMosjeNamed.js';
 import { asBotView } from './asBotView.js';
 import { canBotAfford } from './canBotAfford.js';
 import { placeFit } from './placeFit.js';
+import { getPersonalQuestPlan } from './getPersonalQuestPlan.js';
 
 export function choosePlaceToPlay(state, botId, reserve = 0) {
 	const view = asBotView(state, botId); // BOT-04: from here on `view` is the table view
 	if (view.activePlayerId !== botId || isCooldownBlocked(view, botId) || view.activePlace) return null;
 	const hand = view.players?.[botId]?.hand || [];
+	// CC-5: a Place the held Personal Quest names under Needs is played regardless of fit (Tesla still wants a Coert).
+	const plan = getPersonalQuestPlan(view, botId);
+	if (plan?.holdActive) {
+		const needed = hand.find(c => c.type === 'PLACE' && plan.needPlaceIds.includes(c.cardId) && canBotAfford(view, botId, c.cardId, 'place', reserve)
+			&& (c.cardId !== 'place_tesla' || fieldHasMosjeNamed(view, botId, 'coert')));
+		if (needed) return needed;
+	}
 	let best = null;
 	let bestFit = 0;
 	for (const card of hand) {

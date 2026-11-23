@@ -6,6 +6,8 @@ import { PIECIE_SLOT_COUNT } from '../../engine/table/tableRules.js';
 import { getCardTags } from './comboTags.js';
 import { asBotView } from './asBotView.js';
 import { reactionReserve } from './reactionReserve.js';
+import { getPersonalQuestPlan } from './getPersonalQuestPlan.js';
+import { pieciesHeldInHand } from './pieciesHeldInHand.js';
 
 function playPriority(cardRef) {
 	const tags = getCardTags(cardRef.cardId);
@@ -22,8 +24,9 @@ export function choosePieciesToPlace(state, botId) {
 	const player = view.players?.[botId];
 	const filled = (player?.piecieSlots || []).filter(Boolean).length;
 	const room = Math.max(0, PIECIE_SLOT_COUNT - filled - (reactionReserve(view, botId).keepSlot ? 1 : 0));
+	const { keep, maxTake } = pieciesHeldInHand(view, botId, getPersonalQuestPlan(view, botId)); // CC-5: Pay / hand-size cards stay
 	return (player?.hand || [])
-		.filter(c => c.type === 'PIECIE')
+		.filter((c, i) => c.type === 'PIECIE' && !keep.has(i))
 		.sort((a, b) => playPriority(a) - playPriority(b))
-		.slice(0, room);
+		.slice(0, Math.min(room, maxTake));
 }

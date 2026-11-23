@@ -59,6 +59,8 @@ import { asBotView } from './strategy/asBotView.js';
 import { canBotAfford } from './strategy/canBotAfford.js';
 import { chooseSummon } from './strategy/chooseSummon.js';
 import { choosePlaceToPlay } from './strategy/choosePlaceToPlay.js';
+import { getPersonalQuestPlan } from './strategy/getPersonalQuestPlan.js';
+import { piecieHoldSlots } from './strategy/piecieHoldSlots.js';
 import { choosePuntoBanco } from './strategy/choosePuntoBanco.js';
 import { chooseProactiveSnelle } from './strategy/chooseProactiveSnelle.js';
 import { shouldUseAbility } from './strategy/shouldUseAbility.js';
@@ -174,7 +176,7 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
       if (!def?.abilityId || def.autoAbility) continue;
       if (getAbilityTiming(slot.cardId) !== timing) continue;
       // Energy for a held reaction Snelle stays untouched (recomputed here: earlier steps change the hand).
-      if (!shouldUseAbility(state, botPlayerId, i, profile, reactionReserve(state, botPlayerId).energy)) continue;
+      if (!shouldUseAbility(state, botPlayerId, i, profile, reserveEnergy(state))) continue;
 
       // Clone before calling: useMosjeAbility mutates the state it receives.
       const stateForAbility = JSON.parse(JSON.stringify(state));
@@ -192,6 +194,23 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
       } else {
         refused('useMosjeAbility', slot.cardId, result.error);
       }
+    }
+  };
+
+  // CC-5: Energy the held Personal Quest Pays stays out of every spend (plan re-read each time: it changes during the turn).
+  const pqReserve = () => { const plan = getPersonalQuestPlan(state, botPlayerId); return plan?.holdActive ? plan.energyReserve : 0; };
+  const reserveEnergy = (view) => reactionReserve(view, botPlayerId).energy + pqReserve();
+  // Play a Place from hand (only when none is in play and the bot can pay it).
+  const playPlaceFromHand = () => {
+    const placeRef = choosePlaceToPlay(state, botPlayerId, reserveEnergy(state));
+    const cardDef = placeRef && PLACE_LOOKUP[placeRef.cardId];
+    if (!cardDef) return;
+    const result = playPlace(state, botPlayerId, placeRef, cardDef);
+    if (result.success) {
+      state = result.state;
+      push(`plays Place: ${cardDef.name}`, { kind: 'place', cardId: placeRef.cardId });
+    } else {
+      refused('playPlace', placeRef.cardId, result.error);
     }
   };
 
@@ -246,25 +265,31 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
   }
 
   // ── Phase C: activate ready Piecies in strategic order ───────────────────
+  // CC-5: a Place the held Personal Quest needs (Gym, Skiffa) is played BEFORE the actions, so the Needs can be met this turn.
+  {
+    const plan = getPersonalQuestPlan(state, botPlayerId);
+    if (plan?.holdActive && plan.needPlaceIds.length && !state.activePlace && !finished()) playPlaceFromHand();
+  }
   const willQuest = computeQuestIntent(state, botPlayerId);
   const { lethalPressure } = getOpponentPressure(state, botPlayerId);
   // The plan holds only Piecies that pass the engine gate, are useful now and fit the Energy (61-05).
   // BOT-03: the Energy of a held reaction Snelle is not part of the activation budget (the hand can change between activations, so it is read again below).
-  const spendable = Math.max(0, (Number(state.players[botPlayerId]?.energy) || 0) - reactionReserve(state, botPlayerId).energy);
+  const spendable = Math.max(0, (Number(state.players[botPlayerId]?.energy) || 0) - reserveEnergy(state));
   const activationPlan = planPiecieActivations(state, botPlayerId, profile, { willQuest, lethalPressure, budget: spendable });
   for (const entry of activationPlan) {
     if (finished()) break;
     // Re-locate by cardId: earlier activations can shift or sweep slots.
     const slots = state.players[botPlayerId]?.piecieSlots || [];
-    const idx = slots.findIndex(s =>
-      s && s.type === 'PIECIE' && !s.activated && s.cardId === entry.cardId);
+    const held = piecieHoldSlots(state, botPlayerId, getPersonalQuestPlan(state, botPlayerId)); // CC-5: never a slot the Personal Quest names
+    const idx = slots.findIndex((s, k) =>
+      s && s.type === 'PIECIE' && !s.activated && s.cardId === entry.cardId && !held.has(k));
     if (idx < 0) continue;
     if (!isPiecieReady(slots[idx], state.turnNumber)) continue;
     // Checked right before each call: Energy drops (and the Delluft fee is used up) as activations are paid.
     const view = asBotView(state, botPlayerId);
     const pieDef = PIECIE_LOOKUP[slots[idx].cardId];
     // Earlier activations change the table (a Place destroyed, a Mosje knocked out), so the plan is re-judged here too.
-    if (!pieDef || !canBotAfford(view, botPlayerId, pieDef.id, 'piecie', reactionReserve(view, botPlayerId).energy) || piecieActivationGate(view, botPlayerId, pieDef) || !isUsefulActivation(view, botPlayerId, pieDef.id)) continue;
+    if (!pieDef || !canBotAfford(view, botPlayerId, pieDef.id, 'piecie', reserveEnergy(view)) || piecieActivationGate(view, botPlayerId, pieDef) || !isUsefulActivation(view, botPlayerId, pieDef.id)) continue;
     const botEffectId = pieDef.effectId;
     if (OWN_TARGET_EFFECT_IDS.includes(botEffectId)) {
       const own = pickBotOwnTarget(state, botPlayerId, botEffectId);
@@ -287,7 +312,7 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
   // At most one per Piecie slot (a cast Snelle frees its slot again). chooseProactiveSnelle only names a card the engine
   // accepts and the bot can pay with the reaction reserve kept; a pick the card needs is answered by settle().
   for (let cast = 0; cast < PIECIE_SLOT_COUNT && !finished(); cast++) {
-    const pick = chooseProactiveSnelle(state, botPlayerId, reactionReserve(state, botPlayerId).energy);
+    const pick = chooseProactiveSnelle(state, botPlayerId, reserveEnergy(state));
     const cardRef = pick && (state.players[botPlayerId]?.hand || []).find(c => c.cardId === pick.cardId);
     const snelleDef = pick && SNELLE_LOOKUP[pick.cardId];
     if (!cardRef || !snelleDef) break;
@@ -305,19 +330,7 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
   if (!finished()) runActionPhase();
 
   // ── Phase F: play a Place from hand (only when none is in play and the bot can pay it) ─────
-  if (!finished()) {
-    const placeRef = choosePlaceToPlay(state, botPlayerId, reactionReserve(state, botPlayerId).energy);
-    const cardDef = placeRef && PLACE_LOOKUP[placeRef.cardId];
-    if (cardDef) {
-      const result = playPlace(state, botPlayerId, placeRef, cardDef);
-      if (result.success) {
-        state = result.state;
-        push(`plays Place: ${cardDef.name}`, { kind: 'place', cardId: placeRef.cardId });
-      } else {
-        refused('playPlace', placeRef.cardId, result.error);
-      }
-    }
-  }
+  if (!finished()) playPlaceFromHand();
 
   // ── Phase G: late abilities ───────────────────────────────────────────────
   if (!finished()) useAbilitiesFor('late');

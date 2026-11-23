@@ -12,6 +12,8 @@ import { getCardTags } from './comboTags.js';
 import { asBotView } from './asBotView.js';
 import { getBotPaymentCost } from './getBotPaymentCost.js';
 import { isUsefulActivation } from './isUsefulActivation.js';
+import { getPersonalQuestPlan } from './getPersonalQuestPlan.js';
+import { piecieHoldSlots } from './piecieHoldSlots.js';
 
 const PIECIE_BY_ID = Object.fromEntries(PIECIES.map(p => [p.id, p]));
 
@@ -42,10 +44,11 @@ export function planPiecieActivations(gameState, playerId, profile, intent = {})
 	const slots = player?.piecieSlots || [];
 	const turnNumber = gameState?.turnNumber ?? 0;
 
+	const held = piecieHoldSlots(gameState, playerId, getPersonalQuestPlan(gameState, playerId)); // CC-5: what the Personal Quest names stays ready
 	const ready = [];
 	for (let i = 0; i < slots.length; i++) {
 		const slot = slots[i];
-		if (!isPiecieReady(slot, turnNumber)) continue;
+		if (!isPiecieReady(slot, turnNumber) || held.has(i)) continue;
 		const def = PIECIE_BY_ID[slot.cardId];
 		// The engine's own gate and "does it do anything now" - an illegal or useless Piecie is never planned.
 		if (!def || piecieActivationGate(gameState, playerId, def) || !isUsefulActivation(gameState, playerId, slot.cardId)) continue;

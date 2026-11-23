@@ -45,6 +45,8 @@ import { placeFit } from '../../src/bot/strategy/placeFit.js';
 import { choosePuntoBanco } from '../../src/bot/strategy/choosePuntoBanco.js';
 import { pickFpsWestBottom } from '../../src/bot/strategy/pickFpsWestBottom.js';
 import { attackingPayers } from '../../src/bot/strategy/attackingPayers.js';
+import { piecieHoldSlots } from '../../src/bot/strategy/piecieHoldSlots.js';
+import { pieciesHeldInHand } from '../../src/bot/strategy/pieciesHeldInHand.js';
 import { chooseProactiveSnelle } from '../../src/bot/strategy/chooseProactiveSnelle.js';
 import { MOSJES } from '../../src/data/mosjes.js';
 import { createMosjeSlot } from '../../src/engine/mp/createMosjeSlot.js';
@@ -251,6 +253,8 @@ const TRAP_TABLE = {
 		for (const stackId of Object.keys(st.questStacks)) choosePuntoBanco(st, seat, { slotIndex: 0, stackId });
 	},
 	pickFpsWestBottom: (t, seat) => { expect(pickFpsWestBottom(t, seat, { options: [{ label: 'Leave it', index: -1 }, { label: 'Jensen!', index: 0, cardId: 'snelle_jensen' }] }).index).toBe(0); },
+	piecieHoldSlots: (t, seat) => { expect(piecieHoldSlots(t, seat, { holdActive: true, keepPiecies: [{ tag: 'food', count: 1 }] })).toBeInstanceOf(Set); },
+	pieciesHeldInHand: (t, seat) => { expect(pieciesHeldInHand(t, seat, { holdActive: true, keepHand: [{ tag: 'food', count: 1 }], handFloor: 2 }).keep).toBeInstanceOf(Set); },
 	attackingPayers: (t, seat) => { expect(attackingPayers(t, seat, 'piecie_te_hard_gaan')).toBeInstanceOf(Array); },
 	opponentThreat: (t, seat) => { expect(opponentThreat(t, seat)).toBeGreaterThanOrEqual(0); },
 	reactionReserve: (t, seat) => { expect(reactionReserve(withReaction(t, seat), seat)).toMatchObject({ keepSlot: true, energy: 1 }); },

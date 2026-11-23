@@ -7,6 +7,8 @@ import { PIECIES } from '../../data/piecies.js';
 import { piecieActivationGate } from '../../engine/table/piecieActivationGate.js';
 import { asBotView } from './asBotView.js';
 import { isUsefulActivation } from './isUsefulActivation.js';
+import { getPersonalQuestPlan } from './getPersonalQuestPlan.js';
+import { pieciesHeldInHand } from './pieciesHeldInHand.js';
 
 const PIECIE_BY_ID = Object.fromEntries(PIECIES.map(p => [p.id, p]));
 
@@ -44,7 +46,8 @@ export function defaultAbilityInputs(state, botId, abilityId) {
 				v = i >= 0 ? i : undefined; break;
 			}
 			case 'handCard': {
-				const idx = (me.hand || []).map((c, i) => ({ c, i })).filter(({ c }) => !input.filter || c.type === input.filter).map(({ i }) => i);
+				const keep = pieciesHeldInHand(state, botId, getPersonalQuestPlan(state, botId)).keep; // CC-5: never discard what the Personal Quest Pays
+					const idx = (me.hand || []).map((c, i) => ({ c, i })).filter(({ c, i }) => !keep.has(i) && (!input.filter || c.type === input.filter)).map(({ i }) => i);
 				const n = input.count || 1;
 				v = idx.length >= n ? (n > 1 ? idx.slice(0, n) : idx[0]) : undefined; break;
 			}
