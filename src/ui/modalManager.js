@@ -18,6 +18,8 @@ import { getAttachmentRows } from './board/getAttachmentRows.js';
 import { getPileCards } from '../engine/pile/getPileCards.js';
 import { getLevelRows } from './cardV1/getLevelRows.js';
 import { formatEnergyChip } from './cardV1/formatEnergyChip.js';
+import { boldMarkersToHtml } from './cardV1/boldMarkersToHtml.js';
+import { stripBoldMarkers } from './cardV1/stripBoldMarkers.js';
 import { buildPersonalQuestSections } from './modals/buildPersonalQuestSections.js';
 import { buildPreviewActionsHtml } from './modals/buildPreviewActionsHtml.js';
 import { buildDiceRowHtml } from './dice/buildDiceRowHtml.js';
@@ -371,7 +373,7 @@ export function initModalManager(container) {
 				`<li>
 					<button class="modal-card-option" data-index="${i}" type="button">
 						<strong>${escapeHtml(card.name)}</strong>
-						${card.description ? `<span class="modal-card-option__desc">${escapeHtml(card.description)}</span>` : ''}
+						${card.description ? `<span class="modal-card-option__desc">${escapeHtml(stripBoldMarkers(card.description))}</span>` : ''}
 					</button>
 				</li>`
 			).join('');
@@ -491,11 +493,11 @@ export function initModalManager(container) {
 			chips.push(esc(formatEnergyChip(card)));
 			if (card.needsText) chips.push(`Needs: ${esc(card.needsText)}`);
 			if (Array.isArray(card.tags)) card.tags.forEach(t => chips.push(esc(t)));
-			if (card.description) sections.push(['Effect', esc(card.description)]);
+			if (card.description) sections.push(['Effect', `<p class="cd-sec-text">${boldMarkersToHtml(esc(card.description))}</p>`, true]);
 			if (card.abilityDescription) sections.push(['Ability', esc(card.abilityDescription)]);
 		} else if (type === 'PLACE') {
 			if (Array.isArray(card.tags)) card.tags.forEach(t => chips.push(esc(t)));
-			if (card.description) sections.push(['Effect', esc(card.description)]);
+			if (card.description) sections.push(['Effect', `<p class="cd-sec-text">${boldMarkersToHtml(esc(card.description))}</p>`, true]);
 			const good = Array.isArray(card.goodFor) && card.goodFor.length ? card.goodFor.join(', ') : null;
 			const bad  = Array.isArray(card.badFor)  && card.badFor.length  ? card.badFor.join(', ')  : null;
 			if (good || bad) sections.push(['Affinity',
@@ -520,7 +522,7 @@ export function initModalManager(container) {
 			sections.push(['Outcome',
 				`<span class="cd-good">Success +${Number(card.successMP || 0)} MP</span><span class="cd-bad">Fail ${Number(card.failMP || 0)} MP</span>`, true]);
 		} else if (card.description) {
-			sections.push(['Effect', esc(card.description)]);
+			sections.push(['Effect', `<p class="cd-sec-text">${boldMarkersToHtml(esc(card.description))}</p>`, true]);
 		}
 
 		const chipsHTML = chips.length ? `<div class="cd-chips">${chips.map(c => `<span class="cd-chip">${c}</span>`).join('')}</div>` : '';

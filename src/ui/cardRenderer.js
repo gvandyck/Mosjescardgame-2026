@@ -58,7 +58,7 @@ function buildUnifiedCardHTML(card) {
   const artStyle = hasArt ? ` style="--card-art-url: url('${escapeCssUrl(artUrl)}');"` : '';
 
   const title = String(card.name || 'Unnamed');
-  const desc = String(card.description || card.abilityDescription || card.flavourText || '');
+  const desc = String(card.description || card.abilityDescription || card.flavourText || '').replace(/\*\*/g, ''); // texts mark bold with **; this old face shows plain text
 
   return `
     <div class="uc-art${hasArt ? '' : ' is-placeholder'}"${artStyle}></div>

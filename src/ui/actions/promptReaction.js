@@ -7,6 +7,7 @@ import { describeReactionContext } from '../board/describeReactionContext.js';
 import { describeReactionTargetMp } from '../board/describeReactionTargetMp.js';
 import { isPhoneLayout } from '../phone/isPhoneLayout.js';
 import { escapeMeta } from './escapeMeta.js';
+import { stripBoldMarkers } from '../cardV1/stripBoldMarkers.js';
 
 const MOMENT_TEXT = {
 	targeted: 'Your Mosje is targeted',
@@ -34,7 +35,7 @@ export async function promptReaction(modal, state, responderId) {
 			return { id, label: `Reroll die ${i + 1}`, metaLabel: escapeMeta(`A Piecie lets you reroll one die - the die shows ${dice[i]}`) };
 		}
 		const def = SNELLE_PIECIES.find(c => c.id === id);
-		return { id, label: `${def?.name ?? id} · ${getSnelleCost(state, responderId, def)} Energy`, metaLabel: escapeMeta(def?.description ?? '') };
+		return { id, label: `${def?.name ?? id} · ${getSnelleCost(state, responderId, def)} Energy`, metaLabel: escapeMeta(stripBoldMarkers(def?.description)) };
 	});
 	options.push({ id: '__pass__', label: 'No reaction' });
 	const question = p.moments.map(m => MOMENT_TEXT[m] ?? m).join(' / ') + (dice.length && p.eligible.some(id => id.startsWith('djReroll:') || id.startsWith('piecieReroll:')) ? '. Play a Snelle or reroll a die?' : '. Play a Snelle?');

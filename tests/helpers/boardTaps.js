@@ -4,6 +4,7 @@
 // 63-08: every helper also takes { touch: true } and then presses with locator.tap() (a real touch, needs a hasTouch context)
 // instead of a mouse click: tap-only-turn.spec.js plays a whole turn that way. The default stays a mouse click.
 import { clickModalOption } from '../ui/helpers.js';
+import { clearTilePoint } from './clearTilePoint.js';
 
 /** One press on a locator: locator.tap() when { touch: true } (hasTouch context), else locator.click(). Other options go through. */
 export function press(locator, { touch = false, ...opts } = {}) {
@@ -31,14 +32,14 @@ async function dismissDrawStep(page, touch = false) {
 	if (await draw.count()) await press(draw.first(), { touch }).catch(() => {});
 }
 
-/** Tap an own card and wait for its action tray. The tap lands low on the left of the tile, clear of the state pills (Fresh,
- *  Protected, SKIPS TURN): a sideways tile centres its pill, and a tap on a pill shows its reason instead of opening the tray. */
+/** Tap an own card and wait for its action tray. The tap lands on the tile itself (clearTilePoint): low on the left when that is free,
+ *  else another spot clear of the state pills (a tap on a pill shows its reason) and the attachment chips (a tap opens the Gear's detail). */
 export async function tapOwnCard(page, kind, slotOrId = 0, { touch = false } = {}) {
 	await dismissDrawStep(page, touch);
 	const tile = ownTile(page, kind, slotOrId);
 	await tile.waitFor({ state: 'visible', timeout: 8000 });
-	const box = await tile.boundingBox();
-	await press(tile, { touch, ...(box ? { position: { x: Math.round(box.width * 0.2), y: Math.round(box.height * 0.6) } } : {}) });
+	const position = await clearTilePoint(tile);
+	await press(tile, { touch, ...(position ? { position } : {}) });
 	await page.locator('[data-action-tray]').waitFor({ state: 'visible', timeout: 5000 });
 }
 

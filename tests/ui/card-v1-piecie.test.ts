@@ -147,7 +147,7 @@ describe('card frame v1 — Piecie data mapping (2.0 face)', () => {
       expect(out, p.id).not.toBeNull();
       const shown = splitNeedsLead(norm(p.description), p.needsText);
       expect(buildPiecieSpecV1(p).lines.join(' '), p.id).toBe(shown);
-      expect(plain(textBox(out!.html)).replace(/\s+/g, ' ').trim(), p.id).toBe(shown);
+      expect(plain(textBox(out!.html)).replace(/\s+/g, ' ').trim(), p.id).toBe(shown.replace(/\*\*/g, '')); // a marked lead ("**Attach:**") is drawn bold, never with stars
     }
   });
 

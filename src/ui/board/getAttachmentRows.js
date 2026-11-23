@@ -1,6 +1,7 @@
 // getAttachmentRows.js — a Mosje slot's attachments as readable rows (72-05, D-05, D-06).
 // Returns { rows: [{ cardId, name, text, kind }], count, max }. Never throws on an unknown card id.
 import { getCardById } from '../../data/cardIndex.js';
+import { stripBoldMarkers } from '../cardV1/stripBoldMarkers.js';
 import { getMaxAttachments } from '../../engine/attachments/getMaxAttachments.js';
 
 function kindOf(card) {
@@ -18,7 +19,7 @@ export function getAttachmentRows(slot) {
 		return {
 			cardId,
 			name: card?.name ?? String(cardId),
-			text: card?.description ?? '',
+			text: stripBoldMarkers(card?.description),
 			kind: kindOf(card),
 		};
 	});

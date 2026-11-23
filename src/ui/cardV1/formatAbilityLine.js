@@ -2,9 +2,11 @@
 // "Unstoppable (comeback): this Mosje ..." -> "<b>Unstoppable (comeback):</b> this Mosje ..."
 // Formatting only: the text itself is never changed.
 import { escapeHtml } from './escapeHtml.js';
+import { boldMarkersToHtml } from './boldMarkersToHtml.js';
 
 export function formatAbilityLine(line, { boldName = true } = {}) {
   const text = String(line || '');
+  if (text.includes('**')) return boldMarkersToHtml(escapeHtml(text)); // 2.1 texts mark their own bold lead ("**Attach:**")
   if (!boldName) return escapeHtml(text); // a Mosje line's colon is a condition ("Once per turn:"), not a name (CC-11b)
   // "While X is on your field:" is a condition, not an ability name.
   const match = /^While /.test(text) ? null : text.match(/^([^:.]{1,40}:)(\s.*)$/);
