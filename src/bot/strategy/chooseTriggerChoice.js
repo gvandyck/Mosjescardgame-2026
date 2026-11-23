@@ -4,12 +4,14 @@
 import { asBotView } from './asBotView.js';
 import { pickMosjeOption } from './pickMosjeOption.js';
 import { pickCostMosje } from './pickCostMosje.js';
+import { pickFpsWestBottom } from './pickFpsWestBottom.js';
 
 export function chooseTriggerChoice(state, botId) {
 	state = asBotView(state, botId); // BOT-04: from here on `state` is the table view
 	const pc = state.pendingChoice;
 	if (!pc || pc.playerId !== botId || !Array.isArray(pc.options) || pc.options.length === 0) return undefined;
 	if (pc.choiceKind === 'mosje') return pickMosjeOption(state, botId, pc) ?? pc.options[0];
-	if (pc.key === 'cost_mosje') return pickCostMosje(state, botId, pc) ?? pc.options[0]; // the MP price first: the richest Mosje pays
+	if (pc.key === 'cost_mosje') return pickCostMosje(state, botId, pc) ?? pc.options[0]; // the MP price first: a Mosje that attacks pays a Power card
+	if (pc.key === 'fps_west_bottom') return pickFpsWestBottom(state, botId, pc) ?? pc.options[0]; // bottom a Snelle, else Leave it
 	return pc.options[0];
 }

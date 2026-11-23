@@ -9,6 +9,7 @@ import { getPower } from '../../engine/mp/getPower.js';
 import { getQuestDef } from '../../engine/quests/getQuestDef.js';
 import { getQuestDiceCount } from '../../engine/quests/getQuestDiceCount.js';
 import { asBotView } from './asBotView.js';
+import { PQ_VALUES } from './pqValues.js';
 
 const DIE_VALUE = 10;
 const WORD_VALUE = 10;
@@ -38,6 +39,7 @@ export function placeFit(state, botId, placeId) {
 	const view = asBotView(state, botId); // BOT-04: from here on `view` is the table view
 	const def = PLACE_BY_ID[placeId];
 	if (!def) return 0;
+	if (placeId === 'place_punto_banco') return upright(view, botId).length ? PQ_VALUES.PUNTO_BANCO_FIT : 0; // CC-6: a gamble that adds no Power or dice by itself
 	const oppId = Object.keys(view.players || {}).find(id => id !== botId);
 	const withPlace = { ...view, activePlace: placeId, activePlacePlayedBy: botId };
 	const quests = Object.values(view.questStacks || {}).map(stack => getQuestDef(stack?.faceUp)).filter(Boolean);

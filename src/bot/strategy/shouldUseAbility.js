@@ -10,6 +10,8 @@ import { isCooldownBlocked } from '../../engine/turn/isCooldownBlocked.js';
 import { asBotView } from './asBotView.js';
 import { canBotAfford } from './canBotAfford.js';
 import { emitBotMetric } from './emitBotMetric.js';
+import { getPersonalQuestPlan } from './getPersonalQuestPlan.js';
+import { PQ_VALUES } from './pqValues.js';
 
 const MOSJE_LOOKUP = Object.fromEntries(MOSJES.map(m => [m.id, m]));
 const LEGACY_RULE = { kind: 'activated', per: 'turn', maxPerTurn: 1, ownTurnOnly: false }; // what the engine assumes for an ability without rules
@@ -53,6 +55,17 @@ function shouldUseEliminationStrike(view, botId, slot) {
 	return false;
 }
 
+// FPS West (CC-8): only with MP to spare for the 20 MP price, something to look at (2+ cards, length only), Energy beyond the
+// reserve and two more, and when he is not the Level 3 keeper.
+function shouldUseFpsWest(view, botId, slotIndex, slot, reserve) {
+	const oppId = Object.keys(view.players).find(id => id !== botId);
+	const plan = getPersonalQuestPlan(view, botId);
+	if (plan?.phase === 'ready' && plan.keeperIndex === slotIndex) return false;
+	return (Number(slot.mp) || 0) >= PQ_VALUES.FPS_WEST_MIN_MP
+		&& (view.players[oppId]?.hand || []).length >= 2
+		&& canBotAfford(view, botId, 'ability_fps_west_tactical_analysis', 'ability', reserve + PQ_VALUES.FPS_WEST_SPARE_ENERGY);
+}
+
 export function shouldUseAbility(state, botId, slotIndex, profile, reserve = 0) {
 	const view = asBotView(state, botId); // BOT-04: from here on `view` is the table view
 	const slot = view.players?.[botId]?.activeSlots?.[slotIndex];
@@ -62,5 +75,6 @@ export function shouldUseAbility(state, botId, slotIndex, profile, reserve = 0) 
 	if (NEEDS_DECK.includes(abilityId) && !(view.players[botId].deck || []).length) return false; // the engine refuses "Your deck is empty"
 	if (abilityId === 'ability_chris_perfect_setup') return perfectSetupReady(view, botId);
 	if (abilityId === 'ability_gandoe_destroyer_elimination_strike') return shouldUseEliminationStrike(view, botId, slot);
+	if (abilityId === 'ability_fps_west_tactical_analysis') return shouldUseFpsWest(view, botId, slotIndex, slot, reserve);
 	return true;
 }

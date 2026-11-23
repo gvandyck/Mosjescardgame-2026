@@ -42,6 +42,9 @@ import { chooseSummon } from '../../src/bot/strategy/chooseSummon.js';
 import { shouldUseAbility } from '../../src/bot/strategy/shouldUseAbility.js';
 import { choosePlaceToPlay } from '../../src/bot/strategy/choosePlaceToPlay.js';
 import { placeFit } from '../../src/bot/strategy/placeFit.js';
+import { choosePuntoBanco } from '../../src/bot/strategy/choosePuntoBanco.js';
+import { pickFpsWestBottom } from '../../src/bot/strategy/pickFpsWestBottom.js';
+import { attackingPayers } from '../../src/bot/strategy/attackingPayers.js';
 import { chooseProactiveSnelle } from '../../src/bot/strategy/chooseProactiveSnelle.js';
 import { MOSJES } from '../../src/data/mosjes.js';
 import { createMosjeSlot } from '../../src/engine/mp/createMosjeSlot.js';
@@ -242,6 +245,13 @@ const TRAP_TABLE = {
 		expect(placeFit(st, seat, 'place_the_gym')).toBeGreaterThan(0);
 		expect(placeFit(st, seat, 'place_arcade')).toBeLessThan(0);
 	},
+	choosePuntoBanco: (t, seat) => {
+		const st = { ...t, activePlace: 'place_punto_banco' };
+		choosePuntoBanco(st, seat, { slotIndex: 0 });
+		for (const stackId of Object.keys(st.questStacks)) choosePuntoBanco(st, seat, { slotIndex: 0, stackId });
+	},
+	pickFpsWestBottom: (t, seat) => { expect(pickFpsWestBottom(t, seat, { options: [{ label: 'Leave it', index: -1 }, { label: 'Jensen!', index: 0, cardId: 'snelle_jensen' }] }).index).toBe(0); },
+	attackingPayers: (t, seat) => { expect(attackingPayers(t, seat, 'piecie_te_hard_gaan')).toBeInstanceOf(Array); },
 	opponentThreat: (t, seat) => { expect(opponentThreat(t, seat)).toBeGreaterThanOrEqual(0); },
 	reactionReserve: (t, seat) => { expect(reactionReserve(withReaction(t, seat), seat)).toMatchObject({ keepSlot: true, energy: 1 }); },
 	choosePieciesToPlace: (t, seat) => { expect(choosePieciesToPlace(withReaction(t, seat), seat)).toBeInstanceOf(Array); },

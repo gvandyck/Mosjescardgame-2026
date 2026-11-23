@@ -5,7 +5,7 @@ import { rollPersonalQuestAttempt } from '../engine/personalQuests/rollPersonalQ
 import { resolvePersonalQuestAttempt } from '../engine/personalQuests/resolvePersonalQuestAttempt.js';
 
 export function runBotPersonalQuest(state, botPlayerId, pick) {
-	const roll = rollPersonalQuestAttempt(state, botPlayerId, { cardId: pick.cardId, slotIndex: pick.slotIndex, choice: pick.choice });
+	const roll = rollPersonalQuestAttempt(state, botPlayerId, { cardId: pick.cardId, slotIndex: pick.slotIndex, choice: pick.choice, puntoBanco: pick.puntoBanco });
 	if (!roll.ok) return { ok: false, error: roll.error };
 	if (roll.reactionPending) return { ok: true, state: roll.state, reactionPending: true };
 	const done = resolvePersonalQuestAttempt(roll.state, roll.pending);

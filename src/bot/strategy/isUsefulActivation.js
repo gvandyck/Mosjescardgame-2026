@@ -13,6 +13,7 @@ import { getCardTags } from './comboTags.js';
 import { SELF_LOSS_MP, ELIMINATION_MP_MAX } from './cardAmounts.js';
 import { valueOfGain } from './valueOfGain.js';
 import { asBotView } from './asBotView.js';
+import { attackingPayers } from './attackingPayers.js';
 
 const GAIN_PROBE = 15; // the smallest MP gain on a Piecie text
 // A Piecie that also does one of these stays worth activating when no Mosje can gain MP (its gain is a side effect).
@@ -45,6 +46,7 @@ export function isUsefulActivation(state, botId, cardId) {
 	if (GIVES_MP_PIECIES.has(cardId) && !tags.some(t => MORE_THAN_GAIN.includes(t)) && !canGain(view, botId)) return false;
 	if (tags.includes('attack') && !hasTarget(view, botId, cardId)) return false;
 	if (tags.includes('place-destroy') && (!view.activePlace || view.activePlacePlayedBy === botId)) return false;
+	if (tags.includes('power') && tags.includes('self-loss') && attackingPayers(view, botId, cardId).length === 0) return false; // CC-7: the payer must be a Mosje that attacks
 	if (tags.includes('self-loss') && !upright(view, botId).some(s => (Number(s.mp) || 0) - (SELF_LOSS_MP[cardId] ?? 0) > 0)) return false;
 	return true;
 }

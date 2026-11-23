@@ -59,6 +59,7 @@ import { asBotView } from './strategy/asBotView.js';
 import { canBotAfford } from './strategy/canBotAfford.js';
 import { chooseSummon } from './strategy/chooseSummon.js';
 import { choosePlaceToPlay } from './strategy/choosePlaceToPlay.js';
+import { choosePuntoBanco } from './strategy/choosePuntoBanco.js';
 import { chooseProactiveSnelle } from './strategy/chooseProactiveSnelle.js';
 import { shouldUseAbility } from './strategy/shouldUseAbility.js';
 import { choosePieciesToPlace } from './strategy/choosePieciesToPlace.js';
@@ -340,7 +341,7 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
     for (let i = 0; i < MAX_FIELD_MOSJES && !finished(); i++) {
       const pqPick = choosePersonalQuest(state, botPlayerId, i);
       if (!pqPick) continue;
-      const attempt = runBotPersonalQuest(state, botPlayerId, pqPick);
+      const attempt = runBotPersonalQuest(state, botPlayerId, { ...pqPick, puntoBanco: choosePuntoBanco(state, botPlayerId, { slotIndex: i }) });
       if (!attempt.ok) { refused('rollPersonalQuestAttempt', pqPick.cardId, attempt.error); emitBotMetric('action-skip', { deck: profile.deckId, reason: attempt.error }); continue; }
       tried.add(i);
       state = attempt.state;
@@ -369,7 +370,7 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
         push(`${slot.name} attacks ${targetName} for ${res.final}`, attackStep);
         continue;
       }
-      const roll = rollQuestAttempt(state, botPlayerId, { slotIndex: i, stackId: action.stackId, costChoice: action.costChoice, dieChoices: action.dieChoices });
+      const roll = rollQuestAttempt(state, botPlayerId, { slotIndex: i, stackId: action.stackId, costChoice: action.costChoice, dieChoices: action.dieChoices, puntoBanco: choosePuntoBanco(state, botPlayerId, { slotIndex: i, stackId: action.stackId }) });
       if (!roll.ok) { refused('rollQuestAttempt', slot.cardId, roll.error); emitBotMetric('action-skip', { deck: profile.deckId, reason: roll.error }); continue; }
       if (roll.reactionPending) {
         state = roll.state;
