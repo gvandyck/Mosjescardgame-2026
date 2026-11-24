@@ -32,7 +32,10 @@ function watchProblems(page) {
 async function waitForHumanTurnByTouch(page) {
 	const noReaction = page.locator('.modal-card--reaction .modal-mosje-select-btn[data-id="__pass__"]');
 	const draw = page.locator('.modal-mosje-select-btn[data-id="draw"]');
+	// A card that shows the human the opponent's hand opens a read-only list with Close (seen 24 Nov: it blocked End Turn for 3 minutes).
+	const closeReveal = page.locator('#modal-close-hand-reveal');
 	await expect.poll(async () => {
+		if (await closeReveal.isVisible().catch(() => false)) { await closeReveal.tap().catch(() => {}); return false; }
 		if (await noReaction.isVisible().catch(() => false)) await noReaction.tap().catch(() => {});
 		if (await draw.first().isVisible().catch(() => false)) await draw.first().tap().catch(() => {});
 		// A lobby start has no test hooks: read the turn from the screen (label "You ..." and an enabled End Turn).
@@ -88,6 +91,7 @@ for (const vp of [PIXEL_VIEWPORT, ...PHONE_VIEWPORTS]) {
 
 			const before = await page.evaluate(() => document.getElementById('btn-end-turn')?.textContent || '');
 			expect(before.length, 'End Turn is in the bar').toBeGreaterThan(0);
+			await waitForHumanTurnByTouch(page); // closes a hand reveal that opened after the Draw step
 			await touchEndTurn(page);
 			await expect(page.locator('#btn-end-turn')).toBeDisabled({ timeout: 10000 }); // the turn passed to the bot
 			await waitForHumanTurnByTouch(page); // the bot's whole turn; a reaction window is answered "No reaction"

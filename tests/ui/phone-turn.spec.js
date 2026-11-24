@@ -138,7 +138,11 @@ for (const vp of [...PHONE_VIEWPORTS, PIXEL_VIEWPORT]) {
 			await setHand(page, 'player_1', ['snelle_the_protector']); // a Snelle that fits, so the game must ask
 			await setEnergy(page, 'player_1', 6);
 			await setHand(page, 'player_2', []);
+			// The bot's own turn (step 7) is a real one: when it played Bank Chilling (all Mosjes -10 Power) its attack did 0 and no
+			// window opened. Step 8 is about the prompt, so the Place goes.
+			await page.evaluate(() => window.__testHooks.setActivePlace(null));
 			const botPower = await page.evaluate(() => window.__testHooks.getMosjePower('player_2', 0));
+			expect(botPower, 'the bot attacker has Power').toBeGreaterThan(0);
 			const gsBeforeBot = await getGameState(page);
 			const before = mp(gsBeforeBot, 'player_1', 0);
 			// 2.1 rules section 4: the type triangle and the target's Resilient stars change the loss (worked out from the rules).
@@ -149,13 +153,17 @@ for (const vp of [...PHONE_VIEWPORTS, PIXEL_VIEWPORT]) {
 			await expect(prompt).toContainText('attacks');
 			await expectBottomSheet(page, 'Reaction prompt');
 			await prompt.locator('.modal-mosje-select-btn[data-id="__pass__"]').tap();
+			// The attack lands at once. Read it before the bot goes on: after the window the bot plays the rest of its turn (the game
+			// resumes it) and can open a second window, which made this step time out now and then (cause found 24 Nov).
+			await expect.poll(async () => mp(await getGameState(page), 'player_1', 0), { timeout: 5000, message: 'engine: No reaction, the full attack loss' }).toBe(before - botDamage);
+			expect(me(await getGameState(page)).hand.some((c) => c.cardId === 'snelle_the_protector'), 'the Snelle stayed in hand').toBe(true);
+			const pass = page.locator('.modal-card--reaction .modal-mosje-select-btn[data-id="__pass__"]');
 			await expect.poll(async () => {
+				if (await pass.isVisible().catch(() => false)) await pass.tap().catch(() => {});
 				const g = await getGameState(page);
 				return g.pendingReaction == null && g.activePlayerId === 'player_1';
-			}, { timeout: 15000 }).toBe(true);
+			}, { timeout: 30000, intervals: [250] }).toBe(true);
 			gs = await getGameState(page);
-			expect(mp(gs, 'player_1', 0), 'engine: No reaction, the full attack loss').toBe(before - botDamage);
-			expect(me(gs).hand.some((c) => c.cardId === 'snelle_the_protector'), 'the Snelle stayed in hand').toBe(true);
 			await expectPhoneStable(page, '(8) reaction answered');
 
 			expect(errors, 'no page errors during the whole turn').toEqual([]);
