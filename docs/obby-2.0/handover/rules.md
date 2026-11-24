@@ -171,3 +171,16 @@ Gandalf asked on 15 Nov to keep building without stopping for questions. These g
 | 23 Nov 2026 | 73 | Who pays Te Hard Gaan and Ronalds Fles Fireman for the bot? | A Mosje that can attack and stays above 0 MP, never the Level 3 keeper. No such Mosje: the card is not played. |
 | 23 Nov 2026 | 73 | When does the bot press FPS West? | Only with 45+ MP, 2 spare Energy and 2+ cards in the opponent's hand. It bottoms a Snelle if it sees one. |
 | 23 Nov 2026 | 73 | A tap on an attached-Gear chip on a Mosje tile (desktop). | Opens the Gear's detail, not the Mosje's action tray (as built in Phase 72). The chips cover about 7% of the tile; left as it is. A phone shows no chips. |
+| 21 Nov 2026 | 72 | The Personal Quest roll: the plan said "the existing dice animation", none exists. | The result shows the rolled dice as a row of die faces (numbers). No roll animation. |
+| 21 Nov 2026 | 72 | Which reason shows when a Personal Quest can't be played and several Mosjes fail for different reasons? | "Not your turn", then "You have no Level 3 Mosje", then the reason of the Mosje that got furthest (Level 3 of the right type first). |
+| 21 Nov 2026 | 72 | A "no" option on card choices. | One leave button under the card row with the card's own words ("Leave it", "Keep it in your hand"). A forced pick has none. |
+| 21 Nov 2026 | 72 | Ability names that no longer fit the 15 Nov texts. | The old name stays only where it still describes the text; else a label of at most three words from the text; passives get no name. Mosje ability lines are not bold before a colon ("Once per turn:" is a condition, not a name). |
+| 21 Nov 2026 | 72 | Emoji on screen. | Removed from the log, animations and modals. The trophy and skull in the game-over headline stay. |
+| 21 Nov 2026 | 72 | When does the game ask which Mosje starts? | Only in Play vs Bot from the lobby; Play again asks again. Bot-vs-bot and online starts pick at random. |
+| 21 Nov 2026 | 72 | One pile, but the board has two pile buttons. | Both stay: "Pile" (was "Graveyard") and "Welloe pile" are two views of the one pile. |
+| 22 Nov 2026 | 72.1 | Phone: zoom the desktop board to fit, or reflow? | Reflow (the parked Phase 65 layout). A phone tile shows one count badge ("2 gear, 1 effect") instead of chips and tags; the badge opens the card sheet. |
+| 22 Nov 2026 | 72.1 | Phone: pinch zoom. | Off on the table, hand and bars (no accidental zoom); on in modals, sheets and the detail view, so a card can be zoomed to read. |
+| 22 Nov 2026 | 72.1 | Phone: tap or long press? | Tap raises a card with Play / Details (no accidental plays). Long press (half a second) is an extra that opens the card sheet. |
+| 22 Nov 2026 | 72.1 | Phone: where does the attack preview go? | Above the bottom bar: target, the breakdown in a 2 x 2 grid (zero lines left out), Confirm and Cancel side by side. |
+| 22 Nov 2026 | 72.1 | Phone: the Back gesture. | Asks before leaving a running game; after game over it leaves at once. |
+| 22 Nov 2026 | 72.1 | Phone: install as an app. | The page is installable; no service worker, no install prompt, no offline play yet. |

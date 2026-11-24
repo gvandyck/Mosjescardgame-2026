@@ -55,7 +55,7 @@ test('arena-style hand hover, field hover popup and action spotlight', async ({ 
 		m.animateStateDelta(before, after, {});
 	});
 	await page.waitForTimeout(900);
-	await expect(page.locator('.spot-effect--shield')).toHaveCount(2);
+	await expect(page.locator('.spot-effect--shield')).toHaveCount(1); // 'Immune' only: the V4 Snelle flag rows went in Phase 60 (c9523b0)
 	await expect(page.locator('.spot-effect--gain')).toHaveCount(1);
 	await ss(page, 'arena-5-shield-heal');
 
@@ -74,7 +74,7 @@ test('arena-style hand hover, field hover popup and action spotlight', async ({ 
 	await page.waitForTimeout(900);
 	await expect(page.locator('.card-spotlight')).toHaveCount(1);
 	await expect(page.locator('.spot-effect', { hasText: 'Draw 2' })).toHaveCount(1);
-	await expect(page.locator('.spot-effect--shield')).toHaveCount(1);
+	await expect(page.locator('.spot-effect--shield')).toHaveCount(0); // no flag row any more (Phase 60)
 	await expect(page.locator('.spot-effect--gain')).toHaveCount(1);
 	await ss(page, 'arena-6-snelle-spotlight');
 });

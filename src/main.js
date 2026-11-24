@@ -778,6 +778,10 @@ function initGamePage() {
 			await playBotSteps(freshSteps, botName, 0, delay, onComplete);
 			return;
 		}
+		// The bot's last step hands the turn to the human: start the human's turn in this same tick. The step's state already
+		// makes the human the active player with End Turn enabled, so a hold here let a click end a turn that had not started,
+		// and the late turn start then began a second bot turn beside the first (guard: tests/ui/bot-turn-handover.spec.js).
+		if (onComplete && index === steps.length - 1 && gameState.status !== 'FINISHED') { onComplete(); return; }
 		// Let a spotlighted bot play be read before the next step (rAF: spotlight opens next frame). Fast bots (sim speed) skip the hold.
 		if (!isFastBots) {
 			await new Promise(resolve => setTimeout(resolve, 60));

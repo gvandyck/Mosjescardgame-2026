@@ -78,6 +78,8 @@ const WIN_REASON_TEXT = /was knocked out|completed .+ with/i;
 // 73: the games run on the three starter decks (the decks a player gets); a passive human is knocked out, which can take
 // more than 30 turns now that the bot also builds towards its Personal Quest.
 const MAX_TURNS = 60;
+// The three matchup games: the Digital bot needed 59 and then more than 60 turns to knock out a passive Physical player (24 Nov).
+const MAX_TURNS_MATCHUP = 110;
 
 // ─── Shared helpers ───────────────────────────────────────────────────────────
 
@@ -275,7 +277,7 @@ const DECK_MATCHUPS = [
 
 for (const matchup of DECK_MATCHUPS) {
 	test(`full game: ${matchup.p1} vs ${matchup.p2} — game completes without crash`, async ({ page }) => {
-		test.setTimeout(300000);
+		test.setTimeout(480000);
 
 		await seedOfflineSession(page, matchup.p1, matchup.p2);
 		await page.goto(GAME_URL_TEST);
@@ -283,7 +285,7 @@ for (const matchup of DECK_MATCHUPS) {
 
 		let turnCount = 0;
 
-		while (turnCount < MAX_TURNS) {
+		while (turnCount < MAX_TURNS_MATCHUP) {
 			turnCount++;
 			const result = await endTurnAndWatch(page);
 			if (result === 'timeout') throw new Error(`Game timed out on turn ${turnCount} waiting for bot`);
