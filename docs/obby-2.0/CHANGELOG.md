@@ -18,6 +18,7 @@ The 15 Nov design update. Filled in as the phases land; nothing here is live yet
 - (fix) A game against the bot no longer freezes on "Bot's turn" when the bot wins the opening die. The live `2.0-A.3` has the same code (the opening die came in Phase 55), so there about half of the bot games freeze at the start
 - (fix) Card texts with a bold lead ("Attach:", "Combo:", "Discarded:", "Needs:") no longer show the two stars around it on the card face and in the detail view
 - (fix) End Turn came back up to 1.5 seconds before your turn had really started (right after the bot's last move). A click in that gap ended a turn that had not begun and started two bot turns at once. Your turn now starts in the same instant. The live `2.0-A.3` has this too
+- (fix) The bot no longer spends 2 Energy on Rebouleh when none of its Mosjes used an ability. It did that every turn it could, so in a long game it never had the Energy to summon another Mosje. When it does play Rebouleh it now uses the ability a second time
 - (fix) The hand viewer row shows "Varkenspootjes · Piecie" (was "VarkenspootjesPIECIE")
 
 **Rules / cards:** the 15 Nov design for the rules and the three starter decks (`docs/obby-2.0/handover/rules.md`, `card-list.md`). Booster cards are unchanged and not final.

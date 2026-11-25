@@ -184,3 +184,5 @@ Gandalf asked on 15 Nov to keep building without stopping for questions. These g
 | 22 Nov 2026 | 72.1 | Phone: where does the attack preview go? | Above the bottom bar: target, the breakdown in a 2 x 2 grid (zero lines left out), Confirm and Cancel side by side. |
 | 22 Nov 2026 | 72.1 | Phone: the Back gesture. | Asks before leaving a running game; after game over it leaves at once. |
 | 22 Nov 2026 | 72.1 | Phone: install as an app. | The page is installable; no service worker, no install prompt, no offline play yet. |
+| 25 Nov 2026 | 74 | When is Rebouleh worth playing for the bot? | Only after one of its Mosjes used a once-per-turn ability this turn; it then uses that ability once more. |
+| 25 Nov 2026 | 74 | **For a ruling:** the 19 Nov call lets Michelle, Iron Tuk take a whole attack away. A Mosje with Power 10 and no type bonus then does 0 to her, also when she lies sideways at 0 MP, so the Digital starter deck's Level 1 Mosjes can never finish her. Seen: games of 110 to 240 turns against a player who only ends turns. | Not changed. Proposal: an attack on her does at least 5, as §4 says for every attack. |
