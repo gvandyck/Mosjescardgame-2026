@@ -363,7 +363,8 @@ test('VIS-07: Not Today! interrupt fires on bot elimination', async ({ page }) =
 	await page.goto(GAME_URL_TEST);
 	await waitForBoard(page);
 
-	// Verify Not Today! is in hand
+	// Not Today! must be in hand: the opening hand is 3 of 7 cards, so about 1 game in 9 dealt none (red on 2026-11-25).
+	await page.evaluate(() => window.__testHooks.setHand('player_1', ['snelle_negate_elimination', 'snelle_negate_elimination', 'piecie_kannetje_melk']));
 	const hand = await readHand(page);
 	const notToday = hand.find(c => c.cardId === 'snelle_negate_elimination');
 	if (!notToday) { throw new Error('Setup failed: Not Today! not in hand'); }

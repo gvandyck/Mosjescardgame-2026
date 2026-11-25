@@ -14,6 +14,7 @@ import { clickEndTurn } from '../helpers/clickEndTurn.js';
 async function watchHandover(page) {
 	await page.addInitScript(() => {
 		window.__handovers = [];
+		window.__enabledOnBotTurn = [];
 		let wasEnabled = false;
 		const check = () => {
 			const btn = document.getElementById('btn-end-turn');
@@ -22,6 +23,10 @@ async function watchHandover(page) {
 			if (enabled && !wasEnabled) {
 				const rows = [...document.querySelectorAll('#log-root .log-row')].map(el => el.textContent.trim());
 				window.__handovers.push({ turn: gs.turnNumber, newestNowActive: rows.find(r => r.startsWith('Now active:')) ?? null, human: gs.players.player_1.name });
+			}
+			// End Turn must never be clickable while the bot is the active player (e.g. after the human answered a Reaction prompt).
+			if (btn && btn.disabled === false && gs && gs.activePlayerId !== 'player_1' && gs.status !== 'FINISHED') {
+				window.__enabledOnBotTurn.push({ turn: gs.turnNumber, reaction: !!gs.pendingReaction });
 			}
 			wasEnabled = enabled;
 		};
@@ -59,4 +64,27 @@ test('End Turn comes back to the human only after their turn has started (three 
 	// And no second bot turn ran beside the first: no "Now active: Bot. Turn N." twice for one N.
 	const starts = await page.evaluate(() => [...document.querySelectorAll('#log-root .log-row')].map(el => el.textContent.trim()).filter(r => r.startsWith('Now active:')));
 	expect(new Set(starts).size, `each turn starts once: ${starts.join(' | ')}`).toBe(starts.length);
+});
+
+test('End Turn is never enabled while the bot is the active player (eight bot turns, Reaction prompts answered)', async ({ page }) => {
+	test.setTimeout(240000);
+	await watchHandover(page);
+	await seedOfflineSession(page, 'STARTER_CREATIVE', 'STARTER_PHYSICAL');
+	await page.goto(GAME_URL_TEST);
+	await waitForBoard(page);
+
+	let reactionPrompts = 0;
+	for (let n = 1; n <= 8; n++) {
+		if (await page.evaluate(() => window.__testHooks.getGameState().status === 'FINISHED')) break;
+		await answerPrompts(page);
+		await clickEndTurn(page);
+		await expect.poll(async () => {
+			if (await page.locator('.modal-card--reaction').isVisible().catch(() => false)) reactionPrompts++;
+			await answerPrompts(page);
+			return page.evaluate(() => window.__testHooks.getGameState().status === 'FINISHED' || window.__handovers.length);
+		}, { timeout: 40000, intervals: [200], message: `handover after bot turn ${n}` }).not.toBe(n);
+	}
+	console.log(`reaction prompts seen: ${reactionPrompts}`);
+	const bad = await page.evaluate(() => window.__enabledOnBotTurn);
+	expect(bad, `End Turn was enabled on the bot's turn: ${JSON.stringify(bad)}`).toEqual([]);
 });
