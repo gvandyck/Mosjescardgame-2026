@@ -269,10 +269,13 @@ test('full game: active — human plays quests + piecies each turn (STARTER_DIGI
 
 // ─── VIS-GAME-03: All three decks — one passive game each ────────────────────
 
+// The human here only ends turns. Each bot deck beats the human's type (+10 Power), so the bot can always finish the game.
+// The other way round it can stall for ever: a passive Michelle, Iron Tuk at 0 MP takes 0 from the Digital deck's Power 10
+// Mosjes (her reduction may take a whole attack away, rules.md s15 of 19 Nov; found 24 Nov, with Gandalf for a ruling).
 const DECK_MATCHUPS = [
-	{ p1: 'STARTER_PHYSICAL', p2: 'STARTER_DIGITAL' },
-	{ p1: 'STARTER_DIGITAL', p2: 'STARTER_CREATIVE' },
-	{ p1: 'STARTER_CREATIVE', p2: 'STARTER_PHYSICAL' },
+	{ p1: 'STARTER_DIGITAL', p2: 'STARTER_PHYSICAL' },
+	{ p1: 'STARTER_CREATIVE', p2: 'STARTER_DIGITAL' },
+	{ p1: 'STARTER_PHYSICAL', p2: 'STARTER_CREATIVE' },
 ];
 
 for (const matchup of DECK_MATCHUPS) {

@@ -323,6 +323,10 @@ export function driveBotTurnSteps(gameState, botPlayerId, { humanIds = [] } = {}
     push(`plays ${snelleDef.name}`, { kind: 'snelle', cardId: pick.cardId });
   }
 
+  // A Rebouleh / Double Trigger activated above gave an early ability one more use: take it (a second pass does nothing else,
+  // an ability already used and not re-armed is skipped).
+  if (!finished()) useAbilitiesFor('early');
+
   // ── Phase D: preQuest abilities ───────────────────────────────────────────
   if (!finished()) useAbilitiesFor('preQuest');
 

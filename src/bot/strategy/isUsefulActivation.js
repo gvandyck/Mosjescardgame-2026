@@ -14,10 +14,16 @@ import { SELF_LOSS_MP, ELIMINATION_MP_MAX } from './cardAmounts.js';
 import { valueOfGain } from './valueOfGain.js';
 import { asBotView } from './asBotView.js';
 import { attackingPayers } from './attackingPayers.js';
+import { canTakeExtraUse } from '../../engine/abilities/canTakeExtraUse.js';
 
 const GAIN_PROBE = 15; // the smallest MP gain on a Piecie text
 // A Piecie that also does one of these stays worth activating when no Mosje can gain MP (its gain is a side effect).
 const MORE_THAN_GAIN = ['draw', 'attack', 'power', 'defense'];
+
+// Rebouleh / Double Trigger give one more use of a once-per-turn ability: worth their Energy only after such an ability was used
+// this turn (the bot then takes the extra use: botDriver's second pass). Before that they bought nothing and starved the bot's Energy.
+const EXTRA_ABILITY_USE = new Set(['piecie_redbull', 'piecie_double_trigger']);
+const usedAbility = (view, botId) => (view.players[botId]?.activeSlots || []).some(s => canTakeExtraUse(s) && (s.abilityUsedThisTurn || (s.abilityUsesThisTurn || 0) > 0));
 
 const upright = (view, id) => (view.players?.[id]?.activeSlots || []).filter(s => s && !s.isDefeated);
 
@@ -42,6 +48,7 @@ function hasTarget(view, botId, cardId) {
 export function isUsefulActivation(state, botId, cardId) {
 	const view = asBotView(state, botId); // BOT-04: from here on `view` is the table view
 	const tags = getCardTags(cardId);
+	if (EXTRA_ABILITY_USE.has(cardId) && !usedAbility(view, botId)) return false;
 	if (tags.includes('power') && !canStillAttack(view, botId)) return false;
 	if (GIVES_MP_PIECIES.has(cardId) && !tags.some(t => MORE_THAN_GAIN.includes(t)) && !canGain(view, botId)) return false;
 	if (tags.includes('attack') && !hasTarget(view, botId, cardId)) return false;
